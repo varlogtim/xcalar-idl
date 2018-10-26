@@ -1,7 +1,7 @@
 class DagTable {
     private static _instance: DagTable;
     private readonly container: string = "dagViewTableArea";
-    
+
     public static get Instance() {
         return this._instance || (this._instance = new this());
     }
@@ -54,13 +54,14 @@ class DagTable {
      * close the preview
      */
     public close(): void {
-        this._getContainer().addClass("xc-hidden");
+        this._getContainer().addClass("xc-hidden").parent().removeClass("tableViewMode").addClass("noPreviewTable");
         this._reset();
     }
 
     private _showViewer(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const $container: JQuery = this._getContainer();
+        $container.parent().removeClass("noPreviewTable").addClass("tableViewMode");
         $container.removeClass("xc-hidden").addClass("loading");
         if (this.viewer instanceof XcDatasetViewer) {
             $container.addClass("dataset");
@@ -68,10 +69,11 @@ class DagTable {
             $container.removeClass("dataset");
         }
         this._showTableIcon();
-        xcHelper.showRefreshIcon($("#dagViewTableArea"), true, 
+        xcHelper.showRefreshIcon($("#dagViewTableArea"), true,
             this.viewer.render(this._getContainer())
             .then(() => {
                 $container.removeClass("loading");
+                TblFunc.alignScrollBar($("#dagViewTableArea").find(".dataTable").eq(0));
                 deferred.resolve();
             })
             .fail((error) => {

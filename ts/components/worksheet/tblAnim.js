@@ -614,7 +614,7 @@ window.TblAnim = (function($, TblAnim) {
         dragInfo.colWidth = el.width();
         dragInfo.windowWidth = $(window).width();
         dragInfo.mainFrameLeft = dragInfo.$container[0].getBoundingClientRect().left;
-
+        dragInfo.offsetLeft = dragInfo.$container.offset().left - dragInfo.$container.position().left;
         var timer;
         if (gTables[dragInfo.tableId].tableCols.length > 50) {
             timer = 100;
@@ -676,7 +676,7 @@ window.TblAnim = (function($, TblAnim) {
     function onColDrag(event) {
         var pageX = event.pageX;
         dragInfo.pageX = pageX;
-        dragInfo.fauxCol.css('left', pageX);
+        dragInfo.fauxCol.css('left', pageX - dragInfo.offsetLeft);
     }
 
     function endColDrag() {
@@ -711,7 +711,8 @@ window.TblAnim = (function($, TblAnim) {
             // slide column into place
             $tableWrap.addClass('undraggable');
             var slideLeft = $th.offset().left -
-                            parseInt(dragInfo.fauxCol.css('margin-left'));
+                            parseInt(dragInfo.fauxCol.css('margin-left')) -
+                            dragInfo.offsetLeft;
             var currentLeft = parseInt(dragInfo.fauxCol.css('left'));
             var slideDistance = Math.max(2, Math.abs(slideLeft - currentLeft));
             var slideDuration = Math.log(slideDistance * 4) * 90 - 200;
@@ -766,15 +767,13 @@ window.TblAnim = (function($, TblAnim) {
         var cloneHTML = clone[0].outerHTML;
         cloneHTML = '<tr class="' + trClass + '">' + cloneHTML + '</tr>';
         return cloneHTML;
-        // row.append(clone).appendTo($("#fauxTable"));
-        // $('#fauxTable').append(cloneHTML);
     }
 
     function createTransparentDragDropCol(pageX) {
         var $tableWrap = dragInfo.$table;
         var $table = $tableWrap.find('table');
         dragInfo.$container.append('<div id="fauxCol" style="left:' +
-                        pageX + 'px;' +
+                        (pageX - dragInfo.offsetLeft) + 'px;' +
                         'width:' + (dragInfo.colWidth) + 'px;' +
                         'margin-left:' + (-dragInfo.grabOffset) + 'px;">' +
                             '<table id="fauxTable" ' +

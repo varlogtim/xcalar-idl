@@ -31,7 +31,8 @@
     <div class="tabBar">
         include "tabView.html"
     </div>
-    <div id="dagViewTableArea" class="tableArea xc-hidden xc-viewMode">
+    <div class="dataflowMainArea noPreviewTable">
+      <div id="dagViewTableArea" class="tableArea xc-hidden xc-viewMode">
         <div class="tableBar">
             <div class="searchbarArea">
               <input type="text">
@@ -48,11 +49,13 @@
         </div>
         <div class="errorSection xc-errorView"></div>
         <div class="loadingSection xc-loadView"></div>
+      </div>
+      <div class="dataflowWrap"></div>
+      <div class="dataflowWrapBackground xc-hidden">
+        <div class="newTab"><%= dicts.dataflow.CreateDF %></div>
+      </div>
     </div>
-    <div class="dataflowWrap"></div>
-    <div class="dataflowWrapBackground xc-hidden">
-      <div class="newTab"><%= dicts.dataflow.CreateDF %></div>
-    </div>
+
     include "dagNodeMenu.html"
 
     <div id="dagSchemaPopup" class="schemaPopup">

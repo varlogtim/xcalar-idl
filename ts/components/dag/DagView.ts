@@ -1526,6 +1526,48 @@ namespace DagView {
 
 
     function _addEventListeners(): void {
+        let mainAreaHeight;
+        let $tableArea;
+        let $parent;
+        $dfWrap.resizable({
+            handles: "n",
+            containment: 'parent',
+            minHeight: 40,
+            start: function() {
+                $parent = $dfWrap.parent();
+                $parent.addClass("resizing");
+                mainAreaHeight = $parent.height();
+                $tableArea = $("#dagViewTableArea");
+            },
+            resize: function(_event, ui) {
+                let pct = ui.size.height / mainAreaHeight;
+                if (ui.position.top <= 100) {
+                    // ui.position.top = 100;
+                    pct = (mainAreaHeight - 100) / mainAreaHeight;
+                    $dfWrap.height(mainAreaHeight - 100);
+                    $dfWrap.css("top", 100);
+                }
+
+                $tableArea.height(100 * (1 - pct) + "%");
+                console.log(pct);
+            },
+            stop: function(_event, ui) {
+                let pct = ui.size.height / mainAreaHeight;
+                if (ui.position.top <= 100) {
+                    ui.position.top = 100;
+                    pct = (mainAreaHeight - 100) / mainAreaHeight;
+                    $dfWrap.css("top", 100);
+                }
+
+                $dfWrap.height(100 * pct + "%");
+                $tableArea.height(100 * (1 - pct) + "%");
+                $parent.removeClass("resizing");
+                $tableArea = null;
+                $parent = null;
+            }
+        });
+
+
         $dagView.find(".dataflowWrapBackground").on("click", ".newTab", () => {
             DagTabManager.Instance.newTab();
         });
@@ -1895,7 +1937,8 @@ namespace DagView {
 
             if (!$target.closest(".operator").length &&
                 !$target.closest(".comment").length &&
-                !$target.closest(".editableNodeTitle").length) {
+                !$target.closest(".editableNodeTitle").length &&
+                !$target.closest(".ui-resizable-handle").length) {
 
                 new RectSelction(event.pageX, event.pageY, {
                     "id": "dataflow-rectSelection",
