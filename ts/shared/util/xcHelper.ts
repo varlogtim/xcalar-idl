@@ -1711,6 +1711,32 @@ namespace xcHelper {
         }
     }
 
+     /**
+     * xcHelper.getDFFieldTypeToString
+     * @param type
+     */
+    export function getDFFieldTypeToString(type: DfFieldTypeT): ColumnType {
+        switch (type) {
+            case (DfFieldTypeT.DfInt32):
+            case (DfFieldTypeT.DfInt64):
+            case (DfFieldTypeT.DfUInt32):
+            case (DfFieldTypeT.DfUInt64):
+                return ColumnType.integer;
+            case (DfFieldTypeT.DfFloat32):
+            case (DfFieldTypeT.DfFloat64):
+                return ColumnType.float;
+            case (DfFieldTypeT.DfString):
+                return ColumnType.string;
+            case (DfFieldTypeT.DfBoolean):
+                return ColumnType.boolean;
+            case (DfFieldTypeT.DfTimespec):
+                return ColumnType.timestamp;
+            default:
+                // DfScalarObj will be mixed
+                return ColumnType.mixed;
+        }
+    }
+
     var successTimers: SuccessTimer = <SuccessTimer>{};
 
     /**

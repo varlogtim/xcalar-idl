@@ -1042,6 +1042,10 @@ class DagGraph {
             setParents(node);
         });
 
+        for (let [_name, node] of nodes) {
+            setIndexedFields(node);
+        }
+
         // turn nodeMeta into dagNodeInfo structure expected by DagGraph
         return finalConvertIntoDagNodeInfoArray(nodes);
 
@@ -1088,48 +1092,134 @@ class DagGraph {
                 case (XcalarApisT.XcalarApiIndex):
                     dagNodeInfo = {
                         type: DagNodeType.Index,
+                        input: {
+                            columns: node.args.key
+                        }
                     };
                     break;
                 case (XcalarApisT.XcalarApiAggregate):
                     dagNodeInfo = {
-                        type: DagNodeType.Aggregate
+                        type: DagNodeType.Aggregate,
+                        input: {
+                            evalString: node.args.eval[0].evalString,
+                            dest: node.name
+                        }
                     };
                     break;
                 case (XcalarApisT.XcalarApiProject):
                     dagNodeInfo = {
-                        type: DagNodeType.Project
+                        type: DagNodeType.Project,
+                        input: {
+                            columns: [node.args.columns]
+                        }
                     };
                     break;
                 case (XcalarApisT.XcalarApiGroupBy):
+                    const aggs = node.args.eval.map((evalStruct) => {
+                        const evalStr = evalStruct.evalString;
+                        const parenIndex = evalStr.indexOf("(");
+                        return {
+                            operator: evalStr.substring(0, parenIndex),
+                            sourceColumn: evalStr.substring(parenIndex + 1, evalStr.length - 1),
+                            destColumn: evalStruct.newField,
+                            distinct: false,
+                            cast: null
+                        }
+                    });
+                    const groupBy = node.indexedFields[0].map(key => {
+                        return key.name;
+                    });
+                    const newKeys = node.indexedFields[0].map(key => {
+                        return key.keyFieldName;
+                    });
                     dagNodeInfo = {
-                        type: DagNodeType.GroupBy
+                        type: DagNodeType.GroupBy,
+                        input: {
+                            groupBy: groupBy,
+                            newKeys: newKeys,
+                            aggregate: aggs,
+                            includeSample: node.args.includeSample,
+                            icv: node.args.icv,
+                            groupAll: node.args.groupAll
+                        }
                     };
                     break;
                 case (XcalarApisT.XcalarApiGetRowNum):
-                    // TODO
+                    dagNodeInfo = {
+                        type: DagNodeType.RowNum,
+                        input: {
+                            newField: node.args.newField
+                        }
+                    };
                     break;
                 case (XcalarApisT.XcalarApiFilter):
                     dagNodeInfo = {
                         type: DagNodeType.Filter,
+                        input: {
+                            evalString: node.args.eval[0].evalString
+                        },
                         aggregates: node.aggregates
                     };
                     break;
                 case (XcalarApisT.XcalarApiMap):
                     dagNodeInfo = {
                         type: DagNodeType.Map,
+                        input: {
+                            eval: node.args.eval,
+                            icv: node.args.icv
+                        },
                         aggregates: node.aggregates
                     };
                     break;
                 case (XcalarApisT.XcalarApiJoin):
+                    const leftRenames = node.args.columns[0].map(colInfo => {
+                        return {
+                            sourceColumn: colInfo.sourceColumn,
+                            destColumn: colInfo.destColumn,
+                            prefix: colInfo.columnType === DfFieldTypeTStr[DfFieldTypeTFromStr.DfFatptr]
+                        }
+                    });
+                    const rightRenames = node.args.columns[1].map(colInfo => {
+                        return {
+                            sourceColumn: colInfo.sourceColumn,
+                            destColumn: colInfo.destColumn,
+                            prefix: colInfo.columnType === DfFieldTypeTStr[DfFieldTypeTFromStr.DfFatptr]
+                        }
+                    });
                     dagNodeInfo = {
-                        type: DagNodeType.Join
+                        type: DagNodeType.Join,
+                        input: {
+                            joinType: node.args.joinType,
+                            "left": {
+                                "columns": node.indexedFields[0].map(key => {
+                                    return key.name;
+                                }),
+                                "casts": node.indexedFields[0].map(key => {
+                                    return xcHelper.getDFFieldTypeToString(DfFieldTypeTFromStr[key.type]);
+                                }),
+                                "rename": leftRenames
+                            },
+                            "right": {
+                                "columns": node.indexedFields[1].map(key => {
+                                    return key.name;
+                                }),
+                                "casts": node.indexedFields[1].map(key => {
+                                    return xcHelper.getDFFieldTypeToString(DfFieldTypeTFromStr[key.type]);
+                                }),
+                                "rename": rightRenames
+                            },
+                            evalString: node.args.evalString
+                        },
                     };
                     break;
                 case (XcalarApisT.XcalarApiUnion):
+                    const setType = <DagNodeSubType>xcHelper.unionTypeToXD(node.args.unionType);
                     dagNodeInfo = {
                         type: DagNodeType.Set,
+                        subType: xcHelper.capitalize(setType),
                         input: {
-                            unionType: xcHelper.unionTypeToXD(node.args.unionType),
+                            unionType: setType,
+                            columns: node.args.columns,
                             dedup: node.args.dedup
                         }
                     };
@@ -1173,6 +1263,78 @@ class DagGraph {
                     i--;
                 }
             }
+        }
+
+        function setIndexedFields(node) {
+            if (node.api === XcalarApisT.XcalarApiGroupBy) {
+                node.indexedFields = getIndexedFields(node);
+            } else if (node.api === XcalarApisT.XcalarApiJoin) {
+                node.indexedFields = getJoinSrcCols(node);
+            } else {
+                return;
+            }
+
+            function getJoinSrcCols(node) {
+                let lSrcCols = [];
+                let rSrcCols = [];
+                let parents;
+
+                parents = node.parents;
+
+                for (var i = 0; i < parents.length; i++) {
+                    if (parents[i].api === XcalarApisT.XcalarApiIndex) {
+                        if (i === 0) {
+                            lSrcCols = parents[i].args.key;
+                        } else {
+                            rSrcCols = parents[i].args.key;
+                        }
+                    } else if (parents[i].api === XcalarApisT.XcalarApiGroupBy ||
+                               parents[i].api === XcalarApisT.XcalarApiJoin) {
+                        if (i === 0) {
+                            lSrcCols.push(getSrcIndex(parents[i].parents[0]));
+                        } else {
+                            if (parents[i].api === XcalarApisT.XcalarApiJoin) {
+                                rSrcCols.push(getSrcIndex(parents[i].parents[1]));
+                            } else {
+                                rSrcCols.push(getSrcIndex(parents[i].parents[0]));
+                            }
+                        }
+                    }
+                }
+
+                return [lSrcCols, rSrcCols];
+
+                function getSrcIndex(node) {
+                    if (node.api === XcalarApisT.XcalarApiIndex) {
+                        return node.args.key;
+                    } else {
+                        if (!node.parents.length) {
+                            // one case is when we reach a retina project node
+                            return null;
+                        }
+                        return getSrcIndex(node.parents[0]);
+                    }
+                }
+            }
+        }
+
+        function getIndexedFields(node) {
+            var cols = [];
+            search(node);
+            function search(node) {
+                // if parent node is join, it's indexed by left parent, ignore right
+                var numParents = Math.min(node.parents.length, 1);
+                for (var i = 0; i < numParents; i++) {
+                    var parentNode = node.parents[i];
+                    if (parentNode.api === XcalarApisT.XcalarApiIndex) {
+                        cols = parentNode.args.key;
+                    } else {
+                        search(parentNode);
+                    }
+                }
+            }
+
+            return [cols];
         }
 
         function getAggsFromEvalStrs(evalStrs) {
