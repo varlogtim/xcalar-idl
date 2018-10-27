@@ -2,9 +2,8 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
     var $modal;    // $("#deleteTableModal")
     var $modalBg;  // $("#modalBackground")
     var modalHelper;
-    var tableList = {};
-    var tableSizeMap = {};
-    var sortKeyList = {};
+    var tableList = [];
+    var sortKeyList = null;
     var reverseSort = true;
     // constant
     var unknown = "--";
@@ -69,17 +68,9 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             $section.find(".title.active").removeClass("active");
             $title.addClass("active");
 
-            var tableType = null;
-
-            if ($section.hasClass("orphan")) {
-                tableType = TableType.Orphan;
-            } else {
-                tableType = TableType.Active;
-            }
-
-            var cachedTables = cacheCheckedTables(tableType);
-            sortTableList(tableList[tableType], tableType, sortKey);
-            restoreCheckedTables(cachedTables, tableType);
+            var cachedTables = cacheCheckedTables();
+            sortTableList(tableList, sortKey);
+            restoreCheckedTables(cachedTables);
         });
 
         $modal.on("mouseenter", ".tooltipOverflow", function() {
@@ -118,15 +109,9 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         $modal.addClass("load");
         $modal.find(".loadingSection .text").text(StatusMessageTStr.Loading);
 
-        getTableSizeMap()
-        .then(function(sizeMap) {
-            tableSizeMap = sizeMap;
-            return TableList.refreshOrphanList(false);
-        })
-        .fail(deferred.reject)
-        .always(function() {
+        PromiseHelper.alwaysResolve(populateTableList())
+        .then(function() {
             $modal.removeClass("load");
-            populateTableLists();
             deferred.resolve();
         });
 
@@ -154,15 +139,12 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
     }
 
     function reset() {
-        tableList[TableType.Orphan] = [];
-        tableList[TableType.Active] = [];
+        tableList = [];
 
-        sortKeyList[TableType.Orphan] = null;
-        sortKeyList[TableType.Active] = null;
+        sortKeyList = null;
 
         reverseSort = false;
 
-        tableSizeMap = {};
         $modal.find(".title.active").removeClass("active");
         $modal.find('.grid-unit.failed').removeClass('failed');
     }
@@ -170,8 +152,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
     function submitForm() {
         var deferred = PromiseHelper.deferred();
 
-        var orphanDef = deleteTableHelper(TableType.Orphan);
-        var activeDef = deleteTableHelper(TableType.Active);
+        var deleteDef = deleteTableHelper();
 
         var timer = setTimeout(function() {
             // if delete takes too long, show the loading section
@@ -182,7 +163,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         modalHelper.disableSubmit();
 
         var errors;
-        PromiseHelper.when(orphanDef, activeDef)
+        PromiseHelper.when(deleteDef)
         .then(function() {
             errors = arguments;
             xcHelper.showRefreshIcon($modal);
@@ -200,123 +181,74 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                 // so should change first to keep the sort same
                 reverseSort = !reverseSort;
             }
-            populateTableLists();
-            failHandler(errors);
-
-            modalHelper.enableSubmit();
-            // should re-dected memory usage
-            MemoryAlert.Instance.check();
-            deferred.resolve();
+            PromiseHelper.alwaysResolve(populateTableList())
+            .then(() => {
+                failHandler(errors);;
+                modalHelper.enableSubmit();
+                // should re-dected memory usage
+                MemoryAlert.Instance.check();
+                deferred.resolve()
+            })
         });
 
         return deferred.promise();
     }
 
-    function deleteTableHelper(type) {
-        var $container = getListSection(type);
-        var isOrphan = (type === TableType.Orphan);
-        var tablesToDel = [];
+    function deleteTableHelper() {
+        var $container = $("#deleteTableModal-list");
+        var deletedTable = false;
 
-        var list = tableList[type];
+        var list = tableList;
         $container.find(".grid-unit").each(function(index) {
             var $grid = $(this);
             if ($grid.find(".checkbox").hasClass("checked")) {
-                if (isOrphan) {
-                    var tableName = list[index].getName();
-                    tablesToDel.push(tableName);
-                } else {
-                    var tableId = list[index].getId();
-                    tablesToDel.push(tableId);
-                }
+                var tableName = list[index].name;
+                DagTblManager.Instance.deleteTable(tableName, false, false);
+                deletedTable = true;
             }
         });
-        if (tablesToDel.length === 0) {
+        if (!deletedTable) {
             return PromiseHelper.resolve();
         }
         var noAlert = true;
-        return TblManager.deleteTables(tablesToDel, type, noAlert);
+        return DagTblManager.Instance.forceDeleteSweep();
     }
 
     function hasCheckedTables() {
         return $modal.find('.grid-unit .checkbox.checked').length > 0;
     }
 
-    function getTableSizeMap() {
+    function populateTableList() {
+        tableList = [];
         var deferred = PromiseHelper.deferred();
+
         XcalarGetTables("*")
-        .then(function(result) {
-            var sizeMap = {};
+        .then((result) => {
             var numNodes = result.numNodes;
             var nodeInfo = result.nodeInfo;
             for (var i = 0; i < numNodes; i++) {
                 var node = nodeInfo[i];
-                sizeMap[node.name] = node.size;
+                tableList.push({
+                    "tableId": node.dagNodeId,
+                    "name": node.name,
+                    "size": node.size
+                });
             }
-            deferred.resolve(sizeMap);
+            sortTableList(tableList);
+            $modal.find('.modalMain').find('.checkbox').removeClass('checked');
+            deferred.resolve();
         })
         .fail(deferred.reject);
 
         return deferred.promise();
     }
 
-    function populateTableLists() {
-        tableList[TableType.Orphan] = [];
-        tableList[TableType.Active] = [];
-
-        var orphanList = tableList[TableType.Orphan];
-        var activeList = tableList[TableType.Active];
-
-        for (var i = 0, len = gOrphanTables.length; i < len; i++) {
-            var orphanTable = gOrphanTables[i];
-            var orphanTableId = xcHelper.getTableId(orphanTable);
-            if (orphanTableId != null && gTables.hasOwnProperty(orphanTableId)) {
-                orphanList.push(gTables[orphanTableId]);
-            } else {
-                // orphan table may not have id, so use tableName to pass check
-                // as we don't use the id
-                orphanList.push(new TableMeta({
-                    "tableId": orphanTableId || orphanTable,
-                    "tableName": orphanTable,
-                    "timeStamp": unknown,
-                    "isOrphan": true
-                }));
-            }
-        }
-
-        for (var tableId in gTables) {
-            var table = gTables[tableId];
-            var tableType = table.getType();
-
-            if (tableType === TableType.Orphan) {
-                // already handled
-                continue;
-            } else if (tableType === TableType.Active) {
-                activeList.push(table);
-            } else {
-                console.info("Unhandled type", tableType, tableId);
-            }
-        }
-
-        sortTableList(orphanList, TableType.Orphan);
-        sortTableList(activeList, TableType.Active);
-
-        $modal.find('.modalMain').find('.checkbox').removeClass('checked');
-    }
-
-    function sortTableList(tableList, type, sortKey) {
-        if (sortKey == null) {
-            // default sort by name
-            sortKey = sortKeyList[type];
-        } else if (sortKey === "size" && $.isEmptyObject(tableSizeMap)) {
-            console.warn("not ready to sort on size");
-            return;
-        }
-
+    function sortTableList(tableList, sortKey) {
         if (sortKey == null) {
             // first time to sort, default sort by name
             sortKey = "name";
             reverseSort = false;
-        } else if (sortKeyList[type] === sortKey) {
+        } else if (sortKeyList === sortKey) {
             // when it's reverse sort
             reverseSort = !reverseSort;
         } else {
@@ -325,20 +257,18 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         }
 
         // cache the new sortKey
-        sortKeyList[type] = sortKey;
+        sortKeyList = sortKey;
 
         // sort by name first, no matter what case
         tableList.sort(function(a, b) {
-            return a.getName().localeCompare(b.getName());
+            return a.name.localeCompare(b.name);
         });
 
         // temoprarily not support sort on size
         if (sortKey === "size") {
             tableList.sort(function(a, b) {
-                var nameA = a.getName();
-                var nameB = b.getName();
-                var sizeA = tableSizeMap[nameA];
-                var sizeB = tableSizeMap[nameB];
+                var sizeA = a.size;
+                var sizeB = b.size;
                 if (sizeA === unknown) {
                     sizeA = null;
                 }
@@ -363,8 +293,8 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             });
         } else if (sortKey === "date") {
             tableList.sort(function(a, b) {
-                var tA = a.getTimeStamp();
-                var tB = b.getTimeStamp();
+                var tA = DagTblManager.Instance.getTimeStamp(a.name);
+                var tB = DagTblManager.Instance.getTimeStamp(b.name);
                 if (tA === unknown) {
                     tA = null;
                 }
@@ -393,18 +323,18 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
             tableList.reverse();
         }
 
-        getTableList(tableList, type);
+        getTableList(tableList);
     }
 
-    function cacheCheckedTables(tableType) {
-        var list = tableList[tableType];
-        var $container = getListSection(tableType);
+    function cacheCheckedTables() {
+        var list = tableList;
+        var $container = $("#deleteTableModal-list");
         var tables = [];
 
         $container.find(".grid-unit").each(function(index) {
             var $grid = $(this);
             if ($grid.find(".checkbox").hasClass("checked")) {
-                var tableName = list[index].getName();
+                var tableName = list[index].name;
                 tables.push(tableName);
             }
         });
@@ -412,9 +342,9 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         return tables;
     }
 
-    function restoreCheckedTables(tables, tableType) {
-        var list = tableList[tableType];
-        var $container = getListSection(tableType);
+    function restoreCheckedTables(tables,) {
+        var list = tableList;
+        var $container = $("#deleteTableModal-list");
         var nameMap = {};
 
         tables.forEach(function(tableName) {
@@ -423,15 +353,15 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
 
         $container.find(".grid-unit").each(function(index) {
             var $grid = $(this);
-            var tableName = list[index].getName();
+            var tableName = list[index].name;
             if (nameMap.hasOwnProperty(tableName)) {
                 $grid.find(".checkbox").addClass("checked");
             }
         });
     }
 
-    function getTableList(tables, type) {
-        var $container = getListSection(type);
+    function getTableList(tables) {
+        var $container = $("#deleteTableModal-list");
         var html = getTableListHTML(tables);
         $container.find(".listSection").html(html);
     }
@@ -441,8 +371,8 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
 
         for (var i = 0, len = tables.length; i < len; i++) {
             var table = tables[i];
-            var date = table.getTimeStamp();
-            var tableName = table.getName();
+            var date = DagTblManager.Instance.getTimeStamp(table.name);
+            var tableName = table.name;
             var dateTip = "";
             var time;
             if (date !== unknown) {
@@ -451,13 +381,10 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                                                         "#deleteTableModal"});
                 date = time.calendar();
             }
-            var size = unknown;
-            if (tableSizeMap.hasOwnProperty(tableName)) {
-                size = xcHelper.sizeTranslator(tableSizeMap[tableName]);
-            }
+            var size = table.size;
 
             var checkbox;
-            if (table.isNoDelete()) {
+            if (DagTblManager.Instance.hasLock(table.name)) {
                 checkbox = '<i class="lockIcon icon xi-lockwithkeyhole" ' +
                             'data-toggle="tooltip" ' +
                             'data-container="#deleteTableModal" ' +
@@ -490,19 +417,8 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         return html;
     }
 
-    function getListSection(type) {
-        var $container;
-        if (type === TableType.Orphan) {
-            $container = $("#deleteTableModal-orphan");
-        } else {
-            $container = $("#deleteTableModal-active");
-        }
-        return $container;
-    }
-
     function failHandler(args) {
-        var $containers = $("#deleteTableModal-orphan, " +
-                            "#deleteTableModal-active");
+        var $container = $("#deleteTableModal-list");
         var errorMsg = "";
         var hasSuccess = false;
         var failedTables = [];
@@ -526,7 +442,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                         noDelete = true;
                     }
 
-                    var $gridUnit = $containers.find('.grid-unit')
+                    var $gridUnit = $container.find('.grid-unit')
                     .filter(function() {
                         $grid = $(this);
                         return ($grid.find('.name').text() === tableName);
@@ -560,7 +476,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         } else {
             errorMsg = failedMsg + ". " + ErrTStr.NoTablesDeleted;
         }
-        var $firstGrid = $containers.find('.grid-unit.failed').eq(0);
+        var $firstGrid = $container.find('.grid-unit.failed').eq(0);
         StatusBox.show(errorMsg, $firstGrid, false, {
             "side": "left",
             "highZindex": true
@@ -572,9 +488,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
         DeleteTableModal.__testOnly__ = {};
         DeleteTableModal.__testOnly__.submitForm = submitForm;
         DeleteTableModal.__testOnly__.closeModal = closeModal;
-        DeleteTableModal.__testOnly__.getListSection = getListSection;
         DeleteTableModal.__testOnly__.getTableListHTML = getTableListHTML;
-        DeleteTableModal.__testOnly__.getTableSizeMap = getTableSizeMap;
         DeleteTableModal.__testOnly__.hasCheckedTables = hasCheckedTables;
         DeleteTableModal.__testOnly__.failHandler = failHandler;
     }

@@ -3,13 +3,16 @@ class DagTblManager {
     private cache: {[key: string]: DagTblCacheInfo};
     private _kvStore: KVStore;
     private timer: number;
+    // The interval determines how fast tables are deleted, locked, or reset.
+    // A lower interval will cause more kvstore interactions but will keep the cache as up-to-date
+    // as possible. A low interval can be compensated with a higher clockLimit.
     private interval: number;
     private configured: boolean;
     // Wire in reading a heuristic/setting for how many times we retry
 
     private static _instance: DagTblManager;
     public static get Instance() {
-        return this._instance || (this._instance = new DagTblManager(5));
+        return this._instance || (this._instance = new DagTblManager(30));
     }
 
     public constructor(clockLimit: number) {
@@ -17,7 +20,7 @@ class DagTblManager {
         let key: string = KVStore.getKey("gDagTableManagerKey");
         this._kvStore = new KVStore(key, gKVScope.WKBK);
         this.cache = {};
-        this.interval = 120000;
+        this.interval = 30000;
         this.configured = false;
     }
 
@@ -86,8 +89,8 @@ class DagTblManager {
                     cacheInfo.clockCount++;
                 }
 
-                if ((cacheInfo.clockCount >= this.clockLimit ||
-                    cacheInfo.markedForDelete) && !cacheInfo.locked) {
+                if ((cacheInfo.clockCount >= this.clockLimit && !cacheInfo.locked) ||
+                    cacheInfo.markedForDelete) {
                     delete this.cache[key];
                     toDelete.push(key);
                 }
@@ -115,7 +118,8 @@ class DagTblManager {
             locked: false,
             markedForReset: false,
             markedForDelete: false,
-            clockCount: 0
+            clockCount: 0,
+            timestamp: xcHelper.getCurrentTimeStamp()
         };
     }
 
@@ -128,6 +132,7 @@ class DagTblManager {
             return false;
         }
         this.cache[name].markedForReset = true;
+        this.cache[name].timestamp = xcHelper.getCurrentTimeStamp();
         return true;
     }
 
@@ -169,6 +174,15 @@ class DagTblManager {
     }
 
     /**
+     * Returns if the table is locked
+     * @param name Table name
+     */
+    public hasLock(name: string): boolean {
+        return (this.configured && this.cache[name] != null &&
+            this.cache[name].locked && !this.cache[name].markedForDelete);
+    }
+
+    /**
      * Toggles the lock on a table
      * @param name Table name
      * @returns {boolean}
@@ -179,6 +193,18 @@ class DagTblManager {
         }
         this.cache[name].locked = !this.cache[name].locked;
         return true;
+    }
+
+    /**
+     * Returns the timestamp for a table.
+     * @param name Table name
+     * @returns {number}
+     */
+    public getTimeStamp(name: string): number {
+        if (!this.configured || this.cache[name] == null || this.cache[name].markedForDelete) {
+            return -1;
+        }
+        return this.cache[name].timestamp;
     }
 
     /**
@@ -333,7 +359,8 @@ class DagTblManager {
                 clockCount: 0,
                 locked: false,
                 markedForDelete: false,
-                markedForReset: false
+                markedForReset: false,
+                timestamp: xcHelper.getCurrentTimeStamp()
             };
         });
         return;

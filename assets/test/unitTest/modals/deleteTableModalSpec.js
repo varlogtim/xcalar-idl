@@ -1,5 +1,6 @@
 describe("Delete Table Modal Test", function() {
     var oldGetTables;
+    var oldTimestamp;
 
     before(function() {
         UnitTest.onMinMode();
@@ -19,59 +20,24 @@ describe("Delete Table Modal Test", function() {
                 "nodeInfo": nodeInfo
             });
         };
+
+        oldTimestamp = DagTblManager.Instance.getTimeStamp;
+
+        DagTblManager.Instance.getTimeStamp = function(name) {
+            return 123219304;
+        }
     });
 
     describe("Basic Functoin Test", function() {
-        it("getListSection should work", function() {
-            var getListSection = DeleteTableModal.__testOnly__.getListSection;
-            var $container = getListSection(TableType.Orphan);
-            expect($container.attr("id"))
-            .to.equal("deleteTableModal-orphan");
-
-            var testCases = [{
-                "type": TableType.Orphan,
-                "id": "deleteTableModal-orphan"
-            },{
-                "type": TableType.Active,
-                "id": "deleteTableModal-active"
-            }, {
-                "type": "error type",
-                "id": "deleteTableModal-active"
-            }, {
-                "type": null,
-                "id": "deleteTableModal-active"
-            }];
-
-            testCases.forEach(function(test) {
-                var $container = getListSection(test.type);
-                expect($container.attr("id"))
-                .to.equal(test.id);
-            });
-        });
-
         it("getTableListHTMl should work", function() {
             var tableName = "test#tt1";
-            var table = new TableMeta({
-                "tableName": tableName,
-                "tableId": "tt1"
-            });
+            var table = {
+                "name": "test#tt1",
+                "size": 123456
+            };
 
             var res = DeleteTableModal.__testOnly__.getTableListHTML([table]);
             expect(res).to.contain(tableName);
-        });
-
-        it("getTableSizeMap should work", function(done) {
-            DeleteTableModal.__testOnly__.getTableSizeMap()
-            .then(function(sizeMap) {
-                expect(sizeMap).to.be.an("object");
-                expect(sizeMap).to.have.ownProperty("unitTest1#tt1");
-                expect(sizeMap["unitTest1#tt1"]).to.equal(123);
-                expect(sizeMap["unitTest2#tt2"]).to.equal(123456);
-                done();
-            })
-            .fail(function() {
-                throw "error case";
-            });
         });
 
         it("hasCheckedTables should work", function() {
@@ -82,22 +48,24 @@ describe("Delete Table Modal Test", function() {
 
     describe("Public Api and Behavior Test", function() {
         var $modal;
-        var $orphanSection;
+        var $listSection;
         var $alertModal;
         var oldDelete;
+        var oldSweep;
 
         before(function() {
             $modal = $("#deleteTableModal");
-            $orphanSection = $("#deleteTableModal-orphan");
+            $listSection = $("#deleteTableModal-list");
             $alertModal = $("#alertModal");
-            oldDelete = TblManager.deleteTables;
+            oldDelete = DagTblManager.Instance.deleteTable;
+            oldSweep = DagTblManager.Instance.forceDeleteSweep;
         });
 
         it("Should show the modal", function(done) {
             DeleteTableModal.show()
             .then(function() {
                 assert.isTrue($modal.is(":visible"));
-                expect($orphanSection.find(".grid-unit").length)
+                expect($listSection.find(".grid-unit").length)
                 .to.equal(2);
                 done();
             })
@@ -110,7 +78,7 @@ describe("Delete Table Modal Test", function() {
             DeleteTableModal.show()
             .then(function() {
                 assert.isTrue($modal.is(":visible"));
-                expect($orphanSection.find(".grid-unit").length)
+                expect($listSection.find(".grid-unit").length)
                 .to.equal(2);
                 done();
             })
@@ -120,7 +88,7 @@ describe("Delete Table Modal Test", function() {
         });
 
         it("Should toggle checok box", function() {
-            var $grid = $orphanSection.find(".grid-unit").eq(0);
+            var $grid = $listSection.find(".grid-unit").eq(0);
             var $checkbox = $grid.find(".checkbox");
             expect($checkbox.hasClass("checked")).to.be.false;
             // check
@@ -132,68 +100,68 @@ describe("Delete Table Modal Test", function() {
         });
 
         it("Should toggle check of the whole section", function() {
-            var $checkbox = $orphanSection.find(".titleSection .checkboxSection");
-            expect($orphanSection.find(".checked").length).to.equal(0);
+            var $checkbox = $listSection.find(".titleSection .checkboxSection");
+            expect($listSection.find(".checked").length).to.equal(0);
             $checkbox.click();
             // 2 on grid-unit and 1 on title
-            expect($orphanSection.find(".checked").length).to.equal(3);
+            expect($listSection.find(".checked").length).to.equal(3);
             // toggle back
             $checkbox.click();
-            expect($orphanSection.find(".checked").length).to.equal(0);
+            expect($listSection.find(".checked").length).to.equal(0);
         });
 
         it("Should sory by name", function() {
-            var $nameTitle = $orphanSection.find(".title.name");
+            var $nameTitle = $listSection.find(".title.name");
             expect($nameTitle.hasClass("active")).to.be.false;
-            var $grid = $orphanSection.find(".grid-unit").eq(0);
+            var $grid = $listSection.find(".grid-unit").eq(0);
             expect($grid.find(".name").text()).to.equal("unitTest1#tt1");
 
             // reverse sort
             $nameTitle.find(".label").click();
             expect($nameTitle.hasClass("active")).to.be.true;
-            $grid = $orphanSection.find(".grid-unit").eq(0);
+            $grid = $listSection.find(".grid-unit").eq(0);
             expect($grid.find(".name").text()).to.equal("unitTest2#tt2");
         });
 
         it("Should sort by size", function() {
-            var $sizeTitle = $orphanSection.find('.title[data-sortkey="size"]');
+            var $sizeTitle = $listSection.find('.title[data-sortkey="size"]');
             expect($sizeTitle.hasClass("active")).to.be.false;
             // ascending sort
             $sizeTitle.find(".label").click();
             expect($sizeTitle.hasClass("active")).to.be.true;
-            var $grid = $orphanSection.find(".grid-unit").eq(0);
+            var $grid = $listSection.find(".grid-unit").eq(0);
             expect($grid.find(".name").text()).to.equal("unitTest1#tt1");
             // descending sort
             $sizeTitle.find(".label").click();
             expect($sizeTitle.hasClass("active")).to.be.true;
-            $grid = $orphanSection.find(".grid-unit").eq(0);
+            $grid = $listSection.find(".grid-unit").eq(0);
             expect($grid.find(".name").text()).to.equal("unitTest2#tt2");
         });
 
         it("Should sort by date", function() {
             // their date is unkown
-            var $dateTitle = $orphanSection.find('.title[data-sortkey="date"]');
+            var $dateTitle = $listSection.find('.title[data-sortkey="date"]');
             expect($dateTitle.hasClass("active")).to.be.false;
             // ascending sort
             $dateTitle.find(".label").click();
             expect($dateTitle.hasClass("active")).to.be.true;
-            var $grid = $orphanSection.find(".grid-unit").eq(0);
+            var $grid = $listSection.find(".grid-unit").eq(0);
             expect($grid.find(".name").text()).to.equal("unitTest1#tt1");
             // descending sort
             $dateTitle.find(".label").click();
             expect($dateTitle.hasClass("active")).to.be.true;
-            $grid = $orphanSection.find(".grid-unit").eq(0);
+            $grid = $listSection.find(".grid-unit").eq(0);
             expect($grid.find(".name").text()).to.equal("unitTest2#tt2");
         });
 
         it("Should keep checkbox when sort", function() {
-            var $grid = $orphanSection.find(".grid-unit").eq(0);
+            var $grid = $listSection.find(".grid-unit").eq(0);
             $grid.click();
             var name = $grid.find(".name").text();
             expect($grid.find(".checkbox").hasClass("checked")).to.be.true;
             // sort by name
-            $orphanSection.find(".title.name").click();
-            $checkbox = $orphanSection.find(".checked");
+            $listSection.find(".title.name").click();
+            $checkbox = $listSection.find(".checked");
             expect($checkbox.length).to.equal(1);
             // verify it's the same grid
             var $sameGrid = $checkbox.closest(".grid-unit");
@@ -209,12 +177,16 @@ describe("Delete Table Modal Test", function() {
         });
 
         it("Should handle submit error", function() {
-            TblManager.deleteTables = function() {
+            DagTblManager.Instance.deleteTable = function(name, truth, truth2) {
+                return;
+            };
+
+            DagTblManager.Instance.forceDeleteSweep = function() {
                 return PromiseHelper.reject({"fails": [{
                     "tables": "unitTest1#tt1",
                     "error": "test"
-                }]});
-            };
+                }]})
+            }
 
             $modal.find(".confirm").click();
             assert.isTrue($alertModal.is(":visible"));
@@ -222,17 +194,21 @@ describe("Delete Table Modal Test", function() {
             assert.isFalse($alertModal.is(":visible"));
 
             assert.isTrue($("#statusBox").is(":visible"));
-            expect($orphanSection.find(".checked").length).to.eq(0);
+            expect($listSection.find(".checked").length).to.eq(0);
             StatusBox.forceHide();
         });
 
         it("Should submit form", function() {
-            TblManager.deleteTables = function() {
-                return PromiseHelper.resolve();
+            DagTblManager.Instance.deleteTable = function(name, truth, truth2) {
+                return;
             };
 
-            $orphanSection.find(".grid-unit").eq(0).click();
-            expect($orphanSection.find(".checked").length).to.eq(1);
+            DagTblManager.Instance.forceDeleteSweep = function() {
+                return PromiseHelper.resolve();
+            }
+
+            $listSection.find(".grid-unit").eq(0).click();
+            expect($listSection.find(".checked").length).to.eq(1);
             $modal.find(".confirm").click();
             assert.isTrue($alertModal.is(":visible"));
             $alertModal.find(".confirm").click();
@@ -245,7 +221,8 @@ describe("Delete Table Modal Test", function() {
         });
 
         after(function() {
-            TblManager.deleteTables = oldDelete;
+            DagTblManager.Instance.deleteTable = oldDelete;
+            DagTblManager.Instance.forceDeleteSweep = oldSweep;
         });
     });
 
@@ -301,5 +278,6 @@ describe("Delete Table Modal Test", function() {
     after(function() {
         UnitTest.offMinMode();
         XcalarGetTables = oldGetTables;
+        DagTblManager.Instance.getTimeStamp = oldTimestamp;
     });
 });

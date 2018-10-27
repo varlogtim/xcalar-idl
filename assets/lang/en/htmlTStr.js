@@ -1248,9 +1248,7 @@ module.exports = {
         "header": "Drop Tables",
         "instr": "To free space in this application please drop old or unnecessary tables.",
         "CONFIRM": "DROP TABLES",
-        "Orphan": "Temporary Tables",
-        "Inactive": "Hidden Tables",
-        "Active": "Active Tables"
+        "Tables": "Tables"
     },
 
     "extension": {

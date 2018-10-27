@@ -265,6 +265,7 @@ interface DagTblCacheInfo {
     locked: boolean;
     markedForDelete: boolean;
     markedForReset: boolean;
+    timestamp: number;
 }
 
 interface DagTblManagerPromiseInfo {
