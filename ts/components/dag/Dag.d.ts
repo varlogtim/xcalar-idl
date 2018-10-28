@@ -105,6 +105,10 @@ interface DagNodeFilterInputStruct {
     evalString: string;
 }
 
+interface DagNodeIndexInputStruct {
+    columns: string[];
+}
+
 interface DagNodeGroupByInputStruct {
     groupBy: string[];
     aggregate: {operator: string, sourceColumn: string, destColumn: string, distinct: boolean, cast: string}[];
@@ -160,7 +164,7 @@ interface DagNodeExtensionInputStruct {
 interface DagNodeDFInInputStruct {
     linkOutName: string;
     dataflowId: string;
-    schema: {name: string, type: ColumnType}[]; 
+    schema: {name: string, type: ColumnType}[];
 }
 
 interface DagNodeDFOutInputStruct {

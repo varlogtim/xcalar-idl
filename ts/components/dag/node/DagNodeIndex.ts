@@ -4,7 +4,7 @@ class DagNodeIndex extends DagNode {
     public constructor(options: DagNodeInfo) {
         super(options);
         this.minParents = 1;
-        this.input = <DagNodeInput>options.input;
+        this.input = new DagNodeIndexInput(options.input);
     }
 
     public lineageChange(columns: ProgCol[]): DagLineageChange {
