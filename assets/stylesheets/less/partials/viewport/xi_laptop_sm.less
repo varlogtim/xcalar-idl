@@ -32,7 +32,8 @@
 }
 
 // compress left main tabs
-@media screen and (max-height: 730px) {
+@media screen and (max-height: 870px) {
+    @tabHeight: 45px;
     #menuBar {
         .topMenuBarTab:not(.active) {
             max-height: @height-mainTab + 1; // for IE
@@ -53,9 +54,9 @@
             }
 
             .mainTab {
-                height: 45px;
+                height: @tabHeight;
                 .mainTab {
-                    height: 45px;
+                    height: @tabHeight;
                 }
             }
         }
@@ -70,22 +71,32 @@
 }
 
 // compress left main tabs
-@media screen and (max-height: 610px) {
+@media screen and (max-height: 700px) {
+    @tabHeight: 35px;
+
+    .topMenuBarTab .mainTab .icon {
+        transform: scale(0.9) translate(-55%, -55%);
+    }
+
+
     #menuBar {
         .topMenuBarTab {
             .mainTab {
-                height: 40px;
+                height: @tabHeight;
                 .mainTab {
-                    height: 40px;
+                    height: @tabHeight;
                 }
             }
         }
     }
 
     #bottomMenuBarTabs .bottomMenuBarTab {
-        height: 40px;
+        height: @tabHeight;
         .mainTab {
-            height: 40px;
+            height: @tabHeight;
+            .icon {
+                font-size: 22px;
+            }
         }
     }
 }

@@ -176,6 +176,7 @@ window.MainMenu = (function($, MainMenu) {
         // restore worksheet list view or table list view
         $("#workspaceMenu").find(".menuSection").addClass("xc-hidden");
         prevState.$activeWorkspaceMenu.removeClass("xc-hidden");
+        $("#dataflowMenu").find(".menuSection").removeClass("xc-hidden");
     };
 
     MainMenu.tempNoAnim = function() {
@@ -464,10 +465,6 @@ window.MainMenu = (function($, MainMenu) {
             $("#dagPanelContainer").addClass("noAnim");
         }
         var id = $curTab.attr("id");
-        if (id == "modelingDataflowTab") {
-            id = "workspaceTab";
-            $("#workspaceMenu").removeClass("imdMode");
-        }
         $mainMenu.find(".commonSection").removeClass("active").filter(function() {
             return $(this).data("tab") === id;
         }).addClass("active");

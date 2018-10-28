@@ -24,36 +24,38 @@
       <% } %>
         include "../worksheet/tableList.html"
       </section>
-      <section id="dagList" class="xc-hidden dagList menuSection">
-        include "../dataflow/dagList.html"
-      </section>
       include "../worksheet/operationsView.html"
       include "../worksheet/joinView.html"
-      include "../worksheet/joinOpPanel.html"
       include "../worksheet/unionView.html"
       include "../worksheet/exportView.html"
       include "../worksheet/smartCastView.html"
       include "../worksheet/dfCreateView.html"
       include "../worksheet/sortView.html"
       include "../worksheet/projectView.html"
-      include "../worksheet/projectOpPanel.html"
-      include "../worksheet/setOpPanel.html"
-      include "../worksheet/datasetOpPanel.html"
-      include "../worksheet/filterOpPanel.html"
-      include "../worksheet/mapOpPanel.html"
+    </div>
+    <div id="dataflowMenu" class="commonSection" data-tab="modelingDataflowTab">
+      <section id="dagList" class="dagList menuSection">
+        include "../dataflow/dagList.html"
+      </section>
       include "../worksheet/aggOpPanel.html"
-      include "../worksheet/groupByOpPanel.html"
       include "../worksheet/castOpPanel.html"
+      include "../worksheet/datasetOpPanel.html"
       include "../worksheet/dfLinkInOpPanel.html"
       include "../worksheet/dfLinkOutOpPanel.html"
-      include "../worksheet/publishIMDOpPanel.html"
-      include "../worksheet/extensionOpPanel.html"
       include "../worksheet/exportOpPanel.html"
+      include "../worksheet/extensionOpPanel.html"
+      include "../worksheet/filterOpPanel.html"
+      include "../worksheet/groupByOpPanel.html"
       include "../worksheet/IMDTableOpPanel.html"
-      include "../worksheet/SQLOpPanel.html"
+      include "../worksheet/joinOpPanel.html"
+      include "../worksheet/mapOpPanel.html"
+      include "../worksheet/projectOpPanel.html"
+      include "../worksheet/publishIMDOpPanel.html"
       include "../worksheet/roundOpPanel.html"
       include "../worksheet/rownumOpPanel.html"
+      include "../worksheet/setOpPanel.html"
       include "../worksheet/splitOpPanel.html"
+      include "../worksheet/SQLOpPanel.html"
     </div>
     <% if (dicts.tutor.name == "datastoreTut1" || dicts.tutor.name == "datastoreTut2" || dicts.tutor.name == "datasetPanelTutA1" || dicts.tutor.name == "importDatasourceTutA2" || dicts.tutor.name == "browseDatasourceTutA3" || dicts.tutor.name == "browseDatasource2TutA4") { %>
     <div id="datastoreMenu" class="commonSection active" data-tab="dataStoresTab">
