@@ -1,6 +1,12 @@
 window.DataflowPanel = (function($, DataflowPanel) {
     var pendingParamUpdates = [];
+    var hasSetup = false;
     DataflowPanel.setup = function() {
+        if (!hasSetup) {
+            return;
+        }
+
+        hasSetup = true;
         $("#dataflowTab").removeClass("xc-hidden");
         DFCard.setup();
         Scheduler.setup();
@@ -12,6 +18,9 @@ window.DataflowPanel = (function($, DataflowPanel) {
     };
 
     DataflowPanel.refresh = function(updateInfo) {
+        if (!hasSetup) {
+            return;
+        }
         var dataflowName = updateInfo.dfName;
         var isUpdateParams = updateInfo.isUpdateParams;
         var activeDataflow = DFCard.getActiveDF();

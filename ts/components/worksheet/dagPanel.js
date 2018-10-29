@@ -16,7 +16,7 @@ window.DagPanel = (function($, DagPanel) {
         $dagPanel = $('#dagPanel');
         $dagArea = $dagPanel.find('.dagArea');
         $scrollBarWrap = $('#dagScrollBarWrap');
-        $panelSwitch = $('#dfPanelSwitch');
+        $panelSwitch = $('#dfPanelSwitch').removeClass("xc-hidden");
         dagPanelLeft = $('#dagPanelContainer').offset().left || 65;
         // dagPanelLeft shouldn't be zero but will result in false zero if not visible
 
