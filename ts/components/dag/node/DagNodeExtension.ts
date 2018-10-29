@@ -94,11 +94,34 @@ class DagNodeExtension extends DagNode {
         }
     }
 
+    /**
+     * @override
+     */
     protected _getSerializeInfo():DagNodeExtensionInfo {
         const serializedInfo: DagNodeExtensionInfo = <DagNodeExtensionInfo>super._getSerializeInfo();
         serializedInfo.newColumns = this.newColumns;
         serializedInfo.droppedColumns = this.droppedColumns;
         return serializedInfo;
+    }
+
+    /**
+     * @override
+     */
+    protected _genParamHint(): string {
+        let hint: string = "";
+        try {
+            const input: DagNodeExtensionInputStruct = this.getParam();
+            const ext: ExtensionInfo = ExtensionManager.getEnabledExtensions().filter((ext) => {
+                return ext.name === input.moduleName;
+            })[0];
+            const func: ExtensionFuncInfo = ext.buttons.filter((funcInfo) => {
+                return funcInfo.fnName === input.functName;
+            })[0];
+            hint = `Func: ${func.buttonText}`;
+        } catch (e) {
+            console.error(e);
+        }
+        return hint;
     }
 
     private _convertExtensionArgs(args: object): object {

@@ -978,15 +978,14 @@ namespace DagView {
         const $node = DagView.getNode(nodeId);
 
         node.setTitle(title);
-
-        const lines = title.split("\n");
+        const lines: string[] = title.split("\n");
         let html = "";
         lines.forEach((line, i) => {
             html += '<tspan x="0" y="' + (i * titleLineHeight) + '">' +
                 line + '</tspan>';
         });
         $node.find(".nodeTitle").html(html);
-
+        // XXX TODO: update paramTitle's height
         Log.add(SQLTStr.EditNodeTitle, {
             "operation": SQLOps.EditNodeTitle,
             "dataflowId": activeDagTab.getId(),
@@ -994,6 +993,7 @@ namespace DagView {
             "newTitle": title,
             "nodeId": nodeId
         });
+
         return activeDagTab.save();
     }
 
@@ -1972,6 +1972,16 @@ namespace DagView {
             _nodeTitleEditMode($(this));
         });
 
+        $dfWrap.on("dblclick", ".paramTitle", function() {
+            const $node: JQuery = $(this).closest(".operator");
+            const node: DagNode = activeDag.getNode($node.data("nodeid"));
+            if (node != null) {
+                DagNodeMenu.execute("configureNode", {
+                    node: node
+                });
+            }
+        });
+
         function _drawRect(
             bound: DOMRect,
             selectTop: number,
@@ -2070,15 +2080,18 @@ namespace DagView {
     }
 
     function _setTooltip($node: JQuery, node: DagNode): void {
-        let title: string = (node.getState() === DagNodeState.Error) ?
-        node.getError() : JSON.stringify(node.getParam(), null, 2);
-        title = xcHelper.escapeHTMLSpecialChar(title);
-        xcTooltip.add($node.find(".main"), {
-            title: title,
-            classes: "preWrap leftAlign wide"
-        });
-        $node.find(".paramIcon").remove();
+        if (node.getState() !== DagNodeState.Error) {
+            xcTooltip.remove($node.find(".main"));
+        } else {
+            let title: string = node.getError();
+            title = xcHelper.escapeHTMLSpecialChar(title);
+            xcTooltip.add($node.find(".main"), {
+                title: title,
+                classes: "preWrap leftAlign wide"
+            });
+        }
 
+        $node.find(".paramIcon").remove();
         if (node.hasParameters()) {
             d3.select($node.get(0)).append("text")
                     .attr("class", "paramIcon")
@@ -2119,22 +2132,8 @@ namespace DagView {
 
         let abbrId = nodeId.slice(nodeId.indexOf(".") + 1);
         abbrId = abbrId.slice(abbrId.indexOf(".") + 1);
-        const titleLines = node.getTitle().split("\n");
 
-        const textSvg = d3.select($node.get(0)).append("text")
-            .attr("class", "nodeTitle")
-            .attr("fill", "#44515C")
-            .attr("font-size", 10)
-            .attr("transform", "translate(" + ((nodeWidth / 2) + 1) + "," +
-                (nodeHeight + 12) + ")")
-            .attr("text-anchor", "middle")
-            .attr("font-family", "Open Sans");
-        titleLines.forEach((line, i) => {
-            textSvg.append("tspan")
-                .text(line)
-                .attr("x", 0)
-                .attr("y", i * titleLineHeight);
-        });
+        _drawTitleText($node, node);
 
         // use .attr instead of .data so we can grab by selector
         $node.attr("data-nodeid", nodeId);
@@ -2166,6 +2165,47 @@ namespace DagView {
         }
 
         return $node;
+    }
+
+    function _drawTitleText($node: JQuery, node: DagNode): void {
+        // draw node title
+        const title: string = node.getTitle();
+        const titleLines: string[] = title.split("\n");
+        const titleHeight: number = nodeHeight + 12;
+        const g = d3.select($node.get(0));
+        const textSvg = g.append("text")
+            .attr("class", "nodeTitle")
+            .attr("fill", "#44515C")
+            .attr("font-size", 10)
+            .attr("transform", "translate(" + ((nodeWidth / 2) + 1) + "," +
+            titleHeight + ")")
+            .attr("text-anchor", "middle")
+            .attr("font-family", "Open Sans");
+        titleLines.forEach((line, i) => {
+            textSvg.append("tspan")
+                .text(line)
+                .attr("x", 0)
+                .attr("y", i * titleLineHeight);
+        });
+
+        // draw param title
+        const paramHint: string = node.getParamHint();
+        const parmLines: string[] = paramHint.split("\n");
+        const paramHeight: number = titleHeight + titleLines.length * titleLineHeight;
+        const paramTextSvg = g.append("text")
+            .attr("class", "paramTitle")
+            .attr("fill", "#44515C")
+            .attr("font-size", 10)
+            .attr("transform", "translate(" + ((nodeWidth / 2) + 1) + "," +
+            paramHeight + ")")
+            .attr("text-anchor", "middle")
+            .attr("font-family", "Open Sans");
+        parmLines.forEach((line, i) => {
+            paramTextSvg.append("tspan")
+                .text(line)
+                .attr("x", 0)
+                .attr("y", i * titleLineHeight);
+        });
     }
 
     function _updateConnectorIn(nodeId: DagNodeId, numInputs: number) {
@@ -2277,11 +2317,7 @@ namespace DagView {
 
         activeDag.events.on(DagNodeEvents.ParamChange, function (info) {
             const $node: JQuery = DagView.getNode(info.id);
-
-            xcTooltip.add($node.find(".main"), {
-                title: xcHelper.escapeHTMLSpecialChar(JSON.stringify(info.params, null, 2)),
-                classes: "preWrap leftAlign wide"
-            });
+            updateParamHint($node, info.node);
             $node.find(".paramIcon").remove();
             if (info.hasParameters) {
                 d3.select($node.get(0)).append("text")
@@ -2322,6 +2358,19 @@ namespace DagView {
                 DagTblManager.Instance.deleteTable(tableName, true, false);
             }
         });
+    }
+
+    function updateParamHint($node: JQuery, node: DagNode): void {
+        const paramHint: string = node.getParamHint();
+        const lines: string[] = paramHint.split("\n");
+        let html: HTML = "";
+        lines.forEach((line, i) => {
+            html +=
+                '<tspan x="0" y="' + (i * titleLineHeight) + '">' +
+                    line +
+                '</tspan>';
+        });
+        $node.find(".paramTitle").html(html);
     }
 
     // groups individual nodes into trees and joins branches with main tree

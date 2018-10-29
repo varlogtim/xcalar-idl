@@ -120,6 +120,28 @@ class DagNodeMap extends DagNode {
         return set;
     }
 
+    /**
+     * @override
+     */
+    protected _getSerializeInfo(): DagNodeMapInfo {
+        let info = super._getSerializeInfo();
+        info['aggregates'] = this._aggregates;
+        return info;
+    }
+
+    /**
+     * @override
+     */
+    protected _genParamHint(): string {
+        let hint: string = "";
+        const input: DagNodeMapInputStruct = this.getParam();
+        if (input.eval) {
+            const evalStrs: string[] = input.eval.map((evalInfo) => evalInfo.evalString);
+            hint = `map(${evalStrs.join(",")})`;
+        }
+        return hint;
+    }
+
     private _getOpType(func: ParsedEval): ColumnType {
         const operator: string = func.fnName;
         let colType: ColumnType = null;
@@ -133,12 +155,6 @@ class DagNodeMap extends DagNode {
             }
         }
         return colType;
-    }
-
-    protected _getSerializeInfo(): DagNodeMapInfo {
-        let info = super._getSerializeInfo();
-        info['aggregates'] = this._aggregates;
-        return info;
     }
 
     private _getUDFFromArg(arg: object, set: Set<string> ): void {

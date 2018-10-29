@@ -110,6 +110,20 @@ class DagNodeJoin extends DagNode {
         return this.input.isJoinTypeConverted();
     }
 
+    /**
+     * @override
+     */
+    protected _genParamHint(): string {
+        let hint: string = "";
+        const input: DagNodeJoinInputStruct = this.getParam();
+        if (input.joinType) {
+            hint = xcHelper.capitalize(input.joinType);
+            hint += " " + input.left.columns.join(", ") + "\n";
+            hint += "with " + input.right.columns.join(", ") + "\n";
+        }
+        return hint;
+    }
+
     private _getColAfterJoin(
         columns: ProgCol[],
         joinInput: DagNodeJoinTableInput

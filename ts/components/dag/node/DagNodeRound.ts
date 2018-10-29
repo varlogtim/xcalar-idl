@@ -45,4 +45,17 @@ class DagNodeRound extends DagNode {
             changes: changes
         };
     }
+
+    /**
+     * @override
+     */
+    protected _genParamHint(): string {
+        let hint: string = "";
+        const input: DagNodeRoundInputStruct = this.getParam();
+        if (input.sourceColumn && input.numDecimals != null) {
+            hint = `Round ${input.sourceColumn} to\n` +
+                    `${input.numDecimals} decimal places`;
+        }
+        return hint;
+    }
 }

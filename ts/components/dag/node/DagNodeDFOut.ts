@@ -26,4 +26,16 @@ class DagNodeDFOut extends DagNodeOut {
     public shouldLinkAfterExecuition(): boolean {
         return this.input.getInput().linkAfterExecution;
     }
+
+    /**
+     * @override
+     */
+    protected _genParamHint(): string {
+        let hint: string = "";
+        const input: DagNodeDFOutInputStruct = this.getParam();
+        if (input.name) {
+            hint = `Name: ${input.name}`;
+        }
+        return hint;
+    }
 }

@@ -102,6 +102,24 @@ class DagNodeGroupBy extends DagNode {
         }
     }
 
+    /**
+     * @override
+     */
+    protected _genParamHint(): string {
+        let hint: string = "";
+        const input: DagNodeGroupByInputStruct = this.getParam();
+        if (input.groupBy.length) {
+            hint += "Group by " + input.groupBy.join(",") + "\n";
+        }
+        if (input.aggregate.length) {
+            hint += "having ";
+            hint += input.aggregate.map((agg) => {
+                return `${agg.operator}(${agg.sourceColumn})`;
+            }).join(", ");
+        }
+        return hint;
+    }
+
     private _updateNewKeys(): void {
         const takenNames: Set<string> = new Set();
         const input = this.input.getInput();

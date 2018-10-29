@@ -69,4 +69,16 @@ class DagNodeAggregate extends DagNode {
         }
         return serializedInfo;
     }
+
+    /**
+     * @override
+     */
+    protected _genParamHint(): string {
+        let hint: string = "";
+        const input: DagNodeAggregateInputStruct = this.getParam();
+        if (input.evalString && input.dest) {
+            hint = `${input.dest}: ${input.evalString}`;
+        }
+        return hint;
+    }
 }

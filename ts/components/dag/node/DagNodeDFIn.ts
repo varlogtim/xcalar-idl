@@ -65,4 +65,16 @@ class DagNodeDFIn extends DagNodeIn {
             changes: []
         };
     }
+
+    /**
+     * @override
+     */
+    protected _genParamHint(): string {
+        let hint: string = "";
+        const input: DagNodeDFInInputStruct = this.getParam();
+        if (input.linkOutName) {
+            hint = `Link to: ${input.linkOutName}`;
+        }
+        return hint;
+    }
 }

@@ -290,6 +290,22 @@ abstract class DagNode {
     }
 
     /**
+     * Return a short hint of the param, it should be one line long
+     */
+    public getParamHint(): string {
+        const hint: string = this._genParamHint();
+        const maxLen: number = 25;
+        // each line cannot be more than maxLen
+        const ellipsis: string[] = hint.split("\n").map((str) => {
+            if (str.length > maxLen) {
+                str = str.substring(0, maxLen) + "...";
+            }
+            return str;
+        });
+        return ellipsis.join("\n");
+    }
+
+    /**
      * @returns {Table} return id of the table that associated with the node
      */
     public getTable(): string {
@@ -515,6 +531,10 @@ abstract class DagNode {
             state: this.state,
             error: this.error
         }
+    }
+
+    protected _genParamHint(): string {
+        return "";
     }
 
     // validates a given input, if no input given, will validate

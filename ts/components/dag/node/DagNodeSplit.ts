@@ -47,6 +47,18 @@ class DagNodeSplit extends DagNode {
         };
     }
 
+    /**
+     * @override
+     */
+    protected _genParamHint(): string {
+        let hint: string = "";
+        const input: DagNodeSplitInputStruct = this.getParam();
+        if (input.source && input.delimiter) {
+            hint = `Split ${input.source} by ${input.delimiter}`;
+        }
+        return hint;
+    }
+
     private _getColumnNames(
         colToSplit: string, allCols: string[], splitCols: string[]
     ): string[] {

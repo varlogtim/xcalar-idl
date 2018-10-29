@@ -68,10 +68,25 @@ class DagNodeFilter extends DagNode {
         }
         super.setParam();
     }
-
+    
+    /**
+     * @override
+     */
     protected _getSerializeInfo(): DagNodeFilterInfo {
         let info = super._getSerializeInfo();
         info['aggregates'] = this._aggregates;
         return info;
+    }
+
+    /**
+     * @override
+     */
+    protected _genParamHint(): string {
+        let hint: string = "";
+        const input: DagNodeFilterInputStruct = this.getParam();
+        if (input.evalString) {
+            hint = `filter(${input.evalString})`;
+        }
+        return hint;
     }
 }

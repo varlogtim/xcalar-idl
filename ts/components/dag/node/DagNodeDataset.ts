@@ -85,4 +85,17 @@ class DagNodeDataset extends DagNodeIn {
     public getDSName(): string {
         return this.input.getInput().source || null;
     }
+
+    /**
+     * @override
+     */
+    protected _genParamHint(): string {
+        let hint: string = "";
+        const input: DagNodeDatasetInputStruct = this.getParam();
+        if (input.source) {
+            const dsName: string = xcHelper.parseDSName(input.source).dsName;
+            hint += `Source: ${dsName}`;
+        }
+        return hint;
+    }
 }
