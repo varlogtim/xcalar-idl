@@ -70,11 +70,6 @@ describe("Main Menu Test", function() {
     });
 
     describe("UI Behavior Test", function() {
-        it("should click minimizedContent to open menu", function() {
-            $mainMenu.find(".minimizedContent").click();
-            expect(MainMenu.isMenuOpen()).to.be.true;
-        });
-
         it("should resize menu to be bigger", function() {
             var $bar = $mainMenu.find("> .ui-resizable-e").eq(0);
             var width = $mainMenu.width();

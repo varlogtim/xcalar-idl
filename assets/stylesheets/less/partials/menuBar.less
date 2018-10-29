@@ -28,14 +28,13 @@
 }
 
 #menuBar {
-    .size(@width: @width-menuBar, @height: 100%);
+    .size(@width: @width-homeBtn, @height: 100%);
     overflow: hidden;
     float: left;
     position: relative;
     background-color: @color-bg-select-blue;
     line-height: 0px;
     z-index: @z-index-menuBar;
-    margin-right: @width-sideMenuMinimized;
     padding-top: @height-homeBtn;
     color: @color-white;
 
@@ -154,7 +153,7 @@
 
 // ========== Start Top / Main Menu =======
 #mainMenu {
-    .position(absolute, @left: @width-menuBar - @width-topMenu + @width-sideMenuMinimized, @bottom: 0px);
+    .position(absolute, @left: @width-homeBtn - @width-topMenu, @bottom: 0px);
     .size(@width: @width-topMenu, @min-width: @width-topMenu, @height: ~"calc(100% - @{height-homeBtn})");
     z-index: @z-index-topMenu;
     .transition(left @time-menuAnim);
@@ -166,7 +165,7 @@
     }
 
     &.open {
-        .position(@left: @width-menuBar);
+        .position(@left: @width-homeBtn);
 
         &::after { // used for darkening menu when json modal is open
             content: "";
@@ -211,9 +210,6 @@
     &.closed {
         .mainContent {
             display: none;
-        }
-        .minimizedContent {
-            display: block;
         }
         > .ui-resizable-handle {
             display: none !important;
@@ -348,18 +344,6 @@
 
         &:hover {
             opacity: @opacity-hover;
-        }
-    }
-
-    .minimizedContent {
-        .position(absolute, @right: 0px);
-        width: 100%;
-        height: 100%;
-        color: @color-white;
-        cursor: pointer;
-        display: none;
-        &:hover {
-            background-color: rgba(0,0,0,0.1);
         }
     }
 }
@@ -539,7 +523,7 @@
     }
 
     &.open {
-        .position(@left: @width-menuBar);
+        .position(@left: @width-homeBtn);
         > .ui-resizable-handle {
             &.ui-resizable-e {
                 display: block !important;

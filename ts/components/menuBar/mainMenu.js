@@ -265,13 +265,6 @@ window.MainMenu = (function($, MainMenu) {
         $mainMenu.find(".minimizeBtn").click(function() {
             MainMenu.close();
         });
-        $mainMenu.find(".minimizedContent").click(function() {
-            var $curTab = $(".topMenuBarTab.active");
-            if ($curTab.hasClass("noLeftPanel") || $curTab.find(".subTab.active").hasClass("noLeftPanel")) {
-                return;
-            }
-            MainMenu.open();
-        });
     }
 
     function setupTabbing() {

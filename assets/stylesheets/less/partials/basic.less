@@ -103,7 +103,7 @@ body {
     }
 
     &.workbookMode, &.switchingWkbk {
-        @menuWidth: @width-bottomMenu - @width-sideMenuMinimized;
+        @menuWidth: @width-bottomMenu;
 
         #userBox {
             z-index: @z-index-homeBtn;
@@ -484,7 +484,7 @@ body {
         }
     }
     &.monitorViewOpen:not(.wkbkViewOpen) {
-        @menuWidth: @width-bottomMenu - @width-sideMenuMinimized;
+        @menuWidth: @width-bottomMenu;
         #initialLoadScreen {
             display: none !important;
         }
@@ -595,7 +595,7 @@ body {
 // subpanel width changes when bottommenu open
 .mainContainer {
     &.bottomMenuOpen:not(.bottomMenuOut), &.mainMenuOpen {
-        @menuWidth: @width-bottomMenu - @width-sideMenuMinimized;
+        @menuWidth: @width-bottomMenu;
         .mainPanel > .mainContent {
             margin-left: @menuWidth;
         }
@@ -717,7 +717,7 @@ body {
 #statusBar {
     .position(absolute, @bottom: 0);
     .size(@width: @width-mainPanel, @height: @height-bottomBar);
-    margin-left:  @width-sideMenuMinimized + @width-menuBar;
+    margin-left:  @width-homeBtn;
     background-color: @color-bg-topBarGray;
     .noSelection;
     z-index: @z-index-statusBar;
