@@ -66,6 +66,8 @@ class DagNodeExecutor {
                 return this._round();
             case DagNodeType.Project:
                 return this._project();
+            case DagNodeType.Explode:
+                return this._explode();
             case DagNodeType.Set:
                 return this._set();
             case DagNodeType.Export:
@@ -280,6 +282,16 @@ class DagNodeExecutor {
             ? sourceColumn
             : `float(${sourceColumn})`;
         const evalStr = `round(${evalSource},${numDecimals})`;
+        return XIApi.map(this.txId, [evalStr], srcTable, [destColumn], destTable, false);
+    }
+
+    private _explode(): XDPromise<string> {
+        const { sourceColumn, delimiter, destColumn } = this.node.getParam();
+        const delimStr = delimiter.replace(/\\/g, '\\\\').replace(/\"/g, '\\"');
+        const srcTable = this._getParentNodeTable(0);
+        const destTable = this._generateTableName();
+
+        const evalStr = `explodeString(${sourceColumn},"${delimStr}")`;
         return XIApi.map(this.txId, [evalStr], srcTable, [destColumn], destTable, false);
     }
 

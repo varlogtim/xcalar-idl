@@ -1685,4 +1685,9 @@ OpPanelTStr = {
     "Union": "Union (Combine)",
     "Except": "Except (Minus)",
     "Intersect": "Intersect",
+    "ExplodePanelTitle": "Explode String",
+    "ExplodePanelInstr": "Explode a column by delimiter.",
+    "ExplodePanelFieldNameSourceColumn": "Column to explode",
+    "ExplodePanelFieldNameDestColumn": "New resultant column name",
+    "ExplodePanelFieldNameDelimiter": "Delimiter",
 };

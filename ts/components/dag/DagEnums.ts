@@ -21,6 +21,7 @@ enum DagNodeType {
     IMDTable = "IMDTable",
     PublishIMD = "publishIMD",
     Split = "split",
+    Explode = "explode",
     Round = "round",
     RowNum = "rowNum",
     Index = "index",

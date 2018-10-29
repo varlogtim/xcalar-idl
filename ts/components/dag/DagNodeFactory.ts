@@ -19,6 +19,8 @@ class DagNodeFactory {
                 return new DagNodeMap(options);
             case DagNodeType.Project:
                 return new DagNodeProject(options);
+            case DagNodeType.Explode:
+                return new DagNodeExplode(options);
             case DagNodeType.Set:
                 return new DagNodeSet(options);
             case DagNodeType.SQL:

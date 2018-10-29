@@ -190,6 +190,12 @@ interface DagNodeJupyterInputStruct {
     renames: { sourceColumn: string, destColumn: string }[]
 }
 
+interface DagNodeExplodeInputStruct {
+    sourceColumn: string,
+    delimiter: string,
+    destColumn: string
+}
+
 interface DagNodeRoundInputStruct {
     sourceColumn: string,
     numDecimals: number,

@@ -310,6 +310,9 @@ namespace DagNodeMenu {
             case (DagNodeType.Project):
                 ProjectOpPanel.Instance.show(node, options);
                 break;
+            case (DagNodeType.Explode):
+                ExplodeOpPanel.Instance.show(node, options);
+                break;
             case (DagNodeType.Set):
                 SetOpPanel.Instance.show(node, options);
                 break;

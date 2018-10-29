@@ -578,6 +578,7 @@ namespace xcManager {
 
     function setupOpPanels(): void {
         ProjectOpPanel.Instance.setup();
+        ExplodeOpPanel.Instance.setup();
         DatasetOpPanel.Instance.setup();
         FilterOpPanel.Instance.setup();
         MapOpPanel.Instance.setup();
