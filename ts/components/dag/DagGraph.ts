@@ -1037,10 +1037,11 @@ class DagGraph {
             }
         }
 
+
         //  connect into tree by matching nodes with parents
-        nodes.forEach((_name, node) => {
+        for (let [_name, node] of nodes) {
             setParents(node);
-        });
+        };
 
         for (let [_name, node] of nodes) {
             setIndexedFields(node);
@@ -1051,11 +1052,11 @@ class DagGraph {
 
         function finalConvertIntoDagNodeInfoArray(nodes) {
             const endNodes = [];
-            nodes.forEach((_name, node) => {
+            for (let [_name, node] of nodes) {
                 if (node.children.length === 0) {
                     endNodes.push(node);
                 }
-            });
+            }
 
             const finalNodeInfos = [];
             const dagNodeInfos = {};
