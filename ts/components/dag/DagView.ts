@@ -563,8 +563,7 @@ namespace DagView {
      * returns $(".operator") element
      */
     export function getNode(nodeId: DagNodeId): JQuery {
-        return $dagView.find(".dataflowArea.active")
-            .find('.operator[data-nodeid="' + nodeId + '"]');
+        return $dagView.find('.operator[data-nodeid="' + nodeId + '"]');
     }
 
     /**
