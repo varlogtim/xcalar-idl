@@ -8,18 +8,6 @@
       </span>
     </div>
     <div class="workspaceArea">
-      <% if (dicts.tutor.name == "workbookTut") { %>
-      <span id="autoSaveBtn" data-introstep="w1-save">
-        <span class="default"><%= dicts.common.Save %></span>
-      </span>
-      <% } else { %>
-      <span id="autoSaveBtn" data-toggle="tooltip" data-placement="top" data-container="body">
-        <span class="default"><%= dicts.common.Save %></span>
-        <span class="saving"><%= dicts.common.Saving %>...</span>
-      </span>
-      <% } %>
-    </div>
-    <div class="workspaceArea">
       <span id="pageStatusText">
         <%= dicts.isTutor ? dicts.tutor.meta.tab : dicts.statusBar.EC %>
       </span>

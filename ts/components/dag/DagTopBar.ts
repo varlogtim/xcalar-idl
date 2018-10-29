@@ -128,15 +128,21 @@ class DagTopBar {
             }
         });
 
-        this.$topBar.find(".save").click(() => {
+        this.$topBar.find(".save").click((event) => {
             const dagTab: DagTab = DagView.getActiveTab();
             if (!(dagTab instanceof DagTabCustom)) {
+                const $btn: JQuery = $(event.currentTarget);
+                xcHelper.disableSubmit($btn);
+
                 dagTab.save(true)
                 .then(() => {
                     xcHelper.showSuccess(SuccessTStr.Saved);
                 })
                 .fail((error) => {
                     Alert.error(AlertTStr.Error, error);
+                })
+                .always(() => {
+                    xcHelper.enableSubmit($btn);
                 });
             }
         });

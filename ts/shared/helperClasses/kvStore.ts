@@ -62,9 +62,7 @@ class KVStore {
      */
     public static logChange(): void {
         KVStore.isUnCommit = true;
-        // document.title = "* Xcalar";
         $("#favicon").attr("href", paths.faviconUnsave);
-        $("#autoSaveBtn").addClass("unsave");
     }
 
     /**
@@ -75,38 +73,20 @@ class KVStore {
         KVStore.isUnCommit = false;
 
         $("#favicon").attr("href", paths.favicon);
-        $("#autoSaveBtn").removeClass("unsave");
 
         if (!updateUI) {
             return;
         }
 
         let name = "N/A";
-        let modified = "N/A";
-        let time = "";
         const activeWKBKId = WorkbookManager.getActiveWKBK();
         if (activeWKBKId != null) {
             const workbook = WorkbookManager.getWorkbooks()[activeWKBKId];
             if (workbook != null) {
                 name = workbook.name;
-                time = workbook.modified;
-                modified = moment(time).fromNow();
             }
         }
-
         $("#worksheetInfo .wkbkName").text(name);
-        modified = TooltipTStr.Saved + " " + modified;
-        xcTooltip.changeText($("#autoSaveBtn"), modified);
-
-        clearInterval(KVStore.saveTimeTimer);
-        KVStore.saveTimeTimer = <any>setInterval(() => {
-            if (time) {
-                modified = TooltipTStr.Saved + " " + moment(time).fromNow();
-                xcTooltip.changeText($("#autoSaveBtn"), modified);
-            } else {
-                clearInterval(KVStore.saveTimeTimer);
-            }
-        }, 60000); // 1 minute
     }
 
     public static list(keyRegex: string, scope: number): XDPromise<{numKeys: number, keys: string[]}> {
@@ -115,26 +95,14 @@ class KVStore {
 
     /**
      * KVStore.commit
-     * @param atStartUp
      */
-    public static commit(atStartUp: boolean = false): XDPromise<void> {
+    public static commit(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const $autoSaveBtn: JQuery = $("#autoSaveBtn");
-        const $userSettingsSave: JQuery = $("#userSettingsSave");
-        const currentCnt: number = KVStore.commitCnt;
-
         this._updateCommitCnt();
-
-        $autoSaveBtn.addClass("saving");
-        xcHelper.disableSubmit($autoSaveBtn);
-        xcHelper.disableSubmit($userSettingsSave);
 
         XcSupport.stopHeartbeatCheck();
 
-        this._commitUserAndGlobalInfo(atStartUp)
-        .then(() => {
-            return this._commitWKBKInfo();
-        })
+        this._commitWKBKInfo()
         .then(() => {
             KVStore.logSave(true);
             deferred.resolve();
@@ -145,14 +113,6 @@ class KVStore {
         })
         .always(() => {
             XcSupport.restartHeartbeatCheck();
-            // when there is no other commits
-            if (currentCnt === KVStore.commitCnt - 1) {
-                $autoSaveBtn.removeClass("saving");
-                xcHelper.enableSubmit($autoSaveBtn);
-                xcHelper.enableSubmit($userSettingsSave);
-            } else {
-                console.info("not the latest commit");
-            }
         });
 
         return deferred.promise();
@@ -314,10 +274,6 @@ class KVStore {
         .fail(deferred.reject);
 
         return deferred.promise();
-    }
-
-    private static _commitUserAndGlobalInfo(atStartUp): XDPromise<void> {
-        return atStartUp ? PromiseHelper.resolve() : UserSettings.commit();
     }
 
     private static _commitWKBKInfo(): XDPromise<void> {

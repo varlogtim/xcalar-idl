@@ -25,18 +25,6 @@ describe("User Setting Test", function() {
             expect(res).to.have.property("key").and.to.equal("test2");
             UserSettings.setPref("general", oldCache);
         });
-
-        it("UserSettings.logChange should work", function() {
-            var oldFunc = KVStore.logChange;
-            var test = false;
-            KVStore.logChange = function() {
-                test = true;
-            };
-            UserSettings.logChange();
-            expect(test).to.be.true;
-
-            KVStore.logChange = oldFunc;
-        });
     });
 
     describe("UserSettings Commit Test", function() {
@@ -77,8 +65,6 @@ describe("User Setting Test", function() {
         });
 
         it("should commit change", function(done) {
-            UserSettings.logChange();
-
             var oldFunc = Admin.isAdmin;
             Admin.isAdmin = () => false;
             UserSettings.commit(true)
@@ -109,8 +95,6 @@ describe("User Setting Test", function() {
 
 
         it("should handle fail case", function(done) {
-            UserSettings.logChange();
-
             var oldFunc =  KVStore.prototype.put;
             var oldFail = xcHelper.showFail;
             var test = null;
@@ -123,7 +107,7 @@ describe("User Setting Test", function() {
                 test = input;
             };
 
-            UserSettings.commit(true)
+            UserSettings.commit(true, true)
             .then(function() {
                 done("fail");
             })
@@ -139,11 +123,9 @@ describe("User Setting Test", function() {
         });
 
         it("should commit dsChange in XcSupport case", function(done) {
-            UserSettings.logChange();
-
             var oldCache = gXcSupport;
             gXcSupport = true;
-            UserSettings.commit()
+            UserSettings.commit(false, true)
             .then(function() {
                 expect(testKey).to.equal(KVStore.getKey("gUserKey"));
                 done();
@@ -178,12 +160,10 @@ describe("User Setting Test", function() {
         });
 
         it("should commit admin settings", function(done) {
-            UserSettings.logChange();
-
             var oldFunc = Admin.isAdmin;
             Admin.isAdmin = () => true;
 
-            UserSettings.commit()
+            UserSettings.commit(false, true)
             .then(function() {
                 expect(testKey).to.equal(KVStore.getKey("gUserKey"));
                 done();
@@ -287,15 +267,15 @@ describe("User Setting Test", function() {
         });
 
         it("should click save button to save", function() {
-            var oldFunc = KVStore.commit;
+            var oldFunc = UserSettings.commit;
             var test = false;
-            KVStore.commit = function() {
+            UserSettings.commit = function() {
                 test = true;
                 return PromiseHelper.resolve();
             };
             $("#userSettingsSave").click();
             expect(test).to.be.true;
-            KVStore.commit = oldFunc;
+            UserSettings.commit = oldFunc;
         });
 
         it("revert Default settings should work", function() {
@@ -305,13 +285,13 @@ describe("User Setting Test", function() {
             expect($button.hasClass("checked")).to.equal(!checked);
             $("#userSettingsDefault").click();
 
-            var oldFunc = KVStore.commit;
-            KVStore.commit = function() {
+            var oldFunc = UserSettings.commit;
+            UserSettings.commit = function() {
                 return PromiseHelper.resolve();
             };
             expect($button.hasClass("checked")).to.equal(checked);
 
-            KVStore.commit = oldFunc;
+            UserSettings.commit = oldFunc;
         });
     });
 });

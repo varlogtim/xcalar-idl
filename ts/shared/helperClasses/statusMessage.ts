@@ -267,38 +267,17 @@ namespace StatusMessage {
                 const curTab = $('.topMenuBarTab.active').attr('id');
                 let panelName: string;
                 switch (curTab) {
-                    case ("workspaceTab"):
-                        if (DagEdit.isEditMode()) {
-                            text = StatusMessageTStr.EditingDF;
-                        } else {
-                            const ws = WSManager.getActiveWS();
-                            // XXX the restore of subTab triiger it too early
-                            // and will breaak it if not do the check
-                            if (ws) {
-                                $("#pageStatusMenu").html(WSManager.getWSLists(true));
-                                const wsName: string = xcHelper.escapeHTMLSpecialChar(WSManager.getWSName(ws));
-                                panelName = WSTStr.Ws + ": " + wsName +
-                                            '<div class="menuIcon xc-action clickable" ' +
-                                            'data-toggle="tooltip" ' +
-                                            'data-placement="top" ' +
-                                            'data-container="body" ' +
-                                            'data-original-title="' +
-                                                TooltipTStr.ViewAllWS + '">' +
-                                                '<i class="icon xi-list-view"></i>' +
-                                            '</div>';
-                            } else {
-                                panelName = WSTStr.Ws;
-                            }
-                        }
-                        break;
-                    case ("dataflowTab"):
-                        panelName = DFTStr.BatchDF;
+                    case ("modelingDataflowTab"):
+                        panelName = DFTStr.DFs;
                         break;
                     case ("dataStoresTab"):
                         panelName = DSTStr.DS;
                         break;
                     case ("monitorTab"):
                         panelName = MonitorTStr.Monitor;
+                        break;
+                    case ("imdTab"):
+                        panelName = IMDTStr.Title;
                         break;
                     case ("jupyterTab"):
                         panelName = JupyterTStr.JupNotebook;

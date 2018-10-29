@@ -124,6 +124,7 @@ class DagTabShared extends DagTab {
         })
         .then(() => {
             this._trigger("save");
+            KVStore.logSave(true);
             deferred.resolve();
         })
         .fail((error) => {

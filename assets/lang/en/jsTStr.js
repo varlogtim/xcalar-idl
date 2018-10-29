@@ -1058,6 +1058,7 @@ SchedTStr = {
 DFTStr = {
     "AddValues": "Add Values",
     "AdvancedOpts": "Advanced Export Options",
+    "DFs": "Dataflows",
     "BatchDF": "Batch Dataflow",
     "CannotCreate": "Cannot Create Dataflow",
     "CannotCreateMsg": "Cannot create a batch dataflow from a table originating from a dataflow.",
@@ -1625,6 +1626,7 @@ UploadTStr = {
 };
 
 IMDTStr = {
+    "Title": "Published Tables",
     "DelTable": "Delete Published Table",
     "DataUnavailable":  "Only showing last 128 updates.",
     "DelTableMsg": "Are you sure you want to permanently drop the following tables : \"<tableName>\"? This action cannot be undone.",

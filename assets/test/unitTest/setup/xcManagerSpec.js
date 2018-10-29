@@ -340,68 +340,6 @@ describe("xcManager Test", function() {
 
             xcManager.unload = oldFunc;
         });
-
-        it("should click auto save to save", function(done) {
-            var oldCommit = KVStore.commit;
-            var oldShowSuccess = xcHelper.showSuccess;
-            var test = false;
-            var msg = null;
-
-            KVStore.commit = function() {
-                test = true;
-                return PromiseHelper.resolve();
-            };
-
-            xcHelper.showSuccess = function(arg) { msg = arg; };
-
-            $("#autoSaveBtn").click();
-
-            UnitTest.testFinish(function() {
-                return test;
-            })
-            .then(function() {
-                expect(msg).to.equal(SuccessTStr.Saved);
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                KVStore.commit = oldCommit;
-                xcHelper.showSuccess = oldShowSuccess;
-            });
-        });
-
-        it("should click to auto save handle fail case", function(done) {
-            var oldCommit = KVStore.commit;
-            var oldAlert = Alert.error;
-            var test = false;
-            var error = null;
-
-            KVStore.commit = function() {
-                test = true;
-                return PromiseHelper.reject();
-            };
-
-            Alert.error = function(arg) { error = arg; };
-
-            $("#autoSaveBtn").click();
-
-            UnitTest.testFinish(function() {
-                return test;
-            })
-            .then(function() {
-                expect(error).to.equal(AlertTStr.Error);
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                KVStore.commit = oldCommit;
-                Alert.error = oldAlert;
-            });
-        });
     });
 
     describe("Global Keydown Event Test", function() {

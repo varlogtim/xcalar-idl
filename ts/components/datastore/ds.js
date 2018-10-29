@@ -466,6 +466,7 @@ window.DS = (function ($, DS) {
     DS.resize = function() {
         var $menu = $("#datastoreMenu");
         if ($menu.hasClass("active") && $gridView.hasClass("listView")) {
+            var $allGrids = $gridView.add($("#dsTarget-list .gridItems"));
             var $labels = $allGrids.find(".label:visible");
             truncateDSName($labels, true);
         }
@@ -763,8 +764,7 @@ window.DS = (function ($, DS) {
 
         commitSharedFolderChange(arg)
         .then(function() {
-            UserSettings.logChange(); // need to log change and commit
-            KVStore.commit();
+            UserSettings.commit(false, true);
 
             var $grid = DS.getGrid(dsId);
             goToDirHelper(dirId);
@@ -872,7 +872,7 @@ window.DS = (function ($, DS) {
             arg = $.extend({dir: chanedDirId}, arg);
             commitSharedFolderChange(arg);
         } else {
-            UserSettings.logChange();
+            UserSettings.commit(false, true);
         }
     }
 
@@ -983,7 +983,7 @@ window.DS = (function ($, DS) {
                 alertSampleSizeLimit(datasetName);
             }
 
-            UserSettings.logChange();
+            UserSettings.commit(false, true);
             var msgOptions = {
                 "newDataSet": true,
                 "dataSetId": dsObj.getId()
@@ -1258,7 +1258,7 @@ window.DS = (function ($, DS) {
             sortDS();
         }
         highlighSortKey(sortKey);
-        UserSettings.logChange();
+        UserSettings.commit(false, true);
     }
 
     function sortDS(dirId) {
@@ -1392,7 +1392,7 @@ window.DS = (function ($, DS) {
                     action: "delete",
                     dsIds: removedDSIds
                 });
-                KVStore.commit();
+                UserSettings.commit(false, true);
                 MemoryAlert.Instance.check(true);
             } else if (folders.length) {
                 changeDSInfo(dirId, {
@@ -2459,7 +2459,7 @@ window.DS = (function ($, DS) {
         promise
         .then(function() {
             cleanFocusedDSIfNecessary();
-            KVStore.commit();
+            UserSettings.commit(false, true);
         });
     }
 
@@ -2807,8 +2807,7 @@ window.DS = (function ($, DS) {
             if (datasets.length) {
                 // XXX Note: this is a temp solution, after backend support
                 // we don't need to do it
-                UserSettings.logChange();
-                KVStore.commit();
+                UserSettings.commit(false, true);
             }
             deferred.resolve();
         })
@@ -2924,8 +2923,7 @@ window.DS = (function ($, DS) {
             if (datasets.length) {
                 // XXX Note: this is a temp solution, after backend support
                 // we don't need to do it
-                UserSettings.logChange();
-                KVStore.commit();
+                UserSettings.commit(false, true);
             }
             deferred.resolve();
         })
@@ -3122,7 +3120,7 @@ window.DS = (function ($, DS) {
                 $sibling.after($grid);
             }
             refreshDS();
-            UserSettings.logChange();
+            UserSettings.commit(false, true);
         }
     };
 

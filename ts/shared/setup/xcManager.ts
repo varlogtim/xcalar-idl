@@ -862,18 +862,6 @@ namespace xcManager {
             }
         });
 
-        $("#autoSaveBtn").click(function(): void {
-            $(this).blur();
-
-            KVStore.commit()
-            .then(function() {
-                xcHelper.showSuccess(SuccessTStr.Saved);
-            })
-            .fail(function(error) {
-                Alert.error(AlertTStr.Error, error);
-            });
-        });
-
         window.onbeforeunload = function(): string {
             xcManager.unload(true);
             markUserUnload();

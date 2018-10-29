@@ -1,7 +1,6 @@
 window.UserSettings = (function($, UserSettings) {
     var userPrefs;
     var userInfos;
-    var hasDSChange; // becomes true if ds.js detected settings change
     var cachedPrefs = {};
     var monIntervalSlider;
     var commitIntervalSlider;
@@ -60,12 +59,12 @@ window.UserSettings = (function($, UserSettings) {
         });
     }
 
-    UserSettings.commit = function(showSuccess) {
+    UserSettings.commit = function(showSuccess, hasDSChange) {
         var deferred = PromiseHelper.deferred();
         if (!userPrefs) {
             // UserSettings.commit may be called when no workbook is created
             // and userPrefs has not been set up.
-            return deferred.resolve().promise();
+            return PromiseHelper.resolve();
         }
 
         userPrefs.update();
@@ -112,12 +111,14 @@ window.UserSettings = (function($, UserSettings) {
                 userPrefPromise = PromiseHelper.resolve();
             }
 
+            const $userSettingsSave = $("#userSettingsSave");
+            xcHelper.disableSubmit($userSettingsSave);
+
             dsPromise
             .then(function() {
                 return userPrefPromise;
             })
             .then(function() {
-                hasDSChange = false;
                 revertedToDefault = false;
                 saveLastPrefs();
                 XcSocket.Instance.sendMessage("refreshUserSettings", {});
@@ -132,6 +133,9 @@ window.UserSettings = (function($, UserSettings) {
                     xcHelper.showFail(FailTStr.SaveSettings);
                 }
                 deferred.reject(error);
+            })
+            .always(function() {
+                xcHelper.enableSubmit($userSettingsSave);
             });
         } else {
             if (showSuccess) {
@@ -174,11 +178,6 @@ window.UserSettings = (function($, UserSettings) {
         }
     };
 
-    UserSettings.logChange = function() {
-        hasDSChange = true;
-        KVStore.logChange();
-    };
-
     UserSettings.revertDefault = function() {
         var newPrefs = new UserPref();
         userPrefs.general = newPrefs.general;
@@ -187,12 +186,10 @@ window.UserSettings = (function($, UserSettings) {
         }
         restoreSettingsPanel();
         revertedToDefault = true;
-        UserSettings.logChange();
     };
 
     function setup() {
         userPrefs = new UserPref();
-        hasDSChange = false;
         addEventListeners();
         if (!Admin.isAdmin()) { // remove admin only settings
             $("#monitorGenSettingsCard .optionSet.admin").remove();
@@ -264,7 +261,6 @@ window.UserSettings = (function($, UserSettings) {
             } else {
                 UserSettings.setPref("hideDataCol", true, true);
             }
-            UserSettings.logChange();
         });
 
         $("#enableCreateTable").click(function() {
@@ -272,7 +268,6 @@ window.UserSettings = (function($, UserSettings) {
             var toEnable = !($checkbox.hasClass("checked"));
             setEnableCreateTable(toEnable);
             UserSettings.setPref("enableCreateTable", toEnable, true);
-            UserSettings.logChange();
         });
 
         $("#hideSysOps").click(function() {
@@ -285,7 +280,6 @@ window.UserSettings = (function($, UserSettings) {
                 UserSettings.setPref("hideSysOps", false, true);
                 QueryManager.toggleSysOps(false);
             }
-            UserSettings.logChange();
         });
 
         $("#disableDSShare").click(function() {
@@ -298,7 +292,6 @@ window.UserSettings = (function($, UserSettings) {
                 UserSettings.setPref("disableDSShare", false, true);
                 DS.toggleSharing(false);
             }
-            UserSettings.logChange();
         });
 
         monIntervalSlider = new RangeSlider($('#monitorIntervalSlider'),
@@ -307,7 +300,6 @@ window.UserSettings = (function($, UserSettings) {
             maxVal: 60,
             onChangeEnd: function(val) {
                 MonitorGraph.updateInterval(val * 1000);
-                UserSettings.logChange();
             }
         });
 
@@ -317,7 +309,6 @@ window.UserSettings = (function($, UserSettings) {
             maxVal: 600,
             onChangeEnd: function() {
                 XcSupport.heartbeatCheck();
-                UserSettings.logChange();
             }
         });
 
@@ -328,19 +319,18 @@ window.UserSettings = (function($, UserSettings) {
             onChangeEnd: function(val) {
                 // here update the logout timeout value
                 XcUser.CurrentUser.updateLogOutInterval(val);
-                UserSettings.logChange();
             }
         });
 
         $("#userSettingsSave").click(function() {
-            $("#autoSaveBtn").click();
+            UserSettings.commit(true);
         });
 
         $("#userSettingsDefault").click(function() {
             // var sets = UserSettings;
             // var genSets = genSettings;
             UserSettings.revertDefault();
-            $("#autoSaveBtn").click();
+            UserSettings.commit(true);
         });
     }
 

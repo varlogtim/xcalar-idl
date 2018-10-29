@@ -294,7 +294,7 @@ abstract class DagNode {
      */
     public getParamHint(): string {
         const hint: string = this._genParamHint();
-        const maxLen: number = 25;
+        const maxLen: number = 20;
         // each line cannot be more than maxLen
         const ellipsis: string[] = hint.split("\n").map((str) => {
             if (str.length > maxLen) {

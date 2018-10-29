@@ -382,7 +382,7 @@ describe("Dataset-DSObj Test", function() {
             const xcSocket = XcSocket.Instance;
             const oldSendMessage = xcSocket.sendMessage;
             const oldLogChange = UserSettings.logChang;
-            const oldCommit = KVStore.commit;
+            const oldCommit = UserSettings.commit;
             const oldFocusOn = DS.focusOn;
 
             xcSocket.sendMessage = (name, arg, callback) => { 
@@ -392,7 +392,7 @@ describe("Dataset-DSObj Test", function() {
             };
 
             UserSettings.logChang = () => {};
-            KVStore.commit =  () => {};
+            UserSettings.commit =  () => {};
             DS.focusOn = () => {};
 
             const shareAndUnshareHelper = DS.__testOnly__.shareAndUnshareHelper;
@@ -409,7 +409,7 @@ describe("Dataset-DSObj Test", function() {
             .always(() => {
                 xcSocket.sendMessage = oldSendMessage;
                 UserSettings.logChang = oldLogChange;
-                KVStore.commit = oldCommit;
+                UserSettings.commit = oldCommit;
                 DS.focusOn = oldFocusOn;
             });
         });
@@ -580,7 +580,7 @@ describe("Dataset-DSObj Test", function() {
             expect($gridView.hasClass("listView")).to.equal(!isListView);
 
             // switch back to old view
-            $("#exportViewBtn").click();
+            $("#dataViewBtn").click();
             expect($gridView.hasClass("listView")).to.equal(isListView);
         });
 
@@ -1005,7 +1005,7 @@ describe("Dataset-DSObj Test", function() {
             var test = false;
             DS.restore = function() {
                 test = true;
-                // reject to not trigger KVStore.commit
+                // reject to not trigger UserSettings.commit
                 return PromiseHelper.reject();
             };
 
@@ -1481,7 +1481,7 @@ describe("Dataset-DSObj Test", function() {
 
     describe("Activate/Deactivate ds test", function() {
         var activateDS;
-        var deactivate;
+        var deactivateDS;
         var oldCommit;
         var oldLoad;
         var oldUnload;
@@ -1489,20 +1489,20 @@ describe("Dataset-DSObj Test", function() {
 
         before(function() {
             activateDS = DS.__testOnly__.activateDS;
-            deactivate = DS.__testOnly__.deactivate;
-            oldCommit = KVStore.commit;
+            deactivateDS = DS.__testOnly__.deactivateDS;
+            oldCommit = UserSettings.commit;
             oldLoad = XIApi.loadDataset;
             oldUnload = XcalarDatasetUnload;
             oldGetMeta = XcalarDatasetGetMeta;
 
-            KVStore.commit = function() { return PromiseHelper.resolve(); };
+            UserSettings.commit = function() { return PromiseHelper.resolve(); };
         });
 
         it("should handle deactivate fail case", function(done) {
             XcalarDatasetUnload = function() {
                 return PromiseHelper.reject({error: "test"});
             };
-            deactivate([testDS.getId()])
+            deactivateDS([testDS.getId()])
             .then(function() {
                 UnitTest.hasAlertWithTitle(AlertTStr.Error);
                 done();
@@ -1517,7 +1517,7 @@ describe("Dataset-DSObj Test", function() {
                 return PromiseHelper.resolve();
             };
             var dsId = testDS.getId();
-            deactivate([dsId])
+            deactivateDS([dsId])
             .then(function() {
                 expect(DS.getDSObj(dsId).isActivated()).to.be.false;
                 done();
@@ -1557,7 +1557,7 @@ describe("Dataset-DSObj Test", function() {
         });
 
         after(function() {
-            KVStore.commit = oldCommit;
+            UserSettings.commit = oldCommit;
 
             XIApi.loadDataset = oldLoad;
             XcalarDatasetUnload = oldUnload;
@@ -1618,17 +1618,17 @@ describe("Dataset-DSObj Test", function() {
         });
 
         it("should deactivate ds", function(done) {
-            var oldCommit = KVStore.commit;
-            KVStore.commit = function() {};
+            var oldCommit = UserSettings.commit;
+            UserSettings.commit = function() {};
             var dsId = testDS.getId();
-            DS.__testOnly__.deactivate([testDS.getId()])
+            DS.__testOnly__.deactivateDS([testDS.getId()])
             .then(function() {
                 expect(DS.getDSObj(dsId).isActivated()).to.be.false;
-                KVStore.commit = oldCommit;
+                UserSettings.commit = oldCommit;
                 done();
             })
             .fail(function() {
-                KVStore.commit = oldCommit;
+                UserSettings.commit = oldCommit;
                 done("fail");
             });
         });
