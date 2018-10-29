@@ -54,7 +54,8 @@ enum DagNodeErrorType {
     NoLinkInGraph = "Cannot find the linked node",
     CycleInLink = "Cycle In Link",
     LinkOutNotExecute = "The linked node only allow linking after execution",
-    InvalidOptimizedOutNode = "Valid terminal nodes must be either Export optimized or Link out optimized"
+    InvalidOptimizedOutNode = "Valid terminal nodes must be either Export optimized or Link out optimized",
+    Disjoint = "Multiple disjoint dataflows detected. Optimized execution can only occur on 1 continuous dataflow."
 }
 
 enum DagNodeEvents {

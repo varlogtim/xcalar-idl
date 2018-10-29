@@ -10,7 +10,7 @@ class DagGraphExecutor {
     /**
      * Static check if the nodes to run are executable
      */
-    public checkCanExecuteAll(): {
+    public checkCanExecuteAll(optimized?: boolean): {
         hasError: boolean,
         type: DagNodeErrorType,
         node: DagNode
@@ -54,43 +54,207 @@ class DagGraphExecutor {
                     errorResult.type = DagNodeErrorType.LinkOutNotExecute;
                     errorResult.node = node;
                 }
+            } else if (optimized && node.hasNoChildren()) {
+                if (!node.isOutNode() ||
+                    (node.getSubType() !== DagNodeSubType.ExportOptimized &&
+                    node.getSubType() !== DagNodeSubType.DFOutOptimized)) {
+                    errorResult.hasError = true;
+                    errorResult.type = DagNodeErrorType.InvalidOptimizedOutNode;
+                    errorResult.node = node;
+                    break;
+                }
             }
         }
 
         return errorResult;
     }
 
+    // first traverses all the ancestors of the endNode and puts them into a tree
+    // then traverses all the nodes left out and puts them into a new tree
+    // while doing the traversing, if we encounter a node that already belongs to
+    // another tree, we later combine the 2 trees into the first and delete the latter
+    // if the result ends in more than 1 tree, we return an error
+    public checkDisjoint(): {
+        hasError: boolean,
+        type: DagNodeErrorType,
+        node: DagNode
+    } {
+        let errorResult: {
+            hasError: boolean,
+            type: DagNodeErrorType,
+            node: DagNode
+        } = {
+            hasError: false,
+            type: null,
+            node: null
+        };
+        const self = this;
+        let count = 0;
+        let treeIndex = count;
+        const notSeen = {};
+        const allSeen = {};
+        const trees = {};
+        let currentTree = {};
+        this._nodes.forEach(node => {
+            notSeen[node.getId()] = node;
+        });
+        const endNode = this._nodes[this._nodes.length - 1];
+        currentTree[endNode.getId()] = true;
+        // mark traversed nodes as seen
+        createFirstTree();
+
+        // for any notSeen nodes, traverse and they should intersect
+        // seen nodes
+        for (let i in notSeen) {
+            count++;
+            currentTree = {};
+            treeIndex = count;
+            const seen = {};
+            const seenTreeIndexes = {};
+            currentTree[notSeen[i].getId()] = true;
+            const curNode = notSeen[i];
+
+            this._graph.traverseParents(curNode, (parent) => {
+                const id = parent.getId();
+                delete notSeen[id];
+                if (seen[id]) {
+                    return false;
+                } else {
+                    if (allSeen[id] != null) {
+                        seenTreeIndexes[allSeen[id]] = true;
+                        treeIndex = Math.min(allSeen[id], treeIndex);
+                    }
+                    seen[id] = true;
+                    currentTree[id] = true;
+                }
+            });
+            allSeen[curNode.getId()] = treeIndex;
+            delete notSeen[i];
+            trees[count] = currentTree; // add to trees
+            for (let i in currentTree) {
+                allSeen[i] = treeIndex;
+            }
+            // if this tree is connected with another tree, combine them both
+            // and delete the current tree
+            if (treeIndex !== count) {
+                trees[treeIndex] = $.extend(currentTree[treeIndex], currentTree);
+                delete trees[count];
+            }
+
+            // go through other trees and connect them to other trees if they
+            // qualify
+            for (let i in seenTreeIndexes) {
+                if (parseInt(i) === 0) {
+                    continue;
+                }
+                const tree = trees[i];
+                for (let j in tree) {
+                    allSeen[j] = treeIndex;
+                }
+                if (parseInt(i) !== treeIndex) {
+                    tree[treeIndex] = $.extend(tree[treeIndex], tree);
+                    delete trees[i];
+                }
+            }
+        }
+
+        function createFirstTree() {
+            self._graph.traverseParents(endNode, (parent) => {
+                delete notSeen[parent.getId()];
+                if (allSeen[parent.getId()] == null) {
+                    currentTree[parent.getId()] = true;
+                    allSeen[parent.getId()] = treeIndex;
+                }
+            });
+            allSeen[endNode.getId()] = treeIndex;
+            delete notSeen[endNode.getId()];
+            trees[count] = currentTree;
+        }
+
+          // if there's more than 1 tree, return an error
+        if (Object.keys(trees).length > 1) {
+            return {hasError: true, type: DagNodeErrorType.Disjoint, node: endNode};
+        } else {
+            return errorResult;
+        }
+    }
+
     /**
      * Execute nodes
      */
-    public run(): XDPromise<void> {
+        /**
+     * Execute nodes
+     */
+    public run(optimized?: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const nodes: DagNode[] = this._nodes.filter((node) => {
-            return ((node.getState() !== DagNodeState.Complete) || (!DagTblManager.Instance.hasTable(node.getTable())));
-        });
-        //XXX TODO: Remove nodes that have had their table deleted but arent necessary for this execution
-        const nodesToRun: {node: DagNode, executable: boolean}[] = nodes.map((node) => {
-           return {
-                node: node,
-                executable: true
-            }
-        });
+        if (optimized) {
+            let txId: number;
+            let dstTable;
+            this.getBatchQuery()
+            .then((query, destTable) => {
+                dstTable = destTable;
+                txId = Transaction.start({
+                    operation: "optimized df",
+                    track: true,
+                    optimizedQueryName: destTable
+                });
 
-        const dsNames: Set<string> = this._graph.getUsedDSNames(true);
-        this._attachDatasets(dsNames)
-        .then(() => {
-            const promises: XDDeferred<void>[] = [];
-            for (let i = 0; i < nodesToRun.length; i++) {
-                promises.push(this._stepExecute.bind(this, nodesToRun, i));
-            }
-            return PromiseHelper.chain(promises);
-        })
-        .then(() => {
-            return this._detachDatasets(dsNames);
-        })
-        .then(deferred.resolve)
-        .fail(deferred.reject);
+                if (!query.startsWith("[")) {
+                    // when query is not in the form of JSON array
+                    if (query.endsWith(",")) {
+                        query = query.substring(0, query.length - 1);
+                    }
+                    query = "[" + query + "]";
+                }
 
+                const nodes = JSON.parse(query);
+                const tab = DagTabManager.Instance.newOptimizedTab(destTable, nodes);
+                const graph = tab.getGraph();
+                const nameIdMap = tab.getNameIdMap();
+                nodes.forEach((node) => {
+                    const nodeId = nameIdMap[node.args.dest];
+                    graph.getNode(nodeId).beRunningState();
+                });
+
+                return XIApi.query(txId, destTable, query);
+            })
+            .then((res) => {
+                Transaction.done(txId, {
+                    noNotification: true,
+                    noSql: true,
+                    noCommit: true,
+                    queryStateOutput: res
+                });
+                deferred.resolve(dstTable);
+            })
+            .fail(deferred.reject);
+
+        } else {
+            const nodes: DagNode[] = this._nodes.filter((node) => {
+                return ((node.getState() !== DagNodeState.Complete) || (!DagTblManager.Instance.hasTable(node.getTable())));
+            });
+            //XXX TODO: Remove nodes that have had their table deleted but arent necessary for this execution
+            const nodesToRun: {node: DagNode, executable: boolean}[] = nodes.map((node) => {
+               return {
+                    node: node,
+                    executable: true
+               }
+            });
+            const dsNames: Set<string> = this._graph.getUsedDSNames(true);
+            this._attachDatasets(dsNames)
+            .then(() => {
+                const promises: XDDeferred<void>[] = [];
+                for (let i = 0; i < nodesToRun.length; i++) {
+                    promises.push(this._stepExecute.bind(this, nodesToRun, i));
+                }
+                return PromiseHelper.chain(promises);
+            })
+            .then(() => {
+                return this._detachDatasets(dsNames);
+            })
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+        }
         return deferred.promise();
     }
 
@@ -123,7 +287,7 @@ class DagGraphExecutor {
         })
         .fail(deferred.reject);
 
-        return deferred.reject();
+        return deferred.promise();
     }
 
     private _stepExecute(
@@ -167,10 +331,11 @@ class DagGraphExecutor {
 
     private _batchExecute(
         txId: number,
-        node: DagNode
+        node: DagNode,
+        optimized?: boolean
     ): XDPromise<string> {
         const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, this._graph.getTabId());
-        return dagNodeExecutor.run();
+        return dagNodeExecutor.run(optimized);
     }
 
     private _checkLinkInResult(node: DagNodeDFIn): {

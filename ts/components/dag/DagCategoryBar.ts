@@ -315,7 +315,7 @@ class DagCategoryBar {
 
         const inConnector = this._genConnectorInHTML(numParents);
 
-
+        const opTitleHtml = this._formatOpTitle(opDisplayName);
 
         const html = '<g class="operator ' + operatorName + ' ' +
             (categoryNode.isHidden() ? 'xc-hidden ' : '') +
@@ -340,14 +340,35 @@ class DagCategoryBar {
             '<text class="icon" x="11" y="19" font-family="icomoon" ' +
                 'font-size="12" fill="white">' + icon + '</text>' +
             '<svg width="60" height="' + DagView.nodeHeight + '" x="27" y="1">' +
-                '<text class="opTitle" x="50%" y="50%" ' +
-                'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
-                'font-size="11" fill="#44515c">' + opDisplayName +
-                '</text></svg>' +
+                opTitleHtml + '</svg>' +
             '<circle class="statusIcon" cx="88" cy="27" r="5" ' +
                 'stroke="#849CB0" stroke-width="1" fill="white" />' +
             '</g>';
 
+        return html;
+    }
+
+    private _formatOpTitle(name): HTML {
+        let html: HTML;
+        // XXX arbritrary way to decide if name is too long for 1 line
+        if (name.length > 10 && name.indexOf(" ") > -1) {
+            const namePart1 = name.substring(0, name.lastIndexOf(" "));
+            const namePart2 = name.slice(name.lastIndexOf(" ") + 1);
+            html = '<text class="opTitle" x="50%" y="30%" ' +
+            'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
+            'font-size="11" fill="#44515c">' + namePart1 +
+            '</text>' +
+            '<text class="opTitle" x="50%" y="70%" ' +
+            'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
+            'font-size="11" fill="#44515c">' + namePart2 +
+            '</text>';
+
+        } else {
+            html = '<text class="opTitle" x="50%" y="50%" ' +
+            'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
+            'font-size="11" fill="#44515c">' + name +
+            '</text>';
+        }
         return html;
     }
 

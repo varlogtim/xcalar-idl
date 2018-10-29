@@ -25,7 +25,7 @@ namespace DagNodeMenu {
             default:
                 break;
         }
-        $li.html('<span class="label">Exit ' + label + '</span>');
+        $li.find(".label").text('Exit ' + label);
         $li.addClass('exit' + nameUpper.replace(/ /g,''));
     }
 
@@ -125,6 +125,12 @@ namespace DagNodeMenu {
                 break;
             case ("executeAllNodes"):
                 DagView.run();
+                break;
+            case ("executeNodeOptimized"):
+                DagView.run(operatorIds, true);
+                break;
+            case ("executeAllNodesOptimized"):
+                DagView.run(null, true);
                 break;
             case ("resetNode"):
                 DagView.reset(operatorIds);
@@ -377,6 +383,9 @@ namespace DagNodeMenu {
             // .nonEditableSubgraph hides all modification menu item
             classes += ' nonEditableSubgraph ';
         }
+        if (DagView.isViewOnly()) {
+            classes += ' viewOnly ';
+        }
         $menu.find("li").removeClass("unavailable");
 
         if (nodeIds.length === 1) {
@@ -391,6 +400,9 @@ namespace DagNodeMenu {
         }
         if ($("#dagView .dataflowArea.active .comment.selected").length) {
             classes += " commentMenu ";
+        }
+        if (!DagView.hasOptimizedNode(nodeIds)) {
+            $menu.find(".executeNodeOptimized, .executeAllNodesOptimized").addClass("unavailable");
         }
         adjustMenuForOpenForm();
 
@@ -434,7 +446,7 @@ namespace DagNodeMenu {
         $menu.find("li").removeClass("unavailable");
         if (!DagView.getAllNodes().length) {
             classes += " none ";
-            $menu.find(".removeAllNodes, .executeAllNodes, .selectAllNodes, .autoAlign")
+            $menu.find(".removeAllNodes, .executeAllNodes, .executeAllNodesOptimized, .selectAllNodes, .autoAlign")
             .addClass("unavailable");
         }
         if ($("#dagView .dataflowArea.active .comment").length) {
@@ -455,11 +467,17 @@ namespace DagNodeMenu {
         } else {
             classes += " backgroundMenu ";
         }
+        if (DagView.isViewOnly()) {
+            classes += ' viewOnly ';
+        }
         if (!DagView.hasClipboard()) {
             $menu.find(".pasteNodes").addClass("unavailable");
         }
         if ($("#dagView .dataflowArea.active .comment.selected").length) {
             classes += " commentMenu ";
+        }
+        if (!DagView.hasOptimizedNode(operatorIds)) {
+            $menu.find(".executeNodeOptimized, .executeAllNodesOptimized").addClass("unavailable");
         }
         adjustMenuForOpenForm();
 
@@ -534,7 +552,7 @@ namespace DagNodeMenu {
             $menu.find(".lockNodeTable").addClass("xc-hidden");
             $menu.find(".unlockNodeTable").removeClass("unavailable");
             $menu.find(".unlockNodeTable").removeClass("xc-hidden");
-        } 
+        }
         else if ( dagNode != null &&
             state === DagNodeState.Complete &&
             dagNode.getTable() != null
@@ -546,9 +564,9 @@ namespace DagNodeMenu {
         }
 
         if (state === DagNodeState.Configured || state === DagNodeState.Error) {
-            $menu.find(".executeNode").removeClass("unavailable");
+            $menu.find(".executeNode, .executeNodeOptimized").removeClass("unavailable");
         } else {
-            $menu.find(".executeNode").addClass("unavailable");
+            $menu.find(".executeNode, .executeNodeOptimized").addClass("unavailable");
         }
         if (state === DagNodeState.Complete) {
             $menu.find(".resetNode").removeClass("unavailable");
@@ -567,12 +585,13 @@ namespace DagNodeMenu {
         ) {
             $menu.find('.configureNode, .executeNode').addClass('unavailable');
         }
-        
+
         if (dagNodeType === DagNodeType.SQL) {
             classes += ' SQLOpMenu';
         }
         if (DagView.isNodeLocked(nodeId)) {
             $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
+                      ".executeNodeOptimized, .executeAllNodesOptimized, " +
                       ".resetNode, .cutNodes, .removeNode, .removeAllNodes")
                 .addClass("unavailable");
         }
@@ -584,6 +603,7 @@ namespace DagNodeMenu {
             return;
         }
         $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
+                    ".executeNodeOptimized, .executeAllNodesOptimized, " +
                     ".resetNode, .resetAllNodes, .cutNodes, .createCustom")
             .addClass("unavailable");
     }

@@ -164,7 +164,8 @@ class DagList {
     /**
      * Return a valid name for new dafaflow tab
      */
-    public getValidName(): string {
+    public getValidName(prefix?: string): string {
+        prefix = prefix || "Dataflow"
         const nameSet: Set<string> = new Set();
         let cnt: number = 1;
         this._dags.forEach((dagTab) => {
@@ -173,10 +174,10 @@ class DagList {
                 cnt++;
             }
         });
-        let name: string = `Dataflow ${cnt}`;
+        let name: string = `${prefix} ${cnt}`;
         while(nameSet.has(name)) {
             cnt++;
-            name = `Dataflow ${cnt}`;
+            name = `${prefix} ${cnt}`;
         }
         return name;
     }

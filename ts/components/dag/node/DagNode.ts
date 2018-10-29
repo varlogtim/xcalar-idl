@@ -444,6 +444,22 @@ abstract class DagNode {
         return this.maxParents === 0;
     }
 
+     /**
+     * @returns {boolean} return true if out Node (export/ link out / publishIMD)
+     * return false otherwise
+     */
+    public isOutNode(): boolean {
+        return this.maxChildren === 0;
+    }
+
+    /**
+     * @returns {boolean} return true if has no children
+     * return false otherwise
+     */
+    public hasNoChildren(): boolean {
+        return this.children.length === 0;
+    }
+
     /**
      * @return {number} finds the first parent index that is empty
      */
@@ -616,7 +632,7 @@ abstract class DagNode {
                 return {error: error};
             }
         } else if (numParent !== this.getMaxParents()) {
-            let error: string = "Require " + numParent + " parents";
+            let error: string = "Require " + maxParents + " parents";
             return {error: error};
         }
         return null;

@@ -489,6 +489,9 @@ window.MainMenu = (function($, MainMenu) {
         } else {
             menuAnimAlign = null;
         }
+        if (noAnim && $("#modelingDagPanel").hasClass("active")) {
+            DagCategoryBar.Instance.showOrHideArrows();
+        }
         setTimeout(function () {
             // timeout prevents flicker
             $("#dagPanelContainer").removeClass("noAnim");
@@ -526,6 +529,9 @@ window.MainMenu = (function($, MainMenu) {
         } else {
             IMDPanel.redraw();
             menuAnimAlign = null;
+        }
+        if (noAnim && $("#modelingDagPanel").hasClass("active")) {
+            DagCategoryBar.Instance.showOrHideArrows();
         }
         setTimeout(function () {
             // timeout prevents flicker

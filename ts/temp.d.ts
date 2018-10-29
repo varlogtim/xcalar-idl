@@ -650,7 +650,9 @@ declare enum DgDagStateT {
     DgDagStateReady,
     DgDagStateDropped,
     DgDagStateError,
-    DgDagStateProcessing
+    DgDagStateProcessing,
+    DgDagStateUnknown,
+    DgDagStateQueued
 }
 declare enum DgDagStateTStr {}
 

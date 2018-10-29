@@ -24,6 +24,14 @@
             <i class="icon xi-play-circle"></i>
             <span class="label"><%= dicts.dag.executeAll %></span>
         </li>
+        <li class="executeNodeOptimized" data-action="executeNodeOptimized">
+            <i class="icon xi-play-circle"></i>
+            <span class="label"><%= dicts.dag.executeOptimized %></span>
+        </li>
+        <li class="executeAllNodesOptimized" data-action="executeAllNodesOptimized">
+            <i class="icon xi-play-circle"></i>
+            <span class="label"><%= dicts.dag.executeAllOptimized %></span>
+        </li>
         <li class="previewTable unavailable" data-action="previewTable">
             <i class="icon xi-preview"></i>
             <span class="label"><%= dicts.dag.previewTable %></span>
@@ -45,11 +53,11 @@
             <span class="label"><%= dicts.dag.previewResults %></span>
         </li>
         <li class="resetNode" data-action="resetNode">
-            <i class="icon xi-play-circle"></i>
+            <i class="icon xi-restore"></i>
             <span class="label"><%= dicts.dag.reset %></span>
         </li>
         <li class="resetAllNodes" data-action="resetNode">
-            <i class="icon xi-play-circle"></i>
+            <i class="icon xi-restore"></i>
             <span class="label"><%= dicts.dag.resetAll %></span>
         </li>
         <li class="selectAllNodes" data-action="selectAllNodes">

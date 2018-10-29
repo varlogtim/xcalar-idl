@@ -1665,7 +1665,7 @@ XcalarSetConfigParams = function(
  * let thScheduler = new XcalarApiSchedParamT({schedName: "ThroughputScheduler",
  *                      cpusReservedInPercent: 30})
  * XcalarRunTimeSetParam([latScheduler, thScheduler])
- * 
+ *
  * Note that you can only set these if you have more than 32 CPUs.
  * @param schedParams Array of XcalarApiSchedParam, one for each scheduler.
  */
@@ -2288,7 +2288,7 @@ XcalarFilter = function(
     }
     query = XcalarGetQuery(workItem);
     Transaction.startSubQuery(txId, 'filter', dstTablename, query);
-   
+
     def
     .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
@@ -2974,7 +2974,8 @@ XcalarQueryCheck = function(
     queryName: string,
     canceling: boolean,
     txId?: number,
-    jdbcCheckTime?: number
+    jdbcCheckTime?: number,
+    noCleanup?: boolean
 ): XDPromise<XcalarApiQueryStateOutputT> {
     // function getDagNodeStatuses(dagOutput) {
     //     var nodeStatuses = {};
@@ -3016,11 +3017,15 @@ XcalarQueryCheck = function(
                 const state = queryStateOutput.queryState;
                 if (state === QueryStateT.qrFinished ||
                     state === QueryStateT.qrCancelled) {
-                    // clean up query when done
-                    XcalarQueryDelete(queryName)
-                    .always(function() {
+                    if (noCleanup) {
                         deferred.resolve(queryStateOutput);
-                    });
+                    } else {
+                        // clean up query when done
+                        XcalarQueryDelete(queryName)
+                        .always(function() {
+                            deferred.resolve(queryStateOutput);
+                        });
+                    }
                 } else if (state === QueryStateT.qrError) {
                     // clean up query when done
                     XcalarQueryDelete(queryName)
@@ -3048,7 +3053,8 @@ XcalarQueryWithCheck = function(
     queryString: string,
     txId: number,
     bailOnError: boolean,
-    jdbcCheckTime: number
+    jdbcCheckTime: number,
+    noCleanup?: boolean
 ): XDPromise<XcalarApiQueryStateOutputT> {
     const deferred: XDDeferred<XcalarApiQueryStateOutputT> = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
@@ -3057,7 +3063,7 @@ XcalarQueryWithCheck = function(
 
     XcalarQuery(queryName, queryString, txId, bailOnError)
     .then(function() {
-        return XcalarQueryCheck(queryName, undefined, txId, jdbcCheckTime);
+        return XcalarQueryCheck(queryName, undefined, txId, jdbcCheckTime, noCleanup);
     })
     .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {

@@ -137,6 +137,30 @@ class DagTabManager{
         }
     }
 
+    public newOptimizedTab(tabId, queryNodes: any[]): DagTabOptimized {
+        const parentTabId = DagView.getActiveTab().getId();
+        const curTab = this.getTabById(parentTabId);
+
+        // the string to show on the tab
+        const tabName = curTab.getName() + " Optimized";
+        // the td to find the tab
+
+        // No tab for this custom operator, create a new tab
+        // Create a new tab object
+        const newTab = new DagTabOptimized({
+            id: tabId,
+            name: tabName,
+            queryNodes: queryNodes
+        });
+        // Register the new tab in DagTabManager
+        if (this._addSubTab(parentTabId, tabId)) {
+            this._addDagTab(newTab);
+            // Switch to the tab(UI)
+            this._switchTabs();
+        }
+        return newTab;
+    }
+
     /**
      * Persist parent tabs to KVStore
      * @param subTabId The key of the child tab
@@ -531,7 +555,7 @@ class DagTabManager{
         this._addTabHTML(dagTab);
         this._addTabEvents(dagTab);
     }
-    
+
     private _addTabEvents(dagTab: DagTab): void {
         dagTab
         .on("modify", () => {
@@ -562,6 +586,7 @@ class DagTabManager{
         }
         tabName = xcHelper.escapeHTMLSpecialChar(tabName);
         const isEditable: boolean = (dagTab instanceof DagTabUser);
+        const isViewOnly: boolean = (dagTab instanceof DagTabOptimized);
         let html: HTML =
             '<li class="dagTab ' + (dagTab.isUnsave()? 'unsave': '') + '">' +
                 '<div class="name ' + (isEditable? '': 'nonedit') + '">' +
@@ -574,7 +599,7 @@ class DagTabManager{
             '</li>';
         this._getTabArea().append(html);
         $("#dagView .dataflowWrap").append(
-            '<div class="dataflowArea">\
+            '<div class="dataflowArea ' +  (isViewOnly? 'viewOnly': '') + '">\
                 <div class="dataflowAreaWrapper">\
                     <div class="commentArea"></div>\
                     <svg class="edgeSvg"></svg>\

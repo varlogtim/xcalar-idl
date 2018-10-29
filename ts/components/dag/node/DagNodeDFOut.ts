@@ -11,7 +11,8 @@ class DagNodeDFOut extends DagNodeOut {
     public setParam(input: DagNodeDFOutInputStruct = <DagNodeDFOutInputStruct>{}): void {
         this.input.setInput({
             name: input.name,
-            linkAfterExecution: input.linkAfterExecution
+            linkAfterExecution: input.linkAfterExecution,
+            columns: input.columns
         });
         super.setParam();
     }

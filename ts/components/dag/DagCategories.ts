@@ -41,14 +41,22 @@ class DagCategories {
                 type: DagNodeType.Export
             })),
             new DagCategoryNodeOut(DagNodeFactory.create({
+                type: DagNodeType.Export,
+                subType: DagNodeSubType.ExportOptimized
+            })),
+            new DagCategoryNodeOut(DagNodeFactory.create({
                 type: DagNodeType.PublishIMD
             })),
             new DagCategoryNodeOut(DagNodeFactory.create({
                 type: DagNodeType.DFOut
             })),
             new DagCategoryNodeOut(DagNodeFactory.create({
-                type: DagNodeType.Jupyter
+                type: DagNodeType.DFOut,
+                subType: DagNodeSubType.DFOutOptimized
             })),
+            new DagCategoryNodeOut(DagNodeFactory.create({
+                type: DagNodeType.Jupyter
+            }))
         ]);
 
         const valueCategory = new DagCategory(DagCategoryType.Value, [

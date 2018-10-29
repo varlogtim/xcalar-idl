@@ -1,13 +1,13 @@
-class DagNodeExport extends DagNode {
+class DagNodeExport extends DagNodeOut {
     protected input: DagNodeExportInput;
+    private optimized: boolean;
 
     public constructor(options: DagNodeInfo) {
         super(options);
         this.type = DagNodeType.Export;
-        this.maxChildren = 0;
-        this.minParents = 1;
         this.display.icon = "&#xe955;";
         this.input = new DagNodeExportInput(options.input);
+        this.optimized = this.subType === DagNodeSubType.ExportOptimized;
     }
 
 
@@ -25,12 +25,5 @@ class DagNodeExport extends DagNode {
             driverArgs: input.driverArgs
         });
         super.setParam();
-    }
-
-    public lineageChange(_columns: ProgCol[]): DagLineageChange {
-        return {
-            columns: [], // export node no need to know lineage
-            changes: []
-        }
     }
 }

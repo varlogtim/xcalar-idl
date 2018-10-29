@@ -1221,9 +1221,9 @@
     }
 
     &.operatorMenu {
-        .removeNode, .copyNodes, .cutNodes, .pasteNodes, .executeNode, .resetNode,
-        .description, .configureNode, .previewTable, .generateTable, .unlockNodeTable,
-        .lockNodeTable, .viewSchema, .autoAlign {
+        .removeNode, .copyNodes, .cutNodes, .pasteNodes, .executeNode, .resetNode, .executeNodeOptimized,
+        .description, .configureNode, .previewTable, .generateTable, .viewSchema, .autoAlign,
+        .unlockNodeTable, .lockNodeTable,  {
             display: list-item;
         }
         .previewAgg, .createCustom, .findLinkOut {
@@ -1264,6 +1264,12 @@
                 }
             }
         }
+        &.viewOnly {
+            .resetNode, .executeNodeOptimized, .resetAllNodes,
+            .description, .configureNode, .previewTable, .generateTable, .viewSchema {
+                display: none;
+            }
+        }
     }
     &.connectorMenu, &.edgeMenu {
         .removeInConnection {
@@ -1271,7 +1277,7 @@
         }
     }
     &.backgroundMenu {
-        .removeAllNodes, .pasteNodes, .executeAllNodes,
+        .removeAllNodes, .pasteNodes, .executeAllNodes, .executeAllNodesOptimized,
         .resetAllNodes, .selectAllNodes,
         .autoAlign, .newComment {
             display: list-item;
@@ -1282,13 +1288,18 @@
                 display: none;
             }
         }
+        &.viewOnly {
+            .resetNode, .resetAllNodes{
+                display: none;
+            }
+        }
     }
     &.commentMenu {
         .removeNode, .copyNodes, .cutNodes, .pasteNodes, .autoAlign {
             display: list-item;
         }
-        .executeNode, .description, .configureNode, .previewTable, .generateTable, .viewSchema,
-        .unlockNodeTable, .lockNodeTable, .autoAlign {
+        .executeNode, .executeNodeOptimized, .description, .configureNode, .previewTable, .generateTable, .viewSchema,
+        .autoAlign, .unlockNodeTable, .lockNodeTable {
             display: none;
         }
         &.backgroundMenu {

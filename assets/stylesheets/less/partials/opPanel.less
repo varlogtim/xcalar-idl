@@ -2107,7 +2107,8 @@
                         border-bottom: 1px solid @color-bg-topBarGray2;
 
                         .name {
-                            width: ~"calc(100% - 10px - 30px - 20px)"; // 100% - padding - icon widths - icon margins
+                            max-width: ~"calc(100% - 10px - 30px - 20px)"; // 100% - padding - icon widths - icon margins
+                            height: 26px;
                         }
 
                         .icon {
@@ -2124,6 +2125,11 @@
                             border-bottom: 1px solid @color-border-softGray;
                             + li {
                                 border-top: 1px solid @color-border-softGray;
+                            }
+                            &.folderName {
+                                .name {
+                                    border-bottom: 1px solid @color-font-edge;
+                                }
                             }
                         }
 

@@ -17,7 +17,8 @@ namespace Transaction {
         steps?: number,
         cancelable?: boolean,
         exportName?: string,
-        nodeId?: DagNodeId
+        nodeId?: DagNodeId,
+        optimizedQueryName?: string
     }
 
     export interface TransactionDoneOptions {
@@ -27,7 +28,8 @@ namespace Transaction {
         noCommit?: boolean,
         noSql?: boolean,
         sql?: object,
-        title?: string
+        title?: string,
+        queryStateOutput?: any
     }
 
     export interface TransactionFailOptions {
@@ -49,6 +51,7 @@ namespace Transaction {
         sql?: SQLInfo;
         isEdit?: boolean;
         nodeId?: DagNodeId;
+        optimizedQueryName?: string;
     }
 
     // tx is short for transaction
@@ -59,6 +62,7 @@ namespace Transaction {
         sql: SQLInfo;
         isEdit: boolean;
         nodeId: DagNodeId;
+        optimizedQueryName?: string
 
         constructor(options: TXLogOptions) {
             this.msgId = options.msgId || null;
@@ -67,6 +71,7 @@ namespace Transaction {
             this.sql = options.sql || null;
             this.isEdit = options.isEdit || false;
             this.nodeId = options.nodeId || null;
+            this.optimizedQueryName = options.optimizedQueryName || null;
         }
 
 
@@ -123,7 +128,8 @@ namespace Transaction {
             "operation": operation,
             "sql": options.sql,
             "isEdit": options.isEdit,
-            "nodeId": options.nodeId
+            "nodeId": options.nodeId,
+            "optimizedQueryName": options.optimizedQueryName
         });
 
         txCache[curId] = txLog;
@@ -165,16 +171,24 @@ namespace Transaction {
             return;
         }
         if (!has_require) {
-            const txLog: TXLog = txCache[txId]; 
-            if (txLog && txLog.nodeId) {
-                try {
-                    const progress: number = xcHelper.getQueryProgress(queryStateOutput);
-                    const pct: number = Math.round(100 * progress);
-                    if (!isNaN(pct)) {
-                        DagView.updateProgress(txLog.nodeId, pct);
+            const txLog: TXLog = txCache[txId];
+            if (txLog) {
+                if (txLog.nodeId) {
+                    try {
+                        const progress: number = xcHelper.getQueryProgress(queryStateOutput);
+                        const pct: number = Math.round(100 * progress);
+                        if (!isNaN(pct)) {
+                            DagView.updateProgress(txLog.nodeId, pct);
+                        }
+                    } catch (e) {
+                        console.error(e);
                     }
-                } catch (e) {
-                    console.error(e);
+                } else if (txLog.optimizedQueryName) {
+                    try {
+                        DagView.updateOptimizedDFProgress(txLog.optimizedQueryName, queryStateOutput);
+                    } catch (e) {
+                        console.error(e);
+                    }
                 }
             }
         }
@@ -245,6 +259,9 @@ namespace Transaction {
             }
             if (txLog.nodeId != null) {
                 DagView.removeProgress(txLog.nodeId);
+            } else if (txLog.optimizedQueryName) {
+                DagView.endOptimizedDFProgress(txLog.optimizedQueryName,
+                                                options.queryStateOutput);
             }
         }
 

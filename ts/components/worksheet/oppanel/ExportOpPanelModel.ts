@@ -96,7 +96,8 @@ class ExportOpPanelModel {
                 return driver.name == this.loadedName;
             });
             deferred.resolve();
-        });
+        })
+        .fail(deferred.reject);
 
         return deferred;
     }

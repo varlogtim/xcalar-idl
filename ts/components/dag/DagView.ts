@@ -103,7 +103,8 @@ namespace DagView {
             if (activeDag == null ||
                 activeDag.isLocked() ||
                 $("#container").hasClass("formOpen") ||
-                $("input:focus").length || $("textarea:focus").length
+                $("input:focus").length || $("textarea:focus").length ||
+                $('[contentEditable="true"]').length
             ) {
                 return;
             }
@@ -510,6 +511,17 @@ namespace DagView {
         return clipboard !== null;
     }
 
+    export function hasOptimizedNode(nodeIds): boolean {
+        for (let i = 0; i < nodeIds.length; i++) {
+            const $node = DagView.getNode(nodeIds[i])
+            if ($node.data("subtype") === DagNodeSubType.DFOutOptimized ||
+                $node.data("subtype") === DagNodeSubType.ExportOptimized) {
+                    return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * DagView.connectNodes
      * @param parentNodeId
@@ -890,11 +902,23 @@ namespace DagView {
      * DagView.run
      * // run the entire dag
      */
-    export function run(nodeIds?: DagNodeId[]): XDPromise<void> {
+    export function run(nodeIds?: DagNodeId[], optimized?: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const currTabId: string = activeDagTab.getId();
+        const lockedIds = [];
+        // prevent optimized nodes from being deleted or edited
+        if (optimized) {
+           nodeIds.forEach((nodeId) => {
+                const node = activeDag.getNode(nodeId);
+                if (node.getSubType() === DagNodeSubType.DFOutOptimized ||
+                    node.getSubType() === DagNodeSubType.ExportOptimized) {
+                    DagView.lockNode(nodeId);
+                    lockedIds.push(nodeId);
+                }
+            });
+        }
 
-        activeDag.execute(nodeIds)
+        activeDag.execute(nodeIds, optimized)
         .then(function() {
             if (UserSettings.getPref("dfAutoPreview") === true &&
                 nodeIds.length === 1
@@ -911,6 +935,11 @@ namespace DagView {
                 StatusBox.show(error.type, $node);
             }
             deferred.reject(error);
+        })
+        .always(function() {
+            lockedIds.forEach((nodeId) => {
+                DagView.unlockNode(nodeId);
+            });
         });
 
         return deferred.promise();
@@ -1207,7 +1236,7 @@ namespace DagView {
             DagTabManager.Instance.newCustomTab(dagNode);
         }
     }
-    
+
     /**
      * Open a tab to show SQL sub graph for viewing purpose
      * @param nodeId
@@ -1353,7 +1382,12 @@ namespace DagView {
     export function isDisableActions(): boolean {
         const activeTab = getActiveTab();
         return (activeTab instanceof DagTabCustom ||
-                activeTab instanceof DagTabSQL);
+                activeTab instanceof DagTabSQL ||
+                activeTab instanceof DagTabOptimized);
+    }
+
+    export function isViewOnly(): boolean {
+        return $dfWrap.find(".dataflowArea.active").hasClass("viewOnly");
     }
 
     function _createCustomNode(
@@ -2140,12 +2174,26 @@ namespace DagView {
         $dfArea.find(".dataflowAreaWrapper").css("background-size", gridLineSize * scale);
     }
 
+    // for param tooltip
+    function _formatTooltip(param): string {
+        let title = xcHelper.escapeHTMLSpecialChar(JSON.stringify(param, null, 2));
+        if (title === "{}") {
+            title = "empty";
+        } else {
+            if (title.indexOf("{\n") === 0 && title.lastIndexOf("}") === title.length - 1) {
+                title = title.slice(2, -1);
+            }
+        }
+        return title;
+    }
+
     function _setTooltip($node: JQuery, node: DagNode): void {
         if (node.getState() !== DagNodeState.Error) {
             xcTooltip.remove($node.find(".main"));
         } else {
-            let title: string = node.getError();
-            title = xcHelper.escapeHTMLSpecialChar(title);
+            const title: string = (node.getState() === DagNodeState.Error) ?
+            node.getError() : _formatTooltip(node.getParam());
+
             xcTooltip.add($node.find(".main"), {
                 title: title,
                 classes: "preWrap leftAlign wide"
@@ -2387,6 +2435,11 @@ namespace DagView {
         activeDag.events.on(DagNodeEvents.ParamChange, function (info) {
             const $node: JQuery = DagView.getNode(info.id);
             _drawTitleText($node, info.node);
+            const title = _formatTooltip(info.params);
+            xcTooltip.add($node.find(".main"), {
+                title: title,
+                classes: "preWrap leftAlign wide"
+            });
             $node.find(".paramIcon").remove();
             if (info.hasParameters) {
                 d3.select($node.get(0)).append("text")
@@ -2481,9 +2534,9 @@ namespace DagView {
     // depth: 1, width: 1 and so on.
     function _alignNodes(node, seen, width) {
         let greatestWidth = width;
-        alignHelper(node, 0, width);
+        _alignHelper(node, 0, width);
 
-        function alignHelper(node, depth, width) {
+        function _alignHelper(node, depth, width) {
             const nodeId = node.getId();
             if (seen[nodeId] != null) {
                 return;
@@ -2505,7 +2558,7 @@ namespace DagView {
                     } else {
                         newWidth = greatestWidth + 1;
                     }
-                    alignHelper(parents[i], depth + 1, newWidth);
+                    _alignHelper(parents[i], depth + 1, newWidth);
                 }
             }
             const children = node.getChildren();
@@ -2525,8 +2578,7 @@ namespace DagView {
                     } else {
                         newWidth = greatestWidth + 1;
                     }
-                    alignHelper(children[i], depth - 1,
-                        newWidth);
+                    _alignHelper(children[i], depth - 1, newWidth);
                     numChildrenDrawn++;
                 }
             }
@@ -2699,16 +2751,138 @@ namespace DagView {
             .text("0%");
     }
 
-    export function updateProgress(nodeId: DagNodeId, progress: number): void {
+    export function updateProgress(
+        nodeId: DagNodeId,
+        progress: number,
+        _skew?,
+        _timeStr?: string
+    ): void {
         const g = d3.select('#dagView .operator[data-nodeid = "' + nodeId + '"]');
-        g.select(".opProgress")
-            .text(progress + "%");
+        let opProgress = g.select(".opProgress");
+        if (opProgress.empty()) {
+            DagView.addProgress(nodeId);
+            opProgress = g.select(".opProgress");
+        }
+        opProgress.text(progress + "%");
+    }
+
+    export function updateOptimizedDFProgress(queryName, queryStateOuput) {
+        const nodes = queryStateOuput.queryGraph.node;
+        let tab: DagTabOptimized = <DagTabOptimized>DagTabManager.Instance.getTabById(queryName);
+        let graph: DagOptimizedGraph;
+        let nameIdMap;
+        if (!tab) {
+            return;
+        } else {
+            graph = tab.getGraph();
+            nameIdMap = tab.getNameIdMap();
+        }
+
+        const errorStates = [DgDagStateT.DgDagStateUnknown, DgDagStateT.DgDagStateError, DgDagStateT.DgDagStateArchiveError];
+
+        nodes.forEach((node) => {
+            const nodeId = nameIdMap[node.name.name];
+            let progress: number = node.numWorkCompleted / node.numWorkTotal;
+            if (isNaN(progress)) {
+                progress = 0;
+            }
+
+            if (errorStates.indexOf(node.state) > -1 ) {
+                graph.getNode(nodeId).beErrorState(DgDagStateTStr[node.state]);
+            } else if (progress === 1) {
+                graph.getNode(nodeId).beCompleteState();
+            }
+            const pct: number = Math.round(100 * progress);
+            const skewInfo = getSkewInfo(node);
+            graph.updateNodeProgress(nodeId, pct, node.elapsed.milliseconds, node.state);
+            const time: number = graph.getNodeElapsedTime(nodeId);
+            const timeStr: string = xcHelper.getElapsedTimeStr(time);
+            DagView.updateProgress(nodeId, pct, skewInfo, timeStr);
+        });
+    }
+
+    function getSkewInfo(node) {
+        const rows = node.numRowsPerNode.map(numRows => numRows);
+        const skew = getSkewValue(node);
+        const skewText = getSkewText(skew);
+        const skewColor = getSkewColor(skewText);
+        return {
+            name: node.name.name,
+            value: skew,
+            text: skewText,
+            color: skewColor,
+            rows: rows,
+            totalRows: node.numRowsTotal,
+            size: node.inputSize
+        };
+    }
+
+    function getSkewValue(node) {
+        var skewness = null;
+        var rows = node.numRowsPerNode.map(numRows => numRows);
+        var len = rows.length;
+        var even = 1 / len;
+        var total = rows.reduce(function(sum, value) {
+            return sum + value;
+        }, 0);
+        if (total === 1) {
+            // 1 row has no skewness
+            skewness = 0;
+        } else {
+            // change to percantage
+            rows = rows.map(function(row) {
+                return row / total;
+            });
+
+            skewness = rows.reduce(function(sum, value) {
+                return sum + Math.abs(value - even);
+            }, 0);
+
+            skewness = Math.floor(skewness * 100);
+        }
+        return skewness;
+    }
+
+    function getSkewText(skew) {
+        return ((skew == null || isNaN(skew))) ? "N/A" : String(skew);
+    }
+
+    function getSkewColor(skew) {
+        if (skew === "N/A") {
+            return "";
+        }
+        skew = Number(skew);
+        /*
+            0: hsl(104, 100%, 33)
+            25%: hsl(50, 100%, 33)
+            >= 50%: hsl(0, 100%, 33%)
+        */
+        let h = 104;
+        if (skew <= 25) {
+            h = 104 - 54 / 25 * skew;
+        } else if (skew <= 50) {
+            h = 50 - 2 * (skew - 25);
+        } else {
+            h = 0;
+        }
+        return 'hsl(' + h + ', 100%, 33%)';
     }
 
     export function removeProgress(nodeId: DagNodeId): void {
         const g = d3.select('#dagView .operator[data-nodeid = "' + nodeId + '"]');
         g.selectAll(".opProgress")
             .remove();
+    }
+
+    export function endOptimizedDFProgress(queryName: string, queryStateOutput) {
+        let tab: DagTabOptimized = <DagTabOptimized>DagTabManager.Instance.getTabById(queryName);
+        let graph: DagOptimizedGraph;
+        if (!tab) {
+            return;
+        }
+        graph = tab.getGraph();
+        graph.endProgress(queryStateOutput.queryState, queryStateOutput.elapsed.milliseconds);
+        // XXX display finished state
     }
 
     export function unlockNode(nodeId: DagNodeId): void {

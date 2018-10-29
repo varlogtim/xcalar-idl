@@ -1436,6 +1436,8 @@ module.exports = {
         "comment": "New Comment",
         "execute": "Execute",
         "executeAll": "Execute All",
+        "executeOptimized": "Execute Optimized",
+        "executeAllOptimized": "Execute All Optimized",
         "reset": "Reset",
         "resetAll": "Reset All",
         "previewTable": "Preview Table",

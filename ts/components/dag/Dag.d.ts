@@ -101,6 +101,12 @@ interface DagNodeExportInputStruct {
     driverArgs: ExportDriverArg[];
 }
 
+interface DagNodeOptimizeInputStruct {
+    columns: string[];
+    driver: string;
+    driverArgs: ExportDriverArg[];
+}
+
 interface DagNodeFilterInputStruct {
     evalString: string;
 }
@@ -170,6 +176,7 @@ interface DagNodeDFInInputStruct {
 interface DagNodeDFOutInputStruct {
     name: string;
     linkAfterExecution: boolean;
+    columns?: string[]
 }
 
 interface DagNodeSplitInputStruct {

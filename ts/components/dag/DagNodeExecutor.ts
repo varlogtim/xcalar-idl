@@ -12,11 +12,11 @@ class DagNodeExecutor {
     /**
      * run the node operation
      */
-    public run(): XDPromise<string> {
+    public run(optimized?: boolean): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNode =  this.node;
         const isSimulate: boolean = Transaction.isSimulate(this.txId);
-        if (!isSimulate) {
+        if (!isSimulate && !optimized) {
             node.beRunningState();
         }
         node.getParents().forEach((parent) => {
@@ -30,12 +30,10 @@ class DagNodeExecutor {
                 node.setTable(destTable);
                 DagTblManager.Instance.addTable(destTable);
             }
-            if (!isSimulate) {
-                if (destTable != null) {
-                    DagTblManager.Instance.addTable(destTable);
-                }
+            if (!isSimulate && !optimized) {
                 node.beCompleteState();
             }
+
             deferred.resolve(destTable);
         })
         .fail((error) => {
@@ -122,7 +120,7 @@ class DagNodeExecutor {
     private _aggregate(): XDPromise<null> {
         const deferred: XDDeferred<null> = PromiseHelper.deferred();
         const node: DagNodeAggregate = <DagNodeAggregate>this.node;
-        const params: DagNodeAggregateInputStruct = node.getParam(true)
+        const params: DagNodeAggregateInputStruct = node.getParam(true);
         const evalStr: string = params.evalString;
         const tableName: string = this._getParentNodeTable(0);
         let dstAggName: string = params.dest;

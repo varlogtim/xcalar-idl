@@ -2182,7 +2182,8 @@ namespace XIApi {
         txId: number,
         queryName: string,
         queryStr: string,
-        jdbcCheckTime?: number
+        jdbcCheckTime?: number,
+        noCleanup?: boolean
     ): XDPromise<XcalarApiQueryStateOutputT> {
         if (txId == null || queryName == null || queryStr == null) {
             return PromiseHelper.reject("Invalid args in query");
@@ -2199,7 +2200,7 @@ namespace XIApi {
                 }
                 queryStr = "[" + queryStr + "]";
             }
-            return XcalarQueryWithCheck(queryName, queryStr, txId, false, jdbcCheckTime);
+            return XcalarQueryWithCheck(queryName, queryStr, txId, false, jdbcCheckTime, noCleanup);
         }
     }
 

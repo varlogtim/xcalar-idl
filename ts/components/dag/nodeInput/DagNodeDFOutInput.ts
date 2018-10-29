@@ -6,6 +6,7 @@ class DagNodeDFOutInput extends DagNodeInput {
         return {
             name: input.name || "",
             linkAfterExecution: input.linkAfterExecution || false,
+            columns: input.columns || []
         };
     }
 }

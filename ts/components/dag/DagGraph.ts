@@ -1,5 +1,5 @@
 class DagGraph {
-    private nodesMap: Map<DagNodeId, DagNode>;
+    protected nodesMap: Map<DagNodeId, DagNode>;
     private removedNodesMap: Map<DagNodeId,{}>;
     private commentsMap: Map<CommentNodeId, CommentNode>;
     private removedCommentsMap: Map<CommentNodeId, CommentNode>;
@@ -44,30 +44,10 @@ class DagGraph {
         });
     }
 
-    /**
-     * Deserializes the graph represented by serializedGraph
-     * @param serializedGraph The serialized graph we want to restore.
-     * @returns {boolean}
-     * TODO: Update for metaNodes
-     */
-    public deserializeDagGraph(serializedGraph: string): boolean {
-        if (serializedGraph == null) {
-            return false;
-        }
-        let graphJSON: {nodes:string[], comments:string[], display: Dimensions} = null;
-        try {
-            graphJSON = JSON.parse(serializedGraph);
-        } catch(error) {
-            console.error("Could not parse JSON of dagGraph: " + error)
-            return false;
-        }
+    public rebuildGraph(graphJSON: {nodes: {node: DagNode, parents: DagNodeId[]}[], comments:string[], display: Dimensions}): void {
         let connections: NodeConnection[] = [];
         this.display = graphJSON.display;
-        graphJSON.nodes.forEach((ele) => {
-            const desNode: DeserializedNode = DagNodeFactory.deserialize(ele);
-            if (desNode == null) {
-                return false;
-            }
+        graphJSON.nodes.forEach((desNode) => {
             const node: DagNode = desNode.node;
             const childId: string = node.getId();
             const parents: string[] = desNode.parents;
@@ -89,6 +69,36 @@ class DagGraph {
                 this.commentsMap.set(commentNode.getId(), commentNode);
             });
         }
+    }
+
+    /**
+     * Deserializes the graph represented by serializedGraph
+     * @param serializedGraph The serialized graph we want to restore.
+     * @returns {boolean}
+     * TODO: Update for metaNodes
+     */
+    public deserializeDagGraph(serializedGraph: string): boolean {
+        if (serializedGraph == null) {
+            return false;
+        }
+        let graphJSON: {nodes:string[], comments:string[], display: Dimensions} = null;
+        try {
+            graphJSON = JSON.parse(serializedGraph);
+        } catch(error) {
+            console.error("Could not parse JSON of dagGraph: " + error)
+            return false;
+        }
+        const nodes = [];
+        graphJSON.nodes.forEach((ele) => {
+            const desNode: DeserializedNode = DagNodeFactory.deserialize(ele);
+            if (desNode == null) {
+                return false;
+            }
+            nodes.push(desNode);
+        });
+        graphJSON.nodes = nodes;
+
+        this.rebuildGraph(graphJSON);
         return true;
     }
 
@@ -373,13 +383,13 @@ class DagGraph {
      *  @param nodeIds nodes that need to execute
      * @returns {JQueryDeferred}
      */
-    public execute(nodeIds?: DagNodeId[]): XDPromise<void> {
+    public execute(nodeIds?: DagNodeId[], optimized?: boolean): XDPromise<void> {
         if (nodeIds == null) {
-            return this._executeGraph();
+            return this._executeGraph(null, optimized);
         } else {
             // get subGraph from nodes and execute
             const nodesMap:  Map<DagNodeId, DagNode> = this._backTraverseNodes(nodeIds);
-            return this._executeGraph(nodesMap);
+            return this._executeGraph(nodesMap, optimized);
         }
     }
 
@@ -745,20 +755,24 @@ class DagGraph {
 
     // XXX TODO, Idea is to do a topological sort first, then get the
     // ordere, then get the query, and run it one by one.
-    private _executeGraph(nodesMap?: Map<DagNodeId, DagNode>): XDPromise<void> {
+    private _executeGraph(nodesMap?: Map<DagNodeId, DagNode>, optimized?: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const orderedNodes: DagNode[] = this._topologicalSort(nodesMap);
         const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, this);
-        const checkResult = executor.checkCanExecuteAll();
+        let checkResult = executor.checkCanExecuteAll(optimized);
         if (checkResult.hasError) {
             return PromiseHelper.reject(checkResult);
         }
-
+        if (optimized) {
+            checkResult = executor.checkDisjoint();
+            if (checkResult.hasError) {
+                return PromiseHelper.reject(checkResult);
+            }
+        }
 
         this.lockGraph();
-        executor.run()
-        .then(() => {
-            // console.log("finish running", orderedNodes);
+        executor.run(optimized)
+        .then((_res) => {
             this.unlockGraph();
             deferred.resolve();
         })
@@ -978,6 +992,27 @@ class DagGraph {
                 }
                 callback(child);
                 recursiveTraverse(child);
+            });
+        };
+
+        recursiveTraverse(node);
+    }
+
+    public traverseParents(node: DagNode, callback: Function) {
+        const seen: Set<string> = new Set();
+        const recursiveTraverse = (node: DagNode): void => {
+            const parents: DagNode[] = node.getParents();
+            parents.forEach((parent: DagNode) => {
+                const nodeId: DagNodeId = parent.getId();
+                if (seen.has(nodeId)) {
+                    return;
+                } else {
+                    seen.add(nodeId);
+                }
+                const res = callback(parent);
+                if (res !== false) {
+                    recursiveTraverse(parent);
+                }
             });
         };
 
@@ -1302,7 +1337,6 @@ class DagGraph {
                     break;
             }
 
-            // dagNodeInfo.table = node.name;
             dagNodeInfo.description = node.rawNode.comment;
             dagNodeInfo.table = node.name;
             dagNodeInfo.id = DagNode.generateId();

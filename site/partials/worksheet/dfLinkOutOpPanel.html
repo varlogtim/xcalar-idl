@@ -17,6 +17,38 @@
               <input type="text">
             </div>
           </div>
+          <!-- columns-->
+          <div class="row exportColumnsSection formRow">
+            <div class="subHeading clearfix">
+                <div class="label"><%= dicts.exportView.colsToExport %>:</div>
+            </div>
+            <p><%= dicts.exportView.colInstr %></p>
+            <div class="checkboxWrap selectAllWrap">
+                <div class="checkbox">
+                    <i class="icon xi-ckbox-empty fa-13"></i>
+                    <i class="icon xi-ckbox-selected fa-13"></i>
+                </div>
+                <div class="text"><%= dicts.common.SelectAll %></div>
+            </div>
+            <div class="columnsToExport columnsWrap flexWrap clearfix">
+                <ul class="cols"></ul>
+                <div class="hint noColsHint empty"><%= dicts.dataflow.noColsHint %></div>
+            </div>
+            <!-- rename section -->
+            <div class="renameSection clearfix xc-hidden">
+                <div class="subHeading clearfix">
+                <div><%= dicts.common.ColRenames %></div>
+                </div>
+                <p><%= dicts.common.ColRenameInstr %></p>
+                <div class="tableRenames">
+                <div class="subSubHeading clearfix">
+                    <div><%= dicts.exportView.CurrentColName %></div>
+                    <div><%= dicts.exportView.NewColName %></div>
+                </div>
+                <div class="renamePart"></div>
+                </div>
+            </div>
+          </div>
           <!-- option -->
           <div class="row clearfix option">
               <div class="description">Option:</div>
