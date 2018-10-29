@@ -978,13 +978,7 @@ namespace DagView {
         const $node = DagView.getNode(nodeId);
 
         node.setTitle(title);
-        const lines: string[] = title.split("\n");
-        let html = "";
-        lines.forEach((line, i) => {
-            html += '<tspan x="0" y="' + (i * titleLineHeight) + '">' +
-                line + '</tspan>';
-        });
-        $node.find(".nodeTitle").html(html);
+        _drawTitleText($node, node);
         // XXX TODO: update paramTitle's height
         Log.add(SQLTStr.EditNodeTitle, {
             "operation": SQLOps.EditNodeTitle,
@@ -2173,6 +2167,8 @@ namespace DagView {
         const titleLines: string[] = title.split("\n");
         const titleHeight: number = nodeHeight + 12;
         const g = d3.select($node.get(0));
+        g.select(".nodeTitle").remove();
+        g.select(".paramTitle").remove();
         const textSvg = g.append("text")
             .attr("class", "nodeTitle")
             .attr("fill", "#44515C")
@@ -2317,7 +2313,7 @@ namespace DagView {
 
         activeDag.events.on(DagNodeEvents.ParamChange, function (info) {
             const $node: JQuery = DagView.getNode(info.id);
-            updateParamHint($node, info.node);
+            _drawTitleText($node, info.node);
             $node.find(".paramIcon").remove();
             if (info.hasParameters) {
                 d3.select($node.get(0)).append("text")
@@ -2358,19 +2354,6 @@ namespace DagView {
                 DagTblManager.Instance.deleteTable(tableName, true, false);
             }
         });
-    }
-
-    function updateParamHint($node: JQuery, node: DagNode): void {
-        const paramHint: string = node.getParamHint();
-        const lines: string[] = paramHint.split("\n");
-        let html: HTML = "";
-        lines.forEach((line, i) => {
-            html +=
-                '<tspan x="0" y="' + (i * titleLineHeight) + '">' +
-                    line +
-                '</tspan>';
-        });
-        $node.find(".paramTitle").html(html);
     }
 
     // groups individual nodes into trees and joins branches with main tree
