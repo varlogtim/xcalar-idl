@@ -15,7 +15,7 @@ var XpeSharedContextUtils = (function(XpeSharedContextUtils) {
     XpeSharedContextUtils.DOCKER_TIMEOUT = dockerWaitDefault;
 
     var dockerStatusStates = (typeof window.dockerStatusStates === 'undefined' && typeof require !== 'undefined') ? require('./xpeServerResponses.js').dockerStatusStates : window.dockerStatusStates;
-    var httpStatus = (typeof window.httpStatus === 'undefined' && typeof require !== 'undefined') ? require('./../httpStatus.js').dockerStatusStates : window.httpStatus;
+    var httpStatus = (typeof window.httpStatus === 'undefined' && typeof require !== 'undefined') ? require('./../httpStatus.js').httpStatus : window.httpStatus;
 
     /**
      * close all windows and quit the nwjs processes.
