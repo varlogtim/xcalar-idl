@@ -60,7 +60,7 @@ class OpPanelComponentFactory {
 
         columnMenuItem:
             `<li>
-                <div class="typeIcon flexContainer flexrow {{colTypeClass}}">
+                <div class="typeIcon flexContainer {{colTypeClass}}">
                     <div class="flexWrap flex-left" data-toggle="tooltip" data-title="{{colType}}" data-container="body" data-placement="top">
                         <span class="iconHidden"></span>
                         <span class="type icon"></span>
@@ -277,7 +277,7 @@ class OpPanelComponentFactory {
         const sectionBuilder: {
             [type: string]: (props: AutogenSectionProps) => HTMLElement[]
         } = {
-            'column': this.createBooleanInputSection.bind(this),
+            'column': this.createHintDropdownSection.bind(this),
             'string': this.createStringInputSection.bind(this),
             'number': this.createNumberInputSection.bind(this),
             'boolean': this.createBooleanInputSection.bind(this),
