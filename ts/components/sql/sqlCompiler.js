@@ -4543,10 +4543,11 @@
                     if (opStruct.aggTypes[i]) {
                         mapStrs.push(opStruct.aggTypes[i] + "("
                                      + opStruct.aggCols[i] + ")");
-                        var tempColName = "XC_WINDOW_" + opStruct.aggTypes[i]
-                                    + "_" + opStruct.aggCols[i] + "_"
+                        var tempColName = cleanseColName("XC_WINDOW_"
+                                    + opStruct.aggTypes[i] + "_"
+                                    + opStruct.aggCols[i] + "_"
                                     + Authentication.getHashId().substring(1)
-                                    + "_" + i;
+                                    + "_" + i);
                         newColNames.push(tempColName);
                         tempColStructs.push({colName: tempColName});
                         opStruct.aggCols[i] = tempColStructs[tempColStructs.length - 1];
@@ -4634,10 +4635,11 @@
                     if (opStruct.keyTypes[i]) {
                         mapStrs.push(opStruct.keyTypes[i] + "("
                                      + opStruct.keyCols[i] + ")");
-                        var tempColName = "XC_WINDOW_" + opStruct.keyTypes[i]
-                                    + "_" + opStruct.keyCols[i] + "_"
+                        var tempColName = cleanseColName("XC_WINDOW_"
+                                    + opStruct.keyTypes[i] + "_"
+                                    + opStruct.keyCols[i] + "_"
                                     + Authentication.getHashId().substring(1)
-                                    + "_" + i;
+                                    + "_" + i);
                         newColNames.push(tempColName);
                         keyColNames.push(tempColName);
                         tempColStructs.push({colName: tempColName});
@@ -4725,7 +4727,7 @@
                         var mapStr = "if(";
                         var defaultValue = opStruct.defaults[i];
                         if (opStruct.types[i] === "string") {
-                            defaultValue = "'" + defaultValue + "'";
+                            defaultValue = "\"" + defaultValue + "\"";
                         } else if (opStruct.types[i] === undefined) {
                             if (node.renamedCols[defaultValue.colId]) {
                                 defaultValue = node.renamedCols[defaultValue.colId];

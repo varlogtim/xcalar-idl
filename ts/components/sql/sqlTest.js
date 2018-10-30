@@ -13,6 +13,10 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
     var tpchTables;
     var tpcdsTables;
     var tableauTables;
+    var tableNodesMap = [];
+    var sqlNode;
+    var sqlNodeElement;
+    var testDagGraph;
     $.getJSON("assets/test/json/SQLTest.json", undefined, function(data) {
         sqlTestCases = data.xcTest.testCases;
         sqlTestAnswers = data.xcTest.answers;
@@ -88,16 +92,21 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             }
             var randId = Math.floor(Math.random() * 1000);
             var promiseArray = [];
+            $("#dagButton").click();
+            $("#dagView .newTab").click();
+            testDagGraph = DagView.getActiveDag();
             for (var i = 0; i < tableNames.length; i++) {
                 var dataPath = dataSource + tableNames[i];
                 var tableName = tableNames[i].substring(0, tableNames[i].indexOf("."));
                 var check = checkList[i];
                 promiseArray.push(prepareData.bind(window, test, tableName,
                                                    randId, dataPath, check, i));
-                promiseArray.push(dropTempTables.bind(window));
             }
             // Remove all immediates
             PromiseHelper.chain(promiseArray)
+            .then(function() {
+                prepareSQLNode();
+            })
             .then(function() {
                 test.pass(deferred, testName, currentTestNumber);
             })
@@ -121,91 +130,116 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         }
 
         function runQuery(deferred, testName, currentTestNumber) {
+            var outerPromise;
+            // XXX This is a workaround because current auto memory free dosen't handle sql temp tables
+            if ($("#alertModal").is(":visible") && $("#alertHeader .text").text() === "Low Memory Warning") {
+                $("#alertActions .cancel").click();
+                for (name in tableNodesMap) {
+                    var datasetNode = DagView.getActiveDag().getNode(tableNodesMap[name]);
+                    if (!DagTblManager.Instance.hasLock(datasetNode.table)) {
+                        DagTblManager.Instance.toggleTableLock(datasetNode.table);
+                    }
+                }
+                outerPromise = DagTblManager.Instance.emptyCache(false);
+            } else {
+                outerPromise = PromiseHelper.resolve();
+            }
             console.log("Query name: " + testName);
             var sqlString = queries[testName];
             console.log(sqlString);
-            // Create a new worksheet after each 5 tables have been loaded
-            if (currentTestNumber % 5 === 1 || testType === "tableau") {
-                WSManager.addWS();
-            }
-            if (testType === "tableau") {
-                var curPromise = PromiseHelper.resolve();
-                var index = 0;
-                for (var i = 0; i < sqlString.length; i++) {
+            outerPromise.then(function() {
+                if (testType === "tableau") {
+                    var curPromise = PromiseHelper.resolve();
+                    var index = 0;
+                    for (var i = 0; i < sqlString.length; i++) {
+                        curPromise = curPromise.then(function() {
+                            var query = sqlString[index];
+                            console.log("Tableau subquery " + (index + 1) + ": " + query);
+                            sqlNode.setSqlQueryString(query);
+                            test.nodeMenuAction(sqlNodeElement, "configureNode");
+                            $("#sqlOpPanel .submit").click();
+                            return test.hasNodeWithState(sqlNode.getId(), DagNodeState.Configured)
+                            .then(function() {
+                                return test.executeNode(sqlNode.getId());
+                            });
+                        })
+                        .then(function() {
+                            index++;
+                        });
+                    }
                     curPromise = curPromise.then(function() {
-                        var query = sqlString[index];
-                        console.log("Tableau subquery " + (index + 1) + ": " + query);
-                        SQLEditor.getEditor().setValue(query);
-                        return SQLEditor.executeSQL();
+                        if (checkResult(answerSet, testName)) {
+                            test.pass(deferred, testName, currentTestNumber);
+                        } else {
+                            test.fail(deferred, testName, currentTestNumber, "WrongAnswer");
+                        }
+                    })
+                    .fail(function(error) {
+                        console.error(error, "runQuery");
+                        test.fail(deferred, testName, currentTestNumber, error);
+                    });
+                } else if (testName === "cancelQuery") {
+                    sqlNode.setSqlQueryString(sqlString);
+                    test.nodeMenuAction(sqlNodeElement, "configureNode");
+                    $("#sqlOpPanel .submit").click();
+                    test.hasNodeWithState(sqlNode.getId(), DagNodeState.Configured)
+                    .then(function() {
+                        setTimeout(function() {
+                            $("#monitor-queryList .query .cancelIcon").last().click();
+                        }, 1000);
+                        return test.executeNode(sqlNode.getId());
                     })
                     .then(function() {
-                        index++;
-                        return dropTempTables();
+                        test.fail(deferred, testName, currentTestNumber, "Unable to cancel query, query resolved");
+                    })
+                    .fail(function() {
+                        if (sqlCom.getStatus() === SQLStatus.Cancelled) {
+                            test.pass(deferred, testName, currentTestNumber);
+                        } else {
+                            test.fail(deferred, testName, currentTestNumber, "Unable to cancel query, status is: " + sqlCom.getStatus());
+                        }
+                    });
+                } else {
+                    sqlNode.setSqlQueryString(sqlString);
+                    test.nodeMenuAction(sqlNodeElement, "configureNode");
+                    $("#sqlOpPanel .submit").click();
+                    test.hasNodeWithState(sqlNode.getId(), DagNodeState.Configured)
+                    .then(function() {
+                        return test.executeNode(sqlNode.getId());
+                    })
+                    .then(function() {
+                        if ($("#dagViewTableArea").hasClass("xc-hidden")) {
+                            return DagView.previewTable(sqlNode.id);
+                        } else {
+                            return PromiseHelper.resolve();
+                        }
+                    })
+                    .then(function() {
+                        if (checkResult(answerSet, testName)) {
+                            test.pass(deferred, testName, currentTestNumber);
+                        } else {
+                            test.fail(deferred, testName, currentTestNumber, "WrongAnswer");
+                        }
+                    })
+                    .fail(function(error) {
+                        console.error(error, "runQuery");
+                        test.fail(deferred, testName, currentTestNumber, error);
                     });
                 }
-                curPromise = curPromise.then(function() {
-                    if (checkResult(answerSet, testName)) {
-                        test.pass(deferred, testName, currentTestNumber);
-                    } else {
-                        test.fail(deferred, testName, currentTestNumber, "WrongAnswer");
-                    }
-                    // XXX need to drop result tables to free memory
-                })
-                .fail(function(error) {
-                    console.error(error, "runQuery");
-                    test.fail(deferred, testName, currentTestNumber, error);
-                });
-            } else if (testName === "cancelQuery") {
-                SQLEditor.getEditor().setValue(sqlString);
-                var queryName = xcHelper.randName("sql");
-                var sqlCom = new SQLCompiler();
-                sqlCom.compile(queryName, sqlString)
-                .then(function(queryString, newTableName, cols, cacheStruct) {
-                    // XXX FIXME please if you can find a better way other than setTimeout
-                    setTimeout(function() {
-                        $("#monitor-queryList .query .cancelIcon").last().click();
-                    }, 2000);
-                    return sqlCom.execute(queryString, newTableName, cols,
-                                                    sqlString, cacheStruct);
-                })
-                .then(function() {
-                    test.fail(deferred, testName, currentTestNumber, "Unable to cancel query, query resolved");
-                })
-                .fail(function() {
-                    if (sqlCom.getStatus() === SQLStatus.Cancelled) {
-                        test.pass(deferred, testName, currentTestNumber);
-                    } else {
-                        test.fail(deferred, testName, currentTestNumber, "Unable to cancel query, status is: " + sqlCom.getStatus());
-                    }
-                });
-            } else {
-                SQLEditor.getEditor().setValue(sqlString);
-                SQLEditor.executeSQL()
-                .then(function() {
-                    return dropTempTables();
-                })
-                .then(function() {
-                    if (checkResult(answerSet, testName)) {
-                        test.pass(deferred, testName, currentTestNumber);
-                    } else {
-                        test.fail(deferred, testName, currentTestNumber, "WrongAnswer");
-                    }
-                })
-                .fail(function(error) {
-                    console.error(error, "runQuery");
-                    test.fail(deferred, testName, currentTestNumber, error);
-                });
-            }
+            })
+            .fail(function(error) {
+                console.error(error, "dropTempTables");
+                test.fail(deferred, testName, currentTestNumber, error);
+            });
         }
 
-        $("#sqlTab").click();
         for (var queryName in queries) {
             var sqlString = queries[queryName];
             test.add(runQuery, queryName, defaultTimeout, TestCaseEnabled);
         }
     }
     function checkResult(answerSet, queryName) {
-        var table = "#xcTable-" + gActiveTableId;
+        var table = "#dagViewTableArea table";
         for (var row in answerSet[queryName]) {
             if (row === "numOfRows") {
                 if (answerSet[queryName][row] !==
@@ -266,68 +300,35 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         console.log("Case " + queryName + "  pass!");
         return true;
     }
-    function dropTempTables() {
-        function deleteTables() {
-            return TblManager.deleteTables(gOrphanTables, "orphaned", true);
-        }
-        var deferred = PromiseHelper.deferred();
-        TableList.refreshOrphanList(false)
-                 .then(deleteTables, deleteTables)
-                 .always(deferred.resolve);
-
-        return deferred.promise();
-    }
     function prepareData(test, tableName, randId, dataPath, check, index) {
         var deferred = PromiseHelper.deferred();
-        // Create a new worksheet after each 5 tables have been loaded
-        if (index > 0 && index % 5 === 0) {
-            WSManager.addWS();
-        }
         // Load datasets
         loadDatasets(test, tableName, randId, dataPath, check)
         .then(function() {
-            // Create tables
-            $("#dataStoresTab").click();
-            return createTables(test, tableName, randId);
+            // Create import nodes
+            return test.createDatasetNode(tableName + "_" + randId, tableName);
         })
-        .then(function() {
-            // Cast data types
-            return castColumns(gActiveTableId);
+        .then(function(nodeId) {
+            tableNodesMap[tableName] = nodeId;
+            deferred.resolve();
         })
-        .then(function() {
-            // Send schema
-            return sendSchema(gActiveTableId, tableName);
-        })
-        .then(deferred.resolve)
         .fail(deferred.reject);
         return deferred.promise();
     }
     function loadDatasets(test, tableName, randId, dataPath, check) {
         return test.loadDS(tableName + "_" + randId, dataPath, check);
     }
-    function createTables(test, tableName, randId) {
-        return test.createTable(tableName + "_" + randId);
-    }
-    function castColumns(tableId) {
-        SmartCastView.show(tableId);
-        var colTypeInfos = [];
-        $("#smartCast-table .tableContent").find(".row").each(function() {
-            var colNum = parseInt($(this).attr("data-col"));
-            var colType = $(this).find(".colType").text();
-            colTypeInfos.push({
-                "colNum": colNum,
-                "type": colType
-            });
-        });
-        SmartCastView.close();
-        if (colTypeInfos.length > 0) {
-            return ColManager.changeType(colTypeInfos, tableId);
-        } else {
-            return PromiseHelper.deferred().resolve().promise();
+    function prepareSQLNode() {
+        sqlNodeElement = test.createNode(DagNodeType.SQL);
+        sqlNode = DagView.getActiveDag().getNode(sqlNodeElement.data("nodeid"));
+        var i = 0;
+        var identifiers = new Map();
+        for (table in tableNodesMap) {
+            testDagGraph.connect(tableNodesMap[table], sqlNode.id, i);
+            identifiers.set(i + 1, table);
+            i++;
         }
-    }
-    function sendSchema(tableId, tableName) {
-        return ExtensionManager.trigger(tableId, "UExtSQL", "sendSchema", {sqlTableName: tableName});
+        sqlNode.setIdentifiers(identifiers);
     }
 
     return (SqlTestSuite);
