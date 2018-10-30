@@ -89,12 +89,12 @@ class TblManager {
             WSManager.addTable(newTableId, worksheet);
             tableAddedToWS = true;
         } else if (modelingMode) {
-            worksheet = WSManager.getWSFromTable(newTableId);
-            if (!worksheet) {
-                worksheet = WSManager.getActiveWS();
-                WSManager.addTable(newTableId, worksheet);
-                tableAddedToWS = true;
-            }
+            // worksheet = WSManager.getWSFromTable(newTableId);
+            // if (!worksheet) {
+            //     worksheet = WSManager.getActiveWS();
+            //     WSManager.addTable(newTableId, worksheet);
+            //     tableAddedToWS = true;
+            // }
         }
 
         const tablesToRemove: TableId[] = [];

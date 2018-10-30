@@ -1026,9 +1026,11 @@ window.TableList = (function($, TableList) {
     TableList.addToOrphanList = function(tableName) {
         focusedListNum = null;
         // clear the search bar
-        searchHelper.clearSearch(function() {
-            clearTableListFilter($("#orphanedTableListSection"));
-        });
+        if (searchHelper) {
+            searchHelper.clearSearch(function() {
+                clearTableListFilter($("#orphanedTableListSection"));
+            });
+        }
         if (gOrphanTables.indexOf(tableName) === -1) {
             gOrphanTables.push(tableName);
         }
