@@ -176,6 +176,10 @@ class GeneralOpPanel extends BaseOpPanel {
             $(this).select();
         });
 
+        this._$panel.on("click", ".colNameMenuIcon", function() {
+            self._argSuggest($(this).siblings(".arg"), true);
+        });
+
         // click on the hint list
         this._$panel.on('click', '.hint li', function() {
             const $li: JQuery = $(this);
@@ -546,14 +550,18 @@ class GeneralOpPanel extends BaseOpPanel {
         return listLis;
     }
 
-    protected _argSuggest($input: JQuery): void {
+    protected _argSuggest($input: JQuery, showAll?: boolean): void {
         const $list: JQuery = $input.siblings(".list");
         const menu: MenuHelper = this._getArgSuggestMenu($list);
         if (menu == null) {
             return;
         }
-
-        const input: string = $input.val().trim();
+        let input: string;
+        if (showAll) {
+            input = gColPrefix;
+        } else {
+            input = $input.val().trim();
+        }
         if (input.length === 1 && !isNaN(<any>input)) {
             // if it's a single number don't suggest
             return;
@@ -1806,14 +1814,15 @@ class GeneralOpPanel extends BaseOpPanel {
                         '<input class="arg" type="text" tabindex="10" ' +
                         'spellcheck="false" data-typeid="-1" ' +
                         'data-casted="false" data-casttype="null">' +
+                        '<i class="icon xi-arrow-down colNameMenuIcon"></i>' +
                         '<div class="list hint new">' +
-                        '<ul></ul>' +
-                        '<div class="scrollArea top">' +
-                            '<i class="arrow icon xi-arrow-up"></i>' +
-                        '</div>' +
-                        '<div class="scrollArea bottom">' +
-                            '<i class="arrow icon xi-arrow-down"></i>' +
-                        '</div>' +
+                            '<ul></ul>' +
+                            '<div class="scrollArea top">' +
+                                '<i class="arrow icon xi-arrow-up"></i>' +
+                            '</div>' +
+                            '<div class="scrollArea bottom">' +
+                                '<i class="arrow icon xi-arrow-down"></i>' +
+                            '</div>' +
                         '</div>' +
                     '</div>' +
                 '</div>' +

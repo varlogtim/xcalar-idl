@@ -1542,7 +1542,6 @@ namespace DagView {
                 }
 
                 $tableArea.height(100 * (1 - pct) + "%");
-                console.log(pct);
             },
             stop: function(_event, ui) {
                 let pct = ui.size.height / mainAreaHeight;
@@ -1857,7 +1856,6 @@ namespace DagView {
                         x: (coors.x + offset.left) + 2,
                         y: (coors.y + offset.top) + 4
                     };
-                    console.log(scale, parentCoors)
                     path.attr("d", lineFunction([childCoors, parentCoors]));
                 },
                 onDragEnd: function (_$el, event) {

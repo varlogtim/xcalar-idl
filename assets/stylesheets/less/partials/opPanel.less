@@ -709,6 +709,18 @@
                 .size(100%, @listHeight);
                 padding-left: @commonMargin;
                 font-size: @standardFontSize;
+                padding-right: 20px;
+            }
+            .colNameMenuIcon {
+                position: absolute;
+                right: 0px;
+                font-size: 8px;
+                height: 100%;
+                width: 20px;
+                line-height: @listHeight;
+                text-align: center;
+                color: @color-arc-xdbfree;
+                cursor: pointer;
             }
         }
 
@@ -1363,7 +1375,6 @@
             }
         }
 
-
         .extraArg {
             position: relative;
 
@@ -1673,6 +1684,16 @@
 
     .tempDisabled {
         opacity: @opacity-disabled !important;
+    }
+
+    .colNameSection {
+        .colNameMenuIcon {
+            display: none;
+        }
+
+        .arg {
+            padding-right: 10px;
+        }
     }
 
     .groupby {
@@ -2850,7 +2871,7 @@
 
                     .type {
                         width: 49% !important; // do this to aviod width be overwritten
-                        
+
                         input {
                             width: ~"calc(100% - )"
                         }
@@ -3099,7 +3120,7 @@
                         background: transparent;
                     }
                     .icon {
-                        color: @color-arc-xdbfree;
+                        color: ;
                         transform: rotate(135deg);
                     }
                     .text {
