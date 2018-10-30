@@ -333,6 +333,13 @@
     }
 }
 
+.btn-100-rounded {
+    border-radius: 100%;
+    &:focus {
+        outline: none;
+    }
+}
+
 .btn-submit {
     background-color: fadeout(@color-bg-green-submit, 20%);
     &:hover, &:focus {
@@ -1289,6 +1296,10 @@
 
     &.alwaysBlue {
         background-color: @color-bg-softBlue;
+    }
+
+    &.alwaysBail {
+        background-color: @color-arc-xdbfree;
     }
 }
 

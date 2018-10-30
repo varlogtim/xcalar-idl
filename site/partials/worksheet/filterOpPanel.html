@@ -6,6 +6,7 @@
 <div class="mainContent">
     <div class="opSection">
         <p class="mainInstructions instrText"><%= dicts.opsView.filterInstr %></p>
+        <div class="divider"></div>
         <div class="group filterGroup firstGroup">
             <div class="catFuncHeadings clearfix subHeading">
             <div class="filterFnTitle"><%= dicts.opsView.filterFunc %>:</div>
@@ -37,7 +38,7 @@
             <div class="switchLabel">
                 <%= dicts.opsView.or %>
             </div>
-            <div class="xc-switch switch andOrSwitch alwaysBlue on">
+            <div class="xc-switch switch andOrSwitch alwaysBail on">
                 <div class="slider"></div>
             </div>
             <div class="switchLabel">
@@ -45,8 +46,9 @@
             </div>
             </div>
         </div>
-        <div class="addArgWrap">
-            <button class="btn btn-small btn-rounded addArg addFilterArg">
+        <div class="divider"></div>
+        <div class="addArgWrap addArgWrapSmall">
+            <button class="btn btn-small btn-100-rounded addArg addFilterArg">
             <i class="icon xi-plus"></i>
             </button>
             <span class="text"><%= dicts.opsView.additional %></span>
