@@ -388,13 +388,15 @@ class DagGraph {
             return this._executeGraph(null, optimized);
         } else {
             // get subGraph from nodes and execute
-            const nodesMap:  Map<DagNodeId, DagNode> = this._backTraverseNodes(nodeIds);
-            return this._executeGraph(nodesMap, optimized);
+            const backTrack: BackTraceInfo = this._backTraverseNodes(nodeIds, true);
+            const nodesMap:  Map<DagNodeId, DagNode> = backTrack.map;
+            const startingNodes: DagNodeId[] = backTrack.startingNodes;
+            return this._executeGraph(nodesMap, optimized, startingNodes);
         }
     }
 
     public getQuery(nodeId: DagNodeId): XDPromise<string> {
-        const nodesMap:  Map<DagNodeId, DagNode> = this._backTraverseNodes([nodeId]);
+        const nodesMap:  Map<DagNodeId, DagNode> = this._backTraverseNodes([nodeId], false).map;
         const orderedNodes: DagNode[] = this._topologicalSort(nodesMap);
         const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, this);
         const checkResult = executor.checkCanExecuteAll();
@@ -755,9 +757,9 @@ class DagGraph {
 
     // XXX TODO, Idea is to do a topological sort first, then get the
     // ordere, then get the query, and run it one by one.
-    private _executeGraph(nodesMap?: Map<DagNodeId, DagNode>, optimized?: boolean): XDPromise<void> {
+    private _executeGraph(nodesMap?: Map<DagNodeId, DagNode>, optimized?: boolean, startingNodes?: DagNodeId[]): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const orderedNodes: DagNode[] = this._topologicalSort(nodesMap);
+        const orderedNodes: DagNode[] = this._topologicalSort(nodesMap, startingNodes);
         const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, this);
         let checkResult = executor.checkCanExecuteAll(optimized);
         if (checkResult.hasError) {
@@ -792,23 +794,53 @@ class DagGraph {
         return dagNode.getMaxChildren() === 0;
     }
 
-    private _backTraverseNodes(nodeIds: DagNodeId[]) {
+    // Shortened specifies if the back traversal ends at nodes that are complete and have a table
+    private _backTraverseNodes(nodeIds: DagNodeId[], shortened?: boolean): BackTraceInfo {
         const nodesMap: Map<DagNodeId, DagNode> = new Map();
+        const startingNodes: DagNodeId[] = [];
         let nodeStack: DagNode[] = nodeIds.map((nodeId) => this._getNodeFromId(nodeId));
+        let isStarting = false;
         while (nodeStack.length > 0) {
+            isStarting = false;
             const node: DagNode = nodeStack.pop();
             if (node != null && !nodesMap.has(node.getId())) {
                 nodesMap.set(node.getId(), node);
                 const parents: any = node.getParents();
-                nodeStack = nodeStack.concat(parents);
+                if (parents.length == 0) {
+                    isStarting = true;
+                    startingNodes.push(node.getId());
+                }
+                else if (shortened) {
+                    isStarting = true;
+                    // Check if we need to run any of the parents
+                    for (let i = 0; i < parents.length; i++) {
+                        let parent = parents[i];
+                        if (parent.getState() != DagNodeState.Complete ||
+                                !DagTblManager.Instance.hasTable(parent.getTable())) {
+                            isStarting = false;
+                            break;
+                        }
+                    }
+                    if (isStarting) {
+                        startingNodes.push(node.getId());
+                        continue;
+                    }
+                }
+                if (!isStarting) {
+                    nodeStack = nodeStack.concat(parents);
+                }
             }
         }
-        return nodesMap;
+        return {
+            map: nodesMap,
+            startingNodes: startingNodes
+        }
     }
 
-    private _topologicalSort(nodesMap?: Map<DagNodeId, DagNode>): DagNode[] {
+
+    private _topologicalSort(nodesMap?: Map<DagNodeId, DagNode>, startingNodes?: DagNodeId[]): DagNode[] {
         const orderedNodes: DagNode[] = [];
-        const zeroInputNodes: DagNode[] = [];
+        let zeroInputNodes: DagNode[] = [];
         const nodeInputMap: Map<DagNodeId, number> = new Map();
 
         nodesMap = nodesMap || this.nodesMap;
@@ -819,6 +851,13 @@ class DagGraph {
                 zeroInputNodes.push(node);
             }
         }
+
+        if (startingNodes) {
+            zeroInputNodes = startingNodes.map((id: DagNodeId) => {
+                return nodesMap.get(id);
+            });
+        }
+
         while (zeroInputNodes.length > 0) {
             const node: DagNode = zeroInputNodes.shift();
             nodeInputMap.delete(node.getId());

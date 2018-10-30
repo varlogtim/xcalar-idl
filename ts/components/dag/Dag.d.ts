@@ -71,6 +71,11 @@ interface DagLineageChange {
     changes: {from: ProgCol, to: ProgCol}[]
 }
 
+interface BackTraceInfo {
+    map: Map<DagNodeId, DagNode>,
+    startingNodes: DagNodeId[]
+}
+
 /* ==== Dag Node Input Intereface ==== */
 interface DagNodeAggregateInputStruct {
     evalString: string;
