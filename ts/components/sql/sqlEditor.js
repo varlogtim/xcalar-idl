@@ -543,8 +543,10 @@ window.SQLEditor = (function(SQLEditor, $) {
                 SQLEditor.startCompile(0);
             }
             for (var query of allQueries) {
-                var promise = SQLEditor.executeSQL(query);
-                promiseArray.push(promise);
+                if (query) {
+                    var promise = SQLEditor.executeSQL(query);
+                    promiseArray.push(promise);
+                }
             }
             PromiseHelper.when.apply(window, promiseArray);
         });
