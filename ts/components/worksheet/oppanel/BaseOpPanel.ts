@@ -73,6 +73,15 @@ class BaseOpPanel {
         return html;
     }
 
+    public static getBaiscColTypes(includeMixed: boolean = false): ColumnType[] {
+        const types = [ColumnType.string, ColumnType.integer, ColumnType.float,
+        ColumnType.boolean, ColumnType.timestamp];
+        if (includeMixed) {
+            types.push(ColumnType.mixed);
+        }
+        return types;
+    }
+
     public static counter = 0; // used to give is panel a unique id
 
     public static get Instance() {

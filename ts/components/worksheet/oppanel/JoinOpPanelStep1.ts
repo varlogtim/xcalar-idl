@@ -9,6 +9,7 @@ class JoinOpPanelStep1 {
     private _componentJoinTypeDropdown: OpPanelDropdown = null;
     private _modelRef: JoinOpPanelModel = null;
     private _opSectionSelector = "#joinOpPanel .opSection";
+
     public static readonly joinTypeMenuItems: OpPanelDropdownMenuItem[] = [
         { text: JoinTStr.joinTypeInner, value: JoinOperatorTStr[JoinOperatorT.InnerJoin] },
         { text: JoinTStr.joinTypeLeft, value: JoinOperatorTStr[JoinOperatorT.LeftOuterJoin] },
@@ -17,12 +18,6 @@ class JoinOpPanelStep1 {
         { text: JoinTStr.joinTypeLeftSemi, value: JoinCompoundOperatorTStr.LeftSemiJoin, cssClass: ['advanced'] },
         { text: JoinTStr.joinTypeLeftAnti, value: JoinCompoundOperatorTStr.LeftAntiSemiJoin, cssClass: ['advanced'] },
         { text: JoinTStr.joinTypeCross, value: JoinOperatorTStr[JoinOperatorT.CrossJoin], cssClass: ['advanced'] },
-    ];
-    private static readonly _typeCastMenuValues: ColumnType[] = [
-        ColumnType.boolean,
-        ColumnType.integer,
-        ColumnType.float,
-        ColumnType.string
     ];
     public constructor(props: {
         container: JQuery
@@ -210,7 +205,7 @@ class JoinOpPanelStep1 {
                 this._createTypeCastDropdown({
                     container: $castContainer,
                     dropdownId: 'leftCastDropdown',
-                    typeValues: JoinOpPanelStep1._typeCastMenuValues.map((type) => type),
+                    typeValues: BaseOpPanel.getBaiscColTypes(false).map((type) => type),
                     typeSelected: leftCast,
                     pairIndex: i,
                     isLeft: true,
@@ -219,7 +214,7 @@ class JoinOpPanelStep1 {
                 this._createTypeCastDropdown({
                     container: $castContainer,
                     dropdownId: 'rightCastDropdown',
-                    typeValues: JoinOpPanelStep1._typeCastMenuValues.map((type) => type),
+                    typeValues: BaseOpPanel.getBaiscColTypes(false).map((type) => type),
                     typeSelected: rightCast,
                     pairIndex: i,
                     isLeft: false,

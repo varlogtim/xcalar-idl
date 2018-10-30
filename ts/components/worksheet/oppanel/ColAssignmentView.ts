@@ -1,5 +1,4 @@
 class ColAssignmentView {
-    private readonly validTypes: ColumnType[] = [];
     private modelData: ColAssignmentModel;
     private _panelSelector;
     private options;
@@ -66,10 +65,6 @@ class ColAssignmentView {
     }
 
     private _setup(): void {
-        [ColumnType.string, ColumnType.integer, ColumnType.float,
-            ColumnType.boolean, ColumnType.mixed].forEach((type) => {
-                this.validTypes.push(type);
-            });
         this._addEventListeners();
     }
 
@@ -213,6 +208,8 @@ class ColAssignmentView {
 
     private _getResultList(resultCols: ProgCol[], selectedCols): string {
         let resultColHTML: string = "";
+        const validTypes: ColumnType[] = BaseOpPanel.getBaiscColTypes(false);
+        const lis: HTML = validTypes.map((colType) => `<li>${colType}</li>`).join("");
 
         resultCols.forEach((resultCol, listIndex) => {
             let colName: string = resultCol.getBackColName();
@@ -244,10 +241,7 @@ class ColAssignmentView {
                         '</div>' +
                         '<div class="list">' +
                             '<ul>' +
-                                '<li>' + ColumnType.boolean + '</li>' +
-                                '<li>' + ColumnType.float + '</li>' +
-                                '<li>' + ColumnType.integer + '</li>' +
-                                '<li>' + ColumnType.string + '</li>' +
+                                lis +
                             '</ul>' +
                             '<div class="scrollArea top">' +
                                 '<i class="arrow icon xi-arrow-up"></i>' +

@@ -36,7 +36,7 @@ class GeneralOpPanel extends BaseOpPanel {
         "boolean": [ColumnType.integer, ColumnType.float, ColumnType.string],
         "timestamp": [ColumnType.integer, ColumnType.float, ColumnType.string],
         "mixed": [ColumnType.boolean, ColumnType.integer, ColumnType.float,
-                    ColumnType.string],
+                    ColumnType.string, ColumnType.timestamp],
         // no valid cast options for: undefined, array, objects
     };
     protected static firstArgExceptions = {

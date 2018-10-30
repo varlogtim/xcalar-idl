@@ -1,5 +1,4 @@
 class SetOpPanel extends BaseOpPanel {
-    private readonly validTypes: ColumnType[] = [];
     private setOpData: SetOpPanelModel;
     public static d;
     private colAssignmentSection: ColAssignmentView;
@@ -61,10 +60,6 @@ class SetOpPanel extends BaseOpPanel {
     }
 
     private _setup(): void {
-        [ColumnType.string, ColumnType.integer, ColumnType.float,
-            ColumnType.boolean, ColumnType.mixed].forEach((type) => {
-                this.validTypes.push(type);
-            });
         super.setup($("#setOpPanel"));
         this._addEventListeners();
         this.colAssignmentSection = new ColAssignmentView("#setOpPanel .columnAssignmentSection");

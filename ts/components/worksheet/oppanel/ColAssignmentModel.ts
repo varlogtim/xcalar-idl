@@ -18,8 +18,8 @@ class ColAssignmentModel {
         event: Function,
         options?
     ) {
-        [ColumnType.string, ColumnType.integer, ColumnType.float,
-        ColumnType.boolean, ColumnType.mixed].forEach((type) => {
+        const validTypes: ColumnType[] = BaseOpPanel.getBaiscColTypes(true);
+        validTypes.forEach((type) => {
             this.validTypes.push(type);
         });
         this.event = event;
