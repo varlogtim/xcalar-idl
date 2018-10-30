@@ -2,7 +2,7 @@ window.DataflowPanel = (function($, DataflowPanel) {
     var pendingParamUpdates = [];
     var hasSetup = false;
     DataflowPanel.setup = function() {
-        if (!hasSetup) {
+        if (hasSetup) {
             return;
         }
 

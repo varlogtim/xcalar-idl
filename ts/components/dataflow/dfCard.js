@@ -12,8 +12,13 @@ window.DFCard = (function($, DFCard) {
     var $scrollBarWrap;
     var currentDataflow = null;
     var dagStateClasses = "";
+    var hasSetup = false;
 
     DFCard.setup = function() {
+        if (hasSetup) {
+            return;
+        }
+        hasSetup = true;
         $dfView = $('#dataflowView');
         $dfCard = $('#dfViz');
         $dfMenu = $('#dfMenu').find('.dfList');
@@ -1818,6 +1823,9 @@ window.DFCard = (function($, DFCard) {
     }
 
     function adjustScrollBarPositionAndSize() {
+        if (!hasSetup) {
+            return;
+        }
         var panelRect = $dfView[0].getBoundingClientRect();
         var cardRect = $dfCard[0].getBoundingClientRect();
         if (cardRect.top + 100 < panelRect.bottom &&
