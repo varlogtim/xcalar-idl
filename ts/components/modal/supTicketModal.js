@@ -958,6 +958,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         .then(function(data) {
             return adminTools.finishGettingLicense(data);
         })
+        .then(deferred.resolve)
         .fail(function(err) {
             deferred.reject(err);
         });
