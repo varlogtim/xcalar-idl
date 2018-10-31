@@ -1353,28 +1353,17 @@ class DagGraph {
             function getJoinSrcCols(node) {
                 let lSrcCols = [];
                 let rSrcCols = [];
-                let parents;
+                let parents = node.parents;
 
-                parents = node.parents;
+                if (node.args.joinType === JoinOperatorTStr[JoinOperatorT.CrossJoin]) {
+                    return [lSrcCols, rSrcCols];
+                }
 
-                for (var i = 0; i < parents.length; i++) {
-                    if (parents[i].api === XcalarApisT.XcalarApiIndex) {
-                        if (i === 0) {
-                            lSrcCols = parents[i].args.key;
-                        } else {
-                            rSrcCols = parents[i].args.key;
-                        }
-                    } else if (parents[i].api === XcalarApisT.XcalarApiGroupBy ||
-                               parents[i].api === XcalarApisT.XcalarApiJoin) {
-                        if (i === 0) {
-                            lSrcCols.push(getSrcIndex(parents[i].parents[0]));
-                        } else {
-                            if (parents[i].api === XcalarApisT.XcalarApiJoin) {
-                                rSrcCols.push(getSrcIndex(parents[i].parents[1]));
-                            } else {
-                                rSrcCols.push(getSrcIndex(parents[i].parents[0]));
-                            }
-                        }
+                for (let i = 0; i < parents.length; i++) {
+                    if (i === 0) {
+                        lSrcCols = getSrcIndex(parents[i]);
+                    } else {
+                        rSrcCols = getSrcIndex(parents[i]);
                     }
                 }
 
@@ -1386,7 +1375,7 @@ class DagGraph {
                     } else {
                         if (!node.parents.length) {
                             // one case is when we reach a retina project node
-                            return null;
+                            return [];
                         }
                         return getSrcIndex(node.parents[0]);
                     }
