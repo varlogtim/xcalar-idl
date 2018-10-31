@@ -10,7 +10,7 @@
     @headingHeight: 30px;
     @standardFontSize: 12px;
     @commonMargin: 10px; // margin left used on text and input padding
-    @checkbox-color: #849CB0;
+    @checkbox-color: @color-arc-xdbfree;
 
     section {
         color: @color-font-form-gray;
@@ -34,7 +34,7 @@
             margin-right: 10px;
             float: right;
             font-size: 16px;
-            color: #8C94B0;
+            color: @color-arc-xdbfree;
             cursor: pointer;
             opacity: @opacity-unhover;
             &:hover {
@@ -412,7 +412,7 @@
         }
 
         .aggCols, .groupByCols, .descArgs {
-            color: #849CB0;
+            color: @color-arc-xdbfree;
         }
         .char {
             .transition(2s all ease-in);
@@ -915,19 +915,19 @@
             }
 
             .text {
-                .font(@color: #849cb0);
+                .font(@color: @color-arc-xdbfree);
             }
 
             .switch {
                 .size(@width: 24px, @height: 14px);
                 .rounded(10px);
-                border: 1px solid #849cb0;
+                border: 1px solid @color-arc-xdbfree;
                 top: 2px;
                 margin-left: 10px;
                 margin-right: 10px;
 
                 .slider {
-                    border: 1px solid #849cb0;
+                    border: 1px solid @color-arc-xdbfree;
                     .size(14px, 14px);
                 }
             }

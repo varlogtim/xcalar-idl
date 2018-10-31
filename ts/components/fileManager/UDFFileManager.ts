@@ -269,7 +269,7 @@ class UDFFileManager extends BaseFileManager {
             const error: string = xcHelper.replaceMsg(ErrWRepTStr.NoUDF, {
                 udf: nsPath
             });
-            return PromiseHelper.reject(error);
+            return PromiseHelper.reject(error, false);
         }
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
@@ -281,7 +281,9 @@ class UDFFileManager extends BaseFileManager {
                 this.storedUDF.set(nsPath, udfStr);
                 deferred.resolve(udfStr);
             })
-            .fail(deferred.reject);
+            .fail((error) => {
+                deferred.reject(error, true);
+            });
         } else {
             deferred.resolve(entireString);
         }

@@ -278,15 +278,39 @@ class DagTabShared extends DagTab {
     }
 
     private _uploadUDFToWKBK(): XDPromise<void> {
+        let download = (moduleName: string): XDPromise<string> => {
+            const deferred: XDDeferred<string> = PromiseHelper.deferred();
+            const udfPath = UDFFileManager.Instance.getCurrWorkbookPath() + moduleName;
+            UDFFileManager.Instance.getEntireUDF(udfPath)
+            .then((udfStr: string) => {
+                deferred.resolve(udfStr);
+            })
+            .fail((error, isDownloadErr) => {
+                if (isDownloadErr) {
+                    // when download udf has error
+                    deferred.reject(error);
+                } else {
+                    // when the local udf not exist, it should be a gloal one
+                    deferred.resolve(null);
+                }
+            });
+
+            return deferred.promise();
+        };
+
         let upload = (moduleName: string): XDPromise<void> => {
             const deferred: XDDeferred<void> = PromiseHelper.deferred();
-            UDFFileManager.Instance.getEntireUDF(moduleName)
+            download(moduleName)
             .then((udfStr) => {
+                if (udfStr == null) {
+                    // nothing to upload
+                    return;
+                }
                 // XXX TODO: use absolute path
                 DagTabShared._switchSession(this._getWKBKName());
                 const promise = XcalarUploadPython(moduleName, udfStr);
                 DagTabShared._resetSession();
-                return promise();
+                return promise;
             })
             .then(deferred.resolve)
             .fail(deferred.reject);
