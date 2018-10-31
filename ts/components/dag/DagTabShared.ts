@@ -187,9 +187,27 @@ class DagTabShared extends DagTab {
             return this._writeToKVStore();
         })
         .then(() => {
+            // XXX TODO: remove it when backend support (13855)
+            const wkbkNmae: string = this._getWKBKName();
+            DagTabShared._switchSession(this._getWKBKName());
+            const promise = XcalarActivateWorkbook(wkbkNmae);
+            DagTabShared._resetSession();
+            return PromiseHelper.alwaysResolve(promise);
+        })
+        .then(() => {
             return this._uploadUDFToWKBK();
         })
-        .then(deferred.resolve)
+        .then(() => {
+            // XXX TODO: remove it when backend support (13855)
+            const wkbkNmae: string = this._getWKBKName();
+            DagTabShared._switchSession(this._getWKBKName());
+            const promise = XcalarDeactivateWorkbook(wkbkNmae);
+            DagTabShared._resetSession();
+            return PromiseHelper.alwaysResolve(promise);
+        })
+        .then(() => {
+            deferred.resolve();
+        })
         .fail((error) => {
             if (typeof error === "string") {
                 error = {log: error};
