@@ -981,12 +981,18 @@
         .flex-display;
         .flex-direction(column);
         .header {
-            padding-left: 15px;
+            padding-left: 10px;
             padding-bottom: 10px;
         }
         &:last-child {
             padding-bottom: 0;
             border-bottom: none;
+        }
+
+        .dropDownList {
+            .iconWrapper {
+                border: none;
+            }
         }
 
         .searchArea .icon, .down .icon, .addCol, .editCol, .removeColInRow {
@@ -1046,14 +1052,15 @@
             padding-right: 10px;
 
             .header {
-                margin-left: 15px;
-                margin-bottom: 5px;
+                margin-left: 10px;
+                margin-bottom: 10px;
                 padding-left: 0px;
                 padding-bottom: 0px;
             }
 
             .lists {
                 text-align: center;
+                font-weight: bold;
             }
         }
 
@@ -1167,9 +1174,10 @@
                 &.placeholder {
                     border-color: transparent;
                     &::after {
-                        content: "New Column Name";
-                        padding-left: 15px;
-                        color: @color-font-darkGray;
+                        content: "New Name";
+                        padding-left: 10px;
+                        color: @color-font-form-gray;
+                        font-weight: bold;
                     }
                 }
 
@@ -1186,6 +1194,7 @@
             .subHeading {
                 .text {
                     .size(@width: 100%);
+                    font-weight: bold;
                 }
             }
 
@@ -1981,15 +1990,19 @@
     .header {
         font-weight: 700;
     }
+
+    .modeList {
+        float: left;
+        margin-left: 3px;
+        line-height: 26px;
+    }
     .subHeading {
         .size(@height: 24px);
-        font-weight: 600;
         margin-top: 6px;
-        padding-left: 5px;
 
         > span {
             .size(@height: 15px);
-            .font(@weight: 600, @line-height: 15px);
+            .font(@line-height: 15px);
         }
     }
 
@@ -2015,7 +2028,7 @@
 
         .operationSection {
             .size(@height: 26px);
-            margin-left: 15px;
+            margin-left: 10px;
 
             .header {
                 .size(@width: 70px);
@@ -2029,17 +2042,27 @@
         }
 
         .radioButtonGroup {
-            margin-left: 15px;
+            margin-left: 10px;
             margin-top: 10px;
             .size(@max-width: 425px);
 
             .header {
                 float: left;
+                line-height: 20px;
             }
 
             .radioButton {
                 margin-left: 10px;
                 width: 50px;
+
+                > div {
+                    float: left;
+
+                    &.radio {
+                        margin-left: 5px;
+                        margin-top: 1px;
+                    }
+                }
             }
         }
 

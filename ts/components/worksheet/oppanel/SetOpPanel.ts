@@ -73,26 +73,6 @@ class SetOpPanel extends BaseOpPanel {
         $panel.find(".highlight").removeClass("highlight");
     }
 
-    private _setInstruction(unionType: UnionType, isFixedType: boolean): void {
-        let instrStr = OpPanelTStr.SetDefaultInstr;
-        if (isFixedType) {
-            // This is a sub-category node, show the instruction according to unionType
-
-            // Put instruction strings in the map, so that we can customise for different unionType
-            // For now we show the same instruction for all 
-            const instrMap = {};
-            instrMap[UnionType.Except] = OpPanelTStr.SetUnionInstr;
-            instrMap[UnionType.Intersect] = OpPanelTStr.SetUnionInstr;
-            instrMap[UnionType.Union] = OpPanelTStr.SetUnionInstr;
-
-            instrStr = instrMap[unionType] || OpPanelTStr.SetDefaultInstr;
-        }
-
-        if (instrStr != null) {
-            this._getPanel().find('.selMainInstr').text(instrStr);
-        }
-    }
-
     private _initialize(dagNode: DagNodeSet): void {
         const event: Function = () => {};
         this.setOpData = new SetOpPanelModel(dagNode, event);
@@ -102,8 +82,7 @@ class SetOpPanel extends BaseOpPanel {
         this.setOpData.setColModel(colModel);
         const model = this.setOpData.getModel();
         this._selectDedup(model.dedup);
-        this._selectType(model.unionType, model.fixedType);
-        this._setInstruction(model.unionType, model.fixedType);
+        this._selectType(model.unionType);
     }
 
     private _getDedupSection(): JQuery {
@@ -125,18 +104,6 @@ class SetOpPanel extends BaseOpPanel {
             this._submitForm();
         });
 
-        const $modeList: JQuery = $panel.find(".modeList");
-        const id: string = "#" + $panel.attr("id");
-        new MenuHelper($modeList, {
-            onSelect: ($li) => {
-                const mode: string = $li.text();
-                $modeList.find(".text").text(mode);
-                this.setOpData.setType($li.attr("name"));
-            },
-            container: id,
-            bounds: id
-        }).setupListeners();
-
         // change dedup option
         xcHelper.optionButtonEvent(this._getDedupSection(), (option) => {
             const dedup: boolean = (option === "no") ? true : false;
@@ -150,19 +117,15 @@ class SetOpPanel extends BaseOpPanel {
         this._getDedupSection().find(".radioButton." + option).click();
     }
 
-    private _selectType(unionType: UnionType, isFixedType: boolean = false): void {
+    private _selectType(unionType: UnionType): void {
+        const typeMap = {
+            union: OpPanelTStr.Union,
+            except: OpPanelTStr.Except,
+            intersect: OpPanelTStr.Intersect
+        };
         const type: string = unionType.toLocaleLowerCase();
-        const $dropdown = this._getPanel().find(".modeList");
-        $dropdown.find('li[name="' + type + '"]')
-        .trigger(fakeEvent.mouseup);
-        if (isFixedType) {
-            // It's a sub-category node, so disable the type dropdown list
-            if (!$dropdown.hasClass('disabled')) {
-                $dropdown.addClass('disabled');
-            }
-        } else {
-            $dropdown.removeClass('disabled');
-        }
+        const typeText = typeMap[type];
+        this._getPanel().find(".modeList").text(typeText);
     }
 
     private _autoResizeView(reset: boolean) {

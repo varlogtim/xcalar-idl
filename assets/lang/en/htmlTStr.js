@@ -1058,16 +1058,12 @@ module.exports = {
     },
 
     "SetOpPanel": {
-        "header": "SET OPERATION", // Sync with JSTStr
+        "header": "Set Operation",
         "ColumnTitle": "Columns after Set operation",
-        "Instr": "Select the set operation (except / intersect / union) and select columns from node.",
-        "CandidateTitle": "To Be Dropped",
-        "confirm": "Union",
+        "Instr": "Select columns from node(s), which you want to apply in the operation.",
+        "CandidateTitle": "To be dropped",
         "Mode": "Operation",
         "IncludeAll": "Include Duplicate Rows",
-        "Union": "Union (Combine)",
-        "Except": "Except (Minus)",
-        "Intersect": "Intersect",
         "Yes": "Yes",
         "No": "No"
     },

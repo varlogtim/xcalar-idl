@@ -236,7 +236,7 @@ class ColAssignmentView {
                     '<div class="dropDownList typeList' + listClasses + '">' +
                         '<input class="text" value="' + cast + '"' +
                         ' placeholder="' + UnionTStr.ChooseType + '" disabled>' +
-                        '<div class="iconWrapper">' +
+                        '<div class="iconWrapper dropdown">' +
                             '<i class="icon xi-arrow-down"></i>' +
                         '</div>' +
                         '<div class="list">' +

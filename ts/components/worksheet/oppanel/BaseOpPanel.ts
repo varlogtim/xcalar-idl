@@ -156,9 +156,9 @@ class BaseOpPanel {
         return true;
     }
 
-    protected hidePanel(isSubmit?: boolean): void {
+    protected hidePanel(isSubmit?: boolean): boolean {
         if (!this._formHelper.isOpen()) {
-            return;
+            return false;
         }
         this._formHelper.removeWaitingBG();
         this._formHelper.hideView();
@@ -172,6 +172,7 @@ class BaseOpPanel {
         }
         // unlocks the node associated with the form
         this._closeCallback();
+        return true;
     }
 
     protected toggleCheckbox($checkbox: JQuery, isCheck: boolean = true): void {
