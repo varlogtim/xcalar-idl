@@ -5837,28 +5837,17 @@ namespace xcHelper {
             top += options.offsetY;
         }
 
-        const menuHeight: number = winHeight - top - bottomMargin;
-        $menu.css('max-height', menuHeight);
-        $menu.children('ul').css('max-height', menuHeight);
+        let menuHeight: number = winHeight - top - bottomMargin;
+        $menu.css('max-height', 'none'); // set to none so we can measure full height
+        $menu.children('ul').css('max-height', 'none');
         $menu.css({"top": top, "left": left});
         $menu.show();
+        const fullMenuHeight = $menu.height();
+        $menu.css('max-height', menuHeight);
+        $menu.children('ul').css('max-height', menuHeight);
         $menu.children('ul').scrollTop(0);
 
-        // size menu and ul
-        const $ul: JQuery = $menu.find('ul');
-        if ($ul.length > 0) {
-            const ulHeight: number = $menu.find('ul')[0].scrollHeight;
-            if (ulHeight > menuHeight) {
-                $menu.find('.scrollArea').show();
-                $menu.find('.scrollArea.bottom').addClass('active');
-            } else {
-                $menu.children('ul').css('max-height', 'none');
-                $menu.find('.scrollArea').hide();
-            }
-        }
-        // set scrollArea states
-        $menu.find('.scrollArea.top').addClass('stopped');
-        $menu.find('.scrollArea.bottom').removeClass('stopped');
+        showOrHideArrows();
 
         // positioning if dropdown is on the right side of screen
         const rightBoundary: number = $(window).width() - 5;
@@ -5868,20 +5857,51 @@ namespace xcHelper {
         }
 
         //positioning if td menu is below the screen and floating option is allowed
-        if (options.floating) {
-            $menu.css('max-height', 'none');
-            $menu.children('ul').css('max-height', 'none');
-            $menu.find('.scrollArea.bottom').addClass('stopped');
+        // if full length menu dips below window
+        if (options.floating && (top + fullMenuHeight + 5 > winHeight)) {
             let offset: number = 15;
             if (menuId === "worksheetTabMenu") {
                 offset = 25;
             } else if (menuId === "cellMenu") {
                 offset = 20;
             }
-            if (top + $menu.height() + 5 > winHeight) {
-                top -= ($menu.height() + offset);
-                $menu.css('top', top);
+            const newMenuHeight = top - offset - 5;
+            if (newMenuHeight < menuHeight) {
+                // if moving the menu to be above the dropdown icon
+                // results in a shorter menu, then ignore and return
+                return;
             }
+            menuHeight = newMenuHeight;
+            top -= (fullMenuHeight + offset);
+            if (top < 5) {
+                top = 5;
+                $menu.css('max-height', menuHeight);
+                $menu.children('ul').css('max-height', menuHeight);
+                showOrHideArrows();
+            } else {
+                $menu.css('max-height', 'none');
+                $menu.children('ul').css('max-height', 'none');
+                $menu.find('.scrollArea.bottom').addClass('stopped');
+            }
+            $menu.css('top', top);
+        }
+
+        function showOrHideArrows() {
+              // size menu and ul
+            const $ul: JQuery = $menu.find('ul');
+            if ($ul.length > 0) {
+                const ulHeight: number = $menu.find('ul')[0].scrollHeight;
+                if (ulHeight > menuHeight) {
+                    $menu.find('.scrollArea').show();
+                    $menu.find('.scrollArea.bottom').addClass('active');
+                } else {
+                    $menu.children('ul').css('max-height', 'none');
+                    $menu.find('.scrollArea').hide();
+                }
+            }
+            // set scrollArea states
+            $menu.find('.scrollArea.top').addClass('stopped');
+            $menu.find('.scrollArea.bottom').removeClass('stopped');
         }
     }
 
