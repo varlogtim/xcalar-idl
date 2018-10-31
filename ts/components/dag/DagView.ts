@@ -1842,7 +1842,7 @@ namespace DagView {
                     // check if location of drop matches position of a valid
                     // $operator
                     $candidates.each(function () {
-                        const rect: DOMRect = this.getBoundingClientRect();
+                        const rect: ClientRect = this.getBoundingClientRect();
                         const left: number = rect.left;
                         const right: number = rect.right;
                         const top: number = rect.top;
@@ -1970,7 +1970,7 @@ namespace DagView {
                     // check if location of drop matches position of a valid
                     // $operator
                     $candidates.each(function () {
-                        const rect: DOMRect = this.getBoundingClientRect();
+                        const rect: ClientRect = this.getBoundingClientRect();
                         const left: number = rect.left;
                         const right: number = rect.right;
                         const top: number = rect.top;
@@ -2078,7 +2078,7 @@ namespace DagView {
         });
 
         function _drawRect(
-            bound: DOMRect,
+            bound: ClientRect,
             selectTop: number,
             selectRight: number,
             selectBottom: number,
@@ -2086,7 +2086,7 @@ namespace DagView {
         ): void {
             $els.each(function () {
                 const $el = $(this);
-                const opRect = this.getBoundingClientRect();
+                const opRect: ClientRect = this.getBoundingClientRect();
                 const opTop = opRect.top - bound.top;
                 const opLeft = opRect.left - bound.left;
                 const opRight = opRect.right - bound.left;

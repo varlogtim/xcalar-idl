@@ -72,7 +72,8 @@ class DragHelper {
         this.copying = options.copy || false;
         this.$draggingEl = null;
         this.mouseDownCoors = {x: 0, y: 0};
-        this.targetRect = new DOMRect();
+        this.targetRect = {bottom: 0, height: 0, left: 0, right: 0, top: 0,
+                            width: 0};
         this.isOffScreen = false;
         this.origPositions = [];
         this.currentDragCoor = {left: 0, top: 0, height: 0, width: 0};
