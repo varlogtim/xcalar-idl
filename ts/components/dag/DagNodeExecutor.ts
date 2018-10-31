@@ -656,7 +656,7 @@ class DagNodeExecutor {
                 const idx = tableSrcMap[source[i]];
                 if (idx) {
                     source[i] = replaceMap[idx];
-                } else {
+                } else if (!source[i].startsWith("XC_AGG_")) {
                     if (!newTableMap[source[i]]) {
                         newTableMap[source[i]] = this._generateTableName();
                     }
@@ -671,7 +671,7 @@ class DagNodeExecutor {
             // dest replacement
             if (operation.args.dest === oldDestTableName) {
                 operation.args.dest = newDestTableName;
-            } else {
+            } else if (!operation.args.dest.startsWith("XC_AGG_")) {
                 if (!newTableMap[operation.args.dest]) {
                     newTableMap[operation.args.dest] = this._generateTableName();
                 }

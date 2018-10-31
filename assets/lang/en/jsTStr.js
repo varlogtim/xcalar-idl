@@ -535,7 +535,8 @@ SQLErrTStr = {
     "InvalidSourceId": "Identifier key must be an integer and can't be greater than the number of its parents: ",
     "MissingField": "Missing field: ",
     "InvalidIdentifier": "Invalid table identifier",
-    "SourceUsed": "The source is already used for table identifier: "
+    "SourceUsed": "The source is already used for table identifier: ",
+    "EmptySQL": "Please input your SQL query in the snippet"
 };
 
 SQLInfoTStr = {

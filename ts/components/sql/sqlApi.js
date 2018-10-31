@@ -75,7 +75,7 @@
                 message = "SQLApi Error";
             }
             if (typeof SQLEditor !== "undefined") {
-                SQLEditor.throwError(message);
+                SQLOpPanel.throwError(message);
             }
             throw "Assertion Failure: " + message;
         }
@@ -178,7 +178,7 @@
             self._getQueryTableCols(tableName, allCols)
             .then(function(tableCols) {
                 var worksheet = WSManager.getActiveWS();
-                var focus = !SQLEditor.isOnHistPanel();
+                var focus = !SQLOpPanel.isOnHistPanel();
                 return TblManager.refreshTable([tableName], tableCols,
                                             null, worksheet, txId, {
                                                 "focusWorkspace": focus

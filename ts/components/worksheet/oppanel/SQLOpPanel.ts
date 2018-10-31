@@ -202,10 +202,11 @@ class SQLOpPanel extends BaseOpPanel {
         this._$sqlButton.html("Compiling... " + numCurSteps + backPart);
     };
 
-    public resetProgress(): void {
-        this._$sqlButton.removeClass("btn-disabled");
-        this._$sqlButton.html("Save"); // XXX Change to variable
-        this._$sqlSnippetDropdown.removeClass("xc-disabled");
+    public static resetProgress(): void {
+        const $sqlButton = $("#sqlOpPanel").find(".btn-submit");
+        $sqlButton.removeClass("btn-disabled");
+        $sqlButton.html("Save"); // XXX Change to variable
+        $("#sqlSnippetsList").removeClass("xc-disabled");
     };
 
     public lockProgress(): void {
@@ -1022,7 +1023,7 @@ class SQLOpPanel extends BaseOpPanel {
                     // self._sqlEditor.getSelection().replace(/;+$/, "") ||
                     self._sqlEditor.getValue().replace(/;+$/, "");
         if (!sql) {
-            return;
+            return PromiseHelper.reject(SQLErrTStr.EmptySQL);
         }
         const queryId = xcHelper.randName("sql", 8);
         const sqlCom = new SQLCompiler();
@@ -1074,7 +1075,7 @@ class SQLOpPanel extends BaseOpPanel {
             .always(function() {
                 // XXX need to change this line once we decide the new sql status panel design
                 self._sqlComs.splice(self._sqlComs.indexOf(sqlCom, 1));
-                self.resetProgress();
+                SQLOpPanel.resetProgress();
             });
         } catch (e) {
             console.error(e);
@@ -1083,7 +1084,7 @@ class SQLOpPanel extends BaseOpPanel {
             sqlCom.setStatus(SQLStatus.Failed);
             sqlCom.setError(e.message || JSON.stringify(e));
             sqlCom.updateQueryHistory();
-            self.resetProgress();
+            SQLOpPanel.resetProgress();
             Alert.show({
                 title: "Compilation Error",
                 msg: "Error details: " + JSON.stringify(e),
@@ -1093,15 +1094,15 @@ class SQLOpPanel extends BaseOpPanel {
         }
         return deferred.promise();
     };
-    public throwError(errStr: string): void {
-        this.resetProgress();
+    public static throwError(errStr) {
+        SQLOpPanel.resetProgress();
         Alert.show({
             title: "Compilation Error",
             msg: "Error details: " + errStr,
             isAlert: true
         });
-    }
-    public isOnHistPanel(): boolean {
+    };
+    public static isOnHistPanel(): boolean {
         return $("#monitor-query-history").hasClass("active");
     }
 
@@ -1197,6 +1198,11 @@ class SQLOpPanel extends BaseOpPanel {
             self._configureSQL(sql)
             .then(function() {
                 self.close();
+            })
+            .fail(function(err) {
+                if (err === SQLErrTStr.EmptySQL) {
+                    StatusBox.show(err, self._$elemPanel.find(".btn-submit"));
+                }
             });
         });
         this._addEventListeners();

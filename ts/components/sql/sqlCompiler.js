@@ -233,8 +233,8 @@
             if (!message) {
                 message = "Compilation Error";
             }
-            if (typeof SQLEditor !== "undefined") {
-                SQLEditor.throwError(message);
+            if (typeof SQLOpPanel !== "undefined") {
+                SQLOpPanel.throwError(message);
             }
             throw "Assertion Failure: " + message;
         }
@@ -1102,8 +1102,8 @@
                 try {
                     deferred.resolve(plan);
                 } catch (e) {
-                    if (typeof SQLEditor !== "undefined") {
-                        SQLEditor.throwError(e);
+                    if (typeof SQLOpPanel !== "undefined") {
+                        SQLOpPanel.throwError(e);
                     }
                 }
             },
@@ -1573,8 +1573,8 @@
             try {
                 jsonObj = JSON.parse(queryString);
             } catch (e) {
-                if (typeof SQLEditor !== "undefined") {
-                    SQLEditor.throwError(e);
+                if (typeof SQLOpPanel !== "undefined") {
+                    SQLOpPanel.throwError(e);
                 }
                 throw e;
             }
@@ -1636,8 +1636,8 @@
             try {
                 jsonObj = JSON.parse(queryString);
             } catch (e) {
-                if (typeof SQLEditor !== "undefined") {
-                    SQLEditor.throwError(e);
+                if (typeof SQLOpPanel !== "undefined") {
+                    SQLOpPanel.throwError(e);
                 }
                 throw e;
             }
