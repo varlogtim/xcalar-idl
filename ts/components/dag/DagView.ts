@@ -2549,16 +2549,24 @@ namespace DagView {
             greatestWidth = Math.max(width, greatestWidth);
             const parents = node.getParents();
 
+            let numParentsDrawn = 0;
+            for (let i = 0; i < parents.length; i++) {
+                if (seen[parents[i].getId()] != null) {
+                    numParentsDrawn++;
+                }
+            }
+
             for (let i = 0; i < parents.length; i++) {
                 if (parents[i] != null &&
                     seen[parents[i].getId()] == null) {
                     let newWidth;
-                    if (i === 0) {
+                    if (numParentsDrawn === 0) {
                         newWidth = width;
                     } else {
                         newWidth = greatestWidth + 1;
                     }
                     _alignHelper(parents[i], depth + 1, newWidth);
+                    numParentsDrawn++;
                 }
             }
             const children = node.getChildren();
