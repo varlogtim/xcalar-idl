@@ -2032,11 +2032,11 @@ namespace DagView {
             let $target = $(event.target);
             $dfArea = $dfWrap.find(".dataflowArea.active");
 
-            if (!$target.closest(".operator").length &&
+            if ($target.closest(".dataflowAreaWrapper").length &&
+                !$target.closest(".operator").length &&
                 !$target.closest(".comment").length &&
                 !$target.closest(".editableNodeTitle").length &&
                 !$target.closest(".ui-resizable-handle").length) {
-
                 new RectSelction(event.pageX, event.pageY, {
                     "id": "dataflow-rectSelection",
                     "$container": $dfArea.find(".dataflowAreaWrapper"),
