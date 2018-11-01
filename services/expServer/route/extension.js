@@ -29,14 +29,18 @@ function writeTarGz(targz, name, version) {
     var zipFile = new Buffer(targz, 'base64');
     var zipPath = basePath + "ext-available/" + name + "-" + version +
     ".tar.gz";
+    var tarCommand = "tar -zxf '" + zipPath + "' -C " + basePath +
+                       "ext-available/";
     xcConsole.log("Adding extension to " + zipPath);
     fs.writeFile(zipPath, zipFile, function(error) {
         if (error) {
             deferred.reject("Adding Extension failed with error: " + error);
         }
-        xcConsole.log("untar", zipPath);
-        var out = exec("tar -zxf '" + zipPath + "' -C " + basePath +
-                       "ext-available/");
+        xcConsole.log("untar extension with: ", tarCommand);
+        var out = exec(tarCommand);
+        out.stderr.on('data', function(data) {
+            xcConsole.error('stderr from command ' + tarCommand + ': ' + data);
+        });
         out.on('close', function(code) {
             // Code is either 0, which means success, or 1, which means error.
             if (code) {
