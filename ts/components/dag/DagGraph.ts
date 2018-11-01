@@ -774,7 +774,17 @@ class DagGraph {
     // ordere, then get the query, and run it one by one.
     private _executeGraph(nodesMap?: Map<DagNodeId, DagNode>, optimized?: boolean, startingNodes?: DagNodeId[]): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const orderedNodes: DagNode[] = this._topologicalSort(nodesMap, startingNodes);
+        let orderedNodes: DagNode[] = [];
+        try {
+            orderedNodes = this._topologicalSort(nodesMap, startingNodes);
+        } catch (error) {
+            return PromiseHelper.reject({
+                "status": "Error",
+                "hasError": true,
+                "node": error.node,
+                "type": error.error
+            });
+        }
         const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, this);
         let checkResult = executor.checkCanExecuteAll(optimized);
         if (checkResult.hasError) {
@@ -857,8 +867,25 @@ class DagGraph {
         const orderedNodes: DagNode[] = [];
         let zeroInputNodes: DagNode[] = [];
         const nodeInputMap: Map<DagNodeId, number> = new Map();
+        const needLinkNodes: Map<string, DagNode[]> = new Map();
+        const needAggNodes: Map<string, DagNode[]> = new Map();
+        let nodePushedBack: boolean = false;
+        let affNodes: DagNode[] = [];
+        let aggExists: Set<string> = new Set();
+        let linkOutExists: Set<string> = new Set();
+        let flowAggNames: Set<string> = new Set();
+        let flowOutIds: Set<string> = new Set();
 
         nodesMap = nodesMap || this.nodesMap;
+        // Construct the aggregates and linkOut names this map creates
+        nodesMap.forEach((node: DagNode) => {
+            if (node.getType() === DagNodeType.Aggregate) {
+                flowAggNames.add(node.getParam().dest)
+            } else if (node.getType() === DagNodeType.DFOut) {
+                flowOutIds.add(node.getId());
+            }
+        });
+        // Construct starting nodes.
         for (let [nodeId, node] of nodesMap) {
             const numParent = node.getNumParent();
             nodeInputMap.set(nodeId, numParent);
@@ -874,8 +901,81 @@ class DagGraph {
         }
 
         while (zeroInputNodes.length > 0) {
+            nodePushedBack = false;
             const node: DagNode = zeroInputNodes.shift();
+            // Process aggregate and linkin/out dependent nodes first
+            if (node.getState() != DagNodeState.Unused) {
+                switch (node.getType()) {
+                    case (DagNodeType.Aggregate):
+                        // any nodes waiting on this aggregate can be finished
+                        let aggName: string = node.getParam().dest;
+                        if (!aggExists.has(aggName)) {
+                            aggExists.add(aggName);
+                        }
+                        affNodes = needAggNodes.get(aggName);
+                        if (affNodes) {
+                            zeroInputNodes = zeroInputNodes.concat(affNodes);
+                            needAggNodes.delete(aggName);
+                        }
+                        break;
+                    case (DagNodeType.DFOut):
+                        // any nodes waiting on this linkout can be finished
+                        linkOutExists.add(node.getId());
+                        affNodes = needLinkNodes.get(node.getId());
+                        if (affNodes) {
+                            zeroInputNodes = zeroInputNodes.concat(affNodes);
+                            needLinkNodes.delete(node.getId());
+                        }
+                        break;
+                    case (DagNodeType.DFIn):
+                        const inNode = <DagNodeDFIn>node;
+                        let link: {graph: DagGraph, node: DagNodeDFOut};
+                        try {
+                            link = inNode.getLinedNodeAndGraph();
+                        } catch (e) {
+                            // Node can still be ordered even if we don't know about its parents
+                            break;
+                        }
+                        if (link.graph.getTabId() != this.getTabId()) {
+                            break;
+                        }
+                        let linkId = link.node.getId();
+                        // Check these
+                        if (!linkOutExists.has(linkId) && flowOutIds.has(linkId)) {
+                            needLinkNodes.set(linkId, needLinkNodes.get(linkId) || [])
+                            needLinkNodes.get(linkId).push(node);
+                            nodePushedBack = true;
+                        }
+                        break;
+                    case (DagNodeType.Map):
+                    case (DagNodeType.Filter):
+                        // generalized use dagnodemap
+                        let myNode: DagNodeMap = <DagNodeMap>node;
+                        let aggNames: string[] = myNode.getAggregates();
+                        if (aggNames.length == 0) {
+                            break;
+                        }
+                        for (let i = 0; i < aggNames.length; i++) {
+                            let name: string = aggNames[i];
+                            // Check if we either know the aggregate already exists
+                            // and it is created here
+                            if (!aggExists.has(name) && flowAggNames.has(name)) {
+                                needAggNodes.set(name, needAggNodes.get(name) || [])
+                                needAggNodes.get(name).push(node);
+                                nodePushedBack = true;
+                                break;
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                if (nodePushedBack) {
+                    continue;
+                }
+            }
             nodeInputMap.delete(node.getId());
+            // Process children since the node can run at this time
             orderedNodes.push(node);
             node.getChildren().forEach((childNode) => {
                 if (childNode != null) {
@@ -891,7 +991,21 @@ class DagGraph {
                 }
             });
         }
-        if (nodeInputMap.size > 0) {
+        if (needAggNodes.size != 0) {
+            // These two errors should only show up if an aggregate/linkout is made within this
+            // dataflow, but theres a circular dependency.
+            let node: DagNode = needAggNodes.values().next().value[0];
+            throw ({
+                "error": "Map/Filter node is dependent on aggregate made after it.",
+                "node": node
+            });
+        } else if (needLinkNodes.size != 0) {
+            let node: DagNode = needLinkNodes.values().next().value[0];
+            throw ({
+                "error": "Link In Node is dependent on link out made after it.",
+                "node": node
+            });
+        } else if (nodeInputMap.size > 0) {
             throw new Error("Error Sort!");
         }
 
