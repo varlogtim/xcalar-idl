@@ -5547,7 +5547,9 @@
             var opName = node.value.class.substring(
                             node.value.class.lastIndexOf(".") + 1);
             if (opName === "IsNotNull") {
-                if (usedColIds.indexOf(node.children[0].value.exprId.id) === -1) {
+                if (node.children[0].value.class !=
+                "org.apache.spark.sql.catalyst.expressions.AttributeReference"
+                || usedColIds.indexOf(node.children[0].value.exprId.id) === -1) {
                     subtrees.push(node);
                 }
             } else if (opName === "And") {
