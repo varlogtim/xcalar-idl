@@ -1,4 +1,5 @@
 var express = require('express');
+var path = require("path");
 var router = express.Router();
 var xcConsole = require('../expServerXcConsole.js').xcConsole;
 var Status = require('../supportStatusFile').Status;
@@ -329,7 +330,7 @@ router.post("/extension/upload",
             [support.checkAuthAdmin], function(req, res) {
     xcConsole.log("Writing Extension");
     var targz = req.body.targz;
-    var name = req.body.name;
+    var name = path.basename(req.body.name);
     var defaultVersion = "0.0.1";
     writeTarGzWithCleanup(targz, name, defaultVersion)
     .then(function() {
