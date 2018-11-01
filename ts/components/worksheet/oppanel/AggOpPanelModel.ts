@@ -112,7 +112,7 @@ class AggOpPanelModel extends GeneralOpPanelModel {
                 args.push(argInfo);
             }
             args.forEach((arg) => {
-                const value = formatArgToUI(arg.getValue());
+                const value = self.formatArgToUI(arg.getValue());
                 arg.setValue(value);
                 if (argGroup.fnName === "regex" && args.length === 2) {
                     arg.setRegex(true);
@@ -126,24 +126,6 @@ class AggOpPanelModel extends GeneralOpPanelModel {
 
         this.groups = groups;
         this.dest = paramsRaw.dest;
-
-        function formatArgToUI(arg) {
-            if (arg.charAt(0) !== ("'") && arg.charAt(0) !== ('"')) {
-                if (self._isArgAColumn(arg)) {
-                    // it's a column
-                    if (arg.charAt(0) !== gAggVarPrefix) {
-                        // do not prepend colprefix if has aggprefix
-                        arg = gColPrefix + arg;
-                    }
-                }
-            } else {
-                const quote = arg.charAt(0);
-                if (arg.lastIndexOf(quote) === arg.length - 1) {
-                    arg = arg.slice(1, -1); // remove surrounding quotes
-                }
-            }
-            return arg;
-        }
     }
 
     protected _update(all?: boolean): void {
@@ -153,12 +135,6 @@ class AggOpPanelModel extends GeneralOpPanelModel {
     }
 
     protected _getParam(): DagNodeAggregateInputStruct {
-        const self = this;
-        this.groups.forEach(group => {
-            group.args.forEach(arg => {
-                self._formatArg(arg);
-            });
-        });
         const evalString = xcHelper.formulateMapFilterString(this.groups);
         return {
             evalString: evalString,

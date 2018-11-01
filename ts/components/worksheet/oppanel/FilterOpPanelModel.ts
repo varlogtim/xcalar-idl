@@ -67,6 +67,8 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
         return colType;
     }
 
+    // strict check is true when saving/ validating form
+    // and false when first opening the form
     protected _initialize(paramsRaw, strictCheck?: boolean) {
         const self = this;
         if (!this._opCategories.length) {
@@ -139,7 +141,7 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
             }
             args.forEach((arg, index) => {
                 const rawValue = arg.getValue();
-                let value = formatArgToUI(rawValue);
+                let value = self.formatArgToUI(rawValue);
                 if (argGroup.fnName === "regex" && args.length === 2 &&
                     index === 1) {
                     arg.setRegex(true);
@@ -151,8 +153,9 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
                     value = "";
                     arg.setIsNone(true);
                 }
+
                 arg.setValue(value);
-                self._formatArg(arg);
+                arg.setFormattedValue(rawValue);
                 self._validateArg(arg);
             });
 
@@ -162,24 +165,6 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
         this.groups = groups;
         this.andOrOperator = "and";
 
-
-        function formatArgToUI(arg) {
-            if (arg.charAt(0) !== ("'") && arg.charAt(0) !== ('"')) {
-                if (self._isArgAColumn(arg)) {
-                    // it's a column
-                    if (arg.charAt(0) !== gAggVarPrefix) {
-                        // do not prepend colprefix if has aggprefix
-                        arg = gColPrefix + arg;
-                    }
-                }
-            } else {
-                const quote = arg.charAt(0);
-                if (arg.lastIndexOf(quote) === arg.length - 1) {
-                    arg = arg.slice(1, -1); // remove surrounding quotes
-                }
-            }
-            return arg;
-        }
     }
 
     private _isValidAndOr(func, operator) {
@@ -196,12 +181,6 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
     }
 
     protected _getParam(): DagNodeFilterInputStruct {
-        const self = this;
-        this.groups.forEach(group => {
-            group.args.forEach(arg => {
-                self._formatArg(arg);
-            });
-        });
         const evalString = xcHelper.formulateMapFilterString(this.groups,
                                                              this.andOrOperator);
         return {

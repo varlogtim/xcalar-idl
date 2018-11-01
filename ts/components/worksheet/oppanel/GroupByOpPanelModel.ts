@@ -161,7 +161,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
             }
 
             args.forEach((arg) => {
-                const value = formatArgToUI(arg.getValue());
+                const value = self.formatArgToUI(arg.getValue());
                 arg.setValue(value);
                 self._formatArg(arg);
                 self._validateArg(arg);
@@ -181,24 +181,6 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
         this.groupAll = paramsRaw.groupAll;
         this.groupOnCols = paramsRaw.groupBy;
         this.newKeys = paramsRaw.newKeys || null;
-
-        function formatArgToUI(arg) {
-            if (arg.charAt(0) !== ("'") && arg.charAt(0) !== ('"')) {
-                if (self._isArgAColumn(arg)) {
-                    // it's a column
-                    if (arg.charAt(0) !== gAggVarPrefix) {
-                        // do not prepend colprefix if has aggprefix
-                        arg = gColPrefix + arg;
-                    }
-                }
-            } else {
-                const quote = arg.charAt(0);
-                if (arg.lastIndexOf(quote) === arg.length - 1) {
-                    arg = arg.slice(1, -1); // remove surrounding quotes
-                }
-            }
-            return arg;
-        }
     }
 
     protected _update(all?: boolean): void {
@@ -208,12 +190,8 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
     }
 
     protected _getParam(): DagNodeGroupByInputStruct {
-        const self = this;
         const aggregates = [];
         this.groups.forEach(group => {
-            group.args.forEach(arg => {
-                self._formatArg(arg);
-            });
             let sourceColumn: string;
             let cast: string;
             if (group.args[0]) {

@@ -167,7 +167,7 @@ class MapOpPanelModel extends GeneralOpPanelModel {
             }
             args.forEach((arg, index) => {
                 const rawValue = arg.getValue();
-                let value = formatArgToUI(rawValue);
+                let value = self.formatArgToUI(rawValue);
                 if (argGroup.fnName === "regex" && args.length === 2 &&
                     index === 1) {
                     arg.setRegex(true);
@@ -193,24 +193,6 @@ class MapOpPanelModel extends GeneralOpPanelModel {
 
         this.groups = groups;
         this.icv = paramsRaw.icv;
-
-        function formatArgToUI(arg) {
-            if (arg.charAt(0) !== ("'") && arg.charAt(0) !== ('"')) {
-                if (self._isArgAColumn(arg)) {
-                    // it's a column
-                    if (arg.charAt(0) !== gAggVarPrefix) {
-                        // do not prepend colprefix if has aggprefix
-                        arg = gColPrefix + arg;
-                    }
-                }
-            } else {
-                const quote = arg.charAt(0);
-                if (arg.lastIndexOf(quote) === arg.length - 1) {
-                    arg = arg.slice(1, -1); // remove surrounding quotes
-                }
-            }
-            return arg;
-        }
     }
 
     protected _update(all?: boolean): void {
@@ -220,12 +202,8 @@ class MapOpPanelModel extends GeneralOpPanelModel {
     }
 
     protected _getParam(): DagNodeMapInputStruct {
-        const self = this;
         const evals = [];
         this.groups.forEach(group => {
-            group.args.forEach(arg => {
-                self._formatArg(arg);
-            });
             const evalString: string = xcHelper.formulateMapFilterString([group]);
             evals.push({
                 evalString: evalString,

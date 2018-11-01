@@ -748,6 +748,24 @@ class GeneralOpPanelModel {
         return ({value: value, isString: shouldBeString});
     }
 
+    protected formatArgToUI(arg) {
+        if (arg.charAt(0) !== ("'") && arg.charAt(0) !== ('"')) {
+            if (this._isArgAColumn(arg)) {
+                // it's a column
+                if (arg.charAt(0) !== gAggVarPrefix) {
+                    // do not prepend colprefix if has aggprefix
+                    arg = gColPrefix + arg;
+                }
+            }
+        } else {
+            const quote = arg.charAt(0);
+            if (arg.lastIndexOf(quote) === arg.length - 1) {
+                arg = arg.slice(1, -1); // remove surrounding quotes
+            }
+        }
+        return arg;
+    }
+
      // used in cases where arg could be type string and number
      protected _isNumberInQuotes(arg: string): boolean {
         if (arg[0] === "'" || arg[0] === '"') {
