@@ -135,9 +135,9 @@ class DagNodeMap extends DagNode {
     protected _genParamHint(): string {
         let hint: string = "";
         const input: DagNodeMapInputStruct = this.getParam();
-        if (input.eval) {
+        if (input.eval.length) {
             const evalStrs: string[] = input.eval.map((evalInfo) => evalInfo.evalString);
-            hint = `map(${evalStrs.join(",")})`;
+            hint = evalStrs.join(",");
         }
         return hint;
     }

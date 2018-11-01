@@ -18,6 +18,16 @@
 
     .input-box(100%, @listHeight);
 
+    .divider {
+        background-color: @color-bg-topBarGray2;
+        height: 1px;
+        margin: 10px 0;
+    }
+
+    .qMark {
+        background-color: @color-arc-xdbfree;
+    }
+
     > header {
         height: @title-height;
         line-height: @title-height;
@@ -25,10 +35,22 @@
 
         .title {
             margin-left: 10px;
-            display: inline-block;
-            width: ~"calc(100% - 100px)";
             font-weight: bold;
+            float: left;
         }
+
+        .csHelp {
+            margin-left: 8px;
+            float: left;
+            height: 8px;
+            .vertical-align;
+
+            .icon {
+                position: absolute;
+                color: @color-arc-xdbfree;
+            }
+        }
+
         .close {
             line-height: @title-height;
             margin-right: 10px;
@@ -90,25 +112,48 @@
         margin: 0 auto;
     }
 
-    .addArgWrap.addArgWrapSmall {
-        height: 20px;
+    .addArgWrap {
+        &.addArgWrapSmall {
+            height: 20px;
 
-        .btn {
-            background-color: @color-arc-xdbfree;
-            .size(20px, 20px);
-            float: left;
-            padding: 0;
-            line-height: 20px;
-
-            .icon {
+            .btn {
+                background-color: @color-arc-xdbfree;
+                .size(20px, 20px);
+                float: left;
+                padding: 0;
                 line-height: 20px;
-                font-size: 9px;
+
+                .icon {
+                    line-height: 20px;
+                    font-size: 9px;
+                }
+            }
+
+            .text {
+                line-height: 20px;
+                float: left;
             }
         }
 
-        .text {
-            line-height: 20px;
-            float: left;
+        &.addArgWrapLarge {
+            padding-left: 0px;
+            margin-top: 15px;
+    
+            .btn {
+                background-color: @color-arc-xdbfree;
+                height: 28px;
+                width: 180px;
+                display: block;
+                margin: 0 auto;
+
+                &:hover {
+                    background-color: @color-arc-xdbfree;
+                }
+            }
+
+            .text {
+                font-size: 12px;
+            }
         }
     }
 
@@ -271,8 +316,7 @@
         }
         // xx need to generalize
         .icvMode, .gbCheckboxRow > div, .keepTableCheckbox {
-            float: right;
-            padding-right: 10px;
+            padding-left: 38px;
             &.inactive {
                 visibility: hidden;
             }
@@ -282,11 +326,14 @@
                 font-weight: 600;
                 line-height: 23px;
                 font-size: 11px;
+                color: @color-font-dropdown-gray;
             }
             .checkbox {
                 margin-top: 6px;
+                float: left;
+
                 .icon {
-                    color: @color-font-softBlue;
+                    color: @color-font-dropdown-gray;
                     cursor: pointer;
                 }
             }
@@ -328,7 +375,7 @@
             position: relative;
             top: 2px;
             left: 1px;
-            margin-right: 5px;
+            margin-right: 10px;
             color: @color-font-form-gray;
         }
 
@@ -337,7 +384,7 @@
                 width: 100%;
             }
             .text {
-                font-weight: 700;
+                font-weight: 600;
                 cursor: pointer;
             }
         }
@@ -379,7 +426,7 @@
 
     .catFuncMenus {
         border: 1px solid @color-border-white-five;
-        border-width: 1px 0px 1px 0px;
+        margin: 0 10px;
 
         ul {
             float: left;
@@ -408,7 +455,7 @@
                 }
 
                 &:hover {
-                    background-color: fade(@color-bg-light-blue-grey, 40%);
+                    background-color: @color-bg-topBarGray2;
                 }
                 &.active {
                     background-color: @color-bg-light-blue-grey;
@@ -1038,7 +1085,7 @@
                 .size(@width: ~"calc(100% - 5px)");
 
                 .lists {
-                    .size(@min-width: 140px, @max-width: 50%);
+                    .size(@min-width: 139px, @max-width: 50%);
                     .flex(1 1 200px);
                     margin-right: -1px;
 
@@ -1314,6 +1361,10 @@
                 &.groupByAll {
                     margin-top: 4px;
                     margin-bottom: -10px;
+
+                    .checkbox {
+                        float: right;
+                    }
                 }
 
                 .text {
@@ -1385,27 +1436,12 @@
     }
 
     &#groupByOpPanel, &#mapOpPanel {
-        .addArgWrapLarge {
-            padding-left: 0px;
-            margin-top: 15px;
-
-            .addArg {
-                width: 260px;
-                height:  36px;
-                display: block;
-                margin: 0 auto;
-                .text {
-                    font-size: 14px;
-                }
-            }
-        }
-
         .colNameSection {
             .iconWrapper {
                 left: 0px;
-                background-color: @color-bg-pinkish-grey;
+                background-color: @color-border-softGray;
                 .icon {
-                    font-size: 16px;
+                    font-size: 14px;
                     opacity: 1;
                     position: static;
                     .transform(none);
@@ -1413,6 +1449,7 @@
                     line-height: @listHeight - 2px;
                     text-align: center;
                     cursor: initial;
+                    color: @color-font-edge;
                 }
             }
 
@@ -1485,11 +1522,8 @@
                 }
             }
         }
-        .csHelp {
-            margin-left: 4px;
-        }
         .mapFilter {
-            width: ~"calc(100% - 30px)";
+            width: ~"calc(100% - 20px)";
             margin-left: 10px;
             margin-top: 4px;
             padding-right: 20px;
@@ -1738,6 +1772,11 @@
             display: none;
         }
 
+        .iconWrapper {
+            border: 1px solid @color-border-softGray;
+            border-right: none;
+        }
+
         .arg {
             padding-right: 10px;
         }
@@ -1854,21 +1893,6 @@
     }
 
     .groupby, .map {
-        .addArgWrapLarge {
-            padding-left: 0px;
-            margin-top: 15px;
-
-            .addArg {
-                width: 240px;
-                height:  28px;
-                display: block;
-                margin: 0 auto;
-                .text {
-                    font-size: 12px;
-                }
-            }
-        }
-
         .colNameSection {
             .iconWrapper {
                 left: 0px;
@@ -2064,12 +2088,6 @@
                     }
                 }
             }
-        }
-
-        .divider {
-            .size(@height: 1px);
-            background-color: @color-border-union;
-            margin: 15px 0;
         }
     }
 
@@ -2363,12 +2381,6 @@
 #filterOpPanel {
     .argsSection {
         margin-bottom: 20px;
-    }
-
-    .divider {
-        background-color: #EEF1F4;
-        height: 1px;
-        margin: 10px;
     }
 
     .addArgWrap {

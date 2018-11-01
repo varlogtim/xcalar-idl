@@ -250,6 +250,10 @@ namespace DagNodeMenu {
     }
 
     function configureNode(node: DagNode, options?) {
+        const nodeId: string = node.getId();
+        if (DagView.isNodeLocked(nodeId)) {
+            return;
+        }
         const type: DagNodeType = node.getType();
         const subType: DagNodeSubType = node.getSubType();
         options = options || {};
@@ -259,10 +263,10 @@ namespace DagNodeMenu {
            }
         });
 
-        DagView.lockNode(node.getId());
+        DagView.lockNode(nodeId);
         Log.lockUndoRedo();
         DagTopBar.Instance.lock();
-
+        MainMenu.closeForms(); // close opened forms first
         // Nodes in SQL sub graph can't be configured
         if (DagView.getActiveTab() instanceof DagTabSQL) {
             options.nonConfigurable = true;

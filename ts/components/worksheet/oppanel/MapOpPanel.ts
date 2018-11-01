@@ -603,14 +603,7 @@ class MapOpPanel extends GeneralOpPanel {
                 (description.indexOf("*") === 0 &&
                 description.indexOf("**") === -1)) {
                 $input.addClass("variableArgs");
-                $row.after(
-                    '<div class="addArgWrap addArgWrapLarge">' +
-                        '<button class="btn btn-rounded addArg addMapArg" data-typeid="' +
-                            typeId + '">' +
-                            '<i class="icon xi-plus"></i>' +
-                            '<span class="text">ADD ANOTHER ARGUMENT</span>' +
-                        '</button>' +
-                        '</div>');
+                $row.after(BaseOpPanel.createAddClauseButton(typeId));
                 if (description.indexOf("*") === 0 &&
                     description.indexOf("**") === -1) {
                     const $checkboxWrap = $row.find(".noArgWrap");
@@ -1056,9 +1049,6 @@ class MapOpPanel extends GeneralOpPanel {
                 '<div class="altFnTitle">No Function Chosen</div>' +
                 '<div class="filterMapFuncArea">' +
                     '<input type="text" class="mapFilter" placeholder="Search map functions...">' +
-                    '<div class="hint csHelp" data-topic="mapFunctions" title="" data-toggle="tooltip" data-container="body" data-original-title="">' +
-                        '<i class="icon xi-help fa-12"></i>' +
-                    '</div>' +
                     '<div class="clear">' +
                         '<i class="icon fa-11 xi-close xc-action"></i>' +
                     '</div>' +

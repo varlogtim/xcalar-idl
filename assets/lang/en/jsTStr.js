@@ -1447,7 +1447,7 @@ ExtTStr = {
     "XcCategory": "Xcalar Extensions",
     "extListFail": "Failed to get installed extensions list",
     "InvalidTableName": "Invalid table name, please use extension api to create a valid name",
-    "AddClause": "Add another argument",
+    "AddClause": "Add Another Argument",
     "LoadScriptFail": "Fail to load extension script",
     "LoadUDFFail": "Fail to load extension UDF, please test the UDF first and make sure it can be uploaded to Xcalar",
     "Instruction": "Instruction",

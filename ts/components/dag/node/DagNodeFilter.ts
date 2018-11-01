@@ -85,7 +85,7 @@ class DagNodeFilter extends DagNode {
         let hint: string = "";
         const input: DagNodeFilterInputStruct = this.getParam();
         if (input.evalString) {
-            hint = `filter(${input.evalString})`;
+            hint = input.evalString;
         }
         return hint;
     }

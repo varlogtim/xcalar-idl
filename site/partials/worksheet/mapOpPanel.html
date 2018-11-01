@@ -1,18 +1,20 @@
 <section id="mapOpPanel" class="xc-hidden opPanel generalOpPanel">
     <header>
         <div class="title"><%= dicts.opsView.map %></div>
+        <div class="hint csHelp" data-topic="mapFunctions" title="" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.TooltipTStr.CSHelp %>">
+            <i class="icon xi-help fa-12"></i>
+        </div>
         <i class="close icon xi-close"></i>
     </header>
     <div class="mainContent">
         <div class="opSection">
             <p class="mainInstructions instrText"><%= dicts.opsView.mapInstr %></p>
+            <div class="divider"></div>
             <div class="group mapGroup firstGroup">
                 <i class="icon xi-minus minGroup"></i>
                 <div class="altFnTitle">No Function Chosen</div>
                 <div class="filterMapFuncArea">
-                    <input type="text" class="mapFilter" placeholder="<%= dicts.opsView.mapFilter %>..."><div class="hint csHelp" data-topic="mapFunctions" title="" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.TooltipTStr.CSHelp %>">
-                        <i class="icon xi-help fa-12"></i>
-                    </div>
+                    <input type="text" class="mapFilter" placeholder="<%= dicts.opsView.mapFilter %>...">
                     <div class="clear">
                         <i class="icon fa-11 xi-close xc-action"></i>
                     </div>
@@ -36,11 +38,11 @@
             </div>
             <div class="icvContainer">
                 <div class="icvMode checkboxSection inactive">
-                    <div class="text"><%= dicts.opsView.erroneousRows %></div>
                     <div class="checkbox">
-                    <i class="icon xi-ckbox-empty fa-11"></i>
-                    <i class="icon xi-ckbox-selected fa-11"></i>
+                        <i class="icon xi-ckbox-empty fa-11"></i>
+                        <i class="icon xi-ckbox-selected fa-11"></i>
                     </div>
+                    <div class="text"><%= dicts.opsView.erroneousRows %></div>
                 </div>
             </div>
             <div class="strPreview"></div> <!-- this gets filled by JS -->

@@ -486,14 +486,7 @@ class FilterOpPanel extends GeneralOpPanel {
                 (description.indexOf("*") === 0 &&
                 description.indexOf("**") === -1)) {
                 $input.addClass("variableArgs");
-                $row.after(
-                    '<div class="addArgWrap addArgWrapLarge">' +
-                        '<button class="btn btn-rounded addArg addMapArg" data-typeid="' +
-                            typeId + '">' +
-                            '<i class="icon xi-plus"></i>' +
-                            '<span class="text">ADD ANOTHER ARGUMENT</span>' +
-                        '</button>' +
-                        '</div>');
+                $row.after(BaseOpPanel.createAddClauseButton(typeId));
                 if (description.indexOf("*") === 0 &&
                     description.indexOf("**") === -1) {
                     // default:coalesce or default:multijoin
