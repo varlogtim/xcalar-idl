@@ -259,7 +259,8 @@ class DFLinkInOpPanel extends BaseOpPanel {
                     $dropdown.find("input").val($li.text()).trigger("change");
                 }
             },
-            container: selector
+            container: selector,
+            bounds: selector
         }).setupListeners();
 
         $dropdown.find("input")

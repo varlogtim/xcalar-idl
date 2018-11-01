@@ -53,7 +53,7 @@ class DFLinkInOpPanelSchemaSection {
 
     private _addTypeDropdwn($dropdown: JQuery) {
         const $panel: JQuery = this._$section.closest(".opPanel");
-        const selector: string = `#${$panel.attr("id")} .schemaSection`;
+        const selector: string = `#${$panel.attr("id")}`;
         new MenuHelper($dropdown, {
             onOpen: ($curDropdown) => {
                 this._populateTypeDropdown($curDropdown);

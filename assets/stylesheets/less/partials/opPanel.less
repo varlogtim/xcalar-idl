@@ -90,12 +90,35 @@
         margin: 0 auto;
     }
 
+    .addArgWrap.addArgWrapSmall {
+        height: 20px;
+
+        .btn {
+            background-color: @color-arc-xdbfree;
+            .size(20px, 20px);
+            float: left;
+            padding: 0;
+            line-height: 20px;
+
+            .icon {
+                line-height: 20px;
+                font-size: 9px;
+            }
+        }
+
+        .text {
+            line-height: 20px;
+            float: left;
+        }
+    }
+
     .dropDownList {
         .styleDropDownList(100%, @listHeight);
 
         .text {
             background-color: @color-white;
             font-size: @standardFontSize;
+            border-right: none;
         }
         .list {
             top: @listHeight;
@@ -114,10 +137,8 @@
             background-color: @color-bg-list-hover-blue;
             border: 1px solid #E6E6E6;
 
-            &.dropdown {
-                .icon {
-                    color: @color-font-dropdown-gray;
-                }
+            .xi-arrow-down {
+                color: @color-font-dropdown-gray;
             }
         }
         &.disabled {
@@ -1252,27 +1273,6 @@
     @standardFontSize: 12px;
     @commonMargin: 10px;
     @functionsListZindex: 10;
-
-    .addArgWrapSmall {
-        height: 20px;
-
-        .btn {
-            background-color: @color-arc-xdbfree;
-            .size(20px, 20px);
-            float: left;
-            
-            .icon {
-                line-height: 20px;
-                font-size: 9px;
-                .position(relative, @top: -3px);
-            }
-        }
-
-        .text {
-            line-height: 20px;
-            float: left;
-        }
-    }
 
     &#groupByOpPanel {
         .catFuncHeadings {
@@ -2604,6 +2604,7 @@
         }
         .iconWrapper {
             background-color: transparent;
+            border: none;
         }
     }
 
@@ -2973,17 +2974,6 @@
             .addColumn {
                 margin-top: 20px;
                 cursor: pointer;
-
-                .btn {
-                    .size(26px, 26px);
-                    padding: 0;
-                    line-height: 26px;
-
-                    .icon {
-                        line-height: 26px;
-                        font-size: 14px;
-                    }
-                }
 
                 .text {
                     font-size: 12px;
