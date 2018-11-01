@@ -623,6 +623,7 @@ class GroupByOpPanel extends GeneralOpPanel {
         autoGenColName = xcHelper.stripColName(autoGenColName);
 
         $argSection.find(".colNameSection .arg").val(autoGenColName);
+        this._onArgChange($newColName);
     }
 
     private _groupByArgumentsSetup(numArgs, operObj, $rows) {
@@ -1130,8 +1131,10 @@ class GroupByOpPanel extends GeneralOpPanel {
             || this._$lastInputFocused.hasClass("variableArgs")) {
             options.append = true;
         }
-        xcHelper.fillInputFromCell($target, this._$lastInputFocused,
-                                    gColPrefix, options);
+        if (xcHelper.fillInputFromCell($target, this._$lastInputFocused,
+                                    gColPrefix, options)) {
+            this._onArgChange(this._$lastInputFocused);
+        }
         this._checkHighlightTableCols(this._$lastInputFocused);
         if (this._$lastInputFocused.hasClass("gbAgg")) {
             this._autoGenNewGroupByName(this._$lastInputFocused);

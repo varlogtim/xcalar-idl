@@ -1654,9 +1654,10 @@ namespace DagView {
                 if (ui.position.top <= 100) {
                     ui.position.top = 100;
                     pct = (mainAreaHeight - 100) / mainAreaHeight;
-                    $dfWrap.css("top", 100);
                 }
+                let pctTop = ui.position.top / mainAreaHeight;
 
+                $dfWrap.css("top", 100 * pctTop + "%");
                 $dfWrap.height(100 * pct + "%");
                 $tableArea.height(100 * (1 - pct) + "%");
                 $parent.removeClass("resizing");

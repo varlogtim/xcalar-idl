@@ -55,21 +55,21 @@ class BaseOpPanel {
         colNameTemplate: HTML
     ): HTML {
         const html: HTML =
-        '<div class="typeIcon flexContainer flexRow type-' + colType + '">' +
+            '<div class="typeIcon flexContainer flexRow type-' + colType + '">' +
             '<div class="flexWrap flex-left" ' +
             ' data-toggle="tooltip"' +
             ' data-title="' + colType + '"' +
             ' data-container="body"' +
             ' data-placement="top"' +
             '>' +
-                '<span class="iconHidden"></span>' +
-                '<span class="type icon"></span>' +
+            '<span class="iconHidden"></span>' +
+            '<span class="type icon"></span>' +
             '</div>' +
             '<div class="flexWrap flex-mid">' +
-                colNameTemplate +
+            colNameTemplate +
             '</div>' +
             '<div class="flexWrap flex-right"></div>' +
-        '</div>';
+            '</div>';
         return html;
     }
 
@@ -96,7 +96,7 @@ class BaseOpPanel {
     public static counter = 0; // used to give is panel a unique id
 
     public static get Instance() {
-        return  this._instance || (this._instance = new this());
+        return this._instance || (this._instance = new this());
     }
 
     public getEditor(): CodeMirror.EditorFromTextArea {
@@ -147,17 +147,17 @@ class BaseOpPanel {
         this._formHelper.showView(formName, this);
         MainMenu.setFormOpen();
         options = options || {};
-        this._exitCallback = options.exitCallback || function(){};
-        this._closeCallback = options.closeCallback || function(){};
+        this._exitCallback = options.exitCallback || function () { };
+        this._closeCallback = options.closeCallback || function () { };
         if (options.nonConfigurable) {
             $("#dataflowMenu .opPanel .bottomSection .btnWrap")
-                                                    .addClass("xc-disabled");
+                .addClass("xc-disabled");
             if (this._editor) {
                 this._editor.setOption("readOnly", true);
             }
         } else {
             $("#dataflowMenu .opPanel .opSection, .bottomSection .btnWrap")
-                                                    .removeClass("xc-disabled");
+                .removeClass("xc-disabled");
             if (this._editor) {
                 this._editor.setOption("readOnly", false);
             }
@@ -178,11 +178,14 @@ class BaseOpPanel {
         this.udfMap = {};
         this.xdfMap = {};
         this.aggMap = {};
-        if (!isSubmit) {
-            this._exitCallback();
-        }
         // unlocks the node associated with the form
         this._closeCallback();
+
+        if (!isSubmit) {
+            // when form is closed without submitting, we remove the node if it
+            // was generate by the preview table column menu
+            this._exitCallback();
+        }
         return true;
     }
 
@@ -239,7 +242,7 @@ class BaseOpPanel {
         this._editor.setValue(this._cachedBasicModeParam);
     }
 
-    protected _switchMode(_toAdvancedMode: boolean): {error: string} {
+    protected _switchMode(_toAdvancedMode: boolean): { error: string } {
         return null;
     }
 
@@ -248,7 +251,7 @@ class BaseOpPanel {
         $switcher.on("click", ".switch", (event) => {
             const $switch: JQuery = $(event.target).closest(".switch");
             const toAdvanceMode: boolean = $switch.hasClass("on") ? false : true;
-            const error: {error: string} = this._switchMode(toAdvanceMode);
+            const error: { error: string } = this._switchMode(toAdvanceMode);
             if (error == null) {
                 this._updateMode(toAdvanceMode);
             } else {
@@ -287,17 +290,17 @@ class BaseOpPanel {
 
 
         var keysToIgnore = [keyCode.Left, keyCode.Right, keyCode.Down,
-            keyCode.Up, keyCode.Tab, keyCode.Enter,
-            keyCode.Escape];
+        keyCode.Up, keyCode.Tab, keyCode.Enter,
+        keyCode.Escape];
 
-        this._editor.on("keyup", function(_cm, e) {
+        this._editor.on("keyup", function (_cm, e) {
             if (keysToIgnore.indexOf(e.keyCode) < 0) {
                 self._editor.execCommand("autocompleteOpPanel" + self.panelNum);
             }
         });
 
         // set up codemirror autcomplete command
-        CodeMirror.commands["autocompleteOpPanel" + self.panelNum] = function(cm) {
+        CodeMirror.commands["autocompleteOpPanel" + self.panelNum] = function (cm) {
             CodeMirror.showHint(cm, CodeMirror.hint["opPanel" + self.panelNum + "Hint"], {
                 alignWithWord: true,
                 completeSingle: false,
@@ -332,7 +335,7 @@ class BaseOpPanel {
 
             curWord = curWord.toLowerCase();
             // search columnNames
-            this.allColumns.forEach(function(progCol) {
+            this.allColumns.forEach(function (progCol) {
                 const colName = progCol.getBackColName();
                 if (colName.indexOf(curWord) !== -1 &&
                     !seen.hasOwnProperty(colName)) {
@@ -372,7 +375,7 @@ class BaseOpPanel {
                 }
             }
 
-            list.sort(function(a, b) {
+            list.sort(function (a, b) {
                 return a.displayText.length - b.displayText.length;
             });
             // do not show hint if only hint is an exact match
@@ -419,7 +422,7 @@ class BaseOpPanel {
             if (completion.argDescs) {
                 var start = text.indexOf('(');
                 var arg;
-                for (var i = 0 ; i < completion.argDescs.length; i++) {
+                for (var i = 0; i < completion.argDescs.length; i++) {
                     arg = completion.argDescs[i];
                     start = text.indexOf(arg, start);
                     if (!firstEndIndex && arg.length) {
@@ -427,9 +430,9 @@ class BaseOpPanel {
                         firstEndIndex = data.from.ch + start + arg.length;
                     }
 
-                    cm.markText({line: line, ch: data.from.ch + start},
-                        {line: line, ch: data.from.ch + start + arg.length},
-                        {className: "argDesc", atomic: true});
+                    cm.markText({ line: line, ch: data.from.ch + start },
+                        { line: line, ch: data.from.ch + start + arg.length },
+                        { className: "argDesc", atomic: true });
                 }
             }
             if (firstEndIndex) {
@@ -445,8 +448,8 @@ class BaseOpPanel {
 
         function renderOpLi(el, _data, cur) {
             el.innerHTML = '<span class="displayText">' + cur.displayText +
-                           '</span><span class="template">' + cur.template +
-                           '</span>';
+                '</span><span class="template">' + cur.template +
+                '</span>';
         }
 
         function renderList(el, _data, cur) {
@@ -475,7 +478,7 @@ class BaseOpPanel {
                     }
                     this.udfMap[fnName].push(op);
                 } else if (op.category !==
-                            FunctionCategoryT.FunctionCategoryAggregate) {
+                    FunctionCategoryT.FunctionCategoryAggregate) {
                     if (!this.xdfMap[fnName]) {
                         this.xdfMap[fnName] = [];
                     }
@@ -521,8 +524,8 @@ class BaseOpPanel {
                 } else if (argDescSplit.length === 2) {
                     // camel case and join 2 words together
                     argDesc = argDescSplit[0] +
-                            argDescSplit[1][0].toUpperCase() +
-                            argDescSplit[1].slice(1);
+                        argDescSplit[1][0].toUpperCase() +
+                        argDescSplit[1].slice(1);
                 }
                 argDescs.push(argDesc);
 
@@ -532,7 +535,7 @@ class BaseOpPanel {
                 }
             }
             fnTemplate += ')';
-            return {template: fnTemplate, argDescs: argDescs};
+            return { template: fnTemplate, argDescs: argDescs };
         }
     }
 

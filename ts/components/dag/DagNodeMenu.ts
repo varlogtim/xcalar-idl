@@ -230,7 +230,10 @@ namespace DagNodeMenu {
                 case ("resetNode"):
                 case ("resetAllNodes"):
                 case ("configureNode"):
-                    if (DagView.getActiveDag().checkForChildLocks(nodeIds)) {
+                    const nodesToCheck = nodeIds.filter((nodeId) => {
+                        return nodeId.startsWith("dag");
+                    });
+                    if (DagView.getActiveDag().checkForChildLocks(nodesToCheck)) {
                         Alert.show({
                             title: DFTStr.LockedTableWarning,
                             msg: xcHelper.replaceMsg(DFTStr.LockedTableMsg, {action: action}),
