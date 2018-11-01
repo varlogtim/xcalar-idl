@@ -181,9 +181,9 @@ class DagNodeExecutor {
         const params: DagNodeJoinInputStruct = node.getParam(true);
         // convert joinType
         let joinType: JoinType = null;
-        for (let key in JoinOperatorT) {
+        for (let key in JoinOperatorTFromStr) {
             if (key.toLowerCase() === params.joinType.toLowerCase()) {
-                joinType = <JoinType>JoinOperatorT[key];
+                joinType = <JoinType>JoinOperatorTFromStr[key];
                 break;
             }
         }

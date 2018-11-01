@@ -686,6 +686,14 @@ declare enum JoinOperatorT {
     CrossJoin
 }
 
+declare enum JoinOperatorTFromStr {
+    innerJoin,
+    leftJoin,
+    rightJoin,
+    fullOuterJoin,
+    crossJoin
+}
+
 declare enum UnionOperatorTStr {
 
 }
