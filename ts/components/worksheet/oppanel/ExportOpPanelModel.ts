@@ -116,7 +116,11 @@ class ExportOpPanelModel {
                 dagData.columns.push(colInfo.name);
             }
         }
-        dagData.driver = this.currentDriver.name;
+        if (this.currentDriver != null) {
+            dagData.driver = this.currentDriver.name;
+        } else {
+            dagData.driver = "";
+        }
         dagData.driverArgs = this.driverArgs;
 
         return dagData;

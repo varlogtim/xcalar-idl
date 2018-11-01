@@ -52,29 +52,6 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         });
         expList.setupListeners();
         this._setupEventListener();
-        this._demoDriver();
-    }
-
-    private _demoDriver() {
-        // Use this exclusively for until we have real drivers loaded up
-        XcalarDriverList()
-        .then((list) => {
-            if (list.length == 0) {
-                XcalarDriverCreate("test export driver", "import xcalar.container.driver.base as driver\n" +
-                    "@driver.register_export_driver(name=\"test export driver\")\n" +
-                    "@driver.param(name=\"driver param int\", type=driver.INTEGER, desc=\"test driver param1\")\n" +
-                    "@driver.param(name=\"driver param str\", type=driver.STRING, desc=\"test driver param2\",optional=True)\n" +
-                    "@driver.param(name=\"secret param\", type=driver.STRING, desc=\"test driver param2\",secret=True)\n" +
-                    "@driver.param(name=\"driver param bool\", type=driver.BOOLEAN, desc=\"test driver param3\")\n" +
-                    "@driver.param(name=\"driver param target\", type=driver.TARGET, desc=\"test driver param4\",optional=True)\n" +
-                    "def driver(): return");
-                XcalarDriverCreate("sample export driver", "import xcalar.container.driver.base as driver\n" +
-                    "@driver.register_export_driver(name=\"sample export driver\")\n" +
-                    "@driver.param(name=\"data_target\", type=driver.TARGET, desc=\"target to export to\")\n" +
-                    "@driver.param(name=\"file_name\", type=driver.STRING, desc=\"exported file name\", optional=False)\n" +
-                    "def driver(): return");
-            }
-        });
     }
 
     private _activateDropDown($list: JQuery, container: string) {
