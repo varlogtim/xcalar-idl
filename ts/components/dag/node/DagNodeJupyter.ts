@@ -23,9 +23,43 @@ class DagNodeJupyter extends DagNodeOut {
     public lineageChange(
         columns: ProgCol[], replaceParameters?: boolean
     ): DagLineageChange {
+        const sourceColumnMap: Map<string, ProgCol> = new Map();
+        for (const col of columns) {
+            sourceColumnMap.set(col.getBackColName(), col);
+        }
+
+        const params = this.input.getInput(replaceParameters);
+        const resultColumns: ProgCol[] = [];
+        const changes: { from: ProgCol, to: ProgCol }[] = [];
+        for (const { sourceColumn, destColumn } of params.renames) {
+            const sourceCol = sourceColumnMap.get(sourceColumn);
+            const destCol = ColManager.newPullCol(
+                destColumn, destColumn, sourceCol.getType()
+            );
+            resultColumns.push(destCol);
+            changes.push({
+                from: sourceCol, to: destCol
+            });
+        }
         return {
-            columns: [],
-            changes: []
+            columns: resultColumns,
+            changes: changes
         };
+    }
+
+    /**
+     * Append code stub to current/new Jupyter notebook, and bring up the JupyterPanel
+     * @description The resultant table must be generated before calling this method
+     */
+    public showJupyterNotebook(): void {
+        const tableName = this.getTable();
+        if (tableName == null || tableName.length === 0) {
+            return;
+        }
+        const params: DagNodeJupyterInputStruct = this.getParam();
+        JupyterPanel.publishTable(
+            tableName,
+            params.numExportRows,
+            true);
     }
 }

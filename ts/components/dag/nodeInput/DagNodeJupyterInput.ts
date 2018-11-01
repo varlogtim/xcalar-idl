@@ -76,10 +76,11 @@ class DagNodeJupyterInput extends DagNodeInput {
         super(inputStruct);
     }
 
-    public getInput() {
+    public getInput(replaceParameters?: boolean): DagNodeJupyterInputStruct {
+        const input = super.getInput(replaceParameters);
         return {
-            numExportRows: this.input.numExportRows,
-            renames: this.input.renames.map((v) => ({
+            numExportRows: input.numExportRows,
+            renames: input.renames.map((v) => ({
                 sourceColumn: v.sourceColumn,
                 destColumn: v.destColumn
             }))

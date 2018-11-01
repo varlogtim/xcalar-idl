@@ -1211,7 +1211,7 @@ declare namespace JupyterPanel {
     export function updateFolderName(newFoldername: string): void;
     export function copyWorkbook(oldJupyterFolder: string, newJupyterFolder: string): void;
     export function initialize(noRestore?: boolean): void;
-    export function publishTable(tableName: string, numRows?: number): void;
+    export function publishTable(tableName: string, numRows?: number, hasVerifiedNames?: boolean): void;
 }
 
 declare namespace SQLApi {

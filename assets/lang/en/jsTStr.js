@@ -1651,6 +1651,10 @@ DagTStr = {
     "CustomOpNoInput": "Cannot create a custom operator without input",
     "CustomOpNoOutput": "Cannot create a custom operator without output",
     "CustomOpTooManyOutput": "Cannot create a custom operator with more than one output",
+    "MenuPreviewTable": "Preview Table",
+    "MenuViewNotebook": "View Notebook",
+    "MenuGenerateTable": "Generate Table",
+    "MenuGenerateNotebook": "Generate Notebook",
 };
 
 OpPanelTStr = {

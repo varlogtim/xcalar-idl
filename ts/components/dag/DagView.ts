@@ -867,14 +867,20 @@ namespace DagView {
             if (columns != null && columns.length > 0) {
                 table.tableCols = columns.concat(ColManager.newDATACol());
             }
-            const viewer: XcTableViewer = new XcTableViewer(table);
-            const $node: JQuery = DagView.getNode(dagNodeId, $dataflowArea);
-            DagTable.Instance.show(viewer, $node)
-                .then(deferred.resolve)
-                .fail((error) => {
-                    Alert.error(AlertTStr.Error, error);
-                    deferred.reject(error);
-                })
+            if (dagNode.getType() === DagNodeType.Jupyter) {
+                // Show Jupyter Notebook instead of preivew table
+                (<DagNodeJupyter>dagNode).showJupyterNotebook();
+                deferred.resolve();
+            } else {
+                const viewer: XcTableViewer = new XcTableViewer(table);
+                const $node: JQuery = DagView.getNode(dagNodeId, $dataflowArea);
+                DagTable.Instance.show(viewer, $node)
+                    .then(deferred.resolve)
+                    .fail((error) => {
+                        Alert.error(AlertTStr.Error, error);
+                        deferred.reject(error);
+                    })
+            }
         } catch (e) {
             console.error(e);
             Alert.error(AlertTStr.Error, ErrTStr.Unknown);

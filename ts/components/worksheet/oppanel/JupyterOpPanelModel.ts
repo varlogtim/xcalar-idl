@@ -282,7 +282,9 @@ class JupyterOpPanelModel {
     }
 
     private _canRename(colInfo: ProgCol): boolean {
-        const colType = colInfo.getType();
-        return colType !== ColumnType.array && colType !== ColumnType.object;
+        // Keep this function, in case we want to recover the old hehavior
+        return true;
+        // const colType = colInfo.getType();
+        // return colType !== ColumnType.array && colType !== ColumnType.object;
     }
 }

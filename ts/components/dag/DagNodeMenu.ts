@@ -550,6 +550,14 @@ namespace DagNodeMenu {
                 $menu.find(".findLinkOut").addClass("unavailable");
             }
         }
+        // Jupyter node
+        if (dagNode != null && dagNodeType === DagNodeType.Jupyter) {
+            $menu.find(".previewTable .label").text(DagTStr.MenuViewNotebook);
+            $menu.find(".generateTable .label").text(DagTStr.MenuGenerateNotebook);
+        } else {
+            $menu.find(".previewTable .label").text(DagTStr.MenuPreviewTable);
+            $menu.find(".generateTable .label").text(DagTStr.MenuGenerateTable);
+        }
 
         // lock/unlock option
         if (dagNode != null &&
