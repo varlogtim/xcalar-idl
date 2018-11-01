@@ -222,7 +222,7 @@ namespace DagView {
         // adds event listeners
      */
     export function reactivate(): void {
-        const $dfArea = $dfWrap.find(".dataflowArea.active");
+        const $dfArea = _getActiveArea();
         if ($dfArea.hasClass("rendered")) {
             return;
         }
@@ -574,8 +574,9 @@ namespace DagView {
      * @param nodeId
      * returns $(".operator") element
      */
-    export function getNode(nodeId: DagNodeId): JQuery {
-        return $dagView.find('.operator[data-nodeid="' + nodeId + '"]');
+    export function getNode(nodeId: DagNodeId, $dataflowArea?: JQuery): JQuery {
+        $dataflowArea = $dataflowArea || _getActiveArea();
+        return $dataflowArea.find('.operator[data-nodeid="' + nodeId + '"]');
     }
 
     /**
@@ -837,7 +838,7 @@ namespace DagView {
      * DagView.previewTable
      * @param dagNodeId
      */
-    export function previewTable(dagNodeId: string): XDPromise<void> {
+    export function previewTable(dagNodeId: string, $dataflowArea?: JQuery): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         try {
             const dagNode: DagNode = activeDag.getNode(dagNodeId);
@@ -859,7 +860,7 @@ namespace DagView {
                 table.tableCols = columns.concat(ColManager.newDATACol());
             }
             const viewer: XcTableViewer = new XcTableViewer(table);
-            const $node: JQuery = DagView.getNode(dagNodeId);
+            const $node: JQuery = DagView.getNode(dagNodeId, $dataflowArea);
             DagTable.Instance.show(viewer, $node)
                 .then(deferred.resolve)
                 .fail((error) => {
@@ -906,6 +907,7 @@ namespace DagView {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const currTabId: string = activeDagTab.getId();
         const lockedIds = [];
+        const $dataflowArea: JQuery = _getActiveArea();
         // prevent optimized nodes from being deleted or edited
         if (optimized) {
            nodeIds.forEach((nodeId) => {
@@ -923,14 +925,14 @@ namespace DagView {
             if (UserSettings.getPref("dfAutoPreview") === true &&
                 nodeIds.length === 1
             ) {
-                DagView.previewTable(nodeIds[0]);
+                DagView.previewTable(nodeIds[0], $dataflowArea);
             }
             deferred.resolve();
         })
         .fail(function(error) {
             if (error.hasError) {
                 const nodeId: DagNodeId = error.node.getId();
-                const $node: JQuery = DagView.getNode(nodeId)
+                const $node: JQuery = DagView.getNode(nodeId, $dataflowArea);
                 DagTabManager.Instance.switchTab(currTabId);
                 StatusBox.show(error.type, $node);
             }
@@ -2409,8 +2411,11 @@ namespace DagView {
      * listens events for 1 dag graph. This function is called for each dag graph
      */
     function _setupGraphEvents(): void {
-        activeDag.events.on(DagNodeEvents.StateChange, function (info) {
-            const $node: JQuery = DagView.getNode(info.id);
+        const graph: DagGraph = activeDag;
+        const dagTab: DagTab = activeDagTab;
+        const $dataflowArea: JQuery = _getActiveArea();
+        graph.events.on(DagNodeEvents.StateChange, function (info) {
+            const $node: JQuery = DagView.getNode(info.id, $dataflowArea);
             for (let i in DagNodeState) {
                 $node.removeClass("state-" + DagNodeState[i]);
             }
@@ -2422,17 +2427,18 @@ namespace DagView {
                 _setTooltip($node, info.node);
             }
             // XXX TODO: imporve it to only save once in a series of state change
-            activeDagTab.save();
+            // XXX it should not save the activeDagTab, but the tab of the node's dag
+            dagTab.save();
         });
 
-        activeDag.events.on(DagNodeEvents.ConnectionChange, function (info) {
+        graph.events.on(DagNodeEvents.ConnectionChange, function (info) {
             if (info.descendents.length) {
                 // XXX TODO only update if nodes involved in form are affected
                 FormHelper.updateColumns(null, true, info);
             }
         });
 
-        activeDag.events.on(DagNodeEvents.ParamChange, function (info) {
+        graph.events.on(DagNodeEvents.ParamChange, function (info) {
             const $node: JQuery = DagView.getNode(info.id);
             _drawTitleText($node, info.node);
             const title = _formatTooltip(info.params);
@@ -2462,15 +2468,15 @@ namespace DagView {
             }
         });
 
-        activeDag.events.on(DagNodeEvents.AggregateChange, function (info) {
+        graph.events.on(DagNodeEvents.AggregateChange, function (info) {
             editAggregates(info.id, info.aggregates);
         });
 
-        activeDag.events.on(DagNodeEvents.TableLockChange, function(info) {
+        graph.events.on(DagNodeEvents.TableLockChange, function(info) {
             editTableLock(DagView.getNode(info.id), info.lock);
         })
 
-        activeDag.events.on(DagNodeEvents.TableRemove, function(info) {
+        graph.events.on(DagNodeEvents.TableRemove, function(info) {
             const tableName: string = info.table;
             const nodeId: DagNodeId = info.nodeId;
             if (DagTable.Instance.getBindNodeId() === nodeId) {
@@ -2745,8 +2751,9 @@ namespace DagView {
         }
     }
 
-    export function addProgress(nodeId: DagNodeId): void {
-        const g = d3.select('#dagView .operator[data-nodeid = "' + nodeId + '"]');
+    export function addProgress(nodeId: DagNodeId, tabId: string): void {
+        const $dataflowArea: JQuery = _getAreaByTab(tabId);
+        const g = d3.select($dataflowArea.find('.operator[data-nodeid = "' + nodeId + '"]')[0]);
         g.selectAll(".opProgress")
             .remove(); // remove old progress
         g.append("text")
@@ -2761,14 +2768,16 @@ namespace DagView {
 
     export function updateProgress(
         nodeId: DagNodeId,
+        tabId: string,
         progress: number,
         _skew?,
         _timeStr?: string
     ): void {
-        const g = d3.select('#dagView .operator[data-nodeid = "' + nodeId + '"]');
+        const $dataflowArea: JQuery = _getAreaByTab(tabId);
+        const g = d3.select($dataflowArea.find('.operator[data-nodeid = "' + nodeId + '"]')[0]);
         let opProgress = g.select(".opProgress");
         if (opProgress.empty()) {
-            DagView.addProgress(nodeId);
+            DagView.addProgress(nodeId, tabId);
             opProgress = g.select(".opProgress");
         }
         opProgress.text(progress + "%");
@@ -2805,7 +2814,7 @@ namespace DagView {
             graph.updateNodeProgress(nodeId, pct, node.elapsed.milliseconds, node.state);
             const time: number = graph.getNodeElapsedTime(nodeId);
             const timeStr: string = xcHelper.getElapsedTimeStr(time);
-            DagView.updateProgress(nodeId, pct, skewInfo, timeStr);
+            DagView.updateProgress(nodeId, tab.getId(), pct, skewInfo, timeStr);
         });
     }
 
@@ -2876,8 +2885,9 @@ namespace DagView {
         return 'hsl(' + h + ', 100%, 33%)';
     }
 
-    export function removeProgress(nodeId: DagNodeId): void {
-        const g = d3.select('#dagView .operator[data-nodeid = "' + nodeId + '"]');
+    export function removeProgress(nodeId: DagNodeId, tabId: string): void {
+        const $dataflowArea: JQuery = _getAreaByTab(tabId);
+        const g = d3.select($dataflowArea.find('.operator[data-nodeid = "' + nodeId + '"]')[0]);
         g.selectAll(".opProgress")
             .remove();
     }
@@ -3028,5 +3038,17 @@ namespace DagView {
                 $textArea.height($textArea[0].scrollHeight);
             }
         }
+    }
+
+    function _getActiveArea(): JQuery {
+        return $dfWrap.find(".dataflowArea.active");
+    }
+
+    function _getAreaByTab(tabId: string): JQuery {
+        const index: number = DagTabManager.Instance.getTabIndex(tabId);
+        if (index < 0) {
+            return $();
+        }
+        return $dfWrap.find(".dataflowArea").eq(index);
     }
 }

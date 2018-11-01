@@ -105,7 +105,7 @@ class DagNodeExecutor {
     }
 
     private _generateTableName(): string {
-        return this.tabId + "_" + this.node.getId() + Authentication.getHashId();
+        return "table_" + this.tabId + "_" + this.node.getId() + Authentication.getHashId();
     }
 
     private _loadDataset(): XDPromise<string> {

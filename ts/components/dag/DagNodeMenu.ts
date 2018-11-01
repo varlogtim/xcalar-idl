@@ -495,11 +495,12 @@ namespace DagNodeMenu {
         const dagGraph: DagGraph = DagView.getActiveDag();
         const dagNode: DagNode = dagGraph.getNode(nodeId);
         const state: DagNodeState = (dagNode != null) ? dagNode.getState() : null;
+        const $node: JQuery = DagView.getNode(dagNode.getId());
         let classes = "";
         if (dagNode != null &&
             state === DagNodeState.Complete &&
             dagNode.getTable() != null &&
-            nodeId != DagTable.Instance.getBindNodeId()
+            !$node.find(".tableIcon").length
         ) {
             if (DagTblManager.Instance.hasTable(dagNode.getTable())) {
                 $menu.find(".generateTable").addClass("xc-hidden");

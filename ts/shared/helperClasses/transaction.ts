@@ -18,6 +18,7 @@ namespace Transaction {
         cancelable?: boolean,
         exportName?: string,
         nodeId?: DagNodeId,
+        tabId?: string,
         optimizedQueryName?: string
     }
 
@@ -51,6 +52,7 @@ namespace Transaction {
         sql?: SQLInfo;
         isEdit?: boolean;
         nodeId?: DagNodeId;
+        tabId?: string;
         optimizedQueryName?: string;
     }
 
@@ -62,6 +64,7 @@ namespace Transaction {
         sql: SQLInfo;
         isEdit: boolean;
         nodeId: DagNodeId;
+        tabId: string;
         optimizedQueryName?: string
 
         constructor(options: TXLogOptions) {
@@ -71,6 +74,7 @@ namespace Transaction {
             this.sql = options.sql || null;
             this.isEdit = options.isEdit || false;
             this.nodeId = options.nodeId || null;
+            this.tabId = options.tabId || null;
             this.optimizedQueryName = options.optimizedQueryName || null;
         }
 
@@ -129,6 +133,7 @@ namespace Transaction {
             "sql": options.sql,
             "isEdit": options.isEdit,
             "nodeId": options.nodeId,
+            "tabId": options.tabId,
             "optimizedQueryName": options.optimizedQueryName
         });
 
@@ -153,7 +158,7 @@ namespace Transaction {
 
             QueryManager.addQuery(curId, operation, queryOptions);
             if (txLog.nodeId != null) {
-                DagView.addProgress(txLog.nodeId);
+                DagView.addProgress(txLog.nodeId, txLog.tabId);
             }
         }
 
@@ -178,7 +183,7 @@ namespace Transaction {
                         const progress: number = xcHelper.getQueryProgress(queryStateOutput);
                         const pct: number = Math.round(100 * progress);
                         if (!isNaN(pct)) {
-                            DagView.updateProgress(txLog.nodeId, pct);
+                            DagView.updateProgress(txLog.nodeId, txLog.tabId, pct);
                         }
                     } catch (e) {
                         console.error(e);
@@ -258,7 +263,7 @@ namespace Transaction {
                 MonitorGraph.tableUsageChange();
             }
             if (txLog.nodeId != null) {
-                DagView.removeProgress(txLog.nodeId);
+                DagView.removeProgress(txLog.nodeId, txLog.tabId);
             } else if (txLog.optimizedQueryName) {
                 DagView.endOptimizedDFProgress(txLog.optimizedQueryName,
                                                 options.queryStateOutput);
@@ -335,7 +340,7 @@ namespace Transaction {
                 Alert.error(alertTitle, error);
             }
             if (txLog.nodeId != null) {
-                DagView.removeProgress(txLog.nodeId);
+                DagView.removeProgress(txLog.nodeId, txLog.tabId);
             }
         }
 

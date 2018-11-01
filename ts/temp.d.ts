@@ -267,6 +267,7 @@ declare class d3 {
     public duration(): d3;
     public insert(type: string | Function, before?: string | HTMLElement): d3;
     public classed(names: string, value?: boolean | Function): boolean;
+    public empty(): boolean;
     public svg;
     public layout;
 }
@@ -652,7 +653,8 @@ declare enum DgDagStateT {
     DgDagStateError,
     DgDagStateProcessing,
     DgDagStateUnknown,
-    DgDagStateQueued
+    DgDagStateQueued,
+    DgDagStateArchiveError
 }
 declare enum DgDagStateTStr {}
 

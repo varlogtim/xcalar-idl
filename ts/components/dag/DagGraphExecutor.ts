@@ -299,12 +299,14 @@ class DagGraphExecutor {
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const node: DagNode = nodesToRun[index].node;
+        const tabId: string = this._graph.getTabId();
         const txId: number = Transaction.start({
             operation: node.getType(),
             track: true,
-            nodeId: node.getId()
+            nodeId: node.getId(),
+            tabId: tabId
         });
-        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, this._graph.getTabId());
+        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, tabId);
         dagNodeExecutor.run()
         .then(() => {
             Transaction.done(txId, {});
