@@ -1,6 +1,5 @@
 class DagTabOptimized extends DagTab {
     private graph;
-    private _nameIdMap;
 
     constructor(options: {
         id: string,
@@ -27,10 +26,6 @@ class DagTabOptimized extends DagTab {
         return this.graph;
     }
 
-    public getNameIdMap(): {name: string} {
-        return this._nameIdMap;
-    }
-
     // do nothing
     public discardUnsavedChange(): XDPromise<void> {
         return PromiseHelper.resolve();
@@ -52,12 +47,18 @@ class DagTabOptimized extends DagTab {
     }
 
     private _constructGraphFromQuery(queryNodes) {
-        this._nameIdMap = {};
+        const nameIdMap = {};
         const retStruct = DagGraph.convertQueryToDataflowGraph(queryNodes);
         const nodeJsons = retStruct.dagInfoList;
         const nodeInfos = [];
         nodeJsons.forEach((nodeJson) => {
-            this._nameIdMap[nodeJson.table] = nodeJson.id;
+            nameIdMap[nodeJson.table] = nodeJson.id;
+            if (nodeJson.indexParents) {
+                // map the index nodes to the containing dagNodeId
+                nodeJson.indexParents.forEach((indexNodeJson) => {
+                    nameIdMap[indexNodeJson.table] = nodeJson.id;
+                });
+            }
             nodeInfos.push({
                 node: DagNodeFactory.create(nodeJson),
                 parents: nodeJson.parents
@@ -69,7 +70,7 @@ class DagTabOptimized extends DagTab {
             nodes: nodeInfos
         };
 
-        const graph: DagOptimizedGraph = new DagOptimizedGraph();
+        const graph: DagOptimizedGraph = new DagOptimizedGraph(nameIdMap);
         graph.rebuildGraph(graphInfo);
         graph.initializeProgress();
         this.graph = graph;

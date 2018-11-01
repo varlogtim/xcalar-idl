@@ -693,7 +693,7 @@ namespace DagView {
         for (let i = nodes.length - 1; i >= 0; i--) {
             if (nodes[i].getChildren().length === 0) {
                 // group nodes into trees
-                splitIntoTrees(nodes[i], seen, treeGroups, i);
+                _splitIntoTrees(nodes[i], seen, treeGroups, i);
             }
         }
 
@@ -2431,6 +2431,7 @@ namespace DagView {
         const dagTab: DagTab = activeDagTab;
         const $dataflowArea: JQuery = _getActiveArea();
 
+        // when a graph gets locked during execution
         graph.events.on(DagGraphEvents.LockChange, (info) => {
             const $dfArea = _getAreaByTab(info.tabId);
             if (info.lock) {
@@ -2525,7 +2526,7 @@ namespace DagView {
     }
 
     // groups individual nodes into trees and joins branches with main tree
-    function splitIntoTrees(node, seen, treeGroups, groupId) {
+    function _splitIntoTrees(node, seen, treeGroups, groupId) {
         const treeGroup = {};
         formTreesHelper(node);
         function formTreesHelper(node) {
@@ -2815,81 +2816,34 @@ namespace DagView {
         opProgress.text(progress + "%");
     }
 
-    export function updateOptimizedDFProgress(queryName, queryStateOuput) {
-        const nodes = queryStateOuput.queryGraph.node;
+    export function updateOptimizedDFProgress(queryName, queryStateOutput) {
         let tab: DagTabOptimized = <DagTabOptimized>DagTabManager.Instance.getTabById(queryName);
-        let graph: DagOptimizedGraph;
-        let nameIdMap;
         if (!tab) {
             return;
-        } else {
-            graph = tab.getGraph();
-            nameIdMap = tab.getNameIdMap();
         }
+        let graph: DagOptimizedGraph = tab.getGraph();
+        graph.updateProgress(queryStateOutput.queryGraph.node);
 
-        const errorStates = [DgDagStateT.DgDagStateUnknown, DgDagStateT.DgDagStateError, DgDagStateT.DgDagStateArchiveError];
-
-        nodes.forEach((node) => {
-            const nodeId = nameIdMap[node.name.name];
-            let progress: number = node.numWorkCompleted / node.numWorkTotal;
-            if (isNaN(progress)) {
-                progress = 0;
-            }
-
-            if (errorStates.indexOf(node.state) > -1 ) {
-                graph.getNode(nodeId).beErrorState(DgDagStateTStr[node.state]);
-            } else if (progress === 1) {
-                graph.getNode(nodeId).beCompleteState();
-            }
-            const pct: number = Math.round(100 * progress);
-            const skewInfo = getSkewInfo(node);
-            graph.updateNodeProgress(nodeId, pct, node.elapsed.milliseconds, node.state);
-            const time: number = graph.getNodeElapsedTime(nodeId);
-            const timeStr: string = xcHelper.getElapsedTimeStr(time);
-            DagView.updateProgress(nodeId, tab.getId(), pct, skewInfo, timeStr);
+        graph.getAllNodes().forEach((node, nodeId) => {
+            const nodeStats = node.getOverallStats();
+            const timeStr: string = xcHelper.getElapsedTimeStr(nodeStats.time);
+            const skewInfo = _getSkewInfo("temp name", nodeStats.rows, nodeStats.skewValue, nodeStats.totalRows, nodeStats.size);
+            DagView.updateProgress(nodeId, tab.getId(), nodeStats.pct, skewInfo, timeStr);
         });
     }
 
-    function getSkewInfo(node) {
-        const rows = node.numRowsPerNode.map(numRows => numRows);
-        const skew = getSkewValue(node);
+    function _getSkewInfo(name, rows, skew, totalRows, inputSize) {
         const skewText = getSkewText(skew);
         const skewColor = getSkewColor(skewText);
         return {
-            name: node.name.name,
+            name: name,
             value: skew,
             text: skewText,
             color: skewColor,
             rows: rows,
-            totalRows: node.numRowsTotal,
-            size: node.inputSize
+            totalRows: totalRows,
+            size: inputSize
         };
-    }
-
-    function getSkewValue(node) {
-        var skewness = null;
-        var rows = node.numRowsPerNode.map(numRows => numRows);
-        var len = rows.length;
-        var even = 1 / len;
-        var total = rows.reduce(function(sum, value) {
-            return sum + value;
-        }, 0);
-        if (total === 1) {
-            // 1 row has no skewness
-            skewness = 0;
-        } else {
-            // change to percantage
-            rows = rows.map(function(row) {
-                return row / total;
-            });
-
-            skewness = rows.reduce(function(sum, value) {
-                return sum + Math.abs(value - even);
-            }, 0);
-
-            skewness = Math.floor(skewness * 100);
-        }
-        return skewness;
     }
 
     function getSkewText(skew) {
@@ -2930,9 +2884,10 @@ namespace DagView {
         if (!tab) {
             return;
         }
+        DagView.updateOptimizedDFProgress(queryName, queryStateOutput);
         graph = tab.getGraph();
         graph.endProgress(queryStateOutput.queryState, queryStateOutput.elapsed.milliseconds);
-        // XXX display finished state
+        // TODO display finished state
     }
 
     /**

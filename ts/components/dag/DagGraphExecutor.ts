@@ -209,13 +209,8 @@ class DagGraphExecutor {
 
                 const nodes = JSON.parse(query);
                 const tab = DagTabManager.Instance.newOptimizedTab(destTable, nodes);
-                const graph = tab.getGraph();
-                const nameIdMap = tab.getNameIdMap();
-                nodes.forEach((node) => {
-                    const nodeId = nameIdMap[node.args.dest];
-                    graph.getNode(nodeId).beRunningState();
-                });
-
+                const graph: DagOptimizedGraph = tab.getGraph();
+                graph.startExecution(nodes);
                 return XIApi.query(txId, destTable, query);
             })
             .then((res) => {

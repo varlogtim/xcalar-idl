@@ -331,3 +331,16 @@ interface SQLColumn {
     rename?: string,
     colType: string
 }
+
+interface TableProgressInfo {
+    state: DgDagStateT,
+    startTime: number,
+    pct: number,
+    numRowsTotal: number,
+    numWorkCompleted: number,
+    numWorkTotal: number,
+    skewValue: number,
+    elapsedTime: number,
+    size: number,
+    rows: number[]
+}

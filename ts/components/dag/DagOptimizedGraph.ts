@@ -1,45 +1,65 @@
 class DagOptimizedGraph extends DagGraph {
     private startTime: number;
-    private nodeInfoMap: Map<DagNodeId, any>;
+    private _nameIdMap;
     private isComplete: boolean = false;
     private elapsedTime: number;
     private state: DgDagStateT;
 
-    public constructor() {
+    public constructor(nameIdMap) {
         super();
         this.startTime = Date.now();
+        this._nameIdMap = nameIdMap;
     }
 
-    public initializeProgress() {
-        this.nodeInfoMap = new Map();
-
-        this.nodesMap.forEach((_value: DagNode, nodeId: DagNodeId) => {
-            this.nodeInfoMap.set(nodeId, {
-                startTime: null,
-                elapsedTime: 0,
-                state: DgDagStateT.DgDagStateQueued,
-                pct: 0
-            });
+    public startExecution(nodes): void {
+        nodes.forEach((node) => {
+            const nodeId = this._nameIdMap[node.args.dest];
+            this.getNode(nodeId).beRunningState();
         });
     }
 
-    public updateNodeProgress(nodeId, pct, elapsedTime, state): void {
-        const nodeInfo = this.nodeInfoMap.get(nodeId);
-        if (state === DgDagStateT.DgDagStateProcessing &&
-            nodeInfo.state !== DgDagStateT.DgDagStateProcessing) {
-            nodeInfo.startTime = Date.now();
-        }
-        nodeInfo.state = state;
-        nodeInfo.elapsedTime = elapsedTime;
-        nodeInfo.pct = pct;
+    public getNameIdMap(): {name: string} {
+        return this._nameIdMap;
     }
 
-    public getNodeElapsedTime(nodeId): number {
-        const nodeInfo = this.nodeInfoMap.get(nodeId);
-        if (nodeInfo.state === DgDagStateT.DgDagStateProcessing) {
-            return Date.now() - nodeInfo.startTime;
-        } else {
-            return nodeInfo.elapsedTime;
+    // loop through all tables, update all tables in the node ids
+    // then loop through all the tables
+
+    public initializeProgress() {
+        const nodeIdToTableNamesMap = new Map();
+
+        for (let tableName in this._nameIdMap) {
+            const nodeId = this._nameIdMap[tableName];
+            if (!nodeIdToTableNamesMap.has(nodeId)) {
+                nodeIdToTableNamesMap.set(nodeId, [])
+            }
+            const tableNames: string[] = nodeIdToTableNamesMap.get(nodeId);
+            tableNames.push(tableName);
+        }
+        nodeIdToTableNamesMap.forEach((tableNames, nodeId) => {
+            this.getNode(nodeId).initializeProgress(tableNames);
+        });
+    }
+
+    // we either update all the tables , and then loop through all the nodes
+    // and the node results
+    // or we group all the tables, and send to table to update
+
+    public updateProgress(nodeInfos) {
+        const nodeIdInfos = {};
+
+        nodeInfos.forEach((nodeInfo) => {
+            const tableName = nodeInfo.name.name;
+            const nodeId = this._nameIdMap[tableName];
+            if (!nodeIdInfos.hasOwnProperty(nodeId)) {
+                nodeIdInfos[nodeId] = {}
+            }
+            const nodeIdInfo = nodeIdInfos[nodeId];
+            nodeIdInfo[tableName] = nodeInfo;
+        });
+
+        for (let nodeId in nodeIdInfos) {
+            this.getNode(nodeId).updateProgress(nodeIdInfos[nodeId]);
         }
     }
 

@@ -1168,6 +1168,11 @@ class DagGraph {
             setParents(node);
         }
 
+        // splice out index nodes
+        for (let [_name, node] of nodes) {
+            collapseIndexNodes(node);
+        }
+
         for (let [_name, node] of nodes) {
             setIndexedFields(node);
         }
@@ -1197,7 +1202,7 @@ class DagGraph {
             });
 
             for (var i in dagNodeInfos) {
-                finalNodeInfos.push(dagNodeInfos[i].nodeInfo);
+                finalNodeInfos.push(dagNodeInfos[i]);
             }
 
             return finalNodeInfos;
@@ -1212,22 +1217,26 @@ class DagGraph {
 
            node.parents.forEach(child => {
                 const childInfo = recursiveGetDagNodeInfo(child, dagNodeInfos);
-                dagNodeInfo.nodeInfo.parents.push(childInfo.nodeInfo.id);
+                dagNodeInfo.parents.push(childInfo.id);
             });
             return dagNodeInfo;
         }
 
         function getDagNodeInfo(node) {
             let dagNodeInfo: DagNodeInfo;
-
+            if (node.indexParents) {
+                const indexParents = [];
+                node.indexParents.forEach((indexNode) => {
+                    indexParents.push(getDagNodeInfo(indexNode));
+                });
+                node.indexParents = indexParents;
+            }
             switch (node.api) {
                 case (XcalarApisT.XcalarApiIndex):
                     dagNodeInfo = {
-                        type: DagNodeType.Index,
-                        input: {
-                            columns: node.args.key
-                        }
-                    };
+                        type: DagNodeType.Dataset,
+                        input: node.createTableInput
+                    }; // need to get columns
                     break;
                 case (XcalarApisT.XcalarApiAggregate):
                     dagNodeInfo = {
@@ -1370,11 +1379,8 @@ class DagGraph {
                     break;
                 case (XcalarApisT.XcalarApiSelect):
                 case (XcalarApisT.XcalarApiSynthesize):
-                    break;
                 case (XcalarApisT.XcalarApiBulkLoad):
-                    dagNodeInfo = {
-                        type: DagNodeType.Dataset,
-                    };
+                    // resulting index node takes the place of the load node
                     break;
                 default:
                     dagNodeInfo = {
@@ -1388,6 +1394,7 @@ class DagGraph {
             dagNodeInfo.id = DagNode.generateId();
             dagNodeInfo.parents = [];
             dagNodeInfo.description = JSON.stringify(node.args);
+            dagNodeInfo.indexParents = node.indexParents;
             // create dagIdParentIdxMap so that we can add input nodes later
             const srcTableName = destSrcMap[node.name];
             if (srcTableName) {
@@ -1396,10 +1403,7 @@ class DagGraph {
             if(node.name === finalTableName) {
                 outputDagId = dagNodeInfo.id;
             }
-            return {
-                name: node.name,
-                nodeInfo: dagNodeInfo
-            }
+            return dagNodeInfo;
         }
 
         function setParents(node) {
@@ -1417,6 +1421,71 @@ class DagGraph {
                     // parent doesn't exist, remove it
                     node.parents.splice(i, 1);
                     i--;
+                }
+            }
+        }
+
+        // turns    filter->index->join    into   filter->join
+        // and setups up a "create table" node to be a dataset node
+        function collapseIndexNodes(node) {
+            if (node.api === XcalarApisT.XcalarApiIndex) {
+                return;
+            }
+            for (let i = 0; i < node.parents.length; i++) {
+                const parent = node.parents[i];
+                if (parent.api !== XcalarApisT.XcalarApiIndex) {
+                    continue;
+                }
+                if (!parent.parents.length ||
+                    parent.parents[0].api === XcalarApisT.XcalarApiBulkLoad) {
+                    if (parent.args.source.startsWith(gDSPrefix)) {
+                        // if index resulted from dataset
+                        // then that index needs to take the role of the dataset node
+                        parent.createTableInput = {
+                            source: parent.args.source,
+                            prefix: parent.args.prefix
+                        }
+                        parent.parents = [];
+                    }
+                    continue;
+                }
+
+                const indexParents = [parent];
+                const nonIndexParent = getNonIndexParent(parent, indexParents);
+                if (!nonIndexParent) {
+                    node.parents.splice(i, 1);
+                    i--;
+                    continue;
+                }
+                if (!node.indexParents) {
+                    node.indexParents = indexParents;
+                } else {
+                    node.indexParents = node.indexParents.concat(indexParents);
+                }
+                node.parents[i] = nonIndexParent;
+
+                // remove indexed children and push node
+                nonIndexParent.children = nonIndexParent.children.filter((child) => {
+                    return child.api !== XcalarApisT.XcalarApiIndex;
+                });
+                nonIndexParent.children.push(node);
+            }
+
+            function getNonIndexParent(node, indexParents) {
+                const parentOfIndex = node.parents[0];
+                if (!parentOfIndex) {
+                    return null;
+                } else if (parentOfIndex.api === XcalarApisT.XcalarApiIndex) {
+                    // if source is index but that index resulted from dataset
+                    // then that index needs to take the role of the dataset node
+                    if (parentOfIndex.args.source.startsWith(gDSPrefix)) {
+                        return parentOfIndex;
+                    }
+
+                    indexParents.push(parentOfIndex);
+                    return getNonIndexParent(parentOfIndex, indexParents);
+                } else {
+                    return parentOfIndex;
                 }
             }
         }
@@ -1486,6 +1555,9 @@ class DagGraph {
             const aggs = [];
             for (let i = 0; i < evalStrs.length; i++) {
                 const parsedEval = XDParser.XEvalParser.parseEvalStr(evalStrs[i].evalString);
+                if (!parsedEval.args) {
+                    parsedEval.args = [];
+                }
                 getAggs(parsedEval);
             }
             function getAggs(parsedEval) {

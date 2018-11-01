@@ -23,6 +23,7 @@ abstract class DagNode {
     protected maxChildren: number; // non-persistent
     protected allowAggNode: boolean; // non-persistent
     protected display: DagNodeDisplayInfo; // coordinates are persistent
+    protected progressInfo: {nodes: {[key: string]: TableProgressInfo}};
 
     public static setup(): void {
         this.uid = new XcUID("dag");
@@ -536,6 +537,145 @@ abstract class DagNode {
             }
         }
         return result;
+    }
+
+    public initializeProgress(tableNames) {
+        const nodes: {[key: string]: TableProgressInfo} = {};
+        tableNames.forEach((tableName: string) => {
+            const tableProgressInfo: TableProgressInfo = {
+                startTime: null,
+                pct: 0,
+                state: DgDagStateT.DgDagStateQueued,
+                numRowsTotal: 0,
+                numWorkCompleted: 0,
+                numWorkTotal: 0,
+                skewValue: 0,
+                elapsedTime: 0,
+                size: 0,
+                rows: []
+            }
+            nodes[tableName] = tableProgressInfo;
+        });
+        this.progressInfo.nodes = nodes;
+    }
+
+    public updateProgress(tableNameMap) {
+        const errorStates = [DgDagStateT.DgDagStateUnknown, DgDagStateT.DgDagStateError, DgDagStateT.DgDagStateArchiveError];
+        let isComplete = true;
+        let errorState = null;
+        for (let tableName in tableNameMap) {
+            const tableProgressInfo = this.progressInfo.nodes[tableName];
+            const nodeInfo = tableNameMap[tableName];
+            if (nodeInfo.state === DgDagStateT.DgDagStateProcessing &&
+                tableProgressInfo.state !== DgDagStateT.DgDagStateProcessing) {
+                tableProgressInfo.startTime = Date.now();
+
+            }
+            tableProgressInfo.state = nodeInfo.state;
+            tableProgressInfo.elapsedTime = nodeInfo.elapsed.milliseconds;
+            let progress: number = nodeInfo.numWorkCompleted / nodeInfo.numWorkTotal;
+            if (isNaN(progress)) {
+                progress = 0;
+            }
+            const pct: number = Math.round(100 * progress);
+            tableProgressInfo.pct = pct;
+            let rows = nodeInfo.numRowsPerNode.map(numRows => numRows);
+            tableProgressInfo.skewValue = this._getSkewValue(rows);
+            tableProgressInfo.numRowsTotal = nodeInfo.numRowsTotal;
+            tableProgressInfo.numWorkCompleted = nodeInfo.numWorkCompleted;
+            tableProgressInfo.numWorkTotal = nodeInfo.numWorkTotal;
+            tableProgressInfo.rows = rows;
+            tableProgressInfo.size = nodeInfo.inputSize;
+            if (errorStates.indexOf(nodeInfo.state) > -1 ) {
+                errorState = nodeInfo.state;
+                isComplete = false;
+            } else if (progress !== 1) {
+                isComplete = false;
+            }
+        }
+        if (errorState != null) {
+            this.beErrorState(DgDagStateTStr[errorState]);
+        } else if (isComplete) {
+            this.beCompleteState();
+        }
+    }
+
+    // XXX returning the average of all the queryNodes,
+    // skew and rows is incorrect as
+    // we're ony returning skew info of one of the queryNodes
+    public getOverallStats(): {
+        pct: number;
+        time: number;
+        rows: number[];
+        skewValue: number;
+        totalRows: number;
+        size: number;
+    } {
+        let numWorkCompleted: number = 0;
+        let numWorkTotal: number = 0
+        let rows, skew, numRowsTotal, size;
+        for (let tableName in this.progressInfo.nodes) {
+            const node = this.progressInfo.nodes[tableName];
+            numWorkCompleted += node.numWorkCompleted;
+            numWorkTotal += node.numWorkTotal;
+            rows = node.rows;
+            skew = node.skewValue;
+            size = node.size;
+        }
+        let progress: number = numWorkCompleted / numWorkTotal;
+        if (isNaN(progress)) {
+            progress = 0;
+        }
+        const pct: number = Math.round(100 * progress);
+        const stats = {
+            pct: pct,
+            time: this._getElapsedTime(),
+            rows: rows,
+            skewValue: skew,
+            totalRows: numRowsTotal,
+            size: size
+        }
+
+        return stats;
+    }
+
+    private _getElapsedTime(): number {
+        let cummulativeTime = 0;
+        let curTime = Date.now();
+        for (let i in this.progressInfo.nodes) {
+            const tableProgressInfo = this.progressInfo.nodes[i];
+            if (tableProgressInfo.state === DgDagStateT.DgDagStateProcessing) {
+                cummulativeTime += curTime - tableProgressInfo.startTime;
+            } else {
+                cummulativeTime += tableProgressInfo.elapsedTime;
+            }
+        }
+        return cummulativeTime;
+    }
+
+    private _getSkewValue(rows) {
+        let skewness = null;
+        const len = rows.length;
+        const even = 1 / len;
+        const total = rows.reduce(function(sum, value) {
+            return sum + value;
+        }, 0);
+        if (total === 1) {
+            // 1 row has no skewness
+            skewness = 0;
+        } else {
+            // change to percentage
+            rows = rows.map(function(row) {
+                return row / total;
+            });
+
+            skewness = rows.reduce(function(sum, value) {
+                return sum + Math.abs(value - even);
+            }, 0);
+
+            skewness = Math.floor(skewness * 100);
+        }
+        return skewness;
     }
 
     protected _clearConnectionMeta(): void {
