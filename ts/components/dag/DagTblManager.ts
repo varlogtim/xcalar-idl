@@ -12,7 +12,7 @@ class DagTblManager {
 
     private static _instance: DagTblManager;
     public static get Instance() {
-        return this._instance || (this._instance = new DagTblManager(30));
+        return this._instance || (this._instance = new DagTblManager(-1));
     }
 
     public constructor(clockLimit: number) {
@@ -66,6 +66,17 @@ class DagTblManager {
     }
 
     /**
+     * Sets clocklimit
+     * @param limit Number of timeouts before a table is deleted.
+     */
+    public setClockTimeout(limit: number): void {
+        if (!this.configured) {
+            return;
+        }
+        this.clockLimit = limit;
+    }
+
+    /**
      * Does one sweep through the cache.
      * A sweep raises clockCount and deals with marked flags.
      * If clockCount == limit, an object is deleted.
@@ -89,8 +100,10 @@ class DagTblManager {
                     cacheInfo.clockCount++;
                 }
 
-                if ((cacheInfo.clockCount >= this.clockLimit && !cacheInfo.locked) ||
-                    cacheInfo.markedForDelete) {
+                if ((this.clockLimit != -1 &&
+                        cacheInfo.clockCount >= this.clockLimit &&
+                        !cacheInfo.locked) ||
+                        cacheInfo.markedForDelete) {
                     delete this.cache[key];
                     toDelete.push(key);
                 }

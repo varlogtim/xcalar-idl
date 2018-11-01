@@ -162,6 +162,7 @@ class MemoryAlert {
         highestMemUsage: number,
         avgMemUsage: number
     ): boolean {
+        const autoTableThreshold: number = 0.3;
         const yellowThreshold: number = 0.6;
         const redThreshold: number = 0.8;
 
@@ -170,16 +171,23 @@ class MemoryAlert {
 
         let shouldAlert: boolean = false;
         if (highestMemUsage > redThreshold) {
+            DagTblManager.Instance.setClockTimeout(60);
             // when it's red, can stop loop immediately
             $memoryAlert.addClass("red").removeClass("yellow");
             shouldAlert = true;
             this.redMemoryAlert();
         } else if (highestMemUsage > yellowThreshold) {
+            DagTblManager.Instance.setClockTimeout(120);
             // when it's yellow, should continue loop
             // to see if it has any red case
             $memoryAlert.addClass("yellow").removeClass("red");
             shouldAlert = true;
         } else {
+            if (highestMemUsage > autoTableThreshold) {
+                DagTblManager.Instance.setClockTimeout(240);
+            } else {
+                DagTblManager.Instance.setClockTimeout(-1);
+            }
             $memoryAlert.removeClass("red").removeClass("yellow");
         }
 
