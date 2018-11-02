@@ -295,6 +295,10 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
      * @param dataModel
      */
     private _validateStep2(dataModel: JoinOpPanelModel): void {
+        if (!dataModel.isRenameType()) {
+            return;
+        }
+        
         const {
             columnLeft: columnCollisionLeft, prefixLeft: prefixCollisionLeft,
             columnRight: columnCollisionRight, prefixRight: prefixCollisionRight

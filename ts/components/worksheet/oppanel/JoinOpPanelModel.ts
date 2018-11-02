@@ -472,12 +472,32 @@ class JoinOpPanelModel {
         this._isAdvMode = advMode;
     }
 
+    public isRenameType(): boolean {
+        return this._needRenameByType(this.getJoinType());
+    }
+
     public getJoinType() {
         return this._joinType;
     }
 
     public setJoinType(type: string) {
+
+        const oldType = this._joinType;
         this._joinType = type;
+
+        if (this._needRenameByType(type)) {
+            if (!this._needRenameByType(oldType)) {
+                // Rebuild rename infos when switching from noRename -> rename
+                this._buildRenameInfo({
+                    colDestLeft: {},
+                    colDestRight: {},
+                    prefixDestLeft: {},
+                    prefixDestRight: {}
+                });
+            }
+        } else {
+            this._clearRenames();
+        }
     }
 
     public getEvalString() {
@@ -683,6 +703,13 @@ class JoinOpPanelModel {
         };
     }
 
+    private _needRenameByType(type: string): boolean {
+        const noRenameType: Set<string> = new Set([
+            JoinCompoundOperatorTStr.LeftSemiJoin,
+            JoinCompoundOperatorTStr.LeftAntiSemiJoin
+        ]);
+        return !noRenameType.has(type);
+    }
     /**
      * Abstracted algorithm of finding same values between two sorted arrays
      * @param list1
@@ -877,6 +904,10 @@ class JoinOpPanelModel {
                 return result;
             }
         );
+    }
+
+    private _clearRenames(): void {
+        this._columnRename = { left: [], right: [] };
     }
 
     private _buildRenameInfo(dest: {

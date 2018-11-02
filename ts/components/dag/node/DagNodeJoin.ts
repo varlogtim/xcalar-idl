@@ -33,15 +33,23 @@ class DagNodeJoin extends DagNode {
         _columns: ProgCol[],
         replaceParameters?: boolean
     ): DagLineageChange {
+        const param = this.input.getInput(replaceParameters);
         const parents: DagNode[] = this.getParents();
         const lCols: ProgCol[] = parents[0].getLineage().getColumns(replaceParameters);
-        const rCols: ProgCol[] = parents[1].getLineage().getColumns(replaceParameters);
         const lChanges: DagLineageChange = this._getColAfterJoin(lCols, this.input.getInput(replaceParameters).left);
-        const rChanges: DagLineageChange = this._getColAfterJoin(rCols, this.input.getInput(replaceParameters).right);
-        return {
-            columns: lChanges.columns.concat(rChanges.columns),
-            changes: lChanges.changes.concat(rChanges.changes)
-        };
+        if (this._isSkipRightTable(param.joinType)) {
+            return {
+                columns: lChanges.columns,
+                changes: lChanges.changes
+            };    
+        } else {
+            const rCols: ProgCol[] = parents[1].getLineage().getColumns(replaceParameters);
+            const rChanges: DagLineageChange = this._getColAfterJoin(rCols, this.input.getInput(replaceParameters).right);
+            return {
+                columns: lChanges.columns.concat(rChanges.columns),
+                changes: lChanges.changes.concat(rChanges.changes)
+            };    
+        }
     }
 
     public applyColumnMapping(renameMap, index: number): {} {
@@ -122,6 +130,14 @@ class DagNodeJoin extends DagNode {
             hint += "with " + input.right.columns.join(", ") + "\n";
         }
         return hint;
+    }
+
+    private _isSkipRightTable(joinType: string) {
+        const noRenameType: Set<string> = new Set([
+            JoinCompoundOperatorTStr.LeftSemiJoin,
+            JoinCompoundOperatorTStr.LeftAntiSemiJoin
+        ]);
+        return noRenameType.has(joinType);
     }
 
     private _getColAfterJoin(
