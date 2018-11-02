@@ -4281,29 +4281,39 @@ namespace xcHelper {
      * @param parsedQuery
      */
     function getSubQueryObj(query: string, parsedQuery: any): QueryParser {
-        const operation: string = parsedQuery.operation;
-        let srcTables: string[];
-        if (operation === XcalarApisTStr[XcalarApisT.XcalarApiJoin]) {
-            srcTables = parsedQuery.args.source;
-        } else {
-            srcTables = [parsedQuery.args.source];
-        }
-
-        let dstTable: string;
-        if (operation === XcalarApisTStr[XcalarApisT.XcalarApiBulkLoad] &&
-            parsedQuery.args.dest.indexOf(gDSPrefix) === -1) {
-            dstTable = gDSPrefix + parsedQuery.args.dest;
-        } else {
-            dstTable = parsedQuery.args.dest;
-        }
         let subQuery: QueryParser = {
             query: query,
-            name: operation,
-            srcTables: srcTables,
-            dstTable: dstTable
+            name: null,
+            srcTables: null,
+            dstTable: null
         };
-        if (operation === XcalarApisTStr[XcalarApisT.XcalarApiExport]) {
-            subQuery.exportFileName = parsedQuery.args.fileName;
+        try {
+            const operation: string = parsedQuery.operation;
+            let srcTables: string[];
+            if (operation === XcalarApisTStr[XcalarApisT.XcalarApiJoin]) {
+                srcTables = parsedQuery.args.source;
+            } else {
+                srcTables = [parsedQuery.args.source];
+            }
+
+            let dstTable: string;
+            if (operation === XcalarApisTStr[XcalarApisT.XcalarApiBulkLoad] &&
+                parsedQuery.args.dest.indexOf(gDSPrefix) === -1) {
+                dstTable = gDSPrefix + parsedQuery.args.dest;
+            } else {
+                dstTable = parsedQuery.args.dest;
+            }
+            subQuery = {
+                query: query,
+                name: operation,
+                srcTables: srcTables,
+                dstTable: dstTable
+            };
+            if (operation === XcalarApisTStr[XcalarApisT.XcalarApiExport]) {
+                subQuery.exportFileName = parsedQuery.args.fileName;
+            }
+        } catch (error) {
+            console.error("get sub query error", error);
         }
         return subQuery;
     }

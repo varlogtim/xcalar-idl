@@ -2894,112 +2894,6 @@
     }
 }
 
-#dfLinkInPanel {
-    .dropDownList {
-        .list {
-            width: 100%;
-        }
-    }
-
-    .schemaSection {
-        .buttonSection {
-            height: 30px;
-            padding-right: 10px;
-            .no-selection;
-
-            > div {
-                float: right;
-                margin-left: 10px;
-
-                i, span {
-                    float: left;
-                    height: 20px;
-                    line-height: 20px;
-                }
-
-                i {
-                    margin-right: 3px;
-                }
-            }
-        }
-
-        .listSection {
-            padding: 0 10px;
-
-            .part {
-                height: 26px;
-                line-height: 26px;
-                > div {
-                    width: 49%;
-                    float: left;
-                }
-            }
-
-            .title {
-                .part > div {
-                    text-align: center;
-                }
-            }
-
-            .content {
-                > .hint {
-                    margin: 10px;
-                    text-align: center;
-                    opacity: 0.8;
-                }
-
-                .part {
-                    margin-bottom: 5px;
-
-                    .name {
-                        padding-right: 5px;
-                        .remove {
-                            width: 10px;
-                        }
-
-                        input {
-                            margin-left: 5px;
-                            width: ~"calc(100% - 15px)";
-                        }
-                    }
-
-                    .type {
-                        width: 49% !important; // do this to aviod width be overwritten
-
-                        input {
-                            width: ~"calc(100% - )"
-                        }
-
-                        li {
-                            padding-left: 10px;
-
-                            .icon, span {
-                                float: left;
-                                font-size: 12px;
-                                margin-right: 5px;
-                            }
-
-                            .icon {
-                                .position(relative, @top: 4px);
-                            }
-                        }
-                    }
-                }
-            }
-
-            .addColumn {
-                margin-top: 20px;
-                cursor: pointer;
-
-                .text {
-                    font-size: 12px;
-                    margin-left: 10px;
-                }
-            }
-        }
-    }
-}
-
 #extensionOpPanel {
     .opSection {
         height: 100%;
@@ -3108,12 +3002,128 @@
     }
 }
 #dfLinkOutPanel, #dfLinkInPanel {
-    .opSection {
-        height: ~"calc(100% - 89px)";
+    .mainContent {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+#dfLinkInPanel {
+    &.advanced {
+        .opSection {
+            display: none;
+        }
+    }
+
+    .schemaSection {
+        .buttonSection {
+            height: 30px;
+            padding-right: 10px;
+            .no-selection;
+
+            > div {
+                float: right;
+                margin-left: 10px;
+
+                i, span {
+                    float: left;
+                    height: 20px;
+                    line-height: 20px;
+                }
+
+                i {
+                    margin-right: 5px;
+                    font-size: 13px;
+                }
+            }
+        }
+
+        .addArgWrap {
+            padding-left: 0;
+        }
+
+        .listSection {
+            padding: 0 10px;
+
+            .part {
+                height: 26px;
+                line-height: 26px;
+                > div {
+                    width: 49%;
+                    float: left;
+                }
+            }
+
+            .title {
+                .part > div {
+                    text-align: center;
+                }
+            }
+
+            .content {
+                > .hint {
+                    margin: 10px;
+                    text-align: center;
+                    opacity: 0.8;
+                }
+
+                .part {
+                    margin-bottom: 5px;
+
+                    .name {
+                        padding-right: 5px;
+                        .remove {
+                            width: 10px;
+                        }
+
+                        input {
+                            margin-left: 5px;
+                            width: ~"calc(100% - 15px)";
+                        }
+                    }
+
+                    .type {
+                        width: 49% !important; // do this to aviod width be overwritten
+
+                        input {
+                            width: ~"calc(100% - )"
+                        }
+
+                        li {
+                            padding-left: 10px;
+
+                            .icon, span {
+                                float: left;
+                                font-size: 12px;
+                                margin-right: 5px;
+                            }
+
+                            .icon {
+                                .position(relative, @top: 4px);
+                            }
+                        }
+                    }
+                }
+            }
+
+            .addColumn {
+                margin-top: 20px;
+                cursor: pointer;
+
+                .text {
+                    font-size: 12px;
+                    margin-left: 10px;
+                }
+            }
+        }
     }
 }
 
 #dfLinkOutPanel {
+    .opSection {
+        height: ~"calc(100% - 90px)";
+    }
+
     .option {
         .checkboxSection {
            .checkbox {

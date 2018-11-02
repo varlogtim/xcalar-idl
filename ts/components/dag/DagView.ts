@@ -2456,11 +2456,11 @@ namespace DagView {
         graph.events.on(DagNodeEvents.ParamChange, function (info) {
             const $node: JQuery = DagView.getNode(info.id);
             _drawTitleText($node, info.node);
-            const title = _formatTooltip(info.params);
-            xcTooltip.add($node.find(".main"), {
-                title: title,
-                classes: "preWrap leftAlign wide"
-            });
+            // const title = _formatTooltip(info.params);
+            // xcTooltip.add($node.find(".main"), {
+            //     title: title,
+            //     classes: "preWrap leftAlign wide"
+            // });
             $node.find(".paramIcon").remove();
             if (info.hasParameters) {
                 d3.select($node.get(0)).append("text")

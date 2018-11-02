@@ -1045,7 +1045,9 @@ class GeneralOpPanel extends BaseOpPanel {
         return true;
     }
 
-    protected _validate() {}
+    protected _validate(): boolean {
+        return true;
+    }
 
     protected _isOperationValid(groupNum): boolean {
         const groups = this.model.getModel().groups;

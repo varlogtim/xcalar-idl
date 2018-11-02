@@ -17,7 +17,7 @@ class DFLinkInOpPanelSchemaSection {
         this._addHint();
     }
 
-    public getSchema(): {name: string, type: ColumnType}[] {
+    public getSchema(ingore: boolean): {name: string, type: ColumnType}[] {
         const schema: {name: string, type: ColumnType}[] = [];
         const $contentSection: JQuery = this._getContentSection();
         let valid: boolean = true;
@@ -25,7 +25,7 @@ class DFLinkInOpPanelSchemaSection {
             const $part: JQuery = $(el);
             const $name: JQuery = $part.find(".name input");
             const name: string = $name.val().trim();
-            if (!name) {
+            if (!ingore && !name) {
                 StatusBox.show(ErrTStr.NoEmpty, $name);
                 valid = false;
                 return false; // stop loop

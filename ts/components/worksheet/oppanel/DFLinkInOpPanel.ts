@@ -1,13 +1,13 @@
 class DFLinkInOpPanel extends BaseOpPanel {
-    private dagNode: DagNodeDFIn;
-    private dataflows: {tab: DagTab, displayName: string}[];
-    private linkOutNodes: {node: DagNodeDFOut, displayName: string}[];
-    private schemaSection: DFLinkInOpPanelSchemaSection;
+    private _dagNode: DagNodeDFIn;
+    private _dataflows: {tab: DagTab, displayName: string}[];
+    private _linkOutNodes: {node: DagNodeDFOut, displayName: string}[];
+    private _schemaSection: DFLinkInOpPanelSchemaSection;
 
     public constructor() {
         super();
         this._setup();
-        this.schemaSection = new DFLinkInOpPanelSchemaSection(this._getSchemaSection());
+        this._schemaSection = new DFLinkInOpPanelSchemaSection(this._getSchemaSection());
     }
 
     public show(dagNode: DagNodeDFIn, options?): boolean {
@@ -15,8 +15,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
             return false;
         }
         this._initialize(dagNode);
-        this._restorePanel();
-        this.schemaSection.render(dagNode.getSchema());
+        this._restorePanel(this._dagNode.getParam());
         return true;
     }
 
@@ -31,23 +30,41 @@ class DFLinkInOpPanel extends BaseOpPanel {
         super.hidePanel(isSubmit);
     }
 
+    protected _switchMode(toAdvancedMode: boolean): {error: string} {
+        if (toAdvancedMode) {
+            const param: DagNodeDFInInputStruct = this._validate();
+            const paramStr = JSON.stringify(param, null, 4);
+            this._cachedBasicModeParam = paramStr;
+            this._editor.setValue(paramStr);
+        } else {
+            try {
+                const param: DagNodeDFInInputStruct = this._convertAdvConfigToModel();
+                this._restorePanel(param);
+                return;
+            } catch (e) {
+                return {error: e};
+            }
+        }
+        return null;
+    }
+
     private _setup(): void {
         super.setup($("#dfLinkInPanel"));
         this._addEventListeners();
     }
 
     private _clear(): void {
-        this.dagNode = null;
-        this.dataflows = null;
-        this.linkOutNodes = null;
-        this.schemaSection.clear();
+        this._dagNode = null;
+        this._dataflows = null;
+        this._linkOutNodes = null;
+        this._schemaSection.clear();
         const $drdopwonList: JQuery = this._getPanel().find(".dropDownList");
         $drdopwonList.find("input").val("");
         $drdopwonList.find("ul").empty();
     }
 
     private _initialize(dagNode: DagNodeDFIn): void {
-        this.dagNode = dagNode;
+        this._dagNode = dagNode;
         this._initializeDataflows();
     }
 
@@ -63,76 +80,78 @@ class DFLinkInOpPanel extends BaseOpPanel {
             }
         });
 
-        this.dataflows = dataflows;
+        this._dataflows = dataflows;
     }
 
     private _initializeLinkOutNodes(dataflowName: string): void {
-        this.linkOutNodes = [];
-        const dataflow = this.dataflows.filter((dataflow) => {
+        this._linkOutNodes = [];
+        const dataflow = this._dataflows.filter((dataflow) => {
             return dataflow.displayName === dataflowName;
         });
         if (dataflow.length === 1) {
             const nodes: Map<DagNodeId, DagNode> = dataflow[0].tab.getGraph().getAllNodes();
-            for (const [_nodeId, node] of nodes) {
+            nodes.forEach((node) => {
                 if (node.getType() === DagNodeType.DFOut) {
                     const name: string = (<DagNodeDFOut>node).getParam().name;
                     if (name) {
-                        this.linkOutNodes.push({
+                        this._linkOutNodes.push({
                             node: <DagNodeDFOut>node,
                             displayName: name
                         });
                     }
                 }
-            }
+            });
         }
     }
 
-    private _restorePanel(): void {
-        const param: DagNodeDFInInputStruct = this.dagNode.getParam();
+    private _restorePanel(param: DagNodeDFInInputStruct): void {
         const dataflowName: string = this._dataflowIdToName(param.dataflowId);
         this._getDFDropdownList().find("input").val(dataflowName);
         this._getLinkOutDropdownList().find("input").val(param.linkOutName);
         this._initializeLinkOutNodes(dataflowName);
+        this._schemaSection.render(param.schema);
     }
 
     private _submitForm(): void {
-        const args: DagNodeDFInInputStruct = this._validate();
+        let args: DagNodeDFInInputStruct;
+        if (this._isAdvancedMode()) {
+            args = this._validAdvancedMode();
+        } else {
+            args = this._validate();
+        }
+)
         if (args == null) {
             // invalid case
             return;
         }
-        this.dagNode.setParam(args);
+        this._dagNode.setParam(args);
         this.close(true);
     }
 
-    private _validate(): DagNodeDFInInputStruct {
+    private _validate(ingore: boolean = false): DagNodeDFInInputStruct {
         const $dfInput: JQuery = this._getDFDropdownList().find("input");
         const $linkOutInput: JQuery = this._getLinkOutDropdownList().find("input");
         const dataflowId: string = this._dataflowNameToId($dfInput.val().trim());
         const linkOutName: string = $linkOutInput.val().trim();
-        let isValid: boolean = xcHelper.validate([{
-            $ele: $dfInput
-        }, {
-            $ele: $dfInput,
-            error: OpPanelTStr.DFLinkInNoDF,
-            check: () => dataflowId == null
-        }, {
-            $ele: $linkOutInput
-        }, {
-            $ele: $linkOutInput,
-            error: OpPanelTStr.DFLinkInNoOut,
-            check: () => {
-                return this.linkOutNodes.filter((node) => {
-                    return node.displayName === linkOutName;
-                }).length === 0;
-            }
-        }]);
+        let isValid: boolean = false;
+        if (!ingore) {
+            isValid = xcHelper.validate([{
+                $ele: $dfInput
+            }, {
+                $ele: $dfInput,
+                error: OpPanelTStr.DFLinkInNoDF,
+                check: () => dataflowId == null
+            }, {
+                $ele: $linkOutInput
+            }]);
+        }
+        
 
         if (!isValid) {
             return null;
         }
 
-        const schema = this.schemaSection.getSchema();
+        const schema = this._schemaSection.getSchema(ingore);
         if (isValid && schema != null) {
             return {
                 dataflowId: dataflowId,
@@ -141,6 +160,15 @@ class DFLinkInOpPanel extends BaseOpPanel {
             }
         } else {
             return null
+        }
+    }
+
+    private _validAdvancedMode(): DagNodeDFInInputStruct {
+        try {
+            return this._convertAdvConfigToModel();
+        } catch (error) {
+            StatusBox.show(error, this.$panel.find(".advancedEditor"));
+            return null;
         }
     }
 
@@ -158,7 +186,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
     }
 
     private _searchDF(keyword?: string): void {
-        let dataflows = this.dataflows;
+        let dataflows = this._dataflows;
         if (keyword) {
             keyword = keyword.toLowerCase();
             dataflows = dataflows.filter((df) => {
@@ -169,7 +197,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
     }
 
     private _searchLinkOutNodeName(keyword?: string): void {
-        let linkOutNodes = this.linkOutNodes;
+        let linkOutNodes = this._linkOutNodes;
         if (keyword) {
             keyword = keyword.toLowerCase();
             linkOutNodes = linkOutNodes.filter((node) => {
@@ -183,7 +211,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
         if (!dataflowId) {
             return "";
         }
-        const dataflow = this.dataflows.filter((dataflow) => {
+        const dataflow = this._dataflows.filter((dataflow) => {
             return dataflow.tab.getId() === dataflowId;
         });
         return dataflow.length === 1 ? dataflow[0].displayName : "";
@@ -193,7 +221,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
         if (!dataflowName) {
             return null;
         }
-        const dataflow = this.dataflows.filter((dataflow) => {
+        const dataflow = this._dataflows.filter((dataflow) => {
             return dataflow.displayName === dataflowName;
         });
         return dataflow.length === 1 ? dataflow[0].tab.getId() : null;
@@ -239,10 +267,22 @@ class DFLinkInOpPanel extends BaseOpPanel {
                     type: progCol.getType()
                 }
             });
-            this.schemaSection.render(schema);
+            this._schemaSection.render(schema);
         } catch (e) {
             return {error: e};
         }
+    }
+
+    private _convertAdvConfigToModel(): DagNodeDFInInputStruct {
+        const dagInput: DagNodeDFInInputStruct = <DagNodeDFInInputStruct>JSON.parse(this._editor.getValue());
+        if (JSON.stringify(dagInput, null, 4) !== this._cachedBasicModeParam) {
+            // don't validate if no changes made, just allow to go to basic
+            const error = this._dagNode.validateParam(dagInput);
+            if (error) {
+                throw new Error(error.error);
+            }
+        }
+        return dagInput;
     }
 
     private _addEventListenersForDropdown(
