@@ -35,7 +35,7 @@ function writeTarGz(targz, name, version) {
             deferred.reject("Adding Extension failed with error: " + error);
         }
         xcConsole.log("untar", zipPath);
-        var out = exec("tar -zxf " + zipPath + " -C " + basePath +
+        var out = exec("tar -zxf '" + zipPath + "' -C " + basePath +
                        "ext-available/");
         out.on('close', function(code) {
             // Code is either 0, which means success, or 1, which means error.
