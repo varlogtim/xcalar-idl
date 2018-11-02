@@ -191,8 +191,8 @@ class UDFFileManager extends BaseFileManager {
     }
 
     /**
-     * Refresh UDFs.
-     * @param  {boolean} clear - Whether to clear cache.
+     * @param  {boolean} isUpdate?
+     * @param  {boolean} isDelete?
      * @returns XDPromise
      */
     public refresh(isUpdate?: boolean, isDelete?: boolean): XDPromise<void> {
@@ -524,14 +524,14 @@ class UDFFileManager extends BaseFileManager {
      * @returns XDPromise
      */
     public add(displayPath: string, entireString: string): XDPromise<void> {
-        // Promise is used in tests.
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         let uploadPath: string = displayPath;
         let absolutePath: boolean = true;
         if (displayPath.startsWith(this.getCurrWorkbookDisplayPath())) {
-            const pathArray: string[] = displayPath.split("/");
-            displayPath = pathArray[pathArray.length - 1]
+            displayPath = displayPath
+            .split("/")
+            .pop()
             .toLowerCase()
             .replace(/ /g, "");
             absolutePath = false;
@@ -588,12 +588,15 @@ class UDFFileManager extends BaseFileManager {
                 displayPath.substring(0, displayPath.lastIndexOf(".txt")) +
                 this.fileExtension();
         }
+
         const nsPath: string = this.displayPathToNsPath(displayPath);
         const options: {side: string; offsetY: number} = {
             side: side ? side : "top",
             offsetY: -2
         };
 
+        // Should append the extension before this function is called. So
+        // should never hit this.
         if (
             !xcHelper.checkNamePattern(
                 PatternCategory.UDFFileName,
@@ -982,7 +985,6 @@ class UDFFileManager extends BaseFileManager {
         }
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        $("#udf-fnList").addClass("loading");
 
         this._initializeUDFList()
         .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
@@ -1013,10 +1015,7 @@ class UDFFileManager extends BaseFileManager {
             );
             deferred.resolve();
         })
-        .fail(deferred.reject)
-        .always(() => {
-            $("#udf-fnList").removeClass("loading");
-        });
+        .fail(deferred.reject);
 
         return deferred.promise();
     }

@@ -241,6 +241,13 @@ class FileManagerPanel {
     }
 
     /**
+     * @returns FileManagerPathNode
+     */
+    public getViewNode(): FileManagerPathNode {
+        return this.viewPathNode;
+    }
+
+    /**
      * @returns string
      */
     public getViewPath(): string {
@@ -248,15 +255,31 @@ class FileManagerPanel {
     }
 
     /**
-     * @param  {string} path
+     * @param  {string} displayPath
+     * @param  {JQuery} $inputSection?
+     * @param  {JQuery} $actionButton?
+     * @param  {string} side?
      * @returns boolean
      */
     public canAdd(
-        path: string,
+        displayPath: string,
         $inputSection?: JQuery,
-        $actionButton?: JQuery
+        $actionButton?: JQuery,
+        side?: string
     ): boolean {
-        return this.manager.canAdd(path, $inputSection, $actionButton);
+        return this.manager.canAdd(
+            displayPath,
+            $inputSection,
+            $actionButton,
+            side
+        );
+    }
+
+    /**
+     * @returns string
+     */
+    public fileExtension(): string {
+        return this.manager.fileExtension();
     }
 
     private get manager(): BaseFileManager {
@@ -466,6 +489,7 @@ class FileManagerPanel {
                             }
                         };
                         FileManagerSaveAsModal.Instance.show(
+                            FileManagerTStr.COPYTO,
                             oldPath.split("/").pop(),
                             // Should not use getViewPath, otherwise won't work
                             // in search results.
@@ -823,7 +847,12 @@ class FileManagerPanel {
             return;
         }
 
-        path = this.getViewPath() + path.replace(/C:\\fakepath\\/i, "");
+        path =
+            this.getViewPath() +
+            path
+            .replace(/C:\\fakepath\\/i, "")
+            .toLowerCase()
+            .replace(/ /g, "");
 
         const $uploadButton: JQuery = this.$panel.find(
             ".operationArea .uploadButton"

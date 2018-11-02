@@ -203,8 +203,11 @@ describe("UDFFileManager Test", function() {
         });
 
         it("should copy the original file to the new folder with a new name", (done) => {
+            // This also tests that file extension should be auto appended if
+            // missing.
+            var newModuleName = "test_2";
             var newModuleFilename = "test_2.py";
-            $modalSaveAsInput.val(newModuleFilename);
+            $modalSaveAsInput.val(newModuleName);
             $modalSaveButton.click();
             expect($fileManagerSaveAsModal.is(":visible")).to.be.false;
             switchPath(UDFFileManager.Instance.getCurrWorkbookDisplayPath());
@@ -335,6 +338,28 @@ describe("UDFFileManager Test", function() {
             .children(".field").mousedown();
             $modalSaveButton.click();
 
+            UnitTest.testFinish(() => {
+                // Should not need this, see bug 13797
+                $searchInput.trigger(fakeEvent.enterKeydown);
+                return getFileRowSelector(newModuleFilename1_1).length === 2;
+            })
+            .then(done)
+            .fail(() => {done("fail");});
+        });
+
+        it("should copy the file again and ask whether to overwrite", (done) => {
+            var newModuleFilename1_1 = "test_2_1_1.py";
+            clickAction("Copy to...");
+
+            goBack(3, $fileManagerSaveAsModal);
+            getFileRowSelector(sharedUDFsDir, $fileManagerSaveAsModal)
+            .children(".field").dblclick();
+            $modalSaveButton.click();
+
+            UnitTest.hasAlertWithTitle(FileManagerTStr.ReplaceTitle, {
+                "confirm": true,
+                "nextAlert": true
+            });
             UnitTest.testFinish(() => {
                 // Should not need this, see bug 13797
                 $searchInput.trigger(fakeEvent.enterKeydown);
@@ -663,6 +688,7 @@ describe("UDFFileManager Test", function() {
         });
 
         it("tests that upload should handle normal error", (done) => {
+            var oldFunc = XcalarUploadPython;
             XcalarUploadPython = function() {
                 return PromiseHelper.reject({"error": "test"});
             };
@@ -675,6 +701,9 @@ describe("UDFFileManager Test", function() {
             .fail(function() {
                 UnitTest.hasAlertWithTitle(SideBarTStr.UploadError);
                 done();
+            })
+            .always(() => {
+                XcalarUploadPython = oldFunc;
             });
         });
 

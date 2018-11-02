@@ -422,13 +422,12 @@ module.exports = {
         "Delete": "Delete",
         "Duplicate": "Duplicate",
         "CopyTo": "Copy to...",
-        "COPYTO": "COPY FILE",
         "Share": "Share",
         "CreateFolder": "Create Folder",
         "Upload": "Upload",
         "Name": "Name",
         "Date": "Date",
-        "Size": "Size",
+        "Size": "Size"
     },
 
     "UDF": {
@@ -436,7 +435,6 @@ module.exports = {
         "Browse": "Browse Files",
         "BlankFunc": "New Module",
         "Editor": "Editor",
-        "Filename": "Enter the filename",
         "Func": "UDF Function",
         "Header": "User Defined Function",
         "Manager": "Manager",
@@ -446,6 +444,7 @@ module.exports = {
         "NameHint": "Module name (lowercase)",
         "SelectTemplate": "Select Module",
         "ToManager": "Open File Manager",
+        "SaveFile": "Save File",
         "Udf": "UDF",
         "Udfs": "UDFs"
     },

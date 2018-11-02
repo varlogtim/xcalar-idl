@@ -26,6 +26,7 @@ class FileManagerSaveAsModal {
     }
 
     public show(
+        title: string,
         filename: string,
         path: string,
         options: {
@@ -34,6 +35,7 @@ class FileManagerSaveAsModal {
     ): void {
         this.modalHelper.setup();
         this.options = options;
+        this._getModalTitile().text(title);
         this._getNameInput().val(filename);
         this.fileManagerPanel.switchPathByStep(path, true);
     }
@@ -69,6 +71,10 @@ class FileManagerSaveAsModal {
         return this._getModal().find(".saveAs input");
     }
 
+    private _getModalTitile(): JQuery {
+        return this._getModal().find(".modalHeader .text");
+    }
+
     private _close(): void {
         this.modalHelper.clear();
         this.options = null;
@@ -81,7 +87,7 @@ class FileManagerSaveAsModal {
             const $pressed: JQuery = this._getModal().find(
                 ".mainSection .pressed"
             );
-            if ($pressed.length > 0) {
+            if ($pressed.length === 1) {
                 const folderName: string = $pressed
                 .find(".nameField .label")
                 .text();
@@ -89,23 +95,43 @@ class FileManagerSaveAsModal {
                     path += folderName + "/";
                 }
             }
-            const saveAs: string = this._getNameInput().val();
-            const newPath = path + saveAs;
+            const newFilename: string = this._getNameInput().val();
+            let newPath = path + newFilename;
             const $saveButton: JQuery = this._getModal().find(
                 ".modalBottom .save"
             );
+
+            const fileExtension: string = this.fileManagerPanel.fileExtension();
+            if (!newPath.endsWith(fileExtension)) {
+                newPath += fileExtension;
+            }
             if (
-                this.fileManagerPanel.canAdd(
+                !this.fileManagerPanel.canAdd(
                     newPath,
                     this._getNameInput(),
                     $saveButton
                 )
             ) {
-                this.options.onSave(path + saveAs);
-            } else {
                 return;
             }
+
+            const saveFile = () => {
+                this.options.onSave(newPath);
+                this._close();
+            };
+            if (
+                this.fileManagerPanel.getViewNode().children.has(newFilename)
+            ) {
+                Alert.show({
+                    title: FileManagerTStr.ReplaceTitle,
+                    msg: newFilename + " " + FileManagerTStr.ReplaceMsg,
+                    onConfirm: () => {
+                        saveFile();
+                    }
+                });
+            } else {
+                saveFile();
+            }
         }
-        this._close();
     }
 }

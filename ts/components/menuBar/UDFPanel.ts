@@ -75,7 +75,6 @@ class UDFPanel {
      * @returns void
      */
     public edit(displayName: string): void {
-        this._eventExpandSaveAs(false);
         this._selectUDFPath(displayName);
     }
 
@@ -225,41 +224,19 @@ class UDFPanel {
     private _addSaveEvent(): void {
         const $udfSection: JQuery = $("#udfSection");
         const $topSection: JQuery = $udfSection.find(".topSection");
-        const $save: JQuery = $topSection.find(".save");
+        const $save: JQuery = $("#udfButtonWrap").find(".saveFile");
         const $saveNameInput: JQuery = $topSection.find(".udf-fnName");
-        $save.on("click", (event: JQueryEventObject) => {
-            if (
-                $(event.currentTarget)
-                .find(".icon")
-                .hasClass("xi-close")
-            ) {
-                this._eventExpandSaveAs(false);
-                return;
-            }
-
-            if ($saveNameInput.val() === "New Module") {
-                this._eventExpandSaveAs(true);
+        $save.on("click", () => {
+            let displayPath: string = $saveNameInput.val().trim();
+            if (displayPath === "New Module") {
+                this._eventSaveAs();
             } else {
-                this._eventSave($topSection);
-            }
-        });
-
-        const $saveAsSection: JQuery = $udfSection.find(".saveAsSection");
-        const $saveAsInput: JQuery = $saveAsSection.find("input");
-        const $saveAs: JQuery = $saveAsSection.find(".save");
-        $saveAsInput.keypress((event: JQueryEventObject) => {
-            if (event.which === keyCode.Enter) {
-                if (this._eventSave($saveAsSection)) {
-                    this._eventExpandSaveAs(false);
-                    $saveAsSection.find("input").val("");
+                if (!displayPath.startsWith("/")) {
+                    displayPath =
+                        UDFFileManager.Instance.getCurrWorkbookDisplayPath() +
+                        displayPath;
                 }
-            }
-        });
-
-        $saveAs.on("click", (event: JQueryEventObject) => {
-            if (this._eventSave($saveAsSection)) {
-                this._eventExpandSaveAs(false);
-                $saveAsSection.find("input").val("");
+                this._eventSave(displayPath);
             }
         });
 
@@ -275,59 +252,36 @@ class UDFPanel {
             event.preventDefault();
             // Stop propagation, otherwise will clear StatusBox.
             event.stopPropagation();
-            if ($saveAsSection.hasClass("xc-hidden")) {
-                $save.click();
-            } else {
-                $saveAs.click();
-            }
+            $save.click();
         });
     }
 
-    private _eventExpandSaveAs(expand: boolean) {
-        const $udfSection: JQuery = $("#udfSection");
-        const $topSection: JQuery = $udfSection.find(".topSection");
-        const $saveAsSection: JQuery = $udfSection.find(".saveAsSection");
-        if (expand) {
-            $topSection.find(".save .icon").removeClass("xi-save");
-            $topSection.find(".save .icon").addClass("xi-close");
-            $saveAsSection.removeClass("xc-hidden");
-        } else {
-            $topSection.find(".save .icon").addClass("xi-save");
-            $topSection.find(".save .icon").removeClass("xi-close");
-            $saveAsSection.addClass("xc-hidden");
-        }
+    private _eventSaveAs() {
+        const options = {
+            onSave: (displayPath: string) => {
+                this._eventSave(displayPath);
+            }
+        };
+        FileManagerSaveAsModal.Instance.show(
+            FileManagerTStr.SAVEAS,
+            "new_module.py",
+            UDFFileManager.Instance.getCurrWorkbookDisplayPath(),
+            options
+        );
     }
 
-    private _eventSave($section: JQuery): boolean {
-        const nsPath: string = this._validateUDFName($section);
+    private _eventSave(displayPath: string): void {
+        const displayName: string = displayPath.startsWith(
+            UDFFileManager.Instance.getCurrWorkbookDisplayPath()
+        )
+            ? displayPath.split("/").pop()
+            : displayPath;
         const entireString: string = this._validateUDFStr();
-        if (nsPath && entireString) {
-            if (
-                nsPath.startsWith(UDFFileManager.Instance.getSharedUDFPath())
-            ) {
-                const uploadPath: string = nsPath;
-                UDFFileManager.Instance.upload(
-                    uploadPath,
-                    entireString,
-                    true
-                ).then(() =>
-                    this._selectUDFPath(
-                        UDFFileManager.Instance.nsPathToDisplayPath(nsPath)
-                    )
-                );
-            } else if (
-                nsPath.startsWith(
-                    UDFFileManager.Instance.getCurrWorkbookPath()
-                )
-            ) {
-                const uploadPath: string = nsPath.split("/").pop();
-                UDFFileManager.Instance.upload(uploadPath, entireString).then(
-                    () => this._selectUDFPath(uploadPath + ".py")
-                );
-            }
-            return true;
+        if (entireString) {
+            UDFFileManager.Instance.add(displayPath, entireString).then(() => {
+                this._selectUDFPath(displayName);
+            });
         }
-        return false;
     }
 
     private _setupTemplateList(): void {
@@ -374,25 +328,6 @@ class UDFPanel {
                 completeOnSingleClick: true
             });
         };
-    }
-
-    private _validateUDFName($section: JQuery): string {
-        const $inputSection: JQuery = $section.find(".udf-fnName");
-        let displayPath: string = $inputSection.val().trim();
-
-        if (!displayPath.startsWith("/")) {
-            displayPath =
-                UDFFileManager.Instance.getCurrWorkbookDisplayPath() +
-                displayPath;
-        }
-
-        return UDFFileManager.Instance.canAdd(
-            displayPath,
-            $inputSection,
-            $inputSection
-        )
-            ? UDFFileManager.Instance.displayPathToNsPath(displayPath)
-            : null;
     }
 
     private _validateUDFStr(): string {
@@ -444,8 +379,6 @@ class UDFPanel {
     }
 
     private _selectUDFElement($li: JQuery): void {
-        this._eventExpandSaveAs(false);
-
         if ($li.hasClass("udfHeader") || $li.hasClass("dataflowHeader")) {
             return;
         }

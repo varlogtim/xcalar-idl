@@ -1348,6 +1348,10 @@ FileManagerTStr = {
     "DelTitle": "Delete File",
     "DelMsg": "Are you sure you want to delete the file?",
     "DelMsgs": "Are you sure you want to delete the files?",
+    "ReplaceTitle": "Overwrite File",
+    "ReplaceMsg": "already exists. Are you sure you want to overwrite it?",
+    "COPYTO": "COPY FILE",
+    "SAVEAS": "SAVE AS"
 }
 
 UDFTStr = {
