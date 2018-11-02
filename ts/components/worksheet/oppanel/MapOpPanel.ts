@@ -236,8 +236,9 @@ class MapOpPanel extends GeneralOpPanel {
 
         this._$panel.find('.filterMapFuncArea .clear').mousedown(function(event) {
             const $group = $(this).closest(".group");
-            if ($group.find(".functionsMenu").val() !== "") {
-                $group.find(".mapFilter").val("").trigger("input").focus();
+            const $input = $group.find(".mapFilter");
+            if ($input.val() !== "") {
+                $input.trigger("input").focus();
                 event.preventDefault(); // prevent input from blurring
                 self.model.clearFunction(0);
             }
