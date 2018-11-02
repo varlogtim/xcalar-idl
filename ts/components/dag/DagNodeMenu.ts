@@ -259,14 +259,14 @@ namespace DagNodeMenu {
         }
         const type: DagNodeType = node.getType();
         const subType: DagNodeSubType = node.getSubType();
+        const tabId: string = DagView.lockNode(nodeId);
+
         options = options || {};
         options = $.extend(options, {
            closeCallback: function() {
-               unlock();
+               unlock(tabId);
            }
         });
-
-        DagView.lockNode(nodeId);
         Log.lockUndoRedo();
         DagTopBar.Instance.lock();
         MainMenu.closeForms(); // close opened forms first
@@ -338,12 +338,12 @@ namespace DagNodeMenu {
                 RowNumOpPanel.Instance.show(node, options);
                 break;
             default:
-                unlock();
+                unlock(tabId);
                 throw new Error("Unsupported type");
         }
 
-        function unlock() {
-            DagView.unlockNode(node.getId());
+        function unlock(tabId: string) {
+            DagView.unlockNode(node.getId(), tabId);
             Log.unlockUndoRedo();
             DagTopBar.Instance.unlock();
         }

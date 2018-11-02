@@ -361,8 +361,10 @@ namespace DagView {
      * connector classes
      */
     export function removeNodes(nodeIds: DagNodeId[]): XDPromise<void> {
+        const tabId: string = activeDagTab.getId();
+        const nodeIdsMap = lockedNodeIds[tabId] || {};
         for (let i = 0; i < nodeIds.length; i++) {
-            if (lockedNodeIds[nodeIds[i]]) {
+            if (nodeIdsMap[nodeIds[i]]) {
                 nodeIds.splice(i, 1);
                 i--;
             }
@@ -384,9 +386,15 @@ namespace DagView {
         cutOrCopyNodesHelper(nodeIds);
     }
 
+    /**
+     * DagView.cutNodes
+     * @param nodeIds
+     */
     export function cutNodes(nodeIds: DagNodeId[]): void {
+        const tabId: string = activeDagTab.getId();
+        const nodeIdsMap = lockedNodeIds[tabId] || {};
         for (let i = 0; i < nodeIds.length; i++) {
-            if (lockedNodeIds[nodeIds[i]]) {
+            if (nodeIdsMap[nodeIds[i]]) {
                 nodeIds.splice(i, 1);
                 i--;
             }
@@ -940,7 +948,7 @@ namespace DagView {
         })
         .always(function() {
             lockedIds.forEach((nodeId) => {
-                DagView.unlockNode(nodeId);
+                DagView.unlockNode(nodeId, currTabId);
             });
         });
 
@@ -2904,32 +2912,46 @@ namespace DagView {
         // XXX display finished state
     }
 
-    export function unlockNode(nodeId: DagNodeId): void {
-        DagView.getNode(nodeId).removeClass("locked");
-        const dagId = lockedNodeIds[nodeId];
-        delete lockedNodeIds[nodeId];
+    /**
+     * DagView.unlockNode
+     * @param nodeId
+     */
+    export function unlockNode(nodeId: DagNodeId, tabId: string): void {
+        const $dagArea: JQuery = _getAreaByTab(tabId);
+        DagView.getNode(nodeId, $dagArea).removeClass("locked");
+        delete lockedNodeIds[tabId][nodeId];
         let hasLockedSiblings = false;
-        for (let i in lockedNodeIds) {
-            if (lockedNodeIds[i] === dagId) {
-                hasLockedSiblings = true;
-                break;
-            }
+        if (Object.keys(lockedNodeIds[tabId]).length) {
+            hasLockedSiblings = true;
         }
         if (!hasLockedSiblings) {
-            const dagTab: DagTab = DagTabManager.Instance.getTabById(dagId);
+            const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId);
             const dagGraph: DagGraph = dagTab.getGraph();
             dagGraph.unsetGraphNoDelete();
         }
     }
 
-    export function lockNode(nodeId: DagNodeId): void {
+    /**
+     * DagView.lockNode
+     * @param nodeId
+     */
+    export function lockNode(nodeId: DagNodeId): string {
+        const tabId: string = activeDagTab.getId();
         DagView.getNode(nodeId).addClass("locked");
-        lockedNodeIds[nodeId] = activeDagTab.getId();
+        lockedNodeIds[tabId] = lockedNodeIds[tabId] || {};
+        lockedNodeIds[tabId][nodeId] = true;
         activeDag.setGraphNoDelete();
+        return tabId;
     }
 
-    export function isNodeLocked(nodeId: DagNodeId): boolean {
-        return lockedNodeIds.hasOwnProperty(nodeId);
+    /**
+     * DagView.isNodeLocked
+     * @param nodeId
+     * @param tabId
+     */
+    export function isNodeLocked(nodeId: DagNodeId, tabId?: string): boolean {
+        tabId = tabId || activeDagTab.getId();
+        return lockedNodeIds[tabId] && lockedNodeIds[tabId][nodeId];
     }
 
     /**
