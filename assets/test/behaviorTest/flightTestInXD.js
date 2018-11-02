@@ -207,8 +207,8 @@ window.FlightTestInXD = (function(FlightTestInXD, $) {
             $("#udfTab").click();
             test.checkExists(".editArea:visible")
             .then(() => {
-                var udfPath = UDFFileManager.Instance.getCurrWorkbookPath() + "ymd";
-                var selector = '#udf-fnMenu li[data-udf-path="' + udfPath + '"]';
+                var udfDisplayName = "ymd.py";
+                var selector = '#udf-fnMenu li[data-original-title="' + udfDisplayName + '"]';
                 if (!$(selector).length) {
                     var editor = UDFPanel.Instance.getEditor();
                     editor.setValue('def ymd(year, month, day):\n' +

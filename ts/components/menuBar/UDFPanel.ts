@@ -24,7 +24,7 @@ class UDFPanel {
      */
     public setup(): void {
         this._setupUDF();
-        this._setupTemplateList();
+        this._setupDropdownList();
     }
 
     /**
@@ -67,7 +67,7 @@ class UDFPanel {
      * @returns void
      */
     public selectUDFPath(moduleName: string): void {
-        this._selectUDFPath(moduleName + ".py");
+        this._selectUDF(moduleName + ".py");
     }
 
     /**
@@ -75,7 +75,7 @@ class UDFPanel {
      * @returns void
      */
     public edit(displayName: string): void {
-        this._selectUDFPath(displayName);
+        this._selectUDF(displayName);
     }
 
     /**
@@ -134,13 +134,13 @@ class UDFPanel {
                 UDFFileManager.Instance.getCurrWorkbookPath()
             );
         });
-        const otherUDF: string[] = unsortedUDF.filter((value: string) => {
-            return !value.startsWith(
-                UDFFileManager.Instance.getCurrWorkbookPath()
+        const sharedUDF: string[] = unsortedUDF.filter((value: string) => {
+            return value.startsWith(
+                UDFFileManager.Instance.getSharedUDFPath()
             );
         });
-        const sortedUDF = workbookUDF.sort().concat(otherUDF.sort());
-        this._updateTemplateList(sortedUDF);
+        const sortedUDF = workbookUDF.sort().concat(sharedUDF.sort());
+        this._updateDropdownList(sortedUDF);
     }
 
     // Setup UDF section
@@ -236,7 +236,16 @@ class UDFPanel {
                         UDFFileManager.Instance.getCurrWorkbookDisplayPath() +
                         displayPath;
                 }
-                this._eventSave(displayPath);
+                if (
+                    UDFFileManager.Instance.canAdd(
+                        displayPath,
+                        $saveNameInput,
+                        $saveNameInput,
+                        "bottom"
+                    )
+                ) {
+                    this._eventSave(displayPath);
+                }
             }
         });
 
@@ -259,7 +268,7 @@ class UDFPanel {
     private _eventSaveAs() {
         const options = {
             onSave: (displayPath: string) => {
-                this._eventSave(displayPath);
+                this._eventSave(displayPath, true);
             }
         };
         FileManagerSaveAsModal.Instance.show(
@@ -270,36 +279,32 @@ class UDFPanel {
         );
     }
 
-    private _eventSave(displayPath: string): void {
-        const displayName: string = displayPath.startsWith(
-            UDFFileManager.Instance.getCurrWorkbookDisplayPath()
-        )
-            ? displayPath.split("/").pop()
-            : displayPath;
+    private _eventSave(displayPath: string, newModule?: boolean): void {
         const entireString: string = this._validateUDFStr();
         if (entireString) {
             UDFFileManager.Instance.add(displayPath, entireString).then(() => {
-                this._selectUDFPath(displayName);
+                if (newModule) {
+                    this._selectUDF(displayPath);
+                }
             });
         }
     }
 
-    private _setupTemplateList(): void {
-        /* Template dropdown list */
-        const $template: JQuery = $("#udf-fnList");
-        const menuHelper: MenuHelper = new MenuHelper($template, {
-            onSelect: ($li: JQuery) => this._selectUDFElement($li),
+    private _setupDropdownList(): void {
+        const $dropdownList: JQuery = $("#udf-fnList");
+        const menuHelper: MenuHelper = new MenuHelper($dropdownList, {
+            onSelect: ($li: JQuery) => this._selectUDF($li.text()),
             container: "#udfSection",
             bounds: "#udfSection",
             bottomPadding: 2
         });
 
-        this.dropdownHint = new InputDropdownHint($template, {
+        this.dropdownHint = new InputDropdownHint($dropdownList, {
             menuHelper,
-            onEnter: (displayName: string) => this._selectUDFPath(displayName)
+            onEnter: (displayName: string) => this._selectUDF(displayName)
         });
 
-        this._selectBlankUDFElement();
+        this._selectBlankUDF();
     }
 
     private _setupAutocomplete(editor: CodeMirror.EditorFromTextArea): void {
@@ -355,67 +360,35 @@ class UDFPanel {
         return entireString;
     }
 
-    private _selectUDFPath(displayName: string): boolean {
-        const $li = $("#udf-fnMenu")
-        .find("li")
-        .filter(
-            (_index: number, el: Element): boolean => {
-                return $(el).text() === displayName;
-            }
-        );
-
-        if ($li.length === 0) {
-            StatusBox.show(UDFTStr.NoTemplate, $("#udf-fnList"));
-            return true;
-        } else {
-            this._selectUDFElement($li);
-            return false;
-        }
-    }
-
-    private _selectBlankUDFElement(): void {
-        const $blankFunc: JQuery = $("#udf-fnMenu").find("li[name=blank]");
-        this._selectUDFElement($blankFunc);
-    }
-
-    private _selectUDFElement($li: JQuery): void {
-        if ($li.hasClass("udfHeader") || $li.hasClass("dataflowHeader")) {
+    /**
+     * @param  {string} displayNameOrPath displayPath or displayName
+     * @returns void
+     */
+    private _selectUDF(displayNameOrPath: string): void {
+        if (displayNameOrPath === "New Module") {
+            this._selectBlankUDF();
             return;
         }
 
-        $li.parent()
-        .find("li")
-        .removeClass("selected");
-        $li.addClass("selected");
+        const displayNameAndPath: [
+        string,
+        string
+        ] = this._getDisplayNameAndPath(displayNameOrPath);
+        const displayName = displayNameAndPath[0];
+        const displayPath = displayNameAndPath[1];
 
-        const nsPath: string = $li.attr("data-udf-path");
-        const displayName: string = $li.text();
+        const nsPath = UDFFileManager.Instance.displayPathToNsPath(
+            displayPath
+        );
+        if (!UDFFileManager.Instance.getUDFs().has(nsPath)) {
+            StatusBox.show(UDFTStr.NoTemplate, $("#udf-fnList"));
+        }
+
         const $fnListInput: JQuery = $("#udf-fnList input");
-        const $fnName: JQuery = $("#udf-fnName");
-
         StatusBox.forceHide();
         this.dropdownHint.setInput(displayName);
-
         xcTooltip.changeText($fnListInput, displayName);
 
-        if ($li.attr("name") === "blank") {
-            $fnName.val("");
-            this.editor.setValue(this.udfDefault);
-        } else {
-            this._getAndFillUDF(nsPath);
-        }
-    }
-
-    private _getAndFillUDF(nsPath: string): void {
-        const $fnListInput: JQuery = $("#udf-fnList input");
-        const $fnName: JQuery = $("#udf-fnName");
-        const nsPathSplit: string[] = nsPath.split("/");
-        let displayName: string = nsPath.startsWith(
-            UDFFileManager.Instance.getCurrWorkbookPath()
-        )
-            ? nsPathSplit[nsPathSplit.length - 1]
-            : nsPath;
-        displayName = UDFFileManager.Instance.nsPathToDisplayPath(displayName);
         const fillUDFFunc = (funcStr: string) => {
             if ($fnListInput.val() !== displayName) {
                 // Check if diff list item was selected during
@@ -429,11 +402,6 @@ class UDFPanel {
 
             this.editor.setValue(funcStr);
         };
-
-        $fnListInput.val(displayName);
-        xcTooltip.changeText($fnListInput, displayName);
-        $fnName.val(displayName);
-
         UDFFileManager.Instance.getEntireUDF(nsPath)
         .then(fillUDFFunc)
         .fail((error) => {
@@ -441,7 +409,40 @@ class UDFPanel {
         });
     }
 
-    private _updateTemplateList(nsPaths: string[]): void {
+    private _selectBlankUDF(): void {
+        const $fnListInput: JQuery = $("#udf-fnList input");
+        const $blankFunc: JQuery = $("#udf-fnMenu").find("li[name=blank]");
+        const displayName: string = $blankFunc.text();
+
+        StatusBox.forceHide();
+        this.dropdownHint.setInput(displayName);
+        xcTooltip.changeText($fnListInput, displayName);
+
+        this.editor.setValue(this.udfDefault);
+    }
+
+    private _getDisplayNameAndPath(
+        displayNameOrPath: string
+    ): [string, string] {
+        let displayName: string;
+        let displayPath: string;
+        if (!displayNameOrPath.startsWith("/")) {
+            displayName = displayNameOrPath;
+            displayPath =
+                UDFFileManager.Instance.getCurrWorkbookDisplayPath() +
+                displayName;
+        } else {
+            displayPath = displayNameOrPath;
+            displayName = displayNameOrPath.startsWith(
+                UDFFileManager.Instance.getCurrWorkbookDisplayPath()
+            )
+                ? displayPath.split("/").pop()
+                : displayPath;
+        }
+        return [displayName, displayPath];
+    }
+
+    private _updateDropdownList(nsPaths: string[]): void {
         const $blankFunc: JQuery = $("#udf-fnMenu").find("li[name=blank]");
         let html: string = "";
         const liClass: string = "workbookUDF";
@@ -463,10 +464,8 @@ class UDFPanel {
                 ' data-toggle="tooltip"' +
                 ' data-container="body"' +
                 ' data-placement="top"' +
-                ' data-title="' +
+                ' data-original-title="' +
                 displayName +
-                '" data-udf-path="' +
-                nsPath +
                 '">' +
                 displayName +
                 "</li>";
@@ -484,7 +483,7 @@ class UDFPanel {
     public setupTest(): void {
         if (typeof unitTestMode !== "undefined" && unitTestMode) {
             this.__testOnly__.inputUDFFuncList = (displayName: string) =>
-                this._selectUDFPath(displayName);
+                this._selectUDF(displayName);
         }
     }
     /* End Of Unit Test Only */
