@@ -506,10 +506,10 @@ namespace DagNodeMenu {
         let classes = "";
         if (dagNode != null &&
             state === DagNodeState.Complete &&
-            dagNode.getTable() != null &&
             !$node.find(".tableIcon").length
         ) {
-            if (DagTblManager.Instance.hasTable(dagNode.getTable())) {
+            const table: string = dagNode.getTable();
+            if (table != null && DagTblManager.Instance.hasTable(table)) {
                 $menu.find(".generateTable").addClass("xc-hidden");
                 $menu.find(".previewTable").removeClass("xc-hidden");
                 $menu.find(".previewTable").removeClass("unavailable");

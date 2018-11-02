@@ -864,16 +864,6 @@ XcalarDatasetUnload = function(datasetNamePattern: string, txId: number) {
 };
 
 // XXX TODO: update after dataset api update
-XcalarDatasetAttach = function(datasetName, attachUid) {
-    return PromiseHelper.resolve();
-};
-
-// XXX TODO: update after dataset api update
-XcalarDatasetDetach = function(datasetName, attachUid) {
-    return PromiseHelper.resolve();
-};
-
-// XXX TODO: update after dataset api update
 // This api should return the loadArgs of the dataset
 XcalarDatasetGetMeta = function(datasetNamePattern) {
     return PromiseHelper.resolve();

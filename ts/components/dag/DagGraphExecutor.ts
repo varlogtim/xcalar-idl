@@ -240,20 +240,12 @@ class DagGraphExecutor {
                     executable: true
                }
             });
-            const dsNames: Set<string> = this._graph.getUsedDSNames(true);
-            this._attachDatasets(dsNames)
-            .then(() => {
-                const promises: XDDeferred<void>[] = [];
-                for (let i = 0; i < nodesToRun.length; i++) {
-                    promises.push(this._stepExecute.bind(this, nodesToRun, i));
-                }
-                return PromiseHelper.chain(promises);
-            })
-            .then(() => {
-                return this._detachDatasets(dsNames);
-            })
-            .then(deferred.resolve)
-            .fail(deferred.reject);
+
+            const promises: XDDeferred<void>[] = [];
+            for (let i = 0; i < nodesToRun.length; i++) {
+                promises.push(this._stepExecute.bind(this, nodesToRun, i));
+            }
+            return PromiseHelper.chain(promises);
         }
         return deferred.promise();
     }
@@ -424,27 +416,5 @@ class DagGraphExecutor {
             }
         }
         return linkInNodes;
-    }
-
-    private _attachDatasets(dsNames: Set<string>): XDPromise<void> {
-        const uid: string = this._getDSAttachUid();
-        const promises: XDPromise<void>[] = [];
-        dsNames.forEach((dsName) => {
-            promises.push(DS.attach(dsName, uid));
-        });
-        return PromiseHelper.when(...promises);
-    }
-
-    private _detachDatasets(dsNames: Set<string>): XDPromise<void> {
-        const uid: string = this._getDSAttachUid();
-        const promises: XDPromise<void>[] = [];
-        dsNames.forEach((dsName) => {
-            promises.push(DS.detach(dsName, uid));
-        });
-        return PromiseHelper.when(...promises);
-    }
-
-    private _getDSAttachUid(): string {
-        return XcUser.CurrentUser.getFullName() + ".Xcalar." + this._graph.getTabId();
     }
 }

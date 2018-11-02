@@ -329,15 +329,6 @@ window.DS = (function ($, DS) {
         return hasRename;
     };
 
-    // attach the dataset
-    DS.attach = function(dsName, uid) {
-        return XcalarDatasetAttach(dsName, uid);
-    };
-
-    DS.detach = function(dsName, uid) {
-        return XcalarDatasetDetach(dsName, uid);
-    };
-
     // helper function to find grid, mainly used in unit test
     DS.getGridByName = function(dsName, user) {
         if (dsName == null) {
