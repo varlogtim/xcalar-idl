@@ -82,8 +82,8 @@ colElement
     ;
 colName
     : ALPHANUMERIC
-    {if ($ALPHANUMERIC.text.toUpperCase() != "NONE" && xcHelper.validateColName($ALPHANUMERIC.text, false, true)) {
-    throw SyntaxError(xcHelper.validateColName($ALPHANUMERIC.text, false, true));
+    {if ($ALPHANUMERIC.text.toUpperCase() != "NONE" && xcHelper.validateBackendColName($ALPHANUMERIC.text)) {
+    throw SyntaxError(xcHelper.validateBackendColName($ALPHANUMERIC.text));
     }}
     ;
 propertyName
@@ -122,13 +122,18 @@ LPARENS: '(';
 RPARENS: ')';
 LBRACKET: '[';
 RBRACKET: ']';
+LCURLYBRACE: '{';
+RCURLYBRACE: '}';
+BACKSLASH: '\\';
 LTSIGN: '<';
 GTSIGN: '>';
 CARET: '^';
 DECIMAL: '-'? DIGIT+ '.' DIGIT+;
 INTEGER: '-'? DIGIT+;
 STRING: '"' ( ~('"'|'\\') | ('\\' .) )* '"';
-ALPHANUMERIC: (ALPHANUMS | [_-]) ((ALPHANUMS | [_^-] | ' ')* (ALPHANUMS | [_^-]))?;
+APOSTROPHE: '\'';
+SINGLEQUOTE: '"';
+ALPHANUMERIC: (ALPHANUMS | [_-]) (CHARALLOWED* (CHARALLOWED | ' '))?;
 fragment A : [aA]; // match either an 'a' or 'A'
 fragment B : [bB];
 fragment C : [cC];
@@ -158,6 +163,7 @@ fragment Z : [zZ];
 fragment DIGIT: [0-9];
 fragment ALPHAS: [a-zA-Z];
 fragment ALPHANUMS: [a-zA-Z0-9];
+fragment CHARALLOWED: ~('(' | ')' | '[' | ']' | '{' | '}' | '^' | ',' | ':' | '"' | '\\' | '\'' | ' ');
 WS
     : [ \r\n\t]+ -> channel(HIDDEN)
     ;

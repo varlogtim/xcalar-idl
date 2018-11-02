@@ -6,7 +6,7 @@ var XEvalBaseVisitor = require('./XEvalBaseVisitor').XEvalBaseVisitor;
 var grammarFileName = "XEvalBase.g4";
 
 var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
-    "\u0003\u0017\u009e\u0004\u0002\t\u0002\u0004\u0003\t\u0003\u0004\u0004",
+    "\u0003\u001c\u009e\u0004\u0002\t\u0002\u0004\u0003\t\u0003\u0004\u0004",
     "\t\u0004\u0004\u0005\t\u0005\u0004\u0006\t\u0006\u0004\u0007\t\u0007",
     "\u0004\b\t\b\u0004\t\t\t\u0004\n\t\n\u0004\u000b\t\u000b\u0004\f\t\f",
     "\u0004\r\t\r\u0004\u000e\t\u000e\u0004\u000f\t\u000f\u0004\u0010\t\u0010",
@@ -31,7 +31,7 @@ var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
     "\u0003\u0014\u0003\u0014\u0003\u0015\u0003\u0015\u0003\u0015\u0002\u0002",
     "\u0016\u0002\u0004\u0006\b\n\f\u000e\u0010\u0012\u0014\u0016\u0018\u001a",
     "\u001c\u001e \"$&(\u0002\u0004\u0007\u0002\u0003\u0004\u0007\t\r\u000e",
-    "\u0011\u0013\u0015\u0015\u0003\u0002\u0005\u0006\u0002\u0099\u0002*",
+    "\u0014\u0016\u001a\u001a\u0003\u0002\u0005\u0006\u0002\u0099\u0002*",
     "\u0003\u0002\u0002\u0002\u00046\u0003\u0002\u0002\u0002\u00068\u0003",
     "\u0002\u0002\u0002\bH\u0003\u0002\u0002\u0002\nO\u0003\u0002\u0002\u0002",
     "\fQ\u0003\u0002\u0002\u0002\u000eT\u0003\u0002\u0002\u0002\u0010Z\u0003",
@@ -58,23 +58,23 @@ var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
     "\u0002\u0002I\t\u0003\u0002\u0002\u0002JK\u0005\f\u0007\u0002KL\u0007",
     "\u0007\u0002\u0002LM\u0005\u000e\b\u0002MP\u0003\u0002\u0002\u0002N",
     "P\u0005\u000e\b\u0002OJ\u0003\u0002\u0002\u0002ON\u0003\u0002\u0002",
-    "\u0002P\u000b\u0003\u0002\u0002\u0002QR\u0007\u0015\u0002\u0002RS\b",
-    "\u0007\u0001\u0002S\r\u0003\u0002\u0002\u0002TU\u0007\u0015\u0002\u0002",
+    "\u0002P\u000b\u0003\u0002\u0002\u0002QR\u0007\u001a\u0002\u0002RS\b",
+    "\u0007\u0001\u0002S\r\u0003\u0002\u0002\u0002TU\u0007\u001a\u0002\u0002",
     "UV\b\b\u0001\u0002V\u000f\u0003\u0002\u0002\u0002WY\t\u0002\u0002\u0002",
     "XW\u0003\u0002\u0002\u0002Y\\\u0003\u0002\u0002\u0002ZX\u0003\u0002",
     "\u0002\u0002Z[\u0003\u0002\u0002\u0002[]\u0003\u0002\u0002\u0002\\Z",
-    "\u0003\u0002\u0002\u0002]^\u0007\u000f\u0002\u0002^_\u0005\u0014\u000b",
-    "\u0002_c\u0007\u0010\u0002\u0002`b\u0005\u0012\n\u0002a`\u0003\u0002",
+    "\u0003\u0002\u0002\u0002]^\u0007\u0012\u0002\u0002^_\u0005\u0014\u000b",
+    "\u0002_c\u0007\u0013\u0002\u0002`b\u0005\u0012\n\u0002a`\u0003\u0002",
     "\u0002\u0002be\u0003\u0002\u0002\u0002ca\u0003\u0002\u0002\u0002cd\u0003",
     "\u0002\u0002\u0002d\u0011\u0003\u0002\u0002\u0002ec\u0003\u0002\u0002",
-    "\u0002fl\t\u0002\u0002\u0002gh\u0007\u000f\u0002\u0002hi\u0005\u0014",
-    "\u000b\u0002ij\u0007\u0010\u0002\u0002jl\u0003\u0002\u0002\u0002kf\u0003",
+    "\u0002fl\t\u0002\u0002\u0002gh\u0007\u0012\u0002\u0002hi\u0005\u0014",
+    "\u000b\u0002ij\u0007\u0013\u0002\u0002jl\u0003\u0002\u0002\u0002kf\u0003",
     "\u0002\u0002\u0002kg\u0003\u0002\u0002\u0002l\u0013\u0003\u0002\u0002",
-    "\u0002mn\u0007\u0015\u0002\u0002no\b\u000b\u0001\u0002o\u0015\u0003",
+    "\u0002mn\u0007\u001a\u0002\u0002no\b\u000b\u0001\u0002o\u0015\u0003",
     "\u0002\u0002\u0002pq\u0005\u0018\r\u0002qr\u0007\b\u0002\u0002rs\u0005",
     "\u001a\u000e\u0002sv\u0003\u0002\u0002\u0002tv\u0005\u001a\u000e\u0002",
     "up\u0003\u0002\u0002\u0002ut\u0003\u0002\u0002\u0002v\u0017\u0003\u0002",
-    "\u0002\u0002wx\u0007\u0015\u0002\u0002xy\b\r\u0001\u0002y\u0019\u0003",
+    "\u0002\u0002wx\u0007\u001a\u0002\u0002xy\b\r\u0001\u0002y\u0019\u0003",
     "\u0002\u0002\u0002z\u007f\u0005\u001c\u000f\u0002{|\u0007\t\u0002\u0002",
     "|~\u0005\u001e\u0010\u0002}{\u0003\u0002\u0002\u0002~\u0081\u0003\u0002",
     "\u0002\u0002\u007f}\u0003\u0002\u0002\u0002\u007f\u0080\u0003\u0002",
@@ -84,14 +84,14 @@ var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
     "\u0002\u0086\u0082\u0003\u0002\u0002\u0002\u0087\u008a\u0003\u0002\u0002",
     "\u0002\u0088\u0086\u0003\u0002\u0002\u0002\u0088\u0089\u0003\u0002\u0002",
     "\u0002\u0089\u001b\u0003\u0002\u0002\u0002\u008a\u0088\u0003\u0002\u0002",
-    "\u0002\u008b\u008c\u0007\u0015\u0002\u0002\u008c\u008d\b\u000f\u0001",
-    "\u0002\u008d\u001d\u0003\u0002\u0002\u0002\u008e\u008f\u0007\u0015\u0002",
+    "\u0002\u008b\u008c\u0007\u001a\u0002\u0002\u008c\u008d\b\u000f\u0001",
+    "\u0002\u008d\u001d\u0003\u0002\u0002\u0002\u008e\u008f\u0007\u001a\u0002",
     "\u0002\u008f\u0090\b\u0010\u0001\u0002\u0090\u001f\u0003\u0002\u0002",
-    "\u0002\u0091\u0092\u0007\u0011\u0002\u0002\u0092\u0093\u0007\u0015\u0002",
+    "\u0002\u0091\u0092\u0007\u0014\u0002\u0002\u0092\u0093\u0007\u001a\u0002",
     "\u0002\u0093\u0094\b\u0011\u0001\u0002\u0094!\u0003\u0002\u0002\u0002",
-    "\u0095\u0096\u0007\u0013\u0002\u0002\u0096#\u0003\u0002\u0002\u0002",
-    "\u0097\u0098\u0007\u0012\u0002\u0002\u0098%\u0003\u0002\u0002\u0002",
-    "\u0099\u009a\u0007\u0014\u0002\u0002\u009a\'\u0003\u0002\u0002\u0002",
+    "\u0095\u0096\u0007\u0016\u0002\u0002\u0096#\u0003\u0002\u0002\u0002",
+    "\u0097\u0098\u0007\u0015\u0002\u0002\u0098%\u0003\u0002\u0002\u0002",
+    "\u0099\u009a\u0007\u0017\u0002\u0002\u009a\'\u0003\u0002\u0002\u0002",
     "\u009b\u009c\t\u0003\u0002\u0002\u009c)\u0003\u0002\u0002\u0002\f6=",
     "HOZcku\u007f\u0088"].join("");
 
@@ -103,12 +103,15 @@ var decisionsToDFA = atn.decisionToState.map( function(ds, index) { return new a
 var sharedContextCache = new antlr4.PredictionContextCache();
 
 var literalNames = [ null, "'-'", "'_'", null, null, "':'", "'::'", "'.'", 
-                     "','", "'('", "')'", "'['", "']'", "'<'", "'>'", "'^'" ];
+                     "','", "'('", "')'", "'['", "']'", "'{'", "'}'", "'\\'", 
+                     "'<'", "'>'", "'^'", null, null, null, "'''", "'\"'" ];
 
 var symbolicNames = [ null, null, null, "TRUE", "FALSE", "COLON", "DOUBLECOLON", 
                       "DOT", "COMMA", "LPARENS", "RPARENS", "LBRACKET", 
-                      "RBRACKET", "LTSIGN", "GTSIGN", "CARET", "DECIMAL", 
-                      "INTEGER", "STRING", "ALPHANUMERIC", "WS", "UNRECOGNIZED" ];
+                      "RBRACKET", "LCURLYBRACE", "RCURLYBRACE", "BACKSLASH", 
+                      "LTSIGN", "GTSIGN", "CARET", "DECIMAL", "INTEGER", 
+                      "STRING", "APOSTROPHE", "SINGLEQUOTE", "ALPHANUMERIC", 
+                      "WS", "UNRECOGNIZED" ];
 
 var ruleNames =  [ "query", "expr", "fnArgs", "arg", "fn", "moduleName", 
                    "fnName", "paramArg", "paramAfter", "paramValue", "columnArg", 
@@ -147,15 +150,20 @@ XEvalBaseParser.LPARENS = 9;
 XEvalBaseParser.RPARENS = 10;
 XEvalBaseParser.LBRACKET = 11;
 XEvalBaseParser.RBRACKET = 12;
-XEvalBaseParser.LTSIGN = 13;
-XEvalBaseParser.GTSIGN = 14;
-XEvalBaseParser.CARET = 15;
-XEvalBaseParser.DECIMAL = 16;
-XEvalBaseParser.INTEGER = 17;
-XEvalBaseParser.STRING = 18;
-XEvalBaseParser.ALPHANUMERIC = 19;
-XEvalBaseParser.WS = 20;
-XEvalBaseParser.UNRECOGNIZED = 21;
+XEvalBaseParser.LCURLYBRACE = 13;
+XEvalBaseParser.RCURLYBRACE = 14;
+XEvalBaseParser.BACKSLASH = 15;
+XEvalBaseParser.LTSIGN = 16;
+XEvalBaseParser.GTSIGN = 17;
+XEvalBaseParser.CARET = 18;
+XEvalBaseParser.DECIMAL = 19;
+XEvalBaseParser.INTEGER = 20;
+XEvalBaseParser.STRING = 21;
+XEvalBaseParser.APOSTROPHE = 22;
+XEvalBaseParser.SINGLEQUOTE = 23;
+XEvalBaseParser.ALPHANUMERIC = 24;
+XEvalBaseParser.WS = 25;
+XEvalBaseParser.UNRECOGNIZED = 26;
 
 XEvalBaseParser.RULE_query = 0;
 XEvalBaseParser.RULE_expr = 1;
@@ -1138,9 +1146,8 @@ XEvalBaseParser.prototype.paramValue = function() {
         this.state = 107;
         localctx._ALPHANUMERIC = this.match(XEvalBaseParser.ALPHANUMERIC);
         if (!xcHelper.checkNamePattern(PatternCategory.Param2, PatternAction.Check, (localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text))) {
-            throw SyntaxError('Invalid parameter name. Ensure name contains only ' +
-                                 'alphanumeric or _. It must start with ' +
-                                 'a letter.' + (localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text));}
+            throw SyntaxError('Invalid parameter name. Name must start with ' +
+                            'a letter and contain only alphanumeric characters or underscores. Parameter : ' + (localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text));}
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
 	        localctx.exception = re;
@@ -1477,8 +1484,8 @@ XEvalBaseParser.prototype.colName = function() {
         this.enterOuterAlt(localctx, 1);
         this.state = 137;
         localctx._ALPHANUMERIC = this.match(XEvalBaseParser.ALPHANUMERIC);
-        if ((localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text).toUpperCase() != "NONE" && xcHelper.validateColName((localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text), false, true)) {
-            throw SyntaxError(xcHelper.validateColName((localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text), false, true));
+        if ((localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text).toUpperCase() != "NONE" && xcHelper.validateBackendColName((localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text))) {
+            throw SyntaxError(xcHelper.validateBackendColName((localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text)));
             }
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {

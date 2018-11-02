@@ -3202,6 +3202,36 @@ namespace xcHelper {
     }
 
     /**
+     * xcHelper.validateBackendColName
+     * @param str
+     */
+    export function validateBackendColName(
+        colName: string,
+    ): string | null {
+        if (!colName || colName.trim().length === 0) {
+            return ErrTStr.NoEmpty;
+        }
+
+        let error: string | null = null;
+        if (!xcHelper.isColNameStartValid(colName)) {
+            error = ColTStr.RenameStartInvalid;
+        } else if (colName.length >
+                    XcalarApisConstantsT.XcalarApiMaxFieldNameLen
+        ) {
+            error = ColTStr.LongName;
+        } else if (colName.length > 1 && !/^((?![()\[\]{}^,"'\\:]).)*((?![()\[\]{}^,"'\\: ]).)$/.test(colName.substring(1))) {
+            error = 'Invalid name. Ensure name does not contain the following characters: ^\',":()[]{}\\';
+        } else {
+            const preservedNames: string[] = ['none', 'false', 'true'];
+            if (colName === 'DATA' ||
+                preservedNames.indexOf(colName.toLowerCase()) > -1) {
+                error = ErrTStr.PreservedName;
+            }
+        }
+        return error;
+    }
+
+    /**
      * xcHelper.isStartWithLetter
      * @param str
      */
