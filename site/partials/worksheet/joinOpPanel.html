@@ -1,6 +1,9 @@
 <section id="joinOpPanel" class="xc-hidden opPanel joinOpPanel">
     <header>
       <div class="title"><%= dicts.joinView.header %></div>
+      <div class="hint csHelp" data-topic="joinTables" title="" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.TooltipTStr.CSHelp %>">
+        <i class="icon xi-help fa-12"></i>
+      </div>
       <i class="close icon xi-close"></i>
     </header>
     <div class="mainContent">
@@ -11,11 +14,7 @@
             <p class="mainInstructions instrText"><%= dicts.joinView.instr %></p>
             <section class="topDropdowns clearfix">
               <div class="subHeading clearfix">
-                <div><%= dicts.joinView.JoinType %>:
-                  <div class="hint csHelp" data-topic="joinTables" title="" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.TooltipTStr.CSHelp %>">
-                    <i class="icon xi-help fa-12"></i>
-                  </div>
-                </div>
+                <div><%= dicts.joinView.JoinType %></div>
               </div>
               <div data-xcid="joinType" class="dropDownList">
                 <div data-xcid="text" class="text"><%= dicts.joinView.InnerJoin %></div>
@@ -53,17 +52,15 @@
               <p class="crossJoinFilterInstr"><%= dicts.joinView.FilterInstr %></p>
               <input data-xcid="evalStr" type="text" spellcheck="false" />
             </section>
-            <section class="joinPreviewArea">
-              <div class="subHeading clearfix">
-                <div class="text"><%= dicts.joinView.Preview %></div>
-              </div>
-              <p class="joinPreview" data-xcid="joinPreview">
+            <div class="strPreview">
+              <b class="prevTitle"><%= dicts.joinView.Preview %></b>
+              <div class="joinPreview" data-xcid="joinPreview">
                 <span class="joinType keyword">Inner Join</span>
                 <span class="highlighted">table1</span>,<span class="highlighted">table2</span>
                 <br/><span class="keyword">ON </span>
                 <span class="highlighted">col1</span> = <span class="highlighted">col2</span>
-              </p>
-            </section>
+              </div>
+            </div>
           </section>
         </section>
         <!-- second step -->

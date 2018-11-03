@@ -479,7 +479,7 @@
             display: block;
         }
 
-        .aggCols, .groupByCols, .descArgs {
+        .aggCols, .groupByCols, .descArgs, .highlighted {
             color: @color-arc-xdbfree;
         }
         .char {
@@ -2529,7 +2529,13 @@
         padding-left: 0;
     }
 
-    .btn-next, .btn-back {
+    .btn-next {
+        background-color: white;
+        color: @color-bg-green-submit;
+        border: 1px solid;
+    }
+
+    .btn-back {
         background-color: @color-bg-step-gray;
     }
 
@@ -2594,7 +2600,6 @@
         .col {
             height: @headingHeight;
             line-height: @headingHeight + 4;
-            padding-left: @commonMargin;
             font-weight: 700;
         }
     }
@@ -2606,6 +2611,7 @@
     .dropdownList-join, .dropdownList-cast {
         float: none;
         .size(@height: @listHeight + 2px);
+        min-width: 128px;
         line-height: @listHeight;
         border: 1px solid @color-border-softGray;
 
@@ -2714,13 +2720,9 @@
         border-color: @color-error-border-light;
     }
 
-    .joinPreviewArea {
-        .keyword {
-            font-weight: 700;
-        }
-        .highlighted {
-            color: @color-font-select-blue;
-        }
+    .strPreview {
+        padding-left: 0;
+        padding-right: 0;
     }
 
     .bulkIcon {
