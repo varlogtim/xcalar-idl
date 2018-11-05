@@ -211,6 +211,7 @@ class DagList {
         })
         .fail(deferred.reject)
         .always(() => {
+            this._renderDagList();
             this._updateSection();
         });
 
