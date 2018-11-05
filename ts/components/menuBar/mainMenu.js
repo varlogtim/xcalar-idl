@@ -115,6 +115,17 @@ window.MainMenu = (function($, MainMenu) {
         }
     };
 
+    MainMenu.checkMenuAnimFinish = function() {
+        const deferred = PromiseHelper.deferred();
+        if (!$menuBar.hasClass("animating")) {
+            deferred.resolve();
+        } else {
+            checkMenuAnimFinish()
+            .always(deferred.resolve);
+        }
+
+        return deferred.promise();
+    }
 
     MainMenu.getOffset = function() {
         if (isMenuOpen) {

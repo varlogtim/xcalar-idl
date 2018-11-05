@@ -181,19 +181,22 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         } else {
             const ds: ListDSInfo = this._dsList.find((obj) => {
                 return obj.id == input.source;
-            })
+            });
             this._currentSource = input.source;
             if (ds == null) {
                 if (atStart) {
-                   this._startInAdvancedMode();
-                   return;
+                    this._startInAdvancedMode();
+                    MainMenu.checkMenuAnimFinish()
+                    .then(() => {
+                        StatusBox.show(DSTStr.InvalidPriorDataset + input.source,
+                                    this._$elemPanel.find(".advancedEditor"),
+                                    false, {'side': 'right'});
+                    });
+
+                    this._dagNode.beErrorState(DSTStr.InvalidPriorDataset + input.source);
+                    return;
                 }
 
-                if (!this._advMode) {
-                    StatusBox.show(DSTStr.InvalidPriorDataset + input.source, this._$datasetList,
-                        false, {'side': 'right'});
-                    this._dagNode.beErrorState(DSTStr.InvalidPriorDataset + input.source);
-                }
                 $("#datasetOpPanel .datasetPrefix input").val(input.prefix);
                 this._fileLister.goToRootPath();
                 return;

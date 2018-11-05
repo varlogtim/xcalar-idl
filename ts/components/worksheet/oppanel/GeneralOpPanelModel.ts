@@ -254,6 +254,10 @@ class GeneralOpPanelModel {
             return;
         }
 
+        if (arg.hasNoneChecked()) {
+            return;
+        }
+
         if (arg.getType() === "column") {
             if (val.includes(",")) {
                 arg.setError("Multiple columns");
