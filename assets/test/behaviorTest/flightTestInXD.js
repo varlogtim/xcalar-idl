@@ -163,7 +163,7 @@ window.FlightTestInXD = (function(FlightTestInXD, $) {
                 .trigger(fakeEvent.click);
             $panel.find(".functionsMenu li:contains('genUnique')")
                 .trigger(fakeEvent.click);
-            
+
             fillArgInPanel($panel.find(".colNameSection .arg"), "uniqueNum");
             $panel.find(".submit").click();
 
@@ -185,7 +185,7 @@ window.FlightTestInXD = (function(FlightTestInXD, $) {
             test.assert($panel.hasClass("xc-hidden") === false);
             $panel.find(".functionsList input").val("gt")
                 .trigger(fakeEvent.enterKeydown);
-            
+
             const $args = $panel.find(".arg");
             fillArgInPanel($args.eq(0), "$ArrDelay");
             fillArgInPanel($args.eq(1), "0");
@@ -312,8 +312,8 @@ window.FlightTestInXD = (function(FlightTestInXD, $) {
             $panel.find(".functionsList .functionsInput").val("avg")
                         .trigger(fakeEvent.enterKeydown);
 
-            
-            
+
+
             fillArgInPanel($panel.find(".colNameSection .arg"), "uniqueNum");
             const $args = $panel.find(".arg");
             fillArgInPanel($args.eq(1), gColPrefix + "ArrDelay");
@@ -676,7 +676,7 @@ window.FlightTestInXD = (function(FlightTestInXD, $) {
     function linkInLinkOutTest(deferred, testName, currentTestNumber) {
         // Tests add new dataflow and run using link in link out
         console.log("linkInLinkOutTest");
-        
+
         console.log("find the map node before join")
         const $dagView = $("#dagView .dataflowArea.active");
         const $joinNode = $dagView.find("g.operator.join.state-Complete");
@@ -901,7 +901,7 @@ window.FlightTestInXD = (function(FlightTestInXD, $) {
             test.assert($(".barChart .area .xlabel:contains('134')").length > 0);
             test.assert($(".barChart .area .xlabel:contains('153')").length > 0);
             test.assert($(".barChart .area .xlabel:contains('272')").length > 0);
-            
+
             console.log("check genAgg")
             $("#profileModal .genAgg").click();
             return test.checkExists("#profileModal .genAgg:not(:visible)");
@@ -1278,11 +1278,13 @@ window.FlightTestInXD = (function(FlightTestInXD, $) {
         test.assert($panel.hasClass("xc-hidden") === false);
 
         // select column
-        const $lists = $panel.find(".resultSection .lists");
-        $lists.eq(0).find(".text").click(); // open the dropdown list
-        const $li = $lists.eq(0).find("li:contains(" + colName + ")");
+        let $lists = $panel.find(".resultSection .lists");
+        const $li = $panel.find(".candidateSection .lists").eq(0).find(".inputCol").filter(function() {
+            return $(this).find(".colName").text() === colName;
+        });
+
         test.assert($li.length === 1);
-        $li.trigger(fakeEvent.mouseup)
+        $li.click();
         // select integer type
         $panel.find(".resultSection .typeList li:contains(integer)").trigger(fakeEvent.mouseup);
         $panel.find(".submit").click();

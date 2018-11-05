@@ -32,17 +32,10 @@ class CastOpPanel extends BaseOpPanel {
 
         const param = dagNode.getParam();
         this.prevRenameMap = {};
-        const selectedCols = param.eval.map((evalObj) => {
+        let selectedCols = param.eval.map((evalObj) => {
             const parsedEval = XDParser.XEvalParser.parseEvalStr(evalObj.evalString);
             let selectedCol;
-            if (parsedEval.error) {
-                selectedCol = {
-                    sourceColumn: null,
-                    destColumn: null,
-                    columnType: null,
-                    cast: true
-                };
-            } else {
+            if (!parsedEval.error) {
                 selectedCol = {
                     sourceColumn: (<ParsedEvalArg>parsedEval.args[0]).value,
                     destColumn: evalObj.newField,
@@ -52,6 +45,9 @@ class CastOpPanel extends BaseOpPanel {
                 this.prevRenameMap[selectedCol.sourceColumn] = selectedCol.destColumn;
             }
             return selectedCol;
+        });
+        selectedCols = selectedCols.filter((col) => {
+            return col != null;
         });
 
         this.dataModel = this.colRenameSection.show([curColumns], [selectedCols]);
@@ -187,5 +183,4 @@ class CastOpPanel extends BaseOpPanel {
             $mainMenu.width(width);
         }
     }
-
 }

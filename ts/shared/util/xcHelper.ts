@@ -3544,6 +3544,9 @@ namespace xcHelper {
             case ("string"):
                 mapStr += "string(";
                 break;
+            case ("timestamp"):
+                mapStr += "timestamp(";
+                break;
             case (null):
             case (undefined):
                 return colName;
@@ -3572,6 +3575,8 @@ namespace xcHelper {
                 return ColumnType.integer;
             case ("string"):
                 return ColumnType.string;
+            case ("timestamp"):
+                return ColumnType.timestamp;
             default:
                 return null;
         }
@@ -5505,9 +5510,9 @@ namespace xcHelper {
      * @param cells
      */
     function isInvalidMixed(columnType: string, cells: TableCell[]) {
-        const filterTypes: string[] = ["string", "float", "integer", "boolean",
+        const filterTypes: string[] = ["string", "float", "integer", "boolean", "timestamp",
                                         "undefined", "mixed"];
-        const notAllowedCombTypes: string[] = ["string", "float", "integer", "boolean"];
+        const notAllowedCombTypes: string[] = ["string", "float", "integer", "boolean", "timestamp"];
         let invalidFound: boolean = false;
         let typeFound: string;
         for (let i = 0; i < cells.length; i++) {
@@ -5713,7 +5718,7 @@ namespace xcHelper {
             }
         }
 
-        const filterTypes: string[] = ["string", "float", "integer", "boolean", "mixed"];
+        const filterTypes: string[] = ["string", "float", "integer", "boolean", "timestamp", "mixed"];
         const shouldNotFilter: boolean = options.isMultiCol ||
                                     filterTypes.indexOf(columnType) === -1 ||
                                     isInvalidMixed(columnType, cells);
@@ -6480,7 +6485,8 @@ namespace xcHelper {
                 newName = newName.split("::")[1];
             }
             if (newName.endsWith("_integer") || newName.endsWith("_float") ||
-                newName.endsWith("_boolean") || newName.endsWith("_string")) {
+                newName.endsWith("_boolean") || newName.endsWith("_string") ||
+                newName.endsWith("_timestamp")) {
                 newName = newName.substring(0, newName.lastIndexOf("_"));
             }
             while (names.indexOf(newName) != -1) {
