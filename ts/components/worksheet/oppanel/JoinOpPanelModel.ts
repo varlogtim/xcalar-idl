@@ -283,21 +283,21 @@ class JoinOpPanelModel {
         const result = { left: null, right: null };
 
         if (isPrefix) {
-            const { prefixDestLeft, prefixDestRight } = this._getRenameMap();
+            const { prefixDestLeft, prefixDestRight } = this._getRenameMap(false);
             result.left = this._applyPrefixRename(
                 this._prefixMeta.leftMap, prefixDestLeft
-            ).map((r)=>({ source: r.source, dest: r.key }));
+            ).map((r)=>({ source: r.source, dest: r.dest }));
             result.right = this._applyPrefixRename(
                 this._prefixMeta.rightMap, prefixDestRight
-            ).map((r)=>({ source: r.source, dest: r.key }));
+            ).map((r)=>({ source: r.source, dest: r.dest }));
         } else {
-            const { colDestLeft, colDestRight } = this._getRenameMap();
+            const { colDestLeft, colDestRight } = this._getRenameMap(false);
             result.left = this._applyColumnRename(
                 this._columnMeta.leftMap, colDestLeft
-            ).map((r)=>({ source: r.source, dest: r.key }));
+            ).map((r)=>({ source: r.source, dest: r.dest }));
             result.right = this._applyColumnRename(
                 this._columnMeta.rightMap, colDestRight
-            ).map((r)=>({ source: r.source, dest: r.key }));
+            ).map((r)=>({ source: r.source, dest: r.dest }));
         }
 
         return result;
@@ -738,7 +738,7 @@ class JoinOpPanelModel {
         return result;
     }
 
-    private _getRenameMap() {
+    private _getRenameMap(isRenameEmpty: boolean = true) {
         const colDestLeft: { [source: string]: string } = {};
         const colDestRight: { [source: string]: string } = {};
         const prefixDestLeft: { [source: string]: string } = {};
@@ -746,17 +746,21 @@ class JoinOpPanelModel {
 
         for (const renameInfo of this._columnRename.left) {
             if (renameInfo.isPrefix) {
-                prefixDestLeft[renameInfo.source] = this._getRenameDest(renameInfo);
+                prefixDestLeft[renameInfo.source] =
+                    this._getRenameDest(renameInfo, isRenameEmpty);
             } else {
-                colDestLeft[renameInfo.source] = this._getRenameDest(renameInfo);
+                colDestLeft[renameInfo.source] =
+                    this._getRenameDest(renameInfo, isRenameEmpty);
             }
         }
 
         for (const renameInfo of this._columnRename.right) {
             if (renameInfo.isPrefix) {
-                prefixDestRight[renameInfo.source] = this._getRenameDest(renameInfo);
+                prefixDestRight[renameInfo.source] =
+                    this._getRenameDest(renameInfo, isRenameEmpty);
             } else {
-                colDestRight[renameInfo.source] = this._getRenameDest(renameInfo);
+                colDestRight[renameInfo.source] =
+                    this._getRenameDest(renameInfo, isRenameEmpty);
             }
         }
 
@@ -769,11 +773,16 @@ class JoinOpPanelModel {
     /**
      * Get the dest name of a renaming
      * @param renameInfo
+     * @param isRenameEmpty true: fill an empty destName with sourceName
      * @returns The name after renaming. If renaming to ""(user didn't do renaming), returns the source name.
      */
-    private _getRenameDest(renameInfo: JoinOpRenameInfo): string {
+    private _getRenameDest(renameInfo: JoinOpRenameInfo, isRenameEmpty: boolean = true): string {
         const { source, dest } = renameInfo;
-        return (dest == null || dest.length === 0) ? source : dest;
+        if (isRenameEmpty) {
+            return (dest == null || dest.length === 0) ? source : dest;
+        } else {
+            return dest || '';
+        }
     }
 
     private _applyColumnRename(
