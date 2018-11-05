@@ -924,11 +924,49 @@
             input {
                 .size(@height: @div-h);
                 padding-left: 20px;
+                padding-right: 85px;
+                line-height: 20px;
             }
 
             .icon {
                 .font(@size: 10px);
                 .position(absolute, @top: 6px, @left: 5px);
+            }
+
+            .counter {
+                height: 20px;
+                top: 2px;
+                right: 52px;
+            }
+
+            .arrows {
+                top: 0px;
+
+                .iconWrap {
+                    .size(18px, 18px);
+                    top: 1px;
+                    background-color: @color-bg-white-two;
+                    opacity: 0.8;
+
+                    &.downArrow {
+                        right: 1px;
+                    }
+
+                    &.upArrow {
+                        right: 22px;
+                    }
+
+                    .icon {
+                        top: 5px;
+                        left: 3px;
+                        color: @color-font-form-gray;
+                    }
+
+                    &:hover {
+                        background-color: @color-bg-white-two;
+                        opacity: 1;
+                    }
+                }
             }
         }
 

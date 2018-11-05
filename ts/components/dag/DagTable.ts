@@ -1,6 +1,7 @@
 class DagTable {
     private static _instance: DagTable;
-    private readonly container: string = "dagViewTableArea";
+    private readonly _container: string = "dagViewTableArea";
+    private _searchBar: DagTableSearchBar;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -11,6 +12,7 @@ class DagTable {
 
     private constructor() {
         this._addEventListeners();
+        this._searchBar = new DagTableSearchBar(this._container);
     }
 
     /**
@@ -50,6 +52,10 @@ class DagTable {
         return this.$node ? this.$node.data("nodeid") : null;
     }
 
+    public getSearchBar(): DagTableSearchBar {
+        return this._searchBar;
+    }
+
     /**
      * close the preview
      */
@@ -69,11 +75,11 @@ class DagTable {
             $container.removeClass("dataset");
         }
         this._showTableIcon();
-        xcHelper.showRefreshIcon($("#dagViewTableArea"), true,
+        xcHelper.showRefreshIcon($container, true,
             this.viewer.render(this._getContainer())
             .then(() => {
                 $container.removeClass("loading");
-                TblFunc.alignScrollBar($("#dagViewTableArea").find(".dataTable").eq(0));
+                TblFunc.alignScrollBar($container.find(".dataTable").eq(0));
                 deferred.resolve();
             })
             .fail((error) => {
@@ -102,7 +108,7 @@ class DagTable {
     }
 
     private _getContainer(): JQuery {
-        return $("#" + this.container);
+        return $("#" + this._container);
     }
 
     private _reset(): void {
