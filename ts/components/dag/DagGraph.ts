@@ -597,21 +597,27 @@ class DagGraph {
      * Locks the graph from modification.
      * Used primarily in execution.
      */
-    public lockGraph(): void {
-        $("#dagView .operatorBar").addClass("xc-disabled half-visible");
-        $("#dagView .dataflowWrap").addClass("xc-disabled visible");
-        $("#dagView #dagNodeMenu").addClass("xc-disabled visible");
+    public lockGraph(nodeIds?: DagNodeId[]): void {
         this.lock = true;
+        if (!this.parentTabId) return;
+        this.events.trigger(DagGraphEvents.LockChange, {
+            lock: true,
+            tabId: this.parentTabId,
+            nodeIds: nodeIds
+        });
     }
 
     /**
      * Unlocks the graph for modification.
      */
-    public unlockGraph(): void {
-        $("#dagView .operatorBar").removeClass("xc-disabled half-visible");
-        $("#dagView .dataflowWrap").removeClass("xc-disabled visible");
-        $("#dagView #dagNodeMenu").removeClass("xc-disabled visible");
+    public unlockGraph(nodeIds?: DagNodeId[]): void {
         this.lock = false;
+        if (!this.parentTabId) return;
+        this.events.trigger(DagGraphEvents.LockChange, {
+            lock: false,
+            tabId: this.parentTabId,
+            nodeIds: nodeIds
+        });
     }
 
     /**
@@ -753,6 +759,7 @@ class DagGraph {
                 }
             }
         };
+
     }
 
     // XXX TODO, Idea is to do a topological sort first, then get the
@@ -771,15 +778,15 @@ class DagGraph {
                 return PromiseHelper.reject(checkResult);
             }
         }
-
-        this.lockGraph();
+        const nodeIds = orderedNodes.map(node => node.getId())
+        this.lockGraph(nodeIds);
         executor.run(optimized)
         .then((_res) => {
-            this.unlockGraph();
+            this.unlockGraph(nodeIds);
             deferred.resolve();
         })
         .fail((error) => {
-            this.unlockGraph();
+            this.unlockGraph(nodeIds);
             deferred.reject(error);
         });
 

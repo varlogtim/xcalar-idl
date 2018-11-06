@@ -59,6 +59,10 @@ enum DagNodeErrorType {
     Disjoint = "Multiple disjoint dataflows detected. Optimized execution can only occur on 1 continuous dataflow."
 }
 
+enum DagGraphEvents {
+    LockChange = "GraphLockChange"
+}
+
 enum DagNodeEvents {
     StateChange = "DagNodeStateChange",
     ParamChange = "DagNodeParamChange",

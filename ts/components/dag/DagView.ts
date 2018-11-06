@@ -2429,6 +2429,22 @@ namespace DagView {
         const graph: DagGraph = activeDag;
         const dagTab: DagTab = activeDagTab;
         const $dataflowArea: JQuery = _getActiveArea();
+
+        graph.events.on(DagGraphEvents.LockChange, (info) => {
+            const $dfArea = _getAreaByTab(info.tabId);
+            if (info.lock) {
+                $dfArea.addClass("locked");
+                info.nodeIds.forEach((nodeId) => {
+                    DagView.lockNode(nodeId, info.tabId);
+                });
+            } else {
+                $dfArea.removeClass("locked");
+                info.nodeIds.forEach((nodeId) => {
+                    DagView.unlockNode(nodeId, info.tabId);
+                });
+            }
+        });
+
         graph.events.on(DagNodeEvents.StateChange, function (info) {
             const $node: JQuery = DagView.getNode(info.id, $dataflowArea);
             for (let i in DagNodeState) {
@@ -2941,12 +2957,15 @@ namespace DagView {
      * DagView.lockNode
      * @param nodeId
      */
-    export function lockNode(nodeId: DagNodeId): string {
-        const tabId: string = activeDagTab.getId();
+    export function lockNode(nodeId: DagNodeId, tabId?: string): string {
+        if (!tabId) {
+            tabId = activeDagTab.getId();
+        }
+        const graph = DagTabManager.Instance.getTabById(tabId).getGraph();
         DagView.getNode(nodeId).addClass("locked");
         lockedNodeIds[tabId] = lockedNodeIds[tabId] || {};
         lockedNodeIds[tabId][nodeId] = true;
-        activeDag.setGraphNoDelete();
+        graph.setGraphNoDelete();
         return tabId;
     }
 

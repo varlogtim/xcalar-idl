@@ -404,6 +404,20 @@ namespace DagNodeMenu {
             classes += extraClasses + " ";
         }  else {
             classes += " multiple ";
+            for (let i = 0; i < nodeIds.length; i++) {
+                if (DagView.isNodeLocked(nodeIds[i])) {
+                    $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
+                          ".executeNodeOptimized, .executeAllNodesOptimized, " +
+                          ".resetNode, .cutNodes, .removeNode, .removeAllNodes, .editCustom")
+                    .addClass("unavailable");
+                    break;
+                }
+            }
+        }
+        if (DagView.getActiveDag().isNoDelete()) {
+            $menu.find(".executeNode, .executeAllNodes, " +
+                    ".executeNodeOptimized, .executeAllNodesOptimized, .resetNode")
+            .addClass("unavailable");
         }
         if (!DagView.hasClipboard()) {
             $menu.find(".pasteNodes").addClass("unavailable");
@@ -489,6 +503,23 @@ namespace DagNodeMenu {
         if (!DagView.hasOptimizedNode(operatorIds)) {
             $menu.find(".executeNodeOptimized, .executeAllNodesOptimized").addClass("unavailable");
         }
+
+        for (let i = 0; i < operatorIds.length; i++) {
+            if (DagView.isNodeLocked(operatorIds[i])) {
+                $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
+                      ".executeNodeOptimized, .executeAllNodesOptimized, " +
+                      ".resetNode, .cutNodes, .removeNode, .removeAllNodes, .editCustom")
+                .addClass("unavailable");
+                break;
+            }
+        }
+        if (!operatorIds.length && DagView.getActiveDag().isNoDelete()) {
+            $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
+                        ".executeNodeOptimized, .executeAllNodesOptimized, " +
+                        ".resetNode, .cutNodes, .removeNode, .removeAllNodes, .editCustom")
+                .addClass("unavailable");
+        }
+
         adjustMenuForOpenForm();
 
         position = {x: event.pageX, y: event.pageY};
@@ -611,7 +642,7 @@ namespace DagNodeMenu {
         if (DagView.isNodeLocked(nodeId)) {
             $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
                       ".executeNodeOptimized, .executeAllNodesOptimized, " +
-                      ".resetNode, .cutNodes, .removeNode, .removeAllNodes")
+                      ".resetNode, .cutNodes, .removeNode, .removeAllNodes, .editCustom")
                 .addClass("unavailable");
         }
         return classes;
