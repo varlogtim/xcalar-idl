@@ -2519,8 +2519,11 @@ namespace DagView {
             const nodeType: DagNodeType = node.getType();
             // When not link in or link out node
             if (nodeType !== DagNodeType.DFIn && nodeType !== DagNodeType.DFOut) {
-                // XXX TODO: this is just a temp solution, refine it
-                DagTblManager.Instance.deleteTable(tableName, true, false);
+                let generalTableName = tableName;
+                if (tableName.includes("#")) {
+                    generalTableName = tableName.split("#")[0] + "*";
+                }
+                DagTblManager.Instance.deleteTable(generalTableName, true, true);
             }
         });
     }
