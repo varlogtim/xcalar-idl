@@ -2634,7 +2634,7 @@
             // The above assertion and changes causes left anti semi joins to
             // forever be an &= subtree.
             if (isAntiJoin(node)) {
-                if (node.value.condition[0].class ===
+                if (node.value.condition && node.value.condition[0].class ===
                     "org.apache.spark.sql.catalyst.expressions.Or") {
                     var leftSubtree = [node.value.condition[1]];
                     var rightSubtree = [];
