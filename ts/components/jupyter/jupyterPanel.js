@@ -77,7 +77,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
                             showImportUdfModal(s.target, s.filePath);
                         } else {
                             JupyterPanel.appendStub("importUDF", s);
-                            BottomMenu.openSection(2);
+                            BottomMenu.openSection(3);
                             UDFPanel.Instance.selectUDFPath(s.moduleName);
                         }
                         break;
@@ -249,7 +249,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
                     includeStub: false,
                 });
 
-                BottomMenu.openSection(2);
+                BottomMenu.openSection(3);
                 UDFPanel.Instance.selectUDFPath(moduleName);
             }
         }
