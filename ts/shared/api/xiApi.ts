@@ -2190,6 +2190,9 @@ namespace XIApi {
         }
 
         if (Transaction.isSimulate(txId)) {
+            if (queryStr.startsWith("[") && queryStr.endsWith("]")) {
+                queryStr = queryStr.substring(1, queryStr.length - 1);
+            }
             Transaction.log(txId, queryStr);
             return PromiseHelper.resolve({});
         } else {
