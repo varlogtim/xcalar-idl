@@ -59,6 +59,7 @@ abstract class DagNode {
 
         const displayType = this.subType || this.type; // XXX temporary
         this.display.description = "Description for the " + displayType + " operation";
+        this.progressInfo = {nodes: {}};
     }
 
     /**
