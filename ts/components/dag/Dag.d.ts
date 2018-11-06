@@ -122,6 +122,10 @@ interface DagNodeIndexInputStruct {
     dhtName: string;
 }
 
+interface DagNodePlaceholderInputStruct {
+    args: any;
+}
+
 interface DagNodeSortInputStruct {
     columns: {columnName: string, ordering: string}[];
     newKeys: string[];

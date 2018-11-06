@@ -98,6 +98,8 @@ class DagNodeExecutor {
                 return this._index();
             case DagNodeType.Sort:
                 return this._sort();
+            case DagNodeType.Placeholder:
+                return this._placeholder();
             default:
                 throw new Error(type + " not supported!");
         }
@@ -646,6 +648,10 @@ class DagNodeExecutor {
             };
         });
         return XIApi.sort(this.txId, sortedColumns, srcTable, desTable);
+    }
+
+    private _placeholder(): XDPromise<string> {
+        return PromiseHelper.resolve();
     }
 
     private _sql(): XDPromise<string> {

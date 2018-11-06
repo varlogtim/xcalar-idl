@@ -28,6 +28,7 @@ enum DagNodeType {
     SQLSubInput = "SQLSubInput",
     SQLSubOutput = "SQLSubOutput",
     SubGraph = "subGraph",
+    Placeholder = "placeholder"
 }
 
 enum DagNodeSubType {
@@ -88,4 +89,9 @@ enum DagCategoryType {
     Extensions = "extensions",
     SQL = "SQL",
     Custom = "custom",
+}
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeType = DagNodeType;
+    exports.DagNodeSubType = DagNodeSubType;
 }

@@ -68,7 +68,7 @@ paramValue
                     'a letter and contain only alphanumeric characters or underscores. Parameter : ' + $ALPHANUMERIC.text);}}
     ;
 columnArg
-    : prefix DOUBLECOLON colElement
+    : colElement DOUBLECOLON colElement
     | colElement
     ;
 prefix

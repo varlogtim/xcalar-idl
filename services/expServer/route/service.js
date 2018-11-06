@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var support = require('../expServerSupport.js');
 var xcConsole = require('../expServerXcConsole.js').xcConsole;
+var queryConverter = require('../queryConverter.js');
+var httpStatus = require("../../../assets/js/httpStatus.js").httpStatus;
 
 function convertToBase64(logs) {
     return new Buffer(logs).toString('base64');
@@ -197,6 +199,12 @@ router.post("/service/gettickets",
         }
         res.status(message.status).send(message);
     });
+});
+
+router.post("/service/upgradeQuery", function(req, res) {
+    xcConsole.log("Convert queries to dataflow 2.0");
+    var contents = req.body;
+    res.status(httpStatus.OK).send(queryConverter.convert(contents));
 });
 
 router.get("/service/hotPatch",

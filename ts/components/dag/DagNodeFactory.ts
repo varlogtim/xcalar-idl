@@ -57,6 +57,8 @@ class DagNodeFactory {
                 return new DagNodeIndex(options);
             case DagNodeType.Sort:
                 return new DagNodeSort(options);
+            case DagNodeType.Placeholder:
+                return new DagNodePlaceholder(options);
             default:
                 throw new Error("node type " + options.type + " not supported");
         }

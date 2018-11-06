@@ -307,6 +307,13 @@ namespace adminTools {
         return sendRequest<RequestStructTicket>(action, url, content);
     }
 
+    export function upgradeQuery(query: any): JQueryPromise<any> {
+        const action: string = "POST";
+        const url: string = "/service/upgradeQuery";
+        const content = query;
+        return sendRequest<RequestStructTicket>(action, url, content);
+    }
+
     /**
      * Gets the status of whether hot patching is turned on
      */

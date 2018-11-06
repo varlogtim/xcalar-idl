@@ -2760,10 +2760,10 @@ namespace DagView {
         }
         // Set the node display title
         const $opTitle = $node.find('.opTitle');
+        $node.removeClass("xc-hidden");
         if (node instanceof DagNodeCustom) {
             $opTitle.text(node.getCustomName());
             // The custom op is hidden in the category bar, so show it in the diagram
-            $node.removeClass('xc-hidden');
         } else if (node instanceof DagNodeCustomInput ||
                    node instanceof DagNodeCustomOutput ||
                    node instanceof DagNodeSQLSubInput ||
@@ -2771,9 +2771,6 @@ namespace DagView {
         ) {
             $opTitle.text(node.getPortName());
             // The custom input/output is hidden in the category bar, so show it in the diagram
-            $node.removeClass('xc-hidden');
-        } else if (type === DagNodeType.Index) {
-            $node.removeClass("xc-hidden");
         }
 
         $node.appendTo($dfArea.find(".operatorSvg"));
