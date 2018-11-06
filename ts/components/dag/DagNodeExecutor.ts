@@ -620,6 +620,9 @@ class DagNodeExecutor {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNodeSQL = <DagNodeSQL>this.node;
         const params: DagNodeSQLInputStruct = node.getParam();
+        if (!params.queryStr) {
+            return PromiseHelper.reject(SQLErrTStr.NeedConfiguration);
+        }
         const replaceMap = {};
         const queryName = xcHelper.randName("sqlQuery", 8);
         node.getParents().forEach((parent, idx) => {

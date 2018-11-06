@@ -541,7 +541,8 @@ SQLErrTStr = {
     "MissingField": "Missing field: ",
     "InvalidIdentifier": "Invalid table identifier",
     "SourceUsed": "The source is already used for table identifier: ",
-    "EmptySQL": "Please input your SQL query in the snippet"
+    "EmptySQL": "Please input your SQL query in the snippet",
+    "NeedConfiguration": "Please configure the SQL node first"
 };
 
 SQLInfoTStr = {
