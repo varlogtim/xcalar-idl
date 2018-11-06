@@ -10,7 +10,7 @@ class DagNodePublishIMDInput extends DagNodeInput {
         "additionalProperties": false,
         "required": [
           "pubTableName",
-          "primaryKey",
+          "primaryKeys",
           "operator"
         ],
         "properties": {
@@ -25,16 +25,22 @@ class DagNodePublishIMDInput extends DagNodeInput {
             "minLength": 1,
             "pattern": "^(.*)$"
           },
-          "primaryKey": {
-            "$id": "#/properties/primaryKey",
-            "type": "string",
-            "title": "The Primarykey Schema",
-            "default": "",
-            "examples": [
-              ""
-            ],
-            "minLength": 1,
-            "pattern": "^(.*)$"
+          "primaryKeys": {
+            "$id": "#/properties/primaryKeys",
+            "type": "array",
+            "title": "The Primarykeys Schema",
+            "minItems": 1,
+            "items": {
+              "$id": "#/properties/primaryKeys/primaryKey",
+              "type": "string",
+              "title": "The PrimaryKey Schema",
+              "default": "",
+              "examples": [
+                "a::class_id"
+              ],
+              "minLength": 1,
+              "pattern": "^(.*)$"
+            }
           },
           "operator": {
             "$id": "#/properties/operator",
@@ -44,7 +50,7 @@ class DagNodePublishIMDInput extends DagNodeInput {
             "examples": [
               ""
             ],
-            "minLength": 1,
+            "minLength": 0,
             "pattern": "^(.*)$"
           }
         }
@@ -54,7 +60,7 @@ class DagNodePublishIMDInput extends DagNodeInput {
         const input = super.getInput(replaceParameters);
         return {
             pubTableName: input.pubTableName || "",
-            primaryKey: input.primaryKey || "",
+            primaryKeys: input.primaryKeys || [],
             operator: input.operator || ""
         };
     }

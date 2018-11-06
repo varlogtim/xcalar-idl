@@ -18,7 +18,7 @@ class DagNodePublishIMD extends DagNode {
     public setParam(input: DagNodePublishIMDInputStruct): void {
         this.input.setInput({
             pubTableName: input.pubTableName,
-            primaryKey: input.primaryKey,
+            primaryKeys: input.primaryKeys,
             operator: input.operator
         });
         super.setParam();

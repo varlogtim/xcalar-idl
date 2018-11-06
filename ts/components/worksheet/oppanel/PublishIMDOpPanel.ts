@@ -4,7 +4,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
     private _dagNode: DagNodePublishIMD;
     private _columns: ProgCol[];
     private _$nameInput: JQuery; // $('#publishIMDOpPanel .IMDNameInput')
-    private _$primaryKey: JQuery; // $('#publishIMDOpPanel .primaryKeyInput')
+    private _$primaryKeys: JQuery; // $('#publishIMDOpPanel .IMDKey')
     private _$operatorInput: JQuery; // $('#publishIMDOpPanel .IMDOperatorInput')
 
     // *******************
@@ -20,7 +20,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
         this._advMode = false;
         super.setup(this._$elemPanel);
         this._$nameInput = $('#publishIMDOpPanel .IMDNameInput');
-        this._$primaryKey = $('#publishIMDOpPanel .primaryKeyInput');
+        this._$primaryKeys = $('#publishIMDOpPanel .IMDKey');
         this._$operatorInput = $('#publishIMDOpPanel .IMDOperatorInput');
         this._setupEventListener();
     }
@@ -87,25 +87,71 @@ class PublishIMDOpPanel extends BaseOpPanel {
         return null;
     }
 
+    private _getKeyValues(): string[] {
+        let keys: string[] = [];
+        let $inputs: JQuery = this._$primaryKeys.find(".primaryKeyInput");
+        for (let i = 0; i < $inputs.length; i++) {
+            keys.push($inputs.eq(i).val());
+        }
+        return keys;
+    }
+
     private _getParams(): DagNodePublishIMDInputStruct {
+        let keys: string[] = this._getKeyValues();
         return {
             pubTableName: this._$nameInput.val(),
-            primaryKey: this._$primaryKey.val(),
+            primaryKeys: keys,
             operator: this._$operatorInput.val()
+        }
+    }
+
+    private _restoreKeys(keyList: string[]) {
+        if (keyList.length == 0) {
+            keyList = [""];
+        }
+        let $keys: JQuery = $('#publishIMDOpPanel .IMDKey .primaryKeyList');
+        let rowsLen = $keys.length;
+        if (rowsLen < keyList.length) {
+            let numNew: number = keyList.length - $keys.length;
+            for (let i = 0; i < numNew; i++) {
+                this._addKeyField();
+            }
+        } else if (rowsLen > keyList.length) {
+            let numRem: number = rowsLen - keyList.length;
+            for (let i = 0; i < numRem; i++) {
+                $keys.eq(rowsLen - 1 - i).remove();
+            }
+        }
+        $keys = $('#publishIMDOpPanel .IMDKey .primaryKeyList');
+        $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyColumns li').removeClass("unavailable");
+        for (let i = 0; i < keyList.length; i++) {
+            $keys.eq(i).find(".primaryKeyInput").val(keyList[i]);
+            $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyColumns')
+                    .find("[data-value='" + keyList[i] + "']").addClass("unavailable");
         }
     }
 
     private _restorePanel(input: DagNodePublishIMDInputStruct): void {
         this._$nameInput.val(input.pubTableName);
-        this._$primaryKey.val(input.primaryKey);
+        let keyList: string[] = input.primaryKeys || [];
+        //process
+        this._restoreKeys(keyList);
         this._$operatorInput.val(input.operator);
     }
 
+    private _replicateColumnHints(): void {
+        let $list: JQuery = $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyColumns');
+        let toCopy: string = $list.eq(0).html();
+        $list.empty();
+        $list.append(toCopy);
+    }
+
     private _setupColumnHints(): void {
-        let $list: JQuery = $('#primaryKeyList .primaryKeyColumns');
+        let $list: JQuery = $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyColumns');
         let html = '';
         this._columns.forEach((column: ProgCol) => {
-            html += '<li>$' + column.getBackColName() + '</li>';
+            html += '<li data-value="$' + column.getBackColName() + '">' +
+                column.getBackColName() + '</li>';
         });
         $list.empty();
         $list.append(html);
@@ -114,7 +160,51 @@ class PublishIMDOpPanel extends BaseOpPanel {
         $list.append(html);
     }
 
-    private _checkOpArgs(key: string, operator: string): boolean {
+    private _addKeyField(): void {
+        let html = '<div class="primaryKeyList dropDownList">' +
+            '<input class="text primaryKeyInput" type="text" value="" spellcheck="false">' +
+            '<i class="icon xi-cancel"></i>' +
+            '<div class="iconWrapper">' +
+                '<i class="icon xi-arrow-down"></i>' +
+            '</div>' +
+            '<div class="list">' +
+                '<ul class="primaryKeyColumns"></ul>' +
+                '<div class="scrollArea top stopped" style="display: none;">' +
+                    '<i class="arrow icon xi-arrow-up"></i>' +
+                '</div>' +
+                '<div class="scrollArea bottom" style="display: none;">' +
+                    '<i class="arrow icon xi-arrow-down"></i>'
+                '</div>' +
+            '</div>' +
+        '</div>';
+        this._$primaryKeys.append(html);
+        this._replicateColumnHints();
+        let $list = $('#publishIMDOpPanel .IMDKey .primaryKeyList').last();
+        this._activateDropDown($list, '.IMDKey .primaryKeyList');
+        let expList: MenuHelper = new MenuHelper($list, {
+            "onSelect": function($li) {
+                if ($li.hasClass("hint")) {
+                    return false;
+                }
+
+                if ($li.hasClass("unavailable")) {
+                    return true; // return true to keep dropdown open
+                }
+                let $primaryKey = $li.closest('.primaryKeyList').find('.primaryKeyInput');
+                let oldVal = $primaryKey.val();
+                if (oldVal != "") {
+                    $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyColumns')
+                        .find("[data-value='" + oldVal + "']").removeClass("unavailable");
+                }
+                $primaryKey.val("$" + $li.text());
+                $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyColumns')
+                    .find("[data-value='" + $li.data("value") + "']").addClass("unavailable");
+            }
+        });
+        expList.setupListeners();
+    }
+
+    private _checkOpArgs(keys: string[], operator: string): boolean {
         let $location: JQuery = null;
         let error: string = "";
 
@@ -122,10 +212,13 @@ class PublishIMDOpPanel extends BaseOpPanel {
             error = ErrTStr.InvalidTableName;
             $location = this._$nameInput;
         }
-        if (!xcHelper.hasValidColPrefix(key)) {
-            error = ErrTStr.ColInModal;
-            $location = this._$primaryKey;
-        }
+        const $keys = $(".IMDKey .primaryKeyList")
+        keys.forEach(((key, index) => {
+            if (!xcHelper.hasValidColPrefix(key)) {
+                error = ErrTStr.ColInModal;
+                $location = $keys.eq(index);
+            }
+        }))
         if (operator != "" && !xcHelper.hasValidColPrefix(operator)) {
             error = ErrTStr.ColInModal;
             $location = this._$operatorInput;
@@ -157,8 +250,22 @@ class PublishIMDOpPanel extends BaseOpPanel {
             () => { this._submitForm(this._dagNode); }
         );
 
-        let $list = $('#primaryKeyList');
-        this._activateDropDown($list, '#primaryKeyList');
+        this._$elemPanel.on("click", ".addKeyArg", function() {
+            self._addKeyField();
+        });
+
+        this._$elemPanel.on('click', '.primaryKeyList .xi-cancel', function() {
+            const $key: JQuery = $(this).closest(".primaryKeyList");
+            let oldVal = $key.find(".primaryKeyInput").val();
+            if (oldVal != "") {
+                $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyColumns')
+                    .find("[data-value='" + oldVal + "']").removeClass("unavailable");
+            }
+            $key.remove();
+        });
+
+        let $list = $('#publishIMDOpPanel .IMDKey .primaryKeyList');
+        this._activateDropDown($list, '#publishIMDOpPanel .IMDKey .primaryKeyList');
         let expList: MenuHelper = new MenuHelper($list, {
             "onSelect": function($li) {
                 if ($li.hasClass("hint")) {
@@ -168,8 +275,15 @@ class PublishIMDOpPanel extends BaseOpPanel {
                 if ($li.hasClass("unavailable")) {
                     return true; // return true to keep dropdown open
                 }
-
-                self._$primaryKey.val($li.text());
+                let $primaryKey = $('.IMDKey .primaryKeyList').eq(0).find('.primaryKeyInput');
+                let oldVal = $primaryKey.val();
+                if (oldVal != "") {
+                    $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyColumns')
+                        .find("[data-value='" + oldVal + "']").removeClass("unavailable");
+                }
+                $primaryKey.val("$" + $li.text());
+                $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyColumns')
+                    .find("[data-value='" + $li.data("value") + "']").addClass("unavailable");
             }
         });
         expList.setupListeners();
@@ -186,7 +300,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
                     return true; // return true to keep dropdown open
                 }
 
-                self._$operatorInput.val($li.text());
+                self._$operatorInput.val("$" + $li.text());
             }
         });
         expList.setupListeners();
@@ -217,13 +331,13 @@ class PublishIMDOpPanel extends BaseOpPanel {
 
 
     private _submitForm(dagNode: DagNodePublishIMD): void {
-        let key: string = "";
+        let keys: string[] = [];
         let operator: string = "";
         let name: string = "";
         if (this._advMode) {
             try {
                 const newModel: DagNodePublishIMDInputStruct = this._convertAdvConfigToModel();
-                key = newModel.primaryKey;
+                keys = newModel.primaryKeys;
                 operator = newModel.operator;
                 name = newModel.pubTableName;
             } catch (e) {
@@ -232,17 +346,17 @@ class PublishIMDOpPanel extends BaseOpPanel {
                 return;
             }
         } else {
-            key = this._$primaryKey.val();
+            keys = this._getKeyValues();
             operator = this._$operatorInput.val();
             name = this._$nameInput.val();
         }
-        if (!this._checkOpArgs(key, operator)) {
+        if (!this._checkOpArgs(keys, operator)) {
             return;
         }
 
         dagNode.setParam({
             pubTableName: name,
-            primaryKey: key,
+            primaryKeys: keys,
             operator: operator
         });
         this.close(true);

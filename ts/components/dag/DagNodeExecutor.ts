@@ -478,7 +478,7 @@ class DagNodeExecutor {
             return parentNode.getLineage().getColumns();
         })[0] || [];
         let colInfo: ColRenameInfo[] = xcHelper.createColInfo(columns);
-        return XIApi.publishTable(this.txId, params.primaryKey,
+        return XIApi.publishTable(this.txId, params.primaryKeys,
             this._getParentNodeTable(0), params.pubTableName,
             colInfo, params.operator);
     }

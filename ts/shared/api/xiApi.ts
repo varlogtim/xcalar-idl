@@ -2576,21 +2576,24 @@ namespace XIApi {
     */
     export function publishTable(
         txId: number,
-        primaryKey: string,
+        primaryKeys: string[],
         srcTableName: string,
         pubTableName: string,
         colInfo: ColRenameInfo[],
         imdCol?: string
     ): XDPromise<string> {
-        if (txId == null || primaryKey == null ||
+        if (txId == null || primaryKeys == null ||
             srcTableName == null || pubTableName == null ||
             colInfo == null) {
             return PromiseHelper.reject("Invalid args in publish");
         }
-        let keyName: string = (primaryKey[0] == "$") ?
-            primaryKey.substr(1) : primaryKey;
+        let keyNames: string[] = primaryKeys.map((primaryKey) => {
+            return (primaryKey[0] == "$") ?
+                primaryKey.substr(1) : primaryKey;
+        });
+
         if (!colInfo.find((info: ColRenameInfo) => {
-            return (info.orig == keyName);
+            return (keyNames.includes(info.orig));
         })) {
             return PromiseHelper.reject("Primary Key not in Table");
         }
@@ -2602,7 +2605,12 @@ namespace XIApi {
         const opCodeTableName: string = xcHelper.randName("test") + Authentication.getHashId();
         const rowNumTableName: string = xcHelper.randName("test") + Authentication.getHashId();
         let rowPromise: XDPromise<string>;
-        primaryKey = xcHelper.parsePrefixColName(primaryKey).name;
+        const primaryKeyList: {name: string, ordering: XcalarOrderingT}[] =
+            primaryKeys.map((primaryKey) => {
+                primaryKey = xcHelper.parsePrefixColName(primaryKey).name;
+                return {name: primaryKey,
+                    ordering: XcalarOrderingT.XcalarOrderingUnordered};
+        });
         if (imdCol[0] == "$") {
             imdCol = imdCol.substr(1);
         }
@@ -2639,8 +2647,7 @@ namespace XIApi {
         })
         .then(function(tableName) {
             // Reorder just in case
-            return indexHelper(txId, [{name: primaryKey,
-                        ordering: XcalarOrderingT.XcalarOrderingUnordered}],
+            return indexHelper(txId, primaryKeyList,
                                         tableName, indexTableName)
         })
         .then(function() {
