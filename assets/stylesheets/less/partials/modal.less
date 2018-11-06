@@ -5281,6 +5281,51 @@ html.microsoft {
 }
 /* ========== End of Dataflow uploader ============= */
 
+/* ========== Dataflow download ============= */
+#dfDownloadModal {
+    .size(@width: 520px, @height: 235px);
+
+    &.locked {
+        pointer-events: none;
+
+        .close, button {
+            opacity: @opacity-disabled;
+        }
+    }
+
+    .modalMain {
+        padding: 10px;
+
+        .row {
+            height: 30px;
+
+            &.label {
+                height: 23px;
+                margin-bottom: 0;
+            }
+
+            &.format {
+                margin-bottom: 10px;
+            }
+
+            input {
+                background-color: @color-white;
+            }
+
+            .dropDownList {
+                width: 100%;
+
+                .text {
+                    height: 30px;
+                    width: ~"calc(100% - 30px)";
+                    line-height: 30px;
+                }
+            }
+        }
+    }
+}
+/* ========== End of Dataflow download ============= */
+
 /* Login Config Modal */
 #loginConfigModal {
     .size(@width: 800px, @height:650px);

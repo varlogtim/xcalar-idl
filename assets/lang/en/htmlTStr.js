@@ -863,6 +863,7 @@ module.exports = {
         "ShareDSHint": "Shared dataflow cannot access private datasets, to make the dataflow executable, datasets used in the dataflow need to be shared",
         "DestSelectionTitle": "Specify dataflow destination",
         "DownloadDF": "Download dataflow",
+        "DownloadAs": "Download as",
         "DataflowTitle": "Batch Dataflow",
         "header": "Batch Dataflow",
         "dfs": "Batch Dataflows",
@@ -889,6 +890,7 @@ module.exports = {
         "SourceTables": "Source Tables",
         "SelectOpEdit": "Select an operation to edit",
         "DestDFName": "Destination dataflow name",
+        "DestFileName": "Destination file name",
         "Settings": "Dataflow settings",
         // For uploader
         "upload": "UPLOAD",

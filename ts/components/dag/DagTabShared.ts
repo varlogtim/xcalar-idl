@@ -162,8 +162,9 @@ class DagTabShared extends DagTab {
         return promise;
     }
 
-    public download(): XDPromise<void> {
-        const fileName: string = this.getShortName() + ".tar.gz";
+    public download(name: string, optimized?: boolean): XDPromise<void> {
+        let fileName: string = name || this.getShortName();
+        fileName += ".tar.gz";
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         DagTabShared._switchSession(null);
         // XXX TODO, backend should give a flag about it's DF or WKBK
@@ -296,7 +297,7 @@ class DagTabShared extends DagTab {
     }
 
     private _uploadUDFToWKBK(): XDPromise<void> {
-        let download = (moduleName: string): XDPromise<string> => {
+        let downloadHelper = (moduleName: string): XDPromise<string> => {
             const deferred: XDDeferred<string> = PromiseHelper.deferred();
             const udfPath = UDFFileManager.Instance.getCurrWorkbookPath() + moduleName;
             UDFFileManager.Instance.getEntireUDF(udfPath)
@@ -318,7 +319,7 @@ class DagTabShared extends DagTab {
 
         let upload = (moduleName: string): XDPromise<void> => {
             const deferred: XDDeferred<void> = PromiseHelper.deferred();
-            download(moduleName)
+            downloadHelper(moduleName)
             .then((udfStr) => {
                 if (udfStr == null) {
                     // nothing to upload

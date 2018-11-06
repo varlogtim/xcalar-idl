@@ -283,6 +283,10 @@ declare namespace d3 {
     export var layout;
 }
 
+declare namespace domtoimage {
+    export function toPng(el: HTMLElement, options: object);
+}
+
 declare class Ajv {
     public compile(any);
 }

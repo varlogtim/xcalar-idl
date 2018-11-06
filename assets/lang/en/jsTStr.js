@@ -384,7 +384,9 @@ ErrTStr = {
     'MaxFiles': 'The number of files under the current directory exceeds the ' +
                 'limit. Please try to search in a child directory.',
     'InvalidUDFModule': 'Invalid module name',
-    'InvalidUDFFunction': 'Invalid function name'
+    'InvalidUDFFunction': 'Invalid function name',
+    'InvalidDFDownload': 'Invalid dataflow to download',
+    'UnsaveDFDownload': 'Cannot download unsaved dataflow. Please save changes first',
 };
 
 ErrWRepTStr = {
@@ -1065,6 +1067,8 @@ DFTStr = {
     "AddValues": "Add Values",
     "AdvancedOpts": "Advanced Export Options",
     "DFs": "Dataflows",
+    "DF": "Dataflow",
+    "OptimizedDF": "Optimized Dataflow",
     "BatchDF": "Batch Dataflow",
     "CannotCreate": "Cannot Create Dataflow",
     "CannotCreateMsg": "Cannot create a batch dataflow from a table originating from a dataflow.",

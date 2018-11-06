@@ -38,11 +38,9 @@ class DagTopBar {
             $btns.find(".share").addClass("xc-disabled");
         }
 
-        if (dagTab instanceof DagTabCustom) {
-            $btns.find(".download, .upload").addClass("xc-disabled");
+        if (dagTab instanceof DagTabCustom || dagTab instanceof DagTabSQL) {
             $btns.find(".autoSave, .save").addClass("xc-disabled");
         } else {
-            $btns.find(".download, .upload").removeClass("xc-disabled");
             $btns.find(".autoSave, .save").removeClass("xc-disabled");
         }
 
@@ -105,17 +103,7 @@ class DagTopBar {
 
         this.$topBar.find(".download").click(() => {
             const tab: DagTab = DagView.getActiveTab();
-            if (!(tab instanceof DagTabCustom)) {
-                tab.download()
-                .fail((error) => {
-                    Alert.show({
-                        title: DFTStr.DownloadErr,
-                        msg: error.error || ErrTStr.Unknown,
-                        isAlert: true,
-                        detail: error.log
-                    });
-                });
-            }
+            DFDownloadModal.Instance.show(tab);
         });
 
         this.$topBar.find(".upload").click(() => {

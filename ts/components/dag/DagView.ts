@@ -3055,4 +3055,8 @@ namespace DagView {
         }
         return $dfWrap.find(".dataflowArea").eq(index);
     }
+
+    export function getAreaByTab(tabId: string): JQuery {
+        return _getAreaByTab(tabId);
+    }
 }

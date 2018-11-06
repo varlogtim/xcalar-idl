@@ -180,7 +180,7 @@ class DagTabUser extends DagTab {
         return deferred.promise();
     }
 
-    public download(): XDPromise<void> {
+    public download(name: string, optimized?: boolean): XDPromise<void> {
         // Step for download local dataflow:
         // 1. upload as a temp shared dataflow
         // 2. download the temp shared dataflow
@@ -194,7 +194,7 @@ class DagTabUser extends DagTab {
         fakeDag.share()
         .then(() => {
             hasShared = true;
-            return fakeDag.download();
+            return fakeDag.download(name, optimized);
         })
         .then(() => {
             fakeDag.delete();

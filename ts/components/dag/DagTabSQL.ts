@@ -43,6 +43,6 @@ class DagTabSQL extends DagTab {
 
     // do nothing
     public download(): XDPromise<void> {
-        return PromiseHelper.resolve();
+        return PromiseHelper.reject({error: "Not support"});
     }
 }

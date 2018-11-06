@@ -32,7 +32,7 @@ abstract class DagTab {
     public abstract load(): XDPromise<void>
     public abstract save(foceSave?: boolean): XDPromise<void>
     public abstract delete(): XDPromise<void>
-    public abstract download(): XDPromise<void>
+    public abstract download(name: string, optimized?: boolean): XDPromise<void>
 
     /**
      * Get Tab's name
