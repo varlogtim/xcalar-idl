@@ -39,10 +39,10 @@ class DagTopBar {
         }
 
         if (dagTab instanceof DagTabCustom) {
-            $btns.find(".download").addClass("xc-disabled");
+            $btns.find(".download, .upload").addClass("xc-disabled");
             $btns.find(".autoSave, .save").addClass("xc-disabled");
         } else {
-            $btns.find(".download").removeClass("xc-disabled");
+            $btns.find(".download, .upload").removeClass("xc-disabled");
             $btns.find(".autoSave, .save").removeClass("xc-disabled");
         }
 
@@ -116,6 +116,10 @@ class DagTopBar {
                     });
                 });
             }
+        });
+
+        this.$topBar.find(".upload").click(() => {
+            DFUploadModal.Instance.show();
         });
 
         this.$topBar.find(".autoSave").click(() => {

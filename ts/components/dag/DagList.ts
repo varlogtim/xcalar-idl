@@ -384,10 +384,6 @@ class DagList {
         });
 
         const $dagListSection: JQuery = this._getDagListSection();
-        $("#dagUpload").click(() => {
-            DFUploadModal.Instance.show();
-        });
-
         $("#dagList .iconSection .refreshBtn").click(() => {
             this.refresh();
         });
