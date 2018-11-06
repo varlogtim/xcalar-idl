@@ -311,6 +311,7 @@ class DagNodeJoinInput extends DagNodeInput {
 
       const typeMap = {};
       typeMap[DagNodeSubType.LookupJoin] = JoinOperatorTStr[JoinOperatorT.LeftOuterJoin];
+      typeMap[DagNodeSubType.FilterJoin] = JoinCompoundOperatorTStr.LeftSemiJoin;
 
       return typeMap[subType];
     }

@@ -371,6 +371,7 @@ ErrTStr = {
     "Update": "If you have updated Xcalar Design, empty the browser cache and reload the page to ensure that the browser is running the updated version.",
     "OpenForm": "Form is not setup correctly, please retry",
     "NoPrefixColumn": "Column name cannot have prefix",
+    "InvalidEvalStr": "Invalid eval string",
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +
@@ -803,6 +804,7 @@ JoinTStr = {
     'InvalidClause': 'Invalid clause to join',
     'TypeMistch': 'Left selected column and right selected column has type ' +
                   'mismatch, cannot join',
+    'InvalidJoinType': 'Invalid join type',
     'EstimateJoin': 'Estimate join size',
     'EstimatedJoin': 'Estimated join size',
     'EstimatingJoin': 'Estimating join size...',

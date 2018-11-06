@@ -110,7 +110,8 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
             } else if (currentStep === 2) {
                 elemNavButtons = this._buildRenameNavButtons();
             } else {
-                // XXX TODO: reserved for Filter Join
+                // Should never happen, possibly a bug
+                console.error(`Invalid currentStep value(${currentStep})`);
             }
         }
         this._templateMgr.updateDOM($navButtons[0], elemNavButtons);
@@ -145,7 +146,6 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         let elements: NodeDefDOMElement[] = [];
 
         // Save button
-        // XXX TODO: Show Next button for Filter Join
         elements = elements.concat(this._buildNavButton({
             type: 'submit',
             disabled: !this._isEnableSave(),
@@ -360,25 +360,25 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         }
     }
 
-    // XXX TODO: Add string in jsTStr
     private _getErrorMessage(e: Error): string {
         if (e == null || e.message == null) {
             return '';
         }
+
         switch (e.message) {
             case JoinOpError.ColumnTypeLenMismatch:
             case JoinOpError.InvalidJoinClause:
-                return 'Invalid join clause';
+                return JoinTStr.InvalidClause;
             case JoinOpError.ColumnNameConflict:
-                return 'Column name conflicts';
+                return ErrTStr.ColumnConflict;
             case JoinOpError.InvalidEvalString:
-                return 'Invalid eval string';
+                return ErrTStr.InvalidEvalStr;
             case JoinOpError.NeedTypeCast:
-                return 'Can not join columns with different type';
+                return JoinTStr.TypeMistch;
             case JoinOpError.PrefixConflict:
-                return 'Prefix conflicts';
+                return ErrTStr.PrefixConflict;
             case JoinOpError.InvalidJoinType:
-                return 'Invalid join type';
+                return JoinTStr.InvalidJoinType;
             default:
                 return e.message;
         }
