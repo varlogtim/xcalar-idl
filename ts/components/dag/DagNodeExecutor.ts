@@ -677,6 +677,10 @@ class DagNodeExecutor {
         const newTableMap = {};
         queryStruct.forEach((operation) => {
             if (!operation.args.source || !operation.args.dest) {
+                const namePattern = operation.args.namePattern;
+                if (namePattern && newTableMap[namePattern]) {
+                    operation.args.namePattern = newTableMap[namePattern];
+                }
                 return;
             }
             let source = operation.args.source;
