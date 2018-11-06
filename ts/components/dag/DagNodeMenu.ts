@@ -263,6 +263,7 @@ namespace DagNodeMenu {
         const type: DagNodeType = node.getType();
         const subType: DagNodeSubType = node.getSubType();
         const tabId: string = DagView.lockNode(nodeId);
+        const dagTab: DagTab = DagView.getActiveTab();
 
         options = options || {};
         options = $.extend(options, {
@@ -274,7 +275,7 @@ namespace DagNodeMenu {
         DagTopBar.Instance.lock();
         MainMenu.closeForms(); // close opened forms first
         // Nodes in SQL sub graph can't be configured
-        if (DagView.getActiveTab() instanceof DagTabSQL) {
+        if (dagTab instanceof DagTabSQL) {
             options.nonConfigurable = true;
         }
 
@@ -298,6 +299,11 @@ namespace DagNodeMenu {
                 if (subType === DagNodeSubType.Cast) {
                     CastOpPanel.Instance.show(node, options);
                 } else {
+                    options.udfDisplayPathPrefix =
+                        dagTab instanceof DagTabShared ?
+                            dagTab.getUDFDisplayPathPrefix() :
+                            UDFFileManager.Instance.getCurrWorkbookDisplayPath();
+
                     MapOpPanel.Instance.show(node, options);
                 }
                 break;

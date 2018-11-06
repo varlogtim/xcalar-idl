@@ -267,6 +267,7 @@ class GeneralOpPanel extends BaseOpPanel {
             self._checkIfStringReplaceNeeded();
         });
 
+        // UDFs should not rely on this.
         this._operatorsMap = XDFManager.Instance.getOperatorsMap();
     }
 

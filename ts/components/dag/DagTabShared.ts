@@ -72,6 +72,10 @@ class DagTabShared extends DagTab {
         return DagTabShared.PATH + this.getName();
     }
 
+    public getUDFDisplayPathPrefix(): string {
+        return "/workbook/" + DagTabShared._secretUser + "/" + this._getWKBKName() + "/";
+    }
+
     public load(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let savedDagInfo: any;

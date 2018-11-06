@@ -5,12 +5,12 @@ class UDFFileManager extends BaseFileManager {
         return this._instance || (this._instance = new this());
     }
 
-    private storedUDF;
-    private defaultModule;
-    private userIDWorkbookMap;
-    private userWorkbookIDMap;
-    private panels;
-    private hiddenPatterns;
+    private storedUDF: Map<string, string>;
+    private defaultModule: string;
+    private userIDWorkbookMap: Map<string, Map<string, string>>;
+    private userWorkbookIDMap: Map<string, Map<string, string>>;
+    private panels: FileManagerPanel[];
+    private hiddenPatterns: string[];
 
     /*
      * Pay special attention when dealing with UDF paths / names.
@@ -158,16 +158,23 @@ class UDFFileManager extends BaseFileManager {
     }
 
     /**
-     * Only works with files, doesn't work with dirs.
+     * Only works with files and workbook prefixes, doesn't work with general
+     * dirs.
      * @param  {string} displayPath
      * @returns string
      */
     public displayPathToNsPath(displayPath: string): string {
+        let isPrefix: boolean = false;
         if (displayPath.endsWith("/")) {
             displayPath = displayPath.substring(0, displayPath.length - 1);
         }
         const displayPathSplit: string[] = displayPath.split("/");
         if (displayPathSplit[1] === "workbook") {
+            // workbook prefixes.
+            if (displayPathSplit.length === 4) {
+                isPrefix = true;
+                displayPathSplit.push("");
+            }
             displayPathSplit.splice(4, 0, "udf");
             const workbookIDMap: Map<
             string,
@@ -178,7 +185,7 @@ class UDFFileManager extends BaseFileManager {
             }
         }
         const nsPath: string = displayPathSplit.join("/");
-        return nsPath.substring(0, nsPath.length - 3);
+        return isPrefix ? nsPath : nsPath.substring(0, nsPath.length - 3);
     }
 
     /**
@@ -228,13 +235,29 @@ class UDFFileManager extends BaseFileManager {
             }
         );
 
-        this._initializeUDFList()
-        .then((listXdfsObj: any) => {
-            listXdfsObj.fnDescs = xcHelper.filterUDFs(listXdfsObj.fnDescs);
-            listXdfsObj.numXdfs = listXdfsObj.fnDescs.length;
-            DSTargetManager.updateUDF(listXdfsObj);
+        this.list()
+        .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
+            const updateViews = (
+                listXdfsObjUpdate: XcalarApiListXdfsOutputT
+            ) => {
+                const deferredUpdate: XDDeferred<
+                void
+                > = PromiseHelper.deferred();
+
+                this.filterOutHiddenUDF(listXdfsObjUpdate);
+                this._updateStoredUDF(listXdfsObjUpdate);
+                this.filterWorkbookUDF(listXdfsObjUpdate);
+                DSTargetManager.updateUDF(listXdfsObjUpdate);
+
+                deferredUpdate.resolve();
+                return deferredUpdate.promise();
+            };
+
+            return PromiseHelper.when(
+                updateViews(xcHelper.deepCopy(listXdfsObj)),
+                this._getUserWorkbookMap(listXdfsObj)
+            );
         })
-        .then(() => this._getUserWorkbookMap())
         .then(() => {
             UDFPanel.Instance.updateUDF();
             $("#udf-fnSection").removeClass("xc-disabled");
@@ -255,32 +278,37 @@ class UDFFileManager extends BaseFileManager {
     }
 
     /**
-     * @param  {boolean} workbookOnly - Only show default and user workbook's
-     * udfs
      * @returns XDPromise
      */
-    public list(workbookOnly: boolean): XDPromise<XcalarApiListXdfsOutputT> {
+    public list(): XDPromise<XcalarApiListXdfsOutputT> {
         const deferred: XDDeferred<
         XcalarApiListXdfsOutputT
         > = PromiseHelper.deferred();
         XcalarListXdfs("*", "User*")
-        .then((res: XcalarApiListXdfsOutputT) => {
-            res.fnDescs = xcHelper.filterHiddenUDFs(
-                    res.fnDescs as UDFInfo[],
-                    this.hiddenPatterns
-            ) as XcalarEvalFnDescT[];
-            res.numXdfs = res.fnDescs.length;
-
-            if (workbookOnly) {
-                res.fnDescs = xcHelper.filterUDFs(
-                        res.fnDescs as UDFInfo[]
-                ) as XcalarEvalFnDescT[];
-                res.numXdfs = res.fnDescs.length;
-            }
-            deferred.resolve(res);
-        })
+        .then(deferred.resolve)
         .fail(deferred.reject);
         return deferred.promise();
+    }
+
+    /**
+     * @param  {XcalarApiListXdfsOutputT} xdfRes
+     * @returns void
+     */
+    public filterWorkbookUDF(xdfRes: XcalarApiListXdfsOutputT): void {
+        xdfRes.fnDescs = xcHelper.filterUDFs(xdfRes.fnDescs);
+        xdfRes.numXdfs = xdfRes.fnDescs.length;
+    }
+
+    /**
+     * @param  {XcalarApiListXdfsOutputT} xdfRes
+     * @returns void
+     */
+    public filterOutHiddenUDF(xdfRes: XcalarApiListXdfsOutputT): void {
+        xdfRes.fnDescs = xcHelper.filterHiddenUDFs(
+            xdfRes.fnDescs,
+            this.hiddenPatterns
+        );
+        xdfRes.numXdfs = xdfRes.fnDescs.length;
     }
 
     /**
@@ -937,32 +965,6 @@ class UDFFileManager extends BaseFileManager {
         panel.updateList();
     }
 
-    /**
-     * This is a model and should not update any viewer. Whoever calls this
-     * method is responsible to update the viewer if necessary
-     * @returns XDPromise
-     */
-    private _initializeUDFList(): XDPromise<any> {
-        const deferred: XDDeferred<any> = PromiseHelper.deferred();
-
-        // Update UDF
-        this.list(false)
-        .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
-            const newStoredUDF: Map<string, string> = new Map();
-            listXdfsObj.fnDescs.forEach((udf: XcalarEvalFnDescT) => {
-                const nsPath: string = udf.fnName.split(":")[0];
-                newStoredUDF.set(nsPath, this.storedUDF.get(nsPath));
-            });
-            this.storedUDF = newStoredUDF;
-            deferred.resolve(xcHelper.deepCopy(listXdfsObj));
-        })
-        .fail((error) => {
-            deferred.reject(error);
-        });
-
-        return deferred.promise();
-    }
-
     private _parseSyntaxError(error: {
     error: string;
     }): {reason: string; line: number} {
@@ -1016,18 +1018,32 @@ class UDFFileManager extends BaseFileManager {
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
-        this._initializeUDFList()
+        this.list()
         .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
-            listXdfsObj.fnDescs = xcHelper.filterUDFs(
-                    listXdfsObj.fnDescs as UDFInfo[]
-            ) as XcalarEvalFnDescT[];
-            listXdfsObj.numXdfs = listXdfsObj.fnDescs.length;
-            DSPreview.update(listXdfsObj);
-            DSTargetManager.updateUDF(listXdfsObj);
-            XDFManager.Instance.updateUDFs(listXdfsObj);
-            MapOpPanel.Instance.updateOperationsMap(listXdfsObj);
+            const updateViews = (
+                listXdfsObjUpdate: XcalarApiListXdfsOutputT
+            ) => {
+                const deferredUpdate: XDDeferred<
+                void
+                > = PromiseHelper.deferred();
+                MapOpPanel.Instance.updateOperationsMap(listXdfsObjUpdate);
+
+                this.filterOutHiddenUDF(listXdfsObjUpdate);
+                this._updateStoredUDF(listXdfsObjUpdate);
+
+                this.filterWorkbookUDF(listXdfsObjUpdate);
+                DSPreview.update(listXdfsObjUpdate);
+                DSTargetManager.updateUDF(listXdfsObjUpdate);
+                XDFManager.Instance.updateUDFs(listXdfsObjUpdate);
+                deferredUpdate.resolve();
+                return deferredUpdate.promise();
+            };
+
+            return PromiseHelper.when(
+                updateViews(xcHelper.deepCopy(listXdfsObj)),
+                this._getUserWorkbookMap(listXdfsObj)
+            );
         })
-        .then(() => this._getUserWorkbookMap())
         .then(() => {
             UDFPanel.Instance.updateUDF();
             this.panels.forEach((panel: FileManagerPanel) =>
@@ -1046,16 +1062,29 @@ class UDFFileManager extends BaseFileManager {
         return deferred.promise();
     }
 
-    private _getUserWorkbookMap(): XDPromise<void> {
+    private _updateStoredUDF(listXdfsObj: XcalarApiListXdfsOutputT) {
+        const newStoredUDF: Map<string, string> = new Map();
+        listXdfsObj.fnDescs.forEach((udf: XcalarEvalFnDescT) => {
+            const nsPath: string = udf.fnName.split(":")[0];
+            newStoredUDF.set(nsPath, this.storedUDF.get(nsPath));
+        });
+        this.storedUDF = newStoredUDF;
+    }
+
+    private _getUserWorkbookMap(listXdfsObj): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
-        let users: string[] = Array.from(this.storedUDF.keys())
+        let users: string[] = listXdfsObj.fnDescs
+        .map((udf: XcalarEvalFnDescT) => {
+            return udf.fnName.split(":")[0];
+        })
         .filter((path: string) => {
             return path.startsWith("/workbook/");
         })
         .map((path: string) => {
             return path.substring(10, path.indexOf("/", 10));
         });
+
         // This is necessary, because current user can have no UDF, but we will
         // create a fake folder for the current user workbook.
         users.push(XcUser.getCurrentUserName());

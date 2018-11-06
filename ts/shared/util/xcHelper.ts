@@ -3268,13 +3268,14 @@ namespace xcHelper {
     }
 
     /**
-     * xcHelper.filterUDFs
-     * @param fns
+     * @param  {XcalarEvalFnDescT[]} fns
+     * @param  {string} wkbkPrefix?
+     * @returns XcalarEvalFnDescT
      */
     // only show default and user workbook's udfs and shared udfs
-    export function filterUDFs(fns: UDFInfo[]): UDFInfo[] {
-        const filteredArray: UDFInfo[] = [];
-        const wkbkPrefix: string = UDFFileManager.Instance.getCurrWorkbookPath();
+    export function filterUDFs(fns: XcalarEvalFnDescT[], wkbkPrefix?: string): XcalarEvalFnDescT[] {
+        const filteredArray: XcalarEvalFnDescT[] = [];
+        wkbkPrefix = wkbkPrefix || UDFFileManager.Instance.getCurrWorkbookPath();
         if (wkbkPrefix == null) {
             return filteredArray;
         }
@@ -3302,15 +3303,15 @@ namespace xcHelper {
     }
 
     /** Filter out all UDFs that should be hidden.
-     * @param  {UDFInfo[]} fns
+     * @param  {XcalarEvalFnDescT[]} fns
      * @param  {string[]} hiddenPatterns
-     * @returns UDFInfo
+     * @returns XcalarEvalFnDescT
      */
     export function filterHiddenUDFs(
-        fns: UDFInfo[],
+        fns: XcalarEvalFnDescT[],
         hiddenPatterns: string[]
-    ): UDFInfo[] {
-        return fns.filter((op: UDFInfo) => {
+    ): XcalarEvalFnDescT[] {
+        return fns.filter((op: XcalarEvalFnDescT) => {
             for (const hiddenPattern of hiddenPatterns) {
                 const hiddenPatternReg: RegExp = new RegExp(hiddenPattern);
                 if (hiddenPatternReg.test(op.fnName)) {
@@ -4577,13 +4578,13 @@ namespace xcHelper {
     ): object {
         let modules: string[] = [];
         let moduleDisplayedNames: string[] = [];
-        let moduleObjs: UDFInfo[] = [];
-        let privateObjs: UDFInfo[] = [];
+        let moduleObjs: XcalarEvalFnDescT[] = [];
+        let privateObjs: XcalarEvalFnDescT[] = [];
 
         const privateModules: string[] = [];
         const privateModulesDisplayed: string[] = [];
-        const udfs: UDFInfo[] = listXdfsObj.fnDescs;
-        const sortUDFName = (a: UDFInfo, b: UDFInfo): number => {
+        const udfs: XcalarEvalFnDescT[] = listXdfsObj.fnDescs;
+        const sortUDFName = (a: XcalarEvalFnDescT, b: XcalarEvalFnDescT): number => {
             const aName: string = a.displayName;
             const bName: string = b.displayName;
             return (aName < bName ? -1 : (aName > bName ? 1 : 0));

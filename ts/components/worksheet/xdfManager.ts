@@ -4,7 +4,7 @@ class XDFManager {
     // category is a map
     public constructor() {}
 
-    public static get Instance() {
+    public static get Instance(): XDFManager {
         return  this._instance || (this._instance = new this());
     }
 
@@ -14,7 +14,7 @@ class XDFManager {
 
         XcalarListXdfs("*", "*")
         .then((listXdfsObj) => {
-            var fns = xcHelper.filterUDFs(listXdfsObj.fnDescs);
+            const fns = xcHelper.filterUDFs(listXdfsObj.fnDescs);
             FnBar.updateOperationsMap(fns);
             self._setupOperatorsMap(fns);
             deferred.resolve();

@@ -996,8 +996,11 @@ window.DSPreview = (function($, DSPreview) {
 
         if (!listXdfsObj) {
             // update python module list
-            UDFFileManager.Instance.list(true)
-            .then(updateUDFList)
+            UDFFileManager.Instance.list()
+            .then((res) => {
+                UDFFileManager.Instance.filterWorkbookUDF(res);
+                updateUDFList(res);
+            })
             .then(deferred.resolve)
             .fail(function(error) {
                 console.error("List UDF Fails!", error);

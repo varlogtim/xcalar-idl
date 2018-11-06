@@ -76,6 +76,7 @@ namespace xcManager {
         .then(function() {
             return XDFManager.Instance.setup();
         })
+        .then(setupAsyncOpPanels)
         .then(function() {
             setupOpPanels();
             // XXX TODO, hide these view in Dio
@@ -571,7 +572,6 @@ namespace xcManager {
         ExplodeOpPanel.Instance.setup();
         DatasetOpPanel.Instance.setup();
         FilterOpPanel.Instance.setup();
-        MapOpPanel.Instance.setup();
         AggOpPanel.Instance.setup();
         GroupByOpPanel.Instance.setup();
         JoinOpPanel.Instance.setup();
@@ -583,6 +583,11 @@ namespace xcManager {
         RoundOpPanel.Instance.setup();
         RowNumOpPanel.Instance.setup();
         SplitOpPanel.Instance.setup();
+    }
+
+    function setupAsyncOpPanels(): XDPromise<void> {
+        const asyncOpPanels: XDPromise<void>[] = [MapOpPanel.Instance.setup()];
+        return PromiseHelper.when(...asyncOpPanels);
     }
 
     function setupSession(): XDPromise<void> {

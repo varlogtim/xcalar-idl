@@ -131,7 +131,7 @@ interface WkbkKVKeySet {
     gSQLEditorQueryKey: string;
 }
 
-interface UDFInfo {
+interface XcalarEvalFnDescT {
     displayName?: string;
     fnName: string;
 }
@@ -1235,7 +1235,7 @@ declare namespace MonitorConfig {
     export function refreshParams(firstTouch: boolean): XDPromise<{}>;
 }
 declare namespace FnBar {
-    export function updateOperationsMap(fns: UDFInfo[], isOnlyUDF?: boolean): void;
+    export function updateOperationsMap(fns: XcalarEvalFnDescT[], isOnlyUDF?: boolean): void;
     export function unlock(): void;
     export function setup(): void;
     export function clear(): void;
