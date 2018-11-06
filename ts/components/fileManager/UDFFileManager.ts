@@ -5,11 +5,12 @@ class UDFFileManager extends BaseFileManager {
         return this._instance || (this._instance = new this());
     }
 
-    private storedUDF: Map<string, string> = new Map<string, string>();
-    private defaultModule: string = "default";
-    private userIDWorkbookMap: Map<string, Map<string, string>> = new Map();
-    private userWorkbookIDMap: Map<string, Map<string, string>> = new Map();
-    private panels: FileManagerPanel[] = [];
+    private storedUDF;
+    private defaultModule;
+    private userIDWorkbookMap;
+    private userWorkbookIDMap;
+    private panels;
+    private hiddenPatterns;
 
     /*
      * Pay special attention when dealing with UDF paths / names.
@@ -47,6 +48,21 @@ class UDFFileManager extends BaseFileManager {
      * - displayName: /sharedUDFs/a.py
      * - uploadPath: /sharedUDFs/a
      */
+
+    public constructor() {
+        super();
+        this.storedUDF = new Map<string, string>();
+        this.defaultModule = "default";
+        this.userIDWorkbookMap = new Map();
+        this.userWorkbookIDMap = new Map();
+        this.panels = [];
+        this.hiddenPatterns = [];
+        this.registerHiddenPattern(
+            "/workbook/" +
+                xcHelper.escapeRegExp(DagTabShared.getSecretUser()) +
+                "/.*"
+        );
+    }
 
     /**
      * @param  {string} displayPath
@@ -249,6 +265,12 @@ class UDFFileManager extends BaseFileManager {
         > = PromiseHelper.deferred();
         XcalarListXdfs("*", "User*")
         .then((res: XcalarApiListXdfsOutputT) => {
+            res.fnDescs = xcHelper.filterHiddenUDFs(
+                    res.fnDescs as UDFInfo[],
+                    this.hiddenPatterns
+            ) as XcalarEvalFnDescT[];
+            res.numXdfs = res.fnDescs.length;
+
             if (workbookOnly) {
                 res.fnDescs = xcHelper.filterUDFs(
                         res.fnDescs as UDFInfo[]
@@ -744,6 +766,14 @@ class UDFFileManager extends BaseFileManager {
         this.panels.push(panel);
         this._buildPathTree(panel);
         this._createWorkbookFolder(panel);
+    }
+
+    /**
+     * @param  {string} hiddenPattern
+     * @returns void
+     */
+    public registerHiddenPattern(hiddenPattern: string): void {
+        this.hiddenPatterns.push(hiddenPattern);
     }
 
     // Prevent all write operations. Because not supported by backend without

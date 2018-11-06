@@ -31,6 +31,13 @@ class DagTabShared extends DagTab {
         return deferred.promise();
     }
 
+    /**
+     * @returns string
+     */
+    public static getSecretUser(): string {
+        return this._secretUser;
+    }
+
     private static _switchSession(sharedDFName: string): void {
         this._currentSession = sessionName;
         const user: XcUser = new XcUser(this._secretUser);

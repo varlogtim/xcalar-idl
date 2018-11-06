@@ -3288,6 +3288,26 @@ namespace xcHelper {
         return filteredArray;
     }
 
+    /** Filter out all UDFs that should be hidden.
+     * @param  {UDFInfo[]} fns
+     * @param  {string[]} hiddenPatterns
+     * @returns UDFInfo
+     */
+    export function filterHiddenUDFs(
+        fns: UDFInfo[],
+        hiddenPatterns: string[]
+    ): UDFInfo[] {
+        return fns.filter((op: UDFInfo) => {
+            for (const hiddenPattern of hiddenPatterns) {
+                const hiddenPatternReg: RegExp = new RegExp(hiddenPattern);
+                if (hiddenPatternReg.test(op.fnName)) {
+                    return false;
+                }
+            }
+            return true;
+        });
+    }
+
     /**
      * xcHelper.validateColName returns the error message. If null, column
      * is good
