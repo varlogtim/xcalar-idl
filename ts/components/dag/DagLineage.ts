@@ -8,6 +8,7 @@ class DagLineage {
     private changes: {from: ProgCol, to: ProgCol}[];
     private node: DagNode;
     private columns: ProgCol[];
+    private columnsWithParamsReplaced: ProgCol[];
     private columnHistory;
 
     public constructor(node: DagNode) {
@@ -32,25 +33,31 @@ class DagLineage {
      */
     public reset(): void {
         this.columns = undefined;
+        this.columnsWithParamsReplaced = undefined;
     }
 
     /**
      * If getting columns with parameters replaced with values, get columns
      * without caching them so we don't overwrite the parameterized version of
      * the columns
+     * @param {boolean} replaceParameters
      * @return {ProgCol[]} get a list of columns
      */
     public getColumns(replaceParameters?): ProgCol[] {
-        if (this.columns == null || replaceParameters) {
-            const updateRes = this._update(replaceParameters);
-            if (replaceParameters) {
-                return updateRes.columns;
-            } else {
+        if (replaceParameters) {
+            if (this.columnsWithParamsReplaced == null) {
+                const updateRes = this._update(replaceParameters);
+                this.columnsWithParamsReplaced = updateRes.columns;
+            }
+            return this.columnsWithParamsReplaced;
+        } else {
+            if (this.columns == null) {
+                const updateRes = this._update(replaceParameters);
                 this.columns = updateRes.columns;
                 this.changes = updateRes.changes;
             }
+            return this.columns;
         }
-        return this.columns;
     }
 
     /**
