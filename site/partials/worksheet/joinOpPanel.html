@@ -136,16 +136,7 @@
       include "opPanelAdvancedSection.html"
       <!-- Buttons -->
       <section data-xcid="bottomSection" class="bottomSection">
-        <div data-xcid="step1" class="btnWrap">
-          <button data-xcid="btnNextStep" class="btn btn-rounded btn-next submit" type="button"><%= dicts.common.Next %></button>
-        </div>
-        <div data-xcid="step2" class="btnWrap">
-          <button data-xcid="joinTables" class="btn btn-submit btn-rounded submit" type="button"><%= dicts.common.Save %></button>
-          <button data-xcid="goBack" class="btn btn-rounded btn-back submit" type="button"><%= dicts.common.Back %></button>
-        </div>
-        <div data-xcid="adv" class="btnWrap">
-            <button data-xcid="saveAdv" class="btn btn-submit btn-rounded submit" type="button"><%= dicts.common.Save %></button>
-        </div>
+        <div data-xcid="navButtons" class="btnWrap"></div>
         include "../util/switcher.html"
       </section>
     </div>

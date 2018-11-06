@@ -178,36 +178,40 @@ class JoinOpPanelModel {
         }
 
         // Renames
-        const renamePrefixMapLeft = {};
-        const renameColMapLeft = {};
-        for (const rename of configLeft.rename) {
-            if (rename.sourceColumn.length === 0) {
-                continue;
+        if (model._needRenameByType(model.getJoinType())) {
+            const renamePrefixMapLeft = {};
+            const renameColMapLeft = {};
+            for (const rename of configLeft.rename) {
+                if (rename.sourceColumn.length === 0) {
+                    continue;
+                }
+                if (rename.prefix) {
+                    renamePrefixMapLeft[rename.sourceColumn] = rename.destColumn;
+                } else {
+                    renameColMapLeft[rename.sourceColumn] = rename.destColumn;
+                }
             }
-            if (rename.prefix) {
-                renamePrefixMapLeft[rename.sourceColumn] = rename.destColumn;
-            } else {
-                renameColMapLeft[rename.sourceColumn] = rename.destColumn;
+            const renamePrefixMapRight = {};
+            const renameColMapRight = {};
+            for (const rename of configRight.rename) {
+                if (rename.sourceColumn.length === 0) {
+                    continue;
+                }
+                if (rename.prefix) {
+                    renamePrefixMapRight[rename.sourceColumn] = rename.destColumn;
+                } else {
+                    renameColMapRight[rename.sourceColumn] = rename.destColumn;
+                }
             }
+            model._buildRenameInfo({
+                colDestLeft: renameColMapLeft,
+                colDestRight: renameColMapRight,
+                prefixDestLeft: renamePrefixMapLeft,
+                prefixDestRight: renamePrefixMapRight
+            });
+        } else {
+            model._clearRenames();
         }
-        const renamePrefixMapRight = {};
-        const renameColMapRight = {};
-        for (const rename of configRight.rename) {
-            if (rename.sourceColumn.length === 0) {
-                continue;
-            }
-            if (rename.prefix) {
-                renamePrefixMapRight[rename.sourceColumn] = rename.destColumn;
-            } else {
-                renameColMapRight[rename.sourceColumn] = rename.destColumn;
-            }
-        }
-        model._buildRenameInfo({
-            colDestLeft: renameColMapLeft,
-            colDestRight: renameColMapRight,
-            prefixDestLeft: renamePrefixMapLeft,
-            prefixDestRight: renamePrefixMapRight
-        });
 
         model._previewTableNames.left = leftPreviewTableName;
         model._previewTableNames.right = rightPreviewTableName;
@@ -315,6 +319,10 @@ class JoinOpPanelModel {
             prefixLeft: new Map<string, boolean>(),
             prefixRight: new Map<string, boolean>(),
         };
+        if (!this._needRenameByType(this.getJoinType())) {
+            return result;
+        }
+        
         const {
             colDestLeft, colDestRight, prefixDestLeft, prefixDestRight
         } = this._getRenameMap();
@@ -472,10 +480,6 @@ class JoinOpPanelModel {
         this._isAdvMode = advMode;
     }
 
-    public isRenameType(): boolean {
-        return this._needRenameByType(this.getJoinType());
-    }
-
     public getJoinType() {
         return this._joinType;
     }
@@ -506,6 +510,19 @@ class JoinOpPanelModel {
 
     public setEvalString(str: string) {
         this._evalString = str;
+    }
+
+    public isRenameNeeded(): boolean {
+        if (!this._needRenameByType(this.getJoinType())) {
+            return false;
+        }
+        if (this._columnRename.left.length > 0) {
+            return true;
+        }
+        if (this._columnRename.right.length > 0) {
+            return true;
+        }
+        return false;
     }
 
     public isCastNeed(colPair: JoinOpColumnPair) {

@@ -2,8 +2,14 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
     private _$elemPanel: JQuery = null;
     private _componentFirstStep: JoinOpPanelStep1 = null;
     private _componentSecondStep: JoinOpPanelStep2 = null;
+    private _templateMgr = new OpPanelTemplateManager();
     private _dataModel: JoinOpPanelModel = null;
     private _dagNode: DagNodeJoin = null;
+    private static _templateIDs = { navButton: 'navButton' };
+    private static _templates = {
+        'navButton':
+            `<button class="btn btn-rounded submit {{cssType}} {{cssDisabled}}" type="button" (click)="onClick">{{btnText}}</button>`
+    };
 
     public setup(): void {
         this._$elemPanel = $('#joinOpPanel');
@@ -13,7 +19,11 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         this._componentSecondStep = new JoinOpPanelStep2({
             container: this._$elemPanel
         });
-
+        const navButtonId = JoinOpPanel._templateIDs.navButton;
+        this._templateMgr.loadTemplateFromString(
+            navButtonId,
+            JoinOpPanel._templates[navButtonId]
+        );
         super.setup(this._$elemPanel);
     }
 
@@ -81,90 +91,125 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
                 this._updateUI();
             }
         });
-        this._updateUIBottomSection();
+        this._updateUINavButtons();
     }
 
-    /**
-     * Update the UI of bottom section
-     * @description There are 3 variants:
-     * 1. Step1: Next button, with adv switch
-     * 2. Step2: Next & Back buttons, with adv switch
-     * 3. AdvMode: Save button, with adv switch
-     */
-    private _updateUIBottomSection() {
+    private _updateUINavButtons(): void {
         const findXCElement = BaseOpPanel.findXCElement;
 
         const $bottomSection = findXCElement(this._$elemPanel, 'bottomSection');
-        const $bottomStep1 = findXCElement($bottomSection, 'step1');
-        const $bottomStep2 = findXCElement($bottomSection, 'step2');
-        const $bottomAdv = findXCElement($bottomSection, 'adv');
+        const $navButtons = findXCElement($bottomSection, 'navButtons');
+
+        let elemNavButtons: NodeDefDOMElement[];
         if (this._dataModel.isAdvMode()) {
-            $bottomStep1.hide();
-            $bottomStep2.hide();
-            $bottomAdv.show();
-            $bottomAdv.off();
-            $bottomAdv.on('click', () => {
+            elemNavButtons = this._buildAdvancedButtons();
+        } else {
+            const currentStep = this._dataModel.getCurrentStep();
+            if (currentStep === 1) {
+                elemNavButtons = this._buildJoinClauseNavButtons();
+            } else if (currentStep === 2) {
+                elemNavButtons = this._buildRenameNavButtons();
+            } else {
+                // XXX TODO: reserved for Filter Join
+            }
+        }
+        this._templateMgr.updateDOM($navButtons[0], elemNavButtons);
+
+    }
+
+    private _buildAdvancedButtons(): NodeDefDOMElement[] {
+        let elements: NodeDefDOMElement[] = [];
+
+        // Save button
+        elements = elements.concat(this._buildNavButton({
+            type: 'submit',
+            text: CommonTxtTstr.Save,
+            onClick: () => {
                 const $elemEditor = this._$elemPanel.find(".advancedEditor");
                 try {
                     const model = this._convertAdvConfigToModel(this._dataModel);
-                    this._validateStep1(model);
-                    this._validateStep2(model);
+                    this._validateJoinClauses(model);
+                    this._validateRenames(model);
                     this._submitForm(model);
                 } catch(e) {
                     StatusBox.show(this._getErrorMessage(e), $elemEditor);
                     return false;
                 }
-            })
-        } else {
-            if (this._dataModel.getCurrentStep() === 1) {
-                $bottomStep1.show();
-                $bottomStep2.hide();
-                $bottomAdv.hide();
-                // Next step button
-                const $elemNextStep = findXCElement($bottomStep1, 'btnNextStep');
-                const isEnableNext = this._isEnableNext();
-                $elemNextStep.off();
-                if (isEnableNext) {
-                    $elemNextStep.on('click', () => {
-                        this._dataModel.setCurrentStep(2);
-                        this._updateUI();
-                    });
-                }
-                this._enableButton($elemNextStep, isEnableNext);
-            } else {
-                $bottomStep1.hide();
-                $bottomStep2.show();
-                $bottomAdv.hide();
-                // Go back button
-                const $elemBackBtn = findXCElement($bottomStep2, 'goBack');
-                $elemBackBtn.off();
-                $elemBackBtn.on('click', () => {
-                    this._dataModel.setCurrentStep(1);
-                    this._updateUI();
-                });
-
-                // Submit(Join Table) button
-                const $elemJoinBtn = findXCElement($bottomStep2, 'joinTables');
-                const isEnableJoin = this._isEnableSave();
-                $elemJoinBtn.off();
-                if (isEnableJoin) {
-                    $elemJoinBtn.on('click', () => {
-                        this._submitForm(this._dataModel);
-                    });
-                }
-                this._enableButton($elemJoinBtn, isEnableJoin);
             }
-        }
+        }));
+
+        return elements;
     }
 
-    private _enableButton($btn: JQuery, isEnable: boolean) {
-        if (isEnable) {
-            $btn.removeClass('btn-disabled');
-        } else {
-            if (!$btn.hasClass('btn-disabled')) {
-                $btn.addClass('btn-disabled');
+    private _buildRenameNavButtons(): NodeDefDOMElement[] {
+        let elements: NodeDefDOMElement[] = [];
+
+        // Save button
+        // XXX TODO: Show Next button for Filter Join
+        elements = elements.concat(this._buildNavButton({
+            type: 'submit',
+            disabled: !this._isEnableSave(),
+            text: CommonTxtTstr.Save,
+            onClick: () => {
+                this._submitForm(this._dataModel);
             }
+        }));
+
+        // Back button
+        elements = elements.concat(this._buildNavButton({
+            type: 'back',
+            text: CommonTxtTstr.Back,
+            onClick: () => {
+                this._dataModel.setCurrentStep(1);
+                this._updateUI();
+            }
+        }));
+
+        return elements;
+    }
+
+    private _buildJoinClauseNavButtons(): NodeDefDOMElement[] {
+        let elements: NodeDefDOMElement[] = [];
+
+        // Next step button or Save button
+        if (this._dataModel.isRenameNeeded()) {
+            elements = elements.concat(this._buildNavButton({
+                type: 'next',
+                disabled: !this._isEnableNextToRename(),
+                text: CommonTxtTstr.Next,
+                onClick: () => {
+                    this._dataModel.setCurrentStep(2);
+                    this._updateUI();
+                }
+            }));
+        } else {
+            elements = elements.concat(this._buildNavButton({
+                type: 'submit',
+                disabled: !this._isEnableSave(),
+                text: CommonTxtTstr.Save,
+                onClick: () => {
+                    this._submitForm(this._dataModel);
+                }
+            }));
         }
+
+        return elements;
+    }
+
+    private _buildNavButton(props: {
+        type: string, disabled?: boolean, text: string, onClick: () => void
+    }): NodeDefDOMElement[] {
+        if (props == null) {
+            return [];
+        }
+
+        const { type, disabled = false, text, onClick } = props;
+        return this._templateMgr.createElements(JoinOpPanel._templateIDs.navButton, {
+            cssType: `btn-${type}`,
+            cssDisabled: disabled ? 'btn-disabled': '',
+            btnText: text,
+            onClick: () => onClick()
+        });
     }
 
     private _submitForm(model: JoinOpPanelModel) {
@@ -176,9 +221,12 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         }
     }
 
-    private _isEnableNext() {
+    private _isEnableNextToRename() {
         try {
-            this._validateStep1(this._dataModel);
+            if (!this._dataModel.isRenameNeeded()) {
+                return false;
+            }
+            this._validateJoinClauses(this._dataModel);
             return true;
         } catch(e) {
             return false;
@@ -187,7 +235,8 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
 
     private _isEnableSave() {
         try {
-            this._validateStep2(this._dataModel);
+            this._validateJoinClauses(this._dataModel);
+            this._validateRenames(this._dataModel);
             return true;
         } catch(e) {
             return false;
@@ -209,6 +258,9 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         } else {
             try {
                 const newModel = this._convertAdvConfigToModel(this._dataModel);
+                if (newModel.getColumnPairsLength() === 0) {
+                    newModel.addColumnPair();
+                }
                 this._dataModel = newModel;
                 this._updateUI();
             } catch (e) {
@@ -264,7 +316,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
      * Validate data model, and throw JoinOpError if any errors
      * @param dataModel
      */
-    private _validateStep1(dataModel: JoinOpPanelModel): void {
+    private _validateJoinClauses(dataModel: JoinOpPanelModel): void {
         if (dataModel.isCrossJoin()) {
             if (!dataModel.isValidEvalString()) {
                 throw new Error(JoinOpError.InvalidEvalString);
@@ -294,11 +346,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
      * Validate data model, and throw JoinOpError if any errors
      * @param dataModel
      */
-    private _validateStep2(dataModel: JoinOpPanelModel): void {
-        if (!dataModel.isRenameType()) {
-            return;
-        }
-        
+    private _validateRenames(dataModel: JoinOpPanelModel): void {
         const {
             columnLeft: columnCollisionLeft, prefixLeft: prefixCollisionLeft,
             columnRight: columnCollisionRight, prefixRight: prefixCollisionRight
