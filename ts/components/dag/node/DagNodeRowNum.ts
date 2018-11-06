@@ -6,7 +6,7 @@ class DagNodeRowNum extends DagNode {
         this.type = DagNodeType.RowNum;
         this.maxParents = 1;
         this.minParents = 1;
-        this.display.icon = "&#xe957;";
+        this.display.icon = "&#xea16;";
         this.input = new DagNodeRowNumInput(<DagNodeRowNumInputStruct>options.input);
     }
 
@@ -31,7 +31,7 @@ class DagNodeRowNum extends DagNode {
                 finalCols.push(parentCol);
             });
         });
-        
+
         const inputStruct: DagNodeRowNumInputStruct = this.input.getInput();
         if (inputStruct != null) {
             const newField = inputStruct.newField;

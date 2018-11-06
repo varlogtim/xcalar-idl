@@ -5,6 +5,7 @@ class DagNodeIndex extends DagNode {
         super(options);
         this.minParents = 1;
         this.input = new DagNodeIndexInput(options.input);
+        this.display.icon = "&#xe936;";
     }
 
     public lineageChange(columns: ProgCol[]): DagLineageChange {

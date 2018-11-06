@@ -6,7 +6,7 @@ class DagNodeSplit extends DagNode {
         this.type = DagNodeType.Split;
         this.minParents = 1;
         this.maxParents = 1;
-        this.display.icon = "&#xe9da;"
+        this.display.icon = "&#xe993;"
         this.input = new DagNodeSplitInput(<DagNodeSplitInputStruct>options.input);
     }
 

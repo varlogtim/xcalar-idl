@@ -25,7 +25,7 @@ class DagCategoryBar {
         this._setupSearch();
         this._setupActionBar();
         // Activate the favorites category by default
-        this._focusOnCategory(DagCategoryType.Favorites);
+        this._focusOnCategory(DagCategoryType.In);
     }
 
     public loadCategories(): XDPromise<void> {

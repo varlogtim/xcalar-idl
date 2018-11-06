@@ -162,8 +162,9 @@ class DagCategories {
             }), DagCategoryType.Custom, true)
         ], 'gUserCustomOpKey');
 
+        // TODO implement favorites category
         this.categories = [
-            favoritesCategory,
+            // favoritesCategory,
             inCategory,
             outCategory,
             valueCategory,

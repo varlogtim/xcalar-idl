@@ -456,7 +456,7 @@ window.TblAnim = (function($, TblAnim) {
         var $table = $('#xcTable-' + rowInfo.tableId);
         $table.find('tr').removeClass('notDragging dragging');
 
-        if (gTables[gActiveTableId].resultSetCount !== 0) {
+        if (gTables[gActiveTableId] && gTables[gActiveTableId].resultSetCount !== 0) {
             TableComponent.update();
         }
 

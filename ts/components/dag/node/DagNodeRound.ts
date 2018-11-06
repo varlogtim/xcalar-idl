@@ -6,13 +6,13 @@ class DagNodeRound extends DagNode {
         this.type = DagNodeType.Round;
         this.minParents = 1;
         this.maxParents = 1;
-        this.display.icon = "&#xe9da;"
+        this.display.icon = "&#xe943;"
         this.input = new DagNodeRoundInput(options.input);
     }
 
     /**
      * @override
-     * @param param 
+     * @param param
      */
     public setParam(param: DagNodeRoundInputStruct): void {
         this.input.setInput({
@@ -25,7 +25,7 @@ class DagNodeRound extends DagNode {
 
     /**
      * @override
-     * @param columns 
+     * @param columns
      */
     public lineageChange(columns: ProgCol[]): DagLineageChange {
         const newColName = this.input.getInput().destColumn;
