@@ -966,9 +966,10 @@ namespace DagView {
      * @param nodeIds
      */
     export function reset(nodeIds?: DagNodeId[]): void {
+        const msg: string = nodeIds ? DagTStr.ResetMsg : DagTStr.ResetAllMsg;
         Alert.show({
             title: DagTStr.Reset,
-            msg: DagTStr.ResetMsg,
+            msg: msg,
             onConfirm: () => {
                 activeDag.reset(nodeIds);
             }
