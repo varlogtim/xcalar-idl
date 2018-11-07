@@ -1,14 +1,9 @@
 .mode-modeling {
     &#colMenu {
-        .addColumn, .splitCol, .changeDataType, .roundToFixed,
+        .addColumn, .roundToFixed,
         .divider {
             display: none;
         }
-
-        // XXX TODO: decide if we want to hide it or not for Dio
-        // .project, .aggregate, .filter, .groupby, .map, .join, .union, .extensions {
-        //     display: none;
-        // }
     }
 
     &#colSubMenu {
@@ -503,6 +498,10 @@
             padding: 0;
             // see common.less
             .typeIcon;
+
+            .type.icon {
+                color: @color-font-edge;
+            }
 
             .flexWrap.flex-left {
                 .flex(0 0 24px);

@@ -766,6 +766,7 @@ namespace DagView {
         newType: DagNodeType,
         subType?: DagNodeSubType,
         parentNodeId?: DagNodeId,
+        input?: object
     ): DagNode {
         let node: DagNode;
         let parentNode: DagNode;
@@ -794,7 +795,8 @@ namespace DagView {
             display: {
                 x: nextAvailablePosition.x,
                 y: nextAvailablePosition.y
-            }
+            },
+            input: input
         });
 
         if (parentNode && parentNode.getMaxChildren() !== 0) {

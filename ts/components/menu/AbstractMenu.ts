@@ -45,9 +45,9 @@ abstract class AbstractMenu {
         return event.which !== 1 || $(event.currentTarget).hasClass('unavailable');
     }
 
-    protected _addNode(type: DagNodeType, subType?: DagNodeSubType): DagNode {
+    protected _addNode(type: DagNodeType, input: object, subType?: DagNodeSubType): DagNode {
         const parentNodeId: DagNodeId = DagTable.Instance.getBindNodeId();
-        return DagView.autoAddNode(type, subType, parentNodeId);
+        return DagView.autoAddNode(type, subType, parentNodeId, input);
     }
 
     protected _openOpPanel(node: DagNode, colNames: string[]): void {

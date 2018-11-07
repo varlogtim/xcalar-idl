@@ -417,21 +417,29 @@ class ColMenu extends AbstractMenu {
             }
 
             const $li: JQuery = $(event.currentTarget);
-            const colTypeInfos: {colNum: number, type: ColumnType}[] = [];
+            
             // xx need to use data or class instead of text in case of language
             const newType: ColumnType = <ColumnType>$li.find(".label").text().toLowerCase();
             const colNums: number[] = $colMenu.data("colNums");
-            for (let i = 0, len = colNums.length; i < len; i++) {
-                colTypeInfos.push({
-                    "colNum": colNums[i],
-                    "type": newType
-                });
-            }
-
             const tableId: TableId = $colMenu.data('tableId');
-            ColManager.changeType(colTypeInfos, tableId);
+            if (gTables[tableId].modelingMode) {
+                this._createNodeAndShowForm(DagNodeType.Map, tableId, colNums, {
+                    subType: DagNodeSubType.Cast,
+                    newType: newType
+                });
+            } else {
+                const colTypeInfos: {colNum: number, type: ColumnType}[] = [];
+                for (let i = 0, len = colNums.length; i < len; i++) {
+                    colTypeInfos.push({
+                        "colNum": colNums[i],
+                        "type": newType
+                    });
+                }
+                ColManager.changeType(colTypeInfos, tableId);
+            }
         });
 
+        // XXX TODO: change to DF 2.0
         $subMenu.on('mouseup', 'li.sort', (event) => {
             if (event.which !== 1) {
                 return;
@@ -441,6 +449,7 @@ class ColMenu extends AbstractMenu {
             ColManager.sortColumn(colNums, tableId, XcalarOrderingT.XcalarOrderingAscending);
         });
 
+        // XXX TODO: change to DF 2.0
         $subMenu.on('mouseup', 'li.revSort', (event) => {
             if (event.which !== 1) {
                 return;
@@ -450,6 +459,7 @@ class ColMenu extends AbstractMenu {
             ColManager.sortColumn(colNums, tableId, XcalarOrderingT.XcalarOrderingDescending);
         });
 
+        // XXX TODO: change to DF 2.0
         $subMenu.on('mouseup', '.sortView', (event) => {
             if (event.which !== 1) {
                 return;
@@ -474,7 +484,9 @@ class ColMenu extends AbstractMenu {
                     subType = DagNodeSubType.Except;
                 }
 
-                this._createNodeAndShowForm(DagNodeType.Set, tableId, colNums, subType);
+                this._createNodeAndShowForm(DagNodeType.Set, tableId, colNums, {
+                    subType: subType
+                });
             } else {
                 UnionView.show(tableId, colNums);
             }
@@ -513,13 +525,17 @@ class ColMenu extends AbstractMenu {
         type: DagNodeType,
         tableId: TableId,
         colNums: number[],
-        subType?: DagNodeSubType
+        options?: {
+            subType?: DagNodeSubType
+            newType?: ColumnType
+        }
     ): void {
         try {
-            const node: DagNode = this._addNode(type, subType);
+            options = options || {};
             const table: TableMeta = gTables[tableId];
             const progCols: ProgCol[] = colNums.map((colNum) => table.getCol(colNum));
-            this._setNodeParam(node, progCols);
+            const input: object = this._getNodeParam(type, progCols, options);
+            const node: DagNode = this._addNode(type, input, options.subType);
             const colNames: string[] = progCols.map(progCol => progCol.getBackColName());
             this._openOpPanel(node, colNames);
         } catch (e) {
@@ -528,66 +544,95 @@ class ColMenu extends AbstractMenu {
         }
     }
 
-    private _setNodeParam(
-        node: DagNode,
-        progCols: ProgCol[]
-    ): void {
+    private _getNodeParam(
+        type: DagNodeType,
+        progCols: ProgCol[],
+        options: any
+    ): object {
         const columns: string [] = progCols.map(progCol => {
             return progCol.getBackColName()
         });
-        switch (node.getType()) {
+        switch (type) {
             case DagNodeType.Aggregate:
             case DagNodeType.Filter:
+                return null;
             case DagNodeType.Map:
-                break;
+                if (options.subType === DagNodeSubType.Cast) {
+                    return this._getCastParam(progCols, options.newType);
+                }
+                return null;
             case DagNodeType.GroupBy:
-            case DagNodeType.GroupBy:
-                const params = <DagNodeGroupByInputStruct>node.getParam();
-                params.groupBy = columns;
-                node.setParam(params);
-                break;
+                return {
+                    groupBy: columns
+                }
             case DagNodeType.Project:
-                (<DagNodeProject>node).setParam({
+                return {
                     columns: columns
-                });
-                break;
+                };
             case DagNodeType.Join:
-                (<DagNodeJoin>node).setParam({
-                    joinType: JoinOperatorTStr[JoinOperatorT.InnerJoin],
-                    left: {
-                        columns: columns,
-                        casts: [],
-                        rename: []
-                    },
-                    right: {
-                        columns: [],
-                        casts: [],
-                        rename: []
-                    }
-                });
-                break;
+                return this._getJoinParam(columns);
             case DagNodeType.Set:
-                const basicColTypes: ColumnType[] = BaseOpPanel.getBaiscColTypes(true);
-                const sourColumns = [];
-                progCols.forEach((progCol) => {
-                    const colType: ColumnType = progCol.getType();
-                    if (basicColTypes.includes(colType)) {
-                        const colName: string = progCol.getBackColName();
-                        const parsedName: string = xcHelper.parsePrefixColName(colName).name;
-                        sourColumns.push({
-                            sourceColumn: colName,
-                            destColumn: parsedName,
-                            columnType: colType 
-                        });
-                    }
-                });
-                (<DagNodeSet>node).setParam({
-                    columns: [sourColumns],
-                    dedup: false
-                });
-                break;
+                return this._getSetParam(progCols);
             default:
                 throw new Error("Unsupported type!");
         }
+    }
+
+    private _getCastParam(progCols: ProgCol[], newType: ColumnType): object {
+        const basicColTypes: ColumnType[] = BaseOpPanel.getBaiscColTypes(true);
+        const evals: {evalString: string, newField: string}[] = [];
+        progCols.forEach((progCol) => {
+            const colType: ColumnType = progCol.getType();
+            if (basicColTypes.includes(colType)) {
+                const colName: string = progCol.getBackColName();
+                const mapStrs = xcHelper.castStrHelper(colName, newType);
+                const newColName = xcHelper.parsePrefixColName(colName).name;
+                evals.push({
+                    evalString: mapStrs,
+                    newField: newColName
+                });
+            }
+        });
+        return {
+            eval: evals,
+            icv: false
+        };
+    }
+
+    private _getJoinParam(columns: string[]): object {
+       return {
+            joinType: JoinOperatorTStr[JoinOperatorT.InnerJoin],
+            left: {
+                columns: columns,
+                casts: [],
+                rename: []
+            },
+            right: {
+                columns: [],
+                casts: [],
+                rename: []
+            }
+        };
+    }
+
+    private _getSetParam(progCols: ProgCol[]): object {
+        const basicColTypes: ColumnType[] = BaseOpPanel.getBaiscColTypes(true);
+        const sourColumns = [];
+        progCols.forEach((progCol) => {
+            const colType: ColumnType = progCol.getType();
+            if (basicColTypes.includes(colType)) {
+                const colName: string = progCol.getBackColName();
+                const parsedName: string = xcHelper.parsePrefixColName(colName).name;
+                sourColumns.push({
+                    sourceColumn: colName,
+                    destColumn: parsedName,
+                    columnType: colType 
+                });
+            }
+        });
+        return {
+            columns: [sourColumns],
+            dedup: false
+        };
     }
 }
