@@ -305,7 +305,7 @@
             return new TreeNode({
                 "class": "org.apache.spark.sql.catalyst.expressions.Literal",
                 "num-children": 0,
-                "value": "null",
+                "value": null,
                 "dataType": "null"
             })
         }
@@ -2148,7 +2148,7 @@
                 if (node.expand) {
                     for (var j = 0; j < node.expand.groupingCols.length; j++) {
                         if (gbCols[i].colId === node.expand.groupingCols[j].colId) {
-                            if (node.expand.groupingCols[j].type === "string") {
+                            if (node.expand.groupingCols[j].colType === "string") {
                                 gbStrColNames.push(__getCurrentName(gbCols[i]));
                             }
                             break;
@@ -4295,7 +4295,12 @@
                 assert(argNode.value.class ===
                     "org.apache.spark.sql.catalyst.expressions.Literal",
                     "Arg should be literal if not AR or Cast");
+                if (argNode.value.value == null) {
+                    args.push(convertSparkTypeToXcalarType(argNode.value.dataType)
+                                    + "(None)");
+                } else {
                 args.push(argNode.value.value);
+                }
                 argTypes.push(convertSparkTypeToXcalarType(argNode.value.dataType));
             }
         }
@@ -5810,7 +5815,11 @@
                             acc.operator = opLookup[opName];
                             if (opLookup[opName] === "first" ||
                                 opLookup[opName] === "last") {
+                                if (condTree.children[1].value.value == null) {
+                                    acc.arguments = ["false"];
+                                } else {
                                 acc.arguments = [condTree.children[1].value.value];
+                                }
                                 condTree.value["num-children"] = 1;
                             }
                             if (options.xcAggregate) {
