@@ -557,12 +557,19 @@ class SQLOpPanel extends BaseOpPanel {
         self._$elemPanel.on("click", ".addIdentifier button", function() {
             self._addTableIdentifier();
         });
-        self._$sqlIdentifiers.on("mouseup", ".source", function() {
+        self._$elemPanel.find(".identifiers").scroll(function() {
             self._$sqlIdentifiers.find(">li").each(function() {
-                const $li = $(this);
-                self._populateSourceIds($li);
+                const $dropDown = $(this).find(".dropDownList");
+                if ($dropDown.hasClass("open")) {
+                    // close the dropdown
+                    $dropDown.click();
+                }
             });
-        })
+        });
+        self._$sqlIdentifiers.on("mouseup", ".source", function() {
+            const $li = $(this).closest("li");
+            self._populateSourceIds($li);
+        });
         self._$sqlIdentifiers.on("blur", ".text.dest", function() {
             const $input = $(this)
             const key = $input.val().trim();
@@ -631,7 +638,9 @@ class SQLOpPanel extends BaseOpPanel {
         for (let i = 0; i < this._dagNode.getParents().length; i++) {
             content += "<li>" + (i + 1) + "</li>";
         }
-        $li.find("ul").html(content);
+        const $ul = $li.find("ul");
+        const topOff = $li.offset().top + $li.height();
+        $ul.html(content).css({top: topOff + "px"});
     }
 
     private _deleteSnippet($li: JQuery): void {
