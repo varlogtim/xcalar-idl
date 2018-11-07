@@ -224,6 +224,15 @@ class DagTabShared extends DagTab {
         return deferred.promise();
     }
 
+    public clone(newTabName): XDPromise<void> {
+        const wkbkName: string = this._getWKBKName();
+        const newWkbkName: string = this._getWKBKName(newTabName);
+        DagTabShared._switchSession(wkbkName);
+        const promise = XcalarNewWorkbook(newTabName, true, wkbkName)
+        DagTabShared._resetSession();
+        return promise;
+    }
+
     protected _loadFromKVStore(): XDPromise<any> {
         DagTabShared._switchSession(this._getWKBKName());
         const promise = super._loadFromKVStore();
@@ -278,8 +287,9 @@ class DagTabShared extends DagTab {
         return json;
     }
 
-    private _getWKBKName(): string {
-        return this._name.replace(/\//g, DagTabShared._delim);
+    private _getWKBKName(name?: string): string {
+        name = name || this._name;
+        return name.replace(/\//g, DagTabShared._delim);
     }
 
     private _createWKBK(): XDPromise<void> {

@@ -204,6 +204,9 @@ namespace DagNodeMenu {
             case ("unlockTable"):
                 DagView.getActiveDag().getNode(operatorIds[0]).setTableLock();
                 break;
+            case ("download"):
+                DFDownloadModal.Instance.show(DagView.getActiveTab(), nodeIds);
+                break;
             default:
                 break;
         }

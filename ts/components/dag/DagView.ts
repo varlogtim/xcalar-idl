@@ -1518,7 +1518,7 @@ namespace DagView {
                 activeDag.removeNode(nodeId);
                 DagView.getNode(nodeId).remove();
                 $dagView.find('.edge[data-childnodeid="' + nodeId + '"]').remove();
-                $dagView.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function () {
+                $dagView.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function() {
                     const childNodeId = $(this).attr("data-childnodeid");
                     _removeConnection($(this), childNodeId);
                 });

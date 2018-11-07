@@ -4,10 +4,11 @@ class DFDownloadModal {
         return this._instance || (this._instance = new this());
     }
 
+    private _downloadType: string;
     private _dagTab: DagTab;
+    private _selectedNodes: Set<DagNodeId> | null;
     private _modalHelper: ModalHelper;
     private _model: {type: string, text: string, suffix: string}[];
-    private _downloadType: string;
     private readonly _DownloadTypeEnum = {
         DF: "DF",
         OptimziedDF: "OptimizedDF",
@@ -25,7 +26,12 @@ class DFDownloadModal {
         this._renderDropdown();
     }
 
-    public show(dagTab: DagTab): void {
+    public show(dagTab: DagTab, nodeIds?: DagNodeId[]): void {
+        if (nodeIds != null) {
+            this._selectedNodes = new Set();
+            nodeIds.forEach((nodeId) => this._selectedNodes.add(nodeId));
+        }
+
         this._dagTab = dagTab;
         this._modalHelper.setup();
         this._initialize();
@@ -35,6 +41,7 @@ class DFDownloadModal {
         const $modal: JQuery = this._getModal();
         this._modalHelper.clear();
         this._dagTab = null;
+        this._selectedNodes = null;
         this._downloadType = null;
         $modal.find("input").val("");
     }
@@ -86,15 +93,25 @@ class DFDownloadModal {
                 return $(el).data("type") !== this._DownloadTypeEnum.Image;
             }).addClass("xc-disabled");
         }
+
+        // XXX TODO: support download parial dataflow as image
+        if (this._selectedNodes != null) {
+            // when selecte parital nodes, disable download as image
+            $lis.filter((_index, el) => {
+                return $(el).data("type") === this._DownloadTypeEnum.Image;
+            }).addClass("xc-disabled");
+        }
         // select the first valid option by default
         $dropdown.find("li:not(.xc-disabled)").eq(0).trigger(fakeEvent.mouseup);
-        this._getNameInput().val(this._dagTab.getName());
+        this._getNameInput().val(this._dagTab.getName().replace(/\//g, "_"));
     }
 
     private _validate(): {name: string} {
         const $nameInput: JQuery = this._getNameInput();
         const name: string = $nameInput.val().trim();
         const isValid: boolean = xcHelper.validate([{
+            $ele: this._getDownloadTypeList().find(".text")
+        }, {
             $ele: $nameInput
         }]);
 
@@ -159,19 +176,84 @@ class DFDownloadModal {
 
     private _downloadDataflow(name: string, optimized: boolean): XDPromise<void> {
         const tab: DagTab = this._dagTab;
-        if (tab instanceof DagTabCustom ||
-            tab instanceof DagTabSQL
-        ) {
-            return PromiseHelper.reject({error: ErrTStr.InvalidDFDownload});
-        }
-
         if (tab.isUnsave()) {
             return PromiseHelper.reject({
                 error: ErrTStr.UnsaveDFDownload
             });
         }
 
-        return tab.download(name, optimized);
+        if (tab instanceof DagTabUser) {
+            return this._downloadUserDataflow(name, optimized);
+        } else if (tab instanceof DagTabShared) {
+            return this._downloadSharedDataflow(name, optimized);
+        } else {
+            return PromiseHelper.reject({error: ErrTStr.InvalidDFDownload});
+        }
+    }
+
+    private _downloadUserDataflow(
+        name: string,
+        optimized: boolean
+    ): XDPromise<void> {
+        const tab: DagTabUser = <DagTabUser>this._dagTab;
+        if (this._selectedNodes == null) {
+            // when download the whole dataflow
+            return tab.download(name, optimized);
+        } else {
+            // when download parital dataflow
+            const clonedTab: DagTabUser = tab.clone();
+            this._removeUnselectedNode(clonedTab);
+            return clonedTab.download(name, optimized);
+        }
+    }
+
+    private _downloadSharedDataflow(
+        name: string,
+        optimized: boolean
+    ): XDPromise<void> {
+        const tab: DagTabShared = <DagTabShared>this._dagTab;
+        if (this._selectedNodes == null) {
+            // when download the whole dataflow
+            return tab.download(name, optimized);
+        } else {
+            // when download parital dataflow
+            const deferred: XDDeferred<void> = PromiseHelper.deferred();
+            const tempName = xcHelper.randName(".temp" + tab.getShortName());
+            const clonedTab: DagTabShared = new DagTabShared(tempName);
+            let hasClone: boolean = false;
+
+            tab.clone(tempName)
+            .then(() => {
+                hasClone = true;
+                return clonedTab.load();
+            })
+            .then(() => {
+                this._removeUnselectedNode(clonedTab);
+                return clonedTab.save(true);
+            })
+            .then(() => {
+                return clonedTab.download(name, optimized);
+            })
+            .then(deferred.resolve)
+            .fail(deferred.reject)
+            .always(() => {
+                if (hasClone) {
+                    clonedTab.delete();
+                }
+            });
+
+            return deferred.promise();
+        }
+    }
+
+    private _removeUnselectedNode(tab: DagTab): void {
+        const graph: DagGraph = tab.getGraph();
+        graph.getAllNodes().forEach((_node, nodeId) => {
+            // Note: this doesn't 
+            if (!this._selectedNodes.has(nodeId)) {
+                graph.removeNode(nodeId);
+            }
+        });
     }
 
     private _downloadImage(name: string): XDPromise<void> {
@@ -208,7 +290,7 @@ class DFDownloadModal {
         .finally(() => {
             $svg.remove();
         });
-        
+
         return deferred.promise();
     }
 

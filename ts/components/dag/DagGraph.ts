@@ -102,6 +102,14 @@ class DagGraph {
         return true;
     }
 
+
+    public clone(): DagGraph {
+        const serializedGraph: string = this.serialize();
+        const graph: DagGraph = new DagGraph();
+        graph.deserializeDagGraph(serializedGraph);
+        return graph;
+    }
+
     /**
      * Filter node based on the callback
      * @param callback return true for valid case

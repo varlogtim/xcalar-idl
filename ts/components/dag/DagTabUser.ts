@@ -211,6 +211,12 @@ class DagTabUser extends DagTab {
         return deferred.promise();
     }
 
+    public clone(): DagTabUser {
+        const clonedGraph: DagGraph = this.getGraph().clone();
+        const clonedTab = new DagTabUser(this.getName(), null, clonedGraph);
+        return clonedTab;
+    }
+
     protected _getJSON(): {
         name: string,
         id: string,

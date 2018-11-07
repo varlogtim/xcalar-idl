@@ -1456,5 +1456,6 @@ module.exports = {
         "unlockTable": "Unlock table",
         "inspectSQL": "Inspect",
         "expandSQL": "Expand",
+        "download": "Download selected nodes"
     }
 };
