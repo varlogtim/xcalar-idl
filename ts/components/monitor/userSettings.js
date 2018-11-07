@@ -59,7 +59,7 @@ window.UserSettings = (function($, UserSettings) {
         });
     }
 
-    UserSettings.commit = function(showSuccess, hasDSChange) {
+    UserSettings.commit = function(showSuccess, hasDSChange, isPersonalChange) {
         var deferred = PromiseHelper.deferred();
         if (!userPrefs) {
             // UserSettings.commit may be called when no workbook is created
@@ -93,11 +93,11 @@ window.UserSettings = (function($, UserSettings) {
             }
 
             if (userPrefHasChange || revertedToDefault) {
-                if (gXcSupport) {
+                if (gXcSupport && !isPersonalChange) {
                     genSettings.updateXcSettings(UserSettings.getPref('general'));
                     userPrefPromise = settingsStore.putWithMutex(
                         JSON.stringify(genSettings.getAdminAndXcSettings()), true);
-                } else if (Admin.isAdmin()) {
+                } else if (Admin.isAdmin() && !isPersonalChange) {
                     genSettings.updateAdminSettings(UserSettings.getPref('general'));
                     userPrefPromise = settingsStore.putWithMutex(
                         JSON.stringify(genSettings.getAdminAndXcSettings()), true);

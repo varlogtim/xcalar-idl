@@ -1408,8 +1408,9 @@
             <%= addVersion %>
             if (<%= checkFunc %>(options)) {
                 self.dsSortKey = options.dsSortKey;
-                self.dfAutoExecute = options.dfAutoExecute;
-                self.dfAutoPreview = options.dfAutoPreview;
+                // dfAutoExecute and dfAutoPreview is true by default
+                self.dfAutoExecute = (options.dfAutoExecute == null) ? true : options.dfAutoExecute;
+                self.dfAutoPreview = (options.dfAutoPreview == null) ? true : options.dfAutoPreview;
             }
             return self;
         }

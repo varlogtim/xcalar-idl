@@ -64,6 +64,9 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
             }
 
             if (toTest != null) {
+                // set the 2 options to false first
+                UserSettings.setPref("dfAutoExecute", false, false);
+                UserSettings.setPref("dfAutoPreview", false, false);
                 // next time not auto run it
                 xcSessionStorage.removeItem(testSuiteKey);
                 if (testType === "undoredo") {

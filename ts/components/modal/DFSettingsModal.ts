@@ -41,7 +41,7 @@ class DFSettingsModal {
             UserSettings.setPref(name, val, false);
         });
 
-        const promise: XDPromise<void> = UserSettings.commit(true);
+        const promise: XDPromise<void> = UserSettings.commit(true, false, true);
         xcHelper.showRefreshIcon($modal.find(".confirm"), false, promise);
         promise
         .always(() => {
