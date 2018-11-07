@@ -1241,10 +1241,20 @@ class DagGraph {
             }
             switch (node.api) {
                 case (XcalarApisT.XcalarApiIndex):
-                    dagNodeInfo = {
-                        type: DagNodeType.Dataset,
-                        input: node.createTableInput
-                    }; // need to get columns
+                    //
+                    if (node.createTableInput) {
+                        dagNodeInfo = {
+                            type: DagNodeType.Dataset,
+                            input: node.createTableInput
+                        }; // need to get columns
+                    } else {
+                        // probably a sort node
+                        dagNodeInfo = {
+                            type: DagNodeType.Index,
+                            input: {columns: []}
+                        }
+                        // need to use real columns
+                    }
                     break;
                 case (XcalarApisT.XcalarApiAggregate):
                     dagNodeInfo = {
@@ -1437,6 +1447,14 @@ class DagGraph {
         // and setups up a "create table" node to be a dataset node
         function collapseIndexNodes(node) {
             if (node.api === XcalarApisT.XcalarApiIndex) {
+                const parent = node.parents[0];
+                if (parent && parent.api === XcalarApisT.XcalarApiBulkLoad) {
+                    node.createTableInput = {
+                        source: node.args.source,
+                        prefix: node.args.prefix
+                    }
+                    node.parents = [];
+                }
                 return;
             }
             for (let i = 0; i < node.parents.length; i++) {
