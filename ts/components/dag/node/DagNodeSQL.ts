@@ -37,27 +37,7 @@ class DagNodeSQL extends DagNode {
         this.SQLName = xcHelper.randName("SQLTab_");
     }
 
-    // XXX Transaction manager needs to call this to update status on sub graph
-    public updateSubGraphStatus(queryStateOutput: any): void {
-        try {
-            queryStateOutput.queryGraph.node.forEach((node) => {
-                const tableName = node.name.name;
-                const nodeId = this.tableNewDagIdMap[tableName];
-                if (nodeId) {
-                    const progress = node.numWorkCompleted / node.numWorkTotal;
-                    const pct: number = Math.round(100 * progress);
-                    if (!isNaN(pct)) {
-                        // XXX This is not updating inactive graph
-                        DagView.updateProgress(nodeId, pct);
-                    }
-                }
-            });
-        } catch (e) {
-            console.error(e);
-        }
-    }
-
-    public updateSubGraph(): void { 
+    public updateSubGraph(): void {
         DagTabManager.Instance.removeTabByNode(this);
         this.subGraph.remove();
         this.subInputNodes = [];
@@ -110,6 +90,8 @@ class DagNodeSQL extends DagNode {
         });
         // restore edges
         this.subGraph.restoreConnections(connections);
+        this.subGraph.setTableDagIdMap(this.tableNewDagIdMap);
+        this.subGraph.initializeProgress();
     }
     public getSQLName(): string {
         return this.SQLName;
@@ -120,7 +102,7 @@ class DagNodeSQL extends DagNode {
     public getSubGraph(): DagSubGraph {
         return this.subGraph;
     }
-    
+
     public getColumns(): {name: string, backName: string, type: ColumnType}[] {
         return this.columns;
     }
@@ -151,13 +133,13 @@ class DagNodeSQL extends DagNode {
      * @param input {DagNodeProjectSQLStruct}
      * @param input.evalString {string}
      */
-    public setParam(input: DagNodeSQLInputStruct = <DagNodeSQLInputStruct>{}) {
+    public setParam(input: DagNodeSQLInputStruct = <DagNodeSQLInputStruct>{}, noAutoExecute?: boolean) {
         this.input.setInput({
             queryStr: input.queryStr,
             newTableName: input.newTableName,
             jdbcCheckTime: input.jdbcCheckTime
         });
-        super.setParam();
+        super.setParam(null, noAutoExecute);
     }
 
     public lineageChange(_columns, replaceParameters?: boolean): DagLineageChange {

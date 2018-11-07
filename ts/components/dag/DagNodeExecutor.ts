@@ -25,7 +25,7 @@ class DagNodeExecutor {
         });
 
         this._apiAdapter()
-        .then((destTable) => {
+        .then((destTable, queryStateOutput) => {
             if (destTable != null) {
                 node.setTable(destTable);
                 DagTblManager.Instance.addTable(destTable);
@@ -34,13 +34,13 @@ class DagNodeExecutor {
                 node.beCompleteState();
             }
 
-            deferred.resolve(destTable);
+            deferred.resolve(destTable, queryStateOutput);
         })
-        .fail((error) => {
+        .fail((error, queryStateOutput) => {
             const errorStr: string = (typeof error === "string") ?
             error : JSON.stringify(error);
             node.beErrorState(errorStr);
-            deferred.reject(error);
+            deferred.reject(error, queryStateOutput);
         });
         return deferred.promise();
     }
@@ -585,7 +585,7 @@ class DagNodeExecutor {
                 type: xcHelper.convertColTypeToFieldType(sourceColType)
             });
         }
-        
+
         const srcTable: string = this._getParentNodeTable(0);
         const desTable: string = this._generateTableName();
 
@@ -644,16 +644,17 @@ class DagNodeExecutor {
                                                    params.newTableName,
                                                    newTableName);
         params.newTableName = newTableName;
-
+        node.setParam(params, true);
         node.updateSubGraph();
-
+        const queryNodes = JSON.parse(params.queryStr);
+        node.getSubGraph().startExecution(queryNodes);
         XIApi.query(this.txId, queryName, params.queryStr, params.jdbcCheckTime)
-        .then(function() {
+        .then(function(res) {
             // Set status to Done
             queryObj["status"] = SQLStatus.Done;
             queryObj["endTime"] = new Date();
             SqlQueryHistoryPanel.Card.getInstance().update(queryObj);
-            deferred.resolve(newTableName);
+            deferred.resolve(newTableName, res);
         })
         .fail(function(error) {
             queryObj["endTime"] = new Date();

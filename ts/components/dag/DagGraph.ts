@@ -1231,6 +1231,7 @@ class DagGraph {
         const nodes = new Map();
         const destSrcMap = {}; // {dest: source} in xc query
         const dagIdParentIdxMap = {}; // {DagNodeId: parentIdx}
+        const tableNewDagIdMap = {}; // {oldTableName: newDagId}
         let outputDagId: string;
 
         for (let rawNode of query) {
@@ -1304,7 +1305,7 @@ class DagGraph {
             dagInfoList: finalConvertIntoDagNodeInfoArray(nodes),
             dagIdParentIdxMap: dagIdParentIdxMap,
             outputDagId: outputDagId,
-            tableNewDagIdMap: {} // XXX needs to return tableNewDagIdMap
+            tableNewDagIdMap: tableNewDagIdMap
         }
         return retSruct;
 
@@ -1344,18 +1345,17 @@ class DagGraph {
             return dagNodeInfo;
         }
 
-        function getDagNodeInfo(node) {
+        function getDagNodeInfo(node, hiddenIndexParent?: boolean) {
             let dagNodeInfo: DagNodeInfo;
             if (node.indexParents) {
                 const indexParents = [];
                 node.indexParents.forEach((indexNode) => {
-                    indexParents.push(getDagNodeInfo(indexNode));
+                    indexParents.push(getDagNodeInfo(indexNode, true));
                 });
                 node.indexParents = indexParents;
             }
             switch (node.api) {
                 case (XcalarApisT.XcalarApiIndex):
-                    //
                     if (node.createTableInput) {
                         dagNodeInfo = {
                             type: DagNodeType.Dataset,
@@ -1534,6 +1534,15 @@ class DagGraph {
             }
             if(node.name === finalTableName) {
                 outputDagId = dagNodeInfo.id;
+            }
+            if (!hiddenIndexParent) {
+                tableNewDagIdMap[dagNodeInfo.table] = dagNodeInfo.id;
+            }
+
+            if (node.indexParents) {
+                node.indexParents.forEach(indexParent => {
+                    tableNewDagIdMap[indexParent.table] = dagNodeInfo.id;
+                });
             }
             return dagNodeInfo;
         }

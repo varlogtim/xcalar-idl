@@ -22,7 +22,7 @@ class DagTabOptimized extends DagTab {
      * gets the DagGraph for this tab
      * @returns {DagGraph}
      */
-    public getGraph(): DagOptimizedGraph {
+    public getGraph(): DagSubGraph {
         return this.graph;
     }
 
@@ -70,7 +70,7 @@ class DagTabOptimized extends DagTab {
             nodes: nodeInfos
         };
 
-        const graph: DagOptimizedGraph = new DagOptimizedGraph(nameIdMap);
+        const graph: DagSubGraph = new DagSubGraph(nameIdMap);
         graph.rebuildGraph(graphInfo);
         graph.initializeProgress();
         this.graph = graph;

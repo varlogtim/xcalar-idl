@@ -38,7 +38,8 @@ namespace Transaction {
         sql?: SQLInfo,
         error?: string,
         title?: string,
-        noAlert?: boolean
+        noAlert?: boolean,
+        queryStateOutput?: any
     }
 
     export interface TransactionCancelOptions {
@@ -180,11 +181,7 @@ namespace Transaction {
             if (txLog) {
                 if (txLog.nodeId) {
                     try {
-                        const progress: number = xcHelper.getQueryProgress(queryStateOutput);
-                        const pct: number = Math.round(100 * progress);
-                        if (!isNaN(pct)) {
-                            DagView.updateProgress(txLog.nodeId, txLog.tabId, pct);
-                        }
+                        DagView.calculateAndUpdateProgress(queryStateOutput, txLog.nodeId, txLog.tabId);
                     } catch (e) {
                         console.error(e);
                     }
@@ -263,7 +260,7 @@ namespace Transaction {
                 MonitorGraph.tableUsageChange();
             }
             if (txLog.nodeId != null) {
-                DagView.removeProgress(txLog.nodeId, txLog.tabId);
+                DagView.removeProgress(txLog.nodeId, txLog.tabId, options.queryStateOutput);
             } else if (txLog.optimizedQueryName) {
                 DagView.endOptimizedDFProgress(txLog.optimizedQueryName,
                                                 options.queryStateOutput);
@@ -340,7 +337,7 @@ namespace Transaction {
                 Alert.error(alertTitle, error);
             }
             if (txLog.nodeId != null) {
-                DagView.removeProgress(txLog.nodeId, txLog.tabId);
+                DagView.removeProgress(txLog.nodeId, txLog.tabId, options.queryStateOutput);
             }
         }
 

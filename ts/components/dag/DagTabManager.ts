@@ -125,6 +125,7 @@ class DagTabManager{
                 name: validatedName,
                 SQLNode: SQLNode
             });
+            newTab.getGraph().setTabId(tabId);
             // Register the new tab in DagTabManager
             if (this._addSubTab(parentTabId, tabId)) {
                 this._addDagTab(newTab);

@@ -487,13 +487,14 @@ abstract class DagNode {
         return this.lineage;
     }
 
-    public setParam(_param?: any): void {
+    public setParam(_param?: any, noAutoExecute?: boolean): void {
         this.events.trigger(DagNodeEvents.ParamChange, {
             id: this.getId(),
             params: this.getParam(),
             type: this.getType(),
             node: this,
-            hasParameters: this.input.hasParameters()
+            hasParameters: this.input.hasParameters(),
+            noAutoExecute: noAutoExecute
         });
     }
 

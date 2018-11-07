@@ -209,7 +209,7 @@ class DagGraphExecutor {
 
                 const nodes = JSON.parse(query);
                 const tab = DagTabManager.Instance.newOptimizedTab(destTable, nodes);
-                const graph: DagOptimizedGraph = tab.getGraph();
+                const graph: DagSubGraph = tab.getGraph();
                 graph.startExecution(nodes);
                 return XIApi.query(txId, destTable, query);
             })
@@ -295,8 +295,10 @@ class DagGraphExecutor {
         });
         const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, tabId);
         dagNodeExecutor.run()
-        .then(() => {
-            Transaction.done(txId, {});
+        .then((_destTable, res) => {
+            Transaction.done(txId, {
+                queryStateOutput: res
+            });
             MemoryAlert.Instance.check();
             deferred.resolve();
         })
@@ -310,7 +312,7 @@ class DagGraphExecutor {
             }
             Transaction.fail(txId, {
                 error: error,
-                noAlert: true
+                noAlert: true,
             });
             deferred.resolve(); // still resolve it
         });

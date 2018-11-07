@@ -3020,7 +3020,7 @@ XcalarQueryCheck = function(
                     // clean up query when done
                     XcalarQueryDelete(queryName)
                     .always(function() {
-                        deferred.reject(queryStateOutput.queryStatus);
+                        deferred.reject(queryStateOutput.queryStatus, queryStateOutput);
                     });
                 } else {
                     cycle();
