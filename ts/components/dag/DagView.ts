@@ -369,7 +369,7 @@ namespace DagView {
                 i--;
             }
         }
-        if (!_removeNodesNoPersist(nodeIds)) {
+        if (_removeNodesNoPersist(nodeIds) == null) {
             return PromiseHelper.reject();
         }
         return activeDagTab.save();
@@ -1187,19 +1187,34 @@ namespace DagView {
             graphDimensions.width, graphDimensions.height);
 
         // Add customNode to DagView
+        const customLogParam: LogParam = {
+            title: SQLTStr.CreateCustomOperation,
+            options: {
+                operation: SQLOps.DagBulkOperation,
+                actions: []
+            }
+        };
         activeDag.addNode(customNode);
-        _addNodeNoPersist(customNode);
+        const addLogParam = _addNodeNoPersist(customNode, true);
+        customLogParam.options.actions.push(addLogParam.options);
 
         // Delete selected nodes
-        _removeNodesNoPersist(nodeIds);
+        const removeLogParam = _removeNodesNoPersist(nodeIds, true);
+        customLogParam.options.actions.push(removeLogParam.options);
 
         // Connections to customNode
         for (const { parentId, childId, pos } of newConnectionIn) {
-            _connectNodesNoPersist(parentId, childId, pos);
+            const connectLogParam =
+                _connectNodesNoPersist(parentId, childId, pos, false, true);
+            customLogParam.options.actions.push(connectLogParam.options);
         }
         for (const { parentId, childId, pos } of newConnectionOut) {
-            _connectNodesNoPersist(parentId, childId, pos);
+            const connectLogParam = 
+                _connectNodesNoPersist(parentId, childId, pos, false, true);
+            customLogParam.options.actions.push(connectLogParam.options);
         }
+
+        Log.add(customLogParam.title, customLogParam.options);
 
         return activeDagTab.save();
     }
@@ -1502,9 +1517,12 @@ namespace DagView {
         };
     }
 
-    function _removeNodesNoPersist(nodeIds: DagNodeId[]): boolean {
+    function _removeNodesNoPersist(
+        nodeIds: DagNodeId[],
+        isNoLog: boolean = false
+    ): LogParam {
         if (!nodeIds.length) {
-            return false;
+            return null;
         }
         nodeIds.forEach(function (nodeId) {
             if (nodeId.startsWith("dag")) {
@@ -1528,12 +1546,19 @@ namespace DagView {
             }
         });
 
-        Log.add(SQLTStr.RemoveOperations, {
-            "operation": SQLOps.RemoveOperations,
-            "dataflowId": activeDagTab.getId(),
-            "nodeIds": nodeIds
-        });
-        return true;
+        const logParam: LogParam = {
+            title: SQLTStr.RemoveOperations,
+            options: {
+                "operation": SQLOps.RemoveOperations,
+                "dataflowId": activeDagTab.getId(),
+                "nodeIds": nodeIds
+            }
+        };
+        if (!isNoLog) {
+            Log.add(logParam.title, Object.assign({}, logParam.options));
+        }
+
+        return logParam;
     }
 
     function _connectNodesNoPersist(
@@ -1541,7 +1566,8 @@ namespace DagView {
         childNodeId: DagNodeId,
         connectorIndex: number,
         isReconnect?: boolean,
-    ) {
+        isNoLog: boolean = false
+    ): LogParam {
         let prevParentId = null;
         if (isReconnect) {
             const $curEdge = $dagView.find('.edge[data-childnodeid="' +
@@ -1557,14 +1583,22 @@ namespace DagView {
 
         _drawConnection(parentNodeId, childNodeId, connectorIndex);
 
-        Log.add(SQLTStr.ConnectOperations, {
-            "operation": SQLOps.ConnectOperations,
-            "dataflowId": activeDagTab.getId(),
-            "parentNodeId": parentNodeId,
-            "childNodeId": childNodeId,
-            "connectorIndex": connectorIndex,
-            "prevParentNodeId": prevParentId
-        });
+        const logParam: LogParam = {
+            title: SQLTStr.ConnectOperations,
+            options: {
+                "operation": SQLOps.ConnectOperations,
+                "dataflowId": activeDagTab.getId(),
+                "parentNodeId": parentNodeId,
+                "childNodeId": childNodeId,
+                "connectorIndex": connectorIndex,
+                "prevParentNodeId": prevParentId
+            }
+        };
+        if (!isNoLog) {
+            Log.add(logParam.title, Object.assign({}, logParam.options));
+        }
+
+        return logParam;
     }
 
     function _getGeometryInfo(posList: Coordinate[]): {
@@ -2989,7 +3023,7 @@ namespace DagView {
         }
     }
 
-    function _addNodeNoPersist(node) {
+    function _addNodeNoPersist(node, isNoLog: boolean = false): LogParam {
         $dfWrap.find(".selected").removeClass("selected");
         const $dfArea = $dfWrap.find(".dataflowArea.active");
 
@@ -2998,11 +3032,19 @@ namespace DagView {
         $node.addClass("selected");
         _setGraphDimensions(xcHelper.deepCopy(node.getPosition()))
 
-        Log.add(SQLTStr.AddOperation, {
-            "operation": SQLOps.AddOperation,
-            "dataflowId": activeDagTab.getId(),
-            "nodeId": nodeId
-        });
+        const logParam: LogParam = {
+            title: SQLTStr.AddOperation,
+            options: {
+                "operation": SQLOps.AddOperation,
+                "dataflowId": activeDagTab.getId(),
+                "nodeId": nodeId
+            }
+        };
+        if (!isNoLog) {
+            Log.add(logParam.title, Object.assign({}, logParam.options));
+        }
+
+        return logParam;
     }
 
     function _nodeTitleEditMode($origTitle) {

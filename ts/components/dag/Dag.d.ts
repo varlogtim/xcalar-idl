@@ -344,3 +344,8 @@ interface TableProgressInfo {
     size: number,
     rows: number[]
 }
+
+interface LogParam {
+    title: string,
+    options: any
+}

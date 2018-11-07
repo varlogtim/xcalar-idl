@@ -1309,6 +1309,7 @@ window.Log = (function($, Log) {
             case (SQLOps.NewComment):
             case (SQLOps.EditComment):
             case (SQLOps.EditNodeTitle):
+            case (SQLOps.DagBulkOperation):
                 return false;
             // thrift operation
             case (SQLOps.DestroyDS):

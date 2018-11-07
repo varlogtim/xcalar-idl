@@ -281,6 +281,22 @@ window.Redo = (function($, Redo) {
         return PromiseHelper.resolve(null);
     };
 
+    redoFuncs[SQLOps.DagBulkOperation] = function(options) {
+        let tasks = PromiseHelper.resolve();
+        if (options.actions != null) {
+            for (const action of options.actions) {
+                const operation = action.operation;
+                if (operation == null || !redoFuncs.hasOwnProperty(operation)) {
+                    console.error(`Redo function for ${operation} not supported`);
+                    continue;
+                }
+                const redoFunc = redoFuncs[operation];
+                tasks = tasks.then(() => redoFunc(action));
+            }
+        }
+        return tasks;
+    }
+
     /* USER STYLING/FORMATING OPERATIONS */
 
     redoFuncs[SQLOps.MinimizeCols] = function(options) {

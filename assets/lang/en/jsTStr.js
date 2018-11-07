@@ -1593,7 +1593,8 @@ SQLTStr = {
     "EditDescription": "Edit Description",
     "EditNodeTitle": "Edit Node Title",
     "NewComment": "New Comment",
-    "EditComment": "Edit Comment"
+    "EditComment": "Edit Comment",
+    "CreateCustomOperation": "Create Custom Operation",
 };
 
 LoginConfigTStr = {

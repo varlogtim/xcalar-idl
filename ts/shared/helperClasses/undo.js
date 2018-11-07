@@ -602,6 +602,23 @@ window.Undo = (function($, Undo) {
         return PromiseHelper.resolve(null);
     };
 
+    undoFuncs[SQLOps.DagBulkOperation] = function(options) {
+        let tasks = PromiseHelper.resolve();
+        if (options.actions != null) {
+            for (let i = options.actions.length - 1; i >= 0; i --) {
+                const action = options.actions[i];
+                const operation = action.operation;
+                if (operation == null || !undoFuncs.hasOwnProperty(operation)) {
+                    console.error(`Undo function for ${operation} not supported`);
+                    continue;
+                }
+                const undoFunc = undoFuncs[operation];
+                tasks = tasks.then(() => undoFunc(action));
+            }
+        }
+        return tasks;
+    }
+
     /* USER STYLING/FORMATING OPERATIONS */
 
     undoFuncs[SQLOps.MinimizeCols] = function(options) {
