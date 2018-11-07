@@ -508,8 +508,7 @@ class ColMenu extends AbstractMenu {
         colNums: number[]
     ): void {
         try {
-            const parentNodeId: DagNodeId = DagTable.Instance.getBindNodeId();
-            const node = DagView.autoAddNode(type, null, parentNodeId);
+            const node: DagNode = this._addNode(type);
             const table: TableMeta = gTables[tableId];
             const progCols: ProgCol[] = colNums.map((colNum) => table.getCol(colNum));
             this._setNodeParam(node, progCols);
@@ -568,15 +567,5 @@ class ColMenu extends AbstractMenu {
             default:
                 throw new Error("Unsupported type!");
         }
-    }
-
-    private _openOpPanel(node: DagNode, colNames: string[]): void {
-        DagNodeMenu.execute("configureNode", {
-            node: node,
-            baseColumnNames: colNames,
-            exitCallback: function() {
-                DagView.removeNodes([node.getId()]);
-            }
-        });
     }
 }

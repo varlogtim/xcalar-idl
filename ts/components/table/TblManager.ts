@@ -3199,7 +3199,14 @@ class TblManager {
     }
 
     private static _isMultiColumn(): boolean {
-        const table: TableMeta = gTables[gActiveTableId];
+        let tableId;
+        // XXX TODO: remove it
+        if ($("#dagViewTableArea").is(":visible")) {
+            tableId = xcHelper.getTableId(DagTable.Instance.getTable());
+        } else {
+            tableId = gActiveTableId;
+        }
+        const table: TableMeta = gTables[tableId];
         if (!table) {
             return false;
         }

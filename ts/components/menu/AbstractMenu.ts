@@ -45,6 +45,21 @@ abstract class AbstractMenu {
         return event.which !== 1 || $(event.currentTarget).hasClass('unavailable');
     }
 
+    protected _addNode(type: DagNodeType): DagNode {
+        const parentNodeId: DagNodeId = DagTable.Instance.getBindNodeId();
+        return DagView.autoAddNode(type, null, parentNodeId);
+    }
+
+    protected _openOpPanel(node: DagNode, colNames: string[]): void {
+        DagNodeMenu.execute("configureNode", {
+            node: node,
+            baseColumnNames: colNames,
+            exitCallback: function() {
+                DagView.removeNodes([node.getId()]);
+            }
+        });
+    }
+
     private _setupHotKeys(): void {
         const entries: ReadonlyArray<[string, string]> = this._getHotKeyEntries();
         if (entries != null) {

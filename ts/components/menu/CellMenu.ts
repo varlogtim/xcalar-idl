@@ -139,11 +139,29 @@ class CellMenu extends AbstractMenu {
                 uniqueVals, isExist, isNull);
 
             if (options != null) {
-                xcFunction.filter(colNum, tableId, options);
+                if (gTables[tableId].modelingMode) {
+                    this._createNodeAndShowForm(options.filterString);
+                } else {
+                    xcFunction.filter(colNum, tableId, options);
+                }
             }
         }
 
         TblManager.unHighlightCells();
+    }
+
+    private _createNodeAndShowForm(evalString: string): void {
+        try {
+            const type: DagNodeType = DagNodeType.Filter;
+            const node: DagNodeFilter = <DagNodeFilter>this._addNode(type);
+            node.setParam({
+                evalString: evalString
+            });
+            this._openOpPanel(node, []);
+        } catch (e) {
+            console.error("error", e);
+            Alert.error(ErrTStr.Error, ErrTStr.Unknown);
+        }
     }
 
     private _openTdJSONModal(
