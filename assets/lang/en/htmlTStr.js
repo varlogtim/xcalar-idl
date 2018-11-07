@@ -119,7 +119,8 @@ module.exports = {
         "InBeta": "In Beta",
         "WS": "Worksheet",
         "SEND": "SEND",
-        "Node": "Node"
+        "Node": "Node",
+        "XPE": "Xcalar Desktop Edition"
     },
 
     "paths": {
