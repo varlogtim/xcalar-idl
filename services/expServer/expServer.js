@@ -158,13 +158,15 @@ require("jsdom/lib/old-api").env("", function(err, window) {
             process.env.TMPDIR : '/mnt/xcalar';
         var cfgExists = fs.existsSync(cfgLocation);
         var xlrRootFound = false;
+        var rePattern = new RegExp(/^Constants.XcalarRootCompletePath\s*=\s*(.*)$/);
 
         if (cfgExists) {
             var buf = fs.readFileSync(cfgLocation, 'utf-8');
             var lines = buf.split("\n");
             for (var i = 0; i<lines.length; i++) {
-                if (lines[i].indexOf("Constants.XcalarRootCompletePath") > -1) {
-                    xlrRoot = lines[i].slice(lines[i].indexOf(lines[i].split("=")[1]));
+                var res = lines[i].trim().match(rePattern);
+                if (res != null) {
+                    xlrRoot = res[1];
                     xlrRootFound = true;
                     break;
                 }

@@ -657,9 +657,11 @@ function getXlrRoot(filePath) {
             if (err) throw err;
             var lines = data.split("\n");
             var i = 0;
+            var rePattern = new RegExp(/^Constants.XcalarRootCompletePath\s*=\s*(.*)$/);
             for (; i<lines.length; i++) {
-                if (lines[i].indexOf("Constants.XcalarRootCompletePath") > -1) {
-                    defaultLoc = jQuery.trim(lines[i].split("=")[1]);
+                var res = lines[i].trim().match(rePattern);
+                if (res != null) {
+                    defaultLoc = res[1];
                     break;
                 }
             }
