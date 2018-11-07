@@ -92,6 +92,8 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             }
             var randId = Math.floor(Math.random() * 1000);
             var promiseArray = [];
+            UserSettings.setPref("dfAutoPreview", false);
+            UserSettings.setPref("dfAutoExecute", false);
             $("#dagButton").click();
             $("#dagView .newTab").click();
             testDagGraph = DagView.getActiveDag();
