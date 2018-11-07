@@ -119,7 +119,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
         } else {
             args = this._validate();
         }
-)
+
         if (args == null) {
             // invalid case
             return;

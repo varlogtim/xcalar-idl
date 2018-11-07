@@ -1,8 +1,9 @@
 describe("Dag Execute Test", () => {
     const txId = 1;
-    let createNode = (type, tableName) => {
+    let createNode = (type, tableName, subType) => {
         return DagNodeFactory.create({
             type: type || DagNodeType.Dataset,
+            subType: subType || null,
             table: tableName || "testTable"
         });
     };
@@ -292,11 +293,10 @@ describe("Dag Execute Test", () => {
     });
 
     it("should do set operation", (done) => {
-        const node = createNode(DagNodeType.Set);
+        const node = createNode(DagNodeType.Set, null, DagNodeSubType.Union);
         const parentNode1 = createNode(null, "parent1");
         const ParentNode2 = createNode(null, "parent2");
         node.setParam({
-            unionType: UnionType.Union,
             columns: [
                 [{
                     sourceColumn: "col1",

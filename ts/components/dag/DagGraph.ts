@@ -1387,7 +1387,7 @@ class DagGraph {
                     const setType = <DagNodeSubType>xcHelper.unionTypeToXD(node.args.unionType);
                     dagNodeInfo = {
                         type: DagNodeType.Set,
-                        subType: xcHelper.capitalize(setType),
+                        subType: <DagNodeSubType>xcHelper.capitalize(setType),
                         input: {
                             unionType: setType,
                             columns: node.args.columns,

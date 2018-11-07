@@ -82,7 +82,7 @@ class SetOpPanel extends BaseOpPanel {
         this.setOpData.setColModel(colModel);
         const model = this.setOpData.getModel();
         this._selectDedup(model.dedup);
-        this._selectType(model.unionType);
+        this._selectType(model.subType);
     }
 
     private _getDedupSection(): JQuery {
@@ -117,15 +117,12 @@ class SetOpPanel extends BaseOpPanel {
         this._getDedupSection().find(".radioButton." + option).click();
     }
 
-    private _selectType(unionType: UnionType): void {
-        const typeMap = {
-            union: OpPanelTStr.Union,
-            except: OpPanelTStr.Except,
-            intersect: OpPanelTStr.Intersect
-        };
-        const type: string = unionType.toLocaleLowerCase();
-        const typeText = typeMap[type];
-        this._getPanel().find(".modeList").text(typeText);
+    private _selectType(subType: DagNodeSubType): void {
+        const typeMap = {};
+        typeMap[DagNodeSubType.Union] = OpPanelTStr.Union;
+        typeMap[DagNodeSubType.Intersect] = OpPanelTStr.Intersect;
+        typeMap[DagNodeSubType.Except] = OpPanelTStr.Except;
+        this._getPanel().find(".modeList").text(typeMap[subType]);
     }
 
     private _autoResizeView(reset: boolean) {

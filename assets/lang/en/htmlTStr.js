@@ -303,7 +303,6 @@ module.exports = {
         "TxtAlignWrap": "Wrap text",
         "UnexpectedTable": "Unexpected table",
         "UnHideTbl": "Unminimize table",
-        "Union": "Set Operation",
         "UnlockTbl": "Unlock table",
         "Unsavable": "Cannot save image",
         "ViewDetails": "View details",
@@ -325,7 +324,11 @@ module.exports = {
         "Download": "Download Workbook",
         "Duplicate": "Duplicate Workbook",
         "Delete": "Delete Workbook",
-        "Deactivate": "Deactivate Workbook"
+        "Deactivate": "Deactivate Workbook",
+        "Set": "Set Operation",
+        "Union": "Union",
+        "Intersect": "Intersect",
+        "Except": "Except"
     },
 
     "TooltipTStr": {

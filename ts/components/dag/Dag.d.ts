@@ -151,7 +151,6 @@ interface DagNodeProjectInputStruct {
 }
 
 interface DagNodeSetInputStruct {
-    unionType: UnionType;
     columns: {sourceColumn: string, destColumn: string, columnType: ColumnType, cast: boolean}[][];
     dedup: boolean;
 }

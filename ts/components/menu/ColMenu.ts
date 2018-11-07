@@ -158,19 +158,6 @@ class ColMenu extends AbstractMenu {
             }
         });
 
-        $colMenu.on('mouseup', '.union', (event) => {
-            if (this._isInvalidTrigger(event)) {
-                return;
-            }
-            const colNums: number[] = $colMenu.data("colNums");
-            const tableId: TableId = $colMenu.data('tableId');
-            if (gTables[tableId].modelingMode) {
-                this._createNodeAndShowForm(DagNodeType.Set, tableId, colNums);
-            } else {
-                UnionView.show(tableId, colNums);
-            }
-        });
-
         $colMenu.on('mouseup', '.functions', (event) => {
             if (this._isInvalidTrigger(event)) {
                 return;
@@ -472,6 +459,26 @@ class ColMenu extends AbstractMenu {
             SortView.show(colNums, tableId);
         });
 
+        $subMenu.on('mouseup', '.union, .intersect, .except', (event) => {
+            if (this._isInvalidTrigger(event)) {
+                return;
+            }
+            const colNums: number[] = $colMenu.data("colNums");
+            const tableId: TableId = $colMenu.data('tableId');
+            if (gTables[tableId].modelingMode) {
+                let subType: DagNodeSubType = DagNodeSubType.Union;
+                const $li = $(event.currentTarget);
+                if ($li.hasClass("intersect")) {
+                    subType = DagNodeSubType.Intersect;
+                } else if ($li.hasClass("execpt")) {
+                    subType = DagNodeSubType.Except;
+                }
+
+                this._createNodeAndShowForm(DagNodeType.Set, tableId, colNums, subType);
+            } else {
+                UnionView.show(tableId, colNums);
+            }
+        });
     }
 
     private _validateNewSplitColNames(
@@ -505,24 +512,26 @@ class ColMenu extends AbstractMenu {
     private _createNodeAndShowForm(
         type: DagNodeType,
         tableId: TableId,
-        colNums: number[]
+        colNums: number[],
+        subType?: DagNodeSubType
     ): void {
         try {
-            const node: DagNode = this._addNode(type);
+            const node: DagNode = this._addNode(type, subType);
             const table: TableMeta = gTables[tableId];
             const progCols: ProgCol[] = colNums.map((colNum) => table.getCol(colNum));
             this._setNodeParam(node, progCols);
-            if (node.getMaxParents() === 1) {
-                const colNames: string[] = progCols.map(progCol => progCol.getBackColName());
-                this._openOpPanel(node, colNames);
-            }
+            const colNames: string[] = progCols.map(progCol => progCol.getBackColName());
+            this._openOpPanel(node, colNames);
         } catch (e) {
             console.error("error", e);
             Alert.error(ErrTStr.Error, ErrTStr.Unknown);
         }
     }
 
-    private _setNodeParam(node: DagNode, progCols: ProgCol[]): void {
+    private _setNodeParam(
+        node: DagNode,
+        progCols: ProgCol[]
+    ): void {
         const columns: string [] = progCols.map(progCol => {
             return progCol.getBackColName()
         });
@@ -558,9 +567,22 @@ class ColMenu extends AbstractMenu {
                 });
                 break;
             case DagNodeType.Set:
+                const basicColTypes: ColumnType[] = BaseOpPanel.getBaiscColTypes(true);
+                const sourColumns = [];
+                progCols.forEach((progCol) => {
+                    const colType: ColumnType = progCol.getType();
+                    if (basicColTypes.includes(colType)) {
+                        const colName: string = progCol.getBackColName();
+                        const parsedName: string = xcHelper.parsePrefixColName(colName).name;
+                        sourColumns.push({
+                            sourceColumn: colName,
+                            destColumn: parsedName,
+                            columnType: colType 
+                        });
+                    }
+                });
                 (<DagNodeSet>node).setParam({
-                    unionType: UnionType.Union,
-                    columns: [],
+                    columns: [sourColumns],
                     dedup: false
                 });
                 break;

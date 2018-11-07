@@ -1,13 +1,11 @@
 class DagNodeSetInput extends DagNodeInput {
     protected input: DagNodeSetInputStruct;
-    private dagNode: DagNode;
 
     constructor(inputStruct: DagNodeSetInputStruct, dagNode) {
         if (inputStruct == null) {
           inputStruct = {
-            unionType: DagNodeSetInput._convertSubTypeToUnionType(dagNode.getSubType())
-              || UnionType.Union,
-            columns: null, dedup: false
+            columns: null,
+            dedup: false
           };
         }
 
@@ -25,7 +23,6 @@ class DagNodeSetInput extends DagNodeInput {
         inputStruct.dedup = inputStruct.dedup || false;
 
         super(inputStruct);
-        this.dagNode = dagNode;
     }
 
     public static readonly schema = {
@@ -132,29 +129,8 @@ class DagNodeSetInput extends DagNodeInput {
     public getInput(replaceParameters?: boolean): DagNodeSetInputStruct {
         const input = super.getInput(replaceParameters);
         return {
-            unionType: input.unionType,
             columns: input.columns,
             dedup: input.dedup
         };
-    }
-
-    /**
-     * Check if the unionType is converted from node subType
-     */
-    public isUnionTypeConverted(): boolean {
-      return DagNodeSetInput._convertSubTypeToUnionType(this.dagNode.getSubType()) != null;
-    }
-
-    private static _convertSubTypeToUnionType(subType: DagNodeSubType): UnionType {
-        if (subType == null) {
-            return null;
-        }
-
-        const typeMap = {};
-        typeMap[DagNodeSubType.Union] = UnionType.Union;
-        typeMap[DagNodeSubType.Except] = UnionType.Except;
-        typeMap[DagNodeSubType.Intersect] = UnionType.Intersect;
-
-        return typeMap[subType];
     }
 }

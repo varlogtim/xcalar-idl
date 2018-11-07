@@ -306,7 +306,7 @@ class DagNodeExecutor {
     private _set(): XDPromise<string> {
         const node: DagNodeSet = <DagNodeSet>this.node;
         const params: DagNodeSetInputStruct = node.getParam(true);
-        const unionType: UnionOperatorT = this._getUnionType(params.unionType);
+        const unionType: UnionOperatorT = this._getUnionType(node.getSubType());
         const desTable: string = this._generateTableName();
         const tableInfos: UnionTableInfo[] = params.columns.map((colInfo, index) => {
             const columns: UnionColInfo[] = colInfo.map((col) => {
@@ -363,16 +363,16 @@ class DagNodeExecutor {
         return PromiseHelper.resolve(null);
     }
 
-    private _getUnionType(unionType: UnionType): UnionOperatorT {
-        switch (unionType) {
-            case (UnionType.Except):
+    private _getUnionType(setSubType: DagNodeSubType): UnionOperatorT {
+        switch (setSubType) {
+            case (DagNodeSubType.Except):
                 return UnionOperatorT.UnionExcept;
-            case (UnionType.Intersect):
+            case (DagNodeSubType.Intersect):
                 return UnionOperatorT.UnionIntersect;
-            case (UnionType.Union):
+            case (DagNodeSubType.Union):
                 return UnionOperatorT.UnionStandard;
             default:
-                throw new Error("Union Type " + unionType + " not supported");
+                throw new Error("Set Type " + setSubType + " not supported");
         }
     }
 

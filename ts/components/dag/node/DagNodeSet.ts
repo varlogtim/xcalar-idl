@@ -13,13 +13,11 @@ class DagNodeSet extends DagNode {
     /**
      * Set set(union/except/intersect) node's parameters
      * @param input {DagNodeSetInputStruct}
-     * @param input.unionType {string} Join't type
      * @param input.columns tables' column infos
      * @param input.dedup {boolean} Remove deduplicate rows or not
      */
     public setParam(input: DagNodeSetInputStruct = <DagNodeSetInputStruct>{}) {
         this.input.setInput({
-            unionType: input.unionType,
             columns: input.columns,
             dedup: input.dedup
         });
@@ -92,9 +90,5 @@ class DagNodeSet extends DagNode {
         }
         super.setParam();
         return newRenameMap;
-    }
-
-    public isUnionTypeConverted(): boolean {
-        return this.input.isUnionTypeConverted();
     }
 }

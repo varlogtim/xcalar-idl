@@ -1,8 +1,6 @@
 class SetOpPanelModel {
     private dagNode: DagNodeSet;
     private dedup: boolean;
-    private fixedType: boolean;
-    private unionType: UnionType;
     private event: Function;
     private colModel: ColAssignmentModel;
     private _cachedBasicModeParam: string;
@@ -12,9 +10,6 @@ class SetOpPanelModel {
         this.event = event;
         const params: DagNodeSetInputStruct = this.dagNode.getParam();
         this._initialize(params);
-        // It's a sub-category of Set, if the subType is provided
-        // So set fixedType=true to indicate that unionType should not be changed.
-        this.fixedType = dagNode.isUnionTypeConverted();
     }
 
     /**
@@ -22,8 +17,7 @@ class SetOpPanelModel {
      */
     public getModel(): {
         dedup: boolean,
-        unionType: UnionType,
-        fixedType: boolean,
+        subType: DagNodeSubType,
         result: ProgCol[],
         selected: ProgCol[][],
         candidate: ProgCol[][],
@@ -31,8 +25,7 @@ class SetOpPanelModel {
     } {
         return $.extend({
             dedup: this.dedup,
-            unionType: this.unionType,
-            fixedType: this.fixedType,
+            subType: this.dagNode.getSubType(),
         }, this.colModel.getModel());
     }
 
@@ -66,20 +59,12 @@ class SetOpPanelModel {
     }
 
     /**
-     *
-     * @param type {UnionType} Set the set operation's type
-     */
-    public setType(type: UnionType) {
-        this.unionType = type || UnionType.Union;
-    }
-
-    /**
      * Validate if the num of parent is valid,
      * @return {error: string} Return error string if invalid
      */
     public validateNodes(): {error: string} {
         if (this.colModel.getModel().all.length <= 1 &&
-            this.unionType === UnionType.Union &&
+            this.dagNode.getSubType() !== DagNodeSubType.Union &&
             this.dedup === true
         ) {
             return {error: UnionTStr.OneTableToUnion2};
@@ -133,7 +118,7 @@ class SetOpPanelModel {
         editor: CodeMirror.EditorFromTextArea
     ): {error: string} {
         if (toAdvancedMode) {
-            const param: DagNodeSetInputStruct = this._getAdvFormParam();
+            const param: DagNodeSetInputStruct = this._getParam();
             const paramStr = JSON.stringify(param, null, 4);
             this._cachedBasicModeParam = paramStr;
             editor.setValue(paramStr);
@@ -149,7 +134,7 @@ class SetOpPanelModel {
                         return error;
                     }
                 }
-                this._initialize(param, true);
+                this._initialize(param);
                 this._update();
             } catch (e) {
                 return {error: e};
@@ -178,12 +163,8 @@ class SetOpPanelModel {
         this.colModel.refreshColumns(allCols, removedSets);
     }
 
-    private _initialize(params: DagNodeSetInputStruct, isFromAdvForm: boolean = false) {
+    private _initialize(params: DagNodeSetInputStruct) {
         this.dedup = params.dedup;
-        if (!isFromAdvForm) {
-            this.unionType = params.unionType;
-        }
-
         if (this.colModel) {
             // colModel not set during the first time
             const allCols = this.dagNode.getParents().map((parentNode) => {
@@ -196,16 +177,9 @@ class SetOpPanelModel {
 
     private _getParam(): DagNodeSetInputStruct {
         return {
-            unionType: this.unionType,
             dedup: this.dedup,
             columns: this.colModel.getParam().columns
         }
-    }
-
-    private _getAdvFormParam() {
-        const param = this._getParam();
-        delete param.unionType;
-        return param;
     }
 
     private _update(): void {

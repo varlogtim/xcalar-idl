@@ -420,7 +420,7 @@ class ColAssignmentView {
                 map.set(col.getBackColName(), colIndex);
             }
         });
-
+        const validTypes: ColumnType[] = BaseOpPanel.getBaiscColTypes(true);
         let list: string = allCols.map(function(col, index) {
             const colName: string = col.getBackColName();
             const isUsed: boolean = map.has(colName);
@@ -437,6 +437,9 @@ class ColAssignmentView {
                 title = colName;
             }
             const colType: ColumnType = col.getType();
+            if (!validTypes.includes(colType)) {
+                return "";
+            }
             const colNameTempelate: HTML =
                 '<span class="colName">' +
                     xcHelper.escapeHTMLSpecialChar(colName) +
