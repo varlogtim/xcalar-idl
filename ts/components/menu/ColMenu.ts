@@ -151,11 +151,7 @@ class ColMenu extends AbstractMenu {
             }
             const colNums: number[] = $colMenu.data("colNums");
             const tableId: TableId = $colMenu.data('tableId');
-            if (gTables[tableId].modelingMode) {
-                this._createNodeAndShowForm(DagNodeType.Join, tableId, colNums);
-            } else {
-                JoinView.show(tableId, colNums);
-            }
+            this._createNodeAndShowForm(DagNodeType.Join, tableId, colNums);
         });
 
         $colMenu.on('mouseup', '.functions', (event) => {
@@ -166,18 +162,11 @@ class ColMenu extends AbstractMenu {
             const tableId: TableId = $colMenu.data('tableId');
             const func: string = $li.data('func');
             const colNums: number[] = $colMenu.data("colNums");
-            const triggerColNum: number = $colMenu.data("colNum");
-            if (gTables[tableId].modelingMode) {
-                let type: DagNodeType = <DagNodeType>func;
-                if (func === "group by") {
-                    type = DagNodeType.GroupBy;
-                }
-                this._createNodeAndShowForm(type, tableId, colNums);
-            } else {
-                OperationsView.show(tableId, colNums, func, {
-                    triggerColNum: triggerColNum
-                });
+            let type: DagNodeType = <DagNodeType>func;
+            if (func === "group by") {
+                type = DagNodeType.GroupBy;
             }
+            this._createNodeAndShowForm(type, tableId, colNums);
         });
 
 
@@ -206,11 +195,7 @@ class ColMenu extends AbstractMenu {
             }
             const tableId: TableId = $colMenu.data('tableId');
             const colNums: number[] = $colMenu.data("colNums");
-            if (gTables[tableId].modelingMode) {
-                this._createNodeAndShowForm(DagNodeType.Project, tableId, colNums);
-            } else {
-                ProjectView.show(tableId, colNums);
-            }
+            this._createNodeAndShowForm(DagNodeType.Project, tableId, colNums);
         });
 
         $colMenu.on('mouseup', '.extensions', (event) => {
@@ -417,7 +402,6 @@ class ColMenu extends AbstractMenu {
             }
             const colNums: number[] = $colMenu.data("colNums");
             const tableId: TableId = $colMenu.data('tableId');
-            SortView.show(colNums, tableId);
         });
 
         $subMenu.on('mouseup', '.union, .intersect, .except', (event) => {
@@ -426,21 +410,17 @@ class ColMenu extends AbstractMenu {
             }
             const colNums: number[] = $colMenu.data("colNums");
             const tableId: TableId = $colMenu.data('tableId');
-            if (gTables[tableId].modelingMode) {
-                let subType: DagNodeSubType = DagNodeSubType.Union;
-                const $li = $(event.currentTarget);
-                if ($li.hasClass("intersect")) {
-                    subType = DagNodeSubType.Intersect;
-                } else if ($li.hasClass("execpt")) {
-                    subType = DagNodeSubType.Except;
-                }
-
-                this._createNodeAndShowForm(DagNodeType.Set, tableId, colNums, {
-                    subType: subType
-                });
-            } else {
-                UnionView.show(tableId, colNums);
+            let subType: DagNodeSubType = DagNodeSubType.Union;
+            const $li = $(event.currentTarget);
+            if ($li.hasClass("intersect")) {
+                subType = DagNodeSubType.Intersect;
+            } else if ($li.hasClass("execpt")) {
+                subType = DagNodeSubType.Except;
             }
+
+            this._createNodeAndShowForm(DagNodeType.Set, tableId, colNums, {
+                subType: subType
+            });
         });
     }
 

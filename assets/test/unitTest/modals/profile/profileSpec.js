@@ -729,9 +729,10 @@ describe("Profile-Profile Test", function() {
         });
 
         it("should click to filter", function() {
-            var oldFilter = xcFunction.filter;
+            var cellMenu = TableMenuManager.Instance.getCellMenu();
+            var oldFilter = cellMenu.filter;
             var test = false;
-            xcFunction.filter = function() {
+            cellMenu.filter = function() {
                 test = true;
             };
 
@@ -756,7 +757,7 @@ describe("Profile-Profile Test", function() {
             $filterOption.find(".filter").trigger(fakeEvent.mousedown);
             expect(test).to.be.true;
             assert.isFalse($modal.is(":visible"));
-            xcFunction.filter = oldFilter;
+            cellMenu.filter = oldFilter;
         });
     });
 

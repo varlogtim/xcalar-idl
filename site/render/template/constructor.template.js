@@ -1386,8 +1386,6 @@
             version: <%= version %>,
             datasetListView: (boolean) ds use list/grid view
             browserListView: (boolean) browser use list/grid view
-            keepJoinTables: (boolean) keep tables to join or hide them
-            keepGBTable: (boolean) keep original group by table or replace
             activeMainTab: (string) which tab is in active
             general: (obj) holds general settings
 
@@ -1415,12 +1413,6 @@
                 this.datasetListView = $("#dataViewBtn").hasClass("listView");
                 this.browserListView = $("#fileBrowserGridView")
                                         .hasClass("listView");
-                this.keepJoinTables = $("#joinView").find(".keepTablesCBWrap")
-                                                     .find(".checkbox")
-                                                     .hasClass("checked");
-                this.keepGBTable = $("#operationsView").find(".keepTable")
-                                                        .find(".checkbox")
-                                                       .hasClass("checked");
                 this.dsSortKey = DS.getSortKey();
                 this.sqlCollapsed = $("#log-TextArea")
                                      .find(".expanded").length === 0 &&

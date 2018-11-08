@@ -6,11 +6,12 @@ class TableMenuManager {
     }
 
     private colMenu: ColMenu;
+    private cellMenu: CellMenu;
 
     public constructor() {
         new TableMenu();
         this.colMenu = new ColMenu();
-        new CellMenu();
+        this.cellMenu = new CellMenu();
     }
 
     /**
@@ -18,6 +19,10 @@ class TableMenuManager {
      */
     public getColMenu(): ColMenu {
         return this.colMenu;
+    }
+
+    public getCellMenu(): CellMenu {
+        return this.cellMenu;
     }
 
     /**

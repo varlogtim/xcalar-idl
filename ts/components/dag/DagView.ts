@@ -2547,7 +2547,7 @@ namespace DagView {
         graph.events.on(DagNodeEvents.ConnectionChange, function (info) {
             if (info.descendents.length) {
                 // XXX TODO only update if nodes involved in form are affected
-                FormHelper.updateColumns(null, true, info);
+                FormHelper.updateColumns(info);
             }
         });
 

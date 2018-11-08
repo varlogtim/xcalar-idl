@@ -4,6 +4,10 @@ class CellMenu extends AbstractMenu {
         super(menuId, null);
     }
 
+    public filter(evalString): void {
+        return this._createNodeAndShowForm(evalString);
+    }
+
     protected _getHotKeyEntries(): ReadonlyArray<[string, string]> {
         return [
             ["c", "tdCopy"],
@@ -139,11 +143,7 @@ class CellMenu extends AbstractMenu {
                 uniqueVals, isExist, isNull);
 
             if (options != null) {
-                if (gTables[tableId].modelingMode) {
-                    this._createNodeAndShowForm(options.filterString);
-                } else {
-                    xcFunction.filter(colNum, tableId, options);
-                }
+                this._createNodeAndShowForm(options.filterString);
             }
         }
 

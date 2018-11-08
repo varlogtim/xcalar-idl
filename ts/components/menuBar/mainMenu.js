@@ -197,17 +197,6 @@ window.MainMenu = (function($, MainMenu) {
     MainMenu.closeForms = function() {
         if (isFormOpen) {
             ignoreRestoreState = true;
-            if (gChronos) {
-                OperationsView.close();
-                JoinView.close();
-                UnionView.close();
-                ExportView.close();
-                SmartCastView.close();
-                DFCreateView.close();
-                SortView.close();
-                ProjectView.close();
-            }
-
             formPanels.forEach((panel) => {
                 panel.close();
             });

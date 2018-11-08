@@ -498,6 +498,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
         sendMessageToJupyter(stubStruct);
     };
 
+    // XXX TODO: update it
     function showMapForm(tableName, columns, moduleName, fnName) {
         var tableId = xcHelper.getTableId(tableName);
         var table = gTables[tableId];
@@ -510,13 +511,13 @@ window.JupyterPanel = (function($, JupyterPanel) {
                 }
             }
 
-            MainMenu.openPanel("workspacePanel", "worksheetButton");
-            OperationsView.show(tableId, colNums, "map", {
-                prefill: {
-                    ops: [moduleName + ":" + fnName],
-                    args: [columns]
-                }
-            });
+            // MainMenu.openPanel("workspacePanel", "worksheetButton");
+            // OperationsView.show(tableId, colNums, "map", {
+            //     prefill: {
+            //         ops: [moduleName + ":" + fnName],
+            //         args: [columns]
+            //     }
+            // });
         } else {
             Alert.show({
                 title: "Error",

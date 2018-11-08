@@ -1046,24 +1046,6 @@ module.exports = {
         "config": "Configure"
     },
 
-    "unionView": {
-        "header": "SET OPERATION", // Sync with JSTStr
-        "AddTables": "ADD TABLES",
-        "TableTitle": "Tables",
-        "ColumnTitle": "Columns In Results Table",
-        "Instr": "Select tables you would like to except / intersect / union and select columns from each table.",
-        "CandidateTitle": "To Be Dropped",
-        "AddTable": "Add Table To Operation",
-        "confirm": "Union",
-        "Mode": "Operation",
-        "IncludeAll": "Include Duplicate Rows",
-        "Union": "Union (Combine)",
-        "Except": "Except (Minus)",
-        "Intersect": "Intersect",
-        "Yes": "Yes",
-        "No": "No"
-    },
-
     "SetOpPanel": {
         "header": "Set Operation",
         "ColumnTitle": "Columns after Set operation",

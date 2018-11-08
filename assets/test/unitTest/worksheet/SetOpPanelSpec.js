@@ -1,12 +1,13 @@
-describe("Union View Test", function() {
+// XXX TODO: fix it
+describe("Set Op Panel Test", function() {
     var table1;
     var table2;
-    var $unionView;
+    var $setOpPanel;
 
     before(function() {
         console.clear();
         UnitTest.onMinMode();
-        $unionView = $("#unionView");
+        $setOpPanel = $("#setOpPanel");
 
         var progCol1 = ColManager.newPullCol("col1", null, ColumnType.integer);
         var progCol2 = ColManager.newPullCol("col2", null, ColumnType.string);
@@ -26,17 +27,17 @@ describe("Union View Test", function() {
         gTables["test2"] = table2;
     });
 
-    it("should show the union view form", function() {
-        UnionView.show("test1", [1]);
-        assert.isTrue($unionView.is(":visible"));
-        expect($unionView.find(".unionTableList").eq(0).find("input").val())
+    it("should show the Set Op Pnale", function() {
+        setOpPanel.Instance.show("test1", [1]);
+        assert.isTrue($setOpPanel.is(":visible"));
+        expect($setOpPanel.find(".unionTableList").eq(0).find("input").val())
         .to.equal("a#test1");
     });
 
     it("should switch union mode", function() {
-        var $modeList = $unionView.find(".modeList");
+        var $modeList = $setOpPanel.find(".modeList");
         var $text = $modeList.find(".text");
-        var $confirm = $unionView.find(".confirm");
+        var $confirm = $setOpPanel.find(".confirm");
         // default to be union all
         expect($text.text()).to.contains("Union (Combine)");
         expect($confirm.text()).to.equal("Union");
@@ -52,15 +53,15 @@ describe("Union View Test", function() {
     });
 
     it("should remove table", function() {
-        var $buttons = $unionView.find(".removeTable");
+        var $buttons = $setOpPanel.find(".removeTable");
         expect($buttons.length).to.equal(2);
         $buttons.eq(1).click();
-        expect($unionView.find(".unionTableList").length).to.equal(1);
+        expect($setOpPanel.find(".unionTableList").length).to.equal(1);
     });
 
     it("should add tabale", function() {
-        $unionView.find(".addTable").click();
-        expect($unionView.find(".unionTableList").length).to.equal(2);
+        $setOpPanel.find(".addTable").click();
+        expect($setOpPanel.find(".unionTableList").length).to.equal(2);
     });
 
     it("should select table", function() {
@@ -68,7 +69,7 @@ describe("Union View Test", function() {
         WSManager.getTableList = function() {
             return '<li data-id="test2">b#test2</li>';
         };
-        var $dropdown = $unionView.find(".unionTableList").eq(1);
+        var $dropdown = $setOpPanel.find(".unionTableList").eq(1);
         $dropdown.click();
         expect($dropdown.find(".list").hasClass("openList")).to.be.true;
 
@@ -87,45 +88,45 @@ describe("Union View Test", function() {
             testId = tableId;
         };
 
-        $unionView.find(".focusTable").eq(0).click();
+        $setOpPanel.find(".focusTable").eq(0).click();
         expect(testId).to.equal("test1");
 
         xcHelper.centerFocusedTable = oldFunc;
     });
 
     it("should search column", function() {
-        var $searchInput = $unionView.find(".searchArea input").eq(0);
+        var $searchInput = $setOpPanel.find(".searchArea input").eq(0);
         // 2 columns should be highlighted
         $searchInput.val("col").trigger("input");
-        expect($unionView.find(".highlight").length).to.equal(2);
+        expect($setOpPanel.find(".highlight").length).to.equal(2);
         // rest
         $searchInput.val("").trigger("input");
-        expect($unionView.find(".highlight").length).to.equal(0);
+        expect($setOpPanel.find(".highlight").length).to.equal(0);
     });
 
     it("should add column", function() {
-        var $candidateList = $unionView.find('.candidateSection .lists[data-index="0"]');
+        var $candidateList = $setOpPanel.find('.candidateSection .lists[data-index="0"]');
 
-        expect($unionView.find('.resultSection .lists[data-index="0"] .inputCol').length)
+        expect($setOpPanel.find('.resultSection .lists[data-index="0"] .inputCol').length)
         .to.equal(1);
         expect($candidateList.find(".inputCol").length).to.equal(1);
         $candidateList.find(".addCol").click();
-        expect($unionView.find('.resultSection .lists[data-index="0"] .inputCol').length)
+        expect($setOpPanel.find('.resultSection .lists[data-index="0"] .inputCol').length)
         .to.equal(2);
-        expect($unionView.find('.candidateSection .lists[data-index="0"] .inputCol').length)
+        expect($setOpPanel.find('.candidateSection .lists[data-index="0"] .inputCol').length)
         .to.equal(0);
     });
 
     it("should remove column", function() {
-        $unionView.find('.resultCol[data-index="1"] .removeColInRow').click();
-        expect($unionView.find('.resultSection .lists[data-index="0"] .inputCol').length)
+        $setOpPanel.find('.resultCol[data-index="1"] .removeColInRow').click();
+        expect($setOpPanel.find('.resultSection .lists[data-index="0"] .inputCol').length)
         .to.equal(1);
-        expect($unionView.find('.candidateSection .lists[data-index="0"] .inputCol').length)
+        expect($setOpPanel.find('.candidateSection .lists[data-index="0"] .inputCol').length)
         .to.equal(1);
     });
 
     it("should select column", function() {
-        var $dropdown = $unionView.find(".columnList").eq(1);
+        var $dropdown = $setOpPanel.find(".columnList").eq(1);
         $dropdown.find(".iconWrapper").click();
         expect($dropdown.find(".list").hasClass("openList")).to.be.true;
 
@@ -134,7 +135,7 @@ describe("Union View Test", function() {
         });
         expect($li.length).to.equal(1);
         $li.trigger(fakeEvent.mouseup);
-        expect($unionView.find(".columnList").eq(1).find(".text").text())
+        expect($setOpPanel.find(".columnList").eq(1).find(".text").text())
         .to.equal("col3");
     });
 
@@ -145,7 +146,7 @@ describe("Union View Test", function() {
             testTableId = tableId;
             testColNum = colNum
         };
-        var $inputCol = $unionView.find(".candidateSection .inputCol").eq(0).eq(0);
+        var $inputCol = $setOpPanel.find(".candidateSection .inputCol").eq(0).eq(0);
         $inputCol.find(".focusCol").click();
         expect(testTableId).to.equal("test1");
         expect(testColNum).to.equal(2);
@@ -153,33 +154,33 @@ describe("Union View Test", function() {
     });
 
     it("should validate and show empty new table error", function() {
-        $unionView.find(".confirm").click();
+        $setOpPanel.find(".confirm").click();
         UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
     });
 
     it("should validate and show empty table name error", function() {
-        var $input = $unionView.find(".unionTableList").eq(1).find("input");
+        var $input = $setOpPanel.find(".unionTableList").eq(1).find("input");
         var text = $input.val();
         $input.val("");
-        $unionView.find(".confirm").click();
+        $setOpPanel.find(".confirm").click();
         UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
         $input.val(text);
     });
 
     it("should validate and show empty new table error", function() {
-        $unionView.find(".confirm").click();
+        $setOpPanel.find(".confirm").click();
         UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
-        $unionView.find(".newTableName").val("newTable");
+        $setOpPanel.find(".newTableName").val("newTable");
     });
 
     it("should validate column type error", function() {
-        $unionView.find(".confirm").click();
+        $setOpPanel.find(".confirm").click();
         UnitTest.hasStatusBoxWithError(UnionTStr.Cast);
-        expect($unionView.find(".resultCol").hasClass("cast")).to.be.true;
+        expect($setOpPanel.find(".resultCol").hasClass("cast")).to.be.true;
     });
 
     it("should select type", function() {
-        var $dropdown = $unionView.find(".typeList").eq(0);
+        var $dropdown = $setOpPanel.find(".typeList").eq(0);
         $dropdown.click();
         expect($dropdown.find(".list").hasClass("openList")).to.be.true;
 
@@ -197,19 +198,19 @@ describe("Union View Test", function() {
         xcFunction.union = function() {
             test = true;
         };
-        $unionView.find(".confirm").click();
+        $setOpPanel.find(".confirm").click();
         expect(test).to.be.true;
         xcFunction.union = oldFunc;
-        assert.isFalse($unionView.is(":visible"));
+        assert.isFalse($setOpPanel.is(":visible"));
     });
 
-    it("call UnionView.close should have no side effect", function() {
-        UnionView.close();
-        assert.isFalse($unionView.is(":visible"));
+    it("call close should have no side effect", function() {
+        SetOpPanel.Instance.close();
+        assert.isFalse($setOpPanel.is(":visible"));
     });
 
     it("should show view with prefill", function(done) {
-        UnionView.show("test1", null, {
+        SetOpPanel.Instance.show("test1", null, {
             prefill: {
                 tableCols: [[{
                     origName: "col2",
@@ -221,11 +222,11 @@ describe("Union View Test", function() {
         });
 
         UnitTest.testFinish(function() {
-            return $unionView.find(".newTableName").val() === "newTable2";
+            return $setOpPanel.find(".newTableName").val() === "newTable2";
         })
         .then(function() {
-            expect($unionView.find(".unionTableList").length).to.equal(2);
-            expect($unionView.find(".resultSection .inputCol").length)
+            expect($setOpPanel.find(".unionTableList").length).to.equal(2);
+            expect($setOpPanel.find(".resultSection .inputCol").length)
             .to.equal(2);
             done();
         })
@@ -238,18 +239,18 @@ describe("Union View Test", function() {
         it("should update columns", function() {
             var progCol3 = ColManager.newPullCol("col3", null, ColumnType.string);
             table1.tableCols.push(progCol3);
-            expect($unionView.find(".candidateSection .lists").eq(1).find(".inputCol").length).to.equal(1);
-            expect($unionView.find(".candidateSection .lists").eq(2).find(".inputCol").length).to.equal(2);
-            UnionView.updateColumns(table1.getId());
-            expect($unionView.find(".candidateSection .lists").eq(1).find(".inputCol").length).to.equal(2);
-            expect($unionView.find(".candidateSection .lists").eq(2).find(".inputCol").length).to.equal(2);
+            expect($setOpPanel.find(".candidateSection .lists").eq(1).find(".inputCol").length).to.equal(1);
+            expect($setOpPanel.find(".candidateSection .lists").eq(2).find(".inputCol").length).to.equal(2);
+            SetOpPanel.Instance.refreshColumns(table1.getId());
+            expect($setOpPanel.find(".candidateSection .lists").eq(1).find(".inputCol").length).to.equal(2);
+            expect($setOpPanel.find(".candidateSection .lists").eq(2).find(".inputCol").length).to.equal(2);
         });
     });
 
     after(function() {
         delete gTables["test1"];
         delete gTables["test2"];
-        UnionView.close();
+        SetOpPanel.Instance.close();
         UnitTest.offMinMode();
     });
 });

@@ -629,25 +629,9 @@ class FormHelper {
                 '</div>'
     }
 
-    public static updateColumns(
-        tableId?: TableId,
-        isModeling?: boolean,
-        options?
-    ): void {
-        if (!isModeling) {
-            DFCreateView.updateTables(tableId, true);
-            ProjectView.updateColumns();
-            OperationsView.updateColumns();
-            JoinView.updateColumns();
-            ExportView.updateColumns();
-            SmartCastView.updateColumns(tableId);
-            UnionView.updateColumns(tableId);
-            SortView.updateColumns(tableId);
-        // extensions view doesn't cache columns
-        } else {
-            if (FormHelper.activeForm) {
-                this.activeForm.refreshColumns(options);
-            }
+    public static updateColumns(options): void {
+        if (FormHelper.activeForm) {
+            this.activeForm.refreshColumns(options);
         }
     }
 

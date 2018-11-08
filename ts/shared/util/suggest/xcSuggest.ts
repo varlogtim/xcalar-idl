@@ -1044,16 +1044,6 @@ namespace xcSuggest { // = (function($, xcSuggest) {
     // End JSON Delim Suggestion
     // Begin Col Type
     //////////////////////////////////////////////////////////////
-    // Relevant structure:
-    // smartCastView.js
-    // .show
-    //  initialSugget
-    //   progcol.gettype
-    //   suggestType
-    //    -Skips bool and float type
-    //     -Skips integer type
-    //  smartsuggest -I think it's just UI updates
-
 
     /**
      * Suggests what type of data is stored in a column

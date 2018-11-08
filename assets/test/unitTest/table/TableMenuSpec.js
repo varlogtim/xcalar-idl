@@ -124,9 +124,9 @@ describe('TableMenu Test', function() {
             });
 
             it('exportTable', function() {
-                var cachedFunc = ExportView.show;
+                var cachedFunc = ExportOpPanel.Instance.show;
                 var called = false;
-                ExportView.show = function(tId) {
+                ExportOpPanel.Instance.show = function(tId) {
                     expect(tId).to.equal(tableId);
                     called = true;
                 };
@@ -147,7 +147,7 @@ describe('TableMenu Test', function() {
                 if (isUnavailable) {
                     $tableMenu.find(".exportTable").addClass("unavailable");
                 }
-                ExportView.show = cachedFunc;
+                ExportOpPanel.Instance.show = cachedFunc;
             });
 
             it('jupyterFullTable', function() {
@@ -251,9 +251,9 @@ describe('TableMenu Test', function() {
             });
 
             it('multiCast', function() {
-                var cachedFunc = SmartCastView.show;
+                var cachedFunc = CastOpPanel.Instance.show;
                 var called = false;
-                SmartCastView.show = function(tId) {
+                CastOpPanel.Instance.show = function(tId) {
                     expect(tId).to.equal(tableId);
                     called = true;
                 };
@@ -264,7 +264,7 @@ describe('TableMenu Test', function() {
                 $tableMenu.find('.multiCast').trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
-                SmartCastView.show = cachedFunc;
+                CastOpPanel.Instance.show = cachedFunc;
             });
 
             it('corrAgg', function() {
@@ -747,10 +747,10 @@ describe('TableMenu Test', function() {
                 ColManager.maximizeCols = cachedFunc;
             });
 
-            it('sortView', function() {
-                var cachedFunc = SortView.show;
+            it('sort', function() {
+                var cachedFunc = SortOpPanel.Instance.show;
                 var called = false;
-                SortView.show = function(colNums, tId) {
+                SortOpPanel.Instance.show = function(colNums, tId) {
                     expect(colNums[0]).to.equal(12);
                     expect(colNums.length).to.equal(1);
                     expect(tId).to.equal(tableId);
@@ -763,13 +763,14 @@ describe('TableMenu Test', function() {
                 $colSubMenu.find('.sortView').eq(0).trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
-                SortView.show = cachedFunc;
+                SortOpPanel.Instance.show = cachedFunc;
             });
 
-            it('unionView', function() {
-                var cachedFunc = UnionView.show;
+            // XXX TODO: fix it
+            it('Set Op panel', function() {
+                var cachedFunc = SetOpPanel.Instance.show;
                 var called = false;
-                UnionView.show = function(tId, colNums) {
+                SetOpPanel.Instance.show = function(tId, colNums) {
                     expect(colNums[0]).to.equal(12);
                     expect(colNums.length).to.equal(1);
                     expect(tId).to.equal(tableId);
@@ -782,13 +783,13 @@ describe('TableMenu Test', function() {
                 $colMenu.find('.union').eq(0).trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
-                UnionView.show = cachedFunc;
+                SetOpPanel.Instance.show = cachedFunc;
             });
 
             it('projectView', function() {
-                var cachedFunc = ProjectView.show;
+                var cachedFunc = ProjectOpPanel.Instance.show;
                 var called = false;
-                ProjectView.show = function(tId, colNums) {
+                ProjectOpPanel.Instance.show = function(tId, colNums) {
                     expect(colNums[0]).to.equal(12);
                     expect(colNums.length).to.equal(1);
                     expect(tId).to.equal(tableId);
@@ -801,13 +802,13 @@ describe('TableMenu Test', function() {
                 $colMenu.find('.project').eq(0).trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
-                ProjectView.show = cachedFunc;
+                ProjectOpPanel.Instance.show = cachedFunc;
             });
 
             it('join', function() {
-                var cachedFunc = JoinView.show;
+                var cachedFunc = JoinOpPanel.Instance.show;
                 var called = false;
-                JoinView.show = function(tId, colNums) {
+                JoinOpPanel.Instance.show = function(tId, colNums) {
                     expect(colNums[0]).to.equal(12);
                     expect(colNums.length).to.equal(1);
                     expect(tId).to.equal(tableId);
@@ -820,13 +821,13 @@ describe('TableMenu Test', function() {
                 $colMenu.find('.join').eq(0).trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
-                JoinView.show = cachedFunc;
+                JoinOpPanel.Instance.show = cachedFunc;
             });
 
             it('aggregate', function() {
-                var cachedFunc = OperationsView.show;
+                var cachedFunc = AggOpPanel.Instance.show;
                 var called = false;
-                OperationsView.show = function(tId, colNums, func) {
+                AggOpPanel.Instance.show = function(tId, colNums, func) {
                     expect(colNums[0]).to.equal(12);
                     expect(tId).to.equal(tableId);
                     expect(func).to.equal("aggregate");
@@ -839,13 +840,13 @@ describe('TableMenu Test', function() {
                 $colMenu.find('.functions.aggregate').trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
-                OperationsView.show = cachedFunc;
+                AggOpPanel.Instance.show = cachedFunc;
             });
 
             it('filter', function() {
-                var cachedFunc = OperationsView.show;
+                var cachedFunc = FilterOpPanel.Instance.show;
                 var called = false;
-                OperationsView.show = function(tId, colNums, func) {
+                FilterOpPanel.Instance.show = function(tId, colNums, func) {
                     expect(colNums[0]).to.equal(12);
                     expect(tId).to.equal(tableId);
                     expect(func).to.equal("filter");
@@ -858,13 +859,13 @@ describe('TableMenu Test', function() {
                 $colMenu.find('.functions.filter').trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
-                OperationsView.show = cachedFunc;
+                FilterOpPanel.Instance.show = cachedFunc;
             });
 
             it('groupby', function() {
-                var cachedFunc = OperationsView.show;
+                var cachedFunc = GroupByOpPanel.Instance.show;
                 var called = false;
-                OperationsView.show = function(tId, colNums, func) {
+                GroupByOpPanel.Instance.show = function(tId, colNums, func) {
                     expect(colNums[0]).to.equal(12);
                     expect(tId).to.equal(tableId);
                     expect(func).to.equal("group by");
@@ -877,13 +878,13 @@ describe('TableMenu Test', function() {
                 $colMenu.find('.functions.groupby').eq(0).trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
-                OperationsView.show = cachedFunc;
+                GroupByOpPanel.Instance.show = cachedFunc;
             });
 
             it('map', function() {
-                var cachedFunc = OperationsView.show;
+                var cachedFunc = MapOpPanel.Instance.show;
                 var called = false;
-                OperationsView.show = function(tId, colNums, func) {
+                MapOpPanel.Instance.show = function(tId, colNums, func) {
                     expect(colNums[0]).to.equal(12);
                     expect(tId).to.equal(tableId);
                     expect(func).to.equal("map");
@@ -896,7 +897,7 @@ describe('TableMenu Test', function() {
                 $colMenu.find('.functions.map').trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
-                OperationsView.show = cachedFunc;
+                MapOpPanel.Instance.show = cachedFunc;
             });
 
             it('profile', function() {
@@ -1385,9 +1386,9 @@ describe('TableMenu Test', function() {
         it('tdFilter', function() {
             $table.find('td.col12').eq(0).trigger(fakeEvent.mousedown);
             var cellText = $table.find('td.col12 .displayedData').eq(0).text();
-            var cachedFunc = xcFunction.filter;
+            var cachedFunc = FilterOpPanel.Instance.show;
             var called = false;
-            xcFunction.filter = function(colNum, tId, options) {
+            FilterOpPanel.Instance.show = function(colNum, tId, options) {
                 expect(colNum).to.equal(12);
                 expect(tId).to.equal(tableId);
                 expect(options.filterString).to.equal('eq(' + prefix + gPrefixSign + 'yelping_since, "' + cellText + '")' );
@@ -1401,7 +1402,7 @@ describe('TableMenu Test', function() {
             $cellMenu.find('.tdFilter').trigger(fakeEvent.mouseup);
             expect(called).to.be.true;
 
-            xcFunction.filter = cachedFunc;
+            FilterOpPanel.Instance.filter = cachedFunc;
         });
 
         it('tdFilter multiple cells', function() {
@@ -1437,9 +1438,9 @@ describe('TableMenu Test', function() {
 
             $table.find("th.col12 .header").addClass("type-integer");
 
-            var cachedFunc = xcFunction.filter;
+            var cachedFunc = FilterOpPanel.Instance.show ;
             var called = false;
-            xcFunction.filter = function(colNum, tId, options) {
+            FilterOpPanel.Instance.show  = function(colNum, tId, options) {
                 expect(colNum).to.equal(12);
                 expect(tId).to.equal(tableId);
                 expect(options.filterString).to.equal('or(eq(' + prefix + gPrefixSign + 'yelping_since, 4), not(exists(' + prefix + gPrefixSign + 'yelping_since' + ')))');
@@ -1452,8 +1453,7 @@ describe('TableMenu Test', function() {
 
             $cellMenu.find('.tdFilter').trigger(fakeEvent.mouseup);
             expect(called).to.be.true;
-
-            xcFunction.filter = cachedFunc;
+            FilterOpPanel.Instance.show = cachedFunc;
             $table.find("th.col12 .header").removeClass("type-integer");
         });
 
@@ -1465,9 +1465,9 @@ describe('TableMenu Test', function() {
             $cell.trigger(fakeEvent.mousedown);
 
             var cellText = $cell.find(".displayedData").text();
-            var cachedFunc = xcFunction.filter;
+            var cachedFunc = FilterOpPanel.Instance.show;
             var called = false;
-            xcFunction.filter = function(colNum, tId, options) {
+            FilterOpPanel.Instance.show = function(colNum, tId, options) {
                 expect(colNum).to.equal(6);
                 expect(tId).to.equal(tableId);
                 var fltStr;
@@ -1497,15 +1497,15 @@ describe('TableMenu Test', function() {
             $cellMenu.find('.tdFilter').trigger(fakeEvent.mouseup);
             expect(called).to.be.true;
 
-            xcFunction.filter = cachedFunc;
+            FilterOpPanel.Instance.show = cachedFunc;
         });
 
         it('tdExclude', function() {
             $table.find('td.col12').eq(0).trigger(fakeEvent.mousedown);
             var cellText = $table.find('td.col12 .displayedData').eq(0).text();
-            var cachedFunc = xcFunction.filter;
+            var cachedFunc = FilterOpPanel.Instance.show;
             var called = false;
-            xcFunction.filter = function(colNum, tId, options) {
+            FilterOpPanel.Instance.show = function(colNum, tId, options) {
                 expect(colNum).to.equal(12);
                 expect(tId).to.equal(tableId);
                 expect(options.filterString).to.equal('neq(' + prefix + gPrefixSign + 'yelping_since, "' + cellText + '")');
@@ -1519,7 +1519,7 @@ describe('TableMenu Test', function() {
             $cellMenu.find('.tdExclude').trigger(fakeEvent.mouseup);
             expect(called).to.be.true;
 
-            xcFunction.filter = cachedFunc;
+            FilterOpPanel.Instance.show = cachedFunc;
         });
 
         it('tdJsonModal', function() {
@@ -1629,9 +1629,9 @@ describe('TableMenu Test', function() {
         it("hot keys should work", function() {
             // j = 74, join
 
-            var cachedFunc = JoinView.show;
+            var cachedFunc = JoinOpPanel.Instance.show;
             var called = false;
-            JoinView.show = function(tId, colNums) {
+            JoinOpPanel.Instance.show = function(tId, colNums) {
                 called = true;
             };
 
@@ -1640,7 +1640,7 @@ describe('TableMenu Test', function() {
             $colMenu.find('.join').eq(0).trigger(fakeEvent.mouseup);
             expect(called).to.be.true;
 
-            JoinView.show = cachedFunc;
+            JoinOpPanel.Instance.show = cachedFunc;
         });
 
         it("toggling keys should work", function() {

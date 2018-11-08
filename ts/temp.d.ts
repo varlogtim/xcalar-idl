@@ -1236,43 +1236,6 @@ declare namespace MonitorPanel {
 declare namespace MonitorConfig {
     export function refreshParams(firstTouch: boolean): XDPromise<{}>;
 }
-
-declare namespace ProjectView {
-    export function updateColumns(): void;
-    export function setup(): void;
-    export function show(tableId: TableId, colNums: number[]): void;
-}
-declare namespace OperationsView {
-    export function updateColumns(): void;
-    export function setup(): void;
-    export function restore(): void;
-    export function show(tableId: TableId, colNums: number[], func: string, options: object): void;
-    export function updateOperationsMap(listXdfsObj: any)
-}
-declare namespace JoinView {
-    export function updateColumns(): void;
-    export function setup(): void;
-    export function restore(): void;
-    export function show(tableId: TableId, colNums: number[]): void
-}
-declare namespace ExportView {
-    export function updateColumns(): void;
-    export function show(tableId: TableId): void;
-}
-declare namespace SmartCastView {
-    export function updateColumns(tableId: TableId): void;
-    export function show(tableId: TableId): void;
-}
-declare namespace UnionView {
-    export function updateColumns(tableId: TableId): void;
-    export function setup(): void;
-    export function show(tableId: TableId, colNums: number[]): void;
-}
-declare namespace SortView {
-    export function updateColumns(tableId: TableId): void;
-    export function setup(): void;
-    export function show(colNums: number[], tableId: TableId): void;
-}
 declare namespace FnBar {
     export function updateOperationsMap(fns: UDFInfo[], isOnlyUDF?: boolean): void;
     export function unlock(): void;
@@ -1328,10 +1291,6 @@ declare namespace JSONModal {
     export function rehighlightTds($table: JQuery): void;
 }
 
-declare namespace ExportView {
-    export function setup(): void;
-}
-
 declare namespace AggModal {
     export function setup(): void;
     export function corrAgg(tableId: TableId, vertColNums?: number[], horColNums?: number[]): void;
@@ -1346,10 +1305,6 @@ declare namespace DFCreateView {
 declare namespace DFParamModal {
     export function setup(): void;
     export function updateDraggableInputs(): void;
-}
-
-declare namespace SmartCastView {
-    export function setup(): void;
 }
 
 declare namespace FileBrowser {

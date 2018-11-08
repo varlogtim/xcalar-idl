@@ -80,21 +80,9 @@ window.Undo = (function($, Undo) {
             replacingDest: TableType.Undone
         };
         var sortOptions = options.options || {};
-        TblManager.refreshTable([options.tableName], null,
+        return TblManager.refreshTable([options.tableName], null,
                                        [options.newTableName],
-                                       worksheet, null, refreshOptions)
-        .then(function() {
-            if (isMostRecent && sortOptions.formOpenTime) {
-                // XXX need to change to colNums plural once multisort is ready
-                SortView.show([options.colNum], options.tableId, {
-                    "restore": true,
-                    "restoreTime": sortOptions.formOpenTime
-                });
-            }
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-        return deferred.promise();
+                                       worksheet, null, refreshOptions);
     };
 
     undoFuncs[SQLOps.Filter] = function(options, isMostRecent) {

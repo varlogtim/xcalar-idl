@@ -528,21 +528,6 @@ namespace xcManager {
         return deferred.promise();
     }
 
-    function setupViews(): void {
-        ExportView.setup();
-        JoinView.setup();
-        UnionView.setup();
-        OperationsView.setup();
-        DFCreateView.setup();
-        ProjectView.setup();
-        DFParamModal.setup();
-        SmartCastView.setup();
-        SortView.setup();
-        // restore user settings
-        OperationsView.restore();
-        JoinView.restore();
-    }
-
     function setupDagPanel(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         DagTblManager.Instance.setup()
@@ -1461,7 +1446,6 @@ namespace xcManager {
         WorkspacePanel.setup();
         DagPanel.setup();
         DataflowPanel.setup();
-        setupViews();
     }
 
     // XXXX TODO: remove it

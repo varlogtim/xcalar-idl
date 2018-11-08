@@ -1,4 +1,4 @@
-describe('ProjectView Test', function() {
+describe('Project Op Panel Test', function() {
     var testDs;
     var tableName;
     var $projectForm;
@@ -18,7 +18,7 @@ describe('ProjectView Test', function() {
             testDs = ds;
             tableName = tName;
             prefix = tPrefix;
-            $projectForm = $('#projectView');
+            $projectForm = $('#projectOpPanel');
             tableId = xcHelper.getTableId(tableName);
 
             // generate an immediate from average_stars, four to boolean
@@ -49,7 +49,7 @@ describe('ProjectView Test', function() {
 
                 xcHelper.centerFocusedTable = function() {return PromiseHelper.resolve();};
 
-                ProjectView.show(tableId, [1]);
+                ProjectOpPanel.Instance.show(tableId, [1]);
                 setTimeout(function() {
                     done();
                 }, 500);
@@ -252,12 +252,12 @@ describe('ProjectView Test', function() {
 
     });
 
-    describe("ProjectView.updateColumns", function() {
+    describe("ProjectOpPanel.Instance.updateColumns", function() {
         it("colum refresh should work", function() {
             var $cols = $projectForm.find('.columnsToExport li.checked');
             expect($cols.is($projectForm.find('.columnsToExport li.checked'))).to.be.true;
             expect($projectForm.find('.columnsToExport li.checked')).to.have.lengthOf(12);
-            ProjectView.updateColumns();
+            ProjectOpPanel.Instance.updateColumns();
             expect($projectForm.find('.columnsToExport li.checked')).to.have.lengthOf(12);
             expect($cols.is($projectForm.find('.columnsToExport li.checked'))).to.be.false;
         });
@@ -293,7 +293,7 @@ describe('ProjectView Test', function() {
                 return {invalid: true, reason: 'notFound', name: 'badColumn'};
             };
 
-            ProjectView.__testOnly__.submitForm()
+            ProjectOpPanel.Instance.__testOnly__.submitForm()
             .then(function() {
                 expect('passed').to.equal('should not pass');
             })
@@ -319,7 +319,7 @@ describe('ProjectView Test', function() {
                 return {invalid: true, reason: 'tableNotFound'};
             };
 
-            ProjectView.__testOnly__.submitForm()
+            ProjectOpPanel.Instance.__testOnly__.submitForm()
             .then(function() {
                 expect('passed').to.equal('should not pass');
             })
@@ -338,10 +338,10 @@ describe('ProjectView Test', function() {
         it("restore columns should work", function(done) {
             $projectForm.find(".close").click();
             expect($("#xcTable-" + tableId).find('th.modalHighlighted').length).to.equal(0);
-            var formHelper = ProjectView.__testOnly__.getFormHelper();
+            var formHelper = ProjectOpPanel.Instance.__testOnly__.getFormHelper();
             formHelper.getOpenTime = function() {return 2;};
 
-            ProjectView.show(tableId, null, {restoreTime: 2});
+            ProjectOpPanel.Instance.show(tableId, null, {restoreTime: 2});
 
             setTimeout(function() {
                 expect($("#xcTable-" + tableId).find('th.modalHighlighted').length).to.equal(12);
@@ -364,7 +364,7 @@ describe('ProjectView Test', function() {
                 prefillInfo = {
                     "isDroppedTable": false
                 };
-                ProjectView.show(tableId, [1, 2], {prefill: prefillInfo});
+                ProjectOpPanel.Instance.show(tableId, [1, 2], {prefill: prefillInfo});
                 expect($projectForm.is(":visible")).to.be.true;
             });
 

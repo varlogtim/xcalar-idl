@@ -1781,10 +1781,6 @@ describe("Persistent Constructor Test", function() {
             .and.to.be.false;
             expect(userPref).to.have.property("browserListView")
             .and.to.be.false;
-            expect(userPref).to.have.property("keepJoinTables")
-            .and.to.be.false;
-            expect(userPref).to.have.property("keepGBTable")
-            .and.to.be.false;
             expect(userPref).to.have.property("sqlCollapsed")
             .and.to.be.false;
             expect(userPref).to.have.property("activeMainTab")

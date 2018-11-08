@@ -24,7 +24,6 @@ window.FlightTest = (function(FlightTest, $) {
         test = TestSuite.createTest();
         test.setMode(mode);
         initializeTests();
-        initializeForms();
         return test.run(hasAnimation, toClean, noPopup, withUndo, timeDilation);
     };
 
@@ -58,10 +57,6 @@ window.FlightTest = (function(FlightTest, $) {
         //               defaultTimeout, TestCaseDisabled); // disabled
         // test.add(IMDPanelTest, "IMDPanelTest",
         //               defaultTimeout, TestCaseEnabled);
-    }
-
-    function initializeForms() {
-        $("#operationsView").find(".keepTable").click(); // keep gb table
     }
 
     function flightTest(deferred, testName, currentTestNumber) {

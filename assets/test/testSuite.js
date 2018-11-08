@@ -148,8 +148,6 @@ window.TestSuite = (function($, TestSuite) {
             // may have better way
             gMinModeOn = hasAnimation ? false : true;
 
-            preCleanup();
-
             window.onerror = function(message, url, line, column, error) {
                 self.fail(errorCatchDeferred, null, null, error.stack);
             };
@@ -575,26 +573,6 @@ window.TestSuite = (function($, TestSuite) {
         },
 
         // ==================== COMMON ACTION TRIGGERS ===================== //
-        trigOpModal: function (tableId, columnName, funcClassName, whichModal) {
-            var self = this;
-            var $header = $("#xcTbodyWrap-" + tableId)
-                          .find(".flexWrap.flex-mid input[value='" +
-                                columnName + "']").eq(0);
-            self.assert($header.length === 1);
-            $header.closest(".flexContainer")
-                   .find(".flex-right .innerBox").click();
-
-            var $colMenu = $("#colMenu ." + funcClassName).eq(0);
-            $colMenu.trigger(fakeEvent.mouseup);
-
-            if (whichModal === "join") {
-                return self.checkExists("#joinView:not(.xc-hidden)");
-            } else {
-                return self.checkExists(["#operationsView:not(.xc-hidden)",
-                            '#operationsView .opSection:not(.tempDisabled)']);
-            }
-        },
-
         createNodeAndOpenPanel(parentNodeIds, nodeType, subType) {
             var self = this;
             var $node = self.createNode(nodeType, subType);
@@ -658,13 +636,6 @@ window.TestSuite = (function($, TestSuite) {
             console.error(error);
         });
     };
-
-    function preCleanup() {
-        $("#joinView").find(".keepTableCheckbox .checkbox")
-                      .removeClass("checked"); // deselect keep original tables
-                      // otherwise table ids get mixed up during test
-        deleteWorksheets();
-    }
 
     function cleanup(test) {
         // XXX TODO: make it work

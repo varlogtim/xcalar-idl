@@ -1881,7 +1881,7 @@ window.DS = (function ($, DS) {
 
     function setupGridViewButtons() {
         // click to toggle list view and grid view
-        $("#dataViewBtn, #exportViewBtn, #dsTarget-view").click(function() {
+        $("#dataViewBtn, #dsTarget-view").click(function() {
             var $btn = $(this);
             var isListView;
 
@@ -2514,7 +2514,7 @@ window.DS = (function ($, DS) {
 
     // toggle between list view and grid view
     function toggleDSView(isListView, noRefreshTooltip) {
-        var $btn = $("#dataViewBtn, #exportViewBtn, #dsTarget-view");
+        var $btn = $("#dataViewBtn, #dsTarget-view");
         var $allGrids = $gridView.add($("#dsTarget-list .gridItems"));
         xcHelper.toggleListGridBtn($btn, isListView, noRefreshTooltip);
 

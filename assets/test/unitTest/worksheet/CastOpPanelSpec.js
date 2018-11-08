@@ -1,4 +1,4 @@
-describe("Smart Cast View Test", function() {
+describe("Cast Op Panel Test", function() {
     var $castView;
     var $castTable;
     var $table;
@@ -8,7 +8,7 @@ describe("Smart Cast View Test", function() {
 
     before(function(done){
         xcTooltip.hideAll();
-        $castView = $("#smartCastView");
+        $castView = $("#castOpPanel");
         $resultSection = $("#multiCast-result");
         $castTable = $("#smartCast-table");
 
@@ -28,14 +28,14 @@ describe("Smart Cast View Test", function() {
 
     describe("Basic Function Test", function() {
         it("Should show the Cast View", function() {
-            SmartCastView.show(tableId);
+            CastOpPanel.Instance.show(tableId);
 
             assert.isTrue($castView.is(":visible"));
             expect($castTable.find(".row").length).to.equal(0);
         });
 
         it("Should select column", function() {
-            SmartCastView.__testOnly__.selectCol(1);
+            CastOpPanel.Instance.__testOnly__.selectCol(1);
             expect($castTable.find(".row").length).to.equal(1);
             expect($castTable.find(".initialType").length).to.equal(1);
             expect($(".modalHighlighted").length > 0).to.be.true;
@@ -44,19 +44,19 @@ describe("Smart Cast View Test", function() {
         it("Should change column type", function() {
             try {
                 // test error case
-                SmartCastView.__testOnly__.changeColType();
+                CastOpPanel.Instance.__testOnly__.changeColType();
             } catch (error) {
                 expect(error).not.to.be.null;
             }
 
-            SmartCastView.__testOnly__.changeColType(1, "integer");
+            CastOpPanel.Instance.__testOnly__.changeColType(1, "integer");
             var $row = $castTable.find(".row");
             expect($row.find(".colType .text").text()).to.equal("integer");
             expect($castTable.find(".initialType").length).to.equal(0);
         });
 
         it("Should deSelect column", function() {
-            SmartCastView.__testOnly__.deSelectCol(1);
+            CastOpPanel.Instance.__testOnly__.deSelectCol(1);
             expect($castTable.find(".row").length).to.equal(0);
             expect($(".modalHighlighted").length > 0).to.be.false;
         });
@@ -69,7 +69,7 @@ describe("Smart Cast View Test", function() {
             };
 
             // nothing to cacst
-            SmartCastView.__testOnly__.submitForm();
+            CastOpPanel.Instance.__testOnly__.submitForm();
             expect(test).to.be.false;
             var $statusBox = $("#statusBox");
             assert.isTrue($statusBox.is(":visible"));
@@ -78,10 +78,10 @@ describe("Smart Cast View Test", function() {
             StatusBox.forceHide();
 
             // something to cast
-            SmartCastView.__testOnly__.selectCol(1);
-            SmartCastView.__testOnly__.changeColType(1, "integer");
+            CastOpPanel.Instance.__testOnly__.selectCol(1);
+            CastOpPanel.Instance.__testOnly__.changeColType(1, "integer");
 
-            SmartCastView.__testOnly__.submitForm();
+            CastOpPanel.Instance.__testOnly__.submitForm();
             expect(test).to.be.true;
             assert.isFalse($castView.is(":visible"));
 
@@ -93,7 +93,7 @@ describe("Smart Cast View Test", function() {
         var $header;
 
         before(function() {
-            SmartCastView.show(tableId);
+            CastOpPanel.Instance.show(tableId);
             $header = $table.find("th.col1 .header");
         });
 
@@ -170,7 +170,7 @@ describe("Smart Cast View Test", function() {
             $castView.find(".cancel").click();
             assert.isFalse($castView.is(":visible"));
             // call another close should have nothing happen
-            SmartCastView.close();
+            CastOpPanel.Instance.close();
             assert.isFalse($castView.is(":visible"));
         });
     });
@@ -181,8 +181,8 @@ describe("Smart Cast View Test", function() {
             colName = prefix + gPrefixSign + "four";
             ColManager.hideCol([4], tableId, {noAnimate: true})
             .then(function() {
-                SmartCastView.show(tableId);
-                var colInfo = SmartCastView.__testOnly__.getInfo();
+                CastOpPanel.Instance.show(tableId);
+                var colInfo = CastOpPanel.Instance.__testOnly__.getInfo();
                 expect(colInfo.colNames.indexOf(colName)).to.equal(-1);
                 done();
             })
@@ -194,11 +194,11 @@ describe("Smart Cast View Test", function() {
         it("should update columns", function(done) {
             ColManager.unnest(tableId, gTables[tableId].tableCols.length, 0, [colName]);
             UnitTest.testFinish(function() {
-                var colInfo = SmartCastView.__testOnly__.getInfo();
+                var colInfo = CastOpPanel.Instance.__testOnly__.getInfo();
                 return colInfo.colNames.indexOf(colName) > -1;
             })
             .then(function() {
-                var colInfo = SmartCastView.__testOnly__.getInfo();
+                var colInfo = CastOpPanel.Instance.__testOnly__.getInfo();
                 expect(colInfo.colNames.indexOf(colName)).to.equal(12);
                 expect(colInfo.recTypes[12]).to.equal("boolean");
                 done();
@@ -209,7 +209,7 @@ describe("Smart Cast View Test", function() {
         });
         
         after(function() {
-            SmartCastView.close();
+            CastOpPanel.Instance.close();
         });
     });
 

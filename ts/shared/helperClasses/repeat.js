@@ -96,20 +96,6 @@ window.Repeat = (function($, Repeat) {
         return ColManager.sortColumn(colNums, tableId, order);
     };
 
-    // repeatFuncs[SQLOps.Filter] = function(options) {
-    // };
-
-    // repeatFuncs[SQLOps.Query] = redoFuncs[SQLOps.Filter];
-
-    // repeatFuncs[SQLOps.Map] = function(options) {
-    // };
-
-    // repeatFuncs[SQLOps.Join] = function(options) {
-    // };
-
-    // repeatFuncs[SQLOps.GroupBy] = function(options) {
-    // };
-
     // currently only works on 1 column
     repeatFuncs[SQLOps.SplitCol] = function(options, colNums, tableId) {
         if (colNums.length !== 1) {

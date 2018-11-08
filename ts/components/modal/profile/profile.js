@@ -1530,7 +1530,8 @@ window.Profile = (function($, Profile, d3) {
         if (options != null && options.filterString) {
             var colNum = gTables[filterTableId].getColNumByBackName(colName);
             closeProfileModal();
-            xcFunction.filter(colNum, filterTableId, options);
+            var cellMenu = TableMenuManager.Instance.getCellMenu();
+            cellMenu.filter(options.filterString);
         }
     }
 

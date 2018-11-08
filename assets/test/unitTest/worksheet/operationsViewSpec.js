@@ -1,3 +1,4 @@
+// XXX TODO: split into map, filter, groupby panel
 describe('OperationsView Test', function() {
     var testDs;
     var tableName;
@@ -7,7 +8,7 @@ describe('OperationsView Test', function() {
 
     before(function(done) {
         UnitTest.onMinMode();
-        $operationsView = $('#operationsView');
+        $operationsView = $('')
 
         var testDSObj = testDatasets.fakeYelp;
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
@@ -24,7 +25,7 @@ describe('OperationsView Test', function() {
         describe('function hasFuncFormat', function() {
             var func;
             before(function() {
-                func = OperationsView.__testOnly__.hasFuncFormat;
+                func = GeneralOpPanel.__testOnly__.hasFuncFormat;
             });
 
             it ('hasFuncFormat(arg) should return correctly', function() {
@@ -54,7 +55,7 @@ describe('OperationsView Test', function() {
         describe('function hasUnescapedParens', function() {
             var func;
             before(function() {
-                func = OperationsView.__testOnly__.hasUnescapedParens;
+                func = GeneralOpPanel.__testOnly__.hasUnescapedParens;
             });
 
             it ('hasUnescapedParens(arg) should return correctly', function() {
@@ -71,39 +72,10 @@ describe('OperationsView Test', function() {
             });
         });
 
-        describe('function formulateMapFilterString', function() {
-            var func;
-            before(function() {
-                func = OperationsView.__testOnly__.formulateMapFilterString;
-            });
-
-            it ('formulateMapFilterString() should return correctly', function() {
-                var args = ['1', 2];
-                var colTypeInfos = [{
-                    argNum: 0,
-                    type: "integer"
-                }];
-                expect(func('add', args, colTypeInfos)).to.equal("add(int(1, 10), 2)");
-
-                args = [['1', 2], ['3', 4]];
-                colTypeInfos = [
-                [{
-                    argNum: 0,
-                    type: 'integer'
-                }],
-                [{
-                    argNum: 0,
-                    type: 'integer'
-                }]];
-                expect(func('add', args, colTypeInfos, true)).to.equal(
-                    "and(add(int(1, 10), 2), add(int(3, 10), 4))");
-            });
-        });
-
         describe('function isNumberInQuotes', function() {
             var func;
             before(function() {
-                func = OperationsView.__testOnly__.isNumberInQuotes;
+                func = GeneralOpPanel.__testOnly__.isNumberInQuotes;
             });
 
             it('isNumberInQuotes() should return correctly', function() {
@@ -125,8 +97,8 @@ describe('OperationsView Test', function() {
 
         describe('function getMatchingAggNames', function() {
             it('getMatchingAggNames() should work', function() {
-                var fn = OperationsView.__testOnly__.getMatchingAggNames;
-                var aggNames = OperationsView.__testOnly__.aggNames;
+                var fn = GeneralOpPanel.__testOnly__.getMatchingAggNames;
+                var aggNames = GeneralOpPanel.__testOnly__.aggNames;
                 var oldAggNames = [];
                 for (var i = 0; i < aggNames.length; i++) {
                     oldAggNames.push(aggNames[i]);
@@ -159,8 +131,8 @@ describe('OperationsView Test', function() {
 
         describe('function getMatchingColNames', function() {
             it('getMatchingColNames() should work', function() {
-                var fn = OperationsView.__testOnly__.getMatchingColNames;
-                var colNames = OperationsView.__testOnly__.getColNamesCache();
+                var fn = GeneralOpPanel.__testOnly__.getMatchingColNames;
+                var colNames = GeneralOpPanel.__testOnly__.getColNamesCache();
                 var oldColNames = xcHelper.deepCopy(colNames);
                 emptyColName();
                 colNames["ayz"] = "ayz";
@@ -194,7 +166,7 @@ describe('OperationsView Test', function() {
         });
 
         it("function isBoolInQuotes", function() {
-            var fn = OperationsView.__testOnly__.isBoolInQuotes;
+            var fn = GeneralOpPanel.__testOnly__.isBoolInQuotes;
             expect(fn("'true'")).to.be.true;
             expect(fn("'true")).to.be.false;
             expect(fn("\"true\"")).to.be.true;
@@ -203,186 +175,186 @@ describe('OperationsView Test', function() {
             expect(fn("'Falsez'")).to.be.false;
         });
 
-        describe("check arg types", function() {
-            var fn;
-            var parseTypeCache;
-            before(function() {
-                fn = OperationsView.__testOnly__.checkArgTypes;
-                parseTypeCache = OperationsView.__testOnly__.changeParseTypeFn();
-            });
+        // describe("check arg types", function() {
+        //     var fn;
+        //     var parseTypeCache;
+        //     before(function() {
+        //         fn = MapOpPanel.Instance.__testOnly__.checkArgTypes;
+        //         parseTypeCache = MapOpPanel.Instance.__testOnly__.changeParseTypeFn();
+        //     });
 
-            it("test when only strings are valid", function() {
-                OperationsView.__testOnly__.changeParseTypeFn(function() {
-                    return ["string"];
-                });
+        //     it("test when only strings are valid", function() {
+        //         MapOpPanel.Instance.__testOnly__.changeParseTypeFn(function() {
+        //             return ["string"];
+        //         });
 
-                expect(fn("test")).to.equal(null);
-                expect(fn("0")).to.equal(null);
-                expect(fn("false")).to.equal(null);
-            });
+        //         expect(fn("test")).to.equal(null);
+        //         expect(fn("0")).to.equal(null);
+        //         expect(fn("false")).to.equal(null);
+        //     });
 
-            it("test when only mixed is valid", function() {
-                OperationsView.__testOnly__.changeParseTypeFn(function() {
-                    return ["mixed"];
-                });
+        //     it("test when only mixed is valid", function() {
+        //         MapOpPanel.Instance.__testOnly__.changeParseTypeFn(function() {
+        //             return ["mixed"];
+        //         });
 
-                expect(fn("test")).to.equal(null);
-                expect(fn("0")).to.equal(null);
-                expect(fn("false")).to.equal(null);
-            });
+        //         expect(fn("test")).to.equal(null);
+        //         expect(fn("0")).to.equal(null);
+        //         expect(fn("false")).to.equal(null);
+        //     });
 
-            it("test when only booleans are valid", function() {
-                OperationsView.__testOnly__.changeParseTypeFn(function() {
-                    return ["boolean"];
-                });
+        //     it("test when only booleans are valid", function() {
+        //         MapOpPanel.Instance.__testOnly__.changeParseTypeFn(function() {
+        //             return ["boolean"];
+        //         });
 
-                expect(fn("test").currentType).to.equal("string");
-                expect(fn("test").validType).to.deep.equal(["boolean"]);
+        //         expect(fn("test").currentType).to.equal("string");
+        //         expect(fn("test").validType).to.deep.equal(["boolean"]);
 
-                expect(fn("TrUe")).to.equal(null);
+        //         expect(fn("TrUe")).to.equal(null);
 
-                expect(fn("5")).to.equal(null);
-                expect(fn("0")).to.equal(null);
-                expect(fn("2.5").currentType).to.equal("float");
-            });
+        //         expect(fn("5")).to.equal(null);
+        //         expect(fn("0")).to.equal(null);
+        //         expect(fn("2.5").currentType).to.equal("float");
+        //     });
 
-            it("test when only strings and booleans are valid", function() {
-                OperationsView.__testOnly__.changeParseTypeFn(function() {
-                    return ["string", "boolean"];
-                });
+        //     it("test when only strings and booleans are valid", function() {
+        //         MapOpPanel.Instance.__testOnly__.changeParseTypeFn(function() {
+        //             return ["string", "boolean"];
+        //         });
 
-                expect(fn("test")).to.equal(null);
-                expect(fn("0")).to.equal(null);
-                expect(fn("false")).to.equal(null);
-            });
+        //         expect(fn("test")).to.equal(null);
+        //         expect(fn("0")).to.equal(null);
+        //         expect(fn("false")).to.equal(null);
+        //     });
 
-            it("test when only ints are valid", function() {
-                OperationsView.__testOnly__.changeParseTypeFn(function() {
-                    return ["integer"];
-                });
+        //     it("test when only ints are valid", function() {
+        //         MapOpPanel.Instance.__testOnly__.changeParseTypeFn(function() {
+        //             return ["integer"];
+        //         });
 
-                expect(fn("test").currentType).to.equal("string");
-                expect(fn("test").validType).to.deep.equal(["integer"]);
+        //         expect(fn("test").currentType).to.equal("string");
+        //         expect(fn("test").validType).to.deep.equal(["integer"]);
 
-                expect(fn("true").currentType).to.equal("string/boolean/integer");
-                expect(fn("true").validType).to.deep.equal(["integer"]);
+        //         expect(fn("true").currentType).to.equal("string/boolean/integer");
+        //         expect(fn("true").validType).to.deep.equal(["integer"]);
 
-                expect(fn("5")).to.equal(null);
-                expect(fn("0")).to.equal(null);
-                expect(fn("-1")).to.equal(null);
-                expect(fn("5.5").currentType).to.equal("float");
-                expect(fn("5.5").validType).to.deep.equal(["integer"]);
-            });
+        //         expect(fn("5")).to.equal(null);
+        //         expect(fn("0")).to.equal(null);
+        //         expect(fn("-1")).to.equal(null);
+        //         expect(fn("5.5").currentType).to.equal("float");
+        //         expect(fn("5.5").validType).to.deep.equal(["integer"]);
+        //     });
 
-            it("test when only floats are valid", function() {
-                OperationsView.__testOnly__.changeParseTypeFn(function() {
-                    return ["float"];
-                });
+        //     it("test when only floats are valid", function() {
+        //         MapOpPanel.Instance.__testOnly__.changeParseTypeFn(function() {
+        //             return ["float"];
+        //         });
 
-                expect(fn("test").currentType).to.equal("string");
-                expect(fn("test").validType).to.deep.equal(["float"]);
+        //         expect(fn("test").currentType).to.equal("string");
+        //         expect(fn("test").validType).to.deep.equal(["float"]);
 
-                expect(fn("true").currentType).to.equal("string/boolean/integer");
-                expect(fn("true").validType).to.deep.equal(["float"]);
+        //         expect(fn("true").currentType).to.equal("string/boolean/integer");
+        //         expect(fn("true").validType).to.deep.equal(["float"]);
 
-                expect(fn("5")).to.equal(null);
-                expect(fn("5.5")).to.equal(null);
-                expect(fn("0")).to.equal(null);
-                expect(fn("-1")).to.equal(null);
-            });
+        //         expect(fn("5")).to.equal(null);
+        //         expect(fn("5.5")).to.equal(null);
+        //         expect(fn("0")).to.equal(null);
+        //         expect(fn("-1")).to.equal(null);
+        //     });
 
-            it("test when only floats and ints are valid", function() {
-                OperationsView.__testOnly__.changeParseTypeFn(function() {
-                    return ["float", "integer"];
-                });
+        //     it("test when only floats and ints are valid", function() {
+        //         MapOpPanel.Instance.__testOnly__.changeParseTypeFn(function() {
+        //             return ["float", "integer"];
+        //         });
 
-                expect(fn("test").currentType).to.equal("string");
-                expect(fn("test").validType).to.deep.equal(["float", "integer"]);
+        //         expect(fn("test").currentType).to.equal("string");
+        //         expect(fn("test").validType).to.deep.equal(["float", "integer"]);
 
-                expect(fn("true").currentType).to.equal("string/boolean/integer");
-                expect(fn("true").validType).to.deep.equal(["float", "integer"]);
+        //         expect(fn("true").currentType).to.equal("string/boolean/integer");
+        //         expect(fn("true").validType).to.deep.equal(["float", "integer"]);
 
-                expect(fn("5")).to.equal(null);
-                expect(fn("5.5")).to.equal(null);
-                expect(fn("0")).to.equal(null);
-                expect(fn("-1")).to.equal(null);
-            });
+        //         expect(fn("5")).to.equal(null);
+        //         expect(fn("5.5")).to.equal(null);
+        //         expect(fn("0")).to.equal(null);
+        //         expect(fn("-1")).to.equal(null);
+        //     });
 
-            it("test when only booleans and ints are valid", function() {
-                OperationsView.__testOnly__.changeParseTypeFn(function() {
-                    return ["boolean", "integer"];
-                });
+        //     it("test when only booleans and ints are valid", function() {
+        //         MapOpPanel.Instance.__testOnly__.changeParseTypeFn(function() {
+        //             return ["boolean", "integer"];
+        //         });
 
-                expect(fn("test").currentType).to.equal("string");
-                expect(fn("test").validType).to.deep.equal(["boolean", "integer"]);
+        //         expect(fn("test").currentType).to.equal("string");
+        //         expect(fn("test").validType).to.deep.equal(["boolean", "integer"]);
 
-                expect(fn("true")).to.equal(null);
+        //         expect(fn("true")).to.equal(null);
 
-                expect(fn("5")).to.equal(null);
+        //         expect(fn("5")).to.equal(null);
 
-                expect(fn("5.5").currentType).to.equal("float");
-                expect(fn("5.5").validType).to.deep.equal(["boolean", "integer"]);
+        //         expect(fn("5.5").currentType).to.equal("float");
+        //         expect(fn("5.5").validType).to.deep.equal(["boolean", "integer"]);
 
-                expect(fn("0")).to.equal(null);
-                expect(fn("-1")).to.equal(null);
-            });
+        //         expect(fn("0")).to.equal(null);
+        //         expect(fn("-1")).to.equal(null);
+        //     });
 
-            it("test when only booleans floats and ints are valid", function() {
-                OperationsView.__testOnly__.changeParseTypeFn(function() {
-                    return ["boolean", "float", "integer"];
-                });
+        //     it("test when only booleans floats and ints are valid", function() {
+        //         MapOpPanel.Instance.__testOnly__.changeParseTypeFn(function() {
+        //             return ["boolean", "float", "integer"];
+        //         });
 
-                expect(fn("test").currentType).to.equal("string");
-                expect(fn("test").validType).to.deep.equal(["boolean", "float", "integer"]);
+        //         expect(fn("test").currentType).to.equal("string");
+        //         expect(fn("test").validType).to.deep.equal(["boolean", "float", "integer"]);
 
-                expect(fn("true")).to.equal(null);
+        //         expect(fn("true")).to.equal(null);
 
-                expect(fn("5")).to.equal(null);
-                expect(fn("5.5")).to.equal(null);
-                expect(fn("0")).to.equal(null);
-                expect(fn("-1")).to.equal(null);
-            });
+        //         expect(fn("5")).to.equal(null);
+        //         expect(fn("5.5")).to.equal(null);
+        //         expect(fn("0")).to.equal(null);
+        //         expect(fn("-1")).to.equal(null);
+        //     });
 
-            it("test when only undefined is valid", function() {
-                OperationsView.__testOnly__.changeParseTypeFn(function() {
-                    return ["undefined"];
-                });
+        //     it("test when only undefined is valid", function() {
+        //         MapOpPanel.Instance.__testOnly__.changeParseTypeFn(function() {
+        //             return ["undefined"];
+        //         });
 
-                expect(fn("test").currentType).to.equal("string");
-                expect(fn("test").validType).to.deep.equal(["undefined"]);
+        //         expect(fn("test").currentType).to.equal("string");
+        //         expect(fn("test").validType).to.deep.equal(["undefined"]);
 
-                expect(fn("true").currentType).to.equal("string/boolean/integer");
-                expect(fn("true").validType).to.deep.equal(["undefined"]);
+        //         expect(fn("true").currentType).to.equal("string/boolean/integer");
+        //         expect(fn("true").validType).to.deep.equal(["undefined"]);
 
-                expect(fn("5").currentType).to.equal("string/boolean/integer");
-                expect(fn("5").validType).to.deep.equal(["undefined"]);
+        //         expect(fn("5").currentType).to.equal("string/boolean/integer");
+        //         expect(fn("5").validType).to.deep.equal(["undefined"]);
 
-                expect(fn("5.5").currentType).to.equal("float");
-                expect(fn("5.5").validType).to.deep.equal(["undefined"]);
+        //         expect(fn("5.5").currentType).to.equal("float");
+        //         expect(fn("5.5").validType).to.deep.equal(["undefined"]);
 
-                expect(fn("-1").currentType).to.equal("string/boolean/integer");
-                expect(fn("-1").validType).to.deep.equal(["undefined"]);
-            });
+        //         expect(fn("-1").currentType).to.equal("string/boolean/integer");
+        //         expect(fn("-1").validType).to.deep.equal(["undefined"]);
+        //     });
 
-            it("test when only somthing weird is valid", function() {
-                OperationsView.__testOnly__.changeParseTypeFn(function() {
-                    return ["newType"];
-                });
+        //     it("test when only somthing weird is valid", function() {
+        //         MapOpPanel.Instance.__testOnly__.changeParseTypeFn(function() {
+        //             return ["newType"];
+        //         });
 
-                expect(fn("test").currentType).to.equal("string");
-                expect(fn("test").validType).to.deep.equal(["newType"]);
+        //         expect(fn("test").currentType).to.equal("string");
+        //         expect(fn("test").validType).to.deep.equal(["newType"]);
 
-                expect(fn("true").currentType).to.equal("string/boolean/integer");
-                expect(fn("true").validType).to.deep.equal(["newType"]);
+        //         expect(fn("true").currentType).to.equal("string/boolean/integer");
+        //         expect(fn("true").validType).to.deep.equal(["newType"]);
 
-                expect(fn("5")).to.equal(null);
-                expect(fn("5.5")).to.equal(null);
-            });
+        //         expect(fn("5")).to.equal(null);
+        //         expect(fn("5.5")).to.equal(null);
+        //     });
 
-            after(function() {
-                OperationsView.__testOnly__.changeParseTypeFn(parseTypeCache);
-            });
-        });
+        //     after(function() {
+        //         MapOpPanel.Instance.__testOnly__.changeParseTypeFn(parseTypeCache);
+        //     });
+        // });
     });
 
     describe('function getAllColumnTypesFromArg (map)', function() {
@@ -430,14 +402,14 @@ describe('OperationsView Test', function() {
                 "isLocked": false
             });
             gTables[tableId] = table;
-            OperationsView.show(tableId, [1], "map")
+            MapOpPanel.Instance.show(tableId, [1], "map")
             .always(function() {
                 done();
             });
         });
 
         it('getAllColumnTypesFromArg() should work', function() {
-            var fn = OperationsView.__testOnly__.getAllColumnTypesFromArg;
+            var fn = MapOpPanel.Instance.__testOnly__.getAllColumnTypesFromArg;
             var res = fn("nonExistantCol");
             expect(res.length).to.equal(0);
 
@@ -469,8 +441,8 @@ describe('OperationsView Test', function() {
 
         after(function(done){
             gTables[tableId] = cachedTable;
-            OperationsView.close();
-            // allow time for operations view to close
+            MapOpPanel.Instance.close();
+            // allow time for panel to close
             setTimeout(function() {
                 done();
             }, 500);
@@ -489,17 +461,18 @@ describe('OperationsView Test', function() {
         var parseType;
         var someColumns;
         var someColumnNames = ["average_stars","compliments","four","friends","mixVal","review_count","yelping_since", "DATA"];
+        var $panel;
 
         before(function(done) {
-            getExistingTypes = OperationsView.__testOnly__.getExistingTypes;
-            argumentFormatHelper = OperationsView.__testOnly__.argumentFormatHelper;
-            parseType = OperationsView.__testOnly__.parseType;
-            $operationsModal = $('#operationsView');
+            getExistingTypes = GroupByOpPane.Instance.__testOnly__.getExistingTypes;
+            argumentFormatHelper = GroupByOpPane.Instance.__testOnly__.argumentFormatHelper;
+            parseType = GroupByOpPane.Instance.__testOnly__.parseType;
+            $panel = $('#groupByOpPanel');
 
-            OperationsView.show(tableId, [1], 'group by')
+            GroupByOpPanel.Instance.show(tableId, [1], 'group by')
             .then(function() {
-                operatorsMap = OperationsView.getOperatorsMap();
-                $functionInput = $operationsView.find('.groupby .functionsInput');
+                operatorsMap = GroupByOpPane.Instance.getOperatorsMap();
+                $functionInput = $panel.find('.groupby .functionsInput');
                 $functionsMenu = $functionInput.siblings('.list');
                 done();
             });
@@ -555,14 +528,14 @@ describe('OperationsView Test', function() {
             });
 
             it("focus table should work", function() {
-                expect($operationsModal.find(".groupby .focusTable").length).to.equal(1);
+                expect($panel.find(".groupby .focusTable").length).to.equal(1);
                 var called = false;
                 var cache = xcHelper.centerFocusedTable;
                 xcHelper.centerFocusedTable = function() {
                     called = true;
                 };
 
-                $operationsModal.find(".groupby .focusTable").click();
+                $panel.find(".groupby .focusTable").click();
                 expect(called).to.be.true;
                 xcHelper.centerFocusedTable = cache;
             });
@@ -591,7 +564,7 @@ describe('OperationsView Test', function() {
                     return ($(this).text() === "avg");
                 }).trigger(fakeEvent.mouseup);
                 expect($functionInput.val()).to.equal('avg');
-                var description = $operationsView.find('.groupby .descriptionText').text();
+                var description = $panel.find('.groupby .descriptionText').text();
                 expect(description.indexOf('average') > - 1);
             });
 
@@ -607,7 +580,7 @@ describe('OperationsView Test', function() {
                 $(document).mousedown(); // required change of lastMouseDownTarget
                 $(document).click();
                 expect($functionInput.val()).to.equal("count");
-                var description = $operationsView.find('.groupby .descriptionText').text();
+                var description = $panel.find('.groupby .descriptionText').text();
                 expect(description.indexOf('Counts') === 0);
             });
         });
@@ -1046,14 +1019,14 @@ describe('OperationsView Test', function() {
 
         describe('multiGroupBy from multiple selected columns', function() {
             before(function(done) {
-                $("#operationsView .close").click();
+                $("#groupByOpPanel .close").click();
                 setTimeout(function() {
                     done();
                 }, 500);
             });
 
             it('2 selected columns should produce 2 group on inputs', function(done) {
-                OperationsView.show(tableId, [1, 2], 'group by')
+                GroupByOpPanel.Instance.show(tableId, [1, 2], 'group by')
                 .then(function() {
                     expect($operationsModal.find('.gbOnArg').length).to.equal(2);
                     expect($operationsModal.find('.gbOnArg').eq(0).val()).to.equal(gColPrefix + prefix + gPrefixSign + "average_stars");
@@ -1146,7 +1119,7 @@ describe('OperationsView Test', function() {
         });
 
         after(function() {
-            $("#operationsView .close").click();
+            $("#groupByOpPanel .close").click();
         });
 
         function setArgInputs(arr) {
@@ -1359,7 +1332,7 @@ describe('OperationsView Test', function() {
 
             it("column picker should not work when operationsView closes", function() {
                 // close operations view
-                $("#operationsView .close").click();
+                $("#mapOpPanel .close").click();
                 expect($operationsView.hasClass('xc-hidden')).to.equal(true);
                 // argsSection should stil be open even when operationsView is closed
                 expect($operationsView.find('.map .argsSection').hasClass('inactive')).to.equal(false);
@@ -1376,7 +1349,7 @@ describe('OperationsView Test', function() {
         });
 
         after(function(done) {
-            OperationsView.close();
+            MapOpPanel.Instance.close();
             setTimeout(function() { // allow time for op menu to close
                 done();
             }, 500);
@@ -1558,7 +1531,7 @@ describe('OperationsView Test', function() {
         });
 
         after(function() {
-            OperationsView.close();
+            MapOpPanel.Instance.close();
         });
     });
 
@@ -1609,7 +1582,7 @@ describe('OperationsView Test', function() {
         });
 
         after(function() {
-            OperationsView.close();
+            MapOpPanel.Instance.close();
         });
     });
 
@@ -1658,7 +1631,7 @@ describe('OperationsView Test', function() {
         });
 
         after(function(done) {
-            OperationsView.close();
+            MapOpPanel.Instance.close();
             setTimeout(function() { // allow time for op menu to close
                 done();
             }, 500);
@@ -1899,7 +1872,7 @@ describe('OperationsView Test', function() {
 
 
         after(function(done) {
-            OperationsView.close();
+            FilterOpPanel.Instance.close();
             setTimeout(function() { // allow time for op menu to close
                 done();
             }, 500);
@@ -2579,13 +2552,13 @@ describe('OperationsView Test', function() {
                         })
                         .always(function() {
                             Alert.forceClose();
-                            OperationsView.show(tableId, [1], 'aggregate')
+                            AggOpPanel.Instance.show(tableId, [1], 'aggregate')
                             .then(function() {
                                 deferred.resolve();
                             });
                         });
                     } else {
-                        OperationsView.show(tableId, [1], 'aggregate')
+                        AggOpPanel.Instance.show(tableId, [1], 'aggregate')
                         .then(function() {
                             deferred.resolve();
                         });
@@ -2602,7 +2575,7 @@ describe('OperationsView Test', function() {
         });
 
         after(function(done) {
-            OperationsView.close();
+            AggOpPanel.Instance.close();
             // allow time for operations view to close
             setTimeout(function() {
                 done();
@@ -2627,7 +2600,7 @@ describe('OperationsView Test', function() {
                 colName = prefix + gPrefixSign + "average_stars";
                 $functionsMenu = $operationsView.find('.map .functionsMenu');
                 $filterInput = $('#mapFilter');
-                $mapSection = $("#operationsView .map");
+                $mapSection = $("#mapOpPanel .map");
             });
 
             it("should show map form", function(done) {
@@ -2641,7 +2614,7 @@ describe('OperationsView Test', function() {
 
                 expect($mapSection.is(":visible")).to.be.false;
 
-                OperationsView.show(tableId, [], "map", {prefill: prefillInfo})
+                MapOpPanel.Instance.show(tableId, [], "map", {prefill: prefillInfo})
                 .then(function() {
                     expect($mapSection.is(":visible")).to.be.true;
                     expect($filterInput.val()).to.equal("concat");
@@ -2690,7 +2663,7 @@ describe('OperationsView Test', function() {
             });
 
             after(function(done) {
-                OperationsView.close();
+                MapOpPanel.Instance.close();
                 // allow time for operations view to close
                 setTimeout(function() {
                     done();
@@ -2708,7 +2681,7 @@ describe('OperationsView Test', function() {
                 colName1 = prefix + gPrefixSign + "average_stars";
                 colName2 = prefix + gPrefixSign + "compliments";
 
-                $groupbySection = $("#operationsView .groupby");
+                $groupbySection = $("#groupByOpPanel .groupby");
             });
 
             it("should show groupby form", function(done) {
@@ -2725,7 +2698,7 @@ describe('OperationsView Test', function() {
 
                 expect($groupbySection.is(":visible")).to.be.false;
 
-                OperationsView.show(tableId, [], "group by", {prefill: prefillInfo})
+                GroupByOpPane.Instance.show(tableId, [], "group by", {prefill: prefillInfo})
                 .then(function() {
                     $functionInputs = $operationsView.find('.groupby .functionsInput');
 
@@ -2770,7 +2743,7 @@ describe('OperationsView Test', function() {
             });
 
             after(function(done) {
-                OperationsView.close();
+                GroupByOpPane.Instance.close();
                 // allow time for operations view to close
                 setTimeout(function() {
                     done();
@@ -2785,7 +2758,7 @@ describe('OperationsView Test', function() {
 
             before(function() {
                 colName = prefix + gPrefixSign + "average_stars";
-                $filterSection = $("#operationsView .filter");
+                $filterSection = $("#filterOpPanel .filter");
             });
 
             it("should show filter form", function(done) {
@@ -2797,7 +2770,7 @@ describe('OperationsView Test', function() {
 
                 expect($filterSection.is(":visible")).to.be.false;
 
-                OperationsView.show(tableId, [], "filter", {prefill: prefillInfo})
+                FilterOpPanel.Instance.show(tableId, [], "filter", {prefill: prefillInfo})
                 .then(function() {
                     $functionInput = $operationsView.find('.filter .functionsInput');
 
@@ -2825,7 +2798,7 @@ describe('OperationsView Test', function() {
             });
 
             after(function(done) {
-                OperationsView.close();
+                FilterOpPanel.Instance.close();
                 // allow time for operations view to close
                 setTimeout(function() {
                     done();
@@ -2840,7 +2813,7 @@ describe('OperationsView Test', function() {
 
             before(function() {
                 colName = prefix + gPrefixSign + "average_stars";
-                $aggSection = $("#operationsView .aggregate");
+                $aggSection = $("#aggOpPanel .aggregate");
             });
 
             it("should show agg form", function(done) {
@@ -2852,7 +2825,7 @@ describe('OperationsView Test', function() {
 
                 expect($aggSection.is(":visible")).to.be.false;
 
-                OperationsView.show(tableId, [], "aggregate", {prefill: prefillInfo})
+                AggOpPanel.Instance.show(tableId, [], "aggregate", {prefill: prefillInfo})
                 .then(function() {
                     $functionInput = $operationsView.find('.aggregate .functionsInput');
 
@@ -2901,7 +2874,7 @@ describe('OperationsView Test', function() {
             });
 
             after(function(done) {
-                OperationsView.close();
+                AggOpPanel.Instance.close();
                 // allow time for operations view to close
                 setTimeout(function() {
                     done();
@@ -2913,7 +2886,7 @@ describe('OperationsView Test', function() {
 
             it("dropped table should show error message", function(done) {
                 DagEdit.isEditMode = cachedDFFn;
-                OperationsView.show(tableId, [1], "map")
+                MapOpPanel.Instance.show(tableId, [1], "map")
                 .then(function() {
                     var tableCache = gTables[tableId];
                     delete gTables[tableId];
@@ -2932,7 +2905,7 @@ describe('OperationsView Test', function() {
             });
 
             after(function(done) {
-                OperationsView.close();
+                MapOpPanel.Instance.close();
                 // allow time for operations view to close
                 setTimeout(function() {
                     done();
@@ -3006,7 +2979,7 @@ describe('OperationsView Test', function() {
         });
 
         after(function(done) {
-            OperationsView.close();
+            MapOpPanel.Instance.close();
             // allow time for operations view to close
             setTimeout(function() {
                 done();

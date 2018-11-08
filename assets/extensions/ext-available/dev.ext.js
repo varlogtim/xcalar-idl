@@ -310,7 +310,7 @@ window.UExtDev = (function(UExtDev) {
                     "expSum": expSum.toLocaleString(),
                     "minSum": minSum.toLocaleString()
                 });
-                // We only show alert modal if not triggered from joinView
+                // We only show alert modal if not triggered from Join Op Panel
                 if (!args.fromJoin) {
                     Alert.show({
                         "title": "Estimated Join Size",

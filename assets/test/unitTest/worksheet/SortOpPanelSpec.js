@@ -1,5 +1,5 @@
-describe('Sort View Test', function() {
-    var $sortView;
+describe('Sort Op Panel Test', function() {
+    var $sortOpPanel;
     var $sortTable;
     var $table;
 
@@ -8,7 +8,7 @@ describe('Sort View Test', function() {
     before(function(done){
         console.clear();
         xcTooltip.hideAll();
-        $sortView = $("#sortView");
+        $sortOpPanel = $("#sortOpPanel");
         $sortTable = $("#sortView-table");
 
         UnitTest.addAll(testDatasets.fakeYelp, "yelp_sort_test")
@@ -32,15 +32,15 @@ describe('Sort View Test', function() {
 
     describe("Basic Function Test", function() {
         it("Should show the Sort View", function() {
-            SortView.show([1], tableId);
+            SortOpPanel.Instance.show([1], tableId);
 
-            assert.isTrue($sortView.is(":visible"));
+            assert.isTrue($sortOpPanel.is(":visible"));
             expect($sortTable.find(".row").length).to.equal(1);
             expect($sortTable.find(".colOrder").hasClass("initialOrder")).to.be.true;
         });
 
         it("Should select column", function() {
-            SortView.__testOnly__.selectCol(4);
+            SortOpPanel.Instance.__testOnly__.selectCol(4);
             expect($sortTable.find(".row").length).to.equal(2);
             expect($sortTable.find(".colOrder").eq(1).hasClass("initialOrder")).to.be.false;
 
@@ -54,9 +54,9 @@ describe('Sort View Test', function() {
         it("Should scroll to column", function() {
             var $th = $table.find("th.col1");
             xcTooltip.hideAll();
-            SortView.__testOnly__.scrollToColumn(null);
+            SortOpPanel.Instance.__testOnly__.scrollToColumn(null);
             expect($th.attr("aria-describedby")).not.to.exist;
-            SortView.__testOnly__.scrollToColumn(1);
+            SortOpPanel.Instance.__testOnly__.scrollToColumn(1);
             expect($th.attr("aria-describedby")).to.exist;
             xcTooltip.hideAll();
         });
@@ -64,19 +64,19 @@ describe('Sort View Test', function() {
         it("Should change column order", function() {
             try {
                 // test error case
-                SortView.__testOnly__.changeColOrder();
+                SortOpPanel.Instance.__testOnly__.changeColOrder();
             } catch (error) {
                 expect(error).not.to.be.null;
             }
 
-            SortView.__testOnly__.changeColOrder(1, "Descending");
+            SortOpPanel.Instance.__testOnly__.changeColOrder(1, "Descending");
             var $row = $sortTable.find(".row").eq(0);
             expect($row.find(".colOrder .text").text()).to.equal("Descending");
         });
 
         it("Should deSelect column", function() {
-            SortView.__testOnly__.deSelectCol(1);
-            SortView.__testOnly__.deSelectCol(4);
+            SortOpPanel.Instance.__testOnly__.deSelectCol(1);
+            SortOpPanel.Instance.__testOnly__.deSelectCol(4);
             expect($sortTable.find(".row").length).to.equal(0);
             expect($("th.modalHighlighted").length).to.equal(0);
         });
@@ -90,7 +90,7 @@ describe('Sort View Test', function() {
             };
 
             // nothing to sort
-            SortView.__testOnly__.submitForm();
+            SortOpPanel.Instance.__testOnly__.submitForm();
             expect(test).to.be.false;
             var $statusBox = $("#statusBox");
             assert.isTrue($statusBox.is(":visible"));
@@ -101,23 +101,17 @@ describe('Sort View Test', function() {
             // tableId doesn't exist
             var table = gTables[tableId];
             delete gTables[tableId];
-            SortView.__testOnly__.submitForm();
+            SortOpPanel.Instance.__testOnly__.submitForm();
             expect(test).to.be.false;
             UnitTest.hasStatusBoxWithError(ErrTStr.TableNotExists);
             gTables[tableId] = table;
 
-            // // one column, already sorted by this column
-            // SortView.__testOnly__.selectCol(1);
-            // SortView.__testOnly__.submitForm();
-            // expect(test).to.be.false;
-            // UnitTest.hasStatusBoxWithError(ErrTStr.NoSortChange);
-
             // something to sort
-            SortView.__testOnly__.selectCol(1);
-            SortView.__testOnly__.changeColOrder(1, "Descending");
-            $sortView.find(".confirm").click();
+            SortOpPanel.Instance.__testOnly__.selectCol(1);
+            SortOpPanel.Instance.__testOnly__.changeColOrder(1, "Descending");
+            $sortOpPanel.find(".confirm").click();
             expect(test).to.be.true;
-            assert.isFalse($sortView.is(":visible"));
+            assert.isFalse($sortOpPanel.is(":visible"));
 
             ColManager.changeType = oldFunc;
             xcFunction.sort = oldSort;
@@ -125,10 +119,10 @@ describe('Sort View Test', function() {
 
         it("restore form should work", function() {
             expect($("th.modalHighlighted").length).to.equal(0);
-            SortView.show(null, tableId, {restore: true});
+            SortOpPanel.Instance.show(null, tableId, {restore: true});
             expect($("th.modalHighlighted").length).to.equal(1);
             expect($sortTable.find(".row").length).to.equal(1);
-            $sortView.find(".cancel").click();
+            $sortOpPanel.find(".cancel").click();
         });
     });
 
@@ -136,7 +130,7 @@ describe('Sort View Test', function() {
         var $header;
 
         before(function() {
-            SortView.show([1], tableId);
+            SortOpPanel.Instance.show([1], tableId);
             $header = $table.find("th.col1 .header");
         });
 
@@ -159,13 +153,13 @@ describe('Sort View Test', function() {
             $header.click();
             expect($table.find("th.modalHighlighted").length).to.equal(1);
             // clear
-            $sortView.find(".clear").click();
+            $sortOpPanel.find(".clear").click();
             expect($table.find("th.modalHighlighted").length).to.equal(0);
         });
 
         it("Should click column name to focus", function() {
             // should clear inner data first
-            $sortView.find(".clear").click();
+            $sortOpPanel.find(".clear").click();
             // select
             $header.click();
             expect($sortTable.find(".colName").length).to.equal(1);
@@ -192,18 +186,18 @@ describe('Sort View Test', function() {
             assert.isFalse($sortMenu.is(":visible"));
 
             //select
-            SortView.__testOnly__.selectCol(4);
+            SortOpPanel.Instance.__testOnly__.selectCol(4);
             $colOrder = $sortTable.find(".colOrder").last();
             $colOrder.click();
             expect($sortMenu.hasClass("noInitialOrder")).to.be.true;
-            SortView.__testOnly__.deSelectCol(4);
+            SortOpPanel.Instance.__testOnly__.deSelectCol(4);
         });
 
         it("Should not submit when no columns to change type", function() {
             // clear
-            $sortView.find(".clear").click();
+            $sortOpPanel.find(".clear").click();
             // confirm
-            $sortView.find(".confirm").click();
+            $sortOpPanel.find(".confirm").click();
             var $statusBox = $("#statusBox");
             assert.isTrue($statusBox.is(":visible"));
             expect($statusBox.find(".message").text()).to.equal(ErrTStr.NoSort);
@@ -211,16 +205,16 @@ describe('Sort View Test', function() {
         });
 
         it("Should close the view", function() {
-            $sortView.find(".cancel").click();
-            assert.isFalse($sortView.is(":visible"));
+            $sortOpPanel.find(".cancel").click();
+            assert.isFalse($sortOpPanel.is(":visible"));
             // call another close should have nothing happen
-            SortView.close();
-            assert.isFalse($sortView.is(":visible"));
+            SortOpPanel.Instance.close();
+            assert.isFalse($sortOpPanel.is(":visible"));
         });
 
         it("should not open view", function() {
-            SortView.show([1], tableId, {restoreTime: 1});
-            assert.isFalse($sortView.is(":visible"));
+            SortOpPanel.Instance.show([1], tableId, {restoreTime: 1});
+            assert.isFalse($sortOpPanel.is(":visible"));
         });
     });
 

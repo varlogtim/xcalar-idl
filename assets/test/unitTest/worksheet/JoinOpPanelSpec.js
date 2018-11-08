@@ -1,4 +1,5 @@
-describe("JoinView Test", function() {
+// XXX TODO: fix it
+describe("Join Op Panel Test", function() {
     var testDs;
     var tableName;
     var prefix;
@@ -26,7 +27,7 @@ describe("JoinView Test", function() {
             prefix = tPrefix;
             tableId = xcHelper.getTableId(tableName);
             $table = $("#xcTableWrap-" + tableId);
-            $joinForm = $("#joinView");
+            $joinForm = $("#joinOpPanel");
 
 
               // add a second table for table list testing
@@ -66,7 +67,7 @@ describe("JoinView Test", function() {
                 return tableList;
             };
 
-            JoinView.show(tableId, [1]);
+            JoinOpPanel.Instance.show(tableId, [1]);
             UnitTest.testFinish(function() {
                 return !$("#menuBar").hasClass("animating");
             })
@@ -127,16 +128,16 @@ describe("JoinView Test", function() {
 
         it(".close should work", function() {
             expect($joinForm.find(".close").length).to.equal(1);
-            var cachedFn = JoinView.close;
+            var cachedFn = JoinOpPanel.Instance.close;
             var called = false;
-            JoinView.close = function() {
+            JoinOpPanel.Instance.close = function() {
                 called = true;
             };
 
             $joinForm.find(".close").click();
             expect(called).to.be.true;
 
-            JoinView.close = cachedFn;
+            JoinOpPanel.Instance.close = cachedFn;
         });
     });
 
@@ -144,14 +145,14 @@ describe("JoinView Test", function() {
         it("deactivateClauseSection should work", function() {
             var $input = $joinForm.find(".joinClause").find(".arg").eq(1);
             $input.removeClass("inActive");
-            JoinView.__testOnly__.deactivateClauseSection(1);
+            JoinOpPanel.Instance.__testOnly__.deactivateClauseSection(1);
             expect($input.hasClass("inActive"));
         });
 
         it("autoResolveCollisions should work", function() {
             var lOut = [];
             var rOut = [{"orig": "test", "new": "test1", "type": 13}];
-            JoinView.__testOnly__.autoResolveCollisions(["test"], 100,
+            JoinOpPanel.Instance.__testOnly__.autoResolveCollisions(["test"], 100,
                 DfFieldTypeT.DfFatptr, ["testa"], ["test"], lOut, rOut);
             expect(lOut.length).to.equal(1);
             expect(lOut[0].new).to.equal("test_100");
@@ -159,7 +160,7 @@ describe("JoinView Test", function() {
             // case 2
             lOut = [{"orig": "test", "new": "test1", "type": 13}];
             rOut = [];
-            JoinView.__testOnly__.autoResolveCollisions(["test"], 100,
+            JoinOpPanel.Instance.__testOnly__.autoResolveCollisions(["test"], 100,
                 DfFieldTypeT.DfFatptr, ["test"], ["testa"], lOut, rOut);
             expect(rOut.length).to.equal(1);
             expect(rOut[0].new).to.equal("test_100");
@@ -179,7 +180,7 @@ describe("JoinView Test", function() {
                         '</div>';
             var $div = $(html);
             var $colToRename = $div.find(".colToRename");
-            JoinView.__testOnly__.smartRename($colToRename);
+            JoinOpPanel.Instance.__testOnly__.smartRename($colToRename);
             expect($colToRename.find(".newName").val()).to.equal("test1");
         });
     });
@@ -256,7 +257,7 @@ describe("JoinView Test", function() {
         });
 
         it("add another clause should work", function() {
-            var addClause = JoinView.__testOnly__.addClause;
+            var addClause = JoinOpPanel.Instance.__testOnly__.addClause;
             addClause();
 
             expect($joinForm.find(".joinClause")).to.have.lengthOf(2);
@@ -327,7 +328,7 @@ describe("JoinView Test", function() {
         });
 
         it("checkMatchingColTypes should work", function() {
-            var check = JoinView.__testOnly__.checkMatchingColTypes;
+            var check = JoinOpPanel.Instance.__testOnly__.checkMatchingColTypes;
             var tableCols = gTables[tableId].tableCols;
             var cols = tableCols;
             var checkRes;
@@ -486,7 +487,7 @@ describe("JoinView Test", function() {
             expect($joinForm.find(".rightClause").val()).to.equal(colName2);
 
             // add another row of clauses
-            JoinView.__testOnly__.addClause();
+            JoinOpPanel.Instance.__testOnly__.addClause();
             expect($joinForm.find(".leftClause").eq(1).val()).to.equal("");
             expect($joinForm.find(".rightClause").eq(1).val()).to.equal("");
 
@@ -587,7 +588,7 @@ describe("JoinView Test", function() {
             var $target = $table.find(".header").eq(1);
             var event = {};
             expect($target.closest(".modalHighlighted").length).to.equal(1);
-            JoinView.__testOnly__.colHeaderClick($target, event);
+            JoinOpPanel.Instance.__testOnly__.colHeaderClick($target, event);
             expect($target.closest(".modalHighlighted").length).to.equal(0);
 
             // shift deselect 3rd column
@@ -595,7 +596,7 @@ describe("JoinView Test", function() {
             expect($target.closest(".modalHighlighted").length).to.equal(1);
             expect($table.find(".header").eq(2).closest(".modalHighlighted").length).to.equal(1);
             event.shiftKey = true;
-            JoinView.__testOnly__.colHeaderClick($target, event);
+            JoinOpPanel.Instance.__testOnly__.colHeaderClick($target, event);
             expect($target.closest(".modalHighlighted").length).to.equal(0);
             expect($table.find(".header").eq(2).closest(".modalHighlighted").length).to.equal(0);
 
@@ -603,7 +604,7 @@ describe("JoinView Test", function() {
             $target = $table.find(".header").eq(1);
             event = {};
             expect($target.closest(".modalHighlighted").length).to.equal(0);
-            JoinView.__testOnly__.colHeaderClick($target, event);
+            JoinOpPanel.Instance.__testOnly__.colHeaderClick($target, event);
             expect($target.closest(".modalHighlighted").length).to.equal(1);
 
             // shift select 3rd column
@@ -611,7 +612,7 @@ describe("JoinView Test", function() {
             expect($target.closest(".modalHighlighted").length).to.equal(0);
             expect($table.find(".header").eq(2).closest(".modalHighlighted").length).to.equal(0);
             event.shiftKey = true;
-            JoinView.__testOnly__.colHeaderClick($target, event);
+            JoinOpPanel.Instance.__testOnly__.colHeaderClick($target, event);
             expect($target.closest(".modalHighlighted").length).to.equal(1);
             expect($table.find(".header").eq(2).closest(".modalHighlighted").length).to.equal(1);
         });
@@ -689,7 +690,7 @@ describe("JoinView Test", function() {
 
     describe("function checkFirstView", function() {
         it("checkFirstView should work", function() {
-            var check = JoinView.__testOnly__.checkFirstView;
+            var check = JoinOpPanel.Instance.__testOnly__.checkFirstView;
 
             var firstColName = prefix + gPrefixSign + "yelping_since"; // string
             var secondColName = prefix + gPrefixSign + "votes"; // obj
@@ -736,7 +737,7 @@ describe("JoinView Test", function() {
 
     describe("function validTableNameChecker", function() {
         it("validTableNameChecker should work", function() {
-            var check = JoinView.__testOnly__.validTableNameChecker;
+            var check = JoinOpPanel.Instance.__testOnly__.validTableNameChecker;
             $("#joinLeftTableList input").val("test");
             $("#joinRightTableList input").val("test");
             expect(check()).to.equal(false);
@@ -774,7 +775,7 @@ describe("JoinView Test", function() {
             var $stats = $joinForm.find(".stats");
             assert.isFalse($stats.is(":visible"));
 
-            JoinView.__testOnly__.estimateJoinSize()
+            JoinOpPanel.Instance.__testOnly__.estimateJoinSize()
             .then(function() {
                 assert.isTrue($stats.is(":visible"));
                 var expectedText = "Min:1Med:2Max:3";
@@ -799,7 +800,7 @@ describe("JoinView Test", function() {
 
             var $stats = $joinForm.find(".stats");
 
-            JoinView.__testOnly__.estimateJoinSize()
+            JoinOpPanel.Instance.__testOnly__.estimateJoinSize()
             .then(function() {
                 done("fail");
             })
@@ -833,7 +834,7 @@ describe("JoinView Test", function() {
     describe("submission fail handler", function() {
         var fn;
         before(function() {
-            fn = JoinView.__testOnly__.submissionFailHandler;
+            fn = JoinOpPanel.Instance.__testOnly__.submissionFailHandler;
 
         });
 
@@ -881,7 +882,7 @@ describe("JoinView Test", function() {
         });
 
         it("submissionFailHandler should show modify button", function() {
-            var formHelper = JoinView.__testOnly__.getFormHelper();
+            var formHelper = JoinOpPanel.Instance.__testOnly__.getFormHelper();
             Alert.show({title: "Join Fail", msg: "some error"});
             fn(tableId, tableId, formHelper.getOpenTime(), {});
             expect($("#alertModal .confirm:visible").text()).to.equal("MODIFY JOIN");
@@ -906,7 +907,7 @@ describe("JoinView Test", function() {
         });
 
         it("invalid submit should not work", function(done) {
-            var submit = JoinView.__testOnly__.submitJoin;
+            var submit = JoinOpPanel.Instance.__testOnly__.submitJoin;
 
             var newTableName = "joinUnitTest" + Date.now();
             $("#joinTableNameInput").val(newTableName);
@@ -949,7 +950,7 @@ describe("JoinView Test", function() {
         });
 
         it("valid submit should work", function(done) {
-            var submit = JoinView.__testOnly__.submitJoin;
+            var submit = JoinOpPanel.Instance.__testOnly__.submitJoin;
 
             submit()
             .then(function(newTableName) {
@@ -958,7 +959,7 @@ describe("JoinView Test", function() {
                 expect(gTables[tableId].resultSetCount).to.equal(14878);
                 Log.undo()
                 .always(function() {
-                    JoinView.close();
+                    JoinOpPanel.Instance.close();
                     setTimeout(function() {
                         done();
                     }, 500);
@@ -981,7 +982,7 @@ describe("JoinView Test", function() {
 
         describe("join form prefill", function() {
             it("should show join form", function() {
-                expect($("#joinView").is(":visible")).to.be.false;
+                expect($joinForm.is(":visible")).to.be.false;
                 prefillInfo = {
                     "joinType": "fullOuterJoin",
                     "rightTable": tableName,
@@ -991,8 +992,8 @@ describe("JoinView Test", function() {
                     "isLeftDroppedTable": false,
                     "isRightDroppedTable": false
                 };
-                JoinView.show(tableId, [], {prefill: prefillInfo});
-                expect($("#joinView").is(":visible")).to.be.true;
+                JoinOpPanel.Instance.show(tableId, [], {prefill: prefillInfo});
+                expect($joinForm.is(":visible")).to.be.true;
             });
 
             it("join type should be selected", function() {
@@ -1062,7 +1063,7 @@ describe("JoinView Test", function() {
         });
 
         after(function() {
-            JoinView.close();
+            JoinOpPanel.Instance.close();
             DagEdit.isEditMode = cacheDagEditMode;
         });
     });
@@ -1073,11 +1074,11 @@ describe("JoinView Test", function() {
             colName = prefix + gPrefixSign + "four";
             ColManager.hideCol([4], tableId, {noAnimate: true})
             .then(function() {
-                JoinView.show(tableId, [1]);
-                expect($("#joinView").is(":visible")).to.be.true;
-                JoinView.updateColumns();
-                expect($("#joinView").find(".leftCols li").length).to.equal(11);
-                expect($("#joinView").find(".leftCols li").filter(function() {
+                JoinOpPanel.Instance.show(tableId, [1]);
+                expect($joinForm.is(":visible")).to.be.true;
+                JoinOpPanel.Instance.updateColumns();
+                expect($joinForm.find(".leftCols li").length).to.equal(11);
+                expect($joinForm.find(".leftCols li").filter(function() {
                     return $(this).text() === colName;
                 }).length).to.equal(0);
                 done();
@@ -1090,12 +1091,12 @@ describe("JoinView Test", function() {
         it("should update columns", function(done) {
             ColManager.unnest(tableId, gTables[tableId].tableCols.length, 0, [colName]);
             UnitTest.testFinish(function() {
-                return $("#joinView").find(".leftCols li").filter(function() {
+                return $joinForm.find(".leftCols li").filter(function() {
                     return $(this).text() === colName;
                 }).length === 1;
             })
             .then(function() {
-                expect($("#joinView").find(".leftCols li").length).to.equal(12);
+                expect($joinForm.find(".leftCols li").length).to.equal(12);
                 done();
             })
             .fail(function() {
@@ -1105,7 +1106,7 @@ describe("JoinView Test", function() {
     });
 
     after(function(done) {
-        JoinView.close();
+        JoinOpPanel.Instance.close();
         $("#menuBar").removeClass("animating");
         xcHelper.centerFocusedTable = cachedCenterFn;
         WSManager.getTableList = cachedGetTableList;

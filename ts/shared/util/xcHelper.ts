@@ -6222,10 +6222,15 @@ namespace xcHelper {
         );
     }
 
-    // groups = [{
-    //     operator: "eq",
-    //     args: [value: "colname", cast: "blah"]
-    // }]
+    /**
+     * xcHelper.formulateMapFilterString
+     * groups = [{
+     * operator: "eq",
+     * args: [value: "colname", cast: "blah"]
+     * }]
+     * @param groups
+     * @param andOr
+     */
     export function formulateMapFilterString(
         groups: OpPanelFunctionGroup[],
         andOr?: string
