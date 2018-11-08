@@ -737,7 +737,9 @@ namespace xcHelper {
      * @param colName
      */
     export function stripPrefixInColName(colName: string): string {
-        return colName.split(gPrefixSign).join(PREFIX_CONCAT_CHAR);
+        if (colName != null) {
+            return colName.split(gPrefixSign).join(PREFIX_CONCAT_CHAR);
+        }
     }
 
     export function convertPrefixName(

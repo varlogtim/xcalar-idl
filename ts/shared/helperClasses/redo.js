@@ -236,7 +236,7 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.AddOperation] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.addBackNodes([options.nodeId]);
+        DagView.addBackNodes([options.nodeId], options.dataflowId);
         return PromiseHelper.resolve(null);
     };
 
@@ -295,6 +295,18 @@ window.Redo = (function($, Redo) {
             }
         }
         return tasks;
+    }
+
+    redoFuncs[SQLOps.DrawNodesAndConnections] = function(options) {
+        DagTabManager.Instance.switchTab(options.dataflowId);
+        DagView.drawNodesAndConnections(options.nodeIds, options.dataflowId);
+        return PromiseHelper.resolve(null);
+    };
+
+    redoFuncs[SQLOps.EraseNodesAndConnections] = function(options) {
+        DagTabManager.Instance.switchTab(options.dataflowId);
+        DagView.eraseNodesAndConnections(options.nodeIds, options.dataflowId);
+        return PromiseHelper.resolve(null);
     }
 
     /* USER STYLING/FORMATING OPERATIONS */

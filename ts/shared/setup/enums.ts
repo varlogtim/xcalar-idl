@@ -320,6 +320,8 @@ enum SQLOps {
     EditComment = "editComment",
     EditNodeTitle = "editNodeTitle",
     DagBulkOperation = "dagBulkOperation",
+    DrawNodesAndConnections = "drawNodesAndConnections",
+    EraseNodesAndConnections = "eraseNodesAndConnections"
 }
 
 enum XcalarMode {

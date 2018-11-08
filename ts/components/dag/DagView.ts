@@ -281,52 +281,145 @@ namespace DagView {
         tabId: string,
         spliceInfo?
     ): XDPromise<void> {
+        spliceInfo = spliceInfo || {};
         const $dfArea: JQuery = _getAreaByTab(tabId);
         // need to add back nodes in the reverse order they were deleted
         $dfArea.find(".selected").removeClass("selected");
         let maxXCoor: number = 0;
         let maxYCoor: number = 0;
+        const nodes = [];
         for (let i = nodeIds.length - 1; i >= 0; i--) {
             const nodeId: DagNodeId = nodeIds[i];
+            let node;
             if (nodeId.startsWith("dag")) {
-                const node: DagNode = activeDag.addBackNode(nodeId, spliceInfo[nodeId]);
-                _drawNode(node, $dfArea, true);
-
-                node.getParents().forEach((parentNode, index) => {
-                    _drawConnection(parentNode.getId(), nodeId, index);
-                });
-
-                const seen = {};
-                node.getChildren().forEach((childNode) => {
-                    const childNodeId = childNode.getId();
-                    if (seen[childNodeId]) {
-                        // node's child will connect to all indices of parent
-                        // so don't repeat if we see this child again
-                        return;
-                    }
-                    seen[childNodeId] = true;
-                    childNode.getParents().forEach((parent, index) => {
-                        if (parent === node) {
-                            _drawConnection(nodeId, childNode.getId(), index);
-                        }
-                    });
-                });
+                node = activeDag.addBackNode(nodeId, spliceInfo[nodeId]);
                 const coors = node.getPosition();
                 maxXCoor = Math.max(coors.x, maxXCoor);
                 maxYCoor = Math.max(coors.y, maxYCoor);
             } else if (nodeId.startsWith("comment")) {
-                const comment = activeDag.addBackComment(nodeId);
-                DagComment.Instance.drawComment(comment, $dfArea, true);
-                const coors = comment.getPosition();
-                const dimensions = comment.getDimensions();
+                node = activeDag.addBackComment(nodeId);
+                const coors = node.getPosition();
+                const dimensions = node.getDimensions();
                 maxXCoor = Math.max(coors.x + dimensions.width, maxXCoor);
                 maxYCoor = Math.max(coors.y + dimensions.height, maxYCoor);
             }
+            nodes.push(node);
         }
+
+        const dagNodes = nodes.filter(node => {
+            return node.getId().startsWith("dag");
+        });
+
+        const comments = nodes.filter(node => {
+            return node.getId().startsWith("comment");
+        });
+
+        _drawAndConnectNodes(dagNodes, $dfArea);
+
+        for (let i = 0; i < comments.length; i++) {
+            DagComment.Instance.drawComment(comments[i], $dfArea, true);
+        }
+
         _setGraphDimensions({ x: maxXCoor, y: maxYCoor });
         return activeDagTab.save();
     }
+     /**
+     * DagView.dawNodesAndConnections
+     * @param nodes
+     * @param tabId
+     * requires an array of dagNodes that already have parents and children assigned
+     */
+    export function drawNodesAndConnections(nodes: DagNode[], tabId: string): XDPromise<void> {
+        _drawNodesAndConnectionsNoPersist(nodes, tabId);
+        return activeDagTab.save();
+    }
 
+    function _drawNodesAndConnectionsNoPersist(
+        nodes: DagNode[],
+        tabId: string,
+        options?: { isNoLog?: boolean }
+    ): LogParam {
+        const { isNoLog = false } = options || {};
+        const $dfArea: JQuery = _getAreaByTab(tabId);
+        let maxXCoor: number = 0;
+        let maxYCoor: number = 0;
+        let nodeIds = [];
+        const graph = DagTabManager.Instance.getTabById(tabId).getGraph();
+        // add node to graph
+        for (let i = 0; i < nodes.length; i++) {
+            const node: DagNode = nodes[i];
+            graph.addNode(node);
+            nodeIds.push(node.getId());
+            const coors = node.getPosition();
+            maxXCoor = Math.max(coors.x, maxXCoor);
+            maxYCoor = Math.max(coors.y, maxYCoor);
+        }
+        _drawAndConnectNodes(nodes, $dfArea);
+        _setGraphDimensions({x: maxXCoor, y: maxYCoor});
+
+        const logParam: LogParam = {
+            title: SQLTStr.DrawNodesAndConnections,
+            options: {
+                "operation": SQLOps.DrawNodesAndConnections,
+                "dataflowId": tabId,
+                "nodeIds": nodeIds
+            }
+        };
+        if (!isNoLog) {
+            Log.add(logParam.title, Object.assign({}, logParam.options));
+        }
+        return logParam;
+    }
+     /**
+     * DagView.eraseNodesAndConnections
+     * @param nodes
+     * @param tabId
+     * requires an array of dagNodes that already have parents and children assigned
+     */
+    export function eraseNodesAndConnections(nodes: DagNode[], tabId: string): XDPromise<void> {
+        _eraseNodesAndConnectionsNoPersist(nodes, tabId);
+        return activeDagTab.save();
+    }
+
+    function _eraseNodesAndConnectionsNoPersist(
+        nodes: DagNode[],
+        tabId: string,
+        options?: { isNoLog?: boolean }
+    ): LogParam {
+        const { isNoLog = false } = options || {};
+        const $dfArea: JQuery = _getAreaByTab(tabId);
+        let nodeIds = [];
+        const graph = DagTabManager.Instance.getTabById(tabId).getGraph();
+        nodes.forEach(function (node) {
+            const nodeId = node.getId();
+            nodeIds.push(nodeId);
+            if (nodeId.startsWith("dag")) {
+                // Remove tabs for custom OP
+                DagView.getNode(nodeId, $dfArea).remove();
+                $dagView.find('.edge[data-childnodeid="' + nodeId + '"]').remove();
+                $dagView.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function() {
+                    const childNodeId = $(this).attr("data-childnodeid");
+                    _removeConnection($(this), childNodeId);
+                });
+            } else if (nodeId.startsWith("comment")) {
+                graph.removeComment(nodeId);
+                DagComment.Instance.removeComment(nodeId);
+            }
+        });
+
+        const logParam: LogParam = {
+            title: SQLTStr.EraseNodesAndConnections,
+            options: {
+                "operation": SQLOps.EraseNodesAndConnections,
+                "dataflowId": tabId,
+                "nodeIds": nodeIds
+            }
+        };
+        if (!isNoLog) {
+            Log.add(logParam.title, Object.assign({}, logParam.options));
+        }
+        return logParam;
+    }
     /**
      * DagView.newNode
      * @param dagId
@@ -603,6 +696,37 @@ namespace DagView {
             "wasSpliced": wasSpliced
         });
         return activeDagTab.save();
+    }
+
+    function _disconnectNodesNoPersist(
+        parentNodeId: DagNodeId,
+        childNodeId: DagNodeId,
+        connectorIndex: number,
+        isNoLog: boolean
+    ): LogParam {
+        const $edge: JQuery = $dagView.find('.edge[data-parentnodeid="' +
+            parentNodeId +
+            '"][data-childnodeid="' +
+            childNodeId +
+            '"][data-connectorindex="' +
+            connectorIndex + '"]');
+        activeDag.disconnect(parentNodeId, childNodeId, connectorIndex);
+        _removeConnection($edge, childNodeId);
+        const logParam: LogParam = {
+            title: SQLTStr.DisconnectOperations,
+            options: {
+                "operation": SQLOps.DisconnectOperations,
+                "dataflowId": activeDagTab.getId(),
+                "parentNodeId": parentNodeId,
+                "childNodeId": childNodeId,
+                "connectorIndex": connectorIndex
+            }
+        };
+        if (!isNoLog) {
+            Log.add(logParam.title, Object.assign({}, logParam.options));
+        }
+
+        return logParam;
     }
 
     /**
@@ -1180,7 +1304,7 @@ namespace DagView {
         }
 
         // Create customNode from selected nodes
-        const nodeInfos = createNodeInfos(nodeIds);
+        const nodeInfos = createNodeInfos(nodeIds, activeDag);
         const {
             node: customNode,
             connectionIn: newConnectionIn,
@@ -1358,6 +1482,9 @@ namespace DagView {
             return;
         }
         if (dagNode instanceof DagNodeSQL) {
+            if (!dagNode.getSubGraph()) {
+                dagNode.updateSubGraph();
+            }
             DagTabManager.Instance.newSQLTab(dagNode);
             this.autoAlign();
         }
@@ -1366,7 +1493,7 @@ namespace DagView {
      * Expand the SQL node into a sub graph in place for editing purpose
      * @param nodeId
      */
-    export function expandSQLNode(nodeId: DagNodeId): void {
+    export function expandSQLNode(nodeId: DagNodeId): XDPromise<void> {
         // XXX Custom node expanding could re-use the code but probably needs
         // modifications
         const dagNode = activeDag.getNode(nodeId);
@@ -1374,44 +1501,86 @@ namespace DagView {
             return;
         }
         if (dagNode instanceof DagNodeSQL) {
+            if (!dagNode.getSubGraph()) {
+                dagNode.updateSubGraph();
+            }
             const subGraph = dagNode.getSubGraph();
             const allSubNodes = subGraph.getAllNodes();
-            allSubNodes.forEach((value) => {
-                const dagNode = value;
-                activeDag.addNode(dagNode);
-                _addNodeNoPersist(dagNode);
+            const expandSQLLogParam: LogParam = {
+                title: SQLTStr.ExpandSQLOperation,
+                options: {
+                    operation: SQLOps.DagBulkOperation,
+                    actions: []
+                }
+            };
+            const dagIds = [];
+            allSubNodes.forEach(dagNode => {
+                dagIds.push(dagNode.getId());
             });
-            allSubNodes.forEach((dagNode) => {
-                dagNode.getParents().forEach((parent, idx) => {
-                    _drawConnection(parent.getId(), dagNode.getId(), idx);
-                });
-            })
-
-            const subInputNodes = dagNode.getInputNodes();
-            const subOutputNodes = dagNode.getOutputNodes();
-
-            subInputNodes.forEach((inputNode) => {
-                const parent = dagNode.getInputParent(inputNode);
-                const children = inputNode.getChildren();
-                _removeNodesNoPersist([inputNode.getId()]);
-                children.forEach((child) => {
-                    _connectNodesNoPersist(parent.getId(), child.getId(), 0);
-                });
-            });
-            subOutputNodes.forEach((outputNode) => {
-                // There should be only one output for now
-                const parent = outputNode.getParents()[0];
-                _removeNodesNoPersist([outputNode.getId()]);
-                const children = dagNode.getChildren();
-                children.forEach((child) => {
-                    disconnectNodes(dagNode.getId(), child.getId(), 0);
-                    _connectNodesNoPersist(parent.getId(), child.getId(), 0);
-                });
+            const connections: NodeConnection[] = [];
+            const dagInfoList = createNodeInfos(dagIds, subGraph);
+            const oldNodeIdMap = {};
+            dagInfoList.forEach((dagNodeInfo: DagNodeInfo) => {
+                const parents: DagNodeId[] = dagNodeInfo.parents;
+                // XXX dagNodeInfo has attr called "nodeId". However, .create
+                // takes in "id" in option when deserializing. Not sure if this
+                // is intentional or XD bug. If this changes, it will break the
+                // code here and needs further fix.
+                const oldNodeId = dagNodeInfo["nodeId"];
+                const node: DagNode = DagNodeFactory.create(dagNodeInfo);
+                const nodeId: string = node.getId();
+                oldNodeIdMap[oldNodeId] = nodeId;
+                if (node instanceof DagNodeSQLSubInput) {
+                    return;
+                } else if (node instanceof DagNodeSQLSubOutput) {
+                    dagNode.getChildren().forEach((child) => {
+                        child.findParentIndices(dagNode).forEach((i) => {
+                            connections.push({
+                                parentId: parents[0],
+                                childId: child.getId(),
+                                pos: i
+                            });
+                        });
+                    });
+                    return;
+                } else {
+                    for (let i = 0; i < parents.length; i++) {
+                        let parentNode = subGraph.getNode(parents[i]);
+                        if (parentNode instanceof DagNodeSQLSubInput) {
+                            parentNode = dagNode.getInputParent(parentNode);
+                        }
+                        connections.push({
+                            parentId: parentNode.getId(),
+                            childId: nodeId,
+                            pos: i
+                        });
+                    }
+                }
+                activeDag.addNode(node);
+                const addLogParam = _addNodeNoPersist(node, {isNoLog: true});
+                expandSQLLogParam.options.actions.push(addLogParam.options);
             });
             // remove the SQL node from graph
-            _removeNodesNoPersist([dagNode.getId()]);
+            // Log remove
+            const removeLogParam = _removeNodesNoPersist([dagNode.getId()], {isNoLog: true});
+            expandSQLLogParam.options.actions.push(removeLogParam.options);
+            // restore edges
+            // activeDag.restoreConnections(connections);
+            // Connections to customNode
+            for (const { parentId, childId, pos } of connections) {
+                const newParentId = oldNodeIdMap[parentId] || parentId;
+                const connectLogParam = _connectNodesNoPersist(
+                    newParentId,
+                    childId,
+                    pos,
+                    {isNoLog: true, spliceIn: true}
+                );
+                expandSQLLogParam.options.actions.push(connectLogParam.options);
+            }
+            Log.add(expandSQLLogParam.title, expandSQLLogParam.options);
             // XXX Need a better way to adjust positions
             this.autoAlign();
+            return activeDagTab.save();
         }
     }
 
@@ -2376,6 +2545,48 @@ namespace DagView {
         }
     }
 
+    function _drawAndConnectNodes(nodes, $dfArea): void {
+        for (let i = 0; i < nodes.length; i++) {
+            _drawNode(nodes[i], $dfArea);
+        }
+        _drawAllNodeConnections(nodes);
+    }
+
+    function _drawAllNodeConnections(nodes): void {
+        const drawnConnections = {};
+
+        nodes.forEach((node) => {
+            const nodeId = node.getId();
+            node.getParents().forEach((parentNode, index) => {
+                const connectionId = parentNode.getId() + "-" + nodeId + "-" + index;
+                if (drawnConnections[connectionId]) {
+                    return;
+                }
+                _drawConnection(parentNode.getId(), nodeId, index);
+            });
+
+            const seen = {};
+            node.getChildren().forEach((childNode) => {
+                const childNodeId = childNode.getId();
+                if (seen[childNodeId]) {
+                    // node's child will connect to all indices of parent
+                    // so don't repeat if we see this child again
+                    return;
+                }
+                seen[childNodeId] = true;
+                childNode.getParents().forEach((parent, index) => {
+                    if (parent === node) {
+                        const connectionId = nodeId + "-" + childNode.getId() + "-" + index;
+                        if (drawnConnections[connectionId]) {
+                            return;
+                        }
+                        _drawConnection(nodeId, childNode.getId(), index);
+                    }
+                });
+            });
+        });
+    }
+
     function _drawNode(node: DagNode, $dfArea: JQuery, select?: boolean): JQuery {
         const pos = node.getPosition();
         const type = node.getType();
@@ -2849,6 +3060,7 @@ namespace DagView {
 
     function createNodeInfos(
         nodeIds: DagNodeId[],
+        dagGraph: DagGraph,
         options: {
             isSkipOutParent?: boolean,
             clearState?: boolean
@@ -2860,7 +3072,7 @@ namespace DagView {
         let nodeInfos = [];
         nodeIds.forEach((nodeId) => {
             if (nodeId.startsWith("dag")) {
-                const node: DagNode = activeDag.getNode(nodeId);
+                const node: DagNode = dagGraph.getNode(nodeId);
                 let parentIds: DagNodeId[] = [];
                 let numParents: number = node.getMaxParents();
                 let isMulti = false;
@@ -2893,7 +3105,7 @@ namespace DagView {
                 nodeInfo['parentIds'] = parentIds;
                 nodeInfos.push(nodeInfo);
             } else if (nodeId.startsWith("comment")) {
-                const comment: CommentNode = activeDag.getComment(nodeId);
+                const comment: CommentNode = dagGraph.getComment(nodeId);
                 nodeInfos.push({
                     nodeId: nodeId,
                     display: xcHelper.deepCopy(comment.getPosition()),
@@ -2911,7 +3123,7 @@ namespace DagView {
 
         clipboard = {
             type: "dagNodes",
-            nodeInfos: createNodeInfos(nodeIds, {clearState: true})
+            nodeInfos: createNodeInfos(nodeIds, activeDag, {clearState: true})
         };
     }
 

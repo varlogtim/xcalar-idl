@@ -538,7 +538,7 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.AddOperation] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.removeNodes([options.nodeId])
+        DagView.removeNodes([options.nodeId]);
         return PromiseHelper.resolve(null);
     };
 
@@ -607,6 +607,17 @@ window.Undo = (function($, Undo) {
         return tasks;
     }
 
+    undoFuncs[SQLOps.DrawNodesAndConnections] = function(options) {
+        DagTabManager.Instance.switchTab(options.dataflowId);
+        DagView.eraseNodesAndConnections(options.nodeIds, options.dataflowId);
+        return PromiseHelper.resolve(null);
+    }
+
+    undoFuncs[SQLOps.EraseNodesAndConnections] = function(options) {
+        DagTabManager.Instance.switchTab(options.dataflowId);
+        DagView.drawNodesAndConnections(options.nodeIds, options.dataflowId);
+        return PromiseHelper.resolve(null);
+    }
     /* USER STYLING/FORMATING OPERATIONS */
 
     undoFuncs[SQLOps.MinimizeCols] = function(options) {

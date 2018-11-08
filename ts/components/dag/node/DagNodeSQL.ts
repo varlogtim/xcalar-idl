@@ -8,7 +8,6 @@ class DagNodeSQL extends DagNode {
     protected SQLName: string;
     protected subInputNodes: DagNodeSQLSubInput[];
     protected subOutputNodes: DagNodeSQLSubOutput[];
-    protected tableNewDagIdMap: {};
     protected finalTableName: string; // Currently only one ouput as multi-query is disabled
 
     public constructor(options: DagNodeSQLInfo) {
@@ -29,17 +28,15 @@ class DagNodeSQL extends DagNode {
         this.display.icon = "&#xe957;";
         this.input = new DagNodeSQLInput(options.input);
         // Subgraph info won't be serialized
-        this.subGraph = new DagSubGraph();
         this.subInputNodes = [];
         this.subOutputNodes = [];
-        this.tableNewDagIdMap = {};
-        this.updateSubGraph();
+        // this.updateSubGraph();
         this.SQLName = xcHelper.randName("SQLTab_");
     }
 
     public updateSubGraph(): void {
         DagTabManager.Instance.removeTabByNode(this);
-        this.subGraph.remove();
+        this.subGraph = new DagSubGraph();
         this.subInputNodes = [];
         this.subOutputNodes = [];
         const connections: NodeConnection[] = [];
@@ -54,8 +51,6 @@ class DagNodeSQL extends DagNode {
         const dagInfoList = retStruct.dagInfoList;
         const dagIdParentIdxMap = retStruct.dagIdParentIdxMap;
         const outputDagId = retStruct.outputDagId;
-        // XXX convertQueryToDataflowGraph needs to return tableNewDagIdMap
-        this.tableNewDagIdMap = retStruct.tableNewDagIdMap;
         for (let i = 0; i < Object.keys(dagIdParentIdxMap).length; i++) {
             this.subInputNodes.push(null);
         }
@@ -86,7 +81,7 @@ class DagNodeSQL extends DagNode {
         });
         // restore edges
         this.subGraph.restoreConnections(connections);
-        this.subGraph.setTableDagIdMap(this.tableNewDagIdMap);
+        this.subGraph.setTableDagIdMap(retStruct.tableNewDagIdMap);
         this.subGraph.initializeProgress();
     }
     public getSQLName(): string {

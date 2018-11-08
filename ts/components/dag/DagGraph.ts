@@ -1326,11 +1326,11 @@ class DagGraph {
 
         // splice out index nodes
         for (let [_name, node] of nodes) {
-            collapseIndexNodes(node);
+            setIndexedFields(node);
         }
 
         for (let [_name, node] of nodes) {
-            setIndexedFields(node);
+            collapseIndexNodes(node);
         }
 
         // turn nodeMeta into dagNodeInfo structure expected by DagGraph
