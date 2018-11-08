@@ -633,7 +633,7 @@ window.TestSuite = (function($, TestSuite) {
 
     TestSuite.run = function(hasAnimation, toClean, noPopup, mode, withUndo,
                              timeDilation) {
-        return FlightTestInXD.run(hasAnimation, toClean, noPopup, mode, withUndo,
+        return FlightTest.run(hasAnimation, toClean, noPopup, mode, withUndo,
                             timeDilation);
     };
 

@@ -631,9 +631,9 @@ describe("Persistent Constructor Test", function() {
                 "boolean": false,
                 "type": ""
             },{
-                "typeId": DfFieldTypeT.DfScalarPtr,
+                "typeId": DfFieldTypeT.DfScalarObj,
                 "boolean": true,
-                "type": ""
+                "type": "mixed"
             }];
 
             testCases.forEach(function(testCase) {
@@ -1791,8 +1791,8 @@ describe("Persistent Constructor Test", function() {
             .and.to.equal("workspaceTab");
             expect(userPref).to.have.property("general").and.to.be.empty;
             expect(userPref).to.have.property("dsSortKey").and.to.be.undefined;
-            expect(userPref).to.have.property("dfAutoExecute").and.to.be.undefined;
-            expect(userPref).to.have.property("dfAutoPreview").and.to.be.undefined;
+            expect(userPref).to.have.property("dfAutoExecute").and.to.be.true;
+            expect(userPref).to.have.property("dfAutoPreview").and.to.be.true;
             userPref.update();
         });
 
