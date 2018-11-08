@@ -8,7 +8,6 @@ window.DSTable = (function($, DSTable) {
 
     var currentRow = 0;
     var totalRows = 0;
-    var previousColSelected; // used for shift clicking columns
     var lastDSToSample; // used to track the last table to samle in async call
     var defaultColWidth = 130;
 
@@ -30,8 +29,6 @@ window.DSTable = (function($, DSTable) {
         }
         showTableView(dsId);
         updateTableInfoDisplay(dsObj);
-        // hide carts
-        DSCart.switchToCart(null);
         setupViewAfterError(error, isFetchError);
     };
 
@@ -50,8 +47,6 @@ window.DSTable = (function($, DSTable) {
 
         if (isLoading) {
             setupViewBeforeLoading(dsObj);
-            // hide carts
-            DSCart.switchToCart(null);
             return PromiseHelper.resolve();
         }
 
@@ -68,8 +63,6 @@ window.DSTable = (function($, DSTable) {
                 setupViewBeforeLoading();
             }, 300);
         }
-        DSCart.switchToCart(dsId);
-
         var datasetName = dsObj.getFullName();
         lastDSToSample = datasetName;
 
@@ -123,7 +116,6 @@ window.DSTable = (function($, DSTable) {
 
     function showTableView(dsId) {
         $("#dsTableView").removeClass("xc-hidden");
-        $("#dataCartBtn").removeClass("xc-hidden");
         $dsTableContainer.data("id", dsId);
         DSForm.hide();
     }
@@ -131,7 +123,6 @@ window.DSTable = (function($, DSTable) {
     function setupViewBeforeLoading(dsObj) {
         $dsTableContainer.removeClass("error");
         $dsTableContainer.addClass("loading");
-        $("#dsColsBtn").addClass("xc-hidden");
         $dsTableContainer.find(".lockedTableIcon").addClass("xc-hidden");
         $tableWrap.html("");
         if (dsObj) {
@@ -159,9 +150,6 @@ window.DSTable = (function($, DSTable) {
 
         $dsTableContainer.removeClass("error");
         $dsTableContainer.removeClass("loading");
-        if (gChronos) {
-            $("#dsColsBtn").removeClass("xc-hidden");
-        }
     }
 
     function setupViewAfterError(error, isFetchError, noRetry) {
@@ -174,7 +162,6 @@ window.DSTable = (function($, DSTable) {
         error = startError + ". " + error;
 
         $tableWrap.html("");
-        $("#dsColsBtn").addClass("xc-hidden");
         $dsTableContainer.removeClass("loading");
         $dsTableContainer.addClass("error");
 
@@ -194,7 +181,6 @@ window.DSTable = (function($, DSTable) {
     DSTable.hide = function() {
         $("#dsTableView").addClass("xc-hidden");
         $("#dsTableWrap").empty();
-        $("#dataCartBtn").addClass("xc-hidden");
         $("#dsListSection").find(".gridItems .grid-unit.active")
                                 .removeClass("active");
         $dsTableContainer.removeData("id");
@@ -222,15 +208,6 @@ window.DSTable = (function($, DSTable) {
         var tableHeight = $dsTable.height();
         var scrollBarPadding = 10;
         $tableWrap.width($dsTable.width());
-        // if ($dsTable.width() > $dsTableContainer.parent().width()) {
-        //     scrollBarPadding = 10;
-        // } else if (resizeCols) {
-        //     sizeColumns();
-        //     // after resize, need another check
-        //     if ($dsTable.width() > $dsTableContainer.parent().width()) {
-        //         scrollBarPadding = 10;
-        //     }
-        // }
 
         if (resizeCols) {
             sizeColumns();
@@ -242,9 +219,6 @@ window.DSTable = (function($, DSTable) {
     function getSampleTable(dsObj, jsonKeys, jsons) {
         var html = getSampleTableHTML(dsObj, jsonKeys, jsons);
         $tableWrap.html(html);
-        if (gChronos) {
-            restoreSelectedColumns();
-        }
         DSTable.refresh(true);
         TblFunc.moveFirstColumn($("#dsTable"));
 
@@ -365,23 +339,17 @@ window.DSTable = (function($, DSTable) {
                 return;
             }
 
-            var selectedCols = {};
             var $dsTable = $("#dsTable");
             var realJsonKeys = [];
 
             $dsTable.find("th.th").each(function(index) {
                 var $th = $(this);
-                if ($th.hasClass("selectedCol")) {
-                    // the first column is column 1
-                    selectedCols[index + 1] = true;
-                }
-
                 var header = $th.find(".editableHead").val();
                 // when scroll, it should follow the order of current header
                 realJsonKeys[index] = header;
             });
 
-            var tr = getTableRowsHTML(realJsonKeys, jsons, false, selectedCols);
+            var tr = getTableRowsHTML(realJsonKeys, jsons, false);
             $dsTable.append(tr);
             TblFunc.moveFirstColumn($dsTable);
 
@@ -394,30 +362,6 @@ window.DSTable = (function($, DSTable) {
 
     // event set up for the module
     function setupSampleTable() {
-        // select table witout picking columns
-        $("#noDScols").click(function() {
-            var $table = $("#dsTable");
-            var dsId = $table.data("dsid");
-            $table.find(".colAdded").removeClass("colAdded");
-            $table.find(".selectedCol").removeClass("selectedCol");
-
-            DSCart.addItem(dsId, null);
-        });
-
-        // select all columns
-        $("#selectDSCols").click(function() {
-            selectAllDSCols();
-        });
-
-        // clear all columns
-        $("#clearDsCols").click(function() {
-            var $table = $("#dsTable");
-            var dsId = $table.data("dsid");
-            $table.find(".colAdded").removeClass("colAdded");
-            $table.find(".selectedCol").removeClass("selectedCol");
-            DSCart.removeCart(dsId);
-        });
-
         $dsInfoPath.on("click", function() {
             // copies filepath to clipboard
             var value = $dsInfoPath.text();
@@ -439,45 +383,6 @@ window.DSTable = (function($, DSTable) {
             }
 
             rePointDS(dsId);
-        });
-
-        // click to select a column
-        $tableWrap.on("click", ".header > .flexContainer", function(event) {
-            if (!gChronos) {
-                return;
-            }
-            var $input = $(this).find('.editableHead');
-            var $table = $("#dsTable");
-
-            if (event.shiftKey && previousColSelected) {
-
-                var startIndex = previousColSelected.closest("th").index();
-                var isHighlighted = $input.closest('th')
-                                          .hasClass('selectedCol');
-
-                var endIndex = $input.closest('th').index();
-                if (startIndex > endIndex) {
-                    var temp = endIndex;
-                    endIndex = startIndex;
-                    startIndex = temp;
-                }
-
-                var $ths = $table.find('th');
-                for (var i = startIndex; i <= endIndex; i++) {
-                    var $th = $ths.eq(i);
-                    if (isHighlighted === $th.hasClass('selectedCol')) {
-                        selectColumn($th.find(".editableHead"));
-                    }
-                }
-            } else {
-                selectColumn($input);
-            }
-            previousColSelected = $input.closest('th');
-        });
-
-        // select all columns when clicking on row num header
-        $tableWrap.on("click", ".rowNumHead", function() {
-            selectAllDSCols();
         });
 
         // resize column
@@ -529,62 +434,6 @@ window.DSTable = (function($, DSTable) {
             }
             DSImportErrorModal.show(dsId, numTotalErrors, isRecordError);
         });
-    }
-
-    // select all columns
-    function selectAllDSCols() {
-        var items = [];
-        var dsId = $("#dsTable").data("dsid");
-
-        $("#dsTable .editableHead").each(function() {
-            var $input = $(this);
-            var $header = $input.closest(".header");
-            if (!$header.hasClass("colAdded")) {
-                var colNum = xcHelper.parseColNum($input);
-                var val = $input.val();
-                var type = $header.data("type");
-                items.push({
-                    "colNum": colNum,
-                    "value": val,
-                    "type": type
-                });
-            }
-        });
-        highlightAllColumns();
-        DSCart.addItem(dsId, items);
-    }
-
-    // select a column
-    function selectColumn($input) {
-        var dsId = $("#dsTable").data("dsid");
-        var $header = $input.closest(".header");
-        var colNum = xcHelper.parseColNum($input);
-        // unselect the column
-        if ($header.hasClass("colAdded")) {
-            highlightColumn($input, true);
-            DSCart.removeItem(dsId, colNum);
-        } else {
-            highlightColumn($input);
-            DSCart.addItem(dsId, {
-                "colNum": colNum,
-                "value": $input.val(),
-                "type": $header.data("type")
-            });
-        }
-    }
-
-    // re-selecte columns that are in data carts
-    function restoreSelectedColumns() {
-        var $table = $("#dsTable");
-        var dsId = $table.data("dsid");
-        var $cart = DSCart.getCartElement(dsId);
-
-        $cart.find("li").each(function() {
-            var colNum = $(this).data("colnum");
-            var $input = $table.find(".editableHead.col" + colNum);
-            highlightColumn($input);
-        });
-        previousColSelected = null;
     }
 
     // if table is less wide than the panel, expand column widths if content is
@@ -646,27 +495,6 @@ window.DSTable = (function($, DSTable) {
 
         var $dsTable = $("#dsTable");
         $tableWrap.width($dsTable.width());
-    }
-
-    // hightligt column
-    function highlightColumn($input, active) {
-        var colNum = xcHelper.parseColNum($input);
-        var $table = $input.closest(".datasetTable");
-        var $header = $input.closest(".header");
-
-        if (active) {
-            $header.removeClass("colAdded");
-            $table.find(".col" + colNum).removeClass("selectedCol");
-        } else {
-            $header.addClass("colAdded");
-            $table.find(".col" + colNum).addClass("selectedCol");
-        }
-    }
-
-    function highlightAllColumns() {
-        $("#dsTable").find(".header:gt(0)").addClass("colAdded")
-                     .parent().addClass("selectedCol");
-        $("#dsTable").find("td:not(.lineMarker)").addClass("selectedCol");
     }
 
     function rePointDS(dsId) {
@@ -733,12 +561,11 @@ window.DSTable = (function($, DSTable) {
         });
 
         // table rows
-        tr = getTableRowsHTML(jsonKeys, jsons, columnsType, null, colStrLimit);
+        tr = getTableRowsHTML(jsonKeys, jsons, columnsType, colStrLimit);
         if (numKeys > 0) {
-            th += '<th class="rowNumHead" title="select all columns"' +
-                    ' data-toggle="tooltip" data-placement="top"' +
-                    ' data-container="body"><div class="header">' +
-                  '</div></th>';
+            th += '<th class="rowNumHead">' +
+                    '<div class="header"></div>' +
+                  '</th>';
         }
 
         // table header
@@ -797,8 +624,7 @@ window.DSTable = (function($, DSTable) {
         return (html);
     }
 
-    function getTableRowsHTML(jsonKeys, jsons, columnsType, selectedCols,
-                              colStrLimit) {
+    function getTableRowsHTML(jsonKeys, jsons, columnsType, colStrLimit) {
         var tr = "";
         var i  = 0;
         var knf = false;
@@ -833,12 +659,7 @@ window.DSTable = (function($, DSTable) {
                     parsedVal = xcHelper.styleNewLineChar(parsedVal);
                 }
 
-                var selected  = "";
-                if (selectedCols && selectedCols[j + 1]) {
-                    selected = " selectedCol";
-                }
-
-                tr += '<td class="col' + (j + 1) + selected + '">' +
+                tr += '<td class="col' + (j + 1) + '">' +
                         '<div class="tdTextWrap">' +
                             '<div class="tdText">' +
                                 parsedVal +

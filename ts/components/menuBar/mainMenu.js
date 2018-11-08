@@ -385,8 +385,6 @@ window.MainMenu = (function($, MainMenu) {
     function panelSwitchingHandler($curTab, lastTabId) {
         if (lastTabId === "monitorTab") {
             MonitorPanel.inActive();
-        } else if (lastTabId === "dataStoresTab") {
-            DSCart.checkQueries();
         } else if (lastTabId === "workspaceTab") {
             WorkspacePanel.inActive();
         } else if (lastTabId === "modelingDataflowTab") {
@@ -405,8 +403,6 @@ window.MainMenu = (function($, MainMenu) {
             case ("dataStoresTab"):
                 $("#datastorePanel").addClass("active");
                 DSTable.refresh();
-                DSCart.refresh();
-                DSCart.checkQueries();
                 if ($curTab.hasClass("firstTouch")) {
                     $curTab.removeClass("firstTouch");
                     DS.setupView();

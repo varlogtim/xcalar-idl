@@ -392,40 +392,6 @@ describe("Dataset-DSTable Test", function() {
              $("#dsImportErrorModal").find(".xi-close").click();
         });
 
-        it("Should select all columns", function() {
-            $("#selectDSCols").click();
-            // all columns(11 cols) all selected
-            expect($("#dsTable th.selectedCol").length).to.equal(12);
-        });
-
-        it("Should select no columns", function() {
-            $("#noDScols").click();
-            expect($("#dsTable th.selectedCol").length).to.equal(0);
-        });
-
-        it("Should select one column", function() {
-            var $input = $("#dsTable .editableHead").eq(2).click();
-            expect($("#dsTable th.selectedCol").length).to.equal(1);
-            assert.isTrue($input.closest("th").hasClass("selectedCol"));
-        });
-
-        it("Should select with shift key", function() {
-            var e = jQuery.Event("click", {"shiftKey": true});
-            $("#dsTable .editableHead").eq(0).trigger(e);
-            // select 3 columns
-            expect($("#dsTable th.selectedCol").length).to.equal(3);
-        });
-
-        it("Should click .rowNumHead to select all", function() {
-            $("#dsTable .rowNumHead").click();
-            expect($("#dsTable th.selectedCol").length).to.equal(12);
-        });
-
-        it("Should clear all selection", function() {
-            $("#clearDsCols").click();
-            expect($("#dsTable th.selectedCol").length).to.equal(0);
-        });
-
         it("should click retry button to retry", function() {
             var oldGetError = DS.getErrorDSObj;
             var oldRemove = DS.removeErrorDSObj;

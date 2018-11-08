@@ -269,15 +269,12 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     };
 
-    // XXX TODO: remove the createTable option
     /* Import dataset, promise returns dsObj
         options:
-            createTable: if set true, will auto create the table
             dsToReplace: if set true, will replace the old ds
     */
     DS.import = function(dsArgs, options) {
         options = options || {};
-        var createTable = options.createTable || false;
         var dsToReplace = options.dsToReplace || null;
         // Here null means the attr is a placeholder, will
         // be update when the sample table is loaded
@@ -295,7 +292,7 @@ window.DS = (function ($, DS) {
         };
 
         sortDS(curDirId);
-        return importHelper(dsObj, createTable, sql);
+        return importHelper(dsObj, sql);
     };
 
     // Rename dsObj
@@ -911,7 +908,7 @@ window.DS = (function ($, DS) {
         return XcalarDatasetCreate(datasetName, options, txId);
     }
 
-    function importHelper(dsObj, createTable, sql) {
+    function importHelper(dsObj, sql) {
         var deferred = PromiseHelper.deferred();
         var dsName = dsObj.getName();
         var $grid = DS.getGrid(dsObj.getId());
@@ -956,9 +953,7 @@ window.DS = (function ($, DS) {
             updateDSMeta(dsInfo, dsObj, $grid);
             finishImport($grid);
 
-            if (createTable) {
-                createTableHelper($grid, dsObj);
-            } else if ($grid.hasClass("active")) {
+            if ($grid.hasClass("active")) {
                 // re-focus to trigger DSTable.show()
                 if (gMinModeOn) {
                     DS.focusOn($grid);
@@ -1082,11 +1077,6 @@ window.DS = (function ($, DS) {
             return destroyDataset(dsName, txId);
         })
         .then(function() {
-            //clear data cart
-            if (gChronos) {
-                DSCart.removeCart(dsId);
-                Dag.makeInactive(dsId, true);
-            }
             // clear data table
             if (isShowDSTable) {
                 DSTable.clear();
@@ -1889,38 +1879,6 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function createTableHelper($grid, dsObj) {
-        var deferred = PromiseHelper.deferred();
-        var colsToPull;
-
-        dsObj.fetch(0, 40)
-        .then(function(json, jsonKeys) {
-            colsToPull = jsonKeys;
-            return xcHelper.getUnusedTableName(dsObj.getName());
-        })
-        .then(function(tableName) {
-            var cart = DSCart.addCart(dsObj.getId(), tableName, true);
-            colsToPull.forEach(function(colName) {
-                var item = {"value": colName};
-                cart.addItem(item);
-            });
-            var worksheet = WSManager.getActiveWS();
-            var noFocus = !$grid.hasClass("active");
-
-            return DSCart.createTable(cart, worksheet, noFocus);
-        })
-        .then(function() {
-            DS.focusOn($grid);
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            DS.focusOn($grid);
-            deferred.reject(error);
-        });
-
-        return deferred.promise();
-    }
-
     function setupGridViewButtons() {
         // click to toggle list view and grid view
         $("#dataViewBtn, #exportViewBtn, #dsTarget-view").click(function() {
@@ -2462,8 +2420,6 @@ window.DS = (function ($, DS) {
 
         var dsObj = DS.getDSObj(dsId);
         if (dsObj == null) {
-            // when this ds is not there after refresh
-            DSCart.removeCart(dsId);
             // clear data table
             $("#dsTableWrap").empty();
             focusOnForm();
@@ -3187,7 +3143,6 @@ window.DS = (function ($, DS) {
         DS.__testOnly__.removeDS = removeDS;
         DS.__testOnly__.cacheErrorDS = cacheErrorDS;
         DS.__testOnly__.checkUnlistableDS = checkUnlistableDS;
-        DS.__testOnly__.createTableHelper = createTableHelper;
 
         DS.__testOnly__.getDragDS = getDragDS;
         DS.__testOnly__.setDragDS = setDragDS;

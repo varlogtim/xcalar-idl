@@ -651,8 +651,7 @@ window.DSPreview = (function($, DSPreview) {
             var $submitBtn = $(this).blur();
             $("#importColRename").tooltip("destroy");
             $("#importColRename").remove();
-            var toCreateTable = $submitBtn.hasClass("createTable");
-            submitForm(toCreateTable);
+            submitForm();
         });
 
         $form.submit(function(event) {
@@ -1295,7 +1294,7 @@ window.DSPreview = (function($, DSPreview) {
         };
     }
 
-    function submitForm(toCreateTable) {
+    function submitForm() {
         var res = validateForm();
         if (res == null) {
             return PromiseHelper.reject("Checking Invalid");
@@ -1330,9 +1329,6 @@ window.DSPreview = (function($, DSPreview) {
         };
 
         var typedColumns = getColumnHeaders();
-        var colLen = toCreateTable
-                     ? $previewTable.find("th:not(.rowNumHead)").length
-                     : 0;
 
         cacheUDF(udfModule, udfFunc);
         xcHelper.disableSubmit($form.find('.confirm'));
@@ -1355,9 +1351,6 @@ window.DSPreview = (function($, DSPreview) {
 
         invalidHeaderDetection(typedColumns)
         .then(function() {
-            return tooManyColAlertHelper(colLen);
-        })
-        .then(function() {
             return getTypedColumnsList(typedColumns, dsArgs);
         })
         .then(function(typedColumnsList) {
@@ -1365,8 +1358,7 @@ window.DSPreview = (function($, DSPreview) {
                 FileBrowser.clear();
             }
 
-            return importDataHelper(dsNames, dsArgs, typedColumnsList,
-                                    toCreateTable);
+            return importDataHelper(dsNames, dsArgs, typedColumnsList);
         })
         .then(function() {
             deferred.resolve();
@@ -1593,7 +1585,7 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function importDataHelper(dsNames, dsArgs, typedColumnsList, toCreateTable) {
+    function importDataHelper(dsNames, dsArgs, typedColumnsList) {
         var multiDS = loadArgs.multiDS;
         var files = loadArgs.files;
         var targetName = loadArgs.getTargetName();
@@ -1648,9 +1640,7 @@ window.DSPreview = (function($, DSPreview) {
                     "sources": [source],
                     "typedColumns": typedColumnsList[index]
                 }, extraUDFArgs);
-                promises.push(DS.import(args, {
-                    "createTable": toCreateTable
-                }));
+                promises.push(DS.import(args, {}));
             });
             return PromiseHelper.when.apply(this. promises);
         } else {
@@ -1664,29 +1654,9 @@ window.DSPreview = (function($, DSPreview) {
             }, extraUDFArgs);
             var dsToReplace = files[0].dsToReplace || null;
             return DS.import(multiLoadArgs, {
-                "createTable": toCreateTable,
                 "dsToReplace": dsToReplace
             });
         }
-    }
-
-    function tooManyColAlertHelper(colLen) {
-        if (colLen < gMaxColToPull) {
-            return PromiseHelper.resolve();
-        }
-
-        var deferred = PromiseHelper.deferred();
-        Alert.show({
-            "title": DSFormTStr.CreateWarn,
-            "msg": DSFormTStr.CreateWarnMsg,
-            "onConfirm": deferred.resolve,
-            "onCancel": function() {
-                xcHelper.enableSubmit($form.find(".confirm"));
-                deferred.reject();
-            }
-        });
-
-        return deferred.promise();
     }
 
     function getColumnHeaders(isCSV) {
@@ -5816,7 +5786,6 @@ window.DSPreview = (function($, DSPreview) {
         DSPreview.__testOnly__.getURLToPreview = getURLToPreview;
         DSPreview.__testOnly__.loadDataWithUDF = loadDataWithUDF;
         DSPreview.__testOnly__.invalidHeaderDetection = invalidHeaderDetection;
-        DSPreview.__testOnly__.tooManyColAlertHelper = tooManyColAlertHelper;
         DSPreview.__testOnly__.checkBulkDuplicateNames = checkBulkDuplicateNames;
         DSPreview.__testOnly__.changePreviewFile = changePreviewFile;
 

@@ -491,32 +491,32 @@ describe('QueryManager Test', function() {
             delete queryLists[1];
             $queryList.find(".xc-query").last().remove();
         });
-        it("confirmCanceledQuery should work", function() {
-            var list = queryLists;
-            var fakeQuery = new XcQuery({});
-            var id = 65535;
-            list[id] = fakeQuery;
-            QueryManager.confirmCanceledQuery(id);
-            expect(fakeQuery.outputTableState).to.equal("deleted");
-            expect(fakeQuery.state).to.equal("canceled");
+        // it("confirmCanceledQuery should work", function() {
+        //     var list = queryLists;
+        //     var fakeQuery = new XcQuery({});
+        //     var id = 65535;
+        //     list[id] = fakeQuery;
+        //     QueryManager.confirmCanceledQuery(id);
+        //     expect(fakeQuery.outputTableState).to.equal("deleted");
+        //     expect(fakeQuery.state).to.equal("canceled");
 
-            var fnCalled = false;
-            var cachedFn = DSCart.queryDone;
-            DSCart.queryDone = function() {
-                fnCalled = true;
-            };
-            fakeQuery.subQueries[0] = {
-                getName: function() {
-                    return "index from DS";
-                }
-            };
+        //     var fnCalled = false;
+        //     var cachedFn = DSCart.queryDone;
+        //     DSCart.queryDone = function() {
+        //         fnCalled = true;
+        //     };
+        //     fakeQuery.subQueries[0] = {
+        //         getName: function() {
+        //             return "index from DS";
+        //         }
+        //     };
 
-            QueryManager.confirmCanceledQuery(id);
-            expect(fnCalled).to.be.true;
+        //     QueryManager.confirmCanceledQuery(id);
+        //     expect(fnCalled).to.be.true;
 
-            DSCart.queryDone = cachedFn;
-            delete list[id];
-        });
+        //     DSCart.queryDone = cachedFn;
+        //     delete list[id];
+        // });
 
         it("cleanup canceled tables should work", function() {
             var fakeQuery = new XcQuery({});

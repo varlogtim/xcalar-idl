@@ -272,12 +272,6 @@ namespace QueryManager {
             mainQuery.currStep = lastQueryPos;
         }
 
-        if (mainQuery.subQueries.length &&
-            mainQuery.subQueries[0].getName() === "index from DS") {
-            DSCart.queryDone(mainQuery.getId());
-            return;
-        }
-
         for (let i = 0; i < mainQuery.subQueries.length; i++) {
             let subQuery: XcSubQuery = mainQuery.subQueries[i];
             if (subQuery.dstTable === dstTable ||
@@ -506,12 +500,6 @@ namespace QueryManager {
               .text(xcHelper.capitalize(QueryStatus.Cancel));
         if ($query.hasClass('active')) {
             updateHeadingSection(mainQuery);
-        }
-        if (mainQuery.subQueries[0] &&
-            mainQuery.subQueries[0].getName() === "index from DS")
-        {
-            const isCanceled: boolean = true;
-            DSCart.queryDone(mainQuery.getId(), isCanceled);
         }
     };
 
@@ -1256,11 +1244,6 @@ namespace QueryManager {
         if (!queryLists[id]) {
             console.error("error case");
             return;
-        } else if (!$("#monitor-queries").hasClass("active") ||
-                    !$('#monitorTab').hasClass('active')) {
-            if (subQuery.getName() === "index from DS") {
-                DSCart.addQuery(queryLists[id]);
-            }
         }
         // only stop animation the first time, do not persist it
         const doNotAnimate: boolean = false;

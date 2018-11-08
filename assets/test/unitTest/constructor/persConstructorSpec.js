@@ -8,10 +8,6 @@ describe("Persistent Constructor Test", function() {
                 "tableName": "testTable"
             });
 
-            var cart = new Cart({
-                "dsId": "testId"
-            });
-
             var agg = new Agg({
                 "aggName": "testAgg"
             });
@@ -28,7 +24,6 @@ describe("Persistent Constructor Test", function() {
                 "TILookup": {"test": table},
                 "worksheets": {"wsOrder": [1]},
                 "aggregates": {"testAgg": agg},
-                "datacarts": {"testId": cart},
                 "statsCols": {"testTable": {"testCol": profile}},
                 "sqlcursor": -2,
                 "tablePrefix": {"testPrefix": "test"},
@@ -56,11 +51,6 @@ describe("Persistent Constructor Test", function() {
             expect(aggs).to.have.property("testAgg");
         });
 
-        it("Should get cart meta", function() {
-            var cartMeta = metaInfos.getCartMeta();
-            expect(cartMeta["testId"]).to.exist;
-        });
-
         it("Should get stats meta", function() {
             var profileMeta = metaInfos.getStatsMeta();
             expect(profileMeta["testTable"]["testCol"]).to.exist;
@@ -85,7 +75,6 @@ describe("Persistent Constructor Test", function() {
             expect(metaInfos.getTableMeta()).not.to.have.property("test");
             expect(metaInfos.getWSMeta().wsOrder[0]).not.to.equal(1);
             expect(metaInfos.getAggMeta()).not.to.have.property("testAgg");
-            expect(metaInfos.getCartMeta()).not.to.have.property("testId");
             expect(metaInfos.getStatsMeta()).not.to.have.property("testTable");
             expect(metaInfos.getLogCMeta()).not.to.equal(-2);
             expect(metaInfos.getTpfxMeta()).not.to.have.property("testPrefix");
@@ -2268,94 +2257,6 @@ describe("Persistent Constructor Test", function() {
                 XcalarMakeResultSetFromDataset = oldMakeResult;
                 XcalarSetFree = oldRelease;
             });
-        });
-    });
-
-    describe("CatItem Constructor Test", function() {
-        it("Should hvae 4 attributes", function() {
-            var cartItem = new CartItem({
-                "colNum": 1,
-                "value": "test"
-            });
-
-            expect(cartItem).to.be.an.instanceof(CartItem);
-            expect(Object.keys(cartItem).length).to.equal(4);
-            expect(cartItem).to.have.property("version")
-            .and.to.equal(currentVersion);
-            expect(cartItem).to.have.property("colNum");
-            expect(cartItem).to.have.property("value");
-            expect(cartItem).to.have.property("type");
-        });
-    });
-
-    describe("Cart Constructor Test", function() {
-        it("Should have 4 attributes", function() {
-            var cart = new Cart({
-                "dsId": "test",
-                "tableName": "testTable",
-                "items": [{
-                    "colNum": 1,
-                    "value": "test"
-                }]
-            });
-
-            expect(cart).to.be.an.instanceof(Cart);
-            expect(Object.keys(cart).length).to.equal(4);
-            expect(cart).to.have.property("version")
-            .and.to.equal(currentVersion);
-            expect(cart).to.have.property("dsId")
-            .and.to.equal("test");
-            expect(cart).to.have.property("tableName")
-            .and.to.equal("testTable");
-            expect(cart).to.have.property("items")
-            .and.to.be.an("array");
-        });
-
-        it("Cart should have correct function to call", function() {
-            var cart = new Cart({
-                "dsId": "test",
-                "tableName": "testTable"
-            });
-
-            expect(cart.getId()).to.equal("test");
-            expect(cart.getTableName()).to.equal("testTable");
-            cart.setTableName("table2");
-            expect(cart.getTableName()).to.equal("table2");
-
-            expect(cart.getPrefix()).to.be.null;
-            cart.setPrefix("testPrefix");
-            expect(cart.getPrefix()).to.equal("testPrefix");
-
-            cart.addItem(new CartItem({"colNum": 1, "value": "t1"}));
-            cart.addItem(new CartItem({"colNum": 2, "value": "t2"}));
-            expect(cart.items.length).to.equal(2);
-
-            cart.removeItem(1);
-            expect(cart.items.length).to.equal(1);
-            expect(cart.items[0].value).to.equal("t2");
-
-            cart.emptyItem();
-            expect(cart.items.length).to.equal(0);
-        });
-
-        it("Should get dsName", function() {
-            var oldFunc = DS.getDSObj;
-            DS.getDSObj = function() {
-                return new DSObj({
-                    "fullName": "testFullName",
-                    "isFolder": false,
-                    "parentId": DSObjTerm.homeParentId
-                });
-            };
-
-            var cart = new Cart({
-                "dsId": "test",
-                "tableName": "testTable",
-            });
-            var res = cart.getDSName();
-            expect(res).to.equal("testFullName");
-
-            DS.getDSObj = oldFunc;
         });
     });
 

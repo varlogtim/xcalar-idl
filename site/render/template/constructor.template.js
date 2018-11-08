@@ -29,7 +29,6 @@
             METAKeys.TI: (obj) table meta
             METAKeys.WS: (obj) worksheet meta
             METAKeys.AGGS: (obj) agg meta
-            METAKeys.CART: (obj) cart meta
             METAKeys.STATS: (obj) profile meta
             METAKeys.LOGC: (integer) log cursor position
             METAKeys.TPFX: (obj) table prefix meta
@@ -54,7 +53,6 @@
                 this[METAKeys.TI] = saveTables();
                 this[METAKeys.WS] = WSManager.getAllMeta();
                 this[METAKeys.AGGS] = Aggregates.getAggs();
-                this[METAKeys.CART] = DSCart.getCarts();
                 this[METAKeys.STATS] = Profile.getCache();
                 this[METAKeys.LOGC] = Log.getCursor();
                 this[METAKeys.TPFX] = TableComponent.getPrefixManager().getCache();
@@ -97,10 +95,6 @@
 
             getAggMeta: function() {
                 return this[METAKeys.AGGS];
-            },
-
-            getCartMeta: function() {
-                return this[METAKeys.CART];
             },
 
             getStatsMeta: function() {
@@ -1440,8 +1434,7 @@
         return UserPref<%= v %>;
     }());
 
-    // dsCart.js
-    // inner part of Cart
+    // XXX TODO: remove it
     win.CartItem<%= v %> = (function() {
         var _super = __getConstructor("CartItem", parentVersion);
         /* Attr:
@@ -1461,7 +1454,7 @@
         return CartItem<%= v %>;
     }());
 
-    // dsCart.js
+    // XXX TODO: remove it
     win.Cart<%= v %> = (function() {
         var _super = __getConstructor("Cart", parentVersion);
         /* Attr:

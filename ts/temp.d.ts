@@ -874,7 +874,6 @@ declare class METAConstructor {
     public getTpfxMeta(): object;
     public getAggMeta(): object;
     public getTableMeta(): TableMeta[];
-    public getCartMeta(): object;
     public getStatsMeta(): object;
     public getLogCMeta(): number;
 }

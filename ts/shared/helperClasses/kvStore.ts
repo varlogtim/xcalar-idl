@@ -249,7 +249,6 @@ class KVStore {
             Profile.restore(KVStore.metaInfos.getStatsMeta());
             if (gChronos) {
                 WSManager.restore(KVStore.metaInfos.getWSMeta());
-                DSCart.restore(KVStore.metaInfos.getCartMeta());
             }
         } catch (error) {
             console.error(error);

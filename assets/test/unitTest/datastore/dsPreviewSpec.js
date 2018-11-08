@@ -425,30 +425,6 @@ describe("Dataset-DSPreview Test", function() {
             });
         });
 
-        it("tooManyColAlertHelper should handle valid case", function(done) {
-            DSPreview.__testOnly__.tooManyColAlertHelper(0)
-            .then(function() {
-                assert.isFalse($("#alertModal").is(":visible"));
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
-
-        it("tooManyColAlertHelper should handle invalid case", function(done) {
-            var def = DSPreview.__testOnly__.tooManyColAlertHelper(gMaxColToPull);
-            UnitTest.hasAlertWithTitle(DSFormTStr.CreateWarn);
-
-            def
-            .then(function() {
-                done("fail");
-            })
-            .fail(function() {
-                done();
-            });
-        });
-
         describe('invalidHeaderDetection Test', () => {
             let invalidHeaderDetection;
             let loadArgs;

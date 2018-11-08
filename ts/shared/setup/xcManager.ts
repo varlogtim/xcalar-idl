@@ -918,7 +918,6 @@ namespace xcManager {
                 TblFunc.moveTableTitles(null);
             }
 
-            DSCart.resize();
             clearTimeout(winResizeTimer);
             winResizeTimer = <any>setTimeout(winResizeStop, 100);
         });

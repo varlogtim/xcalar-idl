@@ -234,35 +234,35 @@ describe("Dataset-DSObj Test", function() {
             expect(DS.getErrorDSObj("test")).to.be.null;
         });
 
-        it("createTableHelper should work", function(done) {
-            var $grid = $("<div></div>");
-            var dsObj = {
-                fetch: function() { return PromiseHelper.resolve(null, []); },
-                getName: function() { return "test"; },
-                getId: function() { return "test"; }
-            };
-            var oldAddCart = DSCart.addCart;
-            var oldCreateTable = DSCart.createTable;
-            var test = false;
-            DSCart.addCart = function() {};
-            DSCart.createTable = function() {
-                test = true;
-                return PromiseHelper.resolve();
-            };
+        // it("createTableHelper should work", function(done) {
+        //     var $grid = $("<div></div>");
+        //     var dsObj = {
+        //         fetch: function() { return PromiseHelper.resolve(null, []); },
+        //         getName: function() { return "test"; },
+        //         getId: function() { return "test"; }
+        //     };
+        //     var oldAddCart = DSCart.addCart;
+        //     var oldCreateTable = DSCart.createTable;
+        //     var test = false;
+        //     DSCart.addCart = function() {};
+        //     DSCart.createTable = function() {
+        //         test = true;
+        //         return PromiseHelper.resolve();
+        //     };
 
-            DS.__testOnly__.createTableHelper($grid, dsObj)
-            .then(function() {
-                expect(test).to.equal(true);
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                DSCart.addCart = oldAddCart;
-                DSCart.createTable = oldCreateTable;
-            });
-        });
+        //     DS.__testOnly__.createTableHelper($grid, dsObj)
+        //     .then(function() {
+        //         expect(test).to.equal(true);
+        //         done();
+        //     })
+        //     .fail(function() {
+        //         done("fail");
+        //     })
+        //     .always(function() {
+        //         DSCart.addCart = oldAddCart;
+        //         DSCart.createTable = oldCreateTable;
+        //     });
+        // });
 
         it('DS.toggleSharing should toggle sharing', () => {
             const disable = $gridView.hasClass('disableShare');

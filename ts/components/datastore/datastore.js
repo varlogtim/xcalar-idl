@@ -7,7 +7,6 @@ window.DataStore = (function($, DataStore) {
         setupViews();
         DSForm.setup();
         DSTable.setup();
-        DSCart.setup();
         DSTargetManager.setup();
     };
 
@@ -59,7 +58,6 @@ window.DataStore = (function($, DataStore) {
                 $menu.find(".in").removeClass("xc-hidden");
 
                 DSTable.refresh();
-                DSCart.refresh();
                 DS.resize();
             }
 

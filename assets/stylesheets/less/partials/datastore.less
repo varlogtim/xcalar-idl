@@ -16,15 +16,6 @@ html.safari {
             .size(@width: ~"calc(100% - 165px)");
         }
     }
-
-
-    #noDScols {
-        min-width: 177px;
-    }
-
-    #selectDSCols, #clearDsCols {
-        min-width: 88px;
-    }
 }
 
  // DataStore CSS
@@ -49,20 +40,10 @@ html.safari {
     }
 
     &.target {
-        .topBar {
-            .cart {
-                display: none;
-            }
-        }
-
         .subPanel {
             &.target {
                 display: block;
             }
-        }
-
-        #dataCartBtn {
-            display: none;
         }
 
         .mainContent {
@@ -71,21 +52,11 @@ html.safari {
     }
 
     &.out {
-        .topBar {
-            .cart {
-                display: none;
-            }
-        }
-
         .subPanel {
             &.out {
                 display: block;
                 overflow: visible;
             }
-        }
-
-        #dataCartBtn {
-            display: none;
         }
 
         .mainContent {
@@ -104,23 +75,6 @@ html.safari {
     }
 }
 
-#sendToWorksheetLoadBar {
-    @loadBarHeight: 5px;
-    display: none;
-    width: 100%;
-    height: @loadBarHeight;
-    background-color: #374750;
-    z-index: 21;
-    position: absolute;
-    top: @height-topBar - @loadBarHeight;
-    pointer-events: none;
-    .innerBar {
-        width: 0%;
-        height:100%;
-        background-color: #4CA5D9;
-    }
-}
-
 #datastore-in-view {
     .viewSection {
         .size(100%, 100%);
@@ -131,43 +85,12 @@ html.safari {
 #dsTableView {
     .position(relative);
 
-    &.fullSize {
-        .leftSection {
-            .size(@width: ~"calc(100% - 6px)");
-        }
-
-        .rightSection {
-            display: none;
-        }
+    .title {
+        .size(@width: 100%);
     }
 
-    .leftSection {
-        .size(@width: ~"calc(100% - 306px)", @height: 100%);
-        float: left;
-        margin-right: 6px;
-
-        .title {
-            .size(@width: 100%);
-        }
-
-        &:not(.noAnim) {
-            .transition(width @time-menuAnim);
-        }
-
-        > .section {
-            .size(100%, 100%);
-        }
-    }
-
-    .rightSection {
-        .size(@width: 300px, @height: 100%);
-        float: left;
-        .position(absolute, @right: 0px);
-        z-index: @z-index-dfPanel;
-
-        &:not(.noAnim) {
-            .transition(left 0.2s);
-        }
+    > .section {
+        .size(100%, 100%);
     }
 
     .cardContainer {
@@ -179,6 +102,7 @@ html.safari {
     .cardInstruction {
         .flex(0 0 auto);
         height: auto;
+        min-height: 58px;
         max-height: 72px;
         padding-right: 0px;
         .text {
@@ -285,12 +209,6 @@ html.safari {
                 color: @color-font-select-blue;
             }
         }
-        #dsColsBtn {
-            .flex-display;
-            .flex-wrap(wrap);
-            justify-content: flex-end;
-            padding-top: 3px;
-        }
         .dsValue {
             font-weight: 400;
         }
@@ -311,90 +229,13 @@ html.safari {
                 color: @color-error-border;
             }
         }
-
-        .buttonSection {
-            .buttonGroup {
-                .size(@height: 30px);
-                color: @color-font-select-blue;
-                .flex-display;
-                .align-items(center);
-
-                > div {
-                    float: right;
-                }
-
-                .icon {
-                    color: @color-font-select-blue;
-                }
-
-                .hint {
-                    .size(@width: 14px, @height: 20px);
-                    margin-left: 5px;
-                }
-
-                #noDScols {
-                    .size(@max-width: ~"calc(100% - 20px)");
-                }
-
-                #selectDSCols {
-                    margin-left: 20px;
-                }
-
-                .xc-action {
-                    .size(@max-width: ~"calc(50% - 11px)");
-
-                    i, span {
-                        display: inline-block;
-                        float: left;
-                    }
-
-                    span {
-                        .size(@max-width: ~"calc(100% - 25px)");
-                        line-height: 20px;
-                        margin-left: 5px;
-                        .textOverflowOneLine;
-                    }
-                }
-            }
-        }
     }
 
     .cardMain {
-        .size(@width: 100%, @height: ~"calc(100% - 208px)");
+        .size(@width: 100%, @height: ~"calc(100% - 183px)");
         padding: 0;
         .flex(0 1 auto);
         overflow: hidden;
-    }
-}
-
-// the data cart icon
-#dataCartBtn {
-    .size(30px, 100%);
-    .position(relative);
-    margin-right: 10px;
-    overflow: visible; // for IE to show dataCartNum
-
-    &.active {
-        background-color: @color-bg-white-two;
-    }
-
-    &.noCart {
-        .text {
-            display: none;
-        }
-    }
-
-    .icon {
-       color: @color-font-warm-grey-two;
-    }
-
-    .text {
-        .size(@min-width: 24px, @max-width: 35px, @height: 12px);
-        .position(absolute, @top: -5px, @left: -15px);
-        .rounded(6px);
-        background-color: @color-bg-softBlue;
-        .font(@size: 9px, @weight: 700, @color: @color-white);
-        text-align: center;
     }
 }
 
@@ -581,234 +422,6 @@ table.datasetTable {
     }
 }
 /* End Of DS Table Section */
-
-// Data Cart Section
-#dataCartContainer {
-    .size(100%, 100%);
-    background-color: @color-bg-white-seven;
-    box-shadow: -1px 0 0 0 rgba(255, 255, 255, 0.5), inset 1px 0 0 0 rgba(0, 0, 0, 0.2);
-
-    &.cartOverflow {
-        .mainSection {
-            box-shadow: inset 0px 3px 2px 1px rgba(0, 0, 0, 0.2);        }
-    }
-
-    &.noCart {
-        .titleSection {
-            .numWrap {
-                display: none;
-            }
-        }
-
-        .buttonSection {
-            .dropDownList, .btn {
-                pointer-events: none;
-                opacity: @opacity-hint;
-            }
-        }
-
-        .mainSection {
-            .hint {
-                display: block;
-            }
-        }
-    }
-
-    @height-title: 40px;
-    @height-button: 130px;
-    @height-main: @height-title + @height-button;
-
-    .titleSection {
-        .size(@height: @height-title);
-        background-color: @color-bg-topBarGray;
-        padding: 0 20px;
-        .font(@size: 20px, @weight: 700, @line-height: 40px, @color: @color-font-gray36);
-    }
-
-    .buttonSection {
-        .size(@height: @height-button);
-        background-color: @color-bg-white-nine;
-        padding: 15px 20px;
-
-        .title {
-            .font(@line-height: 30px);
-        }
-
-        .dropDownList {
-            .styleDropDownList(@w: 100%, @h: 30px);
-            margin-bottom: 10px;
-
-            li {
-                .icon {
-                    font-size: 14px;
-                    line-height: 30px;
-                }
-
-                &:hover {
-                    .icon {
-                        background-color: @color-selectedCell-light;
-                    }
-                }
-            }
-
-            li.new {
-                color: @color-font-gray36;
-                border-bottom: 1px solid @color-border-pinkish-grey2;
-            }
-        }
-
-        .btn {
-            margin-top: 10px;
-            .size(@width: 100%, @height: 30px);
-            display: block;
-            line-height: 30px;
-        }
-    }
-
-    .mainSection {
-        .size(@width: 100%, @height: ~"calc(100% - @{height-main})");
-        padding: 10px 5px 10px 20px;
-        overflow-y: auto;
-
-        .hint {
-            display: none;
-            white-space: normal;
-            margin-top: 10px;
-            margin-right: 10px;
-            color: @color-font-gray36;
-        }
-    }
-}
-
-#dataCart {
-    .size(@width: 100%);
-    backface-visibility: hidden;
-
-    .selectedTable {
-        .size(@width: 100%);
-        margin: 10px 0 20px 0;
-        color: @color-font-greyish-brown;
-
-        .xc-action {
-            color: @color-font-greyish-brown;
-            .vertical-align;
-            top: 45%;
-            margin-left: 8px;
-            opacity: @opacity-hint;
-
-            &:hover {
-                opacity: @opacity-hover;
-            }
-        }
-
-        .cartTitleArea {
-            .size(@width: 100%, @height: 50px);
-
-            &.prefix {
-                margin-top: 10px;
-
-                .qMark {
-                    margin-left: 5px;
-                    .position(relative, @top: -1px);
-                }
-            }
-
-            .subTitle {
-                .size(@height: 15px);
-                .font(@size: 11px, @color: @color-font-gray36);
-                margin-bottom: 5px;
-            }
-
-            .input {
-                .size(@height: 30px);
-                .input-box(@w: ~"calc(100% - 50px)", @h: 30px);
-
-                input {
-                    display: inline-block;
-                    float: left;
-                    min-width: 215px;
-                }
-
-                .edit {
-                    float: left;
-                }
-
-                .action {
-                    .size(@width: 15px, @height: 30px);
-                    float: left;
-
-                    &.active {
-                        .collapse {
-                            display: inline-block;
-                        }
-
-                        .expand {
-                            display: none;
-                        }
-                    }
-
-                    .collapse {
-                        display: none;
-                    }
-                }
-            }
-        }
-
-        .cartEmptyHint {
-            margin-top: 10px;
-            text-align: center;
-            .font(@weight: bold, @color: @color-font-gray36);
-        }
-
-        li {
-            .size(@height: 24px);
-            overflow: hidden;
-            margin-top: 12px;
-            padding-left: 10px;
-
-            &.colSelected {
-                .itemWrap {
-                    color: @color-font-select-blue;
-                    border-color: @color-border-select-blue;
-
-                    .iconWrap {
-                        background-color: @color-bg-select-blue;
-                    }
-                }
-            }
-
-            .itemWrap {
-                .size(@width: ~"calc(100% - 50px)", @height: 100%, @min-width: 205px);
-                border: solid 1px @color-border-warm-grey-two;
-                float: left;
-                display: block;
-                cursor: default;
-
-                > span {
-                    display: block;
-                    float: left;
-                }
-
-                .iconWrap {
-                    .size(@width: 24px, @height: 22px);
-                    background-color: @color-bg-unselect-gray;
-                    color: @color-white;
-
-                    .icon {
-                        left: 45%;
-                    }
-                }
-
-                .colName {
-                    .size(@width: ~"calc(100% - 26px)", @height: 22px);
-                    padding: 0 6px;
-                    line-height: 22px;
-                }
-            }
-        }
-    }
-}
-// End of Data Cart Section
 
 /* Path Card */
 #dsForm-path {

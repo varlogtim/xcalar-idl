@@ -505,7 +505,6 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
         for (var i = 1; i < sheets.length; i++) {
             WSManager.delWS(sheets[i], DelWSType.Del);
         }
-        DSCart.refresh();
     }
 
     // tableOps, frontEndOps, and worksheetOps are lists of operations

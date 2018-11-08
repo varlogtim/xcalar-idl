@@ -42,33 +42,6 @@
           <span id="dsInfo-format">CSV</span>
         </div>
       </div>
-      <!-- right part -->
-      <div class="flexWrap flex-right">
-        <!-- buttons -->
-        <div id="dsColsBtn" class="buttonSection xc-hidden" data-introstep="w3-selectAll">
-          <div class="buttonGroup">
-            <div id="noDScols" class="noCols xc-action">
-              <i class="icon xi-select-later"></i>
-              <span><%= dicts.dsTable.SelectLater %></span>
-            </div>
-            <div class="hint" title="<%= dicts.dsTable.SelectLaterHint %>" data-toggle="tooltip" data-container="body">
-              <i class="icon xi-help fa-12"></i>
-            </div>
-          </div>
-          <div class="buttonGroup">
-            <div id="clearDsCols" class="clear xc-action">
-               <i class="icon xi-select-none"></i>
-              <span><%= dicts.common.ClearAll %></span>
-            </div>
-            <div class="divider"></div>
-            <div id="selectDSCols" class="selectAll xc-action">
-              <i class="icon xi-select-all"></i>
-              <span><%= dicts.common.SelectAll %></span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- end right part -->
     </div>
   </div>
   <% } else { %>
@@ -110,30 +83,6 @@
           <span class="dsDetail" id="dsInfo-udf">...</span>
         </div>
       </div>
-      <div class="flexWrap flex-right">
-        <div id="dsColsBtn" class="buttonSection xc-hidden">
-          <div class="buttonGroup">
-            <div id="noDScols" class="noCols xc-action">
-              <i class="icon xi-select-later"></i>
-              <span><%= dicts.dsTable.SelectLater %></span>
-            </div>
-            <div class="hint" title="<%= dicts.dsTable.SelectLaterHint %>" data-toggle="tooltip" data-container="body">
-              <i class="icon xi-help fa-12"></i>
-            </div>
-          </div>
-          <div class="buttonGroup">
-            <div id="clearDsCols" class="clear xc-action">
-               <i class="icon xi-select-none"></i>
-              <span><%= dicts.common.ClearAll %></span>
-            </div>
-            <div id="selectDSCols" class="selectAll xc-action">
-              <i class="icon xi-select-all"></i>
-              <span><%= dicts.common.SelectAll %></span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- end right part -->
     </div>
   </div>
   <% } %>

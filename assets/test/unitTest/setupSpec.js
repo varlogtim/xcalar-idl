@@ -63,14 +63,6 @@ describe("Mocha Setup Test", function() {
         expect(valid).to.be.true;
     });
 
-    it("Should be able to test DSCart module", function() {
-        expect(DSCart.getCarts()).to.exist;
-    });
-
-    it("Should see private function in module", function() {
-        expect(DSCart.__testOnly__.filterCarts).to.be.a("function");
-    });
-
     it("duplicate element IDs should not exist", function() {
          var map = {};
          $('[id]').each(function(){
