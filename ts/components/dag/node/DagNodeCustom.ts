@@ -78,7 +78,13 @@ class DagNodeCustom extends DagNode {
         // Link the node in sub graph with input node
         if (inNodePort.node != null) {
             const inputNode = this._input[inPortIdx];
-            subGraph.connect(inputNode.getId(), inNodePort.node.getId(), inNodePort.portIdx);
+            subGraph.connect(
+                inputNode.getId(),
+                inNodePort.node.getId(),
+                inNodePort.portIdx,
+                false, // allowCyclic?
+                false // switchState?
+            );
         }
         return inPortIdx;
     }
@@ -107,7 +113,9 @@ class DagNodeCustom extends DagNode {
             this.getSubGraph().connect(
                 outNode.getId(),
                 outputNode.getId(),
-                0 // output node has only one parent
+                0, // output node has only one parent
+                false, // allowCyclic?
+                false // switchState?
             );
         }
         return outPortIdx;
@@ -274,12 +282,27 @@ class DagNodeCustom extends DagNode {
      * Check if the sub graph is configured
      */
     public isConfigured(): boolean {
-        for (const outputNode of this._output) {
-            if (!outputNode.isConfigured()) {
+        for (const node of this.getSubGraph().getAllNodes().values()) {
+            if (!node.isConfigured()) {
                 return false;
             }
         }
         return true;
+    }
+
+    /**
+     * @override
+     * validates a given input, if no input given, will validate, it's own input
+     * @param input 
+     */
+    public validateParam(input?: any): {error: string} {
+        for (const node of this.getSubGraph().getAllNodes().values()) {
+            const error = node.validateParam();
+            if (error != null) {
+                return error;
+            }
+        }
+        return null;
     }
 
     /**
@@ -301,6 +324,62 @@ class DagNodeCustom extends DagNode {
         const copyInfo = <DagNodeCustomInfo>super.getNodeCopyInfo();
         copyInfo.subGraph = this._subGraph.getGraphCopyInfo();
         return copyInfo;
+    }
+
+    /**
+     * @override
+     * Change node to configured state
+     * @param isUpdateSubgraph set to false, when triggered by subGraph event
+     */
+    public beConfiguredState(isUpdateSubgraph: boolean = true): void {
+        super.beConfiguredState();
+        if (isUpdateSubgraph) {
+            const excludeNodeSet: Set<string> = new Set();
+            for (const inputNode of this.getInputNodes()) {
+                if (inputNode != null) {
+                    if (inputNode.isConfigured()) {
+                        inputNode.beConfiguredState();
+                    }
+                    excludeNodeSet.add(inputNode.getId());
+                }
+            }
+            // Update the state of nodes in subGraph
+            this.getSubGraph().getAllNodes().forEach((node, nodeId) => {
+                if (!excludeNodeSet.has(nodeId)) {
+                    node.beConfiguredState();
+                }
+            });
+        }
+    }
+
+    /**
+     * @override
+     * Change to error state
+     * @param error
+     * @param isUpdateSubgraph set to false, when triggered by subGraph event
+     */
+    public beErrorState(error?: string, isUpdateSubgraph: boolean = true): void {
+        super.beErrorState(error);
+        if (isUpdateSubgraph) {
+            this.getInputNodes().forEach((node) => {
+                if (this.getInputParent(node) == null) {
+                    node.beErrorState(error);
+                }
+            });
+        }
+    }
+
+    /**
+     * @override
+     * Change node to complete state
+     */
+    public beCompleteState(): void {
+        super.beCompleteState();
+        for (const inputNode of this.getInputNodes()) {
+            if (inputNode != null) {
+                inputNode.beCompleteState();
+            }
+        }
     }
 
     protected _getSerializeInfo(): DagNodeCustomInfo {
@@ -373,11 +452,11 @@ class DagNodeCustom extends DagNode {
         const subGraph = this.getSubGraph();
         subGraph.events.on(DagNodeEvents.SubGraphConfigured, () => {
             if (this.isConfigured()) {
-                this.beConfiguredState();
+                this.beConfiguredState(false);
             }
         });
         subGraph.events.on(DagNodeEvents.SubGraphError, ({id: nodeId, error}) => {
-            this.beErrorState(error);
+            this.beErrorState(error, false);
         })
     }
 }

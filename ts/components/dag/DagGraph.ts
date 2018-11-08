@@ -229,9 +229,9 @@ class DagGraph {
      * remove a node
      * @param nodeId node's id
      */
-    public removeNode(nodeId: DagNodeId): void {
+    public removeNode(nodeId: DagNodeId, switchState: boolean = true): void {
         const node: DagNode = this._getNodeFromId(nodeId);
-        return this._removeNode(node);
+        return this._removeNode(node, switchState);
     }
 
     /**

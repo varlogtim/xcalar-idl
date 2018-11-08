@@ -544,7 +544,9 @@ namespace DagView {
         connectorIndex: number,
         isReconnect?: boolean,
     ): XDPromise<void> {
-        _connectNodesNoPersist(parentNodeId, childNodeId, connectorIndex, isReconnect);
+        _connectNodesNoPersist(parentNodeId, childNodeId, connectorIndex, {
+            isReconnect: isReconnect
+        });
         return activeDagTab.save();
     }
 
@@ -1197,23 +1199,49 @@ namespace DagView {
             }
         };
         activeDag.addNode(customNode);
-        const addLogParam = _addNodeNoPersist(customNode, true);
+        const addLogParam = _addNodeNoPersist(customNode, { isNoLog: true });
         customLogParam.options.actions.push(addLogParam.options);
 
         // Delete selected nodes
-        const removeLogParam = _removeNodesNoPersist(nodeIds, true);
+        const removeLogParam = _removeNodesNoPersist(
+            nodeIds,
+            { isNoLog: true, isSwitchState: false }
+        );
         customLogParam.options.actions.push(removeLogParam.options);
 
         // Connections to customNode
         for (const { parentId, childId, pos } of newConnectionIn) {
-            const connectLogParam =
-                _connectNodesNoPersist(parentId, childId, pos, false, true);
+            const connectLogParam = _connectNodesNoPersist(
+                parentId,
+                childId,
+                pos,
+                { isNoLog: true, isSwitchState: false }
+            );
             customLogParam.options.actions.push(connectLogParam.options);
         }
         for (const { parentId, childId, pos } of newConnectionOut) {
-            const connectLogParam =
-                _connectNodesNoPersist(parentId, childId, pos, false, true);
+            const connectLogParam = _connectNodesNoPersist(
+                parentId,
+                childId,
+                pos,
+                { isNoLog: true, isSwitchState: false }
+            );
             customLogParam.options.actions.push(connectLogParam.options);
+        }
+
+        // Restore the state
+        const nodeStates: Map<string, number> = new Map();
+        for (const nodeInfo of nodeInfos) {
+            const state = nodeInfo.state || DagNodeState.Unused;
+            const count = nodeStates.get(state) || 0;
+            nodeStates.set(state, count + 1);
+        }
+        const completeCount = nodeStates.get(DagNodeState.Complete) || 0;
+        if (completeCount > 0 && completeCount === nodeInfos.length) {
+            // All nodes are in complete state, so set the CustomNode to complete
+            customNode.beCompleteState();
+        } else {
+            customNode.switchState();
         }
 
         Log.add(customLogParam.title, customLogParam.options);
@@ -1236,11 +1264,15 @@ namespace DagView {
         if (dagNode == null) {
             return PromiseHelper.reject(`Node(${nodeId}) not found`);
         }
+        const newNode = DagNodeFactory.create(dagNode.getNodeCopyInfo());
+        if (newNode instanceof DagNodeCustom) {
+            newNode.getSubGraph().reset();
+        }
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         DagCategoryBar.Instance.addOperator({
             categoryName: DagCategoryType.Custom,
-            dagNode: DagNodeFactory.create(dagNode.getNodeCopyInfo()),
+            dagNode: newNode,
             isFocusCategory: true
         })
             .then((newName) => {
@@ -1521,8 +1553,13 @@ namespace DagView {
 
     function _removeNodesNoPersist(
         nodeIds: DagNodeId[],
-        isNoLog: boolean = false
+        options?: {
+            isSwitchState?: boolean,
+            isNoLog?: boolean    
+        }
     ): LogParam {
+        const { isSwitchState = true, isNoLog = false } = options || {};
+
         if (!nodeIds.length) {
             return null;
         }
@@ -1535,7 +1572,7 @@ namespace DagView {
                     DagTabManager.Instance.removeTabByNode(dagNode);
                 }
 
-                activeDag.removeNode(nodeId);
+                activeDag.removeNode(nodeId, isSwitchState);
                 DagView.getNode(nodeId).remove();
                 $dagView.find('.edge[data-childnodeid="' + nodeId + '"]').remove();
                 $dagView.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function() {
@@ -1567,9 +1604,16 @@ namespace DagView {
         parentNodeId: DagNodeId,
         childNodeId: DagNodeId,
         connectorIndex: number,
-        isReconnect?: boolean,
-        isNoLog: boolean = false
+        options?: {
+            isReconnect?: boolean,
+            isSwitchState?: boolean,
+            isNoLog?: boolean
+        }
     ): LogParam {
+        const {
+            isReconnect = false, isSwitchState = true, isNoLog = false
+        } = options || {};
+
         let prevParentId = null;
         if (isReconnect) {
             const $curEdge = $dagView.find('.edge[data-childnodeid="' +
@@ -1581,7 +1625,7 @@ namespace DagView {
             _removeConnection($curEdge, childNodeId);
         }
 
-        activeDag.connect(parentNodeId, childNodeId, connectorIndex);
+        activeDag.connect(parentNodeId, childNodeId, connectorIndex, false, isSwitchState);
 
         _drawConnection(parentNodeId, childNodeId, connectorIndex);
 
@@ -3077,7 +3121,9 @@ namespace DagView {
         }
     }
 
-    function _addNodeNoPersist(node, isNoLog: boolean = false): LogParam {
+    function _addNodeNoPersist(node, options?: { isNoLog?: boolean }): LogParam {
+        const { isNoLog = false } = options || {};
+
         $dfWrap.find(".selected").removeClass("selected");
         const $dfArea = $dfWrap.find(".dataflowArea.active");
 

@@ -63,18 +63,9 @@ class DagNodeCustomInput extends DagNode {
 
     /**
      * @override
-     * Get input parent's state
-     * @returns {DagNodeState} the state of input parent
+     * No configuration needed
      */
-    public getState(): DagNodeState {
-        if (this._container == null) {
-            console.error('DagNodeCustomInput.getState: No container');
-            return DagNodeState.Unused;
-        }
-        const inputParent =  this._container.getInputParent(this);
-        if (inputParent == null) {
-            return DagNodeState.Unused;
-        }
-        return inputParent.getState();
+    public isConfigured(): boolean {
+        return true;
     }
 }
