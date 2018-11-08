@@ -230,7 +230,7 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.RemoveOperations] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.removeNodes(options.nodeIds);
+        DagView.removeNodes(options.nodeIds, options.dataflowId);
         return PromiseHelper.resolve(null);
     };
 
@@ -242,7 +242,7 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.CopyOperations] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.addBackNodes(options.nodeIds);
+        DagView.addBackNodes(options.nodeIds, options.dataflowId);
         return PromiseHelper.resolve(null);
     };
 
@@ -271,7 +271,7 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.NewComment] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.addBackNodes([options.commentId]);
+        DagView.addBackNodes([options.commentId], options.dataflowId);
         return PromiseHelper.resolve(null);
     };
 

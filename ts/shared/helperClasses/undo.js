@@ -544,7 +544,7 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.RemoveOperations] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.addBackNodes(options.nodeIds);
+        DagView.addBackNodes(options.nodeIds, options.dataflowId);
         return PromiseHelper.resolve(null);
     };
 

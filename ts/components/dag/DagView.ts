@@ -271,12 +271,12 @@ namespace DagView {
 
     /**
      * DagView.addBackNodes
-     * @param _dagId
      * @param nodeIds
+     * @param tabId
      * used for undoing/redoing operations
      */
-    export function addBackNodes(nodeIds: DagNodeId[]): XDPromise<void> {
-        const $dfArea: JQuery = $dfWrap.find(".dataflowArea.active")
+    export function addBackNodes(nodeIds: DagNodeId[], tabId: string): XDPromise<void> {
+        const $dfArea: JQuery = _getAreaByTab(tabId);
         // need to add back nodes in the reverse order they were deleted
         $dfArea.find(".selected").removeClass("selected");
         let maxXCoor: number = 0;
@@ -1211,7 +1211,7 @@ namespace DagView {
             customLogParam.options.actions.push(connectLogParam.options);
         }
         for (const { parentId, childId, pos } of newConnectionOut) {
-            const connectLogParam = 
+            const connectLogParam =
                 _connectNodesNoPersist(parentId, childId, pos, false, true);
             customLogParam.options.actions.push(connectLogParam.options);
         }
