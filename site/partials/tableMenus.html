@@ -7,16 +7,15 @@
     <li class="makeTempTable"><span class="label"><%= dicts.MenuTStr.SendToTemp %></span></li>
     <li class="deleteTable"><span class="label"><%= dicts.MenuTStr.DelTbl %></span></li>
     <li class="exportTable"><span class="label"><%= dicts.MenuTStr.ExportTbl %></span><span class="ellipsis">...</span></li>
-    <li class="jupyterTable parentMenu" data-submenu="jupyterTable"><span class="label"><%= dicts.MenuTStr.Jupyter %></span></li>
     <li class="multiCast"><span class="label"><%= dicts.MenuTStr.SmartCast %></span><span class="ellipsis">...</span></li>
-    <!-- TEMPORARILY HIDDEN, MAY NEED TO UNHIDE FOR DEMOS -->
-    <!-- <li class="visualize">
-      <a href="<%= dicts.paths.tableau %>" target="_blank" style="text-decoration:none;color:#ffffff">
-        <%= dicts.MenuTStr.Visual %>
-      </a>
-    </li> -->
-    <!-- TEMPORARILY HIDDEN, MAY NEED TO UNHIDE FOR DEMOS -->
-    <!-- <li class="copyColNames"><%=dicts.MenuTStr.CPColNames  %></li> -->
+    <li class="corrAgg">
+      <span class="label"><%= dicts.MenuTStr.QuickAgg %></span>
+      <span class="ellipsis">...</span>
+    </li>
+    <li class="jupyterTable">
+      <span class="label"><%= dicts.MenuTStr.Jupyter %></span>
+      <span class="ellipsis">...</span>
+    </li>
     <li class="moveTable parentMenu" data-submenu="moveTable">
       <%= dicts.MenuTStr.Move %>
     </li>
@@ -34,7 +33,6 @@
     <li class="resizeCols parentMenu" data-submenu="resizeCols">
       <%= dicts.MenuTStr.ResizeAllCols %>
     </li>
-    <li class="corrAgg"><span class="label"><%= dicts.MenuTStr.QuickAgg %></span><span class="ellipsis">...</span></li>
     <li class="createDf"><span class="label"><%= dicts.MenuTStr.CreateDF %></span><span class="ellipsis">...</span></li>
     <li class="advancedOptions parentMenu" data-submenu="advancedOptions">
       <span class="label"><%= dicts.common.AdvancedOpts %></span>
@@ -63,19 +61,6 @@
         placeholder="<%= dicts.common.ClickToOpts %>"
         spellcheck="false" />
         <ul class="list wsList"></ul>
-      </div>
-    </li>
-  </ul>
-  <ul class="jupyterTable hasDropdown">
-    <li class="jupyterFullTable">
-      <%= dicts.MenuTStr.FullTable %>
-    </li>
-    <li class="clickable jupyterSampleTable">
-      <span data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.jupyter.SelectSampleRows %>"><%= dicts.MenuTStr.PartialTable %></span>
-      <div class="dropDownList">
-        <input class="numRows" type="number" max="10000" maxlength="5" min="1"
-          step="1"
-          placeholder="<%= dicts.jupyter.NumRows %>" spellcheck="false" />
       </div>
     </li>
   </ul>
@@ -177,13 +162,6 @@
       <%= dicts.MenuTStr.Resize %>
     </li>
     <div class="divider identityDivider thDropdown"></div>
-    <!-- xi 2.0 disabling renaming of columns -->
-    <!-- <li class="rename parentMenu" data-submenu="rename">
-      <%= dicts.MenuTStr.RenameCol %>
-    </li> -->
-    <li class="splitCol parentMenu" data-submenu="splitCol">
-      <%= dicts.MenuTStr.SplitCol %>
-    </li>
     <li class="changeDataType parentMenu"
     data-submenu="changeDataType">
       <span class="label"><%= dicts.MenuTStr.ChangeType %></span>
@@ -202,6 +180,11 @@
     <li class="project">
       <i class="icon xi-pull-all-field fasjIcon"></i>
       <span class="label"><%= dicts.MenuTStr.Project%></span><span class="ellipsis">...</span>
+    </li>
+    <li class="splitCol">
+      <i class="icon xi_split fasjIcon"></i>
+      <span class="label"><%= dicts.MenuTStr.SplitCol %></span>
+      <span class="ellipsis">...</span>
     </li>
     <li class="functions aggregate" data-func="aggregate">
       <i class="icon xi-aggregate fasjIcon"></i><span class="label"><%= dicts.MenuTStr.Agg %></span><span class="ellipsis">...</span>
@@ -310,27 +293,6 @@
           <i class="icon xi-tick fa-11"></i>
         </div>
       </div>
-    </li>
-  </ul>
-  <ul class="splitCol">
-    <li style="text-align: center" class="clickable">
-      <div>
-        <%= dicts.MenuTStr.SplitColDelim %>
-      </div>
-      <div class="inputWrap">
-        <input class="delimiter" type="text" spellcheck="false"/>
-        <div class="inputAction xc-action">
-          <i class="icon xi-tick fa-11"></i>
-        </div>
-      </div>
-      <div>
-        <%= dicts.MenuTStr.SplitColNum %>
-      </div>
-      <input class="num" type="number" placeholder="<%= dicts.MenuTStr.Optional %>" spellcheck="false"/>
-      <div>
-        <%= dicts.MenuTStr.SplitColNames %>
-      </div>
-      <input class="colNames" placeholder="<%= dicts.MenuTStr.Optional %>" spellcheck="false" />
     </li>
   </ul>
   <ul class="changeDataType">

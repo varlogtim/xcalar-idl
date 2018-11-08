@@ -180,6 +180,17 @@ class ColMenu extends AbstractMenu {
             }
         });
 
+
+        $colMenu.on('mouseup', '.splitCol', (event) => {
+            if (this._isInvalidTrigger(event)) {
+                return;
+            }
+            // XXX TODO: suggest smart split delimiter here
+            const tableId: TableId = $colMenu.data('tableId');
+            const colNums: number[] = $colMenu.data("colNums");
+            this._createNodeAndShowForm(DagNodeType.Split, tableId, colNums);
+        });
+
         $colMenu.on('mouseup', '.profile', (event) => {
             if (this._isInvalidTrigger(event)) {
                 return;
@@ -318,66 +329,6 @@ class ColMenu extends AbstractMenu {
             xcMenu.close($allMenus);
         });
 
-        $subMenu.on('keypress', '.splitCol input', (event) => {
-            if (event.which === keyCode.Enter) {
-                const colNum: number = $colMenu.data("colNum");
-                const tableId: TableId = $colMenu.data('tableId');
-                const $li: JQuery = $(event.currentTarget).closest("li");
-                const $delimInput: JQuery = $li.find(".delimiter");
-                const delim: string = $delimInput.val();
-
-                if (delim === "") {
-                    StatusBox.show(ErrTStr.NoEmpty, $delimInput, null, {
-                        "side": "left",
-                    });
-                    return;
-                }
-
-                const $numInput: JQuery = $li.find(".num");
-                const num: string = $numInput.val().trim();
-                let numColToGet: number;
-
-                if (num === "") {
-                    numColToGet = null;
-                } else {
-                    numColToGet = Number(num);
-                    var isValid = xcHelper.validate([
-                        {
-                            "$ele": $numInput,
-                            "error": ErrTStr.OnlyNumber,
-                            "check": () => {
-                                return (isNaN(numColToGet) ||
-                                        !Number.isInteger(numColToGet));
-                            }
-                        },
-                        {
-                            "$ele": $numInput,
-                            "error": ErrTStr.OnlyPositiveNumber,
-                            "check": () => {
-                                return (numColToGet < 1);
-                            }
-                        }
-                    ]);
-
-                    if (!isValid) {
-                        return;
-                    }
-                }
-                const $colNamesInput: JQuery = $li.find(".colNames");
-                const colNames: string[] = this._validateNewSplitColNames($colNamesInput, tableId);
-                if (colNames == null) {
-                    return;
-                }
-
-                ColManager.splitCol(colNum, tableId, delim, numColToGet,
-                    colNames, true);
-                $delimInput.val("").blur();
-                $numInput.val("").blur();
-                $colNamesInput.val("").blur();
-                xcMenu.close($allMenus);
-            }
-        });
-
         $subMenu.on('mouseup', 'li.textAlign', (event) => {
             if (event.which !== 1) {
                 return;
@@ -493,34 +444,6 @@ class ColMenu extends AbstractMenu {
         });
     }
 
-    private _validateNewSplitColNames(
-        $input: JQuery,
-        tableId: TableId
-    ): string[] {
-        const nameSet: Set<string> = new Set();
-        const usedName: Set<string> = new Set();
-        const table: TableMeta = gTables[tableId];
-        const curColNames: string[] = table ? table.getImmediateNames() : [];
-        curColNames.forEach((name) => {
-            nameSet.add(name);
-        });
-
-        const colNames: string[] = $input.val().split(",").map((v) => v.trim());
-        for (let i = 0; i < colNames.length; i++) {
-            const name: string = colNames[i];
-            const err: string = xcHelper.validateColName(name) ||
-                    (usedName.has(name) ? ErrTStr.ColumnConflict : null) ||
-                    (nameSet.has(name) ? ColTStr.ImmediateClash : null);
-            // it's optional so we allow empty
-            if (err && err !== ErrTStr.NoEmpty) {
-                StatusBox.show(err, $input);
-                return null;
-            }
-            usedName.add(name);
-        }
-        return colNames;
-    }
-
     private _createNodeAndShowForm(
         type: DagNodeType,
         tableId: TableId,
@@ -561,6 +484,10 @@ class ColMenu extends AbstractMenu {
                     return this._getCastParam(progCols, options.newType);
                 }
                 return null;
+            case DagNodeType.Split:
+                return {
+                    source: columns[0]
+                };
             case DagNodeType.GroupBy:
                 return {
                     groupBy: columns
@@ -585,10 +512,10 @@ class ColMenu extends AbstractMenu {
             const colType: ColumnType = progCol.getType();
             if (basicColTypes.includes(colType)) {
                 const colName: string = progCol.getBackColName();
-                const mapStrs = xcHelper.castStrHelper(colName, newType);
+                const mapStr = xcHelper.castStrHelper(colName, newType);
                 const newColName = xcHelper.parsePrefixColName(colName).name;
                 evals.push({
-                    evalString: mapStrs,
+                    evalString: mapStr,
                     newField: newColName
                 });
             }

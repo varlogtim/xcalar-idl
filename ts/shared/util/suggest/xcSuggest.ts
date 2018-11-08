@@ -1061,7 +1061,7 @@ namespace xcSuggest { // = (function($, xcSuggest) {
      *  @param currentType
      *  @param confidentRate
      */
-    export function suggestType(datas: string[], currentType: string, confidentRate: number = 1): string {
+    export function suggestType(datas: string[], currentType: ColumnType, confidentRate: number = 1): ColumnType {
         // Inputs has fields colInfo, confidentRate
         if (currentType === ColumnType.integer ||
             currentType === ColumnType.float) {

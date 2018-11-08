@@ -14,7 +14,7 @@ class TableMenu extends AbstractMenu {
             ["e", "exportTable"],
             ["j", "jupyterTable"],
             ["m", "hideTable"],
-            // s: "multiCast", // XXX may remove smartcast
+            ["s", "multiCast"],
             ["t", "makeTempTable"],
             ["u", "unhideTable"],
             ["x", "exitOp"],
@@ -80,8 +80,7 @@ class TableMenu extends AbstractMenu {
             if (this._isInvalidTrigger(event)) {
                 return;
             }
-            const tableId: TableId = $tableMenu.data('tableId');
-            ExportView.show(tableId);
+            this._createNodeAndShowForm(DagNodeType.Export);
         });
 
         $tableMenu.on('mouseup', '.exitOp', (event) => {
@@ -147,7 +146,9 @@ class TableMenu extends AbstractMenu {
                 return;
             }
             const tableId: TableId = $tableMenu.data('tableId');
-            SmartCastView.show(tableId);
+            this._createNodeAndShowForm(DagNodeType.Map, tableId, {
+                subType: DagNodeSubType.Cast
+            });
         });
 
         $tableMenu.on('mouseup', '.corrAgg', (event) => {
@@ -172,6 +173,13 @@ class TableMenu extends AbstractMenu {
             const tableId: TableId = $tableMenu.data('tableId');
             const $dagWrap: JQuery = $('#dagWrap-' + tableId);
             DFCreateView.show($dagWrap);
+        });
+
+        $tableMenu.on('mouseup', '.jupyterTable', (event) => {
+            if (this._isInvalidTrigger(event)) {
+                return;
+            }
+            this._createNodeAndShowForm(DagNodeType.Jupyter);
         });
     }
 
@@ -390,5 +398,98 @@ class TableMenu extends AbstractMenu {
         setTimeout(() => {
             TblManager.sortColumns(tableId, sortKey, direction);
         }, 0);
+    }
+
+    private _createNodeAndShowForm(
+        type: DagNodeType,
+        tableId?: TableId,
+        options?: {
+            subType?: DagNodeSubType
+        }
+    ): void {
+        try {
+            options = options || {};
+            const input: object = this._getNodeParam(type, tableId);
+            const node: DagNode = this._addNode(type, input, options.subType);
+            this._openOpPanel(node, []);
+        } catch (e) {
+            console.error("error", e);
+            Alert.error(ErrTStr.Error, ErrTStr.Unknown);
+        }
+    }
+
+    private _getNodeParam(type: DagNodeType, tableId?: TableId): object {
+        switch (type) {
+            case DagNodeType.Export:
+            case DagNodeType.Jupyter:
+                return null;
+            case DagNodeType.Map:
+                // multi cast case
+                const evals = this._smartSuggestTypes(tableId);
+                return {
+                    eval: evals,
+                    icv: false
+                };
+            default:
+                throw new Error("Unsupported type!");
+        }
+    }
+
+    private _smartSuggestTypes(tableId: TableId): {
+        evalString: string, newField: string
+    }[] {
+        try {
+            const evals: {evalString: string, newField: string}[] = [];
+            const $table: JQuery = $("#xcTable-" + tableId);
+            const $tbody: JQuery = $table.find("tbody").clone(true);
+            $tbody.find("tr:gt(17)").remove();
+            $tbody.find(".col0").remove();
+            $tbody.find(".jsonElement").remove();
+
+            const validTypes: ColumnType[] = BaseOpPanel.getBaiscColTypes();
+            gTables[tableId].tableCols.forEach((progCol: ProgCol, index) => {
+                const colType: ColumnType = progCol.getType();
+                if (validTypes.includes(colType)) {
+                    const colNum: number = index + 1;
+                    const newType: ColumnType = this._suggestColType($tbody, colNum, colType);
+                    if (colType !== newType) {
+                        const colName: string = progCol.getBackColName();
+                        const mapStr: string = xcHelper.castStrHelper(colName, newType);
+                        const newColName = xcHelper.parsePrefixColName(colName).name;
+                        evals.push({
+                            evalString: mapStr,
+                            newField: newColName
+                        });
+                    }
+                }
+            });
+           
+            return evals;
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    }
+
+    private _suggestColType(
+        $tbody: JQuery,
+        colNum: number,
+        origginalType: ColumnType
+    ): ColumnType {
+        if (origginalType === ColumnType.float ||
+            origginalType === ColumnType.boolean ||
+            origginalType === ColumnType.mixed
+        ) {
+            return origginalType;
+        }
+
+        const $tds: JQuery = $tbody.find("td.col" + colNum);
+        const datas: string[] = [];
+
+        $tds.each(function() {
+            const val: string = $(this).find('.originalData').text();
+            datas.push(val);
+        });
+        return xcSuggest.suggestType(datas, origginalType);
     }
 }
