@@ -112,15 +112,6 @@ class JoinOpPanelModel {
             joinType: configJoinType, evalString: configEvalString
         } = config;
 
-
-        // Basic Data validation
-        if (configLeft.columns.length !== configLeft.casts.length
-            || configRight.columns.length !== configRight.casts.length
-            || configLeft.columns.length !== configLeft.columns.length
-        ) {
-            throw new Error(JoinOpError.ColumnTypeLenMismatch);
-        }
-
         // === UI States ====
         model.setCurrentStep(uiOptions.currentStep);
         model.setAdvMode(uiOptions.isAdvMode);
@@ -157,6 +148,33 @@ class JoinOpPanelModel {
         // Eval String
         model.setEvalString(configEvalString);
 
+        // Normalize JoinOn input
+        const joinOnCount = Math.max(
+            configLeft.columns.length,
+            configRight.columns.length);
+        for (let i = 0; i < joinOnCount; i ++) {
+            // joinOn left column
+            const leftColName = configLeft.columns[i];
+            if (leftColName == null || leftColName.length === 0) {
+                configLeft.columns[i] = '';
+                configLeft.casts[i] = ColumnType.undefined;
+            } else {
+                const colInfo = leftColLookupMap.get(leftColName);
+                configLeft.casts[i] = colInfo == null
+                    ? ColumnType.undefined : colInfo.type;
+            }
+            // joinOn right column
+            const rightColName = configRight.columns[i];
+            if (rightColName == null || rightColName.length === 0) {
+                configRight.columns[i] = '';
+                configRight.casts[i] = ColumnType.undefined;
+            } else {
+                const colInfo = rightColLookupMap.get(rightColName);
+                configRight.casts[i] = colInfo == null
+                    ? ColumnType.undefined : colInfo.type;
+            }
+        }
+
         // JoinOn pairs
         const pairLen = configLeft.columns.length;
         for (let i = 0; i < pairLen; i ++) {
@@ -164,11 +182,6 @@ class JoinOpPanelModel {
                 configLeft.columns[i], configLeft.casts[i],
                 configRight.columns[i], configRight.casts[i]
             ];
-            if (leftName.length === 0 || rightName.length === 0
-                || leftCast == null || rightCast == null
-            ) {
-                continue;
-            }
             model._joinColumnPairs.push({
                 leftName: leftName,
                 leftCast: leftCast,

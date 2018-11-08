@@ -407,11 +407,17 @@ class JoinOpPanelStep1 {
 
     private _isEnableAddClause(): boolean {
         const joinClauseLen = this._modelRef.getColumnPairs().length;
-        const colLen = Math.min(
-            this._modelRef.getColumnMetaLeft().length,
-            this._modelRef.getColumnMetaRight().length
-        );
-        return joinClauseLen < colLen;
+
+        const leftColLen = this._modelRef.getColumnMetaLeft().length;
+        if (leftColLen > 0 && joinClauseLen >= leftColLen) {
+            return false;
+        }
+        const rightColLen = this._modelRef.getColumnMetaRight().length;
+        if (rightColLen > 0 && joinClauseLen >= rightColLen) {
+            return false;
+        }
+
+        return true;
     }
 
     private _isTalbeExist(tableName: string) {

@@ -335,9 +335,6 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
                 if (dataModel.isCastNeed(pair)) {
                     throw new Error(JoinOpError.NeedTypeCast);
                 }
-                if (pair.leftName.length === 0 || pair.rightName.length === 0) {
-                    throw new Error(JoinOpError.InvalidJoinClause);
-                }
             }
         }
     }
