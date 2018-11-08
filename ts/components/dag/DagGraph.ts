@@ -25,28 +25,33 @@ class DagGraph {
     }
 
     /**
-     * Outputs the serialized version of this graph.
+     * Generates the serializable version of this graph.
      */
-    public serialize(): string {
-        let nodes: string[] = [];
+    public getSerializableObj(): DagGraphInfo {
+        let nodes: DagNodeInfo[] = [];
         // Assemble node list
-        this.nodesMap.forEach((value: DagNode, _key: DagNodeId) => {
-            nodes.push(value.serialize());
+        this.nodesMap.forEach((node: DagNode) => {
+            nodes.push(node.getSerializableObj());
         });
-        let comments: string[] = [];
+        let comments: CommentInfo[] = [];
         this.commentsMap.forEach((comment) => {
-            comments.push(comment.serialize());
+            comments.push(comment.getSerializableObj());
         });
-        return JSON.stringify({
+
+        return {
             nodes: nodes,
             comments: comments,
             display: this.display
-        });
+        };
     }
 
-    public rebuildGraph(graphJSON: {nodes: {node: DagNode, parents: DagNodeId[]}[], comments:string[], display: Dimensions}): void {
+    public rebuildGraph(graphJSON: {
+        nodes: {node: DagNode, parents: DagNodeId[]}[],
+        comments: CommentInfo[],
+        display: Dimensions
+    }): void {
         let connections: NodeConnection[] = [];
-        this.display = graphJSON.display;
+        this.display = xcHelper.deepCopy(graphJSON.display);
         graphJSON.nodes.forEach((desNode) => {
             const node: DagNode = desNode.node;
             const childId: string = node.getId();
@@ -65,48 +70,38 @@ class DagGraph {
 
         if (graphJSON.comments) {
             graphJSON.comments.forEach((comment) => {
-                const commentNode = CommentNode.deserialize(comment);
+                const commentNode = new CommentNode(xcHelper.deepCopy(comment));
                 this.commentsMap.set(commentNode.getId(), commentNode);
             });
         }
     }
 
     /**
-     * Deserializes the graph represented by serializedGraph
-     * @param serializedGraph The serialized graph we want to restore.
-     * @returns {boolean}
-     * TODO: Update for metaNodes
+     * Create graph from DagGraphInfo
+     * @param {DagGraphInfo} serializableGraph
      */
-    public deserializeDagGraph(serializedGraph: string): boolean {
-        if (serializedGraph == null) {
-            return false;
-        }
-        let graphJSON: {nodes:string[], comments:string[], display: Dimensions} = null;
-        try {
-            graphJSON = JSON.parse(serializedGraph);
-        } catch(error) {
-            console.error("Could not parse JSON of dagGraph: " + error)
-            return false;
-        }
-        const nodes = [];
-        graphJSON.nodes.forEach((ele) => {
-            const desNode: DeserializedNode = DagNodeFactory.deserialize(ele);
-            if (desNode == null) {
-                return false;
-            }
-            nodes.push(desNode);
+    public create(serializableGraph: DagGraphInfo): void {
+        const nodes: {node: DagNode, parents: DagNodeId[]}[] = [];
+        serializableGraph.nodes.forEach((nodeInfo: DagNodeInfo) => {
+            const node: DagNode = DagNodeFactory.create(nodeInfo);
+            const parents: DagNodeId[] = nodeInfo.parents;
+            nodes.push({
+                node: node,
+                parents: parents
+            });
         });
-        graphJSON.nodes = nodes;
 
-        this.rebuildGraph(graphJSON);
-        return true;
+        this.rebuildGraph({
+            nodes: nodes,
+            comments: serializableGraph.comments,
+            display: serializableGraph.display
+        });
     }
 
-
     public clone(): DagGraph {
-        const serializedGraph: string = this.serialize();
+        const serializableGraph: DagGraphInfo = this.getSerializableObj();
         const graph: DagGraph = new DagGraph();
-        graph.deserializeDagGraph(serializedGraph);
+        graph.create(serializableGraph);
         return graph;
     }
 
@@ -1503,7 +1498,6 @@ class DagGraph {
                         type: DagNodeType.Set,
                         subType: <DagNodeSubType>xcHelper.capitalize(setType),
                         input: {
-                            unionType: setType,
                             columns: node.args.columns,
                             dedup: node.args.dedup
                         }

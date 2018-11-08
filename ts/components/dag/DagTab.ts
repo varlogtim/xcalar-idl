@@ -111,7 +111,7 @@ abstract class DagTab {
                 });
             } else {
                 let graph: DagGraph = new DagGraph();
-                graph.deserializeDagGraph(dagInfo.dag);
+                graph.create(dagInfo.dag);
                 deferred.resolve(dagInfo, graph);
             }
         })
@@ -132,7 +132,7 @@ abstract class DagTab {
                 deferred.resolve(null); // still resolve
             } else {
                 let grapah: DagGraph = new DagGraph();
-                grapah.deserializeDagGraph(dagInfo.dag)
+                grapah.create(dagInfo.dag)
                 deferred.resolve(dagInfo, grapah);
             }
         })
@@ -166,12 +166,12 @@ abstract class DagTab {
     protected _getJSON(): {
         name: string,
         id: string,
-        dag: string
+        dag: DagGraphInfo
     } {
         return {
             name: this._name,
             id: this._id,
-            dag: this._dagGraph.serialize()
+            dag: this._dagGraph.getSerializableObj()
         }
     }
 

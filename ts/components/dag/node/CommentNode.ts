@@ -55,32 +55,14 @@ class CommentNode {
     }
 
     /**
-     * Generates string representing this node, for use in serializing a dagGraph.
-     * @returns {string}
+     * Generates the serializable info
      */
-    public serialize(): string {
-        const seriazliedInfo = {
+    public getSerializableObj(): CommentInfo {
+        return {
             id: this.id,
             text: this.text,
             position: this.position,
             dimensions: this.dimensions
         };
-        return JSON.stringify(seriazliedInfo);
-    }
-
-    /**
-     * @returns {CommentNode}
-     * @param commentNode
-     */
-    public static deserialize(commentNode: string) {
-        let commentJson = null;
-        try {
-            commentJson = JSON.parse(commentNode);
-        } catch (error) {
-            console.error("Could not parse JSON of commentNode: " + error);
-            return null;
-        }
-        let comment = new CommentNode(commentJson);
-        return comment;
     }
 }

@@ -267,7 +267,7 @@ class DagTabShared extends DagTab {
     protected _getJSON(forceSave: boolean = false): {
         name: string,
         id: string,
-        dag: string,
+        dag: DagGraphInfo,
         autoSave: boolean,
         version: number,
         unsaved?: boolean
@@ -275,18 +275,14 @@ class DagTabShared extends DagTab {
         const json: {
             name: string,
             id: string,
-            dag: string,
+            dag: DagGraphInfo,
             autoSave: boolean,
             version: number,
             unsaved?: boolean
         } = <any>super._getJSON();
         json.version = this._version;
         if (forceSave) {
-            const serazliedGraph: string = this._getSeriazliedGraphToSave();
-            if (serazliedGraph == null) {
-                return null; // error case
-            }
-            json.dag = serazliedGraph;
+            json.dag = this._getSerializableGraphToSave();
         } else {
             json.unsaved = this._unsaved;
         }
@@ -364,16 +360,12 @@ class DagTabShared extends DagTab {
         return PromiseHelper.when(...promises);
     }
 
-    private _getSeriazliedGraphToSave(): string {
+    private _getSerializableGraphToSave(): DagGraphInfo {
         // create a new copy of the graph and clean it up
-        const graph: DagGraph = new DagGraph();
-        const searizliedInfo: string = this._dagGraph.serialize();
-        if (!graph.deserializeDagGraph(searizliedInfo)) {
-            return null;
-        }
+        const graph: DagGraph = this._dagGraph.clone();
         // reset state and clear tables
         // Not that it should not delte the tables as it's just a copy
         graph.resetStates();
-        return graph.serialize();
+        return graph.getSerializableObj();
     }
 }

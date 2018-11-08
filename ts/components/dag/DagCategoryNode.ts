@@ -1,7 +1,7 @@
 class DagCategoryNode {
     protected categoryType: DagCategoryType;
     protected nodeSubType: string | null;
-    protected node;
+    protected node: DagNode;
     protected hidden: boolean;
     protected color: string = "#F8A296";
 
@@ -70,7 +70,7 @@ class DagCategoryNode {
         return {
             type: this.categoryType,
             subType: this.getNodeSubType(),
-            node: this.node.getNodeInfo(),
+            node: this.node.getSerializableObj(),
             hidden: this.hidden
         };
     }

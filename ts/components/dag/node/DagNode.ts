@@ -396,12 +396,8 @@ abstract class DagNode {
         throw new Error("Dag " + childNode.getId() + " is not child of " + this.getId());
     }
 
-    /**
-     * Generates string representing this node, for use in serializing a dagGraph.
-     * @returns {string}
-     */
-    public serialize(): string {
-        return JSON.stringify(this.getNodeInfo());
+    public getSerializableObj(): DagNodeInfo {
+        return this.getNodeInfo();
     }
 
     /**

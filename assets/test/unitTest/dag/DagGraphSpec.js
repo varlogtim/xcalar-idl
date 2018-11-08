@@ -7,9 +7,9 @@ describe("Dag Graph Test", () => {
         graph.addNode(n2);
         graph.connect(n1.getId(),n2.getId());
         // Note: Relies on fake graph used by construct().
-        const serializedGraph = graph.serialize();
+        const serializableGraph = graph.getSerializableObj();
         var desGraph = new DagGraph();
-        expect(desGraph.deserializeDagGraph(serializedGraph)).to.be.true;
+        desGraph.create(serializableGraph)
         expect(desGraph.hasNode(n1.getId())).to.be.true;
         expect(desGraph.hasNode(n2.getId())).to.be.true;
         const possibleN2 = desGraph.getNode(n2.getId());

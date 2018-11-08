@@ -14,6 +14,7 @@ interface DagNodeInfo {
     error?: string;
     parents?: string[];
     aggregates?: string[];
+    indexParents?: string[];
 }
 
 interface DagNodeDisplayInfo {
@@ -247,11 +248,6 @@ interface RemovedNodeDetails {
     childIndices: {}
 }
 
-interface DeserializedNode {
-    node: DagNode,
-    parents: DagNodeId[]
-}
-
 interface PublishTable {
     updates: PublishTableUpdateInfo[];
     name: string;
@@ -311,7 +307,7 @@ interface DagCategoryNodeInfo {
 
 interface DagGraphInfo {
     nodes: DagNodeInfo[],
-    comments: any[],
+    comments: CommentInfo[],
     display: Dimensions
 }
 

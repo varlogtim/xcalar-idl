@@ -6,7 +6,7 @@ describe("Dag Node Basic Test", () => {
 
     it("should auto generate id", () => {
         const node = new DagNode();
-        expect(node.getId().startsWith("dag.")).to.be.true;
+        expect(node.getId().startsWith("dag_")).to.be.true;
     });
 
     it("should get node type", () => {
@@ -236,12 +236,8 @@ describe("Dag Node Basic Test", () => {
         const childNode = new DagNodeJoin();
         childNode.connectToParent(node);
         childNode.connectToParent(secondParentNode, 1);
-        const serializedChild = childNode.serialize();
-        expect(serializedChild).to.equal(
-            '{"type":"join","subType":null,"display":{"x":-1,"y":-1},"description":"","input":{},"id":"' +
-            childNode.getId() + '","state":"unused","parents":["' + node.getId() +
-            '","' + secondParentNode.getId() +'"]}'
-        );
+        const serializable = childNode.getSerializableObj();
+        expect(serializable).not.to.equal(childNode);
     });
 
     it("should get lineage", () => {

@@ -59,15 +59,11 @@ class DagNodeSQL extends DagNode {
         for (let i = 0; i < Object.keys(dagIdParentIdxMap).length; i++) {
             this.subInputNodes.push(null);
         }
-        dagInfoList.forEach((dagNodeInfo) => {
-            const desNode: DeserializedNode = DagNodeFactory.deserialize(JSON.stringify(dagNodeInfo));
-            if (desNode == null) {
-                return false;
-            }
-            const node: DagNode = desNode.node;
+        dagInfoList.forEach((dagNodeInfo: DagNodeInfo) => {
+            const parents: DagNodeId[] = dagNodeInfo.parents;
+            const node: DagNode = DagNodeFactory.create(dagNodeInfo);
             this.subGraph.addNode(node);
             const nodeId: string = node.getId();
-            const parents: string[] = desNode.parents;
             if (parents.length === 0) {
                 const index = dagIdParentIdxMap[nodeId];
                 const inNodePort = {

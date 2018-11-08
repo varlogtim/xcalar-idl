@@ -220,7 +220,7 @@ class DagTabUser extends DagTab {
     protected _getJSON(): {
         name: string,
         id: string,
-        dag: string,
+        dag: DagGraphInfo,
         autoSave: boolean
     } {
         const json = <any>super._getJSON();

@@ -65,7 +65,7 @@ class DagTabOptimized extends DagTab {
             });
         });
         const graphInfo = {
-            comments: <string[]>[],
+            comments: [{id: null, text: null, position: null, dimensions: null}],
             display: <Dimensions>{},
             nodes: nodeInfos
         };
