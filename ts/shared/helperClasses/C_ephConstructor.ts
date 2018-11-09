@@ -9,7 +9,7 @@ class Mutex {
         }
         this.key = key;
         if (!scope) {
-            scope = XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal;
+            scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
         }
         this.scope = scope;
     }

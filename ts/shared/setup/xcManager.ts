@@ -490,7 +490,7 @@ namespace xcManager {
             // NOTE: Please do not follow this for generic concurrency use.
             // This is a one time setup where the lock init phase is part of the
             // backend startup process
-                const globalMutex: Mutex = new Mutex(GlobalKVKeys.XdFlag, XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal);
+                const globalMutex: Mutex = new Mutex(GlobalKVKeys.XdFlag, XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal);
                 const concurrency: Concurrency = new Concurrency(globalMutex);
                 concurrency.tryLock()
                 .then(function() {

@@ -4100,7 +4100,7 @@ XcalarKeyLookup = function(
     }
 
     if (scope == null) {
-        scope = XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal;
+        scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
     }
 
     xcalarKeyLookup(tHandle, scope, key)
@@ -4137,7 +4137,7 @@ XcalarKeyList = function(
     }
 
     if (scope == null) {
-        scope = XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal;
+        scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
     }
 
     xcalarKeyList(tHandle, scope, keyRegex)
@@ -4174,7 +4174,7 @@ XcalarKeyPut = function(
     }
 
     if (scope == null) {
-        scope = XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal;
+        scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
     }
 
     xcalarKeyAddOrReplace(tHandle, scope, key, value, persist)
@@ -4202,7 +4202,7 @@ XcalarKeyDelete = function(
     }
 
     if (scope == null) {
-        scope = XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal;
+        scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
     }
 
     xcalarKeyDelete(tHandle, scope, key)
@@ -4308,7 +4308,7 @@ XcalarKeyAppend = function(
     }
 
     if (scope == null) {
-        scope = XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal;
+        scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
     }
 
     xcalarKeyAppend(tHandle, scope, key, stuffToAppend)

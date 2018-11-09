@@ -954,6 +954,70 @@ declare class XcalarApiGetDatasetsInfoOutputT {
 		datasets?: XcalarApiDatasetsInfoT[],
 	});
 }
+declare class XcalarApiDatasetCreateInputT {
+	dest: string;
+	loadArgs: XcalarApiDfLoadArgsT;
+	dagNodeId: string;
+	constructor(args?: {
+		dest?: string,
+		loadArgs?: XcalarApiDfLoadArgsT,
+		dagNodeId?: string,
+	});
+}
+declare class XcalarApiUdfGetResOutputT {
+	udfResPath: string;
+	constructor(args?: {
+		udfResPath?: string,
+	});
+}
+declare class XcalarApiUdfGetResInputT {
+	scope: number;
+	moduleName: string;
+	constructor(args?: {
+		scope?: number,
+		moduleName?: string,
+	});
+}
+declare class XcalarApiDatasetUnloadStatusT {
+	dataset: XcalarApiDatasetT;
+	status: number;
+	constructor(args?: {
+		dataset?: XcalarApiDatasetT,
+		status?: number,
+	});
+}
+declare class XcalarApiDatasetUnloadOutputT {
+	numDatasets: number;
+	statuses: number[];
+	constructor(args?: {
+		numDatasets?: number,
+		statuses?: number[],
+	});
+}
+declare class XcalarApiDatasetDeleteInputT {
+	datasetName: string;
+	constructor(args?: {
+		datasetName?: string,
+	});
+}
+declare class XcalarApiDatasetUnloadInputT {
+	datasetNamePattern: string;
+	constructor(args?: {
+		datasetNamePattern?: string,
+	});
+}
+declare class XcalarApiDatasetGetMetaInputT {
+	datasetName: string;
+	constructor(args?: {
+		datasetName?: string,
+	});
+}
+declare class XcalarApiDatasetGetMetaOutputT {
+	datasetMeta: string;
+	constructor(args?: {
+		datasetMeta?: string,
+	});
+}
 declare class XcalarApiDeleteDagNodeStatusT {
 	nodeInfo: XcalarApiDagNodeInfoT;
 	status: number;
@@ -1423,15 +1487,20 @@ declare class XcalarApiImportRetinaInputT {
 	overwriteExistingUdf: boolean;
 	retinaCount: number;
 	retina: string;
-	loadFromPersistedRetina: boolean;
-	persistedRetinaUrl: string;
+	loadRetinaJson: boolean;
+	retinaJson: string;
+	udfUserName: string;
+	udfSerssionName: string;
+
 	constructor(args?: {
 		retinaName?: string,
 		overwriteExistingUdf?: boolean,
 		retinaCount?: number,
 		retina?: string,
-		loadFromPersistedRetina?: boolean,
-		persistedRetinaUrl?: string,
+		loadRetinaJson?: boolean,
+		retinaJson?: string,
+		udfUserName?: string,
+		udfSerssionName?: string,
 	});
 }
 declare class XcalarApiExportRetinaInputT {

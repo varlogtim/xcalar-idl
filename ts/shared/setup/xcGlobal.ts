@@ -42,7 +42,7 @@ namespace xcGlobal {
          * keys inculding: gEphStorageKey, gSharedDSKey, gUserListKey,
          * gSettingsKey, GlobalKVKeys Enum
          *
-         * "USER": (XXX this should be XcalarApiKeyScopeUser, no support yet!),
+         * "USER": (XXX this should be XcalarApiWorkbookScopeUser, no support yet!),
          * keys including: gUserKey, wokrbook set infos key,
          * and kvVersion info
          *
@@ -51,9 +51,9 @@ namespace xcGlobal {
          * gAuthKey, gOverwrittenLogKey, gNotebookKey, commitKey(non-persistent)
          */
         gKVScope = {
-            "GLOB": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
-            "USER": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
-            "WKBK": XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
+            "GLOB": XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal,
+            "USER": XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal,
+            "WKBK": XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeSession,
         };
 
         gTables = {}; // This is the main global structure that stores TableMeta

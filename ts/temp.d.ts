@@ -602,9 +602,9 @@ declare var mixpanel: object;
 /* ============== GLOBAL FUNCTIONS ============= */
 // Declaration of XcalarApi moved to IXcalarApi.ts
 /* ============= THRIFT ENUMS ================= */
-declare enum XcalarApiKeyScopeT {
-    XcalarApiKeyScopeGlobal,
-    XcalarApiKeyScopeSession
+declare enum XcalarApiWorkbookScopeT {
+    XcalarApiWorkbookScopeGlobal,
+    XcalarApiWorkbookScopeSession
 }
 
 // declare enum XcalarApisT {

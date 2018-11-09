@@ -670,7 +670,9 @@ StatusT = {
   'StatusUDFOwnerNodeMismatch' : 661,
   'StatusUDFSourceMismatch' : 662,
   'StatusUDFUpdateFailed' : 663,
-  'StatusUDFBadPath' : 664
+  'StatusUDFBadPath' : 664,
+  'StatusDsMetaDataNotFound' : 665,
+  'StatusDatasetAlreadyUnloaded' : 666
 };
 StatusTStr = {
   0 : 'Success',
@@ -1337,7 +1339,9 @@ StatusTStr = {
   661 : 'UDF API invoked on non-owner node',
   662 : 'UDF source has unexpected contents',
   663 : 'UDF update failure during persistent write',
-  664 : 'UDF path not recognized'
+  664 : 'UDF path not recognized',
+  665 : 'Dataset metadata doesn\'t exist',
+  666 : 'Dataset is already unloaded'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -2004,5 +2008,7 @@ StatusTFromStr = {
   'UDF API invoked on non-owner node' : 661,
   'UDF source has unexpected contents' : 662,
   'UDF update failure during persistent write' : 663,
-  'UDF path not recognized' : 664
+  'UDF path not recognized' : 664,
+  'Dataset metadata doesn\'t exist' : 665,
+  'Dataset is already unloaded' : 666
 };

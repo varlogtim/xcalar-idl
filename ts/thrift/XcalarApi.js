@@ -2372,6 +2372,171 @@ xcalarLockDataset = runEntity.xcalarLockDataset = function(thriftHandle, dataset
     return (deferred.promise());
 };
 
+xcalarDatasetCreateWorkItem = runEntity.xcalarDatasetCreateWorkItem = function(name, sourceArgsList, parseArgs, size) {
+    var workItem = new WorkItem();
+    workItem.api = XcalarApisT.XcalarApiDatasetCreate;
+    workItem.input = new XcalarApiInputT();
+    workItem.input.datasetCreateInput = new XcalarApiDatasetCreateInputT();
+    workItem.input.datasetCreateInput.loadArgs = new XcalarApiDfLoadArgsT();
+
+    workItem.input.datasetCreateInput.dest = name;
+    workItem.input.datasetCreateInput.loadArgs.sourceArgsList = sourceArgsList;
+    workItem.input.datasetCreateInput.loadArgs.parseArgs = parseArgs;
+
+    workItem.input.datasetCreateInput.loadArgs.size = size;
+
+    return (workItem);
+};
+
+xcalarDatasetCreate = runEntity.xcalarDatasetCreate = function(thriftHandle, name, sourceArgsList, parseArgs, size) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarDatasetCreate(name = " + name +
+                    ", sourceArgsList = " + JSON.stringify(sourceArgsList) +
+                    ", parseArgs = " + JSON.stringify(parseArgs) +
+                    ", size = " + size + ")");
+    }
+
+    var workItem = xcalarDatasetCreateWorkItem(name, sourceArgsList, parseArgs, size);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status, log);
+        } else {
+            deferred.resolve(result);
+        }
+    })
+    .fail(function(error) {
+        console.log("xcalarDatasetCreate() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+};
+
+xcalarDatasetDeleteWorkItem = runEntity.xcalarDatasetDeleteWorkItem = function(name) {
+    var workItem = new WorkItem();
+    workItem.api = XcalarApisT.XcalarApiDatasetDelete;
+    workItem.input = new XcalarApiInputT();
+    workItem.input.datasetDeleteInput = new XcalarApiDatasetDeleteInputT();
+    workItem.input.datasetDeleteInput.datasetName = name;
+    return (workItem);
+};
+
+xcalarDatasetDelete = runEntity.xcalarDatasetDelete = function(thriftHandle, name) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarDatasetDelete(datasetName = " + name + ")");
+    }
+
+    var workItem = xcalarDatasetDeleteWorkItem(name);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status, log);
+        } else {
+            deferred.resolve(result);
+        }
+    })
+    .fail(function(error) {
+        console.log("xcalarDatasetDelete() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+};
+
+xcalarDatasetGetMetaWorkItem = runEntity.xcalarDatasetGetMetaWorkItem = function(name) {
+    var workItem = new WorkItem();
+    workItem.api = XcalarApisT.XcalarApiDatasetGetMeta;
+    workItem.input = new XcalarApiInputT();
+    workItem.input.datasetGetMetaInput = new XcalarApiDatasetGetMetaInputT();
+    workItem.input.datasetGetMetaInput.datasetName = name;
+    return (workItem);
+};
+
+xcalarDatasetGetMeta = runEntity.xcalarDatasetGetMeta = function(thriftHandle, name) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarDatasetGetMeta(datasetName = " + name + ")");
+    }
+
+    var workItem = xcalarDatasetGetMetaWorkItem(name);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.hdr.status;
+        var datasetGetMetaOutput = result.output.outputResult.datasetGetMetaOutput;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status, log);
+        } else {
+            deferred.resolve(datasetGetMetaOutput);
+        }
+    })
+    .fail(function(error) {
+        console.log("xcalarDatasetGetMeta() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+};
+
+xcalarDatasetUnloadWorkItem = runEntity.xcalarApiDatasetUnloadWorkItem = function(datasetNamePattern) {
+    var workItem = new WorkItem();
+    workItem.api = XcalarApisT.XcalarApiDatasetUnload;
+    workItem.input = new XcalarApiInputT();
+    workItem.input.datasetUnloadInput = new XcalarApiDatasetUnloadInputT();
+    workItem.input.datasetUnloadInput.datasetNamePattern = datasetNamePattern;
+    return (workItem);
+};
+
+xcalarDatasetUnload = runEntity.xcalarDatasetUnload = function(thriftHandle, datasetNamePattern) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarDatasetUnload(datasetNamePattern = " + datasetNamePattern + ")");
+    }
+
+    var workItem = xcalarApiDatasetUnloadWorkItem(datasetNamePattern);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var datasetUnloadOutput = result.output.outputResult.datasetUnloadOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject(status, log);
+        } else {
+            deferred.resolve(datasetUnloadOutput);
+        }
+    })
+    .fail(function(error) {
+        console.log("xcalarDatasetUnload() caught exception:", error);
+        deferred.reject(error);
+    });
+
+    return (deferred.promise());
+};
+
 xcalarMakeResultSetFromTableWorkItem = runEntity.xcalarMakeResultSetFromTableWorkItem = function(tableName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -4181,7 +4346,7 @@ xcalarUpdateRetina = runEntity.xcalarUpdateRetina = function(thriftHandle, retin
 };
 
 xcalarExecuteRetinaWorkItem = runEntity.xcalarExecuteRetinaWorkItem = function(retinaName, parameters,
-                                     exportToActiveSession, newTableName, queryName, schedName) {
+                                     exportToActiveSession, newTableName, queryName, schedName, udfUserName, udfSessionName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.executeRetinaInput = new XcalarApiExecuteRetinaInputT();
@@ -4189,6 +4354,9 @@ xcalarExecuteRetinaWorkItem = runEntity.xcalarExecuteRetinaWorkItem = function(r
 
     workItem.api = XcalarApisT.XcalarApiExecuteRetina;
     workItem.input.executeRetinaInput.retinaName = retinaName;
+    workItem.input.executeRetinaInput.udfUserName = udfUserName;
+    workItem.input.executeRetinaInput.udfSessionName = udfSessionName;
+
     if (queryName) {
         workItem.input.executeRetinaInput.queryName = queryName;
     } else {
@@ -4212,7 +4380,7 @@ xcalarExecuteRetinaWorkItem = runEntity.xcalarExecuteRetinaWorkItem = function(r
 };
 
 xcalarExecuteRetina = runEntity.xcalarExecuteRetina = function(thriftHandle, retinaName, parameters,
-                             exportToActiveSession, newTableName, queryName, schedName) {
+                             exportToActiveSession, newTableName, queryName, schedName, udfUserName, udfSessionName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarExecuteRetina(retinaName = " + retinaName +
@@ -4225,7 +4393,8 @@ xcalarExecuteRetina = runEntity.xcalarExecuteRetina = function(thriftHandle, ret
     }
     var workItem = xcalarExecuteRetinaWorkItem(retinaName, parameters,
                                                exportToActiveSession,
-                                               newTableName, queryName, schedName);
+                                               newTableName, queryName, schedName,
+                                               udfUserName, udfSessionName);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -4522,6 +4691,7 @@ xcalarKeySetIfEqualWorkItem = runEntity.xcalarKeySetIfEqualWorkItem = function(s
     workItem.api = XcalarApisT.XcalarApiKeySetIfEqual;
 
     workItem.input.keySetIfEqualInput.scope = scope;
+    workItem.input.keySetIfEqualInput.persist = persist;
     workItem.input.keySetIfEqualInput.keyCompare = keyCompare;
     workItem.input.keySetIfEqualInput.valueCompare = valueCompare;
     workItem.input.keySetIfEqualInput.valueReplace = valueReplace;
@@ -5359,6 +5529,48 @@ xcalarApiUdfGet = runEntity.xcalarApiUdfGet = function(thriftHandle, moduleName)
     return (deferred.promise());
 };
 
+xcalarApiUdfGetResWorkItem = runEntity.xcalarApiUdfGetResWorkItem = function(scope, moduleName)
+{
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.udfGetResInput = new XcalarApiUdfGetResInputT();
+    workItem.input.udfGetResInput.scope = scope;
+    workItem.input.udfGetResInput.moduleName = moduleName;
+    workItem.api = XcalarApisT.XcalarApiUdfGetResolution;
+
+    return (workItem);
+};
+
+xcalarApiUdfGetRes = runEntity.xcalarApiUdfGetRes = function(thriftHandle, scope, moduleName)
+{
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarApiUdfGetRes(scope = " + scope + ", moduleName = ", moduleName, ")");
+    }
+    var workItem = xcalarApiUdfGetResWorkItem(scope, moduleName);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(result.output.outputResult.udfGetResOutput);
+        }
+    })
+    .fail(function(error) {
+        console.log("xcalarApiUdfGetRes() caught exception: ", error);
+        deferred.reject(handleRejection(error));
+    });
+
+    return (deferred.promise());
+};
+
 xcalarApiGetQuery = runEntity.xcalarApiGetQuery = function(thriftHandle, workItem) {
     var json = {};
     json["operation"] = XcalarApisTStr[workItem.api];
@@ -5588,7 +5800,7 @@ xcalarApiSupportGenerate = runEntity.xcalarApiSupportGenerate = function(thriftH
     return (deferred.promise());
 };
 
-xcalarApiImportRetinaWorkItem = runEntity.xcalarApiImportRetinaWorkItem = function(retinaName, overwrite, retina, loadFromPersistedRetina, persistedRetinaUrl) {
+xcalarApiImportRetinaWorkItem = runEntity.xcalarApiImportRetinaWorkItem = function(retinaName, overwrite, retina, loadRetinaJson, retinaJson, udfUserName, udfSessionName) {
     var workItem = new WorkItem();
     var encodedRetina = btoa(retina);
     workItem.input = new XcalarApiInputT();
@@ -5599,13 +5811,15 @@ xcalarApiImportRetinaWorkItem = runEntity.xcalarApiImportRetinaWorkItem = functi
     workItem.input.importRetinaInput.overwriteExistingUdf = overwrite;
     workItem.input.importRetinaInput.retinaCount = encodedRetina.length;
     workItem.input.importRetinaInput.retina = encodedRetina;
-    workItem.input.importRetinaInput.loadFromPersistedRetina = loadFromPersistedRetina;
-    workItem.input.importRetinaInput.persistedRetinaUrl = persistedRetinaUrl;
+    workItem.input.importRetinaInput.loadRetinaJson = loadRetinaJson;
+    workItem.input.importRetinaInput.retinaJson = retinaJson;
+    workItem.input.importRetinaInput.udfUserName = udfUserName;
+    workItem.input.importRetinaInput.udfSessionName = udfSessionName;
 
     return (workItem);
 };
 
-xcalarApiImportRetina = runEntity.xcalarApiImportRetina = function(thriftHandle, retinaName, overwrite, retina, loadFromPersistedRetina, persistedRetinaUrl) {
+xcalarApiImportRetina = runEntity.xcalarApiImportRetina = function(thriftHandle, retinaName, overwrite, retina, loadRetinaJson, retinaJson, udfUserName, udfSessionName) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
@@ -5614,8 +5828,8 @@ xcalarApiImportRetina = runEntity.xcalarApiImportRetina = function(thriftHandle,
     }
 
     var workItem = xcalarApiImportRetinaWorkItem(retinaName, overwrite, retina,
-                                                 loadFromPersistedRetina,
-                                                 persistedRetinaUrl);
+                                                 loadRetinaJson, retinaJson,
+                                                 udfUserName, udfSessionName);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -5782,6 +5996,7 @@ xcalarApiListFuncTest = runEntity.xcalarApiListFuncTest = function(thriftHandle,
     return (deferred.promise());
 };
 
+// Deprecated
 xcalarApiDeleteDatasetsWorkItem = runEntity.xcalarApiDeleteDatasetsWorkItem = function(datasetNamePattern) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -5793,6 +6008,8 @@ xcalarApiDeleteDatasetsWorkItem = runEntity.xcalarApiDeleteDatasetsWorkItem = fu
     return (workItem);
 };
 
+// XXX: Tests calling this expect that all datasets matching the pattern are
+// unloaded.  This is functionally equivalent to unloading datasets.
 xcalarApiDeleteDatasets = runEntity.xcalarApiDeleteDatasets = function (thriftHandle, datasetNamePattern) {
     var deferred = jQuery.Deferred();
 

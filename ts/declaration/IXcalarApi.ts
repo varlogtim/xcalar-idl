@@ -178,6 +178,60 @@ declare function xcalarLockDataset(
     datasetName: string
 ): XDPromise<any>;
 
+declare function xcalarDatasetCreateWorkItem(
+    name: string,
+    sourceArgsList: {},
+    parseArgs: {},
+    size: number
+): WorkItem;
+
+declare function xcalarDatasetCreate(
+    thriftHandle: ThriftHandler,
+    name: string,
+    sourceArgsList: {},
+    parseArgs: {},
+    size: number
+): XDPromise<any>;
+
+declare function xcalarDatasetDeleteWorkItem(
+    name: string
+): WorkItem;
+
+declare function xcalarDatasetDelete(
+    thriftHandle: ThriftHandler,
+    name: string
+): XDPromise<any>;
+
+declare function xcalarDatasetGetMetaWorkItem(
+    name: string
+): WorkItem;
+
+declare function xcalarDatasetGetMeta(
+    thriftHandle: ThriftHandler,
+    name: string
+): XDPromise<any>;
+
+declare function xcalarDatasetUnloadWorkItem(
+    datasetNamePattern: string
+): WorkItem;
+
+declare function xcalarDatasetUnload(
+    thriftHandle: ThriftHandler,
+    datasetNamePattern: string
+): XDPromise<any>;
+
+declare function xcalarApiUdfGetResWorkItem(
+    scope: number,
+    moduleName: string
+): WorkItem;
+
+declare function xcalarApiUdfGetRes(
+    thriftHandle: ThriftHandler,
+    scope: number,
+    moduleName: string
+): XDPromise<any>;
+
+
 declare function xcalarDeleteDagNodesWorkItem(
     namePattern: string,
     srcType: SourceTypeT
@@ -537,7 +591,9 @@ declare function xcalarExecuteRetinaWorkItem(
     exportToActiveSession: boolean,
     newTableName: string,
     queryName: string,
-    schedName?: string
+    schedName?: string,
+    udfUserName?: string,
+    udfSessionName?: string,
 ): WorkItem;
 
 declare function xcalarExecuteRetina(

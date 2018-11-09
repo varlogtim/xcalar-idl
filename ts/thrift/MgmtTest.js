@@ -196,6 +196,9 @@ window.Function.prototype.bind = function() {
     var session1; // Inactive session after apiKeySession test
     var session2; // Active session after apiKeySession test
     var session3; // Session to use to upload workbook
+    var session4; // Session to use to test inactivate
+                  // Inactivating other sessions could result in errors
+                  // given that inactivating sessions destroys its SQG
     var session2Id; // sessionId for session2 (needed for UDF naming)
 
     // For retina test
@@ -214,6 +217,9 @@ window.Function.prototype.bind = function() {
     var envLicensePath = system.env.XCE_QALICENSEDIR;
     var numUsrnodes = 3;
     var targetName = "Default Shared Root";
+
+    // For dataset (dataflow 2.0) tests
+    var dsTestDatasetName = "dsTestDatasetName";
 
     console.log("Qa test dir: " + qaTestDir);
     startNodesState = TestCaseEnabled;
@@ -1135,6 +1141,71 @@ window.Function.prototype.bind = function() {
         })
         .fail(function(reason) {
             test.pass();
+        });
+    }
+
+    function testDatasetCreate(test) {
+        var sourceArgs = new DataSourceArgsT();
+        sourceArgs.targetName = targetName;
+        sourceArgs.path = qaTestDir + "/yelp/user";
+        sourceArgs.fileNamePattern = "";
+        sourceArgs.recursive = false;
+        var parseArgs = new ParseArgsT();
+        parseArgs.parserFnName = "default:parseJson";
+        parseArgs.parserArgJson = "{}";
+
+        xcalarDatasetCreate(thriftHandle, dsTestDatasetName, [sourceArgs], parseArgs, 0)
+        .then(function() {
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(reason);
+        })
+    }
+
+    function testDatasetLoad(test) {
+        setSessionName(session2)
+        var sourceArgs = new DataSourceArgsT();
+        var parseArgs = new ParseArgsT();
+        xcalarLoad(thriftHandle, dsTestDatasetName, [sourceArgs], parseArgs, 0)
+        .then(function(result) {
+            test.assert(result.numBytes >= 17432576);
+            test.assert(result.numFiles == 1);
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(StatusTStr[reason.xcalarStatus]);
+        });
+    }
+
+    function testDatasetUnload(test) {
+        xcalarDatasetUnload(thriftHandle, dsTestDatasetName)
+        .then(function() {
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(StatusTStr[reason.xcalarStatus]);
+        })
+    }
+
+    function testDatasetGetMeta(test) {
+        xcalarDatasetGetMeta(thriftHandle, dsTestDatasetName)
+        .then(function(result) {
+            // printResult(result);
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(StatusTStr[reason.xcalarStatus]);
+        });
+    }
+
+    function testDatasetDelete(test) {
+        xcalarDatasetDelete(thriftHandle, dsTestDatasetName)
+        .then(function() {
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(StatusTStr[reason.xcalarStatus]);
         });
     }
 
@@ -2261,7 +2332,7 @@ window.Function.prototype.bind = function() {
         });
 
         xcalarExport(thriftHandle, "yelp/user-votes.funny-gt900",
-                     "csv_basic", {"file_path": "/tmp/mgmtdtestfile.csv"},
+                     "single_csv", {"file_path": "/tmp/mgmtdtestfile.csv"},
                      columns, "exportNamexoxo")
         .then(function(retStruct) {
             var status = retStruct.status;
@@ -2830,7 +2901,7 @@ window.Function.prototype.bind = function() {
 
     function testApiKeyAddOrReplace(test, keyName, keyValue) {
         xcalarKeyAddOrReplace(thriftHandle,
-                              XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                              XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal,
                               keyName, keyValue, true)
         .done(function(status) {
             printResult(status);
@@ -2843,12 +2914,12 @@ window.Function.prototype.bind = function() {
     }
 
     function testApiKeyInvalidScope(test) {
-        // XXX Remove once XcalarApiKeyScopeUser is implemented.
+        // XXX Remove once XcalarApiWorkbookScopeUser is implemented.
         xcalarKeyAddOrReplace(thriftHandle,
-                              XcalarApiKeyScopeT.XcalarApiKeyScopeUser,
+                              XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeUser,
                               "foo", "foobar", false)
         .done(function(status) {
-            test.fail("Expected failure with scope XcalarApiKeyScopeUser.");
+            test.fail("Expected failure with scope XcalarApiWorkbookScopeUser.");
         })
         .fail(function(reason) {
             if (reason.xcalarStatus !== StatusT.StatusUnimpl) {
@@ -2879,24 +2950,24 @@ window.Function.prototype.bind = function() {
     function testApiKeyAppend(test) {
         // Insert original key
         xcalarKeyAddOrReplace(thriftHandle,
-                              XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                              XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal,
                               "myotherkey", "a", false)
         .then(function() {
             // Append first 'a'
             return xcalarKeyAppend(thriftHandle,
-                                   XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                                   XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal,
                                    "myotherkey", "a");
         })
         .then(function() {
             // Append second 'a'
             return xcalarKeyAppend(thriftHandle,
-                                   XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                                   XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal,
                                    "myotherkey", "a");
         })
         .then(function() {
             // Lookup. Make sure result is 'aaa'
             return xcalarKeyLookup(thriftHandle,
-                                   XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                                   XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal,
                                    "myotherkey");
         })
         .then(function(lookupOutput) {
@@ -2916,18 +2987,18 @@ window.Function.prototype.bind = function() {
         var keyname = "testListKeyMgmtd";
         // Insert original key
         xcalarKeyAddOrReplace(thriftHandle,
-                              XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                              XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal,
                               keyname, "a", true)
         .then(function() {
             // Get list of keys using this keyname as a regex
             return xcalarKeyList(thriftHandle,
-                                 XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                                 XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal,
                                  keyname);
         })
         .then(function(keyList) {
             test.assert(keyList.keys.indexOf(keyname) != -1);
             return xcalarKeyDelete(thriftHandle,
-                                   XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal, keyname);
+                                   XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal, keyname);
         })
         .done(function(status) {
             printResult(status);
@@ -2941,12 +3012,12 @@ window.Function.prototype.bind = function() {
     function testApiKeySetIfEqual(test) {
         // Insert original key
         xcalarKeyAddOrReplace(thriftHandle,
-                              XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                              XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal,
                               "yourkey", "b", false)
         .then(function() {
             // Try replacing with incorrect oldValue
             xcalarKeySetIfEqual(thriftHandle,
-                                XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                                XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal,
                                 false, "yourkey", "wrongvalue", "x", "x", "x")
             .then(function() {
                 var reason = "Expected failure due to incorrect oldValue.";
@@ -2955,12 +3026,12 @@ window.Function.prototype.bind = function() {
             .fail(function(reason) {
                 // Try replacing with correct oldValue
                 xcalarKeySetIfEqual(thriftHandle,
-                                   XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                                   XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal,
                                    false, "yourkey", "b", "c", "x", "y")
                 .then(function() {
                     // Lookup. Make sure result is as expected
                     return xcalarKeyLookup(thriftHandle,
-                                   XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                                   XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal,
                                    "yourkey");
                 })
                 .then(function(lookupOutput) {
@@ -2969,7 +3040,7 @@ window.Function.prototype.bind = function() {
                                   "'. Expected 'c'.");
                     } else {
                         return xcalarKeyLookup(thriftHandle,
-                                     XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                                     XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal,
                                      "x");
                     }
                 })
@@ -2979,11 +3050,11 @@ window.Function.prototype.bind = function() {
                                   "'. Expected 'y'.");
                     } else {
                         xcalarKeySetIfEqual(thriftHandle,
-                                     XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                                     XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal,
                                      false, "x", "y", "z")
                         .then(function() {
                             xcalarKeyLookup(thriftHandle,
-                                     XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                                     XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal,
                                      "x")
                             .then(function(lookupOutput) {
                                 if (lookupOutput.value != "z") {
@@ -3015,7 +3086,7 @@ window.Function.prototype.bind = function() {
 
     function testApiKeyLookup(test) {
         xcalarKeyLookup(thriftHandle,
-                        XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                        XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal,
                         "mykey")
         .done(function(lookupOutput) {
             printResult(lookupOutput);
@@ -3033,7 +3104,7 @@ window.Function.prototype.bind = function() {
 
     function testApiKeyDelete(test) {
         xcalarKeyDelete(thriftHandle,
-                        XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal, "mykey")
+                        XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal, "mykey")
         .done(function(status) {
             printResult(status);
             test.pass();
@@ -3045,7 +3116,7 @@ window.Function.prototype.bind = function() {
 
     function testApiKeyBogusLookup(test) {
         xcalarKeyLookup(thriftHandle,
-                        XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+                        XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal,
                         "mykey")
         .done(function(lookupOutput) {
             printResult(lookupOutput);
@@ -3060,6 +3131,7 @@ window.Function.prototype.bind = function() {
     function testApiKeySessions(test) {
         session1 = "mgmtdTestApiKeySessions1" + (new Date().getTime());
         session2 = "mgmtdTestApiKeySessions2" + (new Date().getTime());
+        session4 = "mgmtdTestInactivateSession" + (new Date().getTime());
 
         var keyName = "sessionKey";
 
@@ -3074,16 +3146,23 @@ window.Function.prototype.bind = function() {
                     return xcalarApiSessionActivate(thriftHandle, session1);
                 })
                 .then(function() {
+                    // Create and activate session4 - ready for testSessionInact
+                    xcalarApiSessionNew(thriftHandle, session4, false, "")
+                    .then(function() {
+                        return xcalarApiSessionActivate(thriftHandle, session4);
+                    })
+                })
+                .then(function() {
                     // ... and add a key.
                     setSessionName(session1)
                     return xcalarKeyAddOrReplace(thriftHandle,
-                                                 XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
+                                                 XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeSession,
                                                  keyName, "x", false);
                 })
                 .then(function() {
                     // Make sure it exists in this session.
                     return xcalarKeyLookup(thriftHandle,
-                                           XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
+                                           XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeSession,
                                            keyName);
                 })
                 .then(function(lookupOutput) {
@@ -3104,7 +3183,7 @@ window.Function.prototype.bind = function() {
                     // in this one.
                     setSessionName(session2)
                     xcalarKeyLookup(thriftHandle,
-                                    XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
+                                    XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeSession,
                                     keyName)
                     .then(function() {
                         test.fail("Lookup in session2 should have failed.");
@@ -3466,22 +3545,23 @@ window.Function.prototype.bind = function() {
     }
 
     function testSessionInact(test) {
-        // First confirm that session2 is active
-        xcalarApiSessionList(thriftHandle, session2)
+        // Use session4 to test inactivate
+        // First confirm that session4 is active
+        xcalarApiSessionList(thriftHandle, session4)
         .then(function(ret) {
             test.assert(ret.numSessions === 1);
-            test.assert(ret.sessions[0].name === session2);
+            test.assert(ret.sessions[0].name === session4);
             test.assert(ret.sessions[0].state.toLowerCase() === "active");
-            return xcalarApiSessionInact(thriftHandle, session2);
+            return xcalarApiSessionInact(thriftHandle, session4);
         })
         .then(function() {
-            return xcalarApiSessionList(thriftHandle, session2);
+            return xcalarApiSessionList(thriftHandle, session4);
         })
         .then(function(ret) {
             test.assert(ret.numSessions === 1);
-            test.assert(ret.sessions[0].name === session2);
+            test.assert(ret.sessions[0].name === session4);
             test.assert(ret.sessions[0].state.toLowerCase() === "inactive");
-            return xcalarApiSessionActivate(thriftHandle, session2);
+            return xcalarApiSessionActivate(thriftHandle, session4);
         })
         .then(function(ret) {
             printResult(ret);
@@ -3968,6 +4048,11 @@ window.Function.prototype.bind = function() {
             */
             test.assert(output.fnDescs[0].fnName === "/workbook/" + userIdName + "/" + session2Id + "/udf/mgmttestfoo:bar");
             test.assert(output.fnDescs[0].argDescs[0].argDesc === "c");
+            return xcalarApiUdfGetRes(thriftHandle, XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeSession, "mgmttestfoo");
+        })
+        .then(function(output) {
+            var userIdName = "test";
+            test.assert(output.udfResPath == "/workbook/" + userIdName + "/" + session2Id + "/udf/mgmttestfoo");
             return xcalarApiUdfDelete(thriftHandle, "mgmttestfoo");
         })
         .then(function () {
@@ -4469,7 +4554,7 @@ window.Function.prototype.bind = function() {
 
     addTestCase(testTxnLog, "Test Txn logging", defaultTimeout, TestCaseEnabled, "10624");
 
-    addTestCase(testApisWithNoArgs, "call Xcalar APIs without args", defaultTimeout, TestCaseEnabled, "");
+    // addTestCase(testApisWithNoArgs, "call Xcalar APIs without args", defaultTimeout, TestCaseEnabled, "");
 
     // This actually starts our sessions, so run this before any test
     // that requires sessions
@@ -4478,6 +4563,14 @@ window.Function.prototype.bind = function() {
     addTestCase(testSessionRename, "rename session", defaultTimeout, TestCaseEnabled);
     // XXX Re-enable when we actually need getPerNodeOpStats
     addTestCase(testPerNodeOpStats, "get per node op stats", defaultTimeout, TestCaseDisabled);
+
+    // Dataflow 2.0 dataset functionality
+    addTestCase(testDatasetCreate, "Dataset create meta", defaultTimeout, TestCaseEnabled);
+    addTestCase(testDatasetLoad, "Dataset load", defaultTimeout, TestCaseEnabled);
+    addTestCase(testDatasetUnload, "Dataset unload", defaultTimeout, TestCaseEnabled);
+    addTestCase(testDatasetGetMeta, "Dataset get meta", defaultTimeout, TestCaseEnabled);
+    addTestCase(testDatasetDelete, "Dataset delete meta", defaultTimeout, TestCaseEnabled);
+
 
     addTestCase(testBulkDestroyDs, "bulk destroy ds", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testBadLoad, "bad load", defaultTimeout, TestCaseEnabled, "");
@@ -4493,7 +4586,7 @@ window.Function.prototype.bind = function() {
     addTestCase(testGetDatasetsInfo, "get dataset info", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListDatasetUsers, "list dataset users", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListUserDatasets, "list user's datasets", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testLockDataset, "lock dataset", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testLockDataset, "lock dataset", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testLockAlreadyLockedDataset, "lock already locked dataset", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetQueryIndex, "test get query Index", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetQueryLoad, "test get query Load", defaultTimeout, TestCaseEnabled, "");

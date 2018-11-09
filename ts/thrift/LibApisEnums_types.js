@@ -147,7 +147,12 @@ XcalarApisT = {
   'XcalarApiRuntimeSetParam' : 138,
   'XcalarApiRuntimeGetParam' : 139,
   'XcalarApiPtSnapshot' : 140,
-  'XcalarApiFunctionInvalid' : 141
+  'XcalarApiDatasetCreate' : 141,
+  'XcalarApiDatasetDelete' : 142,
+  'XcalarApiDatasetUnload' : 143,
+  'XcalarApiDatasetGetMeta' : 144,
+  'XcalarApiUdfGetResolution' : 145,
+  'XcalarApiFunctionInvalid' : 146
 };
 XcalarApisTStr = {
   0 : 'XcalarApiUnknown',
@@ -291,7 +296,12 @@ XcalarApisTStr = {
   138 : 'XcalarApiRuntimeSetParam',
   139 : 'XcalarApiRuntimeGetParam',
   140 : 'XcalarApiPtSnapshot',
-  141 : 'XcalarApiFunctionInvalid'
+  141 : 'XcalarApiDatasetCreate',
+  142 : 'XcalarApiDatasetDelete',
+  143 : 'XcalarApiDatasetUnload',
+  144 : 'XcalarApiDatasetGetMeta',
+  145 : 'XcalarApiUdfGetResolution',
+  146 : 'XcalarApiFunctionInvalid'
 };
 XcalarApisTFromStr = {
   'XcalarApiUnknown' : 0,
@@ -435,5 +445,10 @@ XcalarApisTFromStr = {
   'XcalarApiRuntimeSetParam' : 138,
   'XcalarApiRuntimeGetParam' : 139,
   'XcalarApiPtSnapshot' : 140,
-  'XcalarApiFunctionInvalid' : 141
+  'XcalarApiDatasetCreate' : 141,
+  'XcalarApiDatasetDelete' : 142,
+  'XcalarApiDatasetUnload' : 143,
+  'XcalarApiDatasetGetMeta' : 144,
+  'XcalarApiUdfGetResolution' : 145,
+  'XcalarApiFunctionInvalid' : 146
 };

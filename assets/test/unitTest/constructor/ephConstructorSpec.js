@@ -10,7 +10,7 @@ describe("Ephemeral Constructor Test", function() {
 
     describe("Mutex Constructor Test", function() {
         it("should have 2 attributes", function() {
-            var scope = XcalarApiKeyScopeT.XcalarApiKeyScopeSession;
+            var scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeSession;
             var mutex = new Mutex("key", scope);
             expect(mutex).to.be.instanceof(Mutex);
             expect(Object.keys(mutex).length).to.equal(2);
@@ -23,7 +23,7 @@ describe("Ephemeral Constructor Test", function() {
             var mutex = new Mutex();
             expect(mutex.key).not.to.be.null;
             expect(mutex.scope)
-            .to.equal(XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal);
+            .to.equal(XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal);
         });
     });
 
