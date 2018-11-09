@@ -9,6 +9,7 @@ abstract class DagTab {
     protected _kvStore: KVStore;
     protected _tempKVStore: KVStore;
     protected _unsaved: boolean;
+    protected _disableSave: boolean;
 
     public static setup(): void {
         this.uid = new XcUID("DF2");
@@ -26,6 +27,7 @@ abstract class DagTab {
             this._dagGraph.setTabId(this._id);
         }
         this._unsaved = false;
+        this._disableSave = false;
         this._events = {};
     }
 
@@ -70,6 +72,20 @@ abstract class DagTab {
      */
     public isUnsave(): boolean {
         return this._unsaved;
+    }
+
+    /**
+     * For Bulk Operation only
+     */
+    public turnOffSave(): void {
+        this._disableSave = true;
+    }
+
+    /**
+     * For Bulk Operation only
+     */
+    public turnOnSave(): void {
+        this._disableSave = false;
     }
 
     public discardUnsavedChange(): XDPromise<void> {

@@ -127,10 +127,15 @@ class FileLister {
             }
             curObj = curObj.folders[currentPath];
         }
-        const folders: string[] = Object.keys(curObj.folders);
-        const html: HTML = this._renderTemplate(curObj.files, folders);
-        this._$section.find(".pathSection .path").html(path);
-        this._$section.find(".listView ul").html(html);
+        if (curObj == null && pathLen > 0) {
+            // when currentPath has nothing
+            this.goToPath(this._rootPath)
+        } else {
+            const folders: string[] = Object.keys(curObj.folders);
+            const html: HTML = this._renderTemplate(curObj.files, folders);
+            this._$section.find(".pathSection .path").html(path);
+            this._$section.find(".listView ul").html(html);
+        }
     }
 
     private _resetPath(): void {

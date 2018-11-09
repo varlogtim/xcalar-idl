@@ -366,7 +366,9 @@ namespace DagView {
      * connector classes
      */
     export function removeNodes(nodeIds: DagNodeId[]): XDPromise<void> {
-        const tabId: string = activeDagTab.getId();
+        const tab: DagTab = activeDagTab;
+        tab.turnOffSave();
+        const tabId: string = tab.getId();
         const nodeIdsMap = lockedNodeIds[tabId] || {};
         for (let i = 0; i < nodeIds.length; i++) {
             if (nodeIdsMap[nodeIds[i]]) {
@@ -375,9 +377,12 @@ namespace DagView {
             }
         }
         if (_removeNodesNoPersist(nodeIds) == null) {
+            tab.turnOnSave();
             return PromiseHelper.reject();
+        } else {
+            tab.turnOnSave();
+            return activeDagTab.save();
         }
-        return activeDagTab.save();
     }
 
     /**
@@ -424,6 +429,8 @@ namespace DagView {
             if (!clipboard.nodeInfos.length) {
                 return PromiseHelper.reject();
             }
+            const tab: DagTab = activeDagTab;
+            tab.turnOffSave();
             const $dfArea: JQuery = $dagView.find(".dataflowArea.active");
             $dfArea.find(".selected").removeClass("selected");
 
@@ -497,22 +504,25 @@ namespace DagView {
                             return; // skip empty parent slots
                         }
                         const newParentId = oldNodeIdMap[parentId];
-                        activeDag.connect(newParentId, newNodeId, j);
+                        // we do this because we're sure there is no cycle
+                        // in copy paste case and skip the check can help on performance
+                        const allowCyclic: boolean = true;
+                        activeDag.connect(newParentId, newNodeId, j, allowCyclic);
                         _drawConnection(newParentId, newNodeId, j);
                     });
                 }
             });
-
             // XXX scroll to selection if off screen
 
             _setGraphDimensions({ x: maxXCoor, y: maxYCoor });
 
             Log.add(SQLTStr.CopyOperations, {
                 "operation": SQLOps.CopyOperations,
-                "dataflowId": activeDagTab.getId(),
+                "dataflowId": tab.getId(),
                 "nodeIds": allNewNodeIds
             });
-            return activeDagTab.save();
+            tab.turnOnSave();
+            return tab.save();
         }
         return PromiseHelper.reject();
     }
@@ -1573,12 +1583,14 @@ namespace DagView {
             return null;
         }
         const spliceInfos = {};
+        // XXX TODO: check the slowness and fix the performance
         nodeIds.forEach(function (nodeId) {
             if (nodeId.startsWith("dag")) {
                 // Remove tabs for custom OP
                 const dagNode = activeDag.getNode(nodeId);
                 if (dagNode instanceof DagNodeCustom ||
-                    dagNode instanceof DagNodeSQL) {
+                    dagNode instanceof DagNodeSQL
+                ) {
                     DagTabManager.Instance.removeTabByNode(dagNode);
                 }
 

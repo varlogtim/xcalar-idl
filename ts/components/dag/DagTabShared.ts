@@ -103,6 +103,10 @@ class DagTabShared extends DagTab {
     }
 
     public save(forceSave: boolean = false): XDPromise<void> {
+        if (this._disableSave) {
+            return PromiseHelper.resolve();
+        }
+
         if (!forceSave) {
             this._unsaved = true;
             return this._writeToTempKVStore()

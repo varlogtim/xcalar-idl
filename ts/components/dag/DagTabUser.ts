@@ -141,6 +141,10 @@ class DagTabUser extends DagTab {
     }
 
     public save(forceSave: boolean = false): XDPromise<void> {
+        if (this._disableSave) {
+            return PromiseHelper.resolve();
+        }
+
         if (!this._autoSave && !forceSave) {
             this._unsaved = true;
             return this._writeToTempKVStore()
