@@ -1461,16 +1461,69 @@ namespace XIApi {
         options: object
     ): XDPromise<any> {
         if (txId == null || !dsName || !options) {
-            return PromiseHelper.reject("Invalid args in load");
+            return PromiseHelper.reject("Invalid args in load dataset");
+        }
+
+        // XXX TODO: make the query version work
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        // const simuldateTxId: number = startSimulate();
+        let hasCreate: boolean = false;
+
+        XcalarDatasetCreate(dsName, options)
+        .then(() => {
+            hasCreate = true;
+            // return XcalarDatasetActivate(dsName, simuldateTxId);
+            return XcalarDatasetActivate(dsName, txId);
+        })
+        // .then(() => {
+        //     const query: string = endSimulate(simuldateTxId);
+        //     const queryName: string = dsName;
+        //     return XIApi.query(txId, queryName, query);
+        // })
+        .then(deferred.resolve)
+        .fail((error) => {
+            if (hasCreate) {
+                XcalarDatasetDelete(dsName);
+            }
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    }
+
+    /**
+     * XIApi.deleteDataset
+     * @param txId
+     * @param dsName
+     * @param options
+     */
+    export function deleteDataset (
+        txId: number,
+        dsName: string,
+        allowDeactivateFail: boolean = false
+    ): XDPromise<any> {
+        if (!dsName) {
+            return PromiseHelper.reject("Invalid args in delete dataset");
         }
 
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
-        const simuldateTxId: number = startSimulate();
-        XcalarDatasetLoad(dsName, options, simuldateTxId)
+        const deactivate = () => {
+            const innerDeferred: XDDeferred<any> = PromiseHelper.deferred();
+            XcalarDatasetDeactivate(dsName)
+            .then(deferred.resolve)
+            .fail((error) => {
+                if (allowDeactivateFail) {
+                    deferred.resolve();
+                } else {
+                    deferred.reject(error);
+                }
+            });
+            return innerDeferred.promise();
+        };
+
+        deactivate()
         .then(() => {
-            const query: string = endSimulate(simuldateTxId);
-            const queryName: string = dsName;
-            return XIApi.query(txId, queryName, query);
+            return XcalarDatasetDelete(dsName, txId);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);

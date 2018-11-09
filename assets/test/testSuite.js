@@ -705,7 +705,7 @@ window.TestSuite = (function($, TestSuite) {
         test.testDS.forEach(function(ds) {
             var $grid = DS.getGridByName(ds);
             // XXX TODO: use another way
-            XcalarDatasetUnload(ds)
+            XcalarDatasetDeactivate(ds)
             .then(function() {
                 DS.remove($grid);
                 $("#alertModal .confirm").click();

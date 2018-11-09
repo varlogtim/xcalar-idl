@@ -92,16 +92,16 @@ declare function xcalarListDatasets(
 declare function xcalarLoad(
     thriftHandle: ThriftHandler,
     name: string,
-    sourceArgsList: any[],
-    parseArgs: object,
-    size: number
+    sourceArgsList?: DataSourceArgsT[],
+    parseArgs?: ParseArgsT,
+    size?: number
 ): XDPromise<any>;
 
 declare function xcalarLoadWorkItem(
     name: string,
-    sourceArgsList: any[],
-    parseArgs: object,
-    size: number
+    sourceArgsList?: DataSourceArgsT[],
+    parseArgs?: ParseArgsT,
+    size?: number
 ): WorkItem;
 
 declare function xcalarAddExportTarget(
@@ -173,10 +173,6 @@ declare function xcalarDriverList(
     thriftHandle: ThriftHandler
 ): XDPromise<any>;
 
-declare function xcalarLockDataset(
-    thriftHandle: ThriftHandler,
-    datasetName: string
-): XDPromise<any>;
 
 declare function xcalarDatasetCreateWorkItem(
     name: string,

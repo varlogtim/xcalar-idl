@@ -553,7 +553,8 @@ interface XcalarLoadInputOptions {
     udfQuery?: object,
     advancedArgs?: object
 }
-/*
+
+/* Helper function
  * options (example):
     {
         "sources": [{
@@ -580,11 +581,11 @@ interface XcalarLoadInputOptions {
         ]
     }
  */
-XcalarLoad = function(
-    datasetName: string,
-    options: XcalarLoadInputOptions,
-    txId: number
-): XDPromise<any> {
+XcalarParseDSLoadArgs = function(options: XcalarLoadInputOptions): {
+    sourceArgsList: DataSourceArgsT[],
+    parseArgs: ParseArgsT,
+    size: number
+} {
     options = options || {};
 
     const sources: any[] = options.sources;
@@ -622,15 +623,6 @@ XcalarLoad = function(
     }
 
     schemaMode = CsvSchemaModeTStr[schemaMode];
-
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return PromiseHelper.resolve(null);
-    }
-
-    const deferred: XDDeferred<any> = PromiseHelper.deferred();
-    if (Transaction.checkCanceled(txId)) {
-        return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
-    }
 
     let parserFnName: string;
     let parserArgJson: object = {};
@@ -671,7 +663,8 @@ XcalarLoad = function(
                 parserArgJson['schemaMode'] = schemaMode;
                 break;
             default:
-                return PromiseHelper.reject("Error Format");
+                console.error("Error Format");
+                return null;
         }
     }
 
@@ -699,24 +692,69 @@ XcalarLoad = function(
         console.log("Max sample size set to: ", maxSampleSize);
     }
 
+    return {
+        sourceArgsList: sourceArgsList,
+        parseArgs: parseArgs,
+        size: maxSampleSize
+    };
+};
+
+XcalarDatasetCreate = function(
+    datasetName: string,
+    options: XcalarLoadInputOptions
+) {
+    
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    const args = XcalarParseDSLoadArgs(options);
+    if (args == null) {
+        return PromiseHelper.reject({error: "Error Parse Args"});
+    }
+
+    xcalarDatasetCreate(tHandle, datasetName, args.sourceArgsList, args.parseArgs, args.size)
+    .then(function(ret) {
+        console.log("test create", ret)
+        deferred.resolve(ret);
+    })
+    .fail(function(error) {
+        const thriftError: ThriftError = thriftLog("XcalarDatasetCreate", error);
+       deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
+XcalarDatasetActivate = function(
+    datasetName: string,
+    txId: number
+): XDPromise<any> {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    if (Transaction.checkCanceled(txId)) {
+        return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
+    }
     let def: XDPromise<any>;
-    const workItem: WorkItem = xcalarLoadWorkItem(datasetName, sourceArgsList,
-                                      parseArgs, maxSampleSize);
+    const dsName: string = parseDS(datasetName);
+    const workItem: WorkItem = xcalarLoadWorkItem(dsName);
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
-        def = xcalarLoad(tHandle, datasetName, sourceArgsList,
-                            parseArgs, maxSampleSize);
+        def = xcalarLoad(tHandle, dsName);
     }
     const query: string = XcalarGetQuery(workItem);
-    Transaction.startSubQuery(txId, "Import Dataset",
-                              parseDS(datasetName), query);
+    Transaction.startSubQuery(txId, "Import Dataset", dsName, query);
     def
     .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, query, parseDS(datasetName), ret.timeElapsed);
+            Transaction.log(txId, query, dsName, ret.timeElapsed);
             deferred.resolve(ret);
         }
     })
@@ -734,6 +772,11 @@ XcalarLoad = function(
             // in intervals until the load is complete. Then do the ack/fail
             checkForDatasetLoad(deferred, query, datasetName, txId);
         } else {
+            if (thriftError.status === StatusT.StatusDatasetNameAlreadyExists) {
+                // retry release the load node
+                xcalarDeleteDagNodes(tHandle, dsName, SourceTypeT.SrcDataset);
+            }
+
             let loadError: string = null;
             if (thriftError.output && thriftError.output.errorString) {
                 // This has a valid error struct that we can use
@@ -832,41 +875,112 @@ XcalarLoad = function(
     }
 };
 
-// XXX TODO: update after dataset api update
-XcalarDatasetCreate = function(
-    datasetName: string,
-    options: XcalarLoadInputOptions,
+XcalarDatasetDeactivate = function(
+    datasetname: string,
     txId: number
-) {
-    return PromiseHelper.resolve();
+): XDPromise<void> {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    if (Transaction.checkCanceled(txId)) {
+        return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
+    }
+
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    const dsNameBeforeParse: string = datasetname;
+    const dsName: string = parseDS(datasetname);
+
+    releaseAllResultsets()
+    .then(function() {
+        return xcalarDeleteDagNodes(tHandle, dsName, SourceTypeT.SrcDataset);
+    })
+    .then(function() {
+        return xcalarDatasetUnload(tHandle, dsName);
+    })
+    .then(function() {
+        if (Transaction.checkCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        } else {
+            deferred.resolve();
+        }
+    })
+    .fail(function(error) {
+        const thriftError: ThriftError = thriftLog("XcalarDatasetDeactivate", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+
+    function releaseAllResultsets(): XDPromise<void> {
+        // always resolve to continue the deletion
+        const innerDeferred: XDDeferred<any> = PromiseHelper.deferred();
+
+        XcalarGetDatasetMeta(dsNameBeforeParse)
+        .then(function(res) {
+            if (res && res.resultSetIds) {
+                const resultSetIds: string[] = res.resultSetIds;
+                const promises: XDPromise<StatusT>[] = [];
+                for (let i = 0; i < resultSetIds.length; i++) {
+                    promises.push(XcalarSetFree(resultSetIds[i]));
+                }
+                return PromiseHelper.when.apply(this, promises);
+            }
+        })
+        .then(innerDeferred.resolve)
+        .fail(innerDeferred.resolve);
+
+        return innerDeferred.promise();
+    }
 };
 
-// XXX TODO: update after dataset api update
-XcalarDatasetDelete = function(datasetName: string, txId: number) {
-    // XXX This is a hack, XcalarDestroyDataset will be removed
-    return XcalarDestroyDataset(datasetName, txId);
+XcalarDatasetDelete = function(
+    datasetName: string,
+    txId: number
+): XDPromise<void> {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    if (Transaction.checkCanceled(txId)) {
+        return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
+    }
+
+    const deferred: XDDeferred<void> = PromiseHelper.deferred();
+    const dsName: string = parseDS(datasetName);
+
+    xcalarDatasetDelete(tHandle, dsName)
+    .then(function() {
+        if (Transaction.checkCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        } else {
+            deferred.resolve();
+        }
+    })
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarDatasetDelete", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
 }
 
-// XXX TODO: update after dataset api update
-XcalarDatasetLoad = function(
-    datasetName: string,
-    options: XcalarLoadInputOptions,
-    txId: number
-): XDPromise<any> {
-    // XXX This is a hack, lock dataset will be removed
-    return XcalarLoad(datasetName, options, txId);
-};
+XcalarDatasetGetLoadArgs = function(datasetNamePattern) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
 
-// XXX TODO: update after dataset api update
-XcalarDatasetUnload = function(datasetNamePattern: string, txId: number) {
-    // XXX This is a hack, unlock dataset will be removed
-    return XcalarUnlockDataset(datasetNamePattern, txId);
-};
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    xcalarDatasetGetMeta(tHandle, datasetNamePattern)
+    .then((res) => {
+        deferred.resolve(res.datasetMeta);
+    })
+    .fail(function(error) {
+        const thriftError: ThriftError = thriftLog("XcalarDatasetGetLoadArgs", error);
+        deferred.reject(thriftError);
+    });
 
-// XXX TODO: update after dataset api update
-// This api should return the loadArgs of the dataset
-XcalarDatasetGetMeta = function(datasetNamePattern) {
-    return PromiseHelper.resolve();
+    return deferred.promise();
 }
 
 
@@ -1081,129 +1195,6 @@ XcalarDriverList = function(): XDPromise<any> {
     });
 
     return deferred.promise();
-};
-
-XcalarLockDataset = function(dsName: string): XDPromise<any> {
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return PromiseHelper.resolve(null);
-    }
-
-    const deferred: XDDeferred<any> = PromiseHelper.deferred();
-    dsName = parseDS(dsName);
-    xcalarLockDataset(tHandle, dsName)
-    .then(deferred.resolve)
-    .fail(function(error) {
-        const thriftError = thriftLog("XcalarLockDataset", error);
-        deferred.reject(thriftError);
-    });
-
-    return deferred.promise();
-};
-
-XcalarUnlockDataset = function(
-    dsName: string,
-    txId: number
-): XDPromise<void> {
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return PromiseHelper.resolve(null);
-    }
-
-    dsName = parseDS(dsName);
-
-    const deferred: XDDeferred<void> = PromiseHelper.deferred();
-    const srcType = SourceTypeT.SrcDataset;
-    const workItem = xcalarDeleteDagNodesWorkItem(dsName, srcType);
-    let def;
-    if (txId != null && Transaction.isSimulate(txId)) {
-        def = fakeApiCall();
-    } else {
-        def = xcalarDeleteDagNodes(tHandle, dsName, srcType);
-    }
-
-    const query = XcalarGetQuery(workItem);
-    if (txId != null) {
-        Transaction.startSubQuery(txId, 'delete dataset', dsName + "drop", query);
-    }
-
-    def
-    .then(function(ret) {
-        // txId may be null if performing a
-        // deletion not triggered by the user (i.e. clean up)
-        if (txId != null) {
-            Transaction.log(txId, query, dsName + "drop", ret.timeElapsed);
-        }
-        deferred.resolve();
-    })
-    .fail(function(error) {
-        const thriftError = thriftLog("XcalarUnlockDataset", error);
-        if (thriftError.status === StatusT.StatusDagNodeNotFound) {
-            // this error is allowed
-            deferred.resolve();
-        } else {
-            deferred.reject(thriftError);
-        }
-    });
-
-    return deferred.promise();
-};
-
-XcalarDestroyDataset = function(
-    dsName: string,
-    txId: number
-): XDPromise<void> {
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return PromiseHelper.resolve(null);
-    }
-
-    if (Transaction.checkCanceled(txId)) {
-        return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
-    }
-
-    const deferred: XDDeferred<void> = PromiseHelper.deferred();
-    const dsNameBeforeParse: string = dsName;
-    dsName = parseDS(dsName);
-
-    releaseAllResultsets()
-    .then(function() {
-        return XcalarUnlockDataset(dsNameBeforeParse, txId);
-    })
-    .then(function() {
-        return xcalarApiDeleteDatasets(tHandle, dsName);
-    })
-    .then(function() {
-        if (Transaction.checkCanceled(txId)) {
-            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
-        } else {
-            deferred.resolve();
-        }
-    })
-    .fail(function(error) {
-        const thriftError = thriftLog("XcalarDestroyDataset", error);
-        deferred.reject(thriftError);
-    });
-
-    return deferred.promise();
-
-    function releaseAllResultsets(): XDPromise<void> {
-        // always resolve to continue the deletion
-        const innerDeferred: XDDeferred<any> = PromiseHelper.deferred();
-
-        XcalarGetDatasetMeta(dsNameBeforeParse)
-        .then(function(res) {
-            if (res && res.resultSetIds) {
-                const resultSetIds: string[] = res.resultSetIds;
-                const promises: XDPromise<StatusT>[] = [];
-                for (let i = 0; i < resultSetIds.length; i++) {
-                    promises.push(XcalarSetFree(resultSetIds[i]));
-                }
-                return PromiseHelper.when.apply(this, promises);
-            }
-        })
-        .then(innerDeferred.resolve)
-        .fail(innerDeferred.resolve);
-
-        return innerDeferred.promise();
-    }
 };
 
 XcalarIndexFromDataset = function(
@@ -1860,15 +1851,6 @@ XcalarGetDatasetUsers = function(
     });
 
     return (deferred.promise());
-};
-
-XcalarGetUserDatasets = function(
-    userName: string
-): XDPromise<XcalarApiListUserDatasetsOutputT> {
-    if (tHandle == null) {
-        return PromiseHelper.reject();
-    }
-    return xcalarListUserDatasets(tHandle, userName);
 };
 
 XcalarGetDatasetsInfo = function(

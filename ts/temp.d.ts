@@ -458,12 +458,12 @@ declare var XcalarGetLicense: any;
 declare var XcalarGetNodeName: any;
 declare var XcalarUpdateLicense: any;
 declare var XcalarPreview: any;
-declare var XcalarLoad: any;
+declare var XcalarParseDSLoadArgs: any;
 declare var XcalarDatasetCreate: any;
 declare var XcalarDatasetDelete: any;
-declare var XcalarDatasetLoad: any;
-declare var XcalarDatasetUnload: any;
-declare var XcalarDatasetGetMeta: any;
+declare var XcalarDatasetActivate: any;
+declare var XcalarDatasetDeactivate: any;
+declare var XcalarDatasetGetLoadArgs: any;
 declare var XcalarAddLocalFSExportTarget: any;
 declare var XcalarAddUDFExportTarget: any;
 declare var XcalarRemoveExportTarget: any;
@@ -472,9 +472,6 @@ declare var XcalarExport: any;
 declare var XcalarDriverCreate: any;
 declare var XcalarDriverDelete: any;
 declare var XcalarDriverList: any;
-declare var XcalarLockDataset: any;
-declare var XcalarUnlockDataset: any;
-declare var XcalarDestroyDataset: any;
 declare var XcalarIndexFromDataset: any;
 declare var XcalarIndexFromTable: any;
 declare var XcalarDeleteTable: any;
@@ -489,7 +486,6 @@ declare var XcalarGetTableMeta: any;
 declare var XcalarGetTableCount: any;
 declare var XcalarGetDatasets: any;
 declare var XcalarGetDatasetUsers: any;
-declare var XcalarGetUserDatasets: any;
 declare var XcalarGetDatasetsInfo: any;
 declare var XcalarGetConstants: any;
 declare var XcalarGetTables: any;
@@ -638,7 +634,8 @@ declare enum StatusT {
     StatusQrQueryAlreadyExists,
     StatusInvalidResultSetId,
     StatusNoBufs,
-    StatusUdfModuleNotFound
+    StatusUdfModuleNotFound,
+    StatusDatasetNameAlreadyExists
 }
 
 declare enum FunctionCategoryT {

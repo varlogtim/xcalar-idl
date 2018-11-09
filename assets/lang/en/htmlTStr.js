@@ -681,7 +681,7 @@ module.exports = {
         "RetryPoint": "Please try to import data with different parameters.",
         "TableInstr": "To start using the dataset, please go to the Dataflow Panel, and start from a dataset node.",
         "DSInfo": "Dataset Information",
-        "UsedBy": "Locked By",
+        "UsedBy": "Used By",
         "RowErrorTip": "Your dataset has errors. Click to view."
     },
 

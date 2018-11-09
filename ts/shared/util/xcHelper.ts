@@ -251,16 +251,27 @@ namespace xcHelper {
      * @param datasets
      */
     export function parseListDSOutput(datasets: any[]) {
-        const prefixIndex: number = gDSPrefix.length;
         let validDatasets: any[] = [];
 
         datasets.forEach((dataset) => {
             if (!dataset.name.startsWith(".XcalarLRQ.")) {
-                dataset.name = dataset.name.substring(prefixIndex);
+                dataset.name = xcHelper.stripPrefixFromDSName(dataset.name);
                 validDatasets.push(dataset);
             }
         });
         return validDatasets;
+    }
+
+    /**
+     * xcHelper.stripPrefixFromDSName
+     * @param dsName
+     */
+    export function stripPrefixFromDSName(dsName: string): string {
+        const index: number = dsName.indexOf(gDSPrefix);
+        if (index >= 0) {
+            dsName = dsName.substring(index + gDSPrefix.length);
+        }
+        return dsName;
     }
 
     /**

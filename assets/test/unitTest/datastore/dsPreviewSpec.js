@@ -1064,8 +1064,8 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("should clear the table", function(done) {
-            var oldDestory = XcalarDestroyDataset;
-            XcalarDestroyDataset = function() {
+            var oldDestory = XIApi.deleteDataset;
+            XIApi.deleteDataset = function() {
                 return PromiseHelper.resolve();
             };
             var tName = DSPreview.__testOnly__.get().tableName;
@@ -1078,7 +1078,7 @@ describe("Dataset-DSPreview Test", function() {
                 done("fail");
             })
             .always(function() {
-                XcalarDestroyDataset = oldDestory;
+                XIApi.deleteDataset = oldDestory;
             });
         });
 

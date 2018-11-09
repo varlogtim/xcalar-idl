@@ -1171,14 +1171,10 @@ describe("Dataset-DSObj Test", function() {
         });
 
         it("should click .activate to activate ds", function() {
-            var oldGetMeta = XcalarDatasetGetMeta;
-            var oldLoad = XIApi.loadDataset;
+            var oldFunc = XcalarDatasetActivate;
             var test = false;
-            XIApi.loadDataset = function() {
+            XcalarDatasetActivate = function() {
                 test = true;
-                return PromiseHelper.resolve();
-            };
-            XcalarDatasetGetMeta = function() {
                 return PromiseHelper.resolve();
             };
             var $li = $gridMenu.find(".activate");
@@ -1195,8 +1191,7 @@ describe("Dataset-DSObj Test", function() {
             });
             expect(test).to.be.true;
 
-            XIApi.loadDataset = oldLoad;
-            XcalarDatasetGetMeta = oldGetMeta;
+            XcalarDatasetActivate = oldFunc;
         });
 
         it("should click to multi deactivate ds", function() {
@@ -1227,14 +1222,10 @@ describe("Dataset-DSObj Test", function() {
 
         it("should click to multi activate ds", function() {
             $ds.addClass("selected");
-            var oldGetMeta = XcalarDatasetGetMeta;
-            var oldLoad = XIApi.loadDataset;
+            var oldFunc = XcalarDatasetActivate;
             var test = false;
-            XIApi.loadDataset = function() {
+            XXcalarDatasetActivate = function() {
                 test = true;
-                return PromiseHelper.resolve();
-            };
-            XcalarDatasetGetMeta = function() {
                 return PromiseHelper.resolve();
             };
             var $li = $gridMenu.find(".multiActivate");
@@ -1251,8 +1242,7 @@ describe("Dataset-DSObj Test", function() {
             });
             expect(test).to.be.true;
 
-            XIApi.loadDataset = oldLoad;
-            XcalarDatasetGetMeta = oldGetMeta;
+            XcalarDatasetActivate = oldFunc;
             $ds.removeClass("selected");
         });
 
@@ -1485,7 +1475,6 @@ describe("Dataset-DSObj Test", function() {
         var oldCommit;
         var oldLoad;
         var oldUnload;
-        var oldGetMeta;
 
         before(function() {
             activateDS = DS.__testOnly__.activateDS;
@@ -1493,7 +1482,6 @@ describe("Dataset-DSObj Test", function() {
             oldCommit = UserSettings.commit;
             oldLoad = XIApi.loadDataset;
             oldUnload = XcalarDatasetUnload;
-            oldGetMeta = XcalarDatasetGetMeta;
 
             UserSettings.commit = function() { return PromiseHelper.resolve(); };
         });
@@ -1561,7 +1549,6 @@ describe("Dataset-DSObj Test", function() {
 
             XIApi.loadDataset = oldLoad;
             XcalarDatasetUnload = oldUnload;
-            XcalarDatasetGetMeta = oldGetMeta;
         });
     });
 
@@ -1656,8 +1643,8 @@ describe("Dataset-DSObj Test", function() {
         });
 
         it("should handle delete error", function(done) {
-            var oldFunc = XcalarDestroyDataset;
-            XcalarDestroyDataset = function() {
+            var oldFunc = XcalarDatasetDelete;
+            XcalarDatasetDelete = function() {
                 return PromiseHelper.reject({"error": "test"});
             };
 
@@ -1675,7 +1662,7 @@ describe("Dataset-DSObj Test", function() {
                 done("fail");
             })
             .always(function() {
-                XcalarDestroyDataset = oldFunc;
+                XcalarDatasetDelete = oldFunc;
             });
         });
 

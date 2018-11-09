@@ -2619,7 +2619,7 @@ window.DSPreview = (function($, DSPreview) {
                 "track": true
             });
 
-            XcalarDestroyDataset(dsName, txId)
+            XIApi.deleteDataset(txId, dsName)
             .then(function() {
                 Transaction.done(txId, {
                     "noCommit": true,

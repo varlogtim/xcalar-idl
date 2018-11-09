@@ -1980,6 +1980,9 @@
 
             getPathWithPattern: function() {
                 var firstSource = this.sources[0];
+                if (firstSource == null) {
+                    return "";
+                }
                 var path = firstSource.path;
                 if (firstSource.fileNamePattern) {
                     path += " | " + DSFormTStr.Pattern + ": " +
@@ -1989,6 +1992,9 @@
             },
 
             getTargetName: function() {
+                if (this.sources[0] == null) {
+                    return "";
+                }
                 return this.sources[0].targetName;
             },
 
@@ -2396,7 +2402,7 @@
 
             // used if advancedArgs property is missing
             addAdvancedArgs: function() {
-                // XXX TODO: use XcalarDatasetGetMeta
+                // XXX TODO: use XcalarDatasetGetLoadArgs
                 var self = this;
                 var deferred = PromiseHelper.deferred();
                 XcalarGetDag(gDSPrefix + self.fullName)

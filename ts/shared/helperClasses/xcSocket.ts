@@ -25,7 +25,6 @@ class XcSocket {
      */
     public setup(): void {
         this._initDeferred = PromiseHelper.deferred();
-
         const url: string = this._getExpServerUrl(hostname);
         this._socket = io.connect(url, {
             "reconnectionAttempts": 10

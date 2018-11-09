@@ -240,6 +240,9 @@ window.DS = (function ($, DS) {
         } else if ($grid.hasClass("unlistable")) {
             DSTable.showError(dsId, ErrTStr.MakrForDel, true);
             return PromiseHelper.resolve();
+        } else if ($grid.hasClass("inActivated")) {
+            DSTable.showError(dsId, ErrTStr.InactivateDS, false, true);
+            return PromiseHelper.resolve();
         }
 
         var isLoading;
@@ -905,7 +908,7 @@ window.DS = (function ($, DS) {
     function createDSHelper(txId, dsObj) {
         var datasetName = dsObj.getFullName();
         var options = dsObj.getImportOptions();
-        return XcalarDatasetCreate(datasetName, options, txId);
+        return XIApi.loadDataset(txId, datasetName, options);
     }
 
     function importHelper(dsObj, sql) {
@@ -943,9 +946,7 @@ window.DS = (function ($, DS) {
             return createDSHelper(txId, dsObj);
         })
         .then(function() {
-            return activateHelper(txId, dsObj);
-        })
-        .then(function() {
+            activateDSObj(dsObj);
             return getDSBasicInfo(datasetName);
         })
         .then(function(dsInfos) {
@@ -1072,15 +1073,8 @@ window.DS = (function ($, DS) {
             "steps": 1
         });
 
-        checkDSUse(dsName)
+        destroyDataset(dsName, txId)
         .then(function() {
-            return destroyDataset(dsName, txId);
-        })
-        .then(function() {
-            // clear data table
-            if (isShowDSTable) {
-                DSTable.clear();
-            }
             // remove ds obj
             removeDS(dsId);
             if (!noDeFocus) {
@@ -1323,7 +1317,7 @@ window.DS = (function ($, DS) {
     function destroyDataset(dsName, txId) {
         var deferred = PromiseHelper.deferred();
 
-        XcalarDestroyDataset(dsName, txId)
+        XcalarDatasetDelete(dsName, txId)
         .then(deferred.resolve)
         .fail(function(error) {
             if (error.status === StatusT.StatusNsNotFound ||
@@ -1539,7 +1533,6 @@ window.DS = (function ($, DS) {
     function restoreDS(oldHomeFolder, atStartUp) {
         var deferred = PromiseHelper.deferred();
         var datasets;
-        var lockMeta;
         var dsBasicInfo;
 
         DS.clear();
@@ -1551,19 +1544,13 @@ window.DS = (function ($, DS) {
         })
         .then(function(res) {
             dsBasicInfo = res;
-            // XXX TODO: remove lock meta
-            return getDSLockMeta();
-        })
-        .then(function(res) {
-            lockMeta = res;
             var key = KVStore.getKey("gSharedDSKey");
             var sharedDSKV = new KVStore(key, gKVScope.GLOB);
             return sharedDSKV.getInfo(true);
         })
         .then(function(res) {
             var oldSharedDSInfo = res;
-            var datasetsSet = getDSBackendMeta(datasets, lockMeta,
-                                                dsBasicInfo, atStartUp);
+            var datasetsSet = getDSBackendMeta(datasets, dsBasicInfo, atStartUp);
             // XXX 1.4 must upgrade from 1.3.1, so this code is deprecated
             // and it will bring issues if a new clean user upload
             // if (atStartUp && oldSharedDSInfo == null) {
@@ -1613,34 +1600,7 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    // XXX TODO: remove it
-    function getDSLockMeta() {
-        var deferred = PromiseHelper.deferred();
-        var userName = getCurrentUserName();
-        XcalarGetUserDatasets(userName)
-        .then(function(res) {
-            try {
-                var lockMeta = {};
-                res.datasets.forEach(function(dsInfo) {
-                    if (dsInfo.datasetName.startsWith(gDSPrefix)) {
-                        var name = dsInfo.datasetName.substring(gDSPrefix.length);
-                        lockMeta[name] = dsInfo.isLocked;
-                    }
-                });
-                deferred.resolve(lockMeta);
-            } catch (e) {
-                console.error(e);
-                deferred.resolve({}); // still resolve
-            }
-        })
-        .fail(function(error) {
-            console.error(error);
-            deferred.resolve({}); // still resolve
-        });
-        return deferred.promise();
-    }
-
-    function getDSBackendMeta(datasets, lockMeta, basicDSInfo, atStartUp) {
+    function getDSBackendMeta(datasets, basicDSInfo, atStartUp) {
         var numDatasets = datasets.numDatasets;
         var userPrefix = xcHelper.getUserPrefix();
         var datasetsSet = {};
@@ -1672,7 +1632,7 @@ window.DS = (function ($, DS) {
                     "steps": 1
                 });
 
-                destroyDataset(dsName, txId)
+                XIApi.deleteDataset(txId, dsName, true)
                 .then(function() {
                     Transaction.done(txId, {
                         "noCommit": true,
@@ -1689,9 +1649,12 @@ window.DS = (function ($, DS) {
                 continue;
             }
 
-            if (lockMeta.hasOwnProperty(dsName)) {
-                dataset.activated = lockMeta[dsName];
+            if (!dataset.isListable) {
+                // skip unlistable ds
+                continue;
             }
+
+            dataset.activated = dataset.loadIsComplete;
 
             if (basicDSInfo.hasOwnProperty(dsName)) {
                 dataset.size = basicDSInfo[dsName].size;
@@ -2780,6 +2743,12 @@ window.DS = (function ($, DS) {
         });
         activateHelper(txId, dsObj)
         .then(function() {
+            const $grid = DS.getGrid(dsId);
+            if ($grid.hasClass("active")) {
+                // re-focus on the dataset
+                $grid.removeClass("active");
+                DS.focusOn($grid);
+            }
             datasets.push(dsId);
             Transaction.done(txId, {});
             deferred.resolve();
@@ -2801,16 +2770,11 @@ window.DS = (function ($, DS) {
 
     function activateHelper(txId, dsObj) {
         var deferred = PromiseHelper.deferred();
-        // XXX TODO: update it with new api signature
         var datasetName = dsObj.getFullName();
 
-        getLoadArgsFromDS(dsObj)
-        .then(function(loadArgs) {
-            return XIApi.loadDataset(txId, datasetName, loadArgs);
-        })
+        XcalarDatasetActivate(datasetName, txId)
         .then(function() {
-            dsObj.activate();
-            DS.getGrid(dsObj.getId()).removeClass("inActivated");
+            activateDSObj(dsObj);
             deferred.resolve();
         })
         .fail(function(error) {
@@ -2823,14 +2787,17 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
+    function activateDSObj(dsObj) {
+        dsObj.activate();
+        DS.getGrid(dsObj.getId()).removeClass("inActivated");
+    }
+
     function getLoadArgsFromDS(dsObj) {
         var deferred = PromiseHelper.deferred();
         var datasetName = dsObj.getFullName();
-        var options = dsObj.getImportOptions();
-        XcalarDatasetGetMeta(datasetName)
+        XcalarDatasetGetLoadArgs(datasetName)
         .then(function(loadArgs) {
-            // XXX TODO: update it with new api signature
-            deferred.resolve(options);
+            deferred.resolve(loadArgs);
         })
         .fail(deferred.reject);
 
@@ -2886,21 +2853,32 @@ window.DS = (function ($, DS) {
             return PromiseHelper.resolve();
         }
 
+        var isShowDSTable = (DSTable.getId() === dsId ||
+                            $("#dsTableContainer").data("id") === dsId);
         DS.getGrid(dsId).find(".deactivatingIcon").removeClass("xc-hidden");
         var fullDSName = dsObj.getFullName();
-        XcalarDatasetUnload(fullDSName)
+
+        checkDSUse(fullDSName)
         .then(function() {
-            DS.getGrid(dsId).find(".deactivatingIcon").addClass("xc-hidden");
+            return XcalarDatasetDeactivate(fullDSName);
+        })
+        .then(function() {
+            var $grid = DS.getGrid(dsId);
             dsObj.deactivate();
-            DS.getGrid(dsId).addClass("inActivated");
+            $grid.addClass("inActivated");
             datasets.push(dsId);
+            // clear data table
+            if (isShowDSTable) {
+                $grid.removeClass("active");
+                DS.focusOn($grid); // re-focus on the ds
+            }
             deferred.resolve();
         })
         .fail(function(error) {
             // XXX TODO: use the correct status
-            // if (error.status === StatusT.StatusDsDatasetInUse) {
-            //     dsInUse.push(dsId);
-            // }
+            if (error.status === StatusT.StatusDsDatasetInUse) {
+                dsInUse.push(dsId);
+            }
             var errorMsg = xcHelper.replaceMsg(DSTStr.FailDeactivateDS, {
                 "ds": dsObj.getName(),
                 "error": error.error
@@ -2908,6 +2886,10 @@ window.DS = (function ($, DS) {
             failures.push(errorMsg);
             // still resolve it
             deferred.resolve();
+        })
+        .always(function() {
+            var $grid = DS.getGrid(dsId);
+            $grid.find(".deactivatingIcon").addClass("xc-hidden");
         });
 
         return deferred.promise();

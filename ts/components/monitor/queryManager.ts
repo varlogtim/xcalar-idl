@@ -1985,8 +1985,8 @@ namespace QueryManager {
     }
 
     function deleteDatasetHelper(dsName: string): void {
-        dsName = dsName.slice(gDSPrefix.length);
-        XcalarDestroyDataset(dsName, null);
+        dsName = xcHelper.stripPrefixFromDSName(dsName);
+        XIApi.deleteDataset(null, dsName, true);
     }
 
     function clearIntervalHelper(id: number): void {

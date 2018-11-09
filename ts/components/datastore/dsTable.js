@@ -21,7 +21,7 @@ window.DSTable = (function($, DSTable) {
         setupSampleTable();
     };
 
-    DSTable.showError = function(dsId, error, isFetchError) {
+    DSTable.showError = function(dsId, error, isFetchError, noRetry) {
         var dsObj = DS.getDSObj(dsId);
         if (dsObj == null) {
             // error case
@@ -29,7 +29,7 @@ window.DSTable = (function($, DSTable) {
         }
         showTableView(dsId);
         updateTableInfoDisplay(dsObj);
-        setupViewAfterError(error, isFetchError);
+        setupViewAfterError(error, isFetchError, noRetry);
     };
 
     DSTable.show = function(dsId, isLoading) {
