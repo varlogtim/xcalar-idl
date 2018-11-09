@@ -14,7 +14,7 @@ if (global.grafana) { // gets set in nwjs entrypoint, starter.js
     installGrafana = true;
     numInstallSteps++;
 }
-var MIN_RAM = 6;
+var MIN_RAM = 8; // GB
 var MIN_CORES = 2;
 
 var $installerProgressBar;
