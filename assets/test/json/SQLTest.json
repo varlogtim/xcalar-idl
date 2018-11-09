@@ -98,7 +98,8 @@
                         "dateTime2": "select year(cast(R_REGIONKEY as timestamp)) a, month(cast(R_REGIONKEY as timestamp)) b, quarter(cast(R_REGIONKEY as timestamp)) c, dayofmonth(cast(R_REGIONKEY as timestamp)) d, weekofyear(cast(R_REGIONKEY as timestamp)) e, dayofweek(cast(R_REGIONKEY as timestamp)) f, dayofyear(cast(R_REGIONKEY as timestamp)) g, hour(cast(R_REGIONKEY as timestamp)) h, minute(cast(R_REGIONKEY as timestamp)) i, second(cast(R_REGIONKEY as timestamp)) j from REGION order by r_regionkey",
                         "dateTime3": "select from_unixtime(R_REGIONKEY,'yyyy-MM-dd HH:mm:ss') a, to_date('2009-07-30 04:17:52', 'yyyy-MM-dd') b, to_timestamp(cast(R_REGIONKEY as timestamp)) c, trunc(cast(R_REGIONKEY as timestamp), 'YeAr') d, date_trunc('week', cast(R_REGIONKEY as timestamp)) e from REGION order by r_regionkey",
                         "nullCol": "SELECT null a, string(null) b, cast(null as double) c, cast(cast(null as string) as int) d from REGION ORDER BY R_REGIONKEY",
-                        "xdfs": "select xdf_len(R_NAME) a, xdf_abs(R_REGIONKEY) b, xdf_substring(R_COMMENT, 0, cast(R_REGIONKEY as int)) c from region order by R_REGIONKEY"
+                        "xdfs": "select xdf_len(R_NAME) a, xdf_abs(R_REGIONKEY) b, xdf_substring(R_COMMENT, 0, cast(R_REGIONKEY as int)) c from region order by R_REGIONKEY",
+                        "orEqJoin": "select n_nationkey, n_name, n_regionkey, r_regionkey, r_name from nation join region on  (n_nationkey=r_regionkey and n_regionkey = R_REGIONKEY or n_regionkey=r_regionkey+4) and r_regionkey >= 0 order by N_NATIONKEY, R_REGIONKEY"
                 },
                 "answers": {
                         "onlyLRDD": {"numOfRows": "5",
@@ -350,7 +351,10 @@
                                     "numOfRows": "5"},
                         "xdfs": {"row1": [7, 1, "h"],
                                  "row4": [11, 4, "uick"],
-                                 "sparkOpts": {"enable": false}}
+                                 "sparkOpts": {"enable": false}},
+                        "orEqJoin": {"row3": [4, "EGYPT", 4, 4, "MIDDLE EAST"],
+                                     "row6": [13, "JORDAN", 4, 0, "AFRICA"],
+                                     "numOfRows": "8"}
                 },
                 "tables": {
                         "dataSource": "/netstore/datasets/tpch_sf1_notrail/",

@@ -2624,6 +2624,75 @@
                 }
             }
 
+            function isAndEqJoin(treeNode, eqTrees) {
+                if (treeNode.value.class ===
+                    "org.apache.spark.sql.catalyst.expressions.EqualTo"
+                    || treeNode.value.class ===
+                    "org.apache.spark.sql.catalyst.expressions.EqualNullSafe") {
+                    eqTrees.push(treeNode);
+                    return true;
+                } else if (treeNode.value.class !==
+                            "org.apache.spark.sql.catalyst.expressions.And") {
+                    return false;
+                }
+                for (var i = 0; i < treeNode.value["num-children"]; i++) {
+                    var childNode = treeNode.children[i];
+                    if (childNode.value.class ===
+                            "org.apache.spark.sql.catalyst.expressions.EqualTo"
+                    || childNode.value.class ===
+                    "org.apache.spark.sql.catalyst.expressions.EqualNullSafe") {
+                        eqTrees.push(childNode);
+                        continue;
+                    } else if (childNode.value.class ===
+                            "org.apache.spark.sql.catalyst.expressions.And") {
+                        if (isAndEqJoin(childNode, eqTrees)) {
+                            continue;
+                        } else {
+                            return false;
+                        }
+                    } else {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            function isOrEqJoin(treeNode, eqTreesByBranch) {
+                if (treeNode.value.class !==
+                        "org.apache.spark.sql.catalyst.expressions.Or") {
+                    return false;
+                }
+                for (var i = 0; i < treeNode.value["num-children"]; i++) {
+                    var childNode = treeNode.children[i];
+                    if (childNode.value.class ===
+                            "org.apache.spark.sql.catalyst.expressions.EqualTo"
+                    || childNode.value.class ===
+                    "org.apache.spark.sql.catalyst.expressions.EqualNullSafe") {
+                        eqTreesByBranch.push([childNode]);
+                        continue;
+                    } else if (childNode.value.class ===
+                            "org.apache.spark.sql.catalyst.expressions.And") {
+                        var eqTrees = [];
+                        if (isAndEqJoin(childNode, eqTrees)) {
+                            eqTreesByBranch.push(eqTrees);
+                            continue;
+                        } else {
+                            return false;
+                        }
+                    } else if (childNode.value.class ===
+                            "org.apache.spark.sql.catalyst.expressions.Or") {
+                        if (isOrEqJoin(childNode, eqTreesByBranch)) {
+                            continue;
+                        } else {
+                            return false;
+                        }
+                    } else {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
 
             // Special case for Anti Semi Joins
             // Check if root node is OR
@@ -2765,7 +2834,25 @@
                 }
             }
 
-            if (optimize) {
+            var eqTreesByBranch = [];
+            var mapStructList = [];
+            var orEqJoinOpt = false;
+            if (node.value.joinType.object ===
+                    "org.apache.spark.sql.catalyst.plans.Inner$"
+                    && condTree && isOrEqJoin(condTree, eqTreesByBranch)) {
+                console.log("orEqJoin!");
+                console.log(eqTreesByBranch);
+                retStruct.filterSubtrees = retStruct.filterSubtrees || [];
+                orEqJoinOpt = true;
+                for (var i = 0; i < eqTreesByBranch.length; i++) {
+                    var mapStruct = __getJoinMapArrays(node, eqTreesByBranch[i]);
+                    if (mapStruct.catchAll) {
+                        orEqJoinOpt = false;
+                        break;
+                    }
+                    mapStructList.push(mapStruct);
+                }
+            } else if (optimize) {
                 var mapStruct = __getJoinMapArrays(node, eqSubtrees);
                 for (var prop in mapStruct) {
                     retStruct[prop] = mapStruct[prop];
@@ -2785,7 +2872,74 @@
 
             // Start of flow. All branching decisions has been made
             var outerType = isOuterJoin(node);
-            if (optimize) {
+            if (orEqJoinOpt) {
+                var unionTableNames = [];
+                var leftRNTableName;
+                var rightRNTableName;
+                promise = promise.then(__generateRowNumber.bind(sqlObj,
+                                            retStruct, node, "full"))
+                                .then(function() {
+                                    leftRNTableName = retStruct.leftTableName;
+                                    rightRNTableName = retStruct.rightTableName;
+                                });
+                for (var i = 0; i < mapStructList.length; i++) {
+                    promise = promise.then(function() {
+                        var innerDeferred = PromiseHelper.deferred();
+                        var mapStruct = mapStructList.shift();
+                        var innerPromise = PromiseHelper.resolve();
+                        for (var prop in mapStruct) {
+                            retStruct[prop] = mapStruct[prop];
+                        }
+                        retStruct.leftTableName = leftRNTableName;
+                        retStruct.rightTableName = rightRNTableName;
+                        innerPromise = innerPromise.then(__handleAndEqJoin
+                                                .bind(sqlObj, retStruct, node));
+                        if (retStruct.filterSubtrees.length > 0) {
+                            innerPromise = innerPromise.then(__filterJoinedTable
+                                                .bind(sqlObj, retStruct, node,
+                                                retStruct.filterSubtrees));
+                        }
+                        innerPromise
+                        .then(innerDeferred.resolve)
+                        .fail(innerDeferred.reject);
+                        return innerDeferred.promise();
+                    })
+                    .then(function() {
+                        unionTableNames.push(retStruct.newTableName);
+                    })
+                    .fail(deferred.reject);
+                }
+                promise = promise.then(function() {
+                    node.usrCols = jQuery.extend(true, [], node.children[0].usrCols
+                                            .concat(node.children[1].usrCols));
+                    node.xcCols = [{colName: retStruct.leftRowNumCol, colType: "int"},
+                                   {colName: retStruct.rightRowNumCol, colType: "int"}];
+                    node.sparkCols = [];
+                    var unionCols = node.usrCols.concat(node.xcCols);
+                    var tableInfos = [];
+                    var columns = [];
+                    for (var j = 0; j < unionCols.length; j++) {
+                        columns.push({
+                            name: __getCurrentName(unionCols[j]),
+                            rename: __getCurrentName(unionCols[j]),
+                            type: "DfUnknown", // backend will figure this out. :)
+                            cast: false // Should already be casted by spark
+                        });
+                    }
+                    for (var i = 0; i < unionTableNames.length; i++) {
+                        tableInfos.push({
+                            tableName: unionTableNames[i],
+                            columns: columns
+                        });
+                    }
+                    return self.sqlObj.union(tableInfos, true)
+                    .then(function(ret) {
+                        retStruct.newTableName = ret.newTableName;
+                        retStruct.cli += ret.cli;
+                    })
+                    .fail(deferred.reject);
+                })
+            } else if (optimize) {
                 var overwriteJoinType;
                 if (filterSubtrees.length > 0 &&
                     (isSemiOrAntiJoin(node) || outerType)) {
@@ -2879,39 +3033,41 @@
             promise.fail(deferred.reject);
 
             promise.then(function() {
-                node.usrCols = jQuery.extend(true, [],
-                                             node.children[0].usrCols);
-                if (hasEmptyProject) {
-                    node.xcCols = [];
-                    node.sparkCols = [];
-                } else {
-                    node.xcCols = jQuery.extend(true, [], node.xcCols
-                                                .concat(node.children[0].xcCols));
-                    node.sparkCols = jQuery.extend(true, [],
-                                                node.children[0].sparkCols);
-                    if (!isSemiOrAntiJoin(node) && !isExistenceJoin(node)) {
-                        // Existence = LeftSemi join with right table then LeftOuter
-                        // join back with left table
-                        node.usrCols = node.usrCols
-                            .concat(jQuery.extend(true, [],
-                                                node.children[1].usrCols));
-                        node.xcCols = node.xcCols
-                            .concat(jQuery.extend(true, [],
-                                                node.children[1].xcCols));
-                        node.sparkCols = node.sparkCols
-                            .concat(jQuery.extend(true, [],
-                                                node.children[1].sparkCols));
+                if (!orEqJoinOpt) {
+                    node.usrCols = jQuery.extend(true, [],
+                                                node.children[0].usrCols);
+                    if (hasEmptyProject) {
+                        node.xcCols = [];
+                        node.sparkCols = [];
                     } else {
-                        node.xcCols = node.xcCols
-                            .concat(jQuery.extend(true, [],
+                        node.xcCols = jQuery.extend(true, [], node.xcCols
+                                                .concat(node.children[0].xcCols));
+                        node.sparkCols = jQuery.extend(true, [],
+                                                    node.children[0].sparkCols);
+                        if (!isSemiOrAntiJoin(node) && !isExistenceJoin(node)) {
+                            // Existence = LeftSemi join with right table then LeftOuter
+                            // join back with left table
+                            node.usrCols = node.usrCols
+                                .concat(jQuery.extend(true, [],
+                                                    node.children[1].usrCols));
+                            node.xcCols = node.xcCols
+                                .concat(jQuery.extend(true, [],
+                                                    node.children[1].xcCols));
+                            node.sparkCols = node.sparkCols
+                                .concat(jQuery.extend(true, [],
+                                                    node.children[1].sparkCols));
+                        } else {
+                            node.xcCols = node.xcCols
+                                .concat(jQuery.extend(true, [],
                                                 node.children[1].usrCols
                                                 .concat(node.children[1].xcCols)));
-                        // XXX Think about sparkcols
-                        if (isExistenceJoin(node)) {
-                            // If it's ExistenceJoin, don't forget existenceCol
-                            node.sparkCols.push(retStruct.existenceCol);
-                            node.renamedCols[retStruct.existenceCol.colId] =
+                            // XXX Think about sparkcols
+                            if (isExistenceJoin(node)) {
+                                // If it's ExistenceJoin, don't forget existenceCol
+                                node.sparkCols.push(retStruct.existenceCol);
+                                node.renamedCols[retStruct.existenceCol.colId] =
                                                     retStruct.existenceCol.rename;
+                            }
                         }
                     }
                 }
@@ -4691,7 +4847,8 @@
                         }
                         delete item.colId;
                     });
-                    newIndexColName = __getCurrentName(indexColStruct) + "_right";
+                    newIndexColName = __getCurrentName(indexColStruct) + "_right"
+                                        + Authentication.getHashId().substring(1);
                     newIndexColStruct = {colName: newIndexColName, colType: "int"};
                     windowStruct.rightColInfo
                                     .push(newIndexColStruct);
