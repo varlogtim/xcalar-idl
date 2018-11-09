@@ -230,13 +230,11 @@ class JoinOpPanelStep1 {
                 right: rightTableName
             } = this._modelRef.getPreviewTableNames();
             // left column dropdown
-            const leftCols = isLeftDetached ? [] : leftColsToShow;
-            const leftTypes = isLeftDetached ? [] : leftTypesToShow;
             this._createColumnDropdown({
                 container: $clauseSection,
                 dropdownId: 'leftColDropdown',
-                colNames: leftCols,
-                colTypes: leftTypes,
+                colNames: leftColsToShow,
+                colTypes: leftTypesToShow,
                 colSelected: leftName,
                 pairIndex: i,
                 isLeft: true,
@@ -247,13 +245,11 @@ class JoinOpPanelStep1 {
                 }
             });
             // right column dropdown
-            const rightCols = isRightDetached ? [] : rightColsToShow;
-            const rightTypes = isRightDetached ? [] : rightTypesToShow;
             this._createColumnDropdown({
                 container: $clauseSection,
                 dropdownId: 'rightColDropdown',
-                colNames: rightCols,
-                colTypes: rightTypes,
+                colNames: rightColsToShow,
+                colTypes: rightTypesToShow,
                 colSelected: rightName,
                 pairIndex: i,
                 isLeft: false,

@@ -199,9 +199,13 @@ class JoinOpPanelModel {
                     continue;
                 }
                 if (rename.prefix) {
-                    renamePrefixMapLeft[rename.sourceColumn] = rename.destColumn;
+                    if (leftPrefixLookupMap.has(rename.sourceColumn)) {
+                        renamePrefixMapLeft[rename.sourceColumn] = rename.destColumn;
+                    }
                 } else {
-                    renameColMapLeft[rename.sourceColumn] = rename.destColumn;
+                    if (leftColLookupMap.has(rename.sourceColumn)) {
+                        renameColMapLeft[rename.sourceColumn] = rename.destColumn;
+                    }
                 }
             }
             const renamePrefixMapRight = {};
@@ -211,9 +215,13 @@ class JoinOpPanelModel {
                     continue;
                 }
                 if (rename.prefix) {
-                    renamePrefixMapRight[rename.sourceColumn] = rename.destColumn;
+                    if (rightPreixLookupMap.has(rename.sourceColumn)) {
+                        renamePrefixMapRight[rename.sourceColumn] = rename.destColumn;
+                    }
                 } else {
-                    renameColMapRight[rename.sourceColumn] = rename.destColumn;
+                    if (rightColLookupMap.has(rename.sourceColumn)) {
+                        renameColMapRight[rename.sourceColumn] = rename.destColumn;
+                    }
                 }
             }
             model._buildRenameInfo({
@@ -1033,46 +1041,13 @@ class JoinOpPanelModel {
                 isFixedType: oldModel._isFixedType
             }
         );
-        // remove column pairs where column no longer exists
-        const newColumnPairs = [];
-        oldModel._joinColumnPairs.forEach(pairInfo => {
-            const newColumnPair = {leftName: "", leftCast: null, rightName: "", rightCast: null};
-            if (pairInfo.leftName && model._columnMeta.leftMap.has(pairInfo.leftName)) {
-                newColumnPair.leftName = pairInfo.leftName;
-            }
-            if (pairInfo.rightName && model._columnMeta.rightMap.has(pairInfo.rightName)) {
-                newColumnPair.rightName = pairInfo.rightName;
-            }
-            if (newColumnPair.leftName || newColumnPair.rightName) {
-                newColumnPairs.push(newColumnPair);
-            }
-        });
-        model._joinColumnPairs = newColumnPairs;
-
-        // remove column renames where column no longer exists
-        const newColumnRenameLeft = [];
-        model._columnRename.left.forEach(renameInfo => {
-            if (!renameInfo.isPrefix && model._columnMeta.leftMap.has(renameInfo.source)) {
-                newColumnRenameLeft.push(renameInfo);
-            } else if (renameInfo.isPrefix && model._prefixMeta.leftMap.has(renameInfo.source)) {
-                newColumnRenameLeft.push(renameInfo);
-            }
-        });
-        model._columnRename.left = newColumnRenameLeft;
-
-        // remove column renames where column no longer exists
-        const newColumnRenameRight = [];
-        model._columnRename.right.forEach(renameInfo => {
-            if (!renameInfo.isPrefix && model._columnMeta.rightMap.has(renameInfo.source)) {
-                newColumnRenameRight.push(renameInfo);
-            } else if (renameInfo.isPrefix && model._prefixMeta.rightMap.has(renameInfo.source)) {
-                newColumnRenameRight.push(renameInfo);
-            }
-        });
-        model._columnRename.right = newColumnRenameRight;
 
         if (model.getColumnPairsLength() === 0) {
             model.addColumnPair();
+        }
+
+        if (!model.isRenameNeeded()) {
+            model.setCurrentStep(1);
         }
 
         return model;

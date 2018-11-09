@@ -82,9 +82,8 @@ class OpPanelDropdown {
         $ul.empty();
         if ($liList.length > 0) {
             $ul.append($liList);
-        } else {
-            this._setTitleFunc($input, defaultText);
         }
+        this._setTitleFunc($input, defaultText);
 
         // Setup event listener
         const initFunc = () => {
