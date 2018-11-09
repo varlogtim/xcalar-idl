@@ -2653,6 +2653,37 @@ namespace DagView {
                     generalTableName = tableName.split("#")[0] + "*";
                 }
                 DagTblManager.Instance.deleteTable(generalTableName, true, true);
+                // Delete the node's table now
+                var sql = {
+                    "operation": SQLOps.DeleteTable,
+                    "tables": [tableName],
+                    "tableType": TableType.Unknown
+                };
+                var txId = Transaction.start({
+                    "operation": SQLOps.DeleteTable,
+                    "sql": sql,
+                    "steps": 1,
+                    "track": true
+                });
+                let deleteQuery: {}[] = [{
+                    operation: "XcalarApiDeleteObjects",
+                    args: {
+                        namePattern: tableName,
+                        srcType: "Table"
+                    }
+                }]
+                XIApi.deleteTables(txId, deleteQuery, null)
+                .then(() => {
+                    Transaction.done(txId, null);
+                })
+                .fail((error) => {
+                    Transaction.fail(txId, {
+                        "failMsg": "Deleting Tables Failed",
+                        "error": error,
+                        "noAlert": true,
+                        "title": "DagView"
+                    });
+                });
             }
         });
     }

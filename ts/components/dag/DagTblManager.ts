@@ -363,7 +363,9 @@ class DagTblManager {
         let removedTables: string[] = cacheTableNames.filter(x => !backObject[x]);
         let addedTables: string[] = backTableNames.filter(x => !this.cache[x]);
         removedTables.forEach((name: string) => {
-            console.error("The table " + name + " was deleted in a way that XD does not support.");
+            if (!this.cache[name].markedForDelete) {
+                console.error("The table " + name + " was deleted in a way that XD does not support.");
+            }
             delete this.cache[name];
         });
         addedTables.forEach((name: string) => {
