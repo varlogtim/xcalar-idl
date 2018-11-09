@@ -395,7 +395,11 @@ class DagTblManager {
             "steps": tables.length,
             "track": true
         });
+        const visibleTable = DagTable.Instance.getTable();
         let deleteQuery: {}[] = tables.map((name: string) => {
+            if (name == visibleTable) {
+                DagTable.Instance.close();
+            }
             return {
                 operation: "XcalarApiDeleteObjects",
                 args: {
