@@ -53,7 +53,7 @@ class DagTblManager {
     }
 
     /**
-     * Resets the Sweep interval 
+     * Resets the Sweep interval
      * @param interval Number of milliseconds before each sweep happens
      */
     public setSweepInterval(interval: number): void {
@@ -313,25 +313,94 @@ class DagTblManager {
         return deferred.promise();
     }
 
+    // Tells us if table "table" is safe to delete.
+    private _safeToDeleteTable(table: string): boolean {
+        const self = DagTblManager.Instance;
+        const graph: DagGraph = DagView.getActiveDag();
+        const dagID: string = graph.getTabId();
+        const dataflowMatch: RegExp = new RegExp(dagID);
+        if (self.cache[table].locked) {
+            // Keep locked tables to ensure a consistent lock table usage
+            return false;
+        }
+        // It's safe to delete the table if not in the current dataflow
+        // or if it's already marked for deletion
+        if (!dataflowMatch.test(table) || self.cache[table].markedForDelete) {
+            return true;
+        }
+        // It's safe to delete the table if
+        let info: DagTblCacheInfo = self.cache[table];
+        let dagNodeID: string = self._getNodeId(info.name);
+        // It's safe to delete the table if made from outside methods
+        if (dagNodeID == "") {
+            return true;
+        }
+        let node: DagNode;
+        try {
+            node = graph.getNode(dagNodeID);
+        } catch (e) {
+            // node doesn't exist, we can delete the table
+            return true;
+        }
+        if (node.getState() == DagNodeState.Running) {
+            // This table should be kept because we are still executing this node
+            return false;
+        } else if (node.getState() != DagNodeState.Complete) {
+            // Table was an error table, or somehow survived a previous purge, so get rid of it
+            return true;
+        }
+
+        // We know the node was successful, so the table can
+        // only be deleted if it won't foreseeably be reused.
+        let childrenComplete: boolean = true;
+        let children: DagNode[] = node.getChildren();
+        for (let i = 0; i < children.length; i++) {
+            let child: DagNode = children[i];
+            if (child.getState() != DagNodeState.Complete &&
+                child.getState() != DagNodeState.Unused) {
+                childrenComplete = false;
+                break;
+            }
+        }
+        let nodeTable = node.getTable();
+        if (childrenComplete) {
+            return true;
+        }
+
+        if (nodeTable == info.name) {
+            // This table will probably be re-used, as it's the "final" table of the node.
+            return false;
+        }
+        let nodeTableInfo = this.cache[nodeTable];
+        if (!nodeTableInfo) {
+            // Since the info doesnt exist, we're probably going to be
+            // re-running this node, we just aren't in the process of re-running yet
+            // Thus this table doesnt matter.
+            return true;
+        }
+
+        // Finally, we check if this table was used in the creation process
+        // of its current node, or one of its children. If children, we have to keep
+        // it since they are not complete yet. We also keep indexes
+        const indexMatch: RegExp = new RegExp(".index");
+        return (nodeTableInfo.timestamp > info.timestamp &&
+            !indexMatch.test(info.name));
+    }
+
     /**
      * To be used in the case of running out of memory. Deletes all tables except the ones
      * in the current dataflow tab.
      */
     public emergencyClear() {
-        //XXX TODO: Clear useless tables within this graph based off query algorithm
         window.clearInterval(this.timer);
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         if (!this.configured) {
             deferred.resolve();
         }
-        const dagID: string = DagView.getActiveDag().getTabId();
         XcalarGetTables("*")
         .then((res: XcalarApiListDagNodesOutputT) => {
             this._synchWithBackend(res);
-            let match: RegExp = new RegExp(dagID);
-            // Remove all but this dataflow's tables
-            let toDelete: string[] = Object.keys(this.cache)
-                .filter((key) => !match.test(key));
+            let toDelete: string[] = Object.keys(this.cache).filter(this._safeToDeleteTable);
             toDelete.forEach((key) => {
                 delete this.cache[key];
             })
@@ -379,6 +448,14 @@ class DagTblManager {
             };
         });
         return;
+    }
+
+    private _getNodeId(name: string): string {
+        let matches: string[] = name.match("table_DF2_.*_(dag_.*?)(.index)?#");
+        if (matches.length > 0) {
+            return matches[1];
+        }
+        return "";
     }
 
     private _queryDelete(tables: string[]): XDPromise<void> {

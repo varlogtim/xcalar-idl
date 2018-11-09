@@ -299,9 +299,9 @@ class DagGraphExecutor {
             Transaction.done(txId, {
                 queryStateOutput: res
             });
-            MemoryAlert.Instance.check();
-            deferred.resolve();
+            return MemoryAlert.Instance.check();
         })
+        .then(deferred.resolve)
         .fail((error) => {
             // remove all the children that depends on the failed node
             const set: Set<DagNode> = this._graph.traverseGetChildren(node);
