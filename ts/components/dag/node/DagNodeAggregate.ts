@@ -7,6 +7,7 @@ class DagNodeAggregate extends DagNode {
         this.type = DagNodeType.Aggregate;
         this.allowAggNode = true;
         this.aggVal = options.aggVal || null;
+        this.maxChildren = 0;
         this.minParents = 1;
         this.display.icon = "&#xe939;";
         this.input = new DagNodeAggregateInput(options.input);

@@ -941,7 +941,8 @@ namespace DagView {
         activeDag.execute(nodeIds, optimized)
         .then(function() {
             if (UserSettings.getPref("dfAutoPreview") === true &&
-                nodeIds.length === 1
+                nodeIds.length === 1 &&
+                activeDag.getNode(nodeIds[0]).getType() != DagNodeType.Aggregate
             ) {
                 DagView.previewTable(nodeIds[0], $dataflowArea);
             }
