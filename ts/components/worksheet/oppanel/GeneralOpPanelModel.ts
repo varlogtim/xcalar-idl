@@ -377,12 +377,12 @@ class GeneralOpPanelModel {
             return operatorInfo;
         }
 
-        function checkInvalidTypes(outputType, typeid, value?) {
+        function checkInvalidTypes(outputType: string, typeid: number, value?: string) {
             const types: string[] = self._parseType(typeid);
             if (outputType.endsWith("Literal")) {
                 outputType = outputType.slice(0, outputType.lastIndexOf("Literal"));
             }
-            if (outputType === "decimal") {
+            if (outputType === "decimal" || outputType === "aggValue") {
                 outputType = ColumnType.float;
             }
             if (outputType === "columnArg") {
