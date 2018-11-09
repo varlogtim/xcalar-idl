@@ -184,8 +184,12 @@ class XcUser {
         XcSocket.Instance.sendMessage("logout", {
             user: this.getName()
         });
-        this._removeCookies();
-        xcManager.unload();
+
+        var myRemoveCookies = this._removeCookies;
+        xcManager.unload()
+        .always(function() {
+            myRemoveCookies();
+        });
     }
 
     public holdSession(

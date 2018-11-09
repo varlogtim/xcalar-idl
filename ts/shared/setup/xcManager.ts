@@ -300,12 +300,14 @@ namespace xcManager {
      * @param isAsync - boolean, if request is async
      * @param doNotLogout - if user should not be logged out durring unload
      */
-    export function unload(isAsync: boolean = false, doNotLogout: boolean = false): void {
+    export function unload(isAsync: boolean = false, doNotLogout: boolean = false): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         if (isAsync) {
             // async unload should only be called in beforeload
             // this time, no commit, only free result set
             // as commit may only partially finished, which is dangerous
             TblManager.freeAllResultSets();
+            return deferred.reject("Async unload");
         } else {
             TblManager.freeAllResultSetsSync()
             .then(function() {
@@ -321,8 +323,11 @@ namespace xcManager {
                 } else {
                     logoutRedirect();
                 }
+                return deferred.resolve();
             });
         }
+
+        return deferred.promise();
     };
 
     /**
