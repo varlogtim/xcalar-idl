@@ -320,8 +320,12 @@ abstract class DagNode {
      * @param parentNode parent node to connected to
      * @param pos 0 based, the position where to connect with parentNode
      */
-    public connectToParent(parentNode: DagNode, pos: number = 0): void {
-        if (this.parents[pos] != null) {
+    public connectToParent(
+        parentNode: DagNode,
+        pos: number = 0,
+        spliceIn?: boolean
+    ): void {
+        if (this.parents[pos] != null && !spliceIn) {
             throw new Error("Pos " + pos + " already has parent")
         } else if (parentNode.getType() === DagNodeType.Aggregate) {
             if (!this.allowAggNode) {
@@ -333,8 +337,12 @@ abstract class DagNode {
                 throw new Error("Node has maximum parents connected");
             }
         }
+        if (spliceIn) {
+            this.parents.splice(pos, 0, parentNode);
+        } else {
+            this.parents[pos] = parentNode;
+        }
 
-        this.parents[pos] = parentNode;
         this.numParent++;
     }
 
@@ -353,8 +361,9 @@ abstract class DagNode {
     /**
      *
      * @param pos the index of the parent node that will be disconnected
+     * @returns whether the index was spliced
      */
-    public disconnectFromParent(parentNode: DagNode, pos: number): void {
+    public disconnectFromParent(parentNode: DagNode, pos: number): boolean {
         if (this.parents[pos] == null) {
             throw new Error("Parent in pos " + pos + " is empty");
         }
@@ -362,8 +371,10 @@ abstract class DagNode {
             throw new Error("Parent in pos " + pos + " is not " + parentNode.getId());
         }
 
+        let spliced = false;
         if (this._canHaveMultiParents()) {
             this.parents.splice(pos, 1);
+            spliced = true;
         } else {
             // We use delete in order to preserve left/right parent for a Join node.
             // The undefined shows up in serialization, but it is not connected to
@@ -372,6 +383,7 @@ abstract class DagNode {
         }
 
         this.numParent--;
+        return spliced;
     }
 
     /**

@@ -516,7 +516,7 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.DisconnectOperations] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.connectNodes(options.parentNodeId, options.childNodeId, options.connectorIndex);
+        DagView.connectNodes(options.parentNodeId, options.childNodeId, options.connectorIndex, false, options.wasSpliced);
         return PromiseHelper.resolve(null);
     };
 
@@ -532,7 +532,7 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.RemoveOperations] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.addBackNodes(options.nodeIds, options.dataflowId);
+        DagView.addBackNodes(options.nodeIds, options.dataflowId, options.spliceInfo);
         return PromiseHelper.resolve(null);
     };
 

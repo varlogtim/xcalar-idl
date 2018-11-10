@@ -273,9 +273,14 @@ namespace DagView {
      * DagView.addBackNodes
      * @param nodeIds
      * @param tabId
+     * @param sliceInfo?
      * used for undoing/redoing operations
      */
-    export function addBackNodes(nodeIds: DagNodeId[], tabId: string): XDPromise<void> {
+    export function addBackNodes(
+        nodeIds: DagNodeId[],
+        tabId: string,
+        spliceInfo?
+    ): XDPromise<void> {
         const $dfArea: JQuery = _getAreaByTab(tabId);
         // need to add back nodes in the reverse order they were deleted
         $dfArea.find(".selected").removeClass("selected");
@@ -284,7 +289,7 @@ namespace DagView {
         for (let i = nodeIds.length - 1; i >= 0; i--) {
             const nodeId: DagNodeId = nodeIds[i];
             if (nodeId.startsWith("dag")) {
-                const node: DagNode = activeDag.addBackNode(nodeId);
+                const node: DagNode = activeDag.addBackNode(nodeId, spliceInfo[nodeId]);
                 _drawNode(node, $dfArea, true);
 
                 node.getParents().forEach((parentNode, index) => {
@@ -543,9 +548,11 @@ namespace DagView {
         childNodeId: DagNodeId,
         connectorIndex: number,
         isReconnect?: boolean,
+        spliceIn?: boolean
     ): XDPromise<void> {
         _connectNodesNoPersist(parentNodeId, childNodeId, connectorIndex, {
-            isReconnect: isReconnect
+            isReconnect: isReconnect,
+            spliceIn: spliceIn
         });
         return activeDagTab.save();
     }
@@ -567,14 +574,15 @@ namespace DagView {
             childNodeId +
             '"][data-connectorindex="' +
             connectorIndex + '"]');
-        activeDag.disconnect(parentNodeId, childNodeId, connectorIndex);
+        const wasSpliced = activeDag.disconnect(parentNodeId, childNodeId, connectorIndex);
         _removeConnection($edge, childNodeId);
         Log.add(SQLTStr.DisconnectOperations, {
             "operation": SQLOps.DisconnectOperations,
             "dataflowId": activeDagTab.getId(),
             "parentNodeId": parentNodeId,
             "childNodeId": childNodeId,
-            "connectorIndex": connectorIndex
+            "connectorIndex": connectorIndex,
+            "wasSpliced": wasSpliced
         });
         return activeDagTab.save();
     }
@@ -1556,7 +1564,7 @@ namespace DagView {
         nodeIds: DagNodeId[],
         options?: {
             isSwitchState?: boolean,
-            isNoLog?: boolean    
+            isNoLog?: boolean
         }
     ): LogParam {
         const { isSwitchState = true, isNoLog = false } = options || {};
@@ -1564,6 +1572,7 @@ namespace DagView {
         if (!nodeIds.length) {
             return null;
         }
+        const spliceInfos = {};
         nodeIds.forEach(function (nodeId) {
             if (nodeId.startsWith("dag")) {
                 // Remove tabs for custom OP
@@ -1573,13 +1582,14 @@ namespace DagView {
                     DagTabManager.Instance.removeTabByNode(dagNode);
                 }
 
-                activeDag.removeNode(nodeId, isSwitchState);
+                const spliceInfo = activeDag.removeNode(nodeId, isSwitchState);
                 DagView.getNode(nodeId).remove();
                 $dagView.find('.edge[data-childnodeid="' + nodeId + '"]').remove();
                 $dagView.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function() {
                     const childNodeId = $(this).attr("data-childnodeid");
                     _removeConnection($(this), childNodeId);
                 });
+                spliceInfos[nodeId] = spliceInfo;
             } else if (nodeId.startsWith("comment")) {
                 activeDag.removeComment(nodeId);
                 DagComment.Instance.removeComment(nodeId);
@@ -1591,7 +1601,8 @@ namespace DagView {
             options: {
                 "operation": SQLOps.RemoveOperations,
                 "dataflowId": activeDagTab.getId(),
-                "nodeIds": nodeIds
+                "nodeIds": nodeIds,
+                "spliceInfo": spliceInfos
             }
         };
         if (!isNoLog) {
@@ -1601,18 +1612,23 @@ namespace DagView {
         return logParam;
     }
 
+    // force connect can be true if undoing an operation where we are connecting
+    // to an index that is currently taken, in which case we have to move the
+    // other indices
     function _connectNodesNoPersist(
         parentNodeId: DagNodeId,
         childNodeId: DagNodeId,
         connectorIndex: number,
         options?: {
             isReconnect?: boolean,
+            spliceIn?: boolean,
             isSwitchState?: boolean,
             isNoLog?: boolean
         }
     ): LogParam {
         const {
-            isReconnect = false, isSwitchState = true, isNoLog = false
+            isReconnect = false, isSwitchState = true, isNoLog = false,
+            spliceIn = false
         } = options || {};
 
         let prevParentId = null;
@@ -1626,7 +1642,9 @@ namespace DagView {
             _removeConnection($curEdge, childNodeId);
         }
 
-        activeDag.connect(parentNodeId, childNodeId, connectorIndex, false, isSwitchState);
+        activeDag.connect(parentNodeId, childNodeId, connectorIndex, false, isSwitchState,
+        spliceIn);
+
 
         _drawConnection(parentNodeId, childNodeId, connectorIndex);
 
@@ -1711,7 +1729,7 @@ namespace DagView {
                     // _drawLineBetweenNodes(parentNodeId, childNodeId, connectorIndex, svg);
                     $curEdge.attr("data-connectorindex", index - 1);
                 }
-            })
+            });
         } else if (activeDag.getNode(childNodeId).getNumParent() === 0) {
             $childConnector.removeClass("hasConnection")
                 .addClass("noConnection");
@@ -2437,6 +2455,24 @@ namespace DagView {
 
         const svg: d3 = d3.select("#dagView .dataflowArea.active .edgeSvg");
 
+        // if re-adding an edge from a multichildnode then increment all
+        // the edges that have a greater or equal index than the removed one
+        // due to splice action on children array
+        if ($dagView.find('.edge[data-childnodeid="' + childNodeId +
+                         '"][data-connectorindex="' + connectorIndex + '"]').length) {
+            $dagView.find('.edge[data-childnodeid="' + childNodeId + '"]').each(function () {
+                const $curEdge: JQuery = $(this);
+                const index: number = parseInt($curEdge.attr('data-connectorindex'));
+                if (index >= connectorIndex) {
+                    const parentNodeId = $curEdge.attr("data-parentnodeid");
+                    $curEdge.remove();
+                    _drawLineBetweenNodes(parentNodeId, childNodeId, index + 1, svg);
+                    // _drawLineBetweenNodes(parentNodeId, childNodeId, connectorIndex, svg);
+                    $curEdge.attr("data-connectorindex", index + 1);
+                }
+            });
+
+        }
         _drawLineBetweenNodes(parentNodeId, childNodeId, connectorIndex, svg);
     }
 

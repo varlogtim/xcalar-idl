@@ -146,7 +146,7 @@ class DagGraph {
      * adds back a removed node
      * @param nodeId
      */
-    public addBackNode(nodeId): DagNode {
+    public addBackNode(nodeId: DagNodeId, spliceMap?): DagNode {
         const nodeInfo = this._getRemovedNodeInfoFromId(nodeId);
         const node = nodeInfo["node"]
         const parents: DagNode[] = node.getParents();
@@ -160,7 +160,11 @@ class DagGraph {
         children.forEach((child) => {
             const childId = child.getId();
             nodeInfo["childIndices"][childId].forEach((index) => {
-                child.connectToParent(node, index);
+                let spliceIn = false;
+                if (spliceMap && spliceMap[childId] && spliceMap[childId][index]) {
+                    spliceIn = true;
+                }
+                child.connectToParent(node, index, spliceIn);
             });
         })
 
@@ -229,7 +233,10 @@ class DagGraph {
      * remove a node
      * @param nodeId node's id
      */
-    public removeNode(nodeId: DagNodeId, switchState: boolean = true): void {
+    public removeNode(
+        nodeId: DagNodeId,
+        switchState: boolean = true
+    ): {dagNodeId: boolean[]} {
         const node: DagNode = this._getNodeFromId(nodeId);
         return this._removeNode(node, switchState);
     }
@@ -289,7 +296,8 @@ class DagGraph {
         toNodeId: DagNodeId,
         toPos: number = 0,
         allowCyclic: boolean = false,
-        switchState: boolean = true
+        switchState: boolean = true,
+        spliceIn: boolean = false
     ): void {
         let connectedToParent = false;
         let fromNode: DagNode;
@@ -297,7 +305,7 @@ class DagGraph {
         try {
             fromNode = this._getNodeFromId(fromNodeId);
             toNode = this._getNodeFromId(toNodeId);
-            toNode.connectToParent(fromNode, toPos);
+            toNode.connectToParent(fromNode, toPos, spliceIn);
             connectedToParent = true;
             fromNode.connectToChild(toNode);
 
@@ -351,10 +359,10 @@ class DagGraph {
         toNodeId: DagNodeId,
         toPos: number = 0,
         switchState: boolean = true
-    ): void {
+    ): boolean {
         const fromNode: DagNode = this._getNodeFromId(fromNodeId);
         const toNode: DagNode = this._getNodeFromId(toNodeId);
-        toNode.disconnectFromParent(fromNode, toPos);
+        const wasSpliced = toNode.disconnectFromParent(fromNode, toPos);
         fromNode.disconnectFromChild(toNode);
         if (switchState) {
             const descendentSets = this._traverseSwitchState(toNode);
@@ -369,6 +377,7 @@ class DagGraph {
                 }
             });
         }
+        return wasSpliced;
     }
 
    /**
@@ -1007,7 +1016,10 @@ class DagGraph {
         return orderedNodes;
     }
 
-    private _removeNode(node: DagNode, switchState: boolean = true): void {
+    private _removeNode(
+        node: DagNode,
+        switchState: boolean = true
+    ): {dagNodeId: boolean[]} {
         const parents: DagNode[] = node.getParents();
         const children: DagNode[] = node.getChildren();
 
@@ -1018,15 +1030,19 @@ class DagGraph {
         });
         const descendents = [];
         const childIndices = {};
+        const spliceFlags = {}; // whether connection index was spliced
         children.forEach((child) => {
             const childId = child.getId();
             child.getParents().forEach((parent, index) => {
                 if (parent === node) {
                     if (!childIndices[childId]) {
                         childIndices[childId] = [];
+                        spliceFlags[childId] = [];
                     }
+
+                    const wasSpliced = child.disconnectFromParent(node, index);
                     childIndices[childId].push(index);
-                    child.disconnectFromParent(node, index);
+                    spliceFlags[childId].push(wasSpliced);
                 }
             });
             if (switchState) {
@@ -1050,6 +1066,7 @@ class DagGraph {
                 removeInfo: {childIndices: childIndices, node: node}
             });
         }
+        return spliceFlags;
     }
 
     private _getNodeFromId(nodeId: DagNodeId): DagNode {
