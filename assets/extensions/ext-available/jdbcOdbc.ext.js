@@ -4,11 +4,11 @@
 
 // THIS ONLY WORKS FOR JDBC
 
-window.UExtJdbcIMD = (function(UExtJdbcIMD) {
-    UExtJdbcIMD.buttons = [{
-        "buttonText": "Publish Table",
+window.UExtJdbcOdbc = (function(UExtJdbcOdbc) {
+    UExtJdbcOdbc.buttons = [{
+        "buttonText": "Publish ODBC/JDBC Table",
         "fnName": "publish",
-        "instruction": "This function publishes a table and enables it to get updated.",
+        "instruction": "This function publishes a table for use with ODBC/JDBC.",
         "arrayOfFields": [{
             "type": "string",
             "name": "Published Table Name",
@@ -16,57 +16,13 @@ window.UExtJdbcIMD = (function(UExtJdbcIMD) {
             "typeCheck": {
                 "newTableName": true
             }
-        },
-        {
-            "type": "column",
-            "name": "Primary Key",
-            "fieldClass": "primaryKey",
-            "typeCheck": {
-                "allowEmpty": true,
-            }
-        },
-        {
-            "type": "column",
-            "name": "IMD Operator",
-            "fieldClass": "imdCol",
-            "typeCheck": {
-                "allowEmpty": true,
-            }
-        }]
-    },
-    {
-        "buttonText": "Update Table",
-        "fnName": "update",
-        "instruction": "This function updates an already published table with another table that contains the changes",
-        "arrayOfFields": [{
-            "type": "string",
-            "name": "Published Table Name",
-            "fieldClass": "updateTable",
-            "typeCheck": {
-                "newTableName": true
-            }
-        },
-        {
-            "type": "column",
-            "name": "Primary Key",
-            "fieldClass": "primaryKey"
-        },
-        {
-            "type": "column",
-            "name": "IMD Operator",
-            "fieldClass": "imdCol",
-            "typeCheck": {
-                "columnType": ["number"]
-            },
         }]
     }];
 
-    UExtJdbcIMD.actionFn = function(functionName) {
+    UExtJdbcOdbc.actionFn = function(functionName) {
         switch (functionName) {
             case ("publish"):
                 return publish();
-            case ("update"):
-                return update();
             default:
                 return null;
         }
@@ -313,54 +269,5 @@ window.UExtJdbcIMD = (function(UExtJdbcIMD) {
         return deferred.promise();
     }
 
-    function update() {
-        var ext = new XcSDK.Extension();
-        console.log("updating");
-        ext.start = function() {
-            var self = this;
-            // 0. Finalize table
-            // 1. Generate Rank
-            // 2. Change opCode colName to XcalarOpCode
-            // 3. Call UpdateTable on this table dest
-
-            var deferred = XcSDK.Promise.deferred();
-            var srcTable = ext.getTriggerTable();
-            var srcTableName = srcTable.getName();
-            var primaryKey = ext.getArgs().primaryKey.getName();
-            primaryKey = xcHelper.parsePrefixColName(primaryKey).name;
-            var indexTableName = ext.createTableName("", "", srcTableName);
-            var finalTableName;
-            var indexTableName = ext.createTableName("", "", srcTableName);
-
-            roGenRowNum(srcTableName, self, roColName)
-            .then(function(table) {
-                var newTableStruct = ext.createNewTable(table);
-                newTableStruct.tableCols = srcTable.tableCols;
-                return finalizeTable(newTableStruct, self, [opCode, roColName]);
-            })
-            .then(function(tableName) {
-                return XcalarIndexFromTable(tableName, [{name: primaryKey,
-                            ordering: XcalarOrderingT.XcalarOrderingUnordered}],
-                                            indexTableName);
-            })
-            .then(function(indexTable) {
-                pubTable = ext.getArgs().updateTable;
-                finalTableName = indexTableName;
-                return XcalarUpdateTable(indexTableName, pubTable);
-            })
-            .then(function() {
-                var srcTableId = xcHelper.getTableId(srcTableName);
-                var newTable = ext.createNewTable(finalTableName);
-                return addTableToWorksheet(srcTableId, newTable, srcTableName);
-            })
-            .then(deferred.resolve)
-            .fail(deferred.reject);
-
-            return deferred.promise();
-        };
-
-        return ext;
-    }
-
-    return (UExtJdbcIMD);
+    return (UExtJdbcOdbc);
 }({}));
