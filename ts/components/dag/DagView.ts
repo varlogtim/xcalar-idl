@@ -966,7 +966,9 @@ namespace DagView {
         graph.execute(nodeIds, optimized)
         .then(function() {
             if (UserSettings.getPref("dfAutoPreview") === true &&
-                nodeIds.length === 1
+                nodeIds != null &&
+                nodeIds.length === 1 &&
+                activeDag.getNode(nodeIds[0]).getType() != DagNodeType.Aggregate
             ) {
                 const node: DagNode = graph.getNode(nodeIds[0]);
                 if (node.getState() === DagNodeState.Complete) {
