@@ -5,6 +5,7 @@ class DagNodeIndexInput extends DagNodeInput {
         const input = super.getInput(replaceParameters);
         return {
             columns: input.columns || [],
+            dhtName: input.dhtName || ""
         };
     }
 }

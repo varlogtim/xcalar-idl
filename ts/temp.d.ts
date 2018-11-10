@@ -74,6 +74,7 @@ interface GroupByOptions {
     clean?: boolean; // remove intermediate table if set true
     groupAll?: boolean; // group by all rows to create single row if set true,
     newKeys?: string[]; // specify the new group by keys' name
+    dhtName?: string; // dht to optimized skewd index
 }
 
 interface UnionColInfo {

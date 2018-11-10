@@ -1214,7 +1214,7 @@ XcalarIndexFromDataset = function(
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
     datasetName = parseDS(datasetName);
-    let dhtName: string = ""; // XXX TODO fill in later
+    let dhtName: string = ""; // Index dataset can only use empty dhtName
 
     const keyInfo: XcalarApiKeyT = indexKeyMap({
         name: key,
@@ -1264,6 +1264,7 @@ XcalarIndexFromTable = function(
         ordering: XcalarOrderingT
     }[],
     dstTableName: string,
+    dhtName: string,
     txId: number
 ): XDPromise<{ ret?: XcalarApiNewTableOutputT, newKeys?: any[] }>{
     if ([null, undefined].indexOf(tHandle) !== -1) {
@@ -1281,6 +1282,7 @@ XcalarIndexFromTable = function(
         keys = [keys];
     }
 
+    dhtName = dhtName || "";
     // XXX TODO, remove the dependencise of xcHelper
     xcHelper.getKeyInfos(keys, srcTablename)
     .then(function(keyInfos: KeyInfo[]) {
@@ -1294,13 +1296,13 @@ XcalarIndexFromTable = function(
             });
         }
         const workItem = xcalarIndexWorkItem(srcTablename,
-                                           dstTableName, keyArray, "", "");
+                                           dstTableName, keyArray, "", dhtName);
         let def: XDPromise<any>;
         if (Transaction.isSimulate(txId)) {
             def = fakeApiCall();
         } else {
             def = xcalarIndex(tHandle, srcTablename, dstTableName,
-                              keyArray, "", "");
+                              keyArray, "", dhtName);
         }
         query = XcalarGetQuery(workItem);
         if (txId) {

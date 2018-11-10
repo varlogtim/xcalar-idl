@@ -173,7 +173,8 @@ class DagNodeExecutor {
             isIncSample: params.includeSample,
             icvMode: params.icv,
             groupAll: params.groupAll,
-            newKeys: params.newKeys
+            newKeys: params.newKeys,
+            dhtName: params.dhtName
         };
         return XIApi.groupBy(this.txId, aggArgs, params.groupBy, srcTable, options);
     }
@@ -196,7 +197,7 @@ class DagNodeExecutor {
         const options: JoinOptions = {
             newTableName: this._generateTableName(),
             evalString: params.evalString
-        }
+        };
         return XIApi.join(this.txId, joinType, lTableInfo, rTableInfo, options);
     }
 
@@ -613,7 +614,7 @@ class DagNodeExecutor {
             newKeys.push(column["keyFieldName"]);
         })
         const srcTable: string = this._getParentNodeTable(0);
-        return XIApi.index(this.txId, colNames, srcTable, undefined, newKeys);
+        return XIApi.index(this.txId, colNames, srcTable, undefined, newKeys, params.dhtName);
     }
 
     private _sql(): XDPromise<string> {

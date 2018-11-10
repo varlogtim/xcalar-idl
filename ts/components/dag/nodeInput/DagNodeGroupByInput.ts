@@ -14,7 +14,8 @@ class DagNodeGroupByInput extends DagNodeInput {
           "icv",
           "groupAll",
           "includeSample",
-          "newKeys"
+          "newKeys",
+          "dhtName",
         ],
         "properties": {
           "groupBy": {
@@ -151,7 +152,18 @@ class DagNodeGroupByInput extends DagNodeInput {
             "examples": [
               null
             ]
-          }
+          },
+          "dhtName": {
+            "$id": "#/properties/dhtName",
+            "type": "string",
+            "title": "The DHT Name",
+            "default": "",
+            "examples": [
+              ""
+            ],
+            "minLength": 0,
+            "pattern": "^(.*)$"
+          },
         }
     };
 3
@@ -163,7 +175,8 @@ class DagNodeGroupByInput extends DagNodeInput {
             includeSample: input.includeSample || false,
             icv: input.icv || false,
             groupAll: input.groupAll || false,
-            newKeys: input.newKeys || []
+            newKeys: input.newKeys || [],
+            dhtName: input.dhtName || ""
         };
     }
 

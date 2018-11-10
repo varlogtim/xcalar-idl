@@ -119,6 +119,7 @@ interface DagNodeFilterInputStruct {
 
 interface DagNodeIndexInputStruct {
     columns: string[];
+    dhtName: string;
 }
 
 interface DagNodeGroupByInputStruct {
@@ -128,6 +129,7 @@ interface DagNodeGroupByInputStruct {
     icv: boolean;
     groupAll: boolean;
     newKeys: string[];
+    dhtName: string;
 }
 
 declare type DagNodeJoinTableInput = {

@@ -237,12 +237,13 @@ namespace XIApi {
             keyFieldName?: string,
         }[],
         tableName: string,
-        newTableName: string
+        newTableName: string,
+        dhtName: string
     ): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const simuldateTxId: number = startSimulate();
         let newKeys: string[];
-        XcalarIndexFromTable(tableName, keyInfos, newTableName, simuldateTxId)
+        XcalarIndexFromTable(tableName, keyInfos, newTableName, dhtName, simuldateTxId)
         .then((res) => {
             newKeys = res.newKeys;
             const query: string = endSimulate(simuldateTxId);
@@ -1577,6 +1578,9 @@ namespace XIApi {
      * @param txId
      * @param colNames
      * @param tableName
+     * @param newTableName
+     * @param newKeys
+     * @param dhtName (Note that only groupBy's index is valid to use dht)
      * @returns Promise<indexTable, indexArgs>, indexTable: (string),
      * indexArgs: (object) see checckTableIndex
      */
@@ -1585,7 +1589,8 @@ namespace XIApi {
         colNames: string[],
         tableName: string,
         newTableName?: string,
-        newKeys?: string[]
+        newKeys?: string[],
+        dhtName?: string
     ): XDPromise<string> {
         if (txId == null ||
             colNames == null ||
@@ -1640,7 +1645,7 @@ namespace XIApi {
         if (!isValidTableName(newTableName)) {
             newTableName = getNewTableName(tableName, ".index");
         }
-        indexHelper(txId, keyInfos, tableName, newTableName)
+        indexHelper(txId, keyInfos, tableName, newTableName, dhtName)
         .then((newTableName, newKeys) => {
             SQLApi.cacheIndexTable(tableName, colNames,
                                         newTableName, newKeys, tempCols);
@@ -1667,7 +1672,8 @@ namespace XIApi {
             type?: ColumnType
         }[],
         tableName: string,
-        newTableName?: string
+        newTableName?: string,
+        dhtName?: string
     ): XDPromise<string> {
         if (txId == null ||
             keyInfos == null ||
@@ -1682,7 +1688,7 @@ namespace XIApi {
             newTableName = getNewTableName(tableName);
         }
 
-        indexHelper(txId, keyInfos, tableName, newTableName)
+        indexHelper(txId, keyInfos, tableName, newTableName, dhtName)
         .then((newTableName, newKeys) => {
             deferred.resolve(newTableName, newKeys);
         })
@@ -2033,7 +2039,7 @@ namespace XIApi {
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         // tableName is the original table name that started xiApi.groupby
-        XIApi.index(txId, groupByCols, tableName, null, newKeys)
+        XIApi.index(txId, groupByCols, tableName, null, newKeys, options.dhtName)
         .then((indexedTable, _isCache, indexKeys) => {
             newKeys = indexKeys;
             // table name may have changed after sort!
@@ -2700,8 +2706,9 @@ namespace XIApi {
         })
         .then(function(tableName) {
             // Reorder just in case
-            return indexHelper(txId, primaryKeyList,
-                                        tableName, indexTableName)
+            // XXX TODO: expose it
+            const dhtName: string = "";
+            return indexHelper(txId, primaryKeyList, tableName, indexTableName, dhtName);
         })
         .then(function() {
             // Finally publish the table

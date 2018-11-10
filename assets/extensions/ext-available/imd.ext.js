@@ -249,7 +249,7 @@ window.UExtIMD = (function(UExtIMD) {
             .then(function(tableName) {
                 return XcalarIndexFromTable(tableName, [{name: primaryKey,
                             ordering: XcalarOrderingT.XcalarOrderingUnordered}],
-                                            indexTableName, undefined, true);
+                                            indexTableName);
             })
             .then(function() {
                 finalTableName = indexTableName;
@@ -311,7 +311,7 @@ window.UExtIMD = (function(UExtIMD) {
             .then(function(tableName) {
                 return XcalarIndexFromTable(tableName, [{name: primaryKey,
                             ordering: XcalarOrderingT.XcalarOrderingUnordered}],
-                                            indexTableName, undefined, true);
+                                            indexTableName);
             })
             .then(function(indexTable) {
                 pubTable = ext.getArgs().updateTable;

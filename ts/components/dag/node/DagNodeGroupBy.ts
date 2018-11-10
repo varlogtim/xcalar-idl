@@ -23,7 +23,8 @@ class DagNodeGroupBy extends DagNode {
             includeSample: input.includeSample,
             icv: input.icv,
             groupAll: input.groupAll,
-            newKeys: input.newKeys
+            newKeys: input.newKeys,
+            dhtName: input.dhtName
         });
         this._updateNewKeys();
         super.setParam();
