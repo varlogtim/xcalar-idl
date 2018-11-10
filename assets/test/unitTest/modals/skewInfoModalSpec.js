@@ -33,7 +33,6 @@ describe("SkewInfoModal Test", function() {
         SkewInfoModal.show(tableId);
         assert.isTrue($modal.is(":visible"));
         expect($modal.find(".bar").length).to.equal(2);
-        expect($modal.find(".tableName .text").text()).to.equal(tableName);
         expect($modal.find(".size .text").text()).to.equal("20B");
         expect($modal.find(".totalRows .text").text()).to.equal(String(totalRows));
     });

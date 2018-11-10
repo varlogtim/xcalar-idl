@@ -64,21 +64,17 @@ window.SkewInfoModal = (function(SkewInfoModal, $) {
         var table;
         let size;
         let totalRows;
-        let name;
         if (instanceOptions.tableInfo) {
             size = instanceOptions.tableInfo.size;
             totalRows = instanceOptions.tableInfo.totalRows;
-            name = instanceOptions.tableInfo.name;
         } else {
             table = gTables[tableId];
             size = table.getSize();
             totalRows = table.resultSetCount;
-            name = table.getName();
         }
 
         size = xcHelper.sizeTranslator(size);
-        var $skew = $("#skewInfoArea .text");
-        $modal.find(".tableName .text").text(name);
+        var $skew = $("#dagViewTableArea .skewInfoArea .text");
         $modal.find(".size .text").text(size);
         $modal.find(".totalRows .text").text(totalRows);
         $modal.find(".skew .text").text($skew.text())
