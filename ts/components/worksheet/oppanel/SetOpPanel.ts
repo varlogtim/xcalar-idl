@@ -91,10 +91,6 @@ class SetOpPanel extends BaseOpPanel {
 
     private _addEventListeners(): void {
         const $panel = this._getPanel();
-        $panel.on("mouseenter", ".tooltipOverflow", function() {
-            xcTooltip.auto(this);
-        });
-
         $panel.on("click", ".close", () => {
             this.close();
         });

@@ -52,8 +52,22 @@ class BaseOpPanel {
 
     public static craeteColumnListHTML(
         colType: ColumnType,
-        colNameTemplate: HTML
+        colName: string,
+        noTooltip: boolean = false
     ): HTML {
+        const colNameTemplate: HTML = noTooltip ?
+        '<div class="colName textOverflowOneLine">' +
+            colName +
+        '</div>'
+        :
+        '<div class="colName textOverflowOneLine' +
+        ' tooltipOverflow"' +
+        ' data-toggle="tooltip"' +
+        ' data-container="body"' +
+        ' data-placement="top"' +
+        ' data-title="' + xcHelper.escapeHTMLSpecialChar(colName) + '">' +
+            colName +
+        '</div>';
         const html: HTML =
             '<div class="typeIcon flexContainer flexRow type-' + colType + '">' +
             '<div class="flexWrap flex-left" ' +
@@ -66,7 +80,7 @@ class BaseOpPanel {
             '<span class="type icon"></span>' +
             '</div>' +
             '<div class="flexWrap flex-mid">' +
-            colNameTemplate +
+                colNameTemplate +
             '</div>' +
             '<div class="flexWrap flex-right"></div>' +
             '</div>';
@@ -136,6 +150,7 @@ class BaseOpPanel {
         this._setupEditor($panel);
         this._setupModeSwitch($panel);
         this._setupRestoreBtn();
+        this._addBasicEventListeners();
         MainMenu.registerPanels(this);
     }
 
@@ -569,4 +584,10 @@ class BaseOpPanel {
         return true;
     }
 
+    private _addBasicEventListeners(): void {
+        const $panel = this._getPanel();
+        $panel.on("mouseenter", ".tooltipOverflow", function() {
+            xcTooltip.auto(this);
+        });
+    }
 }

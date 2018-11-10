@@ -1298,6 +1298,11 @@
         .flexWrap {
             &.flex-left, &.flex-right {
                 .flex(0 0 20px);
+                width: 20px;
+            }
+
+            &.flex-mid {
+                width: ~"calc(100% - 20px)";
             }
         }
 

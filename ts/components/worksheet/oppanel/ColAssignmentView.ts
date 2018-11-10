@@ -274,13 +274,7 @@ class ColAssignmentView {
             let innerHTML: string = "";
             if (selectedCol != null) {
                 const colName: string = xcHelper.escapeHTMLSpecialChar(selectedCol.getBackColName());
-                innerHTML = '<div class="text textOverflowOneLine' +
-                            ' tooltipOverflow"' +
-                            ' data-toggle="tooltip"' +
-                            ' data-container="body"' +
-                            ' data-placement="top"' +
-                            ' data-title="' + xcHelper.escapeHTMLSpecialChar(colName) +
-                            '">' +
+                innerHTML = '<div class="text">' +
                                 BaseOpPanel.craeteColumnListHTML(selectedCol.getType(), colName) +
                             '</div>';
             } else {
@@ -318,20 +312,13 @@ class ColAssignmentView {
         candidateCols = candidateCols || [];
         const lists: string = candidateCols.map((col, index) => {
             const colName: string = xcHelper.escapeHTMLSpecialChar(col.getBackColName());
-            const colNameTempelate: string =
-            '<div class="colName text textOverflowOneLine tooltipOverflow"' +
-            ' data-toggle="tooltip" data-container="body"' +
-            ' data-placement="top"' +
-            ' data-title="' + xcHelper.escapeHTMLSpecialChar(colName) + '">' +
-                colName +
-            '</div>';
             return '<div class="inputCol" data-index="' + index + '">' +
                         '<i class="addCol icon xi-plus"' +
                         ' data-toggle="tooltip" data-container="body"' +
                         ' data-placement="top"' +
                         ' data-title="' + UnionTStr.AddCol + '"' +
                         '></i>' +
-                        BaseOpPanel.craeteColumnListHTML(col.getType(), colNameTempelate) +
+                        BaseOpPanel.craeteColumnListHTML(col.getType(), colName) +
                     '</div>';
         }).join("");
 
@@ -434,16 +421,12 @@ class ColAssignmentView {
                 });
             } else {
                 extraClass = "tooltipOverflow";
-                title = colName;
+                title = "";
             }
             const colType: ColumnType = col.getType();
             if (!validTypes.includes(colType)) {
                 return "";
             }
-            const colNameTempelate: HTML =
-                '<span class="colName">' +
-                    xcHelper.escapeHTMLSpecialChar(colName) +
-                '</span>';
             return '<li class="type-' + colType + ' ' + extraClass + '"' +
                     ' data-index="' + index + '"' +
                     ' data-toggle="tooltip"' +
@@ -451,7 +434,7 @@ class ColAssignmentView {
                     ' data-container="body"' +
                     ' data-placement="top"' +
                     '>' +
-                        BaseOpPanel.craeteColumnListHTML(colType, colNameTempelate) +
+                        BaseOpPanel.craeteColumnListHTML(colType, colName, isUsed) +
                     '</li>';
         }).join("");
 
