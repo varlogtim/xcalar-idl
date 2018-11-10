@@ -2609,6 +2609,7 @@
 
     .col-left, .col-right {
         .col-6();
+        .size(@width: ~"calc(50% - @{middleIconWidth})");
     }
 
     .row-subheading {
@@ -2626,7 +2627,6 @@
     .dropdownList-join, .dropdownList-cast {
         float: none;
         .size(@height: @listHeight + 2px);
-        min-width: 128px;
         line-height: @listHeight;
         border: 1px solid @color-border-softGray;
 
