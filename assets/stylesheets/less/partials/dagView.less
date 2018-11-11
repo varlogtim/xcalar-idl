@@ -483,7 +483,9 @@
 
     @inConnectorSize: 8px;
     @outConnectorSize: 6px;
-
+    .connIn {
+        overflow: visible;
+    }
     .connector {
         &.in {
             background-color: @color-connector;
@@ -1122,6 +1124,7 @@
             border-right: 1px solid @color-bg-topBarGray2;
             background-color: #DBE1E6;
             padding: 0px 12px;
+            padding-right: 9px; // close button has 3px space on the right
             .noSelection;
             .textOverflow;
             cursor: pointer;
@@ -1176,9 +1179,8 @@
             }
 
             .after {
-                padding-left: 10px;
                 margin-right: 0px;
-                margin-left: 5px;
+                margin-left: 9px;
                 float: right;
                 .size(13px, 13px);
                 .rounded(100%);
