@@ -157,15 +157,28 @@ class DagGraph {
                 parent.connectToChild(node);
             }
         });
+
+        // go through the children of the node we're adding back, but don't
+        // repeat the same children twice.
+        // Add back the connections in nodeInfo["childIndices"] in reverse
+        // order i.e. if 0, 1, and 2 was removed, add back 2, 1, and then 0
+        const seen = {};
         children.forEach((child) => {
             const childId = child.getId();
-            nodeInfo["childIndices"][childId].forEach((index) => {
+            if (seen[childId]) {
+                return;
+            }
+            seen[childId] = true;
+            const connectionIndices = nodeInfo["childIndices"][childId];
+            // add back connections in reverse order to
+            // match how they were removed
+            for (let i = connectionIndices.length - 1; i >= 0; i--) {
                 let spliceIn = false;
-                if (spliceMap && spliceMap[childId] && spliceMap[childId][index]) {
+                if (spliceMap && spliceMap[childId] && spliceMap[childId][i]) {
                     spliceIn = true;
                 }
-                child.connectToParent(node, index, spliceIn);
-            });
+                child.connectToParent(node, connectionIndices[i], spliceIn);
+            }
         })
 
         this.nodesMap.set(node.getId(), node);
@@ -1033,18 +1046,26 @@ class DagGraph {
         const spliceFlags = {}; // whether connection index was spliced
         children.forEach((child) => {
             const childId = child.getId();
-            child.getParents().forEach((parent, index) => {
+            const parents = child.getParents();
+            let numParents = parents.length;
+            for (let i = 0; i < numParents; i++) {
+                console.log(i, parents);
+                const parent = parents[i];
                 if (parent === node) {
                     if (!childIndices[childId]) {
                         childIndices[childId] = [];
                         spliceFlags[childId] = [];
                     }
 
-                    const wasSpliced = child.disconnectFromParent(node, index);
-                    childIndices[childId].push(index);
+                    const wasSpliced = child.disconnectFromParent(node, i);
+                    childIndices[childId].push(i);
                     spliceFlags[childId].push(wasSpliced);
+                    if (wasSpliced) {
+                        i--;
+                        numParents--;
+                    }
                 }
-            });
+            }
             if (switchState) {
                 const set: Set<DagNode> = this._traverseSwitchState(child);
                 descendents.push(...set);

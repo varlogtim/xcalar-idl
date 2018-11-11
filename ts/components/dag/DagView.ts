@@ -296,7 +296,15 @@ namespace DagView {
                     _drawConnection(parentNode.getId(), nodeId, index);
                 });
 
+                const seen = {};
                 node.getChildren().forEach((childNode) => {
+                    const childNodeId = childNode.getId();
+                    if (seen[childNodeId]) {
+                        // node's child will connect to all indices of parent
+                        // so don't repeat if we see this child again
+                        return;
+                    }
+                    seen[childNodeId] = true;
                     childNode.getParents().forEach((parent, index) => {
                         if (parent === node) {
                             _drawConnection(nodeId, childNode.getId(), index);
@@ -1741,7 +1749,14 @@ namespace DagView {
                 const index: number = parseInt($curEdge.attr('data-connectorindex'));
                 if (index > connectorIndex) {
                     const parentNodeId = $curEdge.attr("data-parentnodeid");
+                    if (!DagView.getNode(parentNodeId).length) {
+                        // parent could be removed and this could be a second
+                        // connection to it
+                        $curEdge.attr("data-connectorindex", index - 1);
+                        return true;
+                    }
                     $curEdge.remove();
+
                     _drawLineBetweenNodes(parentNodeId, childNodeId, index - 1, svg);
                     // _drawLineBetweenNodes(parentNodeId, childNodeId, connectorIndex, svg);
                     $curEdge.attr("data-connectorindex", index - 1);
