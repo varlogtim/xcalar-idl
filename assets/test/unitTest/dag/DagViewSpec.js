@@ -304,7 +304,7 @@ describe("DagView Test", () => {
                 test = true;
                 return PromiseHelper.resolve();
             }
-            DagView.previewTable(node.getId())
+            DagView.previewTable(node)
             .then(() => {
                 expect(test).to.be.true;
                 done();
@@ -318,7 +318,7 @@ describe("DagView Test", () => {
             DagTable.Instance.show = () => {
                 return PromiseHelper.reject("test");
             }
-            DagView.previewTable(node.getId())
+            DagView.previewTable(node)
             .then(() => {
                 done("fail");
             })
@@ -330,7 +330,7 @@ describe("DagView Test", () => {
 
         it("should show alert in error code", (done) => {
             node.setTable("");
-            DagView.previewTable(node.getId())
+            DagView.previewTable(node)
             .then(() => {
                 done("fail");
             })

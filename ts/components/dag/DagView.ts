@@ -868,10 +868,9 @@ namespace DagView {
      * DagView.previewTable
      * @param dagNodeId
      */
-    export function previewTable(dagNodeId: string, $dataflowArea?: JQuery): XDPromise<void> {
+    export function previewTable(dagNode: DagNode, $dataflowArea?: JQuery): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         try {
-            const dagNode: DagNode = activeDag.getNode(dagNodeId);
             const tableName: string = dagNode.getTable();
             DagTblManager.Instance.resetTable(tableName);
             // XXX this code should be change after refine the table meta structure
@@ -895,7 +894,7 @@ namespace DagView {
                 deferred.resolve();
             } else {
                 const viewer: XcTableViewer = new XcTableViewer(table);
-                const $node: JQuery = DagView.getNode(dagNodeId, $dataflowArea);
+                const $node: JQuery = DagView.getNode(dagNode.getId(), $dataflowArea);
                 DagTable.Instance.show(viewer, $node)
                     .then(deferred.resolve)
                     .fail((error) => {
@@ -912,9 +911,8 @@ namespace DagView {
         return deferred.promise();
     }
 
-    export function previewAgg(dagNodeId: string): void {
+    export function previewAgg(dagNode: DagNodeAggregate): void {
         try {
-            const dagNode: DagNodeAggregate = <DagNodeAggregate>activeDag.getNode(dagNodeId);
             const aggVal: string | number = dagNode.getAggVal();
             const evalStr: string = dagNode.getParam().evalString;
             const op: string = evalStr.substring(0, evalStr.indexOf("("));
@@ -956,13 +954,20 @@ namespace DagView {
             });
         }
 
-        activeDag.execute(nodeIds, optimized)
+        const graph: DagGraph = activeDag;
+        graph.execute(nodeIds, optimized)
         .then(function() {
             if (UserSettings.getPref("dfAutoPreview") === true &&
-                nodeIds.length === 1 &&
-                activeDag.getNode(nodeIds[0]).getType() != DagNodeType.Aggregate
+                nodeIds.length === 1
             ) {
-                DagView.previewTable(nodeIds[0], $dataflowArea);
+                const node: DagNode = graph.getNode(nodeIds[0]);
+                if (node.getState() === DagNodeState.Complete) {
+                    if (node.getType() === DagNodeType.Aggregate) {
+                        DagView.previewAgg(<DagNodeAggregate>node);
+                    } else {
+                        DagView.previewTable(node, $dataflowArea);
+                    }
+                }
             }
             deferred.resolve();
         })
@@ -2979,7 +2984,7 @@ namespace DagView {
         let graph: DagGraph = tab.getGraph();
         const node: DagNode = graph.getNode(nodeId);
         if (node.getType() === DagNodeType.SQL) {
-            let subGraph = node.getSubGraph();
+            let subGraph = (<DagNodeSQL>node).getSubGraph();
             const subTabId: string = subGraph.getTabId();
             subGraph.updateProgress(queryStateOutput.queryGraph.node);
 
@@ -3078,7 +3083,7 @@ namespace DagView {
         let graph: DagGraph = tab.getGraph();
         const node: DagNode = graph.getNode(nodeId);
         if (queryStateOutput && node.getType() === DagNodeType.SQL) {
-            let subGraph = node.getSubGraph();
+            let subGraph = (<DagNodeSQL>node).getSubGraph();
             const subTabId: string = subGraph.getTabId();
             subGraph.updateProgress(queryStateOutput.queryGraph.node);
 

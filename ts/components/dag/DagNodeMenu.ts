@@ -139,18 +139,18 @@ namespace DagNodeMenu {
                 DagView.reset();
                 break;
             case ("configureNode"):
-                const node: DagNode = DagView.getActiveDag().getNode(operatorIds[0]);
-                configureNode(node);
+                configureNode(_getNodeFromId(operatorIds[0]));
                 break;
             case ("previewTable"):
-                DagView.previewTable(operatorIds[0]);
+                DagView.previewTable(_getNodeFromId(operatorIds[0]));
                 break;
             case ("previewAgg"):
-                DagView.previewAgg(nodeIds[0]);
+                DagView.previewAgg(<DagNodeAggregate>_getNodeFromId(operatorIds[0]));
                 break;
             case ("generateTable"):
+                const nodeToPreview: DagNode = _getNodeFromId(operatorIds[0]);
                 DagView.run(operatorIds).then(() => {
-                    DagView.previewTable(operatorIds[0]);
+                    DagView.previewTable(nodeToPreview);
                 });
                 break;
             case ("description"):
@@ -659,5 +659,9 @@ namespace DagNodeMenu {
                     ".executeNodeOptimized, .executeAllNodesOptimized, " +
                     ".resetNode, .resetAllNodes, .cutNodes, .createCustom")
             .addClass("unavailable");
+    }
+
+    function _getNodeFromId(id: DagNodeId): DagNode {
+        return DagView.getActiveDag().getNode(id);
     }
 }
