@@ -43,9 +43,15 @@ class OpPanelDropdown {
         this._ulId = ulXcId;
         this._cssSelected = cssSelected;
         if (setTitleFunc != null) {
-            this._setTitleFunc = setTitleFunc;
+            this._setTitleFunc = ($elem, text) => {
+                $elem.attr('data-title', text);
+                setTitleFunc($elem, text);
+            }
         } else {
-            this._setTitleFunc = OpPanelDropdown._defaultSetTitleFunc;
+            this._setTitleFunc = ($elem, text) => {
+                $elem.attr('data-title', text);
+                OpPanelDropdown._defaultSetTitleFunc($elem, text);
+            }
         }
         if (isForceUpdate) {
             OpPanelTemplateManager.setElementForceUpdate(this._$elem[0]);
@@ -111,6 +117,7 @@ class OpPanelDropdown {
         onSelectCallback?: OpPanelDropdownMenuSelectCallback
     }): ($li: JQuery) => void {
         return ($li: JQuery) => {
+            xcTooltip.hideAll();
             if (onSelectCallback != null) {
                 onSelectCallback($li.data(OpPanelDropdown._fieldNameValue));
             }
