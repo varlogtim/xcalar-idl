@@ -16,7 +16,7 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _allowInputChange: boolean = true;
     protected _functionsListScrollers: MenuHelper[] = [];
     protected _formHelper: FormHelper;
-    protected _listMax:   number = 30; // max length for hint list
+    protected _listMax: number = 50; // max length for hint list
     protected _table;
     // protected _dagNode: DagNodeGroupBy | DagNodeAggregate | DagNodeMap | DagNodeFilter;
     protected _dagNode: DagNode;
@@ -619,7 +619,7 @@ class GeneralOpPanel extends BaseOpPanel {
 
     protected _getMatchingColNames(val: string): string[] {
         const cols: ProgCol[] = this.model.getColumns();
-        const list: string[] = [];
+        let list: string[] = [];
         const seen = {};
         const originalVal: string = val;
         let showingAll = false;
@@ -632,12 +632,18 @@ class GeneralOpPanel extends BaseOpPanel {
         cols.forEach((col) => {
             colsCache[col.getBackColName()] = col.getType();
         });
+        const beginningMatches  =[];
         if (val.length) {
             for (const name in colsCache) {
-                if (name.indexOf(val) !== -1 &&
-                    !seen.hasOwnProperty(name)) {
+                const nameLower = name.toLowerCase();
+                const matchIndex = nameLower.indexOf(val);
+                if (matchIndex !== -1 && !seen.hasOwnProperty(name)) {
                     seen[name] = true;
-                    list.push(name);
+                    if (matchIndex === 0) {
+                        beginningMatches.push(name);
+                    } else {
+                        list.push(name);
+                    }
                 }
             }
         } else {
@@ -662,8 +668,10 @@ class GeneralOpPanel extends BaseOpPanel {
                 return a.length - b.length;
             };
         }
-
+        beginningMatches.sort(sortFn);
         list.sort(sortFn);
+        // puts matches that start with the same letters first
+        list = beginningMatches.concat(list);
 
         return list.map((colName) => {
             const colNameTemplate: HTML = xcHelper.escapeHTMLSpecialChar(colName);
