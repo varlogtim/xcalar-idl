@@ -191,6 +191,11 @@ abstract class DagTab {
         }
     }
 
+    protected _deleteTableHelper(): XDPromise<void> {
+        DagTblManager.Instance.deleteTable(this._id + "_dag_*", true, true);
+        return PromiseHelper.alwaysResolve(DagTblManager.Instance.forceDeleteSweep());
+    }
+
     protected _trigger(event, ...args): void {
         if (typeof this._events[event] === "function") {
             this._events[event].apply(this, args);

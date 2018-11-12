@@ -427,8 +427,13 @@ class DagTabManager{
         this._removeChildTabById(tabId);
         this._removeParentTabById(tabId);
 
+        if (DagTable.Instance.isTableFromTab(tabId)) {
+            DagTable.Instance.close();
+        }
+
         const $tab: JQuery = this.getDagTabElement(index);
         if ($tab.hasClass("active")) {
+            // when this is the current active table
             if (index > 0) {
                 this._switchTabs(index - 1);
             } else if (this.getNumTabs() > 1) {

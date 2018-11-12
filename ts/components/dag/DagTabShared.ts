@@ -148,7 +148,13 @@ class DagTabShared extends DagTab {
 
     public delete(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        DagTabShared._switchSession(null);
+        this._deleteTableHelper()
+        .then(() => {
+            DagTabShared._switchSession(null);
+            const promise = XcalarDeleteWorkbook(this._getWKBKName());
+            DagTabShared._resetSession();
+            return promise;
+        })
         XcalarDeleteWorkbook(this._getWKBKName())
         .then(() => {
             return PromiseHelper.alwaysResolve(this._tempKVStore.delete());
@@ -162,7 +168,6 @@ class DagTabShared extends DagTab {
             }
         });
 
-        DagTabShared._resetSession();
         return deferred.promise();
     }
 

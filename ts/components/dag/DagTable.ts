@@ -64,6 +64,11 @@ class DagTable {
         this._reset();
     }
 
+    public isTableFromTab(tabId: string): boolean {
+        const tableName: string = this.getTable();
+        return tableName.includes(tabId);
+    }
+
     private _showViewer(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const $container: JQuery = this._getContainer();

@@ -168,8 +168,7 @@ class DagTabUser extends DagTab {
 
     public delete(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        DagTblManager.Instance.deleteTable(this._id + "_dag_*", true, true);
-        PromiseHelper.alwaysResolve(DagTblManager.Instance.forceDeleteSweep())
+        this._deleteTableHelper()
         .then(() => {
             return this._kvStore.delete();
         })
