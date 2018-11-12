@@ -234,22 +234,16 @@ window.DS = (function ($, DS) {
         $gridView.find(".active").removeClass("active");
         $grid.addClass("active");
         $dsListFocusTrakcer.data("dsid", dsId).focus();
+        var isLoading = $grid.hasClass('loading');
         // folder do not show anything
         if ($grid.hasClass("folder")) {
             return PromiseHelper.resolve();
         } else if ($grid.hasClass("unlistable")) {
             DSTable.showError(dsId, ErrTStr.MakrForDel, true);
             return PromiseHelper.resolve();
-        } else if ($grid.hasClass("inActivated")) {
+        } else if ($grid.hasClass("inActivated") && !isLoading) {
             DSTable.showError(dsId, ErrTStr.InactivateDS, false, true);
             return PromiseHelper.resolve();
-        }
-
-        var isLoading;
-        if ($grid.hasClass('loading')) {
-            isLoading = true;
-        } else {
-            isLoading = false;
         }
 
         $grid.addClass("fetching");
