@@ -1011,7 +1011,7 @@ MonitorTStr = {
     "TicketErr2": "This ticket could not be found within your organization.",
     "LowMem": "Low Memory Warning",
     "LowMemMsg": "Warning! Cluster is low on memory. Please check the system status icon for details. " +
-        "Clicking 'Free Memory' will free all tables not used by the current dataflow tab.",
+        "Clicking 'Free Memory' will free all tables not locked and not expected to be used by the current dataflow tab.",
     "LowMemInstr": "To find out more about memory management, please reference <a href=\"<link>\" target=\"_blank\">the link</a>",
 
     // with replace
