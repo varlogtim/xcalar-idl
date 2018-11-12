@@ -325,7 +325,12 @@ class GeneralOpPanelModel {
         const self = this;
         const func = XDParser.XEvalParser.parseEvalStr(val);
         const errorObj = {error: null};
-        validateEvalHelper(func, typeid, errorObj);
+        if (func.error) {
+            errorObj.error = func.error;
+        } else {
+            validateEvalHelper(func, typeid, errorObj);
+        }
+
         return errorObj.error;
 
         function validateEvalHelper(func, typeid: number, errorObj) {

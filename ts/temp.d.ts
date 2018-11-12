@@ -203,7 +203,7 @@ interface ParsedEval {
     fnName: string,
     args: ParsedEvalArg[] | ParsedEval[],
     type: string,
-    error: string
+    error?: string
 }
 
 interface ParsedEvalArg {
