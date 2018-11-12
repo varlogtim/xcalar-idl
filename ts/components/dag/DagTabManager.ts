@@ -636,6 +636,24 @@ class DagTabManager{
         return this._getTabArea().find(".dagTab");
     }
 
+    private _tabRenameCheck(name: string, $tab: JQuery): boolean {
+        const isValid: boolean = xcHelper.validate([{
+            $ele: $tab,
+            error: DFTStr.DupDataflowName,
+            check: () => {
+                return !DagList.Instance.isUniqueName(name);
+            }
+        }, {
+            $ele: $tab,
+            error: ErrTStr.DFNameIllegal,
+            check: () => {
+                return !xcHelper.checkNamePattern(PatternCategory.Dataflow,
+                    PatternAction.Check, name);
+            }
+        }])
+        return isValid;
+    }
+
     private _addEventListeners(): void {
         const $dagTabArea: JQuery = this._getTabArea();
         $dagTabArea.on("click", ".after", (event) => {
@@ -680,15 +698,13 @@ class DagTabManager{
         });
 
        $dagTabArea.on("focusout", ".name .xc-input", (event) => {
-            let $tab_input: JQuery = $(event.currentTarget);
-            let $tab_name: JQuery = $tab_input.parent();
-            let newName: string = $tab_input.text().trim() || this._editingName;
+            let $tabInput: JQuery = $(event.currentTarget);
+            let $tabName: JQuery = $tabInput.parent();
+            let newName: string = $tabInput.text().trim() || this._editingName;
             if (newName != this._editingName &&
-                DagList.Instance.isUniqueName(newName) &&
-                xcHelper.checkNamePattern(PatternCategory.Dataflow,
-                    PatternAction.Check, newName)
+                this._tabRenameCheck(newName, $tabName)
             ) {
-                let $tab: JQuery = $tab_name.parent();
+                let $tab: JQuery = $tabName.parent();
                 let index: number = $tab.index();
                 const dagTab: DagTab = this.getTabByIndex(index);
                 dagTab.setName(newName);
@@ -697,8 +713,8 @@ class DagTabManager{
                 // Reset name if it already exists
                 newName = this._editingName;
             }
-            $tab_name.text(newName);
-            $tab_input.remove();
+            $tabName.text(newName);
+            $tabInput.remove();
             this._tabListScroller.showOrHideScrollers();
         });
 
