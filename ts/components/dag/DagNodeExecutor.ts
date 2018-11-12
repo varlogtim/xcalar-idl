@@ -639,11 +639,13 @@ class DagNodeExecutor {
         const newTableName = this._generateTableName();
         // Set status to Running
         SqlQueryHistoryPanel.Card.getInstance().update(queryObj);
-        params.queryStr = this._replaceSQLTableName(params.queryStr,
+        const retStruct = this._replaceSQLTableName(params.queryStr,
                                                    node.getTableSrcMap(),
                                                    replaceMap,
                                                    params.newTableName,
                                                    newTableName);
+        node.setTableSrcMap(retStruct.newTableSrcMap);
+        params.queryStr = retStruct.newQueryStr;
         params.newTableName = newTableName;
         node.setParam(params, true);
         node.updateSubGraph();
@@ -677,9 +679,11 @@ class DagNodeExecutor {
         replaceMap: {},
         oldDestTableName: string,
         newDestTableName: string
-    ): string {
+    ): {newQueryStr: string,
+        newTableSrcMap: {}} {
         const queryStruct = JSON.parse(queryStr);
         const newTableMap = {};
+        const newTableSrcMap = {};
         queryStruct.forEach((operation) => {
             if (!operation.args.source || !operation.args.dest) {
                 const namePattern = operation.args.namePattern;
@@ -698,6 +702,7 @@ class DagNodeExecutor {
                 const idx = tableSrcMap[source[i]];
                 if (idx) {
                     source[i] = replaceMap[idx];
+                    newTableSrcMap[source[i]] = idx;
                 } else if (!source[i].startsWith("XC_AGG_") &&
                            !source[i].startsWith("XC_SUBQ_")) {
                     if (!newTableMap[source[i]]) {
@@ -722,6 +727,7 @@ class DagNodeExecutor {
                 operation.args.dest = newTableMap[operation.args.dest];
             }
         });
-        return JSON.stringify(queryStruct);
+        return {newQueryStr: JSON.stringify(queryStruct),
+                newTableSrcMap: newTableSrcMap};
     }
 }
