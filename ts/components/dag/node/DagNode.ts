@@ -468,7 +468,7 @@ abstract class DagNode {
      */
     public getNextOpenConnectionIndex(): number {
         let limit;
-        if (this.allowAggNode || this._canHaveMultiParents()) {
+        if (this._canHaveMultiParents()) {
             limit = this.parents.length + 1;
         } else {
             limit = this.maxParents;
@@ -789,7 +789,7 @@ abstract class DagNode {
         if (this.isConfigured()) {
             return;
         }
-        this.setParam();
+        this.setParam(null, true);
     }
 
     protected _replaceColumnInEvalStr(evalStr: string, columnMap): string {

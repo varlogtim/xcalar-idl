@@ -583,6 +583,7 @@ namespace xcManager {
         RoundOpPanel.Instance.setup();
         RowNumOpPanel.Instance.setup();
         SplitOpPanel.Instance.setup();
+        SortOpPanel.Instance.setup();
     }
 
     function setupAsyncOpPanels(): XDPromise<void> {
@@ -1413,7 +1414,7 @@ namespace xcManager {
             return;
         }
 
-        
+
         var left = $tab.offset().left + $tab.outerWidth() + 7;
         var top = $tab.offset().top + 2;
         var $popup =

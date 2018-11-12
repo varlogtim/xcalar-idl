@@ -41,14 +41,14 @@ class DagNodeJoin extends DagNode {
             return {
                 columns: lChanges.columns,
                 changes: lChanges.changes
-            };    
+            };
         } else {
             const rCols: ProgCol[] = parents[1].getLineage().getColumns(replaceParameters);
             const rChanges: DagLineageChange = this._getColAfterJoin(rCols, this.input.getInput(replaceParameters).right);
             return {
                 columns: lChanges.columns.concat(rChanges.columns),
                 changes: lChanges.changes.concat(rChanges.changes)
-            };    
+            };
         }
     }
 
@@ -107,7 +107,7 @@ class DagNodeJoin extends DagNode {
             console.error(err);
         }
 
-        super.setParam();
+        super.setParam(null, true);
         return newRenameMap;
     }
 

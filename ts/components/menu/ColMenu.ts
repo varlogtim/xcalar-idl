@@ -353,7 +353,7 @@ class ColMenu extends AbstractMenu {
             }
 
             const $li: JQuery = $(event.currentTarget);
-            
+
             // xx need to use data or class instead of text in case of language
             const newType: ColumnType = <ColumnType>$li.find(".label").text().toLowerCase();
             const colNums: number[] = $colMenu.data("colNums");
@@ -400,8 +400,9 @@ class ColMenu extends AbstractMenu {
             if (event.which !== 1) {
                 return;
             }
-            const colNums: number[] = $colMenu.data("colNums");
             const tableId: TableId = $colMenu.data('tableId');
+            const colNums: number[] = $colMenu.data("colNums");
+            this._createNodeAndShowForm(DagNodeType.Sort, tableId, colNums);
         });
 
         $subMenu.on('mouseup', '.union, .intersect, .except', (event) => {
@@ -476,6 +477,8 @@ class ColMenu extends AbstractMenu {
                 return {
                     columns: columns
                 };
+            case DagNodeType.Sort:
+                return this._getSortParam(columns);
             case DagNodeType.Join:
                 return this._getJoinParam(columns);
             case DagNodeType.Set:
@@ -486,7 +489,7 @@ class ColMenu extends AbstractMenu {
     }
 
     private _getCastParam(progCols: ProgCol[], newType: ColumnType): object {
-        const basicColTypes: ColumnType[] = BaseOpPanel.getBaiscColTypes(true);
+        const basicColTypes: ColumnType[] = BaseOpPanel.getBasicColTypes(true);
         const evals: {evalString: string, newField: string}[] = [];
         progCols.forEach((progCol) => {
             const colType: ColumnType = progCol.getType();
@@ -522,8 +525,19 @@ class ColMenu extends AbstractMenu {
         };
     }
 
+    private _getSortParam(columns: string[]): object {
+        return {
+            columns: columns.map((colName) => {
+                return {
+                    columnName: colName,
+                    ordering: XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending]
+                }
+            })
+        }
+    }
+
     private _getSetParam(progCols: ProgCol[]): object {
-        const basicColTypes: ColumnType[] = BaseOpPanel.getBaiscColTypes(true);
+        const basicColTypes: ColumnType[] = BaseOpPanel.getBasicColTypes(true);
         const sourColumns = [];
         progCols.forEach((progCol) => {
             const colType: ColumnType = progCol.getType();
@@ -533,7 +547,7 @@ class ColMenu extends AbstractMenu {
                 sourColumns.push({
                     sourceColumn: colName,
                     destColumn: parsedName,
-                    columnType: colType 
+                    columnType: colType
                 });
             }
         });

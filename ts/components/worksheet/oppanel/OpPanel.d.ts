@@ -85,6 +85,7 @@ declare interface HintDropdownProps extends AutogenSectionProps {
     menuList: { colType: ColumnType, colName: string}[];
     onDataChange?: (data: string) => void;
     addMoreButton?: AddMoreButtonProps;
+    onRemove?: () => void;
 }
 
 declare interface SimpleInputProps<T> extends AutogenSectionProps {
@@ -94,6 +95,16 @@ declare interface SimpleInputProps<T> extends AutogenSectionProps {
     onInput?: (data: T) => void;
     inputTimeout?: number;
     onBlur?: (data: T) => void;
+}
+
+declare interface ColumnComboProps extends AutogenSectionProps {
+    columnCombos: ColumnComboRowProps[]
+    addMoreButton?: AddMoreButtonProps
+}
+
+declare interface ColumnComboRowProps extends BaseComponentProps {
+    columnList: HintDropdownProps,
+    dropdownList: HintDropdownProps
 }
 
 declare interface CheckboxInputProps extends AutogenSectionProps {

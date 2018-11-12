@@ -978,7 +978,16 @@ namespace DagView {
             if (parentNode.getMaxChildren() !== 0 && !node.isSourceNode()) {
                 connectToParent = true;
             }
+            if (parentNode.getType() === DagNodeType.Sort &&
+                (newType !== DagNodeType.Export &&
+                newType !== DagNodeType.PublishIMD)) {
+                // do not encourage connecting to sort node if next node
+                // is not an export or publish
+                connectToParent = false;
+            }
         }
+
+
         if (connectToParent) {
             const position: Coordinate = parentNode.getPosition();
             x = position.x + horzNodeSpacing;
@@ -2264,8 +2273,19 @@ namespace DagView {
                         StatusBox.show(DagTStr.CycleConnection, $childNode);
                         return;
                     }
-
-                    DagView.connectNodes(parentNodeId, childNodeId, connectorIndex, tabId);
+                    const warning = _connectionWarning(childNodeId, parentNodeId);
+                    if (warning) {
+                        Alert.show({
+                            title: warning.title,
+                            msg: warning.msg,
+                            onConfirm: () => {
+                                DagView.connectNodes(parentNodeId, childNodeId, connectorIndex, tabId);
+                            }
+                        });
+                    } else {
+                        DagView.connectNodes(parentNodeId, childNodeId,
+                                            connectorIndex, tabId);
+                    }
                 },
                 onDragFail: function (wasDragged: boolean) {
                     if (wasDragged) {
@@ -2302,6 +2322,7 @@ namespace DagView {
                 isReconnecting = true;
                 connectorIndex = parseInt($childConnector.data("index"));
             }
+
             let scale = activeDag.getScale();
             new DragHelper({
                 event: event,
@@ -2385,7 +2406,6 @@ namespace DagView {
                     });
 
                     if (!$parentNode) {
-                        console.log("invalid connection");
                         if (isReconnecting) {
                             activeDag.connect(otherParentId, childNodeId,
                                 connectorIndex, true, false);
@@ -2409,8 +2429,20 @@ namespace DagView {
                             connectorIndex, true, false);
                     }
 
-                    DagView.connectNodes(parentNodeId, childNodeId,
-                        connectorIndex, tabId, isReconnecting);
+                    const warning = _connectionWarning(childNodeId, parentNodeId);
+                    if (warning) {
+                        Alert.show({
+                            title: warning.title,
+                            msg: warning.msg,
+                            onConfirm: () => {
+                                DagView.connectNodes(parentNodeId, childNodeId, connectorIndex, tabId, isReconnecting);
+                            }
+                        });
+                    } else {
+                        DagView.connectNodes(parentNodeId, childNodeId,
+                                            connectorIndex, tabId, isReconnecting);
+
+                    }
                 },
                 onDragFail: function (wasDragged: boolean) {
                     if (wasDragged) {
@@ -2518,6 +2550,26 @@ namespace DagView {
             }
             $dfArea = null;
             $els = null;
+        }
+    }
+
+    function _connectionWarning(childNodeId: DagNodeId, parentNodeId: DagNodeId): {
+        title: string,
+        msg: string
+    } {
+        const childNode = activeDag.getNode(childNodeId);
+        const parentNode = activeDag.getNode(parentNodeId);
+        const childType = childNode.getType();
+
+        if (parentNode.getType() === DagNodeType.Sort &&
+            (childType !== DagNodeType.Export &&
+            childType !== DagNodeType.PublishIMD)) {
+            return {
+                title: DagTStr.SortConnectWarningTitle,
+                msg: DagTStr.SortConnectWarning
+            }
+        } else {
+            return null;
         }
     }
 

@@ -1414,8 +1414,6 @@ class MenuHelper {
                 }
             });
         } else {
-            $dropDownList.addClass('yesclickable');
-
             $dropDownList.on("click", function(event) {
                 const $list: JQuery = $(this);
                 if ($(event.target).closest('.list').length) {

@@ -121,6 +121,8 @@ class DagNodeGroupBy extends DagNode {
         return hint;
     }
 
+    // loop through groupby columns and make sure there's a corresponding
+    // new key name for each one that is not taken by another column
     private _updateNewKeys(): void {
         const takenNames: Set<string> = new Set();
         const input = this.input.getInput();
@@ -139,25 +141,33 @@ class DagNodeGroupBy extends DagNode {
             }
         });
 
+        const seen: Set<string> = new Set();
         const newKeys: string[] = parsedGroupByCols.map((parsedCol, index) => {
-            if (oldNewKeys[index]) {
+            if (oldNewKeys[index] && !seen.has(oldNewKeys[index])) {
+                seen.add(oldNewKeys[index]);
                 return oldNewKeys[index];
-            } else if (!parsedCol.prefix) {
+            }
+            if (!parsedCol.prefix && !seen.has(parsedCol.name)) {
                 // immediate
+                seen.add(parsedCol.name);
                 return parsedCol.name;
             } else {
                 // prefix
                 let name: string = xcHelper.stripColName(parsedCol.name, false);
-                if (!takenNames.has(name)) {
+                if (!takenNames.has(name) && !seen.has(name)) {
+                    seen.add(name);
                     return name;
                 }
 
                 name = xcHelper.convertPrefixName(parsedCol.prefix, name);
                 let newName: string = name;
-                if (!takenNames.hasOwnProperty(newName)) {
+                if (!takenNames.hasOwnProperty(newName) && !seen.has(newName)) {
+                    seen.add(newName);
                     return newName;
                 }
-                return xcHelper.randName(name);
+                const finalName = xcHelper.randName(name);
+                seen.add(finalName);
+                return finalName;
             }
         });
         this.input.setNewKeys(newKeys);
@@ -192,7 +202,7 @@ class DagNodeGroupBy extends DagNode {
         } catch(err) {
             console.error(err);
         }
-        super.setParam();
+        super.setParam(null, true);
         return newRenameMap;
     }
 

@@ -426,6 +426,7 @@ class DagCategoryBar {
             if ($selectedNodes.length === 1) {
                 parentNodeId = $selectedNodes.data("nodeid");
             }
+
             DagView.autoAddNode(type, subType, parentNodeId);
         });
     }

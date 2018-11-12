@@ -18,7 +18,7 @@ class ColAssignmentModel {
         event: Function,
         options?
     ) {
-        const validTypes: ColumnType[] = BaseOpPanel.getBaiscColTypes(true);
+        const validTypes: ColumnType[] = BaseOpPanel.getBasicColTypes(true);
         validTypes.forEach((type) => {
             this.validTypes.push(type);
         });

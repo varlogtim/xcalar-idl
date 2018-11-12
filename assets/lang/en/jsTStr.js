@@ -1659,6 +1659,8 @@ DagTStr = {
     "MenuViewNotebook": "View Notebook",
     "MenuGenerateTable": "Generate Table",
     "MenuGenerateNotebook": "Generate Notebook",
+    "SortConnectWarning": "Having a sort node that is not the final node of the dataflow can cause performance issues. We recommend only having sort nodes at the end of the dataflow. Are you sure you want to continue?",
+    "SortConnectWarningTitle": "Sort Warning"
 };
 
 OpPanelTStr = {
@@ -1694,4 +1696,8 @@ OpPanelTStr = {
     "ExplodePanelFieldNameSourceColumn": "Column to explode",
     "ExplodePanelFieldNameDestColumn": "New resultant column name",
     "ExplodePanelFieldNameDelimiter": "Delimiter",
+    "SortPanelInstr": "Sort your table by selecting one or more columns. The order in which you select the columns will determine that table's sort order.",
+    "SortPanelTitle": "Sort",
+    "SortPanelFieldName": "Column name",
+    "SortColumnHeading": "Columns to sort"
 };

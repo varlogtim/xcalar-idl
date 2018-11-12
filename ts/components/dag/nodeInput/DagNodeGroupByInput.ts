@@ -24,6 +24,7 @@ class DagNodeGroupByInput extends DagNodeInput {
             "title": "The Groupby Schema",
             "minItems": 0, // can be 0 if groupAll is true
             "additionalItems": false,
+            "uniqueItems": true,
             "items": {
               "$id": "#/properties/groupBy/items",
               "type": "string",
@@ -149,6 +150,7 @@ class DagNodeGroupByInput extends DagNodeInput {
             "type": ["null", "array"], // XXX need to specify array of strings
             "title": "The Newkeys Schema",
             "default": null,
+            "uniqueItems": true,
             "examples": [
               null
             ]

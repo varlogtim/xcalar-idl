@@ -138,7 +138,7 @@
         &.addArgWrapLarge {
             padding-left: 0px;
             margin-top: 15px;
-    
+
             .btn {
                 background-color: @color-arc-xdbfree;
                 height: 28px;
@@ -788,7 +788,7 @@
                 font-size: @standardFontSize;
                 padding-right: 20px;
             }
-            .colNameMenuIcon {
+            .colNameMenuIcon, .removeItemIcon {
                 position: absolute;
                 right: 0px;
                 font-size: 8px;
@@ -798,6 +798,12 @@
                 text-align: center;
                 color: @color-arc-xdbfree;
                 cursor: pointer;
+            }
+            .removeItemIcon {
+                right: 20px;
+                width: 10px;
+                font-size: 10px;
+                display: none;
             }
         }
 
@@ -856,7 +862,7 @@
         		position: relative;
                 top: 2px;
                 height: 12px;
-                
+
                 .slider {
                     .size(12px, 12px);
                     top: 0px;
@@ -1314,6 +1320,22 @@
         &:hover {
             .checkbox .icon {
                 color: @color-border-softGray2;
+            }
+        }
+    }
+
+    .selDropdown {
+        input {
+            padding-right: 18px;
+        }
+        &.hasRemoveBtn {
+            &:hover {
+                input {
+                    padding-right: 32px;
+                }
+                .removeItemIcon {
+                    display: inline-block;
+                }
             }
         }
     }
@@ -3503,5 +3525,21 @@
             color: @color-font-dropdown-gray;
         }
     }
+    .selDropdown .list {
+        width: 100%;
+    }
+}
 
+#sortOpPanel {
+    .row-columnCombo {
+        > .flexrow {
+            margin-bottom: 5px;
+            .flexCol-right {
+                max-width: 150px;
+                input {
+                    border-left: none;
+                }
+            }
+        }
+    }
 }

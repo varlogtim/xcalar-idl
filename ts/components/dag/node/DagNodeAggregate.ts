@@ -55,7 +55,7 @@ class DagNodeAggregate extends DagNode {
         } catch(err) {
             console.error(err);
         }
-        super.setParam();
+        super.setParam(null, true);
     }
 
     protected _clearConnectionMeta(): void {

@@ -349,6 +349,9 @@ namespace DagNodeMenu {
             case (DagNodeType.RowNum):
                 RowNumOpPanel.Instance.show(node, options);
                 break;
+            case (DagNodeType.Sort):
+                SortOpPanel.Instance.show(node, options);
+                break;
             default:
                 unlock(tabId);
                 throw new Error("Unsupported type");

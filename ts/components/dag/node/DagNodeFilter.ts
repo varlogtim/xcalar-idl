@@ -66,9 +66,9 @@ class DagNodeFilter extends DagNode {
         } catch(err) {
             console.error(err);
         }
-        super.setParam();
+        super.setParam(null, true);
     }
-    
+
     /**
      * @override
      */

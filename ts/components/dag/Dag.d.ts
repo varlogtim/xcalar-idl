@@ -122,6 +122,11 @@ interface DagNodeIndexInputStruct {
     dhtName: string;
 }
 
+interface DagNodeSortInputStruct {
+    columns: {columnName: string, ordering: string}[];
+    newKeys: string[];
+}
+
 interface DagNodeGroupByInputStruct {
     groupBy: string[];
     aggregate: {operator: string, sourceColumn: string, destColumn: string, distinct: boolean, cast: string}[];

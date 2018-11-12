@@ -205,7 +205,7 @@ class JoinOpPanelStep1 {
                 this._createTypeCastDropdown({
                     container: $castContainer,
                     dropdownId: 'leftCastDropdown',
-                    typeValues: BaseOpPanel.getBaiscColTypes(false).map((type) => type),
+                    typeValues: BaseOpPanel.getBasicColTypes(false).map((type) => type),
                     typeSelected: leftCast,
                     pairIndex: i,
                     isLeft: true,
@@ -214,7 +214,7 @@ class JoinOpPanelStep1 {
                 this._createTypeCastDropdown({
                     container: $castContainer,
                     dropdownId: 'rightCastDropdown',
-                    typeValues: BaseOpPanel.getBaiscColTypes(false).map((type) => type),
+                    typeValues: BaseOpPanel.getBasicColTypes(false).map((type) => type),
                     typeSelected: rightCast,
                     pairIndex: i,
                     isLeft: false,

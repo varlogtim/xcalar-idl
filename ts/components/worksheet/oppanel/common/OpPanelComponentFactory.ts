@@ -22,27 +22,42 @@ class OpPanelComponentFactory {
                 </button>
             </div>`,
 
-        hintDropdown:
+        addMoreButtonSecondary:
+        `<div class="addArgWrap addArgWrapLarge {{cssClass}}">
+            <button class="btn btn-rounded addArg focusable" (click)="onClick">
+                <span class="text">{{btnText}}</span>
+            </button>
+        </div>`,
+
+        hintDropdownSection:
             `<div class="field row clearfix">
                 <div class="description">{{name}}</div>
                 <div class="inputWrap">
-                    <div class="dropDownList hintDropdown selDropdown">
-                        <input class="type-column selInput selError" type="text"
-                            value="{{inputValue}}" placeholder="{{placeholder}}" spellcheck="false"
-                            (input)="onInput" (keydown)="onKeydown" (change)="onChange" />
-                        <div class="list hint">
-                            <ul><APP-LIST></APP-LIST></ul>
-                            <div class="scrollArea top">
-                                <i class="arrow icon xi-arrow-up"></i>
-                            </div>
-                            <div class="scrollArea bottom">
-                                <i class="arrow icon xi-arrow-down"></i>
-                            </div>
-                        </div>
-                    </div>
+                    <APP-HINTDD></APP-HINTDD>
                 </div>
                 <APP-ADDMORE></APP-ADDMORE>
             </div>`,
+
+        hintDropdown:
+            `<div class="dropDownList hintDropdown selDropdown {{cssClass}}">
+                <input class="type-column selInput selError" type="text"
+                    value="{{inputValue}}" placeholder="{{placeholder}}" spellcheck="false"
+                    (input)="onInput" (keydown)="onKeydown" (change)="onChange" />
+                <APP-REMOVEITEMICON></APP-REMOVEITEMICON>
+                <i class="icon xi-arrow-down colNameMenuIcon" (click)="onMenuIconClick"></i>
+                <div class="list hint">
+                    <ul><APP-LIST></APP-LIST></ul>
+                    <div class="scrollArea top">
+                        <i class="arrow icon xi-arrow-up"></i>
+                    </div>
+                    <div class="scrollArea bottom">
+                        <i class="arrow icon xi-arrow-down"></i>
+                    </div>
+                </div>
+            </div>`,
+
+        removeItemIcon:
+        `<i class="icon xi-close removeItemIcon" (click)="onRemoveClick"></i>`,
 
         checkBoxSection:
             `<div class="field row clearfix">
@@ -58,6 +73,9 @@ class OpPanelComponentFactory {
         hintMenuItemEmpty:
             `<li class="hintEmpty">${CommonTxtTstr.NoResult}</li>`,
 
+        menuItem:
+        `<li>{{value}}</li>`,
+
         columnMenuItem:
             `<li>
                 <div class="typeIcon flexContainer {{colTypeClass}}">
@@ -69,7 +87,7 @@ class OpPanelComponentFactory {
                     <div class="flexWrap flex-right"></div>
                 </div>
             </li>`,
-        
+
         simpleInput:
             `<div class="field row clearfix">
                 <div class="description">{{name}}</div>
@@ -79,7 +97,7 @@ class OpPanelComponentFactory {
                         (input)="onInput" (change)="onChange" (blur)="onBlur" />
                 </div>
             </div>`,
-        
+
         renameRow:
             `<div class="flexrow row-rename">
                 <div class="flexCol flexCol-left">
@@ -104,6 +122,41 @@ class OpPanelComponentFactory {
                 </div>
                 <div class="flexWrap flex-mid"><input type="text" class="noEdit" spellcheck="false" disabled="true" value="{{colName}}"/></div>
             </div>`,
+
+        columnComboSection:
+        `<div class="field row row-columnCombo clearfix">
+            <div class="description">{{name}}</div>
+            <APP-COLUMNCOMBOS></APP-COLUMNCOMBOS>
+            <APP-ADDMORE></APP-ADDMORE>
+        </div>`,
+
+        columnComboRow:
+            `<div class="flexrow">
+                <div class="flexCol flexCol-left">
+                    <APP-HINTDD></APP-HINTDD>
+                </div>
+                <div class="flexCol flexCol-right">
+                    <APP-DROPDOWN></APP-HINTDROPDOWN>
+                </div>
+            </div>`,
+
+        dropdownList:
+            `<div class="dropDownList">
+                <input class="text" type="text" disabled="disabled" value="{{inputValue}}" placeholder="{{placeholder}}" spellcheck="false">
+                <div class="iconWrapper">
+                    <i class="icon xi-arrow-down"></i>
+                </div>
+                <div class="list">
+                    <ul><APP-LIST></APP-LIST></ul>
+                    <div class="scrollArea top">
+                        <i class="arrow icon xi-arrow-up"></i>
+                    </div>
+                    <div class="scrollArea bottom">
+                        <i class="arrow icon xi-arrow-down"></i>
+                    </div>
+                </div>
+            </div>`
+
     };
 
     // Input box value check functions
@@ -119,7 +172,7 @@ class OpPanelComponentFactory {
             if (emptyCheck.errMsg != null) {
                 return { errMsg: emptyCheck.errMsg };
             }
-            
+
             const n = Number(v);
             if (Number.isNaN(n)) {
                 return { errMsg: ErrTStr.OnlyNumber };
@@ -251,7 +304,7 @@ class OpPanelComponentFactory {
 
     /**
      * Component: Panel header section; templateId = header
-     * @param props 
+     * @param props
      */
     public createHeader(props: { text: string, onClose: () => void }): HTMLElement[] {
         if (props == null) {
@@ -267,7 +320,7 @@ class OpPanelComponentFactory {
 
     /**
      * Component: Panel opSection; templateId = opSection
-     * @param props 
+     * @param props
      */
     public createOpSection(props: {
         instrStr: string, args?: AutogenSectionProps[]
@@ -281,7 +334,8 @@ class OpPanelComponentFactory {
             'string': this.createStringInputSection.bind(this),
             'number': this.createNumberInputSection.bind(this),
             'boolean': this.createBooleanInputSection.bind(this),
-            'renameList': this.createRenameListSection.bind(this)
+            'renameList': this.createRenameListSection.bind(this),
+            'columnCombo': this.createColumnComboSection.bind(this)
         };
 
         if (props == null || props.instrStr == null) {
@@ -316,7 +370,7 @@ class OpPanelComponentFactory {
 
     /**
      * Component: Panel instruction; templateId = instruction
-     * @param props 
+     * @param props
      */
     public createInstruction(props: { text: string }): HTMLElement[] {
         if (props == null || props.text == null) {
@@ -332,7 +386,7 @@ class OpPanelComponentFactory {
 
     /**
      * Component: Hint dropdown(opSection row); templateId = hintDropdown
-     * @param props 
+     * @param props
      */
     public createHintDropdownSection(props: HintDropdownProps): HTMLElement[] {
         if (props == null) {
@@ -340,12 +394,42 @@ class OpPanelComponentFactory {
         }
 
         // Prepare template
+        const templateId = 'hintDropdownSection';
+        this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
+
+        // Deconstruct parameters
+        const { name, addMoreButton} = props;
+
+        // Create input with hint dropdown
+        const elemHintDropdown = this.createHintDropdown(props);
+
+        // Create add more button
+        const elemAddMoreBtn = this.createAddMoreButton(addMoreButton);
+
+        const elem = this._templateMgr.createElements(templateId, {
+            name: name,
+            'APP-HINTDD': elemHintDropdown,
+            'APP-ADDMORE': elemAddMoreBtn
+        });
+
+        return elem;
+    }
+
+      /**
+     * Component: column input with hint dropdown; templateId = hintDropdown
+     * @param props
+     */
+    public createHintDropdown(props: HintDropdownProps): HTMLElement[] {
+        if (props == null) {
+            return null;
+        }
+
         const templateId = 'hintDropdown';
         this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
 
         // Deconstruct parameters
-        const { name, inputVal, placeholder, menuList, onDataChange
-            ,addMoreButton, onElementMountDone } = props;
+        const { inputVal, placeholder, menuList, onDataChange
+            , onRemove, onElementMountDone } = props;
 
         // Create elements in UL
         const filterMenuList = menuList
@@ -356,9 +440,8 @@ class OpPanelComponentFactory {
             elemMenuItems.splice(0, elemMenuItems.length);
         }
 
-        // Create add more button
-        const elemAddMoreBtn = this.createAddMoreButton(addMoreButton);
-
+        const fullMenuItems = menuList.map((menuItem) => this.createColumnMenuItem(menuItem));
+        const elemRemoveItemIcon = this.createRemoveItemIcon(onRemove);
         // Create the dropdown element
         const getColDispName = (str) => {
             if (str.length === 0) {
@@ -369,9 +452,13 @@ class OpPanelComponentFactory {
         const getColValueName = (str) => {
             return str.startsWith(gColPrefix) ? str.substring(1) : str;
         }
+        let cssClass = "";
+        if (onRemove != null) {
+            cssClass += " hasRemoveBtn ";
+        }
+
         let delayTimeout;
         const elem = this._templateMgr.createElements(templateId, {
-            name: name,
             inputValue: getColDispName(inputVal),
             placeholder: placeholder,
             onInput: (event) => {
@@ -394,21 +481,31 @@ class OpPanelComponentFactory {
                         const newElemList = filterMenuList.map(
                             (menuItem) => this.createColumnMenuItem(menuItem));
                         // Update the menu UI
-                        const $ul = $(elem).find('.selDropdown').find('ul');
+                        const $ul = $(elem).find('ul');
                         $ul.empty();
                         $ul.append(newElemList.length === 0
                             ? this.createHintMenuItemEmpty()
                             : newElemList);
-                        menuHelper.openList()
+                        menuHelper.openList();
                     }
                 }, 200, $(event.currentTarget).val().trim());
+            },
+            onMenuIconClick: () => {
+                // Update the menu UI
+                const $ul = $(elem).find('ul');
+                $ul.empty();
+                $ul.append(fullMenuItems.length === 0
+                    ? this.createHintMenuItemEmpty()
+                    : fullMenuItems);
             },
             onKeydown: (event) => {
                 inputSuggest.listHighlight(event);
             },
-            'APP-ADDMORE': elemAddMoreBtn,
-            'APP-LIST': elemMenuItems
+            cssClass: cssClass,
+            'APP-LIST': elemMenuItems,
+            'APP-REMOVEITEMICON': elemRemoveItemIcon
         });
+
         const dataProcess = (colName, callback) => {
             if (callback != null) {
                 callback(getColValueName(colName));
@@ -418,7 +515,7 @@ class OpPanelComponentFactory {
         let inputSuggest: InputSuggest;
         let menuHelper: MenuHelper;
         const initFunc = (element: HTMLElement) => {
-            const $dropdown = $(element).find('.selDropdown');
+            const $dropdown = $(element);
             const $inputBox = $dropdown.find('.selInput');
             inputSuggest = new InputSuggest({$container: $dropdown});
             menuHelper = new MenuHelper($dropdown, {
@@ -430,6 +527,9 @@ class OpPanelComponentFactory {
                     }
                 },
                 onClose: () => {
+                    if (!$inputBox.closest("body").length) {
+                        return; // check if input was removed
+                    }
                     dataProcess($inputBox.val(), onDataChange);
                 }
             }).setupListeners();
@@ -461,7 +561,7 @@ class OpPanelComponentFactory {
 
     /**
      * Component: A single li for column dropdown; templateId = columnMenuItem
-     * @param props 
+     * @param props
      */
     public createColumnMenuItem(
         props: { colType: ColumnType, colName: string }
@@ -480,19 +580,64 @@ class OpPanelComponentFactory {
         })[0];
     }
 
+    public createMenuItem(value: string): HTMLElement {
+        if (value == null) {
+            return null;
+        }
+
+        const templateId = 'menuItem';
+        this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
+
+        return this._templateMgr.createElements(templateId, {
+            'value': value,
+        })[0];
+    }
+
+    public createRemoveItemIcon(onRemove: Function): HTMLElement {
+        if (onRemove == null) {
+            return null;
+        }
+        const templateId = 'removeItemIcon';
+        this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
+
+        const onRemoveClick = (index, callback) => {
+            if (callback != null) {
+                callback(index);
+            }
+        }
+
+        return this._templateMgr.createElements(templateId, {
+            onRemoveClick: (event) => {
+                event.stopPropagation();
+                // need stop propagation or else
+                // add More button gets triggered
+                onRemoveClick(event, onRemove);
+            }
+        })[0];
+    }
+
     /**
      * Component: "add more" button; templateId = addMoreButton
-     * @param props 
+     * @param props
      */
-    public createAddMoreButton(props: AddMoreButtonProps): HTMLElement[] {
+    public createAddMoreButton(props: AddMoreButtonProps): HTMLElement {
         if (props == null) {
             return null;
         }
 
         const templateId = 'addMoreButton';
         this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
+        return this._templateMgr.createElements(templateId, props)[0];
+    }
 
-        return this._templateMgr.createElements(templateId, props);
+    public createAddMoreButtonSecondary(props: AddMoreButtonProps): HTMLElement {
+        if (props == null) {
+            return null;
+        }
+
+        const templateId = 'addMoreButtonSecondary';
+        this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
+        return this._templateMgr.createElements(templateId, props)[0];
     }
 
     /**
@@ -541,7 +686,7 @@ class OpPanelComponentFactory {
 
     /**
      * Component: Input box with numeric value(opSection row); templateId = simpleInput
-     * @param props 
+     * @param props
      */
     public createNumberInputSection(props: SimpleInputProps<number>): HTMLElement[] {
         if (props == null) {
@@ -685,10 +830,118 @@ class OpPanelComponentFactory {
         return elements;
     }
 
+    public createColumnComboRow(props: ColumnComboRowProps): HTMLElement[] {
+        if (props == null) {
+            return null;
+        }
+        const templateId = 'columnComboRow';
+        const {columnList, dropdownList} = props;
+        this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
+        const elemHintDropdown = this.createHintDropdown(columnList);
+        const elemDropdown = this.createDropdown(dropdownList);
+        const elem = this._templateMgr.createElements(templateId, {
+            name: name,
+           'APP-HINTDD': elemHintDropdown,
+           'APP-DROPDOWN': elemDropdown
+        });
+
+        return elem;
+    }
+
+    public createColumnComboSection(props: ColumnComboProps): HTMLElement[] {
+        if (props == null) {
+            return null;
+        }
+
+        // Prepare template
+        const templateId = 'columnComboSection';
+        this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
+
+        // Deconstruct parameters
+        const { name, addMoreButton, columnCombos} = props;
+
+        // Create input with hint dropdown
+        const columnComboRows = columnCombos.reduce((res, columnComboProp) => {
+            return res.concat(this.createColumnComboRow(columnComboProp));
+        }, []);
+
+        // Create add more button
+        const elemAddMoreBtn = this.createAddMoreButtonSecondary(addMoreButton);
+
+        const elem = this._templateMgr.createElements(templateId, {
+            name: name,
+            'APP-COLUMNCOMBOS': columnComboRows,
+            'APP-ADDMORE': elemAddMoreBtn
+        });
+
+        return elem;
+    }
+
+     /**
+     * Component: column input with dropdown; templateId = hintDropdown
+     * @param props
+     */
+    public createDropdown(props: HintDropdownProps): HTMLElement[] {
+        if (props == null) {
+            return null;
+        }
+
+        const templateId = 'dropdownList';
+        this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
+
+        // Deconstruct parameters
+        const { inputVal, placeholder, menuList, onDataChange
+            , onElementMountDone } = props;
+
+        // Create elements in UL
+        const elemMenuItems = menuList.map((menuItem) => this.createMenuItem(menuItem));
+        // Create the dropdown element
+
+        const elem = this._templateMgr.createElements(templateId, {
+            inputValue: inputVal,
+            placeholder: placeholder,
+            'APP-LIST': elemMenuItems
+        });
+        const dataProcess = (listValue, callback) => {
+            if (callback != null) {
+                callback(listValue);
+            }
+        }
+
+        const initFunc = (element: HTMLElement) => {
+            const $dropdown = $(element);
+            const $inputBox = $dropdown.find('.text');
+            new MenuHelper($dropdown, {
+                bounds: this._menuBoundSelector,
+                onSelect: ($li) => {
+                    $inputBox.val($li.text());
+                },
+                onClose: () => {
+                    dataProcess($inputBox.val(), onDataChange);
+                }
+            }).setupListeners();
+        }
+
+        // Replace the sub dom tree of this component instead of update only as needed
+        // , since we are not able to update event handlers created outside of template
+        OpPanelTemplateManager.setElementForceUpdate(elem[0]);
+        // Execute the init function after the elements are attached to DOM
+        // , because MenuHelper needs to access ancestor elements
+        OpPanelTemplateManager.setNodeMountDoneListener(elem, (elem) => {
+            initFunc(elem);
+            if (onElementMountDone != null) {
+                onElementMountDone(elem);
+            }
+        });
+
+        return elem;
+    }
+
+
     /**
      * Call the predefined check function(defined in this.checkFunctions)
      * @param param checkType: the name of the check function; args: arguments(function to generate arguments) of check function
-     * @param inputVal 
+     * @param inputVal
      */
     private _checkValue(
         param: { checkType: string, args: any[] | Function },

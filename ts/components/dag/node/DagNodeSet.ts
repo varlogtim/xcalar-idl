@@ -88,7 +88,7 @@ class DagNodeSet extends DagNode {
         } catch(err) {
             console.error(err);
         }
-        super.setParam();
+        super.setParam(null, true);
         return newRenameMap;
     }
 }

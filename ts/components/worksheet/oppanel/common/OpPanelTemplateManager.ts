@@ -11,7 +11,7 @@ class OpPanelTemplateManager {
     public static setElementInitFunc(element: HTMLElement, initFunc: () => void) {
         OpPanelNodeRenderFactory.setNodeInitFunc(element as NodeDefDOMElement, initFunc);
     }
-    
+
     public static setNodeMountDoneListener(
         elements: HTMLElement[], listener: (elem: HTMLElement) => void
     ) {
@@ -127,7 +127,7 @@ class OpPanelTemplateManager {
         const replaces = {
             '[\t\n\r]': '',
             '(>[ ]+)': '>',
-            '([ ]+<)': '<' 
+            '([ ]+<)': '<'
         };
         return xcHelper.replaceTemplate(text, replaces, true);
     }

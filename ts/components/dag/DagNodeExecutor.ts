@@ -96,6 +96,8 @@ class DagNodeExecutor {
                 return this._rowNum();
             case DagNodeType.Index:
                 return this._index();
+            case DagNodeType.Sort:
+                return this._sort();
             default:
                 throw new Error(type + " not supported!");
         }
@@ -615,6 +617,35 @@ class DagNodeExecutor {
         })
         const srcTable: string = this._getParentNodeTable(0);
         return XIApi.index(this.txId, colNames, srcTable, undefined, newKeys, params.dhtName);
+    }
+
+    private _sort(): XDPromise<string> {
+        const node: DagNodeSort = <DagNodeSort>this.node;
+        const srcTable: string = this._getParentNodeTable(0);
+        const desTable: string = this._generateTableName();
+        const params: DagNodeSortInputStruct = node.getParam(true);
+        const progCols: ProgCol[] = node.getParents()[0].getLineage().getColumns();
+
+        const sortedColumns = params.columns.map((column) => {
+            const name = column.columnName;
+            const progCol = progCols.find((col: ProgCol) => {
+                return col.name == name || col.getBackColName() == name;
+            });
+            let type;
+            if (progCol) {
+                type = xcHelper.convertColTypeToFieldType(progCol.getType());
+            } else {
+                type = DfFieldTypeT.DfUnknown;
+            }
+            type = null;
+
+            return {
+                name: name,
+                ordering: XcalarOrderingTFromStr[column.ordering],
+                type: type
+            };
+        });
+        return XIApi.sort(this.txId, sortedColumns, srcTable, desTable);
     }
 
     private _sql(): XDPromise<string> {

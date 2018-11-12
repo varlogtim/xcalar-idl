@@ -81,6 +81,9 @@ class DagCategories {
             new DagCategoryNodeOperations(DagNodeFactory.create({
                 type: DagNodeType.Explode
             })),
+            new DagCategoryNodeOperations(DagNodeFactory.create({
+                type: DagNodeType.Sort
+            }))
         ]);
 
         const columnCategory = new DagCategory(DagCategoryType.Column, [

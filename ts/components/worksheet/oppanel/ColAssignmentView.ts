@@ -208,7 +208,7 @@ class ColAssignmentView {
 
     private _getResultList(resultCols: ProgCol[], selectedCols): string {
         let resultColHTML: string = "";
-        const validTypes: ColumnType[] = BaseOpPanel.getBaiscColTypes(false);
+        const validTypes: ColumnType[] = BaseOpPanel.getBasicColTypes(false);
         const lis: HTML = validTypes.map((colType) => `<li>${colType}</li>`).join("");
 
         resultCols.forEach((resultCol, listIndex) => {
@@ -407,7 +407,7 @@ class ColAssignmentView {
                 map.set(col.getBackColName(), colIndex);
             }
         });
-        const validTypes: ColumnType[] = BaseOpPanel.getBaiscColTypes(true);
+        const validTypes: ColumnType[] = BaseOpPanel.getBasicColTypes(true);
         let list: string = allCols.map(function(col, index) {
             const colName: string = col.getBackColName();
             const isUsed: boolean = map.has(colName);

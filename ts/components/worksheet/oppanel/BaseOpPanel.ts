@@ -98,7 +98,7 @@ class BaseOpPanel {
         return html;
     }
 
-    public static getBaiscColTypes(includeMixed: boolean = false): ColumnType[] {
+    public static getBasicColTypes(includeMixed: boolean = false): ColumnType[] {
         const types = [ColumnType.string, ColumnType.integer, ColumnType.float,
         ColumnType.boolean, ColumnType.timestamp];
         if (includeMixed) {

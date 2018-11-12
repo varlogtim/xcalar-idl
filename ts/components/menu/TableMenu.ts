@@ -28,7 +28,7 @@ class TableMenu extends AbstractMenu {
 
     private _addMainMenuActions(): void {
         const $tableMenu: JQuery = this._getMenu();
-        
+
         $tableMenu.on('mouseup', '.hideTable', (event) => {
             if (this._isInvalidTrigger(event)) {
                 return;
@@ -446,7 +446,7 @@ class TableMenu extends AbstractMenu {
             $tbody.find(".col0").remove();
             $tbody.find(".jsonElement").remove();
 
-            const validTypes: ColumnType[] = BaseOpPanel.getBaiscColTypes();
+            const validTypes: ColumnType[] = BaseOpPanel.getBasicColTypes();
             gTables[tableId].tableCols.forEach((progCol: ProgCol, index) => {
                 const colType: ColumnType = progCol.getType();
                 if (validTypes.includes(colType)) {
@@ -463,7 +463,7 @@ class TableMenu extends AbstractMenu {
                     }
                 }
             });
-           
+
             return evals;
         } catch (e) {
             console.error(e);

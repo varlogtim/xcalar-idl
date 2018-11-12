@@ -8,7 +8,7 @@ class ExplodeOpPanelModel {
 
     /**
      * Create data model instance from DagNode
-     * @param dagNode 
+     * @param dagNode
      */
     public static fromDag(dagNode: DagNodeExplode): ExplodeOpPanelModel {
         try {
@@ -40,8 +40,8 @@ class ExplodeOpPanelModel {
 
     /**
      * Create data model instance from column list & DagNodeInput
-     * @param colMap 
-     * @param dagInput 
+     * @param colMap
+     * @param dagInput
      * @description use case: advanced from
      */
     public static fromDagInput(
@@ -80,7 +80,7 @@ class ExplodeOpPanelModel {
             delimiter: this.getDelimiter(),
             destColumn: this.getDestColumn()
         };
-        
+
         return param;
     }
 
