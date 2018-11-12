@@ -254,6 +254,7 @@ var BLD_FLAG_RETAIN_FULL_SRC = 'keepsrc';
 var BLD_FLAG_RC_SHORT = 'rc';
 var BLD_FLAG_RC_LONG = 'removedebugcomments';
 var FASTCOPY = 'fastcopy';
+var NOCLEAN = 'noclean';
 // delimeter user should use for cli options that can take lists
 var OPTIONS_DELIM = ",";
 
@@ -376,6 +377,8 @@ var VALID_OPTIONS = {
         {[FLAG_KEY]: true, [DESC_KEY]: "Remove debug comments from javascript files when generating build"},
     [FASTCOPY]:
         {[FLAG_KEY]: true, [DESC_KEY]: "Skip copying of node_modules and help"},
+    [NOCLEAN]:
+        {[FLAG_KEY]: true, [DESC_KEY]: "Skip end of build clean to remove empty dirs (speeds up build time)"},
     // watch flags
     [WATCH_FLAG_ALL]:
         {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in files of all filetypes"},
@@ -648,6 +651,7 @@ var OVERWRITE;
 var KEEPSRC;
 var WATCH_FILES_REL_TO;
 var fastcopy;
+var noclean;
 
 var STEPCOLOR = 'cyan';
 var STEPCOLOR2 = 'magenta';
@@ -4056,7 +4060,7 @@ module.exports = function(grunt) {
 
             // clean out any empty dirs in the bld, recursively.
             // this is time consuming - do not do it for individual watch tassks
-            if (!IS_WATCH_TASK && !fastcopy) {
+            if (!IS_WATCH_TASK && !noclean) {
                 grunt.task.run('cleanempty:finalBuild');
             }
 
@@ -5337,6 +5341,11 @@ module.exports = function(grunt) {
         // FASTCOPY do not delete help and node_modules folder
         fastcopy = grunt.option(FASTCOPY) || process.env[FASTCOPY] || false;
         process.env[FASTCOPY] = fastcopy;
+
+        // Skip end of build dir clean (traverses entire build, on slow running
+        // machine can take a long time
+        noclean = grunt.option(NOCLEAN) || process.env[NOCLEAN] || false;
+        process.env[NOCLEAN] = noclean;
 
         // OVERWRITE bldroot if it already exists
         OVERWRITE = !(grunt.option(BLD_FLAG_NO_OVERWRITE_BLDDIR_IF_EXISTS)) || process.env[BLD_FLAG_NO_OVERWRITE_BLDDIR_IF_EXISTS] || false;
