@@ -103,7 +103,7 @@ window.ProfileSelector = (function(ProfileSelector, $) {
         $modal.addClass("drawing")
                 .addClass("selecting");
 
-        return new RectSelction(startX, startY, {
+        return new RectSelection(startX, startY, {
             "id": "profile-filterSelection",
             "$container": $("#profile-chart"),
             "onStart": function() { filterDragging = true; },

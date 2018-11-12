@@ -2100,7 +2100,7 @@ window.DS = (function ($, DS) {
 
     function createRectSelection(startX, startY) {
         $gridMenu.hide();
-        return new RectSelction(startX, startY, {
+        return new RectSelection(startX, startY, {
             "id": "gridView-rectSelection",
             "$container": $("#dsListSection .gridItems"),
             "$scrollContainer": $("#dsListSection .gridViewWrapper"),

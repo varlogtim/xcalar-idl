@@ -1910,7 +1910,7 @@ describe("Ephemeral Constructor Test", function() {
         });
     });
 
-    describe("RectSelction Constructor Test", function() {
+    describe("RectSelection Constructor Test", function() {
         var rect;
         var test;
 
@@ -1918,8 +1918,8 @@ describe("Ephemeral Constructor Test", function() {
             test = null;
         });
 
-        it("RectSelction should have 16 attributes", function() {
-            rect = new RectSelction(100, 200, {
+        it("RectSelection should have 16 attributes", function() {
+            rect = new RectSelection(100, 200, {
                 "id": "test-selection",
                 "$container": $("#container"),
                 "$scrollContainer": $("#container"),
@@ -1928,7 +1928,7 @@ describe("Ephemeral Constructor Test", function() {
                 onEnd: function() { test = "end"; }
             });
 
-            expect(rect).to.be.instanceof(RectSelction);
+            expect(rect).to.be.instanceof(RectSelection);
             expect(Object.keys(rect).length).to.equal(16);
 
             expect(rect.x).to.equal(101);

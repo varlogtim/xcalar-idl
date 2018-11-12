@@ -2736,7 +2736,7 @@ namespace DagView {
                 !$target.closest(".comment").length &&
                 !$target.closest(".editableNodeTitle").length &&
                 !$target.closest(".ui-resizable-handle").length) {
-                new RectSelction(event.pageX, event.pageY, {
+                new RectSelection(event.pageX, event.pageY, {
                     "id": "dataflow-rectSelection",
                     "$container": $dfArea.find(".dataflowAreaWrapper"),
                     "$scrollContainer": $dfArea,
