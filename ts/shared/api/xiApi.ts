@@ -2262,7 +2262,38 @@ namespace XIApi {
                 }
                 queryStr = "[" + queryStr + "]";
             }
-            return XcalarQueryWithCheck(queryName, queryStr, txId, false, jdbcCheckTime, noCleanup);
+
+            const deferred: XDDeferred<any> = PromiseHelper.deferred();
+            XcalarQueryWithCheck(queryName, queryStr, txId, false, jdbcCheckTime, noCleanup)
+            .then((res) => {
+                let error: {error: string, log?: string} = null;
+                try {
+                    res.queryGraph.node.forEach((nodeInfo) => {
+                        // XXX TODO: wire in status
+                        const state = nodeInfo.state;
+                        if (state=== DgDagStateT.DgDagStateError) {
+                            error = {
+                                error: DgDagStateTStr[state],
+                                log: nodeInfo.log
+                            };
+                            return false; // stop loop
+                        }
+                    });
+                } catch (e) {
+                    console.error(e);
+                    // if cannot correctly parse the return structure,
+                    // still resolve it
+                }
+
+                if (error == null) {
+                    deferred.resolve(res);
+                } else {
+                    deferred.reject(error);
+                }
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
         }
     }
 
