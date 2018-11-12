@@ -66,7 +66,7 @@ class DagTable {
 
     public isTableFromTab(tabId: string): boolean {
         const tableName: string = this.getTable();
-        return tableName.includes(tabId);
+        return tableName != null && tableName.includes(tabId);
     }
 
     private _showViewer(): XDPromise<void> {
