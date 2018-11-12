@@ -130,7 +130,7 @@ GTSIGN: '>';
 CARET: '^';
 DECIMAL: '-'? DIGIT+ '.' DIGIT+;
 INTEGER: '-'? DIGIT+;
-STRING: '"' ( ~('"'|'\\') | ('\\' .) )* '"';
+STRING: ('"' ( ~('"'|'\\') | ('\\' .) )* '"') | ('\'' ( ~('\''|'\\') | ('\\' .) )* '\'');
 APOSTROPHE: '\'';
 SINGLEQUOTE: '"';
 ALPHANUMERIC: (ALPHANUMS | [_-]) (CHARALLOWED* (CHARALLOWED | ' '))?;
