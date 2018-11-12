@@ -402,11 +402,10 @@ var GRUNT_OPTIONS = [
 var GRUNT_FLAGS = [
     'verbose', 'force', 'stack', 'color', // color being sent to child processes of grunt-concurrent!
 ];
-var validOp;
-for ( validOp of GRUNT_OPTIONS ) {
+for (var validOp of GRUNT_OPTIONS) {
     VALID_OPTIONS[validOp] = {[REQUIRES_VALUE_KEY]: true, [IS_GRUNT_OP]: true};
 }
-for ( validOp of GRUNT_FLAGS ) {
+for (var validOp of GRUNT_FLAGS) {
     VALID_OPTIONS[validOp] = {[FLAG_KEY]: true, [IS_GRUNT_OP]: true};
 }
 
@@ -420,7 +419,7 @@ for ( validOp of GRUNT_FLAGS ) {
     need to account for this boolean flag version of the option as a valid option too
 */
 var oppOp;
-for ( validOp of Object.keys(VALID_OPTIONS) ) {
+for (var validOp of Object.keys(VALID_OPTIONS)) {
     oppOp = falseBooleanFlagPrefix + validOp;
     if (VALID_OPTIONS[validOp][TAKES_BOOLS] ||
         (VALID_OPTIONS[validOp][FLAG_KEY] && !VALID_OPTIONS[validOp][NO_EXTRA_GRUNT_FLAG])
@@ -445,10 +444,10 @@ var OPTIONS_DESC_HASH = optionInfoString();
 
 // get for flags and ops
 var FLAGS_DESC_STR = '';
-for ( type of Object.keys(OPTIONS_DESC_HASH['flags']) ) {
+for (var type of Object.keys(OPTIONS_DESC_HASH['flags'])) {
     FLAGS_DESC_STR = FLAGS_DESC_STR + "\n\t" + OPTIONS_DESC_HASH['flags'][type]['header'] + "\n";
     // now add all the options that matched this type
-    for ( validOp of Object.keys(OPTIONS_DESC_HASH['flags'][type]['matchingoptions']) ) {
+    for (var validOp of Object.keys(OPTIONS_DESC_HASH['flags'][type]['matchingoptions'])) {
         FLAGS_DESC_STR = FLAGS_DESC_STR
             + "\n"
             + OPTIONS_DESC_HASH['flags'][type]['matchingoptions'][validOp]['useage']
@@ -457,9 +456,9 @@ for ( type of Object.keys(OPTIONS_DESC_HASH['flags']) ) {
     }
 }
 var OPS_DESC_STR = '';
-for ( type of Object.keys(OPTIONS_DESC_HASH['options']) ) {
+for (var type of Object.keys(OPTIONS_DESC_HASH['options'])) {
     OPS_DESC_STR = OPS_DESC_STR + "\n\t" + OPTIONS_DESC_HASH['options'][type]['header'] + "\n";
-    for ( validOp of Object.keys(OPTIONS_DESC_HASH['options'][type]['matchingoptions']) ) {
+    for (var validOp of Object.keys(OPTIONS_DESC_HASH['options'][type]['matchingoptions'])) {
         OPS_DESC_STR = OPS_DESC_STR
             + "\n"
             + OPTIONS_DESC_HASH['options'][type]['matchingoptions'][validOp]['useage']
@@ -476,7 +475,7 @@ for ( type of Object.keys(OPTIONS_DESC_HASH['options']) ) {
 */
 function optionInfoString() {
 
-    var op, desc, foundtypes, optiontype, valids;
+    var desc, foundtypes, valids;
     // hash you'll return:
     // will bld up formatted string of options found for each type, then tack the header on at end
     // if don't find any matching options for a category, will delete it
@@ -490,7 +489,7 @@ function optionInfoString() {
             'build':{'header':"\n[Flags for builds] only:", 'matchingoptions':{}},
             'watch':{'header':"\n[Flags for watch only]:", 'matchingoptions':{}}}};
 
-    for ( op of Object.keys(VALID_OPTIONS) ) {
+    for (var op of Object.keys(VALID_OPTIONS)) {
         if (VALID_OPTIONS[op][IS_GRUNT_OP]) {
             desc = "\t\t(Grunt option; see Grunt documentation for current description)";
         } else {
@@ -510,7 +509,7 @@ function optionInfoString() {
             foundtypes['options'] = {'useage':"\t--" + op + "=<value>", 'desc': desc};
         }
         // could be this option takes a value and is a flag.  go through each possibility found
-        for ( optiontype of Object.keys(foundtypes) ) {
+        for (var optiontype of Object.keys(foundtypes)) {
             if (VALID_OPTIONS[op][WATCH_KEY]) {
                 // its specified to watch - add this in
                 infos[optiontype]['watch']['matchingoptions'][op] = foundtypes[optiontype];
@@ -525,8 +524,8 @@ function optionInfoString() {
     // might not have sections for each of these (Ex., flags just for bld),
     // remove those so you don't end up printing out sections with just the header but no content
     // could be confusing
-    for ( var stype of Object.keys(infos) ) {
-        for ( var subtype of Object.keys(infos[stype]) ) {
+    for (var stype of Object.keys(infos)) {
+        for (var subtype of Object.keys(infos[stype])) {
             if (Object.keys(infos[stype][subtype]['matchingoptions']).length == 0) {
                 delete infos[stype][subtype];
             }
@@ -609,24 +608,23 @@ var VALID_TASKS = {
     make some lists as doing this, so can go through in help and print with colorization.
     also need to check if a task is a bld task or not */
 var VALID_BLD_TASKS = {};
-var validTask;
-for ( validTask of Object.keys(VALID_TASKS) ) {
+for (var validTask of Object.keys(VALID_TASKS)) {
     if (VALID_TASKS[validTask][BLD_TASK_KEY]) {
         VALID_BLD_TASKS[validTask] = VALID_TASKS[validTask][DESC_KEY];
     }
 }
 var VALID_OTHER_TASKS = {};
-for ( validTask of Object.keys(VALID_TASKS) ) {
+for (var validTask of Object.keys(VALID_TASKS)) {
     if (!VALID_TASKS[validTask][BLD_TASK_KEY]) {
         VALID_OTHER_TASKS[validTask] = VALID_TASKS[validTask][DESC_KEY];
     }
 }
 var BLD_TASKS_DESC_STR = "";
-for ( validTask of Object.keys(VALID_BLD_TASKS) ) {
+for (var validTask of Object.keys(VALID_BLD_TASKS)) {
     BLD_TASKS_DESC_STR = BLD_TASKS_DESC_STR + "\n\t" + validTask + " :\n\t\t" + VALID_BLD_TASKS[validTask];
 }
 var OTHER_TASKS_DESC_STR = "";
-for ( validTask of Object.keys(VALID_OTHER_TASKS) ) {
+for (var validTask of Object.keys(VALID_OTHER_TASKS)) {
     OTHER_TASKS_DESC_STR = OTHER_TASKS_DESC_STR + "\n\t" + validTask + " :\n\t\t" + VALID_OTHER_TASKS[validTask];
 }
 
@@ -1610,14 +1608,14 @@ module.exports = function(grunt) {
             (if rel assuming rel to srcroot)
             second element is list of cmds to run from that dir
         */
-        cmdsets = [];
+        var cmdsets = [];
 
         /**
             will generate a cmdset for each patch in list below.
             to add in suport for a new past, add list:
             [<node_modules dir to remove>, <path to patch rel srcroot>, <path to dir to apply patch cmd in>]
         */
-        patches = [
+        var patches = [
             ['node_modules/grunt-contrib-watch', 'assets/gruntpluginpatch/', 'taskrunpatch.patch', 'node_modules/grunt-contrib-watch/tasks/lib'],
             ['node_modules/grunt-scriptlinker', 'assets/gruntpluginpatch/', 'scriptlinkerpatch.patch', 'node_modules/grunt-scriptlinker/tasks'],
         ];
@@ -1625,9 +1623,9 @@ module.exports = function(grunt) {
         // will need to remove each of the node_module dirs and run npm install to get it back.
         // instead of running npm install multiple times, collect list of all the dirs to remove
         // and run as a single cmd
-        rmnodemodules= 'rm -r '; // collect all the node_modules you need to remove
+        var rmnodemodules= 'rm -r '; // collect all the node_modules you need to remove
         var patchingsets = [];
-        for ( patch of patches ) {
+        for (var patch of patches) {
             rmnodemodules = rmnodemodules + ' ' + patch[0]; // collecting all the node modules need to remove
 
             patchingsets.push(
@@ -2008,7 +2006,7 @@ module.exports = function(grunt) {
             newContent = newContent + styleDelim;
 
             // now add in all remaining pieces in the split ( in case there were more than one style tags)
-            for ( i = 1; i < stylesplit.length; i++ ) {
+            for (var i = 1; i < stylesplit.length; i++) {
                 newContent = newContent + stylesplit[i];
             }
 
@@ -2030,11 +2028,10 @@ module.exports = function(grunt) {
         // get the data for generating these
         // will be in form: keys (name of a struct var you want to define)
         // value being, the data structure to jsonify
-        structVarsData = generateHelpData();
+        var structVarsData = generateHelpData();
 
         // generate a String as you want the file to be, holding this data
-        var structVar;
-        for ( structVar of Object.keys(structVarsData) ) {
+        for (var structVar of Object.keys(structVarsData)) {
 
             // write data for this file to the help hash tags struct
             content = content + "var " + structVar + " = ";
@@ -2058,12 +2055,11 @@ module.exports = function(grunt) {
     grunt.task.registerTask(CLEANUP_HELP_CONTENT_DIR, function() {
 
         // go through the help content dir and delete everything that's not the user dir
-        helpContentRootFull = BLDROOT + helpContentRoot;
-        helpDirs = grunt.file.expand(helpContentRootFull + "*");//, {filter:'isDirectory'});
-        var helpDir, helpDirAbsSrc;
-        for ( helpDir of helpDirs ) {
+        var helpContentRootFull = BLDROOT + helpContentRoot;
+        var helpDirs = grunt.file.expand(helpContentRootFull + "*");//, {filter:'isDirectory'});
+        for (var helpDir of helpDirs) {
             if (!helpDir.endsWith(path.sep)) { helpDir = helpDir + path.sep; }
-            helpDirAbsSrc = BLDROOT + helpContentMapping.src;
+            var helpDirAbsSrc = BLDROOT + helpContentMapping.src;
             if (helpDirAbsSrc !== helpDir) { // we're only getting the dirs at that top level; not recursive
             //if ( helpDirAbsSrc !== helpDir && !grunt.file.doesPathContain(helpDirAbsSrc, helpDir) ) {
                 grunt.log.write("Delete unneeded help content dir : " + helpDir + " ... ");
@@ -2102,7 +2098,7 @@ module.exports = function(grunt) {
 
         // for each of ithe files, create the struct data
         relativeTo = commonRoot + "js/";
-        for ( htmFilepath of htmFilepaths ) {
+        for (var htmFilepath of htmFilepaths) {
 
             //fullFilepath = BLDROOT + htmFile;
             var $ = cheerio.load(fs.readFileSync(htmFilepath, "utf8")); // get a DOM for this file using cheerio
@@ -2250,8 +2246,7 @@ module.exports = function(grunt) {
             'gGitVersion': getGitSha(),
         }
         var content = "";
-        var key;
-        for ( key of Object.keys(varData) ) { // add the content in
+        for (var key of Object.keys(varData)) { // add the content in
             content = content + "\nvar " + key + " = '" + varData[key] + "';";
         }
 
@@ -2298,7 +2293,7 @@ module.exports = function(grunt) {
         grunt.file.delete(constructorSrcFull);
 
         // now dleete anything required but not needed in final bld
-        for ( requiredItem of constructorMapping.required ) {
+        for (var requiredItem of constructorMapping.required) {
             fullPath = BLDROOT + requiredItem;
             grunt.log.write("Delete file/dir " + fullPath + " ... ");
             grunt.file.delete(fullPath);
@@ -2355,8 +2350,8 @@ module.exports = function(grunt) {
         grunt.config('copy.resolveDependencies.dest', dest);
         var srclist = [],
             glob = false;
-        var dependency, dependencyAbsPath;
-        for ( dependency of dependencies ) {
+        var dependencyAbsPath;
+        for (var dependency of dependencies) {
             grunt.log.debug("Next dependency: " + dependency);
             if (dependency.match(/\*/g)) {
                 grunt.log.writeln("this is a globbing pattern! can't do any checks");
@@ -2446,11 +2441,9 @@ module.exports = function(grunt) {
         grunt.log.debug("in remove content w " + content);
         // clear out current src
         grunt.config('clean.custom.src', []);
-        var dependency;
-        var removelist = [], // to set as src to clean task
-            glob = false;
-        var removePath;
-        for ( removePath of content ) {
+        var removelist = []; // to set as src to clean task
+        var glob = false;
+        for (var removePath of content) {
             grunt.log.writeln("Remove: " + removePath);
             if (removePath.match(/\*/g)) {
                 grunt.log.debug("this is a globbing pattern! can't do any checks");
@@ -2479,7 +2472,6 @@ module.exports = function(grunt) {
             grunt.task.run('clean:custom');
         }
 
-
     }
 
                                                                 // ======== CSS SECTION ======= //
@@ -2506,8 +2498,8 @@ module.exports = function(grunt) {
             in case one day, that dir has other files, or is same as bld root, or other dir!)
         */
         grunt.log.writeln(("\nRemove less files from build\n").bold);
-        lessFiles = grunt.file.expand(BLDROOT + cssMapping.src + "**/*.less");
-        for ( var lessFile of lessFiles ) {
+        var lessFiles = grunt.file.expand(BLDROOT + cssMapping.src + "**/*.less");
+        for (var lessFile of lessFiles) {
             grunt.log.write("less file: " + lessFile + " DELETE ... ");
             grunt.file.delete(lessFile);
             grunt.log.ok();
@@ -2777,10 +2769,9 @@ module.exports = function(grunt) {
             + "\n(prettification post-js min in installer blds an example)");
 
         // get list of all the files in the staging dir II, rel to it
-        HTML_BUILD_FILES = grunt.file.expand({'cwd':HTML_STAGING_II_ABS}, "**/*.html");
-        var bldFile;
+        HTML_BUILD_FILES = grunt.file.expand({'cwd':HTML_STAGING_II_ABS}, "**/*.html"); // global var!
         grunt.log.writeln("Build files found:");
-        for ( bldFile of HTML_BUILD_FILES ) {
+        for (var bldFile of HTML_BUILD_FILES) {
             grunt.log.debug("\t" + bldFile);
         }
     });
@@ -2830,7 +2821,7 @@ module.exports = function(grunt) {
             // if this a main bld task... additional globs to handle build exclusions
             // (files to completely ignore from source)
             if (!IS_WATCH_TASK) {
-                for (exclude of htmlMapping.exclude) {
+                for (var exclude of htmlMapping.exclude) {
                     if (grunt.file.isDir(exclude)) {
                         grunt.log.debug("Add match pattern for Exclusiun dir: " + exclude);
                         matchPatterns.push("!" + HTML_STAGING_I_ABS + exclude + "**");    // excludes this dir and everything within it
@@ -2846,11 +2837,10 @@ module.exports = function(grunt) {
                 + "staging dir @: " + HTML_STAGING_I_ABS
                 + "match patterns: " + matchPatterns);
 
-        var filepath;
         var skipfile = false;
         grunt.log.debug("Go through each eligible HTML file and template " +
             " unless its blacklisted");
-        for (filepath of htmlFilepaths) {
+        for (var filepath of htmlFilepaths) {
             if (grunt.file.doesPathContain(HTML_STAGING_I_ABS, filepath)) {
                 skipfile = false;
                 /**
@@ -3271,10 +3261,9 @@ module.exports = function(grunt) {
         if (BLDTYPE != DEV && !IS_WATCH_TASK) {
 
             grunt.log.writeln("This is a non-dev build; delete any generated map files");
-            var mapfiles, mapfile;
 
-            mapfiles = grunt.file.expand(BLDROOT + typescriptMapping.dest + "**/*.map");
-            for ( mapfile of mapfiles ) {
+            var mapfiles = grunt.file.expand(BLDROOT + typescriptMapping.dest + "**/*.map");
+            for (var mapfile of mapfiles) {
                 grunt.log.write((("Delete: ").green + mapfile + " ... ").bold);
                 grunt.file.delete(mapfile);
                 grunt.log.ok();
@@ -3315,20 +3304,20 @@ module.exports = function(grunt) {
     grunt.registerTask(REMOVE_DEBUG_COMMENTS, function(fileType) {
         grunt.log.writeln("Remove debug comments from specified files of type " + fileType);
 
-        filePaths = [];
+        var filePaths = [];
         if (REMOVE_DEBUG_COMMENTS_FROM_THESE_FILES.hasOwnProperty(fileType)) {
             filePaths = REMOVE_DEBUG_COMMENTS_FROM_THESE_FILES[fileType];
         } else {
             grunt.fail.fatal("Invalid filetype to remove debug comments from: " + fileType);
         }
 
-        var filePath, absFilePath, fileName, fileExt, i;
-        for (var i = 0; i<filePaths.length; i++) {
-            filePath = filePaths[i];
-            fileExt = path.extname(filePath);
+        for (var i = 0; i < filePaths.length; i++) {
+            var filePath = filePaths[i];
+            var fileExt = path.extname(filePath);
+            var absFilePath;
             // remove debug for html files done when html files in staging; dirs will be flattened
             if (fileExt === '.html') {
-                fileName = path.basename(filePath);
+                var fileName = path.basename(filePath);
                 absFilePath = HTML_STAGING_II_ABS + fileName;
             } else {
                 absFilePath = BLDROOT + filePath;
@@ -3373,7 +3362,7 @@ module.exports = function(grunt) {
         grunt.log.writeln(("\nDelete .ts files/dirs necessary for generating .js files, now that they have been generated\n").bold);
 
         if (BLDTYPE != DEV) {
-            for ( requiredItem of typescriptMapping.required ) {
+            for (var requiredItem of typescriptMapping.required) {
                 fullPath = BLDROOT + requiredItem;
                 grunt.log.write("Delete file/dir " + fullPath + " ... ");
                 grunt.file.delete(fullPath);
@@ -3445,12 +3434,11 @@ module.exports = function(grunt) {
             // "assets/lang/zh/jsTStr.js": "assets/lang/zh/jsTStrXI.js",
             "assets/jupyter/ipython/nbextensions/xcalar.js": "assets/jupyter/ipython/nbextensions/xcalar.js",
         }
-        var jsFile, jsFileFullSrc, jsFileFullDest;
 
         // go through each essential file; create new file w/ the updated text and save that
-        for ( jsFile of Object.keys(jsFilesToUpdate) ) {
-            jsFileFullSrc = BLDROOT + jsFile;
-            jsFileFullDest = BLDROOT + jsFilesToUpdate[jsFile];
+        for (var jsFile of Object.keys(jsFilesToUpdate)) {
+            var jsFileFullSrc = BLDROOT + jsFile;
+            var jsFileFullDest = BLDROOT + jsFilesToUpdate[jsFile];
             updateFileProductName(jsFileFullSrc, jsFileFullDest, !KEEPSRC); // 3rd option allows you to delete original file, if dest =/= src
         }
 
@@ -3984,17 +3972,16 @@ module.exports = function(grunt) {
         var grepCmd = "grep -r -I -i -l 'xcalar design'"; // returns filepaths w/ occurances of xcalar design (case insensitive); recursive, ignores binary files
         var excludeDirs = ['ext-unused', 'bin']; // exclude any files with paths that contain any of these dirs
         var excludeFiles = ["htmlTStr.js", "CopyrightAndTrademarks.htm", "README"]; // exclude any files with these names.  Sorry, isn't working with abs. filepaths yet
-        var excludeDir, excludeFile;
         var shellStr;
         var grepCmdOutput;
         var matchingFile;
         var currCwd = process.cwd();
 
         // build up the full grep cmd, mindful of exclusions metniond
-        for ( excludeDir of excludeDirs ) {
+        for (var excludeDir of excludeDirs) {
             grepCmd = grepCmd + " --exclude-dir " + excludeDir;
         }
-        for ( excludeFile of excludeFiles ) {
+        for (var excludeFile of excludeFiles) {
             grepCmd = grepCmd + " --exclude " + excludeFile;
         }
 
@@ -4177,8 +4164,7 @@ module.exports = function(grunt) {
         // print out filepaths of some of the files auto-generated duoring bld
         grunt.log.debug(fancyLine());
         grunt.log.debug(("\n Some files/dirs generated during this bld, and their locations:").bold);
-        var generatedItem;
-        for ( generatedItem of Object.keys(generatedDuringBuild) ) {
+        for (var generatedItem of Object.keys(generatedDuringBuild)) {
             grunt.log.debug("\n [" + (generatedItem)[bottomKeyColor] + "]");
             grunt.log.debug("\n\t" + generatedDuringBuild[generatedItem]);
         }
@@ -4206,7 +4192,7 @@ module.exports = function(grunt) {
             i = 0;
 
         grunt.log.writeln("");
-        for ( i = 0; i < numPatternsToPrint; i++ ) {
+        for (var i = 0; i < numPatternsToPrint; i++) {
             line = line + pattern;
         }
         return line;
@@ -4224,9 +4210,9 @@ module.exports = function(grunt) {
 
         grunt.log.writeln("===== sync with trhfit ========");
 
-        var backendSrcAbsPath = BACKENDBLDDIR + BACKEND_JS_SRC,
-            thriftDestAbsPath = BLDROOT + GUIPROJ_THRIFT_DEST, // ok if doesn't exist yet; copy will create it
-            tmpDirFullPath = BLDROOT + "tmpJsHolderThrift/";
+        var backendSrcAbsPath = BACKENDBLDDIR + BACKEND_JS_SRC;
+        var thriftDestAbsPath = BLDROOT + GUIPROJ_THRIFT_DEST; // ok if doesn't exist yet; copy will create it
+        var tmpDirFullPath = BLDROOT + "tmpJsHolderThrift/";
 
         if (!grunt.file.exists(backendSrcAbsPath)) {
             grunt.fail.fatal("Trying to copy backend xcalar scripts in to GUI project as part of thrift bld"
@@ -4255,12 +4241,9 @@ module.exports = function(grunt) {
             final location)
         */
         grunt.log.writeln(("\n1. Set aside build files you want to retain").cyan);
-        var saveScriptRelFilepath,
-            saveScriptAbsFilepath,
-            saveScriptTmpFilepath;
-        for ( saveScriptRelFilepath of Object.keys(KEEP_FRONTEND_SCRIPTS) ) { // they are FILEPATHS relative to the bld dest dir
-            saveScriptAbsFilepath = thriftDestAbsPath + saveScriptRelFilepath;
-            saveScriptTmpFilepath = tmpDirFullPath + saveScriptRelFilepath;
+        for (var saveScriptRelFilepath of Object.keys(KEEP_FRONTEND_SCRIPTS)) { // they are FILEPATHS relative to the bld dest dir
+            var saveScriptAbsFilepath = thriftDestAbsPath + saveScriptRelFilepath;
+            var saveScriptTmpFilepath = tmpDirFullPath + saveScriptRelFilepath;
             grunt.log.writeln("cp " + saveScriptAbsFilepath + " --> " + saveScriptTmpFilepath);
             grunt.file.copy(saveScriptAbsFilepath, saveScriptTmpFilepath); // grunt.file.copy will create intermediate dirs for you, so first copy will create the temp dir
             KEEP_FRONTEND_SCRIPTS[saveScriptRelFilepath] = saveScriptTmpFilepath;
@@ -4285,13 +4268,10 @@ module.exports = function(grunt) {
             then for each filepath in grunt.file.expand, want the portion of the path rel. to the backend dir expanded on
         */
         var backendFilepaths = grunt.file.expand(backendSrcAbsPath + "**/*.js"); // gets filepaths of all .js files in the dir arg and any subdirs of arg
-        var absFilepath,
-            filepathRelScriptSrc,
-            target;
         grunt.log.writeln(("\n3. Copy backend thrift files in to build (all js files nested beginning @ " + backendSrcAbsPath + ")").cyan);
-        for ( absFilepath of backendFilepaths ) {
-            filepathRelScriptSrc = path.relative(backendSrcAbsPath, absFilepath);
-            target = thriftDestAbsPath + filepathRelScriptSrc;
+        for (var absFilepath of backendFilepaths) {
+            var filepathRelScriptSrc = path.relative(backendSrcAbsPath, absFilepath);
+            var target = thriftDestAbsPath + filepathRelScriptSrc;
             grunt.log.writeln("cp " + absFilepath + " ---> " + target);
             grunt.file.copy(absFilepath, target);
         }
@@ -4304,10 +4284,10 @@ module.exports = function(grunt) {
             then this will fail, which I want to happen);
         */
         grunt.log.writeln(("\n4. Port back in the bld files you saved").cyan);
-        for ( saveScriptRelFilepath of Object.keys(KEEP_FRONTEND_SCRIPTS) ) {
+        for (var saveScriptRelFilepath of Object.keys(KEEP_FRONTEND_SCRIPTS)) {
             // tmp location it should be at, is val of this key
-            saveScriptTmpFilepath = KEEP_FRONTEND_SCRIPTS[saveScriptRelFilepath];
-            target = thriftDestAbsPath + saveScriptRelFilepath;
+            var saveScriptTmpFilepath = KEEP_FRONTEND_SCRIPTS[saveScriptRelFilepath];
+            var target = thriftDestAbsPath + saveScriptRelFilepath;
             grunt.log.writeln("cp " + saveScriptTmpFilepath + " ---> " + target);
             grunt.file.copy(saveScriptTmpFilepath, target);
         }
