@@ -621,7 +621,12 @@ namespace DagView {
      * @param nodeIds
      */
     export function moveNodes(
-        nodeInfos,
+        nodeInfos: {
+            type: string,
+            id: string,
+            position: {x: number,y: number},
+            oldPosition?: {x: number, y: number}
+        }[],
         graphDimensions?: Coordinate
     ): XDPromise<void> {
         let svg = d3.select("#dagView .dataflowArea.active .edgeSvg");
@@ -698,6 +703,7 @@ namespace DagView {
             "dataflowId": activeDagTab.getId(),
             "nodeInfos": nodeInfos
         });
+
         return activeDagTab.save();
     }
 
@@ -796,14 +802,24 @@ namespace DagView {
         parentNodeId?: DagNodeId,
         input?: object
     ): DagNode {
-        let node: DagNode;
         let parentNode: DagNode;
         let x: number;
         let y: number;
         let nextAvailablePosition: Coordinate;
+        let connectToParent: boolean = false;
+        const node: DagNode = DagView.newNode({
+            type: newType,
+            subType: subType,
+            input: input
+        });
 
         if (parentNodeId) {
             parentNode = DagView.getActiveDag().getNode(parentNodeId);
+            if (parentNode.getMaxChildren() !== 0 && !node.isSourceNode()) {
+                connectToParent = true;
+            }
+        }
+        if (connectToParent) {
             const position: Coordinate = parentNode.getPosition();
             x = position.x + horzNodeSpacing;
             y = position.y + vertNodeSpacing * parentNode.getChildren().length;
@@ -817,17 +833,12 @@ namespace DagView {
         }
         nextAvailablePosition = getNextAvailablePosition(x, y);
 
-        node = DagView.newNode({
-            type: newType,
-            subType: subType,
-            display: {
-                x: nextAvailablePosition.x,
-                y: nextAvailablePosition.y
-            },
-            input: input
-        });
+        DagView.moveNodes([{type: "dagNode", id: node.getId(), position: {
+            x: nextAvailablePosition.x,
+            y: nextAvailablePosition.y
+        }}]);
 
-        if (parentNode && parentNode.getMaxChildren() !== 0) {
+        if (connectToParent) {
             DagView.connectNodes(parentNodeId, node.getId(), 0);
         }
 
