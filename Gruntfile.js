@@ -1034,7 +1034,8 @@ module.exports = function(grunt) {
                 options: {
                     files:false, // do NOT clean empty files.  Make sure to have this; default is true, and make empty config file on some builds and you want to keep it!
                 },
-                src: BLDROOT + "**/*",
+                cwd: BLDROOT,
+                src: ["**/*", "!3rd/**/*", "!services/expServer/node_modules/**/*", "!services/xpeServer/node_modules/**/*"],
                 expand: true,
             },
         },
