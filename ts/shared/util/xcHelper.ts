@@ -2606,6 +2606,50 @@ namespace xcHelper {
     }
 
     /**
+     * xcHelper.disableElement
+     * @param $el
+     * @param tooltip
+     */
+    export function disableElement($el: JQuery, tooltip?: string, isEmpty?: boolean): void {
+        $el.addClass("unavailable");
+        if (!isEmpty) {
+            tooltip = tooltip || StatusMessageTStr.PleaseWait;
+        }
+
+        if (tooltip) {
+            const oldTooltip = $el.attr("data-original-title") || $el.attr("data-title") || $el.attr("title");
+            if (oldTooltip) {
+                $el.data("lastmessage", oldTooltip);
+                xcTooltip.changeText($el, tooltip);
+            } else {
+                $el.data("lastmessage", null);
+                xcTooltip.add($el, {title: tooltip});
+            }
+            $el.data("hasdisabledtooltip", true);
+        } else {
+            $el.data("lastmessage", null);
+        }
+    }
+
+    /**
+     * xcHelper.enableElement
+     * @param $el
+     */
+    export function enableElement($el): void {
+        $el.removeClass("unavailable");
+        if ($el.data("hasdisabledtooltip")) {
+            const lastMessage = $el.data("lastmessage");
+            if (lastMessage) {
+                xcTooltip.changeText($el, lastMessage);
+            } else {
+                xcTooltip.remove($el);
+            }
+            $el.removeData("hasdisabledtooltip");
+            $el.removeData("lastmessage");
+        }
+    }
+
+    /**
      * xcHelper.disableScreen
      * @param $area
      */

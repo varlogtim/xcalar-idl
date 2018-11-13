@@ -395,34 +395,41 @@ class DagList {
 
         $dagListSection.on("click", ".fileName .name", (event) => {
             const $dagListItem: JQuery = $(event.currentTarget).parent();
-            if ($dagListItem.hasClass("loading")) {
+            if ($dagListItem.hasClass("unavailable")) {
                 return;
             }
             const dagTab: DagTab = this.getDagTabById($dagListItem.data("id"));
-            $dagListItem.addClass("loading")
+            xcHelper.disableElement($dagListItem);
             DagTabManager.Instance.loadTab(dagTab)
             .fail(() => {
                 this._loadErroHandler($dagListItem);
             })
             .always(() => {
-                $dagListItem.removeClass("loading")
+                xcHelper.enableElement($dagListItem);
             });
         });
 
         $dagListSection.on("click", ".deleteDataflow", (event) => {
             let $dagListItem: JQuery = $(event.currentTarget).parent();
+            if ($dagListItem.hasClass("unavailable")) {
+                return;
+            }
             Alert.show({
                 title: DFTStr.DelDF,
                 msg: xcHelper.replaceMsg(DFTStr.DelDFMsg, {
                     dfName: $dagListItem.text()
                 }),
                 onConfirm: () => {
+                    xcHelper.disableElement($dagListItem);
                     this.deleteDataflow($dagListItem)
                     .fail((error) => {
                         const log = error && typeof error === "object" ? error.log : null;
                         StatusBox.show(DFTStr.DelDFErr, $dagListItem, false, {
                             detail: log
                         });
+                    })
+                    .always(() => {
+                        xcHelper.enableElement($dagListItem);
                     });
                 }
             });

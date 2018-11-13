@@ -1,6 +1,7 @@
 describe("DagView Test", () => {
     let $dagView;
     let $dfWrap;
+    let tabId;
     before(function(done) {
         UnitTest.onMinMode();
         $dagView = $("#dagView");
@@ -9,6 +10,7 @@ describe("DagView Test", () => {
             return $dagView.find(".dataflowArea").length > 0;
         })
         .then(function() {
+            tabId = DagView.getActiveDag().getTabId();
             MainMenu.openPanel("dagPanel", null);
             done();
         });
@@ -62,7 +64,7 @@ describe("DagView Test", () => {
             let top;
             const cacheFn = DagView.moveNodes;
             let called = false;
-            DagView.moveNodes = function(nodeInfos) {
+            DagView.moveNodes = function(tabId, nodeInfos) {
                 expect(nodeInfos.length).to.equal(1);
                 expect(nodeInfos[0].id).to.equal($operator.data("nodeid"));
                 expect(nodeInfos[0].position.x).to.equal(left + 40);
@@ -98,7 +100,8 @@ describe("DagView Test", () => {
         it("DagView.moveNode should work", function(done) {
             const $operator = $dfWrap.find(".dataflowArea.active .operator").eq(0);
             const nodeId = $operator.data("nodeid");
-            DagView.moveNodes([{type: "dagNode", id: nodeId, position: {x: 220, y: 240}}])
+
+            DagView.moveNodes(tabId, [{type: "dagNode", id: nodeId, position: {x: 220, y: 240}}])
             .always(function() {
                 const dag = DagView.getActiveDag();
                 expect(dag.getNode(nodeId).getPosition().x).to.equal(220);
@@ -163,7 +166,8 @@ describe("DagView Test", () => {
             const $child = $operator.siblings(".operator");
             const parentId = $operator.data("nodeid");
             const childId = $child.data("nodeid");
-            DagView.connectNodes(parentId, childId, 0)
+            const tabId = DagView.getActiveDag().getTabId();
+            DagView.connectNodes(parentId, childId, 0, tabId)
             .always(function() {
                 const dag = DagView.getActiveDag();
                 expect(dag.getNode(parentId).children.length).to.equal(1);
@@ -179,7 +183,8 @@ describe("DagView Test", () => {
             const $child = $operator.siblings(".operator");
             const parentId = $operator.data("nodeid");
             const childId = $child.data("nodeid");
-            DagView.disconnectNodes(parentId, childId, 0)
+            const tabId = DagView.getActiveDag().getTabId();
+            DagView.disconnectNodes(parentId, childId, 0, tabId)
             .always(function() {
                 const dag = DagView.getActiveDag();
                 expect(dag.getNode(parentId).children.length).to.equal(0);
@@ -208,7 +213,7 @@ describe("DagView Test", () => {
             nodes.forEach((node) => {
                 nodeIds.push(node.getId());
             });
-            DagView.removeNodes(nodeIds)
+            DagView.removeNodes(nodeIds, dag.getTabId())
             .always(function() {
                 nodes = dag.getAllNodes();
                 let nodeIds = [];
@@ -349,6 +354,7 @@ describe("DagView Test", () => {
     describe("Dag Progress", () => {
         let nodeId;
         let $node;
+        let tabId = DagView.getActiveDag().getTabId();
 
         before(() => {
             const newNodeInfo = {
@@ -379,7 +385,7 @@ describe("DagView Test", () => {
         });
 
         after(() => {
-            DagView.removeNodes([nodeId]);
+            DagView.removeNodes([nodeId], tabId);
         });
     });
 
@@ -398,7 +404,7 @@ describe("DagView Test", () => {
         nodes.forEach((node) => {
             nodeIds.push(node.getId());
         });
-        DagView.removeNodes(nodeIds)
+        DagView.removeNodes(nodeIds, dag.getTabId())
         .always(function() {
             done();
         });

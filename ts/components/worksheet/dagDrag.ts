@@ -342,7 +342,6 @@ class DragHelper {
         $(document).off("mousemove.onDrag");
         $(document).off("mouseup.endDrag");
         if (!this.isDragging) {
-            this.isDragging = false;
             this.onDragFailCallback();
             return;
         }
@@ -369,6 +368,8 @@ class DragHelper {
 
         if (coors.length) {
             this.onDragEndCallback(this.$draggingEls, event, {coors: coors});
+        } else {
+            this.onDragFailCallback(true);
         }
     }
 }

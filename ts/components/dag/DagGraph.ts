@@ -191,7 +191,8 @@ class DagGraph {
             addInfo: {
                 childIndices: nodeInfo["childIndices"],
                 node: node
-            }
+            },
+            tabId: this.parentTabId
         });
         return node;
     }
@@ -214,14 +215,17 @@ class DagGraph {
     public addNode(dagNode: DagNode): void {
         this.nodesMap.set(dagNode.getId(), dagNode);
         dagNode.registerEvents(DagNodeEvents.StateChange, (info) => {
+            info.tabId = this.parentTabId;
             this.events.trigger(DagNodeEvents.StateChange, info);
             if (info.state === DagNodeState.Configured) {
                 this.events.trigger(DagNodeEvents.SubGraphConfigured, {
-                    id: info.id
+                    id: info.id,
+                    tabId: this.parentTabId
                 });
             } else if (info.state === DagNodeState.Error) {
                 this.events.trigger(DagNodeEvents.SubGraphError, {
                     id: info.id,
+                    tabId: this.parentTabId,
                     error: info.node.getError()
                 });
             }
@@ -229,15 +233,19 @@ class DagGraph {
         .registerEvents(DagNodeEvents.ParamChange, (info) => {
             const node = this.getNode(info.id);
             this._traverseSwitchState(node);
+            info.tabId = this.parentTabId;
             this.events.trigger(DagNodeEvents.ParamChange, info);
         })
         .registerEvents(DagNodeEvents.TableRemove, (info) => {
+            info.tabId = this.parentTabId;
             this.events.trigger(DagNodeEvents.TableRemove, info);
         })
         .registerEvents(DagNodeEvents.AggregateChange, (info) => {
+            info.tabId = this.parentTabId;
             this.events.trigger(DagNodeEvents.AggregateChange, info);
         })
         .registerEvents(DagNodeEvents.TableLockChange, (info) => {
+            info.tabId = this.parentTabId;
             this.events.trigger(DagNodeEvents.TableLockChange, info);
         });
     }
@@ -337,7 +345,8 @@ class DagGraph {
                     addInfo: {
                         childIndices: childIndices,
                         node: fromNode
-                    }
+                    },
+                    tabId: this.parentTabId
                 });
             }
         } catch (e) {
@@ -387,7 +396,8 @@ class DagGraph {
                 removeInfo: {
                     childIndices: childIndices,
                     node: fromNode
-                }
+                },
+                tabId: this.parentTabId
             });
         }
         return wasSpliced;
@@ -1084,7 +1094,8 @@ class DagGraph {
             this.events.trigger(DagNodeEvents.ConnectionChange, {
                 type: "remove",
                 descendents: descendents,
-                removeInfo: {childIndices: childIndices, node: node}
+                removeInfo: {childIndices: childIndices, node: node},
+                tabId: this.parentTabId
             });
         }
         return spliceFlags;

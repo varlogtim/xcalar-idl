@@ -216,7 +216,7 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.DisconnectOperations] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.disconnectNodes(options.parentNodeId, options.childNodeId, options.connectorIndex);
+        DagView.disconnectNodes(options.parentNodeId, options.childNodeId, options.connectorIndex, options.dataflowId);
         return PromiseHelper.resolve(null);
     };
 
@@ -224,7 +224,7 @@ window.Redo = (function($, Redo) {
         DagTabManager.Instance.switchTab(options.dataflowId);
         var isReconnect = options.prevParentNodeId != null;
         DagView.connectNodes(options.parentNodeId, options.childNodeId,
-                            options.connectorIndex, isReconnect);
+                            options.connectorIndex, options.dataflowId, isReconnect);
         return PromiseHelper.resolve(null);
     };
 
@@ -248,7 +248,7 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.MoveOperations] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.moveNodes(options.nodeInfos);
+        DagView.moveNodes(options.dataflowId, options.nodeInfos);
         return PromiseHelper.resolve(null);
     };
 
@@ -265,7 +265,7 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.EditNodeTitle] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.editTitle(options.nodeId, options.newTitle);
+        DagView.editTitle(options.nodeId, options.dataflowId, options.newTitle);
         return PromiseHelper.resolve(null);
     };
 

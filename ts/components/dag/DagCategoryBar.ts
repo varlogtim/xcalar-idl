@@ -404,7 +404,7 @@ class DagCategoryBar {
                     };
                     DagView.newNode(newNodeInfo);
                 },
-                onDragFail: function() {
+                onDragFail: function(_wasDragged) {
 
                 },
                 copy: true

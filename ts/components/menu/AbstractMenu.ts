@@ -51,11 +51,12 @@ abstract class AbstractMenu {
     }
 
     protected _openOpPanel(node: DagNode, colNames: string[]): void {
+        const tabId: string = DagView.getActiveDag().getTabId();
         DagNodeMenu.execute("configureNode", {
             node: node,
             baseColumnNames: colNames,
             exitCallback: function() {
-                DagView.removeNodes([node.getId()]);
+                DagView.removeNodes([node.getId()], tabId);
             }
         });
     }

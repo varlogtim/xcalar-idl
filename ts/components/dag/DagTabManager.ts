@@ -591,6 +591,7 @@ class DagTabManager{
             tabName = dagTab.getName();
         }
         tabName = xcHelper.escapeHTMLSpecialChar(tabName);
+        const tabId = dagTab.getId();
         const isEditable: boolean = (dagTab instanceof DagTabUser);
         const isViewOnly: boolean = (dagTab instanceof DagTabOptimized);
         let html: HTML =
@@ -605,7 +606,7 @@ class DagTabManager{
             '</li>';
         this._getTabArea().append(html);
         $("#dagView .dataflowWrap").append(
-            '<div class="dataflowArea ' +  (isViewOnly? 'viewOnly': '') + '">\
+            '<div class="dataflowArea ' +  (isViewOnly? 'viewOnly': '') + '" data-id="' +tabId + '">\
                 <div class="dataflowAreaWrapper">\
                     <div class="commentArea"></div>\
                     <svg class="edgeSvg"></svg>\

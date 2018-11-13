@@ -577,16 +577,17 @@ window.TestSuite = (function($, TestSuite) {
             var self = this;
             var $node = self.createNode(nodeType, subType);
             var nodeId = $node.data("nodeid");
-
+            const tabId = DagView.getActiveDag().getTabId();
             if (parentNodeIds != null) {
                 parentNodeIds = (parentNodeIds instanceof Array) ?
                 parentNodeIds : [parentNodeIds];
 
+
                 parentNodeIds.forEach((parentNodeId, index) => {
-                    DagView.connectNodes(parentNodeId, nodeId, index);
+                    DagView.connectNodes(parentNodeId, nodeId, index, tabId);
                 });
             }
-            DagView.autoAlign();
+            DagView.autoAlign(tabId);
             self.nodeMenuAction($node, "configureNode");
             return nodeId;
         },
@@ -642,7 +643,7 @@ window.TestSuite = (function($, TestSuite) {
         // XXX temporary disable it
         return PromiseHelper.resolve();
         var deferred = PromiseHelper.deferred();
-        
+
         deleteTables()
         .then(function() {
             deleteWorksheets();

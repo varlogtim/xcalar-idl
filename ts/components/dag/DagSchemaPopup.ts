@@ -2,6 +2,7 @@ class DagSchemaPopup {
     private static _instance: DagSchemaPopup;
     private _$popup: JQuery;
     private _nodeId: DagNodeId;
+    private _tabId: string;
     private _dagNode: DagNode;
     private _tableColumns: ProgCol[];
 
@@ -17,9 +18,10 @@ class DagSchemaPopup {
     public show(nodeId: DagNodeId): void {
         const self = this;
         this._nodeId = nodeId;
+        this._tabId = DagView.getActiveDag().getTabId();
         this._dagNode = DagView.getActiveDag().getNode(this._nodeId);
         this._$popup.addClass("active");
-        DagView.getNode(this._nodeId).addClass("lineageStart");
+        DagView.getNode(this._nodeId, this._tabId).addClass("lineageStart");
         xcTooltip.hideAll();
         $(document).on('mousedown.hideDagSchema', function(event) {
             if ($(event.target).closest('#dagSchemaPopup').length === 0 &&
@@ -158,7 +160,7 @@ class DagSchemaPopup {
     }
 
     private _positionPopup(): void {
-        const $node: JQuery = DagView.getNode(this._nodeId);
+        const $node: JQuery = DagView.getNode(this._nodeId, this._tabId);
         const rect: ClientRect = $node[0].getBoundingClientRect();
         let top: number = Math.max(5, rect.top);
         let left: number = Math.max(5, rect.left);
@@ -195,9 +197,10 @@ class DagSchemaPopup {
         this._$popup.removeClass("active");
         $(document).off('.hideDagSchema');
         this._$popup.find(".content").empty();
-        DagView.getNode(this._nodeId).removeClass("lineageStart");
+        DagView.getNode(this._nodeId, this._tabId).removeClass("lineageStart");
         this._dagNode = null;
         this._nodeId = null;
+        this._tabId = null;
         this._clearLineage();
     }
 

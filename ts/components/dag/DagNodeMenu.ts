@@ -79,13 +79,13 @@ namespace DagNodeMenu {
         const nodeIds: DagNodeId[] = DagView.getSelectedNodeIds(true, true);
         const operatorIds: DagNodeId[] = DagView.getSelectedNodeIds(true);
         // all selected nodes && comments
-
+        const tabId = DagView.getActiveDag().getTabId();
         const parentNodeId: DagNodeId = $menu.data("parentnodeid");
         const connectorIndex: number = parseInt($menu.data("connectorindex"));
 
         switch (action) {
             case ("removeNode"):
-                DagView.removeNodes(nodeIds);
+                DagView.removeNodes(nodeIds, tabId);
                 break;
             case ("removeAllNodes"):
                 Alert.show({
@@ -101,15 +101,15 @@ namespace DagNodeMenu {
                         comments.forEach((_node: CommentNode, nodeId: CommentNodeId) => {
                             nodeIdsToRemove.push(nodeId);
                         });
-                        DagView.removeNodes(nodeIdsToRemove);
+                        DagView.removeNodes(nodeIdsToRemove, tabId);
                     }
                 });
                 break;
             case ("selectAllNodes"):
-                DagView.selectNodes();
+                DagView.selectNodes(DagView.getActiveDag().getTabId());
                 break;
             case ("removeInConnection"):
-                DagView.disconnectNodes(parentNodeId, nodeId, connectorIndex);
+                DagView.disconnectNodes(parentNodeId, nodeId, connectorIndex, tabId);
                 break;
             case ("copyNodes"):
                 DagView.copyNodes(nodeIds);
@@ -166,7 +166,7 @@ namespace DagNodeMenu {
                 }, true);
                 break;
             case ("autoAlign"):
-                DagView.autoAlign();
+                DagView.autoAlign(tabId);
                 break;
             case ("viewSchema"):
                 DagSchemaPopup.Instance.show(nodeIds[0]);
