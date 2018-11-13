@@ -236,7 +236,7 @@ var typescriptMapping = {
 var helpContentRootByProduct = {
     XD: helpContentRoot + XD,
     XDEE: helpContentRoot + XD,
-    XI: helpContentRoot + XD
+    XI: helpContentRoot + XI
 }
 
 // path rel src to the unitTest folder
