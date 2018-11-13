@@ -2624,7 +2624,7 @@
                 }
             }
 
-            function isAndEqJoin(treeNode, eqTrees) {
+            function isNonCrossAndJoin(treeNode, eqTrees, nonEqFilterTrees) {
                 if (treeNode.value.class ===
                     "org.apache.spark.sql.catalyst.expressions.EqualTo"
                     || treeNode.value.class ===
@@ -2633,31 +2633,20 @@
                     return true;
                 } else if (treeNode.value.class !==
                             "org.apache.spark.sql.catalyst.expressions.And") {
+                    nonEqFilterTrees.push(treeNode);
                     return false;
                 }
+                var nonCross = false;
                 for (var i = 0; i < treeNode.value["num-children"]; i++) {
                     var childNode = treeNode.children[i];
-                    if (childNode.value.class ===
-                            "org.apache.spark.sql.catalyst.expressions.EqualTo"
-                    || childNode.value.class ===
-                    "org.apache.spark.sql.catalyst.expressions.EqualNullSafe") {
-                        eqTrees.push(childNode);
-                        continue;
-                    } else if (childNode.value.class ===
-                            "org.apache.spark.sql.catalyst.expressions.And") {
-                        if (isAndEqJoin(childNode, eqTrees)) {
-                            continue;
-                        } else {
-                            return false;
-                        }
-                    } else {
-                        return false;
+                    if (isNonCrossAndJoin(childNode, eqTrees, nonEqFilterTrees)) {
+                        nonCross = true;
                     }
                 }
-                return true;
+                return nonCross;
             }
 
-            function isOrEqJoin(treeNode, eqTreesByBranch) {
+            function isOrEqJoin(treeNode, eqTreesByBranch, nonEqFilterTreesByBranch) {
                 if (treeNode.value.class !==
                         "org.apache.spark.sql.catalyst.expressions.Or") {
                     return false;
@@ -2665,29 +2654,19 @@
                 for (var i = 0; i < treeNode.value["num-children"]; i++) {
                     var childNode = treeNode.children[i];
                     if (childNode.value.class ===
-                            "org.apache.spark.sql.catalyst.expressions.EqualTo"
-                    || childNode.value.class ===
-                    "org.apache.spark.sql.catalyst.expressions.EqualNullSafe") {
-                        eqTreesByBranch.push([childNode]);
-                        continue;
-                    } else if (childNode.value.class ===
-                            "org.apache.spark.sql.catalyst.expressions.And") {
-                        var eqTrees = [];
-                        if (isAndEqJoin(childNode, eqTrees)) {
-                            eqTreesByBranch.push(eqTrees);
-                            continue;
-                        } else {
-                            return false;
-                        }
-                    } else if (childNode.value.class ===
-                            "org.apache.spark.sql.catalyst.expressions.Or") {
-                        if (isOrEqJoin(childNode, eqTreesByBranch)) {
-                            continue;
-                        } else {
+                        "org.apache.spark.sql.catalyst.expressions.Or") {
+                        if (!isOrEqJoin(childNode, eqTreesByBranch, nonEqFilterTreesByBranch)) {
                             return false;
                         }
                     } else {
-                        return false;
+                        var eqTrees = [];
+                        var nonEqFilterTrees = [];
+                        if (isNonCrossAndJoin(childNode, eqTrees, nonEqFilterTrees)) {
+                            eqTreesByBranch.push(eqTrees);
+                            nonEqFilterTreesByBranch.push(nonEqFilterTrees);
+                        } else {
+                            return false;
+                        }
                     }
                 }
                 return true;
@@ -2835,11 +2814,12 @@
             }
 
             var eqTreesByBranch = [];
+            var nonEqFilterTreesByBranch = [];
             var mapStructList = [];
             var orEqJoinOpt = false;
             if (node.value.joinType.object ===
-                    "org.apache.spark.sql.catalyst.plans.Inner$"
-                    && condTree && isOrEqJoin(condTree, eqTreesByBranch)) {
+                "org.apache.spark.sql.catalyst.plans.Inner$" && condTree
+                && isOrEqJoin(condTree, eqTreesByBranch, nonEqFilterTreesByBranch)) {
                 console.log("orEqJoin!");
                 console.log(eqTreesByBranch);
                 retStruct.filterSubtrees = retStruct.filterSubtrees || [];
@@ -2886,10 +2866,13 @@
                     promise = promise.then(function() {
                         var innerDeferred = PromiseHelper.deferred();
                         var mapStruct = mapStructList.shift();
+                        var nonEqFilterTrees = nonEqFilterTreesByBranch.shift();
                         var innerPromise = PromiseHelper.resolve();
                         for (var prop in mapStruct) {
                             retStruct[prop] = mapStruct[prop];
                         }
+                        retStruct.filterSubtrees = retStruct.filterSubtrees
+                                                        .concat(nonEqFilterTrees);
                         retStruct.leftTableName = leftRNTableName;
                         retStruct.rightTableName = rightRNTableName;
                         innerPromise = innerPromise.then(__handleAndEqJoin
