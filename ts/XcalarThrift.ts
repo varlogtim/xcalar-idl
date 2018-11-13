@@ -893,7 +893,8 @@ XcalarDatasetDeactivate = function(
 
     releaseAllResultsets()
     .then(function() {
-        return xcalarDeleteDagNodes(tHandle, dsName, SourceTypeT.SrcDataset);
+        const promise = xcalarDeleteDagNodes(tHandle, dsName, SourceTypeT.SrcDataset);
+        return PromiseHelper.alwaysResolve(promise);
     })
     .then(function() {
         return xcalarDatasetUnload(tHandle, dsName);
