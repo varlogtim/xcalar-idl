@@ -163,6 +163,13 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                             return test.hasNodeWithState(sqlNode.getId(), DagNodeState.Configured)
                             .then(function() {
                                 return test.executeNode(sqlNode.getId());
+                            })
+                            .then(function() {
+                                return checkConfigure();
+                            })
+                            .fail(function(error) {
+                                console.error(error, "runQuery");
+                                test.fail(deferred, testName, currentTestNumber, error);
                             });
                         })
                         .then(function() {
@@ -192,6 +199,9 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                         return test.executeNode(sqlNode.getId());
                     })
                     .then(function() {
+                        return checkConfigure();
+                    })
+                    .then(function() {
                         test.fail(deferred, testName, currentTestNumber, "Unable to cancel query, query resolved");
                     })
                     .fail(function() {
@@ -208,6 +218,9 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                     test.hasNodeWithState(sqlNode.getId(), DagNodeState.Configured)
                     .then(function() {
                         return test.executeNode(sqlNode.getId());
+                    })
+                    .then(function() {
+                        return checkConfigure();
                     })
                     .then(function() {
                         if ($("#dagViewTableArea").hasClass("xc-hidden")) {
@@ -331,6 +344,25 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             i++;
         }
         sqlNode.setIdentifiers(identifiers);
+    }
+    function checkConfigure() {
+        var deferred = PromiseHelper.deferred();
+        var totalTime = 0;
+        function checkUnlock() {
+            setInterval(function() {
+                if ($("#dagNodeMenu .configureNode").hasClass("unavailable")) {
+                    totalTime += 100;
+                    if (totalTime > 30000) {
+                        deferred.reject();
+                    }
+                    checkUnlock();
+                } else {
+                    deferred.resolve();
+                }
+            }, 100);
+        }
+        checkUnlock();
+        return deferred.promise();
     }
 
     return (SqlTestSuite);
