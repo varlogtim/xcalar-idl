@@ -1,3 +1,8 @@
+// if using in browser, make sure to include assets/lang/en/globalAutogen.js
+// with <script tag
+
+var autogenVars = (typeof window === 'undefined' && typeof require !== 'undefined') ? require('./globalAutogen.js') : window.autogenVars;
+
 var WalkThroughTStr = {
     'w1': {
         // Workbook Demo
@@ -128,7 +133,7 @@ var WalkThroughTStr = {
         // If step's name is not here, it will not get played!
     '_order': ['wa4-previewDs', 'wa4-previewChoice', 'wa4-previewMoreRows', 'wa4-importPrefs',
            'wa4-columnRename', 'wa4-castData', 'wa4-addCols', 'wa4-errorTol', 'wa4-createDs'],
-    'wa4-previewDs': 'Xcalar Design parses the file and determines the format and import preferences. Verify the preview renders cleanly in tabular form.',
+    'wa4-previewDs': autogenVars.prodName + ' parses the file and determines the format and import preferences. Verify the preview renders cleanly in tabular form.',
     'wa4-previewChoice': 'Confirm the format is correct by previewing one or more files from your import.',
     'wa4-previewMoreRows': 'If needed, preview more rows from your dataset.',
     'wa4-importPrefs': 'If your data doesn\'t cleanly render as a table, consider adjusting the import preferences.',

@@ -1,3 +1,7 @@
+// if using in browser, make sure to include assets/lang/en/globalAutogen.js
+// with <script tag
+
+var autogenVars = (typeof window === 'undefined' && typeof require !== 'undefined') ? require('./globalAutogen.js') : window.autogenVars;
 StatusMessageTStr = {
     'Success': 'Success!',
     'Completed': 'Completed',
@@ -231,7 +235,8 @@ CommonTxtTstr = {
     'Value': 'Value',
     'HighXcalarMemUsage': 'Highest Xcalar Memory Usage',
     'XcalarMemUsage': 'Average Xcalar Memory Usage',
-    'XcWelcome': 'Have fun with Xcalar Design!',
+    'XcWelcome': 'Have fun with ' + autogenVars.prodName + '!',
+    'YES': 'YES'
 };
 
 ErrTStr = {
@@ -366,7 +371,7 @@ ErrTStr = {
     'MultipleWKBKErr': 'More than one workbook with same name found',
     'NoWKBKErr': 'No workbook found',
     "DuplicateFound": "Duplicate found.",
-    "Update": "If you have updated Xcalar Design, empty the browser cache and reload the page to ensure that the browser is running the updated version.",
+    "Update": "If you have updated " + autogenVars.prodName + ", empty the browser cache and reload the page to ensure that the browser is running the updated version.",
     "OpenForm": "Form is not setup correctly, please retry",
     "NoPrefixColumn": "Column name cannot have prefix",
     "InvalidEvalStr": "Invalid eval string",
@@ -565,7 +570,7 @@ TimeTStr = {
 };
 
 DemoTStr = {
-    "title": "Welcome to Xcalar Design",
+    "title": "Welcome to " + autogenVars.prodName,
     "msg": "Your license will expire in",
     "day": "day",
     "days": "days",
@@ -576,7 +581,7 @@ DemoTStr = {
 };
 
 NewUserTStr = {
-    "msg": "If this is your first time using Xcalar Design, click the \"Open Guide\" button for resources on how to get started",
+    "msg": "If this is your first time using " + autogenVars.prodName + ", click the \"Open Guide\" button for resources on how to get started",
     "openGuide": "Open Guide"
 };
 
@@ -637,7 +642,7 @@ ThriftTStr = {
     'ListFileErr': 'List Files Failed',
     'SessionElsewhere': 'Different Node Detected',
     'LogInDifferent': 'Please login from the node where you first logged in.',
-    'LogInDifferentWrap': 'Xcalar Design user sessions are node-specific. Your last login was on <ip>. Log in on <ip2> to use Xcalar Design'
+    'LogInDifferentWrap': autogenVars.prodName + ' sessions are node-specific. Your last login was on <ip>. Log in on <ip2> to use ' + autogenVars.prodName
 };
 
 AlertTStr = {
@@ -877,13 +882,13 @@ WKBKTStr = {
     'NoMeta': 'No Meta',
     'Location': 'Workbook Browser',
     'NewWKBK': 'New Workbook',
-    'NewWKBKInstr': 'To get started with Xcalar Design, you must first create ' +
+    'NewWKBKInstr': 'To get started with ' + autogenVars.prodName + ', you must first create ' +
                  'a workbook to hold your worksheets. Either create a new ' +
                  'workbook or upload an existing workbook from the ' +
                  'Workbook card. After your workbook is created, ' +
                  'start working with your data by clicking on its workbook ' +
-                 'card. To learn more about using Xcalar Design, check out ' +
-                 'the Xcalar Design tutorials. ',
+                 'card. To learn more about using ' + autogenVars.prodName + ', check out ' +
+                 'the ' + autogenVars.prodName + ' tutorials. ',
     'CurWKBKInstr': 'To continue working with your existing workbooks, ' +
                   'click on the workbook\'s card. ' +
                   'To edit the name, add a description, or create a duplicate ' +

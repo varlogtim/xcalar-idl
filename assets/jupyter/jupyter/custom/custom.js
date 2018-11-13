@@ -1,4 +1,7 @@
 // this file maps to xcalar/.jupyter/custom/custom.js
+// if this gets built in to a non-XD product (XI, XPE, etc.)
+// any occurances of 'Xcalar Design' (case insensitive) in this file will get
+// replaced with updated product name at build time.
 define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
     Jupyter._target = '_self';
     if (!$("#notebooks").length){

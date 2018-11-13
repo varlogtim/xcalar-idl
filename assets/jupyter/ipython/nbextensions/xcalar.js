@@ -1,4 +1,7 @@
 // this file maps to xcalar/.ipython/nbextensions/xcalar.js
+// if this gets built in to a non-XD product (XI, XPE, etc.)
+// any occurances of 'Xcalar Design' (case insensitive) in this file will get
+// replaced with updated product name at build time.
 define(['base/js/utils'], function(utils) {
     return {
         load_ipython_extension: function() {

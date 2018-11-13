@@ -1,7 +1,8 @@
 // for the rendering of html file
+var bldVars = require('./globalAutogen.js');
 module.exports = {
     "common": {
-        "XD": "Xcalar Design",
+        "XD": bldVars.prodName,
         "Agree": "Agree",
         "Add": "Add",
         "AddRegex": "Click to add regex",
@@ -479,7 +480,7 @@ module.exports = {
 
     "statusBar": {
         "EC": "Establishing Connection",
-        "adminText": "This is what Xcalar Design looks like to",
+        "adminText": "This is what " + bldVars.prodName + " looks like to",
         "adminClose": "Return to administrator account"
     },
 
@@ -1096,7 +1097,7 @@ module.exports = {
 
     "smartCast": {
         "header": "SMART CAST",
-        "instr": "Cast columns from one data type to another by selecting the columns from the current table. Click on the DETECT button to get Xcalar Design to detect the appropriate types.",
+        "instr": "Cast columns from one data type to another by selecting the columns from the current table. Click on the DETECT button to get " + bldVars.prodName + " to detect the appropriate types.",
         "detect": "DETECT",
         "clearAll": "CLEAR ALL",
         "colInstrHeader": "Select Columns to Cast",
@@ -1212,13 +1213,13 @@ module.exports = {
         "newWKBK": "New Workbook",
         "uploadWKBK": "Upload Workbook",
         "noActive": "No active worksheets. Please create one first.",
-        "learnMore": "Learn more about Xcalar Design",
+        "learnMore": "Learn more about " + bldVars.prodName,
         "relatedDocs": "Related Tutorials Help Docs",
         "stepTour": "Step-by-Step Tour",
         "tuts": "Tutorials",
         "viewNewHelpDoc": "View our help documentation",
         "visit": "Visit",
-        "welcomeXI": "Welcome to <b>Xcalar Design</b>",
+        "welcomeXI": "Welcome to <b>" + bldVars.prodName + "</b>",
         "Wkbk": "Workbook",
         "Wkbkname": "Workbook Name",
         "Edit": "Edit Workbook",
@@ -1299,8 +1300,8 @@ module.exports = {
     },
 
     "login": {
-        "loginHeader": "Login to Xcalar Design!",
-        "signupHeader": "Sign up for Xcalar Design!",
+        "loginHeader": "Login to " + bldVars.prodName + "!",
+        "signupHeader": "Sign up for " + bldVars.prodName + "!",
         "username": "USERNAME",
         "usernameLower": "Username",
         "password": "PASSWORD",
