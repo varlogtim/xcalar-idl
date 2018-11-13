@@ -137,8 +137,11 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
             MainMenu.setFormOpen();
         })
         .fail((error) => {
+            MainMenu.setFormOpen();
             console.error(error);
-            this.close();
+            this._dataModel.exportDrivers = [];
+            StatusBox.show("Unable to load drivers", $("#exportOpPanel .modalTopMain .exportDriver"),
+                    false, {'side': 'right'});
         });
     }
 
