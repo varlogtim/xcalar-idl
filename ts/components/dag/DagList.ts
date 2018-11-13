@@ -395,10 +395,17 @@ class DagList {
 
         $dagListSection.on("click", ".fileName .name", (event) => {
             const $dagListItem: JQuery = $(event.currentTarget).parent();
+            if ($dagListItem.hasClass("loading")) {
+                return;
+            }
             const dagTab: DagTab = this.getDagTabById($dagListItem.data("id"));
+            $dagListItem.addClass("loading")
             DagTabManager.Instance.loadTab(dagTab)
             .fail(() => {
                 this._loadErroHandler($dagListItem);
+            })
+            .always(() => {
+                $dagListItem.removeClass("loading")
             });
         });
 
