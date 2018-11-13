@@ -1,4 +1,4 @@
-class DFLinkInOpPanelSchemaSection {
+class ColSchemaSection {
     private _$section: JQuery;
 
     public constructor($section: JQuery) {
@@ -6,7 +6,7 @@ class DFLinkInOpPanelSchemaSection {
         this._addEventListeners();
     }
 
-    public render(schema: {name: string, type: ColumnType}[]): void {
+    public render(schema: ColSchema[]): void {
         this.clear();
         if (schema.length > 0) {
             this._populateList(schema);
@@ -17,8 +17,8 @@ class DFLinkInOpPanelSchemaSection {
         this._addHint();
     }
 
-    public getSchema(ingore: boolean): {name: string, type: ColumnType}[] {
-        const schema: {name: string, type: ColumnType}[] = [];
+    public getSchema(ingore: boolean): ColSchema[] {
+        const schema: ColSchema[] = [];
         const $contentSection: JQuery = this._getContentSection();
         let valid: boolean = true;
         $contentSection.find(".part").each((_index, el) => {
@@ -81,7 +81,7 @@ class DFLinkInOpPanelSchemaSection {
         $dropdown.find("ul").html(html);
     }
 
-    private _populateList(schema: {name: string, type: ColumnType}[]): void {
+    private _populateList(schema: ColSchema[]): void {
         const $contentSection: JQuery = this._getContentSection();
         $contentSection.find(".hint").remove();
 

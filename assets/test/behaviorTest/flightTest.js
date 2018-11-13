@@ -1319,7 +1319,8 @@ window.FlightTest = (function(FlightTest, $) {
         const $panel = $("#dfLinkInPanel");
         fillArgInPanel($panel.find(".dataflowName input"), dfName);
         fillArgInPanel($panel.find(".linkOutNodeName input"), linkOutName);
-        $panel.find(".submit").click();
+        $panel.find(".bottomSection .submit").click();
+
         test.hasNodeWithState(nodeId, DagNodeState.Configured)
         .then(() => {
             return test.executeNode(nodeId);

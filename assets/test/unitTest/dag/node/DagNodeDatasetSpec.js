@@ -3,9 +3,6 @@ describe("Dataset Dag Node Test", () => {
 
     before(() => {
         node = new DagNodeDataset({});
-        node.getSourceColumns = function() {
-            return PromiseHelper.resolve([]);
-        };
     });
 
     it("should be a dataset node", () => {

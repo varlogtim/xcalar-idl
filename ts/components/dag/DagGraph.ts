@@ -247,6 +247,13 @@ class DagGraph {
         .registerEvents(DagNodeEvents.TableLockChange, (info) => {
             info.tabId = this.parentTabId;
             this.events.trigger(DagNodeEvents.TableLockChange, info);
+        })
+        .registerEvents(DagNodeEvents.LineageSourceChange, (info) => {
+            const tabId: string = this.getTabId();
+            info = $.extend({}, info, {
+                tabId: tabId
+            });
+            this.events.trigger(DagNodeEvents.LineageSourceChange, info);
         });
     }
 

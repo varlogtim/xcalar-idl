@@ -455,6 +455,10 @@ window.TestSuite = (function($, TestSuite) {
                 var $grid = $(selector).closest(".fileName");
                 $grid.click();
                 $panel.find(".datasetPrefix input").val(prefix);
+                $panel.find(".bottomSection .next").click();
+                return self.checkExists('#datasetOpPanel .colSchemaSection:not(.loading)');
+            })
+            .then(function() {
                 $panel.find(".bottomSection .submit").click();
                 return self.hasNodeWithState(nodeId, DagNodeState.Configured);
             })

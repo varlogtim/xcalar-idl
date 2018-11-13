@@ -69,6 +69,7 @@ enum DagGraphEvents {
 enum DagNodeEvents {
     StateChange = "DagNodeStateChange",
     ParamChange = "DagNodeParamChange",
+    LineageSourceChange = "DagNodeLineageSourceChange",
     AggregateChange = "DagNodeAggregateChange",
     TableRemove = "TableRemove",
     SubGraphError = "SubGraphError",

@@ -1,36 +1,47 @@
 // General Class for Source Node
 abstract class DagNodeIn extends DagNode {
-    protected columns: ProgCol[];
+    protected schema: ColSchema[];
 
     public constructor(options: DagNodeInInfo) {
         super(options);
         this.maxParents = 0;
         this.minParents = 0;
-        if (options && options.columns) {
-            this.columns = options.columns.map((column) => {
-                const name: string = xcHelper.parsePrefixColName(column.name).name;
-                return ColManager.newPullCol(name, column.name, column.type);
-            });
+        if (options && options.schema) {
+            this.setSchema(options.schema);
         } else {
-            this.columns = [];
+            this.setSchema([]);
+        }
+    }
+
+    public getSchema(): ColSchema[] {
+        return this.schema;
+    }
+
+    public setSchema(schema: ColSchema[], refresh: boolean = false) {
+        this.schema = schema;
+        if (refresh) {
+            // lineage reset is done in DagView
+            this.events.trigger(DagNodeEvents.LineageSourceChange, {
+                node: this
+            });
         }
     }
 
     public lineageChange(_columns: ProgCol[]): DagLineageChange {
+        const columns: ProgCol[] = this.schema.map((colInfo) => {
+            const colName: string = colInfo.name;
+            const frontName: string = xcHelper.parsePrefixColName(colName).name;
+            return ColManager.newPullCol(frontName, colName, colInfo.type);
+        });
         return {
-            columns: this.columns,
+            columns: columns,
             changes: []
         };
     }
 
     protected _getSerializeInfo():DagNodeInInfo {
-        const serializedInfo: DagNodeInInfo = super._getSerializeInfo();
-        if (this.columns) {
-            const columns = this.columns.map((progCol) => {
-                return {name: progCol.getBackColName(), type: progCol.getType()};
-            });
-            serializedInfo.columns = columns;
-        }
+        const serializedInfo: DagNodeInInfo = <DagNodeInInfo>super._getSerializeInfo();
+        serializedInfo.schema = this.getSchema();
         return serializedInfo;
     }
 }

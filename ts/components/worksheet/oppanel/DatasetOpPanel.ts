@@ -8,12 +8,10 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     private _$datasetList: JQuery; // $("#dsOpListSection");
     private _advMode: boolean;
     private _dagNode: DagNodeDataset;
-    private _currentSource: string;
-
-    // *******************
-    // Constants
-    // *******************
-    private static readonly _eventNamespace = 'datasetOpPanel';
+    private _schemaSection: ColSchemaSection;
+    private _dagGraph: DagGraph;
+    private _synthesize: boolean;
+    private _currentStep: number;
 
     /**
      * Initialization, should be called only once by xcManager
@@ -25,8 +23,9 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         this._$datasetList = $("#dsOpListSection");
         this._advMode = false;
         super.setup(this._$elemPanel);
+        this._schemaSection = new ColSchemaSection(this._getSchemaSection());
         this._setupFileLister();
-        this._registerHandlers();
+        this._addEventListeners();
     }
 
     /**
@@ -41,9 +40,13 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         this._dagNode = dagNode;
         this._setupDatasetList();
         this._advMode = false;
-        this._restorePanel(dagNode.getParam(), true);
-        // Setup event listeners
-        this._setupEventListener(dagNode);
+        this._currentStep = 1;
+        this._gotoStep();
+        this._dagGraph = DagView.getActiveDag();
+        const model = $.extend(dagNode.getParam(), {
+            schema: dagNode.getSchema() || []
+        });
+        this._restorePanel(model, true);
         MainMenu.setFormOpen();
     }
 
@@ -54,7 +57,14 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         super.hidePanel(isSubmit);
         MainMenu.setFormClose();
         DatasetColRenamePanel.Instance.close();
-        this._currentSource = null;
+        this._dagGraph = null;
+        this._synthesize = null;
+        this._currentStep = null;
+        this._advMode = false;
+    }
+
+    private _getSchemaSection(): JQuery {
+        return this.$panel.find(".colSchemaSection");
     }
 
     private _setupFileLister(): void {
@@ -97,16 +107,48 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         this._fileLister.setFileObj(this._dsList)
     }
 
-    private _convertAdvConfigToModel() {
-        const dagInput: DagNodeDatasetInputStruct = <DagNodeDatasetInputStruct>JSON.parse(this._editor.getValue());
-        if (JSON.stringify(dagInput, null, 4) !== this._cachedBasicModeParam) {
+    private _convertAdvConfigToModel(): {
+        prefix: string,
+        source: string,
+        synthesize: boolean,
+        schema: ColSchema[]
+    } {
+        const input = JSON.parse(this._editor.getValue());
+        if (JSON.stringify(input, null, 4) !== this._cachedBasicModeParam) {
             // don't validate if no changes made, just allow to go to basic
-            const error = this._dagNode.validateParam(dagInput);
+            const error = this._dagNode.validateParam(input);
             if (error) {
                 throw new Error(error.error);
             }
         }
-        return dagInput;
+        return input;
+    }
+
+    private _toggleSynthesize(synthesize: boolean, schema: ColSchema[]): void {
+        this._synthesize = synthesize;
+        const $prefix: JQuery = this._$elemPanel.find(".datasetPrefix input");
+        if (this._synthesize) {
+            $prefix.addClass("xc-disabled");
+        } else {
+            $prefix.removeClass("xc-disabled");
+        }
+        schema = this._normalizeSchema(schema);
+        this._schemaSection.render(schema);
+    }
+
+    private _normalizeSchema(schema: ColSchema[]): ColSchema[] {
+        const prefix: string = this._normalizePrefix(this._getPrefix());
+        return schema.map((colInfo) => {
+            const colName = xcHelper.parsePrefixColName(colInfo.name).name;
+            return {
+                name: xcHelper.getPrefixColName(prefix, colName),
+                type: colInfo.type
+            };
+        });
+    }
+
+    private _normalizePrefix(prefix: string) {
+        return this._synthesize ? null : prefix;
     }
 
     /**
@@ -115,23 +157,27 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
      */
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
         if (toAdvancedMode) {
-            const prefix: string = this._$elemPanel.find(".datasetPrefix input").val();
-            let id: string = this._currentSource || "";
-            const paramStr = JSON.stringify({"prefix": prefix, "source": id}, null, 4);
+            const json = {
+                prefix: this._getPrefix(),
+                source: this._getSource() || "",
+                schema: this._schemaSection.getSchema(true),
+                synthesize: this._synthesize || false
+            };
+            const paramStr = JSON.stringify(json, null, 4);
             this._cachedBasicModeParam = paramStr;
             this._editor.setValue(paramStr);
             this._advMode = true;
         } else {
             try {
-                const newModel: DagNodeDatasetInputStruct = this._convertAdvConfigToModel();
+                const newModel = this._convertAdvConfigToModel();
                 this._fileLister.goToRootPath();
                 this._restorePanel(newModel);
                 this._advMode = false;
-                return;
             } catch (e) {
                 return {error: e};
             }
         }
+        this._gotoStep();
         return null;
     }
 
@@ -143,25 +189,123 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         this._advMode = true;
     }
 
-    private _registerHandlers() {
-        const self = this;
-        this._$datasetList.on("click", ".xi-show", function() {
-            if ($(this).hasClass("showing")) {
-                $(this).removeClass("showing");
+    private _autoDetectSchema(skipIfHasOldSchema: boolean): XDPromise<void> {
+        const source: string = this._getSource();
+        const oldParam: DagNodeDatasetInputStruct = this._dagNode.getParam();
+        if (skipIfHasOldSchema &&
+            source != null &&
+            source === oldParam.source
+        ) {
+            // when only has prefix change
+            let schema = this._schemaSection.getSchema(true);
+            schema = this._normalizeSchema(schema);
+            this._schemaSection.render(schema);
+            return PromiseHelper.resolve();
+        }
+
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+
+        const $schemaSection: JQuery = this._getSchemaSection();
+        $schemaSection.addClass("loading");
+
+        DS.getSchema(source)
+        .then((res) => {
+            const schema = this._normalizeSchema(res);
+            this._schemaSection.render(schema);
+            deferred.resolve();
+        })
+        .fail(deferred.reject)
+        .always(() => {
+            $schemaSection.removeClass("loading");
+        });
+
+        const promise = deferred.promise();
+        xcHelper.showRefreshIcon($schemaSection, false, promise);
+        return promise;
+    }
+
+    private _gotoStep(): void {
+        let btnHTML: HTML = "";
+        if (this._advMode) {
+            btnHTML =
+                '<button class="btn btn-submit btn-rounded submit">' +
+                    CommonTxtTstr.Save +
+                '</button>';
+        } else if (this._currentStep === 1) {
+            this.$panel.find(".step1").removeClass("xc-hidden")
+                    .end()
+                    .find(".step2").addClass("xc-hidden");
+            btnHTML =
+                '<button class="btn btn-next btn-rounded next">' +
+                    CommonTxtTstr.Next +
+                '</button>';
+        } else if (this._currentStep === 2) {
+            this.$panel.find(".step2").removeClass("xc-hidden")
+                    .end()
+                    .find(".step1").addClass("xc-hidden");
+            btnHTML =
+                '<button class="btn btn-submit btn-rounded submit">' +
+                    CommonTxtTstr.Save +
+                '</button>' +
+                '<button class="btn btn-back btn-rounded back">' +
+                    CommonTxtTstr.Back +
+                '</button>';
+        } else {
+            throw new Error("Error step");
+        }
+        this.$panel.find(".bottomSection .btnWrap").html(btnHTML);
+    }
+
+    private _addEventListeners() {
+        const $panel: JQuery = this.$panel;
+        $panel.on("click", ".close, .cancel", () => {
+            this.close();
+        });
+
+        $panel.on("click", ".next", (event) => {
+            const $btn: JQuery = $(event.currentTarget);
+            xcHelper.disableSubmit($btn);
+
+            this._autoDetectSchema(true)
+            .then(() => {
+                this._currentStep = 2;
+                this._gotoStep();
+            })
+            .fail((error) => {
+                StatusBox.show(error.error, $btn, false);
+            })
+            .always(() => {
+                xcHelper.enableSubmit($btn);
+            });
+        });
+
+        $panel.on("click", ".back", () => {
+            this._currentStep = 1;
+            this._gotoStep();
+        });
+
+        $panel.on("click", ".submit", () => {
+            this._submitForm();
+        });
+
+        this._$datasetList.on("click", ".viewTable", (event) => {
+            const $btn: JQuery = $(event.currentTarget);
+            if ($btn.hasClass("showing")) {
+                $btn.removeClass("showing");
                 DagTable.Instance.close();
             } else {
                 $("#dsOpListSection .showing").removeClass("showing");
-                $(this).addClass("showing");
-                const $dataset: JQuery = $(this).parent();
+                $btn.addClass("showing");
+                const $dataset: JQuery = $btn.parent();
                 const id: string = $dataset.data("id");
                 const viewer: XcDatasetViewer = new XcDatasetViewer(DS.getDSObj(id));
                 DagTable.Instance.show(viewer);
             }
         });
 
-        this._$datasetList.on("click", "li", function() {
+        this._$datasetList.on("click", "li", (event) => {
             $("#dsOpListSection li.active").removeClass("active");
-            const $li = $(this);
+            const $li = $(event.currentTarget);
             $li.addClass("active");
             if ($li.hasClass("fileName")) {
                 const prefix = $li.find(".name").text();
@@ -169,20 +313,37 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             } else {
                 $("#datasetOpPanel .datasetPrefix input").val("");
             }
+        });
 
-            self._currentSource = $li.data("id");
+        // auto detect listeners for schema section
+        const $schemaSection: JQuery = this._getSchemaSection();
+        $schemaSection.on("click", ".detect", (event) => {
+            this._autoDetectSchema(false)
+            .fail((error) => {
+                StatusBox.show(ErrTStr.DetectSchema, $(event.currentTarget), false, {
+                    detail: error.error
+                });
+            })
         });
     }
 
-    private _restorePanel(input: DagNodeDatasetInputStruct, atStart?: boolean): void {
+    private _restorePanel(
+        input: {
+            prefix: string,
+            source: string,
+            synthesize: boolean,
+            schema: ColSchema[]
+        },
+        atStart?: boolean
+    ): void {
         if (input == null || input.source == "") {
             this._fileLister.goToRootPath();
             $("#datasetOpPanel .datasetPrefix input").val("");
+            this._toggleSynthesize(false, []);
         } else {
             const ds: ListDSInfo = this._dsList.find((obj) => {
                 return obj.id == input.source;
             });
-            this._currentSource = input.source;
             if (ds == null) {
                 if (atStart) {
                     this._startInAdvancedMode();
@@ -204,6 +365,8 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             $("#datasetOpPanel .datasetPrefix input").val(input.prefix);
             const path: string = ds.path;
             this._fileLister.goToPath(path);
+            const schema: ColSchema[] = input.schema || [];
+            this._toggleSynthesize(input.synthesize, schema);
             $("#dsOpListSection").find("[data-id='" + input.source +"']").eq(0).addClass("active");
         }
     }
@@ -234,81 +397,99 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         return true;
     }
 
-    /**
-     * Attach event listeners for static elements
-     */
-    private _setupEventListener(dagNode: DagNodeDataset): void {
-        // Clear existing event handlers
-        this._$elemPanel.off(`.${DatasetOpPanel._eventNamespace}`);
-
-        // Close icon & Cancel button
-        this._$elemPanel.on(
-            `click.close.${DatasetOpPanel._eventNamespace}`,
-            '.close, .cancel',
-            () => { this.close(); }
-        );
-
-        // Submit button
-        this._$elemPanel.on(
-            `click.submit.${DatasetOpPanel._eventNamespace}`,
-            '.submit',
-            () => { this._submitForm(dagNode); }
-        );
+    private _getSource(): string {
+        return this._$datasetList.find("li.fileName.active").data('id');
     }
 
-    private _submitForm(dagNode: DagNodeDataset): void {
+    private _getPrefix(): string {
+        return this._$elemPanel.find(".datasetPrefix input").val().trim();
+    }
+
+    private _isSameSchema(oldSchema: ColSchema[], newSchema: ColSchema[]): boolean {
+        if (oldSchema.length !== newSchema.length) {
+            return false;
+        }
+
+        for (let i = 0; i < oldSchema.length; i++) {
+            const oldColInfo = oldSchema[i];
+            const newColInfo = newSchema[i];
+            if (oldColInfo.type !== newColInfo.type) {
+                return false;
+            }
+            const oldColName: string = xcHelper.parsePrefixColName(oldColInfo.name).name;
+            const newColName: string = xcHelper.parsePrefixColName(newColInfo.name).name;
+            if (oldColName !== newColName) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private _submitForm(): void {
+        const dagNode: DagNodeDataset = this._dagNode;
         let prefix: string;
         let id: string;
+        let schema: ColSchema[];
         if (this._advMode) {
             try {
-                const newModel: DagNodeDatasetInputStruct = this._convertAdvConfigToModel();
+                const newModel = this._convertAdvConfigToModel();
                 prefix = newModel.prefix;
                 id = newModel.source;
+                schema = newModel.schema;
+                this._synthesize = newModel.synthesize;
             } catch (e) {
                 StatusBox.show(e, $("#datasetOpPanel .advancedEditor"),
                     false, {'side': 'right'});
                 return;
             }
         } else {
-            prefix = this._$elemPanel.find(".datasetPrefix input").val();
-            id = this._$datasetList.find("li.fileName.active").data('id');
+            prefix = this._getPrefix();
+            id = this._getSource();
+            schema = this._schemaSection.getSchema(false);
         }
-        if (!this._checkOpArgs(prefix, id)) {
+        if (schema == null || !this._checkOpArgs(prefix, id)) {
             return;
         }
 
+        schema = this._normalizeSchema(schema);
         const oldParam: DagNodeDatasetInputStruct = dagNode.getParam();
-        if (oldParam.source === id && oldParam.prefix === prefix) {
-            // no change
+        if (oldParam.source === id &&
+            oldParam.prefix === prefix &&
+            oldParam.synthesize === this._synthesize
+        ) {
+            // only has schema change
+            dagNode.setSchema(schema, true);
             this.close(true);
             return;
         }
 
-        const oldColumns: ProgCol[] = dagNode.getLineage().getColumns();
         const $bg: JQuery = $("#initialLoadScreen");
         $bg.show();
-
+        const oldSchema: ColSchema[] = dagNode.getSchema();
+        const oldColumns: ProgCol[] = dagNode.getLineage().getColumns();
+        const dagGraph: DagGraph = this._dagGraph;
+        dagNode.setSchema(schema);
         dagNode.setParam({
             source: id,
-            prefix: prefix
+            prefix: prefix,
+            synthesize: this._synthesize
         })
         .then(() => {
             $bg.hide();
-
-            if (oldParam.source === id) {
+            if (oldParam.source === id && this._isSameSchema(oldSchema, schema)) {
                 // only the prefix changed so we automatically do the map
                 // without prompting the user
                 const renameMap = {
                     columns: {},
                     prefixes: {}
-                }
+                };
+                const normalizedPrefix = this._normalizePrefix(prefix);
                 oldColumns.forEach((col) => {
                     renameMap.columns[col.getBackColName()] =
-                       xcHelper.getPrefixColName(prefix, col.getFrontColName());
+                       xcHelper.getPrefixColName(normalizedPrefix, col.getFrontColName());
 
                 });
-                renameMap.prefixes[oldParam.prefix] = prefix;
-                const dagGraph = DagView.getActiveDag();
+                renameMap.prefixes[oldParam.prefix] = normalizedPrefix;
                 dagGraph.applyColumnMapping(dagNode.getId(), renameMap);
                 this.close();
             } else if (oldColumns.length || !dagNode.getLineage().getColumns().length) {
@@ -328,6 +509,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         }).fail((error) => {
             $bg.hide();
             console.error(error);
+            this._dagNode.setSchema(oldSchema);
             StatusBox.show(JSON.stringify(error), this._$elemPanel.find(".btn-submit"),
                 false, {"side": "top"});
         });

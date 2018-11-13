@@ -1,7 +1,7 @@
 class DatasetColRenamePanel {
     private $view: JQuery;
-    private _dagNode;
-    private sourceNode: DagNode;
+    private _dagNode: DagNodeDataset;
+    private sourceNode: DagNodeDataset;
     private colRenameView;
     private viewOptions;
     private isOpen = false;
@@ -152,12 +152,15 @@ class DatasetColRenamePanel {
                 return false;
             }
             const prefix = this._dagNode.getParam().prefix;
-            const columns = model.result.map((progCol) => {
+            const schema: ColSchema[] = model.result.map((progCol) => {
                 progCol.prefix = prefix;
-                return ColManager.newPullCol(progCol.getBackColName(), progCol.getBackColName(), progCol.getType());
+                return {
+                    name: progCol.getBackColName(),
+                    type: progCol.getType()
+                };
             });
 
-            this._dagNode.setSourceColumns(columns);
+            this._dagNode.setSchema(schema, true);
         }
 
         if (Object.keys(renameMap.prefixes).length) {

@@ -292,6 +292,41 @@ window.DS = (function ($, DS) {
         return importHelper(dsObj, sql);
     };
 
+    DS.getSchema = function(source) {
+        const ds = DS.getDSObj(source);
+        const sourceHasParams = xcHelper.checkValidParamBrackets(source, true);
+        if (ds == null) {
+            return PromiseHelper.reject({error: "Dataset not found"});
+        }
+        if (sourceHasParams) {
+            return PromiseHelper.resolve([]);
+        } else {
+            const deferred = PromiseHelper.deferred();
+            // XXXX this is a wrong implementation
+            // wait for https://bugs.int.xcalar.com/show_bug.cgi?id=12870
+            ds.fetch(0, 50)
+            .then((jsons, jsonKeys) => {
+                let colTypes = [];
+                jsons.forEach((json) => {
+                    colTypes = jsonKeys.map((key, index) => {
+                        return xcHelper.parseColType(json[key], colTypes[index]);
+                    });
+                });
+
+                const columns = jsonKeys.map((key, index) => {
+                    return {
+                        name: key,
+                        type: colTypes[index]
+                    };
+                });
+                deferred.resolve(columns);
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
+        }
+    }
+
     // Rename dsObj
     DS.rename = function(dsId, newName) {
         // now only for folders (later also rename datasets?)

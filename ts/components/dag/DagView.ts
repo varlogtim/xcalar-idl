@@ -3007,6 +3007,32 @@ namespace DagView {
             }
         });
 
+        graph.events.on(DagNodeEvents.LineageSourceChange, function(info) {
+            const tabId: string = activeDagTab.getId();
+            if (info.tabId === tabId) {
+                activeDagTab.save();
+                if (DagTable.Instance.isTableFromTab(tabId)) {
+                    const node: DagNode = info.node;
+                    const set = activeDag.traverseGetChildren(node);
+                    set.add(node);
+
+                    const bindNodeId: DagNodeId = DagTable.Instance.getBindNodeId();
+                    let nodeInPreview: DagNode = null;
+                    set.forEach((dagNode) => {
+                        dagNode.getLineage().reset(); // reset all columns' lineage
+                        if (dagNode.getId() === bindNodeId) {
+                            nodeInPreview = dagNode;
+                        }
+                    });
+                    // XXX TODO use better way to refresh the viewer
+                    if (nodeInPreview != null) {
+                        DagTable.Instance.close();
+                        DagView.previewTable(nodeInPreview);
+                    }
+                }
+            }
+        });
+
         graph.events.on(DagNodeEvents.AggregateChange, function (info) {
             editAggregates(info.id, info.tabId, info.aggregates);
         });

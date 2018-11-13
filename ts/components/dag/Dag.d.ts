@@ -43,11 +43,11 @@ interface DagNodeCustomInfo extends DagNodeInfo {
 }
 
 interface DagNodeInInfo extends DagNodeInfo {
-    columns?: {name: string, type: ColumnType}[]
+    schema: ColSchema[]
 }
 
-interface DagNodeIMDTableInfo extends DagNodeInfo {
-    columns?: {name: string, type: ColumnType}[]
+interface DagNodeDatasetInfo extends DagNodeInInfo {
+    loadArgs: string;
 }
 
 interface DagNodeExtensionInfo extends DagNodeInfo {
@@ -86,6 +86,7 @@ interface DagNodeAggregateInputStruct {
 interface DagNodeDatasetInputStruct {
     source: string;
     prefix: string;
+    synthesize: boolean;
 }
 
 interface DagNodeIMDTableInputStruct {
@@ -186,7 +187,6 @@ interface DagNodeExtensionInputStruct {
 interface DagNodeDFInInputStruct {
     linkOutName: string;
     dataflowId: string;
-    schema: {name: string, type: ColumnType}[];
 }
 
 interface DagNodeDFOutInputStruct {

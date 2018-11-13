@@ -12,8 +12,8 @@ abstract class DagNode {
     private state: DagNodeState;
     private error: string;
     private numParent: number; // non-persisent
-    private events: {_events: object, trigger: Function}; // non-persistent;
 
+    protected events: {_events: object, trigger: Function}; // non-persistent;
     protected type: DagNodeType;
     protected subType: DagNodeSubType;
     protected lineage: DagLineage; // XXX persist or not TBD

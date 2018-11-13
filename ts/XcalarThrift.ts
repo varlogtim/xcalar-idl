@@ -966,13 +966,14 @@ XcalarDatasetDelete = function(
     return deferred.promise();
 }
 
-XcalarDatasetGetLoadArgs = function(datasetNamePattern) {
+XcalarDatasetGetLoadArgs = function(datasetName: string) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
 
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
-    xcalarDatasetGetMeta(tHandle, datasetNamePattern)
+    const dsName: string = parseDS(datasetName);
+    xcalarDatasetGetMeta(tHandle, dsName)
     .then((res) => {
         deferred.resolve(res.datasetMeta);
     })

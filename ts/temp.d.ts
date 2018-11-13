@@ -248,6 +248,11 @@ interface ExtensionInfo {
     _configParams: {notTableDependent: boolean};
 }
 
+interface ColSchema {
+    name: string,
+    type: ColumnType
+}
+
 declare class d3 {
     public select(selector: string): d3;
     public selectAll(selector: string): d3;
@@ -1086,6 +1091,7 @@ declare namespace MainMenu {
     export function restoreState(state: object, ignoreClose?: boolean): void;
     export function closeForms(): void;
     export function registerPanels(panels: BaseOpPanel): void;
+    export function checkMenuAnimFinish(): XDPromise<void>;
 }
 
 declare namespace BottomMenu {
@@ -1153,6 +1159,7 @@ declare namespace DS {
     export function shareDS(dsId: string): XDPromise<void>;
     export function attach(dsName: string, uid: string): XDPromise<void>;
     export function detach(dsName: string, uid: string): XDPromise<void>;
+    export function getSchema(dsName: string): XDPromise<ColSchema[]>;
 }
 
 

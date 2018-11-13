@@ -11,14 +11,9 @@ class DagNodeDFIn extends DagNodeIn {
     public setParam(input: DagNodeDFInInputStruct = <DagNodeDFInInputStruct>{}): void {
         this.input.setInput({
             dataflowId: input.dataflowId,
-            linkOutName: input.linkOutName,
-            schema: input.schema
+            linkOutName: input.linkOutName
         });
         super.setParam();
-    }
-
-    public getSchema(): {name: string, type: ColumnType}[] {
-        return this.getParam().schema;
     }
 
     // XXX TODO: This function used DagTabManager now, which is against

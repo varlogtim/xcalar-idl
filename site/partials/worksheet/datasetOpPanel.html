@@ -11,23 +11,32 @@
       <p class="mainInstructions instrText"><%= dicts.datasetOp.datasetInstr %></p>
       <!-- Dataset View Top Section-->
       <section class="modalTopMain">
-        <div class="subHeading clearfix">
-          <div class="label"><%= dicts.datasetOp.source %>:</div>
+        <!-- dataset source -->
+        <div class="datasetSource step1">
+          <div class="subHeading clearfix">
+            <div class="label"><%= dicts.datasetOp.source %>:</div>
+          </div>
+          <p class="instrText"><%= dicts.datasetOp.sourceInstr %></p>
+          <div id="datasetOpBrowser" class="mainSection xc-fileListView">
+            include "../util/fileListView.html"
+          </div>
         </div>
-        <p class="instrText"><%= dicts.datasetOp.sourceInstr %></p>
-        <div id="datasetOpBrowser" class="mainSection xc-fileListView">
-          include "../util/fileListView.html"
-        </div>
-        <div class="datasetPrefix formRow">
+        <!-- dataset prefix -->
+        <div class="datasetPrefix step1">
           <div class="subHeading clearfix">
             <div class="label"><%= dicts.datasetOp.prefix %>:</div>
           </div>
           <p class="instrText"><%= dicts.datasetOp.prefixInstr %></p>
           <div class="inputWrap">
-              <input class="arg" type="text" tabindex="10"
-                spellcheck="false" data-typeid="-1"
-                data-casted="false" data-casttype="null">
+            <input class="arg" type="text" tabindex="10" spellcheck="false" data-typeid="-1" data-casted="false" data-casttype="null">
           </div>
+        </div>
+        <!-- schema -->
+        <div class="schema step2">
+          <div class="subHeading clearfix">
+            <div class="label"><%= dicts.DFLink.Schema %>:</div>
+          </div>
+          include "colSchemaView.html"
         </div>
       </section>
     </div>
@@ -36,7 +45,7 @@
     <section id="datasetOpColumnAssignment" class="xc-hidden">
       include "colAssignmentView.html"
       <section class="bottomSection flexWrap">
-        <button type="button" class="btn btn-submit btn-rounded confirmRename"><%= dicts.datasetOp.save %></button>
+        <button type="button" class="btn btn-submit btn-rounded confirmRename step2"><%= dicts.datasetOp.save %></button>
       </section>
     </section>
   </div>

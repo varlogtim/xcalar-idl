@@ -373,6 +373,8 @@ ErrTStr = {
     "OpenForm": "Form is not setup correctly, please retry",
     "NoPrefixColumn": "Column name cannot have prefix",
     "InvalidEvalStr": "Invalid eval string",
+    "DetectSchema": "Error occured when detecting schema",
+
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +
@@ -1668,7 +1670,6 @@ OpPanelTStr = {
     "DFLinkInNoDF": "Dataflow doesn't exist",
     "DFLinkInNoOut": "Link out node doesn't exist",
     "DFLinkInNoSchema": "No columns in schema",
-    "DFLinkInDetectFail": "Error occur when detecting schema",
     "SplitPanelTitle": "Split Operation",
     "SplitPanelInstr": "Split column by delimiter",
     "SplitPanelFieldNameDelimiter": "Delimiter",

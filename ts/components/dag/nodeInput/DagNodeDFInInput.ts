@@ -9,7 +9,7 @@ class DagNodeDFInInput extends DagNodeInput {
         "title": "The Root Schema",
         "additionalProperties": false,
         "required": [
-          "dataflowId", "schema"
+          "dataflowId"
         ],
         "properties": {
             "linkOutName": {
@@ -34,7 +34,7 @@ class DagNodeDFInInput extends DagNodeInput {
                 "$id": "#/properties/schema",
                 "type": "array",
                 "title": "The schema Schema",
-                "minItems": 1,
+                "minItems": 0,
                 "additionalItems": false,
                 "items": {
                   "$id": "#/properties/schema/items",
@@ -84,8 +84,7 @@ class DagNodeDFInInput extends DagNodeInput {
         const input = super.getInput(replaceParameters);
         return {
             dataflowId: input.dataflowId || "",
-            linkOutName: input.linkOutName || "",
-            schema: input.schema || []
-        };
+            linkOutName: input.linkOutName || ""
+          };
     }
 }

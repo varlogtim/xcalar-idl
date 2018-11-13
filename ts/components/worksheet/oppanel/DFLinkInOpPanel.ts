@@ -2,12 +2,12 @@ class DFLinkInOpPanel extends BaseOpPanel {
     private _dagNode: DagNodeDFIn;
     private _dataflows: {tab: DagTab, displayName: string}[];
     private _linkOutNodes: {node: DagNodeDFOut, displayName: string}[];
-    private _schemaSection: DFLinkInOpPanelSchemaSection;
+    private _schemaSection: ColSchemaSection;
 
     public constructor() {
         super();
         this._setup();
-        this._schemaSection = new DFLinkInOpPanelSchemaSection(this._getSchemaSection());
+        this._schemaSection = new ColSchemaSection(this._getSchemaSection());
     }
 
     public show(dagNode: DagNodeDFIn, options?): boolean {
@@ -15,7 +15,10 @@ class DFLinkInOpPanel extends BaseOpPanel {
             return false;
         }
         this._initialize(dagNode);
-        this._restorePanel(this._dagNode.getParam());
+        const model = $.extend(this._dagNode.getParam(), {
+            schema: this._dagNode.getSchema()
+        })
+        this._restorePanel(model);
         return true;
     }
 
@@ -32,13 +35,17 @@ class DFLinkInOpPanel extends BaseOpPanel {
 
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
         if (toAdvancedMode) {
-            const param: DagNodeDFInInputStruct = this._validate();
+            const param = this._validate(true) || {
+                linkOutName: "",
+                dataflowId: "",
+                schema: []
+            };
             const paramStr = JSON.stringify(param, null, 4);
             this._cachedBasicModeParam = paramStr;
             this._editor.setValue(paramStr);
         } else {
             try {
-                const param: DagNodeDFInInputStruct = this._convertAdvConfigToModel();
+                const param = this._convertAdvConfigToModel();
                 this._restorePanel(param);
                 return;
             } catch (e) {
@@ -104,7 +111,11 @@ class DFLinkInOpPanel extends BaseOpPanel {
         }
     }
 
-    private _restorePanel(param: DagNodeDFInInputStruct): void {
+    private _restorePanel(param: {
+        linkOutName: string,
+        dataflowId: string,
+        schema: ColSchema[]
+    }): void {
         const dataflowName: string = this._dataflowIdToName(param.dataflowId);
         this._getDFDropdownList().find("input").val(dataflowName);
         this._getLinkOutDropdownList().find("input").val(param.linkOutName);
@@ -113,7 +124,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
     }
 
     private _submitForm(): void {
-        let args: DagNodeDFInInputStruct;
+        let args: {linkOutName: string, dataflowId: string, schema: ColSchema[]};
         if (this._isAdvancedMode()) {
             args = this._validAdvancedMode();
         } else {
@@ -124,17 +135,33 @@ class DFLinkInOpPanel extends BaseOpPanel {
             // invalid case
             return;
         }
-        this._dagNode.setParam(args);
+
+        const oldParam = this._dagNode.getParam();
+        if (oldParam.linkOutName === args.linkOutName &&
+            oldParam.dataflowId === args.dataflowId
+        ) {
+            // when only schema changes
+            this._dagNode.setSchema(args.schema, true);
+        } else {
+            this._dagNode.setSchema(args.schema);
+            this._dagNode.setParam(args);
+        }
         this.close(true);
     }
 
-    private _validate(ingore: boolean = false): DagNodeDFInInputStruct {
+    private _validate(ingore: boolean = false): {
+        linkOutName: string,
+        dataflowId: string,
+        schema: ColSchema[]
+    } {
         const $dfInput: JQuery = this._getDFDropdownList().find("input");
         const $linkOutInput: JQuery = this._getLinkOutDropdownList().find("input");
         const dataflowId: string = this._dataflowNameToId($dfInput.val().trim());
         const linkOutName: string = $linkOutInput.val().trim();
         let isValid: boolean = false;
-        if (!ingore) {
+        if (ingore) {
+            isValid = true;
+        } else {
             isValid = xcHelper.validate([{
                 $ele: $dfInput
             }, {
@@ -163,7 +190,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
         }
     }
 
-    private _validAdvancedMode(): DagNodeDFInInputStruct {
+    private _validAdvancedMode() {
         try {
             return this._convertAdvConfigToModel();
         } catch (error) {
@@ -236,7 +263,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
     }
 
     private _getSchemaSection(): JQuery {
-        return this._getPanel().find(".schemaSection");
+        return this._getPanel().find(".colSchemaSection");
     }
 
     private _autoDetectSchema(): {error: string} {
@@ -256,12 +283,11 @@ class DFLinkInOpPanel extends BaseOpPanel {
             });
             fakeLinkInNode.setParam({
                 dataflowId: dataflowId,
-                linkOutName: linkOutName,
-                schema: []
+                linkOutName: linkOutName
             });
             const dfOutNode: DagNodeDFOut = fakeLinkInNode.getLinedNodeAndGraph().node;
             const progCols: ProgCol[] = dfOutNode.getLineage().getColumns();
-            const schema: {name: string, type: ColumnType}[] = progCols.map((progCol) => {
+            const schema: ColSchema[] = progCols.map((progCol) => {
                 return {
                     name: progCol.getBackColName(),
                     type: progCol.getType()
@@ -273,16 +299,20 @@ class DFLinkInOpPanel extends BaseOpPanel {
         }
     }
 
-    private _convertAdvConfigToModel(): DagNodeDFInInputStruct {
-        const dagInput: DagNodeDFInInputStruct = <DagNodeDFInInputStruct>JSON.parse(this._editor.getValue());
-        if (JSON.stringify(dagInput, null, 4) !== this._cachedBasicModeParam) {
+    private _convertAdvConfigToModel(): {
+        linkOutName: string,
+        dataflowId: string,
+        schema: ColSchema[]
+    } {
+        const input = JSON.parse(this._editor.getValue());
+        if (JSON.stringify(input, null, 4) !== this._cachedBasicModeParam) {
             // don't validate if no changes made, just allow to go to basic
-            const error = this._dagNode.validateParam(dagInput);
+            const error = this._dagNode.validateParam(input);
             if (error) {
                 throw new Error(error.error);
             }
         }
-        return dagInput;
+        return input;
     }
 
     private _addEventListenersForDropdown(
@@ -344,7 +374,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
         $schemaSection.on("click", ".detect", (event) => {
             const error: {error: string} = this._autoDetectSchema();
             if (error != null) {
-                StatusBox.show(OpPanelTStr.DFLinkInDetectFail, $(event.currentTarget), false, {
+                StatusBox.show(ErrTStr.DetectSchema, $(event.currentTarget), false, {
                     detail: error.error
                 });
             }

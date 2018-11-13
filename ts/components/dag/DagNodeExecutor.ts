@@ -118,9 +118,31 @@ class DagNodeExecutor {
         const node: DagNodeDataset = <DagNodeDataset>this.node;
         const params: DagNodeDatasetInputStruct = node.getParam(true);
         const dsName: string = params.source;
-        const prefix: string = params.prefix;
+
+        if (params.synthesize === true) {
+            const schema: ColSchema[] = node.getSchema();
+            return this._synthesizeDataset(dsName, schema);
+        } else {
+            const prefix: string = params.prefix;
+            return this._indexDataset(dsName, prefix);
+        }
+    }
+
+    private _indexDataset(dsName: string, prefix: string): XDPromise<string> {
         const desTable = this._generateTableName();
         return XIApi.indexFromDataset(this.txId, dsName, desTable, prefix);
+    }
+
+    private _synthesizeDataset(dsName: string, schema: ColSchema[]): XDPromise<string> {
+        const desTable = this._generateTableName();
+        const colInfos: ColRenameInfo[] = schema.map((colInfo) => {
+            const type: DfFieldTypeT = xcHelper.convertColTypeToFieldType(colInfo.type);
+            const name: string = colInfo.name;
+            return xcHelper.getJoinRenameMap(name, name, type);
+        });
+        // TODO: XXX parseDS should not be called here
+        dsName = parseDS(dsName);
+        return XIApi.synthesize(this.txId, colInfos, dsName, desTable);
     }
 
     private _aggregate(): XDPromise<null> {

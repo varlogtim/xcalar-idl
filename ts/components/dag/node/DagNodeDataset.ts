@@ -1,11 +1,12 @@
 class DagNodeDataset extends DagNodeIn {
     protected input: DagNodeDatasetInput;
-    protected columns: ProgCol[];
+    private loadArgs: string;
 
-    public constructor(options: DagNodeInInfo) {
+    public constructor(options: DagNodeDatasetInfo) {
         super(options);
         this.type = DagNodeType.Dataset;
         this.display.icon = "&#xe90f";
+        this.loadArgs = options.loadArgs || null;
         this.input = new DagNodeDatasetInput(options.input);
     }
 
@@ -19,12 +20,13 @@ class DagNodeDataset extends DagNodeIn {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const source: string = input.source;
         const prefix: string = input.prefix;
-        this.getSourceColumns(source, prefix)
-        .then((columns: ProgCol[]) => {
-            this.columns = columns;
+        const synthesize: boolean = input.synthesize;
+        PromiseHelper.alwaysResolve(this._fetchLoadArgs(source))
+        .then(() => {
             this.input.setInput({
                 source: source,
-                prefix: prefix
+                prefix: prefix,
+                synthesize: synthesize
             });
             super.setParam();
             deferred.resolve();
@@ -34,56 +36,15 @@ class DagNodeDataset extends DagNodeIn {
         return deferred.promise();
     }
 
-    public setSourceColumns(columns: ProgCol[]) {
-        this.columns = columns;
-        super.setParam();
-    }
-
-    public getSourceColumns(
-        source: string,
-        prefix: string
-    ): XDPromise<ProgCol[]> {
-        const deferred: XDDeferred<ProgCol[]> = PromiseHelper.deferred();
-        const ds: DSObj = DS.getDSObj(source);
-        const sourceHasParams = xcHelper.checkValidParamBrackets(source, true);
-        if (ds != null && prefix != null || sourceHasParams) {
-            let fetch;
-            if (sourceHasParams) {
-                fetch = PromiseHelper.resolve([], []);
-            } else {
-                 // XXXX this is a wrong implementation
-                // wait for https://bugs.int.xcalar.com/show_bug.cgi?id=12870
-                fetch = ds.fetch(0, 50);
-            }
-
-            fetch
-            .then((jsons, jsonKeys) => {
-                let colTypes: ColumnType[] = [];
-                jsons.forEach((json) => {
-                    colTypes = jsonKeys.map((key, index) => {
-                        return xcHelper.parseColType(json[key], colTypes[index]);
-                    });
-                });
-
-                const columns = jsonKeys.map((key, index) => {
-                    const colName: string = xcHelper.getPrefixColName(prefix, key);
-                    return ColManager.newPullCol(key, colName, colTypes[index]);
-                });
-                deferred.resolve(columns);
-            })
-            .fail(deferred.reject);
-        } else {
-            deferred.reject("Dataset not found");
-        }
-
-        return deferred.promise();
-    }
-
     /**
      * Get the dataset name
      */
     public getDSName(): string {
         return this.input.getInput().source || null;
+    }
+
+    public getLoadArgs(): string {
+        return this.loadArgs;
     }
 
     /**
@@ -97,5 +58,25 @@ class DagNodeDataset extends DagNodeIn {
             hint += `Source: ${dsName}`;
         }
         return hint;
+    }
+
+    protected _getSerializeInfo():DagNodeDatasetInfo {
+        const serializedInfo: DagNodeDatasetInfo = <DagNodeDatasetInfo>super._getSerializeInfo();
+        if (this.loadArgs) {
+            serializedInfo.loadArgs = this.loadArgs;
+        }
+        return serializedInfo;
+    }
+
+    private _fetchLoadArgs(dsName: string): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        XcalarDatasetGetLoadArgs(dsName)
+        .then((loadArgs) => {
+            this.loadArgs = loadArgs;
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 }
