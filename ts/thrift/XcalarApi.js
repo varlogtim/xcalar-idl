@@ -3563,7 +3563,7 @@ xcalarApiMap = runEntity.xcalarApiMap = function(thriftHandle,
     return (deferred.promise());
 };
 
-xcalarApiSynthesizeWorkItem = runEntity.xcalarApiSynthesizeWorkItem = function(srcTableName, dstTableName, columns) {
+xcalarApiSynthesizeWorkItem = runEntity.xcalarApiSynthesizeWorkItem = function(srcTableName, dstTableName, columns, sameSession) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.synthesizeInput = new XcalarApiSynthesizeInputT();
@@ -3577,10 +3577,12 @@ xcalarApiSynthesizeWorkItem = runEntity.xcalarApiSynthesizeWorkItem = function(s
         workItem.input.synthesizeInput.numColumns = 0;
     }
     workItem.input.synthesizeInput.columns = columns;
+    workItem.input.synthesizeInput.sameSession = sameSession;
     return (workItem);
 };
 
-xcalarApiSynthesize = runEntity.xcalarApiSynthesize = function(thriftHandle, srcTableName, dstTableName, columns) {
+xcalarApiSynthesize = runEntity.xcalarApiSynthesize = function(thriftHandle, srcTableName,
+                                        dstTableName, columns, sameSession) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSynthesize(srcTableName = " + srcTableName +
@@ -3588,7 +3590,7 @@ xcalarApiSynthesize = runEntity.xcalarApiSynthesize = function(thriftHandle, src
     }
 
     var workItem = xcalarApiSynthesizeWorkItem(srcTableName, dstTableName,
-                                               columns);
+                                               columns, sameSession);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -5815,7 +5817,6 @@ xcalarApiImportRetinaWorkItem = runEntity.xcalarApiImportRetinaWorkItem = functi
     workItem.input.importRetinaInput.retinaJson = retinaJson;
     workItem.input.importRetinaInput.udfUserName = udfUserName;
     workItem.input.importRetinaInput.udfSessionName = udfSessionName;
-
     return (workItem);
 };
 

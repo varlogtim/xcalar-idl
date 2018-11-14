@@ -28,7 +28,8 @@ enum DagNodeType {
     SQLSubInput = "SQLSubInput",
     SQLSubOutput = "SQLSubOutput",
     SubGraph = "subGraph",
-    Placeholder = "placeholder"
+    Placeholder = "placeholder",
+    Synthesize = "synthesize"
 }
 
 enum DagNodeSubType {
@@ -59,7 +60,9 @@ enum DagNodeErrorType {
     CycleInLink = "Cycle In Link",
     LinkOutNotExecute = "The linked node only allow linking after execution",
     InvalidOptimizedOutNode = "Valid terminal nodes must be either Export optimized or Link out optimized",
-    Disjoint = "Multiple disjoint dataflows detected. Optimized execution can only occur on 1 continuous dataflow."
+    InvalidOptimizedOutNodeCombo = "Optimized dataflow cannot have both Export and Link Out nodes",
+    InvalidOptimizedLinkOutCount = "Optimized dataflow cannot have multiple Link Out nodes",
+    Disjoint = "Multiple disjoint dataflows detected. Optimized execution can only occur on 1 continuous dataflow.",
 }
 
 enum DagGraphEvents {

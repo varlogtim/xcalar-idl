@@ -6,7 +6,7 @@ class DagTabOptimized extends DagTab {
         name: string,
         queryNodes: any[],
     }) {
-        const { id, name, queryNodes } = options;
+        const {id, name, queryNodes } = options;
         super(name, id, null);
         this._constructGraphFromQuery(queryNodes);
     }
@@ -53,10 +53,10 @@ class DagTabOptimized extends DagTab {
         const nodeInfos = [];
         nodeJsons.forEach((nodeJson) => {
             nameIdMap[nodeJson.table] = nodeJson.id;
-            if (nodeJson.indexParents) {
+            if (nodeJson.subGraphNodes) {
                 // map the index nodes to the containing dagNodeId
-                nodeJson.indexParents.forEach((indexNodeJson) => {
-                    nameIdMap[indexNodeJson.table] = nodeJson.id;
+                nodeJson.subGraphNodes.forEach((subGraphNodeJson) => {
+                    nameIdMap[subGraphNodeJson.table] = nodeJson.id;
                 });
             }
             nodeInfos.push({

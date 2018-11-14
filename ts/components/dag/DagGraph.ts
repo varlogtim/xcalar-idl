@@ -426,20 +426,43 @@ class DagGraph {
             return this._executeGraph(null, optimized);
         } else {
             // get subGraph from nodes and execute
-            const backTrack: BackTraceInfo = this.backTraverseNodes(nodeIds, true);
+            // we want to stop at the next node with a table unless we're
+            // executing optimized in which case we want the entire query
+            const backTrack: BackTraceInfo = this.backTraverseNodes(nodeIds, !optimized);
             const nodesMap:  Map<DagNodeId, DagNode> = backTrack.map;
             const startingNodes: DagNodeId[] = backTrack.startingNodes;
             return this._executeGraph(nodesMap, optimized, startingNodes);
         }
     }
 
-    public getQuery(nodeId: DagNodeId): XDPromise<string> {
-        // clone graph because we will be changing each node's table and we don't
+    /**
+     * @description gets query from multiple nodes, only used to create retinas
+     * assumes nodes passed in were already validated
+     * @param nodeIds
+     */
+    public getOptimizedQuery(nodeIds: DagNodeId[]): XDPromise<string> {
+         // clone graph because we will be changing each node's table and we don't
         // want this to effect the actual graph
         const clonedGraph = this.clone();
+        clonedGraph.setTabId(DagTab.generateId());
+        let orderedNodes: DagNode[] = nodeIds.map((nodeId) => this._getNodeFromId(nodeId));
+        const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, clonedGraph, true);
+        return executor.getBatchQuery();
+    }
+
+    /**
+     * @description gets query from the lineage of 1 node, includes validation
+     * @param nodeId
+     * @param optimized
+     */
+    public getQuery(nodeId: DagNodeId, optimized?: boolean): XDPromise<string> {
+         // clone graph because we will be changing each node's table and we don't
+        // want this to effect the actual graph
+        const clonedGraph = this.clone();
+        clonedGraph.setTabId(DagTab.generateId());
         const nodesMap:  Map<DagNodeId, DagNode> = clonedGraph.backTraverseNodes([nodeId], false).map;
         const orderedNodes: DagNode[] = clonedGraph._topologicalSort(nodesMap);
-        const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, clonedGraph);
+        const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, clonedGraph, optimized);
         const checkResult = executor.checkCanExecuteAll();
         if (checkResult.hasError) {
             return PromiseHelper.reject(checkResult);
@@ -866,23 +889,17 @@ class DagGraph {
                 "type": error.error
             });
         }
-        const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, this);
-        let checkResult = executor.checkCanExecuteAll(optimized);
+        const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, this, optimized);
+        let checkResult = executor.validateAll();
         if (checkResult.hasError) {
             return PromiseHelper.reject(checkResult);
         }
-        if (optimized) {
-            checkResult = executor.checkDisjoint();
-            if (checkResult.hasError) {
-                return PromiseHelper.reject(checkResult);
-            }
-        }
-        const nodeIds = orderedNodes.map(node => node.getId())
+        const nodeIds: DagNodeId[] = orderedNodes.map(node => node.getId());
         this.lockGraph(nodeIds);
-        executor.run(optimized)
-        .then((_res) => {
+        executor.run()
+        .then((...args) => {
             this.unlockGraph(nodeIds);
-            deferred.resolve();
+            deferred.resolve(...args);
         })
         .fail((error) => {
             this.unlockGraph(nodeIds);
@@ -1069,7 +1086,6 @@ class DagGraph {
             const parents = child.getParents();
             let numParents = parents.length;
             for (let i = 0; i < numParents; i++) {
-                console.log(i, parents);
                 const parent = parents[i];
                 if (parent === node) {
                     if (!childIndices[childId]) {
@@ -1314,6 +1330,7 @@ class DagGraph {
                 case (XcalarApisT.XcalarApiProject):
                 case (XcalarApisT.XcalarApiGroupBy):
                 case (XcalarApisT.XcalarApiGetRowNum):
+                case (XcalarApisT.XcalarApiExport):
                     node.parents = [args.source];
                     break;
                 case (XcalarApisT.XcalarApiFilter):
@@ -1399,14 +1416,14 @@ class DagGraph {
             return dagNodeInfo;
         }
 
-        function getDagNodeInfo(node, hiddenIndexParent?: boolean) {
+        function getDagNodeInfo(node, hiddenSubGraphNode?: boolean) {
             let dagNodeInfo: DagNodeInfo;
-            if (node.indexParents) {
-                const indexParents = [];
-                node.indexParents.forEach((indexNode) => {
-                    indexParents.push(getDagNodeInfo(indexNode, true));
+            if (node.subGraphNodes) {
+                const subGraphNodes = [];
+                node.subGraphNodes.forEach((subGraphNode) => {
+                    subGraphNodes.push(getDagNodeInfo(subGraphNode, true));
                 });
-                node.indexParents = indexParents;
+                node.subGraphNodes = subGraphNodes;
             }
             switch (node.api) {
                 case (XcalarApisT.XcalarApiIndex):
@@ -1562,24 +1579,43 @@ class DagGraph {
                         }
                     };
                     break;
-                case (XcalarApisT.XcalarApiSelect):
-                case (XcalarApisT.XcalarApiSynthesize):
-                case (XcalarApisT.XcalarApiBulkLoad):
-                    // resulting index node takes the place of the load node
+                case (XcalarApisT.XcalarApiExport):
+                    dagNodeInfo = {
+                        type: DagNodeType.Export,
+                        input: {
+                            columns: [],
+                            driver: "",
+                            driverArgs: {}
+                        }
+                    };
                     break;
+                case (XcalarApisT.XcalarApiSynthesize):
+                    dagNodeInfo = {
+                        type: DagNodeType.Synthesize,
+                        input: {
+                            columns: node.args.columns
+                        }
+                    };
+                    break;
+                case (XcalarApisT.XcalarApiSelect):
+                case (XcalarApisT.XcalarApiBulkLoad):
                 default:
                     dagNodeInfo = {
-                        type: null
-                    }
+                        type: DagNodeType.Placeholder,
+                        name: XcalarApisTStr[node.api],
+                        title: XcalarApisTStr[node.api],
+                        input: {
+                            args: node.args
+                        }
+                    };
                     break;
             }
 
-            dagNodeInfo.description = node.rawNode.comment;
             dagNodeInfo.table = node.name;
             dagNodeInfo.id = DagNode.generateId();
             dagNodeInfo.parents = [];
-            dagNodeInfo.description = JSON.stringify(node.args);
-            dagNodeInfo.indexParents = node.indexParents;
+            dagNodeInfo.description = JSON.stringify(node.args, null, 4);
+            dagNodeInfo.subGraphNodes = node.subGraphNodes;
             // create dagIdParentIdxMap so that we can add input nodes later
             const srcTableName = destSrcMap[node.name];
             if (srcTableName) {
@@ -1588,13 +1624,13 @@ class DagGraph {
             if(node.name === finalTableName) {
                 outputDagId = dagNodeInfo.id;
             }
-            if (!hiddenIndexParent) {
+            if (!hiddenSubGraphNode) {
                 tableNewDagIdMap[dagNodeInfo.table] = dagNodeInfo.id;
             }
 
-            if (node.indexParents) {
-                node.indexParents.forEach(indexParent => {
-                    tableNewDagIdMap[indexParent.table] = dagNodeInfo.id;
+            if (node.subGraphNodes) {
+                node.subGraphNodes.forEach(subGraphNode => {
+                    tableNewDagIdMap[subGraphNode.table] = dagNodeInfo.id;
                 });
             }
             return dagNodeInfo;
@@ -1624,12 +1660,14 @@ class DagGraph {
         function collapseIndexNodes(node) {
             if (node.api === XcalarApisT.XcalarApiIndex) {
                 const parent = node.parents[0];
-                if (parent && parent.api === XcalarApisT.XcalarApiBulkLoad) {
+                if (parent && parent.api === XcalarApisT.XcalarApiBulkLoad &&
+                    !node.createTableInput) {
                     node.createTableInput = {
                         source: node.args.source,
                         prefix: node.args.prefix
                     }
                     node.parents = [];
+                    node.subGraphNodes = [parent];
                 }
                 return;
             }
@@ -1640,29 +1678,33 @@ class DagGraph {
                 }
                 if (!parent.parents.length ||
                     parent.parents[0].api === XcalarApisT.XcalarApiBulkLoad) {
-                    if (parent.args.source.startsWith(gDSPrefix)) {
+                    if (parent.args.source.startsWith(gDSPrefix) && !parent.createTableInput) {
                         // if index resulted from dataset
                         // then that index needs to take the role of the dataset node
                         parent.createTableInput = {
                             source: parent.args.source,
                             prefix: parent.args.prefix
                         }
+                        if (parent.parents[0]) {
+                            parent.subGraphNodes = [parent.parents[0]];
+                        }
+
                         parent.parents = [];
                     }
                     continue;
                 }
 
-                const indexParents = [parent];
-                const nonIndexParent = getNonIndexParent(parent, indexParents);
+                const subGraphNodes = [parent];
+                const nonIndexParent = getNonIndexParent(parent, subGraphNodes);
                 if (!nonIndexParent) {
                     node.parents.splice(i, 1);
                     i--;
                     continue;
                 }
-                if (!node.indexParents) {
-                    node.indexParents = indexParents;
+                if (!node.subGraphNodes) {
+                    node.subGraphNodes = subGraphNodes;
                 } else {
-                    node.indexParents = node.indexParents.concat(indexParents);
+                    node.subGraphNodes = node.subGraphNodes.concat(subGraphNodes);
                 }
                 node.parents[i] = nonIndexParent;
 
@@ -1673,7 +1715,7 @@ class DagGraph {
                 nonIndexParent.children.push(node);
             }
 
-            function getNonIndexParent(node, indexParents) {
+            function getNonIndexParent(node, subGraphNodes) {
                 const parentOfIndex = node.parents[0];
                 if (!parentOfIndex) {
                     return null;
@@ -1684,8 +1726,8 @@ class DagGraph {
                         return parentOfIndex;
                     }
 
-                    indexParents.push(parentOfIndex);
-                    return getNonIndexParent(parentOfIndex, indexParents);
+                    subGraphNodes.push(parentOfIndex);
+                    return getNonIndexParent(parentOfIndex, subGraphNodes);
                 } else {
                     return parentOfIndex;
                 }

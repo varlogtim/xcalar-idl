@@ -1,16 +1,39 @@
 class DagGraphExecutor {
     private _nodes: DagNode[];
     private _graph: DagGraph;
+    private _retinaCheckInterval = 2000;
+    private _executeInProgress = false;
+    private _isOptimized: boolean;
+    private _isOptimizedActiveSession: boolean;
+    private _optimizedLinkOutNode: DagNode;
 
-    public constructor(nodes: DagNode[], graph: DagGraph) {
+    public constructor(nodes: DagNode[], graph: DagGraph, optimized?: boolean) {
         this._nodes = nodes;
         this._graph = graph;
+        this._isOptimized = optimized || false;
+    }
+
+    public validateAll(): {
+        hasError: boolean,
+        type: DagNodeErrorType,
+        node: DagNode
+    } {
+        let validateResult = this.checkCanExecuteAll();
+
+        if (!validateResult.hasError && this._isOptimized) {
+            validateResult = this._checkDisjoint();
+        }
+        if (!validateResult.hasError && this._isOptimized) {
+            validateResult = this._checkValidOptimizedDataflow();
+        }
+
+        return validateResult;
     }
 
     /**
      * Static check if the nodes to run are executable
      */
-    public checkCanExecuteAll(optimized?: boolean): {
+    public checkCanExecuteAll(): {
         hasError: boolean,
         type: DagNodeErrorType,
         node: DagNode
@@ -54,7 +77,7 @@ class DagGraphExecutor {
                     errorResult.type = DagNodeErrorType.LinkOutNotExecute;
                     errorResult.node = node;
                 }
-            } else if (optimized && node.hasNoChildren()) {
+            } else if (this._isOptimized && node.hasNoChildren()) {
                 if (!node.isOutNode() ||
                     (node.getSubType() !== DagNodeSubType.ExportOptimized &&
                     node.getSubType() !== DagNodeSubType.DFOutOptimized)) {
@@ -69,12 +92,64 @@ class DagGraphExecutor {
         return errorResult;
     }
 
+    // checks to see if dataflow is invalid due to export node + link out node
+    // or multiple link out nodes and sets
+    private _checkValidOptimizedDataflow(): {
+        hasError: boolean,
+        type: DagNodeErrorType,
+        node: DagNode
+    } {
+        let errorResult: {
+            hasError: boolean,
+            type: DagNodeErrorType,
+            node: DagNode
+        } = {
+            hasError: false,
+            type: null,
+            node: null
+        };
+        let numExportNodes = 0;
+        let numLinkOutNodes = 0;
+        let linkOutNode;
+        for (let i = 0; i < this._nodes.length; i++) {
+            const node: DagNode = this._nodes[i];
+            if (node.getType() === DagNodeType.Export) {
+                numExportNodes++;
+            }
+            if (node.getType() === DagNodeType.DFOut) {
+                numLinkOutNodes++;
+                linkOutNode = node;
+            }
+            if (numLinkOutNodes > 0 && numExportNodes > 0) {
+                errorResult.hasError = true;
+                errorResult.type = DagNodeErrorType.InvalidOptimizedOutNodeCombo;
+                errorResult.node = node;
+                break;
+            }
+            if (numLinkOutNodes > 1) {
+                errorResult.hasError = true;
+                errorResult.type = DagNodeErrorType.InvalidOptimizedLinkOutCount;
+                errorResult.node = node;
+                break;
+            }
+        }
+        if (!errorResult.hasError) {
+            if (numLinkOutNodes === 1) {
+                this._isOptimizedActiveSession = true;
+                this._optimizedLinkOutNode = linkOutNode;
+            } else {
+                this._isOptimizedActiveSession = false;
+            }
+        }
+        return errorResult;
+    }
+
     // first traverses all the ancestors of the endNode and puts them into a tree
     // then traverses all the nodes left out and puts them into a new tree
     // while doing the traversing, if we encounter a node that already belongs to
     // another tree, we later combine the 2 trees into the first and delete the latter
     // if the result ends in more than 1 tree, we return an error
-    public checkDisjoint(): {
+    private _checkDisjoint(): {
         hasError: boolean,
         type: DagNodeErrorType,
         node: DagNode
@@ -182,51 +257,10 @@ class DagGraphExecutor {
     /**
      * Execute nodes
      */
-        /**
-     * Execute nodes
-     */
-    public run(optimized?: boolean): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        if (optimized) {
-            let txId: number;
-            let dstTable;
-            this.getBatchQuery()
-            .then((query, destTable) => {
-                dstTable = destTable;
-                const udfContext = this._getUDFContext();
-                txId = Transaction.start({
-                    operation: "optimized df",
-                    track: true,
-                    optimizedQueryName: destTable,
-                    udfUserName: udfContext.udfUserName,
-                    udfSessionName: udfContext.udfSessionName
-                });
-
-                if (!query.startsWith("[")) {
-                    // when query is not in the form of JSON array
-                    if (query.endsWith(",")) {
-                        query = query.substring(0, query.length - 1);
-                    }
-                    query = "[" + query + "]";
-                }
-
-                const nodes = JSON.parse(query);
-                const tab = DagTabManager.Instance.newOptimizedTab(destTable, nodes);
-                const graph: DagSubGraph = tab.getGraph();
-                graph.startExecution(nodes);
-                return XIApi.query(txId, destTable, query);
-            })
-            .then((res) => {
-                Transaction.done(txId, {
-                    noNotification: true,
-                    noSql: true,
-                    noCommit: true,
-                    queryStateOutput: res
-                });
-                deferred.resolve(dstTable);
-            })
-            .fail(deferred.reject);
-
+    public run(): XDPromise<any> {
+        const self: DagGraphExecutor = this;
+        if (this._isOptimized) {
+            return this._executeOptimizedDataflow();
         } else {
             const nodes: DagNode[] = this._nodes.filter((node) => {
                 return ((node.getState() !== DagNodeState.Complete) || (!DagTblManager.Instance.hasTable(node.getTable())));
@@ -243,11 +277,24 @@ class DagGraphExecutor {
             for (let i = 0; i < nodesToRun.length; i++) {
                 promises.push(this._stepExecute.bind(this, nodesToRun, i));
             }
-            return PromiseHelper.chain(promises);
+            self._executeInProgress = true;
+            const deferred = PromiseHelper.deferred();
+            PromiseHelper.chain(promises)
+            .then((...args) => {
+                self._executeInProgress = false;
+                deferred.resolve(...args);
+            })
+            .fail((...args) => {
+                self._executeInProgress = false;
+                deferred.reject(...args);
+            });
+
+            return deferred.promise();
         }
-        return deferred.promise();
     }
 
+    // returns a query string representing all the operations needed to run
+    // the dataflow
     public getBatchQuery(): XDPromise<string> {
         // get rid of link of node to get the correct query and destTable
         const nodes: DagNode[] = this._nodes.filter((node) => {
@@ -271,12 +318,25 @@ class DagGraphExecutor {
             nodes.forEach((node) => {
                 node.setTable(null); // these table are only fake names
             });
-            const query: string = Transaction.done(simulateId, {
+
+            let query: string = Transaction.done(simulateId, {
                 noNotification: true,
                 noSql: true,
                 noCommit: true
             });
-            deferred.resolve(query, destTable);
+            try {
+               if (!query.startsWith("[")) {
+                    // when query is not in the form of JSON array
+                    if (query.endsWith(",")) {
+                        query = query.substring(0, query.length - 1);
+                    }
+                    query = "[" + query + "]";
+                }
+                deferred.resolve(query, destTable);
+            } catch (e) {
+                console.error(e);
+                deferred.reject(e);
+            }
         })
         .fail(deferred.reject);
 
@@ -331,11 +391,10 @@ class DagGraphExecutor {
 
     private _batchExecute(
         txId: number,
-        node: DagNode,
-        optimized?: boolean
+        node: DagNode
     ): XDPromise<string> {
         const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, this._graph.getTabId());
-        return dagNodeExecutor.run(optimized);
+        return dagNodeExecutor.run(this._isOptimized);
     }
 
     private _checkLinkInResult(node: DagNodeDFIn): {
@@ -438,5 +497,180 @@ class DagGraphExecutor {
                 udfSessionName: undefined
             };
         }
+    }
+
+    private _executeOptimizedDataflow(): XDPromise<any> {
+        const deferred = PromiseHelper.deferred();
+        let txId: number;
+        let retinaName: string;
+        let outputTableName: string = "";
+        const nodeIds: DagNodeId[] = this._nodes.map(node => node.getId());
+
+        this._graph.getOptimizedQuery(nodeIds)
+         .then((queryStr: string, destTable: string) => {
+            // retina name will be the same as the graph/tab's ID
+            retinaName = DagTab.generateId();
+            const udfContext = this._getUDFContext();
+            txId = Transaction.start({
+                operation: "optimized df",
+                track: true,
+                udfUserName: udfContext.udfUserName,
+                udfSessionName: udfContext.udfSessionName
+            });
+            return this._createRetinaFromQueryStr(retinaName, queryStr, destTable);
+        })
+        .then((retina) => {
+             // create tab and pass in nodes to store for progress updates
+            const parentTabId: string = this._graph.getTabId();
+            const parentTab: DagTab = DagTabManager.Instance.getTabById(parentTabId);
+            // name will be {dataflowName} {linkOutName} optimized
+            let dfOutName: string = this._isOptimizedActiveSession ?
+                            this._optimizedLinkOutNode.getParam().name : "export";
+            let tabName: string = parentTab.getName() + " " + dfOutName + " optimized";
+            const tab: DagTabOptimized = DagTabManager.Instance.newOptimizedTab(retinaName,
+                                                tabName, retina.query);
+            tab.getGraph().startExecution(retina.query);
+
+            outputTableName = this._isOptimizedActiveSession ?
+                                "table_" + parentTabId + "_" +
+                                this._optimizedLinkOutNode.getId() +
+                                Authentication.getHashId() : "";
+
+            this._executeInProgress = true;
+            this._statusCheckInterval(retinaName, true);
+            const udfContext = this._getUDFContext();
+            return XcalarExecuteRetina(retinaName, [], {
+                activeSession: this._isOptimizedActiveSession,
+                newTableName: outputTableName,
+                udfUserName: udfContext.udfUserName,
+                udfSessionName: udfContext.udfSessionName
+            });
+        })
+        .then((_res) => {
+            this._executeInProgress = false;
+            this._getAndUpdateRetinaStatuses(retinaName, true);
+
+            this._nodes.forEach((node) => {
+                if (node.getType() === DagNodeType.DFOut ||
+                    node.getType() === DagNodeType.Export) {
+                    node.beCompleteState();
+                }
+            });
+
+            if (this._isOptimizedActiveSession) {
+                this._optimizedLinkOutNode.setTable(outputTableName);
+                DagTblManager.Instance.addTable(outputTableName);
+            }
+
+            Transaction.done(txId, {
+                noNotification: true,
+                noSql: true,
+                noCommit: true
+            });
+            deferred.resolve(outputTableName);
+        })
+        .fail((error) => {
+            if (this._executeInProgress) {
+                this._executeInProgress = false;
+                this._getAndUpdateRetinaStatuses(retinaName, false);
+            }
+            if (txId != null) {
+                Transaction.fail(txId, {
+                    "failMsg": StatusMessageTStr.ProfileFailed,
+                    "error": error,
+                    "noAlert": true
+                });
+            }
+            deferred.reject(error);
+        })
+        .always(() => {
+            // clean up retina
+            if (txId != null) {
+                XcalarDeleteRetina(retinaName);
+            }
+        });
+
+        return deferred.promise();
+    }
+
+    private _createRetinaFromQueryStr(
+        retinaName: string,
+        queryStr: string,
+        destTable: string
+    ): XDPromise<any> {
+        const deferred = PromiseHelper.deferred();
+
+        const operations = JSON.parse(queryStr);
+
+        // create tablename and columns property in retina for each outnode
+        const outNodes = this._nodes.filter((node) => {
+            return node.getType() === DagNodeType.DFOut;
+        });
+
+        // XXX check for name conflict when creating headeralias
+        const tables = outNodes.map((outNode) => {
+            const columns = outNode.getParam().columns.map((col) => {
+                return {
+                    columnName: col.sourceName,
+                    headerAlias: col.destName
+                }
+            });
+            return {
+                name: destTable,
+                columns: columns
+            };
+        });
+
+        const retina = JSON.stringify({
+            tables: tables,
+            query: JSON.stringify(operations)
+        });
+        const udfContext = this._getUDFContext();
+        XcalarImportRetina(retinaName, true, null, retina, udfContext.udfUserName, udfContext.udfSessionName,
+                sessionName)
+        .then((_res) => {
+            return XcalarGetRetinaJson(retinaName);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    private _statusCheckInterval(retName: string, firstRun?: boolean): void {
+        // shorter timeout on the first call
+        let checkTime = firstRun ? 1000 : this._retinaCheckInterval;
+
+        setTimeout(() => {
+            if (!this._executeInProgress) {
+                return; // retina is finished, no more checking
+            }
+
+            this._getAndUpdateRetinaStatuses(retName, false)
+            .always((_ret) => {
+                this._statusCheckInterval(retName, false);
+            });
+
+        }, checkTime);
+    }
+
+    private _getAndUpdateRetinaStatuses(
+        retName: string,
+        isComplete?: boolean
+    ): XDPromise<any> {
+        const deferred = PromiseHelper.deferred();
+
+        XcalarQueryState(retName)
+        .then((queryStateOutput) => {
+            if (isComplete) {
+                DagView.endOptimizedDFProgress(retName, queryStateOutput);
+            } else {
+                DagView.updateOptimizedDFProgress(retName, queryStateOutput);
+            }
+            deferred.resolve(queryStateOutput);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 }

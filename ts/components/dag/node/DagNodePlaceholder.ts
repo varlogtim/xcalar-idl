@@ -17,14 +17,8 @@ class DagNodePlaceholder extends DagNode {
         };
     }
 
-    protected _getSerializeInfo():DagNodeInInfo {
-        const serializedInfo: DagNodeInInfo = super._getSerializeInfo();
-        if (this.columns) {
-            const columns = this.columns.map((progCol) => {
-                return {name: progCol.getBackColName(), type: progCol.getType()};
-            });
-            serializedInfo.columns = columns;
-        }
+    protected _getSerializeInfo(): DagNodeInfo {
+        const serializedInfo: DagNodeInfo = super._getSerializeInfo();
         return serializedInfo;
     }
 }

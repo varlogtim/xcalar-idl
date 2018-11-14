@@ -139,17 +139,11 @@ class DagTabManager{
         }
     }
 
-    public newOptimizedTab(tabId, queryNodes: any[]): DagTabOptimized {
+    public newOptimizedTab(tabId: string, tabName: string, queryNodes: any[]): DagTabOptimized {
         const parentTabId = DagView.getActiveTab().getId();
-        const curTab = this.getTabById(parentTabId);
 
-        // the string to show on the tab
-        const tabName = curTab.getName() + " Optimized";
-        // the td to find the tab
-
-        // No tab for this custom operator, create a new tab
         // Create a new tab object
-        const newTab = new DagTabOptimized({
+        const newTab: DagTabOptimized = new DagTabOptimized({
             id: tabId,
             name: tabName,
             queryNodes: queryNodes

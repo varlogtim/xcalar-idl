@@ -1054,7 +1054,8 @@ namespace DagView {
 
     /**
      * DagView.run
-     * // run the entire dag
+     * // run the entire dag,
+     * // if no nodeIds passed in then it will execute all the nodes
      */
     export function run(nodeIds?: DagNodeId[], optimized?: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
@@ -1068,7 +1069,8 @@ namespace DagView {
             if (UserSettings.getPref("dfAutoPreview") === true &&
                 nodeIds != null &&
                 nodeIds.length === 1 &&
-                graph.getNode(nodeIds[0]).getType() != DagNodeType.Aggregate
+                graph.getNode(nodeIds[0]).getType() != DagNodeType.Aggregate &&
+                graph.getNode(nodeIds[0]).getType() != DagNodeType.Export
             ) {
                 const node: DagNode = graph.getNode(nodeIds[0]);
                 if (node.getState() === DagNodeState.Complete) {
@@ -1082,11 +1084,14 @@ namespace DagView {
             deferred.resolve();
         })
         .fail(function(error) {
-            if (error.hasError) {
+            if (error && error.hasError && error.node) {
                 const nodeId: DagNodeId = error.node.getId();
                 const $node: JQuery = DagView.getNode(nodeId, null, $dataflowArea);
                 DagTabManager.Instance.switchTab(currTabId);
                 StatusBox.show(error.type, $node);
+            } else if (error) {
+                DagTabManager.Instance.switchTab(currTabId);
+                Alert.error(null, error);
             }
             deferred.reject(error);
         })
@@ -1102,6 +1107,7 @@ namespace DagView {
     /**
      *
      * @param nodeIds
+     * if no nodeIds passed, will reset all
      */
     export function reset(nodeIds?: DagNodeId[]): void {
         const msg: string = nodeIds ? DagTStr.ResetMsg : DagTStr.ResetAllMsg;
@@ -2503,7 +2509,7 @@ namespace DagView {
                             return false;
                         }
                     });
-                    
+
                     const childNodeId: DagNodeId = $childNode.data("nodeid");
                     const childNode: DagNode = activeDag.getNode(childNodeId);
                     const connectorIndex: number = $childConnectorIn == null

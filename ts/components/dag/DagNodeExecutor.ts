@@ -24,7 +24,7 @@ class DagNodeExecutor {
             DagTblManager.Instance.resetTable(parentTableName);
         });
 
-        this._apiAdapter()
+        this._apiAdapter(optimized)
         .then((destTable, queryStateOutput) => {
             if (destTable != null) {
                 node.setTable(destTable);
@@ -37,19 +37,32 @@ class DagNodeExecutor {
             deferred.resolve(destTable, queryStateOutput);
         })
         .fail((error, queryStateOutput) => {
-            const errorStr: string = (typeof error === "string") ?
-            error : JSON.stringify(error);
+            let errorStr: string;
+            if (typeof error === "string") {
+                errorStr = error;
+            } else {
+                let nodeProp;
+                if (error.node) {
+                    nodeProp = error.node;
+                    // stringifying node results in circular dependency
+                    delete error.node;
+                }
+                errorStr = JSON.stringify(error);
+                if (nodeProp) {
+                    error.node = nodeProp;
+                }
+            }
             node.beErrorState(errorStr);
             deferred.reject(error, queryStateOutput);
         });
         return deferred.promise();
     }
 
-    private _apiAdapter(): XDPromise<string | null> {
+    private _apiAdapter(optimized?: boolean): XDPromise<string | null> {
         const type: DagNodeType = this.node.getType();
         switch (type) {
             case DagNodeType.Dataset:
-                return this._loadDataset();
+                return this._loadDataset(optimized);
             case DagNodeType.Aggregate:
                 return this._aggregate();
             case DagNodeType.Filter:
@@ -79,7 +92,7 @@ class DagNodeExecutor {
             case DagNodeType.CustomOutput:
                 return this._customOutput();
             case DagNodeType.DFIn:
-                return this._dfIn();
+                return this._dfIn(optimized);
             case DagNodeType.DFOut:
                 return this._dfOut();
             case DagNodeType.PublishIMD:
@@ -114,7 +127,7 @@ class DagNodeExecutor {
         return "table_" + this.tabId + "_" + this.node.getId() + Authentication.getHashId();
     }
 
-    private _loadDataset(): XDPromise<string> {
+    private _loadDataset(optimized?: boolean): XDPromise<string> {
         const node: DagNodeDataset = <DagNodeDataset>this.node;
         const params: DagNodeDatasetInputStruct = node.getParam(true);
         const dsName: string = params.source;
@@ -123,6 +136,14 @@ class DagNodeExecutor {
             const schema: ColSchema[] = node.getSchema();
             return this._synthesizeDataset(dsName, schema);
         } else {
+            if (optimized && Transaction.isSimulate(this.txId)) {
+                try {
+                    const loadArg = JSON.parse(node.getLoadArgs())[0];
+                    Transaction.log(this.txId, JSON.stringify(loadArg), null, 0);
+                } catch (e) {
+                    console.error(e);
+                }
+            }
             const prefix: string = params.prefix;
             return this._indexDataset(dsName, prefix);
         }
@@ -274,7 +295,7 @@ class DagNodeExecutor {
             if (node.getSubType() === DagNodeSubType.Cast) {
                 return this._projectCheck(tableAfterMap);
             } else {
-                return PromiseHelper.resolve(desTable);
+                return PromiseHelper.resolve(tableAfterMap);
             }
         })
         .then(deferred.resolve)
@@ -470,7 +491,7 @@ class DagNodeExecutor {
         return deferred.promise();
     }
 
-    private _dfIn(): XDPromise<string> {
+    private _dfIn(optimized?: boolean): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         try {
             const node: DagNodeDFIn = <DagNodeDFIn>this.node;
@@ -478,9 +499,9 @@ class DagNodeExecutor {
             const graph: DagGraph = res.graph;
             const linkOutNode: DagNodeDFOut = res.node;
             if (linkOutNode.shouldLinkAfterExecuition()) {
-                return this._linkWithExecution(graph, linkOutNode);
+                return this._linkWithExecution(graph, linkOutNode, optimized);
             } else {
-                return this._linkWithBatch(graph, linkOutNode);
+                return this._linkWithBatch(graph, linkOutNode, optimized);
             }
         } catch (e) {
             console.error("execute error", e);
@@ -490,22 +511,45 @@ class DagNodeExecutor {
         return deferred.promise();
     }
 
-    private _linkWithExecution(graph: DagGraph, node: DagNodeDFOut): XDPromise<string> {
+    private _linkWithExecution(
+        graph: DagGraph,
+        node: DagNodeDFOut,
+        optimized?: boolean
+    ): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        graph.execute([node.getId()])
-        .then(() => {
-            const destTable: string = node.getTable();
-            deferred.resolve(destTable);
-        })
-        .fail(deferred.reject);
+        if (optimized && node.getTable()) {
+            const desTable = this._generateTableName();
+            const sourceTable = node.getTable();
+            // sameSession must be set to false
+            XIApi.synthesize(this.txId, [], sourceTable, desTable, false)
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+        } else {
+            // no need to execute graph if dfOut node has table
+            let promise;
+            if (node.getState() !== DagNodeState.Complete ||
+                !DagTblManager.Instance.hasTable(node.getTable())) {
+                // XXX check why node may not be complete or have table
+                promise = graph.execute([node.getId()])
+            } else {
+                promise = PromiseHelper.resolve();
+            }
+            promise
+            .then(() => {
+                const destTable: string = node.getTable();
+                deferred.resolve(destTable);
+            })
+            .fail(deferred.reject);
+        }
 
         return deferred.promise();
     }
 
-    private _linkWithBatch(graph: DagGraph, node: DagNodeDFOut): XDPromise<string> {
+    // creates a new query from the linkOut's ancestors and runs it
+    private _linkWithBatch(graph: DagGraph, node: DagNodeDFOut, optimized?: boolean): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         let destTable: string;
-        graph.getQuery(node.getId())
+        graph.getQuery(node.getId(), optimized)
         .then((query, table) => {
             destTable = table;
             return XIApi.query(this.txId, destTable, query);

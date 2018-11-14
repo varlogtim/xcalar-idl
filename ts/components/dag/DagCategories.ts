@@ -164,6 +164,9 @@ class DagCategories {
                 type: DagNodeType.Index
             }), DagCategoryType.Custom, true),
             new DagCategoryNode(DagNodeFactory.create({
+                type: DagNodeType.Synthesize
+            }), DagCategoryType.Custom, true),
+            new DagCategoryNode(DagNodeFactory.create({
                 type: DagNodeType.Placeholder
             }), DagCategoryType.Custom, true)
         ], 'gUserCustomOpKey');

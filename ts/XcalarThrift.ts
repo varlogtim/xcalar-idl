@@ -703,7 +703,7 @@ XcalarDatasetCreate = function(
     datasetName: string,
     options: XcalarLoadInputOptions
 ) {
-    
+
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -3290,6 +3290,7 @@ XcalarSynthesize = function(
     tableName: string,
     dstTableName: string,
     colInfos: ColRenameInfo[],
+    sameSession: boolean,
     txId: number
 ): XDPromise<any> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
@@ -3304,7 +3305,7 @@ XcalarSynthesize = function(
     }
 
     const columnArray = colInfos.map(colInfoMap);
-    const workItem = xcalarApiSynthesizeWorkItem(tableName, dstTableName, columnArray);
+    const workItem = xcalarApiSynthesizeWorkItem(tableName, dstTableName, columnArray, sameSession);
     let def: XDPromise<any>;
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
@@ -3536,7 +3537,13 @@ XcalarUpdateRetina = function(
 XcalarExecuteRetina = function(
     retName: string,
     params: XcalarApiParameterT[],
-    options: any,
+    options: {
+        activeSession?: boolean,
+        newTableName?: string,
+        queryName?: string,
+        udfUserName?: string,
+        udfSessionName?: string
+    },
     txId: number
 ): XDPromise<any> {
     if (retName === "" || retName == null ||
@@ -3557,16 +3564,18 @@ XcalarExecuteRetina = function(
     const activeSession: boolean = options.activeSession || false;
     const newTableName: string = options.newTableName || "";
     const queryName: string = options.queryName || undefined;
+    const udfUserName: string = options.udfUserName || undefined;
+    const udfSessionName: string = options.udfSessionName || undefined;
 
     const schedName: string = ""; // This is for IMD, invoked via APIs.
     const workItem = xcalarExecuteRetinaWorkItem(retName, params, activeSession,
-        newTableName, queryName, schedName);
+        newTableName, queryName, schedName, udfUserName, udfSessionName);
     let def: XDPromise<any>;
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
         def = xcalarExecuteRetina(tHandle, retName, params, activeSession,
-            newTableName, queryName, schedName);
+            newTableName, queryName, schedName, udfUserName, udfSessionName);
     }
 
     const query = XcalarGetQuery(workItem);
@@ -3638,8 +3647,11 @@ XcalarDeleteRetina = function(
 XcalarImportRetina = function(
     retinaName: string,
     overwrite: boolean,
-    retina: string,
-    txId: number
+    retina?: string,
+    retinaJson?: string,
+    udfUserName?: string,
+    udfSessionName?: string,
+    txId?: number
 ): XDPromise<any> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -3649,9 +3661,15 @@ XcalarImportRetina = function(
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
-    // var workItem = xcalarApiImportRetinaWorkItem(retinaName, overwrite,
-    //                                              retina);
-    xcalarApiImportRetina(tHandle, retinaName, overwrite, retina)
+
+    let loadRetinaJson: boolean = false;
+    if (retinaJson != null) {
+        retina = null;
+        loadRetinaJson = true;
+    } else {
+        retinaJson = null;
+    }
+    xcalarApiImportRetina(tHandle, retinaName, overwrite, retina, loadRetinaJson, retinaJson, udfUserName, udfSessionName)
     .then(deferred.resolve)
     .fail(function(error) {
         const thriftError = thriftLog("XcalarImportRetina", error);

@@ -25,7 +25,9 @@ class DFLinkOutOpPanelModel {
         this.columnList = this.tableColumns.map(col => {
             return {
                 name: col.getBackColName(),
-                isSelected: columns.indexOf(col.getBackColName()) > -1,
+                isSelected: columns.find((column) => {
+                    return column.sourceName === col.getBackColName();
+                }) != null,
                 type: col.getType()
             }
         });
@@ -35,10 +37,9 @@ class DFLinkOutOpPanelModel {
         return this.tableColumns;
     }
 
-    public getColumnList() {
+    public getColumnList(): ExportOpPanelModelColumnInfo[] {
         return this.columnList;
     }
-
 
     /**
      * Sets all columns to be selected or not

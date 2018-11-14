@@ -81,8 +81,8 @@ class DFLinkOutOpPanel extends BaseOpPanel {
             this._getOptionCheckbox().find(".checkbox").toggleClass("checked");
         });
 
-        $panel.find('.selectAllWrap .checkbox').click(function(event) {
-            let $box: JQuery = $(this);
+        $panel.find('.selectAllWrap').click(function(event) {
+            let $box: JQuery = $(this).find(".checkbox");
             event.stopPropagation();
             if ($box.hasClass("checked")) {
                 $box.removeClass("checked");
@@ -133,7 +133,10 @@ class DFLinkOutOpPanel extends BaseOpPanel {
         const selectedColumns = [];
         for (const colInfo of columns) {
             if (colInfo.isSelected) {
-                selectedColumns.push(colInfo.name);
+                selectedColumns.push({
+                    sourceName: colInfo.name,
+                    destName: xcHelper.parsePrefixColName(colInfo.name).name
+                });
             }
         }
         const isValid: boolean = xcHelper.validate([{

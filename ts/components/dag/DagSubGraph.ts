@@ -98,10 +98,10 @@ class DagSubGraph extends DagGraph {
     }
 
     // should be called right before the xcalarQuery gets executed
-    public startExecution(nodes): void {
+    public startExecution(queryNodes): void {
         this.startTime = Date.now();
-        nodes.forEach((node) => {
-            const nodeId = this._nameIdMap[node.args.dest];
+        queryNodes.forEach((queryNode) => {
+            const nodeId = this._nameIdMap[queryNode.args.dest];
             if (nodeId) { // could be a drop table node
                 this.getNode(nodeId).beRunningState();
             }

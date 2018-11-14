@@ -2204,7 +2204,8 @@ namespace XIApi {
         txId: number,
         colInfos: ColRenameInfo[],
         tableName: string,
-        newTableName?: string
+        newTableName?: string,
+        sameSession?: boolean
     ): XDPromise<string> {
         if (txId == null || colInfos == null || tableName == null) {
             return PromiseHelper.reject("Invalid args in synthesize");
@@ -2213,10 +2214,13 @@ namespace XIApi {
         if (!isValidTableName(newTableName)) {
             newTableName = getNewTableName(tableName);
         }
+        if (sameSession == null) {
+            sameSession = true;
+        }
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const simuldateTxId: number = startSimulate();
-        XcalarSynthesize(tableName, newTableName, colInfos, simuldateTxId)
+        XcalarSynthesize(tableName, newTableName, colInfos, sameSession, simuldateTxId)
         .then(() => {
             const query: string = endSimulate(simuldateTxId);
             const queryName: string = newTableName;

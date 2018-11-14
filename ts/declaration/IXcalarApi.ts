@@ -544,7 +544,8 @@ declare function xcalarListFiles(
 declare function xcalarApiSynthesizeWorkItem(
     srcTableName: string,
     dstTableName: string,
-    columns: XcalarApiColumnT[]
+    columns: XcalarApiColumnT[],
+    sameSession: boolean
 ): WorkItem;
 
 declare function xcalarApiSynthesize(
@@ -599,7 +600,9 @@ declare function xcalarExecuteRetina(
     exportToActiveSession: boolean,
     newTableName: string,
     queryName: string,
-    schedName?: string
+    schedName?: string,
+    udfUserName?: string,
+    udfSessionName?: string
 ): XDPromise<any>;
 
 declare function xcalarListParametersInRetina(
@@ -617,8 +620,10 @@ declare function xcalarApiImportRetina(
     retinaName: string,
     overwrite: boolean,
     retina: string,
-    loadFromPersistedRetina?: boolean,
-    persistedRetinaUrl?: string
+    loadRetinaJson?: boolean,
+    retinaJson?: string,
+    udfUserName?: string,
+    udfSessionName?: string
 ): XDPromise<any>;
 
 declare function xcalarApiExportRetina(

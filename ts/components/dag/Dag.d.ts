@@ -14,7 +14,7 @@ interface DagNodeInfo {
     error?: string;
     parents?: string[];
     aggregates?: string[];
-    indexParents?: string[];
+    subGraphNodes?: string[];
 }
 
 interface DagNodeDisplayInfo {
@@ -192,7 +192,7 @@ interface DagNodeDFInInputStruct {
 interface DagNodeDFOutInputStruct {
     name: string;
     linkAfterExecution: boolean;
-    columns?: string[]
+    columns?: {sourceName: string, destName: string}[]
 }
 
 interface DagNodeSplitInputStruct {
@@ -216,6 +216,10 @@ interface DagNodeRoundInputStruct {
     sourceColumn: string,
     numDecimals: number,
     destColumn: string
+}
+
+interface DagNodeSynthesizeInputStruct {
+    columns: string[]
 }
 /* ==== End of Dag Node Input Intereface ==== */
 
