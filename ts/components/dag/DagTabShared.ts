@@ -94,11 +94,11 @@ class DagTabShared extends DagTab {
                 // when no local meta or it's lower version, use the saved one
                 this._unsaved = false;
                 this._version = savedDagInfo.version;
-                this._setGraph(savedGraph);
+                this.setGraph(savedGraph);
             } else {
                 this._unsaved = tempDagInfo.unsaved;
                 this._version = tempDagInfo.version;
-                this._setGraph(tempGraph);
+                this.setGraph(tempGraph);
             }
             deferred.resolve();
         })
@@ -359,7 +359,7 @@ class DagTabShared extends DagTab {
             })
             .then(deferred.resolve)
             .fail(deferred.reject);
-            
+
             return deferred.promise();
         }
 

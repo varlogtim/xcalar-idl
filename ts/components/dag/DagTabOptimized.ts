@@ -64,8 +64,9 @@ class DagTabOptimized extends DagTab {
                 parents: nodeJson.parents
             });
         });
+        const comments: CommentInfo[] = [];
         const graphInfo = {
-            comments: [{id: null, text: null, position: null, dimensions: null}],
+            comments: comments,
             display: <Dimensions>{},
             nodes: nodeInfos
         };
@@ -83,5 +84,6 @@ class DagTabOptimized extends DagTab {
         });
         graph.setDimensions(positionInfo.maxX + DagView.horzPadding,
                             positionInfo.maxY + DagView.vertPadding);
+
     }
 }

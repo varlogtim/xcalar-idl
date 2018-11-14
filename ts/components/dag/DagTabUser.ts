@@ -97,7 +97,7 @@ class DagTabUser extends DagTab {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let savedDagInfo: any;
         let savedGraph: DagGraph;
-        
+
         this._loadFromKVStore()
         .then((dagInfo, graph) => {
             savedDagInfo = dagInfo;
@@ -109,10 +109,10 @@ class DagTabUser extends DagTab {
             if (tempDagInfo == null) {
                 // when no local meta, use the saved one
                 this._unsaved = false;
-                this._setGraph(savedGraph);
+                this.setGraph(savedGraph);
             } else {
                 this._unsaved = true;
-                this._setGraph(tempGraph);
+                this.setGraph(tempGraph);
             }
             deferred.resolve();
         })

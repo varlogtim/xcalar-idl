@@ -108,7 +108,7 @@ abstract class DagTab {
         return this;
     }
 
-    protected _setGraph(graph: DagGraph): void {
+    public setGraph(graph: DagGraph): void {
         this._dagGraph = graph;
         this._dagGraph.setTabId(this._id);
     }

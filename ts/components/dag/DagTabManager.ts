@@ -98,6 +98,7 @@ class DagTabManager{
                 name: validatedName,
                 customNode: customNode
             });
+            newTab.setGraph(newTab.getGraph());
             // Register the new tab in DagTabManager
             if (this._addSubTab(parentTabId, tabId)) {
                 this._addDagTab(newTab);
@@ -125,7 +126,7 @@ class DagTabManager{
                 name: validatedName,
                 SQLNode: SQLNode
             });
-            newTab.getGraph().setTabId(tabId);
+            newTab.setGraph(newTab.getGraph());
             // Register the new tab in DagTabManager
             if (this._addSubTab(parentTabId, tabId)) {
                 this._addDagTab(newTab);
@@ -153,6 +154,7 @@ class DagTabManager{
             name: tabName,
             queryNodes: queryNodes
         });
+        newTab.setGraph(newTab.getGraph());
         // Register the new tab in DagTabManager
         if (this._addSubTab(parentTabId, tabId)) {
             this._addDagTab(newTab);
