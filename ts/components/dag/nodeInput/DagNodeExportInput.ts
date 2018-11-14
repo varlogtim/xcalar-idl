@@ -29,10 +29,8 @@ class DagNodeExportInput extends DagNodeInput {
             },
             "driverArgs": {
                 "$id": "#/properties/driverArgs",
-                "type": "array",
+                "type": "object",
                 "title": "The Driver Args Schema",
-                "minItems": 0,
-                "additionalItems": false
             },
         }
     };
@@ -43,7 +41,7 @@ class DagNodeExportInput extends DagNodeInput {
         return {
             columns: input.columns || [],
             driver: input.driver || "",
-            driverArgs: input.driverArgs || []
+            driverArgs: input.driverArgs || {}
         };
     }
 }

@@ -33,7 +33,7 @@ class ExportOpPanelModel {
             return driver.name == dagInput.driver;
         });
         model.setAdvMode(true);
-        model.driverArgs = dagInput.driverArgs;
+        model.driverArgs = model.constructParams(model.currentDriver, dagInput.driverArgs);
         model.loadedName = dagInput.driver;
         const selectedColumns = dagInput.columns.reduce( (res, col) => {
             res[col] = true;
@@ -53,7 +53,7 @@ class ExportOpPanelModel {
     }
 
     /**
-     * Restores the model that dagNode may have.
+     * Restores the model that dagNode may have, excluding params.
      * @param dagNode
      */
     public static fromDag(dagNode: DagNodeExport) {
@@ -77,12 +77,13 @@ class ExportOpPanelModel {
         }
 
         $("#exportDriver").val(dagInputInfo.driver);
-        model.driverArgs = dagInputInfo.driverArgs || [];
         model.loadedName = dagInputInfo.driver || "";
 
         model._advMode = false;
         return model;
     }
+
+
 
     /**
      * Loads all export drivers.
@@ -109,7 +110,7 @@ class ExportOpPanelModel {
         const dagData: DagNodeExportInputStruct = {
             columns: [],
             driver: "",
-            driverArgs: []
+            driverArgs: {}
         };
         for (const colInfo of this.columnList) {
             if (colInfo.isSelected) {
@@ -121,7 +122,9 @@ class ExportOpPanelModel {
         } else {
             dagData.driver = "";
         }
-        dagData.driverArgs = this.driverArgs;
+        this.driverArgs.forEach((arg: ExportDriverArg) => {
+            dagData.driverArgs[arg.name] = arg.value;
+        })
 
         return dagData;
     }
@@ -147,6 +150,29 @@ class ExportOpPanelModel {
         });
     }
 
+    public constructParams(driver: ExportDriver, oldArgs?: {[key: string]: string}) {
+        if (driver == null) {
+            return [];
+        }
+        let driverParams = [];
+        driver.params.forEach((param: ExportParam) => {
+            let arg: ExportDriverArg = {
+                "name": param.name,
+                "type": param.type,
+                "optional": param.optional,
+                "value": null
+            }
+            if (param.type == "boolean") {
+                arg.value = "false";
+            }
+            if (oldArgs) {
+                arg.value = oldArgs[param.name];
+            }
+            driverParams.push(arg);
+        });
+        return driverParams;
+    }
+
     /**
      * Assembles driver parameter list for driver
      * @param driver
@@ -159,19 +185,7 @@ class ExportOpPanelModel {
             return;
         }
         this.currentDriver = driver;
-        this.driverArgs = [];
-        driver.params.forEach((param: ExportParam) => {
-            let arg: ExportDriverArg = {
-                "name": param.name,
-                "type": param.type,
-                "optional": param.optional,
-                "value": null
-            }
-            if (param.type == "boolean") {
-                arg.value = "false";
-            }
-            this.driverArgs.push(arg);
-        });
+        this.driverArgs = this.constructParams(driver);
     }
 
     /**
@@ -206,18 +220,18 @@ class ExportOpPanelModel {
             return "Invalid driver specified: \"" + dagInput.driver + '"';
         }
         const dParams: ExportParam[] = driver.params;
-        const inputParams: ExportDriverArg[] = dagInput.driverArgs;
-        if (dParams.length != inputParams.length) {
+        const inputParams: {[key: string]: string} = dagInput.driverArgs;
+        const inputNames: string[] = Object.keys(inputParams);
+        if (dParams.length != inputNames.length) {
             return "Invalid number of parameters for driver specified";
         }
 
         for (let i = 0; i < dParams.length; i++) {
             let dParam: ExportParam = dParams[i];
-            let iParam: ExportDriverArg = inputParams[i];
-            if (dParam.name != iParam.name || dParam.optional != iParam.optional
-                || dParam.type != iParam.type) {
-                return "Parameter \"" + iParam.name + "\" does not align with driver parameter: \"" +
-                    dParam.name + "\" that has type " + dParam.type;
+            let name: string = inputNames[i];
+            if (dParam.name != name) {
+                return "Parameter \"" + name + "\" does not align with driver parameter: \"" +
+                    dParam.name;
             }
         }
 

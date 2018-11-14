@@ -424,10 +424,7 @@ class DagNodeExecutor {
             return col;
         });
         const driverName: string = exportInput.driver;
-        let driverParams = {};
-        exportInput.driverArgs.forEach((param: ExportDriverArg) => {
-            driverParams[param.name] = param.value;
-        });
+        let driverParams = exportInput.driverArgs;
         const srcTable: string = this._getParentNodeTable(0);
         const exportName: string = this._generateTableName();
         XIApi.exportTable(this.txId, srcTable, driverName, driverParams, driverColumns, exportName)

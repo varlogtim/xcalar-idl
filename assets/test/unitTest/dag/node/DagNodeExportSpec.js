@@ -14,7 +14,7 @@ describe("Export Dag Node Test", () => {
         expect(param).to.deep.equal({
             columns: [],
             driver: "",
-            driverArgs: null
+            driverArgs: {}
         });
     });
 
@@ -22,10 +22,7 @@ describe("Export Dag Node Test", () => {
         const testParam = {
             columns: ["category", "column2"],
             driver: "",
-            driverArgs: [{name: "arg",
-                type: "string",
-                optional: false,
-                value: "cool"}]
+            driverArgs: {"arg": "cool"}
         };
         node.setParam(testParam);
         const param = node.getParam();

@@ -105,7 +105,7 @@ interface DagNodePublishIMDInputStruct {
 interface DagNodeExportInputStruct {
     columns: string[];
     driver: string;
-    driverArgs: ExportDriverArg[];
+    driverArgs: {[key: string]: string};
 }
 
 interface DagNodeOptimizeInputStruct {

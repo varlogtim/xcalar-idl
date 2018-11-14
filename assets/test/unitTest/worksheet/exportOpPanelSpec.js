@@ -6,10 +6,11 @@ describe("Export Operator Panel Test", function() {
     var calledDriverList = false;
     var calledTargetList = false;
     var node;
+    var editor;
 
     before(function() {
         oldDriverList = XcalarDriverList;
-        node = new DagNodeExport();
+        node = new DagNodeExport({});
         XcalarDriverList = function() {
             calledDriverList = true;
             return PromiseHelper.deferred().resolve([
@@ -89,10 +90,8 @@ describe("Export Operator Panel Test", function() {
             ];
         };
         oldJSONParse = JSON.parse;
-        if (!gDionysus) {
-            ExportOpPanel.Instance.setup();
-        }
         exportOpPanel = ExportOpPanel.Instance;
+        editor = exportOpPanel.getEditor();
     });
 
     describe("Basic Export Panel UI Tests", function() {
@@ -204,121 +203,93 @@ describe("Export Operator Panel Test", function() {
             $("#exportOpPanel .exportArg").eq(0).find('input').change();
             $("#exportOpPanel .bottomSection .btn-submit").click();
             var params = node.getParam().driverArgs;
-            expect(params.length).to.equal(1);
-            expect(params[0].name).to.equal("param1");
-            expect(params[0].value).to.equal("demo");
+            var keys = Object.keys(params);
+            expect(keys.length).to.equal(1);
+            expect(keys[0]).to.equal("param1");
+            expect(params["param1"]).to.equal("demo");
         });
     });
 
     describe("Advanced View Driver related Export Panel Tests", function() {
         it("Should show statusbox error if columns isnt a field", function() {
-            JSON.parse = function (arg) {
-                return {};
-            };
             exportOpPanel.show(node);
             $("#exportOpPanel .bottomSection .xc-switch").click();
+            editor.setValue(JSON.stringify({}, null, 4));
             $("#exportOpPanel .bottomSection .btn-submit").click();
             expect($("#statusBox").hasClass("active")).to.be.true;
             exportOpPanel.close();
         });
 
         it("Should show statusbox error if driver is null", function() {
-            JSON.parse = function (arg) {
-                return {
-                    "columns": []
-                };
-            };
             exportOpPanel.show(node);
             $("#exportOpPanel .bottomSection .xc-switch").click();
+            editor.setValue(JSON.stringify({
+                    "columns": []
+                }, null, 4));
             $("#exportOpPanel .bottomSection .btn-submit").click();
             expect($("#statusBox").hasClass("active")).to.be.true;
             exportOpPanel.close();
         });
 
         it("Should show statusbox error if driver is not real", function() {
-            JSON.parse = function (arg) {
-                return {
-                    "columns": [],
-                    "driver": "unreal"
-                };
-            };
             exportOpPanel.show(node);
             $("#exportOpPanel .bottomSection .xc-switch").click();
+            editor.setValue(JSON.stringify({
+                    "columns": [],
+                    "driver": "unreal"
+                }, null, 4));
             $("#exportOpPanel .bottomSection .btn-submit").click();
             expect($("#statusBox").hasClass("active")).to.be.true;
             exportOpPanel.close();
         });
 
         it("Should show statusbox error if there arent enough arguments specified", function() {
-            JSON.parse = function (arg) {
-                return {
-                    "columns": [],
-                    "driver": "test1",
-                    "driverArgs": []
-                };
-            };
             exportOpPanel.show(node);
             $("#exportOpPanel .bottomSection .xc-switch").click();
+            editor.setValue(JSON.stringify({
+                    "columns": [],
+                    "driver": "test1",
+                    "driverArgs": {}
+                }, null, 4));
             $("#exportOpPanel .bottomSection .btn-submit").click();
             expect($("#statusBox").hasClass("active")).to.be.true;
             exportOpPanel.close();
         });
 
         it("Should show statusbox error if driver arguments don't match up", function() {
-            JSON.parse = function (arg) {
-                return {
-                    "columns": [],
-                    "driver": "test1",
-                    "driverArgs": [{
-                        "name": "param3",
-                        "type": "string",
-                        "optional": false,
-                        "value": "str"
-                    }]
-                };
-            };
             exportOpPanel.show(node);
             $("#exportOpPanel .bottomSection .xc-switch").click();
+            editor.setValue(JSON.stringify({
+                    "columns": [],
+                    "driver": "test1",
+                    "driverArgs": {"invalidArg": null}
+                }, null, 4));
             $("#exportOpPanel .bottomSection .btn-submit").click();
             expect($("#statusBox").hasClass("active")).to.be.true;
             exportOpPanel.close();
         });
 
         it("Should show statusbox error if integer argument is invalid", function() {
-            JSON.parse = function (arg) {
-                return {
-                    "columns": [],
-                    "driver": "test2",
-                    "driverArgs": [{
-                        "name": "param1",
-                        "type": "integer",
-                        "optional": false,
-                        "value": "123a"
-                    }]
-                };
-            };
             exportOpPanel.show(node);
             $("#exportOpPanel .bottomSection .xc-switch").click();
+            editor.setValue(JSON.stringify({
+                    "columns": [],
+                    "driver": "test2",
+                    "driverArgs": {"param1": "123a"}
+                }, null, 4));
             $("#exportOpPanel .bottomSection .btn-submit").click();
             expect($("#statusBox").hasClass("active")).to.be.true;
             exportOpPanel.close();
         });
 
         it ("Should show statusbox error if a non optional param isn't filled", function () {
-            JSON.parse = function (arg) {
-                return {
-                    "columns": [],
-                    "driver": "test1",
-                    "driverArgs": [{
-                        "name": "param1",
-                        "type": "string",
-                        "optional": false,
-                        "value": null
-                    }]
-                };
-            };
             exportOpPanel.show(node);
             $("#exportOpPanel .bottomSection .xc-switch").click();
+            editor.setValue(JSON.stringify({
+                    "columns": [],
+                    "driver": "test1",
+                    "driverArgs": {"param1": null}
+                }, null, 4));
             $("#exportOpPanel .bottomSection .btn-submit").click();
             expect($("#statusBox").hasClass("active")).to.be.true;
             exportOpPanel.close();
@@ -327,12 +298,17 @@ describe("Export Operator Panel Test", function() {
         it ("Should save correctly if JSON is correct", function () {
             exportOpPanel.show(node);
             $("#exportOpPanel .bottomSection .xc-switch").click();
-
+            editor.setValue(JSON.stringify({
+                    "columns": [],
+                    "driver": "test1",
+                    "driverArgs": {"param1": "demo"}
+                }, null, 4));
             $("#exportOpPanel .bottomSection .btn-submit").click();
             var params = node.getParam().driverArgs;
-            expect(params.length).to.equal(1);
-            expect(params[0].name).to.equal("param1");
-            expect(params[0].value).to.equal("demo");
+            var keys = Object.keys(params);
+            expect(keys.length).to.equal(1);
+            expect(keys[0]).to.equal("param1");
+            expect(params["param1"]).to.equal("demo");
             exportOpPanel.close();
         });
     });

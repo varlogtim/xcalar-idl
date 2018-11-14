@@ -133,6 +133,9 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         }
         this._dataModel.loadDrivers()
         .then(() => {
+            this._dataModel.driverArgs =
+                this._dataModel.constructParams(this._dataModel.currentDriver,
+                this._dagNode.getParam().driverArgs);
             this._updateUI();
             MainMenu.setFormOpen();
         })
