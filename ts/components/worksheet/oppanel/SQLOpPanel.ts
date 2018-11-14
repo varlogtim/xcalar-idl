@@ -442,6 +442,8 @@ class SQLOpPanel extends BaseOpPanel {
                            $source.find(".text"));
         } else {
             $source.find(".text").text(sourceId);
+            const tableIdentifier = $source.siblings(".dest.text").val().trim();
+            this._sqlTables[tableIdentifier] = sourceId;
         }
     }
 
