@@ -591,6 +591,8 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.DagBulkOperation] = function(options) {
+        const dagTab = DagTabManager.Instance.getTabById(options.dataflowId);
+        dagTab.turnOffSave();
         let tasks = PromiseHelper.resolve();
         if (options.actions != null) {
             for (let i = options.actions.length - 1; i >= 0; i --) {
@@ -604,6 +606,14 @@ window.Undo = (function($, Undo) {
                 tasks = tasks.then(() => undoFunc(action));
             }
         }
+        tasks = tasks.then(() => {
+            dagTab.turnOnSave();
+            return dagTab.save();
+        })
+        .fail((err) => {
+            dagTab.turnOnSave();
+            return PromiseHelper.reject(err);
+        });
         return tasks;
     }
 

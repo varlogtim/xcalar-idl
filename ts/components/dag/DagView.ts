@@ -1181,7 +1181,9 @@ namespace DagView {
             title: DagTStr.Reset,
             msg: msg,
             onConfirm: () => {
+                activeDagTab.turnOffSave();
                 activeDag.reset(nodeIds);
+                activeDagTab.turnOnSave();
             }
         });
     };
@@ -1406,7 +1408,8 @@ namespace DagView {
             title: SQLTStr.CreateCustomOperation,
             options: {
                 operation: SQLOps.DagBulkOperation,
-                actions: []
+                actions: [],
+                dataflowId: activeDagTab.getId()
             }
         };
         activeDag.addNode(customNode);
@@ -1547,6 +1550,8 @@ namespace DagView {
             return;
         }
         if (dagNode instanceof DagNodeSQL) {
+            const dagTab = activeDagTab;
+            dagTab.turnOffSave();
             if (!dagNode.getSubGraph()) {
                 dagNode.updateSubGraph();
             }
@@ -1556,7 +1561,8 @@ namespace DagView {
                 title: SQLTStr.ExpandSQLOperation,
                 options: {
                     operation: SQLOps.DagBulkOperation,
-                    actions: []
+                    actions: [],
+                    dataflowId: dagTab.getId()
                 }
             };
             const dagIds = [];
@@ -1627,6 +1633,7 @@ namespace DagView {
             Log.add(expandSQLLogParam.title, expandSQLLogParam.options);
             // XXX Need a better way to adjust positions
             this.autoAlign(tabId);
+            dagTab.turnOnSave();
             return activeDagTab.save();
         }
     }

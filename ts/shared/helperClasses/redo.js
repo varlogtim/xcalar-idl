@@ -282,6 +282,8 @@ window.Redo = (function($, Redo) {
     };
 
     redoFuncs[SQLOps.DagBulkOperation] = function(options) {
+        const dagTab = DagTabManager.Instance.getTabById(options.dataflowId);
+        dagTab.turnOffSave();
         let tasks = PromiseHelper.resolve();
         if (options.actions != null) {
             for (const action of options.actions) {
@@ -294,6 +296,14 @@ window.Redo = (function($, Redo) {
                 tasks = tasks.then(() => redoFunc(action));
             }
         }
+        tasks = tasks.then(() => {
+            dagTab.turnOnSave();
+            return dagTab.save();
+        })
+        .fail((err) => {
+            dagTab.turnOnSave();
+            return PromiseHelper.reject(err);
+        });
         return tasks;
     }
 
