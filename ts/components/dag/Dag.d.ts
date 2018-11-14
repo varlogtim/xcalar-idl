@@ -355,3 +355,10 @@ interface LogParam {
     title: string,
     options: any
 }
+
+declare type NodeMoveInfo = {
+    id: DagNodeId | CommentNodeId,
+    type: string,
+    position: Coordinate,
+    oldPosition?: Coordinate
+}

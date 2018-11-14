@@ -768,96 +768,16 @@ namespace DagView {
     /**
      * DagView.moveNodes
      * @param dagId
-     * @param nodeIds
+     * @param nodeInfos
+     * @param graphDimensions
      */
     export function moveNodes(
         tabId: string,
-        nodeInfos: {
-            type: string,
-            id: string,
-            position: {x: number,y: number},
-            oldPosition?: {x: number, y: number}
-        }[],
+        nodeInfos: NodeMoveInfo[],
         graphDimensions?: Coordinate
     ): XDPromise<void> {
-        let maxXCoor: number = 0;
-        let maxYCoor: number = 0;
-        const $dfArea = DagView.getAreaByTab(tabId);
-        let svg: d3 = d3.select('#dagView .dataflowArea[data-id="' + tabId + '"] .edgeSvg');
-        const $operatorArea = $dfArea.find(".operatorSvg");
-        const $commentArea: JQuery = $dfArea.find(".commentArea");
-        const dagTab = DagTabManager.Instance.getTabById(tabId);
-        const graph = dagTab.getGraph();
-
-        nodeInfos.forEach((nodeInfo, i) => {
-            if (nodeInfo.type === "dagNode") {
-                const nodeId = nodeInfo.id;
-                const $el = DagView.getNode(nodeId, null, $dfArea);
-
-                nodeInfos[i].oldPosition = xcHelper.deepCopy(graph.getNode(nodeId)
-                    .getPosition())
-                graph.moveNode(nodeId, {
-                    x: nodeInfo.position.x,
-                    y: nodeInfo.position.y,
-                });
-
-                $el.attr("transform", "translate(" + nodeInfo.position.x + "," +
-                    nodeInfo.position.y + ")");
-
-                maxXCoor = Math.max(nodeInfo.position.x, maxXCoor);
-                maxYCoor = Math.max(nodeInfo.position.y, maxYCoor);
-
-                // positions this element in front
-                $el.appendTo($operatorArea);
-
-                // redraw all paths that go out from this node
-                $dfArea.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function () {
-                    const childNodeId: DagNodeId = $(this).attr("data-childnodeid");
-                    let connectorIndex: number = parseInt($(this).attr("data-connectorindex"));
-                    $(this).remove();
-
-                    _drawLineBetweenNodes(tabId, nodeId, childNodeId, connectorIndex, svg);
-                });
-
-                // redraw all paths that lead into this node
-                $dfArea.find('.edge[data-childnodeid="' + nodeId + '"]').each(function () {
-                    const parentNodeId = $(this).attr("data-parentnodeid");
-                    let connectorIndex = parseInt($(this).attr("data-connectorindex"));
-                    $(this).remove();
-
-                    _drawLineBetweenNodes(tabId, parentNodeId, nodeId, connectorIndex, svg);
-                });
-            } else {
-                // comment node
-                const id = nodeInfo.id;
-                const comment = graph.getComment(id);
-                nodeInfos[i].oldPosition = xcHelper.deepCopy(comment.getPosition());
-                comment.setPosition(nodeInfo.position);
-                const $el = $dfArea.find('.comment[data-nodeid="' + id + '"]');
-                $el.css({
-                    left: nodeInfo.position.x,
-                    top: nodeInfo.position.y
-                });
-                const dimensions = comment.getDimensions();
-                maxXCoor = Math.max(nodeInfo.position.x + dimensions.width, maxXCoor);
-                maxYCoor = Math.max(nodeInfo.position.y + dimensions.height, maxYCoor);
-
-                $el.appendTo($commentArea);
-            }
-        });
-
-        if (graphDimensions) {
-            _setGraphDimensions(graphDimensions, true);
-        } else {
-            _setGraphDimensions({ x: maxXCoor, y: maxYCoor });
-        }
-
-        Log.add(SQLTStr.MoveOperations, {
-            "operation": SQLOps.MoveOperations,
-            "dataflowId": tabId,
-            "nodeInfos": nodeInfos
-        });
-
+        _moveNodesNoPersist(tabId, nodeInfos, graphDimensions);
+        const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId);
         return dagTab.save();
     }
 
@@ -876,7 +796,7 @@ namespace DagView {
     }
 
     export function getAutoAlignPositions(graph: DagGraph): {
-        nodeInfos: any[],
+        nodeInfos: NodeMoveInfo[],
         maxX: number,
         maxY:number
     } {
@@ -1566,6 +1486,7 @@ namespace DagView {
             }
             const subGraph = dagNode.getSubGraph();
             const allSubNodes = subGraph.getAllNodes();
+            const expandNodeIds: string[] = [];
             const expandSQLLogParam: LogParam = {
                 title: SQLTStr.ExpandSQLOperation,
                 options: {
@@ -1617,6 +1538,7 @@ namespace DagView {
                         });
                     }
                 }
+                expandNodeIds.push(nodeId);
                 activeDag.addNode(node);
                 const addLogParam = _addNodeNoPersist(node, {isNoLog: true});
                 expandSQLLogParam.options.actions.push(addLogParam.options);
@@ -1639,9 +1561,30 @@ namespace DagView {
                 );
                 expandSQLLogParam.options.actions.push(connectLogParam.options);
             }
+
+            // Stretch the graph to fit the expanded nodes
+            const autoAlignPos: Map<string, Coordinate> = new Map();
+            for (const posInfo of getAutoAlignPositions(subGraph).nodeInfos) {
+                const nodeId = oldNodeIdMap[posInfo.id];
+                if (nodeId != null) {
+                    autoAlignPos.set(nodeId, Object.assign({}, posInfo.position));
+                }
+            }
+            const moveInfo = _getExpandPositions(
+                dagNode.getPosition(),
+                expandNodeIds,
+                activeDag,
+                autoAlignPos
+            );
+            const moveLogParam = _moveNodesNoPersist(
+                tabId,
+                moveInfo.nodePosInfos,
+                { x: moveInfo.maxX, y: moveInfo.maxY },
+                { isNoLog: true }
+            );
+            expandSQLLogParam.options.actions.push(moveLogParam.options);
+
             Log.add(expandSQLLogParam.title, expandSQLLogParam.options);
-            // XXX Need a better way to adjust positions
-            this.autoAlign(tabId);
             dagTab.turnOnSave();
             return activeDagTab.save();
         }
@@ -1828,6 +1771,102 @@ namespace DagView {
         };
     }
 
+    function _moveNodesNoPersist(
+        tabId: string,
+        nodeInfos: NodeMoveInfo[],
+        graphDimensions?: Coordinate,
+        options?: {
+            isNoLog?: boolean
+        }
+    ): LogParam {
+        const { isNoLog = false } = (options || {});
+        let maxXCoor: number = 0;
+        let maxYCoor: number = 0;
+        const $dfArea = DagView.getAreaByTab(tabId);
+        let svg: d3 = d3.select('#dagView .dataflowArea[data-id="' + tabId + '"] .edgeSvg');
+        const $operatorArea = $dfArea.find(".operatorSvg");
+        const $commentArea: JQuery = $dfArea.find(".commentArea");
+        const dagTab = DagTabManager.Instance.getTabById(tabId);
+        const graph = dagTab.getGraph();
+
+        nodeInfos.forEach((nodeInfo, i) => {
+            if (nodeInfo.type === "dagNode") {
+                const nodeId = nodeInfo.id;
+                const $el = DagView.getNode(nodeId, null, $dfArea);
+
+                nodeInfos[i].oldPosition = xcHelper.deepCopy(graph.getNode(nodeId)
+                    .getPosition())
+                graph.moveNode(nodeId, {
+                    x: nodeInfo.position.x,
+                    y: nodeInfo.position.y,
+                });
+
+                $el.attr("transform", "translate(" + nodeInfo.position.x + "," +
+                    nodeInfo.position.y + ")");
+
+                maxXCoor = Math.max(nodeInfo.position.x, maxXCoor);
+                maxYCoor = Math.max(nodeInfo.position.y, maxYCoor);
+
+                // positions this element in front
+                $el.appendTo($operatorArea);
+
+                // redraw all paths that go out from this node
+                $dfArea.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function () {
+                    const childNodeId: DagNodeId = $(this).attr("data-childnodeid");
+                    let connectorIndex: number = parseInt($(this).attr("data-connectorindex"));
+                    $(this).remove();
+
+                    _drawLineBetweenNodes(tabId, nodeId, childNodeId, connectorIndex, svg);
+                });
+
+                // redraw all paths that lead into this node
+                $dfArea.find('.edge[data-childnodeid="' + nodeId + '"]').each(function () {
+                    const parentNodeId = $(this).attr("data-parentnodeid");
+                    let connectorIndex = parseInt($(this).attr("data-connectorindex"));
+                    $(this).remove();
+
+                    _drawLineBetweenNodes(tabId, parentNodeId, nodeId, connectorIndex, svg);
+                });
+            } else {
+                // comment node
+                const id = nodeInfo.id;
+                const comment = graph.getComment(id);
+                nodeInfos[i].oldPosition = xcHelper.deepCopy(comment.getPosition());
+                comment.setPosition(nodeInfo.position);
+                const $el = $dfArea.find('.comment[data-nodeid="' + id + '"]');
+                $el.css({
+                    left: nodeInfo.position.x,
+                    top: nodeInfo.position.y
+                });
+                const dimensions = comment.getDimensions();
+                maxXCoor = Math.max(nodeInfo.position.x + dimensions.width, maxXCoor);
+                maxYCoor = Math.max(nodeInfo.position.y + dimensions.height, maxYCoor);
+
+                $el.appendTo($commentArea);
+            }
+        });
+
+        if (graphDimensions) {
+            _setGraphDimensions(graphDimensions, true);
+        } else {
+            _setGraphDimensions({ x: maxXCoor, y: maxYCoor });
+        }
+
+        const logParam: LogParam = {
+            title: SQLTStr.MoveOperations,
+            options: {
+                "operation": SQLOps.MoveOperations,
+                "dataflowId": tabId,
+                "nodeInfos": nodeInfos
+            }
+        };
+        if (!isNoLog) {
+            Log.add(logParam.title, logParam.options);
+        }
+
+        return logParam;
+    }
+
     function _removeNodesNoPersist(
         nodeIds: DagNodeId[],
         tabId: string,
@@ -1939,6 +1978,116 @@ namespace DagView {
         }
 
         return logParam;
+    }
+
+    function _getExpandPositions(
+        sourceNodeCoord: Coordinate,
+        expandNodeIds: (DagNodeId|CommentNodeId)[],
+        graphToAdjust: DagGraph,
+        prePositionMap: Map<string, Coordinate> = new Map()
+    ): {
+        nodePosInfos: NodeMoveInfo[], maxX: number, maxY: number
+    } {
+        const result = { nodePosInfos: [], maxX: 0, maxY: 0 };
+        const expandNodeIdSet = new Set(expandNodeIds);
+
+        // Get all the nodes' position info in the target graph
+        const allNodePosInfos: NodeMoveInfo[] = [];
+        const origNodePositions: Coordinate[] = [];
+        const expandNodePositions: Coordinate[] = [];
+        graphToAdjust.getAllNodes().forEach((node) => {
+            const nodeId = node.getId();
+            const nodePos = prePositionMap.has(nodeId)
+                ? Object.assign({}, prePositionMap.get(nodeId))
+                : Object.assign({}, node.getPosition());
+
+            allNodePosInfos.push({
+                id: nodeId,
+                type: 'dagNode',
+                position: nodePos
+            });
+            if (expandNodeIdSet.has(nodeId)) {
+                expandNodePositions.push(nodePos);
+            } else {
+                origNodePositions.push(nodePos);
+            }
+        });
+        graphToAdjust.getAllComments().forEach((node) => {
+            const nodeId = node.getId();
+            const nodePos = prePositionMap.has(nodeId)
+                ? Object.assign({}, prePositionMap.get(nodeId))
+                : Object.assign({}, node.getPosition());
+
+            allNodePosInfos.push({
+                id: nodeId,
+                type: 'comment',
+                position: nodePos
+            });
+            if (expandNodeIdSet.has(nodeId)) {
+                expandNodePositions.push(nodePos);
+            } else {
+                origNodePositions.push(nodePos);
+            }
+        });
+
+        // Calculate geometry information before expanding
+        const origGeoInfo = _getGeometryInfo(
+            [sourceNodeCoord].concat(origNodePositions)
+        );
+
+        // Calculate geometry infomation of expanded nodes
+        const expandGeoInfo = _getGeometryInfo(expandNodePositions);
+
+        const expandDimensions: Dimensions = {
+            width: expandGeoInfo.max.x - expandGeoInfo.min.x,
+            height: expandGeoInfo.max.y - expandGeoInfo.min.y
+        };
+
+        // Calculate the new positions
+        const expandDeltaX = sourceNodeCoord.x - expandGeoInfo.centroid.x;
+        const expandDeltaY = sourceNodeCoord.y - expandGeoInfo.centroid.y;
+        const deltaX = Math.floor(expandDimensions.width / 2);
+        const deltaY = Math.floor(expandDimensions.height / 2);
+        for (const posInfo of allNodePosInfos) {
+            const newPosInfo: NodeMoveInfo = {
+                id: posInfo.id, type: posInfo.type, position: {
+                    x: 0, y: 0
+                }
+            };
+            if (expandNodeIdSet.has(posInfo.id)) {
+                // Position the expand nodes according to the position of source node
+                newPosInfo.position.x = posInfo.position.x + expandDeltaX;
+                newPosInfo.position.y = posInfo.position.y + expandDeltaY;
+            } else {
+                // Position other nodes according to the geometry size of expaned nodes
+                if (posInfo.position.x >= sourceNodeCoord.x) {
+                    newPosInfo.position.x = posInfo.position.x + deltaX;
+                } else {
+                    newPosInfo.position.x = posInfo.position.x - deltaX;
+                }
+                if (posInfo.position.y >= sourceNodeCoord.y) {
+                    newPosInfo.position.y = posInfo.position.y + deltaY;
+                } else {
+                    newPosInfo.position.y = posInfo.position.y - deltaY;
+                }
+            }
+            result.nodePosInfos.push(newPosInfo);
+        }
+
+        // Shift the positions, so that nobody is out of bound
+        const newGeoInfo = _getGeometryInfo(result.nodePosInfos.map((info) => info.position));
+        const shiftDeltaX = origGeoInfo.min.x - newGeoInfo.min.x;
+        const shiftDeltaY = origGeoInfo.min.y - newGeoInfo.min.y;
+        for (const posInfo of result.nodePosInfos) {
+            posInfo.position.x += shiftDeltaX;
+            posInfo.position.y += shiftDeltaY;
+        }
+
+        // Calculate the screen dimension
+        result.maxX = newGeoInfo.max.x + shiftDeltaX;
+        result.maxY = newGeoInfo.max.y + shiftDeltaY;
+
+        return result;
     }
 
     function _getGeometryInfo(posList: Coordinate[]): {
