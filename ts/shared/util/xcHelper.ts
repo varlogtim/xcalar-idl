@@ -1843,14 +1843,18 @@ namespace xcHelper {
      * @param txt
      * @param replaces
      */
-    export function replaceMsg(txt: string, replaces: object = {}): string {
+    export function replaceMsg(
+        txt: string,
+        replaces: object = {},
+        isGlobal: boolean = false
+    ): string {
         return replaceTemplate(
             txt,
             Object.keys(replaces).reduce((res, key) => {
                 res[`<${key}>`] = replaces[key];
                 return res;
             }, {}),
-            false
+            isGlobal
         );
     }
 

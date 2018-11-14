@@ -1033,7 +1033,9 @@ class SQLOpPanel extends BaseOpPanel {
                     // XXX Currently disable multi/partial query
                     // self._sqlEditor.getSelection().replace(/;+$/, "") ||
                     self._sqlEditor.getValue().replace(/;+$/, "");
-        if (!sql) {
+        const paramterizedSQL = xcHelper.replaceMsg(sql,
+                                DagParamManager.Instance.getParamMap(), true);
+        if (!paramterizedSQL) {
             return PromiseHelper.reject(SQLErrTStr.EmptySQL);
         }
         const queryId = xcHelper.randName("sql", 8);
@@ -1050,7 +1052,7 @@ class SQLOpPanel extends BaseOpPanel {
             .then(function(ret) {
                 schemaQueryString = ret.queryString;
                 tableSrcMap = ret.tableSrcMap;
-                return sqlCom.compile(queryId, sql, undefined);
+                return sqlCom.compile(queryId, paramterizedSQL, undefined);
             })
             .then(function(queryString, newTableName, newCols) {
                 // XXX TO-DO implement caching
