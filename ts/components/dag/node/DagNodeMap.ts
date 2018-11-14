@@ -65,6 +65,10 @@ class DagNodeMap extends DagNode {
             }
 
             const func = XDParser.XEvalParser.parseEvalStr(evalInput.evalString);
+            if (func.error) {
+                console.error(func.error);
+                return;
+            }
             const colType: ColumnType = this._getOpType(func);
             const progCol = ColManager.newPullCol(colName, colName, colType);
             let fromCol = null;
