@@ -386,9 +386,9 @@ class GeneralOpPanel extends BaseOpPanel {
 
         $(document).on("keydown.OpSection", function(event: JQueryEventObject) {
             if (event.which === keyCode.Escape) {
-                if (this._$panel.find(".hint.list:visible").length) {
+                if (self._$panel.find(".hint.list:visible").length) {
                     self._hideDropdowns();
-                } else if (!this._$panel.find(".list:visible").length) {
+                } else if (!self._$panel.find(".list:visible").length) {
                     self.close();
                 }
             }
