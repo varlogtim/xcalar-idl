@@ -13,8 +13,14 @@ class DagNodeJoinInput extends DagNodeInput {
       if (inputStruct.left == null) {
         inputStruct.left = DagNodeJoinInput._getDefaultTableInfo();
       }
+      if (inputStruct.left.casts == null || inputStruct.left.casts.length === 0) {
+        inputStruct.left.casts = inputStruct.left.columns.map(() => null);
+      }
       if (inputStruct.right == null) {
         inputStruct.right = DagNodeJoinInput._getDefaultTableInfo();
+      }
+      if (inputStruct.right.casts == null || inputStruct.right.casts.length === 0) {
+        inputStruct.right.casts = inputStruct.right.columns.map(() => null);
       }
       if (inputStruct.evalString == null) {
         inputStruct.evalString = '';
@@ -87,7 +93,7 @@ class DagNodeJoinInput extends DagNodeInput {
                 "$id": "#/properties/left/properties/casts",
                 "type": "array",
                 "title": "The Casts Schema",
-                "minItems": 1, // TODO: array length should be equal to columns length
+                "minItems": 0, // we support join w/o casts
                 "additionalItems": false,
                 "items": {
                   "$id": "#/properties/left/properties/casts/items",
@@ -195,7 +201,7 @@ class DagNodeJoinInput extends DagNodeInput {
                 "$id": "#/properties/right/properties/casts",
                 "type": "array",
                 "title": "The Casts Schema",
-                "minItems": 1,
+                "minItems": 0, // we support join w/o casts
                 "additionalItems": false,
                 "items": {
                   "$id": "#/properties/right/properties/casts/items",

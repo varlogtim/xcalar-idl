@@ -103,7 +103,7 @@ class DagNodeInput {
 
         function replace(value) {
             if (value == null) {
-                return {error: null};
+                return null;
             } else if (value.constructor === Array) {
                 for (let i = 0; i < value.length; i++) {
                     const res = replace(value[i]);
