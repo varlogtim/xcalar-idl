@@ -1026,7 +1026,8 @@ function executeSqlWithExtQuery(execid, queryStr, rowsToFetch, sessionPrefix,
             selectQuery.concat(JSON.parse(xcQueryString)),
             allSelects,
             newTableName,
-            sessionPrefix);
+            sessionPrefix,
+            usePaging);
         var xcQueryWithSelect = prefixStruct.query;
         finalTable = prefixStruct.tableName || newTableName;
         return compilerObject.execute(xcQueryWithSelect, finalTable, colNames,
@@ -1057,7 +1058,7 @@ function executeSqlWithExtQuery(execid, queryStr, rowsToFetch, sessionPrefix,
     return deferred.promise();
 };
 
-function addPrefix(plan, selectTables, finalTable, prefix) {
+function addPrefix(plan, selectTables, finalTable, prefix, usePaging) {
     var retStruct = {};
     for (var i = 0; i < plan.length; i++) {
         var operation = plan[i];
@@ -1084,7 +1085,9 @@ function addPrefix(plan, selectTables, finalTable, prefix) {
             newTableName = prefix + newTableName;
         }
         if (dest === finalTable) {
-            newTableName = "res_" + newTableName;
+            if (usePaging) {
+                newTableName = "res_" + newTableName;
+            }
             retStruct.tableName = newTableName;
         }
         operation.args.dest = newTableName;
