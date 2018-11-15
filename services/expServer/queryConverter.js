@@ -36,6 +36,9 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     }
 });
 
+const globalKVPrefix = "/globalKvs/";
+const globalKVDatasetPrefix = "/globalKvsDataset/";
+const workbookKVPrefix = "/workbookKvs/";
 let idCount = 0; // used to give ids to dataflow nodes
 const gridSpacing = 20;
 const horzNodeSpacing = 140;// spacing between nodes when auto-aligning
@@ -197,14 +200,14 @@ function _finalConvertIntoDagNodeInfoArray(nodes, datasets) {
 function _createKVStoreKeys(dataflows, dataflowsList, datasets) {
     const kvPairs = {};
     dataflows.forEach((dataflow) => {
-        kvPairs[dataflow.id] = JSON.stringify(dataflow);
+        kvPairs[workbookKVPrefix + dataflow.id] = JSON.stringify(dataflow);
     });
     // add key for daglist
-    kvPairs["gDagListKey-1"] = JSON.stringify({
+    kvPairs[workbookKVPrefix + "gDagListKey-1"] = JSON.stringify({
         dags: dataflowsList
     });
     datasets.forEach(dataset => {
-        kvPairs["/GLOBAL/sys/datasetMeta/" + dataset.args.dest] = JSON.stringify(dataset, null, 4);
+        kvPairs[globalKVDatasetPrefix + "sys/datasetMeta/" + dataset.args.dest] = JSON.stringify(dataset, null, 4);
     });
     return JSON.stringify(kvPairs, null, 4);
 }
