@@ -841,8 +841,10 @@ function writeEntry(entry, loginId, activeDir, adUserGroup, adAdminGroup, useGro
         var entryObject = entry.object;
         var user = users.get(loginId);
         user.setEntryCount(user.getEntryCount() + 1);
-        user.setMail(entryObject.mail);
-        user.setFirstName(entryObject.cn);
+        // e-mail address and first name are optional
+        // by convention, they should be empty strings if not populated
+        user.setMail(entryObject.mail ? entryObject.mail : "");
+        user.setFirstName(entryObject.cn ? entryObject.cn : "");
         if (activeDir) {
             user.setEmployeeType("user");
             user.setIsADUser(false);
