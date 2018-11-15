@@ -248,13 +248,15 @@ class JoinOpPanelModel {
         };
 
         // JoinOn columns
-        for (const colPair of this._joinColumnPairs) {
-            // Left JoinOn column
-            dagData.left.columns.push(colPair.leftName);
-            dagData.left.casts.push(colPair.leftCast);
-            // Right JoinOn column
-            dagData.right.columns.push(colPair.rightName);
-            dagData.right.casts.push(colPair.rightCast);
+        if (!this.isCrossJoin()) {
+            for (const colPair of this._joinColumnPairs) {
+                // Left JoinOn column
+                dagData.left.columns.push(colPair.leftName);
+                dagData.left.casts.push(colPair.leftCast);
+                // Right JoinOn column
+                dagData.right.columns.push(colPair.rightName);
+                dagData.right.casts.push(colPair.rightCast);
+            }
         }
 
         // Renamed left prefixes & columns
@@ -457,9 +459,10 @@ class JoinOpPanelModel {
 
     public isValidEvalString() {
         const evalStr = this.getEvalString();
-        return evalStr.length > 0
-            && evalStr.indexOf("(") >= 0
-            && evalStr.indexOf(")") > 0;
+        return evalStr.length === 0
+            || (evalStr.length > 0
+                && evalStr.indexOf("(") >= 0
+                && evalStr.indexOf(")") > 0);
     }
 
     public getPreviewTableNames() {

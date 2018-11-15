@@ -69,7 +69,7 @@ class DagNodeJoinInput extends DagNodeInput {
                 "$id": "#/properties/left/properties/columns",
                 "type": "array",
                 "title": "The Columns Schema",
-                "minItems": 1,
+                "minItems": 0, // crossJoin can have an empty list
                 "additionalItems": false,
                 "items": {
                   "$id": "#/properties/left/properties/columns/items",
@@ -177,7 +177,7 @@ class DagNodeJoinInput extends DagNodeInput {
                 "$id": "#/properties/right/properties/columns",
                 "type": "array",
                 "title": "The Columns Schema",
-                "minItems": 1,
+                "minItems": 0, // CrossJoin can have an empty list
                 "additionalItems": false,
                 "items": {
                   "$id": "#/properties/right/properties/columns/items",
