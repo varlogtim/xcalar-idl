@@ -1111,6 +1111,8 @@ DFTStr = {
     'TooLarge': 'Dataflow image exceeds viewable limit.',
     'UpdateParamFail': 'Update Parameters Failed',
     'UploadLimitMsg': 'Cannot upload dataflow that is over 1MB.',
+    'UploadErr': 'Upload Dataflow Error',
+    'UpoladErrInstr': 'Dataflow is succseefully uploaded, but some errors occurred when uploading the UDFs in the dataflow',
     'WarnInMemTable': 'This will generate an in-memory table in your current workbook. Please note that you will NOT be able to create further batch dataflows from this table.',
     'WarnSysParam': 'System parameters are not used when you run batch data flow directly, they will be ignored.',
     'NewParam': 'New Parameter',

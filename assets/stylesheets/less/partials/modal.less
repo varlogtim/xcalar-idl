@@ -5198,7 +5198,7 @@ html.microsoft {
 
 /* ========== Dataflow uploader ============= */
 #dfUploadModal {
-    .size(@width: 520px, @height: 290px);
+    .size(@width: 520px, @height: 320px);
 
     &.locked {
         pointer-events: none;
@@ -5236,7 +5236,7 @@ html.microsoft {
             }
 
             &.dest {
-                @prefix-w: 64px;
+                @prefix-w: 52px;
 
                 .prefix {
                     float: left;
@@ -5259,6 +5259,17 @@ html.microsoft {
                         }
                     }
                 }
+            }
+        }
+
+        .checkboxSection {
+            .qMark {
+                float: left;
+                .position(relative, @top: 9px);
+            }
+
+            .text {
+                margin-right: 8px;
             }
         }
     }

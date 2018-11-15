@@ -33,20 +33,35 @@ class DFUploadModal {
         return this._getModal().find(".source input.browse");
     }
 
+    private _getCheckbox(): JQuery {
+        return this._getModal().find(".overwrite .checkboxSection");
+    }
+
     private _close() {
         const $modal: JQuery = this._getModal();
         this._modalHelper.clear();
         this._file = null;
         $modal.find("input").val("");
         $modal.find(".confirm").addClass("btn-disabled");
+        $modal.find(".checkbox").removeClass("checked");
         xcTooltip.enable($modal.find(".buttonTooltipWrap"));
     }
 
-    private _validate(): {tab: DagTabShared} {
+    private _validate(): {tab: DagTab} {
+        const sharePrefix: string = DagTabShared.PATH.substring(1); // Shared/
+        let uploadTab: DagTab;
+        
         const $pathInput: JQuery = this._getDestPathInput();
-        const path: string = $pathInput.val().trim();
-        const splits: string[] = path.split("/");
-        const shortName: string = splits[splits.length - 1];
+        let path: string = $pathInput.val().trim();
+        let shortName: string;
+        if (path.startsWith(sharePrefix)) {
+            path = path.substring(sharePrefix.length);
+            uploadTab = new DagTabShared(path);
+            shortName = (<DagTabShared>uploadTab).getShortName();
+        } else {
+            uploadTab = new DagTabUser(path);
+            shortName = uploadTab.getName();
+        }
         const isValid: boolean = xcHelper.validate([{
             $ele: $pathInput
         }, {
@@ -66,21 +81,20 @@ class DFUploadModal {
             $ele: $pathInput,
             error: DFTStr.DupDataflowName,
             check: () => {
-                return !DagList.Instance.isUniqueName(path);
+                return !DagList.Instance.isUniqueName(uploadTab.getName());
             }
         }])
 
         if (!isValid) {
             return null;
         }
-        const uploadTab: DagTabShared = new DagTabShared(path);
         return {
             tab: uploadTab
         };
     }
 
     private _submitForm(): XDPromise<void> {
-        const res: {tab: DagTabShared} = this._validate();
+        const res: {tab: DagTab} = this._validate();
         if (res == null) {
             return PromiseHelper.reject();
         }
@@ -88,9 +102,10 @@ class DFUploadModal {
         const $confirmBtn: JQuery = this._getModal().find(".confirm");
         xcHelper.disableSubmit($confirmBtn);
 
-        const tab: DagTabShared = res.tab;
+        const tab: DagTab = res.tab;
         const file: File = this._file;
         let timer: number = null;
+        const overwriteUDF: boolean = this._getCheckbox().find(".checkbox").hasClass("checked");
 
         this._checkFileSize(file)
         .then(() => {
@@ -100,7 +115,7 @@ class DFUploadModal {
             return this._readFile(file);
         })
         .then((fileContent) => {
-            return tab.upload(fileContent);
+            return tab.upload(fileContent, overwriteUDF);
         })
         .then(() => {
             xcHelper.showSuccess(SuccessTStr.Upload);
@@ -108,7 +123,22 @@ class DFUploadModal {
             DagList.Instance.refresh();
             deferred.resolve();
         })
-        .fail(deferred.reject)
+        .fail((error, isUDFFail) => {
+            if (isUDFFail) {
+                this._close();
+                DagList.Instance.refresh();
+                Alert.show({
+                    title: DFTStr.UploadErr,
+                    instr: DFTStr.UpoladErrInstr,
+                    msg: error.error,
+                    isAlert: true
+                });
+            } else {
+                StatusBox.show(error.error, $confirmBtn, false, {
+                    detail: error.log
+                });
+            }
+        })
         .always(() => {
             clearTimeout(timer);
             this._unlock();
@@ -208,6 +238,11 @@ class DFUploadModal {
             return false;
         });
 
+        const $checkbox: JQuery = this._getCheckbox();
+        $checkbox.on("click", ".checkbox, .text", () => {
+            this._getCheckbox().find(".checkbox").toggleClass("checked");
+        });
+
         // display the chosen file's path
         // NOTE: the .change event fires for chrome for both cancel and select
         // but cancel doesn't necessarily fire the .change event on other
@@ -255,31 +290,20 @@ class DFUploadModal {
     }
 
     private _getUniquePath(name: string): string {
-        const userName: string = XcUser.CurrentUser.getName().replace(/\//g, "_");
-        let path: string = `${userName}/${name}`;
+        let path: string = name;
         let cnt = 0;
         while (!DagList.Instance.isUniqueName(path)) {
-            path = `${userName}/${name}(${++cnt})`;
+            path = `${name}(${++cnt})`;
         }
         return path;
     }
 
     private _browseDestPath(): void {
-        let rootPath: string = DagTabShared.PATH;
-        rootPath = rootPath.substring(0, rootPath.length - 1); // /Shared/
         let fileLists: {path: string, id: string}[] = DagList.Instance.list();
-        fileLists = fileLists.filter((fileObj) => {
-            if (fileObj.path.startsWith(rootPath)) {
-                fileObj.path = fileObj.path.substring(rootPath.length);
-                return true;
-            }
-            return false;
-        });
         // lock modal
         this._lock();
         const defaultPath: string = this._getDestPathInput().val().trim();
         const options = {
-            rootPath: rootPath,
             defaultPath: defaultPath,
             onConfirm: (path, name) => {
                 if (path) {

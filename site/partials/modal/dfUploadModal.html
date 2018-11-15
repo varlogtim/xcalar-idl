@@ -26,8 +26,21 @@
     <div class="row label"><%= dicts.dataflow.DestDFName %>:</div>
     <div class="row dest">
       <input class="path xc-input" type="text" spellcheck="false">
-      <div class="prefix">/Shared/</div>
+      <div class="prefix">Home/</div>
       <button class="btn browse"><%= dicts.common.Browse %>...</button>
+    </div>
+    <!-- overwrite UDF check box -->
+    <div class="row overwrite">
+      <div class="checkboxSection">
+        <div class="checkbox">
+          <i class="icon xi-ckbox-empty"></i>
+          <i class="icon xi-ckbox-selected"></i>
+        </div>
+        <div class="text"><%= dicts.dataflow.overwriteUdf %></div>
+        <i class="qMark icon xi-unknown" data-toggle="tooltip"
+        data-container="body" data-title="<%= dicts.dataflow.overwriteUdfHint %>"
+        data-placement="top"></i>
+      </div>
     </div>
   </section>
   <!-- Button Section -->

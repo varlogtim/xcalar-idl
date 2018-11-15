@@ -189,8 +189,7 @@ class DagTabUser extends DagTab {
         // 2. download the temp shared dataflow
         // 3. delete the temp shared dataflow
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        // format is .temp/randNum/fileName
-        const tempName: string = ".temp/" + xcHelper.randName("rand") + "/" + this.getName();
+        const tempName: string = this._getTempName();
         const fakeDag: DagTabShared = new DagTabShared(tempName, null, this._dagGraph);
         let hasShared: boolean = false;
 
@@ -199,13 +198,52 @@ class DagTabUser extends DagTab {
             hasShared = true;
             return fakeDag.download(name, optimized);
         })
-        .then(() => {
-            fakeDag.delete();
-        })
         .then(deferred.resolve)
         .fail(deferred.reject)
         .always(() => {
             if (hasShared) {
+                // if temp shared dataflow has created, delete it
+                fakeDag.delete();
+            }
+        });
+
+        return deferred.promise();
+    }
+
+    public upload(content: string, overwriteUDF: boolean): XDPromise<void> {
+        // Step for upload dataflow to local workbook:
+        // 1. upload as a temp shared dataflow
+        // 2. get the graph and copy to local tab, save the tab
+        // 3. get the UDF and copy to local workbook
+        // 3. delete the temp shared dataflow
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const tempName: string = this._getTempName();
+        const fakeDag: DagTabShared = new DagTabShared(tempName);
+        let hasFakeDag: boolean = false;
+        let hasGetMeta: boolean = false;
+
+        fakeDag.upload(content)
+        .then(() => {
+            hasFakeDag = true;
+            return fakeDag.load();
+        })
+        .then(() => {
+            this._dagGraph = fakeDag.getGraph();
+            return this.save(true);
+        })
+        .then(() => {
+            hasGetMeta = true;
+            DagList.Instance.addDag(this);
+            return fakeDag.copyUDFToLocal(overwriteUDF);
+        })
+        .then(() => {
+            deferred.resolve();
+        })
+        .fail((error) => {
+            deferred.reject(error, hasGetMeta);
+        })
+        .always(() => {
+            if (hasFakeDag) {
                 // if temp shared dataflow has created, delete it
                 fakeDag.delete();
             }
@@ -233,5 +271,11 @@ class DagTabUser extends DagTab {
 
     protected _writeToKVStore(): XDPromise<void> {
         return super._writeToKVStore(this._getJSON());
+    }
+
+    private _getTempName(): string {
+         // format is .temp/randNum/fileName
+         const tempName: string = ".temp/" + xcHelper.randName("rand") + "/" + this.getName();
+         return tempName;
     }
 }

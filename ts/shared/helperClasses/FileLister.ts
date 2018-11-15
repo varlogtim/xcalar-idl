@@ -15,7 +15,7 @@ class FileLister {
     ) {
         this._$section = $section;
         this._renderTemplate = options.renderTemplate;
-        this._rootPath = DSTStr.Home;
+        this.setRootPath(null);
         this._resetPath();
         this._addEventListeners(options);
     }
@@ -25,7 +25,7 @@ class FileLister {
      * @param rootPath
      */
     public setRootPath(rootPath: string): void {
-        this._rootPath = rootPath;
+        this._rootPath = rootPath || DSTStr.Home;
     }
 
     /**
@@ -57,6 +57,7 @@ class FileLister {
      * Redner the file lister UI
      */
     public render(): void {
+        this._resetPath();
         return this._render();
     }
 
@@ -64,11 +65,7 @@ class FileLister {
      * Get the current folder's path
      */
     public getCurrentPath(): string {
-        const len: number = this._currentPath.length;
-        if (len=== 0) {
-            return "";
-        }
-        return this._currentPath[len- 1];
+        return this._currentPath.join("/");
     }
 
     /**

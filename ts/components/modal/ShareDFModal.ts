@@ -188,7 +188,7 @@ class ShareDFModal {
 
     private static _browse(): void {
         let rootPath: string = DagTabShared.PATH;
-        rootPath = rootPath.substring(0, rootPath.length - 1); // /Shared/
+        rootPath = rootPath.substring(0, rootPath.length - 1); // /Shared
         let fileLists: {path: string, id: string}[] = DagList.Instance.list();
         fileLists = fileLists.filter((fileObj) => {
             if (fileObj.path.startsWith(rootPath)) {

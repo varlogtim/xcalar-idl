@@ -11,8 +11,7 @@ class DagTabShared extends DagTab {
      */
     public static restore(): XDPromise<DagTabShared[]> {
         const deferred: XDDeferred<DagTabShared[]> = PromiseHelper.deferred();
-        this._switchSession(null);
-        XcalarListWorkbooks("*")
+        DagTabShared._listSession()
         .then((res: {sessions: any[]}) => {
             const dags: DagTabShared[] = [];
             res.sessions.map((sessionInfo) => {
@@ -27,7 +26,6 @@ class DagTabShared extends DagTab {
         })
         .fail(deferred.reject);
 
-        this._resetSession();
         return deferred.promise();
     }
 
@@ -36,6 +34,13 @@ class DagTabShared extends DagTab {
      */
     public static getSecretUser(): string {
         return this._secretUser;
+    }
+
+    private static _listSession(): XDPromise<{sessions: any[]}> {
+        this._switchSession(null);
+        const promise = XcalarListWorkbooks("*");
+        this._resetSession();
+        return promise;
     }
 
     private static _switchSession(sharedDFName: string): void {
@@ -52,6 +57,10 @@ class DagTabShared extends DagTab {
 
     public constructor(name: string, id?: string, graph?: DagGraph) {
         name = name.replace(new RegExp(DagTabShared._delim, "g"), "/");
+        if (graph != null) {
+            // should be a deep copy
+            graph = graph.clone();
+        }
         super(name, id, graph);
         this._kvStore = new KVStore("DF2", gKVScope.WKBK);
         this._tempKVStore = new KVStore(`.temp.DF2.shared.${this._id}`, gKVScope.WKBK);
@@ -159,11 +168,12 @@ class DagTabShared extends DagTab {
             DagTabShared._resetSession();
             return promise;
         })
-        XcalarDeleteWorkbook(this._getWKBKName())
         .then(() => {
             return PromiseHelper.alwaysResolve(this._tempKVStore.delete());
         })
-        .then(deferred.resolve)
+        .then(() => {
+            deferred.resolve();
+        })
         .fail((error) => {
             if (error.status === StatusT.StatusSessionNotFound) {
                 deferred.resolve();
@@ -216,7 +226,7 @@ class DagTabShared extends DagTab {
             return PromiseHelper.alwaysResolve(promise);
         })
         .then(() => {
-            return this._uploadUDFToWKBK();
+            return this._uploadLocalUDFToShared();
         })
         .then(() => {
             // XXX TODO: remove it when backend support (13855)
@@ -251,6 +261,41 @@ class DagTabShared extends DagTab {
         const promise = XcalarNewWorkbook(newTabName, true, wkbkName)
         DagTabShared._resetSession();
         return promise;
+    }
+
+    public copyUDFToLocal(overwrite: boolean): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let udfPathPrefix: string;
+
+        this._fetchId()
+        .then((id) => {
+            if (id == null) {
+                // this is an error case
+                return PromiseHelper.reject({error: "Error Dataflow"});
+            }
+            this._id = id;
+            
+            udfPathPrefix = `/workbook/${DagTabShared._secretUser}/${id}/udf/`;
+            const udfPattern: string = udfPathPrefix + "*";
+            return XcalarListXdfs(udfPattern, "User*");
+        })
+        .then((res) => {
+            const udfAbsolutePaths = {};
+            const prefixLen: number = udfPathPrefix.length;
+            res.fnDescs.forEach((fnDesc) => {
+                const path = fnDesc.fnName.split(":")[0];
+                const moduelName = path.substring(prefixLen);
+                udfAbsolutePaths[path] = moduelName;
+            });
+            return this._downloadShareadUDFToLocal(udfAbsolutePaths, overwrite)
+        })
+        .then(() => {
+            UDFFileManager.Instance.refresh(true);
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     protected _loadFromKVStore(): XDPromise<any> {
@@ -322,7 +367,7 @@ class DagTabShared extends DagTab {
         return promise;
     }
 
-    private _uploadUDFToWKBK(): XDPromise<void> {
+    private _uploadLocalUDFToShared(): XDPromise<void> {
         let downloadHelper = (moduleName: string): XDPromise<string> => {
             const deferred: XDDeferred<string> = PromiseHelper.deferred();
             const udfPath = UDFFileManager.Instance.getCurrWorkbookPath() + moduleName;
@@ -373,6 +418,63 @@ class DagTabShared extends DagTab {
         return PromiseHelper.when(...promises);
     }
 
+    private _downloadShareadUDFToLocal(
+        udfAbsolutePaths: object,
+        overwrite: boolean
+    ): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const failures: string[] = [];
+
+        let upload = (udfPath: string, moduleName: string): XDPromise<void> => {
+            const innerDeferred: XDDeferred<void> = PromiseHelper.deferred();
+            let udfStr: string = null;
+            XcalarDownloadPython(udfPath)
+            .then((res) => {
+                udfStr = res;
+                if (udfStr == null) {
+                    // nothing to upload
+                    return;
+                }
+
+                let promise = null;
+                if (overwrite) {
+                    promise = XcalarUploadPython(moduleName, udfStr);
+                } else {
+                    promise = XcalarUploadPythonRejectDuplicate(moduleName, udfStr);
+                }
+                return promise;
+            })
+            .then(() => {
+                innerDeferred.resolve();
+            })
+            .fail((error) => {
+                console.error("Upload UDF to local fails", error);
+                failures.push(moduleName + ": " + error.error);
+                innerDeferred.resolve(); // still resolve it
+            });
+
+            return innerDeferred.promise();
+        }
+
+        const promises: XDPromise<void>[] = [];
+        for (let path in udfAbsolutePaths) {
+            promises.push(upload(path, udfAbsolutePaths[path]));
+        }
+
+        PromiseHelper.when(...promises)
+        .then(() => {
+            if (failures.length > 0) {
+                deferred.reject({
+                    error: failures.join("\n");
+                });
+            } else {
+                deferred.resolve();
+            }
+        })
+        .fail(deferred.reject)
+        return deferred.promise();
+    }
+
     private _getSerializableGraphToSave(): DagGraphInfo {
         // create a new copy of the graph and clean it up
         const graph: DagGraph = this._dagGraph.clone();
@@ -380,5 +482,24 @@ class DagTabShared extends DagTab {
         // Not that it should not delte the tables as it's just a copy
         graph.resetStates();
         return graph.getSerializableObj();
+    }
+
+    private _fetchId(): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        DagTabShared._listSession()
+        .then((res: {sessions: any[]}) => {
+            let id: string = null;
+            const name: string = this._getWKBKName();
+            res.sessions.forEach((sessionInfo) => {
+                if (name === sessionInfo.name) {
+                    id = sessionInfo.sessionId;
+                    return false; // stop loop
+                }
+            });
+            deferred.resolve(id);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 }

@@ -36,9 +36,7 @@ class DFBrowserModal {
         this.modalHelper.setup();
         this._options = options;
         this._setDefaultName(options.defaultPath);
-        if (options.rootPath) {
-            this._fileLister.setRootPath(options.rootPath);
-        }
+        this._fileLister.setRootPath(options.rootPath);
         this._fileLister.setFileObj(fileObjs);
         this._fileLister.render();
     }

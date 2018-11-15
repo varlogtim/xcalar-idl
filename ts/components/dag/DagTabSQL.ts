@@ -45,4 +45,9 @@ class DagTabSQL extends DagTab {
     public download(): XDPromise<void> {
         return PromiseHelper.reject({error: "Not support"});
     }
+
+    // do nothing
+    public upload(): XDPromise<void> {
+        return PromiseHelper.reject({error: "Not support"});
+    }
 }
