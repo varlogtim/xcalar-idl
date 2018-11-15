@@ -874,7 +874,8 @@ class DagGraph {
                     // Check if we need to run any of the parents
                     for (let i = 0; i < parents.length; i++) {
                         let parent = parents[i];
-                        if (parent.getState() != DagNodeState.Complete ||
+                        // parent can be null in join - left parent
+                        if (parent && parent.getState() != DagNodeState.Complete ||
                                 !DagTblManager.Instance.hasTable(parent.getTable())) {
                             isStarting = false;
                             break;

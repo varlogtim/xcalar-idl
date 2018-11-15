@@ -6541,10 +6541,15 @@ namespace xcHelper {
         let numWorkCompleted: number = 0;
         let numWorkTotal: number = 0
         queryStateOutput.queryGraph.node.forEach((node) => {
-            numWorkCompleted += node.numWorkCompleted;
-            numWorkTotal += node.numWorkTotal;
+            if (DgDagStateT.DgDagStateProcessing || DgDagStateT.DgDagStateReady) {
+                numWorkCompleted += node.numWorkCompleted;
+                numWorkTotal += node.numWorkTotal;
+            }
         });
         progress = numWorkCompleted / numWorkTotal;
+        if (numWorkTotal === 0) {
+            progress = 0;
+        }
         return progress;
     }
 

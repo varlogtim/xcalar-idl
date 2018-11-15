@@ -84,6 +84,8 @@ class SortOpPanelModel {
         this._newKeys.forEach((key) => {
             if (seen[key]) {
                 throw new Error('Duplicate new key names are not allowed: ' + key);
+            } else if (this._allColMap.has(key)) {
+                throw new Error('Field with same name already exists: ' + key);
             } else {
                 seen[key] = true;
             }

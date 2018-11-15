@@ -576,7 +576,11 @@ abstract class DagNode {
             }
             tableProgressInfo.state = nodeInfo.state;
             tableProgressInfo.elapsedTime = nodeInfo.elapsed.milliseconds;
-            let progress: number = nodeInfo.numWorkCompleted / nodeInfo.numWorkTotal;
+            let progress: number = 0;
+            if (nodeInfo.state === DgDagStateT.DgDagStateProcessing ||
+                nodeInfo.state === DgDagStateT.DgDagStateReady) {
+                progress = nodeInfo.numWorkCompleted / nodeInfo.numWorkTotal;
+            }
             if (isNaN(progress)) {
                 progress = 0;
             }
@@ -619,8 +623,11 @@ abstract class DagNode {
         let rows, skew, numRowsTotal, size;
         for (let tableName in this.progressInfo.nodes) {
             const node = this.progressInfo.nodes[tableName];
-            numWorkCompleted += node.numWorkCompleted;
-            numWorkTotal += node.numWorkTotal;
+            if (node.state === DgDagStateT.DgDagStateProcessing ||
+                node.state === DgDagStateT.DgDagStateReady) {
+                numWorkCompleted += node.numWorkCompleted;
+                numWorkTotal += node.numWorkTotal;
+            }
             rows = node.rows;
             skew = node.skewValue;
             size = node.size;

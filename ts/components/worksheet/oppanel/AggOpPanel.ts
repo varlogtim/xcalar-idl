@@ -1,6 +1,7 @@
 class AggOpPanel extends GeneralOpPanel {
     protected _dagNode: DagNodeAggregate;
     protected _opCategories: number[] = [FunctionCategoryT.FunctionCategoryAggregate];
+    protected codeMirrorNoAggs = true;
 
     public constructor() {
         super();

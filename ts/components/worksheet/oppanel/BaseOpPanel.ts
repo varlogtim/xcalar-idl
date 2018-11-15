@@ -136,6 +136,7 @@ class BaseOpPanel {
     private aggMap;
     protected _cachedBasicModeParam: string;
     protected codeMirrorOnlyColumns = false;
+    protected codeMirrorNoAggs = false;
     private _validationList: { elem: HTMLElement, validate: () => string }[] = [];
 
     protected constructor() {
@@ -376,16 +377,18 @@ class BaseOpPanel {
                     searchMapFunction(udfFn, this.udfMap[udfFn]);
                 }
 
-                // search aggMap
-                for (var agg in this.aggMap) {
-                    if (agg.indexOf(curWord) !== -1 &&
-                        !seen.hasOwnProperty(agg)) {
-                        list.push({
-                            text: agg,
-                            displayText: agg,
-                            render: renderList,
-                            className: "colName"
-                        });
+                if (!this.codeMirrorNoAggs) {
+                    // search aggMap
+                    for (var agg in this.aggMap) {
+                        if (agg.indexOf(curWord) !== -1 &&
+                            !seen.hasOwnProperty(agg)) {
+                            list.push({
+                                text: agg,
+                                displayText: agg,
+                                render: renderList,
+                                className: "colName"
+                            });
+                        }
                     }
                 }
             }
