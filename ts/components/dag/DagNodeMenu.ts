@@ -354,7 +354,9 @@ namespace DagNodeMenu {
                 break;
             default:
                 unlock(tabId);
-                throw new Error("Unsupported type");
+                StatusBox.show("Cannot configure: Unsupported type",
+                                DagView.getNode(nodeId));
+                return;
         }
 
         function unlock(tabId: string) {

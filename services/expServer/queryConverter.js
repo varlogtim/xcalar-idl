@@ -488,7 +488,7 @@ function _getDagNodeInfo(node) {
             break;
         case (XcalarApisT.XcalarApiGetRowNum):
             dagNodeInfo = {
-                type: DagNodeType.GetRowNum,
+                type: DagNodeType.RowNum,
                 input: {
                     newField: node.args.newField
                 }
@@ -579,7 +579,27 @@ function _getDagNodeInfo(node) {
             };
             break;
         case (XcalarApisT.XcalarApiSelect):
+            dagNodeInfo = {
+                type: DagNodeType.IMDTable,
+                input: {
+                    source: node.args.source,
+                    version: node.args.minBatchId,
+                    filterString: node.args.filterString || node.args.evalString,
+                    columns: node.args.columns
+                }
+            };
+            break;
         case (XcalarApisT.XcalarApiSynthesize):
+            dagNodeInfo = {
+                type: DagNodeType.Dataset,
+                input: {
+                    prefix: "",
+                    source: xcHelper.stripPrefixFromDSName(node.args.source),
+                    synthesize: true
+                }
+            };
+            break;
+        case (XcalarApisT.XcalarApiExecuteRetina):
         case (XcalarApisT.XcalarApiBulkLoad): // should not have any
         // as the "createTable" index node should take it's place
         default:
@@ -593,8 +613,8 @@ function _getDagNodeInfo(node) {
             };
             break;
     }
-
-    dagNodeInfo.description = node.rawNode.comment || "";
+    const comment = parseUserComment(node.rawNode.comment);
+    dagNodeInfo.description = comment.userComment || "";
     dagNodeInfo.table = node.name;
     dagNodeInfo.id = "dag_" + new Date().getTime() + "_" + idCount;
     dagNodeInfo.parents = [];
@@ -604,6 +624,26 @@ function _getDagNodeInfo(node) {
     idCount++;
     return dagNodeInfo;
 }
+
+// return {userComment: string, meta: object}
+function parseUserComment(comment) {
+    let commentObj;
+    try {
+        commentObj = JSON.parse(comment);
+        if (typeof commentObj !== "object") {
+            commentObj = {
+                userComment: commentObj,
+                meta: {}
+            };
+        }
+    } catch (e) {
+        commentObj = {
+            userComment: comment || "",
+            meta: {}
+        };
+    }
+    return commentObj;
+};
 
 // turns    filter->index->join    into   filter->join
 // and setups up a "create table" node to be a dataset node
