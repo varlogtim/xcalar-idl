@@ -16,7 +16,10 @@ class DagNodeDataset extends DagNodeIn {
      * @param input.source {string} Dataset source path
      * @param intpu.prefix {string} Prefix for the created table
      */
-    public setParam(input: DagNodeDatasetInputStruct = <DagNodeDatasetInputStruct>{}): XDPromise<void> {
+    public setParam(
+        input: DagNodeDatasetInputStruct = <DagNodeDatasetInputStruct>{},
+        noAutoExecute?: boolean
+    ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const source: string = input.source;
         const prefix: string = input.prefix;
@@ -28,12 +31,18 @@ class DagNodeDataset extends DagNodeIn {
                 prefix: prefix,
                 synthesize: synthesize
             });
-            super.setParam();
+            super.setParam(null, noAutoExecute);
             deferred.resolve();
         })
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    public confirmSetParam(): void {
+        // this is just to trigger param change event
+        // so auto execution can be triggered
+        super.setParam();
     }
 
     /**

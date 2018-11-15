@@ -455,7 +455,8 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         const oldParam: DagNodeDatasetInputStruct = dagNode.getParam();
         if (oldParam.source === id &&
             oldParam.prefix === prefix &&
-            oldParam.synthesize === this._synthesize
+            oldParam.synthesize === this._synthesize &&
+            oldParam.synthesize === false
         ) {
             // only has schema change
             dagNode.setSchema(schema, true);
@@ -473,7 +474,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             source: id,
             prefix: prefix,
             synthesize: this._synthesize
-        })
+        }, true)
         .then(() => {
             $bg.hide();
             if (oldParam.source === id && this._isSameSchema(oldSchema, schema)) {
@@ -491,6 +492,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
                 });
                 renameMap.prefixes[oldParam.prefix] = normalizedPrefix;
                 dagGraph.applyColumnMapping(dagNode.getId(), renameMap);
+                dagNode.confirmSetParam();
                 this.close();
             } else if (oldColumns.length || !dagNode.getLineage().getColumns().length) {
                 this._$elemPanel.find(".opSection, .mainContent > .bottomSection").hide();
@@ -498,12 +500,14 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
                 this._$elemPanel.find(".advancedEditor").addClass("xc-hidden");
                 DatasetColRenamePanel.Instance.show(dagNode, oldColumns, {
                     onClose: () => {
+                        dagNode.confirmSetParam();
                         this.close(true);
                         this._$elemPanel.find(".opSection, .mainContent > .bottomSection").show();
                         this._$elemPanel.find(".advancedEditor").removeClass("xc-hidden")
                     }
                 });
             } else {
+                dagNode.confirmSetParam();
                 this.close(true);
             }
         }).fail((error) => {
