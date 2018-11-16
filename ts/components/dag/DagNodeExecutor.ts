@@ -133,7 +133,10 @@ class DagNodeExecutor {
         return XIApi.indexFromDataset(this.txId, dsName, desTable, prefix);
     }
 
-    private _synthesizeDataset(dsName: string, schema: ColSchema[]): XDPromise<string> {
+    private _synthesizeDataset(
+        dsName: string,
+        schema: ColSchema[]
+    ): XDPromise<string> {
         const desTable = this._generateTableName();
         const colInfos: ColRenameInfo[] = schema.map((colInfo) => {
             const type: DfFieldTypeT = xcHelper.convertColTypeToFieldType(colInfo.type);
@@ -264,7 +267,38 @@ class DagNodeExecutor {
         const srcTable: string = this._getParentNodeTable(0);
         const desTable: string = this._generateTableName();
         const isIcv: boolean = params.icv;
-        return XIApi.map(this.txId, mapStrs, srcTable, newFields, desTable, isIcv);
+
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        XIApi.map(this.txId, mapStrs, srcTable, newFields, desTable, isIcv)
+        .then((tableAfterMap) => {
+            if (node.getSubType() === DagNodeSubType.Cast) {
+                return this._projectCheck(tableAfterMap);
+            } else {
+                return PromiseHelper.resolve(srcTable);
+            }
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    private _projectCheck(srcTable: string): XDPromise<string> {
+        const node: DagNode = this.node;
+        const prefixColumns: string[] = node.getLineage().getPrefixColumns();
+        let prefixColumnsInParent: string[] = [];
+        node.getParents().forEach((parentNode) => {
+            prefixColumnsInParent = prefixColumnsInParent.concat(parentNode.getLineage().getPrefixColumns());
+        });
+        if (prefixColumnsInParent.length !== 0 && prefixColumns.length === 0) {
+            // when before the op it has prefix, after the op it doesn't
+            // which means all fatptr are "hidden", need to do a synthesize
+            const columns: string[] = node.getLineage().getDerivedColumns();
+            const destTable: string = this._generateTableName();
+            return XIApi.project(this.txId,columns, srcTable, destTable);
+        } else {
+            return PromiseHelper.resolve(srcTable);
+        }
     }
 
     private _split(): XDPromise<string> {
@@ -666,7 +700,16 @@ class DagNodeExecutor {
                 type: type
             };
         });
-        return XIApi.sort(this.txId, sortedColumns, srcTable, desTable);
+
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        XIApi.sort(this.txId, sortedColumns, srcTable, desTable)
+        .then((tableAfterSort) => {
+            return this._projectCheck(tableAfterSort);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     private _placeholder(): XDPromise<string> {

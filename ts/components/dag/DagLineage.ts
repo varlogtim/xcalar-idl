@@ -88,6 +88,21 @@ class DagLineage {
         return derivedColumns;
     }
 
+    /**
+     * @return {string[]} Get A list of prefix columns names
+     */
+    public getPrefixColumns(): string[] {
+        const prefixColumns: string[] = [];
+        this.getColumns().forEach((progCol) => {
+            const colName: string = progCol.getBackColName();
+            const parsed: PrefixColInfo = xcHelper.parsePrefixColName(colName);
+            if (parsed.prefix) {
+                prefixColumns.push(colName);
+            }
+        });
+        return prefixColumns;
+    }
+
     private _update(replaceParameters?: boolean): DagLineageChange {
         let colInfo: DagLineageChange;
         if (this.node.isSourceNode()) {
