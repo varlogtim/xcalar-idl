@@ -994,6 +994,7 @@ function executeSqlWithExtQuery(execid, queryStr, rowsToFetch, sessionPrefix,
         queryString: queryStr
     };
     var allSelects = {};
+    var compiler;
 
     var selectQuery = "";
     selectUsedPublishedTables(queryStr, sessionPrefix)
@@ -1021,6 +1022,7 @@ function executeSqlWithExtQuery(execid, queryStr, rowsToFetch, sessionPrefix,
     })
     .then(function(compilerObject, xcQueryString, newTableName, colNames) {
         xcConsole.log("Compilation finished");
+        compiler = compilerObject;
         orderedColumns = colNames;
         var prefixStruct = addPrefix(
             selectQuery.concat(JSON.parse(xcQueryString)),
@@ -1030,7 +1032,10 @@ function executeSqlWithExtQuery(execid, queryStr, rowsToFetch, sessionPrefix,
             usePaging);
         var xcQueryWithSelect = prefixStruct.query;
         finalTable = prefixStruct.tableName || newTableName;
-        return compilerObject.execute(xcQueryWithSelect, finalTable, colNames,
+        return compiler.addDrops(xcQueryWithSelect);
+    })
+    .then(function(queryWithDrop) {
+        return compiler.execute(queryWithDrop, finalTable, orderedColumns,
             queryStr, undefined, option);
     })
     .then(function() {
