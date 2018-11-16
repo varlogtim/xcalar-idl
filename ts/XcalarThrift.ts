@@ -1285,18 +1285,14 @@ XcalarIndexFromTable = function(
     }
 
     dhtName = dhtName || "";
+    const isFakeApiCall = Transaction.isSimulate(txId);
     // XXX TODO, remove the dependencise of xcHelper
-    xcHelper.getKeyInfos(keys, srcTablename)
+    xcHelper.getKeyInfos(keys, srcTablename, isFakeApiCall)
     .then(function(keyInfos: KeyInfo[]) {
         const keyArray = keyInfos.map(function(keyInfo) {
             newKeys.push(keyInfo['keyFieldName']);
             return indexKeyMap(keyInfo);
         });
-        if (Transaction.isSimulate(txId)) {
-            newKeys = keyArray.map(function(key) {
-                return key.keyFieldName;
-            });
-        }
         const workItem = xcalarIndexWorkItem(srcTablename,
                                            dstTableName, keyArray, "", dhtName);
         let def: XDPromise<any>;

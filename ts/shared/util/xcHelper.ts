@@ -5271,12 +5271,17 @@ namespace xcHelper {
             keyFieldName: string,
             ordering: XcalarOrderingT
         }[],
-        tableName: string
+        tableName: string,
+        fakeApiCall?: boolean
     ): XDPromise<object[]> {
         const deferred: XDDeferred<object[]> = PromiseHelper.deferred();
-
-        getColMetaHelper(tableName)
-        .then(function (colMeta, hasTableMeta) {
+        let def: XDPromise<any>;
+        if (fakeApiCall) {
+            def = PromiseHelper.resolve({}, false);
+        } else {
+            def = getColMetaHelper(tableName);
+        }
+        def.then(function (colMeta, hasTableMeta) {
             const res: object[] = keys.map((key) => {
                 const name: string = key.name;
                 const parsedName: PrefixColInfo = xcHelper.parsePrefixColName(name);
