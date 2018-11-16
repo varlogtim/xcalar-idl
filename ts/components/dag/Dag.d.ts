@@ -362,3 +362,5 @@ declare type NodeMoveInfo = {
     position: Coordinate,
     oldPosition?: Coordinate
 }
+
+declare type SubgraphContainerNode = DagNodeCustom | DagNodeSQL

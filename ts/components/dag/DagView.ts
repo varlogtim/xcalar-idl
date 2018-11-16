@@ -1233,7 +1233,6 @@ namespace DagView {
     export function wrapCustomOperator(nodeIds: DagNodeId[]): XDPromise<void> {
         const connectionInfo: DagSubGraphConnectionInfo
             = activeDag.getSubGraphConnection(nodeIds);
-        const tabId = activeDag.getTabId();
         // Validate the sub graph
         if (connectionInfo.openNodes.length > 0) {
             // The selected node set cannot build a close sub graph
@@ -1275,123 +1274,135 @@ namespace DagView {
             return PromiseHelper.reject('too many output');
         }
 
-        // Create customNode from selected nodes
-        const nodeInfos = createNodeInfos(nodeIds, activeDag);
-        const {
-            node: customNode,
-            connectionIn: newConnectionIn,
-            connectionOut: newConnectionOut
-        } = _createCustomNode(nodeInfos, connectionInfo);
+        const dagTab: DagTab = activeDagTab;
+        const tabId = dagTab.getId();
+        try {
+            // Turn off KVStore saving for better performance
+            dagTab.turnOffSave();
 
-        // Position custom operator
-        const nodePosList = nodeInfos.map((nodeInfo) => ({
-            x: nodeInfo.display.x,
-            y: nodeInfo.display.y
-        }));
-        const geoInfo = _getGeometryInfo(nodePosList);
-        customNode.setPosition(geoInfo.centroid);
-        // Position custom OP input nodes
-        for (const inputNode of customNode.getInputNodes()) {
-            const childGeoInfo = _getGeometryInfo(
-                inputNode.getChildren().map((child) => child.getPosition())
-            );
-            inputNode.setPosition({
-                x: childGeoInfo.min.x - horzNodeSpacing,
-                y: childGeoInfo.centroid.y
-            });
-        }
-        // Position custom OP output nodes
-        for (const outputNode of customNode.getOutputNodes()) {
-            const parentGeoInfo = _getGeometryInfo(
-                outputNode.getParents().reduce((res, parent) => {
-                    if (parent != null) {
-                        res.push(parent.getPosition());
-                    }
-                    return res;
-                }, [])
-            );
-            outputNode.setPosition({
-                x: parentGeoInfo.max.x + horzNodeSpacing,
-                y: parentGeoInfo.centroid.y
-            });
-        }
-        // Re-position all nodes in sub graph
-        const subNodeGeoInfo = _getGeometryInfo(customNode.getSubNodePositions());
-        const deltaPos = {
-            x: gridSpacing * 2 - subNodeGeoInfo.min.x,
-            y: gridSpacing * 2 - subNodeGeoInfo.min.y
-        };
-        customNode.changeSubNodePostions(deltaPos);
+            // Create customNode from selected nodes
+            const nodeInfos = createNodeInfos(nodeIds, activeDag);
+            const {
+                node: customNode,
+                connectionIn: newConnectionIn,
+                connectionOut: newConnectionOut
+            } = _createCustomNode(nodeInfos, connectionInfo);
 
-        // Re-calculate sub graph dimensions
-        let graphDimensions = customNode.getSubGraph().getDimensions();
-        for (const nodePos of customNode.getSubNodePositions()) {
-            graphDimensions = _calculateDimensions(graphDimensions, nodePos);
-        }
-        customNode.getSubGraph().setDimensions(
-            graphDimensions.width, graphDimensions.height);
-
-        // Add customNode to DagView
-        const customLogParam: LogParam = {
-            title: SQLTStr.CreateCustomOperation,
-            options: {
-                operation: SQLOps.DagBulkOperation,
-                actions: [],
-                dataflowId: activeDagTab.getId()
+            // Position custom operator
+            const nodePosList = nodeInfos.map((nodeInfo) => ({
+                x: nodeInfo.display.x,
+                y: nodeInfo.display.y
+            }));
+            const geoInfo = _getGeometryInfo(nodePosList);
+            customNode.setPosition(geoInfo.centroid);
+            // Position custom OP input nodes
+            for (const inputNode of customNode.getInputNodes()) {
+                const childGeoInfo = _getGeometryInfo(
+                    inputNode.getChildren().map((child) => child.getPosition())
+                );
+                inputNode.setPosition({
+                    x: childGeoInfo.min.x - horzNodeSpacing,
+                    y: childGeoInfo.centroid.y
+                });
             }
-        };
-        activeDag.addNode(customNode);
-        const addLogParam = _addNodeNoPersist(customNode, { isNoLog: true });
-        customLogParam.options.actions.push(addLogParam.options);
+            // Position custom OP output nodes
+            for (const outputNode of customNode.getOutputNodes()) {
+                const parentGeoInfo = _getGeometryInfo(
+                    outputNode.getParents().reduce((res, parent) => {
+                        if (parent != null) {
+                            res.push(parent.getPosition());
+                        }
+                        return res;
+                    }, [])
+                );
+                outputNode.setPosition({
+                    x: parentGeoInfo.max.x + horzNodeSpacing,
+                    y: parentGeoInfo.centroid.y
+                });
+            }
+            // Re-position all nodes in sub graph
+            const subNodeGeoInfo = _getGeometryInfo(customNode.getSubNodePositions());
+            const deltaPos = {
+                x: gridSpacing * 2 - subNodeGeoInfo.min.x,
+                y: gridSpacing * 2 - subNodeGeoInfo.min.y
+            };
+            customNode.changeSubNodePostions(deltaPos);
 
-        // Delete selected nodes
-        const removeLogParam = _removeNodesNoPersist(
-            nodeIds,
-            tabId,
-            { isNoLog: true, isSwitchState: false }
-        );
-        customLogParam.options.actions.push(removeLogParam.options);
+            // Re-calculate sub graph dimensions
+            let graphDimensions = customNode.getSubGraph().getDimensions();
+            for (const nodePos of customNode.getSubNodePositions()) {
+                graphDimensions = _calculateDimensions(graphDimensions, nodePos);
+            }
+            customNode.getSubGraph().setDimensions(
+                graphDimensions.width, graphDimensions.height);
 
-        // Connections to customNode
-        for (const { parentId, childId, pos } of newConnectionIn) {
-            const connectLogParam = _connectNodesNoPersist(
-                parentId,
-                childId,
-                pos,
+            // Add customNode to DagView
+            const customLogParam: LogParam = {
+                title: SQLTStr.CreateCustomOperation,
+                options: {
+                    operation: SQLOps.DagBulkOperation,
+                    actions: [],
+                    dataflowId: tabId
+                }
+            };
+            activeDag.addNode(customNode);
+            const addLogParam = _addNodeNoPersist(customNode, { isNoLog: true });
+            customLogParam.options.actions.push(addLogParam.options);
+
+            // Delete selected nodes
+            const removeLogParam = _removeNodesNoPersist(
+                nodeIds,
                 tabId,
                 { isNoLog: true, isSwitchState: false }
             );
-            customLogParam.options.actions.push(connectLogParam.options);
-        }
-        for (const { parentId, childId, pos } of newConnectionOut) {
-            const connectLogParam = _connectNodesNoPersist(
-                parentId,
-                childId,
-                pos,
-                tabId,
-                { isNoLog: true, isSwitchState: false }
-            );
-            customLogParam.options.actions.push(connectLogParam.options);
-        }
+            customLogParam.options.actions.push(removeLogParam.options);
 
-        // Restore the state
-        const nodeStates: Map<string, number> = new Map();
-        for (const nodeInfo of nodeInfos) {
-            const state = nodeInfo.state || DagNodeState.Unused;
-            const count = nodeStates.get(state) || 0;
-            nodeStates.set(state, count + 1);
-        }
-        const completeCount = nodeStates.get(DagNodeState.Complete) || 0;
-        if (completeCount > 0 && completeCount === nodeInfos.length) {
-            // All nodes are in complete state, so set the CustomNode to complete
-            customNode.beCompleteState();
-        } else {
-            customNode.switchState();
-        }
+            // Connections to customNode
+            for (const { parentId, childId, pos } of newConnectionIn) {
+                const connectLogParam = _connectNodesNoPersist(
+                    parentId,
+                    childId,
+                    pos,
+                    tabId,
+                    { isNoLog: true, isSwitchState: false }
+                );
+                customLogParam.options.actions.push(connectLogParam.options);
+            }
+            for (const { parentId, childId, pos } of newConnectionOut) {
+                const connectLogParam = _connectNodesNoPersist(
+                    parentId,
+                    childId,
+                    pos,
+                    tabId,
+                    { isNoLog: true, isSwitchState: false }
+                );
+                customLogParam.options.actions.push(connectLogParam.options);
+            }
 
-        Log.add(customLogParam.title, customLogParam.options);
+            // Restore the state
+            const nodeStates: Map<string, number> = new Map();
+            for (const nodeInfo of nodeInfos) {
+                const state = nodeInfo.state || DagNodeState.Unused;
+                const count = nodeStates.get(state) || 0;
+                nodeStates.set(state, count + 1);
+            }
+            const completeCount = nodeStates.get(DagNodeState.Complete) || 0;
+            if (completeCount > 0 && completeCount === nodeInfos.length) {
+                // All nodes are in complete state, so set the CustomNode to complete
+                customNode.beCompleteState();
+            } else {
+                customNode.switchState();
+            }
 
-        return activeDagTab.save();
+            Log.add(customLogParam.title, customLogParam.options);
+
+            // Turn on KVStore saving
+            dagTab.turnOnSave();
+            return dagTab.save();
+        } catch(e) {
+            dagTab.turnOnSave();
+            return PromiseHelper.reject(e);            
+        }
     }
 
     /**
@@ -1465,127 +1476,58 @@ namespace DagView {
             this.autoAlign(activeDag.getTabId());
         }
     }
+
     /**
      * Expand the SQL node into a sub graph in place for editing purpose
      * @param nodeId
      */
     export function expandSQLNode(nodeId: DagNodeId): XDPromise<void> {
-        // XXX Custom node expanding could re-use the code but probably needs
-        // modifications
         const dagNode = activeDag.getNode(nodeId);
         const tabId = activeDag.getTabId();
         if (dagNode == null) {
-            return;
+            return PromiseHelper.reject(`${nodeId} not exist`);
         }
         if (dagNode instanceof DagNodeSQL) {
-            const dagTab = activeDagTab;
-            dagTab.turnOffSave();
-            if (!dagNode.getSubGraph()) {
-                dagNode.updateSubGraph();
-            }
-            const subGraph = dagNode.getSubGraph();
-            const allSubNodes = subGraph.getAllNodes();
-            const expandNodeIds: string[] = [];
-            const expandSQLLogParam: LogParam = {
-                title: SQLTStr.ExpandSQLOperation,
-                options: {
-                    operation: SQLOps.DagBulkOperation,
-                    actions: [],
-                    dataflowId: dagTab.getId()
-                }
-            };
-            const dagIds = [];
-            allSubNodes.forEach(dagNode => {
-                dagIds.push(dagNode.getId());
-            });
-            const connections: NodeConnection[] = [];
-            const dagInfoList = createNodeInfos(dagIds, subGraph);
-            const oldNodeIdMap = {};
-            dagInfoList.forEach((dagNodeInfo: DagNodeInfo) => {
-                const parents: DagNodeId[] = dagNodeInfo.parents;
-                // XXX dagNodeInfo has attr called "nodeId". However, .create
-                // takes in "id" in option when deserializing. Not sure if this
-                // is intentional or XD bug. If this changes, it will break the
-                // code here and needs further fix.
-                const oldNodeId = dagNodeInfo["nodeId"];
-                const node: DagNode = DagNodeFactory.create(dagNodeInfo);
-                const nodeId: string = node.getId();
-                oldNodeIdMap[oldNodeId] = nodeId;
-                if (node instanceof DagNodeSQLSubInput) {
-                    return;
-                } else if (node instanceof DagNodeSQLSubOutput) {
-                    dagNode.getChildren().forEach((child) => {
-                        child.findParentIndices(dagNode).forEach((i) => {
-                            connections.push({
-                                parentId: parents[0],
-                                childId: child.getId(),
-                                pos: i
-                            });
-                        });
-                    });
-                    return;
-                } else {
-                    for (let i = 0; i < parents.length; i++) {
-                        let parentNode = subGraph.getNode(parents[i]);
-                        if (parentNode instanceof DagNodeSQLSubInput) {
-                            parentNode = dagNode.getInputParent(parentNode);
-                        }
-                        connections.push({
-                            parentId: parentNode.getId(),
-                            childId: nodeId,
-                            pos: i
-                        });
+            return _expandSubgraphNode({
+                dagNode: dagNode,
+                tabId: tabId,
+                logTitle: SQLTStr.ExpandSQLOperation,
+                getInputParent: (node) => dagNode.getInputParent(node),
+                isInputNode: (node) => (node instanceof DagNodeSQLSubInput),
+                isOutputNode: (node) => (node instanceof DagNodeSQLSubOutput),
+                preExpand: () => {
+                    if (!dagNode.getSubGraph()) {
+                        dagNode.updateSubGraph();
                     }
-                }
-                expandNodeIds.push(nodeId);
-                activeDag.addNode(node);
-                const addLogParam = _addNodeNoPersist(node, {isNoLog: true});
-                expandSQLLogParam.options.actions.push(addLogParam.options);
+                },
+                isPreAutoAlign: true
             });
-            // remove the SQL node from graph
-            // Log remove
-            const removeLogParam = _removeNodesNoPersist([dagNode.getId()], tabId, {isNoLog: true});
-            expandSQLLogParam.options.actions.push(removeLogParam.options);
-            // restore edges
-            // activeDag.restoreConnections(connections);
-            // Connections to customNode
-            for (const { parentId, childId, pos } of connections) {
-                const newParentId = oldNodeIdMap[parentId] || parentId;
-                const connectLogParam = _connectNodesNoPersist(
-                    newParentId,
-                    childId,
-                    pos,
-                    tabId,
-                    {isNoLog: true, spliceIn: true}
-                );
-                expandSQLLogParam.options.actions.push(connectLogParam.options);
-            }
+        } else {
+            return PromiseHelper.reject(`${nodeId} is not a SQL operator`);
+        }
+    }
 
-            // Stretch the graph to fit the expanded nodes
-            const autoAlignPos: Map<string, Coordinate> = new Map();
-            for (const posInfo of getAutoAlignPositions(subGraph).nodeInfos) {
-                const nodeId = oldNodeIdMap[posInfo.id];
-                if (nodeId != null) {
-                    autoAlignPos.set(nodeId, Object.assign({}, posInfo.position));
-                }
-            }
-            const moveInfo = _getExpandPositions(
-                dagNode.getPosition(),
-                expandNodeIds,
-                activeDag,
-                autoAlignPos
-            );
-            const moveLogParam = _moveNodesNoPersist(
-                tabId,
-                moveInfo.nodePosInfos,
-                { x: moveInfo.maxX, y: moveInfo.maxY },
-                { isNoLog: true }
-            );
-            expandSQLLogParam.options.actions.push(moveLogParam.options);
-
-            Log.add(expandSQLLogParam.title, expandSQLLogParam.options);
-            dagTab.turnOnSave();
-            return activeDagTab.save();
+    /**
+     * Expand the Custom node into a sub graph in place for editing purpose
+     * @param nodeId
+     */
+    export function expandCustomNode(nodeId: DagNodeId): XDPromise<void> {
+        const dagNode = activeDag.getNode(nodeId);
+        const tabId = activeDag.getTabId();
+        if (dagNode == null) {
+            return PromiseHelper.reject(`${nodeId} not exist`);
+        }
+        if (dagNode instanceof DagNodeCustom) {
+            return _expandSubgraphNode({
+                dagNode: dagNode,
+                tabId: tabId,
+                logTitle: SQLTStr.ExpandCustomOperation,
+                getInputParent: (node) => dagNode.getInputParent(node),
+                isInputNode: (node) => (node instanceof DagNodeCustomInput),
+                isOutputNode: (node) => (node instanceof DagNodeCustomOutput)
+            });
+        } else {
+            return PromiseHelper.reject(`${nodeId} is not a Custom operator`);
         }
     }
 
@@ -1768,6 +1710,143 @@ namespace DagView {
             connectionIn: inputConnection,
             connectionOut: outputConnection
         };
+    }
+
+    function _expandSubgraphNode(args: {
+        dagNode: SubgraphContainerNode,
+        tabId: string,
+        logTitle: string,
+        getInputParent: (node: any) => DagNode,
+        isInputNode: (node: DagNode) => boolean,
+        isOutputNode: (node: DagNode) => boolean
+        preExpand?: () => void,
+        isPreAutoAlign?: boolean
+    }): XDPromise<void> {
+        const {
+            dagNode, tabId, logTitle, getInputParent, isInputNode, isOutputNode,
+            preExpand = ()=>{}, isPreAutoAlign = false
+        } = args;
+
+        const dagTab = DagTabManager.Instance.getTabById(tabId);
+        if (dagTab == null) {
+            return PromiseHelper.reject(`DagTab(${tabId}) not exist`);
+        }
+        const graphExpandTo = dagTab.getGraph();
+
+        try {
+            dagTab.turnOffSave();
+            preExpand();
+            const subGraph = dagNode.getSubGraph();
+            const allSubNodes = subGraph.getAllNodes();
+            const expandNodeIds: string[] = [];
+            const expandLogParam: LogParam = {
+                title: logTitle,
+                options: {
+                    operation: SQLOps.DagBulkOperation,
+                    actions: [],
+                    dataflowId: tabId
+                }
+            };
+            const dagIds = [];
+            allSubNodes.forEach(dagNode => {
+                dagIds.push(dagNode.getId());
+            });
+            const connections: NodeConnection[] = [];
+            const dagInfoList = createNodeInfos(dagIds, subGraph);
+            const oldNodeIdMap = {};
+            dagInfoList.forEach((dagNodeInfo: DagNodeInfo) => {
+                const parents: DagNodeId[] = dagNodeInfo.parents;
+                const oldNodeId = dagNodeInfo["nodeId"];
+                const node: DagNode = DagNodeFactory.create(dagNodeInfo);
+                const nodeId: string = node.getId();
+                oldNodeIdMap[oldNodeId] = nodeId;
+                // Figure out connections
+                if (isInputNode(node)) {
+                    return;
+                } else if (isOutputNode(node)) {
+                    dagNode.getChildren().forEach((child) => {
+                        child.findParentIndices(dagNode).forEach((i) => {
+                            connections.push({
+                                parentId: parents[0],
+                                childId: child.getId(),
+                                pos: i
+                            });
+                        });
+                    });
+                    return;
+                } else {
+                    for (let i = 0; i < parents.length; i++) {
+                        let parentNode = subGraph.getNode(parents[i]);
+                        if (isInputNode(parentNode)) {
+                            parentNode = getInputParent(parentNode);
+                        }
+                        if (parentNode == null) {
+                            continue;
+                        }
+                        connections.push({
+                            parentId: parentNode.getId(),
+                            childId: nodeId,
+                            pos: i
+                        });
+                    }
+                }
+                // Add sub nodes to graph
+                expandNodeIds.push(nodeId);
+                graphExpandTo.addNode(node);
+                const addLogParam = _addNodeNoPersist(node, {isNoLog: true});
+                expandLogParam.options.actions.push(addLogParam.options);
+            });
+            // remove the container node from graph
+            const removeLogParam = _removeNodesNoPersist(
+                [dagNode.getId()],
+                tabId,
+                { isNoLog: true, isSwitchState: false });
+            expandLogParam.options.actions.push(removeLogParam.options);
+            // restore edges
+            for (const { parentId, childId, pos } of connections) {
+                const newParentId = oldNodeIdMap[parentId] || parentId;
+                const connectLogParam = _connectNodesNoPersist(
+                    newParentId,
+                    childId,
+                    pos,
+                    tabId,
+                    { isNoLog: true, spliceIn: true, isSwitchState: false }
+                );
+                expandLogParam.options.actions.push(connectLogParam.options);
+            }
+
+            // Stretch the graph to fit the expanded nodes
+            const autoAlignPos: Map<string, Coordinate> = new Map();
+            if (isPreAutoAlign) {
+                for (const posInfo of getAutoAlignPositions(subGraph).nodeInfos) {
+                    const nodeId = oldNodeIdMap[posInfo.id];
+                    if (nodeId != null) {
+                        autoAlignPos.set(nodeId, Object.assign({}, posInfo.position));
+                    }
+                }    
+            }
+            const moveInfo = _getExpandPositions(
+                dagNode.getPosition(),
+                expandNodeIds,
+                graphExpandTo,
+                autoAlignPos
+            );
+            const moveLogParam = _moveNodesNoPersist(
+                tabId,
+                moveInfo.nodePosInfos,
+                null,
+                { isNoLog: true }
+            );
+            expandLogParam.options.actions.push(moveLogParam.options);
+
+            Log.add(expandLogParam.title, expandLogParam.options);
+            dagTab.turnOnSave();
+            return dagTab.save();
+        } catch(e) {
+            console.error(e);
+            dagTab.turnOnSave();
+            return PromiseHelper.reject(e);
+        }
     }
 
     function _moveNodesNoPersist(
@@ -2854,6 +2933,7 @@ namespace DagView {
                 if (drawnConnections[connectionId]) {
                     return;
                 }
+                drawnConnections[connectionId] = true;
                 _drawConnection(parentNode.getId(), nodeId, index, tabId);
             });
 
@@ -2872,6 +2952,7 @@ namespace DagView {
                         if (drawnConnections[connectionId]) {
                             return;
                         }
+                        drawnConnections[connectionId] = true;
                         _drawConnection(nodeId, childNode.getId(), index, tabId);
                     }
                 });

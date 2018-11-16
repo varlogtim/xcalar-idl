@@ -1585,6 +1585,7 @@ SQLTStr = {
     "NewComment": "New Comment",
     "EditComment": "Edit Comment",
     "CreateCustomOperation": "Create Custom Operation",
+    "ExpandCustomOperation": "Expand Custom Operation",
     "ExpandSQLOperation": "Expand SQL Operation",
     "DrawNodesAndConnections": "Draw Nodes and Connections",
     "EraseNodesAndConnections": "Erase Nodes and Connections"
