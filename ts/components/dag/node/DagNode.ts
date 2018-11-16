@@ -649,6 +649,13 @@ abstract class DagNode {
         return stats;
     }
 
+    /**
+     * Check if number of parents is unlimited
+     */
+    public canHaveMultiParents(): boolean {
+        return this._canHaveMultiParents();
+    }
+
     private _getElapsedTime(): number {
         let cummulativeTime = 0;
         let curTime = Date.now();

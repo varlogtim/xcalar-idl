@@ -2414,9 +2414,24 @@ namespace DagView {
                         return;
                     }
 
+                    // Figure out the connectorIn element of the child node
+                    let $childConnectorIn: JQuery = null;
+                    $childNode.find('.connector.in').each((index, elem) => {
+                        const rect: ClientRect = elem.getBoundingClientRect();
+                        if (event.pageX >= rect.left && event.pageX <= rect.right &&
+                            event.pageY >= rect.top && event.pageY <= rect.bottom) {
+                            $childConnectorIn = $(elem);
+                            return false;
+                        }
+                    });
+                    
                     const childNodeId: DagNodeId = $childNode.data("nodeid");
                     const childNode: DagNode = activeDag.getNode(childNodeId);
-                    const connectorIndex: number = childNode.getNextOpenConnectionIndex();
+                    const connectorIndex: number = $childConnectorIn == null
+                        ? childNode.getNextOpenConnectionIndex() // drop in the area other than connectors, connect to the next available input
+                        : (childNode.canHaveMultiParents() // drop in one of the connectors
+                            ? childNode.getNextOpenConnectionIndex() // it's a multi-connection(such as Set) node, connect to the next available input
+                            : parseInt($childConnectorIn.data('index'))); // it's a normal node, connect to the corresponding input
                     if (!activeDag.canConnect(parentNodeId, childNodeId, connectorIndex)) {
                         StatusBox.show(DagTStr.CycleConnection, $childNode);
                         return;
@@ -2458,18 +2473,16 @@ namespace DagView {
             let $candidates: JQuery;
             let path;
             let childCoors;
-            let connectorIndex: number = activeDag.getNode(childNodeId)
-                .getNextOpenConnectionIndex();
-            let isReconnecting = false;
             let otherParentId;
             const tabId = activeDag.getTabId();
 
+            const childNode = activeDag.getNode(childNodeId);
+            const connectorIndex = childNode.canHaveMultiParents()
+                ? childNode.getNextOpenConnectionIndex()
+                : parseInt($childConnector.data("index"));
             // if child connector is in use, when drag finishes we will remove
             // this connection and replace with a new one
-            if (connectorIndex === -1) {
-                isReconnecting = true;
-                connectorIndex = parseInt($childConnector.data("index"));
-            }
+            const isReconnecting = childNode.getParents()[connectorIndex] != null;
 
             let scale = activeDag.getScale();
             new DragHelper({
