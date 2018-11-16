@@ -576,6 +576,7 @@ namespace xcManager {
         GroupByOpPanel.Instance.setup();
         JoinOpPanel.Instance.setup();
         PublishIMDOpPanel.Instance.setup();
+        UpdateIMDOpPanel.Instance.setup();
         ExportOpPanel.Instance.setup();
         IMDTableOpPanel.Instance.setup();
         JupyterOpPanel.Instance.setup();

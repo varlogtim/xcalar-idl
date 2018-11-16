@@ -97,6 +97,8 @@ class DagNodeExecutor {
                 return this._dfOut();
             case DagNodeType.PublishIMD:
                 return this._publishIMD();
+            case DagNodeType.UpdateIMD:
+                return this._updateIMD();
             case DagNodeType.Jupyter:
                 return this._jupyter();
             case DagNodeType.Extension:
@@ -583,6 +585,17 @@ class DagNodeExecutor {
         return XIApi.publishTable(this.txId, params.primaryKeys,
             this._getParentNodeTable(0), params.pubTableName,
             colInfo, params.operator);
+    }
+
+    private _updateIMD(): XDPromise<string> {
+        const node: DagNodeUpdateIMD = <DagNodeUpdateIMD>this.node;
+        const params: DagNodeUpdateIMDInputStruct = node.getParam(true);
+        let columns: ProgCol[] = node.getParents().map((parentNode) => {
+            return parentNode.getLineage().getColumns();
+        })[0] || [];
+        let colInfo: ColRenameInfo[] = xcHelper.createColInfo(columns);
+        return XIApi.updatePubTable(this.txId, this._getParentNodeTable(0),
+            params.pubTableName, colInfo, params.operator);
     }
 
     private _extension(): XDPromise<string> {

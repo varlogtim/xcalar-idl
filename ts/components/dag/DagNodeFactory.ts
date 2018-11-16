@@ -43,6 +43,8 @@ class DagNodeFactory {
                 return new DagNodeIMDTable(<DagNodeInInfo>options);
             case DagNodeType.PublishIMD:
                 return new DagNodePublishIMD(options);
+            case DagNodeType.UpdateIMD:
+                return new DagNodeUpdateIMD(options);
             case DagNodeType.DFIn:
                 return new DagNodeDFIn(<DagNodeInInfo>options);
             case DagNodeType.DFOut:

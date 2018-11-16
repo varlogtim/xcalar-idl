@@ -48,6 +48,9 @@ class DagCategories {
                 type: DagNodeType.PublishIMD
             })),
             new DagCategoryNodeOut(DagNodeFactory.create({
+                type: DagNodeType.UpdateIMD
+            })),
+            new DagCategoryNodeOut(DagNodeFactory.create({
                 type: DagNodeType.DFOut
             })),
             new DagCategoryNodeOut(DagNodeFactory.create({

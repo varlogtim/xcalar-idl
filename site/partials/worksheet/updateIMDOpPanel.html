@@ -1,0 +1,52 @@
+<!-- IMD Table Operation Panel -->
+<div id="UpdateIMDOpPanel" class="xc-hidden opPanel generalOpPanel">
+    <!-- Project Header -->
+    <header class="headerSection">
+        <div class="title"><%= dicts.UpdateIMDOp.UpdateIMD %></div>
+        <i class="close icon xi-close"></i>
+    </header>
+    <!-- content -->
+    <div class="mainContent">
+        <div class="UpdateIMD opSection">
+        <p class="instructions instrText"><%= dicts.UpdateIMDOp.UpdateIMDInstr %></p>
+        <!-- IMD Table View Top Section-->
+        <section class="modalTopMain">
+            <div class="UpdateIMDName formRow">
+                <div class="subHeading clearfix">
+                <div class="label"><%= dicts.UpdateIMDOp.table %>:</div>
+                </div>
+                <p><%= dicts.UpdateIMDOp.tableInstr %></p>
+                <div id="updatePubTableList" class="dropDownList">
+                    <input class="text pubTableInput" type="text" value="" spellcheck="false">
+                    <div class="iconWrapper">
+                        <i class="icon xi-arrow-down"></i>
+                    </div>
+                    <div class="list">
+                        <ul class="pubTables"></ul>
+                        include "../../util/menuScrollArea.html"
+                    </div>
+                </div>
+            </div>
+            <div class="IMDOperator formRow">
+                <div class="subHeading clearfix">
+                    <div class="label"><%= dicts.UpdateIMDOp.operator %>:</div>
+                </div>
+                <p><%= dicts.UpdateIMDOp.operatorInstr %></p>
+                <div class="IMDOperatorList dropDownList">
+                    <input class="text IMDOperatorInput" placeholder="Optional" type="text"
+                        value="" spellcheck="false">
+                    <div class="iconWrapper">
+                        <i class="icon xi-arrow-down"></i>
+                    </div>
+                    <div class="list">
+                        <ul class="IMDOperatorColumns"></ul>
+                        include "../../util/menuScrollArea.html"
+                    </div>
+                </div>
+                </div>
+        </div>
+        include "opPanelAdvancedSection.html"
+        include "opPanelBottomSection.html"
+    </div>
+</div>
+<!-- End of IMD Table View -->

@@ -2673,52 +2673,25 @@ namespace XIApi {
         return XcalarTargetDelete(targetName);
     }
 
-    /**
-    * XIApi.publishTable
-    * @param txId
-    * @param primaryKey, Name of the column that acts as primary key
-    * @param tableName, table's name
-    * @param pubTableName, new published table's name
-    * @param colInfo, Information about the columns within the table
-    * @param imdCol,  (optional) name of the column that acts as the operator
-    */
-    export function publishTable(
+
+    // assemblePubTable generates a rankOverColumn, assembles the opcode column, synthesizes,
+    // and indexes.
+    function assemblePubTable(
         txId: number,
-        primaryKeys: string[],
+        primaryKeyList: {name: string, ordering: XcalarOrderingT}[],
         srcTableName: string,
-        pubTableName: string,
+        indexTableName: string,
         colInfo: ColRenameInfo[],
-        imdCol?: string
-    ): XDPromise<string> {
-        if (txId == null || primaryKeys == null ||
-            srcTableName == null || pubTableName == null ||
-            colInfo == null) {
-            return PromiseHelper.reject("Invalid args in publish");
-        }
-        let keyNames: string[] = primaryKeys.map((primaryKey) => {
-            return (primaryKey[0] == "$") ?
-                primaryKey.substr(1) : primaryKey;
-        });
+        imdCol?: string): XDPromise<string>
+    {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
 
-        if (!colInfo.find((info: ColRenameInfo) => {
-            return (keyNames.includes(info.orig));
-        })) {
-            return PromiseHelper.reject("Primary Key not in Table");
-        }
-
+        let rowPromise: XDPromise<string>;
         const roColName: string = "XcalarRankOver";
         const opCode: string = "XcalarOpCode";
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        const indexTableName: string = xcHelper.randName("test") + Authentication.getHashId();
-        const opCodeTableName: string = xcHelper.randName("test") + Authentication.getHashId();
-        const rowNumTableName: string = xcHelper.randName("test") + Authentication.getHashId();
-        let rowPromise: XDPromise<string>;
-        const primaryKeyList: {name: string, ordering: XcalarOrderingT}[] =
-            primaryKeys.map((primaryKey) => {
-                primaryKey = xcHelper.parsePrefixColName(primaryKey).name;
-                return {name: primaryKey,
-                    ordering: XcalarOrderingT.XcalarOrderingUnordered};
-        });
+        const opCodeTableName: string = getNewTableName("pubTemp");
+        const rowNumTableName: string = getNewTableName("pubTemp");
+
         if (imdCol[0] == "$") {
             imdCol = imdCol.substr(1);
         }
@@ -2755,16 +2728,122 @@ namespace XIApi {
         })
         .then(function(tableName) {
             // Reorder just in case
-            // XXX TODO: expose it
             const dhtName: string = "";
             return indexHelper(txId, primaryKeyList, tableName, indexTableName, dhtName);
         })
+        .then(deferred.resolve)
+        .fail((err) => {
+            if (err.status == 599) {
+                err.error = "Failed parsing query, table may not be configured correctly."
+            }
+            return deferred.reject(err);
+        })
+        return deferred.promise();
+    }
+
+    /**
+    * XIApi.publishTable
+    * @param txId
+    * @param primaryKey, Name of the column that acts as primary key
+    * @param tableName, table's name
+    * @param pubTableName, new published table's name
+    * @param colInfo, Information about the columns within the table
+    * @param imdCol,  (optional) name of the column that acts as the operator
+    */
+    export function publishTable(
+        txId: number,
+        primaryKeys: string[],
+        srcTableName: string,
+        pubTableName: string,
+        colInfo: ColRenameInfo[],
+        imdCol?: string
+    ): XDPromise<string> {
+        if (txId == null || primaryKeys == null ||
+            srcTableName == null || pubTableName == null ||
+            colInfo == null) {
+            return PromiseHelper.reject("Invalid args in publish");
+        }
+        let keyNames: string[] = primaryKeys.map((primaryKey) => {
+            return (primaryKey[0] == "$") ?
+                primaryKey.substr(1) : primaryKey;
+        });
+
+        if (!colInfo.find((info: ColRenameInfo) => {
+            return (keyNames.includes(info.orig));
+        })) {
+            return PromiseHelper.reject("Primary Key not in Table");
+        }
+
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        const indexTableName: string = xcHelper.randName("publish") + Authentication.getHashId();
+        const primaryKeyList: {name: string, ordering: XcalarOrderingT}[] =
+            keyNames.map((primaryKey) => {
+                primaryKey = xcHelper.parsePrefixColName(primaryKey).name;
+                return {name: primaryKey,
+                    ordering: XcalarOrderingT.XcalarOrderingUnordered};
+        });
+
+        assemblePubTable(txId, primaryKeyList, srcTableName, indexTableName, colInfo, imdCol)
         .then(function() {
             // Finally publish the table
             return XcalarPublishTable(indexTableName, pubTableName);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
+        return deferred.promise();
+    }
+
+    /**
+    * XIApi.updatePubTable
+    * @param txId
+    * @param srctableName, table's name
+    * @param pubTableName, new published table's name
+    * @param colInfo, Information about the columns within the table
+    * @param imdCol,  (optional) name of the column that acts as the operator
+    */
+   export function updatePubTable(
+        txId: number,
+        srcTableName: string,
+        pubTableName: string,
+        colInfo: ColRenameInfo[],
+        imdCol?: string
+    ): XDPromise<string> {
+        if (txId == null || srcTableName == null ||
+            pubTableName == null) {
+            return PromiseHelper.reject("Invalid args in update");
+        }
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+
+        XcalarListPublishedTables("*", false, true)
+        .then((result) => {
+            let pubTable: PublishTable = result.tables.find((table: PublishTable) => {
+                return (table.name == pubTableName);
+            })
+            if (pubTable == null) {
+                return deferred.reject("Published Table does not exist");
+            }
+
+            const primaryKeyList: {name: string, ordering: XcalarOrderingT}[] =
+                pubTable.keys.map((primaryKey: XcalarApiColumnInfoT) => {
+                    return {name: primaryKey.name,
+                        ordering: XcalarOrderingT.XcalarOrderingUnordered};
+                });
+
+            const indexTableName: string = xcHelper.randName("publish") + Authentication.getHashId();
+
+
+            assemblePubTable(txId, primaryKeyList, srcTableName, indexTableName, colInfo, imdCol)
+            .then(function() {
+                // Finally publish the table
+                return XcalarUpdateTable(indexTableName, pubTableName);
+            })
+            .then((res) => {
+                return deferred.resolve();
+            })
+            .fail(deferred.reject);
+        })
+        .fail(deferred.reject);
+
         return deferred.promise();
     }
 

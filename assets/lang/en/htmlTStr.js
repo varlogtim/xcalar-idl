@@ -1083,6 +1083,15 @@ module.exports = {
         "colInstr": "Select the columns to import by checking the box next to the column name. Mandatory Columns are pre-checked and cannot be unselected. If you do not see a column in the list below, then it cannot be imported."
     },
 
+    "UpdateIMDOp": {
+        "UpdateIMD": "Update IMD Table",
+        "UpdateIMDInstr": "Update a published IMD table with new data.",
+        "table": "Published Table",
+        "tableInstr": "Select a published table to update.",
+        "operator": "IMD Operator",
+        "operatorInstr": "Optional Column that contains opcode values.",
+    },
+
     "jsonModal": {
         "header": "Data Browser"
     },

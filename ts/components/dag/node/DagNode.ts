@@ -452,7 +452,7 @@ abstract class DagNode {
     }
 
      /**
-     * @returns {boolean} return true if out Node (export/ link out / publishIMD)
+     * @returns {boolean} return true if out Node (export/ link out / publishIMD / updateIMD)
      * return false otherwise
      */
     public isOutNode(): boolean {

@@ -110,6 +110,11 @@ interface DagNodePublishIMDInputStruct {
     operator: string;
 }
 
+interface DagNodeUpdateIMDInputStruct {
+    pubTableName: string;
+    operator: string;
+}
+
 interface DagNodeExportInputStruct {
     columns: string[];
     driver: string;
