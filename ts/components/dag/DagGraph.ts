@@ -438,9 +438,12 @@ class DagGraph {
     }
 
     public getQuery(nodeId: DagNodeId): XDPromise<string> {
-        const nodesMap:  Map<DagNodeId, DagNode> = this._backTraverseNodes([nodeId], false).map;
-        const orderedNodes: DagNode[] = this._topologicalSort(nodesMap);
-        const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, this);
+        // clone graph because we will be changing each node's table and we don't
+        // want this to effect the actual graph
+        const clonedGraph = this.clone();
+        const nodesMap:  Map<DagNodeId, DagNode> = clonedGraph._backTraverseNodes([nodeId], false).map;
+        const orderedNodes: DagNode[] = clonedGraph._topologicalSort(nodesMap);
+        const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, clonedGraph);
         const checkResult = executor.checkCanExecuteAll();
         if (checkResult.hasError) {
             return PromiseHelper.reject(checkResult);
