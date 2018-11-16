@@ -207,13 +207,11 @@ class DagList {
             if (dagTab instanceof DagTabUser) {
                 this._saveUserDagList();
             }
-            deferred.resolve();
-        })
-        .fail(deferred.reject)
-        .always(() => {
             this._renderDagList();
             this._updateSection();
-        });
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
 
         return deferred.promise();
     }

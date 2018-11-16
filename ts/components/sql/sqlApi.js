@@ -296,7 +296,10 @@
             //     Transaction.cancel(txId);
             //     return PromiseHelper.reject(SQLErrTStr.Cancel);
             // }
-            XIApi.query(txId, queryName, query, jdbcCheckTime)
+            var options = {
+                jdbcCheckTime: jdbcCheckTime
+            };
+            XIApi.query(txId, queryName, query, options)
             .then(function() {
                 if (!self.sqlMode) {
                     DagFunction.commentDagNodes([tableName], sqlQueryString);

@@ -750,7 +750,10 @@ class DagNodeExecutor {
         node.updateSubGraph();
         const queryNodes = JSON.parse(params.queryStr);
         node.getSubGraph().startExecution(queryNodes);
-        XIApi.query(this.txId, queryName, params.queryStr, params.jdbcCheckTime)
+        const options = {
+            jdbcCheckTime: params.jdbcCheckTime
+        };
+        XIApi.query(this.txId, queryName, params.queryStr, options)
         .then(function(res) {
             // Set status to Done
             queryObj["status"] = SQLStatus.Done;

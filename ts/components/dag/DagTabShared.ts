@@ -20,6 +20,10 @@ class DagTabShared extends DagTab {
                     // filter out .temp dataflows
                     const id: string = sessionInfo.sessionId;
                     dags.push(new DagTabShared(name, id));
+
+                    if (sessionInfo.state === "Inactive") {
+                        this._activateSession(name);
+                    }
                 }
             });
             deferred.resolve(dags);
@@ -55,6 +59,14 @@ class DagTabShared extends DagTab {
         setSessionName(this._currentSession);
     }
 
+    private static _activateSession(sessionName: string): void {
+        // XXX TODO: remove it when backend support (13855, 14089)
+        this._switchSession(null);
+        const promise = XcalarActivateWorkbook(sessionName);
+        this._resetSession();
+        return promise;
+    }
+
     public constructor(name: string, id?: string, graph?: DagGraph) {
         name = name.replace(new RegExp(DagTabShared._delim, "g"), "/");
         if (graph != null) {
@@ -79,6 +91,16 @@ class DagTabShared extends DagTab {
 
     public getPath(): string {
         return DagTabShared.PATH + this.getName();
+    }
+
+    public getUDFContext(): {
+        udfUserName: string,
+        udfSessionName: string
+    } {
+        return {
+            udfUserName: DagTabShared._secretUser,
+            udfSessionName: this._getWKBKName()
+        };
     }
 
     public getUDFDisplayPathPrefix(): string {
@@ -163,10 +185,7 @@ class DagTabShared extends DagTab {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._deleteTableHelper()
         .then(() => {
-            DagTabShared._switchSession(null);
-            const promise = XcalarDeleteWorkbook(this._getWKBKName());
-            DagTabShared._resetSession();
-            return promise;
+            return this._deleteWKBK();
         })
         .then(() => {
             return PromiseHelper.alwaysResolve(this._tempKVStore.delete());
@@ -215,26 +234,15 @@ class DagTabShared extends DagTab {
         this._createWKBK()
         .then(() => {
             hasCreatWKBK = true;
+            // XXX TODO: remove it when backend support (13855, 14089)
+            const wkbkNmae: string = this._getWKBKName();
+            return DagTabShared._activateSession(wkbkNmae);
+        })
+        .then(() => {
             return this._writeToKVStore();
         })
         .then(() => {
-            // XXX TODO: remove it when backend support (13855)
-            const wkbkNmae: string = this._getWKBKName();
-            DagTabShared._switchSession(this._getWKBKName());
-            const promise = XcalarActivateWorkbook(wkbkNmae);
-            DagTabShared._resetSession();
-            return PromiseHelper.alwaysResolve(promise);
-        })
-        .then(() => {
             return this._uploadLocalUDFToShared();
-        })
-        .then(() => {
-            // XXX TODO: remove it when backend support (13855)
-            const wkbkNmae: string = this._getWKBKName();
-            DagTabShared._switchSession(this._getWKBKName());
-            const promise = XcalarDeactivateWorkbook(wkbkNmae);
-            DagTabShared._resetSession();
-            return PromiseHelper.alwaysResolve(promise);
         })
         .then(() => {
             deferred.resolve();
@@ -361,8 +369,24 @@ class DagTabShared extends DagTab {
     }
 
     private _deleteWKBK(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        // XXX TODO Should not require deactivate (bug 14090)
+        PromiseHelper.alwaysResolve(this._deactivateHelper())
+        .then(() => {
+            DagTabShared._switchSession(null);
+            const promise = XcalarDeleteWorkbook(this._getWKBKName());
+            DagTabShared._resetSession();
+            return promise;
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    private _deactivateHelper(): XDPromise<void> {
         DagTabShared._switchSession(null);
-        const promise = XcalarDeleteWorkbook(this._getWKBKName());
+        const promise = XcalarDeactivateWorkbook(this._getWKBKName());
         DagTabShared._resetSession();
         return promise;
     }

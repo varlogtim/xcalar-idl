@@ -2846,13 +2846,14 @@ XcalarQuery = function(
     queryName: string,
     queryString: string,
     txId: number,
-    bailOnError: boolean
+    options?: {
+        bailOnError?: boolean,
+        udfUserName?: string,
+        udfSessionName?: string
+    }
 ): XDPromise<void> {
     /* some test case :
-        Old format(deprecated)
-        "load --url file:///var/tmp/gdelt --format csv --name test"
-        "filter yelpUsers 'regex(user_id,\"--O\")'"
-        New Format:
+        Format:
             JSON.stringify([{"operation":"XcalarApiFilter",
                             "args":{"source":"gdelt#LR0",
                                     "dest":"test",
@@ -2870,13 +2871,16 @@ XcalarQuery = function(
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
 
-    //Default behavior is true so if null or undefined, then should be set to true
+    options = options || {};
+    let bailOnError: boolean = options.bailOnError; 
+    // Default behavior is true so if null or undefined, then should be set to true
     if (bailOnError == null) {
         bailOnError = true; // Stop running query on error
     }
+
     const schedName:string = ""; // New backend flag
-    const udfUserName: string = undefined;
-    const udfSessionName: string = undefined;
+    const udfUserName: string = options.udfUserName;
+    const udfSessionName: string = options.udfSessionName;
     xcalarQuery(tHandle, queryName, queryString, true, bailOnError,
         schedName, true, udfUserName, udfSessionName)
     .then(function() {
@@ -2946,21 +2950,11 @@ XcalarQueryCheck = function(
     queryName: string,
     canceling: boolean,
     txId?: number,
-    jdbcCheckTime?: number,
-    noCleanup?: boolean
+    options?: {
+        jdbcCheckTime?: number,
+        noCleanup?: boolean
+    }
 ): XDPromise<XcalarApiQueryStateOutputT> {
-    // function getDagNodeStatuses(dagOutput) {
-    //     var nodeStatuses = {};
-    //     for (var i = 0; i < dagOutput.length; i++) {
-    //         var tableName = dagOutput[i].name.name;
-    //         if (tableName.indexOf(gDSPrefix) > -1) {
-    //             tableName = tableName.substring(tableName.indexOf(gDSPrefix));
-    //         }
-    //         var state = dagOutput[i].state;
-    //         nodeStatuses[tableName] = DgDagStateTStr[state];
-    //     }
-    //     return nodeStatuses;
-    // }
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
@@ -2970,6 +2964,11 @@ XcalarQueryCheck = function(
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
+
+    options = options || {};
+    let jdbcCheckTime: number = options.jdbcCheckTime;
+    let noCleanup: boolean = options.noCleanup;
+
     let checkTime = 1000;// 1s per check
     if (canceling) {
         checkTime = 2000;
@@ -3024,18 +3023,22 @@ XcalarQueryWithCheck = function(
     queryName: string,
     queryString: string,
     txId: number,
-    bailOnError: boolean,
-    jdbcCheckTime: number,
-    noCleanup?: boolean
+    options?: {
+        bailOnError?: boolean,
+        jdbcCheckTime?: number,
+        noCleanup?: boolean,
+        udfUserName: string,
+        udfSessionName: string
+    }
 ): XDPromise<XcalarApiQueryStateOutputT> {
     const deferred: XDDeferred<XcalarApiQueryStateOutputT> = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
 
-    XcalarQuery(queryName, queryString, txId, bailOnError)
+    XcalarQuery(queryName, queryString, txId, options)
     .then(function() {
-        return XcalarQueryCheck(queryName, undefined, txId, jdbcCheckTime, noCleanup);
+        return XcalarQueryCheck(queryName, undefined, txId, options);
     })
     .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {

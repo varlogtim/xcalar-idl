@@ -20,6 +20,8 @@ namespace Transaction {
         nodeId?: DagNodeId,
         tabId?: string,
         optimizedQueryName?: string
+        udfUserName?: string;
+        udfSessionName?: string;
     }
 
     export interface TransactionDoneOptions {
@@ -55,10 +57,12 @@ namespace Transaction {
         nodeId?: DagNodeId;
         tabId?: string;
         optimizedQueryName?: string;
+        udfUserName?: string;
+        udfSessionName?: string;
     }
 
     // tx is short for transaction
-    class TXLog {
+   class TXLog {
         msgId: number;
         operation: string;
         cli: string;
@@ -66,7 +70,9 @@ namespace Transaction {
         isEdit: boolean;
         nodeId: DagNodeId;
         tabId: string;
-        optimizedQueryName?: string
+        optimizedQueryName?: string;
+        udfUserName?: string;
+        udfSessionName?: string;
 
         constructor(options: TXLogOptions) {
             this.msgId = options.msgId || null;
@@ -77,6 +83,8 @@ namespace Transaction {
             this.nodeId = options.nodeId || null;
             this.tabId = options.tabId || null;
             this.optimizedQueryName = options.optimizedQueryName || null;
+            this.udfUserName = options.udfUserName;
+            this.udfSessionName = options.udfSessionName;
         }
 
 
@@ -135,7 +143,9 @@ namespace Transaction {
             "isEdit": options.isEdit,
             "nodeId": options.nodeId,
             "tabId": options.tabId,
-            "optimizedQueryName": options.optimizedQueryName
+            "optimizedQueryName": options.optimizedQueryName,
+            "udfUserName": options.udfUserName,
+            "udfSessionName": options.udfSessionName
         });
 
         txCache[curId] = txLog;
@@ -194,6 +204,10 @@ namespace Transaction {
                 }
             }
         }
+    }
+
+    export function get(txId: number): TXLog {
+        return txCache[txId] || {};
     }
 
     /**

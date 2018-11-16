@@ -193,10 +193,13 @@ class DagGraphExecutor {
             this.getBatchQuery()
             .then((query, destTable) => {
                 dstTable = destTable;
+                const udfContext = this._getUDFContext();
                 txId = Transaction.start({
                     operation: "optimized df",
                     track: true,
-                    optimizedQueryName: destTable
+                    optimizedQueryName: destTable,
+                    udfUserName: udfContext.udfUserName,
+                    udfSessionName: udfContext.udfSessionName
                 });
 
                 if (!query.startsWith("[")) {
@@ -252,9 +255,12 @@ class DagGraphExecutor {
         });
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const promises: XDDeferred<string>[] = [];
+        const udfContext = this._getUDFContext();
         const simulateId: number = Transaction.start({
             operation: "Simulate",
-            simulate: true
+            simulate: true,
+            udfUserName: udfContext.udfUserName,
+            udfSessionName: udfContext.udfSessionName
         });
         for (let i = 0; i < nodes.length; i++) {
             promises.push(this._batchExecute.bind(this, simulateId, nodes[i]));
@@ -287,11 +293,14 @@ class DagGraphExecutor {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const node: DagNode = nodesToRun[index].node;
         const tabId: string = this._graph.getTabId();
+        const udfContext = this._getUDFContext();
         const txId: number = Transaction.start({
             operation: node.getType(),
             track: true,
             nodeId: node.getId(),
-            tabId: tabId
+            tabId: tabId,
+            udfUserName: udfContext.udfUserName,
+            udfSessionName: udfContext.udfSessionName
         });
         const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, tabId);
         dagNodeExecutor.run()
@@ -413,5 +422,21 @@ class DagGraphExecutor {
             }
         }
         return linkInNodes;
+    }
+
+    private _getUDFContext(): {
+        udfUserName: string,
+        udfSessionName: string
+    } {
+        const tabId: string = this._graph.getTabId();
+        const tab: DagTab = DagList.Instance.getDagTabById(tabId);
+        if (tab != null && tab instanceof DagTabShared) {
+            return tab.getUDFContext();
+        } else {
+            return {
+                udfUserName: undefined,
+                udfSessionName: undefined
+            };
+        }
     }
 }

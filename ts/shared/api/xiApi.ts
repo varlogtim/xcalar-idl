@@ -2235,14 +2235,18 @@ namespace XIApi {
      * @param txId
      * @param queryName
      * @param queryStr
-     * @param fromJdbc
+     * @param options
      */
     export function query(
         txId: number,
         queryName: string,
         queryStr: string,
-        jdbcCheckTime?: number,
-        noCleanup?: boolean
+        options?: {
+            jdbcCheckTime?: number,
+            noCleanup?: boolean,
+            udfUserName?: string,
+            udfSessionName?: string
+        }
     ): XDPromise<XcalarApiQueryStateOutputT> {
         if (txId == null || queryName == null || queryStr == null) {
             return PromiseHelper.reject("Invalid args in query");
@@ -2264,7 +2268,13 @@ namespace XIApi {
             }
 
             const deferred: XDDeferred<any> = PromiseHelper.deferred();
-            XcalarQueryWithCheck(queryName, queryStr, txId, false, jdbcCheckTime, noCleanup)
+            const txLog = Transaction.get(txId);
+            options = $.extend({
+                bailOnError: false,
+                udfUserName: txLog.udfUserName,
+                udfSessionName: txLog.udfSessionName
+            }, options);
+            XcalarQueryWithCheck(queryName, queryStr, txId, options)
             .then((res) => {
                 let error: {error: string, log?: string} = null;
                 try {
@@ -2568,7 +2578,11 @@ namespace XIApi {
         let queryName: string = xcHelper.randName('sql');
         let queryStr: string = JSON.stringify(arrayOfQueries);
         let deferred: XDDeferred<any> = PromiseHelper.deferred();
-        XcalarQueryWithCheck(queryName, queryStr, txId, false, jdbcCheckTime)
+        const checkOptions = {
+            bailOnError: false,
+            jdbcCheckTime: jdbcCheckTime
+        };
+        XcalarQueryWithCheck(queryName, queryStr, txId, checkOptions)
         .then((res) => {
             // results come back in random order so we create a map of names
             let resMap: Map<string, number> = new Map();
