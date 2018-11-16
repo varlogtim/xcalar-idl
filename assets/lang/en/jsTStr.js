@@ -1654,7 +1654,7 @@ DagTStr = {
     "EditDescription": "Edit Description",
     "Reset": "Dataflow node(s) reset",
     "ResetMsg": "Are you sure you want to reset the selected node(s)?",
-    "ResetAllMsg": "Are you sure you want to rest all nodes?",
+    "ResetAllMsg": "Are you sure you want to reset all nodes?",
     "CustomOpIncomplete": "Selected operator set is open",
     "CustomOpNoInput": "Cannot create a custom operator without input",
     "CustomOpNoOutput": "Cannot create a custom operator without output",

@@ -44,7 +44,7 @@ namespace DagNodeMenu {
         xcMenu.add($menu);
 
         $dfWrap.on("contextmenu", ".operator .main", function(event: JQueryEventObject) {
-            _showNodeMenu($(this), event);
+            _showNodeMenu(event, $(this));
             return false; // prevent default browser's rightclick menu
         });
 
@@ -52,6 +52,11 @@ namespace DagNodeMenu {
         // $dfWrap.on("click", ".operator .main", function(event: JQueryEventObject) {
         //     _showNodeMenu($(this), event);
         // });
+
+        $dfWrap.on("contextmenu", function(event: JQueryEventObject) {
+            _showNodeMenu(event, null);
+            return false;
+        });
 
         $dfWrap.on("click", ".edge", function(event) {
             _showEdgeMenu($(this), event);
@@ -66,18 +71,13 @@ namespace DagNodeMenu {
             _showCommentMenu($(this), event);
             return false; // prevent default browser's rightclick menu
         });
-
-        $dfWrap.on("contextmenu", function(event: JQueryEventObject) {
-            _showBackgroundMenu(event);
-            return false;
-        });
     }
 
     function _processMenuAction(action: string) {
         const $menu: JQuery = $("#dagNodeMenu");
         const nodeId: DagNodeId = $menu.data("nodeid"); // clicked node
         const nodeIds: DagNodeId[] = DagView.getSelectedNodeIds(true, true);
-        const operatorIds: DagNodeId[] = DagView.getSelectedNodeIds(true);
+        const dagNodeIds: DagNodeId[] = DagView.getSelectedNodeIds(true);
         // all selected nodes && comments
         const tabId = DagView.getActiveDag().getTabId();
         const parentNodeId: DagNodeId = $menu.data("parentnodeid");
@@ -121,40 +121,40 @@ namespace DagNodeMenu {
                 DagView.pasteNodes();
                 break;
             case ("executeNode"):
-                DagView.run(operatorIds);
+                DagView.run(dagNodeIds);
                 break;
             case ("executeAllNodes"):
                 DagView.run();
                 break;
             case ("executeNodeOptimized"):
-                DagView.run(operatorIds, true);
+                DagView.run(dagNodeIds, true);
                 break;
             case ("executeAllNodesOptimized"):
                 DagView.run(null, true);
                 break;
             case ("resetNode"):
-                DagView.reset(operatorIds);
+                DagView.reset(dagNodeIds);
                 break;
             case ("resetAllNodes"):
                 DagView.reset();
                 break;
             case ("configureNode"):
-                configureNode(_getNodeFromId(operatorIds[0]));
+                configureNode(_getNodeFromId(dagNodeIds[0]));
                 break;
             case ("previewTable"):
-                DagView.previewTable(_getNodeFromId(operatorIds[0]));
+                DagView.previewTable(_getNodeFromId(dagNodeIds[0]));
                 break;
             case ("previewAgg"):
-                DagView.previewAgg(<DagNodeAggregate>_getNodeFromId(operatorIds[0]));
+                DagView.previewAgg(<DagNodeAggregate>_getNodeFromId(dagNodeIds[0]));
                 break;
             case ("generateTable"):
-                const nodeToPreview: DagNode = _getNodeFromId(operatorIds[0]);
-                DagView.run(operatorIds).then(() => {
+                const nodeToPreview: DagNode = _getNodeFromId(dagNodeIds[0]);
+                DagView.run(dagNodeIds).then(() => {
                     DagView.previewTable(nodeToPreview);
                 });
                 break;
             case ("description"):
-                DagDescriptionModal.Instance.show(operatorIds[0]);
+                DagDescriptionModal.Instance.show(dagNodeIds[0]);
                 break;
             case ("newComment"):
                 const scale = DagView.getActiveDag().getScale();
@@ -178,16 +178,16 @@ namespace DagNodeMenu {
                 DagView.wrapCustomOperator(nodeIds);
                 break;
             case ("editCustom"):
-                DagView.editCustomOperator(operatorIds[0]);
+                DagView.editCustomOperator(dagNodeIds[0]);
                 break;
             case ("shareCustom"):
-                DagView.shareCustomOperator(operatorIds[0]);
+                DagView.shareCustomOperator(dagNodeIds[0]);
                 break;
             case ("inspectSQL"):
-                DagView.inspectSQLNode(operatorIds[0]);
+                DagView.inspectSQLNode(dagNodeIds[0]);
                 break;
             case ("expandSQL"):
-                DagView.expandSQLNode(operatorIds[0]);
+                DagView.expandSQLNode(dagNodeIds[0]);
                 break;
             case ("zoomIn"):
                 DagView.zoom(true);
@@ -199,10 +199,10 @@ namespace DagNodeMenu {
                 DagView.findLinkOutNode(nodeId);
                 break;
             case ("lockTable"):
-                DagView.getActiveDag().getNode(operatorIds[0]).setTableLock();
+                DagView.getActiveDag().getNode(dagNodeIds[0]).setTableLock();
                 break;
             case ("unlockTable"):
-                DagView.getActiveDag().getNode(operatorIds[0]).setTableLock();
+                DagView.getActiveDag().getNode(dagNodeIds[0]).setTableLock();
                 break;
             case ("download"):
                 DFDownloadModal.Instance.show(DagView.getActiveTab(), nodeIds);
@@ -391,67 +391,6 @@ namespace DagNodeMenu {
         $menu.data("connectorindex", $edge.attr("data-connectorindex"));
     }
 
-    function _showNodeMenu($clickedEl: JQuery, event: JQueryEventObject): void {
-        const $operator: JQuery = $clickedEl.closest(".operator");
-        let nodeIds = [];
-        let $operators: JQuery = $operator.add(DagView.getSelectedNodes());
-        $operators.each(function() {
-            nodeIds.push($(this).data("nodeid"));
-        });
-        const nodeId: DagNodeId = $operator.data("nodeid");
-        $menu.data("nodeid", nodeId);
-        $menu.data("nodeids", nodeIds);
-
-        let classes: string = " operatorMenu ";
-        if (DagView.isDisableActions()) {
-            // .nonEditableSubgraph hides all modification menu item
-            classes += ' nonEditableSubgraph ';
-        }
-        if (DagView.isViewOnly()) {
-            classes += ' viewOnly ';
-        }
-        $menu.find("li").removeClass("unavailable");
-
-        if (nodeIds.length === 1) {
-            classes += " single ";
-            const extraClasses: string = adjustMenuForSingleNode(nodeIds[0]);
-            classes += extraClasses + " ";
-        }  else {
-            classes += " multiple ";
-            for (let i = 0; i < nodeIds.length; i++) {
-                if (DagView.isNodeLocked(nodeIds[i])) {
-                    $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
-                          ".executeNodeOptimized, .executeAllNodesOptimized, " +
-                          ".resetNode, .cutNodes, .removeNode, .removeAllNodes, .editCustom")
-                    .addClass("unavailable");
-                    break;
-                }
-            }
-        }
-        if (DagView.getActiveDag().isNoDelete()) {
-            $menu.find(".executeNode, .executeAllNodes, " +
-                    ".executeNodeOptimized, .executeAllNodesOptimized, .resetNode")
-            .addClass("unavailable");
-        }
-        if (!DagView.hasClipboard()) {
-            $menu.find(".pasteNodes").addClass("unavailable");
-        }
-        if ($("#dagView .dataflowArea.active .comment.selected").length) {
-            classes += " commentMenu ";
-        }
-        if (!DagView.hasOptimizedNode(nodeIds)) {
-            $menu.find(".executeNodeOptimized, .executeAllNodesOptimized").addClass("unavailable");
-        }
-        adjustMenuForOpenForm();
-
-        xcHelper.dropdownOpen($clickedEl, $menu, {
-            mouseCoors: {x: event.pageX, y: event.pageY},
-            offsetY: 8,
-            floating: true,
-            classes: classes
-        });
-    }
-
     function _showCommentMenu($clickedEl: JQuery, event: JQueryEventObject): void {
         let nodeIds = DagView.getSelectedNodeIds();
         const nodeId: DagNodeId = $(this).data("nodeid");
@@ -474,30 +413,52 @@ namespace DagNodeMenu {
         });
     }
 
-    function _showBackgroundMenu(event: JQueryEventObject) {
+    // called when node is clicked or background is clicked
+    function _showNodeMenu(event: JQueryEventObject, $clickedEl?: JQuery) {
+        const $dfArea = DagView.getActiveArea();
+        const $operators = DagView.getSelectedNodes();
+        let nodeIds = [];
+        $operators.each(function() {
+            nodeIds.push($(this).data("nodeid"));
+        });
+
+        let nodeId: DagNodeId;
+        if ($clickedEl && $clickedEl.length) {
+            nodeId =  $clickedEl.closest(".operator").data("nodeid");
+        } else {
+            nodeId = nodeIds[0];
+        }
+
+        $menu.data("nodeid", nodeId);
+        $menu.data("nodeids", nodeIds);
+        $menu.find("li").removeClass("unavailable");
+
         let classes: string = "";
         if (DagView.isDisableActions()) {
             // .nonEditableSubgraph hides all modification menu item
             classes += ' nonEditableSubgraph ';
         }
-        let operatorIds = DagView.getSelectedNodeIds();
-        $menu.find("li").removeClass("unavailable");
+        if (DagView.isViewOnly()) {
+            classes += ' viewOnly ';
+        }
+        if ($dfArea.find(".comment.selected").length) {
+            classes += " commentMenu ";
+        }
+
         if (!DagView.getAllNodes().length) {
             classes += " none ";
-            $menu.find(".removeAllNodes, .executeAllNodes, .executeAllNodesOptimized, .selectAllNodes, .autoAlign")
+            $menu.find(".removeAllNodes, .resetAllNodes, .executeAllNodes, .executeAllNodesOptimized, .selectAllNodes, .autoAlign")
             .addClass("unavailable");
         }
-        if ($("#dagView .dataflowArea.active .comment").length) {
+        if ($dfArea.find(".comment").length) {
             $menu.find(".removeAllNodes").removeClass("unavailable");
         }
 
-        $menu.data("nodeids", operatorIds);
-
-        if (operatorIds.length) {
+        if (nodeIds.length) {
             classes += " operatorMenu "
-            if (operatorIds.length === 1) {
+            if (nodeIds.length === 1) {
                 classes += " single ";
-                const extraClasses: string = adjustMenuForSingleNode(operatorIds[0]);
+                const extraClasses: string = adjustMenuForSingleNode(nodeIds[0]);
                 classes += extraClasses + " ";
             } else {
                 classes += " multiple ";
@@ -505,21 +466,9 @@ namespace DagNodeMenu {
         } else {
             classes += " backgroundMenu ";
         }
-        if (DagView.isViewOnly()) {
-            classes += ' viewOnly ';
-        }
-        if (!DagView.hasClipboard()) {
-            $menu.find(".pasteNodes").addClass("unavailable");
-        }
-        if ($("#dagView .dataflowArea.active .comment.selected").length) {
-            classes += " commentMenu ";
-        }
-        if (!DagView.hasOptimizedNode(operatorIds)) {
-            $menu.find(".executeNodeOptimized, .executeAllNodesOptimized").addClass("unavailable");
-        }
 
-        for (let i = 0; i < operatorIds.length; i++) {
-            if (DagView.isNodeLocked(operatorIds[i])) {
+        for (let i = 0; i < nodeIds.length; i++) {
+            if (DagView.isNodeLocked(nodeIds[i])) {
                 $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
                       ".executeNodeOptimized, .executeAllNodesOptimized, " +
                       ".resetNode, .cutNodes, .removeNode, .removeAllNodes, .editCustom")
@@ -527,7 +476,22 @@ namespace DagNodeMenu {
                 break;
             }
         }
-        if (!operatorIds.length && DagView.getActiveDag().isNoDelete()) {
+
+        if (!DagView.hasClipboard()) {
+            $menu.find(".pasteNodes").addClass("unavailable");
+        }
+
+        // if no nodes selected, don't display executeAll if an optimized node is found
+        // if some nodes are selected, don't display executeAll if those nodes
+        // contain at least 1 optimized node
+        const optNodeIds = (nodeIds.length > 0) ? nodeIds : null;
+        if (DagView.hasOptimizedNode(optNodeIds)) {
+            $menu.find(".executeNode, .executeAllNodes").addClass("unavailable");
+        } else {
+            $menu.find(".executeNodeOptimized, .executeAllNodesOptimized").addClass("unavailable");
+        }
+
+        if (!nodeIds.length && DagView.getActiveDag().isNoDelete()) {
             $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
                         ".executeNodeOptimized, .executeAllNodesOptimized, " +
                         ".resetNode, .cutNodes, .removeNode, .removeAllNodes, .editCustom")

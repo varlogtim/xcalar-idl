@@ -640,15 +640,25 @@ namespace DagView {
         return clipboard !== null;
     }
 
-    export function hasOptimizedNode(nodeIds: DagNodeId[]): boolean {
+    export function hasOptimizedNode(nodeIds? : DagNodeId[]): boolean {
         const $dfArea = _getActiveArea();
-        for (let i = 0; i < nodeIds.length; i++) {
-            const $node = DagView.getNode(nodeIds[i], null, $dfArea);
-            if ($node.data("subtype") === DagNodeSubType.DFOutOptimized ||
-                $node.data("subtype") === DagNodeSubType.ExportOptimized) {
-                    return true;
+        if (nodeIds) {
+            for (let i = 0; i < nodeIds.length; i++) {
+                const $node = DagView.getNode(nodeIds[i], null, $dfArea);
+                if ($node.data("subtype") === DagNodeSubType.DFOutOptimized ||
+                    $node.data("subtype") === DagNodeSubType.ExportOptimized) {
+                        return true;
+                }
+            }
+        } else {
+            if ($dfArea.find('.operator[data-subtype="' + DagNodeSubType.DFOutOptimized + '"]').length) {
+                return true;
+            }
+            if ($dfArea.find('.operator[data-subtype="' + DagNodeSubType.ExportOptimized + '"]').length) {
+                return true;
             }
         }
+
         return false;
     }
 
@@ -1052,17 +1062,6 @@ namespace DagView {
         const currTabId: string = graph.getTabId();
         const lockedIds = [];
         const $dataflowArea: JQuery = _getActiveArea();
-        // prevent optimized nodes from being deleted or edited
-        if (optimized) {
-           nodeIds.forEach((nodeId) => {
-                const node = graph.getNode(nodeId);
-                if (node.getSubType() === DagNodeSubType.DFOutOptimized ||
-                    node.getSubType() === DagNodeSubType.ExportOptimized) {
-                    DagView.lockNode(nodeId);
-                    lockedIds.push(nodeId);
-                }
-            });
-        }
 
         graph.execute(nodeIds, optimized)
         .then(function() {
