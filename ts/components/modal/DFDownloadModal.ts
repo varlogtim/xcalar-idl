@@ -6,7 +6,7 @@ class DFDownloadModal {
 
     private _downloadType: string;
     private _dagTab: DagTab;
-    private _selectedNodes: Set<DagNodeId> | null;
+    private _selectedNodes: DagNodeId[];
     private _modalHelper: ModalHelper;
     private _model: {type: string, text: string, suffix: string}[];
     private readonly _DownloadTypeEnum = {
@@ -28,8 +28,7 @@ class DFDownloadModal {
 
     public show(dagTab: DagTab, nodeIds?: DagNodeId[]): void {
         if (nodeIds != null) {
-            this._selectedNodes = new Set();
-            nodeIds.forEach((nodeId) => this._selectedNodes.add(nodeId));
+            this._selectedNodes = nodeIds;
         }
 
         this._dagTab = dagTab;
@@ -202,7 +201,7 @@ class DFDownloadModal {
         } else {
             // when download parital dataflow
             const clonedTab: DagTabUser = tab.clone();
-            this._removeUnselectedNode(clonedTab);
+            this._removeUnselectedNode(clonedTab.getGraph(), this._selectedNodes);
             return clonedTab.download(name, optimized);
         }
     }
@@ -221,6 +220,7 @@ class DFDownloadModal {
             const tempName = xcHelper.randName(".temp" + tab.getShortName());
             const clonedTab: DagTabShared = new DagTabShared(tempName);
             let hasClone: boolean = false;
+            const selectedNode: DagNodeId[] = this._selectedNodes;
 
             tab.clone(tempName)
             .then(() => {
@@ -228,7 +228,7 @@ class DFDownloadModal {
                 return clonedTab.load();
             })
             .then(() => {
-                this._removeUnselectedNode(clonedTab);
+                this._removeUnselectedNode(clonedTab.getGraph(), selectedNode);
                 return clonedTab.save(true);
             })
             .then(() => {
@@ -246,11 +246,12 @@ class DFDownloadModal {
         }
     }
 
-    private _removeUnselectedNode(tab: DagTab): void {
-        const graph: DagGraph = tab.getGraph();
+    private _removeUnselectedNode(graph: DagGraph, selectedNodes: DagNodeId[]): void {
+        const res = graph.backTraverseNodes(selectedNodes);
+        const nodeToInclude: Map<DagNodeId, DagNode> = res.map;
+
         graph.getAllNodes().forEach((_node, nodeId) => {
-            // Note: this doesn't 
-            if (!this._selectedNodes.has(nodeId)) {
+            if (!nodeToInclude.has(nodeId)) {
                 graph.removeNode(nodeId);
             }
         });

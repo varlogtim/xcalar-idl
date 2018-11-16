@@ -430,7 +430,7 @@ class DagGraph {
             return this._executeGraph(null, optimized);
         } else {
             // get subGraph from nodes and execute
-            const backTrack: BackTraceInfo = this._backTraverseNodes(nodeIds, true);
+            const backTrack: BackTraceInfo = this.backTraverseNodes(nodeIds, true);
             const nodesMap:  Map<DagNodeId, DagNode> = backTrack.map;
             const startingNodes: DagNodeId[] = backTrack.startingNodes;
             return this._executeGraph(nodesMap, optimized, startingNodes);
@@ -441,7 +441,7 @@ class DagGraph {
         // clone graph because we will be changing each node's table and we don't
         // want this to effect the actual graph
         const clonedGraph = this.clone();
-        const nodesMap:  Map<DagNodeId, DagNode> = clonedGraph._backTraverseNodes([nodeId], false).map;
+        const nodesMap:  Map<DagNodeId, DagNode> = clonedGraph.backTraverseNodes([nodeId], false).map;
         const orderedNodes: DagNode[] = clonedGraph._topologicalSort(nodesMap);
         const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, clonedGraph);
         const checkResult = executor.checkCanExecuteAll();
@@ -737,6 +737,54 @@ class DagGraph {
         return traversedSet;
     }
 
+    /**
+     *
+     * @param nodeIds
+     * @param shortened specifies if the back traversal ends at nodes that are complete and have a table
+     */
+    public backTraverseNodes(nodeIds: DagNodeId[], shortened?: boolean): BackTraceInfo {
+        const nodesMap: Map<DagNodeId, DagNode> = new Map();
+        const startingNodes: DagNodeId[] = [];
+        let nodeStack: DagNode[] = nodeIds.map((nodeId) => this._getNodeFromId(nodeId));
+        let isStarting = false;
+        while (nodeStack.length > 0) {
+            isStarting = false;
+            const node: DagNode = nodeStack.pop();
+            if (node != null && !nodesMap.has(node.getId())) {
+                nodesMap.set(node.getId(), node);
+                const parents: any = node.getParents();
+                if (parents.length == 0) {
+                    isStarting = true;
+                    startingNodes.push(node.getId());
+                }
+                else if (shortened) {
+                    isStarting = true;
+                    // Check if we need to run any of the parents
+                    for (let i = 0; i < parents.length; i++) {
+                        let parent = parents[i];
+                        // parent can be null in join - left parent
+                        if (parent && parent.getState() != DagNodeState.Complete ||
+                                !DagTblManager.Instance.hasTable(parent.getTable())) {
+                            isStarting = false;
+                            break;
+                        }
+                    }
+                    if (isStarting) {
+                        startingNodes.push(node.getId());
+                        continue;
+                    }
+                }
+                if (!isStarting) {
+                    nodeStack = nodeStack.concat(parents);
+                }
+            }
+        }
+        return {
+            map: nodesMap,
+            startingNodes: startingNodes
+        }
+    }
+
     // XXX TODO, change to only get the local one
     /**
      * Get the used local UDF modules in the graph
@@ -855,51 +903,6 @@ class DagGraph {
     private _isDestNode(dagNode: DagNode): boolean {
         return dagNode.getMaxChildren() === 0;
     }
-
-    // Shortened specifies if the back traversal ends at nodes that are complete and have a table
-    private _backTraverseNodes(nodeIds: DagNodeId[], shortened?: boolean): BackTraceInfo {
-        const nodesMap: Map<DagNodeId, DagNode> = new Map();
-        const startingNodes: DagNodeId[] = [];
-        let nodeStack: DagNode[] = nodeIds.map((nodeId) => this._getNodeFromId(nodeId));
-        let isStarting = false;
-        while (nodeStack.length > 0) {
-            isStarting = false;
-            const node: DagNode = nodeStack.pop();
-            if (node != null && !nodesMap.has(node.getId())) {
-                nodesMap.set(node.getId(), node);
-                const parents: any = node.getParents();
-                if (parents.length == 0) {
-                    isStarting = true;
-                    startingNodes.push(node.getId());
-                }
-                else if (shortened) {
-                    isStarting = true;
-                    // Check if we need to run any of the parents
-                    for (let i = 0; i < parents.length; i++) {
-                        let parent = parents[i];
-                        // parent can be null in join - left parent
-                        if (parent && parent.getState() != DagNodeState.Complete ||
-                                !DagTblManager.Instance.hasTable(parent.getTable())) {
-                            isStarting = false;
-                            break;
-                        }
-                    }
-                    if (isStarting) {
-                        startingNodes.push(node.getId());
-                        continue;
-                    }
-                }
-                if (!isStarting) {
-                    nodeStack = nodeStack.concat(parents);
-                }
-            }
-        }
-        return {
-            map: nodesMap,
-            startingNodes: startingNodes
-        }
-    }
-
 
     private _topologicalSort(nodesMap?: Map<DagNodeId, DagNode>, startingNodes?: DagNodeId[]): DagNode[] {
         const orderedNodes: DagNode[] = [];
