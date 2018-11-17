@@ -191,9 +191,20 @@ class DFLinkInOpPanel extends BaseOpPanel {
     }
 
     private _validAdvancedMode() {
+        let args;
+        let error: string;
         try {
-            return this._convertAdvConfigToModel();
-        } catch (error) {
+            args = this._convertAdvConfigToModel();
+            if (args.schema.length === 0) {
+                error = ErrTStr.NoEmptySchema;
+            }
+        } catch (e) {
+            error = e;
+        }
+
+        if (error == null) {
+            return args;
+        } else {
             StatusBox.show(error, this.$panel.find(".advancedEditor"));
             return null;
         }

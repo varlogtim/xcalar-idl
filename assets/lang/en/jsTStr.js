@@ -260,6 +260,7 @@ ErrTStr = {
                             ' parameter braces.',
     'UnclosedParamBracket': 'Missing close bracket on parameter detected.',
     "FilterTypeNoSupport": 'Filter type not currently supported.',
+    'NoEmptySchema': 'Please add at least one column in the schema.',
     'NoEmptyList': 'Please choose an option on the dropdown list.',
     'NoEmptyFn': 'There are no function definitions to upload.',
     'NoEmptyOrCheck': 'Please fill out this field ' +

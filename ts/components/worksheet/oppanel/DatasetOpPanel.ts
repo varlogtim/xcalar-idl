@@ -200,6 +200,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         this._cachedBasicModeParam = paramStr;
         this._editor.setValue(paramStr);
         this._advMode = true;
+        this._gotoStep();
     }
 
     private _autoDetectSchema(skipIfHasOldSchema: boolean): XDPromise<void> {
@@ -447,15 +448,22 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         let id: string;
         let schema: ColSchema[];
         if (this._advMode) {
+            let error: string;
             try {
                 const newModel = this._convertAdvConfigToModel();
                 prefix = newModel.prefix;
                 id = newModel.source;
                 schema = newModel.schema;
                 this._synthesize = newModel.synthesize;
+                if (schema.length === 0) {
+                    error = ErrTStr.NoEmptySchema;
+                }
             } catch (e) {
-                StatusBox.show(e, $("#datasetOpPanel .advancedEditor"),
-                    false, {'side': 'right'});
+                error = e;
+            }
+            if (error != null) {
+                StatusBox.show(error, $("#datasetOpPanel .advancedEditor"),
+                false, {'side': 'right'});
                 return;
             }
         } else {

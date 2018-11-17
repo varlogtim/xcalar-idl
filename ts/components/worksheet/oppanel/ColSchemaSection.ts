@@ -36,6 +36,10 @@ class ColSchemaSection {
                 type: colType
             });
         });
+        if (!ingore && valid && schema.length === 0) {
+            valid = false;
+            StatusBox.show(ErrTStr.NoEmptySchema, $contentSection);
+        }
         return valid ? schema : null;
     }
 

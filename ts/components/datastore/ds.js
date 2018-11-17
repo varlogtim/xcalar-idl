@@ -294,10 +294,10 @@ window.DS = (function ($, DS) {
 
     DS.getSchema = function(source) {
         const ds = DS.getDSObj(source);
-        const sourceHasParams = xcHelper.checkValidParamBrackets(source, true);
         if (ds == null) {
             return PromiseHelper.reject({error: "Dataset not found"});
         }
+        const sourceHasParams = xcHelper.checkValidParamBrackets(source, true);
         if (sourceHasParams) {
             return PromiseHelper.resolve([]);
         } else {
