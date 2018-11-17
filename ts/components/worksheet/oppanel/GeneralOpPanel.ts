@@ -534,7 +534,11 @@ class GeneralOpPanel extends BaseOpPanel {
             return listLis;
         }
 
-        const aggNameMatches: string[] = this._getMatchingAggNames(input);
+        let aggNameMatches: string[] = [];
+        if (!this.codeMirrorNoAggs) {
+            aggNameMatches = this._getMatchingAggNames(input);
+        }
+
         const colNameMatches: string[] = this._getMatchingColNames(input);
         const allMatches: string[] = aggNameMatches.concat(colNameMatches);
         let count: number = 0;

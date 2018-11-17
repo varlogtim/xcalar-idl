@@ -21,11 +21,18 @@ class GeneralOpPanelModel {
         this._initialize(params);
         const baseColumnNames = options.baseColumnNames;
         if (baseColumnNames) {
-            this.baseColumns = baseColumnNames.map(colName => {
-                return this.tableColumns.find((progCol) => {
+            this.baseColumns = [];
+            baseColumnNames.forEach(colName => {
+                const progCol = this.tableColumns.find((progCol) => {
                     return progCol.getBackColName() === colName;
                 });
+                if (progCol) {
+                    this.baseColumns.push(progCol);
+                }
             });
+            if (!this.baseColumns.length) {
+                this.baseColumns = null;
+            }
         }
     }
 

@@ -445,7 +445,7 @@ class DagGraph {
         // want this to effect the actual graph
         const clonedGraph = this.clone();
         clonedGraph.setTabId(DagTab.generateId());
-        let orderedNodes: DagNode[] = nodeIds.map((nodeId) => this._getNodeFromId(nodeId));
+        let orderedNodes: DagNode[] = nodeIds.map((nodeId) => clonedGraph._getNodeFromId(nodeId));
         const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, clonedGraph, true);
         return executor.getBatchQuery();
     }
