@@ -363,14 +363,6 @@ class UDFFileManager extends BaseFileManager {
         })
         .fail((error) => {
             deferred.reject(error);
-        })
-        .always(() => {
-            this.panels.forEach((panel: FileManagerPanel) =>
-                this._buildPathTree(panel, true)
-            );
-            this.panels.forEach((panel: FileManagerPanel) =>
-                this._updateList(panel)
-            );
         });
 
         return deferred.promise();
@@ -385,9 +377,7 @@ class UDFFileManager extends BaseFileManager {
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const deleteUDFResolve = () => {
-            this.storedUDF.delete(nsPath);
             this._refreshUDF(false, true);
-            UDFPanel.Instance.updateUDF();
             this.panels.forEach((panel: FileManagerPanel) =>
                 panel.removeSearchResultNode(this.nsPathToDisplayPath(nsPath))
             );
@@ -398,12 +388,6 @@ class UDFFileManager extends BaseFileManager {
             });
 
             if (!bulk) {
-                this.panels.forEach((panel: FileManagerPanel) =>
-                    this._buildPathTree(panel, true)
-                );
-                this.panels.forEach((panel: FileManagerPanel) =>
-                    this._updateList(panel)
-                );
                 xcHelper.showSuccess(SuccessTStr.DelUDF);
             }
 
