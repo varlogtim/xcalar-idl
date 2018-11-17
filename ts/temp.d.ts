@@ -1426,5 +1426,6 @@ declare class SQLCompiler {
     public addDrops(query: string): XDPromise<any>;
     public setError(error: string): void;
     public updateQueryHistory(): void;
+    public logicalOptimize(query: string, options: {}, prependQuery: string): string;
 }
 

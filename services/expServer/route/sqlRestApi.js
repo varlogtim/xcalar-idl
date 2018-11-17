@@ -994,7 +994,6 @@ function executeSqlWithExtQuery(execid, queryStr, rowsToFetch, sessionPrefix,
         queryString: queryStr
     };
     var allSelects = {};
-    var compiler;
 
     var selectQuery = "";
     selectUsedPublishedTables(queryStr, sessionPrefix)
@@ -1022,7 +1021,6 @@ function executeSqlWithExtQuery(execid, queryStr, rowsToFetch, sessionPrefix,
     })
     .then(function(compilerObject, xcQueryString, newTableName, colNames) {
         xcConsole.log("Compilation finished");
-        compiler = compilerObject;
         orderedColumns = colNames;
         var prefixStruct = addPrefix(
             selectQuery.concat(JSON.parse(xcQueryString)),
@@ -1032,11 +1030,13 @@ function executeSqlWithExtQuery(execid, queryStr, rowsToFetch, sessionPrefix,
             usePaging);
         var xcQueryWithSelect = prefixStruct.query;
         finalTable = prefixStruct.tableName || newTableName;
-        return compiler.addDrops(xcQueryWithSelect);
-    })
-    .then(function(queryWithDrop) {
-        return compiler.execute(queryWithDrop, finalTable, orderedColumns,
-            queryStr, undefined, option);
+        var optimizations = {
+            dropAsYouGo: true
+        };
+        var queryWithDrop = compilerObject.logicalOptimize(xcQueryWithSelect,
+                                                           optimizations);
+        return compilerObject.execute(queryWithDrop, finalTable, orderedColumns,
+                                      queryStr, undefined, option);
     })
     .then(function() {
         xcConsole.log("Execution finished!");
@@ -1122,7 +1122,7 @@ function executeSqlWithExtPlan(execid, planStr, rowsToFetch, sessionPrefix,
         finalTable = newTableName;
         orderedColumns = colNames;
         return compilerObject.execute(xcQueryString, finalTable, orderedColumns,
-            "", undefined, option);
+                                      "", undefined, option);
     })
     .then(function() {
         xcConsole.log("Execution finished!");
@@ -1144,33 +1144,36 @@ function executeSqlWithExtPlan(execid, planStr, rowsToFetch, sessionPrefix,
 };
 
 function executeSqlWithQueryInteractive(userIdName, userIdUnique, wkbkName,
-    queryString, queryTablePrefix, dropAsYouGo, keepOri, randomCrossJoin) {
+    queryString, queryTablePrefix, dropAsYouGo, dropSrcTables, randomCrossJoin) {
     var deferred = PromiseHelper.deferred();
     var finalTable;
     var orderedColumns;
     var option = {
         prefix: queryTablePrefix,
         sqlMode: true,
-        queryString: queryString,
-        dropAsYouGo: dropAsYouGo, // drop all tables as soon as they are done
-        keepOri: keepOri, // if dropAsYouGo see to true, do we want to drop the
-        // starting tables
-        randomCrossJoin: randomCrossJoin // add a random index prior to cJoins
+        queryString: queryString
     };
+    var optimizations = {
+        dropAsYouGo: dropAsYouGo, // drop all tables as soon as they are done
+        dropSrcTables: dropSrcTables, // drop src tables after loaded
+        randomCrossJoin: randomCrossJoin // add a random index prior to cJoins};
+    }
     console.log("Getting plan");
     getSqlPlan(userIdName, wkbkName, queryString)
     .then(function(planStr) {
         console.log("setupAndCompile");
         return setupAndCompile(undefined, planStr, option, userIdName,
-            userIdUnique, wkbkName);
+                               userIdUnique, wkbkName);
     })
     .then(function(compilerObject, xcQueryString, newTableName, colNames) {
         xcConsole.log("Compilation finished!");
         console.log(JSON.stringify(compilerObject));
         finalTable = newTableName;
         orderedColumns = colNames;
-        return compilerObject.execute(xcQueryString, finalTable, orderedColumns,
-            queryString, undefined, option);
+        var optimizedQuery = compilerObject.logicalOptimize(xcQueryString,
+                                                            optimizations);
+        return compilerObject.execute(optimizedQuery, finalTable, orderedColumns,
+                                      queryString, undefined, option);
     })
     .then(function() {
         xcConsole.log("Execution finished!");
@@ -1188,7 +1191,7 @@ function executeSqlWithQueryInteractive(userIdName, userIdUnique, wkbkName,
 };
 
 function setupAndCompile(queryName, plan, option, userIdName, userIdUnique,
-    wkbkName) {
+                         wkbkName) {
     var deferred = jQuery.Deferred();
     var compilerObject;
     console.log("setupAndCompile1");
@@ -1348,14 +1351,14 @@ router.post("/xcsql/query", function(req, res) {
     var queryString = req.body.queryString;
     var queryTablePrefix = req.body.queryTablePrefix;
     var dropAsYouGo = req.body.dropAsYouGo;
-    var keepOri = req.body.keepOri;
+    var dropSrcTables = !req.body.keepOri;
     var randomCrossJoin = req.body.randomCrossJoin;
     var newSqlTableName = req.body.newSqlTableName;
 
     var executionOutput;
     console.log(JSON.stringify(req.body));
     executeSqlWithQueryInteractive(userIdName, userIdUnique, wkbkName,
-        queryString, queryTablePrefix, dropAsYouGo, keepOri, randomCrossJoin)
+        queryString, queryTablePrefix, dropAsYouGo, dropSrcTables, randomCrossJoin)
     .then(function(output) {
         executionOutput = output;
         xcConsole.log("sql query finishes.");

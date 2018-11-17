@@ -1198,6 +1198,67 @@
         }
         return newNode;
     };
+    SQLCompiler.genOpNode = function(operator) {
+        let sources = typeof operator.args.source === "string" ?
+                        [operator.args.source] : operator.args.source;
+        const dest = operator.args.dest;
+        if (operator.args.aggSource) {
+            sources = operator.args.aggSource.concat(sources);
+            delete operator.args.aggSource;
+        }
+        return {
+            name: dest,
+            value: operator,
+            parents: [],
+            children: [],
+            sources: sources
+        }
+    };
+    SQLCompiler.genOpGraph = function(opArray, index, opIdxMap, visitedMap, parent) {
+        let newNode = SQLCompiler.genOpNode(opArray[index]);
+        if (visitedMap[newNode.name]) {
+            // replace with cached one
+            newNode = visitedMap[newNode.name];
+        }
+        if (parent) {
+            newNode.parents.push(parent);
+        }
+        if (visitedMap[newNode.name]) {
+            return newNode;
+        }
+        for (let i = 0; i < newNode.sources.length; i++) {
+            const index = opIdxMap[newNode.sources[i]];
+            if (index >= 0) {
+                const childNode = SQLCompiler.genOpGraph(opArray, index,
+                                                 opIdxMap, visitedMap, newNode);
+                newNode.children.push(childNode);
+            }
+        }
+        visitedMap[newNode.name] = newNode;
+        return newNode;
+    };
+    SQLCompiler.insertOperators = function(opNode, prepArray, prepIdxMap, visitedMap) {
+        if (visitedMap[opNode.name]) {
+            return;
+        }
+        for (let i = 0; i < opNode.sources.length; i++) {
+            if (opNode.children[i]) {
+                SQLCompiler.insertOperators(opNode.children[i], prepArray, prepIdxMap, visitedMap);
+            }
+            if (typeof prepIdxMap[opNode.sources[i]] === "object") {
+                const prepNode = prepIdxMap[opNode.sources[i]];
+                opNode.children.push(prepNode);
+                prepNode.parents.push(opNode);
+            } else if (prepIdxMap[opNode.sources[i]] >= 0) {
+                const prepNode = SQLCompiler.genOpNode(prepArray[prepIdxMap[opNode.sources[i]]]);
+                opNode.children.push(prepNode);
+                prepNode.parents.push(opNode);
+                prepIdxMap[opNode.sources[i]] = prepNode;
+                SQLCompiler.insertOperators(prepNode, prepArray, prepIdxMap, visitedMap);
+            }
+        }
+        visitedMap[opNode.name] = true;
+    };
 
     function countNumNodes(tree) {
         var count = tree.value.class ===
@@ -1316,8 +1377,7 @@
             "org.apache.spark.sql.catalyst.plans.logical.") === 0 &&
             node.xccli) {
             if (node.xccli.endsWith(";")) {
-                node.xccli = node.xccli.substring(0,
-                                                 node.xccli.length - 1);
+                node.xccli = node.xccli.substring(0, node.xccli.length - 1);
             }
             cliArray.push(node.xccli);
         }
@@ -1553,7 +1613,106 @@
             });
             return deferred.promise();
         },
-        addDrops: function(queryString, keepOri) {
+        getCliFromOpGraph: function(opNode, cliArray) {
+            if (opNode.visited) {
+                return;
+            }
+            for (let i = 0; i < opNode.children.length; i++) {
+                this.getCliFromOpGraph(opNode.children[i], cliArray);
+            }
+            cliArray.push(JSON.stringify(opNode.value));
+            if (opNode.toDrop) {
+                opNode.toDrop.forEach(function(namePattern) {
+                    const deleteObj = {
+                        "operation": "XcalarApiDeleteObjects",
+                        "args": {
+                          "namePattern": namePattern,
+                          "srcType": "Table"
+                        }
+                    };
+                    cliArray.push(JSON.stringify(deleteObj));
+                });
+            }
+            opNode.visited = true;
+        },
+        logicalOptimize: function(queryString, options, prependQueryString) {
+            let opArray;
+            let prepArray;
+            let opGraph;
+            try {
+                opArray = JSON.parse(queryString);
+                if (prependQueryString) {
+                    prepArray = JSON.parse(prependQueryString);
+                }
+                // First traversal - build operator graph
+                // the queryString is in mix order of BFS & DFS :(
+                const opIdxMap = {};
+                for (let i = 0; i < opArray.length; i++) {
+                    opIdxMap[opArray[i].args.dest] = i;
+                }
+                opGraph  = SQLCompiler.genOpGraph(opArray, opArray.length - 1,
+                                                                  opIdxMap, {});
+            } catch (e) {
+                if (typeof SQLOpPanel !== "undefined") {
+                    SQLOpPanel.throwError(e);
+                }
+                throw e;
+            }
+            // Second (optional) traversal - add prepended operators to the correct place
+            if (prepArray) {
+                const prepIdxMap = {};
+                for (let i = 0; i < prepArray.length; i++) {
+                    prepIdxMap[prepArray[i].args.dest] = i;
+                }
+                const visitedMap = {};
+                SQLCompiler.insertOperators(opGraph, prepArray, prepIdxMap, visitedMap);
+            }
+            // Optimize by augmenting the graph (value must be valid json format)
+            // All optimizations go from here
+            if (options.randomCrossJoin) {
+                const visitedMap = {};
+                this.addIndexForCrossJoin(opGraph, visitedMap);
+            }
+            // XXX Add more but make sure addDrops is at the correct place
+            if (options.dropAsYouGo) {
+                const visitedMap = {};
+                const dependencyMap = {};
+                this.addDrops(opGraph, options.dropSrcTables, dependencyMap, visitedMap);
+            }
+            let resCli = "";
+            // Final traversal - get the result
+            const cliArray = [];
+            this.getCliFromOpGraph(opGraph, cliArray);
+            const optimizedQueryString = "[" + cliArray.join(",") + "]";
+            return optimizedQueryString;
+        },
+        addDrops: function(opNode, dropSrcTables, dependencyMap, visitedMap) {
+            if (visitedMap[opNode.name]) {
+                return;
+            }
+            dependencyMap[opNode.name] = opNode.parents.length;
+            for (let i = 0; i < opNode.children.length; i++) {
+                this.addDrops(opNode.children[i], dropSrcTables, dependencyMap, visitedMap);
+            }
+            if (opNode.children.length === 0 && dropSrcTables) {
+                assert(opNode.sources.length === 1);
+                opNode.toDrop = [opNode.sources[0]];
+            }
+            if (opNode.children.length > 0) {
+                for (let source of opNode.sources) {
+                    dependencyMap[source] -= 1;
+                    if (dependencyMap[source] === 0) {
+                        if (!opNode.toDrop) {
+                            opNode.toDrop = [];
+                        }
+                        opNode.toDrop.push(source);
+                    }
+                }
+            }
+            visitedMap[opNode.name] = true;
+        },
+        // Deprecated
+        _addDrops: function(queryString, keepOri) {
             function cliNode(ancestors) {
                 var obj = {};
                 obj.ancestors = ancestors;
@@ -1630,7 +1789,51 @@
             .fail(deferred.reject);
             return deferred.promise();
         },
-        addIndexForCrossJoin: function(queryString) {
+        addIndexForCrossJoin: function(opNode, visitedMap) {
+            if (visitedMap[opNode.name]) {
+                return;
+            }
+            const indexMap = {};
+            if (opNode.value.operation === "XcalarApiJoin" &&
+                opNode.value.args.joinType === "crossJoin") {
+                for (let i = 0; i < opNode.children.length; i++) {
+                    const childNode = opNode.children[i];
+                    if (childNode.value.args.operation !== XcalarApisT.XcalarApiIndex) {
+                        // TODO: generate an object for index
+                        const indexObj = {
+                            "operation": "XcalarApiIndex",
+                            "args": {
+                                "source": childNode.name,
+                                "dest": xcHelper.getTableName(tableName) +
+                                        "_index" + Authentication.getHashId(),
+                                "key": [
+                                    {
+                                        "name": "xcalarRecordNum",
+                                        "keyFieldName": "xcalarRecordNum",
+                                        "type": "DfInt64",
+                                        "ordering": "Unordered"
+                                    }
+                                ],
+                                "prefix": "",
+                                "dhtName": "systemRandomDht",
+                                "delaySort": false,
+                                "broadcast": false
+                            }
+                        };
+                        const childCopy = jQuery.extend(true, {}, childNode);
+                        childCopy.parent = [childNode]
+                        childNode.children = [childCopy];
+                        childNode.value = indexObj;
+                    }
+                }
+            }
+            visitedMap[opNode.name] = true;
+            for (let i = 0; i < opNode.children.length; i++) {
+                this.addIndexForCrossJoin(opNode.children[0], visitedMap);
+            }
+        },
+        // Deprecated
+        _addIndexForCrossJoin: function(queryString) {
             var outCli = "";
             var jsonObj;
             var indexMap = {};
@@ -1682,6 +1885,17 @@
                 outCli += JSON.stringify(curCliNode) + ",";
             }
             return "[" + outCli.substring(0, outCli.length - 1) + "]";
+        },
+        _addAggSource: function(cli, subqueryArray) {
+            const aggSource = subqueryArray.map(function(subquery) {
+                return subquery.subqueryTree.subqVarName;
+            });
+            if (cli.endsWith(",")) {
+                cli = cli.substring(0, cli.length - 1);
+            }
+            const cliObj = JSON.parse(cli);
+            cliObj.args.aggSource = aggSource;
+            return JSON.stringify(cliObj) + ",";
         },
         _pushDownIgnore: function(node) {
             assert(node.children.length === 1,
@@ -1840,6 +2054,9 @@
                     node.xcCols = newXcCols;
                     node.sparkCols = [];
                     node.renamedCols = newRenamedCols;
+                    if (subqueryArray.length > 0) {
+                        ret.cli = self._addAggSource(ret.cli, subqueryArray);
+                    }
                     deferred.resolve({newTableName: ret.newTableName,
                                       cli: cliStatements + ret.cli});
                 })
@@ -1855,6 +2072,9 @@
                     node.xcCols = newXcCols;
                     node.sparkCols = [];
                     node.renamedCols = newRenamedCols;
+                    if (subqueryArray.length > 0) {
+                        ret.cli = self._addAggSource(ret.cli, subqueryArray);
+                    }
                     deferred.resolve({newTableName: ret.newTableName,
                                         cli: cliStatements + ret.cli});
                 })
@@ -1972,6 +2192,9 @@
                 return self.sqlObj.filter(filterString, tableName);
             })
             .then(function(retStruct) {
+                if (subqueryArray.length > 0) {
+                    retStruct.cli = self._addAggSource(retStruct.cli, subqueryArray);
+                }
                 cliStatements += retStruct.cli;
                 deferred.resolve({
                     "newTableName": retStruct.newTableName,
