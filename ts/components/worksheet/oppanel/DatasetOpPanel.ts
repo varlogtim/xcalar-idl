@@ -69,22 +69,35 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
 
     private _setupFileLister(): void {
         const renderTemplate = (
-            files: {name: string, id: string}[],
+            files: {name: string, id: string, options: {inActivated: boolean}}[],
             folders: string[]
         ): string => {
             let html: HTML = "";
             // Add files
             files.forEach((file) => {
-                html +=
-                '<li class="fileName" data-id="' + file.id + '">' +
-                    '<i class="gridIcon icon xi_data"></i>' +
-                    '<div class="name">' + file.name + '</div>' +
-                    '<i class="viewTable icon xi-show"' +
+                if (file.options.inActivated) {
+                    html +=
+                    '<li class="fileName inActivated"' +
                     ' data-toggle="tooltip"' +
                     ' data-placement"top"' +
                     ' data-container="body"' +
-                    ' data-original-title="Preview Dataset" ></i>' +
-                '</li>';
+                    ' data-original-title="' + DSTStr.inActivated + '"' +
+                    ' data-id="' + file.id + '">' +
+                        '<i class="gridIcon icon xi_data"></i>' +
+                        '<div class="name">' + file.name + '</div>' +
+                    '</li>';
+                } else {
+                    html +=
+                    '<li class="fileName" data-id="' + file.id + '">' +
+                        '<i class="gridIcon icon xi_data"></i>' +
+                        '<div class="name">' + file.name + '</div>' +
+                        '<i class="viewTable icon xi-show"' +
+                        ' data-toggle="tooltip"' +
+                        ' data-placement"top"' +
+                        ' data-container="body"' +
+                        ' data-original-title="' + DSTStr.Preview + '"></i>' +
+                    '</li>';
+                }
             });
             // Add folders
             folders.forEach((folder) => {
@@ -304,8 +317,11 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         });
 
         this._$datasetList.on("click", "li", (event) => {
-            $("#dsOpListSection li.active").removeClass("active");
             const $li = $(event.currentTarget);
+            if ($li.hasClass("inActivated")) {
+                return;
+            }
+            $("#dsOpListSection li.active").removeClass("active");
             $li.addClass("active");
             if ($li.hasClass("fileName")) {
                 const prefix = $li.find(".name").text();

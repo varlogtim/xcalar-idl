@@ -1218,6 +1218,8 @@ DSTStr = {
     'UploadLimit': 'Upload Limit Reached',
     'UploadLimitMsg': 'Cannot upload more than 2 files at a time.',
     'Unlistable': 'Dataset is marked for deletion',
+    'inActivated': 'Dataset is not activated',
+    'Preview': "Preview dataset",
     'DetectInvalidCol': 'Invalid Column Name In Dataset',
     'DetectInvalidColInstr': 'Invalid column names may cause unexpected issues when operating on the data. We recommend cleaning the column name first.',
     'DetectInvalidColInstrForce': 'Invalid column names may cause unexpected issues when operating on the data. Please clean the column names first.',

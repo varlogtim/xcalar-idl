@@ -274,7 +274,7 @@ class DagNodeExecutor {
             if (node.getSubType() === DagNodeSubType.Cast) {
                 return this._projectCheck(tableAfterMap);
             } else {
-                return PromiseHelper.resolve(srcTable);
+                return PromiseHelper.resolve(desTable);
             }
         })
         .then(deferred.resolve)

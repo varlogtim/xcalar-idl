@@ -329,7 +329,7 @@ interface OpStatsOutput {
 
 interface FileListerFolder{
     folders: {}; // to contain multitudes of folders
-    files: {name: string, id: string}[];
+    files: {name: string, id: string, options?: object}[];
 }
 
 interface ListDSInfo {

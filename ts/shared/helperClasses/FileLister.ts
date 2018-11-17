@@ -3,13 +3,13 @@ class FileLister {
     private _currentPath: string[];
     private _futurePath: string[];
     private _$section: JQuery;
-    private _renderTemplate: (files: {name: string, id: string}[], folders: string[]) => string;
+    private _renderTemplate: (files: {name: string, id: string, options?: object}[], folders: string[]) => string;
     private _rootPath: string;
 
     public constructor(
         $section: JQuery,
         options: {
-            renderTemplate: (files: {name: string, id: string}[], folders: string[]) => string,
+            renderTemplate: (files: {name: string, id: string, options?: object}[], folders: string[]) => string,
             folderSingleClick?: boolean
         }
     ) {
@@ -33,7 +33,7 @@ class FileLister {
      * if the path represent a folder, do {path: /folderPath/, id: null}
      * @param fileList
      */
-    public setFileObj(fileList: {path: string, id: string}[]): void {
+    public setFileObj(fileList: {path: string, id: string, options?: object}[]): void {
         this._fileObject = { folders:{}, files: [] };
         for (let i = 0; i < fileList.length; i++) {
             let obj: FileListerFolder = this._fileObject;
@@ -48,7 +48,11 @@ class FileLister {
             }
             if (splitPath[splen - 1] && fileList[i].id) {
                 // when it's not a folder
-                obj.files.push({name: splitPath[splen - 1], id: fileList[i].id});
+                obj.files.push({
+                    name: splitPath[splen - 1],
+                    id: fileList[i].id,
+                    options: fileList[i].options
+                });
             }
         }
     }

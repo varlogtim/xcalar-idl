@@ -526,7 +526,10 @@ window.DS = (function ($, DS) {
                 var listObj = {
                     path: path.join("/") + "/" + el.name,
                     suffix: suffix,
-                    id: el.id
+                    id: el.id,
+                    options: {
+                        inActivated: !el.isActivated()
+                    }
                 }
                 list.push(listObj);
             }
