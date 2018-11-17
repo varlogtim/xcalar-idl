@@ -614,6 +614,10 @@
             transform: translate(-95px, -8px);
         }
 
+        .connOut > .connector.out {
+            transform: none;
+        }
+
         .operator {
             position: absolute;
         }
@@ -1283,10 +1287,10 @@
     &.operatorMenu {
         .removeNode, .copyNodes, .cutNodes, .pasteNodes, .executeNode, .resetNode, .executeNodeOptimized,
         .description, .configureNode, .previewTable, .generateTable, .viewSchema, .autoAlign,
-        .unlockNodeTable, .lockNodeTable, .download, {
+        .unlockNodeTable, .lockNodeTable, .download, .createCustom {
             display: list-item;
         }
-        .previewAgg, .createCustom, .findLinkOut {
+        .previewAgg, .findLinkOut {
             display: none;
         }
         &.multiple {
@@ -1309,7 +1313,7 @@
             .shareCustom, .editCustom, .expandCustom {
                 display: list-item;
             }
-            .configureNode {
+            .configureNode, .createCustom {
                 display: none;
             }
         }

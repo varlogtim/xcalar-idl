@@ -1663,6 +1663,7 @@ DagTStr = {
     "CustomOpNoInput": "Cannot create a custom operator without input",
     "CustomOpNoOutput": "Cannot create a custom operator without output",
     "CustomOpTooManyOutput": "Cannot create a custom operator with more than one output",
+    "CustomOpTypeNotSupport": "Cannot create a custom operator with this operation type",
     "MenuPreviewTable": "Preview Table",
     "MenuViewNotebook": "View Notebook",
     "MenuGenerateTable": "Generate Table",

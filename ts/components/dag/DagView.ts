@@ -1230,31 +1230,6 @@ namespace DagView {
             StatusBox.show(DagTStr.CustomOpIncomplete, getNode(errNodeId));
             return PromiseHelper.reject('Selected operator set is open');
         }
-        if (connectionInfo.in.length === 0 && connectionInfo.endSets.in.size === 0) {
-            // No input edges && No nodes, which have no parents while supposed to
-            // Source custom node not supported for now
-            let errNodeId = nodeIds[0];
-            for (const nodeId of nodeIds) {
-                if (activeDag.getNode(nodeId).getNumParent() === 0) {
-                    errNodeId = nodeId;
-                    break;
-                }
-            }
-            StatusBox.show(DagTStr.CustomOpNoInput, getNode(errNodeId));
-            return PromiseHelper.reject('No input');
-        }
-        if (connectionInfo.out.length === 0 && connectionInfo.endSets.out.size === 0) {
-            // We don't support custom Op w/o an output for now
-            let errNodeId = nodeIds[0];
-            for (const nodeId of nodeIds) {
-                if (activeDag.getNode(nodeId).getChildren().length === 0) {
-                    errNodeId = nodeId;
-                    break;
-                }
-            }
-            StatusBox.show(DagTStr.CustomOpNoOutput, getNode(errNodeId));
-            return PromiseHelper.reject('no output');
-        }
         if ((connectionInfo.out.length + connectionInfo.endSets.out.size) > 1) {
             // We only support one output for now
             const errNodeId = connectionInfo.out.length > 0
@@ -1262,6 +1237,14 @@ namespace DagView {
                 : Array.from(connectionInfo.endSets.out)[0];
             StatusBox.show(DagTStr.CustomOpTooManyOutput, getNode(errNodeId));
             return PromiseHelper.reject('too many output');
+        }
+        const excludeNodeTypes = new Set([DagNodeType.DFIn, DagNodeType.DFOut]);
+        for (const nodeId of nodeIds) {
+            // Cannot wrap these types of nodes inside a custom operator
+            if (excludeNodeTypes.has(activeDag.getNode(nodeId).getType())) {
+                StatusBox.show(DagTStr.CustomOpTypeNotSupport, getNode(nodeId));
+                return PromiseHelper.reject('Type not support');
+            }
         }
 
         const dagTab: DagTab = activeDagTab;
@@ -3011,9 +2994,12 @@ namespace DagView {
 
         $node.appendTo($dfArea.find(".operatorSvg"));
 
-        // Update connectorIn according to the number of input ports
+        // Update connector UI according to the number of I/O ports
         if (node instanceof DagNodeCustom) {
-            _updateConnectorIn(node.getId(), node.getNumIOPorts().input);
+            const { input, output } = node.getNumIOPorts();
+            _updateConnectorIn(node.getId(), input);
+            _updateConnectorOut(node.getId(), output);
+
         }
 
         return $node;
@@ -3065,6 +3051,11 @@ namespace DagView {
     function _updateConnectorIn(nodeId: DagNodeId, numInputs: number) {
         const g = d3.select(getNode(nodeId)[0]);
         DagCategoryBar.Instance.updateNodeConnectorIn(numInputs, g);
+    }
+
+    function _updateConnectorOut(nodeId: DagNodeId, numberOutputs: number) {
+        const g = d3.select(getNode(nodeId)[0]);
+        DagCategoryBar.Instance.updateNodeConnectorOut(numberOutputs, g);
     }
 
     function _drawConnection(

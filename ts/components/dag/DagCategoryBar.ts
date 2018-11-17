@@ -121,6 +121,26 @@ class DagCategoryBar {
         }
     }
 
+    /**
+     * Update the connectorOut UI of a node
+     * @param numOutput
+     * @param elemNode
+     */
+    public updateNodeConnectorOut(numOutput: number, elemNode: d3): void {
+        const params = this._getConnectorOutParams(numOutput);
+        const elemConnOut = elemNode.select('.connOut');
+
+        elemConnOut.empty();
+        for (const param of params) {
+            const elemPolygon = elemConnOut.append('polygon');
+            elemPolygon.attr('class', param.class.join(' '));
+            for (const attrName of Object.keys(param.attrs)) {
+                const attrValue = param.attrs[attrName];
+                elemPolygon.attr(attrName, attrValue);
+            }
+        }
+    }
+
     private _setupCategoryBar(): void {
         const self = this;
         this._renderCategoryBar();
@@ -224,6 +244,27 @@ class DagCategoryBar {
         }
     }
 
+    private _getConnectorOutParams(numOutput: number) {
+        const params: {
+            class: string[], attrs: {[attrName: string]: string}
+        }[] = [];
+        // ('<polygon class="connector out" ' +
+        // 'points="95,8 103,14 95,20" fill="#BBC7D1" ' +
+        // 'stroke="#849CB0" stroke-width="1" ry="1" rx="1" />')
+        for (let i = 0; i < numOutput; i ++) {
+            params.push({
+                class: ['connector', 'out'],
+                attrs: {
+                    'points': '95,8 103,14 95,20',
+                    'fill': '#BBC7D1',
+                    'stroke': '#849CB0', 'stroke-width': '1',
+                    'rx': '1', 'ry': '1'
+                }
+            });
+        }
+        return params;
+    }
+
     private _getConnectorInParams(numParents: number) {
         const params: {
             class: string[], attrs: {[attrName: string]: string}
@@ -293,6 +334,21 @@ class DagCategoryBar {
         return html;
     }
 
+    private _genConnectorOutHTML(numOutput: number): HTML {
+        const params = this._getConnectorOutParams(numOutput);
+
+        let html = '';
+        for (const param of params) {
+            const classes = param.class.join(' ');
+            const attrs = Object.keys(param.attrs).reduce(
+                (res, attrName) => (`${res} ${attrName}="${param.attrs[attrName]}"`),
+                '');
+            html = `${html}<polygon class="${classes}" ${attrs}></polygon>`;
+        }
+
+        return html;
+    }
+
     private _genOperatorHTML(categoryNode: DagCategoryNode, pos: { x, y }): string {
         const categoryName: DagCategoryType = categoryNode.getCategoryType();
         const operator: DagNode = categoryNode.getNode();
@@ -314,6 +370,7 @@ class DagCategoryBar {
         }
 
         const inConnector = this._genConnectorInHTML(numParents);
+        const outConnector = this._genConnectorOutHTML(numChildren);
 
         const opTitleHtml = this._formatOpTitle(opDisplayName);
 
@@ -326,10 +383,7 @@ class DagCategoryBar {
                 'data-opid="' +  operator.getId() + '" ' +
                 'transform="translate(' + pos.x + ',' + pos.y + ')" >' +
                 '<svg class="connIn">' + inConnector + '</svg>' +
-                ('<polygon class="connector out" ' +
-                'points="95,8 103,14 95,20" fill="#BBC7D1" ' +
-                'stroke="#849CB0" stroke-width="1" ry="1" rx="1" />')
-                .repeat(numChildren) +
+                '<svg class="connOut">' + outConnector + '</svg>' +
             '<rect class="main" x="6" y="0" width="90" height="28" ' +
                 'fill="white" stroke="#849CB0" stroke-width="1" ' +
                 'ry="28" rx="12" ' +

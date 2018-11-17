@@ -13,10 +13,9 @@ class DagNodeCustom extends DagNode {
         this._subGraph = new DagSubGraph();
         this._input = [];
         this._output = [];
-        this.maxParents = -1;
-        this.minParents = 0;
-        // XXX TODO: uncomment & make UI change to support export customOp
-        // this.maxChildren = 0;
+        this.maxParents = 0; // default to 0, will change when adding inputs
+        this.minParents = 0; // default to 0, will change when adding inputs
+        this.maxChildren = 0; // default to 0, will change when adding outputs 
         this.display.icon = "&#xea5e;";
 
         if (options != null && options.subGraph != null
