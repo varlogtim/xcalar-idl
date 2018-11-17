@@ -300,12 +300,7 @@ class DagGraph {
         toPos: number,
         allowCyclic?: boolean
     ): boolean {
-        let canConnect: boolean = true;
-        try {
-            this.connect(fromNodeId, toNodeId, toPos, allowCyclic, false);
-        } catch (e) {
-            canConnect = false;
-        }
+        let canConnect: boolean = this.connect(fromNodeId, toNodeId, toPos, allowCyclic, false);
         if (canConnect) {
             this.disconnect(fromNodeId, toNodeId, toPos, false);
         }
@@ -326,7 +321,7 @@ class DagGraph {
         allowCyclic: boolean = false,
         switchState: boolean = true,
         spliceIn: boolean = false
-    ): void {
+    ): boolean {
         let connectedToParent = false;
         let fromNode: DagNode;
         let toNode: DagNode;
@@ -356,12 +351,13 @@ class DagGraph {
                     tabId: this.parentTabId
                 });
             }
+            return true;
         } catch (e) {
             if (connectedToParent) {
                 // error handler
                 toNode.disconnectFromParent(fromNode, toPos);
             }
-            throw e;
+            return false;
         }
     }
 
@@ -1067,7 +1063,7 @@ class DagGraph {
         });
         const descendents = [];
         const childIndices = {};
-        const spliceFlags = {}; // whether connection index was spliced
+        const spliceFlags: any = {}; // whether connection index was spliced
         children.forEach((child) => {
             const childId = child.getId();
             const parents = child.getParents();

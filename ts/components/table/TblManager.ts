@@ -3031,49 +3031,53 @@ class TblManager {
             }
         });
 
-        $tbody[0].oncontextmenu = (event) => {
-            const $el: JQuery = $(event.target);
-            const $td: JQuery = $el.closest("td");
-            const $div: JQuery = $td.children('.clickable');
-            const isDataTd: boolean = $td.hasClass('jsonElement');
-            if ($div.length === 0) {
-                // when click sth like row marker cell, rowGrab
+        if ($tbody[0] != null) {
+            $tbody[0].oncontextmenu = (event) => {
+                const $el: JQuery = $(event.target);
+                const $td: JQuery = $el.closest("td");
+                const $div: JQuery = $td.children('.clickable');
+                const isDataTd: boolean = $td.hasClass('jsonElement');
+                if ($div.length === 0) {
+                    // when click sth like row marker cell, rowGrab
+                    return false;
+                }
+                if ($("#container").hasClass('columnPicker') ||
+                    $("#container").hasClass('dfEditState') ||
+                    $("#mainFrame").hasClass("modalOpen")
+                ) {
+                    $el.trigger('click');
+                    // not focus when in modal
+                    return false;
+                }
+
+                const colNum: number = xcHelper.parseColNum($td);
+                const rowNum: number = xcHelper.parseRowNum($td.closest("tr"));
+
+                xcTooltip.hideAll();
+                TblManager._resetColMenuInputs($el);
+
+                if ($td.find(".highlightBox").length === 0) {
+                    // same as singleSelection()
+                    TblManager.unHighlightCells();
+                    TblManager.highlightCell($td, tableId, rowNum, colNum);
+                }
+                let extraClasses = $div.closest("#dagViewTableArea").length ?
+                " style-white mode-modeling" : "";
+                xcHelper.dropdownOpen($div, $("#cellMenu"), {
+                    "colNum": colNum,
+                    "rowNum": rowNum,
+                    "classes": "tdMenu" + extraClasses, // specify classes to update colmenu's class attr
+                    "mouseCoors": {"x": event.pageX, "y": event.pageY},
+                    "isMultiCol": TblManager._isMultiColumn(),
+                    "isDataTd": isDataTd,
+                    "floating": true
+                });
+
                 return false;
-            }
-            if ($("#container").hasClass('columnPicker') ||
-                $("#container").hasClass('dfEditState') ||
-                $("#mainFrame").hasClass("modalOpen")
-            ) {
-                $el.trigger('click');
-                // not focus when in modal
-                return false;
-            }
-
-            const colNum: number = xcHelper.parseColNum($td);
-            const rowNum: number = xcHelper.parseRowNum($td.closest("tr"));
-
-            xcTooltip.hideAll();
-            TblManager._resetColMenuInputs($el);
-
-            if ($td.find(".highlightBox").length === 0) {
-                // same as singleSelection()
-                TblManager.unHighlightCells();
-                TblManager.highlightCell($td, tableId, rowNum, colNum);
-            }
-            let extraClasses = $div.closest("#dagViewTableArea").length ?
-            " style-white mode-modeling" : "";
-            xcHelper.dropdownOpen($div, $("#cellMenu"), {
-                "colNum": colNum,
-                "rowNum": rowNum,
-                "classes": "tdMenu" + extraClasses, // specify classes to update colmenu's class attr
-                "mouseCoors": {"x": event.pageX, "y": event.pageY},
-                "isMultiCol": TblManager._isMultiColumn(),
-                "isDataTd": isDataTd,
-                "floating": true
-            });
-
-            return false;
-        };
+            };
+        } else {
+            console.error("set up table col listeners error!");
+        }
 
         $thead.on("mouseenter", ".tooltipOverflow", (event) => {
             xcTooltip.auto(<HTMLElement>event.currentTarget);

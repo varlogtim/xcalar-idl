@@ -400,6 +400,7 @@ class DagTblManager {
         XcalarGetTables("*")
         .then((res: XcalarApiListDagNodesOutputT) => {
             this._synchWithBackend(res);
+            this.cache = this.cache || {}; // XXX TODO: check why this.cache can be undefined
             let toDelete: string[] = Object.keys(this.cache).filter(this._safeToDeleteTable);
             toDelete.forEach((key) => {
                 delete this.cache[key];
