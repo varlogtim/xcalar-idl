@@ -89,8 +89,9 @@ class SetOpPanelModel {
 
     public validateAdvancedMode(paramStr: string): {error: string} {
         try {
-            const input = JSON.parse(paramStr);
-            const error = this.dagNode.validateParam(input);
+            const param = JSON.parse(paramStr);
+            const error = this.dagNode.validateParam(param);
+            this._initialize(param);
             if (error) {
                 throw new Error(error.error);
             }
@@ -163,15 +164,15 @@ class SetOpPanelModel {
         this.colModel.refreshColumns(allCols, removedSets);
     }
 
-    private _initialize(params: DagNodeSetInputStruct) {
-        this.dedup = params.dedup;
+    private _initialize(param: DagNodeSetInputStruct) {
+        this.dedup = param.dedup;
         if (this.colModel) {
             // colModel not set during the first time
             const allCols = this.dagNode.getParents().map((parentNode) => {
                 return parentNode.getLineage().getColumns();
             });
 
-            this.colModel.initialize(allCols, params.columns);
+            this.colModel.initialize(allCols, param.columns);
         }
     }
 

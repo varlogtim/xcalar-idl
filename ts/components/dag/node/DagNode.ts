@@ -234,14 +234,15 @@ abstract class DagNode {
             this._clearConnectionMeta();
             return;
         }
-        const error: {error: string} = this._validateParents();
+        let error: {error: string} = this._validateParents();
+        if (error == null) {
+            error = this.validateParam();
+        }
         if (error != null) {
             // when it's not source node but no parents, it's in error state
             this.beErrorState(error.error);
-        } else if (this.validateParam() == null) {
-            this.beConfiguredState();
         } else {
-            this.beErrorState("Invalid Configuration");
+            this.beConfiguredState();
         }
     }
 
