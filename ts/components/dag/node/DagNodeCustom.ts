@@ -295,7 +295,7 @@ class DagNodeCustom extends DagNode {
      * validates a given input, if no input given, will validate, it's own input
      * @param input 
      */
-    public validateParam(input?: any): {error: string} {
+    public validateParam(_input?: any): {error: string} {
         for (const node of this.getSubGraph().getAllNodes().values()) {
             const error = node.validateParam();
             if (error != null) {

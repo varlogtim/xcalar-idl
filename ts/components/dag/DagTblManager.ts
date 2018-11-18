@@ -42,8 +42,8 @@ class DagTblManager {
                 this.configured = true;
                 deferred.resolve();
         })
-        .fail((error: ThriftError) => {
-            console.error(AlertTStr.AutoTblManagerError);
+        .fail((error) => {
+            console.error(AlertTStr.AutoTblManagerError, error);
             this.configured = false;
             this.cache = {};
             deferred.resolve();

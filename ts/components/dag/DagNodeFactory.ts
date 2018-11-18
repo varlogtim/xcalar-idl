@@ -6,7 +6,7 @@ class DagNodeFactory {
             case DagNodeType.Aggregate:
                 return new DagNodeAggregate(<DagNodeAggregateInfo>options);
             case DagNodeType.Dataset:
-                return new DagNodeDataset(options);
+                return new DagNodeDataset(<DagNodeDatasetInfo>options);
             case DagNodeType.Export:
                 return new DagNodeExport(options);
             case DagNodeType.Filter:
@@ -40,11 +40,11 @@ class DagNodeFactory {
             case DagNodeType.CustomOutput:
                 return new DagNodeCustomOutput(options);
             case DagNodeType.IMDTable:
-                return new DagNodeIMDTable(options);
+                return new DagNodeIMDTable(<DagNodeInInfo>options);
             case DagNodeType.PublishIMD:
                 return new DagNodePublishIMD(options);
             case DagNodeType.DFIn:
-                return new DagNodeDFIn(options);
+                return new DagNodeDFIn(<DagNodeInInfo>options);
             case DagNodeType.DFOut:
                 return new DagNodeDFOut(options);
             case DagNodeType.Jupyter:
@@ -58,7 +58,7 @@ class DagNodeFactory {
             case DagNodeType.Sort:
                 return new DagNodeSort(options);
             case DagNodeType.Placeholder:
-                return new DagNodePlaceholder(options);
+                return new DagNodePlaceholder(<DagNodePlaceholderInfo>options);
             case DagNodeType.Synthesize:
                 return new DagNodeSynthesize(options);
             default:

@@ -190,7 +190,7 @@ namespace DagNodeMenu {
                 DagView.expandSQLNode(dagNodeIds[0]);
                 break;
             case ("expandCustom"):
-                DagView.expandCustomNode(operatorIds[0]);
+                DagView.expandCustomNode(dagNodeIds[0]);
                 break;
             case ("zoomIn"):
                 DagView.zoom(true);

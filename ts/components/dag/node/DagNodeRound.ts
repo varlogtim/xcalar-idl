@@ -7,7 +7,7 @@ class DagNodeRound extends DagNode {
         this.minParents = 1;
         this.maxParents = 1;
         this.display.icon = "&#xe943;"
-        this.input = new DagNodeRoundInput(options.input);
+        this.input = new DagNodeRoundInput(<DagNodeRoundInputStruct>options.input);
     }
 
     /**

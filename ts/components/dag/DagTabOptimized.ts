@@ -46,6 +46,11 @@ class DagTabOptimized extends DagTab {
         return PromiseHelper.resolve();
     }
 
+    // do nothing
+    public upload(): XDPromise<void> {
+        return PromiseHelper.resolve();
+    }
+
     private _constructGraphFromQuery(queryNodes) {
         const nameIdMap = {};
         const retStruct = DagGraph.convertQueryToDataflowGraph(queryNodes);

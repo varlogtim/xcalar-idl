@@ -489,7 +489,7 @@ class DagTabShared extends DagTab {
         .then(() => {
             if (failures.length > 0) {
                 deferred.reject({
-                    error: failures.join("\n");
+                    error: failures.join("\n")
                 });
             } else {
                 deferred.resolve();

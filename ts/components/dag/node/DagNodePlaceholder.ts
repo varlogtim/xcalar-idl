@@ -2,7 +2,7 @@ class DagNodePlaceholder extends DagNode {
     protected columns: ProgCol[];
     protected name: string;
 
-    public constructor(options: DagNodeInfo) {
+    public constructor(options: DagNodePlaceholderInfo) {
         super(options);
         this.minParents = 1;
         this.input = new DagNodePlaceholderInput(options.input);
@@ -18,7 +18,8 @@ class DagNodePlaceholder extends DagNode {
     }
 
     protected _getSerializeInfo(): DagNodeInfo {
-        const serializedInfo: DagNodeInfo = super._getSerializeInfo();
+        const serializedInfo: DagNodePlaceholderInfo = <DagNodePlaceholderInfo>super._getSerializeInfo();
+        serializedInfo.name = this.name;
         return serializedInfo;
     }
 }

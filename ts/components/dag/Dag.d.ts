@@ -42,6 +42,14 @@ interface DagNodeCustomInfo extends DagNodeInfo {
     customName: string,
 }
 
+interface DagNodeIndexInfo extends DagNodeInfo {
+    columns: ColSchema[];
+}
+
+interface DagNodePlaceholderInfo extends DagNodeInfo {
+    name: string;
+}
+
 interface DagNodeInInfo extends DagNodeInfo {
     schema: ColSchema[]
 }
