@@ -140,7 +140,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
 
     private _toggleSynthesize(synthesize: boolean, schema: ColSchema[]): void {
         this._synthesize = synthesize;
-        const $prefix: JQuery = this._$elemPanel.find(".datasetPrefix input");
+        const $prefix: JQuery = this._getPrefixInput();
         if (this._synthesize) {
             $prefix.addClass("xc-disabled");
         } else {
@@ -271,27 +271,37 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         this.$panel.find(".bottomSection .btnWrap").html(btnHTML);
     }
 
+    private _goToSchemaStep(): void {
+        const prefix = this._getPrefix();
+        const id = this._getSource();
+        if (!this._checkOpArgs(prefix, id)) {
+            return;
+        }
+
+        const $nextBtn: JQuery = this.$panel.find(".bottomSection .next");
+        xcHelper.disableSubmit($nextBtn);
+
+        this._autoDetectSchema(true)
+        .then(() => {
+            this._currentStep = 2;
+            this._gotoStep();
+        })
+        .fail((error) => {
+            StatusBox.show(error.error, $nextBtn, false);
+        })
+        .always(() => {
+            xcHelper.enableSubmit($nextBtn);
+        });
+    }
+
     private _addEventListeners() {
         const $panel: JQuery = this.$panel;
         $panel.on("click", ".close, .cancel", () => {
             this.close();
         });
 
-        $panel.on("click", ".next", (event) => {
-            const $btn: JQuery = $(event.currentTarget);
-            xcHelper.disableSubmit($btn);
-
-            this._autoDetectSchema(true)
-            .then(() => {
-                this._currentStep = 2;
-                this._gotoStep();
-            })
-            .fail((error) => {
-                StatusBox.show(error.error, $btn, false);
-            })
-            .always(() => {
-                xcHelper.enableSubmit($btn);
-            });
+        $panel.on("click", ".next", () => {
+            this._goToSchemaStep();
         });
 
         $panel.on("click", ".back", () => {
@@ -324,11 +334,13 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             }
             $("#dsOpListSection li.active").removeClass("active");
             $li.addClass("active");
+            const $prefixInput: JQuery = this._getPrefixInput();
             if ($li.hasClass("fileName")) {
-                const prefix = $li.find(".name").text();
-                $("#datasetOpPanel .datasetPrefix input").val(prefix);
+                let prefix: string = $li.find(".name").text();
+                prefix = xcHelper.normalizePrefix(prefix);
+                $prefixInput.val(prefix);
             } else {
-                $("#datasetOpPanel .datasetPrefix input").val("");
+                $prefixInput.val("");
             }
         });
 
@@ -389,26 +401,28 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     }
 
     private _checkOpArgs(prefix: string, id: string): boolean {
+        const $panel: JQuery = this.$panel;
         let error: string = null;
+        let options = {side: "top"};
         let $location: JQuery = null;
         if (prefix == null || id == null) {
             error = "Please select a dataset source and provide a prefix."
-            $location = $("#datasetOpPanel .btn-submit");
+            $location = $panel.find(".btn-submit");
         } else if (DS.getDSObj(id) == null && !xcHelper.checkValidParamBrackets(id)) {
             error = "Invalid dataset source selected."
-            $location = $("#datasetOpPanel #dsOpListSection");
+            $location = $("#dsOpListSection");
         } else {
             error = xcHelper.validatePrefixName(xcHelper.replaceParamForValidation(prefix));
-            $location = $("#datasetOpPanel .datasetPrefix .inputWrap");
+            $location = $panel.find(".datasetPrefix .inputWrap");
         }
 
         if (this._advMode) {
-            $location = $("#datasetOpPanel .advancedEditor");
+            $location = $panel.find(".advancedEditor");
+            options = {side: "right"};
         }
 
         if (error != null) {
-            StatusBox.show(error, $location,
-                false, {"side": "top"});
+            StatusBox.show(error, $location, false, options);
             return false;
         }
         return true;
@@ -419,7 +433,11 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     }
 
     private _getPrefix(): string {
-        return this._$elemPanel.find(".datasetPrefix input").val().trim();
+        return this._getPrefixInput().val().trim();
+    }
+
+    private _getPrefixInput(): JQuery {
+        return this.$panel.find(".datasetPrefix input");
     }
 
     private _isSameSchema(oldSchema: ColSchema[], newSchema: ColSchema[]): boolean {

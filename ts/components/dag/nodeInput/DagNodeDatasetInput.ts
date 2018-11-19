@@ -75,6 +75,8 @@ class DagNodeDatasetInput extends DagNodeInput {
                         ColumnType.boolean,
                         ColumnType.timestamp,
                         ColumnType.mixed,
+                        ColumnType.object,
+                        ColumnType.array,
                         ColumnType.unknown
                     ],
                   "title": "The type Schema",
