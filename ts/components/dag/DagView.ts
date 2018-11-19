@@ -2015,7 +2015,7 @@ namespace DagView {
         graph.connect(parentNodeId, childNodeId, connectorIndex, false, isSwitchState,
         spliceIn);
 
-        _drawConnection(parentNodeId, childNodeId, connectorIndex, tabId);
+        _drawConnection(parentNodeId, childNodeId, connectorIndex, tabId, true);
 
         const logParam: LogParam = {
             title: SQLTStr.ConnectOperations,
@@ -2215,9 +2215,16 @@ namespace DagView {
                         return true;
                     }
                     $curEdge.remove();
-
                     _drawLineBetweenNodes(tabId, parentNodeId, childNodeId, index - 1, svg);
-                    $curEdge.attr("data-connectorindex", index - 1);
+                } else {
+                    const parentNodeId = $curEdge.attr("data-parentnodeid");
+                    if (!DagView.getNode(parentNodeId, null, $dfArea).length) {
+                        // parent could be removed and this could be a second
+                        // connection to it
+                        return true;
+                    }
+                    $curEdge.remove();
+                    _drawLineBetweenNodes(tabId, parentNodeId, childNodeId, index, svg);
                 }
             });
         } else if (graph.getNode(childNodeId).getNumParent() === 0) {
@@ -3062,7 +3069,8 @@ namespace DagView {
         parentNodeId: DagNodeId,
         childNodeId: DagNodeId,
         connectorIndex: number,
-        tabId: string
+        tabId: string,
+        newConnection?: boolean
     ): void {
         const $dfArea = DagView.getAreaByTab(tabId);
         const $childNode: JQuery = DagView.getNode(childNodeId, null, $dfArea);
@@ -3075,20 +3083,23 @@ namespace DagView {
         // if re-adding an edge from a multichildnode then increment all
         // the edges that have a greater or equal index than the removed one
         // due to splice action on children array
-        if ($dfArea.find('.edge[data-childnodeid="' + childNodeId +
-                         '"][data-connectorindex="' + connectorIndex + '"]').length) {
-            $dfArea.find('.edge[data-childnodeid="' + childNodeId + '"]').each(function () {
-                const $curEdge: JQuery = $(this);
-                const index: number = parseInt($curEdge.attr('data-connectorindex'));
-                if (index >= connectorIndex) {
-                    const parentNodeId = $curEdge.attr("data-parentnodeid");
-                    $curEdge.remove();
-                    _drawLineBetweenNodes(tabId, parentNodeId, childNodeId, index + 1, svg);
-                    $curEdge.attr("data-connectorindex", index + 1);
-                }
-            });
 
-        }
+        $dfArea.find('.edge[data-childnodeid="' + childNodeId + '"]').each(function () {
+            const $curEdge: JQuery = $(this);
+            const index: number = parseInt($curEdge.attr('data-connectorindex'));
+            if (index >= connectorIndex) {
+                const parentNodeId = $curEdge.attr("data-parentnodeid");
+                $curEdge.remove();
+                _drawLineBetweenNodes(tabId, parentNodeId, childNodeId, index + 1, svg);
+            } else if (newConnection) {
+                // only need to readjust if doing a new connection, rather
+                // than restoring connections
+                const parentNodeId = $curEdge.attr("data-parentnodeid");
+                $curEdge.remove();
+                _drawLineBetweenNodes(tabId, parentNodeId, childNodeId, index, svg);
+            }
+        });
+
         _drawLineBetweenNodes(tabId, parentNodeId, childNodeId, connectorIndex, svg);
     }
 
@@ -3111,8 +3122,7 @@ namespace DagView {
         let numConnections = connectorIndex;
         let isMulti = false;
         if (numParents === -1) {
-            numParents = 1;
-            numConnections = 0;
+            numParents = childNode.getNumParent();
             isMulti = true;
         }
 
@@ -3123,8 +3133,8 @@ namespace DagView {
 
         const childCoors: Coordinate = {
             x: childNode.getPosition().x,
-            y: childNode.getPosition().y +
-                (nodeHeight / (numParents + 1) * (1 + numConnections))
+            y: childNode.getPosition().y + 2 +
+                ((nodeHeight - 4) / (numParents + 1) * (1 + numConnections))
         };
 
         const edge = svg.append("g")
@@ -3383,6 +3393,9 @@ namespace DagView {
 
             let numParentsDrawn = 0;
             for (let i = 0; i < parents.length; i++) {
+                if (!parents[i]) {
+                    continue;
+                }
                 if (seen[parents[i].getId()] != null) {
                     numParentsDrawn++;
                 }

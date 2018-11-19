@@ -376,6 +376,9 @@ abstract class DagNode {
         if (this._canHaveMultiParents()) {
             this.parents.splice(pos, 1);
             spliced = true;
+        } else if (this.minParents === 1 && this.maxParents === 1) {
+            this.parents.splice(pos, 1);
+            // no need to track if spiced;
         } else {
             // We use delete in order to preserve left/right parent for a Join node.
             // The undefined shows up in serialization, but it is not connected to
@@ -739,6 +742,7 @@ abstract class DagNode {
         return this.parents.filter((parent) => parent.getType() !== DagNodeType.Aggregate);
     }
 
+    // set can have multi parents (unlimited), join cannot (limited to 2)
     private _canHaveMultiParents() {
         return this.maxParents === -1;
     }
