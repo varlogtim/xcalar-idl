@@ -1102,49 +1102,8 @@ window.Function.prototype.bind = function() {
         .fail(test.fail);
     }
 
-    function testLockDataset(test) {
-        var datasetName = datasetPrefix + "yelp";
-        var testLockSession = "mgmtdTestLockSession" + (new Date().getTime());
-
-        // Start a new session
-        xcalarApiSessionNew(thriftHandle, testLockSession, false, "")
-        .then(function() {
-            return xcalarApiSessionActivate(thriftHandle, testLockSession);
-        })
-        .then(function() {
-            setSessionName(testLockSession);
-            return xcalarLockDataset(thriftHandle, datasetName);
-        })
-        .then(function() {
-            return xcalarListDatasetUsers(thriftHandle, datasetName);
-        })
-        .then(function(listDatasetUsersOutput) {
-            printResult(listDatasetUsersOutput);
-
-            // Inactivate the testLockSession as we no longer need it.
-            setSessionName(session2);
-            return xcalarApiSessionInact(thriftHandle, testLockSession, false);
-        })
-        .then(function() {
-            test.pass();
-        })
-        .fail(function(reason) {
-            test.fail(StatusTStr[reason]);
-        });
-    }
-
-    function testLockAlreadyLockedDataset(test) {
-        var datasetName = datasetPrefix + "yelp";
-        xcalarLockDataset(thriftHandle, datasetName)
-        .then(function() {
-            test.fail("Locking dataset should have failed.");
-        })
-        .fail(function(reason) {
-            test.pass();
-        });
-    }
-
     function testDatasetCreate(test) {
+        setSessionName(session2)
         var sourceArgs = new DataSourceArgsT();
         sourceArgs.targetName = targetName;
         sourceArgs.path = qaTestDir + "/yelp/user";
@@ -1200,7 +1159,11 @@ window.Function.prototype.bind = function() {
     }
 
     function testDatasetDelete(test) {
-        xcalarDatasetDelete(thriftHandle, dsTestDatasetName)
+        var dsName = datasetPrefix + dsTestDatasetName;
+        xcalarDeleteDagNodes(thriftHandle, dsName, SourceTypeT.SrcDataset)
+        .then(function(deleteDagNodesOutput) {
+            return (xcalarDatasetDelete(thriftHandle, dsTestDatasetName));
+        })
         .then(function() {
             test.pass();
         })
@@ -2914,12 +2877,12 @@ window.Function.prototype.bind = function() {
     }
 
     function testApiKeyInvalidScope(test) {
-        // XXX Remove once XcalarApiWorkbookScopeUser is implemented.
+        // XXX Remove once XcalarApiKeyScopeUser is implemented.
         xcalarKeyAddOrReplace(thriftHandle,
                               XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeUser,
                               "foo", "foobar", false)
         .done(function(status) {
-            test.fail("Expected failure with scope XcalarApiWorkbookScopeUser.");
+            test.fail("Expected failure with scope XcalarApiKeyScopeUser.");
         })
         .fail(function(reason) {
             if (reason.xcalarStatus !== StatusT.StatusUnimpl) {
@@ -4586,8 +4549,6 @@ window.Function.prototype.bind = function() {
     addTestCase(testGetDatasetsInfo, "get dataset info", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListDatasetUsers, "list dataset users", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListUserDatasets, "list user's datasets", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testLockDataset, "lock dataset", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testLockAlreadyLockedDataset, "lock already locked dataset", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetQueryIndex, "test get query Index", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetQueryLoad, "test get query Load", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testIndexDatasetIntSync, "index dataset (int) Sync", defaultTimeout, TestCaseEnabled, "");

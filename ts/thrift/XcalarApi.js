@@ -658,6 +658,16 @@ xcalarTargetTypeList = runEntity.xcalarTargetTypeList = function(thriftHandle) {
     return (deferred.promise());
 };
 
+XcalarCgroupWorkItem = runEntity.XcalarCgroupWorkItem = function(inJson) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+
+    workItem.api = XcalarApisT.XcalarApiCgroup;
+    workItem.input.cgroupInput = new XcalarApiCgroupInputT();
+    workItem.input.cgroupInput.inputJson = inJson;
+    return (workItem);
+};
+
 xcalarPtSnapshotWorkItem = runEntity.xcalarPtSnapshotWorkItem = function(inJson) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -2327,46 +2337,6 @@ xcalarListUserDatasets = runEntity.xcalarListUserDatasets = function(thriftHandl
         listUserDatasetsOutput.datasetCount = 0;
 
         deferred.reject(listUserDatasetsOutput);
-    });
-
-    return (deferred.promise());
-};
-
-xcalarLockDatasetWorkItem = runEntity.xcalarLockDatasetWorkItem = function(datasetName) {
-    var workItem = new WorkItem();
-    workItem.input = new XcalarApiInputT();
-    workItem.api = XcalarApisT.XcalarApiLockDataset;
-
-    workItem.input.lockDatasetInput = new XcalarApiLockDatasetInputT();
-    workItem.input.lockDatasetInput.datasetName = datasetName;
-
-    return (workItem);
-};
-
-xcalarLockDataset = runEntity.xcalarLockDataset = function(thriftHandle, datasetName) {
-    var deferred = jQuery.Deferred();
-    if (verbose) {
-        console.log("xcalarLockDataset(datasetName = " + datasetName + ")");
-    }
-
-    var workItem = xcalarLockDatasetWorkItem(datasetName);
-
-    thriftHandle.client.queueWorkAsync(workItem)
-    .then(function(result) {
-        var status = result.output.hdr.status;
-        var log = result.output.hdr.log;
-        if (result.jobStatus != StatusT.StatusOk) {
-            status = result.jobStatus;
-        }
-        if (status != StatusT.StatusOk) {
-            deferred.reject(status, log);
-        } else {
-            deferred.resolve(result);
-        }
-    })
-    .fail(function(error) {
-        console.log("xcalarLockDataset() caught exception:", error);
-        deferred.reject(error);
     });
 
     return (deferred.promise());
@@ -5817,6 +5787,7 @@ xcalarApiImportRetinaWorkItem = runEntity.xcalarApiImportRetinaWorkItem = functi
     workItem.input.importRetinaInput.retinaJson = retinaJson;
     workItem.input.importRetinaInput.udfUserName = udfUserName;
     workItem.input.importRetinaInput.udfSessionName = udfSessionName;
+
     return (workItem);
 };
 

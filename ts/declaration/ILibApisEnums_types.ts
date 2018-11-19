@@ -133,5 +133,18 @@ declare enum XcalarApisT {
   XcalarApiListTables = 131,
   XcalarApiRestoreTable = 132,
   XcalarApiCoalesce = 133,
-  XcalarApiFunctionInvalid = 134
+  XcalarApiUserDetach = 134,
+  XcalarApiSessionActivate = 135,
+  XcalarApiPtChangeOwner = 136,
+  XcalarApiDriver = 137,
+  XcalarApiRuntimeSetParam = 138,
+  XcalarApiRuntimeGetParam = 139,
+  XcalarApiPtSnapshot = 140,
+  XcalarApiDatasetCreate = 141,
+  XcalarApiDatasetDelete = 142,
+  XcalarApiDatasetUnload = 143,
+  XcalarApiDatasetGetMeta = 144,
+  XcalarApiUdfGetResolution = 145,
+  XcalarApiCgroup = 146,
+  XcalarApiFunctionInvalid = 147
 }

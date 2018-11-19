@@ -1849,6 +1849,7 @@ declare class XcalarApiInputT {
 	coalesceInput: XcalarApiCoalesceInputT;
 	userDetachInput: XcalarApiUserDetachInputT;
 	sessionActivateInput: XcalarApiSessionActivateInputT;
+	cgroupInput: XcalarApiCgroupInputT;
 	constructor(args?: {
 		loadInput?: XcalarApiBulkLoadInputT,
 		indexInput?: XcalarApiIndexInputT,
@@ -1945,6 +1946,7 @@ declare class XcalarApiInputT {
 		coalesceInput?: XcalarApiCoalesceInputT,
 		userDetachInput?: XcalarApiUserDetachInputT,
 		sessionActivateInput?: XcalarApiSessionActivateInputT,
+		cgroupInput?: XcalarApiCgroupInputT,
 	});
 }
 declare class XcalarApiDagNodeT {
@@ -1973,6 +1975,7 @@ declare class XcalarApiDagNodeT {
 	parents: string[];
 	numChildren: number;
 	children: string[];
+	status: number;
 	constructor(args?: {
 		name?: XcalarApiDagNameT,
 		tag?: string,
@@ -1999,6 +2002,7 @@ declare class XcalarApiDagNodeT {
 		parents?: string[],
 		numChildren?: number,
 		children?: string[],
+		status?: number,
 	});
 }
 declare class XcalarApiDagOutputT {
@@ -2263,12 +2267,18 @@ declare class XcalarApiUpdateInfoT {
 	batchId: number;
 	size: number;
 	numRows: number;
+	numInserts: number;
+	numUpdates: number;
+	numDeletes: number;
 	constructor(args?: {
 		source?: string,
 		startTS?: number,
 		batchId?: number,
 		size?: number,
 		numRows?: number,
+		numInserts?: number,
+		numUpdates?: number,
+		numDeletes?: number,
 	});
 }
 declare class XcalarApiTableInfoT {
@@ -2317,6 +2327,20 @@ declare class XcalarApiSchedParamT {
 		schedName?: string,
 		cpusReservedInPercent?: number,
 		runtimeType?: number
+	});
+}
+
+declare class XcalarApiCgroupInputT {
+	inputJson: string;
+	constructor(args?: {
+		inputJson?: string,
+	})
+}
+
+declare class XcalarApiCgroupOutputT {
+	outputJson: string;
+	constructor(args?: {
+		outputJson?: string,
 	});
 }
 
@@ -2391,6 +2415,7 @@ declare class XcalarApiOutputResultT {
 	listTablesOutput: XcalarApiListTablesOutputT;
 	selectOutput: XcalarApiNewTableOutputT;
 	updateOutput: XcalarApiUpdateOutputT;
+	cgroupOutput: XcalarApiCgroupOutputT;
 	constructor(args?: {
 		getVersionOutput?: XcalarApiGetVersionOutputT,
 		statusOutput?: number,
@@ -2462,6 +2487,7 @@ declare class XcalarApiOutputResultT {
 		listTablesOutput?: XcalarApiListTablesOutputT,
 		selectOutput?: XcalarApiNewTableOutputT,
 		updateOutput?: XcalarApiUpdateOutputT,
+		cgroupOutput?: XcalarApiCgroupOutputT,
 	});
 }
 declare class XcalarApiOutputHeaderT {
