@@ -84,7 +84,7 @@ class DagTblManager {
     public sweep(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         if (!this.configured) {
-            return deferred.resolve();
+            return PromiseHelper.resolve();
         }
         XcalarGetTables("*")
         .then((res: XcalarApiListDagNodesOutputT) => {
@@ -227,7 +227,7 @@ class DagTblManager {
         window.clearInterval(this.timer);
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         if (!this.configured) {
-            return deferred.resolve();
+            return PromiseHelper.resolve();
         }
         let tables: string[] = [];
         for (let key in this.cache) {
@@ -257,7 +257,7 @@ class DagTblManager {
         window.clearInterval(this.timer);
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         if (!this.configured) {
-            return deferred.resolve();
+            return PromiseHelper.resolve();
         }
         let tables: string[] = [];
         if (force) {
@@ -291,7 +291,7 @@ class DagTblManager {
         window.clearInterval(this.timer);
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         if (!this.configured) {
-            return deferred.resolve();
+            return PromiseHelper.resolve();
         }
         XcalarGetTables("*")
         .then((res: XcalarApiListDagNodesOutputT) => {
@@ -395,7 +395,7 @@ class DagTblManager {
         window.clearInterval(this.timer);
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         if (!this.configured) {
-            deferred.resolve();
+            return PromiseHelper.resolve();
         }
         XcalarGetTables("*")
         .then((res: XcalarApiListDagNodesOutputT) => {
@@ -462,7 +462,7 @@ class DagTblManager {
     private _queryDelete(tables: string[]): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         if (tables.length == 0) {
-            return deferred.resolve();
+            return PromiseHelper.resolve();
         }
         var sql = {
             "operation": SQLOps.DeleteTable,
