@@ -3,16 +3,41 @@ class XcTableViewer extends XcViewer {
     protected rowInput: RowInput;
     protected skew: TableSkew;
     private rowManager: RowManager;
+    private dataflowTabId: string;
+    private dagNode: DagNode;
 
-    public constructor(table: TableMeta) {
-        const id: string = table.getName(); // use table name as unique id
-        super(id);
+    public static getTableFromDagNode(dagNode: DagNode): TableMeta {
+        const tableName: string = dagNode.getTable();
+        // XXX this code should be change after refine the table meta structure
+        const tableId: TableId = xcHelper.getTableId(tableName);
+        let table: TableMeta = gTables[tableId];
+        if (!table) {
+            table = new TableMeta({
+                tableName: tableName,
+                tableId: tableId,
+                tableCols: [ColManager.newDATACol()]
+            });
+            gTables[tableId] = table;
+        }
+        const columns: ProgCol[] = dagNode.getLineage().getColumns(true);
+        if (columns != null && columns.length > 0) {
+            table.tableCols = columns.concat(ColManager.newDATACol());
+        }
+        return table;
+    }
+
+    public constructor(tabId: string, dagNode: DagNode, table: TableMeta) {
+        const tableName: string = table.getName(); // use table name as unique id
+        super(tableName);
+        this.dataflowTabId = tabId;
+        this.dagNode = dagNode;
         this.table = table;
         this.rowManager = new RowManager(table, this.getView());
         this.rowInput = new RowInput(this.rowManager);
         this.skew = new TableSkew(this.table);
         this._addEventListeners();
         this._setTableMode(true);
+        DagTblManager.Instance.resetTable(tableName);
     }
 
     /**
@@ -20,6 +45,7 @@ class XcTableViewer extends XcViewer {
      */
     public clear(): XDPromise<void> {
         super.clear();
+        this._removeTableIconOnDagNode();
         this.rowInput.clear();
         this.skew.clear();
         return this.table.freeResultset();
@@ -30,8 +56,7 @@ class XcTableViewer extends XcViewer {
      */
     public render($container: JQuery): XDPromise<void> {
         super.render($container);
-        
-
+        this._showTableIconOnDagNode();
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this.table.getMetaAndResultSet()
         .then(() => {
@@ -54,6 +79,18 @@ class XcTableViewer extends XcViewer {
         return this.rowManager;
     }
 
+    public getDataflowTabId(): string {
+        return this.dataflowTabId;
+    }
+
+    public getNodeId(): DagNodeId {
+        return this.dagNode.getId();
+    }
+
+    public replace(table: TableMeta): XcTableViewer {
+        return new XcTableViewer(this.dataflowTabId, this.dagNode, table);
+    }
+
     protected _afterGenerateTableShell(): void {};
     protected _afterBuildInitialTable(_tableId: TableId): void {};
 
@@ -64,6 +101,39 @@ class XcTableViewer extends XcViewer {
             TblFunc.moveFirstColumn(null);
             TblFunc.alignLockIcon();
         });
+    }
+
+    private _getNodeEl(): JQuery {
+        return DagView.getNode(this.dagNode.getId(), this.dataflowTabId);
+    }
+
+    private _showTableIconOnDagNode(): void {
+        const $node: JQuery = this._getNodeEl();
+        if ($node.length && !$node.find(".tableIcon").length) {
+            const g = d3.select($node.get(0)).append("g")
+                    .attr("class", "tableIcon")
+                    .attr("transform", "translate(65, 2)");
+            g.append("rect")
+                .attr("x", 0)
+                .attr("y", -8)
+                .attr("width", 15)
+                .attr("height", "13")
+                .style("fill", "#378CB3");
+            g.append("text")
+                .attr("font-family", "icomoon")
+                .attr("font-size", 8)
+                .attr("fill", "white")
+                .attr("x", 3)
+                .attr("y", 2)
+                .text(function(_d) {return "\uea07"});
+        }
+    }
+
+    private _removeTableIconOnDagNode(): void {
+        const $node: JQuery = this._getNodeEl();
+        if ($node.length) {
+            d3.select($node.get(0)).selectAll(".tableIcon").remove();
+        }
     }
 
     private _startBuildTable(): XDPromise<void> {

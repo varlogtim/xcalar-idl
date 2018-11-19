@@ -7,66 +7,106 @@ class DagTable {
         return this._instance || (this._instance = new this());
     }
 
-    private viewer: XcViewer;
-    private $node: JQuery;
+    // map key is dataflow tab id
+    private _viewers: Map<string, XcViewer>;
+    private _currentViewer: XcViewer;
 
     private constructor() {
         this._addEventListeners();
         this._searchBar = new DagTableSearchBar(this._container);
+        this._viewers = new Map();
     }
 
-    /**
-     * Show view of data
-     * @param viewer {XcViewer} viewer to add to the component
-     */
-    public show(viewer: XcViewer, $node?: JQuery): XDPromise<void> {
+    public previewTable(tabId: string, dagNode: DagNode): XDPromise<void> {
+        const table: TableMeta = XcTableViewer.getTableFromDagNode(dagNode);
+        const viewer: XcTableViewer = new XcTableViewer(tabId, dagNode, table);
+        this._viewers.set(tabId, viewer);
+        return this._show(viewer);
+    }
+
+    public previewDataset(dsId: string) {
+        const viewer: XcDatasetViewer = new XcDatasetViewer(DS.getDSObj(dsId));
+        return this._show(viewer);
+    }
+
+    public switchTab(tabId: string): void {
+        if (this._currentViewer instanceof XcDatasetViewer) {
+            // dataset viewer has higher priority
+            return;
+        }
+        
+        const viewer = this._viewers.get(tabId);
+        if (viewer == null) {
+            this._reset();
+        } else {
+            this._show(viewer);
+        }
+    }
+
+    public replaceTable(table: TableMeta): XDPromise<void> {
+        if (this._currentViewer instanceof XcDatasetViewer) {
+            return PromiseHelper.resolve(); // invalid case
+        }
+        const currentViewer: XcTableViewer = <XcTableViewer>this._currentViewer;
+        const viewer = currentViewer.replace(table);
         if (this._isSameViewer(viewer)) {
             return PromiseHelper.resolve();
         }
-
-        this._reset();
-        this.viewer = viewer;
-        this.$node = $node;
-        this._showTableIcon();
-        return this._showViewer();
-    }
-
-    public replace(viewer: XcViewer): XDPromise<void> {
-        if (this._isSameViewer(viewer)) {
-            return PromiseHelper.resolve();
-        }
-        this._resetViewer();
-        this.viewer = viewer;
-        return this._showViewer();
+        this._viewers.set(currentViewer.getDataflowTabId(), viewer);
+        return this._show(viewer);
     }
 
     public getTable(): string {
-        return this.viewer ? this.viewer.getId() : null;
+        return this._currentViewer ? this._currentViewer.getId() : null;
     }
 
     public getView(): JQuery {
-        return this.viewer ? this.viewer.getView() : null;
+        return this._currentViewer ? this._currentViewer.getView() : null;
     }
 
     public getBindNodeId(): DagNodeId {
-        return this.$node ? this.$node.data("nodeid") : null;
+        if (this._currentViewer != null && this._currentViewer instanceof XcTableViewer) {
+            return this._currentViewer.getNodeId();
+        } else {
+            return null;
+        }
     }
 
     public getSearchBar(): DagTableSearchBar {
         return this._searchBar;
     }
 
+
+    public closeDatasetPreview(): void {
+        if (this._currentViewer instanceof XcDatasetViewer) {
+            this.close();
+        }
+    }
+
     /**
      * close the preview
      */
     public close(): void {
+        if (this._currentViewer instanceof XcTableViewer) {
+            this._viewers.delete(this._currentViewer.getDataflowTabId());
+        }
         this._getContainer().addClass("xc-hidden").parent().removeClass("tableViewMode").addClass("noPreviewTable");
         this._reset();
     }
 
     public isTableFromTab(tabId: string): boolean {
-        const tableName: string = this.getTable();
-        return tableName != null && tableName.includes(tabId);
+        return this._currentViewer instanceof XcTableViewer &&
+                this._currentViewer.getDataflowTabId() === tabId;
+    }
+
+    private _show(viewer: XcViewer): XDPromise<void> {
+        if (this._isSameViewer(viewer)) {
+            return PromiseHelper.resolve();
+        }
+
+        this._reset();
+        this._currentViewer = viewer;
+        return this._showViewer();
     }
 
     private _showViewer(): XDPromise<void> {
@@ -74,25 +114,26 @@ class DagTable {
         const $container: JQuery = this._getContainer();
         $container.parent().removeClass("noPreviewTable").addClass("tableViewMode");
         $container.removeClass("xc-hidden").addClass("loading");
-        if (this.viewer instanceof XcDatasetViewer) {
+        if (this._currentViewer instanceof XcDatasetViewer) {
             $container.addClass("dataset");
         } else {
             $container.removeClass("dataset");
         }
-        this._showTableIcon();
-        xcHelper.showRefreshIcon($container, true,
-            this.viewer.render(this._getContainer())
-            .then(() => {
-                $container.removeClass("loading");
-                TblFunc.alignScrollBar($container.find(".dataTable").eq(0));
-                deferred.resolve();
-            })
-            .fail((error) => {
-                this._error(error);
-                deferred.reject(error);
-        }));
 
-        return deferred.promise();
+        this._currentViewer.render(this._getContainer())
+        .then(() => {
+            $container.removeClass("loading");
+            TblFunc.alignScrollBar($container.find(".dataTable").eq(0));
+            deferred.resolve();
+        })
+        .fail((error) => {
+            this._error(error);
+            deferred.reject(error);
+        });
+        
+        const promise = deferred.promise();
+        xcHelper.showRefreshIcon($container, true, promise);
+        return promise;
     }
 
     private _addEventListeners(): void {
@@ -118,8 +159,6 @@ class DagTable {
 
     private _reset(): void {
         this._resetViewer();
-        this._removeTableIcon();
-        this.$node = null;
 
         const $container: JQuery = this._getContainer();
         $container.removeClass("loading").removeClass("error");
@@ -127,13 +166,12 @@ class DagTable {
     }
 
     private _resetViewer(): void {
-        if (this.viewer != null) {
-            this.viewer.clear();
-            this.viewer = null;
+        if (this._currentViewer != null) {
+            this._currentViewer.clear();
+            this._currentViewer = null;
         }
     }
 
-    // XXX TODO
     private _error(error: any): void {
         const $container: JQuery = this._getContainer();
         $container.removeClass("loading").addClass("error");
@@ -142,34 +180,7 @@ class DagTable {
         $container.find(".errorSection").text(errStr);
     }
 
-    private _showTableIcon(): void {
-        if (this.$node != null) {
-            const g = d3.select(this.$node.get(0)).append("g")
-                    .attr("class", "tableIcon")
-                    .attr("transform", "translate(65, 2)");
-            g.append("rect")
-                .attr("x", 0)
-                .attr("y", -8)
-                .attr("width", 15)
-                .attr("height", "13")
-                .style("fill", "#378CB3");
-            g.append("text")
-                .attr("font-family", "icomoon")
-                .attr("font-size", 8)
-                .attr("fill", "white")
-                .attr("x", 3)
-                .attr("y", 2)
-                .text(function(_d) {return "\uea07"});
-        }
-    }
-
-    private _removeTableIcon(): void {
-        if (this.$node != null) {
-            d3.select(this.$node.get(0)).selectAll(".tableIcon").remove();
-        }
-    }
-
     private _isSameViewer(viewer: XcViewer): boolean {
-        return this.viewer != null && this.viewer.getId() == viewer.getId();
+        return this._currentViewer != null && this._currentViewer.getId() == viewer.getId();
     }
 }

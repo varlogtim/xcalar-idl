@@ -126,8 +126,7 @@ class TblManager {
 
         TblManager._setTableMeta(newTableName, tableCols);
         if (modelingMode) {
-            const viewer: XcTableViewer = new XcTableViewer(gTables[newTableId]);
-            return DagTable.Instance.replace(viewer);
+            return DagTable.Instance.replaceTable(gTables[newTableId]);
         }
 
         if (options.focusWorkspace) {

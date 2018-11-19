@@ -61,6 +61,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         this._synthesize = null;
         this._currentStep = null;
         this._advMode = false;
+        DagTable.Instance.closeDatasetPreview();
     }
 
     private _getSchemaSection(): JQuery {
@@ -312,8 +313,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
                 $btn.addClass("showing");
                 const $dataset: JQuery = $btn.parent();
                 const id: string = $dataset.data("id");
-                const viewer: XcDatasetViewer = new XcDatasetViewer(DS.getDSObj(id));
-                DagTable.Instance.show(viewer);
+                DagTable.Instance.previewDataset(id);
             }
         });
 

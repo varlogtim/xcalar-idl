@@ -178,6 +178,7 @@ namespace DagView {
         activeDag = dagTab.getGraph();
         DagView.reactivate();
         updateDagView();
+        DagTable.Instance.switchTab(dagTab.getId());
     }
 
     /**
@@ -987,39 +988,22 @@ namespace DagView {
      * DagView.previewTable
      * @param dagNodeId
      */
-    export function previewTable(dagNode: DagNode, $dataflowArea?: JQuery): XDPromise<void> {
+    export function previewTable(dagNode: DagNode, tabId?: string): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         try {
-            const tableName: string = dagNode.getTable();
-            DagTblManager.Instance.resetTable(tableName);
-            // XXX this code should be change after refine the table meta structure
-            const tableId: TableId = xcHelper.getTableId(tableName);
-            let table: TableMeta = gTables[tableId];
-            if (!table) {
-                table = new TableMeta({
-                    tableName: tableName,
-                    tableId: tableId,
-                    tableCols: [ColManager.newDATACol()]
-                });
-                gTables[tableId] = table;
-            }
-            const columns: ProgCol[] = dagNode.getLineage().getColumns(true);
-            if (columns != null && columns.length > 0) {
-                table.tableCols = columns.concat(ColManager.newDATACol());
-            }
             if (dagNode.getType() === DagNodeType.Jupyter) {
                 // Show Jupyter Notebook instead of preivew table
                 (<DagNodeJupyter>dagNode).showJupyterNotebook();
                 deferred.resolve();
             } else {
-                const viewer: XcTableViewer = new XcTableViewer(table);
-                const $node: JQuery = DagView.getNode(dagNode.getId(), null, $dataflowArea);
-                DagTable.Instance.show(viewer, $node)
-                    .then(deferred.resolve)
-                    .fail((error) => {
-                        Alert.error(AlertTStr.Error, error);
-                        deferred.reject(error);
-                    })
+                // const $node: JQuery = DagView.getNode(dagNode.getId(), null, $dataflowArea);
+                tabId = tabId || activeDagTab.getId();
+                DagTable.Instance.previewTable(tabId, dagNode)
+                .then(deferred.resolve)
+                .fail((error) => {
+                    Alert.error(AlertTStr.Error, error);
+                    deferred.reject(error);
+                });
             }
         } catch (e) {
             console.error(e);
@@ -1077,7 +1061,7 @@ namespace DagView {
                     if (node.getType() === DagNodeType.Aggregate) {
                         DagView.previewAgg(<DagNodeAggregate>node);
                     } else {
-                        DagView.previewTable(node, $dataflowArea);
+                        DagView.previewTable(node, currTabId);
                     }
                 }
             }

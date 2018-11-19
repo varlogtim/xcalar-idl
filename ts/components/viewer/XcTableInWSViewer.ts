@@ -18,7 +18,12 @@ class XcTableInWSViewer extends XcTableViewer {
             selectCol?: number[] | number
         } = {}
     ) {
-        super(table);
+        const fakeDagNode: DagNode = DagNodeFactory.create({
+            type: DagNodeType.Filter
+        });
+        fakeDagNode.setTable(table.getName());
+        fakeDagNode.getLineage().setColumns(table.getAllCols());
+        super(null, fakeDagNode, table);
         this.tableToReplace = tableToReplace;
         this.options = options;
         this.$container = $('<div class="fakeContainer"></div>');

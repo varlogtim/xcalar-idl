@@ -25,7 +25,7 @@ describe("DagTable Test", () => {
     });
 
     it("should show the viewer", (done) => {
-        DagTable.Instance.show(viewer)
+        DagTable.Instance._show(viewer)
         .then(() => {
             expect($container.hasClass("xc-hidden")).to.be.false;
             expect(renderCount).to.equal(1);
@@ -37,7 +37,7 @@ describe("DagTable Test", () => {
     });
 
     it("should not render the same viewer again", (done) => {
-        DagTable.Instance.show(viewer)
+        DagTable.Instance._show(viewer)
         .then(() => {
             expect(renderCount).to.equal(1);
             done();
@@ -67,7 +67,7 @@ describe("DagTable Test", () => {
         });
 
         it("should show the table icon when show viewer", (done) => {
-            DagTable.Instance.show(viewer, $node)
+            DagTable.Instance._show(viewer, $node)
             .then(() => {
                 expect($node.find(".tableIcon").length).to.equal(1);
                 done();
@@ -104,7 +104,7 @@ describe("DagTable Test", () => {
         });
         
         it("should show error", (done) => {
-            DagTable.Instance.show(viewer)
+            DagTable.Instance._show(viewer)
             .then(() => {
                 done("fail");
             })

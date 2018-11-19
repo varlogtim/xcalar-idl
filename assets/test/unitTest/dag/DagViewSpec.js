@@ -300,12 +300,12 @@ describe("DagView Test", () => {
             graph.addNode(node);
             table = xcHelper.randName("test#abc")
             node.setTable(table);
-            oldShow = DagTable.Instance.show;
+            oldShow = DagTable.Instance._show;
         });
 
         it("should show table", (done) => {
             let test = false;
-            DagTable.Instance.show = () => {
+            DagTable.Instance._show = () => {
                 test = true;
                 return PromiseHelper.resolve();
             }
@@ -320,7 +320,7 @@ describe("DagView Test", () => {
         });
 
         it("should show alert in error case", (done) => {
-            DagTable.Instance.show = () => {
+            DagTable.Instance._show = () => {
                 return PromiseHelper.reject("test");
             }
             DagView.previewTable(node)
@@ -347,7 +347,7 @@ describe("DagView Test", () => {
 
         after(() => {
             graph.removeNode(node.getId());
-            DagTable.Instance.show = oldShow
+            DagTable.Instance._show = oldShow
         });
     });
 
