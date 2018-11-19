@@ -269,10 +269,11 @@ namespace DagNodeMenu {
         const dagTab: DagTab = DagView.getActiveTab();
 
         options = options || {};
+        // when menu closes, regardless if it's saved, unlock the node
         options = $.extend(options, {
-           closeCallback: function() {
+            closeCallback: function() {
                unlock(tabId);
-           }
+            }
         });
         Log.lockUndoRedo();
         DagTopBar.Instance.lock();
@@ -501,7 +502,12 @@ namespace DagNodeMenu {
                 .addClass("unavailable");
         }
 
-        adjustMenuForOpenForm();
+        // if graph is not in execution and currently selected node is not locked
+        // then open the form
+        const enableConfig = (!DagView.isLocked($dfArea) &&
+                              nodeIds.length === 1 &&
+                              !DagView.isNodeLocked(nodeIds[0]));
+        adjustMenuForOpenForm(enableConfig);
 
         position = {x: event.pageX, y: event.pageY};
 
@@ -620,6 +626,7 @@ namespace DagNodeMenu {
         if (dagNodeType === DagNodeType.SQL) {
             classes += ' SQLOpMenu';
         }
+
         if (DagView.isNodeLocked(nodeId)) {
             $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
                       ".executeNodeOptimized, .executeAllNodesOptimized, " +
@@ -629,11 +636,14 @@ namespace DagNodeMenu {
         return classes;
     }
 
-    function adjustMenuForOpenForm() {
+    function adjustMenuForOpenForm(enableConfig?: boolean) {
         if (!FormHelper.activeForm) {
             return;
         }
-        $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
+        if (!enableConfig) {
+            $menu.find(".configureNode").addClass("unavailable");
+        }
+        $menu.find(".executeNode, .executeAllNodes, " +
                     ".executeNodeOptimized, .executeAllNodesOptimized, " +
                     ".resetNode, .resetAllNodes, .cutNodes, .createCustom")
             .addClass("unavailable");

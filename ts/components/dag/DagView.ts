@@ -1391,7 +1391,7 @@ namespace DagView {
             return dagTab.save();
         } catch(e) {
             dagTab.turnOnSave();
-            return PromiseHelper.reject(e);            
+            return PromiseHelper.reject(e);
         }
     }
 
@@ -1607,6 +1607,10 @@ namespace DagView {
         return _getActiveArea().hasClass("viewOnly");
     }
 
+    export function isLocked($dfArea): boolean {
+        return $dfArea.hasClass("locked");
+    }
+
     function _createCustomNode(
         dagNodeInfos,
         connection: DagSubGraphConnectionInfo
@@ -1813,7 +1817,7 @@ namespace DagView {
                     if (nodeId != null) {
                         autoAlignPos.set(nodeId, Object.assign({}, posInfo.position));
                     }
-                }    
+                }
             }
             const moveInfo = _getExpandPositions(
                 dagNode.getPosition(),

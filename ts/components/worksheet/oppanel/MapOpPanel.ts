@@ -29,6 +29,8 @@ class MapOpPanel extends GeneralOpPanel {
             Alert.error("List UDFs failed", error.error);
         })
         .always(deferred.resolve);
+
+        // the double menu that has operation categories and function names
         this._functionsInputEvents();
 
         // dynamic button - ex. default:multiJoin
@@ -198,6 +200,7 @@ class MapOpPanel extends GeneralOpPanel {
         self._checkIfStringReplaceNeeded(true);
     }
 
+    // the double menu that has operation categories and function names
     private _functionsInputEvents(): void {
         const self = this;
 
@@ -213,6 +216,7 @@ class MapOpPanel extends GeneralOpPanel {
             }
         });
 
+        // the search input box
         this._$panel.on("keydown", ".mapFilter", function(event) {
             const $group = $(this).closest(".group");
             if (event.which === keyCode.Down ||
@@ -252,6 +256,7 @@ class MapOpPanel extends GeneralOpPanel {
             }
         });
 
+        // the close button on the search input box
         this._$panel.find('.filterMapFuncArea .clear').mousedown(function(event) {
             const $group = $(this).closest(".group");
             const $input = $group.find(".mapFilter");
@@ -479,6 +484,7 @@ class MapOpPanel extends GeneralOpPanel {
         $functionsList.empty();
         $functionsList.append($startsWith);
         $functionsList.append($includes);
+        $functionsList.scrollTop(0);
 
         $group.find('.argsSection').addClass('inactive');
         this._$panel.find('.icvMode').addClass('inactive');
