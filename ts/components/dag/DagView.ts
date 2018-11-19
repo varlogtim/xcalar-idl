@@ -287,6 +287,8 @@ namespace DagView {
         const $dfArea: JQuery = _getAreaByTab(tabId);
         const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId);
         const graph: DagGraph = dagTab.getGraph();
+
+        dagTab.turnOffSave();
         // need to add back nodes in the reverse order they were deleted
         $dfArea.find(".selected").removeClass("selected");
         let maxXCoor: number = 0;
@@ -325,6 +327,7 @@ namespace DagView {
         }
 
         _setGraphDimensions({ x: maxXCoor, y: maxYCoor });
+        dagTab.turnOnSave();
         return dagTab.save();
     }
      /**
@@ -334,8 +337,10 @@ namespace DagView {
      * requires an array of dagNodes that already have parents and children assigned
      */
     export function drawNodesAndConnections(nodes: DagNode[], tabId: string): XDPromise<void> {
-        _drawNodesAndConnectionsNoPersist(nodes, tabId);
         const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId);
+        dagTab.turnOffSave();
+        _drawNodesAndConnectionsNoPersist(nodes, tabId);
+        dagTab.turnOnSave();
         return dagTab.save();
     }
 
@@ -382,8 +387,10 @@ namespace DagView {
      * requires an array of dagNodes that already have parents and children assigned
      */
     export function eraseNodesAndConnections(nodes: DagNode[], tabId: string): XDPromise<void> {
-        _eraseNodesAndConnectionsNoPersist(nodes, tabId);
         const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId)
+        dagTab.turnOffSave();
+        _eraseNodesAndConnectionsNoPersist(nodes, tabId);
+        dagTab.turnOnSave();
         return dagTab.save();
     }
 
@@ -432,16 +439,25 @@ namespace DagView {
      * @param nodeInfo
      */
     export function newNode(nodeInfo: DagNodeInfo): DagNode {
+        const dagTab: DagTab = activeDagTab;
+        dagTab.turnOffSave();
+
         const node: DagNode = activeDag.newNode(nodeInfo);
         _addNodeNoPersist(node);
-        activeDagTab.save();
+        dagTab.turnOnSave();
+        dagTab.save();
         return node;
     }
 
+    /**
+     * DagView.newComment
+     */
     export function newComment(
         commentInfo: CommentInfo,
         isFocus?: boolean
     ): XDPromise<void> {
+        const dagTab: DagTab = activeDagTab;
+        dagTab.turnOffSave();
         commentInfo.position.x = Math.max(0,
             Math.round(commentInfo.position.x / gridSpacing) * gridSpacing);
         commentInfo.position.y = Math.max(0,
@@ -460,10 +476,11 @@ namespace DagView {
         _setGraphDimensions(dimensions);
         Log.add(SQLTStr.NewComment, {
             "operation": SQLOps.NewComment,
-            "dataflowId": activeDagTab.getId(),
+            "dataflowId": dagTab.getId(),
             "commentId": commentNode.getId()
         });
-        return activeDagTab.save();
+        dagTab.turnOnSave();
+        return dagTab.save();
     }
 
     /**
@@ -680,11 +697,13 @@ namespace DagView {
         isReconnect?: boolean,
         spliceIn?: boolean
     ): XDPromise<void> {
+        const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId)
+        dagTab.turnOffSave();
         _connectNodesNoPersist(parentNodeId, childNodeId, connectorIndex, tabId, {
             isReconnect: isReconnect,
             spliceIn: spliceIn
         });
-        const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId)
+        dagTab.turnOnSave();
         return dagTab.save();
     }
 
@@ -703,6 +722,8 @@ namespace DagView {
         const $dfArea = DagView.getAreaByTab(tabId);
         const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId);
         const graph: DagGraph = dagTab.getGraph();
+        dagTab.turnOffSave();
+
         const $edge: JQuery = $dfArea.find('.edge[data-parentnodeid="' +
             parentNodeId +
             '"][data-childnodeid="' +
@@ -720,6 +741,7 @@ namespace DagView {
             "wasSpliced": wasSpliced
         });
 
+        dagTab.turnOnSave();
         return dagTab.save();
     }
 
@@ -787,8 +809,10 @@ namespace DagView {
         nodeInfos: NodeMoveInfo[],
         graphDimensions?: Coordinate
     ): XDPromise<void> {
-        _moveNodesNoPersist(tabId, nodeInfos, graphDimensions);
         const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId);
+        dagTab.turnOffSave();
+        _moveNodesNoPersist(tabId, nodeInfos, graphDimensions);
+        dagTab.turnOnSave();
         return dagTab.save();
     }
 
@@ -904,6 +928,9 @@ namespace DagView {
         });
         const graph = activeDag;
         const tabId = activeDag.getTabId();
+        const dagTab: DagTab = activeDagTab;
+        dagTab.turnOffSave();
+
         if (parentNodeId) {
             parentNode = graph.getNode(parentNodeId);
             if (parentNode.getMaxChildren() !== 0 && !node.isSourceNode()) {
@@ -942,6 +969,8 @@ namespace DagView {
             DagView.connectNodes(parentNodeId, node.getId(), 0, tabId);
         }
 
+        dagTab.turnOnSave();
+        dagTab.save();
         return node;
     }
 
@@ -1095,13 +1124,16 @@ namespace DagView {
      */
     export function reset(nodeIds?: DagNodeId[]): void {
         const msg: string = nodeIds ? DagTStr.ResetMsg : DagTStr.ResetAllMsg;
+        const dagTab: DagTab = activeDagTab;
+        const dag: DagGraph = activeDag;
         Alert.show({
             title: DagTStr.Reset,
             msg: msg,
             onConfirm: () => {
-                activeDagTab.turnOffSave();
-                activeDag.reset(nodeIds);
-                activeDagTab.turnOnSave();
+                dagTab.turnOffSave();
+                dag.reset(nodeIds);
+                dagTab.turnOnSave();
+                dagTab.save();
             }
         });
     };
@@ -1115,10 +1147,12 @@ namespace DagView {
         nodeId: DagNodeId,
         text: string
     ): XDPromise<void> {
-        const graph = activeDag
-        const node = graph.getNode(nodeId);
-        const oldText = node.getDescription();
-        const $node = DagView.getNode(nodeId);
+        const dagTab: DagTab = activeDagTab;
+        const graph: DagGraph = activeDag;
+        const node: DagNode = graph.getNode(nodeId);
+        const oldText: string = node.getDescription();
+        const $node: JQuery = DagView.getNode(nodeId);
+        dagTab.turnOffSave();
 
         node.setDescription(text);
 
@@ -1137,7 +1171,8 @@ namespace DagView {
             "newDescription": text,
             "nodeId": nodeId
         });
-        return activeDagTab.save();
+        dagTab.turnOnSave();
+        return dagTab.save();
     }
 
     /**
@@ -1155,6 +1190,7 @@ namespace DagView {
         const node = graph.getNode(nodeId);
         const oldTitle = node.getTitle();
         const $node = DagView.getNode(nodeId, tabId);
+        dagTab.turnOffSave();
 
         node.setTitle(title);
         _drawTitleText($node, node);
@@ -1167,6 +1203,7 @@ namespace DagView {
             "nodeId": nodeId
         });
 
+        dagTab.turnOnSave();
         return dagTab.save();
     }
 
@@ -1399,6 +1436,8 @@ namespace DagView {
         }
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const dagTab: DagTab = activeDagTab;
+
         DagCategoryBar.Instance.addOperator({
             categoryName: DagCategoryType.Custom,
             dagNode: newNode,
@@ -1411,7 +1450,7 @@ namespace DagView {
                     $opTitle.text(dagNode.getCustomName());
                 }
             })
-            .then(() => activeDagTab.save())
+            .then(() => dagTab.save())
             .then(() => deferred.resolve())
             .fail(deferred.reject);
 
@@ -2231,7 +2270,6 @@ namespace DagView {
             $childConnector.removeClass("hasConnection")
                 .addClass("noConnection");
         }
-        dagTab.save();
     }
 
 
@@ -3246,8 +3284,9 @@ namespace DagView {
 
         graph.events.on(DagNodeEvents.LineageSourceChange, function(info) {
             const tabId: string = activeDagTab.getId();
-            if (info.tabId === tabId) {
-                activeDagTab.save();
+            const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId);
+            dagTab.save();
+            if (tabId === activeDagTab.getId()) {
                 if (DagTable.Instance.isTableFromTab(tabId)) {
                     const node: DagNode = info.node;
                     const set = activeDag.traverseGetChildren(node);

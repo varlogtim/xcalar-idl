@@ -138,7 +138,7 @@ class DagTabShared extends DagTab {
     }
 
     public save(forceSave: boolean = false): XDPromise<void> {
-        if (this._disableSave) {
+        if (this._disableSaveLock > 0) {
             return PromiseHelper.resolve();
         }
 

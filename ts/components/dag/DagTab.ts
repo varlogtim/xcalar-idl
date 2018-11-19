@@ -9,7 +9,7 @@ abstract class DagTab {
     protected _kvStore: KVStore;
     protected _tempKVStore: KVStore;
     protected _unsaved: boolean;
-    protected _disableSave: boolean;
+    protected _disableSaveLock: number;
 
     public static setup(): void {
         this.uid = new XcUID("DF2");
@@ -27,7 +27,7 @@ abstract class DagTab {
             this._dagGraph.setTabId(this._id);
         }
         this._unsaved = false;
-        this._disableSave = false;
+        this._disableSaveLock = 0;
         this._events = {};
     }
 
@@ -78,14 +78,22 @@ abstract class DagTab {
      * For Bulk Operation only
      */
     public turnOffSave(): void {
-        this._disableSave = true;
+        this._disableSaveLock++;
     }
 
     /**
      * For Bulk Operation only
      */
     public turnOnSave(): void {
-        this._disableSave = false;
+        if (this._disableSaveLock === 0) {
+            console.error("error case to turn on");
+        } else {
+            this._disableSaveLock--;
+        }
+    }
+
+    public forceTurnOnSave(): void {
+        this._disableSaveLock = 0;
     }
 
     public discardUnsavedChange(): XDPromise<void> {

@@ -513,7 +513,6 @@ window.Undo = (function($, Undo) {
     /* END BACKEND OPERATIONS */
 
     /* Dataflow operations */
-
     undoFuncs[SQLOps.DisconnectOperations] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
         DagView.connectNodes(options.parentNodeId, options.childNodeId, options.connectorIndex, options.dataflowId, false, options.wasSpliced);
