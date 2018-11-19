@@ -157,11 +157,12 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                         curPromise = curPromise.then(function() {
                             var query = sqlString[index];
                             console.log("Tableau subquery " + (index + 1) + ": " + query);
-                            sqlNode.setSqlQueryString(query);
+                            // sqlNode.setSqlQueryString(query);
                             test.nodeMenuAction(sqlNodeElement, "configureNode");
-                            $("#sqlOpPanel .submit").click();
-                            return test.hasNodeWithState(sqlNode.getId(), DagNodeState.Configured)
+                            // $("#sqlOpPanel .submit").click();
+                            return SQLOpPanel.Instance.configureSQL(query)
                             .then(function() {
+                                SQLOpPanel.Instance.close();
                                 return test.executeNode(sqlNode.getId());
                             })
                             .then(function() {
@@ -212,11 +213,13 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                         }
                     });
                 } else {
-                    sqlNode.setSqlQueryString(sqlString);
+                    // sqlNode.setSqlQueryString(sqlString);
                     test.nodeMenuAction(sqlNodeElement, "configureNode");
-                    $("#sqlOpPanel .submit").click();
-                    test.hasNodeWithState(sqlNode.getId(), DagNodeState.Configured)
+                    // $("#sqlOpPanel .submit").click();
+                    // test.hasNodeWithState(sqlNode.getId(), DagNodeState.Configured)
+                    return SQLOpPanel.Instance.configureSQL(sqlString)
                     .then(function() {
+                        SQLOpPanel.Instance.close();
                         return test.executeNode(sqlNode.getId());
                     })
                     .then(function() {

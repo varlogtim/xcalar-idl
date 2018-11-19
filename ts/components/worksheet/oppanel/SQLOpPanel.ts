@@ -1026,7 +1026,7 @@ class SQLOpPanel extends BaseOpPanel {
         return deferred.promise();
     }
 
-    private _configureSQL(query: string): XDPromise<any> {
+    public configureSQL(query: string): XDPromise<any> {
         const self = this;
         const deferred = PromiseHelper.deferred();
         const sql = query ||
@@ -1208,7 +1208,7 @@ class SQLOpPanel extends BaseOpPanel {
                 }
             }
             const sql = self._sqlEditor.getValue();
-            self._configureSQL(sql)
+            self.configureSQL(sql)
             .then(function() {
                 self.close();
             })
