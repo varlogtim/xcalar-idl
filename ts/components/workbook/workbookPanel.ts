@@ -46,8 +46,8 @@ namespace WorkbookPanel {
             const $container: JQuery = $("#container");
             const $dialogWrap: JQuery = $("#dialogWrap");
             if ($("#mainMenu").hasClass("open")) {
-                $("#mainMenu").removeClass("open");
-                $("#mainMenu").addClass("closed wasOpen");
+                MainMenu.close();
+                $("#mainMenu").addClass("wasOpen");
             }
 
             //remove the dataset hint
@@ -85,8 +85,8 @@ namespace WorkbookPanel {
                     WorkbookPanel.hide();
                     $container.removeClass("monitorMode setupMode noWorkbookMenuBar");
                     if ($("#mainMenu").hasClass("wasOpen")) {
-                        $("#mainMenu").addClass("open");
-                        $("#mainMenu").removeClass("closed wasOpen");
+                        $("#mainMenu").removeClass("wasOpen");
+                        MainMenu.open();
                     }
                 }
             } else {
@@ -674,8 +674,8 @@ namespace WorkbookPanel {
             if (activeWKBKId === workbookId) {
                 WorkbookPanel.hide();
                 if ($("#mainMenu").hasClass("wasOpen")) {
-                    $("#mainMenu").addClass("open");
-                    $("#mainMenu").removeClass("closed wasOpen");
+                    MainMenu.open();
+                    $("#mainMenu").removeClass("wasOpen");
                 }
                 $("#container").removeClass("noWorkbookMenuBar");
             } else {

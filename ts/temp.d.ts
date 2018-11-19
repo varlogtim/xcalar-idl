@@ -1082,7 +1082,7 @@ declare namespace MainMenu {
     export function getOffset(): number;
     export function openPanel(panelId: string, subTabId: string, options?: object): void;
     export function tempNoAnim(): void;
-    export function close(noAnim: boolean): void;
+    export function close(noAnim?: boolean, makeInactive?: boolean): void;
     export function setFormOpen(): void;
     export function setFormClose(): void;
     export function isMenuOpen(type: string): boolean;

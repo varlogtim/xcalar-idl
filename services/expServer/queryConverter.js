@@ -1,4 +1,4 @@
-
+// TODO: Combine with DagGraph.convertQueryToDataflowGraph
 let xcHelper;
 let XEvalParser = require("./xEvalParser/index.js").XEvalParser;
 // DagNodeType = require("../../assets/js/components/dag/DagEnums.js").DagNodeType;
@@ -79,6 +79,7 @@ function convert(query) {
             case (XcalarApisT.XcalarApiProject):
             case (XcalarApisT.XcalarApiGroupBy):
             case (XcalarApisT.XcalarApiGetRowNum):
+            case (XcalarApisT.XcalarApiExport):
                 node.parents = [args.source];
                 break;
             case (XcalarApisT.XcalarApiFilter):
@@ -92,6 +93,7 @@ function convert(query) {
                 break;
             case (XcalarApisT.XcalarApiSelect):
             case (XcalarApisT.XcalarApiSynthesize):
+            case (XcalarApisT.XcalarApiExecuteRetina):
                 node.parents = [];
                 break;
             case (XcalarApisT.XcalarApiBulkLoad):
@@ -424,7 +426,6 @@ function _getDagNodeInfo(node) {
     let dagNodeInfo;
     switch (node.api) {
         case (XcalarApisT.XcalarApiIndex):
-            //
             if (node.createTableInput) {
                 dagNodeInfo = {
                     type: DagNodeType.Dataset,
@@ -572,9 +573,29 @@ function _getDagNodeInfo(node) {
                 type: DagNodeType.Set,
                 subType: xcHelper.capitalize(setType),
                 input: {
-                    unionType: setType,
                     columns: node.args.columns,
                     dedup: node.args.dedup
+                }
+            };
+            break;
+        case (XcalarApisT.XcalarApiExport):
+            dagNodeInfo = {
+                type: DagNodeType.Export,
+                description: JSON.stringify(node.args),
+                input: {
+                    columns: [],
+                    driver: "",
+                    driverArgs: {}
+                }
+            };
+            break;
+        case (XcalarApisT.XcalarApiSynthesize):
+            dagNodeInfo = {
+                type: DagNodeType.Dataset,
+                input: {
+                    prefix: "",
+                    source: xcHelper.stripPrefixFromDSName(node.args.source),
+                    synthesize: true
                 }
             };
             break;
@@ -586,16 +607,6 @@ function _getDagNodeInfo(node) {
                     version: node.args.minBatchId,
                     filterString: node.args.filterString || node.args.evalString,
                     columns: node.args.columns
-                }
-            };
-            break;
-        case (XcalarApisT.XcalarApiSynthesize):
-            dagNodeInfo = {
-                type: DagNodeType.Dataset,
-                input: {
-                    prefix: "",
-                    source: xcHelper.stripPrefixFromDSName(node.args.source),
-                    synthesize: true
                 }
             };
             break;
@@ -614,7 +625,7 @@ function _getDagNodeInfo(node) {
             break;
     }
     const comment = parseUserComment(node.rawNode.comment);
-    dagNodeInfo.description = comment.userComment || "";
+    dagNodeInfo.description = dagNodeInfo.description || comment.userComment || "";
     dagNodeInfo.table = node.name;
     dagNodeInfo.id = "dag_" + new Date().getTime() + "_" + idCount;
     dagNodeInfo.parents = [];

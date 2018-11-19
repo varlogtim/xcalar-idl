@@ -1297,6 +1297,7 @@ class DagGraph {
         };
     }
 
+    // TODO: Combine with expServer/queryConverter.js
     public static convertQueryToDataflowGraph(query, tableSrcMap?, finalTableName?) {
         const nodes = new Map();
         const destSrcMap = {}; // {dest: source} in xc query
@@ -1345,6 +1346,7 @@ class DagGraph {
                 case (XcalarApisT.XcalarApiSelect):
                 case (XcalarApisT.XcalarApiSynthesize):
                 case (XcalarApisT.XcalarApiBulkLoad):
+                case (XcalarApisT.XcalarApiExecuteRetina):
                     node.parents = [];
                     break;
                 default:
@@ -1598,6 +1600,17 @@ class DagGraph {
                     };
                     break;
                 case (XcalarApisT.XcalarApiSelect):
+                    dagNodeInfo = {
+                        type: DagNodeType.IMDTable,
+                        input: {
+                            source: node.args.source,
+                            version: node.args.minBatchId,
+                            filterString: node.args.filterString || node.args.evalString,
+                            columns: node.args.columns
+                        }
+                    };
+                    break;
+                case (XcalarApisT.XcalarApiExecuteRetina):
                 case (XcalarApisT.XcalarApiBulkLoad):
                 default:
                     dagNodeInfo = {
