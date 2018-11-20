@@ -510,6 +510,7 @@ class DagGraphExecutor {
          .then((queryStr: string, destTable: string) => {
             // retina name will be the same as the graph/tab's ID
             retinaName = DagTab.generateId();
+
             const udfContext = this._getUDFContext();
             txId = Transaction.start({
                 operation: "optimized df",
@@ -542,8 +543,8 @@ class DagGraphExecutor {
             return XcalarExecuteRetina(retinaName, [], {
                 activeSession: this._isOptimizedActiveSession,
                 newTableName: outputTableName,
-                udfUserName: udfContext.udfUserName,
-                udfSessionName: udfContext.udfSessionName
+                udfUserName: udfContext.udfUserName || userIdName,
+                udfSessionName: udfContext.udfSessionName || sessionName
             });
         })
         .then((_res) => {
@@ -626,8 +627,9 @@ class DagGraphExecutor {
             query: JSON.stringify(operations)
         });
         const udfContext = this._getUDFContext();
-        XcalarImportRetina(retinaName, true, null, retina, udfContext.udfUserName, udfContext.udfSessionName,
-                sessionName)
+        const uName = udfContext.udfUserName || userIdName;
+        const sessName = udfContext.udfSessionName || sessionName;
+        XcalarImportRetina(retinaName, true, null, retina, uName, sessName)
         .then((_res) => {
             return XcalarGetRetinaJson(retinaName);
         })
