@@ -130,25 +130,37 @@ class DagNodeExecutor {
     }
 
     private _loadDataset(optimized?: boolean): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNodeDataset = <DagNodeDataset>this.node;
         const params: DagNodeDatasetInputStruct = node.getParam(true);
         const dsName: string = params.source;
 
-        if (params.synthesize === true) {
-            const schema: ColSchema[] = node.getSchema();
-            return this._synthesizeDataset(dsName, schema);
-        } else {
-            if (optimized && Transaction.isSimulate(this.txId)) {
-                try {
-                    const loadArg = JSON.parse(node.getLoadArgs())[0];
-                    Transaction.log(this.txId, JSON.stringify(loadArg), null, 0);
-                } catch (e) {
-                    console.error(e);
+        // XXX Note: have to do it because of a bug in call indexDataset through query
+        // it didn't add the load lock and will cause a bug.
+        // the lock is per each workbook
+        // so XD need to maunally call it.
+        PromiseHelper.alwaysResolve(XcalarDatasetActivate(dsName))
+        .then(() => {
+            if (params.synthesize === true) {
+                const schema: ColSchema[] = node.getSchema();
+                return this._synthesizeDataset(dsName, schema);
+            } else {
+                if (optimized && Transaction.isSimulate(this.txId)) {
+                    try {
+                        const loadArg = JSON.parse(node.getLoadArgs())[0];
+                        Transaction.log(this.txId, JSON.stringify(loadArg), null, 0);
+                    } catch (e) {
+                        console.error(e);
+                    }
                 }
+                const prefix: string = params.prefix;
+                return this._indexDataset(dsName, prefix);
             }
-            const prefix: string = params.prefix;
-            return this._indexDataset(dsName, prefix);
-        }
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+        
+        return deferred.promise();
     }
 
     private _indexDataset(dsName: string, prefix: string): XDPromise<string> {

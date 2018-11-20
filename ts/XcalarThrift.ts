@@ -127,8 +127,8 @@ function THandleDoesntExistError() {
 }
 THandleDoesntExistError.prototype = Error.prototype;
 
+// ========================== HELPER FUNCTIONS ============================= //
 // called if a XcalarThrift.js function returns an error
-    // called if a XcalarThrift.js function returns an error
 function thriftLog(
     errorTitle: string,
     ...errResList: (XcalarApiError | number | string) []
@@ -297,38 +297,176 @@ function colInfoMap(colInfo: ColRenameInfo) {
     return map;
 }
 
-    // Should check if the function returns a promise
-    // but that would require an extra function call
-    if (!has_require) {
-        (window as any).Function.prototype.log = function(): void {
-            const fn: any = this;
-            const args: any[] = Array.prototype.slice.call(arguments);
-            if (fn && TypeCheck.isFunction(fn)) {
-                const ret: any = fn.apply(fn, args);
-                if (ret && TypeCheck.isFunction(ret.promise)) {
-                    ret.then(function(result: any) {
-                        console.log(result);
-                    })
-                    .fail(function(result: any) {
-                        console.error(result);
-                    });
-                } else {
-                    console.log(ret);
+// Should check if the function returns a promise
+// but that would require an extra function call
+if (!has_require) {
+    (window as any).Function.prototype.log = function(): void {
+        const fn: any = this;
+        const args: any[] = Array.prototype.slice.call(arguments);
+        if (fn && TypeCheck.isFunction(fn)) {
+            const ret: any = fn.apply(fn, args);
+            if (ret && TypeCheck.isFunction(ret.promise)) {
+                ret.then(function(result: any) {
+                    console.log(result);
+                })
+                .fail(function(result: any) {
+                    console.error(result);
+                });
+            } else {
+                console.log(ret);
+            }
+        }
+    };
+
+    (window as any).Function.prototype.bind = function(): Function {
+        const fn: Function = this;
+        const args: any[] = Array.prototype.slice.call(arguments);
+        const obj: Function = args.shift();
+        return (function() {
+            return (fn.apply(obj,
+                    args.concat(Array.prototype.slice.call(arguments))));
+        });
+    };
+}
+
+function checkIfTableHasReadyState(
+    node: DagFunction.TreeNode
+): boolean {
+    return (node.value.state === DgDagStateT.DgDagStateReady);
+}
+
+function fetchDataHelper(
+    resultSetId: string,
+    rowPosition: number,
+    rowsToFetch: number,
+    totalRows: number,
+    data: any[],
+    tryCnt: number
+): XDPromise<any[]> {
+    const deferred: XDDeferred<any[]> = PromiseHelper.deferred();
+    // row position start with 0
+    XcalarSetAbsolute(resultSetId, rowPosition)
+    .then(function() {
+        return XcalarGetNextPage(resultSetId, rowsToFetch);
+    })
+    .then(function(tableOfEntries) {
+        const values: any[] = tableOfEntries.values;
+        const numValues: number = tableOfEntries.numValues;
+        let numStillNeeds: number = 0;
+
+        if (numValues < rowsToFetch) {
+            if (rowPosition + numValues >= totalRows) {
+                numStillNeeds = 0;
+            } else {
+                numStillNeeds = rowsToFetch - numValues;
+            }
+        }
+
+        values.forEach(function(value) {
+            data.push(value);
+        });
+
+        if (numStillNeeds > 0) {
+            console.info("fetch not finish", numStillNeeds);
+            if (tryCnt >= 20) {
+                console.warn("Too may tries, stop");
+                return PromiseHelper.resolve();
+            }
+
+            let newPosition: number;
+            if (numStillNeeds === rowsToFetch) {
+                // fetch 0 this time
+                newPosition = rowPosition + 1;
+                console.warn("cannot fetch position", rowPosition);
+            } else {
+                newPosition = rowPosition + numValues;
+            }
+
+            return XcalarFetchData(resultSetId, newPosition, numStillNeeds,
+                                totalRows, data, tryCnt + 1);
+        }
+    })
+    .then(deferred.resolve)
+    .fail(deferred.reject);
+
+    return deferred.promise();
+}
+
+function checkForDatasetLoad(
+    def: XDDeferred<any>,
+    sqlString: string,
+    dsName: string,
+    txId: number
+): void {
+    // Using setInterval will have issues because of the deferred
+    // GetDatasets call inside here. Do not use it.
+    function checkIter(
+        def1: XDDeferred<{}>,
+        sqlString1: string,
+        dsName1: string,
+        txId1: number
+    ): void {
+        XcalarGetDatasets()
+        .then(function(ret) {
+            let loadDone = false;
+            let nameNodeFound = false;
+            ret = ret.datasets;
+            for (var i = 0; i < ret.length; i++) {
+                if (ret[i].name === dsName1) {
+                    nameNodeFound = true;
+                    if (ret[i].loadIsComplete) {
+                        loadDone = true;
+                    } else {
+                        break;
+                    }
                 }
             }
-        };
-
-        (window as any).Function.prototype.bind = function(): Function {
-            const fn: Function = this;
-            const args: any[] = Array.prototype.slice.call(arguments);
-            const obj: Function = args.shift();
-            return (function() {
-                return (fn.apply(obj,
-                        args.concat(Array.prototype.slice.call(arguments))));
-            });
-        };
+            if (!nameNodeFound) {
+                // The load FAILED because the dag node is gone
+                const thriftError: ThriftError = thriftLog("XcalarLoad failed!");
+                def1.reject(thriftError);
+            } else {
+                if (loadDone) {
+                    Transaction.log(txId1, sqlString1, parseDS(dsName1));
+                    def1.resolve({});
+                } else {
+                    setTimeout(checkIter.bind(null, def1, sqlString1,
+                                              dsName1, txId1), 1000);
+                }
+            }
+        });
     }
 
+    setTimeout(checkIter.bind(null, def, sqlString, dsName, txId),
+               1000);
+}
+
+function parseLoadError(error: object): object | string {
+    let res: string | object = error;
+    try {
+        res = error['errorString'];
+        // check  if has XcalarException
+        let match: string[] = (res as string).match(/XcalarException:(.+)/);
+        if (match && match.length >= 2) {
+            const resNum: number = parseInt(match[1].trim());
+            if (StatusTStr[resNum] != null) {
+                return StatusTStr[resNum];
+            }
+        }
+
+        // check if has ValueError
+        match = (res as string).match(/ValueError:(.+)/);
+        if (match && match.length >= 2) {
+            res = match[1].trim();
+            res = res.split('\n')[0]; // strip ending unuseful chars
+            return res;
+        }
+    } catch (e) {
+        console.error("parse error", e);
+    }
+
+    return res;
+}
 // ======================== ERROR INJECTION TESTING =========================//
 function getFailPercentage(funcName: string): number {
     if (funcFailPercentage.hasOwnProperty(funcName)) {
@@ -359,13 +497,6 @@ function insertError(
         }
     }
     return (false);
-}
-
-// ========================== HELPER FUNCTIONS ============================= //
-function checkIfTableHasReadyState(
-    node: DagFunction.TreeNode
-): boolean {
-    return (node.value.state === DgDagStateT.DgDagStateReady);
 }
 
 // ========================= MAIN FUNCTIONS  =============================== //
@@ -727,6 +858,10 @@ XcalarDatasetCreate = function(
     return deferred.promise();
 };
 
+/**
+ * Options:
+ *  deleteLoadNodeInFail: boolean, if set true, will try delte the load node and retry
+ */
 XcalarDatasetActivate = function(
     datasetName: string,
     txId: number
@@ -734,11 +869,11 @@ XcalarDatasetActivate = function(
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
+
     let def: XDPromise<any>;
     const dsName: string = parseDS(datasetName);
     const workItem: WorkItem = xcalarLoadWorkItem(dsName);
@@ -772,11 +907,6 @@ XcalarDatasetActivate = function(
             // in intervals until the load is complete. Then do the ack/fail
             checkForDatasetLoad(deferred, query, datasetName, txId);
         } else {
-            if (thriftError.status === StatusT.StatusDatasetNameAlreadyExists) {
-                // retry release the load node
-                xcalarDeleteDagNodes(tHandle, dsName, SourceTypeT.SrcDataset);
-            }
-
             let loadError: string = null;
             if (thriftError.output && thriftError.output.errorString) {
                 // This has a valid error struct that we can use
@@ -796,83 +926,6 @@ XcalarDatasetActivate = function(
     });
 
     return deferred.promise();
-
-    function checkForDatasetLoad(
-        def: XDDeferred<any>,
-        sqlString: string,
-        dsName: string,
-        txId: number
-    ): void {
-        // Using setInterval will have issues because of the deferred
-        // GetDatasets call inside here. Do not use it.
-        function checkIter(
-            def1: XDDeferred<{}>,
-            sqlString1: string,
-            dsName1: string,
-            txId1: number
-        ): void {
-            XcalarGetDatasets()
-            .then(function(ret) {
-                let loadDone = false;
-                let nameNodeFound = false;
-                ret = ret.datasets;
-                for (var i = 0; i < ret.length; i++) {
-                    if (ret[i].name === dsName1) {
-                        nameNodeFound = true;
-                        if (ret[i].loadIsComplete) {
-                            loadDone = true;
-                        } else {
-                            break;
-                        }
-                    }
-                }
-                if (!nameNodeFound) {
-                    // The load FAILED because the dag node is gone
-                    const thriftError: ThriftError = thriftLog("XcalarLoad failed!");
-                    def1.reject(thriftError);
-                } else {
-                    if (loadDone) {
-                        Transaction.log(txId1, sqlString1,
-                                        parseDS(datasetName));
-                        def1.resolve({});
-                    } else {
-                        setTimeout(checkIter.bind(null, def1, sqlString1,
-                                                  dsName1, txId1), 1000);
-                    }
-                }
-            });
-        }
-
-        setTimeout(checkIter.bind(null, def, sqlString, dsName, txId),
-                   1000);
-    }
-
-    function parseLoadError(error: object): object | string {
-        let res: string | object = error;
-        try {
-            res = error['errorString'];
-            // check  if has XcalarException
-            let match: string[] = (res as string).match(/XcalarException:(.+)/);
-            if (match && match.length >= 2) {
-                const resNum: number = parseInt(match[1].trim());
-                if (StatusTStr[resNum] != null) {
-                    return StatusTStr[resNum];
-                }
-            }
-
-            // check if has ValueError
-            match = (res as string).match(/ValueError:(.+)/);
-            if (match && match.length >= 2) {
-                res = match[1].trim();
-                res = res.split('\n')[0]; // strip ending unuseful chars
-                return res;
-            }
-        } catch (e) {
-            console.error("parse error", e);
-        }
-
-        return res;
-    }
 };
 
 XcalarDatasetDeactivate = function(
@@ -985,6 +1038,38 @@ XcalarDatasetGetLoadArgs = function(datasetName: string) {
     return deferred.promise();
 }
 
+XcalarDatasetDeleteLoadNode = function(datasetName: string, wkbkName: string): XDPromise<void> {
+    const deferred: XDDeferred<void> = PromiseHelper.deferred();
+    const currentSession: string = sessionName;
+    setSessionName(wkbkName);
+    
+    XcalarGetDSNode(datasetName)
+    .then((res: {nodeInfo: {name: string}[]}) => {
+        try {
+            const promises = [];
+            const dsName: string = parseDS(datasetName);
+            res.nodeInfo.forEach((nodeInfo) => {
+                if (nodeInfo.name === datasetName) {
+                    setSessionName(wkbkName);
+                    let promise = xcalarDeleteDagNodes(tHandle, dsName, SourceTypeT.SrcDataset);
+                    setSessionName(currentSession);
+                    promises.push(promise);
+                }
+            });
+            return PromiseHelper.when(...promises);
+        } catch (e) {
+            console.error(e);
+        }
+    })
+    .then(deferred.resolve)
+    .fail((error) => {
+        const thriftError: ThriftError = thriftLog("XcalarDatasetDeleteLoadNode", error);
+        deferred.reject(thriftError);
+    });
+
+    setSessionName(currentSession);
+    return deferred.promise();
+}
 
 XcalarAddLocalFSExportTarget = function(
     targetName: string,
@@ -1494,63 +1579,6 @@ XcalarRenameTable = function(
     return (deferred.promise());
 };
 
-function fetchDataHelper(
-    resultSetId: string,
-    rowPosition: number,
-    rowsToFetch: number,
-    totalRows: number,
-    data: any[],
-    tryCnt: number
-): XDPromise<any[]> {
-    const deferred: XDDeferred<any[]> = PromiseHelper.deferred();
-    // row position start with 0
-    XcalarSetAbsolute(resultSetId, rowPosition)
-    .then(function() {
-        return XcalarGetNextPage(resultSetId, rowsToFetch);
-    })
-    .then(function(tableOfEntries) {
-        const values: any[] = tableOfEntries.values;
-        const numValues: number = tableOfEntries.numValues;
-        let numStillNeeds: number = 0;
-
-        if (numValues < rowsToFetch) {
-            if (rowPosition + numValues >= totalRows) {
-                numStillNeeds = 0;
-            } else {
-                numStillNeeds = rowsToFetch - numValues;
-            }
-        }
-
-        values.forEach(function(value) {
-            data.push(value);
-        });
-
-        if (numStillNeeds > 0) {
-            console.info("fetch not finish", numStillNeeds);
-            if (tryCnt >= 20) {
-                console.warn("Too may tries, stop");
-                return PromiseHelper.resolve();
-            }
-
-            let newPosition: number;
-            if (numStillNeeds === rowsToFetch) {
-                // fetch 0 this time
-                newPosition = rowPosition + 1;
-                console.warn("cannot fetch position", rowPosition);
-            } else {
-                newPosition = rowPosition + numValues;
-            }
-
-            return XcalarFetchData(resultSetId, newPosition, numStillNeeds,
-                                totalRows, data, tryCnt + 1);
-        }
-    })
-    .then(deferred.resolve)
-    .fail(deferred.reject);
-
-    return deferred.promise();
-}
-
 XcalarFetchData = function(
     resultSetId: string,
     rowPosition: number,
@@ -1943,7 +1971,7 @@ XcalarGetDSNode = function(datasetName?: string): XDPromise<any> {
     if (datasetName == null) {
         patternMatch = "*";
     } else {
-        patternMatch = datasetName;
+        patternMatch = gDSPrefix + datasetName;
     }
 
     xcalarListTables(tHandle, patternMatch, SourceTypeT.SrcDataset)

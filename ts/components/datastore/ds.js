@@ -744,12 +744,17 @@ window.DS = (function ($, DS) {
             onConfirm: function() {
                 // XXX TODO: check if it's still necessary
                 // unshare case need to check if ds is used by others
-                checkDSUse(dsObj.getFullName())
+                checkDSUser(dsObj.getFullName())
                 .then(function() {
                     shareAndUnshareHelper(dsId, name, false);
                 })
                 .fail(function(error) {
-                    Alert.error(DSTStr.UnshareFail, error);
+                    if (error.status === StatusT.StatusDsNotFound) {
+                        // that's a normal case
+                        shareAndUnshareHelper(dsId, name, false);
+                    } else {
+                        Alert.error(DSTStr.UnshareFail, error.error);
+                    }
                 });
             }
         });
@@ -1143,7 +1148,7 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function checkDSUse(dsName) {
+    function checkDSUser(dsName) {
         var deferred = PromiseHelper.deferred();
         var currentUser = getCurrentUserName();
 
@@ -1160,7 +1165,7 @@ window.DS = (function ($, DS) {
                 var error = xcHelper.replaceMsg(DSTStr.DSUsed, {
                     "users": otherUsers.join(",")
                 });
-                deferred.reject(error);
+                deferred.reject({error: error});
             } else {
                 deferred.resolve();
             }
@@ -2890,7 +2895,10 @@ window.DS = (function ($, DS) {
         DS.getGrid(dsId).find(".deactivatingIcon").removeClass("xc-hidden");
         var fullDSName = dsObj.getFullName();
 
-        checkDSUse(fullDSName)
+        clearLoadNodeInAllWorkbooks(fullDSName)
+        .then(() => {
+            return checkDSUser(fullDSName);
+        })
         .then(function() {
             return XcalarDatasetDeactivate(fullDSName);
         })
@@ -2925,6 +2933,23 @@ window.DS = (function ($, DS) {
         });
 
         return deferred.promise();
+    }
+
+    // XXX TODO: this is a try to remove all the load nodes
+    // across a user's all workbooks,
+    // but finally backend should remove the load node and
+    // we should not use this workaround
+    function clearLoadNodeInAllWorkbooks(datasetName) {
+        var workbooks = WorkbookManager.getWorkbooks();
+        var promises = [];
+        for (var id in workbooks) {
+            var wkbk = workbooks[id];
+            if (wkbk.hasResource()) {
+                // when it's active workbook
+                promises.push(XcalarDatasetDeleteLoadNode.bind(this, datasetName, wkbk.getName()));
+            }
+        }
+        return PromiseHelper.chain(promises);
     }
 
     function getCurrentUserName() {

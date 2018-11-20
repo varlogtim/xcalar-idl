@@ -469,6 +469,7 @@ declare var XcalarDatasetCreate: any;
 declare var XcalarDatasetDelete: any;
 declare var XcalarDatasetActivate: any;
 declare var XcalarDatasetDeactivate: any;
+declare var XcalarDatasetDeleteLoadNode: any;
 declare var XcalarDatasetGetLoadArgs: any;
 declare var XcalarAddLocalFSExportTarget: any;
 declare var XcalarAddUDFExportTarget: any;
