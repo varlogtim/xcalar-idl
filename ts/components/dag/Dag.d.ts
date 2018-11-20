@@ -15,6 +15,7 @@ interface DagNodeInfo {
     parents?: string[];
     aggregates?: string[];
     subGraphNodes?: string[];
+    stats?: any
 }
 
 interface DagNodeDisplayInfo {
@@ -364,7 +365,10 @@ interface TableProgressInfo {
     skewValue: number,
     elapsedTime: number,
     size: number,
-    rows: number[]
+    rows: number[],
+    name?: string,
+    index?: number,
+    type?: number
 }
 
 interface LogParam {

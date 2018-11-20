@@ -1403,6 +1403,7 @@
                 // dfAutoExecute and dfAutoPreview is true by default
                 self.dfAutoExecute = (options.dfAutoExecute == null) ? true : options.dfAutoExecute;
                 self.dfAutoPreview = (options.dfAutoPreview == null) ? true : options.dfAutoPreview;
+                self.dfProgressTips = (options.dfProgressTips == null) ? true : options.dfProgressTips;
             }
             return self;
         }

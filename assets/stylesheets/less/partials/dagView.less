@@ -138,6 +138,12 @@
     @operator-height: 28px;
     @operator-width: 90px;
 
+    &.showProgressTips {
+        .dagTableTip.progressInfo {
+            display: block;
+        }
+    }
+
     .categoryBar {
         @category-height: 40px;
         @icon-height: 22px;
@@ -577,6 +583,12 @@
             &.drawing {
                 pointer-events: none;
             }
+
+            &.viewOnly {
+                .dagTableTip.progressInfo {
+                    display: block;
+                }
+            }
         }
 
         .dataflowAreaWrapper {
@@ -776,9 +788,29 @@
         margin-left:  -3px;
         text-align: left;
 
-        > div {
-            .flex-display;
-            .justify-content(space-between);
+        &.progressInfo {
+            padding: 1px 2px 2px;
+            pointer-events: none;
+            display: none;
+            opacity: 0.9;
+
+            &.visible {
+                display: block;
+            }
+
+            table {
+                border-collapse: collapse;
+            }
+
+            th, td {
+                font-size: 10px;
+                padding: 0 2px;
+                text-align: center;
+                line-height: 10px;
+            }
+            th {
+                font-weight: bold;
+            }
         }
 
         &.error {
@@ -807,6 +839,12 @@
             border-top-color: @color-bg-unselect-gray;
             border-width: 7px;
             margin-left: -7px;
+        }
+
+        .heading {
+            text-align: center;
+            width: 100%;
+            font-weight: bold;
         }
     }
 
@@ -1338,9 +1376,11 @@
             }
         }
         &.viewOnly {
-            .resetNode, .executeNodeOptimized, .resetAllNodes,
-            .description, .configureNode, .previewTable, .generateTable, .viewSchema {
+            li {
                 display: none;
+            }
+            .autoAlign, .selectAllNodes {
+                display: list-item;
             }
         }
     }

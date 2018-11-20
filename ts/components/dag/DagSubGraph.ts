@@ -131,7 +131,7 @@ class DagSubGraph extends DagGraph {
     public updateProgress(nodeInfos) {
         const nodeIdInfos = {};
 
-        nodeInfos.forEach((nodeInfo) => {
+        nodeInfos.forEach((nodeInfo, i) => {
             const tableName = nodeInfo.name.name;
             const nodeId = this._nameIdMap[tableName];
             if (!nodeId) {// could be a drop table node
@@ -142,6 +142,7 @@ class DagSubGraph extends DagGraph {
             }
             const nodeIdInfo = nodeIdInfos[nodeId];
             nodeIdInfo[tableName] = nodeInfo;
+            nodeInfo.index = i;
         });
 
         for (let nodeId in nodeIdInfos) {

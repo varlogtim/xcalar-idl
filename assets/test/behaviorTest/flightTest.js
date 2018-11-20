@@ -357,7 +357,7 @@ window.FlightTest = (function(FlightTest, $) {
             const $node = DagView.getNode(finalNodeId);
             test.nodeMenuAction($node, "executeNode");
 
-            test.hasNodeWithState(finalNodeId, DagNodeState.Complete)
+            test.executeNode(finalNodeId)
             .then(() => {
                 test.nodeMenuAction($node, "previewAgg");
                 return test.checkExists("#alertHeader:visible .text:contains(Agg)");

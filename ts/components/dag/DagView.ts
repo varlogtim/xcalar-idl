@@ -1,4 +1,10 @@
 namespace DagView {
+    export const horzPadding = 200;
+    export const vertPadding = 100;
+    export const nodeHeight = 28;
+    export const nodeWidth = 103;
+    export const gridSpacing = 20;
+    export const zoomLevels = [.25, .5, .75, 1, 1.5, 2];
     let $dagView: JQuery;
     let $dfWrap: JQuery;
     let $operatorBar: JQuery;
@@ -10,12 +16,6 @@ namespace DagView {
     const titleLineHeight = 12;
     const inConnectorWidth = 6;
     let clipboard = null;
-    export const horzPadding = 200;
-    export const vertPadding = 100;
-    export const nodeHeight = 28;
-    export const nodeWidth = 103;
-    export const gridSpacing = 20;
-    export const zoomLevels = [.25, .5, .75, 1, 1.5, 2];
     const lockedNodeIds = {};
 
     export function setup(): void {
@@ -35,6 +35,10 @@ namespace DagView {
         DagNodeMenu.setup();
         DagComment.Instance.setup();
         DagParamManager.Instance.setup();
+
+        if (UserSettings.getPref("dfProgressTips")) {
+            DagView.toggleProgressTips(true);
+        }
     }
 
     /**
@@ -253,6 +257,20 @@ namespace DagView {
 
         nodes.forEach((node: DagNode) => {
             _drawNode(node, $dfArea);
+            const nodeStats = node.getIndividualStats();
+            if (nodeStats.length) {
+                const timeStrs: string[] = [];
+                const skewInfos = [];
+                nodeStats.forEach((nodeStat) => {
+                    const skewInfo = _getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
+                    skewInfos.push(skewInfo);
+                    const timeStr: string = xcHelper.getElapsedTimeStr(nodeStat.elapsedTime);
+                    timeStrs.push(timeStr);
+                });
+                _addProgressTooltip(activeDag, node, $dfArea, skewInfos, timeStrs);
+                const nodeInfo = {position: node.getPosition()};
+                _repositionProgressInfo($dfArea, nodeInfo, node.getId());
+            }
         });
         nodes.forEach((node: DagNode, nodeId: DagNodeId) => {
             node.getParents().forEach((parentNode, index) => {
@@ -413,6 +431,7 @@ namespace DagView {
             if (nodeId.startsWith("dag")) {
                 // Remove tabs for custom OP
                 DagView.getNode(nodeId, null, $dfArea).remove();
+                $dfArea.find('.progressInfo[data-id="' + nodeId + '"]').remove();
                 $dfArea.find('.edge[data-childnodeid="' + nodeId + '"]').remove();
                 $dfArea.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function() {
                     const childNodeId = $(this).attr("data-childnodeid");
@@ -1085,7 +1104,6 @@ namespace DagView {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const graph: DagGraph = activeDag;
         const currTabId: string = graph.getTabId();
-        const lockedIds = [];
         const $dataflowArea: JQuery = _getActiveArea();
 
         graph.execute(nodeIds, optimized)
@@ -1118,11 +1136,6 @@ namespace DagView {
                 Alert.error(null, error);
             }
             deferred.reject(error);
-        })
-        .always(function() {
-            lockedIds.forEach((nodeId) => {
-                DagView.unlockNode(nodeId, currTabId);
-            });
         });
 
         return deferred.promise();
@@ -1609,6 +1622,12 @@ namespace DagView {
                 midWidth;
             $dfArea.scrollLeft(scrollLeft);
         }
+        activeDag.getAllNodes().forEach((node) => {
+            const nodeInfo = {
+                position: node.getPosition()
+            };
+            _repositionProgressInfo($dfArea, nodeInfo, node.getId());
+        });
     }
 
     export function findLinkOutNode(nodeId: DagNodeId): void {
@@ -1643,6 +1662,14 @@ namespace DagView {
 
     export function isLocked($dfArea): boolean {
         return $dfArea.hasClass("locked");
+    }
+
+    export function toggleProgressTips(show?: boolean): void {
+        if (show) {
+            $("#dagView").addClass("showProgressTips");
+        } else {
+            $("#dagView").removeClass("showProgressTips");
+        }
     }
 
     function _createCustomNode(
@@ -1933,6 +1960,8 @@ namespace DagView {
 
                     _drawLineBetweenNodes(tabId, parentNodeId, nodeId, connectorIndex, svg);
                 });
+                // move progressInfo if it has one
+                _repositionProgressInfo($dfArea, nodeInfo, nodeId);
             } else {
                 // comment node
                 const id = nodeInfo.id;
@@ -2008,6 +2037,7 @@ namespace DagView {
 
                 const spliceInfo = graph.removeNode(nodeId, isSwitchState);
                 DagView.getNode(nodeId, tabId).remove();
+                $dfArea.find('.progressInfo[data-id="' + nodeId + '"]').remove();
                 $dfArea.find('.edge[data-childnodeid="' + nodeId + '"]').remove();
                 $dfArea.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function() {
                     const childNodeId = $(this).attr("data-childnodeid");
@@ -2245,6 +2275,78 @@ namespace DagView {
             '</div>';
     }
 
+    function _nodeProgressTemplate(
+        nodeId: DagNodeId,
+        nodeX: number,
+        nodeY: number,
+        skewInfos: any[],
+        times: string[]
+    ): HTML {
+        const tooltipMargin = 5;
+        const tooltipPadding = 5;
+        const rowHeight = 10;
+        const scale = activeDag.getScale();
+        const x = scale * (nodeX - 10);
+        const y = Math.max(1, (scale * nodeY) - (rowHeight * (skewInfos.length + 1) + tooltipPadding + tooltipMargin));
+
+        let html = `<div data-id="${nodeId}" class="progressInfo dagTableTip" style="left:${x}px;top:${y}px;">`
+        html += `<table><thead>`;
+        if (skewInfos.length > 1) {
+            html += `<th>No.</th>`
+        }
+
+        html +=    `<th>Rows</th>
+                    <th>Time</th>
+                    <th>Skew</th>
+                </thead><tbody>`;
+        for (let i = 0; i < skewInfos.length; i++) {
+            // skewInfos, timeStrs
+            const skewColor = skewInfos[i].color;
+            let colorStyle = "";
+            if (skewColor) {
+                colorStyle = "color:" + skewColor;
+            }
+            html += `<tr>`;
+            if (skewInfos.length > 1) {
+                html += `<td>${i + 1}</td>`
+            }
+
+            html += `<td>${xcHelper.numToStr(skewInfos[i].totalRows)}</td>
+                        <td>${times[i]}</td>
+                        <td><span class="value" style="${colorStyle}">${skewInfos[i].text}</span></td>
+                    </tr>`;
+        }
+        html += `</tbody></table></div>`;
+
+        return html;
+    }
+
+    function _addProgressTooltip(graph, node, $dfArea, skewInfos, timeStrs) {
+        const pos = node.getPosition();
+        let tip: HTML = _nodeProgressTemplate(node.getId(), pos.x, pos.y, skewInfos, timeStrs);
+        const $tip = $(tip)
+        $dfArea.append($tip);
+        const width = $tip[0].getBoundingClientRect().width;
+        const nodeCenter = graph.getScale() * (pos.x + (DagView.nodeWidth / 2));
+        $tip.css("left", nodeCenter - (width / 2));
+    }
+
+    function _repositionProgressInfo($dfArea, nodeInfo, nodeId: DagNodeId): void {
+        const $progressInfo = $dfArea.find('.progressInfo[data-id="' + nodeId + '"]');
+        if ($progressInfo.length) {
+            $progressInfo.addClass("visible"); // in case we can't get the dimensions
+            // because user is hiding tips by default
+            const infoRect = $progressInfo[0].getBoundingClientRect();
+            const scale = activeDag.getScale();
+            const nodeCenter = nodeInfo.position.x + (DagView.nodeWidth / 2);
+            $progressInfo.css({
+                left: scale * nodeCenter - (infoRect.width / 2),
+                top: Math.max(1, (scale * nodeInfo.position.y) - (infoRect.height + 5))
+            });
+            $progressInfo.removeClass("visible");
+        }
+    }
+
     function _removeConnection(
         $edge: JQuery,
         $dfArea: JQuery,
@@ -2398,6 +2500,7 @@ namespace DagView {
                 $container: $dagView,
                 $dropTarget: $dfArea.find(".dataflowAreaWrapper"),
                 round: gridSpacing,
+                padding: gridSpacing,
                 scale: activeDag.getScale(),
                 elOffsets: elOffsets,
                 onDragStart: function (_$els) {
@@ -3260,6 +3363,9 @@ namespace DagView {
                 // when switch from error state to other state
                 _setTooltip($node, info.node);
             }
+            if (info.state !== DagNodeState.Complete) {
+                _getAreaByTab(info.tabId).find('.progressInfo[data-id="' + info.id + '"]').remove();
+            }
             const dagTab: DagTab = DagTabManager.Instance.getTabById(info.tabId);
             dagTab.save();
         });
@@ -3273,6 +3379,7 @@ namespace DagView {
 
         graph.events.on(DagNodeEvents.ParamChange, function (info) {
             const $node: JQuery = DagView.getNode(info.id, info.tabId);
+
             _drawTitleText($node, info.node);
             // const title = _formatTooltip(info.params);
             // xcTooltip.add($node.find(".main"), {
@@ -3292,6 +3399,7 @@ namespace DagView {
                     .text("<>");
 
             }
+            _getAreaByTab(info.tabId).find('.progressInfo[data-id="' + info.id + '"]').remove();
             const dagTab: DagTab = DagTabManager.Instance.getTabById(info.tabId);
             dagTab.save();
             if (!info.noAutoExecute && UserSettings.getPref("dfAutoExecute") === true) {
@@ -3676,6 +3784,7 @@ namespace DagView {
             .text("0%");
     }
 
+    // assumes every node in queryStateOuput corresponds to 1 UI node
     export function calculateAndUpdateProgress(
         queryStateOutput,
         nodeId: DagNodeId,
@@ -3684,7 +3793,23 @@ namespace DagView {
         const progress: number = xcHelper.getQueryProgress(queryStateOutput);
         const pct: number = Math.round(100 * progress);
         if (!isNaN(pct)) {
-            DagView.updateProgress(nodeId, tabId, pct);
+            let tab: DagTab = <DagTab>DagTabManager.Instance.getTabById(tabId);
+            let graph: DagGraph = tab.getGraph();
+            const node: DagNode = graph.getNode(nodeId);
+
+            graph.updateProgress(nodeId, queryStateOutput.queryGraph.node);
+
+            const nodeStats = node.getIndividualStats();
+            const timeStrs: string[] = [];
+            const skewInfos = [];
+            nodeStats.forEach((nodeStat) => {
+                const skewInfo = _getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
+                skewInfos.push(skewInfo);
+                const timeStr: string = xcHelper.getElapsedTimeStr(nodeStat.elapsedTime);
+                timeStrs.push(timeStr);
+            });
+
+            DagView.updateProgress(nodeId, tabId, pct, true, skewInfos, timeStrs);
         } else {
             return;
         }
@@ -3696,12 +3821,21 @@ namespace DagView {
             let subGraph = (<DagNodeSQL>node).getSubGraph();
             const subTabId: string = subGraph.getTabId();
             subGraph.updateProgress(queryStateOutput.queryGraph.node);
-
+            if (!subTabId) {
+                return;
+            }
             subGraph.getAllNodes().forEach((node, nodeId) => {
-                const nodeStats = node.getOverallStats();
-                const timeStr: string = xcHelper.getElapsedTimeStr(nodeStats.time);
-                const skewInfo = _getSkewInfo("temp name", nodeStats.rows, nodeStats.skewValue, nodeStats.totalRows, nodeStats.size);
-                DagView.updateProgress(nodeId, subTabId, nodeStats.pct, true, skewInfo, timeStr);
+                const overallStats = node.getOverallStats();
+                const nodeStats = node.getIndividualStats();
+                const timeStrs: string[] = [];
+                const skewInfos = [];
+                nodeStats.forEach((nodeStat) => {
+                    const skewInfo = _getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
+                    skewInfos.push(skewInfo);
+                    const timeStr: string = xcHelper.getElapsedTimeStr(nodeStat.elapsedTime);
+                    timeStrs.push(timeStr);
+                });
+                DagView.updateProgress(nodeId, subTabId, overallStats.pct, true, skewInfos, timeStrs);
             });
         }
     }
@@ -3711,17 +3845,28 @@ namespace DagView {
         tabId: string,
         progress: number,
         _isOptimized?: boolean,
-        _skew?,
-        _timeStr?: string
+        skewInfos?: any[],
+        timeStrs?: string[]
     ): void {
-        const $dataflowArea: JQuery = _getAreaByTab(tabId);
-        const g = d3.select($dataflowArea.find('.operator[data-nodeid = "' + nodeId + '"]')[0]);
+        const $dfArea: JQuery = _getAreaByTab(tabId);
+        const g = d3.select($dfArea.find('.operator[data-nodeid = "' + nodeId + '"]')[0]);
         let opProgress = g.select(".opProgress");
         if (opProgress.empty()) {
             DagView.addProgress(nodeId, tabId);
             opProgress = g.select(".opProgress");
         }
         opProgress.text(progress + "%");
+        if (skewInfos) {
+            $dfArea.find('.progressInfo[data-id="' + nodeId + '"]').remove();
+            const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId);
+            if (!dagTab) {
+                // sql graph may not have tab registered with dagTabManager
+                return;
+            }
+            const graph: DagGraph = dagTab.getGraph()
+            const node: DagNode = graph.getNode(nodeId);
+            _addProgressTooltip(graph, node, $dfArea, skewInfos, timeStrs);
+        }
     }
 
     export function updateOptimizedDFProgress(queryName, queryStateOutput) {
@@ -3731,16 +3876,33 @@ namespace DagView {
         }
         let graph: DagSubGraph = tab.getGraph();
         graph.updateProgress(queryStateOutput.queryGraph.node);
-
         graph.getAllNodes().forEach((node, nodeId) => {
-            const nodeStats = node.getOverallStats();
-            const timeStr: string = xcHelper.getElapsedTimeStr(nodeStats.time);
-            const skewInfo = _getSkewInfo("temp name", nodeStats.rows, nodeStats.skewValue, nodeStats.totalRows, nodeStats.size);
-            DagView.updateProgress(nodeId, tab.getId(), nodeStats.pct, true, skewInfo, timeStr);
+            const overallStats = node.getOverallStats();
+            const nodeStats = node.getIndividualStats();
+
+            const timeStrs: string[] = [];
+            const skewInfos = [];
+            nodeStats.forEach((nodeStat) => {
+                const skewInfo = _getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
+                skewInfos.push(skewInfo);
+                const timeStr: string = xcHelper.getElapsedTimeStr(nodeStat.elapsedTime);
+                timeStrs.push(timeStr);
+            });
+
+            DagView.updateProgress(nodeId, tab.getId(), overallStats.pct, true, skewInfos, timeStrs);
         });
     }
 
-    function _getSkewInfo(name, rows, skew, totalRows, inputSize) {
+    function _getSkewInfo(name, rows, skew, totalRows, inputSize):
+    {
+        name: string,
+        value: number,
+        text: string,
+        color: string,
+        rows: number,
+        totalRows: number,
+        size: number
+    } {
         const skewText = getSkewText(skew);
         const skewColor = getSkewColor(skewText);
         return {
@@ -3797,10 +3959,20 @@ namespace DagView {
             subGraph.updateProgress(queryStateOutput.queryGraph.node);
 
             subGraph.getAllNodes().forEach((node, nodeId) => {
-                const nodeStats = node.getOverallStats();
-                const timeStr: string = xcHelper.getElapsedTimeStr(nodeStats.time);
-                const skewInfo = _getSkewInfo("temp name", nodeStats.rows, nodeStats.skewValue, nodeStats.totalRows, nodeStats.size);
-                DagView.updateProgress(nodeId, subTabId, nodeStats.pct, true, skewInfo, timeStr);
+                if (subTabId) {
+                    return;
+                }
+                const overallStats = node.getOverallStats();
+                const nodeStats = node.getIndividualStats();
+                const timeStrs: string[] = [];
+                const skewInfos = [];
+                nodeStats.forEach((nodeStat) => {
+                    const skewInfo = _getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
+                    skewInfos.push(skewInfo);
+                    const timeStr: string = xcHelper.getElapsedTimeStr(nodeStat.elapsedTime);
+                    timeStrs.push(timeStr);
+                });
+                DagView.updateProgress(nodeId, subTabId, overallStats.pct, true, skewInfos, timeStrs);
                 DagView.removeProgress(nodeId, subTabId, queryStateOutput);
             });
             subGraph.endProgress(queryStateOutput.queryState, queryStateOutput.elapsed.milliseconds);

@@ -72,8 +72,8 @@ class DagNodeFilter extends DagNode {
     /**
      * @override
      */
-    protected _getSerializeInfo(): DagNodeFilterInfo {
-        let info = super._getSerializeInfo();
+    protected _getSerializeInfo(includeStats?: boolean): DagNodeFilterInfo {
+        let info = super._getSerializeInfo(includeStats);
         info['aggregates'] = this._aggregates;
         return info;
     }

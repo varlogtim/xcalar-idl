@@ -597,9 +597,20 @@ window.TestSuite = (function($, TestSuite) {
         },
 
         executeNode(nodeId) {
+            var self = this;
+            const deferred = PromiseHelper.deferred();
             const $node = DagView.getNode(nodeId);
+            const dfId = $node.closest(".dataflowArea").data("id");
             this.nodeMenuAction($node, "executeNode");
-            return this.hasNodeWithState(nodeId, DagNodeState.Complete);
+
+            this.hasNodeWithState(nodeId, DagNodeState.Complete)
+            .then(() => {
+                return self.checkExists('.dataflowArea[data-id="' + dfId + '"]:not(.locked)');
+            })
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+
+            return deferred.promise();
         }
     };
 

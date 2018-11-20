@@ -91,8 +91,8 @@ class DagNodeAggregate extends DagNode {
         this.setAggVal(null);
     }
 
-    protected _getSerializeInfo():DagNodeAggregateInfo {
-        const serializedInfo: DagNodeAggregateInfo = <DagNodeAggregateInfo>super._getSerializeInfo();
+    protected _getSerializeInfo(includeStats?: boolean):DagNodeAggregateInfo {
+        const serializedInfo: DagNodeAggregateInfo = <DagNodeAggregateInfo>super._getSerializeInfo(includeStats);
         if (this.aggVal != null) {
             serializedInfo.aggVal = this.aggVal;
         }

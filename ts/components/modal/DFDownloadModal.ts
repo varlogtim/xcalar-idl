@@ -13,6 +13,7 @@ class DFDownloadModal {
         DF: "DF",
         OptimziedDF: "OptimizedDF",
         Image: "Image",
+        OperationStats: "Operation Statistics"
     };
 
     private constructor() {
@@ -70,12 +71,17 @@ class DFDownloadModal {
             type: this._DownloadTypeEnum.Image,
             text: "Image",
             suffix: ".png"
+        },
+        {
+            type: this._DownloadTypeEnum.OperationStats,
+            text: "Operation Statistics",
+            suffix: ".json"
         }];
     }
 
     private _renderDropdown(): void {
         const lis: HTML = this._model.map((typeInfo) => {
-            return `<li data-type="${typeInfo.type}">${typeInfo.text}(${typeInfo.suffix})`;
+            return `<li data-type="${typeInfo.type}">${typeInfo.text} (${typeInfo.suffix})`;
         }).join("");
         const $dropdown: JQuery = this._getDownloadTypeList();
         $dropdown.find("ul").html(lis);
@@ -168,6 +174,8 @@ class DFDownloadModal {
                 return this._downloadDataflow(name, true);
             case this._DownloadTypeEnum.Image:
                 return this._downloadImage(name);
+            case this._DownloadTypeEnum.OperationStats:
+                return this._downloadStats(name);
             default:
                 return PromiseHelper.reject("Invalid download type");
         }
@@ -293,6 +301,11 @@ class DFDownloadModal {
         });
 
         return deferred.promise();
+    }
+
+    private _downloadStats(name: string): XDPromise<void> {
+        const tab: DagTabUser = <DagTabUser>this._dagTab;
+        return tab.downloadStats(name);
     }
 
     private _addEventListeners() {

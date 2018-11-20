@@ -17,8 +17,8 @@ class DagNodePlaceholder extends DagNode {
         };
     }
 
-    protected _getSerializeInfo(): DagNodeInfo {
-        const serializedInfo: DagNodePlaceholderInfo = <DagNodePlaceholderInfo>super._getSerializeInfo();
+    protected _getSerializeInfo(includeStats?: boolean): DagNodeInfo {
+        const serializedInfo: DagNodePlaceholderInfo = <DagNodePlaceholderInfo>super._getSerializeInfo(includeStats);
         serializedInfo.name = this.name;
         return serializedInfo;
     }

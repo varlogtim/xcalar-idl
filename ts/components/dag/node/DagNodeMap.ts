@@ -155,8 +155,8 @@ class DagNodeMap extends DagNode {
     /**
      * @override
      */
-    protected _getSerializeInfo(): DagNodeMapInfo {
-        let info = super._getSerializeInfo();
+    protected _getSerializeInfo(includeStats?: boolean): DagNodeMapInfo {
+        let info = super._getSerializeInfo(includeStats);
         info['aggregates'] = this._aggregates;
         return info;
     }

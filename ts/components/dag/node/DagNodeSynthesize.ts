@@ -16,8 +16,8 @@ class DagNodeSynthesize extends DagNode {
         };
     }
 
-    protected _getSerializeInfo(): DagNodeInfo {
-        const serializedInfo: DagNodeIndexInfo = <DagNodeIndexInfo>super._getSerializeInfo();
+    protected _getSerializeInfo(includeStats?: boolean): DagNodeInfo {
+        const serializedInfo: DagNodeIndexInfo = <DagNodeIndexInfo>super._getSerializeInfo(includeStats);
         if (this.columns) {
             const columns = this.columns.map((progCol) => {
                 return {name: progCol.getBackColName(), type: progCol.getType()};

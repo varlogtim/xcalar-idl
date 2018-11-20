@@ -39,6 +39,13 @@ class DFSettingsModal {
             const name: string = setting.name;
             const val: boolean = $rows.eq(index).find(".checkbox").hasClass("checked");
             UserSettings.setPref(name, val, false);
+            switch(name) {
+                case ("dfProgressTips"):
+                    DagView.toggleProgressTips(val);
+                    break;
+                default:
+                    break;
+            }
         });
 
         const promise: XDPromise<void> = UserSettings.commit(true, false, true);
@@ -56,7 +63,7 @@ class DFSettingsModal {
 
     private _renderRowFromSetting(setting: {name: string, text: string}): string {
         const name: string = setting.name;
-        const pref: boolean = UserSettings.getPref(name) || false; 
+        const pref: boolean = UserSettings.getPref(name) || false;
         let html: HTML =
             '<div class="row ' + name + ' checkboxSection">' +
                 '<div class="checkbox' + (pref ? ' checked' : '') + '">' +
@@ -75,6 +82,9 @@ class DFSettingsModal {
         }, {
             name: "dfAutoPreview",
             text: DFTStr.AutoPreview
+        },{
+            name: "dfProgressTips",
+            text: DFTStr.ShowProgressTips
         }];
     }
 

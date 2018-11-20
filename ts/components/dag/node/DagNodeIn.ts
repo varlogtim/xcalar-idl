@@ -39,8 +39,8 @@ abstract class DagNodeIn extends DagNode {
         };
     }
 
-    protected _getSerializeInfo():DagNodeInInfo {
-        const serializedInfo: DagNodeInInfo = <DagNodeInInfo>super._getSerializeInfo();
+    protected _getSerializeInfo(includeStats?: boolean):DagNodeInInfo {
+        const serializedInfo: DagNodeInInfo = <DagNodeInInfo>super._getSerializeInfo(includeStats);
         serializedInfo.schema = this.getSchema();
         return serializedInfo;
     }

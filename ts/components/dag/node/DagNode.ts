@@ -23,7 +23,10 @@ abstract class DagNode {
     protected maxChildren: number; // non-persistent
     protected allowAggNode: boolean; // non-persistent
     protected display: DagNodeDisplayInfo; // coordinates are persistent
-    protected progressInfo: {nodes: {[key: string]: TableProgressInfo}};
+    protected progressInfo: {
+            nodes: {[key: string]: TableProgressInfo},
+            hasRun: boolean
+        };
 
     public static setup(): void {
         this.uid = new XcUID("dag");
@@ -59,7 +62,14 @@ abstract class DagNode {
 
         const displayType = this.subType || this.type; // XXX temporary
         this.display.description = "Description for the " + displayType + " operation";
-        this.progressInfo = {nodes: {}};
+        this.progressInfo = {
+            hasRun: false,
+            nodes: {}
+        };
+        if (options.stats && !$.isEmptyObject(options.stats)) {
+            this.progressInfo.nodes = options.stats;
+            this.progressInfo.hasRun = true;
+        }
     }
 
     /**
@@ -413,16 +423,16 @@ abstract class DagNode {
         throw new Error("Dag " + childNode.getId() + " is not child of " + this.getId());
     }
 
-    public getSerializableObj(): DagNodeInfo {
-        return this.getNodeInfo();
+    public getSerializableObj(includeStats?: boolean): DagNodeInfo {
+        return this.getNodeInfo(includeStats);
     }
 
     /**
      * Generates JSON representing this node
      * @returns JSON object
      */
-    public getNodeInfo(): DagNodeInfo {
-        return this._getNodeInfoWithParents();
+    public getNodeInfo(includeStats?: boolean): DagNodeInfo {
+        return this._getNodeInfoWithParents(includeStats);
     }
 
     /**
@@ -578,16 +588,43 @@ abstract class DagNode {
         const errorStates = [DgDagStateT.DgDagStateUnknown, DgDagStateT.DgDagStateError, DgDagStateT.DgDagStateArchiveError];
         let isComplete = true;
         let errorState = null;
+        this.progressInfo.hasRun = true;
         for (let tableName in tableNameMap) {
-            const tableProgressInfo = this.progressInfo.nodes[tableName];
+            let tableProgressInfo = this.progressInfo.nodes[tableName];
+            if (!tableProgressInfo) {
+                tableProgressInfo = {
+                    startTime: null,
+                    pct: 0,
+                    state: DgDagStateT.DgDagStateQueued,
+                    numRowsTotal: 0,
+                    numWorkCompleted: 0,
+                    numWorkTotal: 0,
+                    skewValue: 0,
+                    elapsedTime: 0,
+                    size: 0,
+                    rows: []
+                };
+                this.progressInfo.nodes[tableName] = tableProgressInfo;
+            }
+
             const nodeInfo = tableNameMap[tableName];
             if (nodeInfo.state === DgDagStateT.DgDagStateProcessing &&
                 tableProgressInfo.state !== DgDagStateT.DgDagStateProcessing) {
                 tableProgressInfo.startTime = Date.now();
 
             }
+            tableProgressInfo.name = tableName;
+            tableProgressInfo.type = nodeInfo.api;
             tableProgressInfo.state = nodeInfo.state;
-            tableProgressInfo.elapsedTime = nodeInfo.elapsed.milliseconds;
+            tableProgressInfo.index = nodeInfo.index;
+            let elapsedTime;
+            if (tableProgressInfo.state === DgDagStateT.DgDagStateProcessing) {
+                elapsedTime = Date.now() - tableProgressInfo.startTime;
+            } else {
+                elapsedTime = nodeInfo.elapsed.milliseconds;
+            }
+
+            tableProgressInfo.elapsedTime = elapsedTime;
             let progress: number = 0;
             if (nodeInfo.state === DgDagStateT.DgDagStateProcessing ||
                 nodeInfo.state === DgDagStateT.DgDagStateReady) {
@@ -632,13 +669,15 @@ abstract class DagNode {
     } {
         let numWorkCompleted: number = 0;
         let numWorkTotal: number = 0
-        let rows, skew, numRowsTotal, size;
+        let numRowsTotal: number = 0;
+        let rows, skew, size;
         for (let tableName in this.progressInfo.nodes) {
             const node = this.progressInfo.nodes[tableName];
             if (node.state === DgDagStateT.DgDagStateProcessing ||
                 node.state === DgDagStateT.DgDagStateReady) {
                 numWorkCompleted += node.numWorkCompleted;
                 numWorkTotal += node.numWorkTotal;
+                numRowsTotal += node.numRowsTotal;
             }
             rows = node.rows;
             skew = node.skewValue;
@@ -661,12 +700,62 @@ abstract class DagNode {
         return stats;
     }
 
+    public getIndividualStats(clean?: boolean): any[] {
+        const nodesArray = [];
+        if (clean) {
+            const nodes = xcHelper.deepCopy(this.progressInfo.nodes);
+            for (let name in nodes) {
+                const node = nodes[name];
+                delete node.numRowsTotal;
+                delete node.startTime;
+                node.state = DgDagStateTStr[node.state];
+                node.type = XcalarApisTStr[node.type];
+                nodesArray.push(node);
+            }
+        } else {
+            for (let name in this.progressInfo.nodes) {
+                const node = this.progressInfo.nodes[name];
+                nodesArray.push(node);
+            }
+        }
+        nodesArray.sort((a,b) => {
+            if (a.index > b.index) {
+                return 1;
+            } else {
+                return -1;
+            }
+        });
+        return nodesArray;
+    }
+
     /**
      * Check if number of parents is unlimited
      */
     public canHaveMultiParents(): boolean {
         return this._canHaveMultiParents();
     }
+
+    public getDisplayNodeType(): string {
+        const nodeType: string = this.type;
+        let displayNodeType = xcHelper.capitalize(nodeType);
+        if (displayNodeType === "Sql") {
+            displayNodeType = "SQL";
+        }
+        if (this instanceof DagNodeCustom) {
+            displayNodeType = this.getCustomName();
+        } else if (this instanceof DagNodeCustomInput) {
+            displayNodeType = this.getPortName();
+        }
+        if (this.subType) {
+            let nodeSubType: string = this.getSubType() || "";
+            nodeSubType = xcHelper.capitalize(nodeSubType);
+            if (nodeSubType) {
+                displayNodeType = nodeSubType;
+            }
+        }
+        return displayNodeType;
+    }
+
 
     private _getElapsedTime(): number {
         let cummulativeTime = 0;
@@ -714,8 +803,8 @@ abstract class DagNode {
 
     // Custom dagNodes will have their own serialize/deserialize for
     // Their dagGraphs
-    protected _getSerializeInfo(): DagNodeInfo {
-        return {
+    protected _getSerializeInfo(includeStats?: boolean): DagNodeInfo {
+        const info = {
             type: this.type,
             subType: this.subType,
             table: this.table,
@@ -725,8 +814,16 @@ abstract class DagNode {
             input: xcHelper.deepCopy(this.input.getInput()),
             id: this.id,
             state: this.state,
-            error: this.error
+            error: this.error,
+        };
+        if (includeStats) {
+            if (this.progressInfo.hasRun) {
+                info.stats = this.progressInfo.nodes;
+            } else {
+                info.stats = {};
+            }
         }
+        return info;
     }
 
     protected _genParamHint(): string {
@@ -739,9 +836,9 @@ abstract class DagNode {
         return this.input.validate(input);
     }
 
-    private _getNodeInfoWithParents(): DagNodeInfo {
+    private _getNodeInfoWithParents(includeStats?: boolean): DagNodeInfo {
         const parents: DagNodeId[] = this.parents.map((parent) => parent.getId());
-        const seriazliedInfo = this._getSerializeInfo();
+        const seriazliedInfo = this._getSerializeInfo(includeStats);
         seriazliedInfo["parents"] = parents;
         return seriazliedInfo;
     }
@@ -758,6 +855,10 @@ abstract class DagNode {
     private _setState(state: DagNodeState): void {
         const oldState: DagNodeState = this.state;
         this.state = state;
+        if (state !== DagNodeState.Complete) {
+            this.progressInfo.hasRun = false;
+            this.progressInfo.nodes = {};
+        }
         this.events.trigger(DagNodeEvents.StateChange, {
             id: this.getId(),
             oldState: oldState,

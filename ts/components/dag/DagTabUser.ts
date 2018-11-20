@@ -146,7 +146,7 @@ class DagTabUser extends DagTab {
         }
         if (!this._autoSave && !forceSave) {
             this._unsaved = true;
-            return this._writeToTempKVStore()
+            return this._writeToTempKVStore(true)
                     .then(() => {
                         this._trigger("modify");
                     });
@@ -261,19 +261,20 @@ class DagTabUser extends DagTab {
         return clonedTab;
     }
 
-    protected _getJSON(): {
+    protected _getJSON(includeStats?: boolean): {
         name: string,
         id: string,
         dag: DagGraphInfo,
         autoSave: boolean
     } {
-        const json = <any>super._getJSON();
+        const json = <any>super._getJSON(includeStats);
         json.autoSave = this._autoSave;
         return json;
     }
 
     protected _writeToKVStore(): XDPromise<void> {
-        return super._writeToKVStore(this._getJSON());
+        // getJSON with includeStats = true
+        return super._writeToKVStore(this._getJSON(true));
     }
 
     private _getTempName(): string {

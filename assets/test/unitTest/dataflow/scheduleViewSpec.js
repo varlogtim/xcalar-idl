@@ -1,4 +1,4 @@
-describe("Schedule related Test", function() {
+describe.skip("Schedule related Test", function() {
     var oldRefresh;
 
     before(function(done) {

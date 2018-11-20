@@ -13,8 +13,9 @@ interface DragHelperOptions {
     offset?: Coordinate,
     noCursor?: boolean,
     round?: number,
-    scale?: number
-    elOffsets?: Coordinate[]
+    scale?: number,
+    elOffsets?: Coordinate[],
+    padding?: number
 }
 
 interface DragHelperCoordinate {
@@ -56,6 +57,7 @@ class DragHelper {
     protected round: number;
     protected scale: number;
     protected elOffsets: Coordinate[]
+    protected padding: number;
 
     public constructor(options: DragHelperOptions) {
         const self = this;
@@ -98,6 +100,7 @@ class DragHelper {
         this.currX = this.lastX;
         this.currY = this.lastY;
         this.elOffsets = options.elOffsets || [];
+        this.padding = options.padding || 0;
 
         $(document).on("mousemove.checkDrag", function(event: JQueryEventObject) {
             self.checkDrag(event);
@@ -367,7 +370,7 @@ class DragHelper {
         let coors: Coordinate[] = [];
 
         // check if item was dropped within left and top boundaries of drop target
-        if (deltaX >= 0 && deltaY >= 0) {
+        if (deltaX >= this.padding && deltaY >= this.padding) {
             this.dragContainerItemsPositions.forEach(pos => {
                 coors.push({
                     x: (deltaX / this.scale) + pos.x,

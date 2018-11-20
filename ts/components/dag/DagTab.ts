@@ -121,6 +121,24 @@ abstract class DagTab {
         this._dagGraph.setTabId(this._id);
     }
 
+    public getShortName(): string {
+        const name: string = this.getName();
+        const splits: string[] = name.split("/");
+        return splits[splits.length - 1];
+    }
+
+    public downloadStats(name: string): XDPromise<void> {
+        let fileName: string = name || this.getShortName();
+        fileName += ".json";
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const statsJson = this.getGraph().getStatsJson();
+
+        xcHelper.downloadAsFile(fileName, JSON.stringify(statsJson, null, 4), true);
+        deferred.resolve();
+
+        return deferred.promise();
+    }
+
     // the save version of meta
     protected _loadFromKVStore(): XDPromise<any> {
         if (this._kvStore == null) {
@@ -178,16 +196,16 @@ abstract class DagTab {
     }
 
     // save a temp copy of meta
-    protected _writeToTempKVStore(): XDPromise<void> {
+    protected _writeToTempKVStore(includeStats?: boolean): XDPromise<void> {
         if (this._dagGraph == null) {
             // when the grah is not loaded
             return PromiseHelper.reject();
         }
-        const serializedJSON: string = JSON.stringify(this._getJSON());
+        const serializedJSON: string = JSON.stringify(this._getJSON(includeStats));
         return this._tempKVStore.put(serializedJSON, true, true);
     }
 
-    protected _getJSON(): {
+    protected _getJSON(includeStats?: boolean): {
         name: string,
         id: string,
         dag: DagGraphInfo
@@ -195,7 +213,7 @@ abstract class DagTab {
         return {
             name: this._name,
             id: this._id,
-            dag: this._dagGraph.getSerializableObj()
+            dag: this._dagGraph.getSerializableObj(includeStats)
         }
     }
 

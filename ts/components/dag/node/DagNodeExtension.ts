@@ -97,8 +97,8 @@ class DagNodeExtension extends DagNode {
     /**
      * @override
      */
-    protected _getSerializeInfo():DagNodeExtensionInfo {
-        const serializedInfo: DagNodeExtensionInfo = <DagNodeExtensionInfo>super._getSerializeInfo();
+    protected _getSerializeInfo(includeStats?: boolean):DagNodeExtensionInfo {
+        const serializedInfo: DagNodeExtensionInfo = <DagNodeExtensionInfo>super._getSerializeInfo(includeStats);
         serializedInfo.newColumns = this.newColumns;
         serializedInfo.droppedColumns = this.droppedColumns;
         return serializedInfo;

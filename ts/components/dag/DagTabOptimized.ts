@@ -72,7 +72,7 @@ class DagTabOptimized extends DagTab {
         const comments: CommentInfo[] = [];
         const graphInfo = {
             comments: comments,
-            display: <Dimensions>{},
+            display: <Dimensions>{scale: 1},
             nodes: nodeInfos
         };
 
@@ -87,8 +87,8 @@ class DagTabOptimized extends DagTab {
                 y: nodeInfo.position.y + 100,
             });
         });
-        graph.setDimensions(positionInfo.maxX + DagView.horzPadding,
-                            positionInfo.maxY + DagView.vertPadding);
+        graph.setDimensions(positionInfo.maxX + DagView.horzPadding + 100,
+                            positionInfo.maxY + DagView.vertPadding + 100);
 
     }
 }

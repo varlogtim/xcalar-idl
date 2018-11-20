@@ -27,11 +27,11 @@ class DagGraph {
     /**
      * Generates the serializable version of this graph.
      */
-    public getSerializableObj(): DagGraphInfo {
+    public getSerializableObj(includeStats?: boolean): DagGraphInfo {
         let nodes: DagNodeInfo[] = [];
         // Assemble node list
         this.nodesMap.forEach((node: DagNode) => {
-            nodes.push(node.getSerializableObj());
+            nodes.push(node.getSerializableObj(includeStats));
         });
         let comments: CommentInfo[] = [];
         this.commentsMap.forEach((comment) => {
@@ -563,7 +563,7 @@ class DagGraph {
     }
 
     public getScale(): number {
-        return this.display.scale;
+        return this.display.scale || 1;
     }
 
     public getAllNodes(): Map<DagNodeId, DagNode> {
@@ -911,6 +911,44 @@ class DagGraph {
         return this._checkApplicableChild(nodes, ((node) => {
             return DagTblManager.Instance.hasLock(node.getTable());
         }));
+    }
+
+    public getStatsJson() {
+        const stats = [];
+        this.nodesMap.forEach((node: DagNode) => {
+            const overallStats = node.getOverallStats();
+            delete overallStats.rows;
+            overallStats.state = node.getState();
+
+            const nodeStats = {
+                name: node.getTitle(),
+                type: node.getDisplayNodeType(),
+                description: node.getDescription(),
+                hint: node.getParamHint(),
+                overallStats: overallStats,
+                operations: node.getIndividualStats(true)
+            }
+            stats.push(nodeStats);
+        });
+        return stats;
+    }
+
+    public updateProgress(nodeId, nodeInfos) {
+        const nodeIdInfos = {};
+
+        nodeInfos.forEach((nodeInfo, i) => {
+            const tableName = nodeInfo.name.name;
+            if (!nodeIdInfos.hasOwnProperty(nodeId)) {
+                nodeIdInfos[nodeId] = {}
+            }
+            const nodeIdInfo = nodeIdInfos[nodeId];
+            nodeIdInfo[tableName] = nodeInfo;
+            nodeInfo.index = i;
+        });
+
+        for (let nodeId in nodeIdInfos) {
+            this.getNode(nodeId).updateProgress(nodeIdInfos[nodeId]);
+        }
     }
 
     private _setupEvents(): void {

@@ -242,7 +242,8 @@ namespace QueryManager {
      * @param options
      */
     export function subQueryDone(
-        id: number, dstTable: string | null,
+        id: number,
+        dstTable: string | null,
         time: object,
         options?: SubQueryDoneOptions
     ): void {
@@ -777,7 +778,7 @@ namespace QueryManager {
         let intTime: number = checkInterval;
         if (adjustTime) { // prevents check from occuring too soon after the
             // previous check
-            intTime = Math.max(200, checkInterval - adjustTime);
+            intTime = Math.max(checkInterval, checkInterval - adjustTime);
         }
 
         queryCheckList[id] = window.setTimeout(function() {
@@ -812,6 +813,7 @@ namespace QueryManager {
     function getLastOperationPos(mainQuery: XcQuery, start: number): number {
         const currStep: number = mainQuery.currStep;
         const subQueries: XcSubQuery[] = mainQuery.subQueries;
+
         const queryName: string = subQueries[currStep].queryName;
         let lastOperationPos: number = start;
         for (let i = subQueries.length - 1; i >= 0; i--) {
@@ -975,7 +977,6 @@ namespace QueryManager {
 
     function incrementStep(mainQuery: XcQuery): void {
         mainQuery.currStep++;
-
         const id: number = mainQuery.getId();
         const $query: JQuery = $queryList.find('.query[data-id="' + id + '"]');
 

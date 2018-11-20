@@ -15,7 +15,7 @@ class DagNodeCustom extends DagNode {
         this._output = [];
         this.maxParents = 0; // default to 0, will change when adding inputs
         this.minParents = 0; // default to 0, will change when adding inputs
-        this.maxChildren = 0; // default to 0, will change when adding outputs 
+        this.maxChildren = 0; // default to 0, will change when adding outputs
         this.display.icon = "&#xea5e;";
 
         if (options != null && options.subGraph != null
@@ -292,7 +292,7 @@ class DagNodeCustom extends DagNode {
     /**
      * @override
      * validates a given input, if no input given, will validate, it's own input
-     * @param input 
+     * @param input
      */
     public validateParam(_input?: any): {error: string} {
         for (const node of this.getSubGraph().getAllNodes().values()) {
@@ -381,8 +381,8 @@ class DagNodeCustom extends DagNode {
         }
     }
 
-    protected _getSerializeInfo(): DagNodeCustomInfo {
-        const nodeInfo = super._getSerializeInfo() as DagNodeCustomInfo;
+    protected _getSerializeInfo(includeStats?: boolean): DagNodeCustomInfo {
+        const nodeInfo = super._getSerializeInfo(includeStats) as DagNodeCustomInfo;
         // Input ports
         nodeInfo.inPorts = this._input.map((inputNode, portIdx) => {
             return {

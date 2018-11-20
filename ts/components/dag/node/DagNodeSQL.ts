@@ -160,8 +160,8 @@ class DagNodeSQL extends DagNode {
         };
     }
 
-    protected _getSerializeInfo(): DagNodeSQLInfo {
-        const nodeInfo = super._getSerializeInfo() as DagNodeSQLInfo;
+    protected _getSerializeInfo(includeStats?: boolean): DagNodeSQLInfo {
+        const nodeInfo = super._getSerializeInfo(includeStats) as DagNodeSQLInfo;
         nodeInfo.sqlQueryString = this.sqlQueryString;
         nodeInfo.identifiersOrder = [];
         nodeInfo.identifiers = {};

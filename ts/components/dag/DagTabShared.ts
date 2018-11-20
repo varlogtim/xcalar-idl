@@ -84,12 +84,6 @@ class DagTabShared extends DagTab {
         return this._name;
     }
 
-    public getShortName(): string {
-        const name: string = this.getName();
-        const splits: string[] = name.split("/");
-        return splits[splits.length - 1];
-    }
-
     public getPath(): string {
         return DagTabShared.PATH + this.getName();
     }
@@ -295,7 +289,7 @@ class DagTabShared extends DagTab {
                 return PromiseHelper.reject({error: "Error Dataflow"});
             }
             this._id = id;
-            
+
             udfPathPrefix = `/workbook/${DagTabShared._secretUser}/${id}/udf/`;
             const udfPattern: string = udfPathPrefix + "*";
             return XcalarListXdfs(udfPattern, "User*");

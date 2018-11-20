@@ -15,8 +15,8 @@ class DagNodeIndex extends DagNode {
         };
     }
 
-    protected _getSerializeInfo():DagNodeIndexInfo {
-        const serializedInfo: DagNodeIndexInfo = <DagNodeIndexInfo>super._getSerializeInfo();
+    protected _getSerializeInfo(includeStats?: boolean):DagNodeIndexInfo {
+        const serializedInfo: DagNodeIndexInfo = <DagNodeIndexInfo>super._getSerializeInfo(includeStats);
         if (this.columns) {
             const columns = this.columns.map((progCol) => {
                 return {name: progCol.getBackColName(), type: progCol.getType()};

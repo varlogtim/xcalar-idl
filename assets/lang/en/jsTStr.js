@@ -1159,6 +1159,7 @@ DFTStr = {
     "NoAutoSave": "Auto save is not supported for shared dataflow",
     "AutoExecute": "Auto execute the dataflow after configuration",
     "AutoPreview": "Auto preview the results after execution",
+    "ShowProgressTips": "Show progress details for each operation",
     "NoEmptyDestName": "Pleaase enter a destination dataflow name.",
     // with replace
     "EditOpDirectly": "Please edit the overall <op> operation directly",
