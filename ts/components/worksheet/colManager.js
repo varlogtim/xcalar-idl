@@ -1439,13 +1439,16 @@ window.ColManager = (function($, ColManager) {
         var $jsonTd = $table.find('.row' + rowNum).find('td.col' + colNum);
         var jsonTdObj = parseRowJSON($jsonTd.find('.originalData').text());
         var table = gTables[tableId];
-        var immediates = table.getImmediates();
-        immediates.forEach(function(immediate) {
-            if (!jsonTdObj.hasOwnProperty(immediate.name)) {
-                jsonTdObj[immediate.name] = true;
-            }
-        });
 
+        // if datacol, make sure the json obj includes all the immediates
+        if ($jsonTd.hasClass("jsonElement")) {
+            var immediates = table.getImmediates();
+            immediates.forEach(function(immediate) {
+                if (!jsonTdObj.hasOwnProperty(immediate.name)) {
+                    jsonTdObj[immediate.name] = true;
+                }
+            });
+        }
         if (jsonTdObj == null) {
             return;
         }
