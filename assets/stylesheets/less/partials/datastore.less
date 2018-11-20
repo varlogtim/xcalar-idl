@@ -3155,22 +3155,6 @@ table.datasetTable {
                     }
                 }
 
-                .lockIcon {
-                    .position(absolute, @top: 3px, @right: 14px);
-                    font-size: 16px;
-                    z-index: 0;
-
-                    &:after {
-                        content: "";
-                        .position(absolute, @top: 5px, @right: 4px);
-                        .size(12px, 12px);
-                        background-color: @color-bg-dusk-blue;
-                        opacity: 0.5;
-                        z-index: -1;
-                        border-radius: 4px;
-                    }
-                }
-
                 .deactivatingIcon {
                     .position(absolute, @top: 25px, @right: 15px);
                     .size(12px, 12px);
@@ -3237,10 +3221,6 @@ table.datasetTable {
                             margin-top: -5px;
                             margin-bottom: 5px;
                             margin-left: 8px;
-
-                            .lockIcon {
-                                top: 4px;
-                            }
                         }
                     }
                 }
@@ -3337,15 +3317,9 @@ table.datasetTable {
                             display: inline-block;
                         }
 
-                        &:not(.locked) {
-                            .delete, .lock {
-                                display: inline-block;
-                            }
-                        }
-
-                        &.locked {
-                            .unlock {
-                                display: inline-block;
+                        &:not(.inActivated) {
+                            .delete {
+                                display: none;
                             }
                         }
                     }
@@ -3361,7 +3335,7 @@ table.datasetTable {
                         font-size: 15px;
                     }
 
-                    .lockIcon {
+                    .deactivatingIcon {
                         .position(absolute, @top: 5px, @left: 20px);
                         font-size: 12px;
                         .size(12px, 12px);
@@ -3373,10 +3347,10 @@ table.datasetTable {
                     }
 
                     .deactivating {
-                        .position(absolute, @top: 5px, @left: 20px);
                         font-size: 12px;
                         .size(12px, 12px);
                         background-size: 12px 12px;
+                        top: 0px;
 
                         &:after {
                             .size(8px, 8px);
