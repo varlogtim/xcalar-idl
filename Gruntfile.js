@@ -1396,6 +1396,7 @@ module.exports = function(grunt) {
                 src: [BLDROOT + "services/expServer/sqlHelpers/enums.js",
                       BLDROOT + "services/expServer/sqlHelpers/sqlApi.js",
                       BLDROOT + "services/expServer/sqlHelpers/sqlCompiler.js",
+                      BLDROOT + "services/expServer/sqlHelpers/optimizer.js",
                       BLDROOT + "services/expServer/sqlHelpers/transaction.js",
                       BLDROOT + "services/expServer/sqlHelpers/xcGlobal.js",
                       BLDROOT + "services/expServer/sqlHelpers/xcHelper.js",
@@ -2585,6 +2586,7 @@ module.exports = function(grunt) {
             "shared/api/xiApi.ts",
             "components/sql/sqlApi.js",
             "components/sql/sqlCompiler.js",
+            "components/sql/optimizer.js",
             "components/sql/sqlQueryHistory.ts",
             "shared/helperClasses/kvStore.ts"];
         var expServerJSDestDir = "services/expServer/sqlHelpers";

@@ -1053,7 +1053,8 @@ class SQLOpPanel extends BaseOpPanel {
                 // XXX TO-DO implement caching
                 resTableName = newTableName;
                 allCols = newCols;
-                const optimizedQueryString = sqlCom.logicalOptimize(queryString,
+                var optimizer = new SQLOptimizer();
+                const optimizedQueryString = optimizer.logicalOptimize(queryString,
                                         {dropAsYouGo: true}, schemaQueryString);
                 self._dataModel.setDataModel(optimizedQueryString,
                                              resTableName, allCols,

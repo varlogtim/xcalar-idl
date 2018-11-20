@@ -354,15 +354,16 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         function checkUnlock() {
             setInterval(function() {
                 if ($("#dagNodeMenu .configureNode").hasClass("unavailable")) {
-                    totalTime += 100;
+                    totalTime += 500;
                     if (totalTime > 30000) {
                         deferred.reject();
+                    } else {
+                        checkUnlock();
                     }
-                    checkUnlock();
                 } else {
                     deferred.resolve();
                 }
-            }, 100);
+            }, 500);
         }
         checkUnlock();
         return deferred.promise();

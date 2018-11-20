@@ -103,6 +103,7 @@ integerLiteral
     ;
 decimalLiteral
     : DECIMAL
+    | SCIENTIFICDECIMAL
     ;
 stringLiteral
     : STRING
@@ -129,6 +130,7 @@ LTSIGN: '<';
 GTSIGN: '>';
 CARET: '^';
 DECIMAL: '-'? DIGIT+ '.' DIGIT+;
+SCIENTIFICDECIMAL: '-'? DIGIT+ ('.' DIGIT+)? E ('+'|'-') DIGIT+;
 INTEGER: '-'? DIGIT+;
 STRING: ('"' ( ~('"'|'\\') | ('\\' .) )* '"') | ('\'' ( ~('\''|'\\') | ('\\' .) )* '\'');
 APOSTROPHE: '\'';

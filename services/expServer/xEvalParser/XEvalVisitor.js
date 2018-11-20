@@ -96,6 +96,21 @@ class XEvalVisitor extends XEvalBaseVisitor{
             }).join(" ");
         }
     };
+
+    replaceColName(ctx, colNameMap, aggregateNameMap) {
+        var self = this;
+        if (ctx instanceof XEvalBaseParser.AggValueContext) {
+            return aggregateNameMap[ctx.getText()] || ctx.getText();
+        } else if (ctx instanceof XEvalBaseParser.ColumnArgContext) {
+            return colNameMap[ctx.getText()] || ctx.getText();
+        } else if (ctx.getChildCount() === 0) {
+            return ctx.getText();
+        } else {
+            return ctx.children.map(function(child) {
+                return self.replaceColName(child, colNameMap, aggregateNameMap);
+            }).join("");
+        }
+    }
 }
 if (typeof exports !== "undefined") {
     exports.XEvalVisitor = XEvalVisitor;

@@ -1437,9 +1437,12 @@ declare namespace XcSDK {
 declare class SQLCompiler {
     public setStatus(status: string): void;
     public compile(id: string, sql: string, isJsonPlan?): XDPromise<any>;
-    public addDrops(query: string): XDPromise<any>;
     public setError(error: string): void;
     public updateQueryHistory(): void;
+}
+
+declare class SQLOptimizer {
+    public addDrops(query: string): XDPromise<any>;
     public logicalOptimize(query: string, options: {}, prependQuery: string): string;
 }
 

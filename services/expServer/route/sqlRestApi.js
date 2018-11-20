@@ -80,6 +80,8 @@ require("jsdom/lib/old-api").env("", function(err, window) {
                            require("../sqlHelpers/sqlApi.js").SQLApi;
     SQLCompiler = sqlHelpers ? sqlHelpers.SQLCompiler :
                   require("../sqlHelpers/sqlCompiler.js").SQLCompiler;
+    SQLOptimizer = sqlHelpers ? sqlHelpers.SQLOptimizer :
+                   require("../sqlHelpers/optimizer.js").SQLOptimizer;
     require("../../../assets/lang/en/jsTStr.js");
 
     antlr4 = require('antlr4/index');
@@ -94,6 +96,8 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     SqlBaseLexer = require("../sqlParser/SqlBaseLexer.js").SqlBaseLexer;
     SqlBaseVisitor = require("../sqlParser/SqlBaseVisitor.js").SqlBaseVisitor;
     TableVisitor = require("../sqlParser/TableVisitor.js").TableVisitor;
+    XDParser = {};
+    XDParser.XEvalParser = require("../xEvalParser/index.js").XEvalParser;
 });
 
 var gTurnSelectCacheOn = false;
@@ -1025,7 +1029,8 @@ function executeSqlWithExtQuery(execid, queryStr, rowsToFetch, sessionPrefix,
         var optimizations = {
             dropAsYouGo: true
         };
-        var queryWithDrop = compilerObject.logicalOptimize(xcQueryString,
+        var optimizer = new SQLOptimizer();
+        var queryWithDrop = optimizer.logicalOptimize(xcQueryString,
                                     optimizations, JSON.stringify(selectQuery));
         var prefixStruct = addPrefix(
             JSON.parse(queryWithDrop),
@@ -1177,7 +1182,8 @@ function executeSqlWithQueryInteractive(userIdName, userIdUnique, wkbkName,
         console.log(JSON.stringify(compilerObject));
         finalTable = newTableName;
         orderedColumns = colNames;
-        var optimizedQuery = compilerObject.logicalOptimize(xcQueryString,
+        var optimizer = new SQLOptimizer();
+        var optimizedQuery = optimizer.logicalOptimize(xcQueryString,
                                                             optimizations);
         return compilerObject.execute(optimizedQuery, finalTable, orderedColumns,
                                       queryString, undefined, option);
