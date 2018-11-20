@@ -453,7 +453,7 @@ class ColAssignmentView {
 
     private _searchColumn(keyword: string, index: number): void {
         const $inputs: JQuery = this._getView().find('.lists[data-index="' + index + '"]')
-                                        .find(".inputCol .text");
+                                        .find(".inputCol .colName");
         $inputs.removeClass("highlight");
         if (!keyword) {
             return;

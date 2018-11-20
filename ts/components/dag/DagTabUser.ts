@@ -144,7 +144,6 @@ class DagTabUser extends DagTab {
         if (this._disableSaveLock > 0) {
             return PromiseHelper.resolve();
         }
-        console.log("save")
         if (!this._autoSave && !forceSave) {
             this._unsaved = true;
             return this._writeToTempKVStore()
