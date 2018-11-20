@@ -545,6 +545,7 @@ class AggOpPanel extends GeneralOpPanel {
             const aggNameError = this.model.validateAggName();
             if (aggNameError) {
                 StatusBox.show(aggNameError.error, this._$panel.find(".group").find(".colNameSection .arg"));
+                return false;
             }
         }
 

@@ -341,7 +341,7 @@ class GeneralOpPanel extends BaseOpPanel {
 
     protected _panelShowHelper(dataModel): void {
         this.model = dataModel;
-        const aggs = Aggregates.getNamedAggs();
+        const aggs = DagAggManager.Instance.getAggMap();
         this._aggNames = [];
         for (const i in aggs) {
             this._aggNames.push(aggs[i].aggName);

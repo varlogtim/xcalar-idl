@@ -559,7 +559,7 @@ class BaseOpPanel {
 
     private _setupAggMap() {
         this.aggMap = {};
-        const aggs = Aggregates.getNamedAggs();
+        const aggs = DagAggManager.Instance.getAggMap();
         for (var a in aggs) {
             this.aggMap[aggs[a].aggName] = aggs[a].aggName;
         }

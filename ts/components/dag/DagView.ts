@@ -607,6 +607,13 @@ namespace DagView {
                 nodeInfo.display.y += yDelta;
                 if (nodeInfo.nodeId.startsWith("dag")) {
                     const newNode: DagNode = activeDag.newNode(nodeInfo);
+                    if (newNode.getType() == DagNodeType.Aggregate &&
+                            newNode.getState() == DagNodeState.Configured) {
+                        newNode.beErrorState(xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
+                            name: newNode.getParam().dest,
+                            aggPrefix: ""
+                        }));
+                    }
                     const newNodeId: DagNodeId = newNode.getId();
                     oldNodeIdMap[nodeInfo.nodeId] = newNodeId;
                     newNodeIds.push(newNodeId);
@@ -1982,6 +1989,7 @@ namespace DagView {
         const $dfArea = DagView.getAreaByTab(tabId);
         const graph = DagTabManager.Instance.getTabById(tabId).getGraph();
         const spliceInfos = {};
+        let aggregates: string[] = [];
         // XXX TODO: check the slowness and fix the performance
         nodeIds.forEach(function (nodeId) {
             if (nodeId.startsWith("dag")) {
@@ -1991,6 +1999,11 @@ namespace DagView {
                     dagNode instanceof DagNodeSQL
                 ) {
                     DagTabManager.Instance.removeTabByNode(dagNode);
+                } else if (dagNode instanceof DagNodeAggregate) {
+                    let input: DagNodeAggregateInputStruct = dagNode.getParam();
+                    if (input.dest != null) {
+                        aggregates.push(input.dest);
+                    }
                 }
 
                 const spliceInfo = graph.removeNode(nodeId, isSwitchState);
@@ -2006,6 +2019,8 @@ namespace DagView {
                 DagComment.Instance.removeComment(nodeId);
             }
         });
+
+        DagAggManager.Instance.bulkNodeRemoval(aggregates);
 
         const logParam: LogParam = {
             title: SQLTStr.RemoveOperations,

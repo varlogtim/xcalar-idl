@@ -170,6 +170,9 @@ class DagTabUser extends DagTab {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._deleteTableHelper()
         .then(() => {
+            return PromiseHelper.alwaysResolve(this._deleteAggregateHelper());
+        })
+        .then(() => {
             return this._kvStore.delete();
         })
         .then(() => {

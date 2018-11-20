@@ -9,11 +9,11 @@ class DagNodeFilter extends DagNode {
         this.minParents = 1;
         this._aggregates = options.aggregates || [];
         this.display.icon = "&#xe938;";
-        const namedAggs = Aggregates.getNamedAggs();
+        const namedAggs = DagAggManager.Instance.getNamedAggs();
         const self = this;
         let errorAggs = [];
         this._aggregates.forEach((aggregateName: string) => {
-            if (!namedAggs[aggregateName.substring(1)]) {
+            if (!namedAggs[aggregateName]) {
                 errorAggs.push(aggregateName);
             }
         });

@@ -253,6 +253,17 @@ interface ColSchema {
     type: ColumnType
 }
 
+interface AggregateInfo {
+    value: string | number,
+    dagName: string,
+    aggName: string,
+    tableId: string,
+    backColName: string,
+    op: number,
+    node: string,
+    graph: string
+}
+
 declare class d3 {
     public select(selector: string): d3;
     public selectAll(selector: string): d3;

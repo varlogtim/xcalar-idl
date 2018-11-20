@@ -94,6 +94,9 @@ namespace xcManager {
             return setupDagPanel();
         })
         .then(function() {
+            return DagAggManager.Instance.setup();
+        })
+        .then(function() {
             // By default show panel
             // XXX TODO: find better solution
             $("#modelingDagPanel").addClass("active");

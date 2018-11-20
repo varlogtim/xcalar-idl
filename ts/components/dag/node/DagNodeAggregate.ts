@@ -1,12 +1,14 @@
 class DagNodeAggregate extends DagNode {
     protected input: DagNodeAggregateInput;
     private aggVal: string | number; // non-persistent
+    private graph: DagGraph; // non-persistent
 
     public constructor(options: DagNodeAggregateInfo) {
         super(options);
         this.type = DagNodeType.Aggregate;
         this.allowAggNode = true;
         this.aggVal = options.aggVal || null;
+        this.graph = options.graph || null;
         this.maxChildren = 0;
         this.minParents = 1;
         this.display.icon = "&#xe939;";
@@ -16,13 +18,39 @@ class DagNodeAggregate extends DagNode {
     /**
      * Set aggregate node's parameters
      * @param input {DagNodeAggregateInputStruct}
-     * @param input.evalString {string} The aggregatte eval string
+     * @param input.evalString {string} The aggregate eval string
      */
     public setParam(input: DagNodeAggregateInputStruct = <DagNodeAggregateInputStruct>{}) {
         this.input.setInput({
             evalString: input.evalString,
             dest: input.dest
         });
+        let promise = PromiseHelper.resolve();
+        let oldAggName = this.getParam().dest;
+        if (oldAggName != null && oldAggName != input.dest &&
+                DagAggManager.Instance.hasAggregate(oldAggName)) {
+            let oldAgg = DagAggManager.Instance.getAggregate(oldAggName);
+            if (oldAgg.value != null) {
+                promise = DagAggManager.Instance.removeNode(this.aggVal);
+            } else {
+                // We never ran it
+                promise = DagAggManager.Instance.removeAgg(this.aggVal);
+            }
+        }
+        PromiseHelper.alwaysResolve(promise)
+        .then(() => {
+            return DagAggManager.Instance.addAgg(input.dest, {
+                value: null,
+                dagName: input.dest,
+                aggName: input.dest,
+                tableId: null,
+                backColName: null,
+                op: null,
+                node: this.getId(),
+                graph: this.graph.getTabId()
+            });
+        })
+
         super.setParam();
     }
 

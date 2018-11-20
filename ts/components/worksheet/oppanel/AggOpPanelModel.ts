@@ -187,8 +187,13 @@ class AggOpPanelModel extends GeneralOpPanelModel {
                 "aggPrefix": gAggVarPrefix
             });
             invalid = true;
+        } else if (DagAggManager.Instance.hasAggregate(aggName)) {
+            errorText = xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
+                name: aggName,
+                aggPrefix: ""
+            });
+            invalid = true;
         }
-        // TODO check duplicate agg names
         if (invalid) {
             return {error: errorText, arg: -1, group: 0, type: "aggName"}
         } else {

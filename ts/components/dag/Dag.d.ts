@@ -72,7 +72,8 @@ interface DagNodeFilterInfo extends DagNodeInfo {
 }
 
 interface DagNodeAggregateInfo extends DagNodeInfo {
-    aggVal: number | string
+    aggVal: number | string;
+    graph?: DagGraph;
 }
 
 interface DagLineageChange {

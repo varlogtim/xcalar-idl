@@ -192,8 +192,8 @@ class DagNodeExecutor {
         return XIApi.synthesize(this.txId, colInfos, dsName, desTable);
     }
 
-    private _aggregate(): XDPromise<null> {
-        const deferred: XDDeferred<null> = PromiseHelper.deferred();
+    private _aggregate(): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNodeAggregate = <DagNodeAggregate>this.node;
         const params: DagNodeAggregateInputStruct = node.getParam(true);
         const evalStr: string = params.evalString;
@@ -211,9 +211,13 @@ class DagNodeExecutor {
                 aggName: "\^" + aggName,
                 tableId: tableName,
                 backColName: null,
-                op: null
+                op: null,
+                node: node.getId(),
+                graph: this.tabId
             };
-            Aggregates.addAgg(aggRes, toDelete);
+            return DagAggManager.Instance.addAgg("\^" + aggName, aggRes);
+        })
+        .then(() => {
             deferred.resolve(null); // no table generated
         })
         .fail(deferred.reject);

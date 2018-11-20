@@ -204,6 +204,25 @@ abstract class DagTab {
         return PromiseHelper.alwaysResolve(DagTblManager.Instance.forceDeleteSweep());
     }
 
+    protected _deleteAggregateHelper(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let nodes: Map<string, DagNode> = this._dagGraph.getAllNodes();
+        let aggregates: string[] = [];
+        nodes.forEach((node: DagNode) => {
+            if (node instanceof DagNodeAggregate) {
+                let input: DagNodeAggregateInputStruct = node.getParam();
+                if (input.dest != null) {
+                    aggregates.push(input.dest);
+                }
+            }
+        });
+        DagAggManager.Instance.bulkNodeRemoval(aggregates)
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
     protected _trigger(event, ...args): void {
         if (typeof this._events[event] === "function") {
             this._events[event].apply(this, args);

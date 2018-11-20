@@ -825,7 +825,7 @@ class ExtensionOpPanelArgSection {
                     StatusBox.show(ErrTStr.InvalidAggName, $input);
                     return { valid: false, arg: undefined };
                 }
-                if (Aggregates.getNamedAggs().hasOwnProperty(arg)) {
+                if (DagAggManager.Instance.hasOwnProperty(arg)) {
                     const error: string = xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
                         name: arg,
                         aggPrefix: gAggVarPrefix

@@ -9,12 +9,12 @@ class DagNodeMap extends DagNode {
         this.minParents = 1;
         this._aggregates = options.aggregates || [];
         this.display.icon = "&#xe9da;";
-        const namedAggs = Aggregates.getNamedAggs();
+        const namedAggs = DagAggManager.Instance.getNamedAggs();
         this.input = new DagNodeMapInput(options.input);
         const self = this;
         let errorAggs = [];
         this._aggregates.forEach((aggregateName: string) => {
-            if (!namedAggs[aggregateName.substring(1)]) {
+            if (!namedAggs[aggregateName]) {
                 errorAggs.push(aggregateName);
             }
         });

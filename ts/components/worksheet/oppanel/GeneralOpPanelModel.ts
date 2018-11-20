@@ -242,12 +242,7 @@ class GeneralOpPanelModel {
         if (arg[0] != "\^") {
             return false;
         }
-        const argName: string = arg.substring(1);
-        const aggs = Aggregates.getNamedAggs();
-        if (aggs[argName] != null) {
-            return true;
-        }
-        return false;
+        return DagAggManager.Instance.hasAggregate(arg);
     }
 
     protected _validateArg(arg: OpPanelArg) {
