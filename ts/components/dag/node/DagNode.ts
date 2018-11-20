@@ -209,8 +209,16 @@ abstract class DagNode {
      *
      * @param title
      */
-    public setTitle(title: string): void {
+    public setTitle(title: string, isChange?: boolean): void {
         this.title = title;
+        if (isChange) { // prevents event from firing when title is set when
+            // new node is created
+            this.events.trigger(DagNodeEvents.TitleChange, {
+                id: this.getId(),
+                node: this,
+                title: title
+            });
+        }
     }
 
     public getTitle(): string {

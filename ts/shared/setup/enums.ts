@@ -414,6 +414,11 @@ enum FileManagerAction {
     Share = "Share"
 }
 
+enum TablePreviewType {
+    Table = "Table",
+    Dataset = "Dataset"
+}
+
 if (typeof global !== 'undefined') {
     global.RowDirection = RowDirection;
     global.WSTableType = WSTableType;

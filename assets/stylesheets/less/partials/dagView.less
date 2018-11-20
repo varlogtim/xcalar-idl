@@ -922,6 +922,7 @@
         .size(@height: @tableBar-h);
         background-color: @color-bg-white-seven;
         padding: 5px 15px 5px 18px;
+        display: flex;
 
         .searchbarArea {
             .size(@height: @div-h, @max-width: 244px, @min-width: 20%);
@@ -990,10 +991,20 @@
             }
         }
 
+        .tableNameArea {
+            .flex(1 1 0px);
+            padding: 0 10px;
+            .textOverflowOneLine;
+            display: flex;
+
+            .name {
+                .textOverflowOneLine;
+            }
+        }
+
         .skewInfoArea {
             .position(relative);
             cursor: pointer;
-            float: right;
             border-right: 1px solid @color-border-warmGray;
             padding: 0 10px;
             margin-right: 10px;
@@ -1001,7 +1012,6 @@
 
         .rowInputArea {
             .size(@min-width: 60px, @height: @div-h);
-            float: right;
             margin-top: 0;
             margin-right: 10px;
             border: none;
@@ -1015,7 +1025,6 @@
 
         .close {
             .size(@div-h, @div-h);
-            float: right;
             background-color: @color-bg-body-gray;
             .rounded(3px);
 

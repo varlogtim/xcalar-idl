@@ -1180,7 +1180,7 @@ namespace DagView {
      * @param nodeId
      * @param title
      */
-    export function editTitle(
+    export function editNodeTitle(
         nodeId: DagNodeId,
         tabId: string,
         title: string
@@ -1192,8 +1192,9 @@ namespace DagView {
         const $node = DagView.getNode(nodeId, tabId);
         dagTab.turnOffSave();
 
-        node.setTitle(title);
+        node.setTitle(title, true);
         _drawTitleText($node, node);
+
         // XXX TODO: update paramTitle's height
         Log.add(SQLTStr.EditNodeTitle, {
             "operation": SQLOps.EditNodeTitle,
@@ -3365,6 +3366,16 @@ namespace DagView {
                 });
             }
         });
+
+        // update table preview if node's title changes
+        graph.events.on(DagNodeEvents.TitleChange, function(info) {
+            if (DagTable.Instance.isTableFromTab(info.tabId)) {
+                const tableId = DagTable.Instance.getBindNodeId();
+                if (tableId === info.id) {
+                    DagTable.Instance.updateTableName(info.title, info.tabId);
+                }
+            }
+        })
     }
 
     // groups individual nodes into trees and joins branches with main tree
@@ -3934,7 +3945,7 @@ namespace DagView {
         $textArea.blur(() => {
             const newVal: string = $textArea.val().trim();
             if (newVal !== origVal) {
-                DagView.editTitle(nodeId, tabId, newVal);
+                DagView.editNodeTitle(nodeId, tabId, newVal);
             }
             $textArea.remove();
             $origTitle.show();

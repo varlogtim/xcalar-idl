@@ -5,6 +5,8 @@ class XcTableViewer extends XcViewer {
     private rowManager: RowManager;
     private dataflowTabId: string;
     private dagNode: DagNode;
+    private $container: JQuery;
+    private tableType: TablePreviewType;
 
     public static getTableFromDagNode(dagNode: DagNode): TableMeta {
         const tableName: string = dagNode.getTable();
@@ -31,6 +33,8 @@ class XcTableViewer extends XcViewer {
         super(tableName);
         this.dataflowTabId = tabId;
         this.dagNode = dagNode;
+        this.tableType = (this.dagNode.getType() === DagNodeType.Dataset) ?
+                          TablePreviewType.Dataset : TablePreviewType.Table;
         this.table = table;
         this.rowManager = new RowManager(table, this.getView());
         this.rowInput = new RowInput(this.rowManager);
@@ -48,6 +52,7 @@ class XcTableViewer extends XcViewer {
         this._removeTableIconOnDagNode();
         this.rowInput.clear();
         this.skew.clear();
+        this.clearTableName();
         return this.table.freeResultset();
     }
 
@@ -56,6 +61,7 @@ class XcTableViewer extends XcViewer {
      */
     public render($container: JQuery): XDPromise<void> {
         super.render($container);
+        this.$container = $container;
         this._showTableIconOnDagNode();
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this.table.getMetaAndResultSet()
@@ -66,6 +72,8 @@ class XcTableViewer extends XcViewer {
             this._afterBuild();
             this._renderSkew($container);
             this._renderRowInput($container);
+            const tableName: string = this.dagNode.getTitle();
+            this.renderTableName($container, tableName);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -89,6 +97,19 @@ class XcTableViewer extends XcViewer {
 
     public replace(table: TableMeta): XcTableViewer {
         return new XcTableViewer(this.dataflowTabId, this.dagNode, table);
+    }
+
+    // used to initially show table name as well as update when node title changes
+    public renderTableName($container: JQuery, tableName: string): void {
+        const $nameArea = $container.find(".tableNameArea");
+        $nameArea.removeClass("xc-hidden");
+        $nameArea.find(".name").text(this.tableType + ": " + tableName);
+    }
+
+    private clearTableName() {
+        const $nameArea = this.$container.find(".tableNameArea");
+        $nameArea.addClass("xc-hidden");
+        $nameArea.find(".name").empty();
     }
 
     protected _afterGenerateTableShell(): void {};

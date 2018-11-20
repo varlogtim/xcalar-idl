@@ -34,7 +34,7 @@ class DagTable {
             // dataset viewer has higher priority
             return;
         }
-        
+
         const viewer = this._viewers.get(tabId);
         if (viewer == null) {
             this._reset();
@@ -100,6 +100,11 @@ class DagTable {
                 this._currentViewer.getDataflowTabId() === tabId;
     }
 
+    public updateTableName(newName: string, tabId: string): void {
+        const viewer: XcTableViewer = <XcTableViewer>this._viewers.get(tabId);
+        viewer.renderTableName(this._getContainer(), newName);
+    }
+
     private _show(viewer: XcViewer): XDPromise<void> {
         if (this._isSameViewer(viewer)) {
             return PromiseHelper.resolve();
@@ -131,7 +136,7 @@ class DagTable {
             this._error(error);
             deferred.reject(error);
         });
-        
+
         const promise = deferred.promise();
         xcHelper.showRefreshIcon($container, true, promise);
         return promise;

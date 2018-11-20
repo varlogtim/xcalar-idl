@@ -254,6 +254,10 @@ class DagGraph {
                 tabId: tabId
             });
             this.events.trigger(DagNodeEvents.LineageSourceChange, info);
+        })
+        .registerEvents(DagNodeEvents.TitleChange, (info) => {
+            info.tabId = this.parentTabId;
+            this.events.trigger(DagNodeEvents.TitleChange, info);
         });
     }
 

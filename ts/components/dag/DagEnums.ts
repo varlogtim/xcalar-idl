@@ -79,7 +79,8 @@ enum DagNodeEvents {
     SubGraphError = "SubGraphError",
     SubGraphConfigured = "SubGraphConfigured",
     ConnectionChange = "ConnectionChange",
-    TableLockChange = "DagNodeTableLockChange"
+    TableLockChange = "DagNodeTableLockChange",
+    TitleChange = "TitleChange"
 }
 
 enum DagCategoryType {

@@ -255,7 +255,7 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.EditNodeTitle] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.editTitle(options.nodeId, options.dataflowId, options.newTitle);
+        DagView.editNodeTitle(options.nodeId, options.dataflowId, options.newTitle);
         return PromiseHelper.resolve(null);
     };
 
