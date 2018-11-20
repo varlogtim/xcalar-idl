@@ -1287,14 +1287,14 @@
     &.operatorMenu {
         .removeNode, .copyNodes, .cutNodes, .pasteNodes, .executeNode, .resetNode, .executeNodeOptimized,
         .description, .configureNode, .previewTable, .generateTable, .viewSchema, .autoAlign,
-        .unlockNodeTable, .lockNodeTable, .download, .createCustom {
+        .unlockNodeTable, .lockNodeTable, .download, .createCustom, .viewUDF {
             display: list-item;
         }
         .previewAgg, .findLinkOut {
             display: none;
         }
         &.multiple {
-            .description, .configureNode, .previewTable, .generateTable, .viewSchema, .shareCustom {
+            .description, .configureNode, .previewTable, .generateTable, .viewSchema, .shareCustom, .viewUDF {
                 display: none;
             }
             .createCustom {
@@ -1445,7 +1445,7 @@
     }
 }
 
-#dagSchemaPopup {
+#dagSchemaPopup, #dagUDFPopup {
     .replaceSection {
         border-top: 1px solid @color-border-monitor-label;
         border-bottom: 1px solid @color-border-monitor-label;

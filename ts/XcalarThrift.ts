@@ -4497,6 +4497,30 @@ XcalarListXdfs = function(
     return (deferred.promise());
 };
 
+XcalarUdfGetRes = function(
+    scope: number,
+    moduleName: string
+): XDPromise<string> {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+    if (scope == null) {
+        scope = XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal;
+    }
+
+    const deferred: XDDeferred<string> = PromiseHelper.deferred();
+    xcalarApiUdfGetRes(tHandle, scope, moduleName)
+    .then(function(ret: XcalarApiUdfGetResOutputT) {
+        deferred.resolve(ret.udfResPath);
+    })
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalarUdfGetRes", error);
+        Log.errorLog("Get UDF Resolution", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+    return deferred.promise();
+};
+
 XcalarUploadPythonRejectDuplicate = function(
     moduleName: string,
     pythonStr: string

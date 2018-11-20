@@ -556,6 +556,7 @@ declare var XcalarApiTop: any;
 declare var XcalarGetMemoryUsage: any;
 declare var XcalarGetAllTableMemory: any;
 declare var XcalarListXdfs: any;
+declare var XcalarUdfGetRes: any;
 declare var XcalarUploadPythonRejectDuplicate: any;
 declare var XcalarUploadPython: any;
 declare var XcalarUpdatePython: any;

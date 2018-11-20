@@ -1046,7 +1046,7 @@ html.firefox, html.microsoft {
     }
 }
 
-.schemaPopup {
+.schemaPopup, .udfPopup {
     position: fixed;
     top: 100px;
     display: none;
@@ -1383,6 +1383,25 @@ html.firefox, html.microsoft {
     }
 }
 
+.udfPopup {
+    .heading {
+        > div:first-child {
+            text-indent: 4px;
+        }
+    }
+    .content.heading {
+        .type {
+            text-indent: 4px;
+        }
+        .field {
+            width: auto;
+        }
+        .message {
+            text-align: center;
+            padding-top: 20px;
+        }
+    }
+}
 .canvas {
     .position(absolute, @top: 0, @left: -40px);
     z-index: 0;

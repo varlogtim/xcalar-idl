@@ -125,6 +125,34 @@ class DagNodeMap extends DagNode {
     }
 
     /**
+     * Get the resolutions of used UDF modules
+     */
+    public getModuleResolutions(): XDPromise<Map<string, string>> {
+        const taskList = [];
+        this.getUsedUDFModules().forEach((moduleName) => {
+            taskList.push(
+                XcalarUdfGetRes(
+                    XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeSession,
+                    moduleName
+                ).then((ret) => ({
+                    name: moduleName, resolution: ret
+                })).fail(() => null)
+            );
+        });
+
+        return PromiseHelper.when(...taskList)
+        .then((...rets) => {
+            const result: Map<string, string> = new Map();
+            for (const ret of rets) {
+                if (ret != null) {
+                    result.set(ret.name, ret.resolution);
+                }
+            }
+            return result;
+        });
+    }
+
+    /**
      * @override
      */
     protected _getSerializeInfo(): DagNodeMapInfo {

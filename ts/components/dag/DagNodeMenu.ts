@@ -147,6 +147,9 @@ namespace DagNodeMenu {
             case ("previewAgg"):
                 DagView.previewAgg(<DagNodeAggregate>_getNodeFromId(dagNodeIds[0]));
                 break;
+            case ("viewUDF"):
+                DagUDFPopup.Instance.show(dagNodeIds[0]);
+                break;
             case ("generateTable"):
                 const nodeToPreview: DagNode = _getNodeFromId(dagNodeIds[0]);
                 DagView.run(dagNodeIds).then(() => {
@@ -581,6 +584,16 @@ namespace DagNodeMenu {
         } else {
             $menu.find(".previewTable .label").text(DagTStr.MenuPreviewTable);
             $menu.find(".generateTable .label").text(DagTStr.MenuGenerateTable);
+        }
+        // Node with UDF
+        if (dagNode != null && dagNode instanceof DagNodeMap) {
+            if (dagNode.getUsedUDFModules().size > 0) {
+                $menu.find(".viewUDF").removeClass("unavailable");
+            } else {
+                $menu.find(".viewUDF").addClass("unavailable");
+            }
+        } else {
+            $menu.find(".viewUDF").addClass("unavailable");
         }
 
         // lock/unlock option
