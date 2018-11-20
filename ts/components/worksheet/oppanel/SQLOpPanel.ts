@@ -833,39 +833,30 @@ class SQLOpPanel extends BaseOpPanel {
 
     // === Copied from derived conversion
     private _getDerivedCol(col: ProgCol): derivedColStruct {
-
-        if (col.type === 'array' || col.type === 'object' || col.type === 'mixed'
-            || col.type === 'undefined' || col.type === 'unknown') {
-            // array and object columns will be projected away at the end
-            // this case also handles 'DATA' column, and leaves table unchanged
-            return;
+        // convert prefix field of primitive type to derived
+        let mapFn;
+        if (col.type === 'integer') {
+            mapFn = "int";
+        } else if (col.type === 'float') {
+            mapFn = "float";
+        } else if (col.type === 'boolean') {
+            mapFn = "bool";
+        } else if (col.type === 'timestamp') {
+            mapFn = "timestamp";
+        } else if (col.type === "string") {
+            mapFn = "string";
         } else {
-            // convert prefix field of primitive type to derived
-            let mapFn;
-            let overwriteType;
-            if (col.type === 'integer' ||col.type === 'number'
-                || col.type === 'float') {
-                // convert all numbers to float, since we cannot determine
-                // actual type of prefix fields
-                mapFn = "float";
-                overwriteType = "float";
-            } else if (col.type === 'boolean') {
-                mapFn = "bool";
-            } else if (col.type === 'timestamp') {
-                mapFn = "timestamp";
-            } else {
-                mapFn = "string";
-            }
-            const mapStr = mapFn + "(" + col.backName + ")";
-            const newColName = this._getDerivedColName(col.backName).toUpperCase();
-            const colStruct = {
-                colName: newColName,
-                mapStr: mapStr,
-                colType: overwriteType || col.type
-            };
-            return colStruct;
+            // can't handle other types in SQL
+            return;
         }
-
+        const mapStr = mapFn + "(" + col.backName + ")";
+        const newColName = this._getDerivedColName(col.backName).toUpperCase();
+        const colStruct = {
+            colName: newColName,
+            mapStr: mapStr,
+            colType: col.type
+        };
+        return colStruct;
     }
 
     private _finalizeTable(sourceId: number): XDPromise<any> {
