@@ -42,7 +42,6 @@ window.TblAnim = (function($, TblAnim) {
 
         if (!rescol.$th.hasClass('selectedCell')) {
             $('.selectedCell').removeClass('selectedCell');
-            FnBar.clear();
         }
 
         gMouseStatus = "checkingResizeCol";
@@ -70,11 +69,6 @@ window.TblAnim = (function($, TblAnim) {
                 gTables[rescol.tableId].tableCols[colNum - 1].isMinimized = false;
             }
 
-            TblFunc.hideOffScreenTables({
-                marginLeft: 0,
-                marginRight: rescol.startWidth
-            });
-
             $table.addClass('resizingCol');
             $('.xcTheadWrap').find('.dropdownBox')
                             .addClass('dropdownBoxHidden');
@@ -97,7 +91,6 @@ window.TblAnim = (function($, TblAnim) {
         rescol.$th.outerWidth(newWidth);
         rescol.newWidth = newWidth;
 
-        TblFunc.moveTableTitles();
         if (rescol.isDatastore) {
             rescol.$tableWrap.width(rescol.$dsTable.width());
                // size line divider to fit table
@@ -159,12 +152,6 @@ window.TblAnim = (function($, TblAnim) {
             }
         }
 
-        // set timeout because unhiding is slow
-        setTimeout(function() {
-            TblFunc.unhideOffScreenTables();
-        }, 0);
-
-        TblFunc.moveTableDropdownBoxes();
         // for tableScrollBar
         TblFunc.moveFirstColumn();
 
@@ -198,7 +185,6 @@ window.TblAnim = (function($, TblAnim) {
             $(document).off('mousemove.checkColResize');
             $(document).off('mousemove.onColResize');
             $(document).off('mouseup.endColResize');
-            TblFunc.unhideOffScreenTables();
             xcHelper.reenableTextSelection();
             $('.xcTheadWrap').find('.dropdownBox')
                              .removeClass('dropdownBoxHidden');
@@ -391,7 +377,6 @@ window.TblAnim = (function($, TblAnim) {
             $(document).on('mousemove.onRowResize', onRowResize);
             gMouseStatus = "rowMove";
 
-            TblFunc.hideOffScreenTables();
             // var el = rowInfo.$el;
             var $table = rowInfo.$table;
 
@@ -481,12 +466,6 @@ window.TblAnim = (function($, TblAnim) {
 
         var rowManger = new RowManager(gTables[rowInfo.tableId], $("#xcTableWrap-" + rowInfo.tableId));
         rowManger.setSizerHeight();
-
-        // settimeout because unhiding is slow
-        setTimeout(function() {
-            TblFunc.unhideOffScreenTables();
-        }, 0);
-
 
         Log.add(SQLTStr.ResizeRow, {
             "operation": SQLOps.DragResizeRow,
@@ -642,7 +621,6 @@ window.TblAnim = (function($, TblAnim) {
             marginLeft: mfScrollLeft - leftLimit,
             marginRight: rightLimit - mfScrollLeft
         };
-        TblFunc.hideOffScreenTables(hideOptions);
 
         var scrollLeft;
         dragInfo.$container.on('scroll.draglocked', function() {
@@ -654,7 +632,6 @@ window.TblAnim = (function($, TblAnim) {
                 dragInfo.$container.scrollLeft(rightLimit);
             }
 
-            TblFunc.moveTableTitles();
             TblFunc.moveFirstColumn(null, true);
         });
 
@@ -745,10 +722,6 @@ window.TblAnim = (function($, TblAnim) {
 
             ColManager.reorderCol(tableId, oldColNum, newColNum);
         }
-
-        setTimeout(function() {
-            TblFunc.unhideOffScreenTables();
-        }, 0);
     }
 
     function cloneCellHelper(obj) {
@@ -956,215 +929,6 @@ window.TblAnim = (function($, TblAnim) {
 
     /* END COLUMN DRAG DROP */
 
-    /* START TABLE DRAG DROP */
-
-    TblAnim.startTableDrag = function($el, e) {
-        if ($el.closest('.noDrag').length || $('.xcTable').length === 1 ||
-            $("#container").hasClass("columnPicker")) {
-            return;
-        }
-        gMouseStatus = "checkingMovingTable";
-        dragInfo.mouseX = e.pageX;
-        dragInfo.$el = $el;
-
-        var cursorStyle = '<div id="moveCursor"></div>';
-        $('body').addClass('tooltipOff').append(cursorStyle);
-        $(document).on('mousemove.checkTableDrag', checkTableDrag);
-        $(document).on('mouseup.endTableDrag', endTableDrag);
-    };
-
-    function checkTableDrag(e) {
-        dragInfo.pageX = e.pageX;
-        // must move by at least 3 pixels
-        if (Math.abs(dragInfo.mouseX - dragInfo.pageX) > 2) {
-            $(document).off('mousemove.checkTableDrag');
-            $(document).on('mousemove.onTableDrag', onTableDrag);
-
-            gMouseStatus = "dragging";
-            dragInfo.$el.find('.tableGrab').addClass('noDropdown');
-            dragInfo.$table = dragInfo.$el.closest('.xcTableWrap');
-            dragInfo.halfWidth = dragInfo.$table.outerWidth() * 0.5;
-            var $activeTables = $('.xcTableWrap:not(.inActive)');
-            var tableIndex = $activeTables.index(dragInfo.$table);
-            dragInfo.$activeTables = $activeTables;
-            dragInfo.tableIndex = tableIndex;
-            dragInfo.tableId = xcHelper.parseTableId(dragInfo.$table);
-            dragInfo.originalIndex = dragInfo.tableIndex;
-            dragInfo.$container = dragInfo.$table.parent();
-            var rect = dragInfo.$table[0].getBoundingClientRect();
-
-            dragInfo.offsetLeft = dragInfo.$table.offset().left;
-            dragInfo.prevTable = dragInfo.$table.prev();
-            dragInfo.mouseOffset = dragInfo.mouseX - rect.left;
-            dragInfo.docHeight = $(document).height();
-            dragInfo.tableScrollTop = dragInfo.$table.scrollTop();
-            createShadowTable();
-            sizeTableForDragging();
-            dragInfo.$table.addClass('tableDragging');
-            dragInfo.$table.css('left', dragInfo.offsetLeft + 'px');
-            dragInfo.windowWidth = $(window).width();
-            dragInfo.mainFrameLeft = dragInfo.$container[0].getBoundingClientRect().left;
-            dragInfo.$table.scrollTop(dragInfo.tableScrollTop);
-            createTableDropTargets();
-            dragdropMoveMainFrame(dragInfo, 50);
-            xcHelper.disableTextSelection();
-            $('.xcTheadWrap').find('.dropdownBox').addClass('dropdownBoxHidden');
-        }
-    }
-
-    function onTableDrag(e) {
-        var left =  e.pageX - dragInfo.mouseOffset;
-        dragInfo.$table.css('left', left + 'px');
-        dragInfo.pageX = e.pageX;
-    }
-
-    function endTableDrag() {
-        $(document).off('mouseup.endTableDrag');
-        $('#moveCursor').remove();
-        $('body').removeClass('tooltipOff');
-
-        if (gMouseStatus === "checkingMovingTable") {
-            gMouseStatus = null;
-            $(document).off('mousemove.checkTableDrag');
-            return;
-        }
-        $(document).off('mousemove.onTableDrag');
-
-        gMouseStatus = null;
-        dragInfo.$table.removeClass('tableDragging').css({
-            'left': '0px',
-            'height': '100%'
-        });
-        dragInfo.$el.find('.tableGrab').removeClass('noDropdown');
-        $('#shadowTable, #dropTargets').remove();
-        dagInfo.mainFrame.off('scroll', mainFrameScrollTableTargets);
-        dragInfo.$table.scrollTop(dragInfo.tableScrollTop);
-        gActiveTableId = dragInfo.tableId;
-        xcHelper.reenableTextSelection();
-
-        if (dragInfo.tableIndex !== dragInfo.originalIndex) {
-            // reorder only if order changed
-            TblFunc.reorderAfterTableDrop(dragInfo.tableId,
-                                          dragInfo.originalIndex,
-                                          dragInfo.tableIndex);
-        }
-        TblManager.alignTableEls();
-        $('.xcTheadWrap').find('.dropdownBox').removeClass('dropdownBoxHidden');
-    }
-
-    function createShadowTable() {
-        var $mainFrame = dragInfo.$container;
-        var width = dragInfo.$table.children().width();
-        var tableHeight = dragInfo.$table.find('.xcTheadWrap').height() +
-                          dragInfo.$table.find('.xcTbodyWrap').height();
-        var mainFrameHeight = $mainFrame.height();
-        if ($mainFrame[0].scrollWidth > $mainFrame.width()) {
-            mainFrameHeight -= 11;
-        }
-        var shadowHeight = Math.min(mainFrameHeight, tableHeight + 5);
-
-        var shadowTable = '<div id="shadowTable" ' +
-                    'style="width:' + width + 'px;height:' +
-                    shadowHeight + 'px;">' +
-                '</div>';
-
-        if (dragInfo.prevTable.length > 0) {
-            dragInfo.prevTable.after(shadowTable );
-        } else {
-            $mainFrame.prepend(shadowTable);
-        }
-    }
-
-    function createTableDropTargets() {
-        var offset = dragInfo.mouseX - dragInfo.offsetLeft;
-        var tableLeft;
-        var $mainFrame = dragInfo.$container;
-        var dropTargets = "";
-        var targetWidth;
-        var tempOffset = offset;
-        var mainFrameScrollLeft = $mainFrame.scrollLeft();
-
-        dragInfo.$activeTables.each(function(i) {
-            if (i === dragInfo.tableIndex) {
-                return true;
-            }
-
-            targetWidth = Math.round(0.5 * $(this).outerWidth());
-            targetWidth = Math.min(targetWidth, dragInfo.halfWidth);
-
-            if (i > dragInfo.tableIndex) {
-                offset = tempOffset - dragInfo.halfWidth + 5;
-            } else {
-                offset = tempOffset - 5;
-            }
-
-            tableLeft = $(this).position().left + mainFrameScrollLeft;
-            dropTargets += '<div id="dropTarget' + i + '" class="dropTarget"' +
-                            'style="left:' + (tableLeft + offset) +
-                            'px;' + 'width:' + targetWidth + 'px;height:' +
-                            (dragInfo.docHeight) + 'px;">' +
-                                i +
-                            '</div>';
-        });
-
-        tableLeft = -mainFrameScrollLeft;
-        $('body').append('<div id="dropTargets" style="left:' +
-                            tableLeft + 'px;"></div>');
-        $('#dropTargets').append(dropTargets);
-        $('#dropTargets').on('mouseenter', '.dropTarget', function() {
-            dragdropSwapTables($(this));
-        });
-        $mainFrame.scroll(mainFrameScrollTableTargets);
-    }
-
-    function moveTableDropTargets(dropTargetIndex, oldIndex, swappedTable) {
-        var offset = dragInfo.mouseX - dragInfo.offsetLeft;
-        var $mainFrame = dragInfo.$container;
-        var tableLeft = swappedTable.position().left + $mainFrame.scrollLeft();
-        var $dropTarget = $('#dropTarget' + dropTargetIndex);
-        if (dropTargetIndex < oldIndex) {
-            offset -= (dragInfo.halfWidth * 0.5) - 5;
-        } else {
-            offset -= 5;
-        }
-
-        $dropTarget.attr('id', 'dropTarget' + oldIndex);
-        $dropTarget.css({'left': (tableLeft + offset) + 'px'});
-    }
-
-    function mainFrameScrollTableTargets() {
-        var left = dragInfo.$container.scrollLeft();
-        $("#dropTargets").css('left', '-' + left + 'px');
-    }
-
-    function dragdropSwapTables($el) {
-        var dropTargetIndex = parseInt(($el.attr('id')).substring(10));
-        var $activeTables = $('.xcTableWrap:not(.inActive)');
-        var $table = $activeTables.eq(dropTargetIndex);
-
-        if (dropTargetIndex > dragInfo.tableIndex) {
-            $table.after($('#shadowTable'));
-            $table.after(dragInfo.$table);
-        } else {
-            $table.before($('#shadowTable'));
-            $table.before(dragInfo.$table);
-        }
-
-        dragInfo.$table.scrollTop(dragInfo.tableScrollTop);
-
-        var oldIndex = dragInfo.tableIndex;
-        dragInfo.tableIndex = dropTargetIndex;
-        moveTableDropTargets(dropTargetIndex, oldIndex, $table);
-        TblManager.alignTableEls();
-    }
-
-    function sizeTableForDragging() {
-        var tableHeight = $('#shadowTable').height();
-        dragInfo.$table.height(tableHeight);
-    }
-
-    /* END TABLE DRAG DROP */
-
     /* Start Helper Functions */
 
     // scrolls #mainFrame while draggin column or table
@@ -1222,10 +986,6 @@ window.TblAnim = (function($, TblAnim) {
         TblAnim.__testOnly__.onColDrag = onColDrag;
         TblAnim.__testOnly__.endColDrag = endColDrag;
         TblAnim.__testOnly__.dragdropSwapColumns = dragdropSwapColumns;
-        TblAnim.__testOnly__.dragdropSwapTables = dragdropSwapTables;
-        TblAnim.__testOnly__.checkTableDrag = checkTableDrag;
-        TblAnim.__testOnly__.onTableDrag = onTableDrag;
-        TblAnim.__testOnly__.endTableDrag = endTableDrag;
         TblAnim.__testOnly__.dblClickResize = dblClickResize;
 
     }

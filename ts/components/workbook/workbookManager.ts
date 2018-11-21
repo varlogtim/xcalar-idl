@@ -178,13 +178,12 @@ namespace WorkbookManager {
     }
 
     /**
-    * WorkbookManager.updateWorksheet
-    * updates the number of worksheets in the active workbook
-    * @param numWorksheets - the new number of worksheets
+    * WorkbookManager.updateDFs
+    * @param numDFs - the new number of dataflows
     */
-    export function updateWorksheet(numWorksheets: number): void {
+    export function updateDFs(numDFs: number): void {
         const workbook: WKBK = wkbkSet.get(activeWKBKId);
-        workbook.numWorksheets = numWorksheets;
+        workbook.numDFs = numDFs;
     };
 
     /**
@@ -690,7 +689,7 @@ namespace WorkbookManager {
                 "created": srcWKBK.created,
                 "srcUser": srcWKBK.srcUser,
                 "curUser": srcWKBK.curUser,
-                "numWorksheets": srcWKBK.numWorksheets,
+                "numDFs": srcWKBK.numDFs,
                 "resource": srcWKBK.resource,
                 "jupyterFolder": folderName,
                 "sessionId": srcWKBK.sessionId
@@ -1141,7 +1140,7 @@ namespace WorkbookManager {
                 folderName = "";
             }
 
-            // XXX for uploads, we should include description and numWorksheets
+            // XXX for uploads, we should include description and numDFs
             const options: any = {
                 "id": getWKBKId(wkbkName),
                 "name": wkbkName,
@@ -1152,7 +1151,7 @@ namespace WorkbookManager {
             };
 
             if (isCopy) {
-                options.numWorksheets = copySrc.numWorksheets;
+                options.numDFs = copySrc.numDFs;
                 options.modified = copySrc.modified;
             }
 

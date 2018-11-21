@@ -278,7 +278,6 @@ class MenuHelper {
             }
             self.showOrHideScrollers();
             $('.selectedCell').removeClass('selectedCell');
-            FnBar.clear();
             self._addKeyboardNavigation($lists);
         }
         xcTooltip.hideAll();

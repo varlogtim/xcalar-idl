@@ -82,14 +82,6 @@
     "cli":"index --key \"xcalarRecordNum\" --dataset \".XcalarDS.undoTestUser.schedule1555\" --dsttable \"schedule15552#yz2\";",
     "timestamp":1460667884075},
 
-    {"title":"Change Table Order",
-    "options":{"operation":"reorderTable",
-    "tableId":"yz2",
-    "tableName":"schedule15552#yz2",
-    "srcIndex":2,
-    "desIndex":0},
-    "timestamp":1460667894077},
-
     {"title":"Hide Table",
     "options":{"operation":"hideTable",
     "tableIds":["yz0"],

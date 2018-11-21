@@ -1799,7 +1799,6 @@ namespace IMDPanel {
     // creates a new worksheet and puts tables there
     function refreshTablesToWorksheet(tableInfos: RefreshTableInfos[], filterString?: string): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let wsId: string;
         const numTables: number = tableInfos.length;
         tableInfos.forEach((tableInfo) => {
             tableInfo.dstTableName += Authentication.getHashId();
@@ -1818,14 +1817,10 @@ namespace IMDPanel {
             "steps": numTables,
             "track": true
         });
-        const wsName: string = "imd";
-
 
         refreshTables(tableInfos, txId, filterString)
         .then(function() {
-            wsId = WSManager.addWS(null, wsName);
             const promises: XDPromise<void>[] = [];
-
             tableInfos.forEach(function(tableInfo) {
                 let newTableCols = [];
                 tableInfo.columns.forEach(function(col) {
@@ -1844,12 +1839,11 @@ namespace IMDPanel {
 
                 newTableCols.push(ColManager.newDATACol());
                 promises.push(TblManager.refreshTable.bind(this, [tableInfo.dstTableName],
-                    newTableCols, null, wsId, txId));
+                    newTableCols, null, txId));
             });
             return PromiseHelper.chain(promises);
         })
         .then(function() {
-            sql['worksheet'] = wsId;
             Transaction.done(txId, {
                 "msgTable": xcHelper.getTableId(tableInfos[numTables - 1].dstTableName),
                 "title": "Generate Tables",

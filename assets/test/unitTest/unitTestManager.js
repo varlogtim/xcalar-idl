@@ -81,7 +81,6 @@ window.UnitTestManager = (function(UnitTestManager, $) {
         "Dag Panel Test",
         "DFCreateView Test",
         "Export Operator Panel Test",
-        "FnBar Test",
         "Join Op Panel Test",
         "JsonModal Test",
         "OperationsView Test",
@@ -96,7 +95,6 @@ window.UnitTestManager = (function(UnitTestManager, $) {
         "TableMenu Test",
         "TablePrefixManager Test",
         "Set Op Panel Test",
-        "Worksheet Test",
         "XIApi Test",
         "XcUser Test",
         "Memory Alert Test"

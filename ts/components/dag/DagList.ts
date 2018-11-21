@@ -358,6 +358,7 @@ class DagList {
 
     private _updateSection(): void {
         $("#dagList").find(".numDF").text(this._dags.size);
+        WorkbookManager.updateDFs(this._dags.size);
     }
 
     private _getDagListSection(): JQuery {
@@ -369,18 +370,6 @@ class DagList {
     }
 
     private _addEventListeners(): void {
-        // XXX TODO: separate dag list menu out of workspace menu
-        $("#dagButton").click(() => {
-            $("#workspaceMenu").find(".menuSection.worksheets")
-                            .addClass("xc-hidden")
-                            .end()
-                            .find(".menuSection.tables")
-                            .addClass("xc-hidden")
-                            .end()
-                            .find(".menuSection.dagList")
-                            .removeClass("xc-hidden");
-        });
-
         const $dagListSection: JQuery = this._getDagListSection();
         $("#dagList .iconSection .refreshBtn").click(() => {
             this.refresh();

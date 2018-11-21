@@ -5,27 +5,6 @@
 <% } %>
   <div class="mainContent">
   <!-- content common to all inner sections -->
-    <% if (dicts.tutor.name == "workbookTut") { %>
-    <div id="workspaceMenu" class="commonSection active" data-tab="workspaceTab">
-    <% } else { %>
-    <div id="workspaceMenu" class="commonSection" data-tab="workspaceTab">
-    <% } %>
-      <% if (dicts.tutor.name == "workbookTut") { %>
-      <section class="menuSection worksheets">
-      <% } else { %>
-      <section class="menuSection worksheets xc-hidden">
-      <% } %>
-        include "../worksheet/worksheetTabs.html"
-      </section>
-      <% if (dicts.tutor.name == "workbookTut") { %>
-      <section class="menuSection tables xc-hidden">
-      <% } else { %>
-      <section class="menuSection tables">
-      <% } %>
-        include "../worksheet/tableList.html"
-      </section>
-      include "../worksheet/dfCreateView.html"
-    </div>
     <div id="dataflowMenu" class="commonSection" data-tab="modelingDataflowTab">
       <section id="dagList" class="dagList menuSection">
         include "../dataflow/dagList.html"

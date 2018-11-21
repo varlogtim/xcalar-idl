@@ -1,7 +1,6 @@
 class TableComponent {
     private static menuManager: TableMenuManager;
     private static prefixManager: TablePrefixManager;
-    private static viewersMap: Map<TableId, XcTableInWSViewer>;
     /**
      * Setup the Table Manager
      */
@@ -9,8 +8,6 @@ class TableComponent {
         try {
             TableComponent.menuManager = TableMenuManager.Instance;
             TableComponent.prefixManager = TablePrefixManager.Instance;
-            TableComponent.viewersMap = new Map();
-            this._setupMainFrame();
         } catch (e) {
             console.error(e);
         }
@@ -30,78 +27,26 @@ class TableComponent {
         return TableComponent.prefixManager;
     }
 
-    public static addViewer(tableId: TableId, viewer: XcTableInWSViewer): void {
-        this.viewersMap.set(tableId, viewer);
-    }
-
     public static empty(): void {
         gActiveTableId = null;
         TableComponent.update();
     }
 
+    // XXX TODO: remove it
     public static update(): void {
-        const $rowInputArea: JQuery = $("#rowInputArea");
-        const viewer: XcTableInWSViewer = this.viewersMap.get(gActiveTableId);
-        const table: TableMeta = gTables[gActiveTableId];
-        if (viewer == null || table == null) {
-            $rowInputArea.empty();
-            this._emptySkew();
-        } else {
-            const rowInput: RowInput = viewer.getRowInput();
-            rowInput.render($rowInputArea);
+        return;
+        // const $rowInputArea: JQuery = $("#rowInputArea");
+        // const viewer: XcTableInWSViewer = this.viewersMap.get(gActiveTableId);
+        // const table: TableMeta = gTables[gActiveTableId];
+        // if (viewer == null || table == null) {
+        //     $rowInputArea.empty();
+        //     this._emptySkew();
+        // } else {
+        //     const rowInput: RowInput = viewer.getRowInput();
+        //     rowInput.render($rowInputArea);
 
-            const skew: TableSkew = viewer.getSkew();
-            skew.render($("#skewInfoArea").addClass("active"));
-        }
-    }
-
-    private static _setupMainFrame(): void {
-        let mainFrameScrolling: boolean = false;
-        let mainFrameScrollTimer: number;
-        let scrollPrevented: boolean = false;
-        $('#mainFrame').scroll(function(): void {
-            if (!mainFrameScrolling) {
-                mainFrameScrolling = true;
-                // apply the following actions only once per scroll session
-
-                if ($(this).hasClass('scrollLocked')) {
-                    scrollPrevented = true;
-                } else {
-                    xcMenu.close();
-                }
-
-                xcMenu.removeKeyboardNavigation();
-                // table head's dropdown has position issue if not hide
-                $('.xcTheadWrap').find('.dropdownBox')
-                                 .addClass('dropdownBoxHidden');
-                $(".xcTheadWrap").find(".lockIcon").addClass("xc-hidden");
-                xcTooltip.hideAll();
-                $('.tableScrollBar').hide();
-            }
-            $(this).scrollTop(0);
-
-            clearTimeout(mainFrameScrollTimer);
-            mainFrameScrollTimer = <any>setTimeout(mainFrameScrollingStop, 300);
-            if (!scrollPrevented) {
-                TblFunc.moveFirstColumn(null, true);
-                TblFunc.moveTableTitles(null);
-            }
-        });
-
-        function mainFrameScrollingStop(): void {
-            $('.xcTheadWrap').find('.dropdownBox')
-                             .removeClass('dropdownBoxHidden');
-            $(".xcTheadWrap").find(".lockIcon").removeClass("xc-hidden");
-            $('.tableScrollBar').show();
-            TblFunc.moveFirstColumn(null);
-            TblFunc.moveTableDropdownBoxes();
-            mainFrameScrolling = false;
-            scrollPrevented = false;
-        }
-
-    }
-
-    private static _emptySkew() {
-        $("#skewInfoArea").removeClass("active").find(".text").text("");
+        //     const skew: TableSkew = viewer.getSkew();
+        //     skew.render($("#skewInfoArea").addClass("active"));
+        // }
     }
 }

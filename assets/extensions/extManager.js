@@ -513,6 +513,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         noFailAlert: boolean, to hide error alert
     }
      */
+    // XXX TODO: clear it for DF2.0
     ExtensionManager.trigger = function(tableId, module, func, args, options) {
         if (module == null || func == null || module.indexOf("UExt") !== 0) {
             throw "error extension!";
@@ -531,18 +532,15 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
 
         var deferred = PromiseHelper.deferred();
-        var worksheet;
         var table;
         var tableName;
         var notTableDependent = extMap[module]._configParams.notTableDependent;
         var finalTableId;
 
         if (!notTableDependent) {
-            worksheet = WSManager.getWSFromTable(tableId);
             table = gTables[tableId];
             tableName = table.getName();
         } else {
-            worksheet = WSManager.getActiveWS();
             table = {};
             tableName = "";
         }
@@ -565,7 +563,6 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             "func": func,
             "args": copyArgs,
             "options": options,
-            "worksheet": worksheet,
             "htmlExclude": ["args", "srcTables", "options"]
         };
 
@@ -796,11 +793,6 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
             $extLists.find(".func.selected").removeClass("selected");
             $func.addClass("selected");
-            if (!$("#workspaceTab").hasClass("active") ||
-                !$("#worksheetButton").hasClass("active")) {
-                MainMenu.openPanel("workspacePanel", "worksheetButton");
-            }
-
             centerFuncList($func);
             updateArgs(modName, fnName, fnText);
         });
@@ -1148,7 +1140,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         new MenuHelper($list, {
             "onOpen": function($curList) {
                 var tableName = $curList.find("input").val();
-                $curList.find('.list ul').html(WSManager.getTableList());
+                // $curList.find('.list ul').html(WSManager.getTableList());
                 $curList.find("li").filter(function() {
                     return ($(this).text() === tableName);
                 }).addClass("selected");
@@ -1173,7 +1165,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
     function updateTableList(modName, refresh) {
         var $extArgs = $extOpsView.find(".extArgs");
-        var tableList = WSManager.getTableList();
+        // var tableList = WSManager.getTableList();
+        var tableList = "";
         $extTriggerTableDropdown.find(".list ul").html(tableList);
 
         if (!refresh) {
@@ -1657,8 +1650,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             return { "vaild": false };
         }
 
-        var worksheet = WSManager.getWSFromTable(tableId);
-        var tableArg = new XcSDK.Table(arg, worksheet);
+        var tableArg = new XcSDK.Table(arg, null);
 
         return ({
             "valid": true,

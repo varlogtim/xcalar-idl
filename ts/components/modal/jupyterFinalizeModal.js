@@ -1,3 +1,4 @@
+// XXX TODO: remove it
 window.JupyterFinalizeModal = (function(JupyterFinalizeModal, $) {
     var $modal;    // $("#jupyterFinalizeModal")
     var modalHelper;

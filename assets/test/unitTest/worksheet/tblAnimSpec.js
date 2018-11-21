@@ -19,7 +19,7 @@ describe('TblAnim Test', function() {
         });
     });
 
-    describe('column resize for worksheet table', function() {
+    describe('column resize for table', function() {
         var $el;
         var $th;
         var startWidth;
@@ -438,104 +438,6 @@ describe('TblAnim Test', function() {
             expect($(".dropTarget").length).to.equal(0);
             expect($('#moveCursor').length).to.equal(0);
             expect($table.find('th').index($th)).to.equal(2);
-        });
-    });
-
-    describe('table drag', function() {
-        var $el;
-        var $th;
-        var startWidth;
-        var startX = 0;
-        var dragInfo;
-        var $tableWrap;
-
-        before(function(done) {
-            $el = $("#xcTableWrap-" + tableId).find('.tableTitle');
-            $th = $el;
-            startWidth = $th.outerWidth();
-            startX = 0;
-            dragInfo = TblAnim.__testOnly__.dragInfo;
-            $tableWrap = $table.closest('.xcTableWrap');
-
-            UnitTest.addTable(testDs)
-            .always(function(tName) {
-                tableName2 = tName;
-                done();
-            });
-        });
-
-        it('startTableDrag should work', function() {
-            expect(gMouseStatus).to.be.null;
-            expect(startWidth).to.be.gt(50);
-
-            var e = $.Event('mousedown', {pageX: startX});
-            TblAnim.startTableDrag($el, e);
-
-            expect(gMouseStatus).to.equal("checkingMovingTable");
-            expect($('#moveCursor').length).to.equal(1);
-        });
-
-        it('checkTableDrag should work', function() {
-            // should not trigger move
-            var newX = 2;
-            var e = $.Event('mousemove', {pageX: newX});
-            TblAnim.__testOnly__.checkTableDrag(e);
-            expect(gMouseStatus).to.equal("checkingMovingTable");
-            expect($tableWrap.hasClass('tableDragging')).to.be.false;
-
-            newX = 5;
-            e = $.Event('mousemove', {pageX: newX});
-            TblAnim.__testOnly__.checkTableDrag(e);
-
-            expect(gMouseStatus).to.equal("dragging");
-            expect($tableWrap.hasClass('tableDragging')).to.be.true;
-            expect($tableWrap.css('position')).to.equal('absolute');
-            expect($("#shadowTable").length).to.equal(1);
-            expect($(".dropTarget").length).to.equal($('.xcTable:visible').length - 1);
-        });
-
-        it('onTableDrag should work', function() {
-            newX = 10;
-            var tableOffset = $tableWrap.offset().left;
-            var e = $.Event('mousemove', {pageX: newX});
-            TblAnim.__testOnly__.onTableDrag(e);
-            expect(dragInfo.pageX).to.equal(newX);
-            expect($tableWrap.css('left')).to.equal(newX - (startX - tableOffset) + "px");
-        });
-
-        it('dragdropSwapTables should work', function() {
-            var swap = TblAnim.__testOnly__.dragdropSwapTables;
-            var $dropTarget = $('.dropTarget').last();
-            var initialIndex = $('.xcTableWrap:visible').index($tableWrap);
-            expect(dragInfo.tableIndex).to.equal(initialIndex);
-
-            swap($dropTarget);
-            expect(dragInfo.tableIndex).to.equal(initialIndex + 1);
-
-            swap($dropTarget);
-            expect(dragInfo.tableIndex).to.equal(initialIndex);
-            expect($('.xcTableWrap:visible').index($tableWrap)).to.equal(initialIndex);
-
-            swap($dropTarget);
-            expect(dragInfo.tableIndex).to.equal(initialIndex + 1);
-            expect($('.xcTableWrap:visible').index($tableWrap)).to.equal(initialIndex + 1);
-        });
-
-
-        it('endTableDrag should work', function() {
-            expect(gMouseStatus).to.equal("dragging");
-            var $dagWrap = $("#dagWrap-" + tableId);
-            var initialIndex = $('.dagWrap:not(.inActive)').index($dagWrap);
-
-            TblAnim.__testOnly__.endTableDrag();
-            var newIndex = $('.dagWrap:not(.inActive)').index($dagWrap);
-            expect(newIndex).to.equal(initialIndex + 1);
-            expect($('.xcTableWrap:visible').index($tableWrap)).to.equal(initialIndex + 1);
-            expect(gMouseStatus).to.be.null;
-            expect($("#shadowTable").length).to.equal(0);
-            expect($(".dropTarget").length).to.equal(0);
-            expect($('#moveCursor').length).to.equal(0);
-            expect($tableWrap.hasClass('tableDragging')).to.be.false;
         });
     });
 

@@ -178,10 +178,20 @@ namespace DagView {
                 !(!isSystemMac && event.ctrlKey)) {
                 return;
             }
-            if (FormHelper.activeForm) {
+            if (FormHelper.activeForm ||
+                !$('#modelingDagPanel').hasClass('active') ||
+                $('#container').hasClass('columnPicker') ||
+                $('.modalContainer:not(#aboutModal):visible').length ||
+                $('textarea:focus').length ||
+                $('input:focus').length
+            ) {
                 return;
             }
+
             event.preventDefault();
+            // xcMenu.close();
+            // TblManager.unHighlightCells();
+
             if (event.which === keyCode.Z) {
                 $('#undo').click();
             } else if (event.which === keyCode.Y) {

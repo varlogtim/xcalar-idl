@@ -24,9 +24,9 @@ describe('Memory Alert Test', () => {
                 }]
             };
 
-            oldRefresh = TableList.refreshOrphanList;
+            oldRefresh = TblManager.refreshOrphanList;
 
-            TableList.refreshOrphanList = () => PromiseHelper.resolve();
+            TblManager.refreshOrphanList = () => PromiseHelper.resolve();
             UnitTest.onMinMode();
         });
 
@@ -151,7 +151,7 @@ describe('Memory Alert Test', () => {
         });
 
         after(() => {
-            TableList.refreshOrphanList = oldRefresh;
+            TblManager.refreshOrphanList = oldRefresh;
             UnitTest.offMinMode();
         });
     });
@@ -179,12 +179,12 @@ describe('Memory Alert Test', () => {
         });
 
         it('refreshTables should resolve if no tables', (done) => {
-            const oldFunc = TableList.refreshOrphanList;
+            const oldFunc = TblManager.refreshOrphanList;
             const oldGTables = gTables;
             const oldGOrphanTables = gOrphanTables;
 
             let test = false;
-            TableList.refreshOrphanList = () => {
+            TblManager.refreshOrphanList = () => {
                 test = true;
                 return PromiseHelper.resolve();
             };
@@ -200,7 +200,7 @@ describe('Memory Alert Test', () => {
                     done('fail');
                 })
                 .always(() => {
-                    TableList.refreshOrphanList = oldFunc;
+                    TblManager.refreshOrphanList = oldFunc;
                     gTables = oldGTables;
                     gOrphanTables = oldGOrphanTables;
                 });
@@ -208,10 +208,10 @@ describe('Memory Alert Test', () => {
 
         it('refreshTables should resolve in normal case', (done) => {
             const oldGOrphanTables = gOrphanTables;
-            const oldFunc = TableList.refreshOrphanList;
+            const oldFunc = TblManager.refreshOrphanList;
 
             let test = false;
-            TableList.refreshOrphanList = () => {
+            TblManager.refreshOrphanList = () => {
                 test = true;
                 return PromiseHelper.resolve();
             };
@@ -228,7 +228,7 @@ describe('Memory Alert Test', () => {
                 })
                 .always(() => {
                     gOrphanTables = oldGOrphanTables;
-                    TableList.refreshOrphanList = oldFunc;
+                    TblManager.refreshOrphanList = oldFunc;
                 });
         });
     });

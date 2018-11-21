@@ -264,7 +264,7 @@
                             op: constant.input.eval[0].evalString.split("(")[0]
                         };
                         Aggregates.addAgg(aggRes, false);
-                        TableList.refreshConstantList();
+                        // XXX TODO: add new refresh constant function
                     })
                     .always(function() {
                         if (resultSetId) {

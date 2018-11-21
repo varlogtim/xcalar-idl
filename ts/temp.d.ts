@@ -377,7 +377,6 @@ declare namespace Base64 {
 /* ============== GLOBAL VARIABLES ============= */
 declare var nw: any; // nw js for XD CE
 interface Window {
-    FnBar: any;
     gMinModeOn: boolean;
     xcLocalStorage: any;
     xcSessionStorage: any;
@@ -852,7 +851,7 @@ declare class WKBK {
     public id: string;
     public modified: string;
     public sessionId: string;
-    public numWorksheets: number;
+    public numDFs: number;
     public jupyterFolder: string;
     public description: string;
     public created: string;
@@ -863,7 +862,7 @@ declare class WKBK {
     public getDescription(): string;
     public getCreateTime(): string;
     public getModifyTime(): string;
-    public getNumWorksheets(): number;
+    public getNumDataflows(): number;
     public isNoMeta(): boolean;
     public hasResource(): boolean;
     public getId(): string;
@@ -873,20 +872,10 @@ declare class WKBK {
     public constructor(params: object);
 }
 
-declare class WorksheetObj {
-    public constructor(info: any);
-}
-
-declare class WSMETA {
-    public constructor(info: any);
-    public wsInfos: Set<WorksheetObj>
-}
-
 declare class METAConstructor {
     public constructor(meta: object);
     public update(): void;
     public getQueryMeta(): QueryManager.XcQueryAbbr[];
-    public getWSMeta(): WSMETA;
     public getTpfxMeta(): object;
     public getAggMeta(): object;
     public getTableMeta(): TableMeta[];
@@ -1050,32 +1039,9 @@ declare namespace MonitorGraph {
     export function tableUsageChange(): void;
 }
 
-declare namespace TableList {
-    export function lockTable(tableId: TableId): void;
-    export function unlockTable(tableId: TableId): void;
-    export function refreshConstantList(): void;
-    export function refreshOrphanList(prettyPrint?: boolean): XDPromise<void>;
-    export function removeTable(tableIdOrName: TableId | string, type?: string, lock?: boolean): void;
-    export function addToCanceledList(tableName: string): void;
-    export function removeFromCanceledList(tableName: string): void;
-    export function reorderTable(tableId: TableId): void;
-    export function updatePendingState(flag: boolean): void;
-    export function addTables(tables: TableMeta[], flag: boolean): void;
-    export function addToOrphanList(tableName: string): void;
-    export function makeTableNoDelete(tableId: TableId);
-    export function removeTableNoDelete(tableId: TableId): void;
-    export function updateTableInfo(tableId: TableId): void;
-    export function setup(): void;
-    export function initialize(): void;
-    export function clear(): void;
-    export function tablesToHiddenWS(wsIds: string[]);
-    export function tableBulkAction(action: string, type: TableType, wsId: string, arg?: any, waitForAnim?: boolean, noAnim?: boolean): XDPromise<void>;
-}
-
 declare namespace TblAnim {
     export function startRowResize($el: JQuery, event: JQueryMouseEventObject): void;
     export function startColResize($el: JQuery, event: JQueryMouseEventObject, options: object): void;
-    export function startTableDrag($el: JQuery, event: JQueryMouseEventObject): void
     export function startColDrag($headCol: JQuery, event: JQueryEventObject): void;
 }
 
@@ -1256,14 +1222,6 @@ declare namespace MonitorPanel {
 
 declare namespace MonitorConfig {
     export function refreshParams(firstTouch: boolean): XDPromise<{}>;
-}
-declare namespace FnBar {
-    export function updateOperationsMap(fns: XcalarEvalFnDescT[], isOnlyUDF?: boolean): void;
-    export function unlock(): void;
-    export function setup(): void;
-    export function clear(): void;
-    export function updateColNameCache(): void;
-    export function focusOnCol($head: JQuery, tableId: TableId, colNum: number): void;
 }
 
 declare namespace DagFunction {

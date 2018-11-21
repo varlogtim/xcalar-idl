@@ -426,8 +426,6 @@ describe('ColManager Test', function() {
             expect($th.hasClass('newColumn')).to.be.true;
             expect($th.find('.prefix').hasClass('immediate')).to.be.true;
 
-            // give a name then exec a pullcol
-            ColManager.renameCol(1, tableId, "fakeCol");
             var usrStr = 'fakeCol" = pull(schedule::fakeCol)';
             ColManager.execCol("pull", usrStr, tableId, 1);
             expect($th.hasClass('newColumn')).to.be.false;
@@ -460,23 +458,6 @@ describe('ColManager Test', function() {
             .fail(function() {
                 done("fail");
             });
-        });
-
-        it("should exec column (search)", function() {
-            var $section = $("#functionArea");
-            var searchHelper = new SearchBar($());
-            ColManager.execCol("search", null, null, null, {
-                value: "abc",
-                searchBar: searchHelper
-            });
-            expect($section.find(".arrows").css("display")).to.equal("block");
-
-            // clear case
-            ColManager.execCol("search", null, null, null, {
-                value: "",
-                searchBar: searchHelper
-            });
-            expect($section.find(".arrows").css("display")).to.equal("none");
         });
 
         it("should exec column handle invalid case", function(done) {
@@ -571,28 +552,28 @@ describe('ColManager Test', function() {
             expect(text.endsWith("%")).to.be.false;
         });
 
-        it("should round column", function(done) {
-            var table = gTables[tableId];
-            var backCol = xcHelper.getPrefixColName(prefix, "average_stars");
-            var colNum = table.getColNumByBackName(backCol);
-            var numCols = table.getNumCols();
-            expect(colNum).not.to.equal(-1);
+        // it("should round column", function(done) {
+            // var table = gTables[tableId];
+            // var backCol = xcHelper.getPrefixColName(prefix, "average_stars");
+            // var colNum = table.getColNumByBackName(backCol);
+            // var numCols = table.getNumCols();
+            // expect(colNum).not.to.equal(-1);
 
-            ColManager.round([colNum], tableId, 4)
-            .then(function(newTableId) {
-                var newTable = gTables[newTableId];
-                expect(newTable.getNumCols()).to.equal(numCols);
-                var newCol = newTable.getCol(colNum);
-                expect(newCol).not.to.be.null;
-                expect(newCol.getType()).to.equal(ColumnType.float);
-                expect(newCol.getFrontColName()).to.equal("average_stars");
+            // ColManager.round([colNum], tableId, 4)
+            // .then(function(newTableId) {
+            //     var newTable = gTables[newTableId];
+            //     expect(newTable.getNumCols()).to.equal(numCols);
+            //     var newCol = newTable.getCol(colNum);
+            //     expect(newCol).not.to.be.null;
+            //     expect(newCol.getType()).to.equal(ColumnType.float);
+            //     expect(newCol.getFrontColName()).to.equal("average_stars");
 
-                done();
-            })
-            .fail(function(error) {
-                done(error);
-            });
-        });
+            //     done();
+            // })
+            // .fail(function(error) {
+            //     done(error);
+            // });
+        // });
 
         it("should undo round column", function(done) {
             Log.undo()
@@ -780,78 +761,6 @@ describe('ColManager Test', function() {
             ColManager.unnest(tableId, colNum, rowNum);
             // 3 new cols: votes.funny, votes.useful and votes.cool
             expect(getColLen(tableId) - numCols).to.equal(3);
-        });
-
-        it("should handle split fail case", function(done) {
-            var oldFunc = XIApi.map;
-            XIApi.map = function() {
-                return PromiseHelper.reject("test error");
-            };
-            var id = xcHelper.randName("test");
-            var table = new TableMeta({
-                tableName: id,
-                tableId: id
-            });
-            var progCol = new ProgCol({
-                name: "test",
-                type: ColumnType.string
-            });
-            table.tableCols = [];
-            table.addCol(1, progCol);
-            gTables[id] = table;
-
-            ColManager.splitCol(1, id, ",", 1)
-            .then(function() {
-                done("fail");
-            })
-            .fail(function(error) {
-                expect(error).to.equal("test error");
-                UnitTest.hasAlertWithTitle(StatusMessageTStr.SplitColumnFailed);
-                done();
-            })
-            .always(function() {
-                delete gTables[id];
-                XIApi.map = oldFunc;
-            });
-        });
-
-        it("Should split column", function(done) {
-            var table = gTables[tableId];
-            var backCol = xcHelper.getPrefixColName(prefix, "one");
-            var colNum = table.getColNumByBackName(backCol);
-            var numCols = table.getNumCols();
-            expect(colNum).not.to.equal(-1);
-            // when too much splits, will have alert
-            ColManager.splitCol(colNum, tableId, ".", 16, [], true);
-            assert.isTrue($("#alertModal").is(":visible"));
-            $("#alertModal .cancel").click();
-            assert.isFalse($("#alertModal").is(":visible"));
-            ColManager.splitCol(colNum, tableId, ".", null, ["s1", "s2"], false)
-            .then(function(newTableId) {
-                // split will generate two columns
-                var newTable = gTables[newTableId];
-                expect(newTable.getNumCols() - numCols).to.equal(2);
-                var splitColNum = newTable.getColNumByBackName("s1");
-                expect(splitColNum).not.to.equal(-1);
-
-                done();
-            })
-            .fail(function(error) {
-                done(error);
-            });
-        });
-
-        it("Should undo the split", function(done) {
-            Log.undo()
-            .then(function() {
-                var table = gTables[tableId];
-                expect(table.getType()).to.equal(TableType.Active);
-                xcTooltip.hideAll();
-                done();
-            })
-            .fail(function(error) {
-                done(error);
-            });
         });
 
         it("change type should handle invalid case", function(done) {

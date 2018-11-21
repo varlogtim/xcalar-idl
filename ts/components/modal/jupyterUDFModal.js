@@ -29,7 +29,7 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
 
         var tableList = new MenuHelper($modal.find(".tableList"), {
             "onOpen": function() {
-                var tableLis = WSManager.getTableList();
+                var tableLis = getTableList();
                 $modal.find(".tableList").find("ul").html(tableLis);
                 var tableName = $modal.find(".tableList .arg").val();
                 $modal.find(".tableList").find('li').filter(function() {
@@ -94,6 +94,23 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
             }
         }).setupListeners();
     };
+
+    // XXX TODO: update it to DF 2.0
+    function getTableList() {
+        var tableList = "";
+        for (var id in gTables) {
+            var table = gTables[tableId];
+            var tableName = table.getName();
+            tableList +=
+                '<li class="tooltipOverflow"' +
+                ' data-original-title="' + tableName + '"' +
+                ' data-toggle="tooltip"' +
+                ' data-container="body" ' +
+                ' data-id="' + tableId + '">' +
+                    tableName +
+                '</li>';
+        }
+    }
 
     JupyterUDFModal.show = function(type, params) {
         if ($modal.is(":visible")) {

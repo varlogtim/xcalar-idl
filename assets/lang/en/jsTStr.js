@@ -74,7 +74,6 @@ TooltipTStr = {
     'ChooseUdfModule': 'Please choose a module first', // used in htmltstr
     'ChooseColToExport': 'Please select the columns you want to export',
     'SelectCol': 'Please select a column first!',
-    'NoFnBarFormOpen': 'Please exit the current form to enter an operation',
     'SuggKey': 'Suggested Key',
     'NoWSToMV': 'No destination worksheet',
     'NoUndoNoOp': 'No operation to undo',
@@ -706,28 +705,6 @@ ErrorMessageTStr = {
     "instrDown": "Please review the following error(s):"
 };
 
-FnBarTStr = {
-    'NewCol': 'Please specify the new column name and press enter.',
-    'InvalidOpParen': 'Operation must be preceded by operator name and ' +
-                      'arguments in parentheses.',
-    'ValidOps': 'Valid operators are: <b>pull, map, filter</b>.',
-    'DiffColumn': 'The selected column (<colName>) is not included ' +
-                    'in this operation. Do you want to continue?',
-    'NewColTitle': 'New Column Required',
-    'NewColMsg': 'Please create a new column to perform a map.',
-    'PullExists': 'This column has already been pulled.',
-    'ParseError': 'Could not parse function.',
-    'WantContinue': 'Do you want to continue?',
-    // with replace
-    'InvalidNumParens': 'Your function string should take the form ' +
-                        'of <operation>(op(arg1, arg2, ...))',
-    'UnknownColumnOp': 'The following column(s) may not be present in this table:<br/><b>' +
-                    '<columns></b>',
-    'UnknownFuncOp': 'The following functions(s) may not be valid:<br/><b>' +
-                    '<funcs></b>'
-
-};
-
 OpFormTStr = {
     'NewColName': 'New column name for the group by resultant column',
     'CMD': 'Command Preview',
@@ -936,7 +913,7 @@ WKBKTStr = {
     'Createby': 'Created by',
     'CreateOn': 'Created on',
     'Modified': 'Last modified',
-    'WS': 'Worksheets',
+    'DF': 'Dataflows',
     'State': 'State',
     'Creating': 'Creating Workbook',
     'Updating': "Updating Workbook",
@@ -1556,14 +1533,11 @@ SQLTStr = {
     "MaximizeTable": "Unminimize Table",
     "MinimizeCols": "Minimize Columns",
     "MinimizeTable": "Minimize Table",
-    "MoveTemporaryTableToWS": "Move Temporary Table To Worksheet",
-    "MoveTableToWS": "Move Table To Worksheet",
     "PullCol": "Pull Column",
     "PullCols": "Pull Columns",
     "RenameCol": "Rename Column",
     "RenameWS": "Rename Worksheet",
     "ReorderCol": "Change Column Order",
-    "ReorderTable": "Change Table Order",
     "ReorderWS": "Reorder Worksheet",
     "ResizeCol": "Resize Column",
     "ResizeCols": "Resize Columns",

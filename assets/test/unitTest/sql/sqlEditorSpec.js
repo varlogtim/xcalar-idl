@@ -33,8 +33,8 @@ describe("SQLEditor Test", function() {
         KVStore.commit = function() {
             return PromiseHelper.resolve();
         };
-        oldRefreshOrphanList = TableList.refreshOrphanList;
-        TableList.refreshOrphanList = function() {
+        oldRefreshOrphanList = TblManager.refreshOrphanList;
+        TblManager.refreshOrphanList = function() {
             return PromiseHelper.resolve();
         }
         gTables = {
@@ -472,7 +472,7 @@ describe("SQLEditor Test", function() {
         });
 
         it("Should focus on table column", function() {
-            var oldGWFT = WSManager.getWSFromTable;
+            // var oldGWFT = WSManager.getWSFromTable;
             var oldCFC = xcHelper.centerFocusedColumn;
             var oldTAFT = TblManager.findAndFocusTable;
             TblManager.findAndFocusTable = function(input) {
@@ -485,9 +485,9 @@ describe("SQLEditor Test", function() {
                 return true;
             }
             var tId, cNum;
-            WSManager.getWSFromTable = function() {
-                return 0;
-            }
+            // WSManager.getWSFromTable = function() {
+            //     return 0;
+            // }
             xcHelper.centerFocusedColumn = function(tableId, colNum) {
                 tId = tableId;
                 cNum = colNum;
@@ -497,7 +497,7 @@ describe("SQLEditor Test", function() {
                                         .find(".unit").closest("li"), "test4");
             expect(tId).to.equal("test4");
             expect(cNum).to.equal(2);
-            WSManager.getWSFromTable = oldGWFT;
+            // WSManager.getWSFromTable = oldGWFT;
             xcHelper.centerFocusedColumn = oldCFC;
             TblManager.findAndFocusTable = oldTAFT;
         });
@@ -871,6 +871,6 @@ describe("SQLEditor Test", function() {
         KVStore.commit = oldKVStoreCommit;
         SQLEditor.__testOnly__.setSQLTables(oldSQLTables);
         SQLEditor.getEditor().setValue(queryText);
-        TableList.refreshOrphanList = oldRefreshOrphanList;
+        TblManager.refreshOrphanList = oldRefreshOrphanList;
     });
 });

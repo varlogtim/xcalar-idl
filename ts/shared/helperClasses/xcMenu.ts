@@ -247,7 +247,7 @@ namespace xcMenu {
         xcMenu.removeKeyboardNavigation();
         $(document).off(".xcMenu");
         $(window).off(".xcMenu");
-        $("#mainFrame").off(".xcMenu");
+        $("#dagViewTableArea .viewWrap").off(".xcMenu");
         if (closeCallback && typeof closeCallback === "function") {
             closeCallback();
             closeCallback = null;
@@ -271,17 +271,17 @@ namespace xcMenu {
             xcMenu.close($menu);
         });
 
-        let mainFrameScrolling: boolean = false;
-        let mainFrameScrollTimer: NodeJS.Timer;
-        $("#mainFrame").on("scroll.xcMenu", function() {
-            if (!mainFrameScrolling) {
-                mainFrameScrolling = true;
+        let frameScrolling: boolean = false;
+        let frameScrollTimer: NodeJS.Timer;
+        $("#dagViewTableArea .viewWrap").on("scroll.xcMenu", function() {
+            if (!frameScrolling) {
+                frameScrolling = true;
                 xcMenu.close($menu);
             }
 
-            clearTimeout(mainFrameScrollTimer);
-            mainFrameScrollTimer = setTimeout(function() {
-                mainFrameScrolling = false;
+            clearTimeout(frameScrollTimer);
+            frameScrollTimer = setTimeout(function() {
+                frameScrolling = false;
             }, 300);
         });
 
@@ -314,7 +314,7 @@ namespace xcMenu {
         xcMenu.removeKeyboardNavigation();
         $(document).off(".xcMenu");
         $(window).off(".xcMenu");
-        $("#mainFrame").off(".xcMenu");
+        $("#dagViewTableArea .viewWrap").off(".xcMenu");
         if (closeCallback && typeof closeCallback === "function") {
             closeCallback();
             closeCallback = null;

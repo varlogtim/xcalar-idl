@@ -37,7 +37,7 @@ window.DagEdit = (function($, DagEdit) {
         $dagWrap.addClass("editMode");
         $("#workspaceBar").prepend('<div id="workspaceEditText" class="workspaceArea title">' + DFTStr.EDITINGDATAFLOW + '</div>');
         $dagWrap.after('<div id="dagPanelEditText">Other dataflows have been hidden in edit mode.</div>');
-        $("#tableListSection").append('<div id="tableListEditText">' + DFTStr.TableListNoEdit + '</div>');
+        // $("#tableListSection").append('<div id="tableListEditText">' + DFTStr.TableListNoEdit + '</div>');
         xcTooltip.add($("#monitor-delete"), {title: DFTStr.NoReleaseMemoryEdit});
 
         // if union, join, or groupby tag, collapse and only allow editing of whole group
@@ -1108,9 +1108,9 @@ window.DagEdit = (function($, DagEdit) {
         // if an operation unrelated to one of the temp tables took place, instead
         // of undoing, send the remaining tables to temp list
         if (tablesFromTemp.length) {
-            tablesFromTemp.forEach(function(tableId) {
-                TblManager.sendTableToTempList([tableId]);
-            });
+            // tablesFromTemp.forEach(function(tableId) {
+            //     TblManager.sendTableToTempList([tableId]);
+            // });
         }
     }
 

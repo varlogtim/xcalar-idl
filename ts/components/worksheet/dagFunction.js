@@ -478,8 +478,7 @@ window.DagFunction = (function($, DagFunction) {
         }
         xcHelper.lockTable(tableId);
         xcHelper.lockTable(oldTableId);
-        TblManager.refreshTable([newTableName], null, oldTableNames, wsId,
-                                null)
+        TblManager.refreshTable([newTableName], null, oldTableNames)
         .then(function() {
             xcHelper.unlockTable(tableId);
             xcHelper.unlockTable(oldTableId);
@@ -505,18 +504,20 @@ window.DagFunction = (function($, DagFunction) {
     };
 
     DagFunction.addTable = function(tableId) {
-        var deferred = PromiseHelper.deferred();
-        var wsId = WSManager.getActiveWS();
-        var tableType = TableType.Orphan;
+        // do nothing for DF 2.0
+        return PromiseHelper.resolve();
+        // var deferred = PromiseHelper.deferred();
+        // var wsId = WSManager.getActiveWS();
+        // var tableType = TableType.Orphan;
 
-        WSManager.moveTemporaryTable(tableId, wsId, tableType)
-        .then(function() {
-            DFCreateView.updateTables(tableId);
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
+        // WSManager.moveTemporaryTable(tableId, wsId, tableType)
+        // .then(function() {
+        //     DFCreateView.updateTables(tableId);
+        //     deferred.resolve();
+        // })
+        // .fail(deferred.reject);
 
-        return deferred.promise();
+        // return deferred.promise();
     };
 
     DagFunction.focusTable = function(tableId) {
@@ -1198,10 +1199,7 @@ window.DagFunction = (function($, DagFunction) {
             return setColumnsAfterEdit(finalTableName, gTables[tableId]);
         })
         .then(function(cols) {
-            var worksheet = WSManager.getWSFromTable(tableId);
-            return TblManager.refreshTable([finalTableName], cols, [tableName],
-                                    worksheet, txId, {noTag: true,
-                                        focusWorkspace: true});
+            return TblManager.refreshTable([finalTableName], cols, [tableName], txId);
         })
         .then(function() {
             xcHelper.unlockTable(tableId, txId);

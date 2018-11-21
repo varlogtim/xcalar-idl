@@ -430,23 +430,6 @@ describe("Ephemeral Constructor Test", function() {
         });
     });
 
-    describe("WorksheetScrollTracker Constructor Test", function() {
-        it("WorksheetScrollTracker Should be a constuctor", function() {
-            var scrollTracker = new WorksheetScrollTracker();
-
-            expect(scrollTracker).to.be.an("object");
-            expect(Object.keys(scrollTracker).length).to.equal(1);
-
-            // cahce and restore
-            scrollTracker.cache("test");
-            var res = scrollTracker.restore("test");
-            expect(res == null).to.be.false;
-            // case 2
-            res = scrollTracker.restore("test2");
-            expect(res == null).to.be.true;
-        });
-    });
-
     describe("Corrector Constructor Test", function() {
         it("Corrector Should work", function() {
             var corrector = new Corrector(["test", "yelp", "hello"]);
@@ -782,8 +765,6 @@ describe("Ephemeral Constructor Test", function() {
 
         after(function() {
             modalHelper.clear();
-            // Why is the following line not done in clear?
-            $("#mainFrame").removeClass("modalOpen");
             $("#fakeModalInst").remove();
             UnitTest.offMinMode();
         });
@@ -1829,22 +1810,6 @@ describe("Ephemeral Constructor Test", function() {
             });
         });
 
-    });
-
-    describe("ScrollTableChecker Constructor Test", function() {
-        it("should have 2 attrs", function() {
-            var scrollChecker = new ScrollTableChecker();
-            expect(scrollChecker).to.be.an.instanceof(ScrollTableChecker);
-            expect(scrollChecker.startTime).to.be.a("number");
-            expect(scrollChecker.scrollPos)
-            .to.equal($("#mainFrame").scrollLeft());
-        });
-
-        it("should check to scroll", function() {
-            var scrollChecker = new ScrollTableChecker();
-            // immediate check should return true
-            expect(scrollChecker.checkScroll()).to.be.true;
-        });
     });
 
     describe("ProgressCircle Constructor Test", function() {

@@ -68,9 +68,6 @@ window.MainMenu = (function($, MainMenu) {
         options = options || {};
         var $tab;
         switch (panelId) {
-            case ("workspacePanel"):
-                $tab = $("#workspaceTab");
-                break;
             case ("monitorPanel"):
                 $tab = $("#monitorTab");
                 break;
@@ -103,13 +100,6 @@ window.MainMenu = (function($, MainMenu) {
                 var $subTab =  $tab.find("#" + subTabId);
                 if (!$subTab.hasClass("active")) {
                     $subTab.click();
-                }
-            }
-            if (options.hideDF && !wasActive) {
-                if ($('#maximizeDag').hasClass('unavailable') &&
-                    !$('#dagPanel').hasClass('hidden'))
-                {
-                    $('#dfPanelSwitch').trigger('click');
                 }
             }
         }
@@ -148,8 +138,6 @@ window.MainMenu = (function($, MainMenu) {
             isBottomOpen: BottomMenu.isMenuOpen(),
             $activeTopSection: $mainMenu.find(".commonSection.active"),
             $activeBottomSection: $("#bottomMenu").find(".menuSection.active"),
-            $activeWorkspaceMenu: $("#workspaceMenu")
-                                   .find(".menuSection:not(.xc-hidden)"),
             $activeDataflowMenu: $("#dataflowMenu").find(".menuSection:not(.xc-hidden)")
         };
         return (state);
@@ -189,9 +177,6 @@ window.MainMenu = (function($, MainMenu) {
             }
         }
 
-        // restore worksheet list view or table list view
-        $("#workspaceMenu").find(".menuSection").addClass("xc-hidden");
-        prevState.$activeWorkspaceMenu.removeClass("xc-hidden");
         if (prevState.$activeDataflowMenu.is("#dagNodeInfoPanel") &&
             !DagNodeInfoPanel.Instance.isOpen()) {
             $("#dagList").removeClass("xc-hidden");
@@ -335,11 +320,6 @@ window.MainMenu = (function($, MainMenu) {
                          .removeClass("noTransition");
                 }, 100);
 
-                // call this before open/close menu to get current panel size
-                if (lastTabId === "workspaceTab") {
-                    panelSwitchingHandler($curTab, lastTabId);
-                }
-
                 var noAnim = true;
                 var $subTab = $curTab.find(".subTab.active");
                 if ($curTab.hasClass("mainMenuOpen") &&
@@ -349,9 +329,8 @@ window.MainMenu = (function($, MainMenu) {
                 } else {
                     closeMenu($curTab, noAnim);
                 }
-                if (lastTabId !== "workspaceTab") {
-                    panelSwitchingHandler($curTab, lastTabId);
-                }
+
+                panelSwitchingHandler($curTab, lastTabId);
                 xcHelper.hideSuccessBox();
             }
 
@@ -385,8 +364,6 @@ window.MainMenu = (function($, MainMenu) {
     function panelSwitchingHandler($curTab, lastTabId) {
         if (lastTabId === "monitorTab") {
             MonitorPanel.inActive();
-        } else if (lastTabId === "workspaceTab") {
-            WorkspacePanel.inActive();
         } else if (lastTabId === "modelingDataflowTab") {
             DagView.hide();
         }
@@ -397,9 +374,6 @@ window.MainMenu = (function($, MainMenu) {
         $curTab.addClass("active");
 
         switch (curTab) {
-            case ("workspaceTab"):
-                WorkspacePanel.active();
-                break;
             case ("dataStoresTab"):
                 $("#datastorePanel").addClass("active");
                 DSTable.refresh();
@@ -487,10 +461,7 @@ window.MainMenu = (function($, MainMenu) {
 
         $curTab.addClass("mainMenuOpen");
 
-        // recenter table titles if on workspace panel
-        if (!noAnim && $("#workspacePanel").hasClass("active")) {
-            xcHelper.menuAnimAligner(false, checkMenuAnimFinish);
-        } else if ($("#monitor-queries").hasClass("active")) {
+        if ($("#monitor-queries").hasClass("active")) {
             QueryManager.scrollToFocused();
             menuAnimAlign = null;
         } else {
@@ -537,13 +508,9 @@ window.MainMenu = (function($, MainMenu) {
             $curTab.removeClass("active");
         }
 
-        // recenter table titles if on workspace panel
-        if (!noAnim && $("#workspacePanel").hasClass("active")) {
-            xcHelper.menuAnimAligner(true, checkMenuAnimFinish);
-        } else {
-            IMDPanel.redraw();
-            menuAnimAlign = null;
-        }
+        
+        IMDPanel.redraw();
+        menuAnimAlign = null;
         if ($("#modelingDagPanel").hasClass("active")) {
             if (noAnim) {
                 DagCategoryBar.Instance.showOrHideArrows();

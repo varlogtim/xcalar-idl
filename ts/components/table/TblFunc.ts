@@ -174,64 +174,7 @@ class TblFunc {
         if ($table.length === 0) {
             return;
         }
-        TblFunc.moveTableDropdownBoxes();
-        TblFunc.moveTableTitles(null);
         TblFunc.alignScrollBar($table);
-    }
-
-    /**
-     * TblFunc.moveTableDropdownBoxes
-     */
-    public static moveTableDropdownBoxes(): void {
-        let $startingTableHead: JQuery;
-        const mainFrameOffsetLeft: number = MainMenu.getOffset();
-
-        $('.xcTableWrap:not(".inActive")').each(function() {
-            if ($(this)[0].getBoundingClientRect().right > mainFrameOffsetLeft) {
-                $startingTableHead = $(this).find('.xcTheadWrap');
-                return false;
-            }
-        });
-
-        let tablesAreVisible: boolean;
-        if ($startingTableHead && $startingTableHead.length > 0) {
-            tablesAreVisible = true;
-        } else {
-            tablesAreVisible = false;
-        }
-
-        const windowWidth: number = $(window).width();
-        while (tablesAreVisible) {
-            const rect: ClientRect = $startingTableHead[0].getBoundingClientRect();
-            const tableLeft: number = rect.left;
-            const tableRight: number = rect.right;
-            let iconPosition: number;
-
-            if (tableRight > windowWidth) { // right side of table is offscreen to the right
-                const position: number = tableRight - windowWidth + 3;
-                $startingTableHead.find('.dropdownBox')
-                                    .css('right', position + 'px');
-                iconPosition = mainFrameOffsetLeft - tableLeft;
-                iconPosition = Math.max(0, iconPosition);
-                iconPosition = Math.min(iconPosition, tableRight - tableLeft - 40);
-                $startingTableHead.find(".lockIcon")
-                                  .css("left", iconPosition + "px");
-                tablesAreVisible = false;
-            } else { // right side of table is visible
-                $startingTableHead.find('.dropdownBox').css('right', -3 + 'px');
-                iconPosition = mainFrameOffsetLeft - tableLeft;
-                iconPosition = Math.max(0, iconPosition);
-                iconPosition = Math.min(iconPosition, tableRight - tableLeft - 40);
-                $startingTableHead.find(".lockIcon")
-                                  .css("left", iconPosition + "px");
-                $startingTableHead = $startingTableHead.closest('.xcTableWrap')
-                                                       .next()
-                                                       .find('.xcTheadWrap');
-                if ($startingTableHead.length < 1) {
-                    tablesAreVisible = false;
-                }
-            }
-        }
     }
 
     public static repositionOnWinResize() {
@@ -243,7 +186,6 @@ class TblFunc {
         // for Dag Table
         TblFunc.alignLockIcon();
 
-        TblFunc.moveTableDropdownBoxes();
         // for tableScrollBar
         TblFunc.moveFirstColumn(null);
         TblManager.adjustRowFetchQuantity();
@@ -276,184 +218,6 @@ class TblFunc {
         const center: number = containerRect.left - rect.left + containerRect.width / 2;
         $lockTableIcon.css('left', center);
     }
-
-    /**
-     * TblFunc.moveTableTitles
-     * @param $tableWraps 
-     * @param options used to animate table titles when main menu opening or closing
-     */
-    public static moveTableTitles(
-        $tableWraps: JQuery,
-        options: {
-            offset: number,
-            menuAnimating: boolean
-            animSpeed?: number
-        } = {
-            offset: 0,
-            menuAnimating: false
-        }
-    ): void {
-        if (isBrowserMicrosoft || isBrowserSafari) {
-            return;
-        }
-        const modifiedOffset: number = options.offset || 0;
-        const menuAnimating: boolean = options.menuAnimating || false;
-        const animSpeed: number = options.animSpeed;
-
-        $tableWraps = $tableWraps ||
-                  $('.xcTableWrap:not(.inActive):not(.tableHidden):not(.hollowed)');
-
-        const mainFrameWidth: number = $('#mainFrame').width() - modifiedOffset;
-        const mainFrameOffsetLeft: number = MainMenu.getOffset();
-        const viewWidth: number = mainFrameWidth + mainFrameOffsetLeft;
-
-        $tableWraps.each(function() {
-            const $table: JQuery = $(this);
-            const $thead: JQuery = $table.find('.xcTheadWrap');
-            if ($thead.length === 0) {
-                return null;
-            }
-            if ($table.hasClass('tableDragging')) {
-                return null;
-            }
-
-            const rect: ClientRect = $thead[0].getBoundingClientRect();
-            const rectRight: number = rect.right + modifiedOffset;
-            const rectLeft: number = rect.left + modifiedOffset;
-            // if right side of table is to the right of left edge of screen
-            if (rectRight > mainFrameOffsetLeft) {
-                // if left side of table isn't offscreen to the right
-                if (rectLeft < viewWidth) {
-                    const $tableTitle: JQuery = $table.find('.tableTitle .text');
-                    const titleWidth: number = $tableTitle.outerWidth();
-                    const tableWidth: number = $thead.width();
-                    let center: number;
-                    if (rectLeft < mainFrameOffsetLeft) {
-                        // left side of table is offscreen to the left
-                        if (rectRight > viewWidth) { // table spans the whole screen
-                            center = ((mainFrameWidth - titleWidth) / 2) +
-                                     mainFrameOffsetLeft - rectLeft;
-                        } else { // right side of table is visible
-                            center = tableWidth - ((rectRight + titleWidth -
-                                                    mainFrameOffsetLeft) / 2);
-                            // prevents title from going off the right side of table
-                            center = Math.min(center, tableWidth - titleWidth - 6);
-                        }
-                    } else { // the left side of the table is visible
-                        if (rectRight < viewWidth) {
-                            // the right side of the table is visible
-                            center = (tableWidth - titleWidth) / 2;
-                        } else { // the right side of the table isn't visible
-                            center = (viewWidth - rectLeft - titleWidth) / 2;
-                            center = Math.max(10, center);
-                        }
-                    }
-                    center = Math.floor(center);
-                    if (menuAnimating) {
-                        $thead.find('.dropdownBox').addClass('dropdownBoxHidden');
-                        $thead.find(".lockIcon").addClass("xc-hidden");
-                        $tableTitle.addClass("animating");
-                        $tableTitle.stop().animate({left: center}, animSpeed, function() {
-                            $tableTitle.removeClass("animating");
-                            $thead.find('.dropdownBox')
-                                  .removeClass('dropdownBoxHidden');
-                            $thead.find(".lockIcon").removeClass("xc-hidden");
-                            TblFunc.moveTableDropdownBoxes();
-                        });
-                    } else {
-                        if (!$tableTitle.hasClass("animating")) {
-                            $tableTitle.css('left', center);
-                        }
-                    }
-
-                    $table.find('.lockedTableIcon')
-                          .css('left', center + titleWidth / 2 + 5);
-                } else {
-                    return false; // stop loop
-                }
-            }
-        });
-    }
-
-    /**
-     * TblFunc.moveTableTitlesAnimated
-     * @param tableId
-     * @param oldWidth
-     * @param widthChange
-     * @param speed
-     */
-    public static moveTableTitlesAnimated(
-        tableId: TableId,
-        oldWidth: number,
-        widthChange: number,
-        speed: number = 250
-    ): void {
-        if (isBrowserMicrosoft || isBrowserSafari) {
-            return;
-        }
-
-        const $table: JQuery = $('#xcTableWrap-' + tableId);
-        const $thead: JQuery = $table.find('.xcTheadWrap');
-        if ($thead.length <= 0) {
-            return;
-        }
-        const rect: ClientRect = $thead[0].getBoundingClientRect();
-        const right: number = rect.right - widthChange;
-        const mainFrameWidth: number = $('#mainFrame').width();
-        const mainFrameOffsetLeft: number = MainMenu.getOffset();
-        const viewWidth: number = $('#mainFrame').width() + mainFrameOffsetLeft;
-
-        if (right > mainFrameOffsetLeft && rect.left < viewWidth) {
-            const $tableTitle: JQuery = $table.find('.tableTitle .text');
-            const $input: JQuery = $tableTitle.find('input');
-            const inputTextWidth: number = xcHelper.getTextWidth($input, $input.val()) + 1;
-            let titleWidth: number = $tableTitle.outerWidth();
-            const inputWidth: number = $input.width();
-            const inputWidthChange: number = inputTextWidth - inputWidth;
-            let expectedTitleWidth: number;
-            // because the final input width is variable we need to figure out
-            // how much it's going to change and what the expected title width is
-            if (widthChange > 0) {
-                const extraSpace: number = $thead.width() - titleWidth - 2;
-                expectedTitleWidth = titleWidth -
-                                     Math.max(0, (widthChange - extraSpace));
-            } else {
-                expectedTitleWidth = titleWidth +
-                                     Math.min(inputWidthChange, -widthChange);
-            }
-
-            titleWidth = expectedTitleWidth;
-            const tableWidth: number = oldWidth - widthChange - 5;
-            let center: number;
-            if (rect.left < mainFrameOffsetLeft) {
-                // left side of table is offscreen to the left
-                if (right > viewWidth) { // table spans the whole screen
-                    center = ((mainFrameWidth - titleWidth) / 2) +
-                             mainFrameOffsetLeft - rect.left;
-                } else { // right side of table is visible
-                    center = tableWidth - ((right + titleWidth - mainFrameOffsetLeft) / 2);
-                    center = Math.min(center, tableWidth - titleWidth - 6);
-                }
-            } else { // the left side of the table is visible
-                if (right < viewWidth) { // the right side of the table is visible
-                    center = (tableWidth - titleWidth) / 2;
-                } else { // the right side of the table isn't visible
-                    center = (viewWidth - rect.left - titleWidth) / 2;
-                    center = Math.max(10, center);
-                }
-            }
-            center = Math.floor(center);
-            $thead.find('.dropdownBox').addClass('dropdownBoxHidden');
-            $thead.find(".lockIcon").addClass("xc-hidden");
-            $tableTitle.animate({left: center}, speed, "linear", function() {
-                $thead.find('.dropdownBox').removeClass('dropdownBoxHidden');
-                $thead.find(".lockIcon").removeClass("xc-hidden");
-                TblFunc.moveTableDropdownBoxes();
-                // for tableScrollBar
-                TblFunc.moveFirstColumn(null);
-            });
-        }
-    }
     
     /**
      * TblFunc.focusTable
@@ -465,21 +229,6 @@ class TblFunc {
         if (table && table.modelingMode) {
             return;
         }
-        if (WSManager.getWSFromTable(tableId) !== WSManager.getActiveWS()) {
-            if ((Log.isRedo() || Log.isUndo()) &&
-                Log.viewLastAction() !== "Join"
-            ) {
-                const wsToFocus: string = WSManager.getWSFromTable(tableId);
-                const activeWS: string = WSManager.getActiveWS();
-                if (wsToFocus !== activeWS) {
-                    $("#worksheetTab-" + wsToFocus).trigger(fakeEvent.mousedown);
-                }
-            } else {
-                console.warn("Table not in current worksheet");
-                return;
-            }
-        }
-
         if ($("#xcTableWrap-" + tableId).hasClass("tableLocked")) {
             return;
         }
@@ -487,13 +236,7 @@ class TblFunc {
         const alreadyFocused: boolean = (gActiveTableId === tableId);
         if (!alreadyFocused && gActiveTableId) {
             TblManager.unHighlightCells(gActiveTableId);
-            if (!$("#xcTable-" + tableId).find(".selectedCell").length) {
-                FnBar.clear();
-            }
         }
-        const wsNum: string = WSManager.getActiveWS();
-        $('.xcTableWrap.worksheet-' + wsNum).find('.tableTitle')
-                                            .removeClass('tblTitleSelected');
         const $xcTheadWrap: JQuery = $('#xcTheadWrap-' + tableId);
         $xcTheadWrap.find('.tableTitle').addClass('tblTitleSelected');
         // unhighlight any selected columns from all other tables
@@ -532,20 +275,6 @@ class TblFunc {
             return false;
         } else {
             return true;
-        }
-    }
-
-    /**
-     * TblFunc.checkTableDraggable
-     */
-    public static checkTableDraggable(): void {
-        // disallow dragging if only 1 table in worksheet
-        const activeWS: string = WSManager.getActiveWS();
-        const $tables: JQuery = $('#mainFrame').find('.xcTableWrap.worksheet-' + activeWS);
-        if ($tables.length === 1) {
-            $tables.addClass('noDrag');
-        } else {
-            $tables.removeClass('noDrag');
         }
     }
 
@@ -686,151 +415,6 @@ class TblFunc {
     }
 
     /**
-     * TblFunc.reorderAfterTableDrop
-     * @param tableId
-     * @param srcIndex
-     * @param desIndex
-     * @param options - moveHtml: boolean, if true we replace html
-     *                  (for undo/redo or through table menu)
-     */
-    public static reorderAfterTableDrop(
-        tableId: TableId,
-        srcIndex: number,
-        desIndex: number,
-        options: {
-            moveHtml: boolean
-        } = {
-            moveHtml: false
-        }
-    ): void {
-        WSManager.reorderTable(tableId, srcIndex, desIndex);
-        const moveHtml: boolean = options.moveHtml || false;
-        const newIndex: number = WSManager.getTablePosition(tableId);
-
-        const $dagWrap: JQuery = $('#dagWrap-' + tableId);
-        const $dagWraps: JQuery = $('.dagWrap:not(.tableToRemove)');
-        let $tableWrap: JQuery;
-        let $tableWraps: JQuery;
-        if (moveHtml) {
-            $tableWraps = $('.xcTableWrap:not(.tableToRemove)');
-            $tableWrap = $('#xcTableWrap-' + tableId);
-        }
-
-        if (newIndex === 0) {
-            $('.dagArea').find('.legendArea').after($dagWrap);
-            if (moveHtml) {
-                $('#mainFrame').prepend($tableWrap);
-            }
-        } else if (srcIndex < desIndex) {
-            $dagWraps.eq(newIndex).after($dagWrap);
-            if (moveHtml) {
-                $tableWraps.eq(newIndex).after($tableWrap);
-            }
-        } else if (srcIndex > desIndex) {
-            $dagWraps.eq(newIndex).before($dagWrap);
-            if (moveHtml) {
-                $tableWraps.eq(newIndex).before($tableWrap);
-            }
-        }
-
-        TableList.reorderTable(tableId);
-
-        if (moveHtml) {
-            xcHelper.centerFocusedTable(tableId, false);
-            TblManager.alignTableEls($tableWrap);
-        }
-
-        Log.add(SQLTStr.ReorderTable, {
-            "operation": "reorderTable",
-            "tableId": tableId,
-            "tableName": gTables[tableId].tableName,
-            "srcIndex": srcIndex,
-            "desIndex": desIndex
-        });
-    }
-
-    /**
-     * TblFunc.hideOffScreenTables
-     * For performance, during animations, we set display none on tables
-     * that are not currently in the viewport but are active.
-     * ables will maintain their widths;
-     * @param options 
-     */
-    public static hideOffScreenTables(
-        options: {
-            marginLeft?: number,
-            marginRight?: number
-        } = {}
-    ): void {
-        let leftLimit: number = -options.marginLeft || 0;
-        const marginRight: number = options.marginRight || 0;
-        const $tableWraps: JQuery = $('#mainFrame .xcTableWrap:not(.inActive)');
-        const mainFrameRect: ClientRect = $('#mainFrame')[0].getBoundingClientRect();
-        const viewWidth: number =  mainFrameRect.right + marginRight;
-        leftLimit += mainFrameRect.left;
-
-        $tableWraps.each(function() {
-            const $table: JQuery = $(this);
-            const $thead: JQuery = $table.find('.xcTheadWrap');
-            if (!$thead.length) {
-                return null;
-            }
-
-            const rect: ClientRect = $thead[0].getBoundingClientRect();
-            if (rect.right > leftLimit) {
-                if (rect.left < viewWidth) {
-                    $table.addClass('inViewPort');
-                } else {
-                    return false; // stop loop
-                }
-            }
-        });
-
-        $tableWraps.not('.inViewPort').each(function() {
-            const $table: JQuery = $(this);
-            $table.width($table.width()).addClass('hollowed');
-        });
-    }
-
-    /**
-     * TblFunc.unhideOffScreenTables
-     */
-    public static unhideOffScreenTables(): void {
-        let mainFrameScroll: number;
-        const cachedMouseStatus: string = gMouseStatus;
-        if (!isBrowserChrome) {
-            // to reset scrollposition in case it gets changed
-            mainFrameScroll = $('#mainFrame').scrollLeft();
-            gMouseStatus = "movingTable";
-        }
-        const $tableWraps: JQuery = $('.xcTableWrap:not(.inActive)');
-        $tableWraps.width('auto');
-        $tableWraps.removeClass('inViewPort hollowed');
-         //vertically align any locked table icons
-        const mainFrameHeight: number = $('#mainFrame').height();
-        $('.tableLocked:visible').each(function() {
-            const $tableWrap: JQuery = $(this);
-            const tbodyHeight: number = $tableWrap.find('tbody').height() + 1;
-            const tableWrapHeight: number = $tableWrap.find('.xcTbodyWrap').height();
-            const $lockedIcon: JQuery = $tableWrap.find('.lockedTableIcon');
-            const iconHeight: number = $lockedIcon.height();
-            let topPos: number = 50 * ((tableWrapHeight - (iconHeight / 2)) /
-                                mainFrameHeight);
-            topPos = Math.min(topPos, 40);
-            $lockedIcon.css('top', topPos + '%');
-            $tableWrap.find('.tableCover').height(tbodyHeight);
-        });
-        if (!isBrowserChrome) {
-            // to reset scrollposition in case it gets changed
-            $('#mainFrame').scrollLeft(mainFrameScroll);
-            // firefox and IE will trigger a delayed scroll
-            setTimeout(function() {
-                gMouseStatus = cachedMouseStatus;
-            }, 0);
-        }
-    }
-
-    /**
      * TblFunc.scrollTable
      * @param tableId
      * @param scrollType
@@ -841,8 +425,7 @@ class TblFunc {
         scrollType: string,
         isUp: boolean
     ): boolean {
-        if (!$("#workspaceTab").hasClass("active") ||
-            !$("#worksheetButton").hasClass("active") ||
+        if (!$("#modelingDataflowTab").hasClass("active") ||
             tableId == null)
         {
             return false;
@@ -864,11 +447,11 @@ class TblFunc {
         // XXX TODO: fix it with rowInput
         const $rowInput: JQuery = $("#rowInputArea input");
         const $lastTarget: JQuery = gMouseEvents.getLastMouseDownTarget();
-        const isInMainFrame: boolean = !$lastTarget.context ||
-                            ($lastTarget.closest("#mainFrame").length > 0 &&
+        const isInFrame: boolean = !$lastTarget.context ||
+                            ($lastTarget.closest("#dagViewTableArea").length > 0 &&
                             !$lastTarget.is("input"));
 
-        if (isInMainFrame && xcHelper.isTableInScreen(tableId)) {
+        if (isInFrame && xcHelper.isTableInScreen(tableId)) {
             if (gIsTableScrolling ||
                 $("#modalBackground").is(":visible") ||
                 !TblFunc.isTableScrollable(tableId)) {
@@ -958,7 +541,7 @@ class TblFunc {
             return;
         }
 
-        if ($('#workspacePanel').hasClass('active') &&
+        if (DagTable.Instance.getTable() != null &&
             !$('#modalBackground').is(":visible") &&
             !$('textarea:focus').length &&
             !$('input:focus').length) {

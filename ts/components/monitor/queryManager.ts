@@ -386,7 +386,6 @@ namespace QueryManager {
         // unfinished tables will be dropped when Transaction.fail is reached
         const onlyFinishedTables: boolean = true;
         dropCanceledTables(mainQuery, onlyFinishedTables);
-        tableListCanceled(mainQuery);
 
         const currStep: number = mainQuery.currStep;
 
@@ -519,7 +518,6 @@ namespace QueryManager {
         }
 
         dropCanceledTables(mainQuery, false);
-        clearTableListCanceled(mainQuery);
         delete canceledQueries[id];
     };
 
@@ -1892,32 +1890,6 @@ namespace QueryManager {
         }
     }
 
-    function tableListCanceled(mainQuery: XcQuery): void {
-        const queryStr: string = mainQuery.getQuery();
-        const queries: xcHelper.QueryParser[] = xcHelper.parseQuery(queryStr);
-        const numQueries: number = queries.length;
-        for (let i = 0; i < numQueries; i++) {
-            if (queries[i].dstTable) {
-                if (queries[i].dstTable.indexOf(gDSPrefix) === -1) {
-                    TableList.addToCanceledList(queries[i].dstTable);
-                }
-            }
-        }
-    }
-
-    function clearTableListCanceled(mainQuery: XcQuery): void {
-        const queryStr: string = mainQuery.getQuery();
-        const queries: xcHelper.QueryParser[] = xcHelper.parseQuery(queryStr);
-        const numQueries: number = queries.length;
-        for (let i = 0; i < numQueries; i++) {
-            if (queries[i].dstTable) {
-                if (queries[i].dstTable.indexOf(gDSPrefix) === -1) {
-                    TableList.removeFromCanceledList(queries[i].dstTable);
-                }
-            }
-        }
-    }
-
     // drops all the tables generated, even the intermediate tables
     // or drops dataset if importDataSource operation
     function dropCanceledTables(
@@ -1982,10 +1954,7 @@ namespace QueryManager {
 
     function deleteTableHelper(tableName: string): void {
         XcalarDeleteTable(tableName)
-        .then(function() {
-            // in case any tables are in the orphaned list
-            TableList.removeTable(tableName, TableType.Orphan);
-        });
+;
     }
 
     function deleteDatasetHelper(dsName: string): void {

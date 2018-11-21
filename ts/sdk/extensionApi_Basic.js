@@ -51,7 +51,6 @@ window.XcSDK.Extension.prototype = (function() {
             Dag.makeInactive(tableName, true);
             const tableId = xcHelper.getTableId(tableName);
             if (tableId != null && gTables[tableId] != null) {
-                TableList.removeTable(tableId);
                 delete gTables[tableId];
             }
             deferred.resolve();

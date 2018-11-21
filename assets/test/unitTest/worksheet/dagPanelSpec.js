@@ -143,9 +143,7 @@ describe("Dag Panel Test", function() {
                 var tablCols = xcHelper.mapColGenerate(1, fieldName, mapStr,
                                                     cols, {});
                 return TblManager.refreshTable([newTName], tablCols,
-                                           [firstTableName],
-                                           WSManager.getActiveWS(), null,
-                                           {});
+                                           [firstTableName]);
             })
             .then(deferred.resolve)
             .fail(deferred.reject);
@@ -905,19 +903,6 @@ describe("Dag Panel Test", function() {
                     gTables[tId] = cachedTable;
                 });
 
-                it("makeTempTable should work", function() {
-                    var called = false;
-                    var cache = TblManager.sendTableToTempList;
-                    TblManager.sendTableToTempList = function() {
-                        called = true;
-                    }
-                    $menu.find(".makeTempTable").trigger(rightMouseup);
-                    expect(called).to.be.false;
-                    $menu.find(".makeTempTable").removeClass('unavailable').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-                    TblManager.sendTableToTempList = cache;
-                });
-
                 it("exit edit should work", function() {
                     var called = false;
                     var cache = DagEdit.off;
@@ -1667,26 +1652,26 @@ describe("Dag Panel Test", function() {
             });
 
             it("Add table should work", function(done) {
-                expect(prevTableId).to.equal(largeTable.ancestorIds[0]);
-                $prevDagIcon.click();
-                expect($menu.find("li.addTable").is(":visible")).to.be.true;
-                WSManager.moveTemporaryTable(prevTableId,
-                                            WSManager.getActiveWS(),
-                                            TableType.Orphan)
-                .then(function() {
-                    // Serious race condition here.
-                    expect(gTables[prevTableId].status).to.equal(TableType.Active);
-                    var $dagWrapPrev = $("#dagWrap-" + prevTableId);
-                    expect($dagWrapPrev.length).to.equal(1);
-                    expect($dagWrapPrev.hasClass("selected")).to.be.true;
-                    $dagWrapPrev.find(".dagTable .dagTableIcon").first().click();
-                    TblManager.sendTableToOrphaned(prevTableId, {remove: true,
-                                                            noFocusWS: true,
-                                                            force: true});
-                    setTimeout(function() {
-                        done();
-                    }, 300);
-                });
+                // expect(prevTableId).to.equal(largeTable.ancestorIds[0]);
+                // $prevDagIcon.click();
+                // expect($menu.find("li.addTable").is(":visible")).to.be.true;
+                // WSManager.moveTemporaryTable(prevTableId,
+                //                             WSManager.getActiveWS(),
+                //                             TableType.Orphan)
+                // .then(function() {
+                //     // Serious race condition here.
+                //     expect(gTables[prevTableId].status).to.equal(TableType.Active);
+                //     var $dagWrapPrev = $("#dagWrap-" + prevTableId);
+                //     expect($dagWrapPrev.length).to.equal(1);
+                //     expect($dagWrapPrev.hasClass("selected")).to.be.true;
+                //     $dagWrapPrev.find(".dagTable .dagTableIcon").first().click();
+                //     TblManager.sendTableToOrphaned(prevTableId, {remove: true,
+                //                                             noFocusWS: true,
+                //                                             force: true});
+                //     setTimeout(function() {
+                //         done();
+                //     }, 300);
+                // });
             });
 
             it("Revert table should work", function(done) {

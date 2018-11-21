@@ -37,7 +37,6 @@
   <!-- START MAIN PANELS -->
   include "workbook.html"
   include "jupyter.html"
-  include "workspace.html"
   include "monitor/monitor.html"
   include "datastore/datastore.html"
   include "dataflow/dataflow.html"
@@ -139,5 +138,15 @@
   include "modal/dfDownloadModal.html"
   include "modal/dfBrowserModal.html"
   include "modal/fileManagerSaveAsModal.html"
+
+  <div id="watermark"></div>
+    <div id="insight">
+      <% if (dicts.product == "XI") { %>
+      insight
+      <% } else { %>
+      <i class="icon xi-design-logo"></i>
+      <% } %>
+    </div>
+  </div>
 </div>
 <!-- END CONTAINER -->

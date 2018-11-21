@@ -186,7 +186,6 @@ describe("TableManager Test", function() {
         });
 
         it("setTablesToReplace should work", function() {
-            var oldFunc = WSManager.getWSById;
             var setTablesToReplace = TblManager.__testOnly__.setTablesToReplace;
             var oldTableNames = ["test#wrongId1"];
             var tablesToReplace = [];
@@ -197,24 +196,15 @@ describe("TableManager Test", function() {
             expect(tablesToRemove.length).to.equal(1);
             expect(tablesToRemove[0]).to.equal("wrongId1");
 
-            // case 2
-            WSManager.getWSById = function() {
-                return {tables: ["wrongId3"]};
-            };
             oldTableNames = ["test#wrongId1", "test#wrongId2"];
             tablesToReplace = [];
             setTablesToReplace(oldTableNames, null, tablesToReplace, []);
             expect(tablesToReplace.length).to.equal(0);
 
-            // case 3
-            WSManager.getWSById = function() {
-                return {tables: ["wrongId2"]};
-            };
+
             setTablesToReplace(oldTableNames, null, tablesToReplace, []);
             expect(tablesToReplace.length).to.equal(1);
             expect(tablesToReplace[0]).to.equal("test#wrongId2");
-
-            WSManager.getWSById = oldFunc;
         });
 
         it("TblManager.highlightColumn should highlight modal", function() {
@@ -232,8 +222,6 @@ describe("TableManager Test", function() {
         });
 
         it("TblManager.updateHeaderAndListInfo should work", function() {
-            var oldFunc = WSManager.getWSName;
-            WSManager.getWSName = function() {};
             var tableId = xcHelper.randName("testTable");
             var $wrap = $('<div id="xcTheadWrap-' + tableId + '">' +
                             '<div class="tableTitle">' +
@@ -252,7 +240,6 @@ describe("TableManager Test", function() {
             // clear up
             $wrap.remove();
             delete gTables[tableId];
-            WSManager.getWSName = oldFunc;
         });
 
         it("should add and remove waiting cursor should work", function() {
@@ -632,23 +619,6 @@ describe("TableManager Test", function() {
                 done("fail");
             });
         });
-        it("TblManager.sendTableToTemp should work", function(done) {
-            var worksheet = WSManager.getActiveWS();
-            var table = gTables[tableId];
-            TblManager.sendTableToTempList([tableId])
-            .then(function() {
-                expect(table.getType()).to.equal(TableType.Orphan);
-                TblManager.findAndFocusTable(tableName, true);
-                return TblManager.refreshTable([tableName], null, null, worksheet);
-            })
-            .then(function() {
-                expect(table.getType()).to.equal(TableType.Active);
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
 
         it("TblManager.focusOnTable for active table should work.", function() {
             TblManager.findAndFocusTable(tableName, true);
@@ -672,33 +642,11 @@ describe("TableManager Test", function() {
         });
 
         it("TblManager.sendTableToUndone should work", function(done) {
-            var worksheet = WSManager.getActiveWS();
             var table = gTables[tableId];
             TblManager.sendTableToUndone(tableId, {"remove": true})
             .then(function() {
                 expect(table.getType()).to.equal(TableType.Undone);
-                return TblManager.refreshTable([tableName], null, null, worksheet);
-            })
-            .then(function() {
-                expect(table.getType()).to.equal(TableType.Active);
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
-
-        it("TblManager.hideWorksheetTable should work", function(done) {
-            gActiveTableId = tableId;
-            TblManager.hideWorksheetTable(tableId);
-            expect(gActiveTableId).to.be.null;
-            // use this way to make the table active again
-            var worksheet = WSManager.getActiveWS();
-            var table = gTables[tableId];
-            TblManager.sendTableToUndone(tableId, {"remove": true})
-            .then(function() {
-                expect(table.getType()).to.equal(TableType.Undone);
-                return TblManager.refreshTable([tableName], null, null, worksheet);
+                return TblManager.refreshTable([tableName]);
             })
             .then(function() {
                 expect(table.getType()).to.equal(TableType.Active);
@@ -810,7 +758,7 @@ describe("TableManager Test", function() {
                 var $menu = $("#tableMenu");
                 $xcTheadWrap.find(".dropdownBox").click();
                 assert.isTrue($menu.is(":visible"));
-                $("#mainFrame").mousedown();
+                $("#dagViewTableArea .tableMenu").mousedown();
                 assert.isFalse($menu.is(":visible"));
             });
 
@@ -818,7 +766,7 @@ describe("TableManager Test", function() {
                 var $menu = $("#tableMenu");
                 $xcTheadWrap.find(".dropdownBox").contextmenu();
                 assert.isTrue($menu.is(":visible"));
-                $("#mainFrame").mousedown();
+                $("#dagViewTableArea .tableMenu").mousedown();
                 assert.isFalse($menu.is(":visible"));
             });
 
@@ -826,7 +774,7 @@ describe("TableManager Test", function() {
                 var $menu = $("#tableMenu");
                 $xcTheadWrap.find(".tableGrab").click();
                 assert.isTrue($menu.is(":visible"));
-                $("#mainFrame").mousedown();
+                $("#dagViewTableArea .tableMenu").mousedown();
                 assert.isFalse($menu.is(":visible"));
             });
 
@@ -834,27 +782,8 @@ describe("TableManager Test", function() {
                 var $menu = $("#tableMenu");
                 $xcTheadWrap.find(".tableGrab").contextmenu();
                 assert.isTrue($menu.is(":visible"));
-                $("#mainFrame").mousedown();
+                $("#dagViewTableArea .tableMenu").mousedown();
                 assert.isFalse($menu.is(":visible"));
-            });
-
-            it("Should mousedown tableGrab to start drag", function() {
-                var test = null;
-                var oldFunc = TblAnim.startTableDrag;
-                TblAnim.startTableDrag = function() {
-                    test = true;
-                };
-
-                var $tableGrab = $xcTheadWrap.find(".tableGrab").eq(0);
-                expect($tableGrab.length).to.equal(1);
-                $tableGrab.mousedown();
-                // only left mouse down works
-                expect(test).to.be.null;
-
-                $tableGrab.trigger(fakeEvent.mousedown);
-                expect(test).to.be.true;
-
-                TblAnim.startTableDrag = oldFunc;
             });
         });
 
@@ -943,7 +872,7 @@ describe("TableManager Test", function() {
                 $dropdown.click();
 
                 assert.isTrue($menu.is(":visible"));
-                $("#mainFrame").mousedown();
+                $("#dagViewTableArea").mousedown();
                 assert.isFalse($menu.is(":visible"));
             });
 
@@ -987,16 +916,18 @@ describe("TableManager Test", function() {
 
                 var $pop = $tbody.find(".jsonElement").eq(0).find(".pop");
                 expect($pop.length).to.equal(1);
+                var oldisModalOn = ModalHelper.isModalOn;
                 // case 1
-                $("#mainFrame").addClass("modalOpen");
+                ModalHelper.isModalOn = () => true;
                 $pop.click();
                 expect(test).to.be.null;
                 // case 2
-                $("#mainFrame").removeClass("modalOpen");
+                ModalHelper.isModalOn = () => false;
                 $pop.click();
                 expect(test).to.be.true;
 
                 JSONModal.show = oldFunc;
+                ModalHelper.isModalOn = oldisModalOn;
             });
         });
 
@@ -1012,7 +943,7 @@ describe("TableManager Test", function() {
                 // .eq(0) is empty
                 $thead.find(".header").eq(1).contextmenu();
                 assert.isTrue($menu.is(":visible"));
-                $("#mainFrame").mousedown();
+                $("#dagViewTableArea").mousedown();
                 assert.isFalse($menu.is(":visible"));
             });
 
@@ -1039,7 +970,7 @@ describe("TableManager Test", function() {
                 $dotWrap.mousedown();
                 $dotWrap.click();
                 assert.isTrue($menu.is(":visible"));
-                $("#mainFrame").mousedown();
+                $("#dagViewTableArea").mousedown();
                 assert.isFalse($menu.is(":visible"));
             });
 
@@ -1116,7 +1047,7 @@ describe("TableManager Test", function() {
                 assert.isFalse($menu.is(":visible"));
                 $td.trigger(fakeEvent.mousedown);
                 assert.isTrue($menu.is(":visible"));
-                $("#mainFrame").mousedown();
+                $("#dagViewTableArea").mousedown();
                 assert.isFalse($menu.is(":visible"));
 
                 var e = jQuery.Event("mousedown", {
@@ -1125,14 +1056,14 @@ describe("TableManager Test", function() {
                 });
                 $td.trigger(e);
                 assert.isTrue($menu.is(":visible"));
-                $("#mainFrame").mousedown();
+                $("#dagViewTableArea").mousedown();
                 assert.isFalse($menu.is(":visible"));
 
                 // click on jsonElement should work
                 $td = $tbody.find("td.jsonElement").eq(0);
                 $td.trigger(fakeEvent.mousedown);
                 assert.isTrue($menu.is(":visible"));
-                $("#mainFrame").mousedown();
+                $("#dagViewTableArea").mousedown();
                 assert.isFalse($menu.is(":visible"));
             });
 
@@ -1144,7 +1075,7 @@ describe("TableManager Test", function() {
 
                 $tbody.trigger(e);
                 assert.isTrue($menu.is(":visible"));
-                $("#mainFrame").mousedown();
+                $("#dagViewTableArea").mousedown();
                 assert.isFalse($menu.is(":visible"));
             });
 
@@ -1162,7 +1093,7 @@ describe("TableManager Test", function() {
 
                 $tbody.trigger(e);
                 assert.isTrue($menu.is(":visible"));
-                $("#mainFrame").mousedown();
+                $("#dagViewTableArea").mousedown();
                 assert.isFalse($menu.is(":visible"));
             });
 

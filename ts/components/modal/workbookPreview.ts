@@ -116,9 +116,9 @@ namespace WorkbookPreview {
             nodeInfo = res.nodeInfo;
             return getTableKVStoreMeta(workbookName);
         })
-        .then(function(tableMeta, wsInfo) {
+        .then(function(tableMeta) {
             if (curId === id) {
-                curTableList = getTableList(nodeInfo, tableMeta, wsInfo);
+                curTableList = getTableList(nodeInfo, tableMeta);
                 // sort by status
                 const tableList: object[] = sortTableList(curTableList, "status");
                 updateTableList(tableList);
@@ -152,7 +152,7 @@ namespace WorkbookPreview {
         const currentSession: string = sessionName;
 
         if (workbookName === currentSession) {
-            deferred.resolve(gTables, getWSInfo(WSManager.getAllMeta()));
+            deferred.resolve(gTables);
             return deferred.promise();
         }
 
@@ -164,8 +164,7 @@ namespace WorkbookPreview {
         .then(function(res) {
             try {
                 const metaInfos: METAConstructor = new METAConstructor(res);
-                const wsInfo: object = getWSInfo(metaInfos.getWSMeta());
-                deferred.resolve(metaInfos.getTableMeta(), wsInfo);
+                deferred.resolve(metaInfos.getTableMeta());
             } catch (e) {
                 console.error(e);
                 deferred.resolve({}); // still resolve
@@ -180,26 +179,12 @@ namespace WorkbookPreview {
         return deferred.promise();
     }
 
-    function getWSInfo(wsMeta: WSMETA): object {
-        const res: object = {};
-        try {
-            const worksheets: Set<WorksheetObj> = wsMeta.wsInfos;
-            for (let wsId in worksheets) {
-                const wsName: string = worksheets[wsId].name;
-                const tables: string[] = worksheets[wsId].tables;
-                for (let i: number = 0; i < tables.length; i++) {
-                    const tableId: string = tables[i];
-                    res[tableId] = wsName;
-                }
-            }
-            return res;
-        } catch (e) {
-            console.error(e);
-            return res;
-        }
-    }
-
-    function getTableList(nodeInfo: any[], tableMeta: object, wsInfo: WorksheetObj): object[] {
+    function getTableList(nodeInfo: any[], tableMeta: object): {
+        name: string,
+        size: string,
+        status: string,
+        sizeInNum: number
+    }[] {
         return nodeInfo.map(function(node) {
             const tableName: string = node.name;
             const size: string = <string>xcHelper.sizeTranslator(node.size);
@@ -207,15 +192,11 @@ namespace WorkbookPreview {
             const status: string = tableMeta.hasOwnProperty(tableId)
                         ? tableMeta[tableId].status
                         : TableType.Orphan;
-            const worksheet: WorksheetObj = (wsInfo && wsInfo.hasOwnProperty(tableId))
-                            ? wsInfo[tableId]
-                            : "--";
             return {
                 name: tableName,
                 size: size,
                 status: status,
-                sizeInNum: node.size,
-                worksheet: worksheet
+                sizeInNum: node.size
             };
         });
     }
@@ -241,15 +222,6 @@ namespace WorkbookPreview {
                     return a.name.localeCompare(b.name);
                 } else {
                     return a.status.localeCompare(b.status);
-                }
-            });
-        } else if (key === "worksheet"){
-            // sort on worksheet
-            tableList.sort(function(a, b) {
-                if (a.worksheet === b.worksheet) {
-                    return a.name.localeCompare(b.name);
-                } else {
-                    return a.worksheet.localeCompare(b.worksheet);
                 }
             });
         } else {
@@ -286,13 +258,6 @@ namespace WorkbookPreview {
                             (tableInfo.status === TableType.Active
                             ? TblTStr.ActiveStatus
                             : TblTStr.TempStatus) +
-                        '</div>' +
-                        '<div class="worksheet tooltipOverflow"' +
-                        ' data-toggle="tooltip" data-container="body"' +
-                        ' data-placement="top"' +
-                        ' data-title="' + xcTooltip.escapeHTML(tableInfo.worksheet) + '"' +
-                        '>' +
-                            xcHelper.escapeHTMLSpecialChar(tableInfo.worksheet) +
                         '</div>' +
                         '<div class="action">' +
                             // '<i class="delete icon xc-action xi-trash fa-15"' +

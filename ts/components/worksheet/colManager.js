@@ -109,11 +109,7 @@ window.ColManager = (function($, ColManager) {
             TblFunc.moveTableTitles($table.closest('.xcTableWrap'));
             // for tableScrollBar
             TblFunc.moveFirstColumn();
-        } else {
-            TblFunc.moveTableTitlesAnimated(tableId, tableWidth, colWidths, 200);
         }
-
-        FnBar.clear();
 
         jQuery.when.apply($, promises)
         .done(function() {
@@ -190,340 +186,6 @@ window.ColManager = (function($, ColManager) {
         });
 
         return deferred.promise();
-    };
-
-    /*
-        colTypeInfos:
-            colNum: column num
-            type: new type to change to
-     */
-    ColManager.changeType = function(colTypeInfos, tableId) {
-        var deferred = PromiseHelper.deferred();
-        var worksheet = WSManager.getWSFromTable(tableId);
-        var table = gTables[tableId];
-        var tableName = table.getName();
-
-        // filter out any invalid types
-        for (var i = colTypeInfos.length - 1; i >=0 ; i--) {
-            var progCol = table.getCol(colTypeInfos[i].colNum);
-            var type = progCol.getType();
-            if (type === ColumnType.object || type === ColumnType.array ||
-                (progCol.isKnownType() && type === colTypeInfos[i].type))
-            {
-                colTypeInfos.splice(i, 1);
-            }
-        }
-
-        if (!colTypeInfos.length) {
-            return PromiseHelper.resolve(tableId);
-        }
-
-        var sql = {
-            "operation": SQLOps.ChangeType,
-            "tableName": tableName,
-            "tableId": tableId,
-            "colTypeInfos": colTypeInfos
-        };
-
-        var txId = Transaction.start({
-            "msg": StatusMessageTStr.ChangeType,
-            "operation": SQLOps.ChangeType,
-            "sql": sql,
-            "track": true
-        });
-
-        xcHelper.lockTable(tableId, txId);
-
-        var mapStrs = [];
-        var oldNames = [];
-        var fieldNames = [];
-        var newTablCols = table.tableCols;
-        var colNums = [];
-        var newTableName;
-        var usedName = {};
-
-        colTypeInfos.forEach(function(colTypeInfo) {
-            var colNum = colTypeInfo.colNum;
-            var colType = colTypeInfo.type;
-
-            var progCol = table.getCol(colNum);
-            var frontName = progCol.getFrontColName();
-            var backName = progCol.getBackColName();
-
-            var mapStr = xcHelper.castStrHelper(backName, colType);
-
-            // Note: it's intended to overwrite the column
-            var fieldName = xcHelper.stripColName(frontName);
-            fieldName = xcHelper.getUniqColName(tableId, fieldName, false,
-                                                usedName, colNum);
-            usedName[fieldName] = true;
-            mapStrs.push(mapStr);
-            fieldNames.push(fieldName);
-            colNums.push(colNum);
-            oldNames.push(backName);
-
-            var mapOptions = {
-                "replaceColumn": true,
-                "resize": true,
-                "type": colType
-            };
-            newTablCols = xcHelper.mapColGenerate(colNum, fieldName, mapStr,
-                                                  newTablCols, mapOptions);
-        });
-
-        XIApi.map(txId, mapStrs, tableName, fieldNames)
-        .then(function(tableAfterMap) {
-            newTableName = tableAfterMap;
-            sql.newTableName = newTableName;
-
-            var options = {"selectCol": colNums};
-            return TblManager.refreshTable([newTableName], newTablCols,
-                                        [tableName], worksheet, txId, options);
-        })
-        .then(function() {
-            var newTableId = xcHelper.getTableId(newTableName);
-            // map do not change stats of the table
-            Profile.copy(tableId, newTableId);
-            // because the name can dup when change type,
-            // need to remove old profile meta
-            var profilInfo = Profile.getCache()[newTableId];
-            if (profilInfo != null) {
-                fieldNames.forEach(function(newColName, index) {
-                    if (newColName === oldNames[index]) {
-                        delete profilInfo[newColName];
-                    }
-                });
-            }
-
-            xcHelper.unlockTable(tableId);
-            Transaction.done(txId, {
-                "msgTable": newTableId,
-                "sql": sql
-            });
-            deferred.resolve(newTableId);
-        })
-        .fail(function(error) {
-            xcHelper.unlockTable(tableId);
-
-            Transaction.fail(txId, {
-                "failMsg": StatusMessageTStr.ChangeTypeFailed,
-                "error": error,
-                "sql": sql
-            });
-            deferred.reject(error);
-        });
-
-        return deferred.promise();
-    };
-
-    // currently only works on 1 column at a time
-    ColManager.splitCol = function(colNum, tableId, delimiter, numColToGet,
-        colNames, isAlertOn) {
-        // isAlertOn is a flag to alert too many column will generate
-        // when do replay, this flag is null, so no alert
-        // since we assume user want to replay it.
-        var deferred = PromiseHelper.deferred();
-        var splitAll = (numColToGet == null);
-        var numNewCols = null;
-
-        var worksheet = WSManager.getActiveWS();
-        var table = gTables[tableId];
-        var tableName = table.getName();
-        var progCol = table.getCol(colNum);
-        var backColName = progCol.getBackColName();
-
-        var newTableName;
-        var newFieldNames;
-        var mapStrs;
-
-        var sql = {
-            "operation": SQLOps.SplitCol,
-            "tableName": tableName,
-            "tableId": tableId,
-            "colNum": colNum,
-            "delimiter": delimiter,
-            "numColToGet": numColToGet,
-            "colNames": colNames,
-            "htmlExclude": ['numColToGet']
-        };
-
-        var txId = Transaction.start({
-            "msg": StatusMessageTStr.SplitColumn,
-            "operation": SQLOps.SplitCol,
-            "sql": sql,
-            "track": true
-        });
-
-        xcHelper.lockTable(tableId, txId);
-
-        getSplitNumHelper(numColToGet, splitAll)
-        .then(function(colNumToSplit) {
-            numNewCols = colNumToSplit;
-            sql.numNewCols = colNumToSplit;
-
-
-            newFieldNames = getSplitColNames(progCol.getFrontColName(), colNames);
-            sql.colNames = newFieldNames;
-            mapStrs = getSplitStrs();
-            return XIApi.map(txId, mapStrs, tableName, newFieldNames);
-        })
-        .then(function(tableAfterMap) {
-            newTableName = tableAfterMap;
-            sql.newTableName = newTableName;
-
-            var newColNums = [];
-            var newColNum = colNum;
-            var newProgCols = table.tableCols;
-            var mapColOptions = {type: ColumnType.string};
-            for (var i = 0; i < numNewCols; i++) {
-                newProgCols = xcHelper.mapColGenerate(++newColNum,
-                                        newFieldNames[i], mapStrs[i],
-                                        newProgCols, mapColOptions);
-                newColNums.push(newColNum);
-            }
-
-            var refreshOpts = {selectCol: newColNums};
-            return TblManager.refreshTable([newTableName], newProgCols,
-                                    [tableName], worksheet, txId, refreshOpts);
-        })
-        .then(function() {
-            var newTableId = xcHelper.getTableId(newTableName);
-            // map do not change stats of the table
-            Profile.copy(tableId, newTableId);
-            xcHelper.unlockTable(tableId);
-
-
-            Transaction.done(txId, {
-                "msgTable": newTableId,
-                "sql": sql
-            });
-            // resolve will be used in testing
-            deferred.resolve(newTableId);
-        })
-        .fail(function(error) {
-            xcHelper.unlockTable(tableId);
-
-            if (error === SQLType.Cancel) {
-                Transaction.cancel(txId);
-                deferred.resolve();
-            } else {
-                Transaction.fail(txId, {
-                    "failMsg": StatusMessageTStr.SplitColumnFailed,
-                    "error": error,
-                    "sql": sql
-                });
-                deferred.reject(error);
-            }
-
-        });
-
-        return deferred.promise();
-
-        function getSplitNumHelper(userNumColToGet, toSplitAll) {
-            if (!toSplitAll) {
-                return alertHelper(userNumColToGet);
-            }
-
-            var innerDeferred = PromiseHelper.deferred();
-            var mapStr = 'countChar(' + backColName + ', "' + delimiter + '")';
-            var fieldName = xcHelper.randName("mappedCol");
-            var newTableName = null;
-
-            XIApi.map(txId, mapStr, tableName, fieldName)
-            .then(function(tableAfterMap) {
-                newTableName = tableAfterMap;
-                return XIApi.aggregate(txId, AggrOp.MaxInteger,
-                                       fieldName, newTableName);
-            })
-            .then(function(value) {
-                XIApi.deleteTable(txId, newTableName);
-                // Note that the splitColNum should be charCountNum + 1
-                return alertHelper(value + 1);
-            })
-            .then(innerDeferred.resolve)
-            .fail(innerDeferred.reject);
-
-            return innerDeferred.promise();
-        }
-
-        function alertHelper(numToSplit, numDelim) {
-            var innerDeferred = PromiseHelper.deferred();
-            if (isAlertOn && numToSplit > 15) {
-                var msg = xcHelper.replaceMsg(ColTStr.SplitColWarnMsg, {
-                    "num": numToSplit
-                });
-
-                Alert.show({
-                    "title": ColTStr.SplitColWarn,
-                    "msg": msg,
-                    "onConfirm": function() {
-                        innerDeferred.resolve(numToSplit, numDelim);
-                    },
-                    "onCancel": function() {
-                        innerDeferred.reject(SQLType.Cancel);
-                    }
-                });
-            } else {
-                innerDeferred.resolve(numToSplit, numDelim);
-            }
-            return innerDeferred.promise();
-        }
-
-        function getSplitColNames(colName, colNames) {
-            colNames = colNames || [];
-            // Check duplication
-            var tryCount = 0;
-            var colPrefix = colName + "-split";
-            var i = 0;
-            var newFieldNames = [];
-            var usedName = new Set();
-            var colLen = colNames.length;
-
-            // as split can be triggered from repeat, need to check if it's used
-            // or not, if used, reset
-            for (var j = 0; j < colLen; j++) {
-                if (table.hasCol(colNames[j], "")) {
-                    colNames = [];
-                    break;
-                }
-            }
-
-            while (i < numNewCols && tryCount <= 50) {
-                ++tryCount;
-
-                for (i = 0; i < numNewCols; i++) {
-                    var newColName = (i < colLen) ?  colNames[i] : null;
-                    newColName = newColName || colPrefix + "-" + (i + 1);
-
-                    if (table.hasCol(newColName, "") || usedName.has(newColName)) {
-                        newFieldNames = [];
-                        usedName = new Set();
-                        colPrefix = colName + "-split-" + tryCount;
-                        break;
-                    }
-                    newFieldNames[i] = newColName;
-                    usedName.add(newColName);
-                }
-            }
-
-            if (tryCount > 50) {
-                console.warn("Too much try, overwrite origin col name!");
-                for (i = 0; i < numNewCols; i++) {
-                    newFieldNames[i] = colName + "-split" + i;
-                }
-            }
-
-            return newFieldNames;
-        }
-
-        function getSplitStrs() {
-            var mapStrs = [];
-            for (var i = 0; i < numNewCols; i++) {
-                mapStrs[i] = 'cut(' + backColName + ', ' + (i + 1) + ', "' +
-                            delimiter + '")';
-            }
-            return mapStrs;
-        }
     };
 
     ColManager.sortColumn = function(colNums, tableId, order) {
@@ -653,8 +315,6 @@ window.ColManager = (function($, ColManager) {
         } else {
             $th.find('.editable').removeClass('editable');
             $editableHead.prop("disabled", true);
-            FnBar.focusOnCol($editableHead, tableId, colNum, true);
-            FnBar.focusCursor();
         }
 
         $editableHead.val(newName).attr("value", newName);
@@ -666,9 +326,6 @@ window.ColManager = (function($, ColManager) {
                 "includeHeader": true
             });
         }
-
-        // adjust tablelist column name
-        TableList.updateColName(tableId, colNum, newName);
 
         Log.add(SQLTStr.RenameCol, {
             "operation": SQLOps.RenameCol,
@@ -726,117 +383,6 @@ window.ColManager = (function($, ColManager) {
         });
     };
 
-    ColManager.round = function(colNums, tableId, decimal) {
-        var deferred = PromiseHelper.deferred();
-        var worksheet = WSManager.getWSFromTable(tableId);
-        var table = gTables[tableId];
-        var tableName = table.getName();
-
-        var mapStrs = [];
-        var oldNames = [];
-        var fieldNames = [];
-        var newTablCols = table.tableCols;
-        var validColNums = [];
-        var newTableName;
-        var usedName = {};
-
-        colNums.forEach(function(colNum) {
-            var progCol = table.getCol(colNum);
-            if (progCol.getType() !== ColumnType.float) {
-                return true; // continue loop
-            }
-
-            var frontName = progCol.getFrontColName();
-            var backName = progCol.getBackColName();
-
-            var mapStr = 'round(' + backName + ', ' + decimal + ')';
-
-            // Note: it's intended to overwrite the column
-            var fieldName = xcHelper.stripColName(frontName);
-            fieldName = xcHelper.getUniqColName(tableId, fieldName, false,
-                                                usedName, colNum);
-            usedName[fieldName] = true;
-            mapStrs.push(mapStr);
-            fieldNames.push(fieldName);
-            oldNames.push(backName);
-            validColNums.push(colNum);
-
-            var mapOptions = {
-                "replaceColumn": true,
-                "resize": true,
-                "type": progCol.getType()
-            };
-            newTablCols = xcHelper.mapColGenerate(colNum, fieldName, mapStr,
-                                                  newTablCols, mapOptions);
-        });
-
-        if (validColNums.length === 0) {
-            // no col to filter
-            return PromiseHelper.resolve(tableId);
-        }
-
-        var sql = {
-            "operation": SQLOps.Round,
-            "tableName": tableName,
-            "tableId": tableId,
-            "colNums": validColNums,
-            "decimal": decimal,
-        };
-
-        var txId = Transaction.start({
-            "msg": StatusMessageTStr.Round,
-            "operation": SQLOps.Round,
-            "sql": sql,
-            "track": true
-        });
-
-        xcHelper.lockTable(tableId, txId);
-
-        XIApi.map(txId, mapStrs, tableName, fieldNames)
-        .then(function(tableAfterMap) {
-            newTableName = tableAfterMap;
-            sql.newTableName = newTableName;
-
-            var options = {"selectCol": validColNums};
-            return TblManager.refreshTable([newTableName], newTablCols,
-                                        [tableName], worksheet, txId, options);
-        })
-        .then(function() {
-            var newTableId = xcHelper.getTableId(newTableName);
-            // map do not change stats of the table
-            Profile.copy(tableId, newTableId);
-            // because the name can dup when change type,
-            // need to remove old profile meta
-            var profilInfo = Profile.getCache()[newTableId];
-            if (profilInfo != null) {
-                fieldNames.forEach(function(newColName, index) {
-                    if (newColName === oldNames[index]) {
-                        delete profilInfo[newColName];
-                    }
-                });
-            }
-
-            xcHelper.unlockTable(tableId);
-            Transaction.done(txId, {
-                "msgTable": newTableId,
-                "sql": sql
-            });
-            deferred.resolve(newTableId);
-        })
-        .fail(function(error) {
-            xcHelper.unlockTable(tableId);
-
-            Transaction.fail(txId, {
-                "failMsg": StatusMessageTStr.RoundFailed,
-                "error": error,
-                "sql": sql
-            });
-            deferred.reject(error);
-        });
-
-        return deferred.promise();
-    };
-
     // currently only being used by drag and drop (and undo/redo)
     // options {
     //      undoRedo: boolean, if true change html of columns
@@ -867,7 +413,7 @@ window.ColManager = (function($, ColManager) {
             }
         }
 
-        TableList.updateTableInfo(tableId);
+        // XXX TODO: possibly update the order of lineage
 
         $table.find('.colNumToChange')
             .addClass('col' + newColNum)
@@ -949,7 +495,6 @@ window.ColManager = (function($, ColManager) {
                         "func": origFunc,
                         "type": origType,
                         "backName": backName,
-                        "pullColOptions": {"source": "fnBar"},
                         "htmlExclude": ["pullColOptions", "usrStr",
                                         "origUsrStr", "wasNewCol", "func",
                                         "type", "backName"]
@@ -1117,10 +662,6 @@ window.ColManager = (function($, ColManager) {
             }
         });
 
-        if (!gMinModeOn && !noAnim && colNumsMinimized.length) {
-            TblFunc.moveTableTitlesAnimated(tableId, tableWidth, widthDiff, 250);
-        }
-
         xcHelper.removeSelectionRange();
 
         PromiseHelper.when.apply(window, promises)
@@ -1191,10 +732,6 @@ window.ColManager = (function($, ColManager) {
             xcTooltip.changeText($th.find(".dropdownBox"),
                                 TooltipTStr.ViewColumnOptions);
         });
-
-        if (!gMinModeOn && !noAnim && colNumsMaximized.length) {
-            TblFunc.moveTableTitlesAnimated(tableId, tableWidth, -widthDiff);
-        }
 
         PromiseHelper.when.apply(window, promises)
         .done(function() {
@@ -1947,8 +1484,8 @@ window.ColManager = (function($, ColManager) {
                     TblManager.updateHeaderAndListInfo(tableId);
                     $table.find('.col' + newColNum).removeClass('animating');
                 });
-                TblFunc.moveTableTitlesAnimated(tableId, $tableWrap.width(),
-                                                10 - width, 300);
+                // TblFunc.moveTableTitlesAnimated(tableId, $tableWrap.width(),
+                //                                 10 - width, 300);
             } else {
                 TblManager.updateHeaderAndListInfo(tableId);
             }

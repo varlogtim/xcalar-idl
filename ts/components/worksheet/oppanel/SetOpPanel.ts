@@ -121,6 +121,7 @@ class SetOpPanel extends BaseOpPanel {
         this._getPanel().find(".modeList").text(typeMap[subType]);
     }
 
+    // XXX TODO: generalize it
     private _autoResizeView(reset: boolean) {
         const $mainMenu: JQuery = $("#mainMenu");
         const $panel: JQuery = this._getPanel();
@@ -131,7 +132,7 @@ class SetOpPanel extends BaseOpPanel {
         } else {
             const numList: number = this.setOpData.getNumList();
             let width: number = minWidth + Math.max(0, numList - 1) * sectionW;
-            width = Math.min(width, $("#workspacePanel").width() * 0.5);
+            width = Math.min(width, $("#modelingDagPanel").width() * 0.5);
             $mainMenu.width(width);
         }
     }

@@ -51,7 +51,6 @@
             update: function() {
                 // basic thing to store
                 this[METAKeys.TI] = saveTables();
-                this[METAKeys.WS] = WSManager.getAllMeta();
                 this[METAKeys.AGGS] = Aggregates.getAggs();
                 this[METAKeys.STATS] = Profile.getCache();
                 this[METAKeys.LOGC] = Log.getCursor();
@@ -1524,93 +1523,11 @@
         return Cart<%= v %>;
     }());
 
-    win.WorksheetObj<%= v %> = (function() {
-        var _super = __getConstructor("WorksheetObj", parentVersion);
-        /* Attr
-            version: <%= version %>,
-            id: (string) worksheet id
-            name: (string) worksheet name
-            date: (string) create date
-            tables: (array) list of active tables in the sheet
-            archivedTables: (array) list of archived tables in the sheet
-            orphanedTables: (array) list of orphaned tables in the sheet
-            tempHiddenTables: (array) list of temp hidden tables
-            undoneTables: (array) list of undone tables in the list
-            lockedTables: (array, not persist) list of locked table in the sheet
-        */
-        function WorksheetObj<%= v %>(options) {
-            var self = _super.call(this, options);
-            <%= addVersion %>
-
-            if (<%= checkFunc %>(options)) {
-                self.pendingTables = options.pendingTables || [];
-            }
-            return self;
-        }
-
-        __extends(WorksheetObj<%= v %>, _super, {
-            <% if (isCurCtor) {%>
-            getId: function() {
-                return this.id;
-            },
-
-            getName: function() {
-                return this.name;
-            },
-
-            setName: function(name) {
-                this.name = name;
-            },
-
-            addTable: function(tableId, tableType) {
-                if (tableId == null) {
-                    return false;
-                }
-
-                var tableArray = this[tableType];
-                if (tableArray == null) {
-                    return false;
-                }
-
-                if (tableArray.includes(tableId)) {
-                    console.error(tableId, "already in worksheets!");
-                    return false;
-                }
-
-                tableArray.push(tableId);
-                return true;
-            }
-            <%}%>
-        });
-
-        return WorksheetObj<%= v %>;
-    }());
-
-    // worksheet.js
+    // worksheet.js XXX TO remove
     win.WSMETA<%= v %> = (function() {
-        var _super = __getConstructor("WSMETA", parentVersion);
-        /* Attr:
-            version: <%= version %>,
-            wsInfos: (obj) set of WorksheetObj
-            wsOrder: (array) worksheet order
-            hiddenWS: (array) list of hidden worksheet
-            noSheetTables: (array) list of tables not in any worksheets
-            activeWS: (string) current active worksheet
-        */
         function WSMETA<%= v %>(options) {
-            options = options || {};
-            <%= assert %>
-            var self = _super.call(this, options);
-            <%= addVersion %>
-
-            if (<%= checkFunc %>(options)) {
-                self.wsInfos = WSMETA<%= v %>.restoreWSInfos(options.wsInfos, version);
-            }
-            return self;
+            return this;
         }
-
-        __extends(WSMETA<%= v %>, _super);
-
         return WSMETA<%= v %>;
     }());
 
@@ -1626,12 +1543,13 @@
             curUser: (string) who is using the workbook
             created: (date) create time
             modified: (date) last modified time
-            numWorksheets: (integer) num of worksheets in the workbook
          * new attrs:
             resource: (boolean) true if it has resource,
             description: (string) workbook description
             jupyterFolder: (string) name of corresponding jupyter folder
             sessionId: (string) backend id, not persisted
+            numWorksheets: (integer) num of worksheets in the workbook (delete)
+            numDFs: (integer) num of dataflows
         */
         function WKBK<%= v %>(options) {
             var self = _super.call(this, options);
@@ -1641,6 +1559,8 @@
                 self.description = options.description;
                 self.jupyterFolder = options.jupyterFolder;
                 self.sessionId = options.sessionId;
+                delete self.numWorksheets;
+                self.numDFs = options.numDFs || 0;
             }
             return self;
         }
@@ -1681,8 +1601,8 @@
                 return this.srcUser;
             },
 
-            getNumWorksheets: function() {
-                return this.numWorksheets;
+            getNumDataflows: function() {
+                return this.numDFs;
             },
 
             isNoMeta: function() {

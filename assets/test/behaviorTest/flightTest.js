@@ -529,8 +529,8 @@ window.FlightTest = (function(FlightTest, $) {
             var a1Name = "a1-" + randInt();
             var a1check = "#previewTable td:eq(1):contains(Receipt0000)";
             var a1url = testDataLoc + "imd/" + test.mode + "a-1.txt";
-            var wsId = WSManager.getWSByIndex(2);
-            var ws = WSManager.getWSById(wsId);
+            // var wsId = WSManager.getWSByIndex(2);
+            // var ws = WSManager.getWSById(wsId);
             var tableId = null;
             test.loadDS(a1Name, a1url, a1check)
             .then(function() {
@@ -642,7 +642,7 @@ window.FlightTest = (function(FlightTest, $) {
                 $("#worksheetListTab").click();
                 $("#tableListTab").click();
                 $(".tableListSectionTab:contains(Temporary)").click();
-                return TableList.refreshOrphanList(true);
+                return TblManager.refreshOrphanList();
             })
             .then(function() {
                 $(".tableListSectionTab:contains(Active)").click();
@@ -655,8 +655,8 @@ window.FlightTest = (function(FlightTest, $) {
             .then(function() {
                 errMsg = "check table name and column info";
                 console.log("doing IMDPanelTest", errMsg);
-                test.assert($("#activeTablesList").find(".tableName").text()
-                    .indexOf(prevPubName) > -1);
+                // test.assert($("#activeTablesList").find(".tableName").text()
+                //     .indexOf(prevPubName) > -1);
                 test.assert($("#numPages").text().indexOf("998") > -1);
                 test.pass(deferred, testName, currentTestNumber);
             })
@@ -1016,7 +1016,7 @@ window.FlightTest = (function(FlightTest, $) {
         var $worksheetTab = $(".worksheetTab.active");
         $("#dfPanelSwitch").click();
         var worksheetId = $worksheetTab.attr("id").substring(13);
-        var tId = WSManager.getAllMeta().wsInfos[worksheetId].tables[0];
+        // var tId = WSManager.getAllMeta().wsInfos[worksheetId].tables[0];
         $("#dagWrap-" + tId + " .addDataFlow").click();
 
         // on dfModal

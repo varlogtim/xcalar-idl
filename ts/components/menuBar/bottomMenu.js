@@ -65,7 +65,6 @@ window.BottomMenu = (function($, BottomMenu) {
 
         $menuPanel.on("click", ".popOut", function() {
             if ($menuPanel.hasClass('poppedOut')) {
-                // need to animate/adjust the table titles because mainFrame
                 // width is changing
                 popInModal(true);
             } else {
@@ -205,10 +204,6 @@ window.BottomMenu = (function($, BottomMenu) {
         $("#bottomMenuBarTabs .sliderBtn.active").removeClass("active");
         if ((topMenuOpening && !isPoppedOut) ||  $("#container").hasClass("noWorkbookMenuBar")){
             noAnim();
-        } else if ($("#workspacePanel").hasClass("active") && !isPoppedOut) {
-            // do not need to adjust tables if closing menu when it's popped out
-            // because mainFrame is already in it's expanded state
-            xcHelper.menuAnimAligner(true, checkMenuAnimFinish);
         } else if (!isPoppedOut && $("#modelingDagPanel").hasClass("active")) {
             checkMenuAnimFinish()
             .then(function() {
@@ -297,9 +292,7 @@ window.BottomMenu = (function($, BottomMenu) {
         // recenter table titles only if: on workspace panel,
         // main menu was not open && bottom menu was not open
         if (!isBottomMenuOpening && !wasOpen) {
-            if ($("#workspacePanel").hasClass("active")) {
-                xcHelper.menuAnimAligner(false, checkMenuAnimFinish);
-            } else if ($("#modelingDagPanel").hasClass("active")) {
+            if ($("#modelingDagPanel").hasClass("active")) {
                 checkMenuAnimFinish()
                 .then(function() {
                     DagCategoryBar.Instance.showOrHideArrows();
@@ -381,9 +374,7 @@ window.BottomMenu = (function($, BottomMenu) {
             "top": offset.top - 5
         });
         $("#container").addClass("bottomMenuOut");
-        if ($("#workspacePanel").hasClass("active")) {
-            xcHelper.menuAnimAligner(true, checkMenuAnimFinish);
-        } else if ($("#modelingDagPanel").hasClass("active")) {
+        if ($("#modelingDagPanel").hasClass("active")) {
             checkMenuAnimFinish()
             .then(function() {
                 DagCategoryBar.Instance.showOrHideArrows();
@@ -406,10 +397,7 @@ window.BottomMenu = (function($, BottomMenu) {
         isPoppedOut = false;
         refreshEditor();
 
-        // will move table titles if menu was popped out
-        if (adjustTables && $("#workspacePanel").hasClass("active")) {
-            xcHelper.menuAnimAligner(false, checkMenuAnimFinish);
-        } else if (adjustTables && $("#modelingDagPanel").hasClass("active")) {
+        if (adjustTables && $("#modelingDagPanel").hasClass("active")) {
             checkMenuAnimFinish()
             .then(function() {
                 DagCategoryBar.Instance.showOrHideArrows();

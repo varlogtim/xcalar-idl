@@ -398,7 +398,7 @@ describe("Admin Test", function() {
 
     describe("admin functions", function() {
         it("admin.showSupport should work", function() {
-            $("#workspaceTab").click();
+            $("#modelingDataflowTab").click();
             expect($("#monitor-setup").is(":visible")).to.be.false;
             Admin.showSupport();
             expect($("#monitor-setup").is(":visible")).to.be.true;

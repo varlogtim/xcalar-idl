@@ -76,7 +76,7 @@ class MemoryAlert {
 
         const shouldAlert: boolean = this.handleMemoryUsage(highestMemUsage, avgUsg);
         if (shouldAlert) {
-            return PromiseHelper.alwaysResolve(TableList.refreshOrphanList(false));
+            return PromiseHelper.alwaysResolve(TblManager.refreshOrphanList());
         } else {
             return PromiseHelper.resolve();
         }
@@ -124,7 +124,7 @@ class MemoryAlert {
             return PromiseHelper.resolve();
         } else if (this.hasNoTables()) {
             // no tables, need a refresh
-            var promise = TableList.refreshOrphanList(false);
+            var promise = TblManager.refreshOrphanList();
             return PromiseHelper.alwaysResolve(promise);
         } else {
             return PromiseHelper.resolve();

@@ -567,7 +567,7 @@ namespace Transaction {
         if (!has_require && gAlwaysDelete && !isDeleting) {
             isDeleting = true;
 
-            TableList.refreshOrphanList(false)
+            TblManager.refreshOrphanList()
             .then(function() {
                 console.info("drop", gOrphanTables);
                 return TblManager.deleteTables(gOrphanTables, TableType.Orphan, true, false);

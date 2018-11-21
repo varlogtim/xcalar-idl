@@ -91,57 +91,9 @@ window.XcSDK.Table.prototype = {
         return this.tablesToReplace;
     },
 
+    // this is a function that should be deprecated
     addToWorksheet: function(tablesToReplace, txId) {
-        var tableName = this.tableName;
-        var ws = this.worksheet;
-        var tableCols = this.tableCols;
-
-        var hasDataCol = false;
-        // Performance: usually data col is the last col
-        for (var i = tableCols.length - 1; i >= 0; i--) {
-            if (tableCols[i].isDATACol()) {
-                hasDataCol = true;
-                break;
-            }
-        }
-
-        if (!hasDataCol) {
-            // add data col if does not exist
-            tableCols.push(ColManager.newDATACol());
-        }
-
-        var tableId = xcHelper.getTableId(tableName);
-        if (tableId != null && gTables[tableId] != null) {
-            // extension's FASJ will create table meta and add it to gTables,
-            // should delete first in case of conflict
-            delete gTables[tableId];
-        }
-
-        if (tablesToReplace == null) {
-            tablesToReplace = [];
-        }
-
-        if (!(tablesToReplace instanceof Array)) {
-            tablesToReplace = [tablesToReplace];
-        }
-
-        var len = tablesToReplace.length;
-        for (var i = 0; i < len; i++) {
-            var srcTableId = xcHelper.getTableId(tablesToReplace[i]);
-            if (gTables[srcTableId] == null || !gTables[srcTableId].isActive()) {
-                var error = 'Invalid Table "' + tablesToReplace[i] + '" to replace';
-                return PromiseHelper.reject(error);
-            }
-        }
-        this.active = true;
-        if (len > 0) {
-            this.tablesToReplace = tablesToReplace;
-        }
-        if (this.modelingMode) {
-            return PromiseHelper.resolve();
-        }
-        return TblManager.refreshTable([tableName], tableCols, tablesToReplace,
-                                      ws, txId);
+        return PromiseHelper.resolve();
     },
 
     addCol: function(col, position) {

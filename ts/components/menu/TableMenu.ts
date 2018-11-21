@@ -15,7 +15,6 @@ class TableMenu extends AbstractMenu {
             ["j", "jupyterTable"],
             ["m", "hideTable"],
             ["s", "multiCast"],
-            ["t", "makeTempTable"],
             ["u", "unhideTable"],
             ["x", "exitOp"],
         ];
@@ -44,15 +43,6 @@ class TableMenu extends AbstractMenu {
             }
             const tableId: TableId = $tableMenu.data('tableId');
             TblManager.unHideTable(tableId);
-        });
-
-        $tableMenu.on('mouseup', '.makeTempTable', (event) => {
-            if (this._isInvalidTrigger(event)) {
-                return;
-            }
-
-            const tableId: TableId = $tableMenu.data('tableId');
-            TblManager.sendTableToTempList([tableId], null, null);
         });
 
         $tableMenu.on('mouseup', '.deleteTable', (event) => {
@@ -92,8 +82,6 @@ class TableMenu extends AbstractMenu {
                 BottomMenu.close();
             } else if ($li.hasClass("exitDFEdit")) {
                 DagEdit.off();
-            }  else if ($li.hasClass("exitFunctionBar")) {
-                FnBar.unlock();
             } else {
                 MainMenu.closeForms();
             }
@@ -126,18 +114,8 @@ class TableMenu extends AbstractMenu {
                 return colNames;
             };
 
-            // const wsId: string = WSManager.getActiveWS();
             const tableId: TableId = $tableMenu.data('tableId');
             const allColNames: string[] = getAllColNames(tableId);
-            // WSManager.getWorksheets()[wsId].tables.forEach((tableId) => {
-            //     const tableColNames: string[] = getAllColNames(tableId);
-            //     for (let i = 0; i < tableColNames.length; i++) {
-            //         const value: string = tableColNames[i];
-            //         if (allColNames.indexOf(value) === -1) {
-            //             allColNames.push(value);
-            //         }
-            //     }
-            // });
             this._copyToClipboard(allColNames, true);
         });
 
@@ -157,13 +135,6 @@ class TableMenu extends AbstractMenu {
             }
             const tableId: TableId = $tableMenu.data('tableId');
             AggModal.corrAgg(tableId);
-        });
-
-        // operation for move to worksheet and copy to worksheet
-        $tableMenu.on('mouseenter', '.moveTable', () => {
-            const $subMenu = this._getSubMenu();
-            const $list: JQuery = $subMenu.find(".list");
-            $list.empty().append(WSManager.getWSLists(false));
         });
 
         $tableMenu.on('mouseup', '.createDf', (event) => {
@@ -237,63 +208,6 @@ class TableMenu extends AbstractMenu {
             $input.val("");
             $input.blur();
             xcMenu.close($allMenus);
-        });
-
-        $subMenu.on('keypress', '.moveTable input', (event) => {
-            if (event.which === keyCode.Enter) {
-                const tableId: TableId = $tableMenu.data('tableId');
-                const $input: JQuery = $(event.currentTarget);
-                const wsName: string = $input.val().trim();
-                const $option: JQuery = $input.siblings(".list").find("li").filter((_index, element) => {
-                    return ($(element).text() === wsName);
-                });
-                const isValid: boolean = xcHelper.validate([
-                    {
-                        "$ele": $input,
-                        "side": "left"
-                    },
-                    {
-                        "$ele": $input,
-                        "error": ErrTStr.InvalidWSInList,
-                        "side": "left",
-                        "check": () => {
-                            return ($option.length === 0);
-                        }
-                    }
-                ]);
-
-                if (!isValid) {
-                    return false;
-                }
-
-                const wsId: string = $option.data("ws");
-                WSManager.moveTable(tableId, wsId);
-                $input.val("");
-                $input.blur();
-                xcMenu.close($allMenus);
-            }
-        });
-
-        $subMenu.on('mouseup', '.moveLeft', (event) => {
-            if (this._isInvalidTrigger(event)) {
-                return;
-            }
-            const tableId: TableId = $tableMenu.data('tableId');
-            const curIndex: number = WSManager.getTableRelativePosition(tableId);
-            TblFunc.reorderAfterTableDrop(tableId, curIndex, curIndex - 1, {
-                moveHtml: true
-            });
-        });
-
-        $subMenu.on('mouseup', '.moveRight', (event) => {
-            if (this._isInvalidTrigger(event)) {
-                return;
-            }
-            const tableId: TableId = $tableMenu.data('tableId');
-            const curIndex: number = WSManager.getTableRelativePosition(tableId);
-            TblFunc.reorderAfterTableDrop(tableId, curIndex, curIndex + 1, {
-                moveHtml: true
-            });
         });
 
         $subMenu.on("mouseup", ".sortByName li", (event) => {

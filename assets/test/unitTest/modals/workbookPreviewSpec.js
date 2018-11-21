@@ -2,7 +2,6 @@ describe("Workbook Preview Test", function() {
     var oldGetTables;
     var oldGetMeta;
     var oldGetDag;
-    var oldGetWorksheetMeta;
     var workbookId;
     var $workbookPreview;
 
@@ -14,7 +13,6 @@ describe("Workbook Preview Test", function() {
         oldGetTables = XcalarGetTables;
         oldGetMeta = KVStore.prototype.getAndParse;
         oldGetDag = XcalarGetDag;
-        oldGetWorksheetMeta = WSManager.getAllMeta;
 
         XcalarGetTables = function() {
             return PromiseHelper.resolve({
@@ -28,18 +26,6 @@ describe("Workbook Preview Test", function() {
             })
         };
 
-        var worksheets = {
-            wsInfos: {
-                testWSId1: {
-                    name: "testWorksheet1",
-                    tables: ["ab2"]
-                },
-                testWSId2: {
-                    name: "testWorksheet2",
-                    tables: ["ab1"]
-                }
-            }
-        };
         KVStore.prototype.getAndParse = function() {
             return PromiseHelper.resolve({
                 TILookup: {
@@ -53,17 +39,12 @@ describe("Workbook Preview Test", function() {
                         tableId: "#ab2",
                         status: "orphaned"
                     }
-                },
-                worksheets: worksheets
+                }
             });
         };
 
         XcalarGetDag = function() {
             return PromiseHelper.reject("test error");
-        };
-
-        WSManager.getAllMeta = function() {
-            return worksheets;
         };
     });
 
@@ -145,22 +126,6 @@ describe("Workbook Preview Test", function() {
             expect($listSection.find(".grid-unit:first-child .name").text())
             .to.equal("test2#ab2");
             expect($status.hasClass("active")).to.be.true;
-        });
-
-        it("should sort by worksheets", function() {
-            var $worksheet = $workbookPreview.find(".titleSection .worksheet");
-            var $listSection = $workbookPreview.find(".listSection");
-
-            $worksheet.find(".label").click();
-            expect($listSection.find(".grid-unit:first-child .name").text())
-            .to.equal("test2#ab2");
-            expect($worksheet.hasClass("active")).to.be.true;
-
-            // reverse
-            $worksheet.find(".label").click();
-            expect($listSection.find(".grid-unit:first-child .name").text())
-            .to.equal("test1#ab1");
-            expect($worksheet.hasClass("active")).to.be.true;
         });
 
         after(function() {
@@ -261,7 +226,6 @@ describe("Workbook Preview Test", function() {
 
         it("should handle no ws meta case", function(done) {
             var oldFunc = KVStore.prototype.getAndParse;
-            var oldGetWorksheetMetaFunc = WSManager.getAllMeta;
             KVStore.prototype.getAndParse = function() {
                 return PromiseHelper.resolve({
                     TILookup: {
@@ -279,14 +243,9 @@ describe("Workbook Preview Test", function() {
                 });
             };
 
-            WSManager.getAllMeta = () => {};
-
             WorkbookPreview.show(workbookId)
             .then(function() {
                 expect($workbookPreview.hasClass("error")).to.be.false;
-                var $listSection = $workbookPreview.find(".listSection");
-                expect($listSection.find(".grid-unit:first-child .worksheet").text())
-                .to.equal("--");
                 done();
             })
             .fail(function(error) {
@@ -294,7 +253,6 @@ describe("Workbook Preview Test", function() {
             })
             .always(function() {
                 KVStore.prototype.getAndParse = oldFunc;
-                WSManager.getAllMeta = oldGetWorksheetMetaFunc;
             });
         })
     });
@@ -303,7 +261,6 @@ describe("Workbook Preview Test", function() {
         XcalarGetTables = oldGetTables;
         KVStore.prototype.getAndParse = oldGetMeta;
         XcalarGetDag = oldGetDag;
-        WSManager.getAllMeta = oldGetWorksheetMeta;
         UnitTest.offMinMode();
     });
 });

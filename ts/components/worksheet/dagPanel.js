@@ -561,41 +561,19 @@ window.DagPanel = (function($, DagPanel) {
                 $menu.removeClass("unexpectedNode");
             }
 
-            // if active table, hide "addTable" and show "focusTable"
-            $('#activeTablesList').find('.tableInfo').each(function() {
-                var $li = $(this);
-                if ($li.data('id') === tableId) {
-                    $menu.find('.addTable, .revertTable').addClass('hidden');
-                    $menu.find('.focusTable, .makeTempTable')
-                         .removeClass('hidden');
-                    if (!tableLocked && !inColumnPickerMode) {
-                        $menu.find('.deleteTable')
-                             .removeClass('hidden');
-                    } else {
-                        $menu.find('.deleteTable')
-                             .addClass('hidden');
-                    }
-                    activeFound = true;
-                    tableWSId = WSManager.getWSFromTable(tableId);
-                    $menu.data('ws', tableWSId);
-                    return (false);
-                }
-            });
-
             // to check if aggregate table, in which case we disallow
             // many options
             var operator = $dagTable.siblings('.operationTypeWrap').data('type');
             if (operator === "aggregate") {
                 $menu.find('.addTable, .revertTable, .focusTable, ' +
-                            '.addNoDelete, .makeTempTable').addClass('hidden');
+                            '.addNoDelete').addClass('hidden');
             } else if (activeFound) {
                 // already in WS, cannot add or revert to worksheet
                 $menu.find('.addTable, .revertTable').addClass('hidden');
-                $menu.find(".makeTempTable").removeClass("hidden");
             } else {
                 // not in WS, allow adding and reverting, disallow archiving
                 $menu.find('.addTable, .revertTable').removeClass('hidden');
-                $menu.find('.focusTable, .makeTempTable').addClass('hidden');
+                $menu.find('.focusTable').addClass('hidden');
             }
 
             var $dagWrap = $dagTable.closest('.dagWrap');
@@ -1178,14 +1156,6 @@ window.DagPanel = (function($, DagPanel) {
             deleteTable(tableId, tableName);
         });
 
-        $menu.find(".makeTempTable").mouseup(function(event) {
-            if (event.which !== 1 || $(this).hasClass("unavailable")) {
-                return;
-            }
-            var tableId = $menu.data('tableId');
-            TblManager.sendTableToTempList([tableId]);
-        });
-
         $menu.find('.showSchema').mouseup(function(event) {
             if (event.which !== 1) {
                 return;
@@ -1258,10 +1228,6 @@ window.DagPanel = (function($, DagPanel) {
                 case ("collapseTag"):
                     Dag.toggleTaggedGroup($dagWrap, $menu.data("opIcon"));
                     break;
-                case ("exitFormOption"):
-                    MainMenu.closeForms();
-                    FnBar.unlock();
-                    break;
                 case ("none"):
                     // do nothing;
                     break;
@@ -1317,7 +1283,7 @@ window.DagPanel = (function($, DagPanel) {
                 }
             });
         } else if (table) {
-            TableList.refreshOrphanList()
+            TblManager.refreshOrphanList()
             .then(function() {
                 $('#orphanedTablesList').find('.tableInfo').each(function() {
                     var $li = $(this);
@@ -1331,10 +1297,7 @@ window.DagPanel = (function($, DagPanel) {
         } else {
             // check if aggregate
             if (Aggregates.getAggs()[tableName]) {
-                Aggregates.deleteAggs([tableName])
-                .then(function() {
-                    TableList.removeTable(tableName, TableType.Aggregate);
-                });
+                Aggregates.deleteAggs([tableName]);
                 // fail case is being handled in
                 // Aggregates.deleteAggs transaction
             } else {

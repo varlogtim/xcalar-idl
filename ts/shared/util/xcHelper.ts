@@ -2419,7 +2419,6 @@ namespace xcHelper {
         txId?: number,
         options: {delayTime: number} = {delayTime: null}
     ): void {
-        // lock worksheet as well
         const table: TableMeta = gTables[tableId];
         if (table == null) {
             return;
@@ -2453,14 +2452,7 @@ namespace xcHelper {
             $tableWrap.find('.xcTbodyWrap')
                     .append('<div class="tableCover"></div>');
             $tableWrap.find('.tableCover').height(tbodyHeight);
-            if (isModelingMode) {
-                TblFunc.alignLockIcon();
-            } else {
-                // add lock class to dataflow
-                $('#dagWrap-' + tableId).addClass('locked notSelected')
-                .removeClass('selected');
-                TblFunc.moveTableTitles(null);
-            }
+            TblFunc.alignLockIcon();
 
             // prevent vertical scrolling on the table
             const $tbody: JQuery = $tableWrap.find('.xcTbodyWrap');
@@ -2468,7 +2460,6 @@ namespace xcHelper {
             $tbody.on('scroll.preventScrolling', function() {
                 $tbody.scrollTop(scrollTop);
             });
-            TableList.lockTable(tableId);
             if (options.delayTime) {
                 setTimeout(function() {
                     if ($tableWrap.hasClass("tableLocked")) {
@@ -2491,7 +2482,6 @@ namespace xcHelper {
         }
 
         gTables[tableId].lock();
-        WSManager.lockTable(tableId);
         Log.lockUndoRedo();
     }
 
@@ -2512,8 +2502,6 @@ namespace xcHelper {
             return;
         }
         table.unlock();
-        // remove unlock icon even if table is inactive or not present just
-        // in case it might still be in the worksheet
         const $tableWrap: JQuery = $("#xcTableWrap-" + tableId);
         $tableWrap.find('.lockedTableIcon').remove();
         $tableWrap.find('.tableCover').remove();
@@ -2528,8 +2516,6 @@ namespace xcHelper {
             // if noDelete, they still need the lock
             $dagTables.find('.lockIcon').remove();
         }
-        TableList.unlockTable(tableId);
-        WSManager.unlockTable(tableId);
         Log.unlockUndoRedo();
     }
 
@@ -2834,11 +2820,6 @@ namespace xcHelper {
             return deferred.promise();
         }
 
-        const wsId: string = WSManager.getWSFromTable(tableId);
-        if (wsId !== WSManager.getActiveWS()) {
-            WSManager.switchWS(wsId);
-        }
-
         TblFunc.focusTable(tableId);
 
         const tableRect: ClientRect = $tableWrap[0].getBoundingClientRect();
@@ -3006,40 +2987,6 @@ namespace xcHelper {
         } else if (itemOffsetTop < -5) {
             $list.scrollTop(scrollTop + itemOffsetTop - (listHeight / 2));
         }
-    }
-
-    /**
-     * xcHelper.getTableIndex
-     * @param targetWS
-     * @param position
-     * @param selector
-     */
-    export function getTableIndex(
-        targetWS: string,
-        position: number,
-        selector: string
-    ): number {
-        const targetIndex: number = WSManager.indexOfWS(targetWS);
-        const sheets: string[] = WSManager.getWSList();
-        const $allTables: JQuery = $(selector + ':not(.building)');
-        let index: number = 0;
-        const $wsTables: JQuery = $(selector + ':not(.building).worksheet-' +
-                                    targetWS);
-        if ($wsTables.length) {
-            index = $allTables.index($wsTables.first());
-        } else {
-            for (let i = 0; i < targetIndex; i++) {
-                index += $(selector + ':not(.building).worksheet-' +
-                            sheets[i]).length;
-            }
-        }
-
-        if (position != null && $wsTables.length) {
-            index += position;
-        } else {
-            index += $wsTables.length;
-        }
-        return index;
     }
 
     /**
@@ -4776,51 +4723,6 @@ namespace xcHelper {
     }
 
     /**
-     * XXX no test yet
-     * xcHelper.menuAnimAligner
-     * @param close
-     * @param checkMenuAnimFinish
-     */
-    export function menuAnimAligner(
-        close: boolean,
-        checkMenuAnimFinish: Function
-    ): void {
-        let menuOffset: number = 285;
-
-        let options: object;
-        if (close) {
-            const openOffset: number = 350; // when the menu is open;
-            options = {marginRight: openOffset};
-            menuOffset *= -1;
-        }
-        TblFunc.hideOffScreenTables(options);
-        $('#mainFrame').addClass('scrollLocked');
-        $('#dagScrollBarWrap').addClass('xc-hidden');
-        $('.dfScrollBar').addClass('xc-hidden');
-
-        const menuAnimTime: number = 200; // length of time menu takes to animate
-        TblFunc.moveTableTitles(null, {
-            offset: menuOffset,
-            menuAnimating: true,
-            animSpeed: menuAnimTime
-        });
-
-        checkMenuAnimFinish()
-        .then(function() {
-            TblFunc.unhideOffScreenTables();
-            TblManager.alignTableEls();
-            $('#mainFrame').removeClass('scrollLocked');
-            $('#dagScrollBarWrap').removeClass('xc-hidden');
-            DagPanel.adjustScrollBarPositionAndSize();
-            $('.dfScrollBar').addClass('xc-hidden');
-            DFCard.adjustScrollBarPositionAndSize();
-            IMDPanel.redraw();
-            DagCategoryBar.Instance.showOrHideArrows();
-        });
-    }
-
-
-    /**
      * xcHelper.numToStr
      * adds commas to large numbers (52000 becomes "52,000")
      * @param value
@@ -5537,37 +5439,11 @@ namespace xcHelper {
     /* ============== dropdownOpen ======================*/
 
     function updateTableDropdown($menu: JQuery, options: DropdownOptions): void {
-        if (!gChronos) {
-            return;
-        }
         if (options.classes && options.classes.indexOf('locked') !== -1) {
             $menu.find('li:not(.hideTable, .unhideTable)')
                   .addClass('unavailable');
         } else {
             $menu.find('li').removeClass('unavailable');
-        }
-
-        const $subMenu: JQuery = $('#' + $menu.data('submenu'));
-        if (WSManager.getNumOfWS() <= 1) {
-            $subMenu.find(".moveToWorksheet").addClass("unavailable");
-        } else {
-            $subMenu.find(".moveToWorksheet").removeClass("unavailable");
-        }
-
-        const tableId: TableId = gActiveTableId;
-        const index: number = WSManager.getTableRelativePosition(tableId);
-        if (index === 0) {
-            $subMenu.find('.moveLeft').addClass('unavailable');
-        } else {
-            $subMenu.find('.moveLeft').removeClass('unavailable');
-        }
-
-        const activeWS: string = WSManager.getActiveWS();
-        const numTables: number = WSManager.getWorksheets()[activeWS].tables.length;
-        if (index === (numTables - 1)) {
-            $subMenu.find('.moveRight').addClass('unavailable');
-        } else {
-            $subMenu.find('.moveRight').removeClass('unavailable');
         }
         xcHelper.enableMenuItem($menu.find('.createDf'));
     }
@@ -5993,9 +5869,7 @@ namespace xcHelper {
         // if full length menu dips below window
         if (options.floating && (top + fullMenuHeight + 5 > winHeight)) {
             let offset: number = 15;
-            if (menuId === "worksheetTabMenu") {
-                offset = 25;
-            } else if (menuId === "cellMenu") {
+            if (menuId === "cellMenu") {
                 offset = 20;
             }
             const newMenuHeight = top - offset - 5;

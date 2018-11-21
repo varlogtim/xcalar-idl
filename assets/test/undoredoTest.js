@@ -6,13 +6,12 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
     var schedName;
     var yelpName;
     // kick off the replay and then the undo, then redo, then undo, then redo
-    // operationTypes can be tableOps, frontEnd, or worksheet
+    // operationTypes can be tableOps, frontEnd
     UndoRedoTest.run = function(operationType, clearTables, noAlert) {
         var deferred = PromiseHelper.deferred();
         if (operationType == null) {
             operationType = "tableOps";
             // operationType = "frontEnd";
-            // operationType = "worksheet";
         }
         opType = operationType;
         var logs;
@@ -242,15 +241,12 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
         }
         var nonStringified = activeTables;
 
-        var wsMeta = xcHelper.deepCopy(WSManager.getAllMeta());
+        // var wsMeta = xcHelper.deepCopy(WSManager.getAllMeta());
         $.each(wsMeta.wsInfos, function(key, ws){
             ws.orphanedTables.sort();
         });
         delete wsMeta.activeWS; // some undos changes active WS but that's ok
 
-        var tableListText =
-                        $('#activeTablesList').find('.tableListBox').text() +
-                        $('#activeTablesList').find('.columnList').text();
         tableListText = tableListText.split("").sort().join("");
         // not checking for table list order, just for content
 
@@ -375,7 +371,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
             }
             var numTables = activeTables.length;
 
-            var wsMeta = xcHelper.deepCopy(WSManager.getAllMeta());
+            // var wsMeta = xcHelper.deepCopy(WSManager.getAllMeta());
             $.each(wsMeta.wsInfos, function(key, ws){
                 ws.orphanedTables.sort();
             });
@@ -502,10 +498,10 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
     }
 
     function deleteWorksheets() {
-        var sheets = xcHelper.deepCopy(WSManager.getWSList());
-        for (var i = 1; i < sheets.length; i++) {
-            WSManager.delWS(sheets[i], DelWSType.Del);
-        }
+        // var sheets = xcHelper.deepCopy(WSManager.getWSList());
+        // for (var i = 1; i < sheets.length; i++) {
+        //     WSManager.delWS(sheets[i], DelWSType.Del);
+        // }
     }
 
     // tableOps, frontEndOps, and worksheetOps are lists of operations
@@ -560,36 +556,10 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
                         "Minimize Table",
                         "Maximize Table"];
 
-    // create 3 tables
-    var worksheetOps = ["Change Table Order",
-                        "Hide Table",
-                        "Send Tables to Worksheet",
-                        "Map",
-                        "Revert Table",
-                        "Send Tables to Worksheet",
-                        "Filter",
-                        "Move Temporary Table To Worksheet",
-                        "Create Worksheet",
-                        "Create Worksheet",
-                        "Delete Worksheet",
-                        "Delete Worksheet",
-                        "Create Worksheet",
-                        "Rename Worksheet",
-                        "Create Worksheet",
-                        "Reorder Worksheet",
-                        "Delete Worksheet",
-                        "Create Table",
-                        "Create Table",
-                        "Create Table",
-                        "Move Table to worksheet",
-                        "Hide Worksheet",
-                        "Unhide Worksheet"
-                        ];
 
     var operationsMap = {
         tableOps: tableOps,
-        frontEnd: frontEndOps,
-        worksheet: worksheetOps
+        frontEnd: frontEndOps
     };
 
     return (UndoRedoTest);

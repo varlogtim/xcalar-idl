@@ -116,7 +116,6 @@ namespace xcFunction {
         // XXX fix this
         const direction: string = (orders[0] === XcalarOrderingT.XcalarOrderingAscending) ?
             "ASC" : "DESC";
-        const worksheet: string = WSManager.getWSFromTable(tableId);
         const sql: object = {
             operation: SQLOps.Sort,
             tableName: tableName,
@@ -179,10 +178,8 @@ namespace xcFunction {
         })
         .then((sortTableName) => {
             finalTableName = sortTableName;
-            const colsToSelect: number[] = colNums.filter((colNum) => colNum > 0);
             // sort will filter out KNF, so it change the profile
-            return TblManager.refreshTable([finalTableName], finalTableCols,
-                [tableName], worksheet, txId, { selectCol: colsToSelect });
+            return TblManager.refreshTable([finalTableName], finalTableCols, [tableName], txId);
         })
         .then(() => {
             if (table.hasLock()) {

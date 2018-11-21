@@ -661,7 +661,7 @@ window.TestSuite = (function($, TestSuite) {
 
         deleteTables()
         .then(function() {
-            deleteWorksheets();
+            deleteDagTabs();
             return deleteDS(test);
         })
         .then(deferred.resolve)
@@ -670,47 +670,45 @@ window.TestSuite = (function($, TestSuite) {
         return deferred.promise();
     }
 
-    function deleteWorksheets() {
-        var sheets = xcHelper.deepCopy(WSManager.getWSList());
-        for (var i = 1; i < sheets.length; i++) {
-            WSManager.delWS(sheets[i], DelWSType.Del);
-        }
+    function deleteDagTabs() {
+        // XXX TODO
     }
 
-    function deleteTables() {
-        console.log("Delete Tables");
-        var deferred = PromiseHelper.deferred();
+    // XXX TODO: update it
+    // function deleteTables() {
+    //     console.log("Delete Tables");
+    //     var deferred = PromiseHelper.deferred();
 
-        var $workspaceMenu = $("#workspaceMenu");
-        if (!$workspaceMenu.hasClass("active")) {
-            $("#workspaceTab .mainTab").click();
-        }
+    //     var $workspaceMenu = $("#workspaceMenu");
+    //     if (!$workspaceMenu.hasClass("active")) {
+    //         $("#workspaceTab .mainTab").click();
+    //     }
 
-        if ($workspaceMenu.find(".tables").hasClass("xc-hidden")) {
-            $("#tableListTab").click();
-        }
+    //     if ($workspaceMenu.find(".tables").hasClass("xc-hidden")) {
+    //         $("#tableListTab").click();
+    //     }
 
-        var $tabs = $("#tableListSectionTabs .tableListSectionTab");
-        var tabeTypes = [TableType.Active, TableType.Orphan];
-        var promises = [];
+    //     var $tabs = $("#tableListSectionTabs .tableListSectionTab");
+    //     var tabeTypes = [TableType.Active, TableType.Orphan];
+    //     var promises = [];
 
-        TableList.refreshOrphanList()
-        .then(function() {
-            tabeTypes.forEach(function(tableType, index) {
-                $tabs.eq(index).click();
-                var $section = $("#tableListSections .tableListSection:visible");
-                $section.find(".selectAll").click();
-                promises.push(TableList.tableBulkAction("delete",
-                                                        tableType));
-            });
+    //     TableList.refreshOrphanList()
+    //     .then(function() {
+    //         tabeTypes.forEach(function(tableType, index) {
+    //             $tabs.eq(index).click();
+    //             var $section = $("#tableListSections .tableListSection:visible");
+    //             $section.find(".selectAll").click();
+    //             promises.push(TableList.tableBulkAction("delete",
+    //                                                     tableType));
+    //         });
 
-            return PromiseHelper.when.apply(this, promises);
-        })
-        .then(deferred.resolve)
-        .fail(deferred.reject);
+    //         return PromiseHelper.when.apply(this, promises);
+    //     })
+    //     .then(deferred.resolve)
+    //     .fail(deferred.reject);
 
-        return deferred.promise();
-    }
+    //     return deferred.promise();
+    // }
 
     function deleteDS(test) {
         var deferred = PromiseHelper.deferred();

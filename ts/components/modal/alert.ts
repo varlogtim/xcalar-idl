@@ -19,7 +19,6 @@ namespace Alert {
         preSpace?: boolean; // if true then set white-space:pre to preserve whitespaces
         sizeToText?: boolean; // when set true, size the modal to align text
         noLogout?: boolean; // remove log out button when  set true
-        keepFnBar?: boolean;
         noCancel?: boolean; // remove cancel button
         expired?: boolean; // expire license case
         logout?: boolean; // want user to logout case
@@ -241,9 +240,7 @@ namespace Alert {
     }
 
     function getExtraOptions(options: AlertOptions): object {
-        const extraOptions: object = {
-            keepFnBar: options.keepFnBar
-        };
+        const extraOptions: object = {};
         if (options.lockScreen) {
             extraOptions['noEsc'] = true;
         }

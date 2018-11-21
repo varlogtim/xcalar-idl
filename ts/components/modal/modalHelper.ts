@@ -13,7 +13,6 @@ interface ModalHelperOptions {
     noEnter?: boolean,
     noBackground?: boolean,
     center?: ModalHelperCenterOptions,
-    keepFnBar?: boolean,
     open?: Function,
     close?: Function,
     noResize?: boolean
@@ -39,6 +38,11 @@ interface ModalHelperBGOptions {
 /* Modal Helper */
 // an object used for global Modal Actions
 class ModalHelper {
+    
+    public static isModalOn() {
+        return $("#modalBackground").is(":visible");
+    }
+    
     private $modal: JQuery;
     private options: ModalHelperOptions;
     private id: string;
@@ -47,7 +51,7 @@ class ModalHelper {
     private minWidth: number;
     private minHeight: number;
 
-      /* options include:
+    /* options include:
      * noResize: if set true, will not reszie the modal
      * sizeToDefault: if set true, will set to initial width and height when open
      * defaultWidth: integer, optional
@@ -170,11 +174,6 @@ class ModalHelper {
         xcHelper.removeSelectionRange();
         // hide tooltip when open the modal
         xcTooltip.hideAll();
-
-        if (!options.keepFnBar && window.FnBar) {
-            FnBar.clear();
-            $(".selectedCell").removeClass("selectedCell");
-        }
 
         // resize modal
         if (options.sizeToDefault) {
@@ -393,7 +392,6 @@ class ModalHelper {
         options?: ModalHelperBGOptions
     ): void {
         const $modalBg: JQuery = $("#modalBackground");
-        const $mainFrame: JQuery = $("#mainFrame");
         let $tableWrap: JQuery;
 
         if (tableId === "all") {
@@ -414,11 +412,9 @@ class ModalHelper {
             if (gMinModeOn) {
                 $modalBg.hide();
                 $modalBg.removeClass('light');
-                $mainFrame.removeClass('modalOpen');
             } else {
                 $modalBg.fadeOut(fadeOutTime, function() {
                     $modalBg.removeClass('light');
-                    $mainFrame.removeClass('modalOpen');
                 });
             }
 
@@ -431,7 +427,6 @@ class ModalHelper {
                 $tableWrap.addClass('modalOpen');
             }
 
-            $mainFrame.addClass('modalOpen');
             let fadeInTime: number;
             if (options.time === null) {
                 fadeInTime = 150;

@@ -250,8 +250,6 @@ module.exports = {
         "DeactivateDS": "Deactivate dataset",
         "Map": "Map",
         "Move": "Move",
-        "MoveLeft": "Move table left",
-        "MoveRight": "Move table right",
         "MoveUp": "Move up a level",
         "MVWS": "Move to worksheet",
         "NewFolder": "New folder",

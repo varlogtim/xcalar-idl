@@ -15,7 +15,6 @@ class XDFManager {
         XcalarListXdfs("*", "*")
         .then((listXdfsObj) => {
             const fns = xcHelper.filterUDFs(listXdfsObj.fnDescs);
-            FnBar.updateOperationsMap(fns);
             self._setupOperatorsMap(fns);
             deferred.resolve();
         })

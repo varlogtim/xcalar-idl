@@ -22,7 +22,6 @@ describe("Persistent Constructor Test", function() {
 
             metaInfos = new METAConstructor({
                 "TILookup": {"test": table},
-                "worksheets": {"wsOrder": [1]},
                 "aggregates": {"testAgg": agg},
                 "statsCols": {"testTable": {"testCol": profile}},
                 "sqlcursor": -2,
@@ -38,12 +37,6 @@ describe("Persistent Constructor Test", function() {
         it("Should get table meta", function() {
             var tableMeta = metaInfos.getTableMeta();
             expect(tableMeta["test"]).to.exist;
-        });
-
-        it("Should get worksheet meta", function() {
-            var wsMeta = metaInfos.getWSMeta();
-            expect(wsMeta.wsOrder).to.exist;
-            expect(wsMeta.wsOrder[0]).to.equal(1);
         });
 
         it("Should get agg meta", function() {
@@ -1784,7 +1777,7 @@ describe("Persistent Constructor Test", function() {
             expect(userPref).to.have.property("sqlCollapsed")
             .and.to.be.false;
             expect(userPref).to.have.property("activeMainTab")
-            .and.to.equal("workspaceTab");
+            .and.to.equal("modelingDataflowTab");
             expect(userPref).to.have.property("general").and.to.be.empty;
             expect(userPref).to.have.property("dsSortKey").and.to.be.undefined;
             expect(userPref).to.have.property("dfAutoExecute").and.to.be.true;
@@ -2256,104 +2249,6 @@ describe("Persistent Constructor Test", function() {
         });
     });
 
-    describe("WSMETA Constructor Test", function() {
-        it("Should have 6 attributes", function() {
-            var meta = new WSMETA({
-                "wsInfos": {},
-                "wsOrder": [],
-                "hiddenWS": [],
-                "noSheetTables": [],
-                "activeWS": "test"
-            });
-
-            expect(meta).to.be.an.instanceof(WSMETA);
-            expect(Object.keys(meta).length).to.equal(6);
-            expect(meta).to.have.property("version")
-            .and.to.equal(currentVersion);
-            expect(meta).to.have.property("wsInfos")
-            .and.to.be.an("object");
-            expect(meta).to.have.property("wsOrder");
-            expect(meta).to.have.property("hiddenWS");
-            expect(meta).to.have.property("noSheetTables");
-            expect(meta).to.have.property("activeWS")
-            .and.to.equal("test");
-        });
-    });
-
-    describe("WorksheetObj Constructor Test", function() {
-        it("Should have 10 attributes ", function() {
-            var worksheet = new WorksheetObj({
-                "id": "testId",
-                "name": "testName",
-                "date": "testDate"
-            });
-
-            expect(worksheet).to.be.an.instanceof(WorksheetObj);
-            expect(Object.keys(worksheet).length).to.equal(9);
-            expect(worksheet).have.property("version")
-            .and.to.equal(currentVersion);
-            expect(worksheet).have.property("id")
-            .and.to.equal("testId");
-            expect(worksheet).have.property("name")
-            .and.to.equal("testName");
-            expect(worksheet).have.property("date")
-            .and.to.equal("testDate");
-            expect(worksheet).have.property("pendingTables")
-            .and.to.be.an("array");
-            expect(worksheet).have.property("tables")
-            .and.to.be.an("array");
-            expect(worksheet).have.property("tempHiddenTables")
-            .and.to.be.an("array");
-            expect(worksheet).have.property("undoneTables")
-            .and.to.be.an("array");
-            expect(worksheet).have.property("lockedTables")
-            .and.to.be.an("array");
-        });
-
-        it("Should have basic getter", function() {
-            var worksheet = new WorksheetObj({
-                "id": "testId2",
-                "name": "testName2",
-                "date": "testDate"
-            });
-
-            expect(worksheet.getId()).to.equal("testId2");
-            expect(worksheet.getName()).to.equal("testName2");
-
-            worksheet.setName("testName3");
-            expect(worksheet.getName()).to.equal("testName3");
-        });
-
-        it("Should add table to worksheet", function() {
-            var worksheet = new WorksheetObj({
-                "id": "testId",
-                "name": "testName",
-            });
-
-            // error case1
-            var res = worksheet.addTable();
-            expect(res).to.be.false;
-
-            // error case2
-            res = worksheet.addTable("tableId", "invalidType");
-            expect(res).to.be.false;
-
-            var count = 0;
-            for (var key in WSTableType) {
-                var tableType = WSTableType[key];
-                var tableId = "tableId";
-                res = worksheet.addTable(tableId, tableType);
-                expect(res).to.be.true;
-                expect(worksheet[tableType].length).to.be.equal(1);
-                count++;
-            }
-
-            // error case 3
-            res = worksheet.addTable("tableId", WSTableType.Active);
-            expect(res).to.be.false;
-        });
-    });
-
     describe("WKBK Constructor Test", function() {
         it("Should hanlde create error", function() {
             try {
@@ -2371,7 +2266,7 @@ describe("Persistent Constructor Test", function() {
                 "curUser": "testUser",
                 "created": 1234,
                 "modified": 2234,
-                "numWorksheets": 12,
+                "numDFs": 12,
                 "resource": true,
                 "description": "testDescription",
                 "sessionId": 'testSessionId',
@@ -2394,7 +2289,7 @@ describe("Persistent Constructor Test", function() {
             .and.to.equal(1234);
             expect(wkbk).to.have.property("modified")
             .and.to.equal(2234);
-            expect(wkbk).to.have.property("numWorksheets")
+            expect(wkbk).to.have.property("numDFs")
             .and.to.equal(12);
             expect(wkbk).to.have.property("resource")
             .and.to.be.true;
@@ -2413,7 +2308,7 @@ describe("Persistent Constructor Test", function() {
                 "curUser": "testUser",
                 "created": 1234,
                 "modified": 2234,
-                "numWorksheets": 12,
+                "numDFs": 12,
                 "description": "testDescription"
             });
 
@@ -2422,7 +2317,7 @@ describe("Persistent Constructor Test", function() {
             expect(wkbk.getCreateTime()).to.equal(1234);
             expect(wkbk.getModifyTime()).to.equal(2234);
             expect(wkbk.getSrcUser()).to.equal("testUser");
-            expect(wkbk.getNumWorksheets()).to.equal(12);
+            expect(wkbk.getNumDataflows()).to.equal(12);
             expect(wkbk.isNoMeta()).to.be.false;
             expect(wkbk.getDescription()).to.equal("testDescription");
 

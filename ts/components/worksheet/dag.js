@@ -39,20 +39,20 @@ window.Dag = (function($, Dag) {
             var addDFTooltip = TooltipTStr.AddDataflow;
 
             var isTableInActiveWS = false;
-            var targetWS;
-            if (options.wsId) {
-                targetWS = options.wsId;
-            } else if (oldTableId != null) {
-                targetWS = WSManager.getWSFromTable(oldTableId);
-            } else {
-                targetWS = WSManager.getActiveWS();
-            }
+            // var targetWS;
+            // if (options.wsId) {
+            //     targetWS = options.wsId;
+            // } else if (oldTableId != null) {
+            //     targetWS = WSManager.getWSFromTable(oldTableId);
+            // } else {
+            //     targetWS = WSManager.getActiveWS();
+            // }
 
-            if (WSManager.getActiveWS() === targetWS) {
-                isTableInActiveWS = true;
-            }
+            // if (WSManager.getActiveWS() === targetWS) {
+            //     isTableInActiveWS = true;
+            // }
             var dagClasses = isTableInActiveWS ? "" : "inActive";
-            dagClasses += " worksheet-" + targetWS;
+            // dagClasses += " worksheet-" + targetWS;
             var outerDag =
                 '<div class="dagWrap clearfix ' + dagClasses +
                    '" id="dagWrap-' + tableId + '" data-id="' + tableId + '">' +
@@ -114,8 +114,9 @@ window.Dag = (function($, Dag) {
                 var $oldDag =  $("#dagWrap-" + oldTableId);
                 $oldDag.after(outerDag);
             } else {
-                var position = xcHelper.getTableIndex(targetWS, options.position,
-                                             '.dagWrap');
+                // var position = xcHelper.getTableIndex(targetWS, options.position,
+                //                              '.dagWrap');
+                var position = 0;
                 if (position === 0) {
                     $(".dagArea").find(".legendArea").after(outerDag);
                 } else {
@@ -333,8 +334,9 @@ window.Dag = (function($, Dag) {
         if ($dagPanel.hasClass("xc-hidden")) {
             return true;
         }
-        var activeWS = WSManager.getActiveWS();
-        var $visibleDagWraps = $(".dagWrap.worksheet-" + activeWS);
+        // var activeWS = WSManager.getActiveWS();
+        // var $visibleDagWraps = $(".dagWrap.worksheet-" + activeWS);
+        var $visibleDagWraps = $(".dagWrap");
         var $tables = Dag.getTableIconByName($visibleDagWraps, tableName);
         var $table;
         var dagWrapId;
@@ -343,8 +345,8 @@ window.Dag = (function($, Dag) {
             if ($tables.length) {
                 $table = $tables.eq(0);
                 dagWrapId = $table.closest(".dagWrap").data("id");
-                var wsId = WSManager.getWSFromTable(dagWrapId);
-                WSManager.focusOnWorksheet(wsId);
+                // var wsId = WSManager.getWSFromTable(dagWrapId);
+                // WSManager.focusOnWorksheet(wsId);
             }
         } else {
             $table = $tables.eq(0);
@@ -2155,11 +2157,7 @@ window.Dag = (function($, Dag) {
                 if (gTables.hasOwnProperty(icvTableId)) {
                     // Find out whether it's already active. If so, focus on it
                     // Else add it to worksheet
-                    if (TableList.checkTableInList(icvTableId)) {
-                        // Table is in active list. Simply focus
-                        DagFunction.focusTable(icvTableId);
-                        return true;
-                    } else if (gTables[icvTableId].getType() === TableType.Undone) {
+                    if (gTables[icvTableId].getType() === TableType.Undone) {
                         // Going to revert to it
                         gTables[origTableId].icv = "";
                         return false;
@@ -2178,6 +2176,7 @@ window.Dag = (function($, Dag) {
         return false;
     }
 
+    // XXX TODO: move it to DF2
     Dag.generateIcvTable = function(headerTableId, mapTableName, $tableIcon) {
         var origTableId = xcHelper.getTableId(mapTableName);
         // Check whether this table already exists. If it does, then just add
@@ -2389,14 +2388,7 @@ window.Dag = (function($, Dag) {
                 // Just leave the tableCols empty and let the user pull it
             }
 
-            options.focusWorkspace = scrollChecker.checkScroll();
-            var worksheet = WSManager.getWSFromTable(origTableId);
-            if (!worksheet) {
-                worksheet = WSManager.getActiveWS();
-            }
-
-            return TblManager.refreshTable([newTableName], newCols, [],
-                                           worksheet, txId, options);
+            return TblManager.refreshTable([newTableName], newCols, [], txId);
         }
     };
 
@@ -2467,11 +2459,7 @@ window.Dag = (function($, Dag) {
             if (gTables[complementTableId]) {
                 // Find out whether it's already active. If so, focus on it
                 // Else add it to worksheet
-                if (TableList.checkTableInList(complementTableId)) {
-                    // Table is in active list. Simply focus
-                    DagFunction.focusTable(complementTableId);
-                    return true;
-                } else if (gTables[complementTableId].getType() ===
+                if (gTables[complementTableId].getType() ===
                             TableType.Undone) {
                     // Going to revert to it
                     gTables[origTableId].complement = "";

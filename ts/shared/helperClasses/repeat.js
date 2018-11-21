@@ -1,9 +1,6 @@
 window.Repeat = (function($, Repeat) {
     var repeatFuncs = {};
-    var wsOperations = [SQLOps.AddWS, SQLOps.HideWS, SQLOps.DelWS];
-    var tableOperations = [SQLOps.MakeTemp,
-                           SQLOps.HideTable, SQLOps.UnhideTable,
-                           SQLOps.MoveTableToWS,
+    var tableOperations = [SQLOps.HideTable, SQLOps.UnhideTable,
                            SQLOps.DeleteTable, SQLOps.SortTableCols,
                            SQLOps.ResizeTableCols];
 
@@ -18,30 +15,6 @@ window.Repeat = (function($, Repeat) {
         var tableId;
 
         if (repeatFuncs.hasOwnProperty(operation)) {
-            if (wsOperations.indexOf(operation) === -1) {
-                var $ths = $(".xcTable th.selectedCell");
-                if (tableOperations.indexOf(operation) > -1) {
-                    tableId = xcHelper.getFocusedTable();
-                    if (tableId == null) {
-                        return PromiseHelper.reject();
-                    }
-                    $ths.each(function() {
-                        colNums.push(xcHelper.parseColNum($(this)));
-                    });
-                } else {
-                    // not a worksheet or table operation, so it's a column
-                    // operation. Must have at least 1 selected column.
-                    if (!$ths.length) {
-                        return PromiseHelper.reject();
-                    }
-                    var $table = $ths.closest(".xcTable");
-                    tableId = xcHelper.parseTableId($table);
-                    $ths.each(function() {
-                        colNums.push(xcHelper.parseColNum($(this)));
-                    });
-                }
-            }
-
             var minModeCache = gMinModeOn;
             // do not use any animation
             gMinModeOn = true;
@@ -90,46 +63,6 @@ window.Repeat = (function($, Repeat) {
         // XXX return if columns have different orders
         return ColManager.sortColumn(colNums, tableId, order);
     };
-
-    // currently only works on 1 column
-    repeatFuncs[SQLOps.SplitCol] = function(options, colNums, tableId) {
-        if (colNums.length !== 1) {
-            return PromiseHelper.resolve(null);
-        }
-        var progCol = gTables[tableId].getCol(colNums[0]);
-        if (progCol.getType() !== ColumnType.string) {
-            return PromiseHelper.resolve(null);
-        }
-
-        var delimiter = options.delimiter;
-        var numColToGet = options.numColToGet;
-        var colNames = options.colNames;
-        return ColManager.splitCol(colNums[0], tableId, delimiter, numColToGet,
-            colNames);
-    };
-
-    repeatFuncs[SQLOps.ChangeType] = function(options, colNums, tableId) {
-        var colTypeInfos = [];
-        var type = options.colTypeInfos[0].type;
-        for (var i = 0; i < colNums.length; i++) {
-            colTypeInfos.push({colNum: colNums[i], type: type});
-        }
-        return ColManager.changeType(colTypeInfos, tableId);
-    };
-
-    // repeatFuncs[SQLOps.Project] = function(options, colNums, tableId) {
-    //     var table = gTables[tableId];
-    //     var colNames = [];
-    //     for (var i = 0; i < colNums.length; i++) {
-    //         var col = table.getCol(colNums[i]);
-    //         colNames.push(col.getBackColName());
-    //     }
-    //     return xcFunction.project(colNames, tableId);
-    // };
-
-    // repeatFuncs[SQLOps.Ext] = function(options) {
-    // };
-
     /* END BACKEND OPERATIONS */
 
     /* USER STYLING/FORMATING OPERATIONS */
@@ -161,22 +94,9 @@ window.Repeat = (function($, Repeat) {
         return PromiseHelper.resolve(null);
     };
 
-    repeatFuncs[SQLOps.Round] = function(options, colNums, tableId) {
-        return ColManager.round(colNums, tableId, options.decimal);
-    };
-
     /* END USER STYLING/FORMATING OPERATIONS */
 
     /* Table Operations */
-
-    // repeatFuncs[SQLOps.ActiveTables] = function(options) {
-    //     // redo sent to worksheet
-    // };
-
-    repeatFuncs[SQLOps.MakeTemp] = function(options, colNums, tableId) {
-        return TblManager.sendTableToTempList([tableId]);
-    };
-
     repeatFuncs[SQLOps.HideTable] = function(options, colNums, tableId) {
         TblManager.hideTable(tableId);
         return PromiseHelper.resolve(null);
@@ -239,39 +159,5 @@ window.Repeat = (function($, Repeat) {
         return PromiseHelper.resolve(null);
     };
     // /* End of Table Operations */
-
-    /* Worksheet Operations */
-    repeatFuncs[SQLOps.AddWS] = function() {
-        WSManager.addWS();
-        return PromiseHelper.resolve(null);
-    };
-
-
-    repeatFuncs[SQLOps.MoveTableToWS] = function(options, colNums, tableId) {
-        if (WSManager.getActiveWS() !== options.newWorksheetId) {
-            WSManager.moveTable(tableId, options.newWorksheetId);
-        }
-        return PromiseHelper.resolve(null);
-    };
-
-    // repeatFuncs[SQLOps.MoveTemporaryTableToWS] = function(options) {
-    // };
-
-    repeatFuncs[SQLOps.HideWS] = function() {
-        if (WSManager.getNumOfWS() > 1) {
-            WSManager.hideWS(WSManager.getActiveWS());
-        }
-        return PromiseHelper.resolve(null);
-    };
-
-    // XXX weird behavior if repeating a delete table with delete ws
-    // repeatFuncs[SQLOps.DelWS] = function(options) {
-    //     if (WSManager.getNumOfWS() > 1) {
-    //         return WSManager.delWSCheck(WSManager.getActiveWS());
-    //     }
-    //     return PromiseHelper.resolve(null);
-    // };
-    /* End of Worksheet Operation */
-
     return (Repeat);
 }(jQuery, {}));

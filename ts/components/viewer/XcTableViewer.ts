@@ -202,20 +202,13 @@ class XcTableViewer extends XcViewer {
                     '<div class="sizer"></div>' +
                 '</div>';
         const $view: JQuery = this.getView();
-        if (this instanceof XcTableInWSViewer) {
-            $view.attr("id", "xcTableWrap-" + tableId)
-             .attr("data-id", tableId)
-             .addClass("xcTableWrap tableWrap building");
-            $view.html(xcTableShell);
-        } else {
-            const xcTableWrap: string =
-            '<div id="xcTableWrap-' + tableId + '"' +
-                ' class="xcTableWrap tableWrap building" ' +
-                'data-id="' + tableId + '">' +
-                xcTableShell +
-            '</div>';
-            $view.html(xcTableWrap);
-        }
+        const xcTableWrap: string =
+        '<div id="xcTableWrap-' + tableId + '"' +
+            ' class="xcTableWrap tableWrap building" ' +
+            'data-id="' + tableId + '">' +
+            xcTableShell +
+        '</div>';
+        $view.html(xcTableWrap);
 
         const tableShell: string = TblManager.generateTheadTbody(tableId);
         const tableHtml: string =

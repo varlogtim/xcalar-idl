@@ -881,6 +881,7 @@ window.SQLEditor = (function(SQLEditor, $) {
         }
     }
 
+    // XXX TODO: update it
     function focusOnTableColumn($listCol, tableId) {
         var colNum = $listCol.index();
         var tableCols = gTables[tableId].getAllCols();
@@ -894,8 +895,8 @@ window.SQLEditor = (function(SQLEditor, $) {
         }
         colNum = colNum + 1;
 
-        var wsId = WSManager.getWSFromTable(tableId);
-        $('#worksheetTab-' + wsId).trigger(fakeEvent.mousedown);
+        // var wsId = WSManager.getWSFromTable(tableId);
+        // $('#worksheetTab-' + wsId).trigger(fakeEvent.mousedown);
         xcHelper.centerFocusedColumn(tableId, colNum);
     }
 

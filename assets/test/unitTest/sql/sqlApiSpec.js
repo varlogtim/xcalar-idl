@@ -247,7 +247,7 @@ describe("SQLApi Test", function() {
         it("_refreshTable should work", function(done) {
             var oldGQTC = sqlApi._getQueryTableCols;
             var oldAMFI = sqlApi._addMetaForImmediates;
-            var oldGAWS = WSManager.getActiveWS;
+            // var oldGAWS = WSManager.getActiveWS;
             var oldRT = TblManager.refreshTable;
             var oldXGD = XcalarGetDag;
             var testTable;
@@ -264,9 +264,9 @@ describe("SQLApi Test", function() {
                 testConstants = constants;
                 return PromiseHelper.resolve();
             };
-            WSManager.getActiveWS = function() {
-                return PromiseHelper.resolve();
-            };
+            // WSManager.getActiveWS = function() {
+            //     return PromiseHelper.resolve();
+            // };
             TblManager.refreshTable = function() {
                 test = true;
                 return PromiseHelper.resolve();
@@ -296,7 +296,7 @@ describe("SQLApi Test", function() {
             .always(function() {
                 sqlApi._getQueryTableCols = oldGQTC;
                 sqlApi._addMetaForImmediates = oldAMFI;
-                WSManager.getActiveWS = oldGAWS;
+                // WSManager.getActiveWS = oldGAWS;
                 TblManager.refreshTable = oldRT;
                 XcalarGetDag = oldXGD;
             });
@@ -308,6 +308,7 @@ describe("SQLApi Test", function() {
             var oldXMRSFT = XcalarMakeResultSetFromTable;
             var oldXGNP = XcalarGetNextPage;
             var oldAddAgg = Aggregates.addAgg;
+            // XXX TODO: update it
             var oldRCL = TableList.refreshConstantList;
             var oldXSF = XcalarSetFree;
             var testTable = null;
@@ -332,6 +333,7 @@ describe("SQLApi Test", function() {
             Aggregates.addAgg = function() {
                 return PromiseHelper.resolve();
             };
+            // XXX TODO: update it
             TableList.refreshConstantList = function() {
                 return PromiseHelper.resolve();
             };
@@ -370,6 +372,7 @@ describe("SQLApi Test", function() {
                 XcalarMakeResultSetFromTable = oldXMRSFT;
                 XcalarGetNextPage = oldXGNP;
                 Aggregates.addAgg = oldAddAgg;
+                // XXX TODO: update it
                 TableList.refreshConstantList = oldRCL;
                 XcalarSetFree = oldXSF;
             });

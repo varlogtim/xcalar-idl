@@ -81,12 +81,6 @@ body {
     }
 
     &.noWorkbook {
-        #workspacePanel {
-            display: none;
-            #dagPanelContainer, .xcTableWrap, #rowInputArea {
-                display: none !important;
-            }
-        }
         #monitorMenu {
             .support > ul { // disable release memory
                 li:last-child {
@@ -723,15 +717,6 @@ body {
     z-index: @z-index-statusBar;
     .transition(@time-menuAnim all); // for main menu animation
 
-    &.worksheetMode {
-        #dfPanelSwitch {
-            display: block;
-        }
-        #pageStatusText .menuIcon {
-            display: block;
-        }
-    }
-
     .workspaceArea {
         .size(@height: 15px);
         .font(@size: 13px, @line-height: 13px);
@@ -813,23 +798,6 @@ body {
 
         }
     }
-}
-
-#pageStatusMenu {
-    li {
-        line-height: 18px;
-    }
-
-    .icon {
-        .font(@size: 18px, @color: @color-white);
-    }
-}
-
-#dfPanelSwitch {
-    .position(absolute, @right: 5px, @bottom: 2px);
-    .size(29px, 29px);
-    z-index: @z-index-statusBar + 1;
-    display: none; // display block if in worksheet subpanel
 }
 
 
@@ -1285,12 +1253,6 @@ input {
         .detailContent {
             display: none;
         }
-    }
-
-    // specific styling for fnbar error
-    .mismatchBracket {
-        color: @color-error-border;
-        font-weight: bold;
     }
 
     &.active {

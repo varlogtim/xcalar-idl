@@ -468,8 +468,8 @@ describe("Transaction Test", function() {
             var deleteCache = gAlwaysDelete;
             gAlwaysDelete = true;
             var called1 = false;
-            var cachedFn1 = TableList.refreshOrphanList;
-            TableList.refreshOrphanList = function() {
+            var cachedFn1 = TblManager.refreshOrphanList;
+            TblManager.refreshOrphanList = function() {
                 called1 = true;
                 return PromiseHelper.resolve();
             }
@@ -483,7 +483,7 @@ describe("Transaction Test", function() {
 
             Transaction.__testOnly__.transactionCleaner();
 
-            TableList.refreshOrphanList = cachedFn1;
+            TblManager.refreshOrphanList = cachedFn1;
             TblManager.deleteTables = cachedFn2;
 
             gAlwaysDelete = deleteCache;

@@ -4,12 +4,10 @@ window.Aggregates = (function(Aggregates, $) {
 
     Aggregates.restore = function(aggInfos) {
         aggs = aggInfos || {};
-        FnBar.updateAggMap(aggs);
     };
 
     Aggregates.clear = function() {
         aggs = {};
-        FnBar.updateAggMap(aggs);
     };
 
     // Get all aggregate information
@@ -64,14 +62,12 @@ window.Aggregates = (function(Aggregates, $) {
             console.warn("Aggregate result already exists!");
         } else {
             container[name] = new Agg(aggRes);
-            FnBar.updateAggMap(aggs);
         }
     };
 
     // remove one entry of aggregate information
     Aggregates.removeAgg = function(dagName) {
         delete aggs[dagName];
-        FnBar.updateAggMap(aggs);
     };
 
     // deletes from backend

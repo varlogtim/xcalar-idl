@@ -4,7 +4,6 @@
     <li class="copyTableName"><%= dicts.MenuTStr.CopyTbl %></li>
     <li class="hideTable"><span class="label"><%= dicts.MenuTStr.HideTbl %></span></li>
     <li class="unhideTable"><span class="label"><%= dicts.MenuTStr.UnHideTbl %></span></li>
-    <li class="makeTempTable"><span class="label"><%= dicts.MenuTStr.SendToTemp %></span></li>
     <li class="deleteTable"><span class="label"><%= dicts.MenuTStr.DelTbl %></span></li>
     <li class="exportTable"><span class="label"><%= dicts.MenuTStr.ExportTbl %></span><span class="ellipsis">...</span></li>
     <li class="multiCast"><span class="label"><%= dicts.MenuTStr.SmartCast %></span><span class="ellipsis">...</span></li>
@@ -15,9 +14,6 @@
     <li class="jupyterTable">
       <span class="label"><%= dicts.MenuTStr.Jupyter %></span>
       <span class="ellipsis">...</span>
-    </li>
-    <li class="moveTable parentMenu" data-submenu="moveTable">
-      <%= dicts.MenuTStr.Move %>
     </li>
     <div class="divider identityDivider"></div>
     <li class="sortByName parentMenu" data-submenu="sortByName" data-option="name">
@@ -49,21 +45,6 @@
 </div>
 <!-- tableSubMenu -->
 <div id="tableSubMenu" class="menu subMenu">
-  <ul class="moveTable hasDropdown">
-    <li class="moveLeft"><%= dicts.MenuTStr.MoveLeft %></li>
-    <li class="moveRight"><%= dicts.MenuTStr.MoveRight %></li>
-    <li class="clickable moveToWorksheet" data-toggle="tooltip"
-    data-placement="top"
-    title="<%= TooltipTStr.NoWSToMV %>">
-      <span><%= dicts.MenuTStr.MVWS %></span>
-      <div class="dropDownList">
-        <input class="wsName" type="text"
-        placeholder="<%= dicts.common.ClickToOpts %>"
-        spellcheck="false" />
-        <ul class="list wsList"></ul>
-      </div>
-    </li>
-  </ul>
   <ul class="sortByName">
     <li class="sortForward">
       <i class="icon blue fa-15 xi-arrowtail-up sortUp"></i>

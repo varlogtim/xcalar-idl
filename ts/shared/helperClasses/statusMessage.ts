@@ -11,7 +11,6 @@ namespace StatusMessage {
     }
 
     interface MsgObject {
-        worksheetNum?: string // need to change name because it is a string
         msg?: string
     }
 
@@ -70,7 +69,6 @@ namespace StatusMessage {
 
         private setup(): void {
             const self = this;
-            const $statusMenu: JQuery = $("#pageStatusMenu");
 
             self.$statusText.on('click', '.close', function() {
                 self.removeFailedMsg($(this).parent());
@@ -78,32 +76,11 @@ namespace StatusMessage {
 
             self.$statusText.on('click', '.close', function() {
                 self.removeFailedMsg($(this).parent());
-            });
-
-            self.$statusText.on("click", ".menuIcon", function() {
-                xcHelper.dropdownOpen($(this), $statusMenu, {
-                    "floating": true,
-                    "toggle": true,
-                    "offsetY": -6
-                });
-            });
-
-            xcMenu.add($statusMenu);
-            $statusMenu.on("mouseup", "li", function() {
-                const $li: JQuery = $(this);
-                if ($li.hasClass("activeWS")) {
-                    return;
-                }
-
-                const ws: string = $li.data("ws");
-                WSManager.switchWS(ws);
             });
         }
 
         // msgObj should have these properties: msg, operation
         public addMsg(msgObj: MsgObject = {}): number {
-            msgObj.worksheetNum = WSManager.getActiveWS();
-
             const msg: string = msgObj.msg || StatusMessageTStr.Loading;
             this.msgIdCount++;
             this.messages.push(this.msgIdCount);
@@ -421,6 +398,7 @@ namespace StatusMessage {
             }
         }
 
+        // XXX TODO: update it
         private showDoneNotification(
             msgId: number,
             failed: boolean,
@@ -484,36 +462,30 @@ namespace StatusMessage {
                     }
                     popupNeeded = true;
                 }
-            } else if (!$('#workspaceTab').hasClass('active') ||
-                    !$("#worksheetButton").hasClass("active")) {
+            } else if (!$('#modelingDataflowTab').hasClass('active')) {
                 $popups = $('.tableDonePopup.workspaceNotify');
                 if ($popups.length !== 0) {
                     $popupWrap = $popups.parent();
                     $popupWrap.append($tableDonePopup);
                     popupWrapExists = true;
                 } else {
-                    $popupNearTab = $('#workspaceTab');
+                    $popupNearTab = $('#modelingDataflowTab');
                 }
                 classes += ' workspaceNotify';
                 popupNeeded = true;
             } else {
-                const wsId: string = this.msgObjs[msgId].worksheetNum;
-                const activeWS: string = WSManager.getActiveWS() || "";
-
-                if (wsId !== activeWS || tableId == null) {
-                    // we're on a different worksheet than the table is on
-                    // so position the popup next to the worksheet tab
+                if ($("#dagViewTableArea").is(":visible")) {
+                    // when dag table is not visible
                     popupNeeded = true;
-                    $popups = $('.tableDonePopup.worksheetNotify' + wsId);
+                    $popups = $('.tableDonePopup.worksheetNotify');
                     if ($popups.length !== 0) {
                         $popupWrap = $popups.parent();
                         $popupWrap.prepend($tableDonePopup);
                         popupWrapExists = true;
                     } else {
-                        $popupNearTab = $('#workspaceTab');
+                        $popupNearTab = $('#modelingDataflowTab');
                     }
                     classes += ' worksheetNotify';
-                    classes += ' worksheetNotify' + wsId;
                 } else {
                     // we're on the correct worksheet, now find if table is visible
                     const visibility: string = this.tableVisibility(tableId);
@@ -559,10 +531,9 @@ namespace StatusMessage {
                 if (status.indexOf('failed') === -1 &&
                     (classes.indexOf('right') > -1 ||
                     classes.indexOf('left') > -1)) {
-                    // detects if user scrolls to table. If so, remove mainFrame
-                    // scroll Listener
+                    // detects if user scrolls to table. If so, remove scroll Listener
                     let scrollTimer: number;
-                    $('#mainFrame').on('scroll.' + msgId, function() {
+                    $('#dagViewTableArea .viewWrap').on('scroll.' + msgId, function() {
                         clearTimeout(scrollTimer);
                         scrollTimer = window.setTimeout(removePopUpIfScrolledToTable, 100);
                     });
@@ -612,7 +583,7 @@ namespace StatusMessage {
                                 } else {
                                     $tableDonePopup.remove();
                                 }
-                                $('#mainFrame').off('scroll.' + msgId);
+                                $('#dagViewTableArea .viewWrap').off('scroll.' + msgId);
                             });
                         }, displayTime);
                     });
@@ -623,7 +594,7 @@ namespace StatusMessage {
                 const isInScreen: boolean = xcHelper.isTableInScreen(newTableId);
                 if (isInScreen) {
                     $tableDonePopup.remove();
-                    $('#mainFrame').off('scroll.' + msgId);
+                    $('#dagViewTableArea .viewWrap').off('scroll.' + msgId);
                 }
             }
 
@@ -649,19 +620,9 @@ namespace StatusMessage {
 
                 if ($popup.data('tableid') != null) {
                     const tableId: string = $popup.data('tableid');
-                    const wsId: string = WSManager.getWSFromTable(tableId);
                     const $tableWrap: JQuery = $('#xcTableWrap-' + tableId);
-
-                    MainMenu.openPanel("workspacePanel", "worksheetButton");
-
-                    if (!$('#dagPanel').hasClass('xc-hidden') &&
-                        $('#dagPanel').css('top') === "0px") {
-                        $('#closeDag').click();
-                    }
-
-                    if (wsId) {
-                        $('#worksheetTab-' + wsId).click();
-                    }
+                    // XXX TODO: update it
+                    MainMenu.openPanel("dagPanel", null);
 
                     if ($tableWrap.length) {
                         xcHelper.centerFocusedTable($tableWrap, true);
@@ -681,7 +642,7 @@ namespace StatusMessage {
                 } else {
                     $popup.remove();
                 }
-                $('#mainFrame').off('scroll.' + msgId);
+                $('#dagViewTableArea .viewWrap').off('scroll.' + msgId);
                 $(document).mouseup(self.removeSelectionRange);
             });
 
@@ -700,19 +661,12 @@ namespace StatusMessage {
                 } else {
                     $popup.remove();
                 }
-                $('#mainFrame').off('scroll.' + msgId);
+                $('#dagViewTableArea .viewWrap').off('scroll.' + msgId);
                 $(document).mouseup(self.removeSelectionRange);
             });
         }
 
         private tableVisibility(tableId: TableId): string | null {
-            const wsId: string = WSManager.getWSFromTable(tableId);
-            const activeWS: string = WSManager.getActiveWS();
-
-            if (wsId !== activeWS) {
-                return null;
-            }
-
             let position: string;
             const $table: JQuery = $("#xcTable-" + tableId);
             if (!$table.length) {

@@ -83,24 +83,6 @@ describe('TableMenu Test', function() {
                 TblManager.unHideTable = cachedFunc;
             });
 
-
-            it('unhideTable', function() {
-                var cachedFunc = TblManager.sendTableToTempList;
-                var called = false;
-                TblManager.sendTableToTempList = function(tId) {
-                    expect(tId[0]).to.equal(tableId);
-                    called = true;
-                };
-
-                $tableMenu.find('.makeTempTable').trigger(rightMouseup);
-                expect(called).to.be.false;
-
-                $tableMenu.find('.makeTempTable').trigger(fakeEvent.mouseup);
-                expect(called).to.be.true;
-
-                TblManager.sendTableToTempList = cachedFunc;
-            });
-
             it('deleteTable', function() {
                 var cachedFunc = TblManager.deleteTables;
                 var called = false;
@@ -284,19 +266,6 @@ describe('TableMenu Test', function() {
                 AggModal.corrAgg = cachedFunc;
             });
 
-            it('moveTable', function() {
-                var cachedFunc = WSManager.getWSLists;
-                var called = false;
-                WSManager.getWSLists = function() {
-                    called = true;
-                };
-
-                $tableMenu.find('.moveTable').trigger('mouseenter');
-                expect(called).to.be.true;
-
-                WSManager.getWSLists = cachedFunc;
-            });
-
             it('createDf', function() {
                 var cachedFunc = DFCreateView.show;
                 var called = false;
@@ -464,74 +433,6 @@ describe('TableMenu Test', function() {
         });
 
         describe('submenu', function() {
-            it('moveTable input', function() {
-                var $list = $tableSubMenu.find(".list");
-                $list.empty().append(WSManager.getWSLists(true));
-
-                var curWsId = WSManager.getActiveWS();
-                var wsName = WSManager.getWSById(curWsId).getName();
-
-                var cachedFunc = WSManager.moveTable;
-                var called = false;
-                WSManager.moveTable = function(tId, wId) {
-                    expect(tId).to.equal(tableId);
-                    expect(wId).to.equal(curWsId);
-                    called = true;
-                };
-
-                $tableSubMenu.find('.moveTable input').val("");
-                $tableSubMenu.find('.moveTable input').trigger(fakeEvent.enter);
-                expect(called).to.be.false;
-
-                $tableSubMenu.find('.moveTable input').val("");
-                $tableSubMenu.find('.moveTable input').trigger(fakeEvent.enter);
-                expect(called).to.be.false;
-
-                $tableSubMenu.find('.moveTable input').val(wsName);
-                $tableSubMenu.find('.moveTable input').trigger(fakeEvent.enter);
-                expect(called).to.be.true;
-
-                WSManager.moveTable = cachedFunc;
-            });
-
-            it('moveLeft', function() {
-                var cachedFunc = TblFunc.reorderAfterTableDrop;
-                var called = false;
-                TblFunc.reorderAfterTableDrop = function(tId, srcIdx, desIdx) {
-                    expect(tId).to.equal(tableId);
-                    expect(desIdx).to.equal(srcIdx - 1);
-                    called = true;
-                };
-
-                $tableSubMenu.find('.moveLeft').trigger(rightMouseup);
-                expect(called).to.be.false;
-
-                $tableSubMenu.find('.moveLeft').removeClass('unavailable');
-                $tableSubMenu.find('.moveLeft').trigger(fakeEvent.mouseup);
-                expect(called).to.be.true;
-
-                TblFunc.reorderAfterTableDrop = cachedFunc;
-            });
-
-            it('moveRight', function() {
-                var cachedFunc = TblFunc.reorderAfterTableDrop;
-                var called = false;
-                TblFunc.reorderAfterTableDrop = function(tId, srcIdx, desIdx) {
-                    expect(tId).to.equal(tableId);
-                    expect(desIdx).to.equal(srcIdx + 1);
-                    called = true;
-                };
-
-                $tableSubMenu.find('.moveRight').trigger(rightMouseup);
-                expect(called).to.be.false;
-
-                $tableSubMenu.find('.moveRight').removeClass('unavailable');
-                $tableSubMenu.find('.moveRight').trigger(fakeEvent.mouseup);
-                expect(called).to.be.true;
-
-                TblFunc.reorderAfterTableDrop = cachedFunc;
-            });
-
             it('sortForward by name', function(done) {
                 var cachedFunc = TblManager.sortColumns;
                 var called = false;
@@ -1059,70 +960,6 @@ describe('TableMenu Test', function() {
                 ColManager.format = cachedFunc;
             });
 
-            it('digitsToRound', function() {
-                var cachedFunc = ColManager.round;
-                var called = false;
-                ColManager.round = function(colNums, tId, decimal) {
-                    expect(colNums[0]).to.equal(1);
-                    expect(tId).to.equal(tableId);
-                    expect(decimal).to.equal(3);
-                    called = true;
-                };
-
-
-                $colSubMenu.find('.digitsToRound').eq(0).val("3");
-
-                $colSubMenu.find('.digitsToRound').eq(0).trigger({
-                    type: "keypress",
-                    which: 1
-                });
-                expect(called).to.be.false;
-
-                $colSubMenu.find('.digitsToRound').eq(0).trigger(fakeEvent.enter);
-                expect(called).to.be.true;
-
-                ColManager.round = cachedFunc;
-            });
-
-            it('digitsToRound invalid', function() {
-                var cachedFunc = ColManager.round;
-                var called = false;
-                ColManager.round = function() {
-                    called = true;
-                };
-
-                $colSubMenu.find('.digitsToRound').eq(0).val("x");
-
-                $colSubMenu.find('.digitsToRound').eq(0).trigger(fakeEvent.enter);
-                expect(called).to.be.false;
-
-                UnitTest.hasStatusBoxWithError("Please enter a value between 0 and 14.");
-
-                ColManager.round = cachedFunc;
-            });
-
-            it('splitCol input', function() {
-                var cachedFunc = ColManager.splitCol;
-                var called = false;
-                ColManager.splitCol = function(colNum, tId, delim, numColToGet,
-                    colNames) {
-                    expect(colNum).to.equal(12);
-                    expect(tId).to.equal(tableId);
-                    expect(delim).to.equal("\\");
-                    expect(numColToGet).to.equal(3);
-                    expect(colNames).to.deep.equal(["a", "b"]);
-                    called = true;
-                };
-                $colMenu.data("colNums", [12]);
-                $colSubMenu.find('.splitCol .delimiter').val("\\");
-                $colSubMenu.find('.splitCol .num').val(3);
-                $colSubMenu.find('.splitCol .colNames').val("a, b");
-                $colSubMenu.find('.splitCol input').eq(0).trigger(fakeEvent.enter);
-                expect(called).to.be.true;
-
-                ColManager.splitCol = cachedFunc;
-            });
-
             it("corrAgg", function() {
                 var cachedFunc = AggModal.corrAgg;
                 var called = false;
@@ -1225,49 +1062,49 @@ describe('TableMenu Test', function() {
             });
 
             it('typeList', function() {
-                var cachedFunc = ColManager.changeType;
-                var called = false;
-                ColManager.changeType = function(colTypeInfos, tId) {
-                    expect(colTypeInfos.length).to.equal(1);
-                    expect(colTypeInfos[0].colNum).to.equal(12);
-                    expect(colTypeInfos[0].type).to.equal("boolean");
-                    expect(tId).to.equal(tableId);
-                    called = true;
-                    return PromiseHelper.resolve();
-                };
+                // var cachedFunc = ColManager.changeType;
+                // var called = false;
+                // ColManager.changeType = function(colTypeInfos, tId) {
+                //     expect(colTypeInfos.length).to.equal(1);
+                //     expect(colTypeInfos[0].colNum).to.equal(12);
+                //     expect(colTypeInfos[0].type).to.equal("boolean");
+                //     expect(tId).to.equal(tableId);
+                //     called = true;
+                //     return PromiseHelper.resolve();
+                // };
 
-                $colSubMenu.find('.typeList').eq(0).trigger(rightMouseup);
-                expect(called).to.be.false;
+                // $colSubMenu.find('.typeList').eq(0).trigger(rightMouseup);
+                // expect(called).to.be.false;
 
-                $colSubMenu.find('.typeList').eq(0).trigger(fakeEvent.mouseup);
-                expect(called).to.be.true;
+                // $colSubMenu.find('.typeList').eq(0).trigger(fakeEvent.mouseup);
+                // expect(called).to.be.true;
 
-                ColManager.changeType = cachedFunc;
+                // ColManager.changeType = cachedFunc;
             });
 
             it('multi typeList', function() {
-                var cachedFunc = ColManager.changeType;
-                var called = false;
-                ColManager.changeType = function(colTypeInfos, tId) {
-                    expect(colTypeInfos.length).to.equal(2);
-                    expect(colTypeInfos[0].colNum).to.equal(11);
-                    expect(colTypeInfos[0].type).to.equal("boolean");
-                    expect(colTypeInfos[1].colNum).to.equal(12);
-                    expect(colTypeInfos[1].type).to.equal("boolean");
-                    expect(tId).to.equal(tableId);
-                    called = true;
-                    return PromiseHelper.resolve();
-                };
+                // var cachedFunc = ColManager.changeType;
+                // var called = false;
+                // ColManager.changeType = function(colTypeInfos, tId) {
+                //     expect(colTypeInfos.length).to.equal(2);
+                //     expect(colTypeInfos[0].colNum).to.equal(11);
+                //     expect(colTypeInfos[0].type).to.equal("boolean");
+                //     expect(colTypeInfos[1].colNum).to.equal(12);
+                //     expect(colTypeInfos[1].type).to.equal("boolean");
+                //     expect(tId).to.equal(tableId);
+                //     called = true;
+                //     return PromiseHelper.resolve();
+                // };
 
-                $colMenu.data("colNums", [11,12]);
+                // $colMenu.data("colNums", [11,12]);
 
-                $colSubMenu.find('.typeList').eq(0).trigger(rightMouseup);
-                expect(called).to.be.false;
+                // $colSubMenu.find('.typeList').eq(0).trigger(rightMouseup);
+                // expect(called).to.be.false;
 
-                $colSubMenu.find('.typeList').eq(0).trigger(fakeEvent.mouseup);
-                expect(called).to.be.true;
+                // $colSubMenu.find('.typeList').eq(0).trigger(fakeEvent.mouseup);
+                // expect(called).to.be.true;
 
-                ColManager.changeType = cachedFunc;
+                // ColManager.changeType = cachedFunc;
             });
 
             it('sort', function() {

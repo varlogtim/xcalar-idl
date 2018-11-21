@@ -409,14 +409,11 @@ describe('QueryManager Test', function() {
             });
         });
 
+        // XXX TODO: update it
         it("focus on table output should work", function() {
             var fakeQuery = new XcQuery({});
             queryLists[999] = fakeQuery;
             $queryList.append("<div data-id='999' class='xc-query query active'></div>");
-            var cachedFn = WSManager.getWSFromTable;
-            WSManager.getWSFromTable = function() {
-                return true;
-            };
             fakeQuery.getOutputTableName = function() {
                 return "fakeTable#fakeId";
             };
@@ -433,7 +430,6 @@ describe('QueryManager Test', function() {
             $queryList.find(".query").last().remove();
             delete queryLists[999];
             delete gTables["fakeId"];
-            WSManager.getWSFromTable = cachedFn;
         });
 
         // it("focus on table output should work case 2", function(done) {

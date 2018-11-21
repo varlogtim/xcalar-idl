@@ -447,9 +447,6 @@ describe('IMD Test', function() {
                 return PromiseHelper.resolve();
             };
 
-            var cachedFn2 = WSManager.addWS;
-            WSManager.addWS = function() {};
-
             var cachedFn3 = TblManager.refreshTable;
             var called2 = false;
             TblManager.refreshTable = function(tNames) {
@@ -467,7 +464,6 @@ describe('IMD Test', function() {
                 expect(called).to.be.true;
                 expect(called2).to.be.true;
                 XcalarRefreshTable = cachedFn;
-                WSManager.addWS = cachedFn2;
                 TblManager.refreshTable = cachedFn3;
                 done();
             })
@@ -498,9 +494,6 @@ describe('IMD Test', function() {
                 return PromiseHelper.resolve();
             };
 
-            var cachedFn2 = WSManager.addWS;
-            WSManager.addWS = function() {};
-
             var cachedFn3 = TblManager.refreshTable;
             var called2 = false;
             TblManager.refreshTable = function(tNames) {
@@ -518,7 +511,6 @@ describe('IMD Test', function() {
                 expect(called).to.be.true;
                 expect(called2).to.be.true;
                 XcalarRefreshTable = cachedFn;
-                WSManager.addWS = cachedFn2;
                 TblManager.refreshTable = cachedFn3;
                 UnitTest.hasAlertWithTitle("Table refresh failed");
                 done();

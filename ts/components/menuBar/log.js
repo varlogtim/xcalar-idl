@@ -43,8 +43,8 @@ window.Log = (function($, Log) {
         $textarea = $("#log-TextArea");
         $machineTextarea = $("#log-MachineTextArea");
 
-        $undo = $("#undo, #dagViewBar .undo");
-        $redo = $("#redo, #dagViewBar .redo");
+        $undo = $("#undo");
+        $redo = $("#redo");
 
         initialize();
         addEvents();
@@ -456,33 +456,23 @@ window.Log = (function($, Log) {
     };
 
     Log.unlockUndoRedo = function() {
-        var hasLockedTables = false;
-        var allWS = WSManager.getWorksheets();
-        for (var ws in allWS) {
-            if (allWS[ws].lockedTables && allWS[ws].lockedTables.length) {
-                hasLockedTables = true;
-            }
+        var lastUndoMessage = $undo.data("lastmessage");
+        var lastUndoState = $undo.data("laststate");
+        $undo.removeClass("locked");
+        $redo.removeClass("locked");
+        if (lastUndoState !== "disabled") {
+            $undo.removeClass("disabled");
         }
 
-        if (!hasLockedTables) {
-            var lastUndoMessage = $undo.data("lastmessage");
-            var lastUndoState = $undo.data("laststate");
-            $undo.removeClass("locked");
-            $redo.removeClass("locked");
-            if (lastUndoState !== "disabled") {
-                $undo.removeClass("disabled");
-            }
+        xcTooltip.changeText($undo, lastUndoMessage);
 
-            xcTooltip.changeText($undo, lastUndoMessage);
-
-            var lastRedoMessage = $redo.data("lastmessage");
-            var lastRedoState = $redo.data("laststate");
-            if (lastRedoState !== "disabled") {
-                $redo.removeClass("disabled");
-            }
-
-            xcTooltip.changeText($redo, lastRedoMessage);
+        var lastRedoMessage = $redo.data("lastmessage");
+        var lastRedoState = $redo.data("laststate");
+        if (lastRedoState !== "disabled") {
+            $redo.removeClass("disabled");
         }
+
+        xcTooltip.changeText($redo, lastRedoMessage);
     };
 
     function initialize() {
@@ -752,7 +742,7 @@ window.Log = (function($, Log) {
             .then(function() {
                 // XXX test
                 console.info("Overwrite log");
-                WSManager.dropUndoneTables();
+                dropUndoneTables();
                 shouldOverWrite = false;
             })
             .fail(function(error) {
@@ -774,6 +764,34 @@ window.Log = (function($, Log) {
         }
 
         showLog(log, logCursor, isRestore);
+    }
+
+    // XXX TODO: update it if necessary
+    function dropUndoneTables() {
+        var deferred = PromiseHelper.deferred();
+        var tables = [];
+        var table;
+        for (var tableId in gTables) {
+            table = gTables[tableId];
+            if (table.getType() === TableType.Undone) {
+                if (table.isNoDelete()) {
+                    table.beOrphaned();
+                } else {
+                    tables.push(table.getId());
+                }
+            }
+        }
+
+        if (tables.length) {
+            TblManager.deleteTables(tables, TableType.Undone, true, true)
+            .always(function() {
+                // just resolve even if it fails
+                deferred.resolve();
+            });
+        } else {
+            deferred.resolve();
+        }
+        return deferred.promise();
     }
 
     function getUndoType(xcLog) {
@@ -804,7 +822,6 @@ window.Log = (function($, Log) {
             case SQLOps.Corr:
             case SQLOps.Aggr:
             case SQLOps.DeleteAgg:
-            case SQLOps.Round:
             case "roundToFixed": // this is a deprecated op in Chronos Patch Set 1
                 return UndoType.Skip;
             default:
@@ -1252,12 +1269,9 @@ window.Log = (function($, Log) {
             // front end opeartion
             case (SQLOps.HideCol):
             case (SQLOps.ReorderCol):
-            case (SQLOps.ReorderTable):
             case (SQLOps.AddNewCol):
             case (SQLOps.PullCol):
             case (SQLOps.PullMultipleCols):
-            case (SQLOps.MakeTemp):
-            case (SQLOps.ActiveTables):
             case (SQLOps.RenameCol):
             case (SQLOps.TextAlign):
             case (SQLOps.MinimizeCols):
@@ -1268,15 +1282,6 @@ window.Log = (function($, Log) {
             case (SQLOps.DragResizeRow):
             case (SQLOps.HideTable):
             case (SQLOps.UnhideTable):
-            case (SQLOps.AddWS):
-            case (SQLOps.RenameWS):
-            case (SQLOps.ReorderWS):
-            case (SQLOps.DelWS):
-            case (SQLOps.HideWS):
-            case (SQLOps.UnHideWS):
-            case (SQLOps.MoveTableToWS):
-            case (SQLOps.MoveTemporaryTableToWS):
-            case (SQLOps.RevertTable):
             case (SQLOps.ChangeFormat):
             case (SQLOps.MarkPrefix):
             case (SQLOps.ConnectOperations):
@@ -1305,7 +1310,6 @@ window.Log = (function($, Log) {
             case (SQLOps.Filter):
             case (SQLOps.Sort):
             case (SQLOps.Join):
-            case (SQLOps.Union):
             case (SQLOps.Aggr):
             case (SQLOps.Map):
             case (SQLOps.GroupBy):

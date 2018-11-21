@@ -202,8 +202,7 @@ window.UExtNN = (function(UExtNN) {
                 finalCols[1] = ColManager.newPullCol(outputCol, null, "integer");
                 finalCols[2] = ColManager.newPullCol(outputData, null, "float");
 
-                return TblManager.refreshTable([output], finalCols,
-                                               [], workSheet);
+                return TblManager.refreshTable([output], finalCols, []);
             })
             */
             .then(function() {
@@ -390,8 +389,7 @@ window.UExtNN = (function(UExtNN) {
               finalCols[1] = ColManager.newPullCol(hwCol, null, "integer");
               finalCols[2] = ColManager.newPullCol(hwData, null, "float");
 
-              return TblManager.refreshTable([hw], finalCols,
-              [], workSheet);
+              return TblManager.refreshTable([hw], finalCols, []);
               })
               .then(function() {
               // Step 10: Display the final output weight matrix
@@ -402,8 +400,7 @@ window.UExtNN = (function(UExtNN) {
               finalCols[1] = ColManager.newPullCol(owCol, null, "integer");
               finalCols[2] = ColManager.newPullCol(owData, null, "float");
 
-              return TblManager.refreshTable([ow], finalCols,
-              [], workSheet);
+              return TblManager.refreshTable([ow], finalCols, []);
               })
             */
             .then(function() {

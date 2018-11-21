@@ -848,7 +848,7 @@ namespace WorkbookPanel {
         let createdTimeTip: string = "";
         let modifiedTimeTip: string = "";
         const description: string = workbook.getDescription() || "";
-        const numWorksheets: number = workbook.getNumWorksheets() || 0;
+        const numDFs: number = workbook.getNumDataflows() || 0;
         let time: moment.Moment;
 
         extraClasses = extraClasses || [];
@@ -906,7 +906,7 @@ namespace WorkbookPanel {
                     '</div>' +
                     '<div class="content activate">' +
                         '<div class="innerContent">' +
-                            '<div class="infoSection topInfo">' +
+                            '<div class="infoSection topIsnfo">' +
                                 '<div class="subHeading tooltipOverflow" ' +
                                 ' data-toggle="tooltip" data-container="body"' +
                                 ' data-original-title="' + workbookName + '">' +
@@ -941,10 +941,10 @@ namespace WorkbookPanel {
                             '<div class="infoSection bottomInfo">' +
                                 '<div class="row clearfix">' +
                                     '<div class="label">' +
-                                        WKBKTStr.WS + ':' +
+                                        WKBKTStr.DF + ':' +
                                     '</div>' +
-                                    '<div class="info numWorksheets">' +
-                                        numWorksheets +
+                                    '<div class="info numDFs">' +
+                                        numDFs +
                                     '</div>' +
                                 '</div>' +
                                 '<div class="row clearfix">' +

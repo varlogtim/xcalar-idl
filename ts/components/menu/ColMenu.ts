@@ -216,8 +216,6 @@ class ColMenu extends AbstractMenu {
                 BottomMenu.close();
             } else if ($li.hasClass("exitDFEdit")) {
                 DagEdit.off();
-            } else if ($li.hasClass("exitFunctionBar")) {
-                FnBar.unlock();
             } else {
                 MainMenu.closeForms();
             }
@@ -244,28 +242,6 @@ class ColMenu extends AbstractMenu {
             }
         });
 
-        $subMenu.on('keypress', '.rename input', (event) => {
-            if (event.which === keyCode.Enter) {
-                const $input: JQuery = $(event.currentTarget);
-                const tableId: TableId = $colMenu.data('tableId');
-                const colName: string = $input.val().trim();
-                const colNum: number = $colMenu.data('colNum');
-
-                if (colName === "") {
-                    StatusBox.show(ErrTStr.NoEmpty, $input, null);
-                    return false;
-                }
-
-                if (ColManager.checkColName($input, tableId, colNum)) {
-                    return false;
-                }
-
-                ColManager.renameCol(colNum, tableId, colName);
-                $input.val("").blur();
-                xcMenu.close($allMenus);
-            }
-        });
-
         $subMenu.on('mouseup', '.changeFormat', (event) => {
             if (event.which !== 1) {
                 return;
@@ -286,32 +262,6 @@ class ColMenu extends AbstractMenu {
             });
 
             ColManager.format(colNums, tableId, formats);
-        });
-
-        $subMenu.on('keypress', '.digitsToRound', (event) => {
-            if (event.which !== keyCode.Enter) {
-                return;
-            }
-
-            const $input: JQuery = $(event.currentTarget);
-            const decimal: number = parseInt($input.val().trim());
-            if (isNaN(decimal) || decimal < 0 || decimal > 14) {
-                // when this field is empty
-                const error: string = xcHelper.replaceMsg(ErrWRepTStr.InvalidRange, {
-                    "num1": 0,
-                    "num2": 14
-                });
-                StatusBox.show(error, $input, null, {
-                    "side": "left"
-                });
-                return;
-            }
-
-            const tableId: TableId = $colMenu.data('tableId');
-            const colNums: number[] = $colMenu.data('colNums');
-
-            ColManager.round(colNums, tableId, decimal);
-            xcMenu.close($allMenus);
         });
 
         $subMenu.on('mouseup', 'li.textAlign', (event) => {
@@ -354,25 +304,14 @@ class ColMenu extends AbstractMenu {
 
             const $li: JQuery = $(event.currentTarget);
 
-            // xx need to use data or class instead of text in case of language
+            // XXX TODO: need to use data or class instead of text in case of language
             const newType: ColumnType = <ColumnType>$li.find(".label").text().toLowerCase();
             const colNums: number[] = $colMenu.data("colNums");
             const tableId: TableId = $colMenu.data('tableId');
-            if (gTables[tableId].modelingMode) {
-                this._createNodeAndShowForm(DagNodeType.Map, tableId, colNums, {
-                    subType: DagNodeSubType.Cast,
-                    newType: newType
-                });
-            } else {
-                const colTypeInfos: {colNum: number, type: ColumnType}[] = [];
-                for (let i = 0, len = colNums.length; i < len; i++) {
-                    colTypeInfos.push({
-                        "colNum": colNums[i],
-                        "type": newType
-                    });
-                }
-                ColManager.changeType(colTypeInfos, tableId);
-            }
+            this._createNodeAndShowForm(DagNodeType.Map, tableId, colNums, {
+                subType: DagNodeSubType.Cast,
+                newType: newType
+            });
         });
 
         // XXX TODO: change to DF 2.0

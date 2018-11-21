@@ -15,8 +15,8 @@
     }
 
     &#tableMenu {
-        .copyTableName, .makeTempTable, .deleteTable,
-        .moveTable, .divider, .exitOp, .hideTable, .createDf {
+        .copyTableName, .deleteTable,
+        .divider, .exitOp, .hideTable, .createDf {
             display: none;
         }
     }
@@ -343,18 +343,6 @@
     // XXX temporary fix
     &.subMenu.tableMenu {
         overflow: visible !important;
-
-        ul.moveTable {
-            overflow: visible !important;
-
-            .wsList {
-                overflow: visible !important;
-
-                li:hover {
-                    background-color: @color-bg-light-navy;
-                }
-            }
-        }
     }
 
     li {
@@ -553,21 +541,6 @@
         cursor: default !important;
         .dropdownBox {
             opacity: 0 !important;
-        }
-
-        &.moveToWorksheet {
-            &+ .tooltip {
-                display: block !important;
-            }
-            input {
-                pointer-events: none;
-            }
-        }
-    }
-
-    .moveToWorksheet {
-        &+ .tooltip {
-            display: none !important;
         }
     }
 

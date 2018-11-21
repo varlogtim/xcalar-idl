@@ -63,7 +63,7 @@ class FormHelper {
         this.mainMenuState = null;
         this.openTime = null;
         this.isFormOpen = false;
-        this.$container = $("#mainFrame");
+        this.$container = $();
         this.__init();
     }
 
@@ -113,8 +113,7 @@ class FormHelper {
 
     // called everytime the form opens
     public setup(extraOptions: FormHelperOptions): XDPromise<any> {
-        this.$container = $("#mainFrame");
-        // XXX TODO remove this hack
+        this.$container = $();
         const $view: JQuery = DagTable.Instance.getView();
         if ($view) {
             this.$container = this.$container.add($view);
@@ -130,7 +129,6 @@ class FormHelper {
         // hide tooltip when open the form
         xcTooltip.hideAll();
         $(".selectedCell").removeClass("selectedCell");
-        FnBar.clear();
 
         // Note: to find the visiable btn, must show the form first
         if (!options.noTabFocus) {
@@ -305,8 +303,6 @@ class FormHelper {
         this.mainMenuState = MainMenu.getState();
         if (formPanel) {
             $("#dataflowMenu").find(".menuSection").addClass("xc-hidden");
-        } else {
-            $("#workspaceMenu").find(".menuSection").addClass("xc-hidden");
         }
         this.$form.removeClass("xc-hidden");
 
@@ -593,11 +589,6 @@ class FormHelper {
         if (tableId == null || colNum == null) {
             // error case
             return;
-        }
-
-        const ws: string = WSManager.getWSFromTable(tableId);
-        if (ws !== WSManager.getActiveWS()) {
-            WSManager.focusOnWorksheet(ws, true);
         }
 
         xcHelper.centerFocusedColumn(tableId, colNum, true, noSelect);

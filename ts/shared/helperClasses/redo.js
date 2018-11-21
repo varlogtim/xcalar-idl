@@ -36,16 +36,14 @@ window.Redo = (function($, Redo) {
 
     /* START BACKEND OPERATIONS */
     redoFuncs[SQLOps.ExecSQL] = function(options) {
-        return (TblManager.refreshTable([options.tableName], null, [],
-                                        options.worksheet));
+        return TblManager.refreshTable([options.tableName], null, []);
     };
 
     redoFuncs[SQLOps.RefreshTables] = function(options) {
         var deferred = PromiseHelper.deferred();
         var promises = [];
         for (var i = 0; i < options.tableNames.length; i++) {
-            promises.push(TblManager.refreshTable.bind(this, [options.tableNames[i]], null, [],
-                options.worksheet));
+            promises.push(TblManager.refreshTable.bind(this, [options.tableNames[i]], null, []));
         }
         PromiseHelper.chain(promises)
         .then(deferred.resolve)
@@ -55,115 +53,15 @@ window.Redo = (function($, Redo) {
     }
 
     redoFuncs[SQLOps.Sort] = function(options) {
-        var worksheet = WSManager.getWSFromTable(options.tableId);
-        return (TblManager.refreshTable([options.newTableName], null,
-                                            [options.tableName],
-                                            worksheet));
-    };
-
-    redoFuncs[SQLOps.Filter] = function(options) {
-        var worksheet = WSManager.getWSFromTable(options.tableId);
-        var oldTables = [];
-        if (!options.fltOptions.complement) {
-            oldTables = [options.tableName];
-        } else {
-            worksheet = options.fltOptions.worksheet;
-        }
-        return (TblManager.refreshTable([options.newTableName], null,
-                                            oldTables,
-                                            worksheet));
-    };
-
-    redoFuncs[SQLOps.Map] = function(options) {
-        var worksheet = WSManager.getWSFromTable(options.tableId);
-        var oldTables = [];
-        if (!options.mapOptions || !options.mapOptions.createNewTable) {
-            oldTables = [options.tableName];
-        }
-        return (TblManager.refreshTable([options.newTableName], null,
-                                            oldTables, worksheet));
-    };
-
-    redoFuncs[SQLOps.Join] = function(options) {
-        var deferred = PromiseHelper.deferred();
-        var tablesToReplace = [];
-        var joinOptions = options.options || {};
-        if (!joinOptions.keepTables) {
-            tablesToReplace = [options.lTableName, options.rTableName];
-        }
-        TblManager.refreshTable([options.newTableName], null,
-                                tablesToReplace, options.worksheet)
-        .then(deferred.resolve)
-        .fail(deferred.fail);
-
-        return (deferred.promise());
-    };
-
-    redoFuncs[SQLOps.Union] = function(options) {
-        var unionOptions = options.options || {};
-        var promises = [];
-        if (!unionOptions.keepTables) {
-            // in case one table is used serveral times
-            var tableMap = {};
-            options.tableNames.forEach(function(tableName) {
-                if (!tableMap.hasOwnProperty(tableName)) {
-                    var tableId = xcHelper.getTableId(tableName);
-                    promises.push(TblManager.sendTableToOrphaned.bind(window, tableId,
-                                                        {"remove": true}));
-                    tableMap[tableName] = true;
-                }
-            });
-        }
-
-        promises.push(TblManager.refreshTable.bind(window, [options.newTableName],
-                                                    null, [], options.worksheet));
-
-        return PromiseHelper.chain(promises);
-    };
-
-    redoFuncs[SQLOps.GroupBy] = function(options) {
-        var worksheet = WSManager.getWSFromTable(options.tableId);
-        var oldTables = [];
-        if (options.options && (options.options.isJoin ||
-            !options.options.isKeepOriginal)) {
-            oldTables = [options.tableName];
-        }
-        return (TblManager.refreshTable([options.newTableName], null, oldTables,
-                                         worksheet));
-    };
-
-    redoFuncs[SQLOps.SplitCol] = function(options) {
-        var worksheet = WSManager.getWSFromTable(options.tableId);
-        return (TblManager.refreshTable([options.newTableName], null,
-                                            [options.tableName],
-                                            worksheet));
-    };
-
-    redoFuncs[SQLOps.ChangeType] = function(options) {
-        var worksheet = WSManager.getWSFromTable(options.tableId);
-        return (TblManager.refreshTable([options.newTableName], null,
-                                            [options.tableName],
-                                            worksheet));
-    };
-
-    redoFuncs[SQLOps.Project] = function(options) {
-        var worksheet = WSManager.getWSFromTable(options.tableId);
-        return (TblManager.refreshTable([options.newTableName], null,
-                                        [options.tableName],
-                                        worksheet));
+        return TblManager.refreshTable([options.newTableName], null, [options.tableName]);
     };
 
     redoFuncs[SQLOps.DFRerun] = function(options) {
-        var worksheet = WSManager.getWSFromTable(options.tableId);
-        return TblManager.refreshTable([options.newTableName], null,
-                                [options.tableName], worksheet);
+        return TblManager.refreshTable([options.newTableName], null, [options.tableName]);
     };
 
     redoFuncs[SQLOps.Finalize] = function(options) {
-        var worksheet = WSManager.getWSFromTable(options.tableId);
-        return (TblManager.refreshTable([options.newTableName], null,
-                                        [options.tableName],
-                                        worksheet));
+        return TblManager.refreshTable([options.newTableName], null, [options.tableName]);
     };
 
     redoFuncs[SQLOps.Ext] = function(options) {
@@ -181,20 +79,17 @@ window.Redo = (function($, Redo) {
             var tablesToReplace = replace[table];
             promises.push(TblManager.refreshTable.bind(window,
                                                     [table], null,
-                                                    tablesToReplace,
-                                                    options.worksheet));
+                                                    tablesToReplace));
         }
 
         // next append new tables
 
         var tableId = options.tableId;
-        var worksheet = WSManager.getWSFromTable(tableId);
-
         for (var i = 0, len = newTables.length; i < len; i++) {
             var newTable = newTables[i];
             promises.push(TblManager.refreshTable.bind(window,
                                                     [newTable], null,
-                                                    [], worksheet));
+                                                    []));
         }
 
         return PromiseHelper.chain(promises);
@@ -335,13 +230,8 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.PullCol] = function(options) {
         focusTableHelper(options);
-        if (options.pullColOptions.source === "fnBar") {
-            return (ColManager.execCol("pull", options.usrStr, options.tableId,
-                                        options.colNum));
-        } else {
-            return (ColManager.pullCol(options.colNum, options.tableId,
-                                        options.pullColOptions));
-        }
+        return ColManager.pullCol(options.colNum, options.tableId,
+                                        options.pullColOptions);
     };
 
     redoFuncs[SQLOps.PullMultipleCols] = function(options) {
@@ -411,76 +301,9 @@ window.Redo = (function($, Redo) {
         return PromiseHelper.resolve(null);
     };
 
-    redoFuncs[SQLOps.Round] = function(options) {
-        var worksheet = WSManager.getWSFromTable(options.tableId);
-        return TblManager.refreshTable([options.newTableName], null,
-                                            [options.tableName],
-                                            worksheet);
-    };
-
     /* END USER STYLING/FORMATING OPERATIONS */
 
     /* Table Operations */
-    redoFuncs[SQLOps.RevertTable] = function(options) {
-        var worksheet = WSManager.getWSFromTable(options.tableId);
-        return (TblManager.refreshTable([options.tableName], null,
-                                [options.oldTableName], worksheet, null,
-                            {isUndo: true}));
-    };
-
-
-    redoFuncs[SQLOps.MakeTemp] = function(options) {
-        return TblManager.moveTableToTempList(options.tableIds);
-    };
-
-    redoFuncs[SQLOps.ActiveTables] = function(options) {
-        // redo sent to worksheet
-        var deferred = PromiseHelper.deferred();
-        var tableNames = options.tableNames;
-        var $tableList;
-        var tableType = options.tableType;
-
-        TableList.refreshOrphanList()
-        .then(function() {
-            if (tableType === TableType.Orphan) {
-                $tableList = $('#orphanedTableListSection');
-            } else {
-                console.error(tableType, "not support redo!");
-            }
-
-            var tableIds = [];
-            for (var i = 0, len = tableNames.length; i < len; i++) {
-                var tableId = xcHelper.getTableId(tableNames[i]);
-                tableIds.push(tableId);
-            }
-
-            $tableList.find(".tableInfo").each(function() {
-                var $li = $(this);
-                var id = $li.data("id");
-                if (tableIds.indexOf(id) >= 0) {
-                    $li.find(".addTableBtn").click();
-                }
-            });
-
-            return TableList.activeTables(tableType, options.ws);
-        })
-        .then(function() {
-            deferred.resolve();
-        })
-        .fail(function() {
-            deferred.reject();
-        });
-
-        return deferred.promise();
-    };
-
-    redoFuncs[SQLOps.ReorderTable] = function(options) {
-        focusTableHelper(options);
-        TblFunc.reorderAfterTableDrop(options.tableId, options.srcIndex,
-                                      options.desIndex, {moveHtml: true});
-        return PromiseHelper.resolve(null);
-    };
-
     redoFuncs[SQLOps.HideTable] = function(options) {
         focusTableHelper(options);
         TblManager.hideTable(options.tableId);
@@ -498,58 +321,6 @@ window.Redo = (function($, Redo) {
         return PromiseHelper.resolve(null);
     };
     /* End of Table Operations */
-
-    /* Worksheet Opeartion */
-    redoFuncs[SQLOps.AddWS] = function(options) {
-        WSManager.addWS(options.worksheetId, options.worksheetName);
-        return PromiseHelper.resolve(null);
-    };
-
-    redoFuncs[SQLOps.RenameWS] = function(options) {
-        WSManager.renameWS(options.worksheetId, options.newName);
-        return PromiseHelper.resolve(null);
-    };
-
-    redoFuncs[SQLOps.ReorderWS] = function(options) {
-        var oldWSIndex = options.oldWorksheetIndex;
-        var newWSIndex = options.newWorksheetIndex;
-
-        WSManager.reorderWS(oldWSIndex, newWSIndex);
-        return PromiseHelper.resolve(null);
-    };
-
-    redoFuncs[SQLOps.MoveTableToWS] = function(options) {
-        WSManager.moveTable(options.tableId, options.newWorksheetId);
-        return PromiseHelper.resolve(null);
-    };
-
-    redoFuncs[SQLOps.MoveTemporaryTableToWS] = function(options) {
-        var tableId = options.tableId;
-        var tableType = options.tableType;
-        var newWSId = options.newWorksheetId;
-
-        return WSManager.moveTemporaryTable(tableId, newWSId, tableType);
-    };
-
-    redoFuncs[SQLOps.HideWS] = function(options) {
-        var wsId = options.worksheetId;
-        WSManager.hideWS(wsId);
-
-        return PromiseHelper.resolve(null);
-    };
-
-    redoFuncs[SQLOps.UnHideWS] = function(options) {
-        var wsIds = options.worksheetIds;
-        return WSManager.unhideWS(wsIds);
-    };
-
-    redoFuncs[SQLOps.DelWS] = function(options) {
-        var delType = options.delType;
-        var wsId = options.worksheetId;
-        WSManager.delWS(wsId, delType);
-        return PromiseHelper.resolve(null);
-    };
-    /* End of Worksheet Operation */
 
     function focusTableHelper(options) {
         if (options.tableId !== gActiveTableId) {

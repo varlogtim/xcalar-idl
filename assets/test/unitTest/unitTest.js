@@ -469,7 +469,7 @@ window.UnitTest = (function(UnitTest, $) {
     UnitTest.removeOrphanTable = function() {
         var deferred = PromiseHelper.deferred();
 
-        TableList.refreshOrphanList()
+        TblManager.refreshOrphanList()
         .then(function() {
             return TblManager.deleteTables(gOrphanTables, TableType.Orphan);
         })

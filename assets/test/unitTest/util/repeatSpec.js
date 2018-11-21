@@ -113,74 +113,6 @@ describe("Repeat Test", function() {
             });
         });
 
-        it("split col should work", function(done) {
-            var cachedMapFn = XIApi.map;
-            var cachedAggFn = XIApi.aggregate;
-            var cachedDeleteFn = XIApi.deleteTable;
-            var cachedRefreshFn = TblManager.refreshTable;
-            var mapCalled = false;
-            XIApi.map = function() {
-                mapCalled = true;
-                return PromiseHelper.resolve();
-            };
-            XIApi.aggregate = function() {
-                return PromiseHelper.resolve(2);
-            };
-            XIApi.deleteTable = function() {
-                return PromiseHelper.resolve();
-            };
-
-            TblManager.refreshTable = function() {
-                return PromiseHelper.resolve();
-            };
-
-            ColManager.splitCol(7, tableId, ".")
-            .then(function() {
-                mapCalled = false;
-                TblManager.highlightColumn($table.find("th.col10"));
-                return Log.repeat();
-            })
-            .then(function() {
-                var lastLog = Log.viewLastAction(true);
-                expect(mapCalled).to.be.true;
-                expect(lastLog.title).to.equal("SplitCol");
-                expect(lastLog.options.colNum).to.equal(10);
-                expect(lastLog.options.delimiter).to.equal(".");
-                done();
-            })
-            .fail(function() {
-                done("failed");
-            })
-            .always(function() {
-                XIApi.map = cachedMapFn;
-                XIApi.aggregate = cachedAggFn;
-                XIApi.deleteTable = cachedDeleteFn;
-                TblManager.refreshTable = cachedRefreshFn;
-            });
-        });
-
-        it("split col on non string should not work", function(done) {
-            var cachedMapFn = XIApi.map;
-            var mapCalled = false;
-            XIApi.map = function() {
-                mapCalled = true;
-                return PromiseHelper.resolve();
-            };
-
-            TblManager.highlightColumn($table.find("th.col1"));
-            Log.repeat()
-            .then(function() {
-                expect(mapCalled).to.be.false;
-                done();
-            })
-            .fail(function() {
-                done("failed");
-            })
-            .always(function() {
-                XIApi.map = cachedMapFn;
-            });
-        });
-
         it("column operation without selected column should not work", function(done) {
             $(".selectedCell").removeClass("selectedCell");
             var logsLen = Log.getLogs().length;
@@ -217,42 +149,6 @@ describe("Repeat Test", function() {
             })
             .always(function() {
                 XIApi.map = cachedMapFn;
-            });
-        });
-
-        it("change type should work", function(done) {
-            var cachedMapFn = XIApi.map;
-            var cachedRefreshFn = TblManager.refreshTable;
-            var mapCalled = false;
-            XIApi.map = function() {
-                mapCalled = true;
-                return PromiseHelper.resolve();
-            };
-
-            TblManager.refreshTable = function() {
-                return PromiseHelper.resolve();
-            };
-
-
-            ColManager.changeType([{colNum: 1, type: "string"}], tableId)
-            .then(function() {
-                mapCalled = false;
-                TblManager.highlightColumn($table.find("th.col4"));
-                return Log.repeat();
-            })
-            .then(function() {
-                var lastLog = Log.viewLastAction(true);
-                expect(mapCalled).to.be.true;
-                expect(lastLog.title).to.equal("ChangeType");
-                expect(lastLog.options.colTypeInfos[0].colNum).to.equal(4);
-                done();
-            })
-            .fail(function() {
-                done("failed");
-            })
-            .always(function() {
-                XIApi.map = cachedMapFn;
-                TblManager.refreshTable = cachedRefreshFn ;
             });
         });
 
@@ -360,41 +256,6 @@ describe("Repeat Test", function() {
             })
             .fail(function() {
                 done("failed");
-            });
-        });
-
-        it("round should work", function(done) {
-            var cachedMapFn = XIApi.map;
-            var cachedRefreshFn = TblManager.refreshTable;
-            var mapCalled = false;
-            XIApi.map = function() {
-                mapCalled = true;
-                return PromiseHelper.resolve();
-            };
-
-            TblManager.refreshTable = function() {
-                return PromiseHelper.resolve();
-            };
-
-            ColManager.round([1], tableId, 4)
-            .then(function() {
-                mapCalled = false;
-                TblManager.highlightColumn($table.find("th.col4"));
-                return Log.repeat();
-            })
-            .then(function() {
-                var lastLog = Log.viewLastAction(true);
-                expect(lastLog.title).to.equal("Round");
-                expect(lastLog.options.colNums[0]).to.equal(1);
-                expect(lastLog.options.decimal).to.equal(4);
-                done();
-            })
-            .fail(function() {
-                done("failed");
-            })
-            .always(function() {
-                XIApi.map = cachedMapFn;
-                TblManager.refreshTable = cachedRefreshFn ;
             });
         });
     });
@@ -509,82 +370,11 @@ describe("Repeat Test", function() {
         });
     });
 
-    describe("Worksheet operations", function() {
-        it("add ws should work", function(done) {
-            newWSId = WSManager.addWS();
-            Log.repeat()
-            .then(function() {
-                var lastLog = Log.viewLastAction(true);
-                expect(lastLog.title).to.equal("Create Worksheet");
-                expect(lastLog.options.worksheetId).to.not.equal(newWSId);
-                secondWSId = lastLog.options.worksheetId;
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
-
-        it("move table to ws should work", function(done) {
-            WSManager.moveTable(tableId, newWSId);
-            var wsToFocus = WSManager.getWSFromTable(tableId2);
-            var activeWS = WSManager.getActiveWS();
-            if (wsToFocus !== activeWS) {
-                $("#worksheetTab-" + wsToFocus).trigger(fakeEvent.mousedown);
-            }
-            TblFunc.focusTable(tableId2);
-
-            Log.repeat()
-            .then(function() {
-                var lastLog = Log.viewLastAction(true);
-                expect(lastLog.title).to.equal("Move Table To Worksheet");
-                expect(lastLog.options.newWorksheetId).to.equal(newWSId);
-                expect(lastLog.options.tableId).to.equal(tableId2);
-                return Log.undo();
-            })
-            .then(Log.undo)
-            .then(function() {
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
-
-        it("hide ws should work", function(done) {
-            WSManager.hideWS(newWSId);
-            var activeWS = WSManager.getActiveWS();
-            if (secondWSId !== activeWS) {
-                $("#worksheetTab-" + secondWSId).trigger(fakeEvent.mousedown);
-            }
-            Log.repeat()
-            .then(function() {
-                var lastLog = Log.viewLastAction(true);
-                expect(lastLog.title).to.equal("Hide Worksheet");
-                expect(lastLog.options.worksheetId).to.equal(secondWSId);
-                return Log.undo();
-            })
-            .then(Log.undo)
-            .then(function() {
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
-    });
-
     describe("delete table", function() {
         it("delete should work", function(done) {
             TblManager.deleteTables([tableId], TableType.Active, true)
             .then(function() {
                 var deferred = PromiseHelper.deferred();
-
-                var wsToFocus = WSManager.getWSFromTable(tableId2);
-                var activeWS = WSManager.getActiveWS();
-                if (wsToFocus !== activeWS) {
-                    $("#worksheetTab-" + wsToFocus).trigger(fakeEvent.mousedown);
-                }
                 TblFunc.focusTable(tableId2);
                 Log.repeat()
                 .then(deferred.resolve)
@@ -607,9 +397,6 @@ describe("Repeat Test", function() {
     });
 
     after(function(done) {
-        WSManager.delWS(newWSId, DelWSType.Del);
-        WSManager.delWS(secondWSId, DelWSType.Del);
-
         UnitTest.deleteAllTables()
         .then(function() {
             UnitTest.deleteDS(testDs)

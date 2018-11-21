@@ -50,16 +50,13 @@ describe("Main Menu Test", function() {
             expect($("#monitorTab").hasClass("active")).to.be.true;
 
             MainMenu.openPanel("dataflowPanel");
-            expect($("#dataflowTab").hasClass("active")).to.be.true;
+            expect($("#modelingDataflowTab").hasClass("active")).to.be.true;
 
             MainMenu.openPanel("dataflowPanel");
-            expect($("#dataflowTab").hasClass("active")).to.be.true;
+            expect($("#modelingDataflowTab").hasClass("active")).to.be.true;
 
             MainMenu.openPanel("datastorePanel");
             expect($("#dataStoresTab").hasClass("active")).to.be.true;
-
-            MainMenu.openPanel("workspacePanel");
-            expect($("#workspaceTab").hasClass("active")).to.be.true;
         });
 
         it("MainMenu.close should work", function() {

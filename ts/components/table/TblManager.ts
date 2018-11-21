@@ -14,41 +14,12 @@ class TblManager {
      * @param oldTableNames
      * @param worksheet
      * @param txId
-     * @param options
-     * -focusWorkspace: determine whether we should focus back on workspace, we
-     *  focus on workspace when adding a table from the datastores panel.
-     * -selectCol: olumn to be highlighted when table is ready.
-     * -isUndo: default is false. Set to true if this table is being created
-     *  from an undo operation.
-     * -position: int, used to place a table in a certain spot if not replacing
-     *  an older table. Currently has to be paired with undo
-     * -replacingDest: where to send old tables that are being replaced
-     * -noTag: if true will not tag nodes
-     * -from: where it's from
      */
     public static refreshTable(
         newTableNames: string[],
         tableCols: ProgCol[],
         oldTableNames: string[] | string,
-        worksheet: string,
-        txId: number,
-        options: {
-            afterStartup?: boolean,
-            focusWorkspace?: boolean,
-            selectCol?: number | number[],
-            isUndo?: boolean,
-            position?: number,
-            replacingDest?: string,
-            noTag?: boolean,
-            from?: string
-        } = {
-            focusWorkspace: false,
-            selectCol: [],
-            isUndo: false,
-            position: null,
-            replacingDest: null,
-            noTag: false
-        }
+        txId: number
     ): XDPromise<string | void> {
         if (txId != null) {
             if (Transaction.checkCanceled(txId)) {
@@ -66,43 +37,15 @@ class TblManager {
             oldTableNames = oldTableNames || [];
         }
 
-        // set table list into a transition state
-        TableList.updatePendingState(true);
-
         // must get worksheet to add before async call,
         // otherwise newTable may add to wrong worksheet
         const newTableName: string = newTableNames[0];
         const newTableId: TableId = xcHelper.getTableId(newTableName);
-        let tableAddedToWS: boolean = false;
-        // XXX TODO: remove it
-        let modelingMode: boolean = false;
-        oldTableNames.forEach((tableName) => {
-            const tableId: TableId = xcHelper.getTableId(tableName);
-            const table: TableMeta = gTables[tableId];
-            if (table && table.modelingMode) {
-                modelingMode = true;
-                return false; // stop loop
-            }
-        });
-
-        if (worksheet != null) {
-            WSManager.addTable(newTableId, worksheet);
-            tableAddedToWS = true;
-        } else if (modelingMode) {
-            // worksheet = WSManager.getWSFromTable(newTableId);
-            // if (!worksheet) {
-            //     worksheet = WSManager.getActiveWS();
-            //     WSManager.addTable(newTableId, worksheet);
-            //     tableAddedToWS = true;
-            // }
-        }
-
         const tablesToRemove: TableId[] = [];
         const tablesToReplace: string[] = [];
         if (oldTableNames.length > 0) {
             // figure out which old table we will replace
-            TblManager._setTablesToReplace(oldTableNames, worksheet, tablesToReplace,
-                               tablesToRemove);
+            TblManager._setTablesToReplace(oldTableNames, tablesToReplace, tablesToRemove);
         }
 
         // lock tables in case not locked during an undo/redo
@@ -115,69 +58,8 @@ class TblManager {
             }
         });
 
-        if (!tableCols || tableCols.length === 0) {
-            const table = gTables[newTableId];
-            if (table == null || table.status === TableType.Orphan) {
-                TableList.removeTable(newTableName);
-            }
-            // if no tableCols provided but gTable exists,
-            // columns are already set
-        }
-
         TblManager._setTableMeta(newTableName, tableCols);
-        if (modelingMode) {
-            return DagTable.Instance.replaceTable(gTables[newTableId]);
-        }
-
-        if (options.focusWorkspace) {
-            MainMenu.openPanel("workspacePanel", "worksheetButton", {
-                hideDF: true
-            });
-        }
-
-        // append newly created table to the back, do not remove any tables
-        const addTableOptions = {
-            afterStartup: options.afterStartup || true,
-            selectCol: options.selectCol,
-            isUndo: options.isUndo,
-            position: options.position,
-            from: options.from,
-            replacingDest: options.replacingDest,
-            ws: worksheet,
-            txId: txId,
-            noTag: options.noTag
-        };
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        TblManager._addTable(newTableName, tablesToReplace, tablesToRemove, addTableOptions)
-        .then(() => {
-            if (options.focusWorkspace) {
-                TblManager._scrollAndFocusTable(newTableName);
-            } else {
-                const wsNum: string = WSManager.getActiveWS();
-                if ($('.xcTableWrap.worksheet-' + wsNum)
-                                   .find('.tblTitleSelected').length === 0) {
-                    const tableId: TableId = xcHelper.getTableId(newTableName);
-                    TblFunc.focusTable(tableId);
-                }
-            }
-            TblManager._unlockTables(tablesToRemove, tableLockStatuses);
-            deferred.resolve(newTableName);
-        })
-        .fail((error) => {
-            console.error("refresh tables fails!", error, newTableName);
-            if (tableAddedToWS) {
-                WSManager.removeTable(newTableId, false);
-            }
-            TblManager._removeTableDisplay(newTableId);
-            TblManager._unlockTables(tablesToRemove, tableLockStatuses);
-            deferred.reject(error);
-        })
-        .always(() => {
-            WSManager.removePending(newTableId, worksheet);
-            TableList.updatePendingState(false);
-        });
-
-        return deferred.promise();
+        return DagTable.Instance.replaceTable(gTables[newTableId]);
     }
 
     private static _setTableMeta(tableName: string, tableCols: ProgCol[]): void {
@@ -200,7 +82,6 @@ class TblManager {
 
     private static _setTablesToReplace(
         oldTableNames: string[],
-        worksheet: string,
         tablesToReplace: string[],
         tablesToRemove: TableId[]
     ): void {
@@ -208,27 +89,8 @@ class TblManager {
         if (oldTableNames.length === 1) {
             // only have one table to remove
             tablesToReplace.push(oldTableNames[0]);
-        } else {
-            // find the first table in the worksheet,
-            // that is the target worksheet
-            // var targetTable;
-            const wsTables = WSManager.getWSById(worksheet).tables;
-            for (let i = 0, len = wsTables.length; i < len; i++) {
-                const index: number = oldTableIds.indexOf(wsTables[i]);
-                if (index > -1) {
-                    tablesToReplace.push(oldTableNames[index]);
-                    break;
-                }
-            }
-
-            if (tablesToReplace.length === 0) {
-                // If we're here, we could not find a table to be replaced in the
-                // active worksheet, so the new table
-                // will eventually just be appended to the active worksheet
-                // The old tables will still be removed;
-                console.warn("Current WS has no tables to replace");
-                // tablesToReplace will remain an empty array
-            }
+        } else if (oldTableNames.length > 1) {
+            throw new Error("Cannot repalce multiple tables when refresh");
         }
 
         oldTableIds.forEach((oldTableId) => {
@@ -244,128 +106,6 @@ class TblManager {
                 }
             }
         });
-    }
-
-    /**
-    * Sets up new tables to be added to the display and removes old tables.
-    *
-    * newTableName is an string of tablename to be added
-    * tablesToReplace is an array of old tablenames to be replaced
-    * tablesToRemove is an array of tableIds to be removed later
-    * @param newTableName
-    * @param tablesToReplace
-    * @param tablesToRemove
-    * @param options
-    * -afterStartup: indicate if these tables are added after page load
-    * -selectCol: column to be selected once new table is ready
-    * -isUndo: default is false. If true, we are adding this table through an undo
-    * -replacingDest: where to send old tables that are being replaced
-    * -ws: worksheet id of where new table will go
-    * -txId: used for tagging dag operations,
-    * -noTag: if true will not tag nodes
-    * -position: int, used to place a table in a certain spot.
-    */
-    private static _addTable(
-        newTableName: string,
-        tablesToReplace: string[],
-        tablesToRemove: TableId[],
-        options: {
-            afterStartup: boolean,
-            selectCol: number | number[],
-            isUndo: boolean,
-            replacingDest: string,
-            ws: string,
-            txId: number,
-            noTag: boolean,
-            position: number,
-            from: string
-        }
-    ): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const newTableId: TableId = xcHelper.getTableId(newTableName);
-        const oldId: TableId = xcHelper.getTableId(tablesToReplace[0]);
-
-        TblManager._tagOldTables(tablesToRemove);
-        TblManager._parallelConstruct(newTableId, tablesToReplace[0], {
-            afterStartup: options.afterStartup,
-            selectCol: options.selectCol,
-            txId: options.txId,
-            noTag: options.noTag,
-            wsId: options.ws,
-            position: options.position
-        })
-        .then(() => {
-            gTables[newTableId].beActive();
-            TblManager._removeOldTables(tablesToRemove);
-
-            let wasTableReplaced: boolean = false;
-            if (options.isUndo && options.position != null) {
-                WSManager.replaceTable(newTableId, null, null, {
-                    position: options.position
-                });
-            } else if (tablesToReplace[0] == null) {
-                WSManager.replaceTable(newTableId);
-            } else {
-                var tablePosition = WSManager.getTablePosition(oldId);
-
-                if (tablePosition > -1) {
-                    WSManager.replaceTable(newTableId, oldId, tablesToRemove, {
-                        removeToDest: options.replacingDest
-                    });
-                    wasTableReplaced = true;
-                } else {
-                    WSManager.replaceTable(newTableId);
-                }
-            }
-
-            const $existingTableList: JQuery = $('#activeTablesList').find('[data-id="' +
-                                            newTableId + '"]');
-            if ($existingTableList.length) {
-                $existingTableList.closest('.tableInfo')
-                                .removeClass('hiddenWS');
-                xcTooltip.remove($existingTableList.closest('.tableInfo'));
-            } else {
-                TableList.addTables([gTables[newTableId]], true);
-            }
-            // in case table showed up in temp list during its formation
-            TableList.removeTable(newTableName, TableType.Orphan);
-
-            if (tablesToRemove) {
-                const noFocusWS: boolean = tablesToRemove.length > 1;
-                for (let i = 0; i < tablesToRemove.length; i++) {
-                    if (wasTableReplaced && tablesToRemove[i] !== oldId) {
-                        WSManager.removeTable(tablesToRemove[i], true);
-                    }
-                    if (gTables[tablesToRemove[i]].status === TableType.Active) {
-                        if (options.from === "noSheet") {
-                            TblManager.sendTableToOrphaned(tablesToRemove[i], {
-                                force: true,
-                                noFocusWS: false
-                            });
-                        } else {
-                            if (options.replacingDest === TableType.Undone) {
-                                TblManager.sendTableToUndone(tablesToRemove[i], {
-                                    "noFocusWS": noFocusWS,
-                                    "force": true,
-                                    "remove": false
-                                });
-                            } else {
-                                TblManager.sendTableToOrphaned(tablesToRemove[i], {
-                                    "noFocusWS": noFocusWS,
-                                    "force": true
-                                });
-                            }
-                        }
-                    }
-                }
-            }
-            FnBar.updateColNameCache();
-
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
     }
 
     private static _removeOldTables(tablesToRemove: TableId[]): void {
@@ -390,17 +130,6 @@ class TblManager {
         });
     }
 
-    private static _unlockTables(
-        tablesToRemove: TableId[],
-        tableLockStatuses: boolean[]
-    ): void {
-        for (let i = 0; i < tablesToRemove.length; i++) {
-            if (!tableLockStatuses[i]) {
-                xcHelper.unlockTable(tablesToRemove[i]);
-            }
-        }
-    }
-
     private static _removeTableDisplay(tableId: TableId): void {
         $("#xcTableWrap-" + tableId).remove();
         Dag.destruct(tableId);
@@ -410,107 +139,29 @@ class TblManager {
         }
     }
 
-    private static _scrollAndFocusTable(tableName: string): void {
-        const tableId: TableId = xcHelper.getTableId(tableName);
-        xcHelper.centerFocusedTable(tableId, true);
-    }
-
     /**
-     *
-     * Adds new tables to the display and the dag at the same time.
-     * @param tableId
-     * @param tableToReplace
-     * @param options
-     * -afterStartup: indicate if the table is added after page load.
-     * -selectCol: column to be highlighted when table is ready.
-     * -txId: used for tagging operations before creating dag.
-     * -noTag: if true will not tag nodes.
-     * -wsId: in which worksheet
-     * -position: position in the worksheet
+     * TblManager.refreshOrphanList
      */
-    private static _parallelConstruct(
-        tableId: TableId,
-        tableToReplace: string,
-        options: {
-            afterStartup: boolean,
-            selectCol: number | number[],
-            txId: number,
-            noTag: boolean,
-            wsId: string,
-            position: number
-        }
-    ): XDPromise<void> {
+    public static refreshOrphanList(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const viewer: XcTableInWSViewer = new XcTableInWSViewer(gTables[tableId], tableToReplace, options);
-        TableComponent.addViewer(tableId, viewer);
-        const promise1: XDPromise<void> = viewer.render();
-        const promise2: XDPromise<void> = TblManager._createDag(tableId, tableToReplace, options);
+        xcHelper.getBackTableSet()
+        .then(function(backTableSet) {
+            var tableMap = backTableSet;
 
-        PromiseHelper.when(promise1, promise2)
-        .then(() => {
-            const table: TableMeta = gTables[tableId];
-            const $xcTableWrap: JQuery = $('#xcTableWrap-' + tableId);
-            TableComponent.update();
-            $xcTableWrap.removeClass("building");
-            $("#dagWrap-" + tableId).removeClass("building");
-            if ($('#mainFrame').hasClass('empty')) {
-                // first time to create table
-                $('#mainFrame').removeClass('empty');
-            }
-            if (options.afterStartup) {
-                const $existingTableList: JQuery = $('#activeTablesList')
-                                        .find('[data-id="' + tableId + '"]');
-                if ($existingTableList.length) {
-                    $existingTableList.closest('.tableInfo')
-                                      .removeClass('hiddenWS')
-                                      .removeAttr('data-toggle data-container' +
-                                                  'title data-original-title');
-                } else {
-                    TableList.addTables([table], true);
+            for (var tableId in gTables) {
+                var table = gTables[tableId];
+                var tableName = table.getName();
+                var tableType = table.getType();
+                if (tableType === TableType.Active) {
+                    delete tableMap[tableName];
                 }
-                // in case table showed up in temp list during its formation
-                TableList.removeTable(table.getName(), TableType.Orphan);
             }
-            const $visibleTables: JQuery = $('.xcTable:visible');
-            if ($visibleTables.length === 1 &&
-                $visibleTables.is("#xcTable-" + tableId)) {
-                TblFunc.focusTable(tableId);
-            }
-
-            // disallow dragging if only 1 table in worksheet
-            TblFunc.checkTableDraggable();
-
+            TblManager.setOrphanedList(tableMap);
             deferred.resolve();
         })
         .fail(deferred.reject);
 
-        return deferred.promise();
-    }
-
-    private static _createDag(
-        tableId: TableId,
-        tableToReplace: string,
-        options: {
-            txId: number,
-            noTag: boolean
-        }
-    ): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        var promise;
-        if (options.txId != null && !options.noTag) {
-            promise = DagFunction.tagNodes(options.txId);
-        } else {
-            promise = PromiseHelper.resolve();
-        }
-
-        PromiseHelper.alwaysResolve(promise)
-        .then(() => {
-            return Dag.construct(tableId, tableToReplace, options);
-        })
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return deferred.promise();
+        return (deferred.promise());
     }
 
     /**
@@ -550,7 +201,6 @@ class TblManager {
         });
 
         gTables[tableId] = table;
-        TableList.addToOrphanList(tableName);
         return table;
     }
 
@@ -560,7 +210,6 @@ class TblManager {
      * @param options
      * -remove: boolean, if true will remove table from html immediately - should
      *          happen when not replacing a table
-     * -keepInWS: boolean, if true will not remove table from WSManager
      * -noFocusWS: boolean, if true will not focus on tableId's Worksheet
      * -force: boolean, if true will change table meta before async returns
      * -removeAfter: boolean, if true will remove table html after freeing result
@@ -569,24 +218,21 @@ class TblManager {
         tableId: TableId,
         options: {
             remove?: boolean,
-            keepInWS?: boolean,
             noFocusWS: boolean,
             force?: boolean,
             removeAfter?: boolean
         } = {
             noFocusWS: false
         }
-    ): XDPromise<{relativePosition: number}> {
-        const deferred: XDDeferred<{relativePosition: number}> = PromiseHelper.deferred();
+    ): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         if (options.remove) {
             TblManager._removeTableDisplay(tableId);
         }
         var table = gTables[tableId];
-        var cleanupResult;
 
         if (options.force) {
-            // returns object with table's ws relativePosition
-            cleanupResult = TblManager._tableCleanup(tableId, false, options);
+            TblManager._tableCleanup(tableId, false, options);
         }
 
         table.freeResultset()
@@ -595,9 +241,9 @@ class TblManager {
                 TblManager._removeTableDisplay(tableId);
             }
             if (!options.force) {
-                cleanupResult = TblManager._tableCleanup(tableId, false, options);
+                TblManager._tableCleanup(tableId, false, options);
             }
-            deferred.resolve(cleanupResult);
+            deferred.resolve();
         })
         .fail(deferred.reject);
 
@@ -608,21 +254,11 @@ class TblManager {
     private static _tableCleanup(
         tableId: TableId,
         isUndone: boolean,
-        options: {noFocusWS: boolean}
-    ): {relativePosition: number} {
+    ): void {
         const table: TableMeta = gTables[tableId];
         if (!table) {
             return;
         }
-        let wsId: string;
-        if (!options.noFocusWS) {
-            wsId = WSManager.getWSFromTable(tableId);
-        }
-
-        TableList.removeTable(tableId);
-
-        const relativePosition: number = WSManager.getTableRelativePosition(tableId);
-        WSManager.removeTable(tableId, false);
 
         if (isUndone) {
             table.beUndone();
@@ -640,113 +276,7 @@ class TblManager {
             TableComponent.empty();
         }
 
-        if (!options.noFocusWS) {
-            const activeWS: string = WSManager.getActiveWS();
-            if (activeWS !== wsId) {
-                WSManager.focusOnWorksheet(wsId, null, tableId);
-            }
-        }
-
         TblManager.alignTableEls();
-
-        // disallow dragging if only 1 table in worksheet
-        TblFunc.checkTableDraggable();
-        TableList.addToOrphanList(table.getName());
-
-        return {relativePosition: relativePosition};
-    }
-
-    /**
-     * TblManager.sendTableToTempList
-     * @param tableIds
-     * @param workSheets
-     * @param tableNames
-     */
-    public static sendTableToTempList(
-        tableIds: TableId[],
-        workSheets: string[],
-        tableNames: string[]
-    ): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-
-        if (tableIds.length <= 1){
-            workSheets = [WSManager.getWSFromTable(tableIds[0])];
-            tableNames = [gTables[tableIds[0]].getName()];
-        }
-        const sqlOptions: any = {
-            "operation": SQLOps.MakeTemp,
-            "workSheets": workSheets,
-            "tableIds": tableIds,
-            "tableNames": tableNames,
-            "htmlExclude": ["tableIds", "tablePos", "workSheets"]
-        };
-
-        TblManager.moveTableToTempList(tableIds)
-        .then((positions) => {
-            sqlOptions.tablePos = positions;
-            Log.add(SQLTStr.MakeTemp, sqlOptions);
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    /**
-     *  TblManager.moveTableToTempList
-     * @param tableIds
-     */
-    public static moveTableToTempList(tableIds: TableId[]): XDPromise<number[]> {
-        const deferred: XDDeferred<number[]> = PromiseHelper.deferred();
-
-        if (!tableIds.length) {
-            deferred.resolve();
-            return deferred.promise();
-        }
-
-        const promises: XDPromise<void>[] = [];
-        const failures: string[] = [];
-        const positions: number[] = [];
-
-        tableIds.forEach((tableId) => {
-            xcHelper.lockTable(tableId);
-        });
-
-        tableIds.forEach((tableId) => {
-            promises.push((() => {
-                const innerDeferred: XDDeferred<void> = PromiseHelper.deferred();
-                TblManager.sendTableToOrphaned(tableId, {
-                    removeAfter: true,
-                    noFocusWS: true
-                })
-                .then((ret) => {
-                    positions.push(ret.relativePosition);
-                    innerDeferred.resolve();
-                })
-                .fail((error) => {
-                    failures.push(tableId + ": {" + xcHelper.parseError(error) + "}");
-                    innerDeferred.resolve(error);
-                });
-                return innerDeferred.promise();
-            }).bind(this));
-        });
-
-        tableIds.forEach((tableId) => {
-            xcHelper.unlockTable(tableId);
-        });
-
-        PromiseHelper.chain(promises)
-        .then(() => {
-            // anything faile to alert
-            if (failures.length > 0) {
-                deferred.reject(failures.join("\n"));
-            } else {
-                deferred.resolve(positions);
-            }
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
     }
 
     /**
@@ -797,6 +327,9 @@ class TblManager {
         return deferred.promise();
     }
 
+
+    // XXX TODO: The function need to update to parse tab id and node id
+    // to find the table
     /**
      * TblManager.findAndFocusTable
      * searches for this table in active and temp list and brings it to the
@@ -808,77 +341,79 @@ class TblManager {
         tableName: string,
         noAnimate: boolean = false
     ): XDPromise<{tableFromInactive: boolean}> {
-        const deferred: XDDeferred<{tableFromInactive: boolean}> = PromiseHelper.deferred();
+        // do nothing now
+        return PromiseHelper.resolve();
+        // const deferred: XDDeferred<{tableFromInactive: boolean}> = PromiseHelper.deferred();
 
-        let wsId: string;
-        let tableType: string;
-        const tableId: TableId = xcHelper.getTableId(tableName);
-        const table: TableMeta = gTables[tableId];
-        if (table != null) {
-            if (table.isActive()) {
-                MainMenu.openPanel("workspacePanel", "worksheetButton");
-                wsId = WSManager.getWSFromTable(tableId);
-                const $wsListItem: JQuery = $('#worksheetTab-' + wsId);
-                if ($wsListItem.hasClass("hiddenTab")) {
-                    $wsListItem.find(".unhide").click();
-                } else {
-                    $wsListItem.trigger(fakeEvent.mousedown);
-                }
+        // let wsId: string;
+        // let tableType: string;
+        // const tableId: TableId = xcHelper.getTableId(tableName);
+        // const table: TableMeta = gTables[tableId];
+        // if (table != null) {
+        //     if (table.isActive()) {
+        //         MainMenu.openPanel("workspacePanel", "worksheetButton");
+        //         wsId = WSManager.getWSFromTable(tableId);
+        //         const $wsListItem: JQuery = $('#worksheetTab-' + wsId);
+        //         if ($wsListItem.hasClass("hiddenTab")) {
+        //             $wsListItem.find(".unhide").click();
+        //         } else {
+        //             $wsListItem.trigger(fakeEvent.mousedown);
+        //         }
 
-                if ($("#dagPanel").hasClass('full')) {
-                    $('#dagPulloutTab').click();
-                }
-                const $tableWrap: JQuery = $('#xcTableWrap-' + tableId);
-                xcHelper.centerFocusedTable($tableWrap, false)
-                .then(() => {
-                    deferred.resolve({tableFromInactive: false});
-                })
-                .fail(deferred.reject);
-                $tableWrap.mousedown();
-                return deferred.promise();
-            } else if (WSManager.getWSFromTable(tableId) == null) {
-                tableType = TableType.Orphan;
-            } else if (table.status === TableType.Orphan) {
-                tableType = TableType.Orphan;
-            } else if (table.status === TableType.Undone) {
-                tableType = TableType.Undone;
-            } else {
-                tableType = TableType.Orphan;
-            }
+        //         if ($("#dagPanel").hasClass('full')) {
+        //             $('#dagPulloutTab').click();
+        //         }
+        //         const $tableWrap: JQuery = $('#xcTableWrap-' + tableId);
+        //         xcHelper.centerFocusedTable($tableWrap, false)
+        //         .then(() => {
+        //             deferred.resolve({tableFromInactive: false});
+        //         })
+        //         .fail(deferred.reject);
+        //         $tableWrap.mousedown();
+        //         return deferred.promise();
+        //     } else if (WSManager.getWSFromTable(tableId) == null) {
+        //         tableType = TableType.Orphan;
+        //     } else if (table.status === TableType.Orphan) {
+        //         tableType = TableType.Orphan;
+        //     } else if (table.status === TableType.Undone) {
+        //         tableType = TableType.Undone;
+        //     } else {
+        //         tableType = TableType.Orphan;
+        //     }
 
-            //xx currently we won't allow focusing on undone tables
-            if (tableType === TableType.Undone) {
-                deferred.reject({tableType: tableType, notFound: true});
-            } else {
-                MainMenu.openPanel("workspacePanel", "worksheetButton");
-                wsId = WSManager.getActiveWS();
-                WSManager.moveTemporaryTable(tableId, wsId, tableType, true, noAnimate)
-                .then(() => {
-                    deferred.resolve({tableFromInactive: true});
-                })
-                .fail(() => {
-                    deferred.reject({notFound: true});
-                });
-            }
-        } else {
-            XcalarGetTables(tableName)
-            .then((ret) => {
-                if (ret.numNodes > 0) {
-                    MainMenu.openPanel("workspacePanel", "worksheetButton");
-                    wsId = WSManager.getActiveWS();
-                    WSManager.moveTemporaryTable(tableId, wsId, TableType.Orphan,
-                                                true, noAnimate)
-                    .then(() => {
-                        deferred.resolve({tableFromInactive: true});
-                    })
-                    .fail(deferred.reject);
-                } else {
-                    deferred.reject({notFound: true});
-                }
-            })
-            .fail(deferred.reject);
-        }
-        return deferred.promise();
+        //     //xx currently we won't allow focusing on undone tables
+        //     if (tableType === TableType.Undone) {
+        //         deferred.reject({tableType: tableType, notFound: true});
+        //     } else {
+        //         MainMenu.openPanel("workspacePanel", "worksheetButton");
+        //         wsId = WSManager.getActiveWS();
+        //         WSManager.moveTemporaryTable(tableId, wsId, tableType, true, noAnimate)
+        //         .then(() => {
+        //             deferred.resolve({tableFromInactive: true});
+        //         })
+        //         .fail(() => {
+        //             deferred.reject({notFound: true});
+        //         });
+        //     }
+        // } else {
+        //     XcalarGetTables(tableName)
+        //     .then((ret) => {
+        //         if (ret.numNodes > 0) {
+        //             MainMenu.openPanel("workspacePanel", "worksheetButton");
+        //             wsId = WSManager.getActiveWS();
+        //             WSManager.moveTemporaryTable(tableId, wsId, TableType.Orphan,
+        //                                         true, noAnimate)
+        //             .then(() => {
+        //                 deferred.resolve({tableFromInactive: true});
+        //             })
+        //             .fail(deferred.reject);
+        //         } else {
+        //             deferred.reject({notFound: true});
+        //         }
+        //     })
+        //     .fail(deferred.reject);
+        // }
+        // return deferred.promise();
     }
 
     // XXX consider passing in table names instead of tableIds to simplify
@@ -1146,7 +681,6 @@ class TblManager {
             const tableName: string = table.getName();
             Dag.makeInactive(tableId, false);
             TblManager._removeTableDisplay(tableId);
-            TableList.removeTable(tableId, TableType.Active);
 
             if (gActiveTableId === tableId) {
                 gActiveTableId = null;
@@ -1184,9 +718,6 @@ class TblManager {
         .then((...arg) => {
             tableIds.forEach(resolveTable);
             TblManager.alignTableEls();
-            // disallow dragging if only 1 table in worksheet
-            TblFunc.checkTableDraggable();
-
             deferred.resolve.apply(this, arg);
         })
         .fail((...arg) => {
@@ -1199,8 +730,6 @@ class TblManager {
                 }
             }
             TblManager.alignTableEls();
-            // disallow dragging if only 1 table in worksheet
-            TblFunc.checkTableDraggable();
             deferred.reject.apply(this, arg);
         });
 
@@ -1218,7 +747,6 @@ class TblManager {
                     const tableIndex: number = gOrphanTables.indexOf(tableName);
                     gOrphanTables.splice(tableIndex, 1);
                     Dag.makeInactive(tableName, true);
-                    TableList.removeTable(tableName, TableType.Orphan);
                     TblManager._removeTableMeta(tableName);
                 }
             }
@@ -1261,7 +789,6 @@ class TblManager {
         XIApi.deleteTables(txId, tableJSON, null)
         .then((...arg) => {
             names.forEach((tableName) => {
-                TableList.removeTable(tableName, TableType.Orphan);
                 TblManager._removeTableMeta(tableName);
             });
             deferred.resolve.apply(this, arg);
@@ -1269,9 +796,6 @@ class TblManager {
         .fail((...arg) => {
             for (let i = 0; i < arg.length; i++) {
                 const tableName: string = names[i];
-                if (arg[i] == null) {
-                    TableList.removeTable(tableName, TableType.Orphan);
-                }
                 TblManager._removeTableMeta(tableName);
             }
             deferred.reject.apply(this, arg);
@@ -1283,7 +807,6 @@ class TblManager {
     private static _removeTableMeta(tableName: string): void {
         const tableId: TableId = xcHelper.getTableId(tableName);
         if (tableId != null && gTables[tableId] != null) {
-            WSManager.removeTable(tableId, false);
             TblManager._sendTableToDropped(gTables[tableId]);
             delete gTables[tableId];
             Profile.deleteCache(tableId);
@@ -1392,19 +915,6 @@ class TblManager {
             return null;
         }
         table.addNoDelete();
-        const $tableHeader: JQuery = $("#xcTheadWrap-" + tableId);
-        if (!$tableHeader.find(".lockIcon").length) {
-            $tableHeader.find(".tableTitle")
-                        .append('<i class="lockIcon icon xi-lockwithkeyhole" ' +
-                                'data-toggle="tooltip" ' +
-                                'data-placement="top" ' +
-                                'data-container="body" ' +
-                                'data-original-title="' +
-                                TooltipTStr.UnlockTable + '"' +
-                                '></i>');
-            TblFunc.moveTableDropdownBoxes();
-        }
-        TableList.makeTableNoDelete(tableId);
         return table;
     }
 
@@ -1417,7 +927,6 @@ class TblManager {
         table.removeNoDelete();
         const $tableHeader: JQuery = $("#xcTheadWrap-" + tableId);
         $tableHeader.find(".lockIcon").remove();
-        TableList.removeTableNoDelete(tableId);
         return table;
     }
 
@@ -1525,7 +1034,7 @@ class TblManager {
         const $jsonEle: JQuery = $trs.find(".jsonElement");
         $jsonEle.on("click", ".pop", (event) => {
             const $el: JQuery = $(event.currentTarget);
-            if ($('#mainFrame').hasClass('modalOpen') &&
+            if (ModalHelper.isModalOn() &&
                 !$el.closest('.xcTableWrap').hasClass('jsonModalOpen'))
             {
                 return;
@@ -1743,14 +1252,6 @@ class TblManager {
     }
 
     /**
-     * TblManager.hideWorksheetTable
-     * @param tableId
-     */
-    public static hideWorksheetTable(tableId: TableId): void {
-        TblManager._removeTableDisplay(tableId);
-    }
-
-    /**
      * TblManager.hideTable
      * @param tableId
      */
@@ -1800,7 +1301,6 @@ class TblManager {
         $tableWrap.removeClass('tableHidden');
         const $dropdown: JQuery = $tableWrap.find('.tableTitle .dropdownBox');
         xcTooltip.changeText($dropdown, TooltipTStr.ViewTableOptions);
-        WSManager.focusOnWorksheet(WSManager.getActiveWS(), false, tableId);
 
         const $table: JQuery = $('#xcTable-' + tableId);
         $table.height('auto');
@@ -1906,7 +1406,7 @@ class TblManager {
             oldOrder.push(numCols);
         }
 
-        TableList.updateTableInfo(tableId);
+        // XXX TODO: possibly update the order of lineage
 
         Log.add(SQLTStr.SortTableCols, {
             "operation": SQLOps.SortTableCols,
@@ -1974,7 +1474,7 @@ class TblManager {
         $table.find('thead tr').html(thHtml);
         $table.find('tbody').html(tdHtml);
 
-        TableList.updateTableInfo(tableId);
+        // XXX TODO: possibly update the order of lineage
         TblManager._addRowListeners($table.find('tbody'));
     }
 
@@ -2109,14 +1609,14 @@ class TblManager {
      * TblManager.adjustRowFetchQuantity
      */
     public static adjustRowFetchQuantity(): number {
-        // cannot calculate mainFrame height directly because sometimes
+        // cannot calculate frame's height directly because sometimes
         // it may not be visible
         try {
             const $topBar: JQuery = $('.mainPanel.active').find('.topBar');
-            const mainFrameTop: number = $topBar[0].getBoundingClientRect().bottom;
-            const mainFrameBottom: number = $('#statusBar')[0].getBoundingClientRect().top;
-            const mainFrameHeight: number = mainFrameBottom - mainFrameTop;
-            const tableAreaHeight: number = mainFrameHeight - gFirstRowPositionTop;
+            const frameTop: number = $topBar[0].getBoundingClientRect().bottom;
+            const frameBottom: number = $('#statusBar')[0].getBoundingClientRect().top;
+            const frameHeight: number = frameBottom - frameTop;
+            const tableAreaHeight: number = frameHeight - gFirstRowPositionTop;
             const maxVisibleRows: number = Math.ceil(tableAreaHeight / gRescol.minCellHeight);
             const buffer: number = 5;
             const rowsNeeded: number = maxVisibleRows + gNumEntriesPerPage + buffer;
@@ -2322,7 +1822,7 @@ class TblManager {
             TblFunc.alignScrollBar($table);
         } else {
             TblManager.updateTableHeader(tableId);
-            TableList.updateTableInfo(tableId);
+            // XXX TODO: possibly update the order of lineage
             TblFunc.matchHeaderSizes($table);
         }
     }
@@ -2377,8 +1877,6 @@ class TblManager {
      * @param $tableWrap
      */
     public static alignTableEls($tableWrap?: JQuery): void {
-        TblFunc.moveTableTitles($tableWrap);
-        TblFunc.moveTableDropdownBoxes();
         TblFunc.moveFirstColumn(null);
     }
 
@@ -2471,8 +1969,7 @@ class TblManager {
         // listeners on thead
         $thead.on("mousedown", ".flexContainer, .dragArea", (event: any) => {
             const $el: JQuery = $(event.currentTarget);
-            if ($("#container").hasClass("columnPicker") ||
-                ($("#mainFrame").hasClass("modalOpen") && !event.bypassModal)) {
+            if ($("#container").hasClass("columnPicker")) {
                 // not focus when in modal unless bypassModa is true
                 return;
             } else if ($el.closest('.dataCol').length !== 0) {
@@ -2487,8 +1984,6 @@ class TblManager {
             }
 
             const colNum: number = xcHelper.parseColNum($editableHead);
-            FnBar.focusOnCol($editableHead, tableId, colNum);
-
             const $target: JQuery = $(event.target);
             const notDropDown: boolean = $target.closest('.dropdownBox').length === 0 &&
                                 $target.closest(".dotWrap").length === 0;
@@ -2504,7 +1999,6 @@ class TblManager {
                     event.which !== 3) {
                     if (notDropDown) {
                         TblManager._unhighlightColumn($editableHead);
-                        FnBar.clear();
                         return;
                     }
                 } else {
@@ -2531,9 +2025,6 @@ class TblManager {
                             } else if (notDropDown) {
                                 TblManager._unhighlightColumn($col);
                             }
-                        }
-                        if ($table.find('.selectedCell').length === 0) {
-                            FnBar.clear();
                         }
                     }
                 }
@@ -2577,7 +2068,6 @@ class TblManager {
         $thead.on("mousedown", ".sortIcon", (event) => {
             const $th: JQuery = $(event.currentTarget).closest('th');
             const colNum: number = xcHelper.parseColNum($th);
-            FnBar.focusOnCol($th, tableId, colNum);
             TblManager.highlightColumn($th, false, false);
             lastSelectedCell = $th;
         });
@@ -2622,8 +2112,6 @@ class TblManager {
 
         $thead.on("mousedown", ".topHeader .dotWrap", (event) => {
             const $th: JQuery = $(event.currentTarget).closest('th');
-            const colNum: number = xcHelper.parseColNum($th);
-            FnBar.focusOnCol($th, tableId, colNum);
             TblManager.highlightColumn($th, false, false);
             lastSelectedCell = $th;
         });
@@ -2633,7 +2121,7 @@ class TblManager {
         });
 
         $thead.on("click", ".dropdownBox", (event: any) => {
-            if ($("#mainFrame").hasClass("modalOpen")) {
+            if (ModalHelper.isModalOn()) {
                 // not focus when in modal
                 return;
             }
@@ -2676,7 +2164,6 @@ class TblManager {
 
             if ($th.hasClass('dataCol')) {
                 $('.selectedCell').removeClass('selectedCell');
-                FnBar.clear();
             }
 
             if ($th.hasClass('newColumn') ||
@@ -2774,8 +2261,7 @@ class TblManager {
                 return;
             }
             if ($("#container").hasClass('columnPicker') ||
-                DagEdit.isEditMode() ||
-                ($("#mainFrame").hasClass("modalOpen") && !event.bypassModal)) {
+                DagEdit.isEditMode()) {
                 // not focus when in modal unless bypassModa is true
                 return;
             }
@@ -2810,14 +2296,6 @@ class TblManager {
                 $input.closest('.selectedCell').length === 0
             ) {
                 $input.val("");
-                const $activeTarget: JQuery = gMouseEvents.getLastMouseDownTarget();
-
-                if (!$activeTarget.closest('.header')
-                                  .find('.flex-mid')
-                                  .hasClass('editable')
-                ) {
-                    $('#fnBar').removeClass("disabled");
-                }
             }
         });
 
@@ -2828,7 +2306,7 @@ class TblManager {
 
             if ($("#container").hasClass('columnPicker') ||
                 $("#container").hasClass('dfEditState') ||
-                $("#mainFrame").hasClass("modalOpen")
+                ModalHelper.isModalOn()
             ) {
                 // not focus when in modal
                 return;
@@ -2839,7 +2317,7 @@ class TblManager {
             }
             if ($td.hasClass('jsonElement')) {
                 TblManager.unHighlightCells();
-                if ($('#mainFrame').hasClass('modalOpen') &&
+                if (ModalHelper.isModalOn() &&
                     !$td.closest('.xcTableWrap').hasClass('jsonModalOpen')
                 ) {
                     return;
@@ -3042,7 +2520,7 @@ class TblManager {
                 }
                 if ($("#container").hasClass('columnPicker') ||
                     $("#container").hasClass('dfEditState') ||
-                    $("#mainFrame").hasClass("modalOpen")
+                    ModalHelper.isModalOn()
                 ) {
                     $el.trigger('click');
                     // not focus when in modal

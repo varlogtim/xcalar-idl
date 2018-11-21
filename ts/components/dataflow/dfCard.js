@@ -974,9 +974,9 @@ window.DFCard = (function($, DFCard) {
                 btns.push({
                     name: DFTStr.ViewTable,
                     func: function() {
-                        MainMenu.openPanel("workspacePanel", "worksheetButton", {
-                            hideDF: true
-                        });
+                        // MainMenu.openPanel("workspacePanel", "worksheetButton", {
+                        //     hideDF: true
+                        // });
                         var tableId = xcHelper.getTableId(finalTable);
                         xcHelper.centerFocusedTable(tableId, true);
                     }
@@ -1539,7 +1539,6 @@ window.DFCard = (function($, DFCard) {
 
     function addTableToWS(tableName, exportStruct, txId) {
         var deferred = PromiseHelper.deferred();
-        var worksheet = WSManager.getActiveWS();
         var metaCols = [];
         if (exportStruct && exportStruct.columns) {
             metaCols = exportStruct.columns;
@@ -1558,7 +1557,7 @@ window.DFCard = (function($, DFCard) {
 
         var tableCols = getProgCols(colNames);
 
-        TblManager.refreshTable([tableName], tableCols, [], worksheet, txId)
+        TblManager.refreshTable([tableName], tableCols, [], txId)
         .then(function() {
             deferred.resolve(tableName);
         })

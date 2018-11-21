@@ -76,11 +76,6 @@ describe("DagEdit Test", function() {
                 tableId = xcHelper.getTableId(tableName);
                 return XIApi.map(1, tableId, "concat", 'concat("one-", "two")');
             })
-            .then(function(tName) {
-                tableName = tName;
-                tableId = xcHelper.getTableId(tableName);
-                return ColManager.splitCol(1, tableId, "-");
-            })
             .then(function(tId) {
                 tableId = tId;
                 tableName = gTables[tableId].getName();

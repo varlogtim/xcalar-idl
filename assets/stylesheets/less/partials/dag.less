@@ -1696,11 +1696,8 @@ html.firefox, html.microsoft {
         }
     }
 
-    #functionArea, #skewInfoArea {
+    #skewInfoArea {
         .disabledStyle;
-    }
-    #functionArea, #undoRedoArea {
-        display: none;
     }
     #workspaceEditText {
         .flex-shrink(0);
@@ -1766,43 +1763,6 @@ html.firefox, html.microsoft {
             // background: @color-bg-apple-green;
             background: @color-bg-fern-green;
             .labelWrap .text {
-                pointer-events: none;
-            }
-        }
-    }
-
-    #undoRedoArea {
-        .noUndoTip {
-            display: block;
-        }
-    }
-
-    .tableListSection {
-        cursor: not-allowed;
-        > div, > ul {
-            .disabledStyle;
-        }
-        .buttonSection {
-            opacity: 1;
-            > div, > i {
-                opacity:  0.5;
-            }
-        }
-    }
-
-    .worksheetTab {
-        > span, > i, > input {
-            opacity: 0.5;
-        }
-        input {
-            pointer-events: none;
-        }
-        .wsMenu {
-            pointer-events: none;
-        }
-        #hiddenWorksheetTabs {
-            cursor: not-allowed;
-            li {
                 pointer-events: none;
             }
         }

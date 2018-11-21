@@ -247,9 +247,6 @@ class KVStore {
             Aggregates.restore(KVStore.metaInfos.getAggMeta());
             TblManager.restoreTableMeta(KVStore.metaInfos.getTableMeta());
             Profile.restore(KVStore.metaInfos.getStatsMeta());
-            if (gChronos) {
-                WSManager.restore(KVStore.metaInfos.getWSMeta());
-            }
         } catch (error) {
             console.error(error);
             return PromiseHelper.reject(error);

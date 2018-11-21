@@ -12,11 +12,9 @@
  *      mode: nothing, ten or hundred - ds size
  *      type: string, type of test "undoredo", "testsuite"
  *      subType: string, subtype of undoredo test
- *      whichTest: demo (filterOnly demo instead of testSuite)
  * example:
  *  http://localhost:8888/testSuite.html?test=y&delay=2000&user=test&clean=y&close=y
  *  http://localhost:8080/undoredoTest.html?test=y&user=someone&type=undoredo&subType=frontEnd
- *  http://localhost:8080/testSuite.html?type=testSuite&test=y&noPopup=y&whichTest=demo&user=someone
  */
 window.TestSuiteSetup = (function(TestSuiteSetup) {
     var testSuiteKey = "autoTestsuite";
@@ -130,27 +128,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
     }
 
     function autoCreateWorkbook() {
-        var params = getUrlParameters();
-        var whichTest = params.whichTest;
-        var activeWorksheet = WSManager.getActiveWS();
         xcSessionStorage.setItem(testSuiteKey, "true");
-
-        if (activeWorksheet != null) {
-            if (whichTest === "demo") {
-                console.log("run test");
-                return autoRunTestSuite();
-            }
-
-            console.warn("This user is used to test before");
-            WorkbookPanel.show(true);
-        }
-
-        if (whichTest === "demo") {
-            var wkbks = WorkbookManager.getWorkbooks();
-            var wkbkName = Object.keys(wkbks);
-            return activateWorkbook(wkbkName);
-        }
-
         return createWorkbook();
     }
 
@@ -240,7 +218,6 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         var noPopup = parseBooleanParam(params.noPopup);
         var mode = params.mode;
         var timeDilation = params.timeDilation;
-        var whichTest = params.whichTest;
 
         // console.log("delay", delay, "clean", clean, "animation", animation)
         setTimeout(function() {

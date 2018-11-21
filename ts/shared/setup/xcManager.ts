@@ -609,7 +609,6 @@ namespace xcManager {
             Authentication.setup();
             return KVStore.restoreWKBKInfo();
         }) // restores table info, dataset info, settings etc
-        .then(WSManager.initializeTable)
         .then(deferred.resolve)
         .fail(deferred.reject);
 
@@ -823,10 +822,6 @@ namespace xcManager {
         });
     }
 
-    function setupWorkspaceBar(): void {
-        FnBar.setup();
-    }
-
     function setupSocket(): XcSocket {
         const xcSocket: XcSocket = XcSocket.Instance;
         xcSocket.setup();
@@ -856,10 +851,6 @@ namespace xcManager {
                     break;
                 case keyCode.End:
                     isPreventEvent = TblFunc.scrollTable(gActiveTableId, "homeEnd", false);
-                    break;
-                case keyCode.Y:
-                case keyCode.Z:
-                    checkUndoRedo(event);
                     break;
                 default:
                     TblFunc.keyEvent(event);
@@ -915,7 +906,6 @@ namespace xcManager {
                 otherResize = true;
             } else {
                 otherResize = false;
-                TblFunc.moveTableTitles(null);
             }
 
             clearTimeout(winResizeTimer);
@@ -965,13 +955,14 @@ namespace xcManager {
                             $target.hasClass("highlightBox");
             if (!clickable && $target.closest('.dropdownBox').length === 0) {
                 xcMenu.close();
-                if ($target.attr('id') !== 'mainFrame') {
-                    TblManager.unHighlightCells();
-                }
+                // if ($target.attr('id') !== 'mainFrame') {
+                //     TblManager.unHighlightCells();
+                // }
             }
 
-            if (!$('#workspacePanel').hasClass('active')) {
-                // if not on workspace panel, then we're done
+            if (!$('#modelingDagPanel').hasClass('active') ||
+                DagTable.Instance.getTable() == null) {
+                // if not on modelingDagPanel panel, or no tables then we're done
                 return;
             }
 
@@ -982,7 +973,6 @@ namespace xcManager {
                 - selected column cells
                 - the function bar
                 - any menu list item
-                - worksheet scroll bar
                 - table scroll bar of the respective column's table
                 - the draggable resizing area on the right side of the left panel
                 - the draggable resizing area on the top of the QG panel
@@ -992,33 +982,16 @@ namespace xcManager {
             if (!$target.closest(".header").length &&
                 !$target.closest(".selectedCell").length &&
                 !$target.closest(".menu").length &&
-                $target.attr("id") !== "mainFrame" &&
+                // $target.attr("id") !== "mainFrame" &&
                 !$target.hasClass("ui-resizable-handle") &&
                 !($target.closest(".topButtons").length &&
                     $target.closest("#dagPanel").length) &&
-                !$target.closest("#dfPanelSwitch").length &&
-                !($target.closest("li.column").length &&
-                 $target.closest("#activeTablesList").length) &&
-                !$target.closest(".tableScrollBar").length &&
-                !isTargetFnBar($target) && !$(".fnBarLocked").length) {
+                !$target.closest("li.column").length &&
+                !$target.closest(".tableScrollBar").length) {
 
                 $(".selectedCell").removeClass("selectedCell");
-                FnBar.clear();
             }
         });
-
-        function isTargetFnBar($target: JQuery): boolean {
-            // some code mirror elements don't have parents for some reason
-            // such as the pre tag
-            const isCodeMirror: boolean = $target.hasClass("fnbarPre") ||
-                               $target.closest("#functionArea").length > 0 ||
-                               $target.hasClass("CodeMirror-cursor") ||
-                               $target.closest(".CodeMirror-hint").length > 0 ||
-                               $target.closest(".fnbarPre").length > 0 ||
-                               ($target.closest("pre").length > 0 &&
-                               $target.parents('html').length === 0);
-            return isCodeMirror;
-        }
 
         let dragCount: number = 0; // tracks document drag enters and drag leaves
         // as multiple enters/leaves get triggered by children
@@ -1186,34 +1159,6 @@ namespace xcManager {
                 });
             }
         };
-
-        function checkUndoRedo(event: JQueryEventObject): void {
-            if (!(isSystemMac && event.metaKey) &&
-                !(!isSystemMac && event.ctrlKey))
-            {
-                return;
-            }
-            if ($('#workspacePanel').hasClass('active') &&
-                !$('#container').hasClass('columnPicker') &&
-                !$('.modalContainer:not(#aboutModal):visible').length &&
-                !$('textarea:focus').length &&
-                !$('input:focus').length) {
-
-                event.preventDefault();
-                xcMenu.close();
-                TblManager.unHighlightCells();
-
-                if (event.which === keyCode.Z) {
-                    $('#undo').click();
-                } else if (event.which === keyCode.Y) {
-                    if ($("#redo").hasClass("disabled")) {
-                        Log.repeat();
-                    } else {
-                        $('#redo').click();
-                    }
-                }
-            }
-        }
     }
 
     let logoutRedirect: Function = function(): void {
@@ -1429,8 +1374,8 @@ namespace xcManager {
                     '<div class="close">+</div></div></div>');
         setTimeout(function() {
             if ($tab.hasClass("firstTouch") &&
-                $("#workspaceTab").hasClass("active") &&
-                $("#worksheetButton").hasClass("active")) {
+                $("#modelingDataflowTab").hasClass("active")
+            ) {
                 showPopup();
             }
         }, 1000);
@@ -1456,9 +1401,6 @@ namespace xcManager {
         if (!gChronos) {
             return;
         }
-        setupWorkspaceBar();
-        WSManager.setup();
-        WorkspacePanel.setup();
         DagPanel.setup();
         DataflowPanel.setup();
     }
@@ -1468,9 +1410,7 @@ namespace xcManager {
         if (!gChronos) {
             return;
         }
-        WSManager.initialize(); // async
         DataflowPanel.initialize(); // async if has df
-        WSManager.focusOnWorksheet();
     }
 
     /* Unit Test Only */
