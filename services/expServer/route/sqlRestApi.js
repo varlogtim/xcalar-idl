@@ -1022,20 +1022,20 @@ function executeSqlWithExtQuery(execid, queryStr, rowsToFetch, sessionPrefix,
     .then(function(compilerObject, xcQueryString, newTableName, colNames) {
         xcConsole.log("Compilation finished");
         orderedColumns = colNames;
+        var optimizations = {
+            dropAsYouGo: true
+        };
+        var queryWithDrop = compilerObject.logicalOptimize(xcQueryString,
+                                    optimizations, JSON.stringify(selectQuery));
         var prefixStruct = addPrefix(
-            selectQuery.concat(JSON.parse(xcQueryString)),
+            JSON.parse(queryWithDrop),
             allSelects,
             newTableName,
             sessionPrefix,
             usePaging);
-        var xcQueryWithSelect = prefixStruct.query;
+        var prefixedQuery = prefixStruct.query;
         finalTable = prefixStruct.tableName || newTableName;
-        var optimizations = {
-            dropAsYouGo: true
-        };
-        var queryWithDrop = compilerObject.logicalOptimize(xcQueryWithSelect,
-                                                           optimizations);
-        return compilerObject.execute(queryWithDrop, finalTable, orderedColumns,
+        return compilerObject.execute(prefixedQuery, finalTable, orderedColumns,
                                       queryStr, undefined, option);
     })
     .then(function() {
@@ -1069,6 +1069,13 @@ function addPrefix(plan, selectTables, finalTable, prefix, usePaging) {
         var operation = plan[i];
         var source = operation.args.source;
         var dest = operation.args.dest;
+        if (!source || !dest) {
+            const namePattern = operation.args.namePattern;
+            if (!namePattern.startsWith(prefix)) {
+                operation.args.namePattern = prefix + namePattern;
+            }
+            continue;
+        }
         if (typeof(source) === "string") {
             source = [source];
         }
