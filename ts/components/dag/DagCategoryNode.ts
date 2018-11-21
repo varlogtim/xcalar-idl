@@ -1,14 +1,16 @@
 class DagCategoryNode {
+    protected key: string;
     protected categoryType: DagCategoryType;
     protected nodeSubType: string | null;
     protected node: DagNode;
     protected hidden: boolean;
     protected color: string = "#F8A296";
 
-    public constructor(node: DagNode, categoryType: DagCategoryType, isHidden: boolean = false) {
+    public constructor(node: DagNode, categoryType: DagCategoryType, isHidden: boolean = false, key: string = '') {
         this.node = node;
         this.categoryType = categoryType;
         this.hidden = isHidden;
+        this.key = key;
     }
 
     public getCategoryType(): DagCategoryType {
@@ -21,6 +23,10 @@ class DagCategoryNode {
 
     public getNodeType(): string {
         return this.node.getType();
+    }
+
+    public getKey(): string {
+        return this.key;
     }
 
     public getDisplayNodeType(): string {
@@ -71,7 +77,8 @@ class DagCategoryNode {
             type: this.categoryType,
             subType: this.getNodeSubType(),
             node: this.node.getSerializableObj(),
-            hidden: this.hidden
+            hidden: this.hidden,
+            key: this.key
         };
     }
 
@@ -84,6 +91,7 @@ class DagCategoryNode {
         this.nodeSubType = json.subType;
         this.hidden = json.hidden;
         this.node = DagNodeFactory.create(json.node);
+        this.key = json.key;
     }
 
     /**
@@ -158,9 +166,14 @@ class DagCategoryNodeSQL extends DagCategoryNode {
 }
 
 class DagCategoryNodeCustom extends DagCategoryNode {
+    private static keyGenerator: XcUID = new XcUID('co');
     protected color: string = "#F8A296";
     public constructor(node: DagNode, isHidden: boolean = false) {
-        super(node, DagCategoryType.Custom, isHidden);
+        super(
+            node,
+            DagCategoryType.Custom,
+            isHidden,
+            DagCategoryNodeCustom.keyGenerator.gen());
     }
     /**
      * @override

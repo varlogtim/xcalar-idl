@@ -92,13 +92,8 @@ class DagCategoryBar {
         this._focusOnCategory(isFocusCategory? categoryName: this.currentCategory);
 
         // Persist the change
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        this.dagCategories.saveCategories()
-        .then(() => {
-            deferred.resolve(newName);
-        })
-        .fail(deferred.reject);
-        return deferred.promise();
+        return this._saveCategories()
+        .then(() => newName);
     }
 
     /**
@@ -200,7 +195,7 @@ class DagCategoryBar {
                 '</svg>';
         this.dagCategories.getCategories().forEach((category: DagCategory) => {
             const categoryName: string = category.getName();
-            const operators: DagCategoryNode[] = category.getOperators();
+            const operators: DagCategoryNode[] = category.getSortedOperators();
 
             let index = 0;
             let operatorHtml: HTML = "";
@@ -750,14 +745,7 @@ class DagCategoryBar {
         this._focusOnCategory(this.currentCategory);
 
         // Persist the change
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        this.dagCategories.saveCategories()
-        .then(() => {
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
+        return this._saveCategories();
     }
 
     private _isValidOperatorName(category: DagCategory, newName: string): boolean {
@@ -787,11 +775,8 @@ class DagCategoryBar {
         }
 
         // Rename
-        const dagNode = targetCategory.getOperatorById(nodeId).getNode();
-        if (dagNode instanceof DagNodeCustom) {
-            dagNode.setCustomName(newName);
-        } else {
-            throw new Error(`Operator(${nodeId}) doesn't support renaming`);
+        if (!targetCategory.renameOperatorById(nodeId, newName)) {
+            return PromiseHelper.reject('Rename failed');
         }
 
         // Re-render the operator bar(UI)
@@ -799,10 +784,14 @@ class DagCategoryBar {
         this._focusOnCategory(this.currentCategory);
 
         // Persist the change
+        return this._saveCategories();
+    }
+
+    private _saveCategories(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this.dagCategories.saveCategories()
         .then(() => {
-            deferred.resolve();
+            XcSocket.Instance.sendMessage("refreshDagCategory");
         })
         .fail(deferred.reject);
         return deferred.promise();

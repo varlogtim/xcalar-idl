@@ -327,6 +327,7 @@ interface CommentInfo {
 }
 
 interface DagCategoryNodeInfo {
+    key: string,
     type: DagCategoryType,
     subType: string,
     node: DagNodeInfo,

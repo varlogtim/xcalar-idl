@@ -216,6 +216,13 @@ class XcSocket {
             }
             IMDPanel.updateInfo(arg);
         });
+
+        socket.on("refreshDagCategory", () => {
+            if (!this._isRegistered) {
+                return;
+            }
+            DagCategoryBar.Instance.loadCategories();
+        });
     }
 
     private _checkConnection(

@@ -296,6 +296,26 @@ describe("xcSocket Test", function() {
             DS.updateDSInfo = oldFunc;
         });
 
+        it("refreshDagCategory event should work", function() {
+            const oldFunc = DagCategoryBar.Instance.loadCategories;
+            let test = null;
+            DagCategoryBar.Instance.loadCategories = () => {
+                test = true;
+            };
+
+            // case 1;
+            xcSocket._isRegistered = false;
+            xcSocket._socket.trigger('refreshDagCategory');
+            expect(test).to.be.null;
+
+            // case 2;
+            xcSocket._isRegistered = false;
+            xcSocket._socket.trigger('refreshDagCategory');
+            expect(test).to.be.true;
+
+            DagCategoryBar.Instance.loadCategories = oldFunc;
+        });
+
         after(() => {
             xcSocket._socket = oldSocket;
         });

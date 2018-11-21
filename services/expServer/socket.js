@@ -213,6 +213,13 @@ function socketIoServer(server, session, cookieParser) {
             socket.broadcast.emit("refreshIMD", imdInfo);
         });
 
+        socket.on("refreshDagCategory", function(args) {
+            if (checkIoSocketAuth(socket)) {
+                return;
+            }
+            socket.broadcast.emit("refreshDagCategory", args);
+        });
+
         addDSSocketEvent(socket);
     });
 

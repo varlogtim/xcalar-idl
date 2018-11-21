@@ -14,6 +14,7 @@ describe("ExpServer Socket Test", function() {
     var testDF;
     var testAlertOpts;
     var testRefreshUDFOption;
+    var testRefreshDagCategory;
 
     before(function(done) {
         testUserOption = {
@@ -28,6 +29,7 @@ describe("ExpServer Socket Test", function() {
         testAlertOpts = {};
         testWkbk = "testWkbk";
         testIMD = "testIMD";
+        testRefreshDagCategory = 'testRefreshDagCategory';
         var flag1, flag2;
         client = io('http://localhost:12125', options);
         client.on("connect", function() {
@@ -120,6 +122,14 @@ describe("ExpServer Socket Test", function() {
         client.emit("refreshIMD", testIMD);
         peerClient.on("refreshIMD", function(res) {
             expect(res).to.equal(testIMD);
+            done();
+        });
+    });
+
+    it("socket should handle refreshDagCategory", function(done) {
+        client.emit('refreshDagCategory', testRefreshDagCategory);
+        peerClient.on('refreshDagCategory', function(res) {
+            expect(res).to.equal(testRefreshDagCategory);
             done();
         });
     });

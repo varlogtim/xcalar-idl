@@ -263,6 +263,14 @@ class DagCategory {
         return this.operators;
     }
 
+    public getSortedOperators() {
+        return this.operators;
+    }
+
+    public clear() {
+        return this.operators = [];
+    }
+
     /**
      * Check if an operator with the given name exists in the list
      * @param name
@@ -294,6 +302,25 @@ class DagCategory {
             return null;
         }
         return this.getOperators()[idx];
+    }
+
+    /**
+     * Rename an operator
+     * @param operatorId 
+     * @param name 
+     */
+    public renameOperatorById(operatorId: DagNodeId, name: string): boolean {
+        const categoryNode = this.getOperatorById(operatorId);
+        if (categoryNode == null) {
+            return false;
+        }
+        const dagNode = categoryNode.getNode();
+        if (dagNode instanceof DagNodeCustom) {
+            dagNode.setCustomName(name);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -333,17 +360,20 @@ class DagCategory {
     }
 }
 
-// XXX TODO: Solve race condition by using path structured KVStore key 'gUserCustomOpKey/opName';
-// XXX TODO: Generate unique key(per user), in the multi-session scenario;
-// XXX TODO: Syncup custom ops between multiple sessions;
 class DagCategoryCustom extends DagCategory {
-    private _kvStore: KVStore;
+    // Each category nodes is stored in a separate KVStore key-value pair,
+    // where key is path structured like 'gUserCustomOpKey/<nodeKey>';
+    private _categoryKey: string;
+    private _dirtyData: {
+        create: Set<string>, update: Set<string>, delete: Set<string>
+    };
 
     public constructor(operators: DagCategoryNode[], key: string) {
         super(DagCategoryType.Custom, operators);
-        this._kvStore = new KVStore(
-            KVStore.getKey(key),
-            gKVScope.USER);
+        this._categoryKey = KVStore.getKey(key);
+        this._dirtyData = {
+            create: new Set(), update: new Set(), delete: new Set()
+        };
     }
 
     /**
@@ -351,20 +381,61 @@ class DagCategoryCustom extends DagCategory {
      * Load custom operators from KVStore
      */
     public loadCategory():XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        return PromiseHelper.resolve(this._hasDirtyData())
+        .then((needSave) => {
+            // If there are unsaved changes, save first
+            if (needSave) {
+                return this.saveCategory();
+            }
+        })
+        .then(() => KVStore.list(this._getNodeKeyPatten(), gKVScope.USER))
+        .then((keyResult) => {
+            // === Load category nodes stored in KVStroe ===
+            // Construct the promise list of loading/creating categoryNodes
+            const taskList = keyResult.keys.map((key) => {
+                const deferred: XDDeferred<DagCategoryNode> = PromiseHelper.deferred();
+                (new KVStore(key, gKVScope.USER)).getAndParse()
+                .then((info: DagCategoryNodeInfo) => {
+                    if (info == null) {
+                        deferred.resolve(null);
+                    } else {
+                        deferred.resolve(DagCategoryNodeFactory.createFromJSON(info));
+                    }
+                })
+                .fail(() => {
+                    deferred.resolve(null);
+                }); // Ignore any errors
+                return deferred.promise();
+            });
 
-        this._kvStore.getAndParse()
-        .then((categoryInfos: DagCategoryNodeInfo[]) => {
-            if (categoryInfos != null) {
-                for (const info of categoryInfos) {
-                    this.add(DagCategoryNodeFactory.createFromJSON(info));
+            // Execute the KVStore actions in parallel
+            return PromiseHelper.when(...taskList)
+            .then((...categoryNodes) => {
+                // All KVStore actions are done
+                const nodeList: DagCategoryNode[] = [];
+                for (const node of categoryNodes) {
+                    if (node != null) {
+                        nodeList.push(node);
+                    }
+                }
+                return nodeList;
+            });
+        })
+        .then((loadedNodes) => {
+            // === Combine fixed/loaded nodes, and rebuild the node list ===
+            // Get all non-persistable nodes(ex. DagNodeCustomInput)
+            const fixedNodes = [];
+            for (const node of this.getOperators()) {
+                if (!node.isPersistable()) {
+                    fixedNodes.push(node);
                 }
             }
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
+            // Rebuild the node list in the order: fixed, loaded
+            this.clear();
+            fixedNodes.concat(loadedNodes).forEach((node) => {
+                this.add(node, false);
+            });
+        });
     }
 
     /**
@@ -374,14 +445,59 @@ class DagCategoryCustom extends DagCategory {
      * It checkes DagCategoryNode.isPersistable(), and persists all those return true.
      */
     public saveCategory(): XDPromise<void> {
-        const categoryInfos: DagCategoryNodeInfo[] = [];
+        const putSet: Set<string> = new Set();
+        const delSet: Set<string> = new Set(this._dirtyData.delete);
+        this._dirtyData.create.forEach((key) => {
+            if (!delSet.has(key)) {
+                putSet.add(key);
+            }
+        });
+        this._dirtyData.update.forEach((key) => {
+            if (!delSet.has(key)) {
+                putSet.add(key);
+            }
+        });
+
+        const taskList = [];
+        // List of update/add nodes
         for (const operator of this.getOperators()) {
-            if (operator.isPersistable()) {
-                // Save only the operators that needs to be persisted
-                categoryInfos.push(operator.getJSON());
+            const opKey = operator.getKey();
+            if (operator.isPersistable() && putSet.has(opKey)) {
+                const nodeJSON = operator.getJSON();
+                const kvStore = new KVStore(
+                    this._getNodeFullKey(opKey),
+                    gKVScope.USER);
+
+                const deferred = PromiseHelper.deferred();
+                kvStore.put(JSON.stringify(nodeJSON), true, false)
+                .then(() => deferred.resolve())
+                .fail(() => deferred.resolve());
+                taskList.push(deferred.promise());
             }
         }
-        return this._kvStore.put(JSON.stringify(categoryInfos), true, false);
+        // List of delete nodes
+        delSet.forEach((opKey) => {
+            const kvStore = new KVStore(
+                this._getNodeFullKey(opKey),
+                gKVScope.USER);
+
+            const deferred = PromiseHelper.deferred();
+            kvStore.delete()
+            .then(() => deferred.resolve())
+            .fail(() => deferred.resolve());
+            taskList.push(deferred.promise());
+        });
+
+        // Execute all tasks in parallel
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        PromiseHelper.when(...taskList)
+        .always(() => {
+            this._dirtyData.create.clear();
+            this._dirtyData.update.clear();
+            this._dirtyData.delete.clear();
+            deferred.resolve();
+        });
+        return deferred.promise();
     }
 
     /**
@@ -413,5 +529,71 @@ class DagCategoryCustom extends DagCategory {
         }
 
         return prefix;
+    }
+    
+    /**
+     * @override
+     * @param node 
+     */
+    public add(node: DagCategoryNode, isSetDirty: boolean = true): void {
+        super.add(node);
+        if (node.isPersistable() && isSetDirty) {
+            this._dirtyData.create.add(node.getKey());
+        }
+    }
+
+    /**
+     * @override
+     * @param operatorId
+     */
+    public removeOperatorById(
+        operatorId: DagNodeId, isSetDirty: boolean = true
+    ): boolean {
+        const op = this.getOperatorById(operatorId);
+        if (op != null && op.isPersistable() && isSetDirty) {
+            this._dirtyData.delete.add(op.getKey());
+        }
+        return super.removeOperatorById(operatorId);
+    }
+
+    /**
+     * @override
+     * @param operatorId 
+     * @param name 
+     */
+    public renameOperatorById(
+        operatorId: DagNodeId, name: string, isSetDirty: boolean = true
+    ): boolean {
+        const categoryNode = this.getOperatorById(operatorId);
+        if (categoryNode != null && categoryNode.isPersistable() && isSetDirty) {
+            this._dirtyData.update.add(categoryNode.getKey());
+        }
+        return super.renameOperatorById(operatorId, name);
+    }    
+
+    /**
+     * @override
+     */
+    public getSortedOperators() {
+        const result = super.getSortedOperators().map((v) => v);
+        result.sort((a, b) => {
+            const [av, bv] = [a.getDisplayNodeType().toLowerCase(), b.getDisplayNodeType().toLowerCase()];
+            return av > bv ? 1 : (av < bv ? -1 : 0);
+        });
+        return result;
+    }
+
+    private _hasDirtyData(): boolean {
+        return this._dirtyData.create.size > 0
+            || this._dirtyData.update.size > 0
+            || this._dirtyData.delete.size > 0;
+    }
+
+    private _getNodeKeyPatten(): string {
+        return `${this._categoryKey}/.+`;
+    }
+
+    private _getNodeFullKey(nodeKey: string): string {
+        return `${this._categoryKey}/${nodeKey}`;
     }
 }
