@@ -1037,12 +1037,14 @@ class SQLOpPanel extends BaseOpPanel {
                     self._sqlEditor.getValue().replace(/;+$/, "");
         const paramterizedSQL = xcHelper.replaceMsg(sql,
                                 DagParamManager.Instance.getParamMap(), true);
+        const identifiers = this._extractIdentifiers();
         if (!paramterizedSQL) {
-            return PromiseHelper.reject(SQLErrTStr.EmptySQL);
+            self._dataModel.setDataModel("", "", [], "", identifiers, {});
+            self._dataModel.submit();
+            return PromiseHelper.resolve();
         }
         const queryId = xcHelper.randName("sql", 8);
         const sqlCom = new SQLCompiler();
-        const identifiers = this._extractIdentifiers();
         let schemaQueryString;
         let tableSrcMap;
         let resTableName;
