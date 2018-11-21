@@ -23,6 +23,7 @@ window.Log = (function($, Log) {
     var isRedo = false;
     var shouldOverWrite = false;
     var lastSavedCursor = logCursor;
+    var lastRestoreCursor = logCursor;
 
     // constant
     var logLocalStoreKey = "xcalar-query";
@@ -638,6 +639,8 @@ window.Log = (function($, Log) {
                 infListMachine.restore(".cliWrap");
 
                 lastSavedCursor = logCursor;
+                lastRestoreCursor = logCursor;
+
                 if (logCursor < oldLogs.length - 1) {
                     // need to do it to detect overwrite of old logs
                     // but we don't restore the logs from
@@ -906,12 +909,15 @@ window.Log = (function($, Log) {
 
         // check undo
         var cur = logCursor;
-        while (cur >= 0 && getUndoType(logs[cur]) === UndoType.Skip) {
+        while (cur >= 0 &&
+            cur > lastRestoreCursor &&
+            getUndoType(logs[cur]) === UndoType.Skip
+        ) {
             cur--;
         }
 
         var undoTitle;
-        if (cur === -1) {
+        if (cur === -1 || cur === lastRestoreCursor) {
             // when no operation to undo
             $undo.addClass("disabled")
                  .data("lastmessage", TooltipTStr.NoUndoNoOp)
