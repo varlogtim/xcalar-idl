@@ -36,6 +36,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     }
 });
 
+
 const globalKVPrefix = "/globalKvs/";
 const globalKVDatasetPrefix = "/globalKvsDataset/";
 const workbookKVPrefix = "/workbookKvs/";
@@ -43,6 +44,7 @@ let idCount = 0; // used to give ids to dataflow nodes
 const gridSpacing = 20;
 const horzNodeSpacing = 140;// spacing between nodes when auto-aligning
 const vertNodeSpacing = 60;
+let isRetina = false;
 
 function convert(query) {
     const nodes = new Map();
@@ -57,8 +59,15 @@ function convert(query) {
     if (!(query instanceof Array)) {
         return "invalid query: " + query;
     }
+    // first element in the array is a header indicating if the dataflow
+    // is a regular workbook dataflow or retina dataflow
+    const header = query[0];
+    if (header.workbookVersion == null) {
+        isRetina = true;
+    }
 
-    for (let rawNode of query) {
+    for (let i = 1; i < query.length; i++) {
+        const rawNode = query[i];
         const args = rawNode.args;
         const node =
         {   name: args.dest,
@@ -143,11 +152,11 @@ function _finalConvertIntoDagNodeInfoArray(nodes, datasets) {
         nodeCount++;
     }
 
+    let allDagNodeInfos = {};
     for (let i in treeGroups) {
-
         const group = treeGroups[i];
         const endNodes = [];
-        for (let j = 0; j < group.length; j++) {
+        for (let j in group) {
             const node = group[j];
             if (node.children.length === 0) {
                 endNodes.push(node);
@@ -158,12 +167,50 @@ function _finalConvertIntoDagNodeInfoArray(nodes, datasets) {
         endNodes.forEach(node => {
             _recursiveGetDagNodeInfo(node, dagNodeInfos);
         });
+        if (isRetina) {
+            allDagNodeInfos = $.extend(allDagNodeInfos, dagNodeInfos);
+        } else {
+            const graphDimensions = _setPositions(dagNodeInfos);
+            const nodes = [];
+            for (var j in dagNodeInfos) {
+                const node = dagNodeInfos[j];
+                node.parents = node.parentIds;
+                // should not persist .parentIds and .children
+                delete node.parentIds;
+                delete node.children;
+                nodes.push(node);
+            }
 
-        const graphDimensions = _setPositions(dagNodeInfos);
+            const tabId = "DF2_" + new Date().getTime() + "_" + count;
+            dataflowsList.push({
+                name: "Dataflow " + (count + 1),
+                id: tabId
+            });
 
+            const dataflow = {
+                autosave: true,
+                id: tabId,
+                name: "Dataflow " + (count + 1),
+                dag: {
+                    "nodes": nodes,
+                    "comments":[],
+                    "display": {
+                        "width": graphDimensions.maxX,
+                        "height": graphDimensions.maxY,
+                        "scale": 1
+                    }
+                }
+            }
+
+            dataflows.push(dataflow);
+            count++;
+        }
+    }
+    if (isRetina) {
+        const graphDimensions = _setPositions(allDagNodeInfos);
         const nodes = [];
-        for (var j in dagNodeInfos) {
-            const node = dagNodeInfos[j];
+        for (var j in allDagNodeInfos) {
+            const node = allDagNodeInfos[j];
             node.parents = node.parentIds;
             // should not persist .parentIds and .children
             delete node.parentIds;
@@ -172,15 +219,11 @@ function _finalConvertIntoDagNodeInfoArray(nodes, datasets) {
         }
 
         const tabId = "DF2_" + new Date().getTime() + "_" + count;
-        dataflowsList.push({
-            name: "Dataflow " + (count + 1),
-            id: tabId
-        });
+        const name = xcHelper.randName(".temp/rand") + "/" + "Dataflow " + (count + 1);
 
         const dataflow = {
-            autosave: true,
             id: tabId,
-            name: "Dataflow " + (count + 1),
+            name: name,
             dag: {
                 "nodes": nodes,
                 "comments":[],
@@ -193,7 +236,6 @@ function _finalConvertIntoDagNodeInfoArray(nodes, datasets) {
         }
 
         dataflows.push(dataflow);
-        count++;
     }
 
     return _createKVStoreKeys(dataflows, dataflowsList, datasets);
@@ -201,13 +243,19 @@ function _finalConvertIntoDagNodeInfoArray(nodes, datasets) {
 
 function _createKVStoreKeys(dataflows, dataflowsList, datasets) {
     const kvPairs = {};
-    dataflows.forEach((dataflow) => {
-        kvPairs[workbookKVPrefix + dataflow.id] = JSON.stringify(dataflow);
-    });
-    // add key for daglist
-    kvPairs[workbookKVPrefix + "gDagListKey-1"] = JSON.stringify({
-        dags: dataflowsList
-    });
+
+    if (isRetina) {
+       kvPairs[workbookKVPrefix + "DF2"] = JSON.stringify(dataflows[0]);
+    } else {
+        dataflows.forEach((dataflow) => {
+            kvPairs[workbookKVPrefix + dataflow.id] = JSON.stringify(dataflow);
+        });
+         // add key for daglist
+        kvPairs[workbookKVPrefix + "gDagListKey-1"] = JSON.stringify({
+            dags: dataflowsList
+        });
+    }
+
     datasets.forEach(dataset => {
         kvPairs[globalKVDatasetPrefix + "sys/datasetMeta/" + dataset.args.dest] = JSON.stringify(dataset, null, 4);
     });
@@ -227,7 +275,6 @@ function _setPositions(nodeMap) {
         if (nodesArray[i].children.length === 0) {
             // group nodes into trees
             _splitIntoTrees(nodesArray[i], seen, treeGroups, i);
-
         }
     }
     let startingWidth = 0;
@@ -236,15 +283,22 @@ function _setPositions(nodeMap) {
     for (let i in treeGroups) {
         const group = treeGroups[i];
         const nodeInfos = {};
-        _alignNodes(group[0], nodeInfos, startingWidth);
 
-        for (let j = 0; j < group.length; j++) {
-            if (group[j].parents.length === 0) {
+        for (let j in group) {
+            if (group[j].children.length === 0) {
+                _alignNodes(group[j], nodeInfos, startingWidth);
+                break;
+            }
+        }
+
+        for (let j in group) {
+             if (group[j].parents.length === 0) {
                 // adjust positions of nodes so that children will never be
                 // to the left of their parents
                 _adjustPositions(group[j], nodeInfos, {});
             }
         }
+
         let maxDepth = 0;
         let maxWidth = 0;
         let minDepth = 0;
@@ -274,8 +328,9 @@ function _setPositions(nodeMap) {
 }
 
   // groups individual nodes into trees and joins branches with main tree
+  // the node passed in will be an end node (no children)
 function _splitIntoTrees(node, seen, treeGroups, groupId) {
-    const treeGroup = {};
+    let treeGroup = {};
     formTreesHelper(node);
 
     function formTreesHelper(node) {
@@ -286,7 +341,6 @@ function _splitIntoTrees(node, seen, treeGroups, groupId) {
         if (treeGroup[id]) { // already done
             return;
         }
-
         if (seen[id] != null) { // we've encountered this node and it's
             // part of another group so lets join its children to that group
             const mainGroupId = seen[id];
@@ -294,23 +348,27 @@ function _splitIntoTrees(node, seen, treeGroups, groupId) {
                 // already part of the same tree
                 return;
             }
+            let mainGroup = treeGroups[mainGroupId];
 
             for (let i in treeGroup) {
                 seen[i] = mainGroupId; // reassigning nodes from current
                 // group to the main group that has the id of "mainGroupId"
-                let mainGroup = treeGroups[mainGroupId];
-                mainGroup.push(treeGroup[i]);
+                mainGroup[i] = treeGroup[i];
             }
+
             delete treeGroups[groupId];
+
             groupId = mainGroupId;
+            treeGroup = mainGroup;
             return;
         }
         treeGroup[id] = node;
         seen[id] = groupId;
+
         if (!treeGroups[groupId]) {
-            treeGroups[groupId] = [];
+            treeGroups[groupId] = {};
         }
-        treeGroups[groupId].push(node);
+        treeGroups[groupId][id] = node;
 
         const parents = node.parents;
         for (let i = 0; i < parents.length; i++) {
@@ -1026,6 +1084,7 @@ function _getIndexedFields(node) {
 
     return [cols];
 }
+
 
 var DagNodeType;
 (function (DagNodeType) {
