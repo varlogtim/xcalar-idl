@@ -17,7 +17,7 @@ jsdom.env("", function(err, window) {
     // Invoke the Extension router
     app.use(require('./route/extension.js').router);
     app.get('/extmgmt', (req, res) => {
-        res.sendFile(path.join(__dirname + '/static/assets/html/index.html'));
+        res.sendFile(path.join(__dirname + '/static/assets/html/extmgmt.html'));
     })
     var httpServer = http.createServer(app);
     httpServer.listen(12124, function() {
