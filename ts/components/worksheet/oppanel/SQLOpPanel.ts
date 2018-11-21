@@ -419,6 +419,8 @@ class SQLOpPanel extends BaseOpPanel {
             $li.find(".dest.text").val(value);
         }
         $li.appendTo(this._$sqlIdentifiers);
+        const $scrollArea = this._$sqlIdentifiers.closest(".identifiers");
+        $scrollArea.scrollTop($scrollArea.prop('scrollHeight'));
         const dropDown = new MenuHelper($li.find(".dropDownList"), {
             "onSelect": this._selectSource.bind(this),
             "container": "#sqlOpPanel",
