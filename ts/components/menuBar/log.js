@@ -788,22 +788,13 @@ window.Log = (function($, Log) {
         }
 
         switch (operation) {
-            case SQLOps.DSPoint:
-            case SQLOps.RenameOrphanTable:
+            case SQLOps.RemoveDagTab:
+                return UndoType.Invalid;
+            case SQLOps.DSImport:
             case SQLOps.DestroyDS:
             case SQLOps.DeleteTable:
-            case SQLOps.RemoveDagTab:
-            // case SQLOps.CreateFolder:
-            // case SQLOps.DSRename:
-            // case SQLOps.DSDropIn:
-            // case SQLOps.DSInsert:
-            // case SQLOps.DSToDir:
-            // case SQLOps.DSDropBack:
-            // case SQLOps.DelFolder:
-                return UndoType.Invalid;
             case SQLOps.PreviewDS:
             case SQLOps.DestroyPreviewDS:
-            case SQLOps.ExportTable:
             case SQLOps.Profile:
             case SQLOps.ProfileSort:
             case SQLOps.ProfileBucketing:
@@ -813,9 +804,16 @@ window.Log = (function($, Log) {
             case SQLOps.Corr:
             case SQLOps.Aggr:
             case SQLOps.DeleteAgg:
+            case SQLOps.Round:
             case "roundToFixed": // this is a deprecated op in Chronos Patch Set 1
                 return UndoType.Skip;
             default:
+                var options = xcLog.getOptions();
+                if (options && options.tableName) {
+                    if (DagTable.Instance.getTable() !== options.tableName) {
+                        return UndoType.Skip;
+                    }
+                }
                 return UndoType.Valid;
 
         }
@@ -864,16 +862,10 @@ window.Log = (function($, Log) {
         return deferred.promise();
     }
 
+    Log.updateUndoRedoState = updateUndoRedoState;
+
     function updateUndoRedoState() {
         xcTooltip.hideAll();
-
-        var hasLockedTables = false;
-        var allWS = WSManager.getWorksheets();
-        for (var ws in allWS) {
-            if (allWS[ws].lockedTables && allWS[ws].lockedTables.length) {
-                hasLockedTables = true;
-            }
-        }
 
         // check redo
         var next = logCursor + 1;
@@ -890,7 +882,7 @@ window.Log = (function($, Log) {
             xcTooltip.changeText($redo, tooltip);
 
         } else if (getUndoType(logs[next]) !== UndoType.Valid) {
-            console.error("Have invalid sql to redo", sql);
+            console.error("Have invalid log to redo", logs[next]);
             $redo.addClass("disabled")
                  .data("lastmessage", TooltipTStr.NoRedo)
                  .data("laststate", "disabled");
@@ -942,15 +934,6 @@ window.Log = (function($, Log) {
                  .data("lastmessage", undoTitle)
                  .data("laststate", "enabled");
             xcTooltip.changeText($undo, undoTitle);
-        }
-
-        // change tooltip if lockedtables exist
-        if (hasLockedTables) {
-            $redo.addClass("disabled");
-            xcTooltip.changeText($redo, TooltipTStr.LockedTableRedo);
-
-            $undo.addClass("disabled");
-            xcTooltip.changeText($undo, TooltipTStr.LockedTableUndo);
         }
     }
 
@@ -1294,13 +1277,6 @@ window.Log = (function($, Log) {
             case (SQLOps.MoveTableToWS):
             case (SQLOps.MoveTemporaryTableToWS):
             case (SQLOps.RevertTable):
-            // case (SQLOps.CreateFolder):
-            // case (SQLOps.DSRename):
-            // case (SQLOps.DSDropIn):
-            // case (SQLOps.DSInsert):
-            // case (SQLOps.DSToDir):
-            // case (SQLOps.DSDropBack):
-            // case (SQLOps.DelFolder):
             case (SQLOps.ChangeFormat):
             case (SQLOps.MarkPrefix):
             case (SQLOps.ConnectOperations):
@@ -1325,18 +1301,15 @@ window.Log = (function($, Log) {
             case (SQLOps.DestroyPreviewDS):
             case (SQLOps.DeleteTable):
             case (SQLOps.DeleteAgg):
-            case (SQLOps.ExportTable):
-            case (SQLOps.DSPoint):
+            case (SQLOps.DSImport):
             case (SQLOps.Filter):
             case (SQLOps.Sort):
-            case (SQLOps.IndexDS):
             case (SQLOps.Join):
             case (SQLOps.Union):
             case (SQLOps.Aggr):
             case (SQLOps.Map):
             case (SQLOps.GroupBy):
             case (SQLOps.RenameTable):
-            case (SQLOps.RenameOrphanTable):
             case (SQLOps.QuickAgg):
             case (SQLOps.Corr):
             case (SQLOps.SplitCol):
@@ -1350,7 +1323,6 @@ window.Log = (function($, Log) {
             case (SQLOps.Project):
             case (SQLOps.Finalize):
             case (SQLOps.Ext):
-            case (SQLOps.Query):
             case (SQLOps.DFRerun):
             case (SQLOps.ExecSQL):
             case (SQLOps.RefreshTables):

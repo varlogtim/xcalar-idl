@@ -35,12 +35,10 @@ window.Redo = (function($, Redo) {
     };
 
     /* START BACKEND OPERATIONS */
-    redoFuncs[SQLOps.IndexDS] = function(options) {
+    redoFuncs[SQLOps.ExecSQL] = function(options) {
         return (TblManager.refreshTable([options.tableName], null, [],
                                         options.worksheet));
     };
-
-    redoFuncs[SQLOps.ExecSQL] = redoFuncs[SQLOps.IndexDS];
 
     redoFuncs[SQLOps.RefreshTables] = function(options) {
         var deferred = PromiseHelper.deferred();
@@ -71,14 +69,6 @@ window.Redo = (function($, Redo) {
         } else {
             worksheet = options.fltOptions.worksheet;
         }
-        return (TblManager.refreshTable([options.newTableName], null,
-                                            oldTables,
-                                            worksheet));
-    };
-
-    redoFuncs[SQLOps.Query] = function(options) {
-        var worksheet = WSManager.getWSFromTable(options.tableId);
-        oldTables = [options.tableName];
         return (TblManager.refreshTable([options.newTableName], null,
                                             oldTables,
                                             worksheet));

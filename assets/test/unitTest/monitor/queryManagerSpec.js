@@ -475,8 +475,8 @@ describe('QueryManager Test', function() {
                 return PromiseHelper.reject();
             };
 
-            QueryManager.addQuery(1, SQLOps.DSPoint, {});
-            var name = SQLOps.DSPoint;
+            QueryManager.addQuery(1, SQLOps.DSImport, {});
+            var name = SQLOps.DSImport;
             var dstTable = ".XcalarDS.user.84380.dsName";
             var query = '{"operation": "XcalarApiIndex","args": {"source": ".XcalarDS.test.73762.schedule4824","dest": "schedule4824#ky109","key":'
             +  '[{"name": "xcalarRecordNum","type": "DfUnknown","keyFieldName": "","ordering": "Unordered"}],"prefix": "schedule4824", "dhtName": "", "delaySort": false, "broadcast": false}}';

@@ -92,6 +92,7 @@ class DagTable {
         }
         this._getContainer().addClass("xc-hidden").parent().removeClass("tableViewMode").addClass("noPreviewTable");
         this._reset();
+        Log.updateUndoRedoState(); // update the state to skip table related undo/redo
     }
 
     public isTableFromTab(tabId: string): boolean {

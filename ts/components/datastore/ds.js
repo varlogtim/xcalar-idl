@@ -283,7 +283,7 @@ window.DS = (function ($, DS) {
         dsArgs.date = new Date().getTime();
         var dsObj = createDS(dsArgs, dsToReplace);
         var sql = {
-            "operation": SQLOps.DSPoint,
+            "operation": SQLOps.DSImport,
             "args": dsArgs,
             "options": options
         };
@@ -982,7 +982,7 @@ window.DS = (function ($, DS) {
 
         var txId = Transaction.start({
             "msg": StatusMessageTStr.ImportDataset + ": " + dsName,
-            "operation": SQLOps.DSPoint,
+            "operation": SQLOps.DSImport,
             "sql": sql,
             "track": true,
             "steps": 1
@@ -2787,11 +2787,11 @@ window.DS = (function ($, DS) {
             return PromiseHelper.resolve();
         }
         var sql = {
-            "operation": SQLOps.DSPoint,
+            "operation": SQLOps.DSImport,
             "created": true, // flag to distint if ds is created or not
         };
         var txId = Transaction.start({
-            "operation": SQLOps.DSPoint,
+            "operation": SQLOps.DSImport,
             "track": true,
             "steps": 1
         });

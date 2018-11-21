@@ -30,7 +30,7 @@ describe("Xcalar Log Test", function() {
                 "operation": null,
                 "expect": UndoType.Invalid
             },{
-                "operation": SQLOps.DSPoint,
+                "operation": SQLOps.DSImport,
                 "expect": UndoType.Invalid
             },{
                 "operation": SQLOps.PreviewDS,

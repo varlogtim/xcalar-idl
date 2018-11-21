@@ -70,11 +70,6 @@ window.Repeat = (function($, Repeat) {
     };
 
     /* START BACKEND OPERATIONS */
-    // redoFuncs[SQLOps.IndexDS] = function(options) {
-    //     return (TblManager.refreshTable([options.tableName], null, [],
-    //                                     options.worksheet));
-    // };
-
     repeatFuncs[SQLOps.Sort] = function(options, colNums, tableId) {
         var validTypes = [ColumnType.boolean, ColumnType.float,
                           ColumnType.integer, ColumnType.number,

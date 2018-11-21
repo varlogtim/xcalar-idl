@@ -232,8 +232,7 @@ enum SQLType {
 }
 
 enum SQLOps {
-    DSPoint = "importDataSource",
-    IndexDS = "indexFromDataset",
+    DSImport = "importDataSource",
     Sort = "sort",
     Filter = "filter",
     Aggr = "aggregate",
@@ -252,8 +251,7 @@ enum SQLOps {
     ExportTable = "exportTable",
     Query = "xcalarQuery",
     Retina = "runBatchDataflow",
-    ListFiles = "listFiles",
-    // XI operation
+    // XD operation
     AddNewCol = "addNewCol",
     HideCol = "hideCol",
     MinimizeCols = "minimizeCols",
@@ -307,6 +305,7 @@ enum SQLOps {
     DFRerun = "Dataflow Rerun",
     ExecSQL = "Execute SQL",
     RefreshTables = "refreshTables",
+    // DF 2.0 operations
     DisconnectOperations = "disconnectOperations",
     ConnectOperations = "connectOperations",
     RemoveOperations = "removeOperations",

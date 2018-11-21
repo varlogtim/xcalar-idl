@@ -1026,6 +1026,7 @@ declare namespace Log {
     export function isRedo(): boolean;
     export function isUndo(): boolean;
     export function viewLastAction(): string;
+    export function updateUndoRedoState(): void;
 }
 
 declare namespace SupTicketModal {

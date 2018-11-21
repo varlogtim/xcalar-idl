@@ -403,7 +403,7 @@ window.Replay = (function($, Replay) {
 
     function createFuncArgsMap() {
         argsMap = {};
-        argsMap[SQLOps.DSPoint] = ["dsArgs", "options"];
+        argsMap[SQLOps.DSImport] = ["dsArgs", "options"];
         argsMap[SQLOps.Sort] = ["colNum", "colInfo"];
         argsMap[SQLOps.Filter] = ["colNum", "tableId", "fltOptions"];
         argsMap[SQLOps.Aggr] = ["colNum", "tableId", "aggrOp", "aggStr"];
@@ -439,7 +439,6 @@ window.Replay = (function($, Replay) {
         argsMap[SQLOps.Profile] = ["tableId", "colNum"];
         argsMap[SQLOps.QuickAgg] = ["tableId", "horColNums"];
         argsMap[SQLOps.Corr] = ["tableId", "vertColNums", "horColNums"];
-        argsMap[SQLOps.ExportTable] = ["tableName", "exportName", "targetName", "numCols", "columns"];
         argsMap[SQLOps.SplitCol] = ["colNum", "tableId",
                                     "delimiter", "numColToGet"];
         argsMap[SQLOps.ChangeType] = ["colTypeInfos", "tableId"];
@@ -452,7 +451,7 @@ window.Replay = (function($, Replay) {
     function createTabMap() {
         tabMap = {};
 
-        tabMap[SQLOps.DSPoint] = Tab.DS;
+        tabMap[SQLOps.DSImport] = Tab.DS;
         tabMap[SQLOps.IndexDS] = Tab.DS;
         tabMap[SQLOps.CreateFolder] = Tab.DS;
         tabMap[SQLOps.DSRename] = Tab.DS;
@@ -479,7 +478,7 @@ window.Replay = (function($, Replay) {
     /* REPLAYFUNCS HOLDS ALL THE REPLAY FUNCTIONS */
     replayFuncs = {};
 
-    replayFuncs[SQLOps.DSPoint] = function(options) {
+    replayFuncs[SQLOps.DSImport] = function(options) {
         var args = getArgs(options);
         return DS.import.apply(window, args);
     };
@@ -683,21 +682,6 @@ window.Replay = (function($, Replay) {
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
-
-        return deferred.promise();
-    };
-
-    replayFuncs[SQLOps.ExportTable] = function(options) {
-        var deferred = PromiseHelper.deferred();
-
-        options.tableName = changeTableName(options.tableName);
-
-        var args = getArgs(options);
-        var callback = function() {
-            $("#alertHeader .close").click();
-        };
-        console.error("Replaying an export is currently unsupported. Please export using the dataflow");
-        deferred.resolve();
 
         return deferred.promise();
     };

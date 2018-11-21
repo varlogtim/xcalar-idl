@@ -434,9 +434,6 @@ namespace StatusMessage {
             } else {
                 operation = this.msgObjs[msgId].operation;
             }
-            if (operation === SQLOps.IndexDS && !options.indexNotification) {
-                return; // no notification when table made directly from datastore
-            }
             let popupNeeded: boolean = false;
             let popupWrapExists: boolean = false;
             let $popupNearTab: any = null;
@@ -470,7 +467,7 @@ namespace StatusMessage {
                                 operation + status +
                         '<div class="close">+</div></div>');
 
-            if (operation === SQLOps.DSPoint) {
+            if (operation === SQLOps.DSImport) {
                 // only display notification if not on datasets tab
                 if (!$('#dataStoresTab').hasClass('active')) {
                     $popups = $('.tableDonePopup.datastoreNotify');

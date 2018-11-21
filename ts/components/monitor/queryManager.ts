@@ -8,10 +8,9 @@ namespace QueryManager {
     // XXX store this as a query property
     const sysQueryTypes: string[] = [SQLOps.ProfileSort, SQLOps.ProfileBucketing,
                            SQLOps.ProfileAgg, SQLOps.ProfileStats,
-                           SQLOps.RenameOrphanTable,
                            SQLOps.QuickAgg, SQLOps.Corr, SQLOps.PreviewDS,
                            SQLOps.DestroyPreviewDS];
-    const nonCancelableTypes: string[] = [SQLOps.RenameTable, SQLOps.RenameOrphanTable,
+    const nonCancelableTypes: string[] = [SQLOps.RenameTable,
                             SQLOps.DestroyDS, SQLOps.DestroyPreviewDS,
                             SQLOps.DeleteTable, SQLOps.DeleteAgg];
     const noOutputs: string[] = [SQLOps.DestroyDS, SQLOps.DestroyPreviewDS,
@@ -212,9 +211,7 @@ namespace QueryManager {
 
         const mainQuery: XcQuery = queryLists[id];
         mainQuery.state = QueryStatus.Done;
-        if (mainQuery.name === SQLOps.ExportTable) {
-            mainQuery.outputTableState = "exported";
-        } else if (mainQuery.name === SQLOps.Aggr) {
+        if (mainQuery.name === SQLOps.Aggr) {
             mainQuery.outputTableState = "unavailable";
         } else {
             mainQuery.outputTableState = "active";
@@ -1581,7 +1578,7 @@ namespace QueryManager {
                     qName = mainQuery.name;
                 }
                 // special handling for canceling importDataSource
-                if (qName === SQLOps.DSPoint) {
+                if (qName === SQLOps.DSImport) {
                     QueryManager.cancelDS(id);
                 } else if (qName === SQLOps.Retina) {
                     QueryManager.cancelDF(id);
@@ -1614,7 +1611,7 @@ namespace QueryManager {
 
             if (!tableName) {
                 let type: string;
-                if (mainQuery.getName() === SQLOps.DSPoint) {
+                if (mainQuery.getName() === SQLOps.DSImport) {
                     type = "dataset";
                 } else {
                     type = "table";

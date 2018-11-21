@@ -32,11 +32,6 @@ window.Undo = (function($, Undo) {
     };
 
     /* START BACKEND OPERATIONS */
-    undoFuncs[SQLOps.IndexDS] = function(options) {
-        var tableId = xcHelper.getTableId(options.tableName);
-        return (TblManager.sendTableToUndone(tableId, {'remove': true}));
-    };
-
     undoFuncs[SQLOps.RefreshTables] = function(options) {
         var deferred = PromiseHelper.deferred();
         var promises = [];
@@ -113,28 +108,6 @@ window.Undo = (function($, Undo) {
                     "restoreTime": options.formOpenTime
                 });
             }
-            deferred.resolve();
-        })
-        .fail(function() {
-            deferred.reject();
-        });
-        return (deferred.promise());
-    };
-
-    undoFuncs[SQLOps.Query] =function(options) {
-        var deferred = PromiseHelper.deferred();
-        var newTableId = xcHelper.getTableId(options.newTableName);
-        var worksheet = WSManager.getWSFromTable(newTableId);
-        var refreshOptions = {
-            isUndo: true,
-            replacingDest: TableType.Undone
-        };
-
-
-        TblManager.refreshTable([options.tableName], null,
-                                [options.newTableName], worksheet, null,
-                                refreshOptions)
-        .then(function() {
             deferred.resolve();
         })
         .fail(function() {
