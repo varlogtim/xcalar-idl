@@ -462,44 +462,6 @@ describe('ColManager Test', function() {
             });
         });
 
-        it("should exec column (map)", function(done) {
-            var usrStr = "a = map(add(1, 1))";
-            var oldFunc = xcFunction.map;
-            xcFunction.map = function() {
-                return PromiseHelper.reject("test error");
-            };
-            ColManager.execCol("map", usrStr, tableId, 1)
-            .then(function() {
-                done("fail");
-            })
-            .fail(function(error) {
-                expect(error).to.equal("test error");
-                done();
-            })
-            .always(function() {
-                xcFunction.map = oldFunc;
-            });
-        });
-
-        it("should exec column (filter)", function(done) {
-            var usrStr = "a = filter(eq(b, 1))";
-            var oldFunc = xcFunction.filter;
-            xcFunction.filter = function() {
-                return PromiseHelper.reject("test error");
-            };
-            ColManager.execCol("filter", usrStr, tableId, 1)
-            .then(function() {
-                done("fail");
-            })
-            .fail(function(error) {
-                expect(error).to.equal("test error");
-                done();
-            })
-            .always(function() {
-                xcFunction.filter = oldFunc;
-            });
-        });
-
         it("should exec column (search)", function() {
             var $section = $("#functionArea");
             var searchHelper = new SearchBar($());

@@ -753,14 +753,6 @@ window.Undo = (function($, Undo) {
 
 
     /* Table Operations */
-    undoFuncs[SQLOps.RenameTable] = function(options) {
-        focusTableHelper(options);
-        var tableId = options.tableId;
-        var oldTableName = options.oldTableName;
-
-        return xcFunction.rename(tableId, oldTableName);
-    };
-
     undoFuncs[SQLOps.RevertTable] = function(options) {
         var deferred = PromiseHelper.deferred();
 

@@ -69,7 +69,7 @@ window.ProfileEngine = (function(ProfileEngine) {
                 tablesToDelete[indexedTableName] = true;
             }
 
-            xcFunction.getNumRows(indexedTableName)
+            getNumRows(indexedTableName)
             .then(function(val) {
                 // the table.resultSetCount should eqaul to the
                 // totalCount after right index, if not, a way to resolve
@@ -522,7 +522,7 @@ window.ProfileEngine = (function(ProfileEngine) {
         var deferred = PromiseHelper.deferred();
         var isNum = (profileInfo.type === "integer" ||
                      profileInfo.type === "float");
-        xcFunction.checkOrder(tableName)
+        checkOrder(tableName)
         .then(getStats)
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -770,6 +770,28 @@ window.ProfileEngine = (function(ProfileEngine) {
         } else {
             return true;
         }
+    }
+
+    function checkOrder(tableName) {
+        const tableId = xcHelper.getTableId(tableName);
+        const table = gTables[tableId];
+        if (table != null) {
+            const keys = table.getKeys();
+            const order = table.getOrdering();
+            if (keys != null && XcalarOrderingTStr.hasOwnProperty(order)) {
+                return PromiseHelper.resolve(order, keys);
+            }
+        }
+        return XIApi.checkOrder(tableName);
+    }
+
+    function getNumRows(tableName) {
+        const tableId = xcHelper.getTableId(tableName);
+        if (tableId != null && gTables[tableId] &&
+            gTables[tableId].resultSetCount > -1) {
+            return PromiseHelper.resolve(gTables[tableId].resultSetCount);
+        }
+        return XIApi.getNumRows(tableName);
     }
 
     /*

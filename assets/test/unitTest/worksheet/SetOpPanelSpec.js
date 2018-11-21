@@ -193,14 +193,14 @@ describe("Set Op Panel Test", function() {
     });
 
     it("should submit form", function() {
-        var oldFunc = xcFunction.union;
+        var oldFunc = XIApi.union;
         var test = false;
-        xcFunction.union = function() {
+        XIApi.union = function() {
             test = true;
         };
         $setOpPanel.find(".confirm").click();
         expect(test).to.be.true;
-        xcFunction.union = oldFunc;
+        XIApi.union = oldFunc;
         assert.isFalse($setOpPanel.is(":visible"));
     });
 

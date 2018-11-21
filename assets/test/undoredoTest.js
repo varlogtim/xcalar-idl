@@ -1,3 +1,4 @@
+// XXX TODO: this file is broken, need to change to new infra
 window.UndoRedoTest = (function($, UndoRedoTest) {
     var stepInfo = [];
     var replayLogs;

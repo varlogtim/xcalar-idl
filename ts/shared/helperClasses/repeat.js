@@ -117,15 +117,15 @@ window.Repeat = (function($, Repeat) {
         return ColManager.changeType(colTypeInfos, tableId);
     };
 
-    repeatFuncs[SQLOps.Project] = function(options, colNums, tableId) {
-        var table = gTables[tableId];
-        var colNames = [];
-        for (var i = 0; i < colNums.length; i++) {
-            var col = table.getCol(colNums[i]);
-            colNames.push(col.getBackColName());
-        }
-        return xcFunction.project(colNames, tableId);
-    };
+    // repeatFuncs[SQLOps.Project] = function(options, colNums, tableId) {
+    //     var table = gTables[tableId];
+    //     var colNames = [];
+    //     for (var i = 0; i < colNums.length; i++) {
+    //         var col = table.getCol(colNums[i]);
+    //         colNames.push(col.getBackColName());
+    //     }
+    //     return xcFunction.project(colNames, tableId);
+    // };
 
     // repeatFuncs[SQLOps.Ext] = function(options) {
     // };

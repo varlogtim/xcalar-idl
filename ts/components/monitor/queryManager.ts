@@ -10,8 +10,7 @@ namespace QueryManager {
                            SQLOps.ProfileAgg, SQLOps.ProfileStats,
                            SQLOps.QuickAgg, SQLOps.Corr, SQLOps.PreviewDS,
                            SQLOps.DestroyPreviewDS];
-    const nonCancelableTypes: string[] = [SQLOps.RenameTable,
-                            SQLOps.DestroyDS, SQLOps.DestroyPreviewDS,
+    const nonCancelableTypes: string[] = [SQLOps.DestroyDS, SQLOps.DestroyPreviewDS,
                             SQLOps.DeleteTable, SQLOps.DeleteAgg];
     const noOutputs: string[] = [SQLOps.DestroyDS, SQLOps.DestroyPreviewDS,
                             SQLOps.DeleteTable, SQLOps.DeleteAgg];

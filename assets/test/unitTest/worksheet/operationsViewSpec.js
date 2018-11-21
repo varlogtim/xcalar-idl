@@ -865,12 +865,12 @@ describe('OperationsView Test', function() {
         describe('groupby() function', function() {
             var cachedGB;
             before(function() {
-                cachedGB = xcFunction.groupBy;
+                cachedGB = XIApi.groupBy;
             });
 
             it('group by should work', function(done) {
                 var gbCalled = false;
-                xcFunction.groupBy = function(tId, gbArgs, groupByCols, options) {
+                XIApi.groupBy = function(tId, gbArgs, groupByCols, options) {
                     expect(gbArgs[0].operator).to.equal("count");
                     expect(tId).to.equal(tableId);
                     expect(groupByCols.length).to.equal(1);
@@ -893,7 +893,7 @@ describe('OperationsView Test', function() {
             });
 
             after(function() {
-                xcFunction.groupBy = cachedGB;
+                XIApi.groupBy = cachedGB;
             });
         });
 
@@ -1090,12 +1090,12 @@ describe('OperationsView Test', function() {
             var cachedGB;
             var fn;
             before(function() {
-                cachedGB = xcFunction.groupBy;
+                cachedGB = XIApi.groupBy;
                 fn = OperationsView.__testOnly__.submitFinalForm;
             });
             it("submitFinalForm", function(done) {
                 var called = false;
-                xcFunction.groupBy = function() {
+                XIApi.groupBy = function() {
                     called = true;
                     return PromiseHelper.reject();
                 };
@@ -1114,7 +1114,7 @@ describe('OperationsView Test', function() {
             });
 
             after(function() {
-                xcFunction.groupBy = cachedGB;
+                XIApi.groupBy = cachedGB;
             });
         });
 
@@ -1659,7 +1659,7 @@ describe('OperationsView Test', function() {
             var cachedFilter;
             var fn;
             before(function(){
-                cachedFilter = xcFunction.filter;
+                cachedFilter = XIApi.filter;
 
                 fn = OperationsView.__testOnly__.filter;
                 $filterForm.find('.functionsInput').val("eq");
@@ -1667,7 +1667,7 @@ describe('OperationsView Test', function() {
 
             it('filter() should work', function(done) {
                 var filterCalled = false;
-                xcFunction.filter = function(colNum, tId, opts) {
+                XIApi.filter = function(colNum, tId, opts) {
                     expect(colNum).to.equal(1);
                     expect(tId).to.equal(tableId);
                     expect(opts.filterString).to.equal("eq()");
@@ -1688,7 +1688,7 @@ describe('OperationsView Test', function() {
                 $filterForm.find('.functionsInput').val("gt");
 
                 var filterCalled = false;
-                xcFunction.filter = function(colNum, tId, opts) {
+                XIApi.filter = function(colNum, tId, opts) {
                     expect(colNum).to.equal(1);
                     expect(tId).to.equal(tableId);
                     expect(opts.filterString).to.equal("gt(int(arg1, 10), string(arg2))");
@@ -1711,7 +1711,7 @@ describe('OperationsView Test', function() {
             });
 
             after(function(){
-                xcFunction.filter = cachedFilter;
+                XIApi.filter = cachedFilter;
                 $filterForm.find('.functionsInput').val("");
             });
         });
@@ -1842,12 +1842,12 @@ describe('OperationsView Test', function() {
             var cachedFilter;
             var fn;
             before(function() {
-                cachedFilter = xcFunction.filter;
+                cachedFilter = XIApi.filter;
                 fn = OperationsView.__testOnly__.submitFinalForm;
             });
             it("submitFinalForm", function(done) {
                 var called = false;
-                xcFunction.filter = function() {
+                XIApi.filter = function() {
                     called = true;
                     return PromiseHelper.reject();
                 };
@@ -1866,7 +1866,7 @@ describe('OperationsView Test', function() {
             });
 
             after(function() {
-                xcFunction.filter = cachedFilter;
+                XIApi.filter = cachedFilter;
             });
         });
 

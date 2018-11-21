@@ -2440,7 +2440,7 @@ window.Dag = (function($, Dag) {
         }
         $tableIcon.addClass("generatingComplement");
 
-        xcFunction.filter(1, srcTableId, fltOption)
+        XIApi.filter(null, evalStr, parentNode.value.name)
         .then(function(newTableName) {
             if (gTables[origTableId]) {
                 gTables[origTableId].complement = newTableName;

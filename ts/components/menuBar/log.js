@@ -1309,7 +1309,6 @@ window.Log = (function($, Log) {
             case (SQLOps.Aggr):
             case (SQLOps.Map):
             case (SQLOps.GroupBy):
-            case (SQLOps.RenameTable):
             case (SQLOps.QuickAgg):
             case (SQLOps.Corr):
             case (SQLOps.SplitCol):

@@ -244,14 +244,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
 
         // console.log("delay", delay, "clean", clean, "animation", animation)
         setTimeout(function() {
-            var def;
-            if (whichTest === "demo") {
-                def = DemoTestSuite.run();
-            } else {
-                def = TestSuite.run(animation, clean, noPopup, mode, false,
-                                         timeDilation);
-            }
-            def
+            TestSuite.run(animation, clean, noPopup, mode, false, timeDilation)
             .then(function(res) {
                 console.info(res);
                 reportResults(res);

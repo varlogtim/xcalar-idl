@@ -26,26 +26,26 @@ describe("DagEdit Test", function() {
 
             // XXX TODO: create table meta without backend calls
 
-            xcFunction.filter(1, tableId, {filterString: 'eq(' + tPrefix + gPrefixSign + 'average_stars, 4.3)'})
+            XIApi.filter(1, tableId, {filterString: 'eq(' + tPrefix + gPrefixSign + 'average_stars, 4.3)'})
             .then(function(tName) {
                 tableName = tName;
                 tableId = xcHelper.getTableId(tableName);
-                return xcFunction.map(1, tableId, mapColName, 'add(' + tPrefix + gPrefixSign + 'average_stars, 2)');
+                return XIApi.map(1, tableId, mapColName, 'add(' + tPrefix + gPrefixSign + 'average_stars, 2)');
             })
             .then(function(tName) {
                 tableName = tName;
                 tableId = xcHelper.getTableId(tableName);
                 firstMapName = tableName;
-                return xcFunction.aggregate(1, tableId, "count", "mapped", aggName);
+                return XIApi.aggregate(1, tableId, "count", "mapped", aggName);
             })
             .then(function() {
                 UnitTest.hasAlertWithTitle("Aggregate: Count");
-                return xcFunction.map(1, tableId, "mapped2", 'add(' + aggName + ', 2)');
+                return XIApi.map(1, tableId, "mapped2", 'add(' + aggName + ', 2)');
             })
             .then(function(tName) {
                 tableName = tName;
                 tableId = xcHelper.getTableId(tableName);
-                return xcFunction.groupBy(tableId, [{
+                return XIApi.groupBy(tableId, [{
                     operator: "count",
                     aggColName: "mapped",
                     newColName: "mapped_count"
@@ -54,13 +54,13 @@ describe("DagEdit Test", function() {
             .then(function(tName) {
                 tableName = tName;
                 tableId = xcHelper.getTableId(tableName);
-                return xcFunction.union([{tableName: tableName, pulledColumns: [], columns:[{name:"mapped", rename:"mapped", type:"float", "cast": false}]},
+                return XIApi.union([{tableName: tableName, pulledColumns: [], columns:[{name:"mapped", rename:"mapped", type:"float", "cast": false}]},
                     {tableName: tableName, pulledColumns: [], columns:[{name:"mapped", rename:"mapped", type:"float", "cast": false}]}], false);
             })
             .then(function(tName) {
                 tableName = tName;
                 tableId = xcHelper.getTableId(tableName);
-                return xcFunction.join("Inner Join", {colNums: [1], pulledColumns:["mapped"], tableId: tableId, rename: [{
+                return XIApi.join("Inner Join", {colNums: [1], pulledColumns:["mapped"], tableId: tableId, rename: [{
                         orig: "mapped",
                         new: "mapped",
                         type: DfFieldTypeT.DfUnknown
@@ -74,7 +74,7 @@ describe("DagEdit Test", function() {
             .then(function(tName) {
                 tableName = tName;
                 tableId = xcHelper.getTableId(tableName);
-                return xcFunction.map(1, tableId, "concat", 'concat("one-", "two")');
+                return XIApi.map(1, tableId, "concat", 'concat("one-", "two")');
             })
             .then(function(tName) {
                 tableName = tName;
@@ -84,7 +84,7 @@ describe("DagEdit Test", function() {
             .then(function(tId) {
                 tableId = tId;
                 tableName = gTables[tableId].getName();
-                return xcFunction.project(["concat", "mapped"], tableId);
+                return XIApi.project(["concat", "mapped"], tableId);
             })
             .then(function(tName) {
                 tableName = tName;

@@ -144,29 +144,29 @@ describe("Aggregates Test", function() {
             });
         });
 
-        it("aggregate should be added when xcFunction.aggregate is called", function(done) {
-            Aggregates.clear();
-            expect(Aggregates.getAggs()).to.be.empty;
-            xcFunction.aggregate(null, tableId, "count",
-                                prefix + "::yelping_since", "^namedAgg")
-            .then(function() {
-                var aggs = Aggregates.getAggs();
-                expect(aggs).to.not.be.empty;
-                expect(aggs.namedAgg).to.be.an("object");
-                expect(aggs.namedAgg.value).to.equal(1000);
-                expect(aggs.namedAgg.dagName).to.equal("namedAgg");
-                expect(aggs.namedAgg.aggName).to.equal("^namedAgg");
-                expect(aggs.namedAgg.tableId).to.equal(tableId);
-                expect(aggs.namedAgg.backColName)
-                .to.equal(prefix + "::yelping_since");
-                expect(aggs.namedAgg.op).to.equal("count");
+        // it("aggregate should be added when xcFunction.aggregate is called", function(done) {
+        //     Aggregates.clear();
+        //     expect(Aggregates.getAggs()).to.be.empty;
+        //     xcFunction.aggregate(null, tableId, "count",
+        //                         prefix + "::yelping_since", "^namedAgg")
+        //     .then(function() {
+        //         var aggs = Aggregates.getAggs();
+        //         expect(aggs).to.not.be.empty;
+        //         expect(aggs.namedAgg).to.be.an("object");
+        //         expect(aggs.namedAgg.value).to.equal(1000);
+        //         expect(aggs.namedAgg.dagName).to.equal("namedAgg");
+        //         expect(aggs.namedAgg.aggName).to.equal("^namedAgg");
+        //         expect(aggs.namedAgg.tableId).to.equal(tableId);
+        //         expect(aggs.namedAgg.backColName)
+        //         .to.equal(prefix + "::yelping_since");
+        //         expect(aggs.namedAgg.op).to.equal("count");
 
-                done();
-            })
-            .fail(function() {
-                throw "error case";
-            });
-        });
+        //         done();
+        //     })
+        //     .fail(function() {
+        //         throw "error case";
+        //     });
+        // });
 
         it("aggregate should show on agg list in menu panel", function(done) {
             UnitTest.testFinish(function() {

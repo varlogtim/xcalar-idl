@@ -36,13 +36,13 @@ describe("DFParamModal Test", function() {
             tableId = xcHelper.getTableId(tableName);
             colName = prefix + gPrefixSign + "average_stars";
 
-            return xcFunction.map(1, tableId, "mapCol", 'add(1, ' + colName + ')');
+            return XIApi.map(1, tableId, "mapCol", 'add(1, ' + colName + ')');
         })
         .then(function(nTName) {
             tableName = nTName;
             tableId = xcHelper.getTableId(tableName);
 
-            return xcFunction.filter(1, tableId, {filterString: "gt(" + colName + ", 3)"});
+            return XIApi.filter(1, tableId, {filterString: "gt(" + colName + ", 3)"});
         })
         .then(function(nTName) {
             tableName = nTName;

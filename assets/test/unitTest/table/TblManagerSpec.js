@@ -798,30 +798,6 @@ describe("TableManager Test", function() {
                 $xcTheadWrap = $("#xcTheadWrap-" + tableId);
             });
 
-            it("Should rename the table", function() {
-                var $div = $xcTheadWrap.find(".tableTitle .text");
-                var $tableName = $div.find(".tableName");
-                var name = $tableName.val();
-                var test = null;
-                var oldFunc = xcFunction.rename;
-
-                xcFunction.rename = function() {
-                    test = true;
-                    return PromiseHelper.resolve();
-                };
-                // case 1
-                $div.trigger(fakeEvent.enter);
-                expect(test).to.be.null;
-                // case 2
-                $tableName.focus();
-                $tableName.val("rename").trigger("input");
-                $div.trigger(fakeEvent.enter);
-                expect(test).to.be.true;
-                $tableName.val(name).blur();
-
-                xcFunction.rename = oldFunc;
-            });
-
             it("Should prevent space in rename", function() {
                 var $div = $xcTheadWrap.find(".tableTitle .text");
                 var e = jQuery.Event("keydown", {"which": keyCode.Space});

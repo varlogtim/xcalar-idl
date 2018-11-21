@@ -105,7 +105,7 @@ function getCoverage(coverage) {
     const coverageToReport = [];
     const excludeFolders = ['/thrift/', '/sdk/', 'tutorial'];
     const excludeFiles = ['config.js', 'loginConfig.js', 'compatible.js',
-    'replay.js', 'XcalarThrift.js', 'sqlCompiler.js', 'sqlApi.js',
+    'XcalarThrift.js', 'sqlCompiler.js', 'sqlApi.js',
     'sqlCache.js', 'sqlTest.js',
     'undo.js', 'redo.js', 'upgrader.js'];
 

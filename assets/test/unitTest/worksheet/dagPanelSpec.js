@@ -163,7 +163,7 @@ describe("Dag Panel Test", function() {
             tableId = xcHelper.getTableId(tableName);
             var filterStr = "eq(" + prefix + gPrefixSign +
                             'yelping_since, "2008-03")';
-            return xcFunction.filter(1, tableId, {filterString: filterStr});
+            return XIApi.filter(1, tableId, {filterString: filterStr});
         })
         .then(function(ret) {
             tableId2 = tableId;
@@ -176,14 +176,14 @@ describe("Dag Panel Test", function() {
             var aggrOp = "avg";
             var aggStr = backName;
             aggName = xcHelper.randName("testAgg", 6);
-            return xcFunction.aggregate(colNum, tableId, aggrOp, aggStr, aggName);
+            return XIApi.aggregate(colNum, tableId, aggrOp, aggStr, aggName);
 
         })
         .then(function() {
             Alert.forceClose();
             var mapStr = "add(" + gTables[tableId].getCol(1).backName +
                          ",^" + aggName + ")";
-            return xcFunction.map(1, tableId, "agg_result", mapStr);
+            return XIApi.map(1, tableId, "agg_result", mapStr);
         })
         .then(function(ret) {
             aggTableName = ret;
@@ -202,7 +202,7 @@ describe("Dag Panel Test", function() {
             tableIdA = xcHelper.getTableId(tableNameA);
             var filterStr = 'eq(' + prefixA + gPrefixSign +
                             'yelping_since, "2008-03")';
-            return xcFunction.filter(1, tableIdA, {filterString: filterStr});
+            return XIApi.filter(1, tableIdA, {filterString: filterStr});
         })
         .then(function(ret) {
             tableId2A = tableIdA;
@@ -225,7 +225,7 @@ describe("Dag Panel Test", function() {
             largeTableIds.push(xcHelper.getTableId(tName));
             var filterStr = 'eq(' + tPrefix + gPrefixSign +
                             'yelping_since, "2008-04")';
-            return xcFunction.filter(1, xcHelper.getTableId(tName),
+            return XIApi.filter(1, xcHelper.getTableId(tName),
                 {filterString: filterStr});
         })
         .then(function(ret) {
@@ -257,7 +257,7 @@ describe("Dag Panel Test", function() {
                 newColName: newColName
             }];
 
-            return xcFunction.groupBy(tId, gbArgs, groupByCols, {"isKeepOriginal": true});
+            return XIApi.groupBy(tId, gbArgs, groupByCols, {"isKeepOriginal": true});
         })
         .then(function(ret) {
             groupTableName = ret;
@@ -1849,14 +1849,14 @@ describe("Dag Panel Test", function() {
                 expect($menu.find("li.complementTable").hasClass("unavailable"))
                 .to.be.false;
                 var called = false;
-                var cached = xcFunction.filter;
-                xcFunction.filter = function(colNum, tId, options) {
+                var cached = XIApi.filter;
+                XIApi.filter = function(colNum, tId, options) {
                     expect(colNum).to.equal(1);
                     expect(tId).to.equal(prevId);
                     expect(options.filterString.indexOf("not(eq(")).to.equal(0);
                     expect(options.complement).to.be.true;
                     called = true;
-                    xcFunction.filter = cached;
+                    XIApi.filter = cached;
                     return PromiseHelper.resolve("fakeTableName#fakeId");
                 };
 
@@ -2293,7 +2293,7 @@ describe("Dag Panel Test", function() {
                 rename: [],
                 tableId: groupTable.tableId
             };
-            xcFunction.join("Inner Join", lJoinInfo, rJoinInfo, "joinedTable", {
+            XIApi.join("Inner Join", lJoinInfo, rJoinInfo, "joinedTable", {
                 keepTables: true
             })
             .always(function() {

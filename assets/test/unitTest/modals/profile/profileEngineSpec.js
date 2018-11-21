@@ -30,8 +30,8 @@ describe("Profile-Profile Engins Test", function() {
             return PromiseHelper.resolve();
         };
 
-        oldGetNumRows = xcFunction.getNumRows;
-        xcFunction.getNumRows = function() {
+        oldGetNumRows = XIApi.getNumRows;
+        XIApi.getNumRows = function() {
             return PromiseHelper.resolve(100);
         };
 
@@ -360,8 +360,8 @@ describe("Profile-Profile Engins Test", function() {
     });
 
     it("should resolve for unsorted case in ProfileEngine.genStats test 2", function(done) {
-        var oldCheckOrder = xcFunction.checkOrder;
-        xcFunction.checkOrder = function() {
+        var oldCheckOrder = XIApi.checkOrder;
+        XIApi.checkOrder = function() {
             return PromiseHelper.resolve(XcalarOrderingT.XcalarOrderingUnordered);
         };
 
@@ -376,18 +376,18 @@ describe("Profile-Profile Engins Test", function() {
         .then(function() {
             expect(profileInfo.statsInfo.zeroQuartile).to.be.null;
 
-            xcFunction.checkOrder = oldCheckOrder;
+            XIApi.checkOrder = oldCheckOrder;
             done();
         })
         .fail(function() {
-            xcFunction.checkOrder = oldCheckOrder;
+            XIApi.checkOrder = oldCheckOrder;
             done("fail");
         });
     });
 
     it("ProfileEngine.genStats should work", function(done) {
-        var oldCheckOrder = xcFunction.checkOrder;
-        xcFunction.checkOrder = function() {
+        var oldCheckOrder = XIApi.checkOrder;
+        XIApi.checkOrder = function() {
             return PromiseHelper.resolve(XcalarOrderingT.XcalarOrderingAscending,
                                         [{name: "sortCol"}]);
         };
@@ -409,12 +409,12 @@ describe("Profile-Profile Engins Test", function() {
             expect(profileInfo.statsInfo.zeroQuartile).not.to.be.null;
 
             XIApi.sortAscending = oldSortAsc;
-            xcFunction.checkOrder = oldCheckOrder;
+            XIApi.checkOrder = oldCheckOrder;
             done();
         })
         .fail(function() {
             XIApi.sortAscending = oldSortAsc;
-            xcFunction.checkOrder = oldCheckOrder;
+            XIApi.checkOrder = oldCheckOrder;
             done("fail");
         });
     });
@@ -477,7 +477,7 @@ describe("Profile-Profile Engins Test", function() {
 
     after(function() {
         XIApi.index = oldIndex;
-        xcFunction.getNumRows = oldGetNumRows;
+        XIApi.getNumRows = oldGetNumRows;
         XIApi.groupBy = oldGroupBy;
         XIApi.sort = oldSort;
         XIApi.deleteTable = oldDelete;

@@ -213,14 +213,6 @@ class XcTableInWSViewer extends XcTableViewer {
 
         // Event Listener for table title
         $xcTheadWrap.on({
-            // must use keypress to prevent contenteditable behavior
-            "keypress": (event) => {
-                if (event.which === keyCode.Enter) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    this._renameTableHelper($(event.currentTarget));
-                }
-            },
             "keydown": (event) => {
                 if (event.which === keyCode.Space) {
                     // XXX temporary do not allow space
@@ -320,30 +312,5 @@ class XcTableInWSViewer extends XcTableViewer {
 
         const $table: JQuery = $('#xcTable-' + tableId);
         $table.width(0);
-    }
-
-    private _renameTableHelper($div: JQuery): void {
-        const $tableName: JQuery = $div.find(".tableName");
-        const newName: string = $tableName.val().trim();
-        const $th: JQuery = $div.closest('.xcTheadWrap');
-        const tableId: TableId = xcHelper.parseTableId($th);
-        const newTableName: string = newName + "#" + tableId;
-        const oldTableName: string = gTables[tableId].getName();
-
-        if (newTableName === oldTableName) {
-            $div.blur();
-            return;
-        }
-
-        const isValid: boolean = xcHelper.tableNameInputChecker($tableName);
-        if (isValid) {
-            xcFunction.rename(tableId, newTableName)
-            .then(function() {
-                $div.blur();
-            })
-            .fail(function(error) {
-                StatusBox.show(error, $div, false);
-            });
-        }
     }
 }

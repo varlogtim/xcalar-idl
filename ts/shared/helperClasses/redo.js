@@ -421,14 +421,6 @@ window.Redo = (function($, Redo) {
     /* END USER STYLING/FORMATING OPERATIONS */
 
     /* Table Operations */
-    redoFuncs[SQLOps.RenameTable] = function(options) {
-        focusTableHelper(options);
-        var tableId = options.tableId;
-        var newTableName = options.newTableName;
-
-        return xcFunction.rename(tableId, newTableName);
-    };
-
     redoFuncs[SQLOps.RevertTable] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
         return (TblManager.refreshTable([options.tableName], null,
