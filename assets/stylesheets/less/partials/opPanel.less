@@ -1400,7 +1400,7 @@
                 height: 26px;
                 line-height: 26px;
                 > div {
-                    width: 49%;
+                    width: 49% !important;
                     float: left;
                 }
             }
@@ -1421,6 +1421,14 @@
                 .part {
                     margin-bottom: 5px;
 
+                    .dropDownList {
+                        li {
+                            &:hover {
+                                background-color: @color-xpe-docker-starter-bg;
+                            }
+                        }
+                    }
+
                     .name {
                         padding-right: 5px;
                         .remove {
@@ -1430,6 +1438,17 @@
                         input {
                             margin-left: 5px;
                             width: ~"calc(100% - 15px)";
+                        }
+
+                        .list {
+                            .position(absolute, @left: 15px);
+                            width: ~"calc(100% - 20px)";
+
+                        }
+
+                        li {
+                            text-transform: none;
+                            padding-left: 2px;
                         }
                     }
 

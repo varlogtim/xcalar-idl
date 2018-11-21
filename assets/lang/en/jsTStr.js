@@ -1268,7 +1268,8 @@ DSTStr = {
     'RenameMsg': 'It will be renamed to \"<name>\".',
     "ContainsRecordErrors": "Your dataset contains <num> record errors.<br/>Click to view.",
     "ContainsFileErrors": "Your dataset contains <num> file errors.<br/>Click to view.",
-    "OverSampleSize": "Dataset \"<name>\" hit sampling limit of <size>, only a portion of the specified files have been imported into the dataset."
+    "OverSampleSize": "Dataset \"<name>\" hit sampling limit of <size>, only a portion of the specified files have been imported into the dataset.",
+    "InUseErr": "Dataset is in use by workbook \"<name>\"",
 };
 
 DSFormTStr = {

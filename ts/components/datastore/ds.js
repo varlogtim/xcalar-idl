@@ -2940,13 +2940,29 @@ window.DS = (function ($, DS) {
     // but finally backend should remove the load node and
     // we should not use this workaround
     function clearLoadNodeInAllWorkbooks(datasetName) {
+        var clearLoadNodeHelper = function(dsName, wkbkName) {
+            var deferred = PromiseHelper.deferred();
+            XcalarDatasetDeleteLoadNode(dsName, wkbkName)
+            .then(deferred.resolve)
+            .fail((error) => {
+                if (error.status === StatusT.StatusDsDatasetInUse) {
+                    var msg = xcHelper.replaceMsg(DSTStr.InUseErr, {
+                        name: wkbkName
+                    });
+                    error.error = msg
+                }
+                deferred.reject(error);
+            });
+
+            return deferred.promise();
+        }
         var workbooks = WorkbookManager.getWorkbooks();
         var promises = [];
         for (var id in workbooks) {
             var wkbk = workbooks[id];
             if (wkbk.hasResource()) {
                 // when it's active workbook
-                promises.push(XcalarDatasetDeleteLoadNode.bind(this, datasetName, wkbk.getName()));
+                promises.push(clearLoadNodeHelper.bind(this, datasetName, wkbk.getName()));
             }
         }
         return PromiseHelper.chain(promises);
