@@ -945,7 +945,20 @@ window.DS = (function ($, DS) {
     function createDSHelper(txId, dsObj) {
         var datasetName = dsObj.getFullName();
         var options = dsObj.getImportOptions();
-        return XIApi.loadDataset(txId, datasetName, options);
+        var hasCreate = false;
+        var deferred = PromiseHelper.deferred();
+
+        XcalarDatasetCreate(datasetName, options)
+        .then(() => {
+            // only when there is active workbook will activate the ds
+            if (WorkbookManager.getActiveWKBK() != null) {
+                return activateHelper(txId, dsObj);
+            }
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject)
+
+        return deferred.promise();
     }
 
     function importHelper(dsObj, sql) {
@@ -983,7 +996,6 @@ window.DS = (function ($, DS) {
             return createDSHelper(txId, dsObj);
         })
         .then(function() {
-            activateDSObj(dsObj);
             return getDSBasicInfo(datasetName);
         })
         .then(function(dsInfos) {
@@ -1003,7 +1015,7 @@ window.DS = (function ($, DS) {
                 }
             }
 
-            if (dsInfo.downSampled === true) {
+            if (dsInfo && dsInfo.downSampled === true) {
                 alertSampleSizeLimit(datasetName);
             }
 
@@ -2302,6 +2314,11 @@ window.DS = (function ($, DS) {
             var $grid = $target.closest(".grid-unit");
             var classes = "";
             var totalSelected = $gridView.find(".grid-unit.selected").length;
+            if (WorkbookManager.getActiveWKBK() == null) {
+                $gridMenu.find(".multiActivate, .multiDeactivate, .activate").addClass("disabled");
+            } else {
+                $gridMenu.find(".multiActivate, .multiDeactivate, .activate").removeClass("disabled");
+            }
 
             if ($grid.length && totalSelected > 1) {
                 // multi selection
