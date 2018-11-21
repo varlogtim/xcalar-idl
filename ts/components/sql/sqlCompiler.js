@@ -194,6 +194,7 @@
 
 
         "expressions.aggregate.Sum": "sum",
+        "expressions.aggregate.SumInteger": "sumInteger",
         "expressions.aggregate.Count": "count",
         "expressions.aggregate.Max": "max",
         "expressions.aggregate.Min": "min",
@@ -1061,7 +1062,8 @@
         opName = node.value.class.substring(
                             node.value.class.indexOf("expressions."));
         if (opName === "expressions.Add" || opName === "expressions.Subtract"
-            || opName === "expressions.Multiply" || opName === "expressions.Abs") {
+            || opName === "expressions.Multiply" || opName === "expressions.Abs"
+            || opName === "expressions.aggregate.Sum") {
             var allInteger = true;
             for (var i = 0; i < node.children.length; i++) {
                 if (getColType(node.children[i]) != "int") {
@@ -2362,22 +2364,10 @@
             }
             // Extract colNames from column structs
             var gbColNames = [];
-            var gbStrColNames = [];
             var gbColTypes = [];
             for (var i = 0; i < gbCols.length; i++) {
                 gbColNames.push(__getCurrentName(gbCols[i]));
                 gbColTypes.push(getColType(gbCols[i]));
-                // Extract colNames of string type columns for creating nulls
-                if (node.expand) {
-                    for (var j = 0; j < node.expand.groupingCols.length; j++) {
-                        if (gbCols[i].colId === node.expand.groupingCols[j].colId) {
-                            if (node.expand.groupingCols[j].colType === "string") {
-                                gbStrColNames.push(__getCurrentName(gbCols[i]));
-                            }
-                            break;
-                        }
-                    }
-                }
             }
 
             // Resolve each group's map clause
@@ -2453,15 +2443,8 @@
                         if (inAgg) {
                             gbColNames.push(newGbColName);
                             firstMapArray.push(fArray[j].evalStr);
-                            if (getColType(fArray[j]) === "string") {
-                                gbStrColNames.push(newGbColName);
-                            }
                         } else {
                             gbColNames[gbColNames.indexOf(origGbColName)] = newGbColName;
-                            if (gbStrColNames.indexOf(origGbColName) != -1) {
-                                gbStrColNames[gbStrColNames.indexOf(origGbColName)]
-                                                                    = newGbColName;
-                            }
                             inAgg = true;
                         }
                         // Mark fArray[i] as "used in group by"
@@ -2717,7 +2700,7 @@
                     newTableName = ret.newTableName;
                 }
                 if (node.expand) {
-                    return __handleMultiDimAgg(self, gbColNames, gbStrColNames,
+                    return __handleMultiDimAgg(self, gbColNames, gbColTypes,
                                             gArray, newTableName, node.expand);
                 } else {
                     return self.sqlObj.groupBy(gbColNames, gArray, newTableName);
@@ -5452,7 +5435,7 @@
         return deferred.promise();
     }
 
-    function __handleMultiDimAgg(self, gbColNames, gbStrColNames, gArray, tableName, expand) {
+    function __handleMultiDimAgg(self, gbColNames, gbColTypes, gArray, tableName, expand) {
         var cli = "";
         var deferred = PromiseHelper.deferred();
         assert(gbColNames[gbColNames.length - 1] === "SPARK_GROUPING_ID",
@@ -5490,7 +5473,7 @@
                     if ((1 << (gbColNames.length - j - 2) & curIndex) === 0) {
                         tempGBColNames.push(gbColNames[j]);
                     } else {
-                        if (gbStrColNames.indexOf(gbColNames[j]) != -1) {
+                        if (gbColTypes[j] === "string") {
                             var tempStrColName = gbColNames[j] + "-str-"
                                     + Authentication.getHashId().substring();
                             nameMap[gbColNames[j]] = tempStrColName;
@@ -5498,7 +5481,7 @@
                             mapStrs.push("string(" + tempStrColName + ")");
                         }
                         tempGArray.push({
-                            operator: "sum",
+                            operator: gbColTypes[j] === "int" ? "sumInteger" : "sum",
                             aggColName: gbTempColName,
                             newColName: nameMap[gbColNames[j]] || gbColNames[j]
                         });
@@ -6566,6 +6549,7 @@
         // "default:convertFormats": "string",
         // "default:convertFromUnixTS": "string",
         "sum": "float",
+        "sumInteger": "int",
         "count": "int",
         "avg": "float",
         "stdevp": "float",
