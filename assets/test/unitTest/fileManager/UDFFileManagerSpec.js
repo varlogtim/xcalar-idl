@@ -592,7 +592,7 @@ describe("UDFFileManager Test", function() {
 
             var deleteTask = () => {
                 var deferred = PromiseHelper.deferred();
-                UDFFileManager.Instance.del(testUDFNsPath)
+                UDFFileManager.Instance.deleteOne(testUDFNsPath)
                 .then(() => {
                     deferred.reject();
                 })

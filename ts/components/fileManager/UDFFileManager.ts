@@ -352,34 +352,15 @@ class UDFFileManager extends BaseFileManager {
         const delTasks: XDPromise<void>[] = displayPaths.map(
             (displayPath: string) => {
                 const nsPath: string = this.displayPathToNsPath(displayPath);
-                return this.del(nsPath, true);
+                return this.deleteOne(nsPath);
             }
         );
 
         PromiseHelper.when(...delTasks)
         .then(() => {
             xcHelper.showSuccess(SuccessTStr.DelUDF);
-            deferred.resolve();
-        })
-        .fail((error) => {
-            deferred.reject(error);
-        });
-
-        return deferred.promise();
-    }
-
-    /**
-     * @param  {string} nsPath
-     * @returns void
-     */
-    public del(nsPath: string, bulk?: boolean): XDPromise<void> {
-        xcAssert(this.storedUDF.has(nsPath), "Delete UDF error");
-
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const deleteUDFResolve = () => {
-            this._refreshUDF(false, true);
             this.panels.forEach((panel: FileManagerPanel) =>
-                panel.removeSearchResultNode(this.nsPathToDisplayPath(nsPath))
+                panel.removeSearchResultNodes(displayPaths)
             );
             const xcSocket: XcSocket = XcSocket.Instance;
             xcSocket.sendMessage("refreshUDF", {
@@ -387,12 +368,31 @@ class UDFFileManager extends BaseFileManager {
                 isDelete: true
             });
 
-            if (!bulk) {
-                xcHelper.showSuccess(SuccessTStr.DelUDF);
-            }
+            this._refreshUDF(false, true)
+            .then(() => {
+                deferred.resolve();
+            })
+            .fail((error) => {
+                deferred.reject(error);
+            });
+        })
+        .fail((error) => {
+            this._refreshUDF(false, true).always(() => {
+                deferred.reject(error);
+            });
+        });
 
-            deferred.resolve();
-        };
+        return deferred.promise();
+    }
+
+    /**
+     * @param  {string} nsPath
+     * @returns XDPromise
+     */
+    public deleteOne(nsPath: string): XDPromise<void> {
+        xcAssert(this.storedUDF.has(nsPath), "Delete UDF error");
+
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const absolutePath: boolean = !nsPath.startsWith(
             this.getCurrWorkbookPath()
         );
@@ -400,7 +400,7 @@ class UDFFileManager extends BaseFileManager {
             ? nsPath
             : nsPath.split("/").pop();
         XcalarDeletePython(uploadPath, absolutePath)
-        .then(deleteUDFResolve)
+        .then(deferred.resolve)
         .fail((error) => {
             // assume deletion if module is not listed
             if (
@@ -410,7 +410,7 @@ class UDFFileManager extends BaseFileManager {
                 XcalarListXdfs(nsPath + ":*", "User*")
                 .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
                     if (listXdfsObj.numXdfs === 0) {
-                        deleteUDFResolve();
+                        deferred.resolve();
                     } else {
                         Alert.error(UDFTStr.DelFail, error);
                         deferred.reject();

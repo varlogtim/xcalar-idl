@@ -175,13 +175,15 @@ class FileManagerPanel {
     }
 
     /**
-     * @param  {string} path
+     * @param  {string} paths
      */
-    public removeSearchResultNode(path: string) {
+    public removeSearchResultNodes(paths: string[]) {
         if (!this.rootPathNode.children.get("Search")) {
             return;
         }
-        this.rootPathNode.children.get("Search").children.delete(path);
+        paths.forEach((path: string) => {
+            this.rootPathNode.children.get("Search").children.delete(path);
+        });
     }
 
     /**

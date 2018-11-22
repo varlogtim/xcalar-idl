@@ -354,9 +354,10 @@ describe("DagView Test", () => {
     describe("Dag Progress", () => {
         let nodeId;
         let $node;
-        let tabId = DagView.getActiveDag().getTabId();
+        let tabId;
 
         before(() => {
+            tabId = DagView.getActiveDag().getTabId();
             const newNodeInfo = {
                 type: "filter",
                 display: {
