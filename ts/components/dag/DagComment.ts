@@ -9,6 +9,108 @@ class DagComment {
 
     }
 
+    public static readonly schema = {
+        "definitions": {},
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "http://example.com/root.json",
+        "type": "object",
+        "title": "The Root Schema",
+        "additionalProperties": true,
+        "required": [
+          "nodeId",
+          "dimensions",
+          "text"
+        ],
+        "properties": {
+          "nodeId": {
+            "$id": "#/properties/nodeId",
+            "type": "string",
+            "title": "The Nodeid Schema",
+            "default": "",
+            "examples": [
+              "comment_5BEF114C1C1DB6DA_1543527779333_0"
+            ],
+            "pattern": "^(.*)$"
+          },
+          "display": {
+            "$id": "#/properties/display",
+            "type": "object",
+            "title": "The Display Schema",
+            "additionalProperties": true,
+            "required": [
+              "x",
+              "y"
+            ],
+            "properties": {
+              "x": {
+                "$id": "#/properties/display/properties/x",
+                "type": "integer",
+                "title": "The X Schema",
+                "default": 0,
+                "examples": [
+                  680
+                ],
+                "minimum": 20
+              },
+              "y": {
+                "$id": "#/properties/display/properties/y",
+                "type": "integer",
+                "title": "The Y Schema",
+                "default": 0,
+                "examples": [
+                  120
+                ],
+                "minimum": 20
+              }
+            }
+          },
+          "dimensions": {
+            "$id": "#/properties/dimensions",
+            "type": "object",
+            "title": "The Dimensions Schema",
+            "additionalProperties": true,
+            "required": [
+              "width",
+              "height"
+            ],
+            "properties": {
+              "width": {
+                "$id": "#/properties/dimensions/properties/width",
+                "type": "integer",
+                "title": "The Width Schema",
+                "default": 0,
+                "examples": [
+                  180
+                ],
+                "minimum": 20.0,
+                "maximum": 2000.0
+              },
+              "height": {
+                "$id": "#/properties/dimensions/properties/height",
+                "type": "integer",
+                "title": "The Height Schema",
+                "default": 0,
+                "examples": [
+                  80
+                ],
+                "minimum": 20.0,
+                "maximum": 2000.0
+              }
+            }
+          },
+          "text": {
+            "$id": "#/properties/text",
+            "type": "string",
+            "title": "The Text Schema",
+            "default": "",
+            "examples": [
+              "something"
+            ]
+          }
+        }
+    };
+
+
     public setup() {
         const self = this;
         const $dfWrap: JQuery = $("#dagView .dataflowWrap");

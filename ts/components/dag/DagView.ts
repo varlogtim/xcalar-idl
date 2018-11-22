@@ -15,7 +15,6 @@ namespace DagView {
     const gridLineSize = 12;
     const titleLineHeight = 12;
     const inConnectorWidth = 6;
-    let clipboard = null;
     const lockedNodeIds = {};
 
     export function setup(): void {
@@ -66,7 +65,6 @@ namespace DagView {
                 window.getSelection().toString() !== " ") {
                 // if an actual target is selected,
                 // then let the natural event occur
-                clipboard = null;
                 return;
             }
 
@@ -86,7 +84,6 @@ namespace DagView {
                 window.getSelection().toString() !== " ") {
                 // if an actual target is selected,
                 // then let the natural event occur
-                clipboard = null;
                 return;
             }
 
@@ -98,12 +95,54 @@ namespace DagView {
             if (isDisableActions()) {
                 return;
             }
-            if (clipboard === null || $(e.target).is("input") ||
-                $(e.target).is("textarea")) {
+            if ($(e.target).is("input") || $(e.target).is("textarea")) {
                 return; // use default paste event
             }
-            if (clipboard.type === "dagNodes") {
-                DagView.pasteNodes();
+            try {
+                let content = event.clipboardData.getData('text/plain');
+                if (content) {
+                    const nodesArray = JSON.parse(content);
+                    if (!Array.isArray(nodesArray)) {
+                        throw("Dataflow nodes must be in an array");
+                    }
+                    for (let i = 0; i < nodesArray.length; i++) {
+                        const node = nodesArray[i];
+                        window["ajv"] = new Ajv(); //TODO: try to reuse
+                        let valid;
+                        let validate;
+                        if (node.hasOwnProperty("text")) {
+                            validate = ajv.compile(DagComment.schema);
+                        } else {
+                            validate = ajv.compile(DagNode.schema);
+                        }
+                        valid = validate(node);
+                        if (!valid) {
+                            // only saving first error message
+                            const msg = _parseValidationErrMsg(validate.errors[0], node.hasOwnProperty("text"));
+                            StatusBox.show(msg, $dfWrap);
+                            throw(msg);
+                        }
+                    }
+                    DagView.pasteNodes(nodesArray);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+
+            function _parseValidationErrMsg(errorObj, isComment?: boolean) {
+                let path = errorObj.dataPath;
+                if (path[0] === ".") {
+                    path = path.slice(1);
+                }
+                if (!path) {
+                    if (isComment) {
+                        path = "Comment";
+                    } else {
+                        path = "Node";
+                    }
+                }
+                let msg = path + " " + errorObj.message;
+                return msg;
             }
         });
 
@@ -573,125 +612,116 @@ namespace DagView {
      * DagView.pasteNodes
      *  finds new position for cloned nodes, adds to dagGraph and UI
      */
-    export function pasteNodes(): XDPromise<void> {
-        if (!clipboard) {
-            return PromiseHelper.reject();;
+    export function pasteNodes(nodeInfos): XDPromise<void> {
+        if (!nodeInfos.length) {
+            return PromiseHelper.reject();
         }
-        if (clipboard.type === "dagNodes") {
-            if (!clipboard.nodeInfos.length) {
-                return PromiseHelper.reject();
+        const tab: DagTab = activeDagTab;
+        const tabId: string = tab.getId();
+        tab.turnOffSave();
+        const $dfArea: JQuery = _getActiveArea();
+        $dfArea.find(".selected").removeClass("selected");
+
+        let minXCoor: number = $dfArea.width();
+        let minYCoor: number = $dfArea.height();
+        let maxXCoor: number = 0;
+        let maxYCoor: number = 0;
+
+        nodeInfos.forEach((nodeInfo) => {
+            minYCoor = Math.min(nodeInfo.display.y, minYCoor);
+            if (nodeInfo.display.y === minYCoor) {
+                minXCoor = Math.min(nodeInfo.display.x, minXCoor);
             }
-            const tab: DagTab = activeDagTab;
-            const tabId: string = tab.getId();
-            tab.turnOffSave();
-            const $dfArea: JQuery = _getActiveArea();
-            $dfArea.find(".selected").removeClass("selected");
+            if (nodeInfo.dimensions) {
+                const dimensions = nodeInfo.dimensions;
+                maxXCoor = Math.max(nodeInfo.display.x + dimensions.width, maxXCoor);
+                maxYCoor = Math.max(nodeInfo.display.y + dimensions.height, maxYCoor);
+            } else {
+                maxXCoor = Math.max(nodeInfo.display.x, maxXCoor);
+                maxYCoor = Math.max(nodeInfo.display.y, maxYCoor);
+            }
+        });
 
-            let minXCoor: number = $dfArea.width();
-            let minYCoor: number = $dfArea.height();
-            let maxXCoor: number = 0;
-            let maxYCoor: number = 0;
+        let origMinXCoor = minXCoor;
+        let origMinYCoor = minYCoor;
+        minXCoor += (gridSpacing * 5);
+        minYCoor += (gridSpacing * 2);
 
-            clipboard.nodeInfos.forEach((nodeInfo) => {
-                minYCoor = Math.min(nodeInfo.display.y, minYCoor);
-                if (nodeInfo.display.y === minYCoor) {
-                    minXCoor = Math.min(nodeInfo.display.x, minXCoor);
+        const nextAvailablePosition = getNextAvailablePosition(activeDag, minXCoor,
+            minYCoor);
+        minXCoor = nextAvailablePosition.x;
+        minYCoor = nextAvailablePosition.y;
+
+        let xDelta = minXCoor - origMinXCoor;
+        let yDelta = minYCoor - origMinYCoor;
+        maxXCoor += xDelta;
+        maxYCoor += yDelta;
+
+        const newNodeIds: DagNodeId[] = [];
+        const allNewNodeIds: DagNodeId[] = [];
+        const oldNodeIdMap = {};
+
+        nodeInfos.forEach((nodeInfo) => {
+            nodeInfo = xcHelper.deepCopy(nodeInfo);
+            nodeInfo.display.x += xDelta;
+            nodeInfo.display.y += yDelta;
+            if (nodeInfo.hasOwnProperty("text")) {
+                const commentInfo = {
+                    text: nodeInfo.text,
+                    position: nodeInfo.display,
+                    dimensions: nodeInfo.dimensions
+                };
+                const commentNode = activeDag.newComment(commentInfo);
+                allNewNodeIds.push(commentNode.getId());
+                DagComment.Instance.drawComment(commentNode, $dfArea, true);
+            } else if (nodeInfo.hasOwnProperty("input")) {
+                const newNode: DagNode = activeDag.newNode(nodeInfo);
+                if (newNode.getType() == DagNodeType.Aggregate &&
+                        newNode.getState() == DagNodeState.Configured) {
+                    newNode.beErrorState(xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
+                        name: newNode.getParam().dest,
+                        aggPrefix: ""
+                    }));
                 }
-                if (nodeInfo.dimensions) {
-                    const dimensions = nodeInfo.dimensions;
-                    maxXCoor = Math.max(nodeInfo.display.x + dimensions.width, maxXCoor);
-                    maxYCoor = Math.max(nodeInfo.display.y + dimensions.height, maxYCoor);
-                } else {
-                    maxXCoor = Math.max(nodeInfo.display.x, maxXCoor);
-                    maxYCoor = Math.max(nodeInfo.display.y, maxYCoor);
-                }
-            });
+                const newNodeId: DagNodeId = newNode.getId();
+                oldNodeIdMap[nodeInfo.nodeId] = newNodeId;
+                newNodeIds.push(newNodeId);
+                allNewNodeIds.push(newNodeId);
+                _drawNode(newNode, $dfArea, true);
+            }
+        });
 
-            let origMinXCoor = minXCoor;
-            let origMinYCoor = minYCoor;
-            minXCoor += (gridSpacing * 5);
-            minYCoor += (gridSpacing * 2);
-
-            const nextAvailablePosition = getNextAvailablePosition(activeDag, minXCoor,
-                minYCoor);
-            minXCoor = nextAvailablePosition.x;
-            minYCoor = nextAvailablePosition.y;
-
-            let xDelta = minXCoor - origMinXCoor;
-            let yDelta = minYCoor - origMinYCoor;
-            maxXCoor += xDelta;
-            maxYCoor += yDelta;
-
-            const newNodeIds: DagNodeId[] = [];
-            const allNewNodeIds: DagNodeId[] = [];
-            const oldNodeIdMap = {};
-
-            clipboard.nodeInfos.forEach((nodeInfo) => {
-                nodeInfo = xcHelper.deepCopy(nodeInfo);
-                nodeInfo.display.x += xDelta;
-                nodeInfo.display.y += yDelta;
-                if (nodeInfo.nodeId.startsWith("dag")) {
-                    const newNode: DagNode = activeDag.newNode(nodeInfo);
-                    if (newNode.getType() == DagNodeType.Aggregate &&
-                            newNode.getState() == DagNodeState.Configured) {
-                        newNode.beErrorState(xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
-                            name: newNode.getParam().dest,
-                            aggPrefix: ""
-                        }));
-                    }
-                    const newNodeId: DagNodeId = newNode.getId();
-                    oldNodeIdMap[nodeInfo.nodeId] = newNodeId;
-                    newNodeIds.push(newNodeId);
-                    allNewNodeIds.push(newNodeId);
-                    _drawNode(newNode, $dfArea, true);
-                } else if (nodeInfo.nodeId.startsWith("comment")) {
-                    const commentInfo = {
-                        text: nodeInfo.text,
-                        position: nodeInfo.display,
-                        dimensions: nodeInfo.dimensions
-                    };
-                    const commentNode = activeDag.newComment(commentInfo);
-                    allNewNodeIds.push(commentNode.getId());
-                    DagComment.Instance.drawComment(commentNode, $dfArea, true);
-                }
-            });
-
-            // restore connection to parents
-            newNodeIds.forEach((newNodeId, i) => {
-                if (clipboard.nodeInfos[i].parentIds) {
-                    clipboard.nodeInfos[i].parentIds.forEach((parentId, j) => {
-                        if (parentId == null) {
-                            return; // skip empty parent slots
-                        }
-                        const newParentId = oldNodeIdMap[parentId];
-                        // we do this because we're sure there is no cycle
-                        // in copy paste case and skip the check can help on performance
-                        const allowCyclic: boolean = true;
-                        activeDag.connect(newParentId, newNodeId, j, allowCyclic);
-                        _drawConnection(newParentId, newNodeId, j, tabId);
-                    });
-                }
-            });
-            // XXX scroll to selection if off screen
-
-            _setGraphDimensions({ x: maxXCoor, y: maxYCoor });
-
-            Log.add(SQLTStr.CopyOperations, {
-                "operation": SQLOps.CopyOperations,
-                "dataflowId": tab.getId(),
-                "nodeIds": allNewNodeIds
-            });
-            tab.turnOnSave();
-            return tab.save();
+        if (!allNewNodeIds.length) {
+            return;
         }
-        return PromiseHelper.reject();
-    }
 
-    /**
-     * DagView.hasClipboard
-     */
-    export function hasClipboard(): boolean {
-        return clipboard !== null;
+        // restore connection to parents
+        allNewNodeIds.forEach((newNodeId, i) => {
+            if (newNodeId.startsWith("comment")) {
+                return;
+            }
+            if (nodeInfos[i].parentIds) {
+                nodeInfos[i].parentIds.forEach((parentId, j) => {
+                    if (parentId == null) {
+                        return; // skip empty parent slots
+                    }
+                    const newParentId = oldNodeIdMap[parentId];
+                    activeDag.connect(newParentId, newNodeId, j);
+                    _drawConnection(newParentId, newNodeId, j, tabId);
+                });
+            }
+        });
+        // XXX scroll to selection if off screen
+
+        _setGraphDimensions({ x: maxXCoor, y: maxYCoor });
+
+        Log.add(SQLTStr.CopyOperations, {
+            "operation": SQLOps.CopyOperations,
+            "dataflowId": tab.getId(),
+            "nodeIds": allNewNodeIds
+        });
+        tab.turnOnSave();
+        return tab.save();
     }
 
     export function hasOptimizedNode(nodeIds? : DagNodeId[]): boolean {
@@ -2042,7 +2072,8 @@ namespace DagView {
                     _removeConnection($(this), $dfArea, childNodeId, tabId);
                 });
                 spliceInfos[nodeId] = spliceInfo;
-                if (DagNodeInfoPanel.Instance.getActiveNode().getId() === nodeId) {
+                if (DagNodeInfoPanel.Instance.getActiveNode() &&
+                    DagNodeInfoPanel.Instance.getActiveNode().getId() === nodeId) {
                     DagNodeInfoPanel.Instance.hide();
                 }
             } else if (nodeId.startsWith("comment")) {
@@ -3727,12 +3758,8 @@ namespace DagView {
     }
 
     function cutOrCopyNodesHelper(nodeIds: DagNodeId[]): void {
-        xcHelper.copyToClipboard(" "); // need to have content to overwrite current clipboard
-
-        clipboard = {
-            type: "dagNodes",
-            nodeInfos: createNodeInfos(nodeIds, activeDag, {clearState: true})
-        };
+        const nodeInfos = createNodeInfos(nodeIds, activeDag, {clearState: true});
+        xcHelper.copyToClipboard(JSON.stringify(nodeInfos, null, 4));
     }
 
     function addDescriptionIcon($node: JQuery, text: string): void {

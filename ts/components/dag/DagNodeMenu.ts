@@ -133,9 +133,11 @@ namespace DagNodeMenu {
             case ("cutNodes"):
                 DagView.cutNodes(nodeIds);
                 break;
-            case ("pasteNodes"):
-                DagView.pasteNodes();
-                break;
+            // XXX pasting from menu is disabled
+            // case ("pasteNodes"):
+            //     document.execCommand("paste");
+            //     // DagView.pasteNodes();
+                // break;
             case ("executeNode"):
                 DagView.run(dagNodeIds);
                 break;
@@ -429,9 +431,9 @@ namespace DagNodeMenu {
         $menu.find("li").removeClass("unavailable");
         adjustMenuForOpenForm();
 
-        if (!DagView.hasClipboard()) {
-            $menu.find(".pasteNodes").addClass("unavailable");
-        }
+        // if (!DagView.hasClipboard()) {
+        //     $menu.find(".pasteNodes").addClass("unavailable");
+        // }
 
         xcHelper.dropdownOpen($clickedEl, $menu, {
             mouseCoors: {x: event.pageX, y: event.pageY},
@@ -505,9 +507,9 @@ namespace DagNodeMenu {
             }
         }
 
-        if (!DagView.hasClipboard()) {
-            $menu.find(".pasteNodes").addClass("unavailable");
-        }
+        // if (!DagView.hasClipboard()) {
+        //     $menu.find(".pasteNodes").addClass("unavailable");
+        // }
 
         // if no nodes selected, don't display executeAll if an optimized node is found
         // if some nodes are selected, don't display executeAll if those nodes
