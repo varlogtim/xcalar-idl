@@ -1248,9 +1248,6 @@
             }
             var deferred = PromiseHelper.deferred();
             var retStruct;
-            if (typeof SQLEditor !== "undefined" && updateUI) {
-                SQLEditor.updateProgress();
-            }
             var treeNodeClass = treeNode.value.class.substring(
                 "org.apache.spark.sql.catalyst.plans.logical.".length);
             switch (treeNodeClass) {
@@ -1414,13 +1411,8 @@
                     var finalTableName = SQLCache.setNewTableNames(plan,
                                                          jsonArray.startTables,
                                                          jsonArray.finalTable);
-                    if (typeof SQLEditor !== "undefined") {
-                        SQLEditor.fakeCompile(jsonArray.steps)
-                        .then(function() {
-                            deferred.resolve(JSON.stringify(plan), finalTableName,
-                                             jsonArray.finalTableCols);
-                        });
-                    }
+                    deferred.resolve(JSON.stringify(plan), finalTableName,
+                                        jsonArray.finalTableCols);
                 } else {
                     if (self.sqlObj.getStatus() === SQLStatus.Cancelled) {
                         return PromiseHelper.reject(SQLErrTStr.Cancel);
@@ -1439,9 +1431,6 @@
                     }
 
                     var numNodes = countNumNodes(tree);
-                    if (typeof SQLEditor !== "undefined") {
-                        SQLEditor.startCompile(numNodes);
-                    }
 
                     prepareUsedColIds(tree);
                     var promiseArray = traverseAndPushDown(self, tree);

@@ -56,7 +56,6 @@ window.UnitTestManager = (function(UnitTestManager, $) {
         "User Setting Test",
         "xcManager Test",
         "SQL-SQlApi Test",
-        "SQL-SQLEditor Test",
         "skRFPredictor",
         "xcSuggest",
         "Concurrency Test",

@@ -12,7 +12,6 @@ window.BottomMenu = (function($, BottomMenu) {
         Log.setup();
         UDFPanel.Instance.setup();
         Help.setup();
-        SQLEditor.setup();
     };
 
     BottomMenu.initialize = function() {
@@ -419,11 +418,6 @@ window.BottomMenu = (function($, BottomMenu) {
             !$("#udf-fnSection").hasClass("xc-hidden"))
         {
             UDFPanel.Instance.getEditor().refresh();
-        }
-
-        if ($("#sqlSection").hasClass("active")) {
-            SQLEditor.getEditor().refresh();
-            SQLEditor.refresh();
         }
     }
 

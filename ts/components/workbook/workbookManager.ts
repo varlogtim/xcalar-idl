@@ -217,9 +217,6 @@ namespace WorkbookManager {
             return finishCreatingWKBK(wkbkName, username, isCopy, copySrc);
         })
         .then(function(wkbkId) {
-            if (typeof SQLEditor !== "undefined") {
-                SQLEditor.dropAllSchemas(wkbkId);
-            }
             deferred.resolve(wkbkId);
         })
         .fail(function(error) {
@@ -514,9 +511,6 @@ namespace WorkbookManager {
                                       jupFolderName);
         })
         .then(function(wkbkId) {
-            if (typeof SQLEditor !== "undefined") {
-                SQLEditor.dropAllSchemas(wkbkId);
-            }
             deferred.resolve(wkbkId);
         })
         .fail(function(err) {
@@ -708,9 +702,6 @@ namespace WorkbookManager {
                 "oldName": srcWKBK.name,
                 "newName": newName
             });
-            if (typeof SQLEditor !== "undefined") {
-                SQLEditor.dropAllSchemas(newWKBKId);
-            }
             if (isCurrentWKBK) {
                 /// Change workbookname in status bar
                 $("#worksheetInfo .wkbkName").text(newName);
@@ -761,9 +752,6 @@ namespace WorkbookManager {
                 "user": XcUser.getCurrentUserName(),
                 "triggerWkbk":workbookId
             });
-            if (typeof SQLEditor !== "undefined") {
-                SQLEditor.dropAllSchemas(workbookId);
-            }
             deferred.resolve.apply(this, arguments);
         })
         .fail(deferred.reject)
@@ -900,8 +888,6 @@ namespace WorkbookManager {
         const gDagListKey: string = generateKey("gDagListKey", version);
         const gDagParamKey: string = generateKey("gDagParamKey", version);
         const gSQLQueryKey: string = generateKey("gSQLQuery", version);
-        const gSQLEditorKey: string = generateKey("gSQLEditor", version);
-        const gSQLEditorQuery: string = generateKey("gSQLEditorQuery", version);
         const gSQLSnippetKey: string = generateKey("gSQLSnippet", version);
         const gSQLSnippetQueryKey: string = generateKey("gSQLSnippetQuery", version);
 
@@ -919,8 +905,6 @@ namespace WorkbookManager {
             "gDagAggKey": gDagAggKey,
             "gDagListKey": gDagListKey,
             "gDagParamKey": gDagParamKey,
-            "gSQLEditor": gSQLEditorKey,
-            "gSQLEditorQuery": gSQLEditorQuery,
             "gSQLSnippet": gSQLSnippetKey,
             "gSQLSnippetQuery": gSQLSnippetQueryKey
         };

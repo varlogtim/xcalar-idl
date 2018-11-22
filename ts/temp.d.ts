@@ -126,8 +126,8 @@ interface WkbkKVKeySet {
     gDagManagerKey: string;
     gDagTableManagerKey: string;
     gDagListKey: string;
-    gSQLEditorKey: string;
-    gSQLEditorQueryKey: string;
+    gSQLSnippetKey: string;
+    gSQLSnippetQueryKey: string;
 }
 
 interface XcalarEvalFnDescT {

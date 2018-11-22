@@ -74,7 +74,7 @@
             if (!message) {
                 message = "SQLApi Error";
             }
-            if (typeof SQLEditor !== "undefined") {
+            if (typeof SQLOpPanel !== "undefined") {
                 SQLOpPanel.throwError(message);
             }
             throw "Assertion Failure: " + message;
@@ -99,191 +99,14 @@
             return query;
         },
 
-        _getColType: function(typeId) {
-            // XXX TODO generalize it with setImmediateType()
-            if (!DfFieldTypeTStr.hasOwnProperty(typeId)) {
-                // error case
-                console.error("Invalid typeId");
-                return null;
-            }
-
-            return xcHelper.convertFieldTypeToColType(typeId);
-        },
-
-        _getQueryTableCols: function(tableName, allCols, isImmediate) {
-            var deferred = PromiseHelper.deferred();
-            var self = this;
-            XcalarGetTableMeta(tableName)
-            .then(function(tableMeta) {
-                if (tableMeta == null || tableMeta.valueAttrs == null) {
-                    deferred.resolve([]);
-                    return;
-                }
-
-                var valueAttrs = tableMeta.valueAttrs || [];
-                var progCols = [];
-                if (!isImmediate) {
-                    var colNameSet = new Set();
-                    for (var i = 0; i < allCols.length; i++) {
-                        var found = false;
-                        if (colNameSet.has(allCols[i].colName)) {
-                            var k = 1;
-                            while (colNameSet.has(allCols[i].colName + "_" + k)) {
-                                k++;
-                            }
-                            allCols[i].colName = allCols[i].colName + "_" + k;
-                        }
-                        colNameSet.add(allCols[i].colName);
-                        var colName = allCols[i].rename || allCols[i].colName;
-                        var prefix = colName;
-                        if (colName.indexOf("::") > 0) {
-                            prefix = colName.split("::")[0];
-                            colName = colName.split("::")[1];
-                        }
-                        for (var j = 0; j < valueAttrs.length; j++) {
-                            var name = valueAttrs[j].name;
-                            if (name === colName || name === prefix) {
-                                found = true;
-                                var type = self._getColType(valueAttrs[j].type);
-                                progCols.push(ColManager.newPullCol(
-                                               allCols[i].colName, name, type));
-                                break;
-                            }
-                        }
-                        assert(found);
-                    }
-                } else {
-                    valueAttrs.forEach(function(valueAttr) {
-                        var name = valueAttr.name;
-                        var type = self._getColType(valueAttr.type);
-                        progCols.push(ColManager.newPullCol(name, name, type));
-                    });
-                }
-                assert(progCols.length > 0);
-                // If progCols doesn't have elements, it could be due to:
-                // 1. allCols is empty
-                // 2. valueAttrs has no match colName
-                // Both of which should never happen. If did, it should crash
-                progCols.push(ColManager.newDATACol());
-                deferred.resolve(progCols);
-            })
-            .fail(deferred.reject);
-
-            return deferred.promise();
-        },
-
-        _refreshTable: function(txId, tableName, allCols, allTables) {
-            var deferred = PromiseHelper.deferred();
-            var self = this;
-            self._getQueryTableCols(tableName, allCols)
-            .then(function(tableCols) {
-                var worksheet = WSManager.getActiveWS();
-                var focus = !SQLOpPanel.isOnHistPanel();
-                return TblManager.refreshTable([tableName], tableCols,
-                                            null, worksheet, txId, {
-                                                "focusWorkspace": focus
-                                            });
-            })
-            .then(function() {
-                return XcalarGetDag(tableName);
-            })
-            .then(function(dagNodes) {
-                var allTables = [];
-                var tableIds = [];
-                var constantNameSet = new Set();
-                var constants = [];
-                for (var i = 0; i < dagNodes.node.length; i++) {
-                    var tableName = dagNodes.node[i].name.name;
-                    var tableId = xcHelper.getTableId(tableName);
-                    if (tableId && !gTables[tableId]) {
-                        allTables.push(tableName);
-                    }
-                    if (dagNodes.node[i].numRowsTotal === 0 &&
-                        dagNodes.node[i].numParents != 0 &&
-                        tableName.indexOf("#") === -1 &&
-                        !constantNameSet.has(tableName)) {
-                        constantNameSet.add(tableName);
-                        constants.push({name: tableName,
-                                input: dagNodes.node[i].input.aggregateInput});
-                    }
-                }
-                return self._addMetaForImmediates(allTables, constants);
-            })
-            .then(deferred.resolve)
-            .fail(function () {
-                var ret = "";
-                for (var i = 0; i < arguments.length; i++) {
-                    if (i > 0) {
-                        ret += "\n";
-                    }
-                    ret += JSON.stringify(arguments[i]);
-                };
-                deferred.reject(ret);
-            });
-
-            return deferred.promise();
-        },
-
-        _addMetaForImmediates: function(allTables, constants) {
-            var self = this;
-            var promiseArray = [];
-            allTables.forEach(function(tableName) {
-                var deferred = PromiseHelper.deferred();
-                var promise = self._getQueryTableCols(tableName, null, true)
-                    .then(function(progCols) {
-                        TblManager.setOrphanTableMeta(tableName, progCols);
-                        deferred.resolve();
-                    })
-                    .fail(deferred.resolve); // always resolve
-                promiseArray.push(deferred.promise());
-            });
-            constants.forEach(function(constant) {
-                var deferred = PromiseHelper.deferred();
-                var constantName = constant.name;
-                var resultSetId;
-                var promise = XcalarMakeResultSetFromTable(constantName)
-                    .then(function(ret) {
-                        resultSetId = ret.resultSetId;
-                        return XcalarGetNextPage(resultSetId, ret.numEntries);
-                    })
-                    .then(function(ret) {
-                        try {
-                            var value = JSON.parse(ret.values[0]).constant;
-                        } catch (e) {
-                            deferred.reject(SQLErrTStr.InvalidPageInfo);
-                            return;
-                        }
-                        var aggRes = {
-                            value: value,
-                            dagName: constantName,
-                            aggName: constantName,
-                            tableId: constant.input.source.split("#")[1],
-                            backColName: constant.input.eval[0].evalString
-                                         .slice(constant.input.eval[0]
-                                         .evalString.indexOf("("),-1),
-                            op: constant.input.eval[0].evalString.split("(")[0]
-                        };
-                        Aggregates.addAgg(aggRes, false);
-                        // XXX TODO: add new refresh constant function
-                    })
-                    .always(function() {
-                        if (resultSetId) {
-                            return XcalarSetFree(resultSetId);
-                        }
-                        return PromiseHelper.resolve();
-                    })
-                    .then(deferred.resolve)
-                    .fail(deferred.resolve);
-                promiseArray.push(deferred.promise());
-            });
-            return PromiseHelper.when.apply(window, promiseArray);
-        },
-
         run: function(query, tableName, allCols, sqlQueryString, jdbcCheckTime) {
+            var self = this;
+            if (!self.sqlMode) {
+                return PromiseHelper.reject(SQLErrTStr.NeedSQLMode);
+            }
             if (typeof DagTblManager !== "undefined") {
                 DagTblManager.Instance.resetTable(tableName);
             }
-            var self = this;
             var deferred = PromiseHelper.deferred();
             var queryName = self.queryName || xcHelper.randName("sql", 8);
 
@@ -301,38 +124,16 @@
             };
             XIApi.query(txId, queryName, query, options)
             .then(function() {
-                if (!self.sqlMode) {
-                    DagFunction.commentDagNodes([tableName], sqlQueryString);
-                    return self._refreshTable(txId, tableName, allCols);
-                } else {
-                    // jdbc will resolve with cancel status here
-                    if (arguments &&
-                        arguments[0].queryState === QueryStateT.qrCancelled) {
-                        return PromiseHelper.reject(SQLErrTStr.Cancel);
-                    }
+                // jdbc will resolve with cancel status here
+                if (arguments &&
+                    arguments[0].queryState === QueryStateT.qrCancelled) {
+                    return PromiseHelper.reject(SQLErrTStr.Cancel);
                 }
             })
             .then(function() {
-                if (!self.sqlMode) {
-                    var sql = {
-                        "operation": "Execute SQL",
-                        "query": query,
-                        "tableName": tableName
-                    };
-                    Transaction.done(txId, {
-                        "msgTable": xcHelper.getTableId(tableName),
-                        "sql": sql
-                    });
-                }
                 deferred.resolve(tableName, allCols);
             })
             .fail(function(error) {
-                if (!self.sqlMode) {
-                    Transaction.fail(txId, {
-                        "failMsg": "Execute SQL failed",
-                        "error": error
-                    });
-                }
                 deferred.reject(error);
             });
 
