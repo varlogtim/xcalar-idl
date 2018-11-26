@@ -4819,6 +4819,7 @@ namespace xcHelper {
         });
     }
 
+
     /**
      * xcHelper.numToStr
      * adds commas to large numbers (52000 becomes "52,000")

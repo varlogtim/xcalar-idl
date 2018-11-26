@@ -209,6 +209,11 @@ window.BottomMenu = (function($, BottomMenu) {
             // do not need to adjust tables if closing menu when it's popped out
             // because mainFrame is already in it's expanded state
             xcHelper.menuAnimAligner(true, checkMenuAnimFinish);
+        } else if (!isPoppedOut && $("#modelingDagPanel").hasClass("active")) {
+            checkMenuAnimFinish()
+            .then(function() {
+                DagCategoryBar.Instance.showOrHideArrows();
+            });
         }
         popInModal(null, topMenuOpening);
 
@@ -294,6 +299,11 @@ window.BottomMenu = (function($, BottomMenu) {
         if (!isBottomMenuOpening && !wasOpen) {
             if ($("#workspacePanel").hasClass("active")) {
                 xcHelper.menuAnimAligner(false, checkMenuAnimFinish);
+            } else if ($("#modelingDagPanel").hasClass("active")) {
+                checkMenuAnimFinish()
+                .then(function() {
+                    DagCategoryBar.Instance.showOrHideArrows();
+                });
             }
         } else {
             $("#container").addClass("noMenuAnim");
@@ -301,6 +311,7 @@ window.BottomMenu = (function($, BottomMenu) {
             setTimeout(function() {
                 $("#container").removeClass("noMenuAnim");
             }, 0);
+            DagCategoryBar.Instance.showOrHideArrows();
             hasAnim = false;
         }
 
@@ -372,6 +383,11 @@ window.BottomMenu = (function($, BottomMenu) {
         $("#container").addClass("bottomMenuOut");
         if ($("#workspacePanel").hasClass("active")) {
             xcHelper.menuAnimAligner(true, checkMenuAnimFinish);
+        } else if ($("#modelingDagPanel").hasClass("active")) {
+            checkMenuAnimFinish()
+            .then(function() {
+                DagCategoryBar.Instance.showOrHideArrows();
+            });
         }
     }
 
@@ -393,6 +409,11 @@ window.BottomMenu = (function($, BottomMenu) {
         // will move table titles if menu was popped out
         if (adjustTables && $("#workspacePanel").hasClass("active")) {
             xcHelper.menuAnimAligner(false, checkMenuAnimFinish);
+        } else if (adjustTables && $("#modelingDagPanel").hasClass("active")) {
+            checkMenuAnimFinish()
+            .then(function() {
+                DagCategoryBar.Instance.showOrHideArrows();
+            });
         }
     }
 

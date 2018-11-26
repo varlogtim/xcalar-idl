@@ -45,8 +45,10 @@ namespace DagView {
         $("#container").addClass("activePanel-modelingDagPanel");
         DagCategoryBar.Instance.showOrHideArrows();
 
+        let resizeTimer;
         $(window).on("resize.dagViewResize", function () {
-            DagCategoryBar.Instance.showOrHideArrows();
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(DagCategoryBar.Instance.showOrHideArrows, 300);
         });
 
         $(document).on("copy.dataflowPanel", function (e) {

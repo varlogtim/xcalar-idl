@@ -485,8 +485,15 @@ window.MainMenu = (function($, MainMenu) {
         } else {
             menuAnimAlign = null;
         }
-        if (noAnim && $("#modelingDagPanel").hasClass("active")) {
-            DagCategoryBar.Instance.showOrHideArrows();
+        if ($("#modelingDagPanel").hasClass("active")) {
+            if (noAnim) {
+                DagCategoryBar.Instance.showOrHideArrows();
+            } else {
+                checkMenuAnimFinish()
+                .then(function() {
+                    DagCategoryBar.Instance.showOrHideArrows();
+                });
+            }
         }
         setTimeout(function () {
             // timeout prevents flicker
@@ -526,8 +533,15 @@ window.MainMenu = (function($, MainMenu) {
             IMDPanel.redraw();
             menuAnimAlign = null;
         }
-        if (noAnim && $("#modelingDagPanel").hasClass("active")) {
-            DagCategoryBar.Instance.showOrHideArrows();
+        if ($("#modelingDagPanel").hasClass("active")) {
+            if (noAnim) {
+                DagCategoryBar.Instance.showOrHideArrows();
+            } else {
+                checkMenuAnimFinish()
+                .then(function() {
+                    DagCategoryBar.Instance.showOrHideArrows();
+                });
+            }
         }
         setTimeout(function () {
             // timeout prevents flicker
