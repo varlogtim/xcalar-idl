@@ -199,6 +199,10 @@ abstract class DagNode {
      */
     public setDescription(description: string): void {
         this.description = description;
+        this.events.trigger(DagNodeEvents.DescriptionChange, {
+            id: this.getId(),
+            text: this.description
+        });
     }
 
     /**
@@ -577,18 +581,20 @@ abstract class DagNode {
                 skewValue: 0,
                 elapsedTime: 0,
                 size: 0,
-                rows: []
+                rows: [],
+                hasStats: false
             }
             nodes[tableName] = tableProgressInfo;
         });
         this.progressInfo.nodes = nodes;
     }
 
-    public updateProgress(tableNameMap) {
+    public updateProgress(tableNameMap, includesAllTables?: boolean) {
         const errorStates = [DgDagStateT.DgDagStateUnknown, DgDagStateT.DgDagStateError, DgDagStateT.DgDagStateArchiveError];
         let isComplete = true;
         let errorState = null;
         this.progressInfo.hasRun = true;
+        let tableCount = Object.keys(this.progressInfo.nodes).length;
         for (let tableName in tableNameMap) {
             let tableProgressInfo = this.progressInfo.nodes[tableName];
             if (!tableProgressInfo) {
@@ -602,21 +608,29 @@ abstract class DagNode {
                     skewValue: 0,
                     elapsedTime: 0,
                     size: 0,
-                    rows: []
+                    rows: [],
+                    index: tableCount,
+                    hasStats: true
                 };
                 this.progressInfo.nodes[tableName] = tableProgressInfo;
+                tableCount++;
             }
 
             const nodeInfo = tableNameMap[tableName];
             if (nodeInfo.state === DgDagStateT.DgDagStateProcessing &&
                 tableProgressInfo.state !== DgDagStateT.DgDagStateProcessing) {
                 tableProgressInfo.startTime = Date.now();
-
             }
             tableProgressInfo.name = tableName;
             tableProgressInfo.type = nodeInfo.api;
             tableProgressInfo.state = nodeInfo.state;
-            tableProgressInfo.index = nodeInfo.index;
+            tableProgressInfo.hasStats = true;
+            if (tableProgressInfo.index == null) {
+                // if tableProgressInfo already has index, then the one it has
+                // is more reliable
+                tableProgressInfo.index = nodeInfo.index;
+            }
+
             let elapsedTime;
             if (tableProgressInfo.state === DgDagStateT.DgDagStateProcessing) {
                 elapsedTime = Date.now() - tableProgressInfo.startTime;
@@ -651,7 +665,7 @@ abstract class DagNode {
         }
         if (errorState != null) {
             this.beErrorState(DgDagStateTStr[errorState]);
-        } else if (isComplete) {
+        } else if (isComplete && includesAllTables) {
             this.beCompleteState();
         }
     }
@@ -660,12 +674,13 @@ abstract class DagNode {
     // skew and rows is incorrect as
     // we're ony returning skew info of one of the queryNodes
     public getOverallStats(): {
-        pct: number;
-        time: number;
-        rows: number[];
-        skewValue: number;
-        totalRows: number;
-        size: number;
+        pct: number,
+        time: number,
+        rows: number[],
+        skewValue: number,
+        totalRows: number,
+        size: number,
+        started: boolean
     } {
         let numWorkCompleted: number = 0;
         let numWorkTotal: number = 0
@@ -694,28 +709,33 @@ abstract class DagNode {
             rows: rows,
             skewValue: skew,
             totalRows: numRowsTotal,
-            size: size
-        }
+            size: size,
+            started: Object.keys(this.progressInfo.nodes).length > 0
+        };
 
         return stats;
     }
 
-    public getIndividualStats(clean?: boolean): any[] {
+
+    public getIndividualStats(formatted?: boolean): any[] {
         const nodesArray = [];
-        if (clean) {
+        if (formatted) {
             const nodes = xcHelper.deepCopy(this.progressInfo.nodes);
             for (let name in nodes) {
                 const node = nodes[name];
-                delete node.numRowsTotal;
                 delete node.startTime;
                 node.state = DgDagStateTStr[node.state];
                 node.type = XcalarApisTStr[node.type];
-                nodesArray.push(node);
+                if (node.hasStats) {
+                    nodesArray.push(node);
+                }
             }
         } else {
             for (let name in this.progressInfo.nodes) {
                 const node = this.progressInfo.nodes[name];
-                nodesArray.push(node);
+                if (node.hasStats) {
+                    nodesArray.push(node);
+                }
             }
         }
         nodesArray.sort((a,b) => {
@@ -735,6 +755,9 @@ abstract class DagNode {
         return this._canHaveMultiParents();
     }
 
+    /**
+     * @returns the text displayed in the center of the node
+     */
     public getDisplayNodeType(): string {
         const nodeType: string = this.type;
         let displayNodeType = xcHelper.capitalize(nodeType);
@@ -855,7 +878,8 @@ abstract class DagNode {
     private _setState(state: DagNodeState): void {
         const oldState: DagNodeState = this.state;
         this.state = state;
-        if (state !== DagNodeState.Complete) {
+        if (state !== DagNodeState.Complete &&
+            state !== DagNodeState.Running) {
             this.progressInfo.hasRun = false;
             this.progressInfo.nodes = {};
         }
@@ -899,11 +923,11 @@ abstract class DagNode {
         if (maxParents === -1) {
             const minParents = this.getMinParents();
             if (numParent < minParents) {
-                let error: string = "Require at least " + minParents + " parents";
+                let error: string = "Requires at least " + minParents + " parents";
                 return {error: error};
             }
         } else if (numParent !== this.getMaxParents()) {
-            let error: string = "Require " + maxParents + " parents";
+            let error: string = "Requires " + maxParents + " parents";
             return {error: error};
         }
         return null;

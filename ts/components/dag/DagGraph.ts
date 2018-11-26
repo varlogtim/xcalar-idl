@@ -264,6 +264,10 @@ class DagGraph {
         .registerEvents(DagNodeEvents.TitleChange, (info) => {
             info.tabId = this.parentTabId;
             this.events.trigger(DagNodeEvents.TitleChange, info);
+        })
+        .registerEvents(DagNodeEvents.DescriptionChange, (info) => {
+            info.tabId = this.parentTabId;
+            this.events.trigger(DagNodeEvents.DescriptionChange, info);
         });
     }
 

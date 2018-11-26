@@ -32,7 +32,7 @@ class DagNodeExecutor {
         });
 
         this._apiAdapter(optimized)
-        .then((destTable, queryStateOutput) => {
+        .then((destTable) => {
             if (destTable != null) {
                 node.setTable(destTable);
                 DagTblManager.Instance.addTable(destTable);
@@ -41,9 +41,9 @@ class DagNodeExecutor {
                 node.beCompleteState();
             }
 
-            deferred.resolve(destTable, queryStateOutput);
+            deferred.resolve(destTable);
         })
-        .fail((error, queryStateOutput) => {
+        .fail((error) => {
             let errorStr: string;
             if (typeof error === "string") {
                 errorStr = error;
@@ -60,7 +60,7 @@ class DagNodeExecutor {
                 }
             }
             node.beErrorState(errorStr);
-            deferred.reject(error, queryStateOutput);
+            deferred.reject(error);
         });
         return deferred.promise();
     }
@@ -169,7 +169,7 @@ class DagNodeExecutor {
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
-        
+
         return deferred.promise();
     }
 

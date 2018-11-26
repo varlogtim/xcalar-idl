@@ -149,7 +149,8 @@ window.MainMenu = (function($, MainMenu) {
             $activeTopSection: $mainMenu.find(".commonSection.active"),
             $activeBottomSection: $("#bottomMenu").find(".menuSection.active"),
             $activeWorkspaceMenu: $("#workspaceMenu")
-                                   .find(".menuSection:not(.xc-hidden)")
+                                   .find(".menuSection:not(.xc-hidden)"),
+            $activeDataflowMenu: $("#dataflowMenu").find(".menuSection:not(.xc-hidden)")
         };
         return (state);
     };
@@ -161,6 +162,10 @@ window.MainMenu = (function($, MainMenu) {
 
     MainMenu.setFormClose = function() {
         isFormOpen = false;
+        return isFormOpen;
+    };
+
+    MainMenu.isFormOpen = function() {
         return isFormOpen;
     };
 
@@ -187,7 +192,13 @@ window.MainMenu = (function($, MainMenu) {
         // restore worksheet list view or table list view
         $("#workspaceMenu").find(".menuSection").addClass("xc-hidden");
         prevState.$activeWorkspaceMenu.removeClass("xc-hidden");
-        $("#dataflowMenu").find(".menuSection").removeClass("xc-hidden");
+        if (prevState.$activeDataflowMenu.is("#dagNodeInfoPanel") &&
+            !DagNodeInfoPanel.Instance.isOpen()) {
+            $("#dagList").removeClass("xc-hidden");
+        } else {
+            prevState.$activeDataflowMenu.removeClass("xc-hidden");
+        }
+
     };
 
     MainMenu.tempNoAnim = function() {

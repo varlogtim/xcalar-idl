@@ -378,10 +378,8 @@ class DagGraphExecutor {
         });
         const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, tabId);
         dagNodeExecutor.run()
-        .then((_destTable, res) => {
-            Transaction.done(txId, {
-                queryStateOutput: res
-            });
+        .then((_destTable) => {
+            Transaction.done(txId, {});
             return MemoryAlert.Instance.check();
         })
         .then(deferred.resolve)
@@ -395,7 +393,7 @@ class DagGraphExecutor {
             }
             Transaction.fail(txId, {
                 error: error,
-                noAlert: true,
+                noAlert: true
             });
             deferred.resolve(); // still resolve it
         });

@@ -1099,6 +1099,7 @@ declare namespace MainMenu {
     export function close(noAnim?: boolean, makeInactive?: boolean): void;
     export function setFormOpen(): void;
     export function setFormClose(): void;
+    export function isFormOpen(): boolean;
     export function isMenuOpen(type: string): boolean;
     export function open(noAnim?: boolean): void;
     export function getState(): object;

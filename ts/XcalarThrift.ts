@@ -1042,7 +1042,7 @@ XcalarDatasetDeleteLoadNode = function(datasetName: string, wkbkName: string): X
     const deferred: XDDeferred<void> = PromiseHelper.deferred();
     const currentSession: string = sessionName;
     setSessionName(wkbkName);
-    
+
     XcalarGetDSNode(datasetName)
     .then((res: {nodeInfo: {name: string}[]}) => {
         try {
@@ -2900,7 +2900,7 @@ XcalarQuery = function(
     }
 
     options = options || {};
-    let bailOnError: boolean = options.bailOnError; 
+    let bailOnError: boolean = options.bailOnError;
     // Default behavior is true so if null or undefined, then should be set to true
     if (bailOnError == null) {
         bailOnError = true; // Stop running query on error
@@ -3079,9 +3079,9 @@ XcalarQueryWithCheck = function(
             deferred.resolve.apply(this, arguments);
         }
     })
-    .fail(function(error) {
+    .fail(function(error, queryStateOutput) {
         const thriftError = thriftLog("XcalarQuery" + queryName, error);
-        deferred.reject(thriftError);
+        deferred.reject(thriftError, queryStateOutput);
     });
 
     return (deferred.promise());

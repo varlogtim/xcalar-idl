@@ -45,9 +45,9 @@ enum DagNodeSubType {
 }
 
 enum DagNodeState {
-    Unused = "unused",
+    Unused = "Unused",
     Configured = "Configured",
-    Running = "running",
+    Running = "Running",
     Complete = "Complete",
     Error = "Error"
 }
@@ -71,15 +71,16 @@ enum DagGraphEvents {
 }
 
 enum DagNodeEvents {
-    StateChange = "DagNodeStateChange",
-    ParamChange = "DagNodeParamChange",
-    LineageSourceChange = "DagNodeLineageSourceChange",
     AggregateChange = "DagNodeAggregateChange",
-    TableRemove = "TableRemove",
-    SubGraphError = "SubGraphError",
-    SubGraphConfigured = "SubGraphConfigured",
     ConnectionChange = "ConnectionChange",
+    DescriptionChange = "DescriptionChange",
+    LineageSourceChange = "DagNodeLineageSourceChange",
+    ParamChange = "DagNodeParamChange",
+    StateChange = "DagNodeStateChange",
+    SubGraphConfigured = "SubGraphConfigured",
+    SubGraphError = "SubGraphError",
     TableLockChange = "DagNodeTableLockChange",
+    TableRemove = "TableRemove",
     TitleChange = "TitleChange"
 }
 

@@ -1442,6 +1442,53 @@
 
 
 /* ========== Dataflow List Section ========== */
+#dataflowMenu {
+    // XXX temporary styling until all panels have the white background styling
+    #dagNodeInfoPanel {
+        &.menuSection {
+            background-color: @color-white;
+            padding: 0px;
+            padding-bottom: 5px;
+            color: @color-font-edge;
+
+            @topSectionHeight: 50px;
+
+            > .topSection {
+                display: flex;
+                font-weight: bold;
+                padding-left: 15px;
+                padding-right: 5px;
+                height: @topSectionHeight;
+                border-bottom: 1px solid @color-bg-topBarGray2;
+
+                .titleSection {
+                    .flex(1 1 auto);
+                    color: @color-font-form-gray;
+                    font-size: 24px;
+                    line-height: @topSectionHeight;
+                }
+                .iconSection {
+                    color: @color-arc-xdbfree;
+                    font-size: 15px;
+                    .flex(1 0 auto);
+
+                    .icon {
+                        font-size: 15px;
+                        margin-left: 2px;
+                        margin-top: 5px;
+                    }
+                }
+            }
+            >.mainSection {
+                padding-left: 15px;
+                height: ~"calc(100% - @{topSectionHeight})";
+                color: @color-font-edge;
+                overflow: auto;
+            }
+        }
+    }
+
+}
 
 #dagList {
 
@@ -1490,6 +1537,126 @@
             .icon {
                 font-size: 14px;
             }
+        }
+    }
+}
+
+#dagNodeInfoPanel {
+    display: flex;
+    flex-direction: column;
+
+    @headingHeight: 16px;
+
+    .topSection {
+        min-height: 50px;
+        height: auto !important;
+        flex: 1 0 auto;
+    }
+    .nodeTitle {
+        font-weight: normal;
+        font-size: 12px;
+        line-height: 16px;
+        padding-bottom: 10px;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+    .nodeInfoSection {
+        padding: 0 10px;
+        font-size: 12px;
+    }
+    .row {
+        border-bottom: 1px solid @color-bg-topBarGray2;
+        padding-bottom: 2px;
+        margin-bottom: 2px;
+        display: flex;
+        flex-direction: column;
+        &:last-child {
+            border-bottom: none;
+        }
+        &.collapsible {
+            .rowHeading {
+                cursor: pointer;
+                .noSelection;
+            }
+            .xi-arrow-down {
+                font-size: 8px;
+                width: auto;
+            }
+        }
+        &.collapsed {
+            .rowSection {
+                display: none;
+            }
+            .xi-arrow-down {
+                transform: rotate(-90deg);
+            }
+        }
+    }
+
+    .rowHeading {
+        display: flex;
+        line-height: @headingHeight;
+        min-height: @headingHeight;
+
+        .icon {
+            font-size: 12px;
+            margin-right: 4px;
+            line-height: 16px;
+            width: 15px;
+        }
+        .label {
+            font-weight: bold;
+            white-space: pre-wrap;
+            .flex(1 0 auto);
+        }
+        .rowSection {
+            padding: 0px;
+        }
+    }
+
+    .rowSection {
+        padding: 4px 10px;
+    }
+
+    .configRow {
+        // max-height: 60%;
+        overflow: hidden;
+    }
+
+    .editConfig {
+        color: @color-bg-select-blue;
+        cursor: pointer;
+        margin-right: 10px;
+    }
+
+    .configSection {
+        white-space: pre-wrap;
+        word-break: break-word;
+        overflow: auto;
+    }
+
+    .descriptionSection {
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .operationStats {
+        border-bottom: 1px solid @color-bg-topBarGray2;
+        margin-bottom: 2px;
+        padding-bottom: 2px;
+
+        &:last-child {
+            margin-bottom: 0px;
+            padding-bottom: 0px;
+            border-bottom: none;
+        }
+    }
+
+    .statsRow {
+        display: flex;
+        justify-content: space-between;
+        .label {
+            font-weight: bold;
         }
     }
 }

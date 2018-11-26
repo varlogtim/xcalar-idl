@@ -29,12 +29,28 @@ namespace DagNodeMenu {
         $li.addClass('exit' + nameUpper.replace(/ /g,''));
     }
 
-    export function execute(action, options) {
+    // options must include node
+    export function execute(action: string, options) {
         switch (action) {
             case("configureNode"):
-                configureNode(options.node, options);
+                const nodeIds = [options.node.getId()];
+                const nodesToCheck = nodeIds.filter((nodeId) => {
+                    return nodeId.startsWith("dag");
+                });
+                if (DagView.getActiveDag().checkForChildLocks(nodesToCheck)) {
+                    Alert.show({
+                        title: DFTStr.LockedTableWarning,
+                        msg: xcHelper.replaceMsg(DFTStr.LockedTableMsg, {action: action}),
+                        onConfirm: () => {
+                            _processMenuAction(action, options);
+                        }
+                    });
+                } else {
+                    _processMenuAction(action, options);
+                }
                 break;
             default:
+                _processMenuAction(action, options);
                 break;
         }
     }
@@ -73,7 +89,7 @@ namespace DagNodeMenu {
         });
     }
 
-    function _processMenuAction(action: string) {
+    function _processMenuAction(action: string, options?: boolean) {
         const $menu: JQuery = $("#dagNodeMenu");
         const nodeId: DagNodeId = $menu.data("nodeid"); // clicked node
         const nodeIds: DagNodeId[] = DagView.getSelectedNodeIds(true, true);
@@ -139,7 +155,7 @@ namespace DagNodeMenu {
                 DagView.reset();
                 break;
             case ("configureNode"):
-                configureNode(_getNodeFromId(dagNodeIds[0]));
+                configureNode(_getNodeFromId(dagNodeIds[0]), options);
                 break;
             case ("previewTable"):
                 DagView.previewTable(_getNodeFromId(dagNodeIds[0]));

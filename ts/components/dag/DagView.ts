@@ -200,6 +200,7 @@ namespace DagView {
 
     function updateDagView(): void {
         const $dfWrapBg: JQuery = $dagView.find(".dataflowWrapBackground");
+        DagNodeInfoPanel.Instance.hide();
         if (activeDagTab == null) {
             $dfWrap.addClass("xc-hidden");
             $dfWrapBg.removeClass("xc-hidden");
@@ -208,6 +209,7 @@ namespace DagView {
             $dfWrap.removeClass("xc-hidden");
             $dfWrapBg.addClass("xc-hidden");
             $dagView.find(".searchArea, .categoryWrap, .operatorWrap").removeClass("xc-disabled");
+            _getActiveArea().find(".selected").removeClass("selected");
         }
         DagTopBar.Instance.setState(activeDagTab);
     }
@@ -467,6 +469,10 @@ namespace DagView {
 
         const node: DagNode = activeDag.newNode(nodeInfo);
         _addNodeNoPersist(node);
+        if (!MainMenu.isFormOpen()) {
+            DagNodeInfoPanel.Instance.show(node);
+        }
+
         dagTab.turnOnSave();
         dagTab.save();
         return node;
@@ -1175,18 +1181,10 @@ namespace DagView {
         const graph: DagGraph = activeDag;
         const node: DagNode = graph.getNode(nodeId);
         const oldText: string = node.getDescription();
-        const $node: JQuery = DagView.getNode(nodeId);
         dagTab.turnOffSave();
 
         node.setDescription(text);
-
-        $node.find(".descriptionIcon").remove();
-
-        if (text.length) {
-            addDescriptionIcon($node, text);
-        } else {
-            $node.removeClass("hasDescription");
-        }
+        // event will trigger a description UI
 
         Log.add(SQLTStr.EditDescription, {
             "operation": SQLOps.EditDescription,
@@ -2044,6 +2042,9 @@ namespace DagView {
                     _removeConnection($(this), $dfArea, childNodeId, tabId);
                 });
                 spliceInfos[nodeId] = spliceInfo;
+                if (DagNodeInfoPanel.Instance.getActiveNode().getId() === nodeId) {
+                    DagNodeInfoPanel.Instance.hide();
+                }
             } else if (nodeId.startsWith("comment")) {
                 graph.removeComment(nodeId);
                 DagComment.Instance.removeComment(nodeId);
@@ -2446,12 +2447,14 @@ namespace DagView {
         $dfWrap.on("mousedown", ".operator .main, .comment", function (event) {
             const $opMain = $(this);
             let $operator = $opMain.closest(".operator");
+            let isDagNode = true;
             if (!$operator.length) {
                 $operator = $opMain;
+                isDagNode = false;
             }
 
             // if not shift clicking, deselect other nodes
-            // if shift clicking, and this is selected, then deselect it
+            // if shiftx clicking, and this is selected, then deselect it
             // but don't allow dragging on deselected node
             if (!$operator.hasClass("selected") && !event.shiftKey) {
                 $dfWrap.find(".selected").removeClass("selected");
@@ -2460,6 +2463,13 @@ namespace DagView {
                 return;
             }
             $operator.addClass("selected");
+
+            const nodeId: DagNodeId = $operator.data("nodeid");
+            if (isDagNode && !MainMenu.isFormOpen()) {
+                const node: DagNode = activeDag.getNode(nodeId);
+                DagNodeInfoPanel.Instance.show(node);
+            }
+
             if (event.which !== 1) {
                 return;
             }
@@ -2876,6 +2886,11 @@ namespace DagView {
                 if (!$operator.hasClass("selected")) {
                     $dfWrap.find(".selected").removeClass("selected");
                     $operator.addClass("selected");
+                    const nodeId: DagNodeId = $operator.data("nodeid");
+                    if (!MainMenu.isFormOpen()) {
+                        const node: DagNode = activeDag.getNode(nodeId);
+                        DagNodeInfoPanel.Instance.show(node);
+                    }
                 }
             }
         });
@@ -2927,6 +2942,7 @@ namespace DagView {
             const $selectedEls = $dfArea.find(".selecting");
             if ($selectedEls.length === 0) {
                 $dfArea.find(".selected").removeClass("selected");
+                DagNodeInfoPanel.Instance.hide();
             } else {
                 $selectedEls.each(function () {
                     $(this).removeClass("selecting")
@@ -3366,6 +3382,7 @@ namespace DagView {
             if (info.state !== DagNodeState.Complete) {
                 _getAreaByTab(info.tabId).find('.progressInfo[data-id="' + info.id + '"]').remove();
             }
+            DagNodeInfoPanel.Instance.update(info.id, "status");
             const dagTab: DagTab = DagTabManager.Instance.getTabById(info.tabId);
             dagTab.save();
         });
@@ -3399,6 +3416,7 @@ namespace DagView {
                     .text("<>");
 
             }
+            DagNodeInfoPanel.Instance.update(info.id, "params");
             _getAreaByTab(info.tabId).find('.progressInfo[data-id="' + info.id + '"]').remove();
             const dagTab: DagTab = DagTabManager.Instance.getTabById(info.tabId);
             dagTab.save();
@@ -3439,11 +3457,12 @@ namespace DagView {
 
         graph.events.on(DagNodeEvents.AggregateChange, function (info) {
             editAggregates(info.id, info.tabId, info.aggregates);
+            DagNodeInfoPanel.Instance.update(info.id, "aggregates");
         });
 
         graph.events.on(DagNodeEvents.TableLockChange, function(info) {
             editTableLock(DagView.getNode(info.id, info.tabId), info.lock);
-        })
+        });
 
         graph.events.on(DagNodeEvents.TableRemove, function(info) {
             const tableName: string = info.table;
@@ -3494,15 +3513,28 @@ namespace DagView {
             }
         });
 
-        // update table preview if node's title changes
         graph.events.on(DagNodeEvents.TitleChange, function(info) {
+            // update table preview if node's title changes
             if (DagTable.Instance.isTableFromTab(info.tabId)) {
                 const tableId = DagTable.Instance.getBindNodeId();
                 if (tableId === info.id) {
                     DagTable.Instance.updateTableName(info.tabId);
                 }
             }
-        })
+            DagNodeInfoPanel.Instance.update(info.id, "title");
+        });
+
+        graph.events.on(DagNodeEvents.DescriptionChange, (info) => {
+            const $node: JQuery = DagView.getNode(info.id, info.tabId);
+            $node.find(".descriptionIcon").remove();
+
+            if (info.text.length) {
+                addDescriptionIcon($node, info.text);
+            } else {
+                $node.removeClass("hasDescription");
+            }
+            DagNodeInfoPanel.Instance.update(info.id, "description");
+        });
     }
 
     // groups individual nodes into trees and joins branches with main tree
@@ -3799,6 +3831,8 @@ namespace DagView {
 
             graph.updateProgress(nodeId, queryStateOutput.queryGraph.node);
 
+            DagNodeInfoPanel.Instance.update(nodeId, "stats");
+
             const nodeStats = node.getIndividualStats();
             const timeStrs: string[] = [];
             const skewInfos = [];
@@ -3821,6 +3855,7 @@ namespace DagView {
             let subGraph = (<DagNodeSQL>node).getSubGraph();
             const subTabId: string = subGraph.getTabId();
             subGraph.updateProgress(queryStateOutput.queryGraph.node);
+
             if (!subTabId) {
                 return;
             }
@@ -3875,8 +3910,10 @@ namespace DagView {
             return;
         }
         let graph: DagSubGraph = tab.getGraph();
-        graph.updateProgress(queryStateOutput.queryGraph.node);
+        graph.updateProgress(queryStateOutput.queryGraph.node, true);
+
         graph.getAllNodes().forEach((node, nodeId) => {
+            DagNodeInfoPanel.Instance.update(nodeId, "stats");
             const overallStats = node.getOverallStats();
             const nodeStats = node.getIndividualStats();
 
@@ -3899,7 +3936,7 @@ namespace DagView {
         value: number,
         text: string,
         color: string,
-        rows: number,
+        rows: number[],
         totalRows: number,
         size: number
     } {
@@ -3916,11 +3953,11 @@ namespace DagView {
         };
     }
 
-    function getSkewText(skew) {
+    export function getSkewText(skew) {
         return ((skew == null || isNaN(skew))) ? "N/A" : String(skew);
     }
 
-    function getSkewColor(skew) {
+    export function getSkewColor(skew) {
         if (skew === "N/A") {
             return "";
         }
@@ -3941,42 +3978,11 @@ namespace DagView {
         return 'hsl(' + h + ', 100%, 33%)';
     }
 
-    export function removeProgress(nodeId: DagNodeId, tabId: string, queryStateOutput?): void {
+    export function removeProgress(nodeId: DagNodeId, tabId: string): void {
         const $dataflowArea: JQuery = _getAreaByTab(tabId);
         const g = d3.select($dataflowArea.find('.operator[data-nodeid = "' + nodeId + '"]')[0]);
         g.selectAll(".opProgress")
             .remove();
-
-        let tab: DagTab = <DagTab>DagTabManager.Instance.getTabById(tabId);
-        if (!tab) {
-            return;
-        }
-        let graph: DagGraph = tab.getGraph();
-        const node: DagNode = graph.getNode(nodeId);
-        if (queryStateOutput && node.getType() === DagNodeType.SQL) {
-            let subGraph = (<DagNodeSQL>node).getSubGraph();
-            const subTabId: string = subGraph.getTabId();
-            subGraph.updateProgress(queryStateOutput.queryGraph.node);
-
-            subGraph.getAllNodes().forEach((node, nodeId) => {
-                if (subTabId) {
-                    return;
-                }
-                const overallStats = node.getOverallStats();
-                const nodeStats = node.getIndividualStats();
-                const timeStrs: string[] = [];
-                const skewInfos = [];
-                nodeStats.forEach((nodeStat) => {
-                    const skewInfo = _getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
-                    skewInfos.push(skewInfo);
-                    const timeStr: string = xcHelper.getElapsedTimeStr(nodeStat.elapsedTime);
-                    timeStrs.push(timeStr);
-                });
-                DagView.updateProgress(nodeId, subTabId, overallStats.pct, true, skewInfos, timeStrs);
-                DagView.removeProgress(nodeId, subTabId, queryStateOutput);
-            });
-            subGraph.endProgress(queryStateOutput.queryState, queryStateOutput.elapsed.milliseconds);
-        }
     }
 
     export function endOptimizedDFProgress(queryName: string, queryStateOutput) {
@@ -4007,6 +4013,7 @@ namespace DagView {
             const dagGraph: DagGraph = dagTab.getGraph();
             dagGraph.unsetGraphNoDelete();
         }
+        DagNodeInfoPanel.Instance.update(nodeId, "lock");
     }
 
     /**
@@ -4022,6 +4029,7 @@ namespace DagView {
         lockedNodeIds[tabId] = lockedNodeIds[tabId] || {};
         lockedNodeIds[tabId][nodeId] = true;
         graph.setGraphNoDelete();
+        DagNodeInfoPanel.Instance.update(nodeId, "lock");
         return tabId;
     }
 

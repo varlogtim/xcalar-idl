@@ -366,6 +366,7 @@ interface TableProgressInfo {
     elapsedTime: number,
     size: number,
     rows: number[],
+    hasStats: boolean
     name?: string,
     index?: number,
     type?: number

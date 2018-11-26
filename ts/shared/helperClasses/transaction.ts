@@ -19,7 +19,6 @@ namespace Transaction {
         exportName?: string,
         nodeId?: DagNodeId,
         tabId?: string,
-        optimizedQueryName?: string
         udfUserName?: string;
         udfSessionName?: string;
     }
@@ -56,7 +55,6 @@ namespace Transaction {
         isEdit?: boolean;
         nodeId?: DagNodeId;
         tabId?: string;
-        optimizedQueryName?: string;
         udfUserName?: string;
         udfSessionName?: string;
     }
@@ -70,7 +68,6 @@ namespace Transaction {
         isEdit: boolean;
         nodeId: DagNodeId;
         tabId: string;
-        optimizedQueryName?: string;
         udfUserName?: string;
         udfSessionName?: string;
 
@@ -82,7 +79,6 @@ namespace Transaction {
             this.isEdit = options.isEdit || false;
             this.nodeId = options.nodeId || null;
             this.tabId = options.tabId || null;
-            this.optimizedQueryName = options.optimizedQueryName || null;
             this.udfUserName = options.udfUserName;
             this.udfSessionName = options.udfSessionName;
         }
@@ -143,7 +139,6 @@ namespace Transaction {
             "isEdit": options.isEdit,
             "nodeId": options.nodeId,
             "tabId": options.tabId,
-            "optimizedQueryName": options.optimizedQueryName,
             "udfUserName": options.udfUserName,
             "udfSessionName": options.udfSessionName
         });
@@ -192,12 +187,6 @@ namespace Transaction {
                 if (txLog.nodeId) {
                     try {
                         DagView.calculateAndUpdateProgress(queryStateOutput, txLog.nodeId, txLog.tabId);
-                    } catch (e) {
-                        console.error(e);
-                    }
-                } else if (txLog.optimizedQueryName) {
-                    try {
-                        DagView.updateOptimizedDFProgress(txLog.optimizedQueryName, queryStateOutput);
                     } catch (e) {
                         console.error(e);
                     }
@@ -274,10 +263,7 @@ namespace Transaction {
                 MonitorGraph.tableUsageChange();
             }
             if (txLog.nodeId != null) {
-                DagView.removeProgress(txLog.nodeId, txLog.tabId, options.queryStateOutput);
-            } else if (txLog.optimizedQueryName) {
-                DagView.endOptimizedDFProgress(txLog.optimizedQueryName,
-                                                options.queryStateOutput);
+                DagView.removeProgress(txLog.nodeId, txLog.tabId);
             }
         }
 
@@ -351,7 +337,7 @@ namespace Transaction {
                 Alert.error(alertTitle, error);
             }
             if (txLog.nodeId != null) {
-                DagView.removeProgress(txLog.nodeId, txLog.tabId, options.queryStateOutput);
+                DagView.removeProgress(txLog.nodeId, txLog.tabId);
             }
         }
 
