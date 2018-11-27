@@ -259,15 +259,22 @@ class DagGraphExecutor {
      */
     public run(): XDPromise<any> {
         const self: DagGraphExecutor = this;
+        const deferred = PromiseHelper.deferred();
+
         if (this._isOptimized) {
-            return this._executeOptimizedDataflow();
+            this.getRetinaArgs()
+            .then((retinaParams) => {
+                return this._executeOptimizedDataflow(retinaParams);
+            })
+            .then(deferred.resolve)
+            .then(deferred.reject);
         } else {
             const nodes: DagNode[] = this._nodes.filter((node) => {
                 return ((node.getState() !== DagNodeState.Complete) || (!DagTblManager.Instance.hasTable(node.getTable())));
             });
             //XXX TODO: Remove nodes that have had their table deleted but arent necessary for this execution
             const nodesToRun: {node: DagNode, executable: boolean}[] = nodes.map((node) => {
-               return {
+                return {
                     node: node,
                     executable: true
                }
@@ -278,7 +285,6 @@ class DagGraphExecutor {
                 promises.push(this._stepExecute.bind(this, nodesToRun, i));
             }
             self._executeInProgress = true;
-            const deferred = PromiseHelper.deferred();
             PromiseHelper.chain(promises)
             .then((...args) => {
                 self._executeInProgress = false;
@@ -288,9 +294,8 @@ class DagGraphExecutor {
                 self._executeInProgress = false;
                 deferred.reject(...args);
             });
-
-            return deferred.promise();
         }
+        return deferred.promise();
     }
 
     // returns a query string representing all the operations needed to run
@@ -499,27 +504,37 @@ class DagGraphExecutor {
         }
     }
 
-    private _executeOptimizedDataflow(): XDPromise<any> {
+    public getRetinaArgs(): any {
         const deferred = PromiseHelper.deferred();
-        let txId: number;
-        let retinaName: string;
-        let outputTableName: string = "";
         const nodeIds: DagNodeId[] = this._nodes.map(node => node.getId());
 
         this._graph.getOptimizedQuery(nodeIds)
-         .then((queryStr: string, destTable: string) => {
+        .then((queryStr: string, destTable: string) => {
             // retina name will be the same as the graph/tab's ID
-            retinaName = DagTab.generateId();
+            const retinaName = DagTab.generateId();
 
-            const udfContext = this._getUDFContext();
-            txId = Transaction.start({
-                operation: "optimized df",
-                track: true,
-                udfUserName: udfContext.udfUserName,
-                udfSessionName: udfContext.udfSessionName
-            });
-            return this._createRetinaFromQueryStr(retinaName, queryStr, destTable);
+            const retinaParameters = this._getImportRetinaParameters(retinaName, queryStr, destTable);
+            deferred.resolve(retinaParameters);
         })
+        .fail(deferred.reject);
+        return deferred.promise();
+    }
+
+    private _executeOptimizedDataflow(retinaParameters): XDPromise<any> {
+        const deferred = PromiseHelper.deferred();
+        let outputTableName: string = "";
+        // retina name will be the same as the graph/tab's ID
+        let retinaName: string = retinaParameters.retinaName;
+
+        const udfContext = this._getUDFContext();
+        let txId: number = Transaction.start({
+            operation: "optimized df",
+            track: true,
+            udfUserName: udfContext.udfUserName,
+            udfSessionName: udfContext.udfSessionName
+        });
+
+        this._createRetina(retinaParameters)
         .then((retina) => {
              // create tab and pass in nodes to store for progress updates
             const parentTabId: string = this._graph.getTabId();
@@ -594,13 +609,16 @@ class DagGraphExecutor {
         return deferred.promise();
     }
 
-    private _createRetinaFromQueryStr(
+    private _getImportRetinaParameters(
         retinaName: string,
         queryStr: string,
         destTable: string
-    ): XDPromise<any> {
-        const deferred = PromiseHelper.deferred();
-
+    ): {
+        retinaName: string,
+        retina: string,
+        userName: string,
+        sessionName: string
+    } {
         const operations = JSON.parse(queryStr);
 
         // create tablename and columns property in retina for each outnode
@@ -629,9 +647,27 @@ class DagGraphExecutor {
         const udfContext = this._getUDFContext();
         const uName = udfContext.udfUserName || userIdName;
         const sessName = udfContext.udfSessionName || sessionName;
-        XcalarImportRetina(retinaName, true, null, retina, uName, sessName)
+        return {
+            retinaName: retinaName,
+            retina: retina,
+            userName: uName,
+            sessionName: sessName
+        }
+    }
+
+    private _createRetina(
+        params: {
+            retinaName: string,
+            retina: string,
+            userName: string,
+            sessionName: string
+        }
+    ): XDPromise<any> {
+        const deferred = PromiseHelper.deferred();
+
+        XcalarImportRetina(params.retinaName, true, null, params.retina, params.userName, params.sessionName)
         .then((_res) => {
-            return XcalarGetRetinaJson(retinaName);
+            return XcalarGetRetinaJson(params.retinaName);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);

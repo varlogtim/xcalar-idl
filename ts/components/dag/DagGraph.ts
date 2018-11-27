@@ -454,6 +454,37 @@ class DagGraph {
         return executor.getBatchQuery();
     }
 
+    public getRetinaArgs(nodeIds?: DagNodeId[]): XDPromise<void> {
+        let nodesMap: Map<DagNodeId, DagNode>;
+        let startingNodes: DagNodeId[];
+        if (nodeIds != null) {
+            // get subGraph from nodes and execute
+            // we want to stop at the next node with a table unless we're
+            // executing optimized in which case we want the entire query
+            const backTrack: BackTraceInfo = this.backTraverseNodes(nodeIds, false);
+            nodesMap = backTrack.map;
+            startingNodes = backTrack.startingNodes;
+        }
+
+        let orderedNodes: DagNode[] = [];
+        try {
+            orderedNodes = this._topologicalSort(nodesMap, startingNodes);
+        } catch (error) {
+            return PromiseHelper.reject({
+                "status": "Error",
+                "hasError": true,
+                "node": error.node,
+                "type": error.error
+            });
+        }
+        const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, this, true);
+        let checkResult = executor.validateAll();
+        if (checkResult.hasError) {
+            return PromiseHelper.reject(checkResult);
+        }
+        return executor.getRetinaArgs()
+    }
+
     /**
      * @description gets query from the lineage of 1 node, includes validation
      * @param nodeId
