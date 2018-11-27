@@ -48,7 +48,9 @@ namespace DagView {
         let resizeTimer;
         $(window).on("resize.dagViewResize", function () {
             clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(DagCategoryBar.Instance.showOrHideArrows, 300);
+            resizeTimer = setTimeout(() => {
+                DagCategoryBar.Instance.showOrHideArrows();
+            }, 300);
         });
 
         $(document).on("copy.dataflowPanel", function (e) {
