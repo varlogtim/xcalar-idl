@@ -3,6 +3,7 @@ class DagTabShared extends DagTab {
     // XXX TODO: encrypt it
     private static readonly _secretUser: string = ".xcalar.shared.df";
     private static readonly _delim: string = "_Xcalar_";
+    private static readonly _optimizedKey: string = "DF2Optimized";
     private static _currentSession: string;
 
     private _version: number;
@@ -216,16 +217,27 @@ class DagTabShared extends DagTab {
         let fileName: string = name || this.getShortName();
         fileName += ".tar.gz";
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        DagTabShared._switchSession(null);
-        // XXX TODO, backend should give a flag about it's DF or WKBK
-        XcalarDownloadWorkbook(this._getWKBKName(), "")
+        const writeOptimizedArgsDef: XDPromise<void> = optimized ?
+        this._writeOptimizedRetinaArgs() : PromiseHelper.resolve();
+
+        writeOptimizedArgsDef
+        .then(() => {
+            DagTabShared._switchSession(null);
+            const promise = XcalarDownloadWorkbook(this._getWKBKName(), "");
+            DagTabShared._resetSession();
+            return promise;
+        })
         .then((file) => {
             xcHelper.downloadAsFile(fileName, file.sessionContent, true);
+            if (optimized) {
+                return PromiseHelper.alwaysResolve(this._removeOptimizedRetainArgs());
+            }
+        })
+        .then(() => {
             deferred.resolve();
         })
         .fail(deferred.reject);
 
-        DagTabShared._resetSession();
         return deferred.promise();
     }
 
@@ -526,5 +538,36 @@ class DagTabShared extends DagTab {
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    private _getOptimizedRetinaArgsKVStore(): KVStore {
+        return new KVStore(DagTabShared._optimizedKey, gKVScope.WKBK);
+    }
+
+    private _writeOptimizedRetinaArgs(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        this._dagGraph.getRetinaArgs()
+        .then((res) => {
+            const kvStore = this._getOptimizedRetinaArgsKVStore();
+            DagTabShared._switchSession(this._getWKBKName());
+            const promise = kvStore.put(JSON.stringify(res), true, true);
+            DagTabShared._resetSession();
+            return promise;
+        })
+        .then(() => {
+            deferred.resolve();
+        })
+        .fail((error) => {
+            deferred.reject({
+                error: error.type
+            });
+        });
+
+        return deferred.promise();
+    }
+
+    private _removeOptimizedRetainArgs(): XDPromise<void> {
+        const kvStore = this._getOptimizedRetinaArgsKVStore();
+        return kvStore.delete();
     }
 }

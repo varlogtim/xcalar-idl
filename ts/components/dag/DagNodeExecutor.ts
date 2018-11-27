@@ -147,10 +147,19 @@ class DagNodeExecutor {
             } else {
                 if (optimized && Transaction.isSimulate(this.txId)) {
                     try {
-                        const loadArg = JSON.parse(node.getLoadArgs())[0];
+                        const parseRes = JSON.parse(node.getLoadArgs());
+                        let loadArg;
+                        if (parseRes instanceof Array) {
+                            loadArg = parseRes[0];
+                        } else {
+                            loadArg = parseRes;
+                        }
                         Transaction.log(this.txId, JSON.stringify(loadArg), null, 0);
                     } catch (e) {
-                        console.error(e);
+                        return PromiseHelper.reject({
+                            error: "Prase load args error",
+                            defail: e
+                        });
                     }
                 }
                 const prefix: string = params.prefix;
