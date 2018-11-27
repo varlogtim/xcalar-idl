@@ -368,6 +368,12 @@ interface FileManagerHistoryNode {
     next: FileManagerHistoryNode;
 }
 
+interface FileManagerPathItem {
+    pathName: string;
+    timestamp: number;
+    size: number;
+}
+
 declare namespace Base64 {
     function encode(input: string): string;
     function decode(input: string): string;

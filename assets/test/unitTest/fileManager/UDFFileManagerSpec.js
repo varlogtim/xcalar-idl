@@ -40,7 +40,7 @@ describe("UDFFileManager Test", function() {
         var $actionMenu = $monitorFileManager.find(".actionMenu");
         var $actionMenuSection = $actionMenu
         .find(".actionMenuSection:contains('" + action + "')");
-        expect($actionMenuSection.hasClass("disabled")).to.be.false;
+        expect($actionMenuSection.hasClass("btn-disabled")).to.be.false;
         $actionMenuSection.mouseup();
     }
     var goBack = (times, $manager) => {
@@ -137,11 +137,11 @@ describe("UDFFileManager Test", function() {
         });
 
         it("should disable uploading to invalid folder", () => {
-            expect($uploadButton.hasClass("disabled")).to.be.true;
+            expect($uploadButton.hasClass("btn-disabled")).to.be.true;
         });
 
         it("should cleanup UDFs for later tests", (done) => {
-            $searchInput.val("test_*");
+            $searchInput.val("test_udf_*");
             $searchInput.trigger(fakeEvent.enterKeydown);
 
             $titleSectionCheckBox.mouseup(); // Select all
@@ -154,6 +154,7 @@ describe("UDFFileManager Test", function() {
                 });
             }
             UnitTest.testFinish(() => {
+                $searchInput.trigger(fakeEvent.enterKeydown);
                 return $titleSectionCheckBox.children(".icon").hasClass("xi-ckbox-empty");
             })
             .then(() => {
@@ -205,8 +206,8 @@ describe("UDFFileManager Test", function() {
         it("should copy the original file to the new folder with a new name", (done) => {
             // This also tests that file extension should be auto appended if
             // missing.
-            var newModuleName = "test_2";
-            var newModuleFilename = "test_2.py";
+            var newModuleName = "test_udf_2";
+            var newModuleFilename = "test_udf_2.py";
             $modalSaveAsInput.val(newModuleName);
             $modalSaveButton.click();
             expect($fileManagerSaveAsModal.is(":visible")).to.be.false;
@@ -220,8 +221,8 @@ describe("UDFFileManager Test", function() {
         });
 
         it("should duplicate the file just created", (done) => {
-            var newModuleFilename = "test_2.py";
-            var newModuleFilename1 = "test_2_1.py";
+            var newModuleFilename = "test_udf_2.py";
+            var newModuleFilename1 = "test_udf_2_1.py";
             selectFileRow(newModuleFilename);
             clickAction("Duplicate");
             UnitTest.testFinish(() => {
@@ -232,7 +233,7 @@ describe("UDFFileManager Test", function() {
         });
 
         it("should duplicate the file again and resolve name conflict", (done) => {
-            var newModuleFilename1 = "test_2_1.py";
+            var newModuleFilename1 = "test_udf_2_1.py";
             // No need to select again, it's already selected.
             clickAction("Duplicate");
             UnitTest.testFinish(() => {
@@ -250,7 +251,7 @@ describe("UDFFileManager Test", function() {
                 "nextAlert": true
             });
             UnitTest.testFinish(() => {
-                var newModuleFilename = "test_2.py";
+                var newModuleFilename = "test_udf_2.py";
                 return getFileRowSelector(newModuleFilename).length === 0;
             })
             .then(done)
@@ -258,7 +259,7 @@ describe("UDFFileManager Test", function() {
         });
 
         it("should share the file just duplicated", (done) => {
-            var newModuleFilename1 = "test_2_1.py";
+            var newModuleFilename1 = "test_udf_2_1.py";
             selectFileRow(newModuleFilename1);
             clickAction("Share");
             switchPath(sharedUDFPath);
@@ -271,12 +272,12 @@ describe("UDFFileManager Test", function() {
         });
 
         it("should search for the file just shared", (done) => {
-            $searchInput.val("t*t_?_*.*");
+            $searchInput.val("t*t_udf_?_*.*");
             $searchInput.trigger(fakeEvent.enterKeydown);
 
             // Search is actually sync. In the future, it may become async.
             UnitTest.testFinish(() => {
-                var newModuleFilename1 = "test_2_1.py";
+                var newModuleFilename1 = "test_udf_2_1.py";
                 return getFileRowSelector(newModuleFilename1).length === 2;
             })
             .then(done)
@@ -291,9 +292,9 @@ describe("UDFFileManager Test", function() {
         it("should duplicate the files in search results", (done) => {
             $titleSectionCheckBox.mouseup(); // Clear partial select
             var newModuleFilename1 = UDFFileManager.Instance
-            .getCurrWorkbookDisplayPath() + "test_2_1.py";
+            .getCurrWorkbookDisplayPath() + "test_udf_2_1.py";
             var newModuleFilename1_1 = UDFFileManager.Instance
-            .getCurrWorkbookDisplayPath() + "test_2_1_1.py";
+            .getCurrWorkbookDisplayPath() + "test_udf_2_1_1.py";
             selectFileRow(newModuleFilename1);
             clickAction("Duplicate");
 
@@ -309,7 +310,7 @@ describe("UDFFileManager Test", function() {
         it("should delete the files in search results", (done) => {
             $titleSectionCheckBox.mouseup();
             var newModuleFilename1 = UDFFileManager.Instance
-            .getCurrWorkbookDisplayPath() + "test_2_1.py";
+            .getCurrWorkbookDisplayPath() + "test_udf_2_1.py";
             selectFileRow(newModuleFilename1);
             clickAction("Delete")
             UnitTest.hasAlertWithTitle(FileManagerTStr.DelTitle, {
@@ -318,6 +319,7 @@ describe("UDFFileManager Test", function() {
             });
 
             UnitTest.testFinish(() => {
+                $searchInput.trigger(fakeEvent.enterKeydown);
                 return getFileRowSelector(newModuleFilename1).length === 0
             })
             .then(done)
@@ -325,7 +327,7 @@ describe("UDFFileManager Test", function() {
         });
 
         it("should copy the file in search results", (done) => {
-            var newModuleFilename1_1 = "test_2_1_1.py";
+            var newModuleFilename1_1 = "test_udf_2_1_1.py";
             selectFileRow(newModuleFilename1_1);
             clickAction("Copy to...");
 
@@ -348,7 +350,7 @@ describe("UDFFileManager Test", function() {
         });
 
         it("should copy the file again and ask whether to overwrite", (done) => {
-            var newModuleFilename1_1 = "test_2_1_1.py";
+            var newModuleFilename1_1 = "test_udf_2_1_1.py";
             clickAction("Copy to...");
 
             goBack(3, $fileManagerSaveAsModal);
@@ -381,7 +383,7 @@ describe("UDFFileManager Test", function() {
         });
 
         it("should delete files created during the tests in the workbook folder", (done) => {
-            var testFileList = ["test_2_1_1.py", "test_2_2.py"];
+            var testFileList = ["test_udf_2_1_1.py", "test_udf_2_2.py"];
             testFileList.forEach((testFile) => {selectFileRow(testFile)});
             clickAction("Delete");
             UnitTest.hasAlertWithTitle(FileManagerTStr.DelTitle, {
@@ -389,7 +391,7 @@ describe("UDFFileManager Test", function() {
                 "nextAlert": true
             });
             UnitTest.testFinish(() => {
-                return getFileRowSelector("test_").length === 0;
+                return getFileRowSelector("test_udf_").length === 0;
             })
             .then(done, () => {done("fail");});
         });
@@ -397,9 +399,9 @@ describe("UDFFileManager Test", function() {
 
     // These tests should be stateless, i.e., no test should depend on previous
     // tests, and changing the order should not break the tests.
-    describe("Public methods test", () => {
+    describe("Public method test", () => {
         var testUDFString = "def a():\n    return 1";
-        var testUDFModuleName = "test_a";
+        var testUDFModuleName = "test_udf_a";
         var testUDFNsPath;
         var testUDFDisplayPath;
 
@@ -452,7 +454,7 @@ describe("UDFFileManager Test", function() {
         });
 
         it("tests nsPathToDisplayPath", () => {
-            var testNsPath = UDFFileManager.Instance.getCurrWorkbookPath() + "test_a";
+            var testNsPath = UDFFileManager.Instance.getCurrWorkbookPath() + "test_udf_a";
             var testDisplayPath = UDFFileManager.Instance.nsPathToDisplayPath(testNsPath);
             expect(testDisplayPath).to.endWith(UDFFileManager.Instance.fileExtension());
             var testDisplayPathSplit = testDisplayPath.split("/");
@@ -711,7 +713,7 @@ describe("UDFFileManager Test", function() {
             var displayPath1 = "/sharedUDFs/default.py";
             var displayPath2 = "/sharedUDFs/default1.py";
             var displayPath3 = UDFFileManager.Instance.getCurrWorkbookDisplayPath() +
-            "test_a.py";
+            "test_udf_a.py";
             expect(UDFFileManager.Instance.canDelete(displayPath1)).to.be.false;
             expect(UDFFileManager.Instance.canDelete(displayPath2)).to.be.true;
             expect(UDFFileManager.Instance.canDelete(displayPath3)).to.be.true;
@@ -721,7 +723,7 @@ describe("UDFFileManager Test", function() {
             var displayPath1 = "/sharedUDFs/default.py";
             var displayPath2 = "/sharedUDFs/default1.py";
             var displayPath3 = UDFFileManager.Instance.getCurrWorkbookDisplayPath() +
-            "test_a.py";
+            "test_udf_a.py";
             expect(UDFFileManager.Instance.canDuplicate(displayPath1)).to.be.true;
             expect(UDFFileManager.Instance.canDuplicate(displayPath2)).to.be.true;
             expect(UDFFileManager.Instance.canDuplicate(displayPath3)).to.be.true;
@@ -731,10 +733,10 @@ describe("UDFFileManager Test", function() {
             var currWorkbookDisplayPath = UDFFileManager.Instance.
             getCurrWorkbookDisplayPath();
             var validDisplayPath1 = "/sharedUDFs/default.py";
-            var validDisplayPath2 = currWorkbookDisplayPath + "test_a.py";
+            var validDisplayPath2 = currWorkbookDisplayPath + "test_udf_a.py";
             var emptyDisplayPath = currWorkbookDisplayPath;
-            var invalidDisplayPath1 = currWorkbookDisplayPath + "1test_a.py";
-            var invalidDisplayPath2 = "/sharedUDF/test_a.py";
+            var invalidDisplayPath1 = currWorkbookDisplayPath + "1test_udf_a.py";
+            var invalidDisplayPath2 = "/sharedUDF/test_udf_a.py";
             var longDisplayPath = currWorkbookDisplayPath +
             new Array(XcalarApisConstantsT.XcalarApiMaxUdfModuleNameLen + 2).join("a") +
             ".py"
@@ -758,9 +760,9 @@ describe("UDFFileManager Test", function() {
         });
 
         it("tests canShare", () => {
-            var displayPath1 = "/sharedUDFs/test_a.py";
+            var displayPath1 = "/sharedUDFs/test_udf_a.py";
             var displayPath2 = UDFFileManager.Instance.getCurrWorkbookDisplayPath() +
-            "test_a.py";
+            "test_udf_a.py";
             expect(UDFFileManager.Instance.canShare(displayPath1)).to.be.false;
             expect(UDFFileManager.Instance.canShare(displayPath2)).to.be.true;
         });
@@ -805,12 +807,12 @@ describe("UDFFileManager Test", function() {
                 return deferred.promise();
             };
 
-            var tmpFile = "test_a.py"
+            var tmpFile = "test_udf_a.py"
             cleanup().then(done, () => {done("fail");});
         })
     });
 
-    describe("Private methods test", () => {
+    describe("Private method test", () => {
         it("tests _parseSyntaxError", function() {
             var _parseSyntaxError = UDFFileManager.Instance.__testOnly__.parseSyntaxError;
             // case 1

@@ -124,9 +124,6 @@ class UDFFileManager extends BaseFileManager {
             return null;
         }
 
-        this.panels.forEach((panel: FileManagerPanel) =>
-            this._createWorkbookFolder(panel)
-        );
         let currWorkbookDisplayPath: string = this.nsPathToDisplayPath(
             currWorkbookPath
         );
@@ -206,10 +203,7 @@ class UDFFileManager extends BaseFileManager {
         this.storedUDF.set(nsPath, entireString);
         UDFPanel.Instance.updateUDF();
         this.panels.forEach((panel: FileManagerPanel) =>
-            this._buildPathTree(panel)
-        );
-        this.panels.forEach((panel: FileManagerPanel) =>
-            this._updateList(panel)
+            this._updatePanel(panel, false)
         );
     }
 
@@ -219,7 +213,7 @@ class UDFFileManager extends BaseFileManager {
      * @returns XDPromise
      */
     public refresh(isUpdate?: boolean, isDelete?: boolean): XDPromise<void> {
-        return this._refreshUDF(isUpdate, isDelete);
+        return this._refresh(isUpdate, isDelete);
     }
 
     /**
@@ -262,10 +256,7 @@ class UDFFileManager extends BaseFileManager {
             UDFPanel.Instance.updateUDF();
             $("#udf-fnSection").removeClass("xc-disabled");
             this.panels.forEach((panel: FileManagerPanel) =>
-                this._buildPathTree(panel)
-            );
-            this.panels.forEach((panel: FileManagerPanel) =>
-                this._updateList(panel)
+                this._updatePanel(panel, false)
             );
             deferred.resolve();
         })
@@ -278,13 +269,16 @@ class UDFFileManager extends BaseFileManager {
     }
 
     /**
+     * @param  {string} prefix?
      * @returns XDPromise
      */
-    public list(): XDPromise<XcalarApiListXdfsOutputT> {
+    public list(prefix?: string): XDPromise<XcalarApiListXdfsOutputT> {
         const deferred: XDDeferred<
         XcalarApiListXdfsOutputT
         > = PromiseHelper.deferred();
-        XcalarListXdfs("*", "User*")
+        prefix = prefix || "";
+
+        XcalarListXdfs(prefix + "*", "User*")
         .then(deferred.resolve)
         .fail(deferred.reject);
         return deferred.promise();
@@ -359,16 +353,13 @@ class UDFFileManager extends BaseFileManager {
         PromiseHelper.when(...delTasks)
         .then(() => {
             xcHelper.showSuccess(SuccessTStr.DelUDF);
-            this.panels.forEach((panel: FileManagerPanel) =>
-                panel.removeSearchResultNodes(displayPaths)
-            );
             const xcSocket: XcSocket = XcSocket.Instance;
             xcSocket.sendMessage("refreshUDF", {
                 isUpdate: false,
                 isDelete: true
             });
 
-            this._refreshUDF(false, true)
+            this._refresh(false, true)
             .then(() => {
                 deferred.resolve();
             })
@@ -377,7 +368,7 @@ class UDFFileManager extends BaseFileManager {
             });
         })
         .fail((error) => {
-            this._refreshUDF(false, true).always(() => {
+            this._refresh(false, true).always(() => {
                 deferred.reject(error);
             });
         });
@@ -493,8 +484,6 @@ class UDFFileManager extends BaseFileManager {
 
             XcalarUploadPython(uploadPath, entireString, absolutePath)
             .then(() => {
-                this.storedUDF.set(nsPath, entireString);
-                KVStore.commit();
                 xcHelper.showSuccess(SuccessTStr.UploadUDF);
 
                 const xcSocket: XcSocket = XcSocket.Instance;
@@ -503,16 +492,14 @@ class UDFFileManager extends BaseFileManager {
                     isDelete: false
                 });
 
-                // This could be an update, but UDF cache is already updated by
-                // `this.storedUDF.set`, so no need to update again.
-                return this._refreshUDF(false, false);
+                return this._refresh(true, false);
             })
             .then(deferred.resolve)
             .fail((error) => {
                 // XXX might not actually be a syntax error
                 const syntaxErr: {
-                reason: string;
-                line: number;
+                    reason: string;
+                    line: number;
                 } = this._parseSyntaxError(error);
                 if (syntaxErr != null) {
                     UDFPanel.Instance.updateHints(syntaxErr);
@@ -544,9 +531,6 @@ class UDFFileManager extends BaseFileManager {
         }
 
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
-        const nsPath: string = absolutePath
-            ? uploadPath
-            : this.getCurrWorkbookPath() + uploadPath;
         uploadHelper();
 
         return deferred.promise();
@@ -756,6 +740,13 @@ class UDFFileManager extends BaseFileManager {
     /**
      * @returns string
      */
+    public fileType(): string {
+        return "UDF";
+    }
+
+    /**
+     * @returns string
+     */
     public fileIcon(): string {
         return "xi-menu-udf";
     }
@@ -776,8 +767,7 @@ class UDFFileManager extends BaseFileManager {
      */
     public registerPanel(panel: FileManagerPanel): void {
         this.panels.push(panel);
-        this._buildPathTree(panel);
-        this._createWorkbookFolder(panel);
+        this._updatePanel(panel, false);
     }
 
     /**
@@ -794,163 +784,31 @@ class UDFFileManager extends BaseFileManager {
         return !this.getCurrWorkbookDisplayPath();
     }
 
-    /**
-     * Build UDF path trie.
-     * @returns void
-     */
-    private _buildPathTree(panel: FileManagerPanel, clean?: boolean): void {
-        if (!panel.rootPathNode.children.has("UDF")) {
-            panel.rootPathNode.children.set("UDF", {
-                pathName: "UDF",
-                isDir: true,
-                timestamp: null,
-                size: null,
-                isSelected: false,
-                sortBy: FileManagerField.Name,
-                sortDescending: false,
-                isSorted: false,
-                parent: panel.rootPathNode,
-                children: new Map()
-            });
-        }
-
-        const udfRootPathNode: FileManagerPathNode = panel.rootPathNode.children.get(
-            "UDF"
-        );
-        const storedUDF: Map<string, string> = this.getUDFs();
-
-        for (let [key] of storedUDF) {
-            key = this.nsPathToDisplayPath(key);
-            const pathSplit: string[] = key.split("/");
-            let curPathNode: FileManagerPathNode = udfRootPathNode;
-
-            for (const path of pathSplit) {
-                if (path === "") {
-                    continue;
-                }
-
-                if (curPathNode.children.has(path)) {
-                    curPathNode = curPathNode.children.get(path);
-                } else {
-                    curPathNode.isSorted = false;
-                    const childPathNode: FileManagerPathNode = {
-                        pathName: path,
-                        isDir: true,
-                        // TODO: no info from api.
-                        timestamp: Math.floor(Math.random() * 101),
-                        size: Math.floor(Math.random() * 101),
-                        isSelected: false,
-                        sortBy: FileManagerField.Name,
-                        sortDescending: false,
-                        isSorted: false,
-                        parent: curPathNode,
-                        children: new Map()
+    private _updatePanel(panel: FileManagerPanel, isDelete: boolean): void {
+        panel.update(
+            [...this.storedUDF.keys()].map((value: string) => {
+                return {
+                    pathName: this.nsPathToDisplayPath(value),
+                    timestamp: null,
+                    size: null
+                };
+            }),
+            this.getCurrWorkbookDisplayPath() == null
+                ? []
+                : [this.getCurrWorkbookDisplayPath()].map((value: string) => {
+                    return {
+                        pathName: value,
+                        timestamp: null,
+                        size: null
                     };
-                    curPathNode.children.set(path, childPathNode);
-                    curPathNode = childPathNode;
-                }
-            }
-            curPathNode.isDir = false;
-        }
-
-        if (clean) {
-            this._cleanPathNodes(panel);
-        }
-    }
-
-    private _createWorkbookFolder(panel: FileManagerPanel): void {
-        const currWorkbookPath: string = this.getCurrWorkbookPath();
-        if (currWorkbookPath == null) {
-            return;
-        }
-        let folderPath = this.nsPathToDisplayPath(currWorkbookPath);
-        folderPath = folderPath.substring(0, folderPath.length - 3);
-        const paths: string[] = folderPath.split("/");
-        let curPathNode = panel.rootPathNode.children.get("UDF");
-
-        paths.forEach((path: string) => {
-            if (path === "") {
-                return;
-            }
-
-            if (curPathNode.children.has(path)) {
-                curPathNode = curPathNode.children.get(path);
-                return;
-            } else {
-                curPathNode.children.set(path, {
-                    pathName: path,
-                    isDir: true,
-                    // TODO: no info from api.
-                    timestamp: Math.floor(Math.random() * 101),
-                    size: Math.floor(Math.random() * 101),
-                    isSelected: false,
-                    sortBy: FileManagerField.Name,
-                    sortDescending: false,
-                    isSorted: false,
-                    parent: curPathNode,
-                    children: new Map()
-                });
-                curPathNode = curPathNode.children.get(path);
-            }
-        });
-    }
-
-    private _cleanPathNodes(panel: FileManagerPanel): void {
-        const storedUDF: Map<string, string> = this.getUDFs();
-        const storedUDFSet: Set<string> = new Set(
-            Array.from(storedUDF.keys()).map((value: string) => {
-                return this.nsPathToDisplayPath(value);
-            })
+                }),
+            UDFFileManager.Instance,
+            isDelete
         );
-        const curPathNode: FileManagerPathNode = panel.rootPathNode.children.get(
-            "UDF"
-        );
-        const sortRes: FileManagerPathNode[] = [];
-        const visited: Set<FileManagerPathNode> = new Set();
-
-        this._sortPathNodes(curPathNode, visited, sortRes);
-        sortRes.pop();
-
-        for (const sortedPathNode of sortRes) {
-            if (
-                (!sortedPathNode.isDir &&
-                    !storedUDFSet.has(panel.nodeToPath(sortedPathNode))) ||
-                (sortedPathNode.isDir &&
-                    sortedPathNode.children.size === 0 &&
-                    panel.nodeToPath(sortedPathNode) !==
-                        this.getCurrWorkbookDisplayPath())
-            ) {
-                sortedPathNode.parent.children.delete(sortedPathNode.pathName);
-            }
-        }
-
-        panel.refreshNodeReference();
-    }
-
-    private _sortPathNodes(
-        curPathNode: FileManagerPathNode,
-        visited: Set<FileManagerPathNode>,
-        sortRes: FileManagerPathNode[]
-    ): void {
-        if (visited.has(curPathNode)) {
-            return;
-        }
-
-        visited.add(curPathNode);
-
-        for (const childPathNode of curPathNode.children.values()) {
-            this._sortPathNodes(childPathNode, visited, sortRes);
-        }
-
-        sortRes.push(curPathNode);
-    }
-
-    private _updateList(panel: FileManagerPanel) {
-        panel.updateList();
     }
 
     private _parseSyntaxError(error: {
-    error: string;
+        error: string;
     }): {reason: string; line: number} {
         if (!error || !error.error) {
             return null;
@@ -992,17 +850,42 @@ class UDFFileManager extends BaseFileManager {
         }
     }
 
-    private _refreshUDF(
-        isUpdate: boolean,
-        isDelete: boolean
-    ): XDPromise<void> {
-        if (isUpdate) {
-            this.storedUDF.clear();
-        }
-
+    private _refresh(isUpdate: boolean, isDelete: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
-        this.list()
+        // Should not simply clear `this.storedUDF` and rebuild on itself. This
+        // will make `this.storedUDF` in an incomplete status during the
+        // execution of this async function. If at the same time there is
+        // another operation, this may cause failure. For example,
+        // `getEntireUDF` will fail since it cannot find the UDF module name in
+        // `this.storedUDF`. This will cause test failures, though is unlikely
+        // to be a real user issue since users will not click that fast.
+        if (isUpdate) {
+            this.storedUDF = new Map(
+                [...this.storedUDF.keys()].map(
+                    (key: string): [string, string] => {
+                        return [key, null];
+                    }
+                )
+            );
+        }
+
+        // Make sure the current workbook folder is updated quickly enough,
+        // since listing all UDFs from backend is slow when there are lots of
+        // UDFs.
+        // This is hacky, and should be carefully thought about if patterned to
+        // other folers (like the shared folder).
+        this.list(this.getCurrWorkbookPath())
+        .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
+            this._updateStoredUDF(listXdfsObj, this.getCurrWorkbookPath());
+            this.panels.forEach((panel: FileManagerPanel) =>
+                this._updatePanel(panel, isDelete)
+            );
+        })
+        .then(() => {
+            // Another round of update, this time everything.
+            return this.list();
+        })
         .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
             const updateViews = (
                 listXdfsObjUpdate: XcalarApiListXdfsOutputT
@@ -1031,13 +914,7 @@ class UDFFileManager extends BaseFileManager {
         .then(() => {
             UDFPanel.Instance.updateUDF();
             this.panels.forEach((panel: FileManagerPanel) =>
-                this._buildPathTree(panel, isDelete)
-            );
-            this.panels.forEach((panel: FileManagerPanel) =>
-                this._createWorkbookFolder(panel)
-            );
-            this.panels.forEach((panel: FileManagerPanel) =>
-                this._updateList(panel)
+                this._updatePanel(panel, isDelete)
             );
             deferred.resolve();
         })
@@ -1046,12 +923,25 @@ class UDFFileManager extends BaseFileManager {
         return deferred.promise();
     }
 
-    private _updateStoredUDF(listXdfsObj: XcalarApiListXdfsOutputT) {
+    private _updateStoredUDF(
+        listXdfsObj: XcalarApiListXdfsOutputT,
+        prefix?: string
+    ) {
         const newStoredUDF: Map<string, string> = new Map();
         listXdfsObj.fnDescs.forEach((udf: XcalarEvalFnDescT) => {
             const nsPath: string = udf.fnName.split(":")[0];
             newStoredUDF.set(nsPath, this.storedUDF.get(nsPath));
         });
+
+        // prefix != null means the output is partial. Should add those who
+        // don't start with the prefix back.
+        if (prefix != null) {
+            this.storedUDF.forEach((value: string, nsPath: string) => {
+                if (!nsPath.startsWith(prefix)) {
+                    newStoredUDF.set(nsPath, value);
+                }
+            });
+        }
         this.storedUDF = newStoredUDF;
     }
 
@@ -1074,11 +964,9 @@ class UDFFileManager extends BaseFileManager {
         users.push(XcUser.getCurrentUserName());
         users = Array.from(new Set(users));
 
-        const getUserTasks: XDPromise<Map<string, string>>[] = users.map(
-            (user: string) => {
-                return this._getWorkbookMap(user);
-            }
-        );
+        const getUserTasks: XDPromise<void>[] = users.map((user: string) => {
+            return this._getWorkbookMap(user);
+        });
 
         PromiseHelper.when(...getUserTasks)
         .then(() => {
@@ -1089,10 +977,8 @@ class UDFFileManager extends BaseFileManager {
         return deferred.promise();
     }
 
-    private _getWorkbookMap(userName: string): XDPromise<Map<string, string>> {
-        const deferred: XDDeferred<
-        Map<string, string>
-        > = PromiseHelper.deferred();
+    private _getWorkbookMap(userName: string): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         const user: XcUser = new XcUser(userName);
         XcUser.setUserSession(user);
@@ -1101,25 +987,26 @@ class UDFFileManager extends BaseFileManager {
         .then((sessionRes) => {
             const sessionIdWorkbookMap: Map<string, string> = new Map();
             const sessionWorkbookIDMap: Map<string, string> = new Map();
-            try {
-                sessionRes.sessions.forEach((sessionInfo) => {
-                    sessionIdWorkbookMap.set(
-                        sessionInfo.sessionId,
-                        sessionInfo.name
-                    );
-                    sessionWorkbookIDMap.set(
-                        sessionInfo.name,
-                        sessionInfo.sessionId
-                    );
-                });
-                this.userIDWorkbookMap.set(userName, sessionIdWorkbookMap);
-                this.userWorkbookIDMap.set(userName, sessionWorkbookIDMap);
-            } catch (e) {
-                console.error(e);
-            }
-            deferred.resolve(sessionIdWorkbookMap);
+            sessionRes.sessions.forEach((sessionInfo) => {
+                sessionIdWorkbookMap.set(
+                    sessionInfo.sessionId,
+                    sessionInfo.name
+                );
+                sessionWorkbookIDMap.set(
+                    sessionInfo.name,
+                    sessionInfo.sessionId
+                );
+            });
+            this.userIDWorkbookMap.set(userName, sessionIdWorkbookMap);
+            this.userWorkbookIDMap.set(userName, sessionWorkbookIDMap);
+
+            deferred.resolve();
         })
-        .fail(deferred.reject);
+        .fail(() => {
+            // deferred.reject();
+            // Error from backend list session, continue.
+            deferred.resolve();
+        });
 
         XcUser.resetUserSession();
 

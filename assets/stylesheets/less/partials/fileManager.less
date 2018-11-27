@@ -180,6 +180,7 @@
 
             .actionBox {
                 min-width: @action-width;
+                height: 25px;
             }
 
             .actionContent {
@@ -279,14 +280,13 @@
                 border: 1px solid @color-border-softGray;
                 border-radius: 4px;
                 background-color: @color-border-bar;
-                opacity: 0.9;
                 padding: 0px 7px;
 
                 &:hover {
                     opacity: @opacity-hover;
                 }
 
-                &.disabled {
+                &.btn-disabled {
                     cursor: not-allowed;
                 }
             }

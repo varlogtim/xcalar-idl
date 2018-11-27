@@ -19,6 +19,7 @@ abstract class BaseFileManager {
     public abstract canShare(path: string): boolean;
     public abstract copy(oldPath: string, newPath): XDPromise<void>;
     public abstract share(path: string): void;
+    public abstract fileType(): string;
     public abstract fileIcon(): string;
     public abstract fileExtension(): string;
     public abstract add(path: string, entireString: string);

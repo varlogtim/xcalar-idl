@@ -18,6 +18,7 @@ class FileManagerSaveAsModal {
             center: {verticalQuartile: true}
         });
         this.fileManagerPanel = new FileManagerPanel(this._getModal());
+        UDFFileManager.Instance.registerPanel(this.fileManagerPanel);
         this.fileManagerPanel.lock();
         this._getModal()
         .find(".fileManager .addressBox input")

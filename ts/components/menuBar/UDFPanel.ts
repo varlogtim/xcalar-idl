@@ -149,6 +149,7 @@ class UDFPanel {
         const monitorFileManager: FileManagerPanel = new FileManagerPanel(
             $("#monitor-file-manager")
         );
+        UDFFileManager.Instance.registerPanel(monitorFileManager);
 
         const $toManagerButton: JQuery = $("#udfButtonWrap .toManager");
         $toManagerButton.on("click", (_event: JQueryEventObject) => {
@@ -396,16 +397,21 @@ class UDFPanel {
                 return;
             }
 
-            if (funcStr == null) {
-                funcStr = "#" + SideBarTStr.DownloadMsg;
-            }
-
             this.editor.setValue(funcStr);
         };
         UDFFileManager.Instance.getEntireUDF(nsPath)
         .then(fillUDFFunc)
         .fail((error) => {
-            fillUDFFunc("#" + xcHelper.parseError(error));
+            const options: {side: string; offsetY: number} = {
+                side: "bottom",
+                offsetY: -2
+            };
+            StatusBox.show(
+                xcHelper.parseError(error),
+                $fnListInput,
+                true,
+                options
+            );
         });
     }
 
