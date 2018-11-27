@@ -834,7 +834,8 @@ class GroupByOpPanel extends GeneralOpPanel {
             if (error) {
                 const model = this.model.getModel();
                 const groups = model.groups;
-                let $input = this._$panel.find(".group").eq(error.group)
+                const $group = this._$panel.find(".group").eq(error.group);
+                let $input = $group.eq(error.group)
                     .find(".argsSection").last().find(".arg").eq(error.arg);
                 let inputNumAdjustment = 0;
                 if (error.group === 0) {
@@ -851,7 +852,6 @@ class GroupByOpPanel extends GeneralOpPanel {
                         self._showFunctionsInputErrorMsg(error.group);
                         break;
                     case ("blank"):
-                    case ("missingFields"):
                         self._handleInvalidBlanks([$input]);
                         break;
                     case ("other"):
@@ -885,7 +885,9 @@ class GroupByOpPanel extends GeneralOpPanel {
                     case ("newField"):
                         StatusBox.show(error.error, this._$panel.find(".group").find(".colNameSection .arg"));
                         break;
+                    case ("missingFields"):
                     default:
+                        StatusBox.show(error.error, $group);
                         console.warn("unhandled error found", error);
                         break;
                 }

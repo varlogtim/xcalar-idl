@@ -25,8 +25,9 @@ class AggOpPanelModel extends GeneralOpPanelModel {
             const numArgs = Math.max(Math.abs(opInfo.numArgs),
                                 opInfo.argDescs.length);
             this.groups[index].args = Array(numArgs).fill("").map((_o, i) => {
+                const isOptional = this._isOptional(opInfo, i);
                                             return new OpPanelArg("",
-                                            opInfo.argDescs[i].typesAccepted);
+                                            opInfo.argDescs[i].typesAccepted, isOptional);
                                         });
             if (this.baseColumns && index === 0) {
                 this.updateArg(gColPrefix + this.baseColumns[0].getBackColName(), 0, 0);
@@ -106,9 +107,10 @@ class AggOpPanelModel extends GeneralOpPanelModel {
                 if (argGroup.args[j].type === "fn") {
                     arg = xcHelper.stringifyEval(<ParsedEval>argGroup.args[j]);
                 }
-
+                const isOptional = this._isOptional(opInfo, j);
                 const argInfo: OpPanelArg = new OpPanelArg(arg,
-                                        opInfo.argDescs[j].typesAccepted, true);
+                                        opInfo.argDescs[j].typesAccepted,
+                                        isOptional, true);
                 args.push(argInfo);
             }
             args.forEach((arg) => {
@@ -143,10 +145,8 @@ class AggOpPanelModel extends GeneralOpPanelModel {
     }
 
     public validateAdvancedMode(paramStr: string): {error: string} {
-        let jsonError = true;
         try {
             const param: DagNodeAggregateInputStruct = <DagNodeAggregateInputStruct>JSON.parse(paramStr);
-            jsonError = false;
 
             let error = this.dagNode.validateParam(param);
             if (error != null) {
@@ -165,11 +165,7 @@ class AggOpPanelModel extends GeneralOpPanelModel {
                 return this._translateAdvancedErrorMessage(error);
             }
         } catch (e) {
-            if (jsonError) {
-                return {error: xcHelper.parseJSONError(e)};
-            } else {
-                return e;
-            }
+            return {error: xcHelper.parseJSONError(e)};
         }
     }
 

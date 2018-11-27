@@ -497,13 +497,13 @@ class AggOpPanel extends GeneralOpPanel {
             if (error) {
                 const model = this.model.getModel();
                 const groups = model.groups;
-                const $input = this._$panel.find(".group").eq(error.group).find(".arg").eq(error.arg);
+                const $group = this._$panel.find(".group").eq(error.group);
+                const $input = $group.find(".arg").eq(error.arg);
                 switch (error.type) {
                     case ("function"):
                         self._showFunctionsInputErrorMsg(error.group);
                         break;
                     case ("blank"):
-                    case ("missingFields"):
                         self._handleInvalidBlanks([$input]);
                         break;
                     case ("other"):
@@ -533,9 +533,11 @@ class AggOpPanel extends GeneralOpPanel {
                     case ("valueType"):
                         self._handleInvalidArgs(false, $input, error.error);
                         break;
-                    default:
-                        console.warn("unhandled error found", error);
-                        break;
+                    case ("missingFields"):
+                        default:
+                            StatusBox.show(error.error, $group);
+                            console.warn("unhandled error found", error);
+                            break;
                 }
                 return false;
             }

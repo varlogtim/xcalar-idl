@@ -25,8 +25,9 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
             const numArgs = Math.max(Math.abs(opInfo.numArgs),
                                 opInfo.argDescs.length);
             this.groups[index].args = Array(numArgs).fill("").map((_o, i) => {
+                const isOptional = this._isOptional(opInfo, i);
                                             return new OpPanelArg("",
-                                            opInfo.argDescs[i].typesAccepted);
+                                            opInfo.argDescs[i].typesAccepted, isOptional);
                                         });
             if (this.baseColumns && index === 0) {
                 this.updateArg(gColPrefix + this.baseColumns[0].getBackColName(), 0, 0);
@@ -146,9 +147,9 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
                 } else {
                     typesAccepted = opInfo.argDescs[j].typesAccepted;
                 }
-
+                const isOptional = this._isOptional(opInfo, j);
                 const argInfo: OpPanelArg = new OpPanelArg(arg, typesAccepted,
-                                                           true);
+                                                           isOptional, true);
                 args.push(argInfo);
             }
             args.forEach((arg, index) => {
@@ -201,10 +202,8 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
     }
 
     public validateAdvancedMode(paramStr: string): {error: string} {
-        let jsonError = true;
         try {
             const param: DagNodeFilterInputStruct = <DagNodeFilterInputStruct>JSON.parse(paramStr);
-            jsonError = false;
 
             let error = this.dagNode.validateParam(param);
             if (error != null) {
@@ -219,11 +218,7 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
                 return this._translateAdvancedErrorMessage(error);
             }
         } catch (e) {
-            if (jsonError) {
-                return {error: xcHelper.parseJSONError(e)};
-            } else {
-                return e;
-            }
+            return {error: xcHelper.parseJSONError(e)};
         }
     }
 

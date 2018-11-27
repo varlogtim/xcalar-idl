@@ -126,6 +126,7 @@ class MapOpPanel extends GeneralOpPanel {
         const self = this;
         const model = this.model.getModel();
 
+        const scrollTop = this._$panel.find(".opSection").scrollTop();
         this._resetForm();
 
         for (let i = 0; i < model.groups.length; i++) {
@@ -154,6 +155,7 @@ class MapOpPanel extends GeneralOpPanel {
             });
             $li.siblings().removeClass("active");
             $li.addClass("active");
+            $li.scrollintoview({duration: 0});
             self._updateArgumentSection(i, operObj);
 
             let $args = $group.find(".arg").filter(function() {
@@ -195,7 +197,7 @@ class MapOpPanel extends GeneralOpPanel {
         if (model.icv) {
             this._$panel.find(".icvMode .checkbox").addClass("checked");
         }
-
+        this._$panel.find(".opSection").scrollTop(scrollTop);
         this._formHelper.refreshTabbing();
         self._checkIfStringReplaceNeeded(true);
     }
@@ -236,7 +238,7 @@ class MapOpPanel extends GeneralOpPanel {
             }
 
             if (event.which === keyCode.Enter) {
-                if ($group.find("'.functionsMenu").find('li').length === 1) {
+                if ($group.find(".functionsMenu").find('li').length === 1) {
                     $group.find(".functionsMenu").find('li:visible').eq(0).click();
                     event.preventDefault();
                 }
@@ -835,13 +837,13 @@ class MapOpPanel extends GeneralOpPanel {
             if (error) {
                 const model = this.model.getModel();
                 const groups = model.groups;
-                const $input = this._$panel.find(".group").eq(error.group).find(".arg").eq(error.arg);
+                const $group = this._$panel.find(".group").eq(error.group);
+                const $input = $group.find(".arg").eq(error.arg);
                 switch (error.type) {
                     case ("function"):
                         self._showFunctionsInputErrorMsg(error.group);
                         break;
                     case ("blank"):
-                    case ("missingFields"):
                         self._handleInvalidBlanks([$input]);
                         break;
                     case ("other"):
@@ -874,7 +876,9 @@ class MapOpPanel extends GeneralOpPanel {
                     case ("newField"):
                         StatusBox.show(error.error, this._$panel.find(".group").find(".colNameSection .arg"));
                         break;
+                    case ("missingFields"):
                     default:
+                        StatusBox.show(error.error, $group);
                         console.warn("unhandled error found", error);
                         break;
                 }

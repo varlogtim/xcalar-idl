@@ -67,8 +67,10 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
             const numArgs = Math.max(Math.abs(opInfo.numArgs),
                                 opInfo.argDescs.length);
             this.groups[index].args = Array(numArgs).fill("").map((_o, i) => {
+                const isOptional = this._isOptional(opInfo, i);
                                             return new OpPanelArg("",
-                                            opInfo.argDescs[i].typesAccepted);
+                                            opInfo.argDescs[i].typesAccepted,
+                                            isOptional);
                                         });
         } else {
             this.groups[index].args = [];
@@ -154,8 +156,10 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
                     throw({error: "Function not selected."});
                 }
             } else if (opInfo) {
+                const isOptional = this._isOptional(opInfo, i);
                 const argInfo: OpPanelArg = new OpPanelArg(argGroup.sourceColumn,
-                                        opInfo.argDescs[0].typesAccepted, true);
+                                        opInfo.argDescs[0].typesAccepted,
+                                        isOptional, true);
 
                 argInfo.setCast(argGroup.cast);
                 args.push(argInfo);
@@ -233,10 +237,8 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
     }
 
     public validateAdvancedMode(paramStr: string): {error: string} {
-        let jsonError = true;
         try {
             const param: DagNodeMapInput = <DagNodeMapInput>JSON.parse(paramStr);
-            jsonError = false;
 
             let error = this.dagNode.validateParam(param);
             if (error != null) {
@@ -257,11 +259,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
                 return this._translateAdvancedErrorMessage(error);
             }
         } catch (e) {
-            if (jsonError) {
-                return {error: xcHelper.parseJSONError(e)};
-            } else {
-                return e;
-            }
+            return {error: xcHelper.parseJSONError(e)};
         }
     }
 

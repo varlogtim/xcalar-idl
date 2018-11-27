@@ -9,15 +9,26 @@ class OpPanelArg {
     private isRegex: boolean = false;
     private type: string; // ("value" | "column" | "function" | "regex")
     private error: string;
+    private isOptional: boolean = false;
 
-    constructor(value: string, typeid: number, isRestoring?: boolean) {
+    constructor(
+        value: string,
+        typeid: number,
+        isOptional?: boolean,
+        isRestoring?: boolean
+    ) {
         this.value = value;
         this.formattedValue = value;
         this.cast = null;
         this.typeid = typeid;
         this.isValid = false;
+        this.isOptional = isOptional || false;
         if (!isRestoring) {
-            this.error = "No value";
+            if (this.isOptional) {
+                this.isValid = true;
+            } else {
+                this.error = "No value";
+            }
             this.type = "value";
         }
     }
@@ -106,6 +117,10 @@ class OpPanelArg {
 
     public checkIsValid(): boolean {
         return this.isValid;
+    }
+
+    public checkIsOptional(): boolean {
+        return this.isOptional;
     }
 }
 

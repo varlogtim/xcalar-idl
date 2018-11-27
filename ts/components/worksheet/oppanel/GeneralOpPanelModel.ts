@@ -256,7 +256,7 @@ class GeneralOpPanelModel {
         let trimmedVal: string = val.trim();
         arg.clearError();
 
-        if (val === "") {
+        if (val === "" && !arg.checkIsOptional()) {
             arg.setError("No value");
             return;
         }
@@ -952,15 +952,20 @@ class GeneralOpPanelModel {
             const group = groups[i];
             const opInfo = this._getOperatorObj(group.operator);
             if (group.args.length < opInfo.argDescs.length) {
-                const lastArg = opInfo.argDescs[opInfo.argDescs.length - 1];
-                if (lastArg.argDesc.indexOf("*") !== 0 ||
-                        lastArg.argDesc.indexOf("**") !== -1) {
-                    return {error: "\"" + group.operator + "\" expects " +
-                                    opInfo.argDescs.length + " arguments.",
-                        group: i,
-                        arg: -1,
-                        type: "missingFields"};
+                const diff = opInfo.argDescs.length - group.args.length;
+                for (let j = opInfo.argDescs.length - diff; j < opInfo.argDescs.length; j++) {
+                    const arg = opInfo.argDescs[j];
+                    if ((arg.argDesc.indexOf("*") !== 0 ||
+                            arg.argDesc.indexOf("**") !== -1)
+                        && !this._isOptional(opInfo, j)) {
+                        return {error: "\"" + group.operator + "\" expects " +
+                                        opInfo.argDescs.length + " arguments.",
+                            group: i,
+                            arg: -1,
+                            type: "missingFields"};
+                    }
                 }
+
             }
         }
 
@@ -1064,5 +1069,10 @@ class GeneralOpPanelModel {
                 break;
         }
         return {error: text};
+    }
+
+    protected _isOptional(opInfo, index): boolean {
+        return (opInfo.category !== FunctionCategoryT.FunctionCategoryUdf) &&
+                (opInfo.argDescs[index].argType === XcalarEvalArgTypeT.OptionalArg);
     }
 }
