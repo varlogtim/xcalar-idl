@@ -42,10 +42,19 @@
                     prepIdxMap[prepArray[i].args.dest] = i;
                 }
                 const visitedMap = {};
-                insertOperators(opGraph, prepArray, prepIdxMap, visitedMap);
+                var nodesNeedReorder = [];
+                insertOperators(opGraph, prepArray, prepIdxMap,
+                                visitedMap, nodesNeedReorder);
+                const nodeMap = {};
+                for (var i = 0; i < nodesNeedReorder.length; i++) {
+                    reorderChildren(nodesNeedReorder[i], nodesNeedReorder, nodeMap);
+                }
             }
             // Optimize by augmenting the graph (value must be valid json format)
             // All optimizations go from here
+            if (options.pushToSelect) {
+                opGraph = pushToSelect(opGraph);
+            }
             if (options.randomCrossJoin) {
                 const visitedMap = {};
                 this.addIndexForCrossJoin(opGraph, visitedMap);
@@ -565,13 +574,14 @@
         return newNode;
     }
 
-    function insertOperators(opNode, prepArray, prepIdxMap, visitedMap) {
+    function insertOperators(opNode, prepArray, prepIdxMap, visitedMap, nodesNeedReorder) {
         if (visitedMap[opNode.name]) {
             return;
         }
         for (let i = 0; i < opNode.sources.length; i++) {
             if (opNode.children[i]) {
-                insertOperators(opNode.children[i], prepArray, prepIdxMap, visitedMap);
+                insertOperators(opNode.children[i], prepArray,
+                                prepIdxMap, visitedMap, nodesNeedReorder);
             }
             if (typeof prepIdxMap[opNode.sources[i]] === "object") {
                 const prepNode = prepIdxMap[opNode.sources[i]];
@@ -582,10 +592,197 @@
                 opNode.children.push(prepNode);
                 prepNode.parents.push(opNode);
                 prepIdxMap[opNode.sources[i]] = prepNode;
-                insertOperators(prepNode, prepArray, prepIdxMap, visitedMap);
+                if (nodesNeedReorder.indexOf(opNode) === -1) {
+                    nodesNeedReorder.push(opNode);
+                }
+                insertOperators(prepNode, prepArray, prepIdxMap,
+                                visitedMap, nodesNeedReorder);
             }
         }
         visitedMap[opNode.name] = true;
+    }
+
+    function reorderChildren(opNode, nodesNeedReorder, nodeMap) {
+        if (nodeMap[opNode.name]) {
+            return;
+        }
+        if (nodesNeedReorder.indexOf(opNode) === -1) {
+            nodeMap[opNode.name] = opNode;
+            return;
+        }
+        for (var i = 0; i < opNode.children.length; i++) {
+            reorderChildren(opNode.children[i], nodesNeedReorder, nodeMap);
+        }
+        var reorderList = [];
+        for (var i = 0; i < opNode.sources.length; i++) {
+            if (nodeMap[opNode.sources[i]]) {
+                reorderList.push(nodeMap[opNode.sources[i]]);
+            }
+        }
+        opNode.children = reorderList;
+        nodeMap[opNode.name] = opNode;
+    }
+
+    function pushToSelect(opGraph) {
+        var selectNodes = [];
+        var visitedMap = {};
+        findSelects(opGraph, visitedMap, selectNodes);
+        for (var i = 0; i < selectNodes.length; i++) {
+            pushUpSelect(selectNodes[i], {});
+        }
+        if (opGraph.replaceWithSelect) {
+            opGraph.replaceWithSelect.value.args.dest = opGraph.value.args.dest;
+            opGraph = opGraph.replaceWithSelect;
+        }
+        return opGraph;
+    }
+
+    function findSelects(node, visitedMap, selectNodes) {
+        if (visitedMap[node.name]) {
+            return;
+        } else if (node.value.operation === "XcalarApiSelect") {
+            selectNodes.push(node);
+        } else {
+            for (var i = 0; i < node.children.length; i++) {
+                findSelects(node.children[i], visitedMap, selectNodes);
+            }
+        }
+        visitedMap[node.name] = true;
+    }
+
+    function pushUpSelect(curNode, selectStruct) {
+        var newTableName;
+        var newSelectStruct;
+        var newSelectNode;
+        if (curNode.children.length > 1) {
+            return true;
+        }
+        if (!selectStruct.args) {
+            selectStruct.args = {};
+        }
+        if (!selectStruct.args.eval) {
+            selectStruct.args.eval = {};
+        }
+        if (curNode.value.operation === "XcalarApiSelect") {
+            selectStruct = curNode.value;
+            selectStruct.colNameMap = {};
+            for (var i = 0; i < selectStruct.args.columns.length; i++) {
+                selectStruct.colNameMap[selectStruct.args.columns[i].destColumn]
+                                    = selectStruct.args.columns[i].sourceColumn;
+            }
+        } else if (curNode.value.operation === "XcalarApiFilter") {
+            var filterString = XDParser.XEvalParser.replaceColName(
+                curNode.value.args.eval[0].evalString, selectStruct.colNameMap);
+            if (selectStruct.args.eval.Filter && selectStruct.args.eval.Filter != "") {
+                selectStruct.args.eval.Filter = "and(" + selectStruct.args.eval.Filter
+                                                + "," + filterString + ")";
+            } else {
+                selectStruct.args.eval.Filter = filterString;
+            }
+        } else if (curNode.value.operation === "XcalarApiMap") {
+            if (selectStruct.args.eval.Maps) {
+                console.error("Multiple consecutive maps found!");
+                console.log(selectStruct.args.eval.maps);
+                console.log(curNode.value.args.eval);
+                return true;
+            } else {
+                var maps = jQuery.extend(true, [], curNode.value.args.eval);
+                for (var i = 0; i < maps.length; i++) {
+                    maps[i].evalString = XDParser.XEvalParser.replaceColName(
+                                maps[i].evalString, selectStruct.colNameMap);
+                }
+                for (var i = 0; i < maps.length; i++) {
+                    if (selectStruct.colNameMap[maps[i].newField]) {
+                        delete selectStruct.colNameMap[maps[i].newField];
+                        for (var j = 0; j < selectStruct.args.columns.length; j++) {
+                            if (selectStruct.args.columns[j].destColumn === maps[i].newField) {
+                                selectStruct.args.columns[j].sourceColumn = maps[i].newField;
+                                delete selectStruct.args.columns[j].destColumn;
+                            }
+                            break;
+                        }
+                    } else {
+                        selectStruct.args.columns.push({sourceColumn: maps[i].newField});
+                    }
+                }
+                selectStruct.args.eval.Maps = maps;
+            }
+        } else if (curNode.value.operation === "XcalarApiProject") {
+            var columns = [];
+            var newColNameMap = {};
+            for (var i = 0; i < curNode.value.args.columns.length; i++) {
+                if (selectStruct.colNameMap[curNode.value.args.columns[i]]) {
+                    newColNameMap[curNode.value.args.columns[i]] =
+                        selectStruct.colNameMap[curNode.value.args.columns[i]];
+                    columns.push({sourceColumn: selectStruct.colNameMap[curNode.value.args.columns[i]],
+                                  destColumn: curNode.value.args.columns[i]});
+                } else {
+                    columns.push({sourceColumn: curNode.value.args.columns[i]});
+                }
+            }
+            selectStruct.colNameMap = newColNameMap;
+            selectStruct.args.columns = columns;
+        } else {
+            console.error("Invalid push up node: " + curNode.value.operation);
+        }
+
+        newTableName = curNode.name.split("#")[0] + Authentication.getHashId();
+        newSelectStruct = jQuery.extend(true, {}, selectStruct);
+        newSelectStruct.args.dest = newTableName;
+
+        // XXX Remove this after Bohan's change goes in, https://bugs.int.xcalar.com/show_bug.cgi?id=14291
+        if (newSelectStruct.args && newSelectStruct.args.eval) {
+            newSelectStruct.args.evalString = newSelectStruct.args.eval.Filter;
+            delete newSelectStruct.args.eval.Filter;
+        }
+        // End of temporary block
+
+        delete newSelectStruct.colNameMap;
+        newSelectNode = {name: newTableName,
+                         value: newSelectStruct,
+                         parents: [],
+                         children: [],
+                         sources: newSelectStruct.args.source};
+
+        if (curNode.parents.length === 0) {
+            curNode.replaceWithSelect = newSelectNode;
+            return;
+        }
+
+        var parentsAfterPush = [];
+        for (var i = 0; i < curNode.parents.length; i++) {
+            if (curNode.parents.indexOf(curNode.parents[i]) < i) {
+                if (parentsAfterPush.indexOf(curNode.parents[i]) !== -1) {
+                    parentsAfterPush.push(curNode.parents[i]);
+                }
+                continue;
+            } else if (curNode.parents[i].value.operation != "XcalarApiFilter"
+                && curNode.parents[i].value.operation != "XcalarApiMap" &&
+                curNode.parents[i].value.operation != "XcalarApiProject") {
+                if (curNode.value.operation === "XcalarApiSelect") {
+                    parentsAfterPush.push(curNode.parents[i]);
+                    continue;
+                }
+            } else {
+                var innerStruct = jQuery.extend(true, {}, selectStruct);
+                if (!pushUpSelect(curNode.parents[i], innerStruct)) {
+                    continue;
+                }
+            }
+            for (var j = 0; j < curNode.parents[i].children.length; j++) {
+                if (curNode.parents[i].children[j] === curNode) {
+                    if (typeof curNode.parents[i].value.args.source === "string") {
+                        curNode.parents[i].value.args.source = newTableName;
+                    } else {
+                        curNode.parents[i].value.args.source[j] = newTableName;
+                    }
+                    curNode.parents[i].sources[j] = newTableName;
+                    curNode.parents[i].children[j] = newSelectNode;
+                    newSelectNode.parents.push(curNode.parents[i]);
+                }
+            }
+        }
+        curNode.parents = parentsAfterPush;
     }
 
     if (typeof exports !== "undefined") {
