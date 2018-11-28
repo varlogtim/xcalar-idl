@@ -147,13 +147,7 @@ class DagNodeExecutor {
             } else {
                 if (optimized && Transaction.isSimulate(this.txId)) {
                     try {
-                        const parseRes = JSON.parse(node.getLoadArgs());
-                        let loadArg;
-                        if (parseRes instanceof Array) {
-                            loadArg = parseRes[0];
-                        } else {
-                            loadArg = parseRes;
-                        }
+                        const loadArg = JSON.parse(node.getLoadArgs());
                         Transaction.log(this.txId, JSON.stringify(loadArg), null, 0);
                     } catch (e) {
                         return PromiseHelper.reject({

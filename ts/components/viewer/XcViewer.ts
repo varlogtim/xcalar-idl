@@ -7,6 +7,8 @@ abstract class XcViewer {
         this.$view = $('<div class="viewWrap xc-contentView"></div>');
     }
 
+    abstract getTitle(): string;
+
     /**
      * render to viewer
      */

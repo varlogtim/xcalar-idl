@@ -3391,7 +3391,7 @@ namespace DagView {
             if (DagTable.Instance.isTableFromTab(info.tabId)) {
                 const tableId = DagTable.Instance.getBindNodeId();
                 if (tableId === info.id) {
-                    DagTable.Instance.updateTableName(info.title, info.tabId);
+                    DagTable.Instance.updateTableName(info.tabId);
                 }
             }
         })

@@ -100,9 +100,11 @@ class DagTable {
                 this._currentViewer.getDataflowTabId() === tabId;
     }
 
-    public updateTableName(newName: string, tabId: string): void {
-        const viewer: XcTableViewer = <XcTableViewer>this._viewers.get(tabId);
-        viewer.renderTableName(this._getContainer(), newName);
+    public updateTableName(tabId: string): void {
+        const viewer = this._viewers.get(tabId);
+        if (viewer === this._currentViewer) {
+            this._renderTableNameArea(viewer);
+        }
     }
 
     private _show(viewer: XcViewer): XDPromise<void> {
@@ -120,13 +122,14 @@ class DagTable {
         const $container: JQuery = this._getContainer();
         $container.parent().removeClass("noPreviewTable").addClass("tableViewMode");
         $container.removeClass("xc-hidden").addClass("loading");
-        if (this._currentViewer instanceof XcDatasetViewer) {
+        const viewer = this._currentViewer;
+        if (viewer instanceof XcDatasetViewer) {
             $container.addClass("dataset");
         } else {
             $container.removeClass("dataset");
         }
-
-        this._currentViewer.render(this._getContainer())
+        this._renderTableNameArea(viewer);
+        viewer.render(this._getContainer())
         .then(() => {
             $container.removeClass("loading");
             TblFunc.alignScrollBar($container.find(".dataTable").eq(0));
@@ -165,7 +168,7 @@ class DagTable {
 
     private _reset(): void {
         this._resetViewer();
-
+        this._clearTableNameArea();
         const $container: JQuery = this._getContainer();
         $container.removeClass("loading").removeClass("error");
         $container.find(".errorSection").empty();
@@ -188,5 +191,23 @@ class DagTable {
 
     private _isSameViewer(viewer: XcViewer): boolean {
         return this._currentViewer != null && this._currentViewer.getId() == viewer.getId();
+    }
+
+    private _getTableNameArea(): JQuery {
+        return this._getContainer().find(".tableNameArea");
+    }
+
+    private _renderTableNameArea(viewer: XcViewer): void {
+        const $nameArea: JQuery = this._getTableNameArea();
+        $nameArea.removeClass("xc-hidden");
+        const type: string = viewer instanceof XcDatasetViewer ?
+        "Dataset" : "Table";
+        $nameArea.find(".name").text(type + ": " + viewer.getTitle());
+    }
+
+    private _clearTableNameArea(): void {
+        const $nameArea = this._getTableNameArea();
+        $nameArea.addClass("xc-hidden");
+        $nameArea.find(".name").empty();
     }
 }

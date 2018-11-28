@@ -15,6 +15,10 @@ class XcDatasetViewer extends XcViewer {
         this._addEventListeners();
     }
 
+    public getTitle(): string {
+        return this.dataset.getName();
+    }
+
     /**
      * Clear Dataset Preview
      */
