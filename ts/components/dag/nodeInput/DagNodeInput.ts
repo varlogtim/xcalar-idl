@@ -98,6 +98,11 @@ class DagNodeInput {
         }
         paramMap = paramMap || {};
         const swappedInput = xcHelper.deepCopy(input);
+        paramMap = Object.keys(paramMap).reduce((res, key) => {
+            res[`<${key}>`] = paramMap[key];
+            return res;
+        }, {});
+
         replace(swappedInput);
         return swappedInput;
 
@@ -119,7 +124,7 @@ class DagNodeInput {
                     }
                 }
             } else if (typeof value === "string") {
-                return xcHelper.replaceMsg(value, paramMap)
+                return xcHelper.replaceTemplate(value, paramMap, true);
             }
         }
     }
