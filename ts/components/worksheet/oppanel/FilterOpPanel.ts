@@ -11,6 +11,11 @@ class FilterOpPanel extends GeneralOpPanel {
         const self = this;
         super.setupPanel("#filterOpPanel");
 
+         // dynamic button - ex. default:multiJoin
+        this._$panel.on('click', '.addMapArg', function() {
+            self._addMapArg($(this));
+        });
+
         this._$panel.find('.addFilterArg').click(function() {
             self.model.addGroup();
             self._scrollToGroup(self._$panel.find(".group").length - 1);
@@ -20,6 +25,10 @@ class FilterOpPanel extends GeneralOpPanel {
             const $group = $(this).closest('.group');
             const index = self._$panel.find(".group").index($group);
             self.model.removeGroup(index);
+        });
+
+        this._$panel.on('click', '.extraArg .xi-cancel', function() {
+            self._removeExtraArg($(this).closest('.extraArg'));
         });
 
         this._functionsInputEvents();
@@ -73,12 +82,22 @@ class FilterOpPanel extends GeneralOpPanel {
                 self._updateArgumentSection(i);
             }
 
-            const $args = $group.find(".arg").filter(function() {
+            let $args: JQuery = $group.find(".arg").filter(function() {
                 return $(this).closest(".colNameSection").length === 0;
             });
 
             for (let j = 0; j < model.groups[i].args.length; j++) {
                 let arg = model.groups[i].args[j].getValue();
+                if (!$args.eq(j).length) {
+                    if ($group.find(".addArgWrap").length) {
+                        $group.find(".addArg").last().click(); // change this
+                        $args = $group.find(".arg").filter(function() {
+                            return $(this).closest(".colNameSection").length === 0;
+                        });
+                    } else {
+                        break;
+                    }
+                }
 
                 $args.eq(j).val(arg);
                 if ($args.eq(j).closest(".row").hasClass("boolOption")) {
@@ -402,6 +421,86 @@ class FilterOpPanel extends GeneralOpPanel {
                         .html('<b>' + OpFormTStr.CMD + ':</b> <br>' +
                                 strPreview);
         this._checkIfStringReplaceNeeded(true);
+    }
+
+    private _addMapArg($btn) {
+        const typeId = $btn.data("typeid");
+        const html = this._getArgInputHtml(typeId);
+        $btn.parent().before(html);
+        $btn.parent().prev().find('.inputWrap').find('input').focus();
+        this._formHelper.refreshTabbing();
+
+        const $ul = $btn.parent().prev().find('.inputWrap').find(".list");
+        this._addSuggestListForExtraArg($ul);
+        this._addCastDropDownListener();
+    }
+
+    private _getArgInputHtml(typeId) {
+        if (typeId == null) {
+            typeId = -1;
+        }
+
+        const html =
+            '<div class="row extraArg clearfix">' +
+                '<div class="inputWrap">' +
+                    '<div class="dropDownList">' +
+                      '<input class="arg mapExtraArg' +
+                      '" type="text" tabindex="10" ' +
+                        'spellcheck="false" data-typeid="' + typeId + '">' +
+                      '<div class="list hint new">' +
+                       '<ul></ul>' +
+                        '<div class="scrollArea top">' +
+                          '<i class="arrow icon xi-arrow-up"></i>' +
+                        '</div>' +
+                        '<div class="scrollArea bottom">' +
+                          '<i class="arrow icon xi-arrow-down"></i>' +
+                        '</div>' +
+                     '</div>' +
+                    '</div>' +
+                    '<i class="icon xi-cancel"></i>' +
+                '</div>' +
+                '<div class="cast new">' +
+                    '<span class="label">Cast: </span>' +
+                    '<div class="dropDownList hidden">' +
+                        '<input class="text nonEditable" value="default"' +
+                            ' disabled>' +
+                        '<div class="iconWrapper dropdown">' +
+                            '<i class="icon xi-arrow-down"></i>' +
+                        '</div>' +
+                        '<ul class="list"></ul>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+        return html;
+    }
+
+    private _addSuggestListForExtraArg($ul) {
+        const self = this;
+        const $allGroups = this._$panel.find('.group');
+        const groupIndex = $allGroups.index($ul.closest('.group'));
+        const argIndex = $ul.closest('.group').find('.list.hint').index($ul);
+
+        const scroller = new MenuHelper($ul, {
+            bounds: self._panelContentSelector,
+            bottomPadding: 5
+        });
+
+        this._suggestLists[groupIndex].splice(argIndex, 0, scroller);
+        $ul.removeClass('new');
+    }
+
+    private _removeExtraArg($inputWrap) {
+        const $allGroups = this._$panel.find('.group');
+        const groupIndex = $allGroups.index($inputWrap.closest('.group'));
+        const $ul = $inputWrap.find(".list");
+        const argIndex = $ul.closest('.group').find('.list.hint').index($ul);
+
+        this._suggestLists[groupIndex].splice(argIndex, 1);
+        const $input = $inputWrap.find(".arg");
+        $input.val("");
+        $inputWrap.remove();
+        this._checkIfStringReplaceNeeded();
+        this.model.removeArg(groupIndex, argIndex);
     }
 
     protected _addArgRows(numInputsNeeded, $argsGroup, groupIndex) {
@@ -764,6 +863,7 @@ class FilterOpPanel extends GeneralOpPanel {
                         self._showFunctionsInputErrorMsg(error.group);
                         break;
                     case ("blank"):
+                    case ("missingFields"):
                         self._handleInvalidBlanks([$input]);
                         break;
                     case ("other"):
@@ -911,7 +1011,11 @@ class FilterOpPanel extends GeneralOpPanel {
     }
 
     private _getFilterGroupHtml(index) {
-        const html = '<div class="group filterGroup">' +
+        let extraClass = "";
+        if (index > 0) {
+            extraClass += " extraGroup ";
+        }
+        const html = '<div class="group filterGroup ' + extraClass + '">' +
                         '<div class="catFuncHeadings clearfix subHeading">' +
                             '<div class="filterFnTitle">Filter Function</div>' +
                             '<div class="altFnTitle">No Function Chosen</div>' +

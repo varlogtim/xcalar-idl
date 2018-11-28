@@ -503,6 +503,7 @@ class AggOpPanel extends GeneralOpPanel {
                         self._showFunctionsInputErrorMsg(error.group);
                         break;
                     case ("blank"):
+                    case ("missingFields"):
                         self._handleInvalidBlanks([$input]);
                         break;
                     case ("other"):

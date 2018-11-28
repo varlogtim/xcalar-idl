@@ -11,6 +11,7 @@
     @standardFontSize: 12px;
     @commonMargin: 10px; // margin left used on text and input padding
     @checkbox-color: @color-arc-xdbfree;
+    @functionsListZindex: 10;
 
     section {
         color: @color-font-form-gray;
@@ -848,6 +849,40 @@
                 float: left;
             }
         }
+
+        .extraArg {
+            position: relative;
+
+           &.inputWrap { // for map
+                margin-top: 10px;
+            }
+
+            &.row { // for group by
+                margin-top: 10px;
+                .dropDownList ul {
+                    z-index: @functionsListZindex + 1;
+                }
+            }
+
+            .xi-cancel {
+                position: absolute;
+                left: 14px;
+                top: 7px;
+                color: @color-font-warm-grey-two;
+                font-size: 14px;
+                opacity: @opacity-unhover;
+                cursor: pointer;
+                z-index: 100; // place in front of dropdown list which has index 99
+
+                &:hover {
+                    opacity: @opacity-hover;
+                }
+            }
+
+            .arg {
+                padding-left: 22px;
+            }
+        }
     }
 
     .andOrToggle {
@@ -1359,9 +1394,7 @@
             }
         }
     }
-}
 
-.opPanel {
     .colSchemaSection {
         &.loading {
             pointer-events: none;
@@ -1487,6 +1520,7 @@
             }
         }
     }
+
 }
 
 .generalOpPanel {
@@ -1633,43 +1667,9 @@
                 margin-left: @listHeight;
             }
         }
-
-        .extraArg {
-            position: relative;
-
-           &.inputWrap { // for map
-                margin-top: 10px;
-            }
-
-            &.row { // for group by
-                margin-top: 10px;
-                .dropDownList ul {
-                    z-index: @functionsListZindex + 1;
-                }
-            }
-
-            .xi-cancel {
-                position: absolute;
-                left: 14px;
-                top: 7px;
-                color: @color-font-warm-grey-two;
-                font-size: 14px;
-                opacity: @opacity-unhover;
-                cursor: pointer;
-                z-index: 100; // place in front of dropdown list which has index 99
-
-                &:hover {
-                    opacity: @opacity-hover;
-                }
-            }
-
-            .arg {
-                padding-left: 22px;
-            }
-        }
     }
 
-    &#mapOpPanel {
+    &#mapOpPanel, &#filterOpPanel {
         .closeGroup, .minGroup {
             margin-top: 5px;
             margin-bottom: 0px;
@@ -2067,6 +2067,12 @@
         }
     }
 
+    .filter {
+        .extraArg .xi-cancel {
+            z-index: 0 !important;
+        }
+    }
+
     .groupby, .map {
         .colNameSection {
             .iconWrapper {
@@ -2087,41 +2093,6 @@
             .arg {
                 .size(@width: ~"calc(100% - @{listHeight})");
                 margin-left: @listHeight;
-            }
-        }
-
-
-        .extraArg {
-            position: relative;
-
-           &.inputWrap { // for map
-                margin-top: 10px;
-            }
-
-            &.row { // for group by
-                margin-top: 10px;
-                .dropDownList ul {
-                    z-index: @functionsListZindex + 1;
-                }
-            }
-
-            .xi-cancel {
-                position: absolute;
-                left: 4px;
-                top: 7px;
-                color: @color-font-warm-grey-two;
-                font-size: 14px;
-                opacity: @opacity-unhover;
-                cursor: pointer;
-                z-index: 100; // place in front of dropdown list which has index 99
-
-                &:hover {
-                    opacity: @opacity-hover;
-                }
-            }
-
-            .arg {
-                padding-left: 22px;
             }
         }
     }

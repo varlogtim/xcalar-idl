@@ -112,6 +112,8 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
             let argGroup = argGroups[i];
             let args = [];
             const opInfo = this._getOperatorObj(argGroup.fnName);
+            let lastArg;
+            let hasVariableArg = false;
             if (argGroup.args.length) {
                 if (!opInfo) {
                     // XXX send to advanced mode
@@ -122,8 +124,12 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
                         throw({error: "Function not selected."});
                     }
                 } else if (argGroup.args.length > opInfo.argDescs.length) {
-                    const lastArg = opInfo.argDescs[opInfo.argDescs.length - 1];
-                    if (lastArg.argType !== XcalarEvalArgTypeT.VariableArg) {
+                    lastArg = opInfo.argDescs[opInfo.argDescs.length - 1];
+                    if (lastArg.argType === XcalarEvalArgTypeT.VariableArg ||
+                        (lastArg.argDesc.indexOf("*") === 0 &&
+                        lastArg.argDesc.indexOf("**") === -1)) {
+                        hasVariableArg = true;
+                    } else {
                         throw ({error: "\"" + argGroup.fnName + "\" only accepts " +
                             opInfo.argDescs.length + " arguments."})
                     }
@@ -134,9 +140,15 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
                 if (argGroup.args[j].type === "fn") {
                     arg = xcHelper.stringifyEval(argGroup.args[j]);
                 }
+                let typesAccepted;
+                if (hasVariableArg) {
+                    typesAccepted = lastArg.typesAccepted
+                } else {
+                    typesAccepted = opInfo.argDescs[j].typesAccepted;
+                }
 
-                const argInfo: OpPanelArg = new OpPanelArg(arg,
-                                        opInfo.argDescs[j].typesAccepted, true);
+                const argInfo: OpPanelArg = new OpPanelArg(arg, typesAccepted,
+                                                           true);
                 args.push(argInfo);
             }
             args.forEach((arg, index) => {
