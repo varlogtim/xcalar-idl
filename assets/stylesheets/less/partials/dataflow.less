@@ -1663,7 +1663,7 @@
     }
 }
 
-#paramPopUp {
+#paramPopUp, #aggManagerPopup {
     .position(absolute, @top: 33px, @right: 0px);
     display: none;
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
@@ -1690,7 +1690,7 @@
     }
 
     .tableContainer {
-        .paramNameWrap {
+        .paramNameWrap, .aggNameWrap {
              .icon {
                 display: none;
                 .position(absolute, @right: 4px, @top: 0px);
@@ -1700,11 +1700,11 @@
     }
 
     .cell {
-        &.paramNameWrap {
+        &.paramNameWrap, &.aggNameWrap {
             .size(@width: 179px);
         }
 
-        &.paramValWrap {
+        &.paramValWrap, &.aggValWrap {
             .size(@width: 179px);
             padding: 0px 0px 0px 0px;
             input {
@@ -1719,7 +1719,8 @@
             }
         }
 
-        &.paramActionWrap, &.paramNoValueWrap {
+        &.paramActionWrap, &.paramNoValueWrap,
+                &.aggActionWrap, &.aggNoValueWrap {
             text-align: center;
             .size(@width: 80px);
             padding: 0px 4px;
@@ -1728,7 +1729,7 @@
                 .position(relative, @top: 2px);
             }
         }
-        &.paramActionWrap {
+        &.paramActionWrap, &.aggActionWrap {
             padding-right: 0px;
         }
     }
@@ -1747,14 +1748,14 @@
                 display: none !important;
             }
 
-            .paramActionWrap {
-                .paramDelete {
+            .paramActionWrap, .aggActionWrap {
+                .paramDelete, .aggDelete {
                     .position(absolute, @top: 50%, @left: 50%);
                     color: @color-black;
                     transform: translate(-50%, -50%);
                 }
                 &.unavailable {
-                    .paramDelete {
+                    .paramDelete, .aggDelete {
                         pointer-events: none;
                     }
                 }

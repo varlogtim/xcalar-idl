@@ -1,9 +1,9 @@
 #modelingDagPanel {
-    #paramPopUp {
+    #paramPopUp, #aggManagerPopup {
         top: 50px;
 
         .tableContainer {
-            .paramNameWrap {
+            .paramNameWrap, .aggNameWrap {
                 cursor: pointer;
                 &:hover {
                     padding-right: 26px;
@@ -64,8 +64,19 @@
             font-size: 18px;
         }
 
+        .icon, &.aggregates {
+            .vertical-align;
+            opacity: @opacity-unhover;
+            color: @color-border-bar;
+            font-size: 18px;
+        }
+
         &:hover {
             .icon, &.parameters {
+                opacity: @opacity-hover;
+            }
+
+            .icon, &.aggregates {
                 opacity: @opacity-hover;
             }
         }
@@ -108,6 +119,14 @@
         }
 
         &.parameters {
+            font-size: 12px;
+            height: 30px;
+            line-height: 30px;
+            border: 1px solid  @color-border-bar;
+            .rounded(3px);
+        }
+
+        &.aggregates {
             font-size: 12px;
             height: 30px;
             line-height: 30px;

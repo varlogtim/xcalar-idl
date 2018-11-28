@@ -48,6 +48,7 @@ class DagAggManager {
             if (toDelete.length != 0) {
                 return this._deleteAgg(toDelete);
             }
+            new DagAggPopup($("#modelingDagPanel"), $("#dagViewBar").find(".aggregates"));
             return PromiseHelper.resolve();
         })
         .then(deferred.resolve)

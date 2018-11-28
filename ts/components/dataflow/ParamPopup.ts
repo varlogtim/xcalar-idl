@@ -49,6 +49,10 @@ class ParamPopup {
             ParamPopup.currentInstance = this;
             this.paramBtnClick();
         });
+
+        $("#dagViewBar").find(".aggregates").click(() => {
+            this.closePopup();
+        });
     }
 
     private static setupGeneralListeners() {
