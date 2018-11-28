@@ -6,11 +6,20 @@ class DagGraphExecutor {
     private _isOptimized: boolean;
     private _isOptimizedActiveSession: boolean;
     private _optimizedLinkOutNode: DagNode;
+    private _isNoReplaceParam: boolean;
 
-    public constructor(nodes: DagNode[], graph: DagGraph, optimized?: boolean) {
+    public constructor(
+        nodes: DagNode[],
+        graph: DagGraph,
+        options: {
+            optimized?: boolean,
+            noReplaceParam?: boolean
+        } = {}
+    ) {
         this._nodes = nodes;
         this._graph = graph;
-        this._isOptimized = optimized || false;
+        this._isOptimized = options.optimized || false;
+        this._isNoReplaceParam = options.noReplaceParam || false;
     }
 
     public validateAll(): {
@@ -267,7 +276,7 @@ class DagGraphExecutor {
                 return this._executeOptimizedDataflow(retinaParams);
             })
             .then(deferred.resolve)
-            .then(deferred.reject);
+            .fail(deferred.reject);
         } else {
             const nodes: DagNode[] = this._nodes.filter((node) => {
                 return ((node.getState() !== DagNodeState.Complete) || (!DagTblManager.Instance.hasTable(node.getTable())));
@@ -398,7 +407,7 @@ class DagGraphExecutor {
         txId: number,
         node: DagNode
     ): XDPromise<string> {
-        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, this._graph.getTabId());
+        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, this._graph.getTabId(), this._isNoReplaceParam);
         return dagNodeExecutor.run(this._isOptimized);
     }
 
@@ -508,11 +517,10 @@ class DagGraphExecutor {
         const deferred = PromiseHelper.deferred();
         const nodeIds: DagNodeId[] = this._nodes.map(node => node.getId());
 
-        this._graph.getOptimizedQuery(nodeIds)
+        this._graph.getOptimizedQuery(nodeIds, this._isNoReplaceParam)
         .then((queryStr: string, destTable: string) => {
             // retina name will be the same as the graph/tab's ID
             const retinaName = DagTab.generateId();
-
             const retinaParameters = this._getImportRetinaParameters(retinaName, queryStr, destTable);
             deferred.resolve(retinaParameters);
         })
@@ -618,6 +626,7 @@ class DagGraphExecutor {
         retina: string,
         userName: string,
         sessionName: string
+        destTables: {nodeId: DagNodeId, tableName: string}[]
     } {
         const operations = JSON.parse(queryStr);
 
@@ -627,12 +636,17 @@ class DagGraphExecutor {
         });
 
         // XXX check for name conflict when creating headeralias
+        const destInfo: {nodeId: DagNodeId, tableName: string}[] = [];
         const tables = outNodes.map((outNode) => {
             const columns = outNode.getParam().columns.map((col) => {
                 return {
                     columnName: col.sourceName,
                     headerAlias: col.destName
                 }
+            });
+            destInfo.push({
+                nodeId: outNode.getId(),
+                tableName: destTable
             });
             return {
                 name: destTable,
@@ -651,7 +665,8 @@ class DagGraphExecutor {
             retinaName: retinaName,
             retina: retina,
             userName: uName,
-            sessionName: sessName
+            sessionName: sessName,
+            destTables: destInfo
         }
     }
 

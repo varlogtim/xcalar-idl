@@ -54,10 +54,6 @@ interface DagNodeInInfo extends DagNodeInfo {
     schema: ColSchema[]
 }
 
-interface DagNodeDatasetInfo extends DagNodeInInfo {
-    loadArgs: string;
-}
-
 interface DagNodeExtensionInfo extends DagNodeInfo {
     newColumns: {name: string, type: ColumnType}[];
     droppedColumns: string[];
@@ -96,6 +92,7 @@ interface DagNodeDatasetInputStruct {
     source: string;
     prefix: string;
     synthesize: boolean;
+    loadArgs: string;
 }
 
 interface DagNodeIMDTableInputStruct {

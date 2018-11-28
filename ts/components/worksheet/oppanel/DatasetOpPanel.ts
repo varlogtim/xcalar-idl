@@ -11,6 +11,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     private _schemaSection: ColSchemaSection;
     private _dagGraph: DagGraph;
     private _synthesize: boolean;
+    private _loadArgs: string;
     private _currentStep: number;
 
     /**
@@ -59,6 +60,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         DatasetColRenamePanel.Instance.close();
         this._dagGraph = null;
         this._synthesize = null;
+        this._loadArgs = null;
         this._currentStep = null;
         this._advMode = false;
         DagTable.Instance.closeDatasetPreview();
@@ -125,7 +127,8 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         prefix: string,
         source: string,
         synthesize: boolean,
-        schema: ColSchema[]
+        schema: ColSchema[],
+        loadArgs: string
     } {
         const input = JSON.parse(this._editor.getValue());
         if (JSON.stringify(input, null, 4) !== this._cachedBasicModeParam) {
@@ -171,16 +174,22 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
      */
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
         if (toAdvancedMode) {
-            const json = {
-                prefix: this._getPrefix(),
-                source: this._getSource() || "",
-                schema: this._schemaSection.getSchema(true),
-                synthesize: this._synthesize || false
-            };
-            const paramStr = JSON.stringify(json, null, 4);
-            this._cachedBasicModeParam = paramStr;
-            this._editor.setValue(paramStr);
-            this._advMode = true;
+            const id: string = this._getSource();
+            this._fetchLoadArgs(id)
+            .then((loadArgs) =>  {
+                this._loadArgs = loadArgs;
+                const json = {
+                    prefix: this._getPrefix(),
+                    source: this._getSource() || "",
+                    schema: this._schemaSection.getSchema(true),
+                    synthesize: this._synthesize || false,
+                    loadArgs: loadArgs
+                };
+                const paramStr = JSON.stringify(json, null, 4);
+                this._cachedBasicModeParam = paramStr;
+                this._editor.setValue(paramStr);
+                this._advMode = true;
+            });
         } else {
             try {
                 const newModel = this._convertAdvConfigToModel();
@@ -279,9 +288,13 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         }
 
         const $nextBtn: JQuery = this.$panel.find(".bottomSection .next");
-        xcHelper.disableSubmit($nextBtn);
 
-        this._autoDetectSchema(true)
+        this._fetchLoadArgs(id)
+        .then((loadArgs) => {
+            this._loadArgs = loadArgs;
+            xcHelper.disableSubmit($nextBtn);
+            return this._autoDetectSchema(true);
+        })
         .then(() => {
             this._currentStep = 2;
             this._gotoStep();
@@ -361,10 +374,12 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             prefix: string,
             source: string,
             synthesize: boolean,
+            loadArgs: string,
             schema: ColSchema[]
         },
         atStart?: boolean
     ): void {
+        this._loadArgs = input.loadArgs;
         if (input == null || input.source == "") {
             this._fileLister.goToRootPath();
             $("#datasetOpPanel .datasetPrefix input").val("");
@@ -460,6 +475,26 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         return true;
     }
 
+    private _fetchLoadArgs(source): XDPromise<string> {
+        if (source === this._dagNode.getParam().source) {
+            // when source not change, use the cached one
+            return PromiseHelper.resolve(this._dagNode.getLoadArgs());
+        }
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        const $panel: JQuery = this._getPanel();
+        $panel.addClass("loading");
+        DS.getLoadArgsFromDS(source)
+        .then(deferred.resolve)
+        .fail(() => {
+            deferred.resolve(""); // still resolve it
+        })
+        .always(() => {
+            $panel.removeClass("loading");
+        });
+
+        return deferred.promise();
+    }
+
     private _submitForm(): void {
         const dagNode: DagNodeDataset = this._dagNode;
         let prefix: string;
@@ -472,6 +507,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
                 prefix = newModel.prefix;
                 id = newModel.source;
                 schema = newModel.schema;
+                this._loadArgs = newModel.loadArgs;
                 this._synthesize = newModel.synthesize;
                 if (schema.length === 0) {
                     error = ErrTStr.NoEmptySchema;
@@ -497,6 +533,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         const oldParam: DagNodeDatasetInputStruct = dagNode.getParam();
         if (oldParam.source === id &&
             oldParam.prefix === prefix &&
+            oldParam.loadArgs === this._loadArgs &&
             oldParam.synthesize === this._synthesize &&
             oldParam.synthesize === false
         ) {
@@ -512,12 +549,16 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         const oldColumns: ProgCol[] = dagNode.getLineage().getColumns();
         const dagGraph: DagGraph = this._dagGraph;
         dagNode.setSchema(schema);
-        dagNode.setParam({
-            source: id,
-            prefix: prefix,
-            synthesize: this._synthesize
-        }, true)
-        .then(() => {
+
+        this._fetchLoadArgs(id)
+        .then((dsLoadArgs) => {
+            dagNode.setParam({
+                source: id,
+                prefix: prefix,
+                synthesize: this._synthesize,
+                loadArgs: dsLoadArgs
+            }, true);
+
             $bg.hide();
             if (oldParam.source === id && this._isSameSchema(oldSchema, schema)) {
                 // only the prefix changed so we automatically do the map

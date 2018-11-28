@@ -108,6 +108,28 @@ window.DS = (function ($, DS) {
         }
     };
 
+    DS.getLoadArgsFromDS = function(dsName) {
+        var dsObj = DS.getDSObj(dsName);
+        if (dsObj == null) {
+            return PromiseHelper.reject();
+        }
+
+        if (dsObj.cachedLoadArgs) {
+            return PromiseHelper.resolve(dsObj.cachedLoadArgs);
+        }
+
+        var deferred = PromiseHelper.deferred();
+        var datasetName = dsObj.getFullName();
+        XcalarDatasetGetLoadArgs(datasetName)
+        .then(function(loadArgs) {
+            dsObj.cachedLoadArgs = loadArgs;
+            deferred.resolve(loadArgs);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
     function removeNonpersistDSObjAttributes(folder) {
         var folderCopy = xcHelper.deepCopy(folder);
         var cache = [folderCopy];
@@ -2844,18 +2866,6 @@ window.DS = (function ($, DS) {
     function activateDSObj(dsObj) {
         dsObj.activate();
         DS.getGrid(dsObj.getId()).removeClass("inActivated");
-    }
-
-    function getLoadArgsFromDS(dsObj) {
-        var deferred = PromiseHelper.deferred();
-        var datasetName = dsObj.getFullName();
-        XcalarDatasetGetLoadArgs(datasetName)
-        .then(function(loadArgs) {
-            deferred.resolve(loadArgs);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
     }
 
     function deactivateDSAction(dsIds) {

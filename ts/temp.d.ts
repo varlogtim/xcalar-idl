@@ -1174,6 +1174,7 @@ declare namespace DS {
     export function attach(dsName: string, uid: string): XDPromise<void>;
     export function detach(dsName: string, uid: string): XDPromise<void>;
     export function getSchema(dsName: string): XDPromise<ColSchema[]>;
+    export function getLoadArgsFromDS(dsName: string): XDPromise<string>;
 }
 
 

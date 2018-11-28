@@ -194,7 +194,7 @@ class CastOpPanel extends BaseOpPanel {
             }
         } catch (e) {
             if (jsonError) {
-                return {error: xcHelper.parseJSONError(e)};
+                return xcHelper.parseJSONError(e);
             } else {
                 return e;
             }

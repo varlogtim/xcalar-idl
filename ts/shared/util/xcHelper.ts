@@ -6365,26 +6365,32 @@ namespace xcHelper {
      * returns a string that includes the position and character of the error
      * @param e javascript error
      */
-    export function parseJSONError(e): string {
-        // handling json parse/syntax error
-        var searchText= "at position ";
-        var errorPosition = e.message.indexOf(searchText);
-        var position = "";
-        if (errorPosition > -1) {
-            for (let i = errorPosition + searchText.length + 1; i < e.message.length; i++) {
-                if (e.message[i] >= 0 && e.message[i] <= 9) {
-                    position += e.message[i];
-                } else {
-                    break;
+    export function parseJSONError(e): {error: string} {
+        try {
+            // handling json parse/syntax error
+            var searchText= "at position ";
+            var errorPosition = e.message.indexOf(searchText);
+            var position = "";
+            if (errorPosition > -1) {
+                for (let i = errorPosition + searchText.length + 1; i < e.message.length; i++) {
+                    if (e.message[i] >= 0 && e.message[i] <= 9) {
+                        position += e.message[i];
+                    } else {
+                        break;
+                    }
                 }
             }
+            if (position.length) {
+                // XXX split into lines by searching for \n not in quotes or escaped
+                // so that we can show the error in the correct line number
+            }
+            return {
+                error: xcHelper.camelCaseToRegular(e.name) + ": " + e.message
+            };
+        } catch (error) {
+            console.error(error);
+            return e; // invalid form
         }
-        if (position.length) {
-             // XXX split into lines by searching for \n not in quotes or escaped
-             // so that we can show the error in the correct line number
-        }
-        return xcHelper.camelCaseToRegular(e.name) + ": " +
-               e.message;
     }
 
     /* For join, deep copy of right table and left table columns */

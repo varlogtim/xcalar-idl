@@ -41,6 +41,12 @@ class DagNodeDatasetInput extends DagNodeInput {
             "title": "The Synthesize Schema",
             "default": false
           },
+          "loadArgs": {
+            "$id": "#/properties/loadArgs",
+            "type": "string",
+            "title": "The LoadArgs Schema",
+            "default": ""
+          },
           "schema": {
             "$id": "#/properties/schema",
             "type": "array",
@@ -98,7 +104,8 @@ class DagNodeDatasetInput extends DagNodeInput {
         return {
             source: input.source || "",
             prefix: input.prefix || "",
-            synthesize: input.synthesize || false
+            synthesize: input.synthesize || false,
+            loadArgs: input.loadArgs || ""
         };
     }
 }

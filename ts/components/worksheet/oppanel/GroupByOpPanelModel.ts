@@ -259,7 +259,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
                 return this._translateAdvancedErrorMessage(error);
             }
         } catch (e) {
-            return {error: xcHelper.parseJSONError(e)};
+            return xcHelper.parseJSONError(e);
         }
     }
 

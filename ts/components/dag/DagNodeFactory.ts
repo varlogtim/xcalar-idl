@@ -6,7 +6,7 @@ class DagNodeFactory {
             case DagNodeType.Aggregate:
                 return new DagNodeAggregate(<DagNodeAggregateInfo>options);
             case DagNodeType.Dataset:
-                return new DagNodeDataset(<DagNodeDatasetInfo>options);
+                return new DagNodeDataset(<DagNodeInInfo>options);
             case DagNodeType.Export:
                 return new DagNodeExport(options);
             case DagNodeType.Filter:

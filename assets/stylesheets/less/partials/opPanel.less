@@ -2262,6 +2262,13 @@
 #datasetOpPanel {
     overflow: auto;
 
+    &.loading {
+        .bottomSection {
+            opacity: @opacity-disabled;
+            pointer-events: none;
+        }
+    }
+
     .opSection {
         display: flex;
         flex-direction: column;

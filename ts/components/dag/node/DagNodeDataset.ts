@@ -2,11 +2,10 @@ class DagNodeDataset extends DagNodeIn {
     protected input: DagNodeDatasetInput;
     private loadArgs: string;
 
-    public constructor(options: DagNodeDatasetInfo) {
+    public constructor(options: DagNodeInInfo) {
         super(options);
         this.type = DagNodeType.Dataset;
         this.display.icon = "&#xe90f";
-        this.loadArgs = options.loadArgs || null;
         this.input = new DagNodeDatasetInput(options.input);
     }
 
@@ -19,24 +18,18 @@ class DagNodeDataset extends DagNodeIn {
     public setParam(
         input: DagNodeDatasetInputStruct = <DagNodeDatasetInputStruct>{},
         noAutoExecute?: boolean
-    ): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+    ): void {
         const source: string = input.source;
         const prefix: string = input.prefix;
         const synthesize: boolean = input.synthesize;
-        PromiseHelper.alwaysResolve(this._fetchLoadArgs(source))
-        .then(() => {
-            this.input.setInput({
-                source: source,
-                prefix: prefix,
-                synthesize: synthesize
-            });
-            super.setParam(null, noAutoExecute);
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
+        const loadArgs: string = input.loadArgs;
+        this.input.setInput({
+            source: source,
+            prefix: prefix,
+            synthesize: synthesize,
+            loadArgs: loadArgs
+        });
+        super.setParam(null, noAutoExecute);
     }
 
     public confirmSetParam(): void {
@@ -53,7 +46,7 @@ class DagNodeDataset extends DagNodeIn {
     }
 
     public getLoadArgs(): string {
-        return this.loadArgs;
+        return this.input.getInput().loadArgs || null;
     }
 
     /**
@@ -67,25 +60,5 @@ class DagNodeDataset extends DagNodeIn {
             hint += `Source: ${dsName}`;
         }
         return hint;
-    }
-
-    protected _getSerializeInfo():DagNodeDatasetInfo {
-        const serializedInfo: DagNodeDatasetInfo = <DagNodeDatasetInfo>super._getSerializeInfo();
-        if (this.loadArgs) {
-            serializedInfo.loadArgs = this.loadArgs;
-        }
-        return serializedInfo;
-    }
-
-    private _fetchLoadArgs(dsName: string): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        XcalarDatasetGetLoadArgs(dsName)
-        .then((loadArgs) => {
-            this.loadArgs = loadArgs;
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
     }
 }

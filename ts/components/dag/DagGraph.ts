@@ -450,13 +450,19 @@ class DagGraph {
      * assumes nodes passed in were already validated
      * @param nodeIds
      */
-    public getOptimizedQuery(nodeIds: DagNodeId[]): XDPromise<string> {
+    public getOptimizedQuery(
+        nodeIds: DagNodeId[],
+        noReplaceParam?: boolean
+    ): XDPromise<string> {
          // clone graph because we will be changing each node's table and we don't
         // want this to effect the actual graph
         const clonedGraph = this.clone();
         clonedGraph.setTabId(DagTab.generateId());
         let orderedNodes: DagNode[] = nodeIds.map((nodeId) => clonedGraph._getNodeFromId(nodeId));
-        const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, clonedGraph, true);
+        const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, clonedGraph, {
+            optimized: true,
+            noReplaceParam: noReplaceParam
+        });
         return executor.getBatchQuery();
     }
 
@@ -483,7 +489,10 @@ class DagGraph {
                 "type": error.error
             });
         }
-        const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, this, true);
+        const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, this, {
+            optimized: true,
+            noReplaceParam: true
+        });
         let checkResult = executor.validateAll();
         if (checkResult.hasError) {
             return PromiseHelper.reject(checkResult);
@@ -503,7 +512,9 @@ class DagGraph {
         clonedGraph.setTabId(DagTab.generateId());
         const nodesMap:  Map<DagNodeId, DagNode> = clonedGraph.backTraverseNodes([nodeId], false).map;
         const orderedNodes: DagNode[] = clonedGraph._topologicalSort(nodesMap);
-        const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, clonedGraph, optimized);
+        const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, clonedGraph, {
+            optimized: optimized
+        });
         const checkResult = executor.checkCanExecuteAll();
         if (checkResult.hasError) {
             return PromiseHelper.reject(checkResult);
@@ -930,7 +941,9 @@ class DagGraph {
                 "type": error.error
             });
         }
-        const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, this, optimized);
+        const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, this, {
+            optimized: optimized
+        });
         let checkResult = executor.validateAll();
         if (checkResult.hasError) {
             return PromiseHelper.reject(checkResult);
