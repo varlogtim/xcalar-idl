@@ -245,7 +245,7 @@ function _createKVStoreKeys(dataflows, dataflowsList, datasets) {
     const kvPairs = {};
 
     if (isRetina) {
-       kvPairs[workbookKVPrefix + "DF2"] = JSON.stringify(dataflows[0]);
+        kvPairs[workbookKVPrefix + "DF2"] = JSON.stringify(dataflows[0]);
     } else {
         dataflows.forEach((dataflow) => {
             kvPairs[workbookKVPrefix + dataflow.id] = JSON.stringify(dataflow);
@@ -254,11 +254,11 @@ function _createKVStoreKeys(dataflows, dataflowsList, datasets) {
         kvPairs[workbookKVPrefix + "gDagListKey-1"] = JSON.stringify({
             dags: dataflowsList
         });
+        datasets.forEach(dataset => {
+            kvPairs[globalKVDatasetPrefix + "sys/datasetMeta/" + dataset.args.dest] = JSON.stringify(dataset, null, 4);
+        });
     }
 
-    datasets.forEach(dataset => {
-        kvPairs[globalKVDatasetPrefix + "sys/datasetMeta/" + dataset.args.dest] = JSON.stringify(dataset, null, 4);
-    });
     return JSON.stringify(kvPairs, null, 4);
 }
 
