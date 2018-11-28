@@ -48,6 +48,13 @@ class DagUDFPopup {
             // Call API to get resolutions
             dagNode.getModuleResolutions()
             .then((udfRes) => {
+                const convertedMap: Map<string, string> = new Map();
+                udfRes.forEach((path, moduleName) => {
+                    convertedMap.set(moduleName, UDFFileManager.Instance.nsPathToDisplayPath(path));
+                });
+                return convertedMap;
+            })
+            .then((udfRes) => {
                 // Show the resolution info.
                 $content.html(this._genUDFHTML(udfRes));
                 $header.show();
