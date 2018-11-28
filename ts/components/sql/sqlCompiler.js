@@ -241,27 +241,27 @@
         }
     }
 
-    // function getAllTableNames(rawOpArray) {
-    //     var tableNames = {};
-    //     for (var i = 0; i < rawOpArray.length; i++) {
-    //         var value = rawOpArray[i];
-    //         if (value.class === "org.apache.spark.sql.execution.LogicalRDD") {
-    //             var rdds = value.output;
-    //             var acc = {numOps: 0};
-    //             for (var j = 0; j < rdds.length; j++) {
-    //                 var evalStr = genEvalStringRecur(SQLCompiler.genTree(
-    //                               undefined, rdds[j].slice(0)), acc);
-    //                 if (evalStr.indexOf(tablePrefix) === 0) {
-    //                     var newTableName = evalStr.substring(tablePrefix.length);
-    //                     if (!(newTableName in tableNames)) {
-    //                         tableNames[newTableName] = true;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     return tableNames;
-    // }
+    function getAllTableNames(rawOpArray) {
+        var tableNames = {};
+        for (var i = 0; i < rawOpArray.length; i++) {
+            var value = rawOpArray[i];
+            if (value.class === "org.apache.spark.sql.execution.LogicalRDD") {
+                var rdds = value.output;
+                var acc = {numOps: 0};
+                for (var j = 0; j < rdds.length; j++) {
+                    var evalStr = genEvalStringRecur(SQLCompiler.genTree(
+                                  undefined, rdds[j].slice(0)), acc);
+                    if (evalStr.indexOf(tablePrefix) === 0) {
+                        var newTableName = evalStr.substring(tablePrefix.length);
+                        if (!(newTableName in tableNames)) {
+                            tableNames[newTableName] = true;
+                        }
+                    }
+                }
+            }
+        }
+        return tableNames;
+    }
 
     function TreeNode(value) {
         if (value.class === "org.apache.spark.sql.execution.LogicalRDD") {
@@ -1127,10 +1127,18 @@
     //     return tableLookup;
     // };
     function ProjectNode(columns) {
+        var newColumns = [];
+        columns.forEach(function(column) {
+            if (column.length === 1 && column[0].name &&
+                column[0].name.indexOf(tablePrefix) === 0) {
+                return;
+            }
+            newColumns.push(column);
+        });
         return new TreeNode({
             "class": "org.apache.spark.sql.catalyst.plans.logical.Project",
             "num-children": 1,
-            "projectList": columns
+            "projectList": newColumns
         });
     }
     function pushUpCols(node) {
@@ -1374,10 +1382,10 @@
                 self.sqlObj.setQueryString(sqlQueryString);
             }
 
-            var cached;
-            if (typeof SQLCache !== "undefined") {
-                cached = SQLCache.getCached(sqlQueryString);
-            }
+            // var cached;
+            // if (typeof SQLCache !== "undefined") {
+            //     cached = SQLCache.getCached(sqlQueryString);
+            // }
             if (jdbcOption && jdbcOption.sqlMode) {
                 self.sqlObj.setSqlMode();
             }
@@ -1417,13 +1425,13 @@
                     if (self.sqlObj.getStatus() === SQLStatus.Cancelled) {
                         return PromiseHelper.reject(SQLErrTStr.Cancel);
                     }
-                    // var allTableNames = getAllTableNames(jsonArray);
+                    var allTableNames = getAllTableNames(jsonArray);
 
                     var tree = SQLCompiler.genTree(undefined, jsonArray);
                     if (tree.value.class ===
                                       "org.apache.spark.sql.execution.LogicalRDD") {
                         // If the logicalRDD is root, we should add an extra Project
-                        var newNode = ProjectNode(tree.value.output.slice(0, -1));
+                        var newNode = ProjectNode(tree.value.output);
                         newNode.children = [tree];
                         tree.parent = newNode;
                         pushUpCols(tree);
@@ -1452,20 +1460,11 @@
                         var queryString = "[" + cliArray.join(",") + "]";
                         // queryString = queryString.replace(/\\/g, "\\");
                         // console.log(queryString);
-                        if (jdbcOption && jdbcOption.prefix) {
-                            try {
-                                var plan = JSON.parse(queryString);
-                            } catch (e) {
-                                return PromiseHelper.reject(
-                                    SQLErrTStr.InvalidXcalarQuery);
-                            }
-                            queryString = JSON.stringify(plan);
-                        }
 
                         // Cache the query so that we can reuse it later
                         // Caching only happens on successful run
                         toCache = {plan: queryString,
-                                   // startTables: allTableNames,
+                                   startTables: allTableNames,
                                    steps: numNodes,
                                    finalTable: tree.newTableName,
                                    finalTableCols: tree.usrCols};
@@ -2815,8 +2814,6 @@
             if (node.value.joinType.object ===
                 "org.apache.spark.sql.catalyst.plans.Inner$" && condTree
                 && isOrEqJoin(condTree, eqTreesByBranch, nonEqFilterTreesByBranch)) {
-                console.log("orEqJoin!");
-                console.log(eqTreesByBranch);
                 retStruct.filterSubtrees = retStruct.filterSubtrees || [];
                 orEqJoinOpt = true;
                 for (var i = 0; i < eqTreesByBranch.length; i++) {

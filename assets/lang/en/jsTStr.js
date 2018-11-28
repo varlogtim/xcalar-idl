@@ -546,7 +546,8 @@ SQLErrTStr = {
     "InvalidIdentifier": "Invalid table identifier",
     "SourceUsed": "The source is already used for table identifier: ",
     "EmptySQL": "Please input your SQL query in the snippet",
-    "NeedConfiguration": "Please configure the SQL node with valid SQL query first"
+    "NeedConfiguration": "Please configure the SQL node with valid SQL query first",
+    "NoPublishedTable": "Cannot find all published tables"
 };
 
 SQLInfoTStr = {
