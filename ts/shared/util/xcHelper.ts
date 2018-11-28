@@ -6322,7 +6322,15 @@ namespace xcHelper {
             let hasValue = false;
             // loop through arguments within a group
             args.forEach((arg) => {
-                let colNames: string[] = arg.getFormattedValue().split(",");
+                let colNames: string[];
+                const formattedValue = arg.getFormattedValue();
+                if (formattedValue[0] !== '"' &&
+                    formattedValue[0] !== "'") {
+                    // if not a string in quotes, ok to split into separate values
+                    colNames = formattedValue.split(",");
+                } else {
+                    colNames = [formattedValue];
+                }
                 let colStr: string = "";
                 colNames.forEach((colName, k) => {
                     if (k > 0) {
@@ -6349,6 +6357,7 @@ namespace xcHelper {
         for (let i = 0; i < groups.length - 1; i++) {
             str += ")";
         }
+
         return (str);
     }
 
