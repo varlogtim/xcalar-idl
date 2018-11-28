@@ -2713,7 +2713,7 @@ window.DSPreview = (function($, DSPreview) {
 
         var curPreviewId = updatePreviewId();
         var initialLoadArgStr;
-
+        xcHelper.disableSubmit($form.find(".confirm"));
         getURLToPreview(curPreviewId)
         .then(function(sourceIndex, url) {
             setPreviewFile(sourceIndex, url);
@@ -2899,6 +2899,9 @@ window.DSPreview = (function($, DSPreview) {
             }
 
             deferred.reject(error);
+        })
+        .always(function() {
+            xcHelper.enableSubmit($form.find(".confirm"));
         });
 
         return deferred.promise();
