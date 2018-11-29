@@ -190,7 +190,23 @@ class DagTable {
     }
 
     private _isSameViewer(viewer: XcViewer): boolean {
-        return this._currentViewer != null && this._currentViewer.getId() == viewer.getId();
+        const currentViewer = this._currentViewer;
+        if (currentViewer == null) {
+            return false;
+        }
+        if (currentViewer.getId() != viewer.getId()) {
+            return false;
+        }
+
+        if (viewer instanceof XcTableViewer && currentViewer instanceof XcTableViewer) {
+            if (viewer.getDataflowTabId() !== currentViewer.getDataflowTabId()) {
+                return false;
+            }
+            if (viewer.getNodeId() !== currentViewer.getNodeId()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private _getTableNameArea(): JQuery {
