@@ -16,7 +16,7 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _allowInputChange: boolean = true;
     protected _functionsListScrollers: MenuHelper[] = [];
     protected _formHelper: FormHelper;
-    protected _listMax: number = 50; // max length for hint list
+    protected _listMax: number = 200; // max length for hint list
     protected _table;
     // protected _dagNode: DagNodeGroupBy | DagNodeAggregate | DagNodeMap | DagNodeFilter;
     protected _dagNode: DagNode;
@@ -183,6 +183,9 @@ class GeneralOpPanel extends BaseOpPanel {
         // click on the hint list
         this._$panel.on('click', '.hint li', function() {
             const $li: JQuery = $(this);
+            if ($li.hasClass("unavailable")) {
+                return;
+            }
             let val: string = $li.text();
             if (val[0] !== gAggVarPrefix) {
                 val = gColPrefix + val;
@@ -541,16 +544,15 @@ class GeneralOpPanel extends BaseOpPanel {
 
         const colNameMatches: string[] = this._getMatchingColNames(input);
         const allMatches: string[] = aggNameMatches.concat(colNameMatches);
-        let count: number = 0;
 
         for (let i = 0; i < allMatches.length; i++) {
+            if (i >= this._listMax) {
+                listLis += "<li class='unavailable'>(limited to first " + this._listMax + " results)</li>";
+                break;
+            }
             listLis += "<li>" +
                             allMatches[i] +
                         "</li>";
-            count++;
-            if (count > this._listMax) {
-                break;
-            }
         }
         return listLis;
     }
