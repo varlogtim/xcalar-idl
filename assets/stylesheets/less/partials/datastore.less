@@ -3090,7 +3090,7 @@ table.datasetTable {
 
                 &.active {
                     opacity: 1;
-                    outline: 1px solid @color-bg-green-submit;
+                    outline: 1px solid @color-bg-select-blue;
                     // should have highter z-index to show outline
                     // but should lower than menu
                     z-index: @z-index-gridViewMenu - 1;
@@ -3196,7 +3196,7 @@ table.datasetTable {
                     }
 
                     &.active {
-                        outline: 1px solid @color-bg-green-submit;;
+                        outline: 1px solid @color-bg-select-blue;
                     }
 
                     .gridIcon {
@@ -3492,10 +3492,6 @@ table.datasetTable {
     &.dsOpts {
         .dsOpt {
             display: block;
-
-            &.deactivate {
-                display: none;
-            }
         }
 
         &.dsActivated {
@@ -3504,13 +3500,21 @@ table.datasetTable {
                     display: none;
                 }
 
-                &.deactivate {
-                    display: block;
-                }
-
                 &.delete {
                     pointer-events: none;
                     opacity: @opacity-disabled;
+                }
+            }
+        }
+
+        &:not(.dsActivated) {
+            .dsOpt {
+                &.preview {
+                    display: none;
+                }
+
+                &.deactivate {
+                    display: none;
                 }
             }
         }

@@ -955,6 +955,18 @@ window.DS = (function ($, DS) {
                 var dsIds = arg.dsIds || [];
                 dsIds.forEach(removeDS);
                 cleanFocusedDSIfNecessary();
+                break;
+            case "activate":
+                var dsIds = arg.dsIds || [];
+                dsIds.forEach(function(dsId) {
+                    var dsObj = DS.getDSObj(dsId);
+                    activateDSObj(dsObj);
+                });
+                break;
+            case "deactivate":
+                var dsIds = arg.dsIds || [];
+                dsIds.forEach(deactivateDSObj);
+                break;
             default:
                 console.error("Unspported action!");
                 return;
@@ -2441,12 +2453,15 @@ window.DS = (function ($, DS) {
     }
 
     function refreshHelper() {
+        var dir = curDirId;
         var promise = DS.restore(DS.getHomeDir(true));
         xcHelper.showRefreshIcon($gridView, false, promise);
 
         promise
         .then(function() {
             cleanFocusedDSIfNecessary();
+            curDirId = dir;
+            refreshDS();
             UserSettings.commit(false, true);
         });
     }
@@ -2774,6 +2789,7 @@ window.DS = (function ($, DS) {
         var deferred = PromiseHelper.deferred();
         var failures = [];
         var datasets = [];
+        var dirId = curDirId;
 
         var promises = dsIds.map(function(dsId) {
             return activateOneDSHelper(dsId, failures, datasets);
@@ -2791,9 +2807,10 @@ window.DS = (function ($, DS) {
             }
 
             if (datasets.length) {
-                // XXX Note: this is a temp solution, after backend support
-                // we don't need to do it
-                UserSettings.commit(false, true);
+                changeDSInfo(dirId, {
+                    action: "activate",
+                    dsIds: dsIds
+                });
             }
             deferred.resolve();
         })
@@ -2819,12 +2836,6 @@ window.DS = (function ($, DS) {
         });
         activateHelper(txId, dsObj)
         .then(function() {
-            const $grid = DS.getGrid(dsId);
-            if ($grid.hasClass("active")) {
-                // re-focus on the dataset
-                $grid.removeClass("active");
-                DS.focusOn($grid);
-            }
             datasets.push(dsId);
             Transaction.done(txId, {});
             deferred.resolve();
@@ -2866,6 +2877,13 @@ window.DS = (function ($, DS) {
     function activateDSObj(dsObj) {
         dsObj.activate();
         DS.getGrid(dsObj.getId()).removeClass("inActivated");
+        var dsId = dsObj.getId();
+        var $grid = DS.getGrid(dsId);
+        if ($grid.hasClass("active")) {
+            // re-focus on the dataset
+            $grid.removeClass("active");
+            DS.focusOn($grid);
+        }
     }
 
     function deactivateDSAction(dsIds) {
@@ -2883,6 +2901,7 @@ window.DS = (function ($, DS) {
         var failures = [];
         var datasets = [];
         var dsInUse = [];
+        var dirId = curDirId;
         var promises = dsIds.map(function(dsId) {
             return deactivateOneDSHelper(dsId, failures, datasets, dsInUse);
         });
@@ -2899,9 +2918,10 @@ window.DS = (function ($, DS) {
                 });
             }
             if (datasets.length) {
-                // XXX Note: this is a temp solution, after backend support
-                // we don't need to do it
-                UserSettings.commit(false, true);
+                changeDSInfo(dirId, {
+                    action: "deactivate",
+                    dsIds: dsIds
+                });
             }
             deferred.resolve();
         })
@@ -2917,9 +2937,8 @@ window.DS = (function ($, DS) {
             return PromiseHelper.resolve();
         }
 
-        var isShowDSTable = (DSTable.getId() === dsId ||
-                            $("#dsTableContainer").data("id") === dsId);
-        DS.getGrid(dsId).find(".deactivatingIcon").removeClass("xc-hidden");
+        var $grid = DS.getGrid(dsId);
+        $grid.find(".deactivatingIcon").removeClass("xc-hidden");
         var fullDSName = dsObj.getFullName();
 
         clearLoadNodeInAllWorkbooks(fullDSName)
@@ -2930,15 +2949,8 @@ window.DS = (function ($, DS) {
             return XcalarDatasetDeactivate(fullDSName);
         })
         .then(function() {
-            var $grid = DS.getGrid(dsId);
-            dsObj.deactivate();
-            $grid.addClass("inActivated");
             datasets.push(dsId);
-            // clear data table
-            if (isShowDSTable) {
-                $grid.removeClass("active");
-                DS.focusOn($grid); // re-focus on the ds
-            }
+            deactivateDSObj(dsId);
             deferred.resolve();
         })
         .fail(function(error) {
@@ -2955,11 +2967,23 @@ window.DS = (function ($, DS) {
             deferred.resolve();
         })
         .always(function() {
-            var $grid = DS.getGrid(dsId);
             $grid.find(".deactivatingIcon").addClass("xc-hidden");
         });
 
         return deferred.promise();
+    }
+
+    function deactivateDSObj(dsId) {
+        var dsObj = DS.getDSObj(dsId);
+        var $grid = DS.getGrid(dsId);
+        dsObj.deactivate();
+        $grid.addClass("inActivated");
+        var isShowDSTable = (DSTable.getId() === dsId ||
+                            $("#dsTableContainer").data("id") === dsId);
+        if (isShowDSTable) {
+            $grid.removeClass("active");
+            DS.focusOn($grid); // re-focus on the ds
+        }
     }
 
     // XXX TODO: this is a try to remove all the load nodes
