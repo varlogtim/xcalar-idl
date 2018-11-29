@@ -135,7 +135,7 @@ INTEGER: '-'? DIGIT+;
 STRING: ('"' ( ~('"'|'\\') | ('\\' .) )* '"') | ('\'' ( ~('\''|'\\') | ('\\' .) )* '\'');
 APOSTROPHE: '\'';
 SINGLEQUOTE: '"';
-ALPHANUMERIC: (ALPHANUMS | [_-]) (CHARALLOWED* (CHARALLOWED | ' '))?;
+ALPHANUMERIC: (ALPHANUMS | [_-]) ((CHARALLOWED | ' ')* CHARALLOWED)?;
 fragment A : [aA]; // match either an 'a' or 'A'
 fragment B : [bB];
 fragment C : [cC];
