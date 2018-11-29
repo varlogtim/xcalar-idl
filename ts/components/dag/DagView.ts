@@ -1107,18 +1107,20 @@ namespace DagView {
     }
 
     /**
-     * DagView.previewTable
+     * DagView.viewResult
      * @param dagNodeId
      */
-    export function previewTable(dagNode: DagNode, tabId?: string): XDPromise<void> {
+    export function viewResult(dagNode: DagNode, tabId?: string): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         try {
-            if (dagNode.getType() === DagNodeType.Jupyter) {
-                // Show Jupyter Notebook instead of preivew table
-                (<DagNodeJupyter>dagNode).showJupyterNotebook();
+            if (dagNode instanceof DagNodeJupyter) {
+                dagNode.showJupyterNotebook();
+                deferred.resolve();
+            } else if (dagNode instanceof DagNodeAggregate) {
+                _viewAgg(dagNode);
                 deferred.resolve();
             } else {
-                // const $node: JQuery = DagView.getNode(dagNode.getId(), null, $dataflowArea);
+                // all other nodes
                 tabId = tabId || activeDagTab.getId();
                 DagTable.Instance.previewTable(tabId, dagNode)
                 .then(deferred.resolve)
@@ -1136,7 +1138,7 @@ namespace DagView {
         return deferred.promise();
     }
 
-    export function previewAgg(dagNode: DagNodeAggregate): void {
+    function _viewAgg(dagNode: DagNodeAggregate): void {
         try {
             const aggVal: string | number = dagNode.getAggVal();
             const evalStr: string = dagNode.getParam().evalString;
@@ -1178,11 +1180,7 @@ namespace DagView {
             ) {
                 const node: DagNode = graph.getNode(nodeIds[0]);
                 if (node.getState() === DagNodeState.Complete) {
-                    if (node.getType() === DagNodeType.Aggregate) {
-                        DagView.previewAgg(<DagNodeAggregate>node);
-                    } else {
-                        DagView.previewTable(node, currTabId);
-                    }
+                    DagView.viewResult(node, currTabId);
                 }
             }
             deferred.resolve();
@@ -3522,7 +3520,7 @@ namespace DagView {
                     // XXX TODO use better way to refresh the viewer
                     if (nodeInPreview != null) {
                         DagTable.Instance.close();
-                        DagView.previewTable(nodeInPreview);
+                        DagView.viewResult(nodeInPreview);
                     }
                 }
             }

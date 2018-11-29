@@ -1042,7 +1042,7 @@
             margin-left: 10px;
 
             .option {
-                .size(@width: 80px, @height: @div-h);
+                .size(@width: 60px, @height: @div-h);
                 float: left;
                 background-color: @color-bg-white-two;
                 .font(@size: 12px, @line-height: @div-h);
@@ -1358,15 +1358,15 @@
 
     &.operatorMenu {
         .removeNode, .copyNodes, .cutNodes, .executeNode, .resetNode, .executeNodeOptimized,
-        .description, .configureNode, .previewTable, .generateTable, .viewSchema, .autoAlign,
+        .description, .configureNode, .viewResult, .generateResult, .viewSchema, .autoAlign,
         .unlockNodeTable, .lockNodeTable, .download, .createCustom, .viewUDF, .selectAllNodes {
             display: list-item;
         }
-        .previewAgg, .findLinkOut {
+        .findLinkOut {
             display: none;
         }
         &.multiple {
-            .description, .configureNode, .previewTable, .generateTable, .viewSchema, .shareCustom, .viewUDF {
+            .description, .configureNode, .viewResult, .generateResult, .viewSchema, .shareCustom, .viewUDF {
                 display: none;
             }
             .createCustom {
@@ -1374,10 +1374,7 @@
             }
         }
         &.agg {
-            .previewAgg {
-                display: list-item;
-            }
-            .previewTable, .generateTable {
+            .generateResult {
                 display: none;
             }
         }
@@ -1436,7 +1433,7 @@
         .removeNode, .copyNodes, .cutNodes, .autoAlign {
             display: list-item;
         }
-        .executeNode, .executeNodeOptimized, .description, .configureNode, .previewTable, .generateTable, .viewSchema,
+        .executeNode, .executeNodeOptimized, .description, .configureNode, .viewResult, .generateResult, .viewSchema,
         .autoAlign, .unlockNodeTable, .lockNodeTable {
             display: none;
         }

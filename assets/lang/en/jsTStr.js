@@ -1653,10 +1653,6 @@ DagTStr = {
     "CustomOpNoOutput": "Cannot create a custom operator without output",
     "CustomOpTooManyOutput": "Cannot create a custom operator with more than one output",
     "CustomOpTypeNotSupport": "Cannot create a custom operator with this operation type",
-    "MenuPreviewTable": "Preview Table",
-    "MenuViewNotebook": "View Notebook",
-    "MenuGenerateTable": "Generate Table",
-    "MenuGenerateNotebook": "Generate Notebook",
     "SortConnectWarning": "Having a sort node that is not the final node of the dataflow can cause performance issues. We recommend only having sort nodes at the end of the dataflow. Are you sure you want to continue?",
     "SortConnectWarningTitle": "Sort Warning"
 };

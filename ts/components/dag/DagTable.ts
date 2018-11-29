@@ -217,7 +217,7 @@ class DagTable {
         const $nameArea: JQuery = this._getTableNameArea();
         $nameArea.removeClass("xc-hidden");
         const type: string = viewer instanceof XcDatasetViewer ?
-        "Dataset" : "Table";
+        "Dataset" : "Result";
         $nameArea.find(".name").text(type + ": " + viewer.getTitle());
     }
 

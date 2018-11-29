@@ -227,7 +227,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                     })
                     .then(function() {
                         if ($("#dagViewTableArea").hasClass("xc-hidden")) {
-                            return DagView.previewTable(sqlNode);
+                            return DagView.viewResult(sqlNode);
                         } else {
                             return PromiseHelper.resolve();
                         }

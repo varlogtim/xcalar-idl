@@ -359,7 +359,7 @@ window.FlightTest = (function(FlightTest, $) {
 
             test.executeNode(finalNodeId)
             .then(() => {
-                test.nodeMenuAction($node, "previewAgg");
+                test.nodeMenuAction($node, "viewResult");
                 return test.checkExists("#alertHeader:visible .text:contains(Agg)");
             })
             .then(function() {
@@ -826,7 +826,7 @@ window.FlightTest = (function(FlightTest, $) {
         .then(() => {
             console.log("preview multi join result");
             const $node = DagView.getNode(joinNodeId);
-            test.nodeMenuAction($node, "previewTable");
+            test.nodeMenuAction($node, "viewResult");
             return test.checkExists("#dagViewTableArea:visible .xcTableWrap");
         })
         .then(()  => {

@@ -154,19 +154,16 @@ namespace DagNodeMenu {
             case ("configureNode"):
                 configureNode(_getNodeFromId(dagNodeIds[0]), options);
                 break;
-            case ("previewTable"):
-                DagView.previewTable(_getNodeFromId(dagNodeIds[0]));
-                break;
-            case ("previewAgg"):
-                DagView.previewAgg(<DagNodeAggregate>_getNodeFromId(dagNodeIds[0]));
+            case ("viewResult"):
+                DagView.viewResult(_getNodeFromId(dagNodeIds[0]));
                 break;
             case ("viewUDF"):
                 DagUDFPopup.Instance.show(dagNodeIds[0]);
                 break;
-            case ("generateTable"):
+            case ("generateResult"):
                 const nodeToPreview: DagNode = _getNodeFromId(dagNodeIds[0]);
                 DagView.run(dagNodeIds).then(() => {
-                    DagView.previewTable(nodeToPreview);
+                    DagView.viewResult(nodeToPreview);
                 });
                 break;
             case ("description"):
@@ -544,17 +541,17 @@ namespace DagNodeMenu {
         ) {
             const table: string = dagNode.getTable();
             if (table != null && DagTblManager.Instance.hasTable(table)) {
-                $menu.find(".generateTable").addClass("xc-hidden");
-                $menu.find(".previewTable").removeClass("xc-hidden");
-                $menu.find(".previewTable").removeClass("unavailable");
+                $menu.find(".generateResult").addClass("xc-hidden");
+                $menu.find(".viewResult").removeClass("xc-hidden");
+                $menu.find(".viewResult").removeClass("unavailable");
             } else {
-                $menu.find(".previewTable").addClass("xc-hidden");
-                $menu.find(".generateTable").removeClass("xc-hidden");
-                $menu.find(".generateTable").removeClass("unavailable");
+                $menu.find(".viewResult").addClass("xc-hidden");
+                $menu.find(".generateResult").removeClass("xc-hidden");
+                $menu.find(".generateResult").removeClass("unavailable");
             }
         } else {
-            $menu.find(".previewTable").addClass("unavailable");
-            $menu.find(".generateTable").addClass("unavailable");
+            $menu.find(".viewResult").addClass("unavailable");
+            $menu.find(".generateResult").addClass("unavailable");
         }
         if (dagNode != null && dagNode.getDescription()) {
             $menu.find(".description .label").text(DagTStr.EditDescription);
@@ -565,12 +562,13 @@ namespace DagNodeMenu {
         if (dagNode != null && dagNodeType === DagNodeType.Aggregate) {
             const aggNode = <DagNodeAggregate>dagNode;
             classes = "agg";
+            $menu.find(".viewResult").removeClass("xc-hidden");
             if (state === DagNodeState.Complete &&
                 aggNode.getAggVal() != null
             ) {
-                $menu.find(".previewAgg").removeClass("unavailable");
+                $menu.find(".viewResult").removeClass("unavailable");
             } else {
-                $menu.find(".previewAgg").addClass("unavailable");
+                $menu.find(".viewResult").addClass("unavailable");
             }
         }
         // link node option
@@ -583,14 +581,6 @@ namespace DagNodeMenu {
             } else {
                 $menu.find(".findLinkOut").addClass("unavailable");
             }
-        }
-        // Jupyter node
-        if (dagNode != null && dagNodeType === DagNodeType.Jupyter) {
-            $menu.find(".previewTable .label").text(DagTStr.MenuViewNotebook);
-            $menu.find(".generateTable .label").text(DagTStr.MenuGenerateNotebook);
-        } else {
-            $menu.find(".previewTable .label").text(DagTStr.MenuPreviewTable);
-            $menu.find(".generateTable .label").text(DagTStr.MenuGenerateTable);
         }
         // Node with UDF
         if (dagNode != null && dagNode instanceof DagNodeMap) {
