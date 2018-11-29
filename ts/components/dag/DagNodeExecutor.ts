@@ -832,7 +832,7 @@ class DagNodeExecutor {
         node.setParam(params, true);
         node.updateSubGraph();
         const queryNodes = JSON.parse(params.queryStr);
-        node.getSubGraph().startExecution(queryNodes);
+        node.getSubGraph().startExecution(queryNodes, null);
         const options = {
             jdbcCheckTime: params.jdbcCheckTime
         };

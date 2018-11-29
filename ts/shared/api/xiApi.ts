@@ -2287,7 +2287,7 @@ namespace XIApi {
                         const state = nodeInfo.state;
                         if (state=== DgDagStateT.DgDagStateError) {
                             error = {
-                                error: DgDagStateTStr[state],
+                                error: nodeInfo.thriftError.error || DgDagStateTStr[state],
                                 log: nodeInfo.log
                             };
                             return false; // stop loop

@@ -58,7 +58,9 @@ class DagNodeInfoPanel {
     }
 
     public update(nodeId: DagNodeId, attribute: string): boolean {
-        if (nodeId !== this._activeNode.getId()) {
+        if (this._activeNode == null ||
+            nodeId !== this._activeNode.getId()
+        ) {
             return false;
         }
         switch (attribute) {

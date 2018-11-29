@@ -3016,6 +3016,7 @@ XcalarQueryCheck = function(
                 const state = queryStateOutput.queryState;
                 if (state === QueryStateT.qrFinished ||
                     state === QueryStateT.qrCancelled) {
+                    addThriftErrorLogToQueryOutput(queryStateOutput);
                     if (noCleanup) {
                         deferred.resolve(queryStateOutput);
                     } else {
@@ -3042,6 +3043,18 @@ XcalarQueryCheck = function(
                 deferred.reject.apply(this, arguments);
             });
         }, checkTime);
+    }
+
+    function addThriftErrorLogToQueryOutput(queryStateOutput) {
+        try {
+            queryStateOutput.queryGraph.node.forEach((node) => {
+                if (node.status != null) {
+                    node.thriftError = thriftLog("XcalarQuery", node.status);
+                }
+            });
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     return (deferred.promise());

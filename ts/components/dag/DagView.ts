@@ -1141,7 +1141,6 @@ namespace DagView {
         const graph: DagGraph = activeDag;
         const currTabId: string = graph.getTabId();
         const $dataflowArea: JQuery = _getActiveArea();
-
         graph.execute(nodeIds, optimized)
         .then(function() {
             if (UserSettings.getPref("dfAutoPreview") === true &&
@@ -1265,7 +1264,7 @@ namespace DagView {
      * // cancel entire run or execution
      */
     export function cancel() {
-
+        activeDag.cancelExecute();
     }
 
     export function highlightLineage(nodeId: DagNodeId, childNodeId?: DagNodeId, type?: string): void {
@@ -3396,6 +3395,7 @@ namespace DagView {
                     DagView.unlockNode(nodeId, info.tabId);
                 });
             }
+            DagTopBar.Instance.setState(activeDagTab); // refresh the stop button status
         });
 
         graph.events.on(DagNodeEvents.StateChange, function (info) {

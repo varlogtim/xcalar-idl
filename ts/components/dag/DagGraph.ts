@@ -8,6 +8,7 @@ class DagGraph {
     private lock: boolean;
     private noDelete: boolean;
     private parentTabId: string;
+    protected currentExecutor: DagGraphExecutor
     public events: { on: Function, trigger: Function}; // example: dagGraph.events.on(DagNodeEvents.StateChange, console.log)
 
     public constructor() {
@@ -449,6 +450,16 @@ class DagGraph {
         }
     }
 
+    public cancelExecute(): void {
+        if (this.currentExecutor != null) {
+            this.currentExecutor.cancel();
+        }
+    }
+
+    public getExecutor(): DagGraphExecutor {
+        return this.currentExecutor;
+    }
+
     /**
      * @description gets query from multiple nodes, only used to create retinas
      * assumes nodes passed in were already validated
@@ -717,8 +728,9 @@ class DagGraph {
      * Locks the graph from modification.
      * Used primarily in execution.
      */
-    public lockGraph(nodeIds?: DagNodeId[]): void {
+    public lockGraph(nodeIds: DagNodeId[], executor: DagGraphExecutor): void {
         this.lock = true;
+        this.currentExecutor = executor;
         if (!this.parentTabId) return;
         this.events.trigger(DagGraphEvents.LockChange, {
             lock: true,
@@ -732,6 +744,7 @@ class DagGraph {
      */
     public unlockGraph(nodeIds?: DagNodeId[]): void {
         this.lock = false;
+        this.currentExecutor = null;
         if (!this.parentTabId) return;
         this.events.trigger(DagGraphEvents.LockChange, {
             lock: false,
@@ -968,9 +981,10 @@ class DagGraph {
 
     }
 
-    // XXX TODO, Idea is to do a topological sort first, then get the
-    // ordere, then get the query, and run it one by one.
     private _executeGraph(nodesMap?: Map<DagNodeId, DagNode>, optimized?: boolean, startingNodes?: DagNodeId[]): XDPromise<void> {
+        if (this.currentExecutor != null) {
+            return PromiseHelper.reject(ErrTStr.DFInExecution);
+        }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let orderedNodes: DagNode[] = [];
         try {
@@ -991,7 +1005,7 @@ class DagGraph {
             return PromiseHelper.reject(checkResult);
         }
         const nodeIds: DagNodeId[] = orderedNodes.map(node => node.getId());
-        this.lockGraph(nodeIds);
+        this.lockGraph(nodeIds, executor);
         executor.run()
         .then((...args) => {
             this.unlockGraph(nodeIds);

@@ -375,7 +375,7 @@ ErrTStr = {
     "NoPrefixColumn": "Column name cannot have prefix",
     "InvalidEvalStr": "Invalid eval string",
     "DetectSchema": "Error occured when detecting schema",
-
+    "DFInExecution": "Dataflow is in execution",
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +
@@ -1108,6 +1108,7 @@ DFTStr = {
     'RunDoneMsg': 'Successfully ran dataflow!',
     'RunFail': 'Run Dataflow Failed',
     'Running': 'Running batch dataflow',
+    'Cancel': "Datafow execution is cancled",
     'Scheduled': 'Scheduled',
     'TooLarge': 'Dataflow image exceeds viewable limit.',
     'UpdateParamFail': 'Update Parameters Failed',

@@ -98,7 +98,8 @@ class DagSubGraph extends DagGraph {
     }
 
     // should be called right before the xcalarQuery gets executed
-    public startExecution(queryNodes): void {
+    public startExecution(queryNodes, executor: DagGraphExecutor): void {
+        this.currentExecutor = executor;
         this.startTime = Date.now();
         queryNodes.forEach((queryNode) => {
             const nodeId = this._nameIdMap[queryNode.args.dest];
@@ -106,6 +107,10 @@ class DagSubGraph extends DagGraph {
                 this.getNode(nodeId).beRunningState();
             }
         });
+    }
+
+    public stopExecution(): void {
+        this.currentExecutor = null;
     }
 
     // should be called after nameIdMap is set but

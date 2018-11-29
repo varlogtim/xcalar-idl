@@ -56,6 +56,13 @@ class DagTopBar {
                 placement: "left"
             })
         }
+
+        const graph: DagGraph = dagTab.getGraph();
+        if (graph != null && graph.getExecutor() != null) {
+            $btns.find(".stop").removeClass("xc-disabled");
+        } else {
+            $btns.find(".stop").addClass("xc-disabled");
+        }
     }
 
     private _addEventListeners(): void {

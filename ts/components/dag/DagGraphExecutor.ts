@@ -7,6 +7,8 @@ class DagGraphExecutor {
     private _isOptimizedActiveSession: boolean;
     private _optimizedLinkOutNode: DagNode;
     private _isNoReplaceParam: boolean;
+    private _currentTxId: number;
+    private _isCanceld: boolean;
 
     public constructor(
         nodes: DagNode[],
@@ -20,6 +22,7 @@ class DagGraphExecutor {
         this._graph = graph;
         this._isOptimized = options.optimized || false;
         this._isNoReplaceParam = options.noReplaceParam || false;
+        this._isCanceld = false;
     }
 
     public validateAll(): {
@@ -270,9 +273,14 @@ class DagGraphExecutor {
         const self: DagGraphExecutor = this;
         const deferred = PromiseHelper.deferred();
 
-        if (this._isOptimized) {
+        if (this._isCanceld) {
+            deferred.reject(DFTStr.Cancel);
+        } else if (this._isOptimized) {
             this.getRetinaArgs()
             .then((retinaParams) => {
+                if (this._isCanceld) {
+                    return PromiseHelper.reject(DFTStr.Cancel);
+                }
                 return this._executeOptimizedDataflow(retinaParams);
             })
             .then(deferred.resolve)
@@ -305,6 +313,12 @@ class DagGraphExecutor {
             });
         }
         return deferred.promise();
+    }
+
+    // cancel execution
+    public cancel(): void {
+        this._isCanceld = true;
+        QueryManager.cancelQuery(this._currentTxId);
     }
 
     // returns a query string representing all the operations needed to run
@@ -364,6 +378,9 @@ class DagGraphExecutor {
         if (nodesToRun[index] == null || !nodesToRun[index].executable) {
             return PromiseHelper.resolve();
         }
+        if (this._isCanceld) {
+            return PromiseHelper.reject(DFTStr.Cancel);
+        }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const node: DagNode = nodesToRun[index].node;
         const tabId: string = this._graph.getTabId();
@@ -376,6 +393,7 @@ class DagGraphExecutor {
             udfUserName: udfContext.udfUserName,
             udfSessionName: udfContext.udfSessionName
         });
+        this._currentTxId = txId;
         const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, tabId);
         dagNodeExecutor.run()
         .then((_destTable) => {
@@ -531,7 +549,7 @@ class DagGraphExecutor {
         let outputTableName: string = "";
         // retina name will be the same as the graph/tab's ID
         let retinaName: string = retinaParameters.retinaName;
-
+        let subGraph: DagSubGraph;
         const udfContext = this._getUDFContext();
         let txId: number = Transaction.start({
             operation: "optimized df",
@@ -539,7 +557,7 @@ class DagGraphExecutor {
             udfUserName: udfContext.udfUserName,
             udfSessionName: udfContext.udfSessionName
         });
-
+        this._currentTxId = txId;
         this._createRetina(retinaParameters)
         .then((retina) => {
              // create tab and pass in nodes to store for progress updates
@@ -551,8 +569,8 @@ class DagGraphExecutor {
             let tabName: string = parentTab.getName() + " " + dfOutName + " optimized";
             const tab: DagTabOptimized = DagTabManager.Instance.newOptimizedTab(retinaName,
                                                 tabName, retina.query);
-            tab.getGraph().startExecution(retina.query);
-
+            subGraph = tab.getGraph();
+            subGraph.startExecution(retina.query, this);
             outputTableName = this._isOptimizedActiveSession ?
                                 "table_" + parentTabId + "_" +
                                 this._optimizedLinkOutNode.getId() +
@@ -612,6 +630,11 @@ class DagGraphExecutor {
                 });
             } else {
                 deferred.reject(error);
+            }
+        })
+        .always(() => {
+            if (subGraph != null) {
+                subGraph.stopExecution();
             }
         });
 

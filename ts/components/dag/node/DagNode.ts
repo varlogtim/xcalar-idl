@@ -48,6 +48,10 @@ abstract class DagNode {
         this.title = options.title || "";
         this.table = options.table;
         this.state = options.state || DagNodeState.Unused;
+        if (this.state === DagNodeState.Running) {
+            // cannot be running state when create
+            this.state = DagNodeState.Configured;
+        }
         const coordinates = options.display || {x: -1, y: -1};
         this.display = {coordinates: coordinates, icon: "", description: ""};
         this.input = new DagNodeInput({});

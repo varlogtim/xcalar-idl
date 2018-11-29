@@ -1,10 +1,10 @@
 <div id = "dagViewBar" class="topBar">
     <header id="dagViewTitle" class="title">CREATING DATAFLOWS</header>
     <div class="topButtons">
-        <div class="topButton run">
+        <div class="topButton run" data-toggle="tooltip" data-container="body" data-placement="left" data-title="<%= dicts.dag.executeAll %>">
             <i class="icon xi-play-circle"></i>
         </div>
-        <div class="topButton stop">
+        <div class="topButton stop" data-toggle="tooltip" data-container="body" data-placement="left" data-title="<%= dicts.dag.cancelExecute %>">
             <i class="icon xi-stop-circle"></i>
         </div>
         <div class="divider"></div>
@@ -28,10 +28,10 @@
             <i class="icon xi-upload"></i>
         </div>
         <div class="divider"></div>
-        <div class="topButton zoomIn" data-toggle="tooltip" data-container="body" data-placement="left">
+        <div class="topButton zoomIn" data-toggle="tooltip" data-container="body" data-placement="left" data-title="<%= dicts.dag.zoomIn %>">
             <i class="icon xi-plus-circle-outline"></i>
         </div>
-        <div class="topButton zoomOut" data-toggle="tooltip" data-container="body" data-placement="left">
+        <div class="topButton zoomOut" data-toggle="tooltip" data-container="body" data-placement="left" data-title="<%= dicts.dag.zoomOut %>">
             <i class="icon xi-minus-circle-outline"></i>
         </div>
         <div class="topButton undo" data-toggle="tooltip" data-container="body" data-placement="left">

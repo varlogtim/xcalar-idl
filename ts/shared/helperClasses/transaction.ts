@@ -262,9 +262,6 @@ namespace Transaction {
             if (hasTableChange) {
                 MonitorGraph.tableUsageChange();
             }
-            if (txLog.nodeId != null) {
-                DagView.removeProgress(txLog.nodeId, txLog.tabId);
-            }
         }
 
         // remove transaction
@@ -466,7 +463,7 @@ namespace Transaction {
         if (!has_require && (dstTableName || timeObj != null)) {
             QueryManager.subQueryDone(txId, dstTableName, timeObj, options);
         }
-    };
+    }
 
     /**
      * Transaction.startSubQuery
@@ -476,7 +473,13 @@ namespace Transaction {
      * @param query
      * @param options
      */
-    export function startSubQuery(txId, name, dstTable, query, options?): void {
+    export function startSubQuery(
+        txId: number,
+        name: string,
+        dstTable: string,
+        query: string,
+        options?
+    ): void {
         if (has_require) {
             return;
         }
@@ -523,7 +526,7 @@ namespace Transaction {
     /**
      * Transaction.getCache
      */
-    export function getCache(id?: number): object {
+    export function getCache(id?: number): {[key: string]: TXLog} {
         if (id == null) {
             return txCache;
         } else {
@@ -550,6 +553,12 @@ namespace Transaction {
     }
 
     function removeTX(txId: number): void {
+        if (!has_require) {
+            const txLog: TXLog = txCache[txId];
+            if (txLog && txLog.nodeId != null) {
+                DagView.removeProgress(txLog.nodeId, txLog.tabId);
+            }
+        }
         delete disabledCancels[txId];
         delete txCache[txId];
     }

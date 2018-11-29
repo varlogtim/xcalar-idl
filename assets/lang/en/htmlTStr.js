@@ -865,7 +865,7 @@ module.exports = {
         "ShareDS": "Share datasets used in the dataflow",
         "ShareDSHint": "Shared dataflow cannot access private datasets, to make the dataflow executable, datasets used in the dataflow need to be shared",
         "DestSelectionTitle": "Specify dataflow destination",
-        "DownloadDF": "Download dataflow",
+        "DownloadDF": "Download Dataflow",
         "DownloadAs": "Download as",
         "DataflowTitle": "Batch Dataflow",
         "header": "Batch Dataflow",
@@ -897,7 +897,7 @@ module.exports = {
         "Settings": "Dataflow settings",
         // For uploader
         "upload": "UPLOAD",
-        "uploadHeader": "Upload dataflow",
+        "uploadHeader": "Upload Dataflow",
         "uploadInstr": "Upload a previously downloaded dataflow into Xcalar. Your file should be of the format .tar.gz",
         "overwriteUdf": "Overwrite UDFs",
         "overwriteUdfHint": "Overwrite UDFs of the same module name with those inside this dataflow"
@@ -1433,6 +1433,9 @@ module.exports = {
         "executeAll": "Execute All",
         "executeOptimized": "Execute Optimized",
         "executeAllOptimized": "Execute All Optimized",
+        "cancelExecute": "Cancel Execution",
+        "zoomIn": "Zoom In",
+        "zoomOut": "Zoom Out",      
         "reset": "Reset",
         "resetAll": "Reset All",
         "previewTable": "Preview Table",
