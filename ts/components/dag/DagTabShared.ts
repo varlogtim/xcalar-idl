@@ -209,7 +209,7 @@ class DagTabShared extends DagTab {
 
     public download(name: string, optimized?: boolean): XDPromise<void> {
         let fileName: string = name || this.getShortName();
-        fileName += ".tar.gz";
+        fileName += ".xlrdf.tar.gz";
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const writeOptimizedArgsDef: XDPromise<void> = optimized ?
         this._writeOptimizedRetinaArgs() : PromiseHelper.resolve();

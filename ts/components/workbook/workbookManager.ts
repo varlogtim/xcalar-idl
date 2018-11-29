@@ -466,7 +466,7 @@ namespace WorkbookManager {
 
         XcalarDownloadWorkbook(workbookName, jupyterFolderPath)
         .then(function(file) {
-            xcHelper.downloadAsFile(workbookName + ".tar.gz", file.sessionContent, true);
+            xcHelper.downloadAsFile(workbookName + ".xlrwb.tar.gz", file.sessionContent, true);
             deferred.resolve();
         })
         .fail(function(err) {
