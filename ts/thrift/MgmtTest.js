@@ -793,7 +793,7 @@ window.Function.prototype.bind = function() {
         .then(function(result) {
             printResult(result);
             loadOutput = result;
-            test.assert(result.numBytes >= 17432576);
+            test.assert(result.numBytes >= 17039360);
             test.assert(result.numFiles == 1);
             origDataset = loadOutput.dataset.name;
             yelpUserDataset = loadOutput.dataset.name;
@@ -865,27 +865,27 @@ window.Function.prototype.bind = function() {
                 return;
             }
 
-            return (xcalarApiDeleteDatasets(thriftHandle, yelpTipDataset));
+            return (xcalarDatasetUnload(thriftHandle, yelpTipDataset));
         })
-        .then(function(deleteDatasetsOutput) {
-            console.log("deleteDatasetsOutput.numNodes:", deleteDatasetsOutput.numDatasets);
-            for (var ii = 0; ii < deleteDatasetsOutput.numDatasets; ii++) {
-                var deleteDatasetStatus = deleteDatasetsOutput.statuses[ii];
-                console.log(deleteDatasetStatus.dataset.name,
-                            StatusTStr[deleteDatasetStatus.status]);
+        .then(function(datasetUnloadOutput) {
+            console.log("datasetUnloadOutput.numNodes:", datasetUnloadOutput.numDatasets);
+            for (var ii = 0; ii < datasetUnloadOutput.numDatasets; ii++) {
+                var datasetUnloadStatus = datasetUnloadOutput.statuses[ii];
+                console.log(datasetUnloadStatus.dataset.name,
+                            StatusTStr[datasetUnloadStatus.status]);
             }
 
-            if (deleteDatasetsOutput.numDatasets != 1) {
+            if (datasetUnloadOutput.numDatasets != 1) {
                 test.fail("number of datasets deleted != 1");
                 return;
             }
 
-            if (deleteDatasetsOutput.statuses[0].dataset.name != yelpTipDataset) {
+            if (datasetUnloadOutput.statuses[0].dataset.name != yelpTipDataset) {
                 test.fail("dataset deleted is not", yelpTipDataset);
                 return;
             }
 
-            if (deleteDatasetsOutput.statuses[0].status != StatusT.StatusOk) {
+            if (datasetUnloadOutput.statuses[0].status != StatusT.StatusOk) {
                 test.fail("Failed to delete dataset");
                 return;
             }
@@ -981,16 +981,15 @@ window.Function.prototype.bind = function() {
                             StatusTStr[delDsStatus.status]);
             }
 
-            return (xcalarApiDeleteDatasets(thriftHandle, "*"));
+            return (xcalarDatasetUnload(thriftHandle, "*"));
         })
-        .then(function(deleteDatasetsOutput) {
-            printResult(deleteDatasetsOutput);
+        .then(function(datasetUnloadOutput) {
 
-            for (var ii = 0, delDsStatus = null;
-                 ii < deleteDatasetsOutput.numDatasets; ii++) {
-                delDsStatus = deleteDatasetsOutput.statuses[ii];
-                console.log("\t" + delDsStatus.dataset.name + ": " +
-                            StatusTStr[delDsStatus.status]);
+            for (var ii = 0, unloadDsStatus = null;
+                 ii < datasetUnloadOutput.numDatasets; ii++) {
+                unloadDsStatus = datasetUnloadOutput.statuses[ii];
+                console.log("\t" + unloadDsStatus.dataset.name + ": " +
+                            StatusTStr[unloadDsStatus.status]);
             }
             test.pass();
         })
@@ -1050,7 +1049,7 @@ window.Function.prototype.bind = function() {
                         datasetInfo.datasetSize);
                     for (var k = 0; k < datasetInfo.numColumns; k++) {
                         console.log("\tdataset[" + i.toString() + "].columnName[" +
-                            k.toString() + "] = " + datasetInfo.columnNames[k]);
+                            k.toString() + "] = " + datasetInfo.columns[k].name);
                     }
                 }
 
@@ -1128,7 +1127,7 @@ window.Function.prototype.bind = function() {
         var parseArgs = new ParseArgsT();
         xcalarLoad(thriftHandle, dsTestDatasetName, [sourceArgs], parseArgs, 0)
         .then(function(result) {
-            test.assert(result.numBytes >= 17432576);
+            test.assert(result.numBytes >= 17039360);
             test.assert(result.numFiles == 1);
             test.pass();
         })
@@ -1139,7 +1138,9 @@ window.Function.prototype.bind = function() {
 
     function testDatasetUnload(test) {
         xcalarDatasetUnload(thriftHandle, dsTestDatasetName)
-        .then(function() {
+        .then(function(result) {
+            printResult(result);
+            test.assert(result.numDatasets == 1);
             test.pass();
         })
         .fail(function(reason) {
@@ -3870,16 +3871,16 @@ window.Function.prototype.bind = function() {
                 console.log("\t" + delTableStatus.nodeInfo.name + ": " +
                             StatusTStr[delTableStatus.status]);
             }
-            return (xcalarApiDeleteDatasets(thriftHandle, "*"));
+            return (xcalarDatasetUnload(thriftHandle, "*"));
         })
-        .then(function(deleteDatasetsOutput) {
-            printResult(deleteDatasetsOutput);
+        .then(function(datasetUnloadOutput) {
+            printResult(datasetUnloadOutput);
 
-            for (var ii = 0, delDatasetStatus = null;
-                 ii < deleteDatasetsOutput.numDatasets; ii++) {
-                delDatasetStatus = deleteDatasetsOutput.statuses[ii];
-                console.log("\t" + delDatasetStatus.dataset.name + ": " +
-                            StatusTStr[delDatasetStatus.status]);
+            for (var ii = 0, unloadDatasetStatus = null;
+                 ii < datasetUnloadOutput.numDatasets; ii++) {
+                unloadDatasetStatus = datasetUnloadOutput.statuses[ii];
+                console.log("\t" + unloadDatasetStatus.dataset.name + ": " +
+                            StatusTStr[unloadDatasetStatus.status]);
             }
 
             test.pass();
@@ -3894,23 +3895,23 @@ window.Function.prototype.bind = function() {
             xcalarDeleteDagNodes(thriftHandle, moviesDataset, SourceTypeT.SrcDataset)
             .then(function(deleteDagNodesOutput) {
                 printResult(deleteDagNodesOutput);
-                return (xcalarApiDeleteDatasets(thriftHandle, moviesDataset));
+                return (xcalarDatasetUnload(thriftHandle, moviesDataset));
             })
-            .then(function(deleteDatasetsOutput) {
-                printResult(deleteDatasetsOutput);
-                if (deleteDatasetsOutput.numDatasets != 1) {
+            .then(function(datasetUnloadOutput) {
+                printResult(datasetUnloadOutput);
+                if (datasetUnloadOutput.numDatasets != 1) {
                     test.fail("NumDatasets != 1");
                     return;
                 }
 
-                if (deleteDatasetsOutput.statuses[0].dataset.name != moviesDataset) {
-                    test.fail("Dataset we got " + deleteDatasetsOutput.statuses[0].dataset.name + ", " +
+                if (datasetUnloadOutput.statuses[0].dataset.name != moviesDataset) {
+                    test.fail("Dataset we got " + datasetUnloadOutput.statuses[0].dataset.name + ", " +
                               "Dataset we expected " + moviesDataset);
                     return;
                 }
 
-                if (deleteDatasetsOutput.statuses[0].status != StatusT.StatusOk) {
-                    test.fail("Delete dataset returned status: " + StatusTStr[deleteDatasetsOutput.statuses[0].status]);
+                if (datasetUnloadOutput.statuses[0].status != StatusT.StatusOk) {
+                    test.fail("Delete dataset returned status: " + StatusTStr[datasetUnloadOutput.statuses[0].status]);
                     return;
                 }
 
@@ -4263,13 +4264,13 @@ window.Function.prototype.bind = function() {
         })
         .then(function(deleteDagNodesOutput) {
             printResult(deleteDagNodesOutput);
-            return (xcalarApiDeleteDatasets(thriftHandle, dsName));
+            return (xcalarDatasetUnload(thriftHandle, dsName));
         })
-        .then(function(deleteDatasetsOutput) {
-            printResult(deleteDatasetsOutput);
-            test.assert(deleteDatasetsOutput.numDatasets == 1);
-            test.assert(deleteDatasetsOutput.statuses[0].dataset.name == dsName);
-            test.assert(deleteDatasetsOutput.statuses[0].status == StatusT.StatusOk);
+        .then(function(datasetUnloadOutput) {
+            printResult(datasetUnloadOutput);
+            test.assert(datasetUnloadOutput.numDatasets == 1);
+            test.assert(datasetUnloadOutput.statuses[0].dataset.name == dsName);
+            test.assert(datasetUnloadOutput.statuses[0].status == StatusT.StatusOk);
             test.pass();
         })
         .fail(function(reason) {
@@ -4455,10 +4456,10 @@ window.Function.prototype.bind = function() {
         })
         .then(function(deleteDagNodesOutput) {
             printResult(deleteDagNodesOutput);
-            return (xcalarApiDeleteDatasets(thriftHandle, parquetDsName))
+            return (xcalarDatasetUnload(thriftHandle, parquetDsName))
         })
-        .then(function(deleteDatasetsOutput) {
-            printResult(deleteDatasetsOutput);
+        .then(function(datasetUnloadOutput) {
+            printResult(datasetUnloadOutput);
             test.pass();
         })
         .fail(function(reason) {

@@ -1663,7 +1663,9 @@ window.DS = (function ($, DS) {
                         var name = fullName.substring(gDSPrefix.length);
                         dsInfos[name] = {
                             size: dataset.datasetSize,
-                            headers: dataset.columnNames,
+                            headers: dataset.columns.map((colInfo) => {
+                                return colInfo.name;
+                            }),
                             totalNumErrors: dataset.totalNumErrors,
                             downSampled: dataset.downSampled
                         };

@@ -146,5 +146,6 @@ declare enum XcalarApisT {
   XcalarApiDatasetGetMeta = 144,
   XcalarApiUdfGetResolution = 145,
   XcalarApiCgroup = 146,
-  XcalarApiFunctionInvalid = 147
+  XcalarApiQueryList = 147,
+  XcalarApiFunctionInvalid = 148
 }

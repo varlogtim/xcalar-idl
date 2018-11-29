@@ -1883,6 +1883,45 @@ xcalarQueryCancel = runEntity.xcalarQueryCancel = function(thriftHandle, queryNa
     return (deferred.promise());
 };
 
+xcalarQueryListWorkItem = runEntity.xcalarQueryListWorkItem = function(namePattern) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.input.queryListInput = new XcalarApiQueryListInputT();
+
+    workItem.api = XcalarApisT.XcalarApiQueryList;
+    workItem.input.queryListInput.namePattern = namePattern;
+    return (workItem);
+};
+
+xcalarQueryList = runEntity.xcalarQueryList = function(thriftHandle, namePattern) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarQueryList(name = " + namePattern + ")");
+    }
+
+    var workItem = xcalarQueryListWorkItem(namePattern);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .done(function(result) {
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
+        }
+    })
+    .fail(function(error) {
+        console.log("xcalarQueryList() caught exception:", error);
+        deferred.reject(handleRejection(error));
+    });
+
+    return (deferred.promise());
+};
+
 xcalarQueryDeleteWorkItem = runEntity.xcalarQueryDeleteWorkItem = function(queryName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -2482,7 +2521,7 @@ xcalarDatasetUnload = runEntity.xcalarDatasetUnload = function(thriftHandle, dat
         console.log("xcalarDatasetUnload(datasetNamePattern = " + datasetNamePattern + ")");
     }
 
-    var workItem = xcalarApiDatasetUnloadWorkItem(datasetNamePattern);
+    var workItem = xcalarDatasetUnloadWorkItem(datasetNamePattern);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -3546,13 +3585,18 @@ xcalarApiSynthesizeWorkItem = runEntity.xcalarApiSynthesizeWorkItem = function(s
     } else {
         workItem.input.synthesizeInput.numColumns = 0;
     }
+
+    if (sameSession) {
+        workItem.input.synthesizeInput.sameSession = sameSession;
+    } else {
+        workItem.input.synthesizeInput.sameSession = true;
+    }
+
     workItem.input.synthesizeInput.columns = columns;
-    workItem.input.synthesizeInput.sameSession = sameSession;
     return (workItem);
 };
 
-xcalarApiSynthesize = runEntity.xcalarApiSynthesize = function(thriftHandle, srcTableName,
-                                        dstTableName, columns, sameSession) {
+xcalarApiSynthesize = runEntity.xcalarApiSynthesize = function(thriftHandle, srcTableName, dstTableName, columns, sameSession) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSynthesize(srcTableName = " + srcTableName +
@@ -5962,56 +6006,6 @@ xcalarApiListFuncTest = runEntity.xcalarApiListFuncTest = function(thriftHandle,
     })
     .fail(function(error) {
         console.log("xcalarApiListFuncTest() caught exception: ", error);
-        deferred.reject(handleRejection(error));
-    });
-
-    return (deferred.promise());
-};
-
-// Deprecated
-xcalarApiDeleteDatasetsWorkItem = runEntity.xcalarApiDeleteDatasetsWorkItem = function(datasetNamePattern) {
-    var workItem = new WorkItem();
-    workItem.input = new XcalarApiInputT();
-    workItem.input.deleteDatasetsInput = new XcalarApiDeleteDatasetsInputT();
-
-    workItem.api = XcalarApisT.XcalarApiDeleteDatasets;
-    workItem.input.deleteDatasetsInput.delInput = datasetNamePattern;
-
-    return (workItem);
-};
-
-// XXX: Tests calling this expect that all datasets matching the pattern are
-// unloaded.  This is functionally equivalent to unloading datasets.
-xcalarApiDeleteDatasets = runEntity.xcalarApiDeleteDatasets = function (thriftHandle, datasetNamePattern) {
-    var deferred = jQuery.Deferred();
-
-    if (verbose) {
-        console.log("xcalarApiDeleteDatasets(datasetNamePattern = ", datasetNamePattern, ")");
-    }
-
-    var workItem = xcalarApiDeleteDatasetsWorkItem(datasetNamePattern);
-
-    thriftHandle.client.queueWorkAsync(workItem)
-    .then(function(result) {
-        var deleteDatasetsOutput = result.output.outputResult.deleteDatasetsOutput;
-        var status = result.output.hdr.status;
-        var log = result.output.hdr.log;
-
-        if (result.jobStatus != StatusT.StatusOk) {
-            status = result.jobStatus;
-        }
-
-        if (status != StatusT.StatusOk) {
-            deferred.reject({xcalarStatus: status, log: log});
-        } else {
-            deleteDatasetsOutput.timeElapsed =
-            result.output.hdr.elapsed.milliseconds;
-
-            deferred.resolve(deleteDatasetsOutput);
-        }
-    })
-    .fail(function(error) {
-        console.log("xcalarApiDeleteDatasets() caught exceptions: ", error);
         deferred.reject(handleRejection(error));
     });
 

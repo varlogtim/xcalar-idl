@@ -233,11 +233,6 @@ declare function xcalarDeleteDagNodesWorkItem(
     srcType: SourceTypeT
 ): WorkItem;
 
-declare function xcalarApiDeleteDatasets(
-    thriftHandle: ThriftHandler,
-    datasetNamePattern: string
-): XDPromise<any>;
-
 declare function xcalarGetDatasetMeta(
     thriftHandle: ThriftHandler,
     datasetName: string
@@ -489,6 +484,15 @@ declare function xcalarArchiveTablesWorkItem(
 declare function xcalarArchiveTables(
     thriftHandle: ThriftHandler,
     tableNames: string[]
+): XDPromise<any>;
+
+declare function xcalarQueryListWorkItem(
+    namePattern: string
+): WorkItem;
+
+declare function xcalarQueryList(
+    thriftHandle: ThriftHandler,
+    namePattern: string
 ): XDPromise<any>;
 
 declare function xcalarQuery(

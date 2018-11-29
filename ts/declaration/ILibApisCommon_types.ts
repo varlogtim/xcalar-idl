@@ -286,14 +286,14 @@ declare class XcalarApiDatasetsInfoT {
 	totalNumErrors: number;
 	datasetSize: number;
 	numColumns: number;
-	columnNames: string[];
+	columns: XcalarApiColumnInfoT[];
 	constructor(args?: {
 		datasetName?: string,
 		downSampled?: boolean,
 		totalNumErrors?: number,
 		datasetSize?: number,
 		numColumns?: number,
-		columnNames?: string[],
+		columnNames?: XcalarApiColumnInfoT[],
 	});
 }
 declare class XcalarApiUdfLoadArgsT {
@@ -1038,22 +1038,6 @@ declare class XcalarApiDeleteDagNodeOutputT {
 		statuses?: XcalarApiDeleteDagNodeStatusT[],
 	});
 }
-declare class XcalarApiDeleteDatasetStatusT {
-	dataset: XcalarApiDatasetT;
-	status: number;
-	constructor(args?: {
-		dataset?: XcalarApiDatasetT,
-		status?: number,
-	});
-}
-declare class XcalarApiDeleteDatasetsOutputT {
-	numDatasets: number;
-	statuses: XcalarApiDeleteDatasetStatusT[];
-	constructor(args?: {
-		numDatasets?: number,
-		statuses?: XcalarApiDeleteDatasetStatusT[],
-	});
-}
 declare class XcalarApiNewTableOutputT {
 	tableName: string;
 	constructor(args?: {
@@ -1204,6 +1188,26 @@ declare class XcalarApiMemoryInputT {
 	tagName: string;
 	constructor(args?: {
 		tagName?: string,
+	});
+}
+declare class XcalarApiQueryListInputT {
+	namePattern: string;
+	constructor(args?: {
+		namePattern?: string,
+	});
+}
+declare class XcalarApiQueryListOutputT {
+	queries: XcalarApiQueryInfoT[];
+	constructor(args?: {
+		queries?: XcalarApiQueryInfoT[],
+	});
+}
+declare class XcalarApiQueryInfoT {
+	name: string;
+	elapsed: XcalarApiTimeT;
+	constructor(args?: {
+		name?: string,
+		elapsed?: XcalarApiTimeT,
 	});
 }
 declare class XcalarApiQueryInputT {
@@ -1683,10 +1687,12 @@ declare class XcalarApiSynthesizeInputT {
 	source: string;
 	dest: string;
 	columns: XcalarApiColumnT[];
+	sameSession: boolean;
 	constructor(args?: {
 		source?: string,
 		dest?: string,
 		columns?: XcalarApiColumnT[],
+		sameSession?: boolean;
 	});
 }
 declare class XcalarApiPublishInputT {
@@ -1850,6 +1856,7 @@ declare class XcalarApiInputT {
 	userDetachInput: XcalarApiUserDetachInputT;
 	sessionActivateInput: XcalarApiSessionActivateInputT;
 	cgroupInput: XcalarApiCgroupInputT;
+	queryListInput: XcalarApiQueryListInputT;
 	constructor(args?: {
 		loadInput?: XcalarApiBulkLoadInputT,
 		indexInput?: XcalarApiIndexInputT,
@@ -1947,6 +1954,7 @@ declare class XcalarApiInputT {
 		userDetachInput?: XcalarApiUserDetachInputT,
 		sessionActivateInput?: XcalarApiSessionActivateInputT,
 		cgroupInput?: XcalarApiCgroupInputT,
+		queryListInput?: XcalarApiQueryListInputT,
 	});
 }
 declare class XcalarApiDagNodeT {
@@ -2389,7 +2397,6 @@ declare class XcalarApiOutputResultT {
 	startFuncTestOutput: XcalarApiStartFuncTestOutputT;
 	listFuncTestOutput: XcalarApiListFuncTestOutputT;
 	executeRetinaOutput: XcalarApiNewTableOutputT;
-	deleteDatasetsOutput: XcalarApiDeleteDatasetsOutputT;
 	getConfigParamsOutput: XcalarApiGetConfigParamsOutputT;
 	getLicenseOutput: XcalarApiGetLicenseOutputT;
 	appRunOutput: XcalarApiAppRunOutputT;
@@ -2416,6 +2423,7 @@ declare class XcalarApiOutputResultT {
 	selectOutput: XcalarApiNewTableOutputT;
 	updateOutput: XcalarApiUpdateOutputT;
 	cgroupOutput: XcalarApiCgroupOutputT;
+	queryListOutput: XcalarApiQueryListOutputT;
 	constructor(args?: {
 		getVersionOutput?: XcalarApiGetVersionOutputT,
 		statusOutput?: number,
@@ -2461,7 +2469,6 @@ declare class XcalarApiOutputResultT {
 		startFuncTestOutput?: XcalarApiStartFuncTestOutputT,
 		listFuncTestOutput?: XcalarApiListFuncTestOutputT,
 		executeRetinaOutput?: XcalarApiNewTableOutputT,
-		deleteDatasetsOutput?: XcalarApiDeleteDatasetsOutputT,
 		getConfigParamsOutput?: XcalarApiGetConfigParamsOutputT,
 		getLicenseOutput?: XcalarApiGetLicenseOutputT,
 		appRunOutput?: XcalarApiAppRunOutputT,
@@ -2488,6 +2495,7 @@ declare class XcalarApiOutputResultT {
 		selectOutput?: XcalarApiNewTableOutputT,
 		updateOutput?: XcalarApiUpdateOutputT,
 		cgroupOutput?: XcalarApiCgroupOutputT,
+		queryListOutput?: XcalarApiQueryListOutputT,
 	});
 }
 declare class XcalarApiOutputHeaderT {
