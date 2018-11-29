@@ -572,7 +572,11 @@ class DagGraphExecutor {
         })
         .then((_res) => {
             this._executeInProgress = false;
-            this._getAndUpdateRetinaStatuses(retinaName, true);
+            this._getAndUpdateRetinaStatuses(retinaName, true)
+            .always(() => {
+                XcalarDeleteRetina(retinaName);
+                deferred.resolve(outputTableName);
+            });
 
             this._nodes.forEach((node) => {
                 if (node.getType() === DagNodeType.DFOut ||
@@ -591,13 +595,8 @@ class DagGraphExecutor {
                 noSql: true,
                 noCommit: true
             });
-            deferred.resolve(outputTableName);
         })
         .fail((error) => {
-            if (this._executeInProgress) {
-                this._executeInProgress = false;
-                this._getAndUpdateRetinaStatuses(retinaName, false);
-            }
             if (txId != null) {
                 Transaction.fail(txId, {
                     "failMsg": StatusMessageTStr.ProfileFailed,
@@ -605,12 +604,16 @@ class DagGraphExecutor {
                     "noAlert": true
                 });
             }
-            deferred.reject(error);
-        })
-        .always(() => {
-            // clean up retina
-            if (txId != null) {
-                XcalarDeleteRetina(retinaName);
+
+            if (this._executeInProgress) {
+                this._executeInProgress = false;
+                this._getAndUpdateRetinaStatuses(retinaName, false)
+                .always(() => {
+                    XcalarDeleteRetina(retinaName);
+                    deferred.reject(error);
+                });
+            } else {
+                deferred.reject(error);
             }
         });
 
