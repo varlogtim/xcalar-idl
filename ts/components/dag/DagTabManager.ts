@@ -267,6 +267,14 @@ class DagTabManager{
         DagView.resetActiveDagTab();
     }
 
+    public lockTab(tabId: string): void {
+        this._getTabEleById(tabId).find(".after").addClass("xc-disabled");
+    }
+
+    public unlockTab(tabId: string): void {
+        this._getTabEleById(tabId).find(".after").removeClass("xc-disabled");
+    }
+
     private _save(): XDPromise<void> {
         let jsonStr: string = JSON.stringify(this._getJSON());
         return this._dagKVStore.put(jsonStr, true, true);
@@ -447,7 +455,7 @@ class DagTabManager{
         return true;
     }
 
-    private _deleteTableAction(index: number, name: string): void {
+    private _deleteTabAction(index: number, name: string): void {
         const dagTab: DagTab = this.getTabByIndex(index);
         const deleteFunc = () => {
             const tabId: string = dagTab.getId();
@@ -561,16 +569,10 @@ class DagTabManager{
     private _addTabEvents(dagTab: DagTab): void {
         dagTab
         .on("modify", () => {
-            const index: number = this.getTabIndex(dagTab.getId());
-            if (index >= 0) {
-                this._getTabsEle().eq(index).addClass("unsave");
-            }
+            this._getTabEleById(dagTab.getId()).addClass("unsave");
         })
         .on("save", () => {
-            const index: number = this.getTabIndex(dagTab.getId());
-            if (index >= 0) {
-                this._getTabsEle().eq(index).removeClass("unsave");
-            }
+            this._getTabEleById(dagTab.getId()).removeClass("unsave");
         });
     }
 
@@ -633,6 +635,15 @@ class DagTabManager{
         return this._getTabArea().find(".dagTab");
     }
 
+    private _getTabEleById(tabId: string): JQuery {
+        const index: number = this.getTabIndex(tabId);
+        if (index >= 0) {
+            return this._getTabsEle().eq(index);
+        } else {
+            return $();
+        }
+    }
+
     private _tabRenameCheck(name: string, $tab: JQuery): boolean {
         const isValid: boolean = xcHelper.validate([{
             $ele: $tab,
@@ -657,7 +668,7 @@ class DagTabManager{
             event.stopPropagation();
             const $tab: JQuery = $(event.currentTarget).parent();
             const index: number = $tab.index();
-            this._deleteTableAction(index, $tab.text());
+            this._deleteTabAction(index, $tab.text());
         });
 
         $dagTabArea.on("click", ".dagTab", (event) => {

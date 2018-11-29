@@ -279,6 +279,7 @@ namespace DagNodeMenu {
             }
         });
         Log.lockUndoRedo();
+        DagTabManager.Instance.lockTab(tabId);
         DagTopBar.Instance.lock();
         MainMenu.closeForms(); // close opened forms first
         // Nodes in SQL sub graph can't be configured
@@ -373,6 +374,7 @@ namespace DagNodeMenu {
             DagView.unlockNode(node.getId(), tabId);
             Log.unlockUndoRedo();
             DagTopBar.Instance.unlock();
+            DagTabManager.Instance.unlockTab(tabId);
         }
     }
 
