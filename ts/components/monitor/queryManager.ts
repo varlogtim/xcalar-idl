@@ -857,12 +857,19 @@ namespace QueryManager {
                 return PromiseHelper.reject();
             }
             const deferred: XDDeferred<any> = PromiseHelper.deferred();
+            const currStepAtCheck = mainQuery.currStep;
             const queryName: string = mainQuery.subQueries[mainQuery.currStep].queryName;
             xcalarQueryCheckHelper(id, queryName)
             .then(function(res) {
                 if (mainQuery.state === QueryStatus.Error ||
                     mainQuery.state === QueryStatus.Cancel ||
                     mainQuery.state === QueryStatus.Done) {
+                    deferred.reject();
+                    return;
+                }
+                // this can happen if subQuery done is called before
+                // xcalarQueryCheckHelper returns
+                if (mainQuery.currStep !== currStepAtCheck) {
                     deferred.reject();
                     return;
                 }
