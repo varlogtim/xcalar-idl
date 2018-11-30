@@ -106,7 +106,6 @@ interface GetNumRowsOptions {
 }
 
 interface GlobalKVKeySet {
-    gEphStorageKey: string;
     gSettingsKey: string;
     gSharedDSKey: string;
 }
@@ -753,11 +752,6 @@ declare namespace XcalarEvalArgTypeT {
     export var OptionalArg: number;
     export var VariableArg: number;
 }
-
-declare namespace UploadDataflowCard {
-    export function show(): void;
-}
-
 /* ============== CLASSES ====================== */
 declare class ColFunc {
     constructor(obj);
@@ -888,11 +882,6 @@ declare class METAConstructor {
     public getTableMeta(): TableMeta[];
     public getStatsMeta(): object;
     public getLogCMeta(): number;
-}
-
-declare class EMetaConstructor {
-    public constructor(meta: object);
-    public update(): void;
 }
 
 declare class UserInfoConstructor {
@@ -1089,44 +1078,6 @@ declare namespace BottomMenu {
     export function close(something?: boolean): void;
 }
 
-declare namespace Dag {
-    export function addEventListeners($dagWrap: JQuery): void;
-    export function removeNoDelete(tableId: TableId): void;
-    export function renameAllOccurrences(oldTableName: string, newTableName: string): void;
-    export function makeTableNoDelete(tableName: string): void;
-    export function generateIcvTable(tableId: TableId, tableName: string): void;
-    export function generateComplementTable(tableName: string): void
-    export function getTableInfo(tableId: TableId, $dagTable: JQuery): {isIcv: boolean, generatingIcv: boolean, canBeIcv: boolean, hasDroppedParent: boolean, generatingComplement: boolean, type: string};
-    export function focusDagForActiveTable(tableId: TableId, tableFocused: boolean);
-    export function construct(tableId: TableId, tableToReplace: string, options: object): XDPromise<void>;
-    export function destruct(tableId: TableId): void;
-    export function makeInactive(tableIdOrName: string | TableId, nameProvided: boolean): void;
-}
-
-declare namespace DagDraw {
-    export function createDagImage(node: any, $dagWrap: JQuery): void;
-}
-
-declare namespace DagPanel {
-    export function setup(): void;
-    export function adjustScrollBarPositionAndSize(): void;
-    export function updateExitMenu(name?: string): void;
-    export function setScrollBarId(winHeight: number): void;
-    export function focusOnWorksheet(ws: string): void;
-}
-
-declare namespace DagEdit {
-    export function isEditMode(): boolean;
-    export function exitForm(): void;
-    export function off(): void;
-}
-
-declare namespace DataflowPanel {
-    export function setup(): void;
-    export function initialize(): void;
-    export function refresh(dfName: string): void;
-}
-
 declare namespace DataStore {
     export function setup(): void;
 }
@@ -1175,21 +1126,6 @@ declare namespace Profile {
     export function copy(tableId: TableId, newTableId: TableId): void;
     export function show(tableId: TableId, colNum: number): void;
     export function deleteCache(tableId: TableId): void;
-}
-
-declare namespace DF {
-    export function wasRestored(): boolean;
-    export function getDataflow(dfName: string): any;
-    export function getParamMap(): object;
-    export function updateParamMap(paramMap: object): void;
-}
-
-declare namespace DFCard {
-    export function adjustScrollBarPositionAndSize(): void;
-    export function getCurrentDF(): string;
-    export function cancelDF(retName: string, txId: number): XDPromise<any>;
-    export function getProgress(queryName: string): DFProgressData;
-
 }
 
 declare namespace JupyterUDFModal {
@@ -1282,17 +1218,6 @@ declare namespace AggModal {
     export function corrAgg(tableId: TableId, vertColNums?: number[], horColNums?: number[]): void;
 }
 
-declare namespace DFCreateView {
-    export function setup(): void;
-    export function updateTables(tableId: TableId, something: boolean);
-    export function show($dagWrap: JQuery): void
-}
-
-declare namespace DFParamModal {
-    export function setup(): void;
-    export function updateDraggableInputs(): void;
-}
-
 declare namespace FileBrowser {
     export function restore(): void;
 }
@@ -1343,10 +1268,6 @@ declare namespace LiveHelpModal {
 }
 
 declare namespace JupyterFinalizeModal {
-    export function setup(): void;
-}
-
-declare namespace DFCommentModal {
     export function setup(): void;
 }
 

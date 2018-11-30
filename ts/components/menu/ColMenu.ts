@@ -214,8 +214,6 @@ class ColMenu extends AbstractMenu {
             const $li: JQuery = $(event.currentTarget);
             if ($li.hasClass("exitExt")) {
                 BottomMenu.close();
-            } else if ($li.hasClass("exitDFEdit")) {
-                DagEdit.off();
             } else {
                 MainMenu.closeForms();
             }

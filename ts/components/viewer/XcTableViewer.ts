@@ -464,7 +464,7 @@ class XcTableViewer extends XcViewer {
             const tableId: TableId = this.table.getId();
             if (needsFocusing) {
                 needsFocusing = false;
-                TblFunc.focusTable(tableId, false);
+                TblFunc.focusTable(tableId);
                 clearElements();
             }
 

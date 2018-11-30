@@ -79,9 +79,6 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
     };
 
     DeleteTableModal.show = function() {
-        if (DagEdit.isEditMode()) {
-            return PromiseHelper.resolve();
-        }
         if ($modal.is(":visible")) {
             // in case modal show is triggered when
             // it's already open

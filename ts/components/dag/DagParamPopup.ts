@@ -3,14 +3,6 @@ class DagParamPopup extends ParamPopup {
         super($panel, $btnContainer);
     }
 
-    protected appendPopup() {
-        $("#paramPopUp").appendTo($("#modelingDagPanel"));
-    }
-
-    protected hidePopup() {
-        ParamPopup.restorePopup();
-    }
-
     protected getParams() {
         const params = DagParamManager.Instance.getParamMap();
         const paramStructs = {};

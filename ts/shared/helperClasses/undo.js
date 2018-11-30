@@ -420,7 +420,7 @@ window.Undo = (function($, Undo) {
 
     function focusTableHelper(options) {
         if (options.tableId !== gActiveTableId) {
-            TblFunc.focusTable(options.tableId, true);
+            TblFunc.focusTable(options.tableId);
         }
     }
 

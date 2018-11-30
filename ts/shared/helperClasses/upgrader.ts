@@ -106,18 +106,6 @@ class Upgrader {
         return deferred.promise();
     }
 
-    private _upgradeEphMeta(gEphStorageKey: string): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        this._upgradeHelper(gEphStorageKey, gKVScope.GLOB, 'EMetaConstructor')
-            .then((eMeta) => {
-                this._globalCache.set('eMeta', eMeta);
-                deferred.resolve();
-            })
-            .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
     private _upgradeGenSettings(gSettingsKey: string): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._upgradeHelper(gSettingsKey, gKVScope.GLOB, 'GenSetting')
@@ -132,11 +120,9 @@ class Upgrader {
 
     /*
      * global keys:
-     *  gEphStorageKey, for EMetaConstructor
      *  gSettingsKey, for GenSettings
      */
     private _upgradeGlobalInfos(globalKeys: GlobalKVKeySet): XDPromise<void> {
-        const def1: XDPromise<void> = this._upgradeEphMeta(globalKeys.gEphStorageKey);
         const def2: XDPromise<void> = this._upgradeGenSettings(globalKeys.gSettingsKey);
         return PromiseHelper.when(def1, def2);
     }
@@ -409,17 +395,10 @@ class Upgrader {
     }
 
     private _writeGlobalInfos(globalKeys: GlobalKVKeySet): XDPromise<void> {
-        const eMetaKey: string = globalKeys.gEphStorageKey;
-        const eMeta: string = this._globalCache.get('eMeta');
-
         const genSettingsKey: string = globalKeys.gSettingsKey;
         const genSettings: string = this._globalCache.get('genSettings');
 
-        const def1: XDPromise<void> = this._checkAndWrite(eMetaKey, eMeta,
-            gKVScope.GLOB, true);
-        const def2: XDPromise<void> = this._checkAndWrite(genSettingsKey,
-            genSettings, gKVScope.GLOB, true);
-        return PromiseHelper.when(def1, def2);
+        return this._checkAndWrite(genSettingsKey, genSettings, gKVScope.GLOB, true);
     }
 
     private _writeUserInfos(userKeys: UserKVKeySet): XDPromise<void> {

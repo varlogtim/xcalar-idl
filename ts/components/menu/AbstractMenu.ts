@@ -44,9 +44,20 @@ abstract class AbstractMenu {
     protected _isInvalidTrigger(event: JQueryEventObject): boolean {
         return event.which !== 1 || $(event.currentTarget).hasClass('unavailable');
     }
+    
 
-    protected _addNode(type: DagNodeType, input: object, subType?: DagNodeSubType): DagNode {
-        const parentNodeId: DagNodeId = DagTable.Instance.getBindNodeId();
+    protected _getCurrentNode(): DagNode {
+        const nodeId: DagNodeId = DagTable.Instance.getBindNodeId();
+        return DagView.getActiveDag().getNode(nodeId);
+    }
+
+    protected _addNode(
+        type: DagNodeType,
+        input: object,
+        subType?: DagNodeSubType,
+        parentNodeId?: DagNodeId
+    ): DagNode {
+        parentNodeId = parentNodeId || DagTable.Instance.getBindNodeId();
         return DagView.autoAddNode(type, subType, parentNodeId, input);
     }
 

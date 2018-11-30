@@ -188,8 +188,9 @@ class XcSocket {
             if (!this._isRegistered) {
                 return;
             }
-            DataflowPanel.refresh(updateInfo);
-            UDFFileManager.Instance.refresh(true, false);
+            // XXX TODO update to DF 2.0 call
+            // DataflowPanel.refresh(updateInfo);
+            // UDFFileManager.Instance.refresh(true, false);
         });
 
         socket.on('refreshUDF', (refreshOption: { isUpdate: boolean, isDelete: boolean }) => {

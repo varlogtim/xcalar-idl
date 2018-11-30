@@ -1,17 +1,17 @@
-// skipping as dataflow 2.0 will move this feature to modeling panel
-describe.skip("Upload Dataflow Test", function() {
+// XXX TODO: change to use DFUploadModal
+describe("DFUploadModal Test", function() {
     var $mainTabCache;
-    var $card;
+    var $modal;
     var $retPath;
     var $dfName;
 
     before(function(done) {
-        $card = $("#uploadDataflowCard");
-        $retPath = $card.find("#retinaPath");
-        $dfName = $card.find("#dfName");
+        $modal = $("#dfUploadModal");
+        $retPath = $modal.find("#retinaPath");
+        $dfName = $modal.find("#dfName");
 
         $mainTabCache = $(".topMenuBarTab.active");
-        if ($mainTabCache.attr("id") !== "dataflowTab") {
+        if ($mainTabCache.attr("id") !== "modelingDataflowTab") {
             $("#modelingDataflowTab").click();
         }
         UnitTest.testFinish(function() {
@@ -26,9 +26,9 @@ describe.skip("Upload Dataflow Test", function() {
     });
 
     describe("Upload Dataflow Api Test", function() {
-        it("should show the card", function() {
-            UploadDataflowCard.show();
-            assert.isTrue($card.is(":visible"));
+        it("should show the modal", function() {
+            DFUploadModal.Instance.show();
+            assert.isTrue($modal.is(":visible"));
         });
 
         it("should change the file path and check invalid case", function() {
@@ -38,19 +38,19 @@ describe.skip("Upload Dataflow Test", function() {
                 return !DF.hasDataflow(name);
             });
 
-            UploadDataflowCard.__testOnly__.changeFilePath("test.pdf");
+            DFUploadModal.Instance.__testOnly__.changeFilePath("test.pdf");
             expect($retPath.val()).to.equal("test.pdf");
             expect($dfName.val()).to.equal(retName);
-            expect($card.find(".confirm").hasClass("btn-disabled"))
+            expect($modal.find(".confirm").hasClass("btn-disabled"))
             .to.be.true;
             UnitTest.hasStatusBoxWithError(ErrTStr.RetinaFormat);
         });
 
         it("should change file path to valid case", function() {
-            UploadDataflowCard.__testOnly__.changeFilePath("file.json");
+            DFUploadModal.Instance.__testOnly__.changeFilePath("file.json");
             expect($retPath.val()).to.equal("file.json");
             expect($dfName.val()).to.equal("file");
-            expect($card.find(".confirm").hasClass("btn-disabled"))
+            expect($modal.find(".confirm").hasClass("btn-disabled"))
             .to.be.false;
         });
 
@@ -69,8 +69,8 @@ describe.skip("Upload Dataflow Test", function() {
         });
 
         it("should close the card", function() {
-            $card.find(".close").click();
-            assert.isFalse($card.is(":visible"));
+            $modal.find(".close").click();
+            assert.isFalse($modal.is(":visible"));
         });
     });
 
@@ -115,14 +115,14 @@ describe.skip("Upload Dataflow Test", function() {
                 successMsg = input;
             };
 
-            UploadDataflowCard.show();
-            UploadDataflowCard.__testOnly__.changeFilePath("file.json");
+            DFUploadModal.Instance.show();
+            DFUploadModal.Instance.__testOnly__.changeFilePath("file.json");
         });
 
         it("should handle empty name error", function(done) {
             $("#dfName").val("");
 
-            UploadDataflowCard.__testOnly__.submitForm()
+            DFUploadModal.Instance.__testOnly__.submitForm()
             .then(function() {
                 done("fail");
             })
@@ -135,7 +135,7 @@ describe.skip("Upload Dataflow Test", function() {
         it("should handle name error", function(done) {
             $("#dfName").val("invalid#name");
 
-            UploadDataflowCard.__testOnly__.submitForm()
+            DFUploadModal.Instance.__testOnly__.submitForm()
             .then(function() {
                 done("fail");
             })
@@ -150,7 +150,7 @@ describe.skip("Upload Dataflow Test", function() {
             var id = DagList.Instance.getAllDags().entries().next().value[0];
             DagList.Instance.changeName(name, id);
             $("#dfName").val(name);
-            UploadDataflowCard.__testOnly__.submitForm()
+            DFUploadModal.Instance.__testOnly__.submitForm()
             .then(function() {
                 done("fail");
             })
@@ -163,7 +163,7 @@ describe.skip("Upload Dataflow Test", function() {
         it("should handle error case", function(done) {
             $("#dfName").val("file");
 
-            UploadDataflowCard.__testOnly__.submitForm()
+            DFUploadModal.Instance.__testOnly__.submitForm()
             .then(function() {
                 done("fail");
             })
@@ -176,17 +176,17 @@ describe.skip("Upload Dataflow Test", function() {
         });
 
         it("should handle large file size error", function(done) {
-            UploadDataflowCard.__testOnly__.changeFilePath("file.json");
-            UploadDataflowCard.__testOnly__.setFile({size: 2 * MB});
-            UploadDataflowCard.__testOnly__.submitForm()
+            DFUploadModal.Instance.__testOnly__.changeFilePath("file.json");
+            DFUploadModal.Instance.__testOnly__.setFile({size: 2 * MB});
+            DFUploadModal.Instance.__testOnly__.submitForm()
             .then(function() {
                 done("fail");
             })
             .fail(function() {
                 UnitTest.hasAlertWithTitle(DSTStr.UploadLimit);
 
-                UploadDataflowCard.__testOnly__.changeFilePath("file.json");
-                UploadDataflowCard.__testOnly__.setFile({size: 1 * KB});
+                DFUploadModal.Instance.__testOnly__.changeFilePath("file.json");
+                DFUploadModal.Instance.__testOnly__.setFile({size: 1 * KB});
                 done();
             });
         });
@@ -198,7 +198,7 @@ describe.skip("Upload Dataflow Test", function() {
                 return file;
             };
             $("#dfName").val("uploadTest");
-            UploadDataflowCard.__testOnly__.submitForm()
+            DFUploadModal.Instance.__testOnly__.submitForm()
             .then(() => {
                 expect(isAddDF).to.be.true;
                 done();
@@ -218,7 +218,7 @@ describe.skip("Upload Dataflow Test", function() {
     });
 
     after(function() {
-        if ($mainTabCache.attr("id") !== "dataflowTab") {
+        if ($mainTabCache.attr("id") !== "modelingDataflowTab") {
             $mainTabCache.click();
         }
     });

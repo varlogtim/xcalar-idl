@@ -306,6 +306,8 @@ namespace WorkbookPreview {
     // }
 
     function showDag(tableName: string, workbookName: string): XDPromise<void> {
+        // XXX TODO, bring it back
+        return PromiseHelper.resolve();
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const curId: string = id;
         const html: string = '<div class="dagWrap clearfix">' +
@@ -335,7 +337,7 @@ namespace WorkbookPreview {
                 const $tooltipTables: JQuery = $dagWrap.find('.dagTableIcon, ' +
                                                     '.dataStoreIcon');
                 xcTooltip.disable($tooltipTables);
-                Dag.addEventListeners($dagWrap);
+                // Dag.addEventListeners($dagWrap);
             }
             deferred.resolve();
         })

@@ -1121,7 +1121,7 @@ window.DagFunction = (function($, DagFunction) {
 
         function getAggsToStore(aggNodes, aggRenames, parameterizedAggs) {
             var aggsToStore = [];
-            var storedAggs = Aggregates.getNamedAggs();
+            // var storedAggs = Aggregates.getNamedAggs();
             for (var name in aggRenames) {
                 var backName = aggRenames[name].slice(gAggVarPrefix.length);
                 if (storedAggs[name.slice(gAggVarPrefix.length)] ||
@@ -1154,7 +1154,6 @@ window.DagFunction = (function($, DagFunction) {
         };
     }
 
-    // DagFunction.runProcedureWithParams("students#p7304", {"students#p7303":{"eval": [{"evalString":"eq(students::student_id, 2)","newField":""}]}})
     DagFunction.runProcedureWithParams = function(tableName, params, newIndexNodes, newNodes) {
         var deferred = PromiseHelper.deferred();
 
@@ -1188,14 +1187,14 @@ window.DagFunction = (function($, DagFunction) {
 
         XIApi.query(txId, queryName, queryStr)
         .then(function() {
-            for (var i = 0; i < aggsToStore.length; i++) {
-                Aggregates.addAgg(aggsToStore[i]);
-            }
+            // for (var i = 0; i < aggsToStore.length; i++) {
+            //     Aggregates.addAgg(aggsToStore[i]);
+            // }
             queryPassed = true;
             return tagNodesAfterEdit(tagMap);
         })
         .then(function() {
-            DagEdit.clearEdit();
+            // DagEdit.clearEdit();
             return setColumnsAfterEdit(finalTableName, gTables[tableId]);
         })
         .then(function(cols) {
@@ -1212,38 +1211,40 @@ window.DagFunction = (function($, DagFunction) {
         .fail(function(error) {
             xcHelper.unlockTable(tableId, txId);
 
-            var noAlert;
-            if (!queryPassed && DagEdit.checkCanRestore(tableId)) {
-                noAlert = true;
-                var msg;
-                if (typeof error === "object") {
-                    // if it's an try/catch error, code will also goes here
-                    msg = error.error || AlertTStr.ErrorMsg;
-                } else {
-                    msg = error;
-                }
-                if (msg === undefined) {
-                    msg = "Error: " + StatusMessageTStr.RerunFailed;
-                }
+            // var noAlert;
+            // if (!queryPassed
+                // && DagEdit.checkCanRestore(tableId)
+            // ) {
+            //     noAlert = true;
+            //     var msg;
+            //     if (typeof error === "object") {
+            //         // if it's an try/catch error, code will also goes here
+            //         msg = error.error || AlertTStr.ErrorMsg;
+            //     } else {
+            //         msg = error;
+            //     }
+            //     if (msg === undefined) {
+            //         msg = "Error: " + StatusMessageTStr.RerunFailed;
+            //     }
 
-                msg = "Would you like to try editing this dataflow?<br/>" + msg;
+            //     msg = "Would you like to try editing this dataflow?<br/>" + msg;
 
-                Alert.error(StatusMessageTStr.RerunFailed, msg, {
-                    buttons: [{
-                        name: "EDIT",
-                        func: function() {
-                            DagEdit.restore(tableId);
-                        }
-                    }],
-                    onCancel: function() {
-                        DagEdit.off(null, true);
-                    },
-                    "msgTemplate": msg
-                });
-            } else {
-                noAlert = false;
-                DagEdit.off(null, true);
-            }
+            //     Alert.error(StatusMessageTStr.RerunFailed, msg, {
+            //         buttons: [{
+            //             name: "EDIT",
+            //             func: function() {
+            //                 DagEdit.restore(tableId);
+            //             }
+            //         }],
+            //         onCancel: function() {
+            //             DagEdit.off(null, true);
+            //         },
+            //         "msgTemplate": msg
+            //     });
+            // } else {
+            //     noAlert = false;
+            //     DagEdit.off(null, true);
+            // }
             Transaction.fail(txId, {
                 "failMsg": StatusMessageTStr.RerunFailed,
                 "error": error,

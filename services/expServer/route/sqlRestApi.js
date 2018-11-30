@@ -173,9 +173,6 @@ function hackFunction() {
     global.Log = Log = {
         errorLog: function() { xcConsole.log(arguments); }
     };
-    global.DagEdit = {
-        isEditMode: function() { return false; }
-    };
     global.Admin = Admin = {
         addNewUser: function(username) {
             var self = this;

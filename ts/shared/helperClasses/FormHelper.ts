@@ -268,14 +268,6 @@ class FormHelper {
                 }
                 callback($target);
             });
-
-            $("#dagPanel").on("mousedown.columnPicker", ".dagTable", function() {
-                const callback: Function = columnPicker.dagCallback;
-                if (callback == null || !(callback instanceof Function)) {
-                    return;
-                }
-                callback($(this));
-            });
         }
 
         // this should be the last step
@@ -326,7 +318,6 @@ class FormHelper {
             name = name.slice(0, oppanelIndex);
         }
         name = $.trim(name);
-        DagPanel.updateExitMenu(name);
         const tblMenu: TableMenuManager = TableComponent.getMenu();
         tblMenu.updateExitOptions("#tableMenu", name);
         tblMenu.updateExitOptions("#colMenu", name);
@@ -345,8 +336,6 @@ class FormHelper {
 
         this.$form.addClass('xc-hidden');
         $("#container").removeClass("formOpen");
-        DagEdit.exitForm();
-        DagPanel.updateExitMenu();
         const tblMenu: TableMenuManager = TableComponent.getMenu();
         tblMenu.updateExitOptions("#tableMenu");
         tblMenu.updateExitOptions("#colMenu");
@@ -391,14 +380,11 @@ class FormHelper {
         $form.find(".focusable").off(".xcForm")
                                   .removeClass("focusable");
         $(".xcTableWrap").removeClass("columnPicker");
-
-        DagEdit.exitForm();
         const $noColPickers: JQuery = $(".xcTable").find('.noColumnPicker')
                                          .removeClass('noColumnPicker')
                                          .removeAttr("data-tipClasses");
         xcTooltip.remove($noColPickers);
         this.$container.off("click.columnPicker");
-        $("#dagPanel").off("mousedown.columnPicker");
         $("#container").removeClass(self.state);
         self.state = null;
         self.enableSubmit();

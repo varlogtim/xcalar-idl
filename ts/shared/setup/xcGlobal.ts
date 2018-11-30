@@ -39,7 +39,7 @@ namespace xcGlobal {
         // XXX TODOS(bug 2319): this part should change to right scope after backend fix
         /**
          * "GLOB": global scope
-         * keys inculding: gEphStorageKey, gSharedDSKey, gUserListKey,
+         * keys inculding: gSharedDSKey, gUserListKey,
          * gSettingsKey, GlobalKVKeys Enum
          *
          * "USER": (XXX this should be XcalarApiWorkbookScopeUser, no support yet!),

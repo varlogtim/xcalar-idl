@@ -594,13 +594,6 @@ body {
             margin-left: @menuWidth;
         }
 
-        #dagPanelContainer {
-            @panelLeft: @width-fullMenu + @padding-mainContent;
-            @extraWidth: @panelLeft + @padding-mainContent;
-            left: @panelLeft;
-            width: ~"calc(100% - @{extraWidth})";
-        }
-
         #statusBar {
             margin-left: @width-fullMenu;
             width: ~"calc(100% - @{width-fullMenu})";

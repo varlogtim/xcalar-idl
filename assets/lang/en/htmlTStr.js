@@ -217,7 +217,6 @@ module.exports = {
         "ExitDF": "Exit Dataflow",
         "ExitSort": "Exit Sort",
         "ExitProject": "Exit Project",
-        "ExitDFEdit": "Exit Dataflow Editing",
         "ExitUnion": "Exit Set Operation",
         "ExpandAllDags": "Expand collapsed tables",
         "ExpandAllDagsAll": "Expand all collapsed tables",

@@ -195,9 +195,6 @@ class DagAggManager {
 
         PromiseHelper.when.apply(window, promises)
         .then(function() {
-            for (let i = 0; i < aggNames.length; i++) {
-                Dag.makeInactive(aggNames[i], true);
-            }
             Transaction.done(txId, null);
             deferred.resolve();
         })

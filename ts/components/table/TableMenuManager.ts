@@ -33,56 +33,47 @@ class TableMenuManager {
      * @param tableId
      * @param $dagTable
      */
-    public showDagAndTableOptions(
-        $menu: JQuery,
-        tableId: TableId,
-        $dagTable: JQuery
-    ): void {
-        const $genIcvLi: JQuery = $menu.find('.generateIcv');
-        const tableInfo = Dag.getTableInfo(tableId, $dagTable);
-        if (tableInfo.isIcv) {
-            xcHelper.disableMenuItem($genIcvLi, {
-                "title": TooltipTStr.AlreadyIcv
-            });
-        } else {
-            if (tableInfo.generatingIcv) {
-                xcHelper.disableMenuItem($genIcvLi, {
-                    "title": TooltipTStr.IcvGenerating
-                });
-            } else if (tableInfo.canBeIcv) {
-                if (tableInfo.hasDroppedParent) {
+    public showTableMenuOptions($menu: JQuery,): void {
+        try {
+            const nodeId: DagNodeId = DagTable.Instance.getBindNodeId();
+            if (nodeId == null) {
+                return;
+            }
+            const node: DagNode = DagView.getActiveDag().getNode(nodeId);
+
+            // handle icv
+            const $genIcvLi: JQuery = $menu.find(".generateIcv");
+            const nodeType: DagNodeType = node.getType();
+            if (nodeType === DagNodeType.Map && node.getSubType() == null ||
+                nodeType === DagNodeType.GroupBy
+            ) {
+                let icv: boolean = node.getParam().icv;
+                if (icv) {
                     xcHelper.disableMenuItem($genIcvLi, {
-                        "title": TooltipTStr.IcvSourceDropped
+                        title: TooltipTStr.AlreadyIcv
                     });
                 } else {
                     xcHelper.enableMenuItem($genIcvLi);
                 }
             } else {
                 xcHelper.disableMenuItem($genIcvLi, {
-                    "title": TooltipTStr.IcvRestriction
+                    title: TooltipTStr.IcvRestriction
                 });
             }
-        }
 
-        var $complimentLi = $menu.find('.complementTable');
-        if (tableInfo.type === "filter") {
-            if (tableInfo.generatingComplement) {
-                xcHelper.disableMenuItem($complimentLi, {
-                    "title": TooltipTStr.GeneratingComplement
-                });
-            } else if (tableInfo.hasDroppedParent) {
-                xcHelper.disableMenuItem($complimentLi, {
-                    "title": TooltipTStr.ComplementSourceDropped
-                });
-            } else {
+            // handle complement
+            const $complimentLi: JQuery = $menu.find(".complementTable");
+            if (node.getType() === DagNodeType.Filter) {
                 xcHelper.enableMenuItem($complimentLi);
+            } else {
+                xcHelper.disableMenuItem($complimentLi, {
+                    title: TooltipTStr.ComplementRestriction
+                });
             }
-        } else {
-            xcHelper.disableMenuItem($complimentLi, {
-                "title": TooltipTStr.ComplementRestriction
-            });
+        } catch (e) {
+            console.error(e);
         }
-    };
+    }
 
     /**
      *

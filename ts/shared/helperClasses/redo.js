@@ -324,7 +324,7 @@ window.Redo = (function($, Redo) {
 
     function focusTableHelper(options) {
         if (options.tableId !== gActiveTableId) {
-            TblFunc.focusTable(options.tableId, true);
+            TblFunc.focusTable(options.tableId);
         }
     }
 

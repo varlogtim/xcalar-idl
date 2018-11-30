@@ -49,10 +49,10 @@ describe("Main Menu Test", function() {
             MainMenu.openPanel("monitorPanel");
             expect($("#monitorTab").hasClass("active")).to.be.true;
 
-            MainMenu.openPanel("dataflowPanel");
+            MainMenu.openPanel("dagPanel");
             expect($("#modelingDataflowTab").hasClass("active")).to.be.true;
 
-            MainMenu.openPanel("dataflowPanel");
+            MainMenu.openPanel("dagPanel");
             expect($("#modelingDataflowTab").hasClass("active")).to.be.true;
 
             MainMenu.openPanel("datastorePanel");

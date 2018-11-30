@@ -2470,17 +2470,6 @@ namespace xcHelper {
                 $tableWrap.addClass("tableLockedDisplayed");
             }
         }
-        const lockHTML: string = '<i class="lockIcon icon xi-lockwithkeyhole"></i>';
-        const $dagTables: JQuery = $('#dagPanel').find('.dagTable[data-tableid="' +
-                                                    tableId + '"]');
-        $dagTables.addClass('locked');
-        if (!gTables[tableId].isNoDelete()) {
-            // if noDelete, they would already have a lock
-            if (!$dagTables.find('.lockIcon').length) {
-                $dagTables.append(lockHTML);
-            }
-        }
-
         gTables[tableId].lock();
         Log.lockUndoRedo();
     }
@@ -2491,14 +2480,9 @@ namespace xcHelper {
      */
     export function unlockTable(tableId: TableId): void {
         const table = gTables[tableId];
-        const $dagTables: JQuery = $('#dagPanel').find('.dagTable[data-tableid="' +
-                                                        tableId + '"]');
-
         if (!table) {
             // case if table was deleted before unlock is called;
             Log.unlockUndoRedo();
-            $dagTables.removeClass('locked');
-            $dagTables.find('.lockIcon').remove();
             return;
         }
         table.unlock();
@@ -2510,12 +2494,6 @@ namespace xcHelper {
 
         const $tbody: JQuery = $tableWrap.find('.xcTbodyWrap');
         $tbody.off('scroll.preventScrolling');
-
-        $dagTables.removeClass('locked');
-        if (!table.isNoDelete()) {
-            // if noDelete, they still need the lock
-            $dagTables.find('.lockIcon').remove();
-        }
         Log.unlockUndoRedo();
     }
 
@@ -5130,8 +5108,6 @@ namespace xcHelper {
         if (table && table.backTableMeta) {
             let colMeta: object = changeColMetaToMap(table.backTableMeta.valueAttrs);
             deferred.resolve(colMeta, true);
-        } else if (DagEdit.isEditMode()) {
-            deferred.resolve({}, false);
         } else {
             XcalarGetTableMeta(tableName)
             .then(function(tableMeta) {
@@ -5445,7 +5421,6 @@ namespace xcHelper {
         } else {
             $menu.find('li').removeClass('unavailable');
         }
-        xcHelper.enableMenuItem($menu.find('.createDf'));
     }
 
     function updateColDropdown(
@@ -5753,18 +5728,18 @@ namespace xcHelper {
                     return "closeMenu";
                 }
                 updateTableDropdown($menu, options);
-                if (gTables[tableId] && gTables[tableId].isNoDelete()) {
-                    xcHelper.disableMenuItem($("#tableMenu .deleteTable"), {
-                        title: TooltipTStr.CannotDropLocked
-                    });
-                    $subMenu.find(".removeNoDelete").show();
-                    $subMenu.find(".addNoDelete").hide();
-                } else {
-                    xcHelper.enableMenuItem($("#tableMenu .deleteTable"));
-                    $subMenu.find(".removeNoDelete").hide();
-                    $subMenu.find(".addNoDelete").show();
-                }
-                TableComponent.getMenu().showDagAndTableOptions($subMenu, tableId, null);
+                // if (gTables[tableId] && gTables[tableId].isNoDelete()) {
+                //     xcHelper.disableMenuItem($("#tableMenu .deleteTable"), {
+                //         title: TooltipTStr.CannotDropLocked
+                //     });
+                //     $subMenu.find(".removeNoDelete").show();
+                //     $subMenu.find(".addNoDelete").hide();
+                // } else {
+                //     xcHelper.enableMenuItem($("#tableMenu .deleteTable"));
+                //     $subMenu.find(".removeNoDelete").hide();
+                //     $subMenu.find(".addNoDelete").show();
+                // }
+                TableComponent.getMenu().showTableMenuOptions($subMenu);
                 TblManager.unHighlightCells();
                 break;
             case ('colMenu'):

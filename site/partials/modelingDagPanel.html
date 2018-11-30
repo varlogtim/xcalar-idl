@@ -3,4 +3,32 @@
     <div id="dagViewContent" class="mainContent">
         include "worksheet/dagView.html"
     </div>
+    <div id="paramPopUp" class="dataflowParameterPopup">
+        <div class="inputSection">
+          <input class="xc-input newParam" placeholder="Input New Parameter">
+          <btn class="btn submitNewParam">CREATE NEW PARAMETER</btn>
+        </div>
+        <div class="tableHeader">
+          <div class="cell paramNameWrap"><%= dicts.dataflow.param %></div>
+          <div class="cell paramValWrap"><%= dicts.dataflow.val %></div>
+          <div class="cell paramNoValueWrap"><%= dicts.dataflow.noValue %></div>
+          <div class="cell paramActionWrap"><%= dicts.dataflow.action %></div>
+        </div>
+        <div class="tableContainer">
+          <div id="retLists" class="paramList tableWrapper"></div>
+        </div>
+    </div>
+    <!-- End of paramPopUp -->
+    <div id="aggManagerPopup" class="dataflowAggPopup">
+        <div class="tableHeader">
+            <div class="cell aggNameWrap">Aggregate</div>
+            <div class="cell aggValWrap">Value</div>
+            <div class="cell aggNoValueWrap">Not Run</div>
+            <div class="cell aggActionWrap">Action</div>
+        </div>
+        <div class="tableContainer">
+            <div id="aggRetLists" class="aggList tableWrapper"></div>
+        </div>
+    </div>
+    <!-- End of paramPopUp -->
 </div>

@@ -496,7 +496,7 @@ window.XcSDK.Extension.prototype = (function() {
                 "backColName": colName,
                 "op": aggOp
             };
-            Aggregates.addAgg(aggRes, false);
+            DagAggManager.Instance.addAgg(aggRes, false);
         }
     };
 

@@ -355,7 +355,6 @@ describe("WorkbookManager Test", function() {
             var res = WorkbookManager.getGlobalScopeKeys();
             expect(res).to.be.an("object");
             expect(Object.keys(res).length).to.equal(3);
-            expect(res).to.ownProperty("gEphStorageKey");
             expect(res).to.ownProperty("gSettingsKey");
             expect(res).to.ownProperty("gSharedDSKey");
         });

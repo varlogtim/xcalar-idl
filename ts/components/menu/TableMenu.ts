@@ -80,8 +80,6 @@ class TableMenu extends AbstractMenu {
             const $li: JQuery = $(event.currentTarget);
             if ($li.hasClass("exitExt")) {
                 BottomMenu.close();
-            } else if ($li.hasClass("exitDFEdit")) {
-                DagEdit.off();
             } else {
                 MainMenu.closeForms();
             }
@@ -135,15 +133,6 @@ class TableMenu extends AbstractMenu {
             }
             const tableId: TableId = $tableMenu.data('tableId');
             AggModal.corrAgg(tableId);
-        });
-
-        $tableMenu.on('mouseup', '.createDf', (event) => {
-            if (this._isInvalidTrigger(event)) {
-                return;
-            }
-            const tableId: TableId = $tableMenu.data('tableId');
-            const $dagWrap: JQuery = $('#dagWrap-' + tableId);
-            DFCreateView.show($dagWrap);
         });
 
         $tableMenu.on('mouseup', '.jupyterTable', (event) => {
@@ -260,7 +249,6 @@ class TableMenu extends AbstractMenu {
             }
             const tableId: TableId = $tableMenu.data("tableId");
             const tableName: string = gTables[tableId].getName();
-            Dag.makeTableNoDelete(tableName);
             TblManager.makeTableNoDelete(tableName);
         });
 
@@ -269,7 +257,6 @@ class TableMenu extends AbstractMenu {
                 return;
             }
             const tableId: TableId = $tableMenu.data("tableId");
-            Dag.removeNoDelete(tableId);
             TblManager.removeTableNoDelete(tableId);
         });
 
@@ -277,18 +264,47 @@ class TableMenu extends AbstractMenu {
             if (this._isInvalidTrigger(<JQueryEventObject>event)) {
                 return;
             }
-            const tableId: TableId = $tableMenu.data('tableId');
-            const tableName: string = gTables[tableId].getName();
-            Dag.generateIcvTable(tableId, tableName);
+            const currentNode: DagNode = this._getCurrentNode();
+            if (currentNode != null) {
+                const input = xcHelper.deepCopy(currentNode.getParam());
+                input.icv = true;
+                const parents = currentNode.getParents();
+                if (parents.length > 0) {
+                    this._createNodeAndShowForm(currentNode.getType(), null, {
+                        input: input,
+                        parentNodeId: parents[0].getId()
+                    });
+                }
+            }
         });
 
         $subMenu.find(".complementTable").mouseup((event) => {
             if (this._isInvalidTrigger(<JQueryEventObject>event)) {
                 return;
             }
-            const tableId: TableId = $tableMenu.data('tableId');
-            const tableName: string = gTables[tableId].getName();
-            Dag.generateComplementTable(tableName);
+            const currentNode: DagNode = this._getCurrentNode();
+            if (currentNode != null && currentNode instanceof DagNodeFilter) {
+                const param: DagNodeFilterInputStruct = currentNode.getParam();
+                const input = xcHelper.deepCopy(param);
+                let evalString = param.evalString;
+                // remove or add not() for complement
+                if (evalString.indexOf("not(") === 0 &&
+                    evalString[evalString.length - 1] === ")"
+                ) {
+                    evalString = evalString.slice(4, -1);
+                } else {
+                    evalString = "not(" + evalString + ")";
+                }
+                input.evalString = evalString;
+
+                const parents = currentNode.getParents();
+                if (parents.length > 0) {
+                    this._createNodeAndShowForm(DagNodeType.Filter, null, {
+                        input: input,
+                        parentNodeId: parents[0].getId()
+                    });
+                }
+            }
         });
 
         $subMenu.find(".skewDetails").mouseup((event) => {
@@ -319,12 +335,14 @@ class TableMenu extends AbstractMenu {
         tableId?: TableId,
         options?: {
             subType?: DagNodeSubType
+            input?: object,
+            parentNodeId?: DagNodeId
         }
     ): void {
         try {
             options = options || {};
-            const input: object = this._getNodeParam(type, tableId);
-            const node: DagNode = this._addNode(type, input, options.subType);
+            const input: object = options.input || this._getNodeParam(type, tableId, options);
+            const node: DagNode = this._addNode(type, input, options.subType, options.parentNodeId);
             this._openOpPanel(node, []);
         } catch (e) {
             console.error("error", e);
@@ -332,18 +350,26 @@ class TableMenu extends AbstractMenu {
         }
     }
 
-    private _getNodeParam(type: DagNodeType, tableId?: TableId): object {
+    private _getNodeParam(
+        type: DagNodeType,
+        tableId: TableId,
+        options: {
+            subType?: DagNodeSubType 
+        }
+    ): object {
         switch (type) {
             case DagNodeType.Export:
             case DagNodeType.Jupyter:
                 return null;
             case DagNodeType.Map:
-                // multi cast case
-                const evals = this._smartSuggestTypes(tableId);
-                return {
-                    eval: evals,
-                    icv: false
-                };
+                if (options.subType === DagNodeSubType.Cast) {
+                    return {
+                        eval: this._smartSuggestTypes(tableId),
+                        icv: false
+                    };
+                } else {
+                    return null;
+                }
             default:
                 throw new Error("Unsupported type!");
         }

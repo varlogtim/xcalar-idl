@@ -48,7 +48,6 @@ window.XcSDK.Extension.prototype = (function() {
         var deferred = PromiseHelper.deferred();
         XIApi.deleteTable(txId, tableName)
         .then(function() {
-            Dag.makeInactive(tableName, true);
             const tableId = xcHelper.getTableId(tableName);
             if (tableId != null && gTables[tableId] != null) {
                 delete gTables[tableId];

@@ -266,37 +266,13 @@ describe('TableMenu Test', function() {
                 AggModal.corrAgg = cachedFunc;
             });
 
-            it('createDf', function() {
-                var cachedFunc = DFCreateView.show;
-                var called = false;
-                DFCreateView.show = function($dagWrap) {
-                    expect($dagWrap.is($("#dagWrap-" + tableId))).to.be.true;
-                    called = true;
-                };
-
-                $tableMenu.find('.createDf').trigger(rightMouseup);
-                expect(called).to.be.false;
-
-                $tableMenu.find('.createDf').trigger(fakeEvent.mouseup);
-                expect(called).to.be.true;
-
-                DFCreateView.show = cachedFunc;
-            });
-
             describe("advanced", function() {
                 it('lockTable', function() {
                     var cachedFunc = TblManager.makeTableNoDelete;
-                    var cachedFunc2 = Dag.makeTableNoDelete;
                     var called = false;
-                    var called2 = false;
                     TblManager.makeTableNoDelete = function(tName) {
                         expect(tName).to.equal(tableName);
                         called = true;
-                    };
-
-                    Dag.makeTableNoDelete = function(tName) {
-                        expect(tName).to.equal(tableName);
-                        called2 = true;
                     };
 
                     $tableSubMenu.find('.addNoDelete').trigger(rightMouseup);
@@ -305,24 +281,15 @@ describe('TableMenu Test', function() {
 
                     $tableSubMenu.find('.addNoDelete').trigger(fakeEvent.mouseup);
                     expect(called).to.be.true;
-                    expect(called2).to.be.true;
 
                     TblManager.makeTableNoDelete = cachedFunc;
-                    Dag.makeTableNoDelete = cachedFunc2;
                 });
                 it('unlockTable', function() {
                     var cachedFunc = TblManager.removeTableNoDelete;
-                    var cachedFunc2 = Dag.removeNoDelete;
                     var called = false;
-                    var called2 = false;
                     TblManager.removeTableNoDelete = function(tId) {
                         expect(tId).to.equal(tableId);
                         called = true;
-                    };
-
-                    Dag.removeNoDelete = function(tId) {
-                        expect(tId).to.equal(tableId);
-                        called2 = true;
                     };
 
                     $tableSubMenu.find('.removeNoDelete').trigger(rightMouseup);
@@ -331,10 +298,8 @@ describe('TableMenu Test', function() {
 
                     $tableSubMenu.find('.removeNoDelete').trigger(fakeEvent.mouseup);
                     expect(called).to.be.true;
-                    expect(called2).to.be.true;
 
                     TblManager.removeTableNoDelete = cachedFunc;
-                    Dag.removeNoDelete = cachedFunc2;
                 });
 
                 it('genIcv', function() {
@@ -412,22 +377,6 @@ describe('TableMenu Test', function() {
                     expect(called).to.be.true;
 
                     BottomMenu.close = cachedFunc;
-                });
-
-                it('dfEdit', function() {
-                    var cachedFunc = DagEdit.off;
-                    var called = false;
-                    DagEdit.off = function() {
-                        called = true;
-                    };
-
-                    $tableMenu.find('.exitOp.exitDFEdit').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $tableMenu.find('.exitOp.exitDFEdit').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    DagEdit.off = cachedFunc;
                 });
             });
         });
@@ -852,22 +801,6 @@ describe('TableMenu Test', function() {
                     expect(called).to.be.true;
 
                     BottomMenu.close = cachedFunc;
-                });
-
-                it('dfEdit', function() {
-                    var cachedFunc = DagEdit.off;
-                    var called = false;
-                    DagEdit.off = function() {
-                        called = true;
-                    };
-
-                    $colMenu.find('.exitOp.exitDFEdit').trigger(rightMouseup);
-                    expect(called).to.be.false;
-
-                    $colMenu.find('.exitOp.exitDFEdit').trigger(fakeEvent.mouseup);
-                    expect(called).to.be.true;
-
-                    DagEdit.off = cachedFunc;
                 });
             });
         });

@@ -8,7 +8,6 @@ class KVStore {
     private static saveTimeTimer: number;
     private static commitCnt: number = 0;
     private static metaInfos: METAConstructor;
-    private static ephMetaInfos: EMetaConstructor; // Ephemeral meta
 
 
     /**
@@ -26,7 +25,7 @@ class KVStore {
 
     /**
      * KVStore.setupWKBKKey
-     * keys: gStorageKey, gEphStorageKey, gLogKey, gErrKey, commitKey
+     * keys: gStorageKey, gLogKey, gErrKey, commitKey
      * @param keys
      */
     public static setupWKBKKey() {
@@ -241,10 +240,7 @@ class KVStore {
 
         try {
             KVStore.metaInfos = new METAConstructor(gInfosMeta);
-            KVStore.ephMetaInfos = new EMetaConstructor({});
-
             TableComponent.getPrefixManager().restore(KVStore.metaInfos.getTpfxMeta());
-            Aggregates.restore(KVStore.metaInfos.getAggMeta());
             TblManager.restoreTableMeta(KVStore.metaInfos.getTableMeta());
             Profile.restore(KVStore.metaInfos.getStatsMeta());
         } catch (error) {
@@ -281,17 +277,6 @@ class KVStore {
 
         const storageStore = new KVStore(KVStore.getKey("gStorageKey"), gKVScope.WKBK);
         storageStore.put(JSON.stringify(KVStore.metaInfos), true)
-        .then(() => {
-            if (DF.wasRestored()) {
-                KVStore.ephMetaInfos.update();
-                const ephStore = new KVStore(KVStore.getKey("gEphStorageKey"), gKVScope.GLOB);
-                return ephStore.put(JSON.stringify(KVStore.ephMetaInfos), true);
-            } else {
-                // if df wasn't restored yet, we don't want to commit empty
-                // ephMetaInfos
-                return PromiseHelper.resolve();
-            }
-        })
         .then(() => {
             return Log.commit();
         })

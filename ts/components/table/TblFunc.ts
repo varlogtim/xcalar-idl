@@ -189,9 +189,6 @@ class TblFunc {
         // for tableScrollBar
         TblFunc.moveFirstColumn(null);
         TblManager.adjustRowFetchQuantity();
-        DagPanel.setScrollBarId($(window).height());
-        DagPanel.adjustScrollBarPositionAndSize();
-        DFCard.adjustScrollBarPositionAndSize();
     }
 
     /**
@@ -224,7 +221,7 @@ class TblFunc {
      * @param tableId
      * @param focusDag
      */
-    public static focusTable(tableId: TableId, focusDag: boolean = false): void {
+    public static focusTable(tableId: TableId): void {
         const table: TableMeta = gTables[tableId];
         if (table && table.modelingMode) {
             return;
@@ -244,13 +241,6 @@ class TblFunc {
                                                    .removeClass('selectedCell');
         gActiveTableId = tableId;
         TableComponent.update();
-
-        if (focusDag) {
-            Dag.focusDagForActiveTable(null, true);
-        } else {
-            DagPanel.setScrollBarId($(window).height());
-            DagPanel.adjustScrollBarPositionAndSize();
-        }
         $('.dagWrap').addClass('notSelected').removeClass('selected');
         $('#dagWrap-' + tableId).addClass('selected').removeClass('notSelected');
     }
@@ -291,9 +281,7 @@ class TblFunc {
         let $allTables: JQuery;
         const $dagViewTableArea: JQuery = $("#dagViewTableArea");
         let dagView = false;
-        if (DagEdit.isEditMode()) {
-            $allTables = $(".xcTableWrap:visible");
-        } else if ($dagViewTableArea.is(":visible")) {
+        if ($dagViewTableArea.is(":visible")) {
             dagView = true;
             $allTables = $dagViewTableArea.find(".xcTableWrap:visible");
         } else {

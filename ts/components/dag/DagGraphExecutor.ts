@@ -319,6 +319,7 @@ class DagGraphExecutor {
     public cancel(): void {
         this._isCanceld = true;
         QueryManager.cancelQuery(this._currentTxId);
+        // XXX TODO, if it's optimized, need to call XcalarQueryCanel with retName
     }
 
     // returns a query string representing all the operations needed to run

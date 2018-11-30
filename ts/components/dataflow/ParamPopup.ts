@@ -30,10 +30,6 @@ class ParamPopup {
         ParamPopup.setupGeneralListeners();
     }
 
-    public static restorePopup() {
-        $("#paramPopUp").appendTo($("#dfViz .retTab"));
-    }
-
     constructor($panel: JQuery, $btn: JQuery) {
         this.$panel = $panel;
         this.$paramPopup = $("#paramPopUp");
@@ -118,7 +114,6 @@ class ParamPopup {
 
         if (!this.$paramPopup.hasClass("active")) {
             this.$paramPopup.find(".newParam").val("");
-            this.appendPopup();
             this.initializeList();
             this.$paramPopup.addClass("active");
             $("#container").on("mousedown.retTab", (event) => {
@@ -230,7 +225,6 @@ class ParamPopup {
             this.$paramPopup.removeClass("active");
             StatusBox.forceHide();
             $("#container").off("mousedown.retTab");
-            this.hidePopup();
         }
 
         if (!invalidFound && this.hasChange && !force) {
@@ -308,19 +302,9 @@ class ParamPopup {
         this.hasChange = true;
     }
 
-     // to be overwritten
-    protected hidePopup() {
-        // left empty for inherited classes
-    }
-
-    // to be overwritten
-    protected appendPopup() {
-        // left empty for inherited classes
-    }
-
     // to be overwritten
     protected getParams() {
-        return DF.getParamMap();
+        return null;
     }
 
     // to be overwritten
@@ -333,12 +317,7 @@ class ParamPopup {
     }
 
     // to be overwritten
-    protected validateDelete($paramName: JQuery, paramName: string) {
-        const df = DF.getDataflow(DFCard.getCurrentDF());
-        if (df.checkParamInUse(paramName)) {
-            StatusBox.show(ErrTStr.ParamInUse, $paramName, false);
-            return false;
-        }
+    protected validateDelete(_$paramName: JQuery, _paramName: string) {
         return true;
     }
 
@@ -356,8 +335,5 @@ class ParamPopup {
     }
 
     // to be overwritten
-    protected updateParams() {
-        DF.updateParamMap(this.getParamsFromList());
-        DFParamModal.updateDraggableInputs();
-    }
+    protected updateParams() {}
 }

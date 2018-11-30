@@ -1,3 +1,4 @@
+// XXX TODO: resuse ParamPopup
 class DagAggPopup {
     protected $panel: JQuery;
     private $retLists: JQuery;
@@ -30,15 +31,6 @@ class DagAggPopup {
         this.$retLists = this.$aggManagerPopup.find(".aggList");
         this.$btn = $btn;
         this._setupListeners();
-    }
-
-
-    private appendPopup(): void {
-        $("#aggManagerPopup").appendTo($("#modelingDagPanel"));
-    }
-
-    private hidePopup(): void {
-        $("#aggManagerPopup").appendTo($("#dfViz .retTab"));
     }
 
     private _setupListeners(): void {
@@ -78,7 +70,6 @@ class DagAggPopup {
         StatusBox.forceHide();
 
         if (!this.$aggManagerPopup.hasClass("active")) {
-            this.appendPopup();
             this.initializeList();
             this.$aggManagerPopup.addClass("active");
             $("#container").on("mousedown.retTab", (event) => {
@@ -158,12 +149,10 @@ class DagAggPopup {
         $row.find(".aggActionWrap .aggDelete").removeClass("xc-hidden");
     }
 
-
     private closePopup(): void {
         this.$aggManagerPopup.removeClass("active");
         StatusBox.forceHide();
         $("#container").off("mousedown.retTab");
-        this.hidePopup();
     }
 
     private deleteAgg($row: JQuery): void {

@@ -51,7 +51,7 @@
             update: function() {
                 // basic thing to store
                 this[METAKeys.TI] = saveTables();
-                this[METAKeys.AGGS] = Aggregates.getAggs();
+                this[METAKeys.AGGS] = null; // removed
                 this[METAKeys.STATS] = Profile.getCache();
                 this[METAKeys.LOGC] = Log.getCursor();
                 this[METAKeys.TPFX] = TableComponent.getPrefixManager().getCache();
@@ -119,49 +119,10 @@
 
     // kvStore.js
     win.EMetaConstructor<%= v %> = (function() {
-        var _super = __getConstructor("EMetaConstructor", parentVersion);
-        <% if (isCurCtor) {%>
-        var EMetaKeys = new _super().getMetaKeys();
-        <%}%>
-        /* Attr:
-            version: <%= version %>,
-            EMetaKeys.DF: (obj) dataflow meta
-        */
+        // XXX TODO: remove it
         function EMetaConstructor<%= v %>(options) {
-            options = options || {};
-            <%= assert %>
-            var self = _super.call(this);
-            <%= addVersion %>
-
-            if (<%= checkFunc %>(options)) {
-                EMetaConstructor<%= v %>.restore(self, options, version);
-                self.DFParams = options.DFParams || {};
-            }
-            return self;
+            return this;
         }
-
-        __extends(EMetaConstructor<%= v %>, _super, {
-            <% if (isCurCtor) {%>
-            update: function() {
-                // update
-
-                this[EMetaKeys.DF] = DF.getAllCommitKeys();
-                this[EMetaKeys.DFParams] = DF.getParamMap();
-                return this;
-            },
-
-            getDFMeta: function() {
-                var dfs = this[EMetaKeys.DF];
-                var params = this[EMetaKeys.DFParams];
-
-                return {
-                    dataflows: dfs,
-                    params: params
-                };
-            }
-            <%}%>
-        });
-
         return EMetaConstructor<%= v %>;
     }());
 
@@ -2437,334 +2398,20 @@
     }());
 
     win.Dataflow<%= v %> = (function() {
-        var _super = __getConstructor("Dataflow", parentVersion);
-        /* Attr
-            version: <%= version %>,
-            name: (string) Retina name
-            columns: (array, not persist) Columns to export
-            parameters: (array) array of parameters in Dataflow
-            paramMap: (obj) map for parameters
-            paramMapInUsed: (obj) map to record whether parameter is used
-            nodeIds: (obj, not pesist) map of dagNames and dagIds
-            retinaNodes: (obj, not persist) retina node info from backend
-            parameterizedNodes: (obj) map of dagNodeIds to parameterized structs
-            schedule: (SchedObj, not persist) schedule of the dataflow
-        */
+        // XXX TODO: remove it
         function Dataflow<%= v %>(name, options) {
-            options = options || {};
-            <%= assert %>
-            var self = _super.call(this, name, options);
-            <%= addVersion %>
-
-            if (<%= checkFunc %>(options)) {
-                var restoreInfos = Dataflow<%= v %>.restoreInfos(options, version);
-                self.parameterizedNodes = restoreInfos.parameterizedNodes;
-                self.schedule = restoreInfos.schedule;
-                self.paramMapInUsed = restoreInfos.paramMapInUsed || {};
-                delete self.nodeIds; // no longer needed
-                delete self.columns; // no longer needed
-            }
-            return self;
+            return this;
         }
-
-        __extends(Dataflow<%= v %>, _super, {
-            <% if (isCurCtor) {%>
-
-            addParameterizedNode: function(tableName, oldParamInfo, newParamInfo, noParams) {
-                this.parameterizedNodes[tableName] = new RetinaNode(oldParamInfo);
-                this.updateParameterizedNode(tableName, newParamInfo, noParams);
-            },
-
-             // this does not change the value of this.paramterizedNodes[tName]
-            updateParameterizedNode: function(tableName, paramInfo, noParams) {
-                var name = tableName;
-                if (name.indexOf(gDSPrefix) === 0) {
-                    name = name.substring(gDSPrefix.length);
-                }
-                var $operationIcon = this.colorNodes(name, noParams);
-                if ($operationIcon == null) {
-                    // error case
-                    return;
-                }
-                if (paramInfo.paramType === XcalarApisT.XcalarApiExport) {
-                    var newName = this.activeSession ? this.newTableName :
-                                                paramInfo.paramValue.fileName;
-
-                    updateExportIcon($operationIcon, newName,
-                                     this.activeSession);
-
-                } else if (paramInfo.paramType === XcalarApisT.XcalarApiFilter)
-                {
-                    if (noParams) {
-                        $operationIcon.find(".opInfoText")
-                                  .text($operationIcon.data("column"));
-                    } else {
-                        $operationIcon.find(".opInfoText")
-                                  .text("<Parameterized>");
-                    }
-                }
-
-                // update name and icon
-                function updateExportIcon($operationIcon, exportName,
-                    isActiveSession) {
-
-                    var expName = xcHelper.stripCSVExt(exportName);
-                    var $nameElem = $operationIcon.next().find(".tableTitle");
-                    $nameElem.text(expName);
-                    var text = xcHelper.convertToHtmlEntity(expName);
-                    xcTooltip.changeText($nameElem, text);
-                    var dataAttr = isActiveSession ? "import" : "default";
-                    $operationIcon.next().attr("data-advancedOpts", dataAttr);
-                }
-            },
-
-            colorNodes: function(tableName, noParams) {
-                if (!tableName) {
-                    console.info("update must be called after add. Noop.");
-                    return null;
-                }
-
-                var dfName = this.name;
-                var $nodeOrAction = $("#dataflowPanel")
-                                    .find('.dagWrap[data-dataflowname="' +
-                                            dfName + '"]')
-                                    .find('[data-tablename="' + tableName +
-                                          '"]');
-                // Exception is for export.
-                // XXX Consider attaching the id to the table
-                // node instead of the operation during draw dag.
-                // I think it will clean
-                // up a lot of the exception cases here
-                if ($nodeOrAction.prev().hasClass("filter") ||
-                    $nodeOrAction.prev().hasClass("export")) {
-                    $nodeOrAction = $nodeOrAction.prev();
-                }
-                if (noParams) {
-                    $nodeOrAction.removeClass("hasParam");
-                } else {
-                    $nodeOrAction.addClass("hasParam");
-                }
-                return $nodeOrAction;
-            },
-
-            getParameterizedNode: function(tableName) {
-                return this.parameterizedNodes[tableName];
-            },
-
-            addParameter: function(name) {
-                xcAssert(!this.paramMap.hasOwnProperty(name), "Invalid name");
-                this.parameters.push(name);
-                this.paramMap[name] = null;
-                this.paramMapInUsed[name] = false;
-            },
-
-            getParameter: function(paramName) {
-                return this.paramMap[paramName];
-            },
-
-            updateParameters: function(params) {
-                var paramMap = this.paramMap;
-                var parameters = this.parameters;
-                var paramMapInUsed = this.paramMapInUsed;
-
-                if (params != null && params instanceof Array) {
-                    params.forEach(function(param) {
-                        var name = param.name;
-                        var val  = param.val;
-                        xcAssert(parameters.includes(name)
-                            || (systemParams.hasOwnProperty(name) &&
-                            isNaN(Number(name))),"Invalid name");
-                        if (!parameters.includes(name)) {
-                            parameters.push(name);
-                        }
-                        paramMap[name] = val;
-                        paramMapInUsed[name] = true;
-                    });
-                }
-            },
-
-            updateParamMapInUsed: function() {
-                var parameters = this.parameters;
-                var paramMap = this.paramMap;
-                var paramMapInUsed = this.paramMapInUsed;
-                var deferred = PromiseHelper.deferred();
-
-                for (var name in paramMapInUsed) {
-                    paramMapInUsed[name] = false;
-                }
-                XcalarListParametersInRetina(this.name)
-                .then(function(data) {
-                    var params = data.parameters;
-                    for (var i = 0; i < params.length; i++) {
-                        var name = params[i].paramName;
-                        paramMapInUsed[name] = true;
-                        if (!paramMap.hasOwnProperty(name)) {
-                            paramMap[name] = (systemParams.hasOwnProperty(name) &&
-                                            isNaN(Number(name)))?
-                                             systemParams[name] : null;
-                        }
-                        if (!parameters.includes(name)) {
-                            parameters.push(name);
-                        }
-                    }
-                    deferred.resolve();
-                })
-                .fail(deferred.reject);
-                return deferred.promise();
-            },
-
-            allUsedParamsWithValues: function() {
-                var paramMap = this.paramMap;
-                var paramMapInUsed = this.paramMapInUsed;
-
-                for (var name in paramMapInUsed) {
-                    if (paramMapInUsed[name]
-                        && (!paramMap.hasOwnProperty(name)
-                        || paramMap[name] === null)) {
-                        console.error("param not in front meta!");
-                        return false;
-                    }
-                }
-                return true;
-            },
-
-            checkParamInUse: function(paramName) {
-                var str = "<" + paramName + ">";
-                var paramNodes = this.parameterizedNodes;
-
-                for (var tName in paramNodes) {
-                    var paramValue = paramNodes[tName].paramValue || [];
-                    if (isParameterized(paramValue)) {
-                        return true;
-                    }
-                }
-
-                return false;
-
-                function isParameterized(value) {
-                    if (!value) {
-                        return false;
-                    }
-                    if (typeof value !== "object") {
-                        if (typeof value === "string") {
-                            if (value.indexOf(str) > -1) {
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        } else {
-                            return false;
-                        }
-                    } else {
-                        if ($.isEmptyObject(value)) {
-                            return false;
-                        }
-                        if (value.constructor === Array) {
-                            for (var i = 0; i < value.length; i++) {
-                                if (isParameterized(value[i])) {
-                                    return true;
-                                }
-                            }
-                        } else {
-                            for (var i in value) {
-                                if (!value.hasOwnProperty(i)) {
-                                    continue;
-                                }
-                                if (isParameterized(value[i])) {
-                                    return true;
-                                }
-                            }
-                        }
-                        return false;
-                    }
-                }
-            },
-
-            removeParameter: function(name) {
-                var index = this.parameters.indexOf(name);
-
-                xcAssert((index >= 0), "Invalid name");
-
-                this.parameters.splice(index, 1);
-                delete this.paramMap[name];
-                delete this.paramMapInUsed[name];
-            },
-
-            // Function for modify schedule in the object
-            getSchedule: function() {
-                return this.schedule;
-            },
-
-            setSchedule: function(schedule) {
-                this.schedule = schedule;
-            },
-
-            removeSchedule: function() {
-                this.schedule = null;
-            },
-
-            hasSchedule: function() {
-                return this.schedule != null;
-            }
-            <%}%>
-        });
-
         return Dataflow<%= v %>;
     }());
     /* End of Dataflow */
 
     /* Start of Schedule */
     win.SchedObj<%= v %> = (function() {
-        var _super = __getConstructor("SchedObj", parentVersion);
-        /* Attr:
-            version: <%= version %>,
-            startTime: (date) schedule start time
-            dateText: (string) date text
-            timeText: (string) time text
-            repeat: (string) repate frequency
-            modified: (date) the latest time when this schedule is modified
-            created: (date) the time when this schedule is created
-            activeSession: (boolean)
-            newTableName: (String)
-            usePremadeCronString: (boolean) whether to use user defined cron
-            premadeCronString: (String) cron defined by the user
-        newAttr:
-            isPaused: (boolean) when the schedule is paused or not
-            exportTarget: (String) export target
-            exportLocation: (String) path for export Location
-        */
+        // XXX TODO: remove it
         function SchedObj<%= v %>(options) {
-            options = options || {};
-            var self = _super.call(this, options);
-            <%= addVersion %>
-
-            if (<%= checkFunc %>(options)) {
-                self.isPaused = options.isPaused || false;
-                self.exportTarget = options.exportTarget || null;
-                self.exportLocation = options.exportLocation || null;
-            }
-            return self;
+            return this;
         }
-
-        __extends(SchedObj<%= v %>, _super, {
-            <% if (isCurCtor) {%>
-            update: function(options) {
-                options = options || {};
-                this.startTime = options.startTime;
-                this.dateText = options.dateText;
-                this.timeText = options.timeText;
-                this.repeat = options.repeat;
-                this.modified = options.modified;
-                this.activeSession = options.activeSession;
-                this.newTableName = options.newTableName;
-                this.usePremadeCronString = options.usePremadeCronString;
-                this.premadeCronString = options.premadeCronString;
-                this.isPaused = options.isPaused || false;
-                this.exportTarget = options.exportTarget || null;
-                this.exportLocation = options.exportLocation || null;
-            }
-            <%}%>
-        });
         return SchedObj<%= v %>;
     }());
     /* End of SchedObj */

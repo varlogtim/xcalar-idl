@@ -80,31 +80,6 @@ describe("Persistent Constructor Test", function() {
         });
     });
 
-    describe("EMetaConstructor Constructor Test", function() {
-        var ephMeta;
-
-        it("Should have 2 attributes", function() {
-            var DF = new Dataflow({
-                "name": "testDF"
-            });
-
-            ephMeta = new EMetaConstructor({
-                "DF": {"testDF": DF}
-            });
-
-            expect(ephMeta).to.be.an.instanceof(EMetaConstructor);
-            expect(Object.keys(ephMeta).length).to.equal(3);
-            expect(ephMeta.version).to.equal(currentVersion);
-            expect(ephMeta.DF).to.exist;
-        });
-
-        it("Should update", function() {
-            ephMeta.update();
-            var df = ephMeta.getDFMeta();
-            expect(df).not.to.have.property("testDF");
-        });
-    });
-
     describe("UserInfoConstructor Constructor Test", function() {
         var userInfos;
 

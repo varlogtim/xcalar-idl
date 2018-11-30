@@ -357,52 +357,6 @@ describe('Project Op Panel Test', function() {
         });
     });
 
-    describe("editing dataflow", function() {
-        describe("project form prefill", function() {
-            it("should show project form", function() {
-                expect($projectForm.is(":visible")).to.be.false;
-                prefillInfo = {
-                    "isDroppedTable": false
-                };
-                ProjectOpPanel.Instance.show(tableId, [1, 2], {prefill: prefillInfo});
-                expect($projectForm.is(":visible")).to.be.true;
-            });
-
-            it("table name should be selected", function() {
-                expect($projectForm.find(".tableList .text").text()).to.equal(tableName);
-            });
-
-            it("correct derived column should be selected", function() {
-                expect($projectForm.find(".derivedSection li").length).to.equal(2);
-                expect($projectForm.find(".derivedSection li").eq(0).hasClass("checked")).to.be.true;
-                expect($projectForm.find(".derivedSection li").eq(1).hasClass("checked")).to.be.false;
-            });
-
-            it("prefixed cols should be selected", function() {
-                expect($projectForm.find(".prefixedSection li").length).to.equal(10);
-                expect($projectForm.find(".prefixedSection li.checked").length).to.equal(10);
-                expect($projectForm.find(".prefixedSection .selectAllWrap .checkbox").hasClass("checked")).to.be.true;
-            });
-        });
-
-        describe("submit", function() {
-            it("should save", function() {
-                var called = false;
-                var cachedFn = DagEdit.store;
-                DagEdit.store = function(info) {
-                    called = true;
-                    expect(info.args.columns.length).to.equal(11);
-                    expect(info.args.columns[0]).to.equal("average_stars");
-                    expect(info.args.columns[1]).to.equal(prefix + gPrefixSign + "compliments");
-                    expect(info.args.columns.indexOf("four")).to.equal(-1);
-                };
-                $projectForm.find(".confirm").click();
-                expect(called).to.be.true;
-                DagEdit.store = cachedFn;
-            });
-        });
-    });
-
     after(function(done) {
         delete gTables[tableId2];
         WSManager.getTableList = cachedGetTableList;

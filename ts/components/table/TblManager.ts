@@ -132,7 +132,6 @@ class TblManager {
 
     private static _removeTableDisplay(tableId: TableId): void {
         $("#xcTableWrap-" + tableId).remove();
-        Dag.destruct(tableId);
         if (gActiveTableId === tableId) {
             gActiveTableId = null;
             TableComponent.update();
@@ -232,7 +231,7 @@ class TblManager {
         var table = gTables[tableId];
 
         if (options.force) {
-            TblManager._tableCleanup(tableId, false, options);
+            TblManager._tableCleanup(tableId, false);
         }
 
         table.freeResultset()
@@ -241,7 +240,7 @@ class TblManager {
                 TblManager._removeTableDisplay(tableId);
             }
             if (!options.force) {
-                TblManager._tableCleanup(tableId, false, options);
+                TblManager._tableCleanup(tableId, false);
             }
             deferred.resolve();
         })
@@ -313,13 +312,13 @@ class TblManager {
             return deferred.promise();
         }
         if (options.force) {
-            TblManager._tableCleanup(tableId, true, options);
+            TblManager._tableCleanup(tableId, true);
         }
 
         table.freeResultset()
         .then(() => {
             if (!options.force) {
-                TblManager._tableCleanup(tableId, true, options);
+                TblManager._tableCleanup(tableId, true);
             }
             deferred.resolve();
         })
@@ -679,7 +678,6 @@ class TblManager {
         const resolveTable = (tableId: TableId): void => {
             const table: TableMeta = gTables[tableId];
             const tableName: string = table.getName();
-            Dag.makeInactive(tableId, false);
             TblManager._removeTableDisplay(tableId);
 
             if (gActiveTableId === tableId) {
@@ -746,7 +744,6 @@ class TblManager {
                 if (arg[i] == null) {
                     const tableIndex: number = gOrphanTables.indexOf(tableName);
                     gOrphanTables.splice(tableIndex, 1);
-                    Dag.makeInactive(tableName, true);
                     TblManager._removeTableMeta(tableName);
                 }
             }
@@ -2260,8 +2257,7 @@ class TblManager {
             if ($el.closest('.editable').length) {
                 return;
             }
-            if ($("#container").hasClass('columnPicker') ||
-                DagEdit.isEditMode()) {
+            if ($("#container").hasClass('columnPicker')) {
                 // not focus when in modal unless bypassModa is true
                 return;
             }
@@ -2305,7 +2301,6 @@ class TblManager {
             const $el: JQuery = $td.children('.clickable');
 
             if ($("#container").hasClass('columnPicker') ||
-                $("#container").hasClass('dfEditState') ||
                 ModalHelper.isModalOn()
             ) {
                 // not focus when in modal
@@ -2519,7 +2514,6 @@ class TblManager {
                     return false;
                 }
                 if ($("#container").hasClass('columnPicker') ||
-                    $("#container").hasClass('dfEditState') ||
                     ModalHelper.isModalOn()
                 ) {
                     $el.trigger('click');

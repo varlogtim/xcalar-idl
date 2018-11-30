@@ -854,12 +854,10 @@ namespace WorkbookManager {
     * @param version - version number
     */
     export function getGlobalScopeKeys(version: number): any {
-        const gEphInfoKey: string = generateKey("", "gEphInfo", version);
         const gSharedDSKey: string = generateKey("", "gSharedDS", version);
         const gSettingsKey: string = generateKey("", "gSettings", version);
 
         return {
-            "gEphStorageKey": gEphInfoKey,
             "gSettingsKey": gSettingsKey,
             "gSharedDSKey": gSharedDSKey
         };

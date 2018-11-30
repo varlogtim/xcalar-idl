@@ -3062,7 +3062,7 @@ XcalarQueryCheck = function(
     function addThriftErrorLogToQueryOutput(queryStateOutput) {
         try {
             queryStateOutput.queryGraph.node.forEach((node) => {
-                if (node.status != null) {
+                if (node.status != null && node.status !== StatusT.StatusOk) {
                     node.thriftError = thriftLog("XcalarQuery", node.status);
                 }
             });

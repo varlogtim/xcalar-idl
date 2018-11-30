@@ -648,14 +648,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     "noNotification": options.noNotification,
                     "noSql": options.noSql
                 });
-                return DagFunction.tagNodes(txId, finalTableId);
             })
-            .then(function(ret) {
-                if (finalTableId != null && ret && ret.tagName) {
-                    DagDraw.refreshDagImage(finalTableId, ret.tagName,
-                                            ret.tables);
-                }
-
+            .then(function() {
                 deferred.resolve(runBeforeStartRet);
             })
             .fail(function(error) {
@@ -1786,7 +1780,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     StatusBox.show(ErrTStr.InvalidAggName, $input);
                     return { "vaild": false };
                 }
-                if (Aggregates.getNamedAggs().hasOwnProperty(arg)) {
+                if (DagAggManager.Instance.getAgg(arg) != null) {
                     errMsg = xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
                         "name": arg,
                         "aggPrefix": gAggVarPrefix

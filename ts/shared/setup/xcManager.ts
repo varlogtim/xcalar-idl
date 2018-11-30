@@ -28,7 +28,6 @@ namespace xcManager {
         .then(function() {
             XVM.setup();
 
-            setupChronosOnlyPanels();
             setupUserArea();
             xcTooltip.setup();
             CSHelp.setup();
@@ -82,7 +81,6 @@ namespace xcManager {
             // XXX TODO, hide these view in Dio
             JSONModal.setup();
             AggModal.setup();
-            initializeChronosOnlyPanels();
             BottomMenu.initialize(); // async
             WorkbookPanel.initialize();
             window["ajv"] = new Ajv(); // json schema validator
@@ -372,9 +370,6 @@ namespace xcManager {
         function initLocks() {
             const keys: any = WorkbookManager.getGlobalScopeKeys(currentVersion);
             const keyAttrs: object[] = [{
-                "key": keys.gEphStorageKey,
-                "scope": gKVScope.GLOB
-            }, {
                 "key": keys.gSettingsKey,
                 "scope": gKVScope.GLOB
             }, {
@@ -739,7 +734,6 @@ namespace xcManager {
         LiveHelpModal.setup();
         JupyterFinalizeModal.setup();
         JupyterUDFModal.setup();
-        DFCommentModal.setup();
         FileListModal.setup();
         DSImportErrorModal.setup();
         ShareDFModal.setup();
@@ -887,8 +881,6 @@ namespace xcManager {
         $(window).resize(function(event: JQueryEventObject): void {
             if (!resizing) {
                 xcMenu.close();
-                $('#dagScrollBarWrap').hide();
-                $(".dfScrollBar").hide();
                 resizing = true;
                 const $modal: JQuery = $('.modalContainer:visible');
                 if ($modal.length && !$modal.hasClass("noWinResize")) {
@@ -984,8 +976,6 @@ namespace xcManager {
                 !$target.closest(".menu").length &&
                 // $target.attr("id") !== "mainFrame" &&
                 !$target.hasClass("ui-resizable-handle") &&
-                !($target.closest(".topButtons").length &&
-                    $target.closest("#dagPanel").length) &&
                 !$target.closest("li.column").length &&
                 !$target.closest(".tableScrollBar").length) {
 
@@ -1394,23 +1384,6 @@ namespace xcManager {
                 $("#showDatasetHint").remove();
             });
         }
-    }
-
-    // XXXX TODO: remove it
-    function setupChronosOnlyPanels() {
-        if (!gChronos) {
-            return;
-        }
-        DagPanel.setup();
-        DataflowPanel.setup();
-    }
-
-    // XXXX TODO: remove it
-    function initializeChronosOnlyPanels() {
-        if (!gChronos) {
-            return;
-        }
-        DataflowPanel.initialize(); // async if has df
     }
 
     /* Unit Test Only */

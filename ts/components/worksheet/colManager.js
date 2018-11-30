@@ -1791,7 +1791,7 @@ window.ColManager = (function($, ColManager) {
                 $('.dagWrap.selected').removeClass('selected')
                                       .addClass('notSelected');
                 if (initialTableId && initialTableId === gActiveTableId) {
-                    TblFunc.focusTable(initialTableId, true);
+                    TblFunc.focusTable(initialTableId);
                 } else {
                     TableComponent.empty();
                 }

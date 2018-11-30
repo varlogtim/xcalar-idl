@@ -448,6 +448,7 @@ namespace QueryManager {
         // eventually calls QueryManager.cancelQuery
     };
 
+    // XXX TODO: update it
     /**
      * QueryManager.cancelDF
      * @param id
@@ -462,8 +463,16 @@ namespace QueryManager {
         }
         if (mainQuery.subQueries[0]) {
             const retName: string = mainQuery.subQueries[0].retName;
-            DFCard.cancelDF(retName, id);
+            _cancelDF(retName, id);
         }
+    }
+
+    function _cancelDF(retName, txId) {
+        if (txId) {
+            QueryManager.cancelQuery(txId);
+        }
+
+        return XcalarQueryCancel(retName)
     };
 
     // this gets called after cancel is successful. It cleans up and updates
@@ -948,29 +957,9 @@ namespace QueryManager {
     }
 
     function xcalarQueryCheckHelper(id: number, queryName: string): XDPromise<any> {
-        const mainQuery: XcQuery = queryLists[id];
-        const curSubQuery: XcSubQuery = mainQuery.subQueries[mainQuery.currStep];
-        if (curSubQuery.retName) {
-            // if retina doesn't exist in dfcard, we stil update the elapsed
-            // time, but the steps and % will be at 0
-            const progress: DFProgressData = DFCard.getProgress(curSubQuery.retName);
-            let status: QueryStateT;
-            if (progress.pct === 1) {
-                status = QueryStateT.qrFinished;
-            } else {
-                status = QueryStateT.qrProcessing;
-            }
-            if (mainQuery.name === SQLOps.Retina && progress.opTime) {
-                mainQuery.setOpTime(progress.opTime);
-            }
-            return PromiseHelper.resolve({
-                numCompletedWorkItem: progress.numCompleted,
-                queryState: status,
-                progress: progress.curOpPct
-            });
-        } else {
-            return XcalarQueryState(queryName);
-        }
+        // const mainQuery: XcQuery = queryLists[id];
+        // const curSubQuery: XcSubQuery = mainQuery.subQueries[mainQuery.currStep];
+        return XcalarQueryState(queryName);
     }
 
     function incrementStep(mainQuery: XcQuery): void {

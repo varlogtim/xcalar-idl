@@ -74,9 +74,6 @@ window.MainMenu = (function($, MainMenu) {
             case ("datastorePanel"):
                 $tab = $("#dataStoresTab");
                 break;
-            case ("dataflowPanel"):
-                $tab = $("#dataflowTab");
-                break;
             case ("jupyterPanel"):
                 $tab = $("#jupyterTab");
                 break;
@@ -393,15 +390,6 @@ window.MainMenu = (function($, MainMenu) {
                     QueryManager.scrollToFocused();
                 }
                 break;
-            case ("dataflowTab"):
-                $("#dataflowPanel").addClass("active");
-                if ($curTab.hasClass("firstTouch")) {
-                    $curTab.removeClass("firstTouch");
-                    DataflowPanel.showFirstTime();
-                } else {
-                    DataflowPanel.show();
-                }
-                break;
             case ("jupyterTab"):
                 BottomMenu.unsetMenuCache();
                 $("#jupyterPanel").addClass("active");
@@ -436,9 +424,6 @@ window.MainMenu = (function($, MainMenu) {
             return;
         }
 
-        if (noAnim) {
-            $("#dagPanelContainer").addClass("noAnim");
-        }
         var id = $curTab.attr("id");
         $mainMenu.find(".commonSection").removeClass("active").filter(function() {
             return $(this).data("tab") === id;
@@ -477,19 +462,11 @@ window.MainMenu = (function($, MainMenu) {
                 });
             }
         }
-        setTimeout(function () {
-            // timeout prevents flicker
-            $("#dagPanelContainer").removeClass("noAnim");
-        });
         return !noAnim;
     }
 
     // makeInactive is used in "noWorkbook" mode
     function closeMenu($curTab, noAnim, makeInactive) {
-        if (noAnim) {
-            $("#dagPanelContainer").addClass("noAnim");
-        }
-
         checkAnim(noAnim);
         $mainMenu.removeClass("open");
         $mainMenu.width(defaultWidth);
@@ -521,10 +498,6 @@ window.MainMenu = (function($, MainMenu) {
                 });
             }
         }
-        setTimeout(function () {
-            // timeout prevents flicker
-            $("#dagPanelContainer").removeClass("noAnim");
-        });
     }
 
     // turns off animation during open or close
