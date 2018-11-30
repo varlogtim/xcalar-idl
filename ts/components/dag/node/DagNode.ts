@@ -1150,6 +1150,8 @@ abstract class DagNode {
                 node: this
             });
             delete this.table;
+        } else if (this.getType() == DagNodeType.Aggregate) {
+            DagAggManager.Instance.removeValue(this.getParam().dest);
         }
     }
 

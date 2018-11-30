@@ -80,13 +80,15 @@ interface DagLineageChange {
 
 interface BackTraceInfo {
     map: Map<DagNodeId, DagNode>,
-    startingNodes: DagNodeId[]
+    startingNodes: DagNodeId[],
+    error?: string
 }
 
 /* ==== Dag Node Input Intereface ==== */
 interface DagNodeAggregateInputStruct {
     evalString: string;
     dest: string;
+    mustExecute: boolean;
 }
 
 interface DagNodeDatasetInputStruct {

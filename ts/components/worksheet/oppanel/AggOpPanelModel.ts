@@ -5,17 +5,20 @@ class AggOpPanelModel extends GeneralOpPanelModel {
     protected event: Function;
     protected groups: OpPanelFunctionGroup[];
     protected dest: string;
+    protected mustExecute: boolean;
 
     /**
      * Return the whole model info
      */
     public getModel(): {
         groups: OpPanelFunctionGroup[],
-        dest: string
+        dest: string,
+        mustExecute: boolean
     } {
         return {
             groups: this.groups,
-            dest: this.dest
+            dest: this.dest,
+            mustExecute: this.mustExecute
         }
     }
 
@@ -62,6 +65,10 @@ class AggOpPanelModel extends GeneralOpPanelModel {
 
     public updateAggName(newAggName: string) {
         this.dest = newAggName;
+    }
+
+    public updateMustExecute(mustExecute: boolean) {
+        this.mustExecute = mustExecute;
     }
 
     protected _initialize(paramsRaw, strictCheck?: boolean) {
@@ -128,6 +135,7 @@ class AggOpPanelModel extends GeneralOpPanelModel {
 
         this.groups = groups;
         this.dest = paramsRaw.dest;
+        this.mustExecute = paramsRaw.mustExecute;
     }
 
     protected _update(all?: boolean): void {
@@ -140,7 +148,8 @@ class AggOpPanelModel extends GeneralOpPanelModel {
         const evalString = xcHelper.formulateMapFilterString(this.groups);
         return {
             evalString: evalString,
-            dest: this.dest
+            dest: this.dest,
+            mustExecute: this.mustExecute
         }
     }
 
@@ -188,11 +197,14 @@ class AggOpPanelModel extends GeneralOpPanelModel {
             });
             invalid = true;
         } else if (DagAggManager.Instance.hasAggregate(aggName)) {
-            errorText = xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
-                name: aggName,
-                aggPrefix: ""
-            });
-            invalid = true;
+            let oldAgg: AggregateInfo = DagAggManager.Instance.getAgg(aggName);
+            if (oldAgg.node != this.dagNode.getId()) {
+                errorText = xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
+                    name: aggName,
+                    aggPrefix: ""
+                });
+                invalid = true;
+            }
         }
         if (invalid) {
             return {error: errorText, arg: -1, group: 0, type: "aggName"}

@@ -10,7 +10,8 @@ class DagNodeAggregateInput extends DagNodeInput {
         "additionalProperties": false,
         "required": [
           "evalString",
-          "dest"
+          "dest",
+          "mustExecute"
         ],
         "properties": {
           "evalString": {
@@ -34,6 +35,15 @@ class DagNodeAggregateInput extends DagNodeInput {
             ],
             "minLength": 1,
             "pattern": "^(.*)$"
+          },
+          "mustExecute": {
+            "$id": "#/properties/mustExecute",
+            "type": "boolean",
+            "title": "The Mustexecute Schema",
+            "default": false,
+            "examples": [
+              true
+            ]
           }
         }
     };
@@ -42,7 +52,8 @@ class DagNodeAggregateInput extends DagNodeInput {
         const input = super.getInput(replaceParameters);
         return {
             evalString: input.evalString || "",
-            dest: input.dest || ""
+            dest: input.dest || "",
+            mustExecute: input.mustExecute || false
         };
     }
 

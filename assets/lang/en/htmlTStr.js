@@ -1150,6 +1150,7 @@ module.exports = {
         "includeSample": "Keep some columns",
         "includeSample2": "Include sample columns",
         "aggFunc": "Aggregate Function",
+        "afterExecute": "Only allow use after execution",
         "mapFilter": "Search map functions",
         "andOrFilter": "Clauses combined by",
         "or": "or",

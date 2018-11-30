@@ -318,6 +318,17 @@ class DagNodeExecutor {
             newFields.push(item.newField);
         });
 
+        const aggregates: string[] = node.getAggregates();
+        for (let i = 0; i < aggregates.length; i++) {
+            let agg = aggregates[i];
+            if (!DagAggManager.Instance.hasAggregate(agg)) {
+                return PromiseHelper.reject("Aggregate " + agg + " does not exist.");
+            }
+            if (DagAggManager.Instance.getAgg(agg).value == null) {
+                return PromiseHelper.reject("Aggregate " + agg + "has not been run.");
+            }
+        }
+
         const srcTable: string = this._getParentNodeTable(0);
         const desTable: string = this._generateTableName();
         const isIcv: boolean = params.icv;

@@ -444,6 +444,9 @@ class DagGraph {
             // we want to stop at the next node with a table unless we're
             // executing optimized in which case we want the entire query
             const backTrack: BackTraceInfo = this.backTraverseNodes(nodeIds, !optimized);
+            if (backTrack.error != null) {
+                return PromiseHelper.reject(backTrack.error);
+            }
             const nodesMap:  Map<DagNodeId, DagNode> = backTrack.map;
             const startingNodes: DagNodeId[] = backTrack.startingNodes;
             return this._executeGraph(nodesMap, optimized, startingNodes);
@@ -826,6 +829,83 @@ class DagGraph {
     }
 
     /**
+     * This function, when given a node, returns any nodes within the current graph that it relies
+     * on execution from.
+     * If a node is a map, filter, or DFIn, we need to consider adding its "source"
+     * (for any aggregates or the literal source for dfIN) to its parents
+     * @param node
+     * @returns {{sources: DagNode[], error: string}}
+     */
+    public findNodeNeededSources(node: DagNode): {sources: DagNode[], error: string} {
+        let error: string;
+        let sources: DagNode[] = [];
+        if (node.getType() == DagNodeType.Map || node.getType() == DagNodeType.Filter) {
+            const genNode: DagNodeMap = <DagNodeMap>node;
+            const aggregates: string[] = genNode.getAggregates();
+            for (let i = 0; i < aggregates.length; i++) {
+                let agg: string = aggregates[i];
+                let aggInfo: AggregateInfo = DagAggManager.Instance.getAgg(agg);
+                if (aggInfo.value == null) {
+                    if (aggInfo.graph != this.getTabId()) {
+                        error = xcHelper.replaceMsg(AggTStr.AggGraphError, {
+                            "aggName": agg,
+                            "graphName": DagTabManager.Instance.getTabById(aggInfo.graph).getName()
+                        });
+                        continue;
+                    }
+                    let aggNode: DagNode = this.getNode(aggInfo.node);
+                    if (aggNode == null) {
+                        error = xcHelper.replaceMsg(AggTStr.AggNodeNotExistError, {
+                            "aggName": agg
+                        });
+                        continue;
+                    }
+                    if (aggNode.getParam().mustExecute) {
+                        error = xcHelper.replaceMsg(AggTStr.AggNodeMustExecuteError, {
+                            "aggName": agg
+                        });
+                        continue;
+                    }
+                    sources.push(aggNode);
+                }
+            }
+        } else if (node.getType() == DagNodeType.DFIn) {
+            const inNode: DagNodeDFIn = <DagNodeDFIn>node;
+            try {
+                let inSource: {graph: DagGraph, node: DagNodeDFOut} =
+                    inNode.getLinedNodeAndGraph();
+                if (!DagTblManager.Instance.hasTable(inSource.node.getTable())) {
+                    // The needed table doesnt exist so we need to generate it, if we can
+                    if (inSource.graph.getTabId() != this.getTabId()) {
+                        error = xcHelper.replaceMsg(AlertTStr.DFLinkGraphError, {
+                            "inName": inNode.getParam().linkOutName,
+                            "graphName": DagTabManager.Instance.getTabById(inSource.graph.getTabId())
+                                .getName()
+                        });
+                    } else if (inSource.node.shouldLinkAfterExecuition()) {
+                        if (inSource.node.getState() == DagNodeState.Complete) {
+                            // The dfOut node's table was deleted by the auto table manager,
+                            // we're gonna need it if we can.
+                            sources.push(inSource.node);
+                        } else {
+                            error = xcHelper.replaceMsg(AlertTStr.DFLinkShouldLinkError, {
+                                "inName": inNode.getParam().linkOutName,
+                            });
+                        }
+                    }
+                    // Otherwise this is a link in using a query, so the node itself is the source
+                }
+            } catch (e) {
+                error = e;
+            }
+        }
+        return {
+            sources: sources,
+            error: error
+        };
+    }
+
+    /**
      *
      * @param nodeIds
      * @param shortened specifies if the back traversal ends at nodes that are complete and have a table
@@ -833,6 +913,7 @@ class DagGraph {
     public backTraverseNodes(nodeIds: DagNodeId[], shortened?: boolean): BackTraceInfo {
         const nodesMap: Map<DagNodeId, DagNode> = new Map();
         const startingNodes: DagNodeId[] = [];
+        let error: string;
         let nodeStack: DagNode[] = nodeIds.map((nodeId) => this._getNodeFromId(nodeId));
         let isStarting = false;
         while (nodeStack.length > 0) {
@@ -840,8 +921,11 @@ class DagGraph {
             const node: DagNode = nodeStack.pop();
             if (node != null && !nodesMap.has(node.getId())) {
                 nodesMap.set(node.getId(), node);
-                const parents: any = node.getParents();
-                if (parents.length == 0) {
+                let parents: DagNode[] = node.getParents();
+                const foundSources: {sources: DagNode[], error: string} = this.findNodeNeededSources(node);
+                parents = parents.concat(foundSources.sources);
+                error = foundSources.error;
+                if (parents.length == 0 || node.getType() == DagNodeType.DFIn) {
                     isStarting = true;
                     startingNodes.push(node.getId());
                 }
@@ -862,14 +946,15 @@ class DagGraph {
                         continue;
                     }
                 }
-                if (!isStarting) {
+                if (!isStarting || node.getType() == DagNodeType.DFIn) {
                     nodeStack = nodeStack.concat(parents);
                 }
             }
         }
         return {
             map: nodesMap,
-            startingNodes: startingNodes
+            startingNodes: startingNodes,
+            error: error
         }
     }
 

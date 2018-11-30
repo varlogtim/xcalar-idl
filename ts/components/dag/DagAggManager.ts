@@ -79,6 +79,29 @@ class DagAggManager {
         return Object.keys(this.aggregates);
     }
 
+    public findAggSource(aggName: string): DagNodeAggregate {
+        if (this.aggregates[aggName] == null) {
+            return null;
+        }
+        let agg: AggregateInfo = this.aggregates[aggName];
+        if (agg.node == '' || agg.graph == '') {
+            throw new Error(DagNodeErrorType.NoGraph);
+        }
+
+        const dagTab: DagTab = DagTabManager.Instance.getTabById(agg.graph);
+        if (dagTab == null) {
+            throw new Error(DagNodeErrorType.NoGraph);
+        }
+        const graph: DagGraph = dagTab.getGraph();
+        if (graph == null) {
+            throw new Error(DagNodeErrorType.NoGraph);
+        }
+        const node: DagNode = graph.getNode(agg.node);
+        if (node == null) {
+            throw new Error(DagNodeErrorType.NoAggNode);
+        }
+    }
+
     /**
      * Adds/replaces an aggregate represented by aggName and aggInfo
      * @param aggName
@@ -95,8 +118,9 @@ class DagAggManager {
     /**
      * Removes the aggregate. If it has a value, the corresponding table is deleted.
      * @param aggName
+     * @param force
      */
-    public removeAgg(aggNames: string | string[]): XDPromise<void> {
+    public removeAgg(aggNames: string | string[], force?: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         if (aggNames == "" || aggNames == []) {
             return PromiseHelper.resolve();
@@ -113,7 +137,7 @@ class DagAggManager {
             }
 
             delete this.aggregates[aggName];
-            if (agg.value != null) {
+            if (agg.value != null || force) {
                 toDelete.push(aggName.substr(1))
             }
         }
@@ -145,6 +169,36 @@ class DagAggManager {
             this.aggregates[aggName].node = "";
         }
         return this._saveAggMap();
+    }
+
+    public removeValue(aggNames: string | string[]): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        if (aggNames == "" || aggNames == []) {
+            return PromiseHelper.resolve();
+        }
+        if (!(aggNames instanceof Array)) {
+            aggNames = [aggNames];
+        }
+        let toDelete: string[] = [];
+        for (var i = 0; i < aggNames.length; i++) {
+            let aggName = aggNames[i];
+            let agg: AggregateInfo = this.aggregates[aggName];
+            if (agg == null) {
+                continue
+            }
+
+            if (agg.value != null) {
+                this.aggregates[aggName].value = null;
+                toDelete.push(aggName.substr(1))
+            }
+        }
+        this._deleteAgg(toDelete)
+        .then(() => {
+            return this._saveAggMap();
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject)
+        return deferred.promise();
     }
 
 

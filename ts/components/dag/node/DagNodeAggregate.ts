@@ -23,18 +23,26 @@ class DagNodeAggregate extends DagNode {
     public setParam(input: DagNodeAggregateInputStruct = <DagNodeAggregateInputStruct>{}) {
         this.input.setInput({
             evalString: input.evalString,
-            dest: input.dest
+            dest: input.dest,
+            mustExecute: input.mustExecute
         });
         let promise = PromiseHelper.resolve();
         let oldAggName = this.getParam().dest;
         if (oldAggName != null && oldAggName != input.dest &&
                 DagAggManager.Instance.hasAggregate(oldAggName)) {
-            let oldAgg = DagAggManager.Instance.getAggregate(oldAggName);
+            let oldAgg = DagAggManager.Instance.getAgg(oldAggName);
             if (oldAgg.value != null) {
-                promise = DagAggManager.Instance.removeNode(this.aggVal);
+                promise = DagAggManager.Instance.removeNode(oldAggName);
             } else {
                 // We never ran it
-                promise = DagAggManager.Instance.removeAgg(this.aggVal);
+                promise = DagAggManager.Instance.removeAgg(oldAggName);
+            }
+        } else if (oldAggName != null && oldAggName == input.dest &&
+                DagAggManager.Instance.hasAggregate(oldAggName)) {
+            let oldAgg = DagAggManager.Instance.getAgg(oldAggName);
+            if (oldAgg.value != null) {
+                // We're replacing the value so we need to delete it
+                promise = DagAggManager.Instance.removeAgg(oldAggName, true);
             }
         }
         PromiseHelper.alwaysResolve(promise)

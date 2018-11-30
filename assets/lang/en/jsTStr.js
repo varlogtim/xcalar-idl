@@ -697,7 +697,10 @@ AlertTStr = {
     "BrowserVersions": "You are running an unsupported browser. Please use one of the following browsers:<br>Chrome (version 65+)<br>Firefox (version 59+)<br>Safari (version 11.1+)",
     "queryHistorySQLErrorTitle": "SQL Error",
     "queryHistoryReadErrorTitle": "Read query history failed",
-    "AutoTblManagerError": "Automatic Table Manager failed to setup."
+    "AutoTblManagerError": "Automatic Table Manager failed to setup.",
+    "DFLinkGraphError": "Dataflow Output '<inName>' must be created in the graph '<graphName>'.",
+    "DFLinkShouldLinkError": "The Dataflow Output for '<inName>' must be manually " +
+        "executed before the output can be used."
 };
 
 ErrorMessageTStr = {
@@ -742,7 +745,11 @@ AggTStr = {
     'AggInstr': 'This is the aggregate result for column "<col>". ' +
                 '\r\n The aggregate operation is "<op>".',
     'AggName': '\r\n The resultant aggregate name is <aggName>.',
-    'AggMsg': '{"Value":<val>}'
+    'AggMsg': '{"Value":<val>}',
+    'AggGraphError': "Aggregate '<aggName>' must be created in the graph '<graphName>'.",
+    'AggNodeNotExistError': "The Aggregate '<aggName>' is created by a node that does not exist.",
+    'AggNodeMustExecuteError': "The Aggregate node for '<aggName>' must be manually " +
+        "executed before the aggregate can be used.",
 };
 
 IndexTStr = {

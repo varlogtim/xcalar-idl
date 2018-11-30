@@ -58,6 +58,7 @@ enum DagNodeErrorType {
     Invalid = "Invalid Configuration",
     NoGraph = "Cannot find linked graph",
     NoLinkInGraph = "Cannot find the linked node",
+    NoAggNode = "Cannot find the aggregate node",
     CycleInLink = "Cycle In Link",
     LinkOutNotExecute = "The linked node only allow linking after execution",
     InvalidOptimizedOutNode = "Valid terminal nodes must be either Export optimized or Link out optimized",
