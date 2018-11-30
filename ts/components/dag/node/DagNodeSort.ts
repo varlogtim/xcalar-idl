@@ -100,6 +100,16 @@ class DagNodeSort extends DagNode {
         return hint;
     }
 
+    protected _getColumnsUsedInInput(): Set<string> {
+        const set: Set<string> = new Set();
+        this.input.getInput().columns.forEach((colInfo) => {
+            if (colInfo != null) {
+                set.add(colInfo.columnName);
+            }
+        });
+        return set;
+    }
+
     // loop through sort columns and make sure there's a corresponding
     // output name for each one that is not taken by another column
     private _updateNewKeys(): void {

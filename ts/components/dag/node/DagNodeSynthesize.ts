@@ -26,4 +26,9 @@ class DagNodeSynthesize extends DagNode {
         }
         return serializedInfo;
     }
+
+    // same reason for project, doesn't really matter if user pass in some invalid columns
+    protected _getColumnsUsedInInput() {
+        return null;
+    }
 }

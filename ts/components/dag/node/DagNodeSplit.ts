@@ -59,6 +59,12 @@ class DagNodeSplit extends DagNode {
         return hint;
     }
 
+    protected _getColumnsUsedInInput(): Set<string> {
+        const set: Set<string> = new Set();
+        set.add(this.input.getInput().source);
+        return set;
+    }
+
     private _getColumnNames(
         colToSplit: string, allCols: string[], splitCols: string[]
     ): string[] {

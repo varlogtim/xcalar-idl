@@ -118,4 +118,12 @@ class DagNodeAggregate extends DagNode {
         }
         return hint;
     }
+
+    protected _getColumnsUsedInInput(): Set<string> {
+        const evalString: string = this.input.getInput().evalString;
+        const arg = XDParser.XEvalParser.parseEvalStr(evalString);
+        const set: Set<string> = new Set();
+        this._getColumnFromEvalArg(arg, set);
+        return set;
+    }
 }

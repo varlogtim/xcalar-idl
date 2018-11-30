@@ -72,4 +72,8 @@ class DagNodeDFIn extends DagNodeIn {
         }
         return hint;
     }
+
+    protected _getColumnsUsedInInput() {
+        return null;
+    }
 }

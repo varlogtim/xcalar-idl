@@ -132,6 +132,14 @@ class DagNodeJoin extends DagNode {
         return hint;
     }
 
+    protected _getColumnsUsedInInput(): Set<string> {
+        const set: Set<string> = new Set();
+        const input: DagNodeJoinInputStruct = this.getParam();
+        this._getColumnsFromJoinTableInput(input.left, set);
+        this._getColumnsFromJoinTableInput(input.right, set);
+        return set;
+    }
+
     private _isSkipRightTable(joinType: string) {
         const noRenameType: Set<string> = new Set([
             JoinCompoundOperatorTStr.LeftSemiJoin,
@@ -207,4 +215,27 @@ class DagNodeJoin extends DagNode {
             changes: changes
         };
     }
+
+    private _getColumnsFromJoinTableInput(
+        tableInput: DagNodeJoinTableInput,
+        set: Set<string>
+    ): void {
+        if (tableInput == null) {
+            return;
+        }
+        if (tableInput.columns != null) {
+            tableInput.columns.forEach((colName) => {
+                set.add(colName);
+            });
+        }
+        
+        if (tableInput.rename != null) {
+            tableInput.rename.forEach((renameInfo) => {
+                if (renameInfo != null && !renameInfo.prefix) {
+                    set.add(renameInfo.sourceColumn);
+                }
+            });
+        }
+    }
+
 }

@@ -401,6 +401,10 @@ class DagNodeCustom extends DagNode {
         return nodeInfo;
     }
 
+    protected _getColumnsUsedInInput() {
+        return null;
+    }
+
     private _setInputPort(inputNode: DagNodeCustomInput, inPortIdx?: number): number {
         if (inPortIdx == null || inPortIdx >= this._input.length) {
             inPortIdx = this._input.length;

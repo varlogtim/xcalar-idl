@@ -76,4 +76,10 @@ class DagNodeProject extends DagNode {
         }
         super.setParam(null, true);
     }
+
+    // not doing any check here because specify some non-existing columns
+    // here does't really affect anything
+    protected _getColumnsUsedInInput(): Set<string> {
+        return null;
+    }
 }

@@ -30,4 +30,8 @@ class DagNodePublishIMD extends DagNode {
             changes: []
         }
     }
+
+    protected _getColumnsUsedInInput() {
+        return null;
+    }
 }

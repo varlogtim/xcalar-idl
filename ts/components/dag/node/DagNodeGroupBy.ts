@@ -206,6 +206,18 @@ class DagNodeGroupBy extends DagNode {
         return newRenameMap;
     }
 
+    protected _getColumnsUsedInInput(): Set<string> {
+        const input: DagNodeGroupByInputStruct = this.input.getInput();
+        const set: Set<string> = new Set();
+        input.groupBy.forEach((colName) => {
+            set.add(colName);
+        });
+        input.aggregate.forEach((aggInfo) => {
+            set.add(aggInfo.sourceColumn);
+        });
+        return set;
+    }
+
     private _getAggColType(operator: string): ColumnType {
         let colType: ColumnType = null;
         const opsMap = XDFManager.Instance.getOperatorsMap();

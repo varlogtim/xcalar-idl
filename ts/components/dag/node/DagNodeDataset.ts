@@ -1,6 +1,5 @@
 class DagNodeDataset extends DagNodeIn {
     protected input: DagNodeDatasetInput;
-    private loadArgs: string;
 
     public constructor(options: DagNodeInInfo) {
         super(options);
@@ -60,5 +59,9 @@ class DagNodeDataset extends DagNodeIn {
             hint += `Source: ${dsName}`;
         }
         return hint;
+    }
+
+    protected _getColumnsUsedInInput() {
+        return null
     }
 }

@@ -20,4 +20,8 @@ class DagNodeUpdateIMD extends DagNodeOut {
         });
         super.setParam();
     }
+
+    protected _getColumnsUsedInInput() {
+        return null;
+    }
 }

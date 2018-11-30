@@ -77,4 +77,8 @@ class DagNodeSQLSubInput extends DagNode {
         }
         return inputParent.getState();
     }
+
+    protected _getColumnsUsedInInput() {
+        return null;
+    }
 }

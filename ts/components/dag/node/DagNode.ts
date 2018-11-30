@@ -81,7 +81,7 @@ abstract class DagNode {
      * @param columns {ProgCol[]} parent columns
      */
     abstract lineageChange(columns: ProgCol[], replaceParameters?: boolean): DagLineageChange;
-
+    protected abstract _getColumnsUsedInInput(): Set<string>;
     /**
      * add events to the dag node
      * @param event {string} event name
@@ -260,10 +260,7 @@ abstract class DagNode {
             this._clearConnectionMeta();
             return;
         }
-        let error: {error: string} = this._validateParents();
-        if (error == null) {
-            error = this.validateParam();
-        }
+        let error: {error: string} = this._validateConfiguration();
         if (error != null) {
             // when it's not source node but no parents, it's in error state
             this.beErrorState(error.error);
@@ -1155,6 +1152,21 @@ abstract class DagNode {
         }
     }
 
+    private _validateConfiguration(): {error: string} {
+        try {
+            let error: {error: string} = this._validateParents();
+            if (error == null) {
+                error = this.validateParam();
+            }
+            if (error == null) {
+                error = this._validateLineage();
+            }
+            return error;
+        } catch (e) {
+            console.error(e);
+            return null;
+        }
+    }
 
     private _validateParents(): {error: string} {
         const maxParents = this.getMaxParents();
@@ -1168,6 +1180,37 @@ abstract class DagNode {
         } else if (numParent !== this.getMaxParents()) {
             let error: string = "Requires " + maxParents + " parents";
             return {error: error};
+        }
+        return null;
+    }
+
+    private _validateLineage(): {error: string} {
+        const colMaps: {[key: string]: ProgCol} = {};
+        this.getParents().forEach((parentNode) => {
+            parentNode.lineage.getColumns().forEach((progCol) => {
+                colMaps[progCol.getBackColName()] = progCol;
+            });
+        });
+
+        const colNameSet: Set<string> = this._getColumnsUsedInInput();
+        const invalidColNames: string[] = [];
+        if (colNameSet != null) {
+            // there is check of brack validation before this check
+            // so here we just check if has <, then it's paramters and skip it
+            colNameSet.forEach((colName) => {
+                if (colName &&
+                    !colName.includes("<") &&
+                    !colMaps.hasOwnProperty(colName)) {
+                    invalidColNames.push(colName);
+                }
+            }); 
+        }
+        if (invalidColNames.length > 0) {
+            const error: string = (invalidColNames.length === 1) ?
+            DagNodeErrorType.NoColumn : DagNodeErrorType.NoColumns
+            return {
+                error: error + invalidColNames.join(", ")
+            };
         }
         return null;
     }
@@ -1199,6 +1242,20 @@ abstract class DagNode {
                     }
                 } else if (arg.type === "fn") {
                     recursiveTraverse(arg);
+                }
+            });
+        }
+    }
+
+    // helper function
+    protected _getColumnFromEvalArg(arg: object, set: Set<string>) {
+        if (arg["args"] != null) {
+            arg["args"].forEach((subArg) => {
+                if (subArg.type === "fn") {
+                    // recusrive check the arg
+                    this._getColumnFromEvalArg(subArg, set);
+                } else if (subArg.type === "columnArg") {
+                    set.add(subArg.value)
                 }
             });
         }

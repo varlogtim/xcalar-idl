@@ -76,4 +76,8 @@ class DagNodeDFOut extends DagNodeOut {
         }
         return hint;
     }
+
+    protected _getColumnsUsedInInput() {
+        return null;
+    }
 }

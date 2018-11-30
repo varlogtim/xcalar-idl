@@ -37,6 +37,10 @@ class DagNodeIMDTable extends DagNodeIn {
         return deferred.promise();
     }
 
+    protected _getColumnsUsedInInput() {
+        return null;
+    }
+
     private _fetchSchema(source: string, columns: string[]): XDPromise<ProgCol[]> {
         const deferred: XDDeferred<ProgCol[]> = PromiseHelper.deferred();
         XcalarListPublishedTables("*", false, true)

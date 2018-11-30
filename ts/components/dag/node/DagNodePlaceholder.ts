@@ -22,4 +22,8 @@ class DagNodePlaceholder extends DagNode {
         serializedInfo.name = this.name;
         return serializedInfo;
     }
+
+    protected _getColumnsUsedInInput() {
+        return null;
+    }
 }

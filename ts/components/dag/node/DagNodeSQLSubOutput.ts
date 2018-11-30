@@ -72,4 +72,8 @@ class DagNodeSQLSubOutput extends DagNode {
         }
         return true;
     }
+
+    protected _getColumnsUsedInInput() {
+        return null;
+    }
 }

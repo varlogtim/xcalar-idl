@@ -52,4 +52,10 @@ class DagNodeExplode extends DagNode {
         }
         return hint;
     }
+
+    protected _getColumnsUsedInInput(): Set<string> {
+        const set = new Set();
+        set.add(this.input.getInput().sourceColumn);
+        return set;
+    }
 }

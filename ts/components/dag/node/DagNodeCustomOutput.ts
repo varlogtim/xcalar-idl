@@ -72,4 +72,8 @@ class DagNodeCustomOutput extends DagNode {
         }
         return true;
     }
+
+    protected _getColumnsUsedInInput() {
+        return null;
+    }
 }

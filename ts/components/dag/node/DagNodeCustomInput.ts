@@ -68,4 +68,8 @@ class DagNodeCustomInput extends DagNode {
     public isConfigured(): boolean {
         return true;
     }
+
+    protected _getColumnsUsedInInput() {
+        return null;
+    }
 }

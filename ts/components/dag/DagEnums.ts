@@ -65,6 +65,8 @@ enum DagNodeErrorType {
     InvalidOptimizedOutNodeCombo = "Optimized dataflow cannot have both Export and Link Out nodes",
     InvalidOptimizedLinkOutCount = "Optimized dataflow cannot have multiple Link Out nodes",
     Disjoint = "Multiple disjoint dataflows detected. Optimized execution can only occur on 1 continuous dataflow.",
+    NoColumn = "Invalid column in the schema:\n",
+    NoColumns = "Invalid columns in the schema:\n",
 }
 
 enum DagGraphEvents {

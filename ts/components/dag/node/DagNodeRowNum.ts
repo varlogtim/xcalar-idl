@@ -48,4 +48,8 @@ class DagNodeRowNum extends DagNode {
             changes: changes
         };
     }
+
+    protected _getColumnsUsedInInput() {
+        return null;
+    }
 }

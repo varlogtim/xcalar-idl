@@ -174,6 +174,15 @@ class DagNodeMap extends DagNode {
         return hint;
     }
 
+    protected _getColumnsUsedInInput(): Set<string> {
+        const set: Set<string> = new Set();
+        this.input.getInput().eval.forEach((evalArg) => {
+            const arg = XDParser.XEvalParser.parseEvalStr(evalArg.evalString);
+            this._getColumnFromEvalArg(arg, set);
+        });
+        return set;
+    }
+
     private _getOpType(func: ParsedEval): ColumnType {
         const operator: string = func.fnName;
         let colType: ColumnType = null;
@@ -189,7 +198,7 @@ class DagNodeMap extends DagNode {
         return colType;
     }
 
-    private _getUDFFromArg(arg: object, set: Set<string> ): void {
+    private _getUDFFromArg(arg: object, set: Set<string>): void {
         const fnName: string = arg["fnName"];
         if (fnName == null) {
             return;

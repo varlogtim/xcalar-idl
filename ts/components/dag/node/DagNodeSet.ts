@@ -91,4 +91,18 @@ class DagNodeSet extends DagNode {
         super.setParam(null, true);
         return newRenameMap;
     }
+
+    protected _getColumnsUsedInInput(): Set<string> {
+        const set: Set<string> = new Set();
+        this.input.getInput().columns.forEach((oneColumn) => {
+            if (oneColumn != null) {
+                oneColumn.forEach((colInfo) => {
+                    if (colInfo != null) {
+                        set.add(colInfo.sourceColumn);
+                    }
+                });
+            } 
+        });
+        return set;
+    }
 }

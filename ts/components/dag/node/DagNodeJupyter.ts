@@ -62,4 +62,8 @@ class DagNodeJupyter extends DagNodeOut {
             params.numExportRows,
             true);
     }
+
+    protected _getColumnsUsedInInput() {
+        return null;
+    }
 }

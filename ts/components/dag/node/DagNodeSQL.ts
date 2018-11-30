@@ -287,6 +287,12 @@ class DagNodeSQL extends DagNode {
         }
         return outPortIdx;
     }
+
+    // XXX TODO: implement it
+    protected _getColumnsUsedInInput(): Set<string> {
+        return null;
+    }
+
     private _setOutputPort(outputNode: DagNodeSQLSubOutput, outPortIdx?: number): number {
         if (outPortIdx == null || outPortIdx >= this.subOutputNodes.length) {
             outPortIdx = this.subOutputNodes.length;

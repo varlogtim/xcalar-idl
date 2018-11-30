@@ -25,4 +25,8 @@ class DagNodeIndex extends DagNode {
         }
         return serializedInfo;
     }
+
+    protected _getColumnsUsedInInput() {
+        return null;
+    }
 }
