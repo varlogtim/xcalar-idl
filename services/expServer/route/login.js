@@ -13,6 +13,7 @@ const express = require('express');
 const crypto = require('crypto');
 const btoa = require('btoa');
 const atob = require('atob');
+const request = require('request');
 var router = express.Router();
 var ssf = require('../supportStatusFile.js');
 var httpStatus = require('../../../assets/js/httpStatus.js').httpStatus;
@@ -29,6 +30,7 @@ require("require.async")(require);
 
 var msalConfigRelPath = "/config/msalConfig.json";
 var ldapConfigRelPath = "/config/ldapConfig.json";
+var vaultConfigRelPath = "/config/vaultConfig.json";
 var isLdapConfigSetup = false;
 var ldapConfig;
 var trustedCerts;
@@ -217,6 +219,56 @@ var emptyMsalConfig = {
     }
 };
 
+var vaultConfigSchema = {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "vaultConfig",
+    "description": "configuration for Vault",
+    "type": "object",
+    "properties": {
+        "vaultEnabled": {
+            "description": "is vault connector active",
+            "type": "boolean"
+        },
+        "vault": {
+            "description": "vault configuration data",
+            "type": "object",
+            "oneOf": [
+                { "$ref": "#/definitions/vaultConfigData" }
+            ]
+        }
+    },
+
+    "required": [ "vaultEnabled", "vault" ],
+
+    "definitions": {
+        "vaultConfigData": {
+            "properties": {
+                "vault_uri": {
+                    "description": "uri of vault server",
+                    "type": "string"
+                },
+                "vaultUserGroup": {
+                    "description": "name of the vault Xcalar user group",
+                    "type": "string"
+                },
+                "vaultAdminGroup": {
+                    "description": "name of the vault Xcalar admin group",
+                    "type": "string"
+                }
+            },
+            "required": [ "vault_uri", "vaultUserGroup", "vaultAdminGroup" ]
+        }
+    }
+};
+
+var emptyVaultConfig = {
+    vaultEnabled: false,
+    vault: {
+        vault_uri: "",
+        vaultUserGroup: "",
+        vaultAdminGroup: ""
+    }
+}
 
 var users = new Map();
 var globalLoginId = 0;
@@ -638,6 +690,84 @@ function setupLdapConfigs(forceSetup) {
     return deferred.promise();
 }
 
+function getVaultConfig() {
+    var deferred = jQuery.Deferred();
+    var message = { "status": httpStatus.OK, "vaultEnabled": false };
+    var vaultConfig = {};
+    var validate = ajv.compile(vaultConfigSchema);
+    var vaultConfigOut;
+    var xlrRoot = "";
+
+    support.getXlrRoot()
+    .then(function(path) {
+        xlrRoot = path;
+        return loadConfigModule(xlrRoot, vaultConfigRelPath);
+    })
+    .then(function(moduleMsg) {
+        vaultConfig = jQuery.extend(true, {},
+                                    emptyVaultConfig,
+                                    moduleMsg.data);
+        var valid = validate(vaultConfig);
+
+        if (!valid) {
+            message.error = JSON.stringify(validate.errors);
+            return deferred.reject(message);
+        }
+
+        message.data = vaultConfig;
+
+        deferred.resolve(message);
+    })
+    .fail(function(errorMsg) {
+        message.error = (xlrRoot !== "") ?
+            errorMsg.message : errorMsg;
+        deferred.reject(message);
+    });
+
+    return deferred.promise();
+}
+
+function setVaultConfig(vaultConfigIn) {
+    var deferred = jQuery.Deferred();
+    var vaultConfigPath;
+    var vaultConfig = {};
+    var message = { "status": httpStatus.OK, "success": false };
+    var validate = ajv.compile(vaultConfigSchema);
+
+    var inputValid = validate(vaultConfigIn);
+    if (!inputValid) {
+        message.error = JSON.stringify(validate.errors);
+        xcConsole.log("invalid vaultConfig: " + message.error);
+        deferred.reject(message);
+        return deferred.promise();
+    }
+
+    vaultConfig = jQuery.extend(true, {},
+                                emptyVaultConfig,
+                                vaultConfigIn);
+
+    var valid = validate(vaultConfig);
+    if (!valid) {
+        message.error = JSON.stringify(validate.errors);
+        deferred.reject(message);
+    } else {
+        support.getXlrRoot()
+        .then(function(xlrRoot) {
+            vaultConfigPath = path.join(xlrRoot, vaultConfigRelPath);
+
+            return (support.writeToFile(vaultConfigPath, vaultConfig, {"mode": 0600}));
+        })
+        .then(function() {
+            message.success = true;
+            deferred.resolve(message);
+        })
+        .fail(function(errorMsg) {
+            message.error = errorMsg;
+            deferred.reject(message);
+        });
+    }
+}
+
 function setLdapConnection(credArray, ldapConn, ldapConfig, loginId) {
     var deferred = jQuery.Deferred();
 
@@ -949,6 +1079,120 @@ function ldapLogin(credArray) {
     return deferred.promise();
 }
 
+function vaultLogin(credArray) {
+    var deferred = jQuery.Deferred();
+    var message = { "status": httpStatus.OK, "isValid": false };
+    var vaultUserGroup = null;
+    var vaultAdminGroup = null;
+
+    getVaultConfig()
+    .then(function(vaultConfigMsg) {
+        var vaultConfig = vaultConfigMsg.data;
+
+        if (!vaultConfig.vaultEnabled) {
+            message.error = "vault is not configured";
+            return deferred.reject(message);
+        }
+
+        var options = {
+            "method": "POST",
+            "uri": vaultConfig.vault.vault_uri + "/v1/auth/ldap/login/" + credArray.xiusername,
+            "json": { "password" : credArray.xipassword }
+        }
+
+        request(options, function(error, response, body) {
+            if (response.statusCode === httpStatus.OK) {
+
+                var userInfo = {
+                    "firstName": response.body.auth.metadata.username,
+                    "mail": "",
+                    "isAdmin": false,
+                    "isValid": false,
+                    "isSupporter": false
+                };
+
+                if (response.body.auth.policies.includes(vaultConfig.vault.vaultAdminGroup)) {
+                    userInfo.isAdmin = true;
+                    userInfo.isValid = true;
+                } else if (response.body.auth.policies.includes(vaultConfig.vault.vaultUserGroup)) {
+                    userInfo.isAdmin = false;
+                    userInfo.isValid = true;
+                } else {
+                    var revokeOptions = {
+                        "method": "POST",
+                        "uri": vaultConfig.vault.vault_uri + "/v1/auth/token/revoke",
+                        "json": { "token" :  response.body.auth.client_token },
+                        "headers": { "X-Vault-Token" : response.body.auth.client_token }
+                    }
+
+                    request(revokeOptions, function(error, response, body) {
+                        message.error = "user " + credArray.xiusername + " does not belong to policy groups " + vaultConfig.vault.vaultAdminGroup + " and " + vaultConfig.vault.vaultUserGroup;
+                        return deferred.reject(message);
+                    });
+                }
+                userInfo.tokenType = "vault";
+                userInfo.token = response.body;
+
+                return deferred.resolve(userInfo);
+            } else {
+                message.error = error;
+                return deferred.reject(message);
+            }
+        });
+    })
+    .fail(function(errorMsg) {
+        message.error = errorMsg;
+        deferred.reject(message);
+    });
+
+    return deferred.promise();
+}
+
+function vaultLogout(session) {
+    var deferred = jQuery.Deferred();
+    var message = { "status": httpStatus.OK, "isValid": false };
+
+    if (session.credentials &&
+        session.credentials["vault"]) {
+        var token = session.credentials["vault"];
+
+        getVaultConfig()
+        .then(function(vaultConfigMsg) {
+            var vaultConfig = vaultConfigMsg.data;
+            if (!vaultConfig.vaultEnabled) {
+                message.error = "vault is not configured";
+                return deferred.reject(message);
+            }
+
+            var options = {
+                "method": "POST",
+                "uri": vaultConfig.vault.vault_uri + "/v1/auth/token/revoke",
+                "json": { "token" :  token.auth.client_token },
+                "headers": { "X-Vault-Token" : token.auth.client_token }
+            }
+
+            request(options, function(error, response, body) {
+                if (response.statusCode === httpStatus.OK) {
+                    xcConsole.log("Response: " + JSON.stringify(response));
+                    message.isValid = true;
+                    return deferred.resolve(message);
+                } else {
+                    message.error = error;
+                    return deferred.reject(message);
+                }
+            });
+        })
+        .fail(function(errorMsg) {
+            message.error = errorMsg;
+            return deferred.reject(message);
+        });
+    } else {
+        deferred.resolve();
+    }
+
+    return deferred.promise();
+}
+
 function loginAuthentication(credArray) {
     var deferred = jQuery.Deferred();
     var message = { "status": httpStatus.OK, "isValid": false };
@@ -993,7 +1237,7 @@ function loginAuthentication(credArray) {
     .then(
         // Successfully authenticated as default admin. Fall through
         function(userInfo) {
-            return userInfo;
+            return jQuery.Deferred().resolve(userInfo).promise();
         },
 
         // Did not authenticate as default admin, either because
@@ -1001,6 +1245,18 @@ function loginAuthentication(credArray) {
         // or credArray.xiusername/xipassword is wrong
         function() {
             return ldapLogin(credArray);
+        }
+    )
+    .then(
+        // Successfully authenticated as default admin or ldap.  Fall through
+        function(userInfo) {
+            return jQuery.Deferred().resolve(userInfo).promise();
+        },
+
+        // Did not authenticate as either default admin or ldap, try vault
+        // auth
+        function() {
+            return vaultLogin(credArray);
         }
     )
     .then(function(userInfo) {
@@ -1063,6 +1319,20 @@ function authenticationInit() {
         return subDeferred.promise();
     }
 
+    function getVaultConfigOrNot() {
+        var subDeferred = jQuery.Deferred();
+
+        getVaultConfig()
+        .then(function(msg) {
+            subDeferred.resolve(msg);
+        })
+        .fail(function(msg) {
+            subDeferred.resolve(msg);
+        });
+
+        return subDeferred.promise();
+    }
+
     xcConsole.log("Starting default admin load");
     getDefaultAdminOrNot()
     .then(function(msg) {
@@ -1096,6 +1366,18 @@ function authenticationInit() {
             authConfigured = true;
         } else {
             xcConsole.log("ldap not configured");
+        }
+
+        xcConsole.log("Starting Vault config load");
+        return getVaultConfigOrNot();
+    })
+    .then(function(msg) {
+        if (msg.data &&
+            msg.data.vaultEnabled) {
+            xcConsole.log("vault configured");
+            authConfigured = true;
+        } else {
+            xcConsole.log("vault not configured");
         }
     })
     .always(function() {
@@ -1155,22 +1437,27 @@ router.post('/login', function(req, res, next) {
     });
 }, [support.loginAuth]);
 
-router.post('/logout',
-            [support.checkAuth], function(req, res) {
-    var email = req.session.emailAddress;
+router.post('/logout', [support.checkAuth], function(req, res) {
+    var username = req.session.username;
     var message = {
         'status': httpStatus.OK,
-        'message': 'User ' + email + ' is logged out'
+        'message': 'User ' + username + ' is logged out'
     }
-    req.session.destroy(function(err) {
-        if (err) {
-            message = {
-                'status': httpStatus.BadRequest,
-                'message': 'Error logging out user ' + email + ' :' + JSON.stringify(err)
-            }
-        }
 
-        res.status(message.status).send(message);
+    vaultLogout(req.session)
+    .always(function () {
+        req.session.destroy(function(err) {
+            if (err) {
+                message = {
+                    'status': httpStatus.BadRequest,
+                    'message': 'Error logging out user ' + username + ' :' + JSON.stringify(err)
+                }
+            }
+
+            xcConsole.log("logging out user " + username);
+
+            res.status(message.status).send(message);
+        });
     });
 });
 

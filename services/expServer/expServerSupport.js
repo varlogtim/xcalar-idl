@@ -956,6 +956,15 @@ function loginAuthImpl(req, res) {
             req.session.username = message.xiusername;
             req.session.firstName = message.firstName;
             req.session.emailAddress = message.mail;
+
+            if (message.tokenType && message.tokenType !== "") {
+                if (! req.session.credentials) {
+                    req.session.credentials = {};
+                }
+
+                req.session.credentials[message.tokenType] = message.token;
+                delete message.token;
+            }
         }
     }
 
