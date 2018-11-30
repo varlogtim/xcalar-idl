@@ -397,7 +397,9 @@ class DagGraphExecutor {
         const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, tabId);
         dagNodeExecutor.run()
         .then((_destTable) => {
-            Transaction.done(txId, {});
+            Transaction.done(txId, {
+                noSql: true,
+            });
             return MemoryAlert.Instance.check();
         })
         .then(deferred.resolve)

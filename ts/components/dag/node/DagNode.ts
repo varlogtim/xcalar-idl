@@ -519,6 +519,10 @@ abstract class DagNode {
     }
 
     public setParam(_param?: any, noAutoExecute?: boolean): void {
+        if (!this.input.hasParametersChanges()) {
+            // when there is no change
+            return;
+        }
         this.events.trigger(DagNodeEvents.ParamChange, {
             id: this.getId(),
             params: this.getParam(),
