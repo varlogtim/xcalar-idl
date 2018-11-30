@@ -1068,6 +1068,7 @@ class GeneralOpPanelModel {
 
     protected _isOptional(opInfo, index): boolean {
         return (opInfo.category !== FunctionCategoryT.FunctionCategoryUdf) &&
+                opInfo.argDescs[index] != null &&
                 (opInfo.argDescs[index].argType === XcalarEvalArgTypeT.OptionalArg);
     }
 }
