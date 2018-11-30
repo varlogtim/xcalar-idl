@@ -2328,7 +2328,7 @@ namespace XIApi {
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const simuldateTxId: number = startSimulate();
-        XcalarExport(tableName, driverName, driverParams, columns, exportName)
+        XcalarExport(tableName, driverName, driverParams, columns, exportName, simuldateTxId)
         .then(() => {
             const query: string = endSimulate(simuldateTxId);
             const queryName: string = getNewTableName(exportName);

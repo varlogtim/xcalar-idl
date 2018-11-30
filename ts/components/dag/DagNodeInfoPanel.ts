@@ -116,7 +116,8 @@ class DagNodeInfoPanel {
         const uneditable = (dagNodeType === DagNodeType.CustomInput ||
             dagNodeType === DagNodeType.CustomOutput ||
             dagNodeType === DagNodeType.SQLSubInput ||
-            dagNodeType === DagNodeType.SQLSubOutput);
+            dagNodeType === DagNodeType.SQLSubOutput ||
+            DagView.getActiveArea().hasClass("viewOnly"));
         if (uneditable || DagView.isNodeLocked(this._activeNode.getId())) {
             xcHelper.disableElement(this._$panel.find(".editConfig"));
         } else {

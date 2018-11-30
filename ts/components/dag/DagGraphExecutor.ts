@@ -656,17 +656,25 @@ class DagGraphExecutor {
 
         // create tablename and columns property in retina for each outnode
         const outNodes = this._nodes.filter((node) => {
-            return node.getType() === DagNodeType.DFOut;
+            return node.getType() === DagNodeType.DFOut ||
+                   node.getType() === DagNodeType.Export;
         });
-
         // XXX check for name conflict when creating headeralias
         const destInfo: {nodeId: DagNodeId, tableName: string}[] = [];
         const tables = outNodes.map((outNode) => {
             const columns = outNode.getParam().columns.map((col) => {
-                return {
-                    columnName: col.sourceName,
-                    headerAlias: col.destName
+                if (typeof col === "string") { // export node
+                    return {
+                        columnName: col,
+                        headerAlias: col
+                    }
+                } else { // df out node
+                    return {
+                        columnName: col.sourceName,
+                        headerAlias: col.destName
+                    }
                 }
+
             });
             destInfo.push({
                 nodeId: outNode.getId(),

@@ -592,8 +592,10 @@ class DagTabManager{
         const tabId = dagTab.getId();
         const isEditable: boolean = (dagTab instanceof DagTabUser);
         const isViewOnly: boolean = (dagTab instanceof DagTabOptimized);
+        const isOptimized: boolean = (dagTab instanceof DagTabOptimized);
         let html: HTML =
-            '<li class="dagTab ' + (dagTab.isUnsave()? 'unsave': '') + '">' +
+            '<li class="dagTab ' + (dagTab.isUnsave()? 'unsave': '') + ' ' +
+                (isOptimized? 'optimized': '') + '">' +
                 '<div class="name ' + (isEditable? '': 'nonedit') + '">' +
                     tabName +
                 '</div>' +
@@ -604,7 +606,7 @@ class DagTabManager{
             '</li>';
         this._getTabArea().append(html);
         $("#dagView .dataflowWrap").append(
-            '<div class="dataflowArea ' +  (isViewOnly? 'viewOnly': '') + '" data-id="' +tabId + '">\
+            '<div class="dataflowArea ' +  (isViewOnly? 'viewOnly': '') + ' ' + (isOptimized? 'optimized': '') + '" data-id="' +tabId + '">\
                 <div class="dataflowAreaWrapper">\
                     <div class="commentArea"></div>\
                     <svg class="edgeSvg"></svg>\

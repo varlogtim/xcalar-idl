@@ -91,7 +91,7 @@ class DagNodeExecutor {
             case DagNodeType.Set:
                 return this._set();
             case DagNodeType.Export:
-                return this._export();
+                return this._export(optimized);
             case DagNodeType.Custom:
                 return this._custom();
             case DagNodeType.CustomInput:
@@ -132,8 +132,12 @@ class DagNodeExecutor {
         return parentNode.getTable();
     }
 
-    private _generateTableName(): string {
-        return "table_" + this.tabId + "_" + this.node.getId() + Authentication.getHashId();
+    private _generateTableName(isLRQ?: boolean): string {
+        let prefix = "";
+        if (isLRQ) {
+            prefix = ".XcalarLRQExport.";
+        }
+        return prefix + "table_" + this.tabId + "_" + this.node.getId() + Authentication.getHashId();
     }
 
     private _loadDataset(optimized?: boolean): XDPromise<string> {
@@ -486,8 +490,8 @@ class DagNodeExecutor {
         }
     }
 
-    private _export(): XDPromise<null> {
-        const deferred: XDDeferred<null> = PromiseHelper.deferred();
+    private _export(optimized?: boolean): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNodeExport = <DagNodeExport>this.node;
         const exportInput: DagNodeExportInputStruct = node.getParam(this.replaceParam);
         const columns: string[] = exportInput.columns;
@@ -509,10 +513,14 @@ class DagNodeExecutor {
         const driverName: string = exportInput.driver;
         let driverParams = exportInput.driverArgs;
         const srcTable: string = this._getParentNodeTable(0);
-        const exportName: string = this._generateTableName();
+        const exportName: string = this._generateTableName(optimized);
         XIApi.exportTable(this.txId, srcTable, driverName, driverParams, driverColumns, exportName)
         .then(() => {
-            deferred.resolve(null); // no table generated
+            if (optimized) {
+                deferred.resolve(srcTable);
+            } else {
+                deferred.resolve(null); // no table generated
+            }
         })
         .fail(deferred.reject);
 

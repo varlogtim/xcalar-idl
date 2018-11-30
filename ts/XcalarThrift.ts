@@ -1189,7 +1189,8 @@ XcalarExport = function(
     driverName: string,
     driverParams: {},
     columns: XcalarApiExportColumnT[],
-    exportName: string
+    exportName: string,
+    txId?: number
 ): XDPromise<any> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -1199,9 +1200,22 @@ XcalarExport = function(
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-    // var workItem = xcalarListExportTargetsWorkItem(typePattern, namePattern);
-    xcalarExport(tHandle, tableName, driverName, driverParams, columns, exportName)
-    .then(deferred.resolve)
+
+    var workItem = xcalarExportWorkItem(tableName, driverName, driverParams, columns, exportName);
+    let def: XDPromise<any>;
+    if (Transaction.isSimulate(txId)) {
+        def = fakeApiCall();
+    } else {
+        def = xcalarExport(tHandle, tableName, driverName, driverParams, columns, exportName);
+    }
+    let query = XcalarGetQuery(workItem);
+    Transaction.startSubQuery(txId, 'export', exportName, query);
+
+    def
+    .then(function(ret) {
+        Transaction.log(txId, query, exportName, ret.timeElapsed);
+        deferred.resolve(ret);
+    })
     .fail(function(error) {
         var thriftError = thriftLog("XcalarExport", error);
         deferred.reject(thriftError);

@@ -608,6 +608,12 @@
                     display: block;
                 }
             }
+            &.optimized {
+                // make the grids appear slightly more gray
+                .dataflowAreaWrapper {
+                    box-shadow: inset 0 0 0 10000000px rgba(0, 0, 0, 0.03);
+                }
+            }
         }
 
         .dataflowAreaWrapper {
@@ -1233,6 +1239,10 @@
                         }
                     }
                 }
+            }
+
+            &.optimized {
+                font-style: italic;
             }
 
             .name {
