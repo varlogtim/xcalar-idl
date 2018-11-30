@@ -45,9 +45,11 @@ class DagNodeExecutor {
         })
         .fail((error) => {
             let errorStr: string;
-            if (typeof error === "string") {
+            if (error == null) {
+                errorStr = ErrTStr.Unknown;
+            } else if (typeof error === "string") {
                 errorStr = error;
-            } else {
+            } else if (typeof error === "object") {
                 let nodeProp;
                 if (error.node) {
                     nodeProp = error.node;
@@ -58,6 +60,9 @@ class DagNodeExecutor {
                 if (nodeProp) {
                     error.node = nodeProp;
                 }
+            } else {
+                // should be invalid case
+                errorStr = JSON.stringify(error);
             }
             node.beErrorState(errorStr);
             deferred.reject(error);
