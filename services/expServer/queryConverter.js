@@ -19,24 +19,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     }
     xcHelper = sqlHelpers ? sqlHelpers.xcHelper :
         require("./sqlHelpers/xcHelper.js").xcHelper;
-
-    // TEMPORARY FUNCTIONS
-    xcHelper.unionTypeToXD = function(type) {
-        switch (type) {
-            case UnionOperatorTStr[UnionOperatorT.UnionStandard]:
-                return "union";
-            case UnionOperatorTStr[UnionOperatorT.UnionIntersect]:
-                return "intersect";
-            case UnionOperatorTStr[UnionOperatorT.UnionExcept]:
-                return "except";
-            default:
-                console.error("error case");
-                return "";
-        }
-    }
 });
-
-
 const globalKVPrefix = "/globalKvs/";
 const globalKVDatasetPrefix = "/globalKvsDataset/";
 const workbookKVPrefix = "/workbookKvs/";
@@ -46,25 +29,26 @@ const horzNodeSpacing = 140;// spacing between nodes when auto-aligning
 const vertNodeSpacing = 60;
 let isRetina = false;
 
-function convert(query) {
+function convert(dataflowInfo) {
     const nodes = new Map();
     const datasets = [];
     try {
-        if (typeof query === "string") {
-            query = JSON.parse(query);
+        if (typeof dataflowInfo === "string") {
+            dataflowInfo = JSON.parse(dataflowInfo);
         }
     } catch (e) {
-        return "invalid query: " + query;
+        return "invalid dataflowInfo: " + dataflowInfo;
     }
-    if (!(query instanceof Array)) {
-        return "invalid query: " + query;
+    if (typeof dataflowInfo !== "object" || dataflowInfo == null || (dataflowInfo instanceof Array)) {
+        return "invalid dataflowInfo: " + dataflowInfo;
     }
     // first element in the array is a header indicating if the dataflow
     // is a regular workbook dataflow or retina dataflow
-    const header = query[0];
-    if (header.workbookVersion == null) {
+
+    if (dataflowInfo.workbookVersion == null) {
         isRetina = true;
     }
+    const query = dataflowInfo.query;
 
     for (let i = 1; i < query.length; i++) {
         const rawNode = query[i];
@@ -637,8 +621,11 @@ function _getDagNodeInfo(node) {
             };
             break;
         case (XcalarApisT.XcalarApiExport):
+            let subType = isRetina ? "Export Optimized" : null;
+            // const exportInput = getExportInput(node.args);
             dagNodeInfo = {
                 type: DagNodeType.Export,
+                subType: subType,
                 description: JSON.stringify(node.args),
                 input: {
                     columns: [],
