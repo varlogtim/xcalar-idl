@@ -447,6 +447,7 @@ declare var gEnableIndexStyle: boolean;
 declare var gXcSupport: boolean;
 declare var gCollab: boolean;
 declare var gXcalarRecordNum: string;
+declare var gXcalarApiLrqExportPrefix: string;
 
 declare var gBuildNumber: number;
 declare var gGitVersion: number;

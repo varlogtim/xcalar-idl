@@ -83,7 +83,7 @@ namespace xcGlobal {
             "Left Anti Semi Join": JoinCompoundOperatorTStr.LeftAntiSemiJoin,
             "Right Anti Semi Join": JoinCompoundOperatorTStr.RightAntiSemiJoin,
         };
-    
+
 
         // ======================== Support Parameters ====================== //
         gExportNoCheck = false;
@@ -104,6 +104,7 @@ namespace xcGlobal {
         gXcSupport = false; // if xcalar support user
         gCollab = false; // if strip / in username or not
         gXcalarRecordNum = "xcalarRecordNum";
+        gXcalarApiLrqExportPrefix = ".XcalarLRQExport.";
 
         // Shut up the console logs
         verbose = false;

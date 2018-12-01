@@ -137,12 +137,8 @@ class DagNodeExecutor {
         return parentNode.getTable();
     }
 
-    private _generateTableName(isLRQ?: boolean): string {
-        let prefix = "";
-        if (isLRQ) {
-            prefix = ".XcalarLRQExport.";
-        }
-        return prefix + "table_" + this.tabId + "_" + this.node.getId() + Authentication.getHashId();
+    private _generateTableName(): string {
+        return "table_" + this.tabId + "_" + this.node.getId() + Authentication.getHashId();
     }
 
     private _loadDataset(optimized?: boolean): XDPromise<string> {
@@ -518,7 +514,13 @@ class DagNodeExecutor {
         const driverName: string = exportInput.driver;
         let driverParams = exportInput.driverArgs;
         const srcTable: string = this._getParentNodeTable(0);
-        const exportName: string = this._generateTableName(optimized);
+        let exportName: string;
+        if (optimized) {
+            exportName = gXcalarApiLrqExportPrefix + srcTable;
+        } else {
+            exportName = this._generateTableName();
+        }
+
         XIApi.exportTable(this.txId, srcTable, driverName, driverParams, driverColumns, exportName)
         .then(() => {
             if (optimized) {
