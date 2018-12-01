@@ -646,11 +646,20 @@ abstract class DagNode {
                 elapsedTime = nodeInfo.elapsed.milliseconds;
             }
 
+            tableProgressInfo.numWorkTotal = nodeInfo.numWorkTotal;
+            if (nodeInfo.state === DgDagStateT.DgDagStateReady) {
+                // if node is finished, numWorkCompleted should be equal
+                // to numWorkTotal even if backend doesn't return the correct value
+                tableProgressInfo.numWorkCompleted = nodeInfo.numWorkTotal;
+            } else {
+                tableProgressInfo.numWorkCompleted = nodeInfo.numWorkCompleted;
+            }
+
             tableProgressInfo.elapsedTime = elapsedTime;
             let progress: number = 0;
             if (nodeInfo.state === DgDagStateT.DgDagStateProcessing ||
                 nodeInfo.state === DgDagStateT.DgDagStateReady) {
-                progress = nodeInfo.numWorkCompleted / nodeInfo.numWorkTotal;
+                progress = tableProgressInfo.numWorkCompleted / tableProgressInfo.numWorkTotal;
             }
             if (isNaN(progress)) {
                 progress = 0;
@@ -660,10 +669,10 @@ abstract class DagNode {
             let rows = nodeInfo.numRowsPerNode.map(numRows => numRows);
             tableProgressInfo.skewValue = this._getSkewValue(rows);
             tableProgressInfo.numRowsTotal = nodeInfo.numRowsTotal;
-            tableProgressInfo.numWorkCompleted = nodeInfo.numWorkCompleted;
-            tableProgressInfo.numWorkTotal = nodeInfo.numWorkTotal;
+
             tableProgressInfo.rows = rows;
             tableProgressInfo.size = nodeInfo.inputSize;
+
             if (errorStates.indexOf(nodeInfo.state) > -1 ) {
                 errorState = nodeInfo.state;
                 isComplete = false;

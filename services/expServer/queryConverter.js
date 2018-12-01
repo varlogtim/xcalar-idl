@@ -628,9 +628,9 @@ function _getDagNodeInfo(node) {
                 subType: subType,
                 description: JSON.stringify(node.args),
                 input: {
-                    columns: [],
-                    driver: "",
-                    driverArgs: {}
+                    columns: node.args.columns.map(col => col.columnName),
+                    driver: node.args.driverName,
+                    driverArgs: JSON.parse(node.args.driverParams)
                 }
             };
             break;
