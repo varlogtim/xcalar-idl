@@ -163,8 +163,7 @@ namespace StatusBox {
 
         // position the message
         private setupPosition(offsetX: number = 0, offsetY: number = 0): void {
-
-            const $target: JQuery = this.$target;
+            let $target: JQuery = this._findTarget();
             const $statusBox: JQuery = this.$statusBox;
             const bound: ClientRect = $target[0].getBoundingClientRect();
             const winWidth: number = <number>$(window).width();
@@ -217,6 +216,16 @@ namespace StatusBox {
                 $statusBox.css({top: top, right: right, left: "auto"});
             } else {
                 $statusBox.css({top: top, left: left, right: "auto"});
+            }
+        }
+
+        // returns target but if not found, then returns nearest element that's
+        // visible
+        private _findTarget(): JQuery {
+            if (!this.$target.is(":visible") ) {
+                return this.$target.closest(":visible");
+            } else {
+                return this.$target;
             }
         }
 
