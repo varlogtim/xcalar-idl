@@ -188,6 +188,10 @@ interface JQuery {
     caret(pos: number): JQuery;
 }
 
+interface Event {
+    clipboardData: {setData: Function}
+}
+
 interface LocalStorage {
     setItem(key: string, value: string): void;
     getItem(key: string): string | null;

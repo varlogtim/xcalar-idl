@@ -1357,7 +1357,7 @@
     }
 
     &.operatorMenu {
-        .removeNode, .copyNodes, .cutNodes, .pasteNodes, .executeNode, .resetNode, .executeNodeOptimized,
+        .removeNode, .copyNodes, .cutNodes, .executeNode, .resetNode, .executeNodeOptimized,
         .description, .configureNode, .previewTable, .generateTable, .viewSchema, .autoAlign,
         .unlockNodeTable, .lockNodeTable, .download, .createCustom, .viewUDF, .selectAllNodes {
             display: list-item;
@@ -1390,7 +1390,7 @@
             }
         }
         &.nonEditableSubgraph {
-            .removeNode, .copyNodes, .cutNodes, .pasteNodes, .executeNode, .download {
+            .removeNode, .copyNodes, .cutNodes, .executeNode, .download {
                 display: none;
             }
 
@@ -1415,14 +1415,14 @@
         }
     }
     &.backgroundMenu {
-        .removeAllNodes, .pasteNodes, .executeAllNodes, .executeAllNodesOptimized,
+        .removeAllNodes, .executeAllNodes, .executeAllNodesOptimized,
         .resetAllNodes, .selectAllNodes,
         .autoAlign, .newComment {
             display: list-item;
         }
 
         &.nonEditableSubgraph {
-            .removeAllNodes, .pasteNodes, .newComment, .executeAllNodes {
+            .removeAllNodes, .newComment, .executeAllNodes {
                 display: none;
             }
         }
@@ -1433,7 +1433,7 @@
         }
     }
     &.commentMenu {
-        .removeNode, .copyNodes, .cutNodes, .pasteNodes, .autoAlign {
+        .removeNode, .copyNodes, .cutNodes, .autoAlign {
             display: list-item;
         }
         .executeNode, .executeNodeOptimized, .description, .configureNode, .previewTable, .generateTable, .viewSchema,

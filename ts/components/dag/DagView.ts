@@ -68,8 +68,9 @@ namespace DagView {
                 return;
             }
 
+            const nodesStr = DagView.copyNodes(DagView.getSelectedNodeIds(true, true));
+            e.originalEvent.clipboardData.setData("text/plain", nodesStr);
             e.preventDefault(); // default behaviour is to copy any selected text
-            DagView.copyNodes(DagView.getSelectedNodeIds(true, true));
         });
 
         $(document).on("cut.dataflowPanel", function (e) {
@@ -87,8 +88,9 @@ namespace DagView {
                 return;
             }
 
+            const nodesStr = DagView.cutNodes(DagView.getSelectedNodeIds(true, true));
+            e.originalEvent.clipboardData.setData("text/plain", nodesStr);
             e.preventDefault(); // default behaviour is to copy any selected text
-            DagView.cutNodes(DagView.getSelectedNodeIds(true, true));
         });
 
         $(document).on("paste.dataflowPanel", function (e: JQueryEventObject) {
@@ -99,7 +101,7 @@ namespace DagView {
                 return; // use default paste event
             }
             try {
-                let content = event.clipboardData.getData('text/plain');
+                let content = e.originalEvent.clipboardData.getData('text/plain');
                 if (content) {
                     const nodesArray = JSON.parse(content);
                     if (!Array.isArray(nodesArray)) {
@@ -591,18 +593,18 @@ namespace DagView {
      * DagView.copyNodes
      * @param nodeIds
      */
-    export function copyNodes(nodeIds: DagNodeId[]): void {
+    export function copyNodes(nodeIds: DagNodeId[]): string {
         if (!nodeIds.length) {
-            return;
+            return "";
         }
-        cutOrCopyNodesHelper(nodeIds);
+        return JSON.stringify(createNodeInfos(nodeIds, activeDag, {clearState: true}), null, 4);
     }
 
     /**
      * DagView.cutNodes
      * @param nodeIds
      */
-    export function cutNodes(nodeIds: DagNodeId[]): void {
+    export function cutNodes(nodeIds: DagNodeId[]): string {
         const tabId: string = activeDagTab.getId();
         const nodeIdsMap = lockedNodeIds[tabId] || {};
         for (let i = 0; i < nodeIds.length; i++) {
@@ -615,8 +617,10 @@ namespace DagView {
             return;
         }
 
-        cutOrCopyNodesHelper(nodeIds);
+
+        const nodesStr = JSON.stringify(createNodeInfos(nodeIds, activeDag, {clearState: true}), null, 4);
         DagView.removeNodes(nodeIds, tabId);
+        return nodesStr;
     }
 
     /**
@@ -3776,11 +3780,6 @@ namespace DagView {
         });
 
         return nodeInfos;
-    }
-
-    function cutOrCopyNodesHelper(nodeIds: DagNodeId[]): void {
-        const nodeInfos = createNodeInfos(nodeIds, activeDag, {clearState: true});
-        xcHelper.copyToClipboard(JSON.stringify(nodeInfos, null, 4));
     }
 
     function addDescriptionIcon($node: JQuery, text: string): void {
