@@ -3231,13 +3231,17 @@ namespace DagView {
     }
 
     function _drawTitleText($node: JQuery, node: DagNode): void {
+        const g = d3.select($node.get(0));
         // draw node title
-        const title: string = node.getTitle();
+        let title: string = node.getTitle();
+        if (title === "") {
+            // if no title, use blank space so there's clickable width
+            title = " ".repeat(20);
+        }
         const titleLines: string[] = title.split("\n");
         const titleHeight: number = nodeHeight + 12;
-        const g = d3.select($node.get(0));
         g.select(".nodeTitle").remove();
-        g.select(".paramTitle").remove();
+
         const textSvg = g.append("text")
             .attr("class", "nodeTitle")
             .attr("fill", "#44515C")
@@ -3254,6 +3258,7 @@ namespace DagView {
         });
 
         // draw param title
+        g.select(".paramTitle").remove();
         const paramHint: string = node.getParamHint();
         const parmLines: string[] = paramHint.split("\n");
         const paramHeight: number = titleHeight + titleLines.length * titleLineHeight;

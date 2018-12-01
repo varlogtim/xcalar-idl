@@ -470,6 +470,12 @@
             width: 100px;
         }
 
+        .nodeTitle {
+            tspan {
+                white-space: pre;
+            }
+        }
+
         .descriptionIcon {
             cursor: pointer;
         }
@@ -495,15 +501,7 @@
             }
         }
 
-        &.dropAvailable {
-            .main, .iconArea {
-                // border-color: green;
-                // box-shadow: 0px 0px 0px 1p green;
-            }
-        }
-        &.noDrag {
 
-        }
     }
 
     @inConnectorSize: 8px;
