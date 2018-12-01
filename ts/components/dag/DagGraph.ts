@@ -1442,6 +1442,7 @@ class DagGraph {
                 case (XcalarApisT.XcalarApiGroupBy):
                 case (XcalarApisT.XcalarApiGetRowNum):
                 case (XcalarApisT.XcalarApiExport):
+                case (XcalarApisT.XcalarApiSynthesize):
                     node.parents = [args.source];
                     break;
                 case (XcalarApisT.XcalarApiFilter):
@@ -1454,7 +1455,6 @@ class DagGraph {
                     node.parents = xcHelper.deepCopy(args.source);
                     break;
                 case (XcalarApisT.XcalarApiSelect):
-                case (XcalarApisT.XcalarApiSynthesize):
                 case (XcalarApisT.XcalarApiBulkLoad):
                 case (XcalarApisT.XcalarApiExecuteRetina):
                     node.parents = [];

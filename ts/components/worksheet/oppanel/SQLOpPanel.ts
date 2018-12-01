@@ -832,31 +832,20 @@ class SQLOpPanel extends BaseOpPanel {
     }
 
     // === Copied from derived conversion
-    private _getDerivedCol(col: ProgCol): derivedColStruct {
+    private _getDerivedCol(col: ProgCol): ColRenameInfo {
         // convert prefix field of primitive type to derived
-        let mapFn;
-        if (col.type === 'integer') {
-            mapFn = "int";
-        } else if (col.type === 'float') {
-            mapFn = "float";
-        } else if (col.type === 'boolean') {
-            mapFn = "bool";
-        } else if (col.type === 'timestamp') {
-            mapFn = "timestamp";
-        } else if (col.type === "string") {
-            mapFn = "string";
-        } else {
+        if (col.type !== 'integer' && col.type !== 'float' &&
+            col.type !== 'boolean' && col.type !== 'timestamp' &&
+            col.type !== "string") {
             // can't handle other types in SQL
             return;
         }
-        const mapStr = mapFn + "(" + col.backName + ")";
-        const newColName = this._getDerivedColName(col.backName).toUpperCase();
-        const colStruct = {
-            colName: newColName,
-            mapStr: mapStr,
-            colType: col.type
+        const colInfo: ColRenameInfo = {
+            orig: col.backName,
+            new: this._getDerivedColName(col.backName).toUpperCase(),
+            type: xcHelper.convertColTypeToFieldType(col.type as ColumnType)
         };
-        return colStruct;
+        return colInfo;
     }
 
     private _finalizeTable(sourceId: number): XDPromise<any> {
@@ -870,26 +859,24 @@ class SQLOpPanel extends BaseOpPanel {
                      xcHelper.randName("sqlTable") + Authentication.getHashId();
 
         const cols = srcTable.getLineage().getColumns();
-        const tableInfo = {"name": srcTableName, "colsToProject": []};
+        const colInfos: ColRenameInfo[] = [];
 
-        const mapArray = [];
         const schema = [];
         for (let i = 0; i < cols.length; i++) {
             const col = cols[i];
             if (col.name === "DATA") {
                 continue;
             }
-            const colStruct = this._getDerivedCol(col);
-            if (!colStruct) {
+            const colInfo = this._getDerivedCol(col);
+            if (!colInfo) {
                 var colName = col.backName === ""? col.name : col.backName;
                 deferred.reject(SQLErrTStr.InvalidColTypeForFinalize
                                 + colName + "(" + col.type + ")");
                 return deferred.promise();
             }
-            tableInfo.colsToProject.push(colStruct.colName);
-            mapArray.push(colStruct.mapStr);
+            colInfos.push(colInfo);
             const schemaStruct = {};
-            schemaStruct[colStruct.colName] = colStruct.colType;
+            schemaStruct[colInfo.new] = col.type;
             schema.push(schemaStruct);
         }
 
@@ -898,8 +885,8 @@ class SQLOpPanel extends BaseOpPanel {
             "simulate": true
         });
         let cliArray = [];
-        XIApi.map(txId, mapArray, srcTableName, tableInfo.colsToProject)
-        .then(function(newTableName) {
+        XIApi.synthesize(txId, colInfos, srcTableName)
+        .then(function(finalizedTableName) {
             cliArray.push(Transaction.done(txId, {
                 "noNotification": true,
                 "noSql": true
@@ -908,13 +895,6 @@ class SQLOpPanel extends BaseOpPanel {
                 "operation": "SQL Simulate",
                 "simulate": true
             });
-            return XIApi.project(txId, tableInfo.colsToProject, newTableName);
-        })
-        .then(function(finalizedTableName) {
-            cliArray.push(Transaction.done(txId, {
-                "noNotification": true,
-                "noSql": true
-            }));
             const ret = {
                 finalizedTableName: finalizedTableName,
                 cliArray: cliArray,

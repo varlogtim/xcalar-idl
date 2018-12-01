@@ -4,7 +4,7 @@ class DagNodeSynthesize extends DagNode {
     public constructor(options: DagNodeInfo) {
         super(options);
         this.minParents = 0;
-        this.maxParents = 0;
+        this.maxParents = 1;
         this.input = new DagNodeSynthesizeInput(options.input);
         // this.display.icon = "&#xe936;";
     }
