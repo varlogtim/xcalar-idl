@@ -355,7 +355,7 @@ interface SQLColumn {
     colType: string
 }
 
-interface TableProgressInfo {
+interface TableRunStats {
     state: DgDagStateT,
     startTime: number,
     pct: number,

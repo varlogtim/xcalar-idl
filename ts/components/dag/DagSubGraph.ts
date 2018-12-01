@@ -113,11 +113,13 @@ class DagSubGraph extends DagGraph {
         this.currentExecutor = null;
     }
 
-    // should be called after nameIdMap is set but
-    // before xcalarQuery gets executed
-    // loop through all tables, update all tables in the node ids
-    // then loop through all the tables
-    public initializeProgress() {
+    /**
+     * Should be called after nameIdMap is set but
+     * before xcalarQuery gets executed.
+     * Loop through all tables, update all tables in the node ids
+     * then loop through all the tables
+     */
+    public initializeProgress(): void {
         const nodeIdToTableNamesMap = new Map();
 
         for (let tableName in this._nameIdMap) {
@@ -133,15 +135,27 @@ class DagSubGraph extends DagGraph {
         });
     }
 
-    // in the case of optimized dataflows, we know nodeInfos has progress for
-    // every node/table in the execution
-    // but for regular execution, the nodeInfos may only be for 1 operation
-    // in a multi-operation node
-    public updateProgress(nodeInfos, includesAllTables?: boolean) {
+
+    /**
+     *
+     * @param nodeInfos queryState info
+     * @param includesAllTables in the case of optimized dataflows,
+     * we know nodeInfos has progress for every node/table in the execution
+     * but for regular execution, the nodeInfos may only be for 1 operation
+     * in a multi-operation node - includesAllTables would be false in this case
+     */
+    public updateProgress(nodeInfos: any[], includesAllTables?: boolean) {
         const nodeIdInfos = {};
 
         nodeInfos.forEach((nodeInfo, i) => {
-            const tableName = nodeInfo.name.name;
+            let tableName: string = nodeInfo.name.name;
+            // optimized datasets name gets prefixed with xcalarlrq and an id
+            // so we strip this to find the corresponding UI dataset name
+            if (nodeInfo.api === XcalarApisT.XcalarApiBulkLoad &&
+                tableName.startsWith(".XcalarLRQ.") &&
+                tableName.indexOf(gDSPrefix) > -1) {
+                tableName = tableName.slice(tableName.indexOf(gDSPrefix));
+            }
             const nodeId = this._nameIdMap[tableName];
             if (!nodeId) {// could be a drop table node
                 return;
@@ -162,7 +176,7 @@ class DagSubGraph extends DagGraph {
 
     public getElapsedTime(): number {
         if (this.isComplete) {
-            this.elapsedTime;
+            return this.elapsedTime;
         } else {
             return Date.now() - this.startTime;
         }

@@ -189,17 +189,18 @@ namespace DagView {
             }
 
             event.preventDefault();
-            // xcMenu.close();
+            xcMenu.close();
             // TblManager.unHighlightCells();
 
-            if (event.which === keyCode.Z) {
-                $('#undo').click();
-            } else if (event.which === keyCode.Y) {
+           if (event.which === keyCode.Y ||
+                (event.which === keyCode.Z && event.shiftKey)) {
                 if ($("#redo").hasClass("disabled")) {
                     Log.repeat();
                 } else {
                     $('#redo').click();
                 }
+            } else if (event.which === keyCode.Z) {
+                $('#undo').click();
             }
         }
     }
@@ -320,7 +321,7 @@ namespace DagView {
                 });
                 _addProgressTooltip(activeDag, node, $dfArea, skewInfos, timeStrs);
                 const nodeInfo = {position: node.getPosition()};
-                _repositionProgressInfo($dfArea, nodeInfo, node.getId());
+                _repositionRunStats($dfArea, nodeInfo, node.getId());
             }
         });
         nodes.forEach((node: DagNode, nodeId: DagNodeId) => {
@@ -482,7 +483,7 @@ namespace DagView {
             if (nodeId.startsWith("dag")) {
                 // Remove tabs for custom OP
                 DagView.getNode(nodeId, null, $dfArea).remove();
-                $dfArea.find('.progressInfo[data-id="' + nodeId + '"]').remove();
+                $dfArea.find('.runStats[data-id="' + nodeId + '"]').remove();
                 $dfArea.find('.edge[data-childnodeid="' + nodeId + '"]').remove();
                 $dfArea.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function() {
                     const childNodeId = $(this).attr("data-childnodeid");
@@ -1663,7 +1664,7 @@ namespace DagView {
             const nodeInfo = {
                 position: node.getPosition()
             };
-            _repositionProgressInfo($dfArea, nodeInfo, node.getId());
+            _repositionRunStats($dfArea, nodeInfo, node.getId());
         });
     }
 
@@ -1997,8 +1998,8 @@ namespace DagView {
 
                     _drawLineBetweenNodes(tabId, parentNodeId, nodeId, connectorIndex, svg);
                 });
-                // move progressInfo if it has one
-                _repositionProgressInfo($dfArea, nodeInfo, nodeId);
+                // move runStats if it has one
+                _repositionRunStats($dfArea, nodeInfo, nodeId);
             } else {
                 // comment node
                 const id = nodeInfo.id;
@@ -2074,7 +2075,7 @@ namespace DagView {
 
                 const spliceInfo = graph.removeNode(nodeId, isSwitchState);
                 DagView.getNode(nodeId, tabId).remove();
-                $dfArea.find('.progressInfo[data-id="' + nodeId + '"]').remove();
+                $dfArea.find('.runStats[data-id="' + nodeId + '"]').remove();
                 $dfArea.find('.edge[data-childnodeid="' + nodeId + '"]').remove();
                 $dfArea.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function() {
                     const childNodeId = $(this).attr("data-childnodeid");
@@ -2330,7 +2331,7 @@ namespace DagView {
         const x = scale * (nodeX - 10);
         const y = Math.max(1, (scale * nodeY) - (rowHeight * (skewInfos.length + 1) + tooltipPadding + tooltipMargin));
 
-        let html = `<div data-id="${nodeId}" class="progressInfo dagTableTip" style="left:${x}px;top:${y}px;">`
+        let html = `<div data-id="${nodeId}" class="runStats dagTableTip" style="left:${x}px;top:${y}px;">`
         html += `<table><thead>`;
         if (skewInfos.length > 1) {
             html += `<th>No.</th>`
@@ -2372,19 +2373,19 @@ namespace DagView {
         $tip.css("left", nodeCenter - (width / 2));
     }
 
-    function _repositionProgressInfo($dfArea, nodeInfo, nodeId: DagNodeId): void {
-        const $progressInfo = $dfArea.find('.progressInfo[data-id="' + nodeId + '"]');
-        if ($progressInfo.length) {
-            $progressInfo.addClass("visible"); // in case we can't get the dimensions
+    function _repositionRunStats($dfArea, nodeInfo, nodeId: DagNodeId): void {
+        const $runStats = $dfArea.find('.runStats[data-id="' + nodeId + '"]');
+        if ($runStats.length) {
+            $runStats.addClass("visible"); // in case we can't get the dimensions
             // because user is hiding tips by default
-            const infoRect = $progressInfo[0].getBoundingClientRect();
+            const infoRect = $runStats[0].getBoundingClientRect();
             const scale = activeDag.getScale();
             const nodeCenter = nodeInfo.position.x + (DagView.nodeWidth / 2);
-            $progressInfo.css({
+            $runStats.css({
                 left: scale * nodeCenter - (infoRect.width / 2),
                 top: Math.max(1, (scale * nodeInfo.position.y) - (infoRect.height + 5))
             });
-            $progressInfo.removeClass("visible");
+            $runStats.removeClass("visible");
         }
     }
 
@@ -3420,8 +3421,13 @@ namespace DagView {
                 // when switch from error state to other state
                 _setTooltip($node, info.node);
             }
-            if (info.state !== DagNodeState.Complete) {
-                _getAreaByTab(info.tabId).find('.progressInfo[data-id="' + info.id + '"]').remove();
+
+            if (info.state !== DagNodeState.Complete &&
+                !(info.state === DagNodeState.Error &&
+                info.oldState === DagNodeState.Running)) {
+                // don't remove tooltip upon completion or if the node went from
+                // running to an errored state
+                _getAreaByTab(info.tabId).find('.runStats[data-id="' + info.id + '"]').remove();
             }
             DagNodeInfoPanel.Instance.update(info.id, "status");
             const dagTab: DagTab = DagTabManager.Instance.getTabById(info.tabId);
@@ -3458,7 +3464,7 @@ namespace DagView {
 
             }
             DagNodeInfoPanel.Instance.update(info.id, "params");
-            _getAreaByTab(info.tabId).find('.progressInfo[data-id="' + info.id + '"]').remove();
+            _getAreaByTab(info.tabId).find('.runStats[data-id="' + info.id + '"]').remove();
             const dagTab: DagTab = DagTabManager.Instance.getTabById(info.tabId);
             dagTab.save();
             if (!info.noAutoExecute && UserSettings.getPref("dfAutoExecute") === true) {
@@ -3929,7 +3935,7 @@ namespace DagView {
         }
         opProgress.text(progress + "%");
         if (skewInfos) {
-            $dfArea.find('.progressInfo[data-id="' + nodeId + '"]').remove();
+            $dfArea.find('.runStats[data-id="' + nodeId + '"]').remove();
             const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId);
             if (!dagTab) {
                 // sql graph may not have tab registered with dagTabManager

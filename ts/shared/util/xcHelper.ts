@@ -2581,10 +2581,10 @@ namespace xcHelper {
     export function disableElement($el: JQuery, tooltip?: string, isEmpty?: boolean): void {
         $el.addClass("unavailable");
         if (!isEmpty) {
-            tooltip = tooltip || StatusMessageTStr.PleaseWait;
+            tooltip = (tooltip == null)? StatusMessageTStr.PleaseWait : tooltip;
         }
 
-        if (tooltip) {
+        if (tooltip != null) {
             const oldTooltip = $el.attr("data-original-title") || $el.attr("data-title") || $el.attr("title");
             if (oldTooltip) {
                 $el.data("lastmessage", oldTooltip);

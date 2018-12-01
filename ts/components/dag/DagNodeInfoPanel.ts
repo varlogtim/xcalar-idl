@@ -119,7 +119,7 @@ class DagNodeInfoPanel {
             dagNodeType === DagNodeType.SQLSubOutput ||
             DagView.getActiveArea().hasClass("viewOnly"));
         if (uneditable || DagView.isNodeLocked(this._activeNode.getId())) {
-            xcHelper.disableElement(this._$panel.find(".editConfig"));
+            xcHelper.disableElement(this._$panel.find(".editConfig"), "");
         } else {
             xcHelper.enableElement(this._$panel.find(".editConfig"));
         }

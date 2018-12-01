@@ -23,10 +23,10 @@ abstract class DagNode {
     protected maxChildren: number; // non-persistent
     protected allowAggNode: boolean; // non-persistent
     protected display: DagNodeDisplayInfo; // coordinates are persistent
-    protected progressInfo: {
-            nodes: {[key: string]: TableProgressInfo},
-            hasRun: boolean
-        };
+    protected runStats: {
+        nodes: {[key: string]: TableRunStats},
+        hasRun: boolean
+    };
 
     public static setup(): void {
         this.uid = new XcUID("dag");
@@ -66,13 +66,13 @@ abstract class DagNode {
 
         const displayType = this.subType || this.type; // XXX temporary
         this.display.description = "Description for the " + displayType + " operation";
-        this.progressInfo = {
+        this.runStats = {
             hasRun: false,
             nodes: {}
         };
         if (options.stats && !$.isEmptyObject(options.stats)) {
-            this.progressInfo.nodes = options.stats;
-            this.progressInfo.hasRun = true;
+            this.runStats.nodes = options.stats;
+            this.runStats.hasRun = true;
         }
     }
 
@@ -577,9 +577,9 @@ abstract class DagNode {
     }
 
     public initializeProgress(tableNames) {
-        const nodes: {[key: string]: TableProgressInfo} = {};
+        const nodes: {[key: string]: TableRunStats} = {};
         tableNames.forEach((tableName: string) => {
-            const tableProgressInfo: TableProgressInfo = {
+            const tableRunStats: TableRunStats = {
                 startTime: null,
                 pct: 0,
                 state: DgDagStateT.DgDagStateQueued,
@@ -592,21 +592,21 @@ abstract class DagNode {
                 rows: [],
                 hasStats: false
             }
-            nodes[tableName] = tableProgressInfo;
+            nodes[tableName] = tableRunStats;
         });
-        this.progressInfo.nodes = nodes;
+        this.runStats.nodes = nodes;
     }
 
     public updateProgress(tableNameMap, includesAllTables?: boolean) {
         const errorStates = [DgDagStateT.DgDagStateUnknown, DgDagStateT.DgDagStateError, DgDagStateT.DgDagStateArchiveError];
         let isComplete = true;
         let errorState = null;
-        this.progressInfo.hasRun = true;
-        let tableCount = Object.keys(this.progressInfo.nodes).length;
+        this.runStats.hasRun = true;
+        let tableCount = Object.keys(this.runStats.nodes).length;
         for (let tableName in tableNameMap) {
-            let tableProgressInfo = this.progressInfo.nodes[tableName];
-            if (!tableProgressInfo) {
-                tableProgressInfo = {
+            let tableRunStats = this.runStats.nodes[tableName];
+            if (!tableRunStats) {
+                tableRunStats = {
                     startTime: null,
                     pct: 0,
                     state: DgDagStateT.DgDagStateQueued,
@@ -620,58 +620,58 @@ abstract class DagNode {
                     index: tableCount,
                     hasStats: true
                 };
-                this.progressInfo.nodes[tableName] = tableProgressInfo;
+                this.runStats.nodes[tableName] = tableRunStats;
                 tableCount++;
             }
 
             const nodeInfo = tableNameMap[tableName];
             if (nodeInfo.state === DgDagStateT.DgDagStateProcessing &&
-                tableProgressInfo.state !== DgDagStateT.DgDagStateProcessing) {
-                tableProgressInfo.startTime = Date.now();
+                tableRunStats.state !== DgDagStateT.DgDagStateProcessing) {
+                tableRunStats.startTime = Date.now();
             }
-            tableProgressInfo.name = tableName;
-            tableProgressInfo.type = nodeInfo.api;
-            tableProgressInfo.state = nodeInfo.state;
-            tableProgressInfo.hasStats = true;
-            if (tableProgressInfo.index == null) {
-                // if tableProgressInfo already has index, then the one it has
+            tableRunStats.name = tableName;
+            tableRunStats.type = nodeInfo.api;
+            tableRunStats.state = nodeInfo.state;
+            tableRunStats.hasStats = true;
+            if (tableRunStats.index == null) {
+                // if tableRunStats already has index, then the one it has
                 // is more reliable
-                tableProgressInfo.index = nodeInfo.index;
+                tableRunStats.index = nodeInfo.index;
             }
 
             let elapsedTime;
-            if (tableProgressInfo.state === DgDagStateT.DgDagStateProcessing) {
-                elapsedTime = Date.now() - tableProgressInfo.startTime;
+            if (tableRunStats.state === DgDagStateT.DgDagStateProcessing) {
+                elapsedTime = Date.now() - tableRunStats.startTime;
             } else {
                 elapsedTime = nodeInfo.elapsed.milliseconds;
             }
 
-            tableProgressInfo.numWorkTotal = nodeInfo.numWorkTotal;
+            tableRunStats.numWorkTotal = nodeInfo.numWorkTotal;
             if (nodeInfo.state === DgDagStateT.DgDagStateReady) {
                 // if node is finished, numWorkCompleted should be equal
                 // to numWorkTotal even if backend doesn't return the correct value
-                tableProgressInfo.numWorkCompleted = nodeInfo.numWorkTotal;
+                tableRunStats.numWorkCompleted = nodeInfo.numWorkTotal;
             } else {
-                tableProgressInfo.numWorkCompleted = nodeInfo.numWorkCompleted;
+                tableRunStats.numWorkCompleted = nodeInfo.numWorkCompleted;
             }
 
-            tableProgressInfo.elapsedTime = elapsedTime;
+            tableRunStats.elapsedTime = elapsedTime;
             let progress: number = 0;
             if (nodeInfo.state === DgDagStateT.DgDagStateProcessing ||
                 nodeInfo.state === DgDagStateT.DgDagStateReady) {
-                progress = tableProgressInfo.numWorkCompleted / tableProgressInfo.numWorkTotal;
+                progress = tableRunStats.numWorkCompleted / tableRunStats.numWorkTotal;
             }
             if (isNaN(progress)) {
                 progress = 0;
             }
             const pct: number = Math.round(100 * progress);
-            tableProgressInfo.pct = pct;
+            tableRunStats.pct = pct;
             let rows = nodeInfo.numRowsPerNode.map(numRows => numRows);
-            tableProgressInfo.skewValue = this._getSkewValue(rows);
-            tableProgressInfo.numRowsTotal = nodeInfo.numRowsTotal;
+            tableRunStats.skewValue = this._getSkewValue(rows);
+            tableRunStats.numRowsTotal = nodeInfo.numRowsTotal;
 
-            tableProgressInfo.rows = rows;
-            tableProgressInfo.size = nodeInfo.inputSize;
+            tableRunStats.rows = rows;
+            tableRunStats.size = nodeInfo.inputSize;
 
             if (errorStates.indexOf(nodeInfo.state) > -1 ) {
                 errorState = nodeInfo.state;
@@ -703,8 +703,8 @@ abstract class DagNode {
         let numWorkTotal: number = 0
         let numRowsTotal: number = 0;
         let rows, skew, size;
-        for (let tableName in this.progressInfo.nodes) {
-            const node = this.progressInfo.nodes[tableName];
+        for (let tableName in this.runStats.nodes) {
+            const node = this.runStats.nodes[tableName];
             if (node.state === DgDagStateT.DgDagStateProcessing ||
                 node.state === DgDagStateT.DgDagStateReady) {
                 numWorkCompleted += node.numWorkCompleted;
@@ -727,7 +727,7 @@ abstract class DagNode {
             skewValue: skew,
             totalRows: numRowsTotal,
             size: size,
-            started: Object.keys(this.progressInfo.nodes).length > 0
+            started: Object.keys(this.runStats.nodes).length > 0
         };
 
         return stats;
@@ -737,7 +737,7 @@ abstract class DagNode {
     public getIndividualStats(formatted?: boolean): any[] {
         const nodesArray = [];
         if (formatted) {
-            const nodes = xcHelper.deepCopy(this.progressInfo.nodes);
+            const nodes = xcHelper.deepCopy(this.runStats.nodes);
             for (let name in nodes) {
                 const node = nodes[name];
                 delete node.startTime;
@@ -748,8 +748,8 @@ abstract class DagNode {
                 }
             }
         } else {
-            for (let name in this.progressInfo.nodes) {
-                const node = this.progressInfo.nodes[name];
+            for (let name in this.runStats.nodes) {
+                const node = this.runStats.nodes[name];
                 if (node.hasStats) {
                     nodesArray.push(node);
                 }
@@ -1017,12 +1017,12 @@ abstract class DagNode {
     private _getElapsedTime(): number {
         let cummulativeTime = 0;
         let curTime = Date.now();
-        for (let i in this.progressInfo.nodes) {
-            const tableProgressInfo = this.progressInfo.nodes[i];
-            if (tableProgressInfo.state === DgDagStateT.DgDagStateProcessing) {
-                cummulativeTime += curTime - tableProgressInfo.startTime;
+        for (let i in this.runStats.nodes) {
+            const tableRunStats = this.runStats.nodes[i];
+            if (tableRunStats.state === DgDagStateT.DgDagStateProcessing) {
+                cummulativeTime += curTime - tableRunStats.startTime;
             } else {
-                cummulativeTime += tableProgressInfo.elapsedTime;
+                cummulativeTime += tableRunStats.elapsedTime;
             }
         }
         return cummulativeTime;
@@ -1074,8 +1074,8 @@ abstract class DagNode {
             error: this.error,
         };
         if (includeStats) {
-            if (this.progressInfo.hasRun) {
-                info.stats = this.progressInfo.nodes;
+            if (this.runStats.hasRun) {
+                info.stats = this.runStats.nodes;
             } else {
                 info.stats = {};
             }
@@ -1113,9 +1113,12 @@ abstract class DagNode {
         const oldState: DagNodeState = this.state;
         this.state = state;
         if (state !== DagNodeState.Complete &&
-            state !== DagNodeState.Running) {
-            this.progressInfo.hasRun = false;
-            this.progressInfo.nodes = {};
+            state !== DagNodeState.Running &&
+            !(state === DagNodeState.Error && oldState === DagNodeState.Running)) {
+            // only keep tableRunStats if state is completed, running, or
+            // if it was running but switched to error
+            this.runStats.hasRun = false;
+            this.runStats.nodes = {};
         }
         this.events.trigger(DagNodeEvents.StateChange, {
             id: this.getId(),
