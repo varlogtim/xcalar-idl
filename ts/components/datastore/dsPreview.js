@@ -2757,13 +2757,16 @@ window.DSPreview = (function($, DSPreview) {
                         udfQuery = udfDef.udfQuery;
                     } else {
                         // Comes from dsForm
-                        hasUDF = false;
+                        // Preview with default SQL, which is provided by dsn_connector
+                        const udfDef = componentDBFormat.getUDFDefinition({
+                            query: ''
+                        });
+                        hasUDF = true;
                         noDetect = true;
-                        udfModule = '';
-                        udfFunc = '';
+                        udfModule = udfDef.udfModule;
+                        udfFunc = udfDef.udfFunc;
+                        udfQuery = udfDef.udfQuery;
                         toggleFormat("DATABASE");
-                        // Nothing to preview, until SQL is provided
-                        return PromiseHelper.reject(DSTStr.DBNoSQL);
                     }
                 }
             }
@@ -5125,15 +5128,10 @@ window.DSPreview = (function($, DSPreview) {
             },
             validateValues: function() {
                 const strSQL = $elementSQL.val().trim();
-                const isValid = libs.xcHelper.validate([
-                    {
-                        "$ele": $elementSQL,
-                        "error": libs.ErrTStr.NoEmpty,
-                        "formMode": true,
-                        "check": () => (strSQL.length === 0)
-                    }
-                ]);
-                return (isValid) ? { query: strSQL } : null;
+                // No need to check the SQL value
+                // Because the dsn_connector provides a default SQL for an empty SQL input
+                // which shows a list of tables in the database
+                return { query: strSQL };
             },
             getUDFDefinition: function({query = ''} = {}) {
                 return {
