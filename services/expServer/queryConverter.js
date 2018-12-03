@@ -641,6 +641,7 @@ function _getDagNodeInfo(node) {
                     prefix: "",
                     source: xcHelper.stripPrefixFromDSName(node.args.source),
                     synthesize: true
+
                 }
             };
             break;
@@ -709,7 +710,9 @@ function _collapseIndexNodes(node) {
         if (parent && parent.api === XcalarApisT.XcalarApiBulkLoad) {
             node.createTableInput = {
                 source: xcHelper.stripPrefixFromDSName(node.args.source),
-                prefix: node.args.prefix
+                prefix: node.args.prefix,
+                synthesize: false,
+                loadArgs: parent.args.loadArgs
             }
             node.parents = [];
         }
@@ -727,7 +730,9 @@ function _collapseIndexNodes(node) {
                 // then that index needs to take the role of the dataset node
                 parent.createTableInput = {
                     source: xcHelper.stripPrefixFromDSName(parent.args.source),
-                    prefix: parent.args.prefix
+                    prefix: parent.args.prefix,
+                    synthesize: false,
+                    loadArgs: parent.parents[0].args.loadArgs
                 }
                 parent.parents = [];
             }
