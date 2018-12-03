@@ -266,8 +266,9 @@ interface AggregateInfo {
 declare class d3 {
     public select(selector: string): d3;
     public selectAll(selector: string): d3;
-    public data(callback: Function);
+    public data(callback: Function | any[]);
     public transition(): d3;
+    public each(callback: Function): d3;
     public interpolateNumber(num: number, step: number): Function;
     public duration(time: number): d3;
     public ease(type: string): d3;
@@ -284,8 +285,10 @@ declare class d3 {
     public insert(type: string | Function, before?: string | HTMLElement): d3;
     public classed(names: string, value?: boolean | Function): boolean;
     public empty(): boolean;
+    public call(func: any): d3;
     public svg;
     public layout;
+    public scale: any;
 }
 
 declare namespace d3 {
@@ -295,12 +298,14 @@ declare namespace d3 {
     export function transition(): d3;
     export function duration(): d3;
     export function append(selector: string): d3;
+    export function max(data: any[], callback: Function): number;
     export var svg;
     export var layout;
+    export var scale;
 }
 
-declare namespace domtoimage {
-    export function toPng(el: HTMLElement, options: object);
+declare interface JQueryUI.TooltipOptions {
+    trigger: string;
 }
 
 declare class Ajv {
@@ -838,6 +843,8 @@ declare class TableMeta {
     public getKeyName(): string[];
     public getSkewness(): number;
     public updateResultset(): XDPromise<void>;
+    public getSize(): number;
+    public getRowDistribution(): number[];
     public constructor(options: object);
 }
 

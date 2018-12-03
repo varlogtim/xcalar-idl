@@ -5,7 +5,7 @@ describe("About Modal Test", function() {
     });
 
     it("Should open the about modal", function() {
-        AboutModal.show();
+        AboutModal.Instance.show();
         var $modal = $("#aboutModal");
         assert.isTrue($modal.is(":visible"));
         assert.isFalse($("#modalBackground").is(":visible"));

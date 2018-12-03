@@ -343,9 +343,9 @@ describe('TableMenu Test', function() {
                 });
 
                 it('skew details', function() {
-                    var cachedFunc = SkewInfoModal.show;
+                    var cachedFunc = SkewInfoModal.Instance.show;
                     var called = false;
-                    SkewInfoModal.show = function(tId) {
+                    SkewInfoModal.Instance.show = function(tId) {
                         expect(tId).to.equal(tableId);
                         called = true;
                     };
@@ -357,7 +357,7 @@ describe('TableMenu Test', function() {
                     $tableSubMenu.find('.skewDetails').trigger(fakeEvent.mouseup);
                     expect(called).to.be.true;
 
-                    SkewInfoModal.showe = cachedFunc;
+                    SkewInfoModal.Instance.show = cachedFunc;
                 });
             });
 

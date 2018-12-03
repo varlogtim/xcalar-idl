@@ -724,10 +724,8 @@ namespace xcManager {
         ExtModal.setup();
         LicenseModal.setup();
         SupTicketModal.setup();
-        AboutModal.setup();
         FileInfoModal.setup();
         DSInfoModal.setup();
-        SkewInfoModal.setup();
         WorkbookInfoModal.setup();
         WorkbookPreview.setup();
         LoginConfigModal.setup();
@@ -784,7 +782,7 @@ namespace xcManager {
             if (event.which !== 1) {
                 return;
             }
-            AboutModal.show();
+            AboutModal.Instance.show();
         });
 
         $menu.on('mouseup', ".setup", function(event: JQueryEventObject): void {

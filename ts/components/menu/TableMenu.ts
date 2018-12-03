@@ -312,7 +312,7 @@ class TableMenu extends AbstractMenu {
                 return;
             }
             const tableId: TableId = $tableMenu.data('tableId');
-            SkewInfoModal.show(tableId);
+            SkewInfoModal.Instance.show(gTables[tableId]);
         });
     }
 

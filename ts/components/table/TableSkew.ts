@@ -70,7 +70,7 @@ class TableSkew {
 
     private _addEventListerners(): void {
         this.$skewSection.click(() => {
-            SkewInfoModal.show(this.table.getId());
+            SkewInfoModal.Instance.show(this.table);
         });
     }
 }

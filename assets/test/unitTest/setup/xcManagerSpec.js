@@ -265,16 +265,16 @@ describe("xcManager Test", function() {
         });
 
         it("should mouseup .about to open about modal", function() {
-            var oldFunc = AboutModal.show;
+            var oldFunc = AboutModal.Instance.show;
             var test = false;
-            AboutModal.show = function() { test = true; };
+            AboutModal.Instance.show = function() { test = true; };
             // normal moouseup not work
             $menu.find(".about").mouseup();
             expect(test).to.be.false;
             $menu.find(".about").trigger(fakeEvent.mouseup);
             expect(test).to.be.true;
             // clear up
-            AboutModal.show = oldFunc;
+            AboutModal.Instance.show = oldFunc;
         });
 
         it("should mouseup .setup to open setup panel", function() {

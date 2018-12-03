@@ -18,19 +18,17 @@ describe("SkewInfoModal Test", function() {
             metas: [{numRows: 1, size: 10}, {numRows: 2, size: 10}]
         };
 
-        gTables[tableId] = table;
         $modal = $("#skewInfoModal");
-
         UnitTest.onMinMode();
     });
 
     it("should handle error case", function() {
-        SkewInfoModal.show(null);
+        SkewInfoModal.Instance.show(null);
         UnitTest.hasAlertWithTitle(AlertTStr.Error);
     });
 
     it("should show row distributon in the modal", function() {
-        SkewInfoModal.show(tableId);
+        SkewInfoModal.Instance.show(table);
         assert.isTrue($modal.is(":visible"));
         expect($modal.find(".bar").length).to.equal(2);
         expect($modal.find(".size .text").text()).to.equal("20B");
@@ -56,7 +54,6 @@ describe("SkewInfoModal Test", function() {
     });
 
     after(function() {
-        delete gTables[tableId];
         UnitTest.offMinMode();
     });
 });
