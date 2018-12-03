@@ -34,8 +34,9 @@ const vertNodeSpacing = 60;
 // isNested is a boolean to indicate if this dataflow is part of a recursive call
 function convert(dataflowInfo, isNested) {
     try {
-        convertHelper(dataflowInfo, isNested);
+        return convertHelper(dataflowInfo, isNested);
     } catch (e) {
+        console.log(e);
         if (typeof e !== "string") {
             e = JSON.stringify(e);
         }
@@ -183,8 +184,12 @@ function _finalConvertIntoDagNodeInfoArray(nodes, datasets, isRetina, isNested) 
             delete node.children;
             nodes.push(node);
         }
-
-        const name = xcHelper.randName(".temp/rand") + "/" + "Dataflow " + (dataflowCount + 1);
+        let name;
+        if (isRetina) {
+            name = xcHelper.randName(".temp/rand") + "/" + "Dataflow " + (dataflowCount + 1);
+        } else {
+            name = "Dataflow " + (dataflowCount + 1);
+        }
 
         const dataflow = {
             id: currentDataflowId,
@@ -625,6 +630,13 @@ function _getDagNodeInfo(node, dagNodeInfos, isRetina, isNested) {
                     }
                 };
             } else { // would only occur in a retina
+                let driverArgs;
+                try {
+                    driverArgs = JSON.parse(node.args.driverParams)
+                } catch (e) {
+                    console.log(e);
+                    driverArgs = node.args.driverParams || "";
+                }
                 dagNodeInfo = {
                     type: DagNodeType.Export,
                     subType: "Export Optimized",
@@ -632,7 +644,7 @@ function _getDagNodeInfo(node, dagNodeInfos, isRetina, isNested) {
                     input: {
                         columns: node.args.columns.map(col => col.columnName),
                         driver: node.args.driverName,
-                        driverArgs: JSON.parse(node.args.driverParams)
+                        driverArgs: driverArgs
                     }
                 };
             }
@@ -644,12 +656,10 @@ function _getDagNodeInfo(node, dagNodeInfos, isRetina, isNested) {
             const nestedRet = convert(node.args.retinaBuf, true);
             dagNodeInfos = $.extend(dagNodeInfos, nestedRet);
 
-            let linkOutName;
             let linkOutNode;
             for (let name in nestedRet) {
                 let nestedDagNodeInfo = nestedRet[name];
                 if (nestedDagNodeInfo.type === DagNodeType.DFOut) {
-                    linkOutName = name;
                     linkOutNode = nestedDagNodeInfo;
                     break;
                 }
@@ -658,7 +668,7 @@ function _getDagNodeInfo(node, dagNodeInfos, isRetina, isNested) {
                 type: DagNodeType.DFIn,
                 input: {
                     dataflowId: currentDataflowId,
-                    linkOutName: linkOutName
+                    linkOutName: linkOutNode.input.name
                 },
                 linkOutNode: linkOutNode
             };
@@ -670,7 +680,7 @@ function _getDagNodeInfo(node, dagNodeInfos, isRetina, isNested) {
                     type: DagNodeType.DFOut,
                     subType: "link out Optimized",
                     input: {
-                        name: node.name,
+                        name: node.args.source,
                         linkAfterExecution: true,
                         columns: node.args.columns.map((col) => {
                             return {
@@ -682,21 +692,21 @@ function _getDagNodeInfo(node, dagNodeInfos, isRetina, isNested) {
                 };
                 const comment = parseUserComment(node.rawNode.comment);
                 parentDagNodeInfo.description = comment.userComment || "";
-                parentDagNodeInfo.table = node.name;
+                parentDagNodeInfo.table = node.args.source;
                 parentDagNodeInfo.id = "dag_" + new Date().getTime() + "_" + idCount++;
                 parentDagNodeInfo.parents = [];
                 parentDagNodeInfo.parentIds = [];
                 parentDagNodeInfo.children = [];
                 parentDagNodeInfo.state =  "Configured";
                 // need to create a new name as this node doesn't exist in query
-                dagNodeInfos[node.name + "_" + idCount++] = parentDagNodeInfo;
+                dagNodeInfos[node.args.source + "_" + idCount++] = parentDagNodeInfo;
 
                 // dfIn should not have parents
                 dagNodeInfo = {
                     type: DagNodeType.DFIn,
                     input: {
                         dataflowId: currentDataflowId,
-                        linkOutName: node.name
+                        linkOutName: node.args.source
                     },
                     linkOutNode: parentDagNodeInfo
                 };
