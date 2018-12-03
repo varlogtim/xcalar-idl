@@ -587,7 +587,7 @@ NewUserTStr = {
 SuccessTStr = {
     "Copy": "Copied Successfully!",
     "CopyToClipboard": "Copied to Clipboard!",
-    "DelUDF": "UDF Successfully Deleted!",
+    "DelFile": " successfully Deleted!",
     "Detect": "Detection Complete!",
     "DownloadTicket": "Ticket Downloaded!",
     "InstallApp": "App Successfully Installed!",
@@ -1331,6 +1331,7 @@ WSTStr = {
 FileManagerTStr = {
     "DuplicateFail": "Duplicate file failed",
     "PathReadOnly": "Selected path is read only",
+    "DirReadOnly": "Current folder is read only",
     "InvalidPath": "Invalid path",
     "DelTitle": "Delete File",
     "DelMsg": "Are you sure you want to delete the file?",
@@ -1338,7 +1339,7 @@ FileManagerTStr = {
     "ReplaceTitle": "Overwrite File",
     "ReplaceMsg": "already exists. Are you sure you want to overwrite it?",
     "COPYTO": "COPY FILE",
-    "SAVEAS": "SAVE AS"
+    "SAVEAS": "SAVE AS",
 }
 
 UDFTStr = {

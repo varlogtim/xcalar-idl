@@ -440,6 +440,9 @@ class FileManagerPanel {
                 if (newPath !== this.getViewPath()) {
                     this._eventSwitchPath(newPath);
                 }
+            },
+            click: () => {
+                $addressBox.children("input").selectAll();
             }
         });
     }
@@ -481,9 +484,7 @@ class FileManagerPanel {
                             return;
                         }
                         this.manager.open(
-                            this._nodeToPath(
-                                [...this.selectedPathNodes.entries()][0][0]
-                            )
+                            this._getSelectedPathNodesArray()[0]
                         );
                         break;
                     case FileManagerAction.Download:
@@ -491,9 +492,7 @@ class FileManagerPanel {
                             return;
                         }
                         this.manager.download(
-                            this._nodeToPath(
-                                [...this.selectedPathNodes.entries()][0][0]
-                            )
+                            this._getSelectedPathNodesArray()
                         );
                         break;
                     case FileManagerAction.Delete:
@@ -501,18 +500,14 @@ class FileManagerPanel {
                             return;
                         }
                         const deleteFiles = () =>
-                            this.manager.delete(
-                                [...this.selectedPathNodes.entries()].map(
-                                    (
-                                        value: [
-                                        FileManagerPathNode,
-                                        FileManagerPathNode
-                                        ]
-                                    ) => {
-                                        return this._nodeToPath(value[0]);
-                                    }
+                            this.manager
+                            .delete(this._getSelectedPathNodesArray())
+                            .then(() =>
+                                xcHelper.showSuccess(
+                                    this.curFileType + SuccessTStr.DelFile
                                 )
                             );
+
                         Alert.show({
                             title: FileManagerTStr.DelTitle,
                             msg:
@@ -585,6 +580,24 @@ class FileManagerPanel {
         });
     }
 
+    private _getSelectedPathNodesArray(): string[] {
+        return [...this.selectedPathNodes.entries()].map(
+            (value: [FileManagerPathNode, FileManagerPathNode]) => {
+                return this._nodeToPath(value[0]);
+            }
+        );
+    }
+
+    private _getSelectedDirPathNodesArray(): string[] {
+        return [...this.selectedPathNodes.entries()]
+        .filter((value: [FileManagerPathNode, FileManagerPathNode]) => {
+            return value[0].isDir;
+        })
+        .map((value: [FileManagerPathNode, FileManagerPathNode]) => {
+            return this._nodeToPath(value[0]);
+        });
+    }
+
     private _getDuplicateFileName(path: string): string {
         const curPathNode: FileManagerPathNode = this._pathToNode(path, true);
         if (!curPathNode) {
@@ -648,25 +661,19 @@ class FileManagerPanel {
             case FileManagerAction.Open:
                 return (
                     this.selectedPathNodes.size === 1 &&
-                    ![...this.selectedPathNodes.entries()][0][0].isDir
+                    this._getSelectedDirPathNodesArray().length === 0
                 );
             case FileManagerAction.Download:
                 return (
-                    this.selectedPathNodes.size === 1 &&
-                    ![...this.selectedPathNodes.entries()][0][0].isDir
+                    this.selectedPathNodes.size > 0 &&
+                    this._getSelectedDirPathNodesArray().length === 0
                 );
             case FileManagerAction.Delete:
-                for (const selectedPathNode of this.selectedPathNodes) {
-                    if (
-                        selectedPathNode.isDir ||
-                        !this.manager.canDelete(
-                            this._nodeToPath(selectedPathNode)
-                        )
-                    ) {
-                        return false;
-                    }
-                }
-                return this.selectedPathNodes.size > 0;
+                return (
+                    this.selectedPathNodes.size > 0 &&
+                    this._getSelectedDirPathNodesArray().length === 0 &&
+                    this.manager.canDelete(this._getSelectedPathNodesArray())
+                );
             case FileManagerAction.Duplicate:
                 return (
                     this.selectedPathNodes.size === 1 &&
@@ -680,12 +687,12 @@ class FileManagerPanel {
             case FileManagerAction.CopyTo:
                 return (
                     this.selectedPathNodes.size === 1 &&
-                    ![...this.selectedPathNodes.entries()][0][0].isDir
+                    this._getSelectedDirPathNodesArray().length === 0
                 );
             case FileManagerAction.Share:
                 return (
                     this.selectedPathNodes.size === 1 &&
-                    ![...this.selectedPathNodes.entries()][0][0].isDir &&
+                    this._getSelectedDirPathNodesArray().length === 0 &&
                     this.manager.canShare(
                         this._nodeToPath(
                             [...this.selectedPathNodes.entries()][0][0]
@@ -948,26 +955,32 @@ class FileManagerPanel {
 
     private _renderUploadArea(): void {
         const $uploadArea: JQuery = this.$panel.find(".operationAreaUpload");
+        const canUpload: boolean = this.manager.canAdd(
+            this.getViewPath() + "a" + this.manager.fileExtension(),
+            null,
+            null,
+            "left"
+        );
+
         $uploadArea
         .children(".operationContent")
-        .toggleClass(
-            "btn-disabled",
-            !this.manager.canAdd(
-                this.getViewPath() + "a" + this.manager.fileExtension(),
-                null,
-                null,
-                "left"
-            )
-        );
+        .toggleClass("btn-disabled", !canUpload);
+
+        if (!canUpload) {
+            xcTooltip.changeText($uploadArea, FileManagerTStr.DirReadOnly);
+            xcTooltip.enable($uploadArea);
+        } else {
+            xcTooltip.disable($uploadArea);
+        }
     }
 
     private _eventSearch(keyword: string): void {
-        keyword = xcHelper
+        let keywordSearch: string = xcHelper
         .escapeRegExp(keyword)
         .replace(/\\\*/g, ".*")
         .replace(/\\\?/g, ".");
-        keyword = xcHelper.containRegExKey(keyword);
-        const keywordReg: RegExp = new RegExp(keyword, "i");
+        keywordSearch = xcHelper.containRegExKey(keywordSearch);
+        const keywordReg: RegExp = new RegExp(keywordSearch, "i");
 
         if (!this.rootPathNode.children.has("Search")) {
             this.rootPathNode.children.set("Search", {
@@ -992,21 +1005,24 @@ class FileManagerPanel {
         const rootSearchPathNode: FileManagerPathNode = this.rootPathNode.children.get(
             "Search"
         );
-        const searchQueue: FileManagerPathNode[] = [];
-        searchQueue.push(rootTypePathNode);
 
-        while (searchQueue.length !== 0) {
-            const curPathNode: FileManagerPathNode = searchQueue.shift();
+        if (keyword !== "") {
+            const searchQueue: FileManagerPathNode[] = [];
+            searchQueue.push(rootTypePathNode);
 
-            if (keywordReg.test(curPathNode.pathName)) {
-                rootSearchPathNode.children.set(
-                    this._nodeToPath(curPathNode),
-                    curPathNode
-                );
-            }
+            while (searchQueue.length !== 0) {
+                const curPathNode: FileManagerPathNode = searchQueue.shift();
 
-            for (const childPathNode of curPathNode.children.values()) {
-                searchQueue.push(childPathNode);
+                if (keywordReg.test(curPathNode.pathName)) {
+                    rootSearchPathNode.children.set(
+                        this._nodeToPath(curPathNode),
+                        curPathNode
+                    );
+                }
+
+                for (const childPathNode of curPathNode.children.values()) {
+                    searchQueue.push(childPathNode);
+                }
             }
         }
 

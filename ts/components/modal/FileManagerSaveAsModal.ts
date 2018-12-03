@@ -31,14 +31,20 @@ class FileManagerSaveAsModal {
         filename: string,
         path: string,
         options: {
-        onSave?: (newPath: string) => void;
+            onSave?: (newPath: string) => void;
         }
     ): void {
-        this.modalHelper.setup();
         this.options = options;
         this._getModalTitile().text(title);
         this._getNameInput().val(filename);
         this.fileManagerPanel.switchPathByStep(path, true);
+        this.modalHelper.setup().then(() => {
+            this._getNameInput().selectAll();
+            this._getNameInput().range(
+                0,
+                filename.length - this.fileManagerPanel.fileExtension().length
+            );
+        });
     }
 
     private _addEventListeners(): void {

@@ -573,7 +573,7 @@ describe("UDFFileManager Test", function() {
             });
         });
 
-        it("tests delete and del", (done) => {
+        it("tests delete", (done) => {
             UDFFileManager.Instance.add(testUDFDisplayPath, testUDFString)
             .then(() => {
                 return UDFFileManager.Instance.delete([testUDFDisplayPath]);
@@ -588,13 +588,13 @@ describe("UDFFileManager Test", function() {
             })
         });
 
-        it("tests that del should handle errors", (done) => {
+        it("tests that delete should handle errors", (done) => {
             var oldDelete = XcalarDeletePython;
             var oldList = XcalarListXdfs;
 
-            var deleteTask = () => {
+            var deleteTaskFailed = () => {
                 var deferred = PromiseHelper.deferred();
-                UDFFileManager.Instance.deleteOne(testUDFNsPath)
+                UDFFileManager.Instance.delete([testUDFDisplayPath])
                 .then(() => {
                     deferred.reject();
                 })
@@ -611,21 +611,7 @@ describe("UDFFileManager Test", function() {
                     test = true;
                     return PromiseHelper.reject({"error": "test"});
                 };
-                return deleteTask();
-            })
-            .then(() => {
-                XcalarDeletePython = function() {
-                    test = true;
-                    return PromiseHelper.reject({
-                        "status": StatusT.StatusUdfModuleNotFound
-                    });
-                };
-                XcalarListXdfs = function() {
-                    return PromiseHelper.resolve({
-                        "numXdfs": 1
-                    });
-                };
-                return deleteTask();
+                return deleteTaskFailed();
             })
             .then(() => {
                 XcalarDeletePython = function() {
@@ -637,7 +623,26 @@ describe("UDFFileManager Test", function() {
                 XcalarListXdfs = function() {
                     return PromiseHelper.reject("test");
                 };
-                return deleteTask();
+                return deleteTaskFailed();
+            })
+            .then(() => {
+                XcalarDeletePython = function() {
+                    test = true;
+                    return PromiseHelper.reject({
+                        "status": StatusT.StatusUdfModuleNotFound
+                    });
+                };
+                XcalarListXdfs = function() {
+                    return PromiseHelper.resolve({
+                        "numXdfs": 1,
+                        "fnDescs": []
+                    });
+                };
+                return deleteTaskFailed();
+            })
+            .then(() => {
+                XcalarListXdfs = oldList;
+                return UDFFileManager.Instance.initialize()
             })
             .then(done)
             .fail(() => {done("fail");})
@@ -655,7 +660,7 @@ describe("UDFFileManager Test", function() {
             };
 
             UDFFileManager.Instance
-            .download(UDFFileManager.Instance.nsPathToDisplayPath(defaultNsPath))
+            .download([UDFFileManager.Instance.nsPathToDisplayPath(defaultNsPath)])
             .then(function() {
                 expect(test).not.to.be.null;
                 expect(test).to.be.a("string");
@@ -670,7 +675,7 @@ describe("UDFFileManager Test", function() {
         });
 
         it("tests that download should handle error", function(done) {
-            UDFFileManager.Instance.download("unitTestErrorModule")
+            UDFFileManager.Instance.download(["unitTestErrorModule"])
             .then(function() {
                 done("fail");
             })
@@ -714,9 +719,10 @@ describe("UDFFileManager Test", function() {
             var displayPath2 = "/sharedUDFs/default1.py";
             var displayPath3 = UDFFileManager.Instance.getCurrWorkbookDisplayPath() +
             "test_udf_a.py";
-            expect(UDFFileManager.Instance.canDelete(displayPath1)).to.be.false;
-            expect(UDFFileManager.Instance.canDelete(displayPath2)).to.be.true;
-            expect(UDFFileManager.Instance.canDelete(displayPath3)).to.be.true;
+            expect(UDFFileManager.Instance.canDelete([displayPath1])).to.be.false;
+            expect(UDFFileManager.Instance.canDelete([displayPath1, displayPath2])).to.be.false;
+            expect(UDFFileManager.Instance.canDelete([displayPath2])).to.be.true;
+            expect(UDFFileManager.Instance.canDelete([displayPath3])).to.be.true;
         });
 
         it("tests canDuplicate", () => {

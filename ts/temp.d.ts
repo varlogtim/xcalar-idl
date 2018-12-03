@@ -187,6 +187,8 @@ interface JQuery {
     sort(fn?: Function): JQuery;
     scrollintoview(any): JQuery;
     caret(pos: number): JQuery;
+    selectAll(): JQuery;
+    range(startPos: number, endPos?: number): JQuery;
 }
 
 interface Event {

@@ -6,9 +6,9 @@
  */
 abstract class BaseFileManager {
     public abstract open(path: string): void;
-    public abstract download(path: string): void | XDPromise<void>;
-    public abstract delete(path: string[]): void;
-    public abstract canDelete(path: string): boolean;
+    public abstract download(paths: string[]): void | XDPromise<void>;
+    public abstract delete(paths: string[]): XDPromise<void>;
+    public abstract canDelete(paths: string[]): boolean;
     public abstract canDuplicate(path: string): boolean;
     public abstract canAdd(
         path: string,
@@ -17,7 +17,7 @@ abstract class BaseFileManager {
         side?: string
     ): boolean;
     public abstract canShare(path: string): boolean;
-    public abstract copy(oldPath: string, newPath): XDPromise<void>;
+    public abstract copy(oldPath: string, newPath: string): XDPromise<void>;
     public abstract share(path: string): void;
     public abstract fileType(): string;
     public abstract fileIcon(): string;
