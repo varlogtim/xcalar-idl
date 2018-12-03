@@ -50,7 +50,7 @@ function convert(dataflowInfo) {
     }
     const query = dataflowInfo.query;
 
-    for (let i = 1; i < query.length; i++) {
+    for (let i = 0; i < query.length; i++) {
         const rawNode = query[i];
         const args = rawNode.args;
         const node =
