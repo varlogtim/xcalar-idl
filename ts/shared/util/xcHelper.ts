@@ -6173,7 +6173,8 @@ namespace xcHelper {
             args.forEach((arg) => {
                 let colNames: string[];
                 const formattedValue = arg.getFormattedValue();
-                if (formattedValue[0] !== '"' &&
+                if (arg.getType() !== "function" &&
+                    formattedValue[0] !== '"' &&
                     formattedValue[0] !== "'") {
                     // if not a string in quotes, ok to split into separate values
                     colNames = formattedValue.split(",");
