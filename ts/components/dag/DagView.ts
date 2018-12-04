@@ -333,7 +333,7 @@ namespace DagView {
         nodes.forEach((node: DagNode, nodeId: DagNodeId) => {
             node.getParents().forEach((parentNode, index) => {
                 const parentId: DagNodeId = parentNode.getId();
-                _drawConnection(parentId, nodeId, index, tabId);
+                _drawConnection(parentId, nodeId, index, tabId, node.canHaveMultiParents());
             });
         });
 
@@ -679,6 +679,7 @@ namespace DagView {
         const newNodeIds: DagNodeId[] = [];
         const allNewNodeIds: DagNodeId[] = [];
         const oldNodeIdMap = {};
+        const allNewNodes = [];
 
         nodeInfos.forEach((nodeInfo) => {
             nodeInfo = xcHelper.deepCopy(nodeInfo);
@@ -693,6 +694,7 @@ namespace DagView {
                 const commentNode = activeDag.newComment(commentInfo);
                 allNewNodeIds.push(commentNode.getId());
                 DagComment.Instance.drawComment(commentNode, $dfArea, true);
+                allNewNodes.push(commentNode);
             } else if (nodeInfo.hasOwnProperty("input")) {
                 const newNode: DagNode = activeDag.newNode(nodeInfo);
                 if (newNode.getType() == DagNodeType.Aggregate &&
@@ -706,6 +708,7 @@ namespace DagView {
                 oldNodeIdMap[nodeInfo.nodeId] = newNodeId;
                 newNodeIds.push(newNodeId);
                 allNewNodeIds.push(newNodeId);
+                allNewNodes.push(newNode);
                 _drawNode(newNode, $dfArea, true);
             }
         });
@@ -726,7 +729,8 @@ namespace DagView {
                     }
                     const newParentId = oldNodeIdMap[parentId];
                     activeDag.connect(newParentId, newNodeId, j);
-                    _drawConnection(newParentId, newNodeId, j, tabId);
+                    const newNode = allNewNodes[i];
+                    _drawConnection(newParentId, newNodeId, j, tabId, newNode.canHaveMultiParents());
                 });
             }
         });
@@ -2153,8 +2157,8 @@ namespace DagView {
 
         graph.connect(parentNodeId, childNodeId, connectorIndex, false, isSwitchState,
         spliceIn);
-
-        _drawConnection(parentNodeId, childNodeId, connectorIndex, tabId, true);
+        const childNode = graph.getNode(childNodeId);
+        _drawConnection(parentNodeId, childNodeId, connectorIndex, tabId, childNode.canHaveMultiParents(), true);
 
         const logParam: LogParam = {
             title: SQLTStr.ConnectOperations,
@@ -3144,7 +3148,7 @@ namespace DagView {
                     return;
                 }
                 drawnConnections[connectionId] = true;
-                _drawConnection(parentNode.getId(), nodeId, index, tabId);
+                _drawConnection(parentNode.getId(), nodeId, index, tabId, node.canHaveMultiParents());
             });
 
             const seen = {};
@@ -3163,7 +3167,7 @@ namespace DagView {
                             return;
                         }
                         drawnConnections[connectionId] = true;
-                        _drawConnection(nodeId, childNode.getId(), index, tabId);
+                        _drawConnection(nodeId, childNode.getId(), index, tabId, childNode.canHaveMultiParents());
                     }
                 });
             });
@@ -3304,6 +3308,7 @@ namespace DagView {
         childNodeId: DagNodeId,
         connectorIndex: number,
         tabId: string,
+        isMultiParent: boolean, // if childNode can have multiple (> 2) parents
         newConnection?: boolean
     ): void {
         const $dfArea = DagView.getAreaByTab(tabId);
@@ -3314,25 +3319,26 @@ namespace DagView {
 
         const svg: d3 = d3.select('#dagView .dataflowArea[data-id="' + tabId + '"] .edgeSvg');
 
-        // if re-adding an edge from a multichildnode then increment all
-        // the edges that have a greater or equal index than the removed one
-        // due to splice action on children array
-
-        $dfArea.find('.edge[data-childnodeid="' + childNodeId + '"]').each(function () {
-            const $curEdge: JQuery = $(this);
-            const index: number = parseInt($curEdge.attr('data-connectorindex'));
-            if (index >= connectorIndex) {
-                const parentNodeId = $curEdge.attr("data-parentnodeid");
-                $curEdge.remove();
-                _drawLineBetweenNodes(tabId, parentNodeId, childNodeId, index + 1, svg);
-            } else if (newConnection) {
-                // only need to readjust if doing a new connection, rather
-                // than restoring connections
-                const parentNodeId = $curEdge.attr("data-parentnodeid");
-                $curEdge.remove();
-                _drawLineBetweenNodes(tabId, parentNodeId, childNodeId, index, svg);
-            }
-        });
+        if (isMultiParent) {
+            // if re-adding an edge from a multichildnode then increment all
+            // the edges that have a greater or equal index than the removed one
+            // due to splice action on children array
+            $dfArea.find('.edge[data-childnodeid="' + childNodeId + '"]').each(function () {
+                const $curEdge: JQuery = $(this);
+                const index: number = parseInt($curEdge.attr('data-connectorindex'));
+                if (index >= connectorIndex) {
+                    const parentNodeId = $curEdge.attr("data-parentnodeid");
+                    $curEdge.remove();
+                    _drawLineBetweenNodes(tabId, parentNodeId, childNodeId, index + 1, svg);
+                } else if (newConnection) {
+                    // only need to readjust if doing a new connection, rather
+                    // than restoring connections
+                    const parentNodeId = $curEdge.attr("data-parentnodeid");
+                    $curEdge.remove();
+                    _drawLineBetweenNodes(tabId, parentNodeId, childNodeId, index, svg);
+                }
+            });
+        }
 
         _drawLineBetweenNodes(tabId, parentNodeId, childNodeId, connectorIndex, svg);
     }
