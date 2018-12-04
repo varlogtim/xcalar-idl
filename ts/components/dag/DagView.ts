@@ -266,7 +266,7 @@ namespace DagView {
         DagTopBar.Instance.setState(activeDagTab);
     }
 
-    export function selectNodes(tabId: string, nodeIds?: DagNodeId[]) {
+    export function selectNodes(tabId: string, nodeIds?: DagNodeId[]): void {
         if (!nodeIds) {
             _getAreaByTab(tabId).find(".operator").addClass("selected");
         } else {
@@ -275,6 +275,10 @@ namespace DagView {
                 $node.addClass("selected");
             });
         }
+    }
+
+    export function deselectNodes(): void {
+        _getActiveArea().find(".selected").removeClass("selected");
     }
 
     /**

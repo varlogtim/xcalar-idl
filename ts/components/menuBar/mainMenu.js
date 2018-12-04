@@ -64,8 +64,7 @@ window.MainMenu = (function($, MainMenu) {
         }
     };
 
-    MainMenu.openPanel = function(panelId, subTabId, options) {
-        options = options || {};
+    MainMenu.openPanel = function(panelId, subTabId) {
         var $tab;
         switch (panelId) {
             case ("monitorPanel"):
@@ -485,7 +484,7 @@ window.MainMenu = (function($, MainMenu) {
             $curTab.removeClass("active");
         }
 
-        
+
         IMDPanel.redraw();
         menuAnimAlign = null;
         if ($("#modelingDagPanel").hasClass("active")) {

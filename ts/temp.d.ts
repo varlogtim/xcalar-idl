@@ -1067,7 +1067,7 @@ declare namespace Aggregates {
 declare namespace MainMenu {
     export function setup(): void;
     export function getOffset(): number;
-    export function openPanel(panelId: string, subTabId: string, options?: object): void;
+    export function openPanel(panelId: string, subTabId?: string): void;
     export function tempNoAnim(): void;
     export function close(noAnim?: boolean, makeInactive?: boolean): void;
     export function setFormOpen(): void;

@@ -93,9 +93,8 @@ namespace xcManager {
         })
         .then(function() {
             // By default show panel
-            // XXX TODO: find better solution
-            $("#modelingDagPanel").addClass("active");
-            DagView.show();
+            MainMenu.openPanel("dagPanel");
+            MainMenu.open(true);
             if (firstTimeUser) {
                 // show hint to create datasets if no tables have been created
                 // in this workbook

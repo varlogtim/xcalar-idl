@@ -94,6 +94,11 @@ class DagNodeInfoPanel {
     private _addEventListeners(): void {
         const self = this;
 
+        this._$panel.on("click", ".closeBtn", () => {
+            this.hide();
+            DagView.deselectNodes();
+        });
+
         this._$panel.on("click", ".collapsible .rowHeading", function(event) {
             if ($(event.target).closest(".editConfig").length) {
                 return;
@@ -217,5 +222,4 @@ class DagNodeInfoPanel {
             this._$panel.find(".descriptionRow").addClass("xc-hidden");
         }
     }
-
 }

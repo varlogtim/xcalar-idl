@@ -1494,13 +1494,13 @@
                 }
                 .iconSection {
                     color: @color-arc-xdbfree;
-                    font-size: 15px;
+                    font-size: 16px;
                     .flex(1 0 auto);
 
                     .icon {
-                        font-size: 15px;
+                        font-size: 16px;
                         margin-left: 2px;
-                        margin-top: 5px;
+                        margin-top: 7px;
                     }
                 }
             }
@@ -1576,6 +1576,17 @@
         min-height: 50px;
         height: auto !important;
         flex: 1 0 auto;
+
+        .iconSection {
+            .icon {
+                cursor: pointer;
+                float: right;
+            }
+            .closeBtn {
+                margin-right: 2px;
+                margin-top: 7px;
+            }
+        }
     }
     .nodeTitle {
         font-weight: normal;
@@ -1644,14 +1655,15 @@
     }
 
     .configRow {
-        // max-height: 60%;
         overflow: hidden;
     }
 
     .editConfig {
         color: @color-bg-select-blue;
         cursor: pointer;
+        margin-left: 10px;
         margin-right: 10px;
+        font-weight: 600;
     }
 
     .configSection {
