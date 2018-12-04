@@ -1596,6 +1596,25 @@
         white-space: pre-wrap;
         word-break: break-word;
     }
+
+    .restore {
+        line-height: 25px;
+        color: @color-font-select-blue;
+
+        span, i {
+            display: inline-block;
+        }
+
+        .icon {
+            margin-left: 5px;
+            .position(relative, @top: 4px);
+
+            &.hint {
+                top: 0px;
+            }
+        }
+    }
+
     .nodeInfoSection {
         padding: 0 10px;
         font-size: 12px;

@@ -39,6 +39,7 @@ class DagNodeInfoPanel {
         }
         this._isShowing = false;
         this._$panel.addClass("xc-hidden");
+        this._$panel.find(".row.restore").remove();
         xcTooltip.hideAll();
         if (!MainMenu.isFormOpen()) {
             $("#dagList").removeClass("xc-hidden");
@@ -114,6 +115,10 @@ class DagNodeInfoPanel {
                 node: self._activeNode
             });
         });
+
+        this._$panel.on("click", ".restore .action", () => {
+            this._restoreDataset();
+        });
     }
 
     private _updateLock(): void {
@@ -145,9 +150,14 @@ class DagNodeInfoPanel {
     }
 
     private _updateStatusSection(): void {
+        this._$panel.find(".row.restore").remove();
         this._$panel.find(".statusSection").text(this._activeNode.getState());
-        if (this._activeNode.getState() === DagNodeState.Error && this._activeNode.getError()) {
-            this._$panel.find(".errorSection").text(this._activeNode.getError());
+        const error: string = this._activeNode.getError();
+        if (this._activeNode.getState() === DagNodeState.Error && error) {
+            if (this._activeNode instanceof DagNodeDataset) {
+                this._renderRestoreButton();
+            }
+            this._$panel.find(".errorSection").text(error);
             this._$panel.find(".errorRow").removeClass("xc-hidden");
         } else {
             this._$panel.find(".errorRow").addClass("xc-hidden");
@@ -221,5 +231,53 @@ class DagNodeInfoPanel {
         } else {
             this._$panel.find(".descriptionRow").addClass("xc-hidden");
         }
+    }
+
+    private _renderRestoreButton(): void {
+        if (!(this._activeNode instanceof DagNodeDataset)) {
+            return;
+        }
+        const node: DagNodeDataset = <DagNodeDataset>this._activeNode;
+        const dsName: string = node.getDSName();
+        if (DS.getDSObj(dsName) != null) {
+            return;
+        }
+        const html: HTML = '<div class="row restore">' +
+                                '<div>' +
+                                    '<span class="action xc-action">' + DSTStr.Restore + '</span>' +
+                                    '<i class="icon xi-restore action xc-action"></i>' +
+                                    '<i class="hint qMark icon xi-unknown"' +
+                                    ' data-toggle="tooltip"' +
+                                    ' data-container="body"' +
+                                    ' data-placement="top"' +
+                                    ' data-title="' + TooltipTStr.RestoreDS + '"' +
+                                    '>' +
+                                '</div>' +
+                            '</div>';
+        const $section: JQuery = this._$panel.find(".nodeInfoSection");
+        $section.find(".row.restore").remove();
+        $section.prepend(html);
+    }
+
+    private _restoreDataset(): void {
+        if (!(this._activeNode instanceof DagNodeDataset)) {
+            return;
+        }
+        const node: DagNodeDataset = <DagNodeDataset>this._activeNode;
+        const oldDSName: string = node.getDSName();
+        const newDSName: string = DS.getNewDSName(oldDSName);
+        const param: DagNodeDatasetInputStruct = xcHelper.deepCopy(node.getParam());
+        const error: string = node.getError();
+        param.source = newDSName;
+        node.setParam(param);
+        DS.restoreDataset(newDSName, node.getLoadArgs())
+        .fail(() => {
+            if (node.getState() === DagNodeState.Configured &&
+                JSON.stringify(node.getParam()) === JSON.stringify(param)
+            ) {
+                // when still in configure state and param has not changed
+                node.beErrorState(error);
+            }
+        });
     }
 }

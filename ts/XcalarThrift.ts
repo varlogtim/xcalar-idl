@@ -846,12 +846,58 @@ XcalarDatasetCreate = function(
     }
 
     xcalarDatasetCreate(tHandle, datasetName, args.sourceArgsList, args.parseArgs, args.size)
-    .then(function(ret) {
-        console.log("test create", ret)
-        deferred.resolve(ret);
-    })
+    .then(deferred.resolve)
     .fail(function(error) {
         const thriftError: ThriftError = thriftLog("XcalarDatasetCreate", error);
+       deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
+XcalarDatasetRestore = function(
+    datasetName: string,
+    args: any
+) {
+
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    const sourceArgsList: DataSourceArgsT[] = args.sourceArgsList.map(function(source) {
+        const sourceArgs: DataSourceArgsT = new DataSourceArgsT();
+        sourceArgs.targetName = source.targetName;
+        sourceArgs.path = source.path;
+        sourceArgs.fileNamePattern = source.fileNamePattern || "";
+        sourceArgs.recursive = source.recursive || false;
+        return sourceArgs;
+    });
+
+    const parseArgs: ParseArgsT = new ParseArgsT();
+    parseArgs.parserFnName = args.parseArgs.parserFnName;
+    parseArgs.parserArgJson = args.parseArgs.parserArgJson;
+    parseArgs.allowRecordErrors = args.parseArgs.allowRecordErrors;
+    parseArgs.allowFileErrors = args.parseArgs.allowFileErrors;
+    parseArgs.fileNameFieldName = args.parseArgs.fileNameFieldName;
+    parseArgs.recordNumFieldName = args.parseArgs.recordNumFieldName;
+    parseArgs.schema = args.parseArgs.schema.map((col) => {
+        return new XcalarApiColumnT({
+            columnType: col.columnType,
+            sourceColumn: col.sourceColumn,
+            destColumn: col.destColumn
+        });
+    });
+
+    const maxSampleSize: number = gMaxSampleSize;
+    if (maxSampleSize > 0) {
+        console.log("Max sample size set to: ", maxSampleSize);
+    }
+
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    xcalarDatasetCreate(tHandle, datasetName, sourceArgsList, parseArgs, maxSampleSize)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        const thriftError: ThriftError = thriftLog("XcalarDatasetRestore", error);
        deferred.reject(thriftError);
     });
 

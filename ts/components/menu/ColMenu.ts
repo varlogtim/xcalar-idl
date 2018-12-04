@@ -225,7 +225,6 @@ class ColMenu extends AbstractMenu {
         const $subMenu: JQuery = this._getSubMenu();
         const $colMenus: JQuery = $colMenu.add($subMenu);
         const $allMenus: JQuery = $colMenus.add($('#cellMenu'));
-
         $subMenu.on('click', '.inputAction', (event) => {
             $(event.currentTarget).siblings('input').trigger(fakeEvent.enter);
         });

@@ -491,6 +491,7 @@ declare var XcalarUpdateLicense: any;
 declare var XcalarPreview: any;
 declare var XcalarParseDSLoadArgs: any;
 declare var XcalarDatasetCreate: any;
+declare var XcalarDatasetRestore: any;
 declare var XcalarDatasetDelete: any;
 declare var XcalarDatasetActivate: any;
 declare var XcalarDatasetDeactivate: any;
@@ -1111,6 +1112,8 @@ declare namespace DS {
     export function detach(dsName: string, uid: string): XDPromise<void>;
     export function getSchema(dsName: string): XDPromise<ColSchema[]>;
     export function getLoadArgsFromDS(dsName: string): XDPromise<string>;
+    export function restoreDataset(dsName: string, loadArgs: string): XDPromise<void>;
+    export function getNewDSName(dsName: string): string;
 }
 
 

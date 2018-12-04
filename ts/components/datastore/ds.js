@@ -43,6 +43,53 @@ window.DS = (function ($, DS) {
         return restoreDS(oldHomeFolder, atStartUp);
     };
 
+    DS.restoreDataset = function(fullDSName, loadArgsStr) {
+        var deferred = PromiseHelper.deferred();
+        MainMenu.openPanel("datastorePanel", "inButton");
+        restoreDatasetHelper(fullDSName, loadArgsStr)
+        .then(deferred.resolve)
+        .fail((error) => {
+            Alert.error(ErrTStr.RestoreDS, error.error);
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    };
+
+    function restoreDatasetHelper(fullDSName, loadArgsStr) {
+        if (DS.getDSObj(fullDSName) != null) {
+            return PromiseHelper.reject({
+                error: "Dataset already exists"
+            });
+        }
+        var deferred = PromiseHelper.deferred();
+        try {
+            var loadArgs = JSON.parse(loadArgsStr).args.loadArgs;
+            var parsedName = xcHelper.parseDSName(fullDSName);
+            var dsArgs = {
+                name: parsedName.dsName,
+                user: parsedName.user,
+                fullName: fullDSName,
+                sources: loadArgs.sourceArgsList
+            };
+            return DS.import(dsArgs, {
+                restoreArgs: loadArgs
+            });
+        } catch (e) {
+            console.error(e);
+            deferred.reject({
+                error: e
+            });
+        }
+
+        return deferred.promise();
+    }
+
+    DS.getNewDSName = function(oldDSName) {
+        var parsedName = xcHelper.parseDSName(oldDSName);
+        return xcHelper.wrapDSName(parsedName.dsName);
+    };
+
     // recursive call to upgrade dsObj
     DS.upgrade = function(dsObj) {
         if (dsObj == null) {
@@ -291,6 +338,7 @@ window.DS = (function ($, DS) {
     /* Import dataset, promise returns dsObj
         options:
             dsToReplace: if set true, will replace the old ds
+            restoreArgs: if exist, will use it t restore the ds
     */
     DS.import = function(dsArgs, options) {
         options = options || {};
@@ -303,6 +351,11 @@ window.DS = (function ($, DS) {
             clearDirStack();
         }
         dsArgs.date = new Date().getTime();
+        if (options.restoreArgs != null) {
+            // restore from loadArgs case
+            curDirId = homeDirId;
+            dsArgs.parentId = curDirId;
+        }
         var dsObj = createDS(dsArgs, dsToReplace);
         var sql = {
             "operation": SQLOps.DSImport,
@@ -311,7 +364,7 @@ window.DS = (function ($, DS) {
         };
 
         sortDS(curDirId);
-        return importHelper(dsObj, sql);
+        return importHelper(dsObj, sql, options.restoreArgs);
     };
 
     DS.getSchema = function(source) {
@@ -976,13 +1029,19 @@ window.DS = (function ($, DS) {
         dsInfoMeta.setVersionId(arg.id);
     };
 
-    function createDSHelper(txId, dsObj) {
+    function createDSHelper(txId, dsObj, restoreArgs) {
         var datasetName = dsObj.getFullName();
-        var options = dsObj.getImportOptions();
+        var def;
+        if (restoreArgs) {
+            def = XcalarDatasetRestore(datasetName, restoreArgs);
+        } else {
+            var options = dsObj.getImportOptions();
+            def = XcalarDatasetCreate(datasetName, options);
+        }
         var hasCreate = false;
         var deferred = PromiseHelper.deferred();
 
-        XcalarDatasetCreate(datasetName, options)
+        def
         .then(() => {
             // only when there is active workbook will activate the ds
             if (WorkbookManager.getActiveWKBK() != null) {
@@ -995,7 +1054,7 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function importHelper(dsObj, sql) {
+    function importHelper(dsObj, sql, restoreArgs) {
         var deferred = PromiseHelper.deferred();
         var dsName = dsObj.getName();
         var $grid = DS.getGrid(dsObj.getId());
@@ -1027,7 +1086,7 @@ window.DS = (function ($, DS) {
         // focus on grid before load
         DS.focusOn($grid)
         .then(function() {
-            return createDSHelper(txId, dsObj);
+            return createDSHelper(txId, dsObj, restoreArgs);
         })
         .then(function() {
             return getDSBasicInfo(datasetName);

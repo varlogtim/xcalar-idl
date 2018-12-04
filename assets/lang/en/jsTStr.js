@@ -134,6 +134,7 @@ TooltipTStr = {
     "AboutCopied": "Copied to clipboard!",
     "CancelSearch": "Cancel search",
     'Distinct': "Select to eliminate duplicate values",
+    'RestoreDS': "Dataset used for this node is not found, click the button to restore the dataset",
 
     // Sync with htmlTStr
     "IcvGenerating": "Generating Erroneous Rows(ER) Table",
@@ -375,6 +376,7 @@ ErrTStr = {
     "InvalidEvalStr": "Invalid eval string",
     "DetectSchema": "Error occured when detecting schema",
     "DFInExecution": "Dataflow is in execution",
+    "RestoreDS": "Restore Dataset Error",
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +
@@ -1228,6 +1230,7 @@ DSTStr = {
     "InvalidPriorDataset": "Prior dataset does not exist: ",
     "DisableShare": "Sharing datasets is disabled by admin",
     "DSDeactivating": "Deactivating",
+    "Restore": "Restore Dataset",
 
 
     // With replace
