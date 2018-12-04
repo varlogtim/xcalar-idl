@@ -1903,15 +1903,17 @@ xcalarQueryList = runEntity.xcalarQueryList = function(thriftHandle, namePattern
 
     thriftHandle.client.queueWorkAsync(workItem)
     .done(function(result) {
+        var queryListOutput = result.output.outputResult.queryListOutput;
         var status = result.output.hdr.status;
         var log = result.output.hdr.log;
+
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
         } else {
-            deferred.resolve(status);
+            deferred.resolve(queryListOutput);
         }
     })
     .fail(function(error) {
