@@ -127,6 +127,8 @@ class DagNodeExecutor {
                 return this._sort();
             case DagNodeType.Placeholder:
                 return this._placeholder();
+            case DagNodeType.Synthesize:
+                return this._synthesize();
             default:
                 throw new Error(type + " not supported!");
         }
@@ -196,6 +198,20 @@ class DagNodeExecutor {
         // TODO: XXX parseDS should not be called here
         dsName = parseDS(dsName);
         return XIApi.synthesize(this.txId, colInfos, dsName, desTable);
+    }
+
+    private _synthesize(): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        const node: DagNodeSynthesize = <DagNodeSynthesize>this.node;
+        const params: DagNodeSynthesizeInputStruct = node.getParam(this.replaceParam);
+        const colsInfo: ColRenameInfo[] = params.colsInfo.map((colInfo) => {
+            return xcHelper.getJoinRenameMap(colInfo.sourceColumn,
+                                             colInfo.destColumn,
+                                             DfFieldTypeTFromStr[colInfo.columnType]);
+        });
+        const srcTable: string = this._getParentNodeTable(0);
+        const desTable: string = this._generateTableName();
+        return XIApi.synthesize(this.txId, colsInfo, srcTable, desTable);
     }
 
     private _aggregate(): XDPromise<string> {

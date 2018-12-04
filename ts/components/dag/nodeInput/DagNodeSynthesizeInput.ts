@@ -4,7 +4,7 @@ class DagNodeSynthesizeInput extends DagNodeInput {
     public getInput(replaceParameters?: boolean): DagNodeSynthesizeInputStruct {
         const input = super.getInput(replaceParameters);
         return {
-            columns: input.columns || []
+            colsInfo: input.colsInfo || []
         };
     }
 }

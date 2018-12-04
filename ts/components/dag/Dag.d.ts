@@ -236,7 +236,7 @@ interface DagNodeRoundInputStruct {
 }
 
 interface DagNodeSynthesizeInputStruct {
-    columns: string[]
+    colsInfo: {sourceColumn: string, destColumn: string, columnType: string}[]
 }
 /* ==== End of Dag Node Input Intereface ==== */
 

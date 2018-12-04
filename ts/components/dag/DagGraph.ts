@@ -1790,7 +1790,7 @@ class DagGraph {
                     dagNodeInfo = {
                         type: DagNodeType.Synthesize,
                         input: {
-                            columns: node.args.columns
+                            colsInfo: node.args.columns
                         }
                     };
                     break;

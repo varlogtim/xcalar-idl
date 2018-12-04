@@ -288,7 +288,6 @@ class DagNodeSQL extends DagNode {
         return outPortIdx;
     }
 
-    // XXX TODO: implement it
     protected _getColumnsUsedInInput(): Set<string> {
         return null;
     }
