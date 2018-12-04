@@ -5626,8 +5626,8 @@
         return retStruct;
     }
 
-    function extractCols(node) {
-        colIds = [];
+    function extractUsedCols(node) {
+        var colIds = [];
         function findColIds(node) {
             var opName = node.value.class.substring(
                             node.value.class.lastIndexOf(".") + 1);
@@ -5650,6 +5650,39 @@
         node.usedColIds = node.usedColIds.concat(colIds);
     }
 
+    function trackRenamedUsedCols(node) {
+        var renameIdsMap = {};
+        var mapList;
+        if (node.value.class === "org.apache.spark.sql.catalyst.plans.logical.Project") {
+            mapList = node.value.projectList;
+        } else {
+            mapList = node.value.aggregateExpressions;
+        }
+        for (var i = 0; i < mapList.length; i++) {
+            if (mapList[i].length === 2 && mapList[i][0].class ===
+                "org.apache.spark.sql.catalyst.expressions.Alias" &&
+                mapList[i][1].class ===
+                "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
+                var aliasId = mapList[i][0].exprId.id;
+                var origId = mapList[i][1].exprId.id;
+                renameIdsMap[origId] = renameIdsMap[origId] || [];
+                renameIdsMap[origId].push(aliasId);
+            }
+        }
+        for (origId in renameIdsMap) {
+            var valid = true;
+            for (var i = 0; i < renameIdsMap[origId].length; i++) {
+                if (node.usedColIds.indexOf(renameIdsMap[origId][i]) === -1) {
+                    valid = false;
+                    break;
+                }
+            }
+            if (valid) {
+                node.usedColIds.push(Number(origId));
+            }
+        }
+    }
+
     function prepareUsedColIds(node) {
         if (!node.usedColIds) {
             node.usedColIds = [];
@@ -5657,7 +5690,9 @@
         var treeNodeClass = node.value.class.substring(
             "org.apache.spark.sql.catalyst.plans.logical.".length);
         if (treeNodeClass === "Join" || treeNodeClass === "Filter") {
-            extractCols(node);
+            extractUsedCols(node);
+        } else if (treeNodeClass === "Project" || treeNodeClass === "Aggregate") {
+            trackRenamedUsedCols(node);
         }
         for (var i = 0; i < node.children.length; i++) {
             node.children[i].usedColIds = node.usedColIds;
@@ -5921,7 +5956,7 @@
                     colStruct.colId = evalList[i][0].exprId.id;
                 }
                 // XCEPASSTHROUGH -> UDF_NAME
-                newColName = replaceUDFName(newColName, acc.udfs);
+                newColName = cleanseColName(replaceUDFName(newColName, acc.udfs));
                 colStruct.colName = newColName;
                 colStruct.colType = getColType(treeNode);
                 var retStruct = {newColName: newColName,
