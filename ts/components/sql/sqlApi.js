@@ -315,12 +315,12 @@
                     }]
                 }]
         */
-        union: function(tableInfos, dedup, newTableName) {
+        union: function(tableInfos, dedup, newTableName, unionType) {
             var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self._start();
 
-            XIApi.union(txId, tableInfos, dedup, newTableName)
+            XIApi.union(txId, tableInfos, dedup, newTableName, unionType)
             .then(function(dstTable, dstCols) {
                 var cli = self._end(txId);
                 deferred.resolve({

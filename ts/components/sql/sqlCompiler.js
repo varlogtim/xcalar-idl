@@ -1171,9 +1171,13 @@
 
         // Push cols names to its direct parent, except from Join
         if (node.parent && node.parent.value.class !==
-            "org.apache.spark.sql.catalyst.plans.logical.Join" && 
+            "org.apache.spark.sql.catalyst.plans.logical.Join" &&
             node.parent && node.parent.value.class !==
-            "org.apache.spark.sql.catalyst.plans.logical.Union") {
+            "org.apache.spark.sql.catalyst.plans.logical.Union" &&
+            node.parent && node.parent.value.class !==
+            "org.apache.spark.sql.catalyst.plans.logical.Intersect" &&
+            node.parent && node.parent.value.class !==
+            "org.apache.spark.sql.catalyst.plans.logical.Except") {
             // Must create a deep copy of the array.
             // Otherwise we are just assigning the pointer. So when the
             // parent changes, the children change as well.
@@ -1279,6 +1283,8 @@
                     retStruct = self._pushDownIgnore(treeNode);
                     break;
                 case ("Union"):
+                case ("Intersect"):
+                case ("Except"):
                     retStruct = self._pushDownUnion(treeNode);
                     break;
                 case ("Window"):
@@ -3058,6 +3064,12 @@
                     SQLErrTStr.UnionChildren + node.children.length);
             // If only 1 of children is not localrelation,
             // skip the union and handle column info
+            var unionType = UnionOperatorT.UnionStandard;
+            if (node.value.class === "org.apache.spark.sql.catalyst.plans.logical.Intersect") {
+                unionType = UnionOperatorT.UnionIntersect;
+            } else if (node.value.class === "org.apache.spark.sql.catalyst.plans.logical.Except") {
+                unionType = UnionOperatorT.UnionExcept;
+            }
             var validChildrenIds = __findValidChildren(node);
             if (validChildrenIds.length === 1 && validChildrenIds[0] != 0) {
                 var lrChild = node.children[0];
@@ -3118,7 +3130,7 @@
             // groupBy without aggregation on all columns we need.
             // XXX Since we support dedup flag, we may consider optimization.
             // It will save us one groupBy.
-            return self.sqlObj.union(tableInfos, false);
+            return self.sqlObj.union(tableInfos, false, undefined, unionType);
         },
 
         _pushDownWindow: function(node) {
