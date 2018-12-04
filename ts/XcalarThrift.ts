@@ -1369,10 +1369,6 @@ XcalarIndexFromDataset = function(
     txId: number
 ): XDPromise<XcalarApiNewTableOutputT> {
     // Note: datasetName must be of the form username.hashId.dsName
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return PromiseHelper.resolve(null);
-    }
-
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
@@ -1393,6 +1389,9 @@ XcalarIndexFromDataset = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
+        if ([null, undefined].indexOf(tHandle) !== -1) {
+            return PromiseHelper.resolve(null);
+        }
         def = xcalarIndex(tHandle, datasetName, tableName, keyArray,
                           prefix, dhtName);
     }
@@ -1431,10 +1430,6 @@ XcalarIndexFromTable = function(
     dhtName: string,
     txId: number
 ): XDPromise<{ ret?: XcalarApiNewTableOutputT, newKeys?: any[] }>{
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return PromiseHelper.resolve(null);
-    }
-
     const deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
@@ -1461,6 +1456,9 @@ XcalarIndexFromTable = function(
         if (Transaction.isSimulate(txId)) {
             def = fakeApiCall();
         } else {
+            if ([null, undefined].indexOf(tHandle) !== -1) {
+                return PromiseHelper.resolve(null);
+            }
             def = xcalarIndex(tHandle, srcTablename, dstTableName,
                               keyArray, "", dhtName);
         }
@@ -2337,10 +2335,6 @@ XcalarFilter = function(
     dstTablename: string,
     txId: number
 ): XDPromise<any> {
-    if (tHandle == null) {
-        return PromiseHelper.resolve(null);
-    }
-
     const deferred = PromiseHelper.deferred();
     let query: string;
     if (Transaction.checkCanceled(txId)) {
@@ -2361,6 +2355,9 @@ XcalarFilter = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
+        if (tHandle == null) {
+            return PromiseHelper.resolve(null);
+        }
         def = xcalarFilter(tHandle, evalStr, srcTablename, dstTablename);
     }
     query = XcalarGetQuery(workItem);
@@ -2387,10 +2384,6 @@ XcalarMapWithInput = function(
     txId: number,
     inputStruct: XcalarApiMapInputT
 ): XDPromise<any> {
-    if (tHandle == null) {
-        return PromiseHelper.resolve(null);
-    }
-
     var deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
@@ -2402,6 +2395,9 @@ XcalarMapWithInput = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
+        if (tHandle == null) {
+            return PromiseHelper.resolve(null);
+        }
         def = xcalarApiMapWithWorkItem(tHandle, workItem);
     }
 
@@ -2433,10 +2429,6 @@ XcalarMap = function(
     icvMode: boolean,
     txId: number
 ): XDPromise<any> {
-    if (tHandle == null) {
-        return PromiseHelper.resolve(null);
-    }
-
     if (Transaction.checkCanceled(txId)) {
         return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
     }
@@ -2473,6 +2465,9 @@ XcalarMap = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
+        if (tHandle == null) {
+            return PromiseHelper.resolve(null);
+        }
         def = xcalarApiMap(
             tHandle,
             newFieldNames as string[],
@@ -2507,10 +2502,6 @@ XcalarAggregate = function(
     srcTablename: string,
     txId: number
 ): XDPromise<any> {
-    if (tHandle == null) {
-        return PromiseHelper.resolve(null);
-    }
-
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
     let query: string;
     if (Transaction.checkCanceled(txId)) {
@@ -2532,6 +2523,9 @@ XcalarAggregate = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
+        if (tHandle == null) {
+            return PromiseHelper.resolve(null);
+        }
         def = xcalarAggregate(tHandle, srcTablename, dstAggName, evalStr);
     }
     query = XcalarGetQuery(workItem);
@@ -2569,9 +2563,6 @@ XcalarJoin = function(
     options: {evalString: string, keepAllColumns: boolean},
     txId: number
 ): XDPromise<any> {
-    if (tHandle == null) {
-        return PromiseHelper.resolve(null);
-    }
     // If this flag is set to false, then any column that is not in left columns
     // or right columns will be dropped. This should eventually be set to false.
     // Alternatively it should be exposed to the user.
@@ -2606,6 +2597,9 @@ XcalarJoin = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
+        if (tHandle == null) {
+            return PromiseHelper.resolve(null);
+        }
         def = xcalarJoin(tHandle, left, right, dst,
                             joinType, leftColumns, rightColumns,
             evalString, keepAllColumns);
@@ -2832,10 +2826,6 @@ XcalarUnion = function(
     unionType: UnionOperatorT = UnionOperatorT.UnionStandard,
     txId: number
 ): XDPromise<any> {
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return PromiseHelper.resolve(null);
-    }
-
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
@@ -2851,6 +2841,9 @@ XcalarUnion = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
+        if ([null, undefined].indexOf(tHandle) !== -1) {
+            return PromiseHelper.resolve(null);
+        }
         def = xcalarUnion(tHandle, tableNames, newTableName, columns, dedup, unionType);
     }
     query = XcalarGetQuery(workItem); // XXX test

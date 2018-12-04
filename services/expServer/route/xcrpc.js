@@ -1,11 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var net = require('net');
+var serviceMgr = require('../serviceMgr')
 
-router.post("/service/xce", function(req, res) {
-    var reqBuf = Buffer.from(req.body.data, 'base64');
+function routeToXce(reqBuf, res) {
     var reqSizeBuf = Buffer.alloc(8);
-
     var respSizeBuf = Buffer.alloc(0);
     var respSize = undefined; // number of bytes currently in respBuf
     var respBuf = undefined;
@@ -80,7 +79,21 @@ router.post("/service/xce", function(req, res) {
         var errCode = hadError ? 500 : 200;
         res.status(errCode).json(response);
     });
-});
+}
 
+router.post("/service/xce", function(req, res) {
+    var reqBuf = Buffer.from(req.body.data, 'base64');
+
+   serviceMgr.handleService(reqBuf)
+   .then(function(reqHandled, resp) {
+       if(!reqHandled) {
+           return routeToXce(reqBuf, res);
+       }
+       res.status(200).json({"data": resp});
+   })
+   .fail(function(){
+       res.status(500).json("Error occured!!");
+   });
+});
 // Export router
 exports.router = router;

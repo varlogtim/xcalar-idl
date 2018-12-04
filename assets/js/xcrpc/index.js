@@ -1,12 +1,14 @@
 var client = require("./Client");
 var context = null;
 
+var isNodeJs = false;
 // Explicitly check if this code is running under nodejs
 if ((typeof process !== 'undefined') &&
     (typeof process.versions !== 'undefined') &&
     (typeof process.versions.node !== 'undefined')) {
     var requireContext = require('require-context');
-    context = requireContext("../xcalar", false, /_xcrpc\.js$/);
+    context = requireContext(__dirname, false, /_xcrpc\.js$/);
+    isNodeJs = true;
 } else {
     context = require.context(".", false, /_xcrpc\.js$/);
 }
@@ -24,5 +26,23 @@ context.keys().forEach(function (key) {
         }
     }
 });
+
+if(isNodeJs) {
+    //want to get all service info objects into one object and expose it
+    var _serviceInfo = {}
+    context = requireContext(__dirname + "/serviceInfo", false, /_serviceInfo\.js$/);
+    context.keys().forEach(function (key) {
+        var infoMod = context(key);
+        for (var k in infoMod) {
+            if (infoMod.hasOwnProperty(k) && k === 'serviceInfo') {
+                for (var service in infoMod[k]){
+                    _serviceInfo[service] = infoMod[k][service];
+                }
+            }
+        }
+    });
+
+    exports.ServiceInfo = _serviceInfo
+}
 
 exports.XceClient = client.XceClient

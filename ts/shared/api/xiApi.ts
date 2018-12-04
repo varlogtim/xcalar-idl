@@ -2123,10 +2123,12 @@ namespace XIApi {
             return unionHelper(txId, tableNames, newTableName, colInfos, dedup, unionType);
         })
         .then(() => {
-            const newTableCols: ProgCol[] = tableInfos[0].columns.map((col) => {
-                return ColManager.newPullCol(col.rename, null, col.type);
+            const newTableCols: {rename: string, type: ColumnType}[] = tableInfos[0].columns.map((col) => {
+                return {
+                    "rename":col.rename,
+                    "type": col.type
+                };
             });
-            newTableCols.push(ColManager.newDATACol());
             deferred.resolve(newTableName, newTableCols);
         })
         .fail(deferred.reject);

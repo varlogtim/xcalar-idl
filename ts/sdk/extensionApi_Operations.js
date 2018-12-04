@@ -240,7 +240,11 @@ window.XcSDK.Extension.prototype = (function() {
 
             XIApi.union(txId, tableInfos, dedup, newTableName, unionType)
             .then(function(dstTable, dstCols) {
-                self._addMeta(null, dstTable, dstCols);
+                var newTableCols = dstCols.map((col) => {
+                    return ColManager.newPullCol(col.rename, null, col.type);
+                });
+                newTableCols.push(ColManager.newDATACol());
+                self._addMeta(null, dstTable, newTableCols);
                 deferred.resolve(dstTable);
             })
             .fail(deferred.reject);

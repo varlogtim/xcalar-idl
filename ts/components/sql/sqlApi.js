@@ -323,9 +323,13 @@
             XIApi.union(txId, tableInfos, dedup, newTableName, unionType)
             .then(function(dstTable, dstCols) {
                 var cli = self._end(txId);
+                var newTableCols = dstCols.map((col) => {
+                    return ColManager.newPullCol(col.rename, null, col.type);
+                });
+                newTableCols.push(ColManager.newDATACol());
                 deferred.resolve({
                     "newTableName": dstTable,
-                    "newColumns": dstCols,
+                    "newColumns": newTableCols,
                     "cli": cli
                 });
             })
