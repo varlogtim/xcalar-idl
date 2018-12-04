@@ -621,7 +621,6 @@ namespace DagView {
             return;
         }
 
-
         const nodesStr = JSON.stringify(createNodeInfos(nodeIds, activeDag, {clearState: true}), null, 4);
         DagView.removeNodes(nodeIds, tabId);
         return nodesStr;
@@ -696,6 +695,11 @@ namespace DagView {
                 DagComment.Instance.drawComment(commentNode, $dfArea, true);
                 allNewNodes.push(commentNode);
             } else if (nodeInfo.hasOwnProperty("input")) {
+                // remove parents so that when creating
+                // the new node, we don't provide a parent that doesn't exist or
+                // the parentId of the original node
+                // since this is a deep copy, nodeInfos still has the parents
+                delete nodeInfo.parents;
                 const newNode: DagNode = activeDag.newNode(nodeInfo);
                 if (newNode.getType() == DagNodeType.Aggregate &&
                         newNode.getState() == DagNodeState.Configured) {
@@ -718,12 +722,12 @@ namespace DagView {
         }
 
         // restore connection to parents
-        allNewNodeIds.forEach((newNodeId, i) => {
+        allNewNodeIds.forEach((newNodeId: DagNodeId, i) => {
             if (newNodeId.startsWith("comment")) {
                 return;
             }
-            if (nodeInfos[i].parentIds) {
-                nodeInfos[i].parentIds.forEach((parentId, j) => {
+            if (nodeInfos[i].parents) {
+                nodeInfos[i].parents.forEach((parentId, j) => {
                     if (parentId == null) {
                         return; // skip empty parent slots
                     }
@@ -3739,47 +3743,42 @@ namespace DagView {
         nodeIds: DagNodeId[],
         dagGraph: DagGraph,
         options: {
-            isSkipOutParent?: boolean,
-            clearState?: boolean
+            clearState?: boolean // true if we're copying nodes
         } = {}
     ): any[] {
         // check why we need it
-        const isSkipOutParent: boolean = options.isSkipOutParent || true;
         const clearState: boolean = options.clearState || false;
         let nodeInfos = [];
         nodeIds.forEach((nodeId) => {
             if (nodeId.startsWith("dag")) {
                 const node: DagNode = dagGraph.getNode(nodeId);
                 let parentIds: DagNodeId[] = [];
-                let numParents: number = node.getMaxParents();
-                let isMulti = false;
-                if (numParents === -1) {
-                    isMulti = true;
-                }
+                let minParents: number = node.getMinParents();
                 let parents = node.getParents();
-                // for each loop skips over empty parents
+                // if node requires at least 2 parents, and a parent isn't found
+                // then we push in a null, but if the node requires 1 parent
+                // we can just not push anything and keep parents == []
                 for (let i = 0; i < parents.length; i++) {
                     const parent = parents[i];
                     if (parent) {
                         const parentId: DagNodeId = parent.getId();
 
-                        if (nodeIds.indexOf(parentId) === -1 && isSkipOutParent) {
-                            // XXX TODO check if this affects order of union input
-                            if (numParents > 1 && !isMulti) {
+                        if (nodeIds.indexOf(parentId) === -1) {
+                            if (minParents > 1) {
                                 parentIds.push(null);
                             }
                         } else {
                             parentIds.push(parentId);
                         }
                     } else {
-                        if (numParents > 1 && !isMulti) {
+                        if (minParents > 1) {
                             parentIds.push(null);
                         }
                     }
                 }
 
                 const nodeInfo = node.getNodeCopyInfo(clearState);
-                nodeInfo['parentIds'] = parentIds;
+                nodeInfo.parents = parentIds;
                 nodeInfos.push(nodeInfo);
             } else if (nodeId.startsWith("comment")) {
                 const comment: CommentNode = dagGraph.getComment(nodeId);

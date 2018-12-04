@@ -11,6 +11,7 @@ abstract class DagNode {
     private table: string;
     private state: DagNodeState;
     private error: string;
+    private configured: boolean;
     private numParent: number; // non-persisent
 
     protected events: {_events: object, trigger: Function}; // non-persistent;
@@ -51,6 +52,7 @@ abstract class DagNode {
         if (this.state === DagNodeState.Running) {
             // cannot be running state when create
             this.state = DagNodeState.Configured;
+            this.configured = true;
         }
         const coordinates = options.display || {x: -1, y: -1};
         this.display = {coordinates: coordinates, icon: "", description: ""};
@@ -73,6 +75,10 @@ abstract class DagNode {
         if (options.stats && !$.isEmptyObject(options.stats)) {
             this.runStats.nodes = options.stats;
             this.runStats.hasRun = true;
+        }
+        this.configured = this.configured || options.configured || false;
+        if (this.configured && DagNodeState.Unused) {
+            this.state = DagNodeState.Configured;
         }
     }
 
@@ -445,6 +451,8 @@ abstract class DagNode {
 
     /**
      * Generate JSON representing this node(w/o ids), for use in copying a node
+     * @param clearState used when copying table to remove table reference
+     * and ensure copy does't have a running or complete state
      */
     public getNodeCopyInfo(clearState: boolean = false): DagNodeCopyInfo {
         const nodeInfo = <DagNodeCopyInfo>this._getNodeInfoWithParents();
@@ -519,10 +527,11 @@ abstract class DagNode {
     }
 
     public setParam(_param?: any, noAutoExecute?: boolean): void {
-        if (!this.input.hasParametersChanges()) {
+        if (!this.input.hasParametersChanges() && this.configured) {
             // when there is no change
             return;
         }
+        this.configured = true;
         this.events.trigger(DagNodeEvents.ParamChange, {
             id: this.getId(),
             params: this.getParam(),
@@ -809,7 +818,8 @@ abstract class DagNode {
           "type",
           "input",
           "nodeId",
-          "parentIds"
+          "parents",
+          "configured"
         ],
         "properties": {
           "type": {
@@ -941,21 +951,14 @@ abstract class DagNode {
             ],
             "pattern": "^(.*)$"
           },
-          "parentIds": {
-            "$id": "#/properties/parentIds",
-            "type": "array",
-            "title": "The Parentids Schema",
-            "items": {
-              "$id": "#/properties/parentIds/items",
-              "type": ["string", "null"],
-              "title": "The Items Schema",
-              "default": "",
-              "examples": [
-                "sfsdf",
-                "sfsdf"
-              ],
-              "pattern": "^(.*)$"
-            }
+          "configured": {
+            "$id": "#/properties/configured",
+            "type": "boolean",
+            "title": "The Configured Schema",
+            "default": false,
+            "examples": [
+              false
+            ]
           },
           "aggregates": {
             "$id": "#/properties/aggregates",
@@ -1072,6 +1075,7 @@ abstract class DagNode {
             id: this.id,
             state: this.state,
             error: this.error,
+            configured: this.configured
         };
         if (includeStats) {
             if (this.runStats.hasRun) {
@@ -1219,7 +1223,7 @@ abstract class DagNode {
     }
 
     public isConfigured(): boolean {
-        return this.input.isConfigured();
+        return this.configured && this.input.isConfigured();
     }
 
     public applyColumnMapping(_map, _index: number): void {

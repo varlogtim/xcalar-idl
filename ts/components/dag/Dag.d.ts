@@ -15,7 +15,8 @@ interface DagNodeInfo {
     parents?: string[];
     aggregates?: string[];
     subGraphNodes?: string[];
-    stats?: any
+    stats?: any,
+    configured?: boolean
 }
 
 interface DagNodeDisplayInfo {

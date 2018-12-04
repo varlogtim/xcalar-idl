@@ -5,6 +5,7 @@ window.Repeat = (function($, Repeat) {
                            SQLOps.ResizeTableCols];
 
     Repeat.run = function(xcLog) {
+        return PromiseHelper.reject("repeat temporarily disabled");
         xcAssert((xcLog != null), "invalid log");
 
         var deferred = PromiseHelper.deferred();
