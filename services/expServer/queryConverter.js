@@ -31,21 +31,18 @@ const gridSpacing = 20;
 const horzNodeSpacing = 140;// spacing between nodes when auto-aligning
 const vertNodeSpacing = 60;
 
-// isNested is a boolean to indicate if this dataflow is part of a recursive call
-function convert(dataflowInfo, isNested) {
+// nestedPrefix is a retinaName to indicate if this dataflow is part of a recursive call
+function convert(dataflowInfo, nestedPrefix) {
     try {
-        return convertHelper(dataflowInfo, isNested);
+        return convertHelper(dataflowInfo, nestedPrefix);
     } catch (e) {
         console.log(e);
-        if (typeof e !== "string") {
-            e = JSON.stringify(e);
-        }
         return {error: e};
     }
 }
 
-function convertHelper(dataflowInfo, isNested) {
-    if (!isNested) {
+function convertHelper(dataflowInfo, nestedPrefix) {
+    if (!nestedPrefix) {
         currentDataflowId = "DF2_" + new Date().getTime() + "_" + dataflowCount++;
     }
     const nodes = new Map();
@@ -60,19 +57,21 @@ function convertHelper(dataflowInfo, isNested) {
     if (typeof dataflowInfo !== "object" || dataflowInfo == null || (dataflowInfo instanceof Array)) {
         return "invalid dataflowInfo: " + dataflowInfo;
     }
-    // first element in the array is a header indicating if the dataflow
+    // check for header indicating if the dataflow
     // is a regular workbook dataflow or retina dataflow
     let isRetina = false;
-    if (dataflowInfo.workbookVersion == null) {
+    if (dataflowInfo.workbookVersion == null && (!dataflowInfo.header || dataflowInfo.header.workbookVersion == null)) {
         isRetina = true;
     }
     let query = dataflowInfo.query;
-
+    let sourcePrefix = nestedPrefix || "";
     for (let i = 0; i < query.length; i++) {
         const rawNode = query[i];
         const args = rawNode.args;
+        let name = sourcePrefix + args.dest;
+        // name gets renamed and prefixed in the switch statement
         const node =
-        {   name: args.dest,
+        {   name: name,
             parents: [],
             children: [],
             realChildren: [],
@@ -84,37 +83,96 @@ function convertHelper(dataflowInfo, isNested) {
         };
 
         let isIgnoredApi = false;
+        let source;
+
+        // set up the parents and prefix the parent names if we're inside
+        // an executeRetina
         switch (node.api) {
             case (XcalarApisT.XcalarApiIndex):
-            case (XcalarApisT.XcalarApiAggregate):
+                if (args.source.startsWith(".XcalarDS.")) {
+                    args.source = ".XcalarDS." + sourcePrefix + args.source.slice(".XcalarDS.".length);
+                } else {
+                    args.source = sourcePrefix + args.source;
+                }
+                node.parents = [args.source];
+                break;
             case (XcalarApisT.XcalarApiProject):
-            case (XcalarApisT.XcalarApiGroupBy):
             case (XcalarApisT.XcalarApiGetRowNum):
             case (XcalarApisT.XcalarApiExport):
             case (XcalarApisT.XcalarApiSynthesize):
-                node.parents = [args.source];
-                break;
+            case (XcalarApisT.XcalarApiAggregate):
             case (XcalarApisT.XcalarApiFilter):
             case (XcalarApisT.XcalarApiMap):
+            case (XcalarApisT.XcalarApiGroupBy):
+                args.source = sourcePrefix + args.source;
                 node.parents = [args.source];
-                node.aggregates = _getAggsFromEvalStrs(args.eval);
                 break;
             case (XcalarApisT.XcalarApiJoin):
             case (XcalarApisT.XcalarApiUnion):
+                args.source.map((source) => {
+                    return sourcePrefix + source;
+                });
                 node.parents = xcHelper.deepCopy(args.source);
                 break;
             case (XcalarApisT.XcalarApiSelect):
             case (XcalarApisT.XcalarApiExecuteRetina):
-                node.parents = [];
-                break;
             case (XcalarApisT.XcalarApiBulkLoad):
                 node.parents = [];
+                break;
+            default:
+                break;
+        }
+
+        // set up the dest and aggregates and prefix if needed
+        switch (node.api) {
+            case (XcalarApisT.XcalarApiIndex):
+            case (XcalarApisT.XcalarApiProject):
+            case (XcalarApisT.XcalarApiGetRowNum):
+            case (XcalarApisT.XcalarApiExport):
+            case (XcalarApisT.XcalarApiSynthesize):
+            case (XcalarApisT.XcalarApiUnion):
+            case (XcalarApisT.XcalarApiSelect):
+            case (XcalarApisT.XcalarApiExecuteRetina):
+                node.args.dest = sourcePrefix + args.dest;
+                break;
+            case (XcalarApisT.XcalarApiAggregate):
+                node.args.dest = "^" + sourcePrefix + args.dest;
+                node.aggregates = _getAggsFromEvalStrs(args.eval);
+                node.aggregates.map((agg) => {
+                    return "^" + sourcePrefix + agg.slice(1);
+                });
+                break;
+            case (XcalarApisT.XcalarApiFilter):
+            case (XcalarApisT.XcalarApiMap):
+            case (XcalarApisT.XcalarApiGroupBy):
+                node.args.dest = sourcePrefix + args.dest;
+                node.aggregates = _getAggsFromEvalStrs(args.eval);
+                node.aggregates.map((agg) => {
+                    return "^" + sourcePrefix + agg.slice(1);
+                });
+                break;
+            case (XcalarApisT.XcalarApiJoin):
+                node.args.dest = sourcePrefix + args.dest;
+                node.aggregates = _getAggsFromEvalStrs([args]);
+                node.aggregates.map((agg) => {
+                    return "^" + sourcePrefix + agg.slice(1);
+                });
+                break;
+            case (XcalarApisT.XcalarApiBulkLoad):
+                if (args.dest.startsWith(".XcalarDS.")) {
+                    args.dest = ".XcalarDS." + sourcePrefix + args.dest.slice(".XcalarDS.".length);
+                } else {
+                    node.args.dest = sourcePrefix + args.dest;
+                }
+
                 datasets.push(rawNode);
                 break;
             default:
                 isIgnoredApi = true;
                 break;
         }
+        name = node.args.dest;
+        node.name = name;
         if (!isIgnoredApi) {
             nodes.set(node.name, node);
         }
@@ -136,10 +194,10 @@ function convertHelper(dataflowInfo, isNested) {
         _collapseIndexNodes(node);
     }
 
-    return _finalConvertIntoDagNodeInfoArray(nodes, datasets, isRetina, isNested);
+    return _finalConvertIntoDagNodeInfoArray(nodes, datasets, isRetina, nestedPrefix);
 }
 
-function _finalConvertIntoDagNodeInfoArray(nodes, datasets, isRetina, isNested) {
+function _finalConvertIntoDagNodeInfoArray(nodes, datasets, isRetina, nestedPrefix) {
     const dataflows = [];
     const dataflowsList = [];
     let treeGroups = {};
@@ -166,12 +224,12 @@ function _finalConvertIntoDagNodeInfoArray(nodes, datasets, isRetina, isNested) 
 
         const dagNodeInfos = {};
         endNodes.forEach(node => {
-            _recursiveGetDagNodeInfo(node, dagNodeInfos, isRetina, isNested);
+            _recursiveGetDagNodeInfo(node, dagNodeInfos, isRetina, nestedPrefix);
         });
 
         allDagNodeInfos = $.extend(allDagNodeInfos, dagNodeInfos);
     }
-    if (isNested) {
+    if (nestedPrefix) {
         return allDagNodeInfos;
     } else {
         const graphDimensions = _setPositions(allDagNodeInfos);
@@ -189,6 +247,10 @@ function _finalConvertIntoDagNodeInfoArray(nodes, datasets, isRetina, isNested) 
             name = xcHelper.randName(".temp/rand") + "/" + "Dataflow " + (dataflowCount + 1);
         } else {
             name = "Dataflow " + (dataflowCount + 1);
+            dataflowsList.push({
+                name: name,
+                id: currentDataflowId
+            });
         }
 
         const dataflow = {
@@ -203,6 +265,9 @@ function _finalConvertIntoDagNodeInfoArray(nodes, datasets, isRetina, isNested) 
                     "scale": 1
                 }
             }
+        }
+        if (!isRetina) {
+            dataflow.autosave = true;
         }
 
         dataflows.push(dataflow);
@@ -433,18 +498,18 @@ function _adjustPositions(node, nodes, seen) {
     }
 }
 
-function _recursiveGetDagNodeInfo(node, dagNodeInfos, isRetina, isNested) {
+function _recursiveGetDagNodeInfo(node, dagNodeInfos, isRetina, nestedPrefix) {
     if (dagNodeInfos[node.name]) {
         return dagNodeInfos[node.name];
     }
-    let dagNodeInfo = _getDagNodeInfo(node, dagNodeInfos, isRetina, isNested);
+    let dagNodeInfo = _getDagNodeInfo(node, dagNodeInfos, isRetina, nestedPrefix);
     dagNodeInfos[node.name] = dagNodeInfo;
 
     node.parents.forEach(child => {
 
-        const childInfo = _recursiveGetDagNodeInfo(child, dagNodeInfos, isRetina, isNested);
+        const childInfo = _recursiveGetDagNodeInfo(child, dagNodeInfos, isRetina, nestedPrefix);
         let targetDagNodeInfo = dagNodeInfo;
-        if (dagNodeInfo.type === DagNodeType.DFIn) {
+        if (dagNodeInfo.linkOutNode) {
             // if node is a dfIn, assign it's children to the dfOut node
             targetDagNodeInfo = dagNodeInfo.linkOutNode
         }
@@ -457,8 +522,10 @@ function _recursiveGetDagNodeInfo(node, dagNodeInfos, isRetina, isNested) {
 }
 
 // does the main conversion of a xcalarQueryStruct into a dataflow2 node
-function _getDagNodeInfo(node, dagNodeInfos, isRetina, isNested) {
+function _getDagNodeInfo(node, dagNodeInfos, isRetina, nestedPrefix) {
     let dagNodeInfo;
+    let linkOutNode = null;
+
     switch (node.api) {
         case (XcalarApisT.XcalarApiIndex):
             if (node.createTableInput) {
@@ -535,8 +602,7 @@ function _getDagNodeInfo(node, dagNodeInfos, isRetina, isNested) {
                 type: DagNodeType.Filter,
                 input: {
                     evalString: node.args.eval[0].evalString
-                },
-                aggregates: node.aggregates
+                }
             };
             break;
         case (XcalarApisT.XcalarApiMap):
@@ -545,8 +611,7 @@ function _getDagNodeInfo(node, dagNodeInfos, isRetina, isNested) {
                 input: {
                     eval: node.args.eval,
                     icv: node.args.icv
-                },
-                aggregates: node.aggregates
+                }
             };
             break;
         case (XcalarApisT.XcalarApiJoin):
@@ -614,7 +679,7 @@ function _getDagNodeInfo(node, dagNodeInfos, isRetina, isNested) {
             };
             break;
         case (XcalarApisT.XcalarApiExport):
-            if (isNested) {
+            if (nestedPrefix) {
                 dagNodeInfo = {
                     type: DagNodeType.DFOut,
                     subType: "link out Optimized",
@@ -653,10 +718,9 @@ function _getDagNodeInfo(node, dagNodeInfos, isRetina, isNested) {
         case (XcalarApisT.XcalarApiExecuteRetina):
             // executeRetina contains a subGraph, so we create the nodes
             // and assign the linkout node's name to current node's linkOutName property
-            const nestedRet = convert(node.args.retinaBuf, true);
+            let retinaName = node.args.retinaName.replace(/#/g, "$");
+            const nestedRet = convert(node.args.retinaBuf, retinaName + ":");
             dagNodeInfos = $.extend(dagNodeInfos, nestedRet);
-
-            let linkOutNode;
             for (let name in nestedRet) {
                 let nestedDagNodeInfo = nestedRet[name];
                 if (nestedDagNodeInfo.type === DagNodeType.DFOut) {
@@ -674,9 +738,9 @@ function _getDagNodeInfo(node, dagNodeInfos, isRetina, isNested) {
             };
             break;
         case (XcalarApisT.XcalarApiSynthesize):
-            if (isRetina || isNested) {
+            if (isRetina || nestedPrefix) {
                 // create dfOut node (this node doesn't really exist in the original query)
-                const parentDagNodeInfo = {
+                linkOutNode = {
                     type: DagNodeType.DFOut,
                     subType: "link out Optimized",
                     input: {
@@ -691,35 +755,34 @@ function _getDagNodeInfo(node, dagNodeInfos, isRetina, isNested) {
                     }
                 };
                 const comment = parseUserComment(node.rawNode.comment);
-                parentDagNodeInfo.description = comment.userComment || "";
-                parentDagNodeInfo.table = node.args.source;
-                parentDagNodeInfo.id = "dag_" + new Date().getTime() + "_" + idCount++;
-                parentDagNodeInfo.parents = [];
-                parentDagNodeInfo.parentIds = [];
-                parentDagNodeInfo.children = [];
-                parentDagNodeInfo.state =  "Configured";
+                linkOutNode.description = comment.userComment || "";
+                linkOutNode.table = node.args.source;
+                linkOutNode.id = "dag_" + new Date().getTime() + "_" + idCount++;
+                linkOutNode.parents = [];
+                linkOutNode.parentIds = [];
+                linkOutNode.children = [];
+                linkOutNode.state =  "Configured";
+                linkOutNode.configured = true;
                 // need to create a new name as this node doesn't exist in query
-                dagNodeInfos[node.args.source + "_" + idCount++] = parentDagNodeInfo;
-
-                // dfIn should not have parents
-                dagNodeInfo = {
-                    type: DagNodeType.DFIn,
-                    input: {
-                        dataflowId: currentDataflowId,
-                        linkOutName: node.args.source
-                    },
-                    linkOutNode: parentDagNodeInfo
-                };
-            } else {
-                dagNodeInfo = {
-                    type: DagNodeType.Dataset,
-                    input: {
-                        prefix: "",
-                        source: xcHelper.stripPrefixFromDSName(node.args.source),
-                        synthesize: true
-                    }
-                };
+                dagNodeInfos[node.args.source + "_" + idCount++] = linkOutNode;
             }
+
+            let linkOutDataflowId = null;
+            // if synthesize node doesn't have parents because they
+            // are in another dataflow, then linkOutDataflowId will be null
+            // and XD will try to find it
+            if (node.parents.length) {
+                linkOutDataflowId = currentDataflowId;
+            }
+            dagNodeInfo = {
+                type: DagNodeType.DFIn,
+                input: {
+                    dataflowId: linkOutDataflowId,
+                    linkOutName: node.args.source
+                },
+                linkOutNode: linkOutNode
+            };
+
             break;
         case (XcalarApisT.XcalarApiSelect):
             dagNodeInfo = {
@@ -748,6 +811,7 @@ function _getDagNodeInfo(node, dagNodeInfos, isRetina, isNested) {
 
     const comment = parseUserComment(node.rawNode.comment);
     dagNodeInfo.description = dagNodeInfo.description || comment.userComment || "";
+    dagNodeInfo.aggregates = node.aggregates;
     dagNodeInfo.table = node.name;
     dagNodeInfo.title = node.name;
     dagNodeInfo.id = "dag_" + new Date().getTime() + "_" + idCount++;
@@ -755,6 +819,7 @@ function _getDagNodeInfo(node, dagNodeInfos, isRetina, isNested) {
     dagNodeInfo.parents = [];
     dagNodeInfo.parentIds = [];
     dagNodeInfo.state =  "Configured";
+    dagNodeInfo.configured = true;
     return dagNodeInfo;
 }
 
@@ -869,6 +934,8 @@ function _setParents(node, nodes) {
             node.parents[i] = parent;
             node.realParents[i] = parent;
         } else {
+            console.log(node.parents[i] + " not found");
+            console.log(node.rawNode.operation);
             node.parents.splice(i, 1);
             i--;
         }
