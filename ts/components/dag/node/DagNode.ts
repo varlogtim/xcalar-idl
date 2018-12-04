@@ -311,7 +311,7 @@ abstract class DagNode {
     /**
      * Return a short hint of the param, it should be one line long
      */
-    public getParamHint(): string {
+    public getParamHint(): {hint: string, fullHint: string} {
         const hint: string = this._genParamHint();
         const maxLen: number = 20;
         // each line cannot be more than maxLen
@@ -321,7 +321,10 @@ abstract class DagNode {
             }
             return str;
         });
-        return ellipsis.join("\n");
+        return {
+            hint: ellipsis.join("\n"),
+            fullHint: hint
+        };
     }
 
     /**
@@ -1203,7 +1206,7 @@ abstract class DagNode {
                     !colMaps.hasOwnProperty(colName)) {
                     invalidColNames.push(colName);
                 }
-            }); 
+            });
         }
         if (invalidColNames.length > 0) {
             const error: string = (invalidColNames.length === 1) ?

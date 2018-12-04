@@ -3267,10 +3267,12 @@ namespace DagView {
 
         // draw param title
         g.select(".paramTitle").remove();
-        const paramHint: string = node.getParamHint();
+        const paramHintObj: {hint: string, fullHint: string} = node.getParamHint();
+        const paramHint = paramHintObj.hint;
+        const fullParamHint = paramHintObj.fullHint;
         const parmLines: string[] = paramHint.split("\n");
         const paramHeight: number = titleHeight + titleLines.length * titleLineHeight;
-        const paramTextSvg = g.append("text")
+        const paramTextSvg: d3 = g.append("text")
             .attr("class", "paramTitle")
             .attr("fill", "#44515C")
             .attr("font-size", 10)
@@ -3284,6 +3286,7 @@ namespace DagView {
                 .attr("x", 0)
                 .attr("y", i * titleLineHeight);
         });
+        xcTooltip.add(paramTextSvg, {title: fullParamHint, placement: "bottom auto"});
     }
 
     function _updateConnectorIn(nodeId: DagNodeId, numInputs: number) {

@@ -1026,7 +1026,7 @@ class DagGraph {
                 name: node.getTitle(),
                 type: node.getDisplayNodeType(),
                 description: node.getDescription(),
-                hint: node.getParamHint(),
+                hint: node.getParamHint().fullHint,
                 overallStats: overallStats,
                 operations: node.getIndividualStats(true)
             }
