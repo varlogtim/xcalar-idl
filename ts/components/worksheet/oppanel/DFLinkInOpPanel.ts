@@ -296,7 +296,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
                 dataflowId: dataflowId,
                 linkOutName: linkOutName
             });
-            const dfOutNode: DagNodeDFOut = fakeLinkInNode.getLinedNodeAndGraph().node;
+            const dfOutNode: DagNodeDFOut = fakeLinkInNode.getLinkedNodeAndGraph().node;
             const progCols: ProgCol[] = dfOutNode.getLineage().getColumns();
             const schema: ColSchema[] = progCols.map((progCol) => {
                 return {

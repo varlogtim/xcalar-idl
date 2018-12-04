@@ -58,6 +58,7 @@ enum DagNodeErrorType {
     Invalid = "Invalid Configuration",
     NoGraph = "Cannot find linked graph",
     NoLinkInGraph = "Cannot find the linked node",
+    MoreLinkGraph = "More than one link out node with the same name specified by the linked in node are found",
     NoAggNode = "Cannot find the aggregate node",
     CycleInLink = "Cycle In Link",
     LinkOutNotExecute = "The linked node only allow linking after execution",

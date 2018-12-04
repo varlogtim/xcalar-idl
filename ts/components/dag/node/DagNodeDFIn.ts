@@ -16,36 +16,31 @@ class DagNodeDFIn extends DagNodeIn {
         super.setParam();
     }
 
-    // XXX TODO: This function used DagTabManager now, which is against
-    // our design to make DagNode in low level. Should use
-    // other ways to do it (for example, the Angluar JS service way)
-    public getLinedNodeAndGraph(): {graph: DagGraph, node: DagNodeDFOut} {
+    public getLinkedNodeAndGraph(): {graph: DagGraph, node: DagNodeDFOut} {
         const param: DagNodeDFInInputStruct = this.input.getInput();
         const dataflowId: string = param.dataflowId;
         const linkOutName: string = param.linkOutName;
-        const dagTab: DagTab = DagTabManager.Instance.getTabById(dataflowId);
-        if (dagTab == null) {
+        const candidateGraphs: DagGraph[] = this._findLinkedGraph(dataflowId);
+        if (candidateGraphs.length === 0) {
             throw new Error(DagNodeErrorType.NoGraph);
         }
-        const graph: DagGraph = dagTab.getGraph();
-        if (graph == null) {
-            throw new Error(DagNodeErrorType.NoGraph);
-        }
-        const dfOutNodes: DagNode[] = graph.filterNode((node) => {
-            if (node.getType() === DagNodeType.DFOut) {
-                const dfOutNode = <DagNodeDFOut>node;
-                if (dfOutNode.getParam().name === linkOutName) {
-                    return true;
-                }
-            } else {
-                return false;
+        let dfOutNodes: DagNode[] = [];
+        let resGraph: DagGraph = null;
+        candidateGraphs.forEach((dagGraph) => {
+            const resNodes = this._findLinkedOutNodeInGraph(dagGraph, linkOutName);
+            if (resNodes.length > 0) {
+                resGraph = dagGraph;
             }
+            dfOutNodes = dfOutNodes.concat(resNodes);
         });
-        if (dfOutNodes.length !== 1) {
+        if (dfOutNodes.length === 0) {
             throw new Error(DagNodeErrorType.NoLinkInGraph);
         }
+        if (dfOutNodes.length > 1) {
+            throw new Error(DagNodeErrorType.MoreLinkGraph);
+        }
         return {
-            graph: graph,
+            graph: resGraph,
             node: <DagNodeDFOut>dfOutNodes[0]
         };
     }
@@ -75,5 +70,44 @@ class DagNodeDFIn extends DagNodeIn {
 
     protected _getColumnsUsedInInput() {
         return null;
+    }
+
+    // XXX TODO: This function used DagTabManager now, which is against
+    // our design to make DagNode in low level. Should use
+    // other ways to do it (for example, the Angluar JS service way)
+    private _findLinkedGraph(dataflowId: string): DagGraph[] {
+        let candidateTabs: DagTab[] = [];
+        const candidateGraphs: DagGraph[] = [];
+        if (dataflowId != null && dataflowId != "") {
+            candidateTabs = [DagTabManager.Instance.getTabById(dataflowId)];
+        } else {
+            candidateTabs = DagTabManager.Instance.getTabs();
+        }
+        candidateTabs.forEach((dagTab) => {
+            if (dagTab != null) {
+                const graph: DagGraph = dagTab.getGraph();
+                if (graph != null) {
+                    candidateGraphs.push(graph);
+                }
+            }
+        });
+        return candidateGraphs;
+    }
+
+    private _findLinkedOutNodeInGraph(graph: DagGraph, linkOutName: string): DagNode[] {
+        if (graph == null) {
+            throw new Error(DagNodeErrorType.NoGraph);
+        }
+        const dfOutNodes: DagNode[] = graph.filterNode((node) => {
+            if (node.getType() === DagNodeType.DFOut) {
+                const dfOutNode = <DagNodeDFOut>node;
+                if (dfOutNode.getParam().name === linkOutName) {
+                    return true;
+                }
+            } else {
+                return false;
+            }
+        });
+        return dfOutNodes;
     }
 }

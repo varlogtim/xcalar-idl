@@ -309,10 +309,6 @@ declare namespace d3 {
     export var scale;
 }
 
-declare interface JQueryUI.TooltipOptions {
-    trigger: string;
-}
-
 declare class Ajv {
     public compile(any);
 }

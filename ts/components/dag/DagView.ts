@@ -1687,7 +1687,7 @@ namespace DagView {
     export function findLinkOutNode(nodeId: DagNodeId): void {
         try {
             const dagNode: DagNodeDFIn = <DagNodeDFIn>activeDag.getNode(nodeId);
-            const res = dagNode.getLinedNodeAndGraph();
+            const res = dagNode.getLinkedNodeAndGraph();
             const graph: DagGraph = res.graph;
             if (graph !== activeDag) {
                 // swith to the graph

@@ -124,7 +124,7 @@ describe("Dag Graph Test", () => {
                 linkOutName: "nonExistOut",
                 schema: []
             });
-            n7.getLinedNodeAndGraph = function() {
+            n7.getLinkedNodeAndGraph = function() {
                 return {
                     graph: graph,
                     node: DagNodeFactory.create({type: DagNodeType.DFOut})
@@ -155,7 +155,7 @@ describe("Dag Graph Test", () => {
                 linkOutName: "testDFOut",
                 schema: []
             });
-            n7.getLinedNodeAndGraph = function() {
+            n7.getLinkedNodeAndGraph = function() {
                 return {
                     graph: graph,
                     node: n8
@@ -190,7 +190,7 @@ describe("Dag Graph Test", () => {
                 linkOutName: "testDFOutFail",
                 schema: []
             });
-            n7.getLinedNodeAndGraph = function() {
+            n7.getLinkedNodeAndGraph = function() {
                 return {
                     graph: graph,
                     node: n9
@@ -207,7 +207,7 @@ describe("Dag Graph Test", () => {
                 linkOutName: "testDFOut",
                 schema: []
             });
-            n7.getLinedNodeAndGraph = function() {
+            n7.getLinkedNodeAndGraph = function() {
                 return {
                     graph: graph,
                     node: n8

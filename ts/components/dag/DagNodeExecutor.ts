@@ -166,7 +166,7 @@ class DagNodeExecutor {
                     } catch (e) {
                         return PromiseHelper.reject({
                             error: "Prase load args error",
-                            defail: e
+                            defail: e.message
                         });
                     }
                 }
@@ -621,7 +621,7 @@ class DagNodeExecutor {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         try {
             const node: DagNodeDFIn = <DagNodeDFIn>this.node;
-            const res = node.getLinedNodeAndGraph();
+            const res = node.getLinkedNodeAndGraph();
             const graph: DagGraph = res.graph;
             const linkOutNode: DagNodeDFOut = res.node;
             if (linkOutNode.shouldLinkAfterExecuition()) {
@@ -631,7 +631,9 @@ class DagNodeExecutor {
             }
         } catch (e) {
             console.error("execute error", e);
-            deferred.reject(e);
+            deferred.reject({
+                error: e.message
+            });
         }
 
         return deferred.promise();
@@ -741,7 +743,9 @@ class DagNodeExecutor {
             return deferred.promise();
         } catch (e) {
             console.error(e);
-            return PromiseHelper.reject(e);
+            return PromiseHelper.reject({
+                error: e.message
+            });
         }
     }
 

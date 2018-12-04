@@ -82,7 +82,7 @@ class DagGraphExecutor {
                     break;
                 }
                 // check if the linked node has executed
-                const linkoutNode: DagNodeDFOut = linkInNode.getLinedNodeAndGraph().node;
+                const linkoutNode: DagNodeDFOut = linkInNode.getLinkedNodeAndGraph().node;
                 if (linkoutNode.shouldLinkAfterExecuition() &&
                     linkoutNode.getState() !== DagNodeState.Complete
                 ) {
@@ -513,7 +513,7 @@ class DagGraphExecutor {
 
         while (stack.length > 0) {
             const currentNode: DagNodeDFIn = stack.pop();
-            const res = currentNode.getLinedNodeAndGraph();
+            const res = currentNode.getLinkedNodeAndGraph();
             let graph: DagGraph = res.graph;
             let dfOutNode: DagNodeDFOut = res.node;
             if (graph === this._graph) {

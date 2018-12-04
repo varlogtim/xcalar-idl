@@ -877,7 +877,7 @@ class DagGraph {
             const inNode: DagNodeDFIn = <DagNodeDFIn>node;
             try {
                 let inSource: {graph: DagGraph, node: DagNodeDFOut} =
-                    inNode.getLinedNodeAndGraph();
+                    inNode.getLinkedNodeAndGraph();
                 if (!DagTblManager.Instance.hasTable(inSource.node.getTable())) {
                     // The needed table doesnt exist so we need to generate it, if we can
                     if (inSource.graph.getTabId() != this.getTabId()) {
@@ -900,7 +900,7 @@ class DagGraph {
                     // Otherwise this is a link in using a query, so the node itself is the source
                 }
             } catch (e) {
-                error = e;
+                error = (e instanceof Error ? e.message : e);
             }
         }
         return {
@@ -994,7 +994,7 @@ class DagGraph {
                 // Note: be cafure of this path for circular case
                 try {
                     const linkInNode: DagNodeDFIn = <DagNodeDFIn>node;
-                    const res: {graph: DagGraph, node: DagNodeDFOut} = linkInNode.getLinedNodeAndGraph();
+                    const res: {graph: DagGraph, node: DagNodeDFOut} = linkInNode.getLinkedNodeAndGraph();
                     const graph = res.graph;
                     if (graph !== this) {
                         const dsSet: Set<string> = graph.getUsedDSNames(true);
@@ -1184,7 +1184,7 @@ class DagGraph {
                         const inNode = <DagNodeDFIn>node;
                         let link: {graph: DagGraph, node: DagNodeDFOut};
                         try {
-                            link = inNode.getLinedNodeAndGraph();
+                            link = inNode.getLinkedNodeAndGraph();
                         } catch (e) {
                             // Node can still be ordered even if we don't know about its parents
                             break;
