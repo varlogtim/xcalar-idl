@@ -217,13 +217,17 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
             });
         });
 
-        this.groupOnCols.map((colName) => {
-            if (colName[0] === gColPrefix) {
-                return colName.slice(1);
-            } else {
-                return colName;
-            }
-        });
+        if (this.groupAll) {
+            this.groupOnCols = [];
+        } else {
+            this.groupOnCols.map((colName) => {
+                if (colName[0] === gColPrefix) {
+                    return colName.slice(1);
+                } else {
+                    return colName;
+                }
+            });
+        }
 
         return {
             groupBy: this.groupOnCols,

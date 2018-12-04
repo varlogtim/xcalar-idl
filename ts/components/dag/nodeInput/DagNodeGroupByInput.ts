@@ -22,7 +22,7 @@ class DagNodeGroupByInput extends DagNodeInput {
             "$id": "#/properties/groupBy",
             "type": "array",
             "title": "The Groupby Schema",
-            "minItems": 0, // can be 0 if groupAll is true
+            "minItems": 1,
             "additionalItems": false,
             "uniqueItems": true,
             "items": {
@@ -193,4 +193,34 @@ class DagNodeGroupByInput extends DagNodeInput {
     public setAggregate(aggregate) {
         this.input.aggregate = aggregate;
     }
+
+    public validate(input?): {error: string} {
+        input = input || this.input;
+        window["ajv"] = new Ajv(); //TODO: try to reuse
+        const validate = ajv.compile(this.constructor["schema"]);
+        let valid = validate(input);
+
+        // if invalid soley because there's no groupBy columns and
+        // groupAll is true, then should be valid
+        if (!valid &&
+            input.groupAll &&
+            validate.errors.length === 1 &&
+            validate.errors[0].dataPath === ".groupBy" &&
+            validate.errors[0].keyword === "minItems" &&
+            input.groupAll) {
+            valid = true;
+        }
+
+        if (!valid) {
+            // only saving first error message
+            const msg = this._parseValidationErrMsg(validate.errors[0]);
+            return {error: msg};
+        } else {
+            const paramCheck = this.validateParameters(input);
+            if (paramCheck) {
+                return paramCheck;
+            }
+            return null;
+        }
+  }
 }

@@ -75,7 +75,7 @@ class DagNodeInput {
         }
     }
 
-    private _parseValidationErrMsg(errorObj) {
+    protected _parseValidationErrMsg(errorObj) {
         let path = errorObj.dataPath;
         if (path[0] === ".") {
             path = path.slice(1);
