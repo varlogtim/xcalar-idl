@@ -23,7 +23,8 @@ class DagNodeJoin extends DagNode {
             joinType: input.joinType,
             left: input.left,
             right: input.right,
-            evalString: input.evalString
+            evalString: input.evalString,
+            keepAllColumns: input.keepAllColumns
         });
         super.setParam();
     }
@@ -33,22 +34,32 @@ class DagNodeJoin extends DagNode {
         _columns: ProgCol[],
         replaceParameters?: boolean
     ): DagLineageChange {
-        const param = this.input.getInput(replaceParameters);
-        const parents: DagNode[] = this.getParents();
-        const lCols: ProgCol[] = parents[0].getLineage().getColumns(replaceParameters);
-        const lChanges: DagLineageChange = this._getColAfterJoin(lCols, this.input.getInput(replaceParameters).left);
-        if (this._isSkipRightTable(param.joinType)) {
-            return {
-                columns: lChanges.columns,
-                changes: lChanges.changes
-            };
-        } else {
-            const rCols: ProgCol[] = parents[1].getLineage().getColumns(replaceParameters);
-            const rChanges: DagLineageChange = this._getColAfterJoin(rCols, this.input.getInput(replaceParameters).right);
-            return {
-                columns: lChanges.columns.concat(rChanges.columns),
-                changes: lChanges.changes.concat(rChanges.changes)
-            };
+        try {
+            const param: DagNodeJoinInputStruct = this.input.getInput(replaceParameters);
+            const parents: DagNode[] = this.getParents();
+            const lKeepCols: Set<string> = new Set(param.left.keepColumns);
+            const lCols: ProgCol[] = parents[0].getLineage()
+                .getColumns(replaceParameters)
+                .filter((col) => (param.keepAllColumns || lKeepCols.has(col.getBackColName())));
+            const lChanges: DagLineageChange = this._getColAfterJoin(lCols, param.left);
+            if (this._isSkipRightTable(param.joinType)) {
+                return {
+                    columns: lChanges.columns,
+                    changes: lChanges.changes
+                };
+            } else {
+                const rKeepCols: Set<string> = new Set(param.right.keepColumns);
+                const rCols: ProgCol[] = parents[1].getLineage()
+                    .getColumns(replaceParameters)
+                    .filter((col) => (param.keepAllColumns || rKeepCols.has(col.getBackColName())));
+                const rChanges: DagLineageChange = this._getColAfterJoin(rCols, param.right);
+                return {
+                    columns: lChanges.columns.concat(rChanges.columns),
+                    changes: lChanges.changes.concat(rChanges.changes)
+                };
+            }
+        } catch {
+            return { columns: [], changes: [] };
         }
     }
 
@@ -177,35 +188,38 @@ class DagNodeJoin extends DagNode {
         let finalCols: ProgCol[] = joinedCols.concat(otherCols);
 
         // 4. rename columns
-        for (let i = 0; i < finalCols.length; i++) {
+        const prefixRenameMap: Map<string, string> = new Map(); // Prefix rename map
+        const columnRenameMap: Map<string, string> = new Map(); // Derived column rename map
+        for (const renameInfo of joinInput.rename) {
+            const { sourceColumn, destColumn, prefix } = renameInfo;
+            if (sourceColumn === destColumn) {
+                continue; // Do not show the changes with no name change
+            }
+            if (prefix) {
+                prefixRenameMap.set(sourceColumn, destColumn);
+            } else {
+                columnRenameMap.set(sourceColumn, destColumn);
+            }
+        }
+        for (let i = 0; i < finalCols.length; i++) { // Apply rename to every columns
             const progCol: ProgCol = finalCols[i];
             const parsed: PrefixColInfo = xcHelper.parsePrefixColName(progCol.getBackColName());
-            for (let j = 0; j < joinInput.rename.length; j++) {
-                const renameInfo = joinInput.rename[j];
-                if (renameInfo.prefix) {
-                    if (parsed.prefix === renameInfo.sourceColumn) {
-                        const newName: string = xcHelper.getPrefixColName(renameInfo.destColumn, parsed.name);
-                        const oldProgCol: ProgCol = finalCols[i];
-                        const newProgCol: ProgCol = ColManager.newPullCol(parsed.name, newName, progCol.getType());
-                        finalCols[i] = newProgCol;
-                        changes.push({
-                            from: oldProgCol,
-                            to: newProgCol
-                        });
-                        break; // stop second-level loop
-                    }
-                } else {
-                    if (!parsed.prefix && parsed.name === renameInfo.sourceColumn) {
-                        const newName: string = renameInfo.destColumn;
-                        const oldProgCol: ProgCol = finalCols[i];
-                        const newProgCol: ProgCol = ColManager.newPullCol(newName, newName, progCol.getType());
-                        finalCols[i] = newProgCol;
-                        changes.push({
-                            from: oldProgCol,
-                            to: newProgCol
-                        });
-                        break; // stop second-level loop
-                    }
+            if (parsed.prefix.length > 0) {
+                // Prefixed column
+                const prefixAfterRename = prefixRenameMap.get(parsed.prefix);
+                if (prefixAfterRename != null) {
+                    const newName = xcHelper.getPrefixColName(prefixAfterRename, parsed.name);
+                    const newProgCol: ProgCol = ColManager.newPullCol(parsed.name, newName, progCol.getType());
+                    finalCols[i] = newProgCol;
+                    changes.push({ from: progCol, to: newProgCol });
+                }
+            } else {
+                // Derived column
+                const newName = columnRenameMap.get(parsed.name);
+                if (newName != null) {
+                    const newProgCol: ProgCol = ColManager.newPullCol(newName, newName, progCol.getType());
+                    finalCols[i] = newProgCol;
+                    changes.push({ from: progCol, to: newProgCol });
                 }
             }
         }

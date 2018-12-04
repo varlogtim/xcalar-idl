@@ -128,6 +128,18 @@ declare interface ColumnNameTypeProps extends BaseComponentProps {
     colType: ColumnType;
 }
 
+declare interface ColumnWithActionProps extends BaseComponentProps {
+    onClickAction?: () => void;
+    actionType: string; // none,add,remove
+    columnProps: ColumnNameTypeProps;
+}
+
+declare interface ColumnListWithActionProps extends BaseComponentProps {
+    title: string;
+    cssExtra?: string;
+    columnList: ColumnWithActionProps[]
+}
+
 declare type ValueCheckResult<T> = {
     errMsg?: string,
     value?: T
@@ -150,7 +162,7 @@ declare type ProjectOpPanelModelPrefixColumn = {
 // *******************
 // joinOpPanel
 // *******************
-declare type JoinOpColumnInfo = { name: string, type: ColumnType, isPrefix: boolean }
+declare type JoinOpColumnInfo = { name: string, type: ColumnType, isPrefix: boolean, prefix: string }
 declare type JoinOpColumnPair = {
     leftName: string,
     leftCast: ColumnType,

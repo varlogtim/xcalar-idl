@@ -2549,7 +2549,7 @@ XcalarJoin = function(
     joinType: JoinOperatorT,
     leftColInfos: ColRenameInfo[],
     rightColInfos: ColRenameInfo[],
-    options: {evalString: string},
+    options: {evalString: string, keepAllColumns: boolean},
     txId: number
 ): XDPromise<any> {
     if (tHandle == null) {
@@ -2558,17 +2558,15 @@ XcalarJoin = function(
     // If this flag is set to false, then any column that is not in left columns
     // or right columns will be dropped. This should eventually be set to false.
     // Alternatively it should be exposed to the user.
-    const keepAllColumns: boolean = true;
+    let { keepAllColumns = true, evalString = '' } = (options || {});
+    if (joinType !== JoinOperatorT.CrossJoin) {
+        evalString = '';
+    }
 
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
     let query: string;
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
-    }
-
-    let evalString = "";
-    if (joinType === JoinOperatorT.CrossJoin && options) {
-        evalString = options.evalString || "";
     }
 
     let leftColumns: XcalarApiColumnT[] = [];

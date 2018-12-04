@@ -408,7 +408,7 @@ namespace XIApi {
         joinType: number,
         lRename: ColRenameInfo[],
         rRename: ColRenameInfo[],
-        options: {evalString: string} = {evalString: ""}
+        options: {evalString: string, keepAllColumns: boolean} = {evalString: "", keepAllColumns: true}
     ): XDPromise<string[]> {
         const deferred: XDDeferred<string[]> = PromiseHelper.deferred();
         const simuldateTxId: number = startSimulate();
@@ -671,7 +671,8 @@ namespace XIApi {
         lRename: ColRenameInfo[],
         rRename: ColRenameInfo[],
         tempTables: string[],
-        existenceCol: string
+        existenceCol: string,
+        options?: { keepAllColumns?: boolean }
     ): XDPromise<string[]> {
         // XXX FIXME rIndexedColNames[0] is wrong in the cases where it is
         // called a::b, and there's another immediate called a-b
@@ -682,6 +683,7 @@ namespace XIApi {
         const newGbTableName: string = getNewTableName(rIndexedTable);
         const newKeyFieldName: string = xcHelper.stripPrefixInColName(rIndexedColNames[0]);
         const newColName: string = xcHelper.randName("XC_GB_COL");
+        const { keepAllColumns = true } = options || {};
 
         const deferred: XDDeferred<string[]> = PromiseHelper.deferred();
         let antiJoinTableName: string;
@@ -690,20 +692,21 @@ namespace XIApi {
         groupByHelper(txId, [newColName], ["count(1)"], rIndexedTable,
         newGbTableName, false, false, newKeyFieldName, false)
         .then(() => {
+            const joinOptions = { evalString: '', keepAllColumns: keepAllColumns };
             if (isAntiSemiJoin) {
                 antiJoinTableName = getNewTableName(rIndexedTable);
                 return joinHelper(txId, lIndexedTable, newGbTableName,
                                 antiJoinTableName, JoinOperatorT.LeftOuterJoin,
-                                lRename, rRename);
+                                lRename, rRename, joinOptions);
             } else if (isExistenceJoin) {
                 existJoinTableName = getNewTableName(lIndexedTable);
                 return joinHelper(txId, lIndexedTable, newGbTableName,
                             existJoinTableName, JoinOperatorT.LeftOuterJoin,
-                            lRename, rRename);
+                            lRename, rRename, joinOptions);
             } else {
                 return joinHelper(txId, lIndexedTable, newGbTableName,
                                     newTableName, JoinOperatorT.InnerJoin,
-                                    lRename, rRename);
+                                    lRename, rRename, joinOptions);
             }
         })
         .then(() => {
@@ -1930,16 +1933,23 @@ namespace XIApi {
                 // semi join  case
                 // This call will call Xcalar Join because it will swap the
                 // left and right tables
+                const joinOptions = { evalString: '', keepAllColumns: true };
+                if (options && options.keepAllColumns != null) {
+                    joinOptions.keepAllColumns = options.keepAllColumns;
+                }
                 return semiJoinHelper(txId, lIndexedTable, rIndexedTable,
                                       rIndexColNames,
                                       newTableName, joinType, lRename, rRename,
-                                      tempTables, existenceCol);
+                                      tempTables, existenceCol, joinOptions);
             } else {
                 // cross join or normal join
-                let joinOptions = undefined;
+                const joinOptions = { evalString: '', keepAllColumns: true };
                 if (options && options.evalString) {
                     // cross join case
-                    joinOptions = {evalString: options.evalString};
+                    joinOptions.evalString = options.evalString;
+                }
+                if (options && options.keepAllColumns != null) {
+                    joinOptions.keepAllColumns = options.keepAllColumns;
                 }
                 return joinHelper(txId, lIndexedTable, rIndexedTable, newTableName,
                         <number>joinType, lRename, rRename, joinOptions);

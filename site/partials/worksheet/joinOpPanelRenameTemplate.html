@@ -1,4 +1,15 @@
-<div data-xcid="templateRename" style="display:none">
+<div data-xcid="templateColumnRename" style="display:none">
+    <div class="joinSection renameSection">
+        <div class="subHeading clearfix">
+            <div><%= dicts.common.ColRenames %></div>
+        </div>
+        <p class="instrText"><%= dicts.common.ColRenameInstr %></p>
+        <div><APP-PREFIXRENAME></APP-PREFIXRENAME></div>
+        <div><APP-DERIVEDRENAME></APP-DERIVEDRENAME></div>
+    </div>
+</div>
+
+<div data-xcid="templateRenameList" style="display:none">
     <div class="row row-subheading">
         <div class="col col-left">{{oldColTitle}}</div>
         <div class="bulkIcon">
@@ -6,7 +17,7 @@
         </div>
         <div class="col col-right">{{newColTitle}}</div>
     </div>
-    <APP-RENAME-TABLE></APP-RENAME-TABLE>
+    <APP-RENAMES></APP-RENAMES>
 </div>
 
 <div data-xcid="templateRenameRow" style="display:none">
@@ -19,8 +30,12 @@
     </div>
 </div>
 
-<div data-xcid="templateRenameSection" style="display:none">
-    <div class="subHeading clearfix"><div class="subSubHeading light">{{renameHeader}}</div></div>
+<div data-xcid="templateRenameTable" style="display:none">
+    <div class="flexContainer tableHeader">
+        <div class="flexWrap flex-left title">{{renameHeader}}</div>
+        <div class="flexWrap flex-mid"></div>
+    </div>
+    <!-- <div class="subHeading clearfix"><div class="subSubHeading light">{{renameHeader}}</div></div> -->
     <div><APP-LEFTRENAME></APP-LEFTRENAME></div>
     <div><APP-RIGHTRENAME></APP-RIGHTRENAME></div>
 </div>

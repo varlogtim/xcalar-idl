@@ -28,6 +28,10 @@ class JoinOpPanelModel {
     private _previewTableNames: {
         left: string, right: string
     } = { left: null, right: null };
+    private _keepAllColumns: boolean = true;
+    private _selectedColumns: {
+        left: string[], right: string[]
+    } = { left: [], right: [] };
 
     public static fromDag(
         dagNode: DagNodeJoin,
@@ -109,7 +113,8 @@ class JoinOpPanelModel {
 
         const {
             left: configLeft, right: configRight,
-            joinType: configJoinType, evalString: configEvalString
+            joinType: configJoinType, evalString: configEvalString,
+            keepAllColumns: configKeepAllColumns
         } = config;
 
         // === UI States ====
@@ -147,6 +152,8 @@ class JoinOpPanelModel {
         model.setJoinType(configJoinType);
         // Eval String
         model.setEvalString(configEvalString);
+        // KeepAllColumns
+        model.setKeepAllColumns(configKeepAllColumns);
 
         // Normalize JoinOn input
         const joinOnCount = Math.max(
@@ -188,6 +195,14 @@ class JoinOpPanelModel {
                 rightName: rightName,
                 rightCast: rightCast
             });
+        }
+
+        // Selected Columns
+        for (const colName of configLeft.keepColumns) {
+            model._selectedColumns.left.push(colName);
+        }
+        for (const colName of configRight.keepColumns) {
+            model._selectedColumns.right.push(colName);
         }
 
         // Renames
@@ -242,9 +257,10 @@ class JoinOpPanelModel {
     public toDag(): DagNodeJoinInputStruct {
         const dagData: DagNodeJoinInputStruct = {
             joinType: this._joinType,
-            left: { columns: [], casts: [], rename: [] },
-            right: { columns: [], casts: [], rename: [] },
-            evalString: this._evalString
+            left: { columns: [], keepColumns: [], casts: [], rename: [] },
+            right: { columns: [], keepColumns: [], casts: [], rename: [] },
+            evalString: this._evalString,
+            keepAllColumns: this._keepAllColumns
         };
 
         // JoinOn columns
@@ -256,6 +272,16 @@ class JoinOpPanelModel {
                 // Right JoinOn column
                 dagData.right.columns.push(colPair.rightName);
                 dagData.right.casts.push(colPair.rightCast);
+            }
+        }
+
+        // Selected Columns
+        if (!this.isKeepAllColumns()) {
+            for (const colName of this._selectedColumns.left) {
+                dagData.left.keepColumns.push(colName);
+            }
+            for (const colName of this._selectedColumns.right) {
+                dagData.right.keepColumns.push(colName);
             }
         }
 
@@ -295,6 +321,39 @@ class JoinOpPanelModel {
         return dagData;
     }
 
+    public updateRenameInfo(): void {
+        if (this._needRenameByType(this.getJoinType())) {
+            const colDestLeft = {};
+            const prefixDestLeft = {};
+            for (const rename of this._columnRename.left) {
+                if (rename.isPrefix) {
+                    prefixDestLeft[rename.source] = rename.dest;
+                } else {
+                    colDestLeft[rename.source] = rename.dest;
+                }
+            }
+
+            const colDestRight = {};
+            const prefixDestRight = {};
+            for (const rename of this._columnRename.right) {
+                if (rename.isPrefix) {
+                    prefixDestRight[rename.source] = rename.dest;
+                } else {
+                    colDestRight[rename.source] = rename.dest;
+                }
+            }
+
+            this._buildRenameInfo({
+                colDestLeft: colDestLeft,
+                prefixDestLeft: prefixDestLeft,
+                colDestRight: colDestRight,
+                prefixDestRight: prefixDestRight
+            });
+        } else {
+            this._clearRenames();
+        }
+    }
+
     /**
      * Get the list of conflicted names(based on origin name) and modified names
      * @param isPrefix true: return prefix names; false: return column names
@@ -309,21 +368,27 @@ class JoinOpPanelModel {
     } {
         const result = { left: null, right: null };
 
+        // Apply column selection
+        const {
+            leftColMetaMap, leftPrefixMetaMap,
+            rightColMetaMap, rightPrefixMetaMap
+        } = this._getMetaAfterColumnSelection();
+        // Apply rename
         if (isPrefix) {
             const { prefixDestLeft, prefixDestRight } = this._getRenameMap(false);
             result.left = this._applyPrefixRename(
-                this._prefixMeta.leftMap, prefixDestLeft
+                leftPrefixMetaMap, prefixDestLeft
             ).map((r)=>({ source: r.source, dest: r.dest }));
             result.right = this._applyPrefixRename(
-                this._prefixMeta.rightMap, prefixDestRight
+                rightPrefixMetaMap, prefixDestRight
             ).map((r)=>({ source: r.source, dest: r.dest }));
         } else {
             const { colDestLeft, colDestRight } = this._getRenameMap(false);
             result.left = this._applyColumnRename(
-                this._columnMeta.leftMap, colDestLeft
+                leftColMetaMap, colDestLeft
             ).map((r)=>({ source: r.source, dest: r.dest }));
             result.right = this._applyColumnRename(
-                this._columnMeta.rightMap, colDestRight
+                rightColMetaMap, colDestRight
             ).map((r)=>({ source: r.source, dest: r.dest }));
         }
 
@@ -350,9 +415,15 @@ class JoinOpPanelModel {
             colDestLeft, colDestRight, prefixDestLeft, prefixDestRight
         } = this._getRenameMap();
 
+        // Apply column selection
+        const {
+            leftColMetaMap, leftPrefixMetaMap,
+            rightColMetaMap, rightPrefixMetaMap
+        } = this._getMetaAfterColumnSelection();
+
         // Apply renaming to left columns
         const leftColNames = this._applyColumnRename(
-            this._columnMeta.leftMap, colDestLeft
+            leftColMetaMap, colDestLeft
         );
         // Check name conflicting inbetween left columns
         for (const [_, indexList] of this._checkCollisionInListByKey(leftColNames).entries()) {
@@ -362,7 +433,7 @@ class JoinOpPanelModel {
         }
         // Apply renaming to right columns
         const rightColNames = this._applyColumnRename(
-            this._columnMeta.rightMap, colDestRight
+            rightColMetaMap, colDestRight
         );
         // Check name conflicting inbetween right columns
         for (const [_, indexList] of this._checkCollisionInListByKey(rightColNames).entries()) {
@@ -378,7 +449,7 @@ class JoinOpPanelModel {
 
         // Apply renaming to left prefixes
         const leftPrefixNames = this._applyPrefixRename(
-            this._prefixMeta.leftMap, prefixDestLeft
+            leftPrefixMetaMap, prefixDestLeft
         );
         // Check name conflicting inbetween left prefixes
         for (const [_, indexList] of this._checkCollisionInListByKey(leftPrefixNames).entries()) {
@@ -388,7 +459,7 @@ class JoinOpPanelModel {
         }
         // Apply renaming to right prefixes
         const rightPrefixNames = this._applyPrefixRename(
-            this._prefixMeta.rightMap, prefixDestRight
+            rightPrefixMetaMap, prefixDestRight
         );
         // Check name conflicting inbetween left prefixes
         for (const [_, indexList] of this._checkCollisionInListByKey(rightPrefixNames).entries()) {
@@ -451,6 +522,101 @@ class JoinOpPanelModel {
         return this._columnMeta.right.map( (col) => {
             return Object.assign({}, col);
         })
+    }
+
+    public getSelectedColumns(): {
+        left: JoinOpColumnInfo[], right: JoinOpColumnInfo[],
+        leftJoinOn: JoinOpColumnInfo[], rightJoinOn: JoinOpColumnInfo[]
+    } {
+        const leftJoinOn = [];
+        const leftNameSet: Set<string> = new Set();
+        const rightJoinOn = [];
+        const rightNameSet: Set<string> = new Set();
+        for (const { leftName, rightName } of this._joinColumnPairs) {
+            const leftCol = this._columnMeta.leftMap.get(leftName);
+            if (leftCol != null && !leftNameSet.has(leftName)) {
+                leftJoinOn.push(Object.assign({}, leftCol));
+                leftNameSet.add(leftName);
+            }
+            const rightCol = this._columnMeta.rightMap.get(rightName);
+            if (rightCol != null && !rightNameSet.has(rightName)) {
+                rightJoinOn.push(Object.assign({}, rightCol));
+                rightNameSet.add(rightName);
+            }
+        }
+        const leftSelected = [];
+        for (const colName of this._selectedColumns.left) {
+            const colInfo = this._columnMeta.leftMap.get(colName);
+            if (colInfo != null && !leftNameSet.has(colName)) {
+                leftSelected.push(Object.assign({}, colInfo));
+                leftNameSet.add(colName);
+            }
+        }
+        const rightSelected = [];
+        for (const colName of this._selectedColumns.right) {
+            const colInfo = this._columnMeta.rightMap.get(colName);
+            if (colInfo != null && !rightNameSet.has(colName)) {
+                rightSelected.push(Object.assign({}, colInfo));
+                rightNameSet.add(colName);
+            }
+        }
+        return {
+            left: leftSelected, leftJoinOn: leftJoinOn,
+            right: rightSelected, rightJoinOn: rightJoinOn
+        };
+    }
+
+    public getUnSelectedColumns(): {
+        left: JoinOpColumnInfo[], right: JoinOpColumnInfo[]
+    } {
+        const selectedCols = this.getSelectedColumns();
+        const selectedLeft = new Set(selectedCols.left
+            .concat(selectedCols.leftJoinOn)
+            .map((col)=>col.name));
+        const selectedRight = new Set(selectedCols.right
+            .concat(selectedCols.rightJoinOn)
+            .map((col)=>col.name));
+
+        const result = { left: [], right: [] };
+        for (const col of this._columnMeta.left) {
+            if (!selectedLeft.has(col.name)) {
+                result.left.push(Object.assign({}, col));
+            }
+        }
+        for (const col of this._columnMeta.right) {
+            if (!selectedRight.has(col.name)) {
+                result.right.push(Object.assign({}, col));
+            }
+        }
+        return result;
+    }
+
+    public addSelectedColumn(colName: { left?: string, right?: string }): void {
+        const { left, right } = colName;
+
+        if (left != null) {
+            this._selectedColumns.left.push(left);
+        }
+        if (right != null) {
+            this._selectedColumns.right.push(right);
+        }
+    }
+
+    public removeSelectedColumn(colName: { left: string, right: string }): void {
+        const { left, right } = colName;
+
+        if (left != null) {
+            const index = this._selectedColumns.left.indexOf(left);
+            if (index >= 0) {
+                this._selectedColumns.left.splice(index, 1);
+            }
+        }
+        if (right != null) {
+            const index = this._selectedColumns.right.indexOf(right);
+            if (index >= 0) {
+                this._selectedColumns.right.splice(index, 1);
+            }
+        }
     }
 
     public isCrossJoin() {
@@ -536,17 +702,21 @@ class JoinOpPanelModel {
         this._evalString = str;
     }
 
-    public isRenameNeeded(): boolean {
-        if (!this._needRenameByType(this.getJoinType())) {
-            return false;
-        }
-        if (this._columnRename.left.length > 0) {
-            return true;
-        }
-        if (this._columnRename.right.length > 0) {
-            return true;
-        }
-        return false;
+    public isKeepAllColumns(): boolean {
+        return this._keepAllColumns;
+    }
+
+    public setKeepAllColumns(keepAllColumns: boolean): void {
+        this._keepAllColumns = keepAllColumns;
+    }
+
+    public isLeftColumnsOnly(): boolean {
+        const leftOnlyType: Set<string> = new Set([
+            JoinCompoundOperatorTStr.LeftSemiJoin,
+            JoinCompoundOperatorTStr.LeftAntiSemiJoin
+        ]);
+        return leftOnlyType.has(this.getJoinType());
+
     }
 
     public isCastNeed(colPair: JoinOpColumnPair) {
@@ -667,7 +837,8 @@ class JoinOpPanelModel {
             result.columnMeta.push({
                 name: colInfo.getBackColName(),
                 type: colInfo.getType(),
-                isPrefix: isPrefix
+                isPrefix: isPrefix,
+                prefix: isPrefix ? colInfo.prefix : ''
             });
             if (isPrefix) {
                 prefixSet[colInfo.prefix] = 1;
@@ -854,14 +1025,6 @@ class JoinOpPanelModel {
                 }
             }
         }
-        for (const source of Object.keys(renameMap)) {
-            const dest = renameMap[source];
-            result.push({
-                source: source,
-                dest: dest,
-                key: isApplyToKey? dest: source
-            });
-        }
         result.sort( (a, b) => {
             const av = a.key;
             const bv = b.key;
@@ -896,14 +1059,6 @@ class JoinOpPanelModel {
                     });
                 }
             }
-        }
-        for (const source of Object.keys(renameMap)) {
-            const dest = renameMap[source];
-            result.push({
-                source: source,
-                dest: dest,
-                key: isApplyToKey? dest: source
-            });
         }
         result.sort( (a, b) => {
             const av = a.key;
@@ -960,6 +1115,77 @@ class JoinOpPanelModel {
         this._columnRename = { left: [], right: [] };
     }
 
+    private _getMetaAfterColumnSelection(): {
+        leftColMetaMap: Map<string, JoinOpColumnInfo>,
+        rightColMetaMap: Map<string, JoinOpColumnInfo>,
+        leftPrefixMetaMap: Map<string, string>,
+        rightPrefixMetaMap: Map<string, string>
+    } {
+        // ColumnMeta&PrefixMeta map after column selection
+        const leftColMetaMap: Map<string, JoinOpColumnInfo> = new Map();
+        const rightColMetaMap: Map<string, JoinOpColumnInfo> = new Map();
+        const leftPrefixMetaMap: Map<string, string> = new Map();
+        const rightPrefixMetaMap: Map<string, string> = new Map();
+        if (this.isKeepAllColumns()) {
+            this._columnMeta.leftMap.forEach((col, colName)=> {
+                leftColMetaMap.set(colName, Object.assign({}, col));
+            });
+            this._columnMeta.rightMap.forEach((col, colName)=> {
+                rightColMetaMap.set(colName, Object.assign({}, col));
+            });
+            this._prefixMeta.leftMap.forEach((v, k) => {
+                leftPrefixMetaMap.set(k, v);
+            });
+            this._prefixMeta.rightMap.forEach((v, k) => {
+                rightPrefixMetaMap.set(k, v);
+            });
+        } else {
+            // Selected Columns
+            for (const colName of this._selectedColumns.left) {
+                const colInfo = this._columnMeta.leftMap.get(colName);
+                if (colInfo != null) {
+                    leftColMetaMap.set(colName, Object.assign({}, colInfo));
+                    if (colInfo.isPrefix) {
+                        leftPrefixMetaMap.set(colInfo.prefix, colInfo.prefix);
+                    }
+                }
+            }
+            for (const colName of this._selectedColumns.right) {
+                const colInfo = this._columnMeta.rightMap.get(colName);
+                if (colInfo != null) {
+                    rightColMetaMap.set(colName, Object.assign({}, colInfo));
+                    if (colInfo.isPrefix) {
+                        rightPrefixMetaMap.set(colInfo.prefix, colInfo.prefix);
+                    }
+                }
+            }
+            // Columns in join clause
+            for (const pair of this._joinColumnPairs) {
+                const leftColInfo = this._columnMeta.leftMap.get(pair.leftName);
+                if (leftColInfo != null) {
+                    leftColMetaMap.set(pair.leftName, Object.assign({}, leftColInfo));
+                    if (leftColInfo.isPrefix) {
+                        leftPrefixMetaMap.set(leftColInfo.prefix, leftColInfo.prefix);
+                    }
+                }
+                const rightColInfo = this._columnMeta.leftMap.get(pair.rightName);
+                if (rightColInfo != null) {
+                    rightColMetaMap.set(pair.rightName, Object.assign({}, rightColInfo));
+                    if (rightColInfo.isPrefix) {
+                        rightPrefixMetaMap.set(rightColInfo.prefix, rightColInfo.prefix);
+                    }
+                }
+            }
+        }
+
+        return {
+            leftColMetaMap: leftColMetaMap,
+            rightColMetaMap: rightColMetaMap,
+            leftPrefixMetaMap: leftPrefixMetaMap,
+            rightPrefixMetaMap: rightPrefixMetaMap
+        };
+    }
+
     private _buildRenameInfo(dest: {
         colDestLeft: { [source: string]: string },
         colDestRight: { [source: string]: string },
@@ -976,12 +1202,18 @@ class JoinOpPanelModel {
         // Cleanup
         this._columnRename = { left: [], right: [] };
 
+        // ColumnMeta & PrefixMeta map after column selection
+        const {
+            leftColMetaMap, rightColMetaMap,
+            leftPrefixMetaMap, rightPrefixMetaMap
+        } = this._getMetaAfterColumnSelection();
+
         // Columns need to rename
         const leftColNames = this._applyColumnRename(
-            this._columnMeta.leftMap, colDestLeft, false
+            leftColMetaMap, colDestLeft, false
         );
         const rightColNames = this._applyColumnRename(
-            this._columnMeta.rightMap, colDestRight, false
+            rightColMetaMap, colDestRight, false
         );
         const columnCollisions = this._checkCollisionByKey(
             leftColNames, rightColNames
@@ -1003,10 +1235,10 @@ class JoinOpPanelModel {
 
         // Prefixes need to rename
         const leftPrefixNames = this._applyPrefixRename(
-            this._prefixMeta.leftMap, prefixDestLeft, false
+            leftPrefixMetaMap, prefixDestLeft, false
         );
         const rightPrefixNames = this._applyPrefixRename(
-            this._prefixMeta.rightMap, prefixDestRight, false
+            rightPrefixMetaMap, prefixDestRight, false
         );
         const prefixCollisions = this._checkCollisionByKey(
             leftPrefixNames, rightPrefixNames
@@ -1047,10 +1279,6 @@ class JoinOpPanelModel {
 
         if (model.getColumnPairsLength() === 0) {
             model.addColumnPair();
-        }
-
-        if (!model.isRenameNeeded()) {
-            model.setCurrentStep(1);
         }
 
         return model;

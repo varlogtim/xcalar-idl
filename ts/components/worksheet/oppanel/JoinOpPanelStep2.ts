@@ -3,18 +3,27 @@ class JoinOpPanelStep2 {
     private _modelRef: JoinOpPanelModel = null;
     private _templateMgr = new OpPanelTemplateManager();
     private _onDataChange = () => {};
-    private static readonly _templateIdRenameRow = 'templateRenameRow';
-    private static readonly _templateIdRenameTable = 'templateRename';
-    private static readonly _templateIdRenameSection = 'templateRenameSection';
+    private static readonly _templateIds = {
+        renameRow: 'templateRenameRow',
+        renameList: 'templateRenameList',
+        renameTable: 'templateRenameTable',
+        renameSection: 'templateColumnRename',
+        columnRow: 'templateColumn',
+        columnList: 'templateColumnList',
+        columnTable: 'templateColumnTable',
+        columnSelectSection: 'templateColumnSelect',
+        columnKeepAll: 'templateKeepAll'
+    };
 
     public constructor(props: {
         container: JQuery
     }) {
         const { container } = props;
         this._$elem = BaseOpPanel.findXCElement(container, 'joinSecondStep');
-        this._templateMgr.loadTemplate(JoinOpPanelStep2._templateIdRenameTable, this._$elem);
-        this._templateMgr.loadTemplate(JoinOpPanelStep2._templateIdRenameRow, this._$elem);
-        this._templateMgr.loadTemplate(JoinOpPanelStep2._templateIdRenameSection, this._$elem);
+        const templateIds = JoinOpPanelStep2._templateIds;
+        for (const template of Object.keys(templateIds)) {
+            this._templateMgr.loadTemplate(templateIds[template], this._$elem);
+        }
     }
 
     public updateUI(props: {
@@ -36,59 +45,93 @@ class JoinOpPanelStep2 {
 
         const findXCElement = BaseOpPanel.findXCElement;
 
-        // Prefixed columns rename
-        const elemPrefixContainer = findXCElement(this._$elem, 'prefixRename')[0];
+        // Column Selector
+        const elemColSelContainer = findXCElement(this._$elem, 'columnSelectSection')[0];
+        this._templateMgr.updateDOM(
+            elemColSelContainer,
+            <NodeDefDOMElement[]>this._createColumnSelectSection()
+        );
+
+        // Column Rename
+        const elemColRenameContainer = findXCElement(this._$elem, 'columnRenameSection')[0];
+        this._templateMgr.updateDOM(
+            elemColRenameContainer,
+            <NodeDefDOMElement[]>this._createColumnRenameSection()
+        );
+    }
+
+    private _createPrefixRenameTable(): HTMLElement[] {
         const prefixLeftList = this._modelRef.getRenames({
             isPrefix: true, isLeft: true
         });
         const prefixRightList = this._modelRef.getRenames({
             isPrefix: true, isLeft: false
         });
-        let prefixSection = [];
-        if (prefixLeftList.length > 0 || prefixRightList.length > 0) {
-            prefixSection = this._templateMgr.createElements(
-                JoinOpPanelStep2._templateIdRenameSection,
-                {
-                    'renameHeader': 'Prefixes',
-                    'APP-LEFTRENAME': this._createRenameTable({
-                        isLeft: true, isPrefix: true,
-                        renameInfoList: prefixLeftList
-                    }),
-                    'APP-RIGHTRENAME': this._createRenameTable({
-                        isLeft: false, isPrefix: true,
-                        renameInfoList: prefixRightList
-                    })
-                }
-            );
+        if (prefixLeftList.length === 0 && prefixRightList.length === 0) {
+            return [];
         }
-        this._templateMgr.updateDOM(elemPrefixContainer, prefixSection);
 
-        // Derived columns rename
-        const elemDerivedContainer = findXCElement(this._$elem, 'derivedRename')[0];
+        const elements = this._templateMgr.createElements(
+            JoinOpPanelStep2._templateIds.renameTable,
+            {
+                'renameHeader': OpPanelTStr.JoinPanelRenameTitlePrefix,
+                'APP-LEFTRENAME': this._createRenameList({
+                    isLeft: true, isPrefix: true,
+                    renameInfoList: prefixLeftList
+                }),
+                'APP-RIGHTRENAME': this._createRenameList({
+                    isLeft: false, isPrefix: true,
+                    renameInfoList: prefixRightList
+                })
+            }
+        );
+        return elements;
+    }
+
+    private _createDerivedRenameTable(): HTMLElement[] {
         const derivedLeftList = this._modelRef.getRenames({
             isLeft: true, isPrefix: false
         });
         const derivedRightList = this._modelRef.getRenames({
             isLeft: false, isPrefix: false
         });
-        let derivedSection = [];
-        if (derivedLeftList.length > 0 || derivedRightList.length > 0) {
-            derivedSection = this._templateMgr.createElements(
-                JoinOpPanelStep2._templateIdRenameSection,
-                {
-                    'renameHeader': 'Derived Fields',
-                    'APP-LEFTRENAME': this._createRenameTable({
-                        isLeft: true, isPrefix: false,
-                        renameInfoList: derivedLeftList
-                    }),
-                    'APP-RIGHTRENAME': this._createRenameTable({
-                        isLeft: false, isPrefix: false,
-                        renameInfoList: derivedRightList
-                    })
-                }
-            )
+        if (derivedLeftList.length === 0 && derivedRightList.length === 0) {
+            return [];
         }
-        this._templateMgr.updateDOM(elemDerivedContainer, derivedSection);
+
+        const elements = this._templateMgr.createElements(
+            JoinOpPanelStep2._templateIds.renameTable,
+            {
+                'renameHeader': OpPanelTStr.JoinPanelRenameTitleDerived,
+                'APP-LEFTRENAME': this._createRenameList({
+                    isLeft: true, isPrefix: false,
+                    renameInfoList: derivedLeftList
+                }),
+                'APP-RIGHTRENAME': this._createRenameList({
+                    isLeft: false, isPrefix: false,
+                    renameInfoList: derivedRightList
+                })
+            }
+        );
+        return elements;
+    }
+
+    private _createColumnRenameSection(): HTMLElement[] {
+        const elemTablePrefix = this._createPrefixRenameTable();
+        const elemTableDerived = this._createDerivedRenameTable();
+
+        if ((elemTablePrefix == null || elemTablePrefix.length === 0)
+            && (elemTableDerived == null || elemTableDerived.length === 0)
+        ) {
+            return [];
+        }
+
+        const templateId = JoinOpPanelStep2._templateIds.renameSection;
+        const elements = this._templateMgr.createElements(templateId, {
+            'APP-PREFIXRENAME': elemTablePrefix,
+            'APP-DERIVEDRENAME': elemTableDerived
+        });
+        return elements;
     }
 
     private _setupBatchRename($container: JQuery, isLeft: boolean, isPrefix: boolean): void {
@@ -130,7 +173,7 @@ class JoinOpPanelStep2 {
         });
     }
 
-    private _createRenameTable(props: {
+    private _createRenameList(props: {
         isLeft: boolean,
         isPrefix: boolean,
         renameInfoList: JoinOpRenameInfo[] // !!! Items in list are references !!!
@@ -149,7 +192,7 @@ class JoinOpPanelStep2 {
                 : (this._modelRef.isColumnDetached(renameInfo.source, isLeft));
 
                 const renameRow = this._templateMgr.createElements(
-                JoinOpPanelStep2._templateIdRenameRow,
+                JoinOpPanelStep2._templateIds.renameRow,
                 {
                     oldName: renameInfo.source,
                     newName: renameInfo.dest,
@@ -172,17 +215,187 @@ class JoinOpPanelStep2 {
 
         // Create rename table
         const nodeTable = this._templateMgr.createElements(
-            JoinOpPanelStep2._templateIdRenameTable,
+            JoinOpPanelStep2._templateIds.renameList,
             {
-                'oldColTitle': isLeft? 'Left Table': 'Right Table',
-                'newColTitle': 'New Name',
-                'APP-RENAME-TABLE': nodeRowList, 
+                'oldColTitle': isLeft
+                    ? OpPanelTStr.JoinPanelRenameColOldLeft
+                    : OpPanelTStr.JoinPanelRenameColOldRight,
+                'newColTitle': OpPanelTStr.JoinPanelRenameColNew,
+                'APP-RENAMES': nodeRowList, 
             }
         )
 
         // Setup batch rename
         this._setupBatchRename($(nodeTable[0]), isLeft, isPrefix);
         return nodeTable;
+    }
+
+    private _createColumnRow(props: ColumnWithActionProps): HTMLElement[] {
+        if (props == null) {
+            return null;
+        }
+
+        const templateId = JoinOpPanelStep2._templateIds.columnRow;
+        const actionIconMap = {
+            add: 'xi-plus', remove: 'xi-close-no-circle'
+        };
+
+        const { onClickAction = () => {}, actionType, columnProps, onElementMountDone } = props;
+
+        const elements = this._templateMgr.createElements(templateId, {
+            cssClickable: actionType === 'none' ? '' : 'column-clickable',
+            onClickAction: onClickAction,
+            cssActionType: actionIconMap[actionType] || '',
+            cssColType: `type-${columnProps.colType}`,
+            colType: columnProps.colType,
+            colName: columnProps.colName,
+        });
+        if (onElementMountDone != null) {
+            OpPanelTemplateManager.setNodeMountDoneListener(elements, onElementMountDone);
+        }
+
+        return elements;
+    }
+
+    private _createColumnList(props: ColumnListWithActionProps): HTMLElement[] {
+        if (props == null) {
+            return null;
+        }
+
+        const templateId = JoinOpPanelStep2._templateIds.columnList;
+        const { title, columnList = [], onElementMountDone, cssExtra = '' } = props;
+
+        const columnRows = [];
+        columnList.forEach((colProp) => {
+            const row = this._createColumnRow(colProp) || [];
+            row.forEach((e) => columnRows.push(e));
+        });
+        const elements = this._templateMgr.createElements(templateId, {
+            title: title,
+            cssExtra: cssExtra,
+            'APP-COLUMNS': columnRows
+        });
+        if (onElementMountDone != null) {
+            OpPanelTemplateManager.setNodeMountDoneListener(elements, onElementMountDone);
+        }
+
+        return elements;
+    }
+
+    private _createColumnTable(props: { isSelected: boolean }): HTMLElement[] {
+        const { isSelected } = props;
+
+        const columns: {
+            left: JoinOpColumnInfo[], right: JoinOpColumnInfo[],
+            leftJoinOn?: JoinOpColumnInfo[], rightJoinOn?: JoinOpColumnInfo[]
+        } = isSelected
+            ? this._modelRef.getSelectedColumns()
+            : this._modelRef.getUnSelectedColumns();
+        if (columns.left.length === 0 && columns.leftJoinOn == null
+            && columns.right.length === 0 && columns.rightJoinOn == null) {
+            return null;
+        }
+        const isLeftTableOnly = this._modelRef.isLeftColumnsOnly();
+        const tableTitle = isSelected
+            ? OpPanelTStr.JoinPanelColumnTableTitleKeep
+            : OpPanelTStr.JoinPanelColumnTableTitleDrop;
+        const actionType = isSelected ? 'remove' : 'add';
+        const leftListTitle = OpPanelTStr.JoinPanelColumnListTitleLeft;
+        const rightListTitle = OpPanelTStr.JoinPanelColumnListTitleRight;
+        const actionFunc = isSelected
+            ? (colName) => {
+                xcTooltip.hideAll();
+                this._removeSelectedColumn(colName);
+                this._onDataChange();
+            }
+            : (colName) => {
+                xcTooltip.hideAll();
+                this._addSelectedColumn(colName);
+                this._onDataChange();
+            }
+
+        // Child component: left column list
+        const elemLeftJoinOnCols = columns.leftJoinOn == null
+            ? []
+            : columns.leftJoinOn.map((colInfo) => ({
+                actionType: 'none',
+                columnProps: {
+                    colName: colInfo.name, colType: colInfo.type
+                }
+            }));
+        const elemLeftList = this._createColumnList({
+            title: leftListTitle,
+            cssExtra: isLeftTableOnly ? 'columnList-full' : '',
+            columnList: elemLeftJoinOnCols.concat(
+                columns.left.map((colInfo) => ({
+                    onClickAction: () => actionFunc({left: colInfo.name}),
+                    actionType: actionType,
+                    columnProps: {
+                        colName: colInfo.name, colType: colInfo.type
+                    }
+                }))
+            )
+        });
+
+        // Child component: right column list
+        const elemRightJoinOnCols = columns.rightJoinOn == null
+            ? []
+            : columns.rightJoinOn.map((colInfo) => ({
+                actionType: 'none',
+                columnProps: {
+                    colName: colInfo.name, colType: colInfo.type
+                }
+            }));
+        const elemRightList = isLeftTableOnly ? [] : this._createColumnList({
+            title: rightListTitle,
+            columnList: elemRightJoinOnCols.concat(
+                columns.right.map((colInfo) => ({
+                    onClickAction: () => actionFunc({right: colInfo.name}),
+                    actionType: actionType,
+                    columnProps: {
+                        colName: colInfo.name, colType: colInfo.type
+                    }
+                }))
+            )
+        });
+
+        // Component: column table
+        const templateId = JoinOpPanelStep2._templateIds.columnTable;
+        const elements = this._templateMgr.createElements(templateId, {
+            tableTitle: tableTitle,
+            'APP-LEFT': elemLeftList,
+            'APP-RIGHT': elemRightList
+        });
+
+        return elements;
+    }
+
+    private _createColumnSelectSection(): HTMLElement[] {
+        const isKeepAll = this._modelRef.isKeepAllColumns();
+        const elemTableKeep = isKeepAll ? null : this._createColumnTable({ isSelected: true });
+        const elemTableDrop = isKeepAll ? null : this._createColumnTable({ isSelected: false });
+
+        const templateId = JoinOpPanelStep2._templateIds.columnSelectSection;
+        const elements = this._templateMgr.createElements(templateId, {
+            'APP-KEEPALL': this._createColumnKeepAll(),
+            'APP-TABLEKEEP': elemTableKeep,
+            'APP-TABLEDROP': elemTableDrop
+        });
+        return elements;
+    }
+
+    private _createColumnKeepAll(): HTMLElement[] {
+        const isKeepAll = this._modelRef.isKeepAllColumns();
+        const templateId = JoinOpPanelStep2._templateIds.columnKeepAll;
+        const elements = this._templateMgr.createElements(templateId, {
+            onClickKeepAll: () => {
+                this._setKeepAllColumns(!isKeepAll);
+                this._onDataChange();
+            },
+            cssChecked: isKeepAll ? 'checked' : '',
+            title: OpPanelTStr.JoinPanelColumnKeepAllCBText
+        });
+        return elements;
     }
 
     // Data model manipulation === start
@@ -230,6 +443,21 @@ class JoinOpPanelStep2 {
             isPrefix: isPrefix,
             suffix: suffix
         });
+    }
+
+    private _addSelectedColumn(colName: { left: string, right: string }) {
+        this._modelRef.addSelectedColumn(colName);
+        this._modelRef.updateRenameInfo();
+    }
+
+    private _removeSelectedColumn(colName: { left: string, right: string }) {
+        this._modelRef.removeSelectedColumn(colName);
+        this._modelRef.updateRenameInfo();
+    }
+
+    private _setKeepAllColumns(isKeepAll: boolean): void {
+        this._modelRef.setKeepAllColumns(isKeepAll);
+        this._modelRef.updateRenameInfo();
     }
     // Data model manipulation === end
 }

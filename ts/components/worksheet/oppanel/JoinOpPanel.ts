@@ -169,30 +169,15 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
     }
 
     private _buildJoinClauseNavButtons(): NodeDefDOMElement[] {
-        let elements: NodeDefDOMElement[] = [];
-
-        // Next step button or Save button
-        if (this._dataModel.isRenameNeeded()) {
-            elements = elements.concat(this._buildNavButton({
-                type: 'next',
-                disabled: !this._isEnableNextToRename(),
-                text: CommonTxtTstr.Next,
-                onClick: () => {
-                    this._dataModel.setCurrentStep(2);
-                    this._updateUI();
-                }
-            }));
-        } else {
-            elements = elements.concat(this._buildNavButton({
-                type: 'submit',
-                disabled: !this._isEnableSave(),
-                text: CommonTxtTstr.Save,
-                onClick: () => {
-                    this._submitForm(this._dataModel);
-                }
-            }));
-        }
-
+        const elements = this._buildNavButton({
+            type: 'next',
+            disabled: !this._isEnableNextToRename(),
+            text: CommonTxtTstr.Next,
+            onClick: () => {
+                this._dataModel.setCurrentStep(2);
+                this._updateUI();
+            }
+        });
         return elements;
     }
 
@@ -223,9 +208,6 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
 
     private _isEnableNextToRename() {
         try {
-            if (!this._dataModel.isRenameNeeded()) {
-                return false;
-            }
             this._validateJoinClauses(this._dataModel);
             return true;
         } catch(e) {

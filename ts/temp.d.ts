@@ -57,6 +57,7 @@ interface JoinOptions {
     clean?: boolean; // remove intermediate table if set true
     evalString?: string; // cross join filter's eval string
     existenceCol?: string;
+    keepAllColumns?: boolean;
 }
 
 interface AggColInfo {

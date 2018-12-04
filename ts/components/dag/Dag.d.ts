@@ -160,6 +160,7 @@ interface DagNodeGroupByInputStruct {
 declare type DagNodeJoinTableInput = {
     columns: string[],
     casts: ColumnType[],
+    keepColumns: string[],
     rename: {sourceColumn: string, destColumn: string, prefix: boolean}[]
 }
 interface DagNodeJoinInputStruct {
@@ -167,6 +168,7 @@ interface DagNodeJoinInputStruct {
     left: DagNodeJoinTableInput
     right: DagNodeJoinTableInput
     evalString?: string;
+    keepAllColumns: boolean;
 }
 
 interface DagNodeMapInputStruct {

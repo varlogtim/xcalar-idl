@@ -7,7 +7,7 @@ class DagNodeJoinInput extends DagNodeInput {
         inputStruct = {
           joinType: DagNodeJoinInput._convertSubTypeToJoinType(dagNode.getSubType())
             || JoinOperatorTStr[JoinOperatorT.InnerJoin],
-          left: null, right: null, evalString: null
+          left: null, right: null, evalString: null, keepAllColumns: true
         };
       }
       if (inputStruct.left == null) {
@@ -16,14 +16,23 @@ class DagNodeJoinInput extends DagNodeInput {
       if (inputStruct.left.casts == null || inputStruct.left.casts.length === 0) {
         inputStruct.left.casts = inputStruct.left.columns.map(() => null);
       }
+      if (inputStruct.left.keepColumns == null) {
+        inputStruct.left.keepColumns = [];
+      }
       if (inputStruct.right == null) {
         inputStruct.right = DagNodeJoinInput._getDefaultTableInfo();
       }
       if (inputStruct.right.casts == null || inputStruct.right.casts.length === 0) {
         inputStruct.right.casts = inputStruct.right.columns.map(() => null);
       }
+      if (inputStruct.right.keepColumns == null) {
+        inputStruct.right.keepColumns = [];
+      }
       if (inputStruct.evalString == null) {
         inputStruct.evalString = '';
+      }
+      if (inputStruct.keepAllColumns == null) {
+        inputStruct.keepAllColumns = true;
       }
 
       super(inputStruct);
@@ -41,7 +50,8 @@ class DagNodeJoinInput extends DagNodeInput {
           "joinType",
           "left",
           "right",
-          "evalString"
+          "evalString",
+          // "keepAllColumns"
         ],
         "properties": {
           "joinType": {
@@ -79,6 +89,24 @@ class DagNodeJoinInput extends DagNodeInput {
                 "additionalItems": false,
                 "items": {
                   "$id": "#/properties/left/properties/columns/items",
+                  "type": "string",
+                  "title": "The Items Schema",
+                  "default": "",
+                  "examples": [
+                    "a::class_id"
+                  ],
+                  "minLength": 1,
+                  "pattern": "^(.*)$"
+                }
+              },
+              "keepColumns": {
+                "$id": "#/properties/left/properties/keepColumns",
+                "type": "array",
+                "title": "The KeepColumns Schema",
+                "minItems": 0,
+                "additionalItems": false,
+                "items": {
+                  "$id": "#/properties/left/properties/keepColumns/items",
                   "type": "string",
                   "title": "The Items Schema",
                   "default": "",
@@ -197,6 +225,24 @@ class DagNodeJoinInput extends DagNodeInput {
                   "pattern": "^(.*)$"
                 }
               },
+              "keepColumns": {
+                "$id": "#/properties/right/properties/keepColumns",
+                "type": "array",
+                "title": "The KeepColumns Schema",
+                "minItems": 0,
+                "additionalItems": false,
+                "items": {
+                  "$id": "#/properties/right/properties/keepColumns/items",
+                  "type": "string",
+                  "title": "The Items Schema",
+                  "default": "",
+                  "examples": [
+                    "a::class_id"
+                  ],
+                  "minLength": 1,
+                  "pattern": "^(.*)$"
+                }
+              },
               "casts": {
                 "$id": "#/properties/right/properties/casts",
                 "type": "array",
@@ -285,6 +331,15 @@ class DagNodeJoinInput extends DagNodeInput {
               ""
             ],
             "pattern": "^(.*)$"
+          },
+          "keepAllColumns": {
+            "$id": "#/properties/keepAllColumns",
+            "type": "boolean",
+            "title": "The KeepAllColumns Schema",
+            "default": true,
+            "examples": [
+              true
+            ]
           }
         }
     };
@@ -295,7 +350,8 @@ class DagNodeJoinInput extends DagNodeInput {
             joinType: input.joinType,
             left: input.left,
             right: input.right,
-            evalString: input.evalString
+            evalString: input.evalString,
+            keepAllColumns: input.keepAllColumns == null ? true: input.keepAllColumns
         };
     }
 
@@ -325,6 +381,7 @@ class DagNodeJoinInput extends DagNodeInput {
     private static _getDefaultTableInfo(): DagNodeJoinTableInput {
         return {
             columns: [""],
+            keepColumns: [],
             casts: [null],
             rename: [{sourceColumn: "", destColumn: "", prefix: false}]
         }
