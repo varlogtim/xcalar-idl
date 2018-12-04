@@ -6412,8 +6412,16 @@ namespace xcHelper {
         let numWorkCompleted: number = 0;
         let numWorkTotal: number = 0
         queryStateOutput.queryGraph.node.forEach((node) => {
-            if (DgDagStateT.DgDagStateProcessing || DgDagStateT.DgDagStateReady) {
-                numWorkCompleted += node.numWorkCompleted;
+            if (node.state === DgDagStateT.DgDagStateProcessing ||
+                node.state === DgDagStateT.DgDagStateReady) {
+                let numCompleted = node.numWorkCompleted;
+                if (node.state === DgDagStateT.DgDagStateReady) {
+                    // backend may not return full numWorkCompleted so if
+                    // node is ready, then numWorkCompleted should equal
+                    // numWorkTotal for 100%
+                    numCompleted = node.numWorkTotal;
+                }
+                numWorkCompleted += numCompleted;
                 numWorkTotal += node.numWorkTotal;
             }
         });
