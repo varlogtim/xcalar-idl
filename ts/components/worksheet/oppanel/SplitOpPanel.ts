@@ -23,7 +23,9 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
         this._dagNode = dagNode;
         this._dataModel = SplitOpPanelModel.fromDag(dagNode);
         this._updateUI();
-        super.showPanel(null, options);
+        if (super.showPanel(null, options)) {
+            this._setupColumnPicker(dagNode.getType());
+        }
     }
 
     /**
@@ -35,6 +37,7 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
 
     private _updateUI(): void {
         this._clearValidationList();
+        this._clearColumnPickerTarget();
 
         const $header = this._getPanel().find('header');
         $header.empty();
@@ -63,6 +66,7 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
         const args: AutogenSectionProps[] = [];
 
         // Source column
+        const colNameSet: Set<string> = new Set();
         const menuList: { colType: ColumnType, colName: string }[] = [];
         for (const colInfo of this._dataModel.getColumnMap().values()) {
             if (colInfo.getType() != ColumnType.string) {
@@ -72,6 +76,7 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
                 colType: colInfo.getType(),
                 colName: colInfo.getBackColName()
             });
+            colNameSet.add(colInfo.getBackColName());
         }
         const sourceList: HintDropdownProps = {
             type: 'column',
@@ -83,6 +88,16 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
                 this._dataModel.setSourceColName(colName);
                 this._dataModel.autofillEmptyColNames();
                 this._updateUI();
+            },
+            onFocus: (elem) => {
+                this._setColumnPickerTarget(elem, (colName) => {
+                    if (!colNameSet.has(colName)) {
+                        return;
+                    }
+                    this._dataModel.setSourceColName(colName);
+                    this._dataModel.autofillEmptyColNames();
+                    this._updateUI();
+                });
             },
             onElementMountDone: (elem) => {
                 this._addValidation(elem, () => {

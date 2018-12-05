@@ -3864,6 +3864,28 @@ namespace xcHelper {
             return false;
         }
 
+        const value = getValueFromCell($target, prefix, options);
+        xcHelper.insertText($input, value, options.append);
+        gMouseEvents.setMouseDownTarget($input);
+        return true;
+    }
+
+    /**
+     * xcHelper.getValueFromCell
+     * @param  {$element} $target $element you're picking/clicking
+     * @param  {string} prefix  prefix to prepend to picked text
+     * @param  {object} options:
+     *         type: string, if "table", will pick from table header
+     *         append: boolean, if true, will append text rather than replace
+     */
+    export function getValueFromCell(
+        $target: JQuery,
+        prefix: string = '',
+        options: FillInputFormCellOptions = <FillInputFormCellOptions>{}
+    ) {
+        if ($target == null || $target.length === 0) {
+            return '';
+        }
         let value: string;
         if (options.type === 'table') {
             $target = $target.find('.text');
@@ -3886,9 +3908,7 @@ namespace xcHelper {
             value = xcHelper.getPrefixColName(colPrefix, $target.val());
             value = prefix + value;
         }
-        xcHelper.insertText($input, value, options.append);
-        gMouseEvents.setMouseDownTarget($input);
-        return true;
+        return value;
     }
 
     /**

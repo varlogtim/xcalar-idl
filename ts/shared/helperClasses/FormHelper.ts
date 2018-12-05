@@ -16,6 +16,7 @@ interface ColumnPickerOptions {
     state?: string;
     mainMenuState?: string;
     noEvent?: boolean;
+    keepFocus?: boolean;
     colCallback?: Function;
     headCallback?: Function;
     dagCallback?: Function;
@@ -218,6 +219,12 @@ class FormHelper {
 
         if (!columnPicker.noEvent) {
             const colSelector: string = ".xcTable .header, .xcTable td.clickable";
+            if (columnPicker.keepFocus) {
+                this.$container.on("mousedown.columnPicker", colSelector, function(event: JQueryEventObject) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                });
+            }
             this.$container.on("click.columnPicker", colSelector, function(event: JQueryEventObject) {
                 const callback: Function = columnPicker.colCallback;
                 if (callback == null || !(callback instanceof Function)) {

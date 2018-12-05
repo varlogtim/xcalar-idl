@@ -23,7 +23,9 @@ class SortOpPanel extends BaseOpPanel implements IOpPanel {
         this._dataModel = SortOpPanelModel.fromDag(dagNode);
         this._updateUI();
         this._updateColumns();
-        super.showPanel(null, options);
+        if (super.showPanel(null, options)) {
+            this._setupColumnPicker(dagNode.getType());
+        }
     }
 
     /**
@@ -45,6 +47,7 @@ class SortOpPanel extends BaseOpPanel implements IOpPanel {
 
     private _updateUI(): void {
         this._clearValidationList();
+        this._clearColumnPickerTarget();
 
         const $header = this._getPanel().find('header');
         $header.empty();
@@ -92,6 +95,7 @@ class SortOpPanel extends BaseOpPanel implements IOpPanel {
         const columns = this._dataModel.getSortedColumns();
 
         columns.forEach((column, idx) => {
+            const colNameSet: Set<string> = new Set();
             // Column to sort
             const colMenuList: { colType: ColumnType, colName: string }[] = [];
             for (const colInfo of this._dataModel.getColumnMap().values()) {
@@ -100,6 +104,7 @@ class SortOpPanel extends BaseOpPanel implements IOpPanel {
                     colType: colType,
                     colName: colInfo.getBackColName()
                 });
+                colNameSet.add(colInfo.getBackColName());
             }
             let onRemove; // no remove button if only 1 row exists
             if (columns.length > 1) {
@@ -118,6 +123,15 @@ class SortOpPanel extends BaseOpPanel implements IOpPanel {
                 onDataChange: (colName) => {
                     this._dataModel.setColumName(idx, colName);
                     this._updateUI();
+                },
+                onFocus: (elem) => {
+                    this._setColumnPickerTarget(elem, (colName) => {
+                        if (!colNameSet.has(colName)) {
+                            return;
+                        }
+                        this._dataModel.setColumName(idx, colName);
+                        this._updateUI();
+                    });
                 },
                 onRemove: onRemove,
                 onElementMountDone: (elem) => {

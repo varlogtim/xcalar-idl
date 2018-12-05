@@ -138,6 +138,10 @@ class BaseOpPanel {
     protected codeMirrorOnlyColumns = false;
     protected codeMirrorNoAggs = false;
     private _validationList: { elem: HTMLElement, validate: () => string }[] = [];
+    private _columnPicker: {
+        target: HTMLElement; // The column name input box element
+        setData: (colName: string) => void; // The callback function, which will be called when clicking a column in preview table
+    } = { target: null, setData: null };
 
     protected constructor() {
         this.allColumns = [];
@@ -153,6 +157,39 @@ class BaseOpPanel {
         this._setupRestoreBtn();
         this._addBasicEventListeners();
         MainMenu.registerPanels(this);
+    }
+
+    protected _setupColumnPicker(opName: string): void {
+        const opNameNoSpace: string = opName.toLowerCase().trim().replace(/ /g, "");
+        const columnPickerOptions: ColumnPickerOptions = {
+            state: `${opNameNoSpace}State`,
+            keepFocus: true,
+            colCallback: ($table) => {
+                try {
+                    const currentElement = document.activeElement;
+                    if (currentElement !== this._columnPicker.target) {
+                        return;
+                    }
+                    const colClicked = xcHelper.getValueFromCell($table);
+                    if (colClicked.length > 0 && this._columnPicker.setData) {
+                        this._columnPicker.setData(colClicked);
+                    }
+                } catch {}
+            }
+        };
+        this._formHelper.setup({"columnPicker": columnPickerOptions});
+    }
+
+    protected _setColumnPickerTarget(
+        target: HTMLElement, setData: (colName: string) => void
+    ): void {
+        this._columnPicker.target = target;
+        this._columnPicker.setData = setData;
+    }
+
+    protected _clearColumnPickerTarget(): void {
+        this._columnPicker.target = null;
+        this._columnPicker.setData = null;
     }
 
     protected showPanel(formName?: string, options?): boolean {
@@ -184,6 +221,7 @@ class BaseOpPanel {
     }
 
     protected hidePanel(isSubmit?: boolean): boolean {
+        this._clearColumnPickerTarget();
         if (!this._formHelper.isOpen()) {
             return false;
         }

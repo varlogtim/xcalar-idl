@@ -86,6 +86,7 @@ declare interface HintDropdownProps extends AutogenSectionProps {
     onDataChange?: (data: string) => void;
     addMoreButton?: AddMoreButtonProps;
     onRemove?: () => void;
+    onFocus?: (elem: HTMLElement) => void;
 }
 
 declare interface SimpleInputProps<T> extends AutogenSectionProps {

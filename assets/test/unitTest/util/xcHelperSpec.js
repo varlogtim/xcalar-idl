@@ -2346,6 +2346,34 @@ describe("xcHelper Test", function() {
         expect(xcHelper.numToStr("not a num")).to.equal("not a num");
     });
 
+    it("xcHelper.getValueFromCell should work", function() {
+        // case 1
+        const $header = $('<div class="header">' +
+                        '<div class="test">' +
+                            '<input class="editableHead" value="test">' +
+                        '</div>' +
+                    '</div>');
+
+        expect(xcHelper.getValueFromCell($header.find(".test"), gColPrefix)).to.equal(gColPrefix + "test");
+
+        // case 2
+        const $table = $('<table>' +
+                        '<td class="col1">' +
+                            '<div class="test">' +
+                                '<input class="editableHead col1" value="t2">' +
+                            '</div>' +
+                        '</td>' +
+                    '</table>');
+
+        expect(xcHelper.getValueFromCell($table.find(".test"),gColPrefix)).to.equal(gColPrefix + "t2");
+
+        // case 3
+        expect(xcHelper.getValueFromCell(null, gColPrefix)).to.equal("");
+
+        // case 4
+        expect(xcHelper.getValueFromCell($header.find(".notexist"), gColPrefix)).to.equal("");
+    });
+
     it("xcHelper.fillInputFromCell should work", function() {
         // case 1
         var $header = $('<div class="header">' +

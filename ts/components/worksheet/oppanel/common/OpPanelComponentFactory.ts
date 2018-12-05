@@ -42,7 +42,7 @@ class OpPanelComponentFactory {
             `<div class="dropDownList hintDropdown selDropdown {{cssClass}}">
                 <input class="type-column selInput selError" type="text"
                     value="{{inputValue}}" placeholder="{{placeholder}}" spellcheck="false"
-                    (input)="onInput" (keydown)="onKeydown" (change)="onChange" />
+                    (input)="onInput" (keydown)="onKeydown" (change)="onChange" (focus)="onFocus"/>
                 <APP-REMOVEITEMICON></APP-REMOVEITEMICON>
                 <i class="icon xi-arrow-down colNameMenuIcon" (click)="onMenuIconClick"></i>
                 <div class="list hint">
@@ -429,7 +429,7 @@ class OpPanelComponentFactory {
 
         // Deconstruct parameters
         const { inputVal, placeholder, menuList, onDataChange
-            , onRemove, onElementMountDone } = props;
+            , onRemove, onFocus, onElementMountDone } = props;
 
         // Create elements in UL
         const filterMenuList = menuList
@@ -500,6 +500,11 @@ class OpPanelComponentFactory {
             },
             onKeydown: (event) => {
                 inputSuggest.listHighlight(event);
+            },
+            onFocus: (event) => {
+                if (onFocus) {
+                    onFocus(event.currentTarget);
+                }
             },
             cssClass: cssClass,
             'APP-LIST': elemMenuItems,
