@@ -6239,7 +6239,7 @@ namespace xcHelper {
             };
         } catch (error) {
             console.error(error);
-            return e; // invalid form
+            return {error: e}; // invalid form
         }
     }
 

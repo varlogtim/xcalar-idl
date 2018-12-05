@@ -462,7 +462,7 @@ abstract class DagNode {
         nodeInfo.nodeId = nodeInfo.id;
         delete nodeInfo.id;
         if (clearState) {
-            nodeInfo.table = null;
+            delete nodeInfo.table;
             if (nodeInfo.state === DagNodeState.Complete ||
                 nodeInfo.state === DagNodeState.Running
             ) {

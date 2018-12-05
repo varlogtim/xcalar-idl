@@ -113,9 +113,20 @@ namespace Alert {
         if (error != null && typeof error === "object") {
             const e: any = <any>error;
             // if it's an try/catch error, code will also goes here
-            msg = (e.error && typeof e.error === "string") ?
-            e.error : AlertTStr.ErrorMsg;
+            if (e.error && typeof e.error === "string") {
+                msg = e.error;
+            } else {
+                if (e instanceof Error) {
+                    msg = e.message;
+                }
+                if (!msg) {
+                    msg = AlertTStr.ErrorMsg;
+                }
+            }
             log = e.log;
+            if (!e.log) {
+                log = e.stack;
+            }
         } else {
             msg = <string>error;
         }

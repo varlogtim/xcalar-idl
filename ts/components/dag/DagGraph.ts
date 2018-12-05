@@ -269,6 +269,10 @@ class DagGraph {
         .registerEvents(DagNodeEvents.DescriptionChange, (info) => {
             info.tabId = this.parentTabId;
             this.events.trigger(DagNodeEvents.DescriptionChange, info);
+        })
+        .registerEvents(DagNodeEvents.RetinaRemove, (info) => {
+            info.tabId = this.parentTabId;
+            this.events.trigger(DagNodeEvents.RetinaRemove, info);
         });
     }
 

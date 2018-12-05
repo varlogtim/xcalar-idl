@@ -231,6 +231,21 @@ abstract class DagTab {
         return deferred.promise();
     }
 
+    // search the graph for all dfOutNodes and
+    protected _deleteRetinaHelper(): XDPromise<void> {
+        let nodes: Map<string, DagNode> = this._dagGraph.getAllNodes();
+        let promises = [];
+        nodes.forEach((node: DagNode) => {
+            if (node instanceof DagNodeDFOut || node instanceof DagNodeExport) {
+                let retina: string = node.getRetina();
+                if (retina != null) {
+                    promises.push(XcalarDeleteRetina(retina))
+                }
+            }
+        });
+        return PromiseHelper.when(...promises);
+    }
+
     protected _trigger(event, ...args): void {
         if (typeof this._events[event] === "function") {
             this._events[event].apply(this, args);

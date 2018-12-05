@@ -85,7 +85,8 @@ enum DagNodeEvents {
     SubGraphError = "SubGraphError",
     TableLockChange = "DagNodeTableLockChange",
     TableRemove = "TableRemove",
-    TitleChange = "TitleChange"
+    TitleChange = "TitleChange",
+    RetinaRemove = "RetinaRemove"
 }
 
 enum DagCategoryType {

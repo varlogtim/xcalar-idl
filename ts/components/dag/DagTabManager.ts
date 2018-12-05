@@ -154,6 +154,7 @@ class DagTabManager{
             this._addDagTab(newTab);
             // Switch to the tab(UI)
             this._switchTabs();
+
         }
         return newTab;
     }
@@ -362,6 +363,7 @@ class DagTabManager{
         $dataflowAreas.removeClass("active");
 
         $tab.addClass("active");
+        $tab.scrollintoview({duration: 0});
         $dataflowAreas.eq(index).addClass("active");
 
         // Switch to the corresponding dataflow in the left panel(DagList)

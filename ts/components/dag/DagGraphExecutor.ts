@@ -5,7 +5,8 @@ class DagGraphExecutor {
     private _executeInProgress = false;
     private _isOptimized: boolean;
     private _isOptimizedActiveSession: boolean;
-    private _optimizedLinkOutNode: DagNode;
+    private _optimizedLinkOutNode: DagNodeDFOut;
+    private _optimizedExportNodes: DagNodeExport[];
     private _isNoReplaceParam: boolean;
     private _currentTxId: number;
     private _isCanceld: boolean;
@@ -132,9 +133,11 @@ class DagGraphExecutor {
         let numExportNodes = 0;
         let numLinkOutNodes = 0;
         let linkOutNode;
+        let exportNodes = [];
         for (let i = 0; i < this._nodes.length; i++) {
             const node: DagNode = this._nodes[i];
             if (node.getType() === DagNodeType.Export) {
+                exportNodes.push(node);
                 numExportNodes++;
             }
             if (node.getType() === DagNodeType.DFOut) {
@@ -160,6 +163,7 @@ class DagGraphExecutor {
                 this._optimizedLinkOutNode = linkOutNode;
             } else {
                 this._isOptimizedActiveSession = false;
+                this._optimizedExportNodes = exportNodes;
             }
         }
         return errorResult;
@@ -303,7 +307,7 @@ class DagGraphExecutor {
                 return {
                     node: node,
                     executable: true
-               }
+                }
             });
 
             const promises: XDDeferred<void>[] = [];
@@ -582,6 +586,7 @@ class DagGraphExecutor {
             udfUserName: udfContext.udfUserName,
             udfSessionName: udfContext.udfSessionName
         });
+
         this._currentTxId = txId;
         this._createRetina(retinaParameters)
         .then((retina) => {
@@ -615,7 +620,6 @@ class DagGraphExecutor {
             this._executeInProgress = false;
             this._getAndUpdateRetinaStatuses(retinaName, true)
             .always(() => {
-                XcalarDeleteRetina(retinaName);
                 deferred.resolve(outputTableName);
             });
 
@@ -628,7 +632,11 @@ class DagGraphExecutor {
 
             if (this._isOptimizedActiveSession) {
                 this._optimizedLinkOutNode.setTable(outputTableName);
+                this._optimizedLinkOutNode.setRetina(retinaName);
                 DagTblManager.Instance.addTable(outputTableName);
+            } else {
+                // arbitrarily storing retina in the last export nodeß
+                this._optimizedExportNodes[this._optimizedExportNodes.length - 1].setRetina(retinaName);
             }
 
             Transaction.done(txId, {

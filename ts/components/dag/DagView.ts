@@ -3586,6 +3586,17 @@ namespace DagView {
             }
         });
 
+        graph.events.on(DagNodeEvents.RetinaRemove, function(info) {
+            const retinaName: string = info.retina;
+            XcalarDeleteRetina(retinaName)
+            .then(function() {
+                StatusBox.show("deleted " + retinaName, $dfWrap);
+            })
+            .fail(function() {
+                StatusBox.show("could not delete  " + retinaName, $dfWrap);
+            });
+        });
+
         graph.events.on(DagNodeEvents.TitleChange, function(info) {
             // update table preview if node's title changes
             if (DagTable.Instance.isTableFromTab(info.tabId)) {

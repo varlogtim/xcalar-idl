@@ -1455,6 +1455,7 @@ html.microsoft {
                 .flex(1 0 75px);
                 .detailContent {
                     display: block;
+                    white-space: pre-line;
                 }
             }
         }
@@ -4331,7 +4332,7 @@ html.microsoft {
                     border-left: none;
                     width: ~"calc(100% - @{total-w} - @{prefix-w})";
                     padding-left: 2px;
-    
+
                     &:focus {
                         ~ .prefix {
                             border-color: @color-border-softBlue;

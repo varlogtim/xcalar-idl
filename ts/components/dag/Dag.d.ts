@@ -27,6 +27,7 @@ interface DagNodeDisplayInfo {
 
 interface DagNodeCopyInfo extends DagNodeInfo {
     nodeId?: string;
+    retina?: string;
 }
 
 interface DagNodeSQLInfo extends DagNodeInfo {
@@ -72,6 +73,10 @@ interface DagNodeFilterInfo extends DagNodeInfo {
 interface DagNodeAggregateInfo extends DagNodeInfo {
     aggVal: number | string;
     graph?: DagGraph;
+}
+
+interface DagNodeOutOptimizableInfo extends DagNodeInfo {
+    retina?: string
 }
 
 interface DagLineageChange {

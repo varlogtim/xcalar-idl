@@ -1,6 +1,5 @@
-class DagNodeExport extends DagNodeOut {
+class DagNodeExport extends DagNodeOutOptimizable {
     protected input: DagNodeExportInput;
-    private optimized: boolean;
 
     public constructor(options: DagNodeInfo) {
         super(options);

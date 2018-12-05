@@ -1,11 +1,12 @@
-class DagNodeDFOut extends DagNodeOut {
+class DagNodeDFOut extends DagNodeOutOptimizable {
     protected input: DagNodeDFOutInput;
 
-    public constructor(options: DagNodeInfo) {
+    public constructor(options: DagNodeOutOptimizableInfo) {
         super(options);
         this.type = DagNodeType.DFOut;
         this.display.icon = "&#xe955;"; // XXX TODO: UI design
         this.input = new DagNodeDFOutInput(options.input);
+
     }
 
     public setParam(input: DagNodeDFOutInputStruct = <DagNodeDFOutInputStruct>{}): void {
@@ -65,6 +66,7 @@ class DagNodeDFOut extends DagNodeOut {
         return this.input.getInput().linkAfterExecution;
     }
 
+
     /**
      * @override
      */
@@ -76,6 +78,7 @@ class DagNodeDFOut extends DagNodeOut {
         }
         return hint;
     }
+
 
     protected _getColumnsUsedInInput() {
         return null;
