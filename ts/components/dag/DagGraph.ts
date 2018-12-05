@@ -524,7 +524,7 @@ class DagGraph {
      * @param optimized
      */
     public getQuery(nodeId: DagNodeId, optimized?: boolean): XDPromise<string> {
-         // clone graph because we will be changing each node's table and we don't
+        // clone graph because we will be changing each node's table and we don't
         // want this to effect the actual graph
         const clonedGraph = this.clone();
         clonedGraph.setTabId(DagTab.generateId());

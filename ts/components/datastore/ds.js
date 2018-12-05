@@ -113,6 +113,19 @@ window.DS = (function ($, DS) {
         toggleDSView(preference, true);
     };
 
+    DS.isAccessible = function(dsName) {
+        var parsedRes = xcHelper.parseDSName(dsName);
+        if (parsedRes.user === XcUser.getCurrentUserName()) {
+            return true;
+        }
+        // if not the user, the dataset need to be shared
+        var dsObj = DS.getDSObj(dsName);
+        if (dsObj == null) {
+            return false;
+        }
+        return isInSharedFolder(dsObj.getId());
+    };
+
     DS.isSharingDisabled = function() {
         return disableShare;
     };

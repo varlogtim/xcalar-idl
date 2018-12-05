@@ -67,6 +67,7 @@ enum DagNodeErrorType {
     Disjoint = "Multiple disjoint dataflows detected. Optimized execution can only occur on 1 continuous dataflow.",
     NoColumn = "Invalid column in the schema:\n",
     NoColumns = "Invalid columns in the schema:\n",
+    NoAccessToSource = "User has no rights to accees the dataset",
 }
 
 enum DagGraphEvents {

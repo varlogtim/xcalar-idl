@@ -88,6 +88,15 @@ class DagGraphExecutor {
                     errorResult.hasError = true;
                     errorResult.type = DagNodeErrorType.LinkOutNotExecute;
                     errorResult.node = node;
+                    break;
+                }
+            } else if (node.getType() === DagNodeType.Dataset) {
+                const error: DagNodeErrorType = this._validateDataset(<DagNodeDataset>node);
+                if (error != null) {
+                    errorResult.hasError = true;
+                    errorResult.type = error;
+                    errorResult.node = node;
+                    break;
                 }
             } else if (this._isOptimized && node.hasNoChildren()) {
                 if (!node.isOutNode() ||
@@ -472,6 +481,19 @@ class DagGraphExecutor {
         }
 
         return errorResult;
+    }
+
+    private _validateDataset(node: DagNodeDataset): DagNodeErrorType {
+        try {
+            const source: string = node.getDSName();
+            if (typeof DS !== "undefined" && !DS.isAccessible(source)) {
+                return DagNodeErrorType.NoAccessToSource;
+            } else {
+                return null;
+            }
+        } catch (e) {
+            return e.message;
+        }
     }
 
     /**

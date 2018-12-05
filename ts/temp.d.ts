@@ -1114,6 +1114,7 @@ declare namespace DS {
     export function getLoadArgsFromDS(dsName: string): XDPromise<string>;
     export function restoreDataset(dsName: string, loadArgs: string): XDPromise<void>;
     export function getNewDSName(dsName: string): string;
+    export function DS.isAccessible(dsName: string): boolean;
 }
 
 
