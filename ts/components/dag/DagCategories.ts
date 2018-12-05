@@ -45,12 +45,6 @@ class DagCategories {
                 subType: DagNodeSubType.ExportOptimized
             })),
             new DagCategoryNodeOut(DagNodeFactory.create({
-                type: DagNodeType.PublishIMD
-            })),
-            new DagCategoryNodeOut(DagNodeFactory.create({
-                type: DagNodeType.UpdateIMD
-            })),
-            new DagCategoryNodeOut(DagNodeFactory.create({
                 type: DagNodeType.DFOut
             })),
             new DagCategoryNodeOut(DagNodeFactory.create({
@@ -59,8 +53,17 @@ class DagCategories {
             })),
             new DagCategoryNodeOut(DagNodeFactory.create({
                 type: DagNodeType.Jupyter
+            })),
+            new DagCategoryNodeOut(DagNodeFactory.create({
+                type: DagNodeType.PublishIMD
             }))
         ]);
+
+        if (typeof gUpdateIMDAccess !== "undefined" && gUpdateIMDAccess === true) {
+            outCategory.add(new DagCategoryNodeOut(DagNodeFactory.create({
+                type: DagNodeType.UpdateIMD
+            })));
+        }
 
         const valueCategory = new DagCategory(DagCategoryType.Value, [
             new DagCategoryNodeValue(DagNodeFactory.create({

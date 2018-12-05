@@ -11,7 +11,9 @@ class DagNodeIMDTableInput extends DagNodeInput {
         "required": [
           "source",
           "version",
-          "columns",
+          "columns"
+        ],
+        "optional" : [
           "filterString"
         ],
         "properties": {
@@ -28,11 +30,11 @@ class DagNodeIMDTableInput extends DagNodeInput {
           },
           "version": {
             "$id": "#/properties/version",
-            "type": "string",
+            "type": "number",
             "title": "The Version Schema",
-            "default": "",
+            "default": -1,
             "examples": [
-              "-1"
+              1
             ],
             "minLength": 1,
             "pattern": "^(.*)$"

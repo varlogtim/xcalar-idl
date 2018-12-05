@@ -123,7 +123,7 @@ class IMDTableOpPanel extends BaseOpPanel {
     private _getParams(): DagNodeIMDTableInputStruct {
         return {
             source: this._$pubTableInput.val(),
-            version: this._$tableVersionInput.val(),
+            version: parseInt(this._$tableVersionInput.val()),
             columns: this._getColumns(),
             filterString: this._$filterStringInput.val()
         }

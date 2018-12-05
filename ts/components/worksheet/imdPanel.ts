@@ -20,7 +20,7 @@ namespace IMDPanel {
         dstTableName: string,
         minBatch: number,
         maxBatch: number,
-        columns: PublishTableCol[],
+        columns: string[],
         colStruct: XcalarApiColumnT[]
     }
 
@@ -337,11 +337,14 @@ namespace IMDPanel {
             const time = moment.unix(table.updates[i].startTS).format("MMMM Do YYYY, h:mm:ss A");
             const timeTip = moment.unix(table.updates[i].startTS).format("M-D-Y h:mm:ss A");
             html += '<div class="tableDetailRow" data-tablename="' + table.name + '">' +
+                    '<div class="tableColumn batchId">' + table.updates[i].batchId + '</div>' +
                     '<div class="tableColumn sourceName" data-original-title="' + table.updates[i].source + '"><span class="dummy">a</span>' + table.updates[i].source + '</div>' +
                     '<div class="tableColumn primaryKeys" ' + xcTooltip.Attrs + ' data-original-title="' + keys + '">' + keys + '</div>' +
-                    '<div class="tableColumn batchId">' + table.updates[i].batchId + '</div>' +
                     '<div class="tableColumn" ' + xcTooltip.Attrs + ' data-original-title="' + timeTip + '">' + time + '</div>' +
-                    '<div class="tableColumn lastCol">' + xcHelper.numToStr(table.updates[i].numRows) + '</div>' +
+                    '<div class="tableColumn metaData">' + xcHelper.numToStr(table.updates[i].numRows) + '</div>' +
+                    '<div class="tableColumn metaData">' + xcHelper.numToStr(table.updates[i].numInserts) + '</div>' +
+                    '<div class="tableColumn metaData">' + xcHelper.numToStr(table.updates[i].numUpdates) + '</div>' +
+                    '<div class="tableColumn metaData lastCol">' + xcHelper.numToStr(table.updates[i].numDeletes) + '</div>' +
                     '<div class="spacer"></div>' +
                     '</div>';
         }
@@ -1254,9 +1257,8 @@ namespace IMDPanel {
         }
     }
 
-    function submitRefreshTables(latest?: boolean, filterString?: string, columns?: string[]): XDPromise<void> {
-        const tables: RefreshTableInfos[] = [];
-        let columnsStruct: XcalarApiColumnT[];
+    function submitRefreshTables(latest?: boolean, filterString?: string, columns?: string[]): void {
+        const tables: DagNodeIMDTableInputStruct[] = [];
         let pTable: PublishTable;
 
         for (let tableName in selectedCells) {
@@ -1270,30 +1272,16 @@ namespace IMDPanel {
             } else {
                 maxBatch = selectedCells[tableName];
             }
-            let tableCols: PublishTableCol[] = [];
-            if (columns) {
-                columnsStruct = [];
-                pTable.values.forEach(function(column) {
-                    if (columns.includes(column.name)) {
-                    let colStruct = new XcalarApiColumnT({
-                        columnType: column.type,
-                        sourceColumn: column.name,
-                        destColumn: column.name
-                    });
-                    columnsStruct.push(colStruct);
-                        tableCols.push(column);
-                }
-            });
-            } else {
-                tableCols = pTable.values;
+            if (!columns) {
+                columns = pTable.values.map((pubCol: PublishTableCol) => {
+                    return pubCol.name
+                });
             }
             tables.push({
-                pubTableName: tableName,
-                dstTableName: tableName,
-                minBatch: -1, // defaults to oldest
-                maxBatch: maxBatch,
-                columns: tableCols,
-                colStruct: columnsStruct
+                source: pTable.name,
+                version: maxBatch,
+                columns: columns,
+                filterString: filterString
             });
         }
 
@@ -1302,9 +1290,9 @@ namespace IMDPanel {
         hideUpdatePrompt();
 
         if (tables.length) {
-            return refreshTablesToWorksheet(tables, filterString);
+            return refreshTablesToDataflow(tables);
         } else {
-            return PromiseHelper.reject();
+            return;
         }
     }
 
@@ -1796,100 +1784,25 @@ namespace IMDPanel {
         return html;
     }
 
-    // creates a new worksheet and puts tables there
-    function refreshTablesToWorksheet(tableInfos: RefreshTableInfos[], filterString?: string): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+    // creates a new dataflow and puts IMD In nodes there
+    function refreshTablesToDataflow(tableInfos: DagNodeIMDTableInputStruct[]): void {
         const numTables: number = tableInfos.length;
-        tableInfos.forEach((tableInfo) => {
-            tableInfo.dstTableName += Authentication.getHashId();
-        });
 
-        const sql: object = {
-            "operation": SQLOps.RefreshTables,
-            "tableNames": tableInfos.map((tableInfo) => {
-                return tableInfo.dstTableName;
-            })
-        };
-        const txId: number = Transaction.start({
-            "msg": "Generating tables",
-            "operation": SQLOps.RefreshTables,
-            "sql": sql,
-            "steps": numTables,
-            "track": true
-        });
-
-        refreshTables(tableInfos, txId, filterString)
-        .then(function() {
-            const promises: XDPromise<void>[] = [];
-            tableInfos.forEach(function(tableInfo) {
-                let newTableCols = [];
-                tableInfo.columns.forEach(function(col) {
-                    let progCol = ColManager.newCol({
-                        backName: col.name,
-                        name: col.name,
-                        isNewCol: false,
-                        sizedTo: "header",
-                        type: xcHelper.getColTypeIcon(DfFieldTypeT[col.type]),
-                        knownType: true,
-                        width: xcHelper.getDefaultColWidth(col.name),
-                        userStr: '"' + col.name + '" = pull(' + col.name + ')'
-                    });
-                    newTableCols.push(progCol);
-                });
-
-                newTableCols.push(ColManager.newDATACol());
-                promises.push(TblManager.refreshTable.bind(this, [tableInfo.dstTableName],
-                    newTableCols, null, txId));
-            });
-            return PromiseHelper.chain(promises);
-        })
-        .then(function() {
-            Transaction.done(txId, {
-                "msgTable": xcHelper.getTableId(tableInfos[numTables - 1].dstTableName),
-                "title": "Generate Tables",
-                "sql": sql,
-                "msgOptions": {"title": "Generating Tables"}
-            });
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            Transaction.fail(txId, {
-                "failMsg": "Generating tables failed",
-                "error": error,
-                "noAlert": true,
-                "title": "Table refresh"
-            });
-            Alert.error("Table refresh failed", error);
-            deferred.reject(error);
-        });
-
-        return PromiseHelper.deferred();
-    }
-
-    function refreshTables(
-        tableInfos: RefreshTableInfos[],
-        txId: number, filterString: string
-    ): XDPromise<void> {
-        let promises = [];
-        tableInfos.forEach((tableInfo) => {
-            let args: RefreshColInfo[] = null;
-            if (tableInfo.colStruct != null) {
-                args = tableInfo.colStruct.map((col: XcalarApiColumnT) => {
-                    return {
-                        sourceColumn: col.sourceColumn,
-                        destColumn: col.destColumn,
-                        columnType: col.columnType
-                    }
-                })
+        MainMenu.openPanel("dagPanel", null);
+        DagTabManager.Instance.newTab();
+        for(let i = 0; i < numTables; i++) {
+            let tableInfo = tableInfos[i]
+            const newNodeInfo: DagNodeInfo = {
+                type: DagNodeType.IMDTable,
+                state: DagNodeState.Configured,
+                display: {
+                    x: 30,
+                    y: i * 30 + 30
+                }
             }
-            promises.push(XcalarRefreshTable(tableInfo.pubTableName,
-                tableInfo.dstTableName,
-                tableInfo.minBatch,
-                tableInfo.maxBatch,
-                txId, filterString, args));
-        });
-
-        return PromiseHelper.when.apply(this, promises);
+            let node: DagNode = DagView.newNode(newNodeInfo);
+            node.setParam(tableInfo);
+        };
     }
 
     function hideTable(tableName: string): void {

@@ -107,8 +107,8 @@ interface DagNodeDatasetInputStruct {
 interface DagNodeIMDTableInputStruct {
     source: string;
     version: number;
-    filterString: string;
     columns: string[];
+    filterString?: string;
 }
 
 interface DagNodePublishIMDInputStruct {
@@ -299,6 +299,9 @@ interface PublishTableUpdateInfo {
     startTS: number;
     batchId: number;
     numRows: number;
+    numDeletes: number;
+    numInserts: number;
+    numUpdates: number;
     source: string;
 }
 
