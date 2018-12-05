@@ -82,6 +82,10 @@ class DagList {
         return sharedList.concat(userList);
     }
 
+    public listUserDagAsync(): XDPromise<{dags: {name: string, id: string}[]}> {
+        return this._kvStore.getAndParse();
+    }
+
     public refresh(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const promise: XDPromise<void> = deferred.promise();
@@ -292,7 +296,7 @@ class DagList {
     private _restoreUserDags(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let userDagTabs: DagTabUser[] = [];
-        this._kvStore.getAndParse()
+        this.listUserDagAsync()
         .then((res: {dags: {name: string, id: string}[]}) => {
             let dags: {name: string, id: string}[] = [];
             if (res && res.dags) {

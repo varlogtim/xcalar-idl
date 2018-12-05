@@ -1,7 +1,7 @@
 namespace WorkbookPreview {
     let $workbookPreview: JQuery; // $("#workbookPreview")
     let modalHelper: ModalHelper;
-    let curTableList: object[] = [];
+    let curDagList: {name: string, id: string}[] = [];
     let id: string;
     let curWorkbookId: string;
 
@@ -12,8 +12,7 @@ namespace WorkbookPreview {
     export function setup(): void {
         $workbookPreview = $("#workbookPreview");
         modalHelper = new ModalHelper($workbookPreview);
-
-        addEvents();
+        addEventListeners();
     };
 
     /**
@@ -26,39 +25,32 @@ namespace WorkbookPreview {
         curWorkbookId = workbookId;
         modalHelper.setup();
         reset();
-        showWorkbookInfo(workbookId);
-        return showTableInfo(workbookId);
+        showWorkbookBasicInfo(workbookId);
+        return showWorkbookInfo(workbookId);
     };
 
-    function addEvents(): void {
+    function addEventListeners(): void {
         // Temporary until delete tables is ready
         $workbookPreview.on("click", ".listSection .grid-unit", function() {
-        // $workbookPreview.on("click", ".listSection .view, .listSection .name", function() {
-            const tableName: string = getTableNameFromEle(this);
+            const dag: {name: string, id: string} = getDagInfoFromEle(this);
             const workbookName: string = WorkbookManager.getWorkbook(curWorkbookId).getName();
-            showDag(tableName, workbookName);
+            showDag(dag, workbookName);
         });
 
         $workbookPreview.on("click", ".title .label, .title .xi-sort", function() {
             const $title: JQuery = $(this).closest(".title");
-            const sortKey: string = $title.data("sortkey");
             const $section: JQuery = $title.closest(".titleSection");
-            let tableList: object[];
+            let dagList: {name: string, id: string}[];
 
             if ($title.hasClass("active")) {
-                tableList = reverseTableList(curTableList);
+                dagList = reverseDagList(curDagList);
             } else {
                 $section.find(".title.active").removeClass("active");
                 $title.addClass("active");
-                tableList = sortTableList(curTableList, sortKey);
+                dagList = sortDagList(curDagList);
             }
-            updateTableList(tableList);
+            updateDagList(dagList);
         });
-
-        // $workbookPreview.on("click", ".delete", function() {
-        //     var tableName = getTableNameFromEle(this);
-        //     deleteTable(tableName);
-        // });
 
         $workbookPreview.on("click", ".back", function() {
             closeDag();
@@ -73,12 +65,19 @@ namespace WorkbookPreview {
         });
     }
 
-    function getTableNameFromEle(ele: JQuery): string {
-        return $(ele).closest(".grid-unit").find(".name").data("title");
+    function getDagInfoFromEle(ele: JQuery): {name: string, id: string} {
+        if (curDagList == null) {
+            return null;
+        }
+        const id: string =  $(ele).closest(".grid-unit").data("id");
+        const dagList = curDagList.filter((dagInfo) => {
+            return dagInfo.id === id;
+        });
+        return dagList[0];
     }
 
     function reset(): void {
-        curTableList = [];
+        curDagList = [];
         $workbookPreview.find(".title.active").removeClass("active");
         updateTotalSize("--");
     }
@@ -96,32 +95,29 @@ namespace WorkbookPreview {
         $workbookPreview.find(".infoSection .size .text").text(size);
     }
 
-    function showWorkbookInfo(workbookId: string): void {
+    function showWorkbookBasicInfo(workbookId: string): void {
         const $section: JQuery = $workbookPreview.find(".infoSection");
         const workbook: WKBK = WorkbookManager.getWorkbook(workbookId);
         $section.find(".name .text").text(workbook.getName());
     }
 
-    function showTableInfo(workbookId: string): XDPromise<void> {
+    function showWorkbookInfo(workbookId: string): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let nodeInfo: any[];
         const curId: string = id;
         const workbookName: string = WorkbookManager.getWorkbook(workbookId).getName();
-        const currentSession: string = sessionName;
+        let totalSize: number;
         $workbookPreview.addClass("loading");
-        setSessionName(workbookName);
 
-        XcalarGetTables("*")
-        .then(function(res) {
-            nodeInfo = res.nodeInfo;
-            return getTableKVStoreMeta(workbookName);
+        getTotalTableSize(workbookName)
+        .then((res) => {
+            totalSize = res;
+            return getDagListAsync(workbookName);
         })
-        .then(function(tableMeta) {
+        .then(function(dagRes) {
             if (curId === id) {
-                curTableList = getTableList(nodeInfo, tableMeta);
-                // sort by status
-                const tableList: object[] = sortTableList(curTableList, "status");
-                updateTableList(tableList);
+                updateTotalSize(<string>xcHelper.sizeTranslator(totalSize));
+                curDagList = dagRes ? dagRes.dags : null;
+                updateDagList(curDagList);
             }
             deferred.resolve();
         })
@@ -137,7 +133,6 @@ namespace WorkbookPreview {
             }
         });
 
-        setSessionName(currentSession);
         return deferred.promise();
     }
 
@@ -147,212 +142,106 @@ namespace WorkbookPreview {
         $workbookPreview.addClass("error");
     }
 
-    function getTableKVStoreMeta(workbookName: string): XDPromise<{}> {
-        const deferred: XDDeferred<{}> = PromiseHelper.deferred();
+    function getDagListAsync(workbookName: string): XDPromise<{dags: {name: string, id: string}[]}> {
         const currentSession: string = sessionName;
-
-        if (workbookName === currentSession) {
-            deferred.resolve(gTables);
-            return deferred.promise();
-        }
-
-        const key: string = WorkbookManager.getStorageKey();
-        const kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
         setSessionName(workbookName);
-
-        kvStore.getAndParse()
-        .then(function(res) {
-            try {
-                const metaInfos: METAConstructor = new METAConstructor(res);
-                deferred.resolve(metaInfos.getTableMeta());
-            } catch (e) {
-                console.error(e);
-                deferred.resolve({}); // still resolve
-            }
-        })
-        .fail(function(error) {
-            console.error(error);
-            deferred.resolve({}); // still resolve
-        });
-
+        const promise = DagList.Instance.listUserDagAsync();
         setSessionName(currentSession);
-        return deferred.promise();
+        return promise;
     }
 
-    function getTableList(nodeInfo: any[], tableMeta: object): {
-        name: string,
-        size: string,
-        status: string,
-        sizeInNum: number
-    }[] {
-        return nodeInfo.map(function(node) {
-            const tableName: string = node.name;
-            const size: string = <string>xcHelper.sizeTranslator(node.size);
-            const tableId: string|number = xcHelper.getTableId(tableName);
-            const status: string = tableMeta.hasOwnProperty(tableId)
-                        ? tableMeta[tableId].status
-                        : TableType.Orphan;
-            return {
-                name: tableName,
-                size: size,
-                status: status,
-                sizeInNum: node.size
-            };
+    function sortDagList(dagList: {name: string, id: string}[]): {name: string, id: string}[] {
+        // sort by name
+        dagList.sort(function(a, b) {
+            return a.name.localeCompare(b.name);
         });
+        return dagList;
     }
 
-    function sortTableList(tableList: any[], key: string) {
-        if (key === "size") {
-            // sort on size
-            tableList.sort(function(a, b) {
-                const sizeA: number = a.sizeInNum;
-                const sizeB: number = b.sizeInNum;
-                if (sizeA === sizeB) {
-                    return a.name.localeCompare(b.name);
-                } else if (sizeA > sizeB) {
-                    return 1;
-                } else {
-                    return -1;
-                }
-            });
-        } else if (key === "status") {
-            // sort on status
-            tableList.sort(function(a, b) {
-                if (a.status === b.status) {
-                    return a.name.localeCompare(b.name);
-                } else {
-                    return a.status.localeCompare(b.status);
-                }
-            });
-        } else {
-            // sort by name
-            tableList.sort(function(a, b) {
-                return a.name.localeCompare(b.name);
-            });
-        }
-        return tableList;
+    function reverseDagList(dagList: {name: string, id: string}[]) {
+        dagList.reverse();
+        return dagList;
     }
 
-    function reverseTableList(tableList: object[]) {
-        tableList.reverse();
-        return tableList;
-    }
-
-    function updateTableList(tableList): void {
-        let totalSize: number = 0;
-        let html: string = tableList.map(function(tableInfo) {
-            totalSize += tableInfo.sizeInNum;
-            return '<div class="grid-unit">' +
+    function updateDagList(dagList: {name: string, id: string}[]): void {
+        let html: HTML = dagList.map(function(dagInfo) {
+            return '<div class="grid-unit" data-id="' + dagInfo.id + '">' +
                         '<div class="name tooltipOverflow"' +
                         ' data-toggle="tooltip" data-container="body"' +
                         ' data-placement="top"' +
-                        ' data-title="' + tableInfo.name + '"' +
+                        ' data-title="' + dagInfo.name + '"' +
                         '>' +
                             '<i class="view icon xi-dfg2 fa-15"></i>' +
-                            '<span class="text">' + tableInfo.name + '</span>' +
-                        '</div>' +
-                        '<div class="size">' +
-                            tableInfo.size +
-                        '</div>' +
-                        '<div class="status">' +
-                            (tableInfo.status === TableType.Active
-                            ? TblTStr.ActiveStatus
-                            : TblTStr.TempStatus) +
-                        '</div>' +
-                        '<div class="action">' +
-                            // '<i class="delete icon xc-action xi-trash fa-15"' +
-                            // ' data-toggle="tooltip" data-container="body"' +
-                            // ' data-placement="top"' +
-                            // ' data-title="' + TblTStr.DropTbl + '"' +
-                            // '></i>' +
+                            '<span class="text">' + dagInfo.name + '</span>' +
                         '</div>' +
                     '</div>';
         }).join("");
         $workbookPreview.find(".listSection").html(html);
-        updateTotalSize(<string>xcHelper.sizeTranslator(totalSize));
     }
 
-    // function deleteTable(tableName) {
-    //     Alert.show({
-    //         title: TblTStr.DropTbl,
-    //         msg: SideBarTStr.DelTablesMsg,
-    //         onConfirm: function() {
-    //             submitDropTable(tableName);
-    //         }
-    //     });
-    // }
-
-    // function submitDropTable(tableName) {
-    //     var tableList = curTableList;
-    //     var curId = id;
-
-    //     XcalarDeleteTable(tableName)
-    //     .then(function() {
-    //         if (curId !== id) {
-    //             return;
-    //         }
-    //         curTableList = tableList.filter(function(tableInfo) {
-    //             return tableInfo.name !== tableName;
-    //         });
-    //         xcHelper.showRefreshIcon($workbookPreview.find(".listSection"));
-    //         updateTableList(curTableList);
-    //     })
-    //     .fail(function(error) {
-    //         if (curId !== id) {
-    //             return;
-    //         }
-    //         Alert.error(StatusMessageTStr.DeleteTableFailed, error);
-    //     });
-    // }
-
-    function showDag(tableName: string, workbookName: string): XDPromise<void> {
-        // XXX TODO, bring it back
-        return PromiseHelper.resolve();
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const curId: string = id;
-        const html: string = '<div class="dagWrap clearfix">' +
-                    '<div class="header clearfix">' +
-                        '<div class="btn infoIcon">' +
-                            '<i class="icon xi-info-rectangle"></i>' +
-                        '</div>' +
-                        '<div class="tableTitleArea">' +
-                            '<span>Table: </span>' +
-                            '<span class="tableName">' +
-                                tableName +
-                            '</span>' +
-                        '</div>' +
-                    '</div>' +
-                '</div>';
-        const $dagWrap: JQuery = $(html);
-        $workbookPreview.addClass("dagMode")
-                        .find(".dagSection").append($dagWrap);
+    function getTotalTableSize(workbookName: string): XDPromise<number> {
+        const deferred: XDDeferred<number> = PromiseHelper.deferred();
         const currentSession: string = sessionName;
         setSessionName(workbookName);
+        const def = XcalarGetTables("*");
+        setSessionName(currentSession);
 
-        XcalarGetDag(tableName, workbookName)
-        .then(function(dagObj) {
+        def
+        .then((res) => {
+            const nodeInfo: {size: number}[] = res.nodeInfo;
+            const totalSize: number = nodeInfo.reduce((accumulator, node) => {
+                return accumulator + node.size;
+            }, 0);
+            deferred.resolve(totalSize);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    // XXX Will not support in Dio
+    function showDag(dagInfo: {name: string, id: string}, workbookName: string): XDPromise<void> {
+        return PromiseHelper.resolve();
+        
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const curId: string = id;
+        const html: HTML = '<div class="dataflowArea clearfix"></div>';
+        const $dfArea: JQuery = $(html);
+        $workbookPreview.addClass("dagMode")
+                        .find(".dagSection").append($dfArea);
+        
+        const dagTab: DagTabUser = new DagTabUser(dagInfo.name, dagInfo.id);
+        loadDag(dagTab, workbookName)
+        .then(() => {
             if (curId === id) {
-                DagDraw.createDagImage(dagObj.node, $dagWrap);
-                // remove "click to see options" tooltips
-                const $tooltipTables: JQuery = $dagWrap.find('.dagTableIcon, ' +
-                                                    '.dataStoreIcon');
-                xcTooltip.disable($tooltipTables);
-                // Dag.addEventListeners($dagWrap);
+                // DagView.draw($dfArea, dagTab.getGraph());
+                // // remove "click to see options" tooltips
+                // const $tooltipTables: JQuery = $dagWrap.find('.dagTableIcon, ' +
+                //                                     '.dataStoreIcon');
+                // xcTooltip.disable($tooltipTables);
+                // // Dag.addEventListeners($dagWrap);
             }
             deferred.resolve();
         })
         .fail(function(error) {
             console.error(error);
             if (curId === id) {
-                $dagWrap.html('<div class="errorMsg">' +
+                $dfArea.html('<div class="errorMsg">' +
                                 DFTStr.DFDrawError +
                               '</div>');
             }
             deferred.reject(error);
         });
-
-        setSessionName(currentSession);
         return deferred.promise();
+    }
+
+    function loadDag(dag: DagTabUser, workbookName: string): XDPromise<void> {
+        const currentSession: string = sessionName;
+        setSessionName(workbookName);
+        const promise = dag.load();
+        setSessionName(currentSession);
+        return promise;
+
     }
 
     function closeDag(): void {
