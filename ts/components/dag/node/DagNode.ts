@@ -279,6 +279,7 @@ abstract class DagNode {
      * Change node to configured state
      */
     public beConfiguredState(): void {
+        this.configured = true;
         this._setState(DagNodeState.Configured);
         this._clearConnectionMeta();
     }
@@ -287,6 +288,7 @@ abstract class DagNode {
      * Change node to running state
      */
     public beRunningState(): void {
+        this.configured = true;
         this._setState(DagNodeState.Running);
         this._removeTable();
     }
@@ -295,6 +297,7 @@ abstract class DagNode {
      * Change node to complete state
      */
     public beCompleteState(): void {
+        this.configured = true;
         this._setState(DagNodeState.Complete);
     }
 
