@@ -115,8 +115,7 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.RemoveOperations] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.removeNodes(options.nodeIds, options.dataflowId);
-        return PromiseHelper.resolve(null);
+        return DagView.removeNodes(options.nodeIds, options.dataflowId);
     };
 
     redoFuncs[SQLOps.AddOperation] = function(options) {

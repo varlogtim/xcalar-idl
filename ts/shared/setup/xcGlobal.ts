@@ -68,6 +68,7 @@ namespace xcGlobal {
         gPrefixSign = '::';
         gRetSign = ':';
         gDSPrefix = '.XcalarDS.';
+        gRetinaPrefix = "xcRet_";
         gHiddenColumnWidth = 15;
         gTurnOnPrefix = true;
         gUploadChunkSize = 45 * MB;

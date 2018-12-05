@@ -347,7 +347,7 @@ describe("DagView Test", () => {
 
         after(() => {
             graph.removeNode(node.getId());
-            DagTable.Instance._show = oldShow
+            DagTable.Instance._show = oldShow;
         });
     });
 

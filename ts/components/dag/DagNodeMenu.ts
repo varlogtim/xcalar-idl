@@ -166,6 +166,9 @@ namespace DagNodeMenu {
                     DagView.viewResult(nodeToPreview);
                 });
                 break;
+            case ("viewOptimizedDataflow"):
+                DagView.viewOptimizedDataflow(_getNodeFromId(dagNodeIds[0]), tabId);
+                break;
             case ("description"):
                 DagDescriptionModal.Instance.show(dagNodeIds[0]);
                 break;
@@ -556,6 +559,15 @@ namespace DagNodeMenu {
             $menu.find(".viewResult").addClass("unavailable");
             $menu.find(".generateResult").addClass("unavailable");
         }
+        if (dagNode instanceof DagNodeOutOptimizable &&
+            dagNode.getState() === DagNodeState.Complete ||
+            dagNode.getState() === DagNodeState.Running ||
+            dagNode.getState() === DagNodeState.Configured) {
+            $menu.find(".viewOptimizedDataflow").removeClass("xc-hidden");
+        } else {
+            $menu.find(".viewOptimizedDataflow").addClass("xc-hidden");
+        }
+
         if (dagNode != null && dagNode.getDescription()) {
             $menu.find(".description .label").text(DagTStr.EditDescription);
         } else {
@@ -624,7 +636,11 @@ namespace DagNodeMenu {
         if (state === DagNodeState.Complete) {
             $menu.find(".resetNode").removeClass("unavailable");
         } else {
-            $menu.find(".resetNode").addClass("unavailable");
+            if (state === DagNodeState.Configured && dagNode instanceof DagNodeOutOptimizable) {
+                $menu.find(".resetNode").removeClass("unavailable");
+            } else {
+                $menu.find(".resetNode").addClass("unavailable");
+            }
         }
         if (dagNodeType === DagNodeType.Custom) {
             classes += ' customOpMenu';

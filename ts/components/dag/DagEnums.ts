@@ -91,8 +91,8 @@ enum DagNodeEvents {
     TableLockChange = "DagNodeTableLockChange",
     TableRemove = "TableRemove",
     TitleChange = "TitleChange",
-    RetinaRemove = "RetinaRemove",
-    AutoExecute = "AutoExecute"
+    AutoExecute = "AutoExecute",
+    RetinaRemove = "RetinaRemove"
 }
 
 enum DagCategoryType {

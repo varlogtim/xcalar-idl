@@ -178,19 +178,38 @@ abstract class DagTab {
         return deferred.promise();
     }
 
-    // search the graph for all dfOutNodes and
+    // delete all retinas associated with this tab
     protected _deleteRetinaHelper(): XDPromise<void> {
-        let nodes: Map<string, DagNode> = this._dagGraph.getAllNodes();
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
         let promises = [];
-        nodes.forEach((node: DagNode) => {
-            if (node instanceof DagNodeDFOut || node instanceof DagNodeExport) {
-                let retina: string = node.getRetina();
-                if (retina != null) {
-                    promises.push(XcalarDeleteRetina(retina))
+        // patternMatch doesn't work yet
+        XcalarListRetinas(gRetinaPrefix + this._id + "*")
+        .then((retinas) => {
+            retinas.retinaDescs.forEach((retina) => {
+                // TODO remove the need to search once listRetinas takes in a namepattenr
+                if (retina.retinaName.startsWith(gRetinaPrefix + this._id)) {
+                    promises.push(XcalarDeleteRetina(retina.retinaName));
+                }
+            });
+            return PromiseHelper.when(...promises);
+        })
+        .then(deferred.resolve)
+        .fail((...errors) => {
+            let error;
+            for (let i = 0; i < errors.length; i++) {
+                if (errors[i] && errors[i]["status"] === StatusT.StatusRetinaInUse) {
+                    error = errors[i];
+                    break;
                 }
             }
+            // only reject if error is that retina is in use
+            if (error) {
+                deferred.reject(error);
+            } else {
+                deferred.resolve();
+            }
         });
-        return PromiseHelper.when(...promises);
+        return deferred.promise();
     }
 
     protected _trigger(event, ...args): void {

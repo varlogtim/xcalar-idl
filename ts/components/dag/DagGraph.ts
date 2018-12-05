@@ -298,6 +298,32 @@ class DagGraph {
         return this._removeNode(node, switchState);
     }
 
+    public removeRetinas(nodeIds: DagNodeId[]): XDPromise<any> {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        const promises = [];
+        nodeIds.forEach((nodeId) => {
+            const node: DagNode = this._getNodeFromId(nodeId);
+            if (node instanceof DagNodeOutOptimizable && node.getState() !==
+                DagNodeState.Unused) {
+                promises.push(this._removeRetina(node));
+            }
+        });
+
+        PromiseHelper.when(...promises)
+        .always((...rets) => {
+            const errorNodeIds = [];
+            rets.forEach((error) => {
+                if (error && error.error && error.error.status === StatusT.StatusRetinaInUse) {
+                    errorNodeIds.push(error.dagNode.getId());
+                }
+            });
+            deferred.resolve({hasRetinasInUse: errorNodeIds.length > 0, errorNodeIds: errorNodeIds});
+        });
+
+        return deferred.promise();
+    }
+
+
     /**
      * check if has the node or not
      * @param nodeId node'id
@@ -475,6 +501,10 @@ class DagGraph {
 
     public getExecutor(): DagGraphExecutor {
         return this.currentExecutor;
+    }
+
+    public setExecutor(executor: DagGraphExecutor): void {
+        this.currentExecutor = executor;
     }
 
     /**
@@ -1278,7 +1308,8 @@ class DagGraph {
     private _removeNode(
         node: DagNode,
         switchState: boolean = true
-    ): {dagNodeId: boolean[]} {
+    ):  {dagNodeId: boolean[]} {
+
         const parents: DagNode[] = node.getParents();
         const children: DagNode[] = node.getChildren();
 
@@ -1333,7 +1364,9 @@ class DagGraph {
                 tabId: this.parentTabId
             });
         }
+
         return spliceFlags;
+
     }
 
     private _getNodeFromId(nodeId: DagNodeId): DagNode {
@@ -1524,6 +1557,25 @@ class DagGraph {
         };
     }
 
+    private _removeRetina(dagNode: DagNodeOutOptimizable): XDPromise<any> {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        const retinaId = gRetinaPrefix + this.parentTabId + "_" + dagNode.getId();
+        XcalarDeleteRetina(retinaId)
+        .then(deferred.resolve)
+        .fail((error) => {
+            if (error && error.status === StatusT.StatusRetinaInUse) {
+                deferred.reject({
+                    error: error,
+                    dagNode: dagNode
+                });
+            } else {
+                deferred.resolve();
+            }
+        });
+
+        return deferred.promise();
+    }
+
     // TODO: Combine with expServer/queryConverter.js
     public static convertQueryToDataflowGraph(query, tableSrcMap?, finalTableName?) {
         const nodes = new Map();
@@ -1533,7 +1585,7 @@ class DagGraph {
         let outputDagId: string;
 
         for (let rawNode of query) {
-            const args = rawNode.args;
+            let args = rawNode.args;
 
             const node: {
                 parents: string[],

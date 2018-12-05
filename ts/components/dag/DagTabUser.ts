@@ -131,7 +131,7 @@ class DagTabUser extends DagTab {
             return PromiseHelper.alwaysResolve(this._deleteAggregateHelper());
         })
         .then(() => {
-            return PromiseHelper.alwaysResolve(this._deleteRetinaHelper());
+            return this._deleteRetinaHelper();
         })
         .then(() => {
             return this._kvStore.delete();

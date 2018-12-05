@@ -3469,12 +3469,15 @@ XcalarMakeRetina = function(
     return (deferred.promise());
 };
 
-XcalarListRetinas = function(): XDPromise<any> {
+XcalarListRetinas = function(namePattern?: string): XDPromise<any> {
     // XXX This function is wrong because it does not take in a tablename even
     // though it should. Hence we just assume that all retinas belong to the
     // leftmost table.
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
+    }
+    if (namePattern == null) {
+        namePattern = "*";
     }
 
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
@@ -3482,7 +3485,7 @@ XcalarListRetinas = function(): XDPromise<any> {
         return (deferred.promise());
     }
 
-    xcalarListRetinas(tHandle)
+    xcalarListRetinas(tHandle, namePattern)
     .then(deferred.resolve)
     .fail(function(error) {
         const thriftError = thriftLog("XcalarListRetinas", error);

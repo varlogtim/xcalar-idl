@@ -567,7 +567,8 @@ declare function xcalarMakeRetina(
 ): XDPromise<StatusT>;
 
 declare function xcalarListRetinas(
-    thriftHandle: ThriftHandler
+    thriftHandle: ThriftHandler,
+    namePattern: string
 ): XDPromise<any>;
 
 declare function xcalarGetRetina(

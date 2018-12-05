@@ -162,14 +162,12 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.AddOperation] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.removeNodes([options.nodeId], options.dataflowId);
-        return PromiseHelper.resolve(null);
+        return DagView.removeNodes([options.nodeId], options.dataflowId);
     };
 
     undoFuncs[SQLOps.CopyOperations] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.removeNodes(options.nodeIds, options.dataflowId);
-        return PromiseHelper.resolve(null);
+        return DagView.removeNodes(options.nodeIds, options.dataflowId);
     };
 
     undoFuncs[SQLOps.MoveOperations] = function(options) {
@@ -204,8 +202,7 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.NewComment] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.removeNodes([options.commentId], options.dataflowId);
-        return PromiseHelper.resolve(null);
+        return DagView.removeNodes([options.commentId], options.dataflowId);
     };
 
     undoFuncs[SQLOps.EditComment] = function(options) {
@@ -384,7 +381,7 @@ window.Undo = (function($, Undo) {
         return PromiseHelper.resolve(null);
     };
     /* End of Table Operations */
-   
+
     // for undoing deleted table columns
     function undoDeleteHelper(options, shift) {
         focusTableHelper(options);

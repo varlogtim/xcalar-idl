@@ -1,7 +1,6 @@
 class DagGraphExecutor {
     private _nodes: DagNode[];
     private _graph: DagGraph;
-    private _retinaCheckInterval = 2000;
     private _executeInProgress = false;
     private _isOptimized: boolean;
     private _isOptimizedActiveSession: boolean;
@@ -10,6 +9,7 @@ class DagGraphExecutor {
     private _isNoReplaceParam: boolean;
     private _currentTxId: number;
     private _isCanceld: boolean;
+    private _retinaName: string;
 
     public constructor(
         nodes: DagNode[],
@@ -17,6 +17,7 @@ class DagGraphExecutor {
         options: {
             optimized?: boolean,
             noReplaceParam?: boolean
+            retinaName?: string
         } = {}
     ) {
         this._nodes = nodes;
@@ -24,6 +25,7 @@ class DagGraphExecutor {
         this._isOptimized = options.optimized || false;
         this._isNoReplaceParam = options.noReplaceParam || false;
         this._isCanceld = false;
+        this._retinaName = options.retinaName;
     }
 
     public validateAll(): {
@@ -331,8 +333,17 @@ class DagGraphExecutor {
     // cancel execution
     public cancel(): void {
         this._isCanceld = true;
-        QueryManager.cancelQuery(this._currentTxId);
-        // XXX TODO, if it's optimized, need to call XcalarQueryCanel with retName
+        if (this._isOptimized) {
+            XcalarQueryCancel(this._retinaName)
+            .then(() => {
+                if (this._retinaName.startsWith(gRetinaPrefix)) {
+                    // delete non-private retinas
+                    this._retinaDeleteLoop();
+                }
+            });
+        } else {
+            QueryManager.cancelQuery(this._currentTxId);
+        }
     }
 
     // returns a query string representing all the operations needed to run
@@ -564,8 +575,17 @@ class DagGraphExecutor {
 
         this._graph.getOptimizedQuery(nodeIds, this._isNoReplaceParam)
         .then((queryStr: string, destTable: string) => {
-            // retina name will be the same as the graph/tab's ID
-            const retinaName = DagTab.generateId();
+            // retina name will be graph id + outNode Id, prefixed by gRetinaPrefix
+            const parentTabId: string = this._graph.getTabId();
+            let outNodeId: DagNodeId;
+            if (this._isOptimizedActiveSession) {
+                outNodeId = this._optimizedLinkOutNode.getId();
+            } else {
+                // XXX arbitrarily storing retina in the last export nodes
+                outNodeId = this._optimizedExportNodes[this._optimizedExportNodes.length - 1].getId();
+            }
+            const retinaName = gRetinaPrefix + parentTabId + "_" + outNodeId;
+            this._retinaName = retinaName;
             const retinaParameters = this._getImportRetinaParameters(retinaName, queryStr, destTable);
             deferred.resolve(retinaParameters);
         })
@@ -582,6 +602,7 @@ class DagGraphExecutor {
         const udfContext = this._getUDFContext();
         let txId: number = Transaction.start({
             operation: "optimized df",
+            sql: {operation: "Optimized Dataflow", retName: retinaName},
             track: true,
             udfUserName: udfContext.udfUserName,
             udfSessionName: udfContext.udfSessionName
@@ -590,24 +611,25 @@ class DagGraphExecutor {
         this._currentTxId = txId;
         this._createRetina(retinaParameters)
         .then((retina) => {
+            // remove any existing tab if it exists (tabs can remain open even
+            // if the retina was deleted
+            DagTabManager.Instance.removeTab(retinaName);
+
              // create tab and pass in nodes to store for progress updates
             const parentTabId: string = this._graph.getTabId();
             const parentTab: DagTab = DagTabManager.Instance.getTabById(parentTabId);
-            // name will be {dataflowName} {linkOutName} optimized
             let dfOutName: string = this._isOptimizedActiveSession ?
                             this._optimizedLinkOutNode.getParam().name : "export";
             let tabName: string = parentTab.getName() + " " + dfOutName + " optimized";
             const tab: DagTabOptimized = DagTabManager.Instance.newOptimizedTab(retinaName,
-                                                tabName, retina.query);
+                                                tabName, retina.query, this);
             subGraph = tab.getGraph();
-            subGraph.startExecution(retina.query, this);
             outputTableName = this._isOptimizedActiveSession ?
                                 "table_" + parentTabId + "_" +
                                 this._optimizedLinkOutNode.getId() +
                                 Authentication.getHashId() : "";
 
             this._executeInProgress = true;
-            this._statusCheckInterval(retinaName, true);
             const udfContext = this._getUDFContext();
             return XcalarExecuteRetina(retinaName, [], {
                 activeSession: this._isOptimizedActiveSession,
@@ -618,25 +640,20 @@ class DagGraphExecutor {
         })
         .then((_res) => {
             this._executeInProgress = false;
+            // get final stats on each node
             this._getAndUpdateRetinaStatuses(retinaName, true)
             .always(() => {
                 deferred.resolve(outputTableName);
             });
 
-            this._nodes.forEach((node) => {
-                if (node.getType() === DagNodeType.DFOut ||
-                    node.getType() === DagNodeType.Export) {
-                    node.beCompleteState();
-                }
-            });
-
             if (this._isOptimizedActiveSession) {
                 this._optimizedLinkOutNode.setTable(outputTableName);
-                this._optimizedLinkOutNode.setRetina(retinaName);
                 DagTblManager.Instance.addTable(outputTableName);
+                this._optimizedLinkOutNode.beCompleteState();
             } else {
-                // arbitrarily storing retina in the last export nodeß
-                this._optimizedExportNodes[this._optimizedExportNodes.length - 1].setRetina(retinaName);
+                this._optimizedExportNodes.forEach((node) => {
+                    node.beCompleteState();
+                });
             }
 
             Transaction.done(txId, {
@@ -657,8 +674,10 @@ class DagGraphExecutor {
             if (this._executeInProgress) {
                 this._executeInProgress = false;
                 this._getAndUpdateRetinaStatuses(retinaName, false)
-                .always(() => {
-                    XcalarDeleteRetina(retinaName);
+                .always((_queryOutput) => {
+                    if (error && error.status === StatusT.StatusCanceled) {
+                         XcalarDeleteRetina(retinaName);
+                    }
                     deferred.reject(error);
                 });
             } else {
@@ -755,40 +774,38 @@ class DagGraphExecutor {
         return deferred.promise();
     }
 
-    private _statusCheckInterval(retName: string, firstRun?: boolean): void {
-        // shorter timeout on the first call
-        let checkTime = firstRun ? 1000 : this._retinaCheckInterval;
-
-        setTimeout(() => {
-            if (!this._executeInProgress) {
-                return; // retina is finished, no more checking
-            }
-
-            this._getAndUpdateRetinaStatuses(retName, false)
-            .always((_ret) => {
-                this._statusCheckInterval(retName, false);
-            });
-
-        }, checkTime);
-    }
 
     private _getAndUpdateRetinaStatuses(
-        retName: string,
-        isComplete?: boolean
+        retinaName: string,
+        success?: boolean
     ): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
-
-        XcalarQueryState(retName)
+        XcalarQueryState(retinaName)
         .then((queryStateOutput) => {
-            if (isComplete) {
-                DagView.endOptimizedDFProgress(retName, queryStateOutput);
+            if (success) {
+                DagView.endOptimizedDFProgress(retinaName, queryStateOutput);
             } else {
-                DagView.updateOptimizedDFProgress(retName, queryStateOutput);
+                DagView.updateOptimizedDFProgress(retinaName, queryStateOutput);
             }
             deferred.resolve(queryStateOutput);
         })
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    // called after canceling a query, may take a while to cancel so keep trying
+    private _retinaDeleteLoop(count): void {
+        count = count || 0;
+        const self = this;
+        setTimeout(() => {
+            XcalarDeleteRetina(self._retinaName)
+            .fail((error) => {
+                if (error && error.status === StatusT.StatusRetinaInUse && count < 5) {
+                    count++;
+                    self._retinaDeleteLoop(count);
+                }
+            });
+        }, 2000);
     }
 }

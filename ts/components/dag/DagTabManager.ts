@@ -12,6 +12,7 @@ class DagTabManager{
     private _editingName: string;
     private _tabListScroller: ListScroller;
     private _subTabs: Map<string, string> = new Map(); // subTabId => parentTabId
+    private _activeTab: DagTab;
 
     public setup(): void {
         let key: string = KVStore.getKey("gDagManagerKey");
@@ -139,14 +140,20 @@ class DagTabManager{
         }
     }
 
-    public newOptimizedTab(tabId: string, tabName: string, queryNodes: any[]): DagTabOptimized {
+    public newOptimizedTab(
+        tabId: string,
+        tabName: string,
+        queryNodes: any[],
+        executor?: DagGraphExecutor
+    ): DagTabOptimized {
         const parentTabId = DagView.getActiveTab().getId();
 
         // Create a new tab object
         const newTab: DagTabOptimized = new DagTabOptimized({
             id: tabId,
             name: tabName,
-            queryNodes: queryNodes
+            queryNodes: queryNodes,
+            executor: executor
         });
         newTab.setGraph(newTab.getGraph());
         // Register the new tab in DagTabManager
@@ -302,7 +309,13 @@ class DagTabManager{
     }
 
     private _getJSON(): {dagKeys: string[]} {
-        const keys: string[] = this.getTabs().map((dagTab) => dagTab.getId());
+        // filter out retina tabs as we don't want to persist these viewonly tabs
+        const keys: string[] = this.getTabs().reduce((res, dagTab) => {
+            if (!(dagTab !instanceof DagTabOptimized)) {
+                res.push(dagTab.getId());
+            }
+            return res;
+        }, []);
         return {
             dagKeys: keys
         }
@@ -376,18 +389,23 @@ class DagTabManager{
         if (index == null) {
             index = this.getNumTabs() - 1;
         }
+
         const $tabs: JQuery = this._getTabsEle();
         const $tab: JQuery = $tabs.eq(index);
         const $dataflowAreas: JQuery = this._getDataflowArea();
         $tabs.removeClass("active");
         $dataflowAreas.removeClass("active");
-
-        $tab.addClass("active");
+        $tab.addClass("active");1
         $tab.scrollintoview({duration: 0});
         $dataflowAreas.eq(index).addClass("active");
 
         // Switch to the corresponding dataflow in the left panel(DagList)
         const dagTab: DagTab = this.getTabByIndex(index);
+        if (this._activeTab && this._activeTab instanceof DagTabOptimized) {
+            this._activeTab.unfocus();
+        }
+
+        this._activeTab = dagTab;
         const tabId: string = dagTab.getId();
         let parentTabId = this._getParentTabId(tabId);
         if (parentTabId != null) {
@@ -402,6 +420,9 @@ class DagTabManager{
 
         DagView.switchActiveDagTab(this.getTabByIndex(index));
         DagTopBar.Instance.reset();
+        if (dagTab instanceof DagTabOptimized) {
+            dagTab.focus();
+        }
     }
 
     private _newTab(): DagTab {
@@ -467,6 +488,7 @@ class DagTabManager{
             }
         }
         this._activeUserDags.splice(index, 1);
+
         this._save();
         $tab.remove();
         this._getDataflowArea(index).remove();
@@ -587,7 +609,7 @@ class DagTabManager{
         const isViewOnly: boolean = (dagTab instanceof DagTabOptimized);
         const isOptimized: boolean = (dagTab instanceof DagTabOptimized);
         let html: HTML =
-            '<li class="dagTab' + (isOptimized? 'optimized': '') + '">' +
+            '<li class="dagTab ' + (isOptimized? 'optimized': '') + '">' +
                 '<div class="name ' + (isEditable? '': 'nonedit') + '">' +
                     tabName +
                 '</div>' +

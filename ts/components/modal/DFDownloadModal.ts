@@ -197,64 +197,60 @@ class DFDownloadModal {
         optimized: boolean
     ): XDPromise<void> {
         const tab: DagTabUser = <DagTabUser>this._dagTab;
-        if (this._selectedNodes == null) {
-            // when download the whole dataflow
-            return tab.download(name, optimized);
-        } else {
-            // when download parital dataflow
-            const clonedTab: DagTabUser = tab.clone();
-            this._removeUnselectedNode(clonedTab.getGraph(), this._selectedNodes);
-            return clonedTab.download(name, optimized);
-        }
+        const clonedTab: DagTabUser = tab.clone();
+        this._cleanupNodes(clonedTab.getGraph(), this._selectedNodes);
+        return clonedTab.download(name, optimized);
     }
 
     private _downloadSharedDataflow(
         name: string,
         optimized: boolean
     ): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const tab: DagTabPublished = <DagTabPublished>this._dagTab;
-        if (this._selectedNodes == null) {
-            // when download the whole dataflow
-            return tab.download(name, optimized);
-        } else {
-            // when download parital dataflow
-            const deferred: XDDeferred<void> = PromiseHelper.deferred();
-            const tempName = xcHelper.randName(".temp" + tab.getShortName());
-            const clonedTab: DagTabPublished = new DagTabPublished(tempName);
-            let hasClone: boolean = false;
-            const selectedNode: DagNodeId[] = this._selectedNodes;
+        const tempName = xcHelper.randName(".temp" + tab.getShortName());
+        const clonedTab: DagTabPublished = new DagTabPublished(tempName);
+        let hasClone: boolean = false;
 
-            tab.clone(tempName)
-            .then(() => {
-                hasClone = true;
-                return clonedTab.load();
-            })
-            .then(() => {
-                this._removeUnselectedNode(clonedTab.getGraph(), selectedNode);
-                return clonedTab.save();
-            })
-            .then(() => {
-                return clonedTab.download(name, optimized);
-            })
-            .then(deferred.resolve)
-            .fail(deferred.reject)
-            .always(() => {
-                if (hasClone) {
-                    clonedTab.delete();
-                }
-            });
+        tab.clone(tempName)
+        .then(() => {
+            hasClone = true;
+            return clonedTab.load();
+        })
+        .then(() => {
+            this._cleanupNodes(clonedTab.getGraph(), this._selectedNodes);
+            return clonedTab.save();
+        })
+        .then(() => {
+            return clonedTab.download(name, optimized);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject)
+        .always(() => {
+            if (hasClone) {
+                clonedTab.delete();
+            }
+        });
 
-            return deferred.promise();
-        }
+        return deferred.promise();
+
     }
 
-    private _removeUnselectedNode(graph: DagGraph, selectedNodes: DagNodeId[]): void {
-        const res = graph.backTraverseNodes(selectedNodes);
-        const nodeToInclude: Map<DagNodeId, DagNode> = res.map;
+    private _cleanupNodes(graph: DagGraph, selectedNodes: DagNodeId[]): void {
+        let partialSelection = (selectedNodes != null);
+        let nodeToInclude: Map<DagNodeId, DagNode>;
+        if (partialSelection) {
+            nodeToInclude = graph.backTraverseNodes(selectedNodes).map;
+        }
 
-        graph.getAllNodes().forEach((_node, nodeId) => {
-            if (!nodeToInclude.has(nodeId)) {
+        graph.getAllNodes().forEach((node, nodeId) => {
+            if (partialSelection && !nodeToInclude.has(nodeId)) {
                 graph.removeNode(nodeId);
+            }
+
+            if (node instanceof DagNodeOutOptimizable &&
+                node.getState() === DagNodeState.Complete) {
+                node.beConfiguredState();
             }
         });
     }

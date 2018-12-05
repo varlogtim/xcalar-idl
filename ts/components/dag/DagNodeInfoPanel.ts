@@ -125,9 +125,9 @@ class DagNodeInfoPanel {
         const dagNodeType: DagNodeType = this._activeNode.getType();
         const uneditable = (dagNodeType === DagNodeType.CustomInput ||
             dagNodeType === DagNodeType.CustomOutput ||
-            dagNodeType === DagNodeType.SQLSubInput ||
-            dagNodeType === DagNodeType.SQLSubOutput ||
-            DagView.getActiveArea().hasClass("viewOnly"));
+            DagView.getActiveArea().hasClass("viewOnly") ||
+            !(DagView.getActiveTab() instanceof DagTabUser ||
+            DagView.getActiveTab() instanceof DagTabCustom));
         if (uneditable || DagView.isNodeLocked(this._activeNode.getId())) {
             xcHelper.disableElement(this._$panel.find(".editConfig"), "");
         } else {

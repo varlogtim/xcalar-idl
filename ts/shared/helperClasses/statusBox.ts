@@ -167,9 +167,10 @@ namespace StatusBox {
             const $statusBox: JQuery = this.$statusBox;
             const bound: ClientRect = $target[0].getBoundingClientRect();
             const winWidth: number = <number>$(window).width();
+            const winHeight: number = <number>$(window).height();
             const arrowWidth: number = 12;
             const statusBoxWidth: number = <number>$statusBox.width() + arrowWidth;
-            const statusBoxHeight: number = $statusBox.height();
+            const statusBoxHeight: number = $statusBox.outerHeight();
             let top: number = bound.top - 30;
             let right: number = winWidth - bound.right - statusBoxWidth;
             let left: number = bound.left - statusBoxWidth;
@@ -198,7 +199,7 @@ namespace StatusBox {
                 left = (bound.left + (<number>$target.outerWidth() / 2) -
                         (statusBoxWidth / 2)) + offsetX;
                 left = Math.min(left, winWidth - statusBoxWidth);
-                top = bound.top - <number>$statusBox.height() - 15 + offsetY;
+                top = bound.top - statusBoxHeight - 15 + offsetY;
             } else if (this.side === "bottom") {
                 left = (bound.left + (<number>$target.outerWidth() / 2) -
                         (statusBoxWidth / 2)) + offsetX;
@@ -211,6 +212,7 @@ namespace StatusBox {
             right = Math.max(right, 5);
             // prevent too far top
             top = Math.max(top, 0);
+            top = Math.min(top, winHeight - statusBoxHeight);
 
             if (this.side === "right") {
                 $statusBox.css({top: top, right: right, left: "auto"});

@@ -1434,7 +1434,7 @@ module.exports = {
         "executeAllOptimized": "Execute All Optimized",
         "cancelExecute": "Cancel Execution",
         "zoomIn": "Zoom In",
-        "zoomOut": "Zoom Out",      
+        "zoomOut": "Zoom Out",
         "reset": "Reset",
         "resetAll": "Reset All",
         "generateResult": "Generate Result",
@@ -1457,6 +1457,7 @@ module.exports = {
         "unlockTable": "Unlock Result",
         "inspectSQL": "Inspect",
         "expandSQL": "Expand",
-        "download": "Download selected nodes"
+        "download": "Download selected nodes",
+        "viewOptimizedDataflow": "View Optimized Dataflow"
     }
 };

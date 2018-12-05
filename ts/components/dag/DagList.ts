@@ -30,6 +30,9 @@ class DagList {
             return this._restorePublishedDags();
         })
         .then(() => {
+            return this._fetchAllRetinas();
+        })
+        .then(() => {
             this._renderDagList();
             this._updateSection();
             this._initialized = true;
@@ -62,6 +65,12 @@ class DagList {
                     path: path,
                     id: dagTab.getId()
                 });
+            } else if (dagTab instanceof DagTabOptimized) {
+                path = "/" + dagTab.getPath();
+                userList.push({
+                    path: path,
+                    id: dagTab.getId()
+                });
             } else {
                 path = "/" + dagTab.getName();
                 userList.push({
@@ -90,15 +99,19 @@ class DagList {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const promise: XDPromise<void> = deferred.promise();
         const $section: JQuery = this._getDagListSection();
-        // delete published dag list first
+        // delete shared dag and optimized list first
         for (let [id, dagTab] of this._dags) {
-            if (dagTab instanceof DagTabPublished) {
+            if (dagTab instanceof DagTabPublished ||
+                dagTab instanceof DagTabOptimized) {
                 this._dags.delete(id);
             }
         }
 
         xcHelper.showRefreshIcon($section, false, promise);
         this._restorePublishedDags()
+        .then(() => {
+            return this._fetchAllRetinas();
+        })
         .then(deferred.resolve)
         .fail(deferred.reject)
         .always(() => {
@@ -268,7 +281,8 @@ class DagList {
             return html;
         };
         this._fileLister = new FileLister(this._getDagListSection(), {
-            renderTemplate: renderTemplate
+            renderTemplate: renderTemplate,
+            folderSingleClick: true
         });
     }
 
@@ -339,6 +353,32 @@ class DagList {
 
         return deferred.promise();
     }
+
+    private _fetchAllRetinas(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        XcalarListRetinas()
+        .then((retinas) => {
+            retinas.retinaDescs.forEach((retina) => {
+                 // hide user dataflows - If we want to expose all optimized
+                 // dataflows then set this if to true!
+                if (!retina.retinaName.startsWith(gRetinaPrefix)) {
+                    const retinaId = DagTab.generateId();
+                    const retinaTab = new DagTabOptimized({
+                                            id: retinaId,
+                                            name: retina.retinaName});
+                    this._dags.set(retinaId, retinaTab);
+                }
+            });
+            deferred.resolve();
+        })
+        .fail((error) => {
+            console.error(error);
+            deferred.resolve(); // still resolve it
+        });
+
+        return deferred.promise();
+    }
+
 
     private _saveUserDagList(): void {
         const dags: {name: string, id: string}[] = [];
@@ -414,7 +454,10 @@ class DagList {
                     xcHelper.disableElement($dagListItem);
                     this.deleteDataflow($dagListItem)
                     .fail((error) => {
-                        const log = error && typeof error === "object" ? error.log : null;
+                        let log = error && typeof error === "object" ? error.log : null;
+                        if (!log && error && error.error) {
+                            log = error.error;
+                        }
                         StatusBox.show(DFTStr.DelDFErr, $dagListItem, false, {
                             detail: log
                         });

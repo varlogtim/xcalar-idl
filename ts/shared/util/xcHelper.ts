@@ -3440,10 +3440,10 @@ namespace xcHelper {
     ): string {
         colName = xcHelper.escapeNonPrintableChar(colName, "");
         const rules = {
-            '00': /[\^,{}'"()\[\]\.\\]/g, // NOT stripSpace, NOT stripDoubleColon
-            '10': /[\^,{}'"()\[\]\.\\ ]/g, // stripSpace, NOT stripDoubleColon
-            '01': /[\^,{}'"()\[\]\.\\]|::/g, // NOT stripSpace, stripDoubleColon
-            '11': /[\^,{}'"()\[\]\.\\ ]|::/g, // stripSpace, stripDoubleColon
+            '00': /[\^,{}'"()\[\]\.\\\/]/g, // NOT stripSpace, NOT stripDoubleColon
+            '10': /[\^,{}'"()\[\]\.\\\/ ]/g, // stripSpace, NOT stripDoubleColon
+            '01': /[\^,{}'"()\[\]\.\\\/]|::/g, // NOT stripSpace, stripDoubleColon
+            '11': /[\^,{}'"()\[\]\.\\\/ ]|::/g, // stripSpace, stripDoubleColon
         }
         const ruleKey = `${stripSpace? '1': '0'}${stripDoubleColon? '1': '0'}`;
         const pattern = rules[ruleKey];
@@ -6240,12 +6240,13 @@ namespace xcHelper {
         try {
             // handling json parse/syntax error
             var searchText= "at position ";
-            var errorPosition = e.message.indexOf(searchText);
+            var message = e.message || e.error;
+            var errorPosition = message.indexOf(searchText);
             var position = "";
             if (errorPosition > -1) {
-                for (let i = errorPosition + searchText.length + 1; i < e.message.length; i++) {
-                    if (e.message[i] >= 0 && e.message[i] <= 9) {
-                        position += e.message[i];
+                for (let i = errorPosition + searchText.length + 1; i < message.length; i++) {
+                    if (message[i] >= 0 && message[i] <= 9) {
+                        position += message[i];
                     } else {
                         break;
                     }
@@ -6255,8 +6256,9 @@ namespace xcHelper {
                 // XXX split into lines by searching for \n not in quotes or escaped
                 // so that we can show the error in the correct line number
             }
+            const name = e.name || "Error";
             return {
-                error: xcHelper.camelCaseToRegular(e.name) + ": " + e.message
+                error: xcHelper.camelCaseToRegular(name) + ": " + message
             };
         } catch (error) {
             console.error(error);

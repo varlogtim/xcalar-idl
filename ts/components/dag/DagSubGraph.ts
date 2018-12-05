@@ -5,10 +5,11 @@ class DagSubGraph extends DagGraph {
     private elapsedTime: number;
     private state: DgDagStateT;
 
-    public constructor(nameIdMap?) {
+    public constructor(nameIdMap?, executor?: DagGraphExecutor) {
         super();
         this.startTime = Date.now();
         this._nameIdMap = nameIdMap;
+        this.currentExecutor = executor;
     }
     /**
      * Get the JSON representing the graph(without all the ids), for copying a graph

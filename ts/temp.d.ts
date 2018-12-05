@@ -438,6 +438,7 @@ declare var gColPrefix: string;
 declare var gPrefixSign: string;
 declare var gRetSign: string;
 declare var gDSPrefix: string;
+declare var gRetinaPrefix: string;
 declare var gHiddenColumnWidth: number | string;
 declare var gTurnOnPrefix: boolean;
 declare var gUploadChunkSize: number;
@@ -667,7 +668,8 @@ declare enum StatusT {
     StatusInvalidResultSetId,
     StatusNoBufs,
     StatusUdfModuleNotFound,
-    StatusDatasetNameAlreadyExists
+    StatusDatasetNameAlreadyExists,
+    StatusRetinaInUse
 }
 
 declare enum FunctionCategoryT {
