@@ -199,8 +199,11 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
 
     private _submitForm(model: JoinOpPanelModel) {
         if (this._dagNode != null) {
+            let param: DagNodeJoinInputStruct = model.toDag();
+            const aggs: string[] = DagNode.getAggsFromEvalStrs([param]);
+            this._dagNode.setAggregates(aggs);
             this._dagNode.setParam(
-                xcHelper.deepCopy(model.toDag())
+                xcHelper.deepCopy(param)
             );
             this.close(true);
         }

@@ -42,8 +42,7 @@ class GeneralOpPanelModel {
     public getModel(): any {
         return {
             groups: this.groups,
-            andOrOperator: this.andOrOperator,
-            aggregates: this.getAggregates()
+            andOrOperator: this.andOrOperator
         }
     }
 
@@ -74,24 +73,6 @@ class GeneralOpPanelModel {
             }
         }
         return -1;
-    }
-
-    public getAggregates(): string[] {
-        const groups = this.groups;
-        let aggregates: string[] = [];
-        for (let i = 0; i < groups.length; i++) {
-            const group = groups[i];
-            let arg: OpPanelArg;
-            for (let j = 0; j < group.args.length; j++) {
-                arg = group.args[j];
-                if (arg.getType() == "aggregate") {
-                    if (!aggregates.includes(arg.getFormattedValue())) {
-                        aggregates.push(arg.getFormattedValue());
-                    }
-                }
-            }
-        }
-        return aggregates;
     }
 
     public addGroup(): void {

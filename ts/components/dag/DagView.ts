@@ -1918,6 +1918,7 @@ namespace DagView {
             const connections: NodeConnection[] = [];
             const dagInfoList = createNodeInfos(dagIds, subGraph);
             const oldNodeIdMap = {};
+            const newAggregates: AggregateInfo[] = [];
             dagInfoList.forEach((dagNodeInfo: DagNodeInfo) => {
                 const parents: DagNodeId[] = dagNodeInfo.parents;
                 const oldNodeId = dagNodeInfo["nodeId"];
@@ -1957,9 +1958,27 @@ namespace DagView {
                 // Add sub nodes to graph
                 expandNodeIds.push(nodeId);
                 graphExpandTo.addNode(node);
+                if (node.getType() == DagNodeType.Aggregate) {
+                    // Add any aggregates we created
+                    let aggParam = node.getParam();
+                    if (aggParam.dest != "" && !DagAggManager.Instance.hasAggregate(aggParam.dest)) {
+                        let agg: string = aggParam.dest;
+                        newAggregates.push({
+                            value: null,
+                            dagName: agg,
+                            aggName: agg,
+                            tableId: null,
+                            backColName: null,
+                            op: null,
+                            node: node.getId(),
+                            graph: graphExpandTo.getTabId()
+                        });
+                    }
+                }
                 const addLogParam = _addNodeNoPersist(node, {isNoLog: true});
                 expandLogParam.options.actions.push(addLogParam.options);
             });
+            DagAggManager.Instance.bulkAdd(newAggregates);
             // remove the container node from graph
             const removeLogParam = _removeNodesNoPersist(
                 [dagNode.getId()],
@@ -3258,13 +3277,9 @@ namespace DagView {
         if (description) {
             addDescriptionIcon($node, description);
         }
-        if (type == DagNodeType.Map || type == DagNodeType.Filter) {
-            // Create a fake node for the purpose of getting aggregates
-            let fakeNode: DagNodeMap = <DagNodeMap>node;
-            let aggs: string[] = fakeNode.getAggregates();
-            if (aggs.length) {
-                addAggregates($node, aggs);
-            }
+        let aggs: string[] = node.getAggregates();
+        if (aggs.length) {
+            addAggregates($node, aggs);
         }
 
         if (DagTblManager.Instance.hasLock(node.getTable())) {

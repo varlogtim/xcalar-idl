@@ -212,4 +212,10 @@ class AggOpPanelModel extends GeneralOpPanelModel {
             return null;
         }
     }
+
+    public submit() {
+        const aggs: string[] = DagNode.getAggsFromEvalStrs([this._getParam()]);
+        this.dagNode.setAggregates(aggs);
+        super.submit();
+    }
 }

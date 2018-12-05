@@ -750,6 +750,7 @@ AggTStr = {
     'AggName': '\r\n The resultant aggregate name is <aggName>.',
     'AggMsg': '{"Value":<val>}',
     'AggGraphError': "Aggregate '<aggName>' must be created in the graph '<graphName>'.",
+    'AggNotExistError': "The Aggregate '<aggName>' does not exist.",
     'AggNodeNotExistError': "The Aggregate '<aggName>' is created by a node that does not exist.",
     'AggNodeMustExecuteError': "The Aggregate node for '<aggName>' must be manually " +
         "executed before the aggregate can be used.",

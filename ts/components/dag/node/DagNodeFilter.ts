@@ -1,42 +1,13 @@
 class DagNodeFilter extends DagNode {
     protected input: DagNodeFilterInput;
-    private _aggregates: string[];
 
-    public constructor(options: DagNodeFilterInfo) {
+    public constructor(options: DagNodeInfo) {
         super(options);
         this.type = DagNodeType.Filter;
         this.allowAggNode = true;
         this.minParents = 1;
-        this._aggregates = options.aggregates || [];
         this.display.icon = "&#xe938;";
-        const namedAggs = DagAggManager.Instance.getNamedAggs();
-        const self = this;
-        let errorAggs = [];
-        this._aggregates.forEach((aggregateName: string) => {
-            if (!namedAggs[aggregateName]) {
-                errorAggs.push(aggregateName);
-            }
-        });
-        if (errorAggs.length) {
-            self.beErrorState(StatusMessageTStr.AggregateNotExist + errorAggs);
-        }
         this.input = new DagNodeFilterInput(options.input);
-    }
-
-        /**
-     * @returns {string[]} used aggregates
-     */
-    public getAggregates(): string[] {
-        return this._aggregates;
-    }
-
-    /**
-     * Sets the aggregates for this node
-     * @param aggregates
-     */
-    public setAggregates(aggregates: string[]): void {
-        this._aggregates = aggregates;
-        super.setAggregates(aggregates);
     }
 
     /**
@@ -67,15 +38,6 @@ class DagNodeFilter extends DagNode {
             console.error(err);
         }
         super.setParam(null, true);
-    }
-
-    /**
-     * @override
-     */
-    protected _getSerializeInfo(includeStats?: boolean): DagNodeFilterInfo {
-        let info = super._getSerializeInfo(includeStats);
-        info['aggregates'] = this._aggregates;
-        return info;
     }
 
     /**

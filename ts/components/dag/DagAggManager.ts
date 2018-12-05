@@ -115,6 +115,14 @@ class DagAggManager {
         return this._saveAggMap();
     }
 
+    public bulkAdd(aggs: AggregateInfo[]) {
+        for(let i = 0; i < aggs.length; i++) {
+            let agg: AggregateInfo = aggs[i];
+            this.aggregates[agg.dagName] = agg;
+        }
+        return this._saveAggMap();
+    }
+
     /**
      * Removes the aggregate. If it has a value, the corresponding table is deleted.
      * @param aggName

@@ -1,42 +1,13 @@
 class DagNodeMap extends DagNode {
     protected input: DagNodeMapInput;
-    private _aggregates: string[];
 
-    public constructor(options: DagNodeMapInfo) {
+    public constructor(options: DagNodeInfo) {
         super(options);
         this.type = DagNodeType.Map;
         this.allowAggNode = true;
         this.minParents = 1;
-        this._aggregates = options.aggregates || [];
         this.display.icon = "&#xe9da;";
-        const namedAggs = DagAggManager.Instance.getNamedAggs();
         this.input = new DagNodeMapInput(options.input);
-        const self = this;
-        let errorAggs = [];
-        this._aggregates.forEach((aggregateName: string) => {
-            if (!namedAggs[aggregateName]) {
-                errorAggs.push(aggregateName);
-            }
-        });
-        if (errorAggs.length) {
-            self.beErrorState(StatusMessageTStr.AggregateNotExist + errorAggs);
-        }
-    }
-
-    /**
-     * @returns {string[]} used aggregates
-     */
-    public getAggregates(): string[] {
-        return this._aggregates;
-    }
-
-    /**
-     * Sets the aggregates for this node
-     * @param aggregates
-     */
-    public setAggregates(aggregates: string[]): void {
-        this._aggregates = aggregates;
-        super.setAggregates(aggregates);
     }
 
     /**
@@ -150,15 +121,6 @@ class DagNodeMap extends DagNode {
             }
             return result;
         });
-    }
-
-    /**
-     * @override
-     */
-    protected _getSerializeInfo(includeStats?: boolean): DagNodeMapInfo {
-        let info = super._getSerializeInfo(includeStats);
-        info['aggregates'] = this._aggregates;
-        return info;
     }
 
     /**

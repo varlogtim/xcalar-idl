@@ -125,6 +125,8 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
      */
     public submit(): void {
         const param: DagNodeGroupByInputStruct = this._getParam();
+        let aggs: string[] = this._findAggregates(param);
+        this.dagNode.setAggregates(aggs);
         this.dagNode.setParam(param);
     }
 
@@ -334,5 +336,20 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
             nameMap[name] = true;
         }
         return  null;
+    }
+
+    private _findAggregates(param: DagNodeGroupByInputStruct): string[] {
+        const aggArgs: AggColInfo[] = param.aggregate.map((aggInfo) => {
+            return {
+                operator: aggInfo.operator,
+                aggColName: aggInfo.sourceColumn,
+                newColName: aggInfo.destColumn,
+                isDistinct: aggInfo.distinct
+            }
+        });
+        let evalStrs: {}[] = aggArgs.map((aggArg: AggColInfo) => {
+            return { evalString: DagNode.getGroupByAggEvalStr(aggArg)};
+        });
+        return DagNode.getAggsFromEvalStrs(evalStrs);
     }
 }

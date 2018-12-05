@@ -14,6 +14,7 @@ abstract class DagNode {
     private configured: boolean;
     private numParent: number; // non-persisent
 
+
     protected events: {_events: object, trigger: Function}; // non-persistent;
     protected type: DagNodeType;
     protected subType: DagNodeSubType;
@@ -22,6 +23,7 @@ abstract class DagNode {
     protected minParents: number; // non-persistent
     protected maxParents: number; // non-persistent
     protected maxChildren: number; // non-persistent
+    protected aggregates: string[];
     protected allowAggNode: boolean; // non-persistent
     protected display: DagNodeDisplayInfo; // coordinates are persistent
     protected runStats: {
@@ -57,6 +59,7 @@ abstract class DagNode {
         this.display = {coordinates: coordinates, icon: "", description: ""};
         this.input = new DagNodeInput({});
         this.error = options.error;
+        this.aggregates = options.aggregates || [];
 
         this.numParent = 0;
         this.maxParents = 1;
@@ -82,6 +85,19 @@ abstract class DagNode {
                 this.state !== DagNodeState.Error) {
             this.configured = true;
         }
+        if (this.aggregates.length > 0) {
+            const namedAggs = DagAggManager.Instance.getAggMap();
+            const self = this;
+            let errorAggs = [];
+            this.aggregates.forEach((aggregateName: string) => {
+                if (!namedAggs[aggregateName]) {
+                    errorAggs.push(aggregateName);
+                }
+            });
+            if (errorAggs.length) {
+                self.beErrorState(StatusMessageTStr.AggregateNotExist + errorAggs);
+            }
+        }
     }
 
     /**
@@ -89,7 +105,9 @@ abstract class DagNode {
      * @param columns {ProgCol[]} parent columns
      */
     abstract lineageChange(columns: ProgCol[], replaceParameters?: boolean): DagLineageChange;
+
     protected abstract _getColumnsUsedInInput(): Set<string>;
+
     /**
      * add events to the dag node
      * @param event {string} event name
@@ -552,14 +570,33 @@ abstract class DagNode {
     }
 
     /**
+     * @returns {string[]} used aggregates
+     */
+    public getAggregates(): string[] {
+        return this.aggregates;
+    }
+
+    /**
      * Triggers an event to update this node's aggregates.
      * Primarily used by Map and Filter Nodes
      * @param aggregates: string[]
      */
     public setAggregates(aggregates: string[]): void {
+        let aggSet: Set<string> = new Set();
+        let finalAggs: string[] = [];
+        for(let i = 0; i < aggregates.length; i++) {
+            let agg: string = aggregates[i];
+            if (aggSet.has(agg)) {
+                continue;
+            } else {
+                finalAggs.push(agg);
+                aggSet.add(agg);
+            }
+        }
+        this.aggregates = finalAggs;
         this.events.trigger(DagNodeEvents.AggregateChange, {
             id: this.getId(),
-            aggregates: aggregates
+            aggregates: finalAggs
         });
     }
 
@@ -1089,7 +1126,8 @@ abstract class DagNode {
             id: this.id,
             state: this.state,
             error: this.error,
-            configured: this.configured
+            configured: this.configured,
+            aggregates: this.aggregates
         };
         if (includeStats) {
             if (this.runStats.hasRun) {
@@ -1247,6 +1285,20 @@ abstract class DagNode {
         this.setParam(null, true);
     }
 
+    // helper function
+    protected _getColumnFromEvalArg(arg: object, set: Set<string>) {
+        if (arg["args"] != null) {
+            arg["args"].forEach((subArg) => {
+                if (subArg.type === "fn") {
+                    // recusrive check the arg
+                    this._getColumnFromEvalArg(subArg, set);
+                } else if (subArg.type === "columnArg") {
+                    set.add(subArg.value)
+                }
+            });
+        }
+    }
+
     protected _replaceColumnInEvalStr(evalStr: string, columnMap): string {
         const parsedEval: ParsedEval = XDParser.XEvalParser.parseEvalStr(evalStr);
         if (parsedEval.error) {
@@ -1268,17 +1320,54 @@ abstract class DagNode {
         }
     }
 
-    // helper function
-    protected _getColumnFromEvalArg(arg: object, set: Set<string>) {
-        if (arg["args"] != null) {
-            arg["args"].forEach((subArg) => {
-                if (subArg.type === "fn") {
-                    // recusrive check the arg
-                    this._getColumnFromEvalArg(subArg, set);
-                } else if (subArg.type === "columnArg") {
-                    set.add(subArg.value)
-                }
-            });
+    static _convertOp(op: string): string {
+        if (op && op.length) {
+            op = op.slice(0, 1).toLowerCase() + op.slice(1);
         }
+        return op;
+    }
+
+    /**
+     * Creates evalString for groupby aggregate
+     * @param aggArg the groupy aggregate argument we want to make the string of.
+     */
+    static getGroupByAggEvalStr(aggArg: AggColInfo): string {
+        let evalStr = null;
+        const op: string = this._convertOp(aggArg.operator);
+        const colName = aggArg.aggColName;
+        // XXX currently don't support Multi-operation in multi-evalgroupBy
+        if (op === "stdevp") {
+            evalStr = `sqrt(div(sum(pow(sub(${colName}, avg(${colName})), 2)), count(${colName})))`;
+        } else if (op === "stdev") {
+            evalStr = `sqrt(div(sum(pow(sub(${colName}, avg(${colName})), 2)), sub(count(${colName}), 1)))`;
+        } else if (op === "varp") {
+            evalStr = `div(sum(pow(sub(${colName}, avg(${colName})), 2)), count(${colName}))`;
+        } else if (op === "var") {
+            evalStr = `div(sum(pow(sub(${colName}, avg(${colName})), 2)), sub(count(${colName}), 1))`;
+        } else {
+            evalStr = `${op}(${colName})`;
+        }
+        return evalStr;
+    }
+
+    static getAggsFromEvalStrs(evalStrs) {
+        const aggs = [];
+        for (let i = 0; i < evalStrs.length; i++) {
+            const parsedEval = XDParser.XEvalParser.parseEvalStr(evalStrs[i].evalString);
+            if (!parsedEval.args) {
+                parsedEval.args = [];
+            }
+            getAggs(parsedEval);
+        }
+        function getAggs(parsedEval) {
+            for (let i = 0; i < parsedEval.args.length; i++) {
+                if (parsedEval.args[i].type === "aggValue") {
+                    aggs.push(parsedEval.args[i].value);
+                } else if (parsedEval.args[i].type === "fn") {
+                    getAggs(parsedEval.args[i]);
+                }
+            }
+        }
+        return aggs;
     }
 }

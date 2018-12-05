@@ -855,12 +855,17 @@ class DagGraph {
     public findNodeNeededSources(node: DagNode): {sources: DagNode[], error: string} {
         let error: string;
         let sources: DagNode[] = [];
-        if (node.getType() == DagNodeType.Map || node.getType() == DagNodeType.Filter) {
-            const genNode: DagNodeMap = <DagNodeMap>node;
-            const aggregates: string[] = genNode.getAggregates();
+        const aggregates: string[] = node.getAggregates();
+        if (aggregates.length > 0) {
             for (let i = 0; i < aggregates.length; i++) {
                 let agg: string = aggregates[i];
                 let aggInfo: AggregateInfo = DagAggManager.Instance.getAgg(agg);
+                if (aggInfo == null) {
+                    error = xcHelper.replaceMsg(AggTStr.AggNotExistError, {
+                        "aggName": agg
+                    });
+                    break;
+                }
                 if (aggInfo.value == null) {
                     if (aggInfo.graph != this.getTabId()) {
                         error = xcHelper.replaceMsg(AggTStr.AggGraphError, {
@@ -1211,28 +1216,22 @@ class DagGraph {
                             nodePushedBack = true;
                         }
                         break;
-                    case (DagNodeType.Map):
-                    case (DagNodeType.Filter):
-                        // generalized use dagnodemap
-                        let myNode: DagNodeMap = <DagNodeMap>node;
-                        let aggNames: string[] = myNode.getAggregates();
-                        if (aggNames.length == 0) {
-                            break;
-                        }
-                        for (let i = 0; i < aggNames.length; i++) {
-                            let name: string = aggNames[i];
-                            // Check if we either know the aggregate already exists
-                            // and it is created here
-                            if (!aggExists.has(name) && flowAggNames.has(name)) {
-                                needAggNodes.set(name, needAggNodes.get(name) || [])
-                                needAggNodes.get(name).push(node);
-                                nodePushedBack = true;
-                                break;
-                            }
-                        }
-                        break;
                     default:
                         break;
+                }
+                const aggNames: string[] = node.getAggregates();
+                if (aggNames.length > 0) {
+                    for (let i = 0; i < aggNames.length; i++) {
+                        let name: string = aggNames[i];
+                        // Check if we either know the aggregate already exists
+                        // and it is created here
+                        if (!aggExists.has(name) && flowAggNames.has(name)) {
+                            needAggNodes.set(name, needAggNodes.get(name) || [])
+                            needAggNodes.get(name).push(node);
+                            nodePushedBack = true;
+                            break;
+                        }
+                    }
                 }
                 if (nodePushedBack) {
                     continue;
@@ -1555,20 +1554,27 @@ class DagGraph {
             let isIgnoredApi = false;
             switch (node.api) {
                 case (XcalarApisT.XcalarApiIndex):
-                case (XcalarApisT.XcalarApiAggregate):
                 case (XcalarApisT.XcalarApiProject):
-                case (XcalarApisT.XcalarApiGroupBy):
                 case (XcalarApisT.XcalarApiGetRowNum):
                 case (XcalarApisT.XcalarApiExport):
                 case (XcalarApisT.XcalarApiSynthesize):
                     node.parents = [args.source];
                     break;
+                case (XcalarApisT.XcalarApiAggregate):
+                    node.args.dest = "^" + args.dest;
+                    node.parents = [args.source];
+                    node.aggregates = getAggsFromEvalStrs(args.eval);
+                    break;
                 case (XcalarApisT.XcalarApiFilter):
                 case (XcalarApisT.XcalarApiMap):
+                case (XcalarApisT.XcalarApiGroupBy):
                     node.parents = [args.source];
                     node.aggregates = getAggsFromEvalStrs(args.eval);
                     break;
                 case (XcalarApisT.XcalarApiJoin):
+                    node.parents = xcHelper.deepCopy(args.source);
+                    node.aggregates = getAggsFromEvalStrs([args]);
+                    break;
                 case (XcalarApisT.XcalarApiUnion):
                     node.parents = xcHelper.deepCopy(args.source);
                     break;
@@ -1676,7 +1682,7 @@ class DagGraph {
                         type: DagNodeType.Aggregate,
                         input: {
                             evalString: node.args.eval[0].evalString,
-                            dest: node.name
+                            dest: node.args.dest
                         }
                     };
                     break;
@@ -1732,7 +1738,6 @@ class DagGraph {
                         input: {
                             evalString: node.args.eval[0].evalString
                         },
-                        aggregates: node.aggregates
                     };
                     break;
                 case (XcalarApisT.XcalarApiMap):
@@ -1742,7 +1747,6 @@ class DagGraph {
                             eval: node.args.eval,
                             icv: node.args.icv
                         },
-                        aggregates: node.aggregates
                     };
                     break;
                 case (XcalarApisT.XcalarApiJoin):
@@ -1855,6 +1859,7 @@ class DagGraph {
             dagNodeInfo.table = node.name;
             dagNodeInfo.id = DagNode.generateId();
             dagNodeInfo.parents = [];
+            dagNodeInfo.aggregates = node.aggregates;
             dagNodeInfo.description = JSON.stringify(node.args, null, 4);
             dagNodeInfo.subGraphNodes = node.subGraphNodes;
             // create dagIdParentIdxMap so that we can add input nodes later

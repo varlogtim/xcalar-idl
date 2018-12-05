@@ -223,7 +223,8 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
     }
 
     public submit() {
-        const aggs: string[] = this.getAggregates();
+        let param: DagNodeFilterInputStruct= this._getParam();
+        let aggs: string[] = DagNode.getAggsFromEvalStrs([param]);
         this.dagNode.setAggregates(aggs);
         super.submit();
     }

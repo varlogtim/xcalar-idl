@@ -212,8 +212,18 @@ class DagNodeGroupBy extends DagNode {
         input.groupBy.forEach((colName) => {
             set.add(colName);
         });
-        input.aggregate.forEach((aggInfo) => {
-            set.add(aggInfo.sourceColumn);
+        const aggArgs: AggColInfo[] = input.aggregate.map((aggInfo) => {
+            return {
+                operator: aggInfo.operator,
+                aggColName: aggInfo.sourceColumn,
+                newColName: aggInfo.destColumn,
+                isDistinct: aggInfo.distinct
+            }
+        });
+        aggArgs.forEach((aggInfo) => {
+            const evalString: string = DagNode.getGroupByAggEvalStr(aggInfo);
+            const arg = XDParser.XEvalParser.parseEvalStr(evalString);
+            this._getColumnFromEvalArg(arg, set);
         });
         return set;
     }

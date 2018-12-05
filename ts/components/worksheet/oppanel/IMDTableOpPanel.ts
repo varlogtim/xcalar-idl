@@ -419,7 +419,9 @@ class IMDTableOpPanel extends BaseOpPanel {
         if (!this._checkOpArgs(params)) {
             return;
         }
-
+        //XX: TODO: Uncomment this out when backend truly supports aggregates in filter string
+        //const aggs: string[] = DagNode.getAggsFromEvalStrs([{evalString: params.filterString}]);
+        //this._dagNode.setAggregates(aggs);
         dagNode.setParam(params);
         this.close();
     }

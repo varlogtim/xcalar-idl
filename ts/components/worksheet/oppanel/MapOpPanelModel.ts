@@ -270,7 +270,8 @@ class MapOpPanelModel extends GeneralOpPanelModel {
     }
 
     public submit() {
-        const aggs: string[] = this.getAggregates();
+        let param: DagNodeMapInputStruct = this._getParam();
+        let aggs: string[] = DagNode.getAggsFromEvalStrs(param.eval);
         this.dagNode.setAggregates(aggs);
         super.submit();
     }
