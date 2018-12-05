@@ -82,7 +82,7 @@ class DagNodeExecutor {
             case DagNodeType.GroupBy:
                 return this._groupby();
             case DagNodeType.Join:
-                return this._join();
+                return this._join(optimized);
             case DagNodeType.Map:
                 return this._map();
             case DagNodeType.Split:
@@ -278,7 +278,7 @@ class DagNodeExecutor {
         return XIApi.groupBy(this.txId, aggArgs, params.groupBy, srcTable, options);
     }
 
-    private _join(): XDPromise<string> {
+    private _join(optimized?: boolean): XDPromise<string> {
         const node: DagNodeJoin = <DagNodeJoin>this.node;
         const params: DagNodeJoinInputStruct = node.getParam(this.replaceParam);
         // Sanity check
@@ -301,11 +301,11 @@ class DagNodeExecutor {
         const lTableInfo: JoinTableInfo = this._joinInfoConverter(
             params.left,
             parents[0],
-            { keepAllColumns: params.keepAllColumns });
+            { keepAllColumns: params.keepAllColumns, isOptimizedMode: optimized });
         const rTableInfo: JoinTableInfo = this._joinInfoConverter(
             params.right,
             parents[1],
-            { keepAllColumns: params.keepAllColumns });
+            { keepAllColumns: params.keepAllColumns, isOptimizedMode: optimized });
         const options: JoinOptions = {
             newTableName: this._generateTableName(),
             evalString: params.evalString,
@@ -317,58 +317,36 @@ class DagNodeExecutor {
     private _joinInfoConverter(
         joinTableInfo: DagNodeJoinTableInput,
         parentNode: DagNode,
-        options?: { keepAllColumns?: boolean }
+        options?: { keepAllColumns?: boolean, isOptimizedMode?: boolean }
     ): JoinTableInfo {
         // XXX not implemented yet
         console.error("getting immeidates not implement yet!");
         const allImmediates: string[] = parentNode.getLineage().getDerivedColumns();
-        const { keepAllColumns = true } = options || {};
+        const { keepAllColumns = true, isOptimizedMode = false } = options || {};
         let rename: ColRenameInfo[];
         if (keepAllColumns) {
-            rename = joinTableInfo.rename.map((rename) => {
-                return {
-                    orig: rename.sourceColumn,
-                    new: rename.destColumn,
-                    type: rename.prefix ? DfFieldTypeT.DfFatptr : DfFieldTypeT.DfUnknown
-                }
-            });
+            if (isOptimizedMode) {
+                // In optimized DF execution, backend acts as if the keepAllColumns == false
+                // So we have to fill the rename list with all the columns
+                const colNamesToKeep = parentNode.getLineage()
+                    .getColumns().map((col) => col.getBackColName());
+                rename = this._joinRenameConverter(colNamesToKeep, joinTableInfo.rename);
+
+            } else {
+                // In non-optimized DF execution, backend will honor the keepAllColumns flag
+                // So we just need to specify the columns must to be renamed(due to name conflicting)
+                rename = joinTableInfo.rename.map((rename) => {
+                    return {
+                        orig: rename.sourceColumn,
+                        new: rename.destColumn,
+                        type: rename.prefix ? DfFieldTypeT.DfFatptr : DfFieldTypeT.DfUnknown
+                    }
+                });
+            }
         } else {
             // Columns to keep = selected columns + joinOn columns
             const colNamesToKeep = joinTableInfo.columns.concat(joinTableInfo.keepColumns);
-            // Convert rename list => map, for fast lookup
-            const colRenameMap: Map<string, string> = new Map();
-            const prefixRenameMap: Map<string, string> = new Map();
-            joinTableInfo.rename.forEach((rename) => {
-                if (rename.prefix) {
-                    prefixRenameMap.set(rename.sourceColumn, rename.destColumn);
-                } else {
-                    colRenameMap.set(rename.sourceColumn, rename.destColumn);
-                }
-            });
-            // Apply rename to the columns need to keep
-            const prefixSet: Set<string> = new Set();
-            rename = [];
-            for (const colName of colNamesToKeep) {
-                const parsed = xcHelper.parsePrefixColName(colName);
-                if (parsed.prefix.length > 0) {
-                    // Prefixed column: put the prefix in the rename list
-                    const oldPrefix = parsed.prefix;
-                    if (prefixSet.has(oldPrefix)) {
-                        continue; // This prefix has already been renamed
-                    }
-                    prefixSet.add(oldPrefix);
-                    const newPrefix = prefixRenameMap.get(oldPrefix) || oldPrefix;
-                    rename.push({
-                        orig: oldPrefix, new: newPrefix, type: DfFieldTypeT.DfFatptr
-                    });
-                } else {
-                    // Derived column: put column name in the rename list
-                    const newName = colRenameMap.get(colName) || colName;
-                    rename.push({
-                        orig: colName, new: newName, type: DfFieldTypeT.DfUnknown
-                    });
-                }
-            }
+            rename = this._joinRenameConverter(colNamesToKeep, joinTableInfo.rename);
         }
         return {
             tableName: parentNode.getTable(),
@@ -377,6 +355,49 @@ class DagNodeExecutor {
             rename: rename,
             allImmediates: allImmediates
         }
+    }
+
+    private _joinRenameConverter(
+        colNamesToKeep: string[],
+        renameInput: { sourceColumn: string, destColumn: string, prefix: boolean }[]
+    ): ColRenameInfo[] {
+        // Convert rename list => map, for fast lookup
+        const colRenameMap: Map<string, string> = new Map();
+        const prefixRenameMap: Map<string, string> = new Map();
+        renameInput.forEach(({ prefix, sourceColumn, destColumn }) => {
+            if (prefix) {
+                prefixRenameMap.set(sourceColumn, destColumn);
+            } else {
+                colRenameMap.set(sourceColumn, destColumn);
+            }
+        });
+
+        // Apply rename to the columns need to keep
+        const prefixSet: Set<string> = new Set();
+        const rename = [];
+        for (const colName of colNamesToKeep) {
+            const parsed = xcHelper.parsePrefixColName(colName);
+            if (parsed.prefix.length > 0) {
+                // Prefixed column: put the prefix in the rename list
+                const oldPrefix = parsed.prefix;
+                if (prefixSet.has(oldPrefix)) {
+                    continue; // This prefix has already been renamed
+                }
+                prefixSet.add(oldPrefix);
+                const newPrefix = prefixRenameMap.get(oldPrefix) || oldPrefix;
+                rename.push({
+                    orig: oldPrefix, new: newPrefix, type: DfFieldTypeT.DfFatptr
+                });
+            } else {
+                // Derived column: put column name in the rename list
+                const newName = colRenameMap.get(colName) || colName;
+                rename.push({
+                    orig: colName, new: newName, type: DfFieldTypeT.DfUnknown
+                });
+            }
+        }
+
+        return rename;
     }
 
     private _map(): XDPromise<string> {
