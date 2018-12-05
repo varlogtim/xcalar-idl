@@ -549,7 +549,8 @@ SQLErrTStr = {
     "EmptySQL": "Please input your SQL query in the snippet",
     "NeedConfiguration": "Please configure the SQL node with valid SQL query first",
     "NoPublishedTable": "Cannot find all published tables",
-    "NeedSQLMode": "Not running under sql mode"
+    "NeedSQLMode": "Not running under sql mode",
+    "IdentifierMismatch": "Identifier map should match with identifiers order"
 };
 
 SQLInfoTStr = {

@@ -31,9 +31,6 @@ interface DagNodeCopyInfo extends DagNodeInfo {
 }
 
 interface DagNodeSQLInfo extends DagNodeInfo {
-    sqlQueryString: string,
-    identifiers: {},
-    identifiersOrder: number[],
     tableSrcMap: {}, // {tableName: parentIdx}
     columns: {name: string, backName: string, type: ColumnType}[]
 }
@@ -191,9 +188,9 @@ interface DagNodeSetInputStruct {
 }
 
 interface DagNodeSQLInputStruct {
-    queryStr: string,
-    newTableName: string,
-    jdbcCheckTime?: number
+    sqlQueryStr: string,
+    identifiers: {},
+    identifiersOrder: number[]
 }
 
 interface DagNodeRowNumInputStruct {

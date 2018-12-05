@@ -4,13 +4,19 @@ class DagNodeSQLInput extends DagNodeInput {
     public getInput(replaceParameters?: boolean): DagNodeSQLInputStruct {
         const input = super.getInput(replaceParameters);
         return {
-            queryStr: input.queryStr || "",
-            newTableName: input.newTableName,
-            jdbcCheckTime: input.jdbcCheckTime
+            sqlQueryStr: input.sqlQueryStr || "",
+            identifiers: input.identifiers || {},
+            identifiersOrder: input.identifiersOrder || []
         };
     }
 
-    public setQueryStr(queryStr: string): void {
-        this.input.queryStr = queryStr;
+    public setSqlQueryStr(sqlQueryStr: string): void {
+        this.input.sqlQueryStr = sqlQueryStr;
+    }
+    public setIdentifiers(identifiers: {}): void {
+        this.input.identifiers = identifiers;
+    }
+    public setIdentifiersOrder(identifiersOrder: number[]): void {
+        this.input.identifiersOrder = identifiersOrder;
     }
 }

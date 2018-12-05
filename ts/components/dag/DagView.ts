@@ -1575,18 +1575,36 @@ namespace DagView {
      * Open a tab to show SQL sub graph for viewing purpose
      * @param nodeId
      */
-    export function inspectSQLNode(nodeId: DagNodeId): void {
+    export function inspectSQLNode(nodeId: DagNodeId): XDPromise<void> {
         const dagNode = activeDag.getNode(nodeId);
-        if (dagNode == null) {
-            return;
+        if (dagNode == null || !(dagNode instanceof DagNodeSQL)) {
+            return PromiseHelper.reject();
         }
-        if (dagNode instanceof DagNodeSQL) {
-            if (!dagNode.getSubGraph()) {
+        const self = this;
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let subGraph = dagNode.getSubGraph();
+        let promise = PromiseHelper.resolve();
+        if (!subGraph) {
+            const params: DagNodeSQLInputStruct = dagNode.getParam();
+            if (!params.sqlQueryStr) {
+                return PromiseHelper.reject(SQLErrTStr.NeedConfiguration);
+            }
+            const paramterizedSQL = xcHelper.replaceMsg(params.sqlQueryStr,
+                                  DagParamManager.Instance.getParamMap(), true);
+            const queryId = xcHelper.randName("sql", 8);
+            promise = dagNode.compileSQL(paramterizedSQL, queryId);
+        }
+        promise
+        .then(function() {
+            if (!subGraph) {
                 dagNode.updateSubGraph();
             }
             DagTabManager.Instance.newSQLTab(dagNode);
-            this.autoAlign(activeDag.getTabId());
-        }
+            self.autoAlign(activeDag.getTabId());
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
     /**
@@ -1600,20 +1618,35 @@ namespace DagView {
             return PromiseHelper.reject(`${nodeId} not exist`);
         }
         if (dagNode instanceof DagNodeSQL) {
-            return _expandSubgraphNode({
-                dagNode: dagNode,
-                tabId: tabId,
-                logTitle: SQLTStr.ExpandSQLOperation,
-                getInputParent: (node) => dagNode.getInputParent(node),
-                isInputNode: (node) => (node instanceof DagNodeSQLSubInput),
-                isOutputNode: (node) => (node instanceof DagNodeSQLSubOutput),
-                preExpand: () => {
-                    if (!dagNode.getSubGraph()) {
-                        dagNode.updateSubGraph();
-                    }
-                },
-                isPreAutoAlign: true
-            });
+            let promise = PromiseHelper.resolve();
+            let subGraph = dagNode.getSubGraph();
+            if (!subGraph) {
+                const params: DagNodeSQLInputStruct = dagNode.getParam();
+                if (!params.sqlQueryStr) {
+                    return PromiseHelper.reject(SQLErrTStr.NeedConfiguration);
+                }
+                const paramterizedSQL = xcHelper.replaceMsg(params.sqlQueryStr,
+                                      DagParamManager.Instance.getParamMap(), true);
+                const queryId = xcHelper.randName("sql", 8);
+                promise = dagNode.compileSQL(paramterizedSQL, queryId);
+            }
+            return promise
+            .then(function() {
+                if (!subGraph) {
+                    dagNode.updateSubGraph();
+                }
+                return _expandSubgraphNode({
+                    dagNode: dagNode,
+                    tabId: tabId,
+                    logTitle: SQLTStr.ExpandSQLOperation,
+                    getInputParent: (node) => dagNode.getInputParent(node),
+                    isInputNode: (node) => (node instanceof DagNodeSQLSubInput),
+                    isOutputNode: (node) => (node instanceof DagNodeSQLSubOutput),
+                    preExpand: () => {
+                    },
+                    isPreAutoAlign: true
+                });
+            })
         } else {
             return PromiseHelper.reject(`${nodeId} is not a SQL operator`);
         }
@@ -4066,7 +4099,7 @@ namespace DagView {
         if (node.getType() === DagNodeType.SQL) {
             let subGraph = (<DagNodeSQL>node).getSubGraph();
             const subTabId: string = subGraph.getTabId();
-            subGraph.updateProgress(queryStateOutput.queryGraph.node);
+            subGraph.updateProgress(queryStateOutput.queryGraph.node, true);
 
             if (!subTabId) {
                 return;

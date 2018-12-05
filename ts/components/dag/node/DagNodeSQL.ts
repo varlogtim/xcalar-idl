@@ -1,32 +1,34 @@
 class DagNodeSQL extends DagNode {
     protected input: DagNodeSQLInput;
     protected columns: {name: string, backName: string, type: ColumnType}[];
-    protected sqlQueryString: string;
+    protected xcQueryString: string;
     protected identifiers: Map<number, string>; // 1 to 1 mapping
     protected tableSrcMap: {};
     protected subGraph: DagSubGraph;
     protected SQLName: string;
     protected subInputNodes: DagNodeSQLSubInput[];
     protected subOutputNodes: DagNodeSQLSubOutput[];
-    protected finalTableName: string; // Currently only one ouput as multi-query is disabled
+    protected newTableName: string; // Currently only one ouput as multi-query is disabled
+    protected tableNewDagIdMap: {};
 
     public constructor(options: DagNodeSQLInfo) {
         super(options);
         this.type = DagNodeType.SQL;
-        this.setSqlQueryString(options.sqlQueryString);
-        const identifiers = new Map<number, string>();
-        if (options.identifiersOrder && options.identifiers) {
-            options.identifiersOrder.forEach(function(idx) {
-                identifiers.set(idx, options.identifiers[idx]);
-            });
-        }
-        this.identifiers = identifiers;
         this.tableSrcMap = options.tableSrcMap;
         this.columns = options.columns;
         this.maxParents = -1;
         this.minParents = 1;
         this.display.icon = "&#xe957;";
         this.input = new DagNodeSQLInput(options.input);
+        const identifiers = new Map<number, string>();
+        const identifiersOrder = this.input.getInput().identifiersOrder;
+        const identifiersRaw = this.input.getInput().identifiers;
+        if (identifiersOrder && identifiersRaw ) {
+            identifiersOrder.forEach(function(idx) {
+                identifiers.set(idx, identifiersRaw[idx]);
+            });
+        }
+        this.identifiers = identifiers;
         // Subgraph info won't be serialized
         this.subInputNodes = [];
         this.subOutputNodes = [];
@@ -34,20 +36,35 @@ class DagNodeSQL extends DagNode {
         this.SQLName = xcHelper.randName("SQLTab_");
     }
 
-    public updateSubGraph(): void {
+    public updateSubGraph(newTableMap?: {}): void {
+        // XXX Can't have this optimization right now since things are broken
+        // XXX TO-DO make it work
+        // if (newTableMap) {
+        //     // If it's simply updating the mapping of oldTableName -> newTableName
+        //     // no need to re-build the entire sub graph
+        //     const oldMap = this.tableNewDagIdMap;
+        //     const newMap = {};
+        //     for (const key in oldMap) {
+        //         newMap[newTableMap[key]] = oldMap[key];
+        //     }
+        //     this.subGraph.setTableDagIdMap(newMap);
+        //     this.subGraph.initializeProgress();
+        //     return;
+        // }
         DagTabManager.Instance.removeTabByNode(this);
         this.subGraph = new DagSubGraph();
         this.subInputNodes = [];
         this.subOutputNodes = [];
         const connections: NodeConnection[] = [];
-        const xcQuery = this.getParam().queryStr;
+        const xcQuery = this.getXcQueryString();
         if (!xcQuery) {
             return;
         }
-        const finalTableName = this.getParam().newTableName;
+        const newTableName = this.getNewTableName();
         const retStruct = DagGraph.convertQueryToDataflowGraph(JSON.parse(xcQuery),
                                                                this.tableSrcMap,
-                                                               finalTableName);
+                                                               newTableName);
+        this.tableNewDagIdMap = retStruct.tableNewDagIdMap;
         const dagInfoList = retStruct.dagInfoList;
         const dagIdParentIdxMap = retStruct.dagIdParentIdxMap;
         const outputDagId = retStruct.outputDagId;
@@ -55,6 +72,7 @@ class DagNodeSQL extends DagNode {
             this.subInputNodes.push(null);
         }
         dagInfoList.forEach((dagNodeInfo: DagNodeInfo) => {
+            dagNodeInfo.configured = true;
             const parents: DagNodeId[] = dagNodeInfo.parents;
             const node: DagNode = DagNodeFactory.create(dagNodeInfo);
             this.subGraph.addNode(node);
@@ -97,14 +115,20 @@ class DagNodeSQL extends DagNode {
     public getColumns(): {name: string, backName: string, type: ColumnType}[] {
         return this.columns;
     }
-    public setColumns(columns: {name: string, backName: string, type: ColumnType}[]): void {
-        this.columns = columns;
+    public setColumns(columns: SQLColumn[]): void {
+        this.columns = this._getQueryTableCols(columns);
     }
-    public getSqlQueryString(): string {
-        return this.sqlQueryString;
+    public getXcQueryString(): string {
+        return this.xcQueryString;
     }
-    public setSqlQueryString(sqlQueryString: string): void {
-        this.sqlQueryString = sqlQueryString;
+    public setXcQueryString(xcQueryString: string) {
+        this.xcQueryString = xcQueryString;
+    }
+    public getNewTableName(): string{
+        return this.newTableName;
+    }
+    public setNewTableName(newTableName: string): void {
+        this.newTableName = newTableName;
     }
     public getIdentifiers(): Map<number, string> {
         return this.identifiers;
@@ -126,9 +150,9 @@ class DagNodeSQL extends DagNode {
      */
     public setParam(input: DagNodeSQLInputStruct = <DagNodeSQLInputStruct>{}, noAutoExecute?: boolean) {
         this.input.setInput({
-            queryStr: input.queryStr,
-            newTableName: input.newTableName,
-            jdbcCheckTime: input.jdbcCheckTime
+            sqlQueryStr: input.sqlQueryStr,
+            identifiers: input.identifiers,
+            identifiersOrder: input.identifiersOrder
         });
         super.setParam(null, noAutoExecute);
     }
@@ -162,13 +186,6 @@ class DagNodeSQL extends DagNode {
 
     protected _getSerializeInfo(includeStats?: boolean): DagNodeSQLInfo {
         const nodeInfo = super._getSerializeInfo(includeStats) as DagNodeSQLInfo;
-        nodeInfo.sqlQueryString = this.sqlQueryString;
-        nodeInfo.identifiersOrder = [];
-        nodeInfo.identifiers = {};
-        this.identifiers.forEach(function(value, key) {
-            nodeInfo.identifiersOrder.push(key);
-            nodeInfo.identifiers[key] = value;
-        });
         nodeInfo.tableSrcMap = this.tableSrcMap;
         nodeInfo.columns = this.columns;
         return nodeInfo;
@@ -316,5 +333,294 @@ class DagNodeSQL extends DagNode {
      */
     public getOutputNodes(): DagNodeSQLSubOutput[] {
         return this.subOutputNodes;
+    }
+
+    private _getDerivedColName(colName: string): string {
+        if (colName.indexOf("::") > 0) {
+            colName = colName.split("::")[1];
+        }
+        if (colName.endsWith("_integer") || colName.endsWith("_float") ||
+            colName.endsWith("_boolean") || colName.endsWith("_string")) {
+            colName = colName.substring(0, colName.lastIndexOf("_"));
+        }
+        colName = colName.replace(/[\^,\(\)\[\]{}'"\.\\ ]/g, "_");
+        return colName;
+    }
+
+    // === Copied from derived conversion
+    private _getDerivedCol(col: ProgCol): ColRenameInfo {
+        // convert prefix field of primitive type to derived
+        if (col.type !== 'integer' && col.type !== 'float' &&
+            col.type !== 'boolean' && col.type !== 'timestamp' &&
+            col.type !== "string") {
+            // can't handle other types in SQL
+            return;
+        }
+        const colInfo: ColRenameInfo = {
+            orig: col.backName,
+            new: this._getDerivedColName(col.backName).toUpperCase(),
+            type: xcHelper.convertColTypeToFieldType(col.type as ColumnType)
+        };
+        return colInfo;
+    }
+
+    private _finalizeTable(sourceId: number): XDPromise<any> {
+        if (this.getParents().length < sourceId) {
+            return PromiseHelper.reject("Node connection doesn't exist");
+        }
+        const deferred = PromiseHelper.deferred();
+        const srcTable = this.getParents()[sourceId - 1];
+        const srcTableName = srcTable.getTable() ||
+                     xcHelper.randName("sqlTable") + Authentication.getHashId();
+
+        const cols = srcTable.getLineage().getColumns();
+        const colInfos: ColRenameInfo[] = [];
+
+        const schema = [];
+        for (let i = 0; i < cols.length; i++) {
+            const col = cols[i];
+            if (col.name === "DATA") {
+                continue;
+            }
+            const colInfo = this._getDerivedCol(col);
+            if (!colInfo) {
+                var colName = col.backName === ""? col.name : col.backName;
+                deferred.reject(SQLErrTStr.InvalidColTypeForFinalize
+                                + colName + "(" + col.type + ")");
+                return deferred.promise();
+            }
+            if (colInfo.new !== colInfo.orig) {
+                // otherwise nothing to finalize
+                colInfos.push(colInfo);
+            }
+            const schemaStruct = {};
+            schemaStruct[colInfo.new] = col.type;
+            schema.push(schemaStruct);
+        }
+        let cliArray = [];
+        if (colInfos.length === 0) {
+            const ret = {
+                finalizedTableName: srcTableName,
+                cliArray: cliArray,
+                schema: schema,
+                srcTableName: srcTableName
+            }
+            return PromiseHelper.resolve(ret);
+        }
+
+        let txId = Transaction.start({
+            "operation": "SQL Simulate",
+            "simulate": true
+        });
+        XIApi.synthesize(txId, colInfos, srcTableName)
+        .then(function(finalizedTableName) {
+            cliArray.push(Transaction.done(txId, {
+                "noNotification": true,
+                "noSql": true
+            }));
+            txId = Transaction.start({
+                "operation": "SQL Simulate",
+                "simulate": true
+            });
+            const ret = {
+                finalizedTableName: finalizedTableName,
+                cliArray: cliArray,
+                schema: schema,
+                srcTableName: srcTableName
+            }
+            deferred.resolve(ret);
+        })
+        .fail(function() {
+            deferred.reject(SQLErrTStr.FinalizingFailed);
+        });
+
+        return deferred.promise();
+    }
+
+    private _finalizeAndGetSchema(
+        sourceId: number,
+        tableName: string
+    ): XDPromise<any> {
+        var deferred = PromiseHelper.deferred();
+        this._finalizeTable(sourceId)
+        .then(function(ret) {
+            const finalizedTableName = ret.finalizedTableName;
+            const schema = ret.schema;
+            var tableMetaCol = {};
+            tableMetaCol["XC_TABLENAME_" + finalizedTableName] = "string";
+            schema.push(tableMetaCol);
+
+            const structToSend = {
+                tableName: tableName.toUpperCase(),
+                tableColumns: schema
+            }
+
+            console.log(structToSend);
+            const retStruct = {
+                cliArray: ret.cliArray,
+                structToSend: structToSend,
+                srcTableName: ret.srcTableName
+            }
+            deferred.resolve(retStruct);
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
+    }
+
+    public sendSchema(identifiers: Map<number, string>): XDPromise<any> {
+        const deferred = PromiseHelper.deferred();
+        const self = this;
+        let schemaQueryArray = [];
+        const promiseArray = [];
+        const allSchemas = [];
+        const tableSrcMap = {};
+        identifiers.forEach(function(value, key) {
+            const innerDeferred = PromiseHelper.deferred();
+            const sourceId = key;
+            const tableName = value;
+            self._finalizeAndGetSchema(sourceId, tableName)
+            .then(function(retStruct) {
+                schemaQueryArray = schemaQueryArray.concat(retStruct.cliArray);
+                allSchemas.push(retStruct.structToSend);
+                tableSrcMap[retStruct.srcTableName] = key;
+                innerDeferred.resolve();
+            })
+            .fail(innerDeferred.reject);
+            promiseArray.push(innerDeferred.promise());
+        });
+        PromiseHelper.when.apply(self, promiseArray)
+        .then(function() {
+            // always drop schema on plan server first
+            return SQLOpPanel.updatePlanServer("dropAll");
+        })
+        .then(function() {
+            // send schema to plan server
+            return SQLOpPanel.updatePlanServer("update", allSchemas);
+        })
+        .then(function() {
+            schemaQueryArray = schemaQueryArray.map(function(cli) {
+                if (cli.endsWith(",")) {
+                    cli = cli.substring(0, cli.length - 1);
+                }
+                return cli;
+            });
+            const queryString = "[" + schemaQueryArray.join(",") + "]";
+            const ret = {
+                queryString: queryString,
+                tableSrcMap: tableSrcMap
+            }
+            deferred.resolve(ret);
+        })
+        .fail(function(err) {
+            if (err && err.responseJSON) {
+                deferred.reject(err.responseJSON.exceptionMsg);
+            } else if (err && err.status === 0) {
+                deferred.reject(SQLErrTStr.FailToConnectPlanner);
+            } else if (err) {
+                deferred.reject(JSON.stringify(err));
+            } else {
+                deferred.reject();
+            }
+        });
+        return deferred.promise();
+    }
+
+    private _getQueryTableCols(allCols: SQLColumn[]) {
+        const columns: {name: string, backName: string, type: ColumnType}[] = [];
+        const colNameSet = new Set();
+        for (let i = 0; i < allCols.length; i++) {
+            if (colNameSet.has(allCols[i].colName)) {
+                let k = 1;
+                while (colNameSet.has(allCols[i].colName + "_" + k)) {
+                    k++;
+                }
+                allCols[i].colName = allCols[i].colName + "_" + k;
+            }
+            colNameSet.add(allCols[i].colName);
+            const colName = allCols[i].rename || allCols[i].colName;
+            columns.push({name: allCols[i].colName,
+                          backName: colName,
+                          type: this._getColType(allCols[i].colType)});
+        }
+        return columns;
+    }
+    private _getColType(sqlType: string) {
+        switch (sqlType) {
+            case "float":
+                return ColumnType.float;
+            case "int":
+                return ColumnType.integer;
+            case "string":
+                return ColumnType.string;
+            case "bool":
+                return ColumnType.boolean;
+            case "timestamp":
+                return ColumnType.timestamp;
+            default:
+                return null;
+        }
+    }
+
+    public compileSQL(
+        sqlQueryStr: string,
+        queryId: string,
+        identifiers?: Map<number, string>
+    ): XDPromise<any> {
+        const deferred = PromiseHelper.deferred();
+        const sqlCom = new SQLCompiler();
+        const self = this;
+        let schemaQueryString;
+        let tableSrcMap;
+        try {
+            // paramterize SQL
+            sqlQueryStr = xcHelper.replaceMsg(sqlQueryStr,
+                                DagParamManager.Instance.getParamMap(), true);
+            identifiers = identifiers || self.getIdentifiers();
+            self.sendSchema(identifiers)
+            .then(function(ret) {
+                schemaQueryString = ret.queryString;
+                tableSrcMap = ret.tableSrcMap
+                self.setTableSrcMap(tableSrcMap);
+                return sqlCom.compile(queryId, sqlQueryStr);
+            })
+            .then(function(queryString, newTableName, newCols) {
+                self.setNewTableName(newTableName);
+                self.setColumns(newCols);
+                const optimizer = new SQLOptimizer();
+                const optimizedQueryString = optimizer.logicalOptimize(queryString,
+                                        {dropAsYouGo: true}, schemaQueryString);
+                self.setXcQueryString(optimizedQueryString);
+                const retStruct = {
+                    newTableName: newTableName,
+                    xcQueryString: optimizedQueryString,
+                    allCols: newCols,
+                    tableSrcMap: tableSrcMap
+                }
+                deferred.resolve(retStruct);
+            })
+            .fail(function(errorMsg) {
+                if (typeof errorMsg === "string") {
+                    if (errorMsg.indexOf(SQLErrTStr.Cancel) === -1) {
+                        Alert.show({
+                            title: SQLErrTStr.Err,
+                            msg: errorMsg,
+                            isAlert: true,
+                            align: "left",
+                            preSpace: true,
+                            sizeToText: true
+                        });
+                    }
+                }
+                deferred.reject();
+            });
+        } catch (e) {
+            Alert.show({
+                title: "Compilation Error",
+                msg: "Error details: " + JSON.stringify(e),
+                isAlert: true
+            });
+            deferred.reject();
+        }
+        return deferred.promise();
     }
 }

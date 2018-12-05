@@ -929,48 +929,62 @@ class DagNodeExecutor {
 
     private _sql(): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        const node: DagNodeSQL = <DagNodeSQL>this.node;
-        const params: DagNodeSQLInputStruct = node.getParam();
-        if (!params.queryStr) {
+        const self = this;
+        const node: DagNodeSQL = <DagNodeSQL>self.node;
+        const params: DagNodeSQLInputStruct = node.getParam(self.replaceParam);
+        if (!params.sqlQueryStr) {
             return PromiseHelper.reject(SQLErrTStr.NeedConfiguration);
         }
-        const replaceMap = {};
-        const queryName = xcHelper.randName("sqlQuery", 8);
-        node.getParents().forEach((parent, idx) => {
-            const newTableName = parent.getTable();
-            replaceMap[idx + 1] = newTableName;
-        });
-        const queryObj = {
-            queryId: queryName,
-            status: SQLStatus.Running,
-            queryString: node.getSqlQueryString(),
-            startTime: new Date()
+
+        const queryId = xcHelper.randName("sqlQuery", 8);
+        let xcQueryString = node.getXcQueryString();
+        let promise: XDPromise<any> = PromiseHelper.resolve({xcQueryString: xcQueryString});
+        if (!xcQueryString) {
+            const updateHistory = true;
+            promise = node.compileSQL(params.sqlQueryStr, queryId, updateHistory);
         }
-        const newTableName = this._generateTableName();
-        // Set status to Running
-        SqlQueryHistoryPanel.Card.getInstance().update(queryObj);
-        const retStruct = this._replaceSQLTableName(params.queryStr,
-                                                   node.getTableSrcMap(),
-                                                   replaceMap,
-                                                   params.newTableName,
-                                                   newTableName);
-        node.setTableSrcMap(retStruct.newTableSrcMap);
-        params.queryStr = retStruct.newQueryStr;
-        params.newTableName = newTableName;
-        node.setParam(params, true);
-        node.updateSubGraph();
-        const queryNodes = JSON.parse(params.queryStr);
-        node.getSubGraph().startExecution(queryNodes, null);
-        const options = {
-            jdbcCheckTime: params.jdbcCheckTime
-        };
-        XIApi.query(this.txId, queryName, params.queryStr, options)
+        const newDestTableName = self._generateTableName();
+        let queryObj;
+        promise
+        .then(function(ret) {
+            const replaceMap = {};
+            node.getParents().forEach((parent, idx) => {
+                const newTableName = parent.getTable();
+                replaceMap[idx + 1] = newTableName;
+            });
+            const oldDestTableName = node.getNewTableName();
+            const replaceRetStruct = self._replaceSQLTableName(ret.xcQueryString,
+                                                        node.getTableSrcMap(),
+                                                        replaceMap,
+                                                        oldDestTableName,
+                                                        newDestTableName);
+            node.setTableSrcMap(replaceRetStruct.newTableSrcMap);
+            node.setXcQueryString(replaceRetStruct.newQueryStr);
+            node.setNewTableName(newDestTableName);
+            node.updateSubGraph(replaceRetStruct.newTableMap);
+            const queryNodes = JSON.parse(replaceRetStruct.newQueryStr);
+            node.getSubGraph().startExecution(queryNodes, null);
+            // Might need to make it configurable
+            const options = {
+                jdbcCheckTime: 500
+            };
+            // Set status to Running
+            queryObj = {
+                queryId: queryId,
+                status: SQLStatus.Running,
+                queryString: params.sqlQueryStr,
+                startTime: new Date()
+            }
+            SqlQueryHistoryPanel.Card.getInstance().update(queryObj);
+            return XIApi.query(self.txId, queryId, replaceRetStruct.newQueryStr,
+                                                                       options);
+        })
         .then(function(res) {
             // Set status to Done
             queryObj["status"] = SQLStatus.Done;
             queryObj["endTime"] = new Date();
             SqlQueryHistoryPanel.Card.getInstance().update(queryObj);
-            deferred.resolve(newTableName, res);
+            deferred.resolve(newDestTableName, res);
         })
         .fail(function(error) {
             queryObj["endTime"] = new Date();
@@ -986,6 +1000,16 @@ class DagNodeExecutor {
         });
         return deferred.promise();
     }
+
+    /**
+     * Since fake table names are created by compiler, we need to replace all of
+     * them before execution
+     * @param queryStr  xcalar query string
+     * @param tableSrcMap   {compilerTableName: sourceId}    
+     * @param replaceMap    {sourceId: newParentTableName}
+     * @param oldDestTableName  destTableName created by compiler
+     * @param newDestTableName  new destTableName
+     */
     private _replaceSQLTableName(
         queryStr: string,
         tableSrcMap: {},
@@ -993,7 +1017,8 @@ class DagNodeExecutor {
         oldDestTableName: string,
         newDestTableName: string
     ): {newQueryStr: string,
-        newTableSrcMap: {}} {
+        newTableSrcMap: {},
+        newTableMap: {}} {
         const queryStruct = JSON.parse(queryStr);
         const newTableMap = {};
         const newTableSrcMap = {};
@@ -1011,15 +1036,16 @@ class DagNodeExecutor {
                 source = [source];
             }
             for (let i = 0; i < source.length; i++) {
-
-                const idx = tableSrcMap[source[i]];
-                if (idx) {
-                    source[i] = replaceMap[idx];
-                    newTableSrcMap[source[i]] = idx;
-                } else if (!source[i].startsWith("XC_AGG_") &&
-                           !source[i].startsWith("XC_SUBQ_")) {
+                if (!source[i].startsWith("XC_AGG_") &&
+                    !source[i].startsWith("XC_SUBQ_")) {
                     if (!newTableMap[source[i]]) {
-                        newTableMap[source[i]] = this._generateTableName();
+                        const idx = tableSrcMap[source[i]];
+                        if (idx) {
+                            newTableMap[source[i]] = replaceMap[idx];
+                            newTableSrcMap[replaceMap[idx]] = idx;
+                        } else {
+                            newTableMap[source[i]] = this._generateTableName();
+                        }
                     }
                     source[i] = newTableMap[source[i]];
                 }
@@ -1041,6 +1067,7 @@ class DagNodeExecutor {
             }
         });
         return {newQueryStr: JSON.stringify(queryStruct),
-                newTableSrcMap: newTableSrcMap};
+                newTableSrcMap: newTableSrcMap,
+                newTableMap: newTableMap};
     }
 }

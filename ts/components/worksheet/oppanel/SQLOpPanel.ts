@@ -17,7 +17,6 @@ class SQLOpPanel extends BaseOpPanel {
     private _sqlTables = {};
     private _snippetQueryKvStore : KVStore;
     private _snippetKvStore: KVStore;
-    private _sqlComs : SQLCompiler[];
     private _keywordsToRemove: string[];
     private _keywordsToAdd: string[];
     private _defaultSnippet: string;
@@ -48,7 +47,6 @@ class SQLOpPanel extends BaseOpPanel {
         this._defaultSnippet = "Default Snippet";
         this._allSnippets = {};
         this._curSnippet = this._defaultSnippet;
-        this._sqlComs = [];
 
         const snippetQueryKey = KVStore.getKey("gSQLSnippetQuery");
         const snippetKey = KVStore.getKey("gSQLSnippet");
@@ -219,10 +217,8 @@ class SQLOpPanel extends BaseOpPanel {
     }
 
     private _cancelExec(): void {
-        console.error("SQL cancel triggered!");
-        this._sqlComs.forEach(function(sqlCom) {
-            sqlCom.setStatus(SQLStatus.Cancelled);
-        })
+        console.log("SQL cancel triggered!");
+        SQLOpPanel.resetProgress();
     }
 
     private _convertTextCase(flag: boolean): void {
@@ -752,7 +748,7 @@ class SQLOpPanel extends BaseOpPanel {
         self._sqlEditor.refresh();
     }
 
-    private _updatePlanServer(
+    public static updatePlanServer(
         type: string,
         struct?: {}[]
     ): XDPromise<any> {
@@ -815,190 +811,6 @@ class SQLOpPanel extends BaseOpPanel {
         }
     }
 
-    public getPrevQueries(): SQLCompiler[] {
-        return this._sqlComs;
-    }
-
-    private _getDerivedColName(colName: string): string {
-        if (colName.indexOf("::") > 0) {
-            colName = colName.split("::")[1];
-        }
-        if (colName.endsWith("_integer") || colName.endsWith("_float") ||
-            colName.endsWith("_boolean") || colName.endsWith("_string")) {
-            colName = colName.substring(0, colName.lastIndexOf("_"));
-        }
-        colName = colName.replace(/[\^,\(\)\[\]{}'"\.\\ ]/g, "_");
-        return colName;
-    }
-
-    // === Copied from derived conversion
-    private _getDerivedCol(col: ProgCol): ColRenameInfo {
-        // convert prefix field of primitive type to derived
-        if (col.type !== 'integer' && col.type !== 'float' &&
-            col.type !== 'boolean' && col.type !== 'timestamp' &&
-            col.type !== "string") {
-            // can't handle other types in SQL
-            return;
-        }
-        const colInfo: ColRenameInfo = {
-            orig: col.backName,
-            new: this._getDerivedColName(col.backName).toUpperCase(),
-            type: xcHelper.convertColTypeToFieldType(col.type as ColumnType)
-        };
-        return colInfo;
-    }
-
-    private _finalizeTable(sourceId: number): XDPromise<any> {
-        // XXX May be removed when CAST screen is done
-        if (this._dagNode.getParents().length < sourceId) {
-            return PromiseHelper.reject("Node connection doesn't exist");
-        }
-        const deferred = PromiseHelper.deferred();
-        const srcTable = this._dagNode.getParents()[sourceId - 1];
-        const srcTableName = srcTable.getTable() ||
-                     xcHelper.randName("sqlTable") + Authentication.getHashId();
-
-        const cols = srcTable.getLineage().getColumns();
-        const colInfos: ColRenameInfo[] = [];
-
-        const schema = [];
-        for (let i = 0; i < cols.length; i++) {
-            const col = cols[i];
-            if (col.name === "DATA") {
-                continue;
-            }
-            const colInfo = this._getDerivedCol(col);
-            if (!colInfo) {
-                var colName = col.backName === ""? col.name : col.backName;
-                deferred.reject(SQLErrTStr.InvalidColTypeForFinalize
-                                + colName + "(" + col.type + ")");
-                return deferred.promise();
-            }
-            colInfos.push(colInfo);
-            const schemaStruct = {};
-            schemaStruct[colInfo.new] = col.type;
-            schema.push(schemaStruct);
-        }
-
-        let txId = Transaction.start({
-            "operation": "SQL Simulate",
-            "simulate": true
-        });
-        let cliArray = [];
-        XIApi.synthesize(txId, colInfos, srcTableName)
-        .then(function(finalizedTableName) {
-            cliArray.push(Transaction.done(txId, {
-                "noNotification": true,
-                "noSql": true
-            }));
-            txId = Transaction.start({
-                "operation": "SQL Simulate",
-                "simulate": true
-            });
-            const ret = {
-                finalizedTableName: finalizedTableName,
-                cliArray: cliArray,
-                schema: schema,
-                srcTableName: srcTableName
-            }
-            deferred.resolve(ret);
-        })
-        .fail(function() {
-            deferred.reject(SQLErrTStr.FinalizingFailed);
-        });
-
-        return deferred.promise();
-    }
-
-    private _finalizeAndGetSchema(
-        sourceId: number,
-        tableName: string
-    ): XDPromise<any> {
-        var deferred = PromiseHelper.deferred();
-        const self = this;
-        self._finalizeTable(sourceId)
-        .then(function(ret) {
-            const finalizedTableName = ret.finalizedTableName;
-            const schema = ret.schema;
-            var tableMetaCol = {};
-            tableMetaCol["XC_TABLENAME_" + finalizedTableName] = "string";
-            schema.push(tableMetaCol);
-
-            const structToSend = {
-                tableName: tableName.toUpperCase(),
-                tableColumns: schema
-            }
-
-            console.log(structToSend);
-            const retStruct = {
-                cliArray: ret.cliArray,
-                structToSend: structToSend,
-                srcTableName: ret.srcTableName
-            }
-            deferred.resolve(retStruct);
-        })
-        .fail(deferred.reject);
-        return deferred.promise();
-    }
-
-    private _sendSchema(identifiers: Map<number, string>): XDPromise<any> {
-        const deferred = PromiseHelper.deferred();
-        const self = this;
-        let schemaQueryArray = [];
-        const promiseArray = [];
-        const allSchemas = [];
-        const tableSrcMap = {};
-        identifiers.forEach(function(value, key) {
-            const innerDeferred = PromiseHelper.deferred();
-            const sourceId = key;
-            const tableName = value;
-            self._finalizeAndGetSchema(sourceId, tableName)
-            .then(function(retStruct) {
-                schemaQueryArray = schemaQueryArray.concat(retStruct.cliArray);
-                allSchemas.push(retStruct.structToSend);
-                tableSrcMap[retStruct.srcTableName] = key;
-                innerDeferred.resolve();
-            })
-            .fail(innerDeferred.reject);
-            promiseArray.push(innerDeferred.promise());
-        });
-        PromiseHelper.when.apply(self, promiseArray)
-        .then(function() {
-            // always drop schema on plan server first
-            return self._updatePlanServer("dropAll");
-        })
-        .then(function() {
-            // send schema to plan server
-            return self._updatePlanServer("update", allSchemas);
-        })
-        .then(function() {
-            schemaQueryArray = schemaQueryArray.map(function(cli) {
-                if (cli.endsWith(",")) {
-                    cli = cli.substring(0, cli.length - 1);
-                }
-                return cli;
-            });
-            const queryString = "[" + schemaQueryArray.join(",") + "]";
-            const ret = {
-                queryString: queryString,
-                tableSrcMap: tableSrcMap
-            }
-            deferred.resolve(ret);
-        })
-        .fail(function(err) {
-            if (err && err.responseJSON) {
-                deferred.reject(err.responseJSON.exceptionMsg);
-            } else if (err && err.status === 0) {
-                deferred.reject(SQLErrTStr.FailToConnectPlanner);
-            } else if (err) {
-                deferred.reject(JSON.stringify(err));
-            } else {
-                deferred.reject();
-            }
-        });
-        return deferred.promise();
-    }
-
     public configureSQL(query: string): XDPromise<any> {
         const self = this;
         const deferred = PromiseHelper.deferred();
@@ -1015,60 +827,29 @@ class SQLOpPanel extends BaseOpPanel {
             return PromiseHelper.resolve();
         }
         const queryId = xcHelper.randName("sql", 8);
-        const sqlCom = new SQLCompiler();
-        let schemaQueryString;
-        let tableSrcMap;
-        let resTableName;
-        let allCols;
-        self._sqlComs.push(sqlCom);
         try {
             self.lockProgress();
-            self._sendSchema(identifiers)
+            self._dagNode.compileSQL(paramterizedSQL, queryId, identifiers)
             .then(function(ret) {
-                schemaQueryString = ret.queryString;
-                tableSrcMap = ret.tableSrcMap;
-                return sqlCom.compile(queryId, paramterizedSQL, undefined);
-            })
-            .then(function(queryString, newTableName, newCols) {
-                // XXX TO-DO implement caching
-                resTableName = newTableName;
-                allCols = newCols;
-                var optimizer = new SQLOptimizer();
-                const optimizedQueryString = optimizer.logicalOptimize(queryString,
-                                        {dropAsYouGo: true}, schemaQueryString);
-                self._dataModel.setDataModel(optimizedQueryString,
-                                             resTableName, allCols,
-                                             sql, identifiers, tableSrcMap);
+                const newTableName = ret.newTableName;
+                const allCols = ret.allCols;
+                const xcQueryString = ret.xcQueryString;
+                const tableSrcMap = ret.tableSrcMap;
+                self._dataModel.setDataModel(paramterizedSQL, newTableName,
+                                             allCols, xcQueryString,
+                                             identifiers, tableSrcMap);
                 self._dataModel.submit();
                 deferred.resolve();
             })
-            .fail(function(errorMsg) {
-                if (typeof errorMsg === "string") {
-                    if (errorMsg.indexOf(SQLErrTStr.Cancel) === -1) {
-                        Alert.show({
-                            title: SQLErrTStr.Err,
-                            msg: errorMsg,
-                            isAlert: true,
-                            align: "left",
-                            preSpace: true,
-                            sizeToText: true
-                        });
-                    }
-                }
-                deferred.reject();
+            .fail(function(err) {
+                self._dataModel.setDataModel("", "", [], "", identifiers, {});
+                self._dataModel.submit();
+                deferred.reject(err);
             })
             .always(function() {
-                // XXX need to change this line once we decide the new sql status panel design
-                self._sqlComs.splice(self._sqlComs.indexOf(sqlCom, 1));
                 SQLOpPanel.resetProgress();
             });
         } catch (e) {
-            console.error(e);
-            // XXX need to change this line once we decide the new sql status panel design
-            self._sqlComs.splice(self._sqlComs.indexOf(sqlCom, 1));
-            sqlCom.setStatus(SQLStatus.Failed);
-            sqlCom.setError(e.message || JSON.stringify(e));
-            sqlCom.updateQueryHistory();
             SQLOpPanel.resetProgress();
             Alert.show({
                 title: "Compilation Error",
@@ -1179,7 +960,7 @@ class SQLOpPanel extends BaseOpPanel {
                     return;
                 }
             }
-            const sql = self._sqlEditor.getValue();
+            const sql = self._sqlEditor.getValue().replace(/;+$/, "");
             self.configureSQL(sql)
             .then(function() {
                 self.close();
@@ -1208,11 +989,15 @@ class SQLOpPanel extends BaseOpPanel {
 
         if (toAdvancedMode) {
             const identifiers = {};
+            const identifiersOrder = [];
             this._extractIdentifiers().forEach(function(value, key) {
                 identifiers[key] = value;
+                identifiersOrder.push(key);
             });
             const sqlQueryString = this._sqlEditor.getValue();
-            const advancedParams = {identifiers: identifiers, sqlQueryString: sqlQueryString};
+            const advancedParams = {sqlQueryString: sqlQueryString,
+                                    identifiers: identifiers,
+                                    identifiersOrder: identifiersOrder};
             this._editor.setValue(JSON.stringify(advancedParams, null, 4));
         } else {
             try {
@@ -1224,6 +1009,12 @@ class SQLOpPanel extends BaseOpPanel {
                     return {error: SQLErrTStr.MissingField + "sqlQueryString"};
                 }
                 const identifiers = advancedParams.identifiers;
+                let identifiersOrder = advancedParams.identifiersOrder.map((identifier) => {
+                    return parseInt(identifier);
+                });
+                if (!this._validateIdentifiers(identifiers, identifiersOrder)) {
+                    return {error: SQLErrTStr.IdentifierMismatch};
+                }
                 const sqlQueryString = advancedParams.sqlQueryString;
                 this._sqlEditor.setValue(sqlQueryString);
                 this._allSnippets[this._defaultSnippet] = sqlQueryString;
@@ -1233,14 +1024,13 @@ class SQLOpPanel extends BaseOpPanel {
                 this._$sqlIdentifiers.html("");
                 this._sqlTables = {};
                 if (Object.keys(identifiers).length > 0) {
-                    for (const key in identifiers) {
-                        const sourceId = parseInt(key);
-                        if (!this._validateSourceId(sourceId)) {
+                    for (let key of identifiersOrder) {
+                        if (!this._validateSourceId(key)) {
                             return {error: SQLErrTStr.InvalidSourceId +
                                            this._dagNode.getParents().length};
                         }
-                        this._addTableIdentifier(sourceId, identifiers[key]);
-                        this._sqlTables[identifiers[key]] = sourceId;
+                        this._addTableIdentifier(key, identifiers[key]);
+                        this._sqlTables[identifiers[key]] = key;
                     }
                 } else {
                     this._addTableIdentifier();
@@ -1250,6 +1040,23 @@ class SQLOpPanel extends BaseOpPanel {
             }
         }
         return null;
+    }
+
+    private _validateIdentifiers(identifiers: {}, identifiersOrder: number[]): boolean {
+        if (Object.keys(identifiers).length !== identifiersOrder.length) {
+            return false;
+        }
+        for (const key of identifiersOrder) {
+            if (!identifiers.hasOwnProperty(key + "")) {
+                return false;
+            }
+        }
+        for (const key in identifiers) {
+            if (identifiersOrder.indexOf(parseInt(key)) === -1) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private _validateSourceId(sourceId: number): boolean {
