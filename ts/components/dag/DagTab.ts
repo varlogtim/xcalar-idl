@@ -224,17 +224,7 @@ abstract class DagTab {
 
     protected _deleteAggregateHelper(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let nodes: Map<string, DagNode> = this._dagGraph.getAllNodes();
-        let aggregates: string[] = [];
-        nodes.forEach((node: DagNode) => {
-            if (node instanceof DagNodeAggregate) {
-                let input: DagNodeAggregateInputStruct = node.getParam();
-                if (input.dest != null) {
-                    aggregates.push(input.dest);
-                }
-            }
-        });
-        DagAggManager.Instance.bulkNodeRemoval(aggregates)
+        DagAggManager.Instance.graphRemoval(this._id)
         .then(deferred.resolve)
         .fail(deferred.reject);
 

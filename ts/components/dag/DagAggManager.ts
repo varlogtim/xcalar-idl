@@ -225,6 +225,16 @@ class DagAggManager {
         return this._saveAggMap();
     }
 
+    public graphRemoval(tabID: string): XDPromise<void> {
+        let toDelete: string[] = [];
+        for(let agg in this.aggregates) {
+            let agginfo: AggregateInfo = this.aggregates[agg];
+            if (agginfo.graph == tabID) {
+                toDelete.push(agg);
+            }
+        }
+        return this.bulkNodeRemoval(toDelete);
+    }
 
     private _saveAggMap(): XDPromise<void> {
         return this.kvStore.put(JSON.stringify(this.aggregates), true, true);
