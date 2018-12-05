@@ -38,25 +38,6 @@ class DagTopBar {
             $btns.find(".share").addClass("xc-disabled");
         }
 
-        if (dagTab instanceof DagTabCustom || dagTab instanceof DagTabSQL) {
-            $btns.find(".autoSave, .save").addClass("xc-disabled");
-        } else {
-            $btns.find(".autoSave, .save").removeClass("xc-disabled");
-        }
-
-        // set state for auto save and save button
-        const $autoSave: JQuery = $btns.find(".autoSave");
-        xcTooltip.remove($autoSave);
-        if (dagTab instanceof DagTabUser) {
-            this._toggleAutoSave(dagTab.isAutoSave());
-        } else if (dagTab instanceof DagTabShared) {
-            this._toggleAutoSave(false);
-            xcTooltip.add($autoSave, {
-                title: DFTStr.NoAutoSave,
-                placement: "left"
-            })
-        }
-
         const graph: DagGraph = dagTab.getGraph();
         if (graph != null && graph.getExecutor() != null) {
             $btns.find(".stop").removeClass("xc-disabled");
@@ -117,35 +98,6 @@ class DagTopBar {
             DFUploadModal.Instance.show();
         });
 
-        this.$topBar.find(".autoSave").click(() => {
-            const dagTab: DagTab = DagView.getActiveTab();
-            if (dagTab instanceof DagTabUser) {
-                const $switch: JQuery = this.$topBar.find(".autoSave .switch");
-                const autoSave: boolean = !$switch.hasClass("on");
-                this._toggleAutoSave(autoSave);
-                dagTab.setAutoSave(autoSave);
-            }
-        });
-
-        this.$topBar.find(".save").click((event) => {
-            const dagTab: DagTab = DagView.getActiveTab();
-            if (!(dagTab instanceof DagTabCustom)) {
-                const $btn: JQuery = $(event.currentTarget);
-                xcHelper.disableSubmit($btn);
-
-                dagTab.save(true)
-                .then(() => {
-                    xcHelper.showSuccess(SuccessTStr.Saved);
-                })
-                .fail((error) => {
-                    Alert.error(AlertTStr.Error, error);
-                })
-                .always(() => {
-                    xcHelper.enableSubmit($btn);
-                });
-            }
-        });
-
         // settings button
         this.$topBar.find(".setting").click(() => {
             DFSettingsModal.Instance.show();
@@ -163,17 +115,6 @@ class DagTopBar {
             $zoomOut.addClass("disabled");
         } else if (scaleIndex === DagView.zoomLevels.length - 1) {
             $zoomIn.addClass("disabled");
-        }
-    }
-
-    private _toggleAutoSave(autoSave: boolean): void {
-        const $switch: JQuery = this.$topBar.find(".autoSave .switch");
-        if (autoSave) {
-            $switch.addClass("on");
-            this.$topBar.find(".save").addClass("xc-disabled");
-        } else {
-            $switch.removeClass("on");
-            this.$topBar.find(".save").removeClass("xc-disabled");
         }
     }
 }

@@ -27,11 +27,6 @@ class DagTabOptimized extends DagTab {
     }
 
     // do nothing
-    public discardUnsavedChange(): XDPromise<void> {
-        return PromiseHelper.resolve();
-    }
-
-    // do nothing
     public load(): XDPromise<void> {
         return PromiseHelper.resolve();
     }

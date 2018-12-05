@@ -1215,28 +1215,6 @@
                 text-overflow: clip;
             }
 
-            &.unsave {
-                .after {
-                    .dot {
-                        display: block;
-                    }
-
-                    .close {
-                        display: none;
-                    }
-
-                    &:hover {
-                        .dot {
-                            display: none;
-                        }
-
-                        .close {
-                            display: block;
-                        }
-                    }
-                }
-            }
-
             &.optimized {
                 font-style: italic;
             }
@@ -1405,6 +1383,16 @@
                 display: list-item;
             }
         }
+        &.published {
+            .cutNodes, .description, .newComment, .autoAlign, .createCustom, .removeNode {
+                display: none;
+            }
+            &.nonEditableSubgraph {
+                .executeNode {
+                    display: list-item;
+                }
+            }
+        }
     }
     &.connectorMenu, &.edgeMenu {
         .removeInConnection {
@@ -1425,6 +1413,11 @@
         }
         &.viewOnly {
             .resetNode, .resetAllNodes, .lockNodeTable {
+                display: none;
+            }
+        }
+        &.published {
+            .newComment, .autoAlign, .removeAllNodes {
                 display: none;
             }
         }

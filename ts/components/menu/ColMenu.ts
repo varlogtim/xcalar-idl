@@ -18,13 +18,16 @@ class ColMenu extends AbstractMenu {
         let $lis: JQuery = $menu.find(".groupby, .sort, .aggregate, .filter, " +
                 ".join, .map, .operations, .profile, .corrAgg, " +
                 ".extensions, .changeDataType, .format, .roundToFixed, " +
-                ".project, .union");
+                ".project, .set");
         $lis.removeClass("unavailable");
+        $lis.removeClass("xc-hidden");
         xcTooltip.remove($lis);
-        if (colType === ColumnType.object || colType === ColumnType.array) {
+        if (DagView.getActiveTab() instanceof DagTabShared) {
+            $lis.addClass("xc-hidden");
+        } else if (colType === ColumnType.object || colType === ColumnType.array) {
             $lis = $menu.find(".groupby, .sort, .aggregate, .filter, .join, " +
                 ".map, .operations, .profile, .corrAgg, .extensions, " +
-                ".changeDataType, .format, .roundToFixed, .union");
+                ".changeDataType, .format, .roundToFixed, .set");
             $lis.addClass("unavailable");
             if (colType === ColumnType.object) {
                 xcTooltip.add($lis, {
@@ -38,7 +41,7 @@ class ColMenu extends AbstractMenu {
         } else if (isNewCol) {
             $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
                 ".join, .operations, .profile, .corrAgg, .extensions, " +
-                ".changeDataType, .format, .roundToFixed, .project, .union");
+                ".changeDataType, .format, .roundToFixed, .project, .set");
             $lis.addClass("unavailable");
             xcTooltip.add($lis, {
                 title: ErrTStr.InvalidOpNewColumn
@@ -55,7 +58,7 @@ class ColMenu extends AbstractMenu {
             $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
                     ".join, .operations, .profile, .corrAgg, " +
                     ".extensions, .format, .roundToFixed, " +
-                    ".project, .union");
+                    ".project, .set");
             $lis.addClass("unavailable");
             xcTooltip.add($lis, {
                 title: ColTStr.NoOperateGeneral
@@ -86,7 +89,7 @@ class ColMenu extends AbstractMenu {
             ["s", "sort"],
             ["t", "changeDataType"],
             ["x", "exitOp"],
-            ["u", "union"],
+            ["u", "set"],
         ];
     }
 

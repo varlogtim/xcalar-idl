@@ -27,6 +27,7 @@ namespace DagView {
         activeDagTab = null;
 
         _addEventListeners();
+        _setupDagSharedActionEvents();
 
         DagTopBar.Instance.setup();
         DagCategoryBar.Instance.setup();
@@ -635,6 +636,10 @@ namespace DagView {
             return PromiseHelper.reject();
         }
         const tab: DagTab = activeDagTab;
+        if (tab instanceof DagTabShared) {
+            // cannot modify shared dag
+            return PromiseHelper.reject();
+        }
         const tabId: string = tab.getId();
         tab.turnOffSave();
         const $dfArea: JQuery = _getActiveArea();
@@ -791,6 +796,9 @@ namespace DagView {
         spliceIn?: boolean
     ): XDPromise<void> {
         const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId)
+        if (dagTab instanceof DagTabShared) {
+            return PromiseHelper.reject();
+        }
         dagTab.turnOffSave();
         _connectNodesNoPersist(parentNodeId, childNodeId, connectorIndex, tabId, {
             isReconnect: isReconnect,
@@ -903,6 +911,9 @@ namespace DagView {
         graphDimensions?: Coordinate
     ): XDPromise<void> {
         const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId);
+        if (dagTab instanceof DagTabShared) {
+            return;
+        }
         dagTab.turnOffSave();
         _moveNodesNoPersist(tabId, nodeInfos, graphDimensions);
         dagTab.turnOnSave();
@@ -1170,7 +1181,11 @@ namespace DagView {
         const graph: DagGraph = activeDag;
         const currTabId: string = graph.getTabId();
         const $dataflowArea: JQuery = _getActiveArea();
-        graph.execute(nodeIds, optimized)
+
+        _canRun(activeDagTab)
+        .then(() => {
+            return graph.execute(nodeIds, optimized);
+        })
         .then(function() {
             if (UserSettings.getPref("dfAutoPreview") === true &&
                 nodeIds != null &&
@@ -1199,6 +1214,14 @@ namespace DagView {
         });
 
         return deferred.promise();
+    }
+
+    function _canRun(dagTab: DagTab): XDPromise<void> {
+        if (dagTab instanceof DagTabShared) {
+            return DagSharedActionService.Instance.checkExecuteStatus(dagTab.getId());
+        } else {
+            return PromiseHelper.resolve();
+        }
     }
 
     /**
@@ -1705,7 +1728,8 @@ namespace DagView {
         const activeTab = getActiveTab();
         return (activeTab instanceof DagTabCustom ||
                 activeTab instanceof DagTabSQL ||
-                activeTab instanceof DagTabOptimized);
+                activeTab instanceof DagTabOptimized ||
+                activeTab instanceof DagTabShared);
     }
 
     export function isViewOnly(): boolean {
@@ -2536,6 +2560,9 @@ namespace DagView {
                 }
                 return;
             }
+            if (activeDagTab instanceof DagTabShared) {
+                return;
+            }
             const $dfArea = _getActiveArea();
             const tabId = activeDag.getTabId();
             const $elements = $operator.add($dfArea.find(".selected"));
@@ -2615,6 +2642,9 @@ namespace DagView {
         // connecting 2 nodes dragging the parent's connector
         $dfWrap.on("mousedown", ".operator .connector.out", function (event) {
             if (event.which !== 1) {
+                return;
+            }
+            if (activeDagTab instanceof DagTabShared) {
                 return;
             }
             const $parentConnector = $(this);
@@ -2752,6 +2782,9 @@ namespace DagView {
         // connecting 2 nodes dragging the child's connector
         $dfWrap.on("mousedown", ".operator .connector.in", function (event) {
             if (event.which !== 1) {
+                return;
+            }
+            if (activeDagTab instanceof DagTabShared) {
                 return;
             }
 
@@ -3409,6 +3442,64 @@ namespace DagView {
         }
     }
 
+    function _updateNodeState(nodeInfo: {
+        id: DagNodeId,
+        node: DagNode,
+        tabId: string,
+        oldState: DagNodeState,
+        state: DagNodeState
+    }): void {
+        const nodeId: DagNodeId = nodeInfo.id;
+        const $node: JQuery = DagView.getNode(nodeId, nodeInfo.tabId);
+        for (let i in DagNodeState) {
+            $node.removeClass("state-" + DagNodeState[i]);
+        }
+        $node.addClass("state-" + nodeInfo.state);
+        if (nodeInfo.oldState === DagNodeState.Error ||
+            nodeInfo.state === DagNodeState.Error
+        ) {
+            // when switch from error state to other state
+            _setTooltip($node, nodeInfo.node);
+        }
+
+        if (nodeInfo.state !== DagNodeState.Complete &&
+            !(nodeInfo.state === DagNodeState.Error &&
+            nodeInfo.oldState === DagNodeState.Running)) {
+            // don't remove tooltip upon completion or if the node went from
+            // running to an errored state
+            _getAreaByTab(nodeInfo.tabId).find('.runStats[data-id="' + nodeId + '"]').remove();
+        }
+        DagNodeInfoPanel.Instance.update(nodeId, "status");
+    }
+
+    function _lockUnlockHelper(info: {
+        tabId: string,
+        nodeIds: DagNodeId[],
+        lock: boolean
+    }): void {
+        const tabId: string = info.tabId;
+        const $dfArea = _getAreaByTab(tabId);
+        if (info.lock) {
+            $dfArea.addClass("locked");
+            info.nodeIds.forEach((nodeId) => {
+                DagView.lockNode(nodeId, tabId);
+            });
+        } else {
+            $dfArea.removeClass("locked");
+            info.nodeIds.forEach((nodeId) => {
+                DagView.unlockNode(nodeId, tabId);
+            });
+        }
+    }
+
+    function _autoExecute(dagNode: DagNode): void {
+        if (UserSettings.getPref("dfAutoExecute") === true) {
+            if (dagNode.getState() == DagNodeState.Configured) {
+                DagView.run([dagNode.getId()]);
+            }
+        }
+    }
+
     /**
      * @description
      * listens events for 1 dag graph. This function is called for each dag graph
@@ -3418,44 +3509,29 @@ namespace DagView {
 
         // when a graph gets locked during execution
         graph.events.on(DagGraphEvents.LockChange, (info) => {
-            const $dfArea = _getAreaByTab(info.tabId);
-            if (info.lock) {
-                $dfArea.addClass("locked");
-                info.nodeIds.forEach((nodeId) => {
-                    DagView.lockNode(nodeId, info.tabId);
-                });
-            } else {
-                $dfArea.removeClass("locked");
-                info.nodeIds.forEach((nodeId) => {
-                    DagView.unlockNode(nodeId, info.tabId);
-                });
+            const tabId: string = info.tabId;
+            const tab: DagTab = DagTabManager.Instance.getTabById(tabId);
+            _lockUnlockHelper(info);
+            if (tab instanceof DagTabShared) {
+                DagSharedActionService.Instance.broadcast(DagGraphEvents.LockChange, info);
             }
             DagTopBar.Instance.setState(activeDagTab); // refresh the stop button status
         });
 
-        graph.events.on(DagNodeEvents.StateChange, function (info) {
-            const $node: JQuery = DagView.getNode(info.id, info.tabId);
-            for (let i in DagNodeState) {
-                $node.removeClass("state-" + DagNodeState[i]);
+        graph.events.on(DagNodeEvents.StateChange, function(info) {
+            if (info.oldState === info.state) {
+                return;
             }
-            $node.addClass("state-" + info.state);
-            if (info.oldState === DagNodeState.Error ||
-                info.state === DagNodeState.Error
-            ) {
-                // when switch from error state to other state
-                _setTooltip($node, info.node);
-            }
-
-            if (info.state !== DagNodeState.Complete &&
-                !(info.state === DagNodeState.Error &&
-                info.oldState === DagNodeState.Running)) {
-                // don't remove tooltip upon completion or if the node went from
-                // running to an errored state
-                _getAreaByTab(info.tabId).find('.runStats[data-id="' + info.id + '"]').remove();
-            }
-            DagNodeInfoPanel.Instance.update(info.id, "status");
+            _updateNodeState(info);
             const dagTab: DagTab = DagTabManager.Instance.getTabById(info.tabId);
             dagTab.save();
+            if (dagTab instanceof DagTabShared) {
+                DagSharedActionService.Instance.broadcast(DagNodeEvents.StateChange, {
+                    nodeId: info.id,
+                    tabId: info.tabId,
+                    state: info.state
+                });
+            }
         });
 
         graph.events.on(DagNodeEvents.ConnectionChange, function (info) {
@@ -3469,11 +3545,6 @@ namespace DagView {
             const $node: JQuery = DagView.getNode(info.id, info.tabId);
 
             _drawTitleText($node, info.node);
-            // const title = _formatTooltip(info.params);
-            // xcTooltip.add($node.find(".main"), {
-            //     title: title,
-            //     classes: "preWrap leftAlign wide"
-            // });
             $node.find(".paramIcon").remove();
             if (info.hasParameters) {
                 d3.select($node.get(0)).append("text")
@@ -3490,13 +3561,22 @@ namespace DagView {
             DagNodeInfoPanel.Instance.update(info.id, "params");
             _getAreaByTab(info.tabId).find('.runStats[data-id="' + info.id + '"]').remove();
             const dagTab: DagTab = DagTabManager.Instance.getTabById(info.tabId);
-            dagTab.save();
-            if (!info.noAutoExecute && UserSettings.getPref("dfAutoExecute") === true) {
-                const dagNode: DagNode = info.node;
-                if (dagNode.getState() == DagNodeState.Configured) {
-                    DagView.run([info.id]);
+            dagTab.save()
+            .then(() => {
+                if (dagTab instanceof DagTabShared) {
+                    DagSharedActionService.Instance.broadcast(DagNodeEvents.ParamChange, {
+                        tabId: dagTab.getId()
+                    });
                 }
+            });
+
+            if (!info.noAutoExecute) {
+                _autoExecute(info.node);
             }
+        });
+
+        graph.events.on(DagNodeEvents.AutoExecute, function(info) {
+            _autoExecute(info.node);
         });
 
         graph.events.on(DagNodeEvents.LineageSourceChange, function(info) {
@@ -3616,6 +3696,67 @@ namespace DagView {
                 $node.removeClass("hasDescription");
             }
             DagNodeInfoPanel.Instance.update(info.id, "description");
+        });
+
+        graph.events.on(DagGraphEvents.TurnOffSave, (info) => {
+            const tab: DagTab = DagTabManager.Instance.getTabById(info.tabId);
+            if (tab != null) {
+                tab.turnOffSave();
+            }
+        });
+
+        graph.events.on(DagGraphEvents.TurnOnSave, (info) => {
+            const tab: DagTab = DagTabManager.Instance.getTabById(info.tabId);
+            if (tab != null) {
+                tab.turnOnSave();
+            }
+        });
+
+        graph.events.on(DagGraphEvents.Save, (info) => {
+            const tab: DagTab = DagTabManager.Instance.getTabById(info.tabId);
+            if (tab != null) {
+                tab.save();
+            }
+        });
+    }
+
+    function _setupDagSharedActionEvents(): void {
+        const service = DagSharedActionService.Instance;
+        service
+        .on(DagNodeEvents.ProgressChange, (info) =>{
+            _updateSharedProgress(info);
+        })
+        .on(DagNodeEvents.StateChange, (info) => {
+            _updateNodeState(info);
+        })
+        .on(DagNodeEvents.ParamChange, (info) => {
+            const tabId: string = info.tabId;
+            const tab: DagTab = info.tab;
+            if (activeDagTab.getId() === tabId) {
+                Alert.show({
+                    title: DFTStr.Refresh,
+                    msg: DFTStr.RefreshMsg,
+                    isAlert: true
+                });
+            }
+            const $dfArea: JQuery = _getAreaByTab(tabId);
+            $dfArea.addClass("xc-disabled");
+            const promise = DagTabManager.Instance.reloadTab(tab);
+            xcHelper.showRefreshIcon($dfArea, true, promise);
+            
+            promise
+            .then(() => {
+                _getAreaByTab(tabId).removeClass("rendered");
+                if (activeDagTab.getId() === tabId) {
+                    DagView.switchActiveDagTab(tab);
+                }
+            })
+            .always(() => {
+                $dfArea.removeClass("xc-disabled");
+            });
+        })
+        .on(DagGraphEvents.LockChange, (info) => {
+            _lockUnlockHelper(info);
         });
     }
 
@@ -3943,13 +4084,24 @@ namespace DagView {
         }
     }
 
+    /**
+     * DagView.updateProgress
+     * @param nodeId
+     * @param tabId
+     * @param progress
+     * @param _isOptimized
+     * @param skewInfos
+     * @param timeStrs
+     * @param broadcast
+     */
     export function updateProgress(
         nodeId: DagNodeId,
         tabId: string,
         progress: number,
         _isOptimized?: boolean,
         skewInfos?: any[],
-        timeStrs?: string[]
+        timeStrs?: string[],
+        broadcast: boolean = true
     ): void {
         const $dfArea: JQuery = _getAreaByTab(tabId);
         const g = d3.select($dfArea.find('.operator[data-nodeid = "' + nodeId + '"]')[0]);
@@ -3969,6 +4121,17 @@ namespace DagView {
             const graph: DagGraph = dagTab.getGraph()
             const node: DagNode = graph.getNode(nodeId);
             _addProgressTooltip(graph, node, $dfArea, skewInfos, timeStrs);
+        }
+
+        const dagTab = DagTabManager.Instance.getTabById(tabId);
+        if (broadcast && dagTab instanceof DagTabShared) {
+            DagSharedActionService.Instance.broadcast(DagNodeEvents.ProgressChange, {
+                nodeId: nodeId,
+                tabId: tabId,
+                progress: progress,
+                skewInfos: skewInfos,
+                timeStrs: timeStrs
+            });
         }
     }
 
@@ -3996,6 +4159,22 @@ namespace DagView {
 
             DagView.updateProgress(nodeId, tab.getId(), overallStats.pct, true, skewInfos, timeStrs);
         });
+    }
+
+    function _updateSharedProgress(progressInfo: {
+        nodeId: DagNodeId,
+        tabId: string,
+        progress: number,
+        skewInfos: any[],
+        timeStrs: string[]
+    }): void {
+        const nodeId: DagNodeId = progressInfo.nodeId;
+        const tabId: string = progressInfo.tabId;
+        DagView.updateProgress(nodeId, tabId, progressInfo.progress,
+            null, progressInfo.skewInfos, progressInfo.timeStrs, false);
+        if (progressInfo.progress >= 100) {
+            DagView.removeProgress(nodeId, tabId);
+        }
     }
 
     function _getSkewInfo(name, rows, skew, totalRows, inputSize):
@@ -4046,6 +4225,11 @@ namespace DagView {
         return 'hsl(' + h + ', 100%, 33%)';
     }
 
+    /**
+     * DagView.removeProgress
+     * @param nodeId
+     * @param tabId
+     */
     export function removeProgress(nodeId: DagNodeId, tabId: string): void {
         const $dataflowArea: JQuery = _getAreaByTab(tabId);
         const g = d3.select($dataflowArea.find('.operator[data-nodeid = "' + nodeId + '"]')[0]);
@@ -4188,7 +4372,10 @@ namespace DagView {
         return logParam;
     }
 
-    function _nodeTitleEditMode($origTitle) {
+    function _nodeTitleEditMode($origTitle): void {
+        if (activeDagTab instanceof DagTabShared) {
+            return;
+        }
         const nodeId: DagNodeId = $origTitle.closest(".operator").data("nodeid");
         const node = DagView.getActiveDag().getNode(nodeId);
         const tabId = DagView.getActiveDag().getTabId();

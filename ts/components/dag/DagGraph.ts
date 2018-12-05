@@ -238,8 +238,15 @@ class DagGraph {
             }
         })
         .registerEvents(DagNodeEvents.ParamChange, (info) => {
+            this.events.trigger(DagGraphEvents.TurnOffSave, {
+                tabId: this.parentTabId
+            });
             const node = this.getNode(info.id);
             this._traverseSwitchState(node);
+            this.events.trigger(DagGraphEvents.TurnOnSave, {
+                tabId: this.parentTabId
+            });
+
             info.tabId = this.parentTabId;
             this.events.trigger(DagNodeEvents.ParamChange, info);
         })
@@ -273,6 +280,9 @@ class DagGraph {
         .registerEvents(DagNodeEvents.RetinaRemove, (info) => {
             info.tabId = this.parentTabId;
             this.events.trigger(DagNodeEvents.RetinaRemove, info);
+        })
+        .registerEvents(DagNodeEvents.AutoExecute, (info) => {
+            this.events.trigger(DagNodeEvents.AutoExecute, info);
         });
     }
 
@@ -738,7 +748,9 @@ class DagGraph {
     public lockGraph(nodeIds: DagNodeId[], executor: DagGraphExecutor): void {
         this.lock = true;
         this.currentExecutor = executor;
-        if (!this.parentTabId) return;
+        if (!this.parentTabId) {
+            return;
+        };
         this.events.trigger(DagGraphEvents.LockChange, {
             lock: true,
             tabId: this.parentTabId,
@@ -1067,7 +1079,6 @@ class DagGraph {
                 }
             }
         };
-
     }
 
     private _executeGraph(nodesMap?: Map<DagNodeId, DagNode>, optimized?: boolean, startingNodes?: DagNodeId[]): XDPromise<void> {
@@ -1373,12 +1384,21 @@ class DagGraph {
     }
 
     private _traverseSwitchState(node: DagNode): Set<DagNode> {
+        this.events.trigger(DagGraphEvents.TurnOffSave, {
+            tabId: this.parentTabId
+        });
         const traversedSet: Set<DagNode> = new Set();
         node.switchState();
         traversedSet.add(node);
         this._traverseChildren(node, (node: DagNode) => {
             node.switchState();
             traversedSet.add(node);
+        });
+        this.events.trigger(DagGraphEvents.TurnOnSave, {
+            tabId: this.parentTabId
+        });
+        this.events.trigger(DagGraphEvents.Save, {
+            tabId: this.parentTabId
         });
         return traversedSet;
     }
@@ -1457,8 +1477,17 @@ class DagGraph {
     }
 
     public applyColumnMapping(nodeId: DagNodeId, renameMap) {
+        this.events.trigger(DagGraphEvents.TurnOffSave, {
+            tabId: this.parentTabId
+        });
         const dagNode: DagNode = this.getNode(nodeId);
         recursiveTraverse(dagNode, renameMap);
+        this.events.trigger(DagGraphEvents.TurnOnSave, {
+            tabId: this.parentTabId
+        });
+        this.events.trigger(DagGraphEvents.Save, {
+            tabId: this.parentTabId
+        });
 
         function recursiveTraverse(node: DagNode, renameMap): void {
             const children: DagNode[] = node.getChildren();

@@ -72,7 +72,10 @@ enum DagNodeErrorType {
 }
 
 enum DagGraphEvents {
-    LockChange = "GraphLockChange"
+    LockChange = "GraphLockChange",
+    TurnOffSave = "TurnOffSave",
+    TurnOnSave = "TurnOnSave",
+    Save = "Save"
 }
 
 enum DagNodeEvents {
@@ -82,12 +85,14 @@ enum DagNodeEvents {
     LineageSourceChange = "DagNodeLineageSourceChange",
     ParamChange = "DagNodeParamChange",
     StateChange = "DagNodeStateChange",
+    ProgressChange = "DagNodeProgressChange",
     SubGraphConfigured = "SubGraphConfigured",
     SubGraphError = "SubGraphError",
     TableLockChange = "DagNodeTableLockChange",
     TableRemove = "TableRemove",
     TitleChange = "TitleChange",
-    RetinaRemove = "RetinaRemove"
+    RetinaRemove = "RetinaRemove",
+    AutoExecute = "AutoExecute"
 }
 
 enum DagCategoryType {

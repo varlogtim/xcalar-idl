@@ -1,5 +1,4 @@
 class DagTabUser extends DagTab {
-    private _autoSave: boolean;
     /**
      * DagTabUser.restore
      * @param dagList
@@ -84,36 +83,18 @@ class DagTabUser extends DagTab {
     public constructor(name: string, id?: string, graph?: DagGraph) {
         super(name, id, graph);
         this._kvStore = new KVStore(this._id, gKVScope.WKBK);
-        this._tempKVStore = new KVStore(`.temp.DF2.${this._id}`, gKVScope.WKBK);
-        this._autoSave = true;
     }
 
     public setName(newName: string): void {
         super.setName(newName);
-        this.save(true); // do a force save
+        this.save(); // do a force save
     }
 
     public load(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let savedDagInfo: any;
-        let savedGraph: DagGraph;
-
         this._loadFromKVStore()
-        .then((dagInfo, graph) => {
-            savedDagInfo = dagInfo;
-            savedGraph = graph;
-            return this._loadFromTempKVStore();
-        })
-        .then((tempDagInfo, tempGraph) => {
-            this._autoSave = savedDagInfo.autoSave;
-            if (tempDagInfo == null) {
-                // when no local meta, use the saved one
-                this._unsaved = false;
-                this.setGraph(savedGraph);
-            } else {
-                this._unsaved = true;
-                this.setGraph(tempGraph);
-            }
+        .then((_dagInfo, graph) => {
+            this.setGraph(graph);
             deferred.resolve();
         })
         .fail((error) => {
@@ -126,34 +107,11 @@ class DagTabUser extends DagTab {
         return deferred.promise();
     }
 
-    public isAutoSave(): boolean {
-        return this._autoSave;
-    }
-
-    public setAutoSave(autoSave): void {
-        this._autoSave = autoSave;
-        if (autoSave) {
-            this._tempKVStore.delete();
-        }
-        // no matter it changes to auto save or not, do a force save
-        // to remember the state first
-        this.save(true);
-    }
-
-    public save(forceSave: boolean = false): XDPromise<void> {
+    public save(): XDPromise<void> {
         if (this._disableSaveLock > 0) {
             return PromiseHelper.resolve();
         }
-        if (!this._autoSave && !forceSave) {
-            this._unsaved = true;
-            return this._writeToTempKVStore(true)
-                    .then(() => {
-                        this._trigger("modify");
-                    });
-        }
-
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        this._unsaved = false;
         this._writeToKVStore()
         .then(() => {
             this._trigger("save");
@@ -177,9 +135,6 @@ class DagTabUser extends DagTab {
         })
         .then(() => {
             return this._kvStore.delete();
-        })
-        .then(() => {
-            return PromiseHelper.alwaysResolve(this._tempKVStore.delete());
         })
         .then(() => {
             // alwaysResolves returns an object that we don't need
@@ -235,7 +190,7 @@ class DagTabUser extends DagTab {
         })
         .then(() => {
             this._dagGraph = fakeDag.getGraph();
-            return this.save(true);
+            return this.save();
         })
         .then(() => {
             hasGetMeta = true;
@@ -262,17 +217,6 @@ class DagTabUser extends DagTab {
         const clonedGraph: DagGraph = this.getGraph().clone();
         const clonedTab = new DagTabUser(this.getName(), null, clonedGraph);
         return clonedTab;
-    }
-
-    protected _getJSON(includeStats?: boolean): {
-        name: string,
-        id: string,
-        dag: DagGraphInfo,
-        autoSave: boolean
-    } {
-        const json = <any>super._getJSON(includeStats);
-        json.autoSave = this._autoSave;
-        return json;
     }
 
     protected _writeToKVStore(): XDPromise<void> {

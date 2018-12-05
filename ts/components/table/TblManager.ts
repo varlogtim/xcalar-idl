@@ -2520,6 +2520,9 @@ class TblManager {
                     // not focus when in modal
                     return false;
                 }
+                if (DagView.getActiveTab() instanceof DagTabShared) {
+                    return false;
+                }
 
                 const colNum: number = xcHelper.parseColNum($td);
                 const rowNum: number = xcHelper.parseRowNum($td.closest("tr"));

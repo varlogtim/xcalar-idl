@@ -157,7 +157,8 @@ class DagTable {
                 classes: "tableMenu",
                 tableId: xcHelper.getTableId(this.getTable())
             };
-
+            const tableMenu: TableMenu = TableComponent.getMenu().getTableMenu();
+            tableMenu.setUnavailableClasses();
             xcHelper.dropdownOpen($(event.target), $("#tableMenu"), options);
         });
     }

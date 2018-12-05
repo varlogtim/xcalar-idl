@@ -183,12 +183,6 @@ class DFDownloadModal {
 
     private _downloadDataflow(name: string, optimized: boolean): XDPromise<void> {
         const tab: DagTab = this._dagTab;
-        if (tab.isUnsave()) {
-            return PromiseHelper.reject({
-                error: ErrTStr.UnsaveDFDownload
-            });
-        }
-
         if (tab instanceof DagTabUser) {
             return this._downloadUserDataflow(name, optimized);
         } else if (tab instanceof DagTabShared) {

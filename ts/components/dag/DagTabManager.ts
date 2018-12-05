@@ -225,16 +225,36 @@ class DagTabManager{
         }
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        if (dagTab instanceof DagTabShared) {
+            DagSharedActionService.Instance.queueRegister(dagTab);
+        }
         dagTab.load()
         .then(() => {
             this._addDagTab(dagTab);
             this._switchTabs();
             this._save();
+            if (dagTab instanceof DagTabShared) {
+                DagSharedActionService.Instance.queueUnResiger(dagTab);
+            }
             deferred.resolve();
         })
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    public reloadTab(dagTab: DagTab): XDPromise<void> {
+        if (dagTab instanceof DagTabShared) {
+            DagSharedActionService.Instance.queueRegister(dagTab);
+        }
+        const promise = dagTab.load();
+        promise
+        .then(() => {
+            if (dagTab instanceof DagTabShared) {
+                DagSharedActionService.Instance.queueUnResiger(dagTab);
+            }
+        });
+        return promise;
     }
 
     /**
@@ -459,46 +479,17 @@ class DagTabManager{
 
     private _deleteTabAction(index: number, name: string): void {
         const dagTab: DagTab = this.getTabByIndex(index);
-        const deleteFunc = () => {
-            const tabId: string = dagTab.getId();
-            const isLogDisabled: boolean = this._isTabLogDisabled(tabId);
-            this._deleteTab(index);
-            this._tabListScroller.showOrHideScrollers();
-            if (!isLogDisabled) {
-                Log.add(DagTStr.RemoveTab, {
-                    "operation": SQLOps.RemoveDagTab,
-                    "id": tabId,
-                    "index": index,
-                    "name": name
-                });
-            }
-        }
-
-        if (dagTab.isUnsave()) {
-            const msg: string = xcHelper.replaceMsg(DFTStr.SaveDFMsg, {
-                name: name
+        const tabId: string = dagTab.getId();
+        const isLogDisabled: boolean = this._isTabLogDisabled(tabId);
+        this._deleteTab(index);
+        this._tabListScroller.showOrHideScrollers();
+        if (!isLogDisabled) {
+            Log.add(DagTStr.RemoveTab, {
+                "operation": SQLOps.RemoveDagTab,
+                "id": tabId,
+                "index": index,
+                "name": name
             });
-            Alert.show({
-                title: DFTStr.SaveDF,
-                msg: msg,
-                buttons: [{
-                    name: CommonTxtTstr.SAVE,
-                    className: "confirm save",
-                    func: () => {
-                        deleteFunc();
-                        dagTab.save(true);
-                    }
-                }, {
-                    name: CommonTxtTstr.NOSAVE,
-                    className: "cancel noSave float-left",
-                    func: () => {
-                        deleteFunc();
-                        dagTab.discardUnsavedChange();
-                    }
-                }]
-            });
-        } else {
-            deleteFunc();
         }
     }
 
@@ -596,8 +587,7 @@ class DagTabManager{
         const isViewOnly: boolean = (dagTab instanceof DagTabOptimized);
         const isOptimized: boolean = (dagTab instanceof DagTabOptimized);
         let html: HTML =
-            '<li class="dagTab ' + (dagTab.isUnsave()? 'unsave': '') + ' ' +
-                (isOptimized? 'optimized': '') + '">' +
+            '<li class="dagTab' + (isOptimized? 'optimized': '') + '">' +
                 '<div class="name ' + (isEditable? '': 'nonedit') + '">' +
                     tabName +
                 '</div>' +

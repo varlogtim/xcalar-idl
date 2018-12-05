@@ -188,9 +188,7 @@ class XcSocket {
             if (!this._isRegistered) {
                 return;
             }
-            // XXX TODO update to DF 2.0 call
-            // DataflowPanel.refresh(updateInfo);
-            // UDFFileManager.Instance.refresh(true, false);
+            DagSharedActionService.Instance.receive(updateInfo);
         });
 
         socket.on('refreshUDF', (refreshOption: { isUpdate: boolean, isDelete: boolean }) => {
