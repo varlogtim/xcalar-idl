@@ -3746,7 +3746,7 @@ namespace DagView {
             $dfArea.addClass("xc-disabled");
             const promise = DagTabManager.Instance.reloadTab(tab);
             xcHelper.showRefreshIcon($dfArea, true, promise);
-            
+
             promise
             .then(() => {
                 _getAreaByTab(tabId).removeClass("rendered");
@@ -4144,7 +4144,7 @@ namespace DagView {
             return;
         }
         let graph: DagSubGraph = tab.getGraph();
-        graph.updateProgress(queryStateOutput.queryGraph.node, true);
+        graph.updateProgress(queryStateOutput.queryGraph.node);
 
         graph.getAllNodes().forEach((node, nodeId) => {
             DagNodeInfoPanel.Instance.update(nodeId, "stats");

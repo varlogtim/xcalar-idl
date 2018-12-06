@@ -52,7 +52,6 @@ abstract class DagNode {
         if (this.state === DagNodeState.Running) {
             // cannot be running state when create
             this.state = DagNodeState.Configured;
-            this.configured = true;
         }
         const coordinates = options.display || {x: -1, y: -1};
         this.display = {coordinates: coordinates, icon: "", description: ""};
@@ -77,8 +76,11 @@ abstract class DagNode {
             this.runStats.hasRun = true;
         }
         this.configured = this.configured || options.configured || false;
-        if (this.configured && DagNodeState.Unused) {
+        if (this.configured && this.state === DagNodeState.Unused) {
             this.state = DagNodeState.Configured;
+        } else if (this.state !== DagNodeState.Unused &&
+                this.state !== DagNodeState.Error) {
+            this.configured = true;
         }
     }
 
@@ -609,6 +611,15 @@ abstract class DagNode {
         this.runStats.nodes = nodes;
     }
 
+    /**
+     *
+     * @param tableNameMap
+     * @param includesAllTables in the case of optimized dataflows and other subGraphs(SQL),
+     * we know tableNameMap has the progress information for every node/table in the execution
+     * but for regular execution, the tableNameMap may only contain 1 of the operations
+     * in a multi-operation node - includesAllTables would be false in this case so that we
+     * don't set the node to completed if there are other operations that will occur for that node
+     */
     public updateProgress(tableNameMap, includesAllTables?: boolean) {
         const errorStates = [DgDagStateT.DgDagStateUnknown, DgDagStateT.DgDagStateError, DgDagStateT.DgDagStateArchiveError];
         let isComplete = true;

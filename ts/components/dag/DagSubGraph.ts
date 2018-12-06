@@ -139,12 +139,8 @@ class DagSubGraph extends DagGraph {
     /**
      *
      * @param nodeInfos queryState info
-     * @param includesAllTables in the case of optimized dataflows,
-     * we know nodeInfos has progress for every node/table in the execution
-     * but for regular execution, the nodeInfos may only be for 1 operation
-     * in a multi-operation node - includesAllTables would be false in this case
-     */
-    public updateProgress(nodeInfos: any[], includesAllTables?: boolean) {
+    */
+    public updateProgress(nodeInfos: any[]) {
         const nodeIdInfos = {};
 
         nodeInfos.forEach((nodeInfo, i) => {
@@ -169,8 +165,7 @@ class DagSubGraph extends DagGraph {
         });
 
         for (let nodeId in nodeIdInfos) {
-            this.getNode(nodeId).updateProgress(nodeIdInfos[nodeId],
-                                                includesAllTables);
+            this.getNode(nodeId).updateProgress(nodeIdInfos[nodeId], true);
         }
     }
 
