@@ -218,6 +218,14 @@ class DagNodeCustom extends DagNode {
     }
 
     /**
+     * @override
+     * @return {string}
+     */
+    public getNodeDescription(): string {
+        return this.getCustomName();
+    }
+
+    /**
      * Get the columns after apply the node's operation
      * @param columns {ProgCol[]} parent columns
      */
