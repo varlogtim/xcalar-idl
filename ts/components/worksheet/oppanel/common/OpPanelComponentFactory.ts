@@ -532,10 +532,16 @@ class OpPanelComponentFactory {
                     }
                 },
                 onClose: () => {
-                    if (!$inputBox.closest("body").length) {
-                        return; // check if input was removed
-                    }
-                    dataProcess($inputBox.val(), onDataChange);
+                    // setTimeout is on purpose, which is to execute all event listeners first then update DOM in the next event loop!!!
+                    // This is to fix the bug(13976): On autogen panels(such as explode panel), we must click twice on the close icon to close the panel, when the HindDropdown is open.
+                    // Root cause: the next event listener(via event propagation) is removed in the current event processing
+                    // Technical details: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener
+                    setTimeout(() => {
+                        if (!$inputBox.closest("body").length) {
+                            return; // check if input was removed
+                        }
+                        dataProcess($inputBox.val(), onDataChange);
+                    }, 0);
                 }
             }).setupListeners();
         }
