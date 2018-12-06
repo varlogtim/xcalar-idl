@@ -72,7 +72,7 @@ class DagAggPopup {
         if (!this.$aggManagerPopup.hasClass("active")) {
             this.initializeList();
             this.$aggManagerPopup.addClass("active");
-            $("#container").on("mousedown.retTab", (event) => {
+            $("#container").on("mousedown.aggPopup", (event) => {
                 const $target: JQuery = $(event.target);
                 if (this.$aggManagerPopup.hasClass("active") &&
                     !$target.closest(".tabWrap").length &&
@@ -152,7 +152,7 @@ class DagAggPopup {
     private closePopup(): void {
         this.$aggManagerPopup.removeClass("active");
         StatusBox.forceHide();
-        $("#container").off("mousedown.retTab");
+        $("#container").off("mousedown.aggPopup");
     }
 
     private deleteAgg($row: JQuery): void {
