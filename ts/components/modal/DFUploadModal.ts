@@ -33,10 +33,6 @@ class DFUploadModal {
         return this._getModal().find(".source input.browse");
     }
 
-    private _getCheckbox(): JQuery {
-        return this._getModal().find(".overwrite .checkboxSection");
-    }
-
     private _close() {
         const $modal: JQuery = this._getModal();
         this._modalHelper.clear();
@@ -47,18 +43,25 @@ class DFUploadModal {
         xcTooltip.enable($modal.find(".buttonTooltipWrap"));
     }
 
-    private _validate(): {tab: DagTab} {
+    private _validate(): {
+        tab: DagTab,
+        shared: boolean
+    } {
         const sharePrefix: string = DagTabShared.PATH.substring(1); // Shared/
         let uploadTab: DagTab;
         
         const $pathInput: JQuery = this._getDestPathInput();
         let path: string = $pathInput.val().trim();
         let shortName: string;
+        let shared: boolean ;
+
         if (path.startsWith(sharePrefix)) {
+            shared = true;
             path = path.substring(sharePrefix.length);
             uploadTab = new DagTabShared(path);
             shortName = (<DagTabShared>uploadTab).getShortName();
         } else {
+            shared = false;
             uploadTab = new DagTabUser(path);
             shortName = uploadTab.getName();
         }
@@ -89,12 +92,13 @@ class DFUploadModal {
             return null;
         }
         return {
-            tab: uploadTab
+            tab: uploadTab,
+            shared: shared
         };
     }
 
     private _submitForm(): XDPromise<void> {
-        const res: {tab: DagTab} = this._validate();
+        const res = this._validate();
         if (res == null) {
             return PromiseHelper.reject();
         }
@@ -103,10 +107,14 @@ class DFUploadModal {
         xcHelper.disableSubmit($confirmBtn);
 
         const tab: DagTab = res.tab;
+        const shared: boolean = res.shared;
         const file: File = this._file;
-        let timer: number = null;
-        const overwriteUDF: boolean = this._getCheckbox().find(".checkbox").hasClass("checked");
+        const overwriteUDF: boolean = this._getModal().find(".overwrite .checkboxSection")
+        .find(".checkbox").hasClass("checked");
+        const restoreDS: boolean = this._getModal().find(".restoreDS .checkboxSection")
+        .find(".checkbox").hasClass("checked");
 
+        let timer: number = null;
         this._checkFileSize(file)
         .then(() => {
             timer = window.setTimeout(() => {
@@ -118,21 +126,19 @@ class DFUploadModal {
             return tab.upload(fileContent, overwriteUDF);
         })
         .then(() => {
+            if (restoreDS) {
+                this._restoreDS(tab, shared);
+            }
             xcHelper.showSuccess(SuccessTStr.Upload);
             this._close();
             DagList.Instance.refresh();
             deferred.resolve();
         })
-        .fail((error, isUDFFail) => {
-            if (isUDFFail) {
+        .fail((error, alertOption) => {
+            if (alertOption != null) {
                 this._close();
                 DagList.Instance.refresh();
-                Alert.show({
-                    title: DFTStr.UploadErr,
-                    instr: DFTStr.UpoladErrInstr,
-                    msg: error.error,
-                    isAlert: true
-                });
+                Alert.show(alertOption);
             } else {
                 StatusBox.show(error.error, $confirmBtn, false, {
                     detail: error.log
@@ -206,6 +212,26 @@ class DFUploadModal {
         return deferred.promise();
     }
 
+    private _restoreDS(tab: DagTab, shared: boolean): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        tab.load()
+        .then(() => {
+            const graph: DagGraph = tab.getGraph();
+            const dagNodes: DagNodeDataset[] = [];
+            graph.getAllNodes().forEach((dagNode: DagNode) => {
+                if (dagNode instanceof DagNodeDataset) {
+                    dagNodes.push(dagNode);
+                }
+            });
+            return DS.restoreSourceFromDagNode(dagNodes, shared);
+        })
+        .then(() => {
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
 
     private _addEventListeners() {
         const $modal: JQuery = this._getModal();
@@ -238,9 +264,9 @@ class DFUploadModal {
             return false;
         });
 
-        const $checkbox: JQuery = this._getCheckbox();
-        $checkbox.on("click", ".checkbox, .text", () => {
-            this._getCheckbox().find(".checkbox").toggleClass("checked");
+        $modal.on("click", ".checkbox, .text", (event) => {
+            $(event.currentTarget).closest(".checkboxSection")
+            .find(".checkbox").toggleClass("checked");
         });
 
         // display the chosen file's path
@@ -261,9 +287,7 @@ class DFUploadModal {
     private _changeFilePath(path: string, fileInfo?: File) {
         path = path.replace(/C:\\fakepath\\/i, '');
         this._file = fileInfo || (<any>this._getBrowseButton()[0]).files[0];
-        let fileName: string = path.substring(0, path.indexOf("."))
-        .toLowerCase().replace(/ /g, "");
-
+        let fileName: string = path.substring(0, path.indexOf(".")).trim();
         const $modal: JQuery = this._getModal();
         const $sourcePathInput: JQuery = $modal.find(".source .path");
         $sourcePathInput.val(path);

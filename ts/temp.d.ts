@@ -459,6 +459,7 @@ declare var gXcSupport: boolean;
 declare var gCollab: boolean;
 declare var gXcalarRecordNum: string;
 declare var gXcalarApiLrqExportPrefix: string;
+declare var gDFSuffix: string;
 
 declare var gBuildNumber: number;
 declare var gGitVersion: number;
@@ -1109,8 +1110,7 @@ declare namespace DS {
     export function detach(dsName: string, uid: string): XDPromise<void>;
     export function getSchema(dsName: string): XDPromise<ColSchema[]>;
     export function getLoadArgsFromDS(dsName: string): XDPromise<string>;
-    export function restoreDataset(dsName: string, loadArgs: string): XDPromise<void>;
-    export function getNewDSName(dsName: string): string;
+    export function restoreSourceFromDagNode(dagNodes: DagNodeDataset[], share: boolean): XDPromise<void>;
     export function isAccessible(dsName: string): boolean;
 }
 

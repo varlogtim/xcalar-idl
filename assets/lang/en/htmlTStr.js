@@ -895,9 +895,11 @@ module.exports = {
         // For uploader
         "upload": "UPLOAD",
         "uploadHeader": "Upload Dataflow",
-        "uploadInstr": "Upload a previously downloaded dataflow into Xcalar. Your file should be of the format .tar.gz",
+        "uploadInstr": "Upload a previously downloaded dataflow into Xcalar. Your file should be of the format .xlrdf.tar.gz",
         "overwriteUdf": "Overwrite UDFs",
-        "overwriteUdfHint": "Overwrite UDFs of the same module name with those inside this dataflow"
+        "overwriteUdfHint": "Overwrite UDFs of the same module name with those inside this dataflow",
+        "restoreDS": "Restore datasets",
+        "restoreDSHint": "Restore datasets that are used in the dataflow but are not in the cluster",
     },
 
     "sched": {

@@ -179,34 +179,43 @@ class DagTabUser extends DagTab {
         // 3. delete the temp shared dataflow
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const tempName: string = this._getTempName();
-        const fakeDag: DagTabShared = new DagTabShared(tempName);
+        const fakeTab: DagTabShared = new DagTabShared(tempName);
         let hasFakeDag: boolean = false;
         let hasGetMeta: boolean = false;
 
-        fakeDag.upload(content)
+        fakeTab.upload(content)
         .then(() => {
             hasFakeDag = true;
-            return fakeDag.load();
+            return fakeTab.load();
         })
         .then(() => {
-            this._dagGraph = fakeDag.getGraph();
+            this._dagGraph = fakeTab.getGraph();
             return this.save();
         })
         .then(() => {
             hasGetMeta = true;
             DagList.Instance.addDag(this);
-            return fakeDag.copyUDFToLocal(overwriteUDF);
+            return fakeTab.copyUDFToLocal(overwriteUDF);
         })
         .then(() => {
             deferred.resolve();
         })
         .fail((error) => {
-            deferred.reject(error, hasGetMeta);
+            let alertOption: Alert.AlertOptions = null;
+            if (hasGetMeta) {
+                alertOption = {
+                    title: DFTStr.UploadErr,
+                    instr: DFTStr.UpoladErrInstr,
+                    msg: error.error,
+                    isAlert: true
+                }
+            }
+            deferred.reject(error, alertOption);
         })
         .always(() => {
             if (hasFakeDag) {
                 // if temp shared dataflow has created, delete it
-                fakeDag.delete();
+                fakeTab.delete();
             }
         });
 

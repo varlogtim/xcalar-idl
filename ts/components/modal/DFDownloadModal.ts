@@ -62,11 +62,11 @@ class DFDownloadModal {
         this._model = [{
             type: this._DownloadTypeEnum.DF,
             text: DFTStr.DF,
-            suffix: ".tar.gz"
+            suffix: gDFSuffix
         }, {
             type: this._DownloadTypeEnum.OptimziedDF,
             text: DFTStr.OptimizedDF,
-            suffix: ".tar.gz"
+            suffix: gDFSuffix
         }, {
             type: this._DownloadTypeEnum.Image,
             text: "Image",

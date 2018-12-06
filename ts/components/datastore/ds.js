@@ -43,9 +43,115 @@ window.DS = (function ($, DS) {
         return restoreDS(oldHomeFolder, atStartUp);
     };
 
-    DS.restoreDataset = function(fullDSName, loadArgsStr) {
+    DS.restoreSourceFromDagNode = function(dagNodes, share) {
+        const deferred = PromiseHelper.deferred();
+        const failures = [];
+        const nameToDagMap = new Map();
+
+        dagNodes.forEach((dagNode) => {
+            if (!(dagNode instanceof DagNodeDataset)) {
+                return;
+            }
+            const dsName = dagNode.getDSName();
+            if (DS.getDSObj(dsName) != null) {
+                return;
+            }
+            const loadArgs = dagNode.getLoadArgs();
+            const key = dsName + ".Xcalar." + loadArgs; // a unique key
+            if (!nameToDagMap.has(key)) {
+                nameToDagMap.set(key, []);
+            }
+            const nodeArray = nameToDagMap.get(key);
+            nodeArray.push(dagNode);
+        });
+
+        const promises = [];
+        nameToDagMap.forEach((dagNodes) => {
+            var promise = restoreSourceFromDagNodeHelper(dagNodes, share, failures);
+            promises.push(promise);
+        });
+
+        if (promises.length > 0) {
+            // go to dataset panel to restore
+            MainMenu.openPanel("datastorePanel", "inButton");
+        }
+
+        PromiseHelper.when(...promises)
+        .then(() => {
+            if (failures.length) {
+                // XXX TODO: make it a helper function
+                const errMsg = failures.map((error) => {
+                    if (typeof error === "string") {
+                        return error;
+                    } else if (typeof error === "object" && error.error) {
+                        return error.error;
+                    } else {
+                        return JSON.stringify(error);
+                    }
+                });
+                Alert.error(ErrTStr.RestoreDS, errMsg);
+                deferred.reject(errMsg);
+            }
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    // restore a set of dataset who share the same dsName and loadArgs
+    function restoreSourceFromDagNodeHelper(dagNodes, share, failures) {
+        const deferred = PromiseHelper.deferred();
+        const oldDSName = dagNodes[0].getDSName();
+        const newDSName = getNewDSName(oldDSName);
+        const loadArgs = dagNodes[0].getLoadArgs();
+        const cachedInfo = {};
+        dagNodes.forEach((dagNode) => {
+            const param = xcHelper.deepCopy(dagNode.getParam());
+            const error = dagNode.getError();
+            param.source = newDSName;
+            dagNode.setParam(param);
+            cachedInfo[dagNode.getId()] = {
+                param: param,
+                error: error
+            };
+        });
+        restoreDatasetFromLoadArgs(newDSName, loadArgs)
+        .then((dsObj) => {
+            if (share) {
+                const dsId = dsObj.getId();
+                const newName = getSharedName(dsObj.getName());
+                const innerDeferred = PromiseHelper.deferred();
+                shareAndUnshareHelper(dsId, newName, true)
+                .then(innerDeferred.resolve)
+                .fail((error) => {
+                    failures.push(error);
+                    innerDeferred.resolve(); // still resolve
+                });
+                return innerDeferred.promise();
+            }
+        })
+        .then(deferred.resolve)
+        .fail((error) => {
+            dagNode.forEach((dagNode) => {
+                const info = cachedInfo[dagNode.getId()] || {};
+                if (dagNode.getState() === DagNodeState.Configured &&
+                    JSON.stringify(dagNode.getParam()) === JSON.stringify(info.param)
+                ) {
+                    // when still in configure state and param has not changed
+                    dagNode.beErrorState(info.error);
+                }
+            });
+            
+            failures.push(error);
+            deferred.resolve(); // still reolsve it
+        });
+
+        return deferred.promise();
+    }
+
+    function restoreDatasetFromLoadArgs(fullDSName, loadArgsStr) {
         var deferred = PromiseHelper.deferred();
-        MainMenu.openPanel("datastorePanel", "inButton");
         restoreDatasetHelper(fullDSName, loadArgsStr)
         .then(deferred.resolve)
         .fail((error) => {
@@ -78,16 +184,17 @@ window.DS = (function ($, DS) {
         } catch (e) {
             console.error(e);
             deferred.reject({
-                error: e
+                error: e.message
             });
         }
 
         return deferred.promise();
     }
 
-    DS.getNewDSName = function(oldDSName) {
+    function getNewDSName(oldDSName) {
         var parsedName = xcHelper.parseDSName(oldDSName);
-        return xcHelper.wrapDSName(parsedName.dsName);
+        var dsName = DS.getUniqueName(parsedName.dsName);
+        return xcHelper.wrapDSName(dsName, parsedName.randId);
     };
 
     // recursive call to upgrade dsObj
@@ -775,13 +882,11 @@ window.DS = (function ($, DS) {
         }
         var name = dsObj.getName();
         var msg = xcHelper.replaceMsg(DSTStr.ShareDSMsg, {name: name});
-        var $sharedDS = $gridView.find('.grid-unit.shared[data-dsname="' +
-                                                         name + '"]');
+        var sharedName = getSharedName(name);
 
-        if ($sharedDS.length) {
+        if (name !== sharedName) {
             // in case this name is taken
-            var uniqueId = dsId.split(".")[1];
-            name = DS.getUniqueName(name + uniqueId);
+            name = sharedName;
             msg += " " + xcHelper.replaceMsg(DSTStr.RenameMsg, {name: name});
         }
 
@@ -810,6 +915,16 @@ window.DS = (function ($, DS) {
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    function getSharedName(dsId, name) {
+        var $sharedDS = $gridView.find('.grid-unit.shared[data-dsname="' + name + '"]');
+        if ($sharedDS.length) {
+            // in case this name is taken
+            var uniqueId = dsId.split(".")[1];
+            name = DS.getUniqueName(name + uniqueId);
+        }
+        return name;
     }
 
     function unshareDS(dsId) {
@@ -1026,7 +1141,9 @@ window.DS = (function ($, DS) {
                 var dsIds = arg.dsIds || [];
                 dsIds.forEach(function(dsId) {
                     var dsObj = DS.getDSObj(dsId);
-                    activateDSObj(dsObj);
+                    if (dsObj != null) {
+                        activateDSObj(dsObj);
+                    }
                 });
                 break;
             case "deactivate":
@@ -3049,6 +3166,10 @@ window.DS = (function ($, DS) {
 
     function deactivateDSObj(dsId) {
         var dsObj = DS.getDSObj(dsId);
+        if (dsObj == null) {
+            // when it's not in
+            return;
+        }
         var $grid = DS.getGrid(dsId);
         dsObj.deactivate();
         $grid.addClass("inActivated");

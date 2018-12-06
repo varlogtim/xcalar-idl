@@ -260,24 +260,8 @@ class DagNodeInfoPanel {
     }
 
     private _restoreDataset(): void {
-        if (!(this._activeNode instanceof DagNodeDataset)) {
-            return;
-        }
         const node: DagNodeDataset = <DagNodeDataset>this._activeNode;
-        const oldDSName: string = node.getDSName();
-        const newDSName: string = DS.getNewDSName(oldDSName);
-        const param: DagNodeDatasetInputStruct = xcHelper.deepCopy(node.getParam());
-        const error: string = node.getError();
-        param.source = newDSName;
-        node.setParam(param);
-        DS.restoreDataset(newDSName, node.getLoadArgs())
-        .fail(() => {
-            if (node.getState() === DagNodeState.Configured &&
-                JSON.stringify(node.getParam()) === JSON.stringify(param)
-            ) {
-                // when still in configure state and param has not changed
-                node.beErrorState(error);
-            }
-        });
+        const shared: boolean = DagView.getActiveTab() instanceof DagTabShared;
+        DS.restoreSourceFromDagNode([node], shared);
     }
 }

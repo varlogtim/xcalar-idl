@@ -609,9 +609,13 @@ namespace xcHelper {
      * xcHelper.wrapDSName
      * @param dsName
      */
-    export function wrapDSName(dsName: string = ""): string {
+    export function wrapDSName(dsName: string = "",  randId?: string): string {
         let fulldsName: string = xcHelper.getUserPrefix() + ".";
-        fulldsName = xcHelper.randName(fulldsName, 5);
+        if (randId) {
+            fulldsName += randId;
+        } else {
+            fulldsName = xcHelper.randName(fulldsName, 5);
+        }
         fulldsName += "." + dsName;
         return fulldsName;
     }

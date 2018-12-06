@@ -3524,7 +3524,10 @@ namespace DagView {
             }
             _updateNodeState(info);
             const dagTab: DagTab = DagTabManager.Instance.getTabById(info.tabId);
-            dagTab.save();
+            if (info.state !== DagNodeState.Running) {
+                // running state don't need to change
+                dagTab.save();
+            }
             if (dagTab instanceof DagTabShared) {
                 DagSharedActionService.Instance.broadcast(DagNodeEvents.StateChange, {
                     nodeId: info.id,

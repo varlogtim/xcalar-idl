@@ -25,7 +25,7 @@ class DagNodeDataset extends DagNodeIn {
         this.input.setInput({
             source: source,
             prefix: prefix,
-            synthesize: synthesize,
+            synthesize: synthesize || false,
             loadArgs: loadArgs
         });
         super.setParam(null, noAutoExecute);

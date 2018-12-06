@@ -105,6 +105,7 @@ namespace xcGlobal {
         gCollab = false; // if strip / in username or not
         gXcalarRecordNum = "xcalarRecordNum";
         gXcalarApiLrqExportPrefix = ".XcalarLRQExport.";
+        gDFSuffix = ".xlrdf.tar.gz";
 
         // Shut up the console logs
         verbose = false;
