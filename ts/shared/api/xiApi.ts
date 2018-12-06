@@ -951,21 +951,10 @@ namespace XIApi {
         txId: number,
         tableName: string,
         groupOnCols: string[],
-        distinctAggArgs: AggColInfo[],
-        gbTableName: string
+        aggCols: object,
+        gbTableName: string,
+        onlyDistinct: boolean
     ): XDPromise<string> {
-        // The below is an optimization. If multiple aggOps are operating on the
-        // same column, we only need do that groupby once
-        const aggCols: object = {};
-        distinctAggArgs.forEach((aggArg) => {
-            const aggColName: string = aggArg.aggColName;
-            if (aggColName in aggCols) {
-                aggCols[aggColName].push(aggArg);
-            } else {
-                aggCols[aggColName] = [aggArg];
-            }
-        });
-
         const promises: XDPromise<void>[] = [];
         const distinctGbTables: string[] = [];
         const tempTables: string[] = [];
@@ -983,6 +972,10 @@ namespace XIApi {
         PromiseHelper.when.apply(this, promises)
         .then(() => {
             // Now we want to do cascading joins on the newTableNames
+            if (onlyDistinct) {
+                gbTableName = distinctGbTables[0];
+                distinctGbTables.splice(0, 1);
+            }
             return cascadingJoins(txId, distinctGbTables, gbTableName, groupOnCols,
                                 tempTables, tempCols);
         })
@@ -2014,21 +2007,21 @@ namespace XIApi {
             }
         });
 
+        // The below is an optimization. If multiple aggOps are operating on the
+        // same column, we only need do that groupby once
+        const aggCols: object = {};
+        distinctAggArgs.forEach((aggArg) => {
+            const aggColName: string = aggArg.aggColName;
+            if (aggColName in aggCols) {
+                aggCols[aggColName].push(aggArg);
+            } else {
+                aggCols[aggColName] = [aggArg];
+            }
+        });
+
         let tempCols: string[] = [];
-        // XXX This is one extra groupby that can be avoided. But for code
-        // cleanliness, we're going to use this workaround for now. Eventually
-        // If opArray.length === 0, we want to skip until after the first
-        // groupBy call
-        let tempColName: string;
-        if (normalAggArgs.length === 0) {
-            tempColName = "XC_COUNT_" + xcHelper.getTableId(tableName);
-            normalAggArgs = [{
-                operator: "count",
-                aggColName: "1",
-                newColName: tempColName
-            }];
-            tempCols.push(tempColName);
-        }
+        let onlyDistinct: boolean = normalAggArgs.length === 0
+                                    && Object.keys(aggCols).length > 0;
 
         const icvMode: boolean = options.icvMode || false;
         const clean: boolean = options.clean || false;
@@ -2048,38 +2041,44 @@ namespace XIApi {
         });
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        let promise: any;
         // tableName is the original table name that started xiApi.groupby
-        XIApi.index(txId, groupByCols, tableName, null, newKeys, options.dhtName)
-        .then((indexedTable, _isCache, indexKeys) => {
-            newKeys = indexKeys;
-            // table name may have changed after sort!
-            let indexedColName: string = indexKeys.length === 0 ?
-                            null : xcHelper.stripColName(indexKeys[0]);
+        if (onlyDistinct) {
+            promise = PromiseHelper.resolve();
+        } else {
+            promise = XIApi.index(txId, groupByCols, tableName, null, newKeys, options.dhtName)
+            .then((indexedTable, _isCache, indexKeys) => {
+                newKeys = indexKeys;
+                // table name may have changed after sort!
+                let indexedColName: string = indexKeys.length === 0 ?
+                                null : xcHelper.stripColName(indexKeys[0]);
 
-            // get name from src table
-            if (!isValidTableName(gbTableName)) {
-                gbTableName = getNewTableName(tableName, "-GB");
-            }
+                // get name from src table
+                if (!isValidTableName(gbTableName)) {
+                    gbTableName = getNewTableName(tableName, "-GB");
+                }
 
-            // incSample does not take renames, multiGroupby already handle
-            // the name in index stage
-            newKeyFieldName = (isIncSample || isMultiGroupby || groupAll) ?
-            null : xcHelper.stripPrefixInColName(indexedColName);
-            const newColNames: string[] = [];
-            const evalStrs: string[] = [];
-            normalAggArgs.forEach((aggArg) => {
-                newColNames.push(aggArg.newColName);
-                evalStrs.push(getGroupByAggEvalStr(aggArg));
+                // incSample does not take renames, multiGroupby already handle
+                // the name in index stage
+                newKeyFieldName = (isIncSample || isMultiGroupby || groupAll) ?
+                null : xcHelper.stripPrefixInColName(indexedColName);
+                const newColNames: string[] = [];
+                const evalStrs: string[] = [];
+                normalAggArgs.forEach((aggArg) => {
+                    newColNames.push(aggArg.newColName);
+                    evalStrs.push(getGroupByAggEvalStr(aggArg));
+                });
+
+                return groupByHelper(txId, newColNames, evalStrs,
+                indexedTable, gbTableName, isIncSample,
+                icvMode, newKeyFieldName, groupAll)
             });
-
-            return groupByHelper(txId, newColNames, evalStrs,
-            indexedTable, gbTableName, isIncSample,
-            icvMode, newKeyFieldName, groupAll)
-        })
+        }
+        promise
         .then(() => {
             // XXX Check whether tempTables is well tracked
             return distinctGroupby(txId, tableName, groupByCols,
-                                    distinctAggArgs, gbTableName);
+                                   aggCols, gbTableName, onlyDistinct);
         })
         .then((resTable, resTempTables, resTempCols) => {
             finalTable = resTable;

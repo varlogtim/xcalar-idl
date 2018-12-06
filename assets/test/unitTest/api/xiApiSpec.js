@@ -881,7 +881,7 @@ describe('XIApi Test', () => {
             const txId = 0;
             const tableName = 'test#a';
             const groupOnCols = ['groupOn'];
-            const distinctAggArgs = [{
+            const distinctAggArgs = {groupOn: [{
                 aggColName: 'gropuOn',
                 operator: 'min',
                 newColName: 'new1'
@@ -889,15 +889,15 @@ describe('XIApi Test', () => {
                 aggColName: 'gropuOn',
                 operator: 'max',
                 newColName: 'new2'
-            }];
+            }]};
             const gbTableName = 'gb#b;'
 
             distinctGroupby(txId, tableName, groupOnCols,
-                distinctAggArgs, gbTableName)
+                distinctAggArgs, gbTableName, true)
                 .then((finalJoinedTable, tempTables, tempCols) => {
                     expect(finalJoinedTable).to.be.a('string');
-                    expect(tempTables.length).to.equal(4);
-                    expect(tempCols.length).to.equal(2);
+                    expect(tempTables.length).to.equal(2);
+                    expect(tempCols.length).to.equal(1);
                     done();
                 })
                 .fail(() => {
