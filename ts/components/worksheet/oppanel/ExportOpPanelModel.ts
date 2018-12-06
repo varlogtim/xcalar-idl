@@ -122,10 +122,11 @@ class ExportOpPanelModel {
         } else {
             dagData.driver = "";
         }
-        this.driverArgs.forEach((arg: ExportDriverArg) => {
-            dagData.driverArgs[arg.name] = arg.value;
-        })
-
+        if (this.driverArgs != null) {
+            this.driverArgs.forEach((arg: ExportDriverArg) => {
+                dagData.driverArgs[arg.name] = arg.value;
+            })
+        }
         return dagData;
     }
 
@@ -242,6 +243,12 @@ class ExportOpPanelModel {
      * Validates the current arguments/parameters.
      */
     public validateArgs(): boolean {
+        if (this.driverArgs == null || this.exportDrivers == []) {
+            let $errorLocation: JQuery = $("#exportOpPanel .bottomSection .btn-submit");
+            StatusBox.show("No existing driver.", $errorLocation,
+                false, {'side': 'right'});
+            return false;
+        }
         const argLen: number = this.driverArgs.length;
         let arg: ExportDriverArg = null;
         let $parameters: JQuery = $("#exportOpPanel .exportArg");

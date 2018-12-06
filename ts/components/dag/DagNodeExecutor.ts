@@ -602,9 +602,14 @@ class DagNodeExecutor {
         const columns: string[] = exportInput.columns;
         const progCols: ProgCol[] = node.getParents()[0].getLineage().getColumns();
         const backCols: string[] = columns.map((name) => {
-            return progCols.find((col: ProgCol) => {
+            let col: ProgCol = progCols.find((col: ProgCol) => {
                 return col.name == name || col.getBackColName() == name;
-            }).getBackColName();
+            })
+            if (col == null) {
+                return;
+            } else {
+                return col.getBackColName();
+            }
         });
         if (backCols.length != columns.length) {
             throw new Error("Could not export, columns are missing.");
