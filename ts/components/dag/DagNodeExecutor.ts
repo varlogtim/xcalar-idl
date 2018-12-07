@@ -940,11 +940,13 @@ class DagNodeExecutor {
         let xcQueryString = node.getXcQueryString();
         let promise: XDPromise<any> = PromiseHelper.resolve({xcQueryString: xcQueryString});
         if (!xcQueryString) {
-            const updateHistory = true;
-            promise = node.compileSQL(params.sqlQueryStr, queryId, updateHistory);
+            promise = node.compileSQL(params.sqlQueryStr, queryId);
         }
         const newDestTableName = self._generateTableName();
-        let queryObj;
+        const queryObj = {
+            queryId: queryId,
+            queryString: params.sqlQueryStr
+        };
         promise
         .then(function(ret) {
             const replaceMap = {};
@@ -969,12 +971,8 @@ class DagNodeExecutor {
                 jdbcCheckTime: 500
             };
             // Set status to Running
-            queryObj = {
-                queryId: queryId,
-                status: SQLStatus.Running,
-                queryString: params.sqlQueryStr,
-                startTime: new Date()
-            }
+            queryObj["status"] = SQLStatus.Running;
+            queryObj["startTime"] = new Date();
             SqlQueryHistoryPanel.Card.getInstance().update(queryObj);
             return XIApi.query(self.txId, queryId, replaceRetStruct.newQueryStr,
                                                                        options);
