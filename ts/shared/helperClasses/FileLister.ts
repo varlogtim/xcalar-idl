@@ -97,10 +97,27 @@ class FileLister {
         this._render();
     }
 
+    private _verifyPath(): void {
+        const pathLen: number = this._currentPath.length;
+        let curObj: FileListerFolder = this._fileObject;
+        for (let i = 0; i < pathLen; i++) {
+            const currentPath: string = this._currentPath[i];
+            if (currentPath != "" && curObj.folders[currentPath] == null) {
+                // path no longer exists
+                this._currentPath = this._currentPath.slice(0, i);
+                StatusBox.show("Folder does not exist: " + currentPath,
+                    this._$section.find(".pathSection .path"));
+                break;
+            }
+            curObj = curObj.folders[currentPath];
+        }
+    }
+
     private _render(): void {
         if (this._fileObject == null) {
             return;
         }
+        this._verifyPath();
         const pathLen: number = this._currentPath.length;
         let curObj: FileListerFolder = this._fileObject;
         let path: string = "";

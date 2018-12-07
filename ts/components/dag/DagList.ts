@@ -115,7 +115,7 @@ class DagList {
         .then(deferred.resolve)
         .fail(deferred.reject)
         .always(() => {
-            this._renderDagList();
+            this._renderDagList(true);
             this._updateSection();
         });
         return promise;
@@ -286,10 +286,15 @@ class DagList {
         });
     }
 
-    private _renderDagList(): void {
+    private _renderDagList(keepLocation?: boolean): void {
         const dagLists = this.list();
         this._fileLister.setFileObj(dagLists);
-        this._fileLister.render();
+        if (keepLocation) {
+            let path = "Home/" + this._fileLister.getCurrentPath() + "/";
+            this._fileLister.goToPath(path);
+        } else {
+            this._fileLister.render();
+        }
     }
 
     private _iconHTML(type: string, icon: string, title: string): HTML {
