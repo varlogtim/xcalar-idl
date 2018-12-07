@@ -174,7 +174,11 @@ class DagNodeJoin extends DagNode {
         // 1. Get join cols
         const joinedCols: ProgCol[] = joinInput.columns.map((colName, index) => {
             joinedColSet.add(colName);
-            const colType: ColumnType = joinInput.casts[index] || colMap.get(colName).getType();
+            // We don't support type casting in Join for now, but keep the code in case we wanna re-enable it
+            // const colType: ColumnType = joinInput.casts == null
+            //     ? colMap.get(colName).getType()
+            //     : joinInput.casts[index] || colMap.get(colName).getType();
+            const colType: ColumnType = colMap.get(colName).getType();
             const frontName: string = xcHelper.parsePrefixColName(colName).name;
             return ColManager.newPullCol(frontName, colName, colType);
         });

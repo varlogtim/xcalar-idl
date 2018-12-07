@@ -1,5 +1,6 @@
 class JoinOpPanelStep1 {
     private _templateMgr = new OpPanelTemplateManager();
+    private _componentFactory: OpPanelComponentFactory;
     private _$elem: JQuery = null;
     private _onDataChange = () => {};
     private static readonly _templateIdClasue = 'templateClause';
@@ -37,6 +38,7 @@ class JoinOpPanelStep1 {
         });
         this._templateMgr.loadTemplate(JoinOpPanelStep1._templateIdClasue, this._$elem);
         this._templateMgr.loadTemplate(JoinOpPanelStep1._templateIdCast, this._$elem);
+        this._componentFactory = new OpPanelComponentFactory(this._opSectionSelector);
     }
 
     public updateUI(props: {
@@ -163,6 +165,7 @@ class JoinOpPanelStep1 {
     }
 
     private _updateJoinClauseUI() {
+        let numErrorShown = 1;
         const columnPairs = this._modelRef.getColumnPairs();
         const nodeList = [];
         for (let i = 0; i < columnPairs.length; i++) {
@@ -170,6 +173,9 @@ class JoinOpPanelStep1 {
             const { leftName, leftCast, rightName, rightCast } = columnPair;
             const isLeftDetached = this._modelRef.isColumnDetached(leftName, true);
             const isRightDetached = this._modelRef.isColumnDetached(rightName, false);
+            const isShowError = !this._isCompatiableColumnType(leftCast, rightCast)
+                && (numErrorShown-- > 0);
+
             const clauseSection = this._templateMgr.createElements(JoinOpPanelStep1._templateIdClasue, {
                 'onDelClick': columnPairs.length > 1
                     ? () => {
@@ -179,7 +185,11 @@ class JoinOpPanelStep1 {
                     : () => {},
                 'delCss': columnPairs.length > 1 ? '' : 'removeIcon-nodel',
                 'leftColErrCss': (isLeftDetached ? 'dropdown-detach' : ''),
-                'rightColErrCss': (isRightDetached ? 'dropdown-detach' : '')
+                'rightColErrCss': (isRightDetached ? 'dropdown-detach' : ''),
+                'APP-ERRMSG': isShowError
+                    ? this._componentFactory.createErrorMessage({
+                        msgText: JoinTStr.TypeMistch
+                    }) : null
             });
             if (clauseSection == null || clauseSection.length > 1) {
                 // This should never happend. Possibly caused by invalid template.
@@ -535,6 +545,18 @@ class JoinOpPanelStep1 {
             left: leftCols, right: rightCols,
             leftType: leftTypes, rightType: rightTypes
         };
+    }
+
+    private _isCompatiableColumnType(
+        colType1: ColumnType, colType2: ColumnType
+    ): boolean {
+        if (colType1 == null || colType1 === ColumnType.undefined) {
+            return true;
+        }
+        if (colType2 == null || colType2 === ColumnType.undefined) {
+            return true;
+        }
+        return colType1 === colType2;
     }
     // Data model manipulation === end
 }

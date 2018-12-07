@@ -13,18 +13,18 @@ class DagNodeJoinInput extends DagNodeInput {
       if (inputStruct.left == null) {
         inputStruct.left = DagNodeJoinInput._getDefaultTableInfo();
       }
-      if (inputStruct.left.casts == null || inputStruct.left.casts.length === 0) {
-        inputStruct.left.casts = inputStruct.left.columns.map(() => null);
-      }
+      // if (inputStruct.left.casts == null || inputStruct.left.casts.length === 0) {
+      //   inputStruct.left.casts = inputStruct.left.columns.map(() => null);
+      // }
       if (inputStruct.left.keepColumns == null) {
         inputStruct.left.keepColumns = [];
       }
       if (inputStruct.right == null) {
         inputStruct.right = DagNodeJoinInput._getDefaultTableInfo();
       }
-      if (inputStruct.right.casts == null || inputStruct.right.casts.length === 0) {
-        inputStruct.right.casts = inputStruct.right.columns.map(() => null);
-      }
+      // if (inputStruct.right.casts == null || inputStruct.right.casts.length === 0) {
+      //   inputStruct.right.casts = inputStruct.right.columns.map(() => null);
+      // }
       if (inputStruct.right.keepColumns == null) {
         inputStruct.right.keepColumns = [];
       }
@@ -77,7 +77,7 @@ class DagNodeJoinInput extends DagNodeInput {
             "additionalProperties": false,
             "required": [
               "columns",
-              "casts",
+              // "casts",
               "rename"
             ],
             "properties": {
@@ -203,7 +203,7 @@ class DagNodeJoinInput extends DagNodeInput {
             "additionalProperties": false,
             "required": [
               "columns",
-              "casts",
+              // "casts",
               "rename"
             ],
             "properties": {
@@ -382,7 +382,7 @@ class DagNodeJoinInput extends DagNodeInput {
         return {
             columns: [""],
             keepColumns: [],
-            casts: [null],
+            // casts: [null],
             rename: [{sourceColumn: "", destColumn: "", prefix: false}]
         }
     }

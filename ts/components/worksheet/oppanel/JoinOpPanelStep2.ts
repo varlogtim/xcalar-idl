@@ -2,6 +2,8 @@ class JoinOpPanelStep2 {
     private _$elem: JQuery = null;
     private _modelRef: JoinOpPanelModel = null;
     private _templateMgr = new OpPanelTemplateManager();
+    private _componentFactory: OpPanelComponentFactory;
+    private _opSectionSelector = "#joinOpPanel .opSection";
     private _onDataChange = () => {};
     private static readonly _templateIds = {
         renameRow: 'templateRenameRow',
@@ -24,6 +26,7 @@ class JoinOpPanelStep2 {
         for (const template of Object.keys(templateIds)) {
             this._templateMgr.loadTemplate(templateIds[template], this._$elem);
         }
+        this._componentFactory = new OpPanelComponentFactory(this._opSectionSelector);
     }
 
     public updateUI(props: {
@@ -60,7 +63,10 @@ class JoinOpPanelStep2 {
         );
     }
 
-    private _createPrefixRenameTable(): HTMLElement[] {
+    private _createPrefixRenameTable(
+        prefixCollisionLeft: Set<string>,
+        prefixCollisionRight: Set<string>
+    ): HTMLElement[] {
         const prefixLeftList = this._modelRef.getRenames({
             isPrefix: true, isLeft: true
         });
@@ -77,18 +83,23 @@ class JoinOpPanelStep2 {
                 'renameHeader': OpPanelTStr.JoinPanelRenameTitlePrefix,
                 'APP-LEFTRENAME': this._createRenameList({
                     isLeft: true, isPrefix: true,
-                    renameInfoList: prefixLeftList
+                    renameInfoList: prefixLeftList,
+                    collisionNames: prefixCollisionLeft
                 }),
                 'APP-RIGHTRENAME': this._createRenameList({
                     isLeft: false, isPrefix: true,
-                    renameInfoList: prefixRightList
+                    renameInfoList: prefixRightList,
+                    collisionNames: prefixCollisionRight
                 })
             }
         );
         return elements;
     }
 
-    private _createDerivedRenameTable(): HTMLElement[] {
+    private _createDerivedRenameTable(
+        columnCollisionLeft: Set<string>,
+        columnCollisionRight: Set<string>
+    ): HTMLElement[] {
         const derivedLeftList = this._modelRef.getRenames({
             isLeft: true, isPrefix: false
         });
@@ -105,11 +116,13 @@ class JoinOpPanelStep2 {
                 'renameHeader': OpPanelTStr.JoinPanelRenameTitleDerived,
                 'APP-LEFTRENAME': this._createRenameList({
                     isLeft: true, isPrefix: false,
-                    renameInfoList: derivedLeftList
+                    renameInfoList: derivedLeftList,
+                    collisionNames: columnCollisionLeft
                 }),
                 'APP-RIGHTRENAME': this._createRenameList({
                     isLeft: false, isPrefix: false,
-                    renameInfoList: derivedRightList
+                    renameInfoList: derivedRightList,
+                    collisionNames: columnCollisionRight
                 })
             }
         );
@@ -117,8 +130,35 @@ class JoinOpPanelStep2 {
     }
 
     private _createColumnRenameSection(): HTMLElement[] {
-        const elemTablePrefix = this._createPrefixRenameTable();
-        const elemTableDerived = this._createDerivedRenameTable();
+        const {
+            columnLeft: columnCollisionMap, prefixLeft: prefixCollisionMap
+        } = this._modelRef.getCollisionNames();
+        // Keep only one collision error to show
+        let numCollisionsToShow = 1;
+        const collisionPrefix: Set<string> = new Set();
+        const collisionColumns: Set<string> = new Set();
+        for (const name of prefixCollisionMap.keys()) {
+            if (numCollisionsToShow <= 0) {
+                break;
+            }
+            collisionPrefix.add(name);
+            numCollisionsToShow --;
+        }
+        for (const name of columnCollisionMap.keys()) {
+            if (numCollisionsToShow <= 0) {
+                break;
+            }
+            collisionColumns.add(name);
+            numCollisionsToShow --;
+        }
+        
+
+        const elemTablePrefix = this._createPrefixRenameTable(
+            collisionPrefix, collisionPrefix
+        );
+        const elemTableDerived = this._createDerivedRenameTable(
+            collisionColumns, collisionColumns
+        );
 
         if ((elemTablePrefix == null || elemTablePrefix.length === 0)
             && (elemTableDerived == null || elemTableDerived.length === 0)
@@ -176,9 +216,10 @@ class JoinOpPanelStep2 {
     private _createRenameList(props: {
         isLeft: boolean,
         isPrefix: boolean,
-        renameInfoList: JoinOpRenameInfo[] // !!! Items in list are references !!!
+        renameInfoList: JoinOpRenameInfo[], // !!! Items in list are references !!!
+        collisionNames: Set<string>
     }) {
-        const { isLeft, renameInfoList, isPrefix } = props;
+        const { isLeft, renameInfoList, isPrefix, collisionNames } = props;
 
         if (renameInfoList == null || renameInfoList.length === 0) {
             return [];
@@ -204,7 +245,14 @@ class JoinOpPanelStep2 {
                     onNameChange: (e) => {
                         this._renameColumn(renameInfo, e.target.value.trim());
                         this._onDataChange();
-                    }
+                    },
+                    'APP-ERRMSG': collisionNames.has(renameInfo.source)
+                        ? this._componentFactory.createErrorMessage({
+                            msgText: isPrefix
+                                ? ErrTStr.PrefixConflict
+                                : ErrTStr.ColumnConflict
+                        })
+                        : null
                 }
             );
 

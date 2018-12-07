@@ -351,7 +351,9 @@ class DagNodeExecutor {
         return {
             tableName: parentNode.getTable(),
             columns: joinTableInfo.columns,
-            casts: joinTableInfo.casts,
+            // We don't support type casting in Join for now, but keep the code in case we wanna re-enable it
+            // casts: joinTableInfo.casts,
+            casts: null,
             rename: rename,
             allImmediates: allImmediates
         }

@@ -155,6 +155,12 @@ class OpPanelComponentFactory {
                         <i class="arrow icon xi-arrow-down"></i>
                     </div>
                 </div>
+            </div>`,
+
+        errorMessage:
+            `<div class="opPanelErr">
+                <div class="tooltip-inner"><span>{{errorMessage}}</span></div>
+                <i class="icon xi-arrow-down fa-8"></i>
             </div>`
 
     };
@@ -946,6 +952,22 @@ class OpPanelComponentFactory {
         });
 
         return elem;
+    }
+
+    public createErrorMessage(props: { msgText: string }): HTMLElement[] {
+        const { msgText = '' } = props || {};
+        if (msgText.length === 0) {
+            return [];
+        }
+
+        const templateId = 'errorMessage';
+        this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
+
+        const elements = this._templateMgr.createElements(templateId, {
+            errorMessage: msgText
+        });
+
+        return elements;
     }
 
 

@@ -115,7 +115,7 @@ class JoinOpPanelModel {
             left: configLeft, right: configRight,
             joinType: configJoinType, evalString: configEvalString,
             keepAllColumns: configKeepAllColumns
-        } = config;
+        } = <DagNodeJoinInputStruct>xcHelper.deepCopy(config);
 
         // === UI States ====
         model.setCurrentStep(uiOptions.currentStep);
@@ -156,6 +156,13 @@ class JoinOpPanelModel {
         model.setKeepAllColumns(configKeepAllColumns);
 
         // Normalize JoinOn input
+        // We don't support type casting in Join for now, but keep the code in case we wanna re-enable it
+        // if (configLeft.casts == null) {
+        //     configLeft.casts = [];
+        // }
+        // if (configRight.casts == null) {
+        //     configRight.casts = [];
+        // }
         const joinOnCount = Math.max(
             configLeft.columns.length,
             configRight.columns.length);
@@ -164,36 +171,53 @@ class JoinOpPanelModel {
             const leftColName = configLeft.columns[i];
             if (leftColName == null || leftColName.length === 0) {
                 configLeft.columns[i] = '';
-                configLeft.casts[i] = ColumnType.undefined;
-            } else {
-                const colInfo = leftColLookupMap.get(leftColName);
-                configLeft.casts[i] = colInfo == null
-                    ? ColumnType.undefined : colInfo.type;
+                // We don't support type casting in Join for now, but keep the code in case we wanna re-enable it
+                // configLeft.casts[i] = ColumnType.undefined;
             }
+            // We don't support type casting in Join for now, but keep the code in case we wanna re-enable it
+            // } else {
+            //     const colInfo = leftColLookupMap.get(leftColName);
+            //     configLeft.casts[i] = colInfo == null
+            //         ? ColumnType.undefined : colInfo.type;
+            // }
             // joinOn right column
             const rightColName = configRight.columns[i];
             if (rightColName == null || rightColName.length === 0) {
                 configRight.columns[i] = '';
-                configRight.casts[i] = ColumnType.undefined;
-            } else {
-                const colInfo = rightColLookupMap.get(rightColName);
-                configRight.casts[i] = colInfo == null
-                    ? ColumnType.undefined : colInfo.type;
+                // We don't support type casting in Join for now, but keep the code in case we wanna re-enable it
+                // configRight.casts[i] = ColumnType.undefined;
             }
+            // We don't support type casting in Join for now, but keep the code in case we wanna re-enable it
+            // } else {
+            //     const colInfo = rightColLookupMap.get(rightColName);
+            //     configRight.casts[i] = colInfo == null
+            //         ? ColumnType.undefined : colInfo.type;
+            // }
         }
 
         // JoinOn pairs
         const pairLen = configLeft.columns.length;
         for (let i = 0; i < pairLen; i ++) {
-            const [leftName, leftCast, rightName, rightCast] = [
-                configLeft.columns[i], configLeft.casts[i],
-                configRight.columns[i], configRight.casts[i]
+            // We don't support type casting in Join for now, but keep the code in case we wanna re-enable it
+            // const [leftName, leftCast, rightName, rightCast] = [
+            //     configLeft.columns[i], configLeft.casts[i],
+            //     configRight.columns[i], configRight.casts[i]
+            // ];
+            const [leftName, rightName] = [
+                configLeft.columns[i], configRight.columns[i]
+            ];
+            const [leftCol, rightCol] = [
+                leftColLookupMap.get(leftName), rightColLookupMap.get(rightName)
             ];
             model._joinColumnPairs.push({
                 leftName: leftName,
-                leftCast: leftCast,
+                // We don't support type casting in Join for now, but keep the code in case we wanna re-enable it
+                // leftCast: leftCast,
+                leftCast: leftCol == null ? ColumnType.undefined : leftCol.type,
                 rightName: rightName,
-                rightCast: rightCast
+                // We don't support type casting in Join for now, but keep the code in case we wanna re-enable it
+                // rightCast: rightCast,
+                rightCast: rightCol == null ? ColumnType.undefined : rightCol.type
             });
         }
 
@@ -257,8 +281,8 @@ class JoinOpPanelModel {
     public toDag(): DagNodeJoinInputStruct {
         const dagData: DagNodeJoinInputStruct = {
             joinType: this._joinType,
-            left: { columns: [], keepColumns: [], casts: [], rename: [] },
-            right: { columns: [], keepColumns: [], casts: [], rename: [] },
+            left: { columns: [], keepColumns: [], rename: [] },
+            right: { columns: [], keepColumns: [], rename: [] },
             evalString: this._evalString,
             keepAllColumns: this._keepAllColumns
         };
@@ -268,10 +292,12 @@ class JoinOpPanelModel {
             for (const colPair of this._joinColumnPairs) {
                 // Left JoinOn column
                 dagData.left.columns.push(colPair.leftName);
-                dagData.left.casts.push(colPair.leftCast);
+                // We don't support type casting in Join for now, but keep the code in case we wanna re-enable it
+                // dagData.left.casts.push(colPair.leftCast);
                 // Right JoinOn column
                 dagData.right.columns.push(colPair.rightName);
-                dagData.right.casts.push(colPair.rightCast);
+                // We don't support type casting in Join for now, but keep the code in case we wanna re-enable it
+                // dagData.right.casts.push(colPair.rightCast);
             }
         }
 

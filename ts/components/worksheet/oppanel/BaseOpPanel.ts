@@ -174,7 +174,9 @@ class BaseOpPanel {
                     if (colClicked.length > 0 && this._columnPicker.setData) {
                         this._columnPicker.setData(colClicked);
                     }
-                } catch {}
+                } catch(e) {
+                    console.log(e);
+                }
             }
         };
         this._formHelper.setup({"columnPicker": columnPickerOptions});
