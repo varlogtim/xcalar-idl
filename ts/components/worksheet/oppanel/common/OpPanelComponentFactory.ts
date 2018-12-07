@@ -439,7 +439,7 @@ class OpPanelComponentFactory {
 
         // Create elements in UL
         const filterMenuList = menuList
-            .filter((col) => (col.colName.includes(inputVal)));
+            .filter((col) => (col.colType == null || col.colName.includes(inputVal)));
         const elemMenuItems = filterMenuList
             .map((menuItem) => this.createColumnMenuItem(menuItem));
         if (filterMenuList.length === 1 && filterMenuList[0].colName === inputVal) {
@@ -477,7 +477,7 @@ class OpPanelComponentFactory {
                     keyword = getColValueName(keyword);
                     // Create new list of menu items
                     const filterMenuList = menuList.filter((col) => (
-                        col.colName.includes(keyword)
+                        col.colType == null || col.colName.includes(keyword)
                     ));
 
                     if (filterMenuList.length === 1 && filterMenuList[0].colName === keyword) {
@@ -585,6 +585,12 @@ class OpPanelComponentFactory {
     ): HTMLElement {
         if (props == null) {
             return null;
+        }
+
+        if (props.colType == null) {
+            // If colType is null, it is a regular text menu item
+            // This is to build a dropdown menu with columns & normal texts mixed
+            return this.createMenuItem(props.colName);
         }
 
         const templateId = 'columnMenuItem';

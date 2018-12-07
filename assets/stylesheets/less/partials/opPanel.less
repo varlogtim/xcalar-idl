@@ -2769,6 +2769,22 @@
         margin-top: -1px;
     }
 
+    .dropDownList {
+        .list.hint {
+            .size(@width: 100%);
+        }
+        .colNameMenuIcon {
+            position: absolute;
+            right: 0px;
+            font-size: 8px;
+            .size(@height: 100%, @width: 20px);
+            line-height: @listHeight;
+            text-align: center;
+            color: @color-arc-xdbfree;
+            cursor: pointer;
+        }    
+    }
+
     .dropdownList-join, .dropdownList-cast {
         float: none;
         .size(@height: @listHeight + 2px);

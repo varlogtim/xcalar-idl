@@ -5,14 +5,7 @@
         <div><APP-ERRMSG></APP-ERRMSG></div>
         <div class="row">
             <div class="col col-left">
-                <div data-xcid="leftColDropdown" class="dropDownList dropdownList-join {{leftColErrCss}}">
-                    <div data-xcid="menuInput" class="text tooltipOverflow" data-toggle="tooltip" data-container="body" data-placement="top"></div>
-                    <div class="iconWrapper dropdown"><i class="icon xi-arrow-down"></i></div>
-                    <div class="list">
-                        <ul data-xcid="menuItems"></ul>
-                        include "../../util/menuScrollArea.html"
-                    </div>
-                </div>
+                <APP-LEFTCOLUMNS></APP-LEFTCOLUMNS>
             </div>
             <div class="removeIcon {{delCss}}" (click)="onDelClick">
                 <div class="iconWrapper">
@@ -20,16 +13,7 @@
                 </div>
             </div>
             <div class="col col-right">
-                <div data-xcid="rightColDropdown" class="dropDownList dropdownList-join {{rightColErrCss}}">
-                    <div data-xcid="menuInput" class="text tooltipOverflow" data-toggle="tooltip" data-container="body" data-placement="top"></div>
-                    <div class="iconWrapper dropdown">
-                        <i class="icon xi-arrow-down"></i>
-                    </div>
-                    <div class="list">
-                        <ul data-xcid="menuItems"></ul>
-                        include "../../util/menuScrollArea.html"
-                    </div>
-                </div>
+                <APP-RIGHTCOLUMNS></APP-RIGHTCOLUMNS>
             </div>
         </div>
     </div>

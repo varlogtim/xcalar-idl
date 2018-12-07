@@ -1,6 +1,9 @@
 class JoinOpPanelStep1 {
     private _templateMgr = new OpPanelTemplateManager();
     private _componentFactory: OpPanelComponentFactory;
+    private _setColumnPickerTarget: (
+        target: HTMLElement, setData: (colName: string) => void
+    ) => void;
     private _$elem: JQuery = null;
     private _onDataChange = () => {};
     private static readonly _templateIdClasue = 'templateClause';
@@ -44,11 +47,15 @@ class JoinOpPanelStep1 {
 
     public updateUI(props: {
         modelRef: JoinOpPanelModel,
-        onDataChange: () => void
+        onDataChange: () => void,
+        setColumnPickerTarget: (
+            target: HTMLElement, setData: (colName: string) => void
+        ) => void
     }): void {
-        const { modelRef, onDataChange } = props;
+        const { modelRef, onDataChange, setColumnPickerTarget } = props;
         this._modelRef = modelRef;
         this._onDataChange = onDataChange;
+        this._setColumnPickerTarget = setColumnPickerTarget;
         this._updateUI();
     }
 
@@ -172,6 +179,42 @@ class JoinOpPanelStep1 {
         for (let i = 0; i < columnPairs.length; i++) {
             const columnPair = columnPairs[i];
             const { leftName, leftCast, rightName, rightCast } = columnPair;
+
+            // Column dropdowns
+            const {
+                left: leftColsToShow, leftType: leftTypesToShow,
+                right: rightColsToShow, rightType: rightTypesToShow
+            } = this._getColumnsToShow(i);
+            const {
+                left: leftTableName,
+                right: rightTableName
+            } = this._modelRef.getPreviewTableNames();
+            const elemLeftColumnDropdown = this._createColumnHintDropdown({
+                colNames: leftColsToShow,
+                colTypes: leftTypesToShow,
+                colSelected: leftName,
+                pairIndex: i,
+                isLeft: true,
+                smartSuggestParam: {
+                    srcColumnName: rightName,
+                    srcTableName: rightTableName,
+                    suggestTableName: leftTableName
+                }
+            });
+            const elemRightColumnDropdown = this._createColumnHintDropdown({
+                colNames: rightColsToShow,
+                colTypes: rightTypesToShow,
+                colSelected: rightName,
+                pairIndex: i,
+                isLeft: false,
+                smartSuggestParam: {
+                    srcColumnName: leftName,
+                    srcTableName: leftTableName,
+                    suggestTableName: rightTableName
+                }
+            });
+
+            // Clause section
             const isLeftDetached = this._modelRef.isColumnDetached(leftName, true);
             const isRightDetached = this._modelRef.isColumnDetached(rightName, false);
             const isShowError = !this._isCompatiableColumnType(leftCast, rightCast)
@@ -187,6 +230,8 @@ class JoinOpPanelStep1 {
                 'delCss': columnPairs.length > 1 ? '' : 'removeIcon-nodel',
                 'leftColErrCss': (isLeftDetached ? 'dropdown-detach' : ''),
                 'rightColErrCss': (isRightDetached ? 'dropdown-detach' : ''),
+                'APP-LEFTCOLUMNS': elemLeftColumnDropdown,
+                'APP-RIGHTCOLUMNS': elemRightColumnDropdown,
                 'APP-ERRMSG': isShowError
                     ? this._componentFactory.createErrorMessage({
                         msgText: JoinTStr.TypeMistch
@@ -232,45 +277,9 @@ class JoinOpPanelStep1 {
                 });
             }
 
-            const {
-                left: leftColsToShow, leftType: leftTypesToShow,
-                right: rightColsToShow, rightType: rightTypesToShow
-            } = this._getColumnsToShow(i);
-            const {
-                left: leftTableName,
-                right: rightTableName
-            } = this._modelRef.getPreviewTableNames();
-            // left column dropdown
-            this._createColumnDropdown({
-                container: $clauseSection,
-                dropdownId: 'leftColDropdown',
-                colNames: leftColsToShow,
-                colTypes: leftTypesToShow,
-                colSelected: leftName,
-                pairIndex: i,
-                isLeft: true,
-                smartSuggestParam: {
-                    srcColumnName: rightName,
-                    srcTableName: rightTableName,
-                    suggestTableName: leftTableName
-                }
+            clauseSection.forEach((elem) => {
+                nodeList.push(elem);
             });
-            // right column dropdown
-            this._createColumnDropdown({
-                container: $clauseSection,
-                dropdownId: 'rightColDropdown',
-                colNames: rightColsToShow,
-                colTypes: rightTypesToShow,
-                colSelected: rightName,
-                pairIndex: i,
-                isLeft: false,
-                smartSuggestParam: {
-                    srcColumnName: leftName,
-                    srcTableName: leftTableName,
-                    suggestTableName: rightTableName
-                }
-            });
-            nodeList.push($clauseSection[0]);
         }
         const $clauseContainer = BaseOpPanel.findXCElement(this._$elem, 'clauseContainer');
         this._templateMgr.updateDOM($clauseContainer[0], nodeList);
@@ -342,9 +351,7 @@ class JoinOpPanelStep1 {
         return $element[0];
     }
 
-    private _createColumnDropdown(props: {
-        container: JQuery,
-        dropdownId: string,
+    private _createColumnHintDropdown(props: {
         colNames: string[],
         colTypes: ColumnType[],
         colSelected: string,
@@ -353,44 +360,38 @@ class JoinOpPanelStep1 {
         smartSuggestParam: {
             srcColumnName: string, srcTableName: string, suggestTableName: string
         }
-    }): OpPanelDropdown {
+    }): HTMLElement[] {
         const {
-            container, dropdownId, colNames, colSelected,
-            pairIndex, isLeft, smartSuggestParam, colTypes
+            colNames, colSelected, pairIndex, isLeft,
+            smartSuggestParam, colTypes
         } = props;
         const { srcColumnName, srcTableName, suggestTableName } = smartSuggestParam;
-        const $elemDropdown = BaseOpPanel.findXCElement(container, dropdownId);
-        const menuItems: OpPanelDropdownMenuItem[] = colNames.map((colName, i) => {
-            const menuItem: OpPanelDropdownMenuItem = {
-                genHTMLFunc: () => BaseOpPanel.craeteColumnListHTML(colTypes[i], colName),
-                text: colName,
-                value: { pairIndex: pairIndex, colName: colName },
-                isSelected: (colName === colSelected)
-            };
-            return menuItem;
-        });
+        const colNameSet: Set<string> = new Set(colNames);
+
+        // Columns
+        const menuItems = colNames.map((colName, i) => ({
+            colName: colName,
+            colType: colTypes[i] || ColumnType.unknown
+        }));
+        // Smart suggestion
+        const smartSuggestText = 'Smart Suggest';
         if ( srcColumnName != null && srcColumnName.length > 0
             && srcTableName != null && srcTableName.length > 0
             && suggestTableName != null && suggestTableName.length > 0
             && this._isTalbeExist(srcTableName) && this._isTalbeExist(suggestTableName)
         ) {
             menuItems.unshift({
-                text: 'Smart Suggest',
-                value: { pairIndex: pairIndex, isSmartSugg: true },
+                colName: smartSuggestText,
+                colType: null
             });
         }
-        const componentDropdown = new OpPanelDropdown({
-            container: $elemDropdown,
-            boundingSelector: this. _opSectionSelector,
-            inputXcId: 'menuInput',
-            ulXcId: 'menuItems',
-            setTitleFunc: ($elem, text) => { $elem.text(text); }
-        });
-        componentDropdown.updateUI({
-            menuItems: menuItems,
-            defaultText: colSelected,
-            onSelectCallback: ({ pairIndex, colName, isSmartSugg }) => {
-                if (isSmartSugg) {
+
+        const compProps: HintDropdownProps = {
+            type: '', name: '',
+            inputVal: colSelected, placeholder: '',
+            menuList: menuItems,
+            onDataChange: (newName) => {
+                if (newName === smartSuggestText) {
                     const suggestInput = this._getSmartSuggestInput({
                         srcColumnName: srcColumnName,
                         srcTableName: srcTableName,
@@ -403,13 +404,23 @@ class JoinOpPanelStep1 {
                             this._modifyColumnPair(isLeft, pairIndex, suggestion.colToSugg);
                         }
                     }
-                } else {
-                    this._modifyColumnPair(isLeft, pairIndex, colName);
+                    this._onDataChange();
+                } else if (newName !== colSelected) {
+                    this._modifyColumnPair(isLeft, pairIndex, newName);
+                    this._onDataChange();
                 }
-                this._onDataChange();
+            },
+            onFocus: (elem) => {
+                this._setColumnPickerTarget(elem, (colName) => {
+                    if (!colNameSet.has(colName)) {
+                        return;
+                    }
+                    this._modifyColumnPair(isLeft, pairIndex, colName);
+                    this._onDataChange();
+                });
             }
-        });
-        return componentDropdown;
+        };
+        return this._componentFactory.createHintDropdown(compProps);
     }
 
     private _isEnableAddClause(): boolean {

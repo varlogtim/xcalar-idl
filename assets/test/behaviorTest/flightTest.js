@@ -265,25 +265,51 @@ window.FlightTest = (function(FlightTest, $) {
             const $panel = $("#joinOpPanel");
             // XXX TODO: @Liang, I don't know why I have to do this dealy
             // but without it the column selection doesn't work
+
+            // Liang: Init function of column dropdown is executed in async way(setTimout(0))
+            // So we have to push the UI check to the next event loop
+            // The in-depth reason is described in OpPanelComponentFactory.createHintDropdown()
             test.createDatasetNode(airpotDS, airportPrefix)
             .then((parentNodeId2) => {
                 const parents = [parentNodeId, parentNodeId2];
                 nodeId = test.createNodeAndOpenPanel(parents, DagNodeType.Join);
                 test.assert($panel.hasClass("xc-hidden") === false);
-                return dealyPromise(1000);
+                return dealyPromise(0);
             })
             .then(() => {
-                $panel.find('.mainTable [data-xcid="leftColDropdown"]')
-                .find("li:contains(Dest)").trigger(fakeEvent.mouseup);
+                const $dropdown = $panel.find('.mainTable .joinClause .col-left .hintDropdown');
+                // Open the dropdown, so that all LIs are filled
+                $dropdown.find('.colNameMenuIcon').trigger(fakeEvent.mouseup);
 
-                return dealyPromise(1000);
+                return dealyPromise(0);
             })
             .then(() => {
-                $panel.find('.mainTable [data-xcid="rightColDropdown"]')
-                .find("li:contains(iata)").trigger(fakeEvent.mouseup);
+                const $dropdown = $panel.find('.mainTable .joinClause .col-left .hintDropdown');
+                // Click a certain LI
+                $dropdown.find("li:contains(Dest)").trigger(fakeEvent.mouseup);
 
+                return dealyPromise(0);
+            })
+            .then(() => {
+                const $dropdown = $panel.find('.mainTable .joinClause .col-right .hintDropdown');
+                // Open the dropdown, so that all LIs are filled
+                $dropdown.find('.colNameMenuIcon').trigger(fakeEvent.mouseup);
+
+                return dealyPromise(0);
+            })
+            .then(() => {
+                const $dropdown = $panel.find('.mainTable .joinClause .col-right .hintDropdown');
+                // Click a certain LI
+                $dropdown.find("li:contains(iata)").trigger(fakeEvent.mouseup);
+
+                return dealyPromise(0);
+            })
+            .then(() => {
                 $panel.find(".bottomSection .btn:contains(Next)").click();
                 $panel.find(".bottomSection .btn:contains(Save)").click();
+                return dealyPromise(0);
+            })
+            .then(() => {
                 return test.hasNodeWithState(nodeId, DagNodeState.Configured);
             })
             .then(() => {
@@ -849,24 +875,42 @@ window.FlightTest = (function(FlightTest, $) {
             $panel.find(".addClause button").click();
         }
 
-        let selectDropdown = function(col, $dropdown) {
-            return dealyPromise()
-                    .then(() => {
-                        $dropdown.find("li:contains(" + col + ")").trigger(fakeEvent.mouseup);
-                    });
-        }
+        const selectDropdown = function(i) {
+            return PromiseHelper.resolve()
+            .then(() => {
+                const $dropdown = $panel.find('.mainTable .joinClause .col-left .hintDropdown').eq(i)
+                $dropdown.find('.colNameMenuIcon').trigger(fakeEvent.mouseup);
+                return dealyPromise(0);    
+            })
+            .then(() => {
+                const $dropdown = $panel.find('.mainTable .joinClause .col-left .hintDropdown').eq(i)
+                $dropdown.find(`li:contains(${lCols[i]})`).trigger(fakeEvent.mouseup);
+                return dealyPromise(0);    
+            })
+            .then(() => {
+                const $dropdown = $panel.find('.mainTable .joinClause .col-right .hintDropdown').eq(i)
+                $dropdown.find('.colNameMenuIcon').trigger(fakeEvent.mouseup);
+                return dealyPromise(0);    
+            })
+            .then(() => {
+                const $dropdown = $panel.find('.mainTable .joinClause .col-right .hintDropdown').eq(i)
+                $dropdown.find(`li:contains(${rCols[i]})`).trigger(fakeEvent.mouseup);
+                return dealyPromise(0);    
+            })
+        };
+
         const promises = [];
         for (let i = 0; i< lCols.length; i++) {
-            const $leftDropdown = $panel.find('.mainTable [data-xcid="leftColDropdown"]').eq(i);
-            const $rightDropdown = $panel.find('.mainTable [data-xcid="rightColDropdown"]').eq(i);
-            promises.push(selectDropdown.bind(this, lCols[i], $leftDropdown));
-            promises.push(selectDropdown.bind(this, rCols[i], $rightDropdown));
+            promises.push(selectDropdown.bind(this, i));
         }
 
         PromiseHelper.chain(promises)
         .then(() => {
             $panel.find(".bottomSection .btn:contains(Next)").click();
             $panel.find(".bottomSection .btn:contains(Save)").click();
+            return dealyPromise(0);
+        })
+        .then(() => {
             return test.hasNodeWithState(nodeId, DagNodeState.Configured);
         })
         .then(() => {

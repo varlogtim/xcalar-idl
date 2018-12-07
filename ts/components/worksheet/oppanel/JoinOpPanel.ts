@@ -34,6 +34,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         if (!super.showPanel(null, options)) {
             return;
         }
+        this._setupColumnPicker(dagNode.getType());
         const { isNoCast = true } = (options || {});
         this._dagNode = dagNode;
         // Setup data model
@@ -75,6 +76,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
     }
 
     private _updateUI() {
+        this._clearColumnPickerTarget();
         // Event handlers for the container panel
         this._$elemPanel.off();
         // Close icon & Cancel button
@@ -89,7 +91,8 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
             modelRef: this._dataModel,
             onDataChange: () => {
                 this._updateUI();
-            }
+            },
+            setColumnPickerTarget: this._setColumnPickerTarget.bind(this)
         });
         this._componentSecondStep.updateUI({
             modelRef: this._dataModel,
