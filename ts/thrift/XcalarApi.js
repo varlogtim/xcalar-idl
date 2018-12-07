@@ -1906,7 +1906,6 @@ xcalarQueryList = runEntity.xcalarQueryList = function(thriftHandle, namePattern
         var queryListOutput = result.output.outputResult.queryListOutput;
         var status = result.output.hdr.status;
         var log = result.output.hdr.log;
-
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
         }
@@ -3588,7 +3587,7 @@ xcalarApiSynthesizeWorkItem = runEntity.xcalarApiSynthesizeWorkItem = function(s
         workItem.input.synthesizeInput.numColumns = 0;
     }
 
-    if (sameSession) {
+    if (sameSession != null) {
         workItem.input.synthesizeInput.sameSession = sameSession;
     } else {
         workItem.input.synthesizeInput.sameSession = true;
