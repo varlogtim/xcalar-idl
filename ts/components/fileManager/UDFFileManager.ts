@@ -59,7 +59,7 @@ class UDFFileManager extends BaseFileManager {
         this.hiddenPatterns = [];
         this.registerHiddenPattern(
             "/workbook/" +
-                xcHelper.escapeRegExp(DagTabShared.getSecretUser()) +
+                xcHelper.escapeRegExp(DagTabPublished.getSecretUser()) +
                 "/.*"
         );
     }

@@ -151,20 +151,20 @@ class DagTabUser extends DagTab {
         // 3. delete the temp shared dataflow
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const tempName: string = this._getTempName();
-        const fakeDag: DagTabShared = new DagTabShared(tempName, null, this._dagGraph);
+        const fakeTab: DagTabPublished = new DagTabPublished(tempName, null, this._dagGraph);
         let hasShared: boolean = false;
 
-        fakeDag.share()
+        fakeTab.publish()
         .then(() => {
             hasShared = true;
-            return fakeDag.download(name, optimized);
+            return fakeTab.download(name, optimized);
         })
         .then(deferred.resolve)
         .fail(deferred.reject)
         .always(() => {
             if (hasShared) {
                 // if temp shared dataflow has created, delete it
-                fakeDag.delete();
+                fakeTab.delete();
             }
         });
 
@@ -179,7 +179,7 @@ class DagTabUser extends DagTab {
         // 3. delete the temp shared dataflow
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const tempName: string = this._getTempName();
-        const fakeTab: DagTabShared = new DagTabShared(tempName);
+        const fakeTab: DagTabPublished = new DagTabPublished(tempName);
         let hasFakeDag: boolean = false;
         let hasGetMeta: boolean = false;
 

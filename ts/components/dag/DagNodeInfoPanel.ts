@@ -261,7 +261,7 @@ class DagNodeInfoPanel {
 
     private _restoreDataset(): void {
         const node: DagNodeDataset = <DagNodeDataset>this._activeNode;
-        const shared: boolean = DagView.getActiveTab() instanceof DagTabShared;
-        DS.restoreSourceFromDagNode([node], shared);
+        const shareDS: boolean = DagView.getActiveTab() instanceof DagTabPublished;
+        DS.restoreSourceFromDagNode([node], shareDS);
     }
 }

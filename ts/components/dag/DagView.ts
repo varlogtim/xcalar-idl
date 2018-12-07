@@ -636,7 +636,7 @@ namespace DagView {
             return PromiseHelper.reject();
         }
         const tab: DagTab = activeDagTab;
-        if (tab instanceof DagTabShared) {
+        if (tab instanceof DagTabPublished) {
             // cannot modify shared dag
             return PromiseHelper.reject();
         }
@@ -796,7 +796,7 @@ namespace DagView {
         spliceIn?: boolean
     ): XDPromise<void> {
         const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId)
-        if (dagTab instanceof DagTabShared) {
+        if (dagTab instanceof DagTabPublished) {
             return PromiseHelper.reject();
         }
         dagTab.turnOffSave();
@@ -911,7 +911,7 @@ namespace DagView {
         graphDimensions?: Coordinate
     ): XDPromise<void> {
         const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId);
-        if (dagTab instanceof DagTabShared) {
+        if (dagTab instanceof DagTabPublished) {
             return;
         }
         dagTab.turnOffSave();
@@ -1217,7 +1217,7 @@ namespace DagView {
     }
 
     function _canRun(dagTab: DagTab): XDPromise<void> {
-        if (dagTab instanceof DagTabShared) {
+        if (dagTab instanceof DagTabPublished) {
             return DagSharedActionService.Instance.checkExecuteStatus(dagTab.getId());
         } else {
             return PromiseHelper.resolve();
@@ -1762,7 +1762,7 @@ namespace DagView {
         return (activeTab instanceof DagTabCustom ||
                 activeTab instanceof DagTabSQL ||
                 activeTab instanceof DagTabOptimized ||
-                activeTab instanceof DagTabShared);
+                activeTab instanceof DagTabPublished);
     }
 
     export function isViewOnly(): boolean {
@@ -2593,7 +2593,7 @@ namespace DagView {
                 }
                 return;
             }
-            if (activeDagTab instanceof DagTabShared) {
+            if (activeDagTab instanceof DagTabPublished) {
                 return;
             }
             const $dfArea = _getActiveArea();
@@ -2677,7 +2677,7 @@ namespace DagView {
             if (event.which !== 1) {
                 return;
             }
-            if (activeDagTab instanceof DagTabShared) {
+            if (activeDagTab instanceof DagTabPublished) {
                 return;
             }
             const $parentConnector = $(this);
@@ -2817,7 +2817,7 @@ namespace DagView {
             if (event.which !== 1) {
                 return;
             }
-            if (activeDagTab instanceof DagTabShared) {
+            if (activeDagTab instanceof DagTabPublished) {
                 return;
             }
 
@@ -3545,7 +3545,7 @@ namespace DagView {
             const tabId: string = info.tabId;
             const tab: DagTab = DagTabManager.Instance.getTabById(tabId);
             _lockUnlockHelper(info);
-            if (tab instanceof DagTabShared) {
+            if (tab instanceof DagTabPublished) {
                 DagSharedActionService.Instance.broadcast(DagGraphEvents.LockChange, info);
             }
             DagTopBar.Instance.setState(activeDagTab); // refresh the stop button status
@@ -3561,7 +3561,7 @@ namespace DagView {
                 // running state don't need to change
                 dagTab.save();
             }
-            if (dagTab instanceof DagTabShared) {
+            if (dagTab instanceof DagTabPublished) {
                 DagSharedActionService.Instance.broadcast(DagNodeEvents.StateChange, {
                     nodeId: info.id,
                     tabId: info.tabId,
@@ -3599,7 +3599,7 @@ namespace DagView {
             const dagTab: DagTab = DagTabManager.Instance.getTabById(info.tabId);
             dagTab.save()
             .then(() => {
-                if (dagTab instanceof DagTabShared) {
+                if (dagTab instanceof DagTabPublished) {
                     DagSharedActionService.Instance.broadcast(DagNodeEvents.ParamChange, {
                         tabId: dagTab.getId()
                     });
@@ -4160,7 +4160,7 @@ namespace DagView {
         }
 
         const dagTab = DagTabManager.Instance.getTabById(tabId);
-        if (broadcast && dagTab instanceof DagTabShared) {
+        if (broadcast && dagTab instanceof DagTabPublished) {
             DagSharedActionService.Instance.broadcast(DagNodeEvents.ProgressChange, {
                 nodeId: nodeId,
                 tabId: tabId,
@@ -4409,7 +4409,7 @@ namespace DagView {
     }
 
     function _nodeTitleEditMode($origTitle): void {
-        if (activeDagTab instanceof DagTabShared) {
+        if (activeDagTab instanceof DagTabPublished) {
             return;
         }
         const nodeId: DagNodeId = $origTitle.closest(".operator").data("nodeid");

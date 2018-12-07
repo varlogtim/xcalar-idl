@@ -225,7 +225,7 @@ class DagTabManager{
         }
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        if (dagTab instanceof DagTabShared) {
+        if (dagTab instanceof DagTabPublished) {
             DagSharedActionService.Instance.queueRegister(dagTab);
         }
         dagTab.load()
@@ -233,7 +233,7 @@ class DagTabManager{
             this._addDagTab(dagTab);
             this._switchTabs();
             this._save();
-            if (dagTab instanceof DagTabShared) {
+            if (dagTab instanceof DagTabPublished) {
                 DagSharedActionService.Instance.queueUnResiger(dagTab);
             }
             deferred.resolve();
@@ -244,13 +244,13 @@ class DagTabManager{
     }
 
     public reloadTab(dagTab: DagTab): XDPromise<void> {
-        if (dagTab instanceof DagTabShared) {
+        if (dagTab instanceof DagTabPublished) {
             DagSharedActionService.Instance.queueRegister(dagTab);
         }
         const promise = dagTab.load();
         promise
         .then(() => {
-            if (dagTab instanceof DagTabShared) {
+            if (dagTab instanceof DagTabPublished) {
                 DagSharedActionService.Instance.queueUnResiger(dagTab);
             }
         });
@@ -576,7 +576,7 @@ class DagTabManager{
      */
     private _addTabHTML(dagTab: DagTab, tabIndex?: number): void {
         let tabName: string;
-        if (dagTab instanceof DagTabShared) {
+        if (dagTab instanceof DagTabPublished) {
             tabName = dagTab.getPath();
         } else {
             tabName = dagTab.getName();

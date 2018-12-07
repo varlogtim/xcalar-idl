@@ -318,7 +318,7 @@ namespace DagNodeMenu {
                     CastOpPanel.Instance.show(node, options);
                 } else {
                     options.udfDisplayPathPrefix =
-                        dagTab instanceof DagTabShared ?
+                        dagTab instanceof DagTabPublished ?
                             dagTab.getUDFDisplayPathPrefix() :
                             UDFFileManager.Instance.getCurrWorkbookDisplayPath();
 
@@ -459,7 +459,7 @@ namespace DagNodeMenu {
         if (DagView.isViewOnly()) {
             classes += ' viewOnly ';
         }
-        if (DagView.getActiveTab() instanceof DagTabShared) {
+        if (DagView.getActiveTab() instanceof DagTabPublished) {
             classes += ' published ';
         }
         if ($dfArea.find(".comment.selected").length) {

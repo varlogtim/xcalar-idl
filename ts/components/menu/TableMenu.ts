@@ -8,7 +8,7 @@ class TableMenu extends AbstractMenu {
     public setUnavailableClasses(): void {
         const $menu: JQuery = this._getMenu();
         let $lis: JQuery = $menu.find(".exportTable, .multiCast, .corrAgg, .jupyterTable, .advancedOptions");
-        if (DagView.getActiveTab() instanceof DagTabShared) {
+        if (DagView.getActiveTab() instanceof DagTabPublished) {
             $lis.addClass("xc-hidden");
         } else {
             $lis.removeClass("xc-hidden");

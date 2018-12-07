@@ -548,7 +548,7 @@ class DagGraphExecutor {
     } {
         const tabId: string = this._graph.getTabId();
         const tab: DagTab = DagList.Instance.getDagTabById(tabId);
-        if (tab != null && tab instanceof DagTabShared) {
+        if (tab != null && tab instanceof DagTabPublished) {
             return tab.getUDFContext();
         } else {
             return {

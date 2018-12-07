@@ -124,6 +124,10 @@ class DagNodeExtension extends DagNode {
         return hint;
     }
 
+    protected _getColumnsUsedInInput() {
+        return null;
+    }
+
     private _convertExtensionArgs(args: object): object {
         const extArgs: object = {};
         for (let key in args) {

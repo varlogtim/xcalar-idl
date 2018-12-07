@@ -22,7 +22,7 @@ class ColMenu extends AbstractMenu {
         $lis.removeClass("unavailable");
         $lis.removeClass("xc-hidden");
         xcTooltip.remove($lis);
-        if (DagView.getActiveTab() instanceof DagTabShared) {
+        if (DagView.getActiveTab() instanceof DagTabPublished) {
             $lis.addClass("xc-hidden");
         } else if (colType === ColumnType.object || colType === ColumnType.array) {
             $lis = $menu.find(".groupby, .sort, .aggregate, .filter, .join, " +

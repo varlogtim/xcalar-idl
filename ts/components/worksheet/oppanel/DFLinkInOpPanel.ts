@@ -79,8 +79,8 @@ class DFLinkInOpPanel extends BaseOpPanel {
         const tabs: DagTab[] = DagTabManager.Instance.getTabs();
         const dataflows = tabs.map((tab) => {
             const name: string = tab.getName();
-            const shared: boolean = (tab instanceof DagTabShared);
-            const displayName: string = shared ? (<DagTabShared>tab).getPath() : name;
+            const shared: boolean = (tab instanceof DagTabPublished);
+            const displayName: string = shared ? (<DagTabPublished>tab).getPath() : name;
             return {
                 tab: tab,
                 displayName: displayName

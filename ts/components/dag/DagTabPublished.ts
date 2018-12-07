@@ -1,26 +1,26 @@
-class DagTabShared extends DagTab {
-    public static readonly PATH = "/Shared/";
+class DagTabPublished extends DagTab {
+    public static readonly PATH = "/Published/";
     // XXX TODO: encrypt it
-    private static readonly _secretUser: string = ".xcalar.shared.df";
+    private static readonly _secretUser: string = ".xcalar.published.df";
     private static readonly _delim: string = "_Xcalar_";
     private static readonly _optimizedKey: string = "DF2Optimized";
     private static _currentSession: string;
 
     private _version: number;
     /**
-     * DagTabShared.restore
+     * DagTabPublished.restore
      */
-    public static restore(): XDPromise<DagTabShared[]> {
-        const deferred: XDDeferred<DagTabShared[]> = PromiseHelper.deferred();
-        DagTabShared._listSession()
+    public static restore(): XDPromise<DagTabPublished[]> {
+        const deferred: XDDeferred<DagTabPublished[]> = PromiseHelper.deferred();
+        DagTabPublished._listSession()
         .then((res: {sessions: any[]}) => {
-            const dags: DagTabShared[] = [];
+            const dags: DagTabPublished[] = [];
             res.sessions.map((sessionInfo) => {
                 const name: string = sessionInfo.name;
                 if (!name.startsWith(".temp")) {
                     // filter out .temp dataflows
                     const id: string = sessionInfo.sessionId;
-                    dags.push(new DagTabShared(name, id));
+                    dags.push(new DagTabPublished(name, id));
 
                     if (sessionInfo.state === "Inactive") {
                         this._activateSession(name);
@@ -48,11 +48,11 @@ class DagTabShared extends DagTab {
         return promise;
     }
 
-    private static _switchSession(sharedDFName: string): void {
+    private static _switchSession(sessionToSwitch: string): void {
         this._currentSession = sessionName;
         const user: XcUser = new XcUser(this._secretUser);
         XcUser.setUserSession(user);
-        setSessionName(sharedDFName);
+        setSessionName(sessionToSwitch);
     }
 
     private static _resetSession(): void {
@@ -69,7 +69,7 @@ class DagTabShared extends DagTab {
     }
 
     public constructor(name: string, id?: string, graph?: DagGraph) {
-        name = name.replace(new RegExp(DagTabShared._delim, "g"), "/");
+        name = name.replace(new RegExp(DagTabPublished._delim, "g"), "/");
         if (graph != null) {
             // should be a deep copy
             graph = graph.clone();
@@ -84,7 +84,7 @@ class DagTabShared extends DagTab {
     }
 
     public getPath(): string {
-        return DagTabShared.PATH + this.getName();
+        return DagTabPublished.PATH + this.getName();
     }
 
     public getUDFContext(): {
@@ -92,13 +92,13 @@ class DagTabShared extends DagTab {
         udfSessionName: string
     } {
         return {
-            udfUserName: DagTabShared._secretUser,
+            udfUserName: DagTabPublished._secretUser,
             udfSessionName: this._getWKBKName()
         };
     }
 
     public getUDFDisplayPathPrefix(): string {
-        return "/workbook/" + DagTabShared._secretUser + "/" + this._getWKBKName() + "/";
+        return "/workbook/" + DagTabPublished._secretUser + "/" + this._getWKBKName() + "/";
     }
 
     public load(): XDPromise<void> {
@@ -165,9 +165,9 @@ class DagTabShared extends DagTab {
     }
 
     public upload(content: string): XDPromise<void> {
-        DagTabShared._switchSession(null);
+        DagTabPublished._switchSession(null);
         const promise = XcalarUploadWorkbook(this._getWKBKName(), content, "");
-        DagTabShared._resetSession();
+        DagTabPublished._resetSession();
         return promise;
     }
 
@@ -180,9 +180,9 @@ class DagTabShared extends DagTab {
 
         writeOptimizedArgsDef
         .then(() => {
-            DagTabShared._switchSession(null);
+            DagTabPublished._switchSession(null);
             const promise = XcalarDownloadWorkbook(this._getWKBKName(), "");
-            DagTabShared._resetSession();
+            DagTabPublished._resetSession();
             return promise;
         })
         .then((file) => {
@@ -199,7 +199,7 @@ class DagTabShared extends DagTab {
         return deferred.promise();
     }
 
-    public share(): XDPromise<void> {
+    public publish(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let hasCreatWKBK: boolean = false;
         this._createWKBK()
@@ -207,7 +207,7 @@ class DagTabShared extends DagTab {
             hasCreatWKBK = true;
             // XXX TODO: remove it when backend support (13855, 14089)
             const wkbkNmae: string = this._getWKBKName();
-            return DagTabShared._activateSession(wkbkNmae);
+            return DagTabPublished._activateSession(wkbkNmae);
         })
         .then(() => {
             return this._writeToKVStore();
@@ -235,9 +235,9 @@ class DagTabShared extends DagTab {
 
     public clone(newTabName): XDPromise<void> {
         const wkbkName: string = this._getWKBKName();
-        DagTabShared._switchSession(wkbkName);
+        DagTabPublished._switchSession(wkbkName);
         const promise = XcalarNewWorkbook(newTabName, true, wkbkName)
-        DagTabShared._resetSession();
+        DagTabPublished._resetSession();
         return promise;
     }
 
@@ -253,7 +253,7 @@ class DagTabShared extends DagTab {
             }
             this._id = id;
 
-            udfPathPrefix = `/workbook/${DagTabShared._secretUser}/${id}/udf/`;
+            udfPathPrefix = `/workbook/${DagTabPublished._secretUser}/${id}/udf/`;
             const udfPattern: string = udfPathPrefix + "*";
             return XcalarListXdfs(udfPattern, "User*");
         })
@@ -277,9 +277,9 @@ class DagTabShared extends DagTab {
     }
 
     protected _loadFromKVStore(): XDPromise<any> {
-        DagTabShared._switchSession(this._getWKBKName());
+        DagTabPublished._switchSession(this._getWKBKName());
         const promise = super._loadFromKVStore();
-        DagTabShared._resetSession();
+        DagTabPublished._resetSession();
         return promise;
     }
 
@@ -294,9 +294,9 @@ class DagTabShared extends DagTab {
         if (json == null) {
             return PromiseHelper.reject("Invalid dataflow structure");
         }
-        DagTabShared._switchSession(this._getWKBKName());
+        DagTabPublished._switchSession(this._getWKBKName());
         const promise = super._writeToKVStore(json);
-        DagTabShared._resetSession();
+        DagTabPublished._resetSession();
         return promise;
     }
 
@@ -321,13 +321,13 @@ class DagTabShared extends DagTab {
 
     private _getWKBKName(name?: string): string {
         name = name || this._name;
-        return name.replace(/\//g, DagTabShared._delim);
+        return name.replace(/\//g, DagTabPublished._delim);
     }
 
     private _createWKBK(): XDPromise<void> {
-        DagTabShared._switchSession(null);
+        DagTabPublished._switchSession(null);
         const promise = XcalarNewWorkbook(this._getWKBKName());
-        DagTabShared._resetSession();
+        DagTabPublished._resetSession();
         return promise;
     }
 
@@ -336,9 +336,9 @@ class DagTabShared extends DagTab {
         // XXX TODO Should not require deactivate (bug 14090)
         PromiseHelper.alwaysResolve(this._deactivateHelper())
         .then(() => {
-            DagTabShared._switchSession(null);
+            DagTabPublished._switchSession(null);
             const promise = XcalarDeleteWorkbook(this._getWKBKName());
-            DagTabShared._resetSession();
+            DagTabPublished._resetSession();
             return promise;
         })
         .then(deferred.resolve)
@@ -348,9 +348,9 @@ class DagTabShared extends DagTab {
     }
 
     private _deactivateHelper(): XDPromise<void> {
-        DagTabShared._switchSession(null);
+        DagTabPublished._switchSession(null);
         const promise = XcalarDeactivateWorkbook(this._getWKBKName());
-        DagTabShared._resetSession();
+        DagTabPublished._resetSession();
         return promise;
     }
 
@@ -384,9 +384,9 @@ class DagTabShared extends DagTab {
                     return;
                 }
                 // XXX TODO: use absolute path
-                DagTabShared._switchSession(this._getWKBKName());
+                DagTabPublished._switchSession(this._getWKBKName());
                 const promise = XcalarUploadPython(moduleName, udfStr);
-                DagTabShared._resetSession();
+                DagTabPublished._resetSession();
                 return promise;
             })
             .then(deferred.resolve)
@@ -464,7 +464,7 @@ class DagTabShared extends DagTab {
 
     private _fetchId(): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        DagTabShared._listSession()
+        DagTabPublished._listSession()
         .then((res: {sessions: any[]}) => {
             let id: string = null;
             const name: string = this._getWKBKName();
@@ -482,7 +482,7 @@ class DagTabShared extends DagTab {
     }
 
     private _getOptimizedRetinaArgsKVStore(): KVStore {
-        return new KVStore(DagTabShared._optimizedKey, gKVScope.WKBK);
+        return new KVStore(DagTabPublished._optimizedKey, gKVScope.WKBK);
     }
 
     private _writeOptimizedRetinaArgs(): XDPromise<void> {
@@ -490,9 +490,9 @@ class DagTabShared extends DagTab {
         this._dagGraph.getRetinaArgs()
         .then((res) => {
             const kvStore = this._getOptimizedRetinaArgsKVStore();
-            DagTabShared._switchSession(this._getWKBKName());
+            DagTabPublished._switchSession(this._getWKBKName());
             const promise = kvStore.put(JSON.stringify(res), true, true);
-            DagTabShared._resetSession();
+            DagTabPublished._resetSession();
             return promise;
         })
         .then(() => {

@@ -856,9 +856,7 @@ module.exports = {
     "dataflow": {
         "MyDF": "My Dataflows",
         "CreateDF": "Create new dataflow",
-        "SharedDF": "Shared Dataflows",
-        "SHAREDF": "SHARE DATAFLOW",
-        "ShareDF": "Share Dataflow",
+        "PublishDF": "Publish Dataflow",
         "ShareDS": "Share datasets used in the dataflow",
         "ShareDSHint": "Shared dataflow cannot access private datasets, to make the dataflow executable, datasets used in the dataflow need to be shared",
         "DestSelectionTitle": "Specify dataflow destination",

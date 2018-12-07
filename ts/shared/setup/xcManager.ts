@@ -730,7 +730,6 @@ namespace xcManager {
         JupyterUDFModal.setup();
         FileListModal.setup();
         DSImportErrorModal.setup();
-        ShareDFModal.setup();
     }
 
     function setupUserArea(): void {

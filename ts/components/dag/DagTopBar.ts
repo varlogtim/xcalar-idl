@@ -33,9 +33,9 @@ class DagTopBar {
 
         $btns.show();
         if (dagTab instanceof DagTabUser) {
-            $btns.find(".share").removeClass("xc-disabled");
+            $btns.find(".publish").removeClass("xc-disabled");
         } else {
-            $btns.find(".share").addClass("xc-disabled");
+            $btns.find(".publish").addClass("xc-disabled");
         }
 
         const graph: DagGraph = dagTab.getGraph();
@@ -82,11 +82,9 @@ class DagTopBar {
             self._checkZoom();
         });
 
-        this.$topBar.find(".share").click(() => {
+        this.$topBar.find(".publish").click(() => {
             const tab: DagTab = DagView.getActiveTab();
-            if (tab instanceof DagTabUser) {
-                ShareDFModal.show(tab);
-            }
+            DFPublishModal.Instance.show(<DagTabUser>tab);
         });
 
         this.$topBar.find(".download").click(() => {

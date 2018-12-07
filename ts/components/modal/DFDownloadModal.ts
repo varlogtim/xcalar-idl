@@ -185,7 +185,7 @@ class DFDownloadModal {
         const tab: DagTab = this._dagTab;
         if (tab instanceof DagTabUser) {
             return this._downloadUserDataflow(name, optimized);
-        } else if (tab instanceof DagTabShared) {
+        } else if (tab instanceof DagTabPublished) {
             return this._downloadSharedDataflow(name, optimized);
         } else {
             return PromiseHelper.reject({error: ErrTStr.InvalidDFDownload});
@@ -212,7 +212,7 @@ class DFDownloadModal {
         name: string,
         optimized: boolean
     ): XDPromise<void> {
-        const tab: DagTabShared = <DagTabShared>this._dagTab;
+        const tab: DagTabPublished = <DagTabPublished>this._dagTab;
         if (this._selectedNodes == null) {
             // when download the whole dataflow
             return tab.download(name, optimized);
@@ -220,7 +220,7 @@ class DFDownloadModal {
             // when download parital dataflow
             const deferred: XDDeferred<void> = PromiseHelper.deferred();
             const tempName = xcHelper.randName(".temp" + tab.getShortName());
-            const clonedTab: DagTabShared = new DagTabShared(tempName);
+            const clonedTab: DagTabPublished = new DagTabPublished(tempName);
             let hasClone: boolean = false;
             const selectedNode: DagNodeId[] = this._selectedNodes;
 
@@ -231,7 +231,7 @@ class DFDownloadModal {
             })
             .then(() => {
                 this._removeUnselectedNode(clonedTab.getGraph(), selectedNode);
-                return clonedTab.save(true);
+                return clonedTab.save();
             })
             .then(() => {
                 return clonedTab.download(name, optimized);

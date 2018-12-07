@@ -21,11 +21,11 @@ class DagSharedActionService {
         return this;
     }
 
-    public queueRegister(dagTab: DagTab): void {
+    public queueRegister(dagTab: DagTabPublished): void {
         this._receivedMessages.set(dagTab.getId(), []);
     }
 
-    public queueUnResiger(dagTab: DagTabShared): void {
+    public queueUnResiger(dagTab: DagTabPublished): void {
         const tabId: string = dagTab.getId();
         const queuedMessages = this._receivedMessages.get(tabId) || [];
         queuedMessages.forEach((arg) => {

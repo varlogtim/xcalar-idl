@@ -2520,7 +2520,7 @@ class TblManager {
                     // not focus when in modal
                     return false;
                 }
-                if (DagView.getActiveTab() instanceof DagTabShared) {
+                if (DagView.getActiveTab() instanceof DagTabPublished) {
                     return false;
                 }
 

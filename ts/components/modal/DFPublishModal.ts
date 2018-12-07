@@ -1,13 +1,15 @@
-class ShareDFModal {
-    private static modalHelper: ModalHelper;
-    private static dagToShare: DagTabUser;
+class DFPublishModal {
+    private static _instance: DFPublishModal;
+    public static get Instance() {
+        return this._instance || (this._instance = new this());
+    }
 
-     /**
-     * ShareDFModal.setup
-     */
-    public static setup(): void {
+    private _modalHelper: ModalHelper;
+    private _cachedDagTab: DagTabUser;
+
+    private constructor() {
         const $modal: JQuery = this._getModal();
-        this.modalHelper = new ModalHelper($modal, {
+        this._modalHelper = new ModalHelper($modal, {
             noResize: true,
             sizeToDefault: true,
             center: {verticalQuartile: true}
@@ -17,19 +19,23 @@ class ShareDFModal {
     }
 
     /**
-     * ShareDFModal.show
-     * @param dagToShare
+     *
+     * @param dagTab
      */
-    public static show(dagToShare: DagTabUser): void {
-        this.dagToShare = dagToShare;
-        this.modalHelper.setup();
+    public show(dagTab: DagTabUser): void {
+        if (!(dagTab instanceof DagTabUser)) {
+            return;
+        }
+        this._cachedDagTab = dagTab;
+        this._modalHelper.setup();
         this._reset();
         this._setPath(this._getUniquePath());
     }
 
-    private static _reset(): void {
+    private _reset(): void {
         const $modal: JQuery = this._getModal();
         $modal.find(".checkbox").addClass("checked");
+        $modal.find(".path .prefix").text(DagTabPublished.PATH);
 
         const $shareDS: JQuery = $modal.find(".shareDS .checkboxSection");
         if (DS.isSharingDisabled()) {
@@ -44,33 +50,33 @@ class ShareDFModal {
         }
     }
 
-    private static _close(): void {
-        this.modalHelper.clear();
-        this.dagToShare = null;
+    private _close(): void {
+        this._modalHelper.clear();
+        this._cachedDagTab = null;
         StatusBox.forceHide();
     }
 
-    private static _submitForm(): void {
+    private _submitForm(): void {
         const res: {path: string} = this._validate();
         if (res == null) {
             return;
         }
-        this.modalHelper.addWaitingBG();
-        this.modalHelper.disableSubmit();
+        this._modalHelper.addWaitingBG();
+        this._modalHelper.disableSubmit();
         const $modal: JQuery = this._getModal();
         const path: string = res.path;
         const shareDS: boolean = $modal.find(".shareDS .checkbox").hasClass("checked");
 
-        const graph: DagGraph = this.dagToShare.getGraph();
-        const fakeDag: DagTabShared = new DagTabShared(path, null, graph);
+        const graph: DagGraph = this._cachedDagTab.getGraph();
+        const fakeDag: DagTabPublished = new DagTabPublished(path, null, graph);
         let hasShared: boolean = false;
 
-        fakeDag.share()
+        fakeDag.publish()
         .then(() => {
             hasShared = true;
             return this._advencedOptions({
                 shareDS: shareDS,
-                dag: this.dagToShare
+                dag: this._cachedDagTab
             });
         })
         .then(() => {
@@ -90,12 +96,12 @@ class ShareDFModal {
             }
         })
         .always(() => {
-            this.modalHelper.removeWaitingBG();
-            this.modalHelper.enableSubmit();
+            this._modalHelper.removeWaitingBG();
+            this._modalHelper.enableSubmit();
         });
     }
 
-    private static _validate(): {path: string} {
+    private _validate(): {path: string} {
         const $pathInput: JQuery = this._getPathEl();
         const path: string = $pathInput.val().trim();
         const splits: string[] = path.split("/");
@@ -133,7 +139,7 @@ class ShareDFModal {
         return {path: path};
     }
 
-    private static _advencedOptions(options: {
+    private _advencedOptions(options: {
         shareDS: boolean,
         dag: DagTabUser
     }): XDPromise<any> {
@@ -163,9 +169,9 @@ class ShareDFModal {
         return deferred.promise();
     }
 
-    private static _getUniquePath(): string {
+    private _getUniquePath(): string {
         const userName: string = XcUser.CurrentUser.getName().replace(/\//g, "_");
-        const dagName: string = this.dagToShare.getName();
+        const dagName: string = this._cachedDagTab.getName();
         let path: string = `${userName}/${dagName}`;
         let cnt = 0;
         while (!DagList.Instance.isUniqueName(path)) {
@@ -174,20 +180,20 @@ class ShareDFModal {
         return path;
     }
 
-    private static _setPath(path: string = ""): void {
+    private _setPath(path: string = ""): void {
         this._getPathEl().val(path);
     }
 
-    private static _getModal(): JQuery {
-        return $("#shareDFModal");
+    private _getModal(): JQuery {
+        return $("#dfPublishModal");
     }
 
-    private static _getPathEl(): JQuery {
+    private _getPathEl(): JQuery {
         return this._getModal().find(".path input");
     }
 
-    private static _browse(): void {
-        let rootPath: string = DagTabShared.PATH;
+    private _browse(): void {
+        let rootPath: string = DagTabPublished.PATH;
         rootPath = rootPath.substring(0, rootPath.length - 1); // /Shared
         let fileLists: {path: string, id: string}[] = DagList.Instance.list();
         fileLists = fileLists.filter((fileObj) => {
@@ -220,7 +226,7 @@ class ShareDFModal {
         DFBrowserModal.Instance.show(fileLists, options);
     }
 
-    private static _addEventListeners(): void {
+    private _addEventListeners(): void {
         const $modal: JQuery = this._getModal();
         $modal.on("click", ".close, .cancel", () => {
             this._close();

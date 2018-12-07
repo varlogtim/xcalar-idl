@@ -27,7 +27,7 @@ class DagList {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._restoreUserDags()
         .then(() => {
-            return this._restoreSharedDags();
+            return this._restorePublishedDags();
         })
         .then(() => {
             this._renderDagList();
@@ -52,13 +52,13 @@ class DagList {
     }
 
     public list(): {path: string, id: string}[] {
-        const sharedList: {path: string, id: string}[] = [];
+        const publishedList: {path: string, id: string}[] = [];
         const userList: {path: string, id: string}[] = [];
         this._dags.forEach((dagTab) => {
             let path = "";
-            if (dagTab instanceof DagTabShared) {
+            if (dagTab instanceof DagTabPublished) {
                 path = dagTab.getPath();
-                sharedList.push({
+                publishedList.push({
                     path: path,
                     id: dagTab.getId()
                 });
@@ -70,16 +70,16 @@ class DagList {
                 });
             }
         });
-        sharedList.sort();
+        publishedList.sort();
         userList.sort();
-        if (sharedList.length === 0) {
-            // add the shared folder by default
-            sharedList.push({
-                path: DagTabShared.PATH,
+        if (publishedList.length === 0) {
+            // add the published folder by default
+            publishedList.push({
+                path: DagTabPublished.PATH,
                 id: null
             });
         }
-        return sharedList.concat(userList);
+        return publishedList.concat(userList);
     }
 
     public listUserDagAsync(): XDPromise<{dags: {name: string, id: string}[]}> {
@@ -90,15 +90,15 @@ class DagList {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const promise: XDPromise<void> = deferred.promise();
         const $section: JQuery = this._getDagListSection();
-        // delete shared dag list first
+        // delete published dag list first
         for (let [id, dagTab] of this._dags) {
-            if (dagTab instanceof DagTabShared) {
+            if (dagTab instanceof DagTabPublished) {
                 this._dags.delete(id);
             }
         }
 
         xcHelper.showRefreshIcon($section, false, promise);
-        this._restoreSharedDags()
+        this._restorePublishedDags()
         .then(deferred.resolve)
         .fail(deferred.reject)
         .always(() => {
@@ -119,7 +119,7 @@ class DagList {
         if (dagTab instanceof DagTabUser) {
             this._dags.set(dagTab.getId(), dagTab);
             this._saveUserDagList();
-        } else if (dagTab instanceof DagTabShared) {
+        } else if (dagTab instanceof DagTabPublished) {
             this._dags.set(dagTab.getId(), dagTab);
         }
         this._renderDagList();
@@ -144,7 +144,7 @@ class DagList {
             this._saveUserDagList();
             $li.find(".name").text(newName);
         } else {
-            // not support rename shared df now
+            // not support rename published df now
            return;
         }
     }
@@ -323,9 +323,9 @@ class DagList {
         return deferred.promise();
     }
 
-    private _restoreSharedDags(): XDPromise<void> {
+    private _restorePublishedDags(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        DagTabShared.restore()
+        DagTabPublished.restore()
         .then((dags) => {
             dags.forEach((dagTab) => {
                 this._dags.set(dagTab.getId(), dagTab);

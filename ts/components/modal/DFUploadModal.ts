@@ -47,7 +47,7 @@ class DFUploadModal {
         tab: DagTab,
         shared: boolean
     } {
-        const sharePrefix: string = DagTabShared.PATH.substring(1); // Shared/
+        const sharePrefix: string = DagTabPublished.PATH.substring(1); // Shared/
         let uploadTab: DagTab;
         
         const $pathInput: JQuery = this._getDestPathInput();
@@ -58,8 +58,8 @@ class DFUploadModal {
         if (path.startsWith(sharePrefix)) {
             shared = true;
             path = path.substring(sharePrefix.length);
-            uploadTab = new DagTabShared(path);
-            shortName = (<DagTabShared>uploadTab).getShortName();
+            uploadTab = new DagTabPublished(path);
+            shortName = (<DagTabPublished>uploadTab).getShortName();
         } else {
             shared = false;
             uploadTab = new DagTabUser(path);
