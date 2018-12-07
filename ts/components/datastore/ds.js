@@ -110,6 +110,7 @@ window.DS = (function ($, DS) {
             const param = xcHelper.deepCopy(dagNode.getParam());
             const error = dagNode.getError();
             param.source = newDSName;
+            param.loadArgs = loadArgs.replace(oldDSName, newDSName);
             dagNode.setParam(param);
             cachedInfo[dagNode.getId()] = {
                 param: param,

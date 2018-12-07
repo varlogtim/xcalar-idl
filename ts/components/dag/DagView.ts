@@ -3552,9 +3552,6 @@ namespace DagView {
         });
 
         graph.events.on(DagNodeEvents.StateChange, function(info) {
-            if (info.oldState === info.state) {
-                return;
-            }
             _updateNodeState(info);
             const dagTab: DagTab = DagTabManager.Instance.getTabById(info.tabId);
             if (info.state !== DagNodeState.Running) {
