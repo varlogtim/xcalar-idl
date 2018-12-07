@@ -705,8 +705,11 @@ class DagNodeExecutor {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         let destTable: string;
         graph.getQuery(node.getId(), optimized)
-        .then((query, table) => {
-            destTable = table;
+        .then((query, tables) => {
+            if ("object" == typeof tables) {
+                // get the last dest table
+                destTable = tables[tables.length - 1];
+            }
             return XIApi.query(this.txId, destTable, query);
         })
         .then(() => {
@@ -1036,7 +1039,7 @@ class DagNodeExecutor {
      * Since fake table names are created by compiler, we need to replace all of
      * them before execution
      * @param queryStr  xcalar query string
-     * @param tableSrcMap   {compilerTableName: sourceId}    
+     * @param tableSrcMap   {compilerTableName: sourceId}
      * @param replaceMap    {sourceId: newParentTableName}
      * @param oldDestTableName  destTableName created by compiler
      * @param newDestTableName  new destTableName

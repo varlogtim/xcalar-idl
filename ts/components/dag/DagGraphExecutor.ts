@@ -362,12 +362,25 @@ class DagGraphExecutor {
             udfUserName: udfContext.udfUserName,
             udfSessionName: udfContext.udfSessionName
         });
+
+        // chain batchExecute calls while storing their destTable results
+        const destTables = [];
         for (let i = 0; i < nodes.length; i++) {
-            promises.push(this._batchExecute.bind(this, simulateId, nodes[i]));
+            promises.push(()  => {
+                const innerDeferred: XDDeferred<string> = PromiseHelper.deferred();
+                this._batchExecute(simulateId, nodes[i])
+                .then((destTable) => {
+                    destTables.push(destTable);
+                    innerDeferred.resolve();
+                })
+                .fail(innerDeferred.reject);
+                return innerDeferred.promise();
+            });
         }
 
+
         PromiseHelper.chain(promises)
-        .then((destTable) => {
+        .then(() => {
             nodes.forEach((node) => {
                 node.setTable(null); // these table are only fake names
             });
@@ -385,7 +398,7 @@ class DagGraphExecutor {
                     }
                     query = "[" + query + "]";
                 }
-                deferred.resolve(query, destTable);
+                deferred.resolve(query, destTables);
             } catch (e) {
                 console.error(e);
                 deferred.reject(e);
@@ -574,7 +587,7 @@ class DagGraphExecutor {
         const nodeIds: DagNodeId[] = this._nodes.map(node => node.getId());
 
         this._graph.getOptimizedQuery(nodeIds, this._isNoReplaceParam)
-        .then((queryStr: string, destTable: string) => {
+        .then((queryStr: string, destTables: string[]) => {
             // retina name will be graph id + outNode Id, prefixed by gRetinaPrefix
             const parentTabId: string = this._graph.getTabId();
             let outNodeId: DagNodeId;
@@ -586,7 +599,7 @@ class DagGraphExecutor {
             }
             const retinaName = gRetinaPrefix + parentTabId + "_" + outNodeId;
             this._retinaName = retinaName;
-            const retinaParameters = this._getImportRetinaParameters(retinaName, queryStr, destTable);
+            const retinaParameters = this._getImportRetinaParameters(retinaName, queryStr, destTables);
             deferred.resolve(retinaParameters);
         })
         .fail(deferred.reject);
@@ -696,7 +709,7 @@ class DagGraphExecutor {
     private _getImportRetinaParameters(
         retinaName: string,
         queryStr: string,
-        destTable: string
+        destTables: string[]
     ): {
         retinaName: string,
         retina: string,
@@ -705,15 +718,19 @@ class DagGraphExecutor {
         destTables: {nodeId: DagNodeId, tableName: string}[]
     } {
         const operations = JSON.parse(queryStr);
-
+        const realDestTables = [];
         // create tablename and columns property in retina for each outnode
-        const outNodes = this._nodes.filter((node) => {
-            return node.getType() === DagNodeType.DFOut ||
-                   node.getType() === DagNodeType.Export;
+        const outNodes = this._nodes.filter((node, i) => {
+            if (node.getType() === DagNodeType.DFOut ||
+                node.getType() === DagNodeType.Export) {
+                    realDestTables.push(destTables[i]);
+                    return true;
+            }
         });
         // XXX check for name conflict when creating headeralias
         const destInfo: {nodeId: DagNodeId, tableName: string}[] = [];
-        const tables = outNodes.map((outNode) => {
+        const tables = outNodes.map((outNode, i) => {
+            const destTable = realDestTables[i];
             const columns = outNode.getParam().columns.map((col) => {
                 if (typeof col === "string") { // export node
                     return {
