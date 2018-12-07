@@ -133,7 +133,7 @@ window.DS = (function ($, DS) {
         })
         .then(deferred.resolve)
         .fail((error) => {
-            dagNode.forEach((dagNode) => {
+            dagNodes.forEach((dagNode) => {
                 const info = cachedInfo[dagNode.getId()] || {};
                 if (dagNode.getState() === DagNodeState.Configured &&
                     JSON.stringify(dagNode.getParam()) === JSON.stringify(info.param)
@@ -697,10 +697,11 @@ window.DS = (function ($, DS) {
     //    suffix (userName if shared),
     //    id
     // }
-    DS.listDatasets = function() {
+    DS.listDatasets = function(sharedOnly) {
         var list = [];
         var path = [];
-        populate(homeFolder, path);
+        var folder = sharedOnly ? DS.getDSObj(DSObjTerm.SharedFolderId) : homeFolder;
+        populate(folder, path);
 
         function populate(el, path) {
             if (el.isFolder) {
@@ -1173,13 +1174,16 @@ window.DS = (function ($, DS) {
 
         def
         .then(() => {
+            hasCreate = true;
             // only when there is active workbook will activate the ds
             if (WorkbookManager.getActiveWKBK() != null) {
                 return activateHelper(txId, dsObj);
             }
         })
         .then(deferred.resolve)
-        .fail(deferred.reject)
+        .fail((error1, error2) => {
+            deferred.reject(error1, error2, hasCreate);
+        });
 
         return deferred.promise();
     }
@@ -1252,18 +1256,24 @@ window.DS = (function ($, DS) {
             });
             deferred.resolve(dsObj);
         })
-        .fail(function(error, loadError) {
+        .fail(function(error, loadError, created) {
             if (typeof error === "object" &&
                 error.status === StatusT.StatusCanceled)
             {
-                removeDS(dsObj.getId());
+                if (!created) {
+                    removeDS(dsObj.getId());
+                }
                 if ($grid.hasClass("active")) {
                     focusOnForm();
                 }
             } else {
                 // show loadError if has, otherwise show error message
                 var displayError = loadError || error;
-                handleImportError(dsObj, displayError);
+                handleImportError(dsObj, displayError, created);
+            }
+
+            if (created) {
+                finishImport($grid);
             }
 
             Transaction.fail(txId, {
@@ -1302,7 +1312,7 @@ window.DS = (function ($, DS) {
         refreshDS();
     }
 
-    function handleImportError(dsObj, error) {
+    function handleImportError(dsObj, error, created) {
         var dsId = dsObj.getId();
         var $grid = DS.getGrid(dsId);
         if ($grid.hasClass("active")) {
@@ -1310,7 +1320,9 @@ window.DS = (function ($, DS) {
             cacheErrorDS(dsId, dsObj);
             DSTable.showError(dsId, error);
         }
-        removeDS(dsId);
+        if (!created) {
+            removeDS(dsId);
+        }
     }
 
     function delDSHelper($grid, dsObj, options) {

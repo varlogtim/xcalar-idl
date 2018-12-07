@@ -119,7 +119,10 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     }
 
     private _setupDatasetList(): void {
-        this._dsList = DS.listDatasets();
+        const sharedOnly: boolean = DagView.getActiveTab() instanceof DagTabPublished;
+        const rootPath: string = sharedOnly ? DSObjTerm.SharedFolder : DSTStr.Home;
+        this._dsList = DS.listDatasets(sharedOnly);
+        this._fileLister.setRootPath(rootPath);
         this._fileLister.setFileObj(this._dsList)
     }
 

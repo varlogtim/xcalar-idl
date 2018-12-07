@@ -3392,9 +3392,6 @@ namespace xcHelper {
                 str = str.replace(/\\t/g, '&emsp;');
             }
         } catch (e) {
-            var stack = new Error().stack;
-            console.error("PRINTING CALL STACK");
-            console.error(stack);
             console.error(e);
         }
 

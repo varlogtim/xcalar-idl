@@ -1103,7 +1103,7 @@ declare namespace DS {
     export function getDSObj(dsId: number | string): DSObj | null;
     export function goToDir(foldderId: string): void;
     export function focusOn($grid: JQuery): XDPromise<any>;
-    export function listDatasets(): ListDSInfo[];
+    export function listDatasets(sharedOnly: boolean): ListDSInfo[];
     export function isSharingDisabled(): boolean;
     export function shareDS(dsId: string): XDPromise<void>;
     export function attach(dsName: string, uid: string): XDPromise<void>;

@@ -153,7 +153,7 @@ window.DSTable = (function($, DSTable) {
     }
 
     function setupViewAfterError(error, isFetchError, noRetry) {
-        error = xcHelper.parseError(error);
+        error = parseError(error);
         // backend might return this: "<string>"
         error = xcHelper.escapeHTMLSpecialChar(error);
         var startError = isFetchError
@@ -175,6 +175,25 @@ window.DSTable = (function($, DSTable) {
             $errorSection.find(".suggest").removeClass("xc-hidden");
         } else {
             $errorSection.find(".suggest").addClass("xc-hidden");
+        }
+    }
+
+    function parseError(error) {
+        try {
+            if (error && typeof error === "object") {
+                var errorStr;
+                if (error.status === StatusT.StatusUdfExecuteFailed) {
+                    errorStr = error.log;
+                } else {
+                    errorStr = error.error + " " + error.log
+                }
+                errorStr = errorStr + "\n" + JSON.stringify(error.output);
+                return errorStr;
+            } else {
+                return xcHelper.parseError(error);
+            }
+        } catch (e) {
+            return xcHelper.parseError(error);
         }
     }
 
