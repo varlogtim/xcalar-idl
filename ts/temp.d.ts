@@ -549,6 +549,7 @@ declare var XcalarQueryCheck: any;
 declare var XcalarQueryWithCheck: any;
 declare var XcalarQueryCancel: any;
 declare var XcalarQueryDelete: any;
+declare var XcalarQueryList: any;
 declare var XcalarCancelOp: any;
 declare var XcalarGetDag: any;
 declare var XcalarTagDagNodes: any;

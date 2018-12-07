@@ -1262,7 +1262,18 @@ namespace DagView {
 
     function _canRun(dagTab: DagTab): XDPromise<void> {
         if (dagTab instanceof DagTabPublished) {
-            return DagSharedActionService.Instance.checkExecuteStatus(dagTab.getId());
+            const deferred: XDDeferred<void> = PromiseHelper.deferred();
+            DagSharedActionService.Instance.checkExecuteStatus(dagTab.getId())
+            .then((isExecuting) => {
+                if (isExecuting) {
+                    deferred.reject(DFTStr.InExecution);
+                } else {
+                    deferred.resolve();
+                }
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
         } else {
             return PromiseHelper.resolve();
         }

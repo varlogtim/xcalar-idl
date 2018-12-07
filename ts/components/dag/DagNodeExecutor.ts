@@ -1,4 +1,12 @@
 class DagNodeExecutor {
+    /**
+     * DagNodeExecutor.getTableNamePrefix
+     * @param tabId
+     */
+    public static getTableNamePrefix(tabId: string): string {
+        return "table_" + tabId;
+    }
+
     private node: DagNode;
     private txId: number;
     private tabId: string;
@@ -140,7 +148,8 @@ class DagNodeExecutor {
     }
 
     private _generateTableName(): string {
-        return "table_" + this.tabId + "_" + this.node.getId() + Authentication.getHashId();
+        return DagNodeExecutor.getTableNamePrefix(this.tabId) +
+        "_" + this.node.getId() + Authentication.getHashId();
     }
 
     private _loadDataset(optimized?: boolean): XDPromise<string> {

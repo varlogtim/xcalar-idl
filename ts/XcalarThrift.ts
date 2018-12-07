@@ -3226,6 +3226,27 @@ XcalarQueryDelete = function(queryName: string): XDPromise<StatusT> {
     return (deferred.promise());
 };
 
+XcalarQueryList = function(namePattern) {
+    if ([null].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    const deferred: XDDeferred<StatusT> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarQueryList(tHandle, namePattern)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        const thriftError = thriftLog("XcalraQueryList" + namePattern, error);
+        Log.errorLog("Xcalar Query List " + namePattern, null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+
+    return (deferred.promise());
+};
+
 /**
  * XcalarCancelOp
  * @param {Array} statusesToIgnore - array of status numbers to ignore

@@ -7,10 +7,12 @@ class DagSharedActionService {
     public events: { on: Function, trigger: Function};
     private _events: object;
     private _receivedMessages: Map<string, any[]> // tabId to messageQueue
+    private _lockedDataflow: Set<string>;
 
     private constructor() {
         this._events = {};
         this._receivedMessages = new Map();
+        this._lockedDataflow = new Set();
     }
 
     public on(
@@ -66,26 +68,35 @@ class DagSharedActionService {
             const event: string = arg.event;
             arg = this._messageAdapter(tab, arg);
             this._trigger(event, arg);
+
+            if (event === DagGraphEvents.LockChange) {
+                if (arg.lock) {
+                    this._lockedDataflow.add(arg.tabId);
+                } else {
+                    this._lockedDataflow.delete(arg.tabId);
+                }
+            }
         } catch (e) {
             console.error(e);
         }
     }
 
-    public checkExecuteStatus(tabId: string): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const arg = {
-            tabId: tabId
-        };
-        const valid: boolean = XcSocket.Instance.sendMessage("checkDataflowExecution", arg, (isExecuting) => {
-            if (isExecuting) {
-                deferred.reject(DFTStr.InExecution);
-            } else {
-                deferred.resolve();
+    public checkExecuteStatus(tabId: string): XDPromise<boolean> {
+        const deferred: XDDeferred<boolean> = PromiseHelper.deferred();
+        const prefix: string = DagNodeExecutor.getTableNamePrefix(tabId);
+        XcalarQueryList(prefix + "*")
+        .then((res) => {
+            let isExecuting: boolean = false;
+            if (res.queries.length > 0) {
+                isExecuting = true;
             }
+            deferred.resolve(isExecuting);
+        })
+        .fail(() => {
+            // when queryList fails, we rely on socket signal to tell
+            let isExecuting: boolean = this._lockedDataflow.has(tabId);
+            deferred.resolve(isExecuting);
         });
-        if (!valid) {
-            deferred.reject(DFTStr.InExecution);
-        }
         return deferred.promise();
     }
 

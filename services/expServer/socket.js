@@ -2,7 +2,6 @@ var socketio = require("socket.io");
 var xcConsole = require('./expServerXcConsole.js').xcConsole;
 var sharedsession = require("express-socket.io-session");
 var userInfos = {}; // declared here for passing the info to a router
-var publishedDFInfos = {};
 
 function checkIoSocketAuth(authSocket) {
     return checkIoSocketAuthImpl(authSocket);
@@ -172,29 +171,7 @@ function socketIoServer(server, session, cookieParser) {
             if (checkIoSocketAuth(socket)) {
                 return;
             }
-            try {
-                if (arg.event === "GraphLockChange") {
-                    console.log("event", arg)
-                    if (arg.lock) {
-                        publishedDFInfos[arg.tabId] = true;
-                    } else {
-                        delete publishedDFInfos[arg.tabId];
-                    }
-                }
-            } catch (e) {
-                console.error("refreshDataflow event error", e);
-            }
             socket.broadcast.emit("refreshDataflow", arg);
-        });
-
-        socket.on("checkDataflowExecution", function(arg, callback) {
-            try {
-                var tabId = arg.tabId;
-                var isExecuting = publishedDFInfos.hasOwnProperty(tabId);
-                callback(isExecuting);
-            } catch (e) {
-                console.error("checkDataflowExecution failed");
-            }
         });
 
         socket.on("refreshUDF", function(refreshOption) {
