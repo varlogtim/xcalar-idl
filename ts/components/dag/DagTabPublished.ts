@@ -236,7 +236,7 @@ class DagTabPublished extends DagTab {
     public clone(newTabName): XDPromise<void> {
         const wkbkName: string = this._getWKBKName();
         DagTabPublished._switchSession(wkbkName);
-        const promise = XcalarNewWorkbook(newTabName, true, wkbkName)
+        const promise = XcalarNewWorkbook(newTabName, true, wkbkName);
         DagTabPublished._resetSession();
         return promise;
     }

@@ -63,6 +63,10 @@ interface DagNodeAggregateInfo extends DagNodeInfo {
     graph?: DagGraph;
 }
 
+interface DagNodeDFInInfo extends DagNodeInfo {
+    graph?: DagGraph;
+}
+
 interface DagLineageChange {
     columns: ProgCol[];
     changes: {from: ProgCol, to: ProgCol}[]

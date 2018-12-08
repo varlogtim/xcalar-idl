@@ -84,7 +84,9 @@ class DagGraph {
     public create(serializableGraph: DagGraphInfo): void {
         const nodes: {node: DagNode, parents: DagNodeId[]}[] = [];
         serializableGraph.nodes.forEach((nodeInfo: DagNodeInfo) => {
-            if (nodeInfo.type == DagNodeType.Aggregate) {
+            if (nodeInfo.type == DagNodeType.Aggregate ||
+                nodeInfo.type === DagNodeType.DFIn
+            ) {
                 nodeInfo["graph"] = this;
             }
             const node: DagNode = DagNodeFactory.create(nodeInfo);

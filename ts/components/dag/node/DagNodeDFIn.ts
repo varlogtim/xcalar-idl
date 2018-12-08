@@ -1,16 +1,24 @@
 class DagNodeDFIn extends DagNodeIn {
-    protected input: DagNodeDFInInput;
+    public static readonly SELF_ID: string = "self";
 
-    public constructor(options: DagNodeInInfo) {
-        super(options);
+    protected input: DagNodeDFInInput;
+    private _graph: DagGraph; // non-persistent
+
+    public constructor(options: DagNodeDFInInfo) {
+        super(<DagNodeInInfo>options);
         this.type = DagNodeType.DFIn;
         this.display.icon = "&#xe952;"; // XXX TODO: UI design
         this.input = new DagNodeDFInInput(options.input);
+        this._graph = options.graph || null;
     }
 
     public setParam(input: DagNodeDFInInputStruct = <DagNodeDFInInputStruct>{}): void {
+        let dataflowId: string = input.dataflowId;
+        if (this._graph && dataflowId === this._graph.getTabId()) {
+            dataflowId = DagNodeDFIn.SELF_ID;
+        }
         this.input.setInput({
-            dataflowId: input.dataflowId,
+            dataflowId: dataflowId,
             linkOutName: input.linkOutName
         });
         super.setParam();
@@ -78,7 +86,9 @@ class DagNodeDFIn extends DagNodeIn {
     private _findLinkedGraph(dataflowId: string): DagGraph[] {
         let candidateTabs: DagTab[] = [];
         const candidateGraphs: DagGraph[] = [];
-        if (dataflowId != null && dataflowId != "") {
+        if (dataflowId === DagNodeDFIn.SELF_ID) {
+            return [this._graph];
+        } else if (dataflowId != null && dataflowId != "") {
             candidateTabs = [DagTabManager.Instance.getTabById(dataflowId)];
         } else {
             candidateTabs = DagTabManager.Instance.getTabs();
