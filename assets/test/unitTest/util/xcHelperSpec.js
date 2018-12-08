@@ -18,6 +18,10 @@ describe("xcHelper Test", function() {
         var ele = $('<div id="test-id"></div>').get(0);
         res = xcHelper.parseTableId(ele);
         expect(res).to.equal("id");
+        // case 5
+        var $ele = $();
+        res = xcHelper.parseTableId($ele);
+        expect(res).to.be(null);
     });
 
     it("xcHelper.parseError should work", function() {

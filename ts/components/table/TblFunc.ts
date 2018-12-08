@@ -17,7 +17,7 @@ class TblFunc {
     */
 
    /**
-    * TblFunc.autosizeCol 
+    * TblFunc.autosizeCol
     * @param $th th element to resize
     * @param options option for resizing
     * includeHeader: If set, column head will be included when determining column width.

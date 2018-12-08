@@ -170,6 +170,11 @@ namespace xcHelper {
             id = idOrEl;
         }
 
+        if (id == null) {
+            console.error("cannot find the id");
+            return null;
+        }
+
         const idSplit = id.split('-');
         if (idSplit.length !== 2) {
             console.error('Unexpected id/ele to parse', idOrEl);
