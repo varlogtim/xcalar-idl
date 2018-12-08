@@ -33,8 +33,6 @@
                 }
                 throw e;
             }
-            const visitedMap = {};
-            this.dedupPlan(opGraph, visitedMap);
             // Second (optional) traversal - add prepended operators to the correct place
             if (prepArray) {
                 const prepIdxMap = {};
@@ -55,6 +53,8 @@
             if (options.pushToSelect) {
                 opGraph = pushToSelect(opGraph);
             }
+            const visitedMap = {};
+            this.dedupPlan(opGraph, visitedMap);
             if (options.randomCrossJoin) {
                 const visitedMap = {};
                 this.addIndexForCrossJoin(opGraph, visitedMap);
@@ -493,6 +493,7 @@
                                 node.parents[i].colNameMap = node.colNameMap;
                             }
                             if (node.dupOf) {
+                                node.parents[i].sources[j] = node.dupOf.name;
                                 node.parents[i].children[j] = node.dupOf;
                             }
                         }
@@ -505,6 +506,7 @@
                             node.parents[i].colNameMap[j] = node.colNameMap;
                             if (node.dupOf) {
                                 node.parents[i].children[j] = node.dupOf;
+                                node.parents[i].sources[j] = node.dupOf.name;
                                 if (node.value.operation != "XcalarApiAggregate") {
                                     node.parents[i].value.args.source[j] = node.dupOf.value.args.dest;
                                 }
@@ -587,6 +589,9 @@
                 const prepNode = prepIdxMap[opNode.sources[i]];
                 opNode.children.push(prepNode);
                 prepNode.parents.push(opNode);
+                if (nodesNeedReorder.indexOf(opNode) === -1) {
+                    nodesNeedReorder.push(opNode);
+                }
             } else if (prepIdxMap[opNode.sources[i]] >= 0) {
                 const prepNode = genOpNode(prepArray[prepIdxMap[opNode.sources[i]]]);
                 opNode.children.push(prepNode);
