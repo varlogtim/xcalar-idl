@@ -1581,8 +1581,8 @@ class DagGraph {
     // TODO: Combine with expServer/queryConverter.js
     public static convertQueryToDataflowGraph(query, tableSrcMap?, finalTableName?) {
         const nodes = new Map();
-        const destSrcMap = {}; // {dest: source} in xc query
-        const dagIdParentIdxMap = {}; // {DagNodeId: parentIdx}
+        const destSrcMap = {}; // {dest: [{srcTableName: ..., sourceId: ...], ...} in xc query
+        const dagIdParentMap = {}; // {DagNodeId: [{index(parentIdx): ..., srcId(sourceId)}], ...}
         const tableNewDagIdMap = {}; // {oldTableName: newDagId}
         let outputDagId: string;
 
@@ -1664,7 +1664,7 @@ class DagGraph {
         // turn nodeMeta into dagNodeInfo structure expected by DagGraph
         const retSruct = {
             dagInfoList: finalConvertIntoDagNodeInfoArray(nodes),
-            dagIdParentIdxMap: dagIdParentIdxMap,
+            dagIdParentMap: dagIdParentMap,
             outputDagId: outputDagId,
             tableNewDagIdMap: tableNewDagIdMap
         }
@@ -1916,10 +1916,20 @@ class DagGraph {
             dagNodeInfo.aggregates = node.aggregates;
             dagNodeInfo.description = JSON.stringify(node.args, null, 4);
             dagNodeInfo.subGraphNodes = node.subGraphNodes;
-            // create dagIdParentIdxMap so that we can add input nodes later
-            const srcTableName = destSrcMap[node.name];
-            if (srcTableName) {
-                dagIdParentIdxMap[dagNodeInfo.id] = tableSrcMap[srcTableName];
+            // create dagIdParentMap so that we can add input nodes later
+            const srcTables = destSrcMap[node.name];
+            if (srcTables) {
+                srcTables.forEach((srcTable) => {
+                    const srcTableName = srcTable.srcTableName;
+                    const obj = {
+                        index: srcTable.index,
+                        srcId: tableSrcMap[srcTableName]
+                    }
+                    if (!dagIdParentMap[dagNodeInfo.id]) {
+                        dagIdParentMap[dagNodeInfo.id] = [];
+                    }
+                    dagIdParentMap[dagNodeInfo.id].push(obj);
+                });
             }
             if(node.name === finalTableName) {
                 outputDagId = dagNodeInfo.id;
@@ -1937,22 +1947,29 @@ class DagGraph {
         }
 
         function setParents(node) {
+            const newParents = [];
             for (let i = 0; i < node.parents.length; i++) {
                 const parent = nodes.get(node.parents[i]);
                 if (parent) {
                     parent.children.push(node);
                     node.parents[i] = parent;
+                    newParents.push(node.parents[i]);
                 } else {
                     if (tableSrcMap) {
                         // This is a starting node in the sub graph, store it bc
                         // later we'll create the dagNodeId -> srcId(parentIdx) map
-                        destSrcMap[node.name] = node.parents[i];
+                        const obj = {
+                            srcTableName: node.parents[i],
+                            index: i
+                        }
+                        if (!destSrcMap[node.name]) {
+                            destSrcMap[node.name] = [];
+                        }
+                        destSrcMap[node.name].push(obj);
                     }
-                    // parent doesn't exist, remove it
-                    node.parents.splice(i, 1);
-                    i--;
                 }
             }
+            node.parents = newParents;
         }
 
         // turns    filter->index->join    into   filter->join

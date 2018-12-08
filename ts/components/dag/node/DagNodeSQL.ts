@@ -66,9 +66,9 @@ class DagNodeSQL extends DagNode {
                                                                newTableName);
         this.tableNewDagIdMap = retStruct.tableNewDagIdMap;
         const dagInfoList = retStruct.dagInfoList;
-        const dagIdParentIdxMap = retStruct.dagIdParentIdxMap;
+        const dagIdParentMap = retStruct.dagIdParentMap;
         const outputDagId = retStruct.outputDagId;
-        for (let i = 0; i < Object.keys(dagIdParentIdxMap).length; i++) {
+        for (let i = 0; i < this.identifiers.size; i++) {
             this.subInputNodes.push(null);
         }
         dagInfoList.forEach((dagNodeInfo: DagNodeInfo) => {
@@ -77,13 +77,17 @@ class DagNodeSQL extends DagNode {
             const node: DagNode = DagNodeFactory.create(dagNodeInfo);
             this.subGraph.addNode(node);
             const nodeId: string = node.getId();
-            if (parents.length === 0) {
-                const index = dagIdParentIdxMap[nodeId];
-                const inNodePort = {
-                    node: node,
-                    portIdx: 0 // finalizing guarantees there is only one parent
-                }
-                this.addInputNode(inNodePort, index - 1);
+            const dagParents = dagIdParentMap[nodeId];
+            if (dagParents) {
+                dagParents.forEach((dagParent) => {
+                    const index = dagParent.index;
+                    const srcId = dagParent.srcId;
+                    const inNodePort = {
+                        node: node,
+                        portIdx: index
+                    }
+                    this.addInputNode(inNodePort, srcId - 1);
+                });
             } else {
                 for (let i = 0; i < parents.length; i++) {
                     connections.push({

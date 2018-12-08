@@ -2283,7 +2283,7 @@ namespace XIApi {
             const deferred: XDDeferred<any> = PromiseHelper.deferred();
             const txLog = Transaction.get(txId);
             options = $.extend({
-                bailOnError: false,
+                bailOnError: true,
                 udfUserName: txLog.udfUserName,
                 udfSessionName: txLog.udfSessionName
             }, options);

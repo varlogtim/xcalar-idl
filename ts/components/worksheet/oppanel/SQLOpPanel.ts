@@ -842,7 +842,7 @@ class SQLOpPanel extends BaseOpPanel {
                 deferred.resolve();
             })
             .fail(function(err) {
-                self._dataModel.setDataModel("", "", [], "", identifiers, {});
+                self._dataModel.setDataModel(paramterizedSQL, "", [], "", identifiers, {});
                 self._dataModel.submit();
                 deferred.reject(err);
             })

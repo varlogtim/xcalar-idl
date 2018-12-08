@@ -465,6 +465,9 @@ namespace DagNodeMenu {
         if (DagView.getActiveTab() instanceof DagTabPublished) {
             classes += ' published ';
         }
+        if (DagView.getActiveTab() instanceof DagTabSQL) {
+            classes += ' viewOnly SQLTab';
+        }
         if ($dfArea.find(".comment.selected").length) {
             classes += " commentMenu ";
         }
