@@ -201,7 +201,6 @@ class DagNodeExecutor {
     }
 
     private _synthesize(): XDPromise<string> {
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNodeSynthesize = <DagNodeSynthesize>this.node;
         const params: DagNodeSynthesizeInputStruct = node.getParam(this.replaceParam);
         const colsInfo: ColRenameInfo[] = params.colsInfo.map((colInfo) => {
@@ -711,11 +710,43 @@ class DagNodeExecutor {
             return XIApi.query(this.txId, destTable, query);
         })
         .then(() => {
-            deferred.resolve(destTable);
+            if (node.getSubType() === DagNodeSubType.DFOutOptimized) {
+                return this._synthesizeDFOutInBatch(destTable, node);
+            } else {
+                return PromiseHelper.resolve(destTable);
+            }
+        })
+        .then((finaTable) => {
+            deferred.resolve(finaTable);
         })
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    // optimized link out run a retina which will synthesize the table
+    // here we do the equavilent thing for the link in batch mode 
+    private _synthesizeDFOutInBatch(
+        srcTable: string,
+        node: DagNodeDFOut
+    ): XDPromise<string> {
+        // what the linkOutOptimized node store is the schema after synthesize
+        // which is destColName and colType
+        const colMap: Map<string, ColumnType> = new Map();
+        node.getLineage().getColumns().forEach((progCol) => {
+            colMap.set(progCol.getBackColName(), progCol.getType());
+        });
+
+        const columns: {sourceName: string, destName: string}[] = node.getParam().columns;
+        const colsInfo: ColRenameInfo[] = columns.map((colInfo) => {
+            const sourceName: string = colInfo.sourceName;
+            const destName: string = colInfo.destName;
+            const columnType: ColumnType = colMap.get(destName);
+            const type: DfFieldTypeT = xcHelper.convertColTypeToFieldType(columnType);
+            return xcHelper.getJoinRenameMap(sourceName, destName, type);
+        });
+        const desTable: string = this._generateTableName();
+        return XIApi.synthesize(this.txId, colsInfo, srcTable, desTable);
     }
 
     // XXX TODO: if it's linkAfterExecution, lock the table
@@ -724,7 +755,7 @@ class DagNodeExecutor {
         const node: DagNodeDFOut = <DagNodeDFOut>this.node;
         let destTable: string = null;
         if (node.getNumParent() === 1) {
-            destTable =  node.getParents()[0].getTable();
+            destTable = node.getParents()[0].getTable();
         }
         return PromiseHelper.resolve(destTable);
     }

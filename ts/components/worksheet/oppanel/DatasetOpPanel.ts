@@ -512,7 +512,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
                 schema = newModel.schema;
                 this._loadArgs = newModel.loadArgs;
                 this._synthesize = newModel.synthesize;
-                if (schema.length === 0) {
+                if (schema == null || schema.length === 0) {
                     error = ErrTStr.NoEmptySchema;
                 }
             } catch (e) {
