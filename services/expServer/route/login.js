@@ -1112,17 +1112,13 @@ function securitySetupAuth(req, res, next) {
     var message = { "status": httpStatus.Unauthorized, "success": false };
 
     if (authConfigured) {
-        res.status(message.status).send(message);
-        next('router');
-        return;
+        return support.checkAuthAdmin(req, res, next);
     }
 
     authenticationInit()
     .then(function() {
         if (authConfigured) {
-            res.status(message.status).send(message);
-            next('router');
-            return;
+            return support.checkAuthAdmin(req, res, next);
         }
 
         next();
@@ -1290,19 +1286,8 @@ router.post('/login/defaultAdmin/get',
     });
 });
 
-router.post('/login/defaultAdmin/set',
-            [support.checkAuthAdmin], function(req, res) {
+function setupDefaultAdmin(req, res) {
     xcConsole.log("Setting default admin");
-    var credArray = req.body;
-    setDefaultAdmin(credArray)
-    .always(function(message) {
-        res.status(message.status).send(message);
-    });
-});
-
-router.post('/login/defaultAdmin/setup',
-            [securitySetupAuth], function(req, res) {
-    xcConsole.log("Setting up default admin");
     var credArray = req.body;
     setDefaultAdmin(credArray)
     .always(function(message) {
@@ -1311,7 +1296,13 @@ router.post('/login/defaultAdmin/setup',
         }
         res.status(message.status).send(message);
     });
-});
+}
+
+router.post('/login/defaultAdmin/set',
+            [securitySetupAuth], setupDefaultAdmin);
+
+router.post('/login/defaultAdmin/setup',
+            [securitySetupAuth], setupDefaultAdmin);
 
 router.post('/login/ldapConfig/get',
             [support.checkAuth], function(req, res) {
