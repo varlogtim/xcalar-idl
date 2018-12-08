@@ -1027,7 +1027,7 @@ module.exports = {
 
     "datasetOp": {
         "dataset": "DATASET",
-        "datasetInstr": "Create a table using the source dataset, with columns prefixed by prefix",
+        "datasetInstr": "Use the dataset as the souce for data, with columns prefixed by prefix",
         "source": "Source",
         "sourceInstr": "Select Dataset to use in this dataflow.",
         "prefix": "Prefix",
@@ -1059,11 +1059,11 @@ module.exports = {
 
     "DFLink": {
         "InHeader": "Link In",
-        "InInstr": "First select the dataflow's name, then select the link out node inside the dataflow to link with.",
+        "InInstr": "First select the dataflow name, then select the link out reference name to link.",
         "OutHeader": "Link Out",
-        "OutInstr": "Specify a name for the link out node",
+        "OutInstr": "Please specify the link out reference name",
         "DFName": "Dataflow Name",
-        "OutName": "Link Out Node Name",
+        "OutName": "Link Out Reference Name",
         "LinkWithExecution": "Only allow linking after execution",
         "Schema": "Column Schema",
     },
