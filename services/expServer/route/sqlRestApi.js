@@ -1399,7 +1399,8 @@ router.post("/xcsql/query", function(req, res) {
     var optimizations = {
         dropAsYouGo: req.body.dropAsYouGo,
         dropSrcTables: !req.body.keepOri,
-        randomCrossJoin: req.body.randomCrossJoin
+        randomCrossJoin: req.body.randomCrossJoin,
+        pushToSelect: req.body.pushToSelect
     }
     var params = {
         userIdName: req.body.userIdName,
@@ -1457,8 +1458,13 @@ router.post("/xcsql/queryWithPublishedTables", [support.checkAuth],
     sessionPrefix = "sql" + sessionPrefix.replace(/-/g, "") + "_";
     var type = "odbc";
     var optimizations = {
-        dropAsYouGo: true
+        dropAsYouGo: req.body.dropAsYouGo,
+        randomCrossJoin: req.body.randomCrossJoin,
+        pushToSelect: req.body.pushToSelect
     };
+    optimizations.dropAsYouGo = optimizations.dropAsYouGo == undefined ? true : optimizations.dropAsYouGo;
+    optimizations.randomCrossJoin = optimizations.randomCrossJoin == undefined ? false : optimizations.randomCrossJoin;
+    optimizations.pushToSelect = optimizations.pushToSelect == undefined ? true : optimizations.pushToSelect;
     var params = {
         execid: execid,
         queryString: queryString,

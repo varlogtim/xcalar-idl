@@ -740,9 +740,13 @@
                                     = selectStruct.args.columns[i].sourceColumn;
             }
         } else if (curNode.value.operation === "XcalarApiFilter") {
+            if (selectStruct.args.eval.Maps) {
+                return true;
+            }
             var filterString = XDParser.XEvalParser.replaceColName(
                 curNode.value.args.eval[0].evalString, selectStruct.colNameMap);
             if (selectStruct.args.eval.Filter && selectStruct.args.eval.Filter != "") {
+                console.error("Multiple consecutive filters found!");
                 selectStruct.args.eval.Filter = "and(" + selectStruct.args.eval.Filter
                                                 + "," + filterString + ")";
             } else {
