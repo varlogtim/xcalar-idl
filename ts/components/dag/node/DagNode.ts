@@ -870,7 +870,8 @@ abstract class DagNode {
           "input",
           "nodeId",
           "parents",
-          "configured"
+          "configured",
+          "display"
         ],
         "properties": {
           "type": {
@@ -917,6 +918,7 @@ abstract class DagNode {
                 "$id": "#/properties/display/properties/x",
                 "type": "integer",
                 "title": "The X Schema",
+                "minimum": 0,
                 "default": 0,
                 "examples": [
                   460
@@ -926,6 +928,7 @@ abstract class DagNode {
                 "$id": "#/properties/display/properties/y",
                 "type": "integer",
                 "title": "The Y Schema",
+                "minimum": 0,
                 "default": 0,
                 "examples": [
                   100

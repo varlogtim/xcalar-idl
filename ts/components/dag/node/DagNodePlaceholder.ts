@@ -4,6 +4,7 @@ class DagNodePlaceholder extends DagNode {
 
     public constructor(options: DagNodePlaceholderInfo) {
         super(options);
+        this.maxParents = -1;
         this.minParents = 1;
         this.input = new DagNodePlaceholderInput(options.input);
         this.name = options.name || DagNodeType.Placeholder;

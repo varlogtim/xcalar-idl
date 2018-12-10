@@ -50,7 +50,7 @@ class DagComment {
                 "examples": [
                   680
                 ],
-                "minimum": 20
+                "minimum": 0
               },
               "y": {
                 "$id": "#/properties/display/properties/y",
@@ -60,7 +60,7 @@ class DagComment {
                 "examples": [
                   120
                 ],
-                "minimum": 20
+                "minimum": 0
               }
             }
           },

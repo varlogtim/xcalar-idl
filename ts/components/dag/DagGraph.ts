@@ -1924,6 +1924,7 @@ class DagGraph {
             dagNodeInfo.id = DagNode.generateId();
             dagNodeInfo.parents = [];
             dagNodeInfo.aggregates = node.aggregates;
+            dagNodeInfo.configured = true;
             dagNodeInfo.description = JSON.stringify(node.args, null, 4);
             dagNodeInfo.subGraphNodes = node.subGraphNodes;
             dagNodeInfo.display = {x: 0, y: 0};

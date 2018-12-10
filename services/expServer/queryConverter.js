@@ -20,28 +20,31 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     xcHelper = sqlHelpers ? sqlHelpers.xcHelper :
         require("./sqlHelpers/xcHelper.js").xcHelper;
 });
-// const globalKVPrefix = "/globalKvs/";
+
 const globalKVDatasetPrefix = "/globalKvsDataset/";
 const workbookKVPrefix = "/workbookKvs/";
-let idCount = 0; // used to give ids to dataflow nodes
-let dataflowCount = 0;
-let currentDataflowId; // if retina, will use this dataflowId - we'll create it
-// at the start so linkedIn nodes can point to it from the start
 const gridSpacing = 20;
 const horzNodeSpacing = 160;// spacing between nodes when auto-aligning
 const vertNodeSpacing = 80;
 
+let idCount = 0; // used to give ids to dataflow nodes
+let dataflowCount = 0;
+let currentDataflowId; // if retina, will use this dataflowId - we'll create it
+// at the start so linkedIn nodes can point to it from the start
+let currentUserName = "";
+let originalInput;
+
 // nestedPrefix is a retinaName to indicate if this dataflow is part of a recursive call
-function convert(dataflowInfo, nestedPrefix) {
+function convert(dataflowInfo, nestedPrefix, nodes) {
     try {
-        return convertHelper(dataflowInfo, nestedPrefix);
+        return convertHelper(dataflowInfo, nestedPrefix, nodes);
     } catch (e) {
         console.log(e);
         return {error: e};
     }
 }
 
-function convertHelper(dataflowInfo, nestedPrefix) {
+function convertHelper(dataflowInfo, nestedPrefix, otherNodes) {
     if (!nestedPrefix) {
         currentDataflowId = "DF2_" + new Date().getTime() + "_" + dataflowCount++;
     }
@@ -57,12 +60,16 @@ function convertHelper(dataflowInfo, nestedPrefix) {
     if (typeof dataflowInfo !== "object" || dataflowInfo == null || (dataflowInfo instanceof Array)) {
         return "invalid dataflowInfo: " + dataflowInfo;
     }
+    if (!nestedPrefix) {
+        originalInput = dataflowInfo;
+    }
     // check for header indicating if the dataflow
     // is a regular workbook dataflow or retina dataflow
     let isRetina = false;
     if (dataflowInfo.workbookVersion == null && (!dataflowInfo.header || dataflowInfo.header.workbookVersion == null)) {
         isRetina = true;
     }
+    let isChainedRetina = false;
     let query = dataflowInfo.query;
     let sourcePrefix = "";
     let udfPrefix = "";
@@ -92,6 +99,14 @@ function convertHelper(dataflowInfo, nestedPrefix) {
         switch (node.api) {
             case (XcalarApisT.XcalarApiIndex):
                 if (args.source.startsWith(gDSPrefix)) {
+                    if (currentUserName && nestedPrefix) {
+                        // if we're in a nested executeRetina node, replace the
+                        // old user name in the dataset with the proper user name
+                        let oldParsedDSName = xcHelper.parseDSName(args.source);
+                        let prevUserName = oldParsedDSName.user;
+                        let re = new RegExp(prevUserName);
+                        args.source = args.source.replace(re, currentUserName);
+                    }
                     args.source = gDSPrefix + sourcePrefix + args.source.slice(gDSPrefix.length);
                 } else {
                     args.source = sourcePrefix + args.source;
@@ -165,48 +180,63 @@ function convertHelper(dataflowInfo, nestedPrefix) {
             case (XcalarApisT.XcalarApiProject):
             case (XcalarApisT.XcalarApiGetRowNum):
             case (XcalarApisT.XcalarApiExport):
-            case (XcalarApisT.XcalarApiSynthesize):
             case (XcalarApisT.XcalarApiUnion):
             case (XcalarApisT.XcalarApiSelect):
+            case (XcalarApisT.XcalarApiSynthesize):
             case (XcalarApisT.XcalarApiExecuteRetina):
-                node.args.dest = sourcePrefix + args.dest;
+                args.dest = sourcePrefix + args.dest;
                 break;
             case (XcalarApisT.XcalarApiAggregate):
-                node.args.dest = gAggVarPrefix + udfPrefix + args.dest;
+                args.dest = gAggVarPrefix + udfPrefix + args.dest;
                 node.aggregates = _getAggsFromEvalStrs(args.eval);
                 break;
             case (XcalarApisT.XcalarApiFilter):
             case (XcalarApisT.XcalarApiMap):
             case (XcalarApisT.XcalarApiGroupBy):
-                node.args.dest = sourcePrefix + args.dest;
+                args.dest = sourcePrefix + args.dest;
                 node.aggregates = _getAggsFromEvalStrs(args.eval);
                 break;
             case (XcalarApisT.XcalarApiJoin):
-                node.args.dest = sourcePrefix + args.dest;
+                args.dest = sourcePrefix + args.dest;
                 node.aggregates = _getAggsFromEvalStrs([args]);
                 break;
             case (XcalarApisT.XcalarApiBulkLoad):
+                if (!currentUserName && !nestedPrefix) {
+                    let parsedDsName = xcHelper.parseDSName(args.dest);
+                    currentUserName = parsedDsName.user;
+                } else if (currentUserName && nestedPrefix) {
+                    // if we're in a nested executeRetina node, replace the
+                    // old user name in the dataset with the proper user name
+                    let oldParsedDSName =  xcHelper.parseDSName(args.dest);
+                    let prevUserName = oldParsedDSName.user;
+                    let re = new RegExp(prevUserName);
+                    args.dest = args.dest.replace(re, currentUserName);
+                }
+
                 if (args.dest.startsWith(gDSPrefix)) {
                     args.dest = gDSPrefix + sourcePrefix + args.dest.slice(gDSPrefix.length);
                 } else {
-                    node.args.dest = sourcePrefix + args.dest;
+                    args.dest = sourcePrefix + args.dest;
                 }
-
                 datasets.push(rawNode);
                 break;
             default:
                 isIgnoredApi = true;
                 break;
         }
+        if (nestedPrefix && node.api === XcalarApisT.XcalarApiSynthesize &&
+            args.sameSession === false) {
+            isChainedRetina = true;
+        }
 
-        node.name = node.args.dest; // reset name because we've prefixed it
+        node.name = args.dest; // reset name because we've prefixed it
         if (!isIgnoredApi) {
             nodes.set(node.name, node);
         }
     }
 
     for (let [_name, node] of nodes) {
-        _setParents(node, nodes);
+        _setParents(node, nodes, otherNodes);
     }
 
     for (let [_name, node] of nodes) {
@@ -221,10 +251,10 @@ function convertHelper(dataflowInfo, nestedPrefix) {
         _collapseIndexNodes(node);
     }
 
-    return _finalConvertIntoDagNodeInfoArray(nodes, datasets, isRetina, nestedPrefix);
+    return _finalConvertIntoDagNodeInfoArray(nodes, datasets, isRetina, nestedPrefix, isChainedRetina);
 }
 
-function _finalConvertIntoDagNodeInfoArray(nodes, datasets, isRetina, nestedPrefix) {
+function _finalConvertIntoDagNodeInfoArray(nodes, datasets, isRetina, nestedPrefix, isChainedRetina) {
     const dataflows = [];
     const dataflowsList = [];
     let treeGroups = {};
@@ -251,13 +281,16 @@ function _finalConvertIntoDagNodeInfoArray(nodes, datasets, isRetina, nestedPref
 
         const dagNodeInfos = {};
         endNodes.forEach(node => {
-            _recursiveGetDagNodeInfo(node, dagNodeInfos, isRetina, nestedPrefix);
+            _recursiveGetDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix);
         });
 
         allDagNodeInfos = $.extend(allDagNodeInfos, dagNodeInfos);
     }
     if (nestedPrefix) {
-        return allDagNodeInfos;
+        return {
+            nodes: allDagNodeInfos,
+            isChainedRetina: isChainedRetina
+        }
     } else {
         const graphDimensions = _setPositions(allDagNodeInfos);
         const nodes = [];
@@ -306,6 +339,15 @@ function _finalConvertIntoDagNodeInfoArray(nodes, datasets, isRetina, nestedPref
 function _createKVStoreKeys(dataflows, dataflowsList, datasets, isRetina) {
     const kvPairs = {};
     if (isRetina) {
+        kvPairs[workbookKVPrefix + "DF2Optimized"] = JSON.stringify({
+            retinaName: "retina-" + Date.now(),
+            retina: JSON.stringify({
+                tables: originalInput.tables,
+                query: JSON.stringify(originalInput.query)
+            }),
+            userName: "",
+            sessionName: ""
+        });
         kvPairs[workbookKVPrefix + "DF2"] = JSON.stringify(dataflows[0]);
     } else {
         dataflows.forEach((dataflow) => {
@@ -525,19 +567,36 @@ function _adjustPositions(node, nodes, seen) {
     }
 }
 
-function _recursiveGetDagNodeInfo(node, dagNodeInfos, isRetina, nestedPrefix) {
+function _recursiveGetDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix) {
     if (dagNodeInfos[node.name]) {
         return dagNodeInfos[node.name];
     }
-    let dagNodeInfo = _getDagNodeInfo(node, dagNodeInfos, isRetina, nestedPrefix);
+    let dagNodeInfo = _getDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix);
     dagNodeInfos[node.name] = dagNodeInfo;
 
-    node.parents.forEach(child => {
+    if (dagNodeInfo.name === "Execute Retina") {
+        for (let i in dagNodeInfo.nodes) {
+            // reconnect retina with the parents of the dfout node
+            if (dagNodeInfo.nodes[i].type === DagNodeType.DFOut) {
+                dagNodeInfo.parentIds = dagNodeInfo.nodes[i].parentIds;
+                dagNodeInfo.parents = dagNodeInfo.nodes[i].parents;
+                dagNodeInfo.nodes[i].parents.forEach((parent) => {
+                    parent.children.forEach((child, j) => {
+                        if (child.id === dagNodeInfo.nodes[i].id) {
+                            parent.children[j] = dagNodeInfo;
+                        }
+                    })
+                });
+            }
+        }
+        delete dagNodeInfo.nodes; // we're done with this
+    }
 
-        const childInfo = _recursiveGetDagNodeInfo(child, dagNodeInfos, isRetina, nestedPrefix);
+    node.parents.forEach(child => {
+        const childInfo = _recursiveGetDagNodeInfo(child, nodes, dagNodeInfos, isRetina, nestedPrefix);
         let targetDagNodeInfo = dagNodeInfo;
         if (dagNodeInfo.linkOutNode) {
-            // if node is a dfIn, assign it's children to the dfOut node
+            // if node is a dfIn (synthesize), assign it's children to the dfOut node
             targetDagNodeInfo = dagNodeInfo.linkOutNode
         }
 
@@ -549,7 +608,7 @@ function _recursiveGetDagNodeInfo(node, dagNodeInfos, isRetina, nestedPrefix) {
 }
 
 // does the main conversion of a xcalarQueryStruct into a dataflow2 node
-function _getDagNodeInfo(node, dagNodeInfos, isRetina, nestedPrefix) {
+function _getDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix) {
     let dagNodeInfo;
     let linkOutNode = null;
 
@@ -743,26 +802,41 @@ function _getDagNodeInfo(node, dagNodeInfos, isRetina, nestedPrefix) {
 
             break;
         case (XcalarApisT.XcalarApiExecuteRetina):
+            let retinaName = node.args.retinaName.replace(/#/g, "$");
+            const nestedRetInfo = convert(node.args.retinaBuf, retinaName, nodes);
+            dagNodeInfos = $.extend(dagNodeInfos, nestedRetInfo.nodes);
+
+            if (nestedRetInfo.isChainedRetina) {
+                // use a placeholder for the case that retina has parents
+                dagNodeInfo = {
+                    type: DagNodeType.Placeholder,
+                    name: "Execute Retina",
+                    title: "Execute Retina",
+                    input: {
+                        args: node.args
+                    },
+                    nodes: nestedRetInfo.nodes
+                };
+            } else {
             // executeRetina contains a subGraph, so we create the nodes
             // and assign the linkout node's name to current node's linkOutName property
-            let retinaName = node.args.retinaName.replace(/#/g, "$");
-            const nestedRet = convert(node.args.retinaBuf, retinaName);
-            dagNodeInfos = $.extend(dagNodeInfos, nestedRet);
-            for (let name in nestedRet) {
-                let nestedDagNodeInfo = nestedRet[name];
-                if (nestedDagNodeInfo.type === DagNodeType.DFOut) {
-                    linkOutNode = nestedDagNodeInfo;
-                    break;
+                for (let name in nestedRetInfo.nodes) {
+                    let nestedDagNodeInfo = nestedRetInfo.nodes[name];
+                    if (nestedDagNodeInfo.type === DagNodeType.DFOut) {
+                        linkOutNode = nestedDagNodeInfo;
+                        break;
+                    }
                 }
+                dagNodeInfo = {
+                    type: DagNodeType.DFIn,
+                    input: {
+                        dataflowId: currentDataflowId,
+                        linkOutName: linkOutNode.input.name
+                    },
+                    linkOutNode: linkOutNode
+                };
             }
-            dagNodeInfo = {
-                type: DagNodeType.DFIn,
-                input: {
-                    dataflowId: currentDataflowId,
-                    linkOutName: linkOutNode.input.name
-                },
-                linkOutNode: linkOutNode
-            };
+
             break;
         case (XcalarApisT.XcalarApiSynthesize):
             if (isRetina || nestedPrefix) {
@@ -948,11 +1022,15 @@ function _collapseIndexNodes(node) {
             if (!parent.createTableInput && parent.args.source.startsWith(gDSPrefix)) {
                 // if index resulted from dataset
                 // then that index needs to take the role of the dataset node
+                let loadArgs= "";
+                if (parent.parents.length) {
+                    loadArgs = parent.parents[0].args.loadArgs;
+                }
                 parent.createTableInput = {
                     source: xcHelper.stripPrefixFromDSName(parent.args.source),
                     prefix: parent.args.prefix,
                     synthesize: false,
-                    loadArgs: parent.parents[0].args.loadArgs
+                    loadArgs: loadArgs
                 }
                 parent.parents = [];
             }
@@ -999,10 +1077,13 @@ function _collapseIndexNodes(node) {
     }
 }
 
-function _setParents(node, nodes) {
+function _setParents(node, nodes, otherNodes) {
     node.realParents = [];
     for (let i = 0; i < node.parents.length; i++) {
-        const parent = nodes.get(node.parents[i]);
+        let parent = nodes.get(node.parents[i]);
+        if (!parent && otherNodes) {
+            parent = otherNodes.get(node.parents[i]);
+        }
         if (parent) {
             parent.children.push(node);
             parent.realChildren.push(node);
