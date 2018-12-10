@@ -20,7 +20,9 @@ class DatasetColRenamePanel {
             {
                 labels: [OpFormTStr.PreviousColumns, OpFormTStr.NewColumns],
                 preventAutoRemoveCol: true,
-                resultColPosition: -1
+                resultColPosition: -1,
+                candidateText: "Columns in this section will not be reassigned to a new name." +
+                " To match them with a new name, select the column from the list above."
             });
         this._modifyColRenameSection();
         this._registerHandlers();
