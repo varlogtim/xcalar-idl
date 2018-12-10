@@ -235,11 +235,13 @@ namespace DagView {
      * @param dagTab The tab we want to make active.
      */
     export function switchActiveDagTab(dagTab: DagTab) {
+        const $oldDfArea: JQuery = _getActiveArea();
         activeDagTab = dagTab;
         activeDag = dagTab.getGraph();
         DagView.reactivate();
         updateDagView();
         DagTable.Instance.switchTab(dagTab.getId());
+        DagSearch.Instance.switchTab($oldDfArea);
     }
 
     /**

@@ -5,7 +5,6 @@ class XcTableViewer extends XcViewer {
     private rowManager: RowManager;
     private dataflowTabId: string;
     private dagNode: DagNode;
-    private $container: JQuery;
 
     public static getTableFromDagNode(dagNode: DagNode): TableMeta {
         const tableName: string = dagNode.getTable();

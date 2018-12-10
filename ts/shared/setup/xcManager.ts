@@ -536,6 +536,7 @@ namespace xcManager {
             CommentNode.setup();
             DagTab.setup();
             DagView.setup();
+            DagSearch.Instance.setup();
             return setupDagList();
         })
         .then(deferred.resolve)

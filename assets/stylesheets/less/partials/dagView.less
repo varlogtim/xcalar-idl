@@ -476,6 +476,12 @@
             }
         }
 
+        .paramTitle, .nodeTitle {
+            &.highlight {
+                fill: @color-bg-gold;
+            }
+        }
+
         .descriptionIcon {
             cursor: pointer;
         }
@@ -1705,6 +1711,37 @@
         .label {
             font-weight: bold;
         }
+    }
+}
+
+#dagSearch {
+    width: 260px;
+    .position(absolute, @top: 0, @right: 10%);
+    z-index: @z-index-dagSearch;
+    height: 35px;
+    padding: 5px;
+    background-color: @color-bg-white-eight;
+
+    input {
+        width: 180px;
+        background-color: @color-white;
+        padding-right: 45px;
+    }
+
+    .counter {
+        right: 80px;
+        height: 25px;
+        top: 9px;
+    }
+
+    .arrows {
+        top: 3px;
+        right: 21px;
+    }
+
+    .close {
+        .position(absolute, @top: 13px, @right: 7px);
+        font-size: 10px;
     }
 }
 

@@ -812,8 +812,7 @@ class DagGraphExecutor {
     }
 
     // called after canceling a query, may take a while to cancel so keep trying
-    private _retinaDeleteLoop(count): void {
-        count = count || 0;
+    private _retinaDeleteLoop(count = 0): void {
         const self = this;
         setTimeout(() => {
             XcalarDeleteRetina(self._retinaName)

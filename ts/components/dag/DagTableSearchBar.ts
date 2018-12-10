@@ -31,7 +31,7 @@ class DagTableSearchBar {
         $(".xcTable:visible").find(".selectedCell").removeClass("selectedCell");
     }
 
-    private _clearSearch() {
+    private _clearSearch(): void {
         this._toggleSearchOptions(true);
         this._clearnHightInCell();
         this._searchHelper.clearSearch();
@@ -58,7 +58,7 @@ class DagTableSearchBar {
         }
     }
 
-    private _setupSearchHelper() {
+    private _setupSearchHelper(): void {
         const $searchArea: JQuery = this._getSearchArea();
         this._searchHelper = new SearchBar($searchArea, {
             removeSelected: () => {
