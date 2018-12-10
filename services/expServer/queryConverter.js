@@ -28,8 +28,8 @@ let dataflowCount = 0;
 let currentDataflowId; // if retina, will use this dataflowId - we'll create it
 // at the start so linkedIn nodes can point to it from the start
 const gridSpacing = 20;
-const horzNodeSpacing = 140;// spacing between nodes when auto-aligning
-const vertNodeSpacing = 60;
+const horzNodeSpacing = 160;// spacing between nodes when auto-aligning
+const vertNodeSpacing = 80;
 
 // nestedPrefix is a retinaName to indicate if this dataflow is part of a recursive call
 function convert(dataflowInfo, nestedPrefix) {
@@ -64,7 +64,12 @@ function convertHelper(dataflowInfo, nestedPrefix) {
         isRetina = true;
     }
     let query = dataflowInfo.query;
-    let sourcePrefix = nestedPrefix || "";
+    let sourcePrefix = "";
+    let udfPrefix = "";
+    if (nestedPrefix) {
+        sourcePrefix = nestedPrefix + ":";
+        udfPrefix = nestedPrefix + "-";
+    }
     for (let i = 0; i < query.length; i++) {
         const rawNode = query[i];
         const args = rawNode.args;
@@ -82,15 +87,12 @@ function convertHelper(dataflowInfo, nestedPrefix) {
             indexedFields: []
         };
 
-        let isIgnoredApi = false;
-        let source;
-
         // set up the parents and prefix the parent names if we're inside
         // an executeRetina
         switch (node.api) {
             case (XcalarApisT.XcalarApiIndex):
-                if (args.source.startsWith(".XcalarDS.")) {
-                    args.source = ".XcalarDS." + sourcePrefix + args.source.slice(".XcalarDS.".length);
+                if (args.source.startsWith(gDSPrefix)) {
+                    args.source = gDSPrefix + sourcePrefix + args.source.slice(gDSPrefix.length);
                 } else {
                     args.source = sourcePrefix + args.source;
                 }
@@ -123,6 +125,40 @@ function convertHelper(dataflowInfo, nestedPrefix) {
                 break;
         }
 
+        // prefix udfs and aggregates in eval strings
+        switch (node.api) {
+            case (XcalarApisT.XcalarApiIndex):
+            case (XcalarApisT.XcalarApiProject):
+            case (XcalarApisT.XcalarApiGetRowNum):
+            case (XcalarApisT.XcalarApiExport):
+            case (XcalarApisT.XcalarApiSynthesize):
+            case (XcalarApisT.XcalarApiUnion):
+            case (XcalarApisT.XcalarApiExecuteRetina):
+            case (XcalarApisT.XcalarApiBulkLoad):
+                break;
+            case (XcalarApisT.XcalarApiSelect):
+                if (node.args.filterString) {
+                    node.args.filterString = _substitutePrefixInEval(node.args.filterString, udfPrefix);
+                } else if (node.args.evalString) {
+                    node.args.evalString = _substitutePrefixInEval(node.args.evalString, udfPrefix);
+                }
+                break;
+            case (XcalarApisT.XcalarApiGroupBy):
+            case (XcalarApisT.XcalarApiAggregate):
+            case (XcalarApisT.XcalarApiFilter):
+            case (XcalarApisT.XcalarApiMap):
+                node.args.eval.forEach((evalStruct) => {
+                    evalStruct.evalString = _substitutePrefixInEval(evalStruct.evalString, udfPrefix)
+                });
+                break;
+            case (XcalarApisT.XcalarApiJoin):
+                node.args.evalString = _substitutePrefixInEval(node.args.evalString, udfPrefix)
+                break;
+            default:
+                break;
+        }
+
+        let isIgnoredApi = false;
         // set up the dest and aggregates and prefix if needed
         switch (node.api) {
             case (XcalarApisT.XcalarApiIndex):
@@ -136,31 +172,22 @@ function convertHelper(dataflowInfo, nestedPrefix) {
                 node.args.dest = sourcePrefix + args.dest;
                 break;
             case (XcalarApisT.XcalarApiAggregate):
-                node.args.dest = "^" + sourcePrefix + args.dest;
+                node.args.dest = gAggVarPrefix + udfPrefix + args.dest;
                 node.aggregates = _getAggsFromEvalStrs(args.eval);
-                node.aggregates.map((agg) => {
-                    return "^" + sourcePrefix + agg.slice(1);
-                });
                 break;
             case (XcalarApisT.XcalarApiFilter):
             case (XcalarApisT.XcalarApiMap):
             case (XcalarApisT.XcalarApiGroupBy):
                 node.args.dest = sourcePrefix + args.dest;
                 node.aggregates = _getAggsFromEvalStrs(args.eval);
-                node.aggregates.map((agg) => {
-                    return "^" + sourcePrefix + agg.slice(1);
-                });
                 break;
             case (XcalarApisT.XcalarApiJoin):
                 node.args.dest = sourcePrefix + args.dest;
                 node.aggregates = _getAggsFromEvalStrs([args]);
-                node.aggregates.map((agg) => {
-                    return "^" + sourcePrefix + agg.slice(1);
-                });
                 break;
             case (XcalarApisT.XcalarApiBulkLoad):
-                if (args.dest.startsWith(".XcalarDS.")) {
-                    args.dest = ".XcalarDS." + sourcePrefix + args.dest.slice(".XcalarDS.".length);
+                if (args.dest.startsWith(gDSPrefix)) {
+                    args.dest = gDSPrefix + sourcePrefix + args.dest.slice(gDSPrefix.length);
                 } else {
                     node.args.dest = sourcePrefix + args.dest;
                 }
@@ -171,8 +198,8 @@ function convertHelper(dataflowInfo, nestedPrefix) {
                 isIgnoredApi = true;
                 break;
         }
-        name = node.args.dest;
-        node.name = name;
+
+        node.name = node.args.dest; // reset name because we've prefixed it
         if (!isIgnoredApi) {
             nodes.set(node.name, node);
         }
@@ -719,7 +746,7 @@ function _getDagNodeInfo(node, dagNodeInfos, isRetina, nestedPrefix) {
             // executeRetina contains a subGraph, so we create the nodes
             // and assign the linkout node's name to current node's linkOutName property
             let retinaName = node.args.retinaName.replace(/#/g, "$");
-            const nestedRet = convert(node.args.retinaBuf, retinaName + ":");
+            const nestedRet = convert(node.args.retinaBuf, retinaName);
             dagNodeInfos = $.extend(dagNodeInfos, nestedRet);
             for (let name in nestedRet) {
                 let nestedDagNodeInfo = nestedRet[name];
@@ -813,7 +840,7 @@ function _getDagNodeInfo(node, dagNodeInfos, isRetina, nestedPrefix) {
     dagNodeInfo.description = dagNodeInfo.description || comment.userComment || "";
     dagNodeInfo.aggregates = node.aggregates;
     dagNodeInfo.table = node.name;
-    dagNodeInfo.title = node.name;
+    dagNodeInfo.title = node.name.slice(node.name.lastIndexOf(":") + 1); // slice out retina prefix
     dagNodeInfo.id = "dag_" + new Date().getTime() + "_" + idCount++;
     dagNodeInfo.children = [];
     dagNodeInfo.parents = [];
@@ -842,6 +869,54 @@ function parseUserComment(comment) {
     }
     return commentObj;
 };
+
+function _substitutePrefixInEval(oldEvalStr, prefix) {
+    if (!oldEvalStr || !prefix) {
+        return oldEvalStr;
+    }
+    let parsedEval = XEvalParser.parseEvalStr(oldEvalStr);
+    _replace(parsedEval);
+    let evalStr = _rebuild(parsedEval);
+
+    // inserts prefixes in udfs: udfName:udfModule -> prefix-udfName:udfModule
+    // also prefixes aggs: ^myAgg -> ^prefix-myAgg
+    function _replace(parsedEval) {
+        if (parsedEval.fnName && parsedEval.fnName.includes(":")) {
+            parsedEval.fnName = prefix + parsedEval.fnName;
+        } else if (parsedEval.value && parsedEval.value.startsWith(gAggVarPrefix)) {
+            parsedEval.value =  gAggVarPrefix+ prefix + parsedEval.value.slice(1);
+        }
+        if (parsedEval.args) {
+            parsedEval.args.forEach((arg) => {
+                _replace(arg);
+            });
+        }
+    }
+
+    // turns evalStruct into a string
+    function _rebuild(parsedEval) {
+        let str = "";
+        if (parsedEval.fnName) {
+            str += parsedEval.fnName + "(";
+        }
+        parsedEval.args.forEach((arg, i) => {
+            if (i > 0) {
+                str += ",";
+            }
+            if (arg.type === "fn") {
+                str += _rebuild(arg);
+            } else {
+                str += arg.value;
+            }
+        });
+        if (parsedEval.fnName) {
+            str += ")";
+        }
+        return str;
+    }
+
+    return evalStr;
+}
 
 // turns    filter->index->join    into   filter->join
 // and setups up a "create table" node to be a dataset node
