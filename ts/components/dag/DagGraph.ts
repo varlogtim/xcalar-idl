@@ -1699,9 +1699,13 @@ class DagGraph {
             const dagNodeInfo = getDagNodeInfo(node);
             dagNodeInfos[node.name] = dagNodeInfo;
 
-           node.parents.forEach(child => {
-                const childInfo = recursiveGetDagNodeInfo(child, dagNodeInfos);
-                dagNodeInfo.parents.push(childInfo.id);
+            node.parents.forEach(child => {
+                let childInfoId;
+                if (child) {
+                    const childInfo = recursiveGetDagNodeInfo(child, dagNodeInfos);
+                    childInfoId = childInfo.id;
+                }
+                dagNodeInfo.parents.push(childInfoId);
             });
             return dagNodeInfo;
         }
@@ -1916,6 +1920,8 @@ class DagGraph {
             dagNodeInfo.aggregates = node.aggregates;
             dagNodeInfo.description = JSON.stringify(node.args, null, 4);
             dagNodeInfo.subGraphNodes = node.subGraphNodes;
+            dagNodeInfo.display = {x: 0, y: 0};
+            dagNodeInfo.configured = true;
             // create dagIdParentMap so that we can add input nodes later
             const srcTables = destSrcMap[node.name];
             if (srcTables) {
@@ -1993,19 +1999,22 @@ class DagGraph {
                 if (parent.api !== XcalarApisT.XcalarApiIndex) {
                     continue;
                 }
-                if (!parent.parents.length ||
+                if (parent.createTableInput) {
+                    // index parent belongs to dataset
+                    continue;
+                }
+
+                if (parent.parents[0] &&
                     parent.parents[0].api === XcalarApisT.XcalarApiBulkLoad) {
-                    if (parent.args.source.startsWith(gDSPrefix) && !parent.createTableInput) {
+                    if (parent.args.source.startsWith(gDSPrefix)) {
                         // if index resulted from dataset
                         // then that index needs to take the role of the dataset node
                         parent.createTableInput = {
                             source: parent.args.source,
                             prefix: parent.args.prefix
                         }
-                        if (parent.parents[0]) {
-                            parent.subGraphNodes = [parent.parents[0]];
-                        }
 
+                        parent.subGraphNodes = [parent.parents[0]];
                         parent.parents = [];
                     }
                     continue;
@@ -2013,7 +2022,7 @@ class DagGraph {
 
                 const subGraphNodes = [parent];
                 const nonIndexParent = getNonIndexParent(parent, subGraphNodes);
-                if (!nonIndexParent) {
+                if (!nonIndexParent && node.api !== XcalarApisT.XcalarApiJoin) {
                     node.parents.splice(i, 1);
                     i--;
                     continue;
@@ -2026,10 +2035,24 @@ class DagGraph {
                 node.parents[i] = nonIndexParent;
 
                 // remove indexed children and push node
-                nonIndexParent.children = nonIndexParent.children.filter((child) => {
-                    return child.api !== XcalarApisT.XcalarApiIndex;
-                });
-                nonIndexParent.children.push(node);
+                if (nonIndexParent) {
+                    nonIndexParent.children = nonIndexParent.children.filter((child) => {
+                        return child.api !== XcalarApisT.XcalarApiIndex;
+                    });
+                    nonIndexParent.children.push(node);
+                } else if (tableSrcMap && node.api === XcalarApisT.XcalarApiJoin) {
+                    // since index no longer exists, assign it's destSrcMap
+                    // to the current node
+                    if (destSrcMap[parent.name]) {
+                        if (!destSrcMap[node.name]) {
+                            destSrcMap[node.name] = [];
+                        }
+                        const destSrcObj = destSrcMap[parent.name][0]
+                        destSrcMap[node.name].push(destSrcObj);
+                        destSrcObj.index = i;
+                        delete destSrcMap[parent.name];
+                    }
+                }
             }
 
             function getNonIndexParent(node, subGraphNodes) {

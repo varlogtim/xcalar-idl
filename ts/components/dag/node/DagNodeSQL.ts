@@ -72,7 +72,6 @@ class DagNodeSQL extends DagNode {
             this.subInputNodes.push(null);
         }
         dagInfoList.forEach((dagNodeInfo: DagNodeInfo) => {
-            dagNodeInfo.configured = true;
             const parents: DagNodeId[] = dagNodeInfo.parents;
             const node: DagNode = DagNodeFactory.create(dagNodeInfo);
             this.subGraph.addNode(node);
@@ -88,8 +87,11 @@ class DagNodeSQL extends DagNode {
                     }
                     this.addInputNode(inNodePort, srcId - 1);
                 });
-            } else {
-                for (let i = 0; i < parents.length; i++) {
+            }
+            // there will be cases where the node has 1 parent that's an inputnode
+            // and the other parent is in a node already in the subgraph
+            for (let i = 0; i < parents.length; i++) {
+                if (parents[i] != null) {
                     connections.push({
                         parentId: parents[i],
                         childId: nodeId,
@@ -223,7 +225,7 @@ class DagNodeSQL extends DagNode {
         // Link the node in sub graph with input node
         if (inNodePort.node != null) {
             const inputNode = this.subInputNodes[inPortIdx];
-            subGraph.connect(inputNode.getId(), inNodePort.node.getId(), inNodePort.portIdx);
+            subGraph.connect(inputNode.getId(), inNodePort.node.getId(), inNodePort.portIdx, false, false);
         }
         return inPortIdx;
     }
@@ -303,7 +305,9 @@ class DagNodeSQL extends DagNode {
             this.getSubGraph().connect(
                 outNode.getId(),
                 outputNode.getId(),
-                0 // output node has only one parent
+                0, // output node has only one parent
+                false,
+                false
             );
         }
         return outPortIdx;
