@@ -1482,6 +1482,7 @@
                     // Restore the old KVcommit code
                     KVStore.commit = oldKVcommit;
                 }
+                SQLApi.clear();
             });
 
             return outDeferred.promise();

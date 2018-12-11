@@ -382,7 +382,8 @@ class DagNodeSQL extends DagNode {
                      xcHelper.randName("sqlTable") + Authentication.getHashId();
 
         const cols = srcTable.getLineage().getColumns();
-        const colInfos: ColRenameInfo[] = [];
+        let colInfos: ColRenameInfo[] = [];
+        const remainCols: ColRenameInfo[] = [];
 
         const schema = [];
         for (let i = 0; i < cols.length; i++) {
@@ -400,6 +401,8 @@ class DagNodeSQL extends DagNode {
             if (colInfo.new !== colInfo.orig) {
                 // otherwise nothing to finalize
                 colInfos.push(colInfo);
+            } else {
+                remainCols.push(colInfo)
             }
             const schemaStruct = {};
             schemaStruct[colInfo.new] = col.type;
@@ -414,6 +417,8 @@ class DagNodeSQL extends DagNode {
                 srcTableName: srcTableName
             }
             return PromiseHelper.resolve(ret);
+        } else {
+            colInfos = colInfos.concat(remainCols);
         }
 
         let txId = Transaction.start({
