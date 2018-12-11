@@ -89,7 +89,7 @@
         <!-- datasets tab -->
     <!--  TODO: Currently Datasets/etc don't work if no workbook is activated. This will come later. -->
     <% if (!dicts.isTutor) { %>
-    <div id="dataStoresTab" class="topMenuBarTab firstTouch mainMenuOpen">
+    <div id="dataStoresTab" class="topMenuBarTab firstTouch mainMenuOpen wkbkMenuBarTabs">
       <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.ds %>">
         <i class="icon xi-menu-datastore fa-25"></i>
       </div>
@@ -103,7 +103,7 @@
       </div>
     </div>
     <% } else if (dicts.tutor.name == "workbookTut") { %>
-    <div id="dataStoresTab" class="topMenuBarTab mainMenuOpen" data-introstep="w1-datastoresBut">
+    <div id="dataStoresTab" class="topMenuBarTab mainMenuOpen wkbkMenuBarTabs" data-introstep="w1-datastoresBut">
       <div class="mainTab">
         <i class="icon xi-menu-datastore fa-25"></i>
       </div>
@@ -114,7 +114,7 @@
       </div>
     </div>
     <% } else { %>
-    <div id="dataStoresTab" class="topMenuBarTab active mainMenuOpen">
+    <div id="dataStoresTab" class="topMenuBarTab active mainMenuOpen wkbkMenuBarTabs">
       <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.ds %>">
         <i class="icon xi-menu-datastore fa-25"></i>
       </div>
@@ -132,19 +132,17 @@
       </div>
     </div>
 
-    <div id="topWkbkMenuBarTabs" class="clearfix" <%= (dicts.tutor.name == 'workbookTut') ? 'data-introstep="w1-topMenu"' : '' %> >
-      <div id="modelingDataflowTab" class="topMenuBarTab mainMenuOpen firstTouch">
-          <div id="dagButton" class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Dataflow Panel">
-              <i class="icon xi-dfg2"></i>
-          </div>
-      </div>
+    <div id="modelingDataflowTab" class="topMenuBarTab mainMenuOpen firstTouch wkbkMenuBarTabs">
+        <div id="dagButton" class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Dataflow Panel">
+            <i class="icon xi-dfg2"></i>
+        </div>
+    </div>
 
-      <!-- jupyter Tab -->
-      <div id="jupyterTab" class="topMenuBarTab mainMenuOpen noLeftPanel">
-          <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Jupyter Notebook">
-            <i class="icon xi-menu-cli fa-20"></i>
-          </div>
-      </div>
+    <!-- jupyter Tab -->
+    <div id="jupyterTab" class="topMenuBarTab mainMenuOpen noLeftPanel wkbkMenuBarTabs">
+        <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Jupyter Notebook">
+          <i class="icon xi-menu-cli fa-20"></i>
+        </div>
     </div>
   </div>
   <!-- end main menu -->
@@ -152,19 +150,17 @@
   <!-- start bottom menu -->
   <% if (dicts.tutor.name == "workbookTut") { %>
   <div id="bottomMenuBarTabs" class="bottomButtonsArea no-selection clearfix" data-introstep="w1-bottomMenu">
-    <div class="bottomWkbkMenuBarTabs">
-      <!-- extension tab -->
-      <div id="extensionTab" class="sliderBtn bottomMenuBarTab" data-introstep="w1-extensions">
-        <div class="mainTab">
-          <i class="icon xi-menu-extension fa-25"></i>
-        </div>
+    <!-- extension tab -->
+    <div id="extensionTab" class="sliderBtn bottomMenuBarTab wkbkMenuBarTabs" data-introstep="w1-extensions">
+      <div class="mainTab">
+        <i class="icon xi-menu-extension fa-25"></i>
       </div>
+    </div>
 
-      <!-- log -->
-      <div id="logTab" class="sliderBtn bottomMenuBarTab" data-introstep="w1-log">
-        <div class="mainTab">
-          <i class="icon xi-menu-log fa-25"></i>
-        </div>
+    <!-- log -->
+    <div id="logTab" class="sliderBtn bottomMenuBarTab wkbkMenuBarTabs" data-introstep="w1-log">
+      <div class="mainTab">
+        <i class="icon xi-menu-log fa-25"></i>
       </div>
     </div>
 
@@ -184,19 +180,17 @@
   </div>
   <% } else { %>
   <div id="bottomMenuBarTabs" class="bottomButtonsArea no-selection clearfix">
-    <div class="bottomWkbkMenuBarTabs">
-      <!-- extension tab -->
-      <div id="extensionTab" class="sliderBtn bottomMenuBarTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.exts %>">
-        <div class="mainTab">
-          <i class="icon xi-menu-extension fa-25"></i>
-        </div>
+    <!-- extension tab -->
+    <div id="extensionTab" class="sliderBtn bottomMenuBarTab wkbkMenuBarTabs" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.exts %>">
+      <div class="mainTab">
+        <i class="icon xi-menu-extension fa-25"></i>
       </div>
+    </div>
 
-      <!-- log -->
-      <div id="logTab" class="sliderBtn bottomMenuBarTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.Logs %>">
-        <div class="mainTab">
-          <i class="icon xi-menu-log fa-25"></i>
-        </div>
+    <!-- log -->
+    <div id="logTab" class="sliderBtn bottomMenuBarTab wkbkMenuBarTabs" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.Logs %>">
+      <div class="mainTab">
+        <i class="icon xi-menu-log fa-25"></i>
       </div>
     </div>
 

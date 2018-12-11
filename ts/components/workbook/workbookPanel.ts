@@ -45,6 +45,10 @@ namespace WorkbookPanel {
             $(this).blur();
             const $container: JQuery = $("#container");
             const $dialogWrap: JQuery = $("#dialogWrap");
+            if ($(".bottomMenuBarTab.wkbkMenuBarTabs.active").length) {
+                // when any for workbook only tab is open
+                BottomMenu.close();
+            }
             if ($("#mainMenu").hasClass("open")) {
                 MainMenu.close();
                 $("#mainMenu").addClass("wasOpen");
