@@ -254,10 +254,8 @@ class MapOpPanelModel extends GeneralOpPanelModel {
             if (error) {
                 return {error: error, group: i, arg: -1, type: "newField"};
             }
-            const match = this.tableColumns.find((col) => {
-                return col.getBackColName() === name;
-            });
-            if (match != null || nameMap[name]) {
+
+            if (nameMap[name]) {
                 return {
                     error: "Duplicate field name",
                     group: i,

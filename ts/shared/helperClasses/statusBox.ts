@@ -54,6 +54,8 @@ namespace StatusBox {
             if (!$target.length) {
                 // XXX this shouldn't happen but it has before
                 return;
+            } else if ($target.length > 1) {
+                $target = $target.eq(0);
             }
 
             this.$target = $target;

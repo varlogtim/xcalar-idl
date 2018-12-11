@@ -414,7 +414,6 @@ class MapOpPanel extends GeneralOpPanel {
     protected _showFunctionsInputErrorMsg(groupNum) {
         let $target = this._$panel.find(".group").eq(groupNum).find(".functionsMenu").parent();
         let text = ErrTStr.NoEmpty;
-
         StatusBox.show(text, $target, false, {"offsetX": -5,
                                             preventImmediateHide: true});
     }
@@ -874,11 +873,11 @@ class MapOpPanel extends GeneralOpPanel {
                         self._handleInvalidArgs(false, $input, error.error);
                         break;
                     case ("newField"):
-                        StatusBox.show(error.error, this._$panel.find(".group").find(".colNameSection .arg"));
+                        StatusBox.show(error.error, $group.find(".colNameSection .arg"), false, {preventImmediateHide: true});
                         break;
                     case ("missingFields"):
                     default:
-                        StatusBox.show(error.error, $group);
+                        StatusBox.show(error.error, $group, false, {preventImmediateHide: true});
                         console.warn("unhandled error found", error);
                         break;
                 }

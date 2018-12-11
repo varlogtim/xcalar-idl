@@ -551,7 +551,7 @@ class AggOpPanel extends GeneralOpPanel {
                         break;
                     case ("missingFields"):
                         default:
-                            StatusBox.show(error.error, $group);
+                            StatusBox.show(error.error, $group, false, {preventImmediateHide: true});
                             console.warn("unhandled error found", error);
                             break;
                 }
@@ -560,7 +560,7 @@ class AggOpPanel extends GeneralOpPanel {
 
             const aggNameError = this.model.validateAggName();
             if (aggNameError) {
-                StatusBox.show(aggNameError.error, this._$panel.find(".group").find(".colNameSection .arg"));
+                StatusBox.show(aggNameError.error, this._$panel.find(".group").find(".colNameSection .arg"), false, {preventImmediateHide: true});
                 return false;
             }
         }

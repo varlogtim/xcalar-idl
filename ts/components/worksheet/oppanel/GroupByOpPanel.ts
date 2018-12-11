@@ -883,12 +883,12 @@ class GroupByOpPanel extends GeneralOpPanel {
                         self._handleInvalidArgs(false, $input, error.error);
                         break;
                     case ("newField"):
-                        StatusBox.show(error.error, this._$panel.find(".group").find(".colNameSection .arg"));
+                        StatusBox.show(error.error, this._$panel.find(".group").find(".colNameSection .arg"), false, {preventImmediateHide: true});
                         break;
                     case ("missingFields"):
                     default:
                         StatusBox.show(error.error, $group);
-                        console.warn("unhandled error found", error);
+                        console.warn("unhandled error found", error, false, {preventImmediateHide: true});
                         break;
                 }
                 return false;

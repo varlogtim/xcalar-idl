@@ -895,7 +895,7 @@ class FilterOpPanel extends GeneralOpPanel {
                         break;
                     case ("missingFields"):
                     default:
-                        StatusBox.show(error.error, $group);
+                        StatusBox.show(error.error, $group, false, {preventImmediateHide: true});
                         console.warn("unhandled error found", error);
                         break;
                 }

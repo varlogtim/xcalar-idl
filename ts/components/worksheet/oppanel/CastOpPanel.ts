@@ -7,7 +7,6 @@ class CastOpPanel extends BaseOpPanel {
 
     public constructor() {
         super();
-        // this._$panel = $("#castOpPanel")
         super.setup($("#castOpPanel"));
         this.colRenameSection = new ColAssignmentView("#castOpPanel .columnAssignmentSection",
                 {
@@ -212,7 +211,6 @@ class CastOpPanel extends BaseOpPanel {
     }
 
     private _modifyColRenameSection() {
-        // this.$panel.off("click.candidateSection");
         this.$panel.find(".tableSection .header .text")
                   .text(OpFormTStr.SelectColRename);
         this.$panel.find(".candidateSection .subHeading .text")

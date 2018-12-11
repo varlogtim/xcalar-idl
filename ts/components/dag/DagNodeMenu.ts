@@ -560,9 +560,9 @@ namespace DagNodeMenu {
             $menu.find(".generateResult").addClass("unavailable");
         }
         if (dagNode instanceof DagNodeOutOptimizable &&
-            dagNode.getState() === DagNodeState.Complete ||
+            (dagNode.getState() === DagNodeState.Complete ||
             dagNode.getState() === DagNodeState.Running ||
-            dagNode.getState() === DagNodeState.Configured) {
+            dagNode.getState() === DagNodeState.Configured)) {
             $menu.find(".viewOptimizedDataflow").removeClass("xc-hidden");
         } else {
             $menu.find(".viewOptimizedDataflow").addClass("xc-hidden");
