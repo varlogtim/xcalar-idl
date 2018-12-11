@@ -702,6 +702,7 @@ namespace DagView {
 
         nodeInfos.forEach((nodeInfo) => {
             nodeInfo = xcHelper.deepCopy(nodeInfo);
+            nodeInfo.title = null // reset title
             nodeInfo.display.x += xDelta;
             nodeInfo.display.y += yDelta;
             if (nodeInfo.hasOwnProperty("text")) {
