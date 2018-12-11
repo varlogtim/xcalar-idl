@@ -719,14 +719,19 @@ class DagGraphExecutor {
     } {
         const operations = JSON.parse(queryStr);
         const realDestTables = [];
+        let outNodes;
         // create tablename and columns property in retina for each outnode
-        const outNodes = this._nodes.filter((node, i) => {
-            if (node.getType() === DagNodeType.DFOut ||
-                node.getType() === DagNodeType.Export) {
+        if (this._isOptimizedActiveSession) {
+            realDestTables.push(destTables[destTables.length - 1]);
+            outNodes = [this._nodes[this._nodes.length - 1]];
+        } else {
+            outNodes = this._nodes.filter((node, i) => {
+                if (node.getType() === DagNodeType.Export) {
                     realDestTables.push(destTables[i]);
                     return true;
-            }
-        });
+                }
+            });
+        }
         // XXX check for name conflict when creating headeralias
         const destInfo: {nodeId: DagNodeId, tableName: string}[] = [];
         const tables = outNodes.map((outNode, i) => {
