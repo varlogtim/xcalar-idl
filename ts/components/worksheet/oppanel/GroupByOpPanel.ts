@@ -112,9 +112,14 @@ class GroupByOpPanel extends GeneralOpPanel {
         const groupAll = model.groupAll;
         const $ul = this._$panel.find('.gbOnArg').first().siblings(".list");
         this._addSuggestListForGroupOnArg($ul);
+
+        if (updateAll) {
+            this._$panel.find('.gbOnArg').val("");
+        }
+
         for (let i = 0; i < model.groupOnCols.length; i++) {
             if (i > 0) {
-                this._addGroupOnArg(0);
+                this._addGroupOnArg();
             }
             let name = model.groupOnCols[i];
             if (name) {
@@ -954,6 +959,13 @@ class GroupByOpPanel extends GeneralOpPanel {
         const self = this;
         super._resetForm();
 
+        this._$panel.find(".gbOnRow").show();
+        this._$panel.find(".addGroupArg").show();
+        const $groupAllBox = this._$panel.find(".groupByAll .checkbox");
+        if ($groupAllBox.hasClass("checked")) {
+            this._toggleGroupAll($groupAllBox);
+        }
+
         this._$panel.find('.icvMode').addClass('inactive');
         this._$panel.find('.gbCheckboxes').addClass('inactive');
         this._$panel.find(".advancedSection").addClass("inactive");
@@ -1062,9 +1074,9 @@ class GroupByOpPanel extends GeneralOpPanel {
         }
     }
 
-    private _addGroupOnArg(index) {
+    private _addGroupOnArg() {
         const html = this._getArgInputHtml();
-        const $group = this._$panel.find(".group").eq(index);
+        const $group = this._$panel.find(".group").eq(0);
         $group.find('.gbOnRow').last().after(html);
         $group.find('.gbOnArg').last().focus();
 
