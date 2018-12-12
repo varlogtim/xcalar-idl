@@ -77,14 +77,19 @@ class DFLinkInOpPanel extends BaseOpPanel {
 
     private _initializeDataflows(): void {
         const tabs: DagTab[] = DagTabManager.Instance.getTabs();
-        const dataflows = tabs.map((tab) => {
+        const dataflows: {tab: DagTab, displayName: string}[] = [];
+        tabs.forEach((tab) => {
+            // don't show sql tab, custom tab, or optimized tab
+            if (!(tab instanceof DagTabUser) && !(tab instanceof DagTabPublished)) {
+                return;
+            }
             const name: string = tab.getName();
             const shared: boolean = (tab instanceof DagTabPublished);
             const displayName: string = shared ? (<DagTabPublished>tab).getPath() : name;
-            return {
+            dataflows.push({
                 tab: tab,
                 displayName: displayName
-            }
+            });
         });
 
         this._dataflows = dataflows;
@@ -172,7 +177,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
                 $ele: $linkOutInput
             }]);
         }
-        
+
 
         if (!isValid) {
             return null;
@@ -381,8 +386,8 @@ class DFLinkInOpPanel extends BaseOpPanel {
         // dropdown for linkOutNodeName
         const $linkOutDropdownList: JQuery = this._getLinkOutDropdownList();
         this._addEventListenersForDropdown($linkOutDropdownList, this._searchLinkOutNodeName);
-    
-        
+
+
         // auto detect listeners for schema section
         const $schemaSection: JQuery = this._getSchemaSection();
         $schemaSection.on("click", ".detect", (event) => {
