@@ -164,6 +164,7 @@ namespace WorkbookPreview {
     }
 
     function updateDagList(dagList: {name: string, id: string}[]): void {
+        dagList = dagList || [];
         let html: HTML = dagList.map(function(dagInfo) {
             return '<div class="grid-unit" data-id="' + dagInfo.id + '">' +
                         '<div class="name tooltipOverflow"' +
