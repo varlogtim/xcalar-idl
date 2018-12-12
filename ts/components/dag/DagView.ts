@@ -4181,8 +4181,6 @@ namespace DagView {
 
             graph.updateProgress(nodeId, queryStateOutput.queryGraph.node);
 
-            DagNodeInfoPanel.Instance.update(nodeId, "stats");
-
             const nodeStats = node.getIndividualStats();
             const timeStrs: string[] = [];
             const skewInfos = [];
@@ -4192,6 +4190,8 @@ namespace DagView {
                 const timeStr: string = xcHelper.getElapsedTimeStr(nodeStat.elapsedTime);
                 timeStrs.push(timeStr);
             });
+
+            DagNodeInfoPanel.Instance.update(nodeId, "stats");
 
             DagView.updateProgress(nodeId, tabId, pct, true, skewInfos, timeStrs);
         } else {
@@ -4204,7 +4204,7 @@ namespace DagView {
         if (node.getType() === DagNodeType.SQL) {
             let subGraph = (<DagNodeSQL>node).getSubGraph();
             const subTabId: string = subGraph.getTabId();
-            subGraph.updateProgress(queryStateOutput.queryGraph.node, true);
+            subGraph.updateProgress(queryStateOutput.queryGraph.node);
 
             if (!subTabId) {
                 return;

@@ -4,6 +4,7 @@ class SkewInfoModal {
     private _modalHelper: ModalHelper;
     private _activeTable: TableMeta;
     private _percentageLabel: boolean = false;
+    private _instanceOptions;
 
     public static get Instance(): SkewInfoModal {
         return this._instance || (this._instance = new this());
@@ -24,8 +25,9 @@ class SkewInfoModal {
      * SkewInfoModal.Instance.show
      * @param tableId
      */
-    public show(table: TableMeta) {
-        if (table == null) {
+    public show(table: TableMeta, options) {
+        this._instanceOptions = options || {};
+        if (table == null && !this._instanceOptions.tableInfo) {
             // error case which should never happen
             Alert.error(AlertTStr.Error, AlertTStr.ErrorMsg);
             return;
@@ -49,31 +51,54 @@ class SkewInfoModal {
     }
 
     private _showTableInfo(): void {
-        if (this._activeTable == null) {
+        if (this._activeTable == null && !this._instanceOptions.tableInfo) {
             // error case
             return;
         }
-        const table: TableMeta = this._activeTable;
-        const size: number = table.getSize();
-        const totalRows: number = table.resultSetCount;
+
+        let size: number;
+        let totalRows: number;
+        let skewValue: string;
+        let skewColor: string;
+        if (this._instanceOptions.tableInfo) {
+            size = this._instanceOptions.tableInfo.size;
+            totalRows = this._instanceOptions.tableInfo.totalRows;
+            skewValue = this._instanceOptions.tableInfo.skewValue;
+            skewColor = this._instanceOptions.tableInfo.skewColor;
+        } else {
+            const table: TableMeta = this._activeTable;
+            const $skew: JQuery = $("#dagViewTableArea .skewInfoArea .text");
+            size = table.getSize();
+            totalRows = table.resultSetCount;
+            skewValue = $skew.text();
+            skewColor = $skew.css("color");
+        }
 
         const sizeStr: string = <string>xcHelper.sizeTranslator(size);
-        const $skew: JQuery = $("#dagViewTableArea .skewInfoArea .text");
         const $modal: JQuery = this._getModal();
         $modal.find(".size .text").text(sizeStr);
         $modal.find(".totalRows .text").text(totalRows);
-        $modal.find(".skew .text").text($skew.text())
-                                  .css("color", $skew.css("color"));
+        $modal.find(".skew .text").text(skewValue)
+                                  .css("color", skewColor);
     }
 
     private _drawDistributionGraph(): void {
-        if (this._activeTable == null) {
+        let totalRows: number;
+        let rows: number[];
+        if (this._activeTable == null && !this._instanceOptions.tableInfo) {
             // error case
             return;
         }
-        const table = this._activeTable;
-        const totalRows: number = table.resultSetCount;
-        const rows: number[] = table.getRowDistribution();
+        if (this._instanceOptions.tableInfo) {
+            totalRows = this._instanceOptions.tableInfo.totalRows;
+            rows = this._instanceOptions.tableInfo.rows;
+        } else {
+            const table = this._activeTable;
+            totalRows = table.resultSetCount;
+            rows = table.getRowDistribution();
+        }
+
+
         const percentageLabel: boolean = this._percentageLabel;
 
         const data = rows.map((d, i) => {

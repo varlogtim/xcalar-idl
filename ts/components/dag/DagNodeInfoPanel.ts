@@ -119,6 +119,10 @@ class DagNodeInfoPanel {
         this._$panel.on("click", ".restore .action", () => {
             this._restoreDataset();
         });
+
+        this._$panel.on("click", ".statsRow", () => {
+            SkewInfoModal.Instance.show(null, {tableInfo: $(this).data("skewinfo")});
+        });
     }
 
     private _updateLock(): void {
@@ -173,13 +177,23 @@ class DagNodeInfoPanel {
             this._$panel.find(".statsRow").removeClass("xc-hidden");
             const operationsStats = node.getIndividualStats(true);
             let statsHtml: HTML = "";
+            let skewInfos = [];
             operationsStats.forEach((stats) => {
                 let operationName = stats.type.substr("XcalarApi".length);
                 let skewText = DagView.getSkewText(stats.skewValue);
-                let skewColor = DagView.getSkewColor(skewText);
+                let skewColorRaw = DagView.getSkewColor(skewText);
+                let skewColor = skewColorRaw;
                 if (skewColor) {
                     skewColor = "color:" + skewColor;
                 }
+
+                skewInfos.push({
+                    rows: stats.rows,
+                    totalRows: stats.numRowsTotal,
+                    size: stats.size,
+                    skewValue: skewText,
+                    skewColor: skewColorRaw
+                });
                 statsHtml += `<div class="operationStats">
                     <div class="statsRow">
                         <div class="label">Operation: </div>
@@ -197,7 +211,7 @@ class DagNodeInfoPanel {
                         <div class="label">Rows: </div>
                         <div class="value">${xcHelper.numToStr(stats.numRowsTotal)}</div>
                     </div>
-                    <div class="statsRow">
+                    <div class="statsRow skewStatsRow" ${xcTooltip.Attrs} data-original-title="${TblTStr.ClickToDetail}">
                         <div class="label">Skew: </div>
                         <div class="value" style="${skewColor}">${skewText}</div>
                     </div>
@@ -209,6 +223,9 @@ class DagNodeInfoPanel {
 
             });
             this._$panel.find(".statsSection").html(statsHtml);
+            this._$panel.find(".statsSection").find(".skewStatsRow").each((i) => {
+                $(this).data("skewinfo", skewInfos[i]);
+            });
         } else {
             this._$panel.find(".progressRow").addClass("xc-hidden");
             this._$panel.find(".statsRow").addClass("xc-hidden");
