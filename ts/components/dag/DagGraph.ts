@@ -1729,10 +1729,16 @@ class DagGraph {
                     } else {
                         // probably a sort node
                         dagNodeInfo = {
-                            type: DagNodeType.Index,
-                            input: {columns: []}
+                            type: DagNodeType.Sort,
+                            input: {
+                                columns: node.args.key.map((key) => {
+                                    return {columnName: key.name, ordering: key.ordering}
+                                }),
+                                newKeys: node.args.key.map((key) => {
+                                    return key.keyFieldName
+                                })
+                            }
                         }
-                        // need to use real columns
                     }
                     break;
                 case (XcalarApisT.XcalarApiAggregate):
