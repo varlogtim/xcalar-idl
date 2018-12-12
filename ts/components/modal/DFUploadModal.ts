@@ -49,7 +49,7 @@ class DFUploadModal {
     } {
         const sharePrefix: string = DagTabPublished.PATH.substring(1); // Shared/
         let uploadTab: DagTab;
-        
+
         const $pathInput: JQuery = this._getDestPathInput();
         let path: string = $pathInput.val().trim();
         let shortName: string;
@@ -73,7 +73,14 @@ class DFUploadModal {
             check: () => {
                 return !shortName;
             }
-        }, {
+        },
+        {
+            $ele: $pathInput,
+            error: DFTStr.NoSlashUpload,
+            check: () => {
+                return !shared && shortName.includes("/");
+            }
+        },{
             $ele: $pathInput,
             error: ErrTStr.DFNameIllegal,
             check: () => {
@@ -245,7 +252,7 @@ class DFUploadModal {
         $modal.on("click", ".confirm", () => {
             this._submitForm();
         });
-        
+
         // click dest browse button
         $modal.find(".dest .browse").click(() => {
             this._browseDestPath();

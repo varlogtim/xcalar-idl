@@ -1151,7 +1151,8 @@ DFTStr = {
     "AutoExecute": "Auto execute the dataflow after configuration",
     "AutoPreview": "Auto preview the results after execution",
     "ShowProgressTips": "Show progress details for each operation",
-    "NoEmptyDestName": "Pleaase enter a destination dataflow name.",
+    "NoEmptyDestName": "Please enter a destination dataflow name.",
+    "NoSlashUpload": "Cannot upload to this path.",
     // with replace
     "EditOpDirectly": "Please edit the overall <op> operation directly",
     'CancelAlertMsg': 'Batch dataflow \'<name>\' was canceled.',
