@@ -1057,6 +1057,7 @@ DFTStr = {
     "DelDF": "Permanently Delete Dataflow",
     "DelDF2": "Delete dataflow",
     'DelDFErr': "Cannot delete the dataflow",
+    'DelSubErr': "Dataflow has an open subtab",
     "DelDFMsg": "Are you sure you want to permanently delete the dataflow : \"<dfName>\"? This action cannot be undone.",
     "DFTitle": "DATAFLOW",
     "DownloadErr": "Download Failed",

@@ -215,9 +215,9 @@ class DagList {
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const id: string = dagTab.getId();
-
-        if (!DagTabManager.Instance.removeTab(id)) {
-            return deferred.reject();
+        let removal: {success: boolean, error?: string} = DagTabManager.Instance.removeTab(id);
+        if (!removal.success) {
+            return deferred.reject({error: removal.error});
         }
 
         dagTab.delete()

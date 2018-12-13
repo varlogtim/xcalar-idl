@@ -209,18 +209,18 @@ class DagTabManager{
      * @param tabId DagTab's id.
      * @returns {boolean}
      */
-    public removeTab(tabId: string): boolean {
+    public removeTab(tabId: string): {success: boolean, error?: string} {
         const index: number = this.getTabIndex(tabId);
         if (index < 0) {
             // Dag not in active tabs, so it's fine to delete it.
-            return true;
+            return { success: true };
         }
         const subTabIds = this._getSubTabIds(tabId);
         if (subTabIds.length > 0) {
             // Sub tabs are still open, so cannot delete it
-            return false;
+            return { success: false, error: DFTStr.DelSubErr };
         }
-        return this._deleteTab(index);
+        return { success: this._deleteTab(index) };
     }
 
     /**
