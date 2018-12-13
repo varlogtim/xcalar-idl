@@ -188,7 +188,7 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
                         'origTitle': xcHelper.escapeDblQuoteForHTML(
                             xcHelper.escapeHTMLSpecialChar(column.name)
                         ),
-                        'colName': column.name,
+                        'colName': xcHelper.parsePrefixColName(column.name).name,
                         'colType': colType,
                         'colTypeClass': `type-${colType}`
                     }
