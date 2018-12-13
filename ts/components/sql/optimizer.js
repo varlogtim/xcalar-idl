@@ -735,13 +735,6 @@
         newSelectStruct = jQuery.extend(true, {}, selectStruct);
         newSelectStruct.args.dest = newTableName;
 
-        // XXX Remove this after Bohan's change goes in, https://bugs.int.xcalar.com/show_bug.cgi?id=14291
-        if (newSelectStruct.args && newSelectStruct.args.eval) {
-            newSelectStruct.args.evalString = newSelectStruct.args.eval.Filter;
-            delete newSelectStruct.args.eval.Filter;
-        }
-        // End of temporary block
-
         delete newSelectStruct.colNameMap;
         newSelectNode = {name: newTableName,
                          value: newSelectStruct,
