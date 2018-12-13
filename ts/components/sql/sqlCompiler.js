@@ -4388,6 +4388,15 @@
         } else {
             frameInfo.upper = undefined;
         }
+        if (opName === "First" || opName === "Last" || opName === "Count" ||
+            opName === "Max" || opName === "Min" || opName === "Sum" ||
+            opName === "Average") {
+            assert(frameInfo.type === 0 && frameInfo.lower == undefined &&
+                   frameInfo.upper == undefined,
+                   "Window functions with aggregate or first/last using " +
+                   "frame other than \"rows from unbounded preceding and" +
+                   " unbounded following\" is not supported");
+        }
         curNode = secondTraverse(weNode.children[weNode.value.windowFunction], {}, true);
         newCol.colType = getColType(curNode);
         return {newColStruct: newCol, opName: opName, args: args,
