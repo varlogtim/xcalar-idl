@@ -24,6 +24,10 @@
                 const opIdxMap = {};
                 for (let i = 0; i < opArray.length; i++) {
                     opIdxMap[opArray[i].args.dest] = i;
+                    addAggSource(opArray[i]);
+                }
+                for (let i = 0; i < prepArray.length; i++) {
+                    addAggSource(prepArray[i]);
                 }
                 opGraph  = genOpGraph(opArray, opArray.length - 1,
                                                                   opIdxMap, {});
@@ -841,6 +845,48 @@
             }
         }
         curNode.parents = parentsAfterPush;
+    }
+
+    function addAggSource(cliStruct) {
+        var opName = cliStruct.operation;
+        switch (opName) {
+            case ("XcalarApiGroupBy"):
+            case ("XcalarApiMap"):
+                cliStruct.args.aggSource = [];
+                for (var i = 0; i < cliStruct.args.eval.length; i++) {
+                    XDParser.XEvalParser.getAggNames(cliStruct.args.eval[i]
+                        .evalString).forEach(function (aggName) {
+                        if (cliStruct.args.aggSource.indexOf(aggName) === -1) {
+                            cliStruct.args.aggSource.push(aggName);
+                        }
+                    })
+                }
+                break;
+            case ("XcalarApiFilter"):
+            case ("XcalarApiAggregate"):
+                cliStruct.args.aggSource = XDParser.XEvalParser
+                                .getAggNames(cliStruct.args.eval[0].evalString);
+                break;
+            case ("XcalarApiJoin"):
+                cliStruct.args.aggSource = XDParser.XEvalParser
+                                        .getAggNames(cliStruct.args.evalString);
+                break;
+            case ("XcalarApiProject"):
+            case ("XcalarApiIndex"):
+            case ("XcalarApiUnion"):
+            case ("XcalarApiGetRowNum"):
+            case ("XcalarApiExecuteRetina"):
+            case ("XcalarApiRenameNode"):
+            case ("XcalarApiSynthesize"):
+            case ("XcalarApiSelect"):
+            case ("XcalarApiBulkLoad"):
+            case ("XcalarApiExport"):
+            case ("XcalarApiDeleteObjects"):
+                break;
+            default:
+                console.error("Unexpected operation: " + opName);
+                break;
+        }
     }
 
     if (typeof exports !== "undefined") {

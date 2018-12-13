@@ -7,6 +7,7 @@ class XEvalVisitor extends XEvalBaseVisitor{
         this.expressions = [];
         this.fns = [];
         this.func = {fnName: "", args: [], type: "fn"};
+        this.aggNames = [];
     }
 
     parseEvalStr(ctx) {
@@ -109,6 +110,20 @@ class XEvalVisitor extends XEvalBaseVisitor{
             return ctx.children.map(function(child) {
                 return self.replaceColName(child, colNameMap, aggregateNameMap);
             }).join("");
+        }
+    }
+
+    getAggNames(ctx) {
+        var self = this;
+        if (ctx instanceof XEvalBaseParser.AggValueContext) {
+            var aggName = ctx.getText().substring(1);
+            if (self.aggNames.indexOf(aggName) === -1) {
+                self.aggNames.push(aggName);
+            }
+        } else if (ctx.getChildCount() !== 0) {
+            for (let i = 0; i < ctx.children.length; i++) {
+                self.getAggNames(ctx.children[i]);
+            }
         }
     }
 }

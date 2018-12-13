@@ -1670,21 +1670,6 @@
             }
             return "[" + outCli.substring(0, outCli.length - 1) + "]";
         },
-        _addAggSource: function(cli, subqueryArray, aggEvalStrArray) {
-            let aggSource = [];
-            aggSource = aggSource.concat(subqueryArray.map(function(subquery) {
-                return subquery.subqueryTree.subqVarName;
-            }));
-            aggSource = aggSource.concat(aggEvalStrArray.map(function(aggEvalStr) {
-                return aggEvalStr.aggVarName;
-            }));
-            if (cli.endsWith(",")) {
-                cli = cli.substring(0, cli.length - 1);
-            }
-            const cliObj = JSON.parse(cli);
-            cliObj.args.aggSource = aggSource;
-            return JSON.stringify(cliObj) + ",";
-        },
         _pushDownIgnore: function(node) {
             assert(node.children.length === 1,
                    SQLErrTStr.IgnoreOneChild + node.children.length);
@@ -1842,9 +1827,6 @@
                     node.xcCols = newXcCols;
                     node.sparkCols = [];
                     node.renamedCols = newRenamedCols;
-                    if (subqueryArray.length > 0) {
-                        ret.cli = self._addAggSource(ret.cli, subqueryArray);
-                    }
                     deferred.resolve({newTableName: ret.newTableName,
                                       cli: cliStatements + ret.cli});
                 })
@@ -1860,9 +1842,6 @@
                     node.xcCols = newXcCols;
                     node.sparkCols = [];
                     node.renamedCols = newRenamedCols;
-                    if (subqueryArray.length > 0) {
-                        ret.cli = self._addAggSource(ret.cli, subqueryArray);
-                    }
                     deferred.resolve({newTableName: ret.newTableName,
                                         cli: cliStatements + ret.cli});
                 })
@@ -1980,10 +1959,6 @@
                 return self.sqlObj.filter(filterString, tableName);
             })
             .then(function(retStruct) {
-                if (subqueryArray.length > 0 || aggEvalStrArray.length > 0) {
-                    retStruct.cli = self._addAggSource(retStruct.cli,
-                                            subqueryArray, aggEvalStrArray);
-                }
                 cliStatements += retStruct.cli;
                 deferred.resolve({
                     "newTableName": retStruct.newTableName,
