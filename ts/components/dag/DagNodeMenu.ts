@@ -611,6 +611,11 @@ namespace DagNodeMenu {
             $menu.find(".viewUDF").addClass("unavailable");
         }
 
+        if (dagNode != null && (dagNodeType === DagNodeType.PublishIMD ||
+                dagNodeType == DagNodeType.UpdateIMD)) {
+            classes += " publishMenu";
+        }
+
         // lock/unlock option
         if (dagNode != null &&
             state === DagNodeState.Complete &&

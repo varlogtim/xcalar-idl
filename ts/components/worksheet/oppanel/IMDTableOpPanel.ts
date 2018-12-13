@@ -219,9 +219,9 @@ class IMDTableOpPanel extends BaseOpPanel {
         $("#IMDTableOpColumns .selectAllWrap").show();
         $("#IMDTableOpColumns .noColsHint").hide();
         if (this._$columns.find('.col .checked').length == this._$columns.find('.checkbox').length) {
-            this._$elemPanel.find(".selectAllWrap .checkbox").eq(0).addClass("checked");
+            this._$elemPanel.find("#IMDTableOpColumns .selectAllWrap .checkbox").eq(0).addClass("checked");
         } else {
-            this._$elemPanel.find(".selectAllWrap .checkbox").eq(0).removeClass("checked");
+            this._$elemPanel.find("#IMDTableOpColumns .selectAllWrap .checkbox").eq(0).removeClass("checked");
         }
     }
 
@@ -348,12 +348,12 @@ class IMDTableOpPanel extends BaseOpPanel {
             if ($col.hasClass("checked")) {
                 $col.removeClass("checked");
                 $box.removeClass("checked");
-                self._$elemPanel.find(".selectAllWrap .checkbox").eq(0).removeClass("checked");
+                self._$elemPanel.find("#IMDTableOpColumns .selectAllWrap .checkbox").eq(0).removeClass("checked");
             } else {
                 $col.addClass("checked");
                 $box.addClass("checked");
                 if (self._$columns.find('.col .checked').length == self._$columns.find('.checkbox').length) {
-                    self._$elemPanel.find(".selectAllWrap .checkbox").eq(0).addClass("checked");
+                    self._$elemPanel.find("#IMDTableOpColumns .selectAllWrap .checkbox").eq(0).addClass("checked");
                 }
             }
         });

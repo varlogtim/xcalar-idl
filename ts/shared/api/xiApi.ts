@@ -2791,8 +2791,18 @@ namespace XIApi {
                 return {name: primaryKey,
                     ordering: XcalarOrderingT.XcalarOrderingUnordered};
         });
+        XcalarListPublishedTables("*", false, true)
+        .then((result) => {
+            let pubTable: PublishTable = result.tables.find((table: PublishTable) => {
+                return (table.name == pubTableName);
+            })
+            if (pubTable != null) {
+                return deferred.reject("Published Table already exists");
+            }
 
-        assemblePubTable(txId, primaryKeyList, srcTableName, indexTableName, colInfo, imdCol)
+            return assemblePubTable(txId, primaryKeyList, srcTableName,
+                indexTableName, colInfo, imdCol);
+        })
         .then(function() {
             // Finally publish the table
             return XcalarPublishTable(indexTableName, pubTableName);
