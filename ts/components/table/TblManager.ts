@@ -2322,6 +2322,14 @@ class TblManager {
                 }
             }
 
+            const node: DagNode = DagTable.Instance.getBindNode();
+            if (DagView.getActiveTab() instanceof DagTabPublished ||
+                node != null && node.getMaxChildren() === 0
+            ) {
+                // when published tab or out node
+                return;
+            }
+
             const colNum: number = xcHelper.parseColNum($td);
             const rowNum: number = xcHelper.parseRowNum($td.closest("tr"));
             let isUnSelect: boolean = false;
@@ -2439,7 +2447,7 @@ class TblManager {
 
             let extraClasses = $el.closest("#dagViewTableArea").length ?
             " style-white mode-modeling" : "";
-            xcHelper.dropdownOpen($el, $('#cellMenu'), {
+            xcHelper.dropdownOpen($el, $("#cellMenu"), {
                 "colNum": colNum,
                 "rowNum": rowNum,
                 "classes": "tdMenu" + extraClasses, // specify classes to update colmenu's class attr
@@ -2520,7 +2528,12 @@ class TblManager {
                     // not focus when in modal
                     return false;
                 }
-                if (DagView.getActiveTab() instanceof DagTabPublished) {
+
+                const node: DagNode = DagTable.Instance.getBindNode();
+                if (DagView.getActiveTab() instanceof DagTabPublished ||
+                    node != null && node.getMaxChildren() === 0
+                ) {
+                    // when published tab or out node
                     return false;
                 }
 

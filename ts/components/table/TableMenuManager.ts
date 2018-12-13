@@ -31,56 +31,6 @@ class TableMenuManager {
     }
 
     /**
-     * show/hides menu items common to both table and dag menus
-     * must provide either tableId if it's a worksheet table or $dagTable
-     * if it's a dagTable
-     * @param $menu
-     * @param tableId
-     * @param $dagTable
-     */
-    public showTableMenuOptions($menu: JQuery,): void {
-        try {
-            const nodeId: DagNodeId = DagTable.Instance.getBindNodeId();
-            if (nodeId == null) {
-                return;
-            }
-            const node: DagNode = DagView.getActiveDag().getNode(nodeId);
-
-            // handle icv
-            const $genIcvLi: JQuery = $menu.find(".generateIcv");
-            const nodeType: DagNodeType = node.getType();
-            if (nodeType === DagNodeType.Map && node.getSubType() == null ||
-                nodeType === DagNodeType.GroupBy
-            ) {
-                let icv: boolean = node.getParam().icv;
-                if (icv) {
-                    xcHelper.disableMenuItem($genIcvLi, {
-                        title: TooltipTStr.AlreadyIcv
-                    });
-                } else {
-                    xcHelper.enableMenuItem($genIcvLi);
-                }
-            } else {
-                xcHelper.disableMenuItem($genIcvLi, {
-                    title: TooltipTStr.IcvRestriction
-                });
-            }
-
-            // handle complement
-            const $complimentLi: JQuery = $menu.find(".complementTable");
-            if (node.getType() === DagNodeType.Filter) {
-                xcHelper.enableMenuItem($complimentLi);
-            } else {
-                xcHelper.disableMenuItem($complimentLi, {
-                    title: TooltipTStr.ComplementRestriction
-                });
-            }
-        } catch (e) {
-            console.error(e);
-        }
-    }
-
-    /**
      *
      * @param menuId
      * @param nameInput

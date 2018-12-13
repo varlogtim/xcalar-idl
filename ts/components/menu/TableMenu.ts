@@ -6,12 +6,24 @@ class TableMenu extends AbstractMenu {
     }
 
     public setUnavailableClasses(): void {
-        const $menu: JQuery = this._getMenu();
-        let $lis: JQuery = $menu.find(".exportTable, .multiCast, .corrAgg, .jupyterTable, .advancedOptions");
-        if (DagView.getActiveTab() instanceof DagTabPublished) {
-            $lis.addClass("xc-hidden");
-        } else {
-            $lis.removeClass("xc-hidden");
+        try {
+            const $menu: JQuery = this._getMenu();
+            const node: DagNode = DagTable.Instance.getBindNode();
+            if (node == null) {
+                return;
+            }
+            let $lis: JQuery = $menu.find(".exportTable, .multiCast, .corrAgg, .jupyterTable, .advancedOptions");
+            if (DagView.getActiveTab() instanceof DagTabPublished ||
+                node.getMaxChildren() === 0
+            ) {
+                // when it's publish tab or it's dest node
+                $lis.addClass("xc-hidden");
+            } else {
+                $lis.removeClass("xc-hidden");
+            }
+            this._toggleTableMenuOptions(node);
+        } catch (e) {
+            console.error(e);
         }
     }
 
@@ -33,6 +45,39 @@ class TableMenu extends AbstractMenu {
     protected _addMenuActions(): void {
         this._addMainMenuActions();
         this._addSubMenuActions();
+    }
+
+    private _toggleTableMenuOptions(node: DagNode): void {
+        const $menu: JQuery = this._getSubMenu();
+        // handle icv
+        const $genIcvLi: JQuery = $menu.find(".generateIcv");
+        const nodeType: DagNodeType = node.getType();
+        if (nodeType === DagNodeType.Map && node.getSubType() == null ||
+            nodeType === DagNodeType.GroupBy
+        ) {
+            let icv: boolean = node.getParam().icv;
+            if (icv) {
+                xcHelper.disableMenuItem($genIcvLi, {
+                    title: TooltipTStr.AlreadyIcv
+                });
+            } else {
+                xcHelper.enableMenuItem($genIcvLi);
+            }
+        } else {
+            xcHelper.disableMenuItem($genIcvLi, {
+                title: TooltipTStr.IcvRestriction
+            });
+        }
+
+        // handle complement
+        const $complimentLi: JQuery = $menu.find(".complementTable");
+        if (node.getType() === DagNodeType.Filter) {
+            xcHelper.enableMenuItem($complimentLi);
+        } else {
+            xcHelper.disableMenuItem($complimentLi, {
+                title: TooltipTStr.ComplementRestriction
+            });
+        }
     }
 
     private _addMainMenuActions(): void {

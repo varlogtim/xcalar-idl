@@ -5754,18 +5754,6 @@ namespace xcHelper {
                     return "closeMenu";
                 }
                 updateTableDropdown($menu, options);
-                // if (gTables[tableId] && gTables[tableId].isNoDelete()) {
-                //     xcHelper.disableMenuItem($("#tableMenu .deleteTable"), {
-                //         title: TooltipTStr.CannotDropLocked
-                //     });
-                //     $subMenu.find(".removeNoDelete").show();
-                //     $subMenu.find(".addNoDelete").hide();
-                // } else {
-                //     xcHelper.enableMenuItem($("#tableMenu .deleteTable"));
-                //     $subMenu.find(".removeNoDelete").hide();
-                //     $subMenu.find(".addNoDelete").show();
-                // }
-                TableComponent.getMenu().showTableMenuOptions($subMenu);
                 TblManager.unHighlightCells();
                 break;
             case ('colMenu'):

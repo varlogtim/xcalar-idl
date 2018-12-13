@@ -88,6 +88,10 @@ class XcTableViewer extends XcViewer {
         return this.dataflowTabId;
     }
 
+    public getNode(): DagNode {
+        return this.dagNode;
+    }
+
     public getNodeId(): DagNodeId {
         return this.dagNode.getId();
     }

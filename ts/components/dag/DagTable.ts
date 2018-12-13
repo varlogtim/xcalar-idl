@@ -64,6 +64,14 @@ class DagTable {
         return this._currentViewer ? this._currentViewer.getView() : null;
     }
 
+    public getBindNode(): DagNode {
+        if (this._currentViewer != null && this._currentViewer instanceof XcTableViewer) {
+            return this._currentViewer.getNode();
+        } else {
+            return null;
+        }
+    }
+
     public getBindNodeId(): DagNodeId {
         if (this._currentViewer != null && this._currentViewer instanceof XcTableViewer) {
             return this._currentViewer.getNodeId();

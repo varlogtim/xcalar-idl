@@ -15,14 +15,21 @@ class ColMenu extends AbstractMenu {
         isNewCol: boolean
     ): void {
         const $menu: JQuery = this._getMenu();
+        const node: DagNode = DagTable.Instance.getBindNode();
+        if (node == null) {
+            return;
+        }
         let $lis: JQuery = $menu.find(".groupby, .sort, .aggregate, .filter, " +
                 ".join, .map, .operations, .profile, .corrAgg, " +
                 ".extensions, .changeDataType, .format, .roundToFixed, " +
-                ".project, .set");
+                ".project, .set, .splitCol");
         $lis.removeClass("unavailable");
         $lis.removeClass("xc-hidden");
         xcTooltip.remove($lis);
-        if (DagView.getActiveTab() instanceof DagTabPublished) {
+        if (DagView.getActiveTab() instanceof DagTabPublished ||
+            node.getMaxChildren() === 0
+        ) {
+            // when it's out node or published tab
             $lis.addClass("xc-hidden");
         } else if (colType === ColumnType.object || colType === ColumnType.array) {
             $lis = $menu.find(".groupby, .sort, .aggregate, .filter, .join, " +
