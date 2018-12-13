@@ -5819,14 +5819,36 @@
                     }
                 } else {
                     if (acc) {
+                        // Conversion of max/min/sum
+                        var opString = opLookup[opName];
+                        if (opString === "max" || opString === "min") {
+                            switch (condTree.colType) {
+                                case ("int"):
+                                case ("bool"):
+                                    opString += "Integer";
+                                    break;
+                                case ("string"):
+                                    opString += "String";
+                                    break;
+                                case ("timestamp"):
+                                    opString += "Timestamp";
+                                    break;
+                                case ("float"):
+                                    opString += "Float";
+                                    break;
+                                default:
+                                    break;
+                            }
+                        } else if (opString === "sum" && condTree.colType === "int") {
+                            opString += "Integer";
+                        }
                         if (acc.noAssignOp) {
                             acc.numOps += 1;
-                            outStr += opLookup[opName] + "(";
+                            outStr += opString + "(";
                             hasLeftPar = true;
                         } else {
-                            acc.operator = opLookup[opName];
-                            if (opLookup[opName] === "first" ||
-                                opLookup[opName] === "last") {
+                            acc.operator = opString;
+                            if (opString === "first" || opString === "last") {
                                 if (condTree.children[1].value.value == null) {
                                     acc.arguments = ["false"];
                                 } else {
@@ -5835,12 +5857,35 @@
                                 condTree.value["num-children"] = 1;
                             }
                             if (options.xcAggregate) {
-                                outStr += opLookup[opName] + "(";
+                                outStr += opString + "(";
                                 hasLeftPar = true;
                             }
                         }
                     } else {
-                        outStr += opLookup[opName] + "(";
+                        // Conversion of max/min/sum
+                        var opString = opLookup[opName];
+                        if (opString === "max" || opString === "min") {
+                            switch (condTree.colType) {
+                                case ("int"):
+                                case ("bool"):
+                                    opString += "Integer";
+                                    break;
+                                case ("string"):
+                                    opString += "String";
+                                    break;
+                                case ("timestamp"):
+                                    opString += "Timestamp";
+                                    break;
+                                case ("float"):
+                                    opString += "Float";
+                                    break;
+                                default:
+                                    break;
+                            }
+                        } else if (opString === "sum" && condTree.colType === "int") {
+                            opString += "Integer";
+                        }
+                        outStr += opString + "(";
                         hasLeftPar = true;
                     }
                 }
@@ -5871,7 +5916,25 @@
                         acc.udfs.push(condTree.value.name.toUpperCase());
                     }
                 } else {
-                    outStr += opLookup[opName] + "(";
+                    // Conversion of if
+                    var opString = opLookup[opName];
+                    if (opString === "if") {
+                        switch (condTree.colType) {
+                            case ("int"):
+                            case ("bool"):
+                                opString = "ifInt";
+                                break;
+                            case ("string"):
+                                opString = "ifStr";
+                                break;
+                            case ("timestamp"):
+                                opString = "ifTimestamp";
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    outStr += opString + "(";
                     hasLeftPar = true;
                 }
             }
@@ -6257,6 +6320,7 @@
         "abs": "float",
         "absInt": "int",
         "add": "float",
+        "addInteger": "int",
         "ceil": "float",
         "div": "float",
         "exp": "float",
@@ -6267,16 +6331,20 @@
         "log2": "float",
         "mod": "int",
         "mult": "float",
+        "multInteger": "int",
         "pow": "float",
         "round": "float",
         "sqrt": "float",
         "sub": "float",
-        "bitand": "int",
+        "subInteger": "int",
+        "bitCount": "int",
         "bitLength": "int",
+        "bitand": "int",
         "bitlshift": "int",
         "bitor": "int",
         "bitrshift": "int",
         "bitxor": "int",
+        "colsDefinedBitmap": "int",
         "octetLength": "int",
         "and": "bool",
         "between": "bool",
@@ -6286,6 +6354,7 @@
         "exists": "bool",
         "ge": "bool",
         "gt": "bool",
+        "in": "bool",
         "isBoolean": "bool",
         "isFloat": "bool",
         "isInf": "bool",
@@ -6308,17 +6377,19 @@
         // "dateAddMonth": "string",
         // "dateAddYear": "string",
         // "dateDiffday": "int",
-        "ipAddrToInt": "int",
-        "macAddrToInt": "int",
+        // "ipAddrToInt": "int",
+        // "macAddrToInt": "int",
         "dhtHash": "int",
         "genRandom": "int",
         "genUnique": "int",
         "ifInt": "int",
         "ifStr": "string",
+        "ifTimestamp": "timestamp",
         "xdbHash": "int",
         "ascii": "int",
         "chr": "string",
         "concat": "string",
+        "concatDelim": "string",
         "countChar": "int",
         "cut": "string",
         "explodeString": "string",
@@ -6327,6 +6398,7 @@
         "formatNumber": "string",
         "initCap": "string",
         "len": "int",
+        "levenshtein": "int",
         "lower": "string",
         "repeat": "string",
         "replace": "string",
@@ -6335,12 +6407,28 @@
         "stringLPad": "string",
         "stringRPad": "string",
         "stringReverse": "string",
+        "stringsPosCompare": "bool",
         "strip": "string",
         "stripLeft": "string",
         "stripRight": "string",
         "substring": "string",
+        "substringIndex": "string",
         "upper": "string",
         "wordCount": "int",
+        "addDateInterval": "timestamp",
+        "addIntervalString": "timestamp",
+        "addtimeInterval": "timestamp",
+        "convertFromUnixTS": "string",
+        "convertTimezone": "timestamp",
+        "dateDiff": "int",
+        "datePart": "int",
+        "dateTrunc": "timestamp",
+        "dayOfYear": "int",
+        "lastDayOfMonth": "timestamp",
+        "monthsBetween": "float",
+        "nextDay": "timestamp",
+        "timePart": "int",
+        "weekOfYear": "int",
         "acos": "float",
         "acosh": "float",
         "asin": "float",
@@ -6361,6 +6449,7 @@
         "float": "float",
         "int": "int",
         "string": "string",
+        "timestamp": "timestamp",
         // "default:dayOfWeek": "string",
         // "default:dayOfYear": "string",
         // "default:weekOfYear": "string",
@@ -6371,10 +6460,19 @@
         // "default:toUTCTimestamp": "string",
         // "default:convertFormats": "string",
         // "default:convertFromUnixTS": "string",
+        "avg": "float",
+        "count": "int",
+        "listAgg": "string",
+        "maxFloat": "float",
+        "maxInteger": "int",
+        "maxString": "string",
+        "maxTimestamp": "timestamp",
+        "minFloat": "float",
+        "minInteger": "int",
+        "minString": "string",
+        "minTimestamp": "timestamp",
         "sum": "float",
         "sumInteger": "int",
-        "count": "int",
-        "avg": "float",
         "stdevp": "float",
         "stdev": "float",
         "varp": "float",
