@@ -592,13 +592,6 @@ namespace DagNodeMenu {
         // link node option
         if (dagNode != null && dagNodeType === DagNodeType.DFIn) {
             classes += " linkInMenu";
-            if (state === DagNodeState.Configured ||
-                state === DagNodeState.Complete
-            ) {
-                $menu.find(".findLinkOut").removeClass("unavailable");
-            } else {
-                $menu.find(".findLinkOut").addClass("unavailable");
-            }
         }
         // Node with UDF
         if (dagNode != null && dagNode instanceof DagNodeMap) {

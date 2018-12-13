@@ -856,6 +856,7 @@ module.exports = {
     "dataflow": {
         "MyDF": "My Dataflows",
         "CreateDF": "Create new dataflow",
+        "DuplicateDF":" Duplicate Dataflow",
         "PublishDF": "Publish Dataflow",
         "PublishDFInstr": "Published dataflow is viewable/configurable/executable by other users, but any other changes are not allowed on the published dataflow.",
         "ShareDS": "Share datasets used in the dataflow",
