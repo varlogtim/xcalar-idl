@@ -85,7 +85,7 @@
         "expressions.BRound": null,
         // predicates.scala
         "expressions.Not": "not",
-        "expressions.In": null, // This is compiled to eq & or
+        "expressions.In": "in", // This is compiled to eq & or <= not true, we support in now
         "expressions.And": "and",
         "expressions.Or": "or",
         "expressions.EqualTo": "eq",
@@ -466,6 +466,12 @@
                 "num-children": 2
             });
         }
+        function inNode(numChildren) {
+            return new TreeNode({
+                "class": "org.apache.spark.sql.catalyst.expressions.In",
+                "num-children": numChildren
+            });
+        }
         function dupNodeWithNewName(node, str) {
             var dupNode = jQuery.extend(true, {}, node);
             dupNode.value.class = str;
@@ -672,39 +678,36 @@
                 node = newNode;
                 break;
             case ("expressions.In"):
-                // XXX TODO Minor. When the list gets too long, we are forced
-                // to convert this to a udf and invoke the UDF instead.
-
-                // Note: The first OR node or the ONLY eq node will be the root
+                // Note: The first OR node or the ONLY In node will be the root
                 // of the tree
                 assert(node.children.length >= 2,
                        SQLErrTStr.InChildrenLength + node.children.length);
-                var prevOrNode;
-                var newEqNode;
-                var newNode;
-                for (var i = 0; i < node.children.length - 1; i++) {
-                    newEqNode = eqNode();
-                    newEqNode.children.push(node.children[0]);
-                    newEqNode.children.push(node.children[i+1]);
-                    if (i < node.children.length - 2) {
-                        var newOrNode = orNode();
-                        newOrNode.children.push(newEqNode);
-                        if (prevOrNode) {
-                            prevOrNode.children.push(newOrNode);
-                        } else {
-                            newNode = newOrNode;
-                        }
-                        prevOrNode = newOrNode;
-                    } else {
-                        if (prevOrNode) {
-                            prevOrNode.children.push(newEqNode);
-                        }
-                    }
+                if (node.children.length < 1025) {
+                    break;
                 }
-                if (!newNode) {
-                    // Edge case where it's in just one element
-                    // e.g. a in [1]
-                    newNode = newEqNode;
+                var newInNode;
+                var newNode = orNode();
+                var prevOrNode = newNode;
+                var index = 1;
+                for (var i = 0; i < (node.children.length - 1) / 1023; i++) {
+                    if (newInNode) {
+                        prevOrNode.children.push(newInNode);
+                        newInNode = inNode(Math.min(1024,
+                                                node.children.length - index));
+                    }
+                    newInNode.children = [node.children[0]];
+                    while (index < node.children.length &&
+                                        newInNode.children.length < 1024) {
+                        newInNode.children.push(node.children[index]);
+                        index++;
+                    }
+                    if (index === node.children.length) {
+                        prevOrNode.children.push(newInNode);
+                    } else {
+                        var newOrNode = orNode();
+                        prevOrNode.children.push(newOrNode);
+                        prevOrNode = newOrNode;
+                    }
                 }
                 node = newNode;
                 break;
