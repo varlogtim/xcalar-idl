@@ -7,7 +7,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     private _fileLister: FileLister;
     private _$datasetList: JQuery; // $("#dsOpListSection");
     private _advMode: boolean;
-    private _dagNode: DagNodeDataset;
+    protected _dagNode: DagNodeDataset;
     private _schemaSection: ColSchemaSection;
     private _dagGraph: DagGraph;
     private _synthesize: boolean;

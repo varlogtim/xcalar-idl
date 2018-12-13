@@ -1979,4 +1979,25 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
         return this.model.switchMode(toAdvancedMode, this._editor);
     }
+
+    protected _checkPanelOpeningError() {
+        if (this.model.modelError) {
+            this._startInAdvancedMode();
+            MainMenu.checkMenuAnimFinish()
+            .then(() => {
+                StatusBox.show(this.model.modelError,
+                            this._$panel.find(".advancedEditor"),
+                            false, {'side': 'right'});
+            });
+
+            this._dagNode.beErrorState(this.model.modelError);
+        }
+    }
+
+    // currently used when opening model with invalid args
+    protected _startInAdvancedMode() {
+        this._updateMode(true);
+        const paramStr = JSON.stringify(this._dagNode.getParam(), null, 4);
+        this._editor.setValue(paramStr);
+    }
 }

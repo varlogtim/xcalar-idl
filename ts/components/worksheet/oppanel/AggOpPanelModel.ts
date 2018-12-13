@@ -73,6 +73,8 @@ class AggOpPanelModel extends GeneralOpPanelModel {
 
     protected _initialize(paramsRaw, strictCheck?: boolean) {
         const self = this;
+        this.dest = paramsRaw.dest;
+        this.mustExecute = paramsRaw.mustExecute;
         if (!this._opCategories.length) {
             this._opCategories = [FunctionCategoryT.FunctionCategoryAggregate];
         }
@@ -94,7 +96,6 @@ class AggOpPanelModel extends GeneralOpPanelModel {
             const opInfo = this._getOperatorObj(argGroup.fnName);
             if (argGroup.args.length) {
                 if (!opInfo) {
-                    // XXX send to advanced mode
                     if (argGroup.fnName.length) {
                         throw({error: "\"" + argGroup.fnName + "\" is not a" +
                                 " valid aggregate function."});
@@ -134,8 +135,6 @@ class AggOpPanelModel extends GeneralOpPanelModel {
         }
 
         this.groups = groups;
-        this.dest = paramsRaw.dest;
-        this.mustExecute = paramsRaw.mustExecute;
     }
 
     protected _update(all?: boolean): void {

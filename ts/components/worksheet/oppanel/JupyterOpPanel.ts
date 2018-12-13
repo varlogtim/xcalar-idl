@@ -1,6 +1,6 @@
 class JupyterOpPanel extends BaseOpPanel implements IOpPanel {
     private _componentFactory: OpPanelComponentFactory;
-    private _dagNode: DagNodeJupyter = null;
+    protected _dagNode: DagNodeJupyter = null;
     private _dataModel: JupyterOpPanelModel;
 
     /**
@@ -111,7 +111,7 @@ class JupyterOpPanel extends BaseOpPanel implements IOpPanel {
                         return this._componentFactory.checkFunctions.stringColumnNameNoEmptyPrefix(
                             this._dataModel.getColumnsAfterRename(idx),
                             $(elem).find('.selTo').val()
-                        ).errMsg    
+                        ).errMsg
                     });
                 }
             })

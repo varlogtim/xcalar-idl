@@ -94,6 +94,7 @@ class GroupByOpPanel extends GeneralOpPanel {
             super._panelShowHelper(this.model);
             this._render(true);
             this._focusNextInput(0);
+            this._checkPanelOpeningError();
             return true;
         }
 

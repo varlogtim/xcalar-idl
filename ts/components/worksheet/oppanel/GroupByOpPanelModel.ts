@@ -133,6 +133,12 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
     protected _initialize(paramsRaw, _strictCheck?: boolean) {
         const self = this;
 
+        this.icv = paramsRaw.icv || false;
+        this.includeSample = paramsRaw.includeSample || false;
+        this.groupAll = paramsRaw.groupAll || false;
+        this.groupOnCols = paramsRaw.groupBy || [];
+        this.newKeys = paramsRaw.newKeys || null;
+        this.dhtName = paramsRaw.dhtName || "";
         if (!this._opCategories.length) {
             this._opCategories = [FunctionCategoryT.FunctionCategoryAggregate];
         }
@@ -150,7 +156,6 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
             let args = [];
             const opInfo = this._getOperatorObj(argGroup.operator);
             if (!opInfo && argGroup.sourceColumn) {
-                // XXX send to advanced mode
                 if (argGroup.operator.length) {
                     throw({error: "\"" + argGroup.operator + "\" is not a" +
                             " valid group by function."});
@@ -183,12 +188,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
         }
 
         this.groups = groups;
-        this.icv = paramsRaw.icv;
-        this.includeSample = paramsRaw.includeSample;
-        this.groupAll = paramsRaw.groupAll;
-        this.groupOnCols = paramsRaw.groupBy;
-        this.newKeys = paramsRaw.newKeys || null;
-        this.dhtName = paramsRaw.dhtName || "";
+
     }
 
     protected _update(all?: boolean): void {

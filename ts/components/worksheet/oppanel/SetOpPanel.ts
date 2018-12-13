@@ -2,6 +2,7 @@ class SetOpPanel extends BaseOpPanel {
     private setOpData: SetOpPanelModel;
     public static d;
     private colAssignmentSection: ColAssignmentView;
+    protected _dagNode: DagNodeSet = null;
 
     public constructor() {
         super();
@@ -15,17 +16,22 @@ class SetOpPanel extends BaseOpPanel {
         if (!super.showPanel(null, options)) {
             return;
         }
-        this._initialize(dagNode);
-        this._formHelper.setup({});
-        this.updateColumns();
-
-        if (gMinModeOn) {
-            this._autoResizeView(false);
-        } else {
-            setTimeout(() => {
+        this._dagNode = dagNode;
+        try {
+            this._initialize(dagNode);
+            this.updateColumns();
+            if (gMinModeOn) {
                 this._autoResizeView(false);
-            }, 1);
+            } else {
+                setTimeout(() => {
+                    this._autoResizeView(false);
+                }, 1);
+            }
+        } catch (e) {
+            this._startInAdvancedMode(e);
         }
+
+        this._formHelper.setup({});
     }
 
     /**

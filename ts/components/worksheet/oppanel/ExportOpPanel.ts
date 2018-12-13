@@ -7,7 +7,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
     private _$exportDestList: JQuery = null; // $("#exportDestList");
     private _$exportColList: JQuery = null; // $("#exportOpColumns .cols");
     private _$exportArgSection: JQuery = null; // $("#exportOpPanel .argsSection");
-    private _dagNode: DagNodeExport = null;
+    protected _dagNode: DagNodeExport = null;
     private _dataModel: ExportOpPanelModel = null;
     private _currentDriver: string = "";
 
@@ -127,7 +127,15 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
             return;
         }
         this._dagNode = dagNode;
-        this._dataModel = ExportOpPanelModel.fromDag(dagNode);
+        try {
+            this._dataModel = ExportOpPanelModel.fromDag(dagNode);
+        } catch (e) {
+            this._dataModel = new ExportOpPanelModel();
+            MainMenu.setFormOpen();
+            this._startInAdvancedMode(e);
+            return;
+        }
+
         if (this._dataModel.loadedName == "") {
             this._currentDriver = "";
         }

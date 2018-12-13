@@ -134,6 +134,7 @@ class BaseOpPanel {
     private panelNum: number;
     protected allColumns: ProgCol[];
     private aggMap;
+    protected _dagNode: DagNode;
     protected _cachedBasicModeParam: string;
     protected codeMirrorOnlyColumns = false;
     protected codeMirrorNoAggs = false;
@@ -632,5 +633,34 @@ class BaseOpPanel {
         $panel.on("mouseenter", ".tooltipOverflow", function() {
             xcTooltip.auto(this);
         });
+    }
+
+    // currently used when opening model with invalid args
+    protected _startInAdvancedMode(error) {
+        // the error may be a syntax error but that error is most likely caused
+        // by an invalid struct so validate the input and report that error
+        // instead
+        let errorStr: string;
+        if (error instanceof Error) {
+            const inputError = this._dagNode.validateParam();
+            if (inputError) {
+                errorStr = inputError.error;
+            }
+        }
+        if (!errorStr) {
+            errorStr = xcHelper.parseJSONError(error).error;
+        }
+
+        MainMenu.checkMenuAnimFinish()
+        .then(() => {
+            StatusBox.show(errorStr,
+                        this.$panel.find(".advancedEditor"),
+                        false, {'side': 'right'});
+        });
+
+        this._dagNode.beErrorState(errorStr);
+        this._updateMode(true);
+        const paramStr = JSON.stringify(this._dagNode.getParam(), null, 4);
+        this._editor.setValue(paramStr);
     }
 }

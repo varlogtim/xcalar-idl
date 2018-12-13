@@ -4,7 +4,7 @@
 class SQLOpPanel extends BaseOpPanel {
     private _$elemPanel: JQuery; // The DOM element of the panel
     private _dataModel: SQLOpPanelModel; // The key data structure
-    private _dagNode: DagNodeSQL;
+    protected _dagNode: DagNodeSQL;
 
     private _sqlEditor: CodeMirror.Editor;
     private _$sqlButton: JQuery;
@@ -473,7 +473,7 @@ class SQLOpPanel extends BaseOpPanel {
             this._$snippetConfirm.addClass("xc-hidden");
         }
     }
-    
+
     private _toggleSnippetConfirmation(newSnippet?: boolean): void {
         if (this._$snippetConfirm.hasClass("xc-hidden")) {
             this._$snippetConfirm.removeClass("xc-hidden");
@@ -879,10 +879,20 @@ class SQLOpPanel extends BaseOpPanel {
     public show(dagNode: DagNodeSQL, options?): void {
         this._dagNode = dagNode;
         this._dataModel = new SQLOpPanelModel(dagNode);
-        this._updateUI();
+        let error: string;
+        try {
+            this._updateUI();
+        } catch (e) {
+            // handle error after we call showPanel so that the rest of the form
+            // gets setup
+            error = e;
+        }
 
         super.showPanel(null, options);
         this._sqlEditor.refresh();
+        if (error) {
+            this._startInAdvancedMode(error);
+        }
     }
 
     /**

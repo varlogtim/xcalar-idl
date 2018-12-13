@@ -1,7 +1,7 @@
 class PublishIMDOpPanel extends BaseOpPanel {
     private _$elemPanel: JQuery = null; // $('#PublishIMDOpPanel');
     private _advMode: boolean;
-    private _dagNode: DagNodePublishIMD;
+    protected _dagNode: DagNodePublishIMD;
     private _columns: ProgCol[];
     private _$nameInput: JQuery; // $('#publishIMDOpPanel .IMDNameInput')
     private _$primaryKeys: JQuery; // $('#publishIMDOpPanel .IMDKey')

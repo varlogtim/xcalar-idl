@@ -28,6 +28,7 @@ class AggOpPanel extends GeneralOpPanel {
             super._panelShowHelper(this.model);
             this._render();
             this._$panel.find('.functionsInput').focus();
+            this._checkPanelOpeningError();
             return true;
         }
         return false;

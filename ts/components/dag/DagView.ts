@@ -101,10 +101,12 @@ namespace DagView {
             if ($(e.target).is("input") || $(e.target).is("textarea")) {
                 return; // use default paste event
             }
+            let parsed = false;
             try {
                 let content = e.originalEvent.clipboardData.getData('text/plain');
                 if (content) {
                     const nodesArray = JSON.parse(content);
+                    parsed = true;
                     if (!Array.isArray(nodesArray)) {
                         throw ("Dataflow nodes must be in an array");
                     }
@@ -122,14 +124,23 @@ namespace DagView {
                         if (!valid) {
                             // only saving first error message
                             const msg = _parseValidationErrMsg(validate.errors[0], node.hasOwnProperty("text"));
-                            StatusBox.show(msg, $dfWrap);
+
                             throw (msg);
                         }
                     }
                     DagView.pasteNodes(nodesArray);
                 }
-            } catch (e) {
-                console.error(e);
+            } catch (err) {
+                console.error(err);
+                let errStr: string;
+                if (!parsed) {
+                    errStr = "Cannot paste invalid format. Nodes must be in a valid JSON format."
+                } else if (typeof err === "string") {
+                    errStr = err;
+                } else {
+                    errStr = xcHelper.parseJSONError(err).error;
+                }
+                StatusBox.show(errStr, $dfWrap);
             }
 
             function _parseValidationErrMsg(errorObj, isComment?: boolean) {

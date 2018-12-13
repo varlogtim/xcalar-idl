@@ -131,10 +131,14 @@ class MapOpPanelModel extends GeneralOpPanelModel {
             let hasVariableArg = false;
             if (argGroup.args.length) {
                 if (!opInfo) {
-                    // XXX send to advanced mode
                     if (argGroup.fnName.length) {
-                        throw({error: "\"" + argGroup.fnName + "\" is not a" +
+                        if (argGroup.fnName.includes(":")) {
+                            throw({error: "This function was not found: " + argGroup.fnName });
+                        } else {
+                            throw({error: "\"" + argGroup.fnName + "\" is not a" +
                                 " valid map function."});
+                        }
+
                     } else {
                         throw({error: "Function not selected."});
                     }

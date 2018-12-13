@@ -1,6 +1,6 @@
 class CastOpPanel extends BaseOpPanel {
     // protected _$panel;
-    private _dagNode;
+    protected _dagNode;
     private colRenameSection: ColAssignmentView;
     private prevRenameMap;
     private dataModel: ColAssignmentModel;
@@ -29,10 +29,15 @@ class CastOpPanel extends BaseOpPanel {
         super.showPanel("cast", options);
         const curColumns = this.updateColumns();
         const param = dagNode.getParam();
-        const selectedCols = this._paramToSelectedCols(param);
-        this.dataModel = this.colRenameSection.show([curColumns], [selectedCols]);
-        this._modifyColRenameSection();
-        this._autoResizeView(false);
+
+        try {
+            const selectedCols = this._paramToSelectedCols(param);
+            this.dataModel = this.colRenameSection.show([curColumns], [selectedCols]);
+            this._modifyColRenameSection();
+            this._autoResizeView(false);
+        } catch (e) {
+            this._startInAdvancedMode(e);
+        }
     }
 
     public close(isSubmit?: boolean): boolean {

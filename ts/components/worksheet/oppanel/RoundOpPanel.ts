@@ -1,6 +1,6 @@
 class RoundOpPanel extends BaseOpPanel implements IOpPanel {
     private _componentFactory: OpPanelComponentFactory;
-    private _dagNode: DagNodeRound = null;
+    protected _dagNode: DagNodeRound = null;
     private _dataModel: RoundOpPanelModel;
 
     /**
@@ -19,9 +19,19 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
     public show(dagNode: DagNodeRound, options?): void {
         this._dagNode = dagNode;
         this._dataModel = RoundOpPanelModel.fromDag(dagNode);
-        this._updateUI();
+        let error: string;
+        try {
+            this._updateUI();
+        } catch (e) {
+            // handle error after we call showPanel so that the rest of the form
+            // gets setup
+            error = e;
+        }
         if (super.showPanel(null, options)) {
             this._setupColumnPicker(dagNode.getType());
+        }
+        if (error) {
+            this._startInAdvancedMode(error);
         }
     }
 

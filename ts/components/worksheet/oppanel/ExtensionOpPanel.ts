@@ -17,7 +17,11 @@ class ExtensionOpPanel extends BaseOpPanel {
         }
         this._initialize(dagNode);
         this._formHelper.setup({});
-        this._restorePanel();
+        try {
+            this._restorePanel();
+        } catch (e) {
+            console.error(e);
+        }
         return true;
     }
 

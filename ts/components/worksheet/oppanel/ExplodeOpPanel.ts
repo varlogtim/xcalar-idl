@@ -1,6 +1,6 @@
 class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
     private _componentFactory: OpPanelComponentFactory;
-    private _dagNode: DagNodeExplode = null;
+    protected _dagNode: DagNodeExplode = null;
     private _dataModel: ExplodeOpPanelModel;
 
     /**
@@ -20,10 +20,20 @@ class ExplodeOpPanel extends BaseOpPanel implements IOpPanel {
     public show(dagNode: DagNodeExplode, options?): void {
         this._dagNode = dagNode;
         this._dataModel = ExplodeOpPanelModel.fromDag(dagNode);
-        this._updateUI();
+        let error: string;
+        try {
+            this._updateUI();
+        } catch (e) {
+            // handle error after we call showPanel so that the rest of the form
+            // gets setup
+            error = e;
+        }
         if (super.showPanel(null, options)) {
             // GeneralOpPanel has its own columnPicker, so dont move the setup function call to BaseOpPanel
             this._setupColumnPicker(dagNode.getType());
+        }
+        if (error) {
+            this._startInAdvancedMode(error);
         }
     }
 

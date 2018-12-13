@@ -2,7 +2,7 @@ class UpdateIMDOpPanel extends BaseOpPanel {
     private _$elemPanel: JQuery = null; // $('#UpdateIMDOpPanel');
     private _advMode: boolean;
     private _columns: ProgCol[];
-    private _dagNode: DagNodeUpdateIMD;
+    protected _dagNode: DagNodeUpdateIMD;
     private _$pubTableInput: JQuery; // $('#UpdateIMDOpPanel .pubTableInput')
     private _$operatorInput: JQuery; // $('#UpdateIMDOpPanel .IMDOperatorInput')
     private _tables: PublishTable[];

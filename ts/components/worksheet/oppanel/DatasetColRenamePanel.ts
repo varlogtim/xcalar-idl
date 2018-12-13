@@ -1,6 +1,6 @@
 class DatasetColRenamePanel {
     private $view: JQuery;
-    private _dagNode: DagNodeDataset;
+    protected _dagNode: DagNodeDataset;
     private sourceNode: DagNodeDataset;
     private colRenameView;
     private viewOptions;

@@ -200,12 +200,13 @@
     }
 
     .checkbox {
-        .size(17px, 17px);
+        .size(16px, 15px);
         padding: 2px;
         float: right;
         position: relative;
 
         .icon {
+            .size(12px, 11px);
             color: @checkbox-color;
             &:hover {
                 color: @color-border-softGray2;
@@ -266,8 +267,9 @@
         .checkbox {
             float: right;
             position: relative;
-            margin-top: 5px;
-            margin-right: 4px;
+            margin-top: 4px;
+            margin-right: 7px;
+            padding: 1px;
         }
 
         &.flexWrap {
@@ -350,7 +352,7 @@
                 color: @color-font-dropdown-gray;
             }
             .checkbox {
-                margin-top: 6px;
+                margin-top: 5px;
                 float: left;
 
                 .icon {
@@ -834,22 +836,6 @@
             }
         }
 
-        .checkboxWrap {
-            float: left;
-            .size(@height: @listHeight);
-            display: block;
-            line-height: @listHeight;
-            cursor: pointer;
-            .noSelection;
-
-            .checkbox {
-                margin-left: @commonMargin;
-                margin-right: 6px;
-                margin-top: 5px;
-                float: left;
-            }
-        }
-
         .extraArg {
             position: relative;
 
@@ -882,6 +868,22 @@
             .arg {
                 padding-left: 22px;
             }
+        }
+    }
+
+    .checkboxWrap {
+        float: left;
+        .size(@height: @listHeight);
+        display: block;
+        line-height: @listHeight;
+        cursor: pointer;
+        .noSelection;
+
+        .checkbox {
+            margin-left: @commonMargin;
+            margin-right: 7px;
+            margin-top: 5px;
+            float: left;
         }
     }
 
@@ -1292,6 +1294,7 @@
                 .text {
                     padding-right: 20px;
                     border: none;
+                    width: 100%;
                 }
 
                 .down {
@@ -1585,7 +1588,7 @@
                     font-size: 11px;
                 }
                 .checkbox {
-                    margin-top: 6px;
+                    margin-top: 5px;
                 }
             }
         }
@@ -1634,7 +1637,7 @@
                 cursor: pointer;
             }
             .checkbox {
-                top: 2px;
+                top: 1px;
                 margin-left: 5px;
                 margin-right: 5px;
             }
@@ -2008,7 +2011,7 @@
                     font-size: 11px;
                 }
                 .checkbox {
-                    margin-top: 6px;
+                    margin-top: 5px;
                 }
             }
         }
@@ -3034,9 +3037,14 @@
         }
     }
 
+    .columnAssignmentSection {
+        > div {
+            min-width: 420px;
+        }
+    }
     .tableSection {
         height: 30px;
-        min-width: 420px;
+
         .header {
             display: none;
         }
@@ -3114,6 +3122,19 @@
             }
             li.originalType {
                 color: @color-font-greyish-brown;
+            }
+        }
+    }
+    .candidateSection {
+        .lists {
+            max-width: none;
+            &:first-child {
+                .flex(1 1 67%);
+                min-width: 280px;
+            }
+            &:last-child {
+                .flex(1 1 33%);
+                min-width: auto;
             }
         }
     }

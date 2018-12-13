@@ -4,7 +4,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
     private _componentSecondStep: JoinOpPanelStep2 = null;
     private _templateMgr = new OpPanelTemplateManager();
     private _dataModel: JoinOpPanelModel = null;
-    private _dagNode: DagNodeJoin = null;
+    protected _dagNode: DagNodeJoin = null;
     private static _templateIDs = { navButton: 'navButton' };
     private static _templates = {
         'navButton':
@@ -48,7 +48,13 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         this._updateAllColumns();
 
         // Update UI according to the data model
-        this._updateUI();
+        try {
+            this._updateUI();
+        } catch (e) {
+            // handle error after we call showPanel so that the rest of the form
+            // gets setup
+            this._startInAdvancedMode(e);
+        }
     }
 
     public close(isSubmit?: boolean): void {

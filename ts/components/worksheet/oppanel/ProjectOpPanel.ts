@@ -7,7 +7,7 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
     private _$elemDeriveSelectAllWrap: JQuery = null;
     private _$elemDeriveSelectAllCheckbox: JQuery = null;
     private _dataModel: ProjectOpPanelModel = new ProjectOpPanelModel() ; // The key data structure
-    private _dagNode: DagNodeProject = null;
+    protected _dagNode: DagNodeProject = null;
     protected codeMirrorOnlyColumns = true;
 
     // *******************
@@ -57,9 +57,19 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
     public show(dagNode: DagNodeProject, options?): void {
         this._dagNode = dagNode;
         this._dataModel = ProjectOpPanelModel.fromDag(dagNode);
-        this._updateUI();
+        let error: string;
+        try {
+            this._updateUI();
+        } catch (e) {
+            // handle error after we call showPanel so that the rest of the form
+            // gets setup
+            error = e;
+        }
         this._updateColumns();
         super.showPanel(null, options);
+        if (error) {
+            this._startInAdvancedMode(error);
+        }
     }
 
     /**

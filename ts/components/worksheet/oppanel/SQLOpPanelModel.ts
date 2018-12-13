@@ -1,5 +1,5 @@
 class SQLOpPanelModel {
-    private _dagNode: DagNodeSQL;
+    protected _dagNode: DagNodeSQL;
     private _sqlQueryStr: string;
     private _newTableName: string;
     private _columns: SQLColumn[];
@@ -25,7 +25,7 @@ class SQLOpPanelModel {
         sqlQueryStr: string,
         newTableName: string,
         columns: SQLColumn[],
-        xcQueryString: string, 
+        xcQueryString: string,
         identifiers: Map<number, string>,
         tableSrcMap: {},
     ): void {

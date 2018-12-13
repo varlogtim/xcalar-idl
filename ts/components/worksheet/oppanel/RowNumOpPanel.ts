@@ -1,6 +1,6 @@
 class RowNumOpPanel extends BaseOpPanel implements IOpPanel {
     private _componentFactory: OpPanelComponentFactory;
-    private _dagNode: DagNodeRowNum = null;
+    protected _dagNode: DagNodeRowNum = null;
     private _dataModel: RowNumOpPanelModel;
 
     /**
@@ -19,8 +19,18 @@ class RowNumOpPanel extends BaseOpPanel implements IOpPanel {
     public show(dagNode: DagNodeRowNum, options?): void {
         this._dagNode = dagNode;
         this._dataModel = RowNumOpPanelModel.fromDag(dagNode);
-        this._updateUI();
+        let error: string;
+        try {
+            this._updateUI();
+        } catch (e) {
+            // handle error after we call showPanel so that the rest of the form
+            // gets setup
+            error = e;
+        }
         super.showPanel(null, options);
+        if (error) {
+            this._startInAdvancedMode(error);
+        }
     }
 
     /**

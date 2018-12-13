@@ -52,6 +52,7 @@ class FilterOpPanel extends GeneralOpPanel {
             }, options);
             super._panelShowHelper(this.model);
             this._render();
+            this._checkPanelOpeningError();
             return true;
         }
         return false;

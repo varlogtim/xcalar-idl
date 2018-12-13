@@ -1,6 +1,6 @@
 class SortOpPanel extends BaseOpPanel implements IOpPanel {
     private _componentFactory: OpPanelComponentFactory;
-    private _dagNode: DagNodeSort = null;
+    protected _dagNode: DagNodeSort = null;
     private _dataModel: SortOpPanelModel;
     protected codeMirrorOnlyColumns = true;
 
@@ -21,10 +21,19 @@ class SortOpPanel extends BaseOpPanel implements IOpPanel {
     public show(dagNode: DagNodeSort, options?): void {
         this._dagNode = dagNode;
         this._dataModel = SortOpPanelModel.fromDag(dagNode);
-        this._updateUI();
+        let error: string;
+        try {
+            this._updateUI();
+        } catch (e) {
+            error = e;
+        }
+
         this._updateColumns();
         if (super.showPanel(null, options)) {
             this._setupColumnPicker(dagNode.getType());
+        }
+        if (error) {
+            this._startInAdvancedMode(error);
         }
     }
 
@@ -242,4 +251,6 @@ class SortOpPanel extends BaseOpPanel implements IOpPanel {
         model.validateInputData();
         return model;
     }
+
+
 }

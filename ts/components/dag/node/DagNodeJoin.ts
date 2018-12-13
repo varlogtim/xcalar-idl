@@ -135,7 +135,7 @@ class DagNodeJoin extends DagNode {
     protected _genParamHint(): string {
         let hint: string = "";
         const input: DagNodeJoinInputStruct = this.getParam();
-        if (input.joinType) {
+        if (input.joinType && typeof input.joinType === "string") {
             hint = xcHelper.capitalize(input.joinType);
             hint += " " + input.left.columns.join(", ") + "\n";
             hint += "with " + input.right.columns.join(", ") + "\n";
@@ -246,7 +246,7 @@ class DagNodeJoin extends DagNode {
                 set.add(colName);
             });
         }
-        
+
         if (tableInput.rename != null) {
             tableInput.rename.forEach((renameInfo) => {
                 if (renameInfo != null && !renameInfo.prefix) {

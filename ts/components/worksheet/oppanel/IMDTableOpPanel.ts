@@ -1,7 +1,7 @@
 class IMDTableOpPanel extends BaseOpPanel {
     private _$elemPanel: JQuery = null; // $('#IMDTableOpPanel');
     private _advMode: boolean;
-    private _dagNode: DagNodeIMDTable;
+    protected _dagNode: DagNodeIMDTable;
     private _$pubTableInput: JQuery; // $('#IMDTableOpPanel .pubTableInput')
     private _$tableVersionInput: JQuery; // $('#IMDTableOpPanel .tableVersionInput')
     private _$filterStringInput: JQuery; // $('#IMDTableOpPanel .filterStringInput')

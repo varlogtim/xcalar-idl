@@ -28,6 +28,10 @@ class ListScroller {
     private outerSize: number;
     private innerSize: number;
     private noPositionReset: boolean;
+    private _baseScrollAmount : number = 10;
+    private _scrollAmount: number = 10;
+    private _maxScrollAmount: number = 20;
+    private _scrollSpeed: number = 30;
 
     /**
      * Constructor for the ListScroller
@@ -109,6 +113,21 @@ class ListScroller {
             $(this).addClass('mouseover');
 
             const scrollUp: boolean = $(this).hasClass('top');
+
+            const $list: JQuery = this.$list;
+            const $ul: JQuery = this.$ul;
+
+            // if (this.verticalScroll) {
+            //     const ulHeight: number = $ul[0].scrollHeight - 1;
+            //     let diff = ulHeight - $list.height();
+            //     console.log(diff);
+
+            // } else {
+            //     const ulWidth: number = $ul[0].scrollWidth - 1;
+            //     let diff = ulWidth - $list.height();
+            //     console.log(diff);
+            // }
+
             scrollList(scrollUp);
         });
 
@@ -161,28 +180,28 @@ class ListScroller {
                     return;
                 }
                 timer.scroll = window.setTimeout(function() {
-                    top = scrollTop - 15;
+                    top = scrollTop - self._scrollAmount;
                     if (self.verticalScroll) {
                         $ul.scrollTop(top);
                     } else {
                         $ul.scrollLeft(top);
                     }
                     scrollList(scrollUp);
-                }, 30);
+                }, self._scrollSpeed);
             } else { // scroll downwards
                 if (self.outerSize + scrollTop >= self.innerSize) {
                     $scrollAreas.eq(1).addClass('stopped');
                     return;
                 }
                 timer.scroll = window.setTimeout(function() {
-                    top = scrollTop + 15;
+                    top = scrollTop + self._scrollAmount;
                     if (self.verticalScroll) {
                         $ul.scrollTop(top);
                     } else {
                         $ul.scrollLeft(top);
                     }
                     scrollList(scrollUp);
-                }, 30);
+                }, self._scrollSpeed);
             }
         }
 
@@ -254,10 +273,11 @@ class ListScroller {
             }
 
             const ulHeight: number = $ul[0].scrollHeight - 1;
-
-            if (ulHeight > $list.height()) {
+            const listElHeight: number = $list.height();
+            if (ulHeight > listElHeight) {
                 $list.find('.scrollArea').show();
                 $list.find('.scrollArea.bottom').addClass('active');
+                this._scrollAmount = Math.round(Math.min(this._maxScrollAmount, this._baseScrollAmount * (ulHeight / listElHeight)));
             } else {
                 $list.find('.scrollArea').hide();
             }
@@ -285,10 +305,11 @@ class ListScroller {
             }
 
             const ulWidth: number = $ul[0].scrollWidth - 1;
-
-            if (ulWidth > $list.width()) {
+            const listElWidth: number = $list.width();
+            if (ulWidth > listElWidth) {
                 $list.find('.scrollArea').show();
                 $list.find('.scrollArea.bottom').addClass('active');
+                this._scrollAmount = Math.round(Math.min(this._maxScrollAmount, this._baseScrollAmount * (ulWidth / listElWidth)));
             } else {
                 $list.find('.scrollArea').hide();
             }

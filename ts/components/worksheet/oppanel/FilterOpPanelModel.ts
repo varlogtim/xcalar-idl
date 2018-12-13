@@ -117,7 +117,6 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
             let hasVariableArg = false;
             if (argGroup.args.length) {
                 if (!opInfo) {
-                    // XXX send to advanced mode
                     if (argGroup.fnName.length) {
                         throw({error: "\"" + argGroup.fnName + "\" is not a" +
                                 " valid filter function."});

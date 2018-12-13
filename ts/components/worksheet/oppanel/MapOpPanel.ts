@@ -81,9 +81,11 @@ class MapOpPanel extends GeneralOpPanel {
                 this._udfDisplayPathPrefix = options.udfDisplayPathPrefix;
                 this._udfUpdateOperatorsMap();
             }
+
             this.model = new MapOpPanelModel(this._dagNode, () => {
                 this._render();
             }, options);
+
             super._panelShowHelper(this.model);
             this._render();
 
@@ -108,6 +110,8 @@ class MapOpPanel extends GeneralOpPanel {
                     });
                 }
             });
+
+            this._checkPanelOpeningError();
             return true;
         }
         return false;

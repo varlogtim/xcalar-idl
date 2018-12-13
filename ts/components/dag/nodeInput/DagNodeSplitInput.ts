@@ -71,7 +71,7 @@ class DagNodeSplitInput extends DagNodeInput {
         return {
             source: input.source,
             delimiter: input.delimiter,
-            dest: input.dest.map((v) => v)
+            dest: xcHelper.deepCopy(input.dest)
         };
     }
 }

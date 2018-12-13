@@ -1,5 +1,5 @@
 class DFLinkInOpPanel extends BaseOpPanel {
-    private _dagNode: DagNodeDFIn;
+    protected _dagNode: DagNodeDFIn;
     private _dataflows: {tab: DagTab, displayName: string}[];
     private _linkOutNodes: {node: DagNodeDFOut, displayName: string}[];
     private _schemaSection: ColSchemaSection;

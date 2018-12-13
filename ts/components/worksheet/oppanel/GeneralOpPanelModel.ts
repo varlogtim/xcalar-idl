@@ -7,6 +7,7 @@ class GeneralOpPanelModel {
     protected _opCategories: number[];
     protected cachedBasicModeParam: string;
     protected baseColumns: ProgCol[];
+    public modelError: string;
 
     public constructor(dagNode: DagNode, event: Function, options) {
         this.dagNode = dagNode;
@@ -17,8 +18,6 @@ class GeneralOpPanelModel {
             return parentNode.getLineage().getColumns();
         })[0] || [];
         this._opCategories = [];
-        let params: any = this.dagNode.getParam();
-        this._initialize(params);
         const baseColumnNames = options.baseColumnNames;
         if (baseColumnNames) {
             this.baseColumns = [];
@@ -33,6 +32,13 @@ class GeneralOpPanelModel {
             if (!this.baseColumns.length) {
                 this.baseColumns = null;
             }
+        }
+        let params: any = this.dagNode.getParam();
+        try {
+            this._initialize(params);
+            this.modelError = null;
+        } catch (e) {
+            this.modelError = xcHelper.parseJSONError(e).error;
         }
     }
 
@@ -172,7 +178,6 @@ class GeneralOpPanelModel {
     protected _initialize(_paramsRaw) {}
 
     protected _update(all?: boolean): void {
-        // console.log(JSON.stringify(this.tableColumns), JSON.stringify(this.getModel(), null, 2));
         if (this.event != null) {
             this.event(all);
         }
@@ -516,6 +521,7 @@ class GeneralOpPanelModel {
             if (error) {
                 return error;
             }
+            this.modelError = null;
             this._update(true);
         }
         return null;

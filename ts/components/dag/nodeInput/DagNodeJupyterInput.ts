@@ -80,10 +80,7 @@ class DagNodeJupyterInput extends DagNodeInput {
         const input = super.getInput(replaceParameters);
         return {
             numExportRows: input.numExportRows,
-            renames: input.renames.map((v) => ({
-                sourceColumn: v.sourceColumn,
-                destColumn: v.destColumn
-            }))
+            renames: xcHelper.deepCopy(input.renames)
         };
     }
 }
