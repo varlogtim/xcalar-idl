@@ -907,8 +907,8 @@ class FileManagerPanel {
 
     private _eventClickUpload(): void {
         if (
-            !this.manager.canDelete(
-                this.getViewPath() + this.manager.fileExtension()
+            !this.manager.canAdd(
+                this.getViewPath() + "a" + this.manager.fileExtension()
             )
         ) {
             return;
