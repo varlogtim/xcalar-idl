@@ -226,6 +226,15 @@ namespace DagNodeMenu {
             case ("download"):
                 DFDownloadModal.Instance.show(DagView.getActiveTab(), nodeIds);
                 break;
+            case ("restoreDataset"): {
+                const node: DagNodeDataset = <DagNodeDataset>DagView.getActiveDag().getNode(dagNodeIds[0]);
+                const shareDS: boolean = DagView.getActiveTab() instanceof DagTabPublished;
+                DS.restoreSourceFromDagNode([node], shareDS)
+                .then(() => {
+                    node.beConfiguredState();
+                });
+                break;
+            }
             default:
                 break;
         }
@@ -592,6 +601,17 @@ namespace DagNodeMenu {
         // link node option
         if (dagNode != null && dagNodeType === DagNodeType.DFIn) {
             classes += " linkInMenu";
+        }
+        // dataset option
+        if (dagNode != null && dagNodeType === DagNodeType.Dataset) {
+            classes += " datasetMenu";
+            const node: DagNodeDataset = <DagNodeDataset>dagNode;
+            const dsName: string = node.getDSName();
+            if (dsName != null && DS.getDSObj(dsName) == null) {
+                $menu.find(".restoreDataset").removeClass("xc-hidden");
+            } else {
+                $menu.find(".restoreDataset").addClass("xc-hidden");
+            }
         }
         // Node with UDF
         if (dagNode != null && dagNode instanceof DagNodeMap) {

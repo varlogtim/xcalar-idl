@@ -1359,7 +1359,7 @@
         .unlockNodeTable, .lockNodeTable, .download, .createCustom, .viewUDF, .selectAllNodes {
             display: list-item;
         }
-        .findLinkOut {
+        .findLinkOut, .restoreDataset {
             display: none;
         }
         &.multiple {
@@ -1462,6 +1462,11 @@
     }
     &.linkInMenu {
         .findLinkOut {
+            display: list-item;
+        }
+    }
+    &.datasetMenu {
+        .restoreDataset {
             display: list-item;
         }
     }

@@ -1030,7 +1030,7 @@ module.exports = {
         "dataset": "DATASET",
         "datasetInstr": "Use the dataset as the souce for data, with columns prefixed by prefix",
         "source": "Source",
-        "sourceInstr": "Select Dataset to use in this dataflow.",
+        "sourceInstr": "Select Dataset to use in this dataflow. If a dataset does not appear, or is inactive, close the panel and load/activate the dataset.",
         "prefix": "Prefix",
         "prefixInstr": "Table Prefix",
         "save": "Save"
@@ -1165,7 +1165,7 @@ module.exports = {
         "cast": "Cast",
         "groupAll": "None",
         "groupAllHint": "Select to create a one-row table with aggregate values",
-        "restoreLast": "Restore last saved"
+        "restoreLast": "Restore last saved configuration "
     },
 
     "dfParam": {
@@ -1439,6 +1439,7 @@ module.exports = {
         "zoomOut": "Zoom Out",
         "reset": "Reset",
         "resetAll": "Reset All",
+        "restoreDataset": "Restore Dataset",
         "generateResult": "Generate Result",
         "viewResult": "View Result",
         "viewUDF": "View UDF",
