@@ -16,6 +16,7 @@ namespace DagView {
     const titleLineHeight = 12;
     const inConnectorWidth = 6;
     const lockedNodeIds = {};
+    const dagEventNamespace = 'DagView';
 
     export function setup(): void {
         $dagView = $("#dagView");
@@ -1857,6 +1858,24 @@ namespace DagView {
         }
     }
 
+    /**
+     * Cleanup job after a tab is closed
+     * @param dagTab 
+     * @description
+     * #1 Remove all event handlers listening on the DagGraph associated with the closed tab
+     * #2 ...
+     */
+    export function cleanupClosedTab(dagTab: DagTab) {
+        try {
+            const graph = dagTab.getGraph();
+            if (graph != null) {
+                graph.events.off(`.${dagEventNamespace}`);
+            }
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
     function _createCustomNode(
         dagNodeInfos,
         connection: DagSubGraphConnectionInfo
@@ -3653,15 +3672,25 @@ namespace DagView {
         }
     }
 
+    function _registerGraphEvent(
+        graph: DagGraph, event: DagGraphEvents|DagNodeEvents, handler: Function
+    ): void {
+        if (graph == null) {
+            return;
+        }
+        graph.events.on(`${event}.${dagEventNamespace}`, handler);
+    }
+
     /**
      * @description
-     * listens events for 1 dag graph. This function is called for each dag graph
+     * listens events for 1 dag graph. This function is called for each dag graph.
+     * Make sure all events listening are also registered in cleanupClosedTab !!!
      */
     function _setupGraphEvents(): void {
         const graph: DagGraph = activeDag;
 
         // when a graph gets locked during execution
-        graph.events.on(DagGraphEvents.LockChange, (info) => {
+        _registerGraphEvent(graph, DagGraphEvents.LockChange, (info) => {
             const tabId: string = info.tabId;
             const tab: DagTab = DagTabManager.Instance.getTabById(tabId);
             _lockUnlockHelper(info);
@@ -3671,7 +3700,7 @@ namespace DagView {
             DagTopBar.Instance.setState(activeDagTab); // refresh the stop button status
         });
 
-        graph.events.on(DagNodeEvents.StateChange, function (info) {
+        _registerGraphEvent(graph, DagNodeEvents.StateChange, function (info) {
             _updateNodeState(info);
             const dagTab: DagTab = DagTabManager.Instance.getTabById(info.tabId);
             if (info.state !== DagNodeState.Running) {
@@ -3687,14 +3716,14 @@ namespace DagView {
             }
         });
 
-        graph.events.on(DagNodeEvents.ConnectionChange, function (info) {
+        _registerGraphEvent(graph, DagNodeEvents.ConnectionChange, function (info) {
             if (info.descendents.length) {
                 // XXX TODO only update if nodes involved in form are affected
                 FormHelper.updateColumns(info);
             }
         });
 
-        graph.events.on(DagNodeEvents.ParamChange, function (info) {
+        _registerGraphEvent(graph, DagNodeEvents.ParamChange, function (info) {
             const $node: JQuery = DagView.getNode(info.id, info.tabId);
 
             _drawTitleText($node, info.node);
@@ -3728,11 +3757,11 @@ namespace DagView {
             }
         });
 
-        graph.events.on(DagNodeEvents.AutoExecute, function (info) {
+        _registerGraphEvent(graph, DagNodeEvents.AutoExecute, function (info) {
             _autoExecute(info.node);
         });
 
-        graph.events.on(DagNodeEvents.LineageSourceChange, function (info) {
+        _registerGraphEvent(graph, DagNodeEvents.LineageSourceChange, function (info) {
             const tabId: string = activeDagTab.getId();
             const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId);
             dagTab.save();
@@ -3759,16 +3788,16 @@ namespace DagView {
             }
         });
 
-        graph.events.on(DagNodeEvents.AggregateChange, function (info) {
+        _registerGraphEvent(graph, DagNodeEvents.AggregateChange, function (info) {
             editAggregates(info.id, info.tabId, info.aggregates);
             DagNodeInfoPanel.Instance.update(info.id, "aggregates");
         });
 
-        graph.events.on(DagNodeEvents.TableLockChange, function (info) {
+        _registerGraphEvent(graph, DagNodeEvents.TableLockChange, function (info) {
             editTableLock(DagView.getNode(info.id, info.tabId), info.lock);
         });
 
-        graph.events.on(DagNodeEvents.TableRemove, function (info) {
+        _registerGraphEvent(graph, DagNodeEvents.TableRemove, function (info) {
             const tableName: string = info.table;
             const nodeId: DagNodeId = info.nodeId;
             if (DagTable.Instance.getBindNodeId() === nodeId) {
@@ -3817,7 +3846,7 @@ namespace DagView {
             }
         });
 
-        graph.events.on(DagNodeEvents.RetinaRemove, function(info) {
+        _registerGraphEvent(graph, DagNodeEvents.RetinaRemove, function(info) {
             const retinaName: string = gRetinaPrefix + info.tabId + "_" + info.nodeId;
             XcalarDeleteRetina(retinaName)
             .fail((error) => {
@@ -3827,7 +3856,7 @@ namespace DagView {
             });
         });
 
-        graph.events.on(DagNodeEvents.TitleChange, function (info) {
+        _registerGraphEvent(graph, DagNodeEvents.TitleChange, function (info) {
             // update table preview if node's title changes
             if (DagTable.Instance.isTableFromTab(info.tabId)) {
                 const tableId = DagTable.Instance.getBindNodeId();
@@ -3838,7 +3867,7 @@ namespace DagView {
             DagNodeInfoPanel.Instance.update(info.id, "title");
         });
 
-        graph.events.on(DagNodeEvents.DescriptionChange, (info) => {
+        _registerGraphEvent(graph, DagNodeEvents.DescriptionChange, (info) => {
             const $node: JQuery = DagView.getNode(info.id, info.tabId);
             $node.find(".descriptionIcon").remove();
 
@@ -3850,21 +3879,21 @@ namespace DagView {
             DagNodeInfoPanel.Instance.update(info.id, "description");
         });
 
-        graph.events.on(DagGraphEvents.TurnOffSave, (info) => {
+        _registerGraphEvent(graph, DagGraphEvents.TurnOffSave, (info) => {
             const tab: DagTab = DagTabManager.Instance.getTabById(info.tabId);
             if (tab != null) {
                 tab.turnOffSave();
             }
         });
 
-        graph.events.on(DagGraphEvents.TurnOnSave, (info) => {
+        _registerGraphEvent(graph, DagGraphEvents.TurnOnSave, (info) => {
             const tab: DagTab = DagTabManager.Instance.getTabById(info.tabId);
             if (tab != null) {
                 tab.turnOnSave();
             }
         });
 
-        graph.events.on(DagGraphEvents.Save, (info) => {
+        _registerGraphEvent(graph, DagGraphEvents.Save, (info) => {
             const tab: DagTab = DagTabManager.Instance.getTabById(info.tabId);
             if (tab != null) {
                 tab.save();

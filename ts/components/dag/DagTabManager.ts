@@ -518,6 +518,7 @@ class DagTabManager{
             this.reset();
         }
 
+        DagView.cleanupClosedTab(dagTab);
         return true;
     }
 

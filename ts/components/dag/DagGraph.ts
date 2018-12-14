@@ -9,7 +9,7 @@ class DagGraph {
     private noDelete: boolean;
     private parentTabId: string;
     protected currentExecutor: DagGraphExecutor
-    public events: { on: Function, trigger: Function}; // example: dagGraph.events.on(DagNodeEvents.StateChange, console.log)
+    public events: { on: Function, off: Function, trigger: Function}; // example: dagGraph.events.on(DagNodeEvents.StateChange, console.log)
 
     public constructor() {
         this.nodesMap = new Map();
@@ -1119,15 +1119,58 @@ class DagGraph {
     }
 
     private _setupEvents(): void {
-        this.innerEvents = {};
+        const defaultNamespace = 'defaultNS';
+        this.innerEvents = {}; // Example: { 'LockChange': {'defaultNS': <handler1>, 'DagView': <handler2>, ... }, ... }
         this.events = {
-            on: (event, callback) => { this.innerEvents[event] = callback },
+            on: (event, callback) => {
+                const { eventName, namespace = defaultNamespace } = parseEvent(event);
+                if (eventName.length === 0) {
+                    return;
+                }
+                if (this.innerEvents[eventName] == null) {
+                    this.innerEvents[eventName] = {};
+                }
+                this.innerEvents[eventName][namespace] = callback;
+            },
+            off: (event) => {
+                const { eventName, namespace } = parseEvent(event);
+                if (namespace == null || namespace.length === 0) {
+                    // event = '<eventName>' || '<eventName>.'
+                    delete this.innerEvents[eventName];
+                } else {
+                    if (eventName.length === 0) {
+                        // event = '.<namespace>'
+                        for (const innerEventName of Object.keys(this.innerEvents)) {
+                            delete this.innerEvents[innerEventName][namespace];
+                        }
+                    } else {
+                        // event = '<eventName>.<namespace>'
+                        if (this.innerEvents[eventName] != null) {
+                            delete this.innerEvents[eventName][namespace];
+                        }
+                    }
+                }
+            },
             trigger: (event, ...args) => {
-                if (typeof this.innerEvents[event] === 'function') {
-                    this.innerEvents[event].apply(this, args)
+                if (this.innerEvents[event] != null) {
+                    for (const namespace of Object.keys(this.innerEvents[event])) {
+                        const eventHandler = this.innerEvents[event][namespace];
+                        if (typeof eventHandler === 'function') {
+                            eventHandler.apply(this, args)
+                        }
+                    }
                 }
             }
         };
+
+        function parseEvent(event) {
+            const sep = '.';
+            const idx = event.lastIndexOf(sep);
+            return {
+                eventName: idx >= 0 ? event.substring(0, idx) : event,
+                namespace: idx >= 0 ? event.substring(idx + 1) : undefined
+            };
+        }
     }
 
     private _executeGraph(nodesMap?: Map<DagNodeId, DagNode>, optimized?: boolean, startingNodes?: DagNodeId[]): XDPromise<void> {
