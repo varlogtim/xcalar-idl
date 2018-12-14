@@ -70,8 +70,10 @@ class DagTabManager{
      *  Creates a new Tab and dataflow.
      */
     public newTab(): void {
-        const tab: DagTab = this._newTab();
-        Log.add(DagTStr.NewTab, {
+        const name: string = DagList.Instance.getValidName();
+        const graph: DagGraph = new DagGraph();
+        const tab: DagTab = this._newTab(name, graph);
+        Log.add(SQLTStr.NewTab, {
             "operation": SQLOps.NewDagTab,
             "dataflowId": tab.getId()
         });
@@ -164,6 +166,27 @@ class DagTabManager{
 
         }
         return newTab;
+    }
+
+    /**
+     *  Creates a new Tab and dataflow.
+     */
+    public duplicateTab(tab: DagTab): void {
+        if (tab == null) {
+            return;
+        }
+        const graph: DagGraph = tab.getGraph();
+        if (graph == null) {
+            return;
+        }
+
+        let name: string = tab.getName().replace(/\//g, "_");
+        name = DagList.Instance.getValidName(name, true);
+        this._newTab(name, graph.clone());
+        Log.add(SQLTStr.DupTab, {
+            "operation": SQLOps.DupDagTab,
+            "dataflowId": tab.getId()
+        });
     }
 
     /**
@@ -425,9 +448,8 @@ class DagTabManager{
         }
     }
 
-    private _newTab(): DagTab {
-        const name: string = DagList.Instance.getValidName();
-        const newDagTab: DagTabUser = new DagTabUser(name, null, new DagGraph());
+    private _newTab(name: string, graph: DagGraph): DagTab {
+        const newDagTab: DagTabUser = new DagTabUser(name, null, graph);
         if (!DagList.Instance.addDag(newDagTab)) {
             return null;
         }

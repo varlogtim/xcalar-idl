@@ -108,7 +108,19 @@ class DagGraph {
         const serializableGraph: DagGraphInfo = this.getSerializableObj();
         const graph: DagGraph = new DagGraph();
         graph.create(serializableGraph);
+        graph.clear();
         return graph;
+    }
+
+    public clear(): void {
+        this.getAllNodes().forEach((node) => {
+            const state: DagNodeState = node.getState();
+            if (state === DagNodeState.Complete) {
+                // set table to empty first so it will not ulock that table
+                node.setTable("");
+                node.beConfiguredState();
+            }
+        });
     }
 
     /**

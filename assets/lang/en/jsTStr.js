@@ -1584,7 +1584,9 @@ SQLTStr = {
     "ExpandCustomOperation": "Expand Custom Operation",
     "ExpandSQLOperation": "Expand SQL Operation",
     "DrawNodesAndConnections": "Draw Nodes and Connections",
-    "EraseNodesAndConnections": "Erase Nodes and Connections"
+    "EraseNodesAndConnections": "Erase Nodes and Connections",
+    "NewTab": "Add a new dataflow tab",
+    "DupTab": "Duplicate a dataflow tab"
 };
 
 LoginConfigTStr = {
@@ -1645,7 +1647,6 @@ DagTStr = {
     "CycleConnection": "Connection cannot be made as this would create a cycle.",
     "RemoveAllOperators": "Remove All Operations",
     "RemoveAllMsg": "Are you sure you want to remove all operations?",
-    "NewTab": "Add a new dataflow tab.",
     "RemoveTab": "Remove a dataflow tab.",
     "AddDescription": "Add Description",
     "EditDescription": "Edit Description",

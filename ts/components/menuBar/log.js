@@ -525,22 +525,6 @@ window.Log = (function($, Log) {
             downloadLog();
         });
 
-        $undo.click(function() {
-            if ($(this).hasClass("disabled")) {
-                return;
-            }
-
-            Log.undo();
-        });
-
-        $redo.click(function() {
-            if ($(this).hasClass("disabled")) {
-                return;
-            }
-
-            Log.redo();
-        });
-
         $textarea.on("click", ".collapsed", function(event) {
             if ($(event.target).closest(".title").length) {
                 return;

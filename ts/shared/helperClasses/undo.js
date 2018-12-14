@@ -188,6 +188,10 @@ window.Undo = (function($, Undo) {
         return DagList.Instance.deleteDataflow($("#dagListSection .dagListDetail").last());
     };
 
+    undoFuncs[SQLOps.DupDagTab] = function() {
+        return DagList.Instance.deleteDataflow($("#dagListSection .dagListDetail").last());
+    };
+
     undoFuncs[SQLOps.EditDescription] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
         DagView.editDescription(options.nodeId, options.oldDescription);

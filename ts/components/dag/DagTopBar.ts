@@ -32,10 +32,19 @@ class DagTopBar {
         }
 
         $btns.show();
+
+        const $userOnlyBtns: JQuery = $btns.find(".publish");
         if (dagTab instanceof DagTabUser) {
-            $btns.find(".publish").removeClass("xc-disabled");
+            $userOnlyBtns.removeClass("xc-disabled");
         } else {
-            $btns.find(".publish").addClass("xc-disabled");
+            $userOnlyBtns.addClass("xc-disabled");
+        }
+
+        const $userAndPublishOnlyBtns: JQuery = $btns.find(".run, .duplicate, .download");
+        if (dagTab instanceof DagTabUser || dagTab instanceof DagTabPublished) {
+            $userAndPublishOnlyBtns.removeClass("xc-disabled");
+        } else {
+            $userAndPublishOnlyBtns.addClass("xc-disabled");
         }
 
         const graph: DagGraph = dagTab.getGraph();
@@ -60,16 +69,14 @@ class DagTopBar {
             if ($(this).hasClass("disabled") || DagView.getActiveDag().isLocked()) {
                 return;
             }
-            // XXX need to remove original undo buttons first
-            // Log.undo();
+            Log.undo();
         });
 
         this.$topBar.find(".redo").click(function() {
             if ($(this).hasClass("disabled") || DagView.getActiveDag().isLocked()) {
                 return;
             }
-
-            // Log.redo();
+            Log.redo();
         });
 
         this.$topBar.find(".zoomIn").click(function() {
@@ -80,6 +87,10 @@ class DagTopBar {
         this.$topBar.find(".zoomOut").click(function() {
             DagView.zoom(false);
             self._checkZoom();
+        });
+
+        this.$topBar.find(".duplicate").click(() => {
+            this._duplicateTab();
         });
 
         this.$topBar.find(".publish").click(() => {
@@ -102,7 +113,7 @@ class DagTopBar {
         });
     }
 
-    private _checkZoom() {
+    private _checkZoom(): void {
         const $zoomIn = this.$topBar.find(".zoomIn");
         const $zoomOut = this.$topBar.find(".zoomOut");
         $zoomIn.removeClass("disabled");
@@ -114,5 +125,10 @@ class DagTopBar {
         } else if (scaleIndex === DagView.zoomLevels.length - 1) {
             $zoomIn.addClass("disabled");
         }
+    }
+
+    private _duplicateTab(): void {
+        const tab: DagTab = DagView.getActiveTab();
+        DagTabManager.Instance.duplicateTab(tab);
     }
 }

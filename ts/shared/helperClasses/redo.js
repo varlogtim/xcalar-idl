@@ -141,6 +141,14 @@ window.Redo = (function($, Redo) {
         return PromiseHelper.resolve(null);
     };
 
+    redoFuncs[SQLOps.DupDagTab] = function(options) {
+        var tab = DagTabManager.Instance.getTabById(options.dataflowId);
+        if (tab != null) {
+            DagTabManager.Instance.duplicateTab(tab);
+        }
+        return PromiseHelper.resolve(null);
+    };
+
     redoFuncs[SQLOps.EditDescription] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
         DagView.editDescription(options.nodeId, options.newDescription);

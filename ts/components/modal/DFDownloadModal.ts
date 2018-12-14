@@ -243,16 +243,12 @@ class DFDownloadModal {
             nodeToInclude = graph.backTraverseNodes(selectedNodes).map;
         }
 
-        graph.getAllNodes().forEach((node, nodeId) => {
+        graph.getAllNodes().forEach((_node, nodeId) => {
             if (partialSelection && !nodeToInclude.has(nodeId)) {
                 graph.removeNode(nodeId);
             }
-
-            if (node instanceof DagNodeOutOptimizable &&
-                node.getState() === DagNodeState.Complete) {
-                node.beConfiguredState();
-            }
         });
+        graph.clear();
     }
 
     private _downloadImage(name: string): XDPromise<void> {
