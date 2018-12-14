@@ -2074,7 +2074,7 @@ namespace DagView {
                 expandLogParam.options.actions.push(addLogParam.options);
             });
 
-            const deferred: XDPromise<void> = PromiseHelper.deferred();
+            const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
             DagAggManager.Instance.bulkAdd(newAggregates);
             // remove the container node from graph

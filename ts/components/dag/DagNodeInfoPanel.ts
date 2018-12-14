@@ -28,6 +28,7 @@ class DagNodeInfoPanel {
         this._updateStatsSection();
         this._updateAggregatesSection();
         this._updateDescriptionSection();
+        this._updateSubGraphSection();
         this._updateLock();
 
         return true;
@@ -129,6 +130,7 @@ class DagNodeInfoPanel {
         const dagNodeType: DagNodeType = this._activeNode.getType();
         const uneditable = (dagNodeType === DagNodeType.CustomInput ||
             dagNodeType === DagNodeType.CustomOutput ||
+            dagNodeType === DagNodeType.Custom ||
             DagView.getActiveArea().hasClass("viewOnly") ||
             !(DagView.getActiveTab() instanceof DagTabUser ||
             DagView.getActiveTab() instanceof DagTabCustom));
@@ -149,6 +151,7 @@ class DagNodeInfoPanel {
     }
 
     private _updateConfigSection(): void {
+        this._$panel.find(".configRow").removeClass("xc-hidden");
         let params = xcHelper.escapeHTMLSpecialChar(JSON.stringify(this._activeNode.getParam(), null, 4));
         this._$panel.find(".configSection").text(params);
     }
@@ -247,6 +250,31 @@ class DagNodeInfoPanel {
             this._$panel.find(".descriptionSection").text(this._activeNode.getDescription());
         } else {
             this._$panel.find(".descriptionRow").addClass("xc-hidden");
+        }
+    }
+
+    private _updateSubGraphSection(): void {
+        if (this._activeNode instanceof DagNodeCustom) {
+            const subNodes: Map<string, DagNode> = this._activeNode.getSubGraph().getAllNodes();
+            let nodeNames: string[] = [];
+            subNodes.forEach((node) => {
+                if (node instanceof DagNodeCustomInput ||
+                    node instanceof DagNodeCustomOutput) {
+                    return;
+                }
+                nodeNames.push(node.getDisplayNodeType());
+            });
+            if (nodeNames.length) {
+                this._$panel.find(".subGraphSection").text(nodeNames.join(", "));
+                this._$panel.find(".subGraphRow").removeClass("xc-hidden");
+                this._$panel.find(".configRow").addClass("xc-hidden");
+            } else {
+                this._$panel.find(".subGraphRow").addClass("xc-hidden");
+                this._$panel.find(".configRow").removeClass("xc-hidden");
+            }
+        } else {
+            this._$panel.find(".configRow").removeClass("xc-hidden");
+            this._$panel.find(".subGraphRow").addClass("xc-hidden");
         }
     }
 
