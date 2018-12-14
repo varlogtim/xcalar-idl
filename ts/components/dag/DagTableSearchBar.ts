@@ -28,7 +28,7 @@ class DagTableSearchBar {
     }
 
     private _clearnHightInCell(): void {
-        $(".xcTable:visible").find(".selectedCell").removeClass("selectedCell");
+        DagTable.Instance.getView().find(".editableHead.highlight").removeClass("highlight");
     }
 
     private _clearSearch(): void {
@@ -62,21 +62,11 @@ class DagTableSearchBar {
         const $searchArea: JQuery = this._getSearchArea();
         this._searchHelper = new SearchBar($searchArea, {
             removeSelected: () => {
-                $('.xcTable').find('.selectedCell')
-                             .removeClass('selectedCell');
-                if (!$("#container").hasClass("columnPicker")) {
-                    $('.xcTable').find('.modalHighlighted')
-                             .removeClass('modalHighlighted');
-                }
+                this._clearnHightInCell();
             },
             highlightSelected: ($match) => {
-                if (!$("#container").hasClass("columnPicker")) {
-                    $('.xcTable').find('.modalHighlighted')
-                                 .removeClass('modalHighlighted');
-                }
-
-                TblManager.highlightColumn($match, false);
-                TableComponent.empty();
+                this._clearnHightInCell();
+                $match.find(".editableHead").addClass("highlight");
             },
             scrollMatchIntoView: ($match: JQuery) => {
                 const $container: JQuery = this._getContainer();

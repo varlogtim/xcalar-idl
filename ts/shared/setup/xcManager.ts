@@ -965,16 +965,16 @@ namespace xcManager {
                 - the maximize/close buttons on the QG panel
             */
 
-            if (!$target.closest(".header").length &&
-                !$target.closest(".selectedCell").length &&
-                !$target.closest(".menu").length &&
-                // $target.attr("id") !== "mainFrame" &&
-                !$target.hasClass("ui-resizable-handle") &&
-                !$target.closest("li.column").length &&
-                !$target.closest(".tableScrollBar").length) {
+            // if (!$target.closest(".header").length &&
+            //     !$target.closest(".selectedCell").length &&
+            //     !$target.closest(".menu").length &&
+            //     // $target.attr("id") !== "mainFrame" &&
+            //     !$target.hasClass("ui-resizable-handle") &&
+            //     !$target.closest("li.column").length &&
+            //     !$target.closest(".tableScrollBar").length) {
 
-                $(".selectedCell").removeClass("selectedCell");
-            }
+            //     $(".selectedCell").removeClass("selectedCell");
+            // }
         });
 
         let dragCount: number = 0; // tracks document drag enters and drag leaves

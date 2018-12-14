@@ -2299,7 +2299,7 @@ class TblManager {
         $tbody.on("mousedown", "td", (event) => {
             const $td: JQuery = $(event.currentTarget);
             const $el: JQuery = $td.children('.clickable');
-
+            $tbody.closest(".xcTable").find(".selectedCell").removeClass("selectedCell");
             if ($("#container").hasClass('columnPicker') ||
                 ModalHelper.isModalOn()
             ) {
