@@ -672,7 +672,8 @@ StatusT = {
   'StatusUDFUpdateFailed' : 663,
   'StatusUDFBadPath' : 664,
   'StatusDsMetaDataNotFound' : 665,
-  'StatusDatasetAlreadyUnloaded' : 666
+  'StatusDatasetAlreadyUnloaded' : 666,
+  'StatusUdfModuleFullNameRequired' : 667
 };
 StatusTStr = {
   0 : 'Success',
@@ -1341,7 +1342,8 @@ StatusTStr = {
   663 : 'UDF update failure during persistent write',
   664 : 'UDF path not recognized',
   665 : 'Dataset metadata doesn\'t exist',
-  666 : 'Dataset is already unloaded'
+  666 : 'Dataset is already unloaded',
+  667 : 'UDF module name must be full path name'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -2010,5 +2012,6 @@ StatusTFromStr = {
   'UDF update failure during persistent write' : 663,
   'UDF path not recognized' : 664,
   'Dataset metadata doesn\'t exist' : 665,
-  'Dataset is already unloaded' : 666
+  'Dataset is already unloaded' : 666,
+  'UDF module name must be full path name' : 667
 };

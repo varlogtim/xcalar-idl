@@ -314,7 +314,7 @@ window.DS = (function ($, DS) {
             } else {
                 // remove non-persisted attr in dsObj
                 delete obj.activated;
-                delete obj.headers;
+                delete obj.columns;
             }
         }
         return folderCopy;
@@ -489,14 +489,22 @@ window.DS = (function ($, DS) {
     };
 
     DS.getSchema = function(source) {
-        const ds = DS.getDSObj(source);
-        if (ds == null) {
+        const dsObj = DS.getDSObj(source);
+        if (dsObj == null) {
             return PromiseHelper.reject({error: "Dataset not found"});
         }
         const sourceHasParams = xcHelper.checkValidParamBrackets(source, true);
         if (sourceHasParams) {
             return PromiseHelper.resolve([]);
+        }
+
+        const columns = dsObj.getColumns();
+        if (columns != null) {
+            // when backend has the schema
+            return PromiseHelper.resolve(columns);
         } else {
+            // error handling case
+            console.warn("No schema provided, auto detect");
             const deferred = PromiseHelper.deferred();
             // XXXX this is a wrong implementation
             // wait for https://bugs.int.xcalar.com/show_bug.cgi?id=12870
@@ -1196,7 +1204,7 @@ window.DS = (function ($, DS) {
         var updateDSMeta = function(dsMeta, ds, $ds) {
             dsMeta = dsMeta || {};
             ds.setSize(dsMeta.size);
-            ds.setHeaders(dsMeta.headers);
+            ds.setColumns(dsMeta.columns);
             ds.setNumErrors(dsMeta.totalNumErrors);
             $ds.find(".size").text(ds.getDisplaySize());
         };
@@ -1865,8 +1873,11 @@ window.DS = (function ($, DS) {
                         var name = fullName.substring(gDSPrefix.length);
                         dsInfos[name] = {
                             size: dataset.datasetSize,
-                            headers: dataset.columns.map((colInfo) => {
-                                return colInfo.name;
+                            columns: dataset.columns.map((colInfo) => {
+                                return {
+                                    name: colInfo.name,
+                                    type: xcHelper.convertFieldTypeToColType(DfFieldTypeT[colInfo.type])
+                                }
                             }),
                             totalNumErrors: dataset.totalNumErrors,
                             downSampled: dataset.downSampled
@@ -1945,7 +1956,7 @@ window.DS = (function ($, DS) {
 
             if (basicDSInfo.hasOwnProperty(dsName)) {
                 dataset.size = basicDSInfo[dsName].size;
-                dataset.headers = basicDSInfo[dsName].headers;
+                dataset.columns = basicDSInfo[dsName].columns;
                 dataset.numErrors = basicDSInfo[dsName].totalNumErrors;
             }
 
@@ -2006,7 +2017,7 @@ window.DS = (function ($, DS) {
             "unlistable": !ds.isListable,
             "activated": ds.activated,
             "size": ds.size,
-            "headers": ds.headers,
+            "columns": ds.columns,
             "numErrors": ds.numErrors
         };
     }

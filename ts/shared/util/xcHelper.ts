@@ -1701,6 +1701,10 @@ namespace xcHelper {
             case DfFieldTypeT.DfMixed:
             case DfFieldTypeT.DfScalarObj: // also recoganize it as mixed
                 return ColumnType.mixed;
+            case DfFieldTypeT.DfArray:
+                return ColumnType.array;
+            case DfFieldTypeT.DfObject:
+                return ColumnType.object;
             case DfFieldTypeT.DfFatptr:
                 return null;
             default:

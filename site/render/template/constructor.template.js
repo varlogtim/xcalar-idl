@@ -1782,12 +1782,14 @@
                 date: (number) created date timestamp
                 numErrors: (number) number of record errors
                 activated: (boolean. non-persist) if the dataset is activated or not
+                columns: (array {name: string, type: ColumnType} non-persist)
             removed attr:
                 previewSize
                 isRegex
                 path,
                 isRecur,
                 pattern
+                headers
         */
         function DSObj<%= v %>(options) {
             var self = _super.call(this, options);
@@ -1815,12 +1817,16 @@
                 if (options.numErrors != null) {
                     self.numErrors = options.numErrors;
                 }
+                if (options.columns != null) {
+                    self.columns = options.columns;
+                }
                 self.activated = options.activated || false;
                 delete self.previewSize;
                 delete self.isRegex;
                 delete self.path;
                 delete self.isRecur;
                 delete self.pattern;
+                delete self.headers;
             }
             return self;
         }
@@ -1888,7 +1894,7 @@
                 // loadURL, format, fullName,
                 // fieldDelim, lineDelim, hasHeader,
                 // moduleName, funcName, isRecur,
-                // quoteChar, skipRows, pattern, headers, typedColumns
+                // quoteChar, skipRows, pattern, typedColumns
                 var self = this;
                 var options = {
                     "sources": self.sources,
@@ -1902,7 +1908,6 @@
                     "skipRows": self.skipRows,
                     "fileNamePattern": self.pattern,
                     "udfQuery": self.udfQuery,
-                    "headers": self.headers,
                     "typedColumns": self.typedColumns,
                     "advancedArgs": self.advancedArgs,
                 };
@@ -1941,8 +1946,12 @@
                 this.size = size;
             },
 
-            setHeaders: function(headers) {
-                this.headers = headers;
+            setColumns: function(columns) {
+                this.columns = columns;
+            },
+
+            getColumns: function() {
+                return this.columns;
             },
 
             setNumErrors: function(numErrors) {
@@ -2101,8 +2110,8 @@
                     return jsonKeys;
                 }
 
-                var headers = this.headers;
-                if (headers == null) {
+                var columns = this.columns;
+                if (columns == null) {
                     return jsonKeys;
                 }
 
@@ -2115,7 +2124,8 @@
                 });
 
                 // Step 1. check if all headers exist in jsonKeys
-                headers.forEach(function(header) {
+                columns.forEach(function(column) {
+                    var header = column.name;
                     if (jsonKeyMap.hasOwnProperty(header)) {
                         newHeaders.push(header);
                         headerMap[header] = true;

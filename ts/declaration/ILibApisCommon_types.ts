@@ -1857,6 +1857,7 @@ declare class XcalarApiInputT {
 	sessionActivateInput: XcalarApiSessionActivateInputT;
 	cgroupInput: XcalarApiCgroupInputT;
 	queryListInput: XcalarApiQueryListInputT;
+	listRetinasInput: XcalarApiListRetinasInputT;
 	constructor(args?: {
 		loadInput?: XcalarApiBulkLoadInputT,
 		indexInput?: XcalarApiIndexInputT,
@@ -1955,6 +1956,7 @@ declare class XcalarApiInputT {
 		sessionActivateInput?: XcalarApiSessionActivateInputT,
 		cgroupInput?: XcalarApiCgroupInputT,
 		queryListInput?: XcalarApiQueryListInputT,
+		listRetinasInput?: XcalarApiListRetinasInputT,
 	});
 }
 declare class XcalarApiDagNodeT {
@@ -2056,6 +2058,12 @@ declare class XcalarApiQueryStateOutputT {
 		queryGraph?: XcalarApiDagOutputT,
 		queryNodeId?: number,
 	});
+}
+declare class XcalarApiListRetinasInputT {
+	namePattern: string;
+	constructor(args?: {
+		namePattern?: string,
+	})
 }
 declare class XcalarApiListRetinasOutputT {
 	numRetinas: number;

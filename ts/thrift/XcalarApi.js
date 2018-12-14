@@ -4208,19 +4208,28 @@ xcalarMakeRetina = runEntity.xcalarMakeRetina = function(thriftHandle, retinaNam
 
 };
 
-xcalarListRetinasWorkItem = runEntity.xcalarListRetinasWorkItem = function() {
+xcalarListRetinasWorkItem = runEntity.xcalarListRetinasWorkItem = function(namePattern) {
     var workItem = new WorkItem();
     workItem.api = XcalarApisT.XcalarApiListRetinas;
+    workItem.input = new XcalarApiInputT();
+    workItem.input.listRetinasInput =  new XcalarApiListRetinasInputT();
+
+    if (namePattern == null) {
+        workItem.input.listRetinasInput.namePattern = "*";
+    } else {
+        workItem.input.listRetinasInput.namePattern = namePattern;
+    }
+
     return (workItem);
 };
 
-xcalarListRetinas = runEntity.xcalarListRetinas = function(thriftHandle) {
+xcalarListRetinas = runEntity.xcalarListRetinas = function(thriftHandle, namePattern) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarListRetinas()");
     }
 
-    var workItem = xcalarListRetinasWorkItem();
+    var workItem = xcalarListRetinasWorkItem(namePattern);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {

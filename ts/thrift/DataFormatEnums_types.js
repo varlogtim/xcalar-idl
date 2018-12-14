@@ -22,7 +22,9 @@ DfFieldTypeT = {
   'DfFatptr' : 13,
   'DfScalarPtr' : 14,
   'DfScalarObj' : 15,
-  'DfOpRowMetaPtr' : 16
+  'DfOpRowMetaPtr' : 16,
+  'DfArray' : 17,
+  'DfObject' : 18
 };
 DfFormatTypeT = {
   'DfFormatUnknown' : 0,
@@ -48,7 +50,9 @@ DfFieldTypeTStr = {
   13 : 'DfFatptr',
   14 : 'DfScalarPtr',
   15 : 'DfScalarObj',
-  16 : 'DfOpRowMetaPtr'
+  16 : 'DfOpRowMetaPtr',
+  17 : 'DfArray',
+  18 : 'DfObject'
 };
 DfFieldTypeTFromStr = {
   'DfUnknown' : 0,
@@ -67,7 +71,9 @@ DfFieldTypeTFromStr = {
   'DfFatptr' : 13,
   'DfScalarPtr' : 14,
   'DfScalarObj' : 15,
-  'DfOpRowMetaPtr' : 16
+  'DfOpRowMetaPtr' : 16,
+  'DfArray' : 17,
+  'DfObject' : 18
 };
 DfFormatTypeTStr = {
   0 : 'unknown',

@@ -1110,7 +1110,6 @@ window.Function.prototype.bind = function() {
     }
 
     function testDatasetCreate(test) {
-        setSessionName(session2)
         var sourceArgs = new DataSourceArgsT();
         sourceArgs.targetName = targetName;
         sourceArgs.path = qaTestDir + "/yelp/user";
@@ -1731,7 +1730,8 @@ window.Function.prototype.bind = function() {
                    "yelp/user-votes.funny-gt900",
                    "yelp/user-dummyjoin",
                    JoinOperatorT.InnerJoin,
-                   leftColumn, rightColumn)
+                   leftColumn, rightColumn,
+                   "neq(leftKey, yelp_user-votes.funny)")
         .then(function(result) {
             printResult(result);
             newTableOutput = result;
@@ -1765,8 +1765,8 @@ window.Function.prototype.bind = function() {
 
         xcalarJoin(thriftHandle, "yelp/user-votes.funny-gt900",
                    "yelp/user-votes.funny-gt900",
-                   "yelp/user-dummyjoin",
-                   JoinOperatorT.InnerJoin,
+                   "yelp/user-dummycrossjoin",
+                   JoinOperatorT.CrossJoin,
                    leftColumn, rightColumn,
                    "neq(leftKey, yelp_user-votes.funny)")
         .then(function(result) {
@@ -2461,7 +2461,7 @@ window.Function.prototype.bind = function() {
     }
 
     function testListRetinas(test) {
-        xcalarListRetinas(thriftHandle)
+        xcalarListRetinas(thriftHandle, "yelpRetina*")
         .then(function(listRetinasOutput) {
             var foundRetina = false;
             printResult(listRetinasOutput);
@@ -4596,6 +4596,7 @@ window.Function.prototype.bind = function() {
     addTestCase(testFilter, "filter", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testProject, "project", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testJoin, "join", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCrossJoin, "cross join", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testUnionAll, "union all", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testUnion, "union", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testIntersectAll, "intersect all", defaultTimeout, TestCaseEnabled, "");
