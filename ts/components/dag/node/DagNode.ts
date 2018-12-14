@@ -1261,6 +1261,7 @@ abstract class DagNode {
             // so here we just check if has <, then it's paramters and skip it
             colNameSet.forEach((colName) => {
                 if (colName &&
+                    colName != "null" && colName != "FNF" &&
                     !colName.includes("<") &&
                     !colMaps.hasOwnProperty(colName)) {
                     invalidColNames.push(colName);
