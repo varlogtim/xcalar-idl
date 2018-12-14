@@ -3288,7 +3288,8 @@
                     colNameSet.add(newName);
                     mapStrs.push(colType + "(" + origName + ")");
                     newColNames.push(newName);
-                    newColStructs.push({colName: colName, colId: colId, rename: newName});
+                    newColStructs.push({colName: colName, colId: colId,
+                                        colType: colType, rename: newName});
                 }
             }
             self.sqlObj.map(mapStrs, node.newTableName, newColNames)
