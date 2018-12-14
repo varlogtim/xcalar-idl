@@ -259,6 +259,9 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
             if (!error) {
                 error = this.validateNewFieldNames();
             }
+            if (!error) {
+                error = this._validateNewKeys();
+            }
             if (error == null) {
                 return null;
             } else {
@@ -336,6 +339,20 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
             nameMap[name] = true;
         }
         return  null;
+    }
+
+    private _validateNewKeys() {
+        const newKeys: string[] = this.newKeys;
+        let error: string;
+        newKeys.forEach((newKey) => {
+            const parseRes = xcHelper.parsePrefixColName(newKey);
+            if (parseRes.prefix) {
+                error = ErrTStr.NoPrefixColumn;
+                return false; // stop loop
+            }
+        });
+
+        return error ? {error: "Error in newKeys: " + error} : null;
     }
 
     private _findAggregates(param: DagNodeGroupByInputStruct): string[] {

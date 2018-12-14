@@ -12,11 +12,13 @@ class DagNodeInput {
     }
 
     public getInput(replaceParameters?: boolean) {
+        let input;
         if (replaceParameters) {
-            return this.replaceParameters(this.input, DagParamManager.Instance.getParamMap());
+            input = this.replaceParameters(this.input, DagParamManager.Instance.getParamMap());
         } else {
-            return this.input;
+            input = this.input;
         }
+        return xcHelper.deepCopy(input);
     }
 
     public setInput(input) {

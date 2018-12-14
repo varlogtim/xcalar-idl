@@ -26,7 +26,6 @@ class DagNodeGroupBy extends DagNode {
             newKeys: input.newKeys,
             dhtName: input.dhtName
         });
-        this._updateNewKeys();
         super.setParam();
     }
 
@@ -62,6 +61,7 @@ class DagNodeGroupBy extends DagNode {
                 colMap.set(colName, progCol);
             });
             const groupCols: ProgCol[] = [];
+            const newKeys: string[] = this.updateNewKeys(input.newKeys);
             input.groupBy.forEach((colName, index) => {
                 const oldProgCol: ProgCol = colMap.get(colName);
                 let colType: ColumnType;
@@ -74,7 +74,7 @@ class DagNodeGroupBy extends DagNode {
                 } else {
                     colType = oldProgCol.getType();
                 }
-                const newKey: string = input.newKeys[index];
+                const newKey: string = newKeys[index];
                 if (colName !== newKey) {
                     const progCol: ProgCol = ColManager.newPullCol(newKey, newKey, colType);
                     groupCols.push(progCol);
@@ -103,30 +103,12 @@ class DagNodeGroupBy extends DagNode {
         }
     }
 
-    /**
-     * @override
-     */
-    protected _genParamHint(): string {
-        let hint: string = "";
-        const input: DagNodeGroupByInputStruct = this.getParam();
-        if (input.groupBy.length) {
-            hint += "Group by " + input.groupBy.join(",") + "\n";
-        }
-        if (input.aggregate.length) {
-            hint += "having ";
-            hint += input.aggregate.map((agg) => {
-                return `${agg.operator}(${agg.sourceColumn})`;
-            }).join(", ");
-        }
-        return hint;
-    }
-
     // loop through groupby columns and make sure there's a corresponding
     // new key name for each one that is not taken by another column
-    private _updateNewKeys(): void {
+    public updateNewKeys(keys: string[]): string[] {
         const takenNames: Set<string> = new Set();
         const input = this.input.getInput();
-        const oldNewKeys = input.newKeys || [];
+        const oldNewKeys = keys || [];
         oldNewKeys.forEach((key) => {
             takenNames.add(key);
         });
@@ -170,7 +152,25 @@ class DagNodeGroupBy extends DagNode {
                 return finalName;
             }
         });
-        this.input.setNewKeys(newKeys);
+        return newKeys;
+      }
+
+    /**
+     * @override
+     */
+    protected _genParamHint(): string {
+        let hint: string = "";
+        const input: DagNodeGroupByInputStruct = this.getParam();
+        if (input.groupBy.length) {
+            hint += "Group by " + input.groupBy.join(",") + "\n";
+        }
+        if (input.aggregate.length) {
+            hint += "having ";
+            hint += input.aggregate.map((agg) => {
+                return `${agg.operator}(${agg.sourceColumn})`;
+            }).join(", ");
+        }
+        return hint;
     }
 
     public applyColumnMapping(renameMap): void {

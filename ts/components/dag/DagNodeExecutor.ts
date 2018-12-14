@@ -275,12 +275,13 @@ class DagNodeExecutor {
                 isDistinct: aggInfo.distinct
             }
         });
+        const newKeys: string[] = node.updateNewKeys(params.newKeys);
         const options: GroupByOptions = {
             newTableName: this._generateTableName(),
             isIncSample: params.includeSample,
             icvMode: params.icv,
             groupAll: params.groupAll,
-            newKeys: params.newKeys,
+            newKeys: newKeys,
             dhtName: params.dhtName
         };
         return XIApi.groupBy(this.txId, aggArgs, params.groupBy, srcTable, options);
