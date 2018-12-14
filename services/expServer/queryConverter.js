@@ -77,13 +77,31 @@ function convertHelper(dataflowInfo, nestedPrefix, otherNodes) {
         sourcePrefix = nestedPrefix + ":";
         udfPrefix = nestedPrefix + "-";
     }
+    let hasTableInfo = (!nestedPrefix && !isRetina && dataflowInfo["gInfo-1"] &&
+                        dataflowInfo["gInfo-1"].worksheets && dataflowInfo["gInfo-1"].TILookup);
+    let tables = {};
+    if (hasTableInfo) {
+        // loop through worksheets and add tables with worksheet name
+        // these tables will have an "active" styling
+        for (let i in dataflowInfo["gInfo-1"].worksheets.wsInfos) {
+            let ws = dataflowInfo["gInfo-1"].worksheets.wsInfos[i];
+            ws.tables.forEach((tId) => {
+                if (dataflowInfo["gInfo-1"].TILookup[tId]) {
+                    tables[tId] = {
+                        worksheet: ws.name
+                    }
+                }
+            });
+        }
+    }
+
     for (let i = 0; i < query.length; i++) {
         const rawNode = query[i];
         const args = rawNode.args;
         let name = sourcePrefix + args.dest;
         // name gets renamed and prefixed in the switch statement
-        const node =
-        {   name: name,
+        const node = {
+            name: name,
             parents: [],
             children: [],
             realChildren: [],
@@ -93,6 +111,15 @@ function convertHelper(dataflowInfo, nestedPrefix, otherNodes) {
             subGraph: {},
             indexedFields: []
         };
+
+        if (hasTableInfo) {
+            // this is the first layer of the workbook
+            const tId = xcHelper.getTableId(args.dest);
+            if (tId != null && tables[tId]) {
+                node.isActive = true;
+                node.worksheet = tables[tId].worksheet;
+            }
+        }
 
         // set up the parents and prefix the parent names if we're inside
         // an executeRetina
@@ -269,6 +296,7 @@ function _finalConvertIntoDagNodeInfoArray(nodes, datasets, isRetina, nestedPref
     }
 
     let allDagNodeInfos = {};
+    let inactiveDagNodeInfos = {};
     for (let i in treeGroups) {
         const group = treeGroups[i];
         const endNodes = [];
@@ -283,8 +311,22 @@ function _finalConvertIntoDagNodeInfoArray(nodes, datasets, isRetina, nestedPref
         endNodes.forEach(node => {
             _recursiveGetDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix);
         });
+        let hasActiveNodeInTree = false;
+        if (!isRetina && !nestedPrefix) {
+            for (var j in dagNodeInfos) {
+                const node = dagNodeInfos[j];
+                if (node.isActive) {
+                    hasActiveNodeInTree = true;
+                    break;
+                }
+            }
+        }
 
-        allDagNodeInfos = $.extend(allDagNodeInfos, dagNodeInfos);
+        if (!isRetina && !nestedPrefix && !hasActiveNodeInTree) {
+            inactiveDagNodeInfos = $.extend(inactiveDagNodeInfos, dagNodeInfos);
+        } else {
+            allDagNodeInfos = $.extend(allDagNodeInfos, dagNodeInfos);
+        }
     }
     if (nestedPrefix) {
         return {
@@ -294,6 +336,7 @@ function _finalConvertIntoDagNodeInfoArray(nodes, datasets, isRetina, nestedPref
     } else {
         const graphDimensions = _setPositions(allDagNodeInfos);
         const nodes = [];
+        const comments = [];
         for (var j in allDagNodeInfos) {
             const node = allDagNodeInfos[j];
             node.parents = node.parentIds;
@@ -301,12 +344,30 @@ function _finalConvertIntoDagNodeInfoArray(nodes, datasets, isRetina, nestedPref
             delete node.parentIds;
             delete node.children;
             nodes.push(node);
+            if (node.isActive) {
+                comment = {
+                    "id": "comment_" + new Date().getTime() + "_" + idCount++,
+                    "position": {
+                        "x": node.display.x - 40,
+                        "y": node.display.y - 40
+                    },
+                    "dimensions": {
+                        "width": 180,
+                        "height": 60
+                    },
+                    "text": "Active in worksheet: " + node.worksheet
+                };
+                comment.nodeId = comment.id;
+                comments.push(comment);
+                delete node.isActive;
+                delete node.worksheet;
+            }
         }
         let name;
         if (isRetina) {
-            name = xcHelper.randName(".temp/rand") + "/" + "Dataflow " + (dataflowCount + 1);
+            name = xcHelper.randName(".temp/rand") + "/" + "Dataflow " + dataflowCount;
         } else {
-            name = "Dataflow " + (dataflowCount + 1);
+            name = "Dataflow " + dataflowCount;
             dataflowsList.push({
                 name: name,
                 id: currentDataflowId
@@ -318,7 +379,7 @@ function _finalConvertIntoDagNodeInfoArray(nodes, datasets, isRetina, nestedPref
             name: name,
             dag: {
                 "nodes": nodes,
-                "comments":[],
+                "comments": comments,
                 "display": {
                     "width": graphDimensions.maxX,
                     "height": graphDimensions.maxY,
@@ -331,6 +392,41 @@ function _finalConvertIntoDagNodeInfoArray(nodes, datasets, isRetina, nestedPref
         }
 
         dataflows.push(dataflow);
+
+        // graphs that contain only inactive tables
+        if (!$.isEmptyObject(inactiveDagNodeInfos)) {
+            const graphDimensions = _setPositions(inactiveDagNodeInfos);
+            const nodes = [];
+            for (var j in inactiveDagNodeInfos) {
+                const node = inactiveDagNodeInfos[j];
+                node.parents = node.parentIds;
+                // should not persist .parentIds and .children
+                delete node.parentIds;
+                delete node.children;
+                nodes.push(node);
+            }
+            let name = "Inactive Nodes";
+            dataflowsList.push({
+                name: name,
+                id: currentDataflowId + "_0"
+            });
+
+            const dataflow = {
+                id: currentDataflowId + "_0",
+                name: name,
+                dag: {
+                    "nodes": nodes,
+                    "comments": [],
+                    "display": {
+                        "width": graphDimensions.maxX,
+                        "height": graphDimensions.maxY,
+                        "scale": 1
+                    }
+                },
+                autosave: true
+            }
+            dataflows.push(dataflow);
+        }
     }
 
     return _createKVStoreKeys(dataflows, dataflowsList, datasets, isRetina);
@@ -415,14 +511,14 @@ function _setPositions(nodeMap) {
         for (let j in nodeInfos) {
             const node = nodeInfos[j].node;
             node.display = {
-                x: ((maxDepth - nodeInfos[j].depth) * horzNodeSpacing) + gridSpacing,
-                y: (nodeInfos[j].width * vertNodeSpacing) + gridSpacing
+                x: ((maxDepth - nodeInfos[j].depth) * horzNodeSpacing) + (gridSpacing * 2),
+                y: (nodeInfos[j].width * vertNodeSpacing) + (gridSpacing * 2)
             }
         }
         startingWidth = (maxWidth + 1);
     }
-    const graphHeight = vertNodeSpacing * (startingWidth - 1) + (vertNodeSpacing * 2);
-    const graphWidth = horzNodeSpacing * overallMaxDepth + horzNodeSpacing + gridSpacing;
+    const graphHeight = vertNodeSpacing * (startingWidth - 1) + (vertNodeSpacing * 3);
+    const graphWidth = horzNodeSpacing * overallMaxDepth + horzNodeSpacing + (gridSpacing * 2);
 
     return {
         maxX: graphWidth,
@@ -754,7 +850,7 @@ function _getDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix) {
             };
             break;
         case (XcalarApisT.XcalarApiUnion):
-            const setType = xcHelper.unionTypeToXD(node.args.unionType);
+            const setType = xcHelper.unionTypeToXD(node.args.unionType) || "union";
             dagNodeInfo = {
                 type: DagNodeType.Set,
                 subType: xcHelper.capitalize(setType),
@@ -916,11 +1012,16 @@ function _getDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix) {
     dagNodeInfo.table = node.name;
     dagNodeInfo.title = node.name.slice(node.name.lastIndexOf(":") + 1); // slice out retina prefix
     dagNodeInfo.id = "dag_" + new Date().getTime() + "_" + idCount++;
+    dagNodeInfo.nodeId = dagNodeInfo.id;
     dagNodeInfo.children = [];
     dagNodeInfo.parents = [];
     dagNodeInfo.parentIds = [];
     dagNodeInfo.state =  "Configured";
     dagNodeInfo.configured = true;
+    if (node.isActive) {
+        dagNodeInfo.isActive = true;
+        dagNodeInfo.worksheet = node.worksheet;
+    }
     return dagNodeInfo;
 }
 
@@ -998,11 +1099,15 @@ function _collapseIndexNodes(node) {
     if (node.api === XcalarApisT.XcalarApiIndex) {
         const parent = node.parents[0];
         if (parent && parent.api === XcalarApisT.XcalarApiBulkLoad) {
+            let loadArgs = parent.args.loadArgs;
+            if (typeof loadArgs === "object") {
+                loadArgs = JSON.stringify(loadArgs);
+            }
             node.createTableInput = {
                 source: xcHelper.stripPrefixFromDSName(node.args.source),
                 prefix: node.args.prefix,
                 synthesize: false,
-                loadArgs: parent.args.loadArgs
+                loadArgs: loadArgs
             }
             node.parents = [];
         }
@@ -1025,6 +1130,9 @@ function _collapseIndexNodes(node) {
                 let loadArgs= "";
                 if (parent.parents.length) {
                     loadArgs = parent.parents[0].args.loadArgs;
+                    if (typeof loadArgs === "object") {
+                        loadArgs = JSON.stringify(loadArgs);
+                    }
                 }
                 parent.createTableInput = {
                     source: xcHelper.stripPrefixFromDSName(parent.args.source),
