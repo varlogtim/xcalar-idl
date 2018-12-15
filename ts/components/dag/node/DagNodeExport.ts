@@ -9,6 +9,33 @@ class DagNodeExport extends DagNodeOutOptimizable {
         this.optimized = this.subType === DagNodeSubType.ExportOptimized;
     }
 
+    public static readonly specificSchema = {
+        "definitions": {},
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "http://example.com/root.json",
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "parents"
+        ],
+        "properties": {
+          "parents": {
+            "$id": "#/properties/parents",
+            "type": "array",
+            "maxItems": 1,
+            "items": {
+              "$id": "#/properties/parents/items",
+              "type": "string",
+              "pattern": "^(.*)$"
+            }
+          },
+          "subType": {
+            "$id": "#/properties/subType",
+            "type": ["string", "null"],
+            "enum": [DagNodeSubType.ExportOptimized, null]
+          }
+        }
+    };
 
     /**
      * Set export node's parameters

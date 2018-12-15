@@ -36,6 +36,28 @@ class DagNodeSQL extends DagNode {
         this.SQLName = xcHelper.randName("SQLTab_");
     }
 
+    public static readonly specificSchema = {
+        "definitions": {},
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "http://example.com/root.json",
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "parents"
+        ],
+        "properties": {
+          "parents": {
+            "$id": "#/properties/parents",
+            "type": "array",
+            "items": {
+              "$id": "#/properties/parents/items",
+              "type": "string",
+              "pattern": "^(.*)$"
+            }
+          }
+        }
+    };
+
     public updateSubGraph(newTableMap?: {}): void {
         // XXX Can't have this optimization right now since things are broken
         // XXX TO-DO make it work

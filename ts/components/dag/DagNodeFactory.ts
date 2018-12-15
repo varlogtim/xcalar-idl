@@ -68,6 +68,75 @@ class DagNodeFactory {
         }
     }
 
+    public static getNodeClass(
+        options: DagNodeInfo = <DagNodeInfo>{}
+    ): typeof DagNode {
+        switch (options.type) {
+            case DagNodeType.Aggregate:
+                return DagNodeAggregate;
+            case DagNodeType.Dataset:
+                return DagNodeDataset;
+            case DagNodeType.Export:
+                return DagNodeExport;
+            case DagNodeType.Filter:
+                return DagNodeFilter;
+            case DagNodeType.GroupBy:
+                return DagNodeGroupBy;
+            case DagNodeType.Join:
+                return DagNodeJoin;
+            case DagNodeType.Map:
+                return DagNodeMap;
+            case DagNodeType.Project:
+                return DagNodeProject;
+            case DagNodeType.Explode:
+                return DagNodeExplode;
+            case DagNodeType.Set:
+                return DagNodeSet;
+            case DagNodeType.SQL:
+                return DagNodeSQL;
+            case DagNodeType.SQLSubInput:
+                return DagNodeSQLSubInput;
+            case DagNodeType.SQLSubOutput:
+                return DagNodeSQLSubOutput;
+            case DagNodeType.RowNum:
+                return DagNodeRowNum;
+            case DagNodeType.Extension:
+                return DagNodeExtension;
+            case DagNodeType.Custom:
+                return DagNodeCustom;
+            case DagNodeType.CustomInput:
+                return DagNodeCustomInput;
+            case DagNodeType.CustomOutput:
+                return DagNodeCustomOutput;
+            case DagNodeType.IMDTable:
+                return DagNodeIMDTable;
+            case DagNodeType.PublishIMD:
+                return DagNodePublishIMD;
+            case DagNodeType.UpdateIMD:
+                return DagNodeUpdateIMD;
+            case DagNodeType.DFIn:
+                return DagNodeDFIn;
+            case DagNodeType.DFOut:
+                return DagNodeDFOut;
+            case DagNodeType.Jupyter:
+                return DagNodeJupyter;
+            case DagNodeType.Split:
+                return DagNodeSplit;
+            case DagNodeType.Round:
+                return DagNodeRound;
+            case DagNodeType.Index:
+                return DagNodeIndex;
+            case DagNodeType.Sort:
+                return DagNodeSort;
+            case DagNodeType.Placeholder:
+                return DagNodePlaceholder;
+            case DagNodeType.Synthesize:
+                return DagNodeSynthesize;
+            default:
+                throw new Error("node type " + options.type + " not supported");
+        }
+    }
+
     // Define this so you can't do new DagNodeFactory
     private constructor() {
 

@@ -10,6 +10,32 @@ class DagNodeSet extends DagNode {
         this.input = new DagNodeSetInput(<DagNodeSetInputStruct>options.input, this);
     }
 
+    public static readonly specificSchema = {
+        "definitions": {},
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "http://example.com/root.json",
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "parents"
+        ],
+        "properties": {
+          "parents": {
+            "$id": "#/properties/parents",
+            "type": "array",
+            "items": {
+              "$id": "#/properties/parents/items",
+              "type": "string",
+              "pattern": "^(.*)$"
+            }
+          },"subType": {
+            "$id": "#/properties/subType",
+            "type": "string",
+            "enum": [DagNodeSubType.Union, DagNodeSubType.Intersect, DagNodeSubType.Except]
+          }
+        }
+    };
+
     /**
      * Set set(union/except/intersect) node's parameters
      * @param input {DagNodeSetInputStruct}
@@ -101,7 +127,7 @@ class DagNodeSet extends DagNode {
                         set.add(colInfo.sourceColumn);
                     }
                 });
-            } 
+            }
         });
         return set;
     }

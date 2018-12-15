@@ -25,17 +25,11 @@ class DagComment {
           "nodeId": {
             "$id": "#/properties/nodeId",
             "type": "string",
-            "title": "The Nodeid Schema",
-            "default": "",
-            "examples": [
-              "comment_5BEF114C1C1DB6DA_1543527779333_0"
-            ],
             "pattern": "^(.*)$"
           },
           "display": {
             "$id": "#/properties/display",
             "type": "object",
-            "title": "The Display Schema",
             "additionalProperties": true,
             "required": [
               "x",
@@ -45,21 +39,11 @@ class DagComment {
               "x": {
                 "$id": "#/properties/display/properties/x",
                 "type": "integer",
-                "title": "The X Schema",
-                "default": 0,
-                "examples": [
-                  680
-                ],
                 "minimum": 0
               },
               "y": {
                 "$id": "#/properties/display/properties/y",
                 "type": "integer",
-                "title": "The Y Schema",
-                "default": 0,
-                "examples": [
-                  120
-                ],
                 "minimum": 0
               }
             }
@@ -67,7 +51,6 @@ class DagComment {
           "dimensions": {
             "$id": "#/properties/dimensions",
             "type": "object",
-            "title": "The Dimensions Schema",
             "additionalProperties": true,
             "required": [
               "width",
@@ -77,22 +60,12 @@ class DagComment {
               "width": {
                 "$id": "#/properties/dimensions/properties/width",
                 "type": "integer",
-                "title": "The Width Schema",
-                "default": 0,
-                "examples": [
-                  180
-                ],
                 "minimum": 20.0,
                 "maximum": 2000.0
               },
               "height": {
                 "$id": "#/properties/dimensions/properties/height",
                 "type": "integer",
-                "title": "The Height Schema",
-                "default": 0,
-                "examples": [
-                  80
-                ],
                 "minimum": 20.0,
                 "maximum": 2000.0
               }
@@ -101,11 +74,6 @@ class DagComment {
           "text": {
             "$id": "#/properties/text",
             "type": "string",
-            "title": "The Text Schema",
-            "default": "",
-            "examples": [
-              "something"
-            ]
           }
         }
     };

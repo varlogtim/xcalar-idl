@@ -11,6 +11,29 @@ class DagNodeIMDTable extends DagNodeIn {
         this.input = new DagNodeIMDTableInput(options.input);
     }
 
+    public static readonly specificSchema = {
+        "definitions": {},
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "http://example.com/root.json",
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "parents"
+        ],
+        "properties": {
+          "parents": {
+            "$id": "#/properties/parents",
+            "type": "array",
+            "maxItems": 0,
+            "items": {
+              "$id": "#/properties/parents/items",
+              "type": "string",
+              "pattern": "^(.*)$"
+            }
+          }
+        }
+    };
+
     /**
      * Set dataset node's parameters
      * @param input {DagNodeIMDTableInputStruct}

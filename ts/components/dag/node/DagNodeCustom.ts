@@ -53,6 +53,280 @@ class DagNodeCustom extends DagNode {
         this._setupSubgraphEvents();
     }
 
+    public static readonly specificSchema = {
+        "definitions": {},
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "http://example.com/root.json",
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "parents",
+          "inPorts",
+          "outPorts",
+          "customName",
+          "subGraph"
+        ],
+        "properties": {
+          "parents": {
+            "$id": "#/properties/parents",
+            "type": "array",
+            "items": {
+              "$id": "#/properties/parents/items",
+              "type": ["string", "null"],
+              "pattern": "^(.*)$"
+            }
+          },
+          "inPorts": {
+            "$id": "#/properties/inPorts",
+            "type": "array",
+            "items": {
+              "$id": "#/properties/inPorts/items",
+              "type": "object",
+              "required": [
+                "parentId",
+                "pos"
+              ],
+              "properties": {
+                "parentId": {
+                  "$id": "#/properties/inPorts/items/properties/parentId",
+                  "type": "string",
+                  "pattern": "^(.*)$"
+                },
+                "pos": {
+                  "$id": "#/properties/inPorts/items/properties/pos",
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "outPorts": {
+            "$id": "#/properties/outPorts",
+            "type": "array",
+            "items": {
+              "$id": "#/properties/outPorts/items",
+              "type": "object",
+              "required": [
+                "childId",
+                "pos"
+              ],
+              "properties": {
+                "childId": {
+                  "$id": "#/properties/outPorts/items/properties/childId",
+                  "type": "string",
+                  "pattern": "^(.*)$"
+                },
+                "pos": {
+                  "$id": "#/properties/outPorts/items/properties/pos",
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "customName": {
+            "$id": "#/properties/customName",
+            "type": "string",
+            "pattern": "^(.*)$"
+          },
+          "subGraph": {
+            "$id": "#/properties/subGraph",
+            "type": "object",
+            "required": [
+              "nodes",
+              "comments",
+              "display"
+            ],
+            "properties": {
+                "nodes": {
+                  "$id": "#/properties/subGraph/properties/nodes",
+                  "type": "array",
+                  "items": {
+                    "$id": "#/properties/subGraph/properties/nodes/items",
+                    "type": "object",
+                    "required": [
+                        "type",
+                        "input",
+                        "nodeId",
+                        "parents",
+                        "configured",
+                        "display"
+                    ],
+                    "properties": {
+                        "type": {
+                        "$id": "#/properties/subGraph/properties/nodes/items/properties/type",
+                        "type": "string",
+                        "pattern": "^(.*)$"
+                        },
+                        "subType": {
+                        "$id": "#/properties/subGraph/properties/nodes/items/properties/subType",
+                        "type": ["string", "null"],
+                        "pattern": "^(.*)$"
+                        },
+                        "table": {
+                        "$id": "#/properties/subGraph/properties/nodes/items/properties/table",
+                        "type": ["string", "null"],
+                        "pattern": "^(.*)$"
+                        },
+                        "display": {
+                        "$id": "#/properties/subGraph/properties/nodes/items/properties/display",
+                        "type": ["object", "null"],
+                        "additionalProperties": true,
+                        "required": [
+                            "x",
+                            "y"
+                        ],
+                        "properties": {
+                            "x": {
+                            "$id": "#/properties/subGraph/properties/nodes/items/properties/display/properties/x",
+                            "type": "integer",
+                            "minimum": 0
+                            },
+                            "y": {
+                            "$id": "#/properties/subGraph/properties/nodes/items/properties/display/properties/y",
+                            "type": "integer",
+                            "minimum": 0
+                            }
+                        }
+                        },
+                        "description": {
+                        "$id": "#/properties/subGraph/properties/nodes/items/properties/description",
+                        "type": "string",
+                        },
+                        "title": {
+                        "$id": "#/properties/subGraph/properties/nodes/items/properties/title",
+                        "type": "string"
+                        },
+                        "input": {
+                        "$id": "#/properties/subGraph/properties/nodes/items/properties/input",
+                        "type": "object",
+                        "additionalProperties": true
+                        },
+                        "state": {
+                        "$id": "#/properties/subGraph/properties/nodes/items/properties/state",
+                        "type": "string",
+                        "enum": Object.values(DagNodeState),
+                        "pattern": "^(.*)$"
+                        },
+                        "error": {
+                        "$id": "#/properties/subGraph/properties/nodes/items/properties/error",
+                        "type": "string"
+                        },
+                        "parents": {
+                        "$id": "#/properties/subGraph/properties/nodes/items/properties/parents",
+                        "type": "array",
+                        "items": {
+                            "$id": "#/properties/subGraph/properties/nodes/items/properties/parents/items",
+                            "type": ["string", "null"],
+                            "pattern": "^(.*)$"
+                        }
+                        },
+                        "nodeId": {
+                        "$id": "#/properties/subGraph/properties/nodes/items/properties/nodeId",
+                        "type": "string",
+                        "pattern": "^(.*)$"
+                        },
+                        "configured": {
+                        "$id": "#/properties/subGraph/properties/nodes/items/properties/configured",
+                        "type": "boolean",
+                        },
+                        "aggregates": {
+                        "$id": "#/properties/subGraph/properties/nodes/items/properties/aggregates",
+                        "type": "array",
+                        "items": {
+                            "$id": "#/properties/subGraph/properties/nodes/items/properties/aggregates/items",
+                            "type": "string",
+                            "pattern": "^(.*)$"
+                        }
+                        }
+                    }
+                },
+                "comments": {
+                    "$id": "#/properties/subGraph/properties/comments",
+                    "type": "array",
+                    "required": [
+                        "nodeId",
+                        "dimensions",
+                        "text"
+                    ],
+                    "properties": {
+                        "nodeId": {
+                          "$id": "#/properties/subGraph/properties/comments/properties/nodeId",
+                          "type": "string",
+                          "pattern": "^(.*)$"
+                        },
+                        "display": {
+                          "$id": "#/properties/subGraph/properties/comments/properties/display",
+                          "type": "object",
+                          "additionalProperties": true,
+                          "required": [
+                            "x",
+                            "y"
+                          ],
+                          "properties": {
+                            "x": {
+                              "$id": "#/properties/subGraph/properties/comments/properties/display/properties/x",
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "y": {
+                              "$id": "#/properties/subGraph/properties/comments/properties/display/properties/y",
+                              "type": "integer",
+                              "minimum": 0
+                            }
+                          }
+                        },
+                        "dimensions": {
+                          "$id": "#/properties/subGraph/properties/comments/properties/dimensions",
+                          "type": "object",
+                          "additionalProperties": true,
+                          "required": [
+                            "width",
+                            "height"
+                          ],
+                          "properties": {
+                            "width": {
+                              "$id": "#/properties/subGraph/properties/comments/properties/dimensions/properties/width",
+                              "type": "integer",
+                              "minimum": 20.0,
+                              "maximum": 2000.0
+                            },
+                            "height": {
+                              "$id": "#/properties/subGraph/properties/comments/properties/dimensions/properties/height",
+                              "type": "integer",
+                              "minimum": 20.0,
+                              "maximum": 2000.0
+                            }
+                          }
+                        },
+                        "text": {
+                          "$id": "#/properties/subGraph/properties/comments/properties/text",
+                          "type": "string",
+                        }
+                    }
+                },
+                "display": {
+                    "$id": "#/properties/subGraph/properties/display",
+                    "type": "object",
+                    "required": [
+                        "width",
+                        "height"
+                    ],
+                    "properties": {
+                        "width": {
+                        "$id": "#/properties/subGraph/properties/display/properties/width",
+                        "type": "integer"
+                        },
+                        "height": {
+                        "$id": "#/properties/subGraph/properties/display/properties/height",
+                        "type": "integer"
+                        }
+                    }
+                }
+            }
+          }
+        }
+        }
+    };
+
     /**
      * Link an input node(in the sub graph) to a custom node's inPort. Call this method when expanding the input ports.
      * @param inNodePort The node & port to link

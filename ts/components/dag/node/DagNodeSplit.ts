@@ -10,6 +10,29 @@ class DagNodeSplit extends DagNode {
         this.input = new DagNodeSplitInput(<DagNodeSplitInputStruct>options.input);
     }
 
+    public static readonly specificSchema = {
+        "definitions": {},
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "http://example.com/root.json",
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "parents"
+        ],
+        "properties": {
+          "parents": {
+            "$id": "#/properties/parents",
+            "type": "array",
+            "maxItems": 1,
+            "items": {
+              "$id": "#/properties/parents/items",
+              "type": "string",
+              "pattern": "^(.*)$"
+            }
+          }
+        }
+    };
+
     public setParam(param: DagNodeSplitInputStruct): void {
         const parentNodes = this.getParents();
         const allCols = (parentNodes == null || parentNodes.length === 0)

@@ -11,6 +11,34 @@ class DagNodeJoin extends DagNode {
         this.input = new DagNodeJoinInput(<DagNodeJoinInputStruct>options.input, this);
     }
 
+    public static readonly specificSchema = {
+        "definitions": {},
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "http://example.com/root.json",
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "parents"
+        ],
+        "properties": {
+          "parents": {
+            "$id": "#/properties/parents",
+            "type": "array",
+            "maxItems": 2,
+            "items": {
+              "$id": "#/properties/parents/items",
+              "type": ["string", "null"],
+              "pattern": "^(.*)$"
+            }
+          },
+          "subType": {
+            "$id": "#/properties/subType",
+            "type": ["string", "null"],
+            "enum": [DagNodeSubType.LookupJoin, DagNodeSubType.FilterJoin, null]
+          }
+        }
+    };
+
     /**
      * Set join node's parameters
      * @param input {DagNodeJoinInputStruct}

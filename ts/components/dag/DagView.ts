@@ -113,7 +113,7 @@ namespace DagView {
                     }
                     for (let i = 0; i < nodesArray.length; i++) {
                         const node = nodesArray[i];
-                        window["ajv"] = new Ajv(); //TODO: try to reuse
+                        window["ajv"] = new Ajv();
                         let valid;
                         let validate;
                         if (node.hasOwnProperty("text")) {
@@ -124,9 +124,22 @@ namespace DagView {
                         valid = validate(node);
                         if (!valid) {
                             // only saving first error message
-                            const msg = _parseValidationErrMsg(validate.errors[0], node.hasOwnProperty("text"));
-
+                            const msg = _parseValidationErrMsg(node, validate.errors[0], node.hasOwnProperty("text"));
                             throw (msg);
+                        }
+
+                        if (!node.hasOwnProperty("text")) {
+                           // validate based on node type
+                            const nodeClass = DagNodeFactory.getNodeClass(node);
+                            const nodeSpecificSchema = nodeClass.specificSchema;
+                            window["ajv"] = new Ajv();
+                            validate = ajv.compile(nodeSpecificSchema);
+                            valid = validate(node);
+                            if (!valid) {
+                                // only saving first error message
+                                const msg = _parseValidationErrMsg(node, validate.errors[0], node.hasOwnProperty("text"));
+                                throw (msg);
+                            }
                         }
                     }
                     DagView.pasteNodes(nodesArray);
@@ -144,7 +157,7 @@ namespace DagView {
                 StatusBox.show(errStr, $dfWrap);
             }
 
-            function _parseValidationErrMsg(errorObj, isComment?: boolean) {
+            function _parseValidationErrMsg(node, errorObj, isComment?: boolean) {
                 let path = errorObj.dataPath;
                 if (path[0] === ".") {
                     path = path.slice(1);
@@ -157,6 +170,19 @@ namespace DagView {
                     }
                 }
                 let msg = path + " " + errorObj.message;
+                switch (errorObj.keyword) {
+                    case ("enum"):
+                        msg += ": " + errorObj.params.allowedValues.join(", ");
+                        break;
+                    case ("additionalProperties"):
+                        msg += ": " + errorObj.params.additionalProperty;
+                        break;
+                    default:
+                    // do nothing
+                }
+                if (node.type) {
+                    msg = xcHelper.capitalize(node.type) + " node: " + msg;
+                }
                 return msg;
             }
         });
@@ -1860,7 +1886,7 @@ namespace DagView {
 
     /**
      * Cleanup job after a tab is closed
-     * @param dagTab 
+     * @param dagTab
      * @description
      * #1 Remove all event handlers listening on the DagGraph associated with the closed tab
      * #2 ...

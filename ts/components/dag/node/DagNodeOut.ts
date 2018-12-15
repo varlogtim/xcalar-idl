@@ -7,6 +7,29 @@ abstract class DagNodeOut extends DagNode {
         this.display.icon = "&#xe955;";
     }
 
+    public static readonly specificSchema = {
+        "definitions": {},
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "http://example.com/root.json",
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "parents"
+        ],
+        "properties": {
+          "parents": {
+            "$id": "#/properties/parents",
+            "type": "array",
+            "maxItems": 1,
+            "items": {
+              "$id": "#/properties/parents/items",
+              "type": "string",
+              "pattern": "^(.*)$"
+            }
+          }
+        }
+    };
+
     public lineageChange(columns: ProgCol[]): DagLineageChange {
         return {
             columns: columns,

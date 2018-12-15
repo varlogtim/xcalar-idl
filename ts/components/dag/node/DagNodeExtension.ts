@@ -25,6 +25,86 @@ class DagNodeExtension extends DagNode {
         this.input = new DagNodeExtensionInput(options.input);
     }
 
+    public static readonly specificSchema = {
+        "definitions": {},
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "http://example.com/root.json",
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "parents",
+          "newColumns",
+          "droppedColumns"
+        ],
+        "properties": {
+          "parents": {
+            "$id": "#/properties/parents",
+            "type": "array",
+            "items": {
+              "$id": "#/properties/parents/items",
+              "type": "string",
+              "pattern": "^(.*)$"
+            }
+          },
+          "newColumns": {
+            "$id": "#/properties/newColumns",
+            "type": "array",
+            "minItems": 0,
+            "items": {
+              "$id": "#/properties/newColumns/items",
+              "type": "object",
+              "required": [
+                "name",
+                "type"
+              ],
+              "properties": {
+                "name": {
+                  "$id": "#/properties/newColumns/items/properties/name",
+                  "type": "string",
+                  "minLength": 1,
+                  "title": "The name Schema",
+                  "default": "",
+                  "examples": ["column name"],
+                  "pattern": "^(.*)$"
+                },
+                "type": {
+                  "$id": "#/properties/newColumns/items/properties/type",
+                  "type": "string",
+                  "enum": [
+                        ColumnType.integer,
+                        ColumnType.float,
+                        ColumnType.string,
+                        ColumnType.boolean,
+                        ColumnType.timestamp,
+                        ColumnType.mixed,
+                        ColumnType.object,
+                        ColumnType.array,
+                        ColumnType.unknown
+                    ],
+                  "title": "The type Schema",
+                  "default": "",
+                  "examples": [
+                    "integer"
+                  ],
+                  "minLength": 1,
+                  "pattern": "^(.*)$"
+                }
+              }
+            }
+          },
+          "droppedColumns": {
+            "$id": "#/properties/droppedColumns",
+            "type": "array",
+            "minItems": 0,
+            "items": {
+              "$id": "#/properties/droppedColumns/items",
+              "type": "string",
+              "pattern": "^(.*)$"
+            }
+          }
+        }
+    };
+
     public getConvertedParam(): DagNodeExtensionInputStruct {
         const param: DagNodeExtensionInputStruct = this.input.getInput();
         const convertedArgs: object = this._convertExtensionArgs(param.args);

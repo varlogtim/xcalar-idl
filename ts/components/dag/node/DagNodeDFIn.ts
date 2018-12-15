@@ -12,6 +12,29 @@ class DagNodeDFIn extends DagNodeIn {
         this._graph = options.graph || null;
     }
 
+    public static readonly specificSchema = {
+        "definitions": {},
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "http://example.com/root.json",
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "parents"
+        ],
+        "properties": {
+          "parents": {
+            "$id": "#/properties/parents",
+            "type": "array",
+            "maxItems": 0,
+            "items": {
+              "$id": "#/properties/parents/items",
+              "type": "string",
+              "pattern": "^(.*)$"
+            }
+          }
+        }
+    };
+
     public setParam(input: DagNodeDFInInputStruct = <DagNodeDFInInputStruct>{}): void {
         let dataflowId: string = input.dataflowId;
         if (this._graph && dataflowId === this._graph.getTabId()) {

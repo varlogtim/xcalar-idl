@@ -191,6 +191,10 @@ interface JQuery {
     range(startPos: number, endPos?: number): JQuery;
 }
 
+interface Object {
+    values(any): Function
+}
+
 interface Event {
     clipboardData: {setData: Function}
 }

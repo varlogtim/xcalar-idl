@@ -856,8 +856,6 @@ abstract class DagNode {
         return displayNodeType;
     }
 
-
-
     public static readonly schema = {
         "definitions": {},
         "$schema": "http://json-schema.org/draft-07/schema#",
@@ -877,37 +875,22 @@ abstract class DagNode {
           "type": {
             "$id": "#/properties/type",
             "type": "string",
-            "title": "The Type Schema",
             "default": "",
-            "examples": [
-              "join"
-            ],
             "pattern": "^(.*)$"
           },
           "subType": {
             "$id": "#/properties/subType",
             "type": ["string", "null"],
-            "title": "The Subtype Schema",
-            "default": "",
-            "examples": [
-              "something"
-            ],
             "pattern": "^(.*)$"
           },
           "table": {
             "$id": "#/properties/table",
             "type": ["string", "null"],
-            "title": "The Table Schema",
-            "default": "",
-            "examples": [
-              "something"
-            ],
             "pattern": "^(.*)$"
           },
           "display": {
             "$id": "#/properties/display",
             "type": ["object", "null"],
-            "title": "The Display Schema",
             "additionalProperties": true,
             "required": [
               "x",
@@ -917,159 +900,78 @@ abstract class DagNode {
               "x": {
                 "$id": "#/properties/display/properties/x",
                 "type": "integer",
-                "title": "The X Schema",
-                "minimum": 0,
-                "default": 0,
-                "examples": [
-                  460
-                ]
+                "minimum": 0
               },
               "y": {
                 "$id": "#/properties/display/properties/y",
                 "type": "integer",
-                "title": "The Y Schema",
-                "minimum": 0,
-                "default": 0,
-                "examples": [
-                  100
-                ]
+                "minimum": 0
               }
             }
           },
           "description": {
             "$id": "#/properties/description",
             "type": "string",
-            "title": "The Description Schema",
-            "default": "",
-            "examples": [
-              "something"
-            ]
           },
           "title": {
             "$id": "#/properties/title",
-            "type": "string",
-            "title": "The Title Schema",
-            "default": "",
-            "examples": [
-              "Node 5"
-            ]
+            "type": "string"
           },
           "input": {
             "$id": "#/properties/input",
             "type": "object",
-            "title": "The Input Schema",
             "additionalProperties": true
           },
           "state": {
             "$id": "#/properties/state",
             "type": "string",
-            "title": "The State Schema",
-            "default": "",
-            "examples": [
-              "Configured"
-            ],
+            "enum": Object.values(DagNodeState),
             "pattern": "^(.*)$"
           },
           "error": {
             "$id": "#/properties/error",
-            "type": "string",
-            "title": "The Error Schema",
-            "default": "",
-            "examples": [
-              "something"
-            ]
+            "type": "string"
           },
           "parents": {
             "$id": "#/properties/parents",
             "type": "array",
-            "title": "The Parents Schema",
             "items": {
               "$id": "#/properties/parents/items",
               "type": ["string", "null"],
-              "title": "The Items Schema",
-              "default": "",
-              "examples": [
-                "dag_5BEF114C1C1DB6DA_1543440502156_56",
-                "dag_5BEF114C1C1DB6DA_1543440508632_58"
-              ],
               "pattern": "^(.*)$"
             }
           },
           "nodeId": {
             "$id": "#/properties/nodeId",
             "type": "string",
-            "title": "The Nodeid Schema",
-            "default": "",
-            "examples": [
-              "dag_5BEF114C1C1DB6DA_1543440508929_59"
-            ],
             "pattern": "^(.*)$"
           },
           "configured": {
             "$id": "#/properties/configured",
             "type": "boolean",
-            "title": "The Configured Schema",
-            "default": false,
-            "examples": [
-              false
-            ]
           },
           "aggregates": {
             "$id": "#/properties/aggregates",
             "type": "array",
-            "title": "The Aggregates Schema",
             "items": {
               "$id": "#/properties/aggregates/items",
               "type": "string",
-              "title": "The Items Schema",
-              "default": "",
-              "examples": [
-                "sdf"
-              ],
               "pattern": "^(.*)$"
-            }
-          },
-          "schema": {
-            "$id": "#/properties/schema",
-            "type": "array",
-            "title": "The Schema Schema",
-            "items": {
-              "$id": "#/properties/schema/items",
-              "type": "object",
-              "title": "The Items Schema",
-              "additionalProperties": true,
-              "required": [
-                "name",
-                "type"
-              ],
-              "properties": {
-                "name": {
-                  "$id": "#/properties/schema/items/properties/name",
-                  "type": "string",
-                  "title": "The Name Schema",
-                  "default": "",
-                  "examples": [
-                    "airlines1::MonthDayYear"
-                  ],
-                  "pattern": "^(.*)$"
-                },
-                "type": {
-                  "$id": "#/properties/schema/items/properties/type",
-                  "type": "string",
-                  "title": "The Type Schema",
-                  "default": "",
-                  "examples": [
-                    "string"
-                  ],
-                  "pattern": "^(.*)$"
-                }
-              }
             }
           }
         }
     };
 
-
+    // template
+    public static readonly specificSchema = {
+        "definitions": {},
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "http://example.com/root.json",
+        "type": "object",
+        "additionalProperties": true,
+        "required": [],
+        "properties": {}
+    };
 
     private _getElapsedTime(): number {
         let cummulativeTime = 0;
