@@ -69,7 +69,6 @@ class DagNodeDFInInput extends DagNodeInput {
                             ColumnType.unknown
                         ],
                       "title": "The type Schema",
-                      "default": "",
                       "examples": [
                         "integer"
                       ],

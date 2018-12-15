@@ -28,7 +28,8 @@ abstract class DagNodeIn extends DagNode {
     }
 
     public lineageChange(_columns: ProgCol[]): DagLineageChange {
-        const columns: ProgCol[] = this.schema.map((colInfo) => {
+        const schema: ColSchema[] = this.getSchema(); // DagNodeDataset overide the function
+        const columns: ProgCol[] = schema.map((colInfo) => {
             const colName: string = colInfo.name;
             const frontName: string = xcHelper.parsePrefixColName(colName).name;
             return ColManager.newPullCol(frontName, colName, colInfo.type);
@@ -41,7 +42,7 @@ abstract class DagNodeIn extends DagNode {
 
     protected _getSerializeInfo(includeStats?: boolean):DagNodeInInfo {
         const serializedInfo: DagNodeInInfo = <DagNodeInInfo>super._getSerializeInfo(includeStats);
-        serializedInfo.schema = this.getSchema();
+        serializedInfo.schema = this.schema; // should save the schema directly, should not call getSchema
         return serializedInfo;
     }
 }

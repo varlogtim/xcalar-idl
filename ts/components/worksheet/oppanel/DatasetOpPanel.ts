@@ -45,7 +45,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         this._gotoStep();
         this._dagGraph = DagView.getActiveDag();
         const model = $.extend(dagNode.getParam(), {
-            schema: dagNode.getSchema() || []
+            schema: dagNode.getSchema(true) || []
         });
         this._restorePanel(model, true);
         MainMenu.setFormOpen();
@@ -152,19 +152,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         } else {
             $prefix.removeClass("xc-disabled");
         }
-        schema = this._normalizeSchema(schema);
         this._schemaSection.render(schema);
-    }
-
-    private _normalizeSchema(schema: ColSchema[]): ColSchema[] {
-        const prefix: string = this._normalizePrefix(this._getPrefix());
-        return schema.map((colInfo) => {
-            const colName = xcHelper.parsePrefixColName(colInfo.name).name;
-            return {
-                name: xcHelper.getPrefixColName(prefix, colName),
-                type: colInfo.type
-            };
-        });
     }
 
     private _normalizePrefix(prefix: string) {
@@ -207,7 +195,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         return null;
     }
 
-    private _startInAdvancedMode() {
+    protected _startInAdvancedMode() {
         this._updateMode(true);
         const paramStr = JSON.stringify(this._dagNode.getParam(), null, 4);
         this._cachedBasicModeParam = paramStr;
@@ -216,18 +204,16 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         this._gotoStep();
     }
 
-    private _autoDetectSchema(skipIfHasOldSchema: boolean): XDPromise<void> {
+    private _autoDetectSchema(userOldSchema: boolean): XDPromise<void> {
         const source: string = this._getSource();
         const oldParam: DagNodeDatasetInputStruct = this._dagNode.getParam();
-        if (skipIfHasOldSchema &&
+        let oldSchema: ColSchema[] = null;
+        if (userOldSchema &&
             source != null &&
             source === oldParam.source
         ) {
             // when only has prefix change
-            let schema = this._schemaSection.getSchema(true);
-            schema = this._normalizeSchema(schema);
-            this._schemaSection.render(schema);
-            return PromiseHelper.resolve();
+            oldSchema = this._schemaSection.getSchema(true);
         }
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
@@ -236,9 +222,9 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         $schemaSection.addClass("loading");
 
         DS.getSchema(source)
-        .then((res) => {
-            const schema = this._normalizeSchema(res);
-            this._schemaSection.render(schema);
+        .then((schema) => {
+            this._schemaSection.setInitialSchema(schema);
+            this._schemaSection.render(oldSchema || schema);
             deferred.resolve();
         })
         .fail(deferred.reject)
@@ -284,14 +270,14 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     }
 
     private _goToSchemaStep(): void {
-        const prefix = this._getPrefix();
+        let prefix: string = this._getPrefix();
         const id = this._getSource();
         if (!this._checkOpArgs(prefix, id)) {
             return;
         }
 
+        this._renderPrefixHint(prefix);
         const $nextBtn: JQuery = this.$panel.find(".bottomSection .next");
-
         this._fetchLoadArgs(id)
         .then((loadArgs) => {
             this._loadArgs = loadArgs;
@@ -308,6 +294,19 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         .always(() => {
             xcHelper.enableSubmit($nextBtn);
         });
+    }
+
+    private _renderPrefixHint(prefix: string) {
+        const $schemaSection: JQuery = this._getSchemaSection();
+        prefix = this._normalizePrefix(prefix);
+        $schemaSection.find(".prefixSection").remove();
+        if (prefix != null) {
+            const html: HTML = '<div class="prefixSection">' +
+                                    'Prefix: ' + prefix +
+                                '</div>';
+            $schemaSection.find(".buttonSection").prepend(html);
+        }
+
     }
 
     private _addEventListeners() {
@@ -532,7 +531,6 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             return;
         }
 
-        schema = this._normalizeSchema(schema);
         const oldParam: DagNodeDatasetInputStruct = dagNode.getParam();
         if (oldParam.source === id &&
             oldParam.prefix === prefix &&

@@ -312,6 +312,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
                     type: progCol.getType()
                 }
             });
+            this._schemaSection.setInitialSchema(schema);
             this._schemaSection.render(schema);
         } catch (e) {
             return {error: e};

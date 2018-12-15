@@ -7,11 +7,14 @@ class ColSchemaSection {
         this._addEventListeners();
     }
 
+    public setInitialSchema(schema: ColSchema[]): void {
+        this._initialSchema = schema;
+    }
+
     public render(schema: ColSchema[]): void {
         this.clear();
         if (schema.length > 0) {
-            this._initialSchema = schema;
-            this._populateList(schema);
+            this._addList(schema);
         }
     }
 
@@ -32,7 +35,13 @@ class ColSchemaSection {
                 valid = false;
                 return false; // stop loop
             }
-            const colType: ColumnType = <ColumnType>$part.find(".type .text").text();
+            const $type: JQuery = $part.find(".type .text");
+            const colType: ColumnType = <ColumnType>$type.text();
+            if (!ingore && !colType) {
+                StatusBox.show(ErrTStr.NoEmpty, $type);
+                valid = false;
+                return false; // stop loop
+            }
             schema.push({
                 name: name,
                 type: colType
@@ -57,7 +66,7 @@ class ColSchemaSection {
         this._getContentSection().html(html);
     }
 
-    private _populateList(schema: ColSchema[]): void {
+    private _addList(schema: ColSchema[], $rowToReplace?: JQuery): void {
         const $contentSection: JQuery = this._getContentSection();
         $contentSection.find(".hint").remove();
         const dropdownList: HTML =
@@ -70,9 +79,24 @@ class ColSchemaSection {
                 '<i class="arrow icon xi-arrow-down"></i>' +
             '</div>' +
         '</div>';
+        const fixedSchemaMap: {[key: string]: ColumnType} = {};
+        const initialSchema: ColSchema[] = this._initialSchema || [];
+        initialSchema.forEach((colInfo) => {
+            fixedSchemaMap[colInfo.name] = colInfo.type;
+        });
         const list: JQuery[] = schema.map((col) => {
-            const name: string =  col.name || "";
-            const type: string = col.type || "";
+            let name: string =  col.name || "";
+            let type: string = col.type || "";
+            let typeDropdownPart: HTML = "";
+            if (fixedSchemaMap[name]) {
+                type = fixedSchemaMap[name];
+            } else {
+                typeDropdownPart =
+                    '<div class="iconWrapper">' +
+                        '<i class="icon xi-arrow-down"></i>' +
+                    '</div>' +
+                    dropdownList;
+            }
             const row: HTML =
             '<div class="part">' +
                 '<div class="name dropDownList">' +
@@ -82,10 +106,7 @@ class ColSchemaSection {
                 '</div>' +
                 '<div class="type dropDownList">' +
                     '<div class="text">' + type + '</div>' +
-                    '<div class="iconWrapper">' +
-                        '<i class="icon xi-arrow-down"></i>' +
-                    '</div>' +
-                    dropdownList +
+                    typeDropdownPart +
                 '</div>' +
             '</div>';
             return $(row);
@@ -94,8 +115,43 @@ class ColSchemaSection {
         list.forEach(($row) => {
             this._addHintDropdown($row.find(".name.dropDownList"));
             this._addTypeDropdwn($row.find(".type.dropDownList"));
-            $contentSection.append($row);
+            if ($rowToReplace != null) {
+                $rowToReplace.after($row);
+            } else {
+                $contentSection.append($row);
+            }
         });
+
+        if ($rowToReplace != null) {
+            $rowToReplace.remove();
+        }
+    }
+
+    private _removeList($row: JQuery): void {
+        $row.remove();
+        if (this._$section.find(".part").length === 0) {
+            this._addNoSchemaHint();
+        }
+    }
+
+    private _selectList($row: JQuery, schema: ColSchema): void {
+        const index: number = $row.index();
+        let $rowWithSamaeName: JQuery = null;
+        const $contentSection: JQuery = this._getContentSection();
+        $contentSection.find(".part").each((i, el) => {
+            const $currentRow = $(el);
+            if (index !== i &&
+                $currentRow.find(".name input").val() === schema.name
+            ) {
+                $rowWithSamaeName = $currentRow;
+                return false; // stop loop
+            }
+        })
+        if ($rowWithSamaeName != null) {
+            schema.type = schema.type || <ColumnType>$rowWithSamaeName.find(".type").text();
+            this._addList([{name: "", type: null}], $rowWithSamaeName);
+        }
+        this._addList([schema], $row);
     }
 
     private _getSelector(): string {
@@ -112,13 +168,11 @@ class ColSchemaSection {
             },
             onSelect: ($li) => {
                 if (!$li.hasClass("hint")) {
-                    const $name: JQuery = $li.closest(".dropDownList");
-                    const $nameInput: JQuery = $name.find("input");
-                    $nameInput.val($li.text());
-                    const $typeText: JQuery = $name.siblings(".type").find(".text");
-                    if (!$typeText.text()) {
-                        $typeText.text($li.data("type"));
-                    }
+                    const schema: ColSchema = {
+                        name: $li.text(),
+                        type: $li.data("type")
+                    };
+                    this._selectList($li.closest(".part"), schema);
                 }
             },
             container: selector,
@@ -127,7 +181,7 @@ class ColSchemaSection {
 
         // colName hint dropdown
         let hintTimer: number;
-        $dropdown.on("input", ".hintDrowpdown input", (event) => {
+        $dropdown.on("input", "input", (event) => {
             const $input: JQuery = $(event.currentTarget);
             clearTimeout(hintTimer);
             hintTimer = window.setTimeout(() => {
@@ -142,17 +196,41 @@ class ColSchemaSection {
         keyword: string = ""
     ): void {
         let html: HTML = "";
-        if (this._initialSchema != null) {
-            this._initialSchema.forEach((schema) => {
-                const colName: string = schema.name;
-                if (colName.includes(keyword)) {
-                    html +=
-                    '<li data-type="' + schema.type + '">' +
-                        BaseOpPanel.craeteColumnListHTML(schema.type, colName) +
-                    '</li>';
-                }
-            });
+        let schemaMap: {[key: string]: ColSchema} = {};
+        let cacheSchema = (colInfo) => {
+            const colName: string = colInfo.name;
+            if (colName && colName.includes(keyword)) {
+                schemaMap[colName] = colInfo;
+            }
+        };
+        const index: number = $dropdown.closest(".part").index();
+        let currentSchema: ColSchema[] = this.getSchema(true);
+        currentSchema.splice(index, 1); // remove the current row
+        currentSchema.forEach(cacheSchema);
+
+        const initialSchema: ColSchema[] = this._initialSchema || [];
+        initialSchema.forEach(cacheSchema);
+
+        const schema = [];
+        for (let name in schemaMap) {
+            schema.push(schemaMap[name]);
         }
+
+        // sort by name
+        schema.sort((a, b) => {
+            let aName = a.name.toLowerCase();
+            let bName = b.name.toLowerCase();
+            return (aName < bName ? -1 : (aName > bName ? 1 : 0));
+        });
+
+        schema.forEach((colInfo) => {
+            const colName = colInfo.name;
+            const type = colInfo.type;
+            html +=
+            '<li data-type="' + type + '">' +
+                BaseOpPanel.craeteColumnListHTML(type, colName) +
+            '</li>';
+        });
 
         if (!html) {
             html = `<li class="hint">${CommonTxtTstr.NoResult}</li>`;
@@ -196,14 +274,21 @@ class ColSchemaSection {
         });
 
         $section.on("click", ".addColumn", () => {
-            this._populateList([{name: "", type: null}]);
+            this._addList([{name: "", type: null}]);
         });
 
         $section.on("click", ".part .remove", (event) => {
-            $(event.currentTarget).closest(".part").remove();
-            if (this._$section.find(".part").length === 0) {
-                this._addNoSchemaHint();
+            this._removeList($(event.currentTarget).closest(".part"));
+        });
+
+        $section.on("change", ".part .name input", (event) => {
+            const $nameInput: JQuery = $(event.target);
+            const $part: JQuery = $nameInput.closest(".part");
+            const schema: ColSchema = {
+                name: $nameInput.val().trim(),
+                type: <ColumnType>$part.find(".type .text").text()
             }
+            this._selectList($part, schema);
         });
     }
 }

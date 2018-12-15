@@ -53,6 +53,24 @@ class DagNodeDataset extends DagNodeIn {
     /**
      * @override
      */
+    public getSchema(noPrefix: boolean = false): ColSchema[] {
+        if (noPrefix) {
+            return this.schema;
+        }
+        const input = this.input.getInput();
+        const prefix: string = input.synthesize ? null : input.prefix;
+        const schema = this.schema.map((colInfo) => {
+            return {
+                name: xcHelper.getPrefixColName(prefix, colInfo.name),
+                type: colInfo.type
+            }
+        });
+        return schema;
+    }
+
+    /**
+     * @override
+     */
     protected _genParamHint(): string {
         let hint: string = "";
         const input: DagNodeDatasetInputStruct = this.getParam();
