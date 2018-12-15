@@ -1,5 +1,6 @@
 class DagTabPublished extends DagTab {
     public static readonly PATH = "/Published/";
+    private static readonly _prefixUDF: string = "published dataflow";
     // XXX TODO: encrypt it
     private static readonly _secretUser: string = ".xcalar.published.df";
     private static readonly _delim: string = "_Xcalar_";
@@ -39,6 +40,20 @@ class DagTabPublished extends DagTab {
      */
     public static getSecretUser(): string {
         return this._secretUser;
+    }
+
+    /**
+     * @returns string
+     */
+    public static getDelim(): string {
+        return this._delim;
+    }
+
+    /**
+     * @returns string
+     */
+    public static getPrefixUDF(): string {
+        return this._prefixUDF;
     }
 
     private static _listSession(): XDPromise<{sessions: any[]}> {

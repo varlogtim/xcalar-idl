@@ -10,7 +10,6 @@ class UDFFileManager extends BaseFileManager {
     private userIDWorkbookMap: Map<string, Map<string, string>>;
     private userWorkbookIDMap: Map<string, Map<string, string>>;
     private panels: FileManagerPanel[];
-    private hiddenPatterns: string[];
 
     /*
      * Pay special attention when dealing with UDF paths / names.
@@ -56,12 +55,6 @@ class UDFFileManager extends BaseFileManager {
         this.userIDWorkbookMap = new Map();
         this.userWorkbookIDMap = new Map();
         this.panels = [];
-        this.hiddenPatterns = [];
-        this.registerHiddenPattern(
-            "/workbook/" +
-                xcHelper.escapeRegExp(DagTabPublished.getSecretUser()) +
-                "/.*"
-        );
     }
 
     /**
@@ -143,12 +136,27 @@ class UDFFileManager extends BaseFileManager {
         const nsPathSplit: string[] = nsPath.split("/");
         if (nsPathSplit[1] === "workbook") {
             nsPathSplit.splice(4, 1);
+
+            const userName: string = nsPathSplit[2];
+            const workbookId: string = nsPathSplit[3];
+
             const idWorkbookMap: Map<
             string,
             string
-            > = this.userIDWorkbookMap.get(nsPathSplit[2]);
-            if (idWorkbookMap && idWorkbookMap.has(nsPathSplit[3])) {
-                nsPathSplit[3] = idWorkbookMap.get(nsPathSplit[3]);
+            > = this.userIDWorkbookMap.get(userName);
+
+            if (idWorkbookMap && idWorkbookMap.has(workbookId)) {
+                nsPathSplit[3] = idWorkbookMap.get(workbookId);
+            }
+
+            // Special handling for published dataflows.
+            if (userName === DagTabPublished.getSecretUser()) {
+                nsPathSplit.splice(
+                    1,
+                    3,
+                    DagTabPublished.getPrefixUDF(),
+                    ...nsPathSplit[3].split(DagTabPublished.getDelim())
+                );
             }
         }
         return nsPathSplit.join("/") + ".py";
@@ -180,6 +188,33 @@ class UDFFileManager extends BaseFileManager {
             if (workbookIDMap && workbookIDMap.has(displayPathSplit[3])) {
                 displayPathSplit[3] = workbookIDMap.get(displayPathSplit[3]);
             }
+            // Special handling for published dataflows.
+        } else if (displayPathSplit[1] === DagTabPublished.getPrefixUDF()) {
+            const workbookNameSplit: string[] = displayPathSplit.slice(2, -1);
+            const workbookName: string = workbookNameSplit.join(
+                DagTabPublished.getDelim()
+            );
+            let workbookId: string = workbookName;
+            const workbookIDMap: Map<
+            string,
+            string
+            > = this.userWorkbookIDMap.get(DagTabPublished.getSecretUser());
+            if (workbookIDMap && workbookIDMap.has(workbookName)) {
+                workbookId = workbookIDMap.get(workbookName);
+            }
+
+            const moduleFilename: string =
+                displayPathSplit[displayPathSplit.length - 1];
+
+            displayPathSplit.splice(
+                1,
+                displayPathSplit.length,
+                "workbook",
+                DagTabPublished.getSecretUser(),
+                workbookId,
+                "udf",
+                moduleFilename
+            );
         }
         const nsPath: string = displayPathSplit.join("/");
         return isPrefix ? nsPath : nsPath.substring(0, nsPath.length - 3);
@@ -238,7 +273,6 @@ class UDFFileManager extends BaseFileManager {
                 void
                 > = PromiseHelper.deferred();
 
-                this.filterOutHiddenUDF(listXdfsObjUpdate);
                 this._updateStoredUDF(listXdfsObjUpdate);
                 this.filterWorkbookUDF(listXdfsObjUpdate);
                 DSTargetManager.updateUDF(listXdfsObjUpdate);
@@ -290,18 +324,6 @@ class UDFFileManager extends BaseFileManager {
      */
     public filterWorkbookUDF(xdfRes: XcalarApiListXdfsOutputT): void {
         xdfRes.fnDescs = xcHelper.filterUDFs(xdfRes.fnDescs);
-        xdfRes.numXdfs = xdfRes.fnDescs.length;
-    }
-
-    /**
-     * @param  {XcalarApiListXdfsOutputT} xdfRes
-     * @returns void
-     */
-    public filterOutHiddenUDF(xdfRes: XcalarApiListXdfsOutputT): void {
-        xdfRes.fnDescs = xcHelper.filterHiddenUDFs(
-            xdfRes.fnDescs,
-            this.hiddenPatterns
-        );
         xdfRes.numXdfs = xdfRes.fnDescs.length;
     }
 
@@ -760,14 +782,6 @@ class UDFFileManager extends BaseFileManager {
         this._updatePanel(panel, false);
     }
 
-    /**
-     * @param  {string} hiddenPattern
-     * @returns void
-     */
-    public registerHiddenPattern(hiddenPattern: string): void {
-        this.hiddenPatterns.push(hiddenPattern);
-    }
-
     // Prevent all write operations. Because not supported by backend without
     // an activated session.
     private get writeLocked(): boolean {
@@ -885,7 +899,6 @@ class UDFFileManager extends BaseFileManager {
                 > = PromiseHelper.deferred();
                 MapOpPanel.Instance.updateOperationsMap(listXdfsObjUpdate);
 
-                this.filterOutHiddenUDF(listXdfsObjUpdate);
                 this._updateStoredUDF(listXdfsObjUpdate);
 
                 this.filterWorkbookUDF(listXdfsObjUpdate);
