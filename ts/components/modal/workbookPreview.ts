@@ -92,7 +92,7 @@ namespace WorkbookPreview {
     }
 
     function updateTotalSize(size: string): void {
-        $workbookPreview.find(".infoSection .size .text").text(size);
+        $workbookPreview.find(".infoSection .size .text").text(size || "N/A");
     }
 
     function showWorkbookBasicInfo(workbookId: string): void {
@@ -195,7 +195,9 @@ namespace WorkbookPreview {
             }, 0);
             deferred.resolve(totalSize);
         })
-        .fail(deferred.reject);
+        .fail(() => {
+            deferred.resolve(null);
+        });
 
         return deferred.promise();
     }
