@@ -185,7 +185,7 @@
                     for (var i = 0; i < self.nodeHashMap[nodeHash].length; i++) {
                         if (isSameCrossJoin(self.nodeHashMap[nodeHash][i], node)) {
                             node.dupOf = self.nodeHashMap[nodeHash][i];
-                            node.colNameMap = jQuery.extend(true, {},node.colNameMap[0],
+                            node.colNameMap = jQuery.extend(true, {}, node.colNameMap[0],
                                                 node.colNameMap[1], node.crossCheckMap);
                             find = true;
                             break;
@@ -251,13 +251,34 @@
                 // Here only replacing right table renames
                 node.colNameMap[0] = node.colNameMap[0] || {};
                 node.colNameMap[1] = node.colNameMap[1] || {};
+                if (node.value.args.joinType === "leftSemiJoin" ||
+                    node.value.args.joinType === "leftAntiJoin") {
+                    node.colNameMap[1] = {};
+                }
+                var leftCols = [];
+                Object.keys(node.colNameMap[0]).forEach(function(col) {
+                    leftCols.push(node.colNameMap[0][col]);
+                })
                 for (var i = 0; i < node.value.args.columns[1].length; i++) {
                     if (node.colNameMap[1][node.value.args.columns[1][i].sourceColumn]) {
                         var rename = node.colNameMap[1][node.value.args.columns[1][i].sourceColumn];
                         delete node.colNameMap[1][node.value.args.columns[1][i].sourceColumn];
+                        node.colNameMap[1][node.value.args.columns[1][i].destColumn]
+                                    = node.value.args.columns[1][i].destColumn;
                         node.value.args.columns[1][i].sourceColumn = rename;
                     }
                 }
+                Object.keys(node.colNameMap[1]).forEach(function(col) {
+                    if (leftCols.indexOf(node.colNameMap[1][col]) !== -1) {
+                        var newColRename = node.colNameMap[1][col] +
+                                        Authentication.getHashId().substring(2);
+                        node.value.args.columns[1].push({
+                            sourceColumn: node.colNameMap[1][col],
+                            destColumn: newColRename
+                        });
+                        node.colNameMap[1][newColRename] = newColRename;
+                    }
+                })
                 node.value.args.evalString = XDParser.XEvalParser
                                     .replaceColName(node.value.args.evalString,
                                     node.colNameMap[0], self.aggregateNameMap);
@@ -350,6 +371,7 @@
     }
 
     function generateColNameMap(self, baseNode, node) {
+        node.indexOn = baseNode.indexOn;
         var opName = node.value.operation;
         switch (opName) {
             case ("XcalarApiMap"):
@@ -364,9 +386,24 @@
                     }
                 }
                 for (var i = 0; i < node.value.args.eval.length; i++) {
-                    if (node.value.args.eval[i].newField != baseNode.value.args.eval[i].newField) {
-                        node.colNameMap[node.value.args.eval[i].newField] =
+                    node.colNameMap[node.value.args.eval[i].newField] =
                                             baseNode.value.args.eval[i].newField;
+                }
+                if (opName === "XcalarApiGroupBy") {
+                    for (item in node.colNameMap) {
+                        var find = false;
+                        if (node.indexOn.indexOf(node.colNameMap[item]) != -1) {
+                            find = true;
+                        }
+                        for (var j = 0; j < node.value.args.eval.length; j++) {
+                            if (node.value.args.eval[j].newField === node.colNameMap[item]) {
+                                find = true;
+                                break;
+                            }
+                        }
+                        if (!find) {
+                            delete node.colNameMap[item];
+                        }
                     }
                 }
                 break;
@@ -383,20 +420,14 @@
                 self.aggregateNameMap["^" + node.value.args.dest] = "^" + baseNode.value.args.dest;
                 break;
             case ("XcalarApiJoin"):
-                // TODO
                 node.colNameMap = jQuery.extend(true, {}, node.colNameMap[0], node.colNameMap[1]);
                 for (var i = 0; i < node.value.args.columns[1].length; i++) {
-                    if (node.value.args.columns[1][i].destColumn !=
-                                baseNode.value.args.columns[1][i].destColumn) {
-                        node.colNameMap[node.value.args.columns[1][i].destColumn] =
-                                        baseNode.value.args.columns[1][i].destColumn;
-                    }
+                    node.colNameMap[node.value.args.columns[1][i].destColumn] =
+                                    baseNode.value.args.columns[1][i].destColumn;
                 }
                 break;
             case ("XcalarApiGetRowNum"):
-                if (node.value.args.newField != baseNode.value.args.newField) {
-                    node.colNameMap[node.value.args.newField] = baseNode.value.args.newField;
-                }
+                node.colNameMap[node.value.args.newField] = baseNode.value.args.newField;
                 break;
             case ("XcalarApiUnion"):
                 node.colNameMap = {};
@@ -424,17 +455,34 @@
     }
 
     function updateColNameMap(node) {
+        if (!node.indexOn) {
+            node.indexOn = [];
+        }
         var opName = node.value.operation;
         switch (opName) {
             case ("XcalarApiMap"):
                 var newColList = [];
                 for (var i = 0; i < node.value.args.eval.length; i++) {
                     newColList.push(node.value.args.eval[i].newField);
+                    node.colNameMap[node.value.args.eval[i].newField]
+                                        = node.value.args.eval[i].newField;
                 }
                 for (item in node.colNameMap) {
                     if (newColList.indexOf(node.colNameMap[item]) != -1) {
                         delete node.colNameMap[item];
                     }
+                }
+                break;
+            case ("XcalarApiGroupBy"):
+                if (node.indexOn.length != 0 || node.value.args.groupAll) {
+                    node.colNameMap = {};
+                    for (var i = 0; i < node.indexOn.length; i++) {
+                        node.colNameMap[node.indexOn[i]] = node.indexOn[i];
+                    }
+                }
+                for (var i = 0; i < node.value.args.eval.length; i++) {
+                    node.colNameMap[node.value.args.eval[i].newField]
+                                        = node.value.args.eval[i].newField;
                 }
                 break;
             case ("XcalarApiProject"):
@@ -447,14 +495,25 @@
                 break;
             case ("XcalarApiAggregate"):
                 node.colNameMap = {};
+                node.indexOn = [];
                 break;
             case ("XcalarApiJoin"):
                 node.colNameMap = jQuery.extend(true, {}, node.colNameMap[0], node.colNameMap[1]);
+                for (var i = 0; i < node.value.args.columns[1].length; i++) {
+                    node.colNameMap[node.value.args.columns[1][i].destColumn]
+                                    = node.value.args.columns[1][i].destColumn;
+                }
+                break;
+            case ("XcalarApiGetRowNum"):
+                node.colNameMap[node.value.args.newField] = node.value.args.newField;
+                break;
+            case ("XcalarApiIndex"):
+                node.indexOn = [];
+                for (var i = 0; i < node.value.args.key.length; i++) {
+                    node.indexOn.push(node.value.args.key.keyFieldName);
+                }
                 break;
             case ("XcalarApiFilter"):
-            case ("XcalarApiGroupBy"):
-            case ("XcalarApiIndex"):
-            case ("XcalarApiGetRowNum"):
             case ("XcalarApiUnion"):
             case ("XcalarApiBulkLoad"):
             case ("XcalarApiExecuteRetina"):
@@ -490,7 +549,7 @@
                                 if (node.dupOf) {
                                     node.parents[i].value.args.source = node.dupOf.value.args.dest;
                                 }
-                                node.parents[i].colNameMap = node.colNameMap;
+                                node.parents[i].colNameMap = jQuery.extend(true, {}, node.colNameMap);
                             }
                             if (node.dupOf) {
                                 node.parents[i].sources[j] = node.dupOf.name;
@@ -498,12 +557,13 @@
                             }
                         }
                     }
+                    node.parents[i].indexOn = node.indexOn;
                     break;
                 case ("XcalarApiJoin"):
                 case ("XcalarApiUnion"):
                     for (var j = 0; j < node.parents[i].children.length; j++) {
                         if (node.parents[i].children[j] === node) {
-                            node.parents[i].colNameMap[j] = node.colNameMap;
+                            node.parents[i].colNameMap[j] = jQuery.extend(true, {}, node.colNameMap);
                             if (node.dupOf) {
                                 node.parents[i].children[j] = node.dupOf;
                                 node.parents[i].sources[j] = node.dupOf.name;
