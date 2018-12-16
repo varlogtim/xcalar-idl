@@ -3169,7 +3169,7 @@ namespace DagView {
             _nodeTitleEditMode($(this));
         });
 
-        $dfWrap.on("dblclick", ".paramTitle", function () {
+        $dfWrap.on("click", ".paramTitle", function () {
             const $node: JQuery = $(this).closest(".operator");
             const node: DagNode = activeDag.getNode($node.data("nodeid"));
             if (node != null) {
