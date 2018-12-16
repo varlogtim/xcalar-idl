@@ -1525,60 +1525,102 @@ namespace XIApi {
             return PromiseHelper.reject("Invalid args in index");
         }
 
+        let indexFunc = (): XDPromise<string> => {
+            if (colNames.length === 0) {
+                return PromiseHelper.resolve(tableName, false, colNames, []);
+            }
+
+            newKeys = newKeys || [];
+            const deferred: XDDeferred<string> = PromiseHelper.deferred();
+            let keysList: string[] = [];
+            let tempCols: string[] = [];
+            const keyInfos: {
+                name: string,
+                ordering: XcalarOrderingT,
+                keyFieldName: string
+            }[] = colNames.map((colName, index) => {
+                if (newKeys[index] && keysList.indexOf(newKeys[index]) != -1 ||
+                    newKeys[index] == undefined && keysList.indexOf(colName) != -1) {
+                    newKeys[index] = (newKeys[index] || colName) + "_copy_"
+                                     + Authentication.getHashId().substring(1);
+                    tempCols.push(newKeys[index]);
+                }
+                keysList.push(newKeys[index] || colName);
+                return {
+                    name: colName,
+                    ordering: XcalarOrderingT.XcalarOrderingUnordered,
+                    keyFieldName: newKeys[index] || null
+                };
+            });
+            if (!isValidTableName(newTableName)) {
+                newTableName = getNewTableName(tableName, ".index");
+            }
+            indexHelper(txId, keyInfos, tableName, newTableName, dhtName)
+            .then((newTableName, newKeys) => {
+                SQLApi.cacheIndexTable(tableName, colNames,
+                                            newTableName, newKeys, tempCols);
+                deferred.resolve(newTableName, false, newKeys, tempCols);
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
+        };
+
+        let checkIfTableExists = (tableName: string): XDPromise<boolean> => {
+            if (Transaction.isSimulate(txId)) {
+                return PromiseHelper.resolve(true); // assume simulate mode table exis
+            } else {
+                const deferred: XDDeferred<boolean> = PromiseHelper.deferred();
+                let exist = false;
+                XcalarGetTables(tableName)
+                .then((res) => {
+                    try {
+                        exist = (res.numNodes > 0);
+                    } catch (e) {
+                        console.error(e);
+                    }
+                    deferred.resolve(exist);
+                })
+                .fail(() => {
+                    deferred.resolve(exist); // still resolve it
+                });
+
+                return deferred.promise();
+            }
+        };
+
         let indexCache: TableIndexCache = SQLApi.getIndexTable(tableName, colNames);
         if (indexCache != null) {
-            console.info("has cached of index table", indexCache.tableName);
             // log this indexed table as part of the transaction so afterwards
             // we can add a tag to the indexed table to indicate it is
             // part of the transaction
-            if (typeof QueryManager !== "undefined") {
-                // XXX For JDBC. QueryManager is currently browser side code. So
-                // it shouldn't be mixed up with API layer code.
-                // We can probably better solve the issue when we have clear
-                // code layers/structures.
-                QueryManager.addIndexTable(txId, indexCache.tableName);
-            }
-            return PromiseHelper.resolve(indexCache.tableName, true,
-                                         indexCache.keys, indexCache.tempCols);
-        }
-        if (colNames.length === 0) {
-            return PromiseHelper.resolve(tableName, false, colNames, []);
-        }
+            const deferred: XDDeferred<string> = PromiseHelper.deferred();
+            checkIfTableExists(indexCache.tableName)
+            .then((exist) => {
+                if (!exist) {
+                    // when not exist, index the source table 
+                    console.info("cached table not eixst", indexCache.tableName);
+                    SQLApi.deleteIndexTable(indexCache.tableName);
+                    return indexFunc();
+                }
+                if (typeof QueryManager !== "undefined") {
+                    // XXX For JDBC. QueryManager is currently browser side code. So
+                    // it shouldn't be mixed up with API layer code.
+                    // We can probably better solve the issue when we have clear
+                    // code layers/structures.
+                    QueryManager.addIndexTable(txId, indexCache.tableName);
+                }
+                console.info("has cached of index table", indexCache.tableName);
+                return PromiseHelper.resolve(indexCache.tableName, true,
+                    indexCache.keys, indexCache.tempCols);
+            })
+            .then(deferred.resolve)
+            .fail(deferred.reject);
 
-        newKeys = newKeys || [];
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        let keysList: string[] = [];
-        let tempCols: string[] = [];
-        const keyInfos: {
-            name: string,
-            ordering: XcalarOrderingT,
-            keyFieldName: string
-        }[] = colNames.map((colName, index) => {
-            if (newKeys[index] && keysList.indexOf(newKeys[index]) != -1 ||
-                newKeys[index] == undefined && keysList.indexOf(colName) != -1) {
-                newKeys[index] = (newKeys[index] || colName) + "_copy_"
-                                 + Authentication.getHashId().substring(1);
-                tempCols.push(newKeys[index]);
-            }
-            keysList.push(newKeys[index] || colName);
-            return {
-                name: colName,
-                ordering: XcalarOrderingT.XcalarOrderingUnordered,
-                keyFieldName: newKeys[index] || null
-            };
-        });
-        if (!isValidTableName(newTableName)) {
-            newTableName = getNewTableName(tableName, ".index");
+            return deferred.promise();
+        } else {
+            return indexFunc();
         }
-        indexHelper(txId, keyInfos, tableName, newTableName, dhtName)
-        .then((newTableName, newKeys) => {
-            SQLApi.cacheIndexTable(tableName, colNames,
-                                        newTableName, newKeys, tempCols);
-            deferred.resolve(newTableName, false, newKeys, tempCols);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
     }
 
     /**
