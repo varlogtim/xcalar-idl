@@ -138,6 +138,10 @@ window.Profile = (function($, Profile, d3) {
         var deferred = PromiseHelper.deferred();
 
         var table = gTables[tableId];
+        if (table == null) {
+            deferred.reject("No table!");
+            return (deferred.promise());
+        }
         var progCol = table.tableCols[colNum - 1];
         var colName = progCol.getBackColName();
 

@@ -1121,6 +1121,7 @@ declare namespace DS {
     export function getLoadArgsFromDS(dsName: string): XDPromise<string>;
     export function restoreSourceFromDagNode(dagNodes: DagNodeDataset[], share: boolean): XDPromise<void>;
     export function isAccessible(dsName: string): boolean;
+    export function activate(dsIds: string[], noAlert: boolean): XDPromise<void>;
 }
 
 

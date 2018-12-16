@@ -657,6 +657,10 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     };
 
+    DS.activate = function(dsIds, noAlert) {
+        return activateDS(dsIds, noAlert);
+    };
+
     // Change dir to parent folder
     DS.upDir = function() {
         var dirId = curDirId; // tmp cache
@@ -2212,7 +2216,8 @@ window.DS = (function ($, DS) {
                     break;
                 case keyCode.Enter:
                     if (isFolder) {
-                        goToDirHelper(dsid);
+                        renameHelper($grid.find(".label"), dsid);
+                        event.preventDefault();
                     }
                     break;
                 default:
@@ -2258,11 +2263,11 @@ window.DS = (function ($, DS) {
             return false;
         });
 
-        $gridView.on("dblclick", ".folder > .label", function() {
-            renameHelper($(this));
-            // stop event propogation
-            return false;
-        });
+        // $gridView.on("dblclick", ".folder > .label", function() {
+        //     renameHelper($(this));
+        //     // stop event propogation
+        //     return false;
+        // });
 
         // Input event on folder
         $gridView.on({
@@ -2307,6 +2312,9 @@ window.DS = (function ($, DS) {
 
                 $label.removeClass("focused");
                 xcHelper.removeSelectionRange();
+                // still focus on the grid-unit
+                $dsListFocusTrakcer.data(dsId);
+                focsueOnTracker();
             }
         }, ".folder > .label textarea");
 
@@ -2849,8 +2857,8 @@ window.DS = (function ($, DS) {
                     ' data-dsname="' + name + '">' +
                     name +
                 '</div>' +
-                deleteIcon +
-                editIcon +
+                // deleteIcon +
+                // editIcon +
             '</div>';
         } else {
             var checkMarkIcon = '<i class="gridIcon icon xi-dataset-checkmark"></i>';
@@ -2904,8 +2912,8 @@ window.DS = (function ($, DS) {
                     dsObj.getDisplaySize() +
                 '</div>' +
                 deactivateIcon +
-                deleteIcon +
-                shareIcon +
+                // deleteIcon +
+                // shareIcon +
             '</div>';
         }
 
@@ -3000,19 +3008,19 @@ window.DS = (function ($, DS) {
         });
     }
 
-    function activateDS(dsIds) {
+    function activateDS(dsIds, noAlert) {
         var deferred = PromiseHelper.deferred();
         var failures = [];
         var datasets = [];
         var dirId = curDirId;
 
         var promises = dsIds.map(function(dsId) {
-            return activateOneDSHelper(dsId, failures, datasets);
+            return activateOneDSHelper(dsId, failures, datasets, noAlert);
         });
 
         PromiseHelper.when.apply(this, promises)
         .then(function() {
-            if (failures.length) {
+            if (failures.length && !noAlert) {
                 Alert.show({
                     "title": AlertTStr.Error,
                     "msg": failures.join("\n"),
@@ -3034,7 +3042,7 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function activateOneDSHelper(dsId, failures, datasets) {
+    function activateOneDSHelper(dsId, failures, datasets, noAlert) {
         var deferred = PromiseHelper.deferred();
         var dsObj = DS.getDSObj(dsId);
         if (dsObj.beFolder()) {
@@ -3044,7 +3052,8 @@ window.DS = (function ($, DS) {
             "operation": SQLOps.DSImport,
             "created": true, // flag to distint if ds is created or not
         };
-        var txId = Transaction.start({
+        // when noAlert is true, it's from DagNodeExecutor, no need to track
+        var txId = noAlert ? null : Transaction.start({
             "operation": SQLOps.DSImport,
             "track": true,
             "steps": 1
@@ -3052,7 +3061,9 @@ window.DS = (function ($, DS) {
         activateHelper(txId, dsObj)
         .then(function() {
             datasets.push(dsId);
-            Transaction.done(txId, {});
+            if (txId != null) {
+                Transaction.done(txId, {});
+            }
             deferred.resolve();
         })
         .fail(function(error) {
@@ -3061,9 +3072,12 @@ window.DS = (function ($, DS) {
                 "error": error.error
             });
             failures.push(errorMsg);
-            Transaction.fail(txId, {
-                error: error
-            });
+            if (txId != null) {
+                Transaction.fail(txId, {
+                    error: error,
+                    noAlert: true
+                });
+            }
             deferred.resolve(); // still resolve it
         });
 

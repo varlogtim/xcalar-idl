@@ -162,7 +162,7 @@ class DagNodeExecutor {
         // it didn't add the load lock and will cause a bug.
         // the lock is per each workbook
         // so XD need to maunally call it.
-        PromiseHelper.alwaysResolve(XcalarDatasetActivate(dsName))
+        PromiseHelper.alwaysResolve(this._activateDataset(dsName))
         .then(() => {
             if (params.synthesize === true) {
                 const schema: ColSchema[] = node.getSchema();
@@ -187,6 +187,14 @@ class DagNodeExecutor {
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    private _activateDataset(dsName): XDPromise<void> {
+        if (typeof DS !== "undefined") {
+            return DS.activate([dsName], true);
+        } else {
+            return XcalarDatasetActivate(dsName);
+        }
     }
 
     private _indexDataset(dsName: string, prefix: string): XDPromise<string> {
