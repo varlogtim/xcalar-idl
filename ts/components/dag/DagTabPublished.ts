@@ -4,6 +4,7 @@ class DagTabPublished extends DagTab {
     // XXX TODO: encrypt it
     private static readonly _secretUser: string = ".xcalar.published.df";
     private static readonly _delim: string = "_Xcalar_";
+    private static readonly _dagKey: string = "DF2";
     private static readonly _optimizedKey: string = "DF2Optimized";
     private static _currentSession: string;
 
@@ -13,21 +14,29 @@ class DagTabPublished extends DagTab {
      */
     public static restore(): XDPromise<DagTabPublished[]> {
         const deferred: XDDeferred<DagTabPublished[]> = PromiseHelper.deferred();
+        const dags: DagTabPublished[] = [];
+
         DagTabPublished._listSession()
         .then((res: {sessions: any[]}) => {
-            const dags: DagTabPublished[] = [];
+            const promises: XDPromise<void>[] = [];
             res.sessions.map((sessionInfo) => {
                 const name: string = sessionInfo.name;
                 if (!name.startsWith(".temp")) {
                     // filter out .temp dataflows
                     const id: string = sessionInfo.sessionId;
-                    dags.push(new DagTabPublished(name, id));
+                    const dagTab: DagTabPublished = new DagTabPublished(name, id);
+                    dags.push(dagTab);
 
                     if (sessionInfo.state === "Inactive") {
-                        this._activateSession(name);
+                        const promise = this._activateSessionAndResetDag(dagTab);
+                        promises.push(promise);
                     }
                 }
             });
+
+            return PromiseHelper.when(...promises);
+        })
+        .then(() => {
             deferred.resolve(dags);
         })
         .fail(deferred.reject);
@@ -75,12 +84,22 @@ class DagTabPublished extends DagTab {
         setSessionName(this._currentSession);
     }
 
-    private static _activateSession(sessionName: string): void {
-        // XXX TODO: remove it when backend support (13855, 14089)
-        this._switchSession(null);
-        const promise = XcalarActivateWorkbook(sessionName);
-        this._resetSession();
-        return promise;
+    // because published tab is shared, so once it detects as inactivate,
+    // will activate it and rest graph immediately
+    private static _activateSessionAndResetDag(dagTab: DagTabPublished): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        dagTab._activateWKBK()
+        .then(() => {
+            return dagTab.load(true);
+        })
+        .then(() => {
+            deferred.resolve();
+        })
+        .fail(() => {
+            deferred.resolve(); // still resolve it
+        });
+
+        return deferred.promise();
     }
 
     public constructor(name: string, id?: string, graph?: DagGraph) {
@@ -90,7 +109,7 @@ class DagTabPublished extends DagTab {
             graph = graph.clone();
         }
         super(name, id, graph);
-        this._kvStore = new KVStore("DF2", gKVScope.WKBK);
+        this._kvStore = new KVStore(DagTabPublished._dagKey, gKVScope.WKBK);
         this._version = 0;
     }
 
@@ -116,14 +135,20 @@ class DagTabPublished extends DagTab {
         return "/workbook/" + DagTabPublished._secretUser + "/" + this._getWKBKName() + "/";
     }
 
-    public load(): XDPromise<void> {
+    public load(reset?: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._loadFromKVStore()
         .then((dagInfo, graph) => {
             this._version = dagInfo.version;
+            if (reset) {
+                graph.clear();
+            }
             this.setGraph(graph);
-            deferred.resolve();
+            if (reset) {
+                return this._writeToKVStore();
+            }
         })
+        .then(deferred.resolve)
         .fail(deferred.reject);
         return deferred.promise();
     }
@@ -220,9 +245,7 @@ class DagTabPublished extends DagTab {
         this._createWKBK()
         .then(() => {
             hasCreatWKBK = true;
-            // XXX TODO: remove it when backend support (13855, 14089)
-            const wkbkNmae: string = this._getWKBKName();
-            return DagTabPublished._activateSession(wkbkNmae);
+            return this._activateWKBK();
         })
         .then(() => {
             return this._writeToKVStore();
@@ -342,6 +365,13 @@ class DagTabPublished extends DagTab {
     private _createWKBK(): XDPromise<void> {
         DagTabPublished._switchSession(null);
         const promise = XcalarNewWorkbook(this._getWKBKName());
+        DagTabPublished._resetSession();
+        return promise;
+    }
+
+    private _activateWKBK(): XDPromise<void> {
+        DagTabPublished._switchSession(null);
+        const promise = XcalarActivateWorkbook(this._getWKBKName());
         DagTabPublished._resetSession();
         return promise;
     }

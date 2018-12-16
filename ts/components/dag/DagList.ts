@@ -95,6 +95,10 @@ class DagList {
         return this._kvStore.getAndParse();
     }
 
+    public save(): XDPromise<void> {
+        return this._saveUserDagList();
+    }
+
     public refresh(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const promise: XDPromise<void> = deferred.promise();
@@ -246,6 +250,11 @@ class DagList {
         this._getListElById(id).addClass("active");
     }
 
+    public markToResetDags(): XDPromise<void> {
+        const kvStore = this._getResetMarkKVStore();
+        return kvStore.put("reset", false, true);
+    }
+
     /**
      * Resets keys and tabs in the case of error.
      * Also used for testing.
@@ -318,11 +327,22 @@ class DagList {
     private _restoreUserDags(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let userDagTabs: DagTabUser[] = [];
-        this.listUserDagAsync()
-        .then((res: {dags: {name: string, id: string}[]}) => {
-            let dags: {name: string, id: string}[] = [];
+        let needReset: boolean = false;
+
+        this._checkIfNeedReset()
+        .then((res) => {
+            needReset = res;
+            return this.listUserDagAsync();
+        })
+        .then((res: {dags: {name: string, id: string, reset: boolean}[]}) => {
+            let dags: {name: string, id: string, reset: boolean}[] = [];
             if (res && res.dags) {
                 dags = res.dags;
+                if (needReset) {
+                    dags.forEach((dagInfo) => {
+                        dagInfo.reset = true;
+                    });
+                }
             }
             return DagTabUser.restore(dags);
         })
@@ -331,7 +351,7 @@ class DagList {
             userDagTabs.forEach((dagTab) => {
                 this._dags.set(dagTab.getId(), dagTab);
             });
-            if (metaNotMatch) {
+            if (metaNotMatch || needReset) {
                 // if not match, commit sycn up dag list
                 return this._saveUserDagList();
             }
@@ -387,25 +407,54 @@ class DagList {
         return deferred.promise();
     }
 
+    private _getResetMarkKVStore(): KVStore {
+        const key: string = KVStore.getKey("gDagResetKey");
+        return new KVStore(key, gKVScope.WKBK);
+    }
 
-    private _saveUserDagList(): void {
-        const dags: {name: string, id: string}[] = [];
+    private _checkIfNeedReset(): XDPromise<boolean> {
+        const deferred: XDDeferred<boolean> = PromiseHelper.deferred();
+        const kvStore = this._getResetMarkKVStore();
+        let reset: boolean = false;
+
+        kvStore.get()
+        .then((val) => {
+            if (val != null) {
+                // when has val, it's a rest case
+                reset = true;
+                return kvStore.delete(); // delete the key
+            }
+        })
+        .then(() => {
+            deferred.resolve(reset);
+        })
+        .fail(() => {
+            deferred.resolve(reset); // still resolve it
+        });
+
+        return deferred.promise();
+    }
+
+    private _saveUserDagList(): XDPromise<void> {
+        const dags: {name: string, id: string, reset: boolean}[] = [];
         this._dags.forEach((dagTab) => {
             if (dagTab instanceof DagTabUser) {
                 dags.push({
                     name: dagTab.getName(),
-                    id: dagTab.getId()
+                    id: dagTab.getId(),
+                    reset: dagTab.needReset()
                 });
             }
         });
         const jsonStr: string = JSON.stringify({dags: dags});
-        this._kvStore.put(jsonStr, true, true);
+        const promise = this._kvStore.put(jsonStr, true, true);
         const activeWKBKId = WorkbookManager.getActiveWKBK();
         if (activeWKBKId != null) {
             const workbook = WorkbookManager.getWorkbooks()[activeWKBKId];
             workbook.update();
         }
         KVStore.logSave(true);
+        return promise;
     }
 
     private _updateSection(): void {

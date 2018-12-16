@@ -376,6 +376,9 @@ namespace WorkbookManager {
             $("#container").addClass("switchingWkbk");
             return XcalarActivateWorkbook(wkbkName);
         })
+        .then(() => {
+            return writeResetDagFlag(wkbkName);
+        })
         .then(deferred.resolve)
         .fail(function(error) {
             if (error && error.canceled) {
@@ -409,6 +412,14 @@ namespace WorkbookManager {
         });
 
         return deferred.promise();
+    }
+
+    function writeResetDagFlag(workbookName: string): XDPromise<void> {
+        const currentSession: string = sessionName;
+        setSessionName(workbookName);
+        const promise = DagList.Instance.markToResetDags();
+        setSessionName(currentSession);
+        return PromiseHelper.alwaysResolve(promise);
     }
 
     /**
@@ -886,6 +897,7 @@ namespace WorkbookManager {
         const gDagTableManagerKey: string = generateKey("gDagTableManagerKey", version);
         const gDagAggKey: string = generateKey("gDagAggKey", version);
         const gDagListKey: string = generateKey("gDagListKey", version);
+        const gDagResetKey: string = generateKey("gDagResetKey", version);
         const gDagParamKey: string = generateKey("gDagParamKey", version);
         const gSQLQueryKey: string = generateKey("gSQLQuery", version);
         const gSQLSnippetKey: string = generateKey("gSQLSnippet", version);
@@ -904,6 +916,7 @@ namespace WorkbookManager {
             "gDagTableManagerKey": gDagTableManagerKey,
             "gDagAggKey": gDagAggKey,
             "gDagListKey": gDagListKey,
+            "gDagResetKey": gDagResetKey,
             "gDagParamKey": gDagParamKey,
             "gSQLSnippet": gSQLSnippetKey,
             "gSQLSnippetQuery": gSQLSnippetQueryKey

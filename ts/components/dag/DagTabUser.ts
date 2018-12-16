@@ -1,10 +1,12 @@
 class DagTabUser extends DagTab {
+    private _reset: boolean;
+
     /**
      * DagTabUser.restore
      * @param dagList
      */
     public static restore(
-        dagList: {name: string, id: string}[]
+        dagList: {name: string, id: string, reset: boolean}[]
     ): XDPromise<DagTabUser[]> {
         const deferred: XDDeferred<DagTabUser[]> = PromiseHelper.deferred();
         const dagIdSet: Set<string> = new Set();
@@ -18,7 +20,7 @@ class DagTabUser extends DagTab {
             });
             dagList.forEach((dagInfo) => {
                 if (dagIdSet.has(dagInfo.id)) {
-                    dagTabs.push(new DagTabUser(dagInfo.name, dagInfo.id));
+                    dagTabs.push(new DagTabUser(dagInfo.name, dagInfo.id, null, dagInfo.reset));
                     dagIdSet.delete(dagInfo.id);
                 } else {
                     // when dag list has meta but the dag not exists
@@ -80,9 +82,15 @@ class DagTabUser extends DagTab {
         return deferred.promise();
     }
 
-    public constructor(name: string, id?: string, graph?: DagGraph) {
+    public constructor(
+        name: string,
+        id?: string,
+        graph?: DagGraph,
+        reset?: boolean
+    ) {
         super(name, id, graph);
         this._kvStore = new KVStore(this._id, gKVScope.WKBK);
+        this._reset = reset;
     }
 
     public setName(newName: string): void {
@@ -93,7 +101,12 @@ class DagTabUser extends DagTab {
     public load(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._loadFromKVStore()
-        .then((_dagInfo, graph) => {
+        .then((_dagInfo, graph: DagGraph) => {
+            if (this._reset) {
+                graph.clear();
+                this._reset = false;
+                DagList.Instance.save();
+            }
             this.setGraph(graph);
             deferred.resolve();
         })
@@ -226,6 +239,10 @@ class DagTabUser extends DagTab {
         const clonedGraph: DagGraph = this.getGraph().clone();
         const clonedTab = new DagTabUser(this.getName(), null, clonedGraph);
         return clonedTab;
+    }
+
+    public needReset(): boolean {
+        return this._reset;
     }
 
     protected _writeToKVStore(): XDPromise<void> {
