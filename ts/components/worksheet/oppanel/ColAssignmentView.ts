@@ -199,7 +199,7 @@ class ColAssignmentView {
         if (this.instanceOptions.labels && this.instanceOptions.labels[index] != null) {
             label = this.instanceOptions.labels[index];
         } else {
-            label = "Node" + (index + 1);
+            label = "#" + (index + 1);
         }
         return ('<div class="lists">' +
                     label +
