@@ -3045,7 +3045,7 @@ window.DS = (function ($, DS) {
     function activateOneDSHelper(dsId, failures, datasets, noAlert) {
         var deferred = PromiseHelper.deferred();
         var dsObj = DS.getDSObj(dsId);
-        if (dsObj.beFolder()) {
+        if (dsObj == null || dsObj.beFolder()) {
             return PromiseHelper.resolve();
         }
         var sql = {
