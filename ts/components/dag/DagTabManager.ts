@@ -364,6 +364,7 @@ class DagTabManager{
                 idSet.add(dagTab.getId());
             });
             const dagIds: string[] = managerData.dagKeys.filter((id) => idSet.has(id));
+            // _loadDagTabs is async
             this._loadDagTabs(dagIds);
             deferred.resolve();
         })
@@ -396,7 +397,7 @@ class DagTabManager{
             return this._loadDagTabHelper.bind(this, id);
         });
         //Use a chain to ensure all are run sequentially.
-        PromiseHelper.chain(promises)
+        PromiseHelper.chain(promises, true)
         .then(() => {
             if (this.getNumTabs() > 0) {
                 this._switchTabs(0);

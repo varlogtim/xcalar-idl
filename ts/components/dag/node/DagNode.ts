@@ -866,10 +866,10 @@ abstract class DagNode {
         "required": [
           "type",
           "input",
-          "nodeId",
           "parents",
           "configured",
-          "display"
+          "display",
+          "id"
         ],
         "properties": {
           "type": {
@@ -941,6 +941,11 @@ abstract class DagNode {
               "pattern": "^(.*)$"
             }
           },
+           "id": {
+            "$id": "#/properties/id",
+            "type": "string",
+            "pattern": "^(.*)$"
+          },
           "nodeId": {
             "$id": "#/properties/nodeId",
             "type": "string",
@@ -972,6 +977,45 @@ abstract class DagNode {
         "required": [],
         "properties": {}
     };
+
+    /**
+     * @returns schema with id replaced with nodeId (used for validating copied nodes)
+     */
+    public static getCopySchema() {
+        let schema = xcHelper.deepCopy(DagNode.schema);
+        schema.required.splice(schema.required.indexOf("id"), 1);
+        schema.required.push("nodeId");
+        return schema;
+    }
+
+    public static parseValidationErrMsg(node: DagNodeInfo, errorObj, isComment?: boolean) {
+        let path = errorObj.dataPath;
+        if (path[0] === ".") {
+            path = path.slice(1);
+        }
+        if (!path) {
+            if (isComment) {
+                path = "Comment";
+            } else {
+                path = "Node";
+            }
+        }
+        let msg = path + " " + errorObj.message;
+        switch (errorObj.keyword) {
+            case ("enum"):
+                msg += ": " + errorObj.params.allowedValues.join(", ");
+                break;
+            case ("additionalProperties"):
+                msg += ": " + errorObj.params.additionalProperty;
+                break;
+            default:
+            // do nothing
+        }
+        if (node.type) {
+            msg = xcHelper.capitalize(node.type) + " node: " + msg;
+        }
+        return msg;
+    }
 
     private _getElapsedTime(): number {
         let cummulativeTime = 0;

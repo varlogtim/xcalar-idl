@@ -9,82 +9,19 @@ class DagComment {
 
     }
 
-    public static readonly schema = {
-        "definitions": {},
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "$id": "http://example.com/root.json",
-        "type": "object",
-        "title": "The Root Schema",
-        "additionalProperties": true,
-        "required": [
-          "nodeId",
-          "dimensions",
-          "text"
-        ],
-        "properties": {
-          "nodeId": {
-            "$id": "#/properties/nodeId",
-            "type": "string",
-            "pattern": "^(.*)$"
-          },
-          "display": {
-            "$id": "#/properties/display",
-            "type": "object",
-            "additionalProperties": true,
-            "required": [
-              "x",
-              "y"
-            ],
-            "properties": {
-              "x": {
-                "$id": "#/properties/display/properties/x",
-                "type": "integer",
-                "minimum": 0
-              },
-              "y": {
-                "$id": "#/properties/display/properties/y",
-                "type": "integer",
-                "minimum": 0
-              }
-            }
-          },
-          "dimensions": {
-            "$id": "#/properties/dimensions",
-            "type": "object",
-            "additionalProperties": true,
-            "required": [
-              "width",
-              "height"
-            ],
-            "properties": {
-              "width": {
-                "$id": "#/properties/dimensions/properties/width",
-                "type": "integer",
-                "minimum": 20.0,
-                "maximum": 2000.0
-              },
-              "height": {
-                "$id": "#/properties/dimensions/properties/height",
-                "type": "integer",
-                "minimum": 20.0,
-                "maximum": 2000.0
-              }
-            }
-          },
-          "text": {
-            "$id": "#/properties/text",
-            "type": "string",
-          }
-        }
-    };
-
-
     public setup() {
         const self = this;
         const $dfWrap: JQuery = $("#dagView .dataflowWrap");
-        $dfWrap.on("click", ".comment", function() {
-            if (!$(this).hasClass("focused")) {
-                $(this).appendTo($dfWrap.find(".dataflowArea.active .commentArea"));
+        $dfWrap.on("mousedown", ".comment", function() {
+            const $comment = $(this);
+            if (!$comment.hasClass("focused")) {
+                const $commentArea = $dfWrap.find(".dataflowArea.active .commentArea");
+                $commentArea.find(".comment").length;
+                if ($comment.index() !== ($commentArea.find(".comment").length - 1)) {
+                    // if not the last comment, make it the last comment so it
+                    // sits on top of all the other comments
+                    $comment.appendTo($commentArea);
+                }
             }
         });
         $dfWrap.on("dblclick", ".comment", function() {

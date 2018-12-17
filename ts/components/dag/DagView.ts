@@ -111,20 +111,22 @@ namespace DagView {
                     if (!Array.isArray(nodesArray)) {
                         throw ("Dataflow nodes must be in an array");
                     }
+                    let nodeSchema = DagNode.getCopySchema();
+                    let commentSchema = CommentNode.getCopySchema();
                     for (let i = 0; i < nodesArray.length; i++) {
                         const node = nodesArray[i];
                         window["ajv"] = new Ajv();
                         let valid;
                         let validate;
                         if (node.hasOwnProperty("text")) {
-                            validate = ajv.compile(DagComment.schema);
+                            validate = ajv.compile(commentSchema);
                         } else {
-                            validate = ajv.compile(DagNode.schema);
+                            validate = ajv.compile(nodeSchema);
                         }
                         valid = validate(node);
                         if (!valid) {
                             // only saving first error message
-                            const msg = _parseValidationErrMsg(node, validate.errors[0], node.hasOwnProperty("text"));
+                            const msg = DagNode.parseValidationErrMsg(node, validate.errors[0], node.hasOwnProperty("text"));
                             throw (msg);
                         }
 
@@ -137,7 +139,7 @@ namespace DagView {
                             valid = validate(node);
                             if (!valid) {
                                 // only saving first error message
-                                const msg = _parseValidationErrMsg(node, validate.errors[0], node.hasOwnProperty("text"));
+                                const msg = DagNode.parseValidationErrMsg(node, validate.errors[0]);
                                 throw (msg);
                             }
                         }
@@ -155,35 +157,6 @@ namespace DagView {
                     errStr = xcHelper.parseJSONError(err).error;
                 }
                 StatusBox.show(errStr, $dfWrap);
-            }
-
-            function _parseValidationErrMsg(node, errorObj, isComment?: boolean) {
-                let path = errorObj.dataPath;
-                if (path[0] === ".") {
-                    path = path.slice(1);
-                }
-                if (!path) {
-                    if (isComment) {
-                        path = "Comment";
-                    } else {
-                        path = "Node";
-                    }
-                }
-                let msg = path + " " + errorObj.message;
-                switch (errorObj.keyword) {
-                    case ("enum"):
-                        msg += ": " + errorObj.params.allowedValues.join(", ");
-                        break;
-                    case ("additionalProperties"):
-                        msg += ": " + errorObj.params.additionalProperty;
-                        break;
-                    default:
-                    // do nothing
-                }
-                if (node.type) {
-                    msg = xcHelper.capitalize(node.type) + " node: " + msg;
-                }
-                return msg;
             }
         });
 
@@ -4141,7 +4114,7 @@ namespace DagView {
                 const comment: CommentNode = dagGraph.getComment(nodeId);
                 nodeInfos.push({
                     nodeId: nodeId,
-                    display: xcHelper.deepCopy(comment.getPosition()),
+                    position: xcHelper.deepCopy(comment.getPosition()),
                     dimensions: comment.getDimensions(),
                     text: comment.getText()
                 });

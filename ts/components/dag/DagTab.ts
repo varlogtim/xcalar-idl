@@ -132,9 +132,17 @@ abstract class DagTab {
                     error: DFTStr.InvalidDF
                 });
             } else {
-                let graph: DagGraph = new DagGraph();
-                graph.create(dagInfo.dag);
-                deferred.resolve(dagInfo, graph);
+                const valid = this._validateKVStoreDagInfo(dagInfo);
+                if (valid.error) {
+                    console.error(valid.error);
+                    deferred.reject({
+                        error: valid.error
+                    });
+                } else {
+                    let graph: DagGraph = new DagGraph();
+                    graph.create(dagInfo.dag);
+                    deferred.resolve(dagInfo, graph);
+                }
             }
         })
         .fail(deferred.reject);
@@ -216,5 +224,23 @@ abstract class DagTab {
         if (typeof this._events[event] === "function") {
             this._events[event].apply(this, args);
         }
+    }
+
+    protected _validateKVStoreDagInfo(dagInfo) {
+        if (typeof dagInfo !== "object") {
+            return {error: "Invalid dataflow information"}
+        }
+        if (typeof dagInfo.name !== "string") {
+            return {error: "Invalid dataflow name"}
+        }
+        if (typeof dagInfo.id !== "string") {
+            return {error: "Invalid dataflow ID"}
+        }
+        if (!dagInfo.dag  || typeof dagInfo.dag !== "object" ||
+            dagInfo.dag.constructor !== Object) {
+            return {error: "Invalid dataflow"}
+        }
+
+        return {}
     }
 }

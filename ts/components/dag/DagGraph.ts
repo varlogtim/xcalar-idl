@@ -8,6 +8,8 @@ class DagGraph {
     private lock: boolean;
     private noDelete: boolean;
     private parentTabId: string;
+    private errorNodes: DagNodeInfo[];
+    private hasError: boolean;
     protected currentExecutor: DagGraphExecutor
     public events: { on: Function, off: Function, trigger: Function}; // example: dagGraph.events.on(DagNodeEvents.StateChange, console.log)
 
@@ -16,6 +18,7 @@ class DagGraph {
         this.removedNodesMap = new Map();
         this.commentsMap = new Map();
         this.removedCommentsMap = new Map();
+        this.errorNodes = [];
         this.display = {
             width: -1,
             height: -1,
@@ -24,6 +27,48 @@ class DagGraph {
         this.lock = false;
         this._setupEvents();
     }
+
+    public static readonly schema = {
+        "definitions": {},
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "http://example.com/root.json",
+        "type": "object",
+        "required": [
+            "nodes",
+            "comments",
+            "display"
+        ],
+        "properties": {
+            "nodes": {
+            "$id": "#/properties/nodes",
+            "type": "array"
+            },
+            "comments": {
+            "$id": "#/properties/comments",
+            "type": "array"
+            },
+            "display": {
+            "$id": "#/properties/display",
+            "type": "object",
+            "required": [
+            ],
+            "properties": {
+                "width": {
+                "$id": "#/properties/display/properties/width",
+                "type": "integer"
+                },
+                "height": {
+                "$id": "#/properties/display/properties/height",
+                "type": "integer"
+                },
+                "scale": {
+                "$id": "#/properties/display/properties/scale",
+                "type": "integer"
+                }
+            }
+            }
+        }
+    };
 
     /**
      * Generates the serializable version of this graph.
@@ -69,8 +114,15 @@ class DagGraph {
         // restore edges
         this.restoreConnections(connections);
 
-        if (graphJSON.comments) {
+        if (graphJSON.comments && Array.isArray(graphJSON.comments)) {
             graphJSON.comments.forEach((comment) => {
+                let ajv = new Ajv();
+                let validate = ajv.compile(CommentNode.schema);
+                let valid = validate(comment);
+                if (!valid) {
+                    // don't show invalid comments
+                    return;
+                }
                 const commentNode = new CommentNode(xcHelper.deepCopy(comment));
                 this.commentsMap.set(commentNode.getId(), commentNode);
             });
@@ -82,24 +134,98 @@ class DagGraph {
      * @param {DagGraphInfo} serializableGraph
      */
     public create(serializableGraph: DagGraphInfo): void {
+        // comments may not exist, so create a new comments array
+        let comments: CommentInfo[] = serializableGraph.comments;
+        if (comments || !Array.isArray(comments)) {
+            comments = [];
+        }
+
+        // if nodes doesn't exist, or invalid, then skip and build empty graph
         const nodes: {node: DagNode, parents: DagNodeId[]}[] = [];
+        if (!serializableGraph.nodes || !Array.isArray(nodes)) {
+            // add a comment explaining the error
+            const text = "Invalid nodes" + "\n" + JSON.stringify(nodes, null, 2);
+            const dupeComment = comments.find((comment) => {
+                return comment.text.startsWith("Invalid nodes");
+            });
+            if (!dupeComment) {
+                comments.push({
+                    id: CommentNode.generateId(),
+                    text: text,
+                    dimensions: {width: 160, height: 80},
+                    position: {x: 20, y: 20}
+                });
+            }
+            this.hasError = true;
+            this.rebuildGraph({
+                nodes: nodes,
+                comments: comments,
+                display: serializableGraph.display
+            });
+            return;
+        }
         serializableGraph.nodes.forEach((nodeInfo: DagNodeInfo) => {
             if (nodeInfo.type == DagNodeType.Aggregate ||
                 nodeInfo.type === DagNodeType.DFIn
             ) {
                 nodeInfo["graph"] = this;
             }
-            const node: DagNode = DagNodeFactory.create(nodeInfo);
-            const parents: DagNodeId[] = nodeInfo.parents;
-            nodes.push({
-                node: node,
-                parents: parents
-            });
+
+            try {
+                // validate before creating the node
+                let ajv = new Ajv();
+                let validate = ajv.compile(DagNode.schema);
+                let valid = validate(nodeInfo);
+                if (!valid) {
+                    // only saving first error message
+                    const msg = DagNode.parseValidationErrMsg(nodeInfo, validate.errors[0]);
+                    throw (msg);
+                }
+                const nodeClass = DagNodeFactory.getNodeClass(nodeInfo);
+                const nodeSpecificSchema = nodeClass.specificSchema;
+                ajv = new Ajv();
+                validate = ajv.compile(nodeSpecificSchema);
+                valid = validate(nodeInfo);
+                if (!valid) {
+                    // only saving first error message
+                    const msg = DagNode.parseValidationErrMsg(nodeInfo, validate.errors[0]);
+                    throw (msg);
+                }
+                const node: DagNode = DagNodeFactory.create(nodeInfo);
+                const parents: DagNodeId[] = nodeInfo.parents;
+                nodes.push({
+                    node: node,
+                    parents: parents
+                });
+            } catch (e) {
+                if (typeof e === "string") {
+                    nodeInfo.error = e;
+                } else {
+                    nodeInfo.error = xcHelper.parseJSONError(e).error;
+                }
+                // convert invalid nodes into comments
+                const text = nodeInfo.error + "\n" + JSON.stringify(nodeInfo, null, 2);
+                const dupeComment = comments.find((comment) => {
+                    return comment.text.startsWith(nodeInfo.error);
+                });
+                if (!dupeComment) {
+                    this.errorNodes.push(nodeInfo);
+                    comments.push({
+                        id: CommentNode.generateId(),
+                        text: text,
+                        dimensions: {width: 160, height: 80},
+                        position: {x: 20, y: 20 + (100 * (this.errorNodes.length - 1))}
+                    });
+                }
+            }
         });
+        if (this.errorNodes.length) {
+            this.hasError = true;
+        }
 
         this.rebuildGraph({
             nodes: nodes,
-            comments: serializableGraph.comments,
+            comments: comments,
             display: serializableGraph.display
         });
     }
