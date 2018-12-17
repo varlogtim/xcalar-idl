@@ -1880,6 +1880,9 @@
             var limit = parseInt(node.value.limitExpr[0].value);
             var tableName = node.children[0].newTableName;
             var tableId = xcHelper.getTableId(tableName);
+            if (typeof tableId === "string") {
+                tableId = tableId.toUpperCase();
+            }
             var colName = "XC_ROW_COL_" + tableId;
             var cli = "";
 
@@ -2226,7 +2229,7 @@
                 if (gArray[i].numOps > 0) {
                     firstMapArray.push(gArray[i].aggColName);
                     var newColName = "XC_GB_COL_" +
-                                     Authentication.getHashId().substring(1);
+                                     Authentication.getHashId().substring(3);
                     firstMapColNames.push(newColName);
                     if (gArray[i].operator === "count") {
                         firstMapColTypes.push(gArray[i].countType);
@@ -2249,7 +2252,7 @@
                 gbMapCol.arguments = rs.arguments;
                 if (aggEvalStrArray[i].numOps > 1) {
                     var newColName = "XC_GB_COL_" +
-                                     Authentication.getHashId().substring(1);
+                                     Authentication.getHashId().substring(3);
                     firstMapColNames.push(newColName);
                     if (rs.firstOp === "count") {
                         firstMapColTypes.push(aggEvalStrArray[i].countType);
@@ -2291,7 +2294,7 @@
             var tempCol;
             if (gArray.length === 0) {
                 var newColName = "XC_GB_COL_" +
-                                 Authentication.getHashId().substring(1);
+                                 Authentication.getHashId().substring(3);
                 gArray = [{operator: "count",
                            aggColName: "1",
                            newColName: newColName}];
@@ -2380,10 +2383,10 @@
                                             .operator].newCols[index].colName;
                                 } else {
                                     var tempColName = "XC_WINDOWAGG_" +
-                                                    Authentication.getHashId().substring(1);
+                                                    Authentication.getHashId().substring(3);
                                     while (colNames.has(tempColName)) {
                                         tempColName = "XC_WINDOWAGG_" +
-                                                    Authentication.getHashId().substring(1);
+                                                    Authentication.getHashId().substring(3);
                                     }
                                     colNames.add(tempColName);
                                     windowStruct[gArray[i].operator].newCols.push({
@@ -2420,6 +2423,9 @@
                         curPromise = PromiseHelper.resolve({cli: "", newTableName: newTableName});
                     }
                     var tableId = xcHelper.getTableId(newTableName);
+                    if (typeof tableId === "string") {
+                        tableId = tableId.toUpperCase();
+                    }
                     loopStruct.indexColStruct = {colName: "XC_ROW_COL_" + tableId};
                     node.xcCols.push(loopStruct.indexColStruct);
                     curPromise = curPromise.then(function(ret) {
@@ -3164,6 +3170,9 @@
             // Generate row number after sort, may check if needed
             // to reduce operation number
             var tableId = xcHelper.getTableId(tableName);
+            if (typeof tableId === "string") {
+                tableId = tableId.toUpperCase();
+            }
             loopStruct.indexColStruct = {colName: "XC_ROW_COL_" + tableId,
                                          colType: "int"};
             node.xcCols.push(loopStruct.indexColStruct);
@@ -3242,6 +3251,9 @@
             var newColStructs = [];
             var colNameSet = new Set();
             var tableId = xcHelper.getTableId(node.newTableName);
+            if (typeof tableId === "string") {
+                tableId = tableId.toUpperCase();
+            }
             node.usrCols.concat(node.xcCols).concat(node.sparkCols).forEach(function(col) {
                 colNameSet.add(__getCurrentName(col));
             })
@@ -3296,7 +3308,13 @@
         var rnColName;
         var rnTableName;
         var leftTableId = xcHelper.getTableId(joinNode.children[0].newTableName);
+        if (typeof leftTableId === "string") {
+            leftTableId = leftTableId.toUpperCase();
+        }
         var rightTableId = xcHelper.getTableId(joinNode.children[1].newTableName);
+        if (typeof rightTableId === "string") {
+            rightTableId = rightTableId.toUpperCase();
+        }
         if (outerType === "right") {
             rnColName = "XC_RROWNUM_COL_" + rightTableId;
             rnTableName = globalStruct.rightTableName;
@@ -3390,6 +3408,9 @@
             }
             var newColNames = [];
             var tableId = xcHelper.getTableId(origTableName);
+            if (typeof tableId === "string") {
+                tableId = tableId.toUpperCase();
+            }
             var j = 0;
             for (var i = 0; i < mapStrArray.length; i++) {
                 var tempCol = "XC_JOIN_COL_" + tableId + "_" + i;
@@ -3631,8 +3652,11 @@
         assert(globalStruct.newTableName, SQLErrTStr.NoNewTableName);
         assert(globalStruct.leftRowNumCol, SQLErrTStr.NoLeftRowNumCol);
 
-        var tempCountCol = "XC_COUNT_" +
-                           xcHelper.getTableId(globalStruct.newTableName);
+        var tableId = xcHelper.getTableId(globalStruct.newTableName);
+        if (typeof tableId === "string") {
+            tableId = tableId.toUpperCase();
+        }
+        var tempCountCol = "XC_COUNT_" + tableId;
         // Record groupBy column
         joinNode.xcCols.push({colName: tempCountCol, colType: "int"});
 
@@ -3678,8 +3702,11 @@
             pulledColumns: [],
             rename: []
         };
-        var newRowNumColName = "XC_ROWNUM_" +
-                               xcHelper.getTableId(globalStruct.newTableName);
+        var tableId = xcHelper.getTableId(globalStruct.newTableName);
+        if (typeof tableId === "string") {
+            tableId = tableId.toUpperCase();
+        }
+        var newRowNumColName = "XC_ROWNUM_" + tableId;
         // Record the renamed column
         joinNode.xcCols.push({colName: newRowNumColName, colType: "int"});
         var rTableInfo = {
@@ -3769,8 +3796,11 @@
         __resolveCollision(leftColInfo, rightColInfo,
                            lTableInfo.rename, rTableInfo.rename,
                            lTableInfo.tableName, rTableInfo.tableName);
-        var newRowNumColName = "XC_ROWNUM_" +
-                               xcHelper.getTableId(globalStruct.newTableName);
+        var tableId = xcHelper.getTableId(globalStruct.newTableName);
+        if (typeof tableId === "string") {
+            tableId = tableId.toUpperCase();
+        }
+        var newRowNumColName = "XC_ROWNUM_" + tableId;
         // Record the renamed column
         joinNode.xcCols.push({colName: newRowNumColName, colType: "int"});
         var rnColRename = {
@@ -3811,8 +3841,11 @@
                                    lTableInfo.rename, rTableInfo.rename,
                                    lTableInfo.tableName, rTableInfo.tableName);
 
-                newRowNumColName = "XC_ROWNUM_" +
-                                   xcHelper.getTableId(globalStruct.newTableName);
+                tableId = xcHelper.getTableId(globalStruct.newTableName);
+                if (typeof tableId === "string") {
+                    tableId = tableId.toUpperCase();
+                }
+                newRowNumColName = "XC_ROWNUM_" + tableId;
                 // Record the renamed column
                 joinNode.xcCols.push({colName: newRowNumColName, colType: "int"});
                 rnColName = globalStruct.rightRowNumCol;
@@ -3861,8 +3894,11 @@
             rename: []
         };
 
-        var newRowNumColName = "XC_ROWNUM_" +
-                               xcHelper.getTableId(globalStruct.newTableName);
+        var tableId = xcHelper.getTableId(globalStruct.newTableName);
+        if (typeof tableId === "string") {
+            tableId = tableId.toUpperCase();
+        }
+        var newRowNumColName = "XC_ROWNUM_" + tableId;
         // Record the renamed column
         joinNode.xcCols.push({colName: newRowNumColName, colType: "int"});
         var rTableInfo = {
@@ -4075,8 +4111,10 @@
         // will not be visible to the user.
         var newRenames = {};
         var colSet = new Set();
-        var leftTableId = xcHelper.getTableId(leftTableName);
         var rightTableId = xcHelper.getTableId(rightTableName);
+        if (typeof rightTableId === "string") {
+            rightTableId = rightTableId.toUpperCase();
+        }
         for (var i = 0; i < leftCols.length; i++) {
             var colName = leftCols[i].rename || leftCols[i].colName;
             colSet.add(colName);
@@ -4174,9 +4212,13 @@
                 type = convertSparkTypeToXcalarType(orderArray[i][1].dataType);
             } else {
                 // Here don't check duplicate expressions, need optimization
+                var tableId = xcHelper.getTableId(options.tableName);
+                if (typeof tableId === "string") {
+                    tableId = tableId.toUpperCase();
+                }
                 colName = "XC_SORT_COL_" + i + "_"
-                        + Authentication.getHashId().substring(1) + "_"
-                        + xcHelper.getTableId(options.tableName);
+                        + Authentication.getHashId().substring(3) + "_"
+                        + tableId;
                 var orderNode = SQLCompiler.genExpressionTree(undefined,
                                                         orderArray[i].slice(1));
                 type = getColType(orderNode);
@@ -4501,13 +4543,17 @@
         windowStruct.cli += ret.cli;
         windowStruct.gbTableName  = "XC_GB_Table"
                     + xcHelper.getTableId(windowStruct.origTableName) + "_"
-                    + Authentication.getHashId().substring(1);
+                    + Authentication.getHashId().substring(3);
         if (!windowStruct.tempGBCols) {
             windowStruct.tempGBCols = [];
             for (var i = 0; i < operators.length; i++) {
+                var tableId = xcHelper.getTableId(windowStruct.origTableName);
+                if (typeof tableId === "string") {
+                    tableId = tableId.toUpperCase();
+                }
                 windowStruct.tempGBCols.push("XC_" + operators[i].toUpperCase()
-                    + "_" + xcHelper.getTableId(windowStruct.origTableName)
-                    + "_" + Authentication.getHashId().substring(1));
+                    + "_" + tableId
+                    + "_" + Authentication.getHashId().substring(3));
             }
         }
         // If the new column will be added to usrCols later
@@ -4755,7 +4801,7 @@
                         var tempColName = cleanseColName("XC_WINDOW_"
                                     + opStruct.aggTypes[i] + "_"
                                     + opStruct.aggCols[i] + "_"
-                                    + Authentication.getHashId().substring(1)
+                                    + Authentication.getHashId().substring(3)
                                     + "_" + i);
                         newColNames.push(tempColName);
                         tempColStructs.push({colName: tempColName});
@@ -4847,7 +4893,7 @@
                         var tempColName = cleanseColName("XC_WINDOW_"
                                     + opStruct.keyTypes[i] + "_"
                                     + opStruct.keyCols[i] + "_"
-                                    + Authentication.getHashId().substring(1)
+                                    + Authentication.getHashId().substring(3)
                                     + "_" + i);
                         newColNames.push(tempColName);
                         keyColNames.push(tempColName);
@@ -4900,7 +4946,7 @@
                         delete item.colId;
                     });
                     newIndexColName = __getCurrentName(indexColStruct) + "_right"
-                                        + Authentication.getHashId().substring(1);
+                                        + Authentication.getHashId().substring(3);
                     newIndexColStruct = {colName: newIndexColName, colType: "int"};
                     windowStruct.rightColInfo
                                     .push(newIndexColStruct);
@@ -5197,8 +5243,11 @@
                 // to get rank for each eigen
                 .then(function(ret) {
                     cli += ret.cli;
-                    drIndexColName = "XC_ROW_COL_"
-                                + xcHelper.getTableId(ret.newTableName);
+                    var tableId = xcHelper.getTableId(ret.newTableName);
+                    if (typeof tableId === "string") {
+                        tableId = tableId.toUpperCase();
+                    }
+                    drIndexColName = "XC_ROW_COL_" + tableId;
                     windowStruct.leftColInfo
                                 .push({colName: drIndexColName, colType: "int"});
                     return self.sqlObj.genRowNum(ret.newTableName,
@@ -5304,7 +5353,7 @@
         var tableInfos = [];
         // This column is used to create nulls
         var gbTempColName = "XC_GB_COL_" + Authentication.getHashId()
-                                                         .substring(1);
+                                                         .substring(3);
         var tempCols = [{colName: gbTempColName, colType: "string"}];
         var curPromise = self.sqlObj.map(["string(1)"], tableName, [gbTempColName])
                                     .then(function(ret) {
@@ -5333,7 +5382,7 @@
                     } else {
                         if (gbColTypes[j] === "string") {
                             var tempStrColName = gbColNames[j] + "-str-"
-                                    + Authentication.getHashId().substring();
+                                    + Authentication.getHashId().substring(3);
                             nameMap[gbColNames[j]] = tempStrColName;
                             newColNames.push(gbColNames[j]);
                             mapStrs.push("string(" + tempStrColName + ")");
@@ -5446,6 +5495,9 @@
                 curPromise = PromiseHelper.resolve({cli: "", newTableName: tableName});
             } else {
                 var tableId = xcHelper.getTableId(tableName);
+                if (typeof tableId === "string") {
+                    tableId = tableId.toUpperCase();
+                }
                 loopStruct.indexColStruct = {colName: "XC_ROW_COL_" + tableId,
                                              colType: "int"};
                 loopStruct.sortColsAndOrder = [{name: "XC_ROW_COL_" + tableId,
@@ -5587,10 +5639,10 @@
                     tempColStruct = {colName: tempColName, colType: "DfUnknown"};
                 } else {
                     tempColName = "XC_WINDOWMAP_" +
-                                        Authentication.getHashId().substring(1);
+                                        Authentication.getHashId().substring(3);
                     while (colNames.has(tempColName)) {
                         tempColName = "XC_WINDOWMAP_" +
-                                        Authentication.getHashId().substring(1);
+                                        Authentication.getHashId().substring(3);
                     }
                     colNames.add(tempColName);
                     tempColStruct = {colName: tempColName, colType: "DfUnknown"};
@@ -5634,10 +5686,10 @@
                             defaultType = "value";
                             if (isFunc) {
                                 var innerTempColName = "XC_WINDOWMAP_" +
-                                        Authentication.getHashId().substring(1);
+                                        Authentication.getHashId().substring(3);
                                 while (colNames.has(innerTempColName)) {
                                     innerTempColName = "XC_WINDOWMAP_" +
-                                        Authentication.getHashId().substring(1);
+                                        Authentication.getHashId().substring(3);
                                 }
                                 colNames.add(innerTempColName);
                                 args.push(innerTempColName);
@@ -5869,7 +5921,7 @@
                                             aggAcc, options);
                         var prefix = options.prefix || "";
                         var aggVarName = prefix + "XC_AGG_" +
-                                    Authentication.getHashId().substring(1);
+                                    Authentication.getHashId().substring(3);
                         var countType;
                         if (condTree.aggTree.value.class ===
                         "org.apache.spark.sql.catalyst.expressions.aggregate.Count") {
@@ -5966,7 +6018,7 @@
                 assert(acc.subqueryArray, SQLErrTStr.AccSubqueryArray);
                 var prefix = options.prefix || "";
                 var subqVarName = prefix + "XC_SUBQ_" +
-                                    Authentication.getHashId().substring(1);
+                                    Authentication.getHashId().substring(3);
                 condTree.subqueryTree.subqVarName = subqVarName;
                 acc.subqueryArray.push({subqueryTree: condTree.subqueryTree});
                 outStr += "^" + subqVarName;
