@@ -212,6 +212,10 @@ class FileManagerPanel {
         return this.manager.fileExtension();
     }
 
+    public autoRename(fileName: string): string {
+        return this.manager.autoRename(fileName);
+    }
+
     private get manager(): BaseFileManager {
         return this.managers.get(this.curFileType);
     }

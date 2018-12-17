@@ -24,6 +24,7 @@ abstract class BaseFileManager {
     public abstract fileExtension(): string;
     public abstract add(path: string, entireString: string);
     public abstract registerPanel(panel: FileManagerPanel);
+    public abstract autoRename(fileName: string): string;
 
     /**
      * refresh always update the file list if there are new files. But it does

@@ -770,6 +770,10 @@ class UDFFileManager extends BaseFileManager {
         return ".py";
     }
 
+    public autoRename(fileName: string) {
+        return fileName.toLowerCase();
+    }
+
     /**
      * All File Manager Panel that displays UDFs should be registered.
      * Otherwise they will not get the update after another panel adds /

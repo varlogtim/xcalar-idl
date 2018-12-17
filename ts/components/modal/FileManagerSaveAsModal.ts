@@ -102,7 +102,8 @@ class FileManagerSaveAsModal {
                     path += folderName + "/";
                 }
             }
-            const newFilename: string = this._getNameInput().val();
+            let newFilename: string = this._getNameInput().val();
+            newFilename = this.fileManagerPanel.autoRename(newFilename);
             let newPath = path + newFilename;
             const $saveButton: JQuery = this._getModal().find(
                 ".modalBottom .save"
