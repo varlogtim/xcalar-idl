@@ -160,7 +160,7 @@ module.exports = {
     "menuBar": {
         "wb": "Workbooks",
         "ws": "Worksheets",
-        "monitor": "Monitor",
+        "monitor": "System",
         "ds": "Datasets",
         "discourse": "Discourse",
         "exts": "Extensions",

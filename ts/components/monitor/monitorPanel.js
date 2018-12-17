@@ -75,7 +75,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 return;
             }
             $monitorPanel.find(".monitorSection.active").removeClass("active");
-            var title = MonitorTStr.Monitor + ': ';
+            var title = MonitorTStr.System + ': ';
             var $menu = $("#monitorMenu");
             $menu.find(".menuSection").addClass("xc-hidden");
             var $extSearch = $("#extension-search").addClass("xc-hidden");
@@ -87,7 +87,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 case ("systemButton"):
                     $("#monitor-system").addClass("active");
                     $menu.find(".menuSection.monitor").removeClass("xc-hidden");
-                    title += MonitorTStr.System;
+                    title += MonitorTStr.Monitor;
                     break;
                 case ("queriesButton"):
                     $("#monitor-queries").addClass("active");
@@ -104,7 +104,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     SqlQueryHistoryPanel.Card.getInstance().show();
                     $("#monitor-query-history").addClass("active");
                     $menu.find(".menuSection.queryHist").removeClass("xc-hidden");
-                    title = MonitorTStr.SQLPanelTitle;
+                    title += MonitorTStr.SQLPanelTitle;
                     break;
                 case ("settingsButton"):
                     $("#monitor-settings").addClass("active");
@@ -121,7 +121,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
                 case ("fileManagerButton"):
                     $("#monitor-file-manager").addClass("active");
                     $menu.find(".menuSection.fileManager").removeClass("xc-hidden");
-                    title = MonitorTStr.FileManagerTitle;
+                    title += MonitorTStr.FileManagerTitle;
                     // TODO: hack until UI is finalized.
                     if ($("#udfSection").hasClass("switching")) {
                         $("#container").addClass("activePanel-FileManagerPanel");

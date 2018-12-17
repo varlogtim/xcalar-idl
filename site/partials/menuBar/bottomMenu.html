@@ -19,7 +19,7 @@
   <!-- End Of Top Buttons -->
   <div class="bottomMenuContainer">
     <!-- extension sectoin -->
-    <section id="extension-ops" class="menuSection">
+    <!-- <section id="extension-ops" class="menuSection">
       <header class="heading draggable">
         <h2><%= dicts.extension.MyExt %> (<span class="numExt">0</span>)</h2>
       </header>
@@ -46,36 +46,15 @@
             <div class="focusTable xc-action">
               <i class="icon xi-show fa-16"></i>
             </div>
-          </div>
+          </div> -->
           <!-- args -->
-          <div class="argSection"></div>
+          <!-- <div class="argSection"></div>
           <div class="bottomSection">
             <button id="extension-ops-submit" class="btn confirm"><%= dicts.common.APPLY %></button>
           </div>
         </div>
-      </div>
-      <div id="extension-ops-script"></div>
-    </section>
-    <!-- Log Section -->
-    <section id="logSection" class="menuSection firstTouch">
-      <header class="heading draggable">
-        <h2><%= dicts.menuBar.Logs %></h2>
-      </header>
-      <div class="menuContent">
-        <div class="container">
-          <div id="log-TextArea" class="logTextArea"></div>
-          <div id="log-MachineTextArea" class="logTextArea"></div>
-        </div>
-      </div>
-      <div id="logMenu" class="menu">
-        <ul>
-          <li class="download" data-action="download"><%= dicts.bottomMenu.downloadLogBtn %></li>
-          <li class="collapseAll" data-action="collapseAll"><%= dicts.bottomMenu.collapseAll %></li>
-          <li class="expandAll" data-action="expandAll"><%= dicts.bottomMenu.expandAll %></li>
-        </ul>
-        include "../../util/menuScrollArea.html"
-      </div>
-    </section>
+      </div> -->
+    <!-- </section> -->
     <!-- UDF Section -->
     <section id="udfSection" class="menuSection no-selection">
       <!-- Heading -->
@@ -117,6 +96,28 @@
       </div>
     </section>
     <!-- end of UDF Section -->
+
+    <!-- Log Section -->
+    <section id="logSection" class="menuSection firstTouch">
+      <header class="heading draggable">
+        <h2><%= dicts.menuBar.Logs %></h2>
+      </header>
+      <div class="menuContent">
+        <div class="container">
+          <div id="log-TextArea" class="logTextArea"></div>
+          <div id="log-MachineTextArea" class="logTextArea"></div>
+        </div>
+      </div>
+      <div id="logMenu" class="menu">
+        <ul>
+          <li class="download" data-action="download"><%= dicts.bottomMenu.downloadLogBtn %></li>
+          <li class="collapseAll" data-action="collapseAll"><%= dicts.bottomMenu.collapseAll %></li>
+          <li class="expandAll" data-action="expandAll"><%= dicts.bottomMenu.expandAll %></li>
+        </ul>
+        include "../../util/menuScrollArea.html"
+      </div>
+    </section>
+    <!-- End of Log Section -->
 
     <!-- Help Section -->
     <section id="helpSection" class="menuSection no-selection">

@@ -508,7 +508,7 @@ window.DS = (function ($, DS) {
             const deferred = PromiseHelper.deferred();
             // XXXX this is a wrong implementation
             // wait for https://bugs.int.xcalar.com/show_bug.cgi?id=12870
-            ds.fetch(0, 50)
+            dsObj.fetch(0, 50)
             .then((jsons, jsonKeys) => {
                 let colTypes = [];
                 jsons.forEach((json) => {
