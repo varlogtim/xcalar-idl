@@ -120,7 +120,7 @@ class ExtensionOpPanelArgSection {
         const $section: JQuery = this.$extArgs.find(".tableSection");
         if (this.model.hasDependentTable()) {
             const html: HTML =
-            '<div class="description">Node:</div>' +
+            '<div class="description">Input:</div>' +
             '<div class="inputWrap">' +
                 '<div class="dropDownList">' +
                     '<input class="text" type="text" disabled>' +
@@ -170,7 +170,7 @@ class ExtensionOpPanelArgSection {
         const numNodes = this.model.getAvailableNodeNum();
         let html: HTML = "";
         for (let i = 0; i< numNodes; i++) {
-            html += `<li data-index="${i}">Node ${i + 1}</li>`;
+            html += `<li data-index="${i}">Input #${i + 1}</li>`;
         }
         if (!html) {
             html = `<li class="hint">${CommonTxtTstr.NoResult}</li>`;
@@ -202,7 +202,7 @@ class ExtensionOpPanelArgSection {
 
     private _selectNode(index: number, $input: JQuery): void {
         $input.data("index", index)
-            .val(`Node ${(index + 1)}`);
+            .val(`Input #${(index + 1)}`);
     }
 
     private _addArgDropdown($list) {

@@ -114,10 +114,15 @@ class DagNodeExtension extends DagNode {
             const ext: ExtensionInfo = ExtensionManager.getEnabledExtensions().filter((ext) => {
                 return ext.name === input.moduleName;
             })[0];
-            const func: ExtensionFuncInfo = ext.buttons.filter((funcInfo) => {
-                return funcInfo.fnName === input.functName;
-            })[0];
-            hint = `Func: ${func.buttonText}`;
+            if (ext != null) {
+                const func: ExtensionFuncInfo = ext.buttons.filter((funcInfo) => {
+                    return funcInfo.fnName === input.functName;
+                })[0];
+
+                if (func != null) {
+                    hint = `Func: ${func.buttonText}`;
+                }
+            }
         } catch (e) {
             console.error(e);
         }

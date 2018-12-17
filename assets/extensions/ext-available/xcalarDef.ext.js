@@ -1,28 +1,30 @@
 window.UExtXcalarDef = (function(UExtXcalarDef) {
-    UExtXcalarDef.buttons = [{
-        "buttonText": "Horizontal Partition",
-        "fnName": "hPartition",
-        "instruction": "This function chooses the values with the highest number of occurrences when creating the partitions.",
-        "arrayOfFields": [{
-            "type": "column",
-            "name": "Partition On",
-            "fieldClass": "partitionCol",
-            "autofill": true,
-            "typeCheck": {
-                "columnType": ["number", "string", "boolean"]
-            }
-        },
-        {
-            "type": "number",
-            "name": "No. of Partitions",
-            "fieldClass": "partitionNums",
-            "typeCheck": {
-                "integer": true,
-                "min": 1,
-                "max": 10
-            }
-        }]
-    },
+    UExtXcalarDef.buttons = [
+        // XXX disable horizontal partition due to DF 2.0 change
+    //     {
+    //     "buttonText": "Horizontal Partition",
+    //     "fnName": "hPartition",
+    //     "instruction": "This function chooses the values with the highest number of occurrences when creating the partitions.",
+    //     "arrayOfFields": [{
+    //         "type": "column",
+    //         "name": "Partition On",
+    //         "fieldClass": "partitionCol",
+    //         "autofill": true,
+    //         "typeCheck": {
+    //             "columnType": ["number", "string", "boolean"]
+    //         }
+    //     },
+    //     {
+    //         "type": "number",
+    //         "name": "No. of Partitions",
+    //         "fieldClass": "partitionNums",
+    //         "typeCheck": {
+    //             "integer": true,
+    //             "min": 1,
+    //             "max": 10
+    //         }
+    //     }]
+    // },
     {
         "buttonText": "Rank Over",
         "fnName": "rankOver",

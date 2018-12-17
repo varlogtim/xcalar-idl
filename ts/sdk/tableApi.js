@@ -93,6 +93,7 @@ window.XcSDK.Table.prototype = {
 
     // this is a function that should be deprecated
     addToWorksheet: function(tablesToReplace, txId) {
+        this.active = true;
         return PromiseHelper.resolve();
     },
 
