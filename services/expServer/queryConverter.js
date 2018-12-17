@@ -713,8 +713,11 @@ function _getDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix) {
             if (node.createTableInput) {
                 dagNodeInfo = {
                     type: DagNodeType.Dataset,
-                    input: node.createTableInput
-                }; // need to get columns
+                    input: node.createTableInput,
+                };
+                if (node.schema) {
+                    dagNodeInfo.schema = node.schema;
+                }
             } else {
                 // probably a sort node
                 dagNodeInfo = {
@@ -1109,6 +1112,7 @@ function _collapseIndexNodes(node) {
                 synthesize: false,
                 loadArgs: loadArgs
             }
+            node.schema = getSchemaFromLoadArgs(loadArgs);
             node.parents = [];
         }
         return;
@@ -1138,8 +1142,10 @@ function _collapseIndexNodes(node) {
                     source: xcHelper.stripPrefixFromDSName(parent.args.source),
                     prefix: parent.args.prefix,
                     synthesize: false,
-                    loadArgs: loadArgs
+                    loadArgs: loadArgs,
+                    schema: schema
                 }
+                parent.schema = getSchemaFromLoadArgs(loadArgs);
                 parent.parents = [];
             }
             continue;
@@ -1400,6 +1406,28 @@ function _setIndexedFields(node) {
                 getCols(arg, cols);
             }
         });
+    }
+}
+
+function getSchemaFromLoadArgs(loadArgs) {
+    if (!loadArgs) {
+        return null;
+    }
+    try {
+        loadArgs = JSON.parse(loadArgs);
+        if (loadArgs.parseArgs  && loadArgs.parseArgs.schema &&
+            Array.isArray(loadArgs.parseArgs.schema)) {
+            const schema = loadArgs.parseArgs.schema.map((col) => {
+                return {
+                    name: col.destColumn,
+                    type: xcHelper.convertFieldTypeToColType(DfFieldTypeTFromStr[col.columnType])
+                }
+            });
+            return schema;
+        }
+        return null;
+    } catch (e) {
+        return null;
     }
 }
 
