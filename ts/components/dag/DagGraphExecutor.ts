@@ -314,14 +314,19 @@ class DagGraphExecutor {
             });
 
             const promises: XDDeferred<void>[] = [];
+            const execErrors = [];
             for (let i = 0; i < nodesToRun.length; i++) {
-                promises.push(this._stepExecute.bind(this, nodesToRun, i));
+                promises.push(this._stepExecute.bind(this, nodesToRun, i, execErrors));
             }
             self._executeInProgress = true;
             PromiseHelper.chain(promises)
             .then((...args) => {
                 self._executeInProgress = false;
-                deferred.resolve(...args);
+                if (execErrors.length > 0) {
+                    deferred.reject(execErrors[0]);
+                } else {
+                    deferred.resolve(...args);
+                }
             })
             .fail((...args) => {
                 self._executeInProgress = false;
@@ -412,7 +417,8 @@ class DagGraphExecutor {
 
     private _stepExecute(
         nodesToRun: {node: DagNode, executable: boolean}[],
-        index: number
+        index: number,
+        execErrors: any[]
     ): XDPromise<void> {
         if (nodesToRun[index] == null || !nodesToRun[index].executable) {
             return PromiseHelper.resolve();
@@ -454,6 +460,7 @@ class DagGraphExecutor {
                 error: error,
                 noAlert: true
             });
+            execErrors.push(error);
             deferred.resolve(); // still resolve it
         });
 
