@@ -510,7 +510,7 @@ namespace WorkbookPanel {
         const description: string = workbook.getDescription() || "";
         const name: string = workbook.getName();
         if (modified) {
-            modified = moment(modified).format("M-D-Y h:mm A");
+            modified = moment(modified).fromNow();
         } else {
             modified = "";
         }
@@ -870,7 +870,7 @@ namespace WorkbookPanel {
 
         if (modifiedTime) {
             time = moment(modifiedTime);
-            modifiedTimeDisplay = time.calendar();
+            modifiedTimeDisplay = time.fromNow();
             modifiedTimeTip = xcTimeHelper.getDateTip(time);
         }
         let isActive: string;
@@ -887,7 +887,6 @@ namespace WorkbookPanel {
         if (isBrowserSafari) {
             loadSection += " safari";
         }
-
         const html: string =
             '<div class="box box-small workbookBox ' +
             extraClasses.join(" ") + '"' +

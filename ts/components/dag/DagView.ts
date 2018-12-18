@@ -133,7 +133,12 @@ namespace DagView {
                         if (!node.hasOwnProperty("text")) {
                            // validate based on node type
                             const nodeClass = DagNodeFactory.getNodeClass(node);
-                            const nodeSpecificSchema = nodeClass.specificSchema;
+                            let nodeSpecificSchema;
+                            if (node.type === DagNodeType.Custom) {
+                                nodeSpecificSchema  = DagNodeCustom.getCopySpecificSchema();
+                            } else {
+                                nodeSpecificSchema = nodeClass.specificSchema;
+                            }
                             window["ajv"] = new Ajv();
                             validate = ajv.compile(nodeSpecificSchema);
                             valid = validate(node);

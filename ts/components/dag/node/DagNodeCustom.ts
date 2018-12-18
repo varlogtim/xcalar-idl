@@ -145,7 +145,7 @@ class DagNodeCustom extends DagNode {
                     "required": [
                         "type",
                         "input",
-                        "nodeId",
+                        "id",
                         "parents",
                         "configured",
                         "display"
@@ -221,6 +221,11 @@ class DagNodeCustom extends DagNode {
                         },
                         "nodeId": {
                         "$id": "#/properties/subGraph/properties/nodes/items/properties/nodeId",
+                        "type": "string",
+                        "pattern": "^(.*)$"
+                        },
+                        "id": {
+                        "$id": "#/properties/subGraph/properties/nodes/items/properties/id",
                         "type": "string",
                         "pattern": "^(.*)$"
                         },
@@ -326,6 +331,17 @@ class DagNodeCustom extends DagNode {
         }
         }
     };
+
+     /**
+     * @returns schema with id replaced with nodeId (used for validating copied nodes)
+     */
+    public static getCopySpecificSchema() {
+        let schema = xcHelper.deepCopy(DagNodeCustom.specificSchema);
+        const required = schema.properties.subGraph.properties.nodes.items.required;
+        required.splice(required.indexOf("id"), 1);
+        required.push("nodeId");
+        return schema;
+    }
 
     /**
      * Link an input node(in the sub graph) to a custom node's inPort. Call this method when expanding the input ports.
