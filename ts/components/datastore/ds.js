@@ -178,7 +178,15 @@ window.DS = (function ($, DS) {
         }
         var deferred = PromiseHelper.deferred();
         try {
-            var loadArgs = JSON.parse(loadArgsStr).args.loadArgs;
+            var parsed = JSON.parse(loadArgsStr);
+            var loadArgs
+            if (parsed.sourceArgsList != null) {
+                // a old kind of format. to be deprecated
+                loadArgs = parsed;
+            } else {
+                loadArgs = JSON.parse(loadArgsStr).args.loadArgs;
+            }
+
             var parsedName = xcHelper.parseDSName(fullDSName);
             var dsArgs = {
                 name: parsedName.dsName,

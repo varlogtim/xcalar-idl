@@ -2889,6 +2889,9 @@ window.DSPreview = (function($, DSPreview) {
             {
                 console.error(error);
             } else {
+                if (typeof error === "object") {
+                    error = error.error;
+                }
                 error = xcHelper.escapeHTMLSpecialChar(error);
                 if (format === formatMap.UDF) {
                     errorHandler(error, true);

@@ -1407,11 +1407,11 @@ namespace XIApi {
         //     return XIApi.query(txId, queryName, query);
         // })
         .then(deferred.resolve)
-        .fail((error) => {
+        .fail((error, loadError) => {
             if (hasCreate) {
                 XcalarDatasetDelete(dsName);
             }
-            deferred.reject(error);
+            deferred.reject(error, loadError);
         });
 
         return deferred.promise();
