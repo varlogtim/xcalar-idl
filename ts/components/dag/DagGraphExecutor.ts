@@ -65,6 +65,7 @@ class DagGraphExecutor {
 
         for (let i = 0; i < this._nodes.length; i++) {
             let node: DagNode = this._nodes[i];
+            let aggs = node.getAggregates();
             if (node.getState() === DagNodeState.Unused) {
                 errorResult.hasError = true;
                 errorResult.type = DagNodeErrorType.Unconfigured;
@@ -105,9 +106,18 @@ class DagGraphExecutor {
                 if (!node.isOutNode() ||
                     (node.getSubType() !== DagNodeSubType.ExportOptimized &&
                     node.getSubType() !== DagNodeSubType.DFOutOptimized &&
-                    node.getType() !== DagNodeType.CustomOutput)) {
+                    node.getType() !== DagNodeType.CustomOutput &&
+                    node.getType() !== DagNodeType.Aggregate)) {
                     errorResult.hasError = true;
                     errorResult.type = DagNodeErrorType.InvalidOptimizedOutNode;
+                    errorResult.node = node;
+                    break;
+                }
+            } else if (aggs.length > 0) {
+                const error: DagNodeErrorType = this._validateAggregates(aggs);
+                if (error != null) {
+                    errorResult.hasError = true;
+                    errorResult.type = error;
                     errorResult.node = node;
                     break;
                 }
@@ -115,6 +125,32 @@ class DagGraphExecutor {
         }
 
         return errorResult;
+    }
+
+    private _validateAggregates(aggs: string[]): DagNodeErrorType {
+        for(let i = 0; i < aggs.length; i++) {
+            let agg: string = aggs[i];
+            let aggInfo: AggregateInfo = DagAggManager.Instance.getAgg(agg);
+            if (aggInfo == null) {
+                return DagNodeErrorType.NoAggNode;
+            }
+            let aggNode: DagNodeAggregate =
+                <DagNodeAggregate>this._nodes.find((node) => {return node.getId() == aggInfo.node})
+            if (this._isOptimized && aggNode == null) {
+                // if it's optimized it must be within the current graph
+                // This also happens if it is mustExecute
+                return DagNodeErrorType.NoAggNode;
+            } else if (!this._isOptimized && aggInfo.value == null &&
+                    aggNode == null) {
+                // if unoptimized it must either have a value or be within this graph
+                return DagNodeErrorType.NoAggNode;
+            } else if (aggNode != null && aggInfo.value == null &&
+                    aggNode.getParam().mustExecute) {
+                // Case where we must execute the aggregate manually
+                return DagNodeErrorType.AggNotExecute;
+            }
+        }
+        return null;
     }
 
     // checks to see if dataflow is invalid due to export node + link out node

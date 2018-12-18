@@ -1052,7 +1052,7 @@ class DagGraph {
      * @param node
      * @returns {{sources: DagNode[], error: string}}
      */
-    public findNodeNeededSources(node: DagNode): {sources: DagNode[], error: string} {
+    public findNodeNeededSources(node: DagNode, optimized?: boolean): {sources: DagNode[], error: string} {
         let error: string;
         let sources: DagNode[] = [];
         const aggregates: string[] = node.getAggregates();
@@ -1066,11 +1066,17 @@ class DagGraph {
                     });
                     break;
                 }
-                if (aggInfo.value == null) {
-                    if (aggInfo.graph != this.getTabId()) {
+                if (aggInfo.value == null || optimized) {
+                    if (aggInfo.graph != this.getTabId() &&
+                            (aggInfo.graph != null || !this.hasNode(aggInfo.node))) {
+                        let tab: DagTab = DagTabManager.Instance.getTabById(aggInfo.graph);
+                        let name: string = "";
+                        if (tab != null) {
+                            name = tab.getName();
+                        }
                         error = xcHelper.replaceMsg(AggTStr.AggGraphError, {
                             "aggName": agg,
-                            "graphName": DagTabManager.Instance.getTabById(aggInfo.graph).getName()
+                            "graphName": name
                         });
                         continue;
                     }
@@ -1143,7 +1149,7 @@ class DagGraph {
             if (node != null && !nodesMap.has(node.getId())) {
                 nodesMap.set(node.getId(), node);
                 let parents: DagNode[] = node.getParents();
-                const foundSources: {sources: DagNode[], error: string} = this.findNodeNeededSources(node);
+                const foundSources: {sources: DagNode[], error: string} = this.findNodeNeededSources(node, !shortened);
                 parents = parents.concat(foundSources.sources);
                 error = foundSources.error;
                 if (parents.length == 0 || node.getType() == DagNodeType.DFIn) {

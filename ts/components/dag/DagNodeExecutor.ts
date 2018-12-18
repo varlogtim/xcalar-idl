@@ -84,7 +84,7 @@ class DagNodeExecutor {
             case DagNodeType.Dataset:
                 return this._loadDataset(optimized);
             case DagNodeType.Aggregate:
-                return this._aggregate();
+                return this._aggregate(optimized);
             case DagNodeType.Filter:
                 return this._filter();
             case DagNodeType.GroupBy:
@@ -230,7 +230,7 @@ class DagNodeExecutor {
         return XIApi.synthesize(this.txId, colsInfo, srcTable, desTable);
     }
 
-    private _aggregate(): XDPromise<string> {
+    private _aggregate(optimized?: boolean): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNodeAggregate = <DagNodeAggregate>this.node;
         const params: DagNodeAggregateInputStruct = node.getParam(this.replaceParam);
@@ -243,17 +243,20 @@ class DagNodeExecutor {
         XIApi.aggregateWithEvalStr(this.txId, evalStr, tableName, dstAggName)
         .then((value, aggName, toDelete) => {
             node.setAggVal(value);
-            const aggRes: object = {
-                value: value,
-                dagName: aggName,
-                aggName: "\^" + aggName,
-                tableId: tableName,
-                backColName: null,
-                op: null,
-                node: node.getId(),
-                graph: this.tabId
-            };
-            return DagAggManager.Instance.addAgg("\^" + aggName, aggRes);
+            if (!optimized) {
+                const aggRes: object = {
+                    value: value,
+                    dagName: aggName,
+                    aggName: "\^" + aggName,
+                    tableId: tableName,
+                    backColName: null,
+                    op: null,
+                    node: node.getId(),
+                    graph: this.tabId
+                };
+                return DagAggManager.Instance.addAgg("\^" + aggName, aggRes);
+            }
+            return PromiseHelper.resolve();
         })
         .then(() => {
             deferred.resolve(null); // no table generated

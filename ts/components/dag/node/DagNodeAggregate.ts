@@ -13,6 +13,24 @@ class DagNodeAggregate extends DagNode {
         this.minParents = 1;
         this.display.icon = "&#xe939;";
         this.input = new DagNodeAggregateInput(options.input);
+        let dest = this.input.getInput().dest;
+        if (dest != "" &&
+                !DagAggManager.Instance.hasAggregate(dest) &&
+                !dest.startsWith("^XC_SUBQ_")) {
+            // If we upload a dataflow we need to add the relevant aggregates to the agg manager
+            // We make sure to not add sql aggregates
+            let dest: string = this.input.getInput().dest;
+            DagAggManager.Instance.addAgg(dest, {
+                value: null,
+                dagName: dest,
+                aggName: dest,
+                tableId: null,
+                backColName: null,
+                op: null,
+                node: this.getId(),
+                graph: this.graph.getTabId()
+            });
+        }
     }
 
     public static readonly specificSchema = {
