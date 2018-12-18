@@ -117,7 +117,7 @@ class DagCategoryNodeOut extends DagCategoryNode {
 }
 
 class DagCategoryNodeValue extends DagCategoryNode {
-    protected color: string = "#AACE8F";
+    protected color: string = "#F896A9";
     public constructor(node: DagNode) {
         super(node, DagCategoryType.Value);
     }
@@ -152,14 +152,14 @@ class DagCategoryNodeSet extends DagCategoryNode {
 }
 
 class DagCategoryNodeExtensions extends DagCategoryNode {
-    protected color: string = "#F896A9";
+    protected color: string = "#EAABD3";
     public constructor(node: DagNode) {
         super(node, DagCategoryType.Extensions);
     }
 }
 
 class DagCategoryNodeSQL extends DagCategoryNode {
-    protected color: string = "#EAABD3";
+    protected color: string = "#AACE8F";
     public constructor(node: DagNode, isHidden: boolean = false) {
         super(node, DagCategoryType.SQL, isHidden);
     }

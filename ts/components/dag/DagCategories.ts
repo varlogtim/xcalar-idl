@@ -182,13 +182,13 @@ class DagCategories {
             // favoritesCategory,
             inCategory,
             outCategory,
-            valueCategory,
+            sqlCategory,
             operationsCategory,
             columnCategory,
             joinCategory,
             setCategory,
-            sqlCategory,
             extensionCategory,
+            valueCategory,
             customCategory
         ];
     }

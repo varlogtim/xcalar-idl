@@ -604,39 +604,16 @@ class DagCategoryBar {
 
     private _setupScrolling(): void {
         const self = this;
-        let delayTimer;
-        this.$dagView.find(".categoryScroll .arrow").mouseenter(function() {
-            const $el = $(this)
-            let scrollAmount;
+        this.$dagView.find(".categoryScroll .arrow").mouseup(function() {
+            const $catWrap = self.$dagView.find(".categoryWrap .categories");
+            const $categories = self.$dagView.find(".categoryWrap .categories .category");
             if ($(this).hasClass("left")) {
-                scrollAmount = -15;
+                $catWrap.prepend($categories.last().detach());
+                self._listScrollers.unshift(self._listScrollers.pop());
             } else {
-                scrollAmount = 15;
+                $catWrap.find(".spacer").before($categories.eq(0).detach());
+                self._listScrollers.push(self._listScrollers.shift());
             }
-
-            // force user to hover for 150ms before scrolling to
-            // prevent unintended scrolling
-            delayTimer = setTimeout(function() {
-                let timer;
-                scroll();
-                function scroll() {
-                    timer = setTimeout(function() {
-                        var scrollLeft = self.$dagView.find(".categoryWrap").scrollLeft();
-                        self.$dagView.find(".categoryWrap").scrollLeft(scrollLeft + scrollAmount);
-                        scroll();
-                    }, 30);
-                }
-
-                $el.on("mouseleave.catScroll", function() {
-                    clearTimeout(timer);
-                    $(document).off("mouseup.catScroll");
-                });
-            }, 150);
-
-            $el.on("mouseleave.catScrollTimer", function() {
-                clearTimeout(delayTimer);
-                $(document).off("mouseup.catScrollTimer");
-            });
         });
     }
 
