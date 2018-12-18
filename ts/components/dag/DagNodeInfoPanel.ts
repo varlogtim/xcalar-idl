@@ -152,7 +152,7 @@ class DagNodeInfoPanel {
 
     private _updateConfigSection(): void {
         this._$panel.find(".configRow").removeClass("xc-hidden");
-        let params = xcHelper.escapeHTMLSpecialChar(JSON.stringify(this._activeNode.getParam(), null, 4));
+        let params = JSON.stringify(this._activeNode.getParam(), null, 4);
         this._$panel.find(".configSection").text(params);
     }
 

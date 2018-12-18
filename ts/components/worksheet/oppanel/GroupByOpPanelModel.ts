@@ -130,7 +130,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
         this.dagNode.setParam(param);
     }
 
-    protected _initialize(paramsRaw, _strictCheck?: boolean) {
+    protected _initialize(paramsRaw, _strictCheck?: boolean, isSubmit?: boolean) {
         const self = this;
 
         this.icv = paramsRaw.icv || false;
@@ -155,7 +155,13 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
             let argGroup = argGroups[i];
             let args = [];
             const opInfo = this._getOperatorObj(argGroup.operator);
-            if (!opInfo && argGroup.sourceColumn) {
+            if (isSubmit && argGroup.operator.includes(gParamStart)) {
+                // ok to submit when parameter is found
+                const argInfo: OpPanelArg = new OpPanelArg(argGroup.sourceColumn,
+                    -2049, true , true);
+                argInfo.setCast(argGroup.cast);
+                args.push(argInfo);
+            } else if (!opInfo && argGroup.sourceColumn) {
                 if (argGroup.operator.length) {
                     throw({error: "\"" + argGroup.operator + "\" is not a" +
                             " valid group by function."});
@@ -242,7 +248,10 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
         }
     }
 
-    public validateAdvancedMode(paramStr: string): {error: string} {
+    public validateAdvancedMode(
+        paramStr: string,
+        isSubmit?: boolean
+    ): {error: string} {
         try {
             const param: DagNodeMapInput = <DagNodeMapInput>JSON.parse(paramStr);
 
@@ -251,10 +260,10 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
                 return error;
             }
 
-            this._initialize(param, true);
+            this._initialize(param, true, isSubmit);
             error = this.validateGroupOnCols();
             if (!error) {
-                error = this.validateGroups();
+                error = this.validateGroups(isSubmit);
             }
             if (!error) {
                 error = this.validateNewFieldNames();

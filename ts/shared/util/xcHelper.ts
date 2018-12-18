@@ -3111,8 +3111,14 @@ namespace xcHelper {
             case PatternCategory.UDFFn:
                 namePattern = /^[a-z_][a-zA-Z0-9_]*$/;
                 break;
+            case PatternCategory.UDFFnParam:
+                namePattern = /^[a-z_<][a-zA-Z0-9_<>]*$/;
+                break;
             case PatternCategory.UDFFileName:
                 namePattern = /^.*\.py$/;
+                break;
+            case PatternCategory.UDFParam:
+                namePattern = /^[a-z_<][a-zA-Z0-9_-<>]*$/;
                 break;
             case PatternCategory.Workbook:
             case PatternCategory.Target:
@@ -3206,13 +3212,14 @@ namespace xcHelper {
      */
     export function validateBackendColName(
         colName: string,
+        acceptParam: boolean = false
     ): string | null {
         if (!colName || colName.trim().length === 0) {
             return ErrTStr.NoEmpty;
         }
 
         let error: string | null = null;
-        if (!xcHelper.isColNameStartValid(colName)) {
+        if (!xcHelper.isColNameStartValid(colName, acceptParam)) {
             error = ColTStr.RenameStartInvalid;
         } else if (colName.length >
                     XcalarApisConstantsT.XcalarApiMaxFieldNameLen
@@ -3245,12 +3252,12 @@ namespace xcHelper {
      * xcHelper.isColNameStartValid
      * @param colName
      */
-    export function isColNameStartValid(colName: string): boolean {
+    export function isColNameStartValid(colName: string, allowParam?: boolean): boolean {
         if (!colName || colName.trim().length === 0) {
             return false;
         }
         return (xcHelper.isStartWithLetter(colName) ||
-            colName.charAt(0) === "_");
+            colName.startsWith("_") || (allowParam && colName.startsWith("<")));
     }
 
     /**
@@ -3302,14 +3309,15 @@ namespace xcHelper {
     export function validateColName(
         colName: string,
         noSpace: boolean = false,
-        noDoubleColon: boolean = false
+        noDoubleColon: boolean = false,
+        acceptParam: boolean = false
     ): string | null {
         if (!colName || colName.trim().length === 0) {
             return ErrTStr.NoEmpty;
         }
 
         let error: string | null = null;
-        if (!xcHelper.isColNameStartValid(colName)) {
+        if (!xcHelper.isColNameStartValid(colName, acceptParam)) {
             error = ColTStr.RenameStartInvalid;
         } else if (colName.length >
                     XcalarApisConstantsT.XcalarApiMaxFieldNameLen

@@ -18,7 +18,6 @@ arg
     | stringLiteral
     | columnArg
     | aggValue
-    | paramArg
     ;
 fn
     : moduleName COLON fnName
@@ -26,46 +25,13 @@ fn
     ;
 moduleName
     : ALPHANUMERIC
-    {if (!xcHelper.checkNamePattern(PatternCategory.UDF, PatternAction.Check, $ALPHANUMERIC.text)) {
+    {if (!xcHelper.checkNamePattern(PatternCategory.UDFParam, PatternAction.Check, $ALPHANUMERIC.text)) {
     throw SyntaxError('Invalid module name: ' + $ALPHANUMERIC.text);}}
     ;
 fnName
     : ALPHANUMERIC
-    {if (!xcHelper.checkNamePattern(PatternCategory.UDFFn, PatternAction.Check, $ALPHANUMERIC.text)) {
+    {if (!xcHelper.checkNamePattern(PatternCategory.UDFFnParam, PatternAction.Check, $ALPHANUMERIC.text)) {
     throw SyntaxError('Invalid udf name: ' + $ALPHANUMERIC.text);}}
-    ;
-paramArg
-    : (ALPHANUMERIC
-    | INTEGER
-    | DECIMAL
-    | COLON
-    | DOUBLECOLON
-    | DOT
-    | LBRACKET
-    | RBRACKET
-    | '-'
-    | '_'
-    | CARET)* LTSIGN paramValue GTSIGN paramAfter*
-    ;
-paramAfter
-    : (ALPHANUMERIC
-    | INTEGER
-    | DECIMAL
-    | COLON
-    | DOUBLECOLON
-    | DOT
-    | LBRACKET
-    | RBRACKET
-    | '-'
-    | '_'
-    | CARET)
-    | LTSIGN paramValue GTSIGN
-    ;
-paramValue
-    : ALPHANUMERIC
-    {if (!xcHelper.checkNamePattern(PatternCategory.Param2, PatternAction.Check, $ALPHANUMERIC.text)) {
-    throw SyntaxError('Invalid parameter name. Name must start with ' +
-                    'a letter and contain only alphanumeric characters or underscores. Parameter : ' + $ALPHANUMERIC.text);}}
     ;
 columnArg
     : colElement DOUBLECOLON colElement
@@ -82,14 +48,14 @@ colElement
     ;
 colName
     : ALPHANUMERIC
-    {if ($ALPHANUMERIC.text.toUpperCase() != "NONE" && xcHelper.validateBackendColName($ALPHANUMERIC.text)) {
-    throw SyntaxError(xcHelper.validateBackendColName($ALPHANUMERIC.text));
+    {if ($ALPHANUMERIC.text.toUpperCase() != "NONE" && xcHelper.validateBackendColName($ALPHANUMERIC.text, true)) {
+    throw SyntaxError(xcHelper.validateBackendColName($ALPHANUMERIC.text, true));
     }}
     ;
 propertyName
     : ALPHANUMERIC
-    {if (xcHelper.validateColName($ALPHANUMERIC.text, false, true)) {
-    throw SyntaxError(xcHelper.validateColName($ALPHANUMERIC.text, false, true));
+    {if (xcHelper.validateColName($ALPHANUMERIC.text, false, true, true)) {
+    throw SyntaxError(xcHelper.validateColName($ALPHANUMERIC.text, false, true, true));
     }}
     ;
 aggValue
@@ -135,7 +101,7 @@ INTEGER: '-'? DIGIT+;
 STRING: ('"' ( ~('"'|'\\') | ('\\' .) )* '"') | ('\'' ( ~('\''|'\\') | ('\\' .) )* '\'');
 APOSTROPHE: '\'';
 SINGLEQUOTE: '"';
-ALPHANUMERIC: (ALPHANUMS | [_-]) ((CHARALLOWED | ' ')* CHARALLOWED)?;
+ALPHANUMERIC: (ALPHANUMS | [_-] | '<' | '>') ((CHARALLOWED | ' ')* CHARALLOWED)?;
 fragment A : [aA]; // match either an 'a' or 'A'
 fragment B : [bB];
 fragment C : [cC];

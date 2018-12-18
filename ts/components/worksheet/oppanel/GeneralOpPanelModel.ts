@@ -527,7 +527,10 @@ class GeneralOpPanelModel {
         return null;
     }
 
-    public validateAdvancedMode(_paramStr: string): {error: string} {
+    public validateAdvancedMode(
+        _paramStr: string,
+        isSubmit?: boolean
+    ): {error: string} {
         return null;
     }
 
@@ -916,12 +919,18 @@ class GeneralOpPanelModel {
         return dupFound;
     }
 
-    public validateGroups() {
+    public validateGroups(isSubmit?: boolean) {
         const self = this;
         const groups = this.groups;
-
+        const paramFns = [];
         // function name error
         for (let i = 0; i < groups.length; i++) {
+            if (isSubmit && xcHelper.checkValidParamBrackets(groups[i].operator, true)) {
+                paramFns.push(true);
+                continue;
+            } else {
+                paramFns.push(false);
+            }
             if (!self._isOperationValid(i)) {
                 return {error: ErrTStr.NoSupportOp,
                         group: i,
@@ -931,6 +940,9 @@ class GeneralOpPanelModel {
         }
         // correct number of operators
         for (let i = 0; i < groups.length; i++) {
+            if (paramFns[i]) {
+                continue;
+            }
             const group = groups[i];
             const opInfo = this._getOperatorObj(group.operator);
             if (group.args.length < opInfo.argDescs.length) {

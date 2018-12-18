@@ -70,7 +70,7 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
 
     // strict check is true when saving/ validating form
     // and false when first opening the form
-    protected _initialize(paramsRaw, strictCheck?: boolean) {
+    protected _initialize(paramsRaw, strictCheck?: boolean, isSubmit?: boolean) {
         const self = this;
         if (!this._opCategories.length) {
             this._opCategories = [FunctionCategoryT.FunctionCategoryCondition];
@@ -115,9 +115,13 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
             const opInfo = this._getOperatorObj(argGroup.fnName);
             let lastArg;
             let hasVariableArg = false;
+            let hasParamFn = false;
             if (argGroup.args.length) {
                 if (!opInfo) {
-                    if (argGroup.fnName.length) {
+                    if (isSubmit && argGroup.fnName.includes(gParamStart)) {
+                        hasParamFn = true;
+                        // ok to submit when parameter is found
+                    } else if (argGroup.fnName.length) {
                         throw({error: "\"" + argGroup.fnName + "\" is not a" +
                                 " valid filter function."});
                     } else {
@@ -141,12 +145,18 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
                     arg = xcHelper.stringifyEval(argGroup.args[j]);
                 }
                 let typesAccepted;
-                if (hasVariableArg) {
+                let isOptional;
+                if (hasParamFn) {
+                    typesAccepted = -2049;
+                    isOptional = true;
+                } else if (hasVariableArg) {
                     typesAccepted = lastArg.typesAccepted
+                    isOptional = this._isOptional(opInfo, j);
                 } else {
                     typesAccepted = opInfo.argDescs[j].typesAccepted;
+                    isOptional = this._isOptional(opInfo, j);
                 }
-                const isOptional = this._isOptional(opInfo, j);
+
                 const argInfo: OpPanelArg = new OpPanelArg(arg, typesAccepted,
                                                            isOptional, true);
                 args.push(argInfo);
@@ -200,7 +210,7 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
         }
     }
 
-    public validateAdvancedMode(paramStr: string): {error: string} {
+    public validateAdvancedMode(paramStr: string, isSubmit?: boolean): {error: string} {
         try {
             const param: DagNodeFilterInputStruct = <DagNodeFilterInputStruct>JSON.parse(paramStr);
 
@@ -209,8 +219,8 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
                 return error;
             }
 
-            this._initialize(param, true);
-            error = this.validateGroups();
+            this._initialize(param, true, isSubmit);
+            error = this.validateGroups(isSubmit);
             if (error == null) {
                 return null;
             } else {

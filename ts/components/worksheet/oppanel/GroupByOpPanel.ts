@@ -821,10 +821,10 @@ class GroupByOpPanel extends GeneralOpPanel {
         return {};
     }
 
-    protected _validate(): boolean {
+    protected _validate(isSubmit?: boolean): boolean {
         const self = this;
         if (this._isAdvancedMode()) {
-            const error: {error: string} = this.model.validateAdvancedMode(this._editor.getValue());
+            const error: {error: string} = this.model.validateAdvancedMode(this._editor.getValue(), isSubmit);
             if (error != null) {
                 StatusBox.show(error.error, this._$panel.find(".advancedEditor"));
                 return false;

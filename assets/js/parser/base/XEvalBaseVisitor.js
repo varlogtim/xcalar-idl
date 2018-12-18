@@ -54,24 +54,6 @@ XEvalBaseVisitor.prototype.visitFnName = function(ctx) {
 };
 
 
-// Visit a parse tree produced by XEvalBaseParser#paramArg.
-XEvalBaseVisitor.prototype.visitParamArg = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by XEvalBaseParser#paramAfter.
-XEvalBaseVisitor.prototype.visitParamAfter = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by XEvalBaseParser#paramValue.
-XEvalBaseVisitor.prototype.visitParamValue = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
 // Visit a parse tree produced by XEvalBaseParser#columnArg.
 XEvalBaseVisitor.prototype.visitColumnArg = function(ctx) {
   return this.visitChildren(ctx);

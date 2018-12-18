@@ -213,6 +213,8 @@ enum PatternCategory {
     Prefix = "prefix",
     UDF = "udf",
     UDFFn = "udfFn",
+    UDFParam = "udfParam",
+    UDFFnParam = "udfFnParam",
     UDFFileName = "udfFileName",
     Workbook = "workbook",
     Target = "target",

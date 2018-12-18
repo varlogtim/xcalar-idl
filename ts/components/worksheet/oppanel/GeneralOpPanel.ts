@@ -1051,7 +1051,7 @@ class GeneralOpPanel extends BaseOpPanel {
     }
 
     protected _submitForm() {
-        if (!this._validate()) {
+        if (!this._validate(true)) {
             return false;
         }
 
@@ -1060,7 +1060,7 @@ class GeneralOpPanel extends BaseOpPanel {
         return true;
     }
 
-    protected _validate(): boolean {
+    protected _validate(_isSubmit?: boolean): boolean {
         return true;
     }
 

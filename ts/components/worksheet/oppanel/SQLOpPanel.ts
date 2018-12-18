@@ -367,12 +367,14 @@ class SQLOpPanel extends BaseOpPanel {
                 const idx = self._sqlTables[tableName];
                 if (idx) {
                     const parent = self._dagNode.getParents()[idx - 1];
-                    parent.getLineage().getColumns().forEach((parentCol) => {
-                        if (parentCol.name != "DATA") {
-                            acTables[tableName].push(parentCol.name);
-                            acTables[parentCol.name] = [];
-                        }
-                    });
+                    if (parent) {
+                        parent.getLineage().getColumns().forEach((parentCol) => {
+                            if (parentCol.name != "DATA") {
+                                acTables[tableName].push(parentCol.name);
+                                acTables[parentCol.name] = [];
+                            }
+                        });
+                    }
                 }
             }
 

@@ -71,7 +71,7 @@ class AggOpPanelModel extends GeneralOpPanelModel {
         this.mustExecute = mustExecute;
     }
 
-    protected _initialize(paramsRaw, strictCheck?: boolean) {
+    protected _initialize(paramsRaw, strictCheck?: boolean, isSubmit?: boolean) {
         const self = this;
         this.dest = paramsRaw.dest;
         this.mustExecute = paramsRaw.mustExecute;
@@ -94,9 +94,13 @@ class AggOpPanelModel extends GeneralOpPanelModel {
             let argGroup = argGroups[i];
             let args = [];
             const opInfo = this._getOperatorObj(argGroup.fnName);
+            let hasParamFn = false;
             if (argGroup.args.length) {
                 if (!opInfo) {
-                    if (argGroup.fnName.length) {
+                    if (isSubmit && argGroup.fnName.includes(gParamStart)) {
+                        hasParamFn = true;
+                        // ok to submit when parameter is found
+                    } else if (argGroup.fnName.length) {
                         throw({error: "\"" + argGroup.fnName + "\" is not a" +
                                 " valid aggregate function."});
                     } else {
@@ -115,10 +119,18 @@ class AggOpPanelModel extends GeneralOpPanelModel {
                 if (argGroup.args[j].type === "fn") {
                     arg = xcHelper.stringifyEval(<ParsedEval>argGroup.args[j]);
                 }
-                const isOptional = this._isOptional(opInfo, j);
-                const argInfo: OpPanelArg = new OpPanelArg(arg,
-                                        opInfo.argDescs[j].typesAccepted,
-                                        isOptional, true);
+                let isOptional: boolean;
+                let typesAccepted: number;
+                if (hasParamFn) {
+                    isOptional = false;
+                    typesAccepted = -2049;
+                } else {
+                    isOptional = this._isOptional(opInfo, j);
+                    typesAccepted = opInfo.argDescs[j].typesAccepted;
+                }
+
+                const argInfo: OpPanelArg = new OpPanelArg(arg, typesAccepted,
+                                                        isOptional, true);
                 args.push(argInfo);
             }
             args.forEach((arg) => {
@@ -152,7 +164,10 @@ class AggOpPanelModel extends GeneralOpPanelModel {
         }
     }
 
-    public validateAdvancedMode(paramStr: string): {error: string} {
+    public validateAdvancedMode(
+        paramStr: string,
+        isSubmit?: boolean
+    ): {error: string} {
         try {
             const param: DagNodeAggregateInputStruct = <DagNodeAggregateInputStruct>JSON.parse(paramStr);
 
@@ -161,8 +176,8 @@ class AggOpPanelModel extends GeneralOpPanelModel {
                 return error;
             }
 
-            this._initialize(param, true);
-            error = this.validateGroups();
+            this._initialize(param, true, isSubmit);
+            error = this.validateGroups(isSubmit);
             if (!error) {
                 error = this.validateAggName();
             }
