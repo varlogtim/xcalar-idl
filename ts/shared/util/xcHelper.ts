@@ -3254,19 +3254,21 @@ namespace xcHelper {
     }
 
     /**
+     * Only show default and user workbook's udfs and shared udfs. If same
+     * module name exists in workbook space and shared space, it preserves the
+     * one in workbook space.
      * @param  {XcalarEvalFnDescT[]} fns
      * @param  {string} wkbkPrefix?
      * @returns XcalarEvalFnDescT
      */
-    // only show default and user workbook's udfs and shared udfs
     export function filterUDFs(fns: XcalarEvalFnDescT[], wkbkPrefix?: string): XcalarEvalFnDescT[] {
-        const filteredArray: XcalarEvalFnDescT[] = [];
+        let filteredArray: XcalarEvalFnDescT[] = [];
         wkbkPrefix = wkbkPrefix || UDFFileManager.Instance.getCurrWorkbookPath();
         if (wkbkPrefix == null) {
             return filteredArray;
         }
         const sharedPathPrefix: string = UDFFileManager.Instance.getSharedUDFPath();
-        const functionNameSet: Set<string> = new Set();
+        const functionNameMap: Map<string, XcalarEvalFnDescT> = new Map();
 
         for (const op of fns) {
             if (op.fnName.indexOf("/") === -1) {
@@ -3276,15 +3278,17 @@ namespace xcHelper {
                 op.fnName.startsWith(sharedPathPrefix)
             ) {
                 const functionName: string = op.fnName.split("/").pop();
-                if (functionNameSet.has(functionName)) {
-                    continue;
-                } else {
-                    functionNameSet.add(functionName);
+                if (
+                    !functionNameMap.has(functionName) ||
+                    (functionNameMap.has(functionName) &&
+                        op.fnName.startsWith(wkbkPrefix))
+                ) {
+                    functionNameMap.set(functionName, op);
                 }
-                filteredArray.push(op);
             }
         }
 
+        filteredArray = filteredArray.concat(...functionNameMap.values())
         return filteredArray;
     }
 
