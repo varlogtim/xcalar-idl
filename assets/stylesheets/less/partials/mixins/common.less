@@ -674,7 +674,7 @@
     .icon {
         .size(@width: 16px, @height: 16px);
         font-size: 15px;
-        color: @color-font-softBlue;
+        color: @color-font-dropdown-gray;
         .vertical-align;
     }
 
@@ -1124,6 +1124,44 @@
     }
 }
 
+.rangeSlider {
+    display: inline-block;
+    .size(@width: 200px, @height: 30px);
+    position: relative;
+    .leftArea, .rightArea {
+        .position(absolute, @top: 0px, @left: 0);
+        .size(@width: 100%; @height: 30px);
+
+        &:before {
+            content: "";
+            display: block;
+            .size(100%, 10px);
+            .position(absolute, @top: 10px);
+            .rounded(5px);
+        }
+    }
+    .leftArea {
+        z-index: 1;
+
+        &:before {
+            background-color: @color-font-light-blue;
+        }
+    }
+    .rightArea {
+        &:before {
+            background-color: @color-border-softGray;
+        }
+    }
+    .slider {
+        background-color: @color-border-softGray;
+        .rounded;
+    }
+    .slider, .ui-resizable-e {
+        .position(absolute, @top: 5px, @right: 0);
+        .size(13px, 21px);
+    }
+}
+
 // used for datasetTableWrap in datastore.less
 .typeIcon() {
     .type.icon {
@@ -1254,19 +1292,23 @@
     }
 
     .listInfo {
-        font-weight: 700;
         padding: 0 15px;
+        height: 30px;
     }
 
     ul {
         display: none;
-        margin: 8px 0;
 
         > li {
             .size(@width: 100%, @height: 30px);
             opacity: @opacity-unhover;
             padding: 5px 15px;
-            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid @color-bg-topBarGray2;
+            font-size: 12px;
+
+            &:first-child {
+                border-top: 1px solid @color-bg-topBarGray2;
+            }
 
             &:hover {
                 opacity: @opacity-hover;
@@ -1289,16 +1331,17 @@
 }
 
 .xc-switch {
-    .size(@width: 22px, @height: 10px);
+    .size(@width: 22px, @height: 12px);
     .position(relative, @top: 5px);
     .rounded(5px);
-    background-color: @color-bg-pinkish-grey;
+    background-color: @color-arc-xdbfree;
     cursor: pointer;
 
     .slider {
         .size(@width: 12px, @height: 12px);
         .rounded(100%);
-        .position(relative, @left: 0, @top: -1px);
+        .position(relative, @left: 0, @top: 0px);
+        border: 1px solid @color-arc-xdbfree;
         background-color: @color-white;
         .transition(left 0.2s);
     }

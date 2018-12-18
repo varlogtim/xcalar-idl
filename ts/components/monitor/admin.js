@@ -536,27 +536,21 @@ window.Admin = (function($, Admin) {
                 memTip = MonitorTStr.MemUsage + ": " +userMemList[i].memText;
             }
             html += '<li class="userLi">' +
-                        '<span class="status"' +
-                        ' data-toggle="tooltip"' +
-                        ' data-container="body"' +
-                        ' data-placement="top"' +
-                        ' data-title="' + TooltipTStr.LoggedIn + '">' +
-                        '</span>' +
                         '<i class="icon xi-user fa-11"></i>' +
                         '<span class="text">' + userList[i] + '</span>' +
-                        '<span class="useAs xc-action"' +
-                            ' data-toggle="tooltip"' +
-                            ' data-container="body"' +
-                            ' data-placement="top"' +
-                            ' data-title="Use Xcalar as this user">' +
-                            '<i class="icon xi-monitor"></i>' +
-                        '</span>' +
                         '<span class="memory xc-action"' +
                             ' data-toggle="tooltip"' +
                             ' data-container="body"' +
                             ' data-placement="top"' +
                             ' data-title="' + memTip + '">' +
                             '<i class="icon xi-menu-info"></i>' +
+                        '</span>' +
+                        '<span class="useAs xc-action"' +
+                            ' data-toggle="tooltip"' +
+                            ' data-container="body"' +
+                            ' data-placement="top"' +
+                            ' data-title="Use Xcalar as this user">' +
+                            '<i class="icon xi-monitor"></i>' +
                         '</span>' +
                     '</li>';
         }
@@ -569,10 +563,15 @@ window.Admin = (function($, Admin) {
         $userList.find(".userLi").each(function() {
             var $li = $(this);
             var name = $li.find(".text").text();
+            var $icon = $li.find(".xi-user");
             if (loggedInUsers.hasOwnProperty(name)) {
                 $li.addClass("loggedIn");
+                xcTooltip.add($icon, {
+                    title: TooltipTStr.LoggedIn
+                });
             } else {
                 $li.removeClass("loggedIn");
+                xcTooltip.remove($icon);
             }
             if (name === userIdName) {
                 $li.addClass("self");

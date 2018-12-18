@@ -3891,27 +3891,6 @@ table.datasetTable {
 }
 
 #datastoreMenu {
-    background-color: @color-white;
-    // Here until other mainMenu panels are updated as well
-    .titleSection {
-        margin: 0 0 0 0 !important;
-        color: @color-font-form-gray !important;
-        font-weight: bold !important;
-        font-size: 24px !important;
-        header {
-            margin-left: 11px ;
-        }
-        border-bottom: 1px solid @color-border-softGray !important;
-    }
-
-    #importDataButton, #addFolderBtn, #dsTarget-create {
-        background-color: @color-font-edge;
-    }
-
-    #dataViewBtn, .minimizeBtn, #refreshDS, #dsTarget-refresh, #dsTarget-view {
-        color: @color-font-edge;
-    }
-
     &.noAdmin {
         #dsTarget-create, #createExportButton {
             box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5) !important;
@@ -3922,6 +3901,12 @@ table.datasetTable {
             li[data-action="create"], li[data-action="delete"] {
                 display: none;
             }
+        }
+    }
+
+    .menuSection {
+        > .mainSection {
+            color: @color-white !important;
         }
     }
 }

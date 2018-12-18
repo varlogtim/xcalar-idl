@@ -1774,6 +1774,7 @@ namespace QueryManager {
         let statusClass: string | number = "";
         let pct: number;
         let step: string = "";
+        let stepClass = "";
         const originalName: string = xcQuery.getName();
         let name: string = originalName;
         let tooltip: string = "";
@@ -1786,12 +1787,14 @@ namespace QueryManager {
             if (xcQuery.state === QueryStatus.Done) {
                 step = "completed";
                 pct = 100;
+                stepClass = "done";
             } else if (xcQuery.state === QueryStatus.Cancel) {
                 step = QueryStatus.Cancel;
                 pct = 0;
             } else if (xcQuery.state === QueryStatus.Error) {
                 step = QueryStatus.Error;
                 pct = 0;
+                stepClass = "error";
             }
         } else {
             statusClass = "processing";
@@ -1835,7 +1838,9 @@ namespace QueryManager {
                     'data-original-title="' + dateObj.tip + '">' +
                         CommonTxtTstr.StartTime + ": " + dateObj.text +
                     '</div>' +
-                    '<div class="rightPart querySteps">' + step + '</div>' +
+                    '<div class="rightPart querySteps ' + stepClass + '">' +
+                        step +
+                    '</div>' +
                 '</div>' +
                 '<div class="queryProgress">' +
                     '<div class="progressBar" style="width:' + pct +

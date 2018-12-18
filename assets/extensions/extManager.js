@@ -963,7 +963,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             'data-name="' + modName + '">' +
                 '<div class="moduleInfo no-selection">' +
                     '<span class="expand">' +
-                        '<i class="icon xi-arrow-down fa-7"></i>' +
+                        '<i class="icon xi-down fa-13"></i>' +
                     '</span>' +
                     '<i class="icon xi-menu-extension fa-15"></i>' +
                     '<span class="name">' +

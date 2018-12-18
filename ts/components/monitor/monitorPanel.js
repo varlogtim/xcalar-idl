@@ -15,7 +15,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
 
         var $menus = $("#monitorMenu-sys").add($("#monitorMenu-setup"))
                                          .add($("#monitorMenu-settings"));
-        $menus.on("click", ".listInfo", function() {
+        $menus.on("click", ".listInfo .expand", function() {
             $(this).closest(".listWrap").toggleClass("active");
         });
 

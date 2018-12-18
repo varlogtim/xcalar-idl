@@ -16,22 +16,13 @@
     }
 }
 
-#dagViewContent {
-    padding: 0 0 0 0;
-}
-
 #dagViewBar {
     .flex-direction(row);
-    color: #44515c;
-
     // TODO: move to constants.less when colors are finalized
-    @color-title: #849CB0;
     @color-border-bar: #849CB0;
     @color-connector: #BBC7D1;
     @color-play: #49DAA0;
     @color-stop: #FF6E57;
-    background-color: @color-bg-topBarGray2;
-    box-shadow: 0px 0.25px 0px @color-border-bar;
     z-index: 0;
     min-height: @height-topBar;
     max-height: 50px;
@@ -41,10 +32,6 @@
             pointer-events: none;
             opacity: 0.5;
         }
-    }
-
-    #dagViewTitle {
-        color: @color-title;
     }
 
     .topButtons {
@@ -1566,11 +1553,11 @@
             padding: 0 5px 0 15px;
 
             &.active {
-                background-color: @color-bg-light-navy;
+                background-color: @color-bg-topBarGray2;
             }
 
             &:hover {
-                background-color: rgba(0, 0, 0, 0.3);
+                background-color: @color-bg-list-hover-blue;
             }
 
             > span {

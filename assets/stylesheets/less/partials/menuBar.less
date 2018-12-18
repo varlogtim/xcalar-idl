@@ -157,8 +157,8 @@
     .size(@width: @width-topMenu, @min-width: @width-topMenu, @height: ~"calc(100% - @{height-homeBtn})");
     z-index: @z-index-topMenu;
     .transition(left @time-menuAnim);
-    background-color: @color-bg-dusk-blue;
-    color: @color-white;
+    background-color: @color-white;
+    color: @color-font-form-gray;
 
     &.noAnim {
         .transition(left 0s);
@@ -166,7 +166,7 @@
 
     &.open {
         .position(@left: @width-homeBtn);
-        box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.1);
+        border-right: 1px solid @color-border-softGray;
 
         &::after { // used for darkening menu when json modal is open
             content: "";
@@ -221,7 +221,7 @@
         display: none;
         .size(100%, 100%);
         padding: 0px;
-        color: @color-white;
+        color: @color-font-form-gray;
 
         &.active {
             display: block;
@@ -234,35 +234,40 @@
     }
 
     .menuSection {
+        @height-icon: 50px;
+        @height-title: 45px;
+        @height-total: @height-icon + @height-title; 
         .size(100%, 100%);
 
         &.simple {
+            @height-simple: 60px;
             > .titleSection {
-                .size(@height: 42px);
+                .size(@height: @height-simple);
 
                 div {
-                    .size(@width: 130px);
+                    .size(@width: 150px);
                     .position(relative, @top: 7px);
                     float: left;
                 }
             }
 
             > .mainSection {
-                .size(@height: ~"calc(100% - 45px)");
+                .size(@height: ~"calc(100% - @{height-simple})");
             }
         }
 
         > .iconSection {
-            .size(@height: 50px);
+            .size(@height: @height-icon);
             padding: 0 10px 0px 15px;
-            color: @color-white;
+            color: @color-arc-xdbfree;
 
             .action {
                 float: left;
                 .size(35px, 35px);
                 .rounded(100%);
                 margin-right: 8px;
-                background-color: @color-bg-select-blue;
+                color: @color-white;
+                background-color: @color-font-edge;
                 box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
                 opacity: @opacity-unhover;
                 cursor: pointer;
@@ -284,7 +289,6 @@
                 cursor: pointer;
                 margin: 2px 5px;
                 float: right;
-
                 opacity: @opacity-unhover;
 
                 &:hover {
@@ -294,10 +298,9 @@
         }
 
         > .titleSection {
-            .size(@height: 35px);
-            .font(@size: 20px, @weight: 700, @color: @color-white);
-            margin: 0 10px 0 15px;
-            border-bottom: 1px solid @color-border-light-navy;
+            .size(@height: @height-title);
+            .font(@size: 22px, @weight: bold, @color: @color-font-form-gray);
+            padding: 0 10px 0 15px;
             backface-visibility: hidden;
 
             header {
@@ -306,9 +309,10 @@
         }
 
         > .mainSection {
-            .size(@height: ~"calc(100% - 85px)");
+            border-top: 1px solid @color-border-softGray;
+            .size(@height: ~"calc(100% - @{height-total})");
             padding-top: 10px;
-            color: @color-white;
+            color: @color-font-form-gray;
         }
     }
 
@@ -409,7 +413,7 @@
     }
 
     &.poppedOut {
-        .size (@height: ~"calc(100% - 119px)");
+        height: ~"calc(100% - 119px)";
         .position(@right: 5px, @bottom: 46px);
         z-index: @z-index-homeBtn + 1;
         .transition (right 0s);
@@ -515,7 +519,6 @@
         overflow: hidden;
         pointer-events: none;
         cursor: default;
-        // .noSelection;
         background-color: @color-white;
         padding-left: @width-menuPadding;
 

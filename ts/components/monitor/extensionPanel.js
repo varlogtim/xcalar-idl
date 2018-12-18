@@ -98,7 +98,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             $panel.addClass("admin");
         }
 
-        $extLists.on("click", ".listInfo", function() {
+        $extLists.on("click", ".listInfo .expand", function() {
             $(this).closest(".listWrap").toggleClass("active");
         });
 
@@ -421,7 +421,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         var html = '<div class="listWrap xc-expand-list active">' +
                         '<div class="listInfo no-selection">' +
                             '<span class="expand">' +
-                                '<i class="icon xi-arrow-down fa-7"></i>' +
+                                '<i class="icon xi-down fa-13"></i>' +
                             '</span>' +
                             '<span class="text">' +
                               ExtTStr.XcCategory +

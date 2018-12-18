@@ -1,9 +1,8 @@
 .cardContainer {
     .size(@width: 100%);
     margin-bottom: 5px;
-    box-shadow: 0px 3px 5px 0px rgba(0,0,0, .2);
     background-color: @color-white;
-    color: @color-font-navy;
+    color: @color-font-form-gray;
 
     &.minimized {
         .cardInstruction, .cardTopMain, .cardMain, .cardSubMain, .cardBottom {
@@ -32,12 +31,11 @@
     line-height: @height-card-header;
     text-align: left;
     text-transform: capitalize;
-    background-color: @color-bg-select-blue;
+    background-color: @color-bg-cardHeader;
 
     .title {
-        .font(@weight: 700, @size: 18px, @color: @color-white);
+        .font(@weight: 600, @size: 18px, @color: @color-white);
         display: inline-block;
-        float: left;
         padding-left: 20px;
         padding-right: 20px;
         .textOverflowOneLine;
