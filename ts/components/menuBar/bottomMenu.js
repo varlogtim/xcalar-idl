@@ -309,10 +309,8 @@ window.BottomMenu = (function($, BottomMenu) {
 
         var sectionId = $section.attr("id");
         if (sectionId ==="udfSection") {
-            $menuPanel.children(".sideBarTopButtons").addClass("udfTopButtons");
             $("#udfButtonWrap").removeClass("xc-hidden");
         } else {
-            $menuPanel.children(".sideBarTopButtons").removeClass("udfTopButtons");
             $("#udfButtonWrap").addClass("xc-hidden");
         }
 

@@ -385,14 +385,7 @@
     .size(@width: @width-bottomMenu,  @height: ~"calc(100% - @{height-homeBtn})");
     z-index: @z-index-bottomMenu;
     .transition(left @time-menuAnim);
-
-    ::-webkit-scrollbar-track {
-        background: rgba(0, 0, 0, 0.3);
-    }
-    ::-webkit-scrollbar-thumb {
-        -webkit-box-shadow: none;
-        background-color: rgb(67, 88, 113) !important; // xi2 temp
-    }
+    border-right: 1px solid @color-border-softGray;
 
     &.noAnim {
         .transition(left 0s);
@@ -472,7 +465,7 @@
         z-index: 1;
         .noSelection;
         cursor: pointer;
-        color: @color-white;
+        color: @color-arc-xdbfree;
 
         .icon {
             .size(@width: 20px, @height: 20px);
@@ -502,11 +495,6 @@
         #helpCategories {
             display: none;
         }
-
-        &.udfTopButtons {
-            color: @color-font-form-gray;
-        }
-
     }
 
     .menuSection {
@@ -514,7 +502,7 @@
         .size(@width: 100%, @height: 100%);
         display: none;
         overflow: hidden;
-        background-color: @color-bg-marine;
+        background-color: @color-white;
 
         &.active {
             display: block;
@@ -522,19 +510,17 @@
     }
 
     .heading {
-        .size(@width: 100%, @height: 35px);
+        .size(@width: 100%, @height: 71px);
         text-align: left;
-        padding-top: 2px;
-        padding-left: 15px;
         overflow: hidden;
         pointer-events: none;
         cursor: default;
-        .noSelection;
-        background-color: @color-bg-marine-transparent;
+        // .noSelection;
+        background-color: @color-white;
+        padding-left: @width-menuPadding;
 
         h2 {
-            .size(@width: ~"calc(100% - 90px)");
-            .font(@line-height: 35px,  @weight: bold, @color: @color-white);
+            .font(@line-height: 90px,  @size: 20px, @weight: bold, @color: @color-font-form-gray);
             display: inline-block;
             .textOverflowOneLine;
         }
@@ -542,14 +528,18 @@
 
     .menuContent {
         .position(relative);
-        .size(@width: auto, @height: ~"calc(100% - 35px)");
-        background-color: @color-bg-marine;
+        .size(@width: auto, @height: ~"calc(100% - 71px)");
         overflow: hidden;
+        background-color: @color-white;
     }
 }
 /* ========== Log Section ========== */
 #logSection {
     .size(@height: ~"calc(100% - 10px)");
+
+    .heading {
+        border-bottom: 1px solid @color-border-softGray;
+    }
 
     .container {
         .size(@height: 100%);
@@ -560,14 +550,15 @@
             .position(absolute, @top: 0);
             .size(@width: 100%, @height: 100%);
             overflow-y: scroll;
+            padding: 10px 0;
 
             .logContentWrap, .cliWrap {
                 .size(@width: 100%);
-                .font(@size: 13px, @color: @color-white);
+                .font(@size: 13px, @color: @color-font-form-gray);
             }
 
             .logContentWrap {
-                padding: 2px 2px 2px 10px;
+                padding: 2px 15px 2px 15px;
                 &:last-child {
                     padding-bottom: 10px;
                 }
@@ -670,7 +661,7 @@
         }
 
         &:hover {
-            background-color: @color-log-hover;
+            background-color: @color-bg-topBarGray2;
         }
     }
 }
@@ -678,36 +669,11 @@
 
 /* ========== UDF Section ========== */
 #udfSection {
-    background-color: @color-white;
     color: @color-font-form-gray;
-    border-right: 1px solid @color-border-softGray;
     overflow: visible !important;
-
-    @title-height: 40px;
 
     .mainSectionContainer {
         .size(@width: 100%, @height: 100%);
-    }
-
-    > header {
-        color: @color-font-form-gray;
-        height: 71px !important;
-        font-size: 20px;
-        background-color: @color-white !important;
-        padding: 0px;
-
-        .title {
-            color: @color-font-form-gray;
-            line-height: 81px;
-            margin-left: 15px;
-            display: inline-block;
-            font-weight: bold;
-        }
-    }
-
-    .menuContent {
-        background-color: @color-white;
-        height: ~"calc(100% - 71px)";
     }
 }
 
@@ -1205,6 +1171,10 @@ ul.CodeMirror-hints {
 }
 /* ========== Help Section========== */
 #helpSection {
+    .heading {
+        height: 66px;
+    }
+
     .border {
         .size(@width: 100%, @height: 1px);
         border-bottom: 1px solid @color-border-pinkish-grey;
@@ -1214,47 +1184,41 @@ ul.CodeMirror-hints {
         height: ~"calc(100% - 96px)";
         position: absolute;
         top: 82px;
-        background: @color-bg-dark-marine;
+        background: @color-white;
     }
 }
 
 #helpSearchArea {
-    padding: 6px 3% 5px 3%;
+    padding: 0 @width-menuPadding 15px @width-menuPadding;
     margin: 0 auto;
+    border-bottom: 1px solid @color-border-softGray;
 
     input {
         width: ~"calc(100% - 30px)";
         padding: 2px 30px 2px 10px;
         float: left;
-        background-color: @color-black;
-        color: @color-white;
+        border: 1px solid @color-bg-topBarGray2;
         font-size: 13px;
         outline: none;
-
-        &:focus {
-            // background-color: @color-white;
-            // outline: none;
-
-            // box-shadow: inset 0px 1px 1px 1px rgba(0,0,0,0.3);
-        }
-        .input-placeholder(@color-text-lightGray);
+        .input-placeholder(@color-font-edge);
     }
-}
 
+    #helpSubmit {
+        .size(@width: 30px, @height: 30px);
+        display: inline-block;
+        position: absolute;
+        right: 0px;
+        margin-right: @width-menuPadding;
+        cursor: pointer;
+        text-align: center;
+        border: 1px solid @color-border-softGray;
+        border-left: none;
 
-#helpSubmit {
-    .size(@width: 30px, @height: 30px);
-    display: inline-block;
-    position: absolute;
-    right: 0px;
-    margin-right: 3%;
-    cursor: pointer;
-    background-color: @color-bg-select-blue;
-    text-align: center;
-    .icon {
-        font-size: 16px;
-        margin-top: 7px;
-        color: @color-white;
+        .icon {
+            font-size: 16px;
+            margin-top: 7px;
+            color: @color-font-form-gray;
+        }
     }
 }
 
@@ -1285,7 +1249,7 @@ ul.CodeMirror-hints {
             .horizontal-align;
             position: absolute;
             top: 40%;
-            color: @color-text-lightGray;
+            color: @color-font-form-gray;
         }
 
         #discourseButton {
@@ -1294,7 +1258,6 @@ ul.CodeMirror-hints {
             margin-left: 10px;
             width: 170px;
         }
-
     }
 
     a {
@@ -1318,45 +1281,41 @@ ul.CodeMirror-hints {
     }
 
     .visitHelpGuide {
-        color: @color-bg-bright-light-blue;
+        color: @color-font-form-gray;
     }
 
     .mainHeading {
-        font-weight: 600;
+        font-weight: bold;
         font-size: 14px;
-        color: @color-white;
-        margin-top: 8px;
-        margin-bottom: 13px;
-        padding-left: 3%;
-        padding-right: 3%;
+        color: @color-font-form-gray;
+        padding: 8px 20px;
     }
 
     .categoryArea {
-        color: @color-white;
+        color: @color-font-edge;
 
         .subHeading {
-            color: @color-bg-bright-light-blue;
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 6px;
-            line-height: 40px;
+            color: @color-font-form-gray;
+            font-size: 12px;
+            line-height: 25px;
+            padding: 5px 0;
+
             a {
                 color: inherit;
             }
         }
         .categoryBlock {
-            margin-top: 1px;
-            background-color: @color-bg-dark-marine;
+            background-color: @color-white;
         }
         .categoryWrap {
-            padding-left: 3%;
-            padding-right: 3%;
+            padding: 0 20px;
             line-height: 16px;
         }
 
         .row, .moreLink {
             padding-left: 20px;
         }
+
         .linkWrap {
             display: inline-block;
             margin-right: 20px;
@@ -1364,8 +1323,9 @@ ul.CodeMirror-hints {
             width: ~"calc(50% - 20px)";
             float: left;
         }
+
         a {
-            color: @color-white;
+            color: @color-font-edge;
             font-weight: 600;
             font-size: 13px;
             line-height: 16px;
@@ -1381,7 +1341,6 @@ ul.CodeMirror-hints {
             display: inline-block;
             margin-top: 16px;
             margin-bottom: 10px;
-            // margin-right: 2px;
             a {
                 text-decoration: underline;
             }

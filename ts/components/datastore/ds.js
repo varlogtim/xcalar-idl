@@ -57,6 +57,9 @@ window.DS = (function ($, DS) {
                 return;
             }
             const loadArgs = dagNode.getLoadArgs();
+            if (loadArgs == null) {
+                return;
+            }
             const key = dsName + ".Xcalar." + loadArgs; // a unique key
             if (!nameToDagMap.has(key)) {
                 nameToDagMap.set(key, []);
@@ -105,6 +108,10 @@ window.DS = (function ($, DS) {
         const oldDSName = dagNodes[0].getDSName();
         const newDSName = getNewDSName(oldDSName);
         const loadArgs = dagNodes[0].getLoadArgs();
+        if (loadArgs == null) {
+            return PromiseHelper.reject({"error": "Invalid load args"});
+        }
+
         const cachedInfo = {};
         dagNodes.forEach((dagNode) => {
             const param = xcHelper.deepCopy(dagNode.getParam());
