@@ -551,7 +551,10 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         const dagGraph: DagGraph = this._dagGraph;
         dagNode.setSchema(schema);
 
-        this._fetchLoadArgs(id)
+        const getLoadgArgs = this._advMode ?
+        PromiseHelper.resolve(this._loadArgs) : this._fetchLoadArgs(id);
+
+        getLoadgArgs
         .then((dsLoadArgs) => {
             dagNode.setParam({
                 source: id,
