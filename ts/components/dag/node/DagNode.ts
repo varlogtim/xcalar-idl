@@ -100,6 +100,10 @@ abstract class DagNode {
         }
     }
 
+    public clone(): DagNode {
+        return DagNodeFactory.create(this.getNodeInfo());
+    }
+
     /**
      * Get the columns after apply the node's operation
      * @param columns {ProgCol[]} parent columns

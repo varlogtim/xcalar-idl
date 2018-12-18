@@ -104,7 +104,8 @@ class DagGraphExecutor {
             } else if (this._isOptimized && node.hasNoChildren()) {
                 if (!node.isOutNode() ||
                     (node.getSubType() !== DagNodeSubType.ExportOptimized &&
-                    node.getSubType() !== DagNodeSubType.DFOutOptimized)) {
+                    node.getSubType() !== DagNodeSubType.DFOutOptimized &&
+                    node.getType() !== DagNodeType.CustomOutput)) {
                     errorResult.hasError = true;
                     errorResult.type = DagNodeErrorType.InvalidOptimizedOutNode;
                     errorResult.node = node;

@@ -706,13 +706,16 @@ class DagGraph {
      * @description gets query from the lineage of 1 node, includes validation
      * @param nodeId
      * @param optimized
+     * @param isCloneGraph
      */
-    public getQuery(nodeId: DagNodeId, optimized?: boolean): XDPromise<string[]> {
+    public getQuery(nodeId?: DagNodeId, optimized?: boolean, isCloneGraph: boolean = true): XDPromise<string[]> {
         // clone graph because we will be changing each node's table and we don't
         // want this to effect the actual graph
-        const clonedGraph = this.clone();
+        const clonedGraph = isCloneGraph ? this.clone() : this;
         clonedGraph.setTabId(DagTab.generateId());
-        const nodesMap:  Map<DagNodeId, DagNode> = clonedGraph.backTraverseNodes([nodeId], false).map;
+        const nodesMap:  Map<DagNodeId, DagNode> = nodeId != null
+            ? clonedGraph.backTraverseNodes([nodeId], false).map
+            : clonedGraph.getAllNodes();
         const orderedNodes: DagNode[] = clonedGraph._topologicalSort(nodesMap);
         const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, clonedGraph, {
             optimized: optimized

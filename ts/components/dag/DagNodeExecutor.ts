@@ -106,7 +106,7 @@ class DagNodeExecutor {
             case DagNodeType.Export:
                 return this._export(optimized);
             case DagNodeType.Custom:
-                return this._custom();
+                return this._custom(optimized);
             case DagNodeType.CustomInput:
                 return this._customInput();
             case DagNodeType.CustomOutput:
@@ -572,33 +572,78 @@ class DagNodeExecutor {
         return XIApi.union(this.txId, tableInfos, params.dedup, desTable, unionType);
     }
 
-    private _custom(): XDPromise<null> {
-        const deferred: XDDeferred<null> = PromiseHelper.deferred();
+    private _custom(optimized?: boolean): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNodeCustom = <DagNodeCustom>this.node;
+        const isSimulate: boolean = Transaction.isSimulate(this.txId);
 
-        node.getSubGraph().execute()
-        .then(() => {
-            // DagNodeCustom.getTable() is overridden to return output node's table
-            // So we don't need a table name here
-            deferred.resolve(null);
-        })
-        .fail((error) => {
-            deferred.reject(error);
-        });
+        if (isSimulate) { // In batch mode
+            // Clone the custom node to avoid unexpected behavior
+            // We dont use DagGraph.clone, because DagNodeCustom.clone() can create DagNodeCustomInput correctly.
+            // Specificly, DagNodeCustomInput.setContainer() must be called during clone
+            const clonedNode = <DagNodeCustom>node.clone();
+
+            // DagNodeCustomInput relies on DagNodeCustom.getParents() to find the upstream node
+            // So we have to link the cloned node to its parents
+            node.getParents().forEach((parent, index) => {
+                if (parent != null) {
+                    clonedNode.connectToParent(parent, index);
+                }
+            });
+            const clonedGraph = clonedNode.getSubGraph();
+
+            // Execute the subGraph in batch mode
+            let destTable;
+            clonedGraph.getQuery(null, optimized, false)
+            .then((query, tables) => {
+                tables = tables || [];
+                destTable = tables[tables.length - 1];
+                return XIApi.query(this.txId, destTable, query);
+            })
+            .then(() => {
+                deferred.resolve(destTable);
+            })
+            .fail(deferred.reject)
+            .always(() => {
+                // Cleanup connections of cloned node to prevent memleak
+                node.getParents().forEach((parent, index) => {
+                    if (parent != null) {
+                        clonedNode.disconnectFromParent(parent, index);
+                    }
+                });
+            });
+        } else {
+            node.getSubGraph().execute(null, optimized)
+            .then(() => {
+                deferred.resolve((node.getTable()));
+            })
+            .fail((error) => {
+                deferred.reject(error);
+            });
+        }
 
         return deferred.promise();
     }
 
-    private _customInput(): XDPromise<null> {
-        // DagNodeCustomInput.getTable() is orverridden to return input parent's table
-        // So we don't need a table name here
-        return PromiseHelper.resolve(null);
-    }
+    private _customInput(): XDPromise<string> {
+        const node: DagNodeCustomInput = <DagNodeCustomInput>this.node;
+        const customNode: DagNodeCustom = node.getContainer();
+        if (customNode == null) {
+            return PromiseHelper.reject('CustomInput has no container');
+        }
+        const inputParent =  customNode.getInputParent(node);
+        if (inputParent == null) {
+            return PromiseHelper.reject('CustomInput has no corresponding parent');
+        }
+        return PromiseHelper.resolve(inputParent.getTable());
+}
 
-    private _customOutput(): XDPromise<null> {
-        // DagNodeCustomOutput.getTable() is orverridden to return output parent's table
-        // So we don't need a table name here
-        return PromiseHelper.resolve(null);
+    private _customOutput(): XDPromise<string> {
+        const outputParent = this.node.getParents()[0];
+        if (outputParent == null) {
+            return PromiseHelper.resolve(null);
+        }
+        return PromiseHelper.resolve(outputParent.getTable());
     }
 
     private _getUnionType(setSubType: DagNodeSubType): UnionOperatorT {

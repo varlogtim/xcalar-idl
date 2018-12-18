@@ -17,6 +17,10 @@ class DagNodeCustomInput extends DagNode {
         this._container = dagNode;
     }
 
+    public getContainer(): DagNodeCustom {
+        return this._container;
+    }
+
     /**
      * Get the columns after apply the node's operation
      * @param columns {ProgCol[]} parent columns
@@ -42,23 +46,6 @@ class DagNodeCustomInput extends DagNode {
             return 'Input';
         }
         return `Input#${this._container.getInputIndex(this) + 1}`;
-    }
-
-    /**
-     * @override
-     * Get input parent's table
-     * @returns {Table} return id of the table of input parent
-     */
-    public getTable(): string {
-        if (this._container == null) {
-            console.error('DagNodeCustomInput.getTable: No container');
-            return null;
-        }
-        const inputParent =  this._container.getInputParent(this);
-        if (inputParent == null) {
-            return null;
-        }
-        return inputParent.getTable();
     }
 
     /**

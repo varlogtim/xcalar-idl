@@ -31,20 +31,6 @@ class DagNodeCustomOutput extends DagNode {
 
     /**
      * @override
-     * Get output parent's table
-     * @returns {Table} return id of the table of input parent
-     */
-    public getTable(): string {
-        // Output node has only one parent;
-        const outputParent = this.getParents()[0];
-        if (outputParent == null) {
-            return null;
-        }
-        return outputParent.getTable();
-    }
-
-    /**
-     * @override
      * Get input parent's state
      * @returns {DagNodeState} the state of input parent
      */
