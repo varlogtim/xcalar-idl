@@ -335,6 +335,44 @@ class DagNodeSQL extends DagNode {
         return outPortIdx;
     }
 
+    public disconnectFromParent(parentNode: DagNode, pos: number): boolean {
+        const wasSpliced = super.disconnectFromParent(parentNode, pos);
+        // when removing connection to a parent, also remove sql identifier
+        let sqlParams: DagNodeSQLInputStruct = this.getParam();
+        let index = sqlParams.identifiersOrder.indexOf(pos + 1);
+        if (index > -1) {
+            sqlParams.identifiersOrder.splice(index, 1);
+            delete sqlParams.identifiers[pos + 1];
+            // decrement other identifiers
+            sqlParams.identifiersOrder.forEach((idx, i) => {
+                if (idx > pos) {
+                    sqlParams.identifiersOrder[i] = idx - 1;
+                    // decrement identifier keys but append a letter so that
+                    // we don't overwrite an identifier with the same new key
+                    sqlParams.identifiers[(idx - 1) + "x"] = sqlParams.identifiers[idx];
+                    delete sqlParams.identifiers[idx];
+                }
+            });
+            for (let i in sqlParams.identifiers) {
+                // loop through the identifiers and restore the keys
+                if (typeof i === "string" && i.endsWith("x")) {
+                    sqlParams.identifiers[i.slice(0, i.indexOf("x"))] = sqlParams.identifiers[i];
+                    delete sqlParams.identifiers[i];
+                }
+            }
+
+            // reset this.identifiers
+            const identifiers = new Map<number, string>();
+            sqlParams.identifiersOrder.forEach((idx) => {
+                identifiers.set(idx, sqlParams.identifiers[idx]);
+            });
+
+            this.identifiers = identifiers;
+            this.setParam(sqlParams);
+        }
+        return wasSpliced;
+    }
+
     protected _getColumnsUsedInInput(): Set<string> {
         return null;
     }

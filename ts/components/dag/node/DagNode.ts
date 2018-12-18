@@ -433,7 +433,7 @@ abstract class DagNode {
             spliced = true;
         } else if (this.minParents === 1 && this.maxParents === 1) {
             this.parents.splice(pos, 1);
-            // no need to track if spiced;
+            // no need to track if only has 1 parent
         } else {
             // We use delete in order to preserve left/right parent for a Join node.
             // The undefined shows up in serialization, but it is not connected to

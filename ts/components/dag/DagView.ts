@@ -826,6 +826,7 @@ namespace DagView {
         if (dagTab instanceof DagTabPublished) {
             return PromiseHelper.reject();
         }
+
         dagTab.turnOffSave();
         _connectNodesNoPersist(parentNodeId, childNodeId, connectorIndex, tabId, {
             isReconnect: isReconnect,
@@ -858,6 +859,7 @@ namespace DagView {
             childNodeId +
             '"][data-connectorindex="' +
             connectorIndex + '"]');
+
         const wasSpliced = graph.disconnect(parentNodeId, childNodeId, connectorIndex);
         _removeConnection($edge, $dfArea, childNodeId, tabId);
         Log.add(SQLTStr.DisconnectOperations, {
