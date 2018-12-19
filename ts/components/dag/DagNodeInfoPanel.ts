@@ -121,7 +121,7 @@ class DagNodeInfoPanel {
             this._restoreDataset();
         });
 
-        this._$panel.on("click", ".statsRow", () => {
+        this._$panel.on("click", ".skewStatsRow", () => {
             SkewInfoModal.Instance.show(null, {tableInfo: $(this).data("skewinfo")});
         });
     }

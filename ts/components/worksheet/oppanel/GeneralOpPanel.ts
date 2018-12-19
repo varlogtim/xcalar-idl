@@ -22,6 +22,7 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _dagNode: DagNode;
     protected model;
     protected _opCategories: number[];
+    protected _specialWords: string[] = ["none"];
 
      // shows valid cast types
     protected static castMap = {
@@ -176,7 +177,25 @@ class GeneralOpPanel extends BaseOpPanel {
             $(this).select();
         });
 
+        // show hint list on mouseup as focus causes the list
+        // to immediately close when mousedown is used
+        this._$panel.on("mouseup", ".arg", function() {
+            const $input = $(this);
+            if ($input.closest(".dropDownList")
+                        .hasClass("colNameSection")) {
+                // for new column name, do not suggest anything
+                return;
+            }
+
+            let showAll = false;
+            if (!$.trim($input.val()).length) {
+                showAll = true;
+            }
+            self._argSuggest($input, showAll);
+        });
+
         this._$panel.on("click", ".colNameMenuIcon", function() {
+            self._hideDropdowns();
             self._argSuggest($(this).siblings(".arg"), true);
         });
 
@@ -188,7 +207,12 @@ class GeneralOpPanel extends BaseOpPanel {
             }
             let val: string = $li.text();
             if (val[0] !== gAggVarPrefix) {
-                val = gColPrefix + val;
+                const special: string = self._specialWords.find((word) => {
+                    return gColPrefix + word === val;
+                });
+                if (!special) {
+                    val = gColPrefix + val;
+                }
             }
 
             self._applyArgSuggest($li, val);
@@ -536,14 +560,18 @@ class GeneralOpPanel extends BaseOpPanel {
         if (input.includes(",")) {
             return listLis;
         }
+        let allMatches;
+
+        let specialWordMatches: string[] = this._getMatchingSpecialWords(input);
 
         let aggNameMatches: string[] = [];
         if (!this.codeMirrorNoAggs) {
             aggNameMatches = this._getMatchingAggNames(input);
         }
+        allMatches = specialWordMatches.concat(aggNameMatches);
 
         const colNameMatches: string[] = this._getMatchingColNames(input);
-        const allMatches: string[] = aggNameMatches.concat(colNameMatches);
+        allMatches = allMatches.concat(colNameMatches);
 
         for (let i = 0; i < allMatches.length; i++) {
             if (i >= this._listMax) {
@@ -592,7 +620,7 @@ class GeneralOpPanel extends BaseOpPanel {
         if (menu != null) {
             menu.hideDropdowns();
         }
-        const $input = $list.siblings(".arg")
+        const $input: JQuery = $list.siblings(".arg");
         $input.val(val);
         this._checkIfStringReplaceNeeded();
         const $group = $input.closest(".group")
@@ -622,6 +650,39 @@ class GeneralOpPanel extends BaseOpPanel {
         return list.map((list) => {
             return xcHelper.escapeHTMLSpecialChar(list);
         });
+    }
+
+    protected _getMatchingSpecialWords(val: string): string[] {
+        const beginningMatches: string[] = [];
+        let list: string[] = [];
+        const seen = {};
+        if (val[0] === gColPrefix) {
+            val = val.slice(1);
+        }
+        if (!val.length) {
+            return [];
+        }
+        val = val.toLowerCase();
+
+        this._specialWords.forEach((word) => {
+            const wordLower = word.toLowerCase();
+            const matchIndex = wordLower.indexOf(val);
+            if (matchIndex !== -1 && !seen.hasOwnProperty(word)) {
+                seen[word] = true;
+                if (matchIndex === 0) {
+                    beginningMatches.push(word);
+                } else {
+                    list.push(word);
+                }
+            }
+        });
+
+        beginningMatches.sort(xcHelper.sortVals);
+        list.sort(xcHelper.sortVals);
+        // puts matches that start with the same letters first
+        list = beginningMatches.concat(list);
+
+        return list;
     }
 
     protected _getMatchingColNames(val: string): string[] {
