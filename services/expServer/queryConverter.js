@@ -61,7 +61,7 @@ function convertHelper(dataflowInfo, nestedPrefix, otherNodes) {
         return "invalid dataflowInfo: " + dataflowInfo;
     }
     if (!nestedPrefix) {
-        originalInput = dataflowInfo;
+        originalInput = xcHelper.deepCopy(dataflowInfo);
     }
     // check for header indicating if the dataflow
     // is a regular workbook dataflow or retina dataflow
