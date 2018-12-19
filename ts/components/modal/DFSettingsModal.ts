@@ -43,6 +43,9 @@ class DFSettingsModal {
                 case ("dfProgressTips"):
                     DagView.toggleProgressTips(val);
                     break;
+                case ("dfConfigInfo"):
+                    DagView.toogleConfigInfo(val);
+                    break;
                 default:
                     break;
             }
@@ -85,6 +88,9 @@ class DFSettingsModal {
         },{
             name: "dfProgressTips",
             text: DFTStr.ShowProgressTips
+        }, {
+            name: "dfConfigInfo",
+            text: DFTStr.ShowConfigInfo
         }];
     }
 

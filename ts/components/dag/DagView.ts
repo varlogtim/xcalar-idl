@@ -40,6 +40,9 @@ namespace DagView {
         if (UserSettings.getPref("dfProgressTips")) {
             DagView.toggleProgressTips(true);
         }
+        if (UserSettings.getPref("dfConfigInfo")) {
+            DagView.toogleConfigInfo(true);
+        }
     }
 
     /**
@@ -1867,6 +1870,15 @@ namespace DagView {
         } else {
             $("#dagView").removeClass("showProgressTips");
         }
+    }
+
+    export function toogleConfigInfo(show?: boolean): void {
+        if (show) {
+            $("#dagView").addClass("showConfigInfo");
+        } else {
+            $("#dagView").removeClass("showConfigInfo");
+        }
+        DagSearch.Instance.update();
     }
 
     /**

@@ -1353,6 +1353,8 @@
                 dsSortKey: (string) ds grid view sort key
                 dfAutoExecute: (boolean) DF 2.0 settings
                 dfAutoPreview: (boolean) DF 2.0 settings
+                dfProgressTips: (boolean) DF 2.0 settings
+                dfConfigInfo: (boolean) DF 2.0 settings
         */
         function UserPref<%= v %>(options) {
             options = options || {};
@@ -1364,6 +1366,7 @@
                 self.dfAutoExecute = (options.dfAutoExecute == null) ? true : options.dfAutoExecute;
                 self.dfAutoPreview = (options.dfAutoPreview == null) ? true : options.dfAutoPreview;
                 self.dfProgressTips = (options.dfProgressTips == null) ? true : options.dfProgressTips;
+                self.dfConfigInfo = (options.dfConfigInfo == null) ? true : options.dfConfigInfo;
             }
             return self;
         }

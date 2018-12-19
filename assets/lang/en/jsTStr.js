@@ -1152,6 +1152,7 @@ DFTStr = {
     "AutoExecute": "Auto execute the dataflow after configuration",
     "AutoPreview": "Auto preview the results after execution",
     "ShowProgressTips": "Show progress details for each operation",
+    "ShowConfigInfo": "Show configuration info",
     "NoEmptyDestName": "Please enter a destination dataflow name.",
     "NoSlashUpload": "Cannot upload to this path.",
     // with replace

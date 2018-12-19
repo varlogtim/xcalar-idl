@@ -14,6 +14,11 @@ class DagSearch {
         this._addEventListeners();
     }
 
+    public update(): void {
+        const $dfArea: JQuery = DagView.getActiveArea();
+        this.switchTab($dfArea);
+    }
+
     public switchTab($oldAfArea: JQuery): void {
         const $searchArea: JQuery = this._getSearchArea();
         if (!$searchArea.is(":visible")) {
@@ -30,7 +35,11 @@ class DagSearch {
             this._clearSearch();
         } else {
             // search tite and hint
-            const $searchableFields: JQuery = DagView.getActiveArea().find(".paramTitle, .nodeTitle");
+            let selector: string = ".nodeTitle";
+            if (UserSettings.getPref("dfConfigInfo")) {
+                selector += ", .paramTitle";
+            }
+            const $searchableFields: JQuery = DagView.getActiveArea().find(selector);
             const matches: Element[] = $searchableFields.filter((_index, el) => {
                 return $(el).text().toLowerCase().includes(keyword);
             }).toArray();
