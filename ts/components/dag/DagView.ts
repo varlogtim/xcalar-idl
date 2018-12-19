@@ -307,12 +307,17 @@ namespace DagView {
         // add connections separately after so all node elements already exist
         // adds event listeners
      */
-    export function reactivate(): void {
-        const $dfArea = _getActiveArea();
+    export function reactivate($dfArea?: JQuery, graph?: DagGraph): void {
+        $dfArea = $dfArea || _getActiveArea();
         if ($dfArea.hasClass("rendered")) {
             return;
         }
-        const tabId = activeDag.getTabId();
+        graph = graph || activeDag;
+        const tabId = graph.getTabId();
+        if (tabId === activeDag.getTabId()) {
+            // when rerendering graph, need to reset activeDag to new graph
+            activeDag = graph;
+        }
         $dfArea.empty().html(
             '<div class="dataflowAreaWrapper">' +
             '<div class="commentArea"></div>' +
@@ -320,8 +325,8 @@ namespace DagView {
             '<svg class="operatorSvg"></svg>' +
             '</div>'
         );
-        const dimensions = activeDag.getDimensions();
-        const scale = activeDag.getScale();
+        const dimensions = graph.getDimensions();
+        const scale = graph.getScale();
         const $wrapper: JQuery = $dfArea.find(".dataflowAreaWrapper");
         if (dimensions.width > -1) {
             $wrapper.css("min-height", dimensions.height * scale);
@@ -330,7 +335,7 @@ namespace DagView {
         }
         $wrapper.children().css("transform", "scale(" + scale + ")");
 
-        const nodes: Map<DagNodeId, DagNode> = activeDag.getAllNodes();
+        const nodes: Map<DagNodeId, DagNode> = graph.getAllNodes();
 
         nodes.forEach((node: DagNode) => {
             _drawNode(node, $dfArea);
@@ -344,7 +349,7 @@ namespace DagView {
                     const timeStr: string = xcHelper.getElapsedTimeStr(nodeStat.elapsedTime);
                     timeStrs.push(timeStr);
                 });
-                _addProgressTooltip(activeDag, node, $dfArea, skewInfos, timeStrs);
+                _addProgressTooltip(graph, node, $dfArea, skewInfos, timeStrs);
                 const nodeInfo = { position: node.getPosition() };
                 _repositionRunStats($dfArea, nodeInfo, node.getId());
             }
@@ -356,13 +361,13 @@ namespace DagView {
             });
         });
 
-        const comments: Map<CommentNodeId, CommentNode> = activeDag.getAllComments();
+        const comments: Map<CommentNodeId, CommentNode> = graph.getAllComments();
 
         comments.forEach((commentNode: CommentNode) => {
             DagComment.Instance.drawComment(commentNode, $dfArea);
         });
 
-        _setupGraphEvents();
+        _setupGraphEvents(graph);
         $dfArea.addClass("rendered");
     }
 
@@ -1866,14 +1871,13 @@ namespace DagView {
 
     /**
      * Cleanup job after a tab is closed
-     * @param dagTab
+     * @param graph
      * @description
      * #1 Remove all event handlers listening on the DagGraph associated with the closed tab
      * #2 ...
      */
-    export function cleanupClosedTab(dagTab: DagTab) {
+    export function cleanupClosedTab(graph: DagGraph) {
         try {
-            const graph = dagTab.getGraph();
             if (graph != null) {
                 graph.events.off(`.${dagEventNamespace}`);
             }
@@ -3692,8 +3696,8 @@ namespace DagView {
      * listens events for 1 dag graph. This function is called for each dag graph.
      * Make sure all events listening are also registered in cleanupClosedTab !!!
      */
-    function _setupGraphEvents(): void {
-        const graph: DagGraph = activeDag;
+    function _setupGraphEvents(graph?: DagGraph): void {
+        graph = graph || activeDag;
 
         // when a graph gets locked during execution
         _registerGraphEvent(graph, DagGraphEvents.LockChange, (info) => {

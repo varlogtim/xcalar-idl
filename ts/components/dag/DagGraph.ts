@@ -1771,7 +1771,15 @@ class DagGraph {
         let outputDagId: string;
 
         for (let rawNode of query) {
-            let args = rawNode.args;
+            let args;
+            let api: number;
+            if (rawNode.args) {
+                args = rawNode.args;
+                api = XcalarApisTFromStr[rawNode.operation];
+            } else {
+                args = xcHelper.getXcalarInputFromNode(rawNode);
+                api = rawNode.api;
+            }
 
             const node: {
                 parents: string[],
@@ -1787,7 +1795,7 @@ class DagGraph {
                 children: [],
                 rawNode: rawNode,
                 args: args,
-                api: XcalarApisTFromStr[rawNode.operation]
+                api: api
             };
             let isIgnoredApi = false;
             switch (node.api) {

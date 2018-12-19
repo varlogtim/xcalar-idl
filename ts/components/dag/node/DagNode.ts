@@ -709,13 +709,6 @@ abstract class DagNode {
                 tableRunStats.index = nodeInfo.index;
             }
 
-            let elapsedTime;
-            if (tableRunStats.state === DgDagStateT.DgDagStateProcessing) {
-                elapsedTime = Date.now() - tableRunStats.startTime;
-            } else {
-                elapsedTime = nodeInfo.elapsed.milliseconds;
-            }
-
             tableRunStats.numWorkTotal = nodeInfo.numWorkTotal;
             if (nodeInfo.state === DgDagStateT.DgDagStateReady) {
                 // if node is finished, numWorkCompleted should be equal
@@ -725,7 +718,7 @@ abstract class DagNode {
                 tableRunStats.numWorkCompleted = nodeInfo.numWorkCompleted;
             }
 
-            tableRunStats.elapsedTime = elapsedTime;
+            tableRunStats.elapsedTime = nodeInfo.elapsed.milliseconds;
             let progress: number = 0;
             if (nodeInfo.state === DgDagStateT.DgDagStateProcessing ||
                 nodeInfo.state === DgDagStateT.DgDagStateReady) {

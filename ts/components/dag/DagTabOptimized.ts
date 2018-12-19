@@ -7,6 +7,8 @@ class DagTabOptimized extends DagTab {
     private _isDeleted: boolean;
     private _queryCheckId: number;
     private _retinaName: string;
+    private _hasQueryStateGraph: boolean;
+    private _executor: DagGraphExecutor;
 
     constructor(options: {
         id: string,
@@ -19,9 +21,11 @@ class DagTabOptimized extends DagTab {
         this._isDoneExecuting = false;
         this._isActive = false;
         this._queryCheckId = 0;
+        this._hasQueryStateGraph = false;
         if (queryNodes) {
             const graph = this._constructGraphFromQuery(queryNodes);
             graph.startExecution(queryNodes, executor);
+            this._executor = executor;
         }
         if (this._id.startsWith(gRetinaPrefix)) {
             this._retinaName = this._id;
@@ -191,7 +195,16 @@ class DagTabOptimized extends DagTab {
         const checkId = this._queryCheckId;
         XcalarQueryState(this._retinaName)
         .then((queryStateOutput) => {
-            if (this._isDeleted || checkId !== this._queryCheckId) {
+            if (this._isDeleted) {
+                return deferred.reject();
+            }
+            if (!this._hasQueryStateGraph) {
+                // change the graph from the xcalarGetRetina graph to the
+                // xcalarQueryState graph
+                this._hasQueryStateGraph = true;
+                this._rerenderQueryStateGraph(queryStateOutput);
+            }
+            if (checkId !== this._queryCheckId) {
                 return deferred.reject();
             }
             this._isDoneExecuting = queryStateOutput.queryState !== QueryStateT.qrProcessing;
@@ -230,5 +243,15 @@ class DagTabOptimized extends DagTab {
         });
 
         return deferred.promise();
+    }
+
+    // change the graph from the xcalarGetRetina graph to the
+    // xcalarQueryState graph
+    private _rerenderQueryStateGraph(queryStateOutput) {
+        DagView.cleanupClosedTab(this.graph);
+        this.graph = this._constructGraphFromQuery(queryStateOutput.queryGraph.node);
+        this.graph.startExecution(queryStateOutput.queryGraph.node, null);
+        this.setGraph(this.graph);
+        this._trigger("rerender");
     }
 }

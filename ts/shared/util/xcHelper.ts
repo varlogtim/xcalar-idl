@@ -6500,6 +6500,30 @@ namespace xcHelper {
         }
     }
 
+    export function getXcalarInputFromNode(node) {
+        let api: number = node.api;
+        let apiString: string = XcalarApisTStr[api];
+        let val: string = apiString.substr('XcalarApi'.length);
+        let inputName: string = "";
+        switch (val) {
+            case ('BulkLoad'):
+                inputName = 'load';
+                break;
+            case ('GetStat'):
+                inputName = 'stat';
+                break;
+            case ('GetStatByGroupId'):
+                inputName = 'statByGroupId';
+                break;
+            default:
+                inputName = val[0].toLowerCase() + val.substr(1);
+                break;
+        }
+        inputName += 'Input';
+
+        return node.input[inputName];
+    }
+
     export let __testOnly__: any = {};
 
     if (typeof window !== 'undefined' && window['unitTestMode']) {

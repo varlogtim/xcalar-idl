@@ -519,7 +519,7 @@ class DagTabManager{
             this.reset();
         }
 
-        DagView.cleanupClosedTab(dagTab);
+        DagView.cleanupClosedTab(dagTab.getGraph());
         return true;
     }
 
@@ -612,7 +612,13 @@ class DagTabManager{
         })
         .on("save", () => {
             this._getTabEleById(dagTab.getId()).removeClass("unsave");
-        });
+        })
+        .on("rerender", () => {
+            const index = this.getTabIndex(dagTab.getId());
+            const $dataflowAreas = this._getDataflowArea();
+            $dataflowAreas.eq(index).removeClass("rendered");
+            DagView.reactivate($dataflowAreas.eq(index), dagTab.getGraph());
+        })
     }
 
     /**

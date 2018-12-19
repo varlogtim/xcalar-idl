@@ -103,7 +103,13 @@ class DagSubGraph extends DagGraph {
         this.currentExecutor = executor;
         this.startTime = Date.now();
         queryNodes.forEach((queryNode) => {
-            const nodeId = this._nameIdMap[queryNode.args.dest];
+            let args;
+            if (queryNode.args) {
+                args = queryNode.args;
+            } else {
+                args = xcHelper.getXcalarInputFromNode(queryNode);
+            }
+            let nodeId: DagNodeId = this._nameIdMap[args.dest];
             if (nodeId) { // could be a drop table node
                 this.getNode(nodeId).beRunningState();
             }
