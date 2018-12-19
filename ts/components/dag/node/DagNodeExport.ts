@@ -52,4 +52,16 @@ class DagNodeExport extends DagNodeOutOptimizable {
         });
         super.setParam();
     }
+
+    /**
+     * @override
+     */
+    protected _genParamHint(): string {
+      let hint: string = "";
+      const input: DagNodeExportInputStruct = this.getParam();
+      if (input.driver) {
+          hint = `Driver: ${input.driver}`;
+      }
+      return hint;
+  }
 }

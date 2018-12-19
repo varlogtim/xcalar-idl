@@ -100,6 +100,21 @@ class DagNodeProject extends DagNode {
         super.setParam(null, true);
     }
 
+    /**
+     * @override
+     */
+    protected _genParamHint(): string {
+        let hint: string = "";
+        const input: DagNodeProjectInputStruct = this.getParam();
+        const len: number = input.columns.length;
+        if (len) {
+            hint = "Keep ";
+            hint += " " + len + " ";
+            hint += (len > 1) ? "Columns" : "Column";
+        }
+        return hint;
+    }
+
     // not doing any check here because specify some non-existing columns
     // here does't really affect anything
     protected _getColumnsUsedInInput(): Set<string> {

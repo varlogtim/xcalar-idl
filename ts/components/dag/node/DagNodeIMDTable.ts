@@ -60,6 +60,18 @@ class DagNodeIMDTable extends DagNodeIn {
         return deferred.promise();
     }
 
+    /**
+     * @override
+     */
+    protected _genParamHint(): string {
+        let hint: string = "";
+        const input: DagNodeIMDTableInputStruct = this.getParam();
+        if (input.source) {
+            hint = `Source: ${input.source}`;
+        }
+        return hint;
+    }
+
     protected _getColumnsUsedInInput() {
         return null;
     }

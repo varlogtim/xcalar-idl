@@ -71,6 +71,19 @@ class DagNodeSynthesize extends DagNode {
         };
     }
 
+    /**
+     * @override
+     */
+    protected _genParamHint(): string {
+        let hint: string = "";
+        const input: DagNodeSynthesizeInputStruct = this.getParam();
+        if (input.colsInfo.length) {
+            const columns: string[] = input.colsInfo.map((col) => col.sourceColumn);
+            hint = `Columns: ${columns.join(", ")}`;
+        }
+        return hint;
+    }
+
     protected _getColumnsUsedInInput(): Set<string> {
         return null;
     }

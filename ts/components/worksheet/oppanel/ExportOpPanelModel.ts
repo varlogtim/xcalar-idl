@@ -212,7 +212,7 @@ class ExportOpPanelModel {
             return "Input must have associated driver."
         }
         if (dagInput.columns.length == 0) {
-            return "Cannot export empty table."
+            return "Cannot export empty result."
         }
         const driver: ExportDriver = this.exportDrivers.find((driver) => {
             return driver.name == dagInput.driver;

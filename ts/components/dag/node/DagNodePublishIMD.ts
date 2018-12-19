@@ -54,6 +54,18 @@ class DagNodePublishIMD extends DagNode {
         }
     }
 
+    /**
+     * @override
+     */
+    protected _genParamHint(): string {
+        let hint: string = "";
+        const input: DagNodePublishIMDInputStruct = this.getParam();
+        if (input.pubTableName) {
+            hint = `Publish Table: ${input.pubTableName}`;
+        }
+        return hint;
+    }
+
     protected _getColumnsUsedInInput() {
         return null;
     }

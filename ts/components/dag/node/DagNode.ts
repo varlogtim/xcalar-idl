@@ -345,15 +345,21 @@ abstract class DagNode {
      * Return a short hint of the param, it should be one line long
      */
     public getParamHint(): {hint: string, fullHint: string} {
-        const hint: string = this._genParamHint();
-        const maxLen: number = 20;
-        // each line cannot be more than maxLen
-        const ellipsis: string[] = hint.split("\n").map((str) => {
-            if (str.length > maxLen) {
-                str = str.substring(0, maxLen) + "...";
-            }
-            return str;
-        });
+        let hint: string = "";
+        let ellipsis: string[] = [];
+        try {
+            const hint: string = this._genParamHint();
+            const maxLen: number = 20;
+            // each line cannot be more than maxLen
+            ellipsis = hint.split("\n").map((str) => {
+                if (str.length > maxLen) {
+                    str = str.substring(0, maxLen) + "...";
+                }
+                return str;
+            });
+        } catch (e) {
+            console.error(e);
+        }
         return {
             hint: ellipsis.join("\n"),
             fullHint: hint

@@ -3,7 +3,6 @@
     background-color: @color-white;
     color: @color-font-form-gray;
     font-weight: 600;
-    border-right: 1px solid @color-border-softGray;
 
     @title-height: 40px;
     @listHeight: 26px;
@@ -207,10 +206,6 @@
 
         .icon {
             .size(12px, 11px);
-            color: @checkbox-color;
-            &:hover {
-                color: @color-border-softGray2;
-            }
         }
     }
 
@@ -223,14 +218,9 @@
             cursor: pointer;
         }
         .checkbox {
-            top: 2px;
+            top: 0px;
             margin-left: 5px;
             margin-right: 3px;
-        }
-        &:hover {
-            .checkbox .icon {
-                color: @color-border-softGray2;
-            }
         }
     }
 
@@ -882,7 +872,7 @@
         .checkbox {
             margin-left: @commonMargin;
             margin-right: 7px;
-            margin-top: 5px;
+            margin-top: 4px;
             float: left;
         }
     }
@@ -1053,6 +1043,7 @@
 
                 .slider {
                     border: 1px solid @color-arc-xdbfree;
+                    top: -1px;
                     .size(14px, 14px);
                 }
             }
@@ -2623,6 +2614,7 @@
         .prefixName {
             float: left;
             margin-left: 10px;
+            margin-top: 4px;
             max-width: ~"calc(100% - 100px)";
             .textOverflowOneLine;
         }
@@ -3240,6 +3232,7 @@
 
     .selectAllWrap {
         margin-bottom: 8px;
+        margin-right: 15px;
         float: right;
 
         .clearfix;
@@ -3248,7 +3241,6 @@
             cursor: pointer;
         }
         .checkbox {
-            top: 2px;
             margin-left: 5px;
             margin-right: 5px;
         }

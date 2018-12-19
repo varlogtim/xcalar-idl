@@ -72,6 +72,18 @@ class DagNodeRowNum extends DagNode {
         };
     }
 
+    /**
+     * @override
+     */
+    protected _genParamHint(): string {
+        let hint: string = "";
+        const input: DagNodeRowNumInputStruct = this.getParam();
+        if (input.newField) {
+            hint = `Row Num In Field: ${input.newField}`;
+        }
+        return hint;
+    }
+
     protected _getColumnsUsedInInput() {
         return null;
     }

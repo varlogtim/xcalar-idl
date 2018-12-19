@@ -941,7 +941,7 @@ module.exports = {
     },
 
     "exportView": {
-        "header": "Export Table",
+        "header": "Export",
         "instr": "Please select columns you wish to export, export driver you'd like to use, and fill in driver parameters.",
         "ExportAs": "Export As",
 
@@ -949,7 +949,7 @@ module.exports = {
         "ColumnsHint": "column1, column2 etc.",
         "CONFIRM": "EXPORT",
         "keepOrder": "Keep Order",
-        "orderHint": "Check to preserve table's row order",
+        "orderHint": "Check to preserve result's row order",
         "RecordDelim": "Record Delimiter",
         "OneFile": "One File",
         "MultiFiles": "Multiple Files",

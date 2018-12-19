@@ -44,6 +44,18 @@ class DagNodeUpdateIMD extends DagNodeOut {
         super.setParam();
     }
 
+    /**
+     * @override
+     */
+    protected _genParamHint(): string {
+        let hint: string = "";
+        const input: DagNodeUpdateIMDInputStruct = this.getParam();
+        if (input.pubTableName) {
+            hint = `Update: ${input.pubTableName}`;
+        }
+        return hint;
+    }
+
     protected _getColumnsUsedInInput() {
         return null;
     }

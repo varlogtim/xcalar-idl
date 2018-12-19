@@ -49,6 +49,18 @@ class DagNodeIndex extends DagNode {
         return serializedInfo;
     }
 
+    /**
+     * @override
+     */
+    protected _genParamHint(): string {
+        let hint: string = "";
+        const input: DagNodeIndexInputStruct = this.getParam();
+        if (input.columns) {
+            hint = `Index on: ${input.columns.join(", ")}`;
+        }
+        return hint;
+    }
+
     protected _getColumnsUsedInInput() {
         return null;
     }

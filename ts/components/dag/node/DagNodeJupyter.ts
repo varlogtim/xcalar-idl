@@ -86,6 +86,19 @@ class DagNodeJupyter extends DagNodeOut {
             true);
     }
 
+    /**
+     * @override
+     */
+    protected _genParamHint(): string {
+        let hint: string = "";
+        const input: DagNodeJupyterInputStruct = this.getParam();
+        if (input.renames.length) {
+            const columns: string[] = input.renames.map((col) => col.sourceColumn);
+            hint = `Columns: ${columns.join(",")}`;
+        }
+        return hint;
+    }
+
     protected _getColumnsUsedInInput() {
         return null;
     }

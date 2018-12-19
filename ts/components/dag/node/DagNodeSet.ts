@@ -118,6 +118,24 @@ class DagNodeSet extends DagNode {
         return newRenameMap;
     }
 
+    /**
+     * @override
+     */
+    protected _genParamHint(): string {
+        let hint: string = "";
+        const input: DagNodeSetInputStruct = this.getParam();
+        const len: number = input.columns[0].length;
+        if (len) {
+            hint = this.getSubType();
+            if (!input.dedup) {
+                hint += " All";
+            }
+            hint += " " + len + " ";
+            hint += (len > 1) ? "Columns" : "Column";
+        }
+        return hint;
+    }
+
     protected _getColumnsUsedInInput(): Set<string> {
         const set: Set<string> = new Set();
         this.input.getInput().columns.forEach((oneColumn) => {

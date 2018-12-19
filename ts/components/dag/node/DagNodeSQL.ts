@@ -220,6 +220,18 @@ class DagNodeSQL extends DagNode {
     }
 
     /**
+     * @override
+     */
+    protected _genParamHint(): string {
+        let hint: string = "";
+        const input: DagNodeSQLInputStruct = this.getParam();
+        if (input.sqlQueryStr) {
+            hint = input.sqlQueryStr;
+        }
+        return hint;
+    }
+
+    /**
      * Link an input node(in the sub graph) to a custom node's inPort. Call this method when expanding the input ports.
      * @param inNodePort The node & port to link
      * @param inPortIdx The index of the input port. If not specified, a new inPort will be assigned
