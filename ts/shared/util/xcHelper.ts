@@ -3118,7 +3118,7 @@ namespace xcHelper {
                 namePattern = /^.*\.py$/;
                 break;
             case PatternCategory.UDFParam:
-                namePattern = /^[a-z_<][a-zA-Z0-9_-<>]*$/;
+                namePattern = /^[a-z_<][a-zA-Z0-9_<>-]*$/;
                 break;
             case PatternCategory.Workbook:
             case PatternCategory.Target:
