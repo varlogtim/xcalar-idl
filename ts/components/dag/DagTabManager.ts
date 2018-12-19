@@ -640,6 +640,7 @@ class DagTabManager{
         const isOptimized: boolean = (dagTab instanceof DagTabOptimized);
         let html: HTML =
             '<li class="dagTab ' + (isOptimized? 'optimized': '') + '">' +
+                '<i class="icon xi-ellipsis-v dragIcon" ' + xcTooltip.Attrs+ ' data-original-title="' + CommonTxtTstr.HoldToDrag+ '"></i>' +
                 '<div class="name ' + (isEditable? '': 'nonedit') + '">' +
                     tabName +
                 '</div>' +
@@ -708,6 +709,27 @@ class DagTabManager{
         return isValid;
     }
 
+    private _reorderTab(previousIndex: number, newIndex: number) {
+        // update activeUserDags order as well as dataflowArea
+        const tab = this._activeUserDags.splice(previousIndex, 1)[0];
+        this._activeUserDags.splice(newIndex, 0, tab);
+        const $dataflowArea: JQuery = this._getDataflowArea(previousIndex);
+        // if last tab, just append
+        if (newIndex === this._activeUserDags.length - 1) {
+            $("#dagView .dataflowWrap").append($dataflowArea);
+        } else {
+            // because the current area still exists, we need to place before
+            // or after the dataflow at the current index depending on the
+            // reorder direction
+            if (newIndex > previousIndex) {
+                this._getDataflowArea(newIndex).after($dataflowArea);
+            } else {
+                this._getDataflowArea(newIndex).before($dataflowArea);
+            }
+        }
+        this._save();
+    }
+
     private _addEventListeners(): void {
         const $dagTabArea: JQuery = this._getTabArea();
         $dagTabArea.on("click", ".after", (event) => {
@@ -719,7 +741,10 @@ class DagTabManager{
 
         $dagTabArea.on("click", ".dagTab", (event) => {
             const $tab: JQuery = $(event.currentTarget);
-            this._switchTabs($tab.index());
+            // dragging when sorting will trigger an unwanted click
+            if (!$tab.hasClass("ui-sortable-helper")) {
+                this._switchTabs($tab.index());
+            }
         });
 
         // Adding a new tab creates a new tab and adds
@@ -774,6 +799,32 @@ class DagTabManager{
 
         $dagTabArea.mouseenter(() => {
             this._tabListScroller.showOrHideScrollers();
+        });
+
+        // dragIcon must be used instead of allowing drag on the whole tab because
+        // jquery sortable prevents default behavior on all children so the
+        // editable name div wouldn't work properly
+        let initialIndex;
+        $dagTabArea.sortable({
+            revert: 300,
+            axis: "x",
+            handle: ".dragIcon",
+            distance: 5,
+            forcePlaceholderSize: true,
+            placeholder: "sortablePlaceholder",
+            start: (_event, ui) => {
+                // add html to the placeholder so it maintains the same width
+                const html = $(ui.item).html();
+                $dagTabArea.find(".sortablePlaceholder").html(html);
+                initialIndex = $(ui.item).index();
+                xcTooltip.hideAll();
+            },
+            stop: (_event, ui) => {
+                const newIndex = $(ui.item).index();
+                if (initialIndex != newIndex) {
+                    this._reorderTab(initialIndex, newIndex);
+                }
+            }
         });
     }
 }

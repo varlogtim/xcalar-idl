@@ -195,6 +195,10 @@ interface Object {
     values(any): Function
 }
 
+interface Element {
+    blur(): Function
+}
+
 interface Event {
     clipboardData: {setData: Function}
 }
