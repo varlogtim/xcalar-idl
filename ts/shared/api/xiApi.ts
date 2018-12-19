@@ -768,7 +768,7 @@ namespace XIApi {
             const newColNames: string[] = [];
             aggArgs.forEach((aggArg) => {
                 aggArg.aggColName = stripColName(aggArg.aggColName);
-                evalStrs.push(aggArg.operator + "(" + aggArg.aggColName + ")");
+                evalStrs.push(getGroupByAggEvalStr(aggArg));
                 newColNames.push(aggArg.newColName);
             });
             console.log(evalStrs);
@@ -832,21 +832,27 @@ namespace XIApi {
             // be renamed earlier on XXX add asserts / fixme
             const rTableName: string = distinctGbTables[i];
             const rRename: ColRenameInfo[] = [];
-            const rTableId: TableId = xcHelper.getTableId(rTableName);
-            let joinType: JoinType = JoinOperatorT.InnerJoin;
-            if (joinCols.length === 0) {
-                joinType = JoinOperatorT.CrossJoin;
-            } else {
-                joinCols.forEach((colName) => {
-                    const newColName = colName + "_" + rTableId;
-                    rRename.push({
-                        orig: colName,
-                        new: newColName,
-                        type: DfFieldTypeT.DfUnknown
-                    });
-                    tempCols.push(newColName);
-                });
+            let rTableId: TableId = xcHelper.getTableId(rTableName);
+            if (typeof rTableId === "string") {
+                rTableId = rTableId.toUpperCase();
             }
+            let joinType: JoinType = JoinOperatorT.CrossJoin;
+            let evalString: string = "";
+            joinCols.forEach((colName) => {
+                const newColName = colName + "_" + rTableId;
+                rRename.push({
+                    orig: colName,
+                    new: newColName,
+                    type: DfFieldTypeT.DfUnknown
+                });
+                tempCols.push(newColName);
+                if (evalString === "") {
+                    evalString = "eq(" + colName + "," + newColName + ")";
+                } else {
+                    evalString = "and(" + evalString + ",eq(" + colName + ","
+                                 + newColName + "))";
+                }
+            });
 
             let newTableName: string;
             if (i === distinctGbTables.length - 1) {
@@ -860,8 +866,8 @@ namespace XIApi {
             }
 
             promises.push(joinHelper.bind(this, txId, curTableName, rTableName,
-                                newTableName, joinType,
-                                [], rRename));
+                                newTableName, joinType, [], rRename,
+                                {evalString: evalString, keepAllColumns: true}));
             curTableName = newTableName;
         }
 
