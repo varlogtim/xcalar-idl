@@ -143,13 +143,29 @@ function convertHelper(dataflowInfo, nestedPrefix, otherNodes) {
             case (XcalarApisT.XcalarApiProject):
             case (XcalarApisT.XcalarApiGetRowNum):
             case (XcalarApisT.XcalarApiExport):
-            case (XcalarApisT.XcalarApiSynthesize):
             case (XcalarApisT.XcalarApiAggregate):
             case (XcalarApisT.XcalarApiFilter):
             case (XcalarApisT.XcalarApiMap):
             case (XcalarApisT.XcalarApiGroupBy):
                 args.source = sourcePrefix + args.source;
                 node.parents = [args.source];
+                break;
+            case (XcalarApisT.XcalarApiSynthesize):
+                // sometimes the synthesize node will point to itself for it's
+                // source
+                if (args.source === args.dest) {
+                    if (query[i - 1] && query[i - 1].args) {
+                        args.source = query[i - 1].args.dest;
+                    } else {
+                        args.source = "noSource" + Date.now() + Math.floor(Math.random() * 10000);
+                    }
+                }
+                if (args.source) {
+                    args.source = sourcePrefix + args.source;
+                    node.parents = [args.source];
+                } else {
+                    node.parents = [];
+                }
                 break;
             case (XcalarApisT.XcalarApiJoin):
             case (XcalarApisT.XcalarApiUnion):
@@ -756,12 +772,21 @@ function _getDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix) {
                     cast: null
                 }
             });
-            const groupBy = node.indexedFields[0].map(key => {
+            let groupBy = node.indexedFields[0].map(key => {
                 return key.name;
             });
-            const newKeys = node.indexedFields[0].map(key => {
+
+            let newKeys = node.indexedFields[0].map(key => {
                 return key.keyFieldName;
             });
+            if (!groupBy.length && node.args.key) {
+                groupBy = node.args.key.map((key) => {
+                    return key.name || key.keyFieldName;
+                });
+                newKeys = node.args.key.map((key) => {
+                    return key.keyFieldName || key.name;
+                });
+            }
             dagNodeInfo = {
                 type: DagNodeType.GroupBy,
                 input: {
@@ -770,7 +795,8 @@ function _getDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix) {
                     aggregate: aggs,
                     includeSample: node.args.includeSample,
                     icv: node.args.icv,
-                    groupAll: node.args.groupAll
+                    groupAll: node.args.groupAll,
+                    dhtName: ""
                 }
             };
             break;
@@ -854,11 +880,12 @@ function _getDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix) {
             break;
         case (XcalarApisT.XcalarApiUnion):
             const setType = xcHelper.unionTypeToXD(node.args.unionType) || "union";
+            const columns = _getUnionColumns(node.args.columns);
             dagNodeInfo = {
                 type: DagNodeType.Set,
                 subType: xcHelper.capitalize(setType),
                 input: {
-                    columns: node.args.columns,
+                    columns: columns,
                     dedup: node.args.dedup
                 }
             };
@@ -882,7 +909,7 @@ function _getDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix) {
             } else { // would only occur in a retina
                 let driverArgs;
                 try {
-                    driverArgs = JSON.parse(node.args.driverParams)
+                    driverArgs = JSON.parse(node.args.driverParams);
                 } catch (e) {
                     console.log(e);
                     driverArgs = node.args.driverParams || "";
@@ -958,6 +985,7 @@ function _getDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix) {
                 linkOutNode.description = comment.userComment || "";
                 linkOutNode.table = node.args.source;
                 linkOutNode.id = "dag_" + new Date().getTime() + "_" + idCount++;
+                linkOutNode.nodeId = linkOutNode.id;
                 linkOutNode.parents = [];
                 linkOutNode.parentIds = [];
                 linkOutNode.children = [];
@@ -1514,6 +1542,43 @@ function _getIndexedFields(node) {
     }
 
     return [cols];
+}
+
+function _getUnionColumns(columns) {
+    let maxLength = 0;
+    let maxColSet;
+    const newCols = columns.map((colSet, i) => {
+        const newColSet = colSet.map((col) => {
+            return {
+                "sourceColumn": col.sourceColumn,
+                "destColumn": col.destColumn,
+                "cast": false,
+                "columnType": xcHelper.getDFFieldTypeToString(DfFieldTypeTFromStr[col.columnType])
+            }
+        });
+        if (newColSet.length > maxLength) {
+            maxLength = newColSet.length;
+            maxColSet = newColSet;
+        }
+        return newColSet;
+    });
+
+    newCols.forEach((colSet) => {
+        const currLen = colSet.length;
+        const diff = maxLength - currLen;
+        if (diff > 0) {
+            for (let i = 0; i < diff; i++) {
+                colSet.push({
+                    "sourceColumn": null,
+                    "destColumn": maxColSet[currLen + i].destColumn,
+                    "cast": false,
+                    "columnType": maxColSet[currLen + i].columnType
+                });
+            }
+        }
+    })
+
+    return newCols;
 }
 
 

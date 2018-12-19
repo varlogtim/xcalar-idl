@@ -2104,11 +2104,12 @@ class DagGraph {
                     break;
                 case (XcalarApisT.XcalarApiUnion):
                     const setType = <DagNodeSubType>xcHelper.unionTypeToXD(node.args.unionType);
+                    const columns = _getUnionColumns(node.args.columns);
                     dagNodeInfo = {
                         type: DagNodeType.Set,
                         subType: <DagNodeSubType>xcHelper.capitalize(setType),
                         input: {
-                            columns: node.args.columns,
+                            columns: columns,
                             dedup: node.args.dedup
                         }
                     };
@@ -2397,6 +2398,43 @@ class DagGraph {
                 }
             }
             return aggs;
+        }
+
+        function _getUnionColumns(columns) {
+            let maxLength = 0;
+            let maxColSet;
+            const newCols = columns.map((colSet, i) => {
+                const newColSet = colSet.map((col) => {
+                    return {
+                        "sourceColumn": col.sourceColumn,
+                        "destColumn": col.destColumn,
+                        "cast": false,
+                        "columnType": xcHelper.getDFFieldTypeToString(DfFieldTypeTFromStr[col.columnType])
+                    }
+                });
+                if (newColSet.length > maxLength) {
+                    maxLength = newColSet.length;
+                    maxColSet = newColSet;
+                }
+                return newColSet;
+            });
+
+            newCols.forEach((colSet) => {
+                const currLen = colSet.length;
+                const diff = maxLength - currLen;
+                if (diff > 0) {
+                    for (let i = 0; i < diff; i++) {
+                        colSet.push({
+                            "sourceColumn": null,
+                            "destColumn": maxColSet[currLen + i].destColumn,
+                            "cast": false,
+                            "columnType": maxColSet[currLen + i].columnType
+                        });
+                    }
+                }
+            })
+
+            return newCols;
         }
     }
 }
