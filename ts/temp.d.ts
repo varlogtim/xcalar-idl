@@ -1122,7 +1122,7 @@ declare namespace DS {
     export function shareDS(dsId: string): XDPromise<void>;
     export function attach(dsName: string, uid: string): XDPromise<void>;
     export function detach(dsName: string, uid: string): XDPromise<void>;
-    export function getSchema(dsName: string): XDPromise<ColSchema[]>;
+    export function getSchema(dsName: string): {error: string, schema: ColSchema[]};
     export function getLoadArgsFromDS(dsName: string): XDPromise<string>;
     export function restoreSourceFromDagNode(dagNodes: DagNodeDataset[], share: boolean): XDPromise<void>;
     export function isAccessible(dsName: string): boolean;
@@ -1132,6 +1132,7 @@ declare namespace DS {
 
 declare class DSObj {
     public parentId: string;
+    public activated: boolean;
     public getFullName(): string;
     public getName(): string;
     public fetch(startRow: number, rowsToFetch: number): XDPromise<any>

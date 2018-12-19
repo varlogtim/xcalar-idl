@@ -179,7 +179,7 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
         if (this._isAdvancedMode()) {
             const $elemEditor = this._getPanel().find(".advancedEditor");
             try {
-                const advConfig = <DagNodeRoundInputStruct>JSON.parse(this._editor.getValue());
+                const advConfig = <DagNodeMapInputStruct>JSON.parse(this._editor.getValue());
                 this._dataModel = this._convertAdvConfigToModel(advConfig);
             } catch(e) {
                 StatusBox.show(e, $elemEditor);
@@ -201,13 +201,13 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
      */
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
         if (toAdvancedMode) {
-            const param: DagNodeRoundInputStruct = this._dataModel.toDagInput();
+            const param: DagNodeMapInputStruct = this._dataModel.toDagInput();
             const paramStr = JSON.stringify(param, null, 4);
             this._cachedBasicModeParam = paramStr;
             this._editor.setValue(paramStr);
         } else {
             try {
-                const advConfig = <DagNodeRoundInputStruct>JSON.parse(this._editor.getValue());
+                const advConfig = <DagNodeMapInputStruct>JSON.parse(this._editor.getValue());
                 if (JSON.stringify(advConfig, null, 4) !== this._cachedBasicModeParam) {
                     this._dataModel = this._convertAdvConfigToModel(advConfig);
                     this._updateUI();
@@ -219,7 +219,7 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
         return null;
     }
 
-    private _convertAdvConfigToModel(advConfig: DagNodeRoundInputStruct) {
+    private _convertAdvConfigToModel(advConfig: DagNodeMapInputStruct) {
         const error = this._dagNode.validateParam(advConfig);
         if (error) {
             throw new Error(error.error);

@@ -204,7 +204,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         this._gotoStep();
     }
 
-    private _autoDetectSchema(userOldSchema: boolean): XDPromise<void> {
+    private _autoDetectSchema(userOldSchema: boolean): {error: string} {
         const source: string = this._getSource();
         const oldParam: DagNodeDatasetInputStruct = this._dagNode.getParam();
         let oldSchema: ColSchema[] = null;
@@ -216,25 +216,15 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             oldSchema = this._schemaSection.getSchema(true);
         }
 
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-
-        const $schemaSection: JQuery = this._getSchemaSection();
-        $schemaSection.addClass("loading");
-
-        DS.getSchema(source)
-        .then((schema) => {
+        const res = DS.getSchema(source);
+        if (res.error == null) {
+            const schema = res.schema;
             this._schemaSection.setInitialSchema(schema);
             this._schemaSection.render(oldSchema || schema);
-            deferred.resolve();
-        })
-        .fail(deferred.reject)
-        .always(() => {
-            $schemaSection.removeClass("loading");
-        });
-
-        const promise = deferred.promise();
-        xcHelper.showRefreshIcon($schemaSection, false, promise);
-        return promise;
+            return null;
+        } else {
+            return {error: res.error}
+        }
     }
 
     private _gotoStep(): void {
@@ -275,18 +265,26 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         if (!this._checkOpArgs(prefix, id)) {
             return;
         }
+        const $nextBtn: JQuery = this.$panel.find(".bottomSection .next");
+        const dsObj = DS.getDSObj(id);
+        if (dsObj && !dsObj.activated) {
+            StatusBox.show(ErrTStr.InactivatedDS2, $nextBtn, false);
+            return;
+        }
 
         this._renderPrefixHint(prefix);
-        const $nextBtn: JQuery = this.$panel.find(".bottomSection .next");
         this._fetchLoadArgs(id)
         .then((loadArgs) => {
             this._loadArgs = loadArgs;
             xcHelper.disableSubmit($nextBtn);
-            return this._autoDetectSchema(true);
-        })
-        .then(() => {
-            this._currentStep = 2;
-            this._gotoStep();
+            const res = this._autoDetectSchema(true);
+            if (res != null) {
+                // error case
+                return PromiseHelper.reject({error: res.error});
+            } else {
+                this._currentStep = 2;
+                this._gotoStep();
+            }
         })
         .fail((error) => {
             StatusBox.show(error.error, $nextBtn, false);
@@ -362,12 +360,12 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         // auto detect listeners for schema section
         const $schemaSection: JQuery = this._getSchemaSection();
         $schemaSection.on("click", ".detect", (event) => {
-            this._autoDetectSchema(false)
-            .fail((error) => {
+            const error = this._autoDetectSchema(false);
+            if (error != null) {
                 StatusBox.show(ErrTStr.DetectSchema, $(event.currentTarget), false, {
                     detail: error.error
                 });
-            })
+            }
         });
     }
 
@@ -551,7 +549,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         const dagGraph: DagGraph = this._dagGraph;
         dagNode.setSchema(schema);
 
-        const getLoadgArgs = this._advMode ?
+        const getLoadgArgs: XDPromise<string> = this._advMode ?
         PromiseHelper.resolve(this._loadArgs) : this._fetchLoadArgs(id);
 
         getLoadgArgs

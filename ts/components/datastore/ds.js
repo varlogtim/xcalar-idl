@@ -526,43 +526,26 @@ window.DS = (function ($, DS) {
     DS.getSchema = function(source) {
         const dsObj = DS.getDSObj(source);
         if (dsObj == null) {
-            return PromiseHelper.reject({error: "Dataset not found"});
+            return {
+                error: "Dataset not found"
+            };
         }
         const sourceHasParams = xcHelper.checkValidParamBrackets(source, true);
         if (sourceHasParams) {
-            return PromiseHelper.resolve([]);
+            return {
+                schema: []
+            };
         }
 
         const columns = dsObj.getColumns();
-        if (columns != null) {
-            // when backend has the schema
-            return PromiseHelper.resolve(columns);
+        if (columns == null) {
+            return {
+                error: "Cannot get schema from the dataset"
+            };
         } else {
-            // error handling case
-            console.warn("No schema provided, auto detect");
-            const deferred = PromiseHelper.deferred();
-            // XXXX this is a wrong implementation
-            // wait for https://bugs.int.xcalar.com/show_bug.cgi?id=12870
-            dsObj.fetch(0, 50)
-            .then((jsons, jsonKeys) => {
-                let colTypes = [];
-                jsons.forEach((json) => {
-                    colTypes = jsonKeys.map((key, index) => {
-                        return xcHelper.parseColType(json[key], colTypes[index]);
-                    });
-                });
-
-                const columns = jsonKeys.map((key, index) => {
-                    return {
-                        name: key,
-                        type: colTypes[index]
-                    };
-                });
-                deferred.resolve(columns);
-            })
-            .fail(deferred.reject);
-
-            return deferred.promise();
+            return {
+                schema: columns
+            };
         }
     }
 
@@ -1912,12 +1895,7 @@ window.DS = (function ($, DS) {
                         var name = fullName.substring(gDSPrefix.length);
                         dsInfos[name] = {
                             size: dataset.datasetSize,
-                            columns: dataset.columns.map((colInfo) => {
-                                return {
-                                    name: colInfo.name,
-                                    type: xcHelper.convertFieldTypeToColType(DfFieldTypeT[colInfo.type])
-                                }
-                            }),
+                            columns: getSchemaMeta(dataset.columns),
                             totalNumErrors: dataset.totalNumErrors,
                             downSampled: dataset.downSampled
                         };
@@ -1935,6 +1913,30 @@ window.DS = (function ($, DS) {
         });
 
         return deferred.promise();
+    }
+
+    function getSchemaMeta(schemaArray) {
+        const columns = [];
+        const indexMap = {};
+        schemaArray.forEach((colInfo) => {
+            // if the col name is a.b, in XD it should be a\.b
+            const name = xcHelper.escapeColName(colInfo.name);
+            const type = xcHelper.convertFieldTypeToColType(DfFieldTypeT[colInfo.type]);
+            let index = indexMap[name];
+            if (index == null) {
+                // new columns
+                index = columns.length;
+                indexMap[name] = index;
+                columns.push({
+                    name: name,
+                    type: type
+                });
+            } else {
+                // that's a mixed column
+                columns[index].type = ColumnType.mixed;
+            }
+        });
+        return columns;
     }
 
     function getDSBackendMeta(datasets, basicDSInfo, atStartUp) {

@@ -301,6 +301,7 @@ ErrTStr = {
                         'folder.',
     'MakrForDel': 'Cannot preview dataset that is marked for deletion',
     'InactivateDS': 'Cannot preview dataset that is deactivated',
+    'InactivatedDS2': 'Selected dataset is deactivated',
     'TimeExpire': 'That time is in the past. Please choose a valid time.',
     'LongFileName': 'File name is too long. Please use less than 255 chars.',
     'LargeFile': 'Module is >10MB. Please reduce or install as a library on all cluster nodes.',
