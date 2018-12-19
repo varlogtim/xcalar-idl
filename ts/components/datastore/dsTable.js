@@ -182,12 +182,14 @@ window.DSTable = (function($, DSTable) {
         try {
             if (error && typeof error === "object") {
                 var errorStr;
+                var log = error.log || "";
+                var output = error.output ? JSON.stringify(error.output) : "";
                 if (error.status === StatusT.StatusUdfExecuteFailed) {
-                    errorStr = error.log;
+                    errorStr = log;
                 } else {
-                    errorStr = error.error + " " + error.log
+                    errorStr = error.error + " " + log
                 }
-                errorStr = errorStr + "\n" + JSON.stringify(error.output);
+                errorStr = errorStr + "\n" + output;
                 return errorStr;
             } else {
                 return xcHelper.parseError(error);

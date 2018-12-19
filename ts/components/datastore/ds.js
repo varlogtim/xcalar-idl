@@ -102,12 +102,40 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
+    function loadArgsAdapter(loadArgsStr) {
+        try {
+            if (loadArgsStr == null) {
+                return null;
+            }
+
+            if (typeof loadArgsStr !== "string") {
+                // we don't support any invalid loadArgsStr
+                return null;
+            }
+
+            var parsed = JSON.parse(loadArgsStr);
+            if (parsed.sourceArgsList != null) {
+                // a old kind of format. to be deprecated
+                loadArgsStr = JSON.stringify({
+                    args: {
+                        loadArgs: parsed
+                    }
+                });
+            }
+            return loadArgsStr;
+        } catch (e) {
+            console.error(e);
+            return null;
+        }
+    }
+
     // restore a set of dataset who share the same dsName and loadArgs
     function restoreSourceFromDagNodeHelper(dagNodes, share, failures) {
         const deferred = PromiseHelper.deferred();
         const oldDSName = dagNodes[0].getDSName();
         const newDSName = getNewDSName(oldDSName);
-        const loadArgs = dagNodes[0].getLoadArgs();
+        let loadArgs = dagNodes[0].getLoadArgs();
+        loadArgs = loadArgsAdapter(loadArgs);
         if (loadArgs == null) {
             return PromiseHelper.reject({"error": "Invalid load args"});
         }
@@ -178,15 +206,7 @@ window.DS = (function ($, DS) {
         }
         var deferred = PromiseHelper.deferred();
         try {
-            var parsed = JSON.parse(loadArgsStr);
-            var loadArgs
-            if (parsed.sourceArgsList != null) {
-                // a old kind of format. to be deprecated
-                loadArgs = parsed;
-            } else {
-                loadArgs = JSON.parse(loadArgsStr).args.loadArgs;
-            }
-
+            var loadArgs = JSON.parse(loadArgsStr).args.loadArgs;
             var parsedName = xcHelper.parseDSName(fullDSName);
             var dsArgs = {
                 name: parsedName.dsName,
