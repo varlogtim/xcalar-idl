@@ -103,13 +103,13 @@ class SkewInfoModal {
 
         const data = rows.map((d, i) => {
             const row = percentageLabel ? d / totalRows : d;
-            return {"row": row, "node": "Node " + i};
+            return {"row": row, "node": "Cluster Node " + i};
         });
 
         const $svg: JQuery = this._getModal().find(".chart").empty();
         const svg = d3.select($svg.get(0));
 
-        const margin = {top: 15, right: 20, bottom: 55, left: 70};
+        const margin = {top: 15, right: 20, bottom: 70, left: 70};
         const width = $svg.width() - margin.left - margin.right;
         const height = $svg.height() - margin.top - margin.bottom;
 
