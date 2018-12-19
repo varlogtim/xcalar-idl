@@ -106,7 +106,6 @@ window.ColManager = (function($, ColManager) {
                                        noAnimate));
         }
         if (gMinModeOn || noAnimate) {
-            TblFunc.moveTableTitles($table.closest('.xcTableWrap'));
             // for tableScrollBar
             TblFunc.moveFirstColumn();
         }
@@ -1484,8 +1483,6 @@ window.ColManager = (function($, ColManager) {
                     TblManager.updateHeaderAndListInfo(tableId);
                     $table.find('.col' + newColNum).removeClass('animating');
                 });
-                // TblFunc.moveTableTitlesAnimated(tableId, $tableWrap.width(),
-                //                                 10 - width, 300);
             } else {
                 TblManager.updateHeaderAndListInfo(tableId);
             }

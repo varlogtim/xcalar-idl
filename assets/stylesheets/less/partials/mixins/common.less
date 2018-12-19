@@ -1334,20 +1334,21 @@
     .size(@width: 22px, @height: 12px);
     .position(relative, @top: 5px);
     .rounded(5px);
-    background-color: @color-arc-xdbfree;
+    background-color: @color-bg-topBarGray2;
+    border: 1px solid @color-arc-xdbfree;;
     cursor: pointer;
 
     .slider {
         .size(@width: 12px, @height: 12px);
         .rounded(100%);
-        .position(relative, @left: 0, @top: 0px);
+        .position(relative, @left: 0, @top: -1px);
         border: 1px solid @color-arc-xdbfree;
         background-color: @color-white;
         .transition(left 0.2s);
     }
 
     &.on {
-        background-color: @color-bg-softBlue;
+        background-color: @color-font-form-gray;
         .slider {
             left: 11px;
         }
