@@ -4,7 +4,9 @@ class RoundOpPanelModel {
     private _sourceColumn: string = '';
     private _destColumn: string = '';
     private _numDecimals: number = 0;
+    private _includeErrRow: boolean = false;
     private _allColMap: Map<string, ProgCol> = new Map();
+    private static _funcName = 'round';
 
     /**
      * Create data model instance from DagNode
@@ -45,17 +47,11 @@ class RoundOpPanelModel {
      * @description use case: advanced from
      */
     public static fromDagInput(
-        colMap: Map<string, ProgCol>, dagInput: DagNodeRoundInputStruct
+        colMap: Map<string, ProgCol>, dagInput: DagNodeMapInputStruct
     ): RoundOpPanelModel {
         // input validation
-        if (dagInput.sourceColumn == null) {
-            throw new Error('Source column cannot be null');
-        }
-        if (dagInput.numDecimals == null) {
-            throw new Error('Num decimals cannot be null');
-        }
-        if (dagInput.destColumn == null) {
-            throw new Error('Dest column cannot be null');
+        if (dagInput.eval == null) {
+            throw new Error('Eval string cannot be null');
         }
 
         const model = new this();
@@ -64,21 +60,58 @@ class RoundOpPanelModel {
         model._instrStr = OpPanelTStr.RoundPanelInstr;
         model._allColMap = colMap;
 
-        model._sourceColumn = dagInput.sourceColumn;
-        model._numDecimals = dagInput.numDecimals;
-        model._destColumn = dagInput.destColumn;
+        try { 
+            const evalObj = dagInput.eval[0];
+            const evalFunc = XDParser.XEvalParser.parseEvalStr(evalObj.evalString);
+
+            // Function name should be 'round'
+            if (evalFunc.fnName !== this._funcName) {
+                throw new Error('Invalid function name');
+            }
+
+            // Source column
+            let evalParam = evalFunc.args[0];
+            if (!isTypeEvalArg(evalParam)) {
+                throw new Error('Invalid column name');
+            }
+            model._sourceColumn = evalParam.value;
+
+            // Num decimals
+            evalParam = evalFunc.args[1];
+            if (!isTypeEvalArg(evalParam)) {
+                throw new Error('Invalid num decimals');
+            }
+            model._numDecimals = Number(evalParam.value);
+
+            // Dest column
+            model._destColumn = evalObj.newField;
+
+            // icv
+            model._includeErrRow = dagInput.icv;
+        } catch(e) {
+            model._sourceColumn = '';
+            model._numDecimals = 0;
+            model._destColumn = '';
+            model._includeErrRow = false;
+        }
 
         return model;
+
+        function isTypeEvalArg(arg: ParsedEvalArg|ParsedEval): arg is ParsedEvalArg {
+            return arg != null && arg.type !== 'fn';
+        }
     }
 
     /**
      * Generate DagNodeInput from data model
      */
-    public toDagInput(): DagNodeRoundInputStruct {
-        const param: DagNodeRoundInputStruct = {
-            sourceColumn: this.getSourceColumn(),
-            numDecimals: this.getNumDecimals(),
-            destColumn: this.getDestColumn()
+    public toDagInput(): DagNodeMapInputStruct {
+        const param: DagNodeMapInputStruct = {
+            eval: [{
+                evalString: `${RoundOpPanelModel._funcName}(${this.getSourceColumn()},${this.getNumDecimals()})`,
+                newField: this.getDestColumn()
+            }],
+            icv: this.isIncludeErrRow()
         };
         
         return param;
@@ -160,6 +193,14 @@ class RoundOpPanelModel {
 
     public setNumDecimals(num: number): void {
         this._numDecimals = num;
+    }
+
+    public setIncludeErrRow(isInclude: boolean): void {
+        this._includeErrRow = isInclude;
+    }
+
+    public isIncludeErrRow(): boolean {
+        return this._includeErrRow;
     }
 
     public getColumnMap(): Map<string, ProgCol> {

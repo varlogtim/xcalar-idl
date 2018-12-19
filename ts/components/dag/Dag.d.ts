@@ -223,12 +223,6 @@ interface DagNodeExplodeInputStruct {
     destColumn: string
 }
 
-interface DagNodeRoundInputStruct {
-    sourceColumn: string,
-    numDecimals: number,
-    destColumn: string
-}
-
 interface DagNodeSynthesizeInputStruct {
     colsInfo: {sourceColumn: string, destColumn: string, columnType: string}[]
 }

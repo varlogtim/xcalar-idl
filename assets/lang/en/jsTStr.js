@@ -1668,6 +1668,7 @@ OpPanelTStr = {
     "DFLinkInNoDF": "Dataflow doesn't exist",
     "DFLinkInNoOut": "Link out node doesn't exist",
     "DFLinkInNoSchema": "No columns in schema",
+    "CommonFieldNameErroneousRows": "Include only erroneous rows",
     "SplitPanelTitle": "Split Operation",
     "SplitPanelInstr": "Split column by delimiter",
     "SplitPanelFieldNameDelimiter": "Delimiter",

@@ -96,7 +96,7 @@ class DagNodeExecutor {
             case DagNodeType.Split:
                 return this._split();
             case DagNodeType.Round:
-                return this._round();
+                return this._map();
             case DagNodeType.Project:
                 return this._project();
             case DagNodeType.Explode:
@@ -498,29 +498,6 @@ class DagNodeExecutor {
             newFields.push(toCols[i]);
         }
         return XIApi.map(this.txId, mapStrs, srcTable, newFields, destTable, false);
-    }
-
-    private _round(): XDPromise<string> {
-        const { sourceColumn, numDecimals, destColumn } = this.node.getParam();
-        const srcTable = this._getParentNodeTable(0);
-        const destTable = this._generateTableName();
-
-        let sourceColType = null;
-        for (const col of this.node.getParents()[0].getLineage().getColumns()) {
-            if (col.getBackColName() == sourceColumn) {
-                sourceColType = col.getType();
-                break;
-            }
-        }
-        if (sourceColType == null) {
-            return PromiseHelper.reject(`SourceColumn ${sourceColumn} not found`);
-        }
-
-        const evalSource = sourceColType === ColumnType.float
-            ? sourceColumn
-            : `float(${sourceColumn})`;
-        const evalStr = `round(${evalSource},${numDecimals})`;
-        return XIApi.map(this.txId, [evalStr], srcTable, [destColumn], destTable, false);
     }
 
     private _explode(): XDPromise<string> {

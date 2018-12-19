@@ -160,6 +160,18 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
         };
         args.push(destColProp);
 
+        // icv: include erroreous rows
+        const icvProp: CheckboxInputProps = {
+            type: 'boolean',
+            name: OpPanelTStr.CommonFieldNameErroneousRows,
+            isChecked: this._dataModel.isIncludeErrRow(),
+            onFlagChange: (flag) => {
+                this._dataModel.setIncludeErrRow(flag);
+                this._updateUI();
+            }
+        };
+        args.push(icvProp);
+
         return args;
     }
 
