@@ -1057,15 +1057,15 @@ namespace DagView {
                     type: "dagNode",
                     id: j,
                     position: {
-                        x: ((maxDepth - nodes[j].depth) * horzNodeSpacing) + gridSpacing,
-                        y: (nodes[j].width * vertNodeSpacing) + gridSpacing
+                        x: ((maxDepth - nodes[j].depth) * horzNodeSpacing) + (gridSpacing * 2),
+                        y: (nodes[j].width * vertNodeSpacing) + (gridSpacing * 2)
                     }
                 });
             }
             startingWidth = (maxWidth + 1);
         }
-        const graphHeight = vertNodeSpacing * (startingWidth - 1);
-        const graphWidth = horzNodeSpacing * overallMaxDepth;
+        const graphHeight = vertNodeSpacing * (startingWidth - 1) + gridSpacing;
+        const graphWidth = horzNodeSpacing * overallMaxDepth + gridSpacing;
         let maxX = graphWidth;
         let maxY = graphHeight;
         const comments = graph.getAllComments();

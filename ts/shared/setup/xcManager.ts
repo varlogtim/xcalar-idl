@@ -15,13 +15,15 @@ namespace xcManager {
 
         Compatible.check();
         xcGlobal.setup();
-        xcTimeHelper.setup();
         setupThrift("");
 
         let xcSocket: XcSocket;
         let firstTimeUser: boolean;
 
-        hotPatch()
+        xcTimeHelper.setup()
+        .then(() => {
+            return hotPatch();
+        })
         .then(function() {
             return XcUser.setCurrentUser();
         })

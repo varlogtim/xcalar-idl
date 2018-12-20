@@ -1,12 +1,13 @@
 class DagTabUser extends DagTab {
     private _reset: boolean;
+    private _createdTime: number;
 
     /**
      * DagTabUser.restore
      * @param dagList
      */
     public static restore(
-        dagList: {name: string, id: string, reset: boolean}[]
+        dagList: {name: string, id: string, reset: boolean, createdTime: number}[]
     ): XDPromise<DagTabUser[]> {
         const deferred: XDDeferred<DagTabUser[]> = PromiseHelper.deferred();
         const dagIdSet: Set<string> = new Set();
@@ -20,7 +21,7 @@ class DagTabUser extends DagTab {
             });
             dagList.forEach((dagInfo) => {
                 if (dagIdSet.has(dagInfo.id)) {
-                    dagTabs.push(new DagTabUser(dagInfo.name, dagInfo.id, null, dagInfo.reset));
+                    dagTabs.push(new DagTabUser(dagInfo.name, dagInfo.id, null, dagInfo.reset, dagInfo.createdTime));
                     dagIdSet.delete(dagInfo.id);
                 } else {
                     // when dag list has meta but the dag not exists
@@ -71,7 +72,7 @@ class DagTabUser extends DagTab {
         .then((res) => {
             try {
                 const name: string = res.name;
-                dagTabs.push(new DagTabUser(name, id));
+                dagTabs.push(new DagTabUser(name, id, null, null, xcTimeHelper.now()));
             } catch (e) {
                 console.error(e);
             }
@@ -86,11 +87,13 @@ class DagTabUser extends DagTab {
         name: string,
         id?: string,
         graph?: DagGraph,
-        reset?: boolean
+        reset?: boolean,
+        createdTime?: number
     ) {
         super(name, id, graph);
         this._kvStore = new KVStore(this._id, gKVScope.WKBK);
         this._reset = reset;
+        this._createdTime = createdTime;
     }
 
     public setName(newName: string): void {
@@ -242,12 +245,16 @@ class DagTabUser extends DagTab {
 
     public clone(): DagTabUser {
         const clonedGraph: DagGraph = this.getGraph().clone();
-        const clonedTab = new DagTabUser(this.getName(), null, clonedGraph);
+        const clonedTab = new DagTabUser(this.getName(), null, clonedGraph, null, xcTimeHelper.now());
         return clonedTab;
     }
 
     public needReset(): boolean {
         return this._reset;
+    }
+
+    public getCreatedTime(): number {
+        return this._createdTime;
     }
 
     protected _writeToKVStore(): XDPromise<void> {

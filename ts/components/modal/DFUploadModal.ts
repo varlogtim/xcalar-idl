@@ -62,7 +62,7 @@ class DFUploadModal {
             shortName = (<DagTabPublished>uploadTab).getShortName();
         } else {
             shared = false;
-            uploadTab = new DagTabUser(path);
+            uploadTab = new DagTabUser(path, null, null, null, xcTimeHelper.now());
             shortName = uploadTab.getName();
         }
         const isValid: boolean = xcHelper.validate([{

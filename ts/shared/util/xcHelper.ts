@@ -6531,6 +6531,47 @@ namespace xcHelper {
         return node.input[inputName];
     }
 
+    export function sendRequest(action: string, url: string, content?) {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        let data = _preParseSendData(action, content);
+        HTTPService.Instance.ajax({
+            "type": action,
+            "data": data,
+            "contentType": "application/json",
+            "url": xcHelper.getAppUrl() + url,
+            "success": function(data) {
+                deferred.resolve(data);
+            },
+            "error": function(e) {
+                deferred.reject(e);
+            }
+        });
+
+        function _preParseSendData(
+            action: string,
+            content?): string | object {
+            let data = content ? content : {};
+            // A flag to indicate whether current window is using http protocol or not
+            data["isHTTP"] = _isHTTP();
+            // Post and Delete case, send a String
+            // Get case, send a JSON object
+            if (action !== "GET") {
+                data = JSON.stringify(data);
+            }
+            return data;
+        }
+
+        function _isHTTP(): string {
+            if (window.location.protocol === "http:") {
+                return "true";
+            } else {
+                return "false";
+            }
+        }
+
+        return deferred.promise();
+    }
+
     export let __testOnly__: any = {};
 
     if (typeof window !== 'undefined' && window['unitTestMode']) {

@@ -1,9 +1,23 @@
 namespace xcTimeHelper {
+    let timeOffset: number = 0; // diff between server time and browser's time
+
     // xcTimeHelper.setup
-    export function setup(): void {
+    export function setup(): XDPromise<any> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         moment.relativeTimeThreshold('s', 8);
         moment.relativeTimeThreshold('m', 55); // test
         xcTimeHelper.resetMoment();
+        const startTime = Date.now();
+        getServerTime()
+        .then((time) => {
+            if (time && !isNaN(time)) {
+                time = parseInt(time);
+                timeOffset = Math.round(((Date.now() + startTime) / 2) - time);
+            }
+            deferred.resolve();
+        })
+        .fail(deferred.resolve);
+        return deferred.promise();
     }
 
     // xcTimeHelper.resetMoment
@@ -40,4 +54,14 @@ namespace xcTimeHelper {
                 'data-container="' + container +
                 '" data-original-title="' + title + '" ';
     };
+
+    export function getServerTime(): JQueryPromise<any> {
+        const action: string = "GET";
+        const url: string = "/service/getTime";
+        return xcHelper.sendRequest(action, url);
+    }
+
+    export function now(): number {
+        return Date.now() - timeOffset;
+    }
 }

@@ -441,13 +441,14 @@ class DagList {
     }
 
     private _saveUserDagList(): XDPromise<void> {
-        const dags: {name: string, id: string, reset: boolean}[] = [];
+        const dags: {name: string, id: string, reset: boolean, createdTime: number}[] = [];
         this._dags.forEach((dagTab) => {
             if (dagTab instanceof DagTabUser) {
                 dags.push({
                     name: dagTab.getName(),
                     id: dagTab.getId(),
-                    reset: dagTab.needReset()
+                    reset: dagTab.needReset(),
+                    createdTime: dagTab.getCreatedTime()
                 });
             }
         });

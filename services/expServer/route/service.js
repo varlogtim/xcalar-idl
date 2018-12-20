@@ -277,6 +277,10 @@ router.get("/service/logs/slave",
         res.status(message.status).send(message);
     });
 });
+
+router.get("/service/getTime", function(req, res) {
+    res.status(httpStatus.OK).send(JSON.stringify(Date.now()));
+});
 // End of service calls
 
 // Below part is only for Unit Test

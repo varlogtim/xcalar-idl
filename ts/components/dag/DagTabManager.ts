@@ -450,7 +450,7 @@ class DagTabManager{
     }
 
     private _newTab(name: string, graph: DagGraph): DagTab {
-        const newDagTab: DagTabUser = new DagTabUser(name, null, graph);
+        const newDagTab: DagTabUser = new DagTabUser(name, null, graph, null, xcTimeHelper.now());
         if (!DagList.Instance.addDag(newDagTab)) {
             return null;
         }
