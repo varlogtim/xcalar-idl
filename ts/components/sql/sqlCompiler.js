@@ -2467,7 +2467,25 @@
                     cli += ret.cli;
                     newTableName = ret.newTableName;
                 }
-                if (node.expand) {
+                var gArrayList = [];
+                var gArraySingleOp = [];
+                for (var i = 0; i < gArray.length; i++) {
+                    if (gArray[i].operator === "stdev"
+                        || gArray[i].operator === "stdevp"
+                        || gArray[i].operator === "var"
+                        || gArray[i].operator === "varp") {
+                        gArrayList.push([gArray[i]]);
+                    } else {
+                        gArraySingleOp.push(gArray[i]);
+                    }
+                }
+                if (gArraySingleOp.length > 0) {
+                    gArrayList.push(gArraySingleOp);
+                }
+                if (gArrayList.length > 1) {
+                    return __multGBHelper(self, gbColNames, gbColTypes,
+                                        gArrayList, newTableName, node);
+                } else if (node.expand) {
                     return __handleMultiDimAgg(self, gbColNames, gbColTypes,
                                             gArray, newTableName, node.expand);
                 } else {
@@ -4435,6 +4453,7 @@
                          percentRank: {newCols: []},
                          cumeDist: {newCols: []},
                          denseRank: {newCols: []}};
+        var multiOperations = [];
         for (var i = 0; i < opList.length; i++) {
             var found = false;
             var opStruct = __prepareWindowOp(SQLCompiler
@@ -4508,6 +4527,18 @@
                 retStruct.cumeDist.newCols.push(opStruct.newColStruct);
             } else if (opStruct.opName === "DenseRank") {
                 retStruct.denseRank.newCols.push(opStruct.newColStruct);
+            } else if (opStruct.opName === "StddevPop"
+                       || opStruct.opName === "StddevSamp"
+                       || opStruct.opName === "VariancePop"
+                       || opStruct.opName === "VarianceSamp") {
+                var aggObj = {newCols: [], ops: [], aggCols: [], aggTypes: []};
+                aggObj.newCols.push(opStruct.newColStruct);
+                aggObj.ops.push(opLookup["expressions.aggregate."
+                                         + opStruct.opName]);
+                aggObj.aggCols.push(opStruct.args[0]);
+                aggObj.aggTypes.push(opStruct.argTypes[0]);
+                aggObj.frameInfo = opStruct.frameInfo;
+                multiOperations.push(aggObj);
             } else {
                 retStruct.agg.forEach(function(aggObj) {
                     if (JSON.stringify(aggObj.frameInfo)
@@ -4532,6 +4563,7 @@
                 }
             }
         }
+        retStruct.agg = retStruct.agg.concat(multiOperations);
         return retStruct;
     }
 
@@ -5351,27 +5383,13 @@
         var curIndex = expand.groupingIds[0];
         var curI = 0;
         var tableInfos = [];
-        // This column is used to create nulls
-        var gbTempColName = "XC_GB_COL_" + Authentication.getHashId()
-                                                         .substring(3);
-        var tempCols = [{colName: gbTempColName, colType: "string"}];
-        var curPromise = self.sqlObj.map(["string(1)"], tableName, [gbTempColName])
-                                    .then(function(ret) {
-                                        tableName = ret.newTableName;
-                                        return ret;
-                                    });
+        var curPromise = PromiseHelper.resolve({cli: "", newTableName: tableName});
         for (var i = 0; i < expand.groupingIds.length; i++) {
             curPromise = curPromise.then(function(ret) {
                 cli += ret.cli;
                 options = {};
                 curIndex = expand.groupingIds[curI];
-                if (ret.tempCols) {
-                    for (var i = 0; i < ret.tempCols.length; i++) {
-                        tempCols.push({colName: ret.tempCols[i],
-                                       colType: "DfUnknown"}); // XXX xiApi temp columns
-                    }
-                }
-                var tempGBColNames = [gbTempColName];
+                var tempGBColNames = [];
                 var tempGArray = jQuery.extend(true, [], gArray);
                 var nameMap = {};
                 var mapStrs = [];
@@ -5380,33 +5398,21 @@
                     if ((1 << (gbColNames.length - j - 2) & curIndex) === 0) {
                         tempGBColNames.push(gbColNames[j]);
                     } else {
-                        if (gbColTypes[j] === "string") {
-                            var tempStrColName = gbColNames[j] + "-str-"
-                                    + Authentication.getHashId().substring(3);
-                            nameMap[gbColNames[j]] = tempStrColName;
-                            newColNames.push(gbColNames[j]);
-                            mapStrs.push("string(" + tempStrColName + ")");
-                        }
-                        tempGArray.push({
-                            operator: gbColTypes[j] === "int" ? "sumInteger" : "sum",
-                            aggColName: gbTempColName,
-                            newColName: nameMap[gbColNames[j]] || gbColNames[j]
-                        });
+                        mapStrs.push(gbColTypes[j] + "(div(1,0))");
+                        newColNames.push(gbColNames[j]);
                     }
                 }
                 mapStrs.push("int(" + curIndex + ")");
                 newColNames.push(gIdColName);
 
                 // Column info for union
-                var columns = [{name: gbTempColName, rename: gbTempColName,
-                                type: "DfUnknown", cast: false},
-                               {name: gIdColName, rename: gIdColName,
+                var columns = [{name: gIdColName, rename: gIdColName,
                                 type: "DfUnknown", cast: false}];
                 for (var j = 0; j < gbColNames.length - 1; j++) {
                     columns.push({
                         name: gbColNames[j],
                         rename: gbColNames[j],
-                        type: "DfUnknown",
+                        type: DfFieldTypeT.DfUnknown,
                         cast: false
                     });
                 }
@@ -5444,14 +5450,121 @@
         })
         .then(function(ret) {
             cli += ret.cli;
-            deferred.resolve({newTableName: ret.newTableName,
-                              cli: cli, tempCols: tempCols});
+            deferred.resolve({newTableName: ret.newTableName, cli: cli});
         })
         .fail(deferred.reject);
 
         return deferred.promise();
     }
-    
+
+    function __multGBHelper(self, gbColNames, gbColTypes,
+                            gArrayList, tableName, node) {
+        // Do group by separately for multi-operation and corss join
+        var deferred = PromiseHelper.deferred();
+        var gbTableNames = [];
+        var gbTableColInfos = [];
+        var cli = "";
+        var curPromise = PromiseHelper.resolve();
+        var index = 0;
+        for (var i = 0; i < gArrayList.length; i++) {
+            if (node.expand) {
+                curPromise = curPromise.then(function(ret) {
+                    return __handleMultiDimAgg(self, gbColNames, gbColTypes,
+                                    gArrayList[index], tableName, node.expand);
+                });
+            } else {
+                curPromise = curPromise.then(function(ret) {
+                    return self.sqlObj.groupBy(gbColNames, gArrayList[index], tableName);
+                });
+            }
+            curPromise = curPromise.then(function(ret) {
+                cli += ret.cli;
+                gbTableNames.push(ret.newTableName);
+                var columnInfo = {tableName: ret.newTableName,
+                                  columns: jQuery.extend(true, [], gbColNames)};
+                for (var j = 0; j < gArrayList[index].length; j++) {
+                    columnInfo.columns.push(gArrayList[index][j].newColName);
+                }
+                if (ret.tempCols) {
+                    for (var j = 0; j < ret.tempCols.length; j++) {
+                        if (typeof ret.tempCols[j] === "string") {
+                            columnInfo.columns.push(ret.tempCols[j]);
+                            node.xcCols.push({colName: ret.tempCols[j],
+                                              colType: "DfUnknown"});
+                        } else {
+                            columnInfo.columns.push(__getCurrentName(ret.tempCols[j]));
+                            node.xcCols.push(ret.tempCols[j]);
+                        }
+                    }
+                }
+                gbTableColInfos.push(columnInfo);
+                index += 1;
+                return ret;
+            });
+        }
+        curPromise = PromiseHelper.resolve({newTableName: gbTableNames[0]});
+        var joinType = JoinOperatorT.CrossJoin;
+        index = 1;
+        for (var i = 1; i < gbTableNames.length; i++) {
+            var rightCols = [];
+            curPromise = curPromise.then(function(ret) {
+                gbTableColInfos[index].rename = [];
+                var evalString = "";
+                rightCols = [];
+                gbTableColInfos[0].tableName = ret.newTableName;
+                for (var j = 0; j < gbColNames.length; j++) {
+                    var newColName = gbColNames[j] + "_" + index
+                                     + Authentication.getHashId(3);
+                    rightCols.push(newColName);
+                    gbTableColInfos[index].rename.push({orig: gbColNames[j],
+                                                        new: newColName});
+                    if (evalString === "") {
+                        evalString = "eq(" + gbColNames[j] + "," + newColName + ")";
+                    } else {
+                        evalString = "and(" + evalString + ",eq(" + gbColNames[j]
+                                     + "," + newColName + "))";
+                    }
+                }
+                for (var j = 0; j < gbTableColInfos[index].columns.length; j++) {
+                    if (gbColNames.indexOf(gbTableColInfos[index].columns[j]) === -1) {
+                        rightCols.push(gbTableColInfos[index].columns[j]);
+                    }
+                }
+                var leftColInfo = {tableName: gbTableColInfos[0].tableName,
+                                   columns: [],
+                                   rename: gbTableColInfos[0].rename};
+                var rightColInfo = {tableName: gbTableColInfos[index].tableName,
+                                    columns: [],
+                                    rename: gbTableColInfos[index].rename};
+                return self.sqlObj.join(joinType, leftColInfo, rightColInfo,
+                                        {evalString: evalString});
+            })
+            .then(function(ret) {
+                cli += ret.cli;
+                gbTableColInfos[0].columns = gbTableColInfos[0].columns.concat(rightCols);
+                if (ret.tempCols) {
+                    for (var j = 0; j < ret.tempCols.length; j++) {
+                        if (typeof ret.tempCols[j] === "string") {
+                            gbTableColInfos[0].columns.push(ret.tempCols[j]);
+                            node.xcCols.push({colName: ret.tempCols[j],
+                                              colType: "DfUnknown"});
+                        } else {
+                            gbTableColInfos[0].columns.push(__getCurrentName(ret.tempCols[j]));
+                            node.xcCols.push(ret.tempCols[j]);
+                        }
+                    }
+                }
+                index += 1;
+                return ret;
+            })
+        }
+        curPromise.then(function(ret) {
+            deferred.resolve({newTableName: ret.newTableName, cli: cli});
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
+    }
+
     function __windowMapHelper(self, node, mapStrs, tableName, newColNames,
                                     newTableName, colNames, outerLoopStruct) {
         var deferred = PromiseHelper.deferred();
