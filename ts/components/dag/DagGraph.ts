@@ -134,6 +134,30 @@ class DagGraph {
      * @param {DagGraphInfo} serializableGraph
      */
     public create(serializableGraph: DagGraphInfo): void {
+        const nodes: {node: DagNode, parents: DagNodeId[]}[] = [];
+        serializableGraph.nodes.forEach((nodeInfo: DagNodeInfo) => {
+            if (nodeInfo.type == DagNodeType.Aggregate ||
+                nodeInfo.type === DagNodeType.DFIn
+            ) {
+                nodeInfo["graph"] = this;
+            }
+            const node: DagNode = DagNodeFactory.create(nodeInfo);
+            const parents: DagNodeId[] = nodeInfo.parents;
+            nodes.push({
+                node: node,
+                parents: parents
+            });
+        });
+
+        this.rebuildGraph({
+            nodes: nodes,
+            comments: serializableGraph.comments,
+            display: serializableGraph.display
+        });
+    }
+
+    public resetWithValidate(): void {
+        const serializableGraph: DagGraphInfo = this.getSerializableObj();
         // comments may not exist, so create a new comments array
         let comments: CommentInfo[] = serializableGraph.comments;
         if (comments || !Array.isArray(comments)) {
@@ -172,6 +196,9 @@ class DagGraph {
             }
 
             try {
+                if (nodeInfo.type === DagNodeType.Dataset) {
+                    this._restoreEmptySchema(<DagNodeInInfo>nodeInfo);
+                }
                 // validate before creating the node
                 let ajv = new Ajv();
                 let validate = ajv.compile(DagNode.schema);
@@ -1598,6 +1625,23 @@ class DagGraph {
             }
             stack.pop();
             return false;
+        }
+    }
+
+    private _restoreEmptySchema(nodeInfo: DagNodeInInfo): void {
+        let schema: ColSchema[] = nodeInfo.schema;
+        if (!schema || schema.length == 0) {
+            // an upgrade case
+            const input: any = nodeInfo.input;
+            const source: string = input.source;
+            if (typeof DS !== "undefined" && source) {
+                let res = DS.getSchema(source);
+                if (res.error) {
+                    throw "Cannot Restore Schema";
+                } else {
+                    nodeInfo.schema = res.schema;
+                }
+            }
         }
     }
 

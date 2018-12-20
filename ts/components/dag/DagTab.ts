@@ -28,7 +28,7 @@ abstract class DagTab {
         this._events = {};
     }
 
-    public abstract load(): XDPromise<void>
+    public abstract load(reset?: boolean): XDPromise<void>
     public abstract save(): XDPromise<void>
     public abstract delete(): XDPromise<void>
     public abstract download(name: string, optimized?: boolean): XDPromise<void>
@@ -242,5 +242,10 @@ abstract class DagTab {
         }
 
         return {}
+    }
+
+    protected _resethHelper(graph: DagGraph): void {
+        graph.clear();
+        graph.resetWithValidate();
     }
 }

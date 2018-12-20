@@ -68,10 +68,10 @@ class DFPublishModal {
         const shareDS: boolean = $modal.find(".shareDS .checkbox").hasClass("checked");
 
         const graph: DagGraph = this._cachedDagTab.getGraph();
-        const fakeDag: DagTabPublished = new DagTabPublished(path, null, graph);
+        const tab: DagTabPublished = new DagTabPublished(path, null, graph);
         let hasShared: boolean = false;
 
-        fakeDag.publish()
+        tab.publish()
         .then(() => {
             hasShared = true;
             return this._advencedOptions({
@@ -80,13 +80,11 @@ class DFPublishModal {
             });
         })
         .then(() => {
-            this._close();
-            DagList.Instance.refresh();
+            this._submitDone(tab);
         })
         .fail((error) => {
             if (hasShared) {
-                this._close();
-                DagList.Instance.refresh();
+                this._submitDone(tab);
                 Alert.error(DFTStr.ShareFail, error);
             } else {
                 const $bth: JQuery = this._getModal().find(".confirm");
@@ -99,6 +97,12 @@ class DFPublishModal {
             this._modalHelper.removeWaitingBG();
             this._modalHelper.enableSubmit();
         });
+    }
+
+    private _submitDone(tab: DagTabPublished): void {
+        this._close();
+        DagList.Instance.addDag(tab);
+        DagTabManager.Instance.loadTab(tab);
     }
 
     private _validate(): {path: string} {

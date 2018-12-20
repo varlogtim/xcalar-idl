@@ -141,7 +141,7 @@ class DagTabPublished extends DagTab {
         .then((dagInfo, graph) => {
             this._version = dagInfo.version;
             if (reset) {
-                graph.clear();
+                this._resethHelper(graph);
             }
             this.setGraph(graph);
             if (reset) {
@@ -205,10 +205,17 @@ class DagTabPublished extends DagTab {
     }
 
     public upload(content: string): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         DagTabPublished._switchSession(null);
-        const promise = XcalarUploadWorkbook(this._getWKBKName(), content, "");
+        XcalarUploadWorkbook(this._getWKBKName(), content, "")
+        .then((sessionId) => {
+            this._id = sessionId;
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
         DagTabPublished._resetSession();
-        return promise;
+        return deferred.promise();
     }
 
     public download(name: string, optimized?: boolean): XDPromise<void> {
@@ -243,8 +250,9 @@ class DagTabPublished extends DagTab {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let hasCreatWKBK: boolean = false;
         this._createWKBK()
-        .then(() => {
+        .then((sessionId: string) => {
             hasCreatWKBK = true;
+            this._id = sessionId;
             return this._activateWKBK();
         })
         .then(() => {
@@ -281,20 +289,11 @@ class DagTabPublished extends DagTab {
 
     public copyUDFToLocal(overwrite: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let udfPathPrefix: string;
+        const id: string = this._id;
+        let udfPathPrefix: string = `/workbook/${DagTabPublished._secretUser}/${id}/udf/`;
+        const udfPattern: string = udfPathPrefix + "*";
 
-        this._fetchId()
-        .then((id) => {
-            if (id == null) {
-                // this is an error case
-                return PromiseHelper.reject({error: "Error Dataflow"});
-            }
-            this._id = id;
-
-            udfPathPrefix = `/workbook/${DagTabPublished._secretUser}/${id}/udf/`;
-            const udfPattern: string = udfPathPrefix + "*";
-            return XcalarListXdfs(udfPattern, "User*");
-        })
+        XcalarListXdfs(udfPattern, "User*")
         .then((res) => {
             const udfAbsolutePaths = {};
             const prefixLen: number = udfPathPrefix.length;
@@ -362,7 +361,7 @@ class DagTabPublished extends DagTab {
         return name.replace(/\//g, DagTabPublished._delim);
     }
 
-    private _createWKBK(): XDPromise<void> {
+    private _createWKBK(): XDPromise<string> {
         DagTabPublished._switchSession(null);
         const promise = XcalarNewWorkbook(this._getWKBKName());
         DagTabPublished._resetSession();
@@ -504,25 +503,6 @@ class DagTabPublished extends DagTab {
             }
         })
         .fail(deferred.reject)
-        return deferred.promise();
-    }
-
-    private _fetchId(): XDPromise<string> {
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        DagTabPublished._listSession()
-        .then((res: {sessions: any[]}) => {
-            let id: string = null;
-            const name: string = this._getWKBKName();
-            res.sessions.forEach((sessionInfo) => {
-                if (name === sessionInfo.name) {
-                    id = sessionInfo.sessionId;
-                    return false; // stop loop
-                }
-            });
-            deferred.resolve(id);
-        })
-        .fail(deferred.reject);
-
         return deferred.promise();
     }
 

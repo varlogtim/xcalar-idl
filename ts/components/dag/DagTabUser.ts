@@ -98,18 +98,23 @@ class DagTabUser extends DagTab {
         this.save(); // do a force save
     }
 
-    public load(): XDPromise<void> {
+    public load(reset?: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._loadFromKVStore()
         .then((_dagInfo, graph: DagGraph) => {
-            if (this._reset) {
-                graph.clear();
+            reset = reset || this._reset;
+            if (reset) {
+                this._resethHelper(graph);
                 this._reset = false;
                 DagList.Instance.save();
             }
             this.setGraph(graph);
-            deferred.resolve();
+
+            if (reset) {
+                return this._writeToKVStore();
+            }
         })
+        .then(deferred.resolve)
         .fail((error) => {
             if (typeof error === "object" && error.error === DFTStr.InvalidDF) {
                 // An invalid dagTab has been stored- let's delete it.

@@ -124,6 +124,9 @@ class DagNodeSet extends DagNode {
     protected _genParamHint(): string {
         let hint: string = "";
         const input: DagNodeSetInputStruct = this.getParam();
+        if (input.columns.length === 0) {
+            return hint;
+        }
         const len: number = input.columns[0].length;
         if (len) {
             hint = this.getSubType();

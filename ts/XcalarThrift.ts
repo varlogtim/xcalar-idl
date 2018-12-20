@@ -276,6 +276,15 @@ function fakeApiCall<T>(ret?: T): XDPromise<T> {
     return PromiseHelper.resolve(ret? ret: {});
 }
 
+function parseWorkbookId(res: any): string {
+    let sessionId: string = null;
+    try {
+        sessionId = res.output.outputResult.sessionNewOutput.sessionId;
+    } catch (e) {
+        console.error(e);
+    }
+    return sessionId;
+}
 function parseDS(dsName: string): string {
     return (gDSPrefix + dsName);
 }
@@ -4821,8 +4830,9 @@ XcalarNewWorkbook = function(
 
     xcalarApiSessionNew(tHandle, newWorkbookName, isCopy,
                         copyFromWhichWorkbook)
-    .then(function(output) {
-        deferred.resolve(output);
+    .then(function(res) {
+        const sessionId: string = parseWorkbookId(res);
+        deferred.resolve(sessionId);
     })
     .fail(function(error) {
         const thriftError = thriftLog("XcalarNewWorkbook", error);
@@ -4959,7 +4969,10 @@ XcalarUploadWorkbook = function(
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
 
     xcalarApiSessionUpload(tHandle, workbookName, workbookContent, pathToAdditionalFiles)
-    .then(deferred.resolve)
+    .then(function(res) {
+        const sessionId: string = parseWorkbookId(res);
+        deferred.resolve(sessionId);
+    })
     .fail(function(error) {
         const thriftError = thriftLog("XcalarUploadWorkbook", error);
         Log.errorLog("Upload Workbook", null, null, thriftError);

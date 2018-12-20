@@ -137,14 +137,12 @@ class DFUploadModal {
                 this._restoreDS(tab, shared);
             }
             xcHelper.showSuccess(SuccessTStr.Upload);
-            this._close();
-            DagList.Instance.refresh();
+            this._submitDone(tab);
             deferred.resolve();
         })
         .fail((error, alertOption) => {
             if (alertOption != null) {
-                this._close();
-                DagList.Instance.refresh();
+                this._submitDone(tab);
                 Alert.show(alertOption);
             } else {
                 StatusBox.show(error.error, $confirmBtn, false, {
@@ -159,6 +157,12 @@ class DFUploadModal {
         });
 
         return deferred.promise();
+    }
+
+    private _submitDone(tab: DagTab): void {
+        this._close();
+        DagList.Instance.addDag(tab);
+        DagTabManager.Instance.loadTab(tab, true);
     }
 
     private _lock() {

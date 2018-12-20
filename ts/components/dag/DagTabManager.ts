@@ -246,7 +246,7 @@ class DagTabManager{
      * Load a existing tab
      * @param dagTab the dagTab we want to load
      */
-    public loadTab(dagTab: DagTab): XDPromise<void> {
+    public loadTab(dagTab: DagTab, reset: boolean = false): XDPromise<void> {
         // Check if we already have the tab
         const index: number = this.getTabIndex(dagTab.getId());
         if (index != -1) {
@@ -258,7 +258,7 @@ class DagTabManager{
         if (dagTab instanceof DagTabPublished) {
             DagSharedActionService.Instance.queueRegister(dagTab);
         }
-        dagTab.load()
+        dagTab.load(reset)
         .then(() => {
             this._addDagTab(dagTab);
             this._switchTabs();
