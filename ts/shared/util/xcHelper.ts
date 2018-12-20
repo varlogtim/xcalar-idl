@@ -3105,7 +3105,7 @@ namespace xcHelper {
                 namePattern = /^[a-zA-Z][a-zA-Z0-9_]*$/;
                 break;
             case PatternCategory.Prefix:
-                namePattern = /^[a-zA-Z0-9_]{1,31}$/;
+                namePattern = /^[a-zA-Z0-9_-]{1,31}$/;
                 break;
             case PatternCategory.UDF:
                 namePattern = /^[a-z_][a-zA-Z0-9_-]*$/;
@@ -3254,7 +3254,10 @@ namespace xcHelper {
      * xcHelper.isColNameStartValid
      * @param colName
      */
-    export function isColNameStartValid(colName: string, allowParam?: boolean): boolean {
+    export function isColNameStartValid(
+        colName: string,
+        allowParam: boolean = false
+    ): boolean {
         if (!colName || colName.trim().length === 0) {
             return false;
         }
@@ -3354,7 +3357,9 @@ namespace xcHelper {
         } else if (!xcHelper.checkNamePattern(PatternCategory.Prefix,
             PatternAction.Check, prefix)
         ) {
-            error = ColTStr.RenameSpecialChar;
+            error = ColTStr.PrefixInValid;
+        } else if (prefix != null && prefix.includes("--")) {
+            error = ErrTStr.PrefixNoDoubleHyphen;
         }
         return error;
     };

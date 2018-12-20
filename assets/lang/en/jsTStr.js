@@ -270,6 +270,7 @@ ErrTStr = {
                         'please choose another name.',
     'DSStartsWithLetter': 'Dataset name should start with letter.',
     'PrefixStartsWithLetter': 'Prefix should start with letter.',
+    'PrefixNoDoubleHyphen': "Prefix should not include double hyphen(--)",
     'TableConflict': 'A table with the same name already exists. ' +
                         'Please choose another name.',
     'ExportConflict': 'This file name is taken. Please choose another name.',
@@ -1391,9 +1392,8 @@ TblTStr = {
 
 ColTStr = {
     'SplitColWarn': 'Many Columns will generate',
-    'RenameSpecialChar': 'Invalid name. Ensure name contains only ' +
-                         'alphanumeric, -, _ and space. It must start with ' +
-                         'a letter.',
+    'RenameSpecialChar': 'Invalid name. Ensure name contains only alphanumeric, -, _ and space. It must start with a letter.',
+    "PrefixInValid": 'Invalid name. Ensure name contains only alphanumeric, -, and _.',
     'ColNameInvalidChar': 'Invalid name. Ensure name does not contain the ' +
                           'following characters: ^.\',":()[]{}\\',
     'ColNameInvalidCharSpace': 'Invalid name. Ensure name does not contain the ' +

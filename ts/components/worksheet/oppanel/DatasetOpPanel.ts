@@ -418,7 +418,6 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     private _checkOpArgs(prefix: string, id: string): boolean {
         const $panel: JQuery = this.$panel;
         let error: string = null;
-        let options = {side: "top"};
         let $location: JQuery = null;
         if (prefix == null || id == null) {
             error = "Please select a dataset source and provide a prefix."
@@ -433,11 +432,10 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
 
         if (this._advMode) {
             $location = $panel.find(".advancedEditor");
-            options = {side: "right"};
         }
 
         if (error != null) {
-            StatusBox.show(error, $location, false, options);
+            StatusBox.show(error, $location, false, {side: "right"});
             return false;
         }
         return true;
@@ -600,7 +598,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             console.error(error);
             this._dagNode.setSchema(oldSchema);
             StatusBox.show(JSON.stringify(error), this._$elemPanel.find(".btn-submit"),
-                false, {"side": "top"});
+                false, {"side": "right"});
         });
     }
 }

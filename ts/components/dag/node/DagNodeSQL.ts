@@ -226,7 +226,13 @@ class DagNodeSQL extends DagNode {
         let hint: string = "";
         const input: DagNodeSQLInputStruct = this.getParam();
         if (input.sqlQueryStr) {
-            hint = input.sqlQueryStr;
+            let str: string = input.sqlQueryStr.slice(0, 20);
+            if (str.length < input.sqlQueryStr.length) {
+                // when it's part of the query
+                str += "...";
+            }
+            str = str.replace(/\n/g, " ");
+            hint = str;
         }
         return hint;
     }

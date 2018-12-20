@@ -167,7 +167,11 @@ namespace StatusBox {
         private setupPosition(offsetX: number = 0, offsetY: number = 0): void {
             let $target: JQuery = this._findTarget();
             const $statusBox: JQuery = this.$statusBox;
-            const bound: ClientRect = $target[0].getBoundingClientRect();
+            const target = $target[0];
+            if (target == null) {
+                return;
+            }
+            const bound: ClientRect = target.getBoundingClientRect();
             const winWidth: number = <number>$(window).width();
             const winHeight: number = <number>$(window).height();
             const arrowWidth: number = 12;

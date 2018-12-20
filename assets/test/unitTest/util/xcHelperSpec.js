@@ -21,7 +21,7 @@ describe("xcHelper Test", function() {
         // case 5
         var $ele = $();
         res = xcHelper.parseTableId($ele);
-        expect(res).to.be(null);
+        expect(res).to.be.null;
     });
 
     it("xcHelper.parseError should work", function() {
@@ -270,6 +270,9 @@ describe("xcHelper Test", function() {
         expect(func(DfFieldTypeT.DfMixed)).to.equal(ColumnType.mixed);
         expect(func(DfFieldTypeT.DfScalarObj)).to.equal(ColumnType.mixed);
         expect(func(DfFieldTypeT.DfFatptr)).to.equal(null);
+        expect(func(DfFieldTypeT.DfArray)).to.equal(ColumnType.array);
+        expect(func(DfFieldTypeT.DfObject)).to.equal(ColumnType.object);
+        expect(func(DfFieldTypeT.DfNull)).to.equal(null);
         expect(func(null)).to.equal(null);
     });
 
@@ -1619,6 +1622,8 @@ describe("xcHelper Test", function() {
         expect(xcHelper.isColNameStartValid("1ab")).to.be.false;
         expect(xcHelper.isColNameStartValid("_ab")).to.be.true;
         expect(xcHelper.isColNameStartValid("abc")).to.be.true;
+        expect(xcHelper.isColNameStartValid("<abc")).to.be.false;
+        expect(xcHelper.isColNameStartValid("<abc", true)).to.be.true;
     });
 
     it("xcHelper.validateColName should work", function() {
@@ -1703,15 +1708,18 @@ describe("xcHelper Test", function() {
             },
             {
                 "str": "ab[c",
-                "res": ColTStr.RenameSpecialChar
+                "res": ColTStr.PrefixInValid
             },
             {
                 "str": "ab-c",
-                "res": ColTStr.RenameSpecialChar
+                "res": null
             },
             {
                 "str": "ab_c",
                 "res": null
+            },{
+                "str": "ab--c",
+                "res": ErrTStr.PrefixNoDoubleHyphen
             }
         ];
 
