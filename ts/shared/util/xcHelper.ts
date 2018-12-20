@@ -1707,6 +1707,8 @@ namespace xcHelper {
                 return ColumnType.object;
             case DfFieldTypeT.DfFatptr:
                 return null;
+            case DfFieldTypeT.DfNull:
+                return null;
             default:
                 // should not go here
                 console.error("error type conversion");

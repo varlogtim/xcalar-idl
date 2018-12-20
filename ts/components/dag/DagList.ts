@@ -33,7 +33,7 @@ class DagList {
             return this._fetchAllRetinas();
         })
         .then(() => {
-            this._renderDagList();
+            this._renderDagList(false);
             this._updateSection();
             this._initialized = true;
             deferred.resolve();
@@ -55,6 +55,11 @@ class DagList {
     }
 
     public list(): {path: string, id: string}[] {
+        let sortFunc = (a: {path: string}, b: {path: string}): number => {
+            var aName = a.path.toLowerCase();
+            var bName = b.path.toLowerCase();
+            return (aName < bName ? -1 : (aName > bName ? 1 : 0));
+        };
         const publishedList: {path: string, id: string}[] = [];
         const userList: {path: string, id: string}[] = [];
         this._dags.forEach((dagTab) => {
@@ -79,8 +84,8 @@ class DagList {
                 });
             }
         });
-        publishedList.sort();
-        userList.sort();
+        publishedList.sort(sortFunc);
+        userList.sort(sortFunc);
         if (publishedList.length === 0) {
             // add the published folder by default
             publishedList.push({
@@ -119,7 +124,7 @@ class DagList {
         .then(deferred.resolve)
         .fail(deferred.reject)
         .always(() => {
-            this._renderDagList(true);
+            this._renderDagList();
             this._updateSection();
         });
         return promise;
@@ -298,7 +303,7 @@ class DagList {
         });
     }
 
-    private _renderDagList(keepLocation?: boolean): void {
+    private _renderDagList(keepLocation: boolean = true): void {
         const dagLists = this.list();
         this._fileLister.setFileObj(dagLists);
         if (keepLocation) {
