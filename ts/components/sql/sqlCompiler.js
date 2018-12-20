@@ -88,7 +88,7 @@
         "expressions.In": "in", // This is compiled to eq & or <= not true, we support in now
         "expressions.And": "and",
         "expressions.Or": "or",
-        "expressions.EqualTo": "eq",
+        "expressions.EqualTo": "eqNonNull",
         "expressions.EqualNullSafe": "eq",
         "expressions.LessThan": "lt",
         "expressions.LessThanOrEqual": "le",
@@ -2618,9 +2618,7 @@
 
             function isNonCrossAndJoin(treeNode, eqTrees, nonEqFilterTrees) {
                 if (treeNode.value.class ===
-                    "org.apache.spark.sql.catalyst.expressions.EqualTo"
-                    || treeNode.value.class ===
-                    "org.apache.spark.sql.catalyst.expressions.EqualNullSafe") {
+                    "org.apache.spark.sql.catalyst.expressions.EqualTo") {
                     eqTrees.push(treeNode);
                     return true;
                 } else if (treeNode.value.class !==
@@ -2748,10 +2746,8 @@
             if (condTree && condTree.value.class ===
                 "org.apache.spark.sql.catalyst.expressions.And") {
                 andSubtrees.push(condTree);
-            } else if (condTree && (condTree.value.class ===
-                "org.apache.spark.sql.catalyst.expressions.EqualTo" ||
-                condTree.value.class ===
-                "org.apache.spark.sql.catalyst.expressions.EqualNullSafe") &&
+            } else if (condTree && condTree.value.class ===
+                "org.apache.spark.sql.catalyst.expressions.EqualTo" &&
                 !isNaturalJoin(condTree)) {
                 eqSubtrees.push(condTree);
             } else {
@@ -2780,9 +2776,7 @@
                         "org.apache.spark.sql.catalyst.expressions.And") {
                         andSubtrees.push(andTree.children[i]);
                     } else if (andTree.children[i].value.class ===
-                        "org.apache.spark.sql.catalyst.expressions.EqualTo" ||
-                               andTree.children[i].value.class ===
-                        "org.apache.spark.sql.catalyst.expressions.EqualNullSafe") {
+                        "org.apache.spark.sql.catalyst.expressions.EqualTo") {
                         if (isNaturalJoin(andTree.children[i])) {
                             continue;
                         }
@@ -5882,7 +5876,7 @@
             if (opName === "Or" || opName === "Concat" || opName === "IsNotNull"
                 || opName === "ScalarSubquery" || opName === "IsNull"
                 || opName === "EqualNullSafe") {
-                    return;
+                return;
             } else if (opName === "AttributeReference") {
                 colIds.push(node.value.exprId.id);
             }
@@ -6586,6 +6580,7 @@
         "contains": "bool",
         "endsWith": "bool",
         "eq": "bool",
+        "eqNonNull": "bool",
         "exists": "bool",
         "ge": "bool",
         "gt": "bool",
