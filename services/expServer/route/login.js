@@ -1430,6 +1430,17 @@ var serverKeyFile = '/etc/ssl/certs/ca-certificates.crt';
 router.post('/login', function(req, res, next) {
     xcConsole.log("Login process");
     var credArray = req.body;
+    res.locals.sessionType = JSON.stringify(support.defaultSessionAge);
+    if (credArray.hasOwnProperty('sessionType')) {
+        if (!support.sessionAges.hasOwnProperty(credArray.sessionType)) {
+            var message = {
+                'status': httpStatus.BadRequest,
+                'message': 'Unknown session type'
+            }
+            return res.status(message.status).send(message);
+        }
+        res.locals.sessionType = JSON.stringify(credArray.sessionType);
+    }
     loginAuthentication(credArray)
     .always(function(message) {
         res.locals.message = JSON.stringify(message);

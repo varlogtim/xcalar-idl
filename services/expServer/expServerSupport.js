@@ -64,6 +64,14 @@ var monitorFactor = 0.005;
 var tailUsers = new Map();
 var cookieName = 'connect.sid';
 
+var sessionAges = {
+    interactive: 1800000,
+    api: 7200000,
+    sql: 7200000,
+    test: 30000
+};
+var defaultSessionAge = 'interactive';
+
 function getMatchedHosts(query) {
     var deferred = jQuery.Deferred();
     var hostFile = process.env.XCE_CONFIG ?
@@ -944,10 +952,11 @@ function loginAuthImpl(req, res) {
     var message = {
         'status': httpStatus.Unauthorized
     };
+    var modified = false;
     try {
         message = JSON.parse(res.locals.message);
     } catch(e) {
-        xcConsole.error('loginAuth: ' + e);
+        xcConsole.error('loginAuth: ', e);
     }
 
     var now = Date.now();
@@ -957,6 +966,8 @@ function loginAuthImpl(req, res) {
         message.hasOwnProperty('isSupporter')) {
 
         if (message.isValid) {
+            var sessionType = defaultSessionAge;
+
             req.session.loggedIn = true;
 
             req.session.loggedInAdmin = message.isAdmin;
@@ -965,6 +976,7 @@ function loginAuthImpl(req, res) {
             req.session.username = message.xiusername;
             req.session.firstName = message.firstName;
             req.session.emailAddress = message.mail;
+            req.session.timeout = sessionAges['interactive']/1000;
 
             if (message.tokenType && message.tokenType !== "") {
                 if (! req.session.credentials) {
@@ -974,12 +986,29 @@ function loginAuthImpl(req, res) {
                 req.session.credentials[message.tokenType] = message.token;
                 delete message.token;
             }
+            try {
+                sessionType = JSON.parse(res.locals.sessionType);
+            } catch(e) {
+                xcConsole.error('loginAuth sessionType: ', e);
+            }
+
+            if (sessionType !== defaultSessionAge) {
+                req.session.cookie.maxAge = sessionAges[sessionType];
+                req.session.timeout = sessionAges[sessionType]/1000;
+                modified = true;
+            }
 
             create_login_jwt(req, res);
         }
     }
 
-    res.status(message.status).send(message);
+    if (modified) {
+        req.session.save(function(err) {
+            res.status(message.status).send(message);
+        });
+    } else {
+        res.status(message.status).send(message);
+    }
 }
 
 function loginAuthTest(req, res) {
@@ -1167,3 +1196,5 @@ exports.loginAuth = loginAuth;
 exports.rawSessionCookie = rawSessionCookie;
 exports.cookieName = cookieName;
 exports.create_login_jwt = create_login_jwt;
+exports.sessionAges = sessionAges;
+exports.defaultSessionAge = defaultSessionAge;

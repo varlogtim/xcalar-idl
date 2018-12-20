@@ -21,6 +21,7 @@ var msKeyCache = new NodeCache( { stdTTL:86400, checkperiod: 21600 } );
 var msAzureCE2Url = 'https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration';
 var msAzureB2CUrl = 'https://login.microsoftonline.com/fabrikamb2c.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=b2c_1_sign_in';
 var b2cEnabled = false;
+var cookieParser = require('cookie-parser');
 
 function enableB2C(enabled) {
     b2cEnabled = enabled;
@@ -229,7 +230,8 @@ router.get('/auth/sessionStatus', function(req, res) {
                     loggedIn: false,
                     emailAddress: null,
                     firstName: null,
-                    username: null };
+                    username: null,
+                    timeout: 0 };
     var expirationDate = (new Date(req.session.cookie.expires)).getTime();
     var now = (new Date).getTime();
 
@@ -247,7 +249,12 @@ router.get('/auth/sessionStatus', function(req, res) {
                 (now <= expirationDate),
             emailAddress: req.session.emailAddress,
             firstName: req.session.firstName,
-            username: req.session.username
+            username: req.session.username,
+            timeout: support.sessionAges['interactive']/1000
+        }
+
+        if (req.session.hasOwnProperty('timeout')) {
+            message.timeout = req.session.timeout;
         }
     }
 
@@ -261,6 +268,59 @@ router.get('/auth/getSessionId',
     message.data = support.rawSessionCookie(req);
 
     res.status(httpStatus.OK).send(message);
+});
+
+router.post('/auth/serviceSession', function(req, res) {
+    if (! req.body.hasOwnProperty('token')) {
+        res.status(httpStatus.BadRequest).send("token not properly specified");
+        return;
+    }
+
+    var token = cookieParser.signedCookie(decodeURIComponent(req.body.token), req.secret);
+    var sessionType = req.body.hasOwnProperty('sessionType') ?
+        req.body.sessionType : support.defaultSessionAge;
+
+
+    req.sessionStore.get(token, function(err, sess) {
+        if (err) {
+            if (err.code === 'ENOENT') {
+                res.status(httpStatus.Unauthorized).send("session not found");
+            } else {
+                xcConsole.error("serviceSession: session store error", err);
+                res.status(httpStatus.InternalServerError).send("session store error");
+            }
+            return;
+        }
+        if (!sess) {
+            res.status(httpStatus.Unauthorized).send("session not found");
+            return;
+        }
+
+        var expirationDate = (new Date(sess.cookie.expires)).getTime();
+        var now = (new Date).getTime();
+
+        if (now > expirationDate) {
+            res.status(httpStatus.Unauthorized).send("session is expired");
+            return;
+        }
+
+        if (! sess.loggedIn) {
+            res.status(httpStatus.Unauthorized).send("user is not logged in");
+        }
+
+        var array = ['loggedIn', 'loggedInAdmin', 'loggedInUser', 'username',
+                     'firstName', 'emailAddress'];
+        for (var i = 0; i < array.length; i++) {
+            req.session[array[i]] = sess[array[i]];
+        }
+
+        req.session.timeout = support.sessionAges[sessionType]/1000;
+        req.session.cookie.maxAge = support.sessionAges[sessionType];
+
+        req.session.save(function(err) {
+            res.status(httpStatus.OK).send("service session created");
+        });
+    });
 });
 
 router.post('/auth/setCredential',

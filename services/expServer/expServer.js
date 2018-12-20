@@ -24,13 +24,16 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         secret: 'keyboard cat'
     };
 
+    var sessionAges = require('./expServerSupport.js').sessionAges;
+    var defaultSessionAge = require('./expServerSupport.js').defaultSessionAge;
+
     var sessionOpts = {
         saveUninitialized: false,
         resave: false,
         rolling: true,
         store: new FileStore(fileStoreOptions),
         secret: fileStoreOptions.secret,
-        cookie: { maxAge: 1800000 }
+        cookie: { maxAge: sessionAges[defaultSessionAge] }
     };
 
     var express = require('express');
