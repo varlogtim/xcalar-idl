@@ -231,12 +231,14 @@ class DagTable {
         $nameArea.removeClass("xc-hidden");
         const type: string = viewer instanceof XcDatasetViewer ?
         "Dataset" : "Result";
-        $nameArea.find(".name").text(type + ": " + viewer.getTitle());
+        $nameArea.find(".type").text(type);
+        $nameArea.find(".name").text(": " + viewer.getTitle());
     }
 
     private _clearTableNameArea(): void {
         const $nameArea = this._getTableNameArea();
         $nameArea.addClass("xc-hidden");
+        $nameArea.find(".type").empty();
         $nameArea.find(".name").empty();
     }
 }

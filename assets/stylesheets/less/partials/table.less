@@ -69,13 +69,13 @@ html.edge {
     }
 
     thead {
-        background-color: @color-table-header-gray;
+        background-color: @color-bg-topBarGray2;
         box-shadow: inset 0px -1px 0 0 rgba(0, 0, 0, 0.2);
         white-space: pre;
 
         .selectedCell, .selectedCol, .colSelected {
             .flexContainer, .columnTab {
-                background-color: @color-bg-select-blue;
+                background-color: #5fb7df;
                 .editableHead {
                     color: @color-white !important;
                     -webkit-text-fill-color: @color-white !important;
@@ -87,8 +87,7 @@ html.edge {
 
     th {
         .size(@height: @height-colHeaderOuter);
-        background-color: @color-bg-white-five;
-        border: 5px solid @color-border-white-five;
+        background-color: @color-white;
         border-left: none;
         padding: 0px;
         .font(@weight: 600, @size: 13px);
@@ -97,7 +96,7 @@ html.edge {
             // style for rowNum
             .header {
                 z-index: @z-index-firstHeader;
-                border-left: 5px solid @color-table-header-gray;
+                border-left: 5px solid @color-bg-topBarGray2;
                 &::before {
                     .transition(opacity 0.3s);
                     content: "";
@@ -114,8 +113,8 @@ html.edge {
             input {
                 .position(absolute, @left: 0);
                 .size(@width: ~"calc(100% + 10px)", @height: @height-colHeaderOuter);
-                border: @width-tableCellPadding solid @color-table-header-gray;
-                background: @color-bg-topBarGray;
+                border: @width-tableCellPadding solid @color-bg-topBarGray2;
+                background: @color-white;
                 margin-left: -5px;
                 margin-top: -5px;
                 border-radius: 0;
@@ -146,7 +145,7 @@ html.edge {
         text-align: left;
 
         &:last-child {
-            border-right: 5px solid @color-white !important;
+            border-right: 5px solid @color-bg-topBarGray2 !important;
         }
 
         &.highlightedCell {
@@ -157,15 +156,14 @@ html.edge {
     tbody {
         white-space: pre;
         tr {
-            background-color: @color-white;
+            background-color: @color-bg-topBarGray2;
             td {
-               border-right: 5px solid @color-white;
+               border-right: 5px solid @color-bg-topBarGray2;
             }
 
             &:nth-child(odd) {
                 td {
-                    background-color: @color-table-oddRow-gray;
-                    background-color: #EDEDED;
+                    background-color: @color-white;
 
                     &.indexedColumn:not(.noIndexStyle) {
                         background-color: @color-table-indexed-blue !important;
@@ -184,7 +182,7 @@ html.edge {
             }
             &:nth-child(even) {
                 td {
-                    background-color: @color-table-evenRow-gray;
+                    background-color: @color-bg-list-hover-blue;
 
                     &.indexedColumn:not(.noIndexStyle) {
                         background-color: @color-table-indexed-lightBlue !important;
@@ -230,8 +228,9 @@ html.edge {
         .position(relative);
         .size(@width: ~"calc(100% + 10px)", @height: 100%);
         margin-left: -5px;
-        border-right: 5px solid @color-white;
-        border-left: 5px solid @color-white;
+        border-right: 5px solid @color-bg-topBarGray2;
+        border-left: 5px solid @color-bg-topBarGray2;
+        font-weight: normal;
         .flex-display;
         .justify-content(center);
         .align-items(center);
@@ -248,6 +247,8 @@ html.edge {
         .position(relative);
         .rounded;
         .noSelection;
+
+        border-color: @color-bg-topBarGray2 !important;
 
         &::after {
             .position(absolute, @top: @height-colHeader + 4px, @left: 0);
@@ -279,8 +280,7 @@ html.edge {
         .flexContainer {
             overflow: hidden;
             background-color: @color-white;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
-            .flexWrap {
+           .flexWrap {
                 &.flex-left {
                     .position(relative);
                     .size(@height: @height-colHeader);
@@ -288,11 +288,16 @@ html.edge {
                     white-space: normal;
                     margin: 0;
                     overflow: hidden;
-                    background-color: @color-bg-white-three;
+                    background-color: @color-white;
 
                     .iconHidden {
                         .size(@width: 1px, @height: @height-colHeader);
                         display: inline-block;
+                    }
+
+                    .type.icon {
+                        font-size: 16px;
+                        font-weight: normal;
                     }
                 }
 
@@ -326,7 +331,6 @@ html.edge {
             outline: none;
             // cursor: default;
             .font(@weight: 600);
-            -webkit-text-fill-color: @color-font-darkGray; // for safari
         }
 
         &:focus {
@@ -343,7 +347,7 @@ html.edge {
         display: block;
         text-align: center;
         overflow: hidden;
-        .font(@weight: 600, @size: 13px, @family: @font-base);
+        .font(@weight: normal, @size: 11px, @family: @font-base, @color: @color-font-edge);
         margin-left: -2px;
         // pointer-events: none;
         pointer-events: initial;
@@ -957,7 +961,7 @@ html.edge {
             color: @color-white;
             text-align: center;
             border-radius: 100%;
-            border: 3px solid @color-white;
+            border: 3px solid @color-bg-topBarGray2;
             background: @color-bg-select-blue;
             box-shadow: -1px 1px 2px rgba(0, 0, 0, 0.4);
             z-index: 3;
@@ -1063,7 +1067,7 @@ html.edge {
 
             .innerBox {
                 display: block;
-                .position(absolute, @right: 6px, @bottom: 4px);
+                .position(absolute, @right: 3px, @bottom: 4px);
                 .size(@width: 15px, @height: 11px);
                 border-top: 11px solid transparent;
                 border-right: 11px solid @color-border-darkGray;
@@ -1230,7 +1234,7 @@ html.edge {
         }
 
         .flex-right > .dropdownBox .innerBox {
-            right: 4px !important;
+            right: 3px !important;
         }
 
         .colGrab {
@@ -1332,7 +1336,7 @@ html.edge {
             color: @color-white;
         }
         .flexWrap.flex-left, .topHeader {
-            background-color: @color-bg-select-blue !important;
+            background-color: #5fb7df !important;
         }
 
         .sortIcon, .sortNum {
@@ -1510,6 +1514,10 @@ html.edge {
             .position(relative);
             .rounded(2px 2px 0 0);
             background-color: @color-white;
+            border-style: solid;
+            border-width: 0 0 1px 0;
+            border-color: rgba(0, 0, 0, 0.2);
+
 
             .sortIcon {
                 .flex(0 1 20px);
@@ -1517,6 +1525,7 @@ html.edge {
                 display: block;
                 .size(@height: 100%);
                 .vertical-align;
+                top: 35%;
                 z-index: @z-index-tableHeaderGrab;
                 position: relative;
                 visibility: hidden;
@@ -1532,12 +1541,12 @@ html.edge {
 
                 .sortHalf {
                     position: absolute;
-                    top: 0px;
+                    top: 13%;
                     left: 0px;
                     height: 50%;
                     width: 100%;
                     &.sortDesc {
-                        top: 50%;
+                        top: 67%;
                     }
                 }
             }
@@ -1559,8 +1568,7 @@ html.edge {
 
             .prefix {
                 .flex(1 1 auto);
-                .font(@color: @color-font-greyish-brown);
-                opacity: 0.7;
+                .font(@color: @color-font-form-gray, @size: 11px);
                 line-height: @height-xcColPrefix;
                 .textOverflowOneLine;
 

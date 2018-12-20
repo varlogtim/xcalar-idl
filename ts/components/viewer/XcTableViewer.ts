@@ -358,7 +358,8 @@ class XcTableViewer extends XcViewer {
         this.rowManager.setSizerHeight();
 
         const $scrollBar: JQuery = $view.find(".tableScrollBar");
-        $scrollBar.width(gScrollbarWidth + 1);
+        $scrollBar.width(gScrollbarWidth - 1);
+        $scrollBar.css('background-color', 'white');
 
         let isMouseDown: boolean = false;
         const visibleRows: number = this._getVisibleRows();

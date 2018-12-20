@@ -965,12 +965,14 @@
 #dagViewTableArea {
     // .flex(0 0 30%);
     .size(@height: 30%);
+    background-color: @color-xpe-docker-starter-bg;
     @tableBar-h: 30px;
     @div-h: 20px;
 
     .tableScrollBar {
         height: ~"calc(100% - @{height-xcColHeaderOuter})";
         top: @height-xcColHeaderOuter;
+        width: 10px;
     }
 
 
@@ -1011,8 +1013,9 @@
 
     .tableBar {
         .size(@height: @tableBar-h);
-        background-color: @color-bg-white-seven;
-        padding: 5px 15px 5px 18px;
+        background-color: @color-bg-topBarGray2;
+        font-size: 11px;
+        padding: 5px 15px 5px 5px;
         display: flex;
 
         .searchbarArea {
@@ -1020,15 +1023,19 @@
             float: left;
 
             input {
+                font-size: 11px;
+
                 .size(@height: @div-h);
                 padding-left: 20px;
                 padding-right: 85px;
                 line-height: 20px;
+                background-color: @color-white;
             }
 
             .icon {
                 .font(@size: 10px);
                 .position(absolute, @top: 6px, @left: 5px);
+                color: #9eb3c5;
             }
 
             .counter {
@@ -1071,13 +1078,16 @@
         .menuArea {
             .size(@height: @div-h);
             float: left;
-            margin-left: 10px;
+            margin-right: 10px;
 
             .option {
-                .size(@width: 60px, @height: @div-h);
+                .size(@width: 53px, @height: 22px);
                 float: left;
-                background-color: @color-bg-white-two;
-                .font(@size: 12px, @line-height: @div-h);
+                background-color: @color-white;
+                border-color: #C7D4DF;
+                border-radius: 3px;
+                padding-top: 2px;
+                .font(@size: 11px, @line-height: 19px, @color: #627483);
                 text-align: center;
             }
         }
@@ -1085,11 +1095,12 @@
         .tableNameArea {
             .flex(1 1 0px);
             padding: 0 10px;
+            padding-top: 2px;
             .textOverflowOneLine;
             display: flex;
-
             .name {
                 .textOverflowOneLine;
+                font-weight: bold;
             }
         }
 
@@ -1099,6 +1110,7 @@
             border-right: 1px solid @color-border-warmGray;
             padding: 0 10px;
             margin-right: 10px;
+            padding-top: 3px;
         }
 
         .rowInputArea {
@@ -1107,16 +1119,19 @@
             margin-right: 10px;
             border: none;
             padding: 0;
+            padding-top: 3px;
 
             input {
                 background-color: @color-white;
-                .size(@height: @div-h);
+                .size(@height: 22px);
+                top: 1px;
             }
         }
 
         .close {
             .size(@div-h, @div-h);
-            background-color: @color-bg-body-gray;
+            background-color: @color-arc-xdbfree;
+            color: @color-white;
             .rounded(3px);
 
             .icon {
