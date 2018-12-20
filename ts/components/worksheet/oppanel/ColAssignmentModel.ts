@@ -49,20 +49,29 @@ class ColAssignmentModel {
      * @param listIndex {number} index of which node
      * @param colIndex {number} index of which column
      */
-    public addColumn(listIndex: number, colIndex: number): void {
+    public addColumn(
+        listIndex: number,
+        colIndex: number,
+        autoDetect: boolean = false
+    ): void {
         const progCol: ProgCol = this.candidateColsList[listIndex][colIndex];
+        const colName: string = progCol.getBackColName();
         this.resultCols.push(new ProgCol({
-            name: this._normalizeColName(progCol.getBackColName()),
+            name: this._normalizeColName(colName),
             type: null
         }));
         if (this.options.showCast && this.selectedColsList.length === 1) {
             this.resultCols[this.resultCols.length - 1].type = progCol.getType();
         }
+
+        let otherColsToSelect: ProgCol[] = autoDetect ?
+        this._getAutoSuggestColsToSelect(listIndex, progCol) : [];
+
         this.selectedColsList.forEach((selectedCols, index) => {
             if (index === listIndex) {
                 selectedCols.push(progCol);
             } else {
-                selectedCols.push(null);
+                selectedCols.push(otherColsToSelect[index] || null);
             }
         });
         this.update();
@@ -447,5 +456,42 @@ class ColAssignmentModel {
             }
         });
         return progColMap;
+    }
+
+    private _getAutoSuggestColsToSelect(
+        listIndex: number,
+        progCol: ProgCol
+    ): ProgCol[] {
+        if (progCol == null) {
+            return null;
+        }
+        const colName: string = xcHelper.parsePrefixColName(progCol.getBackColName()).name;
+        const colType: ColumnType = progCol.getType();
+        const otherColsToSelect: ProgCol[] = this.candidateColsList.map((candidateCols, index) => {
+            if (index === listIndex) {
+                return null;
+            }
+
+            let colToSelects: ProgCol[] = candidateCols.filter((col) => {
+                const name: string = xcHelper.parsePrefixColName(col.getBackColName()).name;
+                return name === colName;
+            });
+            if (colToSelects.length > 0) {
+                const colsMatchType: ProgCol[] = colToSelects.filter((col) => {
+                    return col.getType() === colType;
+                });
+                if (colsMatchType.length > 0) {
+                    // when has multiple suggestions, select the one that has type match
+                    return colsMatchType[0];
+                } else {
+                    return colToSelects[0];
+                }
+            } else {
+                return null;
+            }
+
+        });
+
+        return otherColsToSelect;
     }
 }

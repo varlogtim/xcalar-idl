@@ -66,6 +66,19 @@ class ColAssignmentView {
 
     private _setup(): void {
         this._addEventListeners();
+        if (this.options.autoDetect) {
+            const html: HTML =
+                '<div class="detect checkboxSection">' +
+                    '<div class="text">' +
+                        UnionTStr.Detect +
+                    '</div>' +
+                    '<div class="checkbox checked">' +
+                        '<i class="icon xi-ckbox-empty"></i>' +
+                        '<i class="icon xi-ckbox-selected"></i>' +
+                    '</div>' +
+                '</div>';
+            this._getView().find(".tableSection .header").after(html);
+        }
     }
 
     protected _reset(): void {
@@ -75,7 +88,6 @@ class ColAssignmentView {
         $view.find(".highlight").removeClass("highlight");
     }
 
-
     private _addEventListeners(): void {
         const $section = this._getView();
 
@@ -83,7 +95,9 @@ class ColAssignmentView {
             const $col: JQuery = $(event.target).closest(".inputCol");
             const listIndex: number = this._getListIndex($col);
             const colIndex: number = this._getColIndex($col);
-            this.modelData.addColumn(listIndex, colIndex);
+            const autoDetect: boolean = this.options.autoDetect &&
+            this._getView().find(".tableSection .detect .checkbox").hasClass("checked");
+            this.modelData.addColumn(listIndex, colIndex, autoDetect);
             xcTooltip.hideAll();
         });
 
@@ -108,6 +122,10 @@ class ColAssignmentView {
 
         $section.on("click", ".addRowBtn", () => {
             this.modelData.addBlankRow();
+        });
+
+        $section.on("click", ".tableSection .detect", (event) => {
+            $(event.currentTarget).find(".checkbox").toggleClass("checked");
         });
     }
 
@@ -339,6 +357,10 @@ class ColAssignmentView {
                     self._getCandidateDropdownList($dropDownList);
                 },
                 onSelect: function($li) {
+                    if ($li.hasClass("search") || $li.hasClass("searchHint")) {
+                        // on search or hint
+                        return true; // keep open
+                    }
                     const colName: string = $li.find(".colName").text();
                     const text: string = $dropDownList.find(".text").text();
                     const isRemove: boolean = $li.hasClass("removeCol");
@@ -358,6 +380,13 @@ class ColAssignmentView {
                 container: container,
                 bounds: container
             }).setupListeners();
+
+            $dropDownList.on("input", ".search input", function(event) {
+                const $searchInput: JQuery = $(event.currentTarget);
+                const keyword: string = $searchInput.val().trim();
+                const $dropDown: JQuery = $searchInput.closest(".dropDownList");
+                self._filterCandidateDropwn($dropDown, keyword);
+            });
         });
 
         $section.find(".typeList").each(function() {
@@ -427,7 +456,7 @@ class ColAssignmentView {
             if (!validTypes.includes(colType)) {
                 return "";
             }
-            return '<li class="type-' + colType + ' ' + extraClass + '"' +
+            return '<li class="li type-' + colType + ' ' + extraClass + '"' +
                     ' data-index="' + index + '"' +
                     ' data-toggle="tooltip"' +
                     ' data-title="' + xcHelper.escapeHTMLSpecialChar(title) + '"' +
@@ -446,20 +475,44 @@ class ColAssignmentView {
             list = '<li class="removeCol">' +
                         UnionTStr.NoMatch +
                     '</li>' +
+                    '<li class="search">' +
+                        '<input placeholder="search columns">' +
+                    '</li>' +
+                    '<li class="hint searchHint xc-hidden">' +
+                        UnionTStr.EmptyList +
+                    '</div>' +
                     list;
         }
         $dropDownList.find("ul").html(list);
     }
 
+    private _filterCandidateDropwn($dropDown: JQuery, keyword: string) {
+        const $lis: JQuery = $dropDown.find(".li");
+        const $hint: JQuery = $dropDown.find(".hint");
+        $hint.addClass("xc-hidden");
+        if (!keyword) {
+            $lis.removeClass("xc-hidden");
+            return;
+        }
+        const $filterLis: JQuery = $lis.filter(function () {
+            return $(this).find(".colName").text().includes(keyword);
+        });
+        $lis.addClass("xc-hidden");
+        $filterLis.removeClass("xc-hidden");
+        if ($filterLis.length === 0) {
+            $hint.removeClass("xc-hidden");
+        }
+    }
+
     // case insensitive - lowercase keyword and matches
     private _searchColumn(keyword: string, index: number): void {
-        keyword = keyword.toLowerCase();
         const $inputs: JQuery = this._getView().find('.lists[data-index="' + index + '"]')
                                         .find(".inputCol .colName");
         $inputs.removeClass("highlight");
         if (!keyword) {
             return;
         }
+        keyword = keyword.toLowerCase();
         $inputs.filter(function() {
             return $(this).text().toLowerCase().includes(keyword);
         }).addClass("highlight");

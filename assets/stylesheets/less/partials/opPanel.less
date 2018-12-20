@@ -1248,6 +1248,17 @@
                             opacity: 0.7;
                         }
 
+                        &.search {
+                            padding: 0;
+                            margin: 3px 0;
+
+                            input {
+                                height: 24px;
+                                top: 0;
+                                border: 1px solid @color-border-softGray;
+                            }
+                        }
+
                         .icon:not(.type) {
                             display: none;
                             .position(absolute, @top: 4px, @right: 3px);
@@ -2240,6 +2251,23 @@
 
     .columnAssignmentSection {
         .size(@width: 100%, @height: ~"calc(100% - @{rest-h})");
+
+        .tableSection {
+            height: 90px;
+
+            .header {
+                margin-bottom: 0;
+            }
+
+            .checkboxSection {
+                float: right;
+                margin-bottom: 10px;
+
+                .checkbox {
+                    height: 100%;
+                }
+            }
+        }
     }
 
     .newTable {

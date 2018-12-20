@@ -430,6 +430,7 @@ class DagGraph {
             this.events.trigger(DagNodeEvents.TableLockChange, info);
         })
         .registerEvents(DagNodeEvents.LineageSourceChange, (info) => {
+            this._traverseResetLineage(info.node);
             const tabId: string = this.getTabId();
             info = $.extend({}, info, {
                 tabId: tabId
@@ -1666,6 +1667,17 @@ class DagGraph {
         });
         this.events.trigger(DagGraphEvents.Save, {
             tabId: this.parentTabId
+        });
+        return traversedSet;
+    }
+
+    private _traverseResetLineage(node: DagNode): Set<DagNode> {
+        const traversedSet: Set<DagNode> = new Set();
+        node.getLineage().reset();
+        traversedSet.add(node);
+        this._traverseChildren(node, (node: DagNode) => {
+            node.getLineage().reset();
+            traversedSet.add(node);
         });
         return traversedSet;
     }

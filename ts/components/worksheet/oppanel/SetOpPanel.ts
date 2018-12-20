@@ -52,6 +52,14 @@ class SetOpPanel extends BaseOpPanel {
         this.updateColumns();
     }
 
+    protected _reset(): void {
+        super._reset();
+        const $panel = this._getPanel();
+        $panel.find(".listSection").empty();
+        $panel.find(".searchArea input").val("");
+        $panel.find(".highlight").removeClass("highlight");
+    }
+
     private updateColumns(): void {
         this.allColumns = [];
         const seen = {};
@@ -68,15 +76,10 @@ class SetOpPanel extends BaseOpPanel {
     private _setup(): void {
         super.setup($("#setOpPanel"));
         this._addEventListeners();
-        this.colAssignmentSection = new ColAssignmentView("#setOpPanel .columnAssignmentSection");
-    }
-
-    protected _reset(): void {
-        super._reset();
-        const $panel = this._getPanel();
-        $panel.find(".listSection").empty();
-        $panel.find(".searchArea input").val("");
-        $panel.find(".highlight").removeClass("highlight");
+        const selector: string = "#setOpPanel .columnAssignmentSection";
+        this.colAssignmentSection = new ColAssignmentView(selector, {
+            autoDetect: true
+        });
     }
 
     private _initialize(dagNode: DagNodeSet): void {
@@ -84,7 +87,7 @@ class SetOpPanel extends BaseOpPanel {
         this.setOpData = new SetOpPanelModel(dagNode, event);
         const colInfo = this.setOpData.getColData();
         const colModel = this.colAssignmentSection.show(colInfo.allColSets,
-                                                    colInfo.selectedColSets);
+        colInfo.selectedColSets);
         this.setOpData.setColModel(colModel);
         const model = this.setOpData.getModel();
         this._selectDedup(model.dedup);

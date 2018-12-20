@@ -34,6 +34,7 @@ class DagSearch {
         if (keyword === "") {
             this._clearSearch();
         } else {
+            keyword = keyword.toLowerCase();
             // search tite and hint
             let selector: string = ".nodeTitle";
             if (UserSettings.getPref("dfConfigInfo")) {

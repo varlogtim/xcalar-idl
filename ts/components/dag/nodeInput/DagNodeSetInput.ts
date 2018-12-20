@@ -72,7 +72,7 @@ class DagNodeSetInput extends DagNodeInput {
                 "properties": {
                   "sourceColumn": {
                     "$id": "#/properties/columns/items/items/properties/sourceColumn",
-                    "type": "string",
+                    "type": ["string", "null"],
                     "title": "The Sourcecolumn Schema",
                     "default": "",
                     "examples": [

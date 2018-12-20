@@ -828,6 +828,8 @@ UnionTStr = {
     "Cast": "Columns for the set operation have different types. Please select a type for the resultant column.",
     "AddCol": "Click to add",
     "Table": "Table",
+    "Detect": "Auto detect column matches",
+    "AutoDetect": "Auto Detect",
     "UnionTable": "Results Table",
     "NewTableName": "New Table Name",
     "NewColName": "New Name",
