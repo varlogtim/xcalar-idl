@@ -412,6 +412,15 @@ namespace Alert {
         }
     }
 
+    function isCheckBoxChecked(options: AlertOptions): boolean {
+        let hasChecked = null;
+        if (options.isCheckBox) {
+            const $checkbox: JQuery = getCheckBox();
+            hasChecked = $checkbox.find(".checkbox").hasClass("checked");
+        }
+        return hasChecked;
+    }
+
 
     function setButtons($modal: JQuery, options: AlertOptions): void {
         // set close and cancel button
@@ -419,11 +428,7 @@ namespace Alert {
             event.stopPropagation();
             closeModal();
             if (options.onCancel instanceof Function) {
-                let hasChecked = null;
-                if (options.isCheckBox) {
-                    const $checkbox: JQuery = getCheckBox();
-                    hasChecked = $checkbox.find(".checkbox").hasClass("checked");
-                }
+                let hasChecked = isCheckBoxChecked(options);
                 options.onCancel(hasChecked);
             }
         });
@@ -433,7 +438,8 @@ namespace Alert {
             event.stopPropagation();
             closeModal();
             if (options.onConfirm instanceof Function) {
-                options.onConfirm();
+                let hasChecked = isCheckBoxChecked(options);
+                options.onConfirm(hasChecked);
             }
         });
 

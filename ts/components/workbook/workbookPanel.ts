@@ -401,22 +401,9 @@ namespace WorkbookPanel {
 
         //Download Button
         $wkbkMenu.on("click", ".download", function() {
-            const workbookId: string = $dropDownCard.attr("data-workbook-id");
-            const workbook: WKBK = WorkbookManager.getWorkbook(workbookId);
-            const workbookName: string = workbook.getName();
-
-            //$dlButton.addClass("inActive");
-            downloadingWKBKs.push(workbookName);
-
-            WorkbookManager.downloadWKBK(workbookName)
-            .fail(function(err) {
-                handleError(err, $dropDownCard);
-            })
-            .always(function() {
-                const index: number = downloadingWKBKs.indexOf(workbookName);
-                if (index !== -1) {
-                    downloadingWKBKs.splice(index, 1);
-                }
+            alertDownloadWorkbook()
+            .then(() => {
+                return downloadWorkbook();
             });
         });
 
@@ -747,6 +734,64 @@ namespace WorkbookPanel {
             onConfirm: deferred.resolve,
             onCancel: deferred.reject
         });
+        return deferred.promise();
+    }
+
+    function downloadWorkbook(): void {
+        const workbookId: string = $dropDownCard.attr("data-workbook-id");
+        const workbook: WKBK = WorkbookManager.getWorkbook(workbookId);
+        const workbookName: string = workbook.getName();
+
+        //$dlButton.addClass("inActive");
+        downloadingWKBKs.push(workbookName);
+
+        WorkbookManager.downloadWKBK(workbookName)
+        .fail(function(err) {
+            handleError(err, $dropDownCard);
+        })
+        .always(function() {
+            const index: number = downloadingWKBKs.indexOf(workbookName);
+            if (index !== -1) {
+                downloadingWKBKs.splice(index, 1);
+            }
+        });
+    }
+
+    function alertDownloadWorkbook(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let writeChecked = () => {
+            xcLocalStorage.setItem("noWKBKDownloadAlert", true);
+        };
+
+        try {
+            const noAlert: boolean = xcLocalStorage.getItem("noWKBKDownloadAlert") === "true";
+            if (noAlert) {
+                deferred.resolve();
+            } else {
+                Alert.show({
+                    title: AlertTStr.Title,
+                    msg: WKBKTStr.DownloadWarn,
+                    isCheckBox: true,
+                    onConfirm: (hasChecked) => {
+                        if (hasChecked) {
+                            writeChecked();
+                        }
+                        deferred.resolve();
+                    },
+                    onCancel: (hasChecked) => {
+                        if (hasChecked) {
+                            writeChecked();
+                        }
+                        deferred.reject();
+                    }
+                });
+            }
+        } catch (e) {
+            console.error(e);
+            deferred.resolve(); // still resolve it to continue downloading
+        }
+
+
         return deferred.promise();
     }
 

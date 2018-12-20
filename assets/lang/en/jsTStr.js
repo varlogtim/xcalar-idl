@@ -921,6 +921,7 @@ WKBKTStr = {
     "CancelMsg": "Are you sure you want to cancel activating this workbook?",
     "WaitActivateFinish": "Please wait for workbook to activate.",
     "NoActive": "Please create or choose one workbook first.",
+    "DownloadWarn": "The downloaded workbook will include ONLY the workbook's UDFs, and will not include any UDFs it uses that are from the shared space",
     // With replace
     'Conflict': 'Workbook "<name>" already exists. ' +
                 'Please choose another name.',
