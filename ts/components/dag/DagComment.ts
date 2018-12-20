@@ -24,18 +24,29 @@ class DagComment {
                 }
             }
         });
+        // dblclick will create a new comment wrapper that sit in front of
+        // all the nodes and we'll temporarily move the comment to this wrapper
         $dfWrap.on("dblclick", ".comment", function() {
             const $comment = $(this);
+            const $tempCommentWrapper: JQuery = $(`<div class="tempCommentArea"></div>`);
+            $comment.closest(".dataflowAreaWrapper").append($tempCommentWrapper);
+            $tempCommentWrapper.attr("style", $comment.closest(".commentArea").attr("style"));
+            $tempCommentWrapper.append($comment);
             $comment.addClass("focused");
             $comment.find("textarea").prop("readonly", false).focus();
             const scale = DagView.getActiveDag().getScale();
             $comment.css("transform", "scale(" + (1 / scale) + ")");
         });
-        $dfWrap.on("blur", ".comment textarea", function() {
-            const $comment = $(this);
-            $comment.closest(".comment").removeClass("focused")
-                                        .css("transform", "scale(1)");
-            $comment.prop("readonly", true);
+
+        // blur triggers the removal of the temporary comment wrapper and places
+        // the comment back behind the nodes
+        $dfWrap.on("blur", ".tempCommentArea .comment textarea", function() {
+            const $tempCommentArea = $dfWrap.find(".tempCommentArea");
+            const $comment = $tempCommentArea.find(".comment");
+            $comment.closest(".dataflowAreaWrapper").find(".commentArea").append($comment);
+            $tempCommentArea.remove();
+            $comment.removeClass("focused").css("transform", "scale(1)");
+            $comment.find("textarea").prop("readonly", true);
         });
         $dfWrap.on("change", ".comment textarea", function() {
             const id = $(this).closest(".comment").data("nodeid");

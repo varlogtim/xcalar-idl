@@ -696,10 +696,18 @@
         }
     }
 
-    .commentArea {
+    .commentArea, .tempCommentArea {
         transform-origin: top left;
         overflow: visible;
         .position(absolute, @left: 0px, @top: 0px);
+    }
+
+    .tempCommentArea {
+        z-index: 1; // to place in front of stats tooltips
+        pointer-events: none;
+        .comment {
+            pointer-events: initial;
+        }
     }
 
     .comment {
@@ -754,7 +762,7 @@
         }
     }
 
-    .operatorSvg, .edgeSvg, .secondarySvg, .commentArea {
+    .operatorSvg, .edgeSvg, .secondarySvg, .commentArea, .tempCommentArea {
         overflow: visible;
         .position(absolute, @top: 0px, @left: 0px);
 
