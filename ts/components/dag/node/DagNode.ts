@@ -750,32 +750,31 @@ abstract class DagNode {
         }
     }
 
-    // XXX returning the average of all the queryNodes,
-    // skew and rows is incorrect as
-    // we're ony returning skew info of one of the queryNodes
-    public getOverallStats(): {
+    public getOverallStats(formatted?: boolean): {
         pct: number,
         time: number,
-        rows: number[],
+        rows: number,
         skewValue: number,
-        totalRows: number,
         size: number,
-        started: boolean
+        started?: boolean
     } {
         let numWorkCompleted: number = 0;
-        let numWorkTotal: number = 0
-        let numRowsTotal: number = 0;
-        let rows, skew, size;
+        let numWorkTotal: number = 0;
+        let rows = 0;
+        let size = 0;
+        let skew = 0;
         for (let tableName in this.runStats.nodes) {
             const node = this.runStats.nodes[tableName];
             if (node.state === DgDagStateT.DgDagStateProcessing ||
                 node.state === DgDagStateT.DgDagStateReady) {
                 numWorkCompleted += node.numWorkCompleted;
                 numWorkTotal += node.numWorkTotal;
-                numRowsTotal += node.numRowsTotal;
+                rows = node.numRowsTotal;
             }
-            rows = node.rows;
-            skew = node.skewValue;
+            if (node.skewValue != null && !isNaN(node.skewValue)) {
+                skew = Math.max(skew, node.skewValue);
+            }
+
             size = node.size;
         }
         let progress: number = numWorkCompleted / numWorkTotal;
@@ -788,10 +787,11 @@ abstract class DagNode {
             time: this._getElapsedTime(),
             rows: rows,
             skewValue: skew,
-            totalRows: numRowsTotal,
-            size: size,
-            started: Object.keys(this.runStats.nodes).length > 0
+            size: size
         };
+        if (!formatted) {
+            stats["started"] = Object.keys(this.runStats.nodes).length > 0;
+        }
 
         return stats;
     }
@@ -807,6 +807,7 @@ abstract class DagNode {
                 node.state = DgDagStateTStr[node.state];
                 node.type = XcalarApisTStr[node.type];
                 if (node.hasStats) {
+                    delete node.hasStats;
                     nodesArray.push(node);
                 }
             }
@@ -1022,14 +1023,9 @@ abstract class DagNode {
 
     private _getElapsedTime(): number {
         let cummulativeTime = 0;
-        let curTime = Date.now();
         for (let i in this.runStats.nodes) {
             const tableRunStats = this.runStats.nodes[i];
-            if (tableRunStats.state === DgDagStateT.DgDagStateProcessing) {
-                cummulativeTime += curTime - tableRunStats.startTime;
-            } else {
-                cummulativeTime += tableRunStats.elapsedTime;
-            }
+            cummulativeTime += tableRunStats.elapsedTime;
         }
         return cummulativeTime;
     }

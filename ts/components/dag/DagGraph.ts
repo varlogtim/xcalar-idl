@@ -1239,8 +1239,7 @@ class DagGraph {
     public getStatsJson() {
         const stats = [];
         this.nodesMap.forEach((node: DagNode) => {
-            const overallStats = node.getOverallStats();
-            delete overallStats.rows;
+            const overallStats = node.getOverallStats(true);
             overallStats.state = node.getState();
 
             const nodeStats = {

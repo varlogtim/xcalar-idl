@@ -177,6 +177,8 @@ class DagNodeInfoPanel {
         if (overallStats.started) {
             this._$panel.find(".progressRow").removeClass("xc-hidden");
             this._$panel.find(".progressSection").text(overallStats.pct + "%");
+            this._$panel.find(".timeRow").removeClass("xc-hidden");
+            this._$panel.find(".timeSection").text(xcHelper.getElapsedTimeStr(overallStats.time));
             this._$panel.find(".statsRow").removeClass("xc-hidden");
             const operationsStats = node.getIndividualStats(true);
             let statsHtml: HTML = "";
@@ -205,12 +207,17 @@ class DagNodeInfoPanel {
                     <div class="statsRow">
                         <div class="label">Progress: </div>
                         <div class="value">${stats.pct}%</div>
-                    </div>
-                    <div class="statsRow">
-                        <div class="label">State: </div>
-                        <div class="value">${stats.state}</div>
-                    </div>
-                    <div class="statsRow">
+                    </div>`;
+                if (stats.state !== DgDagStateTStr[DgDagStateT.DgDagStateReady]) {
+                    // only show states other than ready as 100% would already
+                    // indicate that it's ready
+                    statsHtml += `<div class="statsRow">
+                                    <div class="label">State: </div>
+                                    <div class="value">${stats.state}</div>
+                                </div>`;
+                }
+
+                statsHtml += `<div class="statsRow">
                         <div class="label">Rows: </div>
                         <div class="value">${xcHelper.numToStr(stats.numRowsTotal)}</div>
                     </div>
@@ -231,6 +238,7 @@ class DagNodeInfoPanel {
             });
         } else {
             this._$panel.find(".progressRow").addClass("xc-hidden");
+            this._$panel.find(".timeRow").addClass("xc-hidden");
             this._$panel.find(".statsRow").addClass("xc-hidden");
         }
     }
