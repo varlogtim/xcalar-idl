@@ -178,7 +178,7 @@ window.DS = (function ($, DS) {
                     dagNode.beErrorState(info.error);
                 }
             });
-            
+
             failures.push(error);
             deferred.resolve(); // still reolsve it
         });
@@ -661,7 +661,10 @@ window.DS = (function ($, DS) {
         if ($grid.hasClass("active")) {
             focusOnForm();
         }
-        $grid.removeClass("active").addClass("inactive deleting");
+        if (!$grid.hasClass("inActivated")) {
+            $grid.removeClass("active").addClass("inactive deleting");
+        }
+
         var txId = $grid.data("txid");
         // if cancel success, it will trigger fail in DS.import, so it's fine
         QueryManager.cancelQuery(txId)
@@ -3095,6 +3098,12 @@ window.DS = (function ($, DS) {
             "track": true,
             "steps": 1
         });
+        if (!noAlert) {
+            DS.getGrid(dsObj.getId()).data("txid", txId);
+            DS.getGrid(dsObj.getId()).addClass("loading");
+            DSTable.setupViewBeforeLoading(dsObj);
+        }
+
         activateHelper(txId, dsObj)
         .then(function() {
             datasets.push(dsId);
@@ -3134,6 +3143,7 @@ window.DS = (function ($, DS) {
             if (typeof error === "string") {
                 error = {error: error}
             }
+            DS.getGrid(dsObj.getId()).removeClass("loading");
             deferred.reject(error);
         });
 
@@ -3142,7 +3152,7 @@ window.DS = (function ($, DS) {
 
     function activateDSObj(dsObj) {
         dsObj.activate();
-        DS.getGrid(dsObj.getId()).removeClass("inActivated");
+        DS.getGrid(dsObj.getId()).removeClass("inActivated loading");
         var dsId = dsObj.getId();
         var $grid = DS.getGrid(dsId);
         if ($grid.hasClass("active")) {

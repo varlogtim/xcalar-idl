@@ -46,7 +46,7 @@ window.DSTable = (function($, DSTable) {
         updateTableInfoDisplay(dsObj, beforeFetch);
 
         if (isLoading) {
-            setupViewBeforeLoading(dsObj);
+            DSTable.setupViewBeforeLoading(dsObj);
             return PromiseHelper.resolve();
         }
 
@@ -60,7 +60,7 @@ window.DSTable = (function($, DSTable) {
             // only when the loading is slow, show load section
 
             timer = setTimeout(function() {
-                setupViewBeforeLoading();
+                DSTable.setupViewBeforeLoading();
             }, 300);
         }
         var datasetName = dsObj.getFullName();
@@ -120,17 +120,24 @@ window.DSTable = (function($, DSTable) {
         DSForm.hide();
     }
 
-    function setupViewBeforeLoading(dsObj) {
-        $dsTableContainer.removeClass("error");
-        $dsTableContainer.addClass("loading");
-        $dsTableContainer.find(".lockedTableIcon").addClass("xc-hidden");
-        $tableWrap.html("");
+    // this is called sometimes when we're not focusing on the dataset table
+    // but we want to initialize the progress circle, so containerId and dsId
+    // may not match in that case
+    DSTable.setupViewBeforeLoading = function(dsObj) {
+        var containerId = $dsTableContainer.data("id");
+        if (!dsObj || containerId === dsObj.getId()) {
+            $dsTableContainer.removeClass("error");
+            $dsTableContainer.addClass("loading");
+            $dsTableContainer.find(".lockedTableIcon").addClass("xc-hidden");
+            $tableWrap.html("");
+        }
+
         if (dsObj) {
             var progressAreaHtml = "";
             var txId = DS.getGrid(dsObj.getId()).data("txid");
             var $lockIcon = $dsTableContainer
                             .find('.lockedTableIcon[data-txid="' + txId + '"]');
-            if ($lockIcon.length) {
+            if ($lockIcon.length && containerId === dsObj.getId()) {
                 $lockIcon.removeClass("xc-hidden");
                 return;
             }

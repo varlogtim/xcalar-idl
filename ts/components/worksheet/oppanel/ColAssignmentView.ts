@@ -451,7 +451,9 @@ class ColAssignmentView {
         $dropDownList.find("ul").html(list);
     }
 
+    // case insensitive - lowercase keyword and matches
     private _searchColumn(keyword: string, index: number): void {
+        keyword = keyword.toLowerCase();
         const $inputs: JQuery = this._getView().find('.lists[data-index="' + index + '"]')
                                         .find(".inputCol .colName");
         $inputs.removeClass("highlight");
@@ -459,7 +461,7 @@ class ColAssignmentView {
             return;
         }
         $inputs.filter(function() {
-            return $(this).text().includes(keyword);
+            return $(this).text().toLowerCase().includes(keyword);
         }).addClass("highlight");
     }
 
