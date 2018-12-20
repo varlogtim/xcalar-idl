@@ -190,6 +190,18 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
             args.push(destColInfo);
         }
 
+        // icv: include erroreous rows
+        const icvProp: CheckboxInputProps = {
+            type: 'boolean',
+            name: OpPanelTStr.CommonFieldNameErroneousRows,
+            isChecked: this._dataModel.isIncludeErrRow(),
+            onFlagChange: (flag) => {
+                this._dataModel.setIncludeErrRow(flag);
+                this._updateUI();
+            }
+        };
+        args.push(icvProp);
+
         return args;
     }
 
@@ -197,7 +209,7 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
         if (this._isAdvancedMode()) {
             const $elemEditor = this._getPanel().find(".advancedEditor");
             try {
-                const advConfig = <DagNodeSplitInputStruct>JSON.parse(this._editor.getValue());
+                const advConfig = <DagNodeMapInputStruct>JSON.parse(this._editor.getValue());
                 this._dataModel = this._convertAdvConfigToModel(advConfig);
             } catch(e) {
                 StatusBox.show(e, $elemEditor);
@@ -219,13 +231,13 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
      */
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
         if (toAdvancedMode) {
-            const param: DagNodeSplitInputStruct = this._dataModel.toDagInput();
+            const param: DagNodeMapInputStruct = this._dataModel.toDagInput();
             const paramStr = JSON.stringify(param, null, 4);
             this._cachedBasicModeParam = paramStr;
             this._editor.setValue(paramStr);
         } else {
             try {
-                const advConfig = <DagNodeSplitInputStruct>JSON.parse(this._editor.getValue());
+                const advConfig = <DagNodeMapInputStruct>JSON.parse(this._editor.getValue());
                 if (JSON.stringify(advConfig, null, 4) !== this._cachedBasicModeParam) {
                     this._dataModel = this._convertAdvConfigToModel(advConfig);
                     this._updateUI();
@@ -237,7 +249,7 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
         return null;
     }
 
-    private _convertAdvConfigToModel(advConfig: DagNodeSplitInputStruct) {
+    private _convertAdvConfigToModel(advConfig: DagNodeMapInputStruct) {
         const error = this._dagNode.validateParam(advConfig);
         if (error) {
             throw new Error(error.error);

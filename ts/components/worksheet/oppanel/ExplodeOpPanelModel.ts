@@ -4,7 +4,9 @@ class ExplodeOpPanelModel {
     private _sourceColumn: string = '';
     private _destColumn: string = '';
     private _delimiter: string = '';
+    private _includeErrRow: boolean = false;
     private _allColMap: Map<string, ProgCol> = new Map();
+    private static _funcName = 'explodeString';
 
     /**
      * Create data model instance from DagNode
@@ -45,17 +47,11 @@ class ExplodeOpPanelModel {
      * @description use case: advanced from
      */
     public static fromDagInput(
-        colMap: Map<string, ProgCol>, dagInput: DagNodeExplodeInputStruct
+        colMap: Map<string, ProgCol>, dagInput: DagNodeMapInputStruct
     ): ExplodeOpPanelModel {
         // input validation
-        if (dagInput.sourceColumn == null) {
-            throw new Error('Source column cannot be null');
-        }
-        if (dagInput.destColumn == null) {
-            throw new Error('Dest column cannot be null');
-        }
-        if (dagInput.delimiter == null) {
-            throw new Error('Delimiter cannot be null');
+        if (dagInput.eval == null) {
+            throw new Error('Eval string cannot be null');
         }
 
         const model = new this();
@@ -64,21 +60,64 @@ class ExplodeOpPanelModel {
         model._instrStr = OpPanelTStr.ExplodePanelInstr;
         model._allColMap = colMap;
 
-        model._sourceColumn = dagInput.sourceColumn;
-        model._delimiter = dagInput.delimiter;
-        model._destColumn = dagInput.destColumn;
+        try {
+            const evalObj = dagInput.eval[0];
+            const evalFunc = XDParser.XEvalParser.parseEvalStr(evalObj.evalString);
+
+            // Function name should be 'explodeString'
+            if (evalFunc.fnName !== this._funcName) {
+                throw new Error('Invalid function name');
+            }
+
+            // Source column
+            let evalParam = evalFunc.args[0];
+            if (!isTypeEvalArg(evalParam)) {
+                throw new Error('Invalid column name');
+            }
+            model._sourceColumn = evalParam.value;
+
+            // Delimiter
+            evalParam = evalFunc.args[1];
+            if (!isTypeEvalArg(evalParam)) {
+                throw new Error('Invalid delimiter');
+            }
+            let delimiter = evalParam.value;
+            delimiter = delimiter.substring(1, delimiter.length - 1);
+            delimiter = delimiter.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+            model._delimiter = delimiter;
+
+            // Dest column
+            model._destColumn = evalObj.newField;
+
+            // icv
+            model._includeErrRow = dagInput.icv;
+        } catch(e) {
+            model._sourceColumn = '';
+            model._delimiter = '';
+            model._destColumn = '';
+            model._includeErrRow = false;
+        }
 
         return model;
+
+        function isTypeEvalArg(arg: ParsedEvalArg|ParsedEval): arg is ParsedEvalArg {
+            return arg != null && arg.type !== 'fn';
+        }
     }
 
     /**
      * Generate DagNodeInput from data model
      */
-    public toDagInput(): DagNodeExplodeInputStruct {
-        const param: DagNodeExplodeInputStruct = {
-            sourceColumn: this.getSourceColumn(),
-            delimiter: this.getDelimiter(),
-            destColumn: this.getDestColumn()
+    public toDagInput(): DagNodeMapInputStruct {
+        const func = ExplodeOpPanelModel._funcName;
+        const argCol = this.getSourceColumn();
+        const argDelimiter = this.getDelimiter().replace(/\\/g, '\\\\').replace(/\"/g, '\\"');
+        const param: DagNodeMapInputStruct = {
+            eval: [{
+                evalString: `${func}(${argCol},"${argDelimiter}")`,
+                newField: this.getDestColumn()
+            }],
+            icv: this.isIncludeErrRow()
         };
 
         return param;
@@ -160,6 +199,14 @@ class ExplodeOpPanelModel {
 
     public setDelimiter(delim: string): void {
         this._delimiter = delim;
+    }
+
+    public setIncludeErrRow(isInclude: boolean): void {
+        this._includeErrRow = isInclude;
+    }
+
+    public isIncludeErrRow(): boolean {
+        return this._includeErrRow;
     }
 
     public getColumnMap(): Map<string, ProgCol> {

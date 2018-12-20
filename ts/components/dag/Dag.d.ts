@@ -206,21 +206,9 @@ interface DagNodeDFOutInputStruct {
     columns?: {sourceName: string, destName: string}[]
 }
 
-interface DagNodeSplitInputStruct {
-    source: string,
-    delimiter: string,
-    dest: string[]
-}
-
 interface DagNodeJupyterInputStruct {
     numExportRows: number,
     renames: { sourceColumn: string, destColumn: string }[]
-}
-
-interface DagNodeExplodeInputStruct {
-    sourceColumn: string,
-    delimiter: string,
-    destColumn: string
 }
 
 interface DagNodeSynthesizeInputStruct {

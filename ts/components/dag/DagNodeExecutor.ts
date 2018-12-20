@@ -94,13 +94,13 @@ class DagNodeExecutor {
             case DagNodeType.Map:
                 return this._map();
             case DagNodeType.Split:
-                return this._split();
+                return this._map();
             case DagNodeType.Round:
                 return this._map();
             case DagNodeType.Project:
                 return this._project();
             case DagNodeType.Explode:
-                return this._explode();
+                return this._map();
             case DagNodeType.Set:
                 return this._set();
             case DagNodeType.Export:
@@ -479,38 +479,6 @@ class DagNodeExecutor {
         } else {
             return PromiseHelper.resolve(srcTable);
         }
-    }
-
-    private _split(): XDPromise<string> {
-        const {
-            source: colToSplit, delimiter, dest: toCols
-        } = <DagNodeSplitInputStruct>this.node.getParam(this.replaceParam);
-        const delimStr = delimiter.replace(/\\/g, '\\\\').replace(/\"/g, '\\"');
-        const srcTable = this._getParentNodeTable(0);
-        const destTable = this._generateTableName();
-
-        if (toCols.length === 0) {
-            return PromiseHelper.reject('New column name not specified');
-        }
-
-        // Split column with map(cut)
-        const newFields: string[] = [];
-        const mapStrs: string[] = [];
-        for (let i = 0; i < toCols.length; i ++) {
-            mapStrs.push(`cut(${colToSplit}, ${i + 1}, "${delimStr}")`);
-            newFields.push(toCols[i]);
-        }
-        return XIApi.map(this.txId, mapStrs, srcTable, newFields, destTable, false);
-    }
-
-    private _explode(): XDPromise<string> {
-        const { sourceColumn, delimiter, destColumn } = this.node.getParam();
-        const delimStr = delimiter.replace(/\\/g, '\\\\').replace(/\"/g, '\\"');
-        const srcTable = this._getParentNodeTable(0);
-        const destTable = this._generateTableName();
-
-        const evalStr = `explodeString(${sourceColumn},"${delimStr}")`;
-        return XIApi.map(this.txId, [evalStr], srcTable, [destColumn], destTable, false);
     }
 
     private _project(): XDPromise<string> {

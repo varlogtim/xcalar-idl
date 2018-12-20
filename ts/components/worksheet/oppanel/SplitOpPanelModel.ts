@@ -4,7 +4,9 @@ class SplitOpPanelModel {
     private _delimiter: string = '';
     private _sourceColName: string = '';
     private _destColNames: string[] = [];
+    private _includeErrRow: boolean = false;
     private _allColMap: Map<string, ProgCol> = new Map();
+    private static _funcName = 'cut';
 
     /**
      * Create data model instance from DagNode
@@ -45,17 +47,11 @@ class SplitOpPanelModel {
      * @description use case: advanced from
      */
     public static fromDagInput(
-        colMap: Map<string, ProgCol>, dagInput: DagNodeSplitInputStruct
+        colMap: Map<string, ProgCol>, dagInput: DagNodeMapInputStruct
     ): SplitOpPanelModel {
         // Validate inputs
-        if (dagInput.source == null) {
-            throw new Error('Source column cannot be null');
-        }
-        if (dagInput.dest == null) {
-            throw new Error('Dest column cannot be null');
-        }
-        if (dagInput.delimiter == null) {
-            throw new Error('Delimiter cannot be null');
+        if (dagInput.eval == null) {
+            throw new Error('Eval string cannot be null');
         }
 
         const model = new this();
@@ -64,24 +60,124 @@ class SplitOpPanelModel {
         model._instrStr = OpPanelTStr.SplitPanelInstr;
         model._allColMap = colMap;
 
-        model._sourceColName = dagInput.source;
-        model._delimiter = dagInput.delimiter;
-        model._destColNames = dagInput.dest.length === 0
-            ? [''] : dagInput.dest.map((v) => v);
+        try {
+            let sourceColumn: string = '';
+            let delimiter: string = '';
+            const destColumns: Map<string, string> = new Map(); // cutIndex => columnName
+            let maxIndex = 0;
+            for (const evalObj of dagInput.eval) {
+                if (evalObj.evalString.trim().length == 0) {
+                    continue;
+                }
+                const evalFunc = XDParser.XEvalParser.parseEvalStr(evalObj.evalString);
+    
+                // Function name should be 'cut'
+                if (evalFunc.fnName !== this._funcName) {
+                    throw new Error(`Invalid function name(${evalFunc.fnName})`);
+                }
+    
+                // Source column
+                let evalParam = evalFunc.args[0];
+                if (!isTypeEvalArg(evalParam)) {
+                    throw new Error('Invalid column name');
+                }
+                if (sourceColumn == null || sourceColumn.length === 0) {
+                    // First evalObj in eval list
+                    sourceColumn = evalParam.value;
+                } else if (sourceColumn !== evalParam.value) {
+                    // The rest column name should match the first one
+                    throw new Error('Multiple source columns');
+                }
+    
+                // Index
+                // The index of dest column depends on the arg in the cut function
+                // Ex. cut(books::title, 2, 'title2') => _destColNames[1] = 'title2'
+                evalParam = evalFunc.args[1];
+                if (!isTypeEvalArg(evalParam)) {
+                    throw new Error('Invalid index');
+                }
+                const index = Number(evalParam.value);
+                if (index <= 0) {
+                    throw new Error('Index out of range');
+                }
 
+                // Delimiter
+                evalParam = evalFunc.args[2];
+                if (!isTypeEvalArg(evalParam)) {
+                    throw new Error('Invalid delimiter');
+                }
+                let dem = evalParam.value;
+                dem = dem.substring(1, dem.length - 1);
+                dem = dem.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+                if (delimiter == null || delimiter.length === 0) {
+                    delimiter = dem;
+                } else if (delimiter !== dem) {
+                    throw new Error('Multiple delimiters');
+                }
+    
+                // Dest column
+                maxIndex = Math.max(maxIndex, index);
+                destColumns.set(`${index}`, evalObj.newField);
+            }
+
+            // Source column
+            model._sourceColName = sourceColumn;
+            // Delimiter
+            model._delimiter = delimiter;
+            // Dest columns
+            model._destColNames = new Array(maxIndex).fill('');
+            for (const [strIndex, colName] of destColumns.entries()) {
+                model._destColNames[Number(strIndex) - 1] = colName || '';
+            }
+            // icv
+            model._includeErrRow = dagInput.icv;
+        } catch(e) {
+            // If anything goes wrong, reset the model and popup the error(for adv. form)
+            model._sourceColName = '';
+            model._delimiter = '';
+            model._destColNames = [''];
+            model._includeErrRow = false;
+            throw e;
+        }
+
+        if (model._destColNames.length === 0) {
+            model._destColNames = [''];
+        }
         return model;
+
+        function isTypeEvalArg(arg: ParsedEvalArg|ParsedEval): arg is ParsedEvalArg {
+            return arg != null && arg.type !== 'fn';
+        }
     }
 
     /**
      * Generate DagNodeInput from data model
      */
-    public toDagInput(): DagNodeSplitInputStruct {
-        const param: DagNodeSplitInputStruct = {
-            source: this.getSourceColName(),
-            delimiter: this.getDelimiter(),
-            dest: this.getDestColNames().map((v) => v)
+    public toDagInput(): DagNodeMapInputStruct {
+        const func = SplitOpPanelModel._funcName;
+        const sourceColumn = this.getSourceColName();
+        const delimiter = this.getDelimiter()
+            .replace(/\\/g, '\\\\')
+            .replace(/\"/g, '\\"');
+
+        const evalList = [];
+        const destColumns = this.getDestColNames();
+        for (let index = 0; index < destColumns.length; index ++) {
+            const destColumn = destColumns[index];
+            if (destColumn == null || destColumn.length === 0) {
+                continue; // Skip empty dest columns
+            }
+            evalList.push({
+                evalString: `${func}(${sourceColumn},${index + 1},"${delimiter}")`,
+                newField: destColumn
+            });
+        }
+
+        const param: DagNodeMapInputStruct = {
+            eval: evalList,
+            icv: this.isIncludeErrRow()
         };
-        
+
         return param;
     }
 
@@ -105,7 +201,7 @@ class SplitOpPanelModel {
             throw new Error('Source column cannot be empty');
         }
         if (!this.getColumnMap().has(sourceColumn)) {
-            throw new Error('Source column does not exist');
+            throw new Error(`Source column(${sourceColumn}) does not exist`);
         }
 
         // delimiter
@@ -117,10 +213,10 @@ class SplitOpPanelModel {
         // dest columns
         this.getDestColNames().forEach((colName, i) => {
             if (colName.trim().length === 0) {
-                throw new Error('Dest column cannot be empty');
+                return;
             }
             if (xcHelper.parsePrefixColName(colName).prefix.length > 0) {
-                throw new Error('Dest column cannot have prefix');
+                throw new Error(`Dest column(${colName}) cannot have prefix`);
             }
             if (this.getColNameSetWithNew(i).has(colName)) {
                 throw new Error(`Duplicate column "${colName}"`);
@@ -200,6 +296,14 @@ class SplitOpPanelModel {
         if (index < this._destColNames.length) {
             this._destColNames[index] = colName;
         }
+    }
+
+    public setIncludeErrRow(isInclude: boolean): void {
+        this._includeErrRow = isInclude;
+    }
+
+    public isIncludeErrRow(): boolean {
+        return this._includeErrRow;
     }
 
     public autofillEmptyColNames(): void {
