@@ -657,9 +657,15 @@ class DagGraphExecutor {
         let retinaName: string = retinaParameters.retinaName;
         let subGraph: DagSubGraph;
         const udfContext = this._getUDFContext();
+        const parentTabId: string = this._graph.getTabId();
+        const parentTab: DagTab = DagTabManager.Instance.getTabById(parentTabId);
+        let dfOutName: string = this._isOptimizedActiveSession ?
+                        this._optimizedLinkOutNode.getParam().name : "export";
+        let tabName: string = parentTab.getName() + " " + dfOutName + " optimized";
+
         let txId: number = Transaction.start({
             operation: "optimized df",
-            sql: {operation: "Optimized Dataflow", retName: retinaName},
+            sql: {operation: "Optimized Dataflow", retName: tabName},
             track: true,
             udfUserName: udfContext.udfUserName,
             udfSessionName: udfContext.udfSessionName
@@ -674,10 +680,6 @@ class DagGraphExecutor {
 
              // create tab and pass in nodes to store for progress updates
             const parentTabId: string = this._graph.getTabId();
-            const parentTab: DagTab = DagTabManager.Instance.getTabById(parentTabId);
-            let dfOutName: string = this._isOptimizedActiveSession ?
-                            this._optimizedLinkOutNode.getParam().name : "export";
-            let tabName: string = parentTab.getName() + " " + dfOutName + " optimized";
             const tab: DagTabOptimized = DagTabManager.Instance.newOptimizedTab(retinaName,
                                                 tabName, retina.query, this);
             subGraph = tab.getGraph();
@@ -693,7 +695,7 @@ class DagGraphExecutor {
                 newTableName: outputTableName,
                 udfUserName: udfContext.udfUserName || userIdName,
                 udfSessionName: udfContext.udfSessionName || sessionName
-            });
+            }, this._currentTxId);
         })
         .then((_res) => {
             this._executeInProgress = false;

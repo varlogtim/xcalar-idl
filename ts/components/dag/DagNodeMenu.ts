@@ -558,7 +558,10 @@ namespace DagNodeMenu {
             !$node.find(".tableIcon").length
         ) {
             const table: string = dagNode.getTable();
-            if (table != null && DagTblManager.Instance.hasTable(table)) {
+            if (dagNode instanceof DagNodeExport) {
+                $menu.find(".generateResult").addClass("xc-hidden");
+                $menu.find(".viewResult").addClass("xc-hidden");
+            } else if (table != null && DagTblManager.Instance.hasTable(table)) {
                 $menu.find(".generateResult").addClass("xc-hidden");
                 $menu.find(".viewResult").removeClass("xc-hidden");
                 $menu.find(".viewResult").removeClass("unavailable");
