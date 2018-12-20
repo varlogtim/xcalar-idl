@@ -22,7 +22,7 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _dagNode: DagNode;
     protected model;
     protected _opCategories: number[];
-    protected _specialWords: string[] = ["none"];
+    protected _specialWords: string[] = ["None", "null"];
 
      // shows valid cast types
     protected static castMap = {
@@ -682,7 +682,9 @@ class GeneralOpPanel extends BaseOpPanel {
         // puts matches that start with the same letters first
         list = beginningMatches.concat(list);
 
-        return list;
+        return list.map((item) => {
+            return gColPrefix + item;
+        });
     }
 
     protected _getMatchingColNames(val: string): string[] {
