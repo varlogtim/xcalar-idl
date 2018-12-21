@@ -47,10 +47,10 @@ class DagSearch {
 
             // find the one in view as first
             let startIndex: number = 0;
-            const $viewWrap: JQuery = DagView.getActiveArea();
+            const $container: JQuery = DagView.getActiveArea();
             matches.forEach((el, index) => {
                 const $match: JQuery = $(el);
-                if (this._isInView($match, $viewWrap, false)) {
+                if (DagUtil.isInView($match, $container)) {
                     startIndex = index;
                     return false; // stop loop
                 }
@@ -95,36 +95,6 @@ class DagSearch {
         this._clearSearch();
     }
 
-    // XXX TODO: combine with the scrollMatchIntoView function in DagTabSearchBar
-    private _isInView(
-        $match: JQuery,
-        $viewWrap: JQuery,
-        toScroll: boolean
-    ): boolean {
-        try {
-            const matchOffsetLeft: number = $match.offset().left;
-            const bound: ClientRect = $viewWrap[0].getBoundingClientRect();
-            const leftBoundaray: number = bound.left;
-            const rightBoundary: number = bound.right;
-            const matchWidth: number = $match.width();
-            const matchDiff: number = matchOffsetLeft - (rightBoundary - matchWidth);
-
-            if (matchDiff > 0 || matchOffsetLeft < leftBoundaray) {
-                if (toScroll) {
-                    const scrollLeft: number = $viewWrap.scrollLeft();
-                    const viewWidth: number = $viewWrap.width();
-                    $viewWrap.scrollLeft(scrollLeft + matchDiff +
-                                            ((viewWidth - matchWidth) / 2));
-                }
-                return false;
-            } else {
-                return true;
-            }
-        } catch (e) {
-            return false;
-        }
-    }
-
     private _setupSearchHelper(): void {
         const $searchArea: JQuery = this._getSearchArea();
         this._searchHelper = new SearchBar($searchArea, {
@@ -135,8 +105,8 @@ class DagSearch {
                 $match.addClass("highlight");
             },
             scrollMatchIntoView: ($match: JQuery) => {
-                const $viewWrap: JQuery = $match.closest(".dataflowArea");
-                this._isInView($match, $viewWrap, true);
+                const $container: JQuery = $match.closest(".dataflowArea");
+                DagUtil.scrollIntoView($match, $container);
             },
             $input: $searchArea.find("input"),
             arrowsPreventDefault: true

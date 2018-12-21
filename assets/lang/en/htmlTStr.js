@@ -1425,6 +1425,7 @@ module.exports = {
         "removeNode": "Remove",
         "removeAllNodes": "Remove All",
         "selectAll": "Select All",
+        "focusRunning": "Focus on running node",
         "removeConnection": "Remove Connection",
         "findLinkOut": "Find the linked node",
         "configure": "Configure",

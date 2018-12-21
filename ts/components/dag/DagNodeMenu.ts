@@ -124,6 +124,9 @@ namespace DagNodeMenu {
             case ("selectAllNodes"):
                 DagView.selectNodes(DagView.getActiveDag().getTabId());
                 break;
+            case ("focusRunning"):
+                _focusRunningNode();
+                break;
             case ("removeInConnection"):
                 DagView.disconnectNodes(parentNodeId, nodeId, connectorIndex, tabId);
                 break;
@@ -215,7 +218,7 @@ namespace DagNodeMenu {
                 DagView.zoom(false);
                 break;
             case ("findLinkOut"):
-                DagView.findLinkOutNode(nodeId);
+                _findLinkOutNode(nodeId);
                 break;
             case ("lockTable"):
                 DagView.getActiveDag().getNode(dagNodeIds[0]).setTableLock();
@@ -501,6 +504,7 @@ namespace DagNodeMenu {
             }
         } else {
             classes += " backgroundMenu ";
+            adjustMenuForBackground();
         }
 
         for (let i = 0; i < nodeIds.length; i++) {
@@ -703,6 +707,52 @@ namespace DagNodeMenu {
                     ".executeNodeOptimized, .executeAllNodesOptimized, " +
                     ".resetNode, .resetAllNodes, .cutNodes, .createCustom")
             .addClass("unavailable");
+    }
+
+    function adjustMenuForBackground() {
+        const $view: JQuery = DagView.getActiveArea();
+        if ($view.find(".operator.state-" + DagNodeState.Running).length) {
+            $menu.find(".focusRunning").removeClass("unavailable");
+        } else {
+            $menu.find(".focusRunning").addClass("unavailable");
+        }
+    }
+
+    function _findLinkOutNode(nodeId: DagNodeId): void {
+        try {
+            const activeDag: DagGraph = DagView.getActiveDag();
+            const dagNode: DagNodeDFIn = <DagNodeDFIn>activeDag.getNode(nodeId);
+            const res = dagNode.getLinkedNodeAndGraph();
+            const graph: DagGraph = res.graph;
+            const tabId: string = graph.getTabId();
+            if (graph !== activeDag) {
+                // swith to the graph
+                DagTabManager.Instance.switchTab(tabId);
+            }
+            // focus on the node
+            const linkOutNodeId: DagNodeId = res.node.getId();
+            const $node: JQuery = DagView.getNode(linkOutNodeId);
+            const $container: JQuery = DagView.getAreaByTab(tabId);
+            DagUtil.scrollIntoView($node, $container)
+            DagView.deselectNodes();
+            DagView.selectNodes(tabId, [linkOutNodeId]);
+        } catch (e) {
+            Alert.error(AlertTStr.Error, e.message);
+        }
+    }
+
+    function _focusRunningNode(): void {
+        try {
+            const $container: JQuery = DagView.getActiveArea();
+            const $node: JQuery = $container.find(".operator.state-" + DagNodeState.Running);
+            DagUtil.scrollIntoView($node, $container)
+            DagView.deselectNodes();
+            const tabId: string = DagView.getActiveTab().getId();
+            const nodeId: DagNodeId = $node.data("nodeid");
+            DagView.selectNodes(tabId, [nodeId]);
+        } catch (e) {
+            Alert.error(AlertTStr.Error, e.message);
+        }
     }
 
     function _getNodeFromId(id: DagNodeId): DagNode {

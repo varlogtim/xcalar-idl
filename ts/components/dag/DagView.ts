@@ -1865,22 +1865,6 @@ namespace DagView {
         });
     }
 
-    export function findLinkOutNode(nodeId: DagNodeId): void {
-        try {
-            const dagNode: DagNodeDFIn = <DagNodeDFIn>activeDag.getNode(nodeId);
-            const res = dagNode.getLinkedNodeAndGraph();
-            const graph: DagGraph = res.graph;
-            if (graph !== activeDag) {
-                // swith to the graph
-                DagTabManager.Instance.switchTab(graph.getTabId());
-            }
-            // focus on the node
-            DagView.selectNodes(graph.getTabId(), [res.node.getId()]);
-        } catch (e) {
-            Alert.error(AlertTStr.Error, e.message);
-        }
-    }
-
     /**
      * Check if modification to graph/nodes should be disabled, Ex. it's showing the subGraph of a customNode
      */
