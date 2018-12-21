@@ -91,11 +91,12 @@ class DFDownloadModal {
         const $dropdown: JQuery = this._getDownloadTypeList();
         const $lis: JQuery = $dropdown.find("li");
         $lis.removeClass("xc-disabled");
-        if (this._dagTab instanceof DagTabCustom ||
-            this._dagTab instanceof DagTabSQL
+        if (!(this._dagTab instanceof DagTabUser) &&
+            !(this._dagTab instanceof DagTabPublished)
         ) {
             $lis.filter((_index, el) => {
-                return $(el).data("type") !== this._DownloadTypeEnum.Image;
+                return ($(el).data("type") !== this._DownloadTypeEnum.Image &&
+                        $(el).data("type") !== this._DownloadTypeEnum.OperationStats);
             }).addClass("xc-disabled");
         }
 

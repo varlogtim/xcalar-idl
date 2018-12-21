@@ -1829,6 +1829,7 @@ class DagGraph {
         const destSrcMap = {}; // {dest: [{srcTableName: ..., sourceId: ...], ...} in xc query
         const dagIdParentMap = {}; // {DagNodeId: [{index(parentIdx): ..., srcId(sourceId)}], ...}
         const tableNewDagIdMap = {}; // {oldTableName: newDagId}
+        const dagIdToTableNamesMap = {}; // {newDagId: [oldTableName1, oldTableName2]} stores the topological order of the tables per dagNode
         let outputDagId: string;
 
         for (let rawNode of query) {
@@ -1919,7 +1920,8 @@ class DagGraph {
             dagInfoList: finalConvertIntoDagNodeInfoArray(nodes),
             dagIdParentMap: dagIdParentMap,
             outputDagId: outputDagId,
-            tableNewDagIdMap: tableNewDagIdMap
+            tableNewDagIdMap: tableNewDagIdMap,
+            dagIdToTableNamesMap: dagIdToTableNamesMap
         }
         return retSruct;
 
@@ -1933,9 +1935,9 @@ class DagGraph {
 
             const finalNodeInfos = [];
             const dagNodeInfos = {};
-
+            const endDagNodeInfos = [];
             endNodes.forEach(node => {
-                recursiveGetDagNodeInfo(node, dagNodeInfos);
+                endDagNodeInfos.push(recursiveGetDagNodeInfo(node, dagNodeInfos));
             });
 
             for (var i in dagNodeInfos) {
@@ -2063,7 +2065,7 @@ class DagGraph {
                         input: {
                             eval: node.args.eval,
                             icv: node.args.icv
-                        },
+                        }
                     };
                     break;
                 case (XcalarApisT.XcalarApiJoin):
@@ -2203,12 +2205,17 @@ class DagGraph {
             }
             if (!hiddenSubGraphNode) {
                 tableNewDagIdMap[dagNodeInfo.table] = dagNodeInfo.id;
+                dagIdToTableNamesMap[dagNodeInfo.id] = [];
             }
 
             if (node.subGraphNodes) {
                 node.subGraphNodes.forEach(subGraphNode => {
                     tableNewDagIdMap[subGraphNode.table] = dagNodeInfo.id;
+                    dagIdToTableNamesMap[dagNodeInfo.id].push(subGraphNode.table);
                 });
+            }
+            if (!hiddenSubGraphNode) {
+                dagIdToTableNamesMap[dagNodeInfo.id].push(dagNodeInfo.table);
             }
             return dagNodeInfo;
         }
@@ -2293,6 +2300,7 @@ class DagGraph {
                 } else {
                     node.subGraphNodes = node.subGraphNodes.concat(subGraphNodes);
                 }
+                // change the node's parent to be the nonIndex node
                 node.parents[i] = nonIndexParent;
 
                 // remove indexed children and push node
@@ -2323,11 +2331,11 @@ class DagGraph {
                 } else if (parentOfIndex.api === XcalarApisT.XcalarApiIndex) {
                     // if source is index but that index resulted from dataset
                     // then that index needs to take the role of the dataset node
-                    if (parentOfIndex.args.source.startsWith(gDSPrefix)) {
+                    if (parentOfIndex.args.source.includes(gDSPrefix)) {
                         return parentOfIndex;
                     }
 
-                    subGraphNodes.push(parentOfIndex);
+                    subGraphNodes.unshift(parentOfIndex);
                     return getNonIndexParent(parentOfIndex, subGraphNodes);
                 } else {
                     return parentOfIndex;

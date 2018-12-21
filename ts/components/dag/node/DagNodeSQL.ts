@@ -128,6 +128,7 @@ class DagNodeSQL extends DagNode {
         // restore edges
         this.subGraph.restoreConnections(connections);
         this.subGraph.setTableDagIdMap(retStruct.tableNewDagIdMap);
+        this.subGraph.setDagIdToTableNamesMap(retStruct.dagIdToTableNamesMap);
         this.subGraph.initializeProgress();
     }
     public getSQLName(): string {

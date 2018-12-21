@@ -125,19 +125,24 @@ class DagTabOptimized extends DagTab {
         return !this._isDoneExecuting;
     }
 
-    private _constructGraphFromQuery(queryNodes): DagSubGraph {
+    private _constructGraphFromQuery(queryNodes: any[]): DagSubGraph {
         const nameIdMap = {};
+        const idToNamesMap = {};
         const retStruct = DagGraph.convertQueryToDataflowGraph(queryNodes);
         const nodeJsons = retStruct.dagInfoList;
         const nodeInfos = [];
         nodeJsons.forEach((nodeJson) => {
+            idToNamesMap[nodeJson.id] = [];
             nameIdMap[nodeJson.table] = nodeJson.id;
             if (nodeJson.subGraphNodes) {
                 // map the index nodes to the containing dagNodeId
                 nodeJson.subGraphNodes.forEach((subGraphNodeJson) => {
                     nameIdMap[subGraphNodeJson.table] = nodeJson.id;
+                    idToNamesMap[nodeJson.id].push(subGraphNodeJson.table);
                 });
             }
+
+            idToNamesMap[nodeJson.id].push(nodeJson.table);
             nodeInfos.push({
                 node: DagNodeFactory.create(nodeJson),
                 parents: nodeJson.parents
@@ -150,7 +155,7 @@ class DagTabOptimized extends DagTab {
             nodes: nodeInfos
         };
 
-        const graph: DagSubGraph = new DagSubGraph(nameIdMap);
+        const graph: DagSubGraph = new DagSubGraph(retStruct.tableNewDagIdMap, retStruct.dagIdToTableNamesMap);
         graph.rebuildGraph(graphInfo);
         graph.initializeProgress();
         this.graph = graph;

@@ -668,13 +668,15 @@ abstract class DagNode {
      * don't set the node to completed if there are other operations that will occur for that node
      */
     public updateProgress(tableNameMap, includesAllTables?: boolean) {
-        const errorStates = [DgDagStateT.DgDagStateUnknown, DgDagStateT.DgDagStateError, DgDagStateT.DgDagStateArchiveError];
-        let isComplete = true;
-        let errorState = null;
+        const errorStates: DgDagStateT[] = [DgDagStateT.DgDagStateUnknown,
+                             DgDagStateT.DgDagStateError,
+                             DgDagStateT.DgDagStateArchiveError];
+        let isComplete: boolean = true;
+        let errorState: string = null;
         this.runStats.hasRun = true;
-        let tableCount = Object.keys(this.runStats.nodes).length;
+        let tableCount: number = Object.keys(this.runStats.nodes).length;
         for (let tableName in tableNameMap) {
-            let tableRunStats = this.runStats.nodes[tableName];
+            let tableRunStats: TableRunStats = this.runStats.nodes[tableName];
             if (!tableRunStats) {
                 tableRunStats = {
                     startTime: null,
@@ -743,6 +745,7 @@ abstract class DagNode {
                 isComplete = false;
             }
         }
+
         if (errorState != null) {
             this.beErrorState(DgDagStateTStr[errorState]);
         } else if (isComplete && includesAllTables) {
@@ -804,6 +807,7 @@ abstract class DagNode {
             for (let name in nodes) {
                 const node = nodes[name];
                 delete node.startTime;
+                delete node.index;
                 node.state = DgDagStateTStr[node.state];
                 node.type = XcalarApisTStr[node.type];
                 if (node.hasStats) {

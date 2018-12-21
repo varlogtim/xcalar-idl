@@ -323,21 +323,24 @@ namespace DagView {
         $selected.find(".selection").remove();
     }
 
-    function _setSelectedStyle($operator: JQuery): void {
-        if ($operator.find('.selection').length > 0) {
-            return;
-        }
-        const rect = d3.select($operator[0]).insert('rect', ':first-child');
-        rect.classed('selection', true);
-        rect.attr('x', '-2')
-        .attr('y', '-5')
-        .attr('width', '107')
-        .attr('height', '38')
-        .attr('fill', '#EAF9FF')
-        .attr('stroke', '#38CBFF')
-        .attr('stroke-width', '1')
-        .attr('rx', '16')
-        .attr('ry', '43');
+    function _setSelectedStyle($operators: JQuery): void {
+        $operators.each(function() {
+            const $operator = $(this);
+            if ($operator.find('.selection').length > 0) {
+                return;
+            }
+            const rect = d3.select($operator[0]).insert('rect', ':first-child');
+            rect.classed('selection', true);
+            rect.attr('x', '-2')
+            .attr('y', '-5')
+            .attr('width', '107')
+            .attr('height', '38')
+            .attr('fill', '#EAF9FF')
+            .attr('stroke', '#38CBFF')
+            .attr('stroke-width', '1')
+            .attr('rx', '16')
+            .attr('ry', '43');
+        });
     }
 
     /**
@@ -2584,9 +2587,15 @@ namespace DagView {
         const scale = activeDag.getScale();
         const x = scale * (nodeX - 10);
         const y = Math.max(1, (scale * nodeY) - (rowHeight * 2 + tooltipPadding + tooltipMargin));
-        const totalTime = times.reduce((total, num) => {
-            return total + num;
-        });
+        let totalTime: number;
+        if (times.length) {
+            totalTime = times.reduce((total, num) => {
+                return total + num;
+            });
+        } else {
+            totalTime = 0;
+        }
+
         const totalTimeStr = xcHelper.getElapsedTimeStr(totalTime);
 
         let hasSkewValue: boolean = false;

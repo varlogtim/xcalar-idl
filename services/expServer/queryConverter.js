@@ -1207,7 +1207,7 @@ function _collapseIndexNodes(node) {
         } else if (parentOfIndex.api === XcalarApisT.XcalarApiIndex) {
             // if source is index but that index resulted from dataset
             // then that index needs to take the role of the dataset node
-            if (parentOfIndex.args.source.startsWith(gDSPrefix)) {
+            if (parentOfIndex.args.source.includes(gDSPrefix)) {
                 return parentOfIndex;
             }
 

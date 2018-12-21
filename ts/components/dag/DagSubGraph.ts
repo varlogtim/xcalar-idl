@@ -1,15 +1,16 @@
 class DagSubGraph extends DagGraph {
     private startTime: number;
     private _nameIdMap;
+    private _dagIdToTableNamesMap;
     private isComplete: boolean = false;
     private elapsedTime: number;
     private state: DgDagStateT;
 
-    public constructor(nameIdMap?, executor?: DagGraphExecutor) {
+    public constructor(nameIdMap?, dagIdToTableNamesMap?) {
         super();
         this.startTime = Date.now();
         this._nameIdMap = nameIdMap;
-        this.currentExecutor = executor;
+        this._dagIdToTableNamesMap = dagIdToTableNamesMap;
     }
     /**
      * Get the JSON representing the graph(without all the ids), for copying a graph
@@ -98,7 +99,12 @@ class DagSubGraph extends DagGraph {
         this._nameIdMap = nameIdMap;
     }
 
+    public setDagIdToTableNamesMap(dagIdToTableNamesMap) {
+        this._dagIdToTableNamesMap = dagIdToTableNamesMap;
+    }
+
     // should be called right before the xcalarQuery gets executed
+    // sets the nodes to be in running state
     public startExecution(queryNodes, executor: DagGraphExecutor): void {
         this.currentExecutor = executor;
         this.startTime = Date.now();
@@ -134,8 +140,8 @@ class DagSubGraph extends DagGraph {
             if (!nodeIdToTableNamesMap.has(nodeId)) {
                 nodeIdToTableNamesMap.set(nodeId, [])
             }
-            const tableNames: string[] = nodeIdToTableNamesMap.get(nodeId);
-            tableNames.push(tableName);
+            const nodeTableNames: string[] = nodeIdToTableNamesMap.get(nodeId);
+            nodeTableNames.push(tableName);
         }
         nodeIdToTableNamesMap.forEach((tableNames, nodeId) => {
             this.getNode(nodeId).initializeProgress(tableNames);
@@ -168,7 +174,7 @@ class DagSubGraph extends DagGraph {
             }
             const nodeIdInfo = nodeIdInfos[nodeId];
             nodeIdInfo[tableName] = nodeInfo;
-            nodeInfo.index = i;
+            nodeInfo.index = this._dagIdToTableNamesMap[nodeId].indexOf(tableName);
         });
 
         for (let nodeId in nodeIdInfos) {
