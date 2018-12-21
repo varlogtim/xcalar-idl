@@ -113,7 +113,7 @@
     Chains the promises such that only after promiseArray[i] completes, then
     promiseArray[i+1] will start.
     */
-    PromiseHelper.chain = function(promiseArray, alwaysResolve) {
+    PromiseHelper.chain = function(promiseArray) {
         // Takes an array of promise *generators*.
         // This means that promisearray[i]() itself calls a promise.
         // Reason for this being, promises start executing the moment they are
@@ -125,12 +125,7 @@
         }
         var head = promiseArray[0]();
         for (var i = 1; i < promiseArray.length; i++) {
-            if (alwaysResolve) {
-                head = head.always(promiseArray[i]);
-            } else {
-                head = head.then(promiseArray[i]);
-            }
-
+            head = head.then(promiseArray[i]);
         }
         return (head);
     };

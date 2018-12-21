@@ -1,10 +1,12 @@
-
-<div class="iconSection">
-  <i class="minimizeBtn icon xi-close"></i>
-  <i class="refreshBtn icon xi-refresh fa-17" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.common.Refresh %>"></i>
-</div>
-<div class="titleSection no-selection">
-  <header><%= dicts.dataflow.dataflows %> (<span class="numDF">0</span>)</header>
+<div class="topSection">
+  <div class="titleSection no-selection">
+    <header><%= dicts.dataflow.dataflows %> (<span class="numDF">0</span>)</header>
+  </div>
+  <div class="iconSection">
+    <i class="minimizeBtn icon xi-close"></i>
+    <i class="refreshBtn icon xi-refresh fa-17" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.common.Refresh %>"></i>
+    <i class="uploadBtn icon xi-upload" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.dataflow.uploadHeader %>"></i>
+  </div>
 </div>
 <div id="dagListSection" class="mainSection xc-fileListView">
   include "../util/fileListView.html"

@@ -390,7 +390,8 @@ function _finalConvertIntoDagNodeInfoArray(nodes, datasets, isRetina, nestedPref
             name = "Dataflow " + dataflowCount;
             dataflowsList.push({
                 name: name,
-                id: currentDataflowId
+                id: currentDataflowId,
+                createdTime: Date.now()
             });
         }
 
@@ -428,7 +429,8 @@ function _finalConvertIntoDagNodeInfoArray(nodes, datasets, isRetina, nestedPref
             let name = "Inactive Nodes";
             dataflowsList.push({
                 name: name,
-                id: currentDataflowId + "_0"
+                id: currentDataflowId + "_0",
+                createdTime: Date.now()
             });
 
             const dataflow = {

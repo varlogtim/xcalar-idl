@@ -238,7 +238,7 @@
     .menuSection {
         @height-icon: 50px;
         @height-title: 45px;
-        @height-total: @height-icon + @height-title; 
+        @height-total: @height-icon + @height-title;
         .size(100%, 100%);
 
         &.simple {
@@ -318,7 +318,7 @@
         }
     }
 
-    .minimizeBtn {
+    .minimizeBtn, .refreshBtn, .uploadBtn {
         float: right;
         font-size: 18px;
         margin: 2px 0px 2px 5px;
@@ -330,19 +330,17 @@
         }
     }
 
-    .refreshBtn {
-        float: right;
+    .refreshBtn, .uploadBtn {
         font-size: 17px;
         margin: 2px 5px;
-        cursor: pointer;
-        opacity: @opacity-unhover;
-
-        &:hover {
-            opacity: @opacity-hover;
-        }
+    }
+    .uploadBtn {
+        font-size: 15px;
     }
 }
 // ==========  End Top / Main Menu =======
+
+
 
 // special case
 #addWorksheet, #importDataButton {
@@ -352,11 +350,52 @@
 }
 
 #dataflowMenu {
-    .menuSection {
-        // TODO remove this padding and fix panel styling accordingly
-        padding-top: 10px;
-        padding-bottom: 10px;
+    @topSectionHeight: 50px;
+    > .menuSection {
+        background-color: @color-white;
+        padding: 0px;
+        padding-bottom: 5px;
+        color: @color-font-edge;
+
+        > .topSection {
+            display: flex;
+            font-weight: bold;
+            padding-left: 15px;
+            padding-right: 5px;
+            height: @topSectionHeight;
+            border-bottom: 1px solid @color-bg-topBarGray2;
+
+            .titleSection {
+                .flex(1 1 auto);
+                color: @color-font-form-gray;
+                font-size: 24px;
+                line-height: @topSectionHeight;
+            }
+
+            .iconSection {
+                color: @color-arc-xdbfree;
+                font-size: 15px;
+                .flex(1 0 auto);
+
+                .icon {
+                    font-size: 15px;
+                    margin-left: 2px;
+                    margin-top: 7px;
+                }
+                .uploadBtn {
+                    font-size: 14px;
+                }
+            }
+        }
+
+        > .mainSection {
+            height: ~"calc(100% - @{topSectionHeight})";
+            color: @color-font-edge;
+            overflow: auto;
+            border-top: none;
+        }
     }
+
     .menuSection.tables, {
         > .iconSection {
             .size(@height: 6px);

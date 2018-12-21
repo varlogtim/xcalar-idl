@@ -1,9 +1,9 @@
 class DagTabOptimized extends DagTab {
     public static readonly PATH = "Optimized Dataflows/";
     public static readonly retinaCheckInterval = 2000;
-    private graph: DagSubGraph;
+    protected _dagGraph: DagSubGraph;
     private _isDoneExecuting: boolean;
-    private _isActive: boolean;
+    private _isFocused: boolean;
     private _isDeleted: boolean;
     private _queryCheckId: number;
     private _retinaName: string;
@@ -19,7 +19,7 @@ class DagTabOptimized extends DagTab {
         const {id, name, queryNodes, executor} = options;
         super(name, id, null);
         this._isDoneExecuting = false;
-        this._isActive = false;
+        this._isFocused = false;
         this._queryCheckId = 0;
         this._hasQueryStateGraph = false;
         if (queryNodes) {
@@ -53,7 +53,7 @@ class DagTabOptimized extends DagTab {
      * @returns {DagGraph}
      */
     public getGraph(): DagSubGraph {
-        return this.graph;
+        return this._dagGraph;
     }
 
     public load(): XDPromise<void> {
@@ -62,9 +62,9 @@ class DagTabOptimized extends DagTab {
 
         XcalarGetRetinaJson(this._retinaName)
         .then((retina) => {
-            this.graph = this._constructGraphFromQuery(retina.query);
-            this.graph.startExecution(retina.query, null);
-            this.setGraph(this.graph);
+            this._dagGraph = this._constructGraphFromQuery(retina.query);
+            this._dagGraph.startExecution(retina.query, null);
+            this.setGraph(this._dagGraph);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -88,10 +88,10 @@ class DagTabOptimized extends DagTab {
     }
 
     public focus() {
-        if (this._isActive) {
+        if (this._isFocused) {
             return;
         }
-        this._isActive = true;
+        this._isFocused = true;
         if (this._isDoneExecuting) {
             return;
         }
@@ -100,14 +100,18 @@ class DagTabOptimized extends DagTab {
     }
 
     public unfocus() {
-        this._isActive = false;
+        this._isFocused = false;
         this._queryCheckId++;
+    }
+
+    public isFocused() {
+        return this._isFocused;
     }
 
     public delete(): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
         this._isDoneExecuting = false;
-        this._isActive = false;
+        this._isFocused = false;
         this._isDeleted = true;
         this._queryCheckId++;
 
@@ -158,8 +162,8 @@ class DagTabOptimized extends DagTab {
         const graph: DagSubGraph = new DagSubGraph(retStruct.tableNewDagIdMap, retStruct.dagIdToTableNamesMap);
         graph.rebuildGraph(graphInfo);
         graph.initializeProgress();
-        this.graph = graph;
-        const positionInfo = DagView.getAutoAlignPositions(this.graph);
+        this._dagGraph = graph;
+        const positionInfo = DagView.getAutoAlignPositions(this._dagGraph);
         positionInfo.nodeInfos.forEach((nodeInfo) => {
             graph.moveNode(nodeInfo.id, {
                 x: nodeInfo.position.x + 100,
@@ -177,14 +181,14 @@ class DagTabOptimized extends DagTab {
         let checkTime = firstRun ? 0 : DagTabOptimized.retinaCheckInterval;
         const checkId = this._queryCheckId
         setTimeout(() => {
-            if (this._isDoneExecuting || !this._isActive || this._isDeleted ||
+            if (this._isDoneExecuting || !this._isFocused || this._isDeleted ||
                 checkId !== this._queryCheckId) {
                 return; // retina is finished or unfocused, no more checking
             }
 
             this._getAndUpdateRetinaStatuses(firstRun)
             .always((_ret) => {
-                if (this._isDoneExecuting || !this._isActive || this._isDeleted) {
+                if (this._isDoneExecuting || !this._isFocused || this._isDeleted) {
                     return; // retina is finished or unfocused, no more checking
                 }
 
@@ -215,17 +219,17 @@ class DagTabOptimized extends DagTab {
             this._isDoneExecuting = queryStateOutput.queryState !== QueryStateT.qrProcessing;
             if (this._isDoneExecuting) {
                 DagView.endOptimizedDFProgress(this._id, queryStateOutput);
-                this.graph.setExecutor(null);
-                if (this._isActive) {
+                this._dagGraph.setExecutor(null);
+                if (this._isFocused) {
                     DagTopBar.Instance.setState(this);
                 }
             } else {
-                if (!this.graph.getExecutor()) {
-                    this.graph.setExecutor(new DagGraphExecutor(null, this.graph, {
+                if (!this._dagGraph.getExecutor()) {
+                    this._dagGraph.setExecutor(new DagGraphExecutor(null, this._dagGraph, {
                         optimized: true,
                         retinaName: this._retinaName
                     }));
-                    if (this._isActive) {
+                    if (this._isFocused) {
                         DagTopBar.Instance.setState(this);
                     }
                 }
@@ -239,8 +243,8 @@ class DagTabOptimized extends DagTab {
                 deferred.resolve();
             } else {
                 this._isDoneExecuting = true;
-                this.graph.stopExecution();
-                if (this._isActive) {
+                this._dagGraph.stopExecution();
+                if (this._isFocused) {
                     DagTopBar.Instance.setState(this);
                 }
                 deferred.reject(error);
@@ -253,10 +257,10 @@ class DagTabOptimized extends DagTab {
     // change the graph from the xcalarGetRetina graph to the
     // xcalarQueryState graph
     private _rerenderQueryStateGraph(queryStateOutput) {
-        DagView.cleanupClosedTab(this.graph);
-        this.graph = this._constructGraphFromQuery(queryStateOutput.queryGraph.node);
-        this.graph.startExecution(queryStateOutput.queryGraph.node, null);
-        this.setGraph(this.graph);
+        DagView.cleanupClosedTab(this._dagGraph);
+        this._dagGraph = this._constructGraphFromQuery(queryStateOutput.queryGraph.node);
+        this._dagGraph.startExecution(queryStateOutput.queryGraph.node, null);
+        this.setGraph(this._dagGraph);
         this._trigger("rerender");
     }
 }

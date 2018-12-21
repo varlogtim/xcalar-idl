@@ -375,19 +375,20 @@ class DagTabManager{
         return deferred.promise();
     }
 
+    // always resolves so that chain doesn't end early
     private _loadDagTabHelper(id: string): XDPromise<void> {
         const dagTab: DagTab = DagList.Instance.getDagTabById(id);
         if (dagTab == null) {
-            return PromiseHelper.reject();
+            return PromiseHelper.resolve();
         }
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         dagTab.load()
         .then(()=> {
-            this._addDagTab(dagTab);
+            this._addDagTab(dagTab, null, true);
             deferred.resolve();
         })
-        .fail(deferred.reject);
+        .fail(deferred.resolve);
         return deferred.promise();
     }
 
@@ -398,7 +399,8 @@ class DagTabManager{
         });
         //Use a chain to ensure all are run sequentially.
         PromiseHelper.chain(promises, true)
-        .then(() => {
+        .always(() => {
+            DagList.Instance.updateList();
             if (this.getNumTabs() > 0) {
                 this._switchTabs(0);
             } else {
@@ -520,6 +522,8 @@ class DagTabManager{
         }
 
         DagView.cleanupClosedTab(dagTab.getGraph());
+        dagTab.setClosed();
+        DagList.Instance.updateList();
         return true;
     }
 
@@ -595,12 +599,19 @@ class DagTabManager{
     /**
      * Adds a dagTab to the activeUserDags
      * @param dagTab The dagTab we want to add
+     * @param index?
+     * @param noUpdate? when loading multiple tabs at once, we don't need to
+     * update the dag list until the end so we don't do it here
      */
-    private _addDagTab(dagTab: DagTab, index?: number): void {
+    private _addDagTab(dagTab: DagTab, index?: number, noUpdate?: boolean): void {
         if (index == null) {
             index = this.getNumTabs();
         }
         this._activeUserDags.splice(index, 0, dagTab);
+        dagTab.setOpen();
+        if (!noUpdate) {
+            DagList.Instance.updateList();
+        }
         this._addTabHTML(dagTab);
         this._addTabEvents(dagTab);
     }

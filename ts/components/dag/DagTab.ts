@@ -2,12 +2,12 @@
 abstract class DagTab {
     private static uid: XcUID;
     private _events: object;
-
     protected _name: string;
     protected _id: string;
     protected _dagGraph: DagGraph;
     protected _kvStore: KVStore;
     protected _disableSaveLock: number;
+    protected _isOpen: boolean;
 
     public static setup(): void {
         this.uid = new XcUID("DF2");
@@ -117,6 +117,18 @@ abstract class DagTab {
         deferred.resolve();
 
         return deferred.promise();
+    }
+
+    public setOpen(): void {
+        this._isOpen = true;
+    }
+
+    public setClosed(): void {
+        this._isOpen = false;
+    }
+
+    public isOpen(): boolean {
+        return this._isOpen;
     }
 
     // the save version of meta

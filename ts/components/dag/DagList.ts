@@ -54,33 +54,36 @@ class DagList {
         return this._dags.get(id);
     }
 
-    public list(): {path: string, id: string}[] {
+    public list(): {path: string, id: string, options: {isOpen: boolean}}[] {
         let sortFunc = (a: {path: string}, b: {path: string}): number => {
             var aName = a.path.toLowerCase();
             var bName = b.path.toLowerCase();
             return (aName < bName ? -1 : (aName > bName ? 1 : 0));
         };
-        const publishedList: {path: string, id: string}[] = [];
-        const userList: {path: string, id: string}[] = [];
+        const publishedList: {path: string, id: string, options: {isOpen: boolean}}[] = [];
+        const userList: {path: string, id: string, options: {isOpen: boolean}}[] = [];
         this._dags.forEach((dagTab) => {
             let path = "";
             if (dagTab instanceof DagTabPublished) {
                 path = dagTab.getPath();
                 publishedList.push({
                     path: path,
-                    id: dagTab.getId()
+                    id: dagTab.getId(),
+                    options: {isOpen: dagTab.isOpen()}
                 });
             } else if (dagTab instanceof DagTabOptimized) {
                 path = "/" + dagTab.getPath();
                 userList.push({
                     path: path,
-                    id: dagTab.getId()
+                    id: dagTab.getId(),
+                    options: {isOpen: dagTab.isOpen()}
                 });
             } else {
                 path = "/" + dagTab.getName();
                 userList.push({
                     path: path,
-                    id: dagTab.getId()
+                    id: dagTab.getId(),
+                    options: {isOpen: dagTab.isOpen()}
                 });
             }
         });
@@ -90,7 +93,8 @@ class DagList {
             // add the published folder by default
             publishedList.push({
                 path: DagTabPublished.PATH,
-                id: null
+                id: null,
+                options: {isOpen: false}
             });
         }
         return publishedList.concat(userList);
@@ -109,17 +113,22 @@ class DagList {
         const promise: XDPromise<void> = deferred.promise();
         const $section: JQuery = this._getDagListSection();
         // delete shared dag and optimized list first
+        const oldPublishedDags: Map<string, DagTabPublished> = new Map();
+        const oldOptimizedDags: Map<string, DagTabOptimized> = new Map();
         for (let [id, dagTab] of this._dags) {
-            if (dagTab instanceof DagTabPublished ||
-                dagTab instanceof DagTabOptimized) {
+            if (dagTab instanceof DagTabPublished) {
+                oldPublishedDags.set(dagTab.getId(), dagTab);
+                this._dags.delete(id);
+            } else if (dagTab instanceof DagTabOptimized) {
+                oldOptimizedDags.set(dagTab.getName(), dagTab);
                 this._dags.delete(id);
             }
         }
 
         xcHelper.showRefreshIcon($section, false, promise);
-        this._restorePublishedDags()
+        this._restorePublishedDags(oldPublishedDags)
         .then(() => {
-            return this._fetchAllRetinas();
+            return this._fetchAllRetinas(oldOptimizedDags);
         })
         .then(deferred.resolve)
         .fail(deferred.reject)
@@ -169,6 +178,27 @@ class DagList {
             // not support rename published df now
            return;
         }
+    }
+
+    /**
+     * Changes the list item to be open or not
+     * @param id
+     */
+    public updateDagState(id): void {
+        const $li: JQuery = this._getListElById(id);
+        const dagTab: DagTab = this.getDagTabById(id);
+        if (dagTab == null) {
+            return;
+        }
+        if (dagTab.isOpen()) {
+            $li.addClass("open");
+        } else {
+            $li.removeClass("open");
+        }
+    }
+
+    public updateList(): void {
+        this._renderDagList();
     }
 
     /**
@@ -274,7 +304,7 @@ class DagList {
 
     private _setupFileLister(): void {
         const renderTemplate = (
-            files: {name: string, id: string}[],
+            files: {name: string, id: string, options: {isOpen: boolean}}[],
             folders: string[]
         ): string => {
             let html: HTML = "";
@@ -288,8 +318,12 @@ class DagList {
             // Add files
             const icon: HTML = this._iconHTML("deleteDataflow", "xi-trash", DFTStr.DelDF);
             files.forEach((file) => {
+                let openClass: string = "";
+                if (file.options && file.options.isOpen) {
+                    openClass = "open";
+                }
                 html +=
-                '<li class="fileName dagListDetail" data-id="' + file.id + '">' +
+                '<li class="fileName dagListDetail ' + openClass + '" data-id="' + file.id + '">' +
                     '<i class="gridIcon icon xi-dfg2"></i>' +
                     '<div class="name">' + file.name + '</div>' +
                     icon +
@@ -307,7 +341,11 @@ class DagList {
         const dagLists = this.list();
         this._fileLister.setFileObj(dagLists);
         if (keepLocation) {
-            let path = "Home/" + this._fileLister.getCurrentPath() + "/";
+            let curPath = this._fileLister.getCurrentPath();
+            let path = "Home/";
+            if (curPath) {
+                path += curPath + "/";
+            }
             this._fileLister.goToPath(path);
         } else {
             this._fileLister.render();
@@ -339,8 +377,8 @@ class DagList {
             needReset = res;
             return this.listUserDagAsync();
         })
-        .then((res: {dags: {name: string, id: string, reset: boolean}[]}) => {
-            let dags: {name: string, id: string, reset: boolean}[] = [];
+        .then((res: {dags: {name: string, id: string, reset: boolean, createdTime: number}[]}) => {
+            let dags: {name: string, id: string, reset: boolean, createdTime: number}[] = [];
             if (res && res.dags) {
                 dags = res.dags;
                 if (needReset) {
@@ -370,12 +408,23 @@ class DagList {
         return deferred.promise();
     }
 
-    private _restorePublishedDags(): XDPromise<void> {
+    private _restorePublishedDags(
+        oldPublishedDags?: Map<string, DagTabPublished>
+    ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         DagTabPublished.restore()
         .then((dags) => {
+            const oldDags: Map<string, DagTabOptimized> = oldPublishedDags || new Map();
             dags.forEach((dagTab) => {
-                this._dags.set(dagTab.getId(), dagTab);
+                // if the old tab still exists, use it because it contains
+                // data such as whether it's closed or open
+                if (oldDags.has(dagTab.getId()) &&
+                    DagTabManager.Instance.getTabById(dagTab.getId())) {
+                    const oldDag = oldDags.get(dagTab.getId());
+                    this._dags.set(oldDag.getId(), oldDag);
+                } else {
+                    this._dags.set(dagTab.getId(), dagTab);
+                }
             });
             deferred.resolve();
         })
@@ -387,19 +436,37 @@ class DagList {
         return deferred.promise();
     }
 
-    private _fetchAllRetinas(): XDPromise<void> {
+    private _fetchAllRetinas(
+        oldOptimizedDags?: Map<string, DagTabOptimized>
+    ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         XcalarListRetinas()
         .then((retinas) => {
+            const oldDags: Map<string, DagTabOptimized> = oldOptimizedDags || new Map();
             retinas.retinaDescs.forEach((retina) => {
                  // hide user dataflows - If we want to expose all optimized
                  // dataflows then set this if to true!
                 if (!retina.retinaName.startsWith(gRetinaPrefix)) {
-                    const retinaId = DagTab.generateId();
-                    const retinaTab = new DagTabOptimized({
-                                            id: retinaId,
-                                            name: retina.retinaName});
-                    this._dags.set(retinaId, retinaTab);
+                    let newTab = true;
+                    if (oldDags.has(retina.retinaName)) {
+                        const oldDag = oldDags.get(retina.retinaName);
+                        if (DagTabManager.Instance.getTabById(oldDag.getId())) {
+                            newTab = false;
+                            this._dags.set(oldDag.getId(), oldDag);
+                            if (oldDag.isFocused()) {
+                                // restarts status check
+                                oldDag.unfocus();
+                                oldDag.focus();
+                            }
+                        }
+                    }
+                    if (newTab) {
+                        const retinaId = DagTab.generateId();
+                        const retinaTab = new DagTabOptimized({
+                                                id: retinaId,
+                                                name: retina.retinaName});
+                        this._dags.set(retinaId, retinaTab);
+                    }
                 }
             });
             deferred.resolve();
@@ -478,8 +545,13 @@ class DagList {
 
     private _addEventListeners(): void {
         const $dagListSection: JQuery = this._getDagListSection();
-        $("#dagList .iconSection .refreshBtn").click(() => {
+        const $iconSection: JQuery = $("#dagList .iconSection");
+        $iconSection.find(".refreshBtn").click(() => {
             this.refresh();
+        });
+
+        $iconSection.find(".uploadBtn").click(() => {
+            DFUploadModal.Instance.show();
         });
 
         // expand/collapse the section

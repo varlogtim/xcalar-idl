@@ -93,6 +93,8 @@ class FileLister {
         }
         if (this._currentPath.length > 0) {
             this._getBackBtn().removeClass('xc-disabled');
+        } else {
+            this._getBackBtn().addClass('xc-disabled');
         }
         this._render();
     }
