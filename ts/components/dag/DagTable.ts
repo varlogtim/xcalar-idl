@@ -37,7 +37,7 @@ class DagTable {
 
         const viewer = this._viewers.get(tabId);
         if (viewer == null) {
-            this._reset();
+            this._close();
         } else {
             this._show(viewer);
         }
@@ -87,7 +87,7 @@ class DagTable {
 
     public closeDatasetPreview(): void {
         if (this._currentViewer instanceof XcDatasetViewer) {
-            this.close();
+            this._close();
         }
     }
 
@@ -98,9 +98,7 @@ class DagTable {
         if (this._currentViewer instanceof XcTableViewer) {
             this._viewers.delete(this._currentViewer.getDataflowTabId());
         }
-        this._getContainer().addClass("xc-hidden").parent().removeClass("tableViewMode").addClass("noPreviewTable");
-        this._reset();
-        Log.updateUndoRedoState(); // update the state to skip table related undo/redo
+        this._close();
     }
 
     public isTableFromTab(tabId: string): boolean {
@@ -123,6 +121,12 @@ class DagTable {
         this._reset();
         this._currentViewer = viewer;
         return this._showViewer();
+    }
+
+    private _close(): void {
+        this._getContainer().addClass("xc-hidden").parent().removeClass("tableViewMode").addClass("noPreviewTable");
+        this._reset();
+        Log.updateUndoRedoState(); // update the state to skip table related undo/redo
     }
 
     private _showViewer(): XDPromise<void> {

@@ -27,13 +27,16 @@ class DagTableSearchBar {
         }
     }
 
-    private _clearnHightInCell(): void {
-        DagTable.Instance.getView().find(".editableHead.highlight").removeClass("highlight");
+    private _clearHightInCell(): void {
+        const $view: JQuery = DagTable.Instance.getView();
+        if ($view != null) {
+            $view.find(".editableHead.highlight").removeClass("highlight");
+        }
     }
 
     private _clearSearch(): void {
         this._toggleSearchOptions(true);
-        this._clearnHightInCell();
+        this._clearHightInCell();
         this._searchHelper.clearSearch();
     }
 
@@ -50,7 +53,7 @@ class DagTableSearchBar {
             });
             const $matches: JQuery = $matchedInputs.closest('th');
             this._searchHelper.updateResults($matches);
-            this._clearnHightInCell();
+            this._clearHightInCell();
             if ($matches.length !== 0) {
                 this._searchHelper.scrollMatchIntoView($matches.eq(0));
                 this._searchHelper.highlightSelected($matches.eq(0));
@@ -62,10 +65,10 @@ class DagTableSearchBar {
         const $searchArea: JQuery = this._getSearchArea();
         this._searchHelper = new SearchBar($searchArea, {
             removeSelected: () => {
-                this._clearnHightInCell();
+                this._clearHightInCell();
             },
             highlightSelected: ($match) => {
-                this._clearnHightInCell();
+                this._clearHightInCell();
                 $match.find(".editableHead").addClass("highlight");
             },
             scrollMatchIntoView: ($match: JQuery) => {

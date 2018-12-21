@@ -330,7 +330,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             const $btn: JQuery = $(event.currentTarget);
             if ($btn.hasClass("showing")) {
                 $btn.removeClass("showing");
-                DagTable.Instance.close();
+                DagTable.Instance.closeDatasetPreview();
             } else {
                 $("#dsOpListSection .showing").removeClass("showing");
                 $btn.addClass("showing");
