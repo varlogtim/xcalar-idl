@@ -167,13 +167,18 @@ class BaseOpPanel {
             keepFocus: true,
             colCallback: ($table) => {
                 try {
-                    const currentElement = document.activeElement;
-                    if (currentElement !== this._columnPicker.target) {
-                        return;
-                    }
                     const colClicked = xcHelper.getValueFromCell($table);
-                    if (colClicked.length > 0 && this._columnPicker.setData) {
-                        this._columnPicker.setData(colClicked);
+                    if (this.advancedMode && this._editor) {
+                        this._editor.replaceSelection(colClicked);
+                    } else {
+                        const currentElement = document.activeElement;
+                        if (currentElement !== this._columnPicker.target) {
+                            return;
+                        }
+
+                        if (colClicked.length > 0 && this._columnPicker.setData) {
+                            this._columnPicker.setData(colClicked);
+                        }
                     }
                 } catch(e) {
                     console.log(e);

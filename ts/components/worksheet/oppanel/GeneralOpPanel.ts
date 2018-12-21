@@ -318,6 +318,7 @@ class GeneralOpPanel extends BaseOpPanel {
             "state": opNameNoSpace + "State",
             "colCallback": function($target) {
                 self.columnPickerCallback($target);
+                self.columnPickerCallbackAdvancedMode($target);
             }
         };
         this._formHelper.setup({"columnPicker": columnPickerOptions});
@@ -2032,6 +2033,21 @@ class GeneralOpPanel extends BaseOpPanel {
         if (xcHelper.fillInputFromCell($tableCell, this._$lastInputFocused,
                                     gColPrefix, options)) {
             this._onArgChange(this._$lastInputFocused);
+        }
+    }
+
+    protected columnPickerCallbackAdvancedMode($target: JQuery) {
+        if (!this._isAdvancedMode) {
+            return;
+        }
+        if ($target == null) {
+            // if user tries to select column without focusing on input
+            return false;
+        }
+        const value = xcHelper.getValueFromCell($target);
+        if (value) {
+            let editor = this.getEditor();
+            editor.replaceSelection(value);
         }
     }
 
