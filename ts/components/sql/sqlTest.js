@@ -147,7 +147,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                 outerPromise = PromiseHelper.resolve();
             }
             console.log("Query name: " + testName);
-            var sqlString = queries[testName];
+            var sqlString = queries[testName][0]["query"];
             console.log(sqlString);
             outerPromise.then(function() {
                 if (testType === "tableau") {
@@ -252,7 +252,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         }
 
         for (var queryName in queries) {
-            var sqlString = queries[queryName];
+            var sqlString = queries[queryName][0]["query"];
             test.add(runQuery, queryName, defaultTimeout, TestCaseEnabled);
         }
     }
