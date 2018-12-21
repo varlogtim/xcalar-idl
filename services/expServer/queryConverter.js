@@ -62,6 +62,7 @@ function convertHelper(dataflowInfo, nestedPrefix, otherNodes) {
     }
     if (!nestedPrefix) {
         originalInput = xcHelper.deepCopy(dataflowInfo);
+        modifyOriginalInput(originalInput);
     }
     // check for header indicating if the dataflow
     // is a regular workbook dataflow or retina dataflow
@@ -1134,6 +1135,7 @@ function _collapseIndexNodes(node) {
             if (typeof loadArgs === "object") {
                 loadArgs = JSON.stringify(loadArgs);
             }
+            loadArgs = modifyLoadArgs(loadArgs);
             node.createTableInput = {
                 source: xcHelper.stripPrefixFromDSName(node.args.source),
                 prefix: node.args.prefix,
@@ -1166,6 +1168,7 @@ function _collapseIndexNodes(node) {
                         loadArgs = JSON.stringify(loadArgs);
                     }
                 }
+                loadArgs = modifyLoadArgs(loadArgs);
                 parent.createTableInput = {
                     source: xcHelper.stripPrefixFromDSName(parent.args.source),
                     prefix: parent.args.prefix,
@@ -1173,6 +1176,7 @@ function _collapseIndexNodes(node) {
                     loadArgs: loadArgs,
                     schema: schema
                 }
+
                 parent.schema = getSchemaFromLoadArgs(loadArgs);
                 parent.parents = [];
             }
@@ -1455,7 +1459,47 @@ function getSchemaFromLoadArgs(loadArgs) {
         }
         return null;
     } catch (e) {
+        console.log(e);
         return null;
+    }
+}
+
+// remove isCRLF from loadArgs.parseArgs.parserArgJson
+function modifyLoadArgs(loadArgs) {
+    let originalLoadArgs = loadArgs;
+    if (!loadArgs) {
+        return originalLoadArgs;
+    }
+    try {
+        let parsed = false;
+        if (typeof loadArgs === "string") {
+            loadArgs = JSON.parse(loadArgs);
+            parsed = true;
+        }
+        if (loadArgs.parseArgs && loadArgs.parseArgs.parserArgJson) {
+            const parserArgJson = JSON.parse(loadArgs.parseArgs.parserArgJson);
+            delete parserArgJson.isCRLF;
+            loadArgs.parseArgs.parserArgJson = JSON.stringify(parserArgJson);
+        }
+        if (parsed) {
+            loadArgs = JSON.stringify(loadArgs);
+        }
+        return loadArgs;
+    } catch (e) {
+        console.log(e);
+        return originalLoadArgs;
+    }
+}
+
+function modifyOriginalInput(originalInput) {
+    let query = originalInput.query;
+
+    for (let i = 0; i < query.length; i++) {
+        const rawNode = query[i];
+        if (XcalarApisTFromStr[rawNode.operation] === XcalarApisT.XcalarApiBulkLoad) {
+            let loadArgs = rawNode.args.loadArgs;
+            rawNode.args.loadArgs = modifyLoadArgs(rawNode.args.loadArgs);
+        }
     }
 }
 
