@@ -61,9 +61,10 @@ function convertHelper(dataflowInfo, nestedPrefix, otherNodes) {
         return "invalid dataflowInfo: " + dataflowInfo;
     }
     if (!nestedPrefix) {
+        modifyOriginalInput(dataflowInfo);
         originalInput = xcHelper.deepCopy(dataflowInfo);
-        modifyOriginalInput(originalInput);
     }
+
     // check for header indicating if the dataflow
     // is a regular workbook dataflow or retina dataflow
     let isRetina = false;
@@ -262,6 +263,7 @@ function convertHelper(dataflowInfo, nestedPrefix, otherNodes) {
                 } else {
                     args.dest = sourcePrefix + args.dest;
                 }
+                args.loadArgs = updateLoadArgs(args);
                 datasets.push(rawNode);
                 break;
             default:
@@ -1135,7 +1137,6 @@ function _collapseIndexNodes(node) {
             if (typeof loadArgs === "object") {
                 loadArgs = JSON.stringify(loadArgs);
             }
-            loadArgs = modifyLoadArgs(loadArgs);
             node.createTableInput = {
                 source: xcHelper.stripPrefixFromDSName(node.args.source),
                 prefix: node.args.prefix,
@@ -1168,7 +1169,6 @@ function _collapseIndexNodes(node) {
                         loadArgs = JSON.stringify(loadArgs);
                     }
                 }
-                loadArgs = modifyLoadArgs(loadArgs);
                 parent.createTableInput = {
                     source: xcHelper.stripPrefixFromDSName(parent.args.source),
                     prefix: parent.args.prefix,
@@ -1447,16 +1447,20 @@ function getSchemaFromLoadArgs(loadArgs) {
     }
     try {
         loadArgs = JSON.parse(loadArgs);
-        if (loadArgs.parseArgs  && loadArgs.parseArgs.schema &&
-            Array.isArray(loadArgs.parseArgs.schema)) {
-            const schema = loadArgs.parseArgs.schema.map((col) => {
-                return {
-                    name: col.destColumn,
-                    type: xcHelper.convertFieldTypeToColType(DfFieldTypeTFromStr[col.columnType])
-                }
-            });
-            return schema;
+        if (loadArgs.args && loadArgs.args.loadArgs) {
+            loadArgs = loadArgs.args.loadArgs;
+            if (loadArgs.parseArgs  && loadArgs.parseArgs.schema &&
+                Array.isArray(loadArgs.parseArgs.schema)) {
+                const schema = loadArgs.parseArgs.schema.map((col) => {
+                    return {
+                        name: col.destColumn,
+                        type: xcHelper.convertFieldTypeToColType(DfFieldTypeTFromStr[col.columnType])
+                    }
+                });
+                return schema;
+            }
         }
+
         return null;
     } catch (e) {
         console.log(e);
@@ -1465,8 +1469,9 @@ function getSchemaFromLoadArgs(loadArgs) {
 }
 
 // remove isCRLF from loadArgs.parseArgs.parserArgJson
-function modifyLoadArgs(loadArgs) {
-    let originalLoadArgs = loadArgs;
+function removeCRLF(node) {
+    let originalLoadArgs = node.args.loadArgs;
+    let loadArgs = originalLoadArgs;
     if (!loadArgs) {
         return originalLoadArgs;
     }
@@ -1481,10 +1486,37 @@ function modifyLoadArgs(loadArgs) {
             delete parserArgJson.isCRLF;
             loadArgs.parseArgs.parserArgJson = JSON.stringify(parserArgJson);
         }
+
         if (parsed) {
             loadArgs = JSON.stringify(loadArgs);
         }
         return loadArgs;
+    } catch (e) {
+        console.log(e);
+        return originalLoadArgs;
+    }
+}
+// format loadArgs into the way dataflow 2.0 dataset node expects
+function updateLoadArgs(args) {
+    let originalLoadArgs = args.loadArgs;
+    let loadArgs = originalLoadArgs;
+    if (!loadArgs) {
+        return originalLoadArgs;
+    }
+    try {
+        let parsed = false;
+        if (typeof loadArgs === "string") {
+            loadArgs = JSON.parse(loadArgs);
+            parsed = true;
+        }
+        loadArgs = {
+            operation: XcalarApisTStr[XcalarApisT.XcalarApiBulkLoad],
+            args: {
+                dest: args.dest,
+                loadArgs: loadArgs
+            }
+        }
+        return JSON.stringify(loadArgs);
     } catch (e) {
         console.log(e);
         return originalLoadArgs;
@@ -1498,7 +1530,7 @@ function modifyOriginalInput(originalInput) {
         const rawNode = query[i];
         if (XcalarApisTFromStr[rawNode.operation] === XcalarApisT.XcalarApiBulkLoad) {
             let loadArgs = rawNode.args.loadArgs;
-            rawNode.args.loadArgs = modifyLoadArgs(rawNode.args.loadArgs);
+            rawNode.args.loadArgs = removeCRLF(rawNode);
         }
     }
 }
