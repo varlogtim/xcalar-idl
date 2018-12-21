@@ -117,6 +117,7 @@ window.DS = (function ($, DS) {
             if (parsed.sourceArgsList != null) {
                 // a old kind of format. to be deprecated
                 loadArgsStr = JSON.stringify({
+                    operation: XcalarApisTStr[XcalarApisT.XcalarApiBulkLoad],
                     args: {
                         loadArgs: parsed
                     }
