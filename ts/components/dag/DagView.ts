@@ -283,24 +283,61 @@ namespace DagView {
             $dfWrap.removeClass("xc-hidden");
             $dfWrapBg.addClass("xc-hidden");
             $dagView.find(".searchArea, .categoryWrap, .operatorWrap").removeClass("xc-disabled");
-            _getActiveArea().find(".selected").removeClass("selected");
+            _deselectAllNodes();
         }
         DagTopBar.Instance.setState(activeDagTab);
     }
 
     export function selectNodes(tabId: string, nodeIds?: DagNodeId[]): void {
         if (!nodeIds) {
-            _getAreaByTab(tabId).find(".operator").addClass("selected");
+            _selectNode(_getAreaByTab(tabId).find(".operator"));
         } else {
             nodeIds.forEach((nodeId) => {
                 const $node: JQuery = DagView.getNode(nodeId, tabId);
-                $node.addClass("selected");
+                _selectNode($node);
             });
         }
     }
 
     export function deselectNodes(): void {
-        _getActiveArea().find(".selected").removeClass("selected");
+        const $selected = _getActiveArea().find(".selected");
+        $selected.removeClass("selected");
+        $selected.find(".selection").remove();
+    }
+
+    function _selectNode($node: JQuery): void {
+        $node.addClass("selected");
+        if ($node.hasClass("operator")) {
+            _setSelectedStyle($node);
+        }
+    }
+
+    function _deselectNode($node) {
+        $node.removeClass("selected");
+        $node.find(".selection").remove();
+    }
+
+    function _deselectAllNodes(): void {
+        const $selected = $dfWrap.find(".selected");
+        $selected.removeClass("selected");
+        $selected.find(".selection").remove();
+    }
+
+    function _setSelectedStyle($operator: JQuery): void {
+        if ($operator.find('.selection').length > 0) {
+            return;
+        }
+        const rect = d3.select($operator[0]).insert('rect', ':first-child');
+        rect.classed('selection', true);
+        rect.attr('x', '-2')
+        .attr('y', '-5')
+        .attr('width', '107')
+        .attr('height', '38')
+        .attr('fill', '#EAF9FF')
+        .attr('stroke', '#38CBFF')
+        .attr('stroke-width', '1')
+        .attr('rx', '16')
+        .attr('ry', '43');
     }
 
     /**
@@ -396,7 +433,7 @@ namespace DagView {
 
         dagTab.turnOffSave();
         // need to add back nodes in the reverse order they were deleted
-        $dfArea.find(".selected").removeClass("selected");
+        DagView.deselectNodes();
         let maxXCoor: number = 0;
         let maxYCoor: number = 0;
         const nodes = [];
@@ -681,7 +718,7 @@ namespace DagView {
         const tabId: string = tab.getId();
         tab.turnOffSave();
         const $dfArea: JQuery = _getActiveArea();
-        $dfArea.find(".selected").removeClass("selected");
+        DagView.deselectNodes();
 
         let minXCoor: number = $dfArea.width();
         let minYCoor: number = $dfArea.height();
@@ -2751,12 +2788,12 @@ namespace DagView {
             // if shiftx clicking, and this is selected, then deselect it
             // but don't allow dragging on deselected node
             if (!$operator.hasClass("selected") && !event.shiftKey) {
-                $dfWrap.find(".selected").removeClass("selected");
+                DagView.deselectNodes();
             } else if ($operator.hasClass("selected") && event.shiftKey) {
-                $operator.removeClass("selected");
+                _deselectNode($operator);
                 return;
             }
-            $operator.addClass("selected");
+            _selectNode($operator);
 
             const nodeId: DagNodeId = $operator.data("nodeid");
             if (isDagNode && !MainMenu.isFormOpen()) {
@@ -2770,8 +2807,8 @@ namespace DagView {
             if ($(event.target).closest(".ui-resizable-handle").length ||
                 $(event.target).is("textarea")) {
                 if (!event.shiftKey) {
-                    $dfWrap.find(".selected").removeClass("selected");
-                    $operator.addClass("selected");
+                    DagView.deselectNodes();
+                    _selectNode($operator);
                 }
                 return;
             }
@@ -2836,8 +2873,8 @@ namespace DagView {
                     if (!wasDragged) {
                         // did not drag
                         if (!event.shiftKey) {
-                            $dfWrap.find(".selected").removeClass("selected");
-                            $operator.addClass("selected");
+                            _deselectAllNodes();
+                            _selectNode($operator);
                         }
                         // if no drag, treat as right click and open menu
 
@@ -3168,6 +3205,7 @@ namespace DagView {
 
             if ($target.closest(".dataflowAreaWrapper").length &&
                 !$target.closest(".operator").length &&
+                !$target.closest(".selection").length &&
                 !$target.closest(".comment").length &&
                 !$target.closest(".editableNodeTitle").length &&
                 !$target.closest(".ui-resizable-handle").length) {
@@ -3179,7 +3217,7 @@ namespace DagView {
                         $dfArea.addClass("drawing");
                         $els = $dfArea.find(".operator");
                         $els = $els.add($dfArea.find(".comment"));
-                        $els.removeClass("selected");
+                        _deselectNode($els);
                     },
                     "onDraw": _drawRect,
                     "onEnd": _endDrawRect
@@ -3187,8 +3225,8 @@ namespace DagView {
             } else if ($target.closest(".operator").length) {
                 const $operator = $target.closest(".operator");
                 if (!$operator.hasClass("selected")) {
-                    $dfWrap.find(".selected").removeClass("selected");
-                    $operator.addClass("selected");
+                    _deselectAllNodes();
+                    _selectNode($operator);
                     const nodeId: DagNodeId = $operator.data("nodeid");
                     if (!MainMenu.isFormOpen()) {
                         const node: DagNode = activeDag.getNode(nodeId);
@@ -3244,12 +3282,13 @@ namespace DagView {
             $dfArea.removeClass("drawing");
             const $selectedEls = $dfArea.find(".selecting");
             if ($selectedEls.length === 0) {
-                $dfArea.find(".selected").removeClass("selected");
+                DagView.deselectNodes();
                 DagNodeInfoPanel.Instance.hide();
             } else {
                 $selectedEls.each(function () {
-                    $(this).removeClass("selecting")
-                        .addClass("selected");
+                    const $node = $(this);
+                    $node.removeClass("selecting");
+                    _selectNode($node);
                 });
             }
             $dfArea = null;
@@ -3458,7 +3497,7 @@ namespace DagView {
         $node.attr("data-nodeid", nodeId);
         $node.addClass("state-" + node.getState());
         if (select) {
-            $node.addClass("selected");
+            _selectNode($node);
         }
         // Set the node display title
         const $opTitle = $node.find('.opTitle');
@@ -3497,7 +3536,7 @@ namespace DagView {
             title = " ".repeat(20);
         }
         const titleLines: string[] = title.split("\n");
-        const titleHeight: number = nodeHeight + 12;
+        const titleHeight: number = nodeHeight + 14;
         g.select(".nodeTitle").remove();
 
         const textSvg = g.append("text")
@@ -4565,12 +4604,12 @@ namespace DagView {
     function _addNodeNoPersist(node, options?: { isNoLog?: boolean }): LogParam {
         const { isNoLog = false } = options || {};
 
-        $dfWrap.find(".selected").removeClass("selected");
+        _deselectAllNodes();
         const $dfArea = _getActiveArea();
 
         const nodeId = node.getId();
         const $node = _drawNode(node, $dfArea);
-        $node.addClass("selected");
+        _selectNode($node);
         _setGraphDimensions(xcHelper.deepCopy(node.getPosition()))
 
         const logParam: LogParam = {

@@ -27,15 +27,7 @@ class DagComment {
         // dblclick will create a new comment wrapper that sit in front of
         // all the nodes and we'll temporarily move the comment to this wrapper
         $dfWrap.on("dblclick", ".comment", function() {
-            const $comment = $(this);
-            const $tempCommentWrapper: JQuery = $(`<div class="tempCommentArea"></div>`);
-            $comment.closest(".dataflowAreaWrapper").append($tempCommentWrapper);
-            $tempCommentWrapper.attr("style", $comment.closest(".commentArea").attr("style"));
-            $tempCommentWrapper.append($comment);
-            $comment.addClass("focused");
-            $comment.find("textarea").prop("readonly", false).focus();
-            const scale = DagView.getActiveDag().getScale();
-            $comment.css("transform", "scale(" + (1 / scale) + ")");
+            self._focus($(this));
         });
 
         // blur triggers the removal of the temporary comment wrapper and places
@@ -83,10 +75,7 @@ class DagComment {
             $comment.addClass("selected");
         }
         if (isFocus) {
-            $comment.addClass("focused");
-            $comment.find("textarea").prop("readonly", false).focus();
-            const scale = DagView.getActiveDag().getScale();
-            $comment.css("transform", "scale(" + (1 / scale) + ")");
+            this._focus($comment);
         }
         $comment.resizable({
             "minWidth": DagView.gridSpacing,
@@ -130,5 +119,16 @@ class DagComment {
             "oldComment": oldText
         });
         return DagView.getActiveTab().save();
+    }
+
+    private _focus($comment: JQuery): void {
+        const $tempCommentWrapper: JQuery = $(`<div class="tempCommentArea"></div>`);
+        $comment.closest(".dataflowAreaWrapper").append($tempCommentWrapper);
+        $tempCommentWrapper.attr("style", $comment.closest(".commentArea").attr("style"));
+        $tempCommentWrapper.append($comment);
+        $comment.addClass("focused");
+        $comment.find("textarea").prop("readonly", false).focus();
+        const scale = DagView.getActiveDag().getScale();
+        $comment.css("transform", "scale(" + (1 / scale) + ")");
     }
 }

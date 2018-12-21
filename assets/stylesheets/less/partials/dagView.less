@@ -477,6 +477,9 @@
             &.highlight {
                 fill: @color-bg-gold;
             }
+            tspan {
+                text-shadow: 0px 0px 5px @color-white, 0px 0px 5px @color-white; // to show better over lines
+            }
         }
 
         .paramTitle {
@@ -495,7 +498,7 @@
         &.selected , &.selecting {
             .main, .iconArea, .statusIcon{
                 stroke: @color-border-focus-blue;
-                stroke-width: 2;
+                stroke-width: 1;
             }
         }
 
@@ -509,6 +512,7 @@
         &.selecting {
             .main {
                 fill: #F8f8f8;
+                stroke-width: 2;
             }
         }
 
