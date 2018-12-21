@@ -286,6 +286,7 @@ namespace DagView {
             _deselectAllNodes();
         }
         DagTopBar.Instance.setState(activeDagTab);
+        _checkNodeValidation();
     }
 
     export function selectNodes(tabId: string, nodeIds?: DagNodeId[]): void {
@@ -440,11 +441,15 @@ namespace DagView {
         let maxXCoor: number = 0;
         let maxYCoor: number = 0;
         const nodes = [];
+        let hasLinkOut: boolean = false;
         for (let i = nodeIds.length - 1; i >= 0; i--) {
             const nodeId: DagNodeId = nodeIds[i];
             let node;
             if (nodeId.startsWith("dag")) {
                 node = graph.addBackNode(nodeId, spliceInfo[nodeId]);
+                if (node instanceof DagNodeDFOut) {
+                    hasLinkOut = true;
+                }
                 const coors = node.getPosition();
                 maxXCoor = Math.max(coors.x, maxXCoor);
                 maxYCoor = Math.max(coors.y, maxYCoor);
@@ -473,6 +478,10 @@ namespace DagView {
         }
 
         _setGraphDimensions({ x: maxXCoor, y: maxYCoor });
+
+        if (hasLinkOut) {
+            _checkLinkInNodeValidation(activeDag);
+        }
         dagTab.turnOnSave();
         return dagTab.save();
     }
@@ -641,7 +650,7 @@ namespace DagView {
      * connector classes
      */
     export function removeNodes(nodeIds: DagNodeId[], tabId: string): XDPromise<void> {
-        const deferred = PromiseHelper.deferred();
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const tab: DagTab = DagTabManager.Instance.getTabById(tabId);
         tab.turnOffSave();
         const nodeIdsMap = lockedNodeIds[tabId] || {};
@@ -660,6 +669,11 @@ namespace DagView {
             } else {
                 if (ret.retinaErrorNodeIds.length) {
                     StatusBox.show("Could not remove some nodes due to optimized dataflow in progress.", $dfWrap);
+                }
+                if (ret.hasLinkOut) {
+                    if (activeDagTab != null && activeDagTab.getId() === tabId) {
+                        _checkLinkInNodeValidation(activeDag);
+                    }
                 }
                 tab.turnOnSave();
                 promise = tab.save();
@@ -2286,7 +2300,11 @@ namespace DagView {
             isSwitchState?: boolean,
             isNoLog?: boolean
         }
-    ): XDPromise<{logParam: LogParam, retinaErrorNodeIds: string[]}> {
+    ): XDPromise<{
+        logParam: LogParam,
+        retinaErrorNodeIds: string[],
+        hasLinkOut: boolean
+    }> {
         const { isSwitchState = true, isNoLog = false } = options || {};
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         if (!nodeIds.length) {
@@ -2309,7 +2327,8 @@ namespace DagView {
 
         graph.removeRetinas(dagNodeIds)
         .always((ret) =>{
-              // XXX TODO: check the slowness and fix the performance
+            let hasLinkOut: boolean = false;
+            // XXX TODO: check the slowness and fix the performance
             nodeIds.forEach((nodeId) => {
                 if (ret.errorNodeIds.indexOf(nodeId) > -1) {
                     return;
@@ -2329,7 +2348,11 @@ namespace DagView {
                     }
                     dagNodeIds.push(nodeId);
                     const spliceInfo = graph.removeNode(nodeId, isSwitchState);
-                    DagView.getNode(nodeId, tabId).remove();
+                    const $node = DagView.getNode(nodeId, tabId);
+                    if ($node.data("type") === DagNodeType.DFOut) {
+                        hasLinkOut = true;
+                    }
+                    $node.remove();
                     $dfArea.find('.runStats[data-id="' + nodeId + '"]').remove();
                     $dfArea.find('.edge[data-childnodeid="' + nodeId + '"]').remove();
                     $dfArea.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function () {
@@ -2362,7 +2385,11 @@ namespace DagView {
             if (!isNoLog) {
                 Log.add(logParam.title, Object.assign({}, logParam.options));
             }
-            deferred.resolve({logParam: logParam, retinaErrorNodeIds: ret.errorNodeIds});
+            deferred.resolve({
+                logParam: logParam,
+                retinaErrorNodeIds: ret.errorNodeIds,
+                hasLinkOut: hasLinkOut
+            });
         });
         return deferred.promise();
     }
@@ -3811,8 +3838,12 @@ namespace DagView {
                     .text("<>");
 
             }
+            if (info.node instanceof DagNodeDFOut) {
+                _checkLinkInNodeValidation(activeDag);
+            }
             DagNodeInfoPanel.Instance.update(info.id, "params");
             _getAreaByTab(info.tabId).find('.runStats[data-id="' + info.id + '"]').remove();
+
             const dagTab: DagTab = DagTabManager.Instance.getTabById(info.tabId);
             dagTab.save()
             .then(() => {
@@ -4664,6 +4695,26 @@ namespace DagView {
                 $textArea.height($textArea[0].scrollHeight);
             }
         }
+    }
+
+    function _checkNodeValidation(): void {
+        _checkLinkInNodeValidation(activeDag);
+    }
+
+    function _checkLinkInNodeValidation(graph: DagGraph): void {
+        if (graph == null) {
+            return;
+        }
+        graph.getAllNodes().forEach((node) => {
+            if (node instanceof DagNodeDFIn) {
+                const state: DagNodeState = node.getState();
+                if (state === DagNodeState.Configured ||
+                    state === DagNodeState.Error && node.isLinkingError()
+                ) {
+                    node.switchState();
+                }
+            }
+        });
     }
 
     function _getActiveArea(): JQuery {

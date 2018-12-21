@@ -1163,7 +1163,7 @@ abstract class DagNode {
         }
     }
 
-    private _validateConfiguration(): {error: string} {
+    protected _validateConfiguration(): {error: string} {
         try {
             let error: {error: string} = this._validateParents();
             if (error == null) {

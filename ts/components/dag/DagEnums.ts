@@ -57,8 +57,6 @@ enum DagNodeErrorType {
     MissingSource = "Missing Source",
     Invalid = "Invalid Configuration",
     NoGraph = "Cannot find linked graph",
-    NoLinkInGraph = "Cannot find the linked node",
-    MoreLinkGraph = "More than one link out node with the same name specified by the linked in node are found",
     NoAggNode = "Corresponding aggregate node either doesnt exist or must be executed manually",
     AggNotExecute = "Must execute the aggregate manually before using it",
     CycleInLink = "Cycle In Link",
@@ -70,6 +68,12 @@ enum DagNodeErrorType {
     NoColumn = "Invalid column in the schema:\n",
     NoColumns = "Invalid columns in the schema:\n",
     NoAccessToSource = "User has no rights to accees the dataset",
+}
+
+enum DagNodeLinkInErrorType {
+    NoGraph = "Cannot find linked graph",
+    NoLinkInGraph = "Cannot find the linked node",
+    MoreLinkGraph = "More than one link out node with the same name specified by the linked in node are found"
 }
 
 enum DagGraphEvents {

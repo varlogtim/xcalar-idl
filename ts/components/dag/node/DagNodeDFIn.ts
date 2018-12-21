@@ -53,7 +53,7 @@ class DagNodeDFIn extends DagNodeIn {
         const linkOutName: string = param.linkOutName;
         const candidateGraphs: DagGraph[] = this._findLinkedGraph(dataflowId);
         if (candidateGraphs.length === 0) {
-            throw new Error(DagNodeErrorType.NoGraph);
+            throw new Error(DagNodeLinkInErrorType.NoGraph);
         }
         let dfOutNodes: DagNode[] = [];
         let resGraph: DagGraph = null;
@@ -65,10 +65,10 @@ class DagNodeDFIn extends DagNodeIn {
             dfOutNodes = dfOutNodes.concat(resNodes);
         });
         if (dfOutNodes.length === 0) {
-            throw new Error(DagNodeErrorType.NoLinkInGraph);
+            throw new Error(DagNodeLinkInErrorType.NoLinkInGraph);
         }
         if (dfOutNodes.length > 1) {
-            throw new Error(DagNodeErrorType.MoreLinkGraph);
+            throw new Error(DagNodeLinkInErrorType.MoreLinkGraph);
         }
         return {
             graph: resGraph,
@@ -87,6 +87,16 @@ class DagNodeDFIn extends DagNodeIn {
         };
     }
 
+    public isLinkingError(): boolean {
+        const error: string = this.getError();
+        for (let key in DagNodeLinkInErrorType) {
+            if (error === DagNodeLinkInErrorType[key]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * @override
      */
@@ -101,6 +111,20 @@ class DagNodeDFIn extends DagNodeIn {
 
     protected _getColumnsUsedInInput() {
         return null;
+    }
+
+    /* @override */
+    protected _validateConfiguration(): {error: string} {
+        const error = super._validateConfiguration();
+        if (error != null) {
+            return error;
+        }
+
+        try {
+            this.getLinkedNodeAndGraph();
+        } catch (e) {
+            return {error: e.message};
+        }
     }
 
     // XXX TODO: This function used DagTabManager now, which is against
