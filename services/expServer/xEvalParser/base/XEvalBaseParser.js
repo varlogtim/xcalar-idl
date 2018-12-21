@@ -102,22 +102,22 @@ var decisionsToDFA = atn.decisionToState.map( function(ds, index) { return new a
 
 var sharedContextCache = new antlr4.PredictionContextCache();
 
-var literalNames = [ null, "'-'", "'_'", null, null, "':'", "'::'", "'.'", 
-                     "','", "'('", "')'", "'['", "']'", "'{'", "'}'", "'\\'", 
-                     "'<'", "'>'", "'^'", null, null, null, null, "'''", 
+var literalNames = [ null, "'-'", "'_'", null, null, "':'", "'::'", "'.'",
+                     "','", "'('", "')'", "'['", "']'", "'{'", "'}'", "'\\'",
+                     "'<'", "'>'", "'^'", null, null, null, null, "'''",
                      "'\"'" ];
 
-var symbolicNames = [ null, null, null, "TRUE", "FALSE", "COLON", "DOUBLECOLON", 
-                      "DOT", "COMMA", "LPARENS", "RPARENS", "LBRACKET", 
-                      "RBRACKET", "LCURLYBRACE", "RCURLYBRACE", "BACKSLASH", 
-                      "LTSIGN", "GTSIGN", "CARET", "DECIMAL", "SCIENTIFICDECIMAL", 
-                      "INTEGER", "STRING", "APOSTROPHE", "SINGLEQUOTE", 
+var symbolicNames = [ null, null, null, "TRUE", "FALSE", "COLON", "DOUBLECOLON",
+                      "DOT", "COMMA", "LPARENS", "RPARENS", "LBRACKET",
+                      "RBRACKET", "LCURLYBRACE", "RCURLYBRACE", "BACKSLASH",
+                      "LTSIGN", "GTSIGN", "CARET", "DECIMAL", "SCIENTIFICDECIMAL",
+                      "INTEGER", "STRING", "APOSTROPHE", "SINGLEQUOTE",
                       "ALPHANUMERIC", "WS", "UNRECOGNIZED" ];
 
-var ruleNames =  [ "query", "expr", "fnArgs", "arg", "fn", "moduleName", 
-                   "fnName", "paramArg", "paramAfter", "paramValue", "columnArg", 
-                   "prefix", "colElement", "colName", "propertyName", "aggValue", 
-                   "integerLiteral", "decimalLiteral", "stringLiteral", 
+var ruleNames =  [ "query", "expr", "fnArgs", "arg", "fn", "moduleName",
+                   "fnName", "paramArg", "paramAfter", "paramValue", "columnArg",
+                   "prefix", "colElement", "colName", "propertyName", "aggValue",
+                   "integerLiteral", "decimalLiteral", "stringLiteral",
                    "booleanLiteral" ];
 
 function XEvalBaseParser (input) {
@@ -1147,7 +1147,7 @@ XEvalBaseParser.prototype.paramValue = function() {
         this.enterOuterAlt(localctx, 1);
         this.state = 107;
         localctx._ALPHANUMERIC = this.match(XEvalBaseParser.ALPHANUMERIC);
-        if (!xcHelper.checkNamePattern(PatternCategory.Param2, PatternAction.Check, (localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text))) {
+        if (!xcHelper.checkNamePattern(PatternCategory.Param, PatternAction.Check, (localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text))) {
             throw SyntaxError('Invalid parameter name. Name must start with ' +
                             'a letter and contain only alphanumeric characters or underscores. Parameter : ' + (localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text));}
     } catch (re) {

@@ -3099,9 +3099,6 @@ namespace xcHelper {
                 antiNamePattern = /[^a-zA-Z0-9\(\)\s:_-]/;
                 break;
             case PatternCategory.Param:
-                antiNamePattern = /[^a-zA-Z0-9]/;
-                break;
-            case PatternCategory.Param2:
                 namePattern = /^[a-zA-Z][a-zA-Z0-9_]*$/;
                 break;
             case PatternCategory.Prefix:

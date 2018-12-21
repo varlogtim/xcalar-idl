@@ -182,16 +182,12 @@ class DagNodeInput {
                         parameterizableFields.indexOf(parent) === -1) {
                         return {error: "Field \"" + parent + "\" cannot be parameterized."};
                     }
-                    // check matching brackets
-                    if (!xcHelper.checkValidParamBrackets(value)) {
-                        return {error: ErrTStr.UnclosedParamBracket + ": " + value};
-                    }
 
                     // check valid characters in parameter
                     const params = xcHelper.getParamsInVal(value);
                     for (let i = 0; i < params.length; i++) {
                         const isValid = xcHelper.checkNamePattern(
-                                                    PatternCategory.Param2,
+                                                    PatternCategory.Param,
                                                     PatternAction.Check,
                                                     params[i]);
                         if (!isValid) {
