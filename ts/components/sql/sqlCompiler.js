@@ -4426,7 +4426,7 @@
             assert(frameInfo.type === 0 && frameInfo.lower == undefined &&
                    frameInfo.upper == undefined,
                    "Window functions with aggregate or first/last using " +
-                   "frame other than \"rows from unbounded preceding and" +
+                   "frame other than \"rows between unbounded preceding and" +
                    " unbounded following\" is not supported");
         }
         curNode = secondTraverse(weNode.children[weNode.value.windowFunction], {}, true);
@@ -4584,12 +4584,14 @@
         }
         // If the new column will be added to usrCols later
         // don't add it to gbColInfo (will later concat to xcCols) here
+        var resultGBCols = __deleteIdFromColInfo(groupByCols);
+        windowStruct.resultGBCols = resultGBCols;
         if (windowStruct.addToUsrCols) {
-            windowStruct.gbColInfo = __deleteIdFromColInfo(groupByCols);
+            windowStruct.gbColInfo = resultGBCols;
         } else {
             windowStruct.gbColInfo = windowStruct.tempGBCols.map(function(colName) {
                                          return {colName: colName, colType: "DfUnknown"};
-                                     }).concat(__deleteIdFromColInfo(groupByCols));
+                                     }).concat(resultGBCols);
         }
         var gbArgs = [];
         for (var i = 0; i < operators.length; i++) {
@@ -4698,7 +4700,22 @@
             windowStruct.leftRename = __combineRenameMaps(
                                 [windowStruct.leftRename,newRenames]);
         }
-        sqlObj.join(joinType, lTableInfo, rTableInfo, {})
+        var evalString = "";
+        if (joinType === JoinOperatorT.CrossJoin) {
+            for (var i = 0; i < leftJoinCols.length; i++) {
+                if (evalString === "") {
+                    evalString = "eq(" + __getCurrentName(leftJoinCols[i]) +
+                                 "," + __getCurrentName(rightJoinCols[i]) + ")";
+                } else {
+                    evalString = "and(" + evalString + "," + "eq("
+                                 + __getCurrentName(leftJoinCols[i]) + ","
+                                 + __getCurrentName(rightJoinCols[i]) + "))";
+                }
+            }
+            lTableInfo.columns = [];
+            rTableInfo.columns = [];
+        }
+        sqlObj.join(joinType, lTableInfo, rTableInfo, {evalString: evalString})
         .then(function(ret) {
             deferred.resolve(ret);
         })
@@ -4730,13 +4747,20 @@
         .then(function(ret) {
             if (windowStruct.joinBackByIndex) {
                 assert(windowStruct.tempGBCols.length === 1, "TempGBCols should have length 1");
+                var rightIndexColStruct;
+                for (var i = 0; i < windowStruct.rightColInfo.length; i++) {
+                    if (__getCurrentName(windowStruct.rightColInfo[i])
+                        === windowStruct.tempGBCols[0]) {
+                        rightIndexColStruct = windowStruct.rightColInfo[i];
+                        break;
+                    }
+                }
                 return __joinTempTable(sqlObj, ret, joinType,
                             [windowStruct.indexColStruct],
-                            [{colName: windowStruct.tempGBCols[0],
-                              colType: "DfUnknown"}], windowStruct);
+                            [rightIndexColStruct], windowStruct);
             }
             return __joinTempTable(sqlObj, ret, joinType, groupByCols,
-                                                    groupByCols, windowStruct);
+                                   windowStruct.resultGBCols, windowStruct);
         })
         .then(function(ret) {
             if (ret.tempCols) {
@@ -4801,7 +4825,7 @@
                                     addToUsrCols: newColStructs};
                     return __groupByAndJoinBack(self.sqlObj, ret,
                                 opStruct.ops, groupByCols,
-                                aggColNames, JoinOperatorT.InnerJoin,
+                                aggColNames, JoinOperatorT.CrossJoin,
                                 windowStruct);
                 })
                 .then(function(ret) {
@@ -4843,6 +4867,7 @@
                 }
                 curPromise = curPromise.then(function(ret) {
                     windowStruct = {cli: ""};
+                    windowStruct.node = node;
                     // Columns in temp table should not have id
                     windowStruct.leftColInfo =
                         __deleteIdFromColInfo(jQuery.extend(true,
@@ -4865,13 +4890,12 @@
                     return __groupByAndJoinBack(self.sqlObj, ret,
                                 [gbOpName], groupByCols,
                                 [__getCurrentName(indexColStruct)],
-                                JoinOperatorT.LeftSemiJoin,
+                                JoinOperatorT.CrossJoin,
                                 windowStruct);
                 })
                 // Inner join original table and temp table
                 // rename the column needed
                 .then(function(ret) {
-                    windowStruct.node = node;
                     windowStruct.rightColInfo =
                                         windowStruct.leftColInfo;
                     windowStruct.leftColInfo = node.usrCols
@@ -4882,9 +4906,19 @@
                     // the column and move that column to usrCols
                     windowStruct.renameFromCols = opStruct.aggCols;
                     windowStruct.renameToUsrCols = newColStructs;
+                    var rightGBColStructs = [];
+                    for (var i = 0; i < groupByCols.length; i++) {
+                        for (var j = 0; j < windowStruct.rightColInfo.length; j++) {
+                            if (__getCurrentName(windowStruct.rightColInfo[j])
+                                === __getCurrentName(groupByCols[i])) {
+                                rightGBColStructs.push(windowStruct.rightColInfo[j]);
+                                break;
+                            }
+                        }
+                    }
                     return __joinTempTable(self.sqlObj, ret,
-                        JoinOperatorT.InnerJoin, groupByCols,
-                        groupByCols, windowStruct);
+                                           JoinOperatorT.CrossJoin, groupByCols,
+                                           rightGBColStructs, windowStruct);
                 })
                 // windowStruct.cli contains the clis for one
                 // operation before window and all the
@@ -4984,6 +5018,7 @@
                 })
                 // Outer join back with index columnm
                 .then(function(ret) {
+                    // Not cross join because group on index which cannot be FNF
                     return __joinTempTable(self.sqlObj, ret,
                             JoinOperatorT.LeftOuterJoin,
                             [{colName: __getCurrentName(indexColStruct),
@@ -5058,7 +5093,7 @@
                             node: node, cli: ""};
                     return __groupByAndJoinBack(self.sqlObj, ret, ["min"],
                                 groupByCols, [__getCurrentName(indexColStruct)],
-                                JoinOperatorT.InnerJoin, windowStruct);
+                                JoinOperatorT.CrossJoin, windowStruct);
                 });
                 if (opName === "rowNumber") {
                     // Row number = index - minIndexOfPartition + 1
@@ -5091,7 +5126,7 @@
                             node: node, cli: ""};
                         return __groupByAndJoinBack(self.sqlObj, ret, ["count"],
                                 groupByCols, [__getCurrentName(indexColStruct)],
-                                JoinOperatorT.InnerJoin, windowStruct);
+                                JoinOperatorT.CrossJoin, windowStruct);
                     })
                     .then(function(ret) {
                         cli += windowStruct.cli;
@@ -5138,7 +5173,7 @@
                             node: node, cli: ""};
                     return __groupByAndJoinBack(self.sqlObj, ret, ["min"],
                                 groupByCols, [__getCurrentName(indexColStruct)],
-                                JoinOperatorT.InnerJoin, windowStruct);
+                                JoinOperatorT.CrossJoin, windowStruct);
                 })
                 .then(function(ret) {
                     // Those three give duplicate row same number
@@ -5160,7 +5195,7 @@
                                 col.colType = col.type;
                                 return col;
                             }), [__getCurrentName(indexColStruct)],
-                            JoinOperatorT.InnerJoin, windowStruct);
+                            JoinOperatorT.CrossJoin, windowStruct);
                 });
                 if (opName === "rank") {
                     // rank = minForEigen - minForPartition + 1
@@ -5194,7 +5229,7 @@
                             node: node, cli: ""};
                         return __groupByAndJoinBack(self.sqlObj, ret, ["count"],
                                 groupByCols, [__getCurrentName(indexColStruct)],
-                                JoinOperatorT.InnerJoin, windowStruct);
+                                JoinOperatorT.CrossJoin, windowStruct);
                     })
                     .then(function(ret) {
                         cli += windowStruct.cli;
@@ -5282,7 +5317,7 @@
                 .then(function(ret){
                     return __groupByAndJoinBack(self.sqlObj, ret, ["min"],
                                 groupByCols, [drIndexColName],
-                                JoinOperatorT.InnerJoin, windowStruct);
+                                JoinOperatorT.CrossJoin, windowStruct);
                 })
                 .then(function(ret) {
                     cli += windowStruct.cli;
@@ -5304,6 +5339,20 @@
                     windowStruct.rightColInfo = windowStruct.leftColInfo;
                     windowStruct.leftColInfo = node.usrCols
                             .concat(node.xcCols).concat(node.sparkCols);
+                    var rightGBColStructs = [];
+                    var rightGBColNames = __concatColInfoForSort(groupByCols,
+                                            sortColsAndOrder).map(function(col) {
+                                                return col.name;
+                                            });
+                    for (var i = 0; i < rightGBColNames.length; i++) {
+                        for (var j = 0; j < windowStruct.rightColInfo.length; j++) {
+                            if (__getCurrentName(windowStruct.rightColInfo[j])
+                                === rightGBColNames[i]) {
+                                rightGBColStructs.push(windowStruct.rightColInfo[j]);
+                                break;
+                            }
+                        }
+                    }
                     return __joinTempTable(self.sqlObj, ret,
                                            JoinOperatorT.InnerJoin,
                             __concatColInfoForSort(groupByCols,
@@ -5311,13 +5360,7 @@
                                     col.colName = col.name;
                                     col.colType = col.type;
                                     return col;
-                                }),
-                            __concatColInfoForSort(groupByCols,
-                                sortColsAndOrder).map(function(col) {
-                                    col.colName = col.name;
-                                    col.colType = col.type;
-                                    return col;
-                                }), windowStruct);
+                                }), rightGBColStructs, windowStruct);
                 })
                 .then(function(ret) {
                     // add cli in window and move the new column
