@@ -503,7 +503,7 @@ namespace Transaction {
                                             subQueries[i].query, options);
             }
         }
-    };
+    }
 
     /**
      * Transaction.checkCanceled
@@ -511,7 +511,7 @@ namespace Transaction {
      */
     export function checkCanceled(txId): boolean {
         return (txId in canceledTxCache);
-    };
+    }
 
     /**
      * Transaction.cleanUpCanceledTables
@@ -521,7 +521,7 @@ namespace Transaction {
         if (!has_require) {
             QueryManager.cleanUpCanceledTables(txId);
         }
-    };
+    }
 
     /**
      * Transaction.getCache
@@ -532,7 +532,7 @@ namespace Transaction {
         } else {
             return txCache[id];
         }
-    };
+    }
 
     function isValidTX(txId: number): boolean {
         if (txId == null) {

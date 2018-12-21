@@ -387,12 +387,31 @@ class XcUser {
         this._idleChckTimer = window.setTimeout(() => {
             if ($("#container").hasClass("locked")) {
                 return; // if it's error, skip the check
-            } else if (this._isIdle) {
+            } else if (this._isXcalarIdle()) {
                 this.logout();
             } else {
                 this.idleCheck(); // reset the check
             }
         }, this._checkTime);
+    }
+
+    private _isXcalarIdle(): boolean {
+        try {
+            const txCahce = Transaction.getCache();
+            if (Object.keys(txCahce).length > 0) {
+                // when there is any transaction, it's running
+                return false;
+            }
+            if (WorkbookManager.hasLoadingWKBK()) {
+                // when setup or workbook activating case
+                return false;
+            }
+            return this._isIdle;
+        } catch (e) {
+            // in any error case, mark as none idle
+            console.error(e);
+            return false;
+        }
     }
 
     private commitMismatchHandler(): void {

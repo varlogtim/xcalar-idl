@@ -1442,12 +1442,12 @@ namespace XIApi {
         const deactivate = () => {
             const innerDeferred: XDDeferred<any> = PromiseHelper.deferred();
             XcalarDatasetDeactivate(dsName)
-            .then(deferred.resolve)
+            .then(innerDeferred.resolve)
             .fail((error) => {
                 if (allowDeactivateFail) {
-                    deferred.resolve();
+                    innerDeferred.resolve();
                 } else {
-                    deferred.reject(error);
+                    innerDeferred.reject(error);
                 }
             });
             return innerDeferred.promise();

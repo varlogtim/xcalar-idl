@@ -262,7 +262,6 @@ namespace WorkbookManager {
 
             $workbookBox.addClass("loading");
         }
-
         const promise: XDPromise<void> = (!newTab && activeWKBKId != null) ?
                         commitActiveWkbk() : PromiseHelper.resolve();
 
@@ -308,7 +307,7 @@ namespace WorkbookManager {
         });
 
         return deferred.promise();
-    };
+    }
 
     /**
     * WorkbookManager.gotoWorkbook
@@ -319,7 +318,15 @@ namespace WorkbookManager {
     export function gotoWorkbook(workbookId: string, replaceURL: boolean = false): void {
         setURL(workbookId, replaceURL);
         xcHelper.reload();
-    };
+    }
+
+    /**
+     * WorkbookManager.hasLoadingWKBK
+     */
+    export function hasLoadingWKBK(): boolean {
+        return $("#initialLoadScreen").is(":visible") ||
+        $("#workbookPanel .workbookBox").hasClass("loading")
+    }
 
     function countdown(): XDPromise<void> {
         if (!$("#monitorTopBar").find(".wkbkTitle").is(":visible")) {
