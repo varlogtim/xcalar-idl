@@ -946,6 +946,7 @@ WKBKTStr = {
 };
 
 MonitorTStr = {
+    "Logs": "Logs",
     "ConfigParamName": "Config Parameter Name",
     "CurVal": "Current Value",
     "NewVal": "New Value",

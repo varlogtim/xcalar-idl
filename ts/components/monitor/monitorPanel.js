@@ -106,6 +106,16 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     $menu.find(".menuSection.queryHist").removeClass("xc-hidden");
                     title += MonitorTStr.SQLPanelTitle;
                     break;
+                case ("logButton"):
+                    $("#monitor-xd-log").addClass("active");
+                    $menu.find(".menuSection.xdLog").removeClass("xc-hidden");
+                    title += MonitorTStr.Logs;
+                    let $section = $("#logSection");
+                    if ($section.hasClass("firstTouch")) {
+                        $section.removeClass("firstTouch");
+                        Log.scrollToBottom();
+                    }
+                    break;
                 case ("settingsButton"):
                     $("#monitor-settings").addClass("active");
                     $menu.find(".menuSection.settings").removeClass("xc-hidden");

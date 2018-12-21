@@ -314,16 +314,6 @@ window.BottomMenu = (function($, BottomMenu) {
             $("#udfButtonWrap").addClass("xc-hidden");
         }
 
-        if (sectionId === "logSection") {
-            if ($section.hasClass("firstTouch")) {
-                $section.removeClass("firstTouch");
-                Log.scrollToBottom();
-            }
-            $("#logButtonWrap").removeClass("xc-hidden");
-        } else {
-            $("#logButtonWrap").addClass("xc-hidden");
-        }
-
         if (sectionId === "helpSection") {
             $("#helpButtonWrap").removeClass("xc-hidden");
         } else {

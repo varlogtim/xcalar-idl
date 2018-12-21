@@ -443,9 +443,9 @@ describe("Xcalar Log Test", function() {
             $machineTextarea = $("#log-MachineTextArea");
             $logMenu = $("#logMenu");
 
-            wasOpen = $("#logTab").hasClass("active");
+            wasOpen = $("#logButton").hasClass("active");
             if (!wasOpen) {
-                $("#logTab").click();
+                $("#logButton").click();
             }
         });
 
@@ -496,6 +496,18 @@ describe("Xcalar Log Test", function() {
             xcHelper.downloadAsFile = cachedFunc;
         });
 
+        it("should right click to collapse all", function() {
+            $logButtons.find(".collapseAll").click();
+            expect($textarea.find(".logContentWrap.expanded").length)
+            .to.equal(0);
+        });
+
+        it("should right click to expand all", function() {
+            $logButtons.find(".expandAll").click();
+            expect($textarea.find(".logContentWrap.collapsed").length)
+            .to.equal(0);
+        });
+
         it("should toggle log size", function() {
             var $log = $textarea.find(".logContentWrap.expanded:first-child");
             if ($log.length === 0) {
@@ -512,37 +524,6 @@ describe("Xcalar Log Test", function() {
             expect($log.hasClass("collapsed")).to.equal(false);
         });
 
-        it("should right click to download log", function() {
-            var test = false;
-            var cachedFunc = xcHelper.downloadAsFile;
-            xcHelper.downloadAsFile = function() {
-                test = true;
-            };
-
-            var $li = $logMenu.find("li.download");
-            $li.mouseup();
-            expect(test).to.be.false;
-
-            $li.trigger(fakeEvent.mouseup);
-            expect(test).to.be.true;
-
-            xcHelper.downloadAsFile = cachedFunc;
-        });
-
-        it("should right click to collapse all", function() {
-            var $li = $logMenu.find("li.collapseAll");
-            $li.trigger(fakeEvent.mouseup);
-            expect($textarea.find(".logContentWrap.expanded").length)
-            .to.equal(0);
-        });
-
-        it("should right click to expand all", function() {
-            var $li = $logMenu.find("li.expandAll");
-            $li.trigger(fakeEvent.mouseup);
-            expect($textarea.find(".logContentWrap.collapsed").length)
-            .to.equal(0);
-        });
-
         function openContextMenu() {
             var e = jQuery.Event("contextmenu", {
                 "target": $logMenu
@@ -552,7 +533,7 @@ describe("Xcalar Log Test", function() {
 
         after(function() {
             if (!wasOpen) {
-                $("#logTab").click();
+                $("#logButton").click();
             }
         });
     });

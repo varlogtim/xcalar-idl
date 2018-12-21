@@ -500,10 +500,11 @@ window.Log = (function($, Log) {
         var $logButtons = $("#logButtonWrap");
         // set up the log section
         $logButtons.on("click", ".machineLog", function() {
-            $(this).removeClass("machineLog xi-android-dot")
-                    .addClass("humanLog xi-human-dot");
+            $(this).removeClass("machineLog")
+                    .addClass("humanLog");
             $machineTextarea.hide();
             $textarea.show();
+            $logButtons.find(".collapseAll, .expandAll").removeClass("xc-disabled");
             if (hasTriggerScrollToBottom) {
                 Log.scrollToBottom();
                 hasTriggerScrollToBottom = false;
@@ -511,10 +512,11 @@ window.Log = (function($, Log) {
         });
 
         $logButtons.on("click", ".humanLog", function() {
-            $(this).removeClass("humanLog xi-human-dot")
-                    .addClass("machineLog xi-android-dot");
+            $(this).removeClass("humanLog")
+                    .addClass("machineLog");
             $machineTextarea.show();
             $textarea.hide();
+            $logButtons.find(".collapseAll, .expandAll").addClass("xc-disabled");
             if (hasTriggerScrollToBottom) {
                 Log.scrollToBottom();
                 hasTriggerScrollToBottom = false;
@@ -523,6 +525,18 @@ window.Log = (function($, Log) {
 
         $logButtons.on("click", ".downloadLog", function() {
             downloadLog();
+        });
+
+        $logButtons.on("click", ".collapseAll", function() {
+            $textarea.find(".logContentWrap").addClass("collapsed")
+            .removeClass("expanded");
+            isCollapsed = true;
+        });
+
+        $logButtons.on("click", ".expandAll", function() {
+            $textarea.find(".logContentWrap").removeClass("collapsed")
+            .addClass("expanded");
+            isCollapsed = false;
         });
 
         $textarea.on("click", ".collapsed", function(event) {
@@ -535,8 +549,6 @@ window.Log = (function($, Log) {
         $textarea.on("click", ".title", function() {
             toggleLogSize($(this).parent());
         });
-
-        setupMenuActions();
     }
 
     function commitLogs() {
@@ -1126,68 +1138,6 @@ window.Log = (function($, Log) {
         } else if ($textarea.find(".collapsed").length) {
             isCollapsed = true;
         }
-    }
-
-    function setupMenuActions() {
-        var $logMenu = $("#logMenu");
-        xcMenu.add($logMenu);
-        $logMenu.on("mouseup", "li", function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-            var action = $(this).data('action');
-            if (!action) {
-                return;
-            }
-
-            switch (action) {
-                case ("download"):
-                    downloadLog();
-                    break;
-                case ("collapseAll"):
-                    $textarea.find(".logContentWrap").addClass("collapsed")
-                                                     .removeClass("expanded");
-                    isCollapsed = true;
-                    break;
-                case ("expandAll"):
-                    $textarea.find(".logContentWrap").removeClass("collapsed")
-                                                     .addClass("expanded");
-                    isCollapsed = false;
-                    break;
-                default:
-                    console.error("action not found");
-                    break;
-            }
-        });
-
-        $textarea.parent().contextmenu(function(event) {
-            var $target = $(event.target);
-            xcHelper.dropdownOpen($target, $logMenu, {
-                "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
-                "floating": true
-            });
-
-            if ($machineTextarea.is(":visible")) {
-                $logMenu.find(".expandAll, .collapseAll").hide();
-                return false;
-            } else {
-                $logMenu.find(".expandAll, .collapseAll").show();
-            }
-
-            if ($textarea.find(".collapsed").length) {
-                $logMenu.find(".expandAll").removeClass("unavailable");
-            } else {
-                $logMenu.find(".expandAll").addClass("unavailable");
-            }
-
-            if ($textarea.find(".expanded").length) {
-                $logMenu.find(".collapseAll").removeClass("unavailable");
-            } else {
-                $logMenu.find(".collapseAll").addClass("unavailable");
-            }
-
-            return false;
-        });
     }
 
     function getCondensedErrors() {
