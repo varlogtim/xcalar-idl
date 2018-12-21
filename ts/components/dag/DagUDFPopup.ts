@@ -46,7 +46,7 @@ class DagUDFPopup {
             $header.hide();
             $background.hide();
             // Call API to get resolutions
-            dagNode.getModuleResolutions()
+            this._getUDFResolution(dagNode, DagView.getActiveTab())
             .then((udfRes) => {
                 const convertedMap: Map<string, string> = new Map();
                 udfRes.forEach((path, moduleName) => {
@@ -66,6 +66,14 @@ class DagUDFPopup {
                 $header.hide();
                 $background.hide();
             });
+        }
+    }
+
+    private _getUDFResolution(dagNode: DagNodeMap, activeTab: DagTab): XDPromise<Map<string, string>> {
+        if (activeTab instanceof DagTabPublished) {
+            return activeTab.getNodeUDFResolution(dagNode);
+        } else {
+            return dagNode.getModuleResolutions();
         }
     }
 

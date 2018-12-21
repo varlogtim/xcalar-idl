@@ -135,6 +135,29 @@ class DagTabPublished extends DagTab {
         return "/workbook/" + DagTabPublished._secretUser + "/" + this._getWKBKName() + "/";
     }
 
+    /**
+     * Get node's UDF resolutions in a published dataflow
+     * @param dagNode 
+     * @description
+     * All UDFs are stored in a secret user's namespace in shared dataflow cases.
+     * So get the correct resolution of UDFs would be tricky:
+     * 1. Switch the user seesion to the secret user
+     * 2. Call API to get the resolutions
+     * 3. Switch back to regular user session
+     */
+    public getNodeUDFResolution(dagNode: DagNodeMap): XDPromise<Map<string, string>> {
+        if (dagNode == null) {
+            return PromiseHelper.reject('DagNode is null');
+        }
+        DagTabPublished._switchSession(this._getWKBKName());
+        const promise = dagNode.getModuleResolutions();
+        // Do not wait for the API done,
+        // or there could be chances unexpected API calls happening before reset session
+        DagTabPublished._resetSession();
+        
+        return promise;
+    }
+
     public load(reset?: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._loadFromKVStore()
