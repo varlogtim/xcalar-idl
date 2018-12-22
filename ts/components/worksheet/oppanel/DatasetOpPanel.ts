@@ -195,9 +195,9 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         return null;
     }
 
-    protected _startInAdvancedMode() {
+    protected _startInAdvancedMode(model) {
         this._updateMode(true);
-        const paramStr = JSON.stringify(this._dagNode.getParam(), null, 4);
+        const paramStr = JSON.stringify(model, null, 4);
         this._cachedBasicModeParam = paramStr;
         this._editor.setValue(paramStr);
         this._advMode = true;
@@ -229,13 +229,14 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
 
     private _gotoStep(): void {
         let btnHTML: HTML = "";
+        const $section: JQuery = this.$panel.find(".mainContent > .bottomSection");
         if (this._advMode) {
             btnHTML =
                 '<button class="btn btn-submit btn-rounded submit">' +
                     CommonTxtTstr.Save +
                 '</button>';
         } else if (this._currentStep === 1) {
-            this.$panel.find(".step1").removeClass("xc-hidden")
+            $section.find(".step1").removeClass("xc-hidden")
                     .end()
                     .find(".step2").addClass("xc-hidden");
             btnHTML =
@@ -243,7 +244,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
                     CommonTxtTstr.Next +
                 '</button>';
         } else if (this._currentStep === 2) {
-            this.$panel.find(".step2").removeClass("xc-hidden")
+            $section.find(".step2").removeClass("xc-hidden")
                     .end()
                     .find(".step1").addClass("xc-hidden");
             btnHTML =
@@ -256,7 +257,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         } else {
             throw new Error("Error step");
         }
-        this.$panel.find(".bottomSection .btnWrap").html(btnHTML);
+        $section.find(".btnWrap").html(btnHTML);
     }
 
     private _goToSchemaStep(): void {
@@ -385,12 +386,15 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             $("#datasetOpPanel .datasetPrefix input").val("");
             this._toggleSynthesize(false, []);
         } else {
+            $("#datasetOpPanel .datasetPrefix input").val(input.prefix);
+            const schema: ColSchema[] = input.schema || [];
+            this._toggleSynthesize(input.synthesize, schema);
             const ds: ListDSInfo = this._dsList.find((obj) => {
                 return obj.id == input.source;
             });
             if (ds == null) {
                 if (atStart) {
-                    this._startInAdvancedMode();
+                    this._startInAdvancedMode(input);
                     MainMenu.checkMenuAnimFinish()
                     .then(() => {
                         StatusBox.show(DSTStr.InvalidPriorDataset + input.source,
@@ -405,13 +409,11 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
                 $("#datasetOpPanel .datasetPrefix input").val(input.prefix);
                 this._fileLister.goToRootPath();
                 return;
+            } else {
+                const path: string = ds.path;
+                this._fileLister.goToPath(path);
+                $("#dsOpListSection").find("[data-id='" + input.source +"']").eq(0).addClass("active");
             }
-            $("#datasetOpPanel .datasetPrefix input").val(input.prefix);
-            const path: string = ds.path;
-            this._fileLister.goToPath(path);
-            const schema: ColSchema[] = input.schema || [];
-            this._toggleSynthesize(input.synthesize, schema);
-            $("#dsOpListSection").find("[data-id='" + input.source +"']").eq(0).addClass("active");
         }
     }
 

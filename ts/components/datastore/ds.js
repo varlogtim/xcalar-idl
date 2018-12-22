@@ -147,7 +147,7 @@ window.DS = (function ($, DS) {
             const error = dagNode.getError();
             param.source = newDSName;
             param.loadArgs = loadArgs.replace(oldDSName, newDSName);
-            dagNode.setParam(param);
+            dagNode.setParam(param, true);
             cachedInfo[dagNode.getId()] = {
                 param: param,
                 error: error
