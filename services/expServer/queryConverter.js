@@ -61,7 +61,8 @@ function convertHelper(dataflowInfo, nestedPrefix, otherNodes) {
         return "invalid dataflowInfo: " + dataflowInfo;
     }
     if (!nestedPrefix) {
-        modifyOriginalInput(dataflowInfo);
+        // XXX uncomment below to remove CRLF
+        // modifyOriginalInput(dataflowInfo);
         originalInput = xcHelper.deepCopy(dataflowInfo);
     }
 
