@@ -51,7 +51,7 @@ namespace xcTooltip {
      * @param $element
      * @param options
      */
-    export function add($element: JQuery, options: TooltipOptions): void {
+    export function add($element: JQuery | d3, options: TooltipOptions): void {
         const defaultOptions: TooltipOptions = {
             "title": "",
             "container": "body",

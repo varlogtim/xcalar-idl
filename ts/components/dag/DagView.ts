@@ -3267,6 +3267,12 @@ namespace DagView {
         });
 
         $dfWrap.on("click", ".paramTitle", function () {
+            if (activeDagTab == null || activeDag == null) {
+                return; // error case
+            }
+            if (activeDagTab instanceof DagTabOptimized) {
+                return; // invalid case
+            }
             const $node: JQuery = $(this).closest(".operator");
             const node: DagNode = activeDag.getNode($node.data("nodeid"));
             if (node != null) {
@@ -3951,6 +3957,10 @@ namespace DagView {
         _registerGraphEvent(graph, DagNodeEvents.RetinaRemove, function(info) {
             const retinaName: string = gRetinaPrefix + info.tabId + "_" + info.nodeId;
             XcalarDeleteRetina(retinaName)
+            .then(() => {
+                // remove optimized dataflow tab if opened
+                DagTabManager.Instance.removeTab(retinaName);
+            })
             .fail((error) => {
                 if (error && error.status === StatusT.StatusRetinaInUse) {
                     StatusBox.show("Could not delete optimized dataflow.  " + error.error, $dfWrap);
