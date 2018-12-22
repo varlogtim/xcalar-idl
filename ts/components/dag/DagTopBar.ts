@@ -27,11 +27,11 @@ class DagTopBar {
     public setState(dagTab: DagTab): void {
         const $btns: JQuery = this.$topBar.find(".topButtons");
         if (dagTab == null) {
-            $btns.hide();
+            $btns.find(".topButton:not(.noTabRequired)").addClass("xc-disabled");
             return;
         }
 
-        $btns.show();
+        $btns.find(".topButton").removeClass("xc-disabled");
 
         const $userOnlyBtns: JQuery = $btns.find(".publish");
         if (dagTab instanceof DagTabUser) {
