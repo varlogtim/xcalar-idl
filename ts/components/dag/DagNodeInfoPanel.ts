@@ -152,8 +152,19 @@ class DagNodeInfoPanel {
 
     private _updateConfigSection(): void {
         this._$panel.find(".configRow").removeClass("xc-hidden");
-        let params = JSON.stringify(this._activeNode.getParam(), null, 4);
+        let params = this._getConfig();
         this._$panel.find(".configSection").text(params);
+    }
+
+    private _getConfig(): string {
+        let param = this._activeNode.getParam();
+        if (this._activeNode instanceof DagNodeDataset ||
+            this._activeNode instanceof DagNodeDFIn
+        ) {
+            // dataset node and link in node add schem
+            param.schema = this._activeNode.getSchema();
+        }
+        return JSON.stringify(param, null, 4);
     }
 
     private _updateStatusSection(): void {
