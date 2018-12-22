@@ -60,9 +60,8 @@ function convertHelper(dataflowInfo, nestedPrefix, otherNodes) {
     if (typeof dataflowInfo !== "object" || dataflowInfo == null || (dataflowInfo instanceof Array)) {
         return "invalid dataflowInfo: " + dataflowInfo;
     }
+    modifyOriginalInput(dataflowInfo);
     if (!nestedPrefix) {
-        // XXX uncomment below to remove CRLF
-        // modifyOriginalInput(dataflowInfo);
         originalInput = xcHelper.deepCopy(dataflowInfo);
     }
 
