@@ -618,7 +618,7 @@ class DagNodeExecutor {
                 return col.name == name || col.getBackColName() == name;
             })
             if (col == null) {
-                return;
+                return name;
             } else {
                 return col.getBackColName();
             }
@@ -739,7 +739,7 @@ class DagNodeExecutor {
     }
 
     // optimized link out run a retina which will synthesize the table
-    // here we do the equavilent thing for the link in batch mode 
+    // here we do the equavilent thing for the link in batch mode
     private _synthesizeDFOutInBatch(
         srcTable: string,
         node: DagNodeDFOut
