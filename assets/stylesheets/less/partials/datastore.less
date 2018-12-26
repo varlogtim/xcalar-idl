@@ -199,8 +199,7 @@ html.safari {
 
         #showFileListBtn {
             margin-left: 10px;
-            min-width: 144px;
-            width: 144px;
+            width: 130px;
             padding: 0 0 0 1px;
             height: 26px;
             line-height: 26px;
@@ -875,11 +874,11 @@ table.datasetTable {
 
             .grid-unit {
                 .gridIcon, .xi-cancel, .xi-trash {
-                    color: @color-bg-99-grey;
+                    color: @color-bg-cardHeader;
                 }
 
                 .xi-folder {
-                    color: @color-bg-cancel-gray;
+                    color: @color-bg-cardHeader;
                 }
 
                 &.active {
@@ -933,7 +932,7 @@ table.datasetTable {
                 }
 
                 > .label {
-                    color: @color-font-gray36;
+                    color: @color-font-form-gray;
                     word-break: break-all;
                     width: 65px !important;
                 }
@@ -1127,11 +1126,8 @@ table.datasetTable {
                     }
                     .fileIcon {
                         font-size: 65px;
-                        color: @color-bg-99-grey;
+                        color: @color-bg-cardHeader;
                         align-self: center;
-                        &.xi-folder {
-                            color: @color-bg-cancel-gray;
-                        }
                         margin-bottom: 11px;
                     }
                     span {
@@ -1148,10 +1144,8 @@ table.datasetTable {
                 .fileRawData {
                     text-align: center;
                     button {
-                        .size(@width: 160px, @height: 35px);
+                        .size(@width: 160px);
                         padding: 0 9px;
-                        background-color: @color-info-bg-grey;
-                        border: solid 1px @color-border-select-blue;
                         &.btn, .icon {
                             font-size: 18px;
                             color: @color-border-select-blue;
@@ -1261,21 +1255,11 @@ table.datasetTable {
                         cursor: pointer;
                     }
                     .switch, .on {
-                        .size(@width: 26px, @height: 14px);
-                        border-radius: 8px;
                         top: 0;
-                        background-color: @color-bg-pinkish-grey;
                         margin-top: 1px;
                     }
                     .slider {
-                        .size(@width: 16px, @height: 16px);
-                        border-radius: 20px;
                         top: 0;
-                        left: -2px;
-                        background-color: @color-bg-99-grey;
-                    }
-                    .on .slider {
-                        left: 14px;
                     }
                     .highlighted {
                         color: @color-font-greyish-brown;
@@ -2938,6 +2922,8 @@ table.datasetTable {
 /* End Of Import Data View Section */
 
 #dsListSection {
+    color: @color-font-edge;
+
     .topWrapper {
         .size(@height: 45px);
         margin-bottom: 5px;
@@ -2963,14 +2949,13 @@ table.datasetTable {
                     margin-top: 6px;
                     .size(12px, 12px);
                     .horizontal-align;
+                    color: @color-white;
                 }
             }
         }
 
         .pathSection {
             .size(@width: ~"calc(100% - 88px)", @height: 20px);
-            color: @color-font-form-gray;
-            font-size: 14px;
             .textOverflowOneLine;
             cursor: default;
             float: left;
@@ -2978,7 +2963,6 @@ table.datasetTable {
             margin-bottom: 12px;
 
             span {
-                color: @color-bg-softBlue;
                 cursor: pointer;
                 text-decoration: underline;
             }
@@ -2986,12 +2970,10 @@ table.datasetTable {
 
         .sortSection {
             clear: both;
-            background-color: @color-font-edge;
             padding-left: 15px;
             padding-top: 6px;
             text-align: left;
             font-size: 12px;
-
 
             .label {
                 font-weight: bold;
@@ -3013,7 +2995,7 @@ table.datasetTable {
     }
 
     .gridViewWrapper {
-        background-color: #37424c;
+        background-color: @color-white;
         .size(@height: ~"calc(100% - 40px)");
         .position(relative);
         overflow-x: hidden;
@@ -3135,7 +3117,8 @@ table.datasetTable {
                 }
 
                 .dsCount {
-                    .font(@weight: 700, @color: @color-font-dusk-blue);
+                    .font(@weight: 700, @color: @color-white);
+                    opacity: 0.9;
                     .no-selection;
                     .textOverflowOneLine;
                     text-align: center;
@@ -3263,7 +3246,7 @@ table.datasetTable {
                         .position(absolute, @top: 13px);
                         .size(@width: @width-grid, @height: 20px);
                         padding: 0 17px;
-                        .font(@size: 13px);
+                        .font(@size: 12px);
                     }
 
                     > .dragWrap {
@@ -3477,10 +3460,8 @@ table.datasetTable {
 
 #gridViewMenu, #dsTarget-menu {
     z-index: @z-index-gridViewMenu;
-    background-color: @color-font-edge;
 
     li {
-        background-color: @color-font-edge;
         display: none;
 
         &.selected {
@@ -3639,7 +3620,6 @@ table.datasetTable {
 #dsTarget-list {
     overflow: auto;
     height: ~"calc(100% - 75px)" !important;
-    background-color: #37424c;
 
     .xc-grid {
         padding: 1px;
@@ -3899,12 +3879,6 @@ table.datasetTable {
             li[data-action="create"], li[data-action="delete"] {
                 display: none;
             }
-        }
-    }
-
-    .menuSection {
-        > .mainSection {
-            color: @color-white !important;
         }
     }
 }

@@ -377,6 +377,8 @@
     .size(30px, 30px);
     line-height: 30px;
     text-overflow: clip; // IE will add dots to icons ...
+    border-radius: 0;
+
     i.icon {
         line-height: 30px;
     }
@@ -427,19 +429,14 @@
 }
 
 .btn-clear {
-    background-color: fadeout(@color-white, 20%);
-    color: @color-font-warm-grey-two;
+    background-color: @color-white;
+    color: @color-bg-cardHeader;
 
-    .icon {
-        color: @color-font-warm-grey-two !important;
-    }
+    border: 1px solid;
 
-    &:hover {
+    &:hover, &:focus {
         background-color: @color-white;
-    }
-
-    &:active {
-        box-shadow: inset 1px 1px 1px 0px rgba(0, 0, 0, 0.1);
+        color: darken(@color-bg-cardHeader, 5%);
     }
 }
 
@@ -794,9 +791,8 @@
         .size(@width: 254px, @height: 30px);
         .position(relative, @left: 3px);
         float: left;
-        background-color: @color-bg-select-blue;
+        background-color: @color-bg-cardHeader;
         white-space: nowrap;
-        box-shadow: 0px 1px 2px 1px rgba(0,0,0,0.3);
         .transition(transform 0.3s);
         pointer-events: auto;
 
@@ -991,7 +987,8 @@
 
 .xc-sortSection {
     .size(@height: 33px);
-    .font(@size: 10px, @color: @color-white);
+    background-color: @color-bg-topBarGray2;
+    .font(@size: 10px, @color: @color-font-edge);
     text-align: right;
     text-transform: uppercase;
 
@@ -1010,7 +1007,7 @@
         height: 100%;
         width: 1px;
         margin: 0 3px;
-        background-color: @color-white;
+        background-color: @color-font-edge;
         display: inline-block;
         .position(relative, 3px, 0px);
         vertical-align: bottom;

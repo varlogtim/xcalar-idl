@@ -211,12 +211,10 @@
     .jsonDragArea {
         .size(@width: 100%, @height: 30px);
         .cursor-move;
-        background-color: @color-bg-select-blue;
         text-align: center;
         .font(@size: 15px, @line-height: 28px, @color: @color-white);
         .textOverflowOneLine;
         padding: 0 30px;
-        background-color: @color-bg-dusk-blue;
     }
 
     .jsonArea {
@@ -5062,7 +5060,7 @@ html.microsoft {
 
     .treeWrap {
         white-space: pre;
-        color: #898989;
+        color: @color-font-form-gray;
         font-size: 13px;
         padding: 20px 40px 30px;
         display: inline-block;
@@ -5075,8 +5073,7 @@ html.microsoft {
         }
 
         .folderIcon, .datasetIcon {
-            // color: @color-bg-cancel-gray;
-            color: @color-bg-softBlue;
+            color: @color-bg-cardHeader;
             float: left;
             font-size: 16px;
             margin-top: 5px;

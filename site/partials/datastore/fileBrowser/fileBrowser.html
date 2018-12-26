@@ -1,9 +1,5 @@
 <!-- File Browser -->
-<% if (dicts.tutor.name == "browseDatasourceTutA3") { %>
-<div id="fileBrowser" class="cardContainer active fileBrowser">
-<% } else { %>
 <div id="fileBrowser" class="cardContainer xc-hidden fileBrowser">
-<% } %>
   <!-- File Browser Header -->
   <header class="cardHeader">
     <div class="title"><%= dicts.fileBrowser.header %>
@@ -59,7 +55,7 @@
     <!-- Icon Options -->
     <div class="iconSection">
       <!-- sort -->
-      <button id="fileBrowserSort" class="btn btn-small sort clickable" title="<%= dicts.MenuTStr.Sort %>" data-toggle="tooltip" data-placement="top" data-container="body">
+      <button id="fileBrowserSort" class="btn btn-small btn-clear sort clickable" title="<%= dicts.MenuTStr.Sort %>" data-toggle="tooltip" data-placement="top" data-container="body">
         <i class="icon xi-sort fa-17"></i>
         <ul id="fileBrowserSortMenu" class="menu">
           <li data-sortkey="name">
@@ -85,11 +81,11 @@
         </ul>
       </button>
       <!-- toggle view -->
-      <button id="fileBrowserGridView" class="btn btn-small gridView" data-toggle="tooltip" data-placement="top" data-original-title="<%= dicts.TooltipTStr.SwitchToListView %>" data-container="body">
+      <button id="fileBrowserGridView" class="btn btn-small btn-clear gridView" data-toggle="tooltip" data-placement="top" data-original-title="<%= dicts.TooltipTStr.SwitchToListView %>" data-container="body">
         <i class="icon xi-list-view fa-15"></i>
       </button>
       <!-- refresh -->
-      <button id="fileBrowserRefresh" class="btn btn-small refresh" title="<%= dicts.common.Refresh %>" data-toggle="tooltip" data-placement="top" data-container="body">
+      <button id="fileBrowserRefresh" class="btn btn-small btn-clear refresh" title="<%= dicts.common.Refresh %>" data-toggle="tooltip" data-placement="top" data-container="body">
         <i class="icon xi-refresh fa-17"></i>
       </button>
     </div>
@@ -97,9 +93,6 @@
   <section class="cardMain">
     <!-- File Browser Main Section -->
     <div id="fileBrowserMain" class="xc-grid leftMain gridView fileBrowserMain">
-      <% if (dicts.tutor.name == "browseDatasourceTutA3") { %>
-        include "../../demo/wa1/wa-Browse.html"
-      <% } else { %>
         <!-- Loading Sectoin -->
         <section class="loadingSection">
           <div class="waitingIcon"></div>
@@ -179,7 +172,7 @@
               </div>
             </div>
             <div class="fileRawData">
-              <button id="fileRawData" class="btn iconBtn xc-disabled">
+              <button id="fileRawData" class="btn btn-clear iconBtn xc-disabled">
                 <i class="icon xi-show"></i>
                 <span><%= dicts.common.ViewRawData %></span>
               </button>
@@ -224,12 +217,11 @@
               </div>
             </div>
             <div class="buttonSection">
-              <button type="button" class="btn confirm xc-disabled"><%= dicts.common.NEXT %></button>
+              <button type="button" class="btn btn-submit confirm xc-disabled"><%= dicts.common.NEXT %></button>
             </div>
           </div>
         </section>
     </div>
-    <% } %>
     <div id="fileBrowserPreview" class="rightMain xc-hidden">
       include "filePreviewer.html"
     </div>

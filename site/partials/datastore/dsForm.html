@@ -1,9 +1,6 @@
 <div id="dsForm-path" class="cardContainer">
   <header class="cardHeader">
     <div class="title"><%= dicts.ds.Point %>
-      <!--<div class="hint csHelp" data-topic="pointToDataSource" title="" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.TooltipTStr.CSHelp %>">
-        <i class="white icon xi-help fa-12"></i>
-      </div> -->
       <div class="hint intro-icon icon" id="importDatasourceWA2"  data-toggle="tooltip" data-container="body" data-title="<%= dicts.introTStr.wa2Tip %>" data-placement="top">
         <i class="white icon xi_smart fa-16"></i>
       </div>
@@ -19,12 +16,8 @@
     <div class="content target">
       <label><%= dicts.ds.Target %>:</label>
       <!-- data target dropdown -->
-      <div id="dsForm-target" class="dropDownList"  <%= (dicts.tutor.name == 'importDatasourceTutA2') ? 'data-introstep="wa2-selectDt"' : '' %>>
-        <% if (dicts.tutor.name === "datasetPanelTutA1" || dicts.tutor.name === "importDatasourceTutA2") { %>
-        <input class="text" type="text" spellcheck="false" disabled value="Default Shared Root">
-        <% } else { %>
+      <div id="dsForm-target" class="dropDownList">
         <input class="text" type="text" spellcheck="false" disabled>
-        <% } %>
         <div class="iconWrapper">
           <i class="icon xi-arrow-down"></i>
         </div>
@@ -37,13 +30,6 @@
     </div>
     <div class="content path">
       <label for="filePath"><%= dicts.dsForm.filePath %>:</label>
-      <% if (dicts.tutor.name == "datastoreTut1") { %>
-      <input id="filePath" type="text" spellcheck="false" data-introstep="w2-dsPath">
-      <% } else if (dicts.tutor.name == 'importDatasourceTutA2') { %>
-      <div class="dropDownList">
-        <input id="filePath" type="text" spellcheck="false" data-introstep="wa2-pastePath" value="/datastores/misc">
-      </div>
-      <% } else { %>
       <div class="dropDownList">
         <input id="filePath" class="test" type="text" spellcheck="false">
         <div class="list">
@@ -51,25 +37,12 @@
           include "../../util/menuScrollArea.html"
         </div>
       </div>
-      <% } %>
-      <% if (dicts.tutor.name == "datastoreTut1") { %>
-      <button class="btn browse" type="button" data-introstep="w2-browseDs"><%= dicts.common.BROWSE %></button>
-      <% } else if (dicts.tutor.name == "importDatasourceTutA2") { %>
-      <button class="btn browse" type="button" data-introstep="wa2-browseDs"><%= dicts.common.BROWSE %></button>
-      <% } else { %>
       <button class="btn browse" type="button"><%= dicts.common.BROWSE %></button>
-      <% } %>
     </div>
   </div>
   <div class="cardBottom">
-    <% if (dicts.tutor.name == "datastoreTut1") { %>
-    <button class="btn confirm" data-introstep="w2-next"><%= dicts.common.NEXT %></button>
-    <% } else if (dicts.tutor.name == "importDatasourceTutA2") { %>
-    <button class="btn confirm" data-introstep="wa2-nextDs"><%= dicts.common.NEXT %></button>
-    <% } else { %>
     <button class="btn btn-submit confirm"><%= dicts.common.NEXT %></button>
-    <% } %>
-    <button class="btn btn-cancel cancel"><%= dicts.common.CLEAR %></button>
+    <button class="btn btn-clear cancel"><%= dicts.common.CLEAR %></button>
   </div>
 </div>
 include "fileBrowser/fileBrowser.html"

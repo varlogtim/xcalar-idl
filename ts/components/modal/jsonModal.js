@@ -1606,11 +1606,11 @@ window.JSONModal = (function($, JSONModal) {
                 '</div>' +
                 '<div class="flexArea">' +
                     '<div class="infoArea">' +
-                        '<div class="tableName" data-toggle="tooltip" ' +
-                            'data-container="body" data-placement="top"' +
-                            'title="' + location + '">' + locationText + ':' +
-                            '<span class="text">' + location + '</span>' +
-                        '</div>' +
+                        // '<div class="tableName" data-toggle="tooltip" ' +
+                        //     'data-container="body" data-placement="top"' +
+                        //     'title="' + location + '">' + locationText + ':' +
+                        //     '<span class="text">' + location + '</span>' +
+                        // '</div>' +
                         '<div class="rowNum">Row:' +
                             '<span class="text">' +
                                 xcHelper.numToStr(rowNum) + '</span>' +

@@ -2,11 +2,11 @@
 <div class="iconSection">
   <!-- import data button -->
   <% if (dicts.tutor.name !== "datasetPanelTutA1") { %>
-  <div id="importDataButton" class="action" title="<%= dicts.ds.Point %>" data-toggle="tooltip" data-placement="top" data-container="body">
+  <div id="importDataButton" class="action submit" title="<%= dicts.ds.Point %>" data-toggle="tooltip" data-placement="top" data-container="body">
     <i class="icon xi-add-data"></i>
   </div>
   <% } else { %>
-  <div id="importDataButton" class="action" title="<%= dicts.ds.Point %>" data-toggle="tooltip" data-placement="top" data-container="body" data-introstep="wa1-importDs">
+  <div id="importDataButton" class="action submit" title="<%= dicts.ds.Point %>" data-toggle="tooltip" data-placement="top" data-container="body" data-introstep="wa1-importDs">
     <i class="icon xi-add-data"></i>
   </div>
   <% } %>
