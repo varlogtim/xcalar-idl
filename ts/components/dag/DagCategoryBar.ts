@@ -485,20 +485,9 @@ class DagCategoryBar {
             const $operator: JQuery = $(event.target).closest(".operator");
             const opInfo: DagNodeCopyInfo = this._getOperatorInfo(
                 $operator.data('opid'));
+            this._focusOnOperator(opInfo.id || opInfo.nodeId);
 
             if (opInfo.type === DagNodeType.Custom) {
-                // Clear the current selection
-                if (this.selectedOpId != null) {
-                    this._clearSelectedStyle(
-                        this.$operatorBar.find(`.operator[data-opid="${this.selectedOpId}"]`)
-                    );
-                    this.selectedOpId = null;
-                }
-
-                // Select the node clicked on
-                this.selectedOpId = opInfo.id || opInfo.nodeId;
-                this._setSelectedStyle($operator);
-
                 // Enable the action section
                 this._enableActionSection(this.selectedOpId);
             }
@@ -507,19 +496,17 @@ class DagCategoryBar {
         });
 
         this.$operatorBar.on('click', () => {
+            // Clear the current selection
+            this._focusOnOperator(null);
             if (this.currentCategory === DagCategoryType.Custom) {
-                // Clear the current selection
-                if (this.selectedOpId != null) {
-                    this._clearSelectedStyle(
-                        this.$operatorBar.find(`.operator[data-opid="${this.selectedOpId}"]`)
-                    );
-                    this.selectedOpId = null;
-                }
-
                 // Disable the action section
                 this._disableActionSection();
             }
         });
+    }
+
+    private _getNodeFromOpId(id: string): JQuery {
+        return this.$operatorBar.find(`.operator[data-opid="${id}"]`)
     }
 
     private _setSelectedStyle($operator: JQuery): void {
@@ -641,8 +628,10 @@ class DagCategoryBar {
         $ul.on("click", "li", (event) =>  {
             const $li: JQuery = $(event.currentTarget);
             const category = $li.data("category");
+            const opId = $li.data("opid");
             menuHelper.hideDropdowns();
             this._focusOnCategory(category);
+            this._focusOnOperator(opId);
         });
     }
 
@@ -657,40 +646,31 @@ class DagCategoryBar {
     }
 
     private _renderSearchList(keyword: string, $ul: JQuery): void {
-        const categoryNodes: DagCategoryNode[] = this._searchOperators(keyword);
+        keyword = keyword.toLowerCase();
+
         let html: HTML = "";
-        html = categoryNodes.map((caterogyNode) => {
-            let text: string = caterogyNode.getDisplayNodeType();
-            const subType: string = caterogyNode.getDisplayNodeSubType();
-            if (subType) {
-                text += `(${subType})`;
+        this.dagCategories.getCategories().forEach((category) => {
+            if (category.getName() === DagCategoryType.Favorites) {
+                return;
             }
-            return `<li data-category="${caterogyNode.getCategoryType()}">${text}</li>`
-        }).join("");
+            category.getOperators().forEach((categoryNode) => {
+                if (categoryNode.isHidden()) {
+                    return;
+                }
+                const text: string = categoryNode.getDisplayNodeSubType() ||
+                categoryNode.getDisplayNodeType();
+                if (text.toLowerCase().includes(keyword)) {
+                    const categoryType = categoryNode.getCategoryType();
+                    const opId = categoryNode.getNode().getId();
+                    html += `<li data-category="${categoryType}" data-opid="${opId}">${text}</li>`;
+                }
+            });
+        });
+
         if (!html) {
             html = `<li class="hint">${CommonTxtTstr.NoResult}</li>`;
         }
         $ul.html(html);
-    }
-
-    private _searchOperators(keyword: string): DagCategoryNode[] {
-        const categoryNodes: DagCategoryNode[] = [];
-        keyword = keyword.toLowerCase();
-        this.dagCategories.getCategories().forEach((category) => {
-            if (category.getName() !== DagCategoryType.Favorites) {
-                category.getOperators().forEach((categoryNode) => {
-                    if (categoryNode.isHidden()) {
-                        return;
-                    }
-                    if (categoryNode.getDisplayNodeType().toLowerCase().includes(keyword) ||
-                    categoryNode.getDisplayNodeSubType().toLowerCase().includes(keyword)
-                    ) {
-                        categoryNodes.push(categoryNode);
-                    }
-                });
-            }
-        });
-        return categoryNodes;
     }
 
     private _getOperatorInfo(nodeId: string): DagNodeCopyInfo {
@@ -789,7 +769,16 @@ class DagCategoryBar {
         this.currentCategory = <DagCategoryType>category;
         if (category === DagCategoryType.Custom) {
             this._showActionSection();
+
+            let isCustom: boolean = false;
             if (this.selectedOpId != null) {
+                const $operator: JQuery = this._getNodeFromOpId(this.selectedOpId);
+                if ($operator.length && $operator.data("type") === DagNodeType.Custom) {
+                    isCustom = true;
+                }
+            }
+
+            if (isCustom) {
                 this._enableActionSection(this.selectedOpId);
             } else {
                 this._disableActionSection();
@@ -805,5 +794,22 @@ class DagCategoryBar {
         $category.addClass("active");
         const index = this.$operatorBar.find(".category").index($category);
         this._listScrollers[index].showOrHideScrollers();
+    }
+
+    private _focusOnOperator(opId: string): void {
+        // Clear the current selection
+        if (this.selectedOpId != null) {
+            this._clearSelectedStyle(
+                this._getNodeFromOpId(this.selectedOpId)
+            );
+            this.selectedOpId = null;
+        }
+
+        // Select the node clicked on
+        if (opId != null) {
+            this.selectedOpId = opId;
+            this._setSelectedStyle(this._getNodeFromOpId(opId));
+        }
+        
     }
 }
