@@ -229,7 +229,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
 
     private _gotoStep(): void {
         let btnHTML: HTML = "";
-        const $section: JQuery = this.$panel.find(".mainContent > .bottomSection");
+        const $section: JQuery = this.$panel.find(".modalTopMain");
         if (this._advMode) {
             btnHTML =
                 '<button class="btn btn-submit btn-rounded submit">' +
@@ -257,7 +257,8 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         } else {
             throw new Error("Error step");
         }
-        $section.find(".btnWrap").html(btnHTML);
+        this.$panel.find(".mainContent > .bottomSection")
+        .find(".btnWrap").html(btnHTML);
     }
 
     private _goToSchemaStep(): void {

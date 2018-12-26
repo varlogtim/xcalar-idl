@@ -145,12 +145,6 @@
 }
 
 #extensionInstallPanel {
-    // .flex(0 1 auto);
-    // .flex-display;
-    // .flex-direction(column);
-    // min-height: 0px; // for IE
-    // overflow: hidden; // for IE
-
     &.admin {
         .install {
             display: block !important;
@@ -210,7 +204,6 @@
         .hintSection, .errorSection, .waitSection {
             display: none;
             overflow: hidden;
-            // .center-align; // horizontal align doesn't work well in IE
             .vertical-align;
             text-align: center;
             margin-left: auto;
@@ -365,7 +358,6 @@
 
                         &.installed {
                             pointer-events: none;
-                            background-color: @color-bg-apple-green;
                         }
                     }
 

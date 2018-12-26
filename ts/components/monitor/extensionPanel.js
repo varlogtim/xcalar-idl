@@ -494,7 +494,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
                 btnClass = "installed";
                 btnText = ExtTStr.Installed;
             } else {
-                btnClass = "";
+                btnClass = "btn-submit";
                 btnText = ExtTStr.Install;
             }
 
@@ -533,7 +533,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
                                 '<button class="btn install ' + btnClass + '">' +
                                     btnText +
                                 '</button>' +
-                                '<button class="btn btn-cancel more">' +
+                                '<button class="btn btn-next more">' +
                                     '<span class="moreText">' +
                                         ExtTStr.More +
                                     '</span>' +

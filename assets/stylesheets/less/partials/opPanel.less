@@ -94,12 +94,6 @@
     // TODO: remove styling if we change the default btn class styling
     .btn {
         width: 150px;
-        height: 28px;
-        .font(@weight: 600, @size: 12px, @line-height: 28px);
-    }
-
-    .btn-submit {
-        background-color: @color-bg-green-submit;
     }
 
     .instrText {
@@ -161,31 +155,17 @@
         .styleDropDownList(100%, @listHeight);
 
         .text {
-            background-color: @color-white;
             font-size: @standardFontSize;
-            border-right: none;
         }
         .list {
             top: @listHeight;
             box-shadow: 0 1px 1px 0 @color-bg-dropdown-gray;
-            li {
-                &:hover {
-                    background-color: @color-bg-topBarGray2;
-                }
-            }
         }
         li {
             font-size: @standardFontSize;
             padding-left: @commonMargin;
         }
-        .iconWrapper {
-            background-color: @color-bg-list-hover-blue;
-            border: 1px solid #E6E6E6;
 
-            .xi-arrow-down {
-                color: @color-font-dropdown-gray;
-            }
-        }
         &.disabled {
             pointer-events: none;
             .iconWrapper {

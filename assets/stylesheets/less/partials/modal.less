@@ -5,6 +5,7 @@
     .size(@max-width: 99%, @max-height: 99%);
     z-index: @z-index-modal;
     background-color: @color-white;
+    color: @color-font-form-gray;
 
     &.shadow {
         box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.3);
@@ -18,18 +19,17 @@
     }
 
     .modalHeader {
-        background-color: @color-bg-dusk-blue;
+        background-color: @color-bg-cardHeader;
         color: @color-white;
         .size(@width: 100%, @height: 36px);
         .noSelection;
         .cursor-move;
         line-height: 36px;
         text-align: center;
-        text-shadow: 1px 1px rgba(0,0,0,0.2);
         text-transform: capitalize;
 
         .text {
-            .font(@weight: bold, @size: 18px, @color: @color-white);
+            .font(@size: 18px, @color: @color-white);
             display: inline-block;
             width: 100%;
             padding-left: 30px;
@@ -81,14 +81,14 @@
         background-color: @color-white;
         overflow: hidden;
         padding: 10px;
-        border-bottom: 1px  solid @color-border-pinkish-grey2;
+        border-bottom: 1px  solid @color-border-softGray;
         .flex-display;
         .flex-direction(row);
         .text-selection;
 
         .icon {
             .flex(0 0 36px);
-            .font(@size: 24px, @color: @color-bg-select-blue);
+            .font(@size: 24px, @color: @color-font-edge);
             margin-top: 5px;
         }
 
@@ -99,26 +99,27 @@
         }
 
         b {
-            color: @color-font-select-blue;
+            color: @color-font-edge;
         }
     }
 
     .modalTopMain {
         .size(@width: 100%);
         background: @color-bg-white-three;
-        color: @color-font-darkGray;
+        color: @color-font-form-gray;
         .no-selection;
     }
 
     .modalMain {
         background-color: @color-white;
+        color: @color-font-form-gray;
         .no-selection;
     }
 
     .modalSubMain {
         .size(@width: 100%);
         background: @color-bg-white-three;
-        color: @color-font-darkGray;
+        color: @color-font-form-gray;
         .no-selection;
     }
 
@@ -133,8 +134,13 @@
         }
 
         .btn {
-            .size(@height: 36px);
-            line-height: 36px;
+            .size(@height: 28px);
+            line-height: 28px;
+            font-size: 12px;
+
+            &.confirm {
+                .btn-submit;
+            }
 
             &.cancel {
                 .btn-cancel;
@@ -4923,29 +4929,15 @@ html.microsoft {
 #dagDescriptionModal, #dagCustomRenameModal {
     .size(400px, 250px, @min-width: 400px, @min-height: 250px);
 
-    .modalHeader {
-        .text {
-            padding-left: 85px;
-            padding-right: 85px;
-        }
-    }
     .modalInstruction {
-        padding-top: 5px;
-        padding-bottom: 5px;
-        height: 46px;
         .text {
             line-height: 36px;
-            font-size: 13px;
         }
     }
     .modalMain {
         .size(@height: ~"calc(100% - 152px)");
         overflow: auto;
-        background: @color-bg-white-three;
         font-size: 13px;
-    }
-    .modalBottom {
-        .size(@height: 70px);
     }
 
     .formRow {
@@ -4961,7 +4953,7 @@ html.microsoft {
         margin-bottom: 5px;
 
         .optionButtons {
-            color: @color-font-select-blue;
+            color: @color-font-light-blue;
             margin-right: 2px;
             .icon {
                 font-size: 13px;
@@ -4973,12 +4965,9 @@ html.microsoft {
         width: 100%;
         .flex(1 0 auto);
         font-size: 13px;
+        background-color: @color-bg-list-hover-blue;
     }
     &.hasComment, &.hasDescription {
-        // .xc-textArea {
-        //     background: @color-bg-white-three;
-        //     border: none;
-        // }
         .size(400px, 350px);
     }
 }

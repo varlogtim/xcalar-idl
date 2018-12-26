@@ -467,9 +467,9 @@ table.datasetTable {
             }
 
             &.path {
-                .size(@height: 36px);
+                .size(@height: 30px);
                 .input-box(100%, 30px);
-                line-height: 36px;
+                line-height: 30px;
 
                 input {
                     .vertical-align;
@@ -477,13 +477,11 @@ table.datasetTable {
 
                 .btn {
                     float: right;
+                    .position(relative, @top: 1px);
                 }
 
                 .list {
                     .size(@width: 100%);
-                    left: 0;
-                    top: 32px;
-                    border-top: 1px solid @color-border-softBlue;
 
                     &.empty {
                         box-shadow: none;
