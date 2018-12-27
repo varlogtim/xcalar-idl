@@ -187,7 +187,7 @@ html.safari {
             }
             i {
                 float: right;
-                color: @color-font-select-blue;
+                color: @color-bg-cardHeader;
                 background-color: @color-white;
                 position: absolute;
                 top: 6px;
@@ -197,17 +197,26 @@ html.safari {
             }
         }
 
-        #showFileListBtn {
+        #showFileListBtn, #createDF {
             margin-left: 10px;
-            width: 130px;
             padding: 0 0 0 1px;
-            height: 26px;
-            line-height: 26px;
 
             .icon {
-                color: @color-font-select-blue;
+                color: @color-bg-cardHeader;
             }
         }
+
+        #showFileListBtn {
+            width: 130px;
+        }
+
+        #createDF {
+            .icon {
+                .position(relative, @top: 11px);
+                font-size: 15px;
+            }
+        }
+
         .dsValue {
             font-weight: 400;
         }

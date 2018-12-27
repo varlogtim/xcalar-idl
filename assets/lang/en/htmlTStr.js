@@ -809,7 +809,8 @@ module.exports = {
         "SelectLater": "Select Columns Later",
         "SelectLaterHint": "Create a table without selecting any columns",
         "DSName": "Dataset Name",
-        "clickToView": "CLICK TO VIEW"
+        "clickToView": "CLICK TO VIEW",
+        "createDF": "CREATE DATAFLOW",
     },
 
     "dsImportError": {

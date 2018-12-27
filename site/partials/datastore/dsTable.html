@@ -9,43 +9,7 @@
     </div>
   </div>
   <!-- cardTop -->
-  <% if (dicts.tutor.name == "datastoreTut2") { %>
-  <div class="cardTopMain" data-introstep="w3-dsInfo">
-
-    <div class="infoSection flexContainer">
-      <!-- left part -->
-      <div class="flexWrap flex-left">
-        <div class="contentSection">
-          <span id="dsInfo-title">Sample</span>
-          <span class="divider">|</span>
-          <span><%= dicts.dsTable.Path %>:</span>
-          <span id="dsInfo-path" class="tooltipOverflow" data-placement="left" data-container="body">datasets/sample.csv</span>
-          <button id="showFileListBtn" class="btn btn-clear iconBtn">
-            <i class="icon xi-show"></i>
-            <%= dicts.dsTable.clickToView %>
-          </button>
-        </div>
-        <div class="contentSection">
-          <span><%= dicts.dsTable.CreatedBy %>:</span>
-          <span id="dsInfo-author">John Smith</span>
-          <span class="divider">|</span>
-          <span><%= dicts.common.DateCreated %>:</span>
-          <span id="dsInfo-date">2017-01-01</span>
-          <span class="divider">|</span>
-          <span><%= dicts.dsTable.Records %>:</span>
-          <span id="dsInfo-records">70,817</span>
-          <span class="divider">|</span>
-          <span><%= dicts.common.Size %>:</span>
-          <span id="dsInfo-size">43MB</span>
-          <span class="divider">|</span>
-          <span><%= dicts.dsForm.Format %>:</span>
-          <span id="dsInfo-format">CSV</span>
-        </div>
-      </div>
-    </div>
-  </div>
-  <% } else { %>
-   <div class="cardTopMain">
+  <div class="cardTopMain">
     <div class="infoSection flexContainer">
       <!-- left part -->
       <div class="contentSection flexContainer">
@@ -58,10 +22,14 @@
           <i class="icon xi-copy-clipboard"></i>
           <i class="icon xi-tick"></i>
         </div>
-        <button id="showFileListBtn" class="btn btn-clear btn-transparent iconBtn">
+        <button id="showFileListBtn" class="btn btn-clear iconBtn">
           <i class="icon xi-show"></i>
           <%= dicts.dsTable.clickToView %>
         </button>
+        <button id="createDF" class="btn btn-clear iconBtn">
+            <i class="icon xi-dfg2"></i>
+            <%= dicts.dsTable.createDF %>
+          </button>
       </div>
       <div class="flexWrap flex-left">
         <div class="contentSection">
@@ -85,11 +53,7 @@
       </div>
     </div>
   </div>
-  <% } %>
   <!-- cardMain -->
-  <%  if (dicts.tutor.name == "datastoreTut2") { %>
-    include "../demo/dsDemo2-dataTable.html"
-  <% } else { %>
   <div class="cardMain">
     <!-- Datastore Table -->
     <div id="dsTableContainer">
@@ -109,5 +73,4 @@
       <div id="dsTableWrap" class="datasetTableWrap"></div>
     </div>
   </div>
-  <% } %>
 </div>

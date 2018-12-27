@@ -449,6 +449,10 @@ window.DSTable = (function($, DSTable) {
             FileListModal.show(dsId, dsName, isFileError);
         });
 
+        $("#createDF").click(function() {
+            createDF();
+        });
+
         $("#dsInfo-error").click(function() {
             var dsId = $("#dsTableContainer").data("id");
             var dsObj = DS.getDSObj(dsId);
@@ -462,6 +466,26 @@ window.DSTable = (function($, DSTable) {
             }
             DSImportErrorModal.show(dsId, numTotalErrors, isRecordError);
         });
+    }
+
+    function createDF() {
+        var dsId = $("#dsTableContainer").data("id");
+        var dsObj = DS.getDSObj(dsId);
+        var isFileError = false;
+        if (dsObj) {
+            var source = dsObj.getId();
+            // go to dag tab
+            $("#modelingDataflowTab").click();
+            DagTabManager.Instance.newTab();
+            var node = DagView.autoAddNode(DagNodeType.Dataset, null, null, {
+                source: source,
+                prefix: xcHelper.normalizePrefix(dsObj.getName())
+            });
+            DagView.autoAlign(DagView.getActiveTab().getId());
+            DagNodeMenu.execute("configureNode", {
+                node: node
+            });
+        }
     }
 
     // if table is less wide than the panel, expand column widths if content is
