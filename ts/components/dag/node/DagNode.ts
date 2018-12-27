@@ -759,7 +759,8 @@ abstract class DagNode {
         rows: number,
         skewValue: number,
         size: number,
-        started?: boolean
+        started?: boolean,
+        state?: string
     } {
         let numWorkCompleted: number = 0;
         let numWorkTotal: number = 0;

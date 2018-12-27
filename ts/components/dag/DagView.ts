@@ -261,6 +261,7 @@ namespace DagView {
         updateDagView();
         DagTable.Instance.switchTab(dagTab.getId());
         DagSearch.Instance.switchTab($oldDfArea);
+        updateOperationTime();
     }
 
     /**
@@ -287,6 +288,31 @@ namespace DagView {
         }
         DagTopBar.Instance.setState(activeDagTab);
         _checkNodeValidation();
+    }
+
+    function updateOperationTime(isCurrent: boolean = false): void {
+        const timeStr: string = getOperationTime();
+        let text: string = "";
+        if (timeStr != null) {
+            let title: string = CommonTxtTstr.LastOperationTime;
+            if (isCurrent || activeDag != null && activeDag.getExecutor() != null) {
+                title = CommonTxtTstr.OperationTime;
+            }
+            text = title + ": " + timeStr;
+        }
+        StatusMessage.updateLocation(true, text); // update operation time
+    }
+
+    function getOperationTime(): string {
+        if (activeDag == null) {
+            return null;
+        }
+        const time: number = activeDag.getOperationTime();
+        if (time === 0) {
+            return null;
+        } else {
+            return xcHelper.getElapsedTimeStr(time);
+        }
     }
 
     export function selectNodes(tabId: string, nodeIds?: DagNodeId[]): void {
@@ -4328,6 +4354,9 @@ namespace DagView {
         const pct: number = Math.round(100 * progress);
         if (!isNaN(pct)) {
             let tab: DagTab = <DagTab>DagTabManager.Instance.getTabById(tabId);
+            if (tab == null) {
+                return;
+            }
             let graph: DagGraph = tab.getGraph();
             const node: DagNode = graph.getNode(nodeId);
 
@@ -4342,6 +4371,9 @@ namespace DagView {
                 times.push(nodeStat.elapsedTime);
             });
 
+            const totalTime: number = times.reduce((a, b) => a + b, 0);
+            graph.updateOperationTime(totalTime);
+            updateOperationTime(true);
             DagNodeInfoPanel.Instance.update(nodeId, "stats");
 
             DagView.updateProgress(nodeId, tabId, pct, true, skewInfos, times);

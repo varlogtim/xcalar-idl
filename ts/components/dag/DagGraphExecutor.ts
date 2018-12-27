@@ -396,7 +396,7 @@ class DagGraphExecutor {
             return node.getType() !== DagNodeType.DFOut;
         });
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        const promises: XDDeferred<string>[] = [];
+        const promises: XDPromise<string>[] = [];
         const udfContext = this._getUDFContext();
         const simulateId: number = Transaction.start({
             operation: "Simulate",
@@ -408,7 +408,7 @@ class DagGraphExecutor {
         // chain batchExecute calls while storing their destTable results
         const destTables = [];
         for (let i = 0; i < nodes.length; i++) {
-            promises.push(()  => {
+            promises.push(() => {
                 const innerDeferred: XDDeferred<string> = PromiseHelper.deferred();
                 this._batchExecute(simulateId, nodes[i])
                 .then((destTable) => {

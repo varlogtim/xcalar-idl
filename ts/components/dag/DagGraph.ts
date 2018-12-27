@@ -10,6 +10,7 @@ class DagGraph {
     private parentTabId: string;
     private errorNodes: DagNodeInfo[];
     private hasError: boolean;
+    private operationTime: number;
     protected currentExecutor: DagGraphExecutor
     public events: { on: Function, off: Function, trigger: Function}; // example: dagGraph.events.on(DagNodeEvents.StateChange, console.log)
 
@@ -25,6 +26,7 @@ class DagGraph {
             scale: 1
         };
         this.lock = false;
+        this.operationTime = 0;
         this._setupEvents();
     }
 
@@ -87,17 +89,21 @@ class DagGraph {
         return {
             nodes: nodes,
             comments: comments,
-            display: this.display
+            display: this.display,
+            operationTime: this.operationTime
         };
     }
 
     public rebuildGraph(graphJSON: {
         nodes: {node: DagNode, parents: DagNodeId[]}[],
         comments: CommentInfo[],
-        display: Dimensions
+        display: Dimensions,
+        operationTime: number
     }): void {
         let connections: NodeConnection[] = [];
         this.display = xcHelper.deepCopy(graphJSON.display);
+        this.operationTime = graphJSON.operationTime || 0;
+
         graphJSON.nodes.forEach((desNode) => {
             const node: DagNode = desNode.node;
             const childId: string = node.getId();
@@ -152,7 +158,8 @@ class DagGraph {
         this.rebuildGraph({
             nodes: nodes,
             comments: serializableGraph.comments,
-            display: serializableGraph.display
+            display: serializableGraph.display,
+            operationTime: serializableGraph.operationTime
         });
     }
 
@@ -184,7 +191,8 @@ class DagGraph {
             this.rebuildGraph({
                 nodes: nodes,
                 comments: comments,
-                display: serializableGraph.display
+                display: serializableGraph.display,
+                operationTime: 0
             });
             return;
         }
@@ -253,7 +261,8 @@ class DagGraph {
         this.rebuildGraph({
             nodes: nodes,
             comments: comments,
-            display: serializableGraph.display
+            display: serializableGraph.display,
+            operationTime: 0
         });
     }
 
@@ -266,6 +275,7 @@ class DagGraph {
     }
 
     public clear(): void {
+        this.resetOperationTime();
         this.getAllNodes().forEach((node) => {
             const state: DagNodeState = node.getState();
             if (state === DagNodeState.Complete) {
@@ -645,6 +655,7 @@ class DagGraph {
      * @returns {JQueryDeferred}
      */
     public execute(nodeIds?: DagNodeId[], optimized?: boolean): XDPromise<void> {
+        this.resetOperationTime();
         if (nodeIds == null) {
             return this._executeGraph(null, optimized);
         } else {
@@ -683,7 +694,7 @@ class DagGraph {
     public getOptimizedQuery(
         nodeIds: DagNodeId[],
         noReplaceParam?: boolean
-    ): XDPromise<string[]> {
+    ): XDPromise<string> {
          // clone graph because we will be changing each node's table and we don't
         // want this to effect the actual graph
         const clonedGraph = this.clone();
@@ -736,7 +747,7 @@ class DagGraph {
      * @param optimized
      * @param isCloneGraph
      */
-    public getQuery(nodeId?: DagNodeId, optimized?: boolean, isCloneGraph: boolean = true): XDPromise<string[]> {
+    public getQuery(nodeId?: DagNodeId, optimized?: boolean, isCloneGraph: boolean = true): XDPromise<string> {
         // clone graph because we will be changing each node's table and we don't
         // want this to effect the actual graph
         const clonedGraph = isCloneGraph ? this.clone() : this;
@@ -1278,6 +1289,21 @@ class DagGraph {
         for (let nodeId in nodeIdInfos) {
             this.getNode(nodeId).updateProgress(nodeIdInfos[nodeId]);
         }
+    }
+
+    public getOperationTime(): number {
+        return this.operationTime;
+    }
+
+    public resetOperationTime(): void {
+        this.operationTime = 0;
+    }
+
+    public updateOperationTime(time: number): void {
+        if (isNaN(time)) {
+            return;
+        }
+        this.operationTime += time;
     }
 
     private _setupEvents(): void {

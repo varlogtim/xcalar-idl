@@ -320,7 +320,8 @@ interface DagCategoryNodeInfo {
 interface DagGraphInfo {
     nodes: DagNodeInfo[],
     comments: CommentInfo[],
-    display: Dimensions
+    display: Dimensions,
+    operationTime: number
 }
 
 declare type DagSubGraphConnectionInfo = {
