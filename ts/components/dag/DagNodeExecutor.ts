@@ -561,7 +561,7 @@ class DagNodeExecutor {
                 });
             });
         } else {
-            node.getSubGraph().execute(null, optimized)
+            node.getSubGraph().execute(null, optimized, this.txId)
             .then(() => {
                 deferred.resolve((node.getTable()));
             })

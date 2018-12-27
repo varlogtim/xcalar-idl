@@ -10,7 +10,7 @@ class DagGraph {
     private parentTabId: string;
     private errorNodes: DagNodeInfo[];
     private hasError: boolean;
-    private operationTime: number;
+    protected operationTime: number;
     protected currentExecutor: DagGraphExecutor
     public events: { on: Function, off: Function, trigger: Function}; // example: dagGraph.events.on(DagNodeEvents.StateChange, console.log)
 
@@ -654,10 +654,14 @@ class DagGraph {
      *  @param nodeIds nodes that need to execute
      * @returns {JQueryDeferred}
      */
-    public execute(nodeIds?: DagNodeId[], optimized?: boolean): XDPromise<void> {
+    public execute(
+        nodeIds?: DagNodeId[],
+        optimized?: boolean,
+        parentTxId?: number
+    ): XDPromise<void> {
         this.resetOperationTime();
         if (nodeIds == null) {
-            return this._executeGraph(null, optimized);
+            return this._executeGraph(null, optimized, null, parentTxId);
         } else {
             // get subGraph from nodes and execute
             // we want to stop at the next node with a table unless we're
@@ -666,9 +670,9 @@ class DagGraph {
             if (backTrack.error != null) {
                 return PromiseHelper.reject(backTrack.error);
             }
-            const nodesMap:  Map<DagNodeId, DagNode> = backTrack.map;
+            const nodesMap: Map<DagNodeId, DagNode> = backTrack.map;
             const startingNodes: DagNodeId[] = backTrack.startingNodes;
-            return this._executeGraph(nodesMap, optimized, startingNodes);
+            return this._executeGraph(nodesMap, optimized, startingNodes, parentTxId);
         }
     }
 
@@ -1273,24 +1277,6 @@ class DagGraph {
         return stats;
     }
 
-    public updateProgress(nodeId, nodeInfos) {
-        const nodeIdInfos = {};
-
-        nodeInfos.forEach((nodeInfo, i) => {
-            const tableName = nodeInfo.name.name;
-            if (!nodeIdInfos.hasOwnProperty(nodeId)) {
-                nodeIdInfos[nodeId] = {}
-            }
-            const nodeIdInfo = nodeIdInfos[nodeId];
-            nodeIdInfo[tableName] = nodeInfo;
-            nodeInfo.index = i;
-        });
-
-        for (let nodeId in nodeIdInfos) {
-            this.getNode(nodeId).updateProgress(nodeIdInfos[nodeId]);
-        }
-    }
-
     public getOperationTime(): number {
         return this.operationTime;
     }
@@ -1361,7 +1347,12 @@ class DagGraph {
         }
     }
 
-    private _executeGraph(nodesMap?: Map<DagNodeId, DagNode>, optimized?: boolean, startingNodes?: DagNodeId[]): XDPromise<void> {
+    private _executeGraph(
+        nodesMap?: Map<DagNodeId, DagNode>,
+        optimized?: boolean,
+        startingNodes?: DagNodeId[],
+        parentTxId?: number
+    ): XDPromise<void> {
         if (this.currentExecutor != null) {
             return PromiseHelper.reject(ErrTStr.DFInExecution);
         }
@@ -1378,7 +1369,8 @@ class DagGraph {
             });
         }
         const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, this, {
-            optimized: optimized
+            optimized: optimized,
+            parentTxId: parentTxId
         });
         let checkResult = executor.validateAll();
         if (checkResult.hasError) {

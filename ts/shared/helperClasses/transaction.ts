@@ -19,6 +19,7 @@ namespace Transaction {
         exportName?: string,
         nodeId?: DagNodeId,
         tabId?: string,
+        parentTxId?: number,
         udfUserName?: string;
         udfSessionName?: string;
     }
@@ -55,6 +56,7 @@ namespace Transaction {
         isEdit?: boolean;
         nodeId?: DagNodeId;
         tabId?: string;
+        parentTxId?: number;
         udfUserName?: string;
         udfSessionName?: string;
     }
@@ -68,6 +70,7 @@ namespace Transaction {
         isEdit: boolean;
         nodeId: DagNodeId;
         tabId: string;
+        parentTxId: number;
         udfUserName?: string;
         udfSessionName?: string;
 
@@ -79,6 +82,7 @@ namespace Transaction {
             this.isEdit = options.isEdit || false;
             this.nodeId = options.nodeId || null;
             this.tabId = options.tabId || null;
+            this.parentTxId = options.parentTxId || null;
             this.udfUserName = options.udfUserName;
             this.udfSessionName = options.udfSessionName;
         }
@@ -139,6 +143,7 @@ namespace Transaction {
             "isEdit": options.isEdit,
             "nodeId": options.nodeId,
             "tabId": options.tabId,
+            "parentTxId": options.parentTxId,
             "udfUserName": options.udfUserName,
             "udfSessionName": options.udfSessionName
         });
@@ -187,6 +192,10 @@ namespace Transaction {
                 if (txLog.nodeId) {
                     try {
                         DagView.calculateAndUpdateProgress(queryStateOutput, txLog.nodeId, txLog.tabId);
+                        const parentTxId: number = txLog.parentTxId;
+                        if (parentTxId != null) {
+                            Transaction.update(parentTxId, queryStateOutput);
+                        }
                     } catch (e) {
                         console.error(e);
                     }

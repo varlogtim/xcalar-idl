@@ -1623,7 +1623,7 @@ namespace DagView {
             customLogParam.options.actions.push(addLogParam.options);
 
             // Delete selected nodes
-            const deferred = PromiseHelper.deferred();
+            const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
             _removeNodesNoPersist(nodeIds, tabId,
                 { isNoLog: true, isSwitchState: false }
@@ -1675,8 +1675,10 @@ namespace DagView {
                 dagTab.turnOnSave();
                 return dagTab.save();
             })
-            .then(deferred.resolve)
-            .then(deferred.reject);
+            .then(() => {
+                deferred.resolve();
+            })
+            .fail(deferred.reject);
 
             return deferred.promise();
         } catch (e) {
@@ -3033,7 +3035,7 @@ namespace DagView {
 
                     // Figure out the connectorIn element of the child node
                     let $childConnectorIn: JQuery = null;
-                    $childNode.find('.connector.in').each((index, elem) => {
+                    $childNode.find('.connector.in').each((_index, elem) => {
                         const rect: ClientRect = elem.getBoundingClientRect();
                         if (event.pageX >= rect.left && event.pageX <= rect.right &&
                             event.pageY >= rect.top && event.pageY <= rect.bottom) {
@@ -4330,6 +4332,7 @@ namespace DagView {
     }
 
     export function addProgress(nodeId: DagNodeId, tabId: string): void {
+        updateOperationTime(true);
         const $dataflowArea: JQuery = _getAreaByTab(tabId);
         const g = d3.select($dataflowArea.find('.operator[data-nodeid = "' + nodeId + '"]')[0]);
         g.selectAll(".opProgress")
@@ -4352,38 +4355,16 @@ namespace DagView {
     ): void {
         const progress: number = xcHelper.getQueryProgress(queryStateOutput);
         const pct: number = Math.round(100 * progress);
-        if (!isNaN(pct)) {
-            let tab: DagTab = <DagTab>DagTabManager.Instance.getTabById(tabId);
-            if (tab == null) {
-                return;
-            }
-            let graph: DagGraph = tab.getGraph();
-            const node: DagNode = graph.getNode(nodeId);
-
-            graph.updateProgress(nodeId, queryStateOutput.queryGraph.node);
-
-            const nodeStats = node.getIndividualStats();
-            const times: number[] = [];
-            const skewInfos = [];
-            nodeStats.forEach((nodeStat) => {
-                const skewInfo = _getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
-                skewInfos.push(skewInfo);
-                times.push(nodeStat.elapsedTime);
-            });
-
-            const totalTime: number = times.reduce((a, b) => a + b, 0);
-            graph.updateOperationTime(totalTime);
-            updateOperationTime(true);
-            DagNodeInfoPanel.Instance.update(nodeId, "stats");
-
-            DagView.updateProgress(nodeId, tabId, pct, true, skewInfos, times);
-        } else {
+        if (isNaN(pct)) {
             return;
         }
-
         let tab: DagTab = <DagTab>DagTabManager.Instance.getTabById(tabId);
-        let graph: DagGraph = tab.getGraph();
+        if (tab == null) {
+            return;
+        }
+        const graph: DagGraph = tab.getGraph();
         const node: DagNode = graph.getNode(nodeId);
+
         if (node.getType() === DagNodeType.SQL) {
             let subGraph = (<DagNodeSQL>node).getSubGraph();
             const subTabId: string = subGraph.getTabId();
@@ -4404,6 +4385,37 @@ namespace DagView {
                 });
                 DagView.updateProgress(nodeId, subTabId, overallStats.pct, true, skewInfos, times);
             });
+        }
+
+        updateGraphProgress(graph, nodeId, queryStateOutput.queryGraph.node);
+        const nodeStats = node.getIndividualStats();
+        const times: number[] = [];
+        const skewInfos = [];
+        nodeStats.forEach((nodeStat) => {
+            const skewInfo = _getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
+            skewInfos.push(skewInfo);
+            times.push(nodeStat.elapsedTime);
+        });
+
+        DagNodeInfoPanel.Instance.update(nodeId, "stats");
+        DagView.updateProgress(nodeId, tabId, pct, true, skewInfos, times);
+    }
+
+    function updateGraphProgress(graph: DagGraph, nodeId: DagNodeId, nodeInfos): void {
+        const nodeIdInfos = {};
+
+        nodeInfos.forEach((nodeInfo, i) => {
+            const tableName = nodeInfo.name.name;
+            if (!nodeIdInfos.hasOwnProperty(nodeId)) {
+                nodeIdInfos[nodeId] = {}
+            }
+            const nodeIdInfo = nodeIdInfos[nodeId];
+            nodeIdInfo[tableName] = nodeInfo;
+            nodeInfo.index = i;
+        });
+
+        for (let nodeId in nodeIdInfos) {
+            graph.getNode(nodeId).updateProgress(nodeIdInfos[nodeId]);
         }
     }
 
@@ -4434,19 +4446,45 @@ namespace DagView {
             opProgress = g.select(".opProgress");
         }
         opProgress.text(progress + "%");
+
+        const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId);
         if (skewInfos) {
             $dfArea.find('.runStats[data-id="' + nodeId + '"]').remove();
-            const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId);
-            if (!dagTab) {
+            if (dagTab == null) {
                 // sql graph may not have tab registered with dagTabManager
                 return;
             }
             const graph: DagGraph = dagTab.getGraph()
             const node: DagNode = graph.getNode(nodeId);
             _addProgressTooltip(graph, node, $dfArea, skewInfos, times);
+        
+            if (progress === 100) {
+                const totalTime: number = times.reduce((a, b) => a + b, 0);
+                const graph: DagGraph = dagTab.getGraph()
+                let shouldUpdate: boolean = false;
+                if (node instanceof DagNodeCustom) {
+                    // custom node need to update till all is done
+                    let subNodeCnt: number = 0;
+                    node.getSubGraph().getAllNodes().forEach((node) => {
+                        if (!(node instanceof DagNodeCustomInput) &&
+                            !(node instanceof DagNodeCustomOutput)
+                        ) {
+                            subNodeCnt++;
+                        }
+                    });
+                    if (subNodeCnt === times.length) {
+                        shouldUpdate = true;
+                    }
+                } else {
+                    shouldUpdate = true;
+                }
+                if (shouldUpdate) {
+                    graph.updateOperationTime(totalTime);
+                    updateOperationTime(true);
+                }
+            }
         }
 
-        const dagTab = DagTabManager.Instance.getTabById(tabId);
         if (broadcast && dagTab instanceof DagTabPublished) {
             DagSharedActionService.Instance.broadcast(DagNodeEvents.ProgressChange, {
                 nodeId: nodeId,

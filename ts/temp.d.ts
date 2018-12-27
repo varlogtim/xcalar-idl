@@ -200,7 +200,10 @@ interface Element {
 }
 
 interface Event {
-    clipboardData: {setData: Function}
+    clipboardData: {
+        setData: Function,
+        getData: Function
+    }
 }
 
 interface LocalStorage {

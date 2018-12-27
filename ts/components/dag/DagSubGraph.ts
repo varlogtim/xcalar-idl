@@ -156,7 +156,7 @@ class DagSubGraph extends DagGraph {
     public updateProgress(nodeInfos: any[]) {
         const nodeIdInfos = {};
 
-        nodeInfos.forEach((nodeInfo, i) => {
+        nodeInfos.forEach((nodeInfo) => {
             let tableName: string = nodeInfo.name.name;
             // optimized datasets name gets prefixed with xcalarlrq and an id
             // so we strip this to find the corresponding UI dataset name
@@ -207,7 +207,8 @@ class DagSubGraph extends DagGraph {
         return {
             nodes: nodes,
             comments: [],
-            display: this.getDimensions()
+            display: this.getDimensions(),
+            operationTime: this.operationTime
         };
     }
 

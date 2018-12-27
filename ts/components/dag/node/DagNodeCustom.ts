@@ -607,8 +607,8 @@ class DagNodeCustom extends DagNode {
      * Generates JSON representing this node
      * @returns JSON object
      */
-    public getNodeInfo(): DagNodeCustomInfo {
-        const nodeInfo = <DagNodeCustomInfo>super.getNodeInfo();
+    public getNodeInfo(includeStats: boolean): DagNodeCustomInfo {
+        const nodeInfo = <DagNodeCustomInfo>super.getNodeInfo(includeStats);
         nodeInfo.subGraph = this._subGraph.getGraphInfo();
         return nodeInfo;
     }

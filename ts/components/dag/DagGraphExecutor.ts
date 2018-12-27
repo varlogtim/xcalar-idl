@@ -10,14 +10,16 @@ class DagGraphExecutor {
     private _currentTxId: number;
     private _isCanceld: boolean;
     private _retinaName: string;
+    private _parentTxId: number;
 
     public constructor(
         nodes: DagNode[],
         graph: DagGraph,
         options: {
-            optimized?: boolean,
+            optimized?: boolean
             noReplaceParam?: boolean
             retinaName?: string
+            parentTxId?: number
         } = {}
     ) {
         this._nodes = nodes;
@@ -26,6 +28,7 @@ class DagGraphExecutor {
         this._isNoReplaceParam = options.noReplaceParam || false;
         this._isCanceld = false;
         this._retinaName = options.retinaName;
+        this._parentTxId = options.parentTxId;
     }
 
     public validateAll(): {
@@ -471,6 +474,7 @@ class DagGraphExecutor {
             track: true,
             nodeId: node.getId(),
             tabId: tabId,
+            parentTxId: this._parentTxId,
             udfUserName: udfContext.udfUserName,
             udfSessionName: udfContext.udfSessionName
         });

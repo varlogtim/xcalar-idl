@@ -156,7 +156,8 @@ class DagTabOptimized extends DagTab {
         const graphInfo = {
             comments: comments,
             display: <Dimensions>{scale: 1},
-            nodes: nodeInfos
+            nodes: nodeInfos,
+            operationTime: null
         };
 
         const graph: DagSubGraph = new DagSubGraph(retStruct.tableNewDagIdMap, retStruct.dagIdToTableNamesMap);
