@@ -14,7 +14,8 @@ AccumulatorTypeT = {
   'AccumulatorMax' : 0,
   'AccumulatorMin' : 1,
   'AccumulatorSum' : 2,
-  'AccumulatorCount' : 3
+  'AccumulatorCount' : 3,
+  'AccumulatorAvg' : 4
 };
 XcalarEvalArgTypeTStr = {
   0 : 'optional',
@@ -30,11 +31,13 @@ AccumulatorTypeTStr = {
   0 : 'max',
   1 : 'min',
   2 : 'sum',
-  3 : 'count'
+  3 : 'count',
+  4 : 'avg'
 };
 AccumulatorTypeTFromStr = {
   'max' : 0,
   'min' : 1,
   'sum' : 2,
-  'count' : 3
+  'count' : 3,
+  'avg' : 4
 };

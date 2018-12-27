@@ -673,7 +673,8 @@ StatusT = {
   'StatusUDFBadPath' : 664,
   'StatusDsMetaDataNotFound' : 665,
   'StatusDatasetAlreadyUnloaded' : 666,
-  'StatusUdfModuleFullNameRequired' : 667
+  'StatusUdfModuleFullNameRequired' : 667,
+  'StatusCgroupsDisabled' : 668
 };
 StatusTStr = {
   0 : 'Success',
@@ -1343,7 +1344,8 @@ StatusTStr = {
   664 : 'UDF path not recognized',
   665 : 'Dataset metadata doesn\'t exist',
   666 : 'Dataset is already unloaded',
-  667 : 'UDF module name must be full path name'
+  667 : 'UDF module name must be full path name',
+  668 : 'Cgroups APIs have been disabled'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -2013,5 +2015,6 @@ StatusTFromStr = {
   'UDF path not recognized' : 664,
   'Dataset metadata doesn\'t exist' : 665,
   'Dataset is already unloaded' : 666,
-  'UDF module name must be full path name' : 667
+  'UDF module name must be full path name' : 667,
+  'Cgroups APIs have been disabled' : 668
 };

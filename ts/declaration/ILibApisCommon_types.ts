@@ -2091,12 +2091,14 @@ declare class XcalarApiSessionT {
 	info: string;
 	activeNode: number;
 	sessionId: string;
+	description: string;
 	constructor(args?: {
 		name?: string,
 		state?: string,
 		info?: string,
 		activeNode?: number,
 		sessionId?: string,
+		description?: string,
 	});
 }
 declare class XcalarApiSessionListOutputT {

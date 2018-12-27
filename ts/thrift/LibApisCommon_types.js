@@ -19669,6 +19669,7 @@ XcalarApiSessionT = function(args) {
   this.info = null;
   this.activeNode = null;
   this.sessionId = null;
+  this.description = null;
   if (args) {
     if (args.name !== undefined && args.name !== null) {
       this.name = args.name;
@@ -19684,6 +19685,9 @@ XcalarApiSessionT = function(args) {
     }
     if (args.sessionId !== undefined && args.sessionId !== null) {
       this.sessionId = args.sessionId;
+    }
+    if (args.description !== undefined && args.description !== null) {
+      this.description = args.description;
     }
   }
 };
@@ -19736,6 +19740,13 @@ XcalarApiSessionT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 6:
+      if (ftype == Thrift.Type.STRING) {
+        this.description = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -19770,6 +19781,11 @@ XcalarApiSessionT.prototype.write = function(output) {
   if (this.sessionId !== null && this.sessionId !== undefined) {
     output.writeFieldBegin('sessionId', Thrift.Type.STRING, 5);
     output.writeString(this.sessionId);
+    output.writeFieldEnd();
+  }
+  if (this.description !== null && this.description !== undefined) {
+    output.writeFieldBegin('description', Thrift.Type.STRING, 6);
+    output.writeString(this.description);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

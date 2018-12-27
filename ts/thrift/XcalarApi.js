@@ -2417,7 +2417,7 @@ xcalarDatasetCreate = runEntity.xcalarDatasetCreate = function(thriftHandle, nam
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            deferred.reject(status, log);
+            deferred.reject({xcalarStatus: status, log: log});
         } else {
             deferred.resolve(result);
         }
@@ -2455,7 +2455,7 @@ xcalarDatasetDelete = runEntity.xcalarDatasetDelete = function(thriftHandle, nam
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            deferred.reject(status, log);
+            deferred.reject({xcalarStatus: status, log: log});
         } else {
             deferred.resolve(result);
         }
@@ -2494,7 +2494,7 @@ xcalarDatasetGetMeta = runEntity.xcalarDatasetGetMeta = function(thriftHandle, n
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            deferred.reject(status, log);
+            deferred.reject({xcalarStatus: status, log: log});
         } else {
             deferred.resolve(datasetGetMetaOutput);
         }
@@ -2534,7 +2534,7 @@ xcalarDatasetUnload = runEntity.xcalarDatasetUnload = function(thriftHandle, dat
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            deferred.reject(status, log);
+            deferred.reject({xcalarStatus: status, log: log});
         } else {
             deferred.resolve(datasetUnloadOutput);
         }
