@@ -174,10 +174,9 @@ class DagList {
             dagTab.setName(newName);
             this._saveUserDagList();
             $li.find(".name").text(newName);
-        } else {
-            // not support rename published df now
-           return;
         }
+        // not support rename published df now
+        this.updateList();
     }
 
     /**
