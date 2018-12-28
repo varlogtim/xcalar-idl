@@ -4,6 +4,7 @@ namespace WorkbookManager {
     let wkbkSet: WKBKSet;
     let checkInterval: number = 2000; // progress bar check time
     let progressTimeout: any;
+    const descriptionKey: string = "workBookDesc-1";
 
     /**
     * WorkbookManager.setup
@@ -634,7 +635,10 @@ namespace WorkbookManager {
         wkbk.description = description;
         wkbk.update();
 
-        saveWorkbook()
+        saveDescription(wkbk.getName(), description)
+        .then(function() {
+            return saveWorkbook();
+        })
         .then(function() {
             XcSocket.Instance.sendMessage("refreshWorkbook", {
                 "action": "description",
@@ -1000,8 +1004,17 @@ namespace WorkbookManager {
                     });
                 }
 
-                wkbk.setSessionId(sessions[i].sessionId);
+                const session = sessions[i];
+                let description = session.description;
+                // Note: this is only for upgrade 
+                const oldDescription = wkbk.getDescription();
+                if (oldDescription && !description) {
+                    description = oldDescription;
+                    saveDescription(wkbkName, description);
+                }
+                wkbk.setSessionId(session.sessionId);
                 wkbk.setResource(hasResouce);
+                wkbk.description = description;
                 wkbkSet.put(wkbkId, wkbk);
             }
 
@@ -1123,6 +1136,16 @@ namespace WorkbookManager {
         return XcUser.CurrentUser.holdSession(newWKBKId, true);
     }
 
+    function saveDescription(workbookName: string, description: string): XDPromise<void> {
+        const key: string = descriptionKey;
+        const kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
+        const currentSession: string = sessionName;
+        setSessionName(workbookName);
+        const promise = kvStore.put(description, true, true);
+        setSessionName(currentSession);
+        return PromiseHelper.alwaysResolve(promise);
+    }
+
     // if upload, jupFolderName should be provided
     function finishCreatingWKBK(wkbkName: string, username: string, isCopy: boolean, copySrc: WKBK, jupFolderName?: string): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
@@ -1159,7 +1182,6 @@ namespace WorkbookManager {
 
             wkbk = new WKBK(options);
             wkbkSet.put(wkbk.id, wkbk);
-
             return saveWorkbook();
         })
         .then(function() {
@@ -1178,7 +1200,9 @@ namespace WorkbookManager {
                 deferred.reject(error);
             } else {
                 try {
-                    wkbk.setSessionId(retStruct.sessions[0].sessionId);
+                    const session = retStruct.sessions[0];
+                    wkbk.setSessionId(session.sessionId);
+                    wkbk.description = session.description;
                 } catch (e) {
                     console.error(e);
                 }

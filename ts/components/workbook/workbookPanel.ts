@@ -567,6 +567,10 @@ namespace WorkbookPanel {
         })
         .then(function(id, $fauxCard) {
             replaceLoadingCard($fauxCard, <string>id, true);
+            const wkbk = WorkbookManager.getWorkbook(id);
+            if (wkbk != null) {
+                description = description || wkbk.getDescription();
+            }
             return WorkbookPanel.edit(<string>id, workbookName, description, true);
         })
         .then(deferred.resolve)
