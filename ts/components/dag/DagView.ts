@@ -1858,16 +1858,32 @@ namespace DagView {
      * 4. adjust dataflowAreaWrapper min-height and min-width
      * 5. adjust scrollbar
      */
-    export function zoom(isZoomIn: boolean) {
+    export function zoom(isZoomIn: boolean, newScale?: number) {
         const prevScale: number = activeDag.getScale();
         let scaleIndex: number = zoomLevels.indexOf(prevScale);
         let scale: number;
-        if (isZoomIn) {
+        if (scaleIndex == -1 && newScale == null) {
+            for (let i = 0; i < zoomLevels.length; i++) {
+                if (zoomLevels[i] > prevScale) {
+                    if (isZoomIn) {
+                        scaleIndex = i
+                    } else {
+                        scaleIndex = i-1;
+                    }
+                    break;
+                }
+            }
+        }
+        else if (isZoomIn) {
             scaleIndex++;
         } else {
             scaleIndex--;
         }
-        if (scaleIndex < 0 || scaleIndex >= zoomLevels.length) {
+
+        if (newScale != null) {
+            scale = newScale;
+        }
+        else if (scaleIndex < 0 || scaleIndex >= zoomLevels.length) {
             return;
         } else {
             scale = zoomLevels[scaleIndex];

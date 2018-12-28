@@ -1,13 +1,36 @@
 <div id = "dagViewBar" class="topBar">
-    <header id="dagViewTitle" class="title">CREATING DATAFLOWS</header>
-    <div class="topButtons">
+    <div class="topButtons left">
+        <div id="undo" class="topButton undo" data-toggle="tooltip" data-container="body" data-placement="left">
+            <i class="icon xi-undo"></i>
+        </div>
+        <div id="redo" class="topButton redo" data-toggle="tooltip" data-container="body" data-placement="left">
+            <i class="icon xi-redo"></i>
+        </div>
+        <div class="divider"></div>
+        <div class="topButton zoomOut" data-toggle="tooltip" data-container="body" data-placement="left" data-title="<%=
+                dicts.dag.zoomOut %>">
+            <i class="icon xi-minus-circle-outline"></i>
+        </div>
+        <div class="topButton zoomIn" data-toggle="tooltip" data-container="body" data-placement="left" data-title="<%=
+                dicts.dag.zoomIn %>">
+            <i class="icon xi-plus-circle-outline"></i>
+        </div>
+        <div class="topButton zoomPercent" data-toggle="tooltip" data-container="body" data-placement="left" data-title="<%= dicts.dag.zoomOut %>">
+            <input class="zoomPercentInput xc-input" type="text" pattern="\d*" maxlength="3" value="100" placeholder="100">
+            <div class="percent-sign">%</div>
+        </div>
+        <div class="divider"></div>
         <div class="topButton run" data-toggle="tooltip" data-container="body" data-placement="left" data-title="<%= dicts.dag.executeAll %>">
             <i class="icon xi-play-circle"></i>
+        </div>
+        <div class="topButton optimizedRun" data-toggle="tooltip" data-container="body" data-placement="left" data-title="<%= dicts.dag.executeAll %>">
+            <i class="icon xi-fast-foward-circle"></i>
         </div>
         <div class="topButton stop" data-toggle="tooltip" data-container="body" data-placement="left" data-title="<%= dicts.dag.cancelExecute %>">
             <i class="icon xi-stop-circle"></i>
         </div>
-        <div class="divider"></div>
+    </div>
+    <div class="topButtons">
         <div class="topButton duplicate" data-toggle="tooltip" data-container="body" data-placement="left" data-title="<%= dicts.dataflow.DuplicateDF %>">
             <i class="icon xi-duplicate"></i>
         </div>
@@ -21,18 +44,6 @@
             <i class="icon xi-upload"></i>
         </div>
         <div class="divider"></div>
-        <div class="topButton zoomIn" data-toggle="tooltip" data-container="body" data-placement="left" data-title="<%= dicts.dag.zoomIn %>">
-            <i class="icon xi-plus-circle-outline"></i>
-        </div>
-        <div class="topButton zoomOut" data-toggle="tooltip" data-container="body" data-placement="left" data-title="<%= dicts.dag.zoomOut %>">
-            <i class="icon xi-minus-circle-outline"></i>
-        </div>
-        <div id="undo" class="topButton undo" data-toggle="tooltip" data-container="body" data-placement="left">
-            <i class="icon xi-undo"></i>
-        </div>
-        <div id="redo" class="topButton redo" data-toggle="tooltip" data-container="body" data-placement="left">
-            <i class="icon xi-redo"></i>
-        </div>
         <div class="topButton parameters retTab noTabRequired" data-toggle="tooltip" data-container="body" data-placement="left">
             Parameters
             <!-- <button class="tabWrap btn">
@@ -43,7 +54,6 @@
         <div class="topButton aggregates retTab" data-toggle="tooltip" data-container="body" data-placement="left">
             <%= dicts.ws.ConstList %>
         </div>
-        <div class="divider"></div>
         <div class="topButton setting noTabRequired" data-toggle="tooltip" data-container="body" data-placement="left" data-title="<%= dicts.dataflow.Settings %>">
             <i class="icon xi-setting"></i>
         </div>

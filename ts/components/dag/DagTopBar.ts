@@ -61,6 +61,10 @@ class DagTopBar {
             DagView.run();
         });
 
+        this.$topBar.find(".optimizedRun").click(function() {
+            DagView.run(null, true);
+        });
+
         this.$topBar.find(".stop").click(function() {
             DagView.cancel();
         });
@@ -81,12 +85,30 @@ class DagTopBar {
 
         this.$topBar.find(".zoomIn").click(function() {
             DagView.zoom(true);
+            let percent = DagView.getActiveDag().getScale() * 100;
+            $("#dagViewBar .zoomPercent input").val(percent);
             self._checkZoom();
         });
 
         this.$topBar.find(".zoomOut").click(function() {
             DagView.zoom(false);
+            let percent = DagView.getActiveDag().getScale() * 100;
+            $("#dagViewBar .zoomPercent input").val(percent);
             self._checkZoom();
+        });
+
+        this.$topBar.find(".zoomPercent").on('keyup', function(e) {
+            if (e.which == 13) {
+                e.preventDefault();
+                let percent: number = $(this).find("input").val();
+                if (percent <= 0 || percent > 200) {
+                    StatusBox.show("Zoom must be between 0% and 200%",
+                        $(this));
+                    return;
+                }
+                DagView.zoom(true, percent / 100)
+                self._checkZoom();
+            }
         });
 
         this.$topBar.find(".duplicate").click(() => {
@@ -119,7 +141,14 @@ class DagTopBar {
         $zoomIn.removeClass("disabled");
         $zoomOut.removeClass("disabled");
         const scale = DagView.getActiveDag().getScale();
-        const scaleIndex = DagView.zoomLevels.indexOf(scale);
+        let scaleIndex = DagView.zoomLevels.indexOf(scale);
+        if (scaleIndex == -1) {
+            if (scale < DagView.zoomLevels[0]) {
+                scaleIndex = 0;
+            } else {
+                scaleIndex = 1;
+            }
+        }
         if (scaleIndex === 0) {
             $zoomOut.addClass("disabled");
         } else if (scaleIndex === DagView.zoomLevels.length - 1) {

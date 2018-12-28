@@ -625,13 +625,29 @@ body {
     .size(@width: @width-userBox, @height: @height-homeBtn - 1px);
     .position(fixed, @top: 0, @right: 0);
     z-index: @z-index-topBar + 1;
-    padding-right: 15px;
+    padding-right: 10px;
     padding-left: 5px;
 
    > button {
         display: inline-block;
         float: right;
         .vertical-align;
+        width: 24px;
+        height: 24px;
+    }
+
+    .xi-warning, .xi-success {
+        font-size: 17px;
+        line-height: 19px;
+    }
+
+    #userNameArea {
+        background-color: @color-white;
+        border-radius: 2px;
+        color: #9EB3C5;
+        .icon {
+            font-size: 17px;
+        }
     }
 }
 
