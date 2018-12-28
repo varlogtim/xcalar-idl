@@ -1342,8 +1342,7 @@ namespace DagView {
                 if (UserSettings.getPref("dfAutoPreview") === true &&
                     nodeIds != null &&
                     nodeIds.length === 1 &&
-                    graph.getNode(nodeIds[0]).getType() != DagNodeType.Aggregate &&
-                    graph.getNode(nodeIds[0]).getType() != DagNodeType.Export
+                    !graph.getNode(nodeIds[0]).isOutNode()
                 ) {
                     const node: DagNode = graph.getNode(nodeIds[0]);
                     if (node.getState() === DagNodeState.Complete) {
