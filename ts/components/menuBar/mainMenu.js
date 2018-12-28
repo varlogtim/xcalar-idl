@@ -408,6 +408,10 @@ window.MainMenu = (function($, MainMenu) {
                 $("#modelingDagPanel").addClass("active");
                 DagView.show();
                 break;
+            case ("sqlTab"):
+                BottomMenu.unsetMenuCache();
+                $("#sqlWorkSpacePanel").addClass("active");
+                break;
             default:
                 $(".underConstruction").addClass("active");
         }

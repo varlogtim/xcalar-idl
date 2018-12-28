@@ -1,0 +1,19 @@
+<div id="sqlEditorSpace">
+  <header>
+    <%= dicts.SQL.Editor %>
+  </header>
+  <section class="topBarSection"></section>
+  <section class="editSection">
+    <div class="editArea">
+      <textarea id="sqlEditorSpace-editor"></textarea>
+    </div>
+  </section>
+  <section class="bottomSection">
+    <button class="btn btn-submit execute">
+      <%= dicts.dag.execute %>
+    </button>
+    <button class="btn btn-next executeAll">
+        <%= dicts.dag.executeAll %>
+    </button>
+  </section>
+</div>

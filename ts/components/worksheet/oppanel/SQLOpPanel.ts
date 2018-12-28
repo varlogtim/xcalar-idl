@@ -6,7 +6,7 @@ class SQLOpPanel extends BaseOpPanel {
     private _dataModel: SQLOpPanelModel; // The key data structure
     protected _dagNode: DagNodeSQL;
 
-    private _sqlEditor: CodeMirror.Editor;
+    private _sqlEditor: SQLEditor;
     private _$sqlButton: JQuery;
     private _$sqlSnippetDropdown = $("#sqlSnippetsList");
     private _$sqlIdentifiers = $("#sqlIdentifiers");
@@ -17,8 +17,6 @@ class SQLOpPanel extends BaseOpPanel {
     private _sqlTables = {};
     private _snippetQueryKvStore : KVStore;
     private _snippetKvStore: KVStore;
-    private _keywordsToRemove: string[];
-    private _keywordsToAdd: string[];
     private _defaultSnippet: string;
     private _allSnippets : {};
     private _curSnippet : string;
@@ -37,13 +35,6 @@ class SQLOpPanel extends BaseOpPanel {
         this._$editorWrapper = this._$elemPanel.find(".editorWrapper").eq(0);
         super.setup(this._$elemPanel);
 
-        this._keywordsToRemove = ["alter", "begin", "create", "delete", "drop",
-                                  "insert", "into", "set", "table", "update",
-                                  "values"];
-        this._keywordsToAdd = ["over", "partition", "intersect", "except",
-                               "with", "left", "right", "outer", "natural",
-                               "semi", "anti", "rollup", "cube", "grouping",
-                               "sets", "limit", "sum", "avg", "max", "min"];
         this._defaultSnippet = "Default Snippet";
         this._allSnippets = {};
         this._curSnippet = this._defaultSnippet;
@@ -54,13 +45,12 @@ class SQLOpPanel extends BaseOpPanel {
         this._snippetKvStore = new KVStore(snippetKey, gKVScope.WKBK);
         this._loadSnippets();
 
-
         this._setupSQLEditor();
         this._setupSnippetsList();
     }
 
     public getSQLEditor(): CodeMirror.Editor {
-        return this._sqlEditor;
+        return this._sqlEditor.getEditor();
     };
 
     public refresh(): void {
@@ -212,155 +202,23 @@ class SQLOpPanel extends BaseOpPanel {
         this._$sqlSnippetDropdown.addClass("xc-disabled");
     }
 
-    private _executeTrigger(): void {
-        $("#sqlExecute").click();
-    }
-
-    private _cancelExec(): void {
-        console.log("SQL cancel triggered!");
-        SQLOpPanel.resetProgress();
-    }
-
-    private _convertTextCase(flag: boolean): void {
-        const text = this._sqlEditor.getSelection();
-        if (text != "") {
-            if (flag) {
-                this._sqlEditor.replaceSelection(text.toLocaleUpperCase(), "around");
-            } else {
-                this._sqlEditor.replaceSelection(text.toLocaleLowerCase(), "around");
-            }
-        }
-    }
-
-    private _toggleComment(): void {
-        const startPos = this._sqlEditor.getCursor("from");
-        const endPos = this._sqlEditor.getCursor("to");
-        const startLineNum = startPos.line;
-        const endLineNum = endPos.line;
-        let commentCount = 0;
-        this._sqlEditor.eachLine(startLineNum, endLineNum + 1, function(lh) {
-            if (lh.text.trimStart().startsWith("--")) {
-                commentCount++;
-            }
-        })
-        if (commentCount === endLineNum - startLineNum + 1) {
-            for (let i = startLineNum; i <= endLineNum; i++) {
-                const text = this._sqlEditor.getLine(i);
-                this._sqlEditor.setSelection({line: i, ch: 0},
-                                          {line: i, ch: text.length});
-                this._sqlEditor.replaceSelection(text.replace(/--/, ""));
-            }
-        } else {
-            for (let i = startLineNum; i <= endLineNum; i++) {
-                const text = this._sqlEditor.getLine(i);
-                this._sqlEditor.setSelection({line: i, ch: 0},
-                                          {line: i, ch: text.length});
-                this._sqlEditor.replaceSelection("--" + text);
-            }
-        }
-        this._sqlEditor.setSelection(startPos,endPos);
-    }
-
-    private _scrollLine(flag: boolean): void {
-        if (flag) {
-            this._sqlEditor.scrollTo(null, this._sqlEditor.getScrollInfo().top -
-                                        this._sqlEditor.defaultTextHeight());
-        } else {
-            this._sqlEditor.scrollTo(null, this._sqlEditor.getScrollInfo().top +
-                                        this._sqlEditor.defaultTextHeight());
-        }
-    }
-
-    private _insertLine(flag: boolean): void {
-        if (flag) {
-            const curPos = this._sqlEditor.getCursor("from");
-            const insertPos = {line: curPos.line, ch: 0};
-            this._sqlEditor.replaceRange("\n", insertPos);
-            this._sqlEditor.setCursor(insertPos);
-        } else {
-            const curPos = this._sqlEditor.getCursor("to");
-            const insertPos = {line: curPos.line,
-                               ch: this._sqlEditor.getLine(curPos.line).length};
-            this._sqlEditor.replaceRange("\n", insertPos);
-            this._sqlEditor.setCursor({line: curPos.line + 1, ch: 0});
-        }
-    }
-
     private _setupSQLEditor(): void {
         const self = this;
-        const textArea = document.getElementById("sqlEditor");
-        if (!textArea) {
-            // For Release Candidates
-            return;
-        }
-
-        const extraKeys = {"F5": self._executeTrigger,
-                         "Alt-X": self._executeTrigger,
-                         "Ctrl-Space": "autocomplete", // Need to write autocomplete code
-                         "Ctrl--": self._toggleComment};
-
-        let cButton = "Ctrl";
-        if (isSystemMac) {
-            cButton = "Cmd";
-            extraKeys[cButton + "-Alt-F"] = "replace";
-            extraKeys["Shift-" + cButton + "-Backspace"] = "delWordAfter";
-            extraKeys["F6"] = self._cancelExec;
-            extraKeys["F3"] = "findNext";
-            extraKeys["Shift-F3"] = "findPrev";
-        } else {
-            extraKeys[cButton + "-H"] = "replace";
-            extraKeys[cButton + "-Delete"] = "delWordAfter";
-            extraKeys["Ctrl-Alt-C"] = self._cancelExec;
-            extraKeys["Ctrl-Alt-G"] = "findNext";
-            extraKeys["Shift-Ctrl-Alt-G"] = "findPrev";
-        }
-        extraKeys[cButton + "-E"] = self._executeTrigger;
-        extraKeys[cButton + "-Left"] = "goWordLeft";
-        extraKeys[cButton + "-Right"] = "goWordRight";
-        extraKeys[cButton + "-Backspace"] = "delWordBefore";
-        extraKeys["Shift-" + cButton + "-U"] = self._convertTextCase.bind(window, true);
-        extraKeys["Shift-" + cButton + "-L"] = self._convertTextCase.bind(window, false);
-        extraKeys["Shift-" + cButton + "-K"] = "deleteLine";
-        extraKeys[cButton + "-Up"] = self._scrollLine.bind(window, true);
-        extraKeys[cButton + "-Down"] = self._scrollLine.bind(window, false);
-        extraKeys[cButton + "-Enter"] = self._insertLine.bind(window, true);
-        extraKeys["Shift-" + cButton + "-Enter"] = self._insertLine.bind(window, false);
-
-        self._sqlEditor = CodeMirror.fromTextArea(textArea as HTMLTextAreaElement,
-            {
-                "mode": "text/x-sql",
-                "theme": "xcalar-light",
-                "lineNumbers": true,
-                "lineWrapping": true,
-                "smartIndent": true,
-                "indentWithTabs": false,
-                // "indentUnit": 4,
-                "matchBrackets": true,
-                "autofocus": true,
-                "autoCloseBrackets": true,
-                "search": true,
-                "hint": CodeMirror.hint.sql,
-                "extraKeys": extraKeys,
+        const callbacks = {
+            onExecute: () => {
+                // $("#sqlExecute").click();
+            },
+            onCalcelExecute: () => {
+                console.log("SQL cancel triggered!");
+                SQLOpPanel.resetProgress();
+            },
+            onAutoComplete: (editor: CodeMirror.Editor) => {
+                editor.execCommand("autocompleteSQLInDF");
             }
-        );
+        }
+        this._sqlEditor = new SQLEditor("sqlEditor", callbacks);
 
-        self._sqlEditor.on("keyup", function(_cm, e) {
-            if (e.keyCode >= 65 && e.keyCode <= 90 ||
-                e.keyCode >= 48 && e.keyCode <= 57 && !e.shiftKey ||
-                e.keyCode === 190 && !e.shiftKey) {
-                self._sqlEditor.execCommand("autocomplete");
-            }
-        });
-
-        self._keywordsToRemove.forEach(function(key) {
-            delete CodeMirror.resolveMode("text/x-sql").keywords[key];
-        })
-
-        self._keywordsToAdd.forEach(function(key) {
-            CodeMirror.resolveMode("text/x-sql").keywords[key] = true;
-        })
-
-        CodeMirror.commands.autocomplete = function (cmeditor) {
+        CodeMirror.commands.autocompleteSQLInDF = function(cmeditor) {
             var acTables = {};
             for(var tableName in self._sqlTables) {
                 acTables[tableName] = [];
@@ -385,7 +243,6 @@ class SQLOpPanel extends BaseOpPanel {
                 tables: acTables
             });
         }
-        self._sqlEditor.refresh();
     }
 
     private _addTableIdentifier(key?: number, value?: string): void {

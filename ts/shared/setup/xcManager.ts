@@ -88,6 +88,7 @@ namespace xcManager {
             window["ajv"] = new Ajv(); // json schema validator
 
             SqlQueryHistoryPanel.Card.getInstance().setup();
+            SQLWorkSpace.Instance.setup();
             return setupDagPanel();
         })
         .then(function() {
