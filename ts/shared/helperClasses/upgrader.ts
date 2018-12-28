@@ -124,7 +124,7 @@ class Upgrader {
      */
     private _upgradeGlobalInfos(globalKeys: GlobalKVKeySet): XDPromise<void> {
         const def2: XDPromise<void> = this._upgradeGenSettings(globalKeys.gSettingsKey);
-        return PromiseHelper.when(def1, def2);
+        return PromiseHelper.when(def2);
     }
 
     private _upgradeUserSettings(gUserKey: string): XDPromise<void> {

@@ -255,7 +255,7 @@ class JoinOpPanelStep1 {
                     { 'APP-ERRORMSG': castMsg }
                 );
                 for (const row of castRow) {
-                    $castContainer.append(row);
+                    $castContainer.append(<HTMLElement>row);
                 }
                 // Left column type dropdown
                 this._createTypeCastDropdown({

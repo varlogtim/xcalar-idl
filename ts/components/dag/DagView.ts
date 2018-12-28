@@ -967,39 +967,39 @@ namespace DagView {
         return dagTab.save();
     }
 
-    function _disconnectNodesNoPersist(
-        parentNodeId: DagNodeId,
-        childNodeId: DagNodeId,
-        connectorIndex: number,
-        tabId: string,
-        isNoLog: boolean
-    ): LogParam {
-        const $dfArea = DagView.getAreaByTab(tabId);
-        const graph = DagTabManager.Instance.getTabById(tabId).getGraph();
-        const $edge: JQuery = $dfArea.find('.edge[data-parentnodeid="' +
-            parentNodeId +
-            '"][data-childnodeid="' +
-            childNodeId +
-            '"][data-connectorindex="' +
-            connectorIndex + '"]');
-        graph.disconnect(parentNodeId, childNodeId, connectorIndex);
-        _removeConnection($edge, $dfArea, childNodeId, tabId);
-        const logParam: LogParam = {
-            title: SQLTStr.DisconnectOperations,
-            options: {
-                "operation": SQLOps.DisconnectOperations,
-                "dataflowId": tabId,
-                "parentNodeId": parentNodeId,
-                "childNodeId": childNodeId,
-                "connectorIndex": connectorIndex
-            }
-        };
-        if (!isNoLog) {
-            Log.add(logParam.title, Object.assign({}, logParam.options));
-        }
+    // function _disconnectNodesNoPersist(
+    //     parentNodeId: DagNodeId,
+    //     childNodeId: DagNodeId,
+    //     connectorIndex: number,
+    //     tabId: string,
+    //     isNoLog: boolean
+    // ): LogParam {
+    //     const $dfArea = DagView.getAreaByTab(tabId);
+    //     const graph = DagTabManager.Instance.getTabById(tabId).getGraph();
+    //     const $edge: JQuery = $dfArea.find('.edge[data-parentnodeid="' +
+    //         parentNodeId +
+    //         '"][data-childnodeid="' +
+    //         childNodeId +
+    //         '"][data-connectorindex="' +
+    //         connectorIndex + '"]');
+    //     graph.disconnect(parentNodeId, childNodeId, connectorIndex);
+    //     _removeConnection($edge, $dfArea, childNodeId, tabId);
+    //     const logParam: LogParam = {
+    //         title: SQLTStr.DisconnectOperations,
+    //         options: {
+    //             "operation": SQLOps.DisconnectOperations,
+    //             "dataflowId": tabId,
+    //             "parentNodeId": parentNodeId,
+    //             "childNodeId": childNodeId,
+    //             "connectorIndex": connectorIndex
+    //         }
+    //     };
+    //     if (!isNoLog) {
+    //         Log.add(logParam.title, Object.assign({}, logParam.options));
+    //     }
 
-        return logParam;
-    }
+    //     return logParam;
+    // }
 
     /**
      * DagView.getNode
@@ -3644,7 +3644,7 @@ namespace DagView {
                 .attr("x", 0)
                 .attr("y", i * titleLineHeight);
         });
-        xcTooltip.add(paramTextSvg, { title: fullParamHint, placement: "bottom auto" });
+        xcTooltip.add(<any>paramTextSvg, { title: fullParamHint, placement: "bottom auto" });
     }
 
     function _updateConnectorIn(nodeId: DagNodeId, numInputs: number) {

@@ -565,7 +565,7 @@ namespace WorkbookPanel {
             const deferred2: XDPromise<JQuery> = createLoadingCard($sibling);
             return PromiseHelper.when(deferred1, deferred2);
         })
-        .then(function(id, $fauxCard) {
+        .then(function(id: string, $fauxCard) {
             replaceLoadingCard($fauxCard, <string>id, true);
             const wkbk = WorkbookManager.getWorkbook(id);
             if (wkbk != null) {
@@ -764,7 +764,7 @@ namespace WorkbookPanel {
     function alertDownloadWorkbook(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let writeChecked = () => {
-            xcLocalStorage.setItem("noWKBKDownloadAlert", true);
+            xcLocalStorage.setItem("noWKBKDownloadAlert", "true");
         };
 
         try {

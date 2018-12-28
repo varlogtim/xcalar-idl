@@ -200,7 +200,7 @@ class DagNodeJoin extends DagNode {
         });
 
         // 1. Get join cols
-        const joinedCols: ProgCol[] = joinInput.columns.map((colName, index) => {
+        const joinedCols: ProgCol[] = joinInput.columns.map((colName) => {
             joinedColSet.add(colName);
             // We don't support type casting in Join for now, but keep the code in case we wanna re-enable it
             // const colType: ColumnType = joinInput.casts == null

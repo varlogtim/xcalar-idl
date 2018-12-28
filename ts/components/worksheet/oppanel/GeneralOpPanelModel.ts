@@ -529,7 +529,7 @@ class GeneralOpPanelModel {
 
     public validateAdvancedMode(
         _paramStr: string,
-        isSubmit?: boolean
+        _isSubmit?: boolean
     ): {error: string} {
         return null;
     }

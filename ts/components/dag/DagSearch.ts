@@ -41,7 +41,7 @@ class DagSearch {
                 selector += ", .paramTitle";
             }
             const $searchableFields: JQuery = DagView.getActiveArea().find(selector);
-            const matches: Element[] = $searchableFields.filter((_index, el) => {
+            const matches = $searchableFields.filter((_index, el) => {
                 return $(el).text().toLowerCase().includes(keyword);
             }).toArray();
 

@@ -1080,7 +1080,8 @@ abstract class DagNode {
             state: this.state,
             error: this.error,
             configured: this.configured,
-            aggregates: this.aggregates
+            aggregates: this.aggregates,
+            stats: null
         };
         if (includeStats) {
             if (this.runStats.hasRun) {

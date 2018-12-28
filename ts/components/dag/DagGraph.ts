@@ -9,7 +9,6 @@ class DagGraph {
     private noDelete: boolean;
     private parentTabId: string;
     private errorNodes: DagNodeInfo[];
-    private hasError: boolean;
     protected operationTime: number;
     protected currentExecutor: DagGraphExecutor
     public events: { on: Function, off: Function, trigger: Function}; // example: dagGraph.events.on(DagNodeEvents.StateChange, console.log)
@@ -187,7 +186,7 @@ class DagGraph {
                     position: {x: 20, y: 20}
                 });
             }
-            this.hasError = true;
+            // this.hasError = true;
             this.rebuildGraph({
                 nodes: nodes,
                 comments: comments,
@@ -254,9 +253,9 @@ class DagGraph {
                 }
             }
         });
-        if (this.errorNodes.length) {
-            this.hasError = true;
-        }
+        // if (this.errorNodes.length) {
+        //     this.hasError = true;
+        // }
 
         this.rebuildGraph({
             nodes: nodes,
@@ -2446,7 +2445,7 @@ class DagGraph {
         function _getUnionColumns(columns) {
             let maxLength = 0;
             let maxColSet;
-            const newCols = columns.map((colSet, i) => {
+            const newCols = columns.map((colSet) => {
                 const newColSet = colSet.map((col) => {
                     return {
                         "sourceColumn": col.sourceColumn,

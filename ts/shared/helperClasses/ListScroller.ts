@@ -114,8 +114,8 @@ class ListScroller {
 
             const scrollUp: boolean = $(this).hasClass('top');
 
-            const $list: JQuery = this.$list;
-            const $ul: JQuery = this.$ul;
+            // const $list: JQuery = this.$list;
+            // const $ul: JQuery = this.$ul;
 
             // if (this.verticalScroll) {
             //     const ulHeight: number = $ul[0].scrollHeight - 1;

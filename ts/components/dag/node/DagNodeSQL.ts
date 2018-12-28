@@ -58,7 +58,7 @@ class DagNodeSQL extends DagNode {
         }
     };
 
-    public updateSubGraph(newTableMap?: {}): void {
+    public updateSubGraph(_newTableMap?: {}): void {
         // XXX Can't have this optimization right now since things are broken
         // XXX TO-DO make it work
         // if (newTableMap) {

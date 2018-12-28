@@ -1873,7 +1873,7 @@ class TblManager {
      * TblManager.alignTableEls
      * @param $tableWrap
      */
-    public static alignTableEls($tableWrap?: JQuery): void {
+    public static alignTableEls(): void {
         TblFunc.moveFirstColumn(null);
     }
 

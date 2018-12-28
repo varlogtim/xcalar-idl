@@ -956,7 +956,7 @@ namespace QueryManager {
         }
     }
 
-    function xcalarQueryCheckHelper(id: number, queryName: string): XDPromise<any> {
+    function xcalarQueryCheckHelper(_id: number, queryName: string): XDPromise<any> {
         // const mainQuery: XcQuery = queryLists[id];
         // const curSubQuery: XcSubQuery = mainQuery.subQueries[mainQuery.currStep];
         return XcalarQueryState(queryName);

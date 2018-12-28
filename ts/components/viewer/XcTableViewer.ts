@@ -60,7 +60,6 @@ class XcTableViewer extends XcViewer {
      */
     public render($container: JQuery): XDPromise<void> {
         super.render($container);
-        this.$container = $container;
         this._showTableIconOnDagNode();
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this.table.getMetaAndResultSet()

@@ -163,7 +163,7 @@ class DragHelper {
         const self = this;
         const pxToIncrement = 20;
         const horzPxToIncrement = 40;
-        const deltaX = this.currX - this.lastX;
+        // const deltaX = this.currX - this.lastX;
         const deltaY = this.currY - this.lastY;
         const timer = 40;
         const hotZoneSize = 40; // width/height of area inside parent target

@@ -241,7 +241,7 @@ class DagNodeExecutor {
             dstAggName = dstAggName.substring(1);
         }
         XIApi.aggregateWithEvalStr(this.txId, evalStr, tableName, dstAggName)
-        .then((value, aggName, toDelete) => {
+        .then((value, aggName) => {
             node.setAggVal(value);
             if (!optimized) {
                 const aggRes: object = {
@@ -730,7 +730,7 @@ class DagNodeExecutor {
                 return PromiseHelper.resolve(destTable);
             }
         })
-        .then((finaTable) => {
+        .then((finaTable: string) => {
             deferred.resolve(finaTable);
         })
         .fail(deferred.reject);

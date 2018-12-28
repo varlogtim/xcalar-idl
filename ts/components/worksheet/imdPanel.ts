@@ -15,15 +15,6 @@ namespace IMDPanel {
         currentTable?: string;
     }
 
-    interface RefreshTableInfos {
-        pubTableName: string,
-        dstTableName: string,
-        minBatch: number,
-        maxBatch: number,
-        columns: string[],
-        colStruct: XcalarApiColumnT[]
-    }
-
     interface RestoreError {
         error: string,
         tableName: string,

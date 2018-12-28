@@ -9,20 +9,20 @@ class DagCategories {
 
         this.categories = [];
 
-        const favoritesCategory = new DagCategory(DagCategoryType.Favorites, [
-            new DagCategoryNodeIn(DagNodeFactory.create({
-                type: DagNodeType.Dataset
-            })),
-            new DagCategoryNodeOperations(DagNodeFactory.create({
-                type: DagNodeType.Filter
-            })),
-            new DagCategoryNodeColumn(DagNodeFactory.create({
-                type: DagNodeType.Map
-            })),
-            new DagCategoryNodeOut(DagNodeFactory.create({
-                type: DagNodeType.Export
-            })),
-        ]);
+        // const favoritesCategory = new DagCategory(DagCategoryType.Favorites, [
+        //     new DagCategoryNodeIn(DagNodeFactory.create({
+        //         type: DagNodeType.Dataset
+        //     })),
+        //     new DagCategoryNodeOperations(DagNodeFactory.create({
+        //         type: DagNodeType.Filter
+        //     })),
+        //     new DagCategoryNodeColumn(DagNodeFactory.create({
+        //         type: DagNodeType.Map
+        //     })),
+        //     new DagCategoryNodeOut(DagNodeFactory.create({
+        //         type: DagNodeType.Export
+        //     })),
+        // ]);
 
         const inCategory = new DagCategory(DagCategoryType.In, [
             new DagCategoryNodeIn(DagNodeFactory.create({
