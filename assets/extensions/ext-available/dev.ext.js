@@ -321,7 +321,7 @@ window.UExtDev = (function(UExtDev) {
                         "hideButtons": ["confirm"],
                         "buttons": [
                             {
-                                "name": AlertTStr.CLOSE,
+                                "name": AlertTStr.Close,
                                 "className": "cancel"
                             }
                         ]

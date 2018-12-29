@@ -183,7 +183,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
                     $commentSection.addClass("inactive");
                     $ticketIdSection.removeClass("inactive");
                     $ticketIdSection.find(".tableBody .row").removeClass("xc-hidden");
-                    $modal.find(".confirm").text(CommonTxtTstr.UPDATETICKET);
+                    $modal.find(".confirm").text(CommonTxtTstr.UpdateTicket);
                     if (firstTouch) {
                         SupTicketModal.restore()
                         .then(function() {
@@ -195,7 +195,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
                     $severitySection.removeClass("xc-hidden");
                     $modal.find(".subjectArea").removeClass("xc-hidden");
                     $commentSection.removeClass("inactive");
-                    $modal.find(".confirm").text(CommonTxtTstr.GENTICKET);
+                    $modal.find(".confirm").text(CommonTxtTstr.GenTicket);
                 }
             },
             "container": "#supTicketModal"
@@ -747,7 +747,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         $modal.removeClass("expanded");
         $ticketIdSection.removeClass("fetching");
         $modal.find(".row.expanded").removeClass("expanded");
-        $modal.find(".confirm").text(CommonTxtTstr.GENTICKET);
+        $modal.find(".confirm").text(CommonTxtTstr.GenTicket);
 
         Alert.unhide();
         StatusBox.forceHide();

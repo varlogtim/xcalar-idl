@@ -853,7 +853,7 @@ window.Admin = (function($, Admin) {
                 alertMsg = MonitorTStr.RestartAlertMsg;
                 break;
             default:
-                title = AlertTStr.CONFIRMATION;
+                title = AlertTStr.Confirmation;
                 break;
         }
         var msg = xcHelper.replaceMsg(MonitorTStr.NodeConfirmMsg, {

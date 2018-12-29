@@ -569,7 +569,7 @@ class DagCategoryBar {
         $elemActionDel.on('click', () => {
             Alert.show({
                 title: 'delete operator',
-                msg: `Are you sure you want to delete the operator`,
+                msg: `Are you sure you want to delete the operator?`,
                 onConfirm: () => {
                     this._deleteOperator(opId);
                 }

@@ -4672,7 +4672,7 @@ window.DSPreview = (function($, DSPreview) {
                     deferred.reject();
                 },
                 "buttons": [{
-                    name: CommonTxtTstr.FIX,
+                    name: CommonTxtTstr.Fix,
                     func: function() {
                         xcHelper.enableSubmit($form.find(".confirm"));
                         deferred.reject();
@@ -4787,7 +4787,7 @@ window.DSPreview = (function($, DSPreview) {
                 deferred.reject();
             },
             "buttons": [{
-                name: CommonTxtTstr.FIX,
+                name: CommonTxtTstr.Fix,
                 func: function() {
                     xcHelper.enableSubmit($form.find(".confirm"));
                     deferred.reject();

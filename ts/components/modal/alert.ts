@@ -451,7 +451,7 @@ namespace Alert {
         }
 
         if (options.buttons) {
-            $modal.find(".cancel").text(AlertTStr.CANCEL);
+            $modal.find(".cancel").text(AlertTStr.Cancel);
             $confirmBtn.hide();
             options.buttons.forEach((btnOption: AlertButton) => {
                 let className: string = "funcBtn";
@@ -477,10 +477,10 @@ namespace Alert {
                 }
             });
         } else if (options.isAlert) {
-            $modal.find(".cancel").text(AlertTStr.CLOSE);
+            $modal.find(".cancel").text(AlertTStr.Close);
             $confirmBtn.hide();
         } else {
-            $modal.find(".cancel").text(AlertTStr.CANCEL);
+            $modal.find(".cancel").text(AlertTStr.Cancel);
         }
 
         // lock screen if necessary

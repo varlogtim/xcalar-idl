@@ -378,7 +378,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
                                                         "#deleteTableModal"});
                 date = time.calendar();
             }
-            var size = table.size;
+            var size = xcHelper.sizeTranslator(table.size);
 
             var checkbox;
             if (DagTblManager.Instance.hasLock(table.name)) {

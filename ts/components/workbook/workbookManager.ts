@@ -816,13 +816,13 @@ namespace WorkbookManager {
                 "msg": WKBKTStr.CancelMsg,
                 "hideButtons": ["cancel"],
                 "buttons": [{
-                    "name": AlertTStr.CLOSE,
+                    "name": AlertTStr.Close,
                     "className": "btn-cancel",
                     func: function() {
                         $loadScreen.removeClass("canceling alertOpen");
                     }
                 }, {
-                    "name": AlertTStr.CONFIRM,
+                    "name": AlertTStr.Confirm,
                     func: cancel
                 }],
                 "onCancel": function() {

@@ -12,7 +12,7 @@ table, tr, td, th, input, textarea, section, p {
     .nomargin-padding;
     .box-sizing;
     border: none;
-    .font(@weight: 600, @size: 14px, @family: @font-base, @color: @color-font-darkGray);
+    .font(@weight: 600, @size: 14px, @family: @font-base, @color: @color-font-form-gray);
 }
 
 section {
@@ -45,7 +45,7 @@ html {
 body {
     -webkit-font-smoothing: antialiased;
     .nomargin-padding;
-    .font(@weight: 600, @family: @font-base, @color: @color-font-darkGray);
+    .font(@weight: 600, @family: @font-base, @color: @color-font-form-gray);
     font-size: 0; /* Need to use this to get rid of stupid white space */
     overflow-y: hidden;
     background: @color-bg-body-gray;
@@ -1198,7 +1198,7 @@ input {
     }
 
     .message, .detailContent {
-        color: @color-font-darkGray;
+        color: @color-font-form-gray;
         .font(@size: 12px, @line-height: 16px);
         white-space: normal;
         word-wrap: break-word;
@@ -1838,7 +1838,7 @@ input {
 
 i.qMark {
     .size(12px, 12px);
-    background: @color-bg-select-blue;
+    background-color: @color-bg-cardHeader;
     color: @color-white;
     border-radius: 100%;
     font-size: 7px;
@@ -2067,7 +2067,7 @@ input[type=number]::-webkit-outer-spin-button {
     pointer-events: initial;
 
     .tooltip-inner, .tooltip-arrow {
-        color: @color-font-darkGray;
+        color: @color-font-form-gray;
         opacity: 1 !important;
     }
 
@@ -2106,7 +2106,7 @@ input[type=number]::-webkit-outer-spin-button {
     }
 
     .tooltip-inner, .tooltip-arrow {
-        color: @color-font-darkGray;
+        color: @color-font-form-gray;
         opacity: 1 !important;
     }
 

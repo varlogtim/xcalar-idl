@@ -98,7 +98,7 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
     // XXX TODO: update it to DF 2.0
     function getTableList() {
         var tableList = "";
-        for (var id in gTables) {
+        for (var tableId in gTables) {
             var table = gTables[tableId];
             var tableName = table.getName();
             tableList +=

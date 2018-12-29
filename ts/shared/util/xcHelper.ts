@@ -2552,12 +2552,12 @@ namespace xcHelper {
             '<span class="currentStep">0</span>' + ' / ' +
             '<span class="totalSteps">1</span>' +
             '</div>' +
-                '<div class="textPart cancelText">' + AlertTStr.CANCEL + '</div>';
+                '<div class="textPart cancelText">' + AlertTStr.Cancel + '</div>';
         } else if (withText) {
             html += '<div class="textPart pctText">' +
             '<span class="num">0</span>' + '<span class="unit">%</span>' +
             '</div>' +
-                '<div class="textPart cancelText">' + AlertTStr.CANCEL + '</div>';
+                '<div class="textPart cancelText">' + AlertTStr.Cancel + '</div>';
         }
         html += '</div>';
         return html;

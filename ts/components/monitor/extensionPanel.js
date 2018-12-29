@@ -478,7 +478,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         var html = '<div class="category cardContainer">' +
                     '<header class="cardHeader">' +
                         '<div class="title textOverflowOneLine categoryName">' +
-                            category.getName() +
+                            "Category: " + category.getName() +
                         '</div>' +
                     '</header>' +
                     '<div class="cardMain items">';
@@ -501,7 +501,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             if (website) {
                 websiteEle = '<a class="website url" ' +
                             'data-url="' + website + '">' +
-                                ExtTStr.WEBSITE +
+                                ExtTStr.Website +
                             '</a>';
             } else {
                 websiteEle = "";

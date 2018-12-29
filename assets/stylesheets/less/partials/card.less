@@ -77,6 +77,12 @@
     border-bottom: 1px  solid @color-border-softGray;
     white-space: normal;
 
+    &.oneLine {
+        .text {
+            line-height: 30px;
+        }
+    }
+
     .icon {
         .flex(0 0 36px);
         .font(@size: 24px, @color: @color-bg-cardHeader);
@@ -89,7 +95,7 @@
 
     .text {
         .flex(1 1 auto);
-        .font(@weight: 600, @size: 12px);
+        .font(@weight: normal, @size: 12px);
         padding-top: 2px;
         overflow: auto;
         white-space: normal;

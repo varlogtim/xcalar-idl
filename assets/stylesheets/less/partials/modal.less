@@ -29,7 +29,7 @@
         text-transform: capitalize;
 
         .text {
-            .font(@size: 18px, @color: @color-white);
+            .font(@size: 18px, @weight: 600);
             display: inline-block;
             width: 100%;
             padding-left: 30px;
@@ -59,20 +59,22 @@
             }
         }
 
+        @padding-close: 15px;
+
         .close {
-            .position(absolute, @top: 7px, @right: 7px);
+            .position(absolute, @top: 7px, @right: @padding-close);
             .icon {
                 font-size: 18px;
             }
         }
         .fullScreen {
-            .position(absolute, @top: 7px, @right: 34px);
+            .position(absolute, @top: 7px, @right: 27px + @padding-close);
             .icon {
                font-size: 18px;
             }
         }
         .exitFullScreen {
-            .position(absolute, @top: 7px, @right: 61px);
+            .position(absolute, @top: 7px, @right: 54px + @padding-close);
         }
     }
 
@@ -80,11 +82,17 @@
         .size(@width: 100%, @height: @height-card-instr);
         background-color: @color-white;
         overflow: hidden;
-        padding: 10px;
+        padding: 10px 25px;
         border-bottom: 1px  solid @color-border-softGray;
         .flex-display;
         .flex-direction(row);
         .text-selection;
+
+        &.oneLine {
+            .text {
+                line-height: 36px;
+            }
+        }
 
         .icon {
             .flex(0 0 36px);
@@ -106,7 +114,6 @@
     .modalTopMain {
         .size(@width: 100%);
         background: @color-bg-white-three;
-        color: @color-font-form-gray;
         .no-selection;
     }
 
@@ -126,16 +133,16 @@
     .modalBottom {
         .size(@width: 100%, @height: 56px);
         .no-selection;
+        padding-left: 25px;
+        padding-right: 10px;
 
         .bottomItem, .btn {
             float: right;
             .vertical-align;
-            margin-right: 10px;
+            margin-right: 15px;
         }
 
         .btn {
-            .size(@height: 28px);
-            line-height: 28px;
             font-size: 12px;
 
             &.confirm {
@@ -376,7 +383,7 @@
         &.multiSelectMode {
             .menu {
                 li.selectionOpt {
-                    color: @color-font-darkGray;
+                    color: @color-font-form-gray;
                     .check {
                         display: none;
                     }
@@ -460,7 +467,7 @@
     .bar {
         height: 29px;
         background-color: @color-bg-white-seven;
-        color: @color-font-darkGray;
+        color: @color-font-form-gray;
         font-size: 13px;
         font-family: @font-base;
         font-weight: 600;
@@ -970,7 +977,7 @@
         .position(absolute, @top: 26px, @right: 4px);
         li {
             background-color: @color-white;
-            color: @color-font-darkGray;
+            color: @color-font-form-gray;
 
             &:hover, &.hover {
                 color: @color-font-softBlue !important;
@@ -1110,7 +1117,7 @@
 
         .tableText {
             .size(@height: 29px);
-            .font(@weight: bold, @line-height: 29px, @color: @color-font-darkGray);
+            .font(@weight: bold, @line-height: 29px, @color: @color-font-form-gray);
             padding-left: 25px;
         }
 
@@ -1299,7 +1306,7 @@
                 &.aggTableFlex {
                     background-color: @color-bg-white-three;
                     .dash {
-                        color: @color-font-darkGray;
+                        color: @color-font-form-gray;
                     }
                 }
             }
@@ -1748,7 +1755,7 @@ html.microsoft {
 }
 
 #jupyterUDFTemplateModal {
-    .size(@width: 460px, @height: 310px, @min-height: 310px);
+    .size(@width: 470px, @height: 310px, @min-height: 310px);
     font-size: 12px;
 
     .ui-resizable-handle {
@@ -1772,7 +1779,7 @@ html.microsoft {
         }
     }
     .modalMain {
-        padding: 20px;
+        padding: 20px 25px;
         height: ~"calc(100% - 145px)";
     }
     .modalBottom {
@@ -1865,7 +1872,8 @@ html.microsoft {
             .size(@width: ~"calc(100% - 26px)", @height: 26px);
             font-size: 12px;
             line-height: 26px;
-            color: @color-font-darkGray;
+            color: @color-font-form-gray;
+            outline: none;
         }
         .iconWrapper {
            .size(26px, 26px);
@@ -3727,10 +3735,10 @@ html.microsoft {
 
 #dsInfoModal {
     .size(@width: 205px, @height: 200px);
+    border: 1px solid @color-border-softGray;
 
     .modalHeader {
         .size(@height: 25px);
-        background-color: @color-bg-select-blue;
 
         .text {
             font-size: 14px;
@@ -3739,6 +3747,7 @@ html.microsoft {
 
         .close {
             top: 2px;
+            right: 7px;
 
             .icon {
                 font-size: 14px;
@@ -3748,7 +3757,7 @@ html.microsoft {
 
     .modalMain {
         padding: 0;
-        .font(@size: 12px, @color: @color-font-greyish-brown, @align: center);
+        .font(@size: 12px, @align: center);
         .size(@height: ~"calc(100% - 25px)");
 
         .infoSection {
@@ -3882,11 +3891,11 @@ html.microsoft {
 }
 
 #workbookInfoModal {
-    .size(@width: 520px, @height: 250px);
+    .size(@width: 550px, @height: 250px);
 
     .modalMain {
         .size(@height: ~"calc(100% - 92px)");
-        padding: 10px 10px 0 10px;
+        padding: 10px 25px 0 25px;
         .flex-display;
         .flex-direction(column);
 
@@ -4146,7 +4155,7 @@ html.microsoft {
 }
 
 #dfPublishModal {
-    .size(@width: 520px, @height: 321px);
+    .size(@width: 550px, @height: 320px);
 
     &.locked {
         pointer-events: none;
@@ -4158,7 +4167,7 @@ html.microsoft {
 
     .modalMain {
         .size(@height: ~"calc(100% - 148px)");
-        padding: 10px 10px 0 10px;
+        padding: 10px 25px 0 25px;
         .flex-display;
         .flex-direction(column);
 
@@ -4212,7 +4221,7 @@ html.microsoft {
         .checkboxSection {
             .qMark {
                 float: left;
-                .position(relative, @top: 9px);
+                .position(relative, @top: 10px);
             }
 
             .text {
@@ -4223,11 +4232,11 @@ html.microsoft {
 }
 
 #dfSettingsModal {
-    .size(@width: 520px, @height: 240px);
+    .size(@width: 550px, @height: 240px);
 
     .modalMain {
         .size(@height: ~"calc(100% - 92px)");
-        padding: 10px 10px 0 10px;
+        padding: 10px 25px 0 25px;
         .flex-display;
         .flex-direction(column);
 
@@ -4280,7 +4289,7 @@ html.microsoft {
 
 /* ========== Dataflow uploader ============= */
 #dfUploadModal {
-    .size(@width: 520px, @height: 380px);
+    .size(@width: 550px, @height: 380px);
 
     &.locked {
         pointer-events: none;
@@ -4291,7 +4300,7 @@ html.microsoft {
     }
 
     .modalMain {
-        padding: 10px;
+        padding: 10px 25px;
         .size(@height: ~"calc(100% - 148px)");
 
         .row {
@@ -4347,7 +4356,7 @@ html.microsoft {
         .checkboxSection {
             .qMark {
                 float: left;
-                .position(relative, @top: 9px);
+                .position(relative, @top: 10px);
             }
 
             .text {
@@ -4376,7 +4385,7 @@ html.microsoft {
 
 /* ========== Dataflow download ============= */
 #dfDownloadModal {
-    .size(@width: 520px, @height: 235px);
+    .size(@width: 550px, @height: 235px);
 
     &.locked {
         pointer-events: none;
@@ -4387,7 +4396,7 @@ html.microsoft {
     }
 
     .modalMain {
-        padding: 10px;
+        padding: 10px 25px;
 
         .row {
             height: 30px;
@@ -4925,7 +4934,7 @@ html.microsoft {
 }
 
 #dagDescriptionModal, #dagCustomRenameModal {
-    .size(400px, 250px, @min-width: 400px, @min-height: 250px);
+    .size(@width: 450px, @height: 250px, @min-width: 450px, @min-height: 250px);
 
     .modalInstruction {
         .text {
@@ -4942,7 +4951,7 @@ html.microsoft {
         .flex-display;
         .flex-direction(column);
         height: 100%;
-        padding: 10px;
+        padding: 10px 25px;
     }
 
     .subHeading {
@@ -5559,11 +5568,11 @@ html.microsoft {
 }
 
 #fileManagerSaveAsModal {
-    .size(@width: 450px, @height: 480px);
+    .size(@width: 470px, @height: 480px);
 
     .modalMain {
         .size(@height: ~"calc(100% - 92px)");
-        padding: 12px;
+        padding: 12px 25px;
 
         .saveAs {
             height: 30px;

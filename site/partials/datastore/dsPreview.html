@@ -27,7 +27,7 @@
           </div>
           <div class="buttonGroup">
             <button id="preview-parser" class="btn iconBtn loadHidden" data-toggle="tooltip" data-container="body" data-placement="top" data-title="<%= dicts.common.InBeta %>">
-              <i class="icon xi-parse fa-17"></i> <%= dicts.dsForm.PARSER %>
+              <i class="icon xi-parse fa-17"></i> <%= dicts.dsForm.Parser %>
             </button>
           </div>
         </div>
@@ -61,7 +61,7 @@
           <div class="content"></div>
         </div>
         <div class="bottomSection">
-          <button id="dsPreview-debugUDF" class="btn btn-transparent"><%= dicts.dsForm.DEBUGPARSER %></button>
+          <button id="dsPreview-debugUDF" class="btn btn-transparent"><%= dicts.dsForm.DebugParser %></button>
         </div>
         <div class="cancelSection">
           <i class="icon xi-warning"></i>
@@ -134,11 +134,7 @@
             <div class="row">
               <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSFormat %>" data-placement="top"></i>
               <label><%= dicts.dsForm.Format %>:</label>
-              <% if (dicts.tutor.name == "datastoreTut1") { %>
-              <div id="fileFormat" class="dropDownList rowContent" data-introstep="w2-dsFormat">
-              <% } else { %>
                <div id="fileFormat" class="dropDownList rowContent">
-              <% } %>
                 <input class="text" type="text" spellcheck="false" disabled>
                 <div class="iconWrapper">
                   <i class="icon xi-arrow-down"></i>
@@ -159,8 +155,8 @@
                 </div>
               </div>
               <!-- Refresh icon -->
-              <div class="refresh xc-action btn-transparent" data-toggle="tooltip" data-placement="top" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSPreviewRefresh %>" data-xcid="format.refresh">
-                  <i class="icon xi-refresh blue"></i>
+              <div class="refresh xc-action btn-clear" data-toggle="tooltip" data-placement="top" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSPreviewRefresh %>" data-xcid="format.refresh">
+                  <i class="icon xi-refresh"></i>
               </div>
               <!-- New XPath button -->
               <div class="add_xpath format xml">
@@ -277,8 +273,8 @@
             </div>
             <!-- udf buttons -->
             <div class="row format udf writeUDF">
-              <button id="dsForm-applyUDF" class="btn btn-transparent"><%= dicts.dsForm.APPLYUDF %></button>
-              <button id="dsForm-writeUDF" class="btn btn-transparent"><%= dicts.dsForm.WRITEPARSER %></button>
+              <button id="dsForm-applyUDF" class="btn btn-transparent"><%= dicts.dsForm.ApplyUDF %></button>
+              <button id="dsForm-writeUDF" class="btn btn-transparent"><%= dicts.dsForm.WriteParser %></button>
             </div>
             <!-- parquet file secition -->
             <div class="row format parquetfile">
@@ -605,9 +601,8 @@
         </div>
         <!-- buttons -->
         <div class="buttonSection">
-          <button title="<%= dicts.dsForm.CreateTableHint %>" data-toggle="tooltip" data-container="body" type="button" class="btn confirm createTable xc-hidden"><%= dicts.dsForm.CREATETABLE %></button>
-          <button type="button" class="btn btn-submit confirm" <%= (dicts.tutor.name == 'datastoreTut1') ? 'data-introstep="w2-dsConfirm"' : '' %> ><%= dicts.dsForm.CREATEDS %></button>
-          <button type="button" class="btn btn-cancel cancel"><%= dicts.common.BACK %></button>
+          <button type="button" class="btn btn-submit confirm" <%= (dicts.tutor.name == 'datastoreTut1') ? 'data-introstep="w2-dsConfirm"' : '' %> ><%= dicts.dsForm.CreateDS %></button>
+          <button type="button" class="btn btn-cancel cancel"><%= dicts.common.Back %></button>
         </div>
       </form>
     </div>

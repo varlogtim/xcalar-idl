@@ -184,7 +184,7 @@ namespace xcManager {
                         "title": DemoTStr.title,
                         "msg": NewUserTStr.msg,
                         "buttons": [{
-                            "name": AlertTStr.CLOSE,
+                            "name": AlertTStr.Close,
                             "className": "cancel"
                         },
                         {

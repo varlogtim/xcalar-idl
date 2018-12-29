@@ -6,8 +6,8 @@
       <i class="icon xi-close"></i>
     </div>
   </header>
-  <div class="cardInstruction">
-    <i class="icon xi-warning"></i>
+  <div class="cardInstruction oneLine">
+    <i class="icon xi-info-circle"></i>
     <div class="text">
       <span><%= dicts.extension.uploadInstr %></span>
     </div>
@@ -16,13 +16,13 @@
     <span class="text"><%= dicts.common.File %>:</span>
     <input class="path" type="text" disabled>
     <input class="browse" spellcheck="false" type="file" style="display: none">
-    <button class="btn fakeBrowse"><%= dicts.common.BROWSE %></button>
+    <button class="btn fakeBrowse"><%= dicts.common.Browse %>...</button>
   </div>
   <div class="cardBottom">
     <div class="buttonTooltipWrap" data-toggle="tooltip" data-container="body" data-placement="top" data-original-title="<%= dicts.TooltipTStr.SelectFile %>">
-        <button type="button" class="btn confirm btn-disabled"><%= dicts.dataflow.upload %></button>
+        <button type="button" class="btn btn-submit confirm btn-disabled"><%= dicts.dataflow.upload %></button>
       </div>
-      <button type="button" class="btn btn-cancel cancel"><%= dicts.common.CANCEL %></button>
+      <button type="button" class="btn btn-cancel cancel"><%= dicts.common.Cancel %></button>
   </div>
 </section>
 <section id="extensionInstallPanel">
