@@ -1146,6 +1146,7 @@ declare class DSObj {
     public getError(): string;
     public getId(): string;
     public getNumEntries(): number;
+    public getUser(): string;
 }
 
 declare namespace DSCart {

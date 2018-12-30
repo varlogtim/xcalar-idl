@@ -36,12 +36,12 @@ describe("Delete Table Modal Test", function() {
                 "size": 123456
             };
 
-            var res = DeleteTableModal.__testOnly__.getTableListHTML([table]);
+            var res = DeleteTableModal.Instance._getTableListHTML([table]);
             expect(res).to.contain(tableName);
         });
 
         it("hasCheckedTables should work", function() {
-            var res = DeleteTableModal.__testOnly__.hasCheckedTables();
+            var res = DeleteTableModal.Instance._hasCheckedTables();
             expect(res).to.equal(false);
         });
     });
@@ -62,7 +62,7 @@ describe("Delete Table Modal Test", function() {
         });
 
         it("Should show the modal", function(done) {
-            DeleteTableModal.show()
+            DeleteTableModal.Instance.show()
             .then(function() {
                 assert.isTrue($modal.is(":visible"));
                 expect($listSection.find(".grid-unit").length)
@@ -75,7 +75,7 @@ describe("Delete Table Modal Test", function() {
         });
 
         it("show modal again should have no side effect", function(done) {
-            DeleteTableModal.show()
+            DeleteTableModal.Instance.show()
             .then(function() {
                 assert.isTrue($modal.is(":visible"));
                 expect($listSection.find(".grid-unit").length)
@@ -186,8 +186,7 @@ describe("Delete Table Modal Test", function() {
                     "tables": "unitTest1#tt1",
                     "error": "test"
                 }]})
-            }
-
+            };
             $modal.find(".confirm").click();
             assert.isTrue($alertModal.is(":visible"));
             $alertModal.find(".confirm").click();
@@ -227,17 +226,15 @@ describe("Delete Table Modal Test", function() {
     });
 
     describe('failHandler test error messages', function() {
-        var fn;
         before(function() {
-            fn = DeleteTableModal.__testOnly__.failHandler;
             StatusBox.forceHide();
         });
 
         it('1 regular fail, 1 locked fail', function() {
-            fn(["fakeTable"]);
+            DeleteTableModal.Instance._failHandler(["fakeTable"]);
             expect($("#statusBox").is(":visible")).to.be.false;
 
-            fn([{
+            DeleteTableModal.Instance._failHandler([{
                 "fails": [{
                     "tables": "unitTest1#tt1",
                     "error": "test"
@@ -251,7 +248,7 @@ describe("Delete Table Modal Test", function() {
         });
 
         it('1 success, 1 regular fail, 1 locked fail', function() {
-            fn([["fakeTable"], {
+            DeleteTableModal.Instance._failHandler([["fakeTable"], {
                 "fails": [{
                     "tables": "unitTest1#tt1",
                     "error": "test"
@@ -265,7 +262,7 @@ describe("Delete Table Modal Test", function() {
         });
 
         it('1 success, 1 locked fail', function() {
-            fn([["fakeTable"], {
+            DeleteTableModal.Instance._failHandler([["fakeTable"], {
                 "fails": [{"tables": "unitTest1#tt1",
                             "error": ErrTStr.CannotDropLocked
                         }]

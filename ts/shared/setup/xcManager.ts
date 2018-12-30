@@ -720,12 +720,10 @@ namespace xcManager {
         Alert.setup();
         Profile.setup();
         WorkbookPanel.setup();
-        DeleteTableModal.setup();
         ExtModal.setup();
         LicenseModal.setup();
         SupTicketModal.setup();
         FileInfoModal.setup();
-        DSInfoModal.setup();
         WorkbookInfoModal.setup();
         WorkbookPreview.setup();
         LoginConfigModal.setup();

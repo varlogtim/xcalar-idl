@@ -25,7 +25,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
 
         $("#monitor-delete").click(function() {
             $(this).blur();
-            DeleteTableModal.show();
+            DeleteTableModal.Instance.show();
         });
 
         $("#monitorMenu-sys").find('.graphSwitch').click(function() {

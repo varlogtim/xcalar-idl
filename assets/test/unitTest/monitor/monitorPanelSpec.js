@@ -67,15 +67,15 @@ describe("Monitor Panel Test", function() {
 
         it("monitor-delete button should work", function() {
             var shown = false;
-            var cache = DeleteTableModal.show;
-            DeleteTableModal.show = function() {
+            var cache = DeleteTableModal.Instance.show;
+            DeleteTableModal.Instance.show = function() {
                 shown = true;
             };
 
             $("#monitor-delete").click();
             expect(shown).to.be.true;
 
-            DeleteTableModal.show = cache;
+            DeleteTableModal.Instance.show = cache;
         });
     });
 

@@ -433,7 +433,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
     function deleteAllTables() {
         var deferred = PromiseHelper.deferred();
 
-        DeleteTableModal.show(true)
+        DeleteTableModal.Instance.show(true)
         .then(function() {
             var def = PromiseHelper.deferred();
             $('#deleteTableModal').find('.listSection .checkbox')

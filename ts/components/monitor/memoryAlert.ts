@@ -29,7 +29,7 @@ class MemoryAlert {
             }
             if ($el.hasClass("tableAlert")) {
                 MainMenu.openPanel("monitorPanel", "systemButton");
-                DeleteTableModal.show();
+                DeleteTableModal.Instance.show();
             } else {
                 // go to datastore panel
                 var $datastoreTab = $("#dataStoresTab");

@@ -2547,7 +2547,7 @@ window.DS = (function ($, DS) {
             if (event.which !== 1) {
                 return;
             }
-            DSInfoModal.show($gridMenu.data("dsid"));
+            DSInfoModal.Instance.show($gridMenu.data("dsid"));
         });
 
         $gridMenu.on("mouseup", ".activate", function(event) {

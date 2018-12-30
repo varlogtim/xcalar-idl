@@ -380,7 +380,7 @@ window.UnitTest = (function(UnitTest, $) {
     UnitTest.deleteAllTables = function() {
         var deferred = PromiseHelper.deferred();
 
-        DeleteTableModal.show(true)
+        DeleteTableModal.Instance.show(true)
         .then(function() {
             $('#deleteTableModal').find('.listSection .checkbox')
                                   .addClass('checked');

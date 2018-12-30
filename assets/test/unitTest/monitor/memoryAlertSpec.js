@@ -320,14 +320,14 @@ describe('Memory Alert Test', () => {
 
     describe('UI Behavior Test', () => {
         it("should trigger meomryAlert with table", () => {
-            const oldFunc = DeleteTableModal.show;
+            const oldFunc = DeleteTableModal.Instance.show;
             let test = false;
-            DeleteTableModal.show = () => { test = true; };
+            DeleteTableModal.Instance.show = () => { test = true; };
             $memoryAlert.addClass("yellow")
                 .addClass("tableAlert")
                 .click();
             expect(test).to.be.true;
-            DeleteTableModal.show = oldFunc;
+            DeleteTableModal.Instance.show = oldFunc;
         });
 
         it("should trigger meomryAlert with ds", () => {

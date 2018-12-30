@@ -115,7 +115,7 @@ describe("DSInfoModal Test", function() {
 
     function showModal() {
         $modal.addClass("fetching");
-        DSInfoModal.show(dsId);
+        DSInfoModal.Instance.show(dsId);
 
         var checkFunc = function() {
             return !$modal.hasClass("fetching");

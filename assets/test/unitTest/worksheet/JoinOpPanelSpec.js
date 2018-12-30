@@ -862,9 +862,9 @@ describe("Join Op Panel Test", function() {
         });
 
         it("submissionFailHandler should be able to show delete table modal", function() {
-            var deleteModalCache = DeleteTableModal.show;
+            var deleteModalCache = DeleteTableModal.Instance.show;
             var deleteModalOpened = false;
-            DeleteTableModal.show = function() {
+            DeleteTableModal.Instance.show = function() {
                 deleteModalOpened = true;
             };
 
@@ -878,7 +878,7 @@ describe("Join Op Panel Test", function() {
             UnitTest.hasAlertWithText("out of resources.", {confirm: true});
             expect(deleteModalOpened).to.be.true;
 
-            DeleteTableModal.show = deleteModalCache;
+            DeleteTableModal.Instance.show = deleteModalCache;
         });
 
         it("submissionFailHandler should show modify button", function() {

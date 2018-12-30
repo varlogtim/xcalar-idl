@@ -1130,9 +1130,9 @@ describe("Dataset-DSObj Test", function() {
         });
 
         it("should click .getInfo to get ds info", function() {
-            var oldFunc = DSInfoModal.show;
+            var oldFunc = DSInfoModal.Instance.show;
             var test = false;
-            DSInfoModal.show = function() {
+            DSInfoModal.Instance.show = function() {
                 test = true;
             };
 
@@ -1143,7 +1143,7 @@ describe("Dataset-DSObj Test", function() {
             $li.trigger(fakeEvent.mouseup);
             expect(test).to.be.true;
 
-            DSInfoModal.show = oldFunc;
+            DSInfoModal.Instance.show = oldFunc;
         });
 
         it("should click .deactivate to deactivate ds", function() {
