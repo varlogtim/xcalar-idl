@@ -909,7 +909,6 @@ declare class METAConstructor {
     public update(): void;
     public getQueryMeta(): QueryManager.XcQueryAbbr[];
     public getTpfxMeta(): object;
-    public getAggMeta(): object;
     public getTableMeta(): TableMeta[];
     public getStatsMeta(): object;
     public getLogCMeta(): number;

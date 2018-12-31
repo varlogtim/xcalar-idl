@@ -251,10 +251,10 @@ describe("Dataset-DSTable Test", function() {
         });
 
         it("Should show error of object directly", function() {
-            var errorObj = {"error": "test"};
-            DSTable.showError(testDSId, errorObj);
+            var error = {"error": "test"};
+            DSTable.showError(testDSId, error);
             expect($errorSection.find(".error").text())
-            .to.contain(JSON.stringify(errorObj));
+            .to.contain(StatusMessageTStr.ImportDSFailed + ". " + error.error);
         });
 
         it("Should handle not last error", function(done) {

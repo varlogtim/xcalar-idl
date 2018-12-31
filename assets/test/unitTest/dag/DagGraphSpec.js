@@ -111,8 +111,8 @@ describe("Dag Graph Test", () => {
             var nodes = graph.getSortedNodes();
             expect(nodes[0].getId()).to.equal(n1.getId());
             expect(nodes[1].getId()).to.equal(n2.getId());
-            expect(nodes[2].getId()).to.equal(n6.getId());
-            expect(nodes[3].getId()).to.equal(n3.getId());
+            expect(nodes[2].getId()).to.equal(n3.getId());
+            expect(nodes[3].getId()).to.equal(n6.getId());
             expect(nodes[4].getId()).to.equal(n5.getId());
             expect(nodes[5].getId()).to.equal(n4.getId());
         });
@@ -134,9 +134,11 @@ describe("Dag Graph Test", () => {
             graph.disconnect(n1.getId(),n3.getId());
             graph.connect(n7.getId(),n3.getId());
             var nodes = graph.getSortedNodes();
+            expect(nodes[0].getId()).to.equal(n1.getId());
+            expect(nodes[1].getId()).to.equal(n7.getId());
             expect(nodes[2].getId()).to.equal(n2.getId());
-            expect(nodes[3].getId()).to.equal(n6.getId());
-            expect(nodes[4].getId()).to.equal(n3.getId());
+            expect(nodes[3].getId()).to.equal(n3.getId());
+            expect(nodes[4].getId()).to.equal(n6.getId());
             expect(nodes[5].getId()).to.equal(n5.getId());
             expect(nodes[6].getId()).to.equal(n4.getId());
         });

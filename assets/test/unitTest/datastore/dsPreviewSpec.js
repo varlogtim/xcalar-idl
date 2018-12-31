@@ -1487,7 +1487,7 @@ describe("Dataset-DSPreview Test", function() {
 
         it("Should validate UDF module", function() {
             var validateUDFModule = DSPreview.__testOnly__.validateUDFModule;
-            expect(validateUDFModule(globalUDFPath + "invalidModule")).to.be.false;
+            expect(validateUDFModule(defaultUDFPath + "invalidModule")).to.be.false;
             expect(validateUDFModule(defaultUDFPath)).to.be.true;
         });
 
@@ -1874,7 +1874,7 @@ describe("Dataset-DSPreview Test", function() {
             var res = validateForm();
             expect(res).to.be.an("object");
             expect(res.format).to.equal("Excel");
-            expect(res.udfModule).to.equal("/globaludf/default");
+            expect(res.udfModule).to.equal(defaultUDFPath);
             expect(res.udfFunc).to.equal("openExcel");
             expect(res.udfQuery).to.be.an("object");
             expect(res.udfQuery.skipRows).to.equal(0);
@@ -1919,7 +1919,7 @@ describe("Dataset-DSPreview Test", function() {
                 const res = validateForm();
                 expect(res).to.be.an("object");
                 expect(res.format).to.equal("XML");
-                expect(res.udfModule).to.equal("/globaludf/default");
+                expect(res.udfModule).to.equal(defaultUDFPath);
                 expect(res.udfFunc).to.equal("xmlToJsonWithExtraKeys");
                 expect(res.udfQuery).to.be.an("object");
                 expect(res.udfQuery.allPaths).to.be.an("array");
@@ -1962,17 +1962,12 @@ describe("Dataset-DSPreview Test", function() {
         it("should validate DATABASE case", function() {
             loadArgs.set({format: "DATABASE"});
 
-            // Test for empty sql
-            $("#dsForm-dbSQL").val("");
-            expect(validateForm()).to.be.null;
-            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
-
             // Test for normal output
             $("#dsForm-dbSQL").val("test_sql");
             var res = validateForm();
             expect(res).to.be.an("object");
             expect(res.format).to.equal("DATABASE");
-            expect(res.udfModule).to.equal("/globaludf/default");
+            expect(res.udfModule).to.equal(defaultUDFPath);
             expect(res.udfFunc).to.equal("ingestFromDatabase");
             expect(res.udfQuery).to.be.an("object");
             expect(res.udfQuery.query).to.equal("test_sql");
@@ -1998,7 +1993,7 @@ describe("Dataset-DSPreview Test", function() {
             validateResult = validateForm();
             expect(validateResult).to.be.an("object");
             expect(validateResult.format).to.equal("JSON");
-            expect(validateResult.udfModule).to.equal("/globaludf/default");
+            expect(validateResult.udfModule).to.equal(defaultUDFPath);
             expect(validateResult.udfFunc).to.equal("extractJsonRecords");
             expect(validateResult.udfQuery).to.be.an("object");
             expect(validateResult.udfQuery.structsToExtract).to.equal("test_path");
@@ -2011,6 +2006,7 @@ describe("Dataset-DSPreview Test", function() {
             var $parquetSection = $form.find(".parquetSection");
             var $selectedColList = $parquetSection.find(".selectedColSection .colList");
             var $partiontoinList = $parquetSection.find(".partitionList");
+            var $availableColList = $parquetSection.find(".availableColSection .colList");
             loadArgs.set({format: "PARQUET"});
 
             // test1
@@ -2026,10 +2022,11 @@ describe("Dataset-DSPreview Test", function() {
 
             // test3
             $partiontoinList.html('<input value="test1">');
+            $availableColList.html('<li></li>');
             var res = validateForm();
             expect(res).to.be.an("object");
             expect(res.format).to.equal("PARQUET");
-            expect(res.udfModule).to.equal("/globaludf/default");
+            expect(res.udfModule).to.equal(defaultUDFPath);
             expect(res.udfFunc).to.equal("parseParquet");
             expect(res.udfQuery).to.be.an("object");
             expect(res.udfQuery.columns).to.be.an("array");
@@ -2039,6 +2036,7 @@ describe("Dataset-DSPreview Test", function() {
             // restore
             $selectedColList.empty();
             $partiontoinList.empty();
+            $availableColList.empty();
         });
 
         it("should validte PARQUETFILE case", function() {
@@ -2047,7 +2045,7 @@ describe("Dataset-DSPreview Test", function() {
             var res = validateForm();
             expect(res).to.be.an("object");
             expect(res.format).to.equal("PARQUETFILE");
-            expect(res.udfModule).to.equal("/globaludf/default");
+            expect(res.udfModule).to.equal(defaultUDFPath);
             expect(res.udfFunc).to.equal("parseParquet");
             expect(res.udfQuery).to.deep.equal({
                 parquetParser: "pyArrow"
@@ -2176,7 +2174,7 @@ describe("Dataset-DSPreview Test", function() {
             var res = validatePreview();
             expect(res).to.be.an("object");
             expect(res.format).to.equal("Excel");
-            expect(res.udfModule).to.equal("/globaludf/default");
+            expect(res.udfModule).to.equal(defaultUDFPath);
             expect(res.udfFunc).to.equal("openExcel");
             expect(res.udfQuery).to.be.an("object");
             expect(res.udfQuery.skipRows).to.equal(0);
@@ -2187,7 +2185,7 @@ describe("Dataset-DSPreview Test", function() {
             var res = validatePreview();
             expect(res).to.be.an("object");
             expect(res.format).to.equal("PARQUETFILE");
-            expect(res.udfModule).to.equal("/globaludf/default");
+            expect(res.udfModule).to.equal(defaultUDFPath);
             expect(res.udfFunc).to.equal("parseParquet");
         });
     });
@@ -2231,7 +2229,7 @@ describe("Dataset-DSPreview Test", function() {
         it("should restore excel", function() {
             resetForm({
                 dsName: "test",
-                moduleName: "/globaludf/default",
+                moduleName: defaultUDFPath,
                 funcName: "openExcel",
                 format: "Excel",
                 udfQuery: {
@@ -3286,33 +3284,23 @@ describe("Dataset-DSPreview Test", function() {
             var validFunc = function(dsName) { return !DS.has(dsName); };
             var testDS = xcHelper.uniqueRandName("testSuitesSp500", validFunc, 10);
             $form.find(".dsName").eq(0).val(testDS);
-            var $grid;
+            var oldImport = DS.import;
+            var test = false;
+            DS.import = () => {
+                test = true;
+                return PromiseHelper.resolve();
+            };
             DSPreview.__testOnly__.submitForm()
             .then(function() {
-                expect(DS.has(testDS)).to.be.true;
-                $grid = DS.getGridByName(testDS);
-                expect($grid).not.to.be.null;
-
-                var innerDeferred = PromiseHelper.deferred();
-                // dealy delete ds since show the sample table needs time
-                setTimeout(function() {
-                    var dsObj = DS.getDSObj($grid.data("dsid"));
-                    DS.__testOnly__.delDSHelper($grid, dsObj)
-                    .then(innerDeferred.resolve)
-                    .fail(innerDeferred.reject);
-                }, 300);
-                return innerDeferred.promise();
-            })
-            .then(function() {
-                // make sure ds is deleted
-                expect(DS.has(testDS)).to.be.false;
-                $grid = DS.getGridByName(testDS);
-                expect($grid).to.be.null;
+                expect(test).to.be.true;
                 done();
             })
             .fail(function() {
                 // Intentionally fail the test
                 done("fail");
+            })
+            .always(function() {
+                DS.import = oldImport;
             });
         });
     });

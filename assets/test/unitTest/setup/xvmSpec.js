@@ -48,7 +48,10 @@ describe('XVM Test', () => {
         });
 
         it('XVM.getVersion with patch version inculde should work', () => {
-            const temp = gPatchVersion;
+            let temp;
+            if (typeof gPatchVersion !== "undefined") {
+                temp = gPatchVersion;
+            }
             gPatchVersion = 1;
             const version = XVM.getVersion(true);
             // format is like 1.3.1-git

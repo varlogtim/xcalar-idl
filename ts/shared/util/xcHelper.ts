@@ -3100,6 +3100,7 @@ namespace xcHelper {
                 break;
             case PatternCategory.Param:
                 namePattern = /^[a-zA-Z][a-zA-Z0-9_]*$/;
+                antiNamePattern = /[^a-zA-Z0-9_]/;
                 break;
             case PatternCategory.Prefix:
                 namePattern = /^[a-zA-Z0-9_-]{1,31}$/;

@@ -88,6 +88,7 @@ class DagNodeAggregate extends DagNode {
         }
         PromiseHelper.alwaysResolve(promise)
         .then(() => {
+            let tabId = this.graph ? this.graph.getTabId() : null;
             return DagAggManager.Instance.addAgg(input.dest, {
                 value: null,
                 dagName: input.dest,
@@ -96,7 +97,7 @@ class DagNodeAggregate extends DagNode {
                 backColName: null,
                 op: null,
                 node: this.getId(),
-                graph: this.graph.getTabId()
+                graph: tabId
             });
         })
 

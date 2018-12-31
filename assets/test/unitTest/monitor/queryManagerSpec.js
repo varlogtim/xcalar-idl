@@ -373,64 +373,64 @@ describe('QueryManager Test', function() {
             expect($queryList.scrollTop()).to.be.gt(scrollTop + 4000);
             $lis.remove();
         });
-        it("focus on output should work", function() {
-            var fakeQuery = new XcQuery({});
-            queryLists[999] = fakeQuery;
-            $queryList.append("<div data-id='999' class='xc-query query active'></div>");
+        // it("focus on output should work", function() {
+        //     var fakeQuery = new XcQuery({});
+        //     queryLists[999] = fakeQuery;
+        //     $queryList.append("<div data-id='999' class='xc-query query active'></div>");
 
-            $("#monitor-inspect").click();
+        //     $("#monitor-inspect").click();
 
-            UnitTest.hasAlertWithTitle("table not found");
-            $queryList.find(".query").last().remove();
-            delete queryLists[999];
-        });
+        //     UnitTest.hasAlertWithTitle("table not found");
+        //     $queryList.find(".query").last().remove();
+        //     delete queryLists[999];
+        // });
 
-        it("focus on dsOutput should work", function(done) {
-            var fakeQuery = new XcQuery({});
-            queryLists[999] = fakeQuery;
-            $queryList.append("<div data-id='999' class='xc-query query active'></div>");
+        // it("focus on dsOutput should work", function(done) {
+        //     var fakeQuery = new XcQuery({});
+        //     queryLists[999] = fakeQuery;
+        //     $queryList.append("<div data-id='999' class='xc-query query active'></div>");
 
-            fakeQuery.getOutputTableName = function() {
-                return gDSPrefix + "fakeDS";
-            };
+        //     fakeQuery.getOutputTableName = function() {
+        //         return gDSPrefix + "fakeDS";
+        //     };
 
-            $("#monitor-inspect").click();
-            UnitTest.testFinish(function() {
-                return $("#alertHeader .text").text() === "Dataset Not Found";
-            })
-            .then(function() {
-                UnitTest.hasAlertWithTitle("dataset not found", {confirm: true});
-                $queryList.find(".query").last().remove();
-                delete queryLists[999];
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
+        //     $("#monitor-inspect").click();
+        //     UnitTest.testFinish(function() {
+        //         return $("#alertHeader .text").text() === "Dataset Not Found";
+        //     })
+        //     .then(function() {
+        //         UnitTest.hasAlertWithTitle("dataset not found", {confirm: true});
+        //         $queryList.find(".query").last().remove();
+        //         delete queryLists[999];
+        //         done();
+        //     })
+        //     .fail(function() {
+        //         done("fail");
+        //     });
+        // });
 
         // XXX TODO: update it
-        it("focus on table output should work", function() {
-            var fakeQuery = new XcQuery({});
-            queryLists[999] = fakeQuery;
-            $queryList.append("<div data-id='999' class='xc-query query active'></div>");
-            fakeQuery.getOutputTableName = function() {
-                return "fakeTable#fakeId";
-            };
+        // it("focus on table output should work", function() {
+        //     var fakeQuery = new XcQuery({});
+        //     queryLists[999] = fakeQuery;
+        //     $queryList.append("<div data-id='999' class='xc-query query active'></div>");
+        //     fakeQuery.getOutputTableName = function() {
+        //         return "fakeTable#fakeId";
+        //     };
 
-            gTables["fakeId"] = new TableMeta({
-                tableId: "fakeId",
-                tableName: "test#fakeId",
-                status: TableType.Undone
-            });
+        //     gTables["fakeId"] = new TableMeta({
+        //         tableId: "fakeId",
+        //         tableName: "test#fakeId",
+        //         status: TableType.Undone
+        //     });
 
-            $("#monitor-inspect").click();
+        //     $("#monitor-inspect").click();
 
-            UnitTest.hasAlertWithTitle("table not found");
-            $queryList.find(".query").last().remove();
-            delete queryLists[999];
-            delete gTables["fakeId"];
-        });
+        //     UnitTest.hasAlertWithTitle("table not found");
+        //     $queryList.find(".query").last().remove();
+        //     delete queryLists[999];
+        //     delete gTables["fakeId"];
+        // });
 
         // it("focus on table output should work case 2", function(done) {
         //     var fakeQuery = new XcQuery({});

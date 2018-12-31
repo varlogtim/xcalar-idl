@@ -235,9 +235,9 @@ describe("xcSocket Test", function() {
         });
 
         it("refreshDataflow event should work", function() {
-            const oldFunc = DataflowPanel.refresh;
+            const oldFunc = DagSharedActionService.Instance.receive;
             let testName = null;
-            DataflowPanel.refresh = (info) => {
+            DagSharedActionService.Instance.receive= (info) => {
                 testName = info.dfName;
             };
 
@@ -255,7 +255,7 @@ describe("xcSocket Test", function() {
             });
             expect(testName).to.equal('df');
 
-            DataflowPanel.refresh = oldFunc;
+            DagSharedActionService.Instance.receive = oldFunc;
         });
 
         it("refreshUDF event should work", function () {
@@ -309,7 +309,7 @@ describe("xcSocket Test", function() {
             expect(test).to.be.null;
 
             // case 2;
-            xcSocket._isRegistered = false;
+            xcSocket._isRegistered = true;
             xcSocket._socket.trigger('refreshDagCategory');
             expect(test).to.be.true;
 

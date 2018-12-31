@@ -315,12 +315,12 @@ describe("WorkbookManager Test", function() {
             expect(wkbkId).to.be.a("string");
         });
 
-        it("WorkbookManager.updateNumDFs should work", function() {
+        it("WorkbookManager.updateDFs should work", function() {
             var wkbkId = WorkbookManager.getActiveWKBK();
             var workbook = WorkbookManager.getWorkbook(wkbkId);
             var oldNum = workbook.numDFs;
 
-            WorkbookManager.updateNumDFs(100);
+            WorkbookManager.updateDFs(100);
             expect(workbook.numDFs).to.equal(100);
             workbook.numDFs = oldNum;
         });
@@ -354,7 +354,7 @@ describe("WorkbookManager Test", function() {
         it("WorkbookManager.getGlobalScopeKeys should work", function() {
             var res = WorkbookManager.getGlobalScopeKeys();
             expect(res).to.be.an("object");
-            expect(Object.keys(res).length).to.equal(3);
+            expect(Object.keys(res).length).to.equal(2);
             expect(res).to.ownProperty("gSettingsKey");
             expect(res).to.ownProperty("gSharedDSKey");
         });

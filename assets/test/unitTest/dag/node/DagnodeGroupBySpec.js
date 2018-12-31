@@ -17,7 +17,8 @@ describe("GroupBy Dag Node Test", () => {
             includeSample: false,
             icv: false,
             groupAll: false,
-            newKeys: []
+            newKeys: [],
+            dhtName: ""
         });
     });
 
@@ -28,7 +29,8 @@ describe("GroupBy Dag Node Test", () => {
             includeSample: true,
             icv: false,
             groupAll: false,
-            newKeys: ["count_agg"]
+            newKeys: ["count_agg"],
+            dhtName: ""
         };
         node.setParam(testParam);
         const param = node.getParam();

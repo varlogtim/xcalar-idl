@@ -127,13 +127,14 @@ describe("Main Menu Test", function() {
 
         it("should toggle menu", function(done) {
             var $tab;
+            var isMenuOpen = MainMenu.isMenuOpen();
             UnitTest.testFinish(function() {
                 return !$("#menuBar").hasClass("animating");
             })
             .then(function() {
                 $tab = $menuBar.find(".topMenuBarTab.active");
                 $tab.find(".mainTab").click();
-                expect(MainMenu.isMenuOpen()).to.be.false;
+                expect(MainMenu.isMenuOpen()).to.equal(!isMenuOpen);
 
                 return UnitTest.testFinish(function() {
                     return !$("#menuBar").hasClass("animating");
@@ -142,7 +143,7 @@ describe("Main Menu Test", function() {
             .then(function() {
                 // toggle back
                 $tab.find(".mainTab").click();
-                expect(MainMenu.isMenuOpen()).to.be.true;
+                expect(MainMenu.isMenuOpen()).to.equal(isMenuOpen);
                 done();
             })
             .fail(function() {

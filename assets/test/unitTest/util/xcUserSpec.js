@@ -72,13 +72,19 @@ describe('XcUser Test', () => {
     it('should logout', () => {
         const oldUnlod = xcManager.unload;
         const oldAjax = HTTPService.Instance.ajax;
+        const oldSocket = XcSocket.Instance.sendMessage;
         let test = false;
-        xcManager.unload = () => {};
+        xcManager.unload = () => {
+            return PromiseHelper.resolve();
+        };
         HTTPService.Instance.ajax = () => { test = true; };
+        XcSocket.Instance.sendMessage = () => {};
+
         XcUser.CurrentUser.logout();
         expect(test).to.be.true;
         xcManager.unload = oldUnlod;
         HTTPService.Instance.ajax = oldAjax;
+        XcSocket.Instance.sendMessage = oldSocket;
     });
 
     it('should throw error of invalid logout', (done) => {

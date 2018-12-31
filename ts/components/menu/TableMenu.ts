@@ -201,7 +201,6 @@ class TableMenu extends AbstractMenu {
     private _addSubMenuActions(): void {
         const $tableMenu: JQuery = this._getMenu();
         const $subMenu: JQuery = this._getSubMenu();
-        const $allMenus: JQuery = $tableMenu.add($subMenu);
 
        new MenuHelper($subMenu.find(".dropDownList"), {
             onSelect: ($li) => {
@@ -209,50 +208,6 @@ class TableMenu extends AbstractMenu {
                 $input.val($li.text()).focus();
             }
         }).setupListeners();
-
-        $subMenu.on('mouseup', '.jupyterFullTable', (event) => {
-            if (this._isInvalidTrigger(event)) {
-                return;
-            }
-            const tableId: TableId = $tableMenu.data('tableId');
-            const tableName: string = gTables[tableId].getName();
-            JupyterPanel.publishTable(tableName);
-        });
-
-        $subMenu.on('keypress', '.jupyterSampleTable input', (event) => {
-            if (event.which !== keyCode.Enter) {
-                return;
-            }
-            const tableId: TableId = $tableMenu.data('tableId');
-            const tableName: string = gTables[tableId].getName();
-            const $input: JQuery = $(event.currentTarget);
-            const numRows: number = $input.val().trim();
-            const max: number = Math.min(10000, gTables[tableId].resultSetCount);
-            const isValid: boolean = xcHelper.validate([
-                {
-                    "$ele": $input,
-                    "side": "left"
-                },
-                {
-                    "$ele": $input,
-                    "error": xcHelper.replaceMsg(JupyterTStr.SampleNumError,
-                                                {number: max}),
-                    "side": "left",
-                    "check": () => {
-                        return (numRows < 1 || numRows > max);
-                    }
-                }
-            ]);
-
-            if (!isValid) {
-                return false;
-            }
-
-            JupyterPanel.publishTable(tableName, numRows);
-            $input.val("");
-            $input.blur();
-            xcMenu.close($allMenus);
-        });
 
         $subMenu.on("mouseup", ".sortByName li", (event) => {
             if (event.which !== 1) {

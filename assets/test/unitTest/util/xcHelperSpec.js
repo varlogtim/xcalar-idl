@@ -1395,7 +1395,7 @@ describe("xcHelper Test", function() {
             "action": "fix",
             "name": "a(F-_ &$38)",
             "replace": "",
-            "expect": "aF38"
+            "expect": "aF_38"
         }, {
             "category": "prefix",
             "action": "check",
@@ -1483,7 +1483,7 @@ describe("xcHelper Test", function() {
 
         testCases.forEach(function(test) {
             var res = xcHelper.checkNamePattern(test.category, test.action,
-                                                test.name, test.replace);
+                                                test.name, test.replace);  
             expect(res).to.equal(test.expect);
         });
 
@@ -2840,26 +2840,26 @@ describe("xcHelper Test", function() {
             var fn = {fnName: "a", args:[]};
             expect(func(fn)).to.equal('a()');
 
-            fn = {fnName: "a", args:[{fnName: "b", args: []}]};
+            fn = {fnName: "a", args:[{type: "fn", fnName: "b", args: []}]};
             expect(func(fn)).to.equal('a(b())');
 
-            fn = {fnName: "a", args:[1, {fnName: "b", args: []}]};
+            fn = {fnName: "a", args:[{value: 1}, {type: "fn", fnName: "b", args: []}]};
             expect(func(fn)).to.equal('a(1,b())');
         });
         it("nested should work", function() {
-            var fn = {fnName:"a", args:[1, 2, 3]};
+            var fn = {fnName:"a", args:[{value: 1}, {value: 2}, {value: 3}]};
             expect(func(fn)).to.equal('a(1,2,3)');
 
-            var fn = {fnName:"a", args:["1", '2', '"3"']};
+            var fn = {fnName:"a", args:[{value: "1"}, {value: '2'}, {value: '"3"'}]};
             expect(func(fn)).to.equal('a(1,2,"3")');
 
-            var fn = {fnName:"a", args:[1, {fnName:"b", args:[4, 5, 6]}, 3]};
+            var fn = {fnName:"a", args:[{value: 1}, {type: "fn", fnName:"b", args:[{value: 4}, {value: 5}, {value: 6}]}, {value: 3}]};
             expect(func(fn)).to.equal('a(1,b(4,5,6),3)');
 
-            var fn = {fnName:"a", args:[{fnName:"b", args:[2, 3, 4]}, 1]};
+            var fn = {fnName:"a", args:[{type: "fn", fnName:"b", args:[{value: 2}, {value: 3}, {value: 4}]}, {value: 1}]};
             expect(func(fn)).to.equal('a(b(2,3,4),1)');
 
-            var fn = {fnName:"a", args:[{fnName:"b", args:[2, {fnName:"c", args:[3, 4]}]}, 1]};
+            var fn = {fnName:"a", args:[{type: "fn", fnName:"b", args:[{value: 2}, {type: "fn", fnName:"c", args:[{value: 3}, {value: 4}]}]}, {value: 1}]};
             expect(func(fn)).to.equal('a(b(2,c(3,4)),1)');
         });
     });
@@ -3104,20 +3104,29 @@ describe("xcHelper Test", function() {
         });
 
         describe("toggle json options test", function() {
-            var testDs;
-            var tableName;
             var tableId;
+            var $table;
 
-            before(function(done) {
+            before(function() {
                 UnitTest.onMinMode();
-                var testDSObj = testDatasets.fakeYelp;
-                UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-                .always(function(ds, tName) {
-                    testDs = ds;
-                    tableName = tName;
-                    tableId = xcHelper.getTableId(tableName);
-                    done();
+                tableId = xcHelper.randName("test");
+                let tableCols = [];
+                tableCols.push(ColManager.newPullCol("col1", "col1", ColumnType.mixed));
+                tableCols.push(ColManager.newDATACol());
+                gTables[tableId] = new TableMeta({
+                    tableId: tableId,
+                    tableName: "test#" + tableId,
+                    tableCols: tableCols
                 });
+                var fakeHTML = '<table id="xcTable-' + tableId + '" class="xcTable">' +
+                                    '<tr class="row0">' +
+                                        '<td class="col11">' +
+                                            '<div class="originalData"></div>' +
+                                        '<td>' +
+                                    '</tr>' +
+                                '</table>';
+                $table = $(fakeHTML);
+                $("#container").append($table);
             });
 
             it ("toggleUnnestandJsonOptions should work", function() {
@@ -3125,14 +3134,13 @@ describe("xcHelper Test", function() {
                 var $menu = $("#cellMenu");
                 var $unnestLi = $menu.find(".tdUnnest");
                 var $jsonModalLi = $menu.find(".tdJsonModal");
-                var $div = $("#xcTable-" + tableId).find(".row0 .col11 .originalData");
+                var $div = $table.find(".row0 .col11 .originalData");
                 var multiCell = false;
                 var notAllowed = $div.find(".null, .blank").length;
-                var columnType = "mixed";
+                var columnType = ColumnType.mixed;
                 var options = {rowNum: 1, colNum: 1};
 
                 // initial state
-                // expect($menu.is(":visible")).to.be.true;
                 expect($unnestLi.length).to.equal(1);
                 expect($jsonModalLi.length).to.equal(1);
 
@@ -3212,12 +3220,10 @@ describe("xcHelper Test", function() {
                 $div.parent().removeClass("truncated");
             });
 
-            after(function(done) {
-                UnitTest.deleteAll(tableName, testDs, TableType.Orphan)
-                .always(function() {
-                    UnitTest.offMinMode();
-                    done();
-                });
+            after(function() {
+                $table.remove();
+                delete gTables[tableId];
+                UnitTest.offMinMode();
             });
         });
     });
@@ -3418,33 +3424,35 @@ describe("xcHelper Test", function() {
         expect(res).to.eql([]);
     });
 
-    describe("xcHelper.formulateMapFilterString", function() {
-        var func;
-            before(function() {
-                func = xcHelper.formulateMapFilterString;
-            });
+    it("xcHelper.formulateMapFilterString should work", function() {
+        var func = xcHelper.formulateMapFilterString;
 
-            it ('formulateMapFilterString() should return correctly', function() {
-                var args = ['1', 2];
+        var args = ['1', 2];
                 var colTypeInfos = [{
                     argNum: 0,
                     type: "integer"
                 }];
-                expect(func('add', args, colTypeInfos)).to.equal("add(int(1, 10), 2)");
+        var arg = new OpPanelArg("a");
+        arg.setCast(ColumnType.integer)
+        var groups = [{
+            "operator": "add",
+            args: [arg]
 
-                args = [['1', 2], ['3', 4]];
-                colTypeInfos = [
-                [{
-                    argNum: 0,
-                    type: 'integer'
-                }],
-                [{
-                    argNum: 0,
-                    type: 'integer'
-                }]];
-                expect(func('add', args, colTypeInfos, true)).to.equal(
-                    "and(add(int(1, 10), 2), add(int(3, 10), 4))");
-            });
+        }]
+        expect(func(groups)).to.equal("add(int(a, 10))");
+        // XXX TODO: recover this case
+        // args = [['1', 2], ['3', 4]];
+        // colTypeInfos = [
+        // [{
+        //     argNum: 0,
+        //     type: 'integer'
+        // }],
+        // [{
+        //     argNum: 0,
+        //     type: 'integer'
+        // }]];
+        // expect(func('add', args, colTypeInfos, true)).to.equal(
+        //     "and(add(int(1, 10), 2), add(int(3, 10), 4))");
     });
 
     after(function() {

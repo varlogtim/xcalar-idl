@@ -188,7 +188,7 @@ describe("Dag Execute Test", () => {
             expect(lTableInfo).to.deep.equal({
                 tableName: "left",
                 columns: ["lCol"],
-                casts: ["string"],
+                casts: null,
                 rename: [{
                     "orig": "lCol2",
                     "new": "joinCol",
@@ -199,7 +199,7 @@ describe("Dag Execute Test", () => {
             expect(rTableInfo).to.deep.equal({
                 tableName: "right",
                 columns: ["rCol"],
-                casts: [null],
+                casts: null,
                 rename: [{
                     "orig": "rCol2",
                     "new": "joinCol2",

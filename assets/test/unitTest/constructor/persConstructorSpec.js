@@ -66,8 +66,6 @@ describe("Persistent Constructor Test", function() {
         it("Should update", function() {
             metaInfos.update();
             expect(metaInfos.getTableMeta()).not.to.have.property("test");
-            expect(metaInfos.getWSMeta().wsOrder[0]).not.to.equal(1);
-            expect(metaInfos.getAggMeta()).not.to.have.property("testAgg");
             expect(metaInfos.getStatsMeta()).not.to.have.property("testTable");
             expect(metaInfos.getLogCMeta()).not.to.equal(-2);
             expect(metaInfos.getTpfxMeta()).not.to.have.property("testPrefix");
@@ -1738,11 +1736,11 @@ describe("Persistent Constructor Test", function() {
     });
 
     describe("UserPref Constructor Test", function() {
-        it("Should have 11 attributes", function() {
+        it("Should have 13 attributes", function() {
             var userPref = new UserPref();
 
             expect(userPref).to.be.an.instanceof(UserPref);
-            expect(Object.keys(userPref).length).to.equal(11);
+            expect(Object.keys(userPref).length).to.equal(13);
             expect(userPref).to.have.property("version")
             .and.to.equal(currentVersion);
             expect(userPref).to.have.property("datasetListView")
@@ -1751,12 +1749,14 @@ describe("Persistent Constructor Test", function() {
             .and.to.be.false;
             expect(userPref).to.have.property("sqlCollapsed")
             .and.to.be.false;
-            expect(userPref).to.have.property("activeMainTab")
-            .and.to.equal("modelingDataflowTab");
+            // expect(userPref).to.have.property("activeMainTab")
+            // .and.to.equal("modelingDataflowTab");
             expect(userPref).to.have.property("general").and.to.be.empty;
             expect(userPref).to.have.property("dsSortKey").and.to.be.undefined;
             expect(userPref).to.have.property("dfAutoExecute").and.to.be.true;
             expect(userPref).to.have.property("dfAutoPreview").and.to.be.true;
+            expect(userPref).to.have.property("dfProgressTips").and.to.be.true;
+            expect(userPref).to.have.property("dfConfigInfo").and.to.be.true;
             userPref.update();
         });
 
@@ -2075,8 +2075,9 @@ describe("Persistent Constructor Test", function() {
                 "fullName": "testFullName",
                 "parentId": DSObjTerm.homeParentId,
                 "isFolder": false,
-                "headers": ["a", "b", "c"]
             });
+
+            dsObj.columns = [{name: "a"}, {name: "b"}, {name: "c"}];
 
             res = dsObj._preserveHeaderOrder(["c", "b", "e"]);
             expect(res[0]).to.equal("b");
@@ -2329,229 +2330,6 @@ describe("Persistent Constructor Test", function() {
             expect(retinaNode).to.have.property("paramQuery")
             .and.to.be.an("array");
             expect(retinaNode.paramQuery[0]).to.equal("testQuery");
-        });
-    });
-
-    describe("SchedObj Constructor Test", function() {
-        var sched;
-        var currentTime = new Date().getTime();
-
-        before(function() {
-            var createTime = currentTime;
-            var startTime = currentTime;
-            var modifiedTime = currentTime;
-            var options = {
-                "startTime": startTime,
-                "dateText": "11/08/2016",
-                "timeText": "09 : 25 AM",
-                "repeat": "hourly",
-                "modified": modifiedTime,
-                "created": createTime,
-                "activeSession": true,
-                "newTableName": "test",
-                "usePremadeCronString": "str1",
-                "premadeCronString": "str2"
-            };
-            sched = new SchedObj(options);
-        });
-
-        it("Should have 14 attributes", function() {
-            expect(sched).to.be.an.instanceof(SchedObj);
-            expect(Object.keys(sched).length).to.equal(14);
-
-            expect(sched).to.have.property("version")
-            .and.to.equal(currentVersion);
-            expect(sched).to.have.property("startTime")
-            .and.to.equal(currentTime);
-            expect(sched).to.have.property("dateText")
-            .and.to.equal("11/08/2016");
-            expect(sched).to.have.property("timeText")
-            .and.to.equal("09 : 25 AM");
-            expect(sched).to.have.property("repeat")
-            .and.to.equal("hourly");
-            expect(sched).to.have.property("modified")
-            .and.to.equal(currentTime);
-            expect(sched).to.have.property("created")
-            .and.to.equal(currentTime);
-            expect(sched).to.have.property("activeSession")
-            .and.to.be.true;
-            expect(sched).to.have.property("newTableName")
-            .and.to.equal("test");
-            expect(sched).to.have.property("usePremadeCronString")
-            .and.to.equal("str1");
-            expect(sched).to.have.property("premadeCronString")
-            .and.to.equal("str2");
-            expect(sched).to.have.property("isPaused")
-            .and.to.be.false;
-        });
-
-        it("Should update schedule", function() {
-            var createTime2 = new Date().getTime();
-            var startTime2 = new Date().getTime();
-            var modifiedTime2 = new Date().getTime();
-            var options2 = {
-                "startTime": startTime2,
-                "dateText": "12/09/2016",
-                "timeText": "10 : 35 AM",
-                "repeat": "weekly",
-                "modified": modifiedTime2,
-                "created": createTime2,
-                "newTableName": "test2",
-                "usePremadeCronString": "str3",
-                "premadeCronString": "str4"
-            };
-
-            sched.update(options2);
-            expect(sched.startTime).to.equal(startTime2);
-            expect(sched.dateText).to.equal("12/09/2016");
-            expect(sched.timeText).to.equal("10 : 35 AM");
-            expect(sched.repeat).to.equal("weekly");
-            expect(sched.modified).to.equal(modifiedTime2);
-            // create time cannot be update
-            expect(sched.created).not.to.equal(createTime2);
-            expect(sched.created).to.equal(currentTime);
-            expect(sched).to.have.property("newTableName")
-            .and.to.equal("test2");
-            expect(sched).to.have.property("usePremadeCronString")
-            .and.to.equal("str3");
-            expect(sched).to.have.property("premadeCronString")
-            .and.to.equal("str4");
-        });
-    });
-
-    describe("Dataflow Constructor Test", function() {
-        var df;
-        var sched;
-        var nodeId;
-        var $node;
-
-        before(function() {
-            df = new Dataflow("testRet");
-
-            var createTime = new Date().getTime();
-            var startTime = new Date().getTime();
-            var modifiedTime = new Date().getTime();
-            var options = {
-                "startTime": startTime,
-                "dateText": "11/08/2016",
-                "timeText": "09 : 25 AM",
-                "repeat": "hourly",
-                "freq": 5,
-                "modified": modifiedTime,
-                "recur": 10,
-                "created": createTime
-            };
-
-            sched = new SchedObj(options);
-            nodeId = xcHelper.randName("testNode");
-            $node = $('<div data-nodeid="' + nodeId + '"></div>');
-            $("#dataflowPanel").append($node);
-        });
-
-        it("should have 8 attributes", function() {
-            expect(df).to.be.an.instanceof(Dataflow);
-            expect(Object.keys(df).length).to.equal(8);
-            expect(df).to.have.property("version")
-            .and.to.equal(currentVersion);
-            expect(df).to.have.property("name")
-            .and.to.equal("testRet");
-            expect(df).to.have.property("parameters")
-            .and.to.be.an("array");
-            expect(df).to.have.property("paramMap")
-            .and.to.be.an("object");
-            expect(df).to.have.property("paramMapInUsed")
-            .and.to.be.an("object");
-            expect(df).to.have.property("parameterizedNodes")
-            .and.to.be.an("object");
-            expect(df).to.have.property("retinaNodes")
-            .and.to.be.an("object");
-            expect(df).to.have.property("schedule")
-            .and.to.be.null;
-        });
-
-        it("should get parameter", function() {
-            expect(df.parameters.length).to.equal(0);
-            expect(df.getParameter("a")).not.to.be.exist;
-        });
-
-        it("shoulde add parameter", function() {
-            df.addParameter("a");
-            expect(df.parameters[0]).to.equal("a");
-            expect(df.getParameter("a")).not.to.be.exist;
-        });
-
-        it("shoulde update parameter", function() {
-            df.updateParameters([{"name": "a", "val": "c"}]);
-            expect(df.getParameter("a")).to.equal("c");
-            expect(df.paramMapInUsed.a).to.be.true;
-        });
-
-        it("shoulde update parameter", function(done) {
-            delete df.paramMapInUsed.a;
-            var oldList = XcalarListParametersInRetina;
-            XcalarListParametersInRetina = function() {
-                return PromiseHelper.resolve({
-                    "parameters": [{"paramName": "a"}]
-                });
-            };
-
-            df.updateParamMapInUsed()
-            .then(function() {
-                expect(df.paramMapInUsed.a).to.be.true;
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                XcalarListParametersInRetina = oldList;
-            });
-        });
-
-        it("shoulde checkParamInUse", function() {
-            expect(df.checkParamInUse("a")).to.be.false;
-        });
-
-        it("should getParameterizedNode", function() {
-            expect(df.getParameterizedNode(nodeId)).not.to.exist;
-        });
-
-        it("should add parameterizedNode", function() {
-            df.addParameterizedNode(nodeId, {
-                "paramType": "test",
-                "paramValue": "load <a>",
-            }, {"paramValue": "testVal"});
-            expect(df.checkParamInUse("a")).to.be.true;
-            expect(df.getParameterizedNode(nodeId)).to.exist;
-        });
-
-        it("should remove parameter", function() {
-            df.removeParameter("a");
-            expect(df.getParameter("a")).not.to.be.exist;
-            expect(df.parameters.length).to.equal(0);
-        });
-
-        it("should set schedule", function() {
-            df.setSchedule(sched);
-            expect(df).to.have.property("schedule")
-            .and.to.an.instanceof(SchedObj);
-        });
-
-        it("should get schedule", function() {
-            expect(df.getSchedule()).to.equal(sched);
-        });
-
-        it("should know if has schedule", function() {
-            expect(df.hasSchedule()).to.be.true;
-        });
-
-        it("should remove schedule", function() {
-            df.removeSchedule();
-            expect(df.hasSchedule()).to.be.false;
-        });
-
-        after(function() {
-            $node.remove();
         });
     });
 

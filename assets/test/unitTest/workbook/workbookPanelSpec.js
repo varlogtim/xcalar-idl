@@ -339,9 +339,7 @@ describe("Workbook-Workbook Panel Test", function() {
         it("Should create new workbook", function(done) {
             var selector = ".workbookBox:not(.loading)";
             var wkbkNum = $workbookPanel.find(selector).length;
-            var name = xcHelper.randName("testWorkbook");
             var $newWorkbookButton = $("#createWKBKbtn");
-            var $workbookModal = $("#workbookInfoModal");
 
             //WorkbookPanel.createNewWorkbook(name);
             $newWorkbookButton.click();
@@ -356,14 +354,10 @@ describe("Workbook-Workbook Panel Test", function() {
 
             UnitTest.testFinish(checkFunc)
             .then(function() {
-                /*var $input = $workbookPanel.find(".workbookBox .workbookName")
-                    .filter(function() {
-                        return $(this).val() === name;
-                    });*/
                 var $input = $workbookPanel.find(".focussed");
                 var $box = $input.closest(".workbookBox");
                 expect($box.length).to.equal(1);
-                expect($box.find(".numDFs").text()).to.equal("1");
+                expect($box.find(".numDFs").text()).to.equal("0");
                 expect($box.find(".isActive").text()).to.equal("Inactive");
                 done();
             })
@@ -377,7 +371,9 @@ describe("Workbook-Workbook Panel Test", function() {
             var $input = $workbookPanel.find(".focussed");
             var $box = $input.closest(".workbookBox");
             var workbookId = $box.attr("data-workbook-id");
+            var test = false;
             WorkbookManager.renameWKBK = function() {
+                test = true;
                 return PromiseHelper.resolve(workbookId);
             };
             $input.val(name);
@@ -390,7 +386,7 @@ describe("Workbook-Workbook Panel Test", function() {
 
             UnitTest.testFinish(checkFunc)
             .then(function() {
-                expect($input.val()).to.equal(name);
+                expect(test).to.equal(true);
                 done();
             })
             .fail(function() {

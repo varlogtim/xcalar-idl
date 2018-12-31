@@ -1,9 +1,14 @@
 // Tests for dagList.
 
 describe('DagList Test', function() {
+    var oldPut;
 
 
     before(function(done) {
+        oldPut = XcalarKeyPut;
+        XcalarKeyPut = function() {
+            return PromiseHelper.resolve();
+        };
         UnitTest.onMinMode();
         UnitTest.testFinish(function() {
             return $("#dagTabSectionTabs .dagTab").length !== 0;
@@ -17,63 +22,56 @@ describe('DagList Test', function() {
     });
 
     describe('Dag List Test', function() {
-        it("should add a new Dag correctly", function() {
-            var prevLen = $("#dagListSection .dagListDetail").length;
-            DagList.Instance.addDag("newDag", "KeyUsedForTestingDagLists-1");
-            expect($("#dagListSection .dagListDetail").length).to.equal(prevLen + 1);
-            expect($("#dagListSection .dagListDetail").last().text()).to.equal("newDag");
+        var dagName;
+        var dagTab;
+        var getSelector = function(name) {
+            return "#dagListSection .dagListDetail .name:contains(" + name + ")";
+        };
+
+        before(function() {
+            dagName = xcHelper.randName("newAgg");
+            dagTab = new DagTabUser(name);
         });
 
-        it("should handle dag deletion", function() {
-            var prevLen = $("#dagListSection .dagListDetail").length;
-            DagList.Instance.addDag("newDag2", "KeyUsedForTestingDagLists-2");
-            DagList.Instance.deleteDataflow($("#dagListSection .dagListDetail").last())
-            .then(() => {
-                expect($("#dagListSection .dagListDetail").length).to.equal(prevLen);
-            });
+        it("should add a new Dag correctly", function() {
+            var prevLen = DagList.Instance._dags.size;
+            DagList.Instance.addDag(dagTab);
+            expect(DagList.Instance._dags.size).to.equal(prevLen + 1);
         });
+
 
         it("should be able to rename a dag", function() {
-            DagList.Instance.addDag("newDag3", "KeyUsedForTestingDagLists-3");
-            expect($("#dagListSection .dagListDetail").last().text()).to.equal("newDag3");
-            DagList.Instance.changeName("renamed", "KeyUsedForTestingDagLists-3");
-            expect($("#dagListSection .dagListDetail").last().text()).to.equal("renamed");
+            dagName = xcHelper.randName("ranamed");
+            DagList.Instance.changeName(dagName, dagTab.getId());
+            var selector = getSelector(dagName);
+            expect($(selector).length).to.equal(1);
         });
 
         it("should tell us if we have a unique name", function() {
-            var dagList = DagList.Instance;
-            expect(dagList.isUniqueName("newDag4")).to.be.true;
-            dagList.addDag("newDag4", "KeyUsedForTestingDagLists-4");
-            expect(dagList.isUniqueName("newDag4")).to.be.false;
-        })
-
-        it("should download a dataflow", function() {
-            var downloadCache = xcHelper.downloadAsFile;
-            var oldFunc = DagTabManager.Instance.getTabByIndex;
-            var called = false;
-            xcHelper.downloadAsFile = (graph, file, bool) => {
-                called = true
-            }
-            DagTabManager.Instance.getTabByIndex = (index) => {
-                var graph = new DagGraph();
-                return new DagTab("a", null, graph);
-            }
-            $("#dagListSection .dagListDetail .downloadDataflow").click();
-            xcHelper.downloadAsFile = downloadCache;
-            DagTabManager.Instance.getTabByIndex = oldFunc;
-            expect(called).to.be.true;
+            var newName = xcHelper.randName("newDag2");
+            expect(DagList.Instance.isUniqueName(newName)).to.be.true;
+            dagName = newName;
+            DagList.Instance.changeName(dagName, dagTab.getId());
+            expect(DagList.Instance.isUniqueName(newName)).to.be.false;
         });
 
-        it("should be able to upload a valid dataflow", function() {
-            var prevLen = $("#dagListSection .dagListDetail").length;
-            var graph = new DagGraph();
-            DagList.Instance.uploadDag("newDagUpload", graph);
-            expect($("#dagListSection .dagListDetail").length).to.equal(prevLen + 1);
-            expect($("#dagListSection .dagListDetail").last().text()).to.equal("newDagUpload");
+        it("should handle dag deletion", function(done) {
+            var prevLen = DagList.Instance._dags.size;
+            var selector = getSelector(dagName);
+            var $dataflow = $(selector).closest(".dagListDetail");
+            DagList.Instance.deleteDataflow($dataflow)
+            .then(() => {
+                expect(DagList.Instance._dags.size).to.equal(prevLen - 1);
+                done();
+            })
+            .fail(() => {
+                done("fail");
+            });
         });
     });
 
     after(function() {
-        DagList.Instance.reset();
+        XcalarKeyPut = oldPut;
+        UnitTest.offMinMode();
     });
 });

@@ -212,9 +212,9 @@ class ColMenu extends AbstractMenu {
             if (this._isInvalidTrigger(event)) {
                 return;
             }
-            const colNum: number = $colMenu.data('colNum');
+            const colNums: number[] = $colMenu.data("colNums");
             const tableId: TableId = $colMenu.data('tableId');
-            ExtensionManager.openView(colNum, tableId);
+            this._createNodeAndShowForm(DagNodeType.Extension, tableId, colNums);
         });
 
         $colMenu.on('mouseup', '.exitOp', (event) => {
@@ -427,6 +427,8 @@ class ColMenu extends AbstractMenu {
                 return this._getJoinParam(columns);
             case DagNodeType.Set:
                 return this._getSetParam(progCols);
+            case DagNodeType.Extension:
+                return null;
             default:
                 throw new Error("Unsupported type!");
         }

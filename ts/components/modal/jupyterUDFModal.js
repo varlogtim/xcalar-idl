@@ -110,6 +110,7 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
                     tableName +
                 '</li>';
         }
+        return tableList;
     }
 
     JupyterUDFModal.show = function(type, params) {

@@ -2,27 +2,18 @@
 describe("DFUploadModal Test", function() {
     var $mainTabCache;
     var $modal;
-    var $retPath;
-    var $dfName;
+    var $sourcePath;
+    var $destPath;
 
-    before(function(done) {
+    before(function() {
         $modal = $("#dfUploadModal");
-        $retPath = $modal.find("#retinaPath");
-        $dfName = $modal.find("#dfName");
+        $sourcePath = $modal.find(".source .path");
+        $destPath = $modal.find(".dest .path");
 
         $mainTabCache = $(".topMenuBarTab.active");
         if ($mainTabCache.attr("id") !== "modelingDataflowTab") {
             $("#modelingDataflowTab").click();
         }
-        UnitTest.testFinish(function() {
-            return $("#dagTabSectionTabs .dagTab").length !== 0;
-        })
-        .then(function() {
-            done();
-        })
-        .fail( function(){
-            done("fail");
-        });
     });
 
     describe("Upload Dataflow Api Test", function() {
@@ -32,40 +23,40 @@ describe("DFUploadModal Test", function() {
         });
 
         it("should change the file path and check invalid case", function() {
-            var retName = "test";
-            retName = xcHelper.checkNamePattern("dataflow", "fix", retName);
-            retName = xcHelper.uniqueName(retName, function(name) {
-                return !DF.hasDataflow(name);
+            var path = "test";
+            path = xcHelper.checkNamePattern("dataflow", "fix", path);
+            path = xcHelper.uniqueName(path, function(name) {
+                return DagList.Instance.isUniqueName(name);
             });
 
-            DFUploadModal.Instance.__testOnly__.changeFilePath("test.pdf");
-            expect($retPath.val()).to.equal("test.pdf");
-            expect($dfName.val()).to.equal(retName);
+            DFUploadModal.Instance._changeFilePath("test.pdf");
+            expect($sourcePath.val()).to.equal("test.pdf");
+            expect($destPath.val()).to.equal(path);
             expect($modal.find(".confirm").hasClass("btn-disabled"))
             .to.be.true;
             UnitTest.hasStatusBoxWithError(ErrTStr.RetinaFormat);
         });
 
         it("should change file path to valid case", function() {
-            DFUploadModal.Instance.__testOnly__.changeFilePath("file.json");
-            expect($retPath.val()).to.equal("file.json");
-            expect($dfName.val()).to.equal("file");
-            expect($modal.find(".confirm").hasClass("btn-disabled"))
-            .to.be.false;
+            DFUploadModal.Instance._changeFilePath("file.tar.gz");
+            expect($sourcePath.val()).to.equal("file.tar.gz");
+            expect($destPath.val()).to.equal("file");
+            expect($modal.find(".confirm").hasClass("btn-disabled")).to.be.false;
         });
 
         it("fakeBrowse btn should trigger real btn", function() {
             var clicked = false;
-            $("#dataflow-browse").attr("type", "");
-            $("#dataflow-browse").on("click.unitTest", function() {
+            var $browseBtn = DFUploadModal.Instance._getBrowseButton();
+            $browseBtn.attr("type", "");
+            $browseBtn.on("click.unitTest", function() {
                 clicked = true;
             });
-            $("#dataflow-fakeBrowse").click();
+            $modal.find(".source button.browse").click();
             expect(clicked).to.be.true;
             clicked = false;
-            $("#retinaPath").mousedown();
+            $sourcePath.mousedown();
             expect(clicked).to.be.true;
-            $("#dataflow-browse").attr("type", "file");
+            $browseBtn.attr("type", "file");
         });
 
         it("should close the card", function() {
@@ -76,8 +67,6 @@ describe("DFUploadModal Test", function() {
 
     describe("Upload Dataflow Submit Test", function() {
         var oldReader;
-        var oldImport;
-        var oldList;
         var oldAddDF;
         var isAddDF = false;
         var oldShowSuccess = xcHelper.showSuccess;
@@ -98,16 +87,10 @@ describe("DFUploadModal Test", function() {
             oldReader = FileReader;
             FileReader = FakeFileReader;
 
-            oldImport = XcalarImportRetina;
-            oldList = XcalarListRetinas;
-            oldAddDF = DagList.Instance.uploadDag;
+            oldAddDF = DagTabUser.prototype.upload;
             oldShowSuccess = xcHelper.showSuccess;
 
-            XcalarListRetinas = function() {
-                return PromiseHelper.resolve({"retinaDescs": []});
-            };
-
-            DagList.Instance.uploadDag = function(name, dag) {
+            DagTabUser.prototype.upload = function() {
                 isAddDF = true;
             };
 
@@ -116,13 +99,13 @@ describe("DFUploadModal Test", function() {
             };
 
             DFUploadModal.Instance.show();
-            DFUploadModal.Instance.__testOnly__.changeFilePath("file.json");
+            DFUploadModal.Instance._changeFilePath("file.json");
         });
 
         it("should handle empty name error", function(done) {
-            $("#dfName").val("");
+            $destPath.val("");
 
-            DFUploadModal.Instance.__testOnly__.submitForm()
+            DFUploadModal.Instance._submitForm()
             .then(function() {
                 done("fail");
             })
@@ -133,9 +116,9 @@ describe("DFUploadModal Test", function() {
         });
 
         it("should handle name error", function(done) {
-            $("#dfName").val("invalid#name");
+            $destPath.val("invalid#name");
 
-            DFUploadModal.Instance.__testOnly__.submitForm()
+            DFUploadModal.Instance._submitForm()
             .then(function() {
                 done("fail");
             })
@@ -149,8 +132,8 @@ describe("DFUploadModal Test", function() {
             var name = "DupNameTest"
             var id = DagList.Instance.getAllDags().entries().next().value[0];
             DagList.Instance.changeName(name, id);
-            $("#dfName").val(name);
-            DFUploadModal.Instance.__testOnly__.submitForm()
+            $destPath.val(name);
+            DFUploadModal.Instance._submitForm()
             .then(function() {
                 done("fail");
             })
@@ -160,34 +143,22 @@ describe("DFUploadModal Test", function() {
             });
         });
 
-        it("should handle error case", function(done) {
-            $("#dfName").val("file");
-
-            DFUploadModal.Instance.__testOnly__.submitForm()
-            .then(function() {
-                done("fail");
-            })
-            .fail(function(error) {
-                expect(isAddDF).to.be.false;
-                expect(successMsg).to.be.null;
-                UnitTest.hasStatusBoxWithError(DFTStr.DFDrawError);
-                done();
-            });
-        });
-
         it("should handle large file size error", function(done) {
-            DFUploadModal.Instance.__testOnly__.changeFilePath("file.json");
-            DFUploadModal.Instance.__testOnly__.setFile({size: 2 * MB});
-            DFUploadModal.Instance.__testOnly__.submitForm()
+            DFUploadModal.Instance._changeFilePath("file.tar.gz");
+            DFUploadModal.Instance._file = {size: 6 * MB};
+            DFUploadModal.Instance._submitForm();
+
+            UnitTest.testFinish(function() {
+                return $("#alertModal").is(":visible");
+            })
             .then(function() {
-                done("fail");
+                UnitTest.hasAlertWithTitle(AlertTStr.Title);
+                DFUploadModal.Instance._changeFilePath("file.tar.gz");
+                DFUploadModal.Instance._file = {size: 1 * KB};
+                done();
             })
             .fail(function() {
-                UnitTest.hasAlertWithTitle(DSTStr.UploadLimit);
-
-                DFUploadModal.Instance.__testOnly__.changeFilePath("file.json");
-                DFUploadModal.Instance.__testOnly__.setFile({size: 1 * KB});
-                done();
+                done("fail");
             });
         });
 
@@ -197,8 +168,8 @@ describe("DFUploadModal Test", function() {
                 this.onload(e);
                 return file;
             };
-            $("#dfName").val("uploadTest");
-            DFUploadModal.Instance.__testOnly__.submitForm()
+            $destPath.val("uploadTest");
+            DFUploadModal.Instance._submitForm()
             .then(() => {
                 expect(isAddDF).to.be.true;
                 done();
@@ -210,14 +181,13 @@ describe("DFUploadModal Test", function() {
 
         after(function() {
             FileReader = oldReader;
-            XcalarImportRetina = oldImport;
-            XcalarListRetinas = oldList;
-            DagList.Instance.uploadDag = oldAddDF;
+            DagTabUser.prototype.upload = oldAddDF;
             xcHelper.showSuccess = oldShowSuccess;
         });
     });
 
     after(function() {
+        DFUploadModal.Instance._close();
         if ($mainTabCache.attr("id") !== "modelingDataflowTab") {
             $mainTabCache.click();
         }

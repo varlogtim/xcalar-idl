@@ -30,7 +30,7 @@ describe("Xcalar Log Test", function() {
                 "operation": null,
                 "expect": UndoType.Invalid
             },{
-                "operation": SQLOps.DSImport,
+                "operation": SQLOps.RemoveDagTab,
                 "expect": UndoType.Invalid
             },{
                 "operation": SQLOps.PreviewDS,
@@ -434,14 +434,12 @@ describe("Xcalar Log Test", function() {
         var $logButtons;
         var $textarea;
         var $machineTextarea;
-        var $logMenu;
         var wasOpen;
 
         before(function() {
             $logButtons = $("#logButtonWrap");
             $textarea = $("#log-TextArea");
             $machineTextarea = $("#log-MachineTextArea");
-            $logMenu = $("#logMenu");
 
             wasOpen = $("#logButton").hasClass("active");
             if (!wasOpen) {
@@ -457,26 +455,12 @@ describe("Xcalar Log Test", function() {
             .to.equal("none");
         });
 
-        it("should open log menu in machine Log", function() {
-            openContextMenu();
-            assert.isTrue($logMenu.is(":visible"));
-            expect($logMenu.find("li:visible").length).to.equal(1);
-            $logMenu.hide();
-        });
-
         it("Should view human Log", function() {
             $logButtons.find(".machineLog").click();
             expect($machineTextarea.get(0).style.display)
             .to.equal("none");
             expect($textarea.get(0).style.display)
             .to.equal("block");
-        });
-
-        it("should open log menu in human Log", function() {
-            openContextMenu();
-            assert.isTrue($logMenu.is(":visible"));
-            expect($logMenu.find("li:visible").length).to.equal(3);
-            $logMenu.hide();
         });
 
         it("should download log", function() {
@@ -523,13 +507,6 @@ describe("Xcalar Log Test", function() {
             expect($log.hasClass("expanded")).to.equal(true);
             expect($log.hasClass("collapsed")).to.equal(false);
         });
-
-        function openContextMenu() {
-            var e = jQuery.Event("contextmenu", {
-                "target": $logMenu
-            });
-            $textarea.parent().trigger(e);
-        }
 
         after(function() {
             if (!wasOpen) {

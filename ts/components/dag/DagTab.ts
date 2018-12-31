@@ -177,10 +177,11 @@ abstract class DagTab {
         id: string,
         dag: DagGraphInfo
     } {
+        let dag = this._dagGraph ? this._dagGraph.getSerializableObj(includeStats) : null;
         return {
             name: this._name,
             id: this._id,
-            dag: this._dagGraph.getSerializableObj(includeStats)
+            dag: dag
         }
     }
 

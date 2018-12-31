@@ -383,6 +383,7 @@ class UDFPanel {
         );
         if (!UDFFileManager.Instance.getUDFs().has(nsPath)) {
             StatusBox.show(UDFTStr.NoTemplate, $("#udf-fnList"));
+            return;
         }
 
         const $fnListInput: JQuery = $("#udf-fnList input");

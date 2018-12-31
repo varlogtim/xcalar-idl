@@ -531,16 +531,17 @@ describe("Transaction Test", function() {
 
         before(() => {
             oldAddProgress = DagView.addProgress;
-            oldUpdateProgress = DagView.updateProgress;
+            oldUpdateProgress = DagView.calculateAndUpdateProgress;
             oldRemoveProgress = DagView.removeProgress
 
             DagView.addProgress = (dagNodeId) => {
                 expect(dagNodeId).to.equal(nodeId);
             };
 
-            DagView.updateProgress = (dagNodeId, dagPct) => {
+            DagView.calculateAndUpdateProgress = (queryStateOutPut, dagNodeId) => {
                 expect(dagNodeId).to.equal(nodeId);
-                pct = dagPct;
+                let progress = xcHelper.getQueryProgress(queryStateOutPut);
+                pct = Math.round(100 * progress);
             };
 
             DagView.removeProgress = (dagNodeId) => {
@@ -552,7 +553,7 @@ describe("Transaction Test", function() {
             pct = null;
         });
 
-        it("should handle error  case", () => {
+        it("should handle error case", () => {
             const txId = Transaction.start({
                 track: true,
                 nodeId: nodeId
@@ -571,9 +572,11 @@ describe("Transaction Test", function() {
             const queryStateOutput = {
                 queryGraph: {
                     node: [{
+                        state: DgDagStateT.DgDagStateProcessing,
                         numWorkCompleted: 10,
                         numWorkTotal: 20
                     }, {
+                        state: DgDagStateT.DgDagStateProcessing,
                         numWorkCompleted: 30,
                         numWorkTotal: 80
                     }]
@@ -586,7 +589,7 @@ describe("Transaction Test", function() {
 
         after(() => {
             DagView.addProgress = oldAddProgress;
-            DagView.updateProgress = oldUpdateProgress;
+            DagView.calculateAndUpdateProgress = oldUpdateProgress;
             DagView.removeProgress = oldRemoveProgress;
         });
     });

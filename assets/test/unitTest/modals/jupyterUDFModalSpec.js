@@ -197,11 +197,6 @@ describe("JupyterUDFModal Test", function() {
         });
 
         it("table list should work", function() {
-            var wsListCache = WSManager.getTableList;
-            WSManager.getTableList = function() {
-                return "<li>fakeTable#zz999</li>";
-            };
-
             $modal.find(".tableList").click();
             expect($modal.find(".tableList .list").is(":visible")).to.be.true;
             expect($modal.find(".tableName").val()).to.equal("");
@@ -216,8 +211,6 @@ describe("JupyterUDFModal Test", function() {
             expect($modal.find(".columnsList li").eq(2).text()).to.equal("prefix::testCol3");
             expect($modal.find(".columnsList li.unavailable").length).to.equal(1);
             expect($modal.find(".columnsList li").eq(2).hasClass("unavailable")).to.be.true;
-
-            WSManager.getTableList = wsListCache;
         });
 
         it("column list should work", function() {

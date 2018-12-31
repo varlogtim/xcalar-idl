@@ -140,15 +140,20 @@ class DFUploadModal {
             this._submitDone(tab);
             deferred.resolve();
         })
-        .fail((error, alertOption) => {
-            if (alertOption != null) {
-                this._submitDone(tab);
-                Alert.show(alertOption);
-            } else {
-                StatusBox.show(error.error, $confirmBtn, false, {
-                    detail: error.log
-                });
+        .fail((error, alertOption, cancel) => {
+            try {
+                if (alertOption != null) {
+                    this._submitDone(tab);
+                    Alert.show(alertOption);
+                } else if (!cancel) {
+                    StatusBox.show(error.error, $confirmBtn, false, {
+                        detail: error.log
+                    });
+                }
+            } catch (e) {
+                console.error(e);
             }
+            deferred.reject(error);
         })
         .always(() => {
             clearTimeout(timer);

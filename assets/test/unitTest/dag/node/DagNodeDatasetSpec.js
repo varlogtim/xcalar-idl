@@ -13,19 +13,23 @@ describe("Dataset Dag Node Test", () => {
         const param = node.getParam();
         expect(param).to.deep.equal({
             source: "",
-            prefix: ""
+            prefix: "",
+            synthesize: false,
+            loadArgs: ""
         });
     });
 
-    it("should set parameter", (done) => {
+    it("should set parameter", () => {
 
-        const testParam = {source: "dataset1", prefix: "test"};
+        const testParam = {
+            source: "dataset1",
+            prefix: "test",
+            synthesize: false,
+            loadArgs: ""
+        };
         node.setParam(testParam)
-        .always(function() {
-            const param = node.getParam();
-            expect(param).not.to.equal(testParam);
-            expect(param).to.deep.equal(testParam);
-            done();
-        });
+        const param = node.getParam();
+        expect(param).not.to.equal(testParam);
+        expect(param).to.deep.equal(testParam);
     });
 });

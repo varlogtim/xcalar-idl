@@ -355,27 +355,45 @@ describe("JupyterPanel Test", function() {
     describe("other functions", function() {
         it("showMapForm should work", function() {
             var called1 = false;
-            var cache1 = MainMenu.openPanel;
+            var called2 = false;
+            var oldOpenPanel = MainMenu.openPanel;
+            var oldGetTabs = DagTabManager.Instance.getTabs;
+            var oldSwitch = DagTabManager.Instance.switchTab;
+            var oldAddNode = DagView.autoAddNode;
+            var oldExecute = DagNodeMenu.execute;
+            var tableName = "fakeTable#zz999";
+            DagTabManager.Instance.getTabs = function() {
+                let node = DagNodeFactory.create({
+                    type: DagNodeType.Map,
+                    table: tableName
+                });
+                let graph = new DagGraph();
+                graph.addNode(node);
+                let tab = new DagTabUser("test", null, graph);
+                return [tab];
+            }
+            
             MainMenu.openPanel = function(type) {
-                expect(type).to.equal("workspacePanel");
+                expect(type).to.equal("dagPanel");
                 called1 = true;
             };
 
             var called2 = false;
-            var cache2 = OperationsView.show;
-            OperationsView.show = function(tId, colNums, type, options) {
-                expect(tId).to.equal("zz999");
-                expect(colNums[0]).to.equal(1);
-                expect(type).to.equal("map");
-                expect(options.prefill.ops[0]).to.equal("a:b");
-                expect(options.prefill.args[0][0]).to.equal("prefix::testCol1");
+            DagView.autoAddNode = function(type, subType, nodeId, input) {
+                expect(type).to.equal(DagNodeType.Map);
+                expect(input.eval[0].evalString).to.includes("prefix::testCol1");
                 called2 = true;
             };
-            JupyterPanel.__testOnly__showMapForm("fakeTable#zz999", ["prefix::testCol1"], "a", "b");
+
+            DagNodeMenu.execute = function() {};
+            JupyterPanel.__testOnly__showMapForm(tableName, ["prefix::testCol1"], "a", "b");
             expect(called1).to.be.true;
             expect(called2).to.be.true;
-            MainMenu.openPanel = cache1;
-            OperationsView.show = cache2;
+            MainMenu.openPanel = oldOpenPanel;
+            DagTabManager.Instance.getTabs = oldGetTabs;
+            DagTabManager.Instance.switchTab = oldSwitch; 
+            DagView.autoAddNode = oldAddNode;
+            DagNodeMenu.execute = oldExecute;
         });
 
         it("showDSForm should work", function() {

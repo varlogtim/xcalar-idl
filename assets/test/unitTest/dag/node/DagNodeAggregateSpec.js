@@ -13,12 +13,17 @@ describe("Aggregate Dag Node Test", () => {
         const param = node.getParam();
         expect(param).to.deep.equal({
             evalString: "",
-            dest: ""
+            dest: "",
+            mustExecute: false
         });
     });
 
     it("should set parameter", () => {
-        const testParam = {evalString: "count(column)", dest: "constantName"};
+        const testParam = {
+            evalString: "count(column)",
+            dest: "constantName",
+            mustExecute: false
+        };
         node.setParam(testParam);
         const param = node.getParam();
         expect(param).not.to.equal(testParam);

@@ -204,7 +204,7 @@ describe("FileListModal Test", function() {
             expect($btxtLabel.length).to.equal(1);
             expect($btxtLabel.closest("li").siblings().length).to.equal(1);
 
-            expect($btxtLabel.closest("li").next().find(".name").filter(function() {
+            expect($btxtLabel.closest("li").siblings().find(".name").filter(function() {
                 return $(this).text() === "d.txt";
             }).length).to.equal(1);
 
@@ -236,7 +236,7 @@ describe("FileListModal Test", function() {
             $modal.find(".searchbarArea input").val("x").trigger("input");
             expect($modal.find(".highlightedText").length).to.equal(3);
             expect($modal.find(".highlightedText.selected").length).to.equal(1);
-            expect($modal.find(".highlightedText.selected").parent().text()).to.equal("b.txt");
+            expect($modal.find(".highlightedText.selected").parent().text()).to.equal("d.txt");
 
             $modal.find(".searchbarArea").find(".closeBox").click(); // clear
             $modal.find(".searchbarArea").find(".closeBox").click(); //close

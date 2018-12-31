@@ -1505,8 +1505,8 @@ window.DS = (function ($, DS) {
         Alert.show({
             "title": title,
             "msg": msg,
-            "onConfirm": deferred.resolve,
-            "onCancel": deferred.reject,
+            "onConfirm": function() { deferred.resolve(); },
+            "onCancel": function() { deferred.reject(); },
             "isAlert": isAlert
         });
 

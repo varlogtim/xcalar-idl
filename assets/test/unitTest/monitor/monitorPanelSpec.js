@@ -50,18 +50,18 @@ describe("Monitor Panel Test", function() {
         it("toggling monitor system lists should work", function() {
             var $listInfo = $("#monitorMenu-sys").find(".listInfo").eq(0);
             var wasActive = $listInfo.closest(".listWrap").hasClass("active");
-            $listInfo.click();
+            $listInfo.find(".expand").click();
             expect($listInfo.closest(".listWrap").hasClass("active")).to.not.equal(wasActive);
-            $listInfo.click();
+            $listInfo.find(".expand").click();
             expect($listInfo.closest(".listWrap").hasClass("active")).to.equal(wasActive);
         });
 
         it("toggling monitor setup lists should work", function() {
             var $listInfo = $("#monitorMenu-setup").find(".listInfo").eq(0);
             var wasActive = $listInfo.closest(".listWrap").hasClass("active");
-            $listInfo.click();
+            $listInfo.find(".expand").click();
             expect($listInfo.closest(".listWrap").hasClass("active")).to.not.equal(wasActive);
-            $listInfo.click();
+            $listInfo.find(".expand").click();
             expect($listInfo.closest(".listWrap").hasClass("active")).to.equal(wasActive);
         });
 

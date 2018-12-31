@@ -500,16 +500,64 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
     // XXX TODO: update it
     function showMapForm(tableName, columns, moduleName, fnName) {
-        var tableId = xcHelper.getTableId(tableName);
-        var table = gTables[tableId];
-        if (table && table.isActive()) {
-            var colNums = [];
-            for (var i = 0; i < columns.length; i++) {
-                var colNum = table.getColNumByBackName(columns[i]);
-                if (colNum > -1) {
-                    colNums.push(colNum);
-                }
-            }
+        let tabId = null;
+        let dagNode = null;
+        try {
+            let tabs = DagTabManager.Instance.getTabs();
+            tabs.forEach((tab) => {
+               let graph = tab.getGraph();
+               if (graph != null) {
+                   graph.getAllNodes().forEach((node) => {
+                       if (node.getTable() === tableName) {
+                           tabId = tab.getId();
+                           dagNode = node;
+                           return false; // stop loop
+                       }
+                   });
+               }
+
+               if (dagNode != null) {
+                   return false;
+               }
+            });
+        } catch (e) {
+            tabId = null;
+            dagNode = null;
+            console.error(e);
+        }
+
+        if (tabId == null) {
+            Alert.show({
+                title: "Error",
+                msg: "Table " + tableName + " is not present in any active worksheets.",
+                isAlert: true
+            });
+        } else {
+            MainMenu.openPanel("dagPanel");
+            DagTabManager.Instance.switchTab(tabId);
+            let input = {
+                eval: [{
+                    evalString: `${moduleName}:${fnName}(${columns.join(",")})`,
+                    newField: ""
+                }],
+                icv: false
+            };
+            let mapNode = DagView.autoAddNode(DagNodeType.Map, null, dagNode.getId(), input);
+            DagNodeMenu.execute("configureNode", {
+                node: mapNode
+            });
+        }
+        
+        // var tableId = xcHelper.getTableId(tableName);
+        // var table = gTables[tableId];
+        // if (table && table.isActive()) {
+        //     var colNums = [];
+        //     for (var i = 0; i < columns.length; i++) {
+        //         var colNum = table.getColNumByBackName(columns[i]);
+        //         if (colNum > -1) {
+        //             colNums.push(colNum);
+        //         }
+        //     }
 
             // MainMenu.openPanel("workspacePanel", "worksheetButton");
             // OperationsView.show(tableId, colNums, "map", {
@@ -518,13 +566,6 @@ window.JupyterPanel = (function($, JupyterPanel) {
             //         args: [columns]
             //     }
             // });
-        } else {
-            Alert.show({
-                title: "Error",
-                msg: "Table " + tableName + " is not present in any active worksheets.",
-                isAlert: true
-            });
-        }
     }
 
     function showDSForm(moduleName, fnName) {
