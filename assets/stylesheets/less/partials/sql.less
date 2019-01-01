@@ -178,14 +178,21 @@
 
 #sqlWorkSpacePanel {
     .mainContent {
-        .flex-display;
 
         .leftSection {
-            .flex(1 1 40%);
+            float: left;
+            width: 40%;
+            height: 100%;
         }
     
         .rightSection {
-            .flex(1 1 60%);
+            float: right;
+            width: 60%;
+            height: 100%;
+
+            .resultSection, .historySection {
+                height: 50%;
+            }
         }
     }    
 }
@@ -242,7 +249,56 @@
 
         button {
             display: block;
-            margin: 5px auto;
+            margin: 0 auto;
+
+            &:first-child {
+                margin-bottom: 10px;
+            }
+        }
+    }
+}
+
+#sqlTableArea {
+    height: 100%;
+    @tableBar-h: 38px;
+    @bottom-h: 50px;
+    @total-h: @tableBar-h + @bottom-h;
+
+    .tableBar {
+        background-color: @color-white;
+        height: @tableBar-h;
+        padding-top: 9px;
+        padding-bottom: 9px;
+
+        > .label {
+            margin-right: 10px;
+            line-height: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: @color-font-edge;
+        }
+    }
+
+    .tableSection {
+        height: ~"calc(100% - @{total-h})";
+
+        .viewWrap {
+            height: 100%;
+        }
+    }
+
+    .bottomSection {
+        height: @bottom-h;
+        padding: 11px 25px;
+        border-top: 1px solid @color-border-softGray;
+        background-color: @color-bg-list-hover-blue;
+
+        .buttonWrap {
+            float: right;
+        }
+
+        button {
+            margin-right: 10px;
         }
     }
 }

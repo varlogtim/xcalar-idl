@@ -1,0 +1,40 @@
+<!-- XXX TODO: generalize with the on in dagView.html -->
+<div id="sqlTableArea" class="tableArea xc-viewMode xc-tableArea">
+    <div class="tableBar">
+        <div class="label"><%= dicts.dag.viewResult %></div>
+        <!-- search area -->
+        <div class="searchbarArea">
+          <input type="text" placeholder="<%= dicts.common.SeachColumn %>">
+          <i class="icon xi-search"></i>
+          <div class="counter">
+            <span class="position">1</span>
+            <span class="total">of 2</span>
+          </div>
+          <div class="arrows">
+            <div class="upArrow iconWrap">
+              <i class="icon xi-up"></i>
+             </div>
+            <div class="downArrow iconWrap">
+              <i class="icon xi-down"></i>
+            </div>
+          </div>
+        </div>
+        <!-- just a padding placeholer -->
+        <div class="tableNameArea"></div>
+        <!-- end of search area -->
+        <div class="skewInfoArea"></div>
+        <div class="rowInputArea"></div>
+        <div class="close xc-action">
+          <i class="icon xi-close-no-circle"></i>
+        </div>
+    </div>
+    <div class="errorSection xc-errorView"></div>
+    <div class="loadingSection xc-loadView"></div>
+    <div class="tableSection"></div>
+    <div class="bottomSection">
+        <div class="buttonWrap">
+            <button class="btn btn-clear"><%= dicts.Table.Create %></button>
+            <button class="btn"><%= dicts.Table.Export %></button>
+        </div>
+    </div>
+</div>

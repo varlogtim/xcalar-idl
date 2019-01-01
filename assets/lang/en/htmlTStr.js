@@ -373,6 +373,11 @@ module.exports = {
         "RawDSPreviewRefresh": "Click to refresh the preview",
     },
 
+    "Table": {
+        "Create": "Create Table",
+        "Export": "Export Result"
+    },
+
     "workspaceBar": {
         "Skew": "Skew"
     },

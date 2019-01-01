@@ -1,7 +1,7 @@
 class DagTable {
     private static _instance: DagTable;
     private readonly _container: string = "dagViewTableArea";
-    private _searchBar: DagTableSearchBar;
+    private _searchBar: TableSearchBar;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -13,13 +13,13 @@ class DagTable {
 
     private constructor() {
         this._addEventListeners();
-        this._searchBar = new DagTableSearchBar(this._container);
+        this._searchBar = new TableSearchBar(this._container);
         this._viewers = new Map();
     }
 
     public previewTable(tabId: string, dagNode: DagNode): XDPromise<void> {
-        const table: TableMeta = XcTableViewer.getTableFromDagNode(dagNode);
-        const viewer: XcTableViewer = new XcTableViewer(tabId, dagNode, table);
+        const table: TableMeta = XcDagTableViewer.getTableFromDagNode(dagNode);
+        const viewer: XcDagTableViewer = new XcDagTableViewer(tabId, dagNode, table);
         this._viewers.set(tabId, viewer);
         return this._show(viewer);
     }
@@ -47,7 +47,7 @@ class DagTable {
         if (this._currentViewer instanceof XcDatasetViewer) {
             return PromiseHelper.resolve(); // invalid case
         }
-        const currentViewer: XcTableViewer = <XcTableViewer>this._currentViewer;
+        const currentViewer: XcDagTableViewer = <XcDagTableViewer>this._currentViewer;
         const viewer = currentViewer.replace(table);
         if (this._isSameViewer(viewer)) {
             return PromiseHelper.resolve();
@@ -65,7 +65,7 @@ class DagTable {
     }
 
     public getBindNode(): DagNode {
-        if (this._currentViewer != null && this._currentViewer instanceof XcTableViewer) {
+        if (this._currentViewer != null && this._currentViewer instanceof XcDagTableViewer) {
             return this._currentViewer.getNode();
         } else {
             return null;
@@ -73,14 +73,14 @@ class DagTable {
     }
 
     public getBindNodeId(): DagNodeId {
-        if (this._currentViewer != null && this._currentViewer instanceof XcTableViewer) {
+        if (this._currentViewer != null && this._currentViewer instanceof XcDagTableViewer) {
             return this._currentViewer.getNodeId();
         } else {
             return null;
         }
     }
 
-    public getSearchBar(): DagTableSearchBar {
+    public getSearchBar(): TableSearchBar {
         return this._searchBar;
     }
 
@@ -95,14 +95,14 @@ class DagTable {
      * close the preview
      */
     public close(): void {
-        if (this._currentViewer instanceof XcTableViewer) {
+        if (this._currentViewer instanceof XcDagTableViewer) {
             this._viewers.delete(this._currentViewer.getDataflowTabId());
         }
         this._close();
     }
 
     public isTableFromTab(tabId: string): boolean {
-        return this._currentViewer instanceof XcTableViewer &&
+        return this._currentViewer instanceof XcDagTableViewer &&
                 this._currentViewer.getDataflowTabId() === tabId;
     }
 
@@ -211,7 +211,7 @@ class DagTable {
             return false;
         }
 
-        if (viewer instanceof XcTableViewer && currentViewer instanceof XcTableViewer) {
+        if (viewer instanceof XcDagTableViewer && currentViewer instanceof XcDagTableViewer) {
             if (viewer.getDataflowTabId() !== currentViewer.getDataflowTabId()) {
                 return false;
             }

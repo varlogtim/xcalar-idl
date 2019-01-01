@@ -1,4 +1,4 @@
-class DagTableSearchBar {
+class TableSearchBar {
     private _container: string;
     private _searchHelper: SearchBar;
 

@@ -985,18 +985,9 @@
 
 /* ========== Dag Table Viewer Tabs ========== */
 #dagViewTableArea {
-    // .flex(0 0 30%);
-    .size(@height: 30%);
-    background-color: @color-xpe-docker-starter-bg;
     @tableBar-h: 30px;
-    @div-h: 20px;
 
-    .tableScrollBar {
-        height: ~"calc(100% - @{height-xcColHeaderOuter})";
-        top: @height-xcColHeaderOuter;
-        width: 10px;
-    }
-
+    .size(@height: 30%);
 
     .refreshIcon {
         width: 75%;
@@ -1005,205 +996,18 @@
         left: unset;
     }
 
-    &.error {
-        .tabaleBar {
-            display: none
-        }
-
-        .errorSection {
-            display: block;
-        }
-    }
-
-    &.error, &.loading {
-        .searchbarArea, .menuArea, .rowInputArea {
-            pointer-events: none;
-            opacity: @opacity-disabled;
-        }
-    }
-
     &.dataset {
         .rowInputArea, .tableMenu, .skewInfoArea {
             display: none;
         }
     }
 
-    .errorSection {
-        .size(100%, 100%);
-        display: none;
-    }
-
     .tableBar {
         .size(@height: @tableBar-h);
-        background-color: @color-bg-topBarGray2;
-        font-size: 11px;
-        padding: 5px 15px 5px 5px;
-        display: flex;
-
-        .searchbarArea {
-            .size(@height: @div-h, @max-width: 244px, @min-width: 20%);
-            float: left;
-
-            input {
-                font-size: 11px;
-
-                .size(@height: @div-h);
-                padding-left: 20px;
-                padding-right: 85px;
-                line-height: 20px;
-                background-color: @color-white;
-            }
-
-            .icon {
-                .font(@size: 10px);
-                .position(absolute, @top: 6px, @left: 5px);
-                color: #9eb3c5;
-            }
-
-            .counter {
-                height: 20px;
-                top: 2px;
-                right: 52px;
-            }
-
-            .arrows {
-                top: 0px;
-
-                .iconWrap {
-                    .size(18px, 18px);
-                    top: 1px;
-                    background-color: @color-bg-white-two;
-                    opacity: 0.8;
-
-                    &.downArrow {
-                        right: 1px;
-                    }
-
-                    &.upArrow {
-                        right: 22px;
-                    }
-
-                    .icon {
-                        top: 5px;
-                        left: 3px;
-                        color: @color-font-form-gray;
-                    }
-
-                    &:hover {
-                        background-color: @color-bg-white-two;
-                        opacity: 1;
-                    }
-                }
-            }
-        }
-
-        .menuArea {
-            .size(@height: @div-h);
-            float: left;
-            margin-right: 10px;
-
-            .option {
-                .size(@width: 53px, @height: 22px);
-                float: left;
-                background-color: @color-white;
-                border-color: #C7D4DF;
-                border-radius: 3px;
-                padding-top: 2px;
-                .font(@size: 11px, @line-height: 19px, @color: #627483);
-                text-align: center;
-            }
-        }
-
-        .tableNameArea {
-            .flex(1 1 0px);
-            padding: 0 10px;
-            padding-top: 2px;
-            .textOverflowOneLine;
-            display: flex;
-            .name {
-                .textOverflowOneLine;
-                font-weight: bold;
-            }
-        }
-
-        .skewInfoArea {
-            .position(relative);
-            cursor: pointer;
-            border-right: 1px solid @color-border-warmGray;
-            padding: 0 10px;
-            margin-right: 10px;
-            padding-top: 3px;
-        }
-
-        .rowInputArea {
-            .size(@min-width: 60px, @height: @div-h);
-            margin-top: 0;
-            margin-right: 10px;
-            border: none;
-            padding: 0;
-            padding-top: 3px;
-
-            input {
-                background-color: @color-white;
-                .size(@height: 22px);
-                top: 1px;
-            }
-        }
-
-        .close {
-            .size(@div-h, @div-h);
-            background-color: @color-arc-xdbfree;
-            color: @color-white;
-            .rounded(3px);
-
-            .icon {
-                .size(@div-h, @div-h);
-                display: block;
-                .font(@size: 8px);
-
-                &:before {
-                    .size(8px, 8px);
-                    display: block;
-                    .center-align;
-                }
-            }
-        }
     }
 
     .viewWrap {
         .size(@height: ~"calc(100% - @{tableBar-h})", @width: 100%);
-        overflow-x: auto;
-        overflow-y: hidden;
-    }
-
-    .xcTbodyWrap {
-        .size(@max-height: 100%);
-    }
-
-    .xcTable .header {
-        .position(@top: 0px);
-    }
-
-    #fauxCol {
-        top: 30px;
-    }
-
-    .tableCover {
-        top: @height-xcColHeaderOuter !important;
-    }
-
-    .jsonModalOpen {
-        .header {
-            z-index: @z-index-modalBackground - 2 !important;
-        }
-
-        th:first-child .header {
-            z-index: @z-index-modalBackground - 1 !important;
-        }
-
-        .idWrap {
-            z-index: @z-index-modalBackground - 2 !important;
-        }
     }
 }
 
