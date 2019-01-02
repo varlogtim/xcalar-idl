@@ -136,6 +136,7 @@
                 line-height: 30px;
                 margin-top: 10px;
                 border: 1px solid  @color-border-bar;
+                padding: 0 6px;
                 color: #44515c;
                 width: 45px;
                 .rounded(3px);
@@ -144,7 +145,7 @@
                 position: absolute;
                 z-index: 3;
                 bottom: 32%;
-                margin-left: 33px;
+                margin-left: 30px;
                 cursor: default;
             }
 
@@ -206,6 +207,7 @@
 
         .searchArea {
             padding: 7px 4px 0px 10px;
+            background-color: @color-bg-topBarGray2;
 
             .searchBox {
                 min-width: @search-width;
@@ -219,6 +221,9 @@
                 border-color: @color-border-softGray;
                 background-color: @color-white;
                 padding: 0 6px;
+                ::placeholder {
+                    color: @color-bg-step-gray;
+                }
             }
             .searchIcon {
                 float: left;
@@ -483,6 +488,10 @@
 
         .opTitle, .iconArea, .icon, .opSubTypeTitle {
             pointer-events: none;
+        }
+
+        .opTitle {
+            font-size: 10px;
         }
 
         .nodeid {
@@ -1015,10 +1024,11 @@
 #dagTabView {
     @tabHeight: 24px;
     display: flex;
-
+    background-color: @color-bg-topBarGray2;
     #tabButton {
         .font(@size: 11px, @align: center, @line-height: @tabHeight);
         .size(@height: @tabHeight, @width: @tabHeight + 2);
+        color: #627483;
         cursor: pointer;
         min-width: @tabHeight + 2;
         flex: 0 0 auto;

@@ -79,6 +79,7 @@ module.exports = {
         "SaveAs": "Save As",
         "Saving": "Saving",
         "Search": "Search",
+        "SearchTools": "Search Tools",
         "SeachColumn": "Search Column",
         "SearchKeyWord": "Search keyword",
         "seconds": "seconds",
