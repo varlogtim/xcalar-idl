@@ -697,7 +697,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
 
             if (param.optional) {
                 inputClass += " optional";
-                descrp += " (" + CommonTxtTstr.Optional + ")";
+                descrp = "(" + CommonTxtTstr.Optional + ") " + descrp;
             }
             if (param.name === 'backingTargetName') {
                 return getTargetsForParamOptions(param, index);
