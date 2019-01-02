@@ -96,6 +96,11 @@ class DagGraphExecutor {
                     errorResult.type = DagNodeErrorType.LinkOutNotExecute;
                     errorResult.node = node;
                     break;
+                } else if (this._isOptimized && node.hasNoChildren()) {
+                    // if this is just a dataset node, we need to error
+                    errorResult.hasError = true;
+                    errorResult.type = DagNodeErrorType.InvalidOptimizedOutNode;
+                    errorResult.node = node;
                 }
             } else if (node.getType() === DagNodeType.Dataset) {
                 const error: DagNodeErrorType = this._validateDataset(<DagNodeDataset>node);
@@ -104,6 +109,11 @@ class DagGraphExecutor {
                     errorResult.type = error;
                     errorResult.node = node;
                     break;
+                } else if (this._isOptimized && node.hasNoChildren()) {
+                    // if this is just a dataset node, we need to error
+                    errorResult.hasError = true;
+                    errorResult.type = DagNodeErrorType.InvalidOptimizedOutNode;
+                    errorResult.node = node;
                 }
             } else if (this._isOptimized && node.hasNoChildren()) {
                 if (!node.isOutNode() ||
