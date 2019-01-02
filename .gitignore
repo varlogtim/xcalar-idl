@@ -42,6 +42,7 @@ tags
 /assets/js/constructor/E_persConstructor.js
 /assets/dev/!shortCutStyles.css
 /assets/dev/unitTest/coverage/coverage.js
+/assets/dev/e2eTest/tests_output/*
 /assets/htmlFiles/*
 /assets/help/xd/Content/SearchInsight.htm
 /assets/help/xi/Content/SearchInsight.htm
