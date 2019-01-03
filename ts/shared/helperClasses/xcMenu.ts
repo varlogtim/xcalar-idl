@@ -404,7 +404,7 @@ namespace xcMenu {
                 return ($(this).hasClass('selected'));
             });
 
-            let $highlightedSubLi: JQuery;// = "";
+            let $highlightedSubLi: JQuery = $();
             let $subLis: JQuery;
             let numSubLis: number;
             if ($subMenu) {
