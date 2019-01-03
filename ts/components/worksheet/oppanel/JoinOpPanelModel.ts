@@ -347,6 +347,12 @@ class JoinOpPanelModel {
         return dagData;
     }
 
+    /**
+     * Update the column/prefix rename list by checking conflicts in source columns
+     * @description
+     * This function does not take the current rename rules into account.
+     * Call this function after joinType/source column changing
+     */
     public updateRenameInfo(): void {
         if (this._needRenameByType(this.getJoinType())) {
             const colDestLeft = {};
@@ -1194,7 +1200,7 @@ class JoinOpPanelModel {
                         leftPrefixMetaMap.set(leftColInfo.prefix, leftColInfo.prefix);
                     }
                 }
-                const rightColInfo = this._columnMeta.leftMap.get(pair.rightName);
+                const rightColInfo = this._columnMeta.rightMap.get(pair.rightName);
                 if (rightColInfo != null) {
                     rightColMetaMap.set(pair.rightName, Object.assign({}, rightColInfo));
                     if (rightColInfo.isPrefix) {
@@ -1212,7 +1218,11 @@ class JoinOpPanelModel {
         };
     }
 
-    private _buildRenameInfo(dest: {
+    /**
+     * Rebuild the column rename list by comparing the source columns
+     * @param dest 
+     */
+    private _buildRenameInfo(dest: { // This argument is ignored right now!!!
         colDestLeft: { [source: string]: string },
         colDestRight: { [source: string]: string },
         prefixDestLeft: { [source: string]: string },
@@ -1241,6 +1251,9 @@ class JoinOpPanelModel {
         const rightColNames = this._applyColumnRename(
             rightColMetaMap, colDestRight, false
         );
+        // Now we only check duplicate source column names, instead of those after renaming
+        // Change isApplyToKey = true when calling _applyColumnRename(),
+        // in case we want to check dup names after renaming.
         const columnCollisions = this._checkCollisionByKey(
             leftColNames, rightColNames
         );
@@ -1266,6 +1279,9 @@ class JoinOpPanelModel {
         const rightPrefixNames = this._applyPrefixRename(
             rightPrefixMetaMap, prefixDestRight, false
         );
+        // Now we only check duplicate prefixes, instead of those after renaming
+        // Change isApplyToKey = true when calling _applyPrefixRename(),
+        // in case we want to check dup names after renaming.
         const prefixCollisions = this._checkCollisionByKey(
             leftPrefixNames, rightPrefixNames
         );
