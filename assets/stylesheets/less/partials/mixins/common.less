@@ -313,7 +313,8 @@
     border-radius: 4px;
 
     &:hover, &:focus {
-        background-color: darken(@color-bg-cardHeader, 5%);
+        // background-color: darken(@color-bg-cardHeader, 5%);
+        opacity: 0.65;
     }
 
     &:focus {
@@ -341,9 +342,9 @@
 
 .btn-submit {
     background-color: @color-bg-green-submit;
-    &:hover, &:focus {
-        background-color: darken(@color-bg-green-submit, 5%);
-    }
+    // &:hover, &:focus {
+    //     background-color: darken(@color-bg-green-submit, 5%);
+    // }
 }
 
 .btn-next {
@@ -351,10 +352,10 @@
     color: @color-bg-green-submit;
     border: 1px solid;
 
-    &:hover, &:focus {
-        background-color: @color-white;
-        color: darken(@color-bg-green-submit, 5%);
-    }
+    // &:hover, &:focus {
+    //     background-color: @color-white;
+    //     color: darken(@color-bg-green-submit, 5%);
+    // }
 }
 
 .btn-transparent {
@@ -363,10 +364,10 @@
     color: @color-bg-select-blue;
     border: 1px solid @color-bg-select-blue;
 
-    &:hover, &:focus {
-        opacity: @opacity-hover;
-        background-color: transparent;
-    }
+    // &:hover, &:focus {
+    //     opacity: @opacity-hover;
+    //     background-color: transparent;
+    // }
 
     &:focus {
         outline: none;

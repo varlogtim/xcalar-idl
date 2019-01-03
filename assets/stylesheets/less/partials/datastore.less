@@ -3053,14 +3053,17 @@ table.datasetTable {
 
             .grid-unit {
                 cursor: default;
-                opacity: 0.8;
+                opacity: @opacity-unhover;
+                color: @color-bg-cardHeader;
 
                 &.inActivated {
-                    color: @color-arc-xdbfree;
+                    .gridIcon, .dsCount {
+                        opacity: @opacity-disabled;
+                    }
                 }
 
                 &:hover {
-                    opacity: 1;
+                    opacity: @opacity-hover;
                 }
 
                 &.unlistable {
@@ -3115,6 +3118,8 @@ table.datasetTable {
                 }
 
                 > .label {
+                    color: @color-font-form-gray;
+
                     textarea {
                         background-color: transparent;
                         color: @color-white;

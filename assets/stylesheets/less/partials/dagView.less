@@ -30,7 +30,7 @@
     &.locked {
         .run, .stop, .undo, .redo {
             pointer-events: none;
-            opacity: 0.5;
+            opacity: @opacity-disabled;
         }
     }
 
@@ -78,7 +78,7 @@
 
         &.run, &.optimizedRun {
             .icon {
-                color: @color-play;
+                color: @color-bg-green-submit;
             }
         }
         &.stop {
@@ -1437,13 +1437,12 @@
             }
 
             .gridIcon {
-                opacity: 0.5;
+                color: @color-bg-cardHeader;
             }
 
             &.open {
                 .gridIcon {
                     color: @color-bg-green-submit;
-                    opacity: 1;
                 }
             }
 

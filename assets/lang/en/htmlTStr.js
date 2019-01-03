@@ -488,7 +488,7 @@ module.exports = {
         "searchUser": "Search users",
         "logFolder": "Log Folder:",
         "logName": "Log Name:",
-        "lastNRow": "Get Recent Logs:",
+        "lastNRow": "Get recent logs:",
         "hostnamePattern": "Hostname Pattern:",
         "downloadLog": "Download Log",
         "copyLog": "Copy Log"
@@ -1202,8 +1202,8 @@ module.exports = {
     },
 
     "workbook": {
-        "createWKBK": "CREATE NEW WORKBOOK",
-        "browseWKBK": "BROWSE",
+        "createWKBK": "Create New Workbook",
+        "browseWKBK": "Browse",
         "createWKBKdesc": "Create a new workbook with data and worksheets",
         "header": "Workbook Browser",
         "hello": "Hello",
