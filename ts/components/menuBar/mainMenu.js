@@ -411,6 +411,7 @@ window.MainMenu = (function($, MainMenu) {
             case ("sqlTab"):
                 BottomMenu.unsetMenuCache();
                 $("#sqlWorkSpacePanel").addClass("active");
+                SQLWorkSpace.Instance.refresh();
                 break;
             default:
                 $(".underConstruction").addClass("active");

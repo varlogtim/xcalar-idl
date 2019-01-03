@@ -376,7 +376,8 @@ module.exports = {
 
     "Table": {
         "Create": "Create Table",
-        "Export": "Export Result"
+        "Export": "Export Result",
+        "Preview": "Table Preview",
     },
 
     "workspaceBar": {

@@ -15,6 +15,10 @@ class SQLEditorSpace {
         this._setupSQLEditor();
     }
 
+    public refresh(): void {
+        this._sqlEditor.refresh();
+    }
+
     private _setupSQLEditor(): void {
         const self = this;
         const callbacks = {

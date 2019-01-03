@@ -17,4 +17,8 @@ class SQLWorkSpace {
         this._sqlEditorSpace.setup();
         this._sqlResultSpace.setup();
     }
+
+    public refresh(): void {
+        this._sqlEditorSpace.refresh();
+    }
 }
