@@ -104,8 +104,7 @@ module.exports = {
         "ViewRawData": "View Raw Data",
         "InBeta": "In Beta",
         "Send": "Send",
-        "Node": "Node",
-        "XPE": "Xcalar Desktop Edition"
+        "Node": "Node"
     },
 
     "paths": {
