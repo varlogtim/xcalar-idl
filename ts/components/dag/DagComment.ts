@@ -24,9 +24,9 @@ class DagComment {
                 }
             }
         });
-        // dblclick will create a new comment wrapper that sit in front of
+        // dblclick will create a new comment wrapper that sits in front of
         // all the nodes and we'll temporarily move the comment to this wrapper
-        $dfWrap.on("dblclick", ".comment", function() {
+        $dfWrap.on("dblclick", ".commentArea .comment", function() {
             self._focus($(this));
         });
 
