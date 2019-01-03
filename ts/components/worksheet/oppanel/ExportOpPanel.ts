@@ -213,6 +213,12 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         } else {
             this._$elemPanel.find(".selectAllWrap .checkbox").eq(0).removeClass("checked");
         }
+
+        if (columnList.length > 8) {
+            this._$exportColList.css("overflow-y", "auto");
+        } else {
+            this._$exportColList.css("overflow-y", "hidden");
+        }
     }
 
     private _renderDriverList() {
@@ -283,7 +289,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
             argHtml += '<div class="inputWrap">' +
                 '<input class="arg ';
             if (param.optional) {
-                argHtml += 'optional'
+                argHtml += 'optional" placeholder="Optional'
             }
             argHtml += '" type="' + type + '"></div>';
         }
