@@ -104,10 +104,10 @@ class DagTabUser extends DagTab {
     public load(reset?: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._loadFromKVStore()
-        .then((_dagInfo, graph: DagGraph) => {
-            reset = reset || this._reset;
+        .then((dagInfo, graph: DagGraph) => {
+            reset = reset|| this._reset;
             if (reset) {
-                this._resethHelper(graph);
+                graph = this._resetHelper(dagInfo.dag);
                 this._reset = false;
                 DagList.Instance.save();
             }

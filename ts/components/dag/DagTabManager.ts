@@ -245,6 +245,8 @@ class DagTabManager{
     /**
      * Load a existing tab
      * @param dagTab the dagTab we want to load
+     * @param validate set to true during upload so we validate dataflows coming from
+     *  an external source, can also be true upon activation
      */
     public loadTab(dagTab: DagTab, reset: boolean = false): XDPromise<void> {
         // Check if we already have the tab

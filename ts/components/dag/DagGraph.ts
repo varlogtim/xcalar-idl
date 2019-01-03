@@ -8,7 +8,6 @@ class DagGraph {
     private lock: boolean;
     private noDelete: boolean;
     private parentTabId: string;
-    private errorNodes: DagNodeInfo[];
     protected operationTime: number;
     protected currentExecutor: DagGraphExecutor
     public events: { on: Function, off: Function, trigger: Function}; // example: dagGraph.events.on(DagNodeEvents.StateChange, console.log)
@@ -18,7 +17,6 @@ class DagGraph {
         this.removedNodesMap = new Map();
         this.commentsMap = new Map();
         this.removedCommentsMap = new Map();
-        this.errorNodes = [];
         this.display = {
             width: -1,
             height: -1,
@@ -162,8 +160,7 @@ class DagGraph {
         });
     }
 
-    public resetWithValidate(): void {
-        const serializableGraph: DagGraphInfo = this.getSerializableObj();
+    public createWithValidate(serializableGraph: DagGraphInfo): void {
         // comments may not exist, so create a new comments array
         let comments: CommentInfo[] = serializableGraph.comments;
         if (comments || !Array.isArray(comments)) {
@@ -195,30 +192,35 @@ class DagGraph {
             });
             return;
         }
+        let errorNodes = [];
+        let dagNodeValidate;
         serializableGraph.nodes.forEach((nodeInfo: DagNodeInfo) => {
             if (nodeInfo.type == DagNodeType.Aggregate ||
                 nodeInfo.type === DagNodeType.DFIn
             ) {
                 nodeInfo["graph"] = this;
             }
-
             try {
                 if (nodeInfo.type === DagNodeType.Dataset) {
                     this._restoreEmptySchema(<DagNodeInInfo>nodeInfo);
                 }
                 // validate before creating the node
-                let ajv = new Ajv();
-                let validate = ajv.compile(DagNode.schema);
-                let valid = validate(nodeInfo);
+                let ajv;
+                if (!dagNodeValidate) {
+                    ajv = new Ajv();
+                    dagNodeValidate = ajv.compile(DagNode.schema);
+                }
+
+                let valid = dagNodeValidate(nodeInfo);
                 if (!valid) {
                     // only saving first error message
-                    const msg = DagNode.parseValidationErrMsg(nodeInfo, validate.errors[0]);
+                    const msg = DagNode.parseValidationErrMsg(nodeInfo, dagNodeValidate.errors[0]);
                     throw (msg);
                 }
                 const nodeClass = DagNodeFactory.getNodeClass(nodeInfo);
                 const nodeSpecificSchema = nodeClass.specificSchema;
                 ajv = new Ajv();
-                validate = ajv.compile(nodeSpecificSchema);
+                let validate = ajv.compile(nodeSpecificSchema);
                 valid = validate(nodeInfo);
                 if (!valid) {
                     // only saving first error message
@@ -243,19 +245,16 @@ class DagGraph {
                     return comment.text.startsWith(nodeInfo.error);
                 });
                 if (!dupeComment) {
-                    this.errorNodes.push(nodeInfo);
+                    errorNodes.push(nodeInfo);
                     comments.push({
                         id: CommentNode.generateId(),
                         text: text,
                         dimensions: {width: 160, height: 80},
-                        position: {x: 20, y: 20 + (100 * (this.errorNodes.length - 1))}
+                        position: {x: 20, y: 20 + (100 * (errorNodes.length - 1))}
                     });
                 }
             }
         });
-        // if (this.errorNodes.length) {
-        //     this.hasError = true;
-        // }
 
         this.rebuildGraph({
             nodes: nodes,
@@ -263,6 +262,7 @@ class DagGraph {
             display: serializableGraph.display,
             operationTime: 0
         });
+        this.clear();
     }
 
     public clone(): DagGraph {
@@ -1660,7 +1660,8 @@ class DagGraph {
             if (typeof DS !== "undefined" && source) {
                 let res = DS.getSchema(source);
                 if (res.error) {
-                    throw "Cannot Restore Schema";
+                   nodeInfo.error = "Schema error: "  + res.error;
+                   nodeInfo.state = DagNodeState.Error;
                 } else {
                     nodeInfo.schema = res.schema;
                 }

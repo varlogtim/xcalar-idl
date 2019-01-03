@@ -151,8 +151,15 @@ abstract class DagTab {
                         error: valid.error
                     });
                 } else {
-                    let graph: DagGraph = new DagGraph();
-                    graph.create(dagInfo.dag);
+                    let graph: DagGraph;
+                    try {
+                        graph = new DagGraph();
+                        graph.create(dagInfo.dag);
+                    } catch (e) {
+                        // return an empty graph
+                        graph = new DagGraph();
+                        console.error(e);
+                    }
                     deferred.resolve(dagInfo, graph);
                 }
             }
@@ -257,8 +264,9 @@ abstract class DagTab {
         return {}
     }
 
-    protected _resethHelper(graph: DagGraph): void {
-        graph.clear();
-        graph.resetWithValidate();
+    protected _resetHelper(serializableGraph: DagGraphInfo): DagGraph {
+        const graph: DagGraph = new DagGraph();
+        graph.createWithValidate(serializableGraph);
+        return graph;
     }
 }
