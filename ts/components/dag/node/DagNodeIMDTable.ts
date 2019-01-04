@@ -38,7 +38,7 @@ class DagNodeIMDTable extends DagNodeIn {
      * Set dataset node's parameters
      * @param input {DagNodeIMDTableInputStruct}
      */
-    public setParam(input: DagNodeIMDTableInputStruct = <DagNodeIMDTableInputStruct>{}): XDPromise<void> {
+    public setParam(input: DagNodeIMDTableInputStruct = <DagNodeIMDTableInputStruct>{}, noAutoExecute?: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const source: string = input.source;
         const version: number = input.version;
@@ -52,12 +52,16 @@ class DagNodeIMDTable extends DagNodeIn {
                 filterString: filterString,
                 columns: inputColumns
             });
-            super.setParam();
+            super.setParam(null, noAutoExecute);
             deferred.resolve();
         })
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    public getSource(): string {
+        return this.getParam().source;
     }
 
     /**

@@ -13,6 +13,7 @@ class SQLEditorSpace {
 
     public setup(): void {
         this._setupSQLEditor();
+        this._setupBottomSection();
     }
 
     public refresh(): void {
@@ -23,6 +24,7 @@ class SQLEditorSpace {
         const self = this;
         const callbacks = {
             onExecute: () => {
+                console.log("execute")
                 // $("#sqlExecute").click();
             },
             onCalcelExecute: () => {
@@ -49,5 +51,33 @@ class SQLEditorSpace {
     private _getAutoCompleteHint() {
         var arcTables = {"a": "b", "c": "d"};
         return arcTables;
+    }
+
+    private _getEditorSpaceEl(): JQuery {
+        return $("#sqlEditorSpace");
+    }
+
+    private _executeAllSQL(): void {
+        try {
+            let sqls: string = this._sqlEditor.getValue();
+            let sqlArray: string[] = sqls.split(";");
+            sqlArray.forEach((sql) => {
+                this._executeSQL(sql);
+            });
+        } catch (e) {
+            console.error(e);
+            // XXX TODO: display some error in XD
+        }
+    }
+
+    private _executeSQL(sql): XDPromise<void> {
+        return new SQLExecutor(sql).execute();
+    }
+
+    private _setupBottomSection(): void {
+        const $section = this._getEditorSpaceEl().find(".bottomSection");
+        $section.on("click", ".executeAll", () => {
+            this._executeAllSQL();
+        });
     }
 }
