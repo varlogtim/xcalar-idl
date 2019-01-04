@@ -95,13 +95,16 @@ var productTypes = {
     },
     XDEE: {
         'name': 'Xcalar Desktop Edition',
-        'target': 'xcalar-pe'
+        'target': 'xcalar-desktop-edition'
     }
 }
 
-// a list of js files that are req. only for Xcalar Design EE
-// used by scriptlinker xpe targets, so should be rel those targets' cwd attr
+// js files req. only when running XD in XPE app.
+// scriptlinker xpe targets will inject as script tags,
+// so should be rel those targets' cwd attr
 var XDEE_REQ_JS_FILES = [
+    'assets/lang/en/globalAutogen.js', // might already be included in regular tags, but xpeJsStrs depends on
+    'assets/js/xpe/xpeJsStrs.js',  // common strings; product name
     'assets/js/xpe/xpeServerResponses.js',
     'assets/js/xpe/nwjsXpeSetupHelper.js',
     'assets/js/xpe/xpeSharedContextUtils.js',

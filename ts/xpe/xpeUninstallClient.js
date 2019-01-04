@@ -195,7 +195,7 @@ function uninstallXPE() {
             var uninstallFunction = XpeSharedContextUtils.sendViaHttp.bind(
                 this, "POST", xpeServerUrl + "/uninstall", JSON.stringify({"fullUninstall": fullUninstall}));
             var steps = [
-                [timeEst, "Uninstalling Xcalar Design", uninstallFunction]
+                [timeEst, "Uninstalling " + XPEStr.prodname, uninstallFunction]
             ];
             return ProcessEngineUtil.doProcess(steps, $uninstallerProgressBar,
                 $uninstallerProgressBarSection, $uninstallerProgressDescription,
@@ -212,7 +212,7 @@ function uninstallXPE() {
     .then(function() {
         ProcessEngineUtil.finishProcess($uninstallerProgressBar, $uninstallerProgressBarSection,
             $uninstallerStepPercent, $uninstallerTotalPercent,
-            $uninstallerProgressDescription, "Xcalar Design has been successfully uninstalled.");
+            $uninstallerProgressDescription, XPEStr.prodname + " has been successfully uninstalled.");
         $uninstallStepProgresss.hide();
         deferred.resolve("UnInstall completed!");
     })

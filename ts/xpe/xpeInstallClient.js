@@ -381,10 +381,11 @@ function checkRequirements() {
             var versionGrep = "Docker version 18";
             if (dockerVersion) {
                 if (dockerVersion.indexOf(versionGrep) === -1) {
-                    failmsg = failmsg = "\nXcalar Design requires Docker " +
-                        "versions 18.XX.XX.  Please upgrade Docker for Mac " +
+                    failmsg = failmsg = "\n" + XPEStr.prodname +
+                        " requires Docker versions 18.XX.XX. " +
+                        "Please upgrade Docker for Mac. " +
                         "(Click your Docker icon, and then select " +
-                        " 'Check for Updates'";
+                        " 'Check for Updates')";
                 }
             } else {
                 failmsg = failmsg + "\nCould not retrieve a Docker version; " +

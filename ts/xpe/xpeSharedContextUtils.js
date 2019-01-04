@@ -16,6 +16,7 @@ var XpeSharedContextUtils = (function(XpeSharedContextUtils) {
 
     var dockerStatusStates = (typeof window.dockerStatusStates === 'undefined' && typeof require !== 'undefined') ? require('./xpeServerResponses.js').dockerStatusStates : window.dockerStatusStates;
     var httpStatus = (typeof window.httpStatus === 'undefined' && typeof require !== 'undefined') ? require('./../httpStatus.js').httpStatus : window.httpStatus;
+    var XPEStr = (typeof window.XPEStr === 'undefined' && typeof require !== 'undefined') ? require('./xpeJsStrs.js').XPEStr : window.XPEStr;
 
     /**
      * close all windows and quit the nwjs processes.
@@ -412,7 +413,7 @@ var XpeSharedContextUtils = (function(XpeSharedContextUtils) {
         var submenu = new nw.Menu();
         // create items for dropdown in main menubar; bind events
         var mainProgramItem = nw.MenuItem({
-            label: "Xcalar Design",
+            label: XPEStr.prodname,
             click: function () {
                 var closeCurr = false;
                 if (guiType === 'uninstall') {
@@ -510,7 +511,7 @@ var XpeSharedContextUtils = (function(XpeSharedContextUtils) {
         }));
         // must add native Mac edit menu for keyboard shortcuts to work on OSX
         if (process.platform === "darwin") {
-            xce_menu.createMacBuiltin("Xcalar Design");
+            xce_menu.createMacBuiltin(XPEStr.prodname);
         }
         return xce_menu;
    }
