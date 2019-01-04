@@ -31,7 +31,7 @@ class GroupByOpPanel extends GeneralOpPanel {
             self._scrollToGroup(self._$panel.find(".group").length - 1);
         });
 
-        this._$panel.on('click', '.closeGroup', function() {
+        this._$panel.on('click', '.removeExtraGroup', function() {
             const $group = $(this).closest('.group');
             const index = self._$panel.find(".group").index($group);
             self.model.removeGroup(index);
@@ -231,7 +231,7 @@ class GroupByOpPanel extends GeneralOpPanel {
             const $input = $(this);
             if (event.which === keyCode.Enter || event.which ===
                 keyCode.Tab) {
-                const $li = $input.siblings(".list").find("li.highlighted");
+                const $li = $input.siblings(".list:visible").find("li.highlighted");
                 if ($li.length === 1) {
                     self._fnListMouseup(event, $li);
                     return false;
@@ -1024,7 +1024,7 @@ class GroupByOpPanel extends GeneralOpPanel {
               '<div class="groupbyFnTitle">' +
                 'Function to apply to group:</div>' +
               '<div class="altFnTitle">Function to apply to group</div>' +
-              '<i class="icon xi-close closeGroup"></i>' +
+              '<i class="icon xi-close removeExtraGroup"></i>' +
             '</div>' +
             '<div class="dropDownList firstList functionsList" ' +
                 'data-fnlistnum="' + index + '">' +

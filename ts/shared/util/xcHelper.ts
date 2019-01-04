@@ -6155,17 +6155,20 @@ namespace xcHelper {
     }
 
     /**
-     * xcHelper.formulateMapFilterString
+     * xcHelper.formulateEvalString
      * groups = [{
      * operator: "eq",
      * args: [value: "colname", cast: "blah"]
      * }]
      * @param groups
      * @param andOr
+     * @param andOrIndices an empty map provided that will be populated with
+     * the indices where "and" or "or" will appear in the eval string
      */
-    export function formulateMapFilterString(
+    export function formulateEvalString(
         groups: OpPanelFunctionGroup[],
-        andOr?: string
+        andOr?: string,
+        andOrIndices?: {}
     ): string {
         let str = "";
         groups.forEach((group, i: number) => {
@@ -6178,6 +6181,9 @@ namespace xcHelper {
             if (i < groups.length - 1) {
                 if (!andOr) {
                     andOr = "and";
+                }
+                if (andOrIndices) {
+                    andOrIndices[str.length] = true;
                 }
                 str += andOr + "(";
             }

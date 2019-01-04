@@ -1483,7 +1483,7 @@ describe("xcHelper Test", function() {
 
         testCases.forEach(function(test) {
             var res = xcHelper.checkNamePattern(test.category, test.action,
-                                                test.name, test.replace);  
+                                                test.name, test.replace);
             expect(res).to.equal(test.expect);
         });
 
@@ -3424,8 +3424,8 @@ describe("xcHelper Test", function() {
         expect(res).to.eql([]);
     });
 
-    it("xcHelper.formulateMapFilterString should work", function() {
-        var func = xcHelper.formulateMapFilterString;
+    it("xcHelper.formulateEvalString should work", function() {
+        var func = xcHelper.formulateEvalString;
 
         var args = ['1', 2];
                 var colTypeInfos = [{

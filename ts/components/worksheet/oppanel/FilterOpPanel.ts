@@ -11,24 +11,24 @@ class FilterOpPanel extends GeneralOpPanel {
         const self = this;
         super.setupPanel("#filterOpPanel");
 
-         // dynamic button - ex. default:multiJoin
-        this._$panel.on('click', '.addMapArg', function() {
-            self._addMapArg($(this));
-        });
-
-        this._$panel.find('.addFilterArg').click(function() {
-            self.model.addGroup();
-            self._scrollToGroup(self._$panel.find(".group").length - 1);
-        });
-
-        this._$panel.on('click', '.closeGroup', function() {
-            const $group = $(this).closest('.group');
-            const index = self._$panel.find(".group").index($group);
-            self.model.removeGroup(index);
+         // dynamic button - ex. default:multiJoin, in
+        this._$panel.on('click', '.addExtraArg', function() {
+            self._addExtraArg($(this));
         });
 
         this._$panel.on('click', '.extraArg .xi-cancel', function() {
             self._removeExtraArg($(this).closest('.extraArg'));
+        });
+
+        this._$panel.find('.addExtraGroup').click(function() {
+            self.model.addGroup();
+            self._scrollToGroup(self._$panel.find(".group").length - 1);
+        });
+
+        this._$panel.on('click', '.removeExtraGroup', function() {
+            const $group = $(this).closest('.group');
+            const index = self._$panel.find(".group").index($group);
+            self.model.removeGroup(index);
         });
 
         this._functionsInputEvents();
@@ -67,7 +67,7 @@ class FilterOpPanel extends GeneralOpPanel {
         for (let i = 0; i < model.groups.length; i++) {
             let $group = this._$panel.find('.group').eq(i);
             if (!$group.length) {
-                this._addFilterGroup();
+                this._addExtraGroup();
                 $group = this._$panel.find('.group').eq(i);
             }
             const operator: string = model.groups[i].operator;
@@ -162,7 +162,7 @@ class FilterOpPanel extends GeneralOpPanel {
             const $input = $(this);
             if (event.which === keyCode.Enter || event.which ===
                 keyCode.Tab) {
-                const $li = $input.siblings(".list").find("li.highlighted");
+                const $li = $input.siblings(".list:visible").find("li.highlighted");
                 if ($li.length === 1) {
                     self._fnListMouseup(event, $li);
                     return false;
@@ -424,7 +424,7 @@ class FilterOpPanel extends GeneralOpPanel {
         this._checkIfStringReplaceNeeded(true);
     }
 
-    private _addMapArg($btn) {
+    private _addExtraArg($btn) {
         const typeId = $btn.data("typeid");
         const html = this._getArgInputHtml(typeId);
         $btn.parent().before(html);
@@ -582,19 +582,22 @@ class FilterOpPanel extends GeneralOpPanel {
             }
 
             // add "addArg" button if *arg is found in the description
+            // udf default:multiJoin has *
+            // "in" operator has variable args
             if (operObj.argDescs[i].argType === XcalarEvalArgTypeT.VariableArg ||
                 (description.indexOf("*") === 0 &&
                 description.indexOf("**") === -1)) {
                 $input.addClass("variableArgs");
                 $row.after(BaseOpPanel.createAddClauseButton(typeId));
-                if (description.indexOf("*") === 0 &&
-                    description.indexOf("**") === -1) {
-                    // default:coalesce or default:multijoin
-                    const $checkboxWrap = $row.find(".noArgWrap");
-                    $checkboxWrap.addClass("skipField")
-                                 .find(".checkboxText").text(OpModalTStr.NoArg);
-                    xcTooltip.changeText($checkboxWrap, OpModalTStr.EmptyHint);
-                }
+                // TODO: enable noArgs box if new filter options are introduced
+                // if (description.indexOf("*") === 0 &&
+                //     description.indexOf("**") === -1) {
+                //     // default:coalesce or default:multijoin
+                //     const $checkboxWrap = $row.find(".noArgWrap");
+                //     $checkboxWrap.addClass("skipField")
+                //                  .find(".checkboxText").text(OpModalTStr.NoArg);
+                //     xcTooltip.changeText($checkboxWrap, OpModalTStr.EmptyHint);
+                // }
             }
         }
     }
@@ -614,8 +617,7 @@ class FilterOpPanel extends GeneralOpPanel {
         let $inputs = this._$panel.find(".arg");
         let tempText;
         let newText = "";
-        const andOrIndices = [];
-
+        const andOrIndices = {};
 
         const oldText = $description.find('.descArgs').text();
         const $groups = this._$panel.find(".group").filter(function() {
@@ -634,7 +636,7 @@ class FilterOpPanel extends GeneralOpPanel {
             }
             if (groupNum < numGroups - 1) {
                 if (andOrSwitch) {
-                    andOrIndices.push(newText.length);
+                    andOrIndices[newText.length] = true;
                 }
                 if (self._$panel.find(".andOrSwitch").hasClass("on")) {
                     newText += "and(";
@@ -713,7 +715,7 @@ class FilterOpPanel extends GeneralOpPanel {
             const $spanWrap = $description.find(".descArgs");
             const $spans = $spanWrap.find('span.char');
             if (andOrSwitch) {
-                this._modifyAndOrDescText(newText, andOrIndices, $spanWrap);
+                this._modifyAndOrDescText(newText, $spanWrap, andOrIndices);
             } else {
                 this._modifyDescText(oldText, newText, $spanWrap, $spans);
             }
@@ -722,81 +724,69 @@ class FilterOpPanel extends GeneralOpPanel {
         return (tempText);
     }
 
-    // protected _updateStrPreview2(noHighlight?: boolean, andOrSwitch?: boolean) {
-    //     const self = this;
+    protected _modifyAndOrDescText(
+        newText: string,
+        $spanWrap: JQuery,
+        andOrIndices?: {}
+    ): void {
+        let descText: HTML = "";
+        let spanClass: string;
+        let andOrLen: number = 2;
+        if (this._$panel.find(".switch").hasClass("on")) {
+            andOrLen = 3;
+        }
+        for (let i = 0; i < newText.length; i++) {
+            if (andOrIndices && andOrIndices[i]) {
+                for (let j = 0; j < andOrLen; j++) {
+                    descText += '<span class="char visible">' + newText[i] +
+                        '</span>';
+                    i++;
+                }
+                i--; // inner for loop increments i 1 too many times
+            } else {
+                if (newText[i] === " ") {
+                    spanClass = "space";
+                } else {
+                    spanClass = "";
+                }
+                descText += '<span class="char ' + spanClass + '">' +
+                            newText[i] + '</span>';
+            }
+        }
+        $spanWrap.html(descText);
+        setTimeout(function() {
+            $spanWrap.find('.visible').removeClass('visible');
+        });
+    }
+
+    // XXX in progress: use model to create string preview
+    // protected _updateStrPreview(noHighlight?: boolean, andOrSwitch?: boolean) {
     //     const model = this.model.getModel();
     //     const $description = this._$panel.find(".strPreview");
-
     //     let tempText;
-    //     let newText = "";
-    //     const andOrIndices = [];
-
-
     //     const oldText = $description.find('.descArgs').text();
-    //     const groups = model.groups;
-    //     let inputCount = 0;
+    //     let andOrIndices;
+    //     if (andOrSwitch) {
+    //         andOrIndices = {};
+    //     }
+    //     let newText = xcHelper.formulateEvalString(model.groups,
+    //                                         model.andOrOperator, andOrIndices);
 
-    //     // TODO: do not include empty groups, better check for quotes
-
-    //     groups.forEach((group, i) => {
-    //         const funcName: string = group.operator;
-    //         if (i > 0) {
-    //             newText += ", ";
+    //     tempText = newText;
+    //     if (tempText.trim() === "") {
+    //         $description.empty();
+    //     } else if (noHighlight) {
+    //         newText = this._wrapText(tempText);
+    //         $description.find(".descArgs").html(newText);
+    //     } else {
+    //         const $spanWrap = $description.find(".descArgs");
+    //         const $spans = $spanWrap.find('span.char');
+    //         if (andOrSwitch) {
+    //             this._modifyAndOrDescText(newText, $spanWrap, andOrIndices);
+    //         } else {
+    //             this._modifyDescText(oldText, newText, $spanWrap, $spans);
     //         }
-    //         if (i < groups.length - 1) {
-    //             if (andOrSwitch) {
-    //                 andOrIndices.push(newText.length);
-    //             }
-    //             newText += model.andOrOperator + "(";
-    //         }
-    //         newText += funcName + "(";
-
-    //         group.args.forEach(arg => {
-    //             let val: string = self._parseColPrefixes(self._parseAggPrefixes(arg.value));
-    //             if (self._quotesNeeded[inputCount]) {
-    //                 val = "\"" + val + "\"";
-    //             }
-
-    //             if (arg.cast) {
-    //                 const cols = val.split(",");
-    //                 val = "";
-    //                 for (let i = 0; i < cols.length; i++) {
-    //                     if (i > 0) {
-    //                         val += ", ";
-    //                     }
-    //                     val += xcHelper.castStrHelper(cols[i], arg.cast);
-    //                 }
-    //             }
-    //             if (arg.value !== "") {
-
-    //             }
-    //         });
-
-    //         inputCount++;
-    //     });
-
-
-
-
-    //     // for (let i = 0; i < numGroups - 1; i++) {
-    //     //     newText += ")";
-    //     // }
-
-    //     // tempText = newText;
-    //     // if (tempText.trim() === "") {
-    //     //     $description.empty();
-    //     // } else if (noHighlight) {
-    //     //     newText = this._wrapText(tempText);
-    //     //     $description.find(".descArgs").html(newText);
-    //     // } else {
-    //     //     const $spanWrap = $description.find(".descArgs");
-    //     //     const $spans = $spanWrap.find('span.char');
-    //     //     if (andOrSwitch) {
-    //     //         this._modifyAndOrDescText(newText, andOrIndices, $spanWrap);
-    //     //     } else {
-    //     //         this._modifyDescText(oldText, newText, $spanWrap, $spans);
-    //     //     }
-    //     // }
+    //     }
 
     //     // return (tempText);
     // }
@@ -907,74 +897,6 @@ class FilterOpPanel extends GeneralOpPanel {
         return true;
     }
 
-    // hasMultipleSets: boolean, true if there are multiple groups of arguments
-    // such as gt(a, 2) && lt(a, 5)
-    protected _formulateFilterString(args, colTypeInfos,
-                                        hasMultipleSets, andOr) {
-        let str = "";
-        let argNum;
-        let argGroups = [];
-        let colTypeGroups = [];
-        if (!hasMultipleSets) {
-            argGroups.push(args);
-            colTypeGroups.push(colTypeInfos);
-        } else {
-            argGroups = args;
-            colTypeGroups = colTypeInfos;
-        }
-        for (let i = 0; i < colTypeGroups.length; i++) {
-            for (let j = 0; j < colTypeGroups[i].length; j++) {
-                argNum = colTypeGroups[i][j].argNum;
-                const colNames = argGroups[i][argNum].split(",");
-                let colStr = "";
-                for (let k = 0; k < colNames.length; k++) {
-                    if (k > 0) {
-                        colStr += ", ";
-                    }
-                    colStr += xcHelper.castStrHelper(colNames[k],
-                                                    colTypeGroups[i][j].type);
-                }
-                argGroups[i][argNum] = colStr;
-            }
-        }
-
-        // loop through groups
-        for (let i = 0; i < argGroups.length; i++) {
-            const fName = this._$panel.find('.group').eq(i)
-                                            .find('.functionsInput').val()
-                                            .trim();
-
-            if (i > 0) {
-                str += ", ";
-            }
-            if (i < argGroups.length - 1) {
-                if (!andOr) {
-                    andOr = "and";
-                }
-                str += andOr + "(";
-            }
-            str += fName + "(";
-
-            let numNonBlankArgs = 0;
-            // loop through arguments within a group
-            for (let j = 0; j < argGroups[i].length; j++) {
-                if (argGroups[i][j] !== "") {
-                    str += argGroups[i][j] + ", ";
-                    numNonBlankArgs++;
-                }
-            }
-            if (numNonBlankArgs > 0) {
-                str = str.slice(0, -2);
-            }
-            str += ")";
-        }
-
-        for (let i = 0; i < argGroups.length - 1; i++) {
-            str += ")";
-        }
-        return (str);
-    }
-
     protected _resetForm() {
         const self = this;
         super._resetForm();
@@ -986,7 +908,7 @@ class FilterOpPanel extends GeneralOpPanel {
         });
     }
 
-    private _addFilterGroup() {
+    private _addExtraGroup() {
         const self = this;
         self._$panel.find(".andOrToggle").show();
         this._minimizeGroups();
@@ -1022,7 +944,7 @@ class FilterOpPanel extends GeneralOpPanel {
                         '<div class="catFuncHeadings clearfix subHeading">' +
                             '<div class="filterFnTitle">Filter Function</div>' +
                             '<div class="altFnTitle">No Function Chosen</div>' +
-                            '<i class="icon xi-close closeGroup"></i>' +
+                            '<i class="icon xi-close removeExtraGroup"></i>' +
                             '<i class="icon xi-minus minGroup"></i>' +
                         '</div>' +
                         '<div data-fnlistnum="' + index + '" ' +

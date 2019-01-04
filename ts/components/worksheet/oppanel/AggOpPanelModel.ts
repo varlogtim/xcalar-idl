@@ -156,7 +156,7 @@ class AggOpPanelModel extends GeneralOpPanelModel {
     }
 
     protected _getParam(): DagNodeAggregateInputStruct {
-        const evalString = xcHelper.formulateMapFilterString(this.groups);
+        const evalString = xcHelper.formulateEvalString(this.groups);
         return {
             evalString: evalString,
             dest: this.dest,

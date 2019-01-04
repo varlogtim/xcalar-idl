@@ -9,7 +9,11 @@ class GeneralOpPanelModel {
     protected baseColumns: ProgCol[];
     public modelError: string;
 
-    public constructor(dagNode: DagNode, event: Function, options) {
+    public constructor(
+        dagNode: DagNode,
+        event: Function,
+        options = {baseColumnNames: null}
+    ) {
         this.dagNode = dagNode;
         this.event = event;
         this.groups = [];

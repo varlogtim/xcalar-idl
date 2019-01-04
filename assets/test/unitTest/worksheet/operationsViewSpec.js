@@ -1043,7 +1043,7 @@ describe('OperationsView Test', function() {
                 expect($operationsView.find(".groupbyGroup").length).to.equal(2);
                 expect($operationsView.find(".groupbyGroup").eq(0).find(".argsSection").length).to.equal(2);
                 expect($operationsView.find(".groupbyGroup").eq(1).find(".argsSection").length).to.equal(1);
-                $operationsView.find(".closeGroup").click();
+                $operationsView.find(".removeExtraGroup").click();
             });
         });
 
@@ -1720,7 +1720,7 @@ describe('OperationsView Test', function() {
             var addGroup;
             var removeGroup;
             before(function() {
-                addGroup = OperationsView.__testOnly__.addFilterGroup;
+                addGroup = OperationsView.__testOnly__.addExtraGroup;
                 removeGroup = OperationsView.__testOnly__.removeFilterGroup;
             });
 
@@ -1783,7 +1783,7 @@ describe('OperationsView Test', function() {
                 $filterForm.find('.group').eq(1).find(".functionsInput").val("between").change();
 
                 // add another group
-                $filterForm.find(".addFilterArg").click();
+                $filterForm.find(".addExtraGroup").click();
                 expect($filterForm.find('.group').length).to.equal(3);
 
                 // switch and to or to and
@@ -1808,7 +1808,7 @@ describe('OperationsView Test', function() {
                 expect($filterForm.find('.group').length).to.equal(2);
                 expect($thirdGroup.find('.functionsList').data('fnlistnum')).to.equal(1);
 
-                $filterForm.find(".closeGroup").last().click();
+                $filterForm.find(".removeExtraGroup").last().click();
                 expect($filterForm.find('.group').length).to.equal(1);
                 expect($filterForm.find('.andOrToggle').is(":visible")).to.be.false;
             });
@@ -2048,12 +2048,12 @@ describe('OperationsView Test', function() {
         });
 
         describe("special argument cases", function() {
-            it("addMapArg should work", function() {
+            it("addExtraArg should work", function() {
                 $categoryMenu.find("li:contains('user-defined')").click();
                 $functionsMenu.find("li:contains('default:multiJoin')").click();
-                expect($operationsView.find(".addMapArg").length).to.equal(1);
+                expect($operationsView.find(".addExtraArg").length).to.equal(1);
                 expect($operationsView.find(".arg:visible").length).to.equal(2);
-                $operationsView.find(".addMapArg").click();
+                $operationsView.find(".addExtraArg").click();
                 expect($operationsView.find(".arg:visible").length).to.equal(3);
             });
 

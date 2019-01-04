@@ -124,7 +124,7 @@ class AggOpPanel extends GeneralOpPanel {
             const $input = $(this);
             if (event.which === keyCode.Enter || event.which ===
                 keyCode.Tab) {
-                const $li = $input.siblings(".list").find("li.highlighted");
+                const $li = $input.siblings(".list:visible").find("li.highlighted");
                 if ($li.length === 1) {
                     self._fnListMouseup(event, $li);
                     return false;

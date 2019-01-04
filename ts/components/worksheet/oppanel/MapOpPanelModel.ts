@@ -218,7 +218,7 @@ class MapOpPanelModel extends GeneralOpPanelModel {
     protected _getParam(): DagNodeMapInputStruct {
         const evals = [];
         this.groups.forEach(group => {
-            const evalString: string = xcHelper.formulateMapFilterString([group]);
+            const evalString: string = xcHelper.formulateEvalString([group]);
             evals.push({
                 evalString: evalString,
                 newField: group.newFieldName

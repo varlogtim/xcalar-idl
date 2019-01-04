@@ -33,9 +33,13 @@ class MapOpPanel extends GeneralOpPanel {
         // the double menu that has operation categories and function names
         this._functionsInputEvents();
 
-        // dynamic button - ex. default:multiJoin
-        this._$panel.on('click', '.addMapArg', function() {
-            self._addMapArg($(this));
+        // dynamic button - ex. default:multiJoin, in
+        this._$panel.on('click', '.addExtraArg', function() {
+            self._addExtraArg($(this));
+        });
+
+        this._$panel.on('click', '.extraArg .xi-cancel', function() {
+            self._removeExtraArg($(this).closest('.extraArg'));
         });
 
         // adds field to group on input
@@ -45,14 +49,10 @@ class MapOpPanel extends GeneralOpPanel {
             self._scrollToGroup(self._$panel.find(".group").length - 1);
         });
 
-        this._$panel.on('click', '.closeGroup', function() {
+        this._$panel.on('click', '.removeExtraGroup', function() {
             const $group = $(this).closest('.group');
             const index = self._$panel.find(".group").index($group);
             self.model.removeGroup(index);
-        });
-
-        this._$panel.on('click', '.extraArg .xi-cancel', function() {
-            self._removeExtraArg($(this).closest('.extraArg'));
         });
 
         this._$panel.on('click', '.checkboxSection', function() {
@@ -634,6 +634,7 @@ class MapOpPanel extends GeneralOpPanel {
 
             // add "addArg" button if *arg is found in the description
             // udf default:multiJoin has *
+            // "in" operator has varialbe args
             if (operObj.argDescs[i].argType === XcalarEvalArgTypeT.VariableArg ||
                 (description.indexOf("*") === 0 &&
                 description.indexOf("**") === -1)) {
@@ -964,7 +965,7 @@ class MapOpPanel extends GeneralOpPanel {
         }
     }
 
-    private _addMapArg($btn) {
+    private _addExtraArg($btn) {
         const typeId = $btn.data("typeid");
         const html = this._getArgInputHtml(typeId);
         $btn.parent().before(html);
@@ -1082,7 +1083,7 @@ class MapOpPanel extends GeneralOpPanel {
 
     private _getGroupHtml(): HTML {
         const html: HTML = '<div class="group mapGroup extraGroup">' +
-                '<i class="icon xi-close closeGroup"></i>' +
+                '<i class="icon xi-close removeExtraGroup"></i>' +
                 '<i class="icon xi-minus minGroup"></i>' +
                 '<div class="altFnTitle">No Function Chosen</div>' +
                 '<div class="filterMapFuncArea">' +

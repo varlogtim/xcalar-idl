@@ -203,7 +203,7 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
     }
 
     protected _getParam(): DagNodeFilterInputStruct {
-        const evalString = xcHelper.formulateMapFilterString(this.groups,
+        const evalString = xcHelper.formulateEvalString(this.groups,
                                                              this.andOrOperator);
         return {
             evalString: evalString,

@@ -484,10 +484,10 @@ class GeneralOpPanel extends BaseOpPanel {
         const $tableWrap: JQuery = $('.xcTableWrap');
         if (isHide) {
             $("#dagViewTableArea").off('mousedown.keepInputFocused');
-            $('body').off('keydown', this._listHighlightListener.bind(this));
+            $('body').off('keydown.opPanelListHighlight');
             $tableWrap.removeClass('modalOpen');
         } else {
-            $('body').on('keydown', this._listHighlightListener.bind(this));
+            $('body').on('keydown.opPanelListHighlight', this._listHighlightListener.bind(this));
         }
     }
 
@@ -951,41 +951,6 @@ class GeneralOpPanel extends BaseOpPanel {
                     '</span>';
         }
         return res;
-    }
-
-    protected _modifyAndOrDescText(
-        newText: string,
-        andOrIndices: number[],
-        $spanWrap: JQuery
-    ): void {
-        let descText: HTML = "";
-        let spanClass: string;
-        let andOrLen: number = 2;
-        if (this._$panel.find(".switch").hasClass("on")) {
-            andOrLen = 3;
-        }
-        for (let i = 0; i < newText.length; i++) {
-            if (andOrIndices.indexOf(i) > -1) {
-                for (let j = 0; j < andOrLen; j++) {
-                    descText += '<span class="char visible">' + newText[i] +
-                        '</span>';
-                    i++;
-                }
-                i--; // inner for loop increments i 1 too many times
-            } else {
-                if (newText[i] === " ") {
-                    spanClass = "space";
-                } else {
-                    spanClass = "";
-                }
-                descText += '<span class="char ' + spanClass + '">' +
-                            newText[i] + '</span>';
-            }
-        }
-        $spanWrap.html(descText);
-        setTimeout(function() {
-            $spanWrap.find('.visible').removeClass('visible');
-        });
     }
 
     protected _modifyDescText(
