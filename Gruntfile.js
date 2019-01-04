@@ -666,9 +666,8 @@ var PROD_NAME; // will be full prod name to use in GUI branding
 var PROD_TARGET; // build target directory name, based on --product
 var SRCROOT; // root of src code for gui project. populated by cmd option in setup below
 var BLDROOT; // top level root of build output.
-var BLDROOT; // root where actual build files begin at
 var BLDTYPE; // 'debug', 'installer', etc. used for logging
-var BACKENDBLDROOT; // root of dev src; set in init
+var BACKENDBLDROOT; // root of xcalar project
 var OVERWRITE;
 var KEEPSRC;
 var WATCH_FILES_REL_TO;
@@ -677,14 +676,6 @@ var noclean;
 
 var STEPCOLOR = 'cyan';
 var STEPCOLOR2 = 'magenta';
-
-/** TRUNK BLD VAR */
-var BACKEND_JS_SRC = 'bin/jsPackage/', // src root (rel BACKEND PROJ ROOT) of thrift scripts to copy in to the gui bld
-    GUIPROJ_THRIFT_DEST = 'assets/js/thrift/', // root (rel GUI BLD) where the thrift scripts should be copied
-    /* files of the gui bld you want to keep when syncing with thrfit (keys are the files you want to keep, rel bld root)
-     (its a hash so can keep track of where the files are temporarily during the copy process) */
-    KEEP_FRONTEND_SCRIPTS = {'thrift.js':''}, // keys are files from bld you want to keep when syncing with thrift, rel to the thrift dest
-    THRIFT_APACHE_GUI_PATH = 'prod'; // path (rel. to the gui SRC dir), that backend Apache will look for gui BLD at
 
 // for HTML tasks
 /**
@@ -4243,94 +4234,125 @@ module.exports = function(grunt) {
     }
 
     /**
-        FOR TRUNK BLDS ONLY:
-
-        Takes a developer backend workspace, and transfers their local thrift files to the build,
-        then configures build to allow communication between front and backend so those changes
-        will be reflected.
-        This will occur as a last task in the TRUNK build process.
-    */
+     * FOR TRUNK BLDS ONLY:
+     *
+     * syncs xcalar-gui build with js files in xcalar to resolve
+     * version mismatch error
+     *
+     * - cp xcalar-gui bld files you want to keep from assets/js/thrift in to a tmp dir
+     * - clear assets/js/thrift
+     * - cp js files from xcalar --> assets/js/thrift/
+     * - cp back in saved files and delete tmp dir
+     * - set symlink: prod --> <xcalar guil build> for backend Apache
+     */
     grunt.task.registerTask(SYNC_WITH_THRIFT, "Sync trunk with thrift so backend and front end can communicate", function() {
+
+        // backend dirs (rel BACKENDBLDROOT) of js scripts to copy in to xcalar-gui bld
+        var backend_js_src_dirs_rel = ['bin/jsPackage/', 'buildOut/src/bin/jsClient/'];
+        // dir (rel BLDROOT) where the backend files should be copied to in xcalar-gui bld
+        var thrift_dest = 'assets/js/thrift/';
+        // xcalar-gui bld files to keep when syncing with backend
+        // (keys: files (rel BLDROOT) to keep; vals set to tmp location they're copied in during task
+        var keep_frontend_scripts = {'thrift.js':''};
+        // path (rel BLDROOT) that backend Apache will look for gui build at (is this still used?)
+        var thrift_apache_gui_path = 'prod';
 
         grunt.log.writeln("===== sync with trhfit ========");
 
-        var backendSrcAbsPath = BACKENDBLDDIR + BACKEND_JS_SRC;
-        var thriftDestAbsPath = BLDROOT + GUIPROJ_THRIFT_DEST; // ok if doesn't exist yet; copy will create it
         var tmpDirFullPath = BLDROOT + "tmpJsHolderThrift/";
-
-        if (!grunt.file.exists(backendSrcAbsPath)) {
-            grunt.fail.fatal("Trying to copy backend xcalar scripts in to GUI project as part of thrift bld"
-                + ", but can not access backend source of those scripts:\n"
-                + backendSrcAbsPath
-                + "\n(If you want to use a different src dir for your thrift changes other than "
-                + BACKENDBLDDIR
-                + "\nthen re-run Grunt with option: "
-                + " --" + BLD_OP_BACKEND_SRC_REPO + "=<your proj root> )");
-        }
+        var thriftDestAbsPath = BLDROOT + thrift_dest; // grunt copy will create if it doesnt exist
         if (!grunt.file.exists(thriftDestAbsPath)) {
-            grunt.log.warn("Directory in bld to hold thrift files from backend: "
-                + GUIPROJ_THRIFT_DEST
-                + " does not exist within the build directory.");
+            grunt.log.warn("xcalar-gui build directory for holding " +
+                "thrift files form backend does not exist yet! " +
+                "dir: " + thrift_dest);
+        }
+
+        // convert the backend src dirs to abs; make sure they exist in backend
+        var backendSrcsAbs = [];
+        for (var backendSrc of backend_js_src_dirs_rel) {
+            var backendSrcAbsPath = BACKENDBLDROOT + backendSrc;
+            backendSrcsAbs.push(backendSrcAbsPath);
+            if (!grunt.file.exists(backendSrcAbsPath)) {
+                grunt.fail.fatal("One of the backend thrift sources specified " +
+                    "for trunk build does not exist! : " +
+                    backendSrcAbsPath +
+                    "\n(If you want to use a backend source other than " +
+                    BACKENDBLDROOT +
+                    ", then re-run Grunt with option: " +
+                    " --" + BLD_OP_BACKEND_SRC_REPO + "=<your proj root> )");
+            }
         }
 
         /*
-             js files from the backend will replace build files
-            there are some build files you'd like to keep though.
-            save the build files you want to keep in to a temp dir
-
-            (the files to keep - rel the dir to copy the thrift scripts in to -
-            are keys of a global hash.
-            Each copy operation, store the tmp location of the file as the key's value,
-            then in last step will collect them at these values and copy in to their
-            final location)
-        */
-        grunt.log.writeln(("\n1. Set aside build files you want to retain").cyan);
-        for (var saveScriptRelFilepath of Object.keys(KEEP_FRONTEND_SCRIPTS)) { // they are FILEPATHS relative to the bld dest dir
+         * js files from the backend will replace build files
+         * there are some build files you'd like to keep though.
+         * save the build files you want to keep in to a temp dir
+         * store tmp location of each file in keep_frontend_scripts hash,
+         * then in last step will collect at these values and copy to final location)
+         */
+        grunt.log.writeln(("\n1. cp xcalar-gui files to keep in to a tmp dir").cyan);
+        for (var saveScriptRelFilepath of Object.keys(keep_frontend_scripts)) { // filepaths rel to BLDROOT
             var saveScriptAbsFilepath = thriftDestAbsPath + saveScriptRelFilepath;
             var saveScriptTmpFilepath = tmpDirFullPath + saveScriptRelFilepath;
             grunt.log.writeln("cp " + saveScriptAbsFilepath + " --> " + saveScriptTmpFilepath);
-            grunt.file.copy(saveScriptAbsFilepath, saveScriptTmpFilepath); // grunt.file.copy will create intermediate dirs for you, so first copy will create the temp dir
-            KEEP_FRONTEND_SCRIPTS[saveScriptRelFilepath] = saveScriptTmpFilepath;
+            grunt.file.copy(saveScriptAbsFilepath, saveScriptTmpFilepath); // will create intermediate dirs
+            keep_frontend_scripts[saveScriptRelFilepath] = saveScriptTmpFilepath;
         }
         grunt.log.ok();
 
         // clear build thrift folder, so dev backend thrift files can be copied in
-        grunt.log.writeln(("\n2. Clear GUI build files from " + thriftDestAbsPath).cyan);
+        grunt.log.writeln(("\n2. Clear existing xcalar-gui build files from " +
+            thriftDestAbsPath).cyan);
         if (grunt.file.exists(thriftDestAbsPath)) {
             grunt.log.writeln("Delete dir " + thriftDestAbsPath);
             grunt.file.delete(thriftDestAbsPath);
         }
         grunt.log.ok();
 
-        /** copy in the thrft files from the developers workspace
+        // collect paths for all the js files (list of paths could be dirs or files)
+        grunt.log.writeln(("\n3. Get list of the backend files to copy in to " +
+            "xcalar-gui build @ " + thriftDestAbsPath).cyan);
+        var backendFilesToCopyAbs = {}; // src path : dest path
+        for (var backendSrc of backendSrcsAbs) {
+            if (grunt.file.isFile(backendSrc)) {
+                grunt.fail.fatal("Backend js src specified was a file; " +
+                    "only dirs are supported now. If you want to support " +
+                    "individual files, make you specify final paths (currently " +
+                    "globbing all js files in the dirs and making final paths " +
+                    "rel the dir");
+            }
+            var backendFilepaths = grunt.file.expand(backendSrc + "**/*.js"); // returns abs filepaths
+            // grunt.file.expand returned abs filepaths; want to retain backend
+            // dir structure in xcalar-gui, so get path rel backend dir as final dest in xcalar-gui
+            for (var backendFilepath of backendFilepaths) {
+                var filepathRelScriptSrc = path.relative(backendSrc, backendFilepath);
+                var target = thriftDestAbsPath + filepathRelScriptSrc;
+                backendFilesToCopyAbs[backendFilepath] = target;
+                grunt.log.writeln("File " + backendFilepath + "; will copy to " +
+                    target + " ...");
+            }
+        }
 
-            Will get the list of files to copy using grunt.file.expand, expanding on the backend dir,
-            and copy each in using grunt.file.copy
-            however, grunt.file.expand using globbing returns abs filepaths - not paths relative to the dir you're expanding.
-            and grunt.file.copy will use abs. paths on src and target.
-            Since want to retain dir structure of these backend files,
-            then for each filepath in grunt.file.expand, want the portion of the path rel. to the backend dir expanded on
-        */
-        var backendFilepaths = grunt.file.expand(backendSrcAbsPath + "**/*.js"); // gets filepaths of all .js files in the dir arg and any subdirs of arg
-        grunt.log.writeln(("\n3. Copy backend thrift files in to build (all js files nested beginning @ " + backendSrcAbsPath + ")").cyan);
-        for (var absFilepath of backendFilepaths) {
-            var filepathRelScriptSrc = path.relative(backendSrcAbsPath, absFilepath);
-            var target = thriftDestAbsPath + filepathRelScriptSrc;
-            grunt.log.writeln("cp " + absFilepath + " ---> " + target);
-            grunt.file.copy(absFilepath, target);
+        // copy all the files in to xcalar-gui
+        grunt.log.writeln(("\n4. Copy the backend files in to the " +
+            "xcalar-gui build").cyan);
+        for (var fileSrc of Object.keys(backendFilesToCopyAbs)) {
+            var fileDest = backendFilesToCopyAbs[fileSrc];
+            grunt.log.writeln("cp " + fileSrc + " ---> " + fileDest);
+            grunt.file.copy(fileSrc, fileDest);
         }
         grunt.log.ok();
 
         /**
-            copy back in the build files you wanted to save
-            (iterating through the array instead of expand on the tmp dir,
-            in case one of the copies didn't work, or something has changed,
-            then this will fail, which I want to happen);
-        */
-        grunt.log.writeln(("\n4. Port back in the bld files you saved").cyan);
-        for (var saveScriptRelFilepath of Object.keys(KEEP_FRONTEND_SCRIPTS)) {
+         * copy back in the saved bld files in the tmp dir
+         * (iterating through the array instead of expand on the tmp dir,
+         * in case one of the copies didn't work, or something has changed,
+         * then this will fail, which I want to happen);
+         */
+        grunt.log.writeln(("\n4. Port back in the xcalar-gui files saved in step 1.").cyan);
+        for (var saveScriptRelFilepath of Object.keys(keep_frontend_scripts)) {
             // tmp location it should be at, is val of this key
-            var saveScriptTmpFilepath = KEEP_FRONTEND_SCRIPTS[saveScriptRelFilepath];
+            var saveScriptTmpFilepath = keep_frontend_scripts[saveScriptRelFilepath];
             var target = thriftDestAbsPath + saveScriptRelFilepath;
             grunt.log.writeln("cp " + saveScriptTmpFilepath + " ---> " + target);
             grunt.file.copy(saveScriptTmpFilepath, target);
@@ -4343,52 +4365,51 @@ module.exports = function(grunt) {
         grunt.log.ok();
 
         /**
-            create a 'prod' folder in GUI src root, symlinked to the build
-            (backend uses apache; it's configured to look for the gui build in a 'prod' folder of the gui project root)
-
-            Check first if BLDROOT already this name, because if so you don't need the symlink.
-            If BLDROOT isn't named by this but there is a dir in the src root by this name, fail out (change later if needed)
-            However, if you are generating trunk builds repeatedly with this gui src, then you will want to overwrite with a new symlink each time.
-        */
-        grunt.log.writeln(("\n5. Create sym link to the gui bld called " + THRIFT_APACHE_GUI_PATH + ", so backend Apache can access frontend GUI project").cyan);
-        var thriftApacheFullPathToLookForGuiBld = SRCROOT + THRIFT_APACHE_GUI_PATH;
+         * create a 'prod' symlink in xcalar-gui source, to xcalar-gui build
+         * (backend uses apache; it's configured to look for the gui build in
+         * a 'prod' folder of the gui project root)
+         *
+         * Check first if BLDROOT named this; if so don't need the symlink.
+         * If BLDROOT isn't named this but there is a real dir in src with
+         * this name, fail to avoid overwrite (change later if needed)
+         * However, if you are generating trunk builds repeatedly with this gui
+         * src, then you will want to overwrite with a new symlink each time.
+         */
+        grunt.log.writeln(("\n5. Create sym link to the gui bld called " +
+            thrift_apache_gui_path + ", so backend Apache can access frontend GUI project").cyan);
+        var thriftApacheFullPathToLookForGuiBld = SRCROOT + thrift_apache_gui_path;
         // if destdir already is the path apache looking for, you do not need to do this
         if (BLDROOT == thriftApacheFullPathToLookForGuiBld) {
-            grunt.log.writeln("The destination dir for the build is already named '"
-                + THRIFT_APACHE_GUI_PATH
-                + "\nThere is no need to create the symlink; apache can already find the GUI project");
+            grunt.log.writeln("The destination dir for the build is already " +
+                "named '" + thrift_apache_gui_path + "'\nThere is no need to " +
+                "create the symlink; apache can already find the GUI project");
         } else {
             /**
-                 check if already a valid path.
-                if symlink, assume from a previous bld; overwrite it,
-                else fail out so we don't delete something
-                !!GRUNT's file.exists (and fs.exists) return FALSE on dangling symlinks!!!
-                (link to dir that no longer exists... )
-                and grunt.file.delete will fail to delete dangling symlinks
-                Therefore,i test for symlink using lstatSync, and delete using shell cmd if exists
-                (will work on dangling symlinks)
-            */
+             * check if symlink path exists; if it does and its a symlink,
+             * assume its from previous build and delete.
+             * if exists but not a symlink, fail so don't overwrite!
+             * !!GRUNT's file.exists (and fs.exists) return FALSE on dangling symlinks!!!
+             * (link to dir that no longer exists... )
+             * and grunt.file.delete will fail to delete dangling symlinks
+             * Therefore, test for symlink using lstatSync, and delete using shell cmd if exists
+             * (will work on dangling symlinks)
+             */
             try {
                 var statObj = fs.lstatSync(thriftApacheFullPathToLookForGuiBld);
                 // check if a symlink
                 if (statObj.isSymbolicLink()) {
                     grunt.log.write("Delete existing symlink (probably from previous bld) @ "
                         + thriftApacheFullPathToLookForGuiBld + " ... ");
-                    runShellCmd('rm ' + thriftApacheFullPathToLookForGuiBld); // runs the cmd; shellJs runs cmds syncronously by default
+                    runShellCmd('rm ' + thriftApacheFullPathToLookForGuiBld); // sync
                     grunt.log.ok();
                 } else {
-                    grunt.fail.fatal("This is a TRUNK build, intended for backend development.\n"
-                        + "Apache on the backend, is configured to look for gui build within GUI src root,"
-                        + " @ folder called : '"
-                        + THRIFT_APACHE_GUI_PATH
-                        + "'\ntherefore, need to create a symlink to this build, within the GUI src root, "
-                        + " set to that name."
-                        + "\nHowever, that desired path, "
-                        + thriftApacheFullPathToLookForGuiBld
-                        + ", already exists,\nand it is not a symlink from a past build,\n"
-                        + " nor is it that the build dest dir itself is called "
-                        + THRIFT_APACHE_GUI_PATH
-                        + "\n Will NOT override.");
+                    grunt.fail.fatal("backend Apache is configured to look for " +
+                        "xcalar-gui build within xcalar-gui source root @ dir " +
+                        thrift_apache_gui_path +
+                        "\nSo, trying to create symlink " +
+                        thriftApacheFullPathToLookForGuiBld +
+                        "to xcalar-gui build but path already exists and " +
+                        "is not a symlink from a previous build!");
                 }
             }
             catch (err) {
@@ -4398,7 +4419,8 @@ module.exports = function(grunt) {
                 }
             }
 
-            grunt.log.write("Set new sym link " + thriftApacheFullPathToLookForGuiBld + " --> " + BLDROOT + " ... ");
+            grunt.log.write("Set new sym link " + thriftApacheFullPathToLookForGuiBld +
+                " --> " + BLDROOT + " ... ");
             fs.symlinkSync(BLDROOT, thriftApacheFullPathToLookForGuiBld);
             grunt.log.ok();
         }
@@ -5387,15 +5409,15 @@ module.exports = function(grunt) {
 
         // XLRDIR sets this for grunt trunk builds for syncing thrift
         if (BLDTYPE === TRUNK) {
-            BACKENDBLDDIR = grunt.option(BLD_OP_BACKEND_SRC_REPO) || process.env[XLRDIR];
-            if (!BACKENDBLDDIR.endsWith(path.sep)) {
-                BACKENDBLDDIR = BACKENDBLDDIR + path.sep;
+            BACKENDBLDROOT = grunt.option(BLD_OP_BACKEND_SRC_REPO) || process.env[XLRDIR];
+            if (!BACKENDBLDROOT.endsWith(path.sep)) {
+                BACKENDBLDROOT = BACKENDBLDROOT + path.sep;
             }
-            if (!BACKENDBLDDIR || !grunt.file.exists(BACKENDBLDDIR)) {
+            if (!BACKENDBLDROOT || !grunt.file.exists(BACKENDBLDROOT)) {
                 grunt.fail.fatal("XLRDIR must be defined for grunt trunk. " +
                                  "Export again");
             }
-            process.env[XLRDIR] = BACKENDBLDDIR;
+            process.env[XLRDIR] = BACKENDBLDROOT;
         }
 
         // BLD_OP_JS_MINIFICATION_CONCAT_DEPTH how many levels to keep
