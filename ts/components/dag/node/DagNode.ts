@@ -729,6 +729,11 @@ abstract class DagNode {
             if (isNaN(progress)) {
                 progress = 0;
             }
+            // if table has 0 rows, but is completed, progress should be 1
+            if (tableRunStats.numWorkTotal === 0 &&
+                nodeInfo.state === DgDagStateT.DgDagStateReady) {
+                progress = 1;
+            }
             const pct: number = Math.round(100 * progress);
             tableRunStats.pct = pct;
             let rows = nodeInfo.numRowsPerNode.map(numRows => numRows);
@@ -767,13 +772,19 @@ abstract class DagNode {
         let rows = 0;
         let size = 0;
         let skew = 0;
+        let complete = true;
+        let hasOperation = false;
         for (let tableName in this.runStats.nodes) {
+            hasOperation = true;
             const node = this.runStats.nodes[tableName];
             if (node.state === DgDagStateT.DgDagStateProcessing ||
                 node.state === DgDagStateT.DgDagStateReady) {
                 numWorkCompleted += node.numWorkCompleted;
                 numWorkTotal += node.numWorkTotal;
                 rows = node.numRowsTotal;
+            }
+            if (node.state !== DgDagStateT.DgDagStateReady) {
+                complete = false;
             }
             if (node.skewValue != null && !isNaN(node.skewValue)) {
                 skew = Math.max(skew, node.skewValue);
@@ -784,6 +795,10 @@ abstract class DagNode {
         let progress: number = numWorkCompleted / numWorkTotal;
         if (isNaN(progress)) {
             progress = 0;
+        }
+        // if table has 0 rows, but is completed, progress should still be 1
+        if (hasOperation && complete) {
+            progress = 1;
         }
         const pct: number = Math.round(100 * progress);
         const stats = {

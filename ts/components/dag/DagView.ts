@@ -358,10 +358,10 @@ namespace DagView {
             }
             const rect = d3.select($operator[0]).insert('rect', ':first-child');
             rect.classed('selection', true);
-            rect.attr('x', '-2')
+            rect.attr('x', '-3')
             .attr('y', '-5')
-            .attr('width', '107')
-            .attr('height', '38')
+            .attr('width', nodeWidth + 5)
+            .attr('height', nodeHeight + 10)
             .attr('fill', '#EAF9FF')
             .attr('stroke', '#38CBFF')
             .attr('stroke-width', '1')
@@ -4472,7 +4472,7 @@ namespace DagView {
             const graph: DagGraph = dagTab.getGraph()
             const node: DagNode = graph.getNode(nodeId);
             _addProgressTooltip(graph, node, $dfArea, skewInfos, times);
-        
+
             if (progress === 100) {
                 const totalTime: number = times.reduce((a, b) => a + b, 0);
                 const graph: DagGraph = dagTab.getGraph()
