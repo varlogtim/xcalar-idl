@@ -2304,7 +2304,7 @@ window.Function.prototype.bind = function() {
         });
 
         xcalarExport(thriftHandle, "yelp/user-votes.funny-gt900",
-                     "single_csv", {"file_path": "/tmp/mgmtdtestfile.csv"},
+                     "single_csv", {"target": "Default Shared Root", "file_path": "/tmp/mgmtdtestfile.csv"},
                      columns, "exportNamexoxo")
         .then(function(retStruct) {
             var status = retStruct.status;

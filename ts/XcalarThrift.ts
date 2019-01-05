@@ -5382,7 +5382,7 @@ XcalarPublishTable = function(
 
     const deferred: XDDeferred<StatusT> = jQuery.Deferred();
     const unixTS = 0; // TODO: Resolve whether XCE will stamp this instead
-    xcalarApiPublish(tHandle, srcTableName, pubTableName, unixTS)
+    xcalarApiPublish(tHandle, srcTableName, pubTableName, unixTS, false)
     .then(deferred.resolve)
     .fail(function(error) {
         const thriftError = thriftLog("XcalarPublishTable", error);
@@ -5402,7 +5402,7 @@ XcalarUpdateTable = function(
 
     const deferred: XDDeferred<XcalarApiUpdateOutputT> = jQuery.Deferred();
     const unixTS = null;
-    xcalarApiUpdate(tHandle, deltaTableNames, pubTableNames, unixTS)
+    xcalarApiUpdate(tHandle, deltaTableNames, pubTableNames, unixTS, false)
     .then(deferred.resolve)
     .fail(function(error) {
         const thriftError = thriftLog("XcalarTargetTypeList", error);

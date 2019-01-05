@@ -658,16 +658,6 @@ xcalarTargetTypeList = runEntity.xcalarTargetTypeList = function(thriftHandle) {
     return (deferred.promise());
 };
 
-XcalarCgroupWorkItem = runEntity.XcalarCgroupWorkItem = function(inJson) {
-    var workItem = new WorkItem();
-    workItem.input = new XcalarApiInputT();
-
-    workItem.api = XcalarApisT.XcalarApiCgroup;
-    workItem.input.cgroupInput = new XcalarApiCgroupInputT();
-    workItem.input.cgroupInput.inputJson = inJson;
-    return (workItem);
-};
-
 xcalarPtSnapshotWorkItem = runEntity.xcalarPtSnapshotWorkItem = function(inJson) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -3342,6 +3332,90 @@ xcalarCoalesce = runEntity.xcalarCoalesce = function(thriftHandle, tableName) {
     return (deferred.promise());
 };
 
+xcalarAddIndexWorkItem = runEntity.xcalarAddIndexWorkItem = function(tableName,
+                                                                     keyName) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.apiVersion = 0;
+    workItem.api = XcalarApisT.XcalarApiAddIndex;
+    workItem.input.indexRequestInput = new XcalarApiIndexRequestInputT();
+    workItem.input.indexRequestInput.tableName = tableName;
+    workItem.input.indexRequestInput.keyName = keyName;
+
+    return (workItem);
+};
+
+xcalarAddIndex = runEntity.xcalarAddIndex = function(thriftHandle, tableName,
+                                                     keyName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarAddIndex(name = " + tableName + " key = " + keyName + ")");
+    }
+    var workItem = xcalarAddIndexWorkItem(tableName);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
+        }
+    })
+    .fail(function(error) {
+        console.log("xcalarAddIndex() caught exception:", error);
+        deferred.reject(handleRejection(error));
+    });
+
+    return (deferred.promise());
+};
+
+xcalarRemoveIndexWorkItem = runEntity.xcalarRemoveIndexWorkItem = function(tableName,
+                                                                     keyName) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.apiVersion = 0;
+    workItem.api = XcalarApisT.XcalarApiRemoveIndex;
+    workItem.input.indexRequestInput = new XcalarApiIndexRequestInputT();
+    workItem.input.indexRequestInput.tableName = tableName;
+    workItem.input.indexRequestInput.keyName = keyName;
+
+    return (workItem);
+};
+
+xcalarRemoveIndex = runEntity.xcalarRemoveIndex = function(thriftHandle, tableName,
+                                                     keyName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarRemoveIndex(name = " + tableName + " key = " + keyName + ")");
+    }
+    var workItem = xcalarRemoveIndexWorkItem(tableName);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
+        }
+    })
+    .fail(function(error) {
+        console.log("xcalarRemoveIndex() caught exception:", error);
+        deferred.reject(handleRejection(error));
+    });
+
+    return (deferred.promise());
+};
+
 xcalarArchiveTablesWorkItem = runEntity.xcalarArchiveTablesWorkItem = function(tableNames, archive) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -3695,26 +3769,27 @@ xcalarApiSelect = runEntity.xcalarApiSelect = function(thriftHandle, srcTableNam
     return (deferred.promise());
 };
 
-xcalarApiPublishWorkItem = runEntity.xcalarApiPublishWorkItem = function(srcTableName, dstTableName, unixTS) {
+xcalarApiPublishWorkItem = runEntity.xcalarApiPublishWorkItem = function(srcTableName, dstTableName, unixTS, dropSrc) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.publishInput = new XcalarApiPublishInputT();
     workItem.input.publishInput.source = srcTableName;
     workItem.input.publishInput.dest = dstTableName;
     workItem.input.publishInput.unixTS = unixTS;
+    workItem.input.publishInput.dropSrc = dropSrc;
 
     workItem.api = XcalarApisT.XcalarApiPublish;
     return (workItem);
 };
 
-xcalarApiPublish = runEntity.xcalarApiPublish = function(thriftHandle, srcTableName, dstTableName, unixTS) {
+xcalarApiPublish = runEntity.xcalarApiPublish = function(thriftHandle, srcTableName, dstTableName, unixTS, dropSrc) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiPublish(srcTableName = " + srcTableName +
                     ", dstTableName = " + dstTableName + ")");
     }
 
-    var workItem = xcalarApiPublishWorkItem(srcTableName, dstTableName, unixTS);
+    var workItem = xcalarApiPublishWorkItem(srcTableName, dstTableName, unixTS, dropSrc);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -3740,7 +3815,8 @@ xcalarApiPublish = runEntity.xcalarApiPublish = function(thriftHandle, srcTableN
 
 xcalarApiUpdateWorkItem = runEntity.xcalarApiUpdateWorkItem = function(srcTableNames,
                                                                        dstTableNames,
-                                                                       times) {
+                                                                       times,
+                                                                      dropSrc) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.updateInput = new XcalarApiUpdateInputT();
@@ -3757,12 +3833,14 @@ xcalarApiUpdateWorkItem = runEntity.xcalarApiUpdateWorkItem = function(srcTableN
                 } else {
                     update.unixTS = 0;
                 }
+                update.dropSrc = dropSrc;
                 workItem.input.updateInput.updates.push(update);
             }
         } else {
             var update = new XcalarApiUpdateTableInputT();
             update.source = srcTableNames;
             update.dest = dstTableNames;
+            update.dropSrc = dropSrc
             workItem.input.updateInput.updates.push(update);
         }
     }
@@ -3772,14 +3850,14 @@ xcalarApiUpdateWorkItem = runEntity.xcalarApiUpdateWorkItem = function(srcTableN
 };
 
 xcalarApiUpdate = runEntity.xcalarApiUpdate = function(thriftHandle, srcTableNames,
-                                                       dstTableNames, times) {
+                                                       dstTableNames, times, dropSrc) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiUpdate(srcTableName = " + srcTableNames +
                     ", dstTableName = " + dstTableNames + ")");
     }
 
-    var workItem = xcalarApiUpdateWorkItem(srcTableNames, dstTableNames, times);
+    var workItem = xcalarApiUpdateWorkItem(srcTableNames, dstTableNames, times, dropSrc);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -5071,7 +5149,9 @@ xcalarApiSessionList = runEntity.xcalarApiSessionList = function(thriftHandle, p
             deferred.reject({xcalarStatus: result.jobStatus});
         }
 
-        if (status != StatusT.StatusOk && status != StatusT.StatusSessionNotFound) {
+        if (status != StatusT.StatusOk && status == StatusT.StatusSessListIncomplete) {
+            deferred.reject({xcalarStatus: status, log: log, sessionList: sessionListOutput});
+        } else if (status != StatusT.StatusOk && status != StatusT.StatusSessionNotFound) {
             deferred.reject({xcalarStatus: status, log: log});
         } else {
             deferred.resolve(sessionListOutput);

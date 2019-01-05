@@ -49,6 +49,28 @@ declare function xcalarIndex(
     dhtName: string
 ): XDPromise<XcalarApiNewTableOutputT>;
 
+declare function xcalarAddIndexWorkItem(
+    tableName: string,
+    keyName: string
+): WorkItem;
+
+declare function xcalarAddIndex(
+    thriftHandle: ThriftHandler,
+    tableName: string,
+    keyName: string
+): XDPromise<any>;
+
+declare function xcalarRemoveIndexWorkItem(
+    tableName: string,
+    keyName: string
+): WorkItem;
+
+declare function xcalarRemoveIndex(
+    thriftHandle: ThriftHandler,
+    tableName: string,
+    keyName: string
+): XDPromise<any>;
+
 declare function xcalarApiGetQuery(
     thriftHandle: ThriftHandler,
     workItem: WorkItem
@@ -866,14 +888,16 @@ declare function xcalarApiPublish(
     thriftHandle: ThriftHandler,
     srcTableName: string,
     dstTableName: string,
-    unixTS: number
+    unixTS: number,
+    dropSrc: boolean
 ): XDPromise<StatusT>;
 
 declare function xcalarApiUpdate(
     thriftHandle: ThriftHandler,
     srcTableNames: string[] | string,
     dstTableNames: string[] | string,
-    times: number[]
+    times: number[],
+    dropSrc: boolean
 ): XDPromise<XcalarApiUpdateOutputT>;
 
 declare function xcalarApiSelectWorkItem(

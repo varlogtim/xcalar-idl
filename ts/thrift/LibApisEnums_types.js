@@ -154,7 +154,9 @@ XcalarApisT = {
   'XcalarApiUdfGetResolution' : 145,
   'XcalarApiCgroup' : 146,
   'XcalarApiQueryList' : 147,
-  'XcalarApiFunctionInvalid' : 148
+  'XcalarApiAddIndex' : 148,
+  'XcalarApiRemoveIndex' : 149,
+  'XcalarApiFunctionInvalid' : 150
 };
 XcalarApisTStr = {
   0 : 'XcalarApiUnknown',
@@ -305,7 +307,9 @@ XcalarApisTStr = {
   145 : 'XcalarApiUdfGetResolution',
   146 : 'XcalarApiCgroup',
   147 : 'XcalarApiQueryList',
-  148 : 'XcalarApiFunctionInvalid'
+  148 : 'XcalarApiAddIndex',
+  149 : 'XcalarApiRemoveIndex',
+  150 : 'XcalarApiFunctionInvalid'
 };
 XcalarApisTFromStr = {
   'XcalarApiUnknown' : 0,
@@ -456,5 +460,7 @@ XcalarApisTFromStr = {
   'XcalarApiUdfGetResolution' : 145,
   'XcalarApiCgroup' : 146,
   'XcalarApiQueryList' : 147,
-  'XcalarApiFunctionInvalid' : 148
+  'XcalarApiAddIndex' : 148,
+  'XcalarApiRemoveIndex' : 149,
+  'XcalarApiFunctionInvalid' : 150
 };

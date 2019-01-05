@@ -474,6 +474,24 @@ declare class XcalarApiIndexInputT {
 		broadcast?: boolean,
 	});
 }
+declare class XcalarApiIndexRequestInputT {
+	tableName: string;
+	keyName: string;
+	constructor(args?: {
+		tableName?: string,
+		keyName?: string,
+	})
+}
+declare class XcalarApiIndexInfoT {
+	key: XcalarApiColumnInfoT;
+	sizeEstimate: number;
+	uptime: XcalarApiTimeT;
+	constructor(args?: {
+		key?: XcalarApiColumnInfoT,
+		sizeEstimate?: number,
+		uptime?: XcalarApiTimeT,
+	})
+}
 declare class XcalarApiStatInputT {
 	nodeId: number;
 	constructor(args?: {
@@ -1699,20 +1717,24 @@ declare class XcalarApiPublishInputT {
 	source: string;
 	dest: string;
 	unixTS: number;
+	dropSrc: boolean;
 	constructor(args?: {
 		source?: string,
 		dest?: string,
 		unixTS?: number,
+		dropSrc?: boolean,
 	});
 }
 declare class XcalarApiUpdateTableInputT {
 	source: string;
 	dest: string;
 	unixTS: number;
+	dropSrc: boolean;
 	constructor(args?: {
 		source?: string,
 		dest?: string,
 		unixTS?: number,
+		dropSrc?: boolean,
 	});
 }
 declare class XcalarApiUpdateInputT {
@@ -1858,6 +1880,7 @@ declare class XcalarApiInputT {
 	cgroupInput: XcalarApiCgroupInputT;
 	queryListInput: XcalarApiQueryListInputT;
 	listRetinasInput: XcalarApiListRetinasInputT;
+	indexRequestInput: XcalarApiIndexRequestInputT;
 	constructor(args?: {
 		loadInput?: XcalarApiBulkLoadInputT,
 		indexInput?: XcalarApiIndexInputT,
@@ -1957,6 +1980,7 @@ declare class XcalarApiInputT {
 		cgroupInput?: XcalarApiCgroupInputT,
 		queryListInput?: XcalarApiQueryListInputT,
 		listRetinasInput?: XcalarApiListRetinasInputT,
+		indexRequestInput?: XcalarApiIndexRequestInputT,
 	});
 }
 declare class XcalarApiDagNodeT {
@@ -2310,6 +2334,7 @@ declare class XcalarApiTableInfoT {
 	keys: XcalarApiColumnInfoT[];
 	values: XcalarApiColumnInfoT[];
 	active: boolean;
+	indices: XcalarApiIndexInfoT[];
 	constructor(args?: {
 		name?: string,
 		numPersistedUpdates?: number,
@@ -2321,6 +2346,7 @@ declare class XcalarApiTableInfoT {
 		keys?: XcalarApiColumnInfoT[],
 		values?: XcalarApiColumnInfoT[],
 		active?: boolean,
+		indices?: XcalarApiIndexInfoT[],
 	});
 }
 declare class XcalarApiListTablesOutputT {
