@@ -159,6 +159,33 @@ interface DFProgressData {
     numCompleted: number
 }
 
+interface PbTblInfo {
+    index: number;
+    keys: string[];
+    columns: ColSchema[];
+    name: string;
+    rows: number;
+    size: number;
+    createTime: number;
+    active: boolean;
+    state?: string;
+}
+
+interface PbTblDisplayInfo {
+    index: number;
+    name: string;
+    rows: string;
+    size: string;
+    createTime: string;
+    status: string;
+}
+
+interface PbTblColSchema {
+    name: string;
+    type: ColumnType;
+    primaryKey: string;
+}
+
 interface XcLogOptions {
     operation: string,
     func: string,
@@ -1108,11 +1135,9 @@ declare namespace BottomMenu {
     export function close(something?: boolean): void;
 }
 
-declare namespace DataStore {
-    export function setup(): void;
-}
-
 declare namespace DS {
+    export function setup(): void;
+    export function resize(): void;
     export function getGrid(dsId: string): JQuery;
     export function getGridByName(dsName: string, user?: string): JQuery;
     export function updateDSInfo(arg: object): void;
@@ -1137,6 +1162,7 @@ declare namespace DS {
 
 
 declare class DSObj {
+    public constructor(options: any);
     public parentId: string;
     public activated: boolean;
     public getFullName(): string;
@@ -1146,13 +1172,18 @@ declare class DSObj {
     public getId(): string;
     public getNumEntries(): number;
     public getUser(): string;
+    public getImportOptions(): object;
 }
 
-declare namespace DSCart {
-    export function restore(oldMeat: object): void;
-    export function queryDone(id: number, isCancel?: boolean): void;
-    export function addQuery(XcQuery);
-    export function resize(): void;
+declare namespace DSForm {
+    export function setup(): void;
+    export function hide(): void;
+    export function show(createTableMode: boolean): void;
+}
+
+declare namespace DSTable {
+    export function setup(): void;
+    export function refresh(): void;
 }
 
 declare namespace Profile {
@@ -1237,6 +1268,9 @@ declare namespace DSPreview {
 }
 
 declare namespace DSTargetManager {
+    export function setup(): void;
+    export function getTargetTypeList(): XDPromise<void>;
+    export function clickFirstGrid(): void;
     export function getAllTargets(): object[];
     export function refreshTargets(noWaitIcon: boolean): object[];
     export function updateUDF(listXdfsObj: any);

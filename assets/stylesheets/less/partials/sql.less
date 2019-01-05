@@ -192,6 +192,7 @@
             float: left;
             width: 40%;
             height: 100%;
+            border-right: 1px solid @color-border-softGray;
         }
     
         .rightSection {
@@ -201,9 +202,84 @@
 
             .resultSection, .historySection {
                 height: 50%;
+                background-color: @color-white;
 
                 .sqlQueryHist {
                     .size(@min-width: 890px, @height: 100%);
+                }
+            }
+
+            .resultSection {
+                border-bottom: 1px solid @color-border-softGray;
+
+                > div {
+                    height: 100%;
+                    @top-h: 38px;
+                    @bottom-h: 50px;
+                    @total-h: @top-h + @bottom-h;
+
+                    &.noBottom {
+                        .mainSection {
+                            height: ~"calc(100% - @{top-h})";
+                        }
+                    }
+
+                    .topSection {
+                        background-color: @color-white;
+                        height: @top-h;
+                        font-size: 11px;
+                        padding: 9px 15px;
+                        display: flex;
+                        border-bottom: 1px solid @color-border-softGray;
+                        @div-h: 20px;
+
+                        > .label {
+                            margin-right: 10px;
+                            line-height: 20px;
+                            font-size: 12px;
+                            font-weight: 600;
+                            color: @color-font-edge;
+                        }
+
+                        .searchbarArea {
+                            .size(@height: @div-h);
+                            float: left;
+
+                            input {
+                                font-size: 11px;
+                
+                                .size(@height: @div-h);
+                                padding-left: 20px;
+                                line-height: 20px;
+                                background-color: @color-white;
+                            }
+                
+                            .icon {
+                                .font(@size: 10px);
+                                .position(absolute, @top: 6px, @left: 5px);
+                                color: #9eb3c5;
+                            }
+                        }
+                    }
+
+                    .mainSection {
+                        height: ~"calc(100% - @{total-h})";
+                    }
+
+                    .bottomSection {
+                        height: @bottom-h;
+                        padding: 11px 25px;
+                        border-top: 1px solid @color-border-softGray;
+                        background-color: @color-bg-list-hover-blue;
+                
+                        .buttonWrap {
+                            float: right;
+                        }
+                
+                        button {
+                            margin-right: 10px;
+                        }
+                    }
                 }
             }
         }
@@ -214,7 +290,7 @@
     height: 100%;
     background-color: @color-white;
     @topSectionHeight: 50px;
-    @top-bar-height: 50px;
+    @top-bar-height: 51px;
     @bottom-height: 120px;
     @total-height: @topSectionHeight + @top-bar-height + @bottom-height;
 
@@ -229,10 +305,26 @@
     }
 
     .topBarSection {
-        padding: 13px 15px;
+        padding: 10px 15px;
         height: @top-bar-height;
         background-color: @color-bg-list-hover-blue;
         border-bottom: 1px solid @color-border-softGray;
+    
+        .fileOption {
+            width: 200px;
+            margin-right: 15px;
+
+            .text {
+                height: 30px;
+                width: ~"calc(100% - 30px)";
+                line-height: 30px;
+            }
+        }
+
+        .showTables {
+            position: relative;
+            top: 1px;
+        }
     }
 
     .editSection {
@@ -272,46 +364,62 @@
 }
 
 #sqlTableArea {
-    height: 100%;
-    @tableBar-h: 38px;
-    @bottom-h: 50px;
-    @total-h: @tableBar-h + @bottom-h;
-
-    .tableBar {
-        background-color: @color-white;
-        height: @tableBar-h;
-        padding-top: 9px;
-        padding-bottom: 9px;
-
-        > .label {
-            margin-right: 10px;
-            line-height: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            color: @color-font-edge;
-        }
-    }
-
     .tableSection {
-        height: ~"calc(100% - @{total-h})";
-
         .viewWrap {
             height: 100%;
         }
     }
 
-    .bottomSection {
-        height: @bottom-h;
-        padding: 11px 25px;
-        border-top: 1px solid @color-border-softGray;
-        background-color: @color-bg-list-hover-blue;
-
-        .buttonWrap {
-            float: right;
+    .topSection {
+        .searchbarArea {
+            .size(@max-width: 244px, @min-width: 20%);
         }
 
-        button {
-            margin-right: 10px;
+        input {
+            padding-right: 85px;
+        }
+    }
+}
+
+#sqlTableListerArea {
+    &.loading {
+        .topSection {
+            .searchbarArea, .xc-action {
+                opacity: @opacity-disabled;
+                pointer-events: none;
+            }
+        }
+    }
+
+    .topSection {
+        .searchbarArea {
+            max-width: 150px;
+
+            input {
+                padding-right: 20px;
+            }
+        }
+
+        .actionArea {
+            margin-left: 15px;
+
+            .xc-action {
+                float: left;
+                margin-left: 10px;
+                height: 20px;
+                line-height: 20px;
+
+                > .icon {
+                    font-size: 15px;
+                    .position(relative, @top: 3px);
+                    margin-right: 2px;
+                }
+
+                > span {
+                    font-size: 12px;
+                    .position(relative, @top: 1px);
+                }
+            }
         }
     }
 }

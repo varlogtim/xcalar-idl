@@ -805,6 +805,7 @@ window.Log = (function($, Log) {
             case SQLOps.RemoveDagTab:
                 return UndoType.Invalid;
             case SQLOps.DSImport:
+            case SQLOps.TableFromDS:
             case SQLOps.DestroyDS:
             case SQLOps.DeleteTable:
             case SQLOps.PreviewDS:

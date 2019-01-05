@@ -14,7 +14,7 @@ class SQLTable {
         this._searchBar = new TableSearchBar(this._container);
     }
 
-    public previewTable(table: TableMeta): XDPromise<void> {
+    public show(table: TableMeta): XDPromise<void> {
         const viewer: XcTableViewer = new XcTableViewer(table);
         return this._show(viewer);
     }

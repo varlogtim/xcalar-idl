@@ -10,14 +10,28 @@ class SQLResultSpace {
     }
 
     public setup(): void {
-        
+        SQLTable.Instance.close();
+        SQLTableLister.Instance.close();
+        SQLTableSchema.Instance.close();
+    }
+
+    public showTables(reset: boolean): void {
+        SQLTable.Instance.close();
+        SQLTableSchema.Instance.close();
+        SQLTableLister.Instance.show(reset);
+    }
+
+    public showSchema(tableInfo: PbTblInfo): void {
+        SQLTable.Instance.close();
+        SQLTableLister.Instance.close();
+        SQLTableSchema.Instance.show(tableInfo);
     }
 
     public test(): void {
         for (let tableId in gTables) {
             let table = gTables[tableId];
             console.info("test, preview", tableId);
-            SQLTable.Instance.previewTable(table);
+            SQLTable.Instance.show(table);
             break;
         }
     }

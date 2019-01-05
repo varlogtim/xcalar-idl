@@ -1015,6 +1015,59 @@
     }
 }
 
+.xc-gridList {
+    @row-h: 30px;
+    @header-h: 30px;
+
+    .header {
+        height: @header-h;
+        background: @color-table-header-gray;
+
+        .row {
+            cursor: pointer;
+            font-weight: 700;
+        }
+    }
+
+    .content {
+        width: 100%;
+        height: ~"calc(100% - @{header-h})";
+        position: relative;
+        overflow-y: auto;
+        cursor: default;
+
+        .row {
+            &:hover {
+                background-color: @color-bg-list-hover-blue;
+            }
+
+            &.selected {
+                background-color: @color-bg-topBarGray2;
+            }
+        }
+    }
+
+    .row {
+        height: @row-h;
+        border-bottom: 1px solid @color-border-softGray;
+
+        > div {
+            float: left;
+            width: 20%;
+            height: @row-h;
+            padding: 0 15px;
+            border-left: 1px solid @color-border-softGray;
+            .textOverflowOneLine;
+            line-height: @row-h;
+            font-size: 13px;
+
+            &:first-child {
+                border-left: none;
+            }
+        }
+    }
+}
+
 .xc-fileListView {
     display: flex;
     flex-direction: column;
@@ -1562,9 +1615,7 @@ html.firefox {
     }
 
     .tableBar {
-        background-color: @color-bg-topBarGray2;
         font-size: 11px;
-        padding: 5px 15px 5px 5px;
         display: flex;
 
         .searchbarArea {

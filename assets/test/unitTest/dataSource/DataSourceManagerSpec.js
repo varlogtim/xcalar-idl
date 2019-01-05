@@ -1,4 +1,4 @@
-describe("Dataset-Datastore Module Test", function() {
+describe("Data Source Manager Test", function() {
     var $mainTabCache;
 
     before(function() {
@@ -9,20 +9,7 @@ describe("Dataset-Datastore Module Test", function() {
         // turn off min mode, as it affectes DOM test
         UnitTest.onMinMode();
     });
-
-    it("Should update num of datasets", function() {
-        expect("hello world").to.equal("hello world");
-
-        DataStore.update(3);
-        verifyCurrentNum(3);
-    });
-
-    it("Should update num of datasets to right num", function() {
-        var originNum = $("#dsListSection .gridItems .ds").length;
-        DataStore.update();
-        verifyCurrentNum(originNum);
-    });
-
+    
     it("should go to create target view", function() {
         $("#targetButton").click();
         assert.isFalse($("#datastore-in-view").is(":visible"));

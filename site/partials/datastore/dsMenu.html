@@ -2,28 +2,28 @@
 <div class="iconSection">
   <!-- import data button -->
   <% if (dicts.tutor.name !== "datasetPanelTutA1") { %>
-  <div id="importDataButton" class="action submit" title="<%= dicts.ds.Point %>" data-toggle="tooltip" data-placement="top" data-container="body">
+  <div id="importDataButton" class="action submit import" title="<%= dicts.ds.Point %>" data-toggle="tooltip" data-placement="top" data-container="body">
     <i class="icon xi-add-data"></i>
   </div>
   <% } else { %>
-  <div id="importDataButton" class="action submit" title="<%= dicts.ds.Point %>" data-toggle="tooltip" data-placement="top" data-container="body" data-introstep="wa1-importDs">
+  <div id="importDataButton" class="action submit import" title="<%= dicts.ds.Point %>" data-toggle="tooltip" data-placement="top" data-container="body" data-introstep="wa1-importDs">
     <i class="icon xi-add-data"></i>
   </div>
   <% } %>
   <!-- add folder button -->
   <% if (dicts.tutor.name !== "datastoreTut2") { %>
-  <div id="addFolderBtn" class="action" title="<%= dicts.dsView.addFolderBtn %>" data-container="body" data-toggle="tooltip" data-placement="top">
+  <div id="addFolderBtn" class="action addFolter" title="<%= dicts.dsView.addFolderBtn %>" data-container="body" data-toggle="tooltip" data-placement="top">
     <i class="icon xi-add-folder"></i>
   </div>
   <% } else { %>
-  <div id="addFolderBtn" class="action" data-introstep="w3-createFolder">
+  <div id="addFolderBtn" class="action addFolter" data-introstep="w3-createFolder">
     <i class="icon xi-add-folder"></i>
   </div>
   <% } %>
   <i class="minimizeBtn icon xi-close"></i>
   <!-- switch datasets view -->
   <% if (dicts.tutor.name !== "datastoreTut2") { %>
-  <i id="dataViewBtn" class="right icon xi-list-view fa-17 gridView" data-toggle="tooltip" data-placement="top" data-original-title="<%= dicts.TooltipTStr.SwitchToListView %>" data-container="body"></i>
+  <i id="dataViewBtn" class="switchView right icon xi-list-view fa-17 gridView" data-toggle="tooltip" data-placement="top" data-original-title="<%= dicts.TooltipTStr.SwitchToListView %>" data-container="body"></i>
   <% } else { %>
   <i id="dataViewBtn" class="right icon xi-list-view fa-17 gridView" data-introstep="w3-changeView"></i>
   <% } %>

@@ -31,11 +31,23 @@ html.safari {
         display: none;
     }
 
-    &.in {
+    &.in, &.table {
         .subPanel {
             &.in {
                 display: block;
             }
+        }
+    }
+
+    &.table {
+        #dsTableView {
+            display: none;
+        }
+    }
+
+    &.in {
+        #pTblView {
+            display: none;
         }
     }
 
@@ -327,6 +339,45 @@ html.safari {
 
         .or {
             color: @color-table-red;
+        }
+    }
+}
+
+#pTblView {
+    @height-top: 49px;
+    @height-total: @height-card-header + @height-card-instr + @height-top;
+
+    .cardContainer {
+        height: 100%;
+    }
+
+    .cardTopMain {
+        padding: 15px;
+        border-bottom: none;
+        height: @height-top;
+
+        .infoSection {
+            > span {
+                margin-right: 4px;
+
+                &.label {
+                    font-weight: 600;
+                }
+
+                &.value {
+                    font-weight: 400;
+                }
+            }
+        }
+    }
+
+    .cardMain {
+        padding: 0;
+        height: ~"calc(100% - @{height-total})";
+    
+        .loading {
+            padding-left: 15px;
+            margin-top: 10px;
         }
     }
 }
@@ -1559,6 +1610,26 @@ table.datasetTable {
         .buttonSection {
             width: 100%;
             border-top: 1px solid @color-border-white-five;
+        }
+    }
+
+    &.createTable {
+        #importDataForm {
+            .buttonSection {
+                .confirm {
+                    display: none;
+                }
+            }
+        }
+    }
+
+    &:not(.createTable) {
+        #importDataForm {
+            .buttonSection {
+                .createTable {
+                    display: none;
+                }
+            }
         }
     }
 
@@ -2928,7 +2999,7 @@ table.datasetTable {
 }
 /* End Of Import Data View Section */
 
-#dsListSection {
+#dsListSection, #sourceTableListSection {
     color: @color-font-edge;
 
     .topWrapper {
@@ -3466,7 +3537,15 @@ table.datasetTable {
     }
 }
 
-#gridViewMenu, #dsTarget-menu {
+#sourceTableListSection {
+    padding-top: 0;
+
+    .gridViewWrapper {
+        margin-top: 0;
+    }
+}
+
+#gridViewMenu, #dsTarget-menu, #tableGridViewMenu {
     z-index: @z-index-gridViewMenu;
 
     li {

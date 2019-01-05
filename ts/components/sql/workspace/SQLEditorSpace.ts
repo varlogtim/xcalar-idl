@@ -13,7 +13,7 @@ class SQLEditorSpace {
 
     public setup(): void {
         this._setupSQLEditor();
-        this._setupBottomSection();
+        this._addEventListeners();
     }
 
     public refresh(): void {
@@ -37,7 +37,7 @@ class SQLEditorSpace {
         this._sqlEditor = new SQLEditor("sqlEditorSpace-editor", callbacks);
 
         CodeMirror.commands.autocompleteSQLInVDW = function(cmeditor) {
-            var acTables = self._getAutoCompleteHint();
+            let acTables = self._getAutoCompleteHint();
             CodeMirror.showHint(cmeditor, CodeMirror.hint.sql, {
                 alignWithWord: true,
                 completeSingle: false,
@@ -47,9 +47,20 @@ class SQLEditorSpace {
         }
     }
 
-    // XXX TODO
     private _getAutoCompleteHint() {
-        var arcTables = {"a": "b", "c": "d"};
+        let arcTables = {};
+        try {
+            let tables: PbTblInfo[] = PTblManager.Instance.getTables();
+            tables.forEach((table) => {
+                arcTables[table.name] = [];
+                table.columns.forEach((col) => {
+                    arcTables[table.name].push(col.name);
+                    arcTables[col.name] = [];
+                });
+            });
+        } catch (e) {
+            console.error(e);
+        }
         return arcTables;
     }
 
@@ -74,10 +85,16 @@ class SQLEditorSpace {
         return new SQLExecutor(sql).execute();
     }
 
-    private _setupBottomSection(): void {
-        const $section = this._getEditorSpaceEl().find(".bottomSection");
-        $section.on("click", ".execute", () => {
+    private _addEventListeners(): void {
+        const $container = this._getEditorSpaceEl();
+        const $bottomSection = $container.find(".bottomSection");
+        $bottomSection.on("click", ".execute", () => {
             this._executeAllSQL();
+        });
+
+        const $topBar = $container.find(".topBarSection");
+        $topBar.on("click", ".showTables", () => {
+            SQLResultSpace.Instance.showTables(true);
         });
     }
 }

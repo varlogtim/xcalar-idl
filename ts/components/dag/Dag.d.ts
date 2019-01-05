@@ -264,7 +264,8 @@ interface PublishTable {
     oldestBatchId: number,
     active: boolean,
     sizeTotal: number,
-    keys: XcalarApiColumnInfoT[]
+    keys: XcalarApiColumnInfoT[],
+    numRowsTotal: number
 }
 
 interface PublishTableUpdateInfo {

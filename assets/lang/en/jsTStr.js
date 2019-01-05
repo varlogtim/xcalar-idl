@@ -183,6 +183,7 @@ CommonTxtTstr = {
     'Copy': 'Copy',
     'Create': 'Create',
     'Created': 'Created',
+    'CreateTime': 'Create Time',
     'Renamed': 'Renamed',
     'Removed': 'Removed',
     'Default': 'default',
@@ -207,6 +208,7 @@ CommonTxtTstr = {
     'LogOut': 'Log Out',
     'LogoutWarn': 'You have unsaved changes. Please save or you risk losing work',
     'NA': 'N/A',
+    'Name': 'Name',
     'NestedArrayVal': 'nested array value',
     'New': 'New',
     'Next': 'Next',
@@ -224,10 +226,13 @@ CommonTxtTstr = {
     'Retry': 'Retry',
     'RevertDefaultVal': 'Revert to default value',
     'rows': 'rows',
+    'Rows': 'Rows',
     'Save': 'Save',
     'Search': 'Search',
     'SelectAll': 'Select All',
+    'Size': "Size",
     'StartTime': 'Start Time',
+    'Status': 'Status',
     'Table': 'Table',
     'time': 'time',
     'Upgrading': 'Upgrading',
@@ -268,6 +273,7 @@ ErrTStr = {
     'DSNameConfilct': 'Dataset with the same name already exists. ' +
                         'please choose another name.',
     'DSStartsWithLetter': 'Dataset name should start with letter.',
+    'TableStartsWithLetter': 'Table name should start with letter.',
     'PrefixStartsWithLetter': 'Prefix should start with letter.',
     'PrefixNoDoubleHyphen': "Prefix should not include double hyphen(--)",
     'TableConflict': 'A table with the same name already exists. ' +
@@ -1374,6 +1380,7 @@ UDFTStr = {
 
 TblTStr = {
     'Create': 'Create Table',
+    'Creating': 'Creating Table',
     'Del': 'Drop Tables',
     'DEL': 'DROP TABLES',
     'DropTbl': 'Drop Table',
@@ -1390,6 +1397,7 @@ TblTStr = {
     "SkipToRow": "Skip to rows",
     "Skew": "Skew",
     "ClickToDetail": "Click to see details",
+    "TotalNumOfTbl": "Total number of tables",
 };
 
 ColTStr = {

@@ -13,7 +13,6 @@ window.UnitTestManager = (function(UnitTestManager, $) {
         "Schedule related Test",
         "Upload Dataflow Test",
         "Dataset-Datastore Module Test",
-        "Dataset-DSCart Test",
         "Dataset-DSForm Test",
         "Dataset-DSObj Test",
         "Dataset-DSPreview Test",

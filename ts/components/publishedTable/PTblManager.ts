@@ -1,0 +1,302 @@
+class PTblManager {
+    private static _instance: PTblManager;
+    public static DSPrefix: string = "temp.table.";
+
+    public static get Instance() {
+        return this._instance || (this._instance = new this());
+    }
+
+    private _tables: Map<string, PbTblInfo[]>;
+    private _loadingTables: {[key: string]: PbTblInfo};
+    private _datasetTables: {[key: string]: PbTblInfo};
+
+    public constructor() {
+        this._tables = null;
+        this._loadingTables = {};
+        this._datasetTables = {};
+    }
+
+    public createTableInfo(name: string): PbTblInfo {
+        return {
+            name: name,
+            index: null,
+            keys: null,
+            size: 0,
+            createTime: null,
+            active: true,
+            columns: null,
+            rows: 0
+        }
+    }
+
+    public getTables(): PbTblInfo[] {
+        if (this._tables == null) {
+            return [];
+        }
+        let tables: PbTblInfo[] = this._tables.map((table) => table);
+        for (let table in this._loadingTables) {
+            tables.push(this._loadingTables[table]);
+        }
+        for (let table in this._datasetTables) {
+            tables.push(this._datasetTables[table]);
+        }
+        return tables;
+    }
+
+    public getTablesAsync(refresh?: boolean): XDPromise<PbTblInfo[]> {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        let promise: XDPromise<PublishTable[]>;
+        if (this._tables != null && !refresh) {
+            promise = PromiseHelper.resolve(this._tables);
+        } else {
+            promise = this._listTables();
+        }
+
+        promise
+        .then(() => {
+            deferred.resolve(this.getTables());
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    public getTableDisplayInfo(tableInfo: PbTblInfo): PbTblDisplayInfo {
+        let tableDisplayInfo: PbTblDisplayInfo = {
+            index: null,
+            name: null,
+            rows: "N/A",
+            size: "N/A",
+            createTime: "N/A",
+            status: null
+        };
+
+        try {
+            tableDisplayInfo.index = tableInfo.index;
+            tableDisplayInfo.name = tableInfo.name;
+
+            let active: boolean = tableInfo.active;
+            tableDisplayInfo.status = active ? "Active" : "Inactive";
+            tableDisplayInfo.rows = active && tableInfo.rows ? String(tableInfo.rows) : "N/A";
+            tableDisplayInfo.size = active && tableInfo.size ? <string>xcHelper.sizeTranslator(tableInfo.size) : "N/A";
+            tableDisplayInfo.createTime = active && tableInfo.createTime ? moment(tableInfo.createTime * 1000).format("h:mm:ss A ll") : "N/A";
+        } catch (e) {
+            console.error(e);
+        }
+        return tableDisplayInfo;
+    }
+
+    public getTableSchema(tableInfo: PbTblInfo): PbTblColSchema[] {
+        if (!tableInfo || !tableInfo.active) {
+            return [];
+        }
+
+        let columns: PbTblColSchema[] = [];
+        try {
+            const keySet: Set<string> = new Set();
+            tableInfo.keys.forEach((key) => {
+                keySet.add(key);
+            });
+            columns = tableInfo.columns.map((col: ColSchema) => {
+                const name: string = col.name;
+                return {
+                    name: xcHelper.escapeColName(name),
+                    type: col.type,
+                    primaryKey: keySet.has(name) ? "Y" : "N"
+                }
+            });
+        } catch (e) {
+            console.error(e);
+        }
+
+        return columns;
+    }
+
+    public createTableFromSource(
+        tableName: string,
+        args: {
+            name: string,
+            sources: {
+                targetName: string,
+                path: string,
+                recursive: boolean,
+                fileNamePattern: string
+            }[],
+            typedColumns: any[],
+            moduleName: string,
+            funcName: string,
+            udfQuery: object
+        },
+        schema: ColSchema[],
+        primaryKeys: string[],
+    ): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        let dsOptions = $.extend({}, args);
+        let dsName: string = this._getDSNameFromTableName(tableName);
+        dsOptions.name = PTblManager.DSPrefix + tableName;
+        dsOptions.fullName = dsName;
+        let dsObj = new DSObj(dsOptions);
+        let sourceArgs = dsObj.getImportOptions();
+
+        let hasDataset: boolean = false;
+        let txId = Transaction.start({
+            "msg": TblTStr.Create + ": " + tableName,
+            "operation": SQLOps.TableFromDS,
+            "track": true,
+            "steps": 3
+        });
+
+        let tableInfo: PbTblInfo = PTblManager.Instance.createTableInfo(tableName);
+        this._loadingTables[tableName] = tableInfo;
+        this._createDataset(txId, dsName, sourceArgs)
+        .then(() => {
+            hasDataset = true;
+            return this._createTable(txId, dsName, tableName, schema, primaryKeys);
+        })
+        .then(() => {
+            Transaction.done(txId, {});
+            delete this._loadingTables[tableName];
+            deferred.resolve(tableName);
+        })
+        .fail((error) => {
+            Transaction.fail(txId, {
+                error: error
+            });
+            delete this._loadingTables[tableName];
+            if (hasDataset) {
+                this._datasetTables[tableName] = tableInfo;
+            }
+            deferred.reject(error, hasDataset);
+        });
+    
+        return deferred.promise();
+    }
+
+    public createTableFromDataset(
+        dsName: string,
+        tableName: string,
+        schema: ColSchema[],
+        primaryKeys: string[]
+    ): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let txId = Transaction.start({
+            "msg": TblTStr.Create + ": " + tableName,
+            "operation": SQLOps.TableFromDS,
+            "track": true,
+            "steps": 2
+        });
+        const tableInfo: PbTblInfo = this._datasetTables[tableName];
+        delete this._datasetTables[tableName];
+        this._loadingTables[tableName] = tableInfo;
+        this._createTable(txId, dsName, tableName, schema, primaryKeys)
+        .then(() => {
+            this._loadingTables[tableName] = tableInfo;
+            Transaction.done(txId, {});
+            deferred.resolve();
+        })
+        .fail((error) => {
+            this._datasetTables[tableName] = tableInfo;
+            Transaction.fail(txId, {
+                error: error
+            });
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    }
+
+    private _getDSNameFromTableName(tableName: string): string {
+        return xcHelper.wrapDSName(PTblManager.DSPrefix + tableName);
+    }
+
+    private _createDataset(txId: number, dsName: string, sourceArgs: any): XDPromise<void> {
+        return XIApi.loadDataset(txId, dsName, sourceArgs);
+    }
+
+    /**
+     * Step 1: synthesize dataset to xcalar table
+     * Step 2: generate row num as primary key if not specified
+     * Step 3: Create publish table
+     */
+    private _createTable(
+        txId: number,
+        dsName: string,
+        tableName: string,
+        schema: ColSchema[],
+        primaryKeys: string[]
+    ): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const colInfos: ColRenameInfo[] = xcHelper.getColRenameInfosFromSchema(schema);
+        dsName = parseDS(dsName);
+        let synthesizeTable: string = tableName + Authentication.getHashId();
+        XIApi.synthesize(txId, colInfos, dsName, synthesizeTable)
+        .then((resTable) => {
+            if (primaryKeys == null || primaryKeys.length === 0) {
+                let newColName = "XcalarRowNumPk_" + Authentication.getHashId();
+                primaryKeys = [newColName];
+                colInfos.push({
+                    orig: newColName,
+                    new: newColName,
+                    type: DfFieldTypeT.DfInt64
+                });
+                return XIApi.genRowNum(txId, resTable, newColName);
+            } else {
+                return PromiseHelper.resolve(resTable);
+            }
+        })
+        .then((resTable: string) => {
+            return XIApi.publishTable(txId, primaryKeys, resTable, tableName, colInfos);
+        })
+        .then(() => {
+            XIApi.deleteDataset(txId, dsName);
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    private _listTables(): XDPromise<PublishTable[]> {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        XcalarListPublishedTables("*", false, true)
+        .then((result) => {
+            this._tables = result.tables.map(this._tableInfoAdapter);
+            deferred.resolve(this._tables);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    private _tableInfoAdapter(table: PublishTable, index: number): PbTblInfo {
+        let tableInfo: PbTblInfo = {
+            index: index,
+            name: null,
+            active: null,
+            rows: null,
+            size: null,
+            createTime: null,
+            columns: [],
+            keys: [],
+        };
+        try {
+            tableInfo.name = table.name;
+            tableInfo.active = table.active;
+            tableInfo.rows = table.numRowsTotal;
+            tableInfo.size = table.sizeTotal;
+            tableInfo.createTime = table.updates[0] ? table.updates[0].startTS : null;
+            tableInfo.columns = table.values.map((value) => {
+                const type: DfFieldTypeT = <any>DfFieldTypeT[value.type];
+                return {
+                    name: value.name,
+                    type: xcHelper.convertFieldTypeToColType(type)
+                }
+            });
+            tableInfo.keys = table.keys.map((key) => key.name);
+        } catch (e) {
+            console.error(e);
+        }
+
+        return tableInfo;
+    }
+}

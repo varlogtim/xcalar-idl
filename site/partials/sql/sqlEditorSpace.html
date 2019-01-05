@@ -2,7 +2,26 @@
   <header>
     <%= dicts.SQL.Editor %>
   </header>
-  <section class="topBarSection"></section>
+  <section class="topBarSection">
+    <div class="fileOption dropDownList">
+      <div class="text"><%= dicts.common.File %></div>
+      <div class="iconWrapper">
+        <i class="icon xi-arrow-down"></i>
+      </div>
+      <div class="list">
+        <ul>
+          <li data-action="open">Open...</li>
+          <li daata-action="save">Save</li>
+          <li data-action="saveAs">Save As...</li>
+          <li data-action="import">Import File</li>
+          <li data-action="download">Download File</li>
+        </ul>
+      </div>
+    </div>
+    <button class="btn btn-submit showTables">
+        <%= dicts.Table.Show %>
+    </button>
+  </section>
   <section class="editSection">
     <div class="editArea">
       <textarea id="sqlEditorSpace-editor"></textarea>

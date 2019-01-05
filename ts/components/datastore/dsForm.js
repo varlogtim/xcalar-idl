@@ -21,9 +21,11 @@ window.DSForm = (function($, DSForm) {
         FileBrowser.setup();
 
         // click to go to form section
-        $("#importDataButton").click(function() {
-            $(this).blur();
-            DSForm.show();
+        $("#datastoreMenu .iconSection .import").click(function() {
+            var $btn = $(this);
+            $btn.blur();
+            var createTableMode = $btn.hasClass("createTable");
+            DSForm.show(createTableMode);
             xcTooltip.transient($("#filePath"), {
                 "title": TooltipTStr.Focused
             }, 800);
@@ -37,8 +39,10 @@ window.DSForm = (function($, DSForm) {
         $("#dsForm-target input").val(gDefaultSharedRoot);
     };
 
-    DSForm.show = function(options) {
-        options = options || {};
+    DSForm.show = function(createTableMode) {
+        if (createTableMode != null) {
+            DSPreview.setMode(createTableMode);
+        }
         DSForm.switchView(DSForm.View.Path);
         $filePath.focus();
     };
@@ -67,6 +71,7 @@ window.DSForm = (function($, DSForm) {
         if (!$dsFormView.is(":visible")) {
             $dsFormView.removeClass("xc-hidden");
             DSTable.hide();
+            TblSourcePreview.Instance.close();
         }
     };
 

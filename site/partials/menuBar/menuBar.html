@@ -31,12 +31,15 @@
     <!-- datasets tab -->
     <!--  TODO: Currently Datasets/etc don't work if no workbook is activated. This will come later. -->
     <div id="dataStoresTab" class="topMenuBarTab firstTouch mainMenuOpen wkbkMenuBarTabs">
-      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.ds %>">
+      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.source %>">
         <i class="icon xi-menu-datastore fa-25"></i>
       </div>
       <div class="subTabs">
         <div id="inButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ds.Import %>">
           <i class="icon xi-import-dataset-double"></i>
+        </div>
+        <div id="sourceTblButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.Table.Create %>">
+          <i class="icon xi_table"></i>
         </div>
         <div id="targetButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ds.Targets %>">
           <i class="icon xi-data-in"></i>

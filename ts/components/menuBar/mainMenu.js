@@ -375,8 +375,9 @@ window.MainMenu = (function($, MainMenu) {
                 DSTable.refresh();
                 if ($curTab.hasClass("firstTouch")) {
                     $curTab.removeClass("firstTouch");
-                    DS.setupView();
+                    DataSourceManager.initialize();
                     DSForm.initialize();
+                    TblSource.Instance.initialize();
                 }
                 DS.resize();
                 break;

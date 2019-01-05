@@ -207,11 +207,7 @@ class DagNodeExecutor {
         schema: ColSchema[]
     ): XDPromise<string> {
         const desTable = this._generateTableName();
-        const colInfos: ColRenameInfo[] = schema.map((colInfo) => {
-            const type: DfFieldTypeT = xcHelper.convertColTypeToFieldType(colInfo.type);
-            const name: string = colInfo.name;
-            return xcHelper.getJoinRenameMap(name, name, type);
-        });
+        const colInfos: ColRenameInfo[] = xcHelper.getColRenameInfosFromSchema(schema);
         // TODO: XXX parseDS should not be called here
         dsName = parseDS(dsName);
         return XIApi.synthesize(this.txId, colInfos, dsName, desTable);

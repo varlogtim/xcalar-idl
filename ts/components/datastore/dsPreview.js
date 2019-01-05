@@ -43,6 +43,7 @@ window.DSPreview = (function($, DSPreview) {
     var rowsToFetch = 40;
     var previewId;
     var fileBrowserPath = "/";
+    var createTableMode = null;
 
     // constant
     var defaultRowsToFech = 40;
@@ -459,6 +460,13 @@ window.DSPreview = (function($, DSPreview) {
     DSPreview.show = function(options, lastPath, restore) {
         xcHelper.enableSubmit($form.find(".confirm"));
         DSForm.switchView(DSForm.View.Preview);
+
+        if (isCreateTableMode()) {
+            $previewCard.addClass("createTable");
+        } else {
+            $previewCard.removeClass("createTable");
+        }
+
         resetPreviewFile();
         hideHeadersWarning();
 
@@ -506,6 +514,10 @@ window.DSPreview = (function($, DSPreview) {
         });
     };
 
+    DSPreview.setMode = function(flag) {
+        createTableMode = flag;
+    };
+
     DSPreview.update = function(listXdfsObj) {
         var moduleName = $udfModuleList.find("input").data("module");
         var funcName = $udfFuncList.find("input").val();
@@ -521,9 +533,18 @@ window.DSPreview = (function($, DSPreview) {
             // when preview table not shows up
             return PromiseHelper.resolve(null);
         } else {
+            createTableMode = null;
             return clearPreviewTable(tableName);
         }
     };
+
+    function isCreateTableMode() {
+        if (createTableMode != null) {
+            return createTableMode;
+        } else {
+            return $("#sourceTblButton").hasClass("active");
+        }
+    }
 
     function positionAndShowCastDropdown($div) {
         var $menu = $previewCard.find(".castDropdown");
@@ -647,11 +668,12 @@ window.DSPreview = (function($, DSPreview) {
         });
 
         // submit the form
-        $form.on("click", ".confirm", function() {
+        $form.on("click", ".confirm, .createTable", function() {
             var $submitBtn = $(this).blur();
+            var createTable = $submitBtn.hasClass("createTable");
             $("#importColRename").tooltip("destroy");
             $("#importColRename").remove();
-            submitForm();
+            submitForm(createTable);
         });
 
         $form.submit(function(event) {
@@ -1297,7 +1319,7 @@ window.DSPreview = (function($, DSPreview) {
         };
     }
 
-    function submitForm() {
+    function submitForm(createTable) {
         var res = validateForm();
         if (res == null) {
             return PromiseHelper.reject("Checking Invalid");
@@ -1361,7 +1383,7 @@ window.DSPreview = (function($, DSPreview) {
                 FileBrowser.clear();
             }
 
-            return importDataHelper(dsNames, dsArgs, typedColumnsList);
+            return importDataHelper(dsNames, dsArgs, typedColumnsList, createTable);
         })
         .then(function() {
             deferred.resolve();
@@ -1588,7 +1610,7 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function importDataHelper(dsNames, dsArgs, typedColumnsList) {
+    function importDataHelper(dsNames, dsArgs, typedColumnsList, createTable) {
         var multiDS = loadArgs.multiDS;
         var files = loadArgs.files;
         var targetName = loadArgs.getTargetName();
@@ -1643,7 +1665,13 @@ window.DSPreview = (function($, DSPreview) {
                     "sources": [source],
                     "typedColumns": typedColumnsList[index]
                 }, extraUDFArgs);
-                promises.push(DS.import(args, {}));
+                var promise;
+                if (createTable) {
+                    promise = TblSource.Instance.import(args.name, args);
+                } else{
+                    promise = DS.import(args, {});
+                }
+                promises.push(promise);
             });
             return PromiseHelper.when.apply(this. promises);
         } else {
@@ -1656,9 +1684,15 @@ window.DSPreview = (function($, DSPreview) {
                 "typedColumns": typedColumnsList[0]
             }, extraUDFArgs);
             var dsToReplace = files[0].dsToReplace || null;
-            return DS.import(multiLoadArgs, {
-                "dsToReplace": dsToReplace
-            });
+            var promise;
+            if (createTable) {
+                promise = TblSource.Instance.import(multiLoadArgs.name, multiLoadArgs);
+            } else {
+                promise = DS.import(multiLoadArgs, {
+                    "dsToReplace": dsToReplace
+                });
+            }
+            return promise;
         }
     }
 
@@ -1712,7 +1746,7 @@ window.DSPreview = (function($, DSPreview) {
                 },
                 {
                     "$ele": $dsName,
-                    "error": ErrTStr.DSStartsWithLetter,
+                    "error": isCreateTableMode() ? ErrTStr.TableStartsWithLetter : ErrTStr.DSStartsWithLetter,
                     "formMode": true,
                     "check": function() {
                         return !xcHelper.isStartWithLetter(dsName);
@@ -1721,7 +1755,7 @@ window.DSPreview = (function($, DSPreview) {
                 {
                     "$ele": $dsName,
                     "formMode": true,
-                    "error": ErrTStr.DSNameConfilct,
+                    "error": isCreateTableMode() ? ErrTStr.TableConflict : ErrTStr.DSNameConfilct,
                     "check": function(name) {
                         // dsId is the same as dsName
                         var dsToReplace = files[index].dsToReplace || null;
@@ -1729,7 +1763,9 @@ window.DSPreview = (function($, DSPreview) {
                             name === xcHelper.parseDSName(dsToReplace).dsName) {
                             return false;
                         }
-                        return DS.has(name) || dsNames.includes(dsName); // already used
+                        let hasName = isCreateTableMode() ?
+                        TblSource.Instance.hasTable(name) : DS.has(name);
+                        return hasName || dsNames.includes(dsName); // already used
                     }
 
                 },
@@ -2281,7 +2317,7 @@ window.DSPreview = (function($, DSPreview) {
             name = "ds" + name;
         }
 
-        return DS.getUniqueName(name);
+        return isCreateTableMode() ? TblSource.Instance.getUniuqName(name) : DS.getUniqueName(name);
     }
 
     function getSkipRows() {

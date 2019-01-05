@@ -145,7 +145,7 @@ module.exports = {
         "wb": "Workbooks",
         "ws": "Worksheets",
         "monitor": "System",
-        "ds": "Datasets",
+        "source": "Sources",
         "discourse": "Discourse",
         "exts": "Extensions",
         "user": "User",
@@ -378,6 +378,11 @@ module.exports = {
         "Create": "Create Table",
         "Export": "Export Result",
         "Preview": "Table Preview",
+        "PreviewInstr": "To start using table, please use the SQL Editor in SQL Mode or go to the Dataflow Panel, and start from a IMD node in advacned mode",
+        "Show": "Show Tables",
+        "Activate": "Activate Table",
+        "Deactivate": "Deactivate Table",
+        "Tables": "Tables",
     },
 
     "workspaceBar": {
@@ -662,7 +667,7 @@ module.exports = {
     "ds": {
         "Point": "Import Data Source",
         "Datasets": "Datasets",
-        "Import": "Create Datasets",
+        "Import": "Create Dataset",
         "DSIn": "DATASETS",
         "Target": "Data Target",
         "Targets": "Data Targets",

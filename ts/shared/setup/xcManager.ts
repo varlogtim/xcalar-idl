@@ -37,7 +37,7 @@ namespace xcManager {
             StatusBox.setup();
             StatusMessage.setup();
             BottomMenu.setup(); // async
-            DataStore.setup();
+            DataSourceManager.setup();
             TableComponent.setup();
             MonitorPanel.setup();
             JupyterPanel.setup();

@@ -501,7 +501,20 @@ namespace xcHelper {
 
         var regexPrefix = isRegex ? "re:" : "";
         return (regexPrefix + pattern);
-    };
+    }
+
+    /**
+     * xcHelper.getColRenameInfosFromSchema
+     * @param schema
+     */
+    export function getColRenameInfosFromSchema(schema: ColSchema[]): ColRenameInfo[] {
+        const colInfos: ColRenameInfo[] = schema.map((colInfo) => {
+            const type: DfFieldTypeT = xcHelper.convertColTypeToFieldType(colInfo.type);
+            const name: string = colInfo.name;
+            return xcHelper.getJoinRenameMap(name, name, type);
+        });
+        return colInfos;
+    }
 
     /**
      * xcHelper.getJoinRenameMap

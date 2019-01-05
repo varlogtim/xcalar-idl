@@ -2324,7 +2324,7 @@ namespace XIApi {
         txId: number,
         tableName: string,
         newColName: string,
-        newTableName: string
+        newTableName?: string
     ): XDPromise<string> {
         if (txId == null || tableName == null || newColName == null) {
             return PromiseHelper.reject("Invalid args in get row num");
@@ -2663,7 +2663,7 @@ namespace XIApi {
         const opCodeTableName: string = getNewTableName("pubTemp");
         const rowNumTableName: string = getNewTableName("pubTemp");
 
-        if (imdCol[0] == "$") {
+        if (imdCol != null && imdCol[0] == "$") {
             imdCol = imdCol.substr(1);
         }
 

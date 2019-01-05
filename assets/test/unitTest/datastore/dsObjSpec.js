@@ -287,6 +287,20 @@ describe("Dataset-DSObj Test", function() {
             expect(test).to.be.true;
             Alert.show = oldAlert;
         });
+
+        it("Should update num of datasets", function() {
+            expect("hello world").to.equal("hello world");
+    
+            DS.updateNumDS(3);
+            verifyCurrentNum(3);
+        });
+    
+        it("Should update num of datasets to right num", function() {
+            var originNum = $("#dsListSection .gridItems .ds").length;
+            DS.updateNumDS();
+            verifyCurrentNum(originNum);
+        });
+    
     });
 
     describe('share ds Test', () => {

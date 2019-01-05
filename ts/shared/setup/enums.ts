@@ -235,6 +235,7 @@ enum SQLType {
 
 enum SQLOps {
     DSImport = "importDataSource",
+    TableFromDS = "createTableFromDataset",
     Sort = "sort",
     Filter = "filter",
     Aggr = "aggregate",
@@ -398,6 +399,12 @@ enum FileManagerAction {
     Duplicate = "Duplicate",
     CopyTo = "Copy to...",
     Share = "Share"
+}
+
+enum PbTblState {
+    Loading = "Loading",
+    BeDataset = "BeDataset",
+    Error = "Error"
 }
 
 if (typeof global !== 'undefined') {

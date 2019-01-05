@@ -1,0 +1,33 @@
+<div id="sqlTableListerArea" class="noBottom">
+  <div class="topSection">
+    <div class="label"><%= dicts.common.Tables %></div>
+    <div class="searchbarArea">
+      <input type="text" placeholder="<%= dicts.common.Search %>">
+      <i class="icon xi-search"></i>
+    </div>
+    <div class="actionArea">
+      <div class="xc-action refresh">
+        <i class="icon xi-refresh"></i>
+        <span><%= dicts.common.Refresh %></span>
+      </div>
+      <div class="xc-action viewSchema">
+        <i class="icon xi-show"></i>
+        <span><%= dicts.dag.viewSchema %></span>
+      </div>
+      <!-- XXX TODO: support them when possible -->
+      <!-- <div class="xc-action activate">
+        <i class="icon xi-installerscreen-opencircle"></i>
+        <span><%= dicts.Table.Activate %></span>
+      </div>
+      <div class="xc-action deactivate">
+        <i class="icon xi-forbid"></i>
+        <span><%= dicts.Table.Deactivate %></span>
+      </div>
+      <div class="xc-action drop">
+        <i class="icon xi-trash"></i>
+        <span><%= dicts.MenuTStr.DelTbl %></span>
+      </div> -->
+    </div>
+  </div>
+  <div class="mainSection xc-gridList"></div>
+</div>

@@ -448,6 +448,7 @@
                 <input id="dsForm-metadataFile" class="large" type="text">
               </div>
             </div> -->
+            <!-- table schema -->
             <!-- extra columns -->
             <div class="row extraCols">
               <label><%= dicts.dsForm.ExtraCols %>:</label>
@@ -601,7 +602,8 @@
         </div>
         <!-- buttons -->
         <div class="buttonSection">
-          <button type="button" class="btn btn-submit confirm" <%= (dicts.tutor.name == 'datastoreTut1') ? 'data-introstep="w2-dsConfirm"' : '' %> ><%= dicts.dsForm.CreateDS %></button>
+          <button type="button" class="btn btn-submit confirm"><%= dicts.dsForm.CreateDS %></button>
+          <button type="button" class="btn btn-submit createTable"><%= dicts.Table.Create %></button>
           <button type="button" class="btn btn-cancel cancel"><%= dicts.common.Back %></button>
         </div>
       </form>

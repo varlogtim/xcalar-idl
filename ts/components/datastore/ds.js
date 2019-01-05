@@ -37,6 +37,17 @@ window.DS = (function ($, DS) {
         setupGridMenu();
     };
 
+    DS.updateNumDS = function(numDatasets) {
+        var $numDataStores = $(".numDataStores:not(.tutor)");
+
+        if (numDatasets != null) {
+            $numDataStores.text(numDatasets);
+        } else {
+            var numDS = $("#dsListSection .gridItems .ds").length;
+            $numDataStores.text(numDS);
+        }
+    };
+
     // Restore dsObj
     DS.restore = function(oldHomeFolder, atStartUp) {
         restoreSortKey();
@@ -249,12 +260,6 @@ window.DS = (function ($, DS) {
         }
 
         return newDSObj;
-    };
-
-    DS.setupView = function() {
-        // restore list view if saved and ellipsis the icon
-        var preference = UserSettings.getPref('datasetListView');
-        toggleDSView(preference, true);
     };
 
     DS.isAccessible = function(dsName) {
@@ -577,7 +582,7 @@ window.DS = (function ($, DS) {
             hasRename = false;
         }
 
-        truncateDSName($label);
+        DataSourceManager.truncateLabelName($label);
         return hasRename;
     };
 
@@ -710,7 +715,7 @@ window.DS = (function ($, DS) {
 
         refreshDS();
         var $labels = $gridView.find(".label:visible");
-        truncateDSName($labels);
+        DataSourceManager.truncateLabelName($labels);
     };
 
     DS.resize = function() {
@@ -718,7 +723,7 @@ window.DS = (function ($, DS) {
         if ($menu.hasClass("active") && $gridView.hasClass("listView")) {
             var $allGrids = $gridView.add($("#dsTarget-list .gridItems"));
             var $labels = $allGrids.find(".label:visible");
-            truncateDSName($labels, true);
+            DataSourceManager.truncateLabelName($labels, true);
         }
     };
 
@@ -853,7 +858,7 @@ window.DS = (function ($, DS) {
             $gridView.append($ds);
         }
 
-        truncateDSName($ds.find(".label"));
+        DataSourceManager.truncateLabelName($ds.find(".label"));
 
         // cached in lookup table
         dsLookUpTable[dsObj.getId()] = dsObj;
@@ -1027,7 +1032,7 @@ window.DS = (function ($, DS) {
         }
 
         sortDS(dirId);
-        DataStore.update();
+        DS.updateNumDS();
 
         commitSharedFolderChange(arg)
         .then(function() {
@@ -1240,7 +1245,7 @@ window.DS = (function ($, DS) {
         $grid.find('.waitingIcon').fadeIn(200);
         $grid.addClass('loading');
 
-        DataStore.update();
+        DS.updateNumDS();
 
         var txId = Transaction.start({
             "msg": StatusMessageTStr.ImportDataset + ": " + dsName,
@@ -1788,7 +1793,7 @@ window.DS = (function ($, DS) {
         }
         dsObj.removeFromParent();
         removeDSMeta(dsId);
-        DataStore.update();
+        DS.updateNumDS();
     }
 
     function removeDSMeta(dsId) {
@@ -1846,7 +1851,7 @@ window.DS = (function ($, DS) {
     }
 
     function focusOnForm() {
-        DSForm.show();
+        DSForm.show(false);
     }
 
     function restoreDS(oldHomeFolder, atStartUp) {
@@ -2088,7 +2093,7 @@ window.DS = (function ($, DS) {
         // UI update
         sortDS();
         refreshDS();
-        DataStore.update();
+        DS.updateNumDS();
         checkUnlistableDS(unlistableDS);
     }
 
@@ -2186,21 +2191,7 @@ window.DS = (function ($, DS) {
     }
 
     function setupGridViewButtons() {
-        // click to toggle list view and grid view
-        $("#dataViewBtn, #dsTarget-view").click(function() {
-            var $btn = $(this);
-            var isListView;
-
-            if ($btn.hasClass("gridView")) {
-                isListView = true;
-            } else {
-                isListView = false;
-            }
-
-            toggleDSView(isListView);
-        });
-
-         // click "Add New Folder" button to add new folder
+        // click "Add New Folder" button to add new folder
         $("#addFolderBtn").click(function() {
             DS.newFolder();
         });
@@ -2830,23 +2821,6 @@ window.DS = (function ($, DS) {
         }
     }
 
-    // toggle between list view and grid view
-    function toggleDSView(isListView, noRefreshTooltip) {
-        var $btn = $("#dataViewBtn, #dsTarget-view");
-        var $allGrids = $gridView.add($("#dsTarget-list .gridItems"));
-        xcHelper.toggleListGridBtn($btn, isListView, noRefreshTooltip);
-
-        if (isListView) {
-            // show list view
-            $allGrids.removeClass("gridView").addClass("listView");
-        } else {
-            $allGrids.removeClass("listView").addClass("gridView");
-        }
-
-        var $labels = $allGrids.find(".label:visible");
-        truncateDSName($labels, isListView);
-    }
-
     function getNewFolderId() {
         return getCurrentUserName() + "-folder-" + (new Date().getTime());
     }
@@ -3005,34 +2979,6 @@ window.DS = (function ($, DS) {
         }
 
         return (html);
-    }
-
-    function truncateDSName($labels, isListView) {
-        if (isListView == null) {
-            isListView = $gridView.hasClass("listView");
-        }
-
-        var maxChar = isListView ? 18 : 8;
-        var canvas = document.createElement('canvas');
-        var ctx = canvas.getContext('2d');
-        ctx.font = isListView ? '700 12px Open Sans' : '700 9px Open Sans';
-
-        $labels.each(function() {
-            var $label = $(this);
-            var $grid = $label.closest(".grid-unit");
-            var name = $label.data("dsname");
-            var shared = $grid.hasClass("shared");
-            var maxWidth = isListView ? Math.max(165, $label.width()) : 52;
-            var multiLine = !isListView && !shared;
-
-            xcHelper.middleEllipsis(name, $label, maxChar, maxWidth,
-                                    multiLine, ctx);
-            if (shared) {
-                $label.html($label.text() +
-                            (isListView ? "" : "<br/>") +
-                            "<b>(" + $grid.data("user") + ")</b>");
-            }
-        });
     }
 
     function cleanDSSelect() {
@@ -3394,7 +3340,7 @@ window.DS = (function ($, DS) {
                 DS.insert($grid, $target, false);
             }
             var $labels = $gridView.find(".label:visible");
-            truncateDSName($labels);
+            DataSourceManager.truncateLabelName($labels);
         }
     };
 

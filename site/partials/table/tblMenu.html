@@ -1,0 +1,53 @@
+<!-- dataset menu -->
+<div class="iconSection">
+    <!-- import data button -->
+    <div class="action submit import createTable" title="<%= dicts.ds.Point %>" data-toggle="tooltip" data-placement="top" data-container="body">
+      <i class="icon xi-add-data"></i>
+    </div>
+    <!-- add folder button -->
+    <!-- <div class="action addFolter" title="<%= dicts.dsView.addFolderBtn %>" data-container="body" data-toggle="tooltip" data-placement="top">
+      <i class="icon xi-add-folder"></i>
+    </div> -->
+    <i class="minimizeBtn icon xi-close"></i>
+    <!-- switch datasets view -->
+    <i class="switchView right icon xi-list-view fa-17 gridView" data-toggle="tooltip" data-placement="top" data-original-title="<%= dicts.TooltipTStr.SwitchToListView %>" data-container="body"></i>
+    <!-- imd icon -->
+    <i class="imd right icon xi-changingclock fa-17" data-toggle="tooltip" data-placement="top" data-original-title="IMD" data-container="body"></i>
+    <!-- refresh icon -->
+    <i class="refresh right icon xi-refresh fa-17" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.common.Refresh %>"></i>
+  </div>
+  <div class="titleSection no-selection">
+    <header>
+      <span><%= dicts.Table.Tables %> (<span class="numTables">0</span>)</span>
+    </header>
+  </div>
+  <div id="sourceTableListSection" class="mainSection">
+    <div class="topWrapper">
+      <!-- forward and back icon -->
+      <!-- <div class="iconSection">
+        <div id="forwardFolderBtn" class="xc-action xc-disabled" title="<%= dicts.dsView.Forward %>" data-container="body" data-toggle="tooltip" data-placement="top">
+          <i class="icon xi-next fa-12"></i>
+        </div>
+        <div id="backFolderBtn" class="xc-action xc-disabled" title="<%= dicts.dsView.Back %>" data-container="body" data-toggle="tooltip" data-placement="top">
+          <i class="icon xi-previous fa-12"></i>
+        </div>
+      </div> -->
+      <!-- path -->
+      <!-- <div class="pathSection"></div> -->
+      <div class="sortSection xc-sortSection">
+        <span class="label"><%= dicts.common.SortBy %>:&nbsp;</span>
+        <span class="sortOption" data-key="name"><%= dicts.common.Name %></span>
+        <span class="divider"></span>
+        <span class="sortOption" data-key="size"><%= dicts.common.Size %></span>
+        <span class="divider"></span>
+        <span class="sortOption" data-key="type"><%= dicts.common.Type %></span>
+        <span class="divider"></span>
+        <span class="sortOption" data-key="none"><%= dicts.common.None %></span>
+      </div>
+    </div>
+    <!-- Grid View -->
+    <div class="gridViewWrapper">
+      <div class="gridView gridItems xc-grid clearfix"></div>
+    </div>
+  </div>
+  include "tblGridViewMenu.html"
