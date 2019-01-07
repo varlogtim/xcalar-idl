@@ -6,13 +6,18 @@
  * The XceClient object as well as the service objects (xce.Echo) could exist
  * as singletons (global variables) or something similar, because needing
  * to instantiate them on every usage seems annoying.
+ *
+ * IMPORTANT NOTE
+ * Run with:
+ *   NODE_TLS_REJECT_UNAUTHORIZED=0 node assets/js/xcrpc/sample-node.js
  */
+var xcalar = require("xcalar");
 
 function successUsage() {
-    var client = new xce.XceClient("http://localhost/app/service/xce/");
-    var echoService = new xce.EchoService(client);
+    var client = new xcalar.XceClient("https://localhost/app/service/xce/");
+    var echoService = new xcalar.EchoService(client);
     var echoRequest = new proto.xcalar.compute.localtypes.Echo.EchoRequest();
-    echoRequest.setEcho("hello from the browser!");
+    echoRequest.setEcho("hello from node!");
     echoService.echoMessage(echoRequest)
     .then(function(echoInfo) {
         console.log("recieved an echo of " + echoInfo.getEchoed());
@@ -23,8 +28,8 @@ function successUsage() {
 }
 
 function errorUsage() {
-    var client = new xce.XceClient("http://localhost/app/service/xce/");
-    var echoService = new xce.EchoService(client);
+    var client = new xcalar.XceClient("https://localhost/app/service/xce/");
+    var echoService = new xcalar.EchoService(client);
     var errRequest = new proto.xcalar.compute.localtypes.Echo.EchoErrorRequest();
     errRequest.setError("hello error!");
     echoService.echoErrorMessage(errRequest)
@@ -35,3 +40,6 @@ function errorUsage() {
         console.log("recieved expected failure of " + error);
     });
 }
+
+successUsage();
+errorUsage();

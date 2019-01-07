@@ -9,6 +9,7 @@ var jspb = require('google-protobuf');
 var goog = jspb;
 var global = Function('return this')();
 
+var xcalar_compute_localtypes_ProtoFieldValue_pb = require('../../../xcalar/compute/localtypes/ProtoFieldValue_pb.js');
 goog.exportSymbol('proto.ChildAppStartRequest', null, global);
 goog.exportSymbol('proto.ChildAppStartRequest.XpuIdRange', null, global);
 goog.exportSymbol('proto.ChildEvalRequest', null, global);
@@ -30,10 +31,11 @@ goog.exportSymbol('proto.ProtoChildRequest', null, global);
 goog.exportSymbol('proto.ProtoParentChildResponse', null, global);
 goog.exportSymbol('proto.ProtoParentFunc', null, global);
 goog.exportSymbol('proto.ProtoParentRequest', null, global);
+goog.exportSymbol('proto.XdbColumnDesc', null, global);
+goog.exportSymbol('proto.XdbGetLocalRowsRequest', null, global);
+goog.exportSymbol('proto.XdbGetLocalRowsResponse', null, global);
 goog.exportSymbol('proto.XdbGetMetaRequest', null, global);
 goog.exportSymbol('proto.XdbGetMetaResponse', null, global);
-goog.exportSymbol('proto.XdbGetRowsRequest', null, global);
-goog.exportSymbol('proto.XdbGetRowsResponse', null, global);
 goog.exportSymbol('proto.XpuReceiveBufferFromSrc', null, global);
 goog.exportSymbol('proto.XpuReceiveBufferFromSrc.Buffer', null, global);
 goog.exportSymbol('proto.XpuSendListToDsts', null, global);
@@ -4463,6 +4465,192 @@ proto.XdbGetMetaRequest.prototype.setXdbid = function(value) {
  * @extends {jspb.Message}
  * @constructor
  */
+proto.XdbColumnDesc = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+};
+goog.inherits(proto.XdbColumnDesc, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.XdbColumnDesc.displayName = 'proto.XdbColumnDesc';
+}
+
+
+if (jspb.Message.GENERATE_TO_OBJECT) {
+/**
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.XdbColumnDesc.prototype.toObject = function(opt_includeInstance) {
+  return proto.XdbColumnDesc.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.XdbColumnDesc} msg The msg instance to transform.
+ * @return {!Object}
+ */
+proto.XdbColumnDesc.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    name: msg.getName(),
+    type: msg.getType()
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.XdbColumnDesc}
+ */
+proto.XdbColumnDesc.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.XdbColumnDesc;
+  return proto.XdbColumnDesc.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.XdbColumnDesc} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.XdbColumnDesc}
+ */
+proto.XdbColumnDesc.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setName(value);
+      break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setType(value);
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Class method variant: serializes the given message to binary data
+ * (in protobuf wire format), writing to the given BinaryWriter.
+ * @param {!proto.XdbColumnDesc} message
+ * @param {!jspb.BinaryWriter} writer
+ */
+proto.XdbColumnDesc.serializeBinaryToWriter = function(message, writer) {
+  message.serializeBinaryToWriter(writer);
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.XdbColumnDesc.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  this.serializeBinaryToWriter(writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format),
+ * writing to the given BinaryWriter.
+ * @param {!jspb.BinaryWriter} writer
+ */
+proto.XdbColumnDesc.prototype.serializeBinaryToWriter = function (writer) {
+  var f = undefined;
+  f = this.getName();
+  if (f.length > 0) {
+    writer.writeString(
+      1,
+      f
+    );
+  }
+  f = this.getType();
+  if (f.length > 0) {
+    writer.writeString(
+      2,
+      f
+    );
+  }
+};
+
+
+/**
+ * Creates a deep clone of this proto. No data is shared with the original.
+ * @return {!proto.XdbColumnDesc} The clone.
+ */
+proto.XdbColumnDesc.prototype.cloneMessage = function() {
+  return /** @type {!proto.XdbColumnDesc} */ (jspb.Message.cloneMessage(this));
+};
+
+
+/**
+ * optional string name = 1;
+ * @return {string}
+ */
+proto.XdbColumnDesc.prototype.getName = function() {
+  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+};
+
+
+/** @param {string} value  */
+proto.XdbColumnDesc.prototype.setName = function(value) {
+  jspb.Message.setField(this, 1, value);
+};
+
+
+/**
+ * optional string type = 2;
+ * @return {string}
+ */
+proto.XdbColumnDesc.prototype.getType = function() {
+  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+};
+
+
+/** @param {string} value  */
+proto.XdbColumnDesc.prototype.setType = function(value) {
+  jspb.Message.setField(this, 2, value);
+};
+
+
+
+/**
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
+ */
 proto.XdbGetMetaResponse = function(opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, proto.XdbGetMetaResponse.repeatedFields_, null);
 };
@@ -4475,7 +4663,7 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<number>}
  * @const
  */
-proto.XdbGetMetaResponse.repeatedFields_ = [2];
+proto.XdbGetMetaResponse.repeatedFields_ = [2,3];
 
 
 
@@ -4506,7 +4694,9 @@ proto.XdbGetMetaResponse.prototype.toObject = function(opt_includeInstance) {
 proto.XdbGetMetaResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
     xdbid: msg.getXdbid(),
-    numrowspernodeList: jspb.Message.getField(msg, 2)
+    numrowspernodeList: jspb.Message.getField(msg, 2),
+    columnsList: jspb.Message.toObjectList(msg.getColumnsList(),
+    proto.XdbColumnDesc.toObject, includeInstance)
   };
 
   if (includeInstance) {
@@ -4550,6 +4740,12 @@ proto.XdbGetMetaResponse.deserializeBinaryFromReader = function(msg, reader) {
     case 2:
       var value = /** @type {!Array.<number>} */ (reader.readPackedInt64());
       msg.setNumrowspernodeList(value);
+      break;
+    case 3:
+      var value = new proto.XdbColumnDesc;
+      reader.readMessage(value,proto.XdbColumnDesc.deserializeBinaryFromReader);
+      msg.getColumnsList().push(value);
+      msg.setColumnsList(msg.getColumnsList());
       break;
     default:
       reader.skipField();
@@ -4603,6 +4799,14 @@ proto.XdbGetMetaResponse.prototype.serializeBinaryToWriter = function (writer) {
       f
     );
   }
+  f = this.getColumnsList();
+  if (f.length > 0) {
+    writer.writeRepeatedMessage(
+      3,
+      f,
+      proto.XdbColumnDesc.serializeBinaryToWriter
+    );
+  }
 };
 
 
@@ -4652,6 +4856,29 @@ proto.XdbGetMetaResponse.prototype.clearNumrowspernodeList = function() {
 };
 
 
+/**
+ * repeated XdbColumnDesc columns = 3;
+ * If you change this array by adding, removing or replacing elements, or if you
+ * replace the array itself, then you must call the setter to update it.
+ * @return {!Array.<!proto.XdbColumnDesc>}
+ */
+proto.XdbGetMetaResponse.prototype.getColumnsList = function() {
+  return /** @type{!Array.<!proto.XdbColumnDesc>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.XdbColumnDesc, 3));
+};
+
+
+/** @param {Array.<!proto.XdbColumnDesc>} value  */
+proto.XdbGetMetaResponse.prototype.setColumnsList = function(value) {
+  jspb.Message.setRepeatedWrapperField(this, 3, value);
+};
+
+
+proto.XdbGetMetaResponse.prototype.clearColumnsList = function() {
+  this.setColumnsList([]);
+};
+
+
 
 /**
  * Generated by JsPbCodeGenerator.
@@ -4663,19 +4890,19 @@ proto.XdbGetMetaResponse.prototype.clearNumrowspernodeList = function() {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.XdbGetRowsRequest = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.XdbGetRowsRequest.repeatedFields_, null);
+proto.XdbGetLocalRowsRequest = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.XdbGetLocalRowsRequest.repeatedFields_, null);
 };
-goog.inherits(proto.XdbGetRowsRequest, jspb.Message);
+goog.inherits(proto.XdbGetLocalRowsRequest, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
-  proto.XdbGetRowsRequest.displayName = 'proto.XdbGetRowsRequest';
+  proto.XdbGetLocalRowsRequest.displayName = 'proto.XdbGetLocalRowsRequest';
 }
 /**
  * List of repeated fields within this message type.
  * @private {!Array<number>}
  * @const
  */
-proto.XdbGetRowsRequest.repeatedFields_ = [4];
+proto.XdbGetLocalRowsRequest.repeatedFields_ = [5];
 
 
 
@@ -4690,8 +4917,8 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
  *     for transitional soy proto support: http://goto/soy-param-migration
  * @return {!Object}
  */
-proto.XdbGetRowsRequest.prototype.toObject = function(opt_includeInstance) {
-  return proto.XdbGetRowsRequest.toObject(opt_includeInstance, this);
+proto.XdbGetLocalRowsRequest.prototype.toObject = function(opt_includeInstance) {
+  return proto.XdbGetLocalRowsRequest.toObject(opt_includeInstance, this);
 };
 
 
@@ -4700,15 +4927,16 @@ proto.XdbGetRowsRequest.prototype.toObject = function(opt_includeInstance) {
  * @param {boolean|undefined} includeInstance Whether to include the JSPB
  *     instance for transitional soy proto support:
  *     http://goto/soy-param-migration
- * @param {!proto.XdbGetRowsRequest} msg The msg instance to transform.
+ * @param {!proto.XdbGetLocalRowsRequest} msg The msg instance to transform.
  * @return {!Object}
  */
-proto.XdbGetRowsRequest.toObject = function(includeInstance, msg) {
+proto.XdbGetLocalRowsRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     xdbid: msg.getXdbid(),
     startrow: msg.getStartrow(),
     numrows: msg.getNumrows(),
-    keysList: jspb.Message.getField(msg, 4)
+    nodeid: msg.getNodeid(),
+    columnsList: jspb.Message.getField(msg, 5)
   };
 
   if (includeInstance) {
@@ -4722,23 +4950,23 @@ proto.XdbGetRowsRequest.toObject = function(includeInstance, msg) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.XdbGetRowsRequest}
+ * @return {!proto.XdbGetLocalRowsRequest}
  */
-proto.XdbGetRowsRequest.deserializeBinary = function(bytes) {
+proto.XdbGetLocalRowsRequest.deserializeBinary = function(bytes) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.XdbGetRowsRequest;
-  return proto.XdbGetRowsRequest.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.XdbGetLocalRowsRequest;
+  return proto.XdbGetLocalRowsRequest.deserializeBinaryFromReader(msg, reader);
 };
 
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.XdbGetRowsRequest} msg The message object to deserialize into.
+ * @param {!proto.XdbGetLocalRowsRequest} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.XdbGetRowsRequest}
+ * @return {!proto.XdbGetLocalRowsRequest}
  */
-proto.XdbGetRowsRequest.deserializeBinaryFromReader = function(msg, reader) {
+proto.XdbGetLocalRowsRequest.deserializeBinaryFromReader = function(msg, reader) {
   while (reader.nextField()) {
     if (reader.isEndGroup()) {
       break;
@@ -4758,9 +4986,13 @@ proto.XdbGetRowsRequest.deserializeBinaryFromReader = function(msg, reader) {
       msg.setNumrows(value);
       break;
     case 4:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setNodeid(value);
+      break;
+    case 5:
       var value = /** @type {string} */ (reader.readString());
-      msg.getKeysList().push(value);
-      msg.setKeysList(msg.getKeysList());
+      msg.getColumnsList().push(value);
+      msg.setColumnsList(msg.getColumnsList());
       break;
     default:
       reader.skipField();
@@ -4774,10 +5006,10 @@ proto.XdbGetRowsRequest.deserializeBinaryFromReader = function(msg, reader) {
 /**
  * Class method variant: serializes the given message to binary data
  * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.XdbGetRowsRequest} message
+ * @param {!proto.XdbGetLocalRowsRequest} message
  * @param {!jspb.BinaryWriter} writer
  */
-proto.XdbGetRowsRequest.serializeBinaryToWriter = function(message, writer) {
+proto.XdbGetLocalRowsRequest.serializeBinaryToWriter = function(message, writer) {
   message.serializeBinaryToWriter(writer);
 };
 
@@ -4786,7 +5018,7 @@ proto.XdbGetRowsRequest.serializeBinaryToWriter = function(message, writer) {
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.XdbGetRowsRequest.prototype.serializeBinary = function() {
+proto.XdbGetLocalRowsRequest.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
   this.serializeBinaryToWriter(writer);
   return writer.getResultBuffer();
@@ -4798,7 +5030,7 @@ proto.XdbGetRowsRequest.prototype.serializeBinary = function() {
  * writing to the given BinaryWriter.
  * @param {!jspb.BinaryWriter} writer
  */
-proto.XdbGetRowsRequest.prototype.serializeBinaryToWriter = function (writer) {
+proto.XdbGetLocalRowsRequest.prototype.serializeBinaryToWriter = function (writer) {
   var f = undefined;
   f = this.getXdbid();
   if (f !== 0) {
@@ -4821,10 +5053,17 @@ proto.XdbGetRowsRequest.prototype.serializeBinaryToWriter = function (writer) {
       f
     );
   }
-  f = this.getKeysList();
+  f = this.getNodeid();
+  if (f !== 0) {
+    writer.writeInt32(
+      4,
+      f
+    );
+  }
+  f = this.getColumnsList();
   if (f.length > 0) {
     writer.writeRepeatedString(
-      4,
+      5,
       f
     );
   }
@@ -4833,10 +5072,10 @@ proto.XdbGetRowsRequest.prototype.serializeBinaryToWriter = function (writer) {
 
 /**
  * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.XdbGetRowsRequest} The clone.
+ * @return {!proto.XdbGetLocalRowsRequest} The clone.
  */
-proto.XdbGetRowsRequest.prototype.cloneMessage = function() {
-  return /** @type {!proto.XdbGetRowsRequest} */ (jspb.Message.cloneMessage(this));
+proto.XdbGetLocalRowsRequest.prototype.cloneMessage = function() {
+  return /** @type {!proto.XdbGetLocalRowsRequest} */ (jspb.Message.cloneMessage(this));
 };
 
 
@@ -4844,13 +5083,13 @@ proto.XdbGetRowsRequest.prototype.cloneMessage = function() {
  * optional int64 xdbId = 1;
  * @return {number}
  */
-proto.XdbGetRowsRequest.prototype.getXdbid = function() {
+proto.XdbGetLocalRowsRequest.prototype.getXdbid = function() {
   return /** @type {number} */ (jspb.Message.getFieldProto3(this, 1, 0));
 };
 
 
 /** @param {number} value  */
-proto.XdbGetRowsRequest.prototype.setXdbid = function(value) {
+proto.XdbGetLocalRowsRequest.prototype.setXdbid = function(value) {
   jspb.Message.setField(this, 1, value);
 };
 
@@ -4859,13 +5098,13 @@ proto.XdbGetRowsRequest.prototype.setXdbid = function(value) {
  * optional int64 startRow = 2;
  * @return {number}
  */
-proto.XdbGetRowsRequest.prototype.getStartrow = function() {
+proto.XdbGetLocalRowsRequest.prototype.getStartrow = function() {
   return /** @type {number} */ (jspb.Message.getFieldProto3(this, 2, 0));
 };
 
 
 /** @param {number} value  */
-proto.XdbGetRowsRequest.prototype.setStartrow = function(value) {
+proto.XdbGetLocalRowsRequest.prototype.setStartrow = function(value) {
   jspb.Message.setField(this, 2, value);
 };
 
@@ -4874,36 +5113,51 @@ proto.XdbGetRowsRequest.prototype.setStartrow = function(value) {
  * optional int64 numRows = 3;
  * @return {number}
  */
-proto.XdbGetRowsRequest.prototype.getNumrows = function() {
+proto.XdbGetLocalRowsRequest.prototype.getNumrows = function() {
   return /** @type {number} */ (jspb.Message.getFieldProto3(this, 3, 0));
 };
 
 
 /** @param {number} value  */
-proto.XdbGetRowsRequest.prototype.setNumrows = function(value) {
+proto.XdbGetLocalRowsRequest.prototype.setNumrows = function(value) {
   jspb.Message.setField(this, 3, value);
 };
 
 
 /**
- * repeated string keys = 4;
+ * optional int32 nodeId = 4;
+ * @return {number}
+ */
+proto.XdbGetLocalRowsRequest.prototype.getNodeid = function() {
+  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 4, 0));
+};
+
+
+/** @param {number} value  */
+proto.XdbGetLocalRowsRequest.prototype.setNodeid = function(value) {
+  jspb.Message.setField(this, 4, value);
+};
+
+
+/**
+ * repeated string columns = 5;
  * If you change this array by adding, removing or replacing elements, or if you
  * replace the array itself, then you must call the setter to update it.
  * @return {!Array.<string>}
  */
-proto.XdbGetRowsRequest.prototype.getKeysList = function() {
-  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 4));
+proto.XdbGetLocalRowsRequest.prototype.getColumnsList = function() {
+  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 5));
 };
 
 
 /** @param {Array.<string>} value  */
-proto.XdbGetRowsRequest.prototype.setKeysList = function(value) {
-  jspb.Message.setField(this, 4, value || []);
+proto.XdbGetLocalRowsRequest.prototype.setColumnsList = function(value) {
+  jspb.Message.setField(this, 5, value || []);
 };
 
 
-proto.XdbGetRowsRequest.prototype.clearKeysList = function() {
-  jspb.Message.setField(this, 4, []);
+proto.XdbGetLocalRowsRequest.prototype.clearColumnsList = function() {
+  jspb.Message.setField(this, 5, []);
 };
 
 
@@ -4918,19 +5172,19 @@ proto.XdbGetRowsRequest.prototype.clearKeysList = function() {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.XdbGetRowsResponse = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.XdbGetRowsResponse.repeatedFields_, null);
+proto.XdbGetLocalRowsResponse = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.XdbGetLocalRowsResponse.repeatedFields_, null);
 };
-goog.inherits(proto.XdbGetRowsResponse, jspb.Message);
+goog.inherits(proto.XdbGetLocalRowsResponse, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
-  proto.XdbGetRowsResponse.displayName = 'proto.XdbGetRowsResponse';
+  proto.XdbGetLocalRowsResponse.displayName = 'proto.XdbGetLocalRowsResponse';
 }
 /**
  * List of repeated fields within this message type.
  * @private {!Array<number>}
  * @const
  */
-proto.XdbGetRowsResponse.repeatedFields_ = [1];
+proto.XdbGetLocalRowsResponse.repeatedFields_ = [1];
 
 
 
@@ -4945,8 +5199,8 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
  *     for transitional soy proto support: http://goto/soy-param-migration
  * @return {!Object}
  */
-proto.XdbGetRowsResponse.prototype.toObject = function(opt_includeInstance) {
-  return proto.XdbGetRowsResponse.toObject(opt_includeInstance, this);
+proto.XdbGetLocalRowsResponse.prototype.toObject = function(opt_includeInstance) {
+  return proto.XdbGetLocalRowsResponse.toObject(opt_includeInstance, this);
 };
 
 
@@ -4955,12 +5209,13 @@ proto.XdbGetRowsResponse.prototype.toObject = function(opt_includeInstance) {
  * @param {boolean|undefined} includeInstance Whether to include the JSPB
  *     instance for transitional soy proto support:
  *     http://goto/soy-param-migration
- * @param {!proto.XdbGetRowsResponse} msg The msg instance to transform.
+ * @param {!proto.XdbGetLocalRowsResponse} msg The msg instance to transform.
  * @return {!Object}
  */
-proto.XdbGetRowsResponse.toObject = function(includeInstance, msg) {
+proto.XdbGetLocalRowsResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    valuesList: jspb.Message.getField(msg, 1)
+    rowsList: jspb.Message.toObjectList(msg.getRowsList(),
+    xcalar_compute_localtypes_ProtoFieldValue_pb.ProtoRow.toObject, includeInstance)
   };
 
   if (includeInstance) {
@@ -4974,23 +5229,23 @@ proto.XdbGetRowsResponse.toObject = function(includeInstance, msg) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.XdbGetRowsResponse}
+ * @return {!proto.XdbGetLocalRowsResponse}
  */
-proto.XdbGetRowsResponse.deserializeBinary = function(bytes) {
+proto.XdbGetLocalRowsResponse.deserializeBinary = function(bytes) {
   var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.XdbGetRowsResponse;
-  return proto.XdbGetRowsResponse.deserializeBinaryFromReader(msg, reader);
+  var msg = new proto.XdbGetLocalRowsResponse;
+  return proto.XdbGetLocalRowsResponse.deserializeBinaryFromReader(msg, reader);
 };
 
 
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.XdbGetRowsResponse} msg The message object to deserialize into.
+ * @param {!proto.XdbGetLocalRowsResponse} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.XdbGetRowsResponse}
+ * @return {!proto.XdbGetLocalRowsResponse}
  */
-proto.XdbGetRowsResponse.deserializeBinaryFromReader = function(msg, reader) {
+proto.XdbGetLocalRowsResponse.deserializeBinaryFromReader = function(msg, reader) {
   while (reader.nextField()) {
     if (reader.isEndGroup()) {
       break;
@@ -4998,9 +5253,10 @@ proto.XdbGetRowsResponse.deserializeBinaryFromReader = function(msg, reader) {
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.getValuesList().push(value);
-      msg.setValuesList(msg.getValuesList());
+      var value = new xcalar_compute_localtypes_ProtoFieldValue_pb.ProtoRow;
+      reader.readMessage(value,xcalar_compute_localtypes_ProtoFieldValue_pb.ProtoRow.deserializeBinaryFromReader);
+      msg.getRowsList().push(value);
+      msg.setRowsList(msg.getRowsList());
       break;
     default:
       reader.skipField();
@@ -5014,10 +5270,10 @@ proto.XdbGetRowsResponse.deserializeBinaryFromReader = function(msg, reader) {
 /**
  * Class method variant: serializes the given message to binary data
  * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.XdbGetRowsResponse} message
+ * @param {!proto.XdbGetLocalRowsResponse} message
  * @param {!jspb.BinaryWriter} writer
  */
-proto.XdbGetRowsResponse.serializeBinaryToWriter = function(message, writer) {
+proto.XdbGetLocalRowsResponse.serializeBinaryToWriter = function(message, writer) {
   message.serializeBinaryToWriter(writer);
 };
 
@@ -5026,7 +5282,7 @@ proto.XdbGetRowsResponse.serializeBinaryToWriter = function(message, writer) {
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.XdbGetRowsResponse.prototype.serializeBinary = function() {
+proto.XdbGetLocalRowsResponse.prototype.serializeBinary = function() {
   var writer = new jspb.BinaryWriter();
   this.serializeBinaryToWriter(writer);
   return writer.getResultBuffer();
@@ -5038,13 +5294,14 @@ proto.XdbGetRowsResponse.prototype.serializeBinary = function() {
  * writing to the given BinaryWriter.
  * @param {!jspb.BinaryWriter} writer
  */
-proto.XdbGetRowsResponse.prototype.serializeBinaryToWriter = function (writer) {
+proto.XdbGetLocalRowsResponse.prototype.serializeBinaryToWriter = function (writer) {
   var f = undefined;
-  f = this.getValuesList();
+  f = this.getRowsList();
   if (f.length > 0) {
-    writer.writeRepeatedString(
+    writer.writeRepeatedMessage(
       1,
-      f
+      f,
+      xcalar_compute_localtypes_ProtoFieldValue_pb.ProtoRow.serializeBinaryToWriter
     );
   }
 };
@@ -5052,32 +5309,33 @@ proto.XdbGetRowsResponse.prototype.serializeBinaryToWriter = function (writer) {
 
 /**
  * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.XdbGetRowsResponse} The clone.
+ * @return {!proto.XdbGetLocalRowsResponse} The clone.
  */
-proto.XdbGetRowsResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.XdbGetRowsResponse} */ (jspb.Message.cloneMessage(this));
+proto.XdbGetLocalRowsResponse.prototype.cloneMessage = function() {
+  return /** @type {!proto.XdbGetLocalRowsResponse} */ (jspb.Message.cloneMessage(this));
 };
 
 
 /**
- * repeated string values = 1;
+ * repeated ProtoRow rows = 1;
  * If you change this array by adding, removing or replacing elements, or if you
  * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<string>}
+ * @return {!Array.<!proto.ProtoRow>}
  */
-proto.XdbGetRowsResponse.prototype.getValuesList = function() {
-  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 1));
+proto.XdbGetLocalRowsResponse.prototype.getRowsList = function() {
+  return /** @type{!Array.<!proto.ProtoRow>} */ (
+    jspb.Message.getRepeatedWrapperField(this, xcalar_compute_localtypes_ProtoFieldValue_pb.ProtoRow, 1));
 };
 
 
-/** @param {Array.<string>} value  */
-proto.XdbGetRowsResponse.prototype.setValuesList = function(value) {
-  jspb.Message.setField(this, 1, value || []);
+/** @param {Array.<!proto.ProtoRow>} value  */
+proto.XdbGetLocalRowsResponse.prototype.setRowsList = function(value) {
+  jspb.Message.setRepeatedWrapperField(this, 1, value);
 };
 
 
-proto.XdbGetRowsResponse.prototype.clearValuesList = function() {
-  jspb.Message.setField(this, 1, []);
+proto.XdbGetLocalRowsResponse.prototype.clearRowsList = function() {
+  this.setRowsList([]);
 };
 
 
@@ -5121,7 +5379,7 @@ proto.ParentAppRequest.PayloadCase = {
   FILEERROR: 5,
   SENDLISTTODSTS: 6,
   XDBGETMETA: 7,
-  XDBGETROWS: 8
+  XDBGETLOCALROWS: 8
 };
 
 /**
@@ -5166,7 +5424,7 @@ proto.ParentAppRequest.toObject = function(includeInstance, msg) {
     fileerror: (f = msg.getFileerror()) && proto.ParentReportFileErrorRequest.toObject(includeInstance, f),
     sendlisttodsts: (f = msg.getSendlisttodsts()) && proto.XpuSendListToDsts.toObject(includeInstance, f),
     xdbgetmeta: (f = msg.getXdbgetmeta()) && proto.XdbGetMetaRequest.toObject(includeInstance, f),
-    xdbgetrows: (f = msg.getXdbgetrows()) && proto.XdbGetRowsRequest.toObject(includeInstance, f)
+    xdbgetlocalrows: (f = msg.getXdbgetlocalrows()) && proto.XdbGetLocalRowsRequest.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -5239,9 +5497,9 @@ proto.ParentAppRequest.deserializeBinaryFromReader = function(msg, reader) {
       msg.setXdbgetmeta(value);
       break;
     case 8:
-      var value = new proto.XdbGetRowsRequest;
-      reader.readMessage(value,proto.XdbGetRowsRequest.deserializeBinaryFromReader);
-      msg.setXdbgetrows(value);
+      var value = new proto.XdbGetLocalRowsRequest;
+      reader.readMessage(value,proto.XdbGetLocalRowsRequest.deserializeBinaryFromReader);
+      msg.setXdbgetlocalrows(value);
       break;
     default:
       reader.skipField();
@@ -5337,12 +5595,12 @@ proto.ParentAppRequest.prototype.serializeBinaryToWriter = function (writer) {
       proto.XdbGetMetaRequest.serializeBinaryToWriter
     );
   }
-  f = this.getXdbgetrows();
+  f = this.getXdbgetlocalrows();
   if (f != null) {
     writer.writeMessage(
       8,
       f,
-      proto.XdbGetRowsRequest.serializeBinaryToWriter
+      proto.XdbGetLocalRowsRequest.serializeBinaryToWriter
     );
   }
 };
@@ -5568,23 +5826,23 @@ proto.ParentAppRequest.prototype.hasXdbgetmeta = function() {
 
 
 /**
- * optional XdbGetRowsRequest xdbGetRows = 8;
- * @return {proto.XdbGetRowsRequest}
+ * optional XdbGetLocalRowsRequest xdbGetLocalRows = 8;
+ * @return {proto.XdbGetLocalRowsRequest}
  */
-proto.ParentAppRequest.prototype.getXdbgetrows = function() {
-  return /** @type{proto.XdbGetRowsRequest} */ (
-    jspb.Message.getWrapperField(this, proto.XdbGetRowsRequest, 8));
+proto.ParentAppRequest.prototype.getXdbgetlocalrows = function() {
+  return /** @type{proto.XdbGetLocalRowsRequest} */ (
+    jspb.Message.getWrapperField(this, proto.XdbGetLocalRowsRequest, 8));
 };
 
 
-/** @param {proto.XdbGetRowsRequest|undefined} value  */
-proto.ParentAppRequest.prototype.setXdbgetrows = function(value) {
+/** @param {proto.XdbGetLocalRowsRequest|undefined} value  */
+proto.ParentAppRequest.prototype.setXdbgetlocalrows = function(value) {
   jspb.Message.setOneofWrapperField(this, 8, proto.ParentAppRequest.oneofGroups_[0], value);
 };
 
 
-proto.ParentAppRequest.prototype.clearXdbgetrows = function() {
-  this.setXdbgetrows(undefined);
+proto.ParentAppRequest.prototype.clearXdbgetlocalrows = function() {
+  this.setXdbgetlocalrows(undefined);
 };
 
 
@@ -5592,7 +5850,7 @@ proto.ParentAppRequest.prototype.clearXdbgetrows = function() {
  * Returns whether this field is set.
  * @return{!boolean}
  */
-proto.ParentAppRequest.prototype.hasXdbgetrows = function() {
+proto.ParentAppRequest.prototype.hasXdbgetlocalrows = function() {
   return jspb.Message.getField(this, 8) != null;
 };
 
@@ -6199,7 +6457,7 @@ proto.ProtoParentChildResponse.PayloadCase = {
   GROUPID: 2,
   PCBUF: 3,
   XDBGETMETA: 4,
-  XDBGETROWS: 5
+  XDBGETLOCALROWS: 5
 };
 
 /**
@@ -6241,7 +6499,7 @@ proto.ProtoParentChildResponse.toObject = function(includeInstance, msg) {
     groupid: jspb.Message.getField(msg, 2),
     pcbuf: (f = msg.getPcbuf()) && proto.ParentChildBuf.toObject(includeInstance, f),
     xdbgetmeta: (f = msg.getXdbgetmeta()) && proto.XdbGetMetaResponse.toObject(includeInstance, f),
-    xdbgetrows: (f = msg.getXdbgetrows()) && proto.XdbGetRowsResponse.toObject(includeInstance, f)
+    xdbgetlocalrows: (f = msg.getXdbgetlocalrows()) && proto.XdbGetLocalRowsResponse.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -6298,9 +6556,9 @@ proto.ProtoParentChildResponse.deserializeBinaryFromReader = function(msg, reade
       msg.setXdbgetmeta(value);
       break;
     case 5:
-      var value = new proto.XdbGetRowsResponse;
-      reader.readMessage(value,proto.XdbGetRowsResponse.deserializeBinaryFromReader);
-      msg.setXdbgetrows(value);
+      var value = new proto.XdbGetLocalRowsResponse;
+      reader.readMessage(value,proto.XdbGetLocalRowsResponse.deserializeBinaryFromReader);
+      msg.setXdbgetlocalrows(value);
       break;
     default:
       reader.skipField();
@@ -6371,12 +6629,12 @@ proto.ProtoParentChildResponse.prototype.serializeBinaryToWriter = function (wri
       proto.XdbGetMetaResponse.serializeBinaryToWriter
     );
   }
-  f = this.getXdbgetrows();
+  f = this.getXdbgetlocalrows();
   if (f != null) {
     writer.writeMessage(
       5,
       f,
-      proto.XdbGetRowsResponse.serializeBinaryToWriter
+      proto.XdbGetLocalRowsResponse.serializeBinaryToWriter
     );
   }
 };
@@ -6511,23 +6769,23 @@ proto.ProtoParentChildResponse.prototype.hasXdbgetmeta = function() {
 
 
 /**
- * optional XdbGetRowsResponse xdbGetRows = 5;
- * @return {proto.XdbGetRowsResponse}
+ * optional XdbGetLocalRowsResponse xdbGetLocalRows = 5;
+ * @return {proto.XdbGetLocalRowsResponse}
  */
-proto.ProtoParentChildResponse.prototype.getXdbgetrows = function() {
-  return /** @type{proto.XdbGetRowsResponse} */ (
-    jspb.Message.getWrapperField(this, proto.XdbGetRowsResponse, 5));
+proto.ProtoParentChildResponse.prototype.getXdbgetlocalrows = function() {
+  return /** @type{proto.XdbGetLocalRowsResponse} */ (
+    jspb.Message.getWrapperField(this, proto.XdbGetLocalRowsResponse, 5));
 };
 
 
-/** @param {proto.XdbGetRowsResponse|undefined} value  */
-proto.ProtoParentChildResponse.prototype.setXdbgetrows = function(value) {
+/** @param {proto.XdbGetLocalRowsResponse|undefined} value  */
+proto.ProtoParentChildResponse.prototype.setXdbgetlocalrows = function(value) {
   jspb.Message.setOneofWrapperField(this, 5, proto.ProtoParentChildResponse.oneofGroups_[0], value);
 };
 
 
-proto.ProtoParentChildResponse.prototype.clearXdbgetrows = function() {
-  this.setXdbgetrows(undefined);
+proto.ProtoParentChildResponse.prototype.clearXdbgetlocalrows = function() {
+  this.setXdbgetlocalrows(undefined);
 };
 
 
@@ -6535,7 +6793,7 @@ proto.ProtoParentChildResponse.prototype.clearXdbgetrows = function() {
  * Returns whether this field is set.
  * @return{!boolean}
  */
-proto.ProtoParentChildResponse.prototype.hasXdbgetrows = function() {
+proto.ProtoParentChildResponse.prototype.hasXdbgetlocalrows = function() {
   return jspb.Message.getField(this, 5) != null;
 };
 
@@ -6567,7 +6825,7 @@ proto.ProtoParentFunc = {
   PARENTFUNCAPPREPORTFILEERROR: 6,
   PARENTFUNCXPUSENDLISTTODSTS: 7,
   PARENTFUNCXDBGETMETA: 8,
-  PARENTFUNCXDBGETROWS: 9
+  PARENTFUNCXDBGETLOCALROWS: 9
 };
 
 goog.object.extend(exports, proto);

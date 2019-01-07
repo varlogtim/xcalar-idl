@@ -1,6 +1,18 @@
 var protoMsg = require('./xcalar/compute/localtypes/ProtoMsg_pb');
 var service = require('./xcalar/compute/localtypes/Service_pb');
-var jQuery = require('jquery');
+var jQuery;
+
+// Explicitly check if this code is running under nodejs
+if ((typeof process !== 'undefined') &&
+    (typeof process.versions !== 'undefined') &&
+    (typeof process.versions.node !== 'undefined')) {
+    const jsdom = require("jsdom");
+    const { JSDOM } = jsdom;
+    const { window } = new JSDOM();
+    jQuery = require("jquery")(window);
+} else {
+    jQuery = require('jquery');
+}
 
 function serializeRequest(serviceRequest) {
     var msg = new protoMsg.ProtoMsg();

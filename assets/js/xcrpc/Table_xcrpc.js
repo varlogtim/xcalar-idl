@@ -24,7 +24,6 @@ if ((typeof process !== 'undefined') &&
 var client = require("./Client");
 var service = require('./xcalar/compute/localtypes/Service_pb');
 
-var echo = require("./xcalar/compute/localtypes/Echo_pb");
 var proto_empty = require("google-protobuf/google/protobuf/empty_pb");
 
 
@@ -32,7 +31,7 @@ var proto_empty = require("google-protobuf/google/protobuf/empty_pb");
 // Constructors
 ////////////////////////////////////////////////////////////////////////////////
 
-function EchoService(client) {
+function TableService(client) {
     this.client = client;
 }
 
@@ -40,44 +39,18 @@ function EchoService(client) {
 // Definitions
 ////////////////////////////////////////////////////////////////////////////////
 
-EchoService.prototype = {
-    echoMessage: function(echoRequest) {
+TableService.prototype = {
+    addIndex: function(indexRequest) {
         var deferred = jQuery.Deferred();
         // XXX we want to use Any.pack() here, but it is only available
         // in protobuf 3.2
         // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
         var anyWrapper = new proto.google.protobuf.Any();
-        anyWrapper.setValue(echoRequest.serializeBinary());
-        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Echo.EchoRequest");
-        //anyWrapper.pack(echoRequest.serializeBinary(), "EchoRequest");
+        anyWrapper.setValue(indexRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Table.IndexRequest");
+        //anyWrapper.pack(indexRequest.serializeBinary(), "IndexRequest");
 
-        var response = this.client.execute("Echo", "EchoMessage", anyWrapper)
-        .then(function(responseData) {
-            var specificBytes = responseData.getValue();
-            // XXX Any.unpack() is only available in protobuf 3.2; see above
-            //var echoResponse =
-            //    responseData.unpack(echo.EchoResponse.deserializeBinary,
-            //                        "EchoResponse");
-            var echoResponse = echo.EchoResponse.deserializeBinary(specificBytes);
-            deferred.resolve(echoResponse);
-        })
-        .fail(function(error) {
-            console.log("echoMessage fail:" + JSON.stringify(error));
-            deferred.reject(error);
-        });
-        return deferred.promise();
-    },
-    echoErrorMessage: function(echoErrorRequest) {
-        var deferred = jQuery.Deferred();
-        // XXX we want to use Any.pack() here, but it is only available
-        // in protobuf 3.2
-        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
-        var anyWrapper = new proto.google.protobuf.Any();
-        anyWrapper.setValue(echoErrorRequest.serializeBinary());
-        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Echo.EchoErrorRequest");
-        //anyWrapper.pack(echoErrorRequest.serializeBinary(), "EchoErrorRequest");
-
-        var response = this.client.execute("Echo", "EchoErrorMessage", anyWrapper)
+        var response = this.client.execute("Table", "AddIndex", anyWrapper)
         .then(function(responseData) {
             var specificBytes = responseData.getValue();
             // XXX Any.unpack() is only available in protobuf 3.2; see above
@@ -88,11 +61,37 @@ EchoService.prototype = {
             deferred.resolve(empty);
         })
         .fail(function(error) {
-            console.log("echoErrorMessage fail:" + JSON.stringify(error));
+            console.log("addIndex fail:" + JSON.stringify(error));
+            deferred.reject(error);
+        });
+        return deferred.promise();
+    },
+    removeIndex: function(indexRequest) {
+        var deferred = jQuery.Deferred();
+        // XXX we want to use Any.pack() here, but it is only available
+        // in protobuf 3.2
+        // https://github.com/google/protobuf/issues/2612#issuecomment-274567411
+        var anyWrapper = new proto.google.protobuf.Any();
+        anyWrapper.setValue(indexRequest.serializeBinary());
+        anyWrapper.setTypeUrl("type.googleapis.com/xcalar.compute.localtypes.Table.IndexRequest");
+        //anyWrapper.pack(indexRequest.serializeBinary(), "IndexRequest");
+
+        var response = this.client.execute("Table", "RemoveIndex", anyWrapper)
+        .then(function(responseData) {
+            var specificBytes = responseData.getValue();
+            // XXX Any.unpack() is only available in protobuf 3.2; see above
+            //var empty =
+            //    responseData.unpack(proto_empty.Empty.deserializeBinary,
+            //                        "Empty");
+            var empty = proto_empty.Empty.deserializeBinary(specificBytes);
+            deferred.resolve(empty);
+        })
+        .fail(function(error) {
+            console.log("removeIndex fail:" + JSON.stringify(error));
             deferred.reject(error);
         });
         return deferred.promise();
     },
 };
 
-exports.EchoService = EchoService;
+exports.TableService = TableService;
