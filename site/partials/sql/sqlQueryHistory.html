@@ -1,4 +1,4 @@
-<div id="queryHistCard" class="cardContainer sqlQueryHist">
+<div class="selQueryHistCard cardContainer sqlQueryHist">
     <header class="cardHeader">
         <span class="title"><%= dicts.SQL.queryHistCardTitle %></span>
         <!-- <div class="headerBtn minimize" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Minimize %>">
@@ -7,36 +7,7 @@
         <div class="headerBtn maximize" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.common.Maximize %>">
             <i class="icon xi-fullscreen"></i>
         </div> -->
-        <i id="refreshQueryHist" class="refresh right icon xi-refresh fa-17" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="Refresh"></i>
+        <i class="selRefreshQueryHist refresh refresh-queryHist right icon xi-refresh fa-17" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="Refresh"></i>
     </header>
-    <div class="cardMain">
-        <div class="flexTable" data-xcid="queryTable">
-
-            <!-- Row template -->
-            <div data-xcid="xctemp-row" style="display:none">
-                <div class="row">
-                    <div class="col col-status"><i class="icon xi-solid-circle {{statusClass}}"></i>{{status}}</div>
-                    <div class="col col-query link" data-xcid="query"><span class="elps-text text-query">{{query}}</span></div>
-                    <div class="col col-time">{{startTime}}</div>
-                    <div class="col col-duration"><span class="elps-text" data-xcid="duration">{{duration}}</span></div>
-                    <div class="col col-table link" data-xcid="table"><span class="elps-text">{{table}}</span></div>
-                </div>
-            </div>
-
-            <!-- Table header -->
-            <div class="row row-header">
-                <div class="col col-status col-sort" data-xcid="sortStatus"><%= dicts.SQL.queryHistColStatus %><div class="sort"><i class="icon fa-8"></i></div></div>
-                <div class="col col-query"><%= dicts.SQL.queryHistColQuery %></div>
-                <div class="col col-time col-sort" data-xcid="sortStartTime"><%= dicts.SQL.queryHistColStartTime %><div class="sort"><i class="icon fa-8"></i></div></div>
-                <div class="col col-duration col-sort" data-xcid="sortDuration"><%= dicts.SQL.queryHistColDuration %><div class="sort"><i class="icon fa-8"></i></div></div>
-                <div class="col col-table"><%= dicts.SQL.queryHistColTable %></div>
-            </div>
-
-            <!-- Table body -->
-            <div class="body" data-xcid="queryBody">
-            </div>
-
-        </div>
-    </div>
+    <div class="cardMain"></div>
 </div>
-      

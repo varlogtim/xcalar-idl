@@ -87,7 +87,13 @@ namespace xcManager {
             WorkbookPanel.initialize();
             window["ajv"] = new Ajv(); // json schema validator
 
-            SqlQueryHistoryPanel.Card.getInstance().setup();
+            const $sqlPanel = $("#monitor-query-history");
+            SqlQueryHistoryPanel.Card.getInstance().setup({
+                $container: $sqlPanel,
+                checkContainerVisible: () => {
+                    return $sqlPanel.hasClass('active');
+                }
+            });
             SQLWorkSpace.Instance.setup();
             return setupDagPanel();
         })

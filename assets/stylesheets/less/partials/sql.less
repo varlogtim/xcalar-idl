@@ -83,6 +83,15 @@
         padding-left: @cell-padding;
     }
 
+    .sort-none {
+        flex-direction: column;
+    }
+
+    .sortIconWrap {
+        .flex-container();
+        .justify-content(flex-end);
+    }
+
     .col-sort {
         cursor: pointer;
         &:hover {
@@ -128,7 +137,7 @@
     .size(@min-width: 650px, @height: ~"calc(100% - 5px)");
     .cardHeader {
         display: flex;
-        #refreshQueryHist {
+        .refresh-queryHist {
             color: white;
             opacity: 0.7;
             cursor: pointer;
@@ -192,6 +201,10 @@
 
             .resultSection, .historySection {
                 height: 50%;
+
+                .sqlQueryHist {
+                    .size(@min-width: 890px, @height: 100%);
+                }
             }
         }
     }    

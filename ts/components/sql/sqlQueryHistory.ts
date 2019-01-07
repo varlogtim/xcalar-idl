@@ -187,6 +187,11 @@ namespace SqlQueryHistory {
         public errorMsg: string = '';
     }
 
+    export class QueryExtInfo extends QueryInfo {
+        public rows: number = 0;
+        public skew: number = 0;
+    }
+
     export function mergeQuery(
         mergeTo: SqlQueryHistory.QueryInfo,
         updateInfo: QueryUpdateInfo
