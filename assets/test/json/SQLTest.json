@@ -900,7 +900,7 @@
                         "in": [{"query": "select id, name, wage from nullCoverage where wage in (1200) order by id"}],
                         "notin": [{"query": "select id, name, wage from nullCoverage where wage not in (1200) order by id", "sparkOpts": {"enforce": false}}],
                         "distinct": [{"query": "select distinct(wage) from nullCoverage order by wage"}],
-                        "except": [{"query": "select wage from nullCoverage except select wage from nullCoverage where wage > 1300 order by wage"}],
+                        "except": [{"query": "select wage from nullCoverage except select wage from nullCoverage where wage > 1300 order by wage", "sparkOpts": {"enforce": false}}],
                         "exceptnull": [{"query": "select number from nullCoverage except select number from nullCoverage where number is null order by number", "sparkOpts": {"enforce": false}}],
                         "rollup": [{"query": "select wage from nullCoverage group by rollup(wage) order by wage"}],
                         "cube": [{"query": "select wage, bonus from nullCoverage group by cube(wage, bonus) order by wage, bonus"}],
