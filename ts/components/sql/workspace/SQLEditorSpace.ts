@@ -59,8 +59,8 @@ class SQLEditorSpace {
 
     private _executeAllSQL(): void {
         try {
-            let sqls: string = this._sqlEditor.getValue();
-            let sqlArray: string[] = sqls.split(";");
+            let sqls: string = this._sqlEditor.getSelection() || this._sqlEditor.getValue();
+            let sqlArray: string[] = XDParser.SqlParser.getMultipleQueriesViaParser(sqls);
             sqlArray.forEach((sql) => {
                 this._executeSQL(sql);
             });
@@ -76,7 +76,7 @@ class SQLEditorSpace {
 
     private _setupBottomSection(): void {
         const $section = this._getEditorSpaceEl().find(".bottomSection");
-        $section.on("click", ".executeAll", () => {
+        $section.on("click", ".execute", () => {
             this._executeAllSQL();
         });
     }

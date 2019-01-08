@@ -14,6 +14,10 @@ class SQLEditor {
         return this._editor;
     }
 
+    public getSelection(): string {
+        return this._editor.getSelection();
+    }
+
     public getValue(): string {
         return this._editor.getValue();
     }
