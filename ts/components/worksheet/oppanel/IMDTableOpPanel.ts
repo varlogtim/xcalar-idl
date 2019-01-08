@@ -9,7 +9,9 @@ class IMDTableOpPanel extends BaseOpPanel {
     private _$versionList: JQuery; // $('#IMDTableOpPanel #tableVersionList .tableVersions');
     private _tables: PublishTable[];
     private _selectedTable: PublishTable;
+    private _schemaSection: ColSchemaSection;
     private _primaryKeys: string[];
+    private _currentStep: number;
 
     // *******************
     // Constants
@@ -28,6 +30,7 @@ class IMDTableOpPanel extends BaseOpPanel {
         this._$filterStringInput = $('#IMDTableOpPanel .filterStringInput');
         this._$columns = $('#IMDTableOpPanel #IMDTableOpColumns .cols');
         this._$versionList = $('#IMDTableOpPanel #tableVersionList .tableVersions');
+        this._schemaSection = new ColSchemaSection(this._$elemPanel.find(".colSchemaSection"));
         this._$tableVersionInput.val(-1);
         this._setupEventListener();
     }
@@ -49,6 +52,8 @@ class IMDTableOpPanel extends BaseOpPanel {
         this._primaryKeys = [];
         this._$columns.empty();
         this._$versionList.empty();
+        this._currentStep = 1;
+        this._gotoStep();
         XcalarListPublishedTables("*", false, true)
         .then((result) => {
             self._tables = result.tables;
@@ -111,20 +116,11 @@ class IMDTableOpPanel extends BaseOpPanel {
         return null;
     }
 
-    private _getColumns(): string[] {
-        let $selectedCols = this._$columns.find(".col.checked");
-        let columns: string[] = [];
-        $selectedCols.each((_index: number, elem: Element) => {
-            columns.push($(elem).text());
-        });
-        return columns;
-    }
-
     private _getParams(): DagNodeIMDTableInputStruct {
         return {
             source: this._$pubTableInput.val(),
             version: parseInt(this._$tableVersionInput.val()),
-            columns: this._getColumns(),
+            schema: this._schemaSection.getSchema(false),
             filterString: this._$filterStringInput.val()
         }
     }
@@ -177,54 +173,6 @@ class IMDTableOpPanel extends BaseOpPanel {
         this._$versionList.html(html);
     }
 
-    private _renderColumns(oldColumns: string[]) {
-        if (this._selectedTable == null ||
-                this._selectedTable.values.length == 0) {
-            this._$columns.empty();
-            $("#IMDTableOpColumns .noColsHint").show();
-            $("#IMDTableOpColumns .selectAllWrap").hide();
-            return;
-        }
-        const columnList: PublishTableCol[] = this._selectedTable.values;
-        const self = this;
-        // Render column list
-        let html: string = "";
-        columnList.forEach((column, index) => {
-            const colName: string = xcHelper.escapeHTMLSpecialChar(
-                column.name);
-            const colNum: number = (index + 1);
-            let checked: string = oldColumns.includes(colName) ? " checked" : "";
-            let isKey: string = " notKey";
-            if (self._primaryKeys.includes(colName)) {
-                checked = " checked";
-                isKey = " key";
-            }
-            html += '<li class="col' + checked +
-                '" data-colnum="' + colNum + '">' +
-                '<span class="text tooltipOverflow" ' +
-                'data-original-title="' +
-                    xcHelper.escapeDblQuoteForHTML(
-                        xcHelper.escapeHTMLSpecialChar(colName)) + '" ' +
-                'data-toggle="tooltip" data-placement="top" ' +
-                'data-container="body">' +
-                    colName +
-                '</span>' +
-                '<div class="checkbox' + checked + isKey +'">' +
-                    '<i class="icon xi-ckbox-empty fa-13"></i>' +
-                    '<i class="icon xi-ckbox-selected fa-13"></i>' +
-                '</div>' +
-                '</li>';
-        });
-        this._$columns.html(html);
-        $("#IMDTableOpColumns .selectAllWrap").show();
-        $("#IMDTableOpColumns .noColsHint").hide();
-        if (this._$columns.find('.col .checked').length == this._$columns.find('.checkbox').length) {
-            this._$elemPanel.find("#IMDTableOpColumns .selectAllWrap .checkbox").eq(0).addClass("checked");
-        } else {
-            this._$elemPanel.find("#IMDTableOpColumns .selectAllWrap .checkbox").eq(0).removeClass("checked");
-        }
-    }
-
     private _restorePanel(input: DagNodeIMDTableInputStruct): void {
         this._$pubTableInput.val(input.source);
         this._$tableVersionInput.val(input.version);
@@ -236,7 +184,7 @@ class IMDTableOpPanel extends BaseOpPanel {
         this._$filterStringInput.val(input.filterString);
         this._changeSelectedTable(input.source);
         this._renderVersions();
-        this._renderColumns(input.columns);
+        this._schemaSection.render(input.schema);
     }
 
     private _updateTableList(): void {
@@ -250,18 +198,31 @@ class IMDTableOpPanel extends BaseOpPanel {
     }
 
     private _checkOpArgs(input: DagNodeIMDTableInputStruct): boolean {
-        let $location: JQuery = null;
+        let $location: JQuery = this._$elemPanel.find(".btn-submit");
         let error: string = "";
         if (input == null) {
             return false;
         }
         if (input.source == "") {
             error = "Input must have a source";
-            $location = this._$pubTableInput;
         }
         if (input.version < -1) {
             error = "Version cannot be less than -1 (latest).";
-            $location = this._$tableVersionInput;
+        }
+        if (input.schema == null || input.schema.length == 0) {
+            error = "Table must have columns.";
+            $location = this._$elemPanel.find(".colSchemaSection");
+        } else {
+            for (let i = 0; i < this._primaryKeys.length; i++) {
+                let key: string = this._primaryKeys[i];
+                if (!input.schema.find((col: ColSchema) => {
+                    return (col.name == key);
+                })) {
+                    error = "Schema must include primary key: " + key;
+                    $location = this._$elemPanel.find(".colSchemaSection");
+                    break;
+                }
+            }
         }
 
         if (error != "") {
@@ -283,6 +244,15 @@ class IMDTableOpPanel extends BaseOpPanel {
             '.close, .cancel',
             () => { this.close(); }
         );
+
+        this._$elemPanel.on("click", ".next", () => {
+            this._goToSchemaStep();
+        });
+
+        this._$elemPanel.on("click", ".back", () => {
+            this._currentStep = 1;
+            this._gotoStep();
+        });
 
         // Submit button
         this._$elemPanel.on(
@@ -306,7 +276,6 @@ class IMDTableOpPanel extends BaseOpPanel {
                 self._$pubTableInput.val($li.text());
                 self._changeSelectedTable($li.text());
                 self._renderVersions();
-                self._renderColumns([]);
             }
         });
         expList.setupListeners();
@@ -327,36 +296,6 @@ class IMDTableOpPanel extends BaseOpPanel {
             }
         });
         expList.setupListeners();
-
-        $('#IMDTableOpColumns .selectAllWrap .checkbox').click(function(event) {
-            let $box: JQuery = $(this);
-            event.stopPropagation();
-            if ($box.hasClass("checked")) {
-                $box.removeClass("checked");
-                self._$columns.find('.checked.notKey').removeClass("checked");
-            } else {
-                $box.addClass("checked");
-                self._$columns.find('.col').addClass("checked");
-                self._$columns.find('.checkbox.notKey').addClass("checked");
-            }
-        });
-
-        $('#IMDTableOpColumns .columnsWrap').on("click", ".checkbox.notKey", function(event) {
-            let $box: JQuery = $(this);
-            let $col: JQuery = $(this).parent();
-            event.stopPropagation();
-            if ($col.hasClass("checked")) {
-                $col.removeClass("checked");
-                $box.removeClass("checked");
-                self._$elemPanel.find("#IMDTableOpColumns .selectAllWrap .checkbox").eq(0).removeClass("checked");
-            } else {
-                $col.addClass("checked");
-                $box.addClass("checked");
-                if (self._$columns.find('.col .checked').length == self._$columns.find('.checkbox').length) {
-                    self._$elemPanel.find("#IMDTableOpColumns .selectAllWrap .checkbox").eq(0).addClass("checked");
-                }
-            }
-        });
 
         $('#IMDTableOpPanel .tableVersion .checkbox').on("click", function(event) {
             event.stopPropagation();
@@ -424,6 +363,71 @@ class IMDTableOpPanel extends BaseOpPanel {
         //this._dagNode.setAggregates(aggs);
         dagNode.setParam(params);
         this.close();
+    }
+
+    private _gotoStep(): void {
+        let btnHTML: HTML = "";
+        const $section: JQuery = this._$elemPanel.find(".modalTopMain");
+        if (this._advMode) {
+            btnHTML =
+                '<button class="btn btn-submit btn-rounded submit">' +
+                    CommonTxtTstr.Save +
+                '</button>';
+        } else if (this._currentStep === 1) {
+            $section.find(".step1").removeClass("xc-hidden")
+                    .end()
+                    .find(".step2").addClass("xc-hidden");
+            btnHTML =
+                '<button class="btn btn-next btn-rounded next">' +
+                    CommonTxtTstr.Next +
+                '</button>';
+        } else if (this._currentStep === 2) {
+            $section.find(".step2").removeClass("xc-hidden")
+                    .end()
+                    .find(".step1").addClass("xc-hidden");
+            btnHTML =
+                '<button class="btn btn-submit btn-rounded submit">' +
+                    CommonTxtTstr.Save +
+                '</button>' +
+                '<button class="btn btn-back btn-rounded back">' +
+                    CommonTxtTstr.Back +
+                '</button>';
+        } else {
+            throw new Error("Error step");
+        }
+        this.$panel.find(".mainContent > .bottomSection")
+        .find(".btnWrap").html(btnHTML);
+    }
+
+    private _autoDetectSchema(userOldSchema: boolean): {error: string} {
+        const oldParam: DagNodeIMDTableInputStruct = this._dagNode.getParam();
+        let oldSchema: ColSchema[] = null;
+        if (userOldSchema &&
+            this._selectedTable != null &&
+            this._selectedTable.name === oldParam.source
+        ) {
+            // when only has prefix change
+            oldSchema = this._schemaSection.getSchema(true);
+        }
+        let schema: ColSchema[] = this._selectedTable.values.map((col: PublishTableCol) => {
+            return {
+                name: col.name,
+                type: xcHelper.convertFieldTypeToColType(DfFieldTypeT[col.type])
+            }
+        });
+        this._schemaSection.setInitialSchema(schema);
+        this._schemaSection.render(oldSchema || schema);
+        return null;
+    }
+
+    private _goToSchemaStep(): void {
+        if (this._selectedTable == null) {
+            StatusBox.show("Input must have a source", this._$pubTableInput, false, {'side': 'right'});
+            return;
+        }
+        this._autoDetectSchema(true);
+        this._currentStep = 2;
+        this._gotoStep();
     }
 
 }

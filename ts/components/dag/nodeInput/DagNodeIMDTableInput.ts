@@ -11,7 +11,7 @@ class DagNodeIMDTableInput extends DagNodeInput {
         "required": [
           "source",
           "version",
-          "columns"
+          "schema"
         ],
         "optional" : [
           "filterString"
@@ -39,12 +39,54 @@ class DagNodeIMDTableInput extends DagNodeInput {
             "minLength": 1,
             "pattern": "^(.*)$"
           },
-          "columns": {
-            "$id": "#/properties/columns",
+          "schema": {
+            "$id": "#/properties/schema",
             "type": "array",
-            "title": "The Columns Schema",
+            "title": "The schema Schema",
             "minItems": 1,
-            "additionalItems": false
+            "additionalItems": false,
+            "items": {
+              "$id": "#/properties/schema/items",
+              "type": "object",
+              "title": "The Items Schema",
+              "required": [
+                "name",
+                "type"
+              ],
+              "properties": {
+                "name": {
+                  "$id": "#/properties/schema/items/properties/name",
+                  "type": "string",
+                  "minLength": 1,
+                  "title": "The name Schema",
+                  "default": "",
+                  "examples": ["column name"],
+                  "pattern": "^(.*)$"
+                },
+                "type": {
+                  "$id": "#/properties/eval/schema/properties/type",
+                  "type": "string",
+                  "enum": [
+                        ColumnType.integer,
+                        ColumnType.float,
+                        ColumnType.string,
+                        ColumnType.boolean,
+                        ColumnType.timestamp,
+                        ColumnType.mixed,
+                        ColumnType.object,
+                        ColumnType.array,
+                        ColumnType.unknown
+                    ],
+                  "title": "The type Schema",
+                  "default": "",
+                  "examples": [
+                    "integer"
+                  ],
+                  "minLength": 1,
+                  "pattern": "^(.*)$"
+                }
+              }
+            }
           },
           "filterString": {
             "$id": "#/properties/filterString",
@@ -65,7 +107,7 @@ class DagNodeIMDTableInput extends DagNodeInput {
             source: input.source || "",
             version: input.version || -1,
             filterString: input.filterString || "",
-            columns: input.columns || [],
+            schema: input.schema || [],
         };
     }
 }

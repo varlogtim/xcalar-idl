@@ -1251,6 +1251,8 @@ namespace IMDPanel {
     function submitRefreshTables(latest?: boolean, filterString?: string, columns?: string[]): void {
         const tables: DagNodeIMDTableInputStruct[] = [];
         let pTable: PublishTable;
+        let cols: PublishTableCol[];
+        let schema: ColSchema[];
 
         for (let tableName in selectedCells) {
             pTable = pTables.filter((table) => {
@@ -1264,14 +1266,22 @@ namespace IMDPanel {
                 maxBatch = selectedCells[tableName];
             }
             if (!columns) {
-                columns = pTable.values.map((pubCol: PublishTableCol) => {
-                    return pubCol.name
+                cols = pTable.values;
+            } else {
+                cols = pTable.values.filter((val: PublishTableCol) => {
+                    return columns.includes(val.name);
                 });
             }
+            schema = cols.map((pubCol: PublishTableCol) => {
+                return {
+                    name: pubCol.name,
+                    type: xcHelper.convertFieldTypeToColType(DfFieldTypeT[pubCol.type])
+                }
+            });
             tables.push({
                 source: pTable.name,
                 version: maxBatch,
-                columns: columns,
+                schema: schema,
                 filterString: filterString
             });
         }

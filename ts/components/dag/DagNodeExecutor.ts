@@ -829,47 +829,18 @@ class DagNodeExecutor {
         //XXX TODO: Integrate with new XIAPI.publishTable
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const newTableName = this._generateTableName();
-        XcalarListPublishedTables("*", false, true)
-        .then((result) => {
-            let tables: PublishTable[] = result.tables;
-            let table: PublishTable =
-                tables.find((pubTab: PublishTable) => {
-                    return (pubTab.name == params.source);
-                });
-            if (table == null) {
-                return deferred.reject("Publish Table does not exist: " + params.source);
-            }
-            let columns: RefreshColInfo[] =
-                params.columns.map((name: string) => {
-                    let col: PublishTableCol = table.values.find((col) => {
-                        return (col.name == name);
-                    });
-                    if (col == null) {
-                        return;
-                    }
-                    let type: string = col.type;
-                    let args = {
-                        sourceColumn: name,
-                        destColumn: name,
-                        columnType: type
-                    };
-                    return args;
-                });
-            if (!table.active) {
-                XcalarRestoreTable(params.source)
-                .then(() => {
-                    return XcalarRefreshTable(params.source, newTableName,
-                        -1, params.version, self.txId, params.filterString,
-                        columns);
-                })
-                .fail((error) => {
-                    deferred.reject(error);
-                });
-            } else {
-                return XcalarRefreshTable(params.source, newTableName,
-                    -1, params.version, self.txId, params.filterString,
-                    columns);
-            }
+        let cols: RefreshColInfo[] = params.schema.map((col: ColSchema) => {
+            return {
+                sourceColumn: col.name,
+                destColumn: col.name,
+                columnType: DfFieldTypeTStr[xcHelper.convertColTypeToFieldType(col.type)]
+            };
+        })
+        PromiseHelper.alwaysResolve(XcalarRestoreTable(params.source))
+        .then(() => {
+            return XcalarRefreshTable(params.source, newTableName,
+                -1, params.version, self.txId, params.filterString,
+                cols);
         })
         .then(() => {
             return deferred.resolve(newTableName);

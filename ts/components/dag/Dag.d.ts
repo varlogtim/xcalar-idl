@@ -96,7 +96,7 @@ interface DagNodeDatasetInputStruct {
 interface DagNodeIMDTableInputStruct {
     source: string;
     version: number;
-    columns: string[];
+    schema: ColSchema[];
     filterString?: string;
 }
 

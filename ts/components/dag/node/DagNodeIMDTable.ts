@@ -30,6 +30,55 @@ class DagNodeIMDTable extends DagNodeIn {
               "type": "string",
               "pattern": "^(.*)$"
             }
+          },
+          "schema": {
+            "$id": "#/properties/schema",
+            "type": "array",
+            "title": "The schema Schema",
+            "minItems": 0,
+            "additionalItems": false,
+            "items": {
+              "$id": "#/properties/schema/items",
+              "type": "object",
+              "title": "The Items Schema",
+              "required": [
+                "name",
+                "type"
+              ],
+              "properties": {
+                "name": {
+                  "$id": "#/properties/schema/items/properties/name",
+                  "type": "string",
+                  "minLength": 1,
+                  "title": "The name Schema",
+                  "default": "",
+                  "examples": ["column name"],
+                  "pattern": "^(.*)$"
+                },
+                "type": {
+                  "$id": "#/properties/schema/items/properties/type",
+                  "type": "string",
+                  "enum": [
+                        ColumnType.integer,
+                        ColumnType.float,
+                        ColumnType.string,
+                        ColumnType.boolean,
+                        ColumnType.timestamp,
+                        ColumnType.mixed,
+                        ColumnType.object,
+                        ColumnType.array,
+                        ColumnType.unknown
+                    ],
+                  "title": "The type Schema",
+                  "default": "",
+                  "examples": [
+                    "integer"
+                  ],
+                  "minLength": 1,
+                  "pattern": "^(.*)$"
+                }
+              }
+            }
           }
         }
     };
@@ -43,21 +92,17 @@ class DagNodeIMDTable extends DagNodeIn {
         const source: string = input.source;
         const version: number = input.version;
         const filterString: string = input.filterString;
-        const inputColumns: string[] = input.columns;
-        this._fetchSchema(source, input.columns)
-        .then(() => {
-            this.input.setInput({
-                source: source,
-                version: version,
-                filterString: filterString,
-                columns: inputColumns
-            });
-            super.setParam(null, noAutoExecute);
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
+        const schema: ColSchema[] = input.schema;
+        this.setSchema(schema);
+        this.input.setInput({
+            source: source,
+            version: version,
+            filterString: filterString,
+            schema: schema
+        });
+        super.setParam(null, noAutoExecute);
 
-        return deferred.promise();
+        return deferred.resolve();
     }
 
     public getSource(): string {
@@ -78,39 +123,5 @@ class DagNodeIMDTable extends DagNodeIn {
 
     protected _getColumnsUsedInInput() {
         return null;
-    }
-
-    private _fetchSchema(source: string, columns: string[]): XDPromise<ProgCol[]> {
-        const deferred: XDDeferred<ProgCol[]> = PromiseHelper.deferred();
-        XcalarListPublishedTables("*", false, true)
-        .then((result) => {
-            let tables: PublishTable[] = result.tables;
-            let table: PublishTable =
-                tables.find((pubTab: PublishTable) => {
-                    return (pubTab.name ==source);
-                });
-            if (table == null) {
-                return deferred.reject("Publish Table does not exist: " + source);
-            }
-            const schema: ColSchema[] = columns.map((name: string) => {
-                let col: PublishTableCol = table.values.find((col) => {
-                    return (col.name == name);
-                });
-                if (col == null) {
-                    return;
-                }
-                let dftype: DfFieldTypeT = DfFieldTypeT[col.type];
-                let type: ColumnType = xcHelper.convertFieldTypeToColType(dftype);
-                return {
-                    name: name,
-                    type: type
-                };
-            });
-            this.setSchema(schema);
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
     }
 }
