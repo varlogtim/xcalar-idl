@@ -1,15 +1,48 @@
 class SQLExecutor {
     private _sql: string;
     private _sqlNode: DagNodeSQL;
-    private _fakeIMDNode: DagNodeIMDTable;
+    private _IMDNodes: DagNodeIMDTable[];
     private _tempTab: DagTabUser;
     private _tempGraph: DagGraph;
+    private _identifiers: {};
+    private _identifiersOrder: number[];
+    private _schema: {};
 
     public constructor(sql: string) {
         this._sql = sql.replace(/;+$/, "");
-        this._fakeIMDNode = <DagNodeIMDTable>DagNodeFactory.create({
-            type: DagNodeType.IMDTable
+        this._IMDNodes = [];
+        this._identifiersOrder = [];
+        this._identifiers = {};
+        this._schema = {};
+        const tables: string[] = Array.from(XDParser.SqlParser.getTableIdentifiers(sql));
+        const allPubTables = PTblManager.Instance.getTables();
+        const allSchemas = {};
+        allPubTables.forEach((pubTable) => {
+            const columns = [];
+            pubTable.columns.forEach((column) => {
+                const upperName = column.name.toUpperCase();
+                if (!upperName.startsWith("XCALARRANKOVER") &&
+                    !upperName.startsWith("XCALAROPCODE") &&
+                    !upperName.startsWith("XCALARBATCHID") &&
+                    !upperName.startsWith("XCALARROWNUMPK")) {
+                    columns.push(column);
+                }
+            });
+            allSchemas[pubTable.name.toUpperCase()] = columns;
         });
+        tables.forEach((identifier, idx) => {
+            const pubTableName = identifier.toUpperCase();
+            if (allSchemas.hasOwnProperty(pubTableName)) {
+                this._schema[pubTableName] = allSchemas[pubTableName];
+            }
+            const IMDNode = <DagNodeIMDTable>DagNodeFactory.create({
+                type: DagNodeType.IMDTable
+            });
+            this._IMDNodes.push(IMDNode);
+            this._identifiersOrder.push(idx + 1);
+            this._identifiers[idx + 1] = identifier;
+        });
+
         this._sqlNode = <DagNodeSQL>DagNodeFactory.create({
             type: DagNodeType.SQL
         });
@@ -20,14 +53,18 @@ class SQLExecutor {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         try {
-            const publishedTableNodes: DagNodeIMDTable[] = [this._fakeIMDNode];
+            const publishedTableNodes: DagNodeIMDTable[] = this._IMDNodes;
             this._addPublishedTableNodes(publishedTableNodes)
             this._configurePublishedTableNode()
             .then(() => {
-                this._configureSQLNode(publishedTableNodes);
-                return this._tempGraph.execute([this._sqlNode.getId()])
+                return this._configureSQLNode();
             })
             .then(() => {
+                return this._tempGraph.execute([this._sqlNode.getId()]);
+            })
+            .then(() => {
+                // XXX TO-DO show result
+                // console.log(this._sqlNode.getNewTableName());
                 return this._tempTab.save();
             })
             .then(deferred.resolve)
@@ -47,40 +84,39 @@ class SQLExecutor {
     }
 
     private _addPublishedTableNodes(nodes: DagNodeIMDTable[]): void {
-        this._tempGraph.addNode(this._fakeIMDNode);
         const sqlNodeId: DagNodeId = this._sqlNode.getId();
         nodes.forEach((node, index) => {
+            this._tempGraph.addNode(node);
             this._tempGraph.connect(node.getId(), sqlNodeId, index);
         });
     }
 
-    // XXX TODO remove the fake thing
     private _configurePublishedTableNode(): XDPromise<void> {
-        return this._fakeIMDNode.setParam({
-            source: "SQLA",
-            version: -1,
-            filterString: "",
-            columns: ["class_id"]
+        const promiseArray = [];
+        this._IMDNodes.forEach((IMDNode, idx) => {
+            const pubTableName = this._identifiers[idx + 1];
+            const schema: ColSchema[] = this._schema[pubTableName.toUpperCase()];
+            const dagNodeIMDInput: DagNodeIMDTableInputStruct = {
+                source: pubTableName,
+                version: -1,
+                schema: schema
+            }
+            promiseArray.push(IMDNode.setParam(dagNodeIMDInput));
         });
+        return PromiseHelper.when.apply(window, promiseArray);
     }
 
-    // fakIMDNode -> SQLNode
-    private _configureSQLNode(publishedTableNodes: DagNodeIMDTable[]): void {
-        const identifiers = {};
-        const identifiersMap: Map<number, string> = new Map();
-        const identifiersOrder: number[] = [];
-        publishedTableNodes.forEach((node, index) => {
-            let pos: number = index + 1;
-            let source: string = node.getSource();
-            identifiers[pos] = source;
-            identifiersOrder.push(pos);
-            identifiersMap.set(pos, source);
-        });
-        this._sqlNode.setIdentifiers(identifiersMap);
+    private _configureSQLNode(): XDPromise<any> {
         this._sqlNode.setParam({
             sqlQueryStr: this._sql,
-            identifiers: identifiers,
-            identifiersOrder: identifiersOrder
+            identifiers: this._identifiers,
+            identifiersOrder: this._identifiersOrder
         }, true);
+        const queryId = xcHelper.randName("sqlQuery", 8);
+        const identifiers = new Map<number, string>();
+        this._identifiersOrder.forEach((idx) => {
+            identifiers.set(idx, this._identifiers[idx]);
+        });
+        return this._sqlNode.compileSQL(this._sql, queryId, identifiers);
     }
 }

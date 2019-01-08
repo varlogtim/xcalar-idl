@@ -11,19 +11,29 @@ var XEvalVisitor = require('./XEvalVisitor.js').XEvalVisitor;
 var XcErrorListener = require('./XcErrorListener').XcErrorListener;
 
 class SqlParser {
-    static getMultipleQueriesViaParser(sqlStatement) {
+    static genParser(sqlStatement) {
         var chars = new antlr4.InputStream(sqlStatement);
         var lexer = new SqlBaseLexer(chars);
         var tokens  = new antlr4.CommonTokenStream(lexer);
         var parser = new SqlBaseParser(tokens);
         parser.buildParseTrees = true;
+        return parser;
+    }
+    static getMultipleQueriesViaParser(sqlStatement) {
+        var parser = this.genParser(sqlStatement);
         var tree = parser.statements();
-
         var visitor = new SqlVisitor();
         visitor.visitStatements(tree);
 
-        var statements = [];
         return visitor.statements;
+    }
+    static getTableIdentifiers(sqlStatement) {
+        var parser = this.genParser(sqlStatement);
+        var tree = parser.statement();
+        var visitor = new SqlVisitor();
+        visitor.visitTables(tree);
+
+        return visitor.tableIdentifiers;
     }
 }
 exports.SqlParser = SqlParser;
