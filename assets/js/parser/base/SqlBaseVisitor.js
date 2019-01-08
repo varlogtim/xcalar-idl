@@ -810,6 +810,12 @@ SqlBaseVisitor.prototype.visitRowFormatDelimited = function(ctx) {
 };
 
 
+// Visit a parse tree produced by SqlBaseParser#tableIdentifierWithFunc.
+SqlBaseVisitor.prototype.visitTableIdentifierWithFunc = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
 // Visit a parse tree produced by SqlBaseParser#tableIdentifier.
 SqlBaseVisitor.prototype.visitTableIdentifier = function(ctx) {
   return this.visitChildren(ctx);
@@ -1166,6 +1172,12 @@ SqlBaseVisitor.prototype.visitQualifiedName = function(ctx) {
 
 // Visit a parse tree produced by SqlBaseParser#identifier.
 SqlBaseVisitor.prototype.visitIdentifier = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by SqlBaseParser#sqlFuncIdentifier.
+SqlBaseVisitor.prototype.visitSqlFuncIdentifier = function(ctx) {
   return this.visitChildren(ctx);
 };
 

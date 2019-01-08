@@ -501,7 +501,7 @@ identifierComment
     ;
 
 relationPrimary
-    : tableIdentifier sample? tableAlias      #tableName
+    : tableIdentifierWithFunc sample? tableAlias      #tableName
     | '(' queryNoWith ')' sample? tableAlias  #aliasedQuery
     | '(' relation ')' sample? tableAlias     #aliasedRelation
     | inlineTable                             #inlineTableDefault2
@@ -528,6 +528,11 @@ rowFormat
       (MAP KEYS TERMINATED BY keysTerminatedBy=STRING)?
       (LINES TERMINATED BY linesSeparatedBy=STRING)?
       (NULL DEFINED AS nullDefinedAs=STRING)?                                       #rowFormatDelimited
+    ;
+
+tableIdentifierWithFunc
+    : tableIdentifier
+    | sqlFuncIdentifier '(' tableIdentifierWithFunc (',' tableIdentifierWithFunc)* ')'
     ;
 
 tableIdentifier
@@ -708,6 +713,13 @@ qualifiedName
 
 identifier
     : strictIdentifier
+    | ANTI | FULL | INNER | LEFT | SEMI | RIGHT | NATURAL | JOIN | CROSS | ON
+    | UNION | INTERSECT | EXCEPT | SETMINUS
+    ;
+
+sqlFuncIdentifier
+    : IDENTIFIER
+    | nonReserved
     | ANTI | FULL | INNER | LEFT | SEMI | RIGHT | NATURAL | JOIN | CROSS | ON
     | UNION | INTERSECT | EXCEPT | SETMINUS
     ;

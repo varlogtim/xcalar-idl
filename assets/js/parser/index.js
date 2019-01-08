@@ -35,6 +35,17 @@ class SqlParser {
 
         return visitor.tableIdentifiers;
     }
+
+    static getSQLTableFunctions(sqlStatement) {
+        var parser = this.genParser(sqlStatement);
+        var tree = parser.statement();
+
+        var visitor = new SqlVisitor();
+        var newStatement = visitor.getFunctions(tree).trim();
+
+        return {sqlFunctions: visitor.sqlFunctions,
+                sqlQuery: newStatement};
+    }
 }
 exports.SqlParser = SqlParser;
 
