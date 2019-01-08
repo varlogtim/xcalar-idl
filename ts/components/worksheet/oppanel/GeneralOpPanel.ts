@@ -64,6 +64,26 @@ class GeneralOpPanel extends BaseOpPanel {
             self._minimizeGroups($(this).closest('.group'));
         });
 
+        // dynamic button - ex. default:multiJoin, in
+        this._$panel.on('click', '.addExtraArg', function() {
+            self._addExtraArg($(this));
+        });
+
+        this._$panel.on('click', '.extraArg .xi-cancel', function() {
+            self._removeExtraArgEventHandler($(this));
+        });
+
+        this._$panel.find('.addExtraGroup').click(function() {
+            self._addExtraGroupEventHandler();
+        });
+
+        this._$panel.on('click', '.removeExtraGroup', function() {
+            const $group = $(this).closest('.group');
+            const index = self._$panel.find(".group").index($group);
+            self.model.removeGroup(index);
+            self._$panel.find("input").blur();
+        });
+
         this._$lastInputFocused = this._$panel.find('.arg:first');
 
         this._$panel.on('focus', '.arg', function() {
@@ -72,7 +92,6 @@ class GeneralOpPanel extends BaseOpPanel {
                 self._minimizeGroups();
             }
             $(this).closest('.group').removeClass('minimized fnInputEmpty');
-
         });
 
         this._$panel.on('mouseup', '.group', function() {
@@ -1962,6 +1981,12 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _populateInitialCategoryField(): void {}
 
     protected _render(): void {}
+
+    protected _addExtraGroupEventHandler(): void {}
+
+    protected _addExtraArg(_$btn: JQuery): void {}
+
+    protected _removeExtraArgEventHandler(_$btn: JQuery): void {}
 
     protected _getOperatorsLists(): any[][] {
         const self = this;

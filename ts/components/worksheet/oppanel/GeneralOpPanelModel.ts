@@ -967,16 +967,21 @@ class GeneralOpPanelModel {
             }
         }
 
+        // look for blank inputs, then errors aside from type,
+        // then column type errors, then value type errors
+
         // blank inputs
         for (let i = 0; i < groups.length; i++) {
             const group = groups[i];
             for (let j = 0; j < group.args.length; j++) {
                 const arg = group.args[j];
-                if (!arg.checkIsValid() && arg.getError() === "No value") {
-                    return {error: arg.getError(),
-                            group: i,
-                            arg: j,
-                            type: "blank"};
+                if (!arg.checkIsValid()) {
+                    if (arg.getError() === "No value") {
+                        return {error: arg.getError(),
+                                group: i,
+                                arg: j,
+                                type: "blank"};
+                    }
                 }
             }
         }

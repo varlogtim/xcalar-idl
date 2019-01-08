@@ -18,26 +18,6 @@ class GroupByOpPanel extends GeneralOpPanel {
             self._focusNextInput(0);
         });
 
-        this._$panel.on('click', '.extraArg .xi-cancel', function() {
-            const $row: JQuery = $(this).closest(".gbOnRow");
-            const index: number = self._$panel.find(".gbOnRow").index($row);
-            self.model.removeGroupOnArg(index);
-            self._$panel.find("input").blur();
-        });
-
-        this._$panel.find('.addGroup').click(function() {
-            self.model.addGroup();
-            self._$panel.find('.group').last().find('.functionsInput').focus();
-            self._scrollToGroup(self._$panel.find(".group").length - 1);
-        });
-
-        this._$panel.on('click', '.removeExtraGroup', function() {
-            const $group = $(this).closest('.group');
-            const index = self._$panel.find(".group").index($group);
-            self.model.removeGroup(index);
-            self._$panel.find("input").blur();
-        });
-
         this._functionsInputEvents();
 
         // icv, includeSample
@@ -133,7 +113,7 @@ class GroupByOpPanel extends GeneralOpPanel {
 
         for (let i = 0; i < model.groups.length; i++) {
             if (i > 0) {
-                this._addGroupbyGroup();
+                this._addExtraGroup();
             }
             const $group = this._$panel.find('.group').eq(i);
             const operator: string = model.groups[i].operator;
@@ -1050,7 +1030,20 @@ class GroupByOpPanel extends GeneralOpPanel {
         return html;
     }
 
-    private _addGroupbyGroup() {
+    protected _removeExtraArgEventHandler($btn) {
+        const $row: JQuery = $btn.closest(".gbOnRow");
+        const index: number = this._$panel.find(".gbOnRow").index($row);
+        this.model.removeGroupOnArg(index);
+        this._$panel.find("input").blur();
+    }
+
+    protected _addExtraGroupEventHandler() {
+        this.model.addGroup();
+        this._$panel.find('.group').last().find('.functionsInput').focus();
+        this._scrollToGroup(this._$panel.find(".group").length - 1);
+    }
+
+    private _addExtraGroup() {
         const self = this;
         const newGroupIndex = this._$panel.find('.group').length;
         this._$panel.find('.group').last()

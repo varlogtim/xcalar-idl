@@ -33,28 +33,6 @@ class MapOpPanel extends GeneralOpPanel {
         // the double menu that has operation categories and function names
         this._functionsInputEvents();
 
-        // dynamic button - ex. default:multiJoin, in
-        this._$panel.on('click', '.addExtraArg', function() {
-            self._addExtraArg($(this));
-        });
-
-        this._$panel.on('click', '.extraArg .xi-cancel', function() {
-            self._removeExtraArg($(this).closest('.extraArg'));
-        });
-
-        // adds field to group on input
-        this._$panel.on("click", ".addGroup", function() {
-            self.model.addGroup();
-            self._$panel.find(".mapFilter").last().focus();
-            self._scrollToGroup(self._$panel.find(".group").length - 1);
-        });
-
-        this._$panel.on('click', '.removeExtraGroup', function() {
-            const $group = $(this).closest('.group');
-            const index = self._$panel.find(".group").index($group);
-            self.model.removeGroup(index);
-        });
-
         this._$panel.on('click', '.checkboxSection', function() {
             const $checkbox = $(this).find('.checkbox');
             $checkbox.toggleClass("checked");
@@ -135,7 +113,7 @@ class MapOpPanel extends GeneralOpPanel {
 
         for (let i = 0; i < model.groups.length; i++) {
             if (i > 0) {
-                this._addGroup();
+                this._addExtraGroup();
             } else {
                 this._populateInitialCategoryField(i);
             }
@@ -965,7 +943,7 @@ class MapOpPanel extends GeneralOpPanel {
         }
     }
 
-    private _addExtraArg($btn) {
+    protected _addExtraArg($btn) {
         const typeId = $btn.data("typeid");
         const html = this._getArgInputHtml(typeId);
         $btn.parent().before(html);
@@ -975,6 +953,10 @@ class MapOpPanel extends GeneralOpPanel {
         const $ul = $btn.parent().prev().find('.inputWrap').find(".list");
         this._addSuggestListForExtraArg($ul);
         this._addCastDropDownListener();
+    }
+
+    protected _removeExtraArgEventHandler($btn) {
+        this._removeExtraArg($btn.closest('.extraArg'));
     }
 
     private _addSuggestListForExtraArg($ul) {
@@ -1045,7 +1027,13 @@ class MapOpPanel extends GeneralOpPanel {
         this.model.removeArg(groupIndex, argIndex);
     }
 
-    private _addGroup() {
+    protected _addExtraGroupEventHandler() {
+        this.model.addGroup();
+        this._$panel.find(".mapFilter").last().focus();
+        this._scrollToGroup(this._$panel.find(".group").length - 1);
+    }
+
+    private _addExtraGroup() {
         this._minimizeGroups();
         const newGroupIndex = this._$panel.find('.group').length;
         this._$panel.find('.group').last()

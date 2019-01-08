@@ -185,15 +185,13 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
         }
 
         this.groups = groups;
-        this.andOrOperator = "and";
-
     }
 
     private _isValidAndOr(func, operator) {
         return (func.fnName === operator &&
                 func.args.length === 2 &&
-                typeof func.args[0].value === "object" &&
-                typeof func.args[1].value === "object");
+                func.args[0].type === "fn" &&
+                func.args[1].type === "fn");
     }
 
     protected _update(all?: boolean): void {

@@ -11,26 +11,6 @@ class FilterOpPanel extends GeneralOpPanel {
         const self = this;
         super.setupPanel("#filterOpPanel");
 
-         // dynamic button - ex. default:multiJoin, in
-        this._$panel.on('click', '.addExtraArg', function() {
-            self._addExtraArg($(this));
-        });
-
-        this._$panel.on('click', '.extraArg .xi-cancel', function() {
-            self._removeExtraArg($(this).closest('.extraArg'));
-        });
-
-        this._$panel.find('.addExtraGroup').click(function() {
-            self.model.addGroup();
-            self._scrollToGroup(self._$panel.find(".group").length - 1);
-        });
-
-        this._$panel.on('click', '.removeExtraGroup', function() {
-            const $group = $(this).closest('.group');
-            const index = self._$panel.find(".group").index($group);
-            self.model.removeGroup(index);
-        });
-
         this._functionsInputEvents();
 
         // toggle filter and/or
@@ -424,7 +404,7 @@ class FilterOpPanel extends GeneralOpPanel {
         this._checkIfStringReplaceNeeded(true);
     }
 
-    private _addExtraArg($btn) {
+    protected _addExtraArg($btn) {
         const typeId = $btn.data("typeid");
         const html = this._getArgInputHtml(typeId);
         $btn.parent().before(html);
@@ -906,6 +886,15 @@ class FilterOpPanel extends GeneralOpPanel {
                 self._removeGroup($(this), true);
             }
         });
+    }
+
+    protected _removeExtraArgEventHandler($btn) {
+        this._removeExtraArg($btn.closest('.extraArg'));
+    }
+
+    protected _addExtraGroupEventHandler() {
+        this.model.addGroup();
+        this._scrollToGroup(this._$panel.find(".group").length - 1);
     }
 
     private _addExtraGroup() {
