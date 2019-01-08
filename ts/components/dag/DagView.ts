@@ -2687,6 +2687,10 @@ namespace DagView {
         if (skewColor) {
             colorStyle = "color:" + skewColor;
         }
+        let skewRows: string = "N/A";
+        if (skewInfos.length) {
+            skewRows = xcHelper.numToStr(skewInfos[skewInfos.length - 1].totalRows);
+        }
 
         let html = `<div data-id="${nodeId}" class="runStats dagTableTip" style="left:${x}px;top:${y}px;">`;
         html += `<table>
@@ -2697,7 +2701,7 @@ namespace DagView {
                 </thead>
                 <tbody>
                     <tr>
-                        <td>${xcHelper.numToStr(skewInfos[skewInfos.length - 1].totalRows)}</td>
+                        <td>${skewRows}</td>
                         <td>${totalTimeStr}</td>
                         <td><span class="value" style="${colorStyle}">${maxSkew}</span></td>
                     </tr>
