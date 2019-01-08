@@ -31,18 +31,18 @@ namespace XVM {
                 // This is an error. Otherwise it will be an object
                 licenseExpireInfo = 'Unlicensed';
             } else {
-                const utcSeconds: number = parseInt(license.expiration);
+                const utcSeconds: number = parseInt(license.getExpiration());
                 const d: Date = new Date(0);
                 d.setUTCSeconds(utcSeconds);
                 // expirationDate = d;
                 licenseExpireInfo = d.toDateString();
                 licenseMode = XcalarMode.Oper;
             }
-            numNodes = license.nodeCount;
-            numUsers = license.userCount;
-            licensee = license.licensee;
-            compressedLicense = license.compressedLicense;
-            if (license.expired) {
+            numNodes = license.getNodecount();
+            numUsers = license.getUsercount();
+            licensee = license.getLicensee();
+            compressedLicense = license.getCompressedlicense();
+            if (license.getExpired()) {
                 console.log(license);
                 const error: string = xcHelper.replaceMsg(ErrTStr.LicenseExpire, {
                     date: licenseExpireInfo

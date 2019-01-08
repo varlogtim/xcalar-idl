@@ -545,8 +545,14 @@ XcalarGetLicense = function(): XDPromise<XcalarApiGetLicenseOutputT | {}> {
         return (deferred.promise());
     }
 
-    xcalarGetLicense(tHandle)
-    .then(deferred.resolve)
+    var client = new xce.XceClient(xcHelper.getAppUrl() + "/service/xce/");
+    var licenseService = new xce.LicenseService(client);
+    var getRequest = new proto.xcalar.compute.localtypes.License.GetRequest();
+
+    licenseService.get(getRequest)
+    .then(function(res) {
+        deferred.resolve(res);
+    })
     .fail(function(error: XcalarApiError) {
         console.error("Your license has not been properly set up!");
         const thriftError: ThriftError = thriftLog("XcalarGetLicense", error);
@@ -580,6 +586,7 @@ XcalarGetNodeName = function(
     return deferred.promise();
 };
 
+/*
 XcalarUpdateLicense = function(
     newLicense: string
 ): XDPromise<number|{}> {
@@ -601,6 +608,7 @@ XcalarUpdateLicense = function(
 
     return deferred.promise();
 };
+*/
 
 interface XcalarPreviewOutput {
     fileName: string,
