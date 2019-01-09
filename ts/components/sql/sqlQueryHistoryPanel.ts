@@ -396,11 +396,11 @@ namespace SqlQueryHistoryPanel {
                     <APP-BODY></APP-BODY>
                 </div>`,
             headerColumnRegular:
-                `<div class="col {{cssClass}}">{{title}}</div>`,
+                `<div class="col {{cssClass}}"><span class="label">{{title}}</span></div>`,
             headerColumnSortable:
-                `<div class="col col-sort {{cssClass}}" (click)="onClickSort">{{title}}<div class="sort"><i class="icon fa-8 {{sortOrderClass}}"></i></div></div>`,
+                `<div class="col col-sort {{cssClass}}" (click)="onClickSort"><span class="label">{{title}}</span><div class="sort"><i class="icon fa-8 {{sortOrderClass}}"></i></div></div>`,
             headerColumnSortableNoSort:
-                `<div class="col col-sort {{cssClass}}" (click)="onClickSort">{{title}}<div class="sort sort-none">
+                `<div class="col col-sort {{cssClass}}" (click)="onClickSort"><span class="label">{{title}}</span><div class="sort sort-none">
                     <span class="sortIconWrap"><i class="icon fa-8 xi-arrow-up"></i></span>
                     <span class="sortIconWrap"><i class="icon fa-8 xi-arrow-down"></i></span>
                 </div></div>`,
@@ -661,7 +661,7 @@ namespace SqlQueryHistoryPanel {
 
             const templateId = 'bodyRow';
             this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
-    
+
             const columns = [];
             columnProps.forEach((columnProp) => {
                 const elems = this._getBodyColumnBuilder(columnProp.category)(columnProp);
@@ -689,7 +689,7 @@ namespace SqlQueryHistoryPanel {
 
             const templateId = 'bodyColumnStatus';
             this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
-    
+
             return this._templateMgr.createElements(templateId, {
                 cssClass: this._getBodyColumnCss(category),
                 iconClass: this._getBodyColumnStatusIconCss(status),
@@ -709,7 +709,7 @@ namespace SqlQueryHistoryPanel {
 
             const templateId = isEllipsis ? 'bodyColumnElpsText' : 'bodyColumnText';
             this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
-    
+
             return this._templateMgr.createElements(templateId, {
                 cssClass: this._getBodyColumnCss(category),
                 text: text
@@ -728,7 +728,7 @@ namespace SqlQueryHistoryPanel {
 
             const templateId = 'bodyColumnElpsTextLink';
             this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
-    
+
             return this._templateMgr.createElements(templateId, {
                 cssClass: this._getBodyColumnCss(category),
                 text: text,
@@ -749,7 +749,7 @@ namespace SqlQueryHistoryPanel {
 
             const templateId = 'headerColumnRegular';
             this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
-    
+
             return this._templateMgr.createElements(templateId, {
                 cssClass: cssClass,
                 title: title
@@ -773,7 +773,7 @@ namespace SqlQueryHistoryPanel {
             if (sortOrder == SortOrder.NONE) {
                 const templateId = 'headerColumnSortableNoSort';
                 this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
-        
+
                 return this._templateMgr.createElements(templateId, {
                     cssClass: cssClass,
                     title: title,
@@ -781,11 +781,11 @@ namespace SqlQueryHistoryPanel {
                         onClickSort(currentOrder);
                     }
                 });
-    
+
             } else {
                 const templateId = 'headerColumnSortable';
                 this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
-        
+
                 return this._templateMgr.createElements(templateId, {
                     cssClass: cssClass,
                     title: title,

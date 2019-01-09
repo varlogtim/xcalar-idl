@@ -362,6 +362,8 @@ window.MainMenu = (function($, MainMenu) {
             MonitorPanel.inActive();
         } else if (lastTabId === "modelingDataflowTab") {
             DagView.hide();
+        } else if (lastTabId === "sqlTab") {
+            SQLWorkSpace.Instance.unfocus();
         }
         $(".mainPanel").removeClass("active");
         $("#container").removeClass("monitorViewOpen");
@@ -412,7 +414,7 @@ window.MainMenu = (function($, MainMenu) {
             case ("sqlTab"):
                 BottomMenu.unsetMenuCache();
                 $("#sqlWorkSpacePanel").addClass("active");
-                SQLWorkSpace.Instance.refresh();
+                SQLWorkSpace.Instance.focus();
                 break;
             default:
                 $(".underConstruction").addClass("active");
