@@ -711,6 +711,7 @@ declare enum StatusT {
     StatusNoBufs,
     StatusUdfModuleNotFound,
     StatusDatasetNameAlreadyExists,
+    StatusSessListIncomplete,
     StatusRetinaInUse
 }
 

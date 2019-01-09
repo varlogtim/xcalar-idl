@@ -455,7 +455,7 @@ function goToSqlWkbk(workbook) {
     var activeSessionNames = [];
     var sqlSession = null;
 
-    XcalarListWorkbooks("*")
+    XcalarListWorkbooks("*", true)
     .then(function(res) {
         res.sessions.forEach(function(session) {
             if (session.name === wkbkName) {

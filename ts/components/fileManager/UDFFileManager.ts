@@ -1018,7 +1018,7 @@ class UDFFileManager extends BaseFileManager {
         const user: XcUser = new XcUser(userName);
         XcUser.setUserSession(user);
 
-        XcalarListWorkbooks("*")
+        XcalarListWorkbooks("*", true)
         .then((sessionRes) => {
             const sessionIdWorkbookMap: Map<string, string> = new Map();
             const sessionWorkbookIDMap: Map<string, string> = new Map();

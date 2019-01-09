@@ -67,7 +67,7 @@ class DagTabPublished extends DagTab {
 
     private static _listSession(): XDPromise<{sessions: any[]}> {
         this._switchSession(null);
-        const promise = XcalarListWorkbooks("*");
+        const promise = XcalarListWorkbooks("*", true);
         this._resetSession();
         return promise;
     }

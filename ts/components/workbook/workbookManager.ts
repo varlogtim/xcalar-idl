@@ -2,6 +2,7 @@ namespace WorkbookManager {
     let wkbkStore: KVStore;
     let activeWKBKId: string;
     let wkbkSet: WKBKSet;
+    let missingWkbks: Set<string>;
     let checkInterval: number = 2000; // progress bar check time
     let progressTimeout: any;
     const descriptionKey: string = "workBookDesc-1";
@@ -107,7 +108,7 @@ namespace WorkbookManager {
         const deferred: XDDeferred<object> = PromiseHelper.deferred();
         let sessionInfo: object[];
 
-        XcalarListWorkbooks("*")
+        XcalarListWorkbooks("*", true)
         .then(function(sessionRes) {
             sessionInfo = sessionRes;
             return wkbkStore.getAndParse();
@@ -248,6 +249,10 @@ namespace WorkbookManager {
             return PromiseHelper.reject({
                 "error": "Invalid workbook Id"
             });
+        } else if (missingWkbks.has(toWkbk.getId())) {
+            return PromiseHelper.reject({
+                "error": "Failed to read workbook session. Contact support to resolve this issue."
+            });
         }
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
@@ -359,7 +364,7 @@ namespace WorkbookManager {
     function isActiveWorkbook(workbookName: string): XDPromise<boolean> {
         const deferred: XDDeferred<boolean> = PromiseHelper.deferred();
 
-        XcalarListWorkbooks(workbookName)
+        XcalarListWorkbooks(workbookName, true)
         .then(function(ret) {
             const session: any = ret.sessions[0];
             const isActive: boolean = (session.state === "Active");
@@ -599,7 +604,7 @@ namespace WorkbookManager {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const promises: XDPromise<void>[] = [];
 
-        XcalarListWorkbooks("*")
+        XcalarListWorkbooks("*", true)
         .then(function(output) {
             const numSessions: number = output.numSessions;
             const sessions: any = output.sessions;
@@ -982,6 +987,7 @@ namespace WorkbookManager {
             }
             const numSessions: number = sessionInfo.numSessions;
             const sessions: any = sessionInfo.sessions;
+            missingWkbks = new Set<string>();
             if  (refreshing) {
                 initializeVariable();
             }
@@ -1019,6 +1025,16 @@ namespace WorkbookManager {
             }
 
             for (let oldWkbkId in oldWorkbooks) {
+                let wkbk: WKBK;
+                wkbk = new WKBK({
+                    "id": oldWkbkId,
+                    "name": oldWkbkId,
+                    "noMeta": true,
+                    "state": "Error"
+                });
+                wkbk.setResource(false);
+                wkbkSet.put(oldWkbkId, wkbk);
+                missingWkbks.add(oldWkbkId);
                 console.warn("Error!", oldWkbkId, "is missing.");
             }
 
@@ -1186,7 +1202,7 @@ namespace WorkbookManager {
         })
         .then(function() {
             // If workbook is active, make it inactive so that our UX is linear
-            return XcalarListWorkbooks(wkbkName);
+            return XcalarListWorkbooks(wkbkName, true);
         })
         .then(function(retStruct) {
             if (retStruct.numSessions !== 1) {

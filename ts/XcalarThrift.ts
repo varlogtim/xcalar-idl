@@ -4890,7 +4890,8 @@ XcalarDeactivateWorkbook = function(
 };
 
 XcalarListWorkbooks = function(
-    pattern: string
+    pattern: string,
+    allowIncomplete: boolean
 ): XDPromise<XcalarApiSessionListOutputT> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -4902,9 +4903,14 @@ XcalarListWorkbooks = function(
         deferred.resolve(output);
     })
     .fail(function(error) {
-        const thriftError = thriftLog("XcalarListWorkbooks", error);
-        Log.errorLog("List Workbooks", null, null, thriftError);
-        deferred.reject(thriftError);
+        if (error.xcalarStatus === StatusT.StatusSessListIncomplete && allowIncomplete) {
+            console.error("Error: Incomplete session list (failed to read some sessions).");
+            deferred.resolve(error["sessionList"]);
+        } else {
+            const thriftError = thriftLog("XcalarListWorkbooks", error);
+            Log.errorLog("List Workbooks", null, null, thriftError);
+            deferred.reject(thriftError);
+        }
     });
     return (deferred.promise());
 };
