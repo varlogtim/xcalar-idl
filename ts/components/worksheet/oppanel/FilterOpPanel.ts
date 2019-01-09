@@ -635,14 +635,18 @@ class FilterOpPanel extends GeneralOpPanel {
                                     $row.find(".skipField").length) ||
                                     ($row.hasClass("boolOption") &&
                                 !$row.find(".boolArg").hasClass("checked"));
+                const emptyStrChecked = $row.find(".emptyStr.checked").length;
                 let val = $input.val();
-
                 val = self._parseColPrefixes(self._parseAggPrefixes(val));
 
                 if (noArgsChecked && val.trim() === "") {
                     // no quotes if noArgs and nothing in the input
                 } else if (self._quotesNeeded[inputCount]) {
-                    val = "\"" + val + "\"";
+                    if (val === "" && !emptyStrChecked) {
+                        // val = ""
+                    } else {
+                        val = "\"" + val + "\"";
+                    }
                 } else if (self._isNoneInInput($input)) {
                     val = "None";
                 }
@@ -664,7 +668,9 @@ class FilterOpPanel extends GeneralOpPanel {
                     // not add comma
                     // ex. add(6) instead of add(6, )
                     if (val === "") {
-                        if (!noArgsChecked) {
+                        if (noArgsChecked || !emptyStrChecked) {
+                            // blank
+                        } else {
                             val = ", " + val;
                         }
                     } else {

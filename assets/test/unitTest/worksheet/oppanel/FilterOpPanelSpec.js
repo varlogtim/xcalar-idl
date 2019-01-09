@@ -9,6 +9,7 @@ describe("FilterOpPanel Test", function() {
     var prefix = "prefix";
 
     before(function() {
+        MainMenu.openPanel("dagPanel");
         node = new DagNodeFilter({});
         const parentNode = new DagNodeFilter({});
         parentNode.getLineage = function() {

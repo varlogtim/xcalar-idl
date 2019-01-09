@@ -531,7 +531,7 @@ class GeneralOpPanel extends BaseOpPanel {
                 let casted: boolean;
 
                 $input.val(type);
-                casted = (type === "default");
+                casted = (type !== "default");
 
                 $input.attr("data-casted", <any>casted);
                 $input.closest('.row').find('.arg')
@@ -1845,7 +1845,7 @@ class GeneralOpPanel extends BaseOpPanel {
         //                                 .addClass('hidden');
         // this._hideCastColumn();
 
-        this._$panel.find('.argsSection').last().addClass('inactive');
+        this._$panel.find('.argsSection').last().empty().addClass('inactive');
         // empty all checkboxes except keeptable checkbox
         this._$panel.find(".checkbox").filter(function() {
             return !$(this).parent().hasClass("keepTable");
@@ -2015,9 +2015,7 @@ class GeneralOpPanel extends BaseOpPanel {
             this._$lastInputFocused.closest(".semiHidden").length) {
             return;
         }
-        if (this._$lastInputFocused.closest(".row")
-                                .siblings(".addArgWrap").length
-            || this._$lastInputFocused.hasClass("variableArgs")) {
+        if (this._$lastInputFocused.hasClass("variableArgs")) {
             options.append = true;
         }
         if (xcHelper.fillInputFromCell($tableCell, this._$lastInputFocused,

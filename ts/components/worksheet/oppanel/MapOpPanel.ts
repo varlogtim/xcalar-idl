@@ -47,11 +47,6 @@ class MapOpPanel extends GeneralOpPanel {
 
     // options
     // restore: boolean, if true, will not clear the form from it's last state
-    // restoreTime: time when previous operation took place
-    // triggerColNum: colNum that triggered the opmodal
-    // prefill: object, used to prefill the form
-    // public show = function(currTableId, currColNums, operator,
-    //                                options) {
     public show(node: DagNodeMap, options): boolean {
         const self = this;
         if (super.show(node, options)) {
@@ -202,6 +197,8 @@ class MapOpPanel extends GeneralOpPanel {
 
         // the search input box
         this._$panel.on("keydown", ".mapFilter", function(event) {
+            const val = $(this).val();
+            const valTrimmed = val.trim();
             const $group = $(this).closest(".group");
             if (event.which === keyCode.Down ||
                 event.which === keyCode.Up) {
@@ -220,8 +217,14 @@ class MapOpPanel extends GeneralOpPanel {
             }
 
             if (event.which === keyCode.Enter) {
-                if ($group.find(".functionsMenu").find('li').length === 1) {
-                    $group.find(".functionsMenu").find('li:visible').eq(0).click();
+                const $matchingLi: JQuery = $group.find(".functionsMenu").find("li").filter(function() {
+                    return $(this).text().toLowerCase() === valTrimmed;
+                });
+                if ($matchingLi.length === 1) {
+                    $matchingLi.click();
+                    event.preventDefault();
+                } else if ($group.find(".functionsMenu").find('li').length === 1) {
+                    $group.find(".functionsMenu").find('li').click();
                     event.preventDefault();
                 }
             }
@@ -469,7 +472,7 @@ class MapOpPanel extends GeneralOpPanel {
         $functionsList.append($includes);
         $functionsList.scrollTop(0);
 
-        $group.find('.argsSection').addClass('inactive');
+        $group.find('.argsSection').addClass('inactive').empty();
         this._$panel.find('.icvMode').addClass('inactive');
         this._$panel.find('.descriptionText').empty();
         this._$panel.find('.strPreview').empty();
@@ -685,6 +688,7 @@ class MapOpPanel extends GeneralOpPanel {
                                     $row.find(".skipField").length) ||
                                     ($row.hasClass("boolOption") &&
                                 !$row.find(".boolArg").hasClass("checked"));
+                const emptyStrChecked = $row.find(".emptyStr.checked").length;
                 let val = $input.val();
 
                 val = self._parseColPrefixes(self._parseAggPrefixes(val));
@@ -692,7 +696,11 @@ class MapOpPanel extends GeneralOpPanel {
                 if (noArgsChecked && val.trim() === "") {
                     // no quotes if noArgs and nothing in the input
                 } else if (self._quotesNeeded[inputCount]) {
-                    val = "\"" + val + "\"";
+                    if (val === "" && !emptyStrChecked) {
+                        // val = ""
+                    } else {
+                        val = "\"" + val + "\"";
+                    }
                 } else if (self._isNoneInInput($input)) {
                     val = "None";
                 }
@@ -714,7 +722,9 @@ class MapOpPanel extends GeneralOpPanel {
                     // not add comma
                     // ex. add(6) instead of add(6, )
                     if (val === "") {
-                        if (!noArgsChecked) {
+                        if (noArgsChecked || !emptyStrChecked) {
+                            // blank
+                        } else {
                             val = ", " + val;
                         }
                     } else {
@@ -930,7 +940,7 @@ class MapOpPanel extends GeneralOpPanel {
         } else {
             $categoryList.find('li').addClass('filteredOut');
             $functionsList.find('li').addClass('filteredOut');
-            this._$panel.find('.argsSection')
+            this._$panel.find('.argsSection').empty()
                     .addClass('inactive');
             this._$panel.find('.argsSection').empty();
             this._$panel.find('.icvMode').addClass('inactive');
@@ -1051,7 +1061,10 @@ class MapOpPanel extends GeneralOpPanel {
                 if ($group.hasClass('minimized')) {
                     return;
                 }
-                const numArgs = $group.find('.arg').length - 1;
+                // subtract 1 from numArgs because we don't want to count the
+                // new column input, but make sure numArgs is at least 0
+                let numArgs = $group.find('.arg').length - 1;
+                numArgs = Math.max(numArgs, 0);
                 $group.attr('data-numargs', numArgs);
                 $group.addClass('minimized');
                 if (!$group.find('.functionsMenu .active').length) {
@@ -1060,7 +1073,8 @@ class MapOpPanel extends GeneralOpPanel {
             });
         }
         else {
-            const numArgs = $group.find('.arg').length - 1;
+            let numArgs = $group.find('.arg').length - 1;
+            numArgs = Math.max(numArgs, 0);
             $group.attr('data-numargs', numArgs);
             $group.addClass('minimized');
             if (!$group.find('.functionsMenu .active').length) {

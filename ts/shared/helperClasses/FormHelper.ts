@@ -114,7 +114,7 @@ class FormHelper {
 
     // called everytime the form opens
     public setup(extraOptions: FormHelperOptions): XDPromise<any> {
-        this.$container = $();
+        this.$container = $("#container");
         const $view: JQuery = DagTable.Instance.getView();
         if ($view) {
             this.$container = this.$container.add($view);
