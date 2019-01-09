@@ -959,7 +959,8 @@ class DagNodeExecutor {
         const newDestTableName = self._generateTableName();
         const queryObj = {
             queryId: queryId,
-            queryString: params.sqlQueryStr
+            queryString: params.sqlQueryStr,
+            dataflowId: this.tabId
         };
         promise
         .then(function(ret) {
@@ -995,6 +996,7 @@ class DagNodeExecutor {
             // Set status to Done
             queryObj["status"] = SQLStatus.Done;
             queryObj["endTime"] = new Date();
+            queryObj["newTableName"] = newDestTableName;
             SqlQueryHistoryPanel.Card.getInstance().update(queryObj);
             deferred.resolve(newDestTableName, res);
         })

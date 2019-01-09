@@ -175,6 +175,7 @@ namespace SqlQueryHistory {
         endTime?: number | Date;
         newTableName?: string;
         errorMsg?: string;
+        dataflowId?: string;
     }
 
     export class QueryInfo {
@@ -185,6 +186,7 @@ namespace SqlQueryHistory {
         public endTime: number = null;
         public tableName: string = '';
         public errorMsg: string = '';
+        public dataflowId: string = '';
     }
 
     export class QueryExtInfo extends QueryInfo {
@@ -214,6 +216,9 @@ namespace SqlQueryHistory {
         }
         if (updateInfo.errorMsg != null) {
             mergeTo.errorMsg = updateInfo.errorMsg;
+        }
+        if (updateInfo.dataflowId != null) {
+            mergeTo.dataflowId = updateInfo.dataflowId;
         }
     }
 

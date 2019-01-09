@@ -293,6 +293,7 @@ namespace SqlQueryHistoryPanel {
                         text: 'Analyze', // XXX TODO: different text according to status?
                         onLinkClick: () => {
                             // XXX TODO: click ayalyze
+                            console.log(queryInfo.dataflowId);
                         }
                     };
                     return prop;
