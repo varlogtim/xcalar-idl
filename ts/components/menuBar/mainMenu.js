@@ -379,7 +379,6 @@ window.MainMenu = (function($, MainMenu) {
                     $curTab.removeClass("firstTouch");
                     DataSourceManager.initialize();
                     DSForm.initialize();
-                    TblSource.Instance.initialize();
                 }
                 DS.resize();
                 break;

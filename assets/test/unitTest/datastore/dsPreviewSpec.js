@@ -1420,7 +1420,7 @@ describe("Dataset-DSPreview Test", function() {
 
         after(function() {
             DSPreview.__testOnly__.resetForm();
-            DSForm.show({"noReset": true});
+            DSForm.show();
         });
     });
 
@@ -3256,7 +3256,7 @@ describe("Dataset-DSPreview Test", function() {
     describe("Show Preview and Submit Test", function() {
         before(function() {
             DSPreview.__testOnly__.resetForm();
-            DSForm.show({"noReset": true});
+            DSForm.show();
         });
 
         it("DSPreview.show() should work", function(done) {

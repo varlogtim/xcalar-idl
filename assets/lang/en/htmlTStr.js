@@ -372,6 +372,7 @@ module.exports = {
         "RawDSAdvTermStopRecord": "Stop importing data from current file when first error is encountered, and continue to the next file. Report encountered errors.",
         "RawDSJsonJmespath": "JSON query string. For information about JMESPath, search JMESPath online.",
         "RawDSPreviewRefresh": "Click to refresh the preview",
+        "RawDSTableSchema": "Schema for the table being created",
     },
 
     "Table": {
@@ -383,6 +384,11 @@ module.exports = {
         "Activate": "Activate Table",
         "Deactivate": "Deactivate Table",
         "Tables": "Tables",
+        "Schema": "Schema",
+    },
+
+    "SchemaSelect": {
+        "Title": "Select Schema",
     },
 
     "workspaceBar": {
@@ -764,6 +770,8 @@ module.exports = {
         "AddAll": "Add All",
         "ParquetParser": "Parquet Parser",
         "ParquetParserTooltip": "Xcalar will use the selected parser to parse parquet files",
+        "AutoDetectSchema": "Auto Detect Schema",
+        "UseSchemaWizard": "Use Schema Wizard",
     },
 
     "fileBrowser": {

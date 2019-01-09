@@ -178,6 +178,7 @@ class DataSourceManager {
         $panel.addClass("table");
         $title.text(CommonTxtTstr.Table);
         $menu.find(".table").removeClass("xc-hidden");
+        TblSource.Instance.initialize(); // update every time switch to the tab
     }
 
     private static _switchToViewTarget(isAdmin: boolean): void {

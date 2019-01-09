@@ -2942,11 +2942,50 @@ table.datasetTable {
             }
 
             .textarea {
-                .size(@width: 100%, @height: 60px, @min-height: 30px);
+                .size(@width: 100%);
+            }
+        }
+
+        &.json, &.schema {
+            .textarea {
+                .size(@height: 60px, @min-height: 30px);
                 padding-top: 0;
                 padding-bottom: 0;
                 line-height: 28px;
-                resize: vertical;
+                resize: none;
+            }
+        }
+
+        &.schema {
+            height: 120px;
+
+            .qMark {
+                top: 15px;
+            }
+
+            .multiLine {
+                .size(@width: ~"calc(100% - 172px)");
+            }
+
+            .textSection {
+                height: 60px;
+
+                textArea {
+                    width: 100%;
+                    outline: none;
+                }
+            }
+
+            .schemaWizard {
+                margin-top: 5px;
+                color: @color-bg-cardHeader;
+                opacity: @opacity-unhover;
+                text-decoration: underline;
+                cursor: pointer;
+
+                &:hover {
+                    opacity: @opacity-hover;
+                }
             }
         }
 
@@ -3537,7 +3576,7 @@ table.datasetTable {
     }
 }
 
-#sourceTableListSection {
+#mainMenu #sourceTableListSection {
     padding-top: 0;
 
     .gridViewWrapper {
@@ -3561,6 +3600,15 @@ table.datasetTable {
         }
 
         &.dsActivated {
+            &.tblOpts {
+                .dsOpt {
+                    &.delete {
+                        pointer-events: all;
+                        opacity: 1;
+                    }
+                }
+            }
+
             .dsOpt {
                 &.activate {
                     display: none;
@@ -3574,6 +3622,12 @@ table.datasetTable {
         }
 
         &:not(.dsActivated) {
+            &.tblOpts {
+                &.preview {
+                    display: block;
+                }
+            }
+
             .dsOpt {
                 &.preview {
                     display: none;
@@ -3632,6 +3686,13 @@ table.datasetTable {
     }
 
     &.loading {
+        &.tblOpts {
+            .delete {
+                opacity: @opacity-disabled;
+                pointer-events: none;
+            }
+        }
+
         .preview, .share, .deactivate, .activate, .delete {
             opacity: @opacity-disabled;
             pointer-events: none;
@@ -3674,7 +3735,7 @@ table.datasetTable {
     }
 }
 
-#gridViewSubMenu {
+#gridViewSubMenu, #tableGridViewSubMenu {
     z-index: @z-index-gridViewMenu + 1;
     background-color: @color-font-edge;
     .size(@width: 80px);

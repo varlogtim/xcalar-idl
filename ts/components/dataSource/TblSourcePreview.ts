@@ -12,13 +12,13 @@ class TblSourcePreview {
         this._initializeSchemaSection();
     }
 
-    public show(tableInfo: PbTblInfo, isLoading: boolean): void {
+    public show(tableInfo: PbTblInfo, msg: string): void {
         DSForm.hide();
         this._getContainer().removeClass("xc-hidden");
         this._updateTableInfos(tableInfo);
 
-        if (isLoading) {
-            this._setupLoadingView();
+        if (msg) {
+            this._setupLoadingView(msg);
         } else {
             this._renderSchema(tableInfo);
         }
@@ -41,12 +41,12 @@ class TblSourcePreview {
         this._schemaSection = new PTblSchema($section);
     }
 
-    private _setupLoadingView(): void {
+    private _setupLoadingView(msg: string): void {
         const $section = this._getContainer().find(".schemaSection");
         const html: HTML =
         '<div class="loading animatedEllipsisWrapper">' +
             '<div class="text">' +
-                TblTStr.Creating +
+                msg +
             '</div>' +
             '<div class="animatedEllipsis">' +
                 '<div>.</div>' +

@@ -853,7 +853,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
     function backToForm() {
         clearAll();
-        DSForm.show({"noReset": true});
+        DSForm.show();
     }
 
     function redirectHandler(path) {

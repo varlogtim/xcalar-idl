@@ -428,6 +428,26 @@
                 <textarea class="xc-textArea textarea" id="dsForm-jsonJmespath" spellcheck="false"></textarea>
               </div>
             </div>
+            <div id="dsForm-tblSchema" class="row schema">
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSTableSchema %>" data-placement="top"></i>
+              <label><%= dicts.Table.Schema %>:</label>
+              <div class="multiLine">
+                <div class="checkboxSection rowContent">
+                  <div class="text"><%= dicts.dsForm.AutoDetectSchema %></div>
+                  <div class="checkbox">
+                    <i class="icon xi-ckbox-empty"></i>
+                    <i class="icon xi-ckbox-selected"></i>
+                  </div>
+                </div>
+                <div class="textSection rowContent">
+                  <textarea class="xc-textArea textarea"
+                   placeholder='Example: [{"name": "Column1", "type": "integer"}, {"name": "Column2", "type": "string"}]'></textarea>
+                </div>
+                <div class="schemaWizard rowContent">
+                  <%= dicts.dsForm.UseSchemaWizard %>
+                </div>
+              </div>
+            </div>
           </section>
           <!-- end of middle section -->
           <!-- advance section-->

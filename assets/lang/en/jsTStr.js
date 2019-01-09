@@ -384,6 +384,7 @@ ErrTStr = {
     "DetectSchema": "Error occured when detecting schema",
     "DFInExecution": "Dataflow is in execution",
     "RestoreDS": "Restore Dataset Error",
+    "ParseSchema": "Invalid text to parse as schema",
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +
@@ -1247,8 +1248,10 @@ DSTStr = {
     "InvalidPriorDataset": "Prior dataset does not exist: ",
     "DisableShare": "Sharing datasets is disabled by admin",
     "DSDeactivating": "Deactivating",
+    "DSActivating": "Activating",
     "Restore": "Restore Dataset",
-
+    'TableName': 'Table Name',
+    'DSName': 'Dataset Name',
 
     // With replace
     'DelDSConfirm': 'Are you sure you want to delete dataset <ds>?',
@@ -1263,7 +1266,6 @@ DSTStr = {
     'CancelPointMsg': 'Are you sure you want to cancel pointing dataset <ds> ?',
     'LoadErr': 'Error: <error>',
     'LoadErrFile': 'Error File: <file>',
-    'TableName': 'Table Name',
     'ColPrefix': 'Column Prefix',
     'ShowAdvOpt': 'Show Advanced Option',
     'HideAdvOpt': 'Hide Advanced Option',
@@ -1657,12 +1659,15 @@ UploadTStr = {
 
 IMDTStr = {
     "Title": "Published Tables",
-    "DelTable": "Delete Published Table",
+    "DelTable": "Delete Tables",
+    "DelTableFail": "Delete Table Failed",
     "DataUnavailable":  "Only showing last 128 updates.",
     "DelTableMsg": "Are you sure you want to permanently drop the following tables : \"<tableName>\"? This action cannot be undone.",
     "Activating": "Activating Tables",
-    "DeactivateTablesMsg": "Note: activating and deactivating published tables may be slow.\nAre you sure you want to deactivate the following tables : \"<tableName>\"?",
-    "DeactivateTable": "Deactivate Published Tables",
+    "ActivatingFail": "Activating Table Failsed",
+    "DeactivateTablesMsg": "Note: activating and deactivating tables may be slow.\nAre you sure you want to deactivate the following tables : \"<tableName>\"?",
+    "DeactivateTable": "Deactivate Tables",
+    "DeactivateTableFail": "Deactivate Table Failed",
     "Coalesce": "Coalesce",
     "CoalesceTip": "Conserve memory by combining updated tables into one. This operation cannot be undone.",
     "GenerateTable": "Generate Table",

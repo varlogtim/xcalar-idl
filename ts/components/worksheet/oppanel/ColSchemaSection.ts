@@ -1,14 +1,27 @@
 class ColSchemaSection {
     private _$section: JQuery;
     private _initialSchema: ColSchema[];
+    private _hintSchema: ColSchema[];
+    private _validTypes: ColumnType[];
 
     public constructor($section: JQuery) {
         this._$section = $section;
+        this._hintSchema = null;
+        this._validTypes = [ColumnType.boolean, ColumnType.float, ColumnType.integer,
+        ColumnType.string, ColumnType.timestamp, ColumnType.mixed, ColumnType.unknown];
         this._addEventListeners();
     }
 
     public setInitialSchema(schema: ColSchema[]): void {
         this._initialSchema = schema;
+    }
+
+    public setHintSchema(schema: ColSchema[]): void {
+        this._hintSchema = schema;
+    }
+
+    public setValidTypes(types: ColumnType[]): void {
+        this._validTypes = types;
     }
 
     public render(schema: ColSchema[]): void {
@@ -208,8 +221,8 @@ class ColSchemaSection {
         currentSchema.splice(index, 1); // remove the current row
         currentSchema.forEach(cacheSchema);
 
-        const initialSchema: ColSchema[] = this._initialSchema || [];
-        initialSchema.forEach(cacheSchema);
+        const hintSchema: ColSchema[] = this._hintSchema || this._initialSchema || [];
+        hintSchema.forEach(cacheSchema);
 
         const schema = [];
         for (let name in schemaMap) {
@@ -254,9 +267,7 @@ class ColSchemaSection {
     }
 
     private _populateTypeDropdown($dropdown: JQuery): void {
-        const validTypes = [ColumnType.boolean, ColumnType.float, ColumnType.integer,
-        ColumnType.string, ColumnType.timestamp, ColumnType.mixed, ColumnType.unknown];
-        const html: HTML = validTypes.map((colType) => {
+        const html: HTML = this._validTypes.map((colType) => {
             const li: HTML =
                 '<li>' +
                     '<i class="icon xi-' + colType + '"></i>' +

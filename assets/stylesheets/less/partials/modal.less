@@ -2050,6 +2050,26 @@ html.microsoft {
     }
 }
 
+#schemaSelectionModal {
+    .size(@width: 500px, @height: 800px);
+
+    .modalMain {
+        padding: 15px;
+        height: ~"calc(100% - 92px)";
+
+        .label {
+            height: 20px;
+            font-weight: 700;
+            padding-left: 15px;
+        }
+
+        .colSchemaSection {
+            height: ~"calc(100% - 20px)";
+            overflow-y: auto;
+        }
+    }
+}
+
 #container.locked {
     #deleteTableModal {
         z-index: @z-index-locked - 1;

@@ -650,6 +650,27 @@ window.DSPreview = (function($, DSPreview) {
             getPreviewTable();
         });
 
+        // schema rows
+        var $schemaRow = $form.find(".row.schema");
+        $schemaRow.find(".checkboxSection").on("click", function() {
+            var $checkbox = $schemaRow.find(".checkboxSection .checkbox");
+            var $schemaPart = $schemaRow.find(".textSection, .schemaWizard");
+            if ($checkbox.hasClass("checked")) {
+                $checkbox.removeClass("checked");
+                $schemaPart.removeClass("xc-disabled");
+            } else {
+                $checkbox.addClass("checked");
+                $schemaPart.addClass("xc-disabled");
+            }
+        });
+
+        $schemaRow.find(".schemaWizard").click(function() {
+            var schema = getSchemaFromPreviewTable();
+            SchemaSelectionModal.Instance.show(schema, function(colSchema) {
+                addSchema(colSchema);
+            });
+        });
+
         // back button
         $form.on("click", ".cancel", function() {
             var targetName = loadArgs.getTargetName();
@@ -659,8 +680,9 @@ window.DSPreview = (function($, DSPreview) {
             }
             resetForm();
             clearPreviewTable(tableName);
+            createTableMode = null;
             if (backToFormCard) {
-                DSForm.show({"noReset": true});
+                DSForm.show();
             } else {
                 // XXX changet to support multiple of paths
                 FileBrowser.show(targetName, fileBrowserPath, true);
@@ -1220,6 +1242,14 @@ window.DSPreview = (function($, DSPreview) {
         $previewWrap.find(".errorSection").addClass("hidden")
                                           .removeClass("cancelState");
         $previewWrap.find(".loadHidden").removeClass("hidden");
+
+        var $schemaRow = $form.find(".row.schema");
+        $schemaRow.find("textArea").val("");
+        if (isCreateTableMode()) {
+            $schemaRow.removeClass("xc-hidden");
+        } else {
+            $schemaRow.addClass("xc-hidden");
+        }
     }
 
     function resetPreviewRows() {
@@ -1371,6 +1401,7 @@ window.DSPreview = (function($, DSPreview) {
             "skipRows": skipRows,
             "udfQuery": udfQuery,
             "advancedArgs": advancedArgs,
+            "schema": res.schema
         };
         var curPreviewId = previewId;
 
@@ -1722,6 +1753,22 @@ window.DSPreview = (function($, DSPreview) {
         return headers;
     }
 
+    function getSchemaFromPreviewTable() {
+        var headers = getColumnHeaders();
+        var schema = headers.map((header) => {
+            return {
+                name: header.colName,
+                type: header.colType
+            };
+        });
+        return schema;
+    }
+
+    function addSchema(colSchema) {
+        var $schemaRow = $form.find(".row.schema");
+        $schemaRow.find("textarea").val(JSON.stringify(colSchema));
+    }
+
     function validateDSNames() {
         var isValid = true;
         var dsNames = [];
@@ -1977,6 +2024,69 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         return {columns: names};
+    }
+
+    function validateTblSchema() {
+        var $schemaRow = $form.find(".row.schema");
+        var $checkbox = $schemaRow.find(".checkboxSection .checkbox");
+        if ($checkbox.hasClass("checked")) {
+            return {schema: null};
+        }
+        var $textArea = $schemaRow.find("textArea");
+        var val = $textArea.val().trim();
+        if (val === "") {
+            StatusBox.show(ErrTStr.NoEmpty, $textArea);
+            return;
+        }
+        
+        var validTypes = BaseOpPanel.getBasicColTypes();
+        var schema = [];
+        try {
+            if (val[0] !== "[") {
+                val = "[" + val;
+            }
+            if (val[val.length - 1] !== "]") {
+                val = val + "]";
+            }
+
+            var parsed = JSON.parse(val);
+            var nameCache = {};
+            parsed.forEach((column) => {
+                if (typeof column !== "object") {
+                    throw new Error("Invalid schema, should include name and type attribute");
+                }
+                var name = null;
+                var type = null;
+
+                for (var key in column) {
+                    var trimmedKey = key.trim();
+                    if (trimmedKey === "name") {
+                        name = column[key];
+                    } else if (trimmedKey === "type") {
+                        type = column[key];
+                    }
+                }
+                if (name == null || type == null) {
+                    throw new Error("Invalid schema, should include name and type attribute");
+                }
+
+                if (!nameCache.hasOwnProperty(name)) {
+                    if (!validTypes.includes(type)) {
+                        throw new Error("Invalid type: " + type);
+                    }
+                    nameCache[name] = true;
+                    schema.push({
+                        name: name,
+                        type: type
+                    });
+                }
+            })
+            return schema;
+        } catch (e) {
+            StatusBox.show(ErrTStr.ParseSchema, $textArea, false, {
+                detail: e.message
+            });
+        }
     }
 
     function validateAdvancedArgs() {
@@ -2268,6 +2378,12 @@ window.DSPreview = (function($, DSPreview) {
             udfQuery = udfDef.udfQuery;
         }
 
+        var schema = isCreateTableMode() ? validateTblSchema() : {schema: null};
+        if (schema == null) {
+            // error case
+            return null;
+        }
+
         var advanceArgs = validateAdvancedArgs();
         if (advanceArgs == null) {
             // error case
@@ -2283,10 +2399,11 @@ window.DSPreview = (function($, DSPreview) {
             "fieldDelim": fieldDelim,
             "lineDelim": lineDelim,
             "quote": quote,
-            "skipRows": skipRows
+            "skipRows": skipRows,
+            "schema": schema
         };
 
-        return $.extend(args, advanceArgs);
+        return $.extend(args, schema, advanceArgs);
     }
 
     function getNameFromPath(path) {
@@ -2968,6 +3085,13 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function setDefaultDSName() {
+        var $title = $form.find(".row.title label");
+        if (isCreateTableMode()) {
+            $title.text(DSTStr.TableName + ":")
+        } else {
+            $title.text(DSTStr.DSName + ":");
+        }
+
         var files = loadArgs.files;
         if (!loadArgs.multiDS) {
             // only multiDS mode will show multiple path
