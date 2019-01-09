@@ -134,7 +134,7 @@ class GroupByOpPanel extends GeneralOpPanel {
                 self._updateArgumentSection(i);
             }
 
-            const $args = $group.find(".argsSection").last().find(".arg").filter(function() {
+            const $args = $group.find(".argsSection").find(".arg").filter(function() {
                 return $(this).closest(".colNameSection").length === 0;
             });
 
@@ -324,7 +324,7 @@ class GroupByOpPanel extends GeneralOpPanel {
             const argIndex = $group.find(".groupOnSection .arg").index($input);
             this.model.updateGroupOnArg(val, argIndex);
         } else {
-            const argIndex = $group.find(".argsSection").last().find(".arg").index($input);
+            const argIndex = $group.find(".argsSection").find(".arg").index($input);
             this.model.updateArg(val, groupIndex, argIndex);
         }
     }
@@ -411,8 +411,8 @@ class GroupByOpPanel extends GeneralOpPanel {
         const val = $input.val().trim();
 
         $argsGroup.find('.genFunctionsMenu').data('category', 'null');
-        $argsGroup.find('.argsSection').last().addClass('inactive');
-        $argsGroup.find('.argsSection').last().empty();
+        $argsGroup.find('.argsSection').addClass('inactive');
+        $argsGroup.find('.argsSection').empty();
         this._$panel.find('.gbCheckboxes').addClass('inactive');
         this._$panel.find('.icvMode').addClass('inactive');
         this._$panel.find(".advancedSection").addClass("inactive");
@@ -448,7 +448,7 @@ class GroupByOpPanel extends GeneralOpPanel {
         const ops = this._operatorsMap[categoryNum];
 
         const operObj = ops[func];
-        const $argsSection = $argsGroup.find('.argsSection').last();
+        const $argsSection = $argsGroup.find('.argsSection');
         $argsSection.empty();
         $argsSection.addClass("touched");
         $argsSection.removeClass('inactive');
@@ -499,7 +499,7 @@ class GroupByOpPanel extends GeneralOpPanel {
 
     protected _addArgRows(numInputsNeeded, $argsGroup, groupIndex) {
         const self = this;
-        const $argsSection = $argsGroup.find('.argsSection').last();
+        const $argsSection = $argsGroup.find('.argsSection');
         let argsHtml: HTML = "";
         for (let i = 0; i < numInputsNeeded; i++) {
             argsHtml += this._getArgHtml();
@@ -731,7 +731,7 @@ class GroupByOpPanel extends GeneralOpPanel {
         let $groups;
 
         const $activeArgs = this._$panel.find(".group").filter(function() {
-            return !$(this).find(".argsSection").last().hasClass("inactive");
+            return !$(this).find(".argsSection").hasClass("inactive");
         });
         if (!$activeArgs.length) {
             this._$panel.find('.strPreview').empty();
@@ -744,8 +744,7 @@ class GroupByOpPanel extends GeneralOpPanel {
 
         const aggColNewText = [];
         $groups.each(function() {
-            let aggCol = $(this).find('.argsSection').last()
-                                        .find('.arg').eq(0).val().trim();
+            let aggCol = $(this).find('.argsSection').find('.arg').eq(0).val().trim();
             aggCol = self._parseAggPrefixes(aggCol);
             aggCol = self._parseColPrefixes(aggCol);
             aggColNewText.push(aggCol);
@@ -769,8 +768,7 @@ class GroupByOpPanel extends GeneralOpPanel {
         if (noHighlight) {
             let html = "";
             $groups.each(function(groupNum) {
-                const fnName = $(this).find(".argsSection").last()
-                                                        .data("fnname");
+                const fnName = $(this).find(".argsSection").data("fnname");
                 html += '<span class="aggColStrWrap">' +fnName + '(<span class="aggCols">' +
                                 self._wrapText(aggColNewText[groupNum]) +
                                 '</span>), </span>';
@@ -821,16 +819,11 @@ class GroupByOpPanel extends GeneralOpPanel {
                 const model = this.model.getModel();
                 const groups = model.groups;
                 const $group = this._$panel.find(".group").eq(error.group);
-                let $input = $group.find(".argsSection").last()
-                                   .find(".arg").eq(error.arg);
-                let inputNumAdjustment = 0;
-                if (error.group === 0) {
-                    inputNumAdjustment = model.groupOnCols.length;
-                }
+                let $input = $group.find(".argsSection").find(".arg").eq(error.arg);
+
                 switch (error.type) {
                     case ("groupOnCol"):
-                        $input = this._$panel.find(".group").eq(0)
-                                            .find(".argsSection").first()
+                        $input = this._$panel.find(".groupOnSection")
                                             .find(".arg").eq(error.arg);
                         self._statusBoxShowHelper(error.error, $input);
                         break;
@@ -856,10 +849,10 @@ class GroupByOpPanel extends GeneralOpPanel {
                                 allColTypes.push({
                                     inputTypes: [colType],
                                     requiredTypes: requiredTypes,
-                                    inputNum: i + inputNumAdjustment
+                                    inputNum: i
                                 });
                                 if (!arg.checkIsValid() && arg.getError().includes(ErrWRepTStr.InvalidOpsType.substring(0, 20))) {
-                                    inputNums.push(i + inputNumAdjustment);
+                                    inputNums.push(i);
                                 }
                             }
                         }
@@ -1122,7 +1115,7 @@ class GroupByOpPanel extends GeneralOpPanel {
             const argIndex = $group.find(".groupOnSection .arg").index($input);
             this.model.updateGroupOnArg(val, argIndex);
         } else {
-            const argIndex = $group.find(".argsSection").last().find(".arg").index($input);
+            const argIndex = $group.find(".argsSection").find(".arg").index($input);
             this.model.updateArg(val, groupIndex, argIndex);
         }
     }

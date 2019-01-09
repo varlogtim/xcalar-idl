@@ -144,6 +144,7 @@ class FilterOpPanel extends GeneralOpPanel {
                 keyCode.Tab) {
                 const $li = $input.siblings(".list:visible").find("li.highlighted");
                 if ($li.length === 1) {
+                    $input.blur();
                     self._fnListMouseup(event, $li);
                     return false;
                 }
