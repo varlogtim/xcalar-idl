@@ -181,7 +181,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
             args.forEach((arg) => {
                 const value = self.formatArgToUI(arg.getValue());
                 arg.setValue(value);
-                self._formatArg(arg);
+                arg.setFormattedValue(rawValue);
                 self._validateArg(arg);
             });
 

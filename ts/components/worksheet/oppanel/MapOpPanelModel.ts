@@ -194,7 +194,7 @@ class MapOpPanelModel extends GeneralOpPanelModel {
                     arg.setIsNone(true);
                 }
                 arg.setValue(value);
-                self._formatArg(arg);
+                arg.setFormattedValue(rawValue);
                 self._validateArg(arg);
             });
 

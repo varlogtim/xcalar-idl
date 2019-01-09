@@ -134,12 +134,13 @@ class AggOpPanelModel extends GeneralOpPanelModel {
                 args.push(argInfo);
             }
             args.forEach((arg) => {
-                const value = self.formatArgToUI(arg.getValue());
+                const rawValue = arg.getValue();
+                const value = self.formatArgToUI(rawValue);
                 arg.setValue(value);
                 if (argGroup.fnName === "regex" && args.length === 2) {
                     arg.setRegex(true);
                 }
-                self._formatArg(arg);
+                arg.setFormattedValue(rawValue);
                 self._validateArg(arg);
             });
 
