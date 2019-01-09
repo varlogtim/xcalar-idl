@@ -112,7 +112,10 @@ namespace SqlQueryHistoryPanel {
                         isEllipsis: true,
                         text: duration === "N/A"
                             ? duration
-                            : xcHelper.getElapsedTimeStr(duration, (queryInfo.endTime == null))
+                            : xcHelper.getElapsedTimeStr(
+                                duration < 0 ? 0 : duration,
+                                (queryInfo.endTime == null)
+                            )
                     };
                     return prop;
                 }
@@ -262,24 +265,26 @@ namespace SqlQueryHistoryPanel {
             const tableDef = <TableDefinition<QueryExtInfo>>super.getTableDefinition();
 
             tableDef[TableColumnCategory.ROWS] = {
-                type: TableHeaderColumnType.REGULAR,
+                type: TableHeaderColumnType.SORTABLE,
+                sortFunction: sortFunctions.sortRows,
                 convertFunc: (queryInfo) => {
                     const prop: TableBodyColumnTextProp = {
                         category: TableColumnCategory.ROWS,
                         isEllipsis: false,
-                        text: `${queryInfo.rows == null ? 0 : queryInfo.rows}` // XXX TODO: number format
+                        text: `${formatNumber(queryInfo.rows)}`
                     };
                     return prop;
                 }
             };
 
             tableDef[TableColumnCategory.SKEW] = {
-                type: TableHeaderColumnType.REGULAR,
+                type: TableHeaderColumnType.SORTABLE,
+                sortFunction: sortFunctions.sortSkew,
                 convertFunc: (queryInfo) => {
                     const prop: TableBodyColumnTextProp = {
                         category: TableColumnCategory.SKEW,
                         isEllipsis: false,
-                        text: `${queryInfo.skew == null ? 0 : queryInfo.skew}` // XXX TODO: number format
+                        text: `${formatNumber(queryInfo.skew)}`
                     };
                     return prop;
                 }
@@ -290,7 +295,7 @@ namespace SqlQueryHistoryPanel {
                 convertFunc: (queryInfo) => {
                     const prop: TableBodyColumnTextLinkProp = {
                         category: TableColumnCategory.ACTION,
-                        text: 'Analyze', // XXX TODO: different text according to status?
+                        text: SQLTStr.queryTableBodyTextAnalyze,
                         onLinkClick: () => {
                             // XXX TODO: click ayalyze
                             console.log(queryInfo.dataflowId);
@@ -943,7 +948,17 @@ namespace SqlQueryHistoryPanel {
         },
         sortStatus: (a: QueryInfo, b: QueryInfo) => (
             a.status > b.status? 1: (a.status < b.status? -1: 0)
-        )
+        ),
+        sortRows: (a: QueryExtInfo, b: QueryExtInfo) => {
+            const aValue = a.rows || Number.MAX_VALUE;
+            const bValue = b.rows || Number.MAX_VALUE;
+            return aValue - bValue;
+        },
+        sortSkew: (a: QueryExtInfo, b: QueryExtInfo) => {
+            const aValue = a.skew || Number.MAX_VALUE;
+            const bValue = b.skew || Number.MAX_VALUE;
+            return aValue - bValue;
+        }
     };
 
     export function formatDateTime(dateTime: Date|number): string {
@@ -951,5 +966,14 @@ namespace SqlQueryHistoryPanel {
         const dateString = xcHelper.getDate('-', dt, null);
         const timeString = xcHelper.getTime(dt, null, false);
         return `${dateString} ${timeString}`;
+    }
+
+    export function formatNumber(number: Number): string {
+        const strNA = 'N/A';
+        if (number == null) {
+            return strNA;
+        }
+        const n = Number(number);
+        return Number.isNaN(n) ? strNA : n.toLocaleString();
     }
 }

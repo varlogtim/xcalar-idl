@@ -104,6 +104,28 @@ describe("SqlQueryHistoryPanel Test", function() {
             for (let i = 0; i < list.length; i ++) {
                 expect(list[i].id).to.equal(list.length - 1 - i);
             }
+
+            // Sort rows
+            list = [];
+            const sortRows = SqlQueryHistoryPanel.sortFunctions.sortRows;
+            for (let i = 0; i < 5; i ++) {
+                list.push({ rows: 10 - i, id: i});
+            }
+            list.sort(sortRows);
+            for (let i = 0; i < list.length; i ++) {
+                expect(list[i].id).to.equal(list.length - 1 - i);
+            }
+
+            // Sort skew
+            list = [];
+            const sortSkew = SqlQueryHistoryPanel.sortFunctions.sortSkew;
+            for (let i = 0; i < 5; i ++) {
+                list.push({ skew: 10 - i, id: i});
+            }
+            list.sort(sortSkew);
+            for (let i = 0; i < list.length; i ++) {
+                expect(list[i].id).to.equal(list.length - 1 - i);
+            }
         });
 
         it('formatDateTime should work', () => {
@@ -115,6 +137,14 @@ describe("SqlQueryHistoryPanel Test", function() {
             // Input is timestamp
             expect(SqlQueryHistoryPanel.formatDateTime(date.getTime())).to.equal(expectedString);
         });
+
+        it('formatNumber should work', () => {
+            // Error handling
+            expect(SqlQueryHistoryPanel.formatNumber(null)).to.equal('N/A');
+            expect(SqlQueryHistoryPanel.formatNumber('abcd')).to.equal('N/A');
+            // Regular input
+            expect(SqlQueryHistoryPanel.formatNumber(1234)).to.equal(Number(1234).toLocaleString());
+        })
     });
 
     describe('SqlQueryHistoryPanel.DynaTable Test', () => {
