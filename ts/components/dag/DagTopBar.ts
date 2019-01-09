@@ -40,7 +40,7 @@ class DagTopBar {
             $userOnlyBtns.addClass("xc-disabled");
         }
 
-        const $userAndPublishOnlyBtns: JQuery = $btns.find(".run, .duplicate");
+        const $userAndPublishOnlyBtns: JQuery = $btns.find(".run, .optimizedRun, .duplicate");
         if (dagTab instanceof DagTabUser || dagTab instanceof DagTabPublished) {
             $userAndPublishOnlyBtns.removeClass("xc-disabled");
         } else {
