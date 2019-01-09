@@ -169,6 +169,7 @@ namespace xcTooltip {
         allowEmpty: boolean = false
     ): void {
         if (text != null || allowEmpty) {
+            xcTooltip.hideAll();
             $element.attr("title", "")
                     .attr("data-original-title", text);
         }

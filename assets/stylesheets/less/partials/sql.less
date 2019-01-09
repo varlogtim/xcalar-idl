@@ -201,6 +201,27 @@
             border-right: 1px solid @color-border-softGray;
             position: absolute;
             left: 0px;
+
+            .ui-resizable-se, .ui-resizable-s {
+                display: none !important;
+            }
+
+            .ui-resizable-handle {
+                z-index: 3 !important; // don't block other elements
+            }
+
+            &.undocked {
+                z-index: @z-index-sqlEditorUndocked;
+                box-shadow: 0 0 2px rgba(0,0,0, 0.3);
+
+                header {
+                    pointer-events: auto;
+                    .cursor-move;
+                }
+                .ui-resizable-se, .ui-resizable-s {
+                    display: block !important;
+                }
+            }
         }
 
         .rightSection {
@@ -315,6 +336,17 @@
     @bottom-height: 120px;
     @total-height: @topSectionHeight + @top-bar-height + @bottom-height;
 
+    .undock {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+
+        &:hover {
+            opacity: 0.8;
+        }
+    }
+
     header {
         padding-left: 15px;
         height: @topSectionHeight;
@@ -323,6 +355,7 @@
         font-size: 22px;
         font-weight: bold;
         line-height: @topSectionHeight;
+        pointer-events: none;
     }
 
     .topBarSection {
