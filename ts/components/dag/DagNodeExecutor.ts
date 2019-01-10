@@ -297,8 +297,10 @@ class DagNodeExecutor {
     private _join(optimized?: boolean): XDPromise<string> {
         const node: DagNodeJoin = <DagNodeJoin>this.node;
         const params: DagNodeJoinInputStruct = node.getParam(this.replaceParam);
+        const parents: DagNode[] = node.getParents();
         // Sanity check
-        for (const parent of node.getParents()) {
+        for (let i = 0 ; i < 2; i++) {
+            let parent = parents[i];
             if (parent == null || parent.getLineage() == null) {
                 return PromiseHelper.reject('Lineage is broken');
             }
@@ -313,7 +315,6 @@ class DagNodeExecutor {
             }
         }
         joinType = (joinType == null) ? <JoinType>params.joinType : joinType;
-        const parents: DagNode[] = node.getParents();
         const lTableInfo: JoinTableInfo = this._joinInfoConverter(
             params.left,
             parents[0],
