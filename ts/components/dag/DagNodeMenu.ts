@@ -390,7 +390,7 @@ namespace DagNodeMenu {
                 break;
             default:
                 unlock(tabId);
-                StatusBox.show("Cannot configure: Unsupported type",
+                StatusBox.show("No panels available. To edit, copy node and paste into a text editor. Then copy the edited JSON and paste it here.",
                                 DagView.getNode(nodeId));
                 return;
         }

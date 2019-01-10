@@ -1113,7 +1113,7 @@ DFTStr = {
     'RunDoneMsg': 'Successfully ran dataflow!',
     'RunFail': 'Run Dataflow Failed',
     'Running': 'Running batch dataflow',
-    'Cancel': "Datafow execution is cancled",
+    'Cancel': "Datafow execution is canceled",
     'Scheduled': 'Scheduled',
     'TooLarge': 'Dataflow image exceeds viewable limit.',
     'UpdateParamFail': 'Update Parameters Failed',
