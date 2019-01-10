@@ -48,6 +48,12 @@ SqlBaseVisitor.prototype.visitSingleTableSchema = function(ctx) {
 };
 
 
+// Visit a parse tree produced by SqlBaseParser#statements.
+SqlBaseVisitor.prototype.visitStatements = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
 // Visit a parse tree produced by SqlBaseParser#statementDefault.
 SqlBaseVisitor.prototype.visitStatementDefault = function(ctx) {
   return this.visitChildren(ctx);
@@ -624,6 +630,24 @@ SqlBaseVisitor.prototype.visitGroupingSet = function(ctx) {
 };
 
 
+// Visit a parse tree produced by SqlBaseParser#pivotClause.
+SqlBaseVisitor.prototype.visitPivotClause = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by SqlBaseParser#pivotColumn.
+SqlBaseVisitor.prototype.visitPivotColumn = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by SqlBaseParser#pivotValue.
+SqlBaseVisitor.prototype.visitPivotValue = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
 // Visit a parse tree produced by SqlBaseParser#lateralView.
 SqlBaseVisitor.prototype.visitLateralView = function(ctx) {
   return this.visitChildren(ctx);
@@ -786,6 +810,12 @@ SqlBaseVisitor.prototype.visitRowFormatDelimited = function(ctx) {
 };
 
 
+// Visit a parse tree produced by SqlBaseParser#tableIdentifierWithFunc.
+SqlBaseVisitor.prototype.visitTableIdentifierWithFunc = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
 // Visit a parse tree produced by SqlBaseParser#tableIdentifier.
 SqlBaseVisitor.prototype.visitTableIdentifier = function(ctx) {
   return this.visitChildren(ctx);
@@ -822,8 +852,8 @@ SqlBaseVisitor.prototype.visitLogicalNot = function(ctx) {
 };
 
 
-// Visit a parse tree produced by SqlBaseParser#booleanDefault.
-SqlBaseVisitor.prototype.visitBooleanDefault = function(ctx) {
+// Visit a parse tree produced by SqlBaseParser#predicated.
+SqlBaseVisitor.prototype.visitPredicated = function(ctx) {
   return this.visitChildren(ctx);
 };
 
@@ -836,12 +866,6 @@ SqlBaseVisitor.prototype.visitExists = function(ctx) {
 
 // Visit a parse tree produced by SqlBaseParser#logicalBinary.
 SqlBaseVisitor.prototype.visitLogicalBinary = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by SqlBaseParser#predicated.
-SqlBaseVisitor.prototype.visitPredicated = function(ctx) {
   return this.visitChildren(ctx);
 };
 
@@ -944,6 +968,12 @@ SqlBaseVisitor.prototype.visitConstantDefault = function(ctx) {
 
 // Visit a parse tree produced by SqlBaseParser#parenthesizedExpression.
 SqlBaseVisitor.prototype.visitParenthesizedExpression = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by SqlBaseParser#extract.
+SqlBaseVisitor.prototype.visitExtract = function(ctx) {
   return this.visitChildren(ctx);
 };
 
@@ -1142,6 +1172,12 @@ SqlBaseVisitor.prototype.visitQualifiedName = function(ctx) {
 
 // Visit a parse tree produced by SqlBaseParser#identifier.
 SqlBaseVisitor.prototype.visitIdentifier = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by SqlBaseParser#sqlFuncIdentifier.
+SqlBaseVisitor.prototype.visitSqlFuncIdentifier = function(ctx) {
   return this.visitChildren(ctx);
 };
 
