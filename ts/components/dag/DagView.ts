@@ -1767,9 +1767,6 @@ namespace DagView {
         }
         promise
             .then(function () {
-                if (!subGraph) {
-                    dagNode.updateSubGraph();
-                }
                 DagTabManager.Instance.newSQLTab(dagNode);
                 self.autoAlign(activeDag.getTabId());
                 deferred.resolve();
@@ -1803,9 +1800,6 @@ namespace DagView {
             }
             return promise
                 .then(function () {
-                    if (!subGraph) {
-                        dagNode.updateSubGraph();
-                    }
                     return _expandSubgraphNode({
                         dagNode: dagNode,
                         tabId: tabId,

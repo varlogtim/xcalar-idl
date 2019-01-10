@@ -10,6 +10,7 @@ class DagNodeSQL extends DagNode {
     protected subOutputNodes: DagNodeSQLSubOutput[];
     protected newTableName: string; // Currently only one ouput as multi-query is disabled
     protected tableNewDagIdMap: {};
+    protected dagIdToTableNamesMap: {};
 
     public constructor(options: DagNodeSQLInfo) {
         super(options);
@@ -32,7 +33,6 @@ class DagNodeSQL extends DagNode {
         // Subgraph info won't be serialized
         this.subInputNodes = [];
         this.subOutputNodes = [];
-        // this.updateSubGraph();
         this.SQLName = xcHelper.randName("SQLTab_");
     }
 
@@ -60,19 +60,34 @@ class DagNodeSQL extends DagNode {
 
     public updateSubGraph(_newTableMap?: {}): void {
         // XXX Can't have this optimization right now since things are broken
-        // XXX TO-DO make it work
-        // if (newTableMap) {
-        //     // If it's simply updating the mapping of oldTableName -> newTableName
-        //     // no need to re-build the entire sub graph
-        //     const oldMap = this.tableNewDagIdMap;
-        //     const newMap = {};
-        //     for (const key in oldMap) {
-        //         newMap[newTableMap[key]] = oldMap[key];
-        //     }
-        //     this.subGraph.setTableDagIdMap(newMap);
-        //     this.subGraph.initializeProgress();
-        //     return;
-        // }
+        if (_newTableMap) {
+            // If it's simply updating the mapping of oldTableName -> newTableName
+            // no need to re-build the entire sub graph
+            const dagIdToTableNamesMap = this.dagIdToTableNamesMap;
+            const oldMap = this.tableNewDagIdMap;
+            const newMap = {};
+            for (const key in oldMap) {
+                if (_newTableMap.hasOwnProperty(key)) {
+                    newMap[_newTableMap[key]] = oldMap[key];
+                } else {
+                    newMap[key] = oldMap[key];
+                }
+            }
+            for (const key in dagIdToTableNamesMap) {
+                for (let i = 0; i < dagIdToTableNamesMap[key].length; i++) {
+                    const oldTableName = dagIdToTableNamesMap[key][i];
+                    if (_newTableMap.hasOwnProperty(oldTableName)) {
+                        dagIdToTableNamesMap[key][i] = _newTableMap[oldTableName];
+                    }
+                }
+            }
+            this.tableNewDagIdMap = newMap;
+            this.dagIdToTableNamesMap = dagIdToTableNamesMap;
+            this.subGraph.setTableDagIdMap(newMap);
+            this.subGraph.setDagIdToTableNamesMap(dagIdToTableNamesMap);
+            this.subGraph.initializeProgress();
+            return;
+        }
         DagTabManager.Instance.removeTabByNode(this);
         this.subGraph = new DagSubGraph();
         this.subInputNodes = [];
@@ -87,6 +102,7 @@ class DagNodeSQL extends DagNode {
                                                                this.tableSrcMap,
                                                                newTableName);
         this.tableNewDagIdMap = retStruct.tableNewDagIdMap;
+        this.dagIdToTableNamesMap = retStruct.dagIdToTableNamesMap;
         const dagInfoList = retStruct.dagInfoList;
         const dagIdParentMap = retStruct.dagIdParentMap;
         const outputDagId = retStruct.outputDagId;
@@ -688,6 +704,7 @@ class DagNodeSQL extends DagNode {
                     allCols: newCols,
                     tableSrcMap: tableSrcMap
                 }
+                self.updateSubGraph();
                 deferred.resolve(retStruct);
             })
             .fail(function(errorMsg) {

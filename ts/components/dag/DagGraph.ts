@@ -787,6 +787,9 @@ class DagGraph {
         let travsesedSet: Set<DagNode> = new Set();
         nodes.forEach((node) => {
             if (!travsesedSet.has(node)) {
+                if (node instanceof DagNodeSQL) {
+                    node.updateSubGraph();
+                }
                 const set: Set<DagNode> = this._traverseSwitchState(node);
                 travsesedSet = new Set([...travsesedSet, ...set]);
             }

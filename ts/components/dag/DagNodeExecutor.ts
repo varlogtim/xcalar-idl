@@ -1071,6 +1071,7 @@ class DagNodeExecutor {
             }
             // dest replacement
             if (operation.args.dest === oldDestTableName) {
+                newTableMap[operation.args.dest] = newDestTableName;
                 operation.args.dest = newDestTableName;
             } else if (!operation.args.dest.startsWith("XC_AGG_") &&
                        !operation.args.dest.startsWith("XC_SUBQ_")) {

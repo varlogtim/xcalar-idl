@@ -48,7 +48,6 @@ class SQLOpPanelModel {
         this._dagNode.setTableSrcMap(this._tableSrcMap);
         this._dagNode.setNewTableName(this._newTableName);
         this._dagNode.setParam(param);
-        this._dagNode.updateSubGraph();
     }
 
 
