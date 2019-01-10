@@ -1754,16 +1754,21 @@
                 left: 0px !important;
                 text-transform: none;
             }
+            
             li {
                 // display: none;
                 font-size: @standardFontSize;
-                &:hover {
-                    background-color: transparent;
-                }
-                &.highlighted {
-                    background-color: @color-selectedCell-light;
-                }
+            }
 
+            &:not(.autoHighlight) {
+                li {
+                    &:hover {
+                        background-color: transparent;
+                    }
+                    &.highlighted {
+                        background-color: @color-selectedCell-light;
+                    }
+                }
             }
         }
 
