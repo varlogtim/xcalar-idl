@@ -61,12 +61,14 @@ class DagNodeInput {
 
     public validate(input?): {error: string} {
         input = input || this.input;
-        window["ajv"] = new Ajv(); //TODO: try to reuse
-        const validate = ajv.compile(this.constructor["schema"]);
-        const valid = validate(input);
+        if (!this.constructor["validateFn"]) {
+            let ajv = new Ajv();
+            this.constructor["validateFn"] = ajv.compile(this.constructor["schema"]);
+        }
+        const valid = this.constructor["validateFn"](input);
         if (!valid) {
             // only saving first error message
-            const msg = this._parseValidationErrMsg(validate.errors[0]);
+            const msg = this._parseValidationErrMsg( this.constructor["validateFn"].errors[0]);
             return {error: msg};
         } else {
             const paramCheck = this.validateParameters(input);

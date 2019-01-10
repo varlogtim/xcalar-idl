@@ -118,9 +118,9 @@ class DagGraph {
         this.restoreConnections(connections);
 
         if (graphJSON.comments && Array.isArray(graphJSON.comments)) {
+            let ajv = new Ajv();
+            let validate = ajv.compile(CommentNode.schema);
             graphJSON.comments.forEach((comment) => {
-                let ajv = new Ajv();
-                let validate = ajv.compile(CommentNode.schema);
                 let valid = validate(comment);
                 if (!valid) {
                     // don't show invalid comments
@@ -1296,6 +1296,32 @@ class DagGraph {
             return;
         }
         this.operationTime += time;
+    }
+
+    // takes in a map of nodes, topologically sorts them and then does an error check
+    // on each node via switchState
+    public checkNodesState(nodesMap): void {
+        let orderedNodes: DagNode[];
+        try {
+            orderedNodes = this._topologicalSort(nodesMap);
+        } catch (error) {
+            console.error(error);
+            // nodes do not get checked for errors, not a deal breaker
+        }
+        if (orderedNodes) {
+            this.events.trigger(DagGraphEvents.TurnOffSave, {
+                tabId: this.parentTabId
+            });
+            orderedNodes.forEach((node) => {
+                node.switchState();
+            });
+            this.events.trigger(DagGraphEvents.TurnOnSave, {
+                tabId: this.parentTabId
+            });
+            this.events.trigger(DagGraphEvents.Save, {
+                tabId: this.parentTabId
+            });
+        }
     }
 
     private _setupEvents(): void {

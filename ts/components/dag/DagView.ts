@@ -115,16 +115,17 @@ namespace DagView {
                         throw ("Dataflow nodes must be in an array");
                     }
                     let nodeSchema = DagNode.getCopySchema();
+                    let nodeSchemaValidateFn = (new Ajv()).compile(nodeSchema);
                     let commentSchema = CommentNode.getCopySchema();
+                    let commentSchemaValidateFn = (new Ajv()).compile(commentSchema);
                     for (let i = 0; i < nodesArray.length; i++) {
                         const node = nodesArray[i];
-                        window["ajv"] = new Ajv();
                         let valid;
                         let validate;
                         if (node.hasOwnProperty("text")) {
-                            validate = ajv.compile(commentSchema);
+                            validate = commentSchemaValidateFn;
                         } else {
-                            validate = ajv.compile(nodeSchema);
+                            validate = nodeSchemaValidateFn;
                         }
                         valid = validate(node);
                         if (!valid) {
@@ -138,13 +139,16 @@ namespace DagView {
                             const nodeClass = DagNodeFactory.getNodeClass(node);
                             let nodeSpecificSchema;
                             if (node.type === DagNodeType.Custom) {
-                                nodeSpecificSchema  = DagNodeCustom.getCopySpecificSchema();
+                                nodeSpecificSchema = DagNodeCustom.getCopySpecificSchema();
                             } else {
                                 nodeSpecificSchema = nodeClass.specificSchema;
                             }
-                            window["ajv"] = new Ajv();
-                            validate = ajv.compile(nodeSpecificSchema);
-                            valid = validate(node);
+                            if (!nodeClass["validateFn"]) {
+                                // cache the validation function within the nodeClass
+                                let ajv = new Ajv();
+                                nodeClass["validateFn"] = ajv.compile(nodeSpecificSchema);
+                            }
+                            valid = nodeClass["validateFn"](node);
                             if (!valid) {
                                 // only saving first error message
                                 const msg = DagNode.parseValidationErrMsg(node, validate.errors[0]);
@@ -787,7 +791,6 @@ namespace DagView {
         let origMinYCoor = minYCoor;
         minXCoor += (gridSpacing * 5);
         minYCoor += (gridSpacing * 2);
-
         const nextAvailablePosition = getNextAvailablePosition(activeDag, minXCoor,
             minYCoor);
         minXCoor = nextAvailablePosition.x;
@@ -840,30 +843,33 @@ namespace DagView {
                 _drawNode(newNode, $dfArea, true);
             }
         });
-
         if (!allNewNodeIds.length) {
             return;
         }
 
         // restore connection to parents
+        const nodesMap: Map<DagNodeId, DagNode> = new Map();
         allNewNodeIds.forEach((newNodeId: DagNodeId, i) => {
             if (newNodeId.startsWith("comment")) {
                 return;
             }
             if (nodeInfos[i].parents) {
+                const newNode = allNewNodes[i];
                 nodeInfos[i].parents.forEach((parentId, j) => {
                     if (parentId == null) {
                         return; // skip empty parent slots
                     }
                     const newParentId = oldNodeIdMap[parentId];
-                    activeDag.connect(newParentId, newNodeId, j);
-                    const newNode = allNewNodes[i];
+                    activeDag.connect(newParentId, newNodeId, j, false, false);
+                    nodesMap.set(newNode.getId(), newNode);
                     _drawConnection(newParentId, newNodeId, j, tabId, newNode.canHaveMultiParents());
                 });
+
+                nodesMap.set(newNode.getId(), newNode);
             }
         });
+        activeDag.checkNodesState(nodesMap);
         // XXX scroll to selection if off screen
-
         _setGraphDimensions({ x: maxXCoor, y: maxYCoor });
 
         Log.add(SQLTStr.CopyOperations, {

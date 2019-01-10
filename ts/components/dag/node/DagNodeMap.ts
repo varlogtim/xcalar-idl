@@ -57,6 +57,7 @@ class DagNodeMap extends DagNode {
     ): DagLineageChange {
         const changes: {from: ProgCol, to: ProgCol}[] = [];
         const params = this.input.getInput(replaceParameters);
+
         params.eval.forEach((evalInput) => {
             const colName: string = evalInput.newField;
             if (xcHelper.parsePrefixColName(colName).prefix) {
@@ -86,8 +87,6 @@ class DagNodeMap extends DagNode {
                 to: progCol
             });
         });
-
-
         return {
             columns: columns,
             changes: changes

@@ -291,6 +291,7 @@ abstract class DagNode {
             return;
         }
         let error: {error: string} = this._validateConfiguration();
+
         if (error != null) {
             // when it's not source node but no parents, it's in error state
             this.beErrorState(error.error);

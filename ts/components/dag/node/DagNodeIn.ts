@@ -34,6 +34,7 @@ abstract class DagNodeIn extends DagNode {
             const frontName: string = xcHelper.parsePrefixColName(colName).name;
             return ColManager.newPullCol(frontName, colName, colInfo.type);
         });
+
         return {
             columns: columns,
             changes: []
