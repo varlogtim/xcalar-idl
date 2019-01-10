@@ -218,7 +218,8 @@ enum PatternCategory {
     UDFFileName = "udfFileName",
     Workbook = "workbook",
     Target = "target",
-    SQLSnippet = "sqlSnippet"
+    SQLSnippet = "sqlSnippet",
+    SQLFunc = "sqlFunc",
 }
 
 enum PatternAction {

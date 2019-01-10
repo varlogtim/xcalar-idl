@@ -137,6 +137,10 @@ class DagNodeExecutor {
                 return this._placeholder();
             case DagNodeType.Synthesize:
                 return this._synthesize();
+            case DagNodeType.SQLFuncIn:
+                return this._sqlFuncIn();
+            case DagNodeType.SQLFuncOut:
+                return this._sqlFuncOut();
             default:
                 throw new Error(type + " not supported!");
         }
@@ -856,6 +860,16 @@ class DagNodeExecutor {
         }
     }
 
+    private _getRefreshColInfoFromSchema(schema: ColSchema[]): RefreshColInfo[] {
+        return schema.map((col: ColSchema) => {
+            return {
+                sourceColumn: col.name,
+                destColumn: col.name,
+                columnType: DfFieldTypeTStr[xcHelper.convertColTypeToFieldType(col.type)]
+            };
+        });
+    }
+
     private _IMDTable(): XDPromise<string> {
         const self = this;
         const node: DagNodeIMDTable = <DagNodeIMDTable>this.node;
@@ -863,13 +877,7 @@ class DagNodeExecutor {
         //XXX TODO: Integrate with new XIAPI.publishTable
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const newTableName = this._generateTableName();
-        let cols: RefreshColInfo[] = params.schema.map((col: ColSchema) => {
-            return {
-                sourceColumn: col.name,
-                destColumn: col.name,
-                columnType: DfFieldTypeTStr[xcHelper.convertColTypeToFieldType(col.type)]
-            };
-        })
+        let cols: RefreshColInfo[] = this._getRefreshColInfoFromSchema(params.schema);
         PromiseHelper.alwaysResolve(XcalarRestoreTable(params.source))
         .then(() => {
             return XcalarRefreshTable(params.source, newTableName,
@@ -877,11 +885,9 @@ class DagNodeExecutor {
                 cols);
         })
         .then(() => {
-            return deferred.resolve(newTableName);
+            deferred.resolve(newTableName);
         })
-        .fail(function(err) {
-            return deferred.reject(err);
-        });
+        .fail(deferred.reject);
         return deferred.promise();
     }
 
@@ -1122,5 +1128,35 @@ class DagNodeExecutor {
         return {newQueryStr: JSON.stringify(queryStruct),
                 newTableSrcMap: newTableSrcMap,
                 newTableMap: newTableMap};
+    }
+
+    private _sqlFuncIn(): XDPromise<string> {
+        const node: DagNodeSQLFuncIn = <DagNodeSQLFuncIn>this.node;
+        const params: DagNodeSQLFuncInInputStruct = node.getParam(this.replaceParam);
+        const isSimulate: boolean = Transaction.isSimulate(this.txId);
+        const source: string = params.source;
+        if (isSimulate) {
+            return PromiseHelper.resolve(source);
+        } else {
+            const deferred: XDDeferred<string> = PromiseHelper.deferred();
+            const newTableName = this._generateTableName();
+            const cols: RefreshColInfo[] = this._getRefreshColInfoFromSchema(node.getSchema());
+            XcalarRefreshTable(source, newTableName, -1, -1, this.txId, "", cols)
+            .then(() => {
+                deferred.resolve(newTableName);
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
+        }
+    }
+
+    private _sqlFuncOut(): XDPromise<string> {
+        const node: DagNodeSQLFuncOut = <DagNodeSQLFuncOut>this.node;
+        const params: DagNodeSQLFuncOutInputStruct = node.getParam(this.replaceParam);
+        const colInfos: ColRenameInfo[] = xcHelper.getColRenameInfosFromSchema(params.schema);
+        const srcTable: string = this._getParentNodeTable(0);
+        const desTable: string = this._generateTableName();
+        return XIApi.synthesize(this.txId, colInfos, srcTable, desTable);
     }
 }

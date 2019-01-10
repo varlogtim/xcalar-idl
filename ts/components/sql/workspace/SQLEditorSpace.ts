@@ -88,6 +88,15 @@ class SQLEditorSpace {
         return new SQLExecutor(sql).execute();
     }
 
+    private _fileOption(action: string): void {
+        switch (action) {
+            case "open":
+                break;
+            default:
+                break;
+        }
+    }
+
     private _addEventListeners(): void {
         const $container = this._getEditorSpaceEl();
         const $bottomSection = $container.find(".bottomSection");
@@ -114,6 +123,15 @@ class SQLEditorSpace {
             "containment": "#sqlWorkSpacePanel"
         });
         this._setupResize();
+
+        let selector: string = `#${this._getEditorSpaceEl().attr("id")}`;
+        new MenuHelper($topBar.find(".fileOption"), {
+            onSelect: ($li) => {
+                this._fileOption($li.data("action"));
+            },
+            container: selector,
+            bounds: selector
+        }).setupListeners();
     }
 
     private _setupResize() {

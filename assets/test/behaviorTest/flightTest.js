@@ -24,7 +24,10 @@ window.FlightTest = (function(FlightTest, $) {
         test = TestSuite.createTest();
         test.setMode(mode);
         initializeTests();
-        return test.run(hasAnimation, toClean, noPopup, withUndo, timeDilation);
+        return  XVM.setMode(XVM.Mode.Advanced)
+        .then(() => {
+            return test.run(hasAnimation, toClean, noPopup, withUndo, timeDilation);
+        });
     };
 
     // =============== ADD TESTS TO ACTIVATE THEM HERE ===================== //

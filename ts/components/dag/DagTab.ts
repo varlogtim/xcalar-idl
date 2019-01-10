@@ -1,6 +1,8 @@
 // dagTabs hold a user's dataflows and kvStore.
 abstract class DagTab {
-    private static uid: XcUID;
+    public static readonly KEY: string = "DF2";
+    protected static uid: XcUID;
+
     private _events: object;
     protected _name: string;
     protected _id: string;
@@ -10,7 +12,7 @@ abstract class DagTab {
     protected _isOpen: boolean;
 
     public static setup(): void {
-        this.uid = new XcUID("DF2");
+        this.uid = new XcUID(DagTab.KEY);
     }
 
     public static generateId(): string {

@@ -244,6 +244,11 @@ CommonTxtTstr = {
     'YES': 'YES'
 };
 
+ModeTStr = {
+    "SQL": "SQL",
+    "Advanced": "Adv",
+};
+
 ErrTStr = {
     'Error': 'Error',
     'Unknown': 'Unknown Error',
@@ -1615,7 +1620,8 @@ SQLTStr = {
     "DrawNodesAndConnections": "Draw Nodes and Connections",
     "EraseNodesAndConnections": "Erase Nodes and Connections",
     "NewTab": "Add a new dataflow tab",
-    "DupTab": "Duplicate a dataflow tab"
+    "DupTab": "Duplicate a dataflow tab",
+    "Func": "SQL Functions",
 };
 
 LoginConfigTStr = {

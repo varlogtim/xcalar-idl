@@ -28,6 +28,12 @@ class DagCategoryBar {
         this._focusOnCategory(DagCategoryType.In);
     }
 
+    public switchMode(): XDPromise<void> {
+        this.dagCategories = new DagCategories();
+        this._renderCategoryBar();
+        return this.loadCategories();
+    }
+
     public loadCategories(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 

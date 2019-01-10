@@ -364,6 +364,13 @@ class DagGraph {
             }
         })
 
+        if (node instanceof DagNodeSQLFuncIn) {
+            // update before the node added
+            this.events.trigger(DagGraphEvents.AddBackSQLFuncInput, {
+                tabId: this.parentTabId,
+                order: node.getOrder()
+            });
+        }
         this.nodesMap.set(node.getId(), node);
         this.removedNodesMap.delete(node.getId());
         const set = this._traverseSwitchState(node);
@@ -397,6 +404,12 @@ class DagGraph {
      */
     public addNode(dagNode: DagNode): void {
         this.nodesMap.set(dagNode.getId(), dagNode);
+        if (dagNode instanceof DagNodeSQLFuncIn) {
+            this.events.trigger(DagGraphEvents.AddSQLFuncInput, {
+                tabId: this.parentTabId,
+                node: dagNode
+            });
+        }
         dagNode.registerEvents(DagNodeEvents.StateChange, (info) => {
             info.tabId = this.parentTabId;
             this.events.trigger(DagNodeEvents.StateChange, info);
@@ -1624,6 +1637,10 @@ class DagGraph {
             childIndices: childIndices,
             node: node
         });
+        let order: number = null;
+        if (node instanceof DagNodeSQLFuncIn) {
+            order = node.getOrder();
+        }
         this.nodesMap.delete(node.getId());
         if (switchState) {
             this.events.trigger(DagNodeEvents.ConnectionChange, {
@@ -1633,7 +1650,12 @@ class DagGraph {
                 tabId: this.parentTabId
             });
         }
-
+        if (node instanceof DagNodeSQLFuncIn) {
+            this.events.trigger(DagGraphEvents.RemoveSQLFucInput, {
+                tabId: this.parentTabId,
+                order: order
+            });
+        }
         return spliceFlags;
 
     }

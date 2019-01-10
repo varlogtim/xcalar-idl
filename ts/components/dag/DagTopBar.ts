@@ -12,6 +12,16 @@ class DagTopBar {
         this._addEventListeners();
     }
 
+    public switchMode(): void {
+        const $btns: JQuery = this.$topBar.find(".topButtons");
+        const $btnsToHideInSQLMode: JQuery = $btns.find(".optimizedRun, .publish");
+        if (XVM.isSQLMode()) {
+            $btnsToHideInSQLMode.addClass("xc-hidden");
+        } else {
+            $btns.removeClass("xc-hidden");
+        }
+    }
+
     public reset(): void {
         this._checkZoom();
     }

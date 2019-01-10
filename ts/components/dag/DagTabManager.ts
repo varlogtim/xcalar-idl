@@ -1,6 +1,6 @@
 // DagTabManager is in charge of managing and loading dataflows
 // depending on which tab is selected.
-class DagTabManager{
+class DagTabManager {
     private static _instance: DagTabManager;
 
     public static get Instance() {
@@ -15,10 +15,7 @@ class DagTabManager{
     private _activeTab: DagTab;
 
     public setup(): void {
-        let key: string = KVStore.getKey("gDagManagerKey");
-        this._dagKVStore = new KVStore(key, gKVScope.WKBK);
-        this._activeUserDags = [];
-        this._subTabs = new Map();
+        this._initialize();
 
         const $tabArea: JQuery = this._getTabArea();
         this._tabListScroller = new ListScroller($('#dagTabSectionTabs'),
@@ -29,6 +26,15 @@ class DagTabManager{
 
         this._addEventListeners();
         this._getManagerDataAsync();
+    }
+
+    /**
+     * DagTabManager.Instance.switchMode
+     */
+    public switchMode(): XDPromise<void> {
+        this._clear();
+        this._initialize();
+        return this._getManagerDataAsync();
     }
 
     public getTabs(): DagTab[] {
@@ -328,6 +334,22 @@ class DagTabManager{
         this._getTabEleById(tabId).find(".after").removeClass("xc-disabled");
     }
 
+    private _initialize(): void {
+        let key: string = null;
+        if (XVM.isSQLMode()) {
+            key = KVStore.getKey("gSQLFuncManagerKey");
+        } else {
+            key = KVStore.getKey("gDagManagerKey");
+        }
+        this._dagKVStore = new KVStore(key, gKVScope.WKBK);
+        this._activeUserDags = [];
+        this._subTabs = new Map();
+    }
+
+    private _clear(): void {
+        this._getTabArea().empty();
+    }
+
     private _save(): XDPromise<void> {
         let jsonStr: string = JSON.stringify(this._getJSON());
         return this._dagKVStore.put(jsonStr, true, true);
@@ -454,7 +476,12 @@ class DagTabManager{
     }
 
     private _newTab(name: string, graph: DagGraph): DagTab {
-        const newDagTab: DagTabUser = new DagTabUser(name, null, graph, null, xcTimeHelper.now());
+        let newDagTab: DagTabUser;
+        if (XVM.isSQLMode()) {
+            newDagTab = new DagTabSQLFunc(name, null, graph, null, xcTimeHelper.now());
+        } else {
+            newDagTab = new DagTabUser(name, null, graph, null, xcTimeHelper.now());
+        }
         if (!DagList.Instance.addDag(newDagTab)) {
             return null;
         }

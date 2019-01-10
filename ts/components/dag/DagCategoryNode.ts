@@ -40,6 +40,10 @@ class DagCategoryNode {
             displayNodeType = node.getCustomName();
         } else if (node instanceof DagNodeCustomInput) {
             displayNodeType = node.getPortName();
+        } else if (node instanceof DagNodeSQLFuncIn) {
+            displayNodeType = "Input";
+        } else if (node instanceof DagNodeSQLFuncOut) {
+            displayNodeType = "Output";
         }
         return displayNodeType;
     }

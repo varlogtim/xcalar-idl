@@ -277,6 +277,32 @@ namespace DagView {
         updateDagView();
     }
 
+    /**
+     * DagView.switchMode
+     */
+    export function switchMode(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        if (XVM.isSQLMode()) {
+            $dagView.addClass("sqlMode");
+        } else {
+            $dagView.removeClass("sqlMode");
+        }
+        DagTable.Instance.close();
+        $dagView.find(".dataflowArea").remove();
+        DagTopBar.Instance.switchMode();
+        DagCategoryBar.Instance.switchMode()
+        .then(() => {
+            return DagList.Instance.swithMode();
+        })
+        .then(() => {
+            return DagTabManager.Instance.switchMode();
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
     function updateDagView(): void {
         const $dfWrapBg: JQuery = $dagView.find(".dataflowWrapBackground");
         DagNodeInfoPanel.Instance.hide();
@@ -3601,6 +3627,14 @@ namespace DagView {
         return $node;
     }
 
+    function _updateTitleForNodes(nodes: DagNode[], tabId: string): void {
+        nodes.forEach((node) => {
+            const nodeId = node.getId();
+            const $node = DagView.getNode(nodeId, tabId);
+            _drawTitleText($node, node);
+        });
+    }
+
     function _drawTitleText($node: JQuery, node: DagNode): void {
         const g = d3.select($node.get(0));
         // draw node title
@@ -4057,6 +4091,31 @@ namespace DagView {
             const tab: DagTab = DagTabManager.Instance.getTabById(info.tabId);
             if (tab != null) {
                 tab.save();
+            }
+        });
+
+        _registerGraphEvent(graph, DagGraphEvents.AddSQLFuncInput, (info) => {
+            const tab: DagTab = DagTabManager.Instance.getTabById(info.tabId);
+            if (tab != null && tab instanceof DagTabSQLFunc) {
+                tab.addInput(info.node);
+            }
+        });
+
+        _registerGraphEvent(graph, DagGraphEvents.RemoveSQLFucInput, (info) => {
+            const tabId: string = info.tabId;
+            const tab: DagTab = DagTabManager.Instance.getTabById(tabId);
+            if (tab != null && tab instanceof DagTabSQLFunc) {
+                const changedNodes: DagNodeSQLFuncIn[] = tab.removeInput(info.order);
+                _updateTitleForNodes(changedNodes, tabId);
+            }
+        });
+
+        _registerGraphEvent(graph, DagGraphEvents.AddBackSQLFuncInput, (info) => {
+            const tabId: string = info.tabId;
+            const tab: DagTab = DagTabManager.Instance.getTabById(tabId);
+            if (tab != null && tab instanceof DagTabSQLFunc) {
+                const changedNodes: DagNodeSQLFuncIn[] = tab.addBackInput(info.order);
+                _updateTitleForNodes(changedNodes, tabId);
             }
         });
     }
@@ -4781,6 +4840,10 @@ namespace DagView {
         }
         const nodeId: DagNodeId = $origTitle.closest(".operator").data("nodeid");
         const node = DagView.getActiveDag().getNode(nodeId);
+        if (node instanceof DagNodeSQLFuncIn && XVM.isSQLMode()) {
+            // not allow modify input node in sql mode
+            return;
+        }
         const tabId = DagView.getActiveDag().getTabId();
         const rect = $origTitle[0].getBoundingClientRect();
         const offset = _getDFAreaOffset();

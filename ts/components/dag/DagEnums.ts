@@ -31,6 +31,8 @@ enum DagNodeType {
     Placeholder = "placeholder",
     Synthesize = "synthesize",
     UpdateIMD = "updateIMD",
+    SQLFuncIn = "SQLFuncIn",
+    SQLFuncOut = "SQLFuncOut"
 }
 
 enum DagNodeSubType {
@@ -68,6 +70,7 @@ enum DagNodeErrorType {
     NoColumn = "Invalid column in the schema:\n",
     NoColumns = "Invalid columns in the schema:\n",
     NoAccessToSource = "User has no rights to accees the dataset",
+    InvalidSQLFunc = "Invalid SQL Function",
 }
 
 enum DagNodeLinkInErrorType {
@@ -80,7 +83,10 @@ enum DagGraphEvents {
     LockChange = "GraphLockChange",
     TurnOffSave = "TurnOffSave",
     TurnOnSave = "TurnOnSave",
-    Save = "Save"
+    Save = "Save",
+    AddSQLFuncInput = "AddSQLFuncInput",
+    RemoveSQLFucInput = "RemoveSQLFuncInput",
+    AddBackSQLFuncInput = "AddBackSQLFuncInput",
 }
 
 enum DagNodeEvents {

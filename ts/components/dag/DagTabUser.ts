@@ -50,11 +50,16 @@ class DagTabUser extends DagTab {
         return deferred.promise();
     }
 
+    protected static _createTab(name: string, id: string): DagTabUser {
+        return new DagTabUser(name, id, null, null, xcTimeHelper.now());
+    }
+
     private static _getAllDagsFromKVStore(): XDPromise<string[]> {
         const deferred: XDDeferred<string[]> = PromiseHelper.deferred();
-        KVStore.list("^DF2*", gKVScope.WKBK)
+        const allDagsKey: string = this.KEY;
+        KVStore.list(`^${allDagsKey}*`, gKVScope.WKBK)
         .then((res) => {
-            const ids: string[] = res.keys.filter((key) => key.startsWith("DF2"));
+            const ids: string[] = res.keys.filter((key) => key.startsWith(allDagsKey));
             deferred.resolve(ids);
         })
         .fail(deferred.reject);
@@ -72,7 +77,7 @@ class DagTabUser extends DagTab {
         .then((res) => {
             try {
                 const name: string = res.name;
-                dagTabs.push(new DagTabUser(name, id, null, null, xcTimeHelper.now()));
+                dagTabs.push(this._createTab(name, id));
             } catch (e) {
                 console.error(e);
             }

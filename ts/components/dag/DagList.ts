@@ -11,10 +11,7 @@ class DagList {
     private _initialized: boolean;
 
     private constructor() {
-        let key: string = KVStore.getKey("gDagListKey");
-        this._kvStore = new KVStore(key, gKVScope.WKBK);
-        this._dags = new Map();
-        this._initialized = false;
+        this._initialize();
         this._setupFileLister();
         this._addEventListeners();
     }
@@ -25,12 +22,17 @@ class DagList {
      */
     public setup(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        this._restoreUserDags()
+        const isAdvancedMode: boolean = XVM.isAdvancedMMode();
+        this._restoreLocalDags(isAdvancedMode)
         .then(() => {
-            return this._restorePublishedDags();
+            if (isAdvancedMode) {
+                return this._restorePublishedDags();
+            }
         })
         .then(() => {
-            return this._fetchAllRetinas();
+            if (isAdvancedMode) {
+                return this._fetchAllRetinas();
+            }
         })
         .then(() => {
             this._renderDagList(false);
@@ -41,6 +43,16 @@ class DagList {
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    public swithMode(): XDPromise<void> {
+        if (XVM.isSQLMode()) {
+            $("#dagList").addClass("sqlMode");
+        } else {
+            $("#dagList").removeClass("sqlMode");
+        }
+        this._initialize();
+        return this.setup();
     }
 
     /**
@@ -89,7 +101,7 @@ class DagList {
         });
         publishedList.sort(sortFunc);
         userList.sort(sortFunc);
-        if (publishedList.length === 0) {
+        if (publishedList.length === 0 && XVM.isAdvancedMMode()) {
             // add the published folder by default
             publishedList.push({
                 path: DagTabPublished.PATH,
@@ -220,7 +232,8 @@ class DagList {
      * Return a valid name for new dafaflow tab
      */
     public getValidName(prefixName?: string, hasBracket?: boolean): string {
-        const prefix: string = prefixName || "Dataflow";
+        const isSQLMode: boolean = XVM.isSQLMode();
+        const prefix: string = prefixName || isSQLMode ? "fn" : "Dataflow";
         const nameSet: Set<string> = new Set();
         let cnt: number = 1;
         this._dags.forEach((dagTab) => {
@@ -232,10 +245,19 @@ class DagList {
         if (hasBracket) {
             cnt = 0;
         }
-        let name: string = prefixName ? prefix : `${prefix} ${cnt}`;
+        let name: string;
+        if (isSQLMode) {
+            name = prefixName ? prefix : `${prefix}${cnt}`;
+        } else {
+            name = prefixName ? prefix : `${prefix} ${cnt}`;
+        }
         while(nameSet.has(name)) {
             cnt++;
-            name = hasBracket ? `${prefix}(${cnt})` : `${prefix} ${cnt}`;
+            if (isSQLMode) {
+                name = `${prefix}${cnt}`;
+            } else {
+                name = hasBracket ? `${prefix}(${cnt})` : `${prefix} ${cnt}`;
+            }
         }
         return name;
     }
@@ -284,8 +306,8 @@ class DagList {
         this._getListElById(id).addClass("active");
     }
 
-    public markToResetDags(): XDPromise<void> {
-        const kvStore = this._getResetMarkKVStore();
+    public markToResetDags(sqlMode: boolean): XDPromise<void> {
+        const kvStore = this._getResetMarkKVStore(sqlMode);
         return kvStore.put("reset", false, true);
     }
 
@@ -299,6 +321,24 @@ class DagList {
         DagTabManager.Instance.reset();
         this._saveUserDagList();
         this._updateSection();
+    }
+
+    private _initialize(): void {
+        this._setLocalKVStore();
+        this._dags = new Map();
+        this._initialized = false;
+    }
+
+    private _setLocalKVStore(): void {
+        let key: string = null;
+        if (XVM.isAdvancedMMode()) {
+            key = KVStore.getKey("gDagListKey");
+        } else {
+            // sql mode
+            key = KVStore.getKey("gSQLFuncListKey");
+
+        }
+        this._kvStore = new KVStore(key, gKVScope.WKBK);
     }
 
     private _setupFileLister(): void {
@@ -366,12 +406,12 @@ class DagList {
         StatusBox.show(DFTStr.LoadErr, $dagListItem);
     }
 
-    private _restoreUserDags(): XDPromise<void> {
+    private _restoreLocalDags(isAdvancedMode: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let userDagTabs: DagTabUser[] = [];
         let needReset: boolean = false;
 
-        this._checkIfNeedReset()
+        this._checkIfNeedReset(isAdvancedMode)
         .then((res) => {
             needReset = res;
             return this.listUserDagAsync();
@@ -386,7 +426,11 @@ class DagList {
                     });
                 }
             }
-            return DagTabUser.restore(dags);
+            if (isAdvancedMode) {
+                return DagTabUser.restore(dags);
+            } else {
+                return DagTabSQLFunc.restore(dags);
+            }
         })
         .then((dagTabs, metaNotMatch) => {
             userDagTabs = dagTabs;
@@ -478,14 +522,20 @@ class DagList {
         return deferred.promise();
     }
 
-    private _getResetMarkKVStore(): KVStore {
-        const key: string = KVStore.getKey("gDagResetKey");
+    private _getResetMarkKVStore(sqlMode: boolean): KVStore {
+        let key: string;
+        if (sqlMode) {
+            key = KVStore.getKey("gSQLFuncListKey");
+        } else {
+            key = KVStore.getKey("gDagResetKey");
+        }
         return new KVStore(key, gKVScope.WKBK);
     }
 
-    private _checkIfNeedReset(): XDPromise<boolean> {
+    private _checkIfNeedReset(isAdvancedMode: boolean): XDPromise<boolean> {
         const deferred: XDDeferred<boolean> = PromiseHelper.deferred();
-        const kvStore = this._getResetMarkKVStore();
+        const isSQLMode: boolean = !isAdvancedMode;
+        const kvStore = this._getResetMarkKVStore(isSQLMode);
         let reset: boolean = false;
 
         kvStore.get()
@@ -530,7 +580,9 @@ class DagList {
     }
 
     private _updateSection(): void {
-        $("#dagList").find(".numDF").text(this._dags.size);
+        let text: string = XVM.isSQLMode() ? SQLTStr.Func : DFTStr.DFs;
+        text = `${text} (${this._dags.size})`;
+        $("#dagList").find(".numDF").text(text);
         WorkbookManager.updateDFs(this._dags.size);
     }
 

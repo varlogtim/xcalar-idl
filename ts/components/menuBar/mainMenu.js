@@ -27,10 +27,42 @@ window.MainMenu = (function($, MainMenu) {
         setupTabbing();
         setupBtns();
         setupResizable();
+        MainMenu.switchMode();
     };
 
     MainMenu.registerPanels = function(panel) {
         formPanels.push(panel);
+    };
+
+    MainMenu.switchMode = function() {
+        var $dataflowMenu = $("#dataflowMenu");
+        var isSQLMode = XVM.isSQLMode();
+        if (isSQLMode) {
+            $dataflowMenu.data("tab", "sqlFuncTab");
+        } else {
+            $dataflowMenu.data("tab", "modelingDataflowTab");
+        }
+
+        var $sqlModeTabs = $("#sqlTab, #sqlFuncTab")
+        var $advModeTabs = $("#modelingDataflowTab, #jupyterTab");
+        if (isSQLMode) {
+            $sqlModeTabs.removeClass("xc-hidden");
+            $advModeTabs.addClass("xc-hidden");
+            if ($advModeTabs.hasClass("active")) {
+                $advModeTabs.removeClass("active");
+                MainMenu.close(true);
+                MainMenu.closeForms();
+                closeMainPanels();
+            }
+        } else {
+            $sqlModeTabs.addClass("xc-hidden");
+            $advModeTabs.removeClass("xc-hidden");
+            if ($sqlModeTabs.hasClass("active")) {
+                $sqlModeTabs.removeClass("active");
+                MainMenu.close(true);
+                closeMainPanels();
+            }
+        }
     };
 
     MainMenu.close = function(noAnim, makeInactive) {
@@ -82,6 +114,8 @@ window.MainMenu = (function($, MainMenu) {
             case ("dagPanel"):
                 $tab = $("#modelingDataflowTab");
                 break;
+            case ("sqlPanel"):
+                $tab = $("#sqlWorkSpace");
             default:
                 break;
         }
@@ -357,15 +391,21 @@ window.MainMenu = (function($, MainMenu) {
         return menuAnimDeferred.promise();
     }
 
+    function closeMainPanels() {
+        $(".mainPanel").removeClass("active");
+    }
+
     function panelSwitchingHandler($curTab, lastTabId) {
         if (lastTabId === "monitorTab") {
             MonitorPanel.inActive();
-        } else if (lastTabId === "modelingDataflowTab") {
+        } else if (lastTabId === "modelingDataflowTab" ||
+            lastTabId === "sqlFuncTab"
+        ) {
             DagView.hide();
         } else if (lastTabId === "sqlTab") {
             SQLWorkSpace.Instance.unfocus();
         }
-        $(".mainPanel").removeClass("active");
+        closeMainPanels();
         $("#container").removeClass("monitorViewOpen");
         var curTab = $curTab.attr("id");
         $menuBar.find(".topMenuBarTab").removeClass("active");
@@ -407,6 +447,7 @@ window.MainMenu = (function($, MainMenu) {
                 }
                 break;
             case ("modelingDataflowTab"):
+            case ("sqlFuncTab"):
                 $("#modelingDagPanel").addClass("active");
                 DagView.show();
                 break;
@@ -431,6 +472,7 @@ window.MainMenu = (function($, MainMenu) {
         }
 
         var id = $curTab.attr("id");
+
         $mainMenu.find(".commonSection").removeClass("active").filter(function() {
             return $(this).data("tab") === id;
         }).addClass("active");

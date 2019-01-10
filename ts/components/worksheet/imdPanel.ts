@@ -561,6 +561,10 @@ namespace IMDPanel {
      * Add all event listeners here, It is run once during setup
      */
     function addEventListeners(): void {
+        $imdPanel.find(".tableView").on("click", function() {
+
+        });
+
         $imdPanel.find(".refreshList").on("click", function() {
             refreshTableList();
         });

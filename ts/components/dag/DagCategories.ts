@@ -24,40 +24,59 @@ class DagCategories {
         //     })),
         // ]);
 
-        const inCategory = new DagCategory(DagCategoryType.In, [
-            new DagCategoryNodeIn(DagNodeFactory.create({
-                type: DagNodeType.Dataset
-            })),
-            new DagCategoryNodeIn(DagNodeFactory.create({
-                type: DagNodeType.IMDTable
-            })),
-            new DagCategoryNodeIn(DagNodeFactory.create({
-                type: DagNodeType.DFIn
-            })),
-        ]);
-
-        const outCategory = new DagCategory(DagCategoryType.Out, [
-            new DagCategoryNodeOut(DagNodeFactory.create({
-                type: DagNodeType.Export
-            })),
-            new DagCategoryNodeOut(DagNodeFactory.create({
-                type: DagNodeType.Export,
-                subType: DagNodeSubType.ExportOptimized
-            })),
-            new DagCategoryNodeOut(DagNodeFactory.create({
-                type: DagNodeType.DFOut
-            })),
-            new DagCategoryNodeOut(DagNodeFactory.create({
-                type: DagNodeType.DFOut,
-                subType: DagNodeSubType.DFOutOptimized
-            })),
-            new DagCategoryNodeOut(DagNodeFactory.create({
-                type: DagNodeType.Jupyter
-            })),
-            new DagCategoryNodeOut(DagNodeFactory.create({
-                type: DagNodeType.PublishIMD
-            }))
-        ]);
+        let isSQLMode = XVM.isSQLMode();
+        let inCategory = null;
+        if (isSQLMode) {
+            inCategory = new DagCategory(DagCategoryType.In, [
+                new DagCategoryNodeIn(DagNodeFactory.create({
+                    type: DagNodeType.SQLFuncIn
+                })),
+            ]);
+        } else {
+            inCategory = new DagCategory(DagCategoryType.In, [
+                new DagCategoryNodeIn(DagNodeFactory.create({
+                    type: DagNodeType.Dataset
+                })),
+                new DagCategoryNodeIn(DagNodeFactory.create({
+                    type: DagNodeType.IMDTable
+                })),
+                new DagCategoryNodeIn(DagNodeFactory.create({
+                    type: DagNodeType.DFIn
+                })),
+            ]);
+        }
+        
+        let outCategory;
+        if (isSQLMode) {
+            outCategory = new DagCategory(DagCategoryType.Out, [
+                new DagCategoryNodeOut(DagNodeFactory.create({
+                    type: DagNodeType.SQLFuncOut
+                })),
+            ]);
+        } else {
+            outCategory = new DagCategory(DagCategoryType.Out, [
+                new DagCategoryNodeOut(DagNodeFactory.create({
+                    type: DagNodeType.Export
+                })),
+                new DagCategoryNodeOut(DagNodeFactory.create({
+                    type: DagNodeType.Export,
+                    subType: DagNodeSubType.ExportOptimized
+                })),
+                new DagCategoryNodeOut(DagNodeFactory.create({
+                    type: DagNodeType.DFOut
+                })),
+                new DagCategoryNodeOut(DagNodeFactory.create({
+                    type: DagNodeType.DFOut,
+                    subType: DagNodeSubType.DFOutOptimized
+                })),
+                new DagCategoryNodeOut(DagNodeFactory.create({
+                    type: DagNodeType.Jupyter
+                })),
+                new DagCategoryNodeOut(DagNodeFactory.create({
+                    type: DagNodeType.PublishIMD
+                }))
+            ]);
+        }
 
         if (typeof gUpdateIMDAccess !== "undefined" && gUpdateIMDAccess === true) {
             outCategory.add(new DagCategoryNodeOut(DagNodeFactory.create({
@@ -191,6 +210,15 @@ class DagCategories {
             valueCategory,
             customCategory
         ];
+
+        if (isSQLMode) {
+            // XXX TODO: verify it's valid or not XD-261
+            this.categories = this.categories.filter((category) => {
+                let categoryName = category.getName();
+                return categoryName !== DagCategoryType.Extensions &&
+                categoryName !== DagCategoryType.Custom;
+            });
+        }
     }
 
     public getCategories(): DagCategory[] {

@@ -27,7 +27,7 @@
 <!-- Top Menu Bar -->
 <div id="menuBar" class="clearfix no-selection">
   <!-- maiu menu-->
-  <div id="topMenuBarTabs" class="clearfix">
+  <div id="topMenuBarTabs" class="clearfix xc-hidden">
     <!-- datasets tab -->
     <!--  TODO: Currently Datasets/etc don't work if no workbook is activated. This will come later. -->
     <div id="dataStoresTab" class="topMenuBarTab firstTouch mainMenuOpen wkbkMenuBarTabs">
@@ -68,6 +68,13 @@
         </div>
     </div>
 
+    <!-- SQL Func tab -->
+    <div id="sqlFuncTab" class="topMenuBarTab mainMenuOpen firstTouch wkbkMenuBarTabs">
+      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="SQL Function">
+          <i class="icon xi-menu-sql"></i>
+      </div>
+    </div>
+
     <!-- jupyter Tab -->
     <div id="jupyterTab" class="topMenuBarTab mainMenuOpen noLeftPanel wkbkMenuBarTabs">
         <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Jupyter Notebook">
@@ -90,9 +97,9 @@
         <div id="extensionSettingButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.exts %>">
           <i class="icon xi-menu-extension"></i>
         </div>
-        <div id="queryHistButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.QueryHistory %>">
+        <!-- <div id="queryHistButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.QueryHistory %>">
           <i class="icon xi-menu-sql"></i>
-        </div>
+        </div> -->
         <div id="fileManagerButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.monitor.fileManager %>">
           <i class="icon xi-folder"></i>
         </div>

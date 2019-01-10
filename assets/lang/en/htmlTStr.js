@@ -1073,6 +1073,14 @@ module.exports = {
         "Schema": "Column Schema",
     },
 
+    "SQLFunc": {
+        "Input": "SQL Function Input",
+        "Output": "SQL Function Output",
+        "InputInstr": "Select an available table as test source, and choose the input schema for the function.",
+        "OutputInstr": "Choose the output schema of the function.",
+        "Source": "Source Table (For testing only)",
+    },
+
     "IMDTableOp": {
         "IMDTable": "IMD Table",
         "IMDTableInstr": "Utilize a published IMD Table as the source for data",

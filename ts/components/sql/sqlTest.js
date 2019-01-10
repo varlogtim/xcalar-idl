@@ -37,7 +37,11 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         test = TestSuite.createTest();
         test.setMode(mode);
         initializeTests(testName)
-        return test.run(hasAnimation, toClean, noPopup, withUndo, timeDilation);
+        return XVM.setMode(XVM.Mode.Advanced)
+        .then(() => {
+            return test.run(hasAnimation, toClean, noPopup, withUndo, timeDilation);
+        });
+        
     };
     function initializeTests(testName) {
         // Add all test cases here

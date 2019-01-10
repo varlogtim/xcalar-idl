@@ -29,6 +29,7 @@ namespace xcManager {
         })
         .then(function() {
             XVM.setup();
+            $("#topMenuBarTabs").removeClass("xc-hidden");
 
             setupUserArea();
             xcTooltip.setup();
@@ -101,9 +102,17 @@ namespace xcManager {
             return DagAggManager.Instance.setup();
         })
         .then(function() {
+            let promise = PTblManager.Instance.getTablesAsync();
+            return PromiseHelper.alwaysResolve(promise);
+        })
+        .then(function() {
             // By default show panel
-            MainMenu.openPanel("dagPanel");
-            MainMenu.open(true);
+            if (XVM.isSQLMode()) {
+                MainMenu.openPanel("sqlPanel");
+            } else {
+                MainMenu.openPanel("dagPanel");
+                MainMenu.open(true);
+            }
             if (firstTimeUser) {
                 // show hint to create datasets if no tables have been created
                 // in this workbook
@@ -544,6 +553,7 @@ namespace xcManager {
             DagNode.setup();
             CommentNode.setup();
             DagTab.setup();
+            DagTabSQLFunc.setup();
             DagView.setup();
             DagSearch.Instance.setup();
             return setupDagList();
@@ -743,6 +753,7 @@ namespace xcManager {
     function setupUserArea(): void {
         setupUserBox();
         MemoryAlert.Instance.setup();
+        setupModeArea();
     }
 
     function setupUserBox(): void {
@@ -814,6 +825,43 @@ namespace xcManager {
                 return;
             }
             XcUser.CurrentUser.logout();
+        });
+    }
+
+    function setupModeArea(): void {
+        let $modeArea: JQuery = $("#modeArea");
+        let $menu: JQuery = $("#modeAreaMenu");
+        let setText = (isSQLMode: boolean) => {
+            let text: string = isSQLMode ? ModeTStr.SQL : ModeTStr.Advanced;
+            $modeArea.find(".text").text(text);
+        };
+
+        xcMenu.add($menu);
+        setText(XVM.isSQLMode());
+
+        $modeArea.click((event) => {
+            const $target: JQuery = $(event.currentTarget);
+            $menu.find("li").addClass("xc-hidden");
+            if (XVM.isSQLMode()) {
+                $menu.find(".advanced").removeClass("xc-hidden");
+            } else {
+                $menu.find(".sql").removeClass("xc-hidden");
+            }
+            xcHelper.dropdownOpen($target, $menu, <xcHelper.DropdownOptions>{
+                "offsetY": -3,
+                "toggle": true,
+                "closeListener": true
+            });
+        });
+
+        $menu.on("mouseup", "li", (event) => {
+            if (event.which !== 1) {
+                return;
+            }
+            let isSQLMode: boolean = $(event.currentTarget).hasClass("sql");
+            let modeToSwitch: XVM.Mode = isSQLMode ? XVM.Mode.SQL : XVM.Mode.Advanced;
+            setText(isSQLMode);
+            XVM.setMode(modeToSwitch);
         });
     }
 

@@ -68,6 +68,10 @@ interface DagNodeDFInInfo extends DagNodeInfo {
     graph?: DagGraph;
 }
 
+interface DagNodeSQLFuncInInfo extends DagNodeInInfo {
+    order: number;
+}
+
 interface DagLineageChange {
     columns: ProgCol[];
     changes: {from: ProgCol, to: ProgCol}[]
@@ -91,6 +95,14 @@ interface DagNodeDatasetInputStruct {
     prefix: string;
     synthesize: boolean;
     loadArgs: string;
+}
+
+interface DagNodeSQLFuncInInputStruct {
+    source: string;
+}
+
+interface DagNodeSQLFuncOutInputStruct {
+    schema: ColSchema[];
 }
 
 interface DagNodeIMDTableInputStruct {

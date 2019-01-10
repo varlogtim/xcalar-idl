@@ -125,8 +125,10 @@ interface WkbkKVKeySet {
     gAuthKey: string;
     gNotebookKey: string;
     gDagManagerKey: string;
+    gSQLFuncManagerKey: string;
     gDagTableManagerKey: string;
     gDagListKey: string;
+    gSQLFuncListKey: string;
     gSQLSnippetKey: string;
     gSQLSnippetQueryKey: string;
 }
@@ -1127,6 +1129,7 @@ declare namespace MainMenu {
     export function closeForms(): void;
     export function registerPanels(panels: BaseOpPanel): void;
     export function checkMenuAnimFinish(): XDPromise<void>;
+    export function switchMode(): XDPromise<void>;
 }
 
 declare namespace BottomMenu {

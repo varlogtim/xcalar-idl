@@ -265,6 +265,9 @@ namespace StatusMessage {
                 }
 
                 text = text || StatusMessageTStr.Viewing + " " + panelName;
+                if (!panelName) {
+                    text = "";
+                }
                 const locationHTML: string =
                     '<span id="viewLocation">' +
                         text +

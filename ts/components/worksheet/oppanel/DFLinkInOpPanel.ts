@@ -17,7 +17,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
         this._initialize(dagNode);
         const model = $.extend(this._dagNode.getParam(), {
             schema: this._dagNode.getSchema()
-        })
+        });
         this._restorePanel(model);
         return true;
     }

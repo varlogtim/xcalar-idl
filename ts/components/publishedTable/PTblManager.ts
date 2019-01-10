@@ -1,6 +1,8 @@
 class PTblManager {
     private static _instance: PTblManager;
-    public static DSPrefix: string = "temp.table.";
+    public static readonly DSPrefix: string = "temp.table.";
+    public static readonly InternalColumns: string[] = ["XcalarRankOver", "XcalarOpCode", "XcalarBatchId"];
+    public static readonly PKPrefix: string = "XcalarRowNumPk";
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -99,12 +101,16 @@ class PTblManager {
             tableInfo.keys.forEach((key) => {
                 keySet.add(key);
             });
-            columns = tableInfo.columns.map((col: ColSchema) => {
+            tableInfo.columns.forEach((col: ColSchema) => {
                 const name: string = col.name;
-                return {
-                    name: xcHelper.escapeColName(name),
-                    type: col.type,
-                    primaryKey: keySet.has(name) ? "Y" : "N"
+                if (!PTblManager.InternalColumns.includes(name) &&
+                    !name.startsWith(PTblManager.PKPrefix)
+                ) {
+                    columns.push({
+                        name: xcHelper.escapeColName(name),
+                        type: col.type,
+                        primaryKey: keySet.has(name) ? "Y" : "N"
+                    });
                 }
             });
         } catch (e) {
@@ -432,7 +438,7 @@ class PTblManager {
         XIApi.synthesize(txId, colInfos, dsName, synthesizeTable)
         .then((resTable) => {
             if (primaryKeys == null || primaryKeys.length === 0) {
-                let newColName = "XcalarRowNumPk_" + Authentication.getHashId();
+                let newColName = PTblManager.PKPrefix + Authentication.getHashId();
                 primaryKeys = [newColName];
                 colInfos.push({
                     orig: newColName,

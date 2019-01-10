@@ -15,6 +15,12 @@ namespace XVM {
     // let expirationDate: Date = null;
     let numUsers: number = -1; // Set, but not used
     let numNodes: number = -1; // Set, but not used
+    let _mode: XVM.Mode;
+
+    export enum Mode {
+        SQL = "SQL",
+        Advanced = "Advanced"
+    }
 
     /* ==================== Helper Function ================================= */
     function showInvalidLicenseAlert(error: string): void {
@@ -101,6 +107,7 @@ namespace XVM {
     export function setup(): void {
         const key: string = "xcalar-version-" + XcUser.getCurrentUserName();
         kvVersionStore = new KVStore(key, gKVScope.USER);
+        _mode = XVM.Mode.SQL;
     }
 
     /**
@@ -431,6 +438,48 @@ namespace XVM {
     export function commitKVVersion(): XDPromise<void> {
         const version: string = JSON.stringify(kvVersion);
         return kvVersionStore.put(version, true);
+    }
+
+    /**
+     * XVM.setMode
+     * @param mode
+     */
+    export function setMode(mode: XVM.Mode): XDPromise<void> {
+        if (mode === _mode) {
+            return PromiseHelper.deferred();
+        }
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        $("#initialLoadScreen").show();
+        _mode = mode;
+        MainMenu.switchMode();
+        DagView.switchMode()
+        .always(() => {
+            $("#initialLoadScreen").hide();
+            deferred.resolve();
+        });
+
+        return deferred.promise();
+    }
+
+    /**
+     * XVM.getMode
+     */
+    export function getMode(): XVM.Mode {
+        return _mode;
+    }
+
+    /**
+     * XVM.isSQLMode
+     */
+    export function isSQLMode(): boolean {
+        return _mode === XVM.Mode.SQL;
+    }
+
+    /**
+     * XVM.isAdvancedMMode
+     */
+    export function isAdvancedMMode(): boolean {
+        return !XVM.isSQLMode();
     }
 
     // XVM.alertLicenseExpire = function() {

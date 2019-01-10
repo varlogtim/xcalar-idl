@@ -63,6 +63,10 @@ class DagNodeFactory {
                 return new DagNodePlaceholder(<DagNodePlaceholderInfo>options);
             case DagNodeType.Synthesize:
                 return new DagNodeSynthesize(options);
+            case DagNodeType.SQLFuncIn:
+                return new DagNodeSQLFuncIn(<DagNodeInInfo>options);
+            case DagNodeType.SQLFuncOut:
+                return new DagNodeSQLFuncOut(options);
             default:
                 throw new Error("node type " + options.type + " not supported");
         }
@@ -132,6 +136,10 @@ class DagNodeFactory {
                 return DagNodePlaceholder;
             case DagNodeType.Synthesize:
                 return DagNodeSynthesize;
+            case DagNodeType.SQLFuncIn:
+                return DagNodeSQLFuncIn;
+            case DagNodeType.SQLFuncOut:
+                return DagNodeSQLFuncOut;
             default:
                 throw new Error("node type " + options.type + " not supported");
         }

@@ -3105,6 +3105,9 @@ namespace xcHelper {
             case PatternCategory.Dataflow:
                 antiNamePattern = /[^a-zA-Z0-9\(\)\s:_-]/;
                 break;
+            case PatternCategory.SQLFunc:
+                antiNamePattern = /[^a-zA-Z0-9_-]/;
+                break;
             case PatternCategory.Export:
                 antiNamePattern = /[^/a-zA-Z0-9_-]/;
                 break;

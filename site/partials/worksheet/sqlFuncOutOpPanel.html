@@ -1,0 +1,25 @@
+<!-- SQLFuncOut Panel -->
+<section id="sqlFuncOutPanel" class="xc-hidden opPanel generalOpPanel">
+  <!-- Header -->
+  <header class="headerSection">
+    <div class="title"><%= dicts.SQLFunc.Output %></div>
+    <i class="close icon xi-close"></i>
+  </header>
+  <!-- content -->
+  <div class="mainContent">
+    <div class="opSection">
+      <p class="mainInstructions instrText"><%= dicts.SQLFunc.OutputInstr %></p>
+      <!-- schema -->
+      <div class="row clearfix schema">
+        <div class="description"><%= dicts.DFLink.Schema %>:</div>
+        include "colSchemaView.html"
+      </div>
+      <!-- end of schema row -->
+    <!-- end of arg section -->
+    </div>
+    <!-- end of opsection -->
+    include "opPanelAdvancedSection.html"
+    include "opPanelBottomSection.html"
+  </div>
+</section>
+<!-- End Of SQLFuncOut Panel -->
