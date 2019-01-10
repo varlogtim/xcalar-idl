@@ -1,5 +1,6 @@
 class SQLResultSpace {
     private static _instance: SQLResultSpace;
+    private _resultTable: TableMeta;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -9,10 +10,20 @@ class SQLResultSpace {
 
     }
 
+    private _setupListeners() {
+        const self = this;
+        $("#sqlTableArea").on("click", ".btn-create", function() {
+            CreatePublishTableModal.Instance.show(self._resultTable.getName(),
+                self._resultTable.getAllCols());
+        });
+    }
+
     public setup(): void {
         SQLTable.Instance.close();
         SQLTableLister.Instance.close();
         SQLTableSchema.Instance.close();
+
+        this._setupListeners();
     }
 
     public showTables(reset: boolean): void {
@@ -29,8 +40,9 @@ class SQLResultSpace {
 
     public test(): void {
         for (let tableId in gTables) {
-            let table = gTables[tableId];
+            let table: TableMeta = gTables[tableId];
             console.info("test, preview", tableId);
+            this._resultTable = table;
             SQLTable.Instance.show(table);
             break;
         }

@@ -275,7 +275,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
                 if ($li.hasClass("unavailable")) {
                     return true; // return true to keep dropdown open
                 }
-                let $primaryKey = $('.IMDKey .primaryKeyList').eq(0).find('.primaryKeyInput');
+                let $primaryKey = $('#publishIMDOpPanel .IMDKey .primaryKeyList').eq(0).find('.primaryKeyInput');
                 let oldVal = $primaryKey.val();
                 if (oldVal != "") {
                     $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyColumns')

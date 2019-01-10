@@ -405,6 +405,7 @@ ErrTStr = {
     'InvalidUDFFunction': 'Invalid function name',
     'InvalidDFDownload': 'Invalid dataflow to download',
     'UnsaveDFDownload': 'Cannot download unsaved dataflow. Please save changes first',
+    "NoPrimaryKey": "Published tables must have a primary key.",
 };
 
 ErrWRepTStr = {

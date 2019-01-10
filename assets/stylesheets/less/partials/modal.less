@@ -5543,6 +5543,135 @@ html.microsoft {
     }
 }
 
+#createPublishTableModal {
+    .size(@width: 500px, @height: 500px, @min-width: 500px, @min-height: 500px);
+    .close {
+        color: @color-white;
+    }
+    overflow: hidden;
+    .modalMain {
+        height: ~"calc(100% - 56px - 36px)"; // 100% - modalBottom - modalHeader
+        overflow-y: auto;
+        font-size: 13px;
+        display: block;
+
+        ::-webkit-scrollbar-thumb {
+            background: @color-bg-topBarGray2 !important;
+        }
+        ::-webkit-scrollbar-track {
+            background: @color-white;
+        }
+
+        .IMDName {
+            width: 100%;
+            display: inline-flex;
+            padding-top: 30px;
+            padding-bottom: 10px;
+            float: left;
+            .subHeading .label{
+                width: 60px;
+                line-height: 12px;
+            }
+
+            .inputWrap{
+                padding-right: 10px;
+                border: 1px @color-border-softGray;
+                float: right;
+                width: ~"calc(100% - 60px)";
+            }
+        }
+
+        .IMDKey {
+            width: 100%;
+            .subHeading {
+                float: left;
+                .label{
+                    width: 100px;
+                    line-height: 12px;
+                }
+            }
+            .primaryKeys {
+                float: right;
+                width: ~"calc(100% - 120px)";
+                padding-right: 10px;
+                .primaryKeyList {
+                    .xi-cancel {
+                        position: absolute;
+                        left: 7px;
+                        top: 5px;
+                        color: #9F9F9F;
+                        font-size: 14px;
+                        opacity: 0.8;
+                        cursor: pointer;
+                    }
+                    .primaryKeyInput {
+                        padding-left: 26px;
+                    }
+                    .primaryKeyInput.first {
+                        padding-left: 5px;
+                    }
+                }
+            }
+
+        }
+
+        .btnWrap {
+            padding-right: 11px;
+            padding-bottom: 10px;
+            float: right;
+            .text {
+                line-height: 22px;
+                width: 70px;
+                font-size: 11px;
+                float: right;
+            }
+            .btn-rounded {
+                width: 24px;
+                height: 24px;
+                border-radius: 14px;
+                background-color: #849cb0;
+                float: right;
+                .xi-plus {
+                    line-height: 25px;
+                }
+            }
+        }
+
+        #publishTableModalColumns {
+            .subHeading {
+                width: 150px;
+                height: 20px;
+            }
+            .selectAllWrap {
+                float: right;
+                padding-right: 10px;
+                padding-top: 5px;
+                .text {
+                    float: left;
+                }
+            }
+            .columnsToPublish {
+                padding: 0 10px;
+                ::-webkit-scrollbar-thumb {
+                    background: @color-bg-topBarGray2 !important;
+                }
+                ::-webkit-scrollbar-track {
+                    background: @color-white;
+                }
+                .cols {
+                    padding-top: 1px;
+                    .col {
+                        border: 1px solid @color-bg-white-five;
+                    }
+                    max-height: 101px;
+                    overflow-y: none;
+                }
+            }
+        }
+
+    }
+}
+
 #dagDatasetModal {
     .size(@width: 500px, @height: 500px, @min-width: 500px, @min-height: 500px);
     .modalMain {

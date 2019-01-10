@@ -2758,7 +2758,7 @@ namespace XIApi {
         XcalarListPublishedTables("*", false, true)
         .then((result) => {
             let pubTable: PublishTable = result.tables.find((table: PublishTable) => {
-                return (table.name == pubTableName);
+                return (table.name.toUpperCase() == pubTableName.toUpperCase());
             })
             if (pubTable != null) {
                 return deferred.reject("Published Table already exists");
