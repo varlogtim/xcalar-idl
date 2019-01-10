@@ -201,11 +201,12 @@
             var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self._start();
-            sortColsAndOrder.forEach(function(col) {
+            var sortColsAndOrderCopy = jQuery.extend(true, [], sortColsAndOrder);
+            sortColsAndOrderCopy.forEach(function(col) {
                 delete col.colId;
             })
 
-            XIApi.sort(txId, sortColsAndOrder, tableName, newTableName)
+            XIApi.sort(txId, sortColsAndOrderCopy, tableName, newTableName)
             .then(function(ret) {
                 var cli = self._end(txId);
                 cli = cli.replace(/\\t/g, "\\\\t");
@@ -213,8 +214,8 @@
                     deferred.resolve({
                         "newTableName": ret,
                         "cli": cli,
-                        "sortColName": sortColsAndOrder[0].name,
-                        "order": sortColsAndOrder[0].ordering
+                        "sortColName": sortColsAndOrderCopy[0].name,
+                        "order": sortColsAndOrderCopy[0].ordering
                     });
                 } else {
                     deferred.resolve({
