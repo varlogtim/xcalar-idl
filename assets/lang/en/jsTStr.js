@@ -1400,6 +1400,7 @@ TblTStr = {
     "Skew": "Skew",
     "ClickToDetail": "Click to see details",
     "TotalNumOfTbl": "Total number of tables",
+    "EmptyTable": "0 Rows",
 };
 
 ColTStr = {

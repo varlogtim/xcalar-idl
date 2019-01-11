@@ -61,6 +61,7 @@ html.edge {
     border-collapse: separate;
     border-spacing: 0px;
     margin-right: 5px;
+    margin-top: 4px;
     table-layout: fixed;
     cursor: default;
 
@@ -156,9 +157,13 @@ html.edge {
     tbody {
         white-space: pre;
         tr {
+            
             background-color: @color-bg-topBarGray2;
             td {
                border-right: 5px solid @color-bg-topBarGray2;
+               &.emptyTable {
+                   padding-left: 48px;
+               }
             }
 
             &:nth-child(odd) {

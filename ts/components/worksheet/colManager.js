@@ -837,48 +837,56 @@ window.ColManager = (function($, ColManager) {
                 }
             }
         }
-        // loop through table tr and start building html
-        for (var row = 0, numRows = jsonData.length; row < numRows; row++) {
-            var tdValue = parseRowJSON(jsonData[row]);
-            var rowNum = row + startIndex;
 
-            tBodyHTML += '<tr class="row' + rowNum + '">' +
-                            '<td align="center" class="col0">' +
-                                '<div class="idWrap">' + // Line Marker Column
-                                    '<span class="idSpan">' +
-                                        (rowNum + 1) +
-                                    '</span>' +
-                                    '<div class="rowGrab"></div>' +
-                                '</div>' +
-                            '</td>';
+        // Handle special case where resultant table has 0 rows
+        if (jsonData.length === 1 && jsonData[0] === "") {
+            tBodyHTML += '<tr class="row0">' +
+                '<td class="emptyTable">' + TblTStr.EmptyTable + '</td>' +
+                '</tr>';
+        } else {
+            // loop through table tr and start building html
+            for (var row = 0, numRows = jsonData.length; row < numRows; row++) {
+                var tdValue = parseRowJSON(jsonData[row]);
+                var rowNum = row + startIndex;
 
-            // loop through table tr's tds
-            var nestedTypes;
-            for (var col = 0; col < numCols; col++) {
-                nested = nestedVals[col].nested;
-                nestedTypes = nestedVals[col].types;
+                tBodyHTML += '<tr class="row' + rowNum + '">' +
+                                '<td align="center" class="col0">' +
+                                    '<div class="idWrap">' + // Line Marker Column
+                                        '<span class="idSpan">' +
+                                            (rowNum + 1) +
+                                        '</span>' +
+                                        '<div class="rowGrab"></div>' +
+                                    '</div>' +
+                                '</td>';
 
-                var indexed = (indexedColNums.indexOf(col) > -1);
-                var parseOptions = {
-                    "hasIndexStyle": hasIndexStyle,
-                    "indexed": indexed
-                };
-                var res = parseTdHelper(tdValue, nested, nestedTypes,
-                                        tableCols[col], parseOptions);
-                var tdClass = "col" + (col + 1);
+                // loop through table tr's tds
+                var nestedTypes;
+                for (var col = 0; col < numCols; col++) {
+                    nested = nestedVals[col].nested;
+                    nestedTypes = nestedVals[col].types;
 
-                if (res.tdClass !== "") {
-                    tdClass += " " + res.tdClass;
+                    var indexed = (indexedColNums.indexOf(col) > -1);
+                    var parseOptions = {
+                        "hasIndexStyle": hasIndexStyle,
+                        "indexed": indexed
+                    };
+                    var res = parseTdHelper(tdValue, nested, nestedTypes,
+                                            tableCols[col], parseOptions);
+                    var tdClass = "col" + (col + 1);
+
+                    if (res.tdClass !== "") {
+                        tdClass += " " + res.tdClass;
+                    }
+
+                    tBodyHTML += '<td class="' + tdClass + '">' +
+                                    res.td +
+                                '</td>';
                 }
-
-                tBodyHTML += '<td class="' + tdClass + '">' +
-                                res.td +
-                            '</td>';
+                // end of loop through table tr's tds
+                tBodyHTML += '</tr>';
             }
-            // end of loop through table tr's tds
-            tBodyHTML += '</tr>';
+            // end of loop through table tr and start building html
         }
-        // end of loop through table tr and start building html
 
         // assign column type class to header menus
         var $tBody = $(tBodyHTML);
