@@ -334,13 +334,13 @@ class JoinOpPanelStep2 {
         const { isSelected } = props;
 
         const columns: {
-            left: JoinOpColumnInfo[], right: JoinOpColumnInfo[],
-            leftJoinOn?: JoinOpColumnInfo[], rightJoinOn?: JoinOpColumnInfo[]
+            leftSelectable: JoinOpColumnInfo[], rightSelectable: JoinOpColumnInfo[],
+            leftFixed?: JoinOpColumnInfo[], rightFixed?: JoinOpColumnInfo[]
         } = isSelected
             ? this._modelRef.getSelectedColumns()
             : this._modelRef.getUnSelectedColumns();
-        if (columns.left.length === 0 && columns.leftJoinOn == null
-            && columns.right.length === 0 && columns.rightJoinOn == null) {
+        if (columns.leftSelectable.length === 0 && columns.leftFixed == null
+            && columns.rightSelectable.length === 0 && columns.rightFixed == null) {
             return null;
         }
         const isLeftTableOnly = this._modelRef.isLeftColumnsOnly();
@@ -363,9 +363,9 @@ class JoinOpPanelStep2 {
             }
 
         // Child component: left column list
-        const elemLeftJoinOnCols = columns.leftJoinOn == null
+        const leftFixedColProps = columns.leftFixed == null
             ? []
-            : columns.leftJoinOn.map((colInfo) => ({
+            : columns.leftFixed.map((colInfo) => ({
                 actionType: 'none',
                 columnProps: {
                     colName: colInfo.name, colType: colInfo.type
@@ -374,8 +374,8 @@ class JoinOpPanelStep2 {
         const elemLeftList = this._createColumnList({
             title: leftListTitle,
             cssExtra: isLeftTableOnly ? 'columnList-full' : '',
-            columnList: elemLeftJoinOnCols.concat(
-                columns.left.map((colInfo) => ({
+            columnList: leftFixedColProps.concat(
+                columns.leftSelectable.map((colInfo) => ({
                     onClickAction: () => actionFunc({left: colInfo.name}),
                     actionType: actionType,
                     columnProps: {
@@ -386,9 +386,9 @@ class JoinOpPanelStep2 {
         });
 
         // Child component: right column list
-        const elemRightJoinOnCols = columns.rightJoinOn == null
+        const rightFixedColProps = columns.rightFixed == null
             ? []
-            : columns.rightJoinOn.map((colInfo) => ({
+            : columns.rightFixed.map((colInfo) => ({
                 actionType: 'none',
                 columnProps: {
                     colName: colInfo.name, colType: colInfo.type
@@ -396,8 +396,8 @@ class JoinOpPanelStep2 {
             }));
         const elemRightList = isLeftTableOnly ? [] : this._createColumnList({
             title: rightListTitle,
-            columnList: elemRightJoinOnCols.concat(
-                columns.right.map((colInfo) => ({
+            columnList: rightFixedColProps.concat(
+                columns.rightSelectable.map((colInfo) => ({
                     onClickAction: () => actionFunc({right: colInfo.name}),
                     actionType: actionType,
                     columnProps: {

@@ -65,22 +65,26 @@ class DagNodeJoin extends DagNode {
         try {
             const param: DagNodeJoinInputStruct = this.input.getInput(replaceParameters);
             const parents: DagNode[] = this.getParents();
-            const lKeepCols: Set<string> = new Set(param.left.keepColumns);
             const lCols: ProgCol[] = parents[0].getLineage()
-                .getColumns(replaceParameters)
-                .filter((col) => (param.keepAllColumns || lKeepCols.has(col.getBackColName())));
-            const lChanges: DagLineageChange = this._getColAfterJoin(lCols, param.left);
+                .getColumns(replaceParameters);
+            const includeJoinOn = this._isIncludeJoinOn(param.joinType);
+            const lChanges: DagLineageChange = this._getColAfterJoin(
+                lCols, param.left,
+                includeJoinOn.left,
+                param.keepAllColumns);
             if (this._isSkipRightTable(param.joinType)) {
                 return {
                     columns: lChanges.columns,
                     changes: lChanges.changes
                 };
             } else {
-                const rKeepCols: Set<string> = new Set(param.right.keepColumns);
                 const rCols: ProgCol[] = parents[1].getLineage()
-                    .getColumns(replaceParameters)
-                    .filter((col) => (param.keepAllColumns || rKeepCols.has(col.getBackColName())));
-                const rChanges: DagLineageChange = this._getColAfterJoin(rCols, param.right);
+                    .getColumns(replaceParameters);
+                const rChanges: DagLineageChange = this._getColAfterJoin(
+                    rCols,
+                    param.right,
+                    includeJoinOn.right,
+                    param.keepAllColumns);
                 return {
                     columns: lChanges.columns.concat(rChanges.columns),
                     changes: lChanges.changes.concat(rChanges.changes)
@@ -187,37 +191,56 @@ class DagNodeJoin extends DagNode {
         return noRenameType.has(joinType);
     }
 
+    private _isIncludeJoinOn(joinType: string): {
+        left: boolean, right: boolean
+    } {
+        if (joinType === JoinOperatorTStr[JoinOperatorT.RightOuterJoin]) {
+            return { left: false, right: true };
+        } else {
+            return { left: true, right: false };
+        }
+    }
+
     private _getColAfterJoin(
-        columns: ProgCol[],
-        joinInput: DagNodeJoinTableInput
+        allColumns: ProgCol[],
+        joinInput: DagNodeJoinTableInput,
+        addJoinOn: boolean,
+        isKeepAllColumns: boolean
     ): DagLineageChange {
         const changes: {from: ProgCol, to: ProgCol}[] = [];
         const colMap: Map<string, ProgCol> = new Map();
-        const joinedColSet: Set<string> = new Set();
+        const fixedColSet: Set<string> = new Set();
 
-        columns.forEach((progCol) => {
+        allColumns.forEach((progCol) => {
             colMap.set(progCol.getBackColName(), progCol);
         });
 
-        // 1. Get join cols
-        const joinedCols: ProgCol[] = joinInput.columns.map((colName) => {
-            joinedColSet.add(colName);
-            // We don't support type casting in Join for now, but keep the code in case we wanna re-enable it
-            // const colType: ColumnType = joinInput.casts == null
-            //     ? colMap.get(colName).getType()
-            //     : joinInput.casts[index] || colMap.get(colName).getType();
-            const colType: ColumnType = colMap.get(colName).getType();
-            const frontName: string = xcHelper.parsePrefixColName(colName).name;
-            return ColManager.newPullCol(frontName, colName, colType);
-        });
+        // 1. Get fixed cols
+        const fixedCols: ProgCol[] = addJoinOn
+            ? joinInput.columns.map((colName) => {
+                fixedColSet.add(colName);
+                // We don't support type casting in Join for now, but keep the code in case we wanna re-enable it
+                // const colType: ColumnType = joinInput.casts == null
+                //     ? colMap.get(colName).getType()
+                //     : joinInput.casts[index] || colMap.get(colName).getType();
+                const colType: ColumnType = colMap.get(colName).getType();
+                const frontName: string = xcHelper.parsePrefixColName(colName).name;
+                return ColManager.newPullCol(frontName, colName, colType);
+            }) : [];
 
-        // 2, Get other cols
-        const otherCols: ProgCol[] = columns.filter((progCol) => {
-            return !joinedColSet.has(progCol.getBackColName());
-        });
+        // 2. Get selected cols
+        const keepColSet = new Set(joinInput.keepColumns);
+        const selectedCols: ProgCol[] = isKeepAllColumns
+            ? allColumns.filter((progCol) => {
+                return !fixedColSet.has(progCol.getBackColName());
+            })
+            : allColumns.filter((progCol) => {
+                const colName = progCol.getBackColName();
+                return !fixedColSet.has(colName) && keepColSet.has(colName);
+            }); 
 
-        // 3. combine joined cols and other cols
-        let finalCols: ProgCol[] = joinedCols.concat(otherCols);
+        // 3. combine fixed cols and selected cols
+        const finalCols: ProgCol[] = fixedCols.concat(selectedCols);
 
         // 4. rename columns
         const prefixRenameMap: Map<string, string> = new Map(); // Prefix rename map

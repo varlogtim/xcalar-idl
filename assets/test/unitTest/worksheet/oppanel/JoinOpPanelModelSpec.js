@@ -119,7 +119,8 @@ describe("JoinOpPanelModel Test", () => {
             Math.max(leftJoinOn.length, rightJoinOn.length));
 
         // Check selected columns
-        expect(model._selectedColumns.left.length).to.equal(leftColsKeep.length);
+        // left joinOn columns will be excluded, if joinType != rightOutJoin
+        expect(model._selectedColumns.left.length).to.equal(leftColsKeep.length - 1);
         expect(model._selectedColumns.right.length).to.equal(rightColsKeep.length);
 
         // Check renames
@@ -198,7 +199,8 @@ describe("JoinOpPanelModel Test", () => {
             Math.max(leftJoinOn.length, rightJoinOn.length));
 
         // Check selected columns
-        expect(model._selectedColumns.left.length).to.equal(leftColsKeep.length);
+        // left joinOn columns will be excluded, if joinType != rightOutJoin
+        expect(model._selectedColumns.left.length).to.equal(leftColsKeep.length - 1);
         expect(model._selectedColumns.right.length).to.equal(rightColsKeep.length);
 
         // Check renames
@@ -267,7 +269,8 @@ describe("JoinOpPanelModel Test", () => {
             // Right join on
             expect(dagData.right.columns.length).to.equal(fromDagData.right.columns.length);
             // Left columnsToKeep
-            expect(dagData.left.keepColumns.length).to.equal(fromDagData.left.keepColumns.length);
+            // left joinOn columns will be excluded, if joinType != rightOutJoin
+            expect(dagData.left.keepColumns.length).to.equal(fromDagData.left.keepColumns.length - 1);
             // Right columnsToKeep
             expect(dagData.right.keepColumns.length).to.equal(fromDagData.right.keepColumns.length);
             // Left renames
@@ -494,7 +497,7 @@ describe("JoinOpPanelModel Test", () => {
             expect(rightPrefixMetaMap.size).to.equal(1);
         });
 
-        it("keepAllColumns == false; column seletect == []; case", () => {
+        it("keepAllColumns == false; column selected == []; case", () => {
             const dagInput = xcHelper.deepCopy(inputStruct)
             dagInput.keepAllColumns = false;
             
@@ -514,9 +517,9 @@ describe("JoinOpPanelModel Test", () => {
             )._getMetaAfterColumnSelection();
 
             expect(leftColMetaMap.size).to.equal(2);
-            expect(rightColMetaMap.size).to.equal(2);
+            expect(rightColMetaMap.size).to.equal(0);
             expect(leftPrefixMetaMap.size).to.equal(1);
-            expect(rightPrefixMetaMap.size).to.equal(1);
+            expect(rightPrefixMetaMap.size).to.equal(0);
         });
 
         it("keepAllColumns == false; column seletect != []; case", () => {
@@ -541,9 +544,9 @@ describe("JoinOpPanelModel Test", () => {
             )._getMetaAfterColumnSelection();
 
             expect(leftColMetaMap.size).to.equal(3);
-            expect(rightColMetaMap.size).to.equal(3);
+            expect(rightColMetaMap.size).to.equal(1);
             expect(leftPrefixMetaMap.size).to.equal(1);
-            expect(rightPrefixMetaMap.size).to.equal(1);
+            expect(rightPrefixMetaMap.size).to.equal(0);
         });
     });
 
@@ -976,23 +979,23 @@ describe("JoinOpPanelModel Test", () => {
     describe('selected columns functions should work', () => {
         let model;
         const expected = {
-            numLeftOtherCols: 0, numRightOtherCols: 0,
-            numLeftJoinOnCols: 0, numRightJoinOnCols: 0,
+            numLeftSelectableCols: 0, numRightSelectableCols: 0,
+            numLeftFixedCols: 0, numRightFixedCols: 0,
             numLeftUnselected: 0, numRightUnselected: 0
         };
 
         before(() => {
-            const leftJoinOn = [preset.leftColumns[1].getBackColName()];
-            const rightJoinOn = [preset.rightColumns[1].getBackColName()];
-            const leftColsKeep = preset.leftColumns.slice(1).map((v) => v.getBackColName());
-            const rightColsKeep = preset.rightColumns.slice(1).map((v) => v.getBackColName());
+            const leftJoinOn = [preset.leftColumns[0].getBackColName()];
+            const rightJoinOn = [preset.rightColumns[0].getBackColName()];
+            const leftColsKeep = preset.leftColumns.slice(2).map((v) => v.getBackColName());
+            const rightColsKeep = preset.rightColumns.slice(2).map((v) => v.getBackColName());
 
             expected.numLeftUnselected = 1;
-            expected.numRightUnselected = 1;
-            expected.numLeftOtherCols = leftColsKeep.length - 1;
-            expected.numRightOtherCols = rightColsKeep.length - 1;
-            expected.numLeftJoinOnCols = leftJoinOn.length;
-            expected.numRightJoinOnCols = rightJoinOn.length;
+            expected.numRightUnselected = 2;
+            expected.numLeftSelectableCols = leftColsKeep.length;
+            expected.numRightSelectableCols = rightColsKeep.length;
+            expected.numLeftFixedCols = leftJoinOn.length;
+            expected.numRightFixedCols = 0;
 
             const inputStruct = {
                 joinType: JoinOperatorTStr[JoinOperatorT.InnerJoin],
@@ -1026,18 +1029,18 @@ describe("JoinOpPanelModel Test", () => {
 
         it("getSelectedColumns test", () => {
             const {
-                left: leftOtherCols, right: rightOtherCols,
-                leftJoinOn: leftJoinOnCols, rightJoinOn: rightJoinOnCols
+                leftSelectable, rightSelectable,
+                leftFixed, rightFixed
             } = model.getSelectedColumns();
-            expect(leftOtherCols.length).to.equal(expected.numLeftOtherCols);
-            expect(leftJoinOnCols.length).to.equal(expected.numLeftJoinOnCols);
-            expect(rightOtherCols.length).to.equal(expected.numRightOtherCols);
-            expect(rightJoinOnCols.length).to.equal(expected.numRightJoinOnCols);
+            expect(leftSelectable.length).to.equal(expected.numLeftSelectableCols);
+            expect(leftFixed.length).to.equal(expected.numLeftFixedCols);
+            expect(rightSelectable.length).to.equal(expected.numRightSelectableCols);
+            expect(rightFixed.length).to.equal(expected.numRightFixedCols);
         });
 
         it("getUnSelectedColumns test", () => {
             const {
-                left: leftUnselected, right: rightUnselected
+                leftSelectable: leftUnselected, rightSelectable: rightUnselected
             } = model.getUnSelectedColumns();
             expect(leftUnselected.length).to.equal(expected.numLeftUnselected);
             expect(rightUnselected.length).to.equal(expected.numRightUnselected);
@@ -1062,6 +1065,31 @@ describe("JoinOpPanelModel Test", () => {
             model.addSelectedColumn(colToUnselect);
             expect(model._selectedColumns.left.length).to.equal(originLength.left);
             expect(model._selectedColumns.right.length).to.equal(originLength.right);
+        });
+
+        it("_getUnselectableColumns test", () => {
+            const leftJoinOn = ['leftJoinOn'];
+            const rightJoinOn = ['rightJoinOn'];
+            const model = new JoinOpPanelModel();
+
+            let result;
+            // Case: rightOuterJoin
+            result = model._getUnselectableColumns({
+                joinType: JoinOperatorTStr[JoinOperatorT.RightOuterJoin],
+                leftJoinOn: leftJoinOn,
+                rightJoinOn: rightJoinOn
+            });
+            expect(result.left.length).to.equal(0);
+            expect(result.right.length).to.equal(1);
+
+            // Case: other joinType
+            result = model._getUnselectableColumns({
+                joinType: JoinOperatorTStr[JoinOperatorT.InnerJoin],
+                leftJoinOn: leftJoinOn,
+                rightJoinOn: rightJoinOn
+            });
+            expect(result.left.length).to.equal(1);
+            expect(result.right.length).to.equal(0);
         });
     });
 
@@ -1156,7 +1184,7 @@ describe("JoinOpPanelModel Test", () => {
             _clearRenames: model._clearRenames
         }
 
-        it("setJoinType test", () => {
+        it("setJoinTypeAndRebuild test", () => {
             let isBuildRenameInfoCalled = false;
             let isClearRenamesCalled = false;
             model._buildRenameInfo = () => { isBuildRenameInfoCalled = true; };
@@ -1169,7 +1197,7 @@ describe("JoinOpPanelModel Test", () => {
             isBuildRenameInfoCalled = false;
             isClearRenamesCalled = false;
 
-            model.setJoinType(newType);
+            model.setJoinTypeAndRebuild(newType);
             expect(model._joinType).to.equal(newType);
             expect(isClearRenamesCalled).to.equal(true);
             expect(isBuildRenameInfoCalled).to.equal(false);
@@ -1180,7 +1208,7 @@ describe("JoinOpPanelModel Test", () => {
             isClearRenamesCalled = false;
             model._joinType = JoinOperatorTStr[JoinOperatorT.LeftOuterJoin];
 
-            model.setJoinType(newType);
+            model.setJoinTypeAndRebuild(newType);
             expect(model._joinType).to.equal(newType);
             expect(isClearRenamesCalled).to.equal(false);
             expect(isBuildRenameInfoCalled).to.equal(false);
@@ -1191,7 +1219,7 @@ describe("JoinOpPanelModel Test", () => {
             isClearRenamesCalled = false;
             model._joinType = JoinOperatorTStr[JoinOperatorT.LeftSemiJoin];
 
-            model.setJoinType(newType);
+            model.setJoinTypeAndRebuild(newType);
             expect(model._joinType).to.equal(newType);
             expect(isClearRenamesCalled).to.equal(false);
             expect(isBuildRenameInfoCalled).to.equal(true);
@@ -1247,7 +1275,8 @@ describe("JoinOpPanelModel Test", () => {
                 model._needRenameByType(JoinOperatorTStr[JoinOperatorT.CrossJoin])
             ).to.equal(true);
         });
-    })
+    });
+
     function genProgCols(colPrefix, count) {
         const cols = new Array(count);
         for (let i = 0; i < count; i ++) {

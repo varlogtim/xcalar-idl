@@ -498,11 +498,12 @@ class JoinOpPanelStep1 {
 
     // Data model manipulation === start
     private _changeJoinType(typeId: string): void {
-        this._modelRef.setJoinType(typeId);
+        this._modelRef.setJoinTypeAndRebuild(typeId);
     }
     private _removeColumnPair(pairIndex: number): void {
         this._modelRef.removeColumnPair(pairIndex);
         this._modelRef.updateRenameInfo();
+        this._modelRef.updateSelectedColumnInfo();
     }
     private _modifyColumnPair(isLeft: boolean, pairIndex: number, colName: string): void {
         const pairInfo = {
@@ -511,6 +512,7 @@ class JoinOpPanelStep1 {
         };
         this._modelRef.modifyColumnPairName(pairIndex, pairInfo);
         this._modelRef.updateRenameInfo();
+        this._modelRef.updateSelectedColumnInfo();
     }
     private _modifyColumnType(isLeft: boolean, pairIndex: number, type: ColumnType): void {
         const typeInfo = {
@@ -522,6 +524,7 @@ class JoinOpPanelStep1 {
     private _addColumnPair() {
         this._modelRef.addColumnPair();
         this._modelRef.updateRenameInfo();
+        this._modelRef.updateSelectedColumnInfo();
     }
 
     private _getColumnsToShow(currentPairIndex: number) {
