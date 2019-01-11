@@ -225,7 +225,7 @@ describe("JoinOpPanelModel Test", () => {
             const leftJoinOn = [preset.leftColumns[0].getBackColName()];
             const rightJoinOn = [preset.leftColumns[0].getBackColName()];
             const leftColsKeep = preset.leftColumns.map((v) => v.getBackColName());
-            const rightColsKeep = preset.leftColumns.map((v) => v.getBackColName()); // Same columns, so that renaming will work
+            const rightColsKeep = preset.leftColumns.slice(1).map((v) => v.getBackColName()); // Same columns, so that renaming will work
             const leftRenames = genRenames(preset.leftColumns, 'lrn');
             const rightRenames = genRenames(preset.leftColumns, 'rrn');
     
@@ -269,14 +269,13 @@ describe("JoinOpPanelModel Test", () => {
             // Right join on
             expect(dagData.right.columns.length).to.equal(fromDagData.right.columns.length);
             // Left columnsToKeep
-            // left joinOn columns will be excluded, if joinType != rightOutJoin
-            expect(dagData.left.keepColumns.length).to.equal(fromDagData.left.keepColumns.length - 1);
+            expect(dagData.left.keepColumns.length).to.equal(fromDagData.left.keepColumns.length);
             // Right columnsToKeep
             expect(dagData.right.keepColumns.length).to.equal(fromDagData.right.keepColumns.length);
-            // Left renames
-            expect(dagData.left.rename.length).to.equal(preset.leftDerivedCount + 1);
-            // Right renames
-            expect(dagData.right.rename.length).to.equal(preset.leftDerivedCount + 1);
+            // Left renames(derivedCount - 1 + prefixCount)
+            expect(dagData.left.rename.length).to.equal(preset.leftDerivedCount - 1 + 1);
+            // Right renames(derivedCount - 1 + prefixCount)
+            expect(dagData.right.rename.length).to.equal(preset.leftDerivedCount -1 + 1);
             // Eval string
             expect(dagData.evalString).to.equal(fromDagData.evalString);
             // KeepAllColumns flag

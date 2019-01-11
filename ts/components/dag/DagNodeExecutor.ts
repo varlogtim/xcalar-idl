@@ -319,14 +319,12 @@ class DagNodeExecutor {
             }
         }
         joinType = (joinType == null) ? <JoinType>params.joinType : joinType;
-        const isIncludeJoinOn = this._joinIncludeJoinOn(params.joinType);
         const lTableInfo: JoinTableInfo = this._joinInfoConverter(
             params.left,
             parents[0],
             {
                 keepAllColumns: params.keepAllColumns,
                 isOptimizedMode: optimized,
-                addJoinOn: isIncludeJoinOn.left
             });
         const rTableInfo: JoinTableInfo = this._joinInfoConverter(
             params.right,
@@ -334,7 +332,6 @@ class DagNodeExecutor {
             {
                 keepAllColumns: params.keepAllColumns,
                 isOptimizedMode: optimized,
-                addJoinOn: isIncludeJoinOn.right
             });
         const options: JoinOptions = {
             newTableName: this._generateTableName(),
@@ -344,32 +341,19 @@ class DagNodeExecutor {
         return XIApi.join(this.txId, joinType, lTableInfo, rTableInfo, options);
     }
 
-    private _joinIncludeJoinOn(joinType: string): {
-        left: boolean, right: boolean
-    } {
-        // 1. When it's a rightOuterJoin, any columns can be deselected EXCEPT the RIGHT table ones in join on clause
-        // 2. Otherwise, any columns can be deselected EXCEPT the LEFT table ones in join on clause
-        if (joinType === JoinOperatorTStr[JoinOperatorT.RightOuterJoin]) {
-            return { left: false, right: true };
-        } else {
-            return { left: true, right: false };
-        }
-    }
-
     private _joinInfoConverter(
         joinTableInfo: DagNodeJoinTableInput,
         parentNode: DagNode,
         options?: {
             keepAllColumns?: boolean,
             isOptimizedMode?: boolean,
-            addJoinOn?: boolean
         }
     ): JoinTableInfo {
         // XXX not implemented yet
         console.error("getting immeidates not implement yet!");
         const allImmediates: string[] = parentNode.getLineage().getDerivedColumns();
         const {
-            keepAllColumns = true, isOptimizedMode = false, addJoinOn = true
+            keepAllColumns = true, isOptimizedMode = false
         } = options || {};
         let rename: ColRenameInfo[];
         if (keepAllColumns) {
@@ -392,18 +376,7 @@ class DagNodeExecutor {
                 });
             }
         } else {
-            // Columns to keep = selected columns + fixed columns
-            const fixedColSet = new Set<string>();
-            const fixedCols = addJoinOn
-                ? joinTableInfo.columns.map((colName) => {
-                    fixedColSet.add(colName);
-                    return colName;
-                })
-                : [];
-            const selectedCols = joinTableInfo.keepColumns.filter((colName) => {
-                return !fixedColSet.has(colName);
-            });
-            const colNamesToKeep = fixedCols.concat(selectedCols);
+            const colNamesToKeep = joinTableInfo.keepColumns;
             rename = this._joinRenameConverter(colNamesToKeep, joinTableInfo.rename);
         }
         return {

@@ -29,7 +29,7 @@ class JoinOpPanelModel {
         left: string, right: string
     } = { left: null, right: null };
     private _keepAllColumns: boolean = true;
-    private _selectedColumns: {
+    private _selectedColumns: { // Columns selected by user
         left: string[], right: string[]
     } = { left: [], right: [] };
 
@@ -307,12 +307,20 @@ class JoinOpPanelModel {
 
         // Selected Columns
         if (!this.isKeepAllColumns()) {
-            for (const colName of this._selectedColumns.left) {
-                dagData.left.keepColumns.push(colName);
-            }
-            for (const colName of this._selectedColumns.right) {
-                dagData.right.keepColumns.push(colName);
-            }
+            const selection = this._buildSelectedColumns({
+                leftColumnMetaMap: this._columnMeta.leftMap,
+                rightColumnMetaMap: this._columnMeta.rightMap,
+                joinType: this._joinType,
+                joinOnPairs: this._joinColumnPairs,
+                leftSelected: this._selectedColumns.left,
+                rightSelected: this._selectedColumns.right
+            });
+
+            // keepColumns = joinOn(vary as joinType) + selected
+            dagData.left.keepColumns = selection.leftFixed
+                .concat(selection.leftSelectable);
+            dagData.right.keepColumns = selection.rightFixed
+                .concat(selection.rightSelectable);
         }
 
         // Renamed left prefixes & columns

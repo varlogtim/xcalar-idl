@@ -167,7 +167,7 @@ declare type DagNodeJoinTableInput = {
     columns: string[],
     // We don't support type casting in Join for now, but keep the code in case we wanna re-enable it
     // casts?: ColumnType[],
-    keepColumns: string[],
+    keepColumns: string[], // Any columns not in this list will be dropped(including those in the joinOn clause)!
     rename: {sourceColumn: string, destColumn: string, prefix: boolean}[]
 }
 interface DagNodeJoinInputStruct {
