@@ -829,7 +829,7 @@ namespace xcManager {
     }
 
     function setupModeArea(): void {
-        let $modeArea: JQuery = $("#modeArea");
+        let $modeArea: JQuery = $("#modeArea").removeClass("xc-hidden");
         let $menu: JQuery = $("#modeAreaMenu");
         let setText = (isSQLMode: boolean) => {
             let text: string = isSQLMode ? ModeTStr.SQL : ModeTStr.Advanced;

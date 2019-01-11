@@ -15,10 +15,7 @@ class SQLOpPanel extends BaseOpPanel {
     private _$tableWrapper: JQuery;
     private _$editorWrapper: JQuery;
     private _sqlTables = {};
-    private _snippetQueryKvStore : KVStore;
-    private _snippetKvStore: KVStore;
     private _defaultSnippet: string;
-    private _allSnippets : {};
     private _curSnippet : string;
     private _dropdownHint: InputDropdownHint;
 
@@ -35,14 +32,9 @@ class SQLOpPanel extends BaseOpPanel {
         this._$editorWrapper = this._$elemPanel.find(".editorWrapper").eq(0);
         super.setup(this._$elemPanel);
 
-        this._defaultSnippet = "Default Snippet";
-        this._allSnippets = {};
+        this._defaultSnippet = SQLSnippet.Default;
         this._curSnippet = this._defaultSnippet;
 
-        const snippetQueryKey = KVStore.getKey("gSQLSnippetQuery");
-        const snippetKey = KVStore.getKey("gSQLSnippet");
-        this._snippetQueryKvStore = new KVStore(snippetQueryKey, gKVScope.WKBK);
-        this._snippetKvStore = new KVStore(snippetKey, gKVScope.WKBK);
         this._loadSnippets();
 
         this._setupSQLEditor();
@@ -58,28 +50,20 @@ class SQLOpPanel extends BaseOpPanel {
     }
 
     private _loadSnippets(): void {
-        const self = this;
-        self._snippetQueryKvStore.get()
-        .then(function(ret) {
+        SQLSnippet.Instance.listSnippetsAsync()
+        .then((snippets: {name: string, snippet: string}[]) => {
             try {
-                if (ret) {
-                    self._allSnippets = JSON.parse(ret);
-                }
-            } catch (e) {
-                Alert.show({
-                    title: "SQLEditor Error",
-                    msg: SQLErrTStr.InvalidSQLQuery,
-                    isAlert: true
+                // only populate dropdown
+                const $ul = this._$sqlSnippetDropdown.find("ul");
+                snippets.forEach((snippetInfo) => {
+                    const html =
+                        '<li data-name="' + snippetInfo.name +
+                        '" data-toggle="tooltip" data-container="body"' +
+                        ' data-placement="top">' + snippetInfo.name +
+                            '<i class="icon xi-trash"></i>' +
+                        '</li>';
+                    $(html).appendTo($ul);
                 });
-            }
-            return self._snippetKvStore.get();
-        })
-        .then(function(ret) {
-            let snippetsOrder = [];
-            try {
-                if (ret) {
-                    snippetsOrder = JSON.parse(ret);
-                }
             } catch(e) {
                 Alert.show({
                     title: "SQLEditor Error",
@@ -87,43 +71,14 @@ class SQLOpPanel extends BaseOpPanel {
                     isAlert: true
                 });
             }
-            // only populate dropdown
-            const $ul = self._$sqlSnippetDropdown.find("ul");
-            for (const snippetName of snippetsOrder) {
-                const html = '<li data-name="' + snippetName +
-                             '" data-toggle="tooltip" data-container="body"' +
-                             ' data-placement="top">' + snippetName +
-                             '<i class="icon xi-trash"></i></li>';
-                $(html).appendTo($ul);
-            }
         })
-        .fail(function() {
+        .fail(() => {
             Alert.show({
                 title: "SQLEditor Error",
                 msg: "Failed to get SQL snippets",
                 isAlert: true
             });
         });
-    }
-
-    private _updateSnippetKVStore(): XDPromise<any> {
-        const self = this;
-        const deferred = PromiseHelper.deferred();
-        const allSnippets = jQuery.extend(true, {}, this._allSnippets);
-        delete allSnippets[this._defaultSnippet];
-        self._snippetQueryKvStore.put(JSON.stringify(allSnippets), true)
-        .then(function() {
-            const snippetsOrder = [];
-            self._$sqlSnippetDropdown.find("li[data-name]").each(function() {
-                snippetsOrder.push($(this).attr("data-name"));
-            });
-            return self._snippetKvStore.put(JSON.stringify(snippetsOrder), true);
-        })
-        .then(() => {
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-        return deferred.promise();
     }
 
     // SQLEditor.setCurId = function(txId) {
@@ -362,7 +317,7 @@ class SQLOpPanel extends BaseOpPanel {
         const $ul = this._$sqlSnippetDropdown.find("ul");
         if (this._$snippetConfirm.hasClass("newSnippet")) {
             // saving as a new snippet
-            if (this._allSnippets.hasOwnProperty(snippetName)) {
+            if (SQLSnippet.Instance.hasSnippet(snippetName)) {
                 StatusBox.show(SQLErrTStr.SnippetNameExists,
                                this._$elemPanel.find("input.snippetName"));
                 return;
@@ -371,18 +326,16 @@ class SQLOpPanel extends BaseOpPanel {
                              'data-container="body" data-placement="top">' +
                              snippetName + '<i class="icon xi-trash"></i></li>';
                 $ul.append(html);
-                this._allSnippets[snippetName] = this._sqlEditor.getValue();
                 this._curSnippet = snippetName;
+                SQLSnippet.Instance.writeSnippet(snippetName, this._sqlEditor.getValue(), false);
             }
         } else {
             // overwriting snippet
             $ul.find('li[data-name="'+ this._curSnippet +'"]').attr("data-name", snippetName).text(snippetName);
-            delete this._allSnippets[this._curSnippet];
-            this._allSnippets[snippetName] = this._sqlEditor.getValue();
             this._curSnippet = snippetName;
+            SQLSnippet.Instance.writeSnippet(snippetName, this._sqlEditor.getValue(), true);
         }
         this._selectSnippetByName(snippetName);
-        this._updateSnippetKVStore();
     }
 
     private _addEventListeners(): void {
@@ -504,12 +457,10 @@ class SQLOpPanel extends BaseOpPanel {
 
     private _deleteSnippet($li: JQuery): void {
         const snippetName = $li.text();
-        delete this._allSnippets[snippetName];
+        SQLSnippet.Instance.deleteSnippet(snippetName);
         $li.remove();
         if (this._curSnippet === snippetName) {
             this._selectSnippetByName(this._defaultSnippet);
-        } else {
-            this._updateSnippetKVStore();
         }
     }
 
@@ -549,10 +500,10 @@ class SQLOpPanel extends BaseOpPanel {
         this._curSnippet = snippetName;
 
         if (snippetName !== this._defaultSnippet &&
-            !this._allSnippets.hasOwnProperty(snippetName)) {
+            !SQLSnippet.Instance.hasSnippet(snippetName)) {
             this._selectSnippetByName(this._defaultSnippet);
         } else {
-            this._sqlEditor.setValue(this._allSnippets[snippetName]);
+            this._sqlEditor.setValue(SQLSnippet.Instance.getSnippet(snippetName));
             this._sqlEditor.refresh();
         }
     }
@@ -772,7 +723,7 @@ class SQLOpPanel extends BaseOpPanel {
     private _renderSqlQueryString(): void {
         const sqlQueryString = this._dataModel.getSqlQueryString();
         this._sqlEditor.setValue(sqlQueryString);
-        this._allSnippets[this._defaultSnippet] = sqlQueryString;
+        SQLSnippet.Instance.writeSnippet(this._defaultSnippet, sqlQueryString, true);
         // select default snippet
         this._selectSnippetByName(this._defaultSnippet);
     }
@@ -886,7 +837,7 @@ class SQLOpPanel extends BaseOpPanel {
                 }
                 const sqlQueryString = advancedParams.sqlQueryString;
                 this._sqlEditor.setValue(sqlQueryString);
-                this._allSnippets[this._defaultSnippet] = sqlQueryString;
+                SQLSnippet.Instance.writeSnippet(this._defaultSnippet, sqlQueryString, true);
                 // select default snippet
                 this._selectSnippetByName(this._defaultSnippet);
 

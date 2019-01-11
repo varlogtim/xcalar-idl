@@ -237,6 +237,7 @@ CommonTxtTstr = {
     'time': 'time',
     'Upgrading': 'Upgrading',
     'Uploading': 'Uploading',
+    'Untitled': 'Untitiled',
     'Value': 'Value',
     'HighXcalarMemUsage': 'Highest Xcalar Memory Usage',
     'XcalarMemUsage': 'Average Xcalar Memory Usage',
@@ -1623,6 +1624,8 @@ SQLTStr = {
     "NewTab": "Add a new dataflow tab",
     "DupTab": "Duplicate a dataflow tab",
     "Func": "SQL Functions",
+    "DeleteSnippet": "Delete Snippet",
+    "DeleteSnippetMsg": "Are you sure you want to delete snippet <name>?"
 };
 
 LoginConfigTStr = {

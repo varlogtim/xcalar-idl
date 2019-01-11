@@ -22,6 +22,10 @@ class SQLWorkSpace {
         this._resizeEvents();
     }
 
+    public switchMode(): void {
+        this._sqlEditorSpace.switchMode();
+    }
+
     public refresh(): void {
         this._sqlEditorSpace.refresh();
         this._sqlHistorySpace.refresh();

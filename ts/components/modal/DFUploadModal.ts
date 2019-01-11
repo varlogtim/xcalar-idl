@@ -33,7 +33,7 @@ class DFUploadModal {
         return this._getModal().find(".source input.browse");
     }
 
-    private _close() {
+    private _close(): void {
         const $modal: JQuery = this._getModal();
         this._modalHelper.clear();
         this._file = null;

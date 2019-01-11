@@ -4449,6 +4449,60 @@ html.microsoft {
 }
 /* ========== End of Dataflow download ============= */
 
+/* ========== SQL Snippet List ============= */
+#sqlSnippetListModal {
+    .size(@width: 500px, @height: 600px);
+
+    .modalMain {
+        padding: 15px 25px;
+        height: ~"calc(100% - 92px)";
+
+        .listSection {
+            height: 100%;
+            overflow-y: auto;
+            border: 1px solid @color-border-softGray;
+        }
+    }
+}
+/* ========== End of SQL Snippet List ============= */
+
+/* ========== SQL Save List ============= */
+#sqlSnippetSaveModal {
+    .size(@width: 500px, @height: 600px);
+
+    .modalMain {
+        padding: 15px 25px;
+        height: ~"calc(100% - 92px)";
+        
+        .label {
+            height: 30px;
+            
+            .text, input {
+                display: block;
+                float: left;
+            }
+
+            .text {
+                width: 60px;
+                margin-right: 5px;
+                line-height: 30px;
+            }
+
+            input {
+                width: ~"calc(100% - 65px)";
+            }
+        }
+
+        .xc-gridList {
+            margin-top: 10px;
+            height: ~"calc(100% - 40px)";
+            overflow-y: auto;
+            border: 1px solid @color-border-softGray;
+        }
+    }
+}
+/* ========== End of SQL Save List ============= */
+
 /* Login Config Modal */
 #loginConfigModal {
     .size(@width: 800px, @height:650px);

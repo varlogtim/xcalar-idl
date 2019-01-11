@@ -452,6 +452,7 @@ namespace XVM {
         $("#initialLoadScreen").show();
         _mode = mode;
         MainMenu.switchMode();
+        SQLWorkSpace.Instance.switchMode();
         DagView.switchMode()
         .always(() => {
             $("#initialLoadScreen").hide();

@@ -1083,6 +1083,14 @@ module.exports = {
         "Source": "Source Table (For testing only)",
     },
 
+    "SQLEditor": {
+        "NewSnippet": "New Snippet",
+        "Import": "Import Snippet",
+        "Download": "Download Snippet",
+        "Snippets": "Snippets",
+        "Save": "Save Snippet",
+    },
+
     "IMDTableOp": {
         "IMDTable": "IMD Table",
         "IMDTableInstr": "Utilize a published IMD Table as the source for data",

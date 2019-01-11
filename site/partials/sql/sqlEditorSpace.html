@@ -5,6 +5,7 @@
   <i class="icon xi_popout fa-18 undock" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.bottomMenu.popOutBtn %>"></i>
 
   <section class="topBarSection">
+    <div class="fileName tooltipOverflow"></div>
     <div class="fileOption dropDownList">
       <div class="text"><%= dicts.common.File %></div>
       <div class="iconWrapper">
@@ -12,16 +13,18 @@
       </div>
       <div class="list">
         <ul>
-          <li data-action="open">Open...</li>
-          <li daata-action="save">Save</li>
-          <li data-action="saveAs">Save As...</li>
-          <li data-action="import">Import File</li>
-          <li data-action="download">Download File</li>
+          <li data-action="new"><%= dicts.SQLEditor.NewSnippet %></li>
+          <li data-action="open"><%= dicts.fileManager.Open %>...</li>
+          <li data-action="save"><%= dicts.common.Save %></li>
+          <li data-action="saveAs"><%= dicts.common.SaveAs %>...</li>
+          <li data-action="delete"><%= dicts.fileManager.Delete %></li>
+          <!-- <li data-action="import"><%= dicts.SQLEditor.Import %></li> -->
+          <li data-action="download"><%= dicts.SQLEditor.Download %></li>
         </ul>
       </div>
     </div>
     <button class="btn btn-submit showTables">
-        <%= dicts.Table.Show %>
+      <%= dicts.Table.Show %>
     </button>
   </section>
   <section class="editSection">

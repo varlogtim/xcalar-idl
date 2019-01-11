@@ -2,15 +2,17 @@ class SQLEditorSpace {
     private static _instance: SQLEditorSpace;
 
     private _sqlEditor: SQLEditor;
-    private _isDocked: boolean = true;
-    private _minWidth: number = 200;
+    private _isDocked: boolean;
+    private _minWidth: number;
+    private _currentFile: string;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
     }
 
     private constructor() {
-
+        this._isDocked = true;
+        this._minWidth = 200;
     }
 
     public setup(): void {
@@ -20,7 +22,13 @@ class SQLEditorSpace {
 
     public refresh(): void {
         this._adjustResize();
-        this._sqlEditor.refresh();
+        this._refreshSnippet();
+    }
+
+    public switchMode(): void {
+        if (XVM.isAdvancedMMode()) {
+            this._saveSnippet();
+        }
     }
 
     private _setupSQLEditor(): void {
@@ -50,7 +58,38 @@ class SQLEditorSpace {
         }
     }
 
-    private _getAutoCompleteHint() {
+    private _onLoadMode(promise: XDPromise<any>): any {
+        let timer = setTimeout(() => {
+            let $section = this._getEditorSpaceEl();
+            $section.addClass("loading");
+            xcHelper.showRefreshIcon($section, true, promise);
+        }, 500);
+        return timer;
+    }
+
+    private _offLoadMode(timer: any): void {
+        let $section = this._getEditorSpaceEl();
+        clearTimeout(timer);
+        $section.removeClass("loading");
+    }
+
+    private _refreshSnippet(): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let timer = this._onLoadMode(deferred.promise());
+        SQLSnippet.Instance.listSnippetsAsync()
+        .then(() => {
+            this._setSnippet(this._currentFile || CommonTxtTstr.Untitled);
+            deferred.resolve();
+        })
+        .fail(deferred.reject)
+        .always(() => {
+            this._offLoadMode(timer);
+        });
+
+        return deferred.promise();
+    }
+
+    private _getAutoCompleteHint(): any {
         let arcTables = {};
         try {
             let tables: PbTblInfo[] = PTblManager.Instance.getTables();
@@ -71,6 +110,10 @@ class SQLEditorSpace {
         return $("#sqlEditorSpace");
     }
 
+    private _getTopBarEl(): JQuery {
+        return this._getEditorSpaceEl().find(".topBarSection");
+    }
+
     private _executeAllSQL(): void {
         try {
             let sqls: string = this._sqlEditor.getSelection() || this._sqlEditor.getValue();
@@ -88,13 +131,102 @@ class SQLEditorSpace {
         return new SQLExecutor(sql).execute();
     }
 
+    private _setFileName(name: string): void {
+        let $el: JQuery = this._getTopBarEl().find(".fileName");
+        $el.text(name);
+        xcTooltip.add($el, {
+            title: name
+        });
+        this._currentFile = name;
+    }
+
+    private _getFileName(): string {
+        return this._currentFile;
+    }
+
     private _fileOption(action: string): void {
         switch (action) {
+            case "new":
+                this._saveSnippet();
+                this._newSnippet();
+                break;
             case "open":
+                this._openSnippet();
+                break;
+            case "save":
+                this._saveSnippet();
+                xcHelper.showSuccess(SuccessTStr.Saved);
+                break;
+            case "saveAs":
+                this._saveAsSnippet();
+                break;
+            case "delete":
+                this._deleteSnippet();
+                break;
+            case "download":
+                this._downlodSnippet();
                 break;
             default:
                 break;
         }
+    }
+
+    private _setSnippet(name: string): void {
+        this._setFileName(name);
+        let snippet = SQLSnippet.Instance.getSnippet(name);
+        this._sqlEditor.setValue(snippet);
+        this._sqlEditor.refresh();
+    }
+
+    private _newSnippet(): void {
+        let validFunc = (name) => {
+            return !SQLSnippet.Instance.hasSnippet(name);
+        };
+        let name = xcHelper.uniqueName(CommonTxtTstr.Untitled, validFunc, null, 100);
+        this._setSnippet(name);
+    }
+
+    private _openSnippet(): void {
+        SQLSnippetListModal.Instance.show((name) => {
+            this._saveSnippet();
+            this._setSnippet(name)
+        });
+    }
+
+    private _saveSnippet(): void {
+        let snippet = this._sqlEditor.getValue();
+        SQLSnippet.Instance.writeSnippet(this._currentFile, snippet, true);
+    }
+
+    private _saveAsSnippet(): void {
+        SQLSnippetSaveModal.Instance.show(this._currentFile, (newName) => {
+            let snippet = this._sqlEditor.getValue();
+            SQLSnippet.Instance.writeSnippet(newName, snippet, true);
+            this._setFileName(newName);
+            xcHelper.showSuccess(SuccessTStr.Saved);
+        });
+    }
+
+    private _deleteSnippet(): void {
+        let name: string = this._currentFile;
+        let msg = xcHelper.replaceMsg(SQLTStr.DeleteSnippetMsg, {
+            name: name
+        });
+        Alert.show({
+            title: SQLTStr.DeleteSnippet,
+            msg: msg,
+            onConfirm: () => {
+                SQLSnippet.Instance.deleteSnippet(name);
+                this._newSnippet();
+                xcHelper.showSuccess(SuccessTStr.Saved);
+            }
+        });
+    }
+
+    private _downlodSnippet(): void {
+        let fileName: string = this._getFileName() + ".sql";
+        let content: string = this._sqlEditor.getValue();
+        xcHelper.downloadAsFile(fileName, content, false);
     }
 
     private _addEventListeners(): void {
@@ -102,11 +234,6 @@ class SQLEditorSpace {
         const $bottomSection = $container.find(".bottomSection");
         $bottomSection.on("click", ".execute", () => {
             this._executeAllSQL();
-        });
-
-        const $topBar = $container.find(".topBarSection");
-        $topBar.on("click", ".showTables", () => {
-            SQLResultSpace.Instance.showTables(true);
         });
 
         $container.on("click", ".undock", () => {
@@ -123,15 +250,35 @@ class SQLEditorSpace {
             "containment": "#sqlWorkSpacePanel"
         });
         this._setupResize();
+        this._setupTopBar();
+    }
+
+    private _setupTopBar(): void {
+        const $topBar = this._getTopBarEl();
+        $topBar.on("click", ".showTables", () => {
+            SQLResultSpace.Instance.showTables(true);
+        });
 
         let selector: string = `#${this._getEditorSpaceEl().attr("id")}`;
         new MenuHelper($topBar.find(".fileOption"), {
+            onOpen: () => {
+                let $deletLi: JQuery = $topBar.find('.fileOption li[data-action="delete"]');
+                if (SQLSnippet.Instance.hasSnippet(this._currentFile)) {
+                    $deletLi.removeClass("xc-disabled");
+                } else {
+                    $deletLi.addClass("xc-disabled");
+                }
+            },
             onSelect: ($li) => {
                 this._fileOption($li.data("action"));
             },
             container: selector,
             bounds: selector
         }).setupListeners();
+
+        $topBar.on("mouseenter", ".tooltipOverflow", (event) => {
+            xcTooltip.auto(<any>event.currentTarget);
+        });
     }
 
     private _setupResize() {
