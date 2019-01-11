@@ -354,6 +354,11 @@ interface SQLColumn {
     colType: string
 }
 
+interface SQLSchema {
+    tableName: string,
+    tableColumns: {}[] // {column: type}[]
+}
+
 interface TableRunStats {
     state: DgDagStateT,
     startTime: number,

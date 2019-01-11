@@ -15,25 +15,23 @@ class SQLExecutor {
         this._identifiers = {};
         this._schema = {};
         const tables: string[] = Array.from(XDParser.SqlParser.getTableIdentifiers(sql));
-        const allPubTables = PTblManager.Instance.getTables();
-        const allSchemas = {};
-        allPubTables.forEach((pubTable) => {
-            const columns = [];
-            pubTable.columns.forEach((column) => {
-                const upperName = column.name.toUpperCase();
-                if (!upperName.startsWith("XCALARRANKOVER") &&
-                    !upperName.startsWith("XCALAROPCODE") &&
-                    !upperName.startsWith("XCALARBATCHID") &&
-                    !upperName.startsWith("XCALARROWNUMPK")) {
-                    columns.push(column);
-                }
-            });
-            allSchemas[pubTable.name.toUpperCase()] = columns;
-        });
+        const tableMap = PTblManager.Instance.getTableMap();
         tables.forEach((identifier, idx) => {
             const pubTableName = identifier.toUpperCase();
-            if (allSchemas.hasOwnProperty(pubTableName)) {
-                this._schema[pubTableName] = allSchemas[pubTableName];
+            if (tableMap.has(pubTableName)) {
+                const columns = [];
+                tableMap.get(pubTableName).columns.forEach((column) => {
+                    const upperName = column.name.toUpperCase();
+                    if (!upperName.startsWith("XCALARRANKOVER") &&
+                        !upperName.startsWith("XCALAROPCODE") &&
+                        !upperName.startsWith("XCALARBATCHID") &&
+                        !upperName.startsWith("XCALARROWNUMPK")) {
+                        columns.push(column);
+                    }
+                });
+                this._schema[pubTableName] = columns;
+            } else {
+                throw "Cannot find published table: " + pubTableName;
             }
             const IMDNode = <DagNodeIMDTable>DagNodeFactory.create({
                 type: DagNodeType.IMDTable
@@ -117,6 +115,7 @@ class SQLExecutor {
         this._identifiersOrder.forEach((idx) => {
             identifiers.set(idx, this._identifiers[idx]);
         });
-        return this._sqlNode.compileSQL(this._sql, queryId, identifiers);
+        const sqlMode = true;
+        return this._sqlNode.compileSQL(this._sql, queryId, identifiers, sqlMode);
     }
 }

@@ -60,7 +60,6 @@ class DagNodeSQL extends DagNode {
     };
 
     public updateSubGraph(_newTableMap?: {}): void {
-        // XXX Can't have this optimization right now since things are broken
         if (_newTableMap) {
             // If it's simply updating the mapping of oldTableName -> newTableName
             // no need to re-build the entire sub graph
@@ -476,6 +475,10 @@ class DagNodeSQL extends DagNode {
         const srcTable = this.getParents()[sourceId - 1];
         const srcTableName = srcTable.getTable() ||
                      xcHelper.randName("sqlTable") + Authentication.getHashId();
+        let pubTableName;
+        if (srcTable instanceof DagNodeIMDTable) {
+            pubTableName = srcTable.getSource().toUpperCase();
+        }
 
         const cols = srcTable.getLineage().getColumns();
         let colInfos: ColRenameInfo[] = [];
@@ -510,7 +513,8 @@ class DagNodeSQL extends DagNode {
                 finalizedTableName: srcTableName,
                 cliArray: cliArray,
                 schema: schema,
-                srcTableName: srcTableName
+                srcTableName: srcTableName,
+                pubTableName: pubTableName
             }
             return PromiseHelper.resolve(ret);
         } else {
@@ -535,7 +539,8 @@ class DagNodeSQL extends DagNode {
                 finalizedTableName: finalizedTableName,
                 cliArray: cliArray,
                 schema: schema,
-                srcTableName: srcTableName
+                srcTableName: srcTableName,
+                pubTableName: pubTableName
             }
             deferred.resolve(ret);
         })
@@ -559,7 +564,7 @@ class DagNodeSQL extends DagNode {
             tableMetaCol["XC_TABLENAME_" + finalizedTableName] = "string";
             schema.push(tableMetaCol);
 
-            const structToSend = {
+            const structToSend: SQLSchema = {
                 tableName: tableName.toUpperCase(),
                 tableColumns: schema
             }
@@ -568,7 +573,8 @@ class DagNodeSQL extends DagNode {
             const retStruct = {
                 cliArray: ret.cliArray,
                 structToSend: structToSend,
-                srcTableName: ret.srcTableName
+                srcTableName: ret.srcTableName,
+                pubTableName: ret.pubTableName
             }
             deferred.resolve(retStruct);
         })
@@ -576,19 +582,30 @@ class DagNodeSQL extends DagNode {
         return deferred.promise();
     }
 
-    public sendSchema(identifiers: Map<number, string>): XDPromise<any> {
+    public sendSchema(
+        identifiers: Map<number, string>,
+        sqlFuncs?: {}
+    ): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
         const self = this;
         let schemaQueryArray = [];
         const promiseArray = [];
-        const allSchemas = [];
+        let allSchemas: SQLSchema[] = [];
         const tableSrcMap = {};
+        // used for SQL functions
+        const selectTableMap = {};
+        const sqlFuncQueries = [];
+        const sqlFuncSchemas = [];
+        const visitedMap = {};
         identifiers.forEach(function(value, key) {
             const innerDeferred = PromiseHelper.deferred();
             const sourceId = key;
             const tableName = value;
             self._finalizeAndGetSchema(sourceId, tableName)
             .then(function(retStruct) {
+                if (retStruct.pubTableName) {
+                    selectTableMap[retStruct.pubTableName] = retStruct.srcTableName;
+                }
                 schemaQueryArray = schemaQueryArray.concat(retStruct.cliArray);
                 allSchemas.push(retStruct.structToSend);
                 tableSrcMap[retStruct.srcTableName] = key;
@@ -597,17 +614,34 @@ class DagNodeSQL extends DagNode {
             .fail(innerDeferred.reject);
             promiseArray.push(innerDeferred.promise());
         });
+
         PromiseHelper.when.apply(self, promiseArray)
+        .then(function() {
+            const innerPromiseArray = [];
+            if (sqlFuncs) {
+                for (const key in sqlFuncs) {
+                    innerPromiseArray.push(self._getSchemasAndQueriesFromSqlFuncs
+                                               .bind(self,
+                                                     {key: sqlFuncs[key]},
+                                                     sqlFuncQueries,
+                                                     sqlFuncSchemas,
+                                                     selectTableMap,
+                                                     visitedMap));
+                }
+            }
+            return PromiseHelper.chain(innerPromiseArray);
+        })
         .then(function() {
             // always drop schema on plan server first
             return SQLOpPanel.updatePlanServer("dropAll");
         })
         .then(function() {
+            allSchemas = allSchemas.concat(sqlFuncSchemas);
             // send schema to plan server
             return SQLOpPanel.updatePlanServer("update", allSchemas);
         })
         .then(function() {
-            schemaQueryArray = schemaQueryArray.map(function(cli) {
+            schemaQueryArray = schemaQueryArray.concat(sqlFuncQueries).map(function(cli) {
                 if (cli.endsWith(",")) {
                     cli = cli.substring(0, cli.length - 1);
                 }
@@ -670,27 +704,118 @@ class DagNodeSQL extends DagNode {
         }
     }
 
+    private _getSchemasAndQueriesFromSqlFuncs(
+        sqlFunc: {},
+        allQueries: string[],
+        allSchemas: SQLSchema[],
+        selectTableMap: {}, // {pubTable: selectTable}
+        visitedMap: {}
+    ): XDPromise<any> {
+        const inputTableNames = [];
+        if (Object.keys(sqlFunc).length > 1) {
+            return PromiseHelper.reject("Invalid SQL Function: " +
+                                        JSON.stringify(sqlFunc));
+        }
+        const key = Object.keys(sqlFunc)[0];
+        if (visitedMap.hasOwnProperty(key)) {
+            return PromiseHelper.resolve();
+        }
+        const funcName = sqlFunc[key].funcName;
+        // list all functions and check if funcName is there
+        const allFuncs = DagTabSQLFunc.listFuncs();
+        if (allFuncs.indexOf(funcName) === -1) {
+            return PromiseHelper.reject("Cannot find SQL function: " + funcName);
+        }
+        const deferred = PromiseHelper.deferred();
+        const args = sqlFunc[key].arguments;
+        const newIdentifier = sqlFunc[key].newTableName;
+        for (const arg of args) {
+            const identifier = Object.keys(arg)[0];
+            if (visitedMap.hasOwnProperty(identifier)) {
+                continue;
+            }
+            if (typeof arg[identifier] === "string") {
+                if (!selectTableMap.hasOwnProperty(identifier)) {
+                    return PromiseHelper.reject("Published table not ready: " +
+                                                identifier);
+                }
+                inputTableNames.push(selectTableMap[identifier]);
+            } else {
+                return PromiseHelper.reject("Nested SQL functions not suppported");
+                // XXX Not supported
+                // const newSqlFunc = {identifier: arg[identifier]};
+                // var promise = this._getSchemasAndQueriesFromSqlFuncs(newSqlFunc,
+                //                                                      allQueries,
+                //                                                      allSchemas,
+                //                                                      visitedMap)
+                //             .then((newTableName) => {
+                //                 inputTableNames.push(newTableName)
+                //             })
+            }
+        }
+        const tempTab = DagTabSQLFunc.getFunc(funcName);
+        let newTableName;
+        tempTab.getQuery(inputTableNames)
+        .then((queries, tableName) => {
+            visitedMap[key] = tableName;
+            newTableName = tableName;
+            JSON.parse(queries).forEach((query) => {
+                allQueries.push(JSON.stringify(query));
+            })
+            return tempTab.getSchema();
+        })
+        .then((columns) => {
+            const tableColumns = []; // for sendSchema
+            columns.forEach((column) => {
+                const upperName = column.name.toUpperCase();
+                const colStruct = {};
+                colStruct[upperName] = column.type;
+                tableColumns.push(colStruct);
+            });
+            const tableNameCol = {};
+            tableNameCol["XC_TABLENAME_" + newTableName] = "string";
+            tableColumns.push(tableNameCol);
+            const schemaToSend: SQLSchema = {
+                tableName: newIdentifier,
+                tableColumns: tableColumns
+            }
+            allSchemas.push(schemaToSend);
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
+    }
+
     public compileSQL(
         sqlQueryStr: string,
         queryId: string,
-        identifiers?: Map<number, string>
+        identifiers?: Map<number, string>,
+        sqlMode?: boolean
     ): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
         const sqlCom = new SQLCompiler();
         const self = this;
         let schemaQueryString;
         let tableSrcMap;
+        let sqlFuncs;
+        let replacedSqlQuery;
         try {
             // paramterize SQL
             sqlQueryStr = xcHelper.replaceMsg(sqlQueryStr,
                                 DagParamManager.Instance.getParamMap(), true);
             identifiers = identifiers || self.getIdentifiers();
-            self.sendSchema(identifiers)
+            if (sqlMode) {
+                const retStruct = XDParser.SqlParser.getSQLTableFunctions(sqlQueryStr);
+                sqlFuncs = retStruct.sqlFunctions;
+                replacedSqlQuery = retStruct.sqlQuery;
+            }
+            self.sendSchema(identifiers, sqlFuncs)
             .then(function(ret) {
                 schemaQueryString = ret.queryString;
                 tableSrcMap = ret.tableSrcMap
                 self.setTableSrcMap(tableSrcMap);
-                return sqlCom.compile(queryId, sqlQueryStr);
+                const sqlQueryToCompile = replacedSqlQuery || sqlQueryStr
+                return sqlCom.compile(queryId, sqlQueryToCompile);
             })
             .then(function(queryString, newTableName, newCols) {
                 self.setNewTableName(newTableName);

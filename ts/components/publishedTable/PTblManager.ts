@@ -33,6 +33,10 @@ class PTblManager {
         }
     }
 
+    public getTableMap(): Map<string, PbTblInfo> {
+        return this._tableMap;
+    }
+
     public getTables(): PbTblInfo[] {
         if (this._tables == null) {
             return [];
@@ -341,7 +345,7 @@ class PTblManager {
     }
 
     private _deactivateOneTable(tableName: string, failures: string[]): XDPromise<void> {
-        let tableInfo: PbTblInfo = this._tableMap.get(tableName);
+        let tableInfo: PbTblInfo = this._tableMap.get(tableName.toUpperCase());
         if (!tableInfo || !tableInfo.active) {
             return PromiseHelper.resolve();
         }
@@ -360,7 +364,7 @@ class PTblManager {
     }
 
     private _activateOneTable(tableName: string, failures: string[]): XDPromise<void> {
-        let tableInfo: PbTblInfo = this._tableMap.get(tableName);
+        let tableInfo: PbTblInfo = this._tableMap.get(tableName.toUpperCase());
         if (!tableInfo || tableInfo.active) {
             return PromiseHelper.resolve();
         }
@@ -388,7 +392,7 @@ class PTblManager {
     }
 
     private _deletOneTable(tableName: string, failures: string[]): XDPromise<void> {
-        let tableInfo: PbTblInfo = this._tableMap.get(tableName);
+        let tableInfo: PbTblInfo = this._tableMap.get(tableName.toUpperCase());
         if (!tableInfo) {
             return PromiseHelper.resolve();
         }
@@ -396,7 +400,7 @@ class PTblManager {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         XcalarUnpublishTable(tableName, true)
         .then(() => {
-            this._tableMap.delete(tableName);
+            this._tableMap.delete(tableName.toUpperCase());
             for (let i = 0; i < this._tables.length; i++) {
                 if (this._tables[i] === tableInfo) {
                     this._tables.splice(i, 1);
@@ -478,7 +482,7 @@ class PTblManager {
     private _updateTableMap(): void {
         this._tableMap.clear();
         this._tables.forEach((tableInfo) => {
-            this._tableMap.set(tableInfo.name, tableInfo);
+            this._tableMap.set(tableInfo.name.toUpperCase(), tableInfo);
         });
     }
 
