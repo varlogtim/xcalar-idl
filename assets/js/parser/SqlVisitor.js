@@ -8,6 +8,7 @@ class SqlVisitor extends SqlBaseVisitor{
         this.statements = [];
         this.sqlFunctions = {};
         this.funcStructMap = {};
+        this.tempNameList = [];
     }
     visitTables(ctx) {
         if (ctx instanceof SqlBaseParser.TableIdentifierContext) {
@@ -41,10 +42,10 @@ class SqlVisitor extends SqlBaseVisitor{
         var self = this;
         if (ctx instanceof SqlBaseParser.TableIdentifierWithFuncContext) {
             if (ctx.getText().indexOf("(") === -1) {
-                return ctx.getText();
+                return ctx.getText().toUpperCase();
             }
-            this.sqlFunctions[ctx.getText()] = this.__getFunctionStruct(ctx);
-            return this.sqlFunctions[ctx.getText()].newTableName;
+            this.sqlFunctions[ctx.getText().toUpperCase()] = this.__getFunctionStruct(ctx);
+            return this.sqlFunctions[ctx.getText().toUpperCase()].newTableName;
         } else if (ctx.getChildCount() === 0) {
             return ctx.getText();
         } else if (ctx.children) {
@@ -65,26 +66,36 @@ class SqlVisitor extends SqlBaseVisitor{
     };
     __getFunctionStruct(ctx) {
         var self = this;
-        if (self.funcStructMap[ctx.getText()]) {
-            return self.funcStructMap[ctx.getText()];
+        if (self.funcStructMap[ctx.getText().toUpperCase()]) {
+            return self.funcStructMap[ctx.getText().toUpperCase()];
         }
         var retStruct = {funcName: undefined, arguments: [], newTableName: undefined};
-        retStruct.newTableName = "SQL_DF_TMP" + Authentication.getHashId().toUpperCase();
+        var pattern = /(?![A-Za-z0-9_-])./g;
+        var tempTableName = ctx.getText().toUpperCase().split(pattern)
+                            .filter((str) => str !== "").join("_")
+                            + "_" + Math.floor(Math.random()*100000);
+        while (self.tempNameList.indexOf(tempTableName) != -1) {
+            tempTableName = tempTableName + "_" + Math.floor(Math.random()*100000);
+        }
+        self.tempNameList.push(tempTableName);
+        retStruct.newTableName = tempTableName;
         for (var i = 0; i < ctx.children.length; i++) {
             if (ctx.children[i] instanceof SqlBaseParser.SqlFuncIdentifierContext) {
-                retStruct.funcName = ctx.children[i].getText();
+                retStruct.funcName = ctx.children[i].getText().toUpperCase();
             } else if (ctx.children[i] instanceof
                             SqlBaseParser.TableIdentifierWithFuncContext) {
+                var argumentElement = {};
                 if (ctx.children[i].getText().indexOf("(") === -1) {
-                    retStruct.arguments[ctx.children[i].getText()]
-                                                = ctx.children[i].getText();
+                    argumentElement[ctx.children[i].getText().toUpperCase()]
+                                    = ctx.children[i].getText().toUpperCase();
                 } else {
-                    retStruct.arguments[ctx.children[i].getText()]
+                    argumentElement[ctx.children[i].getText().toUpperCase()]
                                     = self.__getFunctionStruct(ctx.children[i]);
                 }
+                retStruct.arguments.push(argumentElement);
             }
         }
-        self.funcStructMap[ctx.getText()] = retStruct;
+        self.funcStructMap[ctx.getText().toUpperCase()] = retStruct;
         return retStruct;
     };
 }
