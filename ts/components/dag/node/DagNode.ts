@@ -667,8 +667,11 @@ abstract class DagNode {
      * but for regular execution, the tableNameMap may only contain 1 of the operations
      * in a multi-operation node - includesAllTables would be false in this case so that we
      * don't set the node to completed if there are other operations that will occur for that node
+     * @param trustIndex use the index provided
      */
-    public updateProgress(tableNameMap, includesAllTables?: boolean) {
+    public updateProgress(tableNameMap,
+        includesAllTables?: boolean,
+        trustIndex?: boolean) {
         const errorStates: DgDagStateT[] = [DgDagStateT.DgDagStateUnknown,
                              DgDagStateT.DgDagStateError,
                              DgDagStateT.DgDagStateArchiveError];
@@ -677,8 +680,15 @@ abstract class DagNode {
         this.runStats.hasRun = true;
         let tableCount: number = Object.keys(this.runStats.nodes).length;
         for (let tableName in tableNameMap) {
+            const nodeInfo = tableNameMap[tableName];
             let tableRunStats: TableRunStats = this.runStats.nodes[tableName];
             if (!tableRunStats) {
+                let index: number;
+                if (trustIndex) {
+                    index = nodeInfo.index;
+                } else {
+                    index = tableCount;
+                }
                 tableRunStats = {
                     startTime: null,
                     pct: 0,
@@ -690,14 +700,14 @@ abstract class DagNode {
                     elapsedTime: 0,
                     size: 0,
                     rows: [],
-                    index: tableCount,
+                    index: index,
                     hasStats: true
                 };
                 this.runStats.nodes[tableName] = tableRunStats;
                 tableCount++;
             }
 
-            const nodeInfo = tableNameMap[tableName];
+
             if (nodeInfo.state === DgDagStateT.DgDagStateProcessing &&
                 tableRunStats.state !== DgDagStateT.DgDagStateProcessing) {
                 tableRunStats.startTime = Date.now();
@@ -818,26 +828,11 @@ abstract class DagNode {
 
 
     public getIndividualStats(formatted?: boolean): any[] {
-        const nodesArray = [];
-        if (formatted) {
-            const nodes = xcHelper.deepCopy(this.runStats.nodes);
-            for (let name in nodes) {
-                const node = nodes[name];
-                delete node.startTime;
-                delete node.index;
-                node.state = DgDagStateTStr[node.state];
-                node.type = XcalarApisTStr[node.type];
-                if (node.hasStats) {
-                    delete node.hasStats;
-                    nodesArray.push(node);
-                }
-            }
-        } else {
-            for (let name in this.runStats.nodes) {
-                const node = this.runStats.nodes[name];
-                if (node.hasStats) {
-                    nodesArray.push(node);
-                }
+        let nodesArray = [];
+        for (let name in this.runStats.nodes) {
+            const node = this.runStats.nodes[name];
+            if (node.hasStats) {
+                nodesArray.push(node);
             }
         }
         nodesArray.sort((a,b) => {
@@ -847,6 +842,17 @@ abstract class DagNode {
                 return -1;
             }
         });
+        if (formatted) {
+            nodesArray = xcHelper.deepCopy(nodesArray);
+            nodesArray.forEach((node) => {
+                node.state = DgDagStateTStr[node.state];
+                node.type = XcalarApisTStr[node.type];
+                delete node.startTime;
+                delete node.index;
+                delete node.hasStats;
+            });
+        }
+
         return nodesArray;
     }
 
@@ -1105,6 +1111,8 @@ abstract class DagNode {
             } else {
                 info.stats = {};
             }
+        } else {
+            delete info.stats;
         }
         return info;
     }

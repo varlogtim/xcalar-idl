@@ -379,7 +379,7 @@ describe("DagView Test", () => {
             expect($node.find(".opProgress").text()).to.equal("0%");
         });
 
-        it("should update progress", () => {
+        it.skip("should update progress", () => {
             DagView.updateProgress(nodeId, tabId, 10);
             expect($node.find(".opProgress").text()).to.equal("10%");
         });

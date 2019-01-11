@@ -10,7 +10,8 @@ class DagNodeSQL extends DagNode {
     protected subOutputNodes: DagNodeSQLSubOutput[];
     protected newTableName: string; // Currently only one ouput as multi-query is disabled
     protected tableNewDagIdMap: {};
-    protected dagIdToTableNamesMap: {};
+    protected dagIdToTableNamesMap: {}; // id to tableName map stores all the tables related to the dag node
+    // in topological order
 
     public constructor(options: DagNodeSQLInfo) {
         super(options);

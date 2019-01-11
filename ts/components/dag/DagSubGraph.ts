@@ -1,7 +1,8 @@
 class DagSubGraph extends DagGraph {
     private startTime: number;
     private _nameIdMap;
-    private _dagIdToTableNamesMap;
+    private _dagIdToTableNamesMap;// id to tableName map stores all the tables related to the dag node
+    // in topological order
     private isComplete: boolean = false;
     private elapsedTime: number;
     private state: DgDagStateT;

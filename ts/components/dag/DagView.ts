@@ -1761,6 +1761,7 @@ namespace DagView {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let subGraph = dagNode.getSubGraph();
         let promise = PromiseHelper.resolve();
+
         if (!subGraph) {
             const params: DagNodeSQLInputStruct = dagNode.getParam();
             if (!params.sqlQueryStr) {
@@ -4387,23 +4388,22 @@ namespace DagView {
         if (node.getType() === DagNodeType.SQL) {
             let subGraph = (<DagNodeSQL>node).getSubGraph();
             const subTabId: string = subGraph.getTabId();
-            subGraph.updateProgress(queryStateOutput.queryGraph.node);
+            subGraph.updateProgress(xcHelper.deepCopy(queryStateOutput.queryGraph.node));
 
-            if (!subTabId) {
-                return;
-            }
-            subGraph.getAllNodes().forEach((node, nodeId) => {
-                const overallStats = node.getOverallStats();
-                const nodeStats = node.getIndividualStats();
-                const times: number[] = [];
-                const skewInfos = [];
-                nodeStats.forEach((nodeStat) => {
-                    const skewInfo = _getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
-                    skewInfos.push(skewInfo);
-                    times.push(nodeStat.elapsedTime);
+            if (subTabId) {
+                subGraph.getAllNodes().forEach((node, nodeId) => {
+                    const overallStats = node.getOverallStats();
+                    const nodeStats = node.getIndividualStats();
+                    const times: number[] = [];
+                    const skewInfos = [];
+                    nodeStats.forEach((nodeStat) => {
+                        const skewInfo = _getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
+                        skewInfos.push(skewInfo);
+                        times.push(nodeStat.elapsedTime);
+                    });
+                    updateNodeProgress(nodeId, subTabId, overallStats.pct, true, skewInfos, times);
                 });
-                DagView.updateProgress(nodeId, subTabId, overallStats.pct, true, skewInfos, times);
-            });
+            }
         }
 
         updateGraphProgress(graph, nodeId, queryStateOutput.queryGraph.node);
@@ -4417,29 +4417,54 @@ namespace DagView {
         });
 
         DagNodeInfoPanel.Instance.update(nodeId, "stats");
-        DagView.updateProgress(nodeId, tabId, pct, true, skewInfos, times);
+        updateNodeProgress(nodeId, tabId, pct, true, skewInfos, times);
     }
 
-    function updateGraphProgress(graph: DagGraph, nodeId: DagNodeId, nodeInfos): void {
+    // update the node's stats in a graph
+    function updateGraphProgress(graph: DagGraph, nodeId: DagNodeId, tableInfos): void {
+        const node = graph.getNode(nodeId);
+        let orderMap;
+        if (node instanceof DagNodeSQL) {
+            orderMap = {};
+            // Use the original query to determine the order of operations.
+            // Delete operation doesn't have "dest", so we use namePattern
+            // and append xcDelete
+            let query = JSON.parse(node.getXcQueryString());
+            query.forEach((queryNode, i) => {
+                if (queryNode.args.dest) {
+                    orderMap[queryNode.args.dest] = i;
+                } else if (queryNode.operation === XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects]) {
+                    orderMap[queryNode.args.namePattern + "xcDelete"] = i;
+                }
+            });
+        }
         const nodeIdInfos = {};
-
-        nodeInfos.forEach((nodeInfo, i) => {
-            const tableName = nodeInfo.name.name;
-            if (!nodeIdInfos.hasOwnProperty(nodeId)) {
-                nodeIdInfos[nodeId] = {}
+        tableInfos.forEach((tableInfo, i) => {
+            // set the index of the operation
+            if (orderMap) {
+                let name;
+                if (tableInfo.api === XcalarApisT.XcalarApiDeleteObjects) {
+                    name = tableInfo.input.deleteDagNodeInput.namePattern + "xcDelete"
+                } else {
+                    name = tableInfo.name.name;
+                }
+                if (orderMap[name] != null) {
+                    tableInfo.index = orderMap[name];
+                }
             }
-            const nodeIdInfo = nodeIdInfos[nodeId];
-            nodeIdInfo[tableName] = nodeInfo;
-            nodeInfo.index = i;
+            if (tableInfo.index == null) {
+                tableInfo.index = i;
+            }
+
+            const tableName = tableInfo.name.name;
+            nodeIdInfos[tableName] = tableInfo;
         });
 
-        for (let nodeId in nodeIdInfos) {
-            graph.getNode(nodeId).updateProgress(nodeIdInfos[nodeId]);
-        }
+        node.updateProgress(nodeIdInfos, false, node instanceof DagNodeSQL);
     }
 
     /**
-     * DagView.updateProgress
+     * updateNodeProgress
      * @param nodeId
      * @param tabId
      * @param progress
@@ -4448,7 +4473,7 @@ namespace DagView {
      * @param timeStrs
      * @param broadcast
      */
-    export function updateProgress(
+    function updateNodeProgress(
         nodeId: DagNodeId,
         tabId: string,
         progress: number,
@@ -4536,7 +4561,7 @@ namespace DagView {
                 times.push(nodeStat.elapsedTime);
             });
 
-            DagView.updateProgress(nodeId, tab.getId(), overallStats.pct, true, skewInfos, times);
+            updateNodeProgress(nodeId, tab.getId(), overallStats.pct, true, skewInfos, times);
         });
     }
 
@@ -4549,7 +4574,7 @@ namespace DagView {
     }): void {
         const nodeId: DagNodeId = progressInfo.nodeId;
         const tabId: string = progressInfo.tabId;
-        DagView.updateProgress(nodeId, tabId, progressInfo.progress,
+        updateNodeProgress(nodeId, tabId, progressInfo.progress,
             null, progressInfo.skewInfos, progressInfo.times, false);
         if (progressInfo.progress >= 100) {
             DagView.removeProgress(nodeId, tabId);
