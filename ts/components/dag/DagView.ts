@@ -2724,7 +2724,7 @@ namespace DagView {
         let tip: HTML = _nodeProgressTemplate(node.getId(), pos.x, pos.y, skewInfos, times);
         const $tip = $(tip)
         $dfArea.append($tip);
-        const width = $tip[0].getBoundingClientRect().width;
+        const width = Math.max($tip[0].getBoundingClientRect().width, 95);
         const nodeCenter = graph.getScale() * (pos.x + (DagView.nodeWidth / 2));
         $tip.css("left", nodeCenter - (width / 2));
     }
@@ -2735,8 +2735,8 @@ namespace DagView {
             $runStats.addClass("visible"); // in case we can't get the dimensions
             // because user is hiding tips by default
             const infoRect = $runStats[0].getBoundingClientRect();
-            const rectWidth = Math.max(infoRect.width, 90); // width can be 0 if tab is not visible
-            const rectHeight = Math.max(infoRect.height, 20);
+            const rectWidth = Math.max(infoRect.width, 95); // width can be 0 if tab is not visible
+            const rectHeight = Math.max(infoRect.height, 25);
             const scale = activeDag.getScale();
             const nodeCenter = nodeInfo.position.x + (DagView.nodeWidth / 2);
             $runStats.css({
