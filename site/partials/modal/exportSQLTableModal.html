@@ -1,0 +1,65 @@
+<div id="exportSQLTableModal" class="modalContainer xc-viewMode opPanel">
+    <!-- Header -->
+    <header class="modalHeader">
+        <span class="text"><%= dicts.exportView.ExportTbl %></span>
+        <div class="close" data-container="body" data-toggle="tooltip" title="" data-original-title="<%= dicts.common.Close %>">
+        <i class="icon xi-close"></i>
+        </div>
+    </header>
+    <!-- card main -->
+    <section class="modalMain">
+        <div id="exportSQLTableColumns" class="exportColumnsSection formRow">
+            <div class="subHeading clearfix">
+                <div class="label"><%= dicts.exportView.colsToExport %>:</div>
+            </div>
+            <div class="checkboxWrap selectAllWrap">
+                <div class="text"><%= dicts.common.SelectAll %></div>
+                <div class="checkbox">
+                    <i class="icon xi-ckbox-empty fa-13"></i>
+                    <i class="icon xi-ckbox-selected fa-13"></i>
+                </div>
+            </div>
+            <div class="columnsToExport columnsWrap flexWrap clearfix">
+                <ul class="cols"></ul>
+                <div class="hint noColsHint empty"><%= dicts.dataflow.noColsHint %></div>
+            </div>
+            <!-- rename section -->
+            <div class="renameSection clearfix xc-hidden">
+                <div class="subHeading clearfix">
+                <div><%= dicts.common.ColRenames %></div>
+                </div>
+                <p><%= dicts.common.ColRenameInstr %></p>
+                <div class="tableRenames">
+                <div class="subSubHeading clearfix">
+                    <div><%= dicts.exportView.CurrentColName %></div>
+                    <div><%= dicts.exportView.NewColName %></div>
+                </div>
+                <div class="renamePart"></div>
+                </div>
+            </div>
+        </div>
+        <div class="exportDriver formRow">
+            <div class="subHeading clearfix">
+                <div class="label">Export Driver:</div>
+            </div>
+            <div id="exportSQLTableDriverList" class="dropDownList">
+                <input id="exportSQLTableDriver" class="text" type="text" value="" spellcheck="false">
+                <div class="iconWrapper">
+                    <i class="icon xi-arrow-down"></i>
+                </div>
+                <div class="list">
+                    <ul class="exportDrivers"></ul>
+                    include "../../util/menuScrollArea.html"
+                </div>
+            </div>
+            <div class="descriptionText"></div>
+        </div>
+        <div class="argsSectionBox xc-hidden">
+            <div class="argsSection"></div>
+        </div>
+    </section>
+    <!-- Button Section -->
+    <section class="modalBottom">
+        <button type="button" class="btn confirm btn-submit"><%= dicts.common.Confirm %></button>
+    </section>
+</div>

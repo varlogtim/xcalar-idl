@@ -131,7 +131,7 @@ class ExportOpPanelModel {
     }
 
     /**
-     * Restores prior saved parameters
+     * Restores prior saved parameters. Only used for op panel
      */
     private _restoreParams(): void {
         let $params: JQuery = $("#exportOpPanel .argsSection .exportArg");
@@ -242,22 +242,22 @@ class ExportOpPanelModel {
     /**
      * Validates the current arguments/parameters.
      */
-    public validateArgs(): boolean {
+    public validateArgs($container: JQuery): boolean {
         if (this.driverArgs == null || this.exportDrivers == []) {
-            let $errorLocation: JQuery = $("#exportOpPanel .bottomSection .btn-submit");
+            let $errorLocation: JQuery = $container.find(".btn.confirm");
             StatusBox.show("No existing driver.", $errorLocation,
                 false, {'side': 'right'});
             return false;
         }
         const argLen: number = this.driverArgs.length;
         let arg: ExportDriverArg = null;
-        let $parameters: JQuery = $("#exportOpPanel .exportArg");
+        let $parameters: JQuery = $container.find(".exportArg");
         for(let i = 0; i < argLen; i++) {
             arg = this.driverArgs[i];
             if (!arg.optional && arg.value == null || arg.value == "") {
                 let $errorLocation: JQuery = $parameters.eq(i).find(".label");
                 if (this._advMode) {
-                    $errorLocation = $("#exportOpPanel .advancedEditor");
+                    $errorLocation = $container.find(".advancedEditor");
                 }
                 StatusBox.show("\"" + arg.name + "\" is not an optional parameter.", $errorLocation,
                     false, {'side': 'right'});
@@ -267,7 +267,7 @@ class ExportOpPanelModel {
                 if (!$.isNumeric(arg.value)) {
                     let $errorLocation: JQuery = $parameters.eq(i).find(".label");
                     if (this._advMode) {
-                        $errorLocation = $("#exportOpPanel .advancedEditor");
+                        $errorLocation = $container.find(".advancedEditor");
                     }
                     StatusBox.show("\"" + arg.name + "\" must be an integer.", $errorLocation,
                         false, {'side': 'right'});
@@ -283,7 +283,7 @@ class ExportOpPanelModel {
      * @param dagNode
      */
     public saveArgs(dagNode: DagNodeExport): boolean {
-        if (!this.validateArgs()) {
+        if (!this.validateArgs($("#exportOpPanel"))) {
             return false;
         }
         dagNode.setParam(this.toDag());
@@ -325,4 +325,69 @@ class ExportOpPanelModel {
         return this._advMode;
     }
 
+
+    public createParamHtml(param: ExportParam): string {
+        let argHtml: string = "";
+        let type: string = "";
+        switch (param.type) {
+            case "integer":
+                type = "number";
+                break;
+            case "boolean":
+                type = "checkbox";
+                break;
+            case "target":
+                type = "target";
+                break;
+            case "string":
+                type = "text";
+                break;
+            default:
+                break;
+        }
+        type = param.secret ? "password" : type;
+        argHtml = '';
+        argHtml = '<div class="exportArg formRow ' + param.name.replace(/ /g,"_") + ' ' + type + 'Arg">' +
+            '<div class="subHeading clearfix">' +
+                '<div class="label">' + param.name
+        if (param.optional) {
+            argHtml += ' (optional)'
+        }
+        argHtml += ':</div>' +
+            '</div>' +
+            '<p class="instrText">' + param.description + '</p>';
+        if (param.type == "target") {
+            argHtml += this._createTargetListHtml();
+        } else if (param.type == "boolean") {
+            argHtml += '<div class="checkbox">' +
+            '<i class="icon xi-ckbox-empty"></i>' +
+            '<i class="icon xi-ckbox-selected"></i></div>'
+        } else {
+            argHtml += '<div class="inputWrap">' +
+                '<input class="arg ';
+            if (param.optional) {
+                argHtml += 'optional" placeholder="Optional'
+            }
+            argHtml += '" type="' + type + '"></div>';
+        }
+        argHtml += '</div>'
+        return argHtml;
+    }
+
+    private _createTargetListHtml(): string {
+        let html: string = '<div class="dropDownList">' +
+            '<input class="text" type="text" value="" spellcheck="false">' +
+            '<div class="iconWrapper"><i class="icon xi-arrow-down"></i></div>' +
+            '<div class="list"><ul class="exportDrivers">';
+        // Object.values is not supported by many browsers
+        const obj = DSTargetManager.getAllTargets();
+        let targets: {name: string}[] = Object.keys(obj).map((key) => obj[key]);
+        targets.forEach((target) => {
+            html += "<li>" + target.name + "</li>";
+        });
+        html += '</ul><div class="scrollArea top"><i class="arrow icon xi-arrow-up"></i></div>' +
+            '<div class="scrollArea bottom"><i class="arrow icon xi-arrow-down"></i>' +
+            '</div></div></div>'
+        return html;
+    }
 }

@@ -232,71 +232,6 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         $list.append(html);
     }
 
-    private _createTargetListHtml(): string {
-        let html: string = '<div class="dropDownList">' +
-            '<input class="text" type="text" value="" spellcheck="false">' +
-            '<div class="iconWrapper"><i class="icon xi-arrow-down"></i></div>' +
-            '<div class="list"><ul class="exportDrivers">';
-        // Object.values is not supported by many browsers
-        const obj = DSTargetManager.getAllTargets();
-        let targets: {name: string}[] = Object.keys(obj).map((key) => obj[key]);
-        targets.forEach((target) => {
-            html += "<li>" + target.name + "</li>";
-        });
-        html += '</ul><div class="scrollArea top"><i class="arrow icon xi-arrow-up"></i></div>' +
-            '<div class="scrollArea bottom"><i class="arrow icon xi-arrow-down"></i>' +
-            '</div></div></div>'
-        return html;
-    }
-
-    private _createParamHtml(param: ExportParam): string {
-        let argHtml: string = "";
-        let type: string = "";
-        switch (param.type) {
-            case "integer":
-                type = "number";
-                break;
-            case "boolean":
-                type = "checkbox";
-                break;
-            case "target":
-                type = "target";
-                break;
-            case "string":
-                type = "text";
-                break;
-            default:
-                break;
-        }
-        type = param.secret ? "password" : type;
-        argHtml = '';
-        argHtml = '<div class="exportArg formRow ' + param.name.replace(/ /g,"_") + ' ' + type + 'Arg">' +
-            '<div class="subHeading clearfix">' +
-                '<div class="label">' + param.name
-        if (param.optional) {
-            argHtml += ' (optional)'
-        }
-        argHtml += ':</div>' +
-            '</div>' +
-            '<p class="instrText">' + param.description + '</p>';
-        if (param.type == "target") {
-            argHtml += this._createTargetListHtml();
-        } else if (param.type == "boolean") {
-            argHtml += '<div class="checkbox">' +
-            '<i class="icon xi-ckbox-empty"></i>' +
-            '<i class="icon xi-ckbox-selected"></i></div>'
-        } else {
-            argHtml += '<div class="inputWrap">' +
-                '<input class="arg ';
-            if (param.optional) {
-                argHtml += 'optional" placeholder="Optional'
-            }
-            argHtml += '" type="' + type + '"></div>';
-        }
-        argHtml += '</div>'
-        return argHtml;
-    }
-
     /**
      * Renders the current driver arguments on XD
      */
@@ -319,7 +254,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         this._$exportArgSection.empty();
         let targetParams: string[] = [];
         driver.params.forEach((param: ExportParam) => {
-            html += this._createParamHtml(param);
+            html += this._dataModel.createParamHtml(param);
             if (param.type == "target") {
                 targetParams.push(param.name.replace(/ /g,"_"));
             }

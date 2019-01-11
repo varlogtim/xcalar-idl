@@ -947,6 +947,7 @@ module.exports = {
 
     "exportView": {
         "header": "Export",
+        "ExportTbl": "Export Table",
         "instr": "Please select columns you wish to export, export driver you'd like to use, and fill in driver parameters.",
         "ExportAs": "Export As",
 

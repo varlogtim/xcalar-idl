@@ -5758,6 +5758,142 @@ html.microsoft {
     }
 }
 
+#exportSQLTableModal {
+    .size(@width: 500px, @height: 600px, @min-width: 500px, @min-height: 600px);
+    .close {
+        color: @color-white;
+    }
+    .modalHeader .text {
+        font-size: 14px;
+        font-weight: normal;
+    }
+    overflow: hidden;
+    .modalMain {
+        height: ~"calc(100% - 56px - 36px)"; // 100% - modalBottom - modalHeader
+        font-size: 13px;
+        display: block;
+        overflow: hidden;
+
+        .exportDriver {
+            .subHeading {
+                float: left;
+                .label {
+                    padding-left: 25px;
+                }
+            }
+            #exportSQLTableDriverList {
+                float: right;
+                padding-right: 25px;
+                padding-top: 13px;
+                width: ~"calc(100% - 150px)";
+            }
+        }
+
+        .argsSectionBox {
+            height: ~"calc(100% - 190px)";
+            width: 100%;
+            // 100% - column div max height - export Driver height
+            padding: 25px 25px 0px 25px;
+            float: left; 
+            .argsSection {
+                border: 1px solid @color-border-softGray;
+                max-height: 100%;
+                overflow-y: auto;
+                overflow-x: hidden;
+                .exportArg {
+                    .subHeading {
+                        font-size: 12px;
+                        .label {
+                            height: 25px;
+                            margin-top: 10px;
+                        }
+                    }
+                    .dropDownList {
+                        padding: 0 10px;
+                    }
+                    .instrText {
+                        max-height: 75%;
+                        float: left;
+                        padding-bottom: 5px;
+                    }
+                    .checkbox {
+                        padding-right: 26px;
+                    }
+                }
+            }
+        }
+
+        #exportSQLTableColumns {
+            .subHeading {
+                width: 150px;
+                height: 20px;
+                .label {
+                    padding-left: 25px;
+                }
+            }
+            .selectAllWrap {
+                float: right;
+                padding-right: 25px;
+                padding-top: 5px;
+                .text {
+                    float: left;
+                }
+            }
+            .columnsToExport {
+                padding: 0 25px;
+                ::-webkit-scrollbar-thumb {
+                    background: @color-bg-topBarGray2 !important;
+                }
+                ::-webkit-scrollbar-track {
+                    background: @color-white;
+                }
+                .cols {
+                    padding-top: 1px;
+                    .col {
+                        padding-left: 0px;
+                        border: 1px solid @color-bg-white-five;
+                        .icon.type {
+                            float: left;
+                            font-size: 15px;
+                            padding-top: 5px;
+                            padding-right: 4px;
+                            padding-left: 4px;
+                            border-right: 1px solid @color-bg-white-five;
+                            background-color: @color-bg-list-hover-blue;
+                            height: 19px;
+                        }
+                    }
+                    max-height: 101px;
+                    overflow-y: none;
+                }
+
+                &.flexWrap {
+                    li {
+                        .flex(1 1 150px);
+                        width: 150px;
+                        margin-top: -1px; // fixes double thickness of the bottom of a
+                                        // cell's border when next to the top border
+                                        // of another cell
+                        .text {
+                            width: 100%;
+                            padding-left: 30px;
+                        }
+
+                        .icon {
+                            position: absolute;
+                        }
+                    }
+                    .flexSpace {
+                        .flex(1 1 150px);
+                        width: 150px;
+                    }
+                }
+            }
+        }
+
+    }
+}
+
 #dagDatasetModal {
     .size(@width: 500px, @height: 500px, @min-width: 500px, @min-height: 500px);
     .modalMain {

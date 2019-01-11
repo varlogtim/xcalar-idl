@@ -29,6 +29,26 @@ class SQLResultSpace {
                 console.error(e);
             }
         });
+
+        $("#sqlTableArea").on("click", ".btn-export", function() {
+            let tableName: string = SQLTable.Instance.getTable();
+            try {
+                if (tableName == null) {
+                    return;
+                }
+                let tableId = xcHelper.getTableId(tableName);
+                let table = gTables[tableId];
+                if (table == null) {
+                    return;
+                }
+                let progCols = table.getAllCols().filter((progCol: ProgCol) => {
+                    return !progCol.isDATACol();
+                });
+                ExportSQLTableModal.Instance.show(tableName, progCols);
+            } catch (e) {
+                console.error(e);
+            }
+        });
     }
 
     public setup(): void {
