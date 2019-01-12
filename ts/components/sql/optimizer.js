@@ -63,6 +63,10 @@
                 const visitedMap = {};
                 this.addIndexForCrossJoin(opGraph, visitedMap);
             }
+            if (options.combineProjectWithSynthesize) {
+                const visitedMap = {};
+                opGraph = this.combineProjectWithSynthesize(opGraph, visitedMap);
+            }
             // XXX Add more but make sure addDrops is at the correct place
             if (options.dropAsYouGo) {
                 const visitedMap = {};
@@ -212,6 +216,65 @@
             }
             pushupColNameMap(node);
             visitedMap[node.name] = true;
+        },
+        combineProjectWithSynthesize: function(opNode, visitedMap) {
+            const self = this;
+            if (visitedMap[opNode.name]) {
+                return visitedMap[opNode.name];
+            }
+            var retNode = opNode;
+            if (opNode.value.operation === "XcalarApiProject" &&
+                opNode.children[0].value.operation === "XcalarApiSynthesize") {
+                if (opNode.children[0].parents.length === 1) {
+                    var synList = opNode.children[0].value.args.columns;
+                    var projectedList = [];
+                    for (var i = 0; i < synList.length; i++) {
+                        if (opNode.value.args.columns.indexOf(synList[i].destColumn) != -1) {
+                            projectedList.push(synList[i]);
+                        }
+                    }
+                    opNode.children[0].value.args.columns = projectedList;
+                    opNode.children[0].value.args.numColumns = projectedList.length;
+                    opNode.children[0].value.args.dest = opNode.value.args.dest;
+                    opNode.children[0].name = opNode.value.args.dest;
+                    opNode.children[0].parents = opNode.parents;
+                    retNode = opNode.children[0];
+                    if (retNode.children.length > 0) {
+                        retNode.children[0] = self.combineProjectWithSynthesize(
+                                                retNode.children[0], visitedMap);
+                    }
+                } else {
+                    var synNodeCopy = {children: opNode.children[0].children,
+                                       name: opNode.value.args.dest,
+                                       parents: opNode.parents,
+                                       sources: opNode.children[0].sources,
+                                       value: jQuery.extend(true, {}, opNode.children[0].value)};
+                    var synList = synNodeCopy.value.args.columns;
+                    var projectedList = [];
+                    for (var i = 0; i < synList.length; i++) {
+                        if (opNode.value.args.columns.indexOf(synList[i].destColumn) != -1) {
+                            projectedList.push(synList[i]);
+                        }
+                    }
+                    synNodeCopy.value.args.columns = projectedList;
+                    synNodeCopy.value.args.numColumns = projectedList.length;
+                    synNodeCopy.value.args.dest = opNode.value.args.dest;
+                    retNode = synNodeCopy;
+                    opNode.children[0].parents.splice(opNode.children[0]
+                                                    .parents.indexOf(opNode),1);
+                    if (retNode.children.length > 0) {
+                        retNode.children[0] = self.combineProjectWithSynthesize(
+                                                retNode.children[0], visitedMap);
+                    }
+                }
+            } else {
+                for (var i = 0; i < opNode.children.length; i++) {
+                    opNode.children[i] = self.combineProjectWithSynthesize(
+                                                opNode.children[i], visitedMap);
+                }
+            }
+            visitedMap[opNode.name] = retNode;;
+            return retNode;
         }
     };
 

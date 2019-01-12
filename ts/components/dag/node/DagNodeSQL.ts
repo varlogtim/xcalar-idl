@@ -841,7 +841,8 @@ class DagNodeSQL extends DagNode {
                 self.setColumns(newCols);
                 const optimizer = new SQLOptimizer();
                 const optimizedQueryString = optimizer.logicalOptimize(queryString,
-                                        {dropAsYouGo: true}, schemaQueryString);
+                                        {combineProjectWithSynthesize: true,
+                                         dropAsYouGo: true}, schemaQueryString);
                 self.setXcQueryString(optimizedQueryString);
                 const retStruct = {
                     newTableName: newTableName,
