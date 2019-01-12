@@ -323,9 +323,13 @@ namespace xcManager {
             // this time, no commit, only free result set
             // as commit may only partially finished, which is dangerous
             TblManager.freeAllResultSets();
+            SQLWorkSpace.Instance.save();
             return deferred.reject("Async unload");
         } else {
             TblManager.freeAllResultSetsSync()
+            .then(function() {
+                return SQLWorkSpace.Instance.save();
+            })
             .then(function() {
                 return XcUser.CurrentUser.releaseSession();
             })

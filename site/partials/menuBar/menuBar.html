@@ -32,25 +32,22 @@
     <!--  TODO: Currently Datasets/etc don't work if no workbook is activated. This will come later. -->
     <div id="dataStoresTab" class="topMenuBarTab firstTouch mainMenuOpen wkbkMenuBarTabs">
       <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.source %>">
-        <i class="icon xi-menu-datastore fa-25"></i>
+        <i class="icon xi-source fa-25"></i>
       </div>
       <div class="subTabs">
-        <div id="inButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ds.Import %>">
+        <div id="inButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ds.Datasets %>">
           <i class="icon xi-import-dataset-double"></i>
         </div>
-        <div id="sourceTblButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.Table.Create %>">
+        <div id="sourceTblButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.Table.Tables %>">
           <i class="icon xi_table"></i>
+        </div>
+        <!-- imd tab -->
+        <div id="imdTab" class="subTab firstTouch xc-hidden" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ws.IMDPanel %>">
+          <i class="icon xi-changingclock"></i>
         </div>
         <div id="targetButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ds.Targets %>">
           <i class="icon xi-data-in"></i>
         </div>
-      </div>
-    </div>
-
-    <!-- imd tab -->
-    <div id="imdTab" class="topMenuBarTab mainMenuOpen noLeftPanel firstTouch">
-      <div id="imdButton" class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ws.IMDPanel %>">
-        <i class="icon xi-changingclock fa-20"></i>
       </div>
     </div>
 
@@ -64,14 +61,14 @@
     <!-- SQL tab -->
     <div id="sqlTab" class="topMenuBarTab mainMenuOpen wkbkMenuBarTabs noLeftPanel">
         <div id="sqlWorkSpace" class="mainTab noLeftPanel" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.SQL.WorkSpace %>">
-            <i class="icon xi-menu-worksheet"></i>
+            <i class="icon xi-SQLworkspace"></i>
         </div>
     </div>
 
     <!-- SQL Func tab -->
     <div id="sqlFuncTab" class="topMenuBarTab mainMenuOpen firstTouch wkbkMenuBarTabs">
       <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="SQL Function">
-          <i class="icon xi-menu-sql"></i>
+          <i class="icon xi-SQLfunction fa-25"></i>
       </div>
     </div>
 

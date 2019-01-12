@@ -477,9 +477,9 @@ namespace XVM {
     }
 
     /**
-     * XVM.isAdvancedMMode
+     * XVM.isAdvancedMode
      */
-    export function isAdvancedMMode(): boolean {
+    export function isAdvancedMode(): boolean {
         return !XVM.isSQLMode();
     }
 

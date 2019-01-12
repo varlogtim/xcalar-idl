@@ -248,13 +248,10 @@ namespace StatusMessage {
                         panelName = DFTStr.DFs;
                         break;
                     case ("dataStoresTab"):
-                        panelName = DSTStr.DS;
+                        panelName = DSTStr.Sources;
                         break;
                     case ("monitorTab"):
                         panelName = MonitorTStr.Monitor;
-                        break;
-                    case ("imdTab"):
-                        panelName = IMDTStr.Title;
                         break;
                     case ("jupyterTab"):
                         panelName = JupyterTStr.JupNotebook;

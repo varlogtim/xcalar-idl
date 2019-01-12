@@ -360,7 +360,7 @@ class TblSource {
         });
 
         $menuSection.find(".iconSection .imd").click(() => {
-            MainMenu.openPanel("imdPanel");
+            $("#imdTab").click();
         });
 
         $menuSection.find(".sortSection").on("click", ".sortOption", (event) => {

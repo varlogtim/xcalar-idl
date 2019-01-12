@@ -2,6 +2,8 @@
  * Manager Module for Data Source Section
  */
 class DataSourceManager {
+    private static _isMenOpen: boolean;
+
     /**
      * DataSourceManager.setup
      */
@@ -81,7 +83,9 @@ class DataSourceManager {
 
             $panel.removeClass("in")
                 .removeClass("table")
+                .removeClass("imd")
                 .removeClass("target");
+            $menu.removeClass("xc-hidden");
             $menu.find(".menuSection").addClass("xc-hidden");
 
             let isAdmin: boolean = this._readOnlyForNoAdmin();
@@ -96,6 +100,9 @@ class DataSourceManager {
                     break;
                 case "sourceTblButton":
                     this._switchToViewTableSource();
+                    break;
+                case "imdTab":
+                    this._switchToViewIMD();
                     break;
                 default:
                     console.error("invalid view");
@@ -176,9 +183,33 @@ class DataSourceManager {
         let $menu = this._getMenu();
         let $title = this._getTitleEl();
         $panel.addClass("table");
+        $("#sourceTblButton").removeClass("xc-hidden");
+        $("#imdTab").addClass("xc-hidden");
         $title.text(CommonTxtTstr.Table);
         $menu.find(".table").removeClass("xc-hidden");
         TblSource.Instance.initialize(); // update every time switch to the tab
+        if (this._isMenOpen) {
+            MainMenu.open(true);
+            this._isMenOpen = null;
+        }
+    }
+
+    private static _switchToViewIMD(): void {
+        this._isMenOpen = MainMenu.isMenuOpen();
+        
+        let $panel = this._getPanel();
+        let $menu = this._getMenu();
+        $panel.addClass("imd");
+        $menu.addClass("xc-hidden");
+        MainMenu.close(true);
+        $("#sourceTblButton").addClass("xc-hidden");
+        let $tab = $("#imdTab").removeClass("xc-hidden");
+        if ($tab.hasClass("firstTouch")) {
+            $tab.removeClass("firstTouch");
+            IMDPanel.active(true);
+        } else {
+            IMDPanel.active(false);
+        }
     }
 
     private static _switchToViewTarget(isAdmin: boolean): void {

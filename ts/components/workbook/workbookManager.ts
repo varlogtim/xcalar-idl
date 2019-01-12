@@ -549,7 +549,7 @@ namespace WorkbookManager {
     };
 
     /**
-    * WorkbookManager.uploadWKBK
+    * WorkbookManager.deactivate
     * deactivate a workbook by id
     * @param workbookId - id of the workbook to be deactivated
     */
@@ -561,6 +561,7 @@ namespace WorkbookManager {
 
         // should stop check since seesion is released
         XcSupport.stopHeartbeatCheck();
+        SQLWorkSpace.Instance.save();
 
         $("#initialLoadScreen").show();
         const deferred: XDDeferred<void> = PromiseHelper.deferred();

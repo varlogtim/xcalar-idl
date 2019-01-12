@@ -44,8 +44,9 @@ window.MainMenu = (function($, MainMenu) {
         }
 
         var $sqlModeTabs = $("#sqlTab, #sqlFuncTab")
-        var $advModeTabs = $("#modelingDataflowTab, #jupyterTab");
+        var $advModeTabs = $("#modelingDataflowTab, #jupyterTab, #inButton");
         if (isSQLMode) {
+            $("#inButton").addClass("xc-hidden");
             $sqlModeTabs.removeClass("xc-hidden");
             $advModeTabs.addClass("xc-hidden");
             if ($advModeTabs.hasClass("active")) {
@@ -55,6 +56,7 @@ window.MainMenu = (function($, MainMenu) {
                 closeMainPanels();
             }
         } else {
+            $("#inButton").removeClass("xc-hidden");
             $sqlModeTabs.addClass("xc-hidden");
             $advModeTabs.removeClass("xc-hidden");
             if ($sqlModeTabs.hasClass("active")) {
@@ -107,9 +109,6 @@ window.MainMenu = (function($, MainMenu) {
                 break;
             case ("jupyterPanel"):
                 $tab = $("#jupyterTab");
-                break;
-            case ("imdPanel"):
-                $tab = $("#imdTab");
                 break;
             case ("dagPanel"):
                 $tab = $("#modelingDataflowTab");
@@ -436,15 +435,6 @@ window.MainMenu = (function($, MainMenu) {
                 $("#jupyterPanel").addClass("active");
                 JupyterPanel.sendInit(); // used to validate session if first
                 // time viewing a notebook
-                break;
-            case ("imdTab"):
-                $("#imdPanel").addClass("active");
-                if ($curTab.hasClass("firstTouch")) {
-                    $curTab.removeClass("firstTouch");
-                    IMDPanel.active(true);
-                } else {
-                    IMDPanel.active(false);
-                }
                 break;
             case ("modelingDataflowTab"):
             case ("sqlFuncTab"):

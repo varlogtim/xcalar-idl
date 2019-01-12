@@ -22,7 +22,7 @@ class DagList {
      */
     public setup(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const isAdvancedMode: boolean = XVM.isAdvancedMMode();
+        const isAdvancedMode: boolean = XVM.isAdvancedMode();
         this._restoreLocalDags(isAdvancedMode)
         .then(() => {
             if (isAdvancedMode) {
@@ -101,7 +101,7 @@ class DagList {
         });
         publishedList.sort(sortFunc);
         userList.sort(sortFunc);
-        if (publishedList.length === 0 && XVM.isAdvancedMMode()) {
+        if (publishedList.length === 0 && XVM.isAdvancedMode()) {
             // add the published folder by default
             publishedList.push({
                 path: DagTabPublished.PATH,
@@ -331,7 +331,7 @@ class DagList {
 
     private _setLocalKVStore(): void {
         let key: string = null;
-        if (XVM.isAdvancedMMode()) {
+        if (XVM.isAdvancedMode()) {
             key = KVStore.getKey("gDagListKey");
         } else {
             // sql mode

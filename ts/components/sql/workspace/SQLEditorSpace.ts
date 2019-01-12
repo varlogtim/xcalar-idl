@@ -26,9 +26,13 @@ class SQLEditorSpace {
     }
 
     public switchMode(): void {
-        if (XVM.isAdvancedMMode()) {
+        if (XVM.isAdvancedMode()) {
             this._saveSnippet();
         }
+    }
+
+    public save(): XDPromise<void> {
+        return this._saveSnippet();
     }
 
     private _setupSQLEditor(): void {
@@ -193,9 +197,9 @@ class SQLEditorSpace {
         });
     }
 
-    private _saveSnippet(): void {
+    private _saveSnippet(): XDPromise<void> {
         let snippet = this._sqlEditor.getValue();
-        SQLSnippet.Instance.writeSnippet(this._currentFile, snippet, true);
+        return SQLSnippet.Instance.writeSnippet(this._currentFile, snippet, true);
     }
 
     private _saveAsSnippet(): void {

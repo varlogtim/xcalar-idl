@@ -1259,6 +1259,7 @@ DSTStr = {
     "Restore": "Restore Dataset",
     'TableName': 'Table Name',
     'DSName': 'Dataset Name',
+    'Sources': 'Sources',
 
     // With replace
     'DelDSConfirm': 'Are you sure you want to delete dataset <ds>?',

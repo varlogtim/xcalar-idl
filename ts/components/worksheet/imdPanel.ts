@@ -562,7 +562,7 @@ namespace IMDPanel {
      */
     function addEventListeners(): void {
         $imdPanel.find(".tableView").on("click", function() {
-
+            $("#sourceTblButton").click();
         });
 
         $imdPanel.find(".refreshList").on("click", function() {

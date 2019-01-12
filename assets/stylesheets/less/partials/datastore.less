@@ -63,6 +63,24 @@ html.safari {
         }
     }
 
+    &.imd {
+        > .mainContent {
+            padding: 0px;
+        }
+        
+        #imdBar {
+            display: flex;
+        }
+
+        #imdView {
+            display: block;
+        }
+
+        #datastoreBar {
+            display: none;
+        }
+    }
+
     &.out {
         .subPanel {
             &.out {
@@ -84,6 +102,10 @@ html.safari {
                 display: none;
             }
         }
+    }
+
+    #imdBar {
+        display: none;
     }
 }
 

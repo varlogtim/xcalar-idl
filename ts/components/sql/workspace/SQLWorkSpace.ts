@@ -26,6 +26,13 @@ class SQLWorkSpace {
         this._sqlEditorSpace.switchMode();
     }
 
+    public save(): XDPromise<void> {
+        if (!XVM.isSQLMode()) {
+            return PromiseHelper.resolve();
+        }
+        return SQLEditorSpace.Instance.save();
+    }
+
     public refresh(): void {
         this._sqlEditorSpace.refresh();
         this._sqlHistorySpace.refresh();
