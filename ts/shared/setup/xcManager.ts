@@ -832,16 +832,22 @@ namespace xcManager {
         });
     }
 
+    /**
+     * xcManager.setModeText
+     * @param isSQLMode
+     */
+    export function setModeText(): void {
+        let $modeArea: JQuery = $("#modeArea");
+        let text: string = XVM.isSQLMode() ? ModeTStr.SQL : ModeTStr.Advanced;
+        $modeArea.find(".text").text(text);
+    }
+
     function setupModeArea(): void {
         let $modeArea: JQuery = $("#modeArea").removeClass("xc-hidden");
         let $menu: JQuery = $("#modeAreaMenu");
-        let setText = (isSQLMode: boolean) => {
-            let text: string = isSQLMode ? ModeTStr.SQL : ModeTStr.Advanced;
-            $modeArea.find(".text").text(text);
-        };
 
         xcMenu.add($menu);
-        setText(XVM.isSQLMode());
+        xcManager.setModeText();
 
         $modeArea.click((event) => {
             const $target: JQuery = $(event.currentTarget);
@@ -864,7 +870,6 @@ namespace xcManager {
             }
             let isSQLMode: boolean = $(event.currentTarget).hasClass("sql");
             let modeToSwitch: XVM.Mode = isSQLMode ? XVM.Mode.SQL : XVM.Mode.Advanced;
-            setText(isSQLMode);
             XVM.setMode(modeToSwitch);
         });
     }

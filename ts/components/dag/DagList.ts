@@ -1,6 +1,8 @@
 // DagList controls the panel Dataflow List.
 class DagList {
     private static _instance: DagList;
+    public static SQLPrefix = ".tempSQL";
+
     public static get Instance() {
         return this._instance || (this._instance = new DagList());
     }
@@ -76,25 +78,31 @@ class DagList {
         const userList: {path: string, id: string, options: {isOpen: boolean}}[] = [];
         this._dags.forEach((dagTab) => {
             let path = "";
+            let tabId = dagTab.getId();
             if (dagTab instanceof DagTabPublished) {
                 path = dagTab.getPath();
                 publishedList.push({
                     path: path,
-                    id: dagTab.getId(),
+                    id: tabId,
                     options: {isOpen: dagTab.isOpen()}
                 });
             } else if (dagTab instanceof DagTabOptimized) {
                 path = "/" + dagTab.getPath();
                 userList.push({
                     path: path,
-                    id: dagTab.getId(),
+                    id: tabId,
                     options: {isOpen: dagTab.isOpen()}
                 });
             } else {
-                path = "/" + dagTab.getName();
+                let dagName: string = dagTab.getName();
+                if (tabId.endsWith("sql")) {
+                    path = "/SQL/" + dagName;
+                } else {
+                    path = "/" + dagName;
+                }
                 userList.push({
                     path: path,
-                    id: dagTab.getId(),
+                    id: tabId,
                     options: {isOpen: dagTab.isOpen()}
                 });
             }

@@ -135,10 +135,7 @@ namespace SqlQueryHistoryPanel {
                                     errorMsg: queryInfo.errorMsg
                                 });
                             } else {
-                                const tableId = (xcHelper.getTableId(queryInfo.tableName)||'').toString();
-                                if (tableId.length > 0) {
-                                    this._onClickTable(tableId);
-                                }
+                                this._onClickTable(queryInfo.tableName);
                             }
                         }
                     };
@@ -231,16 +228,24 @@ namespace SqlQueryHistoryPanel {
         }
 
         // Event handler for table click
-        protected _onClickTable(tableId: string): void {
+        protected _onClickTable(tableName: string): void {
             // Show the table
-            TblManager.findAndFocusTable(`#${tableId}`)
-            .fail(function() {
+            let tableId = xcHelper.getTableId(tableName);
+            if (!tableId) {
+                // invalid case
                 Alert.show({
                     title: SQLErrTStr.Err,
                     msg: SQLErrTStr.TableDropped,
                     isAlert: true
                 });
+                return;
+            }
+            let table = new TableMeta({
+                tableId: tableId,
+                tableName: tableName
             });
+            gTables[tableId] = table;
+            SQLResultSpace.Instance.viewTable(table);
         }
     }
 
@@ -297,8 +302,7 @@ namespace SqlQueryHistoryPanel {
                         category: TableColumnCategory.ACTION,
                         text: SQLTStr.queryTableBodyTextAnalyze,
                         onLinkClick: () => {
-                            // XXX TODO: click ayalyze
-                            console.log(queryInfo.dataflowId);
+                            SQLHistorySpace.Instance.analyze(queryInfo.dataflowId);
                         }
                     };
                     return prop;

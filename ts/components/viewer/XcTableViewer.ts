@@ -32,11 +32,14 @@ class XcTableViewer extends XcViewer {
     /**
      * Render the view of the data
      */
-    public render($container: JQuery): XDPromise<void> {
+    public render($container: JQuery, autoAddCols: boolean = false): XDPromise<void> {
         super.render($container);
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this.table.getMetaAndResultSet()
         .then(() => {
+            if (autoAddCols) {
+                this._autoAddCols();
+            }
             return this._startBuildTable();
         })
         .then(() => {
@@ -67,6 +70,26 @@ class XcTableViewer extends XcViewer {
             TblFunc.moveFirstColumn(null);
             TblFunc.alignLockIcon();
         });
+    }
+
+    private _autoAddCols(): void {
+        let table = this.table;
+        if (table.getAllCols() != null) {
+            return; // only add when no cols
+        }
+        let progCols = [];
+        try {
+            table.backTableMeta.valueAttrs.forEach((valueAttr) => {
+                let name = valueAttr.name;
+                let progCol: ProgCol = ColManager.newPullCol(name, name);
+                progCol.setImmediateType(valueAttr.type);
+                progCols.push(progCol);
+            });
+        } catch (e) {
+            console.error(e);
+        }
+        progCols.push(ColManager.newDATACol());
+        table.tableCols = progCols;
     }
 
     private _startBuildTable(): XDPromise<void> {

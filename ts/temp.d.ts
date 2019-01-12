@@ -846,6 +846,7 @@ declare class ProgCol {
     public getWidth(): number;
     public maximize(): void;
     public minimize(): void;
+    public setImmediateType(type): void
 }
 
 declare class TableMeta {

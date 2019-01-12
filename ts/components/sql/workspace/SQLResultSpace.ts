@@ -26,6 +26,12 @@ class SQLResultSpace {
         this._setupListeners();
     }
 
+    public viewTable(table: TableMeta): void {
+        SQLTable.Instance.show(table);
+        SQLTableLister.Instance.close();
+        SQLTableSchema.Instance.close();
+    }
+
     public showTables(reset: boolean): void {
         SQLTable.Instance.close();
         SQLTableSchema.Instance.close();

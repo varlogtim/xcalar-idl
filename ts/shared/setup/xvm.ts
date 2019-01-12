@@ -451,6 +451,8 @@ namespace XVM {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         $("#initialLoadScreen").show();
         _mode = mode;
+
+        xcManager.setModeText();
         MainMenu.switchMode();
         SQLWorkSpace.Instance.switchMode();
         DagView.switchMode()

@@ -32,6 +32,9 @@ class SQLEditorSpace {
     }
 
     public save(): XDPromise<void> {
+        if (this._sqlEditor == null) {
+            return PromiseHelper.resolve();
+        }
         return this._saveSnippet();
     }
 
