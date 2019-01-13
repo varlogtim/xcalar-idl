@@ -29,6 +29,7 @@ namespace DagView {
 
         _addEventListeners();
         _setupDagSharedActionEvents();
+        _setupMode();
 
         DagTopBar.Instance.setup();
         DagCategoryBar.Instance.setup();
@@ -282,11 +283,7 @@ namespace DagView {
      */
     export function switchMode(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        if (XVM.isSQLMode()) {
-            $dagView.addClass("sqlMode");
-        } else {
-            $dagView.removeClass("sqlMode");
-        }
+        _setupMode();
         DagTable.Instance.close();
         $dagView.find(".dataflowArea").remove();
         DagTopBar.Instance.switchMode();
@@ -301,6 +298,17 @@ namespace DagView {
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    function _setupMode(): void {
+        let $text: JQuery = $dagView.find(".dataflowWrapBackground .newTab span");
+        if (XVM.isSQLMode()) {
+            $dagView.addClass("sqlMode");
+            $text.text(SQLTStr.CreateFunc);
+        } else {
+            $dagView.removeClass("sqlMode");
+            $text.text(DFTStr.CreateDF);
+        }
     }
 
     function updateDagView(): void {
@@ -1171,11 +1179,11 @@ namespace DagView {
         newType: DagNodeType,
         subType?: DagNodeSubType,
         parentNodeId?: DagNodeId,
-        input?: object
+        input?: object,
+        x?: number,
+        y?: number,
     ): DagNode {
         let parentNode: DagNode;
-        let x: number;
-        let y: number;
         let nextAvailablePosition: Coordinate;
         let connectToParent: boolean = false;
         const node: DagNode = DagView.newNode({
@@ -1205,14 +1213,14 @@ namespace DagView {
 
         if (connectToParent) {
             const position: Coordinate = parentNode.getPosition();
-            x = position.x + horzNodeSpacing;
-            y = position.y + vertNodeSpacing * parentNode.getChildren().length;
+            x = x || (position.x + horzNodeSpacing);
+            y = y || (position.y + vertNodeSpacing * parentNode.getChildren().length);
         } else {
             const scale = graph.getScale();
             const $dfArea: JQuery = _getActiveArea();
-            x = Math.round(($dfArea.scrollLeft() + ($dfArea.width() / 2)) /
+            x = x || Math.round(($dfArea.scrollLeft() + ($dfArea.width() / 2)) /
                 scale / gridSpacing) * gridSpacing;
-            y = Math.round(($dfArea.scrollTop() + ($dfArea.height() / 2)) /
+            y = y || Math.round(($dfArea.scrollTop() + ($dfArea.height() / 2)) /
                 scale / gridSpacing) * gridSpacing;
         }
         nextAvailablePosition = getNextAvailablePosition(graph, x, y);
@@ -2739,6 +2747,37 @@ namespace DagView {
         return html;
     }
 
+    /**
+     * DagView.newTab
+     */
+    export function newTab(): void {
+        if (XVM.isSQLMode()) {
+            SQLFuncSettingModal.Instance.show((numInput) => {
+                _newSQLFunc(numInput);
+            });
+        } else {
+            DagTabManager.Instance.newTab();
+        }
+    }
+
+    function _newSQLFunc(numInput) {
+        DagTabManager.Instance.newTab();
+        // add input
+        const base: number = 40;
+        const inc: number = 80;
+        for (let i = 0; i < numInput; i++) {
+            let x: number = base;
+            let y: number = base + i * inc;
+            DagView.autoAddNode(DagNodeType.SQLFuncIn, null, null, null, x, y);
+        }
+
+        // add output
+        const numIncSpace = 10;
+        let x = base + inc * numIncSpace;
+        let y = base + inc * (numInput - 1) / 2;
+        DagView.autoAddNode(DagNodeType.SQLFuncOut, null, null, null, x, y);
+    }
+
     function _addProgressTooltip(
         graph: DagGraph,
         node: DagNode,
@@ -2863,9 +2902,8 @@ namespace DagView {
             }
         });
 
-
         $dagView.find(".dataflowWrapBackground").on("click", ".newTab", () => {
-            DagTabManager.Instance.newTab();
+            DagView.newTab();
         });
 
         // moving node in dataflow area to another position

@@ -4502,6 +4502,38 @@ html.microsoft {
     }
 }
 /* ========== End of SQL Save List ============= */
+#sqlFuncSettingModal {
+    .size(@width: 340px, @height: 150px);
+
+    .modalMain {
+        padding: 15px 25px;
+        height: ~"calc(100% - 92px)";
+        @label-w: 120px;
+        @margin: 10px;
+        @total-w: @label-w + @margin;
+
+        .label, input {
+            display: block;
+            float: left;
+            height: 30px;
+            line-height: 30px;
+        }
+
+        .label {
+            width: @label-w;
+            margin-right: @margin;
+        }
+
+        input {
+            width: ~"calc(100% - @{total-w})";
+        }
+    }
+}
+/* ========== SQL Func Setting ============= */
+#sqlFuncSettingModal {
+
+}
+/* ========== End of SQL Func Setting ============= */
 
 /* Login Config Modal */
 #loginConfigModal {

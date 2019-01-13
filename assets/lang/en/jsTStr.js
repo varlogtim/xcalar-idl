@@ -254,7 +254,7 @@ ErrTStr = {
     'Error': 'Error',
     'Unknown': 'Unknown Error',
     'NoEmpty': 'Please fill out this field.',
-    'PositiveInteger': 'Please Enter a positive integer as number of Runs',
+    'PositiveInteger': 'Please Enter a positive integer as number of input',
     'InvalidField': 'Invalid Field.',
     'InvalidFilePath': 'Invalid file path.',
     'InvalidFile': 'Please select a file or a folder',
@@ -291,7 +291,8 @@ ErrTStr = {
                       'Please choose another name.',
     'DFConflict': 'A dataflow with the same name already exists. ' +
                             'Please choose another name.',
-    'DFNameIllegal': 'Only names with a-z, A-Z, 0-9, - and _ are allowed.',
+    'DFNameIllegal': 'Only names with a-z, A-Z, 0-9, -, _, ( and ) are allowed.',
+    'SQLFuncNameIllegal': 'Only names with a-z, A-Z, 0-9, -, and _ are allowed.',
     'InvalidWSInList': 'Invalid worksheet name. Please choose a ' +
                         'worksheet from the pop up list.',
     'OnlyNumber': 'Please input a number.',
@@ -1068,6 +1069,7 @@ DFTStr = {
     "AdvancedOpts": "Advanced Export Options",
     "DFs": "Dataflows",
     "DF": "Dataflow",
+    "CreateDF": "Create new dataflow",
     "OptimizedDF": "Optimized Dataflow",
     "BatchDF": "Batch Dataflow",
     "CannotCreate": "Cannot Create Dataflow",
@@ -1625,6 +1627,9 @@ SQLTStr = {
     "NewTab": "Add a new dataflow tab",
     "DupTab": "Duplicate a dataflow tab",
     "Func": "SQL Functions",
+    "DupFuncName": "SQL function name already in use",
+    "CreateFunc": "Create new SQL function",
+    "WorkSpace": "SQL WorkSpace",
     "DeleteSnippet": "Delete Snippet",
     "DeleteSnippetMsg": "Are you sure you want to delete snippet <name>?"
 };

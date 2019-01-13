@@ -9,7 +9,6 @@ class DagTabManager {
 
     private _activeUserDags: DagTab[];
     private _dagKVStore: KVStore;
-    private _editingName: string;
     private _tabListScroller: ListScroller;
     private _subTabs: Map<string, string> = new Map(); // subTabId => parentTabId
     private _activeTab: DagTab;
@@ -79,6 +78,7 @@ class DagTabManager {
         const name: string = DagList.Instance.getValidName();
         const graph: DagGraph = new DagGraph();
         const tab: DagTab = this._newTab(name, graph);
+        this._tabListScroller.showOrHideScrollers();
         Log.add(SQLTStr.NewTab, {
             "operation": SQLOps.NewDagTab,
             "dataflowId": tab.getId()
@@ -734,16 +734,16 @@ class DagTabManager {
     private _tabRenameCheck(name: string, $tab: JQuery): boolean {
         const isValid: boolean = xcHelper.validate([{
             $ele: $tab,
-            error: DFTStr.DupDataflowName,
+            error: XVM.isSQLMode() ? SQLTStr.DupFuncName : DFTStr.DupDataflowName,
             check: () => {
                 return !DagList.Instance.isUniqueName(name);
             }
         }, {
             $ele: $tab,
-            error: ErrTStr.DFNameIllegal,
+            error: XVM.isSQLMode() ? ErrTStr.SQLFuncNameIllegal : ErrTStr.DFNameIllegal,
             check: () => {
-                return !xcHelper.checkNamePattern(PatternCategory.Dataflow,
-                    PatternAction.Check, name);
+                let category = XVM.isSQLMode() ? PatternCategory.SQLFunc : PatternCategory.Dataflow;
+                return !xcHelper.checkNamePattern(category, PatternAction.Check, name);
             }
         }])
         return isValid;
@@ -790,8 +790,7 @@ class DagTabManager {
         // Adding a new tab creates a new tab and adds
         // The html for a dataflowArea.
         $("#tabButton").on("click", () => {
-            this.newTab();
-            this._tabListScroller.showOrHideScrollers();
+            DagView.newTab();
         });
 
         $dagTabArea.on("dblclick", ".name", (event) => {
@@ -799,13 +798,13 @@ class DagTabManager {
             if ($tab_name.hasClass('nonedit')) {
                 return;
             }
-            this._editingName = $tab_name.text();
+            let editingName = $tab_name.text();
             $tab_name.text("");
             let inputArea: string =
                 "<span contentEditable='true' class='xc-input'></span>";
             $(inputArea).appendTo($tab_name);
             let $input: JQuery = $tab_name.find('.xc-input');
-            $input.text(this._editingName);
+            $input.text(editingName);
             $input.focus();
             document.execCommand('selectAll', false, null);
         });
@@ -819,20 +818,29 @@ class DagTabManager {
        $dagTabArea.on("focusout", ".name .xc-input", (event) => {
             let $tabInput: JQuery = $(event.currentTarget);
             let $tabName: JQuery = $tabInput.parent();
-            let newName: string = $tabInput.text().trim() || this._editingName;
-            if (newName != this._editingName &&
+            let newName: string = $tabInput.text().trim();
+            if (XVM.isSQLMode()) {
+                // sql mode force name to be case insensitive
+                newName = newName.toLowerCase();
+            }
+
+            let $tab: JQuery = $tabName.parent();
+            let index: number = $tab.index();
+            const dagTab: DagTab = this.getTabByIndex(index);
+            if (dagTab != null &&
+                newName != dagTab.getName() &&
                 this._tabRenameCheck(newName, $tabName)
             ) {
-                let $tab: JQuery = $tabName.parent();
-                let index: number = $tab.index();
-                const dagTab: DagTab = this.getTabByIndex(index);
                 dagTab.setName(newName);
                 DagList.Instance.changeName(newName, dagTab.getId());
             } else {
                 // Reset name if it already exists
-                newName = this._editingName;
+                newName = dagTab ? dagTab.getName() : null;
             }
-            $tabName.text(newName);
+
+            if (newName) {
+                $tabName.text(newName);
+            }
             $tabInput.remove();
             this._tabListScroller.showOrHideScrollers();
         });

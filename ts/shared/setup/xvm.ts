@@ -446,7 +446,7 @@ namespace XVM {
      */
     export function setMode(mode: XVM.Mode): XDPromise<void> {
         if (mode === _mode) {
-            return PromiseHelper.deferred();
+            return PromiseHelper.resolve();
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         $("#initialLoadScreen").show();

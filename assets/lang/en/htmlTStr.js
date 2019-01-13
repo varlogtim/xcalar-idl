@@ -469,6 +469,8 @@ module.exports = {
         "queryHistColTable": "View Results",
         "queryHistMenuInstr": "You can review your SQL queries in the Query History table to the right.",
         "queryHistSQLModalTitle": "SQL Query",
+        "AddFunc": "New SQL Function",
+        "NumOfInput": "Number of Input",
     },
 
     "bottomMenu": {
@@ -859,7 +861,6 @@ module.exports = {
 
     "dataflow": {
         "MyDF": "My Dataflows",
-        "CreateDF": "Create new dataflow",
         "DuplicateDF":" Duplicate Dataflow",
         "PublishDF": "Publish Dataflow",
         "PublishDFInstr": "Published dataflow is viewable/configurable/executable by other users, but any other changes are not allowed on the published dataflow.",

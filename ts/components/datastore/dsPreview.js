@@ -539,7 +539,9 @@ window.DSPreview = (function($, DSPreview) {
     };
 
     function isCreateTableMode() {
-        if (createTableMode != null) {
+        if (XVM.isSQLMode()) {
+            return true;
+        } else if (createTableMode != null) {
             return createTableMode;
         } else {
             return $("#sourceTblButton").hasClass("active");
