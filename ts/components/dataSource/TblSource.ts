@@ -102,12 +102,36 @@ class TblSource {
         this._focusOnTable($grid);
 
         PTblManager.Instance.createTableFromSource(tableName, args, null)
-        .then(() => {
+        .always(() => {
             // re-render
             this._refresh(true);
-        })
-        .fail((error) => {
+        });
+    }
 
+    /**
+     * TblSource.Instance.createTableFromDataset
+     * @param tableInfo
+     * @param schema
+     */
+    public createTableFromDataset(
+        tableInfo: PbTblInfo,
+        schema: ColSchema[]
+    ): void {
+        let tableName = tableInfo.name;
+        if (!this._tables.has(tableName)) {
+            this._tables.set(tableName, tableInfo);
+            this._renderGridView();
+        }
+        tableInfo.state = PbTblState.Loading;
+        let $grid: JQuery = this._getGridByName(tableName);
+        this._addLoadingIcon($grid);
+        this._focusOnTable($grid);
+
+        let dsName = tableInfo.dsName;
+        PTblManager.Instance.createTableFromDataset(dsName, tableName, schema, null)
+        .always(() => {
+            // re-render
+            this._refresh(true);
         });
     }
 
@@ -244,11 +268,27 @@ class TblSource {
         // const checkMarkIcon: string = '<i class="gridIcon icon xi-table"></i>';
         const name: string = table.name;
         const title: string = name;
+        let dsTableIcon: string = "";
+        let extraClass = "";
+        let tooltip = "";
+        if (!table.active) {
+            extraClass += " inActivated";
+        }
+        if (table.state === PbTblState.BeDataset) {
+            extraClass += " beDataset";
+            dsTableIcon = '<i class="infoIcon icon xi-info-no-bg"></i>';
+            let title = xcHelper.replaceMsg(TblTStr.MultipleSchema, {
+                name: name
+            });
+            tooltip = 'data-toggle="tooltip" data-container="body"' +
+            ' data-title="' + title + '"';
+        }
         // when it's a dataset
         const html: HTML =
-        '<div class="ds grid-unit' + (table.active ? '' : ' inActivated') + '"' +
-        ' data-id="' + name + '">' +
+        '<div class="ds grid-unit' + extraClass + '"' +
+        ' data-id="' + name + '" ' + tooltip + '>' +
             '<i class="gridIcon icon xi-table-2"></i>' +
+            dsTableIcon +
             // checkMarkIcon +
             '<div title="' + title + '" class="label"' +
                 ' data-dsname="' + name + '">' +
@@ -422,6 +462,10 @@ class TblSource {
 
                     if (tableInfo && tableInfo.active) {
                         classes += " dsActivated";
+                    }
+
+                    if (tableInfo && tableInfo.state === PbTblState.BeDataset) {
+                        classes += " dsInCreate";
                     }
 
                     if ($grid.hasClass("loading")) {

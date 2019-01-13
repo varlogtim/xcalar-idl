@@ -1411,6 +1411,7 @@ TblTStr = {
     "ClickToDetail": "Click to see details",
     "TotalNumOfTbl": "Total number of tables",
     "EmptyTable": "0 Rows",
+    "MultipleSchema": "Multiple Schemas are detected when creating table \"<name>\", please select the schema for the table."
 };
 
 ColTStr = {

@@ -418,6 +418,9 @@ window.MainMenu = (function($, MainMenu) {
                     $curTab.removeClass("firstTouch");
                     DataSourceManager.initialize();
                     DSForm.initialize();
+                    if (XVM.isSQLMode()) {
+                        $("#sourceTblButton").click(); // switch to source panel
+                    }
                 }
                 DS.resize();
                 break;

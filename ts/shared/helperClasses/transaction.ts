@@ -42,6 +42,7 @@ namespace Transaction {
         title?: string,
         noAlert?: boolean,
         queryStateOutput?: any
+        noNotification?: boolean
     }
 
     export interface TransactionCancelOptions {
@@ -318,7 +319,7 @@ namespace Transaction {
             if (options && options.sql && options.sql.tableId) {
                 srcTableId = options.sql.tableId;
             }
-            if (!has_require) {
+            if (!has_require && !options.noNotification) {
                 StatusMessage.fail(failMsg, msgId, srcTableId);
             }
         }

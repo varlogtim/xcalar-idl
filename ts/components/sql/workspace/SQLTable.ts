@@ -72,7 +72,7 @@ class SQLTable {
         const $container: JQuery = this._getContainer();
         $container.removeClass("xc-hidden").addClass("loading");
         const viewer = this._currentViewer;
-        const $tableSection: JQuery = this._getContainer().find(".tableSection";
+        const $tableSection: JQuery = this._getContainer().find(".tableSection");
         viewer.render($tableSection, true)
         .then(() => {
             $container.removeClass("loading");

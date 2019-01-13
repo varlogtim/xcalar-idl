@@ -1995,6 +1995,9 @@ window.DS = (function ($, DS) {
                 });
 
                 continue;
+            } else if (dsName.endsWith(PTblManager.DSSuffix)) {
+                PTblManager.Instance.addDatasetTable(dsName);
+                continue;
             }
 
             if (!dataset.isListable) {

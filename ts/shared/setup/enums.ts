@@ -236,7 +236,7 @@ enum SQLType {
 
 enum SQLOps {
     DSImport = "importDataSource",
-    TableFromDS = "createTableFromDataset",
+    TableFromDS = "createTableFromDataSource",
     Sort = "sort",
     Filter = "filter",
     Aggr = "aggregate",

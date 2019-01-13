@@ -656,13 +656,10 @@ window.DSPreview = (function($, DSPreview) {
         var $schemaRow = $form.find(".row.schema");
         $schemaRow.find(".checkboxSection").on("click", function() {
             var $checkbox = $schemaRow.find(".checkboxSection .checkbox");
-            var $schemaPart = $schemaRow.find(".textSection, .schemaWizard");
             if ($checkbox.hasClass("checked")) {
-                $checkbox.removeClass("checked");
-                $schemaPart.removeClass("xc-disabled");
+                toggleSchemaCheckbox(false); // uncheck
             } else {
-                $checkbox.addClass("checked");
-                $schemaPart.addClass("xc-disabled");
+                toggleSchemaCheckbox(true); // check
             }
         });
 
@@ -1233,6 +1230,7 @@ window.DSPreview = (function($, DSPreview) {
         };
         resetUdfSection();
         toggleFormat();
+        toggleSchemaCheckbox(false);
         // enable submit
         xcHelper.enableSubmit($form.find(".confirm"));
 
@@ -2035,60 +2033,7 @@ window.DSPreview = (function($, DSPreview) {
             return {schema: null};
         }
         var $textArea = $schemaRow.find("textArea");
-        var val = $textArea.val().trim();
-        if (val === "") {
-            StatusBox.show(ErrTStr.NoEmpty, $textArea);
-            return;
-        }
-        
-        var validTypes = BaseOpPanel.getBasicColTypes();
-        var schema = [];
-        try {
-            if (val[0] !== "[") {
-                val = "[" + val;
-            }
-            if (val[val.length - 1] !== "]") {
-                val = val + "]";
-            }
-
-            var parsed = JSON.parse(val);
-            var nameCache = {};
-            parsed.forEach((column) => {
-                if (typeof column !== "object") {
-                    throw new Error("Invalid schema, should include name and type attribute");
-                }
-                var name = null;
-                var type = null;
-
-                for (var key in column) {
-                    var trimmedKey = key.trim();
-                    if (trimmedKey === "name") {
-                        name = column[key];
-                    } else if (trimmedKey === "type") {
-                        type = column[key];
-                    }
-                }
-                if (name == null || type == null) {
-                    throw new Error("Invalid schema, should include name and type attribute");
-                }
-
-                if (!nameCache.hasOwnProperty(name)) {
-                    if (!validTypes.includes(type)) {
-                        throw new Error("Invalid type: " + type);
-                    }
-                    nameCache[name] = true;
-                    schema.push({
-                        name: name,
-                        type: type
-                    });
-                }
-            })
-            return schema;
-        } catch (e) {
-            StatusBox.show(ErrTStr.ParseSchema, $textArea, false, {
-                detail: e.message
-            });
-        }
+        return xcHelper.validateSchemaFrmTextArea($textArea);
     }
 
     function validateAdvancedArgs() {
@@ -2402,10 +2347,10 @@ window.DSPreview = (function($, DSPreview) {
             "lineDelim": lineDelim,
             "quote": quote,
             "skipRows": skipRows,
-            "schema": schema
+            "schema": schema.schema
         };
 
-        return $.extend(args, schema, advanceArgs);
+        return $.extend(args, advanceArgs);
     }
 
     function getNameFromPath(path) {
@@ -3884,6 +3829,19 @@ window.DSPreview = (function($, DSPreview) {
         }
         if (xmlOptions.withPath) {
             $(".elementXPath .checkbox").click();
+        }
+    }
+
+    function toggleSchemaCheckbox(check) {
+        var $schemaRow = $form.find(".row.schema");
+        var $checkbox = $schemaRow.find(".checkboxSection .checkbox");
+        var $schemaPart = $schemaRow.find(".textSection, .schemaWizard");
+        if (check) {
+            $checkbox.addClass("checked");
+            $schemaPart.addClass("xc-disabled");
+        } else {
+            $checkbox.removeClass("checked");
+            $schemaPart.removeClass("xc-disabled");
         }
     }
 

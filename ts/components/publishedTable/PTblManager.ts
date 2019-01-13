@@ -1,6 +1,6 @@
 class PTblManager {
     private static _instance: PTblManager;
-    public static readonly DSPrefix: string = "temp.table.";
+    public static readonly DSSuffix: string = "-xcalar-ptable";
     public static readonly InternalColumns: string[] = ["XcalarRankOver", "XcalarOpCode", "XcalarBatchId"];
     public static readonly PKPrefix: string = "XcalarRowNumPk";
 
@@ -10,12 +10,14 @@ class PTblManager {
 
     private _tableMap: Map<string, PbTblInfo>;
     private _tables: PbTblInfo[];
+    private _initizlied: boolean;
     private _loadingTables: {[key: string]: PbTblInfo};
     private _datasetTables: {[key: string]: PbTblInfo};
 
     public constructor() {
         this._tableMap = new Map();
-        this._tables = null;
+        this._tables = [];
+        this._initizlied = false;
         this._loadingTables = {};
         this._datasetTables = {};
     }
@@ -38,9 +40,6 @@ class PTblManager {
     }
 
     public getTables(): PbTblInfo[] {
-        if (this._tables == null) {
-            return [];
-        }
         let tables: PbTblInfo[] = this._tables.map((table) => table);
         for (let table in this._loadingTables) {
             tables.push(this._loadingTables[table]);
@@ -54,7 +53,7 @@ class PTblManager {
     public getTablesAsync(refresh?: boolean): XDPromise<PbTblInfo[]> {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         let promise: XDPromise<PublishTable[]>;
-        if (this._tables != null && !refresh) {
+        if (this._initizlied && !refresh) {
             promise = PromiseHelper.resolve(this._tables);
         } else {
             promise = this._listTables();
@@ -62,6 +61,7 @@ class PTblManager {
 
         promise
         .then(() => {
+            this._initizlied = true;
             deferred.resolve(this.getTables());
         })
         .fail(deferred.reject);
@@ -124,6 +124,14 @@ class PTblManager {
         return columns;
     }
 
+    /**
+     * PTblManager.Instance.getSchemaArrayFromDataset
+     * @param dsName
+     */
+    public getSchemaArrayFromDataset(dsName): XDPromise<ColSchema[][]> {
+        return this._getSchemaArrayFromDataset(dsName);
+    }
+
     public createTableFromSource(
         tableName: string,
         args: {
@@ -145,7 +153,7 @@ class PTblManager {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         let dsOptions = $.extend({}, args);
         let dsName: string = this._getDSNameFromTableName(tableName);
-        dsOptions.name = PTblManager.DSPrefix + tableName;
+        dsOptions.name = tableName + PTblManager.DSSuffix;
         dsOptions.fullName = dsName;
         let dsObj = new DSObj(dsOptions);
         let sourceArgs = dsObj.getImportOptions();
@@ -164,20 +172,28 @@ class PTblManager {
         this._createDataset(txId, dsName, sourceArgs)
         .then(() => {
             hasDataset = true;
-            return this._createTable(txId, dsName, tableName, schema, primaryKeys);
+            return this._checkSchemaInDatasetCreation(dsName, schema);
+        })
+        .then((finalSchema) => {
+            return this._createTable(txId, dsName, tableName, finalSchema, primaryKeys);
         })
         .then(() => {
-            Transaction.done(txId, {});
+            Transaction.done(txId, {
+                noNotification: true,
+                noCommit: true
+            });
             delete this._loadingTables[tableName];
             deferred.resolve(tableName);
         })
         .fail((error) => {
             Transaction.fail(txId, {
+                noAlert: true,
+                noNotification: true,
                 error: error
             });
             delete this._loadingTables[tableName];
             if (hasDataset) {
-                this._datasetTables[tableName] = tableInfo;
+                this.addDatasetTable(dsName);
             }
             deferred.reject(error, hasDataset);
         });
@@ -203,19 +219,36 @@ class PTblManager {
         this._loadingTables[tableName] = tableInfo;
         this._createTable(txId, dsName, tableName, schema, primaryKeys)
         .then(() => {
-            this._loadingTables[tableName] = tableInfo;
-            Transaction.done(txId, {});
+            delete this._loadingTables[tableName];
+            Transaction.done(txId, {
+                noCommit: true,
+                noNotification: true
+            });
             deferred.resolve();
         })
         .fail((error) => {
+            delete this._loadingTables[tableName];
             this._datasetTables[tableName] = tableInfo;
             Transaction.fail(txId, {
-                error: error
+                error: error,
+                noNotification: true,
+                noAlert: true
             });
             deferred.reject(error);
         });
 
         return deferred.promise();
+    }
+
+    public addDatasetTable(dsName: string): void {
+        if (!dsName.endsWith(PTblManager.DSSuffix)) {
+            return;
+        }
+        let tableName: string = this._getTableNameFromDSName(dsName);
+        let tableInfo: PbTblInfo = PTblManager.Instance.createTableInfo(tableName);
+        tableInfo.state = PbTblState.BeDataset;
+        tableInfo.dsName = dsName;
+        this._datasetTables[tableName] = tableInfo;
     }
 
     /**
@@ -385,16 +418,16 @@ class PTblManager {
     private _deleteTables(tableNames: string[], failures: string[]): XDPromise<void> {
         const promises = tableNames.map((tableName) => {
             return (): XDPromise<void> => {
-                return this._deletOneTable(tableName, failures);
+                return this._deleteOneTable(tableName, failures);
             }
         });
         return PromiseHelper.chain(promises);
     }
 
-    private _deletOneTable(tableName: string, failures: string[]): XDPromise<void> {
+    private _deleteOneTable(tableName: string, failures: string[]): XDPromise<void> {
         let tableInfo: PbTblInfo = this._tableMap.get(tableName.toUpperCase());
-        if (!tableInfo) {
-            return PromiseHelper.resolve();
+        if (tableInfo == null) {
+            return this._deleteDSTable(tableName, failures);
         }
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
@@ -415,12 +448,127 @@ class PTblManager {
         return deferred.promise();
     }
 
+    private _deleteDSTable(tableName: string, failures: string[]): XDPromise<void> {
+        let tableInfo: PbTblInfo = this._datasetTables[tableName];
+        if (tableInfo == null) {
+            return PromiseHelper.resolve();
+        }
+
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let txId = Transaction.start({
+            "operation": SQLOps.DestroyPreviewDS,
+            "track": true
+        });
+        XIApi.deleteDataset(txId, tableInfo.dsName, true)
+        .then(() => {
+            delete this._datasetTables[tableName];
+            Transaction.done(txId, {
+                "noCommit": true,
+                "noSql": true
+            });
+            deferred.resolve();
+        })
+        .fail((error) => {
+            failures.push(error.error);
+            Transaction.fail(txId, {
+                "error": error,
+                "noAlert": true
+            });
+            deferred.resolve(); // still resolve it
+        });
+        return deferred.promise();
+    }
+
     private _getDSNameFromTableName(tableName: string): string {
-        return xcHelper.wrapDSName(PTblManager.DSPrefix + tableName);
+        return xcHelper.wrapDSName(tableName) + PTblManager.DSSuffix;
+    }
+
+    private _getTableNameFromDSName(dsName: string): string {
+        let parseRes = xcHelper.parseDSName(dsName);
+        let tableName: string = parseRes.dsName;
+        // remove the suffix
+        if (tableName.endsWith(PTblManager.DSSuffix)) {
+            tableName = tableName.substring(0, tableName.length - PTblManager.DSSuffix.length);
+        }
+        return tableName;
     }
 
     private _createDataset(txId: number, dsName: string, sourceArgs: any): XDPromise<void> {
         return XIApi.loadDataset(txId, dsName, sourceArgs);
+    }
+
+    private _checkSchemaInDatasetCreation(
+        dsName: string,
+        schema: ColSchema[]
+    ): XDPromise<ColSchema[]> {
+        if (schema != null) {
+            return PromiseHelper.resolve(schema, false);
+        }
+        const deferred: XDDeferred<ColSchema[]> = PromiseHelper.deferred();
+        this._getSchemaArrayFromDataset(dsName)
+        .then((schemaArray, hasMultipleSchema) => {
+            if (hasMultipleSchema) {
+                let error: string = xcHelper.replaceMsg(TblTStr.MultipleSchema, {
+                    name: this._getTableNameFromDSName(dsName)
+                })
+                deferred.reject({
+                    error: error
+                });
+            } else {
+                let schema: ColSchema[] = schemaArray.map((schemas) => schemas[0]);
+                deferred.resolve(schema);
+            }
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    // XXX TODO combine with getSchemaMeta in ds.js
+    private _getSchemaArrayFromDataset(
+        dsName: string,
+    ): XDPromise<ColSchema[][]> {
+        const deferred: XDDeferred<ColSchema[][]> = PromiseHelper.deferred();
+        XcalarGetDatasetsInfo(dsName)
+        .then((res) => {
+            try {
+                let hasMultipleSchema: boolean = false;
+                let schemaArray: ColSchema[][] = [];
+                let dataset = res.datasets[0];
+                let indexMap: {[key: string]: number} = {};
+                dataset.columns.forEach((colInfo) => {
+                    // if the col name is a.b, in XD it should be a\.b
+                    const name = xcHelper.escapeColName(colInfo.name);
+                    const type = xcHelper.convertFieldTypeToColType(<any>DfFieldTypeT[colInfo.type]);
+                    let index = indexMap[name];
+                    if (index == null) {
+                        // new columns
+                        index = schemaArray.length;
+                        indexMap[name] = index;
+                        schemaArray[index] = [{
+                            name: name,
+                            type: type
+                        }];
+                    } else {
+                        // has multiple schema
+                        hasMultipleSchema = true;
+                        schemaArray[index].push({
+                            name: name,
+                            type: type
+                        });
+                    }
+                });
+                deferred.resolve(schemaArray, hasMultipleSchema);
+            } catch (e) {
+                console.error(e);
+                deferred.reject({
+                    error: "Parse Schema Error"
+                });
+            }
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     /**
@@ -437,9 +585,9 @@ class PTblManager {
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const colInfos: ColRenameInfo[] = xcHelper.getColRenameInfosFromSchema(schema);
-        dsName = parseDS(dsName);
+        const parsedDsName = parseDS(dsName);
         let synthesizeTable: string = tableName + Authentication.getHashId();
-        XIApi.synthesize(txId, colInfos, dsName, synthesizeTable)
+        XIApi.synthesize(txId, colInfos, parsedDsName, synthesizeTable)
         .then((resTable) => {
             if (primaryKeys == null || primaryKeys.length === 0) {
                 let newColName = PTblManager.PKPrefix + Authentication.getHashId();

@@ -1265,6 +1265,68 @@ namespace xcHelper {
     }
 
     /**
+     * xcHelper.validateSchemaFrmTextArea
+     * @param $textArea
+     */
+    export function validateSchemaFrmTextArea($textArea: JQuery): {schema: ColSchema[]} {
+        let val: string = $textArea.val().trim();
+        if (val === "") {
+            StatusBox.show(ErrTStr.NoEmpty, $textArea);
+            return null;
+        }
+        
+        let validTypes: ColumnType[] = BaseOpPanel.getBasicColTypes();
+        let schema: ColSchema[] = [];
+        try {
+            if (val[0] !== "[") {
+                val = "[" + val;
+            }
+            if (val[val.length - 1] !== "]") {
+                val = val + "]";
+            }
+
+            let parsed = JSON.parse(val);
+            let nameCache = {};
+            parsed.forEach((column) => {
+                if (typeof column !== "object") {
+                    throw new Error("Invalid schema, should include name and type attribute");
+                }
+                let name: string = null;
+                let type: ColumnType = null;
+
+                for (let key in column) {
+                    let trimmedKey = key.trim();
+                    if (trimmedKey === "name") {
+                        name = column[key];
+                    } else if (trimmedKey === "type") {
+                        type = column[key];
+                    }
+                }
+                if (name == null || type == null) {
+                    throw new Error("Invalid schema, should include name and type attribute");
+                }
+
+                if (!nameCache.hasOwnProperty(name)) {
+                    if (!validTypes.includes(type)) {
+                        throw new Error("Invalid type: " + type);
+                    }
+                    nameCache[name] = true;
+                    schema.push({
+                        name: name,
+                        type: type
+                    });
+                }
+            });
+            return {schema: schema};
+        } catch (e) {
+            StatusBox.show(ErrTStr.ParseSchema, $textArea, false, {
+                detail: e.message
+            });
+            return null;
+        }
+    }
+
+    /**
      * xcHelper.uniqueName
      * @param name
      * @param validFunc

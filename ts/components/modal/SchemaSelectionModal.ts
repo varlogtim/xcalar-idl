@@ -6,7 +6,7 @@ class SchemaSelectionModal {
     }
 
     private _modalHelper: ModalHelper;
-    private _initialSchema: ColSchema[];
+    private _currentSchema: ColSchema[];
     private _callback: Function;
     private _schemaSection: ColSchemaSection;
 
@@ -25,11 +25,15 @@ class SchemaSelectionModal {
      * SchemaSelectionModal.Instance.show
      */
     public show(schema: ColSchema[], callback: Function): void {
-        this._initialSchema = schema;
+        this._currentSchema = schema;
         this._callback = callback;
         this._modalHelper.setup();
         this._schemaSection.setHintSchema(schema);
         this._schemaSection.render(schema);
+    }
+
+    public setInitialSchema(schema: ColSchema[]): void {
+        this._schemaSection.setInitialSchema(schema);
     }
 
     private _getModal(): JQuery {
@@ -43,13 +47,15 @@ class SchemaSelectionModal {
     private _close(): void {
         this._modalHelper.clear();
         this._callback = null;
-        this._initialSchema = null;
+        this._currentSchema = null;
+        this._schemaSection.setInitialSchema(null);
     }
 
     private _submitForm(): void {
         let schema: ColSchema[] = this._schemaSection.getSchema(false);
         if (schema == null) {
             // error case
+            return;
         }
         if (typeof this._callback === "function") {
             this._callback(schema);
@@ -71,8 +77,8 @@ class SchemaSelectionModal {
 
         const $schemaSection: JQuery = this._getSchemaSection();
         $schemaSection.on("click", ".detect", () => {
-            if (this._initialSchema) {
-                this._schemaSection.render(this._initialSchema);
+            if (this._currentSchema) {
+                this._schemaSection.render(this._currentSchema);
             }
         });
     }

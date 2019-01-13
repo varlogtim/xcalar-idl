@@ -5,6 +5,7 @@ class XcDatasetViewer extends XcViewer {
     private colStrLimit: number;
     private readonly defaultColWidth: number = 130;
     private readonly initialNumRowsToFetch: number = 40;
+    private _schemaArray: ColSchema[][];
 
     public constructor(dataset: DSObj) {
         super(dataset.getFullName()); // use ds full name as id
@@ -17,6 +18,10 @@ class XcDatasetViewer extends XcViewer {
 
     public getTitle(): string {
         return this.dataset.getName();
+    }
+
+    public getSchemaArray(): ColSchema[][] {
+        return this._schemaArray;
     }
 
     /**
@@ -38,7 +43,10 @@ class XcDatasetViewer extends XcViewer {
         // update date part of the table info first to make UI smooth
         // updateTableInfoDisplay(dsObj, true);
 
-        this.dataset.fetch(0, this.initialNumRowsToFetch)
+        PromiseHelper.alwaysResolve(this._fetchSchema())
+        .then(() => {
+            return this.dataset.fetch(0, this.initialNumRowsToFetch);
+        })
         .then((jsons, jsonKeys) => {
             if (this.dataset.getError() != null) {
                 return PromiseHelper.reject(DSTStr.PointErr);
@@ -75,6 +83,21 @@ class XcDatasetViewer extends XcViewer {
         });
     }
 
+    private _fetchSchema(): XDPromise<void> {
+        if (this._schemaArray != null) {
+            return PromiseHelper.resolve();
+        }
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        PTblManager.Instance.getSchemaArrayFromDataset(this.dataset.getFullName())
+        .then((res) => {
+            this._schemaArray = res;
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
     private _getSampleTable(jsonKeys: string[], jsons: object[]): void {
         const html: string = this._getSampleTableHTML(jsonKeys, jsons);
         this.$view.html(html);
@@ -95,6 +118,20 @@ class XcDatasetViewer extends XcViewer {
             this.colStrLimit = Math.max(1000 / numKeys, this.colStrLimit);
         }
     }
+
+    private _getColunmType(key: string): ColumnType {
+        let schemaArray: ColSchema[][] = this._schemaArray || [];
+        let res: ColSchema[][] = schemaArray.filter((schemas) => {
+            return schemas && schemas[0].name === key
+        });
+
+        if (res.length) {
+            let schemas = res[0];
+            return schemas.length > 1 ? ColumnType.mixed : schemas[0].type;
+        } else {
+            return null;
+        }
+    } 
 
     private _getSampleTableHTML(jsonKeys: string[], jsons: object[]): string {
         // validation check
@@ -127,7 +164,7 @@ class XcDatasetViewer extends XcViewer {
         for (var i = 0; i < numKeys; i++) {
             var key = jsonKeys[i].replace(/\'/g, '&#39');
             var thClass = "th col" + (i + 1);
-            var type = columnsType[i];
+            var type = this._getColunmType(key) || columnsType[i];
             var width = xcHelper.getTextWidth(null, key);
 
             width += 2; // text will overflow without it

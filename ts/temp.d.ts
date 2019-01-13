@@ -171,6 +171,7 @@ interface PbTblInfo {
     createTime: number;
     active: boolean;
     state?: string;
+    dsName?: string;
 }
 
 interface PbTblDisplayInfo {
