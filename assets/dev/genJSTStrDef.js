@@ -24,7 +24,7 @@ try {
         const re = /([\w\d_]+?)\s*?[=]\s*?[{]/g;
         inputStr = inputStr.replace(re, 'xcDefs.$1 = {');
         const jsStr = `const xcDefs={};${inputStr}return xcDefs;`;
-        return Function(jsStr)();
+        return Function('window', 'require', jsStr)({autogenVars:{}}, undefined);
     }
 
     // Convert xcDefs to "declare namespace xxx { export var fl1: string; .... }"
