@@ -1347,7 +1347,8 @@
                 queryObj.jdbcSession = jdbcSession;
                 return SqlQueryHistory.getInstance().upsertQuery(queryObj);
             }
-            return SqlQueryHistoryPanel.Card.getInstance().update(queryObj);
+            // return SqlQueryHistoryPanel.Card.getInstance().update(queryObj);
+            return SQLHistorySpace.Instance.update(queryObj);
         },
         getStatus: function() {
             return this.sqlObj.getStatus();

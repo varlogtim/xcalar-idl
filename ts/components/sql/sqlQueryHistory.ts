@@ -176,6 +176,8 @@ namespace SqlQueryHistory {
         newTableName?: string;
         errorMsg?: string;
         dataflowId?: string;
+        rows?: number;
+        skew?: number;
     }
 
     export class QueryInfo {
@@ -187,6 +189,8 @@ namespace SqlQueryHistory {
         public tableName: string = '';
         public errorMsg: string = '';
         public dataflowId: string = '';
+        public rows: number = null;
+        public skew: number = null;
     }
 
     export class QueryExtInfo extends QueryInfo {
@@ -219,6 +223,12 @@ namespace SqlQueryHistory {
         }
         if (updateInfo.dataflowId != null) {
             mergeTo.dataflowId = updateInfo.dataflowId;
+        }
+        if (updateInfo.rows != null) {
+            mergeTo.rows = updateInfo.rows;
+        }
+        if (updateInfo.skew != null) {
+            mergeTo.skew = updateInfo.skew;
         }
     }
 

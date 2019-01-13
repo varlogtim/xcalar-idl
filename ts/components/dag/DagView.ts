@@ -4437,7 +4437,8 @@ namespace DagView {
         if (isNaN(pct)) {
             return;
         }
-        let tab: DagTab = <DagTab>DagTabManager.Instance.getTabById(tabId);
+        let tab: DagTab = <DagTab>DagTabManager.Instance.getTabById(tabId) ||
+        SQLExecutor.getTab(tabId);
         if (tab == null) {
             return;
         }
@@ -4520,6 +4521,10 @@ namespace DagView {
         });
 
         node.updateProgress(nodeIdInfos, false, node instanceof DagNodeSQL);
+        if (node instanceof DagNodeSQL) {
+            node.updateSQLQuery();
+            SQLHistorySpace.Instance.update(node.getSQLQuery());
+        }
     }
 
     /**

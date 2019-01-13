@@ -21,6 +21,10 @@ class SQLHistorySpace {
         });
     }
 
+    public update(updateInfo): XDPromise<void> {
+        return this._historyComponent.update(updateInfo);
+    }
+
     public refresh(): void {
         this._historyComponent.show(true);
     }

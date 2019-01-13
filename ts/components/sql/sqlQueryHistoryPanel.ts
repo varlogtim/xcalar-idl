@@ -250,6 +250,17 @@ namespace SqlQueryHistoryPanel {
     }
 
     export class ExtCard extends BaseCard {
+        /**
+         * Update/Add a query with partial data
+         * @param updateInfo query update information
+         */
+        public update(updateInfo: QueryUpdateInfo): XDPromise<void> {
+            return SqlQueryHistory.getInstance().upsertQuery(updateInfo)
+                .then( () => {
+                    this._updateTableUI(this.queryMap, false);
+                });
+        }
+        
         protected getTitle(): string {
             return SQLTStr.queryHistExtCardTitle;
         }
@@ -494,13 +505,13 @@ namespace SqlQueryHistoryPanel {
 
             // Setup auto refresh
             if (this._enableAutoRefresh != null) {
-                if (this._refreshTimer == null) {
-                    this._refreshTimer = setInterval( () => {
-                        if (this._enableAutoRefresh()) {
-                            this._updateUI();
-                        }
-                    }, this._msRefreshDuration);
-                }
+                // if (this._refreshTimer == null) {
+                //     this._refreshTimer = setInterval( () => {
+                //         if (this._enableAutoRefresh()) {
+                //             this._updateUI();
+                //         }
+                //     }, this._msRefreshDuration);
+                // }
             }
         }
 
@@ -531,6 +542,7 @@ namespace SqlQueryHistoryPanel {
 
             // Create sort index (a index list of this._data)
             // Ex. [3,2,4,1]
+            this._data = this._data.filter((data) => data != null);
             const sortIndex = this._getSortIndex(
                 this._data,
                 sorting.sortOrder,
@@ -542,6 +554,9 @@ namespace SqlQueryHistoryPanel {
             const bodyProp: TableBodyColumnProp[][] = [];
             for (const dataIndex of sortIndex) {
                 const data = this._data[dataIndex];
+                if (data == null) {
+                    continue;
+                }
                 const rowProp: TableBodyColumnProp[] = this._columnsToShow.map((category) => {
                     const colDef = this._tableDef[category];
                     return colDef.convertFunc(data);
@@ -913,7 +928,7 @@ namespace SqlQueryHistoryPanel {
             const sortList = data.map((_, i) => i);
             if (order !== SortOrder.NONE) {
                 sortList.sort( (a, b) => {
-                    const gt = sortFunction(data[a], data[b]);
+                    let gt = sortFunction(data[a], data[b]);
                     return order === SortOrder.ASC? gt: -gt;
                 });
             }

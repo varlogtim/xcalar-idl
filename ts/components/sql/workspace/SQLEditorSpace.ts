@@ -239,7 +239,8 @@ class SQLEditorSpace {
     private _addEventListeners(): void {
         const $container = this._getEditorSpaceEl();
         const $bottomSection = $container.find(".bottomSection");
-        $bottomSection.on("click", ".execute", () => {
+        $bottomSection.on("click", ".execute", (event) => {
+            $(event.currentTarget).blur();
             this._executeAllSQL();
         });
 

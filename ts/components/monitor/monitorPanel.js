@@ -101,10 +101,10 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     title += MonitorTStr.Setup;
                     break;
                 case ("queryHistButton"):
-                    SqlQueryHistoryPanel.Card.getInstance().show();
-                    $("#monitor-query-history").addClass("active");
-                    $menu.find(".menuSection.queryHist").removeClass("xc-hidden");
-                    title += MonitorTStr.SQLPanelTitle;
+                    // SqlQueryHistoryPanel.Card.getInstance().show();
+                    // $("#monitor-query-history").addClass("active");
+                    // $menu.find(".menuSection.queryHist").removeClass("xc-hidden");
+                    // title += MonitorTStr.SQLPanelTitle;
                     break;
                 case ("logButton"):
                     $("#monitor-xd-log").addClass("active");

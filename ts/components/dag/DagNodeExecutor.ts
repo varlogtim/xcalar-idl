@@ -979,6 +979,7 @@ class DagNodeExecutor {
             queryString: params.sqlQueryStr,
             dataflowId: this.tabId
         };
+        node.setSQLQuery(queryObj);
         promise
         .then(function(ret) {
             const replaceMap = {};
@@ -1005,7 +1006,8 @@ class DagNodeExecutor {
             // Set status to Running
             queryObj["status"] = SQLStatus.Running;
             queryObj["startTime"] = new Date();
-            SqlQueryHistoryPanel.Card.getInstance().update(queryObj);
+            // SqlQueryHistoryPanel.Card.getInstance().update(queryObj);
+            SQLHistorySpace.Instance.update(queryObj);
             return XIApi.query(self.txId, queryId, replaceRetStruct.newQueryStr,
                                                                        options);
         })
@@ -1014,7 +1016,8 @@ class DagNodeExecutor {
             queryObj["status"] = SQLStatus.Done;
             queryObj["endTime"] = new Date();
             queryObj["newTableName"] = newDestTableName;
-            SqlQueryHistoryPanel.Card.getInstance().update(queryObj);
+            // SqlQueryHistoryPanel.Card.getInstance().update(queryObj);
+            SQLHistorySpace.Instance.update(queryObj)
             deferred.resolve(newDestTableName, res);
         })
         .fail(function(error) {
@@ -1026,7 +1029,8 @@ class DagNodeExecutor {
                 queryObj["errorMsg"] = JSON.stringify(error);
             }
             // Set status to Cancelled or Failed
-            SqlQueryHistoryPanel.Card.getInstance().update(queryObj);
+            // SqlQueryHistoryPanel.Card.getInstance().update(queryObj);
+            SQLHistorySpace.Instance.update(queryObj)
             deferred.reject(error);
         });
         return deferred.promise();

@@ -1,4 +1,18 @@
 class SQLExecutor {
+    private static _tabs: Map<string, DagTabUser> = new Map();
+
+    public static getTab(tabId: string): DagTabUser {
+        return SQLExecutor._tabs.get(tabId);
+    }
+
+    public static setTab(tabId: string, dagTab: DagTabUser): void {
+        SQLExecutor._tabs.set(tabId, dagTab);
+    }
+
+    public static deleteTab(tabId: string): void {
+        SQLExecutor._tabs.delete(tabId);
+    }
+
     private _sql: string;
     private _sqlNode: DagNodeSQL;
     private _IMDNodes: DagNodeIMDTable[];
@@ -51,6 +65,8 @@ class SQLExecutor {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         try {
+            let tabId: string = this._tempTab.getId();
+            SQLExecutor.setTab(tabId, this._tempTab);
             const publishedTableNodes: DagNodeIMDTable[] = this._IMDNodes;
             this._addPublishedTableNodes(publishedTableNodes)
             this._configurePublishedTableNode()
@@ -66,7 +82,10 @@ class SQLExecutor {
                 return this._tempTab.save();
             })
             .then(deferred.resolve)
-            .fail(deferred.reject);
+            .fail(deferred.reject)
+            .always(() => {
+                SQLExecutor.deleteTab(tabId);
+            });
         } catch (e) {
             deferred.reject({error: e.mesaage});
         }

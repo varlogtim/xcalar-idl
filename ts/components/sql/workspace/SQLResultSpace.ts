@@ -1,6 +1,5 @@
 class SQLResultSpace {
     private static _instance: SQLResultSpace;
-    private _resultTable: TableMeta;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -11,10 +10,24 @@ class SQLResultSpace {
     }
 
     private _setupListeners() {
-        const self = this;
-        $("#sqlTableArea").on("click", ".btn-create", function() {
-            CreatePublishTableModal.Instance.show(self._resultTable.getName(),
-                self._resultTable.getAllCols());
+        $("#sqlTableArea").on("click", ".btn-create", () => {
+            let tableName: string = SQLTable.Instance.getTable();
+            try {
+                if (tableName == null) {
+                    return;
+                }
+                let tableId = xcHelper.getTableId(tableName);
+                let table = gTables[tableId];
+                if (table == null) {
+                    return;
+                }
+                let progCols = table.getAllCols().filter((progCol: ProgCol) => {
+                    return !progCol.isDATACol();
+                });
+                CreatePublishTableModal.Instance.show(tableName, progCols);
+            } catch (e) {
+                console.error(e);
+            }
         });
     }
 
@@ -42,15 +55,5 @@ class SQLResultSpace {
         SQLTable.Instance.close();
         SQLTableLister.Instance.close();
         SQLTableSchema.Instance.show(tableInfo);
-    }
-
-    public test(): void {
-        for (let tableId in gTables) {
-            let table: TableMeta = gTables[tableId];
-            console.info("test, preview", tableId);
-            this._resultTable = table;
-            SQLTable.Instance.show(table);
-            break;
-        }
     }
 }

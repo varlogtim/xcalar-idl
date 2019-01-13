@@ -12,6 +12,7 @@ class DagNodeSQL extends DagNode {
     protected tableNewDagIdMap: {};
     protected dagIdToTableNamesMap: {}; // id to tableName map stores all the tables related to the dag node
     // in topological order
+    private _queryObj: any;
 
     public constructor(options: DagNodeSQLInfo) {
         super(options);
@@ -58,6 +59,24 @@ class DagNodeSQL extends DagNode {
           }
         }
     };
+
+    public setSQLQuery(queryObj): void {
+        this._queryObj = queryObj;
+    }
+
+    public getSQLQuery(): any {
+        return this._queryObj;
+    }
+
+    public updateSQLQuery(): void {
+        try {
+            let stats = this.getOverallStats();
+            this._queryObj.rows = stats.rows;
+            this._queryObj.skew = stats.skewValue;
+        } catch (e) {
+            console.error(e);
+        }
+    }
 
     public updateSubGraph(_newTableMap?: {}): void {
         if (_newTableMap) {
