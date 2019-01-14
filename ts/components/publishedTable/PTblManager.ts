@@ -132,6 +132,12 @@ class PTblManager {
         return this._getSchemaArrayFromDataset(dsName);
     }
 
+    /**
+     * PTblManager.Instance.createTableFromSource
+     * @param tableName 
+     * @param args 
+     * @param primaryKeys 
+     */
     public createTableFromSource(
         tableName: string,
         args: {
@@ -158,7 +164,6 @@ class PTblManager {
         let dsObj = new DSObj(dsOptions);
         let sourceArgs = dsObj.getImportOptions();
 
-        let hasDataset: boolean = false;
         let txId = Transaction.start({
             "msg": TblTStr.Create + ": " + tableName,
             "operation": SQLOps.TableFromDS,
@@ -166,6 +171,7 @@ class PTblManager {
             "steps": 3
         });
 
+        let hasDataset: boolean = false;
         let tableInfo: PbTblInfo = PTblManager.Instance.createTableInfo(tableName);
         let schema: ColSchema[] = args.schema;
         this._loadingTables[tableName] = tableInfo;
@@ -185,22 +191,35 @@ class PTblManager {
             delete this._loadingTables[tableName];
             deferred.resolve(tableName);
         })
-        .fail((error) => {
+        .fail((error, isSchemaError) => {
+            let noAlert: boolean = false;
+            delete this._loadingTables[tableName];
+            if (hasDataset) {
+                if (isSchemaError) {
+                    noAlert = true;
+                    this.addDatasetTable(dsName);
+                } else {
+                    XIApi.deleteDataset(txId, dsName);
+                }
+            }
             Transaction.fail(txId, {
-                noAlert: true,
+                noAlert: noAlert,
                 noNotification: true,
                 error: error
             });
-            delete this._loadingTables[tableName];
-            if (hasDataset) {
-                this.addDatasetTable(dsName);
-            }
             deferred.reject(error, hasDataset);
         });
     
         return deferred.promise();
     }
 
+    /**
+     * PTblManager.Instance.createTableFromDataset
+     * @param dsName 
+     * @param tableName 
+     * @param schema 
+     * @param primaryKeys 
+     */
     public createTableFromDataset(
         dsName: string,
         tableName: string,
@@ -233,6 +252,52 @@ class PTblManager {
                 error: error,
                 noNotification: true,
                 noAlert: true
+            });
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    }
+
+    /**
+     * PTblManager.Instance.createTableFromView
+     * @param pks 
+     * @param columns 
+     * @param viewName 
+     * @param tableName 
+     */
+    public createTableFromView(
+        pks: string[],
+        columns: ProgCol[],
+        viewName: string,
+        tableName: string
+    ): XDPromise<void> {
+        const deferred:XDDeferred<void> = PromiseHelper.deferred();
+        const txId: number = Transaction.start({
+            operation: "publishIMD",
+            track: true,
+        });
+
+        this.createTableInfo(tableName);
+        this._loadingTables[tableName] = name;
+        XIApi.publishTable(txId, pks, viewName, tableName,
+            xcHelper.createColInfo(columns))
+        .then(() => {
+            // need to update the status and activated tables
+            return PromiseHelper.alwaysResolve(this._listTables());
+        })
+        .then(() => {
+            delete this._loadingTables[tableName];
+            Transaction.done(txId, {
+                noCommit: true
+            });
+            deferred.resolve();
+        })
+        .fail((error) => {
+            delete this._loadingTables[tableName];
+            Transaction.fail(txId, {
+                noAlert: true,
+                noNotification: true
             });
             deferred.reject(error);
         });
@@ -513,7 +578,7 @@ class PTblManager {
                 })
                 deferred.reject({
                     error: error
-                });
+                }, true);
             } else {
                 let schema: ColSchema[] = schemaArray.map((schemas) => schemas[0]);
                 deferred.resolve(schema);
@@ -584,10 +649,22 @@ class PTblManager {
         primaryKeys: string[]
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const validTypes: ColumnType[] = BaseOpPanel.getBasicColTypes();
+        schema = schema.filter((colInfo) => {
+            return validTypes.includes(colInfo.type);
+        });
+
         const colInfos: ColRenameInfo[] = xcHelper.getColRenameInfosFromSchema(schema);
+        const pbColInfos: ColRenameInfo[] = [];
         colInfos.forEach((colInfo) => {
             // make sure column is uppercase
-            colInfo.new = colInfo.new.toUpperCase();
+            let upperCaseCol: string = colInfo.new.toUpperCase();
+            colInfo.new = upperCaseCol
+            pbColInfos.push({
+                orig: upperCaseCol,
+                new: upperCaseCol,
+                type: colInfo.type
+            });
         });
         const parsedDsName = parseDS(dsName);
         let synthesizeTable: string = tableName + Authentication.getHashId();
@@ -598,7 +675,7 @@ class PTblManager {
             if (primaryKeys == null || primaryKeys.length === 0) {
                 let newColName = PTblManager.PKPrefix + Authentication.getHashId();
                 primaryKeys = [newColName];
-                colInfos.push({
+                pbColInfos.push({
                     orig: newColName,
                     new: newColName,
                     type: DfFieldTypeT.DfInt64
@@ -619,7 +696,7 @@ class PTblManager {
                     return !this._tableMap.has(name);
                 }, null);
             }
-            return XIApi.publishTable(txId, primaryKeys, resTable, tableName, colInfos);
+            return XIApi.publishTable(txId, primaryKeys, resTable, tableName, pbColInfos);
         })
         .then(() => {
             XIApi.deleteDataset(txId, dsName);

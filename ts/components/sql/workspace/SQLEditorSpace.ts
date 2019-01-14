@@ -130,7 +130,16 @@ class SQLEditorSpace {
             });
         } catch (e) {
             console.error(e);
-            // XXX TODO: display some error in XD
+            let error: string;
+            if (e instanceof Error) {
+                error = e.message;
+            } else if (typeof e === "string") {
+                error = e;
+            } else {
+                error = JSON.stringify(e);
+            }
+            let $btn = this._getEditorSpaceEl().find(".bottomSectinon .execute");
+            StatusBox.show(error, $btn);
         }
     }
 

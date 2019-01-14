@@ -726,7 +726,7 @@ class DagNodeExecutor {
     private _linkWithBatch(graph: DagGraph, node: DagNodeDFOut, optimized?: boolean): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         let destTable: string;
-        graph.getQuery(node.getId(), optimized)
+        graph.getQuery(node.getId(), optimized, true, true)
         .then((query, tables) => {
             if ("object" == typeof tables) {
                 // get the last dest table
@@ -1132,6 +1132,9 @@ class DagNodeExecutor {
         const node: DagNodeSQLFuncOut = <DagNodeSQLFuncOut>this.node;
         const params: DagNodeSQLFuncOutInputStruct = node.getParam(this.replaceParam);
         const colInfos: ColRenameInfo[] = xcHelper.getColRenameInfosFromSchema(params.schema);
+        // colInfos.forEach((colInfo) => {
+        //     colInfo.new = colInfo.new.toUpperCase(); // need to make the name be uppercase for sql
+        // });
         const srcTable: string = this._getParentNodeTable(0);
         const desTable: string = this._generateTableName();
         return XIApi.synthesize(this.txId, colInfos, srcTable, desTable);

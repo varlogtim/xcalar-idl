@@ -8,6 +8,7 @@ class DagTabManager {
     }
 
     private _activeUserDags: DagTab[];
+    private _cachedSQLDags: {[key: string]: DagTabUser};
     private _dagKVStore: KVStore;
     private _tabListScroller: ListScroller;
     private _subTabs: Map<string, string> = new Map(); // subTabId => parentTabId
@@ -60,7 +61,11 @@ class DagTabManager {
         const dagTabs: DagTab[] = this._activeUserDags.filter((dagTab) => {
             return dagTab.getId() === tabId;
         });
-        return dagTabs.length > 0 ? dagTabs[0] : null;
+        let dagTab = dagTabs.length > 0 ? dagTabs[0] : null;
+        if (dagTab == null && XVM.isSQLMode()) {
+            dagTab = this._cachedSQLDags[tabId];
+        }
+        return dagTab;
     }
 
     /**
@@ -69,6 +74,14 @@ class DagTabManager {
      */
     public getTabIndex(tabId: string): number {
         return this._activeUserDags.findIndex((dag) => dag.getId() === tabId);
+    }
+
+    public addSQLTabCache(tab: DagTabUser): void {
+        this._cachedSQLDags[tab.getId()] = tab;
+    }
+
+    public removeSQLTabCache(tab: DagTabUser): void {
+        delete this._cachedSQLDags[tab.getId()];
     }
 
     /**
@@ -343,8 +356,10 @@ class DagTabManager {
         }
         this._dagKVStore = new KVStore(key, gKVScope.WKBK);
         this._activeUserDags = [];
+        this._cachedSQLDags = {};
         this._subTabs = new Map();
     }
+
 
     private _clear(): void {
         this._getTabArea().empty();
@@ -389,7 +404,9 @@ class DagTabManager {
             });
             const dagIds: string[] = managerData.dagKeys.filter((id) => idSet.has(id));
             // _loadDagTabs is async
-            this._loadDagTabs(dagIds);
+            return this._loadDagTabs(dagIds);
+        })
+        .then(() => {
             deferred.resolve();
         })
         .fail((error) => {
@@ -417,7 +434,8 @@ class DagTabManager {
     }
 
     //loadDagTabs handles loading dag tabs from prior sessions.
-    private _loadDagTabs(dagTabIds: string[]): void {
+    private _loadDagTabs(dagTabIds: string[]): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let promises = dagTabIds.map((id) => {
             return this._loadDagTabHelper.bind(this, id);
         });
@@ -430,7 +448,10 @@ class DagTabManager {
             } else {
                 this.reset();
             }
+            deferred.resolve();
         });
+
+        return deferred.promise();
     }
 
     // Clicking a tab activates the dataflow connected

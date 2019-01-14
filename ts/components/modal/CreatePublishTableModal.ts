@@ -305,7 +305,7 @@ class CreatePublishTableModal {
     }
 
     private _submitForm(): void {
-        let name: string = this._$nameInput.val();
+        let name: string = this._$nameInput.val().trim().toUpperCase();
         if (!xcHelper.isValidTableName(name)) {
             StatusBox.show(ErrTStr.InvalidTableName, this._$nameInput);
             return;
@@ -327,14 +327,9 @@ class CreatePublishTableModal {
         for (let i = 0; i < $cols.length; i++) {
             columns.push(this._columns[$cols.eq(i).data("colnum") - 1]);
         }
-        const txId: number = Transaction.start({
-            operation: "publishIMD",
-            track: true,
-        });
         const $bg: JQuery = $("#initialLoadScreen");
         $bg.show();
-        XIApi.publishTable(txId, keys, this._tableName, name,
-            xcHelper.createColInfo(columns))
+        PTblManager.Instance.createTableFromView(keys, columns, this._tableName, name)
         .then(() => {
             this._closeModal();
             $bg.hide();

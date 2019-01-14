@@ -4,6 +4,7 @@ class DagGraphExecutor {
     private _executeInProgress = false;
     private _isOptimized: boolean;
     private _isOptimizedActiveSession: boolean;
+    private _allowNonOptimizedOut: boolean;
     private _optimizedLinkOutNode: DagNodeDFOut;
     private _optimizedExportNodes: DagNodeExport[];
     private _isNoReplaceParam: boolean;
@@ -20,11 +21,13 @@ class DagGraphExecutor {
             noReplaceParam?: boolean
             retinaName?: string
             parentTxId?: number
+            allowNonOptimizedOut?: boolean
         } = {}
     ) {
         this._nodes = nodes;
         this._graph = graph;
         this._isOptimized = options.optimized || false;
+        this._allowNonOptimizedOut = options.allowNonOptimizedOut || false;
         this._isNoReplaceParam = options.noReplaceParam || false;
         this._isCanceld = false;
         this._retinaName = options.retinaName;
@@ -120,7 +123,9 @@ class DagGraphExecutor {
                     (node.getSubType() !== DagNodeSubType.ExportOptimized &&
                     node.getSubType() !== DagNodeSubType.DFOutOptimized &&
                     node.getType() !== DagNodeType.CustomOutput &&
-                    node.getType() !== DagNodeType.Aggregate)) {
+                    node.getType() !== DagNodeType.Aggregate) &&
+                    !this._allowNonOptimizedOut
+                ) {
                     errorResult.hasError = true;
                     errorResult.type = DagNodeErrorType.InvalidOptimizedOutNode;
                     errorResult.node = node;
@@ -766,6 +771,31 @@ class DagGraphExecutor {
         return deferred.promise();
     }
 
+    private _dedupLoads(operations: any[]): any[] {
+        let res = [];
+        let dsNameSet: Set<string> = new Set();
+        try {
+            operations.forEach((op) => {
+                let isDup: boolean = false;
+                if (op.operation === "XcalarApiBulkLoad") {
+                    let dest: string = op.args.dest;
+                    if (dsNameSet.has(dest)) {
+                        isDup = true;
+                    } else {
+                        dsNameSet.add(dest);
+                    }
+                }
+                if (!isDup) {
+                    res.push(op);
+                }
+            });
+            return res;
+        } catch(e) {
+            console.error(e);
+            return operations;
+        }
+    }
+
     private _getImportRetinaParameters(
         retinaName: string,
         queryStr: string,
@@ -777,7 +807,8 @@ class DagGraphExecutor {
         sessionName: string
         destTables: {nodeId: DagNodeId, tableName: string}[]
     } {
-        const operations = JSON.parse(queryStr);
+        let operations = JSON.parse(queryStr);
+        operations = this._dedupLoads(operations);
         const realDestTables = [];
         let outNodes;
         // create tablename and columns property in retina for each outnode

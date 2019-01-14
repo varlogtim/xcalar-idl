@@ -741,8 +741,7 @@ class DagNodeSQL extends DagNode {
         }
         const funcName = sqlFunc[key].funcName;
         // list all functions and check if funcName is there
-        const allFuncs = DagTabSQLFunc.listFuncs();
-        if (allFuncs.indexOf(funcName) === -1) {
+        if (!DagTabSQLFunc.hasFunc(funcName)) {
             return PromiseHelper.reject("Cannot find SQL function: " + funcName);
         }
         const deferred = PromiseHelper.deferred();

@@ -62,6 +62,7 @@ window.MainMenu = (function($, MainMenu) {
             if ($sqlModeTabs.hasClass("active")) {
                 $sqlModeTabs.removeClass("active");
                 MainMenu.close(true);
+                MainMenu.closeForms();
                 closeMainPanels();
             }
         }
@@ -391,6 +392,7 @@ window.MainMenu = (function($, MainMenu) {
     }
 
     function closeMainPanels() {
+        $menuBar.find(".topMenuBarTab").removeClass("active");
         $(".mainPanel").removeClass("active");
     }
 

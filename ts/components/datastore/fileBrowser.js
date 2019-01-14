@@ -124,6 +124,7 @@ window.FileBrowser = (function($, FileBrowser) {
         if (!restore) {
             clearAll();
         }
+        setMode();
         updateActiveFileInfo();
         DSForm.switchView(DSForm.View.Browser);
 
@@ -169,6 +170,20 @@ window.FileBrowser = (function($, FileBrowser) {
 
         return deferred.promise();
     };
+
+    function setMode() {
+        $switch = $("#fileInfoBottom .switchWrap");
+        if (DSPreview.isCreateTableMode()) {
+            $switch.find(".switch").removeClass("on");
+            xcTooltip.add($switch, {
+                title: "Create table doesn't support multiple import"
+            });
+            $switch.find("> div").addClass("xc-disabled");
+        } else {
+            xcTooltip.remove($switch);
+            $switch.find("> div").removeClass("xc-disabled");
+        }
+    }
 
     function addContainerEvents() {
         $fileBrowser.on("click", "input", function() {

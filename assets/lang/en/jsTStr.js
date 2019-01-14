@@ -1610,7 +1610,7 @@ SQLTStr = {
     "queryTableColumnQuery": "Query",
     "queryTableColumnSTime": "Start Time",
     "queryTableColumnDuration": "Duration",
-    "queryTableColumnTable": "View Results",
+    "queryTableColumnTable": "Results",
     "queryTableColumnNumRows": "Rows",
     "queryTableColumnSkew": "Skew",
     "queryTableColumnAction": "Action",

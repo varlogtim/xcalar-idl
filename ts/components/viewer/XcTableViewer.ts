@@ -3,6 +3,7 @@ class XcTableViewer extends XcViewer {
     protected rowInput: RowInput;
     protected skew: TableSkew;
     private rowManager: RowManager;
+    private $container: JQuery;
 
     public constructor(table: TableMeta) {
         const tableName: string = table.getName(); // use table name as unique id
@@ -29,11 +30,16 @@ class XcTableViewer extends XcViewer {
         return this.table.freeResultset();
     }
 
+    public setContainer($container): void {
+        this.$container = $container;
+    }
+
     /**
      * Render the view of the data
      */
-    public render($container: JQuery, autoAddCols: boolean = false): XDPromise<void> {
-        super.render($container);
+    public render($section: JQuery, autoAddCols: boolean = false): XDPromise<void> {
+        super.render($section);
+        let $container = this.$container || $section;
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this.table.getMetaAndResultSet()
         .then(() => {

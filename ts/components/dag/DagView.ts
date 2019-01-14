@@ -1827,35 +1827,46 @@ namespace DagView {
             return PromiseHelper.reject(`${nodeId} not exist`);
         }
         if (dagNode instanceof DagNodeSQL) {
-            let promise = PromiseHelper.resolve();
-            let subGraph = dagNode.getSubGraph();
-            if (!subGraph) {
-                const params: DagNodeSQLInputStruct = dagNode.getParam();
-                if (!params.sqlQueryStr) {
-                    return PromiseHelper.reject(SQLErrTStr.NeedConfiguration);
-                }
-                const paramterizedSQL = xcHelper.replaceMsg(params.sqlQueryStr,
-                    DagParamManager.Instance.getParamMap(), true);
-                const queryId = xcHelper.randName("sql", 8);
-                promise = dagNode.compileSQL(paramterizedSQL, queryId);
-            }
-            return promise
-                .then(function () {
-                    return _expandSubgraphNode({
-                        dagNode: dagNode,
-                        tabId: tabId,
-                        logTitle: SQLTStr.ExpandSQLOperation,
-                        getInputParent: (node) => dagNode.getInputParent(node),
-                        isInputNode: (node) => (node instanceof DagNodeSQLSubInput),
-                        isOutputNode: (node) => (node instanceof DagNodeSQLSubOutput),
-                        preExpand: () => {
-                        },
-                        isPreAutoAlign: true
-                    });
-                })
+            DagView.expandSQLNodeInTab(dagNode, activeDagTab);
         } else {
             return PromiseHelper.reject(`${nodeId} is not a SQL operator`);
         }
+    }
+
+    /**
+     * DagView.expandSQLNodeInTab
+     */
+    export function expandSQLNodeInTab(
+        dagNode: DagNodeSQL,
+        dagTab: DagTab
+    ): XDPromise<void> {
+        let promise = PromiseHelper.resolve();
+        let subGraph = dagNode.getSubGraph();
+        if (!subGraph) {
+            const params: DagNodeSQLInputStruct = dagNode.getParam();
+            if (!params.sqlQueryStr) {
+                return PromiseHelper.reject(SQLErrTStr.NeedConfiguration);
+            }
+            const paramterizedSQL = xcHelper.replaceMsg(params.sqlQueryStr,
+                DagParamManager.Instance.getParamMap(), true);
+            const queryId = xcHelper.randName("sql", 8);
+            promise = dagNode.compileSQL(paramterizedSQL, queryId);
+        }
+        return promise
+            .then(function () {
+                return _expandSubgraphNode({
+                    dagNode: dagNode,
+                    tabId: dagTab.getId(),
+                    tab: dagTab,
+                    logTitle: SQLTStr.ExpandSQLOperation,
+                    getInputParent: (node) => dagNode.getInputParent(node),
+                    isInputNode: (node) => (node instanceof DagNodeSQLSubInput),
+                    isOutputNode: (node) => (node instanceof DagNodeSQLSubOutput),
+                    preExpand: () => {
+                    },
+                    isPreAutoAlign: true
+                });
+            });
     }
 
     /**
@@ -2116,14 +2127,14 @@ namespace DagView {
         isInputNode: (node: DagNode) => boolean,
         isOutputNode: (node: DagNode) => boolean
         preExpand?: () => void,
-        isPreAutoAlign?: boolean
+        isPreAutoAlign?: boolean,
     }): XDPromise<void> {
         const {
             dagNode, tabId, logTitle, getInputParent, isInputNode, isOutputNode,
-            preExpand = () => { }, isPreAutoAlign = false
+            preExpand = () => { }, isPreAutoAlign = false,
         } = args;
 
-        const dagTab = DagTabManager.Instance.getTabById(tabId);
+        let dagTab = DagTabManager.Instance.getTabById(tabId);
         if (dagTab == null) {
             return PromiseHelper.reject(`DagTab(${tabId}) not exist`);
         }
@@ -2929,8 +2940,12 @@ namespace DagView {
 
             const nodeId: DagNodeId = $operator.data("nodeid");
             if (isDagNode && !MainMenu.isFormOpen()) {
-                const node: DagNode = activeDag.getNode(nodeId);
-                DagNodeInfoPanel.Instance.show(node);
+                try {
+                    const node: DagNode = activeDag.getNode(nodeId);
+                    DagNodeInfoPanel.Instance.show(node);
+                } catch (e) {
+                    console.error(e);
+                }
             }
 
             if (event.which !== 1) {
@@ -4768,7 +4783,9 @@ namespace DagView {
         if (!hasLockedSiblings) {
             const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId);
             const dagGraph: DagGraph = dagTab.getGraph();
-            dagGraph.unsetGraphNoDelete();
+            if (dagGraph != null) {
+                dagGraph.unsetGraphNoDelete();
+            }
         }
         DagNodeInfoPanel.Instance.update(nodeId, "lock");
     }

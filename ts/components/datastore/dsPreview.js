@@ -518,6 +518,10 @@ window.DSPreview = (function($, DSPreview) {
         createTableMode = flag;
     };
 
+    DSPreview.isCreateTableMode = function() {
+        return isCreateTableMode();
+    };
+
     DSPreview.update = function(listXdfsObj) {
         var moduleName = $udfModuleList.find("input").data("module");
         var funcName = $udfFuncList.find("input").val();

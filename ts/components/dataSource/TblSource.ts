@@ -180,12 +180,7 @@ class TblSource {
         .then((tables) => {
             this._setTables(tables);
             this._renderGridView();
-
-            if (focusTable && this._tables.has(focusTable)) {
-                this._focusOnTable(this._getGridByName(focusTable));
-            } else {
-                this._focusOnForm();
-            }
+            this._reFocusOnTable(focusTable);
 
             deferred.resolve();
         })
@@ -340,6 +335,14 @@ class TblSource {
 
     private _focusOnForm(): void {
         DSForm.show(true);
+    }
+
+    private _reFocusOnTable(tableName: string): void {
+        if (tableName && this._tables.has(tableName)) {
+            this._focusOnTable(this._getGridByName(tableName));
+        } else if (TblSourcePreview.Instance.isOnTable(tableName)) {
+            this._focusOnForm();
+        }
     }
 
     private _activateTables(tableNames: string[]): void {

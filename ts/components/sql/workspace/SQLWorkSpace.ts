@@ -52,6 +52,7 @@ class SQLWorkSpace {
 
     public unfocus(): void {
         $(window).off(".sqlPanelResize");
+        this.save();
     }
 
     private _resizeEvents() {

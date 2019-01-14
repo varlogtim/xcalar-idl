@@ -466,7 +466,7 @@ module.exports = {
         "queryHistColQuery": "Query",
         "queryHistColStartTime": "Start Time",
         "queryHistColDuration": "Duration",
-        "queryHistColTable": "View Results",
+        "queryHistColTable": "Results",
         "queryHistMenuInstr": "You can review your SQL queries in the Query History table to the right.",
         "queryHistSQLModalTitle": "SQL Query",
         "AddFunc": "New SQL Function",

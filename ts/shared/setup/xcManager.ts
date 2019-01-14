@@ -73,6 +73,7 @@ namespace xcManager {
         .then(setupWKBKIndependentPanels)
         .then(setupSession) // restores info from kvStore
         .then(function() {
+            setupModeArea();
             return ExtensionManager.setup();
         })
         .then(function() {
@@ -757,7 +758,6 @@ namespace xcManager {
     function setupUserArea(): void {
         setupUserBox();
         MemoryAlert.Instance.setup();
-        setupModeArea();
     }
 
     function setupUserBox(): void {

@@ -2752,8 +2752,10 @@ namespace XIApi {
         const primaryKeyList: {name: string, ordering: XcalarOrderingT}[] =
             keyNames.map((primaryKey) => {
                 primaryKey = xcHelper.parsePrefixColName(primaryKey).name;
-                return {name: primaryKey,
-                    ordering: XcalarOrderingT.XcalarOrderingUnordered};
+                return {
+                    name: primaryKey,
+                    ordering: XcalarOrderingT.XcalarOrderingUnordered
+                };
         });
         XcalarListPublishedTables("*", false, true)
         .then((result) => {

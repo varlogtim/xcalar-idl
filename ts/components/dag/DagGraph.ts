@@ -754,7 +754,7 @@ class DagGraph {
         if (checkResult.hasError) {
             return PromiseHelper.reject(checkResult);
         }
-        return executor.getRetinaArgs()
+        return executor.getRetinaArgs();
     }
 
     /**
@@ -763,7 +763,12 @@ class DagGraph {
      * @param optimized
      * @param isCloneGraph
      */
-    public getQuery(nodeId?: DagNodeId, optimized?: boolean, isCloneGraph: boolean = true): XDPromise<string> {
+    public getQuery(
+        nodeId?: DagNodeId,
+        optimized?: boolean,
+        isCloneGraph: boolean = true,
+        allowNonOptimizedOut: boolean = false
+    ): XDPromise<string> {
         // clone graph because we will be changing each node's table and we don't
         // want this to effect the actual graph
         const clonedGraph = isCloneGraph ? this.clone() : this;
@@ -773,7 +778,8 @@ class DagGraph {
             : clonedGraph.getAllNodes();
         const orderedNodes: DagNode[] = clonedGraph._topologicalSort(nodesMap);
         const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, clonedGraph, {
-            optimized: optimized
+            optimized: optimized,
+            allowNonOptimizedOut: allowNonOptimizedOut
         });
         const checkResult = executor.checkCanExecuteAll();
         if (checkResult.hasError) {
@@ -1134,7 +1140,9 @@ class DagGraph {
                     inNode.getLinkedNodeAndGraph();
                 if (!DagTblManager.Instance.hasTable(inSource.node.getTable())) {
                     // The needed table doesnt exist so we need to generate it, if we can
-                    if (inSource.graph.getTabId() != this.getTabId()) {
+                    if (inSource.node.shouldLinkAfterExecuition() &&
+                        inSource.graph.getTabId() != this.getTabId()
+                    ) {
                         error = xcHelper.replaceMsg(AlertTStr.DFLinkGraphError, {
                             "inName": inNode.getParam().linkOutName,
                             "graphName": DagTabManager.Instance.getTabById(inSource.graph.getTabId())

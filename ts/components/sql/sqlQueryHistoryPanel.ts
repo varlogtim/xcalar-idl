@@ -127,7 +127,7 @@ namespace SqlQueryHistoryPanel {
                         category: TableColumnCategory.TABLE,
                         text: queryInfo.status === SQLStatus.Failed
                             ? queryInfo.errorMsg
-                            : queryInfo.tableName,
+                            : "View",
                         onLinkClick: () => {
                             if (queryInfo.status === SQLStatus.Failed) {
                                 this._onClickError({

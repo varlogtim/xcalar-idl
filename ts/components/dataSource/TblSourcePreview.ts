@@ -49,6 +49,22 @@ class TblSourcePreview {
         this._tableInfo = null;
     }
 
+    /**
+     * TblSourcePreview.Instance.isOnTable
+     * @param tableName
+     */
+    public isOnTable(tableName: string): boolean {
+        const $container = this._getContainer();
+        if ($container.is(":visible") &&
+            this._tableInfo != null &&
+            this._tableInfo.name === tableName
+        ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     private _getContainer(): JQuery {
         return $("#" + this._container);
     }

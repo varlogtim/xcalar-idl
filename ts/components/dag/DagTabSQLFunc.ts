@@ -5,6 +5,9 @@ class DagTabSQLFunc extends DagTabUser {
         this.uid = new XcUID(this.KEY);
     }
 
+    /**
+     * DagTabSQLFunc.listFuncs
+     */
     public static listFuncs(): string[] {
         let dagTabs: Map<string, DagTab> = DagList.Instance.getAllDags();
         let funcs: string[] = [];
@@ -17,11 +20,24 @@ class DagTabSQLFunc extends DagTabUser {
         return funcs;
     }
 
+    /**
+     * DagTabSQLFunc.hasFunc
+     */
+    public static hasFunc(name: string): boolean {
+        let dag = DagTabSQLFunc.getFunc(name);
+        return (dag != null);
+    }
+
+    /**
+     * DagTabSQLFunc.getFunc
+     */
     public static getFunc(name: string): DagTabSQLFunc {
+        name = name.toLowerCase();
         let dag: DagTabSQLFunc;
         let dagTabs: Map<string, DagTab> = DagList.Instance.getAllDags();
         dagTabs.forEach((dagTab, id) => {
-            if (name === dagTab.getName() && id.startsWith(DagTabSQLFunc.KEY)) {
+            let dagName: string = dagTab.getName().toLowerCase();
+            if (name === dagName && id.startsWith(DagTabSQLFunc.KEY)) {
                 dag = <DagTabSQLFunc>dagTab;
                 return false; // stop loop
             }

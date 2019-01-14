@@ -77,8 +77,12 @@ class SQLExecutor {
                 return this._tempGraph.execute([this._sqlNode.getId()]);
             })
             .then(() => {
-                // XXX TO-DO show result
-                // console.log(this._sqlNode.getNewTableName());
+                DagTabManager.Instance.addSQLTabCache(this._tempTab);
+                let promise = DagView.expandSQLNodeInTab(this._sqlNode, this._tempTab);
+                return PromiseHelper.alwaysResolve(promise);
+            })
+            .then(() => {
+                DagTabManager.Instance.removeSQLTabCache(this._tempTab);
                 return this._tempTab.save();
             })
             .then(deferred.resolve)
