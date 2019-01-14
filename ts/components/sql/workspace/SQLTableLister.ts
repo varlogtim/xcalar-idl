@@ -16,6 +16,10 @@ class SQLTableLister {
         this._addEventListeners();
     }
 
+    /**
+     * SQLTableLister.Instance.show
+     * @param reset
+     */
     public show(reset: boolean): void {
         const $container = this._getContainer();
         if (!$container.hasClass("xc-hidden")) {
@@ -29,8 +33,18 @@ class SQLTableLister {
         }
     }
 
+    /**
+     * SQLTableLister.Instance.close
+     */
     public close(): void {
         this._getContainer().addClass("xc-hidden");
+    }
+
+    /**
+     * SQLTableLister.Instance.getAvailableTables
+     */
+    public getAvailableTables(): PbTblInfo[] {
+        return this._getAvailableTables();
     }
 
     private _reset(): void {
@@ -73,14 +87,38 @@ class SQLTableLister {
         return this._getMainSection().find(".content");
     }
 
+    private _getAvailableTables(): PbTblInfo[] {
+        let tables: PbTblInfo[] = PTblManager.Instance.getTables();
+        tables = tables.filter((table) => {
+            if (table.state === PbTblState.BeDataset) {
+                return false;
+            }
+            if (table.name.toUpperCase() !== table.name) {
+                return false;
+            }
+            return true;
+        });
+        return tables;
+    }
+
+    private _getTableInfoFromIndex(index: number): PbTblInfo {
+        for (let i = 0; i < this._tableInfos.length; i++) {
+            let table = this._tableInfos[i];
+            if (table.index === index) {
+                return table;
+            }
+        }
+        return null;
+    }
+
     private _listTables(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._onLoadingMode();
         const $content = this._getMainSection().find(".content");
 
         PTblManager.Instance.getTablesAsync(true)
-        .then((tables: PbTblInfo[]) => {
-            this._tableInfos = tables;
+        .then(() => {
+            this._tableInfos = this._getAvailableTables();
             this._render();
             deferred.resolve();
         })
@@ -156,7 +194,7 @@ class SQLTableLister {
         $row.addClass("selected");
 
         let index = Number($row.data("index"));
-        this._updateActions(this._tableInfos[index]);
+        this._updateActions(this._getTableInfoFromIndex(index));
     }
 
     private _updateActions(tableOnFocus: {active: boolean}): void {
@@ -206,7 +244,7 @@ class SQLTableLister {
             return;
         }
         const index: number = Number($row.data("index"));
-        const tableInfo = this._tableInfos[index];
+        const tableInfo = this._getTableInfoFromIndex(index);
         SQLResultSpace.Instance.showSchema(tableInfo);
     }
 

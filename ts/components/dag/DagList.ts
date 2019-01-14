@@ -146,9 +146,15 @@ class DagList {
         }
 
         xcHelper.showRefreshIcon($section, false, promise);
-        this._restorePublishedDags(oldPublishedDags)
+        let isAdvancedMode = XVM.isAdvancedMode();
+        let def: XDPromise<void> = isAdvancedMode ?
+        this._restorePublishedDags(oldPublishedDags) : PromiseHelper.resolve();
+
+        def
         .then(() => {
-            return this._fetchAllRetinas(oldOptimizedDags);
+            if (XVM.isAdvancedMode()) {
+                return this._fetchAllRetinas(oldOptimizedDags);
+            }
         })
         .then(deferred.resolve)
         .fail(deferred.reject)

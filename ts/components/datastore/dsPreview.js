@@ -1778,6 +1778,9 @@ window.DSPreview = (function($, DSPreview) {
         $form.find(".dsName").each(function(index) {
             var $dsName = $(this);
             var dsName = $dsName.val().trim();
+            if (isCreateTableMode()) {
+                dsName = dsName.toUpperCase();
+            }
             isValid = xcHelper.validate([
                 {
                     "$ele": $dsName
@@ -2033,7 +2036,7 @@ window.DSPreview = (function($, DSPreview) {
             return {schema: null};
         }
         var $textArea = $schemaRow.find("textArea");
-        return xcHelper.validateSchemaFrmTextArea($textArea);
+        return xcHelper.validateSchemaFromTextArea($textArea);
     }
 
     function validateAdvancedArgs() {

@@ -186,6 +186,7 @@ class ColSchemaSection {
                         type: $li.data("type")
                     };
                     this._selectList($li.closest(".part"), schema);
+                    xcTooltip.hideAll();
                 }
             },
             container: selector,

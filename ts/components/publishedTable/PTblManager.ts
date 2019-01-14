@@ -378,7 +378,7 @@ class PTblManager {
     }
 
     private _deactivateOneTable(tableName: string, failures: string[]): XDPromise<void> {
-        let tableInfo: PbTblInfo = this._tableMap.get(tableName.toUpperCase());
+        let tableInfo: PbTblInfo = this._tableMap.get(tableName);
         if (!tableInfo || !tableInfo.active) {
             return PromiseHelper.resolve();
         }
@@ -397,7 +397,7 @@ class PTblManager {
     }
 
     private _activateOneTable(tableName: string, failures: string[]): XDPromise<void> {
-        let tableInfo: PbTblInfo = this._tableMap.get(tableName.toUpperCase());
+        let tableInfo: PbTblInfo = this._tableMap.get(tableName);
         if (!tableInfo || tableInfo.active) {
             return PromiseHelper.resolve();
         }
@@ -425,15 +425,15 @@ class PTblManager {
     }
 
     private _deleteOneTable(tableName: string, failures: string[]): XDPromise<void> {
-        let tableInfo: PbTblInfo = this._tableMap.get(tableName.toUpperCase());
+        let tableInfo: PbTblInfo = this._tableMap.get(tableName);
         if (tableInfo == null) {
             return this._deleteDSTable(tableName, failures);
         }
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        XcalarUnpublishTable(tableName, true)
+        XcalarUnpublishTable(tableName, false)
         .then(() => {
-            this._tableMap.delete(tableName.toUpperCase());
+            this._tableMap.delete(tableName);
             for (let i = 0; i < this._tables.length; i++) {
                 if (this._tables[i] === tableInfo) {
                     this._tables.splice(i, 1);
@@ -585,10 +585,16 @@ class PTblManager {
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const colInfos: ColRenameInfo[] = xcHelper.getColRenameInfosFromSchema(schema);
+        colInfos.forEach((colInfo) => {
+            // make sure column is uppercase
+            colInfo.new = colInfo.new.toUpperCase();
+        });
         const parsedDsName = parseDS(dsName);
         let synthesizeTable: string = tableName + Authentication.getHashId();
+        let tempTables: string[] = [];
         XIApi.synthesize(txId, colInfos, parsedDsName, synthesizeTable)
         .then((resTable) => {
+            tempTables.push(resTable);
             if (primaryKeys == null || primaryKeys.length === 0) {
                 let newColName = PTblManager.PKPrefix + Authentication.getHashId();
                 primaryKeys = [newColName];
@@ -603,10 +609,21 @@ class PTblManager {
             }
         })
         .then((resTable: string) => {
+            if (resTable != tempTables[0]) {
+                tempTables.push(resTable);
+            }
+            // final check, if tableName is used
+            if (this._tableMap.has(tableName)) {
+                console.info("dup table name");
+                tableName = xcHelper.uniqueName(tableName, (name) => {
+                    return !this._tableMap.has(name);
+                }, null);
+            }
             return XIApi.publishTable(txId, primaryKeys, resTable, tableName, colInfos);
         })
         .then(() => {
             XIApi.deleteDataset(txId, dsName);
+            XIApi.deleteTableInBulk(txId, tempTables, true);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -630,7 +647,7 @@ class PTblManager {
     private _updateTableMap(): void {
         this._tableMap.clear();
         this._tables.forEach((tableInfo) => {
-            this._tableMap.set(tableInfo.name.toUpperCase(), tableInfo);
+            this._tableMap.set(tableInfo.name, tableInfo);
         });
     }
 

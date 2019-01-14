@@ -1265,10 +1265,10 @@ namespace xcHelper {
     }
 
     /**
-     * xcHelper.validateSchemaFrmTextArea
+     * xcHelper.validateSchemaFromTextArea
      * @param $textArea
      */
-    export function validateSchemaFrmTextArea($textArea: JQuery): {schema: ColSchema[]} {
+    export function validateSchemaFromTextArea($textArea: JQuery): {schema: ColSchema[]} {
         let val: string = $textArea.val().trim();
         if (val === "") {
             StatusBox.show(ErrTStr.NoEmpty, $textArea);

@@ -99,7 +99,7 @@ class SQLEditorSpace {
     private _getAutoCompleteHint(): any {
         let arcTables = {};
         try {
-            let tables: PbTblInfo[] = PTblManager.Instance.getTables();
+            let tables: PbTblInfo[] = SQLTableLister.Instance.getAvailableTables();
             tables.forEach((table) => {
                 arcTables[table.name] = [];
                 table.columns.forEach((col) => {
@@ -263,7 +263,8 @@ class SQLEditorSpace {
 
     private _setupTopBar(): void {
         const $topBar = this._getTopBarEl();
-        $topBar.on("click", ".showTables", () => {
+        $topBar.on("click", ".showTables", (event) => {
+            $(event.currentTarget).blur();
             SQLResultSpace.Instance.showTables(true);
         });
 

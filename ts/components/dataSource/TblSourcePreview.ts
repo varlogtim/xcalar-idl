@@ -238,12 +238,12 @@ class TblSourcePreview {
 
     private _createTable(tableInfo: PbTblInfo): void {
         let $textArea = this._getContainer().find(".bottomSection textArea");
-        let schema: {schema: ColSchema[]} = xcHelper.validateSchemaFrmTextArea($textArea);
+        let schema: {schema: ColSchema[]} = xcHelper.validateSchemaFromTextArea($textArea);
         if (schema == null) {
             // error case
             return;
         }
-        TblSource.Instance.createTableFromDataset(this._tableInfo, schema.schema); 
+        TblSource.Instance.createTableFromDataset(tableInfo, schema.schema); 
     }
 
     private _addEventListeners(): void {
