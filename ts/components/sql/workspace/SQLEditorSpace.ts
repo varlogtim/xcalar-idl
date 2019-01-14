@@ -107,6 +107,10 @@ class SQLEditorSpace {
                     arcTables[col.name] = [];
                 });
             });
+            const sqlFuncs = DagTabSQLFunc.listFuncs();
+            sqlFuncs.forEach((sqlFunc) => {
+                arcTables[sqlFunc + "()"] = [];
+            });
         } catch (e) {
             console.error(e);
         }
