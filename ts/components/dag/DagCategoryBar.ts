@@ -816,6 +816,6 @@ class DagCategoryBar {
             this.selectedOpId = opId;
             this._setSelectedStyle(this._getNodeFromOpId(opId));
         }
-        
+
     }
 }
