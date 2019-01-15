@@ -3423,10 +3423,6 @@ XcalarSynthesize = function(
     sameSession: boolean,
     txId: number
 ): XDPromise<any> {
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return PromiseHelper.resolve(null);
-    }
-
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
     let query: string;
 
@@ -3440,6 +3436,9 @@ XcalarSynthesize = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
+        if ([null, undefined].indexOf(tHandle) !== -1) {
+            return PromiseHelper.resolve(null);
+        }
         def = xcalarApiSynthesize(tHandle, tableName, dstTableName, columnArray);
     }
     query = XcalarGetQuery(workItem);

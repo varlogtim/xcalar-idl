@@ -385,7 +385,7 @@ namespace XIApi {
         const deferred: XDDeferred<CastResult> = PromiseHelper.deferred();
 
         XIApi.synthesize(txId, colInfos, tableName, newTableName)
-        .then(() => {
+        .then((newTableName) => {
             deferred.resolve({
                 tableName: newTableName,
                 colNames: castInfo.newColNames,
@@ -1832,11 +1832,11 @@ namespace XIApi {
             return PromiseHelper.reject("Invalid args in join");
         }
 
-        if (lCasts == null) {
+        if (lCasts == null || lCasts.length == 0) {
             lCasts = new Array(lColNames.length).fill(null);
         }
 
-        if (rCasts == null) {
+        if (rCasts == null || rCasts.length == 0) {
             rCasts = new Array(rColNames.length).fill(null);
         }
 
