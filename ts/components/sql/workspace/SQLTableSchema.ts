@@ -19,6 +19,13 @@ class SQLTableSchema {
         this._render(tableInfo);
     }
 
+    public showError(errorString: string): void {
+        this._getContainer().removeClass("xc-hidden");
+        this._updateTableName("");
+        this._schemaSection.render([]);
+        this._getContainer().find(".content").append('<div class="msgRow error">' + errorString + '</div>');
+    }
+
     public close(): void {
         this._getContainer().addClass("xc-hidden");
         this._schemaSection.clear();

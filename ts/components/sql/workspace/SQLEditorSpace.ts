@@ -125,7 +125,34 @@ class SQLEditorSpace {
         try {
             let sqls: string = this._sqlEditor.getSelection() || this._sqlEditor.getValue();
             let sqlArray: string[] = XDParser.SqlParser.getMultipleQueriesViaParser(sqls);
+            let selectArray: string[] = [];
+            let lastShow: any = {type: "select"};
             sqlArray.forEach((sql) => {
+                let retStruct: any = XDParser.SqlParser.getPreStatements(sql);
+                if (retStruct.type != "select") {
+                    lastShow = retStruct;
+                } else {
+                    selectArray.push(sql);
+                }
+            });
+            // Basic show tables and describe table
+            // If there are multiple queries they are ignored
+            if (sqlArray.length === 1 && lastShow.type === "showTables") {
+                SQLResultSpace.Instance.showTables(true);
+            } else if (sqlArray.length === 1 && lastShow.type === "describeTable") {
+                let tableInfos: PbTblInfo[] = PTblManager.Instance.getTables();
+                const targetTableName: string = lastShow.args[0];
+                for (let i = 0; i < tableInfos.length; i++) {
+                    if (tableInfos[i].name === targetTableName) {
+                        SQLResultSpace.Instance.showSchema(tableInfos[i]);
+                        return;
+                    }
+                }
+                // Table not found
+                console.error("Table not found: " + targetTableName);
+                SQLResultSpace.Instance.showSchemaError("Table not found: " + targetTableName);
+            }
+            selectArray.forEach((sql) => {
                 this._executeSQL(sql);
             });
         } catch (e) {

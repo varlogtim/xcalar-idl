@@ -46,6 +46,14 @@ class SqlParser {
         return {sqlFunctions: visitor.sqlFunctions,
                 sqlQuery: newStatement};
     }
+
+    static getPreStatements(sqlStatement) {
+        var parser = this.genParser(sqlStatement);
+        var tree = parser.statement();
+
+        var visitor = new SqlVisitor();
+        return visitor.getPreStatements(tree);
+    }
 }
 exports.SqlParser = SqlParser;
 

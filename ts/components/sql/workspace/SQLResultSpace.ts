@@ -76,4 +76,10 @@ class SQLResultSpace {
         SQLTableLister.Instance.close();
         SQLTableSchema.Instance.show(tableInfo);
     }
+
+    public showSchemaError(errorString: string): void {
+        SQLTable.Instance.close();
+        SQLTableLister.Instance.close();
+        SQLTableSchema.Instance.showError(errorString);
+    }
 }

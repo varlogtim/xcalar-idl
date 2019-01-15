@@ -54,6 +54,29 @@ class SqlVisitor extends SqlBaseVisitor{
             }).join(" ");
         }
     };
+    getPreStatements(ctx) {
+        var self = this;
+        var retStruct = {args: []};
+        // Currently only support basic show tables / describe table
+        if (ctx.getChildCount() >= 2 && ctx.children[0].getText().toUpperCase()
+            === "SHOW" && ctx.children[1].getText().toUpperCase() === "TABLES") {
+            retStruct.type = "showTables";
+        } else if (ctx.getChildCount() >= 2 &&
+            ctx.children[0].getText().toUpperCase() === "DESCRIBE" &&
+            ctx.children[1].getText().toUpperCase() != "SQLFUNCTION" &&
+            ctx.children[1].getText().toUpperCase() != "DATABASE") {
+            for (var i = 1; i < ctx.getChildCount(); i++) {
+                if (ctx.children[i] instanceof SqlBaseParser.TableIdentifierContext) {
+                    var tableName = ctx.children[i].table.getText().toUpperCase();
+                    retStruct.type = "describeTable";
+                    retStruct.args.push(tableName);
+                }
+            }
+        } else {
+            retStruct.type = "select";
+        }
+        return retStruct;
+    };
     __getTextWithSpace(ctx) {
         var self = this;
         if (ctx.getChildCount() === 0) {
