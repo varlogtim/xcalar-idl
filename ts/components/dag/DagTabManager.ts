@@ -395,6 +395,7 @@ class DagTabManager {
         .then((managerData) => {
             if (managerData == null) {
                 this.reset();
+                deferred.resolve();
                 return;
             }
             // sync up dag list with the opened tab's data

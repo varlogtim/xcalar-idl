@@ -30,7 +30,7 @@ module.exports = {
             .mouseButtonClick('left')
             .waitForElementVisible('.dataflowArea.active g.operator.dataset.selected', 2000)
             .mouseButtonClick('right')
-            .waitForElementVisible("#dagNodeMenu", 2000)
+            .waitForElementVisible("#dagNodeMenu", 1000)
             .moveToElement("#dagNodeMenu li.restoreDataset", 10, 1)
             .mouseButtonClick('left')
             .waitForElementVisible('#dsTable', 100000)

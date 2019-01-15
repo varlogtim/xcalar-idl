@@ -20,12 +20,16 @@ module.exports = {
     'activate workbook': function(browser) {
         browser.getValue('.workbookBox.noResource .subHeading input', function(result) {
             browser.globals['gTestWorkbookName'] = result.value;
-             browser
-                 .click(".workbookBox.noResource .content.activate")
-                 .pause(1000)
-                 .waitForElementVisible("#dagView .newTab", 100000)
-                 .waitForElementNotVisible("#initialLoadScreen", 100000)
-
+            browser
+                .click(".workbookBox.noResource .content.activate")
+                .pause(1000)
+                .waitForElementVisible("#modeArea", 100000)
+                .waitForElementNotVisible("#initialLoadScreen", 100000)
+                .click("#modeArea")
+                .moveToElement("#modeAreaMenu .advanced", 25, 5)
+                .mouseButtonUp("left")
+                .waitForElementNotVisible("#initialLoadScreen", 100000)
+                .click("#dagButton");
          });
     },
 
@@ -38,28 +42,15 @@ module.exports = {
 
     'add dataset node': function(browser) {
         browser
-            .moveToElement(".category-out", 1, 1)
+            .moveToElement(".category.category-in", 1, 1)
             .mouseButtonDown("left")
-            .pause(2000)
-            .moveToElement(".category-in", 1, 1)
-            .mouseButtonDown("left")
-            .pause(2000)
-            .moveToElement("#dagView .operatorBar .dataset .main", 1, 1)
-            .mouseButtonDown("left")
-            .pause(5000)
-            .waitForElementVisible('#dagView .operatorBar .dataset .main', 1000)
-            .moveToElement("#dagView .operatorBar .dataset .main", 1, 1)
-            .mouseButtonDown("left", function() {
-                browser.moveTo(null, 200, 200)
-                .pause(2000)
-                .moveTo("#dagView .operatorBar .dataset .main", 200, 200)
-            })
-            .pause(1000)
-            // .moveTo("#dagView .operatorBar .dataset .main", 200, 200)
-            .moveTo(null, 200, 200)
-            .pause(5000)
-            .mouseButtonUp("left")
-            .pause(5000)
+            .newNode("#dagView .operatorBar .dataset .main", 100, 100)
+    },
+
+    'config dataset node': function(browser) {
+        browser
+            .openOpPanel(".dataset")
+            .submitAdvancedPanel("#datasetOpPanel", "testConfig");
     },
 
     'delete workbook': function(browser) {
