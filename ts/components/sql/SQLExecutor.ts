@@ -112,8 +112,8 @@ class SQLExecutor {
     private _configurePublishedTableNode(): XDPromise<void> {
         const promiseArray = [];
         this._IMDNodes.forEach((IMDNode, idx) => {
-            const pubTableName = this._identifiers[idx + 1];
-            const schema: ColSchema[] = this._schema[pubTableName.toUpperCase()];
+            const pubTableName = this._identifiers[idx + 1].toUpperCase();
+            const schema: ColSchema[] = this._schema[pubTableName];
             const dagNodeIMDInput: DagNodeIMDTableInputStruct = {
                 source: pubTableName,
                 version: -1,
