@@ -224,6 +224,7 @@
             }
             var retNode = opNode;
             if (opNode.value.operation === "XcalarApiProject" &&
+                opNode.children.length > 0 &&
                 opNode.children[0].value.operation === "XcalarApiSynthesize") {
                 if (opNode.children[0].parents.length === 1) {
                     var synList = opNode.children[0].value.args.columns;
