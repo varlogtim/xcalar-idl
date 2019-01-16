@@ -4406,7 +4406,7 @@ html.microsoft {
 
 /* ========== Dataflow download ============= */
 #dfDownloadModal {
-    .size(@width: 550px, @height: 235px);
+    .size(@width: 550px, @height: 265px);
 
     &.locked {
         pointer-events: none;
@@ -4429,6 +4429,13 @@ html.microsoft {
 
             &.format {
                 margin-bottom: 10px;
+            }
+
+            &.optimized {
+                .qMark {
+                    margin-left: 5px;
+                    .position(relative, @top: -1px);
+                }
             }
 
             input {

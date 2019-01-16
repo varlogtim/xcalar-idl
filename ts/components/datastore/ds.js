@@ -545,8 +545,9 @@ window.DS = (function ($, DS) {
 
         const columns = dsObj.getColumns();
         if (columns == null) {
+            console.error("Cannot get schema from the dataset");
             return {
-                error: "Cannot get schema from the dataset"
+                schema: []
             };
         } else {
             return {
@@ -3054,8 +3055,14 @@ window.DS = (function ($, DS) {
             DSTable.setupViewBeforeLoading(dsObj);
         }
 
+        var datasetName = dsObj.getFullName();
         activateHelper(txId, dsObj)
         .then(function() {
+            return getDSBasicInfo(datasetName);
+        })
+        .then(function(dsMeta) {
+            var dsInfo = dsMeta[datasetName] || {};
+            dsObj.setColumns(dsInfo.columns);
             datasets.push(dsId);
             if (txId != null) {
                 Transaction.done(txId, {});

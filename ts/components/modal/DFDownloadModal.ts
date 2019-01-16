@@ -11,7 +11,6 @@ class DFDownloadModal {
     private _model: {type: string, text: string, suffix: string}[];
     private readonly _DownloadTypeEnum = {
         DF: "DF",
-        OptimziedDF: "OptimizedDF",
         Image: "Image",
         OperationStats: "Operation Statistics"
     };
@@ -44,6 +43,7 @@ class DFDownloadModal {
         this._selectedNodes = null;
         this._downloadType = null;
         $modal.find("input").val("");
+        xcTooltip.hideAll();
     }
 
     private _getModal(): JQuery {
@@ -58,16 +58,21 @@ class DFDownloadModal {
         return this._getModal().find(".name input");
     }
 
+    private _getOptimizedCheckboxSection(): JQuery {
+        return this._getModal().find(".optimized");
+    }
+
+    private _getOptimizedCheckbox(): JQuery {
+        return this._getOptimizedCheckboxSection().find(".checkbox");
+    }
+
     private _setupModel(): void {
         this._model = [{
             type: this._DownloadTypeEnum.DF,
             text: DFTStr.DF,
             suffix: gDFSuffix
-        }, {
-            type: this._DownloadTypeEnum.OptimziedDF,
-            text: DFTStr.OptimizedDF,
-            suffix: gDFSuffix
-        }, {
+        },
+        {
             type: this._DownloadTypeEnum.Image,
             text: "Image",
             suffix: ".png"
@@ -110,6 +115,7 @@ class DFDownloadModal {
         // select the first valid option by default
         $dropdown.find("li:not(.xc-disabled)").eq(0).trigger(fakeEvent.mouseup);
         this._getNameInput().val(this._dagTab.getName().replace(/\//g, "_"));
+        this._getOptimizedCheckbox().removeClass("checked");
     }
 
     private _validate(): {name: string} {
@@ -170,9 +176,7 @@ class DFDownloadModal {
     private _downloadHelper(name): XDPromise<void> {
         switch (this._downloadType) {
             case this._DownloadTypeEnum.DF:
-                return this._downloadDataflow(name, false);
-            case this._DownloadTypeEnum.OptimziedDF:
-                return this._downloadDataflow(name, true);
+                return this._downloadDataflow(name);
             case this._DownloadTypeEnum.Image:
                 return this._downloadImage(name);
             case this._DownloadTypeEnum.OperationStats:
@@ -182,8 +186,9 @@ class DFDownloadModal {
         }
     }
 
-    private _downloadDataflow(name: string, optimized: boolean): XDPromise<void> {
+    private _downloadDataflow(name: string): XDPromise<void> {
         const tab: DagTab = this._dagTab;
+        const optimized: boolean = this._getOptimizedCheckbox().hasClass("checked");
         if (tab instanceof DagTabUser) {
             return this._downloadUserDataflow(name, optimized);
         } else if (tab instanceof DagTabPublished) {
@@ -308,11 +313,22 @@ class DFDownloadModal {
             this._submitForm();
         });
 
+        // checkbox
+        this._getOptimizedCheckboxSection().on("click", ".checkbox, .text", () => {
+            this._getOptimizedCheckbox().toggleClass("checked");
+        });
+
         const $downloadTypeDropdown: JQuery = this._getDownloadTypeList();
         new MenuHelper($downloadTypeDropdown, {
             onSelect: ($li) => {
                 $downloadTypeDropdown.find(".text").text($li.text());
                 this._downloadType = $li.data("type");
+                let $checkboxSection = this._getOptimizedCheckboxSection();
+                if (this._downloadType === this._DownloadTypeEnum.DF) {
+                    $checkboxSection.removeClass("xc-hidden");
+                } else {
+                    $checkboxSection.addClass("xc-hidden");
+                }
             }
         }).setupListeners();
     }
