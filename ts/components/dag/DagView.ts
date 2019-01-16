@@ -400,8 +400,8 @@ namespace DagView {
             .attr('y', '-5')
             .attr('width', nodeWidth + 5)
             .attr('height', nodeHeight + 10)
-            .attr('fill', '#EAF9FF')
-            .attr('stroke', '#38CBFF')
+            .attr('fill', 'rgba(150, 225, 255, 0.2)')
+            .attr('stroke', 'rgba(0, 188, 255, 0.78)')
             .attr('stroke-width', '1')
             .attr('rx', '16')
             .attr('ry', '43');

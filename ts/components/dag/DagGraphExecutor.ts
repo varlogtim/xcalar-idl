@@ -357,7 +357,10 @@ class DagGraphExecutor {
             .fail(deferred.reject);
         } else {
             const nodes: DagNode[] = this._nodes.filter((node) => {
-                return ((node.getState() !== DagNodeState.Complete) || (!DagTblManager.Instance.hasTable(node.getTable())));
+                if (node instanceof DagNodePublishIMD && node.getState() === DagNodeState.Complete) {
+                    return !PTblManager.Instance.hasTable(node.getParam(true).pubTableName, true);
+                }
+                return (node.getState() !== DagNodeState.Complete || !DagTblManager.Instance.hasTable(node.getTable()));
             });
             //XXX TODO: Remove nodes that have had their table deleted but arent necessary for this execution
             const nodesToRun: {node: DagNode, executable: boolean}[] = nodes.map((node) => {

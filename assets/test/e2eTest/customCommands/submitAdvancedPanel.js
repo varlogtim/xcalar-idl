@@ -1,20 +1,25 @@
 const EventEmitter = require('events');
 
 class SubmitAdvancedPanel extends EventEmitter {
-    command(selector, config) {
-        this.api.isVisible(selector + " .advancedEditor", results => {
+    command(panelSelector, config, cb) {
+        this.api.isVisible(panelSelector + " .advancedEditor", results => {
             if (results.value) {
                 /* is visible */
             } else {
-                this.api.click(selector + " .bottomSection .switch");
+                this.api.click(panelSelector + " .bottomSection .switch");
             }
 
-            this.api.waitForElementVisible(selector + " .advancedEditor", 1000)
-
+            this.api.waitForElementVisible(panelSelector + " .advancedEditor", 1000)
+            .execute(function(panelSelector, config) {
+                let codeMirror = document.querySelectorAll(panelSelector + ' .CodeMirror')[0].CodeMirror;
+                codeMirror.setValue(config);
+                return true;
+            }, [panelSelector, config], null)
+            .click(panelSelector + ' .submit')
+            .waitForElementNotVisible(panelSelector, 1000)
 
             this.emit('complete');
         });
-        this.emit('complete');
 
         return this;
     }

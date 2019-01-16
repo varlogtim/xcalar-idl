@@ -786,15 +786,22 @@ class DagNodeExecutor {
     }
 
     private _publishIMD(): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNodePublishIMD = <DagNodePublishIMD>this.node;
         const params: DagNodePublishIMDInputStruct = node.getParam(this.replaceParam);
         let columns: ProgCol[] = node.getParents().map((parentNode) => {
             return parentNode.getLineage().getColumns();
         })[0] || [];
         let colInfo: ColRenameInfo[] = xcHelper.createColInfo(columns);
-        return XIApi.publishTable(this.txId, params.primaryKeys,
+        XIApi.publishTable(this.txId, params.primaryKeys,
             this._getParentNodeTable(0), params.pubTableName,
-            colInfo, params.operator);
+            colInfo, params.operator)
+        .then((res) => {
+            PTblManager.Instance.cacheTempTable(params.pubTableName);
+            deferred.resolve(res);
+        })
+        .fail(deferred.reject)
+        return deferred.promise();
     }
 
     private _updateIMD(): XDPromise<string> {

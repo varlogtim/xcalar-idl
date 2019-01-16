@@ -11,17 +11,18 @@ class DeleteWorkbook extends EventEmitter {
                     .mouseButtonClick("left");
             }
 
-            this.api.waitForElementVisible('.workbookBox input[value="' + workbookName + '"]', 10000)
-                    .waitForElementVisible('.workbookBox[data-workbook-id="dftest-wkbk-' + workbookName + '"] .dropDown')
-                    .click('.workbookBox[data-workbook-id="dftest-wkbk-' + workbookName + '"] .dropDown')
-                    .waitForElementVisible("#wkbkMenu .deactivate")
-                    .click("#wkbkMenu .deactivate")
-                    .click("#alertModal .confirm")
-                    .waitForElementNotPresent('.workbookBox[data-workbook-id="dftest-wkbk-' + workbookName + '"].active')
-                    .click('.workbookBox[data-workbook-id="dftest-wkbk-' + workbookName + '"] .dropDown')
-                    .click("#wkbkMenu .delete")
-                    .click("#alertModal .confirm")
-                    .waitForElementNotPresent('.workbookBox[data-workbook-id="dftest-wkbk-' + workbookName + '"]')
+            this.api
+                .waitForElementVisible('.workbookBox input[value="' + workbookName + '"]', 10000)
+                .waitForElementVisible('.workbookBox[data-workbook-id="dftest-wkbk-' + workbookName + '"] .dropDown')
+                .click('.workbookBox[data-workbook-id="dftest-wkbk-' + workbookName + '"] .dropDown')
+                .waitForElementVisible("#wkbkMenu .deactivate")
+                .click("#wkbkMenu .deactivate")
+                .click("#alertModal .confirm")
+                .waitForElementNotPresent('.workbookBox[data-workbook-id="dftest-wkbk-' + workbookName + '"].active')
+                .click('.workbookBox[data-workbook-id="dftest-wkbk-' + workbookName + '"] .dropDown')
+                .click("#wkbkMenu .delete")
+                .click("#alertModal .confirm")
+                .waitForElementNotPresent('.workbookBox[data-workbook-id="dftest-wkbk-' + workbookName + '"]')
 
             this.emit('complete');
         });

@@ -13,6 +13,11 @@ class PTblManager {
     private _initizlied: boolean;
     private _loadingTables: {[key: string]: PbTblInfo};
     private _datasetTables: {[key: string]: PbTblInfo};
+    private _cachedTempTableSet: Set<string>; // holds a set of publishTables
+    // created through dataflow but that are not yet in the tableMap list
+    // because we haven't fetched the table info. When the tableMap is refreshed
+    // by making a backend call, we clear this cachedTempTableSet because it
+    // should now be part of the refresh table map
 
     public constructor() {
         this._tableMap = new Map();
@@ -20,6 +25,7 @@ class PTblManager {
         this._initizlied = false;
         this._loadingTables = {};
         this._datasetTables = {};
+        this._cachedTempTableSet = new Set();
     }
 
     public createTableInfo(name: string): PbTblInfo {
@@ -48,6 +54,22 @@ class PTblManager {
             tables.push(this._datasetTables[table]);
         }
         return tables;
+    }
+
+    public hasTable(tableName, checkCache?: boolean): boolean {
+        if (this._tableMap.has(tableName) ||
+            this._loadingTables[tableName] ||
+            this._datasetTables[tableName]) {
+                return true;
+        }
+        if (checkCache && this._cachedTempTableSet.has(tableName)) {
+            return true;
+        }
+        return false;
+    }
+
+    public cacheTempTable(tableName) {
+        this._cachedTempTableSet.add(tableName);
     }
 
     public getTablesAsync(refresh?: boolean): XDPromise<PbTblInfo[]> {
@@ -134,9 +156,9 @@ class PTblManager {
 
     /**
      * PTblManager.Instance.createTableFromSource
-     * @param tableName 
-     * @param args 
-     * @param primaryKeys 
+     * @param tableName
+     * @param args
+     * @param primaryKeys
      */
     public createTableFromSource(
         tableName: string,
@@ -209,16 +231,16 @@ class PTblManager {
             });
             deferred.reject(error, hasDataset);
         });
-    
+
         return deferred.promise();
     }
 
     /**
      * PTblManager.Instance.createTableFromDataset
-     * @param dsName 
-     * @param tableName 
-     * @param schema 
-     * @param primaryKeys 
+     * @param dsName
+     * @param tableName
+     * @param schema
+     * @param primaryKeys
      */
     public createTableFromDataset(
         dsName: string,
@@ -261,10 +283,10 @@ class PTblManager {
 
     /**
      * PTblManager.Instance.createTableFromView
-     * @param pks 
-     * @param columns 
-     * @param viewName 
-     * @param tableName 
+     * @param pks
+     * @param columns
+     * @param viewName
+     * @param tableName
      */
     public createTableFromView(
         pks: string[],
@@ -722,6 +744,7 @@ class PTblManager {
     }
 
     private _updateTableMap(): void {
+        this._cachedTempTableSet.clear();
         this._tableMap.clear();
         this._tables.forEach((tableInfo) => {
             this._tableMap.set(tableInfo.name, tableInfo);

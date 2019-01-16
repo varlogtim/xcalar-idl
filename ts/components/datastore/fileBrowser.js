@@ -2426,7 +2426,8 @@ window.FileBrowser = (function($, FileBrowser) {
             var escName = xcHelper.escapeDblQuote(name);
             var isFolder = files[i].attr.isDirectory;
             var fullPath = getFullPath(escPath + escName, isFolder);
-            if ($pickedFileList.find('li[data-fullpath="' + fullPath +
+            if (name !== "\\" &&
+                $pickedFileList.find('li[data-fullpath="' + fullPath +
                                  '"]').length > 0) {
                 files[i].isPicked = true;
             }
