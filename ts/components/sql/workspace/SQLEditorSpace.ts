@@ -138,7 +138,7 @@ class SQLEditorSpace {
             } else {
                 error = JSON.stringify(e);
             }
-            let $btn = this._getEditorSpaceEl().find(".bottomSectinon .execute");
+            let $btn = this._getEditorSpaceEl().find(".bottomSection .execute");
             StatusBox.show(error, $btn);
         }
     }

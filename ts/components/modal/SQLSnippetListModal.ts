@@ -105,5 +105,10 @@ class SQLSnippetListModal {
         $listSection.on("click", ".row", (event) => {
             this._selectRow($(event.currentTarget));
         });
+
+        $listSection.on("dblclick", ".row", (event) => {
+            this._selectRow($(event.currentTarget));
+            this._submitForm();
+        });
     }
 }

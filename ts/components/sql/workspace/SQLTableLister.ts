@@ -24,6 +24,10 @@ class SQLTableLister {
         const $container = this._getContainer();
         if (!$container.hasClass("xc-hidden")) {
             // already show
+            if (reset) {
+                this._getSearchInput().val("");
+                this._filterTables();
+            }
             return;
         }
         this._getContainer().removeClass("xc-hidden");
@@ -48,6 +52,7 @@ class SQLTableLister {
     }
 
     private _reset(): void {
+        this._getSearchInput().val("");
         this._getMainContent().empty();
         this._tableInfos = [];
     }
@@ -85,6 +90,10 @@ class SQLTableLister {
 
     private _getMainContent(): JQuery {
         return this._getMainSection().find(".content");
+    }
+
+    private _getSearchInput(): JQuery {
+        return this._getTopSection().find(".searchbarArea input");
     }
 
     private _getAvailableTables(): PbTblInfo[] {
@@ -219,7 +228,7 @@ class SQLTableLister {
     }
 
     private _filterTables(): void {
-        const $input = this._getTopSection().find(".searchbarArea input");
+        const $input = this._getSearchInput();
         const $rows = this._getMainContent().find(".row");
         let keyword: string = $input.val().trim();
         if (!keyword) {

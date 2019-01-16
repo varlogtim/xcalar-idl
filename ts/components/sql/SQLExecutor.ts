@@ -69,11 +69,13 @@ class SQLExecutor {
             SQLExecutor.setTab(tabId, this._tempTab);
             const publishedTableNodes: DagNodeIMDTable[] = this._IMDNodes;
             this._addPublishedTableNodes(publishedTableNodes)
+
             this._configurePublishedTableNode()
             .then(() => {
                 return this._configureSQLNode();
             })
             .then(() => {
+                
                 return this._tempGraph.execute([this._sqlNode.getId()]);
             })
             .then(() => {

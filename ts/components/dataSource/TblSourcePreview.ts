@@ -24,6 +24,7 @@ class TblSourcePreview {
         this._tableInfo = tableInfo;
         DSForm.hide();
         this._getContainer().removeClass("xc-hidden");
+        this._updateInstruction(tableInfo);
         this._updateTableInfos(tableInfo);
 
         if (msg) {
@@ -108,6 +109,19 @@ class TblSourcePreview {
         this._showSchemaSection();
         const columns: PbTblColSchema[] = PTblManager.Instance.getTableSchema(tableInfo);
         this._schemaSection.render(columns);
+    }
+
+    private _updateInstruction(tableInfo: PbTblInfo): void {
+        const $instr: JQuery = this._getContainer().find(".cardInstruction .text span");
+        let instr: string;
+        if (tableInfo.state === PbTblState.BeDataset) {
+            instr = xcHelper.replaceMsg(TblTStr.MultipleSchema, {
+                name: tableInfo.name
+            });
+        } else {
+            instr = TblTStr.PreviewInstr;
+        }
+        $instr.text(instr);
     }
 
     private _updateTableInfos(tableInfo: PbTblInfo): void {

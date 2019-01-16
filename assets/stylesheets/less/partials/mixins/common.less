@@ -1152,6 +1152,15 @@
     .header {
         height: @header-h;
         background: @color-table-header-gray;
+        overflow-y: scroll;
+
+        &::-webkit-scrollbar-thumb {
+            background: @color-table-header-gray !important;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: @color-table-header-gray;
+        }
 
         .row {
             cursor: pointer;
@@ -1163,8 +1172,8 @@
         width: 100%;
         height: ~"calc(100% - @{header-h})";
         position: relative;
-        overflow-y: auto;
         cursor: default;
+        overflow-y: scroll;
 
         .row {
             &:hover {

@@ -179,6 +179,14 @@ namespace StatusMessage {
             });
         }
 
+        public remove(msgId: number): void {
+            if (!this.msgObjs[msgId]) {
+                return;
+            }
+            delete this.msgObjs[msgId];
+            this.removeFailedMsg($('#stsMsg-' + msgId));
+        }
+
         public fail(
             failMessage: string = StatusMessageTStr.Error,
             msgId: number,
@@ -781,6 +789,14 @@ namespace StatusMessage {
     }
 
     /**
+     * StatusMessage.remove
+     * @param msgId
+     */
+    export function remove(msgId: number): void {
+        statusMessage.remove(msgId);
+    }
+
+    /**
      * StatusMessage.reset
      */
     export function reset(): void {
@@ -809,5 +825,4 @@ namespace StatusMessage {
     export function removePopups(): void {
         statusMessage.removePopups();
     }
-
 }

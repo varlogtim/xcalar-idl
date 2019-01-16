@@ -237,7 +237,7 @@ CommonTxtTstr = {
     'time': 'time',
     'Upgrading': 'Upgrading',
     'Uploading': 'Uploading',
-    'Untitled': 'Untitiled',
+    'Untitled': 'Untitled',
     'Value': 'Value',
     'HighXcalarMemUsage': 'Highest Xcalar Memory Usage',
     'XcalarMemUsage': 'Average Xcalar Memory Usage',
@@ -1411,7 +1411,8 @@ TblTStr = {
     "ClickToDetail": "Click to see details",
     "TotalNumOfTbl": "Total number of tables",
     "EmptyTable": "0 Rows",
-    "MultipleSchema": "Multiple Schemas are detected when creating table \"<name>\", please select the schema for the table."
+    "PreviewInstr": "To start using table, please use the SQL Editor in SQL Mode or go to the Dataflow Panel, and start from a IMD node in advacned mode",
+    "MultipleSchema": "Multiple Schemas are detected when creating table \"<name>\", please select the schema for the table.",
 };
 
 ColTStr = {
@@ -1632,7 +1633,7 @@ SQLTStr = {
     "CreateFunc": "Create new SQL function",
     "WorkSpace": "SQL WorkSpace",
     "DeleteSnippet": "Delete Snippet",
-    "DeleteSnippetMsg": "Are you sure you want to delete snippet <name>?"
+    "DeleteSnippetMsg": "Are you sure you want to delete snippet \"<name>\"?"
 };
 
 LoginConfigTStr = {

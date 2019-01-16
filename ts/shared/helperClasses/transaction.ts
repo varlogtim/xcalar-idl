@@ -319,8 +319,12 @@ namespace Transaction {
             if (options && options.sql && options.sql.tableId) {
                 srcTableId = options.sql.tableId;
             }
-            if (!has_require && !options.noNotification) {
-                StatusMessage.fail(failMsg, msgId, srcTableId);
+            if (!has_require) {
+                if (options.noNotification) {
+                    StatusMessage.remove(msgId);
+                } else {
+                    StatusMessage.fail(failMsg, msgId, srcTableId);
+                }
             }
         }
 

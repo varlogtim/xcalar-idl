@@ -3507,6 +3507,9 @@ namespace DagView {
     }
 
     function _setGraphDimensions(elCoors: Coordinate, force?: boolean) {
+        if (activeDag == null) {
+            return;
+        }
         const $dfArea = _getActiveArea();
         let height: number;
         let width: number;
@@ -4869,7 +4872,7 @@ namespace DagView {
     }
 
     function _addNodeNoPersist(node, options?: { isNoLog?: boolean }): LogParam {
-        const { isNoLog = false } = options || {};
+        let { isNoLog = false } = options || {};
 
         _deselectAllNodes();
         const $dfArea = _getActiveArea();
@@ -4883,7 +4886,7 @@ namespace DagView {
             title: SQLTStr.AddOperation,
             options: {
                 "operation": SQLOps.AddOperation,
-                "dataflowId": activeDagTab.getId(),
+                "dataflowId": activeDagTab ? activeDagTab.getId() : null,
                 "nodeId": nodeId
             }
         };

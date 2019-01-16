@@ -154,6 +154,12 @@
     .cardMain {
         padding: 0;
         .size(@height: ~"calc(100% - @{cardHeaderHeight})");
+
+        .col {
+            &:first-child {
+                border-left: none;
+            }
+        }
     }
 
     .icon-run, .icon-done, .icon-cancel, .icon-fail, .icon-compile {
@@ -242,8 +248,6 @@
             }
 
             .resultSection {
-                border-bottom: 1px solid @color-border-softGray;
-
                 > div {
                     height: 100%;
                     @top-h: 38px;
@@ -319,6 +323,7 @@
                 position: absolute;
                 width: 100%;
                 top: 50%;
+                border-top: 1px solid @color-border-softGray;
 
                 .cardHeader {
                     background-color: @color-white;
@@ -348,7 +353,7 @@
     background-color: @color-white;
     @topSectionHeight: 50px;
     @top-bar-height: 51px;
-    @bottom-height: 90px;
+    @bottom-height: 60px;
     @total-height: @topSectionHeight + @top-bar-height + @bottom-height;
 
     .undock {
@@ -433,7 +438,7 @@
     .bottomSection {
         height: @bottom-height;
         border-top: 1px solid @color-border-softGray;
-        padding-top: 30px;
+        padding-top: 15px;
 
         button {
             display: block;
