@@ -820,7 +820,10 @@ class GroupByOpPanel extends GeneralOpPanel {
                 const groups = model.groups;
                 const $group = this._$panel.find(".group").eq(error.group);
                 let $input = $group.find(".argsSection").find(".arg").eq(error.arg);
-
+                let inputNumAdjustment = 0;
+                if (error.group === 0) {
+                    inputNumAdjustment = model.groupOnCols.length;
+                }
                 switch (error.type) {
                     case ("groupOnCol"):
                         $input = this._$panel.find(".groupOnSection")
@@ -849,10 +852,10 @@ class GroupByOpPanel extends GeneralOpPanel {
                                 allColTypes.push({
                                     inputTypes: [colType],
                                     requiredTypes: requiredTypes,
-                                    inputNum: i
+                                    inputNum: i + inputNumAdjustment
                                 });
                                 if (!arg.checkIsValid() && arg.getError().includes(ErrWRepTStr.InvalidOpsType.substring(0, 20))) {
-                                    inputNums.push(i);
+                                    inputNums.push(i + inputNumAdjustment);
                                 }
                             }
                         }
