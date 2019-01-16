@@ -1461,6 +1461,7 @@ module.exports = {
         "cancelExecute": "Cancel Execution",
         "zoomIn": "Zoom In",
         "zoomOut": "Zoom Out",
+        "zoom": "Zoom",
         "reset": "Reset",
         "resetAll": "Reset All",
         "restoreDataset": "Restore Dataset",

@@ -1,4 +1,5 @@
 class DagTabSQL extends DagTab {
+    public static PATH = "SQL/";
     private _SQLNode: DagNodeSQL;
 
     constructor(options: {

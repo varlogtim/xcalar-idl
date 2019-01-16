@@ -96,7 +96,7 @@ class DagList {
             } else {
                 let dagName: string = dagTab.getName();
                 if (tabId.endsWith("sql")) {
-                    path = "/SQL/" + dagName;
+                    path = "/" + DagTabSQL.PATH + dagName;
                 } else {
                     path = "/" + dagName;
                 }

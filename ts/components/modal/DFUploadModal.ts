@@ -340,6 +340,15 @@ class DFUploadModal {
 
     private _browseDestPath(): void {
         let fileLists: {path: string, id: string}[] = DagList.Instance.list();
+        let invalidPaths = [`/${DagTabOptimized.PATH}`, `/${DagTabSQL.PATH}`];
+        fileLists = fileLists.filter((file) => {
+            for (let i = 0; i < invalidPaths.length; i++) {
+                if (file.path.startsWith(invalidPaths[i])) {
+                    return false;
+                }
+            }
+            return true;
+        });
         // lock modal
         this._lock();
         const defaultPath: string = this._getDestPathInput().val().trim();

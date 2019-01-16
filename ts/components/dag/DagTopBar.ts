@@ -71,7 +71,7 @@ class DagTopBar {
         if (XVM.isSQLMode()) {
             $btnsToHideInSQLMode.addClass("xc-hidden");
         } else {
-            $btns.removeClass("xc-hidden");
+            $btnsToHideInSQLMode.removeClass("xc-hidden");
         }
     }
 
