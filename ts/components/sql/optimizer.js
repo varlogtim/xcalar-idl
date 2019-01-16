@@ -70,8 +70,12 @@
             // XXX Add more but make sure addDrops is at the correct place
             if (options.dropAsYouGo) {
                 const visitedMap = {};
-                const dependencyMap = {};
-                this.addDrops(opGraph, options.dropSrcTables, dependencyMap, visitedMap);
+                if (options.backDAYG) {
+                    this.addBackDrops(opGraph, visitedMap);
+                } else {
+                    const dependencyMap = {};
+                    this.addDrops(opGraph, options.dropSrcTables, dependencyMap, visitedMap);
+                }
             }
             let resCli = "";
             // Final traversal - get the result
@@ -79,6 +83,16 @@
             this.getCliFromOpGraph(opGraph, cliArray);
             const optimizedQueryString = "[" + cliArray.join(",") + "]";
             return optimizedQueryString;
+        },
+        addBackDrops: function(opNode, visitedMap) {
+            if (visitedMap[opNode.name]) {
+                return;
+            }
+            opNode.value.state = "Dropped";
+            for (var i = 0; i < opNode.children.length; i++) {
+                this.addBackDrops(opNode.children[i], visitedMap);
+            }
+            visitedMap[opNode.name] = true;
         },
         addDrops: function(opNode, dropSrcTables, dependencyMap, visitedMap) {
             if (visitedMap[opNode.name]) {
