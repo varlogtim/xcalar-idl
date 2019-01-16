@@ -5663,6 +5663,7 @@ html.microsoft {
     .size(@width: 500px, @height: 500px, @min-width: 500px, @min-height: 500px);
     .close {
         color: @color-white;
+        right: 0px;
     }
     overflow: hidden;
     .modalMain {
@@ -5684,17 +5685,20 @@ html.microsoft {
             padding-top: 30px;
             padding-bottom: 10px;
             float: left;
-            .subHeading .label{
-                width: 60px;
-                line-height: 12px;
+            .subHeading {
+                float: left;
+                .label{
+                    width: 100px;
+                    line-height: 12px;
+                }
             }
 
             .inputWrap{
                 padding-right: 10px;
                 border: 1px @color-border-softGray;
                 float: right;
-                width: ~"calc(100% - 60px)";
-
+                width: ~"calc(100% - 120px)";
+                margin-left: 20px;
                 input {
                     text-transform: uppercase;
                 }
@@ -5715,6 +5719,7 @@ html.microsoft {
                 width: ~"calc(100% - 120px)";
                 padding-right: 10px;
                 .primaryKeyList {
+                    margin-bottom: 10px;
                     .xi-cancel {
                         position: absolute;
                         left: 7px;
@@ -5735,24 +5740,37 @@ html.microsoft {
 
         }
 
-        .btnWrap {
-            padding-right: 11px;
-            padding-bottom: 10px;
-            float: right;
-            .text {
-                line-height: 22px;
-                width: 70px;
-                font-size: 11px;
-                float: right;
+        .keyOptions {
+            .disableKey {
+                margin-top: 10px;
+                float: left;
+                padding-left: 10px;
+                width: 150px;
+                .text {
+                    float: left;
+                    width: 100px;
+                }
             }
-            .btn-rounded {
-                width: 24px;
-                height: 24px;
-                border-radius: 14px;
-                background-color: #849cb0;
+            .btnWrap {
+                width: 200px;
+                padding-right: 11px;
+                padding-bottom: 10px;
                 float: right;
-                .xi-plus {
-                    line-height: 25px;
+                .text {
+                    line-height: 22px;
+                    width: 95px;
+                    font-size: 11px;
+                    float: right;
+                }
+                .btn-rounded {
+                    width: 24px;
+                    height: 24px;
+                    border-radius: 14px;
+                    background-color: #849cb0;
+                    float: right;
+                    .xi-plus {
+                        line-height: 25px;
+                    }
                 }
             }
         }
@@ -5761,11 +5779,16 @@ html.microsoft {
             .subHeading {
                 width: 150px;
                 height: 20px;
+                .label {
+                    margin-top: 15px;
+                }
             }
             .selectAllWrap {
                 float: right;
                 padding-right: 10px;
                 padding-top: 5px;
+                margin-top: 15px;
+                margin-right: -200px;
                 .text {
                     float: left;
                 }
@@ -5780,11 +5803,46 @@ html.microsoft {
                 }
                 .cols {
                     padding-top: 1px;
+                    border-left: 1px solid @color-bg-white-five;
                     .col {
+                        padding-left: 0px;
                         border: 1px solid @color-bg-white-five;
+                        border-left: none;
+                        .icon.type {
+                            float: left;
+                            font-size: 15px;
+                            padding-top: 5px;
+                            padding-right: 4px;
+                            padding-left: 4px;
+                            border-right: 1px solid @color-bg-white-five;
+                            background-color: @color-bg-list-hover-blue;
+                            height: 19px;
+                        }
                     }
                     max-height: 101px;
                     overflow-y: none;
+                }
+
+                &.flexWrap {
+                    li {
+                        .flex(1 1 150px);
+                        width: 150px;
+                        margin-top: -1px; // fixes double thickness of the bottom of a
+                                        // cell's border when next to the top border
+                                        // of another cell
+                        .text {
+                            width: 100%;
+                            padding-left: 30px;
+                        }
+
+                        .icon {
+                            position: absolute;
+                        }
+                    }
+                    .flexSpace {
+                        .flex(1 1 150px);
+                        width: 150px;
+                    }
                 }
             }
         }
@@ -5796,10 +5854,7 @@ html.microsoft {
     .size(@width: 500px, @height: 600px, @min-width: 500px, @min-height: 600px);
     .close {
         color: @color-white;
-    }
-    .modalHeader .text {
-        font-size: 14px;
-        font-weight: normal;
+        right: 0px;
     }
     overflow: hidden;
     .modalMain {
@@ -5820,6 +5875,11 @@ html.microsoft {
                 padding-right: 25px;
                 padding-top: 13px;
                 width: ~"calc(100% - 150px)";
+
+                .iconWrapper {
+                    top: 13px;
+                    right: 25px;
+                }
             }
         }
 
@@ -5844,6 +5904,9 @@ html.microsoft {
                     }
                     .dropDownList {
                         padding: 0 10px;
+                        .iconWrapper {
+                            right: 10px;
+                        }
                     }
                     .instrText {
                         max-height: 75%;
@@ -5883,9 +5946,11 @@ html.microsoft {
                 }
                 .cols {
                     padding-top: 1px;
+                    border-left: 1px solid @color-bg-white-five;
                     .col {
                         padding-left: 0px;
                         border: 1px solid @color-bg-white-five;
+                        border-left: none;
                         .icon.type {
                             float: left;
                             font-size: 15px;

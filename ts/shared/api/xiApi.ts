@@ -2672,7 +2672,9 @@ namespace XIApi {
         // Assemble rankOverColumn
         rowPromise =  XIApi.genRowNum(txId, srcTableName,
             roColName, rowNumTableName);
-
+        if (primaryKeyList.length == 0) {
+            primaryKeyList = [{name: roColName, ordering: XcalarOrderingT.XcalarOrderingUnordered}]
+        }
         rowPromise
         .then(function(table: string) {
             // Assemble opcode column
@@ -2741,10 +2743,12 @@ namespace XIApi {
                 primaryKey.substr(1) : primaryKey;
         });
 
-        if (!colInfo.find((info: ColRenameInfo) => {
-            return (keyNames.includes(info.orig));
-        })) {
-            return PromiseHelper.reject("Primary Key not in Table");
+        if (keyNames.length != 0) {
+            if (!colInfo.find((info: ColRenameInfo) => {
+                return (keyNames.includes(info.orig));
+            })) {
+                return PromiseHelper.reject("Primary Key not in Table");
+            }
         }
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();

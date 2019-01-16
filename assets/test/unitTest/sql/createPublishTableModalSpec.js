@@ -6,10 +6,10 @@ describe("Create Publish Table Modal Test", function() {
         UnitTest.onMinMode();
         $modal = $("#createPublishTableModal");
         columns = [
-            {name: "col1", getBackColName: function() {return "col1";}},
-            {name: "col2", getBackColName: function() {return "col2";}},
-            {name: "col3", getBackColName: function() {return "col3";}},
-            {name: "col4", getBackColName: function() {return "col4";}}]
+            {name: "col1", getBackColName: function() {return "col1";}, getType: function() {return "integer";}},
+            {name: "col2", getBackColName: function() {return "col2";}, getType: function() {return "string";}},
+            {name: "col3", getBackColName: function() {return "col3";}, getType: function() {return "integer";}},
+            {name: "col4", getBackColName: function() {return "col4";}, getType: function() {return "integer";}}]
     });
 
     it("Should open the modal", function() {

@@ -1046,16 +1046,20 @@ module.exports = {
     },
 
     "publishIMDOp": {
-        "createPublish": "Create Published Table",
+        "tableName": "Table Name",
+        "createPublish": "Create Table",
         "publishIMD": "Publish Table",
         "publishInstr": "Publish an IMD Table for the input.",
         "name": "Published Table Name",
         "key": "Primary Key",
+        "addKey": "Add Primary Key",
+        "noKey": "No Primary Key",
         "keyInstr": "Column that contains primary key values.",
         "operator": "IMD Operator",
         "operatorInstr": "Optional Column that contains opcode values.",
         "config": "Configure",
         "colsToPublish": "Columns to Publish",
+        "colsInTable": "Columns in Table",
     },
 
     "SetOpPanel": {

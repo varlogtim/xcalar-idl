@@ -10,7 +10,7 @@
     <section class="modalMain">
         <div class="IMDName formRow">
             <div class="subHeading clearfix">
-                <div class="label"><%= dicts.common.Name %>:</div>
+                <div class="label"><%= dicts.publishIMDOp.tableName %>:</div>
             </div>
             <div class="inputWrap">
                 <input class="arg IMDNameInput" type="text" tabindex="10"
@@ -35,19 +35,28 @@
                 </div>
             </div>
         </div>
-        <div class="btnWrap">
-            <div class="addArgWrap addArgWrapLarge">
-                <button class="btn btn-rounded addArg addKeyArg">
-                    <i class="icon xi-plus"></i>
-                </button>
-                <span class="text">
-                    <%= dicts.common.AddCol %>
-                </span>
+        <div class="keyOptions">
+            <div class="checkboxWrap disableKey">
+                <div class="text"><%= dicts.publishIMDOp.noKey %></div>
+                <div class="checkbox">
+                    <i class="icon xi-ckbox-empty fa-13"></i>
+                    <i class="icon xi-ckbox-selected fa-13"></i>
+                </div>
+            </div>
+            <div class="btnWrap">
+                <div class="addArgWrap addArgWrapLarge">
+                    <button class="btn btn-rounded addArg addKeyArg">
+                        <i class="icon xi-plus"></i>
+                    </button>
+                    <span class="text">
+                        <%= dicts.publishIMDOp.addKey %>
+                    </span>
+                </div>
             </div>
         </div>
         <div id="publishTableModalColumns" class="publishColumnsSection formRow">
             <div class="subHeading clearfix">
-                <div class="label"><%= dicts.publishIMDOp.colsToPublish %>:</div>
+                <div class="label"><%= dicts.publishIMDOp.colsInTable %>:</div>
             </div>
             <div class="checkboxWrap selectAllWrap">
                 <div class="text"><%= dicts.common.SelectAll %></div>

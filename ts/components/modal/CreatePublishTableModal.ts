@@ -74,6 +74,12 @@ class CreatePublishTableModal {
         });
     }
 
+    private _getTypeIcon(type: ColumnType): string {
+        return '<i class="icon type ' +
+            xcHelper.getColTypeIcon(xcHelper.convertColTypeToFieldType(type)) +
+            '"></i>';
+    }
+
     private _renderColumns(): void {
         const columnList = this._columns
         if (columnList.length == 0) {
@@ -91,6 +97,7 @@ class CreatePublishTableModal {
             const colNum: number = (index + 1);
             html += '<li class="col' +
                 '" data-colnum="' + colNum + '">' +
+                this._getTypeIcon(column.getType()) +
                 '<span class="text tooltipOverflow" ' +
                 'data-original-title="' +
                     xcHelper.escapeDblQuoteForHTML(
@@ -114,7 +121,7 @@ class CreatePublishTableModal {
             this._$modal.find(".selectAllWrap .checkbox").eq(0).removeClass("checked");
         }
 
-        if (columnList.length > 16) {
+        if (columnList.length > 9) {
             this._$publishColList.css("overflow-y", "auto");
         } else {
             this._$publishColList.css("overflow-y", "hidden");
@@ -211,6 +218,20 @@ class CreatePublishTableModal {
 
         this._$modal.on("click", ".addKeyArg", function() {
             self._addKeyField();
+        });
+
+        this._$modal.on('click', '.keyOptions .disableKey .checkbox', function () {
+            let $box: JQuery = $(this);
+            event.stopPropagation();
+            if ($box.hasClass("checked")) {
+                $box.removeClass("checked");
+                self._$modal.find('.IMDKey').removeClass("xc-disabled");
+                self._$modal.find('.keyOptions .btnWrap').removeClass("xc-disabled");
+            } else {
+                $box.addClass("checked");
+                self._$modal.find('.IMDKey').addClass("xc-disabled");
+                self._$modal.find('.keyOptions .btnWrap').addClass("xc-disabled");
+            }
         });
 
         this._$modal.on('click', '.primaryKeyList .xi-cancel', function() {
@@ -311,16 +332,14 @@ class CreatePublishTableModal {
             return;
         }
         let keys: string[] = [];
-        let $inputs: JQuery = this._$primaryKeys.find(".primaryKeyInput");
-        for (let i = 0; i < $inputs.length; i++) {
-            let val: string = $inputs.eq(i).val();
-            if (val != "") {
-                keys.push(val);
+        if (!this._$modal.find('.keyOptions .disableKey .checkbox').hasClass('checked')) {
+            let $inputs: JQuery = this._$primaryKeys.find(".primaryKeyInput");
+            for (let i = 0; i < $inputs.length; i++) {
+                let val: string = $inputs.eq(i).val();
+                if (val != "") {
+                    keys.push(val);
+                }
             }
-        }
-        if (keys.length == 0) {
-            StatusBox.show(ErrTStr.NoPrimaryKey, this._$primaryKeys);
-            return;
         }
         let $cols = this._$publishColList.find(".col.checked");
         let columns: ProgCol[] = [];
