@@ -286,6 +286,7 @@ module.exports = {
         "UnHideTbl": "Unminimize table",
         "UnlockTbl": "Unlock table",
         "Unsavable": "Cannot save image",
+        "View": "View",
         "ViewDetails": "View details",
         "Visual": "Visualize in Tableau",
         "EditOp": "Edit operation",

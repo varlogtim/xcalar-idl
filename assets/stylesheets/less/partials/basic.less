@@ -638,15 +638,46 @@ body {
 
     #modeArea {
         float: left;
-        width: 50px;
+        width: 140px;
         height: 24px;
         .vertical-align;
         line-height: 24px;
         cursor: pointer;
+        .rounded(20px);
+        background-color: @color-sql-bg;
+        box-shadow: inset 0 0 1px 0 @color-sql-shadow;
+        border: none;
+
+        &.on {
+            background-color: @color-adv-bg;
+            box-shadow: inset 0 0 1px 0 @color-adv-shadow;
+            
+            .text {
+                color: @color-adv-font;
+                left: -8px;
+            }
+
+            .slider {
+                left: 117px;
+            }
+        }
 
         .text {
             display: inline-block;
-            margin-right: 5px;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: @color-sql-font;
+            position: relative;
+            left: 8px;
+        }
+
+        .slider {
+            .size(18px, 18px);
+            position: absolute;
+            top: 3px;
+            left: 3px;
         }
     }
 
@@ -724,10 +755,6 @@ body {
         pointer-events: none;
         background-color: @color-bg-pinkish-grey2;
     }
-}
-
-#modeAreaMenu {
-    width: 120px;
 }
 /* =========== END TOP RIGHT CORNER =========== */
 

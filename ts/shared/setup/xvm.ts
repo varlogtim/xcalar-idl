@@ -440,6 +440,25 @@ namespace XVM {
         return kvVersionStore.put(version, true);
     }
 
+    export function initializeMode(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let kvStore: KVStore = _getModeKVStore();
+        kvStore.getAndParse()
+        .then((res) => {
+            res = res || {};
+            // default mode when res is null (upgrade case)
+            _mode = res.mode || XVM.Mode.Advanced;
+            deferred.resolve();
+        })
+        .fail((error) => {
+            console.error(error);
+            _mode = XVM.Mode.SQL; // default mode in error case
+            deferred.resolve(); // still resolve
+        });
+
+        return deferred.promise();
+    }
+
     /**
      * XVM.setMode
      * @param mode
@@ -452,12 +471,16 @@ namespace XVM {
         $("#initialLoadScreen").show();
         _mode = mode;
 
-        xcManager.setModeText();
-        MainMenu.switchMode();
+        _commitMode(mode);
+        xcManager.setModeStatus();
         SQLWorkSpace.Instance.switchMode();
+        let allPanelsClosed = MainMenu.switchMode();
         DagView.switchMode()
         .always(() => {
             $("#initialLoadScreen").hide();
+            if (allPanelsClosed) {
+                MainMenu.openDefaultPanel();
+            }
             deferred.resolve();
         });
 
@@ -472,6 +495,14 @@ namespace XVM {
     }
 
     /**
+     * XVM.commitMode
+     * @param mode
+     */
+    export function commitMode(mode: XVM.Mode): XDPromise<void> {
+        return _commitMode(mode);
+    }
+
+    /**
      * XVM.isSQLMode
      */
     export function isSQLMode(): boolean {
@@ -483,6 +514,19 @@ namespace XVM {
      */
     export function isAdvancedMode(): boolean {
         return !XVM.isSQLMode();
+    }
+
+    function _getModeKVStore(): KVStore {
+        const key: string = KVStore.getKey("gModeKey");
+        return new KVStore(key, gKVScope.WKBK);
+    }
+
+    function _commitMode(mode: XVM.Mode): XDPromise<void> {
+        const kvStore = _getModeKVStore();
+        let data = {
+            mode: mode
+        };
+        return kvStore.put(JSON.stringify(data), true);
     }
 
     // XVM.alertLicenseExpire = function() {

@@ -29,12 +29,10 @@ namespace xcManager {
         })
         .then(function() {
             XVM.setup();
-            $("#topMenuBarTabs").removeClass("xc-hidden");
 
             setupUserArea();
             xcTooltip.setup();
             CSHelp.setup();
-            MainMenu.setup();
             StatusBox.setup();
             StatusMessage.setup();
             BottomMenu.setup(); // async
@@ -73,6 +71,11 @@ namespace xcManager {
         .then(setupWKBKIndependentPanels)
         .then(setupSession) // restores info from kvStore
         .then(function() {
+            return XVM.initializeMode();
+        })
+        .then(function() {
+            $("#topMenuBarTabs").removeClass("xc-hidden");
+            MainMenu.setup();
             setupModeArea();
             return ExtensionManager.setup();
         })
@@ -169,6 +172,7 @@ namespace xcManager {
 
     function handleSetupFail(error: string|object, firstTimeUser: boolean): void {
         // in case it's not setup yet
+        $("#topMenuBarTabs").removeClass("xc-hidden");
         MainMenu.setup();
         QueryManager.setup();
         SupTicketModal.setup();
@@ -833,43 +837,41 @@ namespace xcManager {
     }
 
     /**
-     * xcManager.setModeText
+     * xcManager.setModeStatus
      * @param isSQLMode
      */
-    export function setModeText(): void {
+    export function setModeStatus(): void {
         let $modeArea: JQuery = $("#modeArea");
-        let text: string = XVM.isSQLMode() ? ModeTStr.SQL : ModeTStr.Advanced;
+        let text: string;
+        if (XVM.isSQLMode()) {
+            text = ModeTStr.SQL;
+            $modeArea.removeClass("on");
+            xcTooltip.add($modeArea, {
+                title: ModeTStr.SQLTooltip,
+                placement: "bottom"
+            });
+        } else {
+            text = ModeTStr.Advanced;
+            $modeArea.addClass("on");
+            xcTooltip.add($modeArea, {
+                title: ModeTStr.AdvancedTooltip,
+                placement: "bottom"
+            });
+        }
         $modeArea.find(".text").text(text);
     }
 
     function setupModeArea(): void {
         let $modeArea: JQuery = $("#modeArea").removeClass("xc-hidden");
-        let $menu: JQuery = $("#modeAreaMenu");
+        xcManager.setModeStatus();
 
-        xcMenu.add($menu);
-        xcManager.setModeText();
-
-        $modeArea.click((event) => {
-            const $target: JQuery = $(event.currentTarget);
-            $menu.find("li").addClass("xc-hidden");
+        $modeArea.click(() => {
+            let modeToSwitch: XVM.Mode;
             if (XVM.isSQLMode()) {
-                $menu.find(".advanced").removeClass("xc-hidden");
+                modeToSwitch = XVM.Mode.Advanced;
             } else {
-                $menu.find(".sql").removeClass("xc-hidden");
+                modeToSwitch = XVM.Mode.SQL;
             }
-            xcHelper.dropdownOpen($target, $menu, <xcHelper.DropdownOptions>{
-                "offsetY": -3,
-                "toggle": true,
-                "closeListener": true
-            });
-        });
-
-        $menu.on("mouseup", "li", (event) => {
-            if (event.which !== 1) {
-                return;
-            }
-            let isSQLMode: boolean = $(event.currentTarget).hasClass("sql");
-            let modeToSwitch: XVM.Mode = isSQLMode ? XVM.Mode.SQL : XVM.Mode.Advanced;
             XVM.setMode(modeToSwitch);
         });
     }

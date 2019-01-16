@@ -1133,6 +1133,7 @@ declare namespace MainMenu {
     export function checkMenuAnimFinish(): XDPromise<void>;
     export function switchMode(): XDPromise<void>;
     export function isMenuOpen(): boolean;
+    export function openDefaultPanel(): void;
 }
 
 declare namespace BottomMenu {

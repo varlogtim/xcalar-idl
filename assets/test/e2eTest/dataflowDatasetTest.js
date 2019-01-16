@@ -26,8 +26,6 @@ module.exports = {
                 .waitForElementVisible("#modeArea", 100000)
                 .waitForElementNotVisible("#initialLoadScreen", 100000)
                 .click("#modeArea")
-                .moveToElement("#modeAreaMenu .advanced", 25, 5)
-                .mouseButtonUp("left")
                 .waitForElementNotVisible("#initialLoadScreen", 100000)
                 .click("#dagButton");
          });

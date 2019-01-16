@@ -539,7 +539,7 @@ class DagList {
     private _getResetMarkKVStore(sqlMode: boolean): KVStore {
         let key: string;
         if (sqlMode) {
-            key = KVStore.getKey("gSQLFuncListKey");
+            key = KVStore.getKey("gSQLFuncResetKey");
         } else {
             key = KVStore.getKey("gDagResetKey");
         }

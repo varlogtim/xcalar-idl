@@ -325,9 +325,9 @@ class DFDownloadModal {
                 this._downloadType = $li.data("type");
                 let $checkboxSection = this._getOptimizedCheckboxSection();
                 if (this._downloadType === this._DownloadTypeEnum.DF) {
-                    $checkboxSection.removeClass("xc-hidden");
+                    $checkboxSection.removeClass("inVisible");
                 } else {
-                    $checkboxSection.addClass("xc-hidden");
+                    $checkboxSection.addClass("inVisible");
                 }
             }
         }).setupListeners();

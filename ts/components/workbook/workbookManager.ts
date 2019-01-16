@@ -216,6 +216,11 @@ namespace WorkbookManager {
 
         XcalarNewWorkbook(wkbkName, isCopy, copySrcName)
         .then(function() {
+            if (!isCopy) {
+                return setDefaultMode(wkbkName);
+            }
+        })
+        .then(function() {
             return finishCreatingWKBK(wkbkName, username, isCopy, copySrc);
         })
         .then(function(wkbkId) {
@@ -906,6 +911,7 @@ namespace WorkbookManager {
     * @param version - version number
     */
     export function getWkbkScopeKeys(version: number): any {
+        const gModeKey: string = generateKey("gMode", version);
         const gStorageKey: string = generateKey("gInfo", version);
         const gLogKey: string = generateKey("gLog", version);
         const gErrKey: string = generateKey("gErr", version);
@@ -927,6 +933,7 @@ namespace WorkbookManager {
         const gSQLSnippetQueryKey: string = generateKey("gSQLSnippetQuery", version);
 
         return {
+            "gModeKey": gModeKey,
             "gStorageKey": gStorageKey,
             "gLogKey": gLogKey,
             "gErrKey": gErrKey,
@@ -1168,6 +1175,14 @@ namespace WorkbookManager {
         const currentSession: string = sessionName;
         setSessionName(workbookName);
         const promise = kvStore.put(description, true, true);
+        setSessionName(currentSession);
+        return PromiseHelper.alwaysResolve(promise);
+    }
+
+    function setDefaultMode(workbookName: string): XDPromise<void> {
+        const currentSession: string = sessionName;
+        setSessionName(workbookName);
+        const promise = XVM.setMode(XVM.Mode.SQL); // set sql as default mode
         setSessionName(currentSession);
         return PromiseHelper.alwaysResolve(promise);
     }

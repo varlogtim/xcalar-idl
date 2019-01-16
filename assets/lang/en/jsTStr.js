@@ -246,8 +246,10 @@ CommonTxtTstr = {
 };
 
 ModeTStr = {
-    "SQL": "SQL",
-    "Advanced": "Adv",
+    "SQL": "SQL MODE",
+    "Advanced": "ADVANCED MODE",
+    "SQLTooltip": "Switch to advanced mode",
+    "AdvancedTooltip": "SWitch to SQL mode",
 };
 
 ErrTStr = {

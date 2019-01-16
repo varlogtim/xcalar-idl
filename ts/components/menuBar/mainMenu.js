@@ -27,14 +27,14 @@ window.MainMenu = (function($, MainMenu) {
         setupTabbing();
         setupBtns();
         setupResizable();
-        MainMenu.switchMode();
+        MainMenu.switchMode(true);
     };
 
     MainMenu.registerPanels = function(panel) {
         formPanels.push(panel);
     };
 
-    MainMenu.switchMode = function() {
+    MainMenu.switchMode = function(isSetup) {
         var $dataflowMenu = $("#dataflowMenu");
         var isSQLMode = XVM.isSQLMode();
         if (isSQLMode) {
@@ -43,8 +43,9 @@ window.MainMenu = (function($, MainMenu) {
             $dataflowMenu.data("tab", "modelingDataflowTab");
         }
 
-        var $sqlModeTabs = $("#sqlTab, #sqlFuncTab")
+        var $sqlModeTabs = $("#sqlTab, #sqlFuncTab");
         var $advModeTabs = $("#modelingDataflowTab, #jupyterTab, #inButton");
+        var allPanelsClosed = false;
         if (isSQLMode) {
             $("#inButton").addClass("xc-hidden");
             $sqlModeTabs.removeClass("xc-hidden");
@@ -54,6 +55,7 @@ window.MainMenu = (function($, MainMenu) {
                 MainMenu.close(true);
                 MainMenu.closeForms();
                 closeMainPanels();
+                allPanelsClosed = true;
             }
         } else {
             $("#inButton").removeClass("xc-hidden");
@@ -64,7 +66,18 @@ window.MainMenu = (function($, MainMenu) {
                 MainMenu.close(true);
                 MainMenu.closeForms();
                 closeMainPanels();
+                allPanelsClosed = true;
             }
+        }
+
+        return allPanelsClosed;
+    };
+
+    MainMenu.openDefaultPanel = function() {
+        if (XVM.isSQLMode()) {
+            MainMenu.openPanel("sqlPanel");
+        } else {
+            MainMenu.openPanel("dagPanel");
         }
     };
 
