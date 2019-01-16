@@ -785,9 +785,20 @@ abstract class DagNode {
         let skew = 0;
         let complete = true;
         let hasOperation = false;
-        for (let tableName in this.runStats.nodes) {
+        let nodesArray = [];
+        for (let name in this.runStats.nodes) {
+            const node = this.runStats.nodes[name];
+            nodesArray.push(node);
+        }
+        nodesArray.sort((a,b) => {
+            if (a.index > b.index) {
+                return 1;
+            } else {
+                return -1;
+            }
+        });
+        nodesArray.forEach((node) => {
             hasOperation = true;
-            const node = this.runStats.nodes[tableName];
             if (node.state === DgDagStateT.DgDagStateProcessing ||
                 node.state === DgDagStateT.DgDagStateReady) {
                 numWorkCompleted += node.numWorkCompleted;
@@ -802,7 +813,8 @@ abstract class DagNode {
             }
 
             size = node.size;
-        }
+        });
+
         let progress: number = numWorkCompleted / numWorkTotal;
         if (isNaN(progress)) {
             progress = 0;
