@@ -3796,6 +3796,18 @@ table.datasetTable {
         }
     }
 
+    &.tutorialDir {
+        .share, .unshare, .rename, .delete {
+            display: none;
+        }
+
+        &.tutorialHomeDir {
+            .moveUp {
+                display: none;
+            }
+        }
+    }
+
     &.sharedDir {
         .share {
             display: none;

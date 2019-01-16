@@ -113,6 +113,28 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
+    DS.restoreSourceFromLoadArgs = function(loadArgs) {
+        var newDSName = getNewDSName(loadArgs.args.dest);
+        return restoreDatasetFromLoadArgs(newDSName, JSON.stringify(loadArgs));
+    }
+
+    DS.restoreTutorialDS = function(loadArgs) {
+        const deferred = PromiseHelper.deferred();
+        let folder = DS.getDSObj(DSObjTerm.TutorialFolderId);
+        if (folder == null) {
+            createTutorialFolder();
+        }
+
+        DS.restoreSourceFromLoadArgs(loadArgs)
+        .then(() => {
+            // Place it into the tutorial workbook
+            dropHelper(loadArgs.args.dest, DSObjTerm.TutorialFolderId);
+            return deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
+    }
+
     function loadArgsAdapter(loadArgsStr) {
         try {
             if (loadArgsStr == null) {
@@ -894,6 +916,21 @@ window.DS = (function ($, DS) {
         return folder;
     }
 
+    function createTutorialFolder() {
+        var folder = createDS({
+            "id": DSObjTerm.TutorialFolderId,
+            "name": DSObjTerm.TutorialFolder,
+            "parentId": homeDirId,
+            "isFolder": true,
+            "uneditable": true,
+            "user": DSObjTerm.TutorialFolder
+        });
+        var $grid = DS.getGrid(DSObjTerm.TutorialFolderId);
+        // grid should be the first on in grid view
+        $grid.prependTo($gridView);
+        return folder;
+    }
+
     function isInSharedFolder(dirId) {
         var dsObj;
         while (dirId !== homeDirId && dirId !== DSObjTerm.SharedFolderId) {
@@ -901,6 +938,15 @@ window.DS = (function ($, DS) {
             dirId = dsObj.getParentId();
         }
         return (dirId === DSObjTerm.SharedFolderId);
+    }
+
+    function isInTutorialFolder(dirId) {
+        var dsObj;
+        while (dirId !== homeDirId && dirId !== DSObjTerm.TutorialFolderId) {
+            dsObj = DS.getDSObj(dirId);
+            dirId = dsObj.getParentId();
+        }
+        return (dirId === DSObjTerm.TutorialFolderId);
     }
 
     // XXX TODO, imporve it to accept multiple dsIds,
@@ -2684,6 +2730,13 @@ window.DS = (function ($, DS) {
                         }
                         if (dsObj.getUser() !== getCurrentUserName()) {
                             classes += " noUnshare";
+                        }
+                    }
+
+                    if (isInTutorialFolder(curDirId)) {
+                        classes += " tutorialDir";
+                        if (curDirId === DSObjTerm.TutorialFolderId) {
+                            classes += " tutorialHomeDir";
                         }
                     }
                 } else {

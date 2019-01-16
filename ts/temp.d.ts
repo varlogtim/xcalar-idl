@@ -131,6 +131,8 @@ interface WkbkKVKeySet {
     gSQLFuncListKey: string;
     gSQLSnippetKey: string;
     gSQLSnippetQueryKey: string;
+    gTutorialKey: string;
+    gStoredDatasetsKey: string;
 }
 
 interface XcalarEvalFnDescT {
@@ -1164,6 +1166,8 @@ declare namespace DS {
     export function getSchema(dsName: string): {error: string, schema: ColSchema[]};
     export function getLoadArgsFromDS(dsName: string): XDPromise<string>;
     export function restoreSourceFromDagNode(dagNodes: DagNodeDataset[], share: boolean): XDPromise<void>;
+    export function restoreSourceFromLoadArgs(loadArgs: OperationNode): XDPromise<void>;
+    export function restoreTutorialDS(loadArgs: OperationNode): XDPromise<void>;
     export function isAccessible(dsName: string): boolean;
     export function activate(dsIds: string[], noAlert: boolean): XDPromise<void>;
 }

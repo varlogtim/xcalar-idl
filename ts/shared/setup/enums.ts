@@ -75,7 +75,9 @@ enum DSObjTerm {
     homeDirId = ".",
     homeParentId = ".parent",
     SharedFolder = "Shared",
-    SharedFolderId = ".shared"
+    SharedFolderId = ".shared",
+    TutorialFolder = "Tutorial",
+    TutorialFolderId = ".tutorial",
 }
 
 enum DSFormat {

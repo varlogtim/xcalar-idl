@@ -931,6 +931,8 @@ namespace WorkbookManager {
         const gSQLQueryKey: string = generateKey("gSQLQuery", version);
         const gSQLSnippetKey: string = generateKey("gSQLSnippet", version);
         const gSQLSnippetQueryKey: string = generateKey("gSQLSnippetQuery", version);
+        const gTutorialKey: string = generateKey("gTutorialKey", version);
+        const gStoredDatasetsKey: string = generateKey("gStoredDatasetsKey", version);
 
         return {
             "gModeKey": gModeKey,
@@ -952,7 +954,9 @@ namespace WorkbookManager {
             "gSQLFuncResetKey": gSQLFuncResetKey,
             "gDagParamKey": gDagParamKey,
             "gSQLSnippet": gSQLSnippetKey,
-            "gSQLSnippetQuery": gSQLSnippetQueryKey
+            "gSQLSnippetQuery": gSQLSnippetQueryKey,
+            "gTutorialKey": gTutorialKey,
+            "gStoredDatasetsKey": gStoredDatasetsKey,
         };
     }
 
@@ -1029,7 +1033,7 @@ namespace WorkbookManager {
 
                 const session = sessions[i];
                 let description = session.description;
-                // Note: this is only for upgrade 
+                // Note: this is only for upgrade
                 const oldDescription = wkbk.getDescription();
                 if (oldDescription && !description) {
                     description = oldDescription;
@@ -1485,6 +1489,44 @@ namespace WorkbookManager {
         reader.readAsBinaryString(file);
 
         return deferred.promise();
+    }
+
+    /**
+     * This function allows you to set a workbook such that it is dealt with
+     * as a "tutorial workbook" upon upload/being switched to.
+     * @param flag
+     */
+    export function setTutorialFlag(flag: boolean) {
+        let key: string = KVStore.getKey("gTutorialKey");
+        let _kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
+        _kvStore.put(flag.toString(), true);
+    }
+
+    /**
+     * Allows for storing dataset load arguments within the kvstore,
+     * for later use. Should not be used outside of console (for now)
+     * @param dsIds
+     */
+    export function storeDatasets(dsIds: string[]) {
+        const promises: XDPromise<void>[] = [];
+        const loadArgs: object = {};
+        loadArgs["size"] = dsIds.length;
+
+        for (let i = 0; i < dsIds.length; i++) {
+            promises.push(DS.getLoadArgsFromDS(dsIds[i]).then((res) => {
+                loadArgs[i] = res;
+            }));
+        }
+
+        PromiseHelper.when(...promises)
+        .then(() => {
+            let dataKey: string = KVStore.getKey("gStoredDatasetsKey");
+            let _dataKVStore: KVStore = new KVStore(dataKey, gKVScope.WKBK);
+            return _dataKVStore.put(JSON.stringify(loadArgs), true);
+        })
+        .fail((err) => {
+            console.error(err);
+        });
     }
 
     /* Unit Test Only */

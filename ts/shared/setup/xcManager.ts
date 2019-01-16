@@ -83,6 +83,7 @@ namespace xcManager {
             return XDFManager.Instance.setup();
         })
         .then(setupAsyncOpPanels)
+        .then(setupTutorial)
         .then(function() {
             setupOpPanels();
             // XXX TODO, hide these view in Dio
@@ -1255,6 +1256,73 @@ namespace xcManager {
 
     function isRetinaDevice(): boolean {
         return window.devicePixelRatio > 1;
+    }
+
+    function setupTutorial(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let key: string = KVStore.getKey("gTutorialKey");
+        let _kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
+        PromiseHelper.alwaysResolve(_kvStore.get())
+        .then(function(tutorialFlag) {
+            if (tutorialFlag == "true") {
+                return processTutorialHelper();
+            } else {
+                return PromiseHelper.resolve();
+            }
+        })
+        .then(deferred.resolve)
+        .fail((err) => {
+            console.error(err);
+            return deferred.resolve();
+        });
+
+        return deferred.promise();
+    }
+
+    function processTutorialHelper(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        console.log("Tutorial Workbook!");
+        let dataKey: string = KVStore.getKey("gStoredDatasetsKey");
+        let _dataKVStore: KVStore = new KVStore(dataKey, gKVScope.WKBK);
+        // First, load the stored datasets, if they exist
+        PromiseHelper.alwaysResolve(_dataKVStore.getAndParse())
+        .then((datasets: object) => {
+            if (datasets == null) {
+                // This tutorial workbook doesn't have any stored datasets
+                return PromiseHelper.resolve();
+            }
+
+            // Figure out what datasets already exist
+            let existingDatasets: ListDSInfo[] = DS.listDatasets(false);
+            let names: Set<string> = new Set<string>();
+            for(let i = 0; i < existingDatasets.length; i++) {
+                let eDs = existingDatasets[i];
+                names.add(eDs.id);
+            }
+            // only load the needed datasets
+            let loadArgs: OperationNode[] = [];
+            try {
+                for(let i = 0; i < datasets["size"]; i++) {
+                    let node: OperationNode = JSON.parse(datasets[i])
+                    if (!names.has(node.args["dest"])) {
+                        loadArgs.push(node);
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+                return deferred.reject();
+            }
+
+            let promises = [];
+            for(let i = 0; i < loadArgs.length; i++) {
+                promises.push(DS.restoreTutorialDS(loadArgs[i]));
+            }
+            return PromiseHelper.when.apply(promises);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject)
+
+        return deferred.promise();
     }
 
     function reImplementMouseWheel(e: JQueryEventObject): void {
