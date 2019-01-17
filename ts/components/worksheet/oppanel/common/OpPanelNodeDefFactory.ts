@@ -111,7 +111,9 @@ class OpPanelNodeDefFactory {
                     } else if (attrName === 'style') {
                         const styleString = attrValue.trim();
                         if (styleString.length > 0) {
-                            nodeDef.style = styleString;
+                            nodeDef.style = this._isPlaceholder(styleString)
+                                ? { name: this._getPlaceholderName(styleString) }
+                                : styleString;
                         }
                     } else if (this._isEventHandler(attrName)) {
                         nodeDef.event[this._getEventName(attrName)] = attrValue.trim();

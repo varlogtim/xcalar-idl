@@ -90,7 +90,8 @@ namespace SqlQueryHistoryPanel {
                     const prop: TableBodyColumnTextProp = {
                         category: TableColumnCategory.STARTTIME,
                         isEllipsis: false,
-                        text: formatDateTime(queryInfo.startTime)
+                        text: formatDateTime(queryInfo.startTime),
+                        tooltip: formatDateTime(queryInfo.startTime, true)
                     };
                     return prop;
                 }
@@ -300,7 +301,8 @@ namespace SqlQueryHistoryPanel {
                     const prop: TableBodyColumnTextProp = {
                         category: TableColumnCategory.SKEW,
                         isEllipsis: false,
-                        text: `${formatNumber(queryInfo.skew)}`
+                        text: `${formatNumber(queryInfo.skew)}`,
+                        style: genSkewStyle(queryInfo.skew)
                     };
                     return prop;
                 }
@@ -309,9 +311,10 @@ namespace SqlQueryHistoryPanel {
             tableDef[TableColumnCategory.ACTION] = {
                 type: TableHeaderColumnType.REGULAR,
                 convertFunc: (queryInfo) => {
-                    const prop: TableBodyColumnTextLinkProp = {
+                    const prop: TableBodyColumnIconLinkProp = {
                         category: TableColumnCategory.ACTION,
                         text: SQLTStr.queryTableBodyTextAnalyze,
+                        iconClass: 'xi-dataflow',
                         onLinkClick: () => {
                             SQLHistorySpace.Instance.analyze(queryInfo.dataflowId);
                         }
@@ -380,13 +383,21 @@ namespace SqlQueryHistoryPanel {
 
     interface TableBodyColumnTextProp extends TableBodyColumnProp {
         isEllipsis: boolean,
-        text: string
+        text: string,
+        tooltip?: string,
+        style?: string
     }
 
     interface TableBodyColumnTextLinkProp extends TableBodyColumnProp {
         // cssClass: string,
         text: string,
         onLinkClick: () => void
+    }
+
+    interface TableBodyColumnIconLinkProp extends TableBodyColumnProp {
+        text: string,
+        iconClass: string,
+        onLinkClick: () => void,
     }
 
     type TableDefinition<TData> = { [key: string]: { // Key is TableColumnCategory
@@ -429,11 +440,23 @@ namespace SqlQueryHistoryPanel {
             bodyColumnStatus:
                 `<div class="col {{cssClass}}"><i class="icon xi-solid-circle {{iconClass}}"></i>{{text}}</div>`,
             bodyColumnText:
-                `<div class="col {{cssClass}}">{{text}}</div>`,
+                `<div class="col {{cssClass}}" style="{{cssStyle}}">{{text}}</div>`,
+            bodyColumnTextTooltip:
+                `<div class="col {{cssClass}}" style="{{cssStyle}}">
+                    <span data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="{{tooltip}}">{{text}}</span>
+                </div>`,
             bodyColumnElpsText:
-                `<div class="col {{cssClass}}"><span class="elps-text">{{text}}</span></div>`,
+                `<div class="col {{cssClass}}" style="{{cssStyle}}"><span class="elps-text">{{text}}</span></div>`,
+            bodyColumnElpsTextTooltip:
+                `<div class="col {{cssClass}}">
+                    <span class="elps-text" style="{{cssStyle}}" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="{{tooltip}}">{{text}}</span>
+                </div>`,
             bodyColumnElpsTextLink:
                 `<div class="col link {{cssClass}}"><span class="elps-text" (click)="onLinkClick">{{text}}</span></div>`,
+            bodyColumnIconLink:
+                `<div class="col link {{cssClass}}">
+                    <span class="iconLinkWrap" (click)="onLinkClick" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="{{text}}"><i class="icon {{iconClass}}"></i></span>
+                </div>`,
             bodyRow:
                 `<div class="row"><APP-BODYCOLUMNS></APP-BODYCOLUMNS></div>`,
             body:
@@ -729,14 +752,18 @@ namespace SqlQueryHistoryPanel {
             }
 
             // Deconstruct parameters
-            const { isEllipsis, category, text } = props;
+            const { isEllipsis, tooltip, category, text, style = '' } = props;
 
-            const templateId = isEllipsis ? 'bodyColumnElpsText' : 'bodyColumnText';
+            const templateId = isEllipsis
+                ? (tooltip != null ? 'bodyColumnElpsTextTooltip' : 'bodyColumnElpsText')
+                :  (tooltip != null ? 'bodyColumnTextTooltip' : 'bodyColumnText');
             this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
 
             return this._templateMgr.createElements(templateId, {
                 cssClass: this._getBodyColumnCss(category),
-                text: text
+                text: text,
+                tooltip: tooltip,
+                cssStyle: style.length === 0 ? null : style
             });
         }
 
@@ -755,6 +782,27 @@ namespace SqlQueryHistoryPanel {
 
             return this._templateMgr.createElements(templateId, {
                 cssClass: this._getBodyColumnCss(category),
+                text: text,
+                onLinkClick: onLinkClick
+            });
+        }
+
+        protected _createBodyColumnIconLink(
+            props?: TableBodyColumnIconLinkProp
+        ): NodeDefDOMElement[] {
+            if (props == null) {
+                return null;
+            }
+
+            // Deconstruct parameters
+            const { category, text, iconClass, onLinkClick = () => {} } = props;
+
+            const templateId = 'bodyColumnIconLink';
+            this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
+
+            return this._templateMgr.createElements(templateId, {
+                cssClass: this._getBodyColumnCss(category),
+                iconClass: iconClass,
                 text: text,
                 onLinkClick: onLinkClick
             });
@@ -838,9 +886,9 @@ namespace SqlQueryHistoryPanel {
             this._headerCssMapping[TableColumnCategory.STARTTIME] = 'col-time';
             this._headerCssMapping[TableColumnCategory.DURATION] = 'col-duration';
             this._headerCssMapping[TableColumnCategory.TABLE] = 'col-table';
-            this._headerCssMapping[TableColumnCategory.ROWS] = 'col-duration';
-            this._headerCssMapping[TableColumnCategory.SKEW] = 'col-duration';
-            this._headerCssMapping[TableColumnCategory.ACTION] = 'col-duration';
+            this._headerCssMapping[TableColumnCategory.ROWS] = 'col-rows';
+            this._headerCssMapping[TableColumnCategory.SKEW] = 'col-skew';
+            this._headerCssMapping[TableColumnCategory.ACTION] = 'col-action';
             // TableColumnCategory => DOM builder for body column
             this._bodyColumnBuilder[TableColumnCategory.STATUS] = this._createBodyColumnStatus.bind(this);
             this._bodyColumnBuilder[TableColumnCategory.QUERY] = this._createBodyColumnTextLink.bind(this);
@@ -849,7 +897,7 @@ namespace SqlQueryHistoryPanel {
             this._bodyColumnBuilder[TableColumnCategory.TABLE] = this._createBodyColumnTextLink.bind(this);
             this._bodyColumnBuilder[TableColumnCategory.ROWS] = this._createBodyColumnText.bind(this);
             this._bodyColumnBuilder[TableColumnCategory.SKEW] = this._createBodyColumnText.bind(this);
-            this._bodyColumnBuilder[TableColumnCategory.ACTION] = this._createBodyColumnTextLink.bind(this);
+            this._bodyColumnBuilder[TableColumnCategory.ACTION] = this._createBodyColumnIconLink.bind(this);
         }
 
         protected _setupStaticMapping() {
@@ -980,11 +1028,12 @@ namespace SqlQueryHistoryPanel {
         }
     };
 
-    export function formatDateTime(dateTime: Date|number): string {
+    export function formatDateTime(dateTime: Date|number, includeDate = false): string {
         const dt = new Date(dateTime);
-        const dateString = xcHelper.getDate('-', dt, null);
+        const dateString = includeDate ? xcHelper.getDate('-', dt, null) : '';
         const timeString = xcHelper.getTime(dt, null, false);
-        return `${dateString} ${timeString}`;
+        const sep = includeDate ? ' ': '';
+        return `${dateString}${sep}${timeString}`;
     }
 
     export function formatNumber(number: Number): string {
@@ -994,5 +1043,10 @@ namespace SqlQueryHistoryPanel {
         }
         const n = Number(number);
         return Number.isNaN(n) ? strNA : n.toLocaleString();
+    }
+
+    function genSkewStyle(skew: number): string {
+        const color = TableSkew.getSkewColorStyle(skew);
+        return color.length > 0 ? `color:${color};` : '';
     }
 }

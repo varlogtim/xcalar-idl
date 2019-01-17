@@ -55,7 +55,7 @@ declare type NodeDefElement = {
     type: NodeDefType,
     tag: string,
     class?: (string | NodeDefPlaceholder)[],
-    style?: string,
+    style?: string | NodeDefPlaceholder,
     attr?: { [key: string]: (string | NodeDefPlaceholder) },
     event?: { [key: string]: string },
     children?: NodeDef[]

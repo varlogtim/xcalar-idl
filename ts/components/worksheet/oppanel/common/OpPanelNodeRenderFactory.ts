@@ -270,9 +270,11 @@ class OpPanelNodeRenderFactory {
             } else {
                 const attrsNew = newNode.attributes;
                 const attrsOld = oldNode.attributes;
+                const attrNameSetNew = new Set<string>();
                 // Regular attributes/states
                 for (let i = 0; i < attrsNew.length; i ++) {
                     const {name: newName, value: newValue} = attrsNew[i];
+                    attrNameSetNew.add(newName);
                     if (this._boolPropsMap[newName]) {
                         // We will check all boolean attributes later
                         continue;
@@ -292,6 +294,13 @@ class OpPanelNodeRenderFactory {
                     if (newValue != null && oldValue != null && newValue !== oldValue) {
                         this._updateAttribute(oldNode, newName, newValue);
                         // console.log(`Attr update2: ${newName}`);
+                    }
+                }
+                // Removed attributes
+                for (let i = 0; i < attrsOld.length; i ++) {
+                    const {name: oldName} = attrsOld[i];
+                    if (!attrNameSetNew.has(oldName)) {
+                        this._removeAttribute(oldNode, oldName);
                     }
                 }
                 // Event listeners
@@ -348,6 +357,24 @@ class OpPanelNodeRenderFactory {
             }
         } catch(e) {
             console.error('NodeRender._updateAttribute', e);
+        }
+    }
+
+    private static _removeAttribute(
+        node: HTMLElement, attrName
+    ) {
+        try {
+            if (this._boolPropsMap[attrName]) {
+                node[attrName] = false;
+            } else {
+                if (attrName == 'value') {
+                    node[attrName] = '';
+                } else {
+                    node.removeAttribute(attrName);
+                }
+            }
+        } catch(e) {
+            console.error('NodeRender._removeAttribute', e);
         }
     }
 
@@ -439,10 +466,21 @@ class OpPanelNodeRenderFactory {
                         }
                     }
                 }
-                node.className = className;
+                node.className = className.trim();
             }
             if (nodeDef.style != null) {
-                node.setAttribute('style', nodeDef.style);
+                if (!this._isTypePlaceholder(nodeDef.style)) {
+                    node.setAttribute('style', nodeDef.style);
+                } else {
+                    if (args != null) {
+                        const style = args[nodeDef.style.name];
+                        if (style != null) {
+                            node.setAttribute('style', style);
+                        }
+                    } else {
+                        console.error('NodeRender.createElementNode(style): args not defined');
+                    }
+                }
             }
             if (nodeDef.attr != null) {
                 for (const key of Object.keys(nodeDef.attr)) {

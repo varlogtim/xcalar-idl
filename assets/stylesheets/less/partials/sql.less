@@ -34,7 +34,7 @@
         // Scroll bar hack
         .col-table {
             padding-right: @cell-padding + @scrollbar-width;
-            .flex-basis(@width: 90px + @scrollbar-width);
+            .col-fixed(@width: 75px + @scrollbar-width);
         }
         .col > span {
             .textOverflowOneLine;
@@ -94,6 +94,12 @@
         .justify-content(flex-end);
     }
 
+    .col-fixed(@width) {
+        .flex-basis(@width: @width);
+        .flex-grow(@grow: 0);
+        .flex-shrink(@shrink: 0);
+    }
+
     .col-sort {
         cursor: pointer;
         &:hover {
@@ -102,34 +108,52 @@
     }
 
     .col-status {
-        .col-1();
-        .flex-basis(@width: 110px);
+        .col-fixed(@width: 105px);
     }
 
     .col-query {
         .col-5();
         .flex-basis(@width: 70px);
+        .flex-shrink(@shrink: 0);
     }
 
     .col-time {
-        .col-2();
-        .flex-basis(@width: 175px);
+        .col-fixed(@width: 110px);
     }
 
     .col-duration {
-        .col-2();
-        .flex-basis(@width: 80px);
+        .col-1();
+        .flex-basis(@width: 100px);
+        .flex-shrink(@shrink: 0);
     }
 
     .col-table {
-        .col-2();
-        .flex-basis(@width: 90px);
+        .col-fixed(@width: 75px);
+    }
+
+    .col-action {
+        .col-fixed(@width: 65px);
+    }
+
+    .col-rows {
+        .col-1();
+        .flex-basis(@width: 75px);
+        .flex-shrink(@shrink: 0);
+    }
+
+    .col-skew {
+        .col-fixed(@width: 75px);
     }
 
     .elps-text {
         overflow: hidden;
         display: inline-block;
         text-overflow: ellipsis;
+    }
+
+    .iconLinkWrap {
+        width: 100%;
+        text-align: center;
     }
 
 }
@@ -242,7 +266,7 @@
 
 
                 .sqlQueryHist {
-                    .size(@min-width: 650px, @height: 100%);
+                    .size(@min-width: 720px, @height: 100%);
                     margin-bottom: 0px;
                 }
             }
