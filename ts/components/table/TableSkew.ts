@@ -1,4 +1,28 @@
 class TableSkew {
+    public static getSkewColorStyle(skew: number): string {
+        if (this._isInValidSkew(skew)) {
+            return "";
+        }
+        /*
+            0: hsl(104, 100%, 33)
+            25%: hsl(50, 100%, 33)
+            >= 50%: hsl(0, 100%, 33%)
+        */
+        let h: number = 104;
+        if (skew <= 25) {
+            h = 104 - 54 / 25 * skew;
+        } else if (skew <= 50) {
+            h = 50 - 2 * (skew - 25);
+        } else {
+            h = 0;
+        }
+        return `hsl(${h}, 100%, 33%)`;
+    }
+
+    private static _isInValidSkew(skew: number): boolean {
+        return (skew == null || isNaN(skew));
+    }
+
     private $skewSection: JQuery;
     private table: TableMeta;
 
@@ -39,7 +63,7 @@ class TableSkew {
     }
 
     private _isInValidSkew(skew: number): boolean {
-        return (skew == null || isNaN(skew));
+        return TableSkew._isInValidSkew(skew);
     }
 
     private _getSkewText(): string {
@@ -49,23 +73,7 @@ class TableSkew {
 
     private _getSkyewColor(): string {
         const skew: number = this.table.getSkewness();
-        if (this._isInValidSkew(skew)) {
-            return "";
-        }
-        /*
-            0: hsl(104, 100%, 33)
-            25%: hsl(50, 100%, 33)
-            >= 50%: hsl(0, 100%, 33%)
-        */
-        let h: number = 104;
-        if (skew <= 25) {
-            h = 104 - 54 / 25 * skew;
-        } else if (skew <= 50) {
-            h = 50 - 2 * (skew - 25);
-        } else {
-            h = 0;
-        }
-        return `hsl(${h}, 100%, 33%)`;
+        return TableSkew.getSkewColorStyle(skew);
     }
 
     private _addEventListerners(): void {
