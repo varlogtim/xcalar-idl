@@ -493,8 +493,11 @@ abstract class DagNode {
      * @param clearState used when copying table to remove table reference
      * and ensure copy does't have a running or complete state
      */
-    public getNodeCopyInfo(clearState: boolean = false): DagNodeCopyInfo {
-        const nodeInfo = <DagNodeCopyInfo>this._getNodeInfoWithParents();
+    public getNodeCopyInfo(
+        clearState: boolean = false,
+        includeStats: boolean = false
+    ): DagNodeCopyInfo {
+        const nodeInfo = <DagNodeCopyInfo>this._getNodeInfoWithParents(includeStats);
         nodeInfo.nodeId = nodeInfo.id;
         delete nodeInfo.id;
         if (clearState) {
@@ -813,7 +816,10 @@ abstract class DagNode {
                 node.state === DgDagStateT.DgDagStateReady) {
                 numWorkCompleted += node.numWorkCompleted;
                 numWorkTotal += node.numWorkTotal;
-                rows = node.numRowsTotal;
+                if (!node.name.startsWith("deleteObj-")) {
+                    // this is a delete job which will cause row num to be 0
+                    rows = node.numRowsTotal;
+                }
             }
             if (node.state !== DgDagStateT.DgDagStateReady) {
                 complete = false;

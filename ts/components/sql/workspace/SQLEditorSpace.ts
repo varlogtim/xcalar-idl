@@ -123,6 +123,7 @@ class SQLEditorSpace {
 
     private _executeAllSQL(): void {
         try {
+            SQLWorkSpace.Instance.save();
             let sqls: string = this._sqlEditor.getSelection() || this._sqlEditor.getValue();
             let sqlArray: string[] = XDParser.SqlParser.getMultipleQueriesViaParser(sqls);
             let selectArray: string[] = [];
