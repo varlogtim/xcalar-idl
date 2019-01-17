@@ -1211,6 +1211,8 @@
     box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.2);
 
     @liHeight: 24px;
+    @iconWidth: 10px;
+    @iconMargin: 8px;
 
     li {
         display: none;
@@ -1235,9 +1237,9 @@
         }
         .icon {
             .font(@size: 10px, @line-height: @liHeight + 2);
-            margin-right: 8px;
+            margin-right: @iconMargin;
             display: inline-block;
-            width: 10px;
+            width: @iconMargin;
             &.xi-duplicate, &.xi-play-circle, &.xi-copy, &.xi-copy-clipboard {
                 font-size: 11px;
             }
@@ -1253,6 +1255,9 @@
                 margin-left: -2px;
                 margin-right: 10px;
             }
+        }
+        .label {
+            max-width: ~"calc(100% - (@{iconWidth} + @{iconMargin}))";
         }
     }
 

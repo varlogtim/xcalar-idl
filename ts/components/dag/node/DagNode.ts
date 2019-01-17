@@ -28,7 +28,10 @@ abstract class DagNode {
     protected display: DagNodeDisplayInfo; // coordinates are persistent
     protected runStats: {
         nodes: {[key: string]: TableRunStats},
-        hasRun: boolean
+        hasRun: boolean,
+        needsClear: boolean // set to true when the node stats should be cleared
+        // on the next stats update. We don't clear stats immediately because
+        // we try to retain the old stats for as long as possible
     };
 
     public static setup(): void {
@@ -72,7 +75,8 @@ abstract class DagNode {
         this.display.description = "Description for the " + displayType + " operation";
         this.runStats = {
             hasRun: false,
-            nodes: {}
+            nodes: {},
+            needsClear: false
         };
         if (options.stats && !$.isEmptyObject(options.stats)) {
             this.runStats.nodes = options.stats;
@@ -316,6 +320,7 @@ abstract class DagNode {
         this.configured = true;
         this._setState(DagNodeState.Running);
         this._removeTable();
+        this.runStats.needsClear = true;
     }
 
     /**
@@ -349,7 +354,7 @@ abstract class DagNode {
         let hint: string = "";
         let ellipsis: string[] = [];
         try {
-            const hint: string = this._genParamHint();
+            hint = this._genParamHint();
             const maxLen: number = 20;
             // each line cannot be more than maxLen
             ellipsis = hint.split("\n").map((str) => {
@@ -657,6 +662,7 @@ abstract class DagNode {
             nodes[tableName] = tableRunStats;
         });
         this.runStats.nodes = nodes;
+        this.runStats.needsClear = false;
     }
 
     /**
@@ -678,6 +684,10 @@ abstract class DagNode {
         let isComplete: boolean = true;
         let errorState: string = null;
         this.runStats.hasRun = true;
+        if (this.runStats.needsClear) {
+            this.runStats.nodes = {};
+            this.runStats.needsClear = false;
+        }
         let tableCount: number = Object.keys(this.runStats.nodes).length;
         for (let tableName in tableNameMap) {
             const nodeInfo = tableNameMap[tableName];
@@ -1165,6 +1175,7 @@ abstract class DagNode {
             // if it was running but switched to error
             this.runStats.hasRun = false;
             this.runStats.nodes = {};
+            this.runStats.needsClear = false;
         }
         this.events.trigger(DagNodeEvents.StateChange, {
             id: this.getId(),

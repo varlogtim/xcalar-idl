@@ -25,7 +25,7 @@ namespace DagNodeMenu {
             default:
                 break;
         }
-        $li.find(".label").text('Exit ' + label);
+        $li.find(".label").text('Exit ' + label + ' Configuration');
         $li.addClass('exit' + nameUpper.replace(/ /g,''));
     }
 
