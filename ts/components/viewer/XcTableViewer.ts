@@ -213,6 +213,7 @@ class XcTableViewer extends XcViewer {
         const $xcTableWrap: JQuery = $('#xcTableWrap-' + tableId);
         $xcTableWrap.removeClass("building");
         this._autoSizeDataCol(tableId);
+        $table.addClass("noOperation");
     }
 
     private _autoSizeDataCol(tableId: TableId): void {

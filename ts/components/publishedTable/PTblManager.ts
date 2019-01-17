@@ -455,6 +455,13 @@ class PTblManager {
         return deferred.promise();
     }
 
+    /**
+     * PTblManager.Instance.selectTable
+     */
+    public selectTable(tableInfo: PbTblInfo): XDPromise<string> {
+        return this._selectTable(tableInfo);
+    }
+
     private _deactivateTables(tableNames: string[], failures: string[]): XDPromise<void> {
         const promises = tableNames.map((tableName) => {
             return (): XDPromise<void> => {
@@ -563,6 +570,27 @@ class PTblManager {
             });
             deferred.resolve(); // still resolve it
         });
+        return deferred.promise();
+    }
+
+    private _selectTable(tableInfo: PbTblInfo): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        const graph: DagGraph = new DagGraph();
+        const node: DagNodeIMDTable = <DagNodeIMDTable>DagNodeFactory.create({
+            type: DagNodeType.IMDTable
+        });
+        graph.addNode(node);
+        node.setParam({
+            source: tableInfo.name,
+            version: -1,
+            schema: tableInfo.columns
+        });
+        graph.execute([node.getId()])
+        .then(() => {
+            deferred.resolve(node.getTable());
+        })
+        .fail(deferred.reject);
+
         return deferred.promise();
     }
 

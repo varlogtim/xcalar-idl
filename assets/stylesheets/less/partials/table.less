@@ -1401,6 +1401,20 @@ html.edge {
         background-color: @color-white;
     }
 
+    &.noOperation {
+        th {
+            .header {
+                .sortIcon {
+                    visibility: hidden !important;
+                }
+
+                .dropdownBox {
+                    display: none;
+                }
+            }
+        }
+    }
+
     tbody tr {
         td {
             .idWrap {

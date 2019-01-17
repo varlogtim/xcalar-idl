@@ -1413,6 +1413,8 @@ TblTStr = {
     "ClickToDetail": "Click to see details",
     "TotalNumOfTbl": "Total number of tables",
     "EmptyTable": "0 Rows",
+    "Viewresult": "View results",
+    "Viewschema": "View schema",
     "PreviewInstr": "To start using table, please use the SQL Editor in SQL Mode or go to the Dataflow Panel, and start from a IMD node in advacned mode",
     "MultipleSchema": "Multiple Schemas are detected when creating table \"<name>\", please select the schema for the table.",
 };

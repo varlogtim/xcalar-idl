@@ -2322,6 +2322,12 @@ class TblManager {
                 }
             }
 
+            let $table = $tbody.closest(".xcTable");
+            if ($table.hasClass("noOperation")) {
+                // when it's a table view in sql mdoe
+                return false;
+            }
+
             const node: DagNode = DagTable.Instance.getBindNode();
             if (DagView.getActiveTab() instanceof DagTabPublished ||
                 node != null && node.getMaxChildren() === 0
@@ -2526,6 +2532,12 @@ class TblManager {
                 ) {
                     $el.trigger('click');
                     // not focus when in modal
+                    return false;
+                }
+
+                let $table = $tbody.closest(".xcTable");
+                if ($table.hasClass("noOperation")) {
+                    // when it's a table view in sql mdoe
                     return false;
                 }
 

@@ -23,16 +23,22 @@ class TblSourcePreview {
     public show(tableInfo: PbTblInfo, msg: string): void {
         this._tableInfo = tableInfo;
         DSForm.hide();
-        this._getContainer().removeClass("xc-hidden");
-        this._updateInstruction(tableInfo);
-        this._updateTableInfos(tableInfo);
+        let $container = this._getContainer();
+        $container.removeClass("xc-hidden")
+                .removeClass("dataset")
+                .removeClass("table");
 
+        let isLoading = msg != null;
+        this._updateInstruction(tableInfo);
+        this._updateTableInfos(tableInfo, isLoading);
         if (msg) {
             this._setupLoadingView(msg);
         } else if (tableInfo.state === PbTblState.BeDataset) {
+            $container.addClass("dataset");
             this._viewDatasetTable(tableInfo);
         } else {
-            this._renderSchema(tableInfo);
+            $container.addClass("table");
+            this._viewSchema(tableInfo);
         }
     }
 
@@ -84,12 +90,17 @@ class TblSourcePreview {
     }
 
     private _setupLoadingView(msg: string): void {
-        this._showSchemaSection
+        this._showSchemaSection();
         const $section = this._getSchemaSection();
+        const html: HTML = this._loadHTMLTemplate(msg);
+        $section.find(".content").html(html);
+    }
+
+    private _loadHTMLTemplate(text: string): HTML {
         const html: HTML =
         '<div class="loading animatedEllipsisWrapper">' +
             '<div class="text">' +
-                msg +
+            text +
             '</div>' +
             '<div class="animatedEllipsis">' +
                 '<div>.</div>' +
@@ -97,18 +108,7 @@ class TblSourcePreview {
                 '<div>.</div>' +
             '</div>' +
         '</div>';
-        $section.find(".content").html(html);
-    }
-
-    private _showSchemaSection(): void {
-        this._closeTable();
-        this._getSchemaSection().removeClass("xc-hidden");
-    }
-
-    private _renderSchema(tableInfo: PbTblInfo): void {
-        this._showSchemaSection();
-        const columns: PbTblColSchema[] = PTblManager.Instance.getTableSchema(tableInfo);
-        this._schemaSection.render(columns);
+        return html;
     }
 
     private _updateInstruction(tableInfo: PbTblInfo): void {
@@ -124,7 +124,10 @@ class TblSourcePreview {
         $instr.text(instr);
     }
 
-    private _updateTableInfos(tableInfo: PbTblInfo): void {
+    private _updateTableInfos(
+        tableInfo: PbTblInfo,
+        isLoading: boolean
+    ): void {
         let divider: HTML = '<span class="divider">|</span>';
         let infos: {key: string, text: string}[] = [{
             key: "name",
@@ -153,7 +156,85 @@ class TblSourcePreview {
 
             return content;
         }).join(divider);
-        this._getContainer().find(".infoSection").html(html);
+
+        let $container = this._getContainer();
+        if (!isLoading &&
+            tableInfo.state == null &&
+            tableInfo.active === true
+        ) {
+            // when it's a normal table
+            html += '<span class="action xc-action"></span>';
+        }
+
+        $container.find(".infoSection").html(html);
+    }
+
+    private _updateTableAction(toViewTable: boolean): void {
+        let $action = this._getContainer().find(".infoSection .action");
+        if (toViewTable) {
+            $action.removeClass("viewSchema")
+                    .addClass("viewTable")
+                    .text(TblTStr.Viewresult);
+        } else {
+            $action.addClass("viewSchema")
+                    .removeClass("viewTable")
+                    .text(TblTStr.Viewschema);
+        }
+    }
+
+    private _showSchemaSection(): void {
+        this._closeTable();
+        this._getSchemaSection().removeClass("xc-hidden");
+    }
+
+    private _showTableSection(): void {
+        this._getTableArea().removeClass("xc-hidden");
+        this._getSchemaSection().addClass("xc-hidden");
+    }
+
+    private _viewSchema(tableInfo: PbTblInfo): void {
+        this._updateTableAction(true);
+        this._showSchemaSection();
+        const columns: PbTblColSchema[] = PTblManager.Instance.getTableSchema(tableInfo);
+        this._schemaSection.render(columns);
+    }
+
+    private _viewTableResult(tableInfo: PbTblInfo): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        this._updateTableAction(false);
+        this._showTableSection();
+        let $tableArea = this._getTableArea();
+        $tableArea.addClass("loading").removeClass("error");
+
+        let loadingHTML = this._loadHTMLTemplate(StatusMessageTStr.Loading);
+        $tableArea.find(".loadingSection").html(loadingHTML);
+
+        let hasSelectTable: boolean = false;
+        PTblManager.Instance.selectTable(tableInfo)
+        .then((resultName) => {
+            hasSelectTable = true;
+            if (tableInfo == this._tableInfo) {
+                $tableArea.removeClass("loading");
+                let schema: ColSchema[] = PTblManager.Instance.getTableSchema(tableInfo);
+                let table: TableMeta = this._getResultMeta(resultName, schema);
+                let viewer = new XcTableViewer(table);
+                return this._showTable(viewer);
+            }
+        })
+        .then(() => {
+            deferred.resolve();
+        })
+        .fail((error) => {
+            if (tableInfo === this._tableInfo && !hasSelectTable) {
+                $tableArea.removeClass("loading")
+                        .addClass("error");
+                let errorMsg = xcHelper.parseError(error);
+                $tableArea.find(".errorSection").text(errorMsg);
+            }
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
     }
 
     private _viewDatasetTable(tableInfo: PbTblInfo): XDPromise<void> {
@@ -161,15 +242,30 @@ class TblSourcePreview {
         let dsObj: DSObj = new DSObj({
             fullName: dsName
         });
+        let $tableArea = this._getTableArea();
+        $tableArea.removeClass("error").removeClass("loading");
         let viewer = new XcDatasetViewer(dsObj);
         return this._showTable(viewer);
     }
 
+    private _getResultMeta(name: string, schema: ColSchema[]): TableMeta {
+        let progCols: ProgCol[] = schema.map((colInfo) => {
+            return ColManager.newPullCol(colInfo.name, colInfo.name, colInfo.type);
+        });
+        progCols.push(ColManager.newDATACol());
+        let tableId = xcHelper.getTableId(name);
+        let table = new TableMeta({
+            tableId: tableId,
+            tableName: name,
+            tableCols: progCols
+        });
+        gTables[tableId] = table;
+        return table;
+    }
+
     // XXX TODO: combine show table related logic with SQLTable, DagTable...
     private _showTable(viewer: XcViewer): XDPromise<void> {
-        this._getTableArea().removeClass("xc-hidden");
-        this._getSchemaSection().addClass("xc-hidden");
-        this._getContainer().addClass("dataset");
+        this._showTableSection();
 
         if (this._isSameViewer(viewer)) {
             return PromiseHelper.resolve();
@@ -188,12 +284,16 @@ class TblSourcePreview {
         const $tableSection: JQuery = $container.find(".tableSection");
         viewer.render($tableSection)
         .then(() => {
-            $container.removeClass("loading");
-            TblFunc.alignScrollBar($container.find(".dataTable").eq(0));
+            if (viewer === this._viewer) {
+                $container.removeClass("loading");
+                TblFunc.alignScrollBar($container.find(".dataTable").eq(0));
+            }
             deferred.resolve();
         })
         .fail((error) => {
-            this._showTableViewError(error);
+            if (viewer === this._viewer) {
+                this._showTableViewError(error);
+            }
             deferred.reject(error);
         });
 
@@ -278,6 +378,15 @@ class TblSourcePreview {
 
     private _addEventListeners(): void {
         let $container = this._getContainer();
+        let $infoSection = $container.find(".infoSection");
+        $infoSection.on("click", ".viewTable", () => {
+            this._viewTableResult(this._tableInfo);
+        });
+
+        $infoSection.on("click", ".viewSchema", () => {
+            this._viewSchema(this._tableInfo);
+        });
+
         let $bottomSection = $container.find(".bottomSection");
         $bottomSection.find(".schemaWizard").click(() => {
             if (this._viewer instanceof XcDatasetViewer) {

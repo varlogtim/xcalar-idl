@@ -66,6 +66,13 @@ class XcDagTableViewer extends XcTableViewer {
         return new XcDagTableViewer(this.dataflowTabId, this.dagNode, table);
     }
 
+    protected _afterBuild(): void {
+        super._afterBuild();
+        const tableId: TableId = this.table.getId();
+        const $table: JQuery = $('#xcTable-' + tableId);
+        $table.removeClass("noOperation");
+    }
+
     private _getNodeEl(): JQuery {
         return DagView.getNode(this.dagNode.getId(), this.dataflowTabId);
     }

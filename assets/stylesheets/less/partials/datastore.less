@@ -368,7 +368,19 @@ html.safari {
 #pTblView {
     @height-top: 49px;
     @height-total: @height-card-header + @height-card-instr + @height-top;
-    
+
+    &.table {
+        .cardMain {
+            .tableSection, .loadingSection, .errorSection {
+                height: 100%;
+            }
+
+            .bottomSection {
+                display: none;
+            }
+        }
+    }
+
     .cardContainer {
         height: 100%;
     }
@@ -390,6 +402,12 @@ html.safari {
                 &.value {
                     font-weight: 400;
                 }
+
+                &.action {
+                    .position(absolute, @right: 20px);
+                    text-decoration: underline;
+                    color: @color-bg-cardHeader;
+                }
             }
         }
     }
@@ -410,6 +428,12 @@ html.safari {
 
         .tableArea {
             height: 100%;
+
+            &.error, &.loading {
+                .bottomSection {
+                    visibility: hidden;
+                }
+            }
         }
 
         @bottom-h: 145px;
