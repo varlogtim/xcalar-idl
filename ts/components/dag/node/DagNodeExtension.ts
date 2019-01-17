@@ -105,14 +105,24 @@ class DagNodeExtension extends DagNode {
         }
     };
 
-    public getConvertedParam(): DagNodeExtensionInputStruct {
-        const param: DagNodeExtensionInputStruct = this.input.getInput();
-        const convertedArgs: object = this._convertExtensionArgs(param.args);
-        return {
-            moduleName: param.moduleName,
-            functName: param.functName,
-            args: convertedArgs
+    public getQuery(): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        try {
+            const params: DagNodeExtensionInputStruct = this._getConvertedParam();
+            let args = params.args;
+            const startCols: ProgCol[] = this._getColumnsFromArg(args);
+            ExtensionManager.triggerFromDF(params.moduleName, params.functName, args)
+            .then((finalTable, query, cols: ProgCol[]) => {
+                let finalCols = this._getFinalCols(cols);
+                this._updateColumnsChange(startCols, finalCols);
+                deferred.resolve(finalTable, query);
+            })
+            .fail(deferred.reject);
+        } catch (e) {
+            console.error(e);
+            deferred.reject(e);
         }
+        return deferred.promise();
     }
 
     /**
@@ -124,17 +134,13 @@ class DagNodeExtension extends DagNode {
         input: DagNodeExtensionInputStruct = <DagNodeExtensionInputStruct>{}
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        this._getColumnChangs(input)
-        .then(() => {
-            this.input.setInput({
-                moduleName: input.moduleName,
-                functName: input.functName,
-                args: input.args
-            });
-            super.setParam();
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
+        this.input.setInput({
+            moduleName: input.moduleName,
+            functName: input.functName,
+            args: input.args
+        });
+        super.setParam();
+        deferred.resolve();
 
         return deferred.promise();
     }
@@ -213,6 +219,16 @@ class DagNodeExtension extends DagNode {
         return null;
     }
 
+    private _getConvertedParam(): DagNodeExtensionInputStruct {
+        const param: DagNodeExtensionInputStruct = this.input.getInput();
+        const convertedArgs: object = this._convertExtensionArgs(param.args);
+        return {
+            moduleName: param.moduleName,
+            functName: param.functName,
+            args: convertedArgs
+        }
+    }
+
     private _convertExtensionArgs(args: object): object {
         const extArgs: object = {};
         for (let key in args) {
@@ -250,7 +266,10 @@ class DagNodeExtension extends DagNode {
         if (parentNode == null) {
             return null;
         }
-        return new XcSDK.Table(parentNode.getTable(), null, true);
+        let sdkTable = new XcSDK.Table(parentNode.getTable(), null, true);
+        let columns: ProgCol[] = parentNode.getLineage().getColumns().map((col) => col);
+        sdkTable.setCols(columns);
+        return sdkTable;
     }
 
     private _getExtensionColumn = (col: {
@@ -267,30 +286,6 @@ class DagNodeExtension extends DagNode {
         } else {
             return  new XcSDK.Column(col.name, col.type);
         }
-    }
-
-    private _getColumnChangs(params: DagNodeExtensionInputStruct): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        try {
-            const args: object = this._convertExtensionArgs(params.args);
-            // overwrite old triggerNode
-            if (args["triggerNode"]) {
-                const tableName: string = xcHelper.randName("XcTable");
-                args["triggerNode"] = new XcSDK.Table(tableName, null, true)
-            }
-
-            const startCols: ProgCol[] = this._getColumnsFromArg(args);
-            ExtensionManager.triggerFromDF(params.moduleName, params.functName, args)
-            .then((_finalTable, _query, finalCols: ProgCol[]) => {
-                this._updateColumnsChange(startCols, finalCols);
-                deferred.resolve();
-            })
-            .fail(deferred.reject);
-        } catch (e) {
-            console.error(e);
-            return deferred.reject(e);
-        }
-        return deferred.promise();
     }
 
     private _getColumnsFromArg(args: object): ProgCol[] {
@@ -310,6 +305,24 @@ class DagNodeExtension extends DagNode {
             });
         }
         return progCols;
+    }
+
+    private _getFinalCols(inputCols: ProgCol[]): ProgCol[] {
+        let set: Set<string> = new Set();
+        this.getParents().forEach((parentNode) => {
+            if (parentNode == null) {
+                return;
+            }
+            let columns = parentNode.getLineage().getColumns();
+            columns.forEach((progCol) => {
+                set.add(progCol.getBackColName());
+            });
+        });
+
+        let finalCols: ProgCol[] = inputCols.filter((progCol) => {
+            return !set.has(progCol.getBackColName());
+        });
+        return finalCols;
     }
 
     private _updateColumnsChange(

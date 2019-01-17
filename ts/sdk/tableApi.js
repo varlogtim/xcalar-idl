@@ -41,6 +41,10 @@ window.XcSDK.Table.prototype = {
     //     return cols;
     // },
 
+    setCols: function(tableCols) {
+        this.tableCols = tableCols
+    },
+
     getColsAsArray: function() {
         var cols = [];
         var tableCols = this.tableCols;

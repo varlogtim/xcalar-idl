@@ -196,6 +196,9 @@ window.XcSDK.Extension.prototype = (function() {
             if (tableOrName instanceof XcSDK.Table) {
                 this.table = tableOrName;
                 var tableName = this.table.getName();
+            } else if (tableOrName == null) {
+                var tableName = xcHelper.randName("XcTable");
+                this.table = new XcSDK.Table(tableName, worksheet, this.modelingMode);
             } else {
                 var tableName = tableOrName;
                 this.table = new XcSDK.Table(tableName, worksheet, this.modelingMode);

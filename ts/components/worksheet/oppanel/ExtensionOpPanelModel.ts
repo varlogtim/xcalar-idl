@@ -96,7 +96,7 @@ class ExtensionOpPanelModel {
         const extModule: ExtensionInfo = this._getSelectedModule();
         let res: boolean = false;
         if (extModule != null) {
-            res = extModule._configParams ? !extModule._configParams.notTableDependent : true;
+            res = extModule.configParams ? !extModule.configParams.notTableDependent : true;
         }
         return res;
     }

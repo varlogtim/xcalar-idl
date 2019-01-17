@@ -816,28 +816,21 @@ class DagNodeExecutor {
     }
 
     private _extension(): XDPromise<string> {
-        try {
-            const deferred: XDDeferred<string> = PromiseHelper.deferred();
-            const node: DagNodeExtension = <DagNodeExtension>this.node;
-            const params: DagNodeExtensionInputStruct = node.getConvertedParam();
-            let finaTable: string;
-            ExtensionManager.triggerFromDF(params.moduleName, params.functName, params.args)
-            .then((resTable, query) => {
-                finaTable = resTable;
-                return XIApi.query(this.txId, finaTable, query);
-            })
-            .then(() => {
-                deferred.resolve(finaTable);
-            })
-            .fail(deferred.reject);
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        const node: DagNodeExtension = <DagNodeExtension>this.node;
+        let finalTable: string
 
-            return deferred.promise();
-        } catch (e) {
-            console.error(e);
-            return PromiseHelper.reject({
-                error: e.message
-            });
-        }
+        node.getQuery()
+        .then((resTable, query) => {
+            finalTable = resTable;
+            return XIApi.query(this.txId, finalTable, query);
+        })
+        .then(() => {
+            deferred.resolve(finalTable);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     private _getRefreshColInfoFromSchema(schema: ColSchema[]): RefreshColInfo[] {

@@ -294,7 +294,7 @@ interface ExtensionInfo {
     name: string;
     buttons: ExtensionFuncInfo[];
     actionFn: Function;
-    _configParams: {notTableDependent: boolean};
+    configParams: {notTableDependent: boolean};
 }
 
 interface ColSchema {
@@ -1395,6 +1395,7 @@ declare namespace XcSDK {
     class Table {
         public constructor(tableName: string, worksheet: string, modelingMode: boolean);
         public getName(): string;
+        public setCols(progCols: ProgCol[]): void;
     }
     class Column {
         public constructor(colName: string, colType: ColumnType);

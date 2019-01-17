@@ -414,7 +414,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
 
         var deferred = PromiseHelper.deferred();
-        var notTableDependent = extMap[moduleName]._configParams.notTableDependent;
+        var notTableDependent = extMap[moduleName].configParams.notTableDependent;
 
         var table;
         if (!notTableDependent) {
@@ -534,7 +534,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var deferred = PromiseHelper.deferred();
         var table;
         var tableName;
-        var notTableDependent = extMap[module]._configParams.notTableDependent;
+        var notTableDependent = extMap[module].configParams.notTableDependent;
         var finalTableId;
 
         if (!notTableDependent) {
@@ -1005,7 +1005,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var fnName = $extArgs.data("fn");
         var $input = $extTriggerTableDropdown.find(".text");
         var tableName = $input.val();
-        var notTableDependent = extMap[modName]._configParams.notTableDependent;
+        var notTableDependent = extMap[modName].configParams.notTableDependent;
 
         if (tableName === "" && !notTableDependent) {
             StatusBox.show(ErrTStr.NoEmptyList, $input);
@@ -1164,7 +1164,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         $extTriggerTableDropdown.find(".list ul").html(tableList);
 
         if (!refresh) {
-            if (extMap[modName]._configParams.notTableDependent) {
+            if (extMap[modName].configParams.notTableDependent) {
                 $extArgs.find(".tableSection").addClass("xc-hidden");
                 return "";
             } else {
@@ -1527,9 +1527,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     function storeExtConfigParams() {
         for (var ext in extMap) {
             if (window[ext].configParams) {
-                extMap[ext]._configParams = window[ext].configParams;
+                extMap[ext].configParams = window[ext].configParams;
             } else {
-                extMap[ext]._configParams = {};
+                extMap[ext].configParams = {};
             }
         }
     }
