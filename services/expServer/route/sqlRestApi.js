@@ -1,13 +1,5 @@
 var jQuery;
 var $;
-var xcalarApi;
-var xcHelper;
-var PromiseHelper;
-var XIApi;
-var Transaction;
-var SQLApi;
-var SQLCompiler;
-var SQLOptimizer;
 var request = require('request');
 var express = require('express');
 var fs = require('fs');
@@ -15,18 +7,10 @@ var router = express.Router();
 var idNum = 0;
 var sqlHelpers;
 var support = require("../expServerSupport.js");
-var KVStore;
-var SqlQueryHistory;
-var httpStatus;
 
-// Antlr4 SQL Parser
-var SqlBaseListener;
-var SqlBaseParser;
-var SqlBaseLexer;
-var SqlBaseVisitor;
-var TableVisitor;
-var antlr4;
-var Admin;
+// XXX Change the way supervisord spawns expServer with --experimental-worker
+// const Pool = require("../worker/workerPool.js");
+// const sqlWorkerPool = new Pool({fileName: './sqlWorker.js', max: 9});
 
 var sqlCompilerObjects = {};
 
@@ -66,7 +50,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     require("../../../assets/js/thrift/XcalarApiVersionSignature_types.js");
     require("../../../assets/js/thrift/XcalarApiServiceAsync.js");
     require("../../../assets/js/thrift/XcalarEvalEnums_types.js");
-    xcalarApi = require("../../../assets/js/thrift/XcalarApi.js");
+    global.xcalarApi = xcalarApi = require("../../../assets/js/thrift/XcalarApi.js");
 
     global.PromiseHelper = PromiseHelper = require("../../../assets/js/promiseHelper.js");
     global.Transaction = Transaction = sqlHelpers ? sqlHelpers.Transaction :
@@ -79,25 +63,26 @@ require("jsdom/lib/old-api").env("", function(err, window) {
                            require("../sqlHelpers/xiApi.js").XIApi;
     global.SQLApi = SQLApi = sqlHelpers ? sqlHelpers.SQLApi :
                            require("../sqlHelpers/sqlApi.js").SQLApi;
-    SQLCompiler = sqlHelpers ? sqlHelpers.SQLCompiler :
+    global.SQLCompiler = SQLCompiler = sqlHelpers ? sqlHelpers.SQLCompiler :
                   require("../sqlHelpers/sqlCompiler.js").SQLCompiler;
-    SQLOptimizer = sqlHelpers ? sqlHelpers.SQLOptimizer :
+    global.SQLOptimizer = SQLOptimizer = sqlHelpers ? sqlHelpers.SQLOptimizer :
                    require("../sqlHelpers/optimizer.js").SQLOptimizer;
     require("../../../assets/lang/en/jsTStr.js");
 
-    antlr4 = require('antlr4/index');
+    global.antlr4 = antlr4 = require('antlr4/index');
     global.KVStore = KVStore = sqlHelpers ? sqlHelpers.KVStore :
                                require("../sqlHelpers/kvStore.js").KVStore;
-    global.SqlQueryHistory = SqlQueryHistory = sqlHelpers ? sqlHelpers.SqlQueryHistory :
-                             require("../sqlHelpers/sqlQueryHistory.js").SqlQueryHistory;
+    // global.SqlQueryHistory = SqlQueryHistory = sqlHelpers ? sqlHelpers.SqlQueryHistory :
+    //                          require("../sqlHelpers/sqlQueryHistory.js").SqlQueryHistory;
     global.httpStatus = httpStatus = require("../../../assets/js/httpStatus.js").httpStatus;
 
-    SqlBaseListener = require("../sqlParser/SqlBaseListener.js").SqlBaseListener;
-    SqlBaseParser = require("../sqlParser/SqlBaseParser.js").SqlBaseParser;
-    SqlBaseLexer = require("../sqlParser/SqlBaseLexer.js").SqlBaseLexer;
-    SqlBaseVisitor = require("../sqlParser/SqlBaseVisitor.js").SqlBaseVisitor;
-    TableVisitor = require("../sqlParser/TableVisitor.js").TableVisitor;
-    XDParser = {};
+    // Antlr4 SQL Parser
+    global.SqlBaseListener = SqlBaseListener = require("../sqlParser/SqlBaseListener.js").SqlBaseListener;
+    global.SqlBaseParser = SqlBaseParser = require("../sqlParser/SqlBaseParser.js").SqlBaseParser;
+    global.SqlBaseLexer = SqlBaseLexer = require("../sqlParser/SqlBaseLexer.js").SqlBaseLexer;
+    global.SqlBaseVisitor = SqlBaseVisitor = require("../sqlParser/SqlBaseVisitor.js").SqlBaseVisitor;
+    global.TableVisitor = TableVisitor = require("../sqlParser/TableVisitor.js").TableVisitor;
+    global.XDParser = XDParser = {};
     XDParser.XEvalParser = require("../xEvalParser/index.js").XEvalParser;
 });
 
@@ -937,11 +922,10 @@ function collectTablesMetaInfo(queryStr, tablePrefix) {
     var deferred = jQuery.Deferred();
     var error = false;
     var batchIdMap = {};
-
+    
     listPublishedTables("*")
     .then(function(allPubTableNames, res) {
-        var allTables = getTablesFromQueryViaParser(queryStr,
-                                                allPubTableNames);
+        allTables = getTablesFromQueryViaParser(queryStr, allPubTableNames);
         var imdTables = allTables[0];
         var xdTables = allTables[1];
         console.log("IMD tables are", imdTables);
@@ -962,11 +946,10 @@ function collectTablesMetaInfo(queryStr, tablePrefix) {
         for (var xdTable of xdTables) {
             tableValidPromiseArray.push(getInfoForXDTable(xdTable));
         }
-
         return PromiseHelper.when(...tableValidPromiseArray);
     })
     .then(function() {
-        var returns = arguments;
+        returns = arguments;
         // XXX FIX ME We need to make sure from when we check to when we run
         // this call, that the table still exists and that no one has dropped
         // it in the meantime. Alternatively, we can just put in a backup clause
@@ -1009,7 +992,7 @@ function collectTablesMetaInfo(queryStr, tablePrefix) {
     return deferred.promise();
 }
 
-function executeSql(params, type) {
+function executeSql(params, type, workerThreading) {
     var deferred = PromiseHelper.deferred();
     var finalTable;
     var orderedColumns;
@@ -1035,8 +1018,8 @@ function executeSql(params, type) {
     sqlCompilerObjects[queryName] = compilerObject;
 
     var selectQuery = "";
-    setupConnection(params.userName, params.userId,
-        params.sessionName)
+
+    setupConnection(params.userName, params.userId, params.sessionName)
     .then(function () {
         return collectTablesMetaInfo(params.queryString,
                                 tablePrefix)
@@ -1072,12 +1055,32 @@ function executeSql(params, type) {
         return sendToPlanner(tablePrefix, requestStruct,
                              params.userName, params.sessionName);
     })
-    .then(function(plan) {
-        return compilerObject.compile(queryName, plan, true, option);
+    .then(function (plan) {
+        if (workerThreading) {
+            var workerData = {
+                queryName: queryName,
+                planStr: plan,
+                isJsonPlan: true,
+                option: option,
+                optimizations: optimizations,
+                selectQuery: selectQuery,
+                allSelects: allSelects,
+                params: params,
+                type: type
+            }
+            return startWorker(workerData);
+        } else {
+            return compilerObject.compile(queryName, plan, true, option);
+        }
     })
     .then(function(xcQueryString, newTableName, colNames, toCache) {
         xcConsole.log("Compilation finished");
         orderedColumns = colNames;
+        var prefixedQuery;
+        if (workerThreading) {
+            prefixedQuery = xcQueryString;
+            finalTable = newTableName;
+        } else {
         var optimizerObject = new SQLOptimizer();
         var queryWithDrop = optimizerObject.logicalOptimize(xcQueryString,
                                     optimizations, JSON.stringify(selectQuery));
@@ -1090,6 +1093,7 @@ function executeSql(params, type) {
             params.resultTableName);
         var prefixedQuery = prefixStruct.query;
         finalTable = prefixStruct.tableName || newTableName;
+        }
         return compilerObject.execute(prefixedQuery, finalTable, orderedColumns,
                                       params.queryString, undefined, option);
     })
@@ -1232,7 +1236,7 @@ function executeSqlWithExtPlan(execid, planStr, rowsToFetch, sessionPrefix,
         deferred.reject(retObj);
     })
     .always(function() {
-        XIApi.deleteTable(1, sessionPrefix + "*");
+        XIApi.deleteTable(1, params.sessionPrefix + "*");
     });
 
     return deferred.promise();
@@ -1426,6 +1430,48 @@ router.post("/xcsql/queryWithPublishedTables", [support.checkAuth],
     });
 });
 
+router.post("/xcsql/workerTest", [support.checkAuth],
+    function(req, res) {
+    var execid = req.body.execid;
+    var queryName = req.body.queryName;
+    var queryString = req.body.queryString;
+    var limit = req.body.limit;
+    var tablePrefix = req.body.sessionId;
+    var usePaging = req.body.usePaging === "true";
+    // jdbc only passes string to us
+    var checkTime = parseInt(req.body.checkTime);
+    checkTime = isNaN(checkTime) ? undefined : checkTime;
+    tablePrefix = "sql" + tablePrefix.replace(/-/g, "") + "_";
+    var type = "odbc";
+    var optimizations = {
+        dropAsYouGo: req.body.dropAsYouGo,
+        randomCrossJoin: req.body.randomCrossJoin,
+        pushToSelect: req.body.pushToSelect
+    };
+    optimizations.dropAsYouGo = optimizations.dropAsYouGo == undefined ? true : optimizations.dropAsYouGo;
+    optimizations.randomCrossJoin = optimizations.randomCrossJoin == undefined ? false : optimizations.randomCrossJoin;
+    optimizations.pushToSelect = optimizations.pushToSelect == undefined ? true : optimizations.pushToSelect;
+    var params = {
+        execid: execid,
+        queryString: queryString,
+        limit: limit,
+        tablePrefix: tablePrefix,
+        checkTime: checkTime,
+        queryName: queryName,
+        usePaging: usePaging,
+        optimizations: optimizations
+    }
+    executeSql(params, type, true)
+    .then(function(output) {
+        xcConsole.log("sql query finishes");
+        res.send(output);
+    })
+    .fail(function(error) {
+        xcConsole.log("sql query error: ", error);
+        res.status(500).send(error);
+    });
+});
+
 router.post("/xcsql/result", [support.checkAuth], function(req, res) {
     var resultSetId = req.body.resultSetId;
     var rowPosition = parseInt(req.body.rowPosition);
@@ -1556,6 +1602,13 @@ router.post("/deprecated/clean", [support.checkAuth], function(req, res) {
         res.send("Some tables are not deleted because: " + JSON.stringify(error));
     });
 });
+
+// Start a worker for CPU intensive jobs
+function startWorker(data) {
+    var deferred = PromiseHelper.deferred();
+    sqlWorkerPool.submit(deferred, data);
+	return deferred.promise();
+}
 
 // For unit tests
 function fakeSqlLoad(func) {

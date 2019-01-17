@@ -1339,17 +1339,17 @@
     }
     SQLCompiler.prototype = {
         // XXX need to move mutator functions from sqlApi to sqlCompiler
-        updateQueryHistory() {
-            var queryObj = this.sqlObj;
-            var jdbcOption = this.getJdbcOption();
-            if (jdbcOption) {
-                var jdbcSession = jdbcOption.prefix.substring(3, jdbcOption.prefix.length - 2);
-                queryObj.jdbcSession = jdbcSession;
-                return SqlQueryHistory.getInstance().upsertQuery(queryObj);
-            }
-            // return SqlQueryHistoryPanel.Card.getInstance().update(queryObj);
-            return SQLHistorySpace.Instance.update(queryObj);
-        },
+        // updateQueryHistory() {
+        //     var queryObj = this.sqlObj;
+        //     var jdbcOption = this.getJdbcOption();
+        //     if (jdbcOption) {
+        //         var jdbcSession = jdbcOption.prefix.substring(3, jdbcOption.prefix.length - 2);
+        //         queryObj.jdbcSession = jdbcSession;
+        //         return SqlQueryHistory.getInstance().upsertQuery(queryObj);
+        //     }
+        //     // return SqlQueryHistoryPanel.Card.getInstance().update(queryObj);
+        //     return SQLHistorySpace.Instance.update(queryObj);
+        // },
         getStatus: function() {
             return this.sqlObj.getStatus();
         },
@@ -1503,27 +1503,32 @@
             if (self.getStatus() === SQLStatus.Cancelled){
                 return PromiseHelper.reject(SQLErrTStr.Cancel);
             }
+            if (jdbcOption && jdbcOption.sqlMode) {
+                self.sqlObj.setSqlMode();
+            }
 
             self.setStatus(SQLStatus.Running);
             var deferred = jQuery.Deferred();
             var checkTime = jdbcOption ? jdbcOption.checkTime : 200;
             // update query history
-            var promise = self.updateQueryHistory();
-            var callback = self.sqlObj.run(queryString, newTableName, newCols,
-                                           sqlQueryString, checkTime);
-            promise
-            .then(function () {
-                return callback;
-            }, function() {
-                return callback;
-            })
+            // var promise = self.updateQueryHistory();
+            // var callback = self.sqlObj.run(queryString, newTableName, newCols,
+            //                                sqlQueryString, checkTime);
+            // promise
+            // .then(function () {
+            //     return callback;
+            // }, function() {
+            //     return callback;
+            // })
+            self.sqlObj.run(queryString, newTableName, newCols, sqlQueryString,
+                            checkTime)
             .then(function(newTableName, cols) {
                 if (typeof SQLCache !== "undefined" && toCache) {
                     SQLCache.cacheQuery(sqlQueryString, toCache);
                 }
                 self.setStatus(SQLStatus.Done);
                 self.sqlObj.setNewTableName(newTableName);
-                self.updateQueryHistory();
+                // self.updateQueryHistory();
                 deferred.resolve(newTableName, cols);
             })
             .fail(function(err) {
@@ -1534,7 +1539,7 @@
                     self.setError(JSON.stringify(err));
                 }
                 // Update as "done"
-                self.updateQueryHistory();
+                // self.updateQueryHistory();
                 deferred.reject(err);
             });
             return deferred.promise();
