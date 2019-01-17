@@ -1098,36 +1098,6 @@ declare class XcalarApiGetVersionOutputT {
 		apiVersionSignatureShort?: number,
 	});
 }
-declare class XcalarApiGetLicenseOutputT {
-	loaded: boolean;
-	expired: boolean;
-	platform: string;
-	product: string;
-	productFamily: string;
-	productVersion: string;
-	expiration: string;
-	nodeCount: number;
-	userCount: number;
-	attributes: string;
-	licensee: string;
-	compressedLicenseSize: number;
-	compressedLicense: string;
-	constructor(args?: {
-		loaded?: boolean,
-		expired?: boolean,
-		platform?: string,
-		product?: string,
-		productFamily?: string,
-		productVersion?: string,
-		expiration?: string,
-		nodeCount?: number,
-		userCount?: number,
-		attributes?: string,
-		licensee?: string,
-		compressedLicenseSize?: number,
-		compressedLicense?: string,
-	});
-}
 declare class XcalarApiAggregateOutputT {
 	tableName: string;
 	jsonAnswer: string;
@@ -2434,7 +2404,6 @@ declare class XcalarApiOutputResultT {
 	listFuncTestOutput: XcalarApiListFuncTestOutputT;
 	executeRetinaOutput: XcalarApiNewTableOutputT;
 	getConfigParamsOutput: XcalarApiGetConfigParamsOutputT;
-	getLicenseOutput: XcalarApiGetLicenseOutputT;
 	appRunOutput: XcalarApiAppRunOutputT;
 	appReapOutput: XcalarApiAppReapOutputT;
 	demoFileOutput: XcalarApiDemoFileOutputT;
@@ -2506,7 +2475,6 @@ declare class XcalarApiOutputResultT {
 		listFuncTestOutput?: XcalarApiListFuncTestOutputT,
 		executeRetinaOutput?: XcalarApiNewTableOutputT,
 		getConfigParamsOutput?: XcalarApiGetConfigParamsOutputT,
-		getLicenseOutput?: XcalarApiGetLicenseOutputT,
 		appRunOutput?: XcalarApiAppRunOutputT,
 		appReapOutput?: XcalarApiAppReapOutputT,
 		demoFileOutput?: XcalarApiDemoFileOutputT,

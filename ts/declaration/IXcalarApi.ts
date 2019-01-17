@@ -88,7 +88,7 @@ declare function xcalarGetVersion(
 
 declare function xcalarGetLicense(
     thriftHandle: ThriftHandler
-): XDPromise<XcalarApiGetLicenseOutputT>;
+): XDPromise<any>;
 
 declare function xcalarGetIpAddr(
     thriftHandle: ThriftHandler,

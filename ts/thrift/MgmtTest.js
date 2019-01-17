@@ -415,6 +415,27 @@ window.Function.prototype.bind = function() {
         var cpuPctSc = [85, 90, 100];
         var rtTypeSc = [RuntimeTypeT.Throughput, RuntimeTypeT.Latency, RuntimeTypeT.Latency];
 
+        setTimeout(function() {
+            waitUntilCgSetup();
+        }, 500);
+
+        function waitUntilCgSetup() {
+            xcalarCgroupListParams(thriftHandle)
+            .then(function(result) {
+                console.log("Cgroup set up succeeded!");
+                rtTest();
+            })
+            .fail(function(result) {
+                if (result.xcalarStatus === StatusT.StatusAgain) {
+                    console.log("Cgroup set up in progess...");
+                    waitUntilCgSetup();
+                } else {
+                    test.fail(StatusTStr[result.xcalarStatus]);
+                }
+            });
+        }
+
+        function rtTest() {
         // Get default runtime params
         xcalarRuntimeGetParam(thriftHandle)
         .then(function(result) {
@@ -497,12 +518,16 @@ window.Function.prototype.bind = function() {
             // Revert to default RuntimeMixedModeMinCores
             xcalarSetConfigParam(thriftHandle, paramName, defaultRuntimeMixedModeMinCores);
         })
-        .then(function(reason) {
+        .then(function(result) {
+            return xcalarCgroupGetParams(thriftHandle, "xcalar_xce", "memory");
+        })
+        .then(function(result) {
             test.pass();
         })
         .fail(function(reason) {
             test.fail(StatusTStr[reason.xcalarStatus]);
         });
+        }
     }
 
     function testGetConfigParams(test) {
@@ -2798,79 +2823,6 @@ window.Function.prototype.bind = function() {
         });
     }
 
-    function testApiUpdateLicense(test, licenseKey) {
-        var origResult;
-        xcalarGetLicense(thriftHandle)
-        .then(function(result) {
-            console.log(JSON.stringify(result));
-            origResult = result;
-            return xcalarUpdateLicense(thriftHandle, licenseKey);
-        })
-        .then(function(status) {
-            printResult(status);
-            return (xcalarGetLicense(thriftHandle))
-        })
-        .then(function(result) {
-            var getLicenseOutput = result;
-            console.log(JSON.stringify(result));
-            test.assert(result.loaded === true);
-            test.assert(result.expired === false);
-            test.assert(result.platform === "LINUX_X64");
-            test.assert(result.product === "Xcalar Data Platform");
-            test.assert(result.productFamily === "Xcalar Data Platform");
-            test.assert(result.productVersion === "1.4.0.0");
-            test.assert(result.nodeCount === 10);
-            test.assert(result.userCount === 10);
-            // Restore old license
-            return (xcalarUpdateLicense(thriftHandle, origResult.compressedLicense));
-        }).then(function(status) {
-            printResult(status);
-            return (xcalarGetLicense(thriftHandle))
-        }).then(function(result) {
-            console.log(JSON.stringify(result));
-            test.assert(result.loaded === origResult.loaded);
-            test.assert(result.expired === origResult.expired);
-            test.assert(result.platform === origResult.platform);
-            test.assert(result.product === origResult.product);
-            test.assert(result.productFamily === origResult.productFamily);
-            test.assert(result.productVersion === origResult.productVersion);
-            test.assert(result.nodeCount === origResult.nodeCount);
-            test.assert(result.userCount === origResult.userCount);
-            test.pass();
-        })
-        .fail(function(reason) {
-            test.fail(StatusTStr[reason.xcalarStatus] + ": " + reason.log);
-        });
-    }
-
-    function testUpdateLicense(test) {
-        var licenseKey = fs.read(envLicensePath + "/XcalarLic.key.update.good");
-
-        testApiUpdateLicense(test, licenseKey);
-    }
-
-    function testUpdateBadLicense(test, path, expectedStatus) {
-        var licenseKey = fs.read(path);
-        xcalarUpdateLicense(thriftHandle, licenseKey)
-        .then(function(status) {
-            test.fail("Test is not supposed to succeed. Expected: " + StatusTStr[expectedStatus]);
-        })
-        .fail(function(reason) {
-            test.assert(reason.xcalarStatus == expectedStatus);
-            test.pass();
-        });
-    }
-
-    function testUpdateLicenseTooFewNodes(test) {
-        testUpdateBadLicense(test, envLicensePath + "/XcalarLic.key.update.toosmall",
-                             StatusT.StatusLicInsufficientNodes);
-    }
-
-    function testUpdateLicenseExpired(test) {
-        testUpdateBadLicense(test, envLicensePath + "/XcalarLic.key.update.expired",
-                             StatusT.StatusLicExpired);
-    }
-
     function testApiKeyAddOrReplace(test, keyName, keyValue) {
         xcalarKeyAddOrReplace(thriftHandle,
                               XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal,
@@ -4511,9 +4463,6 @@ window.Function.prototype.bind = function() {
 
     addTestCase(testGetNumNodes, "getNumNodes", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetVersion, "getVersion", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testUpdateLicenseTooFewNodes, "license update -- too few nodes", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testUpdateLicenseExpired, "license update -- expired license", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testUpdateLicense, "license update", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetCurrentXemConfig, "get current xem config test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetConfigParams, "getConfigParams", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testSetConfigParam, "setConfigParam", defaultTimeout, TestCaseEnabled, "");

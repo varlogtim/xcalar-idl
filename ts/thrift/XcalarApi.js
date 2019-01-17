@@ -658,6 +658,89 @@ xcalarTargetTypeList = runEntity.xcalarTargetTypeList = function(thriftHandle) {
     return (deferred.promise());
 };
 
+XcalarCgroupWorkItem = runEntity.XcalarCgroupWorkItem = function(inJson) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+
+    workItem.api = XcalarApisT.XcalarApiCgroup;
+    workItem.input.cgroupInput = new XcalarApiCgroupInputT();
+    workItem.input.cgroupInput.inputJson = inJson;
+    return (workItem);
+};
+
+xcalarCgroupListParams = runEntity.xcalarCgroupListParams = function(thriftHandle) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarCgroupListParams()");
+    }
+
+    var inputObj = {
+        "func": "listCgroups"
+        };
+
+    var workItem = XcalarCgroupWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var cgroupOutput = result.output.outputResult.cgroupOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            return deferred.reject({xcalarStatus: status, log: log});
+        }
+
+        cgroupOutput = JSON.parse(cgroupOutput.outputJson);
+        deferred.resolve(cgroupOutput);
+    })
+    .fail(function(jqXHR) {
+        console.log("xcalarCgroupListParams() caught exception:", jqXHR);
+        deferred.reject({httpStatus: jqXHR.status});
+    });
+
+    return (deferred.promise());
+}
+
+xcalarCgroupGetParams = runEntity.xcalarCgroupGetParams = function(thriftHandle, cgroupName, cgroupController) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarCgroupGetParams(cgroupName = " + cgroupName +
+            ", cgroupController = " + cgroupController  + ")");
+    }
+
+    var inputObj = {
+        "func": "getCgroup",
+        "cgroupName" : cgroupName,
+        "cgroupController" : cgroupController
+        };
+
+    var workItem = XcalarCgroupWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var cgroupOutput = result.output.outputResult.cgroupOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            return deferred.reject({xcalarStatus: status, log: log});
+        }
+
+        cgroupOutput = JSON.parse(cgroupOutput.outputJson);
+        deferred.resolve(cgroupOutput);
+    })
+    .fail(function(jqXHR) {
+        console.log("xcalarCgroupGetParams() caught exception:", jqXHR);
+        deferred.reject({httpStatus: jqXHR.status});
+    });
+
+    return (deferred.promise());
+}
+
 xcalarPtSnapshotWorkItem = runEntity.xcalarPtSnapshotWorkItem = function(inJson) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -704,8 +787,6 @@ xcalarPtSnapshotAddConfig = runEntity.xcalarPtSnapshotAddConfig = function(thrif
             return deferred.reject({xcalarStatus: status, log: log});
         }
 
-        // ptSnapshotOutput has a outputJson field which is a json formatted string
-        // with a field called 'error' if something went wrong
         ptSnapshotOutput = JSON.parse(ptSnapshotOutput.outputJson);
         deferred.resolve(ptSnapshotOutput);
     })
@@ -752,8 +833,6 @@ xcalarPtSnapshotUpdateConfig = runEntity.xcalarPtSnapshotUpdateConfig = function
             return deferred.reject({xcalarStatus: status, log: log});
         }
 
-        // ptSnapshotOutput has a outputJson field which is a json formatted string
-        // with a field called 'error' if something went wrong
         ptSnapshotOutput = JSON.parse(ptSnapshotOutput.outputJson);
         deferred.resolve(ptSnapshotOutput);
     })
@@ -789,8 +868,6 @@ xcalarPtSnapshotDeleteConfig = runEntity.xcalarPtSnapshotDeleteConfig = function
             return deferred.reject({xcalarStatus: status, log: log});
         }
 
-        // ptSnapshotOutput has a outputJson field which is a json formatted string
-        // with a field called 'error' if something went wrong
         ptSnapshotOutput = JSON.parse(ptSnapshotOutput.outputJson);
         deferred.resolve(ptSnapshotOutput);
     })
@@ -826,8 +903,6 @@ xcalarPtSnapshotGetConfig = runEntity.xcalarPtSnapshotGetConfig = function(thrif
             return deferred.reject({xcalarStatus: status, log: log});
         }
 
-        // ptSnapshotOutput has a outputJson field which is a json formatted string
-        // with a field called 'error' if something went wrong
         ptSnapshotOutput = JSON.parse(ptSnapshotOutput.outputJson);
         deferred.resolve(ptSnapshotOutput);
     })
@@ -862,8 +937,6 @@ xcalarPtSnapshotListConfig = runEntity.xcalarPtSnapshotListConfig = function(thr
             return deferred.reject({xcalarStatus: status, log: log});
         }
 
-        // ptSnapshotOutput has a outputJson field which is a json formatted string
-        // with a field called 'error' if something went wrong
         ptSnapshotOutput = JSON.parse(ptSnapshotOutput.outputJson);
         deferred.resolve(ptSnapshotOutput);
     })
@@ -899,8 +972,6 @@ xcalarPtSnapshotDeleteResult = runEntity.xcalarPtSnapshotDeleteResult = function
             return deferred.reject({xcalarStatus: status, log: log});
         }
 
-        // ptSnapshotOutput has a outputJson field which is a json formatted string
-        // with a field called 'error' if something went wrong
         ptSnapshotOutput = JSON.parse(ptSnapshotOutput.outputJson);
         deferred.resolve(ptSnapshotOutput);
     })
@@ -936,8 +1007,6 @@ xcalarPtSnapshotGetResult = runEntity.xcalarPtSnapshotGetResult = function(thrif
             return deferred.reject({xcalarStatus: status, log: log});
         }
 
-        // ptSnapshotOutput has a outputJson field which is a json formatted string
-        // with a field called 'error' if something went wrong
         ptSnapshotOutput = JSON.parse(ptSnapshotOutput.outputJson);
         deferred.resolve(ptSnapshotOutput);
     })
@@ -972,8 +1041,6 @@ xcalarPtSnapshotListResult = runEntity.xcalarPtSnapshotListResult = function(thr
             return deferred.reject({xcalarStatus: status, log: log});
         }
 
-        // ptSnapshotOutput has a outputJson field which is a json formatted string
-        // with a field called 'error' if something went wrong
         ptSnapshotOutput = JSON.parse(ptSnapshotOutput.outputJson);
         deferred.resolve(ptSnapshotOutput);
     })
@@ -1012,8 +1079,6 @@ xcalarPtSnapshotTrigger = runEntity.xcalarPtSnapshotTrigger = function(thriftHan
             return deferred.reject({xcalarStatus: status, log: log});
         }
 
-        // ptSnapshotOutput has a outputJson field which is a json formatted string
-        // with a field called 'error' if something went wrong
         ptSnapshotOutput = JSON.parse(ptSnapshotOutput.outputJson);
         deferred.resolve(ptSnapshotOutput);
     })

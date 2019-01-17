@@ -535,12 +535,12 @@ XcalarGetVersion = function(
     return deferred.promise();
 };
 
-XcalarGetLicense = function(): XDPromise<XcalarApiGetLicenseOutputT | {}> {
+XcalarGetLicense = function(): XDPromise<any> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
 
-    const deferred: XDDeferred<XcalarApiGetLicenseOutputT> = PromiseHelper.deferred();
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
