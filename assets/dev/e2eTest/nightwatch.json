@@ -1,5 +1,5 @@
 {
-    "src_folders" : ["../../test/e2eTest/dataflowDatasetTest.js"],
+    "src_folders" : ["../../test/e2eTest/dataflowReplayTest.js"],
     "custom_commands_path": ["../../test/e2eTest/customCommands"],
     "webdriver" : {
       "start_process": true,
@@ -12,6 +12,16 @@
         "desiredCapabilities": {
           "browserName": "chrome"
         }
+      }
+    },
+    "chrome" : {
+      "desiredCapabilities": {
+        "browserName": "chrome",
+        "javascriptEnabled": true,
+        "acceptSslCerts": true
+      },
+      "chromeOptions" : {
+        "args" : ["disable-web-security", "user-data-dir"]
       }
     }
   }

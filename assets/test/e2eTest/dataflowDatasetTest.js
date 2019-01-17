@@ -1,8 +1,10 @@
 module.exports = {
-    tags: ['Workbook Replay'],
+    '@tags': ['Workbook Replay', 'x'],
     'open browser': function(browser) {
         let user = "dftest";
-        let url = "http://localhost:8080/testSuite.html" +
+        browser.globals['gTestUserName'] = user;
+        browser.globals['gTestExportDirectory'] = "/home/jenkins/export_test/";
+        let url = "http://localhost:8888/testSuite.html" +
         "?test=n&noPopup=y&animation=y&cleanup=y&close=y&user=" + user + "&id=0"
         // open browser
         browser
@@ -23,11 +25,7 @@ module.exports = {
             browser
                 .click(".workbookBox.noResource .content.activate")
                 .pause(1000)
-                .waitForElementVisible("#modeArea", 100000)
                 .waitForElementNotVisible("#initialLoadScreen", 100000)
-                .click("#modeArea")
-                .waitForElementNotVisible("#initialLoadScreen", 100000)
-                .click("#dagButton");
          });
     },
 
@@ -50,7 +48,6 @@ module.exports = {
             .openOpPanel(".dataset:nth-child(1)")
             .submitAdvancedPanel("#datasetOpPanel", "{\"prefix\":\"airports\",\"source\":\"rudy.34847.airports\",\"schema\":[{\"name\":\"iata\",\"type\":\"string\"},{\"name\":\"airport\",\"type\":\"string\"},{\"name\":\"city\",\"type\":\"string\"},{\"name\":\"state\",\"type\":\"string\"},{\"name\":\"country\",\"type\":\"string\"},{\"name\":\"lat\",\"type\":\"float\"},{\"name\":\"long\",\"type\":\"float\"},{\"name\":\"column7\",\"type\":\"string\"}],\"synthesize\":false,\"loadArgs\":\"{\\n    \\\"operation\\\": \\\"XcalarApiBulkLoad\\\",\\n    \\\"comment\\\": \\\"\\\",\\n    \\\"tag\\\": \\\"\\\",\\n    \\\"state\\\": \\\"Unknown state\\\",\\n    \\\"args\\\": {\\n        \\\"dest\\\": \\\"rudy.34847.airports\\\",\\n        \\\"loadArgs\\\": {\\n            \\\"sourceArgsList\\\": [\\n                {\\n                    \\\"targetName\\\": \\\"Default Shared Root\\\",\\n                    \\\"path\\\": \\\"/netstore/datasets/flight/airports.csv\\\",\\n                    \\\"fileNamePattern\\\": \\\"\\\",\\n                    \\\"recursive\\\": false\\n                }\\n            ],\\n            \\\"parseArgs\\\": {\\n                \\\"parserFnName\\\": \\\"default:parseCsv\\\",\\n                \\\"parserArgJson\\\": \\\"{\\\\\\\"recordDelim\\\\\\\":\\\\\\\"\\\\\\\\n\\\\\\\",\\\\\\\"fieldDelim\\\\\\\":\\\\\\\",\\\\\\\",\\\\\\\"isCRLF\\\\\\\":false,\\\\\\\"linesToSkip\\\\\\\":1,\\\\\\\"quoteDelim\\\\\\\":\\\\\\\"\\\\\\\\\\\\\\\"\\\\\\\",\\\\\\\"hasHeader\\\\\\\":true,\\\\\\\"schemaFile\\\\\\\":\\\\\\\"\\\\\\\",\\\\\\\"schemaMode\\\\\\\":\\\\\\\"loadInput\\\\\\\"}\\\",\\n                \\\"fileNameFieldName\\\": \\\"\\\",\\n                \\\"recordNumFieldName\\\": \\\"\\\",\\n                \\\"allowFileErrors\\\": false,\\n                \\\"allowRecordErrors\\\": false,\\n                \\\"schema\\\": [\\n                    {\\n                        \\\"sourceColumn\\\": \\\"iata\\\",\\n                        \\\"destColumn\\\": \\\"iata\\\",\\n                        \\\"columnType\\\": \\\"DfString\\\"\\n                    },\\n                    {\\n                        \\\"sourceColumn\\\": \\\"airport\\\",\\n                        \\\"destColumn\\\": \\\"airport\\\",\\n                        \\\"columnType\\\": \\\"DfString\\\"\\n                    },\\n                    {\\n                        \\\"sourceColumn\\\": \\\"city\\\",\\n                        \\\"destColumn\\\": \\\"city\\\",\\n                        \\\"columnType\\\": \\\"DfString\\\"\\n                    },\\n                    {\\n                        \\\"sourceColumn\\\": \\\"state\\\",\\n                        \\\"destColumn\\\": \\\"state\\\",\\n                        \\\"columnType\\\": \\\"DfString\\\"\\n                    },\\n                    {\\n                        \\\"sourceColumn\\\": \\\"country\\\",\\n                        \\\"destColumn\\\": \\\"country\\\",\\n                        \\\"columnType\\\": \\\"DfString\\\"\\n                    },\\n                    {\\n                        \\\"sourceColumn\\\": \\\"lat\\\",\\n                        \\\"destColumn\\\": \\\"lat\\\",\\n                        \\\"columnType\\\": \\\"DfFloat64\\\"\\n                    },\\n                    {\\n                        \\\"sourceColumn\\\": \\\"long\\\",\\n                        \\\"destColumn\\\": \\\"long\\\",\\n                        \\\"columnType\\\": \\\"DfFloat64\\\"\\n                    }\\n                ]\\n            },\\n            \\\"size\\\": 10737418240\\n        }\\n    },\\n    \\\"annotations\\\": {}\\n}\"}");
     },
-
 
     'add 2nd dataset node': function(browser) {
         browser
@@ -165,7 +162,7 @@ module.exports = {
     'config publishIMD node': function(browser) {
         let time = Math.round(Date.now() / 1000);
         let imdName = "test" + time;
-        browser.globals['gIMDName'] = imdName;
+        browser.globals['gTestIMDName'] = imdName;
         let config = {
             "pubTableName": imdName,
             "primaryKeys": [
@@ -200,7 +197,7 @@ module.exports = {
 
     'config IMDTable node': function(browser) {
         let config = {
-            "source": browser.globals['gIMDName'],
+            "source": browser.globals['gTestIMDName'],
             "version": -1,
             "schema": [
                 {
@@ -265,8 +262,8 @@ module.exports = {
 
         browser
             .openOpPanel(".IMDTable")
-            .pause(8000) // need to check fo listTables call to resolve
-            .setValue("#IMDTableOpPanel .pubTableInput", browser.globals['gIMDName'])
+            .pause(8000) // need to check for listTables call to resolve
+            .setValue("#IMDTableOpPanel .pubTableInput", browser.globals['gTestIMDName'])
             .pause(1000)
             .moveToElement("#pubTableList li:not(.xc-hidden)", 2, 2)
             .mouseButtonUp("left")
@@ -396,7 +393,7 @@ module.exports = {
             "driver": "single_csv",
             "driverArgs": {
                 "target": "Default Shared Root",
-                "file_path": "/home/jenkins/export_test/test" + time + ".csv",
+                "file_path": browser.globals["gTestExportDirectory"] + "test" + time + ".csv",
                 "header": "false"
             }
         };
@@ -465,8 +462,23 @@ module.exports = {
             });
     },
 
+    'clean up': function(browser) {
+        browser
+            .click("#dataStoresTab")
+            .click("#sourceTblButton")
+            .click("#datastoreMenu .table .iconSection .refresh")
+            .waitForElementNotPresent("#datastoreMenu .refreshIcon", 50000)
+            .waitForElementPresent('#datastoreMenu .grid-unit[data-id="' + browser.globals['gTestIMDName'] + '"]')
+            .moveToElement('#datastoreMenu .grid-unit[data-id="' + browser.globals['gTestIMDName'] + '"]', 20, 20)
+            .mouseButtonClick("right")
+            .moveToElement("#tableGridViewMenu li.delete", 10, 10)
+            .mouseButtonClick("left")
+            .click("#alertModal .confirm")
+            .waitForElementNotPresent('#datastoreMenu .grid-unit[data-id="' + browser.globals['gTestIMDName'] + '"]');
+    },
+
     'delete workbook': function(browser) {
         browser
-            .deleteWorkbook(browser.globals['gTestWorkbookName']);
+            .deleteWorkbook(browser.globals['gTestWorkbookName'], browser.globals['gTestUserName']);
     }
 }

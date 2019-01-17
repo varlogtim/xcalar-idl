@@ -3,7 +3,7 @@ module.exports = {
     'open browser': function(browser) {
         // let user = "dftest" + Math.floor(Math.random() * 1000 + 1);
         let user = "dftest";
-        let url = "http://localhost:8080/testSuite.html" +
+        let url = "http://localhost:8888/testSuite.html" +
         "?test=n&noPopup=y&animation=y&cleanup=y&close=y&user=" + user + "&id=0"
         // open browser
         browser
@@ -46,6 +46,6 @@ module.exports = {
 
     'delete workbook': function(browser) {
         browser
-        .deleteWorkbook("example");
+        .deleteWorkbook("example", "dftest");
     }
 }

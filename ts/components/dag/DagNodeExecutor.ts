@@ -796,9 +796,9 @@ class DagNodeExecutor {
         XIApi.publishTable(this.txId, params.primaryKeys,
             this._getParentNodeTable(0), params.pubTableName,
             colInfo, params.operator)
-        .then((res) => {
+        .then(() => {
             PTblManager.Instance.cacheTempTable(params.pubTableName);
-            deferred.resolve(res);
+            deferred.resolve();
         })
         .fail(deferred.reject)
         return deferred.promise();
