@@ -139,6 +139,7 @@
                 top: -1px;
             }
         }
+
         .icon {
             padding: 0 5px;
             font-size: 16px;
@@ -150,6 +151,20 @@
             }
             &.deactivate {
                 color: @color-table-red;
+            }
+
+            &.tableView {
+                background-color: @color-bg-tableView-blue;
+                .rounded(100%);
+                .size(22px, 22px);
+                .font(@size: 12px, @color: @color-white);
+                .position(relative, @top: -5px);
+                padding: 0;
+                margin-right: 5px;
+    
+                &:before {
+                    .position(relative, @top: 5px, @left: 5px);
+                }
             }
         }
 

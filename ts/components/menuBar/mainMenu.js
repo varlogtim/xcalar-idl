@@ -437,6 +437,13 @@ window.MainMenu = (function($, MainMenu) {
                         $("#sourceTblButton").click(); // switch to source panel
                     }
                 }
+                if ($curTab.find(".subTab.active").length === 0) {
+                    if (XVM.isSQLMode()) {
+                        $("#sourceTblButton").click(); // switch to source panel
+                    } else {
+                        $("#inButton").click();
+                    }
+                }
                 DS.resize();
                 break;
             case ("monitorTab"):

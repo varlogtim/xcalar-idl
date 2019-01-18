@@ -1186,7 +1186,7 @@ namespace WorkbookManager {
     function setDefaultMode(workbookName: string): XDPromise<void> {
         const currentSession: string = sessionName;
         setSessionName(workbookName);
-        const promise = XVM.setMode(XVM.Mode.SQL); // set sql as default mode
+        const promise = XVM.commitMode(XVM.Mode.SQL); // set sql as default mode
         setSessionName(currentSession);
         return PromiseHelper.alwaysResolve(promise);
     }

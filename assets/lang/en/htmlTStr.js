@@ -385,6 +385,7 @@ module.exports = {
         "Deactivate": "Deactivate Table",
         "Tables": "Tables",
         "Schema": "Schema",
+        "ViewTables": "View Tables",
     },
 
     "SchemaSelect": {
@@ -409,7 +410,8 @@ module.exports = {
         "more": "more",
         "back": "back",
         "Coalesce": "Coalesce",
-        "CoalesceTip": "Conserve memory by combining updated tables into one."
+        "CoalesceTip": "Conserve memory by combining updated tables into one.",
+        "ViewIMD": "View IMD",
     },
 
     "fileManager": {
