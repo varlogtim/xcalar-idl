@@ -342,7 +342,16 @@ exports.Sort = sort;
 function synthesize(synthesizeReq) {
     var deferred = PromiseHelper.deferred();
     //Translate from protobuf message to xiapi arguments
-    var colInfos = synthesizeReq.getcolinfosList();
+    var colInfosMsgs = synthesizeReq.getColinfosList();
+    colInfos = [];
+    colInfosMsgs.forEach(col => {
+        colRenameInfo = {
+            "orig":col.getOrig(),
+            "new":col.getNew(),
+            "type":xcHelper.convertColTypeToFieldType(col.getType())
+        };
+        colInfos.push(colRenameInfo);
+    });
     var tableName = synthesizeReq.getSrctablename();
     var newTableName = synthesizeReq.getDsttablename();
     var sameSession = synthesizeReq.getSamesession();
