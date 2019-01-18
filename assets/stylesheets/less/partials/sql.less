@@ -163,7 +163,7 @@
     .size(@min-width: 650px, @height: ~"calc(100% - 5px)");
     .cardHeader {
         display: flex;
-        .refresh-queryHist {
+        .refresh-queryHist, .selCancelQueryHist {
             color: white;
             opacity: 0.7;
             cursor: pointer;
@@ -351,6 +351,7 @@
 
                 .cardHeader {
                     background-color: @color-white;
+                    display: block;
 
                     .title {
                         padding-left: 15px;
@@ -359,8 +360,11 @@
                         color: @color-font-edge;
                     }
 
-                    .refresh-queryHist {
+                    .refresh-queryHist, .selCancelQueryHist {
                         color: @color-font-form-gray;
+                        float: right;
+                        margin-left: 0;
+                        .position(relative, @top: 9px);
                     }
                 }
 

@@ -12,6 +12,8 @@ class DagNodeSQL extends DagNode {
     protected tableNewDagIdMap: {};
     protected dagIdToTableNamesMap: {}; // id to tableName map stores all the tables related to the dag node
     // in topological order
+
+    // non-persistent
     private _queryObj: any;
 
     public constructor(options: DagNodeSQLInfo) {
@@ -36,6 +38,9 @@ class DagNodeSQL extends DagNode {
         this.subInputNodes = [];
         this.subOutputNodes = [];
         this.SQLName = xcHelper.randName("SQLTab_");
+        this._queryObj = {
+            queryId: xcHelper.randName("sqlQuery", 8)
+        };
     }
 
     public static readonly specificSchema = {
@@ -60,15 +65,28 @@ class DagNodeSQL extends DagNode {
         }
     };
 
+    public getSQLQueryId(): string {
+        return this._queryObj.queryId;
+    }
+
     public setSQLQuery(queryObj): void {
-        this._queryObj = queryObj;
+        for (let key in queryObj) {
+            this._queryObj[key] = queryObj[key];
+        }
     }
 
     public getSQLQuery(): any {
         return this._queryObj;
     }
 
-    public updateSQLQuery(): void {
+    public updateSQLQueryHisory(updateStats: boolean = false): void {
+        if (updateStats) {
+            this._updateStatsInSQLQuery();
+        }
+        SQLHistorySpace.Instance.update(this._queryObj);
+    }
+
+    private _updateStatsInSQLQuery(): void {
         try {
             let stats = this.getOverallStats();
             this._queryObj.rows = stats.rows;

@@ -2205,7 +2205,10 @@ namespace DagView {
                         });
                     }
                 }
-                const addLogParam = _addNodeNoPersist(node, {isNoLog: true});
+                const addLogParam = _addNodeNoPersist(node, {
+                    isNoLog: true,
+                    tabId: tabId
+                });
                 expandLogParam.options.actions.push(addLogParam.options);
                 _addProgressTooltipForNode(graphExpandTo, node, $dfArea);
             });
@@ -4596,8 +4599,7 @@ namespace DagView {
 
         node.updateProgress(nodeIdInfos, false, node instanceof DagNodeSQL);
         if (node instanceof DagNodeSQL) {
-            node.updateSQLQuery();
-            SQLHistorySpace.Instance.update(node.getSQLQuery());
+            node.updateSQLQueryHisory(true);
         }
     }
 
@@ -4889,11 +4891,17 @@ namespace DagView {
         }
     }
 
-    function _addNodeNoPersist(node, options?: { isNoLog?: boolean }): LogParam {
-        let { isNoLog = false } = options || {};
+    function _addNodeNoPersist(
+        node,
+        options?: {
+            isNoLog?: boolean,
+            tabId?: string
+        }
+    ): LogParam {
+        let { isNoLog = false, tabId = null } = options || {};
 
         _deselectAllNodes();
-        const $dfArea = _getActiveArea();
+        const $dfArea = tabId ? _getAreaByTab(tabId) : _getActiveArea();
 
         const nodeId = node.getId();
         const $node = _drawNode(node, $dfArea);

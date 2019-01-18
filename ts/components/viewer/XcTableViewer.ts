@@ -39,6 +39,8 @@ class XcTableViewer extends XcViewer {
      * Render the view of the data
      */
     public render($section: JQuery, autoAddCols: boolean = false): XDPromise<void> {
+        let table = this.table;
+        gTables[table.getId()] = table;
         super.render($section);
         let $container = this.$container || $section;
         const deferred: XDDeferred<void> = PromiseHelper.deferred();

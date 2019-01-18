@@ -14,6 +14,7 @@ class SQLEditorSpace {
     private constructor() {
         this._isDocked = true;
         this._minWidth = 200;
+        this._executers = [];
     }
 
     public setup(): void {
@@ -40,9 +41,6 @@ class SQLEditorSpace {
     }
 
     public cancelExecution(): void {
-        if (!this._executers) {
-            return;
-        }
         this._executers.forEach((executor) => {
             if (executor.getStatus() != SQLStatus.Done &&
                 executor.getStatus() != SQLStatus.Cancelled &&
@@ -140,10 +138,23 @@ class SQLEditorSpace {
         return this._getEditorSpaceEl().find(".topBarSection");
     }
 
-    private _executeAllSQL(): void {
+    private _executeAction(): void {
+        if (this._executers.length === 0) {
+            this._executeSQL();
+        } else {
+            Alert.show({
+                "title": SQLTStr.Execute,
+                "msg": SQLTStr.InExecute,
+                onConfirm: () => {
+                    this._executeSQL();
+                }
+            });
+        }
+    }
+
+    private _executeSQL(): void {
         try {
             SQLWorkSpace.Instance.save();
-            this._executers = [];
             let sqls: string = this._sqlEditor.getSelection() || this._sqlEditor.getValue();
             let sqlArray: string[] = XDParser.SqlParser.getMultipleQueriesViaParser(sqls);
             let selectArray: string[] = [];
@@ -173,8 +184,23 @@ class SQLEditorSpace {
                 console.error("Table not found: " + targetTableName);
                 SQLResultSpace.Instance.showSchemaError("Table not found: " + targetTableName);
             }
-            selectArray.forEach((sql) => {
-                this._executers.push(this._executeSQL(sql));
+            selectArray.forEach((sql, i) => {
+                let executor = new SQLExecutor(sql);
+                let callback = null;
+                if (i === selectArray.length - 1) {
+                    callback = (tableName, succeed) => {
+                        this._removeExecutor(executor);
+                        if (succeed) {
+                            this._showTable(tableName);
+                        }
+                    };
+                } else {
+                    callback = () => {
+                        this._removeExecutor(executor);
+                    };
+                }
+                this._addExecutor(executor);
+                executor.execute(callback);
             });
         } catch (e) {
             console.error(e);
@@ -191,10 +217,37 @@ class SQLEditorSpace {
         }
     }
 
-    private _executeSQL(sql): SQLExecutor {
-        let executor = new SQLExecutor(sql);
-        executor.execute();
-        return executor;
+    private _addExecutor(executor: SQLExecutor): void {
+        this._executers.push(executor);
+    }
+
+    private _removeExecutor(executor: SQLExecutor): void {
+        for (let i = 0; i< this._executers.length; i++) {
+            if (this._executers[i] === executor) {
+                this._executers.splice(i, 1);
+                return;
+            }
+        }
+    }
+
+    // XXX TODO, reuse in sqlQueryHistoryPanel
+    private _showTable(tableName: string): void {
+        let tableId = xcHelper.getTableId(tableName);
+        if (!tableId) {
+            // invalid case
+            Alert.show({
+                title: SQLErrTStr.Err,
+                msg: SQLErrTStr.TableDropped,
+                isAlert: true
+            });
+            return;
+        }
+        let table = new TableMeta({
+            tableId: tableId,
+            tableName: tableName
+        });
+        gTables[tableId] = table;
+        SQLResultSpace.Instance.viewTable(table);
     }
 
     private _setFileName(name: string): void {
@@ -300,7 +353,7 @@ class SQLEditorSpace {
         const $bottomSection = $container.find(".bottomSection");
         $bottomSection.on("click", ".execute", (event) => {
             $(event.currentTarget).blur();
-            this._executeAllSQL();
+            this._executeAction();
         });
 
         $container.on("click", ".undock", () => {

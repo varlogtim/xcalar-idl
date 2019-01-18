@@ -39,9 +39,15 @@ namespace SqlQueryHistoryPanel {
             // Refresh
             const $refreshicon = this._$cardContainer.find(".selRefreshQueryHist");
             $refreshicon.on('click', () => {
-                    this.show(true);
-                }
-            );
+                this.show(true);
+            });
+
+            // Cancel
+            const $cancelicon = this._$cardContainer.find(".selCancelQueryHist");
+            $cancelicon.on("click", () => {
+                SQLEditorSpace.Instance.cancelExecution();
+            });
+
             SqlQueryHistModal.getInstance().setup();
         }
 
@@ -124,18 +130,22 @@ namespace SqlQueryHistoryPanel {
             tableDefs[TableColumnCategory.TABLE] = {
                 type: TableHeaderColumnType.REGULAR,
                 convertFunc: (queryInfo) => {
+                    let text = "";
+                    if (queryInfo.status === SQLStatus.Failed) {
+                        text = queryInfo.errorMsg;
+                    } else if (queryInfo.status === SQLStatus.Done) {
+                        text = "View";
+                    }
                     const prop: TableBodyColumnTextLinkProp = {
                         category: TableColumnCategory.TABLE,
-                        text: queryInfo.status === SQLStatus.Failed
-                            ? queryInfo.errorMsg
-                            : "View",
+                        text: text,
                         onLinkClick: () => {
                             if (queryInfo.status === SQLStatus.Failed) {
                                 this._onClickError({
                                     title: AlertTStr.queryHistorySQLErrorTitle,
                                     errorMsg: queryInfo.errorMsg
                                 });
-                            } else {
+                            } else if (queryInfo.status === SQLStatus.Done) {
                                 this._onClickTable(queryInfo.tableName);
                             }
                         }
@@ -245,7 +255,6 @@ namespace SqlQueryHistoryPanel {
                 tableId: tableId,
                 tableName: tableName
             });
-            gTables[tableId] = table;
             SQLResultSpace.Instance.viewTable(table);
         }
     }
@@ -311,12 +320,22 @@ namespace SqlQueryHistoryPanel {
             tableDef[TableColumnCategory.ACTION] = {
                 type: TableHeaderColumnType.REGULAR,
                 convertFunc: (queryInfo) => {
+                    let text = "";
+                    let iconClass = "";
+                    let isValidStatus = queryInfo.status === SQLStatus.Done ||
+                    queryInfo.status === SQLStatus.Failed;
+                    if (isValidStatus) {
+                        text = SQLTStr.queryTableBodyTextAnalyze;
+                        iconClass = 'xi-dataflow';
+                    }
                     const prop: TableBodyColumnIconLinkProp = {
                         category: TableColumnCategory.ACTION,
-                        text: SQLTStr.queryTableBodyTextAnalyze,
-                        iconClass: 'xi-dataflow',
+                        text: text,
+                        iconClass: iconClass,
                         onLinkClick: () => {
-                            SQLHistorySpace.Instance.analyze(queryInfo.dataflowId);
+                            if (isValidStatus) {
+                                SQLHistorySpace.Instance.analyze(queryInfo.dataflowId);
+                            }
                         }
                     };
                     return prop;

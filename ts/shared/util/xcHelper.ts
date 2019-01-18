@@ -2986,8 +2986,12 @@ namespace xcHelper {
         const table: TableMeta = gTables[tableId];
         // XXX TODO: remove this hack
         const modelingMode: boolean = (table && table.modelingMode);
-        const $contaianer: JQuery = modelingMode ? DagTable.Instance.getView() : $('#mainFrame');
+        let $contaianer: JQuery = modelingMode ? DagTable.Instance.getView() : $('#mainFrame');
         const $tableWrap: JQuery = $('#xcTableWrap-' + tableId);
+        if ($contaianer == null) {
+            // table view in sql mode
+            $contaianer = $tableWrap.closest(".xc-tableArea");
+        }
         const containerWidth: number = $contaianer.width();
         const currentScrollPosition: number = $contaianer.scrollLeft();
         const $th: JQuery = $tableWrap.find('th.col' + colNum);

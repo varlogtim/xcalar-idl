@@ -79,37 +79,29 @@ class SQLExecutor {
         this._status = status;
     }
 
-    public execute(): XDPromise<void> {
+    public execute(callback): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-
         try {
             let tabId: string = this._tempTab.getId();
             SQLExecutor.setTab(tabId, this._tempTab);
             const publishedTableNodes: DagNodeIMDTable[] = this._IMDNodes;
-            this._addPublishedTableNodes(publishedTableNodes)
+            this._addPublishedTableNodes(publishedTableNodes);
 
+            let finalTableName;
+            let succeed: boolean = false;
             this._configurePublishedTableNode()
             .then(() => {
                 return this._configureSQLNode();
             })
             .then(() => {
                 if (this._status === SQLStatus.Cancelled) {
-                    // Add the entry to sql history panel
-                    const queryId = xcHelper.randName("sqlQuery", 8);
-                    const queryObj = {
-                        queryId: queryId,
-                        queryString: this._sql,
-                        dataflowId: this._tempTab.getId()
-                    };
-                    queryObj["status"] = SQLStatus.Cancelled;
-                    queryObj["startTime"] = new Date();
-                    SQLHistorySpace.Instance.update(queryObj);
                     return PromiseHelper.reject(SQLStatus.Cancelled);
                 }
                 this._status = SQLStatus.Running;
                 return this._tempGraph.execute([this._sqlNode.getId()]);
             })
             .then(() => {
+                finalTableName = this._sqlNode.getTable();
                 this._status = SQLStatus.Done;
                 DagTabManager.Instance.addSQLTabCache(this._tempTab);
                 let promise = DagView.expandSQLNodeInTab(this._sqlNode, this._tempTab);
@@ -117,12 +109,22 @@ class SQLExecutor {
             })
             .then(() => {
                 DagTabManager.Instance.removeSQLTabCache(this._tempTab);
-                return this._tempTab.save();
+                let promise = this._tempTab.save();
+                return PromiseHelper.alwaysResolve(promise);
             })
-            .then(deferred.resolve)
+            .then(() => {
+                succeed = true;
+                deferred.resolve();
+            })
             .fail(deferred.reject)
             .always(() => {
                 SQLExecutor.deleteTab(tabId);
+                if (this._status === SQLStatus.Cancelled) {
+                    this._updateCancelStatus();
+                }
+                if (typeof callback === "function") {
+                    callback(finalTableName, succeed);
+                }
             });
         } catch (e) {
             deferred.reject({error: e.mesaage});
@@ -175,5 +177,15 @@ class SQLExecutor {
         });
         const sqlMode = true;
         return this._sqlNode.compileSQL(this._sql, queryId, identifiers, sqlMode);
+    }
+
+    private _updateCancelStatus(): void {
+        this._sqlNode.setSQLQuery({
+            queryString: this._sql,
+            dataflowId: this._tempTab.getId(),
+            status: SQLStatus.Cancelled,
+            startTime: new Date()
+        });
+        this._sqlNode.updateSQLQueryHisory();
     }
 }

@@ -55,7 +55,6 @@ class SQLTable {
         if (this._isSameViewer(viewer)) {
             return PromiseHelper.resolve();
         }
-
         this._reset();
         this._currentViewer = viewer;
         return this._showViewer();

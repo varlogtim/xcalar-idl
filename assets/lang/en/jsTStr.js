@@ -1637,7 +1637,9 @@ SQLTStr = {
     "CreateFunc": "Create new SQL function",
     "WorkSpace": "SQL WorkSpace",
     "DeleteSnippet": "Delete Snippet",
-    "DeleteSnippetMsg": "Are you sure you want to delete snippet \"<name>\"?"
+    "DeleteSnippetMsg": "Are you sure you want to delete snippet \"<name>\"?",
+    "Execute": "Execute SQL",
+    "InExecute": "There are already some SQLs in exeuction, do you still want to continue?",
 };
 
 LoginConfigTStr = {
