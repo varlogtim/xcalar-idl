@@ -32,8 +32,13 @@ class SqlParser {
         var tree = parser.statement();
         var visitor = new SqlVisitor();
         visitor.visitTables(tree);
-
-        return visitor.tableIdentifiers;
+        var identifiers = [];
+        visitor.tableIdentifiers.forEach((identifier) => {
+            if (visitor.namedQueries.indexOf(identifier) === -1) {
+                identifiers.push(identifier);
+            }
+        });
+        return identifiers;
     }
 
     static getSQLTableFunctions(sqlStatement) {
