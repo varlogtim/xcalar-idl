@@ -263,8 +263,9 @@ function convertHelper(dataflowInfo, nestedPrefix, otherNodes) {
                 } else {
                     args.dest = sourcePrefix + args.dest;
                 }
-                args.loadArgs = updateLoadArgs(args);
-                datasets.push(rawNode);
+                let datasetBeforeXDChange = xcHelper.deepCopy(rawNode);
+                args.loadArgs = updateLoadArgsForXD(args);
+                datasets.push(datasetBeforeXDChange);
                 break;
             default:
                 isIgnoredApi = true;
@@ -1499,7 +1500,7 @@ function removeCRLF(node) {
     }
 }
 // format loadArgs into the way dataflow 2.0 dataset node expects
-function updateLoadArgs(args) {
+function updateLoadArgsForXD(args) {
     let originalLoadArgs = args.loadArgs;
     let loadArgs = originalLoadArgs;
     if (!loadArgs) {
