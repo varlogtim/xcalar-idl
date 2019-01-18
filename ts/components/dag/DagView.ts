@@ -494,6 +494,7 @@ namespace DagView {
         let maxYCoor: number = 0;
         const nodes = [];
         let hasLinkOut: boolean = false;
+        graph.turnOnBulkStateSwitch();
         for (let i = nodeIds.length - 1; i >= 0; i--) {
             const nodeId: DagNodeId = nodeIds[i];
             let node;
@@ -514,7 +515,7 @@ namespace DagView {
             }
             nodes.push(node);
         }
-
+        graph.turnOffBulkStateSwitch();
         const dagNodes = nodes.filter(node => {
             return node.getId().startsWith("dag");
         });
@@ -2401,10 +2402,14 @@ namespace DagView {
             }
         });
 
+        // XXX TODO: this remove retina is async
+        // so may slow down the remove operation,
+        // need to improve
         graph.removeRetinas(dagNodeIds)
-        .always((ret) =>{
+        .always((ret) => {
             let hasLinkOut: boolean = false;
             // XXX TODO: check the slowness and fix the performance
+            graph.turnOnBulkStateSwitch();
             nodeIds.forEach((nodeId) => {
                 if (ret.errorNodeIds.indexOf(nodeId) > -1) {
                     return;
@@ -2446,7 +2451,7 @@ namespace DagView {
                 }
                 removedNodeIds.push(nodeId);
             });
-
+            graph.turnOffBulkStateSwitch();
             DagAggManager.Instance.bulkNodeRemoval(aggregates);
 
             const logParam: LogParam = {

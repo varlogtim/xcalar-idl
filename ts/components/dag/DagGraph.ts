@@ -8,6 +8,9 @@ class DagGraph {
     private lock: boolean;
     private noDelete: boolean;
     private parentTabId: string;
+    private _isBulkStateSwitch: boolean;
+    private _stateSwitchSet: Set<DagNode>;
+
     protected operationTime: number;
     protected currentExecutor: DagGraphExecutor
     public events: { on: Function, off: Function, trigger: Function}; // example: dagGraph.events.on(DagNodeEvents.StateChange, console.log)
@@ -24,6 +27,8 @@ class DagGraph {
         };
         this.lock = false;
         this.operationTime = 0;
+        this._isBulkStateSwitch = false;
+        this._stateSwitchSet = new Set();
         this._setupEvents();
     }
 
@@ -1733,14 +1738,26 @@ class DagGraph {
     }
 
     private _traverseSwitchState(node: DagNode): Set<DagNode> {
+        const traversedSet: Set<DagNode> = new Set();
+        if (this._hasTraversedInBulk(node)) {
+            return traversedSet;
+        }
         this.events.trigger(DagGraphEvents.TurnOffSave, {
             tabId: this.parentTabId
         });
-        const traversedSet: Set<DagNode> = new Set();
-        node.switchState();
+        if (!this._isBulkStateSwitch) {
+            node.switchState();
+        }
         traversedSet.add(node);
         this._traverseChildren(node, (node: DagNode) => {
-            node.switchState();
+            if (traversedSet.has(node) ||
+                this._hasTraversedInBulk(node)
+            ) {
+                return false;
+            }
+            if (!this._isBulkStateSwitch) {
+                node.switchState();
+            }
             traversedSet.add(node);
         });
         this.events.trigger(DagGraphEvents.TurnOnSave, {
@@ -1807,7 +1824,11 @@ class DagGraph {
                 } else {
                     seen.add(nodeId);
                 }
-                callback(child);
+                let res = callback(child);
+                if (res === false) {
+                    // stop traverse
+                    return;
+                }
                 recursiveTraverse(child);
             });
         };
@@ -2541,6 +2562,33 @@ class DagGraph {
             })
 
             return newCols;
+        }
+    }
+
+    public turnOnBulkStateSwitch(): void {
+        this._isBulkStateSwitch = true;
+        this._stateSwitchSet.clear();
+    }
+
+    public turnOffBulkStateSwitch(): void {
+        this._isBulkStateSwitch = false;
+        // switch node state in bulk
+        this._stateSwitchSet.forEach((node) => {
+            if (this.hasNode(node.getId())) {
+                node.switchState(true);
+            }
+        });
+        this._stateSwitchSet.clear();
+    }
+
+    private _hasTraversedInBulk(node: DagNode): boolean {
+        if (!this._isBulkStateSwitch) {
+            return false;
+        } else if (this._stateSwitchSet.has(node)) {
+            return true;
+        } else {
+            this._stateSwitchSet.add(node);
+            return false;
         }
     }
 }

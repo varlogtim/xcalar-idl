@@ -11,7 +11,7 @@ window.ColManager = (function($, ColManager) {
         }
 
         var prefix = xcHelper.parsePrefixColName(backColName).prefix;
-        var width = xcHelper.getDefaultColWidth(colName, prefix);
+        var width = null; // not set width here as it's a slow operation 
 
         return ColManager.newCol({
             "backName": backColName,

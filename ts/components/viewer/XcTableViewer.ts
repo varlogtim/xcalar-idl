@@ -8,6 +8,7 @@ class XcTableViewer extends XcViewer {
     public constructor(table: TableMeta) {
         const tableName: string = table.getName(); // use table name as unique id
         super(tableName);
+        this._initializeColumnWidth(table);
         this.table = table;
         this.rowManager = new RowManager(table, this.getView());
         this.rowInput = new RowInput(this.rowManager);
@@ -78,6 +79,20 @@ class XcTableViewer extends XcViewer {
         });
     }
 
+    private _initializeColumnWidth(table: TableMeta): void {
+        if (table.tableCols == null) {
+            return;
+        }
+        table.tableCols.forEach((progCol: ProgCol) => {
+            if (progCol.width == null) {
+                let colName: string = progCol.getFrontColName();
+                let prefix: string = progCol.getPrefix();
+                let width: number = xcHelper.getDefaultColWidth(colName, prefix);
+                progCol.width = width;
+            }
+        });
+    }
+
     private _autoAddCols(): void {
         let table = this.table;
         if (table.getAllCols() != null) {
@@ -96,6 +111,7 @@ class XcTableViewer extends XcViewer {
         }
         progCols.push(ColManager.newDATACol());
         table.tableCols = progCols;
+        this._initializeColumnWidth(table);
     }
 
     private _startBuildTable(): XDPromise<void> {
