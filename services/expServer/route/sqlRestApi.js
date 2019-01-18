@@ -667,6 +667,98 @@ function collectTablesMetaInfo(queryStr, tablePrefix, type) {
     return deferred.promise();
 }
 
+function getXCquery(params, type) {
+    var deferred = PromiseHelper.deferred();
+    var finalTable;
+    var orderedColumns;
+    var tables;
+    var allPublishArgs = [];
+    var option;
+    var optimizations = params.optimizations;
+    var tablePrefix = params.tablePrefix ||
+                        generateTablePrefix(params.userName, params.sessionName);
+    params.usePaging = params.usePaging || false;
+    option = {
+        prefix: tablePrefix,
+        checkTime: params.checkTime,
+        sqlMode: true,
+        queryString: params.queryString
+    };
+    var allSelects = {};
+    var queryName = params.queryName || xcHelper.randName("sql");
+    var compilerObject = new SQLCompiler();
+    sqlCompilerObjects[queryName] = compilerObject;
+
+    var selectQuery = "";
+
+    setupConnection(params.userName, params.userId, params.sessionName)
+    .then(function () {
+        return collectTablesMetaInfo(params.queryString,
+                                tablePrefix, type)
+    })
+    .then(function(selQuery, schemas, selects) {
+        allSelects = selects;
+        selectQuery = selQuery;
+        var schemasToSendToSqlDf = [];
+        for (var pubTable in schemas) {
+            var tableNameCol = {};
+            tableNameCol["XC_TABLENAME_" + selects[pubTable]] = "string";
+            schemas[pubTable].push(tableNameCol);
+            schemasToSendToSqlDf.push({
+                tableName: pubTable,
+                tableColumns: schemas[pubTable]
+            });
+        }
+        var requestStruct = {
+            type: "schemasupdate",
+            method: "put",
+            data: schemasToSendToSqlDf
+        }
+        return sendToPlanner(tablePrefix, requestStruct,
+                             params.userName, params.sessionName);
+    })
+    .then(function () {
+        // get logical plan
+        var requestStruct = {
+            type: "sqlquery",
+            method: "post",
+            data: {"sqlQuery": params.queryString}
+        }
+        return sendToPlanner(tablePrefix, requestStruct,
+                             params.userName, params.sessionName);
+    })
+    .then(function (plan) {
+            return compilerObject.compile(queryName, plan, true, option);
+    })
+    .then(function(xcQueryString, newTableName, colNames, toCache) {
+        xcConsole.log("Compilation finished");
+        orderedColumns = colNames;
+        var prefixedQuery;
+        var optimizerObject = new SQLOptimizer();
+        var queryWithDrop = optimizerObject.logicalOptimize(xcQueryString,
+                                    optimizations, JSON.stringify(selectQuery));
+        var prefixStruct = SqlUtil.addPrefix(
+            JSON.parse(queryWithDrop),
+            allSelects,
+            newTableName,
+            tablePrefix,
+            params.usePaging,
+            params.resultTableName);
+        var prefixedQuery = prefixStruct.query;
+        deferred.resolve({"prefixedQuery":prefixedQuery});
+    })
+    .fail(function(err) {
+        xcConsole.log("sql query error: ", err);
+        var retObj = {error: err};
+        if (err === SQLErrTStr.Cancel) {
+            retObj.isCancelled = true;
+        }
+        deferred.reject(retObj);
+    })
+
+    return deferred.promise();
+};
+
 function executeSql(params, type, workerThreading) {
     var deferred = PromiseHelper.deferred();
     var finalTable;
@@ -1017,6 +1109,48 @@ router.post("/xcsql/queryWithPublishedTables", [support.checkAuth],
     })
     .fail(function(error) {
         xcConsole.log("sql query error: ", error);
+        res.status(500).send(error);
+    });
+});
+
+router.post("/xcsql/getXCqueryWithPublishedTables", [support.checkAuth],
+    function(req, res) {
+    var execid = req.body.execid;
+    var queryName = req.body.queryName;
+    var queryString = req.body.queryString;
+    var limit = req.body.limit;
+    var tablePrefix = req.body.sessionId;
+    var usePaging = req.body.usePaging === "true";
+    // jdbc only passes string to us
+    var checkTime = parseInt(req.body.checkTime);
+    checkTime = isNaN(checkTime) ? undefined : checkTime;
+    tablePrefix = "sql" + tablePrefix.replace(/-/g, "") + "_";
+    var type = "odbc";
+    var optimizations = {
+        dropAsYouGo: req.body.dropAsYouGo,
+        randomCrossJoin: req.body.randomCrossJoin,
+        pushToSelect: req.body.pushToSelect
+    };
+    optimizations.dropAsYouGo = optimizations.dropAsYouGo == undefined ? true : optimizations.dropAsYouGo;
+    optimizations.randomCrossJoin = optimizations.randomCrossJoin == undefined ? false : optimizations.randomCrossJoin;
+    optimizations.pushToSelect = optimizations.pushToSelect == undefined ? true : optimizations.pushToSelect;
+    var params = {
+        execid: execid,
+        queryString: queryString,
+        limit: limit,
+        tablePrefix: tablePrefix,
+        checkTime: checkTime,
+        queryName: queryName,
+        usePaging: usePaging,
+        optimizations: optimizations
+    }
+    getXCquery(params, type)
+    .then(function(output) {
+        xcConsole.log("get xcalar query finishes");
+        res.send(output);
+    })
+    .fail(function(error) {
+        xcConsole.log("get xcalar query error: ", error);
         res.status(500).send(error);
     });
 });
