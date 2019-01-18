@@ -1286,11 +1286,25 @@ namespace xcManager {
 
     function processTutorialHelper(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        console.log("Tutorial Workbook!");
+        const tutTarget: string = "Tutorial Dataset Target";
         let dataKey: string = KVStore.getKey("gStoredDatasetsKey");
         let _dataKVStore: KVStore = new KVStore(dataKey, gKVScope.WKBK);
-        // First, load the stored datasets, if they exist
-        PromiseHelper.alwaysResolve(_dataKVStore.getAndParse())
+        let promise: XDPromise<void>;
+        // First, set up the tutorial data target if it doesnt exist
+        if (DSTargetManager.getTarget(tutTarget) != null) {
+            promise = PromiseHelper.resolve();
+        } else {
+            promise = XcalarTargetCreate("s3environ", tutTarget,
+                {authenticate_requests: "false"})
+                .then(() => {
+                    return DSTargetManager.refreshTargets(true);
+                });
+        }
+        promise
+        .then(() => {
+            // Then, load the stored datasets, if they exist
+            return PromiseHelper.alwaysResolve(_dataKVStore.getAndParse())
+        })
         .then((datasets: object) => {
             if (datasets == null) {
                 // This tutorial workbook doesn't have any stored datasets
@@ -1322,7 +1336,7 @@ namespace xcManager {
             for(let i = 0; i < loadArgs.length; i++) {
                 promises.push(DS.restoreTutorialDS(loadArgs[i]));
             }
-            return PromiseHelper.when.apply(promises);
+            return PromiseHelper.when(...promises);
         })
         .then(deferred.resolve)
         .fail(deferred.reject)

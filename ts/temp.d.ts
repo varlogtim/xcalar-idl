@@ -1288,6 +1288,7 @@ declare namespace DSTargetManager {
     export function setup(): void;
     export function getTargetTypeList(): XDPromise<void>;
     export function clickFirstGrid(): void;
+    export function getTarget(targetName: string): object;
     export function getAllTargets(): object[];
     export function refreshTargets(noWaitIcon: boolean): object[];
     export function updateUDF(listXdfsObj: any);
