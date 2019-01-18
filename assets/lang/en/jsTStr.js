@@ -249,7 +249,7 @@ ModeTStr = {
     "SQL": "SQL MODE",
     "Advanced": "ADVANCED MODE",
     "SQLTooltip": "Switch to advanced mode",
-    "AdvancedTooltip": "SWitch to SQL mode",
+    "AdvancedTooltip": "Switch to SQL mode",
 };
 
 ErrTStr = {
