@@ -163,7 +163,7 @@ class SQLOpPanel extends BaseOpPanel {
             onExecute: () => {
                 // $("#sqlExecute").click();
             },
-            onCalcelExecute: () => {
+            onCancelExecute: () => {
                 console.log("SQL cancel triggered!");
                 SQLOpPanel.resetProgress();
             },

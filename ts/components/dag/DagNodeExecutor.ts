@@ -1022,7 +1022,8 @@ class DagNodeExecutor {
         })
         .fail(function(error) {
             queryObj["endTime"] = new Date();
-            if (error === SQLErrTStr.Cancel) {
+            if ((error instanceof Object && error.error ===
+                "Error: " + SQLErrTStr.Cancel) || error === SQLErrTStr.Cancel) {
                 queryObj["status"] = SQLStatus.Cancelled;
             } else {
                 queryObj["status"] = SQLStatus.Failed;

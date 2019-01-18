@@ -5,6 +5,7 @@ class SQLEditorSpace {
     private _isDocked: boolean;
     private _minWidth: number;
     private _currentFile: string;
+    private _executers: SQLExecutor[];
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -38,15 +39,29 @@ class SQLEditorSpace {
         return this._saveSnippet();
     }
 
+    public cancelExecution(): void {
+        if (!this._executers) {
+            return;
+        }
+        this._executers.forEach((executor) => {
+            if (executor.getStatus() != SQLStatus.Done &&
+                executor.getStatus() != SQLStatus.Cancelled &&
+                executor.getStatus() != SQLStatus.Failed) {
+                executor.setStatus(SQLStatus.Cancelled);
+            }
+        })
+    }
+
     private _setupSQLEditor(): void {
         const self = this;
         const callbacks = {
             onExecute: () => {
                 console.log("execute")
-                // $("#sqlExecute").click();
+                this._getEditorSpaceEl().find(".execute").click();
             },
-            onCalcelExecute: () => {
-                // XXX TODO
+            onCancelExecute: () => {
+                // XXX need to unfreeze execute button in the future
+                this.cancelExecution();
             },
             onAutoComplete: (editor: CodeMirror.Editor) => {
                 editor.execCommand("autocompleteSQLInVDW");
@@ -128,6 +143,7 @@ class SQLEditorSpace {
     private _executeAllSQL(): void {
         try {
             SQLWorkSpace.Instance.save();
+            this._executers = [];
             let sqls: string = this._sqlEditor.getSelection() || this._sqlEditor.getValue();
             let sqlArray: string[] = XDParser.SqlParser.getMultipleQueriesViaParser(sqls);
             let selectArray: string[] = [];
@@ -158,7 +174,7 @@ class SQLEditorSpace {
                 SQLResultSpace.Instance.showSchemaError("Table not found: " + targetTableName);
             }
             selectArray.forEach((sql) => {
-                this._executeSQL(sql);
+                this._executers.push(this._executeSQL(sql));
             });
         } catch (e) {
             console.error(e);
@@ -175,8 +191,10 @@ class SQLEditorSpace {
         }
     }
 
-    private _executeSQL(sql): XDPromise<void> {
-        return new SQLExecutor(sql).execute();
+    private _executeSQL(sql): SQLExecutor {
+        let executor = new SQLExecutor(sql);
+        executor.execute();
+        return executor;
     }
 
     private _setFileName(name: string): void {

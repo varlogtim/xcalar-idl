@@ -69,9 +69,9 @@ class SQLEditor {
     }
 
     private _setupShortCutKeys(): object {
-        const callbakcs = this._callbacks;
+        const callbacks = this._callbacks;
         let callbackTrigger = (eventName: string): void => {
-            const event = callbakcs[eventName];
+            const event = callbacks[eventName];
             if (typeof event !== "undefined") {
                 event();
             }
@@ -82,7 +82,7 @@ class SQLEditor {
         };
     
         let cancelExec = (): void => {
-            callbackTrigger("onCalcelExecute");
+            callbackTrigger("onCancelExecute");
         };
 
         const extraKeys = {

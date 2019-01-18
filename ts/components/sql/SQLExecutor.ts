@@ -21,6 +21,7 @@ class SQLExecutor {
     private _identifiers: {};
     private _identifiersOrder: number[];
     private _schema: {};
+    private _status: SQLStatus;
 
     public constructor(sql: string) {
         this._sql = sql.replace(/;+$/, "");
@@ -28,6 +29,7 @@ class SQLExecutor {
         this._identifiersOrder = [];
         this._identifiers = {};
         this._schema = {};
+        this._status = SQLStatus.None;
         const tables: string[] = Array.from(XDParser.SqlParser.getTableIdentifiers(sql));
         const tableMap = PTblManager.Instance.getTableMap();
         tables.forEach((identifier, idx) => {
@@ -61,6 +63,22 @@ class SQLExecutor {
         this._createDataflow();
     }
 
+    public getStatus(): SQLStatus {
+        return this._status;
+    }
+
+    public setStatus(status: SQLStatus): void {
+        if (this._status === SQLStatus.Done ||
+            this._status === SQLStatus.Failed ||
+            this._status === SQLStatus.Cancelled) {
+            return;
+        }
+        if (status === SQLStatus.Cancelled && this._status === SQLStatus.Running) {
+            this._tempGraph.cancelExecute();
+        }
+        this._status = status;
+    }
+
     public execute(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
@@ -75,10 +93,24 @@ class SQLExecutor {
                 return this._configureSQLNode();
             })
             .then(() => {
-                
+                if (this._status === SQLStatus.Cancelled) {
+                    // Add the entry to sql history panel
+                    const queryId = xcHelper.randName("sqlQuery", 8);
+                    const queryObj = {
+                        queryId: queryId,
+                        queryString: this._sql,
+                        dataflowId: this._tempTab.getId()
+                    };
+                    queryObj["status"] = SQLStatus.Cancelled;
+                    queryObj["startTime"] = new Date();
+                    SQLHistorySpace.Instance.update(queryObj);
+                    return PromiseHelper.reject(SQLStatus.Cancelled);
+                }
+                this._status = SQLStatus.Running;
                 return this._tempGraph.execute([this._sqlNode.getId()]);
             })
             .then(() => {
+                this._status = SQLStatus.Done;
                 DagTabManager.Instance.addSQLTabCache(this._tempTab);
                 let promise = DagView.expandSQLNodeInTab(this._sqlNode, this._tempTab);
                 return PromiseHelper.alwaysResolve(promise);
