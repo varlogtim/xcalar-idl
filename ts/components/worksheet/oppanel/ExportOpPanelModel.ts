@@ -227,12 +227,15 @@ class ExportOpPanelModel {
             return "Invalid number of parameters for driver specified";
         }
 
+        let paramNames: Set<string> = new Set<string>();
         for (let i = 0; i < dParams.length; i++) {
-            let dParam: ExportParam = dParams[i];
+            paramNames.add(dParams[i].name);
+        }
+
+        for (let i = 0; i < dParams.length; i++) {
             let name: string = inputNames[i];
-            if (dParam.name != name) {
-                return "Parameter \"" + name + "\" does not align with driver parameter: \"" +
-                    dParam.name;
+            if (!paramNames.has(name)) {
+                return "Parameter \"" + name + "\" is not a driver parameter";
             }
         }
 
