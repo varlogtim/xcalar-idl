@@ -6,6 +6,7 @@ var timer = require("timers");
 var http = require("http");
 var https = require("https");
 var cookie = require('cookie');
+var jwt = require('jsonwebtoken');
 
 var ssf = require("./supportStatusFile.js");
 var tail = require("./tail");
@@ -30,6 +31,8 @@ var defaultHttpPort = process.env.XCE_HTTP_PORT ?
     process.env.XCE_HTTP_PORT : 80;
 var defaultHttpsPort = process.env.XCE_HTTPS_PORT ?
     process.env.XCE_HTTPS_PORT : 443;
+var defaultJwtHmac = process.env.JWT_SECRET ?
+    process.env.JWT_SECRET : "xcalarSsssh";
 // we need to fix this eventually, but for now ignore untrusted certs
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 var defaultXcalarctl = defaultXcalarDir + "/bin/xcalarctl";
@@ -927,6 +930,12 @@ function makeFileCopy(filePath) {
     return deferred.promise();
 }
 
+function create_login_jwt(req, res) {
+    var payload = {expiresIn: "30m", audience: "xcalar", issuer: "XCE", subject: "auth id"};
+    var token = jwt.sign(payload, defaultJwtHmac);
+    res.cookie("jwt_token", token, { maxAge: 1000*60*30, httpOnly: true, signed: false });
+}
+
 function loginAuth(req, res) {
     loginAuthImpl(req, res);
 }
@@ -965,6 +974,8 @@ function loginAuthImpl(req, res) {
                 req.session.credentials[message.tokenType] = message.token;
                 delete message.token;
             }
+
+            create_login_jwt(req, res);
         }
     }
 
@@ -997,6 +1008,7 @@ function loginAuthTest(req, res) {
 
             req.session.firstName = message.firstName;
             req.session.emailAddress = message.mail;
+
         }
     }
 
@@ -1017,6 +1029,8 @@ function checkAuthImpl(req, res, next) {
         return;
     }
 
+    create_login_jwt(req, res);
+
     next();
 }
 
@@ -1033,6 +1047,8 @@ function checkAuthAdminImpl(req, res, next) {
         return;
     }
 
+    create_login_jwt(req, res);
+
     next();
 }
 
@@ -1046,6 +1062,8 @@ function checkProxyAuthImpl(req, res, type) {
         res.status(httpStatus.Unauthorized).send('Unauthorized ' + type + ' request');
         return false;
     }
+
+    create_login_jwt(req, res);
 
     return true;
 }
@@ -1148,3 +1166,4 @@ exports.checkProxyAuth = checkProxyAuth;
 exports.loginAuth = loginAuth;
 exports.rawSessionCookie = rawSessionCookie;
 exports.cookieName = cookieName;
+exports.create_login_jwt = create_login_jwt;

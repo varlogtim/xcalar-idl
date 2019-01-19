@@ -1491,6 +1491,8 @@ router.post('/login/with/HttpAuth', function(req, res) {
 
                     req.session.firstName = message.firstName;
                     req.session.emailAddress = message.mail;
+
+                    support.create_login_jwt(req, res);
                 }
 
                 const tokenBuffer = new Buffer(JSON.stringify(message));

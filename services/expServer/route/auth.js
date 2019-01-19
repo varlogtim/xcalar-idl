@@ -192,6 +192,8 @@ router.post('/auth/azureIdToken', function(req, res) {
         if (msg.status) {
             req.session.loggedIn = user;
             req.session.loggedInAdmin = admin;
+
+            support.create_login_jwt(req, res);
         }
         retMsg = { status: (msg.status) ? httpStatus.OK : httpStatus.Unauthorized,
                    data: msg.data,
