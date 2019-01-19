@@ -136,6 +136,7 @@ class DagNodeSQL extends DagNode {
         }
         const newTableName = this.getNewTableName();
         const retStruct = DagGraph.convertQueryToDataflowGraph(JSON.parse(xcQuery),
+                                                               this.getState(),
                                                                this.tableSrcMap,
                                                                newTableName);
         this.tableNewDagIdMap = retStruct.tableNewDagIdMap;
@@ -443,6 +444,21 @@ class DagNodeSQL extends DagNode {
             this.setParam(sqlParams);
         }
         return wasSpliced;
+    }
+
+       /**
+     * @override
+     * Change node to configured state
+     * @param isUpdateSubgraph set to false, when triggered by subGraph event
+     */
+    public beConfiguredState(isUpdateSubgraph: boolean = true): void {
+        super.beConfiguredState();
+        if (isUpdateSubgraph) {
+            // Update the state of nodes in subGraph
+            this.getSubGraph().getAllNodes().forEach((node) => {
+                node.beConfiguredState();
+            });
+        }
     }
 
     protected _getColumnsUsedInInput(): Set<string> {

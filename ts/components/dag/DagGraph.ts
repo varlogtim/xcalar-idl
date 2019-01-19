@@ -1926,7 +1926,19 @@ class DagGraph {
     }
 
     // TODO: Combine with expServer/queryConverter.js
-    public static convertQueryToDataflowGraph(query, tableSrcMap?, finalTableName?) {
+
+    /**
+     *
+     * @param query array of xcalarQueries
+     * @param globalState optional state to assign to all nodes
+     * @param tableSrcMap
+     * @param finalTableName
+     */
+    public static convertQueryToDataflowGraph(
+        query,
+        globalState?: DagNodeState,
+        tableSrcMap?,
+        finalTableName?) {
         const nodes = new Map();
         const destSrcMap = {}; // {dest: [{srcTableName: ..., sourceId: ...], ...} in xc query
         const dagIdParentMap = {}; // {DagNodeId: [{index(parentIdx): ..., srcId(sourceId)}], ...}
@@ -2282,11 +2294,13 @@ class DagGraph {
             dagNodeInfo.id = DagNode.generateId();
             dagNodeInfo.parents = [];
             dagNodeInfo.aggregates = node.aggregates;
-            dagNodeInfo.configured = true;
             dagNodeInfo.description = JSON.stringify(node.args, null, 4);
             dagNodeInfo.subGraphNodes = node.subGraphNodes;
             dagNodeInfo.display = {x: 0, y: 0};
             dagNodeInfo.configured = true;
+            if (globalState) {
+                dagNodeInfo.state = globalState;
+            }
             // create dagIdParentMap so that we can add input nodes later
             const srcTables = destSrcMap[node.name];
             if (srcTables) {

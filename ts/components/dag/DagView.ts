@@ -2815,6 +2815,13 @@ namespace DagView {
         skewInfos,
         times: number[]
     ): void {
+        if (node instanceof DagNodeSQLSubInput ||
+            node instanceof DagNodeSQLSubOutput ||
+            node instanceof DagNodeCustomInput ||
+            node instanceof DagNodeCustomOutput
+        ) {
+            return;
+        }
         const pos = node.getPosition();
         let tip: HTML = _nodeProgressTemplate(node.getId(), pos.x, pos.y, skewInfos, times);
         const $tip = $(tip)
