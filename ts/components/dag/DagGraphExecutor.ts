@@ -745,6 +745,11 @@ class DagGraphExecutor {
         })
         .fail((error) => {
             if (txId != null) {
+                if (error &&
+                    error.status === StatusT.StatusRetinaAlreadyExists) {
+                    error.error += "\nReset the optimized node and select " +
+                        "Execute Optimized to re-execute";
+                }
                 Transaction.fail(txId, {
                     "failMsg": StatusMessageTStr.ProfileFailed,
                     "error": error,
