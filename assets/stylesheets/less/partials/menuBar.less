@@ -43,6 +43,74 @@
     }
 }
 
+#container {
+    &.advMode {
+        #menuBar {
+            background-color: @color-bg-topBarGray2;
+        }
+
+        #bottomMenuBarTabs {
+            border-color: @color-border-menubar-grey;
+        }
+
+        .topMenuBarTab, .bottomMenuBarTab {
+            border-color: @color-border-menubar-grey;
+
+            .mainTab, .subTab {
+                opacity: 1;
+                .icon {
+                    color: @color-bg-cardHeader;
+                }
+            }
+
+            &.active {
+                background-color: @color-bg-cardHeader !important;
+
+                .mainTab {
+                    .icon {
+                        color: @color-white;
+                    }
+                }
+            }
+
+            &:hover, &.hover {
+                .mainTab {
+                    background-color: @color-bg-cardHeader !important;
+
+                    .icon {
+                        color: @color-white;
+                    }
+                }
+            }
+        }
+
+        .subTab {
+            background-color: @color-bg-topBarGray2;
+
+            &.active {
+                background-color: @color-bg-cardHeader;
+
+                &:hover {
+                    background-color: darken(@color-bg-cardHeader, 10%);
+                }
+
+                .icon {
+                    color: @color-white;
+                }
+
+                // XX temp styling if subTab is the only subtab and is active
+                &:nth-child(1):nth-last-child(1) {
+                    background-color: lighten(@color-bg-cardHeader, 10%);
+                }
+            }
+
+            &:hover {
+                background-color: darken(@color-bg-topBarGray2, 10%);
+            }
+        }
+    }
+}
+
 
 .topMenuBarTab, .bottomMenuBarTab {
     .position(relative);
@@ -66,6 +134,14 @@
         }
         .subTab {
             display: block;
+        }
+    }
+
+    &:hover, &.hover {
+        background-color: @color-bg-dusk-blue !important;
+        color: @color-white;
+        .mainTab {
+            opacity: 1;
         }
     }
 
@@ -102,14 +178,6 @@
         }
 
         &:hover {
-            opacity: 1;
-        }
-    }
-
-    &:hover, &.hover {
-        background-color: @color-bg-dusk-blue !important;
-        color: @color-white;
-        .mainTab {
             opacity: 1;
         }
     }

@@ -843,6 +843,7 @@ namespace xcManager {
      */
     export function setModeStatus(): void {
         let $modeArea: JQuery = $("#modeArea");
+        let $container: JQuery = $("#container");
         let text: string;
         if (XVM.isSQLMode()) {
             text = ModeTStr.SQL;
@@ -851,6 +852,8 @@ namespace xcManager {
                 title: ModeTStr.SQLTooltip,
                 placement: "bottom"
             });
+            $container.addClass("sqlMode")
+                    .removeClass("advMode");
         } else {
             text = ModeTStr.Advanced;
             $modeArea.addClass("on");
@@ -858,6 +861,8 @@ namespace xcManager {
                 title: ModeTStr.AdvancedTooltip,
                 placement: "bottom"
             });
+            $container.removeClass("sqlMode")
+                    .addClass("advMode");
         }
         $modeArea.find(".text").text(text);
     }
