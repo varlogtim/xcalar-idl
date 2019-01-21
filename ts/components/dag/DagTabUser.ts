@@ -20,8 +20,13 @@ class DagTabUser extends DagTab {
                 dagIdSet.add(id);
             });
             dagList.forEach((dagInfo) => {
-                if (dagIdSet.has(dagInfo.id)) {
-                    dagTabs.push(new DagTabUser(dagInfo.name, dagInfo.id, null, dagInfo.reset, dagInfo.createdTime));
+                let id: string = dagInfo.id;
+                if (dagIdSet.has(id)) {
+                    if (id.startsWith(DagTabSQLFunc.KEY)) {
+                        dagTabs.push(new DagTabSQLFunc(dagInfo.name, dagInfo.id, null, dagInfo.reset, dagInfo.createdTime));
+                    } else {
+                        dagTabs.push(new DagTabUser(dagInfo.name, dagInfo.id, null, dagInfo.reset, dagInfo.createdTime));
+                    }
                     dagIdSet.delete(dagInfo.id);
                 } else {
                     // when dag list has meta but the dag not exists
