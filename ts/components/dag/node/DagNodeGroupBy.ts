@@ -1,5 +1,6 @@
 class DagNodeGroupBy extends DagNode {
     protected input: DagNodeGroupByInput;
+    protected joinRenames: any[];
 
     public constructor(options: DagNodeInfo) {
         super(options);
@@ -7,6 +8,7 @@ class DagNodeGroupBy extends DagNode {
         this.minParents = 1;
         this.display.icon = "&#xe937;";
         this.input = new DagNodeGroupByInput(options.input);
+        this.joinRenames = [];
     }
 
     public static readonly specificSchema = {
@@ -40,10 +42,14 @@ class DagNodeGroupBy extends DagNode {
      * @param includeSample {boolean} include sample columns or not
      */
     public setParam(input: DagNodeGroupByInputStruct = <DagNodeGroupByInputStruct>{}) {
+        if (input.joinBack) {
+            input.includeSample = false;
+        }
         this.input.setInput({
             groupBy: input.groupBy,
             aggregate: input.aggregate,
             includeSample: input.includeSample,
+            joinBack: input.joinBack,
             icv: input.icv,
             groupAll: input.groupAll,
             newKeys: input.newKeys,
@@ -85,6 +91,7 @@ class DagNodeGroupBy extends DagNode {
             });
             const groupCols: ProgCol[] = [];
             const newKeys: string[] = this.updateNewKeys(input.newKeys);
+
             input.groupBy.forEach((colName, index) => {
                 const oldProgCol: ProgCol = colMap.get(colName);
                 let colType: ColumnType;
@@ -113,10 +120,14 @@ class DagNodeGroupBy extends DagNode {
             });
             finalCols = aggCols.concat(groupCols);
             for (let progCol of colMap.values()) {
-                changes.push({
-                    from: progCol,
-                    to: null
-                });
+                if (input.joinBack) {
+                    finalCols.push(progCol);
+                } else {
+                    changes.push({
+                        from: progCol,
+                        to: null
+                    });
+                }
             }
         }
 
@@ -175,8 +186,23 @@ class DagNodeGroupBy extends DagNode {
                 return finalName;
             }
         });
+
+        this.joinRenames = [];
+        if (input.joinBack) {
+            newKeys.forEach((newKey) => {
+                if (input.groupBy.indexOf(newKey) > -1) {
+                    const newName: string = xcHelper.randName(newKey + "_GB", 5);
+                    const renameMap: ColRenameInfo = xcHelper.getJoinRenameMap(newKey, newName);
+                    this.joinRenames.push(renameMap);
+                }
+            });
+        }
         return newKeys;
-      }
+    }
+
+    public getJoinRenames() {
+        return this.joinRenames;
+    }
 
     /**
      * @override
@@ -196,6 +222,7 @@ class DagNodeGroupBy extends DagNode {
         return hint;
     }
 
+    // provided a renameMap, change the name of columns used in arguments
     public applyColumnMapping(renameMap): void {
         const newRenameMap = xcHelper.deepCopy(renameMap);
         const input = this.input.getInput();
@@ -229,6 +256,7 @@ class DagNodeGroupBy extends DagNode {
         return newRenameMap;
     }
 
+    // used for validating lineage
     protected _getColumnsUsedInInput(): Set<string> {
         const input: DagNodeGroupByInputStruct = this.input.getInput();
         const set: Set<string> = new Set();

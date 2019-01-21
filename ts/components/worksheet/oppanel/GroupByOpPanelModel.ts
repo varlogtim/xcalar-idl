@@ -6,6 +6,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
     protected groups: GroupByOpPanelFunctionGroup[];
     protected icv: boolean;
     protected includeSample: boolean;
+    protected joinBack: boolean;
     protected groupAll: boolean;
     protected groupOnCols: string[];
     protected newKeys: string[];
@@ -22,6 +23,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
         groupOnCols: string[],
         groups: GroupByOpPanelFunctionGroup[],
         includeSample: boolean,
+        joinBack: boolean,
         icv: boolean,
         groupAll: boolean,
     } {
@@ -29,6 +31,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
             groupOnCols: this.groupOnCols,
             groups: this.groups,
             includeSample: this.includeSample,
+            joinBack: this.joinBack,
             icv: this.icv,
             groupAll: this.groupAll,
         }
@@ -110,6 +113,16 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
 
     public toggleIncludeSample(isIncludeSample: boolean): void {
         this.includeSample = isIncludeSample;
+        if (this.includeSample) {
+            this.joinBack = false;
+        }
+    }
+
+    public toggleJoinBack(isJoinBack: boolean): void {
+        this.joinBack = isJoinBack;
+        if (this.joinBack) {
+            this.includeSample = false;
+        }
     }
 
     public toggleDistinct(distinct: boolean, groupIndex: number): void {
@@ -135,6 +148,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
 
         this.icv = paramsRaw.icv || false;
         this.includeSample = paramsRaw.includeSample || false;
+        this.joinBack = paramsRaw.joinBack || false;
         this.groupAll = paramsRaw.groupAll || false;
         this.groupOnCols = paramsRaw.groupBy || [];
         this.newKeys = paramsRaw.newKeys || null;
@@ -244,6 +258,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
             icv: this.icv,
             groupAll: this.groupAll,
             includeSample: this.includeSample,
+            joinBack: this.joinBack,
             newKeys: this.newKeys || null,
             dhtName: this.dhtName || ""
         }

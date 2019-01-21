@@ -145,6 +145,14 @@ class DagNodeGroupByInput extends DagNodeInput {
               false
             ]
           },
+          "joinBack": {
+            "$id": "#/properties/joinBack",
+            "type": "boolean",
+            "default": false,
+            "examples": [
+              false
+            ]
+          },
           "newKeys": {
             "$id": "#/properties/newKeys",
             "type": ["null", "array"], // XXX need to specify array of strings
@@ -168,13 +176,14 @@ class DagNodeGroupByInput extends DagNodeInput {
           },
         }
     };
-3
+
     public getInput(replaceParameters?: boolean): DagNodeGroupByInputStruct {
         const input = super.getInput(replaceParameters);
         return {
             groupBy: input.groupBy || [""],
             aggregate: input.aggregate || [{operator: "", sourceColumn: "", destColumn: "", distinct: false, cast: null}],
             includeSample: input.includeSample || false,
+            joinBack: input.joinBack || false,
             icv: input.icv || false,
             groupAll: input.groupAll || false,
             newKeys: input.newKeys || [],
@@ -200,7 +209,7 @@ class DagNodeGroupByInput extends DagNodeInput {
         const validate = ajv.compile(this.constructor["schema"]);
         let valid = validate(input);
 
-        // if invalid soley because there's no groupBy columns and
+        // if invalid solely because there's no groupBy columns and
         // groupAll is true, then should be valid
         if (!valid &&
             input.groupAll &&

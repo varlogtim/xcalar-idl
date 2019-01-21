@@ -29,8 +29,12 @@ class GroupByOpPanel extends GeneralOpPanel {
 
             if ($section.hasClass("incSample")) {
                 self.model.toggleIncludeSample(checked);
+                self._$panel.find(".joinBack .checkbox").removeClass("checked");
             } else if ($section.hasClass("icvMode")) {
                 self.model.toggleICV(checked);
+            } else if ($section.hasClass("joinBack")) {
+                self.model.toggleJoinBack(checked);
+                self._$panel.find(".incSample .checkbox").removeClass("checked");
             }
 
             self._checkIfStringReplaceNeeded();
@@ -90,6 +94,7 @@ class GroupByOpPanel extends GeneralOpPanel {
 
         const icv = model.icv;
         const includeSample = model.includeSample;
+        const joinBack = model.joinBack;
         const groupAll = model.groupAll;
         const $ul = this._$panel.find('.gbOnArg').first().siblings(".list");
         this._addSuggestListForGroupOnArg($ul);
@@ -171,6 +176,10 @@ class GroupByOpPanel extends GeneralOpPanel {
 
         if (includeSample) {
             this._$panel.find(".incSample .checkbox").addClass("checked");
+        }
+
+        if (joinBack) {
+            this._$panel.find(".joinBack .checkbox").addClass("checked");
         }
 
         this._$panel.find(".opSection").scrollTop(scrollTop);

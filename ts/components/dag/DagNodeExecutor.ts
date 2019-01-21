@@ -275,6 +275,8 @@ class DagNodeExecutor {
     }
 
     private _groupby(): XDPromise<string> {
+        const self = this;
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNodeGroupBy = <DagNodeGroupBy>this.node;
         const params: DagNodeGroupByInputStruct = node.getParam(this.replaceParam);
         const srcTable: string = this._getParentNodeTable(0);
@@ -287,6 +289,9 @@ class DagNodeExecutor {
             }
         });
         const newKeys: string[] = node.updateNewKeys(params.newKeys);
+        if (params.joinBack) {
+            params.includeSample = false;
+        }
         const options: GroupByOptions = {
             newTableName: this._generateTableName(),
             isIncSample: params.includeSample,
@@ -295,7 +300,40 @@ class DagNodeExecutor {
             newKeys: newKeys,
             dhtName: params.dhtName
         };
-        return XIApi.groupBy(this.txId, aggArgs, params.groupBy, srcTable, options);
+        XIApi.groupBy(this.txId, aggArgs, params.groupBy, srcTable, options)
+        .then((nTableName, nTableCols, _renamedGBCols) => {
+            if (params.joinBack) {
+                return _groupByJoinHelper(nTableName);
+            } else {
+                return PromiseHelper.resolve(nTableName, nTableCols);
+            }
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        function _groupByJoinHelper(
+            rTable: string, // table resulting from the group by
+        ): XDPromise<string> {
+            const joinOpts: JoinOptions = {
+                newTableName: self._generateTableName(),
+                keepAllColumns: true
+            };
+            const lTableInfo: JoinTableInfo = {
+                tableName: srcTable,
+                columns: params.groupBy
+            };
+
+            const rTableInfo: JoinTableInfo = {
+                tableName: rTable,
+                columns: newKeys,
+                rename: node.getJoinRenames()
+            };
+
+            return XIApi.join(self.txId, JoinOperatorT.FullOuterJoin,
+                              lTableInfo, rTableInfo, joinOpts)
+        }
+
+        return deferred.promise();
     }
 
     private _join(optimized?: boolean): XDPromise<string> {

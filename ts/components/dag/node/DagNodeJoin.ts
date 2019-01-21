@@ -93,6 +93,7 @@ class DagNodeJoin extends DagNode {
         }
     }
 
+    // provided a renameMap, change the name of columns used in arguments
     public applyColumnMapping(renameMap, index: number): {} {
         const newRenameMap = xcHelper.deepCopy(renameMap);
         const input = this.input.getInput();

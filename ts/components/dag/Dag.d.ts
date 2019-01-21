@@ -157,6 +157,7 @@ interface DagNodeGroupByInputStruct {
     groupBy: string[];
     aggregate: {operator: string, sourceColumn: string, destColumn: string, distinct: boolean, cast: string}[];
     includeSample: boolean;
+    joinBack?: boolean;
     icv: boolean;
     groupAll: boolean;
     newKeys: string[];
