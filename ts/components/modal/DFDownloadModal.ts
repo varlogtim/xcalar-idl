@@ -267,8 +267,8 @@ class DFDownloadModal {
         const $svg: JQuery = $("#cut-off-right").closest("svg").clone();
         $dataflowArea.prepend($svg);
         domtoimage.toPng($dataflowArea.get(0), {
-            width: $dataflowArea.width(),
-            height: $dataflowArea.height(),
+            width: $dataflowArea.find(".dataflowAreaWrapper").width(),
+            height: $dataflowArea.find(".dataflowAreaWrapper").height(),
             style: {
                 left: 0,
                 top: 0
