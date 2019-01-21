@@ -877,6 +877,10 @@ DONT_RSYNC_FASTCOPY = DONT_RSYNC.concat("3rd/**/*").concat("services/**/*")
 
 DONT_RSYNC_RC = DONT_RSYNC.concat("assets/extensions/ext-unused");
 
+// files and folders (rel BLDROOT) to remove from installer builds.
+// done end-of-build
+var REMOVE_FROM_INSTALLER_BUILDS = ["assets/dev"];
+
 module.exports = function(grunt) {
     if (grunt.option('help')) {
         displayHelpMenu();
@@ -4057,13 +4061,14 @@ module.exports = function(grunt) {
     });
 
     /**
-        This task performs final cleanup/summary tasks common to all build flavors,
-        to be executed once build is complete.
-
-        1. Change permissions to 777 for entire bld
-        2. Clean out final bld of any empty dirs
-        3. Print a bld summary
-    */
+     * This task performs end-of-build cleanup/summary tasks, such as
+     * deleting/cleaning folders.
+     * If building directly in project source, destructive operations are skipped.
+     * - Clean out files used for build purposes only
+     * - Change permissions to 777 for entire bld
+     * - Clean final bld of empty dirs and files
+     * - Print a bld summary
+     */
     grunt.task.registerTask(FINALIZE, function() {
 
         /**
@@ -4092,6 +4097,17 @@ module.exports = function(grunt) {
             // html src file.  so do that clean now.
             if (!KEEPSRC) {
                 grunt.task.run(CLEAN_BUILD_SECTIONS);
+            }
+
+            if (BLDTYPE == INSTALLER) {
+                grunt.log.writeln("Delete dev content from installer build");
+                for (var build_asset of REMOVE_FROM_INSTALLER_BUILDS) {
+                    var delete_abs_path = BLDROOT + build_asset;
+                    if (grunt.file.exists(delete_abs_path)) {
+                        grunt.file.delete(delete_abs_path);
+                    }
+                }
+                grunt.log.ok();
             }
 
             // clean out any empty dirs in the bld, recursively.
