@@ -164,7 +164,7 @@ class DagTabPublished extends DagTab {
         .then((dagInfo, graph) => {
             this._version = dagInfo.version;
             if (reset) {
-                this._resethHelper(graph);
+                this._resetHelper(graph);
             }
             this.setGraph(graph);
             if (reset) {
