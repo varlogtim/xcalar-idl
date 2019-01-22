@@ -3348,11 +3348,20 @@
             if (outerType === "right") {
                 globalStruct.rightTableName = ret.newTableName;
                 globalStruct.rightRowNumCol = rnColName;
+                // Need a column copy here so that it will not be renamed in first join
+                globalStruct.rightColumnsCopy = jQuery.extend(true, [],
+                                    joinNode.children[1].usrCols
+                                    .concat(joinNode.children[1].xcCols)
+                                    .concat(joinNode.children[1].sparkCols));
                 // This will be kept and not deleted
                 globalStruct.rightRowNumTableName = ret.newTableName;
             } else {
                 globalStruct.leftTableName = ret.newTableName;
                 globalStruct.leftRowNumCol = rnColName;
+                globalStruct.leftColumnsCopy = jQuery.extend(true, [],
+                                    joinNode.children[0].usrCols
+                                    .concat(joinNode.children[0].xcCols)
+                                    .concat(joinNode.children[0].sparkCols));
                 // This will be kept and not deleted
                 globalStruct.leftRowNumTableName = ret.newTableName;
             }
@@ -3368,6 +3377,10 @@
                 globalStruct.cli += ret.cli;
                 globalStruct.rightTableName = ret.newTableName;
                 globalStruct.rightRowNumCol = rnColName;
+                globalStruct.rightColumnsCopy = jQuery.extend(true, [],
+                                    joinNode.children[1].usrCols
+                                    .concat(joinNode.children[1].xcCols)
+                                    .concat(joinNode.children[1].sparkCols));
                 // This will be kept and not deleted
                 globalStruct.rightRowNumTableName = ret.newTableName;
             }
@@ -3790,7 +3803,7 @@
                 rename: []
             }
             rnColName = globalStruct.rightRowNumCol;
-            leftColInfo = allRightColumns;
+            leftColInfo = globalStruct.rightColumnsCopy;
         } else {
             assert(globalStruct.leftRowNumTableName, SQLErrTStr.NoLeftRowNumTableName);
             assert(globalStruct.newTableName, SQLErrTStr.NoNewTableName);
@@ -3802,7 +3815,7 @@
                 rename: []
             };
             rnColName = globalStruct.leftRowNumCol;
-            leftColInfo = allLeftColumns;
+            leftColInfo = globalStruct.leftColumnsCopy;
         }
         var rTableInfo = {
             tableName: globalStruct.newTableName,
@@ -3846,7 +3859,7 @@
                     pulledColumns: [],
                     rename: []
                 };
-                leftColInfo = allRightColumns;
+                leftColInfo = globalStruct.rightColumnsCopy;
                 rTableInfo = {
                     tableName: ret.newTableName,
                     columns: jQuery.extend(true, [], lTableInfo.columns),

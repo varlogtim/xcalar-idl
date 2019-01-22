@@ -338,6 +338,16 @@
                     node.colNameMap[1] = {};
                 }
                 var leftCols = [];
+                // We don't always rename right table, so need to also check left rename
+                for (var i = 0; i < node.value.args.columns[0].length; i++) {
+                    if (node.colNameMap[0][node.value.args.columns[0][i].sourceColumn]) {
+                        var rename = node.colNameMap[0][node.value.args.columns[0][i].sourceColumn];
+                        delete node.colNameMap[0][node.value.args.columns[0][i].sourceColumn];
+                        node.colNameMap[0][node.value.args.columns[0][i].destColumn]
+                                    = node.value.args.columns[0][i].destColumn;
+                        node.value.args.columns[0][i].sourceColumn = rename;
+                    }
+                }
                 Object.keys(node.colNameMap[0]).forEach(function(col) {
                     leftCols.push(node.colNameMap[0][col]);
                 })
@@ -358,7 +368,7 @@
                             sourceColumn: node.colNameMap[1][col],
                             destColumn: newColRename
                         });
-                        node.colNameMap[1][newColRename] = newColRename;
+                        node.colNameMap[1][col] = newColRename;
                     }
                 })
                 node.value.args.evalString = XDParser.XEvalParser
