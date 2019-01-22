@@ -78,6 +78,28 @@ body {
         .wkbkMenuBarTabs {
             display: none;
         }
+
+        #modeArea {
+            display: none;
+        }
+
+        #dataStoresTab {
+            &.active {
+                .subTab {
+                    display: none;
+                }
+    
+                #imdTab {
+                    display: block !important;
+                }
+            }
+        }
+
+        #imdView {
+            .iconSection .tableView {
+                display: none;
+            }
+        }
     }
 
     &.noWorkbook {

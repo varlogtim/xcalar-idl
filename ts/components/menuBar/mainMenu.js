@@ -327,9 +327,15 @@ window.MainMenu = (function($, MainMenu) {
                 var hasAnim = false;
                 if ($target.closest(".mainTab").length) {
                     // clicking on active main tab
-                    var $subTab = $curTab.find(".subTab.active");
-                    if (!$subTab.hasClass("noLeftPanel")) {
-                        hasAnim = toggleMenu($curTab);
+                    if ($("#container").hasClass("noWorkbookMenuBar") &&
+                        $curTab.attr("id") === "dataStoresTab"
+                    ) {
+                        openIMDPanel();
+                    } else {
+                        var $subTab = $curTab.find(".subTab.active");
+                        if (!$subTab.hasClass("noLeftPanel")) {
+                            hasAnim = toggleMenu($curTab);
+                        }
                     }
                 } else if ($target.closest(".subTab").length) {
                     var $subTab = $target.closest(".subTab");
@@ -428,22 +434,26 @@ window.MainMenu = (function($, MainMenu) {
 
         switch (curTab) {
             case ("dataStoresTab"):
+                let noWorkbook = $("#container").hasClass("noWorkbookMenuBar");
                 $("#datastorePanel").addClass("active");
                 DSTable.refresh();
                 if ($curTab.hasClass("firstTouch")) {
                     $curTab.removeClass("firstTouch");
                     DataSourceManager.initialize();
                     DSForm.initialize();
-                    if (XVM.isSQLMode()) {
+                    if (XVM.isSQLMode() && !noWorkbook) {
                         $("#sourceTblButton").click(); // switch to source panel
                     }
                 }
-                if ($curTab.find(".subTab.active").length === 0) {
+                if ($curTab.find(".subTab.active").length === 0 && !noWorkbook) {
                     if (XVM.isSQLMode()) {
                         $("#sourceTblButton").click(); // switch to source panel
                     } else {
                         $("#inButton").click();
                     }
+                }
+                if (noWorkbook) {
+                    openIMDPanel();
                 }
                 DS.resize();
                 break;
@@ -480,6 +490,11 @@ window.MainMenu = (function($, MainMenu) {
         $(".tableDonePopupWrap").remove();
     }
 
+    function openIMDPanel() {
+        closeMenu($("#dataStoresTab"), true);
+        $("#imdTab").click();
+    }
+
     function openMenu($curTab, noAnim) {
         // Don't open side menu when the UDF panel is opening the file manager,
         // Otherwise the UDF panel will be blocked by the side menu.
@@ -488,6 +503,9 @@ window.MainMenu = (function($, MainMenu) {
         }
 
         var id = $curTab.attr("id");
+        if (id === "dataStoresTab" && $("#imdTab").hasClass("active")) {
+            return;
+        }
 
         $mainMenu.find(".commonSection").removeClass("active").filter(function() {
             return $(this).data("tab") === id;
