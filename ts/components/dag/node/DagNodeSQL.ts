@@ -1,4 +1,6 @@
 class DagNodeSQL extends DagNode {
+    public static readonly PREFIX: string = "sqlQuery";
+
     protected input: DagNodeSQLInput;
     protected columns: {name: string, backName: string, type: ColumnType}[];
     protected xcQueryString: string;
@@ -39,7 +41,7 @@ class DagNodeSQL extends DagNode {
         this.subOutputNodes = [];
         this.SQLName = xcHelper.randName("SQLTab_");
         this._queryObj = {
-            queryId: xcHelper.randName("sqlQuery", 8)
+            queryId: xcHelper.randName(DagNodeSQL.PREFIX, 8)
         };
     }
 
@@ -453,7 +455,7 @@ class DagNodeSQL extends DagNode {
         return wasSpliced;
     }
 
-       /**
+    /**
      * @override
      * Change node to configured state
      * @param isUpdateSubgraph set to false, when triggered by subGraph event

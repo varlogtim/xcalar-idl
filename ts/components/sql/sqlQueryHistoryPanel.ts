@@ -171,6 +171,7 @@ namespace SqlQueryHistoryPanel {
                 SqlQueryHistory.getInstance().readStore(refresh)
                 .then( () => {
                     this._updateTableUI(this.queryMap, true);
+                    this._checkRunningQuery(this.queryMap);
                     deferred.resolve();
                 })
                 .fail( () => {
@@ -210,6 +211,44 @@ namespace SqlQueryHistoryPanel {
                 msRefreshDuration: 2000,
                 container: this._$cardContainer.find('.cardMain')[0]
             });
+        }
+
+        protected _checkRunningQuery(queryMap: SqlQueryMap): void {
+            let runningQueryMap: SqlQueryMap = {};
+            let hasRunningQuery: boolean = false;
+            for (let id in queryMap) {
+                let queryInfo = queryMap[id];
+                if (queryInfo && queryInfo.status === SQLStatus.Running) {
+                    runningQueryMap[id] = queryInfo;
+                    hasRunningQuery = true;
+                }
+            }
+
+            if (hasRunningQuery) {
+                XcalarQueryList(DagNodeSQL.PREFIX + "*")
+                .then((res) => {
+                    try {
+                        let set: Set<string> = new Set();
+                        res.queries.forEach((query) => {
+                            set.add(query.name);
+                        });
+
+                        for (let id in runningQueryMap) {
+                            if (!set.has(id)) {
+                                // the query is finishing running but we somehow lose meta
+                                let queryInfo = runningQueryMap[id];
+                                queryInfo.status = SQLStatus.Done;
+                                SQLHistorySpace.Instance.update(queryInfo);
+                            } else {
+                                // XXX TODO add a checking for running status
+                                // if it's not tracked yet (like a refresh case)
+                            }
+                        }
+                    } catch (e) {
+                        console.error(e);
+                    }
+                })
+            }
         }
 
         protected _updateTableUI(queryMap: SqlQueryMap, isResetSorting: boolean): void {
