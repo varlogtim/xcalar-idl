@@ -109,7 +109,7 @@ class TblSource {
         this._addLoadingIcon($grid);
         this._focusOnTable($grid);
 
-        PTblManager.Instance.createTableFromSource(tableName, args, null)
+        PTblManager.Instance.createTableFromSource(tableInfo, args, null)
         .always(() => {
             // re-render
             this._refresh(true);
@@ -327,7 +327,7 @@ class TblSource {
             } else if ($grid.hasClass("activating")) {
                 loadMsg = DSTStr.DSActivating;
             } else if ($grid.hasClass("loading")) {
-                loadMsg = TblTStr.Creating;
+                loadMsg = tableInfo.loadMsg || TblTStr.Creating;
             }
             TblSourcePreview.Instance.show(tableInfo, loadMsg);
         }

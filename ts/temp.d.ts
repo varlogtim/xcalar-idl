@@ -174,6 +174,7 @@ interface PbTblInfo {
     active: boolean;
     state?: string;
     dsName?: string;
+    loadMsg?: string;
 }
 
 interface PbTblDisplayInfo {

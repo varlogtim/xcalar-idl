@@ -14,7 +14,8 @@ class SchemaSelectionModal {
         const $modal: JQuery = this._getModal();
         this._modalHelper = new ModalHelper($modal, {
             sizeToDefault: true,
-            center: {verticalQuartile: true}
+            center: {verticalQuartile: true},
+            minHeight: 400
         });
         this._schemaSection = new ColSchemaSection(this._getSchemaSection());
         this._schemaSection.setValidTypes(BaseOpPanel.getBasicColTypes());
@@ -25,6 +26,7 @@ class SchemaSelectionModal {
      * SchemaSelectionModal.Instance.show
      */
     public show(schema: ColSchema[], callback: Function): void {
+        schema = schema.concat(schema)
         this._currentSchema = schema;
         this._callback = callback;
         this._modalHelper.setup();

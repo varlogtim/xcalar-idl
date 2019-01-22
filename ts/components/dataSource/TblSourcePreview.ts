@@ -26,12 +26,14 @@ class TblSourcePreview {
         let $container = this._getContainer();
         $container.removeClass("xc-hidden")
                 .removeClass("dataset")
-                .removeClass("table");
+                .removeClass("table")
+                .removeClass("loading");
 
         let isLoading = msg != null;
         this._updateInstruction(tableInfo);
         this._updateTableInfos(tableInfo, isLoading);
         if (msg) {
+            $container.addClass("loading");
             this._setupLoadingView(msg);
         } else if (tableInfo.state === PbTblState.BeDataset) {
             $container.addClass("dataset");
@@ -40,6 +42,13 @@ class TblSourcePreview {
             $container.addClass("table");
             this._viewSchema(tableInfo);
         }
+    }
+
+    public refresh(tableInfo: PbTblInfo): void {
+        if (!this.isOnTable(tableInfo.name)) {
+            return;
+        }
+        this.show(tableInfo, tableInfo.loadMsg);
     }
 
     /**
@@ -174,7 +183,7 @@ class TblSourcePreview {
         if (toViewTable) {
             $action.removeClass("viewSchema")
                     .addClass("viewTable")
-                    .text(TblTStr.Viewresult);
+                    .text(TblTStr.Viewdata);
         } else {
             $action.addClass("viewSchema")
                     .removeClass("viewTable")

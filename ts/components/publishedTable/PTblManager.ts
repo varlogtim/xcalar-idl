@@ -156,12 +156,12 @@ class PTblManager {
 
     /**
      * PTblManager.Instance.createTableFromSource
-     * @param tableName
+     * @param tableInfo
      * @param args
      * @param primaryKeys
      */
     public createTableFromSource(
-        tableName: string,
+        tableInfo: PbTblInfo,
         args: {
             name: string,
             sources: {
@@ -180,29 +180,41 @@ class PTblManager {
     ): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         let dsOptions = $.extend({}, args);
+        let tableName: string = tableInfo.name;
         let dsName: string = this._getDSNameFromTableName(tableName);
         dsOptions.name = tableName + PTblManager.DSSuffix;
         dsOptions.fullName = dsName;
         let dsObj = new DSObj(dsOptions);
         let sourceArgs = dsObj.getImportOptions();
 
+        const totalStep: number = 3;
         let txId = Transaction.start({
             "msg": TblTStr.Create + ": " + tableName,
             "operation": SQLOps.TableFromDS,
             "track": true,
-            "steps": 3
+            "steps": totalStep
         });
 
         let hasDataset: boolean = false;
-        let tableInfo: PbTblInfo = PTblManager.Instance.createTableInfo(tableName);
         let schema: ColSchema[] = args.schema;
         this._loadingTables[tableName] = tableInfo;
+
+        let currentStep: number = 1;
+        let currentMsg: string = TblTStr.Importing;
+        this._refreshTblView(tableInfo, currentMsg, currentStep, totalStep);
+
         this._createDataset(txId, dsName, sourceArgs)
         .then(() => {
             hasDataset = true;
+            currentStep = 2;
+            currentMsg = TblTStr.CheckingSchema;
+            this._refreshTblView(tableInfo, currentMsg, currentStep, totalStep);
             return this._checkSchemaInDatasetCreation(dsName, schema);
         })
         .then((finalSchema) => {
+            currentStep = 3;
+            currentMsg = TblTStr.Creating;
+            this._refreshTblView(tableInfo, currentMsg, currentStep, totalStep);
             return this._createTable(txId, dsName, tableName, finalSchema, primaryKeys);
         })
         .then(() => {
@@ -809,5 +821,16 @@ class PTblManager {
         }
 
         return tableInfo;
+    }
+
+    private _refreshTblView (
+        tableInfo: PbTblInfo,
+        text: string,
+        step: number,
+        totalStep: number
+    ): void {
+        let msg: string = `Step ${step}/${totalStep}: ${text}`;
+        tableInfo.loadMsg = msg;
+        TblSourcePreview.Instance.refresh(tableInfo);
     }
 }

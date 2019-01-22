@@ -1395,6 +1395,8 @@ UDFTStr = {
 TblTStr = {
     'Create': 'Create Table',
     'Creating': 'Creating Table',
+    'Importing': 'Importing data source',
+    'CheckingSchema': 'Checking data source schema',
     'Del': 'Drop Tables',
     'DEL': 'DROP TABLES',
     'DropTbl': 'Drop Table',
@@ -1413,7 +1415,7 @@ TblTStr = {
     "ClickToDetail": "Click to see details",
     "TotalNumOfTbl": "Total number of tables",
     "EmptyTable": "0 Rows",
-    "Viewresult": "View results",
+    "Viewdata": "View data",
     "Viewschema": "View schema",
     "PreviewInstr": "To start using table, please use the SQL Editor in SQL Mode or go to the Dataflow Panel, and start from a IMD node in advacned mode",
     "MultipleSchema": "Multiple Schemas are detected when creating table \"<name>\", please select the schema for the table.",
