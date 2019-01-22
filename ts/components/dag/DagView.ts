@@ -2695,7 +2695,7 @@ namespace DagView {
         const tooltipMargin = 5;
         const tooltipPadding = 5;
         const rowHeight = 10;
-        const scale = activeDag.getScale();
+        const scale = activeDag ? activeDag.getScale() : 1;
         const x = scale * (nodeX - 10);
         const y = Math.max(1, (scale * nodeY) - (rowHeight * 2 + tooltipPadding + tooltipMargin));
         let totalTime: number;

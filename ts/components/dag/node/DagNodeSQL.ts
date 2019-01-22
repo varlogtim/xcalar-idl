@@ -455,9 +455,12 @@ class DagNodeSQL extends DagNode {
         super.beConfiguredState();
         if (isUpdateSubgraph) {
             // Update the state of nodes in subGraph
-            this.getSubGraph().getAllNodes().forEach((node) => {
-                node.beConfiguredState();
-            });
+            let subGraph = this.getSubGraph();
+            if (subGraph) {
+                subGraph.getAllNodes().forEach((node) => {
+                    node.beConfiguredState();
+                });
+            }
         }
     }
 

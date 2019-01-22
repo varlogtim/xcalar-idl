@@ -8,6 +8,8 @@ class SQLTableLister {
     private readonly _container: string = "sqlTableListerArea";
     private _attributes: {key: string, text: string}[];
     private _tableInfos: PbTblInfo[];
+    private _sortKey: string;
+    private _reverseSort: boolean;
 
     private constructor() {
         this._tableInfos = [];
@@ -22,18 +24,15 @@ class SQLTableLister {
      */
     public show(reset: boolean): void {
         const $container = this._getContainer();
+        let refresh: boolean = true;
         if (!$container.hasClass("xc-hidden")) {
             // already show
-            if (reset) {
-                this._getSearchInput().val("");
-                this._filterTables();
-            }
-            return;
+            refresh = false;
         }
         this._getContainer().removeClass("xc-hidden");
         if (reset) {
             this._reset();
-            this._listTables();
+            this._listTables(refresh);
         }
     }
 
@@ -55,6 +54,8 @@ class SQLTableLister {
         this._getSearchInput().val("");
         this._getMainContent().empty();
         this._tableInfos = [];
+        this._sortKey = null;
+        this._reverseSort = null;
     }
 
     private _setupArrtibutes(): void {
@@ -120,12 +121,12 @@ class SQLTableLister {
         return null;
     }
 
-    private _listTables(): XDPromise<void> {
+    private _listTables(refresh: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._onLoadingMode();
         const $content = this._getMainSection().find(".content");
 
-        PTblManager.Instance.getTablesAsync(true)
+        PTblManager.Instance.getTablesAsync(refresh)
         .then(() => {
             this._tableInfos = this._getAvailableTables();
             this._render();
@@ -150,21 +151,18 @@ class SQLTableLister {
     }
 
     private _initializeMainSection(): void {
-        let header: HTML = this._attributes.map((attr) => {
-            return `<div class="${attr.key}">${attr.text}</div>`
-        }).join("");
         const html: HTML =
         '<div class="header">' +
-            '<div class="row">' +
-                header +
-            '</div>' +
+            '<div class="row"></div>' +
         '</div>' +
         '<div class="content"></div>';
         this._getMainSection().html(html);
     }
 
     private _render(): void {
-        let tableDisplayInfos = this._tableInfos.map(PTblManager.Instance.getTableDisplayInfo);
+        this._renderHeader();
+        let tableInfos = this._sortTables(this._tableInfos);
+        let tableDisplayInfos = tableInfos.map(PTblManager.Instance.getTableDisplayInfo);
         let html: HTML = tableDisplayInfos.map((tableDisplayInfo) => {
             let row: HTML = 
             `<div class="row" data-index="${tableDisplayInfo.index}">` +
@@ -173,9 +171,44 @@ class SQLTableLister {
             return row;
         }).join("");
 
+        if (!html) {
+            html =
+            '<div class="hint">' +
+                TblTStr.NoTable +
+            '</div>';
+        }
+
         this._getMainContent().html(html);
         this._filterTables();
         this._updateActions(null);
+    }
+
+    private _renderHeader(): void {
+        let header: HTML = this._attributes.map((attr) => {
+            let key: string = attr.key;
+            let upIcon = '<i class="icon fa-8 xi-arrow-up"></i>';
+            let downIcon = '<i class="icon fa-8 xi-arrow-down"></i>';
+            let sortIcon = "";
+            if (key === this._sortKey) {
+                sortIcon = this._reverseSort ? downIcon : upIcon;
+            } else {
+                sortIcon = '<span class="sortIconWrap">' +
+                                upIcon +
+                                downIcon +
+                            '</span>';
+            }
+            let html: HTML =
+            `<div class="${key} title" data-key="${key}">` +
+                '<span class="label">' +
+                    attr.text +
+                '</span>' +
+                '<div class="sort">' +
+                    sortIcon +
+                '</div>' +
+            "</div>";
+            return html;
+        }).join("");
+        this._getMainSection().find(".header .row").html(header);
     }
 
     private _renderRowContent(displayInfo): HTML {
@@ -257,7 +290,71 @@ class SQLTableLister {
         SQLResultSpace.Instance.showSchema(tableInfo);
     }
 
+    private _sortAction(sortKey): void {
+        if (sortKey !== this._sortKey) {
+            this._sortKey = sortKey;
+            this._reverseSort = false; // asc sort
+        } else if (this._reverseSort === false) {
+            this._reverseSort = true; // des sort
+        } else {
+            this._reverseSort = null; // no sort
+            this._sortKey = null;
+        }
+        this._render();
+    }
+
+    private _sortTables(tableInfos: PbTblInfo[]): PbTblInfo[] {
+        if (this._sortKey == null) {
+            return tableInfos;
+        }
+        let tables = tableInfos.map((table) => table);
+        // sort by name first
+        tables.sort((a, b) => {
+            let aName = a.name.toLowerCase();
+            let bName = b.name.toLowerCase();
+            return (aName < bName ? -1 : (aName > bName ? 1 : 0));
+        });
+
+        let key = this._sortKey;
+        if (key === "createTime" ||
+            key === "rows" ||
+            key === "size"
+        ) {
+            tables.sort((a, b) => {
+                let aVal = a[key];
+                let bVal = b[key];
+                if (aVal == null && bVal == null) {
+                    return 0;
+                }
+                if (bVal == null) {
+                    return 1;
+                }
+                if (aVal == null) {
+                    return -1;
+                }
+                return aVal - bVal;
+            });
+        } else if (key === "status") {
+            tables.sort((a, b) => {
+                let aVal = a.active ? 1 : 0;
+                let bVal = b.active ? 1 : 0;
+                return aVal - bVal;
+            });
+        }
+
+        if (this._reverseSort) {
+            tables = tables.reverse();
+        }
+        return tables;
+    }
+
     private _addEventListeners(): void {
+        const $mainSection = this._getMainSection();
+        $mainSection.find(".header").on("click", ".title", (event) => {
+            let sortKey = $(event.currentTarget).data("key");
+            this._sortAction(sortKey);
+        });
+
         const $mainContent = this._getMainContent();
         $mainContent.on("click", ".row", (event) => {
             this._selectTableList($(event.currentTarget));
@@ -269,7 +366,7 @@ class SQLTableLister {
 
         const $topSection = this._getTopSection();
         $topSection.find(".refresh").click(() => {
-            this._listTables();
+            this._listTables(true);
         });
 
         $topSection.find(".searchbarArea input").on("input", () => {

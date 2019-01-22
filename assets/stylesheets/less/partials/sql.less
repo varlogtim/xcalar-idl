@@ -542,4 +542,31 @@
             }
         }
     }
+
+    .mainSection {
+        .header {
+            .title {
+                position: relative;
+
+                .sort {
+                    .position(absolute, @top: 0px, @right: 10px);
+
+                    .sortIconWrap {
+                        .position(relative, @top: 8px);
+
+                        .icon {
+                            display: block;
+                        }
+                    }
+                }
+            }
+        }
+
+        .content {
+            .hint {
+                .size(@width: 120px, @height: 20px);
+                .center-align;
+            }
+        }
+    }
 }

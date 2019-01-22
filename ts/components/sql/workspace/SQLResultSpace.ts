@@ -65,6 +65,10 @@ class SQLResultSpace {
         SQLTableSchema.Instance.close();
     }
 
+    /**
+     * SQLResultSpace.Instance.showTables
+     * @param reset
+     */
     public showTables(reset: boolean): void {
         SQLTable.Instance.close();
         SQLTableSchema.Instance.close();

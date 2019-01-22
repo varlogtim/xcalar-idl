@@ -5,13 +5,16 @@ window.ColManager = (function($, ColManager) {
         return new ProgCol(options);
     };
 
-    ColManager.newPullCol = function(colName, backColName, type) {
+    ColManager.newPullCol = function(colName, backColName, type, defaultWidth) {
         if (backColName == null) {
             backColName = colName;
         }
 
         var prefix = xcHelper.parsePrefixColName(backColName).prefix;
-        var width = null; // not set width here as it's a slow operation 
+        var width = null; // not set width by default as it's a slow operation 
+        if (defaultWidth) {
+            width = xcHelper.getDefaultColWidth(colName, prefix);
+        }
 
         return ColManager.newCol({
             "backName": backColName,
@@ -983,7 +986,7 @@ window.ColManager = (function($, ColManager) {
         parsedCols.forEach(function(parsedCol, index) {
             var colName = xcHelper.parsePrefixColName(parsedCol.colName).name;
             var backColName = parsedCol.escapedColName;
-            var newProgCol = ColManager.newPullCol(colName, backColName);
+            var newProgCol = ColManager.newPullCol(colName, backColName, null, true);
             var newColNum = isDATACol ? colNum + index : colNum + index + 1;
 
             table.addCol(newColNum, newProgCol);

@@ -199,8 +199,8 @@ class SQLEditorSpace {
                         this._removeExecutor(executor);
                     };
                 }
-                this._addExecutor(executor);
                 executor.execute(callback);
+                this._addExecutor(executor);
             });
         } catch (e) {
             console.error(e);

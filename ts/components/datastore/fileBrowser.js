@@ -172,16 +172,14 @@ window.FileBrowser = (function($, FileBrowser) {
     };
 
     function setMode() {
-        $switch = $("#fileInfoBottom .switchWrap");
+        var $switch = $("#fileInfoBottom .switchWrap");
         if (DSPreview.isCreateTableMode()) {
             $switch.find(".switch").removeClass("on");
-            xcTooltip.add($switch, {
-                title: "Create table doesn't support multiple import"
-            });
-            $switch.find("> div").addClass("xc-disabled");
+            $switch.addClass("xc-hidden");
+            $switch.siblings(".infoTitle").addClass("xc-hidden");
         } else {
-            xcTooltip.remove($switch);
-            $switch.find("> div").removeClass("xc-disabled");
+            $switch.removeClass("xc-hidden");
+            $switch.siblings(".infoTitle").removeClass("xc-hidden");
         }
     }
 
