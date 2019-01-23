@@ -747,7 +747,10 @@ namespace DagView {
         if (!nodeIds.length) {
             return "";
         }
-        return JSON.stringify(createNodeInfos(nodeIds, activeDag, { clearState: true }), null, 4);
+        return JSON.stringify(createNodeInfos(nodeIds, activeDag, {
+            clearState: true,
+            includeTitle: false
+         }), null, 4);
     }
 
     /**
@@ -767,7 +770,10 @@ namespace DagView {
             return;
         }
 
-        const nodesStr = JSON.stringify(createNodeInfos(nodeIds, activeDag, { clearState: true }), null, 4);
+        const nodesStr = JSON.stringify(createNodeInfos(nodeIds, activeDag, {
+            clearState: true,
+            includeTitle: false
+        }), null, 4);
         DagView.removeNodes(nodeIds, tabId);
         return nodesStr;
     }
@@ -831,7 +837,6 @@ namespace DagView {
 
         nodeInfos.forEach((nodeInfo) => {
             nodeInfo = xcHelper.deepCopy(nodeInfo);
-            nodeInfo.title = null // reset title
             nodeInfo.display.x += xDelta;
             nodeInfo.display.y += yDelta;
             if (nodeInfo.hasOwnProperty("text")) {
@@ -4376,12 +4381,14 @@ namespace DagView {
         dagGraph: DagGraph,
         options: {
             clearState?: boolean // true if we're copying nodes
-            includeStats?: boolean
+            includeStats?: boolean,
+            includeTitle?: boolean // indicates we're doing a cut/copy and paste
         } = {}
     ): any[] {
         // check why we need it
         const clearState: boolean = options.clearState || false;
         const includeStats: boolean = options.includeStats || false;
+        const includeTitle: boolean = options.includeTitle == null ? true : options.includeTitle;
         let nodeInfos = [];
         nodeIds.forEach((nodeId) => {
             if (nodeId.startsWith("dag")) {
@@ -4411,7 +4418,7 @@ namespace DagView {
                     }
                 }
 
-                const nodeInfo = node.getNodeCopyInfo(clearState, includeStats);
+                const nodeInfo = node.getNodeCopyInfo(clearState, includeStats, includeTitle);
                 nodeInfo.parents = parentIds;
                 nodeInfos.push(nodeInfo);
             } else if (nodeId.startsWith("comment")) {
@@ -4960,9 +4967,7 @@ namespace DagView {
 
         $textArea.blur(() => {
             const newVal: string = $textArea.val().trim();
-            if (newVal !== origVal) {
-                DagView.editNodeTitle(nodeId, tabId, newVal);
-            }
+            DagView.editNodeTitle(nodeId, tabId, newVal);
             $textArea.remove();
             $origTitle.show();
         });

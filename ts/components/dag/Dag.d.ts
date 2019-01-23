@@ -18,6 +18,7 @@ interface DagNodeInfo {
     stats?: any;
     configured?: boolean;
     name?: string;
+    hasTitleChange?: boolean;
 }
 
 interface DagNodeDisplayInfo {

@@ -52,6 +52,7 @@ window.MainMenu = (function($, MainMenu) {
             $advModeTabs.addClass("xc-hidden");
             if ($advModeTabs.hasClass("active")) {
                 $advModeTabs.removeClass("active");
+                DagView.hide(); // turn off listeners
                 MainMenu.close(true);
                 MainMenu.closeForms();
                 closeMainPanels();

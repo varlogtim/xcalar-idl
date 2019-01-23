@@ -13,7 +13,7 @@ abstract class DagNode {
     private error: string;
     private configured: boolean;
     private numParent: number; // non-persisent
-
+    private hasTitleChange: boolean;
 
     protected events: {_events: object, trigger: Function}; // non-persistent;
     protected type: DagNodeType;
@@ -52,6 +52,7 @@ abstract class DagNode {
 
         this.description = options.description || "";
         this.title = options.title || "";
+        this.hasTitleChange = options.hasTitleChange || false;
         this.table = options.table;
         this.state = options.state || DagNodeState.Unused;
         if (this.state === DagNodeState.Running) {
@@ -265,6 +266,7 @@ abstract class DagNode {
         this.title = title;
         if (isChange) { // prevents event from firing when title is set when
             // new node is created
+            this.hasTitleChange = true;
             this.events.trigger(DagNodeEvents.TitleChange, {
                 id: this.getId(),
                 node: this,
@@ -495,7 +497,8 @@ abstract class DagNode {
      */
     public getNodeCopyInfo(
         clearState: boolean = false,
-        includeStats: boolean = false
+        includeStats: boolean = false,
+        includeTitle: boolean = true
     ): DagNodeCopyInfo {
         const nodeInfo = <DagNodeCopyInfo>this._getNodeInfoWithParents(includeStats);
         nodeInfo.nodeId = nodeInfo.id;
@@ -507,6 +510,9 @@ abstract class DagNode {
             ) {
                 nodeInfo.state = DagNodeState.Configured;
             }
+        }
+        if (!this.hasTitleChange && !includeTitle) {
+            delete nodeInfo.title;
         }
         return nodeInfo;
     }
@@ -976,6 +982,10 @@ abstract class DagNode {
             "$id": "#/properties/title",
             "type": "string"
           },
+          "hasTitleChange": {
+            "$id": "#/properties/hasTitleChange",
+            "type": "boolean"
+          },
           "input": {
             "$id": "#/properties/input",
             "type": "object",
@@ -1125,6 +1135,7 @@ abstract class DagNode {
             display: xcHelper.deepCopy(this.display.coordinates),
             description: this.description,
             title: this.title,
+            hasTitleChange: this.hasTitleChange,
             input: xcHelper.deepCopy(this.input.getInput()),
             id: this.id,
             state: this.state,
