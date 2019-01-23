@@ -3,14 +3,14 @@ class DagNodeSetInput extends DagNodeInput {
 
     constructor(inputStruct: DagNodeSetInputStruct, dagNode) {
         if (inputStruct == null) {
-          inputStruct = {
-            columns: null,
-            dedup: false
-          };
+            inputStruct = {
+                columns: null,
+                dedup: false
+            };
         }
 
         if (inputStruct.columns == null) {
-          inputStruct.columns = dagNode.getParents().map(() => {
+            inputStruct.columns = dagNode.getParents().map(() => {
                 return [{
                     sourceColumn: "",
                     destColumn: "",
@@ -18,6 +18,8 @@ class DagNodeSetInput extends DagNodeInput {
                     cast: false
                 }]
             });
+        } else {
+            DagNodeSetInput.fillInMissingColumns(inputStruct);
         }
 
         inputStruct.dedup = inputStruct.dedup || false;
@@ -132,5 +134,31 @@ class DagNodeSetInput extends DagNodeInput {
             columns: input.columns,
             dedup: input.dedup
         };
+    }
+
+    public insertColumn(column, connectorIndex: number) {
+        this.input.columns.splice(connectorIndex, 0, column);
+        DagNodeSetInput.fillInMissingColumns(this.input);
+    }
+
+    // fill in missing columns so all list lengths are equal
+    private static fillInMissingColumns(input) {
+        const largestCol = input.columns.reduce((prev, current) => {
+            return (prev.length > current.length) ? prev : current
+        });
+
+        input.columns.forEach((col) => {
+            if (col.length < largestCol.length) {
+                const colLen = col.length;
+                for (let i = colLen; i < largestCol.length; i++) {
+                    col.push({
+                        sourceColumn: "",
+                        destColumn: largestCol[i].destColumn,
+                        columnType: largestCol[i].columnType,
+                        cast: false
+                    });
+                }
+            }
+        });
     }
 }

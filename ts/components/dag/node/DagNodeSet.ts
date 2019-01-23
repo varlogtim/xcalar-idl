@@ -120,6 +120,24 @@ class DagNodeSet extends DagNode {
 
     /**
      * @override
+     * @param pos the index of the parent node that will be disconnected
+     * @returns whether the index was spliced
+     */
+    public disconnectFromParent(parentNode: DagNode, pos: number): boolean {
+        super.disconnectFromParent(parentNode, pos);
+        let param = this.getParam();
+        param.columns.splice(pos, 1);
+        this.setParam(param);
+        return true;
+    }
+
+    public reinsertColumn(column, connectorIndex: number): void {
+        this.input.insertColumn(column, connectorIndex);
+        this.setParam(this.getParam()); // trigger change
+    }
+
+    /**
+     * @override
      */
     protected _genParamHint(): string {
         let hint: string = "";

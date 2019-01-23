@@ -953,7 +953,8 @@ namespace DagView {
         tabId: string,
         isReconnect?: boolean,
         spliceIn?: boolean,
-        identifiers?: Map<number, string>
+        identifiers?: Map<number, string>,
+        setNodeConfig?: {sourceColumn: string, destColumn: string, columnType: ColumnType, cast: boolean}[]
     ): XDPromise<void> {
         const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId)
         if (dagTab instanceof DagTabPublished) {
@@ -964,7 +965,8 @@ namespace DagView {
         _connectNodesNoPersist(parentNodeId, childNodeId, connectorIndex, tabId, {
             isReconnect: isReconnect,
             spliceIn: spliceIn,
-            identifiers: identifiers
+            identifiers: identifiers,
+            setNodeConfig: setNodeConfig
         });
         dagTab.turnOnSave();
         return dagTab.save();
@@ -997,6 +999,11 @@ namespace DagView {
         // Currently only used by SQL node but can be extended for other nodes
         const childNode = graph.getNode(childNodeId);
         const identifiers = childNode.getIdentifiers();
+        let setNodeConfig;
+        if (childNode.getType() === DagNodeType.Set) {
+            let param = childNode.getParam();
+            setNodeConfig = param.columns[connectorIndex];
+        }
         const wasSpliced = graph.disconnect(parentNodeId, childNodeId, connectorIndex);
         _removeConnection($edge, $dfArea, childNodeId, tabId);
         Log.add(SQLTStr.DisconnectOperations, {
@@ -1006,7 +1013,8 @@ namespace DagView {
             "childNodeId": childNodeId,
             "connectorIndex": connectorIndex,
             "wasSpliced": wasSpliced,
-            "identifiers": identifiers
+            "identifiers": identifiers,
+            "setNodeConfig": setNodeConfig
         });
 
         dagTab.turnOnSave();
@@ -2514,7 +2522,8 @@ namespace DagView {
             spliceIn?: boolean,
             isSwitchState?: boolean,
             isNoLog?: boolean,
-            identifiers?: Map<number, string>
+            identifiers?: Map<number, string>,
+            setNodeConfig?: {sourceColumn: string, destColumn: string, columnType: ColumnType, cast: boolean}[]
         }
     ): LogParam {
         const {
@@ -2540,6 +2549,9 @@ namespace DagView {
         const childNode = graph.getNode(childNodeId);
         _drawConnection(parentNodeId, childNodeId, connectorIndex, tabId, childNode.canHaveMultiParents(), true);
         childNode.setIdentifiers(options.identifiers);
+        if (options.setNodeConfig) {
+            (<DagNodeSet> childNode).reinsertColumn(options.setNodeConfig, connectorIndex);
+        }
 
         const logParam: LogParam = {
             title: SQLTStr.ConnectOperations,

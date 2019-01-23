@@ -625,30 +625,30 @@ class DagGraph {
 
     /**
      * disconnect two nodes
-     * @param fromNodeId parent node
-     * @param toNodeId child node
+     * @param parentNodeId from node
+     * @param childNodeId to node
      * @param toPos 0 based position of the  child node's input
      */
     public disconnect(
-        fromNodeId: DagNodeId,
-        toNodeId: DagNodeId,
+        parentNodeId: DagNodeId,
+        childNodeId: DagNodeId,
         toPos: number = 0,
         switchState: boolean = true
     ): boolean {
-        const fromNode: DagNode = this._getNodeFromId(fromNodeId);
-        const toNode: DagNode = this._getNodeFromId(toNodeId);
-        const wasSpliced = toNode.disconnectFromParent(fromNode, toPos);
-        fromNode.disconnectFromChild(toNode);
+        const parentNode: DagNode = this._getNodeFromId(parentNodeId);
+        const childNode: DagNode = this._getNodeFromId(childNodeId);
+        const wasSpliced = childNode.disconnectFromParent(parentNode, toPos);
+        parentNode.disconnectFromChild(childNode);
         if (switchState) {
-            const descendentSets = this._traverseSwitchState(toNode);
+            const descendentSets = this._traverseSwitchState(childNode);
             const childIndices = {};
-            childIndices[toNodeId] = toPos;
+            childIndices[childNodeId] = toPos;
             this.events.trigger(DagNodeEvents.ConnectionChange, {
                 type: "remove",
                 descendents: [...descendentSets],
                 removeInfo: {
                     childIndices: childIndices,
-                    node: fromNode
+                    node: parentNode
                 },
                 tabId: this.parentTabId
             });

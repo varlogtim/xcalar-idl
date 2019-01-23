@@ -294,10 +294,30 @@ class ColAssignmentModel {
                 hasCast[colIndex] = hasCast[colIndex] || selectedCol.cast;
             }
         }
+        let maxLen = 0;
+        let largestList = this.selectedColsList[0];
+        let largestIndex = 0;
+        this.selectedColsList.forEach((list, i) => {
+            if (list.length > maxLen) {
+                maxLen = list.length;
+                largestList = list;
+                largestIndex = i;
+            }
+        });
+
+        // fill in missing columns with null so all list lengths are equal
+        this.selectedColsList.forEach((list) => {
+            if (list.length < largestList.length) {
+                const listLen = list.length;
+                for (let i = listLen; i < largestList.length; i++) {
+                    list.push(null);
+                }
+            }
+        });
 
         // intialize result list
-        if (selectedColSets[0] != null) {
-            this.resultCols = selectedColSets[0].map((col, colIndex) => {
+        if (selectedColSets[largestIndex] != null) {
+            this.resultCols = selectedColSets[largestIndex].map((col, colIndex) => {
                 return new ProgCol({
                     backName: col.destColumn,
                     type: hasCast[colIndex] ? col.columnType : null
