@@ -2845,7 +2845,7 @@ namespace DagView {
             const rectWidth = Math.max(infoRect.width, 95); // width can be 0 if tab is not visible
             const rectHeight = Math.max(infoRect.height, 25);
             const scale = activeDag.getScale();
-            const nodeCenter = nodeInfo.position.x + (DagView.nodeWidth / 2);
+            const nodeCenter = nodeInfo.position.x + 1 + (DagView.nodeWidth / 2);
             $runStats.css({
                 left: scale * nodeCenter - (rectWidth / 2),
                 top: Math.max(1, (scale * nodeInfo.position.y) - (rectHeight + 5))

@@ -58,6 +58,7 @@ class DragHelper {
     protected scale: number;
     protected elOffsets: Coordinate[]
     protected padding: number;
+    protected horzScrollDirection: number;
 
     public constructor(options: DragHelperOptions) {
         const self = this;
@@ -86,6 +87,7 @@ class DragHelper {
         this.dragContainerItemsPositions = [];
         this.noCursor = options.noCursor || false;
         this.scrollUpCounter = 0;
+        this.horzScrollDirection = 0;
         this.scrollLeft = this.$dropTarget.parent().scrollLeft();
         this.scrollTop = this.$dropTarget.parent().scrollTop();
         this.round = options.round || 0;
@@ -147,6 +149,9 @@ class DragHelper {
     private onDrag(event: JQueryEventObject): void {
         this.currX = event.pageX;
         this.currY = event.pageY;
+        if (this.currX !== this.lastX) {
+            this.horzScrollDirection = this.currX - this.lastX;
+        }
         this.positionDraggingEl(event);
         if (this.onDragCallback) {
             this.onDragCallback({
@@ -163,22 +168,23 @@ class DragHelper {
         const self = this;
         const pxToIncrement = 20;
         const horzPxToIncrement = 40;
-        // const deltaX = this.currX - this.lastX;
         const deltaY = this.currY - this.lastY;
         const timer = 40;
-        const hotZoneSize = 40; // width/height of area inside parent target
+        const idleTimeLimit = 400;
+        const hotZoneWidth = 80; // width/height of area inside parent target
         // where you can hover over and expect to cause a scroll
-        const currLeft = this.currX - hotZoneSize;
-        const currRight = this.currX + hotZoneSize;
-        const currTop = this.currY - hotZoneSize;
-        const currBottom = this.currY + hotZoneSize;
+        const hotZoneHeight = 40;
+        const currLeft = this.currX - hotZoneWidth;
+        const currRight = this.currX + hotZoneWidth;
+        const currTop = this.currY - hotZoneHeight;
+        const currBottom = this.currY + hotZoneHeight;
         if (deltaY < 1) {
             this.scrollUpCounter++;
         } else {
             this.scrollUpCounter = 0;
         }
 
-        if (currLeft < this.targetRect.left) {
+        if (currLeft < this.targetRect.left && this.horzScrollDirection < 0) {
             this.scrollLeft = this.$dropTarget.parent().scrollLeft();
             this.scrollLeft -= pxToIncrement;
             this.scrollLeft = Math.max(0, this.scrollLeft);
@@ -189,7 +195,7 @@ class DragHelper {
             }
         } else if (currTop < this.targetRect.top) {
             // only scroll up if staying still or mouse is moving up
-            if (this.scrollUpCounter * timer > 400) {
+            if (this.scrollUpCounter * timer > idleTimeLimit) {
                 this.scrollTop = this.$dropTarget.parent().scrollTop();
                 this.scrollTop -= pxToIncrement;
                 this.scrollTop = Math.max(0, this.scrollTop);
@@ -210,7 +216,7 @@ class DragHelper {
             this.scrollTop += pxToIncrement;
             this.scrollTop = Math.max(0, this.scrollTop);
             this.$dropTarget.parent().scrollTop(this.scrollTop);
-        } else if (currRight > this.targetRect.right) {
+        } else if (currRight > this.targetRect.right && this.horzScrollDirection > 0) {
             this.scrollLeft = this.$dropTarget.parent().scrollLeft();
             if (this.$dropTarget.parent()[0].scrollWidth - this.scrollLeft -
             this.$dropTarget.parent().outerWidth() <= 1) {

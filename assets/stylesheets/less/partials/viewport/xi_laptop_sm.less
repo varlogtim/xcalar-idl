@@ -49,11 +49,6 @@
             max-height: @height-mainTab + 1; // for IE
             overflow: hidden;
         }
-        .subTabs {
-            max-height: @height-subTab * 3;
-            overflow: auto;
-            overflow-x: hidden; // prevents horz scrollbar in IE11
-        }
         .topMenuBarTab {
             ::-webkit-scrollbar-track {
                 background: rgba(0, 0, 0, 0.7);
@@ -81,13 +76,12 @@
 }
 
 // compress left main tabs
-@media screen and (max-height: 700px) {
+@media screen and (max-height: 620px) {
     @tabHeight: 35px;
 
     .topMenuBarTab .mainTab .icon {
         transform: scale(0.9) translate(-55%, -55%);
     }
-
 
     #menuBar {
         .topMenuBarTab {
