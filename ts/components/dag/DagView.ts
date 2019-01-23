@@ -480,9 +480,11 @@ namespace DagView {
     export function addBackNodes(
         nodeIds: DagNodeId[],
         tabId: string,
-        spliceInfo?
+        spliceInfo?,
+        identifiers?
     ): XDPromise<void> {
         spliceInfo = spliceInfo || {};
+        identifiers = identifiers || {};
         const $dfArea: JQuery = _getAreaByTab(tabId);
         const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId);
         const graph: DagGraph = dagTab.getGraph();
@@ -500,6 +502,10 @@ namespace DagView {
             let node;
             if (nodeId.startsWith("dag")) {
                 node = graph.addBackNode(nodeId, spliceInfo[nodeId]);
+                const childrenNodes = node.getChildren();
+                childrenNodes.forEach((childNode) => {
+                    childNode.setIdentifiers(identifiers[childNode.getId()]);
+                });
                 if (node instanceof DagNodeDFOut) {
                     hasLinkOut = true;
                 }
@@ -946,7 +952,8 @@ namespace DagView {
         connectorIndex: number,
         tabId: string,
         isReconnect?: boolean,
-        spliceIn?: boolean
+        spliceIn?: boolean,
+        identifiers?: Map<number, string>
     ): XDPromise<void> {
         const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId)
         if (dagTab instanceof DagTabPublished) {
@@ -956,7 +963,8 @@ namespace DagView {
         dagTab.turnOffSave();
         _connectNodesNoPersist(parentNodeId, childNodeId, connectorIndex, tabId, {
             isReconnect: isReconnect,
-            spliceIn: spliceIn
+            spliceIn: spliceIn,
+            identifiers: identifiers
         });
         dagTab.turnOnSave();
         return dagTab.save();
@@ -986,6 +994,9 @@ namespace DagView {
             '"][data-connectorindex="' +
             connectorIndex + '"]');
 
+        // Currently only used by SQL node but can be extended for other nodes
+        const childNode = graph.getNode(childNodeId);
+        const identifiers = childNode.getIdentifiers();
         const wasSpliced = graph.disconnect(parentNodeId, childNodeId, connectorIndex);
         _removeConnection($edge, $dfArea, childNodeId, tabId);
         Log.add(SQLTStr.DisconnectOperations, {
@@ -994,7 +1005,8 @@ namespace DagView {
             "parentNodeId": parentNodeId,
             "childNodeId": childNodeId,
             "connectorIndex": connectorIndex,
-            "wasSpliced": wasSpliced
+            "wasSpliced": wasSpliced,
+            "identifiers": identifiers
         });
 
         dagTab.turnOnSave();
@@ -2400,6 +2412,7 @@ namespace DagView {
         let aggregates: string[] = [];
         const dagNodeIds: DagNodeId[] = [];
         const commentNodeIds: CommentNodeId[] = [];
+        const allIdentifiers = {};
         const spliceInfos = {};
         const removedNodeIds: string[] = [];
         nodeIds.forEach((nodeId) => {
@@ -2436,6 +2449,10 @@ namespace DagView {
                         }
                     }
                     dagNodeIds.push(nodeId);
+                    const childrenNodes = dagNode.getChildren();
+                    childrenNodes.forEach((childNode) => {
+                        allIdentifiers[childNode.getId()] = childNode.getIdentifiers();
+                    });
                     const spliceInfo = graph.removeNode(nodeId, isSwitchState);
                     const $node = DagView.getNode(nodeId, tabId);
                     if ($node.data("type") === DagNodeType.DFOut) {
@@ -2468,7 +2485,8 @@ namespace DagView {
                     "operation": SQLOps.RemoveOperations,
                     "dataflowId": tabId,
                     "nodeIds": removedNodeIds,
-                    "spliceInfo": spliceInfos
+                    "spliceInfo": spliceInfos,
+                    "identifiers": allIdentifiers
                 }
             };
             if (!isNoLog) {
@@ -2495,7 +2513,8 @@ namespace DagView {
             isReconnect?: boolean,
             spliceIn?: boolean,
             isSwitchState?: boolean,
-            isNoLog?: boolean
+            isNoLog?: boolean,
+            identifiers?: Map<number, string>
         }
     ): LogParam {
         const {
@@ -2520,6 +2539,7 @@ namespace DagView {
             spliceIn);
         const childNode = graph.getNode(childNodeId);
         _drawConnection(parentNodeId, childNodeId, connectorIndex, tabId, childNode.canHaveMultiParents(), true);
+        childNode.setIdentifiers(options.identifiers);
 
         const logParam: LogParam = {
             title: SQLTStr.ConnectOperations,

@@ -216,10 +216,25 @@ class DagNodeSQL extends DagNode {
         this.newTableName = newTableName;
     }
     public getIdentifiers(): Map<number, string> {
+        super.getIdentifiers();
         return this.identifiers;
     }
     public setIdentifiers(identifiers: Map<number, string>): void {
+        if (!identifiers) {
+            return;
+        }
+        super.setIdentifiers(identifiers);
         this.identifiers = identifiers;
+        const identifiersOrder = [];
+        const rawIdentifiers = {};
+        this.identifiers.forEach(function(value, key) {
+            identifiersOrder.push(key);
+            rawIdentifiers[key] = value;
+        });
+        const sqlParams: DagNodeSQLInputStruct = this.getParam();
+        sqlParams.identifiers = rawIdentifiers;
+        sqlParams.identifiersOrder = identifiersOrder;
+        this.setParam(sqlParams);
     }
     public getTableSrcMap(): {} {
         return this.tableSrcMap;
@@ -426,23 +441,16 @@ class DagNodeSQL extends DagNode {
             sqlParams.identifiersOrder.splice(index, 1);
             delete sqlParams.identifiers[pos + 1];
             // decrement other identifiers
+            const newRawIdentifiers = {};
             sqlParams.identifiersOrder.forEach((idx, i) => {
                 if (idx > pos) {
                     sqlParams.identifiersOrder[i] = idx - 1;
-                    // decrement identifier keys but append a letter so that
-                    // we don't overwrite an identifier with the same new key
-                    sqlParams.identifiers[(idx - 1) + "x"] = sqlParams.identifiers[idx];
-                    delete sqlParams.identifiers[idx];
+                    newRawIdentifiers[idx - 1] = sqlParams.identifiers[idx];
+                } else {
+                    newRawIdentifiers[idx] = sqlParams.identifiers[idx];
                 }
             });
-            for (let i in sqlParams.identifiers) {
-                // loop through the identifiers and restore the keys
-                if (typeof i === "string" && i.endsWith("x")) {
-                    sqlParams.identifiers[i.slice(0, i.indexOf("x"))] = sqlParams.identifiers[i];
-                    delete sqlParams.identifiers[i];
-                }
-            }
-
+            sqlParams.identifiers = newRawIdentifiers;
             // reset this.identifiers
             const identifiers = new Map<number, string>();
             sqlParams.identifiersOrder.forEach((idx) => {
@@ -464,7 +472,7 @@ class DagNodeSQL extends DagNode {
         super.beConfiguredState();
         if (isUpdateSubgraph) {
             // Update the state of nodes in subGraph
-            let subGraph = this.getSubGraph();
+            const subGraph = this.getSubGraph();
             if (subGraph) {
                 subGraph.getAllNodes().forEach((node) => {
                     node.beConfiguredState();
@@ -596,10 +604,6 @@ class DagNodeSQL extends DagNode {
                 "noNotification": true,
                 "noSql": true
             }));
-            txId = Transaction.start({
-                "operation": "SQL Simulate",
-                "simulate": true
-            });
             const ret = {
                 finalizedTableName: finalizedTableName,
                 cliArray: cliArray,
@@ -610,6 +614,10 @@ class DagNodeSQL extends DagNode {
             deferred.resolve(ret);
         })
         .fail(function() {
+            Transaction.done(txId, {
+                "noNotification": true,
+                "noSql": true
+            });
             deferred.reject(SQLErrTStr.FinalizingFailed);
         });
 

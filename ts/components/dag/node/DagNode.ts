@@ -478,6 +478,13 @@ abstract class DagNode {
         throw new Error("Dag " + childNode.getId() + " is not child of " + this.getId());
     }
 
+    public getIdentifiers(): Map<number, string> {
+        return;
+    }
+    public setIdentifiers(identifiers: Map<number, string>): void {
+        return;
+    }
+
     public getSerializableObj(includeStats?: boolean): DagNodeInfo {
         return this.getNodeInfo(includeStats);
     }

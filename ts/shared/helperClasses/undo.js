@@ -140,7 +140,7 @@ window.Undo = (function($, Undo) {
     /* Dataflow operations */
     undoFuncs[SQLOps.DisconnectOperations] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.connectNodes(options.parentNodeId, options.childNodeId, options.connectorIndex, options.dataflowId, false, options.wasSpliced);
+        DagView.connectNodes(options.parentNodeId, options.childNodeId, options.connectorIndex, options.dataflowId, false, options.wasSpliced, options.identifiers);
         return PromiseHelper.resolve(null);
     };
 
@@ -156,7 +156,7 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.RemoveOperations] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.addBackNodes(options.nodeIds, options.dataflowId, options.spliceInfo);
+        DagView.addBackNodes(options.nodeIds, options.dataflowId, options.spliceInfo, options.identifiers);
         return PromiseHelper.resolve(null);
     };
 

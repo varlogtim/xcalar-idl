@@ -1005,6 +1005,7 @@ class DagNodeExecutor {
             return PromiseHelper.reject(SQLErrTStr.NeedConfiguration);
         }
 
+        const queryId = node.getSQLQueryId();
         let xcQueryString = node.getXcQueryString();
         let promise: XDPromise<any> = PromiseHelper.resolve({xcQueryString: xcQueryString});
         if (!xcQueryString) {
@@ -1044,7 +1045,6 @@ class DagNodeExecutor {
                 startTime: new Date()
             });
             node.updateSQLQueryHisory();
-            let queryId = node.getSQLQueryId();
             return XIApi.query(self.txId, queryId, replaceRetStruct.newQueryStr,
                                                                        options);
         })
