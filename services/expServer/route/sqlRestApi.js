@@ -413,6 +413,32 @@ function listPublishedTables(pattern) {
     return deferred.promise();
 };
 
+function listAllTables(pattern) {
+    var deferred = PromiseHelper.deferred();
+    var patternMatch = pattern || "*";
+    var tableListPromiseArray = [];
+    tableListPromiseArray.push(XcalarListPublishedTables(patternMatch));
+    tableListPromiseArray.push(XcalarGetTables(patternMatch));
+    var pubTables = new Map();
+    var xdTables = new Map();
+    PromiseHelper.when.apply(this, tableListPromiseArray)
+    .then(function() {
+        var pubTablesRes = arguments[0];
+        var xdTablesRes = arguments[1];
+        pubTablesRes.tables.forEach(function(table){
+            if (table.active) {
+                pubTables.set(table.name.toUpperCase(), table.name);
+            }
+        });
+        xdTablesRes.nodeInfo.forEach(function(node){
+            xdTables.set(node.name.toUpperCase(), node.name);
+        });
+        deferred.resolve(pubTables, pubTablesRes, xdTables);
+    })
+    .fail(deferred.reject);
+    return deferred.promise();
+};
+
 function connect(hostname, username, id) {
     if (!username) {
         username = "xcalar-internal-sql";
@@ -703,8 +729,8 @@ function getDerivedCol(txId, tableName, schema, dstTable) {
 }
 
 function getTablesFromQueryViaParser(sqlStatement,
-    listOfPubTables) {
-    var chars = new antlr4.InputStream(sqlStatement);
+    setOfPubTables, setOfXDTables) {
+    var chars = new antlr4.InputStream(sqlStatement.toUpperCase());
     var lexer = new SqlBaseLexer(chars);
     var tokens  = new antlr4.CommonTokenStream(lexer);
     var parser = new SqlBaseParser(tokens);
@@ -716,26 +742,35 @@ function getTablesFromQueryViaParser(sqlStatement,
 
     var imdTables = [];
     var xdTables = [];
-    var upperCaseListOfPubTables = listOfPubTables.map(function(v) {
-        return v.toUpperCase();
-    });
-    var backtickedListOfPubTables = upperCaseListOfPubTables.map(function(v) {
-        return "`" + v + "`";
-    });
+    var errorTables = [];
+    setOfXDTables = setOfXDTables || new Map();
     visitor.tableIdentifiers.forEach(function(identifier) {
-        var identifierUppercase = identifier.toUpperCase();
-        if (visitor.namedQueries.indexOf(identifier) === -1) {
-            var idx = upperCaseListOfPubTables.indexOf(identifierUppercase);
-            if (idx === -1) {
-                idx = backtickedListOfPubTables.indexOf(identifierUppercase);
-            }
-            if (idx > -1) {
-                imdTables.push(listOfPubTables[idx]);
-            } else {
-                xdTables.push(identifier);
-            }
+        if (visitor.namedQueries.indexOf(identifier) != -1) {
+            return;
+        }
+        var slicedIdentifier = identifier.slice(1, -1);
+        if (setOfXDTables.has(identifier)){
+            xdTables.push(setOfXDTables.get(identifier));
+        }
+        else if (identifier[0] === "`" && identifier[-1] === "`"
+            && setOfXDTables.has(slicedIdentifier)) {
+                xdTables.push(setOfXDTables.get(slicedIdentifier));
+        }
+        else if(setOfPubTables.has(identifier)){
+            imdTables.push(setOfPubTables.get(identifier));
+        }
+        else if (identifier[0] === "`" && identifier[-1] === "`"
+            && setOfPubTables.has(slicedIdentifier)) {
+                imdTables.push(setOfPubTables.get(slicedIdentifier));
+        }
+        else {
+            errorTables.push(identifier);
         }
     });
+    if (errorTables.length > 0) {
+        return "Tables not found: " +
+            JSON.stringify(errorTables);
+    }
     return [imdTables, xdTables];
 }
 
@@ -877,7 +912,7 @@ function getInfoForXDTable(tableName) {
     return deferred.promise();
 };
 
-function collectTablesMetaInfo(queryStr, tablePrefix) {
+function collectTablesMetaInfo(queryStr, tablePrefix, type) {
     function findValidLastSelect(selects, nextBatchId) {
         for (var select of selects) {
             if (select.maxBatchId + 1 === nextBatchId &&
@@ -922,17 +957,41 @@ function collectTablesMetaInfo(queryStr, tablePrefix) {
     var deferred = jQuery.Deferred();
     var error = false;
     var batchIdMap = {};
-    
-    listPublishedTables("*")
-    .then(function(allPubTableNames, res) {
-        allTables = getTablesFromQueryViaParser(queryStr, allPubTableNames);
+
+    var prom;
+    //XXX Doing this not to mess up with odbc calls
+    // but works without doing this for odbc, need to remove
+    // this when we unify sdk and odbc code paths
+    if (type === 'odbc') {
+        prom = listPublishedTables('*');
+    }
+    else {
+        prom = listAllTables('*');
+    }
+    prom
+    .then(function(pubTables, pubTableRes, xdTables) {
+        //XXX converting pubTables array to Map
+        // making xdTables to empty Map
+        if (type === 'odbc') {
+            xdTables = new Map();
+            var pubTablesSet = pubTables;
+            pubTables = new Map();
+            for (var pubTable of pubTablesSet) {
+                pubTables.set(pubTable.toUpperCase(), pubTable);
+            }
+        }
+        allTables = getTablesFromQueryViaParser(queryStr, pubTables, xdTables);
+        if (typeof(allTables) !== "object") {
+            console.log(allTables);
+            return PromiseHelper.reject(SQLErrTStr.NoPublishedTable);
+        }
         var imdTables = allTables[0];
         var xdTables = allTables[1];
         console.log("IMD tables are", imdTables);
         console.log("XD tables are", xdTables);
         var tableValidPromiseArray = [];
         for (var imdTable of imdTables) {
-            var tableStruct = getInfoForPublishedTable(res, imdTable);
+            var tableStruct = getInfoForPublishedTable(pubTableRes, imdTable);
             // schema must exist because getListOfPublishedTables ensures
             // that it exists
             allSchemas[imdTable] = tableStruct.schema;
@@ -1022,7 +1081,7 @@ function executeSql(params, type, workerThreading) {
     setupConnection(params.userName, params.userId, params.sessionName)
     .then(function () {
         return collectTablesMetaInfo(params.queryString,
-                                tablePrefix)
+                                tablePrefix, type)
     })
     .then(function(selQuery, schemas, selects) {
         allSelects = selects;
