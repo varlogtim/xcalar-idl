@@ -168,7 +168,7 @@ class DagGraph {
     public createWithValidate(serializableGraph: DagGraphInfo): void {
         // comments may not exist, so create a new comments array
         let comments: CommentInfo[] = serializableGraph.comments;
-        if (comments || !Array.isArray(comments)) {
+        if (!comments || !Array.isArray(comments)) {
             comments = [];
         }
 
