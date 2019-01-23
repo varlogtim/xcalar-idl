@@ -306,36 +306,46 @@ class SQLOpPanel extends BaseOpPanel {
         }
     }
 
-    private _updateSnippet(snippetName: string): void {
+    private _updateSnippet(snippetName: string): boolean {
         if (!snippetName || !xcHelper.checkNamePattern(PatternCategory.SQLSnippet,
                                                    PatternAction.Check,
                                                    snippetName)) {
             StatusBox.show(SQLErrTStr.InvalidEditorName,
                            this._$elemPanel.find("input.snippetName"));
-            return;
+            return true;
         }
-        const $ul = this._$sqlSnippetDropdown.find("ul");
         if (this._$snippetConfirm.hasClass("newSnippet")) {
             // saving as a new snippet
             if (SQLSnippet.Instance.hasSnippet(snippetName)) {
                 StatusBox.show(SQLErrTStr.SnippetNameExists,
                                this._$elemPanel.find("input.snippetName"));
-                return;
+                return true;
             } else {
-                const html = '<li data-name="' + snippetName + '" data-toggle="tooltip" ' +
-                             'data-container="body" data-placement="top">' +
-                             snippetName + '<i class="icon xi-trash"></i></li>';
-                $ul.append(html);
+                this._appendSnippet(snippetName);
                 this._curSnippet = snippetName;
                 SQLSnippet.Instance.writeSnippet(snippetName, this._sqlEditor.getValue(), false);
             }
         } else {
             // overwriting snippet
-            $ul.find('li[data-name="'+ this._curSnippet +'"]').attr("data-name", snippetName).text(snippetName);
+            if (!SQLSnippet.Instance.hasSnippet(snippetName)) {
+                this._appendSnippet(snippetName);
+            }
             this._curSnippet = snippetName;
             SQLSnippet.Instance.writeSnippet(snippetName, this._sqlEditor.getValue(), true);
         }
         this._selectSnippetByName(snippetName);
+        return false;
+    }
+
+    private _appendSnippet(snippetName: string): void {
+        const $ul = this._$sqlSnippetDropdown.find("ul");
+        const html =
+            '<li data-name="' + snippetName + '" data-toggle="tooltip" ' +
+            'data-container="body" data-placement="top">' +
+                snippetName +
+                '<i class="icon xi-trash"></i>' +
+            '</li>';
+        $ul.append(html);
     }
 
     private _addEventListeners(): void {
@@ -358,8 +368,10 @@ class SQLOpPanel extends BaseOpPanel {
             const confirm = $(this).hasClass("save");
             if (confirm) {
                 const newSnippetName = self._$elemPanel.find(".snippetName").val().trim();
-                self._updateSnippet(newSnippetName);
-                self._toggleSnippetSave();
+                let hasError = self._updateSnippet(newSnippetName);
+                if (!hasError) {
+                    self._toggleSnippetSave();
+                }
             } else {
                 self._toggleSnippetConfirmation();
             }
