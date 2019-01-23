@@ -241,6 +241,13 @@ class DagNodeSQL extends DagNode {
     }
 
     public lineageChange(_columns, replaceParameters?: boolean): DagLineageChange {
+        if (this.columns == null) {
+            return {
+                columns: [],
+                changes: []
+            }
+        }
+
         const changes: {from: ProgCol, to: ProgCol}[] = [];
         const finalCols: ProgCol[] = this.columns.map((column) => {
             return ColManager.newPullCol(column.name, column.backName, column.type);

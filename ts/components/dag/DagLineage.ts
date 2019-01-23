@@ -107,7 +107,7 @@ class DagLineage {
         let colInfo: DagLineageChange;
         if (this.node.isSourceNode()) {
             // source node
-            colInfo =  this._applyChanges(replaceParameters);
+            colInfo = this._applyChanges(replaceParameters);
         } else if (this.node.getType() === DagNodeType.Aggregate) {
             colInfo = {columns:[], changes:[]}; // aggregate has no columns. just a value
         } else {
@@ -203,9 +203,12 @@ class DagLineage {
         columns = columns || this.columns;
         try {
             lineageChange = this.node.lineageChange(columns, replaceParameters);
-            // console.log("change", lineageChange);
         } catch (e) {
             console.error("get lineage error", e);
+            lineageChange = {
+                columns: [],
+                changes: []
+            };
         }
         return lineageChange;
     }

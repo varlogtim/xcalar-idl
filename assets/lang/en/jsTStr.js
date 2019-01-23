@@ -918,7 +918,7 @@ WKBKTStr = {
     'Expire': 'Please Log out',
     'ExpireMsg': 'You are logged in somewhere else!',
     'Hold': "Workbook Hold Error",
-    'HoldMsg': 'You opened the workbook somewhere else. Continuing to open this workbook might cause you to lose unsaved work.',
+    'HoldMsg': 'The workbook is being used in another browser tab. Continuing to open this workbook will close the workbook in the other browser tab.',
     'Release': 'Open workbook',
     'WKBKnotExists': 'No workbooks exist',
     "WkbkNameRequired": "Workbook name is required.",
