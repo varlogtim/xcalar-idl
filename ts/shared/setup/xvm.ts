@@ -474,6 +474,7 @@ namespace XVM {
         _commitMode(mode);
         xcManager.setModeStatus();
         SQLWorkSpace.Instance.switchMode();
+        DSPreview.switchMode();
         let allPanelsClosed = MainMenu.switchMode();
         DagView.switchMode()
         .always(() => {

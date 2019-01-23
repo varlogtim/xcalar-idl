@@ -61,16 +61,18 @@ class DagLineage {
     }
 
     /**
-     * @returns {{from: ProgCol, to: ProgCol}[]}
+     * @return {string[]} Get A list of prefix columns names
      */
-    public getChanges(): {from: ProgCol, to: ProgCol}[] {
-        // if no columns, then no changes, so update
-        if (this.columns == null) {
-            const updateRes = this._update();
-            this.columns = updateRes.columns;
-            this.changes = updateRes.changes;
-        }
-        return this.changes;
+    public getPrefixColumns(): string[] {
+        const prefixColumns: string[] = [];
+        this.getColumns().forEach((progCol) => {
+            const colName: string = progCol.getBackColName();
+            const parsed: PrefixColInfo = xcHelper.parsePrefixColName(colName);
+            if (parsed.prefix) {
+                prefixColumns.push(colName);
+            }
+        });
+        return prefixColumns;
     }
 
     /**
@@ -89,35 +91,16 @@ class DagLineage {
     }
 
     /**
-     * @return {string[]} Get A list of prefix columns names
+     * @returns {{from: ProgCol, to: ProgCol}[]}
      */
-    public getPrefixColumns(): string[] {
-        const prefixColumns: string[] = [];
-        this.getColumns().forEach((progCol) => {
-            const colName: string = progCol.getBackColName();
-            const parsed: PrefixColInfo = xcHelper.parsePrefixColName(colName);
-            if (parsed.prefix) {
-                prefixColumns.push(colName);
-            }
-        });
-        return prefixColumns;
-    }
-
-    private _update(replaceParameters?: boolean): DagLineageChange {
-        let colInfo: DagLineageChange;
-        if (this.node.isSourceNode()) {
-            // source node
-            colInfo = this._applyChanges(replaceParameters);
-        } else if (this.node.getType() === DagNodeType.Aggregate) {
-            colInfo = {columns:[], changes:[]}; // aggregate has no columns. just a value
-        } else {
-            let columns = [];
-            this.node.getParents().forEach((parentNode) => {
-                columns = columns.concat(parentNode.getLineage().getColumns(replaceParameters));
-            });
-            colInfo = this._applyChanges(replaceParameters, columns);
+    public getChanges(): {from: ProgCol, to: ProgCol}[] {
+        // if no columns, then no changes, so update
+        if (this.columns == null) {
+            const updateRes = this._update();
+            this.columns = updateRes.columns;
+            this.changes = updateRes.changes;
         }
-        return colInfo;
+        return this.changes;
     }
 
     /**
@@ -196,6 +179,23 @@ class DagLineage {
         }
 
         return this.columnHistory;
+    }
+
+    private _update(replaceParameters?: boolean): DagLineageChange {
+        let colInfo: DagLineageChange;
+        if (this.node.isSourceNode()) {
+            // source node
+            colInfo = this._applyChanges(replaceParameters);
+        } else if (this.node.getType() === DagNodeType.Aggregate) {
+            colInfo = {columns:[], changes:[]}; // aggregate has no columns. just a value
+        } else {
+            let columns = [];
+            this.node.getParents().forEach((parentNode) => {
+                columns = columns.concat(parentNode.getLineage().getColumns(replaceParameters));
+            });
+            colInfo = this._applyChanges(replaceParameters, columns);
+        }
+        return colInfo;
     }
 
     private _applyChanges(replaceParameters?: boolean, columns?: ProgCol[]): DagLineageChange {

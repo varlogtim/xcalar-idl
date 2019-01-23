@@ -58,6 +58,7 @@ window.MainMenu = (function($, MainMenu) {
                 closeMainPanels();
                 allPanelsClosed = true;
             }
+
         } else {
             $("#inButton").removeClass("xc-hidden");
             $sqlModeTabs.addClass("xc-hidden");

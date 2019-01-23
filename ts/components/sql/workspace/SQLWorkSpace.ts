@@ -45,7 +45,7 @@ class SQLWorkSpace {
         $(window).on("resize.sqlPanelResize", () => {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(() => {
-                this._sqlEditorSpace.refresh();
+                this._sqlEditorSpace.resize();
             }, 300);
         });
     }

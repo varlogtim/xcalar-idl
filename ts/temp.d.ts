@@ -1281,6 +1281,7 @@ declare namespace xcMixpanel {
 
 declare namespace DSPreview {
     export function update(ListXdfsObj: any);
+    export function switchMode(): void;
 }
 
 declare namespace DSTargetManager {

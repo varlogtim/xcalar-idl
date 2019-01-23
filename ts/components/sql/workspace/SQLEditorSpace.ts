@@ -27,6 +27,10 @@ class SQLEditorSpace {
         this._refreshSnippet();
     }
 
+    public resize(): void {
+        this._adjustResize();
+    }
+
     public switchMode(): void {
         if (XVM.isAdvancedMode()) {
             this._saveSnippet();

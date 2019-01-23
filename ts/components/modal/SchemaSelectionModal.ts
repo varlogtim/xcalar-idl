@@ -26,7 +26,6 @@ class SchemaSelectionModal {
      * SchemaSelectionModal.Instance.show
      */
     public show(schema: ColSchema[], callback: Function): void {
-        schema = schema.concat(schema)
         this._currentSchema = schema;
         this._callback = callback;
         this._modalHelper.setup();

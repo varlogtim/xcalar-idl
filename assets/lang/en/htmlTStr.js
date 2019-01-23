@@ -472,7 +472,7 @@ module.exports = {
         "queryHistMenuInstr": "You can review your SQL queries in the Query History table to the right.",
         "queryHistSQLModalTitle": "SQL Query",
         "AddFunc": "New SQL Function",
-        "NumOfInput": "Number of Input",
+        "NumOfInput": "Number of parameter",
     },
 
     "bottomMenu": {

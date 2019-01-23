@@ -522,6 +522,17 @@ window.DSPreview = (function($, DSPreview) {
         return isCreateTableMode();
     };
 
+    DSPreview.switchMode = function() {
+        if (XVM.isSQLMode()) {
+            // if switch to sql mode but in the preview of dataset
+            if (!$previewCard.hasClass("xc-hidden") &&
+                !$previewCard.hasClass("createTable")
+            ) {
+                DSForm.show(true);
+            }
+        }
+    };
+
     DSPreview.update = function(listXdfsObj) {
         var moduleName = $udfModuleList.find("input").data("module");
         var funcName = $udfFuncList.find("input").val();
