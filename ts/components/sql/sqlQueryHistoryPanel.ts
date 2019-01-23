@@ -146,7 +146,8 @@ namespace SqlQueryHistoryPanel {
                                     errorMsg: queryInfo.errorMsg
                                 });
                             } else if (queryInfo.status === SQLStatus.Done) {
-                                this._onClickTable(queryInfo.tableName);
+                                this._onClickTable(queryInfo.tableName,
+                                                   {columns: queryInfo.columns});
                             }
                         }
                     };
@@ -278,7 +279,7 @@ namespace SqlQueryHistoryPanel {
         }
 
         // Event handler for table click
-        protected _onClickTable(tableName: string): void {
+        protected _onClickTable(tableName: string, options: any): void {
             // Show the table
             let tableId = xcHelper.getTableId(tableName);
             if (!tableId) {
@@ -294,6 +295,14 @@ namespace SqlQueryHistoryPanel {
                 tableId: tableId,
                 tableName: tableName
             });
+            if (options && options.columns) {
+                table.tableCols = [];
+                options.columns.forEach((col) => {
+                    table.tableCols.push(ColManager.newPullCol(col.name,
+                                         col.backName, col.type));
+                });
+                table.tableCols.push(ColManager.newDATACol());
+            }
             SQLResultSpace.Instance.viewTable(table);
         }
     }

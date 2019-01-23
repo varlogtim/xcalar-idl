@@ -88,16 +88,19 @@ class SQLExecutor {
 
         let finalTableName;
         let succeed: boolean = false;
+        let columns: {name: string, backName: string, type: ColumnType}[];
         let finish = () => {
             SQLExecutor.deleteTab(tabId);
-            if (this._status === SQLStatus.Cancelled) {
+            if (this._status === SQLStatus.Done) {
+                this._updateStatus(SQLStatus.Done);
+            } else if (this._status === SQLStatus.Cancelled) {
                 this._updateStatus(SQLStatus.Cancelled);
             } else {
                 this._status = SQLStatus.Failed;
                 this._updateStatus(SQLStatus.Failed);
             }
             if (typeof callback === "function") {
-                callback(finalTableName, succeed);
+                callback(finalTableName, succeed, {columns: columns});
             }
         };
 
@@ -114,6 +117,7 @@ class SQLExecutor {
         })
         .then(() => {
             finalTableName = this._sqlNode.getTable();
+            columns = this._sqlNode.getColumns();
             this._status = SQLStatus.Done;
             return this._expandSQLNode();
         })

@@ -1055,6 +1055,7 @@ class DagNodeExecutor {
                 endTime: new Date(),
                 newTableName: newDestTableName
             });
+            node.getSQLQuery().columns = node.getColumns();
             node.updateSQLQueryHisory();
             deferred.resolve(newDestTableName, res);
         })

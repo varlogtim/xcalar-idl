@@ -192,10 +192,10 @@ class SQLEditorSpace {
                 let executor = new SQLExecutor(sql);
                 let callback = null;
                 if (i === selectArray.length - 1) {
-                    callback = (tableName, succeed) => {
+                    callback = (tableName, succeed, options) => {
                         this._removeExecutor(executor);
                         if (succeed) {
-                            this._showTable(tableName);
+                            this._showTable(tableName, options);
                         }
                     };
                 } else {
@@ -235,7 +235,7 @@ class SQLEditorSpace {
     }
 
     // XXX TODO, reuse in sqlQueryHistoryPanel
-    private _showTable(tableName: string): void {
+    private _showTable(tableName: string, options?: any): void {
         let tableId = xcHelper.getTableId(tableName);
         if (!tableId) {
             // invalid case
@@ -250,6 +250,14 @@ class SQLEditorSpace {
             tableId: tableId,
             tableName: tableName
         });
+        if (options && options.columns) {
+            table.tableCols = [];
+            options.columns.forEach((col) => {
+                table.tableCols.push(ColManager.newPullCol(col.name,
+                                        col.backName, col.type));
+            });
+            table.tableCols.push(ColManager.newDATACol());
+        }
         gTables[tableId] = table;
         SQLResultSpace.Instance.viewTable(table);
     }
