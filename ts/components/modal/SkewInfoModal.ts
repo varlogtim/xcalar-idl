@@ -77,7 +77,7 @@ class SkewInfoModal {
         const sizeStr: string = <string>xcHelper.sizeTranslator(size);
         const $modal: JQuery = this._getModal();
         $modal.find(".size .text").text(sizeStr);
-        $modal.find(".totalRows .text").text(totalRows);
+        $modal.find(".totalRows .text").text(xcHelper.numToStr(totalRows));
         $modal.find(".skew .text").text(skewValue)
                                   .css("color", skewColor);
     }
