@@ -204,12 +204,20 @@ namespace WorkbookPanel {
     * @param description - the new description, optional
     * @param isNew - if it is a new workbook focus the name for inline editing
     */
-    export function edit(workbookId: string, newName: string, description?: string, isNew: boolean = false): XDPromise<void> {
+    export function edit(
+        workbookId: string,
+        newName: string,
+        description?: string,
+        isNew: boolean = false
+    ): XDPromise<void> {
         const $workbookBox: JQuery = getWorkbookBoxById(workbookId);
         const workbook: WKBK = WorkbookManager.getWorkbook(workbookId);
         const oldWorkbookName: string = workbook.getName();
         const oldDescription: string = workbook.getDescription() || "";
-        if (oldWorkbookName === newName && oldDescription === description) {
+        if (oldWorkbookName === newName &&
+            oldDescription === description &&
+            !isNew
+        ) {
             return PromiseHelper.resolve();
         } else {
             const deferred: XDDeferred<void> = PromiseHelper.deferred();
@@ -243,7 +251,7 @@ namespace WorkbookPanel {
                             .find(".loadSection .text").text(WKBKTStr.Creating);
                 if (isNew) {
                     $workbookBox.find(".workbookName").focus().select();
-                    $workbookBox.find(".workbookName").addClass("focussed");
+                    $workbookBox.find(".workbookName").addClass("focused");
                 }
             })
 
@@ -351,7 +359,7 @@ namespace WorkbookPanel {
             const $workbookBox: JQuery = $(this).closest(".workbookBox");
             const $this: JQuery = $(this);
             if ($this.val() === $this.parent().attr("data-original-title")) {
-                $this.removeClass("focussed");
+                $this.removeClass("focused");
                 $this.removeClass("error");
                 $this.attr("disabled", "disabled");
                 return;
@@ -362,7 +370,7 @@ namespace WorkbookPanel {
             } else {
                 WorkbookPanel.edit($workbookBox.attr("data-workbook-id"), $(this).val())
                 .then(function() {
-                    $this.removeClass("focussed");
+                    $this.removeClass("focused");
                     $this.attr("disabled", "disabled");
                 })
                 .fail(function() {
@@ -387,7 +395,7 @@ namespace WorkbookPanel {
         // Events for the actual workbooks
         // anywhere on workbook card
         $workbookSection.on("click", ".activate", function(event) {
-            if ($(event.target).hasClass("preview") || $(event.target).hasClass("dropDown") || $(event.target).hasClass("focussed")) {
+            if ($(event.target).hasClass("preview") || $(event.target).hasClass("dropDown") || $(event.target).hasClass("focused")) {
                 return;
             }
             activateWorkbook($(this).closest(".workbookBox"));

@@ -354,7 +354,7 @@ describe("Workbook-Workbook Panel Test", function() {
 
             UnitTest.testFinish(checkFunc)
             .then(function() {
-                var $input = $workbookPanel.find(".focussed");
+                var $input = $workbookPanel.find(".focused");
                 var $box = $input.closest(".workbookBox");
                 expect($box.length).to.equal(1);
                 expect($box.find(".numDFs").text()).to.equal("0");
@@ -368,7 +368,7 @@ describe("Workbook-Workbook Panel Test", function() {
 
         it("Should update initial name", function(done) {
             var name = xcHelper.randName("testWorkbook");
-            var $input = $workbookPanel.find(".focussed");
+            var $input = $workbookPanel.find(".focused");
             var $box = $input.closest(".workbookBox");
             var workbookId = $box.attr("data-workbook-id");
             var test = false;
