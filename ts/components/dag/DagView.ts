@@ -3940,7 +3940,9 @@ namespace DagView {
     function _autoExecute(dagNode: DagNode): void {
         if (UserSettings.getPref("dfAutoExecute") === true) {
             if (dagNode.getState() == DagNodeState.Configured) {
-                DagView.run([dagNode.getId()]);
+                const optimized: boolean = (dagNode instanceof DagNodeOutOptimizable &&
+                                           dagNode.isOptimized());
+                DagView.run([dagNode.getId()], optimized);
             }
         }
     }

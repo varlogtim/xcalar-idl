@@ -5,6 +5,10 @@ class DagNodeOutOptimizable extends DagNodeOut {
         super(options);
     }
 
+    public isOptimized(): boolean {
+        return this.optimized;
+    }
+
     protected _getColumnsUsedInInput() {
         return null;
     }

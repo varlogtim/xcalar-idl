@@ -6,6 +6,7 @@ class DagNodeDFOut extends DagNodeOutOptimizable {
         this.type = DagNodeType.DFOut;
         this.display.icon = "&#xe955;"; // XXX TODO: UI design
         this.input = new DagNodeDFOutInput(options.input);
+        this.optimized = this.subType === DagNodeSubType.DFOutOptimized;
     }
 
     public static readonly specificSchema = {
@@ -50,7 +51,7 @@ class DagNodeDFOut extends DagNodeOutOptimizable {
         replaceParameters?: boolean
     ): DagLineageChange {
 
-        if (this.subType === DagNodeSubType.DFOutOptimized) {
+        if (this.optimized) {
             const allCols = [];
             const changes = [];
             const selectedCols = this.input.getInput(replaceParameters).columns;
