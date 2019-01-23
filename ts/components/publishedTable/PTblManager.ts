@@ -37,7 +37,8 @@ class PTblManager {
             createTime: null,
             active: true,
             columns: null,
-            rows: 0
+            rows: 0,
+            batchId: null
         }
     }
 
@@ -794,6 +795,7 @@ class PTblManager {
     private _tableInfoAdapter(table: PublishTable, index: number): PbTblInfo {
         let tableInfo: PbTblInfo = {
             index: index,
+            batchId: null,
             name: null,
             active: null,
             rows: null,
@@ -816,6 +818,8 @@ class PTblManager {
                 }
             });
             tableInfo.keys = table.keys.map((key) => key.name);
+            let lastUpdate = table.updates[table.updates.length - 1];
+            tableInfo.batchId = lastUpdate ? lastUpdate.batchId : null;
         } catch (e) {
             console.error(e);
         }

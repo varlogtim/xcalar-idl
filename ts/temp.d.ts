@@ -164,6 +164,7 @@ interface DFProgressData {
 }
 
 interface PbTblInfo {
+    batchId: number;
     index: number;
     keys: string[];
     columns: ColSchema[];
