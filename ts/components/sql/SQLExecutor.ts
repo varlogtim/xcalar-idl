@@ -88,6 +88,19 @@ class SQLExecutor {
 
         let finalTableName;
         let succeed: boolean = false;
+        let finish = () => {
+            SQLExecutor.deleteTab(tabId);
+            if (this._status === SQLStatus.Cancelled) {
+                this._updateStatus(SQLStatus.Cancelled);
+            } else {
+                this._status = SQLStatus.Failed;
+                this._updateStatus(SQLStatus.Failed);
+            }
+            if (typeof callback === "function") {
+                callback(finalTableName, succeed);
+            }
+        };
+
         this._configurePublishedTableNode()
         .then(() => {
             return this._configureSQLNode();
@@ -102,9 +115,7 @@ class SQLExecutor {
         .then(() => {
             finalTableName = this._sqlNode.getTable();
             this._status = SQLStatus.Done;
-            DagTabManager.Instance.addSQLTabCache(this._tempTab);
-            let promise = DagView.expandSQLNodeInTab(this._sqlNode, this._tempTab);
-            return PromiseHelper.alwaysResolve(promise);
+            return this._expandSQLNode();
         })
         .then(() => {
             DagTabManager.Instance.removeSQLTabCache(this._tempTab);
@@ -113,22 +124,15 @@ class SQLExecutor {
         })
         .then(() => {
             succeed = true;
+            finish();
             deferred.resolve();
         })
         .fail((err) => {
-            deferred.reject(err);
-            if (this._status === SQLStatus.Cancelled) {
-                this._updateStatus(SQLStatus.Cancelled);
-            } else {
-                this._status = SQLStatus.Failed;
-                this._updateStatus(SQLStatus.Failed);
-            }
-        })
-        .always(() => {
-            SQLExecutor.deleteTab(tabId);
-            if (typeof callback === "function") {
-                callback(finalTableName, succeed);
-            }
+            this._expandSQLNode()
+            .always(() => {
+                finish();
+                deferred.reject(err);
+            });
         });
 
         return deferred.promise();
@@ -201,5 +205,11 @@ class SQLExecutor {
         }
         this._sqlNode.setSQLQuery(queryObj);
         this._sqlNode.updateSQLQueryHisory();
+    }
+
+    private _expandSQLNode(): XDPromise<void> {
+        DagTabManager.Instance.addSQLTabCache(this._tempTab);
+        let promise = DagView.expandSQLNodeInTab(this._sqlNode, this._tempTab);
+        return PromiseHelper.alwaysResolve(promise);
     }
 }
