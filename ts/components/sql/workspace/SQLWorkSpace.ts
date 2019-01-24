@@ -40,6 +40,7 @@ class SQLWorkSpace {
 
     public focus(): void {
         SQLWorkSpace.Instance.refresh();
+        DagView.toggleSqlPreview(true);
 
         let resizeTimer;
         $(window).on("resize.sqlPanelResize", () => {

@@ -352,7 +352,7 @@ abstract class DagNode {
     /**
      * Return a short hint of the param, it should be one line long
      */
-    public getParamHint(): {hint: string, fullHint: string} {
+    public getParamHint(_inheritHint?: boolean): {hint: string, fullHint: string} {
         let hint: string = "";
         let ellipsis: string[] = [];
         try {
@@ -481,7 +481,7 @@ abstract class DagNode {
     public getIdentifiers(): Map<number, string> {
         return;
     }
-    public setIdentifiers(identifiers: Map<number, string>): void {
+    public setIdentifiers(_identifiers: Map<number, string>): void {
         return;
     }
 
@@ -789,8 +789,10 @@ abstract class DagNode {
         }
 
         if (errorState != null) {
-            this.beErrorState(DgDagStateTStr[errorState]);
-        } else if (isComplete && includesAllTables) {
+            if (this.state !== DagNodeState.Error || this.error !== DgDagStateTStr[errorState]) {
+                this.beErrorState(DgDagStateTStr[errorState]);
+            }
+        } else if (isComplete && includesAllTables && this.state !== DagNodeState.Complete) {
             this.beCompleteState();
         }
     }

@@ -41,7 +41,7 @@ class DagNodeCustomInput extends DagNode {
     /**
      * Get input node's name for display
      */
-    public getPortName(): string {
+    public getPortName(_inheritName?: boolean): string {
         if (this._container == null) {
             return 'Input';
         }

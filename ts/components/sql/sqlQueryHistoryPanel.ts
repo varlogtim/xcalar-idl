@@ -318,7 +318,7 @@ namespace SqlQueryHistoryPanel {
                     this._updateTableUI(this.queryMap, false);
                 });
         }
-        
+
         protected getTitle(): string {
             return SQLTStr.queryHistExtCardTitle;
         }
@@ -375,6 +375,9 @@ namespace SqlQueryHistoryPanel {
                     if (isValidStatus) {
                         text = SQLTStr.queryTableBodyTextAnalyze;
                         iconClass = 'xi-dataflow';
+                    } else if (queryInfo.status === SQLStatus.Running) {
+                        text = SQLTStr.queryTableBodyTextProgress;
+                        iconClass = 'xi-system2';
                     }
                     const prop: TableBodyColumnIconLinkProp = {
                         category: TableColumnCategory.ACTION,
@@ -383,6 +386,8 @@ namespace SqlQueryHistoryPanel {
                         onLinkClick: () => {
                             if (isValidStatus) {
                                 SQLHistorySpace.Instance.analyze(queryInfo.dataflowId);
+                            } else if (queryInfo.status === SQLStatus.Running) {
+                                SQLHistorySpace.Instance.viewProgress(queryInfo.dataflowId);
                             }
                         }
                     };

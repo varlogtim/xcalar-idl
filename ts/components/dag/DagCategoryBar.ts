@@ -188,15 +188,6 @@ class DagCategoryBar {
     private _renderOperatorBar(): void {
         const self = this;
         let html: HTML = "";
-        html += '<svg height="0" width="0" style="position:absolute">' +
-                '<defs>' +
-                    '<clipPath id="cut-off-right">' +
-                        '<rect width="90" height="27" ry="90" rx="11" ' +
-                        'stroke="black" stroke-width="1" fill="red" ' +
-                        'x="6.5" y="0.5" />' +
-                    '</clipPath>' +
-                '</defs>' +
-                '</svg>';
         this.dagCategories.getCategories().forEach((category: DagCategory) => {
             const categoryName: string = category.getName();
             const operators: DagCategoryNode[] = category.getSortedOperators();

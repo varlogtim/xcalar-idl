@@ -37,11 +37,51 @@ class DagNodeSQLSubInput extends DagNode {
     /**
      * Get input node's name for display
      */
-    public getPortName(): string {
+    public getPortName(inheritName?: boolean): string {
         if (this._container == null) {
             return 'Input';
         }
-        return `Input#${this._container.getInputIndex(this) + 1}`;
+        if (inheritName) {
+            return this.getInputParent().getDisplayNodeType();
+        } else {
+            return `Input#${this._container.getInputIndex(this) + 1}`;
+        }
+    }
+
+       /**
+     * Return a short hint of the param, it should be one line long
+     */
+    public getParamHint(inheritHint?: boolean): {hint: string, fullHint: string} {
+        if (inheritHint && this._container != null) {
+            return this.getInputParent().getParamHint();
+        }
+        let hint: string = "";
+        let ellipsis: string[] = [];
+        try {
+            hint = this._genParamHint();
+            const maxLen: number = 20;
+            // each line cannot be more than maxLen
+            ellipsis = hint.split("\n").map((str) => {
+                if (str.length > maxLen) {
+                    str = str.substring(0, maxLen) + "...";
+                }
+                return str;
+            });
+        } catch (e) {
+            console.error(e);
+        }
+        return {
+            hint: ellipsis.join("\n"),
+            fullHint: hint
+        };
+    }
+
+    public getInputParent(): DagNode {
+        if (this._container) {
+            return this._container.getInputParent(this);
+        } else {
+            return null;
+        }
     }
 
     /**

@@ -51,7 +51,22 @@ class SQLHistorySpace {
             $("#initialLoadScreen").hide();
         });
 
-
         return deferred.promise();
+    }
+
+    public viewProgress(dataflowId: string): void {
+        const tab = DagTabManager.Instance.getTabById(dataflowId);
+        if (tab) {
+            const graph = tab.getGraph();
+            const sqlNode = graph.getNodesByType(DagNodeType.SQL)[0];
+            if (sqlNode) {
+                DagView.inspectSQLNode(sqlNode.getId(), dataflowId, true)
+                .then(() => {
+                    SQLResultSpace.Instance.showProgressDataflow();
+                });
+                return;
+            }
+        }
+        Alert.error(AlertTStr.Error, "The corresponding dataflow for sql could not be generated");
     }
 }

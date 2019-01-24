@@ -13,6 +13,7 @@ class DagTabManager {
     private _tabListScroller: ListScroller;
     private _subTabs: Map<string, string> = new Map(); // subTabId => parentTabId
     private _activeTab: DagTab;
+    private _sqlPreviewTab: DagTab;
 
     public setup(): void {
         this._initialize();
@@ -64,6 +65,10 @@ class DagTabManager {
         let dagTab = dagTabs.length > 0 ? dagTabs[0] : null;
         if (dagTab == null && XVM.isSQLMode()) {
             dagTab = this._cachedSQLDags[tabId];
+            if (!dagTab && this._sqlPreviewTab
+                && this._sqlPreviewTab.getId() === tabId) {
+                dagTab = this._sqlPreviewTab;
+            }
         }
         return dagTab;
     }
@@ -72,7 +77,11 @@ class DagTabManager {
      * Tells us the index of dag tab
      * @param tabId The id we're looking for.
      */
-    public getTabIndex(tabId: string): number {
+    public getTabIndex(tabId: string, isSqlPreview?: boolean): number {
+        if (isSqlPreview && this._sqlPreviewTab &&
+            this._sqlPreviewTab.getId() === tabId) {
+            return 0;
+        }
         return this._activeUserDags.findIndex((dag) => dag.getId() === tabId);
     }
 
@@ -124,6 +133,7 @@ class DagTabManager {
             // Register the new tab in DagTabManager
             if (this._addSubTab(parentTabId, tabId)) {
                 this._addDagTab(newTab);
+
                 // Switch to the tab(UI)
                 this._switchTabs();
             }
@@ -133,8 +143,27 @@ class DagTabManager {
         }
     }
 
-    public newSQLTab(SQLNode: DagNodeSQL): void {
-        const parentTabId = DagView.getActiveTab().getId();
+    public newSQLTab(SQLNode: DagNodeSQL, isSqlPreview?: boolean): void {
+        if (isSqlPreview) {
+            const validatedName = SQLNode.getSQLName();
+            const tabId = SQLNode.getId();
+            const newTab = new DagTabSQL({
+                id: tabId,
+                name: validatedName,
+                SQLNode: SQLNode
+            });
+            newTab.setGraph(newTab.getGraph());
+            this._sqlPreviewTab = newTab;
+
+            const $container = $("#sqlDataflowArea .dataflowWrap");
+            $container.empty();
+            this._addDataflowHTML($container, tabId, true, false);
+
+            DagView.renderSQLPreviewDag(newTab);
+            return;
+        }
+        const activeTab: DagTab = DagView.getActiveTab();
+        const parentTabId = activeTab.getId();
         // the string to show on the tab
         const validatedName = SQLNode.getSQLName();
         // the td to find the tab
@@ -679,7 +708,7 @@ class DagTabManager {
             const index = this.getTabIndex(dagTab.getId());
             const $dataflowAreas = this._getDataflowArea();
             $dataflowAreas.eq(index).removeClass("rendered");
-            DagView.reactivate($dataflowAreas.eq(index), dagTab.getGraph());
+            DagView.render($dataflowAreas.eq(index), dagTab.getGraph());
         })
     }
 
@@ -712,15 +741,8 @@ class DagTabManager {
                 '</div>' +
             '</li>';
         this._getTabArea().append(html);
-        $("#dagView .dataflowWrap").append(
-            '<div class="dataflowArea ' +  (isViewOnly? 'viewOnly': '') + ' ' + (isOptimized? 'optimized': '') + '" data-id="' +tabId + '">\
-                <div class="dataflowAreaWrapper">\
-                    <div class="commentArea"></div>\
-                    <svg class="edgeSvg"></svg>\
-                    <svg class="operatorSvg"></svg>\
-                </div>\
-            </div>'
-        );
+        this._addDataflowHTML($("#dagView .dataflowWrap"), tabId, isViewOnly, isOptimized);
+
         if (tabIndex != null) {
             // Put the tab and area where they should be
             const numTabs: number = this.getNumTabs();
@@ -729,6 +751,18 @@ class DagTabManager {
             $newTab.insertBefore(this.getDagTabElement(tabIndex));
             $newTabArea.insertBefore(this._getDataflowArea(tabIndex));
         }
+    }
+
+    private _addDataflowHTML($container: JQuery, tabId: string, isViewOnly?: boolean, isOptimized?: boolean) {
+        $container.append(
+            '<div class="dataflowArea ' +  (isViewOnly? 'viewOnly': '') + ' ' + (isOptimized? 'optimized': '') + '" data-id="' +tabId + '">\
+                <div class="dataflowAreaWrapper">\
+                    <div class="commentArea"></div>\
+                    <svg class="edgeSvg"></svg>\
+                    <svg class="operatorSvg"></svg>\
+                </div>\
+            </div>'
+        );
     }
 
     private _getDataflowArea(index?: number): JQuery {

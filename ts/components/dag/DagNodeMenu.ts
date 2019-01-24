@@ -99,7 +99,6 @@ namespace DagNodeMenu {
             const tabId = DagView.getActiveDag().getTabId();
             const parentNodeId: DagNodeId = $menu.data("parentnodeid");
             const connectorIndex: number = parseInt($menu.data("connectorindex"));
-
             switch (action) {
                 case ("removeNode"):
                     DagView.removeNodes(nodeIds, tabId);
@@ -204,7 +203,7 @@ namespace DagNodeMenu {
                     DagView.shareCustomOperator(dagNodeIds[0]);
                     break;
                 case ("inspectSQL"):
-                    DagView.inspectSQLNode(dagNodeIds[0]);
+                    DagView.inspectSQLNode(dagNodeIds[0], tabId);
                     break;
                 case ("expandSQL"):
                     DagView.expandSQLNode(dagNodeIds[0]);
@@ -230,16 +229,13 @@ namespace DagNodeMenu {
                 case ("download"):
                     DFDownloadModal.Instance.show(DagView.getActiveTab(), nodeIds);
                     break;
-                case ("restoreDataset"): {
+                case ("restoreDataset"):
                     const node: DagNodeDataset = <DagNodeDataset>DagView.getActiveDag().getNode(dagNodeIds[0]);
                     const shareDS: boolean = DagView.getActiveTab() instanceof DagTabPublished;
                     DS.restoreSourceFromDagNode([node], shareDS)
                     .then(() => {
                         node.beConfiguredState();
                     });
-                    break;
-                }
-                default:
                     break;
             }
         } catch (e) {

@@ -5,7 +5,7 @@ class DagTabSQL extends DagTab {
     constructor(options: {
         id: string,
         name: string,
-        SQLNode: DagNodeSQL,
+        SQLNode: DagNodeSQL
     }) {
         const { id, name, SQLNode } = options;
         super(name, id, null);

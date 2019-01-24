@@ -55,6 +55,7 @@ class SQLResultSpace {
         SQLTable.Instance.close();
         SQLTableLister.Instance.close();
         SQLTableSchema.Instance.close();
+        SQLDataflowPreview.Instance.close();
 
         this._setupListeners();
     }
@@ -63,6 +64,7 @@ class SQLResultSpace {
         SQLTable.Instance.show(table);
         SQLTableLister.Instance.close();
         SQLTableSchema.Instance.close();
+        SQLDataflowPreview.Instance.close();
     }
 
     /**
@@ -72,18 +74,28 @@ class SQLResultSpace {
     public showTables(reset: boolean): void {
         SQLTable.Instance.close();
         SQLTableSchema.Instance.close();
+        SQLDataflowPreview.Instance.close();
         SQLTableLister.Instance.show(reset);
     }
 
     public showSchema(tableInfo: PbTblInfo): void {
         SQLTable.Instance.close();
         SQLTableLister.Instance.close();
+        SQLDataflowPreview.Instance.close();
         SQLTableSchema.Instance.show(tableInfo);
     }
 
     public showSchemaError(errorString: string): void {
         SQLTable.Instance.close();
         SQLTableLister.Instance.close();
+        SQLDataflowPreview.Instance.close();
         SQLTableSchema.Instance.showError(errorString);
+    }
+
+    public showProgressDataflow(): void {
+        SQLTable.Instance.close();
+        SQLTableSchema.Instance.close();
+        SQLTableLister.Instance.close();
+        SQLDataflowPreview.Instance.show();
     }
 }

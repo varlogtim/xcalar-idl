@@ -313,6 +313,16 @@ class DagGraph {
         return this._getNodeFromId(nodeId);
     }
 
+    public getNodesByType(type: DagNodeType) {
+        const matches: DagNode[] = [];
+        for (let node of this.nodesMap.values()) {
+            if (node.getType() === type) {
+                matches.push(node);
+            }
+        }
+        return matches;
+    }
+
     /**
      * create a new node
      * @param nodeInfo

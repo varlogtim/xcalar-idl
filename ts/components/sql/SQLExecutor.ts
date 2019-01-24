@@ -89,6 +89,7 @@ class SQLExecutor {
         let finalTableName;
         let succeed: boolean = false;
         let columns: {name: string, backName: string, type: ColumnType}[];
+        let sqlTabCached = false;
         let finish = () => {
             SQLExecutor.deleteTab(tabId);
             if (this._status === SQLStatus.Done) {
@@ -113,6 +114,12 @@ class SQLExecutor {
                 return PromiseHelper.reject(SQLStatus.Cancelled);
             }
             this._status = SQLStatus.Running;
+            DagTabManager.Instance.addSQLTabCache(this._tempTab);
+            sqlTabCached = true;
+            return DagView.inspectSQLNode(this._sqlNode.getId(), tabId, true);
+        })
+        .then(() => {
+            SQLResultSpace.Instance.showProgressDataflow();
             return this._tempGraph.execute([this._sqlNode.getId()]);
         })
         .then(() => {
@@ -132,6 +139,9 @@ class SQLExecutor {
             deferred.resolve();
         })
         .fail((err) => {
+            if (!sqlTabCached) {
+                DagTabManager.Instance.addSQLTabCache(this._tempTab);
+            }
             this._expandSQLNode()
             .always(() => {
                 finish();
@@ -212,7 +222,6 @@ class SQLExecutor {
     }
 
     private _expandSQLNode(): XDPromise<void> {
-        DagTabManager.Instance.addSQLTabCache(this._tempTab);
         let promise = DagView.expandSQLNodeInTab(this._sqlNode, this._tempTab);
         return PromiseHelper.alwaysResolve(promise);
     }

@@ -25,7 +25,7 @@ class DagNodeSQLSubOutput extends DagNode {
     /**
      * Get output node's name for display
      */
-    public getPortName(): string {
+    public getPortName(_inheritName?: boolean): string {
         return 'Output';
     }
 

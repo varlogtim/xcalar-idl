@@ -5,6 +5,7 @@ namespace DagView {
     export const nodeWidth = 103;
     export const gridSpacing = 20;
     export const zoomLevels = [.25, .5, .75, 1, 1.5, 2];
+    let containerSelector: string = "#dagView";
     let $dagView: JQuery;
     let $dfWrap: JQuery;
     let $operatorBar: JQuery;
@@ -17,6 +18,9 @@ namespace DagView {
     const inConnectorWidth = 6;
     const lockedNodeIds = {};
     const dagEventNamespace = 'DagView';
+    let isSqlPreview = false;
+    let cachedActiveDagTab: DagTab;
+    let cachedActiveDag: DagGraph;
 
     export function setup(): void {
         $dagView = $("#dagView");
@@ -51,6 +55,7 @@ namespace DagView {
      * panel closes.
      */
     export function show(): void {
+        toggleSqlPreview(false);
         $("#container").addClass("activePanel-modelingDagPanel");
         DagCategoryBar.Instance.showOrHideArrows();
 
@@ -262,11 +267,33 @@ namespace DagView {
         const $oldDfArea: JQuery = _getActiveArea();
         activeDagTab = dagTab;
         activeDag = dagTab.getGraph();
-        DagView.reactivate();
+        DagView.render();
         updateDagView();
         DagTable.Instance.switchTab(dagTab.getId());
         DagSearch.Instance.switchTab($oldDfArea);
         updateOperationTime();
+    }
+
+    export function renderSQLPreviewDag(dagTab: DagTab) {
+        toggleSqlPreview(true);
+        cachedActiveDagTab = activeDagTab;
+        cachedActiveDag = activeDag;
+        activeDagTab = dagTab;
+        activeDag = dagTab.getGraph();
+        $dfWrap.removeClass("xc-hidden");
+        DagView.render($(containerSelector + " .dataflowArea"));
+    }
+
+    export function toggleSqlPreview(sqlPreview: boolean) {
+        isSqlPreview = sqlPreview;
+        if (isSqlPreview) {
+            containerSelector = "#sqlDataflowArea";
+        } else {
+            containerSelector = "#dagView";
+            activeDagTab = cachedActiveDagTab || activeDagTab;
+            activeDag = cachedActiveDag || activeDag;
+        }
+        $dfWrap = $(containerSelector + " .dataflowWrap");
     }
 
     /**
@@ -301,14 +328,17 @@ namespace DagView {
     }
 
     function _setupMode(): void {
+
         let $text: JQuery = $dagView.find(".dataflowWrapBackground .newTab span");
         if (XVM.isSQLMode()) {
             $dagView.addClass("sqlMode");
             $text.text(SQLTStr.CreateFunc);
         } else {
+            toggleSqlPreview(false);
             $dagView.removeClass("sqlMode");
             $text.text(DFTStr.CreateDF);
         }
+        $dfWrap = $(containerSelector + " .dataflowWrap");
     }
 
     function updateDagView(): void {
@@ -409,13 +439,13 @@ namespace DagView {
     }
 
     /**
-     * DagView.reactivate
+     * DagView.render
      *
      *  // restore/dredraw dataflow dimensions and nodes,
         // add connections separately after so all node elements already exist
         // adds event listeners
      */
-    export function reactivate($dfArea?: JQuery, graph?: DagGraph): void {
+    export function render($dfArea?: JQuery, graph?: DagGraph): void {
         $dfArea = $dfArea || _getActiveArea();
         if ($dfArea.hasClass("rendered")) {
             return;
@@ -452,7 +482,7 @@ namespace DagView {
         nodes.forEach((node: DagNode, nodeId: DagNodeId) => {
             node.getParents().forEach((parentNode, index) => {
                 const parentId: DagNodeId = parentNode.getId();
-                _drawConnection(parentId, nodeId, index, tabId, node.canHaveMultiParents());
+                _drawConnection(parentId, nodeId, index, graph, tabId, node.canHaveMultiParents());
             });
         });
 
@@ -462,7 +492,7 @@ namespace DagView {
             DagComment.Instance.drawComment(commentNode, $dfArea);
         });
 
-        _setupGraphEvents(graph);
+        _setupGraphEvents(graph, $dfArea);
         $dfArea.addClass("rendered");
     }
 
@@ -896,7 +926,7 @@ namespace DagView {
                     const newParentId = oldNodeIdMap[parentId];
                     activeDag.connect(newParentId, newNodeId, j, false, false);
                     nodesMap.set(newNode.getId(), newNode);
-                    _drawConnection(newParentId, newNodeId, j, tabId, newNode.canHaveMultiParents());
+                    _drawConnection(newParentId, newNodeId, j, activeDag, tabId, newNode.canHaveMultiParents());
                 });
 
                 nodesMap.set(newNode.getId(), newNode);
@@ -1800,8 +1830,14 @@ namespace DagView {
      * Open a tab to show SQL sub graph for viewing purpose
      * @param nodeId
      */
-    export function inspectSQLNode(nodeId: DagNodeId): XDPromise<void> {
-        const dagNode = activeDag.getNode(nodeId);
+    export function inspectSQLNode(
+        nodeId: DagNodeId,
+        tabId: string,
+        sqlPreview?: boolean
+    ): XDPromise<void> {
+        const dagTab = DagTabManager.Instance.getTabById(tabId);
+        const graph = dagTab.getGraph();
+        const dagNode = graph.getNode(nodeId);
         if (dagNode == null || !(dagNode instanceof DagNodeSQL)) {
             return PromiseHelper.reject();
         }
@@ -1822,7 +1858,7 @@ namespace DagView {
         }
         promise
             .then(function () {
-                DagTabManager.Instance.newSQLTab(dagNode);
+                DagTabManager.Instance.newSQLTab(dagNode, sqlPreview);
                 self.autoAlign(activeDag.getTabId());
                 deferred.resolve();
             })
@@ -2004,17 +2040,17 @@ namespace DagView {
 
     export function toggleProgressTips(show?: boolean): void {
         if (show) {
-            $("#dagView").addClass("showProgressTips");
+            $dagView.addClass("showProgressTips");
         } else {
-            $("#dagView").removeClass("showProgressTips");
+            $dagView.removeClass("showProgressTips");
         }
     }
 
     export function toogleConfigInfo(show?: boolean): void {
         if (show) {
-            $("#dagView").addClass("showConfigInfo");
+            $dagView.addClass("showConfigInfo");
         } else {
-            $("#dagView").removeClass("showConfigInfo");
+            $dagView.removeClass("showConfigInfo");
         }
         DagSearch.Instance.update();
     }
@@ -2312,7 +2348,7 @@ namespace DagView {
         let maxXCoor: number = 0;
         let maxYCoor: number = 0;
         const $dfArea = DagView.getAreaByTab(tabId);
-        let svg: d3 = d3.select('#dagView .dataflowArea[data-id="' + tabId + '"] .edgeSvg');
+        let svg: d3 = d3.select(containerSelector + ' .dataflowArea[data-id="' + tabId + '"] .edgeSvg');
         const $operatorArea = $dfArea.find(".operatorSvg");
         const $commentArea: JQuery = $dfArea.find(".commentArea");
         const dagTab = DagTabManager.Instance.getTabById(tabId);
@@ -2345,7 +2381,7 @@ namespace DagView {
                     let connectorIndex: number = parseInt($(this).attr("data-connectorindex"));
                     $(this).remove();
 
-                    _drawLineBetweenNodes(tabId, nodeId, childNodeId, connectorIndex, svg);
+                    _drawLineBetweenNodes(graph, nodeId, childNodeId, connectorIndex, svg);
                 });
 
                 // redraw all paths that lead into this node
@@ -2354,7 +2390,7 @@ namespace DagView {
                     let connectorIndex = parseInt($(this).attr("data-connectorindex"));
                     $(this).remove();
 
-                    _drawLineBetweenNodes(tabId, parentNodeId, nodeId, connectorIndex, svg);
+                    _drawLineBetweenNodes(graph, parentNodeId, nodeId, connectorIndex, svg);
                 });
                 // move runStats if it has one
                 _repositionRunStats($dfArea, nodeInfo, nodeId);
@@ -2547,7 +2583,7 @@ namespace DagView {
         graph.connect(parentNodeId, childNodeId, connectorIndex, false, isSwitchState,
             spliceIn);
         const childNode = graph.getNode(childNodeId);
-        _drawConnection(parentNodeId, childNodeId, connectorIndex, tabId, childNode.canHaveMultiParents(), true);
+        _drawConnection(parentNodeId, childNodeId, connectorIndex, graph, tabId, childNode.canHaveMultiParents(), true);
         childNode.setIdentifiers(options.identifiers);
         if (options.setNodeConfig) {
             (<DagNodeSet> childNode).reinsertColumn(options.setNodeConfig, connectorIndex);
@@ -2902,7 +2938,7 @@ namespace DagView {
             // if removing an edge from a multichildnode then decrement all
             // the edges that have a greater index than the removed one
             // due to splice action on children array
-            const svg: d3 = d3.select('#dagView .dataflowArea[data-id="' + tabId + '"] .edgeSvg');
+            const svg: d3 = d3.select(containerSelector + ' .dataflowArea[data-id="' + tabId + '"] .edgeSvg');
             $dfArea.find('.edge[data-childnodeid="' + childNodeId + '"]').each(function () {
                 const $curEdge: JQuery = $(this);
                 const index: number = parseInt($curEdge.attr('data-connectorindex'));
@@ -2915,7 +2951,7 @@ namespace DagView {
                         return true;
                     }
                     $curEdge.remove();
-                    _drawLineBetweenNodes(tabId, parentNodeId, childNodeId, index - 1, svg);
+                    _drawLineBetweenNodes(graph, parentNodeId, childNodeId, index - 1, svg);
                 } else {
                     const parentNodeId = $curEdge.attr("data-parentnodeid");
                     if (!DagView.getNode(parentNodeId, null, $dfArea).length) {
@@ -2924,7 +2960,7 @@ namespace DagView {
                         return true;
                     }
                     $curEdge.remove();
-                    _drawLineBetweenNodes(tabId, parentNodeId, childNodeId, index, svg);
+                    _drawLineBetweenNodes(graph, parentNodeId, childNodeId, index, svg);
                 }
             });
         } else if (graph.getNode(childNodeId).getNumParent() === 0) {
@@ -3647,7 +3683,7 @@ namespace DagView {
 
     function _drawAllNodeConnections(nodes: DagNode[], tabId: string): void {
         const drawnConnections = {};
-
+        const graph: DagGraph = DagTabManager.Instance.getTabById(tabId).getGraph();
         nodes.forEach((node) => {
             const nodeId = node.getId();
             node.getParents().forEach((parentNode, index) => {
@@ -3656,7 +3692,7 @@ namespace DagView {
                     return;
                 }
                 drawnConnections[connectionId] = true;
-                _drawConnection(parentNode.getId(), nodeId, index, tabId, node.canHaveMultiParents());
+                _drawConnection(parentNode.getId(), nodeId, index, graph, tabId, node.canHaveMultiParents());
             });
 
             const seen = {};
@@ -3675,7 +3711,7 @@ namespace DagView {
                             return;
                         }
                         drawnConnections[connectionId] = true;
-                        _drawConnection(nodeId, childNode.getId(), index, tabId, childNode.canHaveMultiParents());
+                        _drawConnection(nodeId, childNode.getId(), index, graph, tabId, childNode.canHaveMultiParents());
                     }
                 });
             });
@@ -3684,10 +3720,9 @@ namespace DagView {
 
     function _drawNode(node: DagNode, $dfArea: JQuery, select?: boolean): JQuery {
         const pos = node.getPosition();
-        const type = node.getType();
-        const subType = node.getSubType() || "";
+        let type = node.getType();
+        let subType = node.getSubType() || "";
         const nodeId = node.getId();
-
         const $node = $operatorBar.find('.operator[data-type="' + type + '"]' +
             '[data-subtype="' + subType + '"]')
             .first().clone();
@@ -3706,9 +3741,6 @@ namespace DagView {
         if (DagTblManager.Instance.hasLock(node.getTable())) {
             editTableLock($node, true);
         }
-
-        let abbrId = nodeId.slice(nodeId.indexOf(".") + 1);
-        abbrId = abbrId.slice(abbrId.indexOf(".") + 1);
 
         _drawTitleText($node, node);
 
@@ -3729,7 +3761,7 @@ namespace DagView {
             node instanceof DagNodeSQLSubInput ||
             node instanceof DagNodeSQLSubOutput
         ) {
-            $opTitle.text(node.getPortName());
+            $opTitle.text(node.getPortName(isSqlPreview));
             // The custom input/output is hidden in the category bar, so show it in the diagram
         }
 
@@ -3740,7 +3772,6 @@ namespace DagView {
             const { input, output } = node.getNumIOPorts();
             _updateConnectorIn(node.getId(), input);
             _updateConnectorOut(node.getId(), output);
-
         }
 
         return $node;
@@ -3783,7 +3814,7 @@ namespace DagView {
 
         // draw param title
         g.select(".paramTitle").remove();
-        const paramHintObj: { hint: string, fullHint: string } = node.getParamHint();
+        const paramHintObj: { hint: string, fullHint: string } = node.getParamHint(isSqlPreview);
         const paramHint = paramHintObj.hint;
         const fullParamHint = paramHintObj.fullHint;
         const parmLines: string[] = paramHint.split("\n");
@@ -3819,6 +3850,7 @@ namespace DagView {
         parentNodeId: DagNodeId,
         childNodeId: DagNodeId,
         connectorIndex: number,
+        graph: DagGraph,
         tabId: string,
         isMultiParent: boolean, // if childNode can have multiple (> 2) parents
         newConnection?: boolean
@@ -3829,7 +3861,7 @@ namespace DagView {
         $childConnector.removeClass("noConnection")
             .addClass("hasConnection");
 
-        const svg: d3 = d3.select('#dagView .dataflowArea[data-id="' + tabId + '"] .edgeSvg');
+        const svg: d3 = d3.select(containerSelector + ' .dataflowArea[data-id="' + tabId + '"] .edgeSvg');
 
         if (isMultiParent) {
             // if re-adding an edge from a multichildnode then increment all
@@ -3841,18 +3873,18 @@ namespace DagView {
                 if (index >= connectorIndex) {
                     const parentNodeId = $curEdge.attr("data-parentnodeid");
                     $curEdge.remove();
-                    _drawLineBetweenNodes(tabId, parentNodeId, childNodeId, index + 1, svg);
+                    _drawLineBetweenNodes(graph, parentNodeId, childNodeId, index + 1, svg);
                 } else if (newConnection) {
                     // only need to readjust if doing a new connection, rather
                     // than restoring connections
                     const parentNodeId = $curEdge.attr("data-parentnodeid");
                     $curEdge.remove();
-                    _drawLineBetweenNodes(tabId, parentNodeId, childNodeId, index, svg);
+                    _drawLineBetweenNodes(graph, parentNodeId, childNodeId, index, svg);
                 }
             });
         }
 
-        _drawLineBetweenNodes(tabId, parentNodeId, childNodeId, connectorIndex, svg);
+        _drawLineBetweenNodes(graph, parentNodeId, childNodeId, connectorIndex, svg);
     }
 
     const lineFunction: Function = d3.svg.line()
@@ -3861,13 +3893,12 @@ namespace DagView {
         .interpolate("cardinal");
 
     function _drawLineBetweenNodes(
-        tabId: string,
+        graph: DagGraph,
         parentNodeId: DagNodeId,
         childNodeId: DagNodeId,
         connectorIndex: number,
         svg: d3
     ): void {
-        const graph = DagTabManager.Instance.getTabById(tabId).getGraph();
         const parentNode: DagNode = graph.getNode(parentNodeId);
         const childNode: DagNode = graph.getNode(childNodeId);
         let numParents = childNode.getMaxParents();
@@ -3925,9 +3956,11 @@ namespace DagView {
         tabId: string,
         oldState: DagNodeState,
         state: DagNodeState
-    }): void {
+    },
+        $dfArea?: JQuery
+    ): void {
         const nodeId: DagNodeId = nodeInfo.id;
-        const $node: JQuery = DagView.getNode(nodeId, nodeInfo.tabId);
+        const $node: JQuery = DagView.getNode(nodeId, nodeInfo.tabId, $dfArea);
         for (let i in DagNodeState) {
             $node.removeClass("state-" + DagNodeState[i]);
         }
@@ -3993,8 +4026,9 @@ namespace DagView {
      * listens events for 1 dag graph. This function is called for each dag graph.
      * Make sure all events listening are also registered in cleanupClosedTab !!!
      */
-    function _setupGraphEvents(graph?: DagGraph): void {
+    function _setupGraphEvents(graph?: DagGraph, $dfArea?: JQuery): void {
         graph = graph || activeDag;
+        $dfArea = $dfArea || _getActiveArea();
 
         // when a graph gets locked during execution
         _registerGraphEvent(graph, DagGraphEvents.LockChange, (info) => {
@@ -4008,9 +4042,10 @@ namespace DagView {
         });
 
         _registerGraphEvent(graph, DagNodeEvents.StateChange, function (info) {
-            _updateNodeState(info);
+            _updateNodeState(info, $dfArea);
             const dagTab: DagTab = DagTabManager.Instance.getTabById(info.tabId);
-            if (info.state !== DagNodeState.Running) {
+            // XXX dagTab not found if DagTabManager reset during mode switch
+            if (dagTab && info.state !== DagNodeState.Running) {
                 // running state don't need to change
                 dagTab.save();
             }
@@ -5048,7 +5083,7 @@ namespace DagView {
     }
 
     function _getAreaByTab(tabId: string): JQuery {
-        const index: number = DagTabManager.Instance.getTabIndex(tabId);
+        const index: number = DagTabManager.Instance.getTabIndex(tabId, isSqlPreview);
         if (index < 0) {
             return $();
         }
