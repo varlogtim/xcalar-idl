@@ -234,7 +234,7 @@ class DagNodeSQL extends DagNode {
         const sqlParams: DagNodeSQLInputStruct = this.getParam();
         sqlParams.identifiers = rawIdentifiers;
         sqlParams.identifiersOrder = identifiersOrder;
-        this.setParam(sqlParams);
+        this.setParam(sqlParams, true);
     }
     public getTableSrcMap(): {} {
         return this.tableSrcMap;
@@ -458,7 +458,7 @@ class DagNodeSQL extends DagNode {
             });
 
             this.identifiers = identifiers;
-            this.setParam(sqlParams);
+            this.setParam(sqlParams, true);
         }
         return wasSpliced;
     }

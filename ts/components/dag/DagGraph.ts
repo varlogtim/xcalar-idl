@@ -2589,7 +2589,7 @@ class DagGraph {
         // switch node state in bulk
         this._stateSwitchSet.forEach((node) => {
             if (this.hasNode(node.getId())) {
-                node.switchState(true);
+                node.switchState();
             }
         });
         this._stateSwitchSet.clear();

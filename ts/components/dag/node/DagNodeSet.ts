@@ -42,12 +42,15 @@ class DagNodeSet extends DagNode {
      * @param input.columns tables' column infos
      * @param input.dedup {boolean} Remove deduplicate rows or not
      */
-    public setParam(input: DagNodeSetInputStruct = <DagNodeSetInputStruct>{}) {
+    public setParam(
+        input: DagNodeSetInputStruct = <DagNodeSetInputStruct>{},
+        noAutoExecute?: boolean
+    ) {
         this.input.setInput({
             columns: input.columns,
             dedup: input.dedup
         });
-        super.setParam();
+        super.setParam(null, noAutoExecute);
     }
 
     public lineageChange(
@@ -127,13 +130,13 @@ class DagNodeSet extends DagNode {
         super.disconnectFromParent(parentNode, pos);
         let param = this.getParam();
         param.columns.splice(pos, 1);
-        this.setParam(param);
+        this.setParam(param, true);
         return true;
     }
 
     public reinsertColumn(column, connectorIndex: number): void {
         this.input.insertColumn(column, connectorIndex);
-        this.setParam(this.getParam()); // trigger change
+        this.setParam(this.getParam(), true); // trigger change
     }
 
     /**

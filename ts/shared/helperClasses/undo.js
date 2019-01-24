@@ -217,6 +217,10 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.DagBulkOperation] = function(options) {
         const dagTab = DagTabManager.Instance.getTabById(options.dataflowId);
+        const dagGraph = dagTab.getGraph();
+        if (dagGraph != null) {
+            dagGraph.turnOnBulkStateSwitch();
+        }
         dagTab.turnOffSave();
         let tasks = PromiseHelper.resolve();
         if (options.actions != null) {
@@ -235,7 +239,15 @@ window.Undo = (function($, Undo) {
             dagTab.turnOnSave();
             return dagTab.save();
         })
+        .then(() => {
+            if (dagGraph != null) {
+                dagGraph.turnOffBulkStateSwitch();
+            }
+        })
         .fail((err) => {
+            if (dagGraph != null) {
+                dagGraph.turnOffBulkStateSwitch();
+            }
             dagTab.turnOnSave();
             return PromiseHelper.reject(err);
         });
