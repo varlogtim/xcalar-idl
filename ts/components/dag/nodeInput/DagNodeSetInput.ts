@@ -143,6 +143,9 @@ class DagNodeSetInput extends DagNodeInput {
 
     // fill in missing columns so all list lengths are equal
     private static fillInMissingColumns(input) {
+        if (!input.columns || !input.columns.length) {
+            return;
+        }
         const largestCol = input.columns.reduce((prev, current) => {
             return (prev.length > current.length) ? prev : current
         });
