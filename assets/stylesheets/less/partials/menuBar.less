@@ -55,7 +55,8 @@
         .topMenuBarTab, .bottomMenuBarTab {
             border-color: @color-border-menubar-grey;
 
-            .mainTab, .subTab {
+
+            .mainTab {
                 opacity: 1;
                 .icon {
                     color: @color-bg-cardHeader;
@@ -64,6 +65,7 @@
 
             &.active {
                 background-color: @color-bg-cardHeader !important;
+                box-shadow: inset 0 1px 1px 0.5px @color-tab-shadow;
 
                 .mainTab {
                     .icon {
@@ -84,27 +86,29 @@
         }
 
         .subTab {
-            background-color: @color-bg-topBarGray2;
+            background-color: @color-bg-advSubTab-grey;
+            border-bottom: 1px solid @color-bg-cardHeader;
+            opacity: 1;
+
+            .icon {
+                color: @color-border-menubar-grey;
+            }
 
             &.active {
-                background-color: @color-bg-cardHeader;
+                background-color: @color-bg-advSubTab-drakerGrey;
+                box-shadow: inset 0 2px 1px 0 @color-subTab-shadow;
 
                 &:hover {
-                    background-color: darken(@color-bg-cardHeader, 10%);
-                }
-
-                .icon {
-                    color: @color-white;
-                }
-
-                // XX temp styling if subTab is the only subtab and is active
-                &:nth-child(1):nth-last-child(1) {
-                    background-color: lighten(@color-bg-cardHeader, 10%);
+                    background-color: @color-bg-advSubTab-draketsGrey;
                 }
             }
 
             &:hover {
-                background-color: darken(@color-bg-topBarGray2, 10%);
+                background-color: @color-bg-advSubTab-drakerGrey;
+            }
+
+            &:last-child {
+                border-bottom: none;
             }
         }
     }
