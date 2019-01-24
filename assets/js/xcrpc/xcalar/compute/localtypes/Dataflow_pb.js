@@ -6560,7 +6560,7 @@ proto.xcalar.compute.localtypes.Dataflow.IndexResponse.toObject = function(inclu
     newtablename: msg.getNewtablename(),
     iscache: msg.getIscache(),
     newkeysList: jspb.Message.getField(msg, 4),
-    tmpcolsList: jspb.Message.getField(msg, 5)
+    tempcolsList: jspb.Message.getField(msg, 5)
   };
 
   if (includeInstance) {
@@ -6616,8 +6616,8 @@ proto.xcalar.compute.localtypes.Dataflow.IndexResponse.deserializeBinaryFromRead
       break;
     case 5:
       var value = /** @type {string} */ (reader.readString());
-      msg.getTmpcolsList().push(value);
-      msg.setTmpcolsList(msg.getTmpcolsList());
+      msg.getTempcolsList().push(value);
+      msg.setTempcolsList(msg.getTempcolsList());
       break;
     default:
       reader.skipField();
@@ -6685,7 +6685,7 @@ proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.serializeBinary
       f
     );
   }
-  f = this.getTmpcolsList();
+  f = this.getTempcolsList();
   if (f.length > 0) {
     writer.writeRepeatedString(
       5,
@@ -6774,23 +6774,23 @@ proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.clearNewkeysLis
 
 
 /**
- * repeated string tmpCols = 5;
+ * repeated string tempCols = 5;
  * If you change this array by adding, removing or replacing elements, or if you
  * replace the array itself, then you must call the setter to update it.
  * @return {!Array.<string>}
  */
-proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.getTmpcolsList = function() {
+proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.getTempcolsList = function() {
   return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 5));
 };
 
 
 /** @param {Array.<string>} value  */
-proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.setTmpcolsList = function(value) {
+proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.setTempcolsList = function(value) {
   jspb.Message.setField(this, 5, value || []);
 };
 
 
-proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.clearTmpcolsList = function() {
+proto.xcalar.compute.localtypes.Dataflow.IndexResponse.prototype.clearTempcolsList = function() {
   jspb.Message.setField(this, 5, []);
 };
 
