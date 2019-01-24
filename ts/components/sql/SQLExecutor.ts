@@ -115,12 +115,17 @@ class SQLExecutor {
             succeed = true;
             deferred.resolve();
         })
-        .fail(deferred.reject)
+        .fail((err) => {
+            deferred.reject(err);
+            if (this._status === SQLStatus.Cancelled) {
+                this._updateStatus(SQLStatus.Cancelled);
+            } else {
+                this._status = SQLStatus.Failed;
+                this._updateStatus(SQLStatus.Failed);
+            }
+        })
         .always(() => {
             SQLExecutor.deleteTab(tabId);
-            if (this._status === SQLStatus.Cancelled) {
-                this._updateCancelStatus();
-            }
             if (typeof callback === "function") {
                 callback(finalTableName, succeed);
             }
@@ -172,16 +177,29 @@ class SQLExecutor {
             identifiers.set(idx, this._identifiers[idx]);
         });
         const sqlMode = true;
+        this._status = SQLStatus.Compiling;
+        this._updateStatus(SQLStatus.Compiling);
+        this._sqlNode.setIdentifiers(identifiers);
         return this._sqlNode.compileSQL(this._sql, queryId, identifiers, sqlMode);
     }
 
-    private _updateCancelStatus(): void {
-        this._sqlNode.setSQLQuery({
+    private _updateStatus(
+        status: SQLStatus,
+        startTime?: Date,
+        endTime?: Date
+    ): void {
+        const queryObj = {
             queryString: this._sql,
             dataflowId: this._tempTab.getId(),
-            status: SQLStatus.Cancelled,
-            startTime: new Date()
-        });
+            status: status
+        }
+        if (startTime) {
+            queryObj["startTime"] = startTime;
+        }
+        if (endTime) {
+            queryObj["endTime"] = endTime;
+        }
+        this._sqlNode.setSQLQuery(queryObj);
         this._sqlNode.updateSQLQueryHisory();
     }
 }
