@@ -153,9 +153,7 @@ class DagCategoryBar {
         });
         this.$dagView.find(".operatorBar").mouseenter(function() {
             const index = $(this).find(".category").index($(this).find(".category.active"));
-            if (self._listScrollers[index]) {
-                self._listScrollers[index].showOrHideScrollers();
-            }
+            self._showOrHideScrollers(index);
         });
     }
 
@@ -799,7 +797,7 @@ class DagCategoryBar {
         const $category = this.$operatorBar.find(".category.category-" + category);
         $category.addClass("active");
         const index = this.$operatorBar.find(".category").index($category);
-        this._listScrollers[index].showOrHideScrollers();
+        this._showOrHideScrollers(index);
     }
 
     private _focusOnOperator(opId: string): void {
@@ -816,6 +814,11 @@ class DagCategoryBar {
             this.selectedOpId = opId;
             this._setSelectedStyle(this._getNodeFromOpId(opId));
         }
+    }
 
+    private _showOrHideScrollers(index: number): void {
+        if (this._listScrollers[index]) {
+            this._listScrollers[index].showOrHideScrollers();
+        }
     }
 }

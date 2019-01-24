@@ -44,6 +44,8 @@ class DagCategoryNode {
             displayNodeType = "Input";
         } else if (node instanceof DagNodeSQLFuncOut) {
             displayNodeType = "Output";
+        } else if (node instanceof DagNodeIMDTable) {
+            displayNodeType = "Table";
         }
         return displayNodeType;
     }

@@ -90,156 +90,160 @@ namespace DagNodeMenu {
     }
 
     function _processMenuAction(action: string, options?: boolean) {
-        const $menu: JQuery = $("#dagNodeMenu");
-        const nodeId: DagNodeId = $menu.data("nodeid"); // clicked node
-        const nodeIds: DagNodeId[] = DagView.getSelectedNodeIds(true, true);
-        const dagNodeIds: DagNodeId[] = DagView.getSelectedNodeIds(true);
-        // all selected nodes && comments
-        const tabId = DagView.getActiveDag().getTabId();
-        const parentNodeId: DagNodeId = $menu.data("parentnodeid");
-        const connectorIndex: number = parseInt($menu.data("connectorindex"));
+        try {
+            const $menu: JQuery = $("#dagNodeMenu");
+            const nodeId: DagNodeId = $menu.data("nodeid"); // clicked node
+            const nodeIds: DagNodeId[] = DagView.getSelectedNodeIds(true, true);
+            const dagNodeIds: DagNodeId[] = DagView.getSelectedNodeIds(true);
+            // all selected nodes && comments
+            const tabId = DagView.getActiveDag().getTabId();
+            const parentNodeId: DagNodeId = $menu.data("parentnodeid");
+            const connectorIndex: number = parseInt($menu.data("connectorindex"));
 
-        switch (action) {
-            case ("removeNode"):
-                DagView.removeNodes(nodeIds, tabId);
-                break;
-            case ("removeAllNodes"):
-                Alert.show({
-                    title: DagTStr.RemoveAllOperators,
-                    msg: DagTStr.RemoveAllMsg,
-                    onConfirm: function() {
-                        const nodes: Map<DagNodeId, DagNode> = DagView.getActiveDag().getAllNodes();
-                        let nodeIdsToRemove: DagNodeId[] = [];
-                        nodes.forEach((_node: DagNode, nodeId: DagNodeId) => {
-                            nodeIdsToRemove.push(nodeId);
-                        });
-                        const comments: Map<CommentNodeId, CommentNode> = DagView.getActiveDag().getAllComments();
-                        comments.forEach((_node: CommentNode, nodeId: CommentNodeId) => {
-                            nodeIdsToRemove.push(nodeId);
-                        });
-                        DagView.removeNodes(nodeIdsToRemove, tabId);
-                    }
-                });
-                break;
-            case ("selectAllNodes"):
-                DagView.selectNodes(DagView.getActiveDag().getTabId());
-                break;
-            case ("focusRunning"):
-                _focusRunningNode();
-                break;
-            case ("removeInConnection"):
-                DagView.disconnectNodes(parentNodeId, nodeId, connectorIndex, tabId);
-                break;
-            case ("copyNodes"):
-                document.execCommand("copy");
-                break;
-            case ("cutNodes"):
-                document.execCommand("cut");
-                break;
-            case ("executeNode"):
-                DagView.run(dagNodeIds);
-                break;
-            case ("executeAllNodes"):
-                DagView.run();
-                break;
-            case ("executeNodeOptimized"):
-                DagView.run(dagNodeIds, true);
-                break;
-            case ("executeAllNodesOptimized"):
-                DagView.run(null, true);
-                break;
-            case ("resetNode"):
-                DagView.reset(dagNodeIds);
-                break;
-            case ("resetAllNodes"):
-                DagView.reset();
-                break;
-            case ("configureNode"):
-                configureNode(_getNodeFromId(dagNodeIds[0]), options);
-                break;
-            case ("viewResult"):
-                DagView.viewResult(_getNodeFromId(dagNodeIds[0]));
-                break;
-            case ("viewUDF"):
-                DagUDFPopup.Instance.show(dagNodeIds[0]);
-                break;
-            case ("generateResult"):
-                const nodeToPreview: DagNode = _getNodeFromId(dagNodeIds[0]);
-                DagView.run(dagNodeIds).then(() => {
-                    DagView.viewResult(nodeToPreview);
-                });
-                break;
-            case ("viewOptimizedDataflow"):
-                DagView.viewOptimizedDataflow(_getNodeFromId(dagNodeIds[0]), tabId);
-                break;
-            case ("description"):
-                DagDescriptionModal.Instance.show(dagNodeIds[0]);
-                break;
-            case ("newComment"):
-                const scale = DagView.getActiveDag().getScale();
-                const rect = $dfWrap.find(".dataflowArea.active .dataflowAreaWrapper")[0].getBoundingClientRect();
-                const x = (position.x - rect.left - DagView.gridSpacing) / scale;
-                const y = (position.y - rect.top - DagView.gridSpacing) / scale;
-                DagView.newComment({
-                    position: {x: x, y: y}
-                }, true);
-                break;
-            case ("autoAlign"):
-                DagView.autoAlign(tabId);
-                break;
-            case ("viewSchema"):
-                DagSchemaPopup.Instance.show(nodeIds[0]);
-                break;
-            case ("exitOpPanel"):
-                MainMenu.closeForms();
-                break;
-            case ("createCustom"):
-                DagView.wrapCustomOperator(nodeIds);
-                break;
-            case ("editCustom"):
-                DagView.editCustomOperator(dagNodeIds[0]);
-                break;
-            case ("shareCustom"):
-                DagView.shareCustomOperator(dagNodeIds[0]);
-                break;
-            case ("inspectSQL"):
-                DagView.inspectSQLNode(dagNodeIds[0]);
-                break;
-            case ("expandSQL"):
-                DagView.expandSQLNode(dagNodeIds[0]);
-                break;
-            case ("expandCustom"):
-                DagView.expandCustomNode(dagNodeIds[0]);
-                break;
-            case ("zoomIn"):
-                DagView.zoom(true);
-                break;
-            case ("zoomOut"):
-                DagView.zoom(false);
-                break;
-            case ("findLinkOut"):
-                _findLinkOutNode(nodeId);
-                break;
-            case ("lockTable"):
-                DagView.getActiveDag().getNode(dagNodeIds[0]).setTableLock();
-                break;
-            case ("unlockTable"):
-                DagView.getActiveDag().getNode(dagNodeIds[0]).setTableLock();
-                break;
-            case ("download"):
-                DFDownloadModal.Instance.show(DagView.getActiveTab(), nodeIds);
-                break;
-            case ("restoreDataset"): {
-                const node: DagNodeDataset = <DagNodeDataset>DagView.getActiveDag().getNode(dagNodeIds[0]);
-                const shareDS: boolean = DagView.getActiveTab() instanceof DagTabPublished;
-                DS.restoreSourceFromDagNode([node], shareDS)
-                .then(() => {
-                    node.beConfiguredState();
-                });
-                break;
+            switch (action) {
+                case ("removeNode"):
+                    DagView.removeNodes(nodeIds, tabId);
+                    break;
+                case ("removeAllNodes"):
+                    Alert.show({
+                        title: DagTStr.RemoveAllOperators,
+                        msg: DagTStr.RemoveAllMsg,
+                        onConfirm: function() {
+                            const nodes: Map<DagNodeId, DagNode> = DagView.getActiveDag().getAllNodes();
+                            let nodeIdsToRemove: DagNodeId[] = [];
+                            nodes.forEach((_node: DagNode, nodeId: DagNodeId) => {
+                                nodeIdsToRemove.push(nodeId);
+                            });
+                            const comments: Map<CommentNodeId, CommentNode> = DagView.getActiveDag().getAllComments();
+                            comments.forEach((_node: CommentNode, nodeId: CommentNodeId) => {
+                                nodeIdsToRemove.push(nodeId);
+                            });
+                            DagView.removeNodes(nodeIdsToRemove, tabId);
+                        }
+                    });
+                    break;
+                case ("selectAllNodes"):
+                    DagView.selectNodes(DagView.getActiveDag().getTabId());
+                    break;
+                case ("focusRunning"):
+                    _focusRunningNode();
+                    break;
+                case ("removeInConnection"):
+                    DagView.disconnectNodes(parentNodeId, nodeId, connectorIndex, tabId);
+                    break;
+                case ("copyNodes"):
+                    document.execCommand("copy");
+                    break;
+                case ("cutNodes"):
+                    document.execCommand("cut");
+                    break;
+                case ("executeNode"):
+                    DagView.run(dagNodeIds);
+                    break;
+                case ("executeAllNodes"):
+                    DagView.run();
+                    break;
+                case ("executeNodeOptimized"):
+                    DagView.run(dagNodeIds, true);
+                    break;
+                case ("executeAllNodesOptimized"):
+                    DagView.run(null, true);
+                    break;
+                case ("resetNode"):
+                    DagView.reset(dagNodeIds);
+                    break;
+                case ("resetAllNodes"):
+                    DagView.reset();
+                    break;
+                case ("configureNode"):
+                    configureNode(_getNodeFromId(dagNodeIds[0]), options);
+                    break;
+                case ("viewResult"):
+                    DagView.viewResult(_getNodeFromId(dagNodeIds[0]));
+                    break;
+                case ("viewUDF"):
+                    DagUDFPopup.Instance.show(dagNodeIds[0]);
+                    break;
+                case ("generateResult"):
+                    const nodeToPreview: DagNode = _getNodeFromId(dagNodeIds[0]);
+                    DagView.run(dagNodeIds).then(() => {
+                        DagView.viewResult(nodeToPreview);
+                    });
+                    break;
+                case ("viewOptimizedDataflow"):
+                    DagView.viewOptimizedDataflow(_getNodeFromId(dagNodeIds[0]), tabId);
+                    break;
+                case ("description"):
+                    DagDescriptionModal.Instance.show(dagNodeIds[0]);
+                    break;
+                case ("newComment"):
+                    const scale = DagView.getActiveDag().getScale();
+                    const rect = $dfWrap.find(".dataflowArea.active .dataflowAreaWrapper")[0].getBoundingClientRect();
+                    const x = (position.x - rect.left - DagView.gridSpacing) / scale;
+                    const y = (position.y - rect.top - DagView.gridSpacing) / scale;
+                    DagView.newComment({
+                        position: {x: x, y: y}
+                    }, true);
+                    break;
+                case ("autoAlign"):
+                    DagView.autoAlign(tabId);
+                    break;
+                case ("viewSchema"):
+                    DagSchemaPopup.Instance.show(nodeIds[0]);
+                    break;
+                case ("exitOpPanel"):
+                    MainMenu.closeForms();
+                    break;
+                case ("createCustom"):
+                    DagView.wrapCustomOperator(nodeIds);
+                    break;
+                case ("editCustom"):
+                    DagView.editCustomOperator(dagNodeIds[0]);
+                    break;
+                case ("shareCustom"):
+                    DagView.shareCustomOperator(dagNodeIds[0]);
+                    break;
+                case ("inspectSQL"):
+                    DagView.inspectSQLNode(dagNodeIds[0]);
+                    break;
+                case ("expandSQL"):
+                    DagView.expandSQLNode(dagNodeIds[0]);
+                    break;
+                case ("expandCustom"):
+                    DagView.expandCustomNode(dagNodeIds[0]);
+                    break;
+                case ("zoomIn"):
+                    DagView.zoom(true);
+                    break;
+                case ("zoomOut"):
+                    DagView.zoom(false);
+                    break;
+                case ("findLinkOut"):
+                    _findLinkOutNode(nodeId);
+                    break;
+                case ("lockTable"):
+                    DagView.getActiveDag().getNode(dagNodeIds[0]).setTableLock();
+                    break;
+                case ("unlockTable"):
+                    DagView.getActiveDag().getNode(dagNodeIds[0]).setTableLock();
+                    break;
+                case ("download"):
+                    DFDownloadModal.Instance.show(DagView.getActiveTab(), nodeIds);
+                    break;
+                case ("restoreDataset"): {
+                    const node: DagNodeDataset = <DagNodeDataset>DagView.getActiveDag().getNode(dagNodeIds[0]);
+                    const shareDS: boolean = DagView.getActiveTab() instanceof DagTabPublished;
+                    DS.restoreSourceFromDagNode([node], shareDS)
+                    .then(() => {
+                        node.beConfiguredState();
+                    });
+                    break;
+                }
+                default:
+                    break;
             }
-            default:
-                break;
+        } catch (e) {
+            console.error(e);
         }
     }
 
