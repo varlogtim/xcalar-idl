@@ -3666,6 +3666,12 @@ table.datasetTable {
 
 #sourceTableListSection {
     .gridItems {
+        &.drawing {
+            .grid-unit {
+                pointer-events: none;
+            }
+        }
+
         &.gridView {
             .infoIcon {
                 font-size: 18px;
@@ -3681,6 +3687,8 @@ table.datasetTable {
         }
 
         .grid-unit {
+            .no-selection;
+
             &.beDataset {
                 .gridIcon {
                     opacity: @opacity-disabled;

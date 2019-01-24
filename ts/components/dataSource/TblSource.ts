@@ -346,6 +346,11 @@ class TblSource {
     }
 
     private _activateTables(tableNames: string[]): void {
+        tableNames = tableNames.filter((name) => {
+            let tableInfo: PbTblInfo = this._tables.get(name);
+            return (tableInfo && !tableInfo.active);
+        });
+
         tableNames.forEach((name) => {
             let $grid: JQuery = this._getGridByName(name);
             this._addLoadingIcon($grid);
@@ -358,6 +363,11 @@ class TblSource {
     }
 
     private _deactivateTables(tableNames: string[]): void {
+        tableNames = tableNames.filter((name) => {
+            let tableInfo: PbTblInfo = this._tables.get(name);
+            return (tableInfo && tableInfo.active);
+        });
+
         tableNames.forEach((name) => {
             let $grid: JQuery = this._getGridByName(name);
             this._addDeactivateIcon($grid);
@@ -404,6 +414,73 @@ class TblSource {
         $grid.addClass('loading');
     }
 
+    private _createRectSelection(startX: number, startY: number): RectSelection {
+        let $gridMenu: JQuery = this._getGridMenu();
+        $gridMenu.hide();
+        let $scrollContainer = this._getTableListSection().find(".gridViewWrapper");
+        return new RectSelection(startX, startY, {
+            "id": "tblGridView-rectSelection",
+            "$container": this._getGridView(),
+            "$scrollContainer": $scrollContainer,
+            "onStart": () => {
+                let $gridView = this._getGridView();
+                $gridView.addClass("drawing");
+            },
+            "onDraw": (...args) => {
+                return this._drawRect.apply(this, args);
+            },
+            "onEnd": (...args) => {
+                return this._endDrawRect.apply(this, args);
+            }
+        });
+    }
+
+    private _drawRect(
+        bound: ClientRect,
+        rectTop: number,
+        rectRight: number,
+        rectBottom: number,
+        rectLeft: number
+    ) {
+        let $gridView = this._getGridView();
+        $gridView.find(".grid-unit:visible").each((_index, el) => {
+            let grid = el;
+            let $grid = $(grid);
+            if ($grid.hasClass("noAction")) {
+                return;
+            }
+
+            let gridBound: ClientRect = grid.getBoundingClientRect();
+            let gridTop: number = gridBound.top - bound.top;
+            let gridLeft: number = gridBound.left - bound.left;
+            let gridRight: number = gridBound.right - bound.left;
+            let gridBottom: number = gridBound.bottom - bound.top;
+
+            if (gridTop > rectBottom || gridLeft > rectRight ||
+                gridRight < rectLeft || gridBottom < rectTop)
+            {
+                $grid.removeClass("selecting");
+            } else {
+                $grid.addClass("selecting");
+            }
+        });
+    }
+
+    private _endDrawRect() {
+        let $gridView = this._getGridView();
+        $gridView.removeClass("drawing");
+        let $grids = $gridView.find(".grid-unit.selecting");
+        if ($grids.length === 0) {
+            $gridView.find(".grid-unit.selected").removeClass("selected");
+        } else {
+            $grids.each((_index, el) => {
+                let $grid = $(el);
+                $grid.removeClass("selecting")
+                     .addClass("selected");
+            });
+        }
+    }
+
     private _addEventListeners(): void {
         const $menuSection: JQuery = this._getMenuSection();
         $menuSection.find(".iconSection .refresh").click(() => {
@@ -423,6 +500,22 @@ class TblSource {
         $gridView.on("click", ".grid-unit", (event) => {
             this._cleanGridSelect();
             this._focusOnTable($(event.currentTarget));
+        });
+
+        const $gridViewWrapper: JQuery = this._getTableListSection().find(".gridViewWrapper");
+        $gridViewWrapper.on("mousedown", (event) => {
+            if (event.which !== 1) {
+                return;
+            }
+            let $target = $(event.target);
+            if ($target.closest(".gridIcon").length ||
+                $target.closest(".label").length
+            ) {
+                // this part is for drag and drop
+                return;
+            }
+
+            this._createRectSelection(event.pageX, event.pageY);
         });
     }
 
@@ -527,19 +620,13 @@ class TblSource {
             this._deletTables([$gridMenu.data("id")]);
         });
 
-        // $gridMenu.on("mouseup", ".multiDelete", (event) => {
-        //     if (event.which !== 1) {
-        //         return;
-        //     }
-        //     DS.remove($gridView.find(".grid-unit.selected"));
-        // });
-
-        // $gridMenu.on("mouseup", ".getInfo", function(event) {
-        //     if (event.which !== 1) {
-        //         return;
-        //     }
-        //     DSInfoModal.Instance.show($gridMenu.data("id"));
-        // });
+        $gridMenu.on("mouseup", ".multiDelete", (event) => {
+            if (event.which !== 1) {
+                return;
+            }
+            let ids = this._getIdsFromSelectedGrid();
+            this._deletTables(ids);
+        });
 
         $gridMenu.on("mouseup", ".activate", (event) => {
             if (event.which !== 1) {
@@ -548,16 +635,13 @@ class TblSource {
             this._activateTables([$gridMenu.data("id")]);
         });
 
-        // $gridMenu.on("mouseup", ".multiActivate", (event) => {
-        //     if (event.which !== 1) {
-        //         return;
-        //     }
-        //     var ids = [];
-        //     $gridView.find(".grid-unit.selected.table").each(function() {
-        //         ids.push($(this).data("id"));
-        //     });
-        //     activateDSAction(ids);
-        // });
+        $gridMenu.on("mouseup", ".multiActivate", (event) => {
+            if (event.which !== 1) {
+                return;
+            }
+            let ids = this._getIdsFromSelectedGrid();
+            this._activateTables(ids);
+        });
 
         $gridMenu.on("mouseup", ".deactivate", (event) => {
             if (event.which !== 1) {
@@ -566,16 +650,13 @@ class TblSource {
             this._deactivateTables([$gridMenu.data("id")]);
         });
 
-        // $gridMenu.on("mouseup", ".multiDeactivate", (event) => {
-        //     if (event.which !== 1) {
-        //         return;
-        //     }
-        //     var ids = [];
-        //     $gridView.find(".grid-unit.selected.table").each(function() {
-        //         ids.push($(this).data("id"));
-        //     });
-        //     deactivateDSAction(ids);
-        // });
+        $gridMenu.on("mouseup", ".multiDeactivate", (event) => {
+            if (event.which !== 1) {
+                return;
+            }
+            let ids = this._getIdsFromSelectedGrid();
+            this._deactivateTables(ids);
+        });
 
         $gridMenu.on("mouseenter", ".sort", () => {
             let key: string = this._sortKey || "none";
@@ -593,5 +674,15 @@ class TblSource {
             let key: string = $(event.currentTarget).attr("name");
             this._setSortKey(key);
         });
+    }
+
+    private _getIdsFromSelectedGrid(): string[] {
+        let $gridView = this._getGridView();
+        let ids: string[] = [];
+        $gridView.find(".grid-unit.selected").each((_index, el) => {
+            let id = $(el).data("id");
+            ids.push(id);
+        });
+        return ids;
     }
 }
