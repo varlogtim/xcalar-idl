@@ -3309,7 +3309,7 @@ namespace DagView {
                 event: event,
                 $element: $childConnector,
                 $container: $dagView,
-                $dropTarget: $dfArea,
+                $dropTarget: $dfArea.find(".dataflowAreaWrapper"),
                 offset: {
                     x: 0,
                     y: -2

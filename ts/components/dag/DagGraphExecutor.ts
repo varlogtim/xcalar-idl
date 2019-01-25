@@ -518,8 +518,16 @@ class DagGraphExecutor {
                     nodesToRun[i].executable = false;
                 }
             }
+            let transactionError = error;
+            if (error.node) {
+                // remove node from transaction.log due to cyclical error
+                const node = error.node;
+                delete error.node;
+                transactionError = xcHelper.deepCopy(error);
+                error.node = node;
+            }
             Transaction.fail(txId, {
-                error: error,
+                error: transactionError,
                 noAlert: true
             });
             execErrors.push(error);

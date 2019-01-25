@@ -81,12 +81,14 @@ class RecreateNodes extends EventEmitter {
                     this.api
                         .openOpPanel(".operator:nth-child(" + (i + 1) + ")")
                         .pause(pause)
-                        .setValue("#dfLinkOutPanel .linkOutName .inputWrap input", input.name)
-                        .click('#dfLinkOutPanel .argsSection .inputWrap .checkbox.checked')
-                        .click('#dfLinkOutPanel .submit')
+                        .setValue("#dfLinkOutPanel .linkOutName .inputWrap input", input.name);
+                        if (!input.linkAfterExecution) {
+                            this.api.click('#dfLinkOutPanel .argsSection .inputWrap .checkbox.checked');
+                        }
+                    this.api.click('#dfLinkOutPanel .submit')
                         .waitForElementNotVisible('#dfLinkOutPanel');
                 } else if (nodeInfo.type === "publishIMD") {
-                    result.IMDNames.push(input.pubTableName);
+                    commandResult.IMDNames.push(input.pubTableName);
                     this.api
                         .openOpPanel(".operator:nth-child(" + (i + 1) + ")")
                         .pause(pause)

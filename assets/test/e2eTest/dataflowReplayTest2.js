@@ -105,6 +105,37 @@ module.exports = {
         }
     },
 
+    // imdTable nodes depend on publishedIMD node to be executed first
+    'config imdTable nodes': function(browser) {
+        for (const tabName of Object.keys(testTabs)) {
+            const newTabName = testTabMapping.get(tabName);
+            browser.switchTab(newTabName);
+
+            testTabs[tabname].nodes.forEach((node, i) => {
+                let input = JSON.parse(JSON.stringify(node.input));
+                if (node.type === "IMDTable") {
+                    browser
+                        .openOpPanel(".operator:nth-child(" + (i + 1) + ")")
+                        .pause(8000) // need to check for listTables call to resolve
+                        .setValue("#IMDTableOpPanel .pubTableInput", input.source)
+                        .pause(1000)
+                        .moveToElement("#pubTableList li:not(.xc-hidden)", 2, 2)
+                        .mouseButtonUp("left")
+                        .click("#IMDTableOpPanel .next")
+                        .submitAdvancedPanel("#IMDTableOpPanel", JSON.stringify(input, null, 4));
+                } else if (node.type === "export") {
+                    pause = 6000;
+                    input.driverArgs.file_path = "/home/jenkins/export_test/datasetTest.csv";
+                    browser
+                        .openOpPanel(".operator:nth-child(" + (i + 1) + ")")
+                        .pause(pause)
+                        .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4));
+                }
+
+            });
+        }
+    },
+
     'execute': function(browser) {
         for (const tabName of Object.keys(testTabs)) {
             const newTabName = testTabMapping.get(tabName);
