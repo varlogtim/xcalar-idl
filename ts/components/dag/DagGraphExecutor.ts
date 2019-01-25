@@ -648,15 +648,22 @@ class DagGraphExecutor {
         udfUserName: string,
         udfSessionName: string
     } {
-        const tabId: string = this._graph.getTabId();
-        const tab: DagTab = DagList.Instance.getDagTabById(tabId);
-        if (tab != null && tab instanceof DagTabPublished) {
-            return tab.getUDFContext();
-        } else {
+        if (xcHelper.isNodeJs()) {
             return {
                 udfUserName: undefined,
                 udfSessionName: undefined
-            };
+            }
+        } else {
+            const tabId: string = this._graph.getTabId();
+            const tab: DagTab = DagList.Instance.getDagTabById(tabId);
+            if (tab != null && tab instanceof DagTabPublished) {
+                return tab.getUDFContext();
+            } else {
+                return {
+                    udfUserName: undefined,
+                    udfSessionName: undefined
+                };
+            }
         }
     }
 
@@ -940,3 +947,7 @@ class DagGraphExecutor {
         }, 2000);
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagGraphExecutor = DagGraphExecutor;
+};

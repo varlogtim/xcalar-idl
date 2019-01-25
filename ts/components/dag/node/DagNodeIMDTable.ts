@@ -126,3 +126,7 @@ class DagNodeIMDTable extends DagNodeIn {
         return null;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeIMDTable = DagNodeIMDTable;
+};

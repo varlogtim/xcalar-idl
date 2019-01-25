@@ -37,3 +37,7 @@ abstract class DagNodeOut extends DagNode {
         }
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeOut = DagNodeOut;
+};

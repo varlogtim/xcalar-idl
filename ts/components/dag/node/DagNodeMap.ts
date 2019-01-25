@@ -215,3 +215,7 @@ class DagNodeMap extends DagNode {
         }
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeMap = DagNodeMap;
+};

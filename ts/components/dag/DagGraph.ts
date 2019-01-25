@@ -2644,3 +2644,7 @@ class DagGraph {
         }
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagGraph = DagGraph;
+}

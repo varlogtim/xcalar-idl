@@ -325,6 +325,12 @@ namespace xcHelper {
         return (num % 1 !== 0);
     }
 
+    export function isNodeJs(): boolean {
+        return ((typeof process !== 'undefined') &&
+                (typeof process.versions !== 'undefined') &&
+                (typeof process.versions.node !== 'undefined'));
+    }
+
     /**
      * xcHelper.parseColType, define type of the column
      * @param val

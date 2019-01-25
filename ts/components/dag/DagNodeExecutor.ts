@@ -1184,3 +1184,7 @@ class DagNodeExecutor {
         return XIApi.synthesize(this.txId, colInfos, srcTable, desTable);
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeExecutor = DagNodeExecutor;
+};

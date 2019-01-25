@@ -8,3 +8,7 @@ class DagNodeSplit extends DagNodeMap {
         this.display.icon = "&#xe993;"
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeSplit = DagNodeSplit;
+};

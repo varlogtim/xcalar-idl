@@ -70,3 +70,7 @@ class DagNodePublishIMD extends DagNode {
         return null;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodePublishIMD = DagNodePublishIMD;
+};

@@ -88,3 +88,7 @@ class DagNodeRowNum extends DagNode {
         return null;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeRowNum = DagNodeRowNum;
+};

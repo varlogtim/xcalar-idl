@@ -152,3 +152,7 @@ class CommentNode {
         };
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.CommentNode = CommentNode;
+};

@@ -282,6 +282,10 @@ class DagNodeGroupBy extends DagNode {
         let colType: ColumnType = null;
         const opsMap = XDFManager.Instance.getOperatorsMap();
         const ops = opsMap[FunctionCategoryT.FunctionCategoryAggregate];
+        // XXX: SDK needs this
+        if (typeof ops === 'undefined') {
+            return colType;
+        }
         const opInfo = ops[operator];
         if (opInfo) {
             colType = xcHelper.convertFieldTypeToColType(opInfo.outputType);
@@ -289,3 +293,7 @@ class DagNodeGroupBy extends DagNode {
         return colType;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeGroupBy = DagNodeGroupBy;
+};

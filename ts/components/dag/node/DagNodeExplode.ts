@@ -8,3 +8,7 @@ class DagNodeExplode extends DagNodeMap {
         this.display.icon = '&#xe9d7;';
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeExplode = DagNodeExplode;
+};

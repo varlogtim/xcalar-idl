@@ -8,3 +8,7 @@ class DagNodeSynthesizeInput extends DagNodeInput {
         };
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeSynthesizeInput = DagNodeSynthesizeInput;
+}

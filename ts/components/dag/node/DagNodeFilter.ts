@@ -83,3 +83,7 @@ class DagNodeFilter extends DagNode {
         return set;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeFilter = DagNodeFilter;
+};

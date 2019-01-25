@@ -234,3 +234,7 @@ class DagNodeGroupByInput extends DagNodeInput {
         }
   }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeGroupByInput = DagNodeGroupByInput;
+}

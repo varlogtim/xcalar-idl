@@ -84,3 +84,7 @@ class DagNodeJupyterInput extends DagNodeInput {
         };
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeJupyterInput = DagNodeJupyterInput;
+}

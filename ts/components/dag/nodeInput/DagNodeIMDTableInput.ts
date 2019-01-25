@@ -112,3 +112,7 @@ class DagNodeIMDTableInput extends DagNodeInput {
         };
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeIMDTableInput = DagNodeIMDTableInput;
+}

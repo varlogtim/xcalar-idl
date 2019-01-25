@@ -110,3 +110,7 @@ class DagNodeDatasetInput extends DagNodeInput {
         };
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeDatasetInput = DagNodeDatasetInput;
+};

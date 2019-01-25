@@ -761,3 +761,7 @@ class DagNodeCustom extends DagNode {
         })
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeCustom = DagNodeCustom;
+};

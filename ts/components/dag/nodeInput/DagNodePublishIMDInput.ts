@@ -65,3 +65,7 @@ class DagNodePublishIMDInput extends DagNodeInput {
         };
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodePublishIMDInput = DagNodePublishIMDInput;
+}

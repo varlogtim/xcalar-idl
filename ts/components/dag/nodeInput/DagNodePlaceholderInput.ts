@@ -8,3 +8,7 @@ class DagNodePlaceholderInput extends DagNodeInput {
         };
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodePlaceholderInput = DagNodePlaceholderInput;
+}

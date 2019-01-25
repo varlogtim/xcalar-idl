@@ -201,3 +201,7 @@ class DagNodeSort extends DagNode {
         return newKeys;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeSort = DagNodeSort;
+};

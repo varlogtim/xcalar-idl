@@ -174,3 +174,7 @@ class DagNodeSet extends DagNode {
         return set;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeSet = DagNodeSet;
+};

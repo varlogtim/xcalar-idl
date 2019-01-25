@@ -47,3 +47,7 @@ abstract class DagNodeIn extends DagNode {
         return serializedInfo;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeIn = DagNodeIn;
+};

@@ -1403,3 +1403,7 @@ abstract class DagNode {
         return aggs;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNode = DagNode;
+};

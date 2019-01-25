@@ -121,3 +121,7 @@ class DagNodeProject extends DagNode {
         return null;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeProject = DagNodeProject;
+};

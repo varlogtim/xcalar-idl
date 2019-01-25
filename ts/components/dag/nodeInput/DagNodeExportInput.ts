@@ -45,3 +45,7 @@ class DagNodeExportInput extends DagNodeInput {
         };
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeExportInput = DagNodeExportInput;
+};

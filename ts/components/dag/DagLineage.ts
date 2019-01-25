@@ -213,3 +213,7 @@ class DagLineage {
         return lineageChange;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagLineage = DagLineage;
+};

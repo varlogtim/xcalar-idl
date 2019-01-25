@@ -77,3 +77,7 @@ class DagNodeMapInput extends DagNodeInput {
         this.input.eval = evals;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeMapInput = DagNodeMapInput;
+};

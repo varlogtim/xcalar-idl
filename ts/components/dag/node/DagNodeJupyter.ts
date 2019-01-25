@@ -116,3 +116,7 @@ class DagNodeJupyter extends DagNodeOut {
         return null;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeJupyter = DagNodeJupyter;
+};

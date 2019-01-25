@@ -61,3 +61,7 @@ class DagNodeAggregateInput extends DagNodeInput {
         this.input.evalString = evalString;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeAggregateInput = DagNodeAggregateInput;
+}

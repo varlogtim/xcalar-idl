@@ -60,3 +60,7 @@ class DagNodeCustomInput extends DagNode {
         return null;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeCustomInput = DagNodeCustomInput;
+};

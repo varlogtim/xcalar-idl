@@ -63,3 +63,7 @@ class DagNodeCustomOutput extends DagNode {
         return null;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeCustomOutput = DagNodeCustomOutput;
+};

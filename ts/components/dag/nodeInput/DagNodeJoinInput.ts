@@ -57,7 +57,9 @@ class DagNodeJoinInput extends DagNodeInput {
           "joinType": {
             "$id": "#/properties/joinType",
             "type": "string",
-            "enum": JoinOpPanelStep1.joinTypeMenuItems.filter((item)=> {
+            // XXX For SDK only
+            "enum": typeof JoinOpPanelStep1 === "undefined" ? [] :
+                JoinOpPanelStep1.joinTypeMenuItems.filter((item)=> {
                 return !item.isNotMenuItem;
             }).map((item) => {
                 return item.value;
@@ -388,4 +390,8 @@ class DagNodeJoinInput extends DagNodeInput {
             rename: [{sourceColumn: "", destColumn: "", prefix: false}]
         }
     }
+}
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeJoinInput = DagNodeJoinInput;
 }

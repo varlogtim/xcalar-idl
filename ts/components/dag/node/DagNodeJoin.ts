@@ -279,3 +279,7 @@ class DagNodeJoin extends DagNode {
     }
 
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeJoin = DagNodeJoin;
+};

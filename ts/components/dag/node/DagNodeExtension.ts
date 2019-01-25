@@ -366,3 +366,7 @@ class DagNodeExtension extends DagNode {
         this.droppedColumns = droppedColumns;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeExtension = DagNodeExtension;
+};

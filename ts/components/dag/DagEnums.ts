@@ -123,4 +123,6 @@ enum DagCategoryType {
 if (typeof exports !== 'undefined') {
     exports.DagNodeType = DagNodeType;
     exports.DagNodeSubType = DagNodeSubType;
+    exports.DagNodeState = DagNodeState;
+    exports.DagNodeEvents = DagNodeEvents;
 }

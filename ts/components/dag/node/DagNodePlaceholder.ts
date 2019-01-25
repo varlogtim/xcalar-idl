@@ -50,3 +50,7 @@ class DagNodePlaceholder extends DagNode {
         return null;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodePlaceholder = DagNodePlaceholder;
+};

@@ -1035,3 +1035,7 @@ class DagNodeSQL extends DagNode {
         return deferred.promise();
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeSQL = DagNodeSQL;
+};

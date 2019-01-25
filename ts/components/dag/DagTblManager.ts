@@ -506,3 +506,7 @@ class DagTblManager {
         return deferred.promise();
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagTblManager = DagTblManager;
+};

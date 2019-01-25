@@ -112,3 +112,7 @@ class DagNodeDFOut extends DagNodeOutOptimizable {
         return null;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeDFOut = DagNodeDFOut;
+};

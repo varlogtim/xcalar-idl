@@ -60,3 +60,7 @@ class DagNodeUpdateIMD extends DagNodeOut {
         return null;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeUpdateIMD = DagNodeUpdateIMD;
+};

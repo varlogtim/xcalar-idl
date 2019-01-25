@@ -38,3 +38,7 @@ class DagNodeRowNumInput extends DagNodeInput {
         };
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeRowNumInput = DagNodeRowNumInput;
+}

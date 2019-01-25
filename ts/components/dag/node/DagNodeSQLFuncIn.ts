@@ -147,3 +147,7 @@ class DagNodeSQLFuncIn extends DagNodeIn {
       return serializedInfo;
   }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeSQLFuncIn = DagNodeSQLFuncIn;
+};

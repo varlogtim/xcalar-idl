@@ -37,3 +37,7 @@ class DagNodeFilterInput extends DagNodeInput {
         this.input.evalString = evalStr;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeFilterInput = DagNodeFilterInput;
+};

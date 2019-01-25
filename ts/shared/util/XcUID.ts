@@ -31,13 +31,22 @@ class XcUID {
     }
 
     private _defaultGenrator(prefix: string, count: number): string {
-        const activeWKBNK: string = WorkbookManager.getActiveWKBK();
-        const workbook: WKBK = WorkbookManager.getWorkbook(activeWKBNK);
-        let id: string = (workbook == null) ? null : workbook.sessionId;
-        id = id || xcHelper.randName("id");
-        if (prefix) {
-            id = prefix + "_" + id;
+        var id: string;
+        if (xcHelper.isNodeJs()) {
+            id = "XcalarSDK-";
+        } else {
+            const activeWKBNK: string = WorkbookManager.getActiveWKBK();
+            const workbook: WKBK = WorkbookManager.getWorkbook(activeWKBNK);
+            id = (workbook == null) ? null : workbook.sessionId;
+            id = id || xcHelper.randName("id");
+            if (prefix) {
+                id = prefix + "_" + id;
+            }
         }
         return id + "_" + new Date().getTime() + "_" + count;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.XcUID = XcUID;
+};

@@ -9,3 +9,7 @@ class DagNodeIndexInput extends DagNodeInput {
         };
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeIndexInput = DagNodeIndexInput;
+}

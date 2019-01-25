@@ -122,3 +122,7 @@ class DagNodeSQLSubInput extends DagNode {
         return null;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeSQLSubInput = DagNodeSQLSubInput;
+};

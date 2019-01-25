@@ -65,3 +65,7 @@ class DagNodeExport extends DagNodeOutOptimizable {
       return hint;
   }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeExport = DagNodeExport;
+};

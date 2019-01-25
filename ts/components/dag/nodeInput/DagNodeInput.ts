@@ -202,3 +202,7 @@ class DagNodeInput {
         }
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeInput = DagNodeInput;
+};

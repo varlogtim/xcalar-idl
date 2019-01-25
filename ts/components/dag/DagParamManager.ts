@@ -50,3 +50,7 @@ class DagParamManager {
         //XXX may not need to implement
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagParamManager = DagParamManager;
+};

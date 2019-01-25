@@ -2,7 +2,8 @@
 
 var _services = {
     "Dataflow": require(__dirname + "/service_impls/dataflowService"),
-    "Sql": require(__dirname + "/service_impls/sqlService")
+    "Sql": require(__dirname + "/service_impls/sqlService"),
+    "Workbook": require(__dirname + "/service_impls/workbookService")
 };
 
 exports.ServiceRegistry = _services;

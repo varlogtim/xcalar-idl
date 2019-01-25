@@ -679,3 +679,7 @@ class DagList {
         });
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagList = DagList;
+};

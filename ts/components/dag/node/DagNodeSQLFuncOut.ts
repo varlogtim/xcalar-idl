@@ -103,3 +103,7 @@ class DagNodeSQLFuncOut extends DagNodeOut {
         return null;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeSQLFuncOut = DagNodeSQLFuncOut;
+};

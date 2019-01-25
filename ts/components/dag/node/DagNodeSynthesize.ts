@@ -88,3 +88,7 @@ class DagNodeSynthesize extends DagNode {
         return null;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeSynthesize = DagNodeSynthesize;
+};

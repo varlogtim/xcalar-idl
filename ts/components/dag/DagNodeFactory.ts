@@ -150,3 +150,7 @@ class DagNodeFactory {
 
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeFactory = DagNodeFactory;
+}

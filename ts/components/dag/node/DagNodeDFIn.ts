@@ -168,3 +168,7 @@ class DagNodeDFIn extends DagNodeIn {
         return dfOutNodes;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeDFIn = DagNodeDFIn;
+};

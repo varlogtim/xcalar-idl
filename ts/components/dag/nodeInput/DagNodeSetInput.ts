@@ -166,3 +166,7 @@ class DagNodeSetInput extends DagNodeInput {
         });
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeSetInput = DagNodeSetInput;
+}

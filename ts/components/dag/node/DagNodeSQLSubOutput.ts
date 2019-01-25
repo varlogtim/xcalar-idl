@@ -77,3 +77,7 @@ class DagNodeSQLSubOutput extends DagNode {
         return null;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeSQLSubOutput = DagNodeSQLSubOutput;
+};

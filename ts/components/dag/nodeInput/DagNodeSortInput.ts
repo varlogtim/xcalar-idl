@@ -88,3 +88,7 @@ class DagNodeSortInput extends DagNodeInput {
         this.input.newKeys = newKeys;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeSortInput = DagNodeSortInput;
+}

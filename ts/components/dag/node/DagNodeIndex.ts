@@ -65,3 +65,7 @@ class DagNodeIndex extends DagNode {
         return null;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeIndex = DagNodeIndex;
+};

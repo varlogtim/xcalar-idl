@@ -272,3 +272,7 @@ abstract class DagTab {
         return graph;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagTab = DagTab;
+};

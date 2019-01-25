@@ -44,3 +44,7 @@ class DagNodeProjectInput extends DagNodeInput {
         this.input.columns = columns;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeProjectInput = DagNodeProjectInput;
+}

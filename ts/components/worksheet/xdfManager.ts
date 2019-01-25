@@ -46,6 +46,8 @@ class XDFManager {
             self._operatorsMap[op.category][op.displayName] = op;
         });
     }
-
-
 }
+
+if (typeof exports !== 'undefined') {
+    exports.XDFManager = XDFManager;
+};

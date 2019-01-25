@@ -8,3 +8,7 @@ class DagNodeRound extends DagNodeMap {
         this.display.icon = "&#xe943;"
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeRound = DagNodeRound;
+};
