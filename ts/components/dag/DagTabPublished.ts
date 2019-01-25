@@ -158,10 +158,13 @@ class DagTabPublished extends DagTab {
         return promise;
     }
 
-    public load(reset?: boolean): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+    public load(reset?: boolean): XDPromise<any> {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        let dagInfoRes: any;
+        
         this._loadFromKVStore()
         .then((dagInfo, graph) => {
+            dagInfoRes = dagInfo;
             this._version = dagInfo.version;
             if (reset) {
                 this._resetHelper(graph);
@@ -171,7 +174,9 @@ class DagTabPublished extends DagTab {
                 return this._writeToKVStore();
             }
         })
-        .then(deferred.resolve)
+        .then(() => {
+            deferred.resolve(dagInfoRes);
+        })
         .fail(deferred.reject);
         return deferred.promise();
     }

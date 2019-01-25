@@ -324,7 +324,9 @@ class DFDownloadModal {
                 $downloadTypeDropdown.find(".text").text($li.text());
                 this._downloadType = $li.data("type");
                 let $checkboxSection = this._getOptimizedCheckboxSection();
-                if (this._downloadType === this._DownloadTypeEnum.DF) {
+                if (this._downloadType === this._DownloadTypeEnum.DF &&
+                    XVM.isAdvancedMode()
+                ) {
                     $checkboxSection.removeClass("inVisible");
                 } else {
                     $checkboxSection.addClass("inVisible");

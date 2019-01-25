@@ -219,6 +219,14 @@ class DagTabUser extends DagTab {
             hasFakeDag = true;
             return fakeTab.load();
         })
+        .then((dagInfo) => {
+            let error = this._validateUploadType(dagInfo);
+            if (error) {
+                return PromiseHelper.reject({
+                    error: error
+                });
+            }
+        })
         .then(() => {
             this._dagGraph = fakeTab.getGraph();
             return this.save();
@@ -272,9 +280,21 @@ class DagTabUser extends DagTab {
         return super._writeToKVStore(this._getJSON(true));
     }
 
-    private _getTempName(): string {
+    protected _getTempName(): string {
          // format is .temp/randNum/fileName
          const tempName: string = ".temp/" + xcHelper.randName("rand") + "/" + this.getName();
          return tempName;
+    }
+
+    protected _validateUploadType(dagInfo: {name: string}): string {
+        try {
+            let name: string = dagInfo.name;
+            if (name.startsWith(".temp/" + DagTabSQLFunc.KEY)) {
+                return DFTStr.NoSQLFuncUploadInAdv;
+            }
+        } catch (e) {
+            console.error(e);
+        }
+        return null;
     }
 }

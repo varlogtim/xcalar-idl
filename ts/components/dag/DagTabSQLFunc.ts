@@ -158,6 +158,36 @@ class DagTabSQLFunc extends DagTabUser {
         return changeNodes;
     }
 
+    /**
+     * @override
+     */
+    public clone(): DagTabSQLFunc {
+        const clonedGraph: DagGraph = this.getGraph().clone();
+        const clonedTab = new DagTabSQLFunc(this.getName(), null, clonedGraph, null, xcTimeHelper.now());
+        return clonedTab;
+    }
+
+    /**
+     * @override
+     */
+    protected _getTempName(): string {
+        // format is .temp/SQLFunc/randNum/fileName
+        const tempName: string = ".temp/" + DagTabSQLFunc.KEY + "/" + xcHelper.randName("rand") + "/" + this.getName();
+        return tempName;
+    }
+
+    protected _validateUploadType(dagInfo: {name: string}): string {
+        try {
+            let name: string = dagInfo.name;
+            if (!name.startsWith(".temp/" + DagTabSQLFunc.KEY)) {
+                return DFTStr.NoDFUploadInSQL;
+            }
+        } catch (e) {
+            console.error(e);
+        }
+        return null;
+    }
+
     private _loadGraph(): XDPromise<void> {
         if (this._dagGraph == null) {
             return this.load();

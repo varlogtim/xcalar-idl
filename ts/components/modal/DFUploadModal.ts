@@ -19,6 +19,12 @@ class DFUploadModal {
 
     public show(): void {
         this._modalHelper.setup();
+        let $rowsForAdvOnly = this._getModal().find(".row.restoreDS");
+        if (XVM.isSQLMode()) {
+            $rowsForAdvOnly.addClass("xc-hidden");
+        } else {
+            $rowsForAdvOnly.removeClass("xc-hidden");
+        }
     }
 
     private _getModal(): JQuery {
@@ -60,6 +66,10 @@ class DFUploadModal {
             path = path.substring(sharePrefix.length);
             uploadTab = new DagTabPublished(path);
             shortName = (<DagTabPublished>uploadTab).getShortName();
+        } else if (XVM.isSQLMode()) {
+            shared = false;
+            uploadTab = new DagTabSQLFunc(path, null, null, null, xcTimeHelper.now());
+            shortName = uploadTab.getName();
         } else {
             shared = false;
             uploadTab = new DagTabUser(path, null, null, null, xcTimeHelper.now());
@@ -82,10 +92,10 @@ class DFUploadModal {
             }
         },{
             $ele: $pathInput,
-            error: ErrTStr.DFNameIllegal,
+            error: XVM.isSQLMode() ? ErrTStr.SQLFuncNameIllegal : ErrTStr.DFNameIllegal,
             check: () => {
-                return !xcHelper.checkNamePattern(PatternCategory.Dataflow,
-                    PatternAction.Check, shortName);
+                let category = XVM.isSQLMode() ? PatternCategory.SQLFunc : PatternCategory.Dataflow;
+                return !xcHelper.checkNamePattern(category, PatternAction.Check, shortName);
             }
         }, {
             $ele: $pathInput,
@@ -118,8 +128,8 @@ class DFUploadModal {
         const file: File = this._file;
         const overwriteUDF: boolean = this._getModal().find(".overwrite .checkboxSection")
         .find(".checkbox").hasClass("checked");
-        const restoreDS: boolean = this._getModal().find(".restoreDS .checkboxSection")
-        .find(".checkbox").hasClass("checked");
+        const restoreDS: boolean = XVM.isSQLMode() ? false: 
+        this._getModal().find(".restoreDS .checkboxSection").find(".checkbox").hasClass("checked");
 
         let timer: number = null;
         this._checkFileSize(file)
@@ -323,8 +333,8 @@ class DFUploadModal {
     }
 
     private _setDestPath(name: string): void {
-        name = <string>xcHelper.checkNamePattern(PatternCategory.Dataflow,
-            PatternAction.Fix, name);
+        let category = XVM.isSQLMode() ? PatternCategory.SQLFunc : PatternCategory.Dataflow;
+        name = <string>xcHelper.checkNamePattern(category, PatternAction.Fix, name);
         const path: string = this._getUniquePath(name);
         this._getDestPathInput().val(path);
     }
@@ -333,7 +343,11 @@ class DFUploadModal {
         let path: string = name;
         let cnt = 0;
         while (!DagList.Instance.isUniqueName(path)) {
-            path = `${name}(${++cnt})`;
+            if (XVM.isSQLMode()) {
+                path = `${name}${++cnt}`;
+            } else {
+                path = `${name}(${++cnt})`;
+            }
         }
         return path;
     }

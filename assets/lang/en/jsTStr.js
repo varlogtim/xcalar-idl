@@ -1180,6 +1180,8 @@ DFTStr = {
     "ShowConfigInfo": "Show configuration info",
     "NoEmptyDestName": "Please enter a destination dataflow name.",
     "NoSlashUpload": "Cannot upload to this path.",
+    "NoSQLFuncUploadInAdv": "Cannot upload SQL Function in advanced mode, please switch to SQL mode first.",
+    "NoDFUploadInSQL": "Cannot upload dataflow that is not a SQL Function in SQL mode, please switch to advanced mode first.",
     // with replace
     "EditOpDirectly": "Please edit the overall <op> operation directly",
     'CancelAlertMsg': 'Batch dataflow \'<name>\' was canceled.',
