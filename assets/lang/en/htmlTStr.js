@@ -148,6 +148,7 @@ module.exports = {
         "source": "Sources",
         "discourse": "Discourse",
         "exts": "Extensions",
+        "tuts": "Tutorial Workbooks",
         "user": "User",
         "tutorUser": "John Smith",
         "unknown": "Unknown",
@@ -487,6 +488,7 @@ module.exports = {
         "SearchDiscourse": "SEARCH DISCOURSE",
         "wkbkTutor": "Workbook Tutorial",
         "sampleWorkbook": "Sample Workbook",
+        "tutorialWorkbooks": "Tutorial Workbooks",
         "dsTutor1": "Datasets Tutorial - Part 1",
         "dsTutor2": "Datasets Tutorial - Part 2",
         "collapseAll": "Collapse all",
@@ -616,6 +618,7 @@ module.exports = {
         "Syst": "System",
         "TicketID": "Ticket ID",
         "TotalTime": "Total Time",
+        "TutorialWorkbookInstr": "You can download a xcalar-provided tutorial workbook to the right.",
         "Uninstall": "Uninstall",
         "UpdateLicense": "Update License",
         "UpdateLicenseInstr": "Update your Xcalar license key here.",
@@ -1293,6 +1296,12 @@ module.exports = {
         "Extension": "Extension",
         "ExtensionName": "Extension Name",
         "FunctionName": "Function Name"
+    },
+
+    "tutorial": {
+        "LoadErr": "Sorry, cannot load tutorials.",
+        "NotFound": "No Tutorials Found",
+        "SearchHint": "Search for Tutorials",
     },
 
     "aboutModal": {

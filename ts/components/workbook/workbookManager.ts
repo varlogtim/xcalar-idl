@@ -504,15 +504,23 @@ namespace WorkbookManager {
     * uploads a workbook from a file
     * @param workbookName - name of the workbook to upload
     * @param workbookContent - the file being uploaded
+    * @param parsed? - byte string of the workbook's contents. 
+    *     Ignores workbookContent if specified, optional
     */
-    export function uploadWKBK(workbookName: string, workbookContent: File): XDPromise<string> {
+    export function uploadWKBK(workbookName: string, workbookContent: File, parsed?: string): XDPromise<string> {
         let deferred: XDDeferred<string> = PromiseHelper.deferred();
 
         let jupFolderName: string;
         const username: string = XcUser.getCurrentUserName();
         let parsedWorkbookContent: any;
+        let promise;
+        if (parsed != "") {
+            promise = PromiseHelper.resolve(parsed);
+        } else {
+            promise = readFile(workbookContent);
+        }
 
-        readFile(workbookContent)
+        promise
         .then(function(res) {
             parsedWorkbookContent = res;
             return JupyterPanel.newWorkbook(workbookName);

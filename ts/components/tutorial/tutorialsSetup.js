@@ -126,6 +126,10 @@ window.TutorialsSetup = (function($, TutorialsSetup) {
 
         });
 
+        $('#tutorialWorkbookMarketplace').click(function() {
+            MainMenu.openPanel("monitorPanel", "tutorialSettingButton");
+        });
+
         $('#datastoreWT1').click(function() {
             var options = {
                 ignoreHidden: false,

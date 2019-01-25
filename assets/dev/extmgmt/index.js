@@ -16,6 +16,8 @@ jsdom.env("", function(err, window) {
     app.use(bodyParser.json());
     // Invoke the Extension router
     app.use(require('./route/extension.js').router);
+    // Invoke the Tutorial router
+    app.use(require('./route/tutorial.js').router);
     app.get('/extmgmt', (req, res) => {
         res.sendFile(path.join(__dirname + '/static/assets/html/extmgmt.html'));
     })

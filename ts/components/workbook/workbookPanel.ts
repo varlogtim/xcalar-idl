@@ -549,8 +549,10 @@ namespace WorkbookPanel {
     * @param workbookName - the name of the workbook
     * @param description - description of the new workbook, optional
     * @param file - if uploading a workbook the .tar.gz file, optional
+    * @param fileData - byte string of the workbook's contents, optional
     */
-    export function createNewWorkbook(workbookName: string, description?: string, file?: File): XDPromise<void> {
+    export function createNewWorkbook(workbookName: string, description?: string, file?: File,
+            fileData?: string): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         checkFileSize(file)
@@ -559,10 +561,10 @@ namespace WorkbookPanel {
         })
         .then(function() {
             let deferred1: XDPromise<string>;
-            if (!file) {
+            if (!file && !fileData) {
                 deferred1 = WorkbookManager.newWKBK(workbookName);
             } else {
-                deferred1 = WorkbookManager.uploadWKBK(workbookName, file);
+                deferred1 = WorkbookManager.uploadWKBK(workbookName, file, fileData);
             }
             let $sibling: JQuery;
             if (WorkbookManager.getActiveWKBK()) {

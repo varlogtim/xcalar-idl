@@ -724,6 +724,9 @@ namespace xcManager {
             ExtensionPanel.setup();
         })
         .then(() => {
+            TutorialPanel.Instance.setup();
+        })
+        .then(() => {
             return KVStore.restoreUserAndGlobalInfo();
         })
         .then(() => {

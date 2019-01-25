@@ -2151,6 +2151,12 @@ body.xc-setup .workspaceArea {
 #container.switchingWkbk.setupMode #monitorPanel #extension-search {
   display: none;
 }
+#container.workbookMode.monitorMode #monitorPanel #tutorial-search,
+#container.switchingWkbk.monitorMode #monitorPanel #tutorial-search,
+#container.workbookMode.setupMode #monitorPanel #tutorial-search,
+#container.switchingWkbk.setupMode #monitorPanel #tutorial-search {
+  display: none;
+}
 #container.workbookMode.monitorMode #monitorPanel .monitorSection,
 #container.switchingWkbk.monitorMode #monitorPanel .monitorSection,
 #container.workbookMode.setupMode #monitorPanel .monitorSection,

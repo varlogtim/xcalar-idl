@@ -79,6 +79,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
             var $menu = $("#monitorMenu");
             $menu.find(".menuSection").addClass("xc-hidden");
             var $extSearch = $("#extension-search").addClass("xc-hidden");
+            var $tutSearch = $("#tutorial-search").addClass("xc-hidden");
             $monitorPanel.find(".mainContent").scrollTop(0);
             $("#container").removeClass("activePanel-FileManagerPanel");
             $monitorPanel.removeClass("fileManagerMainPanel");
@@ -127,6 +128,13 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     $menu.find(".menuSection.extension").removeClass("xc-hidden");
                     ExtensionPanel.active();
                     title += MonitorTStr.Ext;
+                    break;
+                case ("tutorialSettingButton"):
+                    $("#monitor-tutorial").addClass("active");
+                    $tutSearch.removeClass("xc-hidden");
+                    $menu.find(".menuSection.tutorial").removeClass("xc-hidden");
+                    TutorialPanel.Instance.active();
+                    title += MonitorTStr.Tut;
                     break;
                 case ("fileManagerButton"):
                     $("#monitor-file-manager").addClass("active");
