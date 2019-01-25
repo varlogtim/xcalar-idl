@@ -675,7 +675,10 @@ StatusT = {
   'StatusDatasetAlreadyUnloaded' : 666,
   'StatusUdfModuleFullNameRequired' : 667,
   'StatusCgroupsDisabled' : 668,
-  'StatusCgroupAppInProgress' : 669
+  'StatusCgroupAppInProgress' : 669,
+  'StatusJsonSessSerializeError' : 670,
+  'StatusSessMdataInconsistent' : 671,
+  'StatusRuntimeChangeInProgress' : 672
 };
 StatusTStr = {
   0 : 'Success',
@@ -1347,7 +1350,10 @@ StatusTStr = {
   666 : 'Dataset is already unloaded',
   667 : 'UDF module name must be full path name',
   668 : 'Cgroups APIs have been disabled',
-  669 : 'Cgroups App already in progress'
+  669 : 'Cgroups App already in progress',
+  670 : 'Error in JSON during session serialization',
+  671 : 'Possible inconsistency in session metadata',
+  672 : 'Setting Runtime configuration already in progress'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -2019,5 +2025,8 @@ StatusTFromStr = {
   'Dataset is already unloaded' : 666,
   'UDF module name must be full path name' : 667,
   'Cgroups APIs have been disabled' : 668,
-  'Cgroups App already in progress' : 669
+  'Cgroups App already in progress' : 669,
+  'Error in JSON during session serialization' : 670,
+  'Possible inconsistency in session metadata' : 671,
+  'Setting Runtime configuration already in progress' : 672
 };

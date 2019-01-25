@@ -24,7 +24,8 @@ DfFieldTypeT = {
   'DfScalarObj' : 15,
   'DfOpRowMetaPtr' : 16,
   'DfArray' : 17,
-  'DfObject' : 18
+  'DfObject' : 18,
+  'DfMoney' : 19
 };
 DfFormatTypeT = {
   'DfFormatUnknown' : 0,
@@ -52,7 +53,8 @@ DfFieldTypeTStr = {
   15 : 'DfScalarObj',
   16 : 'DfOpRowMetaPtr',
   17 : 'DfArray',
-  18 : 'DfObject'
+  18 : 'DfObject',
+  19 : 'DfMoney'
 };
 DfFieldTypeTFromStr = {
   'DfUnknown' : 0,
@@ -73,7 +75,8 @@ DfFieldTypeTFromStr = {
   'DfScalarObj' : 15,
   'DfOpRowMetaPtr' : 16,
   'DfArray' : 17,
-  'DfObject' : 18
+  'DfObject' : 18,
+  'DfMoney' : 19
 };
 DfFormatTypeTStr = {
   0 : 'unknown',

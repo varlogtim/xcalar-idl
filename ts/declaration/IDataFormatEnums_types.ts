@@ -17,7 +17,8 @@ declare enum DfFieldTypeT {
     DfScalarObj,
     DfOpRowMetaPtr,
     DfArray,
-    DfObject
+    DfObject,
+    DfMoney
 }
 
 declare enum DfFormatTypeT {
