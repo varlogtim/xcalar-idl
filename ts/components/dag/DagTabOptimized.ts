@@ -1,5 +1,5 @@
 class DagTabOptimized extends DagTab {
-    public static readonly PATH = "Optimized Dataflows/";
+    public static readonly PATH = "Optimized Dataflows(SDK Use Only)/";
     public static readonly retinaCheckInterval = 2000;
     protected _dagGraph: DagSubGraph;
     private _isDoneExecuting: boolean;
