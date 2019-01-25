@@ -410,6 +410,7 @@ ErrTStr = {
     'InvalidDFDownload': 'Invalid dataflow to download',
     'UnsaveDFDownload': 'Cannot download unsaved dataflow. Please save changes first',
     "NoPrimaryKey": "Published tables must have a primary key.",
+    'DsNotFound': 'Result not found. It may be caused by dataflow change or errors in the dataflow, please reconfigure the node and try execute again.'
 };
 
 ErrWRepTStr = {

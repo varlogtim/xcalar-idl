@@ -721,6 +721,7 @@ declare enum StatusT {
     StatusSessListIncomplete,
     StatusRetinaAlreadyExists,
     StatusRetinaInUse
+    StatusDsNotFound
 }
 
 declare enum FunctionCategoryT {
