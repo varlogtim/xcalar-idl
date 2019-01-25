@@ -42,6 +42,17 @@
                 const prepIdxMap = {};
                 for (let i = 0; i < prepArray.length; i++) {
                     prepIdxMap[prepArray[i].args.dest] = i;
+                    if (prepArray[i].operation === "XcalarApiSynthesize") {
+                        for (let j = 0; j < prepArray[i].args.columns.length; j++) {
+                            if (prepArray[i].args.columns[j].destColumn !=
+                                prepArray[i].args.columns[j].destColumn.toUpperCase()) {
+                                prepArray[i].args.columns[j].destColumn =
+                                prepArray[i].args.columns[j].destColumn.toUpperCase();
+                                console.error("Lower case column found: " +
+                                        prepArray[i].args.columns[j].destColumn);
+                            }
+                        }
+                    }
                 }
                 const visitedMap = {};
                 var nodesNeedReorder = [];
