@@ -1,4 +1,5 @@
 const EventEmitter = require('events');
+const execFunctions = require('../lib/execFunctions');
 
 class SubmitAdvancedPanel extends EventEmitter {
     command(panelSelector, config, cb) {
@@ -11,20 +12,17 @@ class SubmitAdvancedPanel extends EventEmitter {
 
             let self = this;
             this.api.waitForElementVisible(panelSelector + " .advancedEditor", 1000)
-            .execute(function(panelSelector, config) {
-                let codeMirror = document.querySelectorAll(panelSelector + ' .CodeMirror')[0].CodeMirror;
-                codeMirror.setValue(config);
-                let id = "#" + document.querySelector(panelSelector).id;
-                return id;
-            }, [panelSelector, config], function(result) {
-                let panelId = result.value;
+            .execute(execFunctions.setAdvancedConfig, [panelSelector, config],
+                function(result) {
+                    let panelId = result.value;
 
-                self.api
-                .click(panelId + ' .submit')
-                .waitForElementNotVisible(panelId, 1000);
+                    self.api
+                    .click(panelId + ' .submit')
+                    .waitForElementNotVisible(panelId, 1000);
 
-                self.emit('complete');
-            });
+                    self.emit('complete');
+                }
+            );
 
         });
 

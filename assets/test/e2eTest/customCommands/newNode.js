@@ -1,23 +1,39 @@
 const EventEmitter = require('events');
+const execFunctions = require('../lib/execFunctions');
 
 class NewNode extends EventEmitter {
     command(selector, x, y, cb) {
-        let dfAreaCoors;
+        const commandResult = { ELEMENT: null, nodeId: null };
         this.api
-            .getLocation("#dagView .dataflowMainArea", function(result) {
-                dfAreaCoors = result.value;
-            })
-            .getLocation(selector, (result) => {
-                let offset = {
-                    x: result.value.x - dfAreaCoors.x,
-                    y: result.value.y - dfAreaCoors.y
-                };
+            .execute(execFunctions.getDagViewScroll, [], ({value: scroll}) => {
                 this.api.moveToElement(selector, 0, 10)
-                .mouseButtonDown("left")
-                .moveTo(null, x - offset.x, y - offset.y - 10)
-                .mouseButtonUp("left");
+                    .mouseButtonDown("left")
+                    .moveToElement('#dagView .dataflowMainArea',
+                        x - scroll.left,
+                        y - scroll.top
+                    )
+                    .mouseButtonUp("left")
+                    .waitForElementPresent('.dataflowArea.active .operator.selected', 10);
+
+                    this.api.element(
+                        'css selector',
+                        '.dataflowArea.active .operator.selected',
+                        (element) => {
+                            commandResult.ELEMENT = element.value.ELEMENT;
+                        }
+                    )
+                    .perform(() => {
+                        this.api.elementIdAttribute(commandResult.ELEMENT, 'data-nodeid', ({value}) => {
+                            commandResult.nodeId = value;
+                        });
+                    });
             });
 
+        this.api.perform(() => {
+            if (cb) {
+                cb(commandResult);
+            }
+        })
         this.emit('complete');
 
         return this;

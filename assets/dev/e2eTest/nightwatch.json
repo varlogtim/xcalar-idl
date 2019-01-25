@@ -1,5 +1,6 @@
 {
-    "src_folders" : ["../../test/e2eTest/dataflowReplayTest.js"],
+    "src_folders" : ["../../test/e2eTest/"],
+    "filter" : "*.js",
     "custom_commands_path": ["../../test/e2eTest/customCommands"],
     "webdriver" : {
       "start_process": true,
