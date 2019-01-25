@@ -524,7 +524,7 @@ class DagNodeSQL extends DagNode {
     }
 
     // === Copied from derived conversion
-    private _getDerivedCol(col: ProgCol): ColRenameInfo {
+    private _getDerivedCol(col: ColSchema): ColRenameInfo {
         // convert prefix field of primitive type to derived
         if (col.type !== 'integer' && col.type !== 'float' &&
             col.type !== 'boolean' && col.type !== 'timestamp' &&
@@ -533,71 +533,23 @@ class DagNodeSQL extends DagNode {
             return;
         }
         const colInfo: ColRenameInfo = {
-            orig: col.backName,
-            new: this._getDerivedColName(col.backName).toUpperCase(),
-            type: xcHelper.convertColTypeToFieldType(col.type as ColumnType)
+            orig: col.name,
+            new: this._getDerivedColName(col.name).toUpperCase(),
+            type: xcHelper.convertColTypeToFieldType(col.type)
         };
         return colInfo;
     }
 
-    private _finalizeTable(sourceId: number): XDPromise<any> {
-        if (this.getParents().length < sourceId) {
-            return PromiseHelper.reject("Node connection doesn't exist");
-        }
+    private _getSynthesize(
+        colInfos: ColRenameInfo[],
+        srcTableName: string
+    ): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
-        const srcTable = this.getParents()[sourceId - 1];
-        const srcTableName = srcTable.getTable() ||
-                     xcHelper.randName("sqlTable") + Authentication.getHashId();
-        let pubTableName;
-        if (srcTable instanceof DagNodeIMDTable) {
-            pubTableName = srcTable.getSource().toUpperCase();
-        }
-
-        const cols = srcTable.getLineage().getColumns();
-        let colInfos: ColRenameInfo[] = [];
-        const remainCols: ColRenameInfo[] = [];
-
-        const schema = [];
-        for (let i = 0; i < cols.length; i++) {
-            const col = cols[i];
-            if (col.name === "DATA") {
-                continue;
-            }
-            const colInfo = this._getDerivedCol(col);
-            if (!colInfo) {
-                var colName = col.backName === ""? col.name : col.backName;
-                deferred.reject(SQLErrTStr.InvalidColTypeForFinalize
-                                + colName + "(" + col.type + ")");
-                return deferred.promise();
-            }
-            if (colInfo.new !== colInfo.orig) {
-                // otherwise nothing to finalize
-                colInfos.push(colInfo);
-            } else {
-                remainCols.push(colInfo)
-            }
-            const schemaStruct = {};
-            schemaStruct[colInfo.new] = col.type;
-            schema.push(schemaStruct);
-        }
-        let cliArray = [];
-        if (colInfos.length === 0) {
-            const ret = {
-                finalizedTableName: srcTableName,
-                cliArray: cliArray,
-                schema: schema,
-                srcTableName: srcTableName,
-                pubTableName: pubTableName
-            }
-            return PromiseHelper.resolve(ret);
-        } else {
-            colInfos = colInfos.concat(remainCols);
-        }
-
         let txId = Transaction.start({
             "operation": "SQL Simulate",
             "simulate": true
         });
+        let cliArray = [];
         XIApi.synthesize(txId, colInfos, srcTableName)
         .then(function(finalizedTableName) {
             cliArray.push(Transaction.done(txId, {
@@ -606,10 +558,7 @@ class DagNodeSQL extends DagNode {
             }));
             const ret = {
                 finalizedTableName: finalizedTableName,
-                cliArray: cliArray,
-                schema: schema,
-                srcTableName: srcTableName,
-                pubTableName: pubTableName
+                cliArray: cliArray
             }
             deferred.resolve(ret);
         })
@@ -620,25 +569,115 @@ class DagNodeSQL extends DagNode {
             });
             deferred.reject(SQLErrTStr.FinalizingFailed);
         });
+        return deferred.promise();
+    }
+
+    private _finalizeTable(
+        sourceId: number,
+        srcTableName?: string,
+        columns?: ColSchema[]
+    ): XDPromise<any> {
+        const deferred = PromiseHelper.deferred();
+        let pubTableName;
+        let cols;
+        if (sourceId != null) {
+            if (this.getParents().length < sourceId) {
+                return PromiseHelper.reject("Node connection doesn't exist");
+            }
+            const srcTable = this.getParents()[sourceId - 1];
+            srcTableName = srcTable.getTable() ||
+                         xcHelper.randName("sqlTable") + Authentication.getHashId();
+            if (srcTable instanceof DagNodeIMDTable) {
+                pubTableName = srcTable.getSource().toUpperCase();
+            }
+            cols = srcTable.getLineage().getColumns();
+        } else {
+            cols = columns;
+        }
+
+        let colInfos: ColRenameInfo[] = [];
+        const remainCols: ColRenameInfo[] = [];
+
+        const schema = [];
+        const colNameMap = {};
+        for (let i = 0; i < cols.length; i++) {
+            let col = cols[i];
+            if (sourceId != null) {
+                const progCol = cols[i];
+                if (progCol.name === "DATA") {
+                    continue;
+                }
+                col = {
+                    name: progCol.backName,
+                    type: progCol.type as ColumnType
+                }
+            }
+            const colInfo = this._getDerivedCol(col);
+            if (!colInfo) {
+                deferred.reject(SQLErrTStr.InvalidColTypeForFinalize
+                                + col.name + "(" + col.type + ")");
+                return deferred.promise();
+            }
+            if (colInfo.new !== colInfo.orig) {
+                // otherwise nothing to finalize
+                colInfos.push(colInfo);
+            } else {
+                remainCols.push(colInfo)
+            }
+            if (colNameMap[colInfo.new]) {
+                deferred.reject("Ambiguous column: " + colInfo.orig + ", " +
+                                colNameMap[colInfo.new]);
+                return deferred.promise();
+            }
+            colNameMap[colInfo.new] = colInfo.orig;
+            const schemaStruct = {};
+            schemaStruct[colInfo.new] = col.type;
+            schema.push(schemaStruct);
+        }
+        if (colInfos.length === 0) {
+            const ret = {
+                finalizedTableName: srcTableName,
+                cliArray: [],
+                schema: schema,
+                srcTableName: srcTableName,
+                pubTableName: pubTableName
+            }
+            return PromiseHelper.resolve(ret);
+        } else {
+            colInfos = colInfos.concat(remainCols);
+        }
+        this._getSynthesize(colInfos, srcTableName)
+        .then((ret) => {
+            const finalizeStruct = {
+                finalizedTableName: ret.finalizedTableName,
+                cliArray: ret.cliArray,
+                schema: schema,
+                srcTableName: srcTableName,
+                pubTableName: pubTableName
+            }
+            deferred.resolve(finalizeStruct);
+        })
+        .fail(deferred.reject);
 
         return deferred.promise();
     }
 
     private _finalizeAndGetSchema(
         sourceId: number,
-        tableName: string
+        sqlTableName: string,
+        srcTableName?: string,
+        columns?: ColSchema[]
     ): XDPromise<any> {
         var deferred = PromiseHelper.deferred();
-        this._finalizeTable(sourceId)
+        this._finalizeTable(sourceId, srcTableName, columns)
         .then(function(ret) {
-            const finalizedTableName = ret.finalizedTableName;
             const schema = ret.schema;
             var tableMetaCol = {};
-            tableMetaCol["XC_TABLENAME_" + finalizedTableName] = "string";
+            tableMetaCol["XC_TABLENAME_" + ret.finalizedTableName] = "string";
             schema.push(tableMetaCol);
 
             const structToSend: SQLSchema = {
-                tableName: tableName.toUpperCase(),
+                tableName: sqlTableName.toUpperCase(),
                 tableColumns: schema
             }
 
@@ -647,7 +686,8 @@ class DagNodeSQL extends DagNode {
                 cliArray: ret.cliArray,
                 structToSend: structToSend,
                 srcTableName: ret.srcTableName,
-                pubTableName: ret.pubTableName
+                pubTableName: ret.pubTableName,
+                finalizedTableName: ret.finalizedTableName
             }
             deferred.resolve(retStruct);
         })
@@ -791,7 +831,7 @@ class DagNodeSQL extends DagNode {
         }
         const key = Object.keys(sqlFunc)[0];
         if (visitedMap.hasOwnProperty(key)) {
-            return PromiseHelper.resolve();
+            return PromiseHelper.resolve(visitedMap[key]);
         }
         const funcName = sqlFunc[key].funcName;
         // list all functions and check if funcName is there
@@ -801,6 +841,7 @@ class DagNodeSQL extends DagNode {
         const deferred = PromiseHelper.deferred();
         const args = sqlFunc[key].arguments;
         const newIdentifier = sqlFunc[key].newTableName;
+        const promises = [];
         for (const arg of args) {
             const identifier = Object.keys(arg)[0];
             if (visitedMap.hasOwnProperty(identifier)) {
@@ -813,21 +854,25 @@ class DagNodeSQL extends DagNode {
                 }
                 inputTableNames.push(selectTableMap[identifier]);
             } else {
-                return PromiseHelper.reject("Nested SQL functions not suppported");
-                // XXX Not supported
-                // const newSqlFunc = {identifier: arg[identifier]};
-                // var promise = this._getSchemasAndQueriesFromSqlFuncs(newSqlFunc,
-                //                                                      allQueries,
-                //                                                      allSchemas,
-                //                                                      visitedMap)
-                //             .then((newTableName) => {
-                //                 inputTableNames.push(newTableName)
-                //             })
+                const newSqlFunc = {identifier: arg[identifier]};
+                promises.push(this._getSchemasAndQueriesFromSqlFuncs(newSqlFunc,
+                                                                     allQueries,
+                                                                     allSchemas,
+                                                                     selectTableMap,
+                                                                     visitedMap));
             }
         }
         const tempTab = DagTabSQLFunc.getFunc(funcName);
         let newTableName;
-        tempTab.getQuery(inputTableNames)
+        PromiseHelper.when(...promises)
+        .then((...tableNames) => {
+            for (const tableName of tableNames) {
+                if (tableName) {
+                    inputTableNames.push(tableName);
+                }
+            }
+            return tempTab.getQuery(inputTableNames);
+        })
         .then((queries, tableName) => {
             visitedMap[key] = tableName;
             newTableName = tableName;
@@ -837,22 +882,16 @@ class DagNodeSQL extends DagNode {
             return tempTab.getSchema();
         })
         .then((columns) => {
-            const tableColumns = []; // for sendSchema
-            columns.forEach((column) => {
-                const upperName = column.name.toUpperCase();
-                const colStruct = {};
-                colStruct[upperName] = column.type;
-                tableColumns.push(colStruct);
-            });
-            const tableNameCol = {};
-            tableNameCol["XC_TABLENAME_" + newTableName] = "string";
-            tableColumns.push(tableNameCol);
-            const schemaToSend: SQLSchema = {
-                tableName: newIdentifier,
-                tableColumns: tableColumns
-            }
-            allSchemas.push(schemaToSend);
-            deferred.resolve();
+            return this._finalizeAndGetSchema(undefined, newIdentifier,
+                                              newTableName, columns);
+        })
+        .then((ret) => {
+            const cliArray = ret.cliArray;
+            cliArray.forEach((query) => {
+                allQueries.push(query);
+            })
+            allSchemas.push(ret.structToSend);
+            deferred.resolve(ret.finalizedTableName);
         })
         .fail(deferred.reject);
         return deferred.promise();
