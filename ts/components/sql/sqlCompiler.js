@@ -4276,7 +4276,7 @@
             deferred.resolve({newTableName: tableName, cli: ""});
         } else {
             var newTableName = xcHelper.getTableName(tableName) +
-                            Authentication.getHashId();
+                                            Authentication.getHashId();
             var colNameSet = new Set();
             node.usrCols.concat(node.xcCols).concat(node.sparkCols)
             .map(function (col) {
@@ -4590,7 +4590,7 @@
         windowStruct.cli += ret.cli;
         windowStruct.gbTableName  = "XC_GB_Table"
                     + xcHelper.getTableId(windowStruct.origTableName) + "_"
-                    + Authentication.getHashId().substring(3);
+                    + Authentication.getHashId();
         if (!windowStruct.tempGBCols) {
             windowStruct.tempGBCols = [];
             for (var i = 0; i < operators.length; i++) {

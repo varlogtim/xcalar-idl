@@ -163,6 +163,8 @@ class SQLEditorSpace {
             let sqlArray: string[] = XDParser.SqlParser.getMultipleQueriesViaParser(sqls);
             let selectArray: string[] = [];
             let lastShow: any = {type: "select"};
+            let executorArray: SQLExecutor[] = [];
+            let promiseArray: XDPromise<any>[] = [];
             sqlArray.forEach((sql) => {
                 let retStruct: any = XDParser.SqlParser.getPreStatements(sql);
                 if (retStruct.type != "select") {
@@ -190,22 +192,47 @@ class SQLEditorSpace {
             }
             selectArray.forEach((sql, i) => {
                 let executor = new SQLExecutor(sql);
-                let callback = null;
-                if (i === selectArray.length - 1) {
-                    callback = (tableName, succeed, options) => {
-                        this._removeExecutor(executor);
-                        if (succeed) {
-                            this._showTable(tableName, options);
-                        }
-                    };
-                } else {
-                    callback = () => {
-                        this._removeExecutor(executor);
-                    };
-                }
-                executor.execute(callback);
                 this._addExecutor(executor);
+                executorArray.push(executor);
+                promiseArray.push(this._executeStatement.bind(this,
+                                  executorArray[i], i, selectArray.length));
             });
+            PromiseHelper.chain(promiseArray);
+        } catch (e) {
+            console.error(e);
+            let error: string;
+            if (e instanceof Error) {
+                error = e.message;
+            } else if (typeof e === "string") {
+                error = e;
+            } else {
+                error = JSON.stringify(e);
+            }
+            let $btn = this._getEditorSpaceEl().find(".bottomSection .execute");
+            StatusBox.show(error, $btn);
+        }
+    }
+
+    private _executeStatement(curExecutor: SQLExecutor,
+                              i: number, statementCount: number) {
+        try {
+            let callback = null;
+            let deferred: XDDeferred<void> = PromiseHelper.deferred();
+            if (i === statementCount - 1) {
+                callback = (tableName, succeed, options) => {
+                    this._removeExecutor(curExecutor);
+                    if (succeed) {
+                        this._showTable(tableName,options);
+                    }
+                };
+            } else {
+                callback = () => {
+                    this._removeExecutor(curExecutor);
+                };
+            }
+            curExecutor.execute(callback)
+            .always(deferred.resolve);
+            return deferred.promise();
         } catch (e) {
             console.error(e);
             let error: string;
@@ -234,7 +261,6 @@ class SQLEditorSpace {
         }
     }
 
-    // XXX TODO, reuse in sqlQueryHistoryPanel
     private _showTable(tableName: string, options?: any): void {
         let tableId = xcHelper.getTableId(tableName);
         if (!tableId) {
