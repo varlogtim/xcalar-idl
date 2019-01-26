@@ -208,6 +208,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
         let $location: JQuery = null;
         let error: string = "";
 
+        
         if (!xcHelper.tableNameInputChecker(this._$nameInput)) {
             error = ErrTStr.InvalidTableName;
             $location = this._$nameInput;
@@ -340,6 +341,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
                 keys = newModel.primaryKeys;
                 operator = newModel.operator;
                 name = newModel.pubTableName;
+                this._$nameInput.val(name);
             } catch (e) {
                 StatusBox.show(e, $("#publishIMDOpPanel .advancedEditor"),
                     false, {'side': 'right'});
