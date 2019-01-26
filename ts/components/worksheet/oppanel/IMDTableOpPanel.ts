@@ -297,6 +297,11 @@ class IMDTableOpPanel extends BaseOpPanel {
         });
         expList.setupListeners();
 
+        this._$pubTableInput.on('blur',function(e) {
+            self._changeSelectedTable(self._$pubTableInput.val());
+            self._renderVersions();
+        })
+
         $('#IMDTableOpPanel .tableVersion .checkbox').on("click", function(event) {
             event.stopPropagation();
             let $box: JQuery = $(this);
