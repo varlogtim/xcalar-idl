@@ -771,7 +771,6 @@ namespace XIApi {
                 evalStrs.push(getGroupByAggEvalStr(aggArg));
                 newColNames.push(aggArg.newColName);
             });
-            console.log(evalStrs);
             return groupByHelper(txId, newColNames, evalStrs, newIndexTable,
             gbTableName, false, false, newGroupOnCols[0], groupAll);
         })
@@ -1604,7 +1603,7 @@ namespace XIApi {
             checkIfTableExists(indexCache.tableName)
             .then((exist) => {
                 if (!exist) {
-                    // when not exist, index the source table 
+                    // when not exist, index the source table
                     console.info("cached table not eixst", indexCache.tableName);
                     SQLApi.deleteIndexTable(indexCache.tableName);
                     return indexFunc();

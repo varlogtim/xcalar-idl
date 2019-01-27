@@ -587,7 +587,8 @@ namespace DagNodeMenu {
         if (dagNode instanceof DagNodeOutOptimizable &&
             (dagNode.getState() === DagNodeState.Complete ||
             dagNode.getState() === DagNodeState.Running ||
-            dagNode.getState() === DagNodeState.Configured)) {
+            dagNode.getState() === DagNodeState.Configured ||
+            dagNode.getState() === DagNodeState.Error)) {
             $menu.find(".viewOptimizedDataflow").removeClass("xc-hidden");
         } else {
             $menu.find(".viewOptimizedDataflow").addClass("xc-hidden");
@@ -670,7 +671,8 @@ namespace DagNodeMenu {
         if (state === DagNodeState.Complete) {
             $menu.find(".resetNode").removeClass("unavailable");
         } else {
-            if (state === DagNodeState.Configured && dagNode instanceof DagNodeOutOptimizable) {
+            if (dagNode instanceof DagNodeOutOptimizable && (state === DagNodeState.Configured ||
+                state === DagNodeState.Error)) {
                 $menu.find(".resetNode").removeClass("unavailable");
             } else {
                 $menu.find(".resetNode").addClass("unavailable");

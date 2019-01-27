@@ -4865,13 +4865,11 @@ namespace DagView {
 
     export function endOptimizedDFProgress(queryName: string, queryStateOutput) {
         let tab: DagTabOptimized = <DagTabOptimized>DagTabManager.Instance.getTabById(queryName);
-        let graph: DagSubGraph;
         if (!tab) {
             return;
         }
         DagView.updateOptimizedDFProgress(queryName, queryStateOutput);
-        graph = tab.getGraph();
-        graph.endProgress(queryStateOutput.queryState, queryStateOutput.elapsed.milliseconds);
+        tab.getGraph().endProgress(queryStateOutput.queryState, queryStateOutput.elapsed.milliseconds);
         // TODO display finished state
     }
 

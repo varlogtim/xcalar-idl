@@ -10,7 +10,7 @@ abstract class DagNode {
     private title: string;
     private table: string;
     private state: DagNodeState;
-    private error: string;
+    protected error: string;
     private configured: boolean;
     private numParent: number; // non-persisent
     private hasTitleChange: boolean;
@@ -1191,7 +1191,7 @@ abstract class DagNode {
         return this.maxParents === -1;
     }
 
-    private _setState(state: DagNodeState): void {
+    protected _setState(state: DagNodeState): void {
         const oldState: DagNodeState = this.state;
         this.state = state;
         if (state !== DagNodeState.Complete &&

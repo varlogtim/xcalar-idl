@@ -672,6 +672,8 @@ class DagGraphExecutor {
         return deferred.promise();
     }
 
+    // given retinaParameters, we create the retina, then create a tab which
+    // becomes focused and checks and updates node progress
     private _executeOptimizedDataflow(retinaParameters): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
         let outputTableName: string = "";
@@ -679,11 +681,8 @@ class DagGraphExecutor {
         let retinaName: string = retinaParameters.retinaName;
         let subGraph: DagSubGraph;
         const udfContext = this._getUDFContext();
-        const parentTabId: string = this._graph.getTabId();
-        const parentTab: DagTab = DagTabManager.Instance.getTabById(parentTabId);
-        let dfOutName: string = this._isOptimizedActiveSession ?
-                        this._optimizedLinkOutNode.getParam().name : "export";
-        let tabName: string = parentTab.getName() + " " + dfOutName + " optimized";
+        const tabName: string = this._getOptimizedDataflowTabName();
+        let tab: DagTabOptimized;
 
         let txId: number = Transaction.start({
             operation: "optimized df",
@@ -702,7 +701,7 @@ class DagGraphExecutor {
 
              // create tab and pass in nodes to store for progress updates
             const parentTabId: string = this._graph.getTabId();
-            const tab: DagTabOptimized = DagTabManager.Instance.newOptimizedTab(retinaName,
+            tab = DagTabManager.Instance.newOptimizedTab(retinaName,
                                                 tabName, retina.query, this);
             subGraph = tab.getGraph();
             outputTableName = this._isOptimizedActiveSession ?
@@ -722,7 +721,7 @@ class DagGraphExecutor {
         .then((_res) => {
             this._executeInProgress = false;
             // get final stats on each node
-            this._getAndUpdateRetinaStatuses(retinaName, true)
+            tab.endStatusCheck()
             .always(() => {
                 deferred.resolve(outputTableName);
             });
@@ -759,10 +758,21 @@ class DagGraphExecutor {
 
             if (this._executeInProgress) {
                 this._executeInProgress = false;
-                this._getAndUpdateRetinaStatuses(retinaName, false)
-                .always((_queryOutput) => {
+                tab.endStatusCheck()
+                .always(() => {
+                    let msg = "";
+                    if (error) {
+                        msg = error.error;
+                    }
+                    if (this._isOptimizedActiveSession) {
+                        this._optimizedLinkOutNode.beErrorState(msg, true);
+                    } else {
+                        this._optimizedExportNodes.forEach((node) => {
+                            node.beErrorState(msg, true);
+                        });
+                    }
                     if (error && error.status === StatusT.StatusCanceled) {
-                         XcalarDeleteRetina(retinaName);
+                        XcalarDeleteRetina(retinaName);
                     }
                     deferred.reject(error);
                 });
@@ -777,6 +787,15 @@ class DagGraphExecutor {
         });
 
         return deferred.promise();
+    }
+
+    private _getOptimizedDataflowTabName() {
+        const parentTabId: string = this._graph.getTabId();
+        const parentTab: DagTab = DagTabManager.Instance.getTabById(parentTabId);
+        let dfOutName: string = this._isOptimizedActiveSession ?
+                        this._optimizedLinkOutNode.getParam().name : "export";
+        let tabName: string = parentTab.getName() + " " + dfOutName + " optimized";
+        return tabName;
     }
 
     private _dedupLoads(operations: any[]): any[] {
@@ -890,26 +909,6 @@ class DagGraphExecutor {
             return XcalarGetRetinaJson(params.retinaName);
         })
         .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-
-    private _getAndUpdateRetinaStatuses(
-        retinaName: string,
-        success?: boolean
-    ): XDPromise<any> {
-        const deferred = PromiseHelper.deferred();
-        XcalarQueryState(retinaName)
-        .then((queryStateOutput) => {
-            if (success) {
-                DagView.endOptimizedDFProgress(retinaName, queryStateOutput);
-            } else {
-                DagView.updateOptimizedDFProgress(retinaName, queryStateOutput);
-            }
-            deferred.resolve(queryStateOutput);
-        })
         .fail(deferred.reject);
 
         return deferred.promise();

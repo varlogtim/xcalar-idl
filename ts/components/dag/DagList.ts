@@ -506,14 +506,14 @@ class DagList {
                 if (!retina.retinaName.startsWith(gRetinaPrefix)) {
                     let newTab = true;
                     if (oldDags.has(retina.retinaName)) {
-                        const oldDag = oldDags.get(retina.retinaName);
-                        if (DagTabManager.Instance.getTabById(oldDag.getId())) {
+                        const oldDagTab: DagTabOptimized = oldDags.get(retina.retinaName);
+                        if (DagTabManager.Instance.getTabById(oldDagTab.getId())) {
                             newTab = false;
-                            this._dags.set(oldDag.getId(), oldDag);
-                            if (oldDag.isFocused()) {
+                            this._dags.set(oldDagTab.getId(), oldDagTab);
+                            if (oldDagTab.isFocused()) {
                                 // restarts status check
-                                oldDag.unfocus();
-                                oldDag.focus();
+                                oldDagTab.unfocus();
+                                oldDagTab.focus();
                             }
                         }
                     }

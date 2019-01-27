@@ -13,8 +13,17 @@ class DagNodeOutOptimizable extends DagNodeOut {
         return null;
     }
 
-    protected _clearConnectionMeta(): void {
-        this._removeRetina();
+    public beErrorState(error?: string, keepRetina?: boolean): void {
+        this.error = error || this.error;
+        this._setState(DagNodeState.Error);
+        this._clearConnectionMeta(keepRetina);
+    }
+
+
+    protected _clearConnectionMeta(keepRetina?: boolean): void {
+        if (!keepRetina) {
+            this._removeRetina();
+        }
         super._clearConnectionMeta();
     }
 

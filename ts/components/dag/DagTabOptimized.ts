@@ -9,6 +9,9 @@ class DagTabOptimized extends DagTab {
     private _retinaName: string;
     private _hasQueryStateGraph: boolean;
     private _executor: DagGraphExecutor;
+    private _inProgress: boolean; // will be true if tab is created when executeRetina
+    // is called. If this flag is true, we don't stop checking progress until
+    // executeRetina turns it off
 
     constructor(options: {
         id: string,
@@ -26,6 +29,9 @@ class DagTabOptimized extends DagTab {
             const graph = this._constructGraphFromQuery(queryNodes);
             graph.startExecution(queryNodes, executor);
             this._executor = executor;
+            this._inProgress = true;
+        } else {
+            this._inProgress = false;
         }
         if (this._id.startsWith(gRetinaPrefix)) {
             this._retinaName = this._id;
@@ -34,16 +40,12 @@ class DagTabOptimized extends DagTab {
         }
     }
 
-    public setName(newName: string): void {
-        super.setName(newName);
-    }
-
     public getPath(): string {
         return DagTabOptimized.PATH + this.getName();
     }
 
     /**
-     * Saves this Tab in the kvStore
+     * Do not save this Tab in the kvStore
      */
     public save(): XDPromise<void> {
         return PromiseHelper.resolve();
@@ -95,13 +97,12 @@ class DagTabOptimized extends DagTab {
         if (this._isDoneExecuting) {
             return;
         }
-
         this._statusCheckInterval(true);
     }
 
     public unfocus() {
-        this._isFocused = false;
         this._queryCheckId++;
+        this._isFocused = false;
     }
 
     public isFocused() {
@@ -125,8 +126,9 @@ class DagTabOptimized extends DagTab {
         return deferred.promise();
     }
 
-    public isInProgress(): boolean {
-        return !this._isDoneExecuting;
+    public endStatusCheck(): XDPromise<any> {
+        this._inProgress = false;
+        return this._getAndUpdateRetinaStatuses();
     }
 
     private _constructGraphFromQuery(queryNodes: any[]): DagSubGraph {
@@ -187,7 +189,7 @@ class DagTabOptimized extends DagTab {
                 return; // retina is finished or unfocused, no more checking
             }
 
-            this._getAndUpdateRetinaStatuses(firstRun)
+            this._getAndUpdateRetinaStatuses()
             .always((_ret) => {
                 if (this._isDoneExecuting || !this._isFocused || this._isDeleted) {
                     return; // retina is finished or unfocused, no more checking
@@ -199,7 +201,7 @@ class DagTabOptimized extends DagTab {
         }, checkTime);
     }
 
-    private _getAndUpdateRetinaStatuses(firstRun?: boolean): XDPromise<any> {
+    private _getAndUpdateRetinaStatuses(): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
 
         const checkId = this._queryCheckId;
@@ -219,6 +221,7 @@ class DagTabOptimized extends DagTab {
             }
             this._isDoneExecuting = queryStateOutput.queryState !== QueryStateT.qrProcessing;
             if (this._isDoneExecuting) {
+                this._inProgress = false;
                 DagView.endOptimizedDFProgress(this._id, queryStateOutput);
                 this._dagGraph.setExecutor(null);
                 if (this._isFocused) {
@@ -239,8 +242,8 @@ class DagTabOptimized extends DagTab {
             deferred.resolve(queryStateOutput);
         })
         .fail((error) => {
-            if (firstRun) {
-                // ok to fail on the first time if query doesn't exist yet
+            if (this._inProgress && error.status === StatusT.StatusQrQueryNotExist) {
+                // ok to fail if query doesn't exist yet
                 deferred.resolve();
             } else {
                 this._isDoneExecuting = true;
