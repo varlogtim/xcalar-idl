@@ -370,6 +370,10 @@ class DagGraphExecutor {
                 }
             });
 
+            if (nodesToRun.length === 0 && this._nodes.length !== 0) {
+                return PromiseHelper.reject(DFTStr.AllExecuted);
+            }
+
             const promises: XDDeferred<void>[] = [];
             const execErrors = [];
             for (let i = 0; i < nodesToRun.length; i++) {
@@ -746,7 +750,7 @@ class DagGraphExecutor {
             if (txId != null) {
                 if (error &&
                     error.status === StatusT.StatusRetinaAlreadyExists) {
-                    error.error += "\nReset the optimized node and select " +
+                    error.error = "The optimized result already exists\nReset the optimized node and select " +
                         "Execute Optimized to re-execute";
                 }
                 Transaction.fail(txId, {
