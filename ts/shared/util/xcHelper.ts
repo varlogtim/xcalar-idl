@@ -1839,6 +1839,22 @@ namespace xcHelper {
                 return ColumnType.mixed;
         }
     }
+    export function convertSQLTypeToColType(type: string): ColumnType {
+        switch(type) {
+            case "int":
+                return ColumnType.integer;
+            case "bool":
+                return ColumnType.boolean;
+            case "float":
+                return ColumnType.float;
+            case "timestamp":
+                return ColumnType.timestamp;
+            case "string":
+                return ColumnType.string;
+            default:
+                return ColumnType.unknown;
+        }
+    }
 
     var successTimers: SuccessTimer = <SuccessTimer>{};
 

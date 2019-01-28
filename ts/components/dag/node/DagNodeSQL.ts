@@ -257,33 +257,82 @@ class DagNodeSQL extends DagNode {
         super.setParam(null, noAutoExecute);
     }
 
-    public lineageChange(_columns, replaceParameters?: boolean): DagLineageChange {
-        if (this.columns == null) {
-            return {
-                columns: [],
-                changes: []
-            }
+    /**
+     * DFS to get lineage changes from sub graph 
+     * @param columnMapList a column map {finalColName: [finalProgColumn, changedFlag]} wrapped with a list
+     * @param node current node
+     */
+    private _backTraverseColumnChanges(columnMapList: {}[], node: DagNode) {
+        // Traverse all lineage changes excluding a -> null and null -> a
+        const oldColumnMap = columnMapList[0];
+        const newColumnMap = Object.assign({}, oldColumnMap);
+        const lineage = node.getLineage();
+        if (lineage != null) {
+            const changes = lineage.getChanges();
+            changes.forEach((change) => {
+                if (change.to == null || change.from == null) return;
+                if (oldColumnMap[change.to.backName]) {
+                    delete newColumnMap[change.to.backName];
+                    newColumnMap[change.from.backName] = oldColumnMap[change.to.backName];
+                    newColumnMap[change.from.backName][1] = true;
+                }
+            });
         }
+        columnMapList[0] = newColumnMap;
+        node.getParents().forEach((parent) => {
+            this._backTraverseColumnChanges(columnMapList, parent);
+        });
+    }
+
+    public lineageChange(_columns, replaceParameters?: boolean): DagLineageChange {
+        let columnMap = {};
+        const finalColumnMap = {}; // {finalColName: [finalProgColumn, changedFlag]}
+        const finalCols: ProgCol[] = [];
+        this.columns.forEach((column) => {
+            const finalColumn = ColManager.newPullCol(column.name,
+                                                      column.backName,
+                                                      column.type);
+            finalColumnMap[column.backName] = [finalColumn, false];
+            finalCols.push(finalColumn);
+        });
+        // Wrap it with a list so that it can be modified across recursions
+        const columnMapList = [finalColumnMap];
+        for (const outputNode of this.subOutputNodes) {
+            this._backTraverseColumnChanges(columnMapList, outputNode);
+            break; // We support only one output for now
+        }
+        columnMap = columnMapList[0];
 
         const changes: {from: ProgCol, to: ProgCol}[] = [];
-        const finalCols: ProgCol[] = this.columns.map((column) => {
-            return ColManager.newPullCol(column.name, column.backName, column.type);
-        });
         const parents: DagNode[] = this.getParents();
         parents.forEach((parent) => {
             parent.getLineage().getColumns(replaceParameters).forEach((parentCol) => {
-                changes.push({
-                    from: parentCol,
-                    to: null
-                });
-            })
-        });
-        finalCols.forEach((column) => {
-            changes.push({
-                from: null,
-                to: column
+                const finalColStruct = columnMap[parentCol.backName];
+                if (finalColStruct) {
+                    const finalCol = columnMap[parentCol.backName][0];
+                    const hasChanged = columnMap[parentCol.backName][1];
+                    if (hasChanged) {
+                        changes.push({
+                            from: parentCol,
+                            to: finalCol
+                        });
+                    }
+                    delete finalColumnMap[finalCol.backName];
+                } else {
+                    changes.push({
+                        from: parentCol,
+                        to: null
+                    });
+                }
             });
         });
+
+        for (const colName in finalColumnMap) {
+            changes.push({
+                from: null,
+                to: finalColumnMap[colName][0]
+            });
+        }
 
         return {
             columns: finalCols,
@@ -724,7 +773,9 @@ class DagNodeSQL extends DagNode {
                 tableSrcMap[retStruct.srcTableName] = key;
                 innerDeferred.resolve();
             })
-            .fail(innerDeferred.reject);
+            .fail((err) => {
+                innerDeferred.reject(err);
+            });
             promiseArray.push(innerDeferred.promise());
         });
 

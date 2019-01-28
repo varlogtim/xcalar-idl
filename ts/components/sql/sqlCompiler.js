@@ -3136,10 +3136,11 @@
                 var unionCols = unionTable.usrCols;
                 var columns = [];
                 for (var j = 0; j < unionCols.length; j++) {
+                    var colType = xcHelper.convertSQLTypeToColType(unionCols[j].colType);
                     columns.push({
                         name: __getCurrentName(unionCols[j]),
                         rename: __getCurrentName(colRenames[j]),
-                        type: "DfUnknown", // backend will figure this out. :)
+                        type: colType,
                         cast: false // Should already be casted by spark
                     });
                 }
