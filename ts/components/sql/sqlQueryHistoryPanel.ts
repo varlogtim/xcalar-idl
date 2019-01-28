@@ -400,7 +400,7 @@ namespace SqlQueryHistoryPanel {
                         iconClass: iconClass,
                         onLinkClick: () => {
                             if (isValidStatus) {
-                                SQLHistorySpace.Instance.analyze(queryInfo.dataflowId);
+                                SQLHistorySpace.Instance.analyze(queryInfo);
                             } else if (queryInfo.status === SQLStatus.Running) {
                                 SQLHistorySpace.Instance.viewProgress(queryInfo.dataflowId);
                             }

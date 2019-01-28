@@ -55,6 +55,24 @@ class DagTabUser extends DagTab {
         return deferred.promise();
     }
 
+    /**
+     * DagTabUser.hasDataflowAsync
+     * @param dataflowId
+     */
+    public static hasDataflowAsync(dataflowId: string): XDPromise<boolean> {
+        const deferred: XDDeferred<boolean> = PromiseHelper.deferred();
+        let key: string = dataflowId;
+        KVStore.list(key, gKVScope.WKBK)
+        .then((res) => {
+            let ids: string[] = res.keys.filter((key) => key === dataflowId);
+            let exist: boolean = ids.length === 1;
+            deferred.resolve(exist);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
     protected static _createTab(name: string, id: string): DagTabUser {
         return new DagTabUser(name, id, null, null, xcTimeHelper.now());
     }

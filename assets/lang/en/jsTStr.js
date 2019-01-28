@@ -1633,6 +1633,8 @@ SQLTStr = {
     "DeleteSnippetMsg": "Are you sure you want to delete snippet \"<name>\"?",
     "Execute": "Execute SQL",
     "InExecute": "There are already some SQLs in exeuction, do you still want to continue?",
+    "DFDeleted": "The corresponding dataflow for sql has been deleted",
+    "RestoreDF": "Restore dataflow",
 };
 
 LoginConfigTStr = {

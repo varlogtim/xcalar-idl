@@ -88,6 +88,11 @@ class KVStore {
         $("#worksheetInfo .wkbkName").text(name);
     }
 
+    /**
+     * KVStore.list
+     * @param keyRegex
+     * @param scope
+     */
     public static list(keyRegex: string, scope: number): XDPromise<{numKeys: number, keys: string[]}> {
         return XcalarKeyList(keyRegex, scope);
     }

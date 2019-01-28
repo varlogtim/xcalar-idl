@@ -152,6 +152,32 @@ class SQLExecutor {
         return deferred.promise();
     }
 
+    public restoreDataflow(): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        let tabId: string = this._tempTab.getId();
+        const publishedTableNodes: DagNodeIMDTable[] = this._IMDNodes;
+        this._addPublishedTableNodes(publishedTableNodes);
+
+        this._configurePublishedTableNode()
+        .then(() => {
+            return this._configureSQLNode(true);
+        })
+        .then(() => {
+            DagTabManager.Instance.addSQLTabCache(this._tempTab);
+            return this._expandSQLNode();
+        })
+        .then(() => {
+            let promise = this._tempTab.save();
+            return PromiseHelper.alwaysResolve(promise);
+        })
+        .then(() => {
+            deferred.resolve(tabId);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
     private _createDataflow(): void {
         this._tempGraph = new DagGraph();
         const id: string = DagTab.generateId() + ".sql";
@@ -183,7 +209,7 @@ class SQLExecutor {
         return PromiseHelper.when.apply(window, promiseArray);
     }
 
-    private _configureSQLNode(): XDPromise<any> {
+    private _configureSQLNode(noStatusUpdate: boolean = false): XDPromise<any> {
         this._sqlNode.setParam({
             sqlQueryStr: this._sql,
             identifiers: this._identifiers,
@@ -195,8 +221,10 @@ class SQLExecutor {
             identifiers.set(idx, this._identifiers[idx]);
         });
         const sqlMode = true;
-        this._status = SQLStatus.Compiling;
-        this._updateStatus(SQLStatus.Compiling);
+        if (!noStatusUpdate) {
+            this._status = SQLStatus.Compiling;
+            this._updateStatus(SQLStatus.Compiling);
+        }
         this._sqlNode.setIdentifiers(identifiers);
         return this._sqlNode.compileSQL(this._sql, queryId, identifiers, sqlMode);
     }
