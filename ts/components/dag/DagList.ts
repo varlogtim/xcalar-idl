@@ -95,7 +95,7 @@ class DagList {
                 });
             } else {
                 let dagName: string = dagTab.getName();
-                if (tabId.endsWith("sql")) {
+                if (this._isForSQLFolder(tabId)) {
                     path = "/" + DagTabSQL.PATH + dagName;
                 } else {
                     path = "/" + dagName;
@@ -252,7 +252,12 @@ class DagList {
         let cnt: number = 1;
         this._dags.forEach((dagTab) => {
             nameSet.add(dagTab.getName());
-            if (dagTab instanceof DagTabUser) {
+            if (!isSQLMode && dagTab instanceof DagTabUser) {
+                let tabId: string = dagTab.getId();
+                if (!this._isForSQLFolder(tabId)) {
+                    cnt++;
+                }
+            } else if (isSQLMode && dagTab instanceof DagTabSQLFunc) {
                 cnt++;
             }
         });
@@ -606,6 +611,10 @@ class DagList {
 
     private _getListElById(id: string): JQuery {
         return this._getDagListSection().find('.dagListDetail[data-id="' + id + '"]');
+    }
+
+    private _isForSQLFolder(id: string): boolean {
+        return id && id.endsWith("sql");
     }
 
     private _addEventListeners(): void {
