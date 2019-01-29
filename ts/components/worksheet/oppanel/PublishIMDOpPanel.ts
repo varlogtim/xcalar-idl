@@ -6,6 +6,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
     private _$nameInput: JQuery; // $('#publishIMDOpPanel .IMDNameInput')
     private _$primaryKeys: JQuery; // $('#publishIMDOpPanel .IMDKey')
     private _$operatorInput: JQuery; // $('#publishIMDOpPanel .IMDOperatorInput')
+    private _currentKeys: string[];
 
     // *******************
     // Constants
@@ -23,6 +24,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
         this._$primaryKeys = $('#publishIMDOpPanel .IMDKey');
         this._$operatorInput = $('#publishIMDOpPanel .IMDOperatorInput');
         this._setupEventListener();
+        this._currentKeys = [];
     }
 
 
@@ -129,6 +131,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
             $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyColumns')
                     .find("[data-value='" + keyList[i] + "']").addClass("unavailable");
         }
+        this._currentKeys = keyList;
     }
 
     private _restorePanel(input: DagNodePublishIMDInputStruct): void {
@@ -161,6 +164,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
     }
 
     private _addKeyField(): void {
+        const self = this;
         let html = '<div class="primaryKeyList dropDownList">' +
             '<input class="text primaryKeyInput" type="text" value="" spellcheck="false">' +
             '<i class="icon xi-cancel"></i>' +
@@ -199,9 +203,12 @@ class PublishIMDOpPanel extends BaseOpPanel {
                 $primaryKey.val("$" + $li.text());
                 $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyColumns')
                     .find("[data-value='" + $li.data("value") + "']").addClass("unavailable");
+                let index = $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyInput').index($primaryKey);
+                self._currentKeys[index] = $li.data("value");
             }
         });
         expList.setupListeners();
+        this._currentKeys.push("");
     }
 
     private _checkOpArgs(keys: string[], operator: string): boolean {
@@ -265,6 +272,17 @@ class PublishIMDOpPanel extends BaseOpPanel {
             $key.remove();
         });
 
+        this._$elemPanel.find(".primaryKeyList").on('blur', '.primaryKeyInput', function() {
+            let $input = $(this);
+            let index = $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyInput').index($input);
+            let oldVal = self._currentKeys[index];
+            if (oldVal != $input.val()) {
+                $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyColumns')
+                    .find("[data-value='" + oldVal + "']").removeClass("unavailable");
+                self._currentKeys[index] = $input.val();
+            }
+        });
+
         let $list = $('#publishIMDOpPanel .IMDKey .primaryKeyList');
         this._activateDropDown($list, '#publishIMDOpPanel .IMDKey .primaryKeyList');
         let expList: MenuHelper = new MenuHelper($list, {
@@ -285,6 +303,8 @@ class PublishIMDOpPanel extends BaseOpPanel {
                 $primaryKey.val("$" + $li.text());
                 $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyColumns')
                     .find("[data-value='" + $li.data("value") + "']").addClass("unavailable");
+                let index = $('#publishIMDOpPanel .IMDKey .primaryKeyList .primaryKeyInput').index($primaryKey);
+                self._currentKeys[index] = $li.data("value");
             }
         });
         expList.setupListeners();

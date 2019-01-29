@@ -7,6 +7,8 @@ class CreatePublishTableModal {
     private _$nameInput: JQuery; // $('#createPublishTableModal .IMDNameInput')
     private _$primaryKeys: JQuery; // $('#createPublishTableModal .IMDKey .primaryKeys')
     private _$publishColList: JQuery; // $('#createPublishTableModal .publishColumnsSection .cols')
+    private _currentKeys: string[];
+
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -18,6 +20,7 @@ class CreatePublishTableModal {
         this._$primaryKeys = $('#createPublishTableModal .IMDKey .primaryKeys');
         this._$publishColList = $('#createPublishTableModal .publishColumnsSection .cols');
         this._columns = [];
+        this._currentKeys = [""];
         this._modalHelper = new ModalHelper(this._$modal, {
             noEnter: true
         });
@@ -176,11 +179,14 @@ class CreatePublishTableModal {
                 $primaryKey.val("$" + $li.text());
                 $('#createPublishTableModal .IMDKey .primaryKeyList .primaryKeyColumns')
                     .find("[data-value='" + $li.data("value") + "']").addClass("unavailable");
+                let index = $('#createPublishTableModal .IMDKey .primaryKeyList .primaryKeyInput').index($primaryKey);
+                self._currentKeys[index] = $li.data("value");
                 let colName: string = $li.text();
                 self._toggleColumnKey(colName, true);
             }
         });
         expList.setupListeners();
+        this._currentKeys.push("");
     }
 
     private _toggleColumnKey(colName: string, checked: boolean) {
@@ -266,12 +272,28 @@ class CreatePublishTableModal {
                 $primaryKey.val("$" + $li.text());
                 $('#createPublishTableModal .IMDKey .primaryKeyList .primaryKeyColumns')
                     .find("[data-value='" + $li.data("value") + "']").addClass("unavailable");
+                let index = $('#createPublishTableModal .IMDKey .primaryKeyList .primaryKeyInput').index($primaryKey);
+                self._currentKeys[index] = $li.data("value");
                 let colName: string = $li.text();
                 self._toggleColumnKey(colName, true);
             }
         });
         expList.setupListeners();
 
+        this._$modal.find(".primaryKeyList").on('blur', '.primaryKeyInput', function() {
+            let $input = $(this);
+            let index = $('#createPublishTableModal .IMDKey .primaryKeyList .primaryKeyInput').index($input);
+            let oldVal = self._currentKeys[index];
+            if (oldVal != $input.val()) {
+                $('#createPublishTableModal .IMDKey .primaryKeyList .primaryKeyColumns')
+                    .find("[data-value='" + oldVal + "']").removeClass("unavailable");
+                self._currentKeys[index] = $input.val();
+                if (oldVal.charAt(0) === '$') {
+                    oldVal = oldVal.substr(1);
+                }
+                self._toggleColumnKey(oldVal, false);
+            }
+        });
 
         $('#publishTableModalColumns .selectAllWrap .checkbox').click(function(event) {
             let $box: JQuery = $(this);
@@ -318,6 +340,7 @@ class CreatePublishTableModal {
 
     private _reset(): void {
         this._columns = [];
+        this._currentKeys = [""]
         let $list: JQuery = $('#createPublishTableModal .IMDKey .primaryKeyList .primaryKeyColumns');
         $list.empty();
         $('#createPublishTableModal .IMDKey .primaryKeyList').not(':first').remove();
