@@ -66,8 +66,8 @@ namespace SqlQueryHistoryPanel {
         }
 
         protected getTableDefinition(): TableDefinition<QueryInfo> {
-            const tableDefs: TableDefinition<QueryInfo> = {};
-            tableDefs[TableColumnCategory.STATUS] = {
+            const tableDef: TableDefinition<QueryInfo> = { columns: {} };
+            tableDef.columns[TableColumnCategory.STATUS] = {
                 type: TableHeaderColumnType.SORTABLE,
                 sortFunction: sortFunctions.sortStatus,
                 convertFunc: (queryInfo) => {
@@ -78,7 +78,7 @@ namespace SqlQueryHistoryPanel {
                     return prop;
                 }
             };
-            tableDefs[TableColumnCategory.QUERY] = {
+            tableDef.columns[TableColumnCategory.QUERY] = {
                 type: TableHeaderColumnType.REGULAR,
                 convertFunc: (queryInfo) => {
                     const prop: TableBodyColumnTextLinkProp = {
@@ -89,7 +89,7 @@ namespace SqlQueryHistoryPanel {
                     return prop;
                 }
             };
-            tableDefs[TableColumnCategory.STARTTIME] = {
+            tableDef.columns[TableColumnCategory.STARTTIME] = {
                 type: TableHeaderColumnType.SORTABLE,
                 sortFunction: sortFunctions.sortStartTime,
                 convertFunc: (queryInfo) => {
@@ -102,7 +102,7 @@ namespace SqlQueryHistoryPanel {
                     return prop;
                 }
             };
-            tableDefs[TableColumnCategory.DURATION] = {
+            tableDef.columns[TableColumnCategory.DURATION] = {
                 type: TableHeaderColumnType.SORTABLE,
                 sortFunction: sortFunctions.sortDuration,
                 convertFunc: (queryInfo) => {
@@ -127,7 +127,7 @@ namespace SqlQueryHistoryPanel {
                     return prop;
                 }
             };
-            tableDefs[TableColumnCategory.TABLE] = {
+            tableDef.columns[TableColumnCategory.TABLE] = {
                 type: TableHeaderColumnType.REGULAR,
                 convertFunc: (queryInfo) => {
                     let text = "";
@@ -154,7 +154,7 @@ namespace SqlQueryHistoryPanel {
                     return prop;
                 }
             };
-            return tableDefs;
+            return tableDef;
         }
         /**
          * Show the history table
@@ -308,6 +308,8 @@ namespace SqlQueryHistoryPanel {
     }
 
     export class ExtCard extends BaseCard {
+        protected _selectedQueryIds = new Set<string>();
+
         /**
          * Update/Add a query with partial data
          * @param updateInfo query update information
@@ -319,11 +321,19 @@ namespace SqlQueryHistoryPanel {
                 });
         }
 
+        /**
+         * Get a set of query IDs selected in the table
+         */
+        public getSelectedQueryIds(): Set<string> {
+            return new Set(this._selectedQueryIds);
+        }
+
         protected getTitle(): string {
             return SQLTStr.queryHistExtCardTitle;
         }
         protected getColumnsToShow(): TableColumnCategory[] {
             return [
+                TableColumnCategory.SELECT,
                 TableColumnCategory.STATUS,
                 TableColumnCategory.QUERY,
                 TableColumnCategory.STARTTIME,
@@ -338,7 +348,12 @@ namespace SqlQueryHistoryPanel {
         protected getTableDefinition(): TableDefinition<QueryExtInfo> {
             const tableDef = <TableDefinition<QueryExtInfo>>super.getTableDefinition();
 
-            tableDef[TableColumnCategory.ROWS] = {
+            tableDef.getKeyFunction = (data: QueryExtInfo) => data.queryId;
+            tableDef.onSelectChange = (queryIdSet: Set<string>) => {
+                this._selectedQueryIds = queryIdSet;
+            }
+
+            tableDef.columns[TableColumnCategory.ROWS] = {
                 type: TableHeaderColumnType.SORTABLE,
                 sortFunction: sortFunctions.sortRows,
                 convertFunc: (queryInfo) => {
@@ -351,7 +366,7 @@ namespace SqlQueryHistoryPanel {
                 }
             };
 
-            tableDef[TableColumnCategory.SKEW] = {
+            tableDef.columns[TableColumnCategory.SKEW] = {
                 type: TableHeaderColumnType.SORTABLE,
                 sortFunction: sortFunctions.sortSkew,
                 convertFunc: (queryInfo) => {
@@ -365,7 +380,7 @@ namespace SqlQueryHistoryPanel {
                 }
             };
 
-            tableDef[TableColumnCategory.ACTION] = {
+            tableDef.columns[TableColumnCategory.ACTION] = {
                 type: TableHeaderColumnType.REGULAR,
                 convertFunc: (queryInfo) => {
                     let text = "";
@@ -395,6 +410,10 @@ namespace SqlQueryHistoryPanel {
                 }
             };
 
+            tableDef.columns[TableColumnCategory.SELECT] = {
+                type: TableHeaderColumnType.SELECTABLE,
+            };
+
             return tableDef;
         }
     }
@@ -418,10 +437,11 @@ namespace SqlQueryHistoryPanel {
     }
 
     enum TableHeaderColumnType {
-        REGULAR, SORTABLE
+        REGULAR, SORTABLE, SELECTABLE
     }
 
     enum TableColumnCategory {
+        SELECT = 'SELECT',
         STATUS = 'STATUS',
         QUERY = 'QUERY',
         STARTTIME = 'STARTTIME',
@@ -438,14 +458,21 @@ namespace SqlQueryHistoryPanel {
     }
 
     interface TableHeaderColumnProp {
-        type: TableHeaderColumnType,
-        category: TableColumnCategory,
-        sortOrder?: SortOrder,
-        onClickSort?: (currentOrder: SortOrder) => void
+        type: TableHeaderColumnType, // Basic
+        category: TableColumnCategory, // Basic
+        sortOrder?: SortOrder, // SORT
+        onClickSort?: (currentOrder: SortOrder) => void, // SORT
+        isSelected?: boolean, // SELECTABLE
+        onClickSelect?: () => void // SELECTABLE
     }
 
     interface TableBodyColumnProp {
         category: TableColumnCategory
+    }
+
+    interface TableBodyColumnCheckboxProp extends TableBodyColumnProp {
+        isChecked: boolean,
+        onClickCheck: () => void
     }
 
     interface TableBodyColumnStatusProp extends TableBodyColumnProp {
@@ -472,11 +499,15 @@ namespace SqlQueryHistoryPanel {
         onLinkClick: () => void,
     }
 
-    type TableDefinition<TData> = { [key: string]: { // Key is TableColumnCategory
-        type: TableHeaderColumnType, // Type of the column (sortable or not)
-        sortFunction?: (a: TData, b: TData) => number, // The function to help sorting the data(similar to the compare function of Array.sort)
-        convertFunc: (data: TData) => TableBodyColumnProp // The function to convert the data to the value shown in the table
-    }}
+    type TableDefinition<TData> = {
+        onSelectChange?: (keySet: Set<string>) => void, // Callback function when selected rows being changed
+        getKeyFunction?: (data: TData) => string, // The function the get the key of data
+        columns: { [key: string]: { // Key is TableColumnCategory
+            type: TableHeaderColumnType, // Type of the column (sortable, selectable, regular)
+            sortFunction?: (a: TData, b: TData) => number, // The function to help sorting the data(similar to the compare function of Array.sort)
+            convertFunc?: (data: TData) => TableBodyColumnProp // The function to convert the data to the value shown in the table
+        }}
+    }
 
     class DynaTable<TData> {
         protected _container: HTMLElement;
@@ -488,6 +519,7 @@ namespace SqlQueryHistoryPanel {
         protected _msRefreshDuration: number;
 
         protected _data: TData[] = [];
+        protected _selectSet: Set<string> = new Set();
         protected _currentSorting: TableSortMethod;
         protected _refreshTimer;
 
@@ -502,6 +534,13 @@ namespace SqlQueryHistoryPanel {
                 `<div class="col {{cssClass}}"><span class="label">{{title}}</span></div>`,
             headerColumnSortable:
                 `<div class="col col-sort {{cssClass}}" (click)="onClickSort"><span class="label">{{title}}</span><div class="sort"><i class="icon fa-8 {{sortOrderClass}}"></i></div></div>`,
+            headerColumnCheckbox:
+                `<div class="col {{cssClass}}">
+                    <div class="checkbox {{cssChecked}}" (click)="onClick">
+                        <i class="icon xi-ckbox-empty fa-15"></i>
+                        <i class="icon xi-ckbox-selected fa-15"></i>
+                    </div>
+                </div>`,
             headerColumnSortableNoSort:
                 `<div class="col col-sort {{cssClass}}" (click)="onClickSort"><span class="label">{{title}}</span><div class="sort sort-none">
                     <span class="sortIconWrap"><i class="icon fa-8 xi-arrow-up"></i></span>
@@ -528,6 +567,13 @@ namespace SqlQueryHistoryPanel {
             bodyColumnIconLink:
                 `<div class="col link {{cssClass}}">
                     <span class="iconLinkWrap" (click)="onLinkClick" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="{{text}}"><i class="icon {{iconClass}}"></i></span>
+                </div>`,
+            bodyColumnCheckbox:
+                `<div class="col {{cssClass}}">
+                    <div class="checkbox {{cssChecked}}" (click)="onClick">
+                        <i class="icon xi-ckbox-empty fa-15"></i>
+                        <i class="icon xi-ckbox-selected fa-15"></i>
+                    </div>
                 </div>`,
             bodyRow:
                 `<div class="row"><APP-BODYCOLUMNS></APP-BODYCOLUMNS></div>`,
@@ -593,7 +639,8 @@ namespace SqlQueryHistoryPanel {
             }
 
             // Store the raw data
-            this._data = data.map((v) => xcHelper.deepCopy(v));
+            this._data = data.filter((v) => (data != null))
+                .map((v) => xcHelper.deepCopy(v));
 
             // Update the UI
             this._updateUI();
@@ -615,9 +662,24 @@ namespace SqlQueryHistoryPanel {
             const sorting = this._currentSorting;
             const columnSortOrders = this._getColumnSortOrders(sorting, this._columnsToShow);
 
+            // Create sort index (a index list of this._data)
+            // Ex. [3,2,4,1]
+            const sortIndex = this._getSortIndex(
+                this._data,
+                sorting.sortOrder,
+                this._tableDef.columns[sorting.sortBy].sortFunction,
+                this._numRowsToShow
+            );
+
+            // Update the selected list
+            const newSelectSet = this._removeSelectNotShown(
+                this._data, sortIndex, this._tableDef.getKeyFunction , this._selectSet
+            );
+            this._setSelectSet(newSelectSet);
+
             // Create table header model
             const headerProp: TableHeaderColumnProp[] = this._columnsToShow.map((category) => {
-                const columnDef = this._tableDef[category];
+                const columnDef = this._tableDef.columns[category];
                 const prop: TableHeaderColumnProp = {
                     type: columnDef.type,
                     category: category
@@ -631,19 +693,22 @@ namespace SqlQueryHistoryPanel {
                         );
                         this._updateUI();
                     };
+                } else if (columnDef.type === TableHeaderColumnType.SELECTABLE) {
+                    const isSelectAll = newSelectSet.size === sortIndex.length;
+                    prop.isSelected = isSelectAll;
+                    prop.onClickSelect = () => {
+                        if (isSelectAll) {
+                            this._setSelectSet(new Set());
+                        } else {
+                            this._setSelectSet(new Set(
+                                sortIndex.map((dataIndex) => this._tableDef.getKeyFunction(this._data[dataIndex]))
+                            ));
+                        }
+                        this._updateUI();
+                    };
                 }
                 return prop;
             });
-
-            // Create sort index (a index list of this._data)
-            // Ex. [3,2,4,1]
-            this._data = this._data.filter((data) => data != null);
-            const sortIndex = this._getSortIndex(
-                this._data,
-                sorting.sortOrder,
-                this._tableDef[sorting.sortBy].sortFunction,
-                this._numRowsToShow
-            );
 
             // Create table body model
             const bodyProp: TableBodyColumnProp[][] = [];
@@ -653,8 +718,22 @@ namespace SqlQueryHistoryPanel {
                     continue;
                 }
                 const rowProp: TableBodyColumnProp[] = this._columnsToShow.map((category) => {
-                    const colDef = this._tableDef[category];
-                    return colDef.convertFunc(data);
+                    const colDef = this._tableDef.columns[category];
+                    if (colDef.type === TableHeaderColumnType.SELECTABLE) {
+                        const dataKey = this._tableDef.getKeyFunction(data);
+                        const isSelected = this._selectSet.has(dataKey);
+                        const columnProp: TableBodyColumnCheckboxProp = {
+                            category: category,
+                            isChecked: isSelected,
+                            onClickCheck: () => {
+                                this._selectRow(dataKey, !isSelected);
+                                this._updateUI();
+                            }
+                        }
+                        return columnProp;
+                    } else {
+                        return colDef.convertFunc(data);
+                    }
                 });
                 bodyProp.push(rowProp);
             }
@@ -703,33 +782,37 @@ namespace SqlQueryHistoryPanel {
             this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
 
             const columns = [];
-            for (const {type, category, sortOrder, onClickSort } of columnProps) {
+            for (const {type, category, sortOrder, onClickSort, isSelected, onClickSelect } of columnProps) {
+                let elems = null;
                 if (type === TableHeaderColumnType.REGULAR) {
                     // Regular header column
-                    const elems = this._createHeaderRegularColumn({
+                    elems = this._createHeaderRegularColumn({
                         cssClass: this._getHeaderColumnCss(category),
                         title: this._getHeaderColumnTitle(category)
                     });
-                    if (elems != null) {
-                        elems.forEach((e) => {
-                            columns.push(e);
-                        })
-                    }
                 } else if (type === TableHeaderColumnType.SORTABLE) {
                     // Sortable header column
-                    const elems = this._createHeaderSortableColumn({
+                    elems = this._createHeaderSortableColumn({
                         cssClass: this._getHeaderColumnCss(category),
                         title: this._getHeaderColumnTitle(category),
                         sortOrder: sortOrder,
                         onClickSort: onClickSort
                     });
-                    if (elems != null) {
-                        elems.forEach((e) => {
-                            columns.push(e);
-                        })
-                    }
+                } else if (type === TableHeaderColumnType.SELECTABLE) {
+                    // Checkbox header column
+                    elems = this._createHeaderCheckboxColumn({
+                        cssClass: this._getHeaderColumnCss(category),
+                        isChecked: isSelected,
+                        onClick: onClickSelect
+                    });
                 } else {
                     console.error(`Unsupported column type ${type}`);
+                }
+
+                if (elems != null) {
+                    elems.forEach((e) => {
+                        columns.push(e);
+                    });
                 }
             }
 
@@ -794,6 +877,26 @@ namespace SqlQueryHistoryPanel {
                 'APP-BODYCOLUMNS': columns
             });
 
+        }
+
+        protected _createBodyColumnCheckbox(
+            props?: TableBodyColumnCheckboxProp
+        ): NodeDefDOMElement[] {
+            if (props == null) {
+                return null;
+            }
+
+            // Deconstruct parameters
+            const { category, isChecked, onClickCheck } = props;
+
+            const templateId = 'bodyColumnCheckbox';
+            this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
+
+            return this._templateMgr.createElements(templateId, {
+                cssClass: this._getBodyColumnCss(category),
+                cssChecked: isChecked ? 'checked': '',
+                onClick: onClickCheck
+            });
         }
 
         protected _createBodyColumnStatus(
@@ -900,6 +1003,28 @@ namespace SqlQueryHistoryPanel {
             });
         }
 
+        protected _createHeaderCheckboxColumn(props?: {
+            cssClass: string,
+            isChecked: boolean,
+            onClick: () => void
+        }): NodeDefDOMElement[] {
+            if (props == null) {
+                return null;
+            }
+
+            // Deconstruct parameters
+            const { cssClass, isChecked, onClick = () => {} } = props;
+
+            const templateId = 'headerColumnCheckbox';
+            this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
+
+            return this._templateMgr.createElements(templateId, {
+                cssClass: cssClass,
+                cssChecked: isChecked ? 'checked': '',
+                onClick: onClick
+            });
+        }
+
         protected _createHeaderSortableColumn(props?: {
             cssClass: string,
             title: string,
@@ -953,6 +1078,7 @@ namespace SqlQueryHistoryPanel {
             this._headerTitleMapping[TableColumnCategory.SKEW] = SQLTStr.queryTableColumnSkew;
             this._headerTitleMapping[TableColumnCategory.ACTION] = SQLTStr.queryTableColumnAction;
             // TableColumnCategory => header css
+            this._headerCssMapping[TableColumnCategory.SELECT] = 'col-select';
             this._headerCssMapping[TableColumnCategory.STATUS] = 'col-status';
             this._headerCssMapping[TableColumnCategory.QUERY] = 'col-query';
             this._headerCssMapping[TableColumnCategory.STARTTIME] = 'col-time';
@@ -962,6 +1088,7 @@ namespace SqlQueryHistoryPanel {
             this._headerCssMapping[TableColumnCategory.SKEW] = 'col-skew';
             this._headerCssMapping[TableColumnCategory.ACTION] = 'col-action';
             // TableColumnCategory => DOM builder for body column
+            this._bodyColumnBuilder[TableColumnCategory.SELECT] = this._createBodyColumnCheckbox.bind(this);
             this._bodyColumnBuilder[TableColumnCategory.STATUS] = this._createBodyColumnStatus.bind(this);
             this._bodyColumnBuilder[TableColumnCategory.QUERY] = this._createBodyColumnTextLink.bind(this);
             this._bodyColumnBuilder[TableColumnCategory.STARTTIME] = this._createBodyColumnText.bind(this);
@@ -1071,6 +1198,55 @@ namespace SqlQueryHistoryPanel {
             return {
                 sortBy: currentColumn, sortOrder: stateTransit[currentOrder]
             };
+        }
+
+        protected _removeSelectNotShown(
+            dataList: TData[],
+            dataIndexShown: number[],
+            getKeyFunc: (data: TData) => string,
+            selectSet: Set<string>
+        ): Set<string> {
+            const allRowsSet = new Set();
+            for (const dataIndex of dataIndexShown) {
+                allRowsSet.add(getKeyFunc(dataList[dataIndex]));
+            }
+            const newSelectSet: Set<string> = new Set();
+            for (const key of selectSet) {
+                if (allRowsSet.has(key)) {
+                    newSelectSet.add(key);
+                }
+            }
+            return newSelectSet;
+        }
+
+        protected _setSelectSet(newSelectSet: Set<string>): void {
+            let isChanged = newSelectSet.size !== this._selectSet.size;
+            if (!isChanged) {
+                for (const key of newSelectSet.keys()) {
+                    if (!this._selectSet.has(key)) {
+                        isChanged = true;
+                        break;
+                    }
+                }
+            }
+            if (isChanged) {
+                this._selectSet = newSelectSet;
+                this._tableDef.onSelectChange(new Set(newSelectSet));
+            }
+        }
+
+        protected _selectRow(dataKey: string, isSelect: boolean): void {
+            if (isSelect) {
+                if (!this._selectSet.has(dataKey)) {
+                    this._selectSet.add(dataKey);
+                    this._tableDef.onSelectChange(new Set(this._selectSet));
+                }
+            } else {
+                if (this._selectSet.has(dataKey)) {
+                    this._selectSet.delete(dataKey);
+                    this._tableDef.onSelectChange(new Set(this._selectSet));
+                }
+            }
         }
         // *** Helper functions - end ***
     }
