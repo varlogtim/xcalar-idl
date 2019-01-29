@@ -485,6 +485,11 @@ namespace WorkbookManager {
                                     "/";
             }
         }
+        const $bg: JQuery = $("#initialLoadScreen");
+        let timer = null;
+        timer = setTimeout(() => {
+            $bg.show();
+        }, 1000);
 
         XcalarDownloadWorkbook(workbookName, jupyterFolderPath)
         .then(function(file) {
@@ -493,6 +498,10 @@ namespace WorkbookManager {
         })
         .fail(function(err) {
             deferred.reject(err);
+        })
+        .always(() => {
+            clearTimeout(timer);
+            $bg.hide();
         });
 
         return deferred.promise();
