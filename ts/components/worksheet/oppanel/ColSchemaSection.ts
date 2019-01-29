@@ -8,7 +8,7 @@ class ColSchemaSection {
         this._$section = $section;
         this._hintSchema = null;
         this._validTypes = [ColumnType.boolean, ColumnType.float, ColumnType.integer,
-        ColumnType.string, ColumnType.timestamp, ColumnType.mixed, ColumnType.unknown];
+        ColumnType.string, ColumnType.timestamp, ColumnType.money, ColumnType.mixed, ColumnType.unknown];
         this._addEventListeners();
     }
 
@@ -269,9 +269,10 @@ class ColSchemaSection {
 
     private _populateTypeDropdown($dropdown: JQuery): void {
         const html: HTML = this._validTypes.map((colType) => {
-            const li: HTML =
+            let icon = xcHelper.getTypeIconFromColumnType(colType);
+            let li: HTML =
                 '<li>' +
-                    '<i class="icon xi-' + colType + '"></i>' +
+                    '<i class="icon ' + icon + '"></i>' +
                     '<span class="name">' + colType + '</span>' +
                 '</li>';
             return li;

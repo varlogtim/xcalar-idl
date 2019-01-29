@@ -1177,9 +1177,11 @@ window.ColManager = (function($, ColManager) {
             }
 
             // define type of the column
-            if (!knf) {
-                progCol.updateType(tdValue);
-            }
+            // XXX Disable it as now we now the type from dataset
+            // XXX Handle the self-specified type case
+            // if (!knf) {
+            //     progCol.updateType(tdValue);
+            // }
 
             // class for textAlign
             if (progCol.textAlign === "Left") {
@@ -1301,6 +1303,9 @@ window.ColManager = (function($, ColManager) {
         if (!progCol.isKnownType() && progCol.isNumberCol()) {
             adjustedColType = "number";
         }
+        if (colType === ColumnType.money) {
+            adjustedColType = TooltipTStr.twodp;
+        }
         adjustedColType = xcHelper.capitalize(adjustedColType);
         xcTooltip.changeText($header.find(".iconHelper"), adjustedColType);
 
@@ -1308,7 +1313,7 @@ window.ColManager = (function($, ColManager) {
             $table.find("td.col" + colNum).addClass("userHidden");
         }
         if ([ColumnType.integer, ColumnType.float, ColumnType.string,
-            ColumnType.boolean, ColumnType.number, ColumnType.timestamp].indexOf(colType) > -1
+            ColumnType.boolean, ColumnType.number, ColumnType.timestamp, ColumnType.money].indexOf(colType) > -1
             && !progCol.isEmptyCol()) {
             $th.addClass("sortable");
         } else {

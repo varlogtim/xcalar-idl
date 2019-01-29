@@ -1076,6 +1076,9 @@ window.JSONModal = (function($, JSONModal) {
                 case (ColumnType.timestamp):
                     typeClass ="jTimestamp";
                     break;
+                case (ColumnType.money):
+                    typeClass ="jMoney";
+                    break;
                 default:
                     typeClass = "jUndf";
                     break;

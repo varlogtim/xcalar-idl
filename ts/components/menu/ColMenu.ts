@@ -71,7 +71,7 @@ class ColMenu extends AbstractMenu {
                 title: ColTStr.NoOperateGeneral
             });
         } else if (![ColumnType.integer, ColumnType.float, ColumnType.string,
-                    ColumnType.boolean, ColumnType.number, ColumnType.timestamp]
+            ColumnType.boolean, ColumnType.number, ColumnType.timestamp, ColumnType.money]
                     .includes(colType)
         ) {
             $lis.addClass("unavailable");

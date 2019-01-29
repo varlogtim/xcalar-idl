@@ -256,6 +256,7 @@ describe("xcHelper Test", function() {
         expect(func(ColumnType.float)).to.equal(DfFieldTypeT.DfFloat64);
         expect(func(ColumnType.boolean)).to.equal(DfFieldTypeT.DfBoolean);
         expect(func(ColumnType.timestamp)).to.equal(DfFieldTypeT.DfTimespec);
+        expect(func(ColumnType.money)).to.equal(DfFieldTypeT.DfMoney);
         expect(func(ColumnType.mixed)).to.equal(DfFieldTypeT.DfUnknown);
     });
 
@@ -267,6 +268,7 @@ describe("xcHelper Test", function() {
         expect(func(DfFieldTypeT.DfString)).to.equal(ColumnType.string);
         expect(func(DfFieldTypeT.DfBoolean)).to.equal(ColumnType.boolean);
         expect(func(DfFieldTypeT.DfTimespec)).to.equal(ColumnType.timestamp);
+        expect(func(DfFieldTypeT.DfMoney)).to.equal(ColumnType.money);
         expect(func(DfFieldTypeT.DfMixed)).to.equal(ColumnType.mixed);
         expect(func(DfFieldTypeT.DfScalarObj)).to.equal(ColumnType.mixed);
         expect(func(DfFieldTypeT.DfFatptr)).to.equal(null);
@@ -880,8 +882,21 @@ describe("xcHelper Test", function() {
         expect(func(DfFieldTypeT.DfString)).to.equal('xi-string');
         expect(func(DfFieldTypeT.DfBoolean)).to.equal('xi-boolean');
         expect(func(DfFieldTypeT.DfTimespec)).to.equal('xi-timestamp');
+        expect(func(DfFieldTypeT.DfMoney)).to.equal('xi-2dp');
         expect(func(DfFieldTypeT.DfScalarObj)).to.equal('xi-mixed');
         expect(func(DfFieldTypeT.DfUnknown)).to.equal('xi-unknown');
+    });
+
+    it("xcHelper.getTypeIconFromColumnType should work", function() {
+        var func = xcHelper.getTypeIconFromColumnType;
+        expect(func(ColumnType.integer)).to.equal('xi-integer');
+        expect(func(ColumnType.float)).to.equal('xi-float');
+        expect(func(ColumnType.string)).to.equal('xi-string');
+        expect(func(ColumnType.boolean)).to.equal('xi-boolean');
+        expect(func(ColumnType.timestamp)).to.equal('xi-timestamp');
+        expect(func(ColumnType.money)).to.equal('xi-2dp');
+        expect(func(ColumnType.mixed)).to.equal('xi-mixed');
+        expect(func("abc")).to.equal('xi-unknown');
     });
 
     it("xcHelper.showSuccess should work", function(done) {

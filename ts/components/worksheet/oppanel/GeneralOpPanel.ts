@@ -27,17 +27,17 @@ class GeneralOpPanel extends BaseOpPanel {
      // shows valid cast types
     protected static castMap = {
         "string": [ColumnType.boolean, ColumnType.integer, ColumnType.float,
-                    ColumnType.timestamp],
+                    ColumnType.timestamp, ColumnType.money],
         "integer": [ColumnType.boolean, ColumnType.integer, ColumnType.float,
-                    ColumnType.string, ColumnType.timestamp],
+                    ColumnType.string, ColumnType.timestamp, ColumnType.money],
         "float": [ColumnType.boolean, ColumnType.integer, ColumnType.float,
-                  ColumnType.string, ColumnType.timestamp],
+                  ColumnType.string, ColumnType.timestamp, ColumnType.money],
         "number": [ColumnType.boolean, ColumnType.integer, ColumnType.float,
-                    ColumnType.string, ColumnType.timestamp],
-        "boolean": [ColumnType.integer, ColumnType.float, ColumnType.string],
+                    ColumnType.string, ColumnType.timestamp, ColumnType.money],
+        "boolean": [ColumnType.integer, ColumnType.float, ColumnType.string, ColumnType.money],
         "timestamp": [ColumnType.integer, ColumnType.float, ColumnType.string],
         "mixed": [ColumnType.boolean, ColumnType.integer, ColumnType.float,
-                    ColumnType.string, ColumnType.timestamp],
+                    ColumnType.string, ColumnType.timestamp, ColumnType.money],
         // no valid cast options for: undefined, array, objects
     };
     protected static firstArgExceptions = {
@@ -1680,6 +1680,12 @@ class GeneralOpPanel extends BaseOpPanel {
         typeShift = 1 << DfFieldTypeT.DfTimespec;
         if ((typeId & typeShift) > 0) {
             types.push(ColumnType.timestamp);
+        }
+
+        // money
+        typeShift = 1 << DfFieldTypeT.DfMoney;
+        if ((typeId & typeShift) > 0) {
+            types.push(ColumnType.money);
         }
 
         // mixed

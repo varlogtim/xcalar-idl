@@ -139,6 +139,9 @@ describe("SQLApi Test", function() {
                 id: DfFieldTypeT.DfTimespec,
                 expect: ColumnType.timestamp
             }, {
+                id: DfFieldTypeT.DfMoney,
+                expect: ColumnType.money
+            }, {
                 id: DfFieldTypeT.DfMixed,
                 expect: ColumnType.mixed
             }, {

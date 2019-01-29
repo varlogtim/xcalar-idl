@@ -102,7 +102,8 @@ class DagNodeSetInput extends DagNodeInput {
                         ColumnType.float,
                         ColumnType.string,
                         ColumnType.boolean,
-                        ColumnType.timestamp
+                        ColumnType.timestamp,
+                        ColumnType.money
                     ],
                     "title": "The Columntype Schema",
                     "default": "",

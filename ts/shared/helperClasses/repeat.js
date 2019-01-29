@@ -47,7 +47,7 @@ window.Repeat = (function($, Repeat) {
     repeatFuncs[SQLOps.Sort] = function(options, colNums, tableId) {
         var validTypes = [ColumnType.boolean, ColumnType.float,
                           ColumnType.integer, ColumnType.number,
-                          ColumnType.string, ColumnType.timestamp];
+                          ColumnType.string, ColumnType.timestamp, ColumnType.money];
         var order = options.orders[0];
         for (var i = 0; i < colNums.length; i++) {
             var progCol = gTables[tableId].getCol(colNums[i]);

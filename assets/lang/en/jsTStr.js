@@ -138,7 +138,7 @@ TooltipTStr = {
     "CancelSearch": "Cancel search",
     'Distinct': "Select to eliminate duplicate values",
     'RestoreDS': "Dataset used for this node is not found, click the button to restore the dataset",
-
+    'twodp': '2 decimal places',
     // Sync with htmlTStr
     "IcvGenerating": "Generating Erroneous Rows(ER) Table",
     "IcvRestriction": "Erroneous rows(ER) table only available for Map and Group By",

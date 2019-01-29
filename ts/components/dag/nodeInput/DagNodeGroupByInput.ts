@@ -107,6 +107,7 @@ class DagNodeGroupByInput extends DagNodeInput {
                       ColumnType.string,
                       ColumnType.boolean,
                       ColumnType.timestamp,
+                      ColumnType.money,
                       null
                     ],
                   "title": "The Cast Schema",

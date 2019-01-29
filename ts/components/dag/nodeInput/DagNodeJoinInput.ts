@@ -132,6 +132,7 @@ class DagNodeJoinInput extends DagNodeInput {
                     ColumnType.string,
                     ColumnType.boolean,
                     ColumnType.timestamp,
+                    ColumnType.money,
                     null
                   ],
                   "title": "The Items Schema",
@@ -258,6 +259,7 @@ class DagNodeJoinInput extends DagNodeInput {
                     ColumnType.string,
                     ColumnType.boolean,
                     ColumnType.timestamp,
+                    ColumnType.money,
                     null
                   ],
                   "title": "The Items Schema",

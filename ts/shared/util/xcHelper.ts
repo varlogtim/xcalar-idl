@@ -1732,6 +1732,13 @@ namespace xcHelper {
      */
     export function getColTypeIcon(type: DfFieldTypeT): string {
         const colType: ColumnType = xcHelper.convertFieldTypeToColType(type);
+        return xcHelper.getTypeIconFromColumnType(colType);
+    }
+
+    /**
+     * xcHelper.getTypeIconFromColumnType
+     */
+    export function getTypeIconFromColumnType(colType: ColumnType): string {
         switch (colType) {
             case ColumnType.integer:
                 return 'xi-integer';
@@ -1743,6 +1750,8 @@ namespace xcHelper {
                 return 'xi-boolean';
             case ColumnType.timestamp:
                 return 'xi-timestamp';
+            case ColumnType.money:
+                return 'xi-2dp';
             case ColumnType.mixed:
                 return 'xi-mixed';
             default:
@@ -1773,6 +1782,8 @@ namespace xcHelper {
                 return ColumnType.boolean;
             case (DfFieldTypeT.DfTimespec):
                 return ColumnType.timestamp;
+            case (DfFieldTypeT.DfMoney):
+                return ColumnType.money;
             case DfFieldTypeT.DfMixed:
             case DfFieldTypeT.DfScalarObj: // also recoganize it as mixed
                 return ColumnType.mixed;
@@ -1809,6 +1820,8 @@ namespace xcHelper {
                 return DfFieldTypeT.DfBoolean;
             case ColumnType.timestamp:
                 return DfFieldTypeT.DfTimespec;
+            case ColumnType.money:
+                return DfFieldTypeT.DfMoney;
             default:
                 return DfFieldTypeT.DfUnknown;
         }
@@ -1834,6 +1847,8 @@ namespace xcHelper {
                 return ColumnType.boolean;
             case (DfFieldTypeT.DfTimespec):
                 return ColumnType.timestamp;
+            case (DfFieldTypeTFromStr.DfMoney):
+                return ColumnType.money;
             default:
                 // DfScalarObj will be mixed
                 return ColumnType.mixed;
@@ -3677,6 +3692,10 @@ namespace xcHelper {
         return mapStr;
     }
 
+    /**
+     * xcHelper.getCastTypeToColType
+     * @param str
+     */
     export function getCastTypeToColType(str: string): ColumnType {
         switch (str) {
             case ("bool"):
@@ -3689,6 +3708,8 @@ namespace xcHelper {
                 return ColumnType.string;
             case ("timestamp"):
                 return ColumnType.timestamp;
+            case ("numeric"):
+                return ColumnType.money;
             default:
                 return null;
         }

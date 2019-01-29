@@ -61,6 +61,7 @@ class DagNodeDataset extends DagNodeIn {
                         ColumnType.string,
                         ColumnType.boolean,
                         ColumnType.timestamp,
+                        ColumnType.money,
                         ColumnType.mixed,
                         ColumnType.object,
                         ColumnType.array,

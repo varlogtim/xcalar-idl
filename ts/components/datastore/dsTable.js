@@ -599,6 +599,14 @@ window.DSTable = (function($, DSTable) {
         var tr = "";
         var th = "";
 
+        var schema = dsObj.getColumns();
+        var knownTypes = [];
+        if (schema && schema.length) {
+            jsonKeys = schema.map(function(col) {
+                knownTypes.push(col.type);
+                return col.name;
+            });
+        }
         var columnsType = [];  // track column type
         var numKeys = jsonKeys.length;
         numKeys = Math.min(1000, numKeys); // limit to 1000 ths
@@ -624,7 +632,7 @@ window.DSTable = (function($, DSTable) {
         for (var i = 0; i < numKeys; i++) {
             var key = jsonKeys[i].replace(/\'/g, '&#39');
             var thClass = "th col" + (i + 1);
-            var type = columnsType[i];
+            var type = knownTypes[i] || columnsType[i];
             var width = xcHelper.getTextWidth(null, key);
 
             width += 2; // text will overflow without it

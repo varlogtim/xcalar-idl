@@ -1113,7 +1113,7 @@ class TblManager {
         }
         const type: ColumnType = progCol.getType();
         const validTypes: ColumnType[] = [ColumnType.integer, ColumnType.float,
-            ColumnType.string, ColumnType.boolean, ColumnType.number, ColumnType.timestamp];
+            ColumnType.string, ColumnType.boolean, ColumnType.number, ColumnType.timestamp, ColumnType.money];
         if (validTypes.includes(type) && !progCol.isEmptyCol()) {
             columnClass += " sortable ";
         }

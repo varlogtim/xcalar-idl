@@ -863,6 +863,8 @@ class DagNodeSQL extends DagNode {
                 return ColumnType.boolean;
             case "timestamp":
                 return ColumnType.timestamp;
+            case "numeric":
+                return ColumnType.money;
             default:
                 return null;
         }

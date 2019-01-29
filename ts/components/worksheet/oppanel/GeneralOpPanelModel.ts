@@ -852,6 +852,12 @@ class GeneralOpPanelModel {
             types.push(ColumnType.timestamp);
         }
 
+        // money
+        typeShift = 1 << DfFieldTypeT.DfMoney;
+        if ((typeId & typeShift) > 0) {
+            types.push(ColumnType.money);
+        }
+
         // mixed
         typeShift = 1 << DfFieldTypeT.DfMixed;
         if ((typeId & typeShift) > 0) {
