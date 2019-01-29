@@ -387,8 +387,6 @@ class DagNodeExecutor {
             isOptimizedMode?: boolean,
         }
     ): JoinTableInfo {
-        // XXX not implemented yet
-        console.error("getting immeidates not implement yet!");
         const allImmediates: string[] = parentNode.getLineage().getDerivedColumns();
         const {
             keepAllColumns = true, isOptimizedMode = false
@@ -628,7 +626,7 @@ class DagNodeExecutor {
         if (customNode == null) {
             return PromiseHelper.reject('CustomInput has no container');
         }
-        const inputParent =  customNode.getInputParent(node);
+        const inputParent = customNode.getInputParent(node);
         if (inputParent == null) {
             return PromiseHelper.reject('CustomInput has no corresponding parent');
         }
@@ -972,7 +970,6 @@ class DagNodeExecutor {
             } else {
                 type = DfFieldTypeT.DfUnknown;
             }
-            type = null;
 
             return {
                 name: name,

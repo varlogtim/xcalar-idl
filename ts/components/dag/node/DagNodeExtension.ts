@@ -319,6 +319,7 @@ class DagNodeExtension extends DagNode {
             });
         });
 
+        inputCols = inputCols || [];
         let finalCols: ProgCol[] = inputCols.filter((progCol) => {
             return !set.has(progCol.getBackColName());
         });

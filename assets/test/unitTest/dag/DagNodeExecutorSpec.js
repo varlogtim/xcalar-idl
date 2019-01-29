@@ -1,4 +1,4 @@
-describe("Dag Execute Test", () => {
+describe("DagNodeExecutor Test", () => {
     const txId = 1;
     let createNode = (type, tableName, subType) => {
         return DagNodeFactory.create({
@@ -360,39 +360,32 @@ describe("Dag Execute Test", () => {
         });
     });
 
-    //XXX TODO Update this to the new API
-    /*it("should export", (done) => {
+    it("should export", (done) => {
         const node = createNode(DagNodeType.Export);
         const parentNode = createNode();
+        let progCol = ColManager.newPullCol("test", "test", ColumnType.integer);
+        parentNode.getLineage().setColumns([progCol])
         node.setParam({
-            exportName: "testExport",
-            targetName: "testTarget",
-            columns: [{sourceColumn: "prefix::col", destColumn: "col"}],
-            keepOrder: false,
-            options: null
+            columns: ["test"],
+            driver: "testDriver",
+            driverArgs: {"arg1": "val1"}
         });
         node.connectToParent(parentNode);
 
         const executor = new DagNodeExecutor(node, txId);
         const oldExport = XIApi.exportTable;
 
-        XIApi.exportTable = (txId, tableName, exportName, targetName, numCols, backColumns, frontColumns, keepOrder, options) => {
+        XIApi.exportTable = (txId, tableName, driverName, driverParams, driverColumns, exportName) => {
             expect(txId).to.equal(1);
             expect(tableName).to.equal("testTable");
-            expect(exportName).to.equal("testExport");
-            expect(targetName).to.equal("testTarget");
-            expect(numCols).to.equal(1);
-            expect(backColumns).to.deep.equal(["prefix::col"]);
-            expect(frontColumns).to.deep.equal(["col"]);
-            expect(keepOrder).to.be.false;
-            expect(options).to.deep.equal({
-                createRule: 1,
-                csvArgs: {fieldDelim: "\t", recordDelim: "\n"},
-                format: 2,
-                handleName: "",
-                headerType: 1,
-                splitType: 2
-            });
+            expect(driverName).to.equal("testDriver");
+            expect(driverParams).to.be.an("object");
+            expect(driverParams["arg1"]).to.equal("val1");
+            expect(driverColumns.length).to.equal(1);
+            expect(driverColumns[0].headerName).to.equal("test");
+            expect(driverColumns[0].columnName).to.equal("test");
+            expect(exportName).not.to.be.empty;
+            expect(exportName).to.be.a("string");
             return PromiseHelper.resolve();
         };
 
@@ -407,5 +400,505 @@ describe("Dag Execute Test", () => {
         .always(() => {
             XIApi.exportTable = oldExport;
         });
-    });*/
+    });
+
+    it("should work for link out", (done) => {
+        const node = createNode(DagNodeType.DFOut);
+        const parentNode = createNode();
+        node.setTable("testTable");
+        node.connectToParent(parentNode);
+
+        const executor = new DagNodeExecutor(node, txId);
+
+        executor.run()
+        .then(() => {
+            expect(node.getTable()).to.equal("testTable");
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        });
+    });
+
+    it("should publish IMD", (done) => {
+        const node = createNode(DagNodeType.PublishIMD);
+        const parentNode = createNode();
+        let progCol = ColManager.newPullCol("test", "test", ColumnType.integer);
+        parentNode.getLineage().setColumns([progCol]);
+        parentNode.setTable("parentTable");
+        node.setParam({
+            pubTableName: "testTable",
+            primaryKeys: ["pk"],
+            operator: "testCol"
+        });
+        node.connectToParent(parentNode);
+
+        const executor = new DagNodeExecutor(node, txId);
+        const oldPublish = XIApi.publishTable;
+
+        XIApi.publishTable = (txId, primaryKeys, srcTableName, pubTableName, colInfo, imdCol) => {
+            expect(txId).to.equal(1);
+            expect(primaryKeys.length).to.equal(1);
+            expect(primaryKeys[0]).to.equal("pk");
+            expect(srcTableName).to.equal("parentTable");
+            expect(pubTableName).to.equal("testTable");
+            expect(colInfo.length).to.equal(1);
+            expect(colInfo[0]).to.deep.include({
+                orig: "test",
+                new: "test",
+                type: 4
+            });
+            expect(imdCol).to.equal("testCol")
+            return PromiseHelper.resolve();
+        };
+
+        executor.run()
+        .then(() => {
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .always(() => {
+            XIApi.publishTable = oldPublish;
+        });
+    });
+
+    it("should update IMD", (done) => {
+        const node = createNode(DagNodeType.UpdateIMD);
+        const parentNode = createNode();
+        let progCol = ColManager.newPullCol("test", "test", ColumnType.integer);
+        parentNode.getLineage().setColumns([progCol]);
+        parentNode.setTable("parentTable");
+        node.setParam({
+            pubTableName: "testTable",
+            operator: "testCol"
+        });
+        node.connectToParent(parentNode);
+
+        const executor = new DagNodeExecutor(node, txId);
+        const oldUpdate = XIApi.updatePubTable;
+
+        XIApi.updatePubTable = (txId, srcTableName, pubTableName, colInfo, imdCol) => {
+            expect(txId).to.equal(1);
+            expect(srcTableName).to.equal("parentTable");
+            expect(pubTableName).to.equal("testTable");
+            expect(colInfo.length).to.equal(1);
+            expect(colInfo[0]).to.deep.include({
+                orig: "test",
+                new: "test",
+                type: 4
+            });
+            expect(imdCol).to.equal("testCol")
+            return PromiseHelper.resolve();
+        };
+
+        executor.run()
+        .then(() => {
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .always(() => {
+            XIApi.updatePubTable = oldUpdate;
+        });
+    });
+
+    it("should work for extension", (done) => {
+        const node = createNode(DagNodeType.Extension);
+        node.setParam({
+            moduleName: "testModule",
+            functName: "testFunc",
+            args: {
+                col: new XcSDK.Column("testCol", ColumnType.integer)
+            }
+        });
+
+        const executor = new DagNodeExecutor(node, txId);
+        const oldTriggerFromDF = ExtensionManager.triggerFromDF;
+        const oldQuery = XIApi.query;
+
+        ExtensionManager.triggerFromDF = (moduleName, funcName, args) => {
+            expect(moduleName).to.equal("testModule");
+            expect(funcName).to.equal("testFunc");
+            expect(args.col).not.to.be.empty
+            return PromiseHelper.resolve("testTable", "testQuery", []);
+        };
+
+        XIApi.query = (txId, queryName, queryStr) => {
+            expect(txId).to.equal(1);
+            expect(queryName).to.equal("testTable");
+            expect(queryStr).to.equal("testQuery");
+            return PromiseHelper.resolve();
+        };
+
+        executor.run()
+        .then(() => {
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .always(() => {
+            ExtensionManager.triggerFromDF = oldTriggerFromDF;
+            XIApi.query = oldQuery;
+        });
+    });
+
+    it("should work for get IMDTable", (done) => {
+        const node = createNode(DagNodeType.IMDTable);
+        node.setParam({
+            source: "testTable",
+            version: 1,
+            schema: [{name: "testCol", type: ColumnType.integer}],
+            filterString: "eq(testCol, 1)"
+        });
+
+        const executor = new DagNodeExecutor(node, txId);
+        const oldRestore = XcalarRestoreTable;
+        const oldRefresh = XcalarRefreshTable;
+
+        XcalarRestoreTable = (source) => {
+            expect(source).to.equal("testTable");
+            return PromiseHelper.resolve();
+        };
+
+        XcalarRefreshTable = (source, newTableName, minBatch, maxBatch, txId, filterString, columnInfo) => {
+            expect(source).to.equal("testTable");
+            expect(newTableName).not.to.be.empty;
+            expect(minBatch).to.equal(-1);
+            expect(maxBatch).to.equal(1);
+            expect(txId).to.equal(1);
+            expect(filterString).to.equal("eq(testCol, 1)");
+            expect(columnInfo.length).to.equal(1);
+            expect(columnInfo[0]).to.deep.equal({
+                sourceColumn: "testCol",
+                destColumn: "testCol",
+                columnType: "DfInt64"
+            });
+            return PromiseHelper.resolve();
+        };
+
+        executor.run()
+        .then(() => {
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .always(() => {
+            XcalarRestoreTable = oldRestore;
+            XcalarRefreshTable = oldRefresh;
+        });
+    });
+
+    it("should work for jupyter", (done) => {
+        const node = createNode(DagNodeType.Jupyter);
+        const parentNode = createNode();
+        let progCol = ColManager.newPullCol("test", "test", ColumnType.integer);
+        parentNode.getLineage().setColumns([progCol]);
+        parentNode.setTable("testTable");
+        node.setParam({
+            numExportRows: 1,
+            renames: [{
+                sourceColumn: "test",
+                destColumn: "rename"
+            }]
+        });
+        node.connectToParent(parentNode);
+
+        const executor = new DagNodeExecutor(node, txId);
+        const oldSynthesize = XIApi.synthesize;
+
+        XIApi.synthesize = (txId, colInfos, tableName, newTableName) => {
+            expect(txId).to.equal(1);
+            expect(colInfos.length).to.equal(1);
+            expect(colInfos[0]).to.deep.equal({
+                orig: "test",
+                new: "rename",
+                type: 4
+            });
+            expect(tableName).to.equal("testTable");
+            expect(newTableName).not.to.be.empty;
+            expect(newTableName).to.be.a("string");
+            return PromiseHelper.resolve();
+        };
+
+        executor.run()
+        .then(() => {
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .always(() => {
+            XIApi.synthesize = oldSynthesize;
+        });
+    });
+
+    it("should work for rowNum", (done) => {
+        const node = createNode(DagNodeType.RowNum);
+        const parentNode = createNode();
+        parentNode.setTable("testTable");
+        node.setParam({
+            newField: "testCol",
+        });
+        node.connectToParent(parentNode);
+
+        const executor = new DagNodeExecutor(node, txId);
+        const oldGenRowNum = XIApi.genRowNum;
+
+        XIApi.genRowNum = (txId, tableName, newColName, newTableName) => {
+            expect(txId).to.equal(1);
+            expect(tableName).to.equal("testTable");
+            expect(newColName).to.equal("testCol");
+            expect(newTableName).not.to.be.empty;
+            expect(newTableName).to.be.a("string");
+            return PromiseHelper.resolve();
+        };
+
+        executor.run()
+        .then(() => {
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .always(() => {
+            XIApi.genRowNum = oldGenRowNum;
+        });
+    });
+
+    it("should work for index", (done) => {
+        const node = DagNodeFactory.create({
+            type: DagNodeType.Index,
+            input: {
+                columns: [{
+                    name: "testCol",
+                    keyFieldName: "newKey"
+                }],
+                dhtName: "dht"
+            }
+        });
+        const parentNode = createNode();
+        parentNode.setTable("testTable");
+        node.connectToParent(parentNode);
+
+        const executor = new DagNodeExecutor(node, txId);
+        const oldIndex = XIApi.index;
+
+        XIApi.index = (txId, colNames, tableName, newTableName, newKeys, dhtName) => {
+            expect(txId).to.equal(1);
+            expect(colNames.length).to.equal(1);
+            expect(colNames[0]).to.equal("testCol");
+            expect(tableName).to.equal("testTable");
+            expect(newTableName).to.be.undefined;
+            expect(newKeys.length).to.equal(1);
+            expect(newKeys[0]).to.equal("newKey");
+            expect(dhtName).to.equal("dht");
+            return PromiseHelper.resolve();
+        };
+
+        executor.run()
+        .then(() => {
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .always(() => {
+            XIApi.index = oldIndex;
+        });
+    });
+
+    it("should work for sort", (done) => {
+        const node = createNode(DagNodeType.Sort);
+        const parentNode = createNode();
+        let progCol = ColManager.newPullCol("testCol", "testCol", ColumnType.integer);
+        parentNode.getLineage().setColumns([progCol]);
+        parentNode.setTable("testTable");
+        node.setParam({
+            columns: [{
+                columnName: "testCol",
+                ordering: "Ascending"
+            }],
+            newKeys: ["newKey"]
+        });
+        node.connectToParent(parentNode);
+
+        const executor = new DagNodeExecutor(node, txId);
+        const oldSort = XIApi.sort;
+
+        XIApi.sort = (txId, keyInfos, tableName, newTableName) => {
+            expect(txId).to.equal(1);
+            expect(keyInfos.length).to.equal(1);
+            expect(keyInfos[0]).to.deep.equal({
+                name: "testCol",
+                ordering: 3,
+                type: 4
+            });
+            expect(tableName).to.equal("testTable");
+            expect(newTableName).to.not.to.be.empty;
+            expect(newTableName).to.be.a("string");
+            return PromiseHelper.resolve();
+        };
+
+        executor.run()
+        .then(() => {
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .always(() => {
+            XIApi.sort = oldSort;
+        });
+    });
+
+    it("should work for placeholder", (done) => {
+        const node = createNode(DagNodeType.Placeholder);
+        const executor = new DagNodeExecutor(node, txId);
+        executor.run()
+        .then(() => {
+            expect(node.getTable()).to.be.undefined;
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        });
+    });
+
+    it("should work for synthesize", (done) => {
+        const node = DagNodeFactory.create({
+            type: DagNodeType.Synthesize,
+            input: {
+                colsInfo: [{
+                    sourceColumn: "testCol",
+                    destColumn: "newCol",
+                    columnType: "DfString"
+                }],
+            }
+        });
+        const parentNode = createNode();
+        parentNode.setTable("testTable");
+        node.connectToParent(parentNode);
+
+        const executor = new DagNodeExecutor(node, txId);
+        const oldSynthesize = XIApi.synthesize;
+
+        XIApi.synthesize = (txId, colInfos, tableName, newTableName) => {
+            expect(txId).to.equal(1);
+            expect(colInfos.length).to.equal(1);
+            expect(colInfos[0]).to.deep.equal({
+                orig: "testCol",
+                new: "newCol",
+                type: 1
+            });
+            expect(tableName).to.equal("testTable");
+            expect(newTableName).to.not.to.be.empty;
+            expect(newTableName).to.be.a("string");
+            return PromiseHelper.resolve();
+        };
+
+        executor.run()
+        .then(() => {
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .always(() => {
+            XIApi.synthesize = oldSynthesize;
+        });
+    });
+
+    it("should work for SQLFuncIn", (done) => {
+        const node = createNode(DagNodeType.SQLFuncIn);
+        node.setParam({
+            source: "testTable"
+        });
+        node.setSchema([{name: "testCol", type: ColumnType.integer}]);
+        const executor = new DagNodeExecutor(node, txId);
+        const oldRefresh = XcalarRefreshTable;
+
+        XcalarRefreshTable = (pubTableName, dstTableName, minBatch, maxBatch, txId, filterString, columnInfo) => {
+            expect(pubTableName).to.equal("testTable");
+            expect(dstTableName).to.not.to.be.empty;
+            expect(dstTableName).to.be.a("string");
+            expect(minBatch).to.equal(-1);
+            expect(maxBatch).to.equal(-1);
+            expect(txId).to.equal(1);
+            expect(filterString).to.equal("");
+            expect(columnInfo.length).to.equal(1);
+            expect(columnInfo[0]).to.deep.equal({
+                sourceColumn: "testCol",
+                destColumn: "testCol",
+                columnType: "DfInt64"
+            });
+            return PromiseHelper.resolve();
+        };
+
+        executor.run()
+        .then(() => {
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .always(() => {
+            XcalarRefreshTable = oldRefresh;
+        });
+    });
+
+    it("should work for SQLFuncOut", (done) => {
+        const node = createNode(DagNodeType.SQLFuncOut);
+        const parentNode = createNode();
+        parentNode.setTable("testTable");
+        node.setParam({
+            schema: [{name: "testCol", type: ColumnType.integer}]
+        });
+        node.connectToParent(parentNode);
+    
+        const executor = new DagNodeExecutor(node, txId);
+        const oldSynthesize = XIApi.synthesize;
+
+        XIApi.synthesize = (txId, colInfos, tableName, newTableName) => {
+            expect(txId).to.equal(1);
+            expect(colInfos.length).to.equal(1);
+            expect(colInfos[0]).to.deep.equal({
+                orig: "testCol",
+                new: "testCol",
+                type: 4
+            });
+            expect(tableName).to.equal("testTable");
+            expect(newTableName).to.not.to.be.empty;
+            expect(newTableName).to.be.a("string");
+            return PromiseHelper.resolve();
+        };
+
+        executor.run()
+        .then(() => {
+            done();
+        })
+        .fail((error) => {
+            console.error("fail", error);
+            done("fail");
+        })
+        .always(() => {
+            XIApi.synthesize = oldSynthesize;
+        });
+    });
 });
