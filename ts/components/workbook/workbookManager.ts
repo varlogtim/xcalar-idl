@@ -1504,17 +1504,34 @@ namespace WorkbookManager {
 
     /**
      * Allows for storing dataset load arguments within the kvstore,
-     * for later use. Should not be used outside of console (for now)
-     * @param dsIds
+     * for later use. Should not be used outside of console (for now).
+     * Also allows for specifying which datasets should automatically create published tables
+     * @param dsInfos: Object list specifying the datasets we want to load and if they have an 
+     *    associated publish table
      */
-    export function storeDatasets(dsIds: string[]) {
+    export function storeDatasets(dsInfos: {name: string, publish?: boolean,
+            pubName?: string, primaryKeys: string[], deleteDataset?: boolean}[]) {
         const promises: XDPromise<void>[] = [];
         const loadArgs: object = {};
-        loadArgs["size"] = dsIds.length;
+        loadArgs["size"] = dsInfos.length;
 
-        for (let i = 0; i < dsIds.length; i++) {
-            promises.push(DS.getLoadArgsFromDS(dsIds[i]).then((res) => {
-                loadArgs[i] = res;
+
+        for (let i = 0; i < dsInfos.length; i++) {
+            promises.push(DS.getLoadArgsFromDS(dsInfos[i].name).then((res) => {
+                if (dsInfos[i].publish) {
+                    loadArgs[i] = {
+                        loadArgs: res,
+                        publish: {
+                            pubName: dsInfos[i].pubName,
+                            pubKeys: dsInfos[i].primaryKeys,
+                            deleteDataset: dsInfos[i].deleteDataset
+                        }
+                    };
+                } else {
+                    loadArgs[i] = {
+                        loadArgs: res
+                    };
+                }
             }));
         }
 

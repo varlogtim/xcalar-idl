@@ -1284,11 +1284,12 @@ namespace xcManager {
         return deferred.promise();
     }
 
-    function processTutorialHelper(): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+    function processTutorialHelper(): XDPromise<any> {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
         const tutTarget: string = "Tutorial Dataset Target";
         let dataKey: string = KVStore.getKey("gStoredDatasetsKey");
         let _dataKVStore: KVStore = new KVStore(dataKey, gKVScope.WKBK);
+        let pubTables: StoredPubInfo[] = [];
         let promise: XDPromise<void>;
         // First, set up the tutorial data target if it doesnt exist
         if (DSTargetManager.getTarget(tutTarget) != null) {
@@ -1305,7 +1306,7 @@ namespace xcManager {
             // Then, load the stored datasets, if they exist
             return PromiseHelper.alwaysResolve(_dataKVStore.getAndParse())
         })
-        .then((datasets: object) => {
+        .then((datasets: {[key: number]: StoredDataset}) => {
             if (datasets == null) {
                 // This tutorial workbook doesn't have any stored datasets
                 return PromiseHelper.resolve();
@@ -1318,13 +1319,25 @@ namespace xcManager {
                 let eDs = existingDatasets[i];
                 names.add(eDs.id);
             }
+            let pubNames: Set<string> = new Set<string>();
+            let existingTables: PbTblInfo[] = PTblManager.Instance.getTables();
+            for (let i = 0; i < existingTables.length; i++) {
+                pubNames.add(existingTables[i].name);
+            }
             // only load the needed datasets
             let loadArgs: OperationNode[] = [];
             try {
                 for(let i = 0; i < datasets["size"]; i++) {
-                    let node: OperationNode = JSON.parse(datasets[i])
+                    let node: OperationNode = JSON.parse(datasets[i].loadArgs)
+
                     if (!names.has(node.args["dest"])) {
                         loadArgs.push(node);
+                    }
+                    // Prepare needed published tables
+                    let pubInfo = datasets[i].publish;
+                    if (pubInfo != null && !pubNames.has(pubInfo.pubName)) {
+                        pubInfo.dsName = node.args["dest"];
+                        pubTables.push(pubInfo);
                     }
                 }
             } catch (e) {
@@ -1337,6 +1350,24 @@ namespace xcManager {
                 promises.push(DS.restoreTutorialDS(loadArgs[i]));
             }
             return PromiseHelper.when(...promises);
+        })
+        .then(() => {
+            // Time to publish tutorial workbook tables
+            let promises = [];
+            for (let i = 0; i < pubTables.length; i++) {
+                let info = pubTables[i];
+                let schema = DS.getSchema(info.dsName);
+                if (schema.error != null) {
+                    continue;
+                }
+                promises.push(PTblManager.Instance.createTableFromDataset(info.dsName,
+                    info.pubName, schema.schema,
+                    info.pubKeys, !info.deleteDataset));
+            }
+            return PromiseHelper.when(...promises);
+        })
+        .then(() => {
+            return PromiseHelper.alwaysResolve(DS.refresh())
         })
         .then(deferred.resolve)
         .fail(deferred.reject)

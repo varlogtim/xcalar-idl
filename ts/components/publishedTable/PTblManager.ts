@@ -254,12 +254,14 @@ class PTblManager {
      * @param tableName
      * @param schema
      * @param primaryKeys
+     * @param noDatasetDeletion? {optional}
      */
     public createTableFromDataset(
         dsName: string,
         tableName: string,
         schema: ColSchema[],
-        primaryKeys: string[]
+        primaryKeys: string[],
+        noDatasetDeletion?: boolean
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let txId = Transaction.start({
@@ -271,7 +273,7 @@ class PTblManager {
         const tableInfo: PbTblInfo = this._datasetTables[tableName];
         delete this._datasetTables[tableName];
         this._loadingTables[tableName] = tableInfo;
-        this._createTable(txId, dsName, tableName, schema, primaryKeys)
+        this._createTable(txId, dsName, tableName, schema, primaryKeys, noDatasetDeletion)
         .then(() => {
             delete this._loadingTables[tableName];
             Transaction.done(txId, {
@@ -709,7 +711,8 @@ class PTblManager {
         dsName: string,
         tableName: string,
         schema: ColSchema[],
-        primaryKeys: string[]
+        primaryKeys: string[],
+        noDatasetDeletion?: boolean
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const validTypes: ColumnType[] = BaseOpPanel.getBasicColTypes();
@@ -762,7 +765,9 @@ class PTblManager {
             return XIApi.publishTable(txId, primaryKeys, resTable, tableName, pbColInfos);
         })
         .then(() => {
-            XIApi.deleteDataset(txId, dsName);
+            if (!noDatasetDeletion) {
+                XIApi.deleteDataset(txId, dsName);
+            }
             XIApi.deleteTableInBulk(txId, tempTables, true);
             deferred.resolve();
         })

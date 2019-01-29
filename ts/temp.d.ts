@@ -315,6 +315,18 @@ interface AggregateInfo {
     graph: string
 }
 
+interface StoredPubInfo {
+    pubName: string,
+    pubKeys: string[],
+    deleteDataset: boolean,
+    dsName?: string
+}
+
+interface StoredDataset {
+    loadArgs: string,
+    publish?: StoredPubInfo
+}
+
 declare class d3 {
     public select(selector: string): d3;
     public selectAll(selector: string): d3;
@@ -720,7 +732,7 @@ declare enum StatusT {
     StatusDatasetNameAlreadyExists,
     StatusSessListIncomplete,
     StatusRetinaAlreadyExists,
-    StatusRetinaInUse
+    StatusRetinaInUse,
     StatusDsNotFound
 }
 
@@ -1174,6 +1186,7 @@ declare namespace DS {
     export function restoreTutorialDS(loadArgs: OperationNode): XDPromise<void>;
     export function isAccessible(dsName: string): boolean;
     export function activate(dsIds: string[], noAlert: boolean): XDPromise<void>;
+    export function refresh(): XDPromise<void>;
 }
 
 

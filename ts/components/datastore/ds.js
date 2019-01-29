@@ -810,6 +810,11 @@ window.DS = (function ($, DS) {
         dsLookUpTable[homeFolder.getId()] = homeFolder;
     };
 
+    // Refresh the gridview area
+    DS.refresh = function() {
+        return refreshHelper();
+    }
+
     // Create dsObj for new dataset/folder
     function createDS(options, dsToReplace) {
         // this will make sure option is a diffent copy of old option
@@ -2766,6 +2771,7 @@ window.DS = (function ($, DS) {
 
     function refreshHelper() {
         var dir = curDirId;
+        var deferred = PromiseHelper.deferred();
         var promise = DS.restore(DS.getHomeDir(true));
         xcHelper.showRefreshIcon($gridView, false, promise);
 
@@ -2775,7 +2781,10 @@ window.DS = (function ($, DS) {
             curDirId = dir;
             refreshDS();
             UserSettings.commit(false, true);
-        });
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
     function cleanFocusedDSIfNecessary() {
