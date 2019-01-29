@@ -310,6 +310,34 @@ namespace SqlQueryHistoryPanel {
     export class ExtCard extends BaseCard {
         protected _selectedQueryIds = new Set<string>();
 
+        public setup(options: CardOptions = <CardOptions>{} ) {
+            super.setup(options);
+
+            // Delete
+            const $deleteicon = this._$cardContainer.find(".selDeleteQueryHist");
+            $deleteicon.on("click", () => {
+                Alert.show({
+                    title: SQLTStr.DeleteHistory,
+                    msg: SQLTStr.DeleteHistoryMsg,
+                    onConfirm: () => {
+                        this._deleteHistory(this._selectedQueryIds);
+                        this._updateTableUI(this.queryMap, false);
+                    }
+                });
+            });
+        }
+
+        public show(
+            refresh: boolean
+        ): XDPromise<any> {
+            let promise = super.show(refresh);
+            promise.then(() => {
+                this._updateActions();
+            });
+
+            return promise;
+        }
+
         /**
          * Update/Add a query with partial data
          * @param updateInfo query update information
@@ -351,6 +379,7 @@ namespace SqlQueryHistoryPanel {
             tableDef.getKeyFunction = (data: QueryExtInfo) => data.queryId;
             tableDef.onSelectChange = (queryIdSet: Set<string>) => {
                 this._selectedQueryIds = queryIdSet;
+                this._updateActions();
             }
 
             tableDef.columns[TableColumnCategory.ROWS] = {
@@ -415,6 +444,28 @@ namespace SqlQueryHistoryPanel {
             };
 
             return tableDef;
+        }
+
+        protected _updateActions(): void {
+            let $header = this._$cardContainer.find(".cardHeader");
+            let $delete = $header.find(".delete");
+            // let queryMap = this.queryMap;
+            let selectedQueryIds = this._selectedQueryIds;
+            $delete.addClass("xc-disabled");
+
+            if (selectedQueryIds.size > 0) {
+                $delete.removeClass("xc-disabled");
+            }
+        }
+
+        protected _deleteHistory(queryIdSet: Set<string>): XDPromise<void> {
+            let promises: XDPromise<void>[] = [];
+
+            queryIdSet.forEach((queryId) => {
+                let promise = SqlQueryHistory.getInstance().deleteQuery(queryId);
+                promises.push(promise);
+            });
+            return PromiseHelper.when(...promises);
         }
     }
 

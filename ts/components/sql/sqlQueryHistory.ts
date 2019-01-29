@@ -24,7 +24,13 @@ class SqlQueryHistory {
      * Get a copy of queryMap
      */
     public getQueryMap(): SqlQueryMap {
-        return xcHelper.deepCopy(this._queryMap);
+        let map = {};
+        for (let key in this._queryMap) {
+            if (this._queryMap[key]) {
+                map[key] = this._queryMap[key];
+            }
+        }
+        return xcHelper.deepCopy(map);
     }
 
     /**
@@ -115,7 +121,7 @@ class SqlQueryHistory {
         queryId: string,
         updateInfo: SqlQueryHistory.QueryInfo
     ): XDPromise<void> {
-        const queryKvStore = new KVStore(queryId, gKVScope.WKBK);
+        const queryKvStore = this._getKVStoreFromQueryId(queryId);
         return queryKvStore.put(JSON.stringify(updateInfo), true);
     }
 
@@ -147,12 +153,18 @@ class SqlQueryHistory {
         }));
     }
 
+    public deleteQuery(queryId: string): XDPromise<void> {
+        const queryKvStore = this._getKVStoreFromQueryId(queryId);
+        delete this._queryMap[queryId];
+        return queryKvStore.delete();
+    }
+
     // TODO: For test only, should be deleted!!!
     public clearStore() {
         return this._sqlQueryKvStore.get()
         .then( (ret) => {
             const tasks = ret.split(',').map( (queryId) => {
-                let kvStore = new KVStore(queryId, gKVScope.WKBK);
+                let kvStore = this._getKVStoreFromQueryId(queryId);
                 return kvStore.delete();
             })
             return Promise.all(tasks);
@@ -162,6 +174,10 @@ class SqlQueryHistory {
         })
         .then(()=>console.log('clear done'))
         .fail(()=>console.log('clear fail'));
+    }
+
+    private _getKVStoreFromQueryId(queryId: string): KVStore {
+        return new KVStore(queryId, gKVScope.WKBK);
     }
 }
 

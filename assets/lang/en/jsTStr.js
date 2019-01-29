@@ -1593,6 +1593,8 @@ SQLTStr = {
     "AddOperation": "Add Operation",
     "CopyOperations": "Copy Operations",
     "MoveOperations": "Move Operations",
+    "DeleteHistory": "Delete SQL History",
+    "DeleteHistoryMsg": "Are you sure you want to delet the selected SQL history?",
     "queryHistStatusRun": "Running",
     "queryHistStatusDone": "Done",
     "queryHistStatusFail": "Failed",
