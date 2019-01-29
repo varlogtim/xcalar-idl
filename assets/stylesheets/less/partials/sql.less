@@ -186,6 +186,15 @@
         }
     }
 
+    &.loading {
+        .cardHeader {
+            span.refresh, span.cancel, span.delete {
+                pointer-events: none;
+                opacity: @opacity-disabled;
+            }
+        }
+    }
+
     .icon-run, .icon-done, .icon-cancel, .icon-fail, .icon-compile {
         font-size: 13px;
         margin-right: 9px;

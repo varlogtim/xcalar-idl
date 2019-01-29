@@ -51,6 +51,14 @@ namespace SqlQueryHistoryPanel {
             SqlQueryHistModal.getInstance().setup();
         }
 
+        protected getTableContainer(): JQuery {
+            return this._$cardContainer.find('.cardMain');
+        }
+    
+        protected getCardContainer(): JQuery {
+            return this._$cardContainer;
+        }
+
         protected getTitle(): string {
             return SQLTStr.queryHistCardTitle;
         }
@@ -210,7 +218,7 @@ namespace SqlQueryHistoryPanel {
                 numRowsToShow: numRowToShow,
                 enableAutoRefresh: checkContainerVisible,
                 msRefreshDuration: 2000,
-                container: this._$cardContainer.find('.cardMain')[0]
+                container: this.getTableContainer()[0]
             });
         }
 
@@ -327,15 +335,29 @@ namespace SqlQueryHistoryPanel {
             });
         }
 
+        /**
+         * @override
+         * @param refresh 
+         */
         public show(
             refresh: boolean
         ): XDPromise<any> {
-            let promise = super.show(refresh);
-            promise.then(() => {
-                this._updateActions();
-            });
+            // Disable header buttons when loading
+            this.getCardContainer().addClass('loading');
+            // Show loading animation
+            // The animation element will be replaced/deleted by table content,
+            // so we don't need to/should not explicitly remove it.
+            xcHelper.showRefreshIcon(this.getTableContainer(), true, null);
 
-            return promise;
+            // Load data
+            return super.show(refresh)
+            .then(() => {
+                this._updateActions();
+            })
+            .always(() => {
+                // Enable header buttons
+                this.getCardContainer().removeClass('loading');
+            });
         }
 
         /**
@@ -690,7 +712,7 @@ namespace SqlQueryHistoryPanel {
             }
 
             // Store the raw data
-            this._data = data.filter((v) => (data != null))
+            this._data = data.filter((v) => (v != null))
                 .map((v) => xcHelper.deepCopy(v));
 
             // Update the UI
