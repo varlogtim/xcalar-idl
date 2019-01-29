@@ -46,10 +46,36 @@ class DagSchemaPopup {
             self._$popup.find("li.selected").removeClass("selected");
             $li.addClass("selected");
             const colName: string = $name.text();
-            const lineage = self._dagNode.getLineage().getColumnHistory(colName);
-            for (let i = 0; i < lineage.length; i++) {
-                DagView.highlightLineage(lineage[i].id, lineage[i].childId, lineage[i].type);
+            let promise: XDPromise<any> = PromiseHelper.resolve();
+            if (self._dagNode instanceof DagNodeSQL) {
+                // Special case for SQL node
+                let subGraph = self._dagNode.getSubGraph();
+                if (!subGraph) {
+                    self._$popup.find(".content, .close").addClass("xc-disabled");
+                    const params: DagNodeSQLInputStruct = self._dagNode.getParam();
+                    if (params.sqlQueryStr) {
+                        const paramterizedSQL = xcHelper.replaceMsg(params.sqlQueryStr,
+                            DagParamManager.Instance.getParamMap(), true);
+                        const queryId = xcHelper.randName("sql", 8);
+                        promise = self._dagNode.compileSQL(paramterizedSQL, queryId)
+                        .then(() => {
+                            const lineage = self._dagNode.getLineage();
+                            lineage.reset();
+                            lineage.getChanges();
+                        })
+                        .always(() => {
+                            self._$popup.find(".content, .close").removeClass("xc-disabled");
+                        });
+                    }
+                }
             }
+            promise
+            .then(() => {
+                const lineage = self._dagNode.getLineage().getColumnHistory(colName);
+                for (let i = 0; i < lineage.length; i++) {
+                    DagView.highlightLineage(lineage[i].id, lineage[i].childId, lineage[i].type);
+                }
+            });
         });
 
         this._$popup.on("click", ".expand", function() {
