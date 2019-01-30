@@ -568,7 +568,8 @@ SQLErrTStr = {
     "NeedConfiguration": "Please configure the SQL node with valid SQL query first",
     "NoPublishedTable": "Cannot find all published tables",
     "NeedSQLMode": "Not running under sql mode",
-    "IdentifierMismatch": "Identifier map should match with identifiers order"
+    "IdentifierMismatch": "Identifier map should match with identifiers order",
+    "XdfExplodeString": "XDF explodeString is not supported in SQL"
 };
 
 SQLInfoTStr = {

@@ -6572,6 +6572,8 @@
                 if (opName === "expressions.XCEPassThrough") {
                     assert(condTree.value.name !== undefined, SQLErrTStr.UDFNoName);
                     if (condTree.value.name.indexOf("xdf_") === 0) {
+                        assert(condTree.value.name != "xdf_explodeString",
+                                                SQLErrTStr.XdfExplodeString);
                         outStr += condTree.value.name.substring(4) + "(";
                     } else {
                         outStr += "sql:" + condTree.value.name + "(";
