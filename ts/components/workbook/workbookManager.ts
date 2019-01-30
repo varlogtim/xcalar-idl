@@ -2,7 +2,6 @@ namespace WorkbookManager {
     let wkbkStore: KVStore;
     let activeWKBKId: string;
     let wkbkSet: WKBKSet;
-    let missingWkbks: Set<string>;
     let checkInterval: number = 2000; // progress bar check time
     let progressTimeout: any;
     const descriptionKey: string = "workBookDesc-1";
@@ -253,10 +252,6 @@ namespace WorkbookManager {
         if (toWkbk == null) {
             return PromiseHelper.reject({
                 "error": "Invalid workbook Id"
-            });
-        } else if (missingWkbks.has(toWkbk.getId())) {
-            return PromiseHelper.reject({
-                "error": "Failed to read workbook session. Contact support to resolve this issue."
             });
         }
 
@@ -1008,7 +1003,6 @@ namespace WorkbookManager {
             }
             const numSessions: number = sessionInfo.numSessions;
             const sessions: any = sessionInfo.sessions;
-            missingWkbks = new Set<string>();
             if  (refreshing) {
                 initializeVariable();
             }
@@ -1046,16 +1040,6 @@ namespace WorkbookManager {
             }
 
             for (let oldWkbkId in oldWorkbooks) {
-                let wkbk: WKBK;
-                wkbk = new WKBK({
-                    "id": oldWkbkId,
-                    "name": oldWkbkId,
-                    "noMeta": true,
-                    "state": "Error"
-                });
-                wkbk.setResource(false);
-                wkbkSet.put(oldWkbkId, wkbk);
-                missingWkbks.add(oldWkbkId);
                 console.warn("Error!", oldWkbkId, "is missing.");
             }
 
