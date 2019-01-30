@@ -6,6 +6,7 @@ class XcDatasetViewer extends XcViewer {
     private readonly defaultColWidth: number = 130;
     private readonly initialNumRowsToFetch: number = 40;
     private _schemaArray: ColSchema[][];
+    private _dispalySchema: ColSchema[];
 
     public constructor(dataset: DSObj) {
         super(dataset.getFullName()); // use ds full name as id
@@ -61,6 +62,14 @@ class XcDatasetViewer extends XcViewer {
         return deferred.promise();
     }
 
+    /**
+     * Set the schema in dispaly, specially for TblSourcePreview
+     */
+    public setDisplaySchema(schema: ColSchema[]): void {
+        this._dispalySchema = schema;
+        this._synceResultWithDisplaySchema();
+    }
+
     private _getTableEle(): JQuery {
         return this.$view.find("table");
     }
@@ -98,6 +107,26 @@ class XcDatasetViewer extends XcViewer {
         return deferred.promise();
     }
 
+    private _getSchemaFromSchemaArray(): ColSchema[] | null {
+        if (!this._schemaArray) {
+            return null;
+        }
+
+        let schema: ColSchema[] = this._schemaArray.map((schemas) => {
+            if (schemas.length === 0) {
+                return null;
+            } else if (schemas.length === 1) {
+                return schemas[0];
+            } else {
+                return {
+                    name: schemas[0].name,
+                    type: ColumnType.mixed
+                }
+            }
+        });
+        return schema;
+    } 
+
     private _getSampleTable(jsonKeys: string[], jsons: object[]): void {
         const html: string = this._getSampleTableHTML(jsonKeys, jsons);
         this.$view.html(html);
@@ -119,20 +148,6 @@ class XcDatasetViewer extends XcViewer {
         }
     }
 
-    private _getColunmType(key: string): ColumnType {
-        let schemaArray: ColSchema[][] = this._schemaArray || [];
-        let res: ColSchema[][] = schemaArray.filter((schemas) => {
-            return schemas && schemas[0].name === key
-        });
-
-        if (res.length) {
-            let schemas = res[0];
-            return schemas.length > 1 ? ColumnType.mixed : schemas[0].type;
-        } else {
-            return null;
-        }
-    } 
-
     private _getSampleTableHTML(jsonKeys: string[], jsons: object[]): string {
         // validation check
         if (!jsonKeys || !jsons) {
@@ -141,6 +156,16 @@ class XcDatasetViewer extends XcViewer {
 
         let tr: string = "";
         let th: string = "";
+
+        let schema: ColSchema[] = this._getSchemaFromSchemaArray();
+        let knownTypes: ColumnType[] = [];
+        if (schema && schema.length) {
+            jsonKeys = schema.map((colInfo) => {
+                let name = xcHelper.unescapeColName(colInfo.name);
+                knownTypes.push(colInfo.type);
+                return name;
+            });
+        }
 
         let columnsType: string[] = [];  // track column type
         let numKeys: number = Math.min(1000, jsonKeys.length); // limit to 1000 ths
@@ -164,42 +189,8 @@ class XcDatasetViewer extends XcViewer {
         for (var i = 0; i < numKeys; i++) {
             var key = jsonKeys[i].replace(/\'/g, '&#39');
             var thClass = "th col" + (i + 1);
-            var type = this._getColunmType(key) || columnsType[i];
-            var width = xcHelper.getTextWidth(null, key);
-
-            width += 2; // text will overflow without it
-            width = Math.max(width, this.defaultColWidth); // min of 130px
-
-            th +=
-                '<th class="' + thClass + '" style="width:' + width + 'px;">' +
-                    '<div class="header type-' + type + '" ' +
-                         'data-type=' + type + '>' +
-                        '<div class="colGrab"></div>' +
-                        '<div class="flexContainer flexRow">' +
-                            '<div class="flexWrap flex-left" ' +
-                                'data-toggle="tooltip" ' +
-                                'data-placement="top" ' +
-                                'data-container="body" ' +
-                                'title="' + type + '">' +
-                                '<span class="iconHidden"></span>' +
-                                '<span class="type icon"></span>' +
-                            '</div>' +
-                            '<div class="flexWrap flex-mid">' +
-                                '<input spellcheck="false"' +
-                                    'class="tooltipOverflow editableHead ' +
-                                    'shoppingCartCol ' +
-                                    thClass + '" value=\'' + key + '\' ' +
-                                    'disabled ' +
-                                    'data-original-title="' + key + '" ' +
-                                    'data-toggle="tooltip" ' +
-                                    'data-container="body" ' +'>' +
-                            '</div>' +
-                            '<div class="flexWrap flex-right">' +
-                                '<i class="icon xi-tick fa-8"></i>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>' +
-                '</th>';
+            var type = knownTypes[i] || columnsType[i];
+            th += this._getTh(key, type, thClass);
         }
 
         const html: string =
@@ -264,10 +255,31 @@ class XcDatasetViewer extends XcViewer {
                       '</td>';
             }
 
+            tr += this._addExtraRows(jsonKeys);
             tr += '</tr>';
             i++;
         });
 
+        return tr;
+    }
+
+    private _addExtraRows(jsonKeys: string[]): HTML {
+        let displaySchema: ColSchema[] = this._dispalySchema || [];
+        if (displaySchema == null || displaySchema.length === 0) {
+            return "";
+        }
+        let set: Set<string> = new Set();
+        jsonKeys.forEach((key) => {
+            set.add(key);
+        });
+
+        let tr: HTML = "";
+        displaySchema.forEach((schema) => {
+            let name = schema.name;
+            if (!set.has(name)) {
+                tr += this._getTd("Unavailable in preview", "newAdded")
+            }
+        });
         return tr;
     }
 
@@ -394,5 +406,112 @@ class XcDatasetViewer extends XcViewer {
 
         // var $dsTable = $("#dsTable");
         // $tableWrap.width($dsTable.width());
+    }
+
+    private _synceResultWithDisplaySchema(): void {
+        let $table = this._getTableEle();
+        $table.find(".unused").removeClass("unused");
+        $table.find(".newAdded").remove();
+
+        let schema = this._dispalySchema;
+        if (schema == null || schema.length === 0) {
+            return;
+        }
+
+        let set: Set<string> = new Set();
+        schema.forEach((colInfo) => {
+            set.add(colInfo.name);
+        });
+        let $ths = $table.find("th");
+        let $trs = $table.find("tbody tr");
+        $ths.each((index, el) => {
+            let $th = $(el);
+            if ($th.hasClass("rowNumHead")) {
+                // skip row num
+                return;
+            }
+            let colName = $th.find("input").val();
+            if (set.has(colName)) {
+                set.delete(colName);
+            } else {
+                $ths.eq(index).addClass("unused");
+                $trs.each((_i, el) => {
+                    $(el).find("td").eq(index).addClass("unused");
+                });
+            }
+        });
+
+        let extraSchema: ColSchema[] = schema.filter((colInfo) => {
+            let colName = colInfo.name;
+            return set.has(colName);
+        });
+
+        this._addExtraColumns(extraSchema);
+    }
+
+    private _addExtraColumns(schema: ColSchema[]): void {
+        if (schema.length === 0) {
+            return;
+        }
+        let extraTh: HTML = "";
+        let extraTd: HTML = "";
+        schema.forEach((colInfo) => {
+            extraTh += this._getTh(colInfo.name, colInfo.type, "newAdded");
+            extraTd += this._getTd("Unavailable in preview", "newAdded");
+        });
+
+        let $table = this._getTableEle();
+        $table.find("thead tr").append(extraTh);
+        $table.find("tbody tr").each((_index, el) => {
+            $(el).append(extraTd);
+        });
+    }
+
+    private _getTh(key: string, type: string, thClass: string): HTML {
+        var width = xcHelper.getTextWidth(null, key);
+        width += 2; // text will overflow without it
+        width = Math.max(width, this.defaultColWidth); // min of 130px
+    
+        let th: HTML =
+        '<th class="' + thClass + '" style="width:' + width + 'px;">' +
+            '<div class="header type-' + type + '" ' +
+                    'data-type=' + type + '>' +
+                '<div class="colGrab"></div>' +
+                '<div class="flexContainer flexRow">' +
+                    '<div class="flexWrap flex-left" ' +
+                        'data-toggle="tooltip" ' +
+                        'data-placement="top" ' +
+                        'data-container="body" ' +
+                        'title="' + type + '">' +
+                        '<span class="iconHidden"></span>' +
+                        '<span class="type icon"></span>' +
+                    '</div>' +
+                    '<div class="flexWrap flex-mid">' +
+                        '<input spellcheck="false"' +
+                            'class="tooltipOverflow editableHead ' +
+                            'shoppingCartCol ' +
+                            thClass + '" value=\'' + key + '\' ' +
+                            'disabled ' +
+                            'data-original-title="' + key + '" ' +
+                            'data-toggle="tooltip" ' +
+                            'data-container="body" ' +'>' +
+                    '</div>' +
+                    '<div class="flexWrap flex-right">' +
+                        '<i class="icon xi-tick fa-8"></i>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+        '</th>';
+        return th;
+    }
+
+    private _getTd(text: string, classes: string): HTML {
+        let td: HTML =
+        '<td class="cell ' + classes + '">' +
+            '<div class="innerCell">' +
+                text +
+            '</div>' +
+        '</td>';
+        return td;
     }
 }

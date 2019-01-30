@@ -20,12 +20,15 @@
       <div class="loadingSection xc-loadView"></div>
       <div class="tableSection xc-contentView"></div>
       <div class="bottomSection">
-          <div class="textSection rowContent">
-            <textarea class="xc-textArea textarea"
-               placeholder='Example: [{"name": "Column1", "type": "integer"}, {"name": "Column2", "type": "string"}]'></textarea>
-          </div>
-          <div class="schemaWizard rowContent xc-wizard">
-            <%= dicts.dsForm.UseSchemaWizard %>
+          <div class="tblSchema">
+            <div class="textSection rowContent">
+              <div class="schemaError"></div>
+              <textarea class="xc-textArea textarea"
+                 placeholder='Example: [{"name": "Column1", "type": "integer"}, {"name": "Column2", "type": "string"}]'></textarea>
+            </div>
+            <div class="schemaWizard rowContent xc-wizard">
+              <%= dicts.dsForm.UseSchemaWizard %>
+            </div>
           </div>
           <div class="buttonSection">
               <button type="button" class="btn btn-submit createTable"><%= dicts.Table.Create %></button>

@@ -602,9 +602,10 @@ window.DSTable = (function($, DSTable) {
         var schema = dsObj.getColumns();
         var knownTypes = [];
         if (schema && schema.length) {
-            jsonKeys = schema.map(function(col) {
-                knownTypes.push(col.type);
-                return col.name;
+            jsonKeys = schema.map(function(colInfo) {
+                let name = xcHelper.unescapeColName(colInfo.name);
+                knownTypes.push(colInfo.type);
+                return name;
             });
         }
         var columnsType = [];  // track column type

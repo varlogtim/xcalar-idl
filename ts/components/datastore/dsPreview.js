@@ -26,6 +26,7 @@ window.DSPreview = (function($, DSPreview) {
     var componentJsonFormat;
     var componentXmlFormat;
     var componentParquetFileFormat;
+    var dataSourceSchema;
 
     var tableName = null;
     var rawData = null;
@@ -109,6 +110,8 @@ window.DSPreview = (function($, DSPreview) {
             udfModule: defaultModule,
             udfFunction: 'xmlToJsonWithExtraKeys'
         });
+
+        setupDataSourceSchema();
 
         // select a char as candidate delimiter
         $previewTable.mouseup(function(event) {
@@ -588,6 +591,102 @@ window.DSPreview = (function($, DSPreview) {
         $previewCard.find(".previewSection").off("scroll");
     }
 
+    function setupDataSourceSchema() {
+        dataSourceSchema = new DataSourceSchema(getSchemaRow());
+        dataSourceSchema
+        .registerEvent(DataSourceSchemaEvent.GetInitialSchema, function() {
+            return getSchemaFromPreviewTable();
+        })
+        .registerEvent(DataSourceSchemaEvent.ChangeSchema, function(arg){
+            applySchemaChangetoPreview(arg.schema, arg.autoDetect);
+        })
+        .registerEvent(DataSourceSchemaEvent.ValidateSchema, function(schema) {
+            return validateMatchOfSchemaAndHeaders(schema);
+        });
+    }
+
+    function getHeadersFromSchema(schema) {
+        var headers = null;
+        if (schema && schema.length) {
+            headers = schema.map((colInfo) => {
+                return {
+                    colName: colInfo.name,
+                    colType: colInfo.type
+                };
+            });
+        }
+        return headers;
+    }
+
+    function getSchemaFromHeader(headers) {
+        var schema = headers.map((header) => {
+            return {
+                name: header.colName,
+                type: header.colType
+            };
+        });
+        return schema;
+    }
+
+    function validateMatchOfSchemaAndHeaders(schema) {
+        if (isCreateTableMode() || loadArgs.getFormat() !== formatMap.CSV) {
+            return null; // only check CSV case in import dataset
+        }
+        var validSchema = getSchemaFromPreviewTable();
+        if (schema.length !== validSchema.length) {
+            return "Schema should include " + validSchema.length + " columns";
+        }
+    }
+
+    function applySchemaChangetoPreview(schema, autoDetect) {
+        var isCSV = (loadArgs.getFormat() === formatMap.CSV);
+        var isCreateTable = isCreateTableMode();
+        if (!isCSV && !isCreateTable) {
+            return;
+        }
+
+        var sourceIndex = loadArgs.getPreivewIndex();
+        if (sourceIndex == null) {
+            return;
+        }
+        var headers = null;
+        if (autoDetect) {
+            headers = loadArgs.getSuggestHeaders(sourceIndex);
+        } else {
+            headers = getHeadersFromSchema(schema);
+        }
+
+        if (headers != null) {
+            loadArgs.setPreviewHeaders(sourceIndex, headers);
+            if (isCSV) {
+                restoreColumnHeaders(sourceIndex, headers);
+            }
+            if (isCreateTable) {
+                syncHeaderWithSchemaSection();
+            }
+        }
+    }
+
+    function autoFillDataSourceSchema(autoDetect) {
+        try {
+            if (autoDetect) {
+                dataSourceSchema.setAutoSchema();
+            } else {
+                var sourceIndex = loadArgs.getPreivewIndex();
+                var headers = loadArgs.getPreviewHeaders(sourceIndex);
+                var schema;
+                if (headers) {
+                    schema = getSchemaFromHeader(headers);
+                } else {
+                    schema = getSchemaFromPreviewTable();
+                }
+                dataSourceSchema.setSchema(schema);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
     function setupForm() {
         $form.on("mouseenter", ".tooltipOverflow", function() {
             xcTooltip.auto(this);
@@ -665,24 +764,6 @@ window.DSPreview = (function($, DSPreview) {
         $("#dsForm-skipRows").on("input", function() {
             csvArgChange();
             getPreviewTable();
-        });
-
-        // schema rows
-        var $schemaRow = $form.find(".row.schema");
-        $schemaRow.find(".checkboxSection").on("click", function() {
-            var $checkbox = $schemaRow.find(".checkboxSection .checkbox");
-            if ($checkbox.hasClass("checked")) {
-                toggleSchemaCheckbox(false); // uncheck
-            } else {
-                toggleSchemaCheckbox(true); // check
-            }
-        });
-
-        $schemaRow.find(".schemaWizard").click(function() {
-            var schema = getSchemaFromPreviewTable();
-            SchemaSelectionModal.Instance.show(schema, function(colSchema) {
-                addSchema(colSchema);
-            });
         });
 
         // back button
@@ -1224,6 +1305,7 @@ window.DSPreview = (function($, DSPreview) {
         componentXmlFormat.resetState();
         componentJsonFormat.reset();
         componentParquetFileFormat.reset();
+        dataSourceSchema.reset();
         $form.find(".checkbox.checked").removeClass("checked");
         $form.find(".collapse").removeClass("collapse");
         $previewWrap.find(".inputWaitingBG").remove();
@@ -1245,7 +1327,6 @@ window.DSPreview = (function($, DSPreview) {
         };
         resetUdfSection();
         toggleFormat();
-        toggleSchemaCheckbox(false);
         // enable submit
         xcHelper.enableSubmit($form.find(".confirm"));
 
@@ -1257,14 +1338,6 @@ window.DSPreview = (function($, DSPreview) {
         $previewWrap.find(".errorSection").addClass("hidden")
                                           .removeClass("cancelState");
         $previewWrap.find(".loadHidden").removeClass("hidden");
-
-        var $schemaRow = $form.find(".row.schema");
-        $schemaRow.find("textArea").val("");
-        if (isCreateTableMode()) {
-            $schemaRow.removeClass("xc-hidden");
-        } else {
-            $schemaRow.addClass("xc-hidden");
-        }
     }
 
     function resetPreviewRows() {
@@ -1770,18 +1843,7 @@ window.DSPreview = (function($, DSPreview) {
 
     function getSchemaFromPreviewTable() {
         var headers = getColumnHeaders();
-        var schema = headers.map((header) => {
-            return {
-                name: header.colName,
-                type: header.colType
-            };
-        });
-        return schema;
-    }
-
-    function addSchema(colSchema) {
-        var $schemaRow = $form.find(".row.schema");
-        $schemaRow.find("textarea").val(JSON.stringify(colSchema));
+        return getSchemaFromHeader(headers);
     }
 
     function validateDSNames() {
@@ -2042,16 +2104,6 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         return {columns: names};
-    }
-
-    function validateTblSchema() {
-        var $schemaRow = $form.find(".row.schema");
-        var $checkbox = $schemaRow.find(".checkboxSection .checkbox");
-        if ($checkbox.hasClass("checked")) {
-            return {schema: null};
-        }
-        var $textArea = $schemaRow.find("textArea");
-        return xcHelper.validateSchemaFromTextArea($textArea);
     }
 
     function validateAdvancedArgs() {
@@ -2343,8 +2395,8 @@ window.DSPreview = (function($, DSPreview) {
             udfQuery = udfDef.udfQuery;
         }
 
-        var schema = isCreateTableMode() ? validateTblSchema() : {schema: null};
-        if (schema == null) {
+        var schemaArgs = isCreateTableMode() ? dataSourceSchema.validate() : {schema: null};
+        if (schemaArgs == null) {
             // error case
             return null;
         }
@@ -2355,6 +2407,7 @@ window.DSPreview = (function($, DSPreview) {
             return null;
         }
 
+        var schema = addExtrColToSchema(schemaArgs.schema, advanceArgs)
         var args = {
             "dsNames": dsNames,
             "format": format,
@@ -2365,10 +2418,30 @@ window.DSPreview = (function($, DSPreview) {
             "lineDelim": lineDelim,
             "quote": quote,
             "skipRows": skipRows,
-            "schema": schema.schema
+            "schema": schema
         };
 
         return $.extend(args, advanceArgs);
+    }
+
+    function addExtrColToSchema(schema, advanceArgs) {
+        if (!isCreateTableMode() || schema == null) {
+            return schema;
+        }
+
+        if (advanceArgs.rowNum) {
+            schema.push({
+                name: advanceArgs.rowNum,
+                type: ColumnType.integer
+            });
+        }
+        if (advanceArgs.fileName) {
+            schema.push({
+                name: advanceArgs.fileName,
+                type: ColumnType.string
+            });
+        }
+        return schema;
     }
 
     function getNameFromPath(path) {
@@ -2560,12 +2633,19 @@ window.DSPreview = (function($, DSPreview) {
             // reset case
             $formatText.data("format", "").val("");
             loadArgs.setFormat(null);
+            dataSourceSchema.hide();
             return false;
         }
 
         format = format.toUpperCase();
         var text = $('#fileFormatMenu li[name="' + format + '"]').text();
         $formatText.data("format", format).val(text);
+
+        if (isCreateTableMode() || format === "CSV") {
+            dataSourceSchema.show();
+        } else {
+            dataSourceSchema.hide();
+        }
 
         switch (format) {
             case "CSV":
@@ -3709,10 +3789,33 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         addAdvancedRows();
+        syncHeaderWithSchemaSection();
         if (window.isBrowserSafari) {
             $previewTable.removeClass("dataTable");
             setTimeout(function() {$previewTable.addClass("dataTable");}, 0);
         }
+    }
+
+    function getTh(header, classes) {
+        header = header || "";
+        var th = '<th class="' + classes + '">' +
+                    '<div class="header">' +
+                        colGrabTemplate +
+                        '<div class="text">' +
+                            header +
+                        '</div>' +
+                    '</div>' +
+                '</th>';
+        return th;
+    }
+
+    function getTd(text, classes) {
+        var td = '<td class="cell ' + classes + '">' +
+                    '<div class="innerCell">' +
+                        text +
+                    '</div>' +
+                '</td>';
+        return td;
     }
 
     function addAdvancedRows() {
@@ -3733,46 +3836,93 @@ window.DSPreview = (function($, DSPreview) {
             return;
         }
 
-        var getTh = function($ele, extraClass) {
-            var header = $ele.find("input").val().trim() || "";
-            var th = '<th class="extra ' + extraClass + '">' +
-                        '<div class="header">' +
-                            colGrabTemplate +
-                            '<div class="text">' +
-                                header +
-                            '</div>' +
-                        '</div>' +
-                    '</th>';
-            return th;
-        };
-
-        var getTd = function(text) {
-            var td = '<td class="cell extra">' +
-                        '<div class="innerCell">' +
-                            text +
-                        '</div>' +
-                    '</td>';
-            return td;
-        };
-
         var previewFile = loadArgs.getPreviewFile() || "";
         var extraTh = "";
         if (hasFileName) {
-            extraTh += getTh($fileName, "fileName");
+            let header = $fileName.find("input").val().trim();
+            extraTh += getTh(header, "extra fileName");
         }
         if (hasRowNumber) {
-            extraTh += getTh($rowNumber, "rowNumber");
+            let header = $rowNumber.find("input").val().trim()
+            extraTh += getTh(header, "extra rowNumber");
         }
 
         $previewTable.find("thead tr").append(extraTh);
         $previewTable.find("tbody tr").each(function(index) {
             var extraTd = "";
             if (hasFileName) {
-                extraTd += getTd(previewFile);
+                extraTd += getTd(previewFile, "extra");
             }
             if (hasRowNumber) {
-                extraTd += getTd(index + 1);
+                extraTd += getTd(index + 1, "extra");
             }
+            $(this).append(extraTd);
+        });
+    }
+
+    function syncHeaderWithSchemaSection() {
+        $previewTable.find(".unused").removeClass("unused");
+        $previewTable.find(".newAdded").remove();
+        if (!isCreateTableMode() || isInError()) {
+            return;
+        } else if (loadArgs.getFormat() === formatMap.XML) {
+            // XXX don't have a good UX for it, so disable it first
+            return;
+        }
+        // only for create table
+        var sourceIndex = loadArgs.getPreivewIndex();
+        var headers = loadArgs.getPreviewHeaders(sourceIndex);
+        if (headers == null) {
+            return;
+        }
+        var set = new Set();
+        headers.forEach((header) => {
+            set.add(header.colName);
+        });
+        var $ths = $previewTable.find("th");
+        var $trs = $previewTable.find("tbody tr");
+        $ths.each((index, el) => {
+            var $th = $(el);
+            if ($th.hasClass("rowNumHead") || $th.hasClass("extra")) {
+                // skip row num and extr column
+                return;
+            }
+            var $text = $th.find(".text");
+            var colName = $text.val() || $text.text();
+            if (set.has(colName)) {
+                set.delete(colName);
+            } else {
+                $ths.eq(index).addClass("unused");
+                $trs.each(function() {
+                    $(this).find("td").eq(index).addClass("unused");
+                });
+            }
+        });
+
+        let extraColumns = [];
+        headers.forEach((header) => {
+            let colName = header.colName;
+            if (set.has(colName)) {
+                extraColumns.push(colName);
+            }
+        });
+
+        addExtraColumns(extraColumns);
+    }
+
+    function addExtraColumns(extraColumns) {
+        if (extraColumns.length === 0) {
+            return;
+        }
+        var extraTh = "";
+        var extraTd = "";
+        extraColumns.forEach((name) => {
+            extraTh += getTh(name, "newAdded");
+            extraTd += getTd("Unavailable in preview", "newAdded");
+        });
+
+        $previewTable.find("thead tr").append(extraTh);
+        $previewTable.find("tbody tr").each(function() {
             $(this).append(extraTd);
         });
     }
@@ -3850,17 +4000,8 @@ window.DSPreview = (function($, DSPreview) {
         }
     }
 
-    function toggleSchemaCheckbox(check) {
-        var $schemaRow = $form.find(".row.schema");
-        var $checkbox = $schemaRow.find(".checkboxSection .checkbox");
-        var $schemaPart = $schemaRow.find(".textSection, .schemaWizard");
-        if (check) {
-            $checkbox.addClass("checked");
-            $schemaPart.addClass("xc-disabled");
-        } else {
-            $checkbox.removeClass("checked");
-            $schemaPart.removeClass("xc-disabled");
-        }
+    function getSchemaRow() {
+        return $form.find(".row.schema");
     }
 
     function applyHighlight(str) {
@@ -4951,7 +5092,7 @@ window.DSPreview = (function($, DSPreview) {
     function initialSuggest() {
         var sourceIndex = loadArgs.getPreivewIndex();
         var cachedHeaders = loadArgs.getPreviewHeaders(sourceIndex);
-
+        var autoDetectSchema = false;
         if ($previewTable.find(".editableHead").length > gMaxDSColsSpec) {
             $previewTable.find("th").addClass("nonEditable");
             var msg = "Data source has more than " + gMaxDSColsSpec +
@@ -4964,6 +5105,7 @@ window.DSPreview = (function($, DSPreview) {
             });
 
             loadArgs.files[sourceIndex].autoCSV = true;
+            autoDetectSchema = true;
         } else if (cachedHeaders && cachedHeaders.length > 0) {
             restoreColumnHeaders(sourceIndex, cachedHeaders);
         } else {
@@ -4973,6 +5115,7 @@ window.DSPreview = (function($, DSPreview) {
             changeColumnHeaders(recTypes, recNames);
             loadArgs.setSuggestHeaders(sourceIndex, recNames, recTypes);
         }
+        autoFillDataSourceSchema(autoDetectSchema);
     }
 
     function restoreColumnHeaders(sourceIndex, typedColumns) {

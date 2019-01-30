@@ -436,7 +436,7 @@ html.safari {
             }
         }
 
-        @bottom-h: 145px;
+        @bottom-h: 165px;
 
         .tableSection, .loadingSection, .errorSection {
             height: ~"calc(100% - @{bottom-h})";
@@ -457,7 +457,12 @@ html.safari {
             height: @bottom-h;
 
             .textSection {
-                height: 60px;
+                height: 80px;
+
+                .schemaError {
+                    height: 20px;
+                    color: @color-text-error;
+                }
 
                 textArea {
                     width: 100%;
@@ -2398,6 +2403,37 @@ table.datasetTable {
     }
 }
 
+#previewTable, #pTblView .datasetTable {
+    th {
+        &.unused {
+            .header {
+                pointer-events: none;
+                background-color: @color-bg-white-seven;
+
+                .flexContainer {
+                    &, & .flexWrap {
+                        background-color: @color-bg-white-seven;
+                    }
+                }
+            }
+
+            .dropdownBox {
+                visibility: hidden;
+            }
+
+            input {
+                pointer-events: none;   
+            }
+        }
+    }
+
+    td {
+        &.unused {
+            .xc-disabled;
+        }
+    }
+}
+
 /* End of data form preview */
 #importDataForm {
     .size(@height: ~"calc(100% - 15px)");
@@ -3057,10 +3093,15 @@ table.datasetTable {
         }
 
         &.schema {
-            height: 120px;
+            height: 130px;
 
             .qMark {
                 top: 15px;
+            }
+
+            .checkbox {
+                position: relative;
+                top: 1px;
             }
 
             .multiLine {
@@ -3068,9 +3109,17 @@ table.datasetTable {
             }
 
             .textSection {
-                height: 60px;
+                min-height: 60px;
+                max-height: 90px;
+
+                .schemaError {
+                    min-height: 0px;
+                    max-height: 30px;
+                    color: @color-text-error;
+                }
 
                 textArea {
+                    height: 60px;
                     width: 100%;
                     outline: none;
                 }

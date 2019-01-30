@@ -777,7 +777,7 @@ module.exports = {
         "AddAll": "Add All",
         "ParquetParser": "Parquet Parser",
         "ParquetParserTooltip": "Xcalar will use the selected parser to parse parquet files",
-        "AutoDetectSchema": "Auto Detect Schema",
+        "AutoDetectSchema": "Use Auto Detected Schema",
         "UseSchemaWizard": "Use Schema Wizard",
     },
 

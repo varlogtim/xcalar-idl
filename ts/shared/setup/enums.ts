@@ -411,6 +411,12 @@ enum PbTblState {
     Error = "Error"
 }
 
+enum DataSourceSchemaEvent {
+    GetInitialSchema = "GetInitialSchema",
+    ChangeSchema = "ToggleSchema",
+    ValidateSchema = "ValidateSchema",
+}
+
 if (typeof global !== 'undefined') {
     global.RowDirection = RowDirection;
     global.WSTableType = WSTableType;

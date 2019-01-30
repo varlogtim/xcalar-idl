@@ -9,9 +9,11 @@ class TblSourcePreview {
     private _tableInfo: PbTblInfo;
     private _viewer: XcViewer;
     private _schemaSection: PTblSchema;
+    private _dataSourceSchema: DataSourceSchema;
 
     private constructor() {
         this._initializeSchemaSection();
+        this._setupDataSourceSchema();
         this._addEventListeners();
     }
 
@@ -96,6 +98,21 @@ class TblSourcePreview {
     private _initializeSchemaSection(): void {
         const $section = this._getContainer().find(".schemaSection");
         this._schemaSection = new PTblSchema($section);
+    }
+
+    private _setupDataSourceSchema() {
+        let $section = this._getContainer().find(".tblSchema");
+        this._dataSourceSchema = new DataSourceSchema($section);
+        this._dataSourceSchema
+        .registerEvent(DataSourceSchemaEvent.GetInitialSchema, () => {
+            return this._getSchemaForWizard(this._viewer);
+        })
+        .registerEvent(DataSourceSchemaEvent.ChangeSchema, (args) => {
+            let schema = args.schema;
+            if (this._viewer instanceof XcDatasetViewer) {
+                this._viewer.setDisplaySchema(schema);
+            }
+        });
     }
 
     private _setupLoadingView(msg: string): void {
@@ -254,7 +271,20 @@ class TblSourcePreview {
         let $tableArea = this._getTableArea();
         $tableArea.removeClass("error").removeClass("loading");
         let viewer = new XcDatasetViewer(dsObj);
-        return this._showTable(viewer);
+        
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        this._showTable(viewer)
+        .then((isSameViewer: boolean) => {
+            let schema = this._getSchemaForWizard(viewer);
+            if (!isSameViewer && schema != null) {
+                this._dataSourceSchema.setSchema(schema);
+                viewer.setDisplaySchema(schema);
+            }
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     private _getResultMeta(name: string, schema: ColSchema[]): TableMeta {
@@ -273,11 +303,11 @@ class TblSourcePreview {
     }
 
     // XXX TODO: combine show table related logic with SQLTable, DagTable...
-    private _showTable(viewer: XcViewer): XDPromise<void> {
+    private _showTable(viewer: XcViewer): XDPromise<any> {
         this._showTableSection();
 
         if (this._isSameViewer(viewer)) {
-            return PromiseHelper.resolve();
+            return PromiseHelper.resolve(true);
         }
 
         this._clearViewer();
@@ -346,43 +376,39 @@ class TblSourcePreview {
         $container.find(".errorSection").text(errStr);
     }
 
-    private _schemaWizard(schemaArray: ColSchema[][]): void {
-        let initialSchema: ColSchema[] = [];
-        let schemaToSelect: ColSchema[] = [];
-        let validTyes: ColumnType[] = BaseOpPanel.getBasicColTypes();
-        schemaArray.forEach((schemas) => {
-            if (schemas.length === 1) {
-                let schema = schemas[0];
-                if (validTyes.includes(schema.type)) {
-                    initialSchema.push(schema);
-                    schemaToSelect.push(schema);
+    private _getSchemaForWizard(viewer: XcViewer): ColSchema[] {
+        if (viewer instanceof XcDatasetViewer) {
+            let schemaArray = viewer.getSchemaArray() || [];
+            let initialSchema: ColSchema[] = [];
+            let schemaToSelect: ColSchema[] = [];
+            let validTyes: ColumnType[] = BaseOpPanel.getBasicColTypes();
+            schemaArray.forEach((schemas) => {
+                if (schemas.length === 1) {
+                    let schema = schemas[0];
+                    if (validTyes.includes(schema.type)) {
+                        initialSchema.push(schema);
+                        schemaToSelect.push(schema);
+                    }
+                } else {
+                    schemaToSelect.push({
+                        name: schemas[0].name,
+                        type: null
+                    });
                 }
-            } else {
-                schemaToSelect.push({
-                    name: schemas[0].name,
-                    type: null
-                });
-            }
-        });
-        SchemaSelectionModal.Instance.setInitialSchema(initialSchema);
-        SchemaSelectionModal.Instance.show(schemaToSelect, (colSchema) => {
-            this._populateSchema(colSchema);
-        });
-    }
-
-    private _populateSchema(colSchema: ColSchema[]) {
-        let $textArea = this._getContainer().find(".bottomSection textArea");
-        $textArea.val(JSON.stringify(colSchema));
+            });
+            return schemaToSelect;
+        } else {
+            return null;
+        }
     }
 
     private _createTable(tableInfo: PbTblInfo): void {
-        let $textArea = this._getContainer().find(".bottomSection textArea");
-        let schema: {schema: ColSchema[]} = xcHelper.validateSchemaFromTextArea($textArea);
-        if (schema == null) {
+        let res = this._dataSourceSchema.validate();
+        if (res == null) {
             // error case
             return;
         }
-        TblSource.Instance.createTableFromDataset(tableInfo, schema.schema); 
+        TblSource.Instance.createTableFromDataset(tableInfo, res.schema); 
     }
 
     private _addEventListeners(): void {
@@ -397,13 +423,6 @@ class TblSourcePreview {
         });
 
         let $bottomSection = $container.find(".bottomSection");
-        $bottomSection.find(".schemaWizard").click(() => {
-            if (this._viewer instanceof XcDatasetViewer) {
-                let schemaArray = this._viewer.getSchemaArray();
-                this._schemaWizard(schemaArray);
-            }   
-        });
-
         $bottomSection.find(".createTable").click(() => {
             if (this._viewer instanceof XcDatasetViewer) {
                 this._createTable(this._tableInfo);
