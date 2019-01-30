@@ -440,6 +440,9 @@ namespace XVM {
         return kvVersionStore.put(version, true);
     }
 
+    /**
+     * XVM.initializeMode
+     */
     export function initializeMode(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let kvStore: KVStore = _getModeKVStore();

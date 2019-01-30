@@ -386,18 +386,22 @@ class KVStore {
         persist: boolean,
         noCommitCheck: boolean = false
     ): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const key: string = this.key;
         const scope: number = this.scope;
 
-        this.commitCheck(noCommitCheck)
-        .then(function() {
+        if (noCommitCheck) {
             return XcalarKeyPut(key, value, persist, scope);
-        })
-        .then(deferred.resolve)
-        .fail(deferred.reject);
+        } else {
+            const deferred: XDDeferred<void> = PromiseHelper.deferred();
+            this.commitCheck(noCommitCheck)
+            .then(function() {
+                return XcalarKeyPut(key, value, persist, scope);
+            })
+            .then(deferred.resolve)
+            .fail(deferred.reject);
 
-        return deferred.promise();
+            return deferred.promise();
+        }
     }
 
     /**
