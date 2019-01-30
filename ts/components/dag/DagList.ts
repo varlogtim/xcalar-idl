@@ -247,7 +247,7 @@ class DagList {
      */
     public getValidName(prefixName?: string, hasBracket?: boolean): string {
         const isSQLMode: boolean = XVM.isSQLMode();
-        const prefix: string = prefixName || isSQLMode ? "fn" : "Dataflow";
+        const prefix: string = prefixName || (isSQLMode ? "fn" : "Dataflow");
         const nameSet: Set<string> = new Set();
         let cnt: number = 1;
         this._dags.forEach((dagTab) => {
