@@ -3144,6 +3144,9 @@ window.DS = (function ($, DS) {
                 });
             }
             deferred.resolve(); // still resolve it
+        })
+        .always(function() {
+            DS.getGrid(dsObj.getId()).removeData("txid");
         });
 
         return deferred.promise();
