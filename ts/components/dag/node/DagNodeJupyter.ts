@@ -79,11 +79,24 @@ class DagNodeJupyter extends DagNodeOut {
         if (tableName == null || tableName.length === 0) {
             return;
         }
+        // XXX TODO: temp fix, should be removed
+        this.checkGlobalTable(<string>xcHelper.getTableId(tableName));
+
         const params: DagNodeJupyterInputStruct = this.getParam();
         JupyterPanel.publishTable(
             tableName,
             params.numExportRows,
             true);
+    }
+
+    /**
+     * Should be removed after decoupling jupyterPanel with gTables
+     */
+    protected checkGlobalTable(tableId: string): void {
+        if (gTables[tableId] == null) {
+            // Rebuild TableMeta and put it in gTables
+            XcDagTableViewer.getTableFromDagNode(this);
+        }
     }
 
     /**
