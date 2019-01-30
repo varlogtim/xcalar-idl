@@ -1863,18 +1863,24 @@ describe("xcHelper Test", function() {
 
     it("xcHelper.castStrHelper should work", function() {
         // case 1
-        var res = xcHelper.castStrHelper("test", "boolean");
+        var res = xcHelper.castStrHelper("test", ColumnType.boolean);
         expect(res).to.equal("bool(test)");
         // case 2
-        res = xcHelper.castStrHelper("test", "float");
+        res = xcHelper.castStrHelper("test", ColumnType.float);
         expect(res).to.equal("float(test)");
         // case 3
-        res = xcHelper.castStrHelper("test", "integer");
+        res = xcHelper.castStrHelper("test", ColumnType.integer);
         expect(res).to.equal("int(test, 10)");
         // case 4
-        res = xcHelper.castStrHelper("test", "string");
+        res = xcHelper.castStrHelper("test", ColumnType.string);
         expect(res).to.equal("string(test)");
         // case 5
+        res = xcHelper.castStrHelper("test", ColumnType.timestamp);
+        expect(res).to.equal("timestamp(test)");
+        // case 6
+        res = xcHelper.castStrHelper("test", ColumnType.money);
+        expect(res).to.equal("numeric(test)");
+        // case 7
         res = xcHelper.castStrHelper("test", "test");
         expect(res).to.equal("test(test)");
     });

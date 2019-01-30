@@ -3653,26 +3653,29 @@ namespace xcHelper {
         // if we want null become FNF, need to use int(string(XXX))
         let mapStr: string = "";
         switch (colType) {
-            case ("boolean"):
+            case (ColumnType.boolean):
                 mapStr += "bool(";
                 break;
-            case ("float"):
+            case (ColumnType.float):
                 if (handleNull) {
                     colName = "string(" + colName + ")";
                 }
                 mapStr += "float(";
                 break;
-            case ("integer"):
+            case (ColumnType.integer):
                 if (handleNull) {
                     colName = "string(" + colName + ")";
                 }
                 mapStr += "int(";
                 break;
-            case ("string"):
+            case (ColumnType.string):
                 mapStr += "string(";
                 break;
-            case ("timestamp"):
+            case (ColumnType.timestamp):
                 mapStr += "timestamp(";
+                break;
+            case (ColumnType.money):
+                mapStr += "numeric(";
                 break;
             case (null):
             case (undefined):
@@ -3683,7 +3686,7 @@ namespace xcHelper {
                 break;
         }
 
-        if (colType === "integer") {
+        if (colType === ColumnType.integer) {
             mapStr += colName + ", 10)";
         } else {
             mapStr += colName + ")";
