@@ -240,36 +240,37 @@ function thriftLog(
     // return first error
     return errorLists.length ? errorLists[0] : new ThriftError();
 
-    function parseLog(log: string): string {
-        if (!log) {
-            return log;
-        }
-        let res: string = log;
-        const splits = log.split(/Line \d+:/);
-        if (splits.length === 2) {
-            res = splits[1].trim();
-        }
-        return res;
-    }
+}
 
-    function parseUDFLog(log: string): string {
-        let res: string = log;
-        try {
-            const match: string[] = res.match(/ValueError:(.+)/);
-            if (match && match.length >= 2) {
-                res = match[1].trim();
-                res = res.split('\\n')[0]; // strip ending unuseful chars
-                if (res.endsWith("\\")) {
-                    res = res.substring(0, res.length - 1);
-                }
-                return res;
+function parseLog(log: string): string {
+    if (!log) {
+        return log;
+    }
+    let res: string = log;
+    const splits = log.split(/Line \d+:/);
+    if (splits.length === 2) {
+        res = splits[1].trim();
+    }
+    return res;
+}
+
+function parseUDFLog(log: string): string {
+    let res: string = log;
+    try {
+        const match: string[] = res.match(/ValueError:(.+)/);
+        if (match && match.length >= 2) {
+            res = match[1].trim();
+            res = res.split('\\n')[0]; // strip ending unuseful chars
+            if (res.endsWith("\\")) {
+                res = res.substring(0, res.length - 1);
             }
-        } catch (e) {
-            console.error("parse error", e);
+            return res;
         }
-
-        return res;
+    } catch (e) {
+        console.error("parse error", e);
     }
+
+    return res;
 }
 
 function fakeApiCall<T>(ret?: T): XDPromise<T> {
@@ -3161,12 +3162,39 @@ XcalarQueryWithCheck = function(
         }
     })
     .fail(function(error, queryStateOutput) {
+        if (TypeCheck.isNumber(error)) {
+            error = {
+                status: error,
+                log: createQueryStateOutputLog(queryStateOutput)
+            }
+        }
         const thriftError = thriftLog("XcalarQuery" + queryName, error);
         deferred.reject(thriftError, queryStateOutput);
     });
 
     return (deferred.promise());
 };
+
+function createQueryStateOutputLog(queryOutput: XcalarApiQueryStateOutputT): string {
+    let nodes = queryOutput.queryGraph.node;
+    let log = "Error Log: ";
+    try {
+        for (let i = 0; i < queryOutput.queryGraph.numNodes; i++) {
+            let node = nodes[i];
+            let node_log;
+            if (node.status === StatusT.StatusUdfExecuteFailed) {
+                node_log = parseUDFLog(node.log);
+            } else {
+                node_log = parseLog(node.log);
+            }
+            log += ("Log number " + i + ": Log: " + node_log + "\n ");
+        }
+    } catch (e) {
+        console.error(e);
+        log = "Unable to parse query log";
+    }
+    return log;
+}
 
 function queryErrorStatusHandler(
     error: XcalarApiError,

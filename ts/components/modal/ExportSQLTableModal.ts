@@ -347,7 +347,7 @@ class ExportSQLTableModal {
             return;
         })
         .fail((err) => {
-            StatusBox.show(err.error, this._$modal.find(".confirm"));
+            Alert.error(null, err);
             $bg.hide();
             return;
         })
