@@ -1431,8 +1431,7 @@ router.post("/xcsql/query", function(req, res) {
         queryString: req.body.queryString,
         tablePrefix: req.body.queryTablePrefix,
         queryName: req.body.queryTablePrefix,
-        optimizations: optimizations,
-        usePaging: true // this is to keep resultant table
+        optimizations: optimizations
     }
     executeSql(params)
     .then(function(executionOutput) {

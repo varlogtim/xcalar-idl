@@ -223,7 +223,7 @@ class SQLExecutor {
         const sqlMode = true;
         if (!noStatusUpdate) {
             this._status = SQLStatus.Compiling;
-            this._updateStatus(SQLStatus.Compiling);
+            this._updateStatus(SQLStatus.Compiling, new Date());
         }
         this._sqlNode.setIdentifiers(identifiers);
         return this._sqlNode.compileSQL(this._sql, queryId, identifiers, sqlMode);
@@ -250,6 +250,9 @@ class SQLExecutor {
     }
 
     private _expandSQLNode(): XDPromise<void> {
+        if (!this._sqlNode.getSubGraph()) {
+            return PromiseHelper.resolve();
+        }
         let promise = DagView.expandSQLNodeInTab(this._sqlNode, this._tempTab);
         return PromiseHelper.alwaysResolve(promise);
     }

@@ -967,7 +967,10 @@ class DagNodeSQL extends DagNode {
             // paramterize SQL
             sqlQueryStr = xcHelper.replaceMsg(sqlQueryStr,
                                 DagParamManager.Instance.getParamMap(), true);
-            identifiers = identifiers || self.getIdentifiers();
+            if (identifiers) {
+                self.setIdentifiers(identifiers);
+            }
+            identifiers = self.getIdentifiers();
             if (sqlMode) {
                 const retStruct = XDParser.SqlParser.getSQLTableFunctions(sqlQueryStr);
                 sqlFuncs = retStruct.sqlFunctions;
@@ -1010,6 +1013,7 @@ class DagNodeSQL extends DagNode {
                             sizeToText: true
                         });
                     }
+                    self.setSQLQuery({errorMsg: errorMsg, endTime: new Date()});
                 }
                 deferred.reject();
             });
@@ -1019,6 +1023,7 @@ class DagNodeSQL extends DagNode {
                 msg: "Error details: " + JSON.stringify(e),
                 isAlert: true
             });
+            self.setSQLQuery({errorMsg: JSON.stringify(e), endTime: new Date()});
             deferred.reject();
         }
         return deferred.promise();
