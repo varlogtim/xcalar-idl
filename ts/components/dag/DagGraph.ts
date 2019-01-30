@@ -1104,7 +1104,8 @@ class DagGraph {
      * @param node
      * @returns {{sources: DagNode[], error: string}}
      */
-    public findNodeNeededSources(node: DagNode, optimized?: boolean): {sources: DagNode[], error: string} {
+    public findNodeNeededSources(node: DagNode, optimized?: boolean,
+            aggMap?: Map<string, DagNode>): {sources: DagNode[], error: string} {
         let error: string;
         let sources: DagNode[] = [];
         const aggregates: string[] = node.getAggregates();
@@ -1119,8 +1120,20 @@ class DagGraph {
                     break;
                 }
                 if (aggInfo.value == null || optimized) {
-                    if (aggInfo.graph != this.getTabId() &&
+                    if (aggMap != null && aggMap.has(agg)) {
+                        // Within aggMap
+                        let aggNode = aggMap.get(agg);
+                        if (aggNode.getParam().mustExecute) {
+                            error = xcHelper.replaceMsg(AggTStr.AggNodeMustExecuteError, {
+                                "aggName": agg
+                            });
+                            continue;
+                        }
+                        sources.push(aggNode);
+                    }
+                    else if (aggInfo.graph != this.getTabId() &&
                             (aggInfo.graph != null || !this.hasNode(aggInfo.node))) {
+                        // Outside of this graph or aggMap not specified
                         let tab: DagTab = DagTabManager.Instance.getTabById(aggInfo.graph);
                         let name: string = "";
                         if (tab != null) {
@@ -1130,22 +1143,12 @@ class DagGraph {
                             "aggName": agg,
                             "graphName": name
                         });
-                        continue;
-                    }
-                    let aggNode: DagNode = this.getNode(aggInfo.node);
-                    if (aggNode == null) {
+                    } else {
+                        // doesnt exist
                         error = xcHelper.replaceMsg(AggTStr.AggNodeNotExistError, {
                             "aggName": agg
                         });
-                        continue;
                     }
-                    if (aggNode.getParam().mustExecute) {
-                        error = xcHelper.replaceMsg(AggTStr.AggNodeMustExecuteError, {
-                            "aggName": agg
-                        });
-                        continue;
-                    }
-                    sources.push(aggNode);
                 }
             }
         } else if (node.getType() == DagNodeType.DFIn) {
@@ -1196,6 +1199,7 @@ class DagGraph {
         const startingNodes: DagNodeId[] = [];
         let error: string;
         let nodeStack: DagNode[] = nodeIds.map((nodeId) => this._getNodeFromId(nodeId));
+        let aggMap: Map<string, DagNode> = this._constructCurrentAggMap();
         let isStarting = false;
         while (nodeStack.length > 0) {
             isStarting = false;
@@ -1203,7 +1207,7 @@ class DagGraph {
             if (node != null && !nodesMap.has(node.getId())) {
                 nodesMap.set(node.getId(), node);
                 let parents: DagNode[] = node.getParents();
-                const foundSources: {sources: DagNode[], error: string} = this.findNodeNeededSources(node, !shortened);
+                const foundSources: {sources: DagNode[], error: string} = this.findNodeNeededSources(node, !shortened, aggMap);
                 parents = parents.concat(foundSources.sources);
                 error = foundSources.error;
                 if (parents.length == 0 || node.getType() == DagNodeType.DFIn) {
@@ -1358,6 +1362,19 @@ class DagGraph {
                 tabId: this.parentTabId
             });
         }
+    }
+
+    private _constructCurrentAggMap(): Map<string, DagNode> {
+        let aggNodesInThisGraph: DagNodeAggregate[] = <DagNodeAggregate[]>this.getNodesByType(DagNodeType.Aggregate);
+        let aggMap: Map<string, DagNode> = new Map<string, DagNode>();
+        for (let i = 0; i < aggNodesInThisGraph.length; i++) {
+            let node: DagNodeAggregate = aggNodesInThisGraph[i];
+            let key = node.getParam().dest;
+            if (key != "") {
+                aggMap.set(key, node);
+            }
+        }
+        return aggMap;
     }
 
     private _setupEvents(): void {

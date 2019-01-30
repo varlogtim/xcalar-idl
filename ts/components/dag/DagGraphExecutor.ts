@@ -153,7 +153,7 @@ class DagGraphExecutor {
                 return DagNodeErrorType.NoAggNode;
             }
             let aggNode: DagNodeAggregate =
-                <DagNodeAggregate>this._nodes.find((node) => {return node.getId() == aggInfo.node})
+                <DagNodeAggregate>this._nodes.find((node) => {return node.getParam().dest == agg})
             if (this._isOptimized && aggNode == null) {
                 // if it's optimized it must be within the current graph
                 // This also happens if it is mustExecute
