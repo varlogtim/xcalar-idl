@@ -1236,6 +1236,7 @@ function addPrefix(plan, selectTables, finalTable,
             newTableName = prefix + newTableName;
         }
         if (dest === finalTable) {
+            newTableName = dest;
             if (newSqlTable) {
                 newTableName = newSqlTable;
             }
