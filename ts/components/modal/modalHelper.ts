@@ -38,11 +38,11 @@ interface ModalHelperBGOptions {
 /* Modal Helper */
 // an object used for global Modal Actions
 class ModalHelper {
-    
+
     public static isModalOn() {
         return $("#modalBackground").is(":visible");
     }
-    
+
     private $modal: JQuery;
     private options: ModalHelperOptions;
     private id: string;
@@ -393,6 +393,7 @@ class ModalHelper {
     ): void {
         const $modalBg: JQuery = $("#modalBackground");
         let $tableWrap: JQuery;
+        let $tableContainer: JQuery = $("#dagViewTableArea .viewWrap");
 
         if (tableId === "all") {
             $tableWrap = $('.xcTableWrap:visible');
@@ -412,9 +413,11 @@ class ModalHelper {
             if (gMinModeOn) {
                 $modalBg.hide();
                 $modalBg.removeClass('light');
+                $tableContainer.removeClass("modalOpen");
             } else {
                 $modalBg.fadeOut(fadeOutTime, function() {
                     $modalBg.removeClass('light');
+                    $tableContainer.removeClass("modalOpen");
                 });
             }
 
@@ -426,7 +429,7 @@ class ModalHelper {
             if (tableId != null) {
                 $tableWrap.addClass('modalOpen');
             }
-
+            $tableContainer.addClass("modalOpen");
             let fadeInTime: number;
             if (options.time === null) {
                 fadeInTime = 150;

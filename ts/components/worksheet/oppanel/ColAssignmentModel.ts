@@ -191,12 +191,14 @@ class ColAssignmentModel {
     /**
      * @return {object} Return error when no result col or col name is invalid
      */
-    public validateResult(advancedMode: boolean = false): {index: number, error: string} {
+    public validateResult(
+        advancedMode: boolean = false,
+        noLineageDuplicates: boolean = false
+    ): {index: number, error: string} {
         if (this.resultCols.length === 0) {
             return {index: null, error: UnionTStr.SelectCol};
         }
         const nameMap = {};
-
         for (let i = 0; i < this.resultCols.length; i++) {
             let error: string;
             const colName: string = this.resultCols[i].getBackColName();
@@ -207,6 +209,10 @@ class ColAssignmentModel {
             }
             if (error == null && nameMap[colName]) {
                 error = ErrTStr.DuplicateColNames;
+            }
+
+            if (error == null && noLineageDuplicates) {
+                error = this._checkNameAgainstCandidates(colName);
             }
 
             if (error == null && this.options.validateType && !this.resultCols[i].getType()) {
@@ -513,5 +519,17 @@ class ColAssignmentModel {
         });
 
         return otherColsToSelect;
+    }
+
+    // checks if result column clashes with a candidate column that's not selected
+    // returns error msg if duplicate is detected
+    private _checkNameAgainstCandidates(colName: string): string {
+        if (!this.candidateColsList.length) {
+            return null;
+        }
+        const match = this.candidateColsList[0].find(col => {
+            return col.getBackColName() === colName;
+        });
+        return (match != null) ?  ErrTStr.DuplicateColNames : null;
     }
 }

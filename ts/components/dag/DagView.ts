@@ -193,6 +193,7 @@ namespace DagView {
                     if (isDisableActions()) {
                         break;
                     }
+                    DagNodeMenu.close();
                     const tabId: string = DagView.getActiveDag().getTabId();
                     DagView.removeNodes(DagView.getSelectedNodeIds(true, true), tabId);
                     break;
@@ -2868,8 +2869,10 @@ namespace DagView {
                 const skewInfos = [];
                 const times: number[] = [];
                 nodeStats.forEach((nodeStat) => {
-                    const skewInfo = _getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
-                    skewInfos.push(skewInfo);
+                    if (nodeStat.type !== XcalarApisT.XcalarApiDeleteObjects) {
+                        const skewInfo = _getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
+                        skewInfos.push(skewInfo);
+                    }
                     times.push(nodeStat.elapsedTime);
                 });
                 _addProgressTooltip(graph, node, $dfArea, skewInfos, times);
@@ -4617,8 +4620,10 @@ namespace DagView {
                     const times: number[] = [];
                     const skewInfos = [];
                     nodeStats.forEach((nodeStat) => {
-                        const skewInfo = _getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
-                        skewInfos.push(skewInfo);
+                        if (nodeStat.type !== XcalarApisT.XcalarApiDeleteObjects) {
+                            const skewInfo = _getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
+                            skewInfos.push(skewInfo);
+                        }
                         times.push(nodeStat.elapsedTime);
                     });
                     updateNodeProgress(nodeId, subTabId, overallStats.pct, true, skewInfos, times);
@@ -4631,8 +4636,10 @@ namespace DagView {
         const times: number[] = [];
         const skewInfos = [];
         nodeStats.forEach((nodeStat) => {
-            const skewInfo = _getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
-            skewInfos.push(skewInfo);
+            if (nodeStat.type !== XcalarApisT.XcalarApiDeleteObjects) {
+                const skewInfo = _getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
+                skewInfos.push(skewInfo);
+            }
             times.push(nodeStat.elapsedTime);
         });
 
@@ -4779,8 +4786,10 @@ namespace DagView {
             const times: number[] = [];
             const skewInfos = [];
             nodeStats.forEach((nodeStat) => {
-                const skewInfo = _getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
-                skewInfos.push(skewInfo);
+                if (nodeStat.type !== XcalarApisT.XcalarApiDeleteObjects) {
+                    const skewInfo = _getSkewInfo("temp name", nodeStat.rows, nodeStat.skewValue, nodeStat.numRowsTotal, nodeStat.size);
+                    skewInfos.push(skewInfo);
+                }
                 times.push(nodeStat.elapsedTime);
             });
 

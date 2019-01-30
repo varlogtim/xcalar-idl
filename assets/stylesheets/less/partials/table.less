@@ -157,7 +157,7 @@ html.edge {
     tbody {
         white-space: pre;
         tr {
-            
+
             background-color: @color-bg-topBarGray2;
             td {
                border-right: 5px solid @color-bg-topBarGray2;
@@ -833,6 +833,10 @@ html.edge {
 
         .header {
             z-index: @z-index-modalBackground + 2;
+
+            input {
+                pointer-events: none;
+            }
         }
 
         th:first-child .header {
@@ -1286,8 +1290,9 @@ html.edge {
     @scrollTop: @height-xcColHeaderOuter + @height-tableTitle;
     width: 12px;
     height: ~"calc(100% - @{scrollTop})";
-    .position(absolute, @top: @scrollTop, @right: 5px);
+    .position(absolute, @top: @scrollTop, @right: 0px);
     overflow: auto;
+    overflow-x: hidden;
     opacity: 0;
     z-index: 3;
 

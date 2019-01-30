@@ -215,7 +215,7 @@ class TblFunc {
         const center: number = containerRect.left - rect.left + containerRect.width / 2;
         $lockTableIcon.css('left', center);
     }
-    
+
     /**
      * TblFunc.focusTable
      * @param tableId
@@ -300,7 +300,7 @@ class TblFunc {
         if ($targetTable == null) {
             datasetPreview = false;
             mainMenuOffset = MainMenu.getOffset();
-            windowWidth = $(window).width() - 5;
+            windowWidth = $(window).width();
             var tableFound = false;
 
             $allTables.each(function() {
@@ -397,7 +397,7 @@ class TblFunc {
                     return;
                 }
 
-                $rightTable.find(".tableScrollBar").css("right", 5);
+                $rightTable.find(".tableScrollBar").css("right", 0);
             }
         }
     }

@@ -80,6 +80,7 @@ class CastOpPanel extends BaseOpPanel {
         return paramInput;
     }
 
+    // converts mapInput struct into colAssignment struct
     private _paramToSelectedCols(param) {
         this.prevRenameMap = {};
         let selectedCols = param.eval.map((evalObj) => {
@@ -155,7 +156,7 @@ class CastOpPanel extends BaseOpPanel {
         }
         // validate result column
         const $resultInputs = this.$panel.find(".resultInput");
-        const resultErr: {index: number, error: string} = this.dataModel.validateResult();
+        const resultErr: {index: number, error: string} = this.dataModel.validateResult(false, true);
         if (resultErr != null) {
             if (resultErr.index == null) {
                 StatusBox.show(resultErr.error, this.$panel.find(".resultSection"));

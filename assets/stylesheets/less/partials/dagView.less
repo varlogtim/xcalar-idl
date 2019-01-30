@@ -1034,6 +1034,10 @@
 
     .viewWrap {
         .size(@height: ~"calc(100% - @{tableBar-h})", @width: 100%);
+        &.modalOpen {
+            position: relative;
+            z-index: @z-index-modalBackground + 1;
+        }
     }
 }
 

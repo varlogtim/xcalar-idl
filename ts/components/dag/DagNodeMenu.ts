@@ -55,6 +55,10 @@ namespace DagNodeMenu {
         }
     }
 
+    export function close() {
+        $(document).trigger(fakeEvent.mousedown);
+    }
+
     function _setupNodeMenu(): void {
         position = {x: 0, y: 0};
         xcMenu.add($menu);
@@ -528,9 +532,11 @@ namespace DagNodeMenu {
         // contain at least 1 optimized node
         const optNodeIds = (nodeIds.length > 0) ? nodeIds : null;
         if (DagView.hasOptimizedNode(optNodeIds)) {
-            $menu.find(".executeNode, .executeAllNodes").addClass("unavailable");
+            $menu.find(".executeNode, .executeAllNodes").addClass("xc-hidden");
+            $menu.find(".executeNodeOptimized, .executeAllNodesOptimized").removeClass("xc-hidden");
         } else {
-            $menu.find(".executeNodeOptimized, .executeAllNodesOptimized").addClass("unavailable");
+            $menu.find(".executeNode, .executeAllNodes").removeClass("xc-hidden");
+            $menu.find(".executeNodeOptimized, .executeAllNodesOptimized").addClass("xc-hidden");
         }
 
         if (!nodeIds.length && DagView.getActiveDag().isNoDelete()) {
@@ -585,6 +591,7 @@ namespace DagNodeMenu {
             $menu.find(".generateResult").addClass("unavailable");
         }
         if (dagNode instanceof DagNodeOutOptimizable &&
+            dagNode.isOptimized() &&
             (dagNode.getState() === DagNodeState.Complete ||
             dagNode.getState() === DagNodeState.Running ||
             dagNode.getState() === DagNodeState.Configured ||
