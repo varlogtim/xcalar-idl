@@ -19,6 +19,5 @@ debug: setup_npm
 	node_modules/grunt/bin/grunt debug $(GRUNT_EXTRA_FLAGS)
 
 setup_npm:
-	node -v
 	npm install --save-dev
 	node_modules/grunt/bin/grunt init
