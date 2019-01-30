@@ -78,8 +78,6 @@
                         "expressionsAgg": [{"query":"select sum(distinct n_regionkey), count(n_comment), max(n_name), min(n_nationkey), avg(n_nationkey) from nation group by n_regionkey order by n_regionkey"}],
                         "stds": [{"query":"select std(n_nationkey), stddev_pop(n_nationkey) from nation group by n_regionkey order by n_regionkey"}],
                         "varsRollUp": [{"query":"select n_regionkey, variance(n_nationkey), var_pop(n_nationkey) from nation group by rollup(n_regionkey) order by n_regionkey"}],
-                        "newExps1": [{"query":"select lpad(n_name, 7, 'a') a, rpad(n_name, 1, 'b') b, initcap(n_name) c, reverse(n_name) d, bit_length(n_name) e, octet_length(n_name) f, levenshtein(n_name, n_comment) g, soundex(n_comment) h, ascii(n_name) i, chr(n_nationkey+100) j, format_number(n_nationkey+n_regionkey*1000.1,1) k, format_number(n_nationkey+n_regionkey*1000.1,0) l from nation order by n_nationkey",
-                                "sparkOpts": {"enable": false}}],
                         "find": [{"query":"SELECT instr(N_NAME, 'AN') a, locate('ol', N_COMMENT) b FROM NATION WHERE N_REGIONKEY > (SELECT min(N_REGIONKEY) from NATION) OR N_REGIONKEY < (SELECT N_REGIONKEY FROM NATION ORDER BY N_NATIONKEY limit 1) ORDER BY N_NATIONKEY limit 15"}],
                         "projectRename": [{"query":"SELECT N_NATIONKEY N_NAME, N_REGIONKEY N_NAME, N_NAME from NATION order BY N_NATIONKEY"}],
                         "firstAgg": [{"query":"select first(N_NATIONKEY) a, last(n_nationkey+1) b, first(n_nationkey) + 1 c, cos(last(n_nationkey % 3)) d from NATION group by n_regionkey","sparkOpts": {"enable": false}}],
@@ -260,8 +258,8 @@
                                               "numOfRows": "1"},
                         "caseWhenNoElse": {"row5": ["5"],
                                            "row13": [null]},
-                        "decimal": {"row0": ["0"],
-                                    "row19": ["95"]},
+                        "decimal": {"row0": ["0.00"],
+                                    "row19": ["95.00"]},
                         "intersect": {"row0": [4, "MIDDLE EAST"],
                                       "numOfRows": "1"},
                         "except": {"row0": [0, "AFRICA", "lar deposits. blithely final packages cajole. regular waters are final requests. regular accounts are according to "],
@@ -926,6 +924,8 @@
         },
         "unusedEntries": {
                 "gtJoinWithSubQuery": "select n_nationkey, r_regionkey from nation, region where n_regionkey - (select avg(n_regionkey) from nation) > r_regionkey - (select avg(r_regionkey) from region)",
+                "newExps1": [{"query":"select lpad(n_name, 7, 'a') a, rpad(n_name, 1, 'b') b, initcap(n_name) c, reverse(n_name) d, bit_length(n_name) e, octet_length(n_name) f, levenshtein(n_name, n_comment) g, soundex(n_comment) h, ascii(n_name) i, chr(n_nationkey+100) j, format_number(n_nationkey+n_regionkey*1000.1,1) k, format_number(n_nationkey+n_regionkey*1000.1,0) l from nation order by n_nationkey",
+                        "sparkOpts": {"enable": false}}],
                 "q15": "with revenue0 as (select l_suppkey as supplier_no, sum(l_extendedprice * (1 - l_discount)) as total_revenue from lineitem where l_shipdate >= date '1996-01-01' and l_shipdate < date '1996-01-01' + interval '3' month group by l_suppkey) select s_suppkey, s_name, s_address, s_phone, total_revenue from supplier, revenue0 where s_suppkey = supplier_no and total_revenue = ( select max(total_revenue) from revenue0 ) order by s_suppkey",
                 "q21": "select s_name, count(*) as numwait from supplier, lineitem l1, orders, nation where s_suppkey = l1.l_suppkey and o_orderkey = l1.l_orderkey and o_orderstatus = 'F' and l1.l_receiptdate > l1.l_commitdate and exists ( select * from lineitem l2 where l2.l_orderkey = l1.l_orderkey and l2.l_suppkey <> l1.l_suppkey ) and not exists ( select * from lineitem l3 where l3.l_orderkey = l1.l_orderkey and l3.l_suppkey <> l1.l_suppkey and l3.l_receiptdate > l3.l_commitdate ) and s_nationkey = n_nationkey and n_name = 'SAUDI ARABIA' group by s_name order by numwait desc, s_name"
         }

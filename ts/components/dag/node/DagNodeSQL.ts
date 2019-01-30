@@ -577,7 +577,7 @@ class DagNodeSQL extends DagNode {
         // convert prefix field of primitive type to derived
         if (col.type !== 'integer' && col.type !== 'float' &&
             col.type !== 'boolean' && col.type !== 'timestamp' &&
-            col.type !== "string") {
+            col.type !== "string" && col.type !== '2dp') {
             // can't handle other types in SQL
             return;
         }
@@ -680,7 +680,8 @@ class DagNodeSQL extends DagNode {
             }
             colNameMap[colInfo.new] = colInfo.orig;
             const schemaStruct = {};
-            schemaStruct[colInfo.new] = col.type;
+            schemaStruct[colInfo.new] = col.type === ColumnType.money
+                                        ? "money" : col.type;
             schema.push(schemaStruct);
         }
         if (colInfos.length === 0) {

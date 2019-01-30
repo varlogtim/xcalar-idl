@@ -11,6 +11,7 @@
         "expressions.UnaryMinus": null,
         "expressions.UnaryPositive": null, // Seems it's removed by spark
         "expressions.Abs": "abs",
+        "expressions.AbsNumeric": "absNumeric",
         "expressions.AbsInteger": "absInt",
         "expressions.Add": "add",
         "expressions.Subtract": "sub",
@@ -18,7 +19,11 @@
         "expressions.AddInteger": "addInteger",
         "expressions.SubtractInteger": "subInteger",
         "expressions.MultiplyInteger": "multInteger",
+        "expressions.AddNumeric": "addNumeric",
+        "expressions.SubtractNumeric": "subNumeric",
+        "expressions.MultiplyNumeric": "multNumeric",
         "expressions.Divide": "div",
+        "expressions.DivideNumeric": "divNumeric",
         "expressions.Remainder": "mod",
         "expressions.Pmod": null,
         "expressions.Least": null,
@@ -33,11 +38,13 @@
         "expressions.XcType.float": "float", // Xcalar generated
         "expressions.XcType.int": "int", // Xcalar generated
         "expressions.XcType.bool": "bool", // Xcalar generated
+        "expressions.XcType.numeric": "numeric", // Xcalar generated
         "expressions.XcType.string": "string", // Xcalar generated
         "expressions.XcType.timestamp": "timestamp", // Xcalar generated
         // conditionalExpressions.scala
         "expressions.If": "if",
         "expressions.IfStr": "ifStr", // Xcalar generated
+        "expressions.IfNumeric": "ifNumeric", // Xcalar generated
         "expressions.CaseWhen": null, // XXX we compile these to if and ifstr
         "expressions.CaseWhenCodegen": null, // XXX we compile these to if and
                                              // ifstr
@@ -195,10 +202,16 @@
 
         "expressions.aggregate.Sum": "sum",
         "expressions.aggregate.SumInteger": "sumInteger",
+        "expressions.aggregate.SumNumeric": "sumNumeric",
         "expressions.aggregate.Count": "count",
         "expressions.aggregate.Max": "max",
+        "expressions.aggregate.MaxInteger": "maxInteger",
+        "expressions.aggregate.MaxNumeric": "maxNumeric",
         "expressions.aggregate.Min": "min",
+        "expressions.aggregate.MinInteger": "minInteger",
+        "expressions.aggregate.MinNumeric": "minNumeric",
         "expressions.aggregate.Average": "avg",
+        "expressions.aggregate.AverageNumeric": "avgNumeric",
         "expressions.aggregate.StddevPop": "stdevp",
         "expressions.aggregate.StddevSamp": "stdev",
         "expressions.aggregate.VariancePop": "varp",
@@ -1013,7 +1026,11 @@
 
         var curOpName = node.value.class.substring(
                         node.value.class.indexOf("expressions."));
-        if (node.aggTree) {
+        // XXX this is a workaround that should be removed when we have decimal(m, n)
+        if (curOpName === "expressions.XcType.numeric"
+            && node.children[0].colType === "numeric") {
+            node = node.children[0];
+        } else if (node.aggTree) {
             // aggTree's root node is expressions.aggregate.*
             // so it won't hit any of the cases in second traverse
             // however, its grandchildren might be substring, etc.
@@ -1037,6 +1054,8 @@
                     node.colType = "string";
                 } else if (node.value.name[0] === "b") {
                     node.colType = "bool";
+                } else if (node.value.name[0] === "n") {
+                    node.colType = "numeric";
                 } else {
                     assert(0);
                 }
@@ -1066,18 +1085,34 @@
                             node.value.class.indexOf("expressions."));
         if (opName === "expressions.Add" || opName === "expressions.Subtract"
             || opName === "expressions.Multiply" || opName === "expressions.Abs"
-            || opName === "expressions.aggregate.Sum") {
+            || opName === "expressions.Divide"
+            || opName === "expressions.aggregate.Sum"
+            || opName === "expressions.aggregate.Max"
+            || opName === "expressions.aggregate.Min"
+            || opName === "expressions.aggregate.Average") {
             var allInteger = true;
+            var allNumeric = true;
             for (var i = 0; i < node.children.length; i++) {
                 if (getColType(node.children[i]) != "int") {
                     allInteger = false;
-                    break;
+                }
+                if (getColType(node.children[i]) != "numeric") {
+                    allNumeric = false;
                 }
             }
-            if (allInteger) {
+            if (allInteger && opName != "expressions.aggregate.Average"
+                && opName != "expressions.Divide") {
                 node.value.class = node.value.class + "Integer";
                 node.colType = "int";
+            } else if (allNumeric) {
+                // Numeric and integer ops are slightly different
+                node.value.class = node.value.class + "Numeric";
+                node.colType = "numeric";
             }
+        } else if (opName === "expressions.If" && getColType(node.children[1])
+                   === "numeric" && getColType(node.children[2]) === "numeric") {
+            node.value.class = node.value.class + "Numeric";
+            node.colType = "numeric";
         }
         node.visited = true;
         if (opName === "expressions.UnaryMinus" && node.children[1].colType === "int") {
@@ -2090,7 +2125,7 @@
                 groupingIds.push(Number(idStruct.value));
             }
             node.sparkCols.push(groupingCols[groupingCols.length - 1]);
-            var newRenames = __resolveCollision([],node.usrCols
+            var newRenames = __resolveCollision([], node.usrCols
                         .concat(node.xcCols).concat(node.sparkCols), [],
                         [], "", node.newTableName);
             node.renamedCols = __combineRenameMaps(node.renamedCols, newRenames);
@@ -6645,6 +6680,8 @@
                 } else if (condTree.value.dataType === "timestamp" ||
                            condTree.value.dataType === "date") {
                     outStr += 'timestamp("' + condTree.value.value + '")';
+                } else if (condTree.value.dataType.indexOf("decimal(") === 0) {
+                    outStr += 'numeric(\'' + condTree.value.value + '\')';
                 } else {
                     // XXX Check how they rep booleans
                     outStr += condTree.value.value;
@@ -6923,7 +6960,7 @@
             assert(0, SQLErrTStr.UnsupportedColType + JSON.stringify(dataType));
         }
         if (dataType.indexOf("decimal(") != -1) {
-            return "float";
+            return "numeric";
         }
         switch (dataType) {
             case ("double"):
@@ -6985,11 +7022,14 @@
 
     var opOutTypeLookup = {
         "abs": "float",
+        "absNumeric": "numeric",
         "absInt": "int",
         "add": "float",
         "addInteger": "int",
+        "addNumeric": "numeric",
         "ceil": "float",
         "div": "float",
+        "divNumeric": "numeric",
         "exp": "float",
         "floatCompare": "int",
         "floor": "float",
@@ -6999,11 +7039,13 @@
         "mod": "int",
         "mult": "float",
         "multInteger": "int",
+        "multNumeric": "numeric",
         "pow": "float",
         "round": "float",
         "sqrt": "float",
         "sub": "float",
         "subInteger": "int",
+        "subNumeric": "numeric",
         "bitCount": "int",
         "bitLength": "int",
         "bitand": "int",
@@ -7028,6 +7070,7 @@
         "isInf": "bool",
         "isInteger": "bool",
         "isNull": "bool",
+        "isNumeric": "numeric",
         "isString": "bool",
         "le": "bool",
         "like": "bool",
@@ -7053,6 +7096,7 @@
         "ifInt": "int",
         "ifStr": "string",
         "ifTimestamp": "timestamp",
+        "ifNumeric": "numeric",
         "xdbHash": "int",
         "ascii": "int",
         "chr": "string",
@@ -7116,6 +7160,7 @@
         "bool": "bool",
         "float": "float",
         "int": "int",
+        "numeric": "numeric",
         "string": "string",
         "timestamp": "timestamp",
         // "default:dayOfWeek": "string",
@@ -7129,18 +7174,22 @@
         // "default:convertFormats": "string",
         // "default:convertFromUnixTS": "string",
         "avg": "float",
+        "avgNumeric": "numeric",
         "count": "int",
         "listAgg": "string",
         "maxFloat": "float",
         "maxInteger": "int",
+        "maxNumeric": "numeric",
         "maxString": "string",
         "maxTimestamp": "timestamp",
         "minFloat": "float",
         "minInteger": "int",
+        "minNumeric": "numeric",
         "minString": "string",
         "minTimestamp": "timestamp",
         "sum": "float",
         "sumInteger": "int",
+        "sumNumeric": "numeric",
         "stdevp": "float",
         "stdev": "float",
         "varp": "float",
