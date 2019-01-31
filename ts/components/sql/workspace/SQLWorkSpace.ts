@@ -27,7 +27,7 @@ class SQLWorkSpace {
     }
 
     public save(): XDPromise<void> {
-        if (!XVM.isSQLMode()) {
+        if (XVM.isAdvancedMode()) {
             return PromiseHelper.resolve();
         }
         return SQLEditorSpace.Instance.save();
@@ -42,6 +42,7 @@ class SQLWorkSpace {
         SQLWorkSpace.Instance.refresh();
         DagView.toggleSqlPreview(true);
 
+        $(window).off(".sqlPanelResize");
         let resizeTimer;
         $(window).on("resize.sqlPanelResize", () => {
             clearTimeout(resizeTimer);

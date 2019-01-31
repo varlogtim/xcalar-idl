@@ -52,20 +52,24 @@ class SQLHistorySpace {
         return deferred.promise();
     }
 
-    public viewProgress(dataflowId: string): void {
+    public viewProgress(dataflowId: string): XDPromise<void> {
         const tab = DagTabManager.Instance.getTabById(dataflowId);
         if (tab) {
             const graph = tab.getGraph();
             const sqlNode = graph.getNodesByType(DagNodeType.SQL)[0];
             if (sqlNode) {
+                const deferred: XDDeferred<void> = PromiseHelper.deferred();
                 DagView.inspectSQLNode(sqlNode.getId(), dataflowId, true)
                 .then(() => {
                     SQLResultSpace.Instance.showProgressDataflow();
-                });
-                return;
+                    deferred.resolve();
+                })
+                .fail(deferred.reject);
+                return deferred.promise();
             }
         }
         Alert.error(AlertTStr.Error, "The corresponding dataflow for sql could not be generated");
+        return PromiseHelper.reject();
     }
 
 
