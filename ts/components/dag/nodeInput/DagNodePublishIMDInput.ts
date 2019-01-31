@@ -29,7 +29,7 @@ class DagNodePublishIMDInput extends DagNodeInput {
             "$id": "#/properties/primaryKeys",
             "type": "array",
             "title": "The Primarykeys Schema",
-            "minItems": 1,
+            "minItems": 0,
             "items": {
               "$id": "#/properties/primaryKeys/primaryKey",
               "type": "string",
@@ -38,7 +38,7 @@ class DagNodePublishIMDInput extends DagNodeInput {
               "examples": [
                 "a::class_id"
               ],
-              "minLength": 1,
+              "minLength": 0,
               "pattern": "^(.*)$"
             }
           },

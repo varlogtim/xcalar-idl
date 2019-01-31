@@ -91,9 +91,14 @@ class PublishIMDOpPanel extends BaseOpPanel {
 
     private _getKeyValues(): string[] {
         let keys: string[] = [];
-        let $inputs: JQuery = this._$primaryKeys.find(".primaryKeyInput");
-        for (let i = 0; i < $inputs.length; i++) {
-            keys.push($inputs.eq(i).val());
+        if (!this._$elemPanel.find('.IMDKey .disableKey .checkbox').hasClass('checked')) {
+            let $inputs: JQuery = this._$primaryKeys.find(".primaryKeyInput");
+            for (let i = 0; i < $inputs.length; i++) {
+                let val: string = $inputs.eq(i).val();
+                if (val != "") {
+                    keys.push(val);
+                }
+            }
         }
         return keys;
     }
@@ -260,6 +265,20 @@ class PublishIMDOpPanel extends BaseOpPanel {
 
         this._$elemPanel.on("click", ".addKeyArg", function() {
             self._addKeyField();
+        });
+
+        this._$elemPanel.on('click', '.IMDKey .disableKey .checkbox', function () {
+            let $box: JQuery = $(this);
+            event.stopPropagation();
+            if ($box.hasClass("checked")) {
+                $box.removeClass("checked");
+                self._$elemPanel.find('.IMDKey .primaryKeyList').removeClass("xc-disabled");
+                self._$elemPanel.find('.addArgWrap').removeClass("xc-disabled");
+            } else {
+                $box.addClass("checked");
+                self._$elemPanel.find('.IMDKey .primaryKeyList').addClass("xc-disabled");
+                self._$elemPanel.find('.addArgWrap').addClass("xc-disabled");
+            }
         });
 
         this._$elemPanel.on('click', '.primaryKeyList .xi-cancel', function() {
