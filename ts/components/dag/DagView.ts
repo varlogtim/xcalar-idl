@@ -291,8 +291,11 @@ namespace DagView {
             containerSelector = "#sqlDataflowArea";
         } else {
             containerSelector = "#dagView";
-            activeDagTab = cachedActiveDagTab || activeDagTab;
-            activeDag = cachedActiveDag || activeDag;
+            if (XVM.isSQLMode()) {
+                activeDagTab = cachedActiveDagTab || activeDagTab;
+                activeDag = cachedActiveDag || activeDag;
+            }
+
         }
         $dfWrap = $(containerSelector + " .dataflowWrap");
     }
