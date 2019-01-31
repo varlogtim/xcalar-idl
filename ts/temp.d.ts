@@ -55,7 +55,7 @@ interface JoinTableInfo {
 interface JoinOptions {
     newTableName?: string; // final table's name, optional
     clean?: boolean; // remove intermediate table if set true
-    evalString?: string; // cross join filter's eval string
+    evalString?: string; // cross join filter's eval string, now it applies to any join type
     existenceCol?: string;
     keepAllColumns?: boolean;
 }

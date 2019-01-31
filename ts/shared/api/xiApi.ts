@@ -1900,7 +1900,7 @@ namespace XIApi {
             // cross join or normal join
             const joinOptions = { evalString: '', keepAllColumns: true };
             if (options && options.evalString) {
-                // cross join case
+                // Join with non equal condition case
                 joinOptions.evalString = options.evalString;
             }
             if (options && options.keepAllColumns != null) {

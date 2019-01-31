@@ -2568,9 +2568,6 @@ XcalarJoin = function(
     // or right columns will be dropped. This should eventually be set to false.
     // Alternatively it should be exposed to the user.
     let { keepAllColumns = true, evalString = '' } = (options || {});
-    if (joinType !== JoinOperatorT.CrossJoin) {
-        evalString = '';
-    }
 
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
     let query: string;

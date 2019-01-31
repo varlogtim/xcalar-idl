@@ -2903,11 +2903,6 @@
                         retStruct.rightTableName = rightRNTableName;
                         innerPromise = innerPromise.then(__handleAndEqJoin
                                                 .bind(sqlObj, retStruct, node));
-                        if (retStruct.filterSubtrees.length > 0) {
-                            innerPromise = innerPromise.then(__filterJoinedTable
-                                                .bind(sqlObj, retStruct, node,
-                                                retStruct.filterSubtrees));
-                        }
                         innerPromise
                         .then(innerDeferred.resolve)
                         .fail(innerDeferred.reject);
@@ -2951,8 +2946,8 @@
             } else if (optimize) {
                 // Eq conditions + non-equi conditions (optional)
                 var overwriteJoinType;
-                if (filterSubtrees.length > 0 && (isExistenceJoin(node) ||
-                    isSemiOrAntiJoin(node) || outerType)) {
+                retStruct.filterSubtrees = filterSubtrees;
+                if (filterSubtrees.length > 0 && isExistenceJoin(node)) {
                     overwriteJoinType = JoinOperatorT.InnerJoin;
                     promise = promise.then(__generateRowNumber.bind(sqlObj,
                                                                     retStruct,
@@ -2964,41 +2959,14 @@
                                                               retStruct,
                                                               node,
                                                             overwriteJoinType));
-                if (filterSubtrees.length > 0) {
-                    promise = promise.then(__filterJoinedTable.bind(sqlObj,
+                if (isExistenceJoin(node) && filterSubtrees.length > 0) {
+                    promise = promise.then(__groupByLeftRowNum.bind(sqlObj,
                                                                     retStruct,
                                                                     node,
-                                                               filterSubtrees));
-                    if (isSemiJoin(node)) {
-                        promise = promise.then(__groupByLeftRowNum.bind(sqlObj,
-                                                                      retStruct,
-                                                                        node,
-                                                                        true));
-                    }
-                    if (isAntiJoin(node)) {
-                        promise = promise.then(__groupByLeftRowNum.bind(sqlObj,
-                                                                      retStruct,
-                                                                        node,
-                                                                        false));
-                        promise = promise.then(__joinBackFilter.bind(sqlObj,
-                                                                     retStruct,
-                                                                     node));
-                    }
-                    if (outerType) {
-                        promise = promise.then(__outerJoinBack.bind(sqlObj,
-                                                               retStruct,
-                                                               node,
-                                                               outerType));
-                    }
-                    if (isExistenceJoin(node)) {
-                        promise = promise.then(__groupByLeftRowNum.bind(sqlObj,
-                                                                        retStruct,
-                                                                        node,
-                                                                        false));
-                        promise = promise.then(__joinBackMap.bind(sqlObj,
-                                                             retStruct,
-                                                             node));
-                    }
+                                                                    false));
+                    promise = promise.then(__joinBackMap.bind(sqlObj,
+                                                              retStruct,
+                                                              node));
                 } else if (isExistenceJoin(node)) {
                     // Map with filter tree
                     promise = promise.then(__mapExistenceColumn.bind(sqlObj,
@@ -3552,6 +3520,8 @@
                                         rTableInfo.tableName
                                         );
             joinNode.renamedCols = joinNode.children[0].renamedCols;
+            globalStruct.renameMap = __combineRenameMaps([joinNode.children[0]
+                .renamedCols, joinNode.children[1].renamedCols, newRenames]);
             if (joinNode.value.joinType.object !==
                 "org.apache.spark.sql.catalyst.plans.LeftSemi$" &&
                 joinNode.value.joinType.object !==
@@ -3604,6 +3574,10 @@
                                   JSON.stringify(joinNode.value.joinType.object));
                         break;
                 }
+            }
+            if (globalStruct.filterSubtrees &&
+                globalStruct.filterSubtrees.length > 0) {
+                options.evalString = __createFilterString(globalStruct);
             }
             return self.join(joinType, lTableInfo, rTableInfo, options);
         })
@@ -4015,17 +3989,15 @@
         return deferred.promise();
     }
 
-    function __filterJoinedTable(globalStruct, joinNode, filterSubtrees) {
+    function __createFilterString(globalStruct) {
         var self = this;
-        var deferred = PromiseHelper.deferred();
-
-        var joinTablename = globalStruct.newTableName;
+        var filterSubtrees = globalStruct.filterSubtrees;
         var filterEvalStrArray = [];
         var finalEvalStr = "";
 
         for (var i = 0; i < filterSubtrees.length; i++) {
             var subtree = filterSubtrees[i];
-            var options = {renamedCols: joinNode.renamedCols};
+            var options = {renamedCols: globalStruct.renameMap};
 
             filterEvalStrArray.push(genEvalStringRecur(subtree, undefined,
                                                        options));
@@ -4037,15 +4009,7 @@
         for (var i = 0; i < filterEvalStrArray.length - 1; i++) {
             finalEvalStr += ")";
         }
-
-        self.filter(finalEvalStr, joinTablename)
-        .then(function(ret) {
-            globalStruct.newTableName = ret.newTableName;
-            globalStruct.cli += ret.cli;
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-        return deferred.promise();
+        return finalEvalStr;
     }
 
     // Immediate Helper functions for join
