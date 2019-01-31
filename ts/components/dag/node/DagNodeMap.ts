@@ -57,6 +57,10 @@ class DagNodeMap extends DagNode {
     ): DagLineageChange {
         const changes: {from: ProgCol, to: ProgCol}[] = [];
         const params = this.input.getInput(replaceParameters);
+        const colMap: Map<string, number> = new Map();
+        columns.forEach((col, i) => {
+            colMap.set(col.getBackColName(), i);
+        });
 
         params.eval.forEach((evalInput) => {
             const colName: string = evalInput.newField;
@@ -71,17 +75,17 @@ class DagNodeMap extends DagNode {
             }
             const colType: ColumnType = this._getOpType(func);
             const progCol = ColManager.newPullCol(colName, colName, colType);
+
+            // check if newCol is replacing an old column and if so, splice
+            // out the old column
             let fromCol = null;
-            if (this.subType === DagNodeSubType.Cast) {
-                const fromColName = (<ParsedEvalArg>func.args[0]).value;
-                for (let i = 0; i < columns.length; i++) {
-                    if (columns[i].getBackColName() === fromColName) {
-                        fromCol = columns.splice(i, 1)[0];
-                        break;
-                    }
-                }
+            if (colMap.has(colName)) {
+                const index = colMap.get(colName);
+                fromCol = columns[index];
+            } else {
+                columns.push(progCol);
             }
-            columns.push(progCol);
+
             changes.push({
                 from: fromCol,
                 to: progCol

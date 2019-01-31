@@ -881,6 +881,7 @@
         }
     }
 
+
     .checkboxWrap {
         float: left;
         .size(@height: @listHeight);
@@ -1172,6 +1173,7 @@
 
                         .colName, .list {
                             .size(@width: 100%);
+                            padding-right: 2px;
                         }
 
                         .colName.highlight {
@@ -1262,6 +1264,11 @@
 
                     li {
                         .position(relative);
+                        padding-left: 4px;
+
+                        &.removeCol {
+                            padding-left: 10px;
+                        }
 
                         &.used .colName, &.removeCol {
                             color: @color-font-greyish-brown;
@@ -1411,6 +1418,13 @@
                     display: inline-block;
                 }
             }
+        }
+    }
+
+    .flexColListItem {
+        padding-left: 4px;
+        .colName {
+            padding-right: 2px;
         }
     }
 
@@ -2462,6 +2476,10 @@
         .flex-flow(nowrap);
         .align-items(center);
         position: relative;
+
+        &.option {
+            margin-top: 6px;
+        }
     }
 
     .col {
@@ -2582,6 +2600,10 @@
 
     .joinClause {
         padding-bottom: 2px;
+
+        .dropDownList li {
+            padding-left: 2px;
+        }
     }
 
     .addClause {

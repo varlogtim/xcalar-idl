@@ -371,7 +371,7 @@ class ExportOpPanelModel {
             if (param.optional) {
                 argHtml += 'optional" placeholder="Optional'
             }
-            argHtml += '" type="' + type + '"></div>';
+            argHtml += '" type="' + type + '" spellcheck="false"></div>';
         }
         argHtml += '</div>'
         return argHtml;

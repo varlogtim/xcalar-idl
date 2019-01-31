@@ -77,13 +77,15 @@ class OpPanelComponentFactory {
         `<li>{{value}}</li>`,
 
         columnMenuItem:
-            `<li>
+            `<li class="flexColListItem">
                 <div class="typeIcon flexContainer {{colTypeClass}}">
                     <div class="flexWrap flex-left" data-toggle="tooltip" data-title="{{colType}}" data-container="body" data-placement="top">
                         <span class="iconHidden"></span>
                         <span class="type icon"></span>
                     </div>
-                    <div class="flexWrap flex-mid">{{colName}}</div>
+                    <div class="flexWrap flex-mid">
+                        <div class="colName textOverflowOneLine">{{colName}}</div>
+                    </div>
                     <div class="flexWrap flex-right"></div>
                 </div>
             </li>`,
