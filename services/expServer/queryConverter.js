@@ -1,8 +1,6 @@
 // TODO: Combine with DagGraph.convertQueryToDataflowGraph
 let xcHelper;
 let XEvalParser = require("./xEvalParser/index.js").XEvalParser;
-// DagNodeType = require("../../assets/js/components/dag/DagEnums.js").DagNodeType;
-// DagNodeType = require("../../assets/js/components/dag.js").DagNodeType;
 require("../../assets/js/thrift/DataFormatEnums_types.js");
 require("../../assets/js/thrift/UnionOpEnums_types.js");
 require("../../assets/js/thrift/LibApisEnums_types.js");
@@ -171,7 +169,7 @@ function convertHelper(dataflowInfo, nestedPrefix, otherNodes) {
                 break;
             case (XcalarApisT.XcalarApiJoin):
             case (XcalarApisT.XcalarApiUnion):
-                args.source.map((source) => {
+                args.source = args.source.map((source) => {
                     return sourcePrefix + source;
                 });
                 node.parents = xcHelper.deepCopy(args.source);
@@ -1031,6 +1029,28 @@ function _getDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix) {
             break;
         case (XcalarApisT.XcalarApiBulkLoad): // should not have any
         // as the "createTable" index node should take it's place
+
+            let loadArgs = node.args.loadArgs;
+            if (typeof loadArgs === "object") {
+                loadArgs = JSON.stringify(loadArgs);
+            }
+            let createTableInput = {
+                source: xcHelper.stripPrefixFromDSName(node.args.dest),
+                prefix: "",
+                synthesize: false,
+                loadArgs: loadArgs
+            }
+
+            dagNodeInfo = {
+                type: DagNodeType.Dataset,
+                input: createTableInput
+            };
+            let schema = getSchemaFromLoadArgs(loadArgs);
+            if (schema) {
+                dagNodeInfo.schema = schema;
+            }
+
+            break;
         default:
             dagNodeInfo = {
                 type: DagNodeType.Placeholder,
