@@ -2759,6 +2759,34 @@ namespace DagView {
             '</div>';
     }
 
+    function _addProgressTooltip(
+        graph: DagGraph,
+        node: DagNode,
+        $dfArea: JQuery,
+        skewInfos,
+        times: number[]
+    ): void {
+        if (node instanceof DagNodeSQLSubInput ||
+            node instanceof DagNodeSQLSubOutput ||
+            node instanceof DagNodeCustomInput ||
+            node instanceof DagNodeCustomOutput
+        ) {
+            return;
+        }
+        const pos = node.getPosition();
+        let tip: HTML = _nodeProgressTemplate(node.getId(), pos.x, pos.y, skewInfos, times);
+        const $tip = $(tip)
+        $dfArea.append($tip);
+        let tempWidth = 95;
+        if (skewInfos.length) {
+            tempWidth = 135;
+        }
+        const width = Math.max($tip[0].getBoundingClientRect().width, tempWidth);
+        const nodeCenter = graph.getScale() * (pos.x + (DagView.nodeWidth / 2));
+        $tip.css("left", nodeCenter - (width / 2));
+    }
+
+
     function _nodeProgressTemplate(
         nodeId: DagNodeId,
         nodeX: number,
@@ -2770,8 +2798,13 @@ namespace DagView {
         const tooltipPadding = 5;
         const rowHeight = 10;
         const scale = activeDag ? activeDag.getScale() : 1;
-        const x = scale * (nodeX - 10);
-        const y = Math.max(1, (scale * nodeY) - (rowHeight * 2 + tooltipPadding + tooltipMargin));
+        let extraRows: number = 0;
+        if (skewInfos.length) {
+            extraRows = skewInfos[0].rows.length;
+        }
+
+        const x = scale * (nodeX - 10); // gets overridden
+        const y = Math.max(1, (scale * nodeY) - (rowHeight * (2 + extraRows) + tooltipPadding + tooltipMargin));
         let totalTime: number;
         if (times.length) {
             totalTime = times.reduce((total, num) => {
@@ -2785,11 +2818,18 @@ namespace DagView {
 
         let hasSkewValue: boolean = false;
         let maxSkew: number | string = 0;
+        let maxSkewRows: number[];
         skewInfos.forEach((skewInfo) => {
             const skew: number = skewInfo.value;
             if (!(skew == null || isNaN(skew))) {
                 hasSkewValue = true;
-                maxSkew = Math.max(skew, <number>maxSkew);
+                if (skew >= maxSkew) {
+                    maxSkew = skew;
+                    maxSkewRows = skewInfo.rows;
+                }
+            }
+            if (!maxSkewRows) {
+                maxSkewRows = skewInfo.rows;
             }
         });
         if (!hasSkewValue) {
@@ -2803,28 +2843,68 @@ namespace DagView {
             colorStyle = "color:" + skewColor;
         }
         let skewRows: string = "N/A";
+        let skewTitle: string = "Skew";
+        let tipClass: string = "";
         if (skewInfos.length) {
             skewRows = xcHelper.numToStr(skewInfos[skewInfos.length - 1].totalRows);
+            skewTitle += "/(Node)"
+            tipClass += " hasRowInfo ";
         }
 
-        let html = `<div data-id="${nodeId}" class="runStats dagTableTip" style="left:${x}px;top:${y}px;">`;
+        let html = `<div data-id="${nodeId}" class="runStats dagTableTip ${tipClass}" style="left:${x}px;top:${y}px;">`;
         html += `<table>
                  <thead>
                     <th>Rows</th>
                     <th>Time</th>
-                    <th>Skew</th>
+                    <th>${skewTitle}</th>
                 </thead>
                 <tbody>
                     <tr>
                         <td>${skewRows}</td>
                         <td>${totalTimeStr}</td>
                         <td><span class="value" style="${colorStyle}">${maxSkew}</span></td>
-                    </tr>
-                </tbody>
+                    </tr>`;
+        if (skewInfos.length) {
+            maxSkewRows.forEach((rowNum, i) => {
+                html += `<tr>
+                        <td>${rowNum}</td>
+                        <td>-</td>
+                        <td>(${i + 1})</td>
+                    </tr>`;
+            });
+        }
+
+        html += `</tbody>
                 </table>
             </div>`;
 
         return html;
+    }
+
+    function _repositionRunStats($dfArea, nodeInfo, nodeId: DagNodeId): void {
+        const $runStats = $dfArea.find('.runStats[data-id="' + nodeId + '"]');
+        if ($runStats.length) {
+            const tooltipPadding = 5;
+            const rowHeight = 10;
+            const scale = activeDag.getScale();
+            let tempWidth = 95;
+            if ($runStats.hasClass("hasRowInfo")) {
+                tempWidth = 135;
+            }
+            let extraRows: number = $runStats.find("tbody tr").length - 1;
+            $runStats.addClass("visible"); // in case we can't get the dimensions
+            // because user is hiding tips by default
+            const infoRect = $runStats[0].getBoundingClientRect();
+            const rectWidth = Math.max(infoRect.width, tempWidth); // width can be 0 if tab is not visible
+            const rectHeight = Math.max(infoRect.height, rowHeight * (2 + extraRows) + tooltipPadding);
+
+            const nodeCenter = nodeInfo.position.x + 1 + (DagView.nodeWidth / 2);
+            $runStats.css({
+                left: scale * nodeCenter - (rectWidth / 2),
+                top: Math.max(1, (scale * nodeInfo.position.y) - (rectHeight + 5))
+            });
+            $runStats.removeClass("visible");
+        }
     }
 
     /**
@@ -2881,47 +2961,6 @@ namespace DagView {
             }
         } catch (e) {
             console.error(e);
-        }
-    }
-
-    function _addProgressTooltip(
-        graph: DagGraph,
-        node: DagNode,
-        $dfArea: JQuery,
-        skewInfos,
-        times: number[]
-    ): void {
-        if (node instanceof DagNodeSQLSubInput ||
-            node instanceof DagNodeSQLSubOutput ||
-            node instanceof DagNodeCustomInput ||
-            node instanceof DagNodeCustomOutput
-        ) {
-            return;
-        }
-        const pos = node.getPosition();
-        let tip: HTML = _nodeProgressTemplate(node.getId(), pos.x, pos.y, skewInfos, times);
-        const $tip = $(tip)
-        $dfArea.append($tip);
-        const width = Math.max($tip[0].getBoundingClientRect().width, 95);
-        const nodeCenter = graph.getScale() * (pos.x + (DagView.nodeWidth / 2));
-        $tip.css("left", nodeCenter - (width / 2));
-    }
-
-    function _repositionRunStats($dfArea, nodeInfo, nodeId: DagNodeId): void {
-        const $runStats = $dfArea.find('.runStats[data-id="' + nodeId + '"]');
-        if ($runStats.length) {
-            $runStats.addClass("visible"); // in case we can't get the dimensions
-            // because user is hiding tips by default
-            const infoRect = $runStats[0].getBoundingClientRect();
-            const rectWidth = Math.max(infoRect.width, 95); // width can be 0 if tab is not visible
-            const rectHeight = Math.max(infoRect.height, 25);
-            const scale = activeDag.getScale();
-            const nodeCenter = nodeInfo.position.x + 1 + (DagView.nodeWidth / 2);
-            $runStats.css({
-                left: scale * nodeCenter - (rectWidth / 2),
-                top: Math.max(1, (scale * nodeInfo.position.y) - (rectHeight + 5))
-            });
-            $runStats.removeClass("visible");
         }
     }
 
