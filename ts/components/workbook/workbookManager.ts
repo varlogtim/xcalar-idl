@@ -514,7 +514,7 @@ namespace WorkbookManager {
         const username: string = XcUser.getCurrentUserName();
         let parsedWorkbookContent: any;
         let promise;
-        if (parsed != "") {
+        if (parsed) {
             promise = PromiseHelper.resolve(parsed);
         } else {
             promise = readFile(workbookContent);
