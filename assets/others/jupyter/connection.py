@@ -173,7 +173,8 @@ class Connection(object):
         if ("randomCrossJoin" not in apiSettings):
             apiSettings["randomCrossJoin"] = False
         if ("numRows" not in apiSettings):
-            numRows = 100
+            apiSettings["numRows"] = 0
+
         payload = {"userIdName": userIdName,
             "wkbkName": workbookName,
             "queryString": sql,
@@ -200,10 +201,15 @@ class Connection(object):
         res = requests.post(url, data = json.dumps(payload), headers=headers,
                             verify=False)
         struct = res.json()
-        #sys.stdout.writeln(struct)
+        #fout = open("/tmp/out", "w")
+        #fout.write(json.dumps(struct))
+        #fout.close()
+        if ("columns" not in struct):
+            # an error has occurred
+            raise Exception(struct)
         columns = struct["columns"]
         colNames = [col["colName"] for col in columns]
-        return self._getDataFrameFromDict(struct["tableName"], colNames,numRows)
+        return self._getDataFrameFromDict(struct["tableName"], colNames, apiSettings["numRows"])
 
     def _time_and_run_query(self, caller, sql):
         """Time the query and execute the SQL using the caller."""
