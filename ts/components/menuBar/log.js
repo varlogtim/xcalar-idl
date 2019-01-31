@@ -42,7 +42,6 @@ window.Log = (function($, Log) {
     Log.setup = function() {
         $textarea = $("#log-TextArea");
         $machineTextarea = $("#log-MachineTextArea");
-
         $undo = $("#undo");
         $redo = $("#redo");
 
@@ -808,6 +807,7 @@ window.Log = (function($, Log) {
             case SQLOps.TableFromDS:
             case SQLOps.DestroyDS:
             case SQLOps.DeleteTable:
+            case SQLOps.DeleteAgg:
             case SQLOps.PreviewDS:
             case SQLOps.DestroyPreviewDS:
             case SQLOps.Profile:
@@ -818,7 +818,6 @@ window.Log = (function($, Log) {
             case SQLOps.QuickAgg:
             case SQLOps.Corr:
             case SQLOps.Aggr:
-            case SQLOps.DeleteAgg:
             case "roundToFixed": // this is a deprecated op in Chronos Patch Set 1
                 return UndoType.Skip;
             default:

@@ -519,7 +519,7 @@ class DagGraphExecutor {
                 }
             }
             let transactionError = error;
-            if (error.node) {
+            if (error && error.node) {
                 // remove node from transaction.log due to cyclical error
                 const node = error.node;
                 delete error.node;

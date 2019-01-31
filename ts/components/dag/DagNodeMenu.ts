@@ -436,6 +436,11 @@ namespace DagNodeMenu {
         $menu.data("nodeid", nodeId);
         $menu.data("parentnodeid", parentNodeId);
         $menu.data("connectorindex", $edge.attr("data-connectorindex"));
+        const childNodeId: DagNodeId = $edge.attr("data-childnodeid");
+        $menu.find("li").removeClass("unavailable");
+        if (DagView.isNodeLocked(childNodeId)) {
+            $menu.find(".removeInConnection").addClass("unavailable");
+        }
     }
 
     function _showCommentMenu($clickedEl: JQuery, event: JQueryEventObject): void {

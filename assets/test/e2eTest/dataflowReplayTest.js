@@ -164,11 +164,7 @@ module.exports = {
     'validate': function(browser) {
         // The validation nodes must be DFLinkOut
         for (const {dfName, nodeName} of testConfig.validation) {
-            console.log(testTabMapping);
             const newTabName = testTabMapping.get(dfName);
-            console.log(dfName);
-            console.log(newTabName);
-            console.log(testTabs);
             const nodeIndex = findValidateNodeIndex(nodeName, testTabs[dfName].nodes);
             browser
                 .switchTab(newTabName)
@@ -186,7 +182,7 @@ module.exports = {
 
     // remove imd table
     'clean up': function(browser) {
-        if (testConfig.IMDNames) {
+        if (testConfig.IMDNames && testConfig.IMDNames.length) {
             browser
             .click("#dataStoresTab")
             .click("#sourceTblButton")
@@ -203,6 +199,64 @@ module.exports = {
                     .click("#alertModal .confirm")
                     .waitForElementNotPresent('#datastoreMenu .grid-unit[data-id="' + IMDName + '"]');
             });
+        }
+    },
+
+    'undo recreate nodes': function(browser) {
+        browser.undoAll(testTabs, testTabMapping);
+    },
+
+    'redo recreate nodes': function(browser) {
+        browser.redoAll(testTabs, testTabMapping);
+    },
+
+    'reconfigure nodes': function(browser) {
+        for (const tabName of Object.keys(testTabs)) {
+            const newTabName = testTabMapping.get(tabName);
+            browser.switchTab(newTabName)
+            .reconfigureNodes(testTabs[tabName].nodes, testTabDfMapping.get(tabName), testDfIdMapping, function(result) {
+            });
+        }
+    },
+
+    'reexecute': function(browser) {
+        for (const tabName of Object.keys(testTabs)) {
+            const newTabName = testTabMapping.get(tabName);
+            const numOfNodes = testTabs[tabName].nodes.length;
+            browser
+                .switchTab(newTabName)
+                .elements('css selector','.dataflowArea.active .operator.state-Configured', function (result) {
+                    browser.assert.ok(result.value.length > 0);
+                })
+                .elements('css selector','.dataflowArea.active .operator.state-Complete', function (result) {
+                    browser.assert.ok(result.value.length < numOfNodes);
+                })
+                .executeAll(numOfNodes * 20000)
+                .elements('css selector','.dataflowArea.active .operator.state-Configured', function (result) {
+                    browser.assert.equal(result.value.length, 0);
+                })
+                .elements('css selector','.dataflowArea.active .operator.state-Complete', function (result) {
+                    browser.assert.equal(result.value.length, numOfNodes);
+                });
+        }
+    },
+
+    'revalidate': function(browser) {
+        // The validation nodes must be DFLinkOut
+        for (const {dfName, nodeName} of testConfig.validation) {
+            const newTabName = testTabMapping.get(dfName);
+            const nodeIndex = findValidateNodeIndex(nodeName, testTabs[dfName].nodes);
+            browser
+                .switchTab(newTabName)
+                .moveToElement(`.dataflowArea.active .operator:nth-child(${nodeIndex + 1}) .main`, 10, 20)
+                .mouseButtonClick('right')
+                .waitForElementVisible("#dagNodeMenu", 1000)
+                .moveToElement("#dagNodeMenu li.viewResult", 10, 1)
+                .mouseButtonClick('left')
+                .waitForElementVisible('#dagViewTableArea .totalRows', 20000)
+                .getText('#dagViewTableArea .totalRows', ({value}) => {
+                    browser.assert.equal(value, "0");
+                });
         }
     }
 }

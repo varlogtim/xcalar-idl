@@ -267,7 +267,7 @@ class DagAggManager {
 
         PromiseHelper.when.apply(window, promises)
         .then(function() {
-            Transaction.done(txId, null);
+            Transaction.done(txId, {noSql: true});
             deferred.resolve();
         })
         .fail(function(err) {

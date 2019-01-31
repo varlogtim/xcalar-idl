@@ -617,10 +617,7 @@ class GeneralOpPanel extends BaseOpPanel {
         } else {
             input = $input.val().trim();
         }
-        if (input.length === 1 && !isNaN(<any>input)) {
-            // if it's a single number don't suggest
-            return;
-        }
+
         const listLis: HTML = this._getArgSuggestLists(input);
 
         $list.find("ul").html(listLis);

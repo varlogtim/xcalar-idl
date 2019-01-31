@@ -490,7 +490,7 @@ class DagTblManager {
         });
         XIApi.deleteTables(txId, deleteQuery, null)
         .then(() => {
-            Transaction.done(txId, null);
+            Transaction.done(txId, {noSql: true});
             deferred.resolve()
         })
         .fail((error) => {

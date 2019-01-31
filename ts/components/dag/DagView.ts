@@ -3187,9 +3187,14 @@ namespace DagView {
             if (activeDagTab instanceof DagTabPublished) {
                 return;
             }
+
             const $parentConnector = $(this);
             const $parentNode = $parentConnector.closest(".operator");
             const parentNodeId: DagNodeId = $parentNode.data("nodeid");
+
+            if (isNodeLocked(parentNodeId)) {
+                return;
+            }
             const $dfArea = _getActiveArea();
             let $candidates: JQuery;
             let path;
@@ -3331,6 +3336,9 @@ namespace DagView {
             const $childConnector = $(this);
             const $childNode = $childConnector.closest(".operator");
             const childNodeId: DagNodeId = $childNode.data("nodeid");
+            if (isNodeLocked(childNodeId)) {
+                return;
+            }
             const $dfArea = _getActiveArea();
             let $candidates: JQuery;
             let path;
@@ -3369,7 +3377,7 @@ namespace DagView {
                             connectorIndex + '"]');
                         otherParentId = $curEdge.data("parentnodeid");
                         activeDag.disconnect(otherParentId, childNodeId,
-                            connectorIndex);
+                            connectorIndex, false);
                     }
                     const $operators: JQuery = $dfArea.find(".operator");
                     $candidates = $operators.filter(function () {
@@ -3464,7 +3472,6 @@ namespace DagView {
                     } else {
                         DagView.connectNodes(parentNodeId, childNodeId,
                             connectorIndex, tabId, isReconnecting);
-
                     }
                 },
                 onDragFail: function (wasDragged: boolean) {
@@ -3590,6 +3597,7 @@ namespace DagView {
         }
     }
 
+    // show warning if connecting to sort node and sort node is not terminal node
     function _connectionWarning(childNodeId: DagNodeId, parentNodeId: DagNodeId): {
         title: string,
         msg: string
@@ -4221,7 +4229,7 @@ namespace DagView {
                 }]
                 XIApi.deleteTables(txId, deleteQuery, null)
                     .then(() => {
-                        Transaction.done(txId, null);
+                        Transaction.done(txId, {noSql: true});
                     })
                     .fail((error) => {
                         Transaction.fail(txId, {
