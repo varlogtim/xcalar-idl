@@ -1091,9 +1091,13 @@ namespace xcSuggest { // = (function($, xcSuggest) {
                 !(data.length > 1 && data[0] === "0" && data[1] !== ".")
             ) {
                 numHit++;
-                if (!isFloat && !Number.isInteger(num)) {
-                    // when it's float
-                    isFloat = true;
+                if (!isFloat) {
+                    if (!Number.isInteger(num) ||
+                        data.includes(".")
+                    ) {
+                        // when it's float
+                        isFloat = true;
+                    }
                 }
             } else if (data === "true" || data === "false" ||
                 data === "t" || data === "f") {

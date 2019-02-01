@@ -784,6 +784,10 @@ describe("xcSuggest", function() {
                 "type": ColumnType.string,
                 "expect": ColumnType.float
             }, {
+                "datas": ["1.0"],
+                "type": ColumnType.string,
+                "expect": ColumnType.float
+            }, {
                 "datas": ["1970-01-01T00:00:00.000Z", "1993-10-01"],
                 "type": ColumnType.string,
                 "expect": ColumnType.timestamp
