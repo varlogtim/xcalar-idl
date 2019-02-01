@@ -480,8 +480,7 @@ window.DSTable = (function($, DSTable) {
             var node = DagView.autoAddNode(DagNodeType.Dataset, null, null, {
                 source: source,
                 prefix: xcHelper.normalizePrefix(dsObj.getName())
-            });
-            DagView.autoAlign(DagView.getActiveTab().getId());
+            }, DagView.gridSpacing * 2, DagView.gridSpacing * 2);
             DagNodeMenu.execute("configureNode", {
                 node: node
             });

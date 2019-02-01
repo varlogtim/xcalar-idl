@@ -275,6 +275,10 @@ abstract class DagNode {
         }
     }
 
+    public checkHasTitleChange(): boolean {
+        return this.hasTitleChange;
+    }
+
     public getTitle(): string {
         return this.title;
     }

@@ -111,71 +111,8 @@ namespace DagView {
             if ($(e.target).is("input") || $(e.target).is("textarea")) {
                 return; // use default paste event
             }
-            let parsed = false;
-            try {
-                let content = e.originalEvent.clipboardData.getData('text/plain');
-                if (content) {
-                    const nodesArray = JSON.parse(content);
-                    parsed = true;
-                    if (!Array.isArray(nodesArray)) {
-                        throw ("Dataflow nodes must be in an array");
-                    }
-                    let nodeSchema = DagNode.getCopySchema();
-                    let nodeSchemaValidateFn = (new Ajv()).compile(nodeSchema);
-                    let commentSchema = CommentNode.getCopySchema();
-                    let commentSchemaValidateFn = (new Ajv()).compile(commentSchema);
-                    for (let i = 0; i < nodesArray.length; i++) {
-                        const node = nodesArray[i];
-                        let valid;
-                        let validate;
-                        if (node.hasOwnProperty("text")) {
-                            validate = commentSchemaValidateFn;
-                        } else {
-                            validate = nodeSchemaValidateFn;
-                        }
-                        valid = validate(node);
-                        if (!valid) {
-                            // only saving first error message
-                            const msg = DagNode.parseValidationErrMsg(node, validate.errors[0], node.hasOwnProperty("text"));
-                            throw (msg);
-                        }
-
-                        if (!node.hasOwnProperty("text")) {
-                           // validate based on node type
-                            const nodeClass = DagNodeFactory.getNodeClass(node);
-                            let nodeSpecificSchema;
-                            if (node.type === DagNodeType.Custom) {
-                                nodeSpecificSchema = DagNodeCustom.getCopySpecificSchema();
-                            } else {
-                                nodeSpecificSchema = nodeClass.specificSchema;
-                            }
-                            if (!nodeClass["validateFn"]) {
-                                // cache the validation function within the nodeClass
-                                let ajv = new Ajv();
-                                nodeClass["validateFn"] = ajv.compile(nodeSpecificSchema);
-                            }
-                            valid = nodeClass["validateFn"](node);
-                            if (!valid) {
-                                // only saving first error message
-                                const msg = DagNode.parseValidationErrMsg(node, validate.errors[0]);
-                                throw (msg);
-                            }
-                        }
-                    }
-                    DagView.pasteNodes(nodesArray);
-                }
-            } catch (err) {
-                console.error(err);
-                let errStr: string;
-                if (!parsed) {
-                    errStr = "Cannot paste invalid format. Nodes must be in a valid JSON format."
-                } else if (typeof err === "string") {
-                    errStr = err;
-                } else {
-                    errStr = xcHelper.parseJSONError(err).error;
-                }
-                StatusBox.show(errStr, $dfWrap);
-            }
+            let content = e.originalEvent.clipboardData.getData('text/plain');
+            _validateAndPaste(content);
         });
 
         $(document).on("keydown.dataflowPanel", function (e: JQueryEventObject) {
@@ -860,8 +797,8 @@ namespace DagView {
         let origMinYCoor = minYCoor;
         minXCoor += (gridSpacing * 5);
         minYCoor += (gridSpacing * 2);
-        const nextAvailablePosition = getNextAvailablePosition(activeDag, minXCoor,
-            minYCoor);
+        const nextAvailablePosition = getNextAvailablePosition(activeDag, null,
+            minXCoor, minYCoor);
         minXCoor = nextAvailablePosition.x;
         minYCoor = nextAvailablePosition.y;
 
@@ -928,9 +865,16 @@ namespace DagView {
                         return; // skip empty parent slots
                     }
                     const newParentId = oldNodeIdMap[parentId];
-                    activeDag.connect(newParentId, newNodeId, j, false, false);
-                    nodesMap.set(newNode.getId(), newNode);
-                    _drawConnection(newParentId, newNodeId, j, activeDag, tabId, newNode.canHaveMultiParents());
+                    if (activeDag.hasNode(newParentId) &&
+                        newParentId !== newNodeId) {
+                        try {
+                            activeDag.connect(newParentId, newNodeId, j, false, false);
+                            nodesMap.set(newNode.getId(), newNode);
+                            _drawConnection(newParentId, newNodeId, j, activeDag, tabId, newNode.canHaveMultiParents());
+                        } catch (e) {
+                            console.error(e);
+                        }
+                    }
                 });
 
                 nodesMap.set(newNode.getId(), newNode);
@@ -948,6 +892,75 @@ namespace DagView {
         tab.turnOnSave();
         return tab.save();
     }
+
+    function _validateAndPaste(content: string): void {
+        let parsed = false;
+        try {
+            if (!content) {
+                return;
+            }
+            const nodesArray = JSON.parse(content);
+            parsed = true;
+            if (!Array.isArray(nodesArray)) {
+                throw ("Dataflow nodes must be in an array.");
+            }
+            let nodeSchema = DagNode.getCopySchema();
+            let nodeSchemaValidateFn = (new Ajv()).compile(nodeSchema);
+            let commentSchema = CommentNode.getCopySchema();
+            let commentSchemaValidateFn = (new Ajv()).compile(commentSchema);
+            for (let i = 0; i < nodesArray.length; i++) {
+                const node = nodesArray[i];
+                let valid;
+                let validate;
+                if (node.hasOwnProperty("text")) {
+                    validate = commentSchemaValidateFn;
+                } else {
+                    validate = nodeSchemaValidateFn;
+                }
+                valid = validate(node);
+                if (!valid) {
+                    // only saving first error message
+                    const msg = DagNode.parseValidationErrMsg(node, validate.errors[0], node.hasOwnProperty("text"));
+                    throw (msg);
+                }
+
+                if (!node.hasOwnProperty("text")) {
+                    // validate based on node type
+                    const nodeClass = DagNodeFactory.getNodeClass(node);
+                    let nodeSpecificSchema;
+                    if (node.type === DagNodeType.Custom) {
+                        nodeSpecificSchema = DagNodeCustom.getCopySpecificSchema();
+                    } else {
+                        nodeSpecificSchema = nodeClass.specificSchema;
+                    }
+                    if (!nodeClass["validateFn"]) {
+                        // cache the validation function within the nodeClass
+                        let ajv = new Ajv();
+                        nodeClass["validateFn"] = ajv.compile(nodeSpecificSchema);
+                    }
+                    valid = nodeClass["validateFn"](node);
+                    if (!valid) {
+                        // only saving first error message
+                        const msg = DagNode.parseValidationErrMsg(node, nodeClass["validateFn"].errors[0]);
+                        throw (msg);
+                    }
+                }
+            }
+            DagView.pasteNodes(nodesArray);
+        } catch (err) {
+            console.error(err);
+            let errStr: string;
+            if (!parsed) {
+                errStr = "Cannot paste invalid format. Nodes must be in a valid JSON format."
+            } else if (typeof err === "string") {
+                errStr = err;
+            } else {
+                errStr = xcHelper.parseJSONError(err).error;
+            }
+            StatusBox.show(errStr, $dfWrap);
+        }
+    }
+
 
     export function hasOptimizedNode(nodeIds?: DagNodeId[]): boolean {
         const $dfArea = _getActiveArea();
@@ -990,7 +1003,7 @@ namespace DagView {
         identifiers?: Map<number, string>,
         setNodeConfig?: {sourceColumn: string, destColumn: string, columnType: ColumnType, cast: boolean}[]
     ): XDPromise<void> {
-        const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId)
+        const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId);
         if (dagTab instanceof DagTabPublished) {
             return PromiseHelper.reject();
         }
@@ -1231,18 +1244,29 @@ namespace DagView {
         x?: number,
         y?: number,
     ): DagNode {
+        const dagTab: DagTab = activeDagTab;
+                dagTab.turnOffSave();
+        const graph = activeDag;
+        const tabId = activeDag.getTabId();
+        let logActions = [];
         let parentNode: DagNode;
         let nextAvailablePosition: Coordinate;
         let connectToParent: boolean = false;
-        const node: DagNode = DagView.newNode({
+        let originalCoorsProvided = (x != null && y != null);
+        let originalCoors = {
+            x: x || gridSpacing,
+            y: y || gridSpacing
+        };
+        let nodeInfo = {
             type: newType,
             subType: subType,
-            input: input
-        });
-        const graph = activeDag;
-        const tabId = activeDag.getTabId();
-        const dagTab: DagTab = activeDagTab;
+            input: input,
+            display: originalCoors
+        };
         dagTab.turnOffSave();
+        const node: DagNode = activeDag.newNode(nodeInfo);
+        const addLogParam: LogParam = _addNodeNoPersist(node, { isNoLog: true });
+        logActions.push(addLogParam.options);
 
         if (parentNodeId) {
             parentNode = graph.getNode(parentNodeId);
@@ -1257,33 +1281,54 @@ namespace DagView {
                 connectToParent = false;
             }
         }
-
-
-        if (connectToParent) {
-            const position: Coordinate = parentNode.getPosition();
-            x = x || (position.x + horzNodeSpacing);
-            y = y || (position.y + vertNodeSpacing * parentNode.getChildren().length);
-        } else {
-            const scale = graph.getScale();
-            const $dfArea: JQuery = _getActiveArea();
-            x = x || Math.round(($dfArea.scrollLeft() + ($dfArea.width() / 2)) /
-                scale / gridSpacing) * gridSpacing;
-            y = y || Math.round(($dfArea.scrollTop() + ($dfArea.height() / 2)) /
-                scale / gridSpacing) * gridSpacing;
-        }
-        nextAvailablePosition = getNextAvailablePosition(graph, x, y);
-
-        DagView.moveNodes(tabId, [{
-            type: "dagNode", id: node.getId(), position: {
-                x: nextAvailablePosition.x,
-                y: nextAvailablePosition.y
+        if (!originalCoorsProvided) {
+            if (connectToParent) {
+                const position: Coordinate = parentNode.getPosition();
+                x = x || (position.x + horzNodeSpacing);
+                y = y || (position.y + vertNodeSpacing * parentNode.getChildren().length);
+            } else {
+                const scale = graph.getScale();
+                const $dfArea: JQuery = _getActiveArea();
+                x = x || Math.round(($dfArea.scrollLeft() + ($dfArea.width() / 2)) /
+                    scale / gridSpacing) * gridSpacing - gridSpacing;
+                y = y || Math.round(($dfArea.scrollTop() + ($dfArea.height() / 2)) /
+                    scale / gridSpacing) * gridSpacing - gridSpacing;
             }
-        }]);
+        }
+        nextAvailablePosition = getNextAvailablePosition(graph, node.getId(), x, y);
 
-        if (connectToParent) {
-            DagView.connectNodes(parentNodeId, node.getId(), 0, tabId);
+        if (nextAvailablePosition.x !== originalCoors.x ||
+            nextAvailablePosition.y !== originalCoors.y) {
+            const nodeMoveInfo: NodeMoveInfo[] = [{
+                id: node.getId(),
+                type: "dagNode",
+                position: nextAvailablePosition,
+                oldPosition: originalCoors
+            }];
+            const moveLogParam = _moveNodesNoPersist(
+                tabId,
+                nodeMoveInfo,
+                null,
+                { isNoLog: true }
+            );
+            logActions.push(moveLogParam);
         }
 
+        if (connectToParent) {
+            const connectLogParam = _connectNodesNoPersist(
+                parentNodeId,
+                node.getId(),
+                0,
+                tabId,
+                { isNoLog: true}
+            );
+            logActions.push(connectLogParam);
+        }
+        Log.add("Add Operation", {
+            operation: SQLOps.DagBulkOperation,
+            actions: logActions,
+            dataflowId: tabId
+        });
         dagTab.turnOnSave();
         dagTab.save();
         return node;
@@ -1775,6 +1820,30 @@ namespace DagView {
     }
 
     /**
+     * Expand the Custom node into a sub graph in place for editing purpose
+     * @param nodeId
+     */
+    export function expandCustomNode(nodeId: DagNodeId): XDPromise<void> {
+        const dagNode = activeDag.getNode(nodeId);
+        const tabId = activeDag.getTabId();
+        if (dagNode == null) {
+            return PromiseHelper.reject(`${nodeId} not exist`);
+        }
+        if (dagNode instanceof DagNodeCustom) {
+            return _expandSubgraphNode({
+                dagNode: dagNode,
+                tabId: tabId,
+                logTitle: SQLTStr.ExpandCustomOperation,
+                getInputParent: (node) => dagNode.getInputParent(node),
+                isInputNode: (node) => (node instanceof DagNodeCustomInput),
+                isOutputNode: (node) => (node instanceof DagNodeCustomOutput)
+            });
+        } else {
+            return PromiseHelper.reject(`${nodeId} is not a Custom operator`);
+        }
+    }
+
+    /**
      * Share a custom operator(node). Called by the node popup menu.
      * @param nodeId
      * @description
@@ -1880,7 +1949,7 @@ namespace DagView {
             return PromiseHelper.reject(`${nodeId} not exist`);
         }
         if (dagNode instanceof DagNodeSQL) {
-            DagView.expandSQLNodeInTab(dagNode, activeDagTab);
+            return DagView.expandSQLNodeInTab(dagNode, activeDagTab);
         } else {
             return PromiseHelper.reject(`${nodeId} is not a SQL operator`);
         }
@@ -1893,6 +1962,7 @@ namespace DagView {
         dagNode: DagNodeSQL,
         dagTab: DagTab
     ): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let promise = PromiseHelper.resolve();
         let subGraph = dagNode.getSubGraph();
         if (!subGraph) {
@@ -1905,7 +1975,7 @@ namespace DagView {
             const queryId = xcHelper.randName("sql", 8);
             promise = dagNode.compileSQL(paramterizedSQL, queryId);
         }
-        return promise
+        promise
             .then(function () {
                 return _expandSubgraphNode({
                     dagNode: dagNode,
@@ -1918,31 +1988,11 @@ namespace DagView {
                     },
                     isPreAutoAlign: true
                 });
-            });
-    }
+            })
+            .then(deferred.resolve)
+            .fail(deferred.reject);
 
-    /**
-     * Expand the Custom node into a sub graph in place for editing purpose
-     * @param nodeId
-     */
-    export function expandCustomNode(nodeId: DagNodeId): XDPromise<void> {
-        const dagNode = activeDag.getNode(nodeId);
-        const tabId = activeDag.getTabId();
-        if (dagNode == null) {
-            return PromiseHelper.reject(`${nodeId} not exist`);
-        }
-        if (dagNode instanceof DagNodeCustom) {
-            return _expandSubgraphNode({
-                dagNode: dagNode,
-                tabId: tabId,
-                logTitle: SQLTStr.ExpandCustomOperation,
-                getInputParent: (node) => dagNode.getInputParent(node),
-                isInputNode: (node) => (node instanceof DagNodeCustomInput),
-                isOutputNode: (node) => (node instanceof DagNodeCustomOutput)
-            });
-        } else {
-            return PromiseHelper.reject(`${nodeId} is not a Custom operator`);
-        }
+        return deferred.promise();
     }
 
     /**
@@ -4510,7 +4560,7 @@ namespace DagView {
         // check why we need it
         const clearState: boolean = options.clearState || false;
         const includeStats: boolean = options.includeStats || false;
-        const includeTitle: boolean = options.includeTitle == null ? true : options.includeTitle;
+        const includeTitle: boolean = (options.includeTitle == null) ? true : options.includeTitle;
         let nodeInfos = [];
         nodeIds.forEach((nodeId) => {
             if (nodeId.startsWith("dag")) {
@@ -5005,11 +5055,14 @@ namespace DagView {
         return;
     }
 
-    function getNextAvailablePosition(graph: DagGraph, x: number, y: number): Coordinate {
+    function getNextAvailablePosition(graph: DagGraph, nodeId: DagNodeId, x: number, y: number): Coordinate {
         let positions = {};
         let positionConflict = true;
 
         graph.getAllNodes().forEach(node => {
+            if (node.getId() === nodeId) {
+                return;
+            }
             const pos: Coordinate = node.getPosition();
             if (!positions[pos.x]) {
                 positions[pos.x] = {};
@@ -5076,19 +5129,21 @@ namespace DagView {
         const tabId = DagView.getActiveDag().getTabId();
         const rect = $origTitle[0].getBoundingClientRect();
         const offset = _getDFAreaOffset();
-        const left = rect.left + offset.left;
+        const left = rect.left + offset.left + (rect.width / 2);
         const top = rect.top + offset.top;
-        const center = left + (rect.width / 2);
         const minWidth = 90;
         const origVal = node.getTitle();
-        let html: HTML = '<textarea class="editableNodeTitle" spellcheck="false" style="top:' +
-            top + 'px;left:' + center + 'px;">' +
-            origVal +
-            '</textarea>';
+        let html: HTML = `<textarea class="editableNodeTitle" spellcheck="false"
+                    style="top:${top}px;left:${left}px;">${origVal}</textarea>`;
         let $textArea = $(html);
         $origTitle.closest(".dataflowAreaWrapper").append($textArea);
         sizeInput();
-        $textArea.focus().caret(origVal.length);
+        $textArea.focus()
+        if (node.checkHasTitleChange()) {
+            $textArea.caret(origVal.length);
+        } else {
+            $textArea.selectAll();
+        }
         $origTitle.hide();
 
         $textArea.blur(() => {
@@ -5150,4 +5205,13 @@ namespace DagView {
     export function getAreaByTab(tabId: string): JQuery {
         return _getAreaByTab(tabId);
     }
+
+    /* Unit Test Only */
+    if (window["unitTestMode"]) {
+        DagView["__testOnly__"] = {};
+        // functions
+        DagView["__testOnly__"]["_validateAndPaste"] = _validateAndPaste;
+    }
+    /* End Of Unit Test Only */
+
 }

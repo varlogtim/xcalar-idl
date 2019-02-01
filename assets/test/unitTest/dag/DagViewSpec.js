@@ -1,6 +1,7 @@
 describe("DagView Test", () => {
     let $dagView;
     let $dfWrap;
+    let $dfArea;
     let tabId;
     let oldPut;
 
@@ -18,6 +19,7 @@ describe("DagView Test", () => {
         .then(function() {
             DagTabManager.Instance.newTab();
             tabId = DagView.getActiveDag().getTabId();
+            $dfArea = $dfWrap.find(".dataflowArea.active");
             MainMenu.openPanel("dagPanel", null);
             done();
         });
@@ -49,8 +51,8 @@ describe("DagView Test", () => {
             };
             DagView.newNode(newNodeInfo);
             expect($dagView.find(".dataflowArea.active .operatorSvg").children().length).to.equal(1);
-            expect($dagView.find(".dataflowArea .operator").length).to.equal(1);
-            const $operator = $dagView.find(".dataflowArea .operator");
+            expect($dagView.find(".dataflowArea.active .operator").length).to.equal(1);
+            const $operator = $dagView.find(".dataflowArea.active .operator");
             expect($operator.attr("transform")).to.equal("translate(20,40)");
             expect($operator.hasClass("dataset")).to.be.true;
             const dag = DagView.getActiveDag();
@@ -122,9 +124,10 @@ describe("DagView Test", () => {
         before(function() {
             const newNodeInfo = {
                 type: "filter",
+                input: "{\"evalString\": \"eq(1, 1)\"}",
                 display: {
-                    x: 10,
-                    y: 10
+                    x: 20,
+                    y: 20
                 }
             };
             DagView.newNode(newNodeInfo);
@@ -140,7 +143,7 @@ describe("DagView Test", () => {
                 called = true;
             };
 
-            expect($dagView.find(".dataflowArea .operator").length).to.equal(2);
+            expect($dagView.find(".dataflowArea.active .operator").length).to.equal(2);
 
             var e = $.Event('mousedown', {pageX: 100, pageY: 100, which: 1});
             const $operator = $dfWrap.find(".dataflowArea.active .operator").eq(0);
@@ -162,7 +165,6 @@ describe("DagView Test", () => {
 
             expect($dfWrap.find(".secondarySvg").length).to.equal(0);
 
-
             expect(called).to.be.true;
             DagView.connectNodes = cacheFn;
         });
@@ -180,7 +182,7 @@ describe("DagView Test", () => {
                 expect(dag.getNode(parentId).parents.length).to.equal(0);
                 expect(dag.getNode(childId).parents.length).to.equal(1);
                 expect(dag.getNode(childId).children.length).to.equal(0);
-                expect($dfWrap.find(".edgeSvg .edge").length).to.equal(1);
+                expect($dfArea.find(".edgeSvg .edge").length).to.equal(1);
                 done();
             });
         });
@@ -195,7 +197,7 @@ describe("DagView Test", () => {
                 const dag = DagView.getActiveDag();
                 expect(dag.getNode(parentId).children.length).to.equal(0);
                 expect(dag.getNode(childId).parents.length).to.equal(0);
-                expect($dfWrap.find(".edgeSvg .edge").length).to.equal(0);
+                expect($dfArea.find(".edgeSvg .edge").length).to.equal(0);
                 done();
             });
         });
@@ -266,7 +268,7 @@ describe("DagView Test", () => {
 
     describe("node description", function() {
         it("editDescription should work", function() {
-            const $operator = $dfWrap.find(".operator").eq(0);
+            const $operator = $dfWrap.find(".dataflowArea.active .operator").eq(0);
             expect($operator.hasClass("hasDescription")).to.be.false;
             expect($operator.find(".descriptionIcon").length).to.equal(0);
 
@@ -279,7 +281,7 @@ describe("DagView Test", () => {
         });
 
         it("editDescription with no value should work", function() {
-            const $operator = $dfWrap.find(".operator").eq(0);
+            const $operator = $dfWrap.find(".dataflowArea.active .operator").eq(0);
             expect($operator.hasClass("hasDescription")).to.be.true;
             expect($operator.find(".descriptionIcon").length).to.equal(1);
 
@@ -289,6 +291,54 @@ describe("DagView Test", () => {
             expect(node.getDescription()).to.equal("");
             expect($operator.hasClass("hasDescription")).to.be.false;
             expect($operator.find(".descriptionIcon").length).to.equal(0);
+        });
+    });
+
+    // move the first operator element which happens to be node 2
+    describe("node title", function() {
+        let node;
+        let $operator;
+
+        before(function() {
+            $operator = $dfArea.find(".operator").eq(0);
+            const nodeId = $operator.data("nodeid");
+            node = DagView.getActiveDag().getNode(nodeId);
+        });
+
+        it("node title should have no change", function() {
+            expect($operator.find(".nodeTitle")).to.be.visible;
+            expect($operator.find(".nodeTitle").text()).to.equal("Node 2");
+            expect(node.hasTitleChange).to.be.false;
+            expect($dfArea.find("textarea.editableNodeTitle").length).to.equal(0);
+        });
+
+        it("dbl clicking on nodeTitle should trigger text area", function() {
+            $operator.find(".nodeTitle").dblclick();
+            expect($operator.find(".nodeTitle")).to.not.be.visible;
+            expect($dfArea.find("textarea.editableNodeTitle").length).to.equal(1);
+            expect($dfArea.find("textarea.editableNodeTitle").val()).to.equal("Node 2");
+        });
+
+        it("edit title should work", function(done) {
+            $dfArea.find("textarea.editableNodeTitle").val("newTitle");
+            $(document).focus();
+            $("input:visible").focus();
+            $dfArea.find("textarea.editableNodeTitle").trigger("blur");
+            $dfArea.trigger(fakeEvent.mousedown);
+            UnitTest.testFinish(function() {
+                return $dfArea.find("textarea.editableNodeTitle").length === 0;
+            })
+            .then(function() {
+                expect($dfArea.find("textarea.editableNodeTitle").length).to.equal(0);
+                expect(node.getTitle()).to.equal("newTitle");
+                expect($operator.find(".nodeTitle")).to.be.visible;
+                expect($operator.find(".nodeTitle").text()).to.equal("newTitle");
+                expect(node.hasTitleChange).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail")
+            });
         });
     });
 
@@ -365,8 +415,8 @@ describe("DagView Test", () => {
             const newNodeInfo = {
                 type: "filter",
                 display: {
-                    x: 10,
-                    y: 10
+                    x: 20,
+                    y: 20
                 }
             };
             const node = DagView.newNode(newNodeInfo);
@@ -394,12 +444,686 @@ describe("DagView Test", () => {
         });
     });
 
+    // XXX test is really simple, need to test complex cases
+    describe("align nodes", function() {
+        let node1;
+        let node2;
+        let node3;
+        let tabId;
+        before(function() {
+            const newNodeInfo = {
+                type: "map",
+                display: {
+                    x: 200,
+                    y: 40
+                }
+            };
+            tabId = DagView.getActiveDag().getTabId();
+            DagView.newNode(newNodeInfo);
+            node1 = DagView.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
+            node2 = DagView.getActiveDag().getNode($dfArea.find(".operator.dataset").data("nodeid"));
+            node3 = DagView.getActiveDag().getNode($dfArea.find(".operator.map").data("nodeid"));
+        });
+        it("should align in a straight vertical line", function() {
+            DagView.autoAlign(DagView.getActiveDag().getTabId());
+            expect(node1.getPosition().x).to.equal(40);
+            expect(node2.getPosition().x).to.equal(40);
+            expect(node3.getPosition().x).to.equal(40);
+            expect(node1.getPosition().y).to.equal(40);
+            expect(node2.getPosition().y).to.equal(100);
+            expect(node3.getPosition().y).to.equal(160);
+        });
+        it("should align in a straight horizontal line when connected", function() {
+            DagView.connectNodes(node2.getId(), node1.getId(), 0, tabId);
+            DagView.connectNodes(node1.getId(), node3.getId(), 0, tabId);
+            DagView.autoAlign(DagView.getActiveDag().getTabId());
+            expect(node1.getPosition().y).to.equal(40);
+            expect(node2.getPosition().y).to.equal(40);
+            expect(node3.getPosition().y).to.equal(40);
+
+            expect(node2.getPosition().x).to.equal(40);
+            expect(node1.getPosition().x).to.equal(180);
+            expect(node3.getPosition().x).to.equal(320);
+        });
+
+        // undo repositioning , connection of nodes, addition of a node
+        after(function(done) {
+            Log.undo(5)
+            .then(() => {
+                done();
+            })
+            .fail(() => {
+                done("fail");
+            });
+        });
+    });
+
+    describe("copy/cut and paste", function() {
+        let node1;
+        let node2;
+        let tabId;
+        let copy;
+        before(function() {
+            tabId = DagView.getActiveDag().getTabId();
+            node1 = DagView.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
+            node2 = DagView.getActiveDag().getNode($dfArea.find(".operator.dataset").data("nodeid"));
+        });
+
+        it("should copy", function() {
+            DagView.selectNodes(tabId, [node1.getId(), node2.getId()]);
+            copy = DagView.copyNodes([node1.getId(), node2.getId()]);
+            copy = JSON.parse(copy);
+            expect(copy.length).to.equal(2);
+            expect(copy[0].type).to.equal("filter");
+            expect(copy[0].display.x).to.equal(20);
+            expect(copy[0].display.y).to.equal(20);
+            expect(copy[0].nodeId.length).to.be.gt(10);
+            expect(copy[0].parents.length).to.equal(0);
+
+            expect(copy[1].type).to.equal("dataset");
+            expect(copy[1].display.x).to.equal(220);
+            expect(copy[1].display.y).to.equal(240);
+            expect(copy[1].nodeId.length).to.be.gt(10);
+            expect(copy[1].parents.length).to.equal(0);
+        });
+
+        it("should copy connected nodes", function() {
+            DagView.connectNodes(node2.getId(), node1.getId(), 0, tabId);
+            copy = DagView.copyNodes([node1.getId(), node2.getId()]);
+            copy = JSON.parse(copy);
+            expect(copy.length).to.equal(2);
+            expect(copy[0].type).to.equal("filter");
+            expect(copy[0].display.x).to.equal(20);
+            expect(copy[0].display.y).to.equal(20);
+            expect(copy[0].nodeId.length).to.be.gt(10);
+            expect(copy[0].parents.length).to.equal(1);
+            expect(copy[0].parents[0]).to.equal(node2.getId());
+
+            expect(copy[1].type).to.equal("dataset");
+            expect(copy[1].display.x).to.equal(220);
+            expect(copy[1].display.y).to.equal(240);
+            expect(copy[1].nodeId.length).to.be.gt(10);
+            expect(copy[1].parents.length).to.equal(0);
+        });
+
+        it("should not copy parent id if selecting 1 node", function() {
+            copy = DagView.copyNodes([node1.getId()]);
+            copy = JSON.parse(copy);
+            expect(copy.length).to.equal(1);
+            expect(copy[0].type).to.equal("filter");
+            expect(copy[0].display.x).to.equal(20);
+            expect(copy[0].display.y).to.equal(20);
+            expect(copy[0].nodeId.length).to.be.gt(10);
+            expect(copy[0].parents.length).to.equal(0);
+        });
+
+        it("cut should work", function() {
+            expect($dfArea.find(".operator").length).to.equal(2);
+            copy = DagView.cutNodes([node1.getId(), node2.getId()]);
+            copy = JSON.parse(copy);
+            expect($dfArea.find(".operator").length).to.equal(0);
+
+            expect(copy.length).to.equal(2);
+            expect(copy[0].type).to.equal("filter");
+            expect(copy[0].display.x).to.equal(20);
+            expect(copy[0].display.y).to.equal(20);
+            expect(copy[0].nodeId.length).to.be.gt(10);
+            expect(copy[0].parents.length).to.equal(1);
+            expect(copy[0].parents[0]).to.equal(node2.getId());
+
+            expect(copy[1].type).to.equal("dataset");
+            expect(copy[1].display.x).to.equal(220);
+            expect(copy[1].display.y).to.equal(240);
+            expect(copy[1].nodeId.length).to.be.gt(10);
+            expect(copy[1].parents.length).to.equal(0);
+        });
+
+        it("paste should work", function() {
+            expect($dfArea.find(".operator").length).to.equal(0);
+            DagView.pasteNodes(copy);
+            expect($dfArea.find(".operator").length).to.equal(2);
+            let node1b = DagView.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
+            let node2b = DagView.getActiveDag().getNode($dfArea.find(".operator.dataset").data("nodeid"));
+            expect(node1b.getId()).to.not.equal(node1.getId());
+            expect(node2b.getId()).to.not.equal(node2.getId());
+
+            expect(node1b.getPosition().x).to.equal(node1.getPosition().x + 100);
+            expect(node1b.getPosition().y).to.equal(node1.getPosition().y + 40);
+            expect(node2b.getPosition().x).to.equal(node2.getPosition().x + 100);
+            expect(node2b.getPosition().y).to.equal(node2.getPosition().y + 40);
+        });
+
+        it("paste validation should work", function() {
+            let validate = DagView["__testOnly__"]["_validateAndPaste"];
+            validate("x");
+            UnitTest.hasStatusBoxWithError("Cannot paste invalid format. Nodes must be in a valid JSON format.");
+
+            validate('{"x": 1}');
+            UnitTest.hasStatusBoxWithError("Dataflow nodes must be in an array.");
+
+            validate('[{"x": 1}]');
+            UnitTest.hasStatusBoxWithError("Node should have required property 'type'");
+
+            validate('[{"type": "filter"}]');
+            UnitTest.hasStatusBoxWithError("Filter node: Node should have required property 'display'");
+
+            validate('[{"type": "filter", "display": {"x":20, "y":20}, "nodeId": "a", "input":null, "parents":[], "configured":true}]');
+            UnitTest.hasStatusBoxWithError('Filter node: input should be object');
+
+            validate('[{"type": "filter", "display": {"x":20, "y":20}, "nodeId": "a", "input":{}, "parents":["b", "c"], "configured":true}]');
+            UnitTest.hasStatusBoxWithError('Filter node: parents should NOT have more than 1 items');
+
+            expect($("#statusBox")).to.be.visible;
+            StatusBox.forceHide();
+
+            validate('[{"type": "filter", "display": {"x":20, "y":20}, "nodeId": "a", "input":{}, "parents":["b"], "configured":true}]');
+            expect($("#statusBox")).to.not.be.visible;
+        });
+
+        after(function(done) {
+            Log.undo(4)
+            .then(() => {
+                done();
+            })
+            .fail(() => {
+                done("fail");
+            });
+        });
+    });
+
+    describe("custom node", function() {
+        let node1;
+        let node2;
+        let node3;
+        let tabId;
+        let customNode;
+        before(function() {
+            const newNodeInfo = {
+                type: "map",
+                display: {
+                    x: 200,
+                    y: 40
+                }
+            };
+            tabId = DagView.getActiveDag().getTabId();
+            DagView.newNode(newNodeInfo);
+            node1 = DagView.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
+            node2 = DagView.getActiveDag().getNode($dfArea.find(".operator.dataset").data("nodeid"));
+            node3 = DagView.getActiveDag().getNode($dfArea.find(".operator.map").data("nodeid"));
+            DagView.autoAlign(DagView.getActiveDag().getTabId());
+        });
+
+        it ("should create custom node from 1 node", function() {
+            expect($dfArea.find(".operator.filter").length).to.equal(1);
+            expect($dfArea.find(".operator.custom").length).to.equal(0);
+            DagView.wrapCustomOperator([node1.getId()]);
+            expect($dfArea.find(".operator.filter").length).to.equal(0);
+            expect($dfArea.find(".operator.custom").length).to.equal(1);
+            customNode = DagView.getActiveDag().getNode($dfArea.find(".operator.custom").data("nodeid"));
+        });
+
+        it("custom node should have correct properties", function() {
+            expect(customNode.getPosition().x).to.equal(node1.getPosition().x);
+            expect(customNode.getPosition().y).to.equal(node1.getPosition().y);
+            expect(customNode.getParents().length).to.equal(0);
+            expect(customNode.getChildren().length).to.equal(0);
+            expect(customNode.getSubGraph().nodesMap.size).to.equal(3);
+            const custFilters = customNode.getSubGraph().getNodesByType("filter");
+            expect(custFilters.length).to.equal(1);
+            expect(custFilters[0].getParents().length).to.equal(1);
+            expect(custFilters[0].getParents()[0].type).to.equal("customInput");
+            expect(custFilters[0].getChildren().length).to.equal(1);
+            expect(custFilters[0].getChildren()[0].type).to.equal("customOutput");
+        });
+
+        it ("expand should work", function(done) {
+            DagView.expandCustomNode(customNode.getId())
+            .then(function() {
+                expect($dfArea.find(".operator.filter").length).to.equal(1);
+                expect($dfArea.find(".operator.custom").length).to.equal(0);
+                node1b = node1;
+                node1 = DagView.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
+                expect(node1.getId()).to.not.equal(node1b.getId());
+                expect(node1.getPosition().x).to.equal(node1b.getPosition().x);
+                expect(node1.getPosition().y).to.equal(node1b.getPosition().y);
+                expect(node1.getParents().length).to.equal(0);
+                expect(node1.getChildren().length).to.equal(0);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        describe("wrap/expand node with 1 parent, 1 child", function() {
+            before(function() {
+                DagView.connectNodes(node2.getId(), node1.getId(), 0, tabId);
+                DagView.connectNodes(node1.getId(), node3.getId(), 0, tabId);
+            });
+
+            it ("should create custom node", function() {
+                expect($dfArea.find(".operator.filter").length).to.equal(1);
+                expect($dfArea.find(".operator.custom").length).to.equal(0);
+                DagView.wrapCustomOperator([node1.getId()]);
+                expect($dfArea.find(".operator.filter").length).to.equal(0);
+                expect($dfArea.find(".operator.custom").length).to.equal(1);
+                customNode = DagView.getActiveDag().getNode($dfArea.find(".operator.custom").data("nodeid"));
+            });
+
+            it("custom node should have correct properties", function() {
+                expect(customNode.getPosition().x).to.equal(node1.getPosition().x);
+                expect(customNode.getPosition().y).to.equal(node1.getPosition().y);
+                expect(customNode.getParents().length).to.equal(1);
+                expect(customNode.getParents()[0].getId()).to.equal(node2.getId());
+                expect(customNode.getChildren().length).to.equal(1);
+                expect(customNode.getChildren()[0].getId()).to.equal(node3.getId());
+
+                expect(customNode.getSubGraph().nodesMap.size).to.equal(3);
+                const custFilters = customNode.getSubGraph().getNodesByType("filter");
+                expect(custFilters.length).to.equal(1);
+                expect(custFilters[0].getParents().length).to.equal(1);
+                expect(custFilters[0].getParents()[0].type).to.equal("customInput");
+                expect(custFilters[0].getChildren().length).to.equal(1);
+                expect(custFilters[0].getChildren()[0].type).to.equal("customOutput");
+            });
+
+            it ("expand should work", function(done) {
+                DagView.expandCustomNode(customNode.getId())
+                .then(function() {
+                    expect($dfArea.find(".operator.filter").length).to.equal(1);
+                    expect($dfArea.find(".operator.custom").length).to.equal(0);
+                    node1b = node1;
+                    node1 = DagView.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
+                    expect(node1.getId()).to.not.equal(node1b.getId());
+
+                    expect(node1.getPosition().x).to.equal(node1b.getPosition().x);
+                    expect(node1.getPosition().y).to.equal(node1b.getPosition().y);
+
+                    expect(node1.getParents().length).to.equal(1);
+                    expect(node1.getParents()[0].getId()).to.equal(node2.getId());
+
+                    expect(node1.getChildren().length).to.equal(1);
+                    expect(node1.getChildren()[0].getId()).to.equal(node3.getId());
+                    done();
+                })
+                .fail(function() {
+                    done("fail");
+                });
+            });
+        });
+    });
+
+    describe("auto add node", function() {
+        let node3;
+        let node4;
+        before(function() {
+            tabId = DagView.getActiveDag().getTabId();
+            node3 = DagView.getActiveDag().getNode($dfArea.find(".operator.map").data("nodeid"));
+        });
+        it("should add groupby node", function(done) {
+            expect($dfArea.find(".operator").length).to.equal(3);
+            expect($dfArea.find(".operator.groupBy").length).to.equal(0);
+            DagView.autoAddNode("groupBy");
+            expect($dfArea.find(".operator").length).to.equal(4);
+            expect($dfArea.find(".operator.groupBy").length).to.equal(1);
+            node4 = DagView.getActiveDag().getNode($dfArea.find(".operator.groupBy").data("nodeid"));
+            expect(node4.getPosition().x).to.be.gt(100);
+            expect(node4.getPosition().y).to.be.gt(40);
+            expect(node4.getPosition().x).to.be.lt(10000);
+            expect(node4.getPosition().y).to.be.lt(10000);
+            expect(node4.getParents().length).to.equal(0);
+            expect(node4.getChildren().length).to.equal(0);
+            Log.undo()
+            .then(() => {
+                done();
+            })
+            .fail(() => {
+                done("fail");
+            });
+        });
+
+        it ("should add groupby node as child of map node", function(done) {
+            expect($dfArea.find(".operator").length).to.equal(3);
+            expect($dfArea.find(".operator.groupBy").length).to.equal(0);
+            DagView.autoAddNode("groupBy", null, node3.getId(),
+            {"groupBy":[""],"aggregate":[{"operator":"","sourceColumn":"","destColumn":"","distinct":false,"cast":null}],"includeSample":false,"joinBack":false,"icv":false,"groupAll":false,"newKeys":[],"dhtName":""});
+            expect($dfArea.find(".operator").length).to.equal(4);
+            expect($dfArea.find(".operator.groupBy").length).to.equal(1);
+            node4 = DagView.getActiveDag().getNode($dfArea.find(".operator.groupBy").data("nodeid"));
+            expect(node4.getParents().length).to.equal(1);
+            expect(node4.getParents()[0].getId()).to.equal(node3.getId());
+            expect(node4.getChildren().length).to.equal(0);
+
+            Log.undo()
+            .then(() => {
+                done();
+            })
+            .fail(() => {
+                done("fail");
+            });
+        });
+    });
+
+    describe("zoom", function() {
+        it("should zoom in", function(){
+            expect(DagView.getActiveDag().getScale()).to.equal(1);
+            DagView.zoom(null, 1.6);
+            expect(DagView.getActiveDag().getScale()).to.equal(1.6);
+        });
+        it("should zoom out", function() {
+            expect(DagView.getActiveDag().getScale()).to.equal(1.6);
+            DagView.zoom(false);
+            expect(DagView.getActiveDag().getScale()).to.equal(1.5);
+        });
+        it("should zoom out", function() {
+            expect(DagView.getActiveDag().getScale()).to.equal(1.5);
+            DagView.zoom(false);
+            expect(DagView.getActiveDag().getScale()).to.equal(1);
+        });
+        it("should zoom out", function() {
+            expect(DagView.getActiveDag().getScale()).to.equal(1);
+            DagView.zoom(false);
+            expect(DagView.getActiveDag().getScale()).to.equal(0.75);
+        });
+        it("should zoom in", function() {
+            expect(DagView.getActiveDag().getScale()).to.equal(0.75);
+            DagView.zoom(true);
+            expect(DagView.getActiveDag().getScale()).to.equal(1);
+        });
+    });
+
+    describe("comment", function() {
+        it("new comment should work", function() {
+            expect($dfArea.find(".comment").length).to.equal(0);
+            DagView.newComment({
+                position: {x: 60, y:50}, text: "hello"
+            });
+            expect($dfArea.find(".comment").length).to.equal(1);
+            expect($dfArea.find(".comment").text()).to.equal("hello");
+            expect($dfArea.find(".comment").css("left")).to.equal("60px");
+            expect($dfArea.find(".comment").css("top")).to.equal("60px");
+        });
+        it("should remove comment", function(){
+            expect($dfArea.find(".comment").length).to.equal(1);
+            let commentId = $dfArea.find(".comment").data("nodeid");
+            DagView.removeNodes([commentId], tabId);
+            expect($dfArea.find(".comment").length).to.equal(0);
+        });
+    });
+
+    describe("sql node", function() {
+        let datasetNode;
+        let sqlNode;
+        let synthesizeNode;
+        let filter2Node;
+        before(function(done) {
+            tabId = DagView.getActiveDag().getTabId();
+            datasetNode = DagView.getActiveDag().getNode($dfArea.find(".operator.dataset").data("nodeid"));
+
+            const newNodeInfo = {
+                type: "sql",
+                display: {
+                    x: 20,
+                    y: 20
+                }
+            };
+            DagView.newNode(newNodeInfo);
+
+            datasetNode.setParam({"source":"rudy.08604.classes","prefix":"classes","synthesize":false,"loadArgs":"{\n    \"operation\": \"XcalarApiBulkLoad\",\n    \"comment\": \"\",\n    \"tag\": \"\",\n    \"state\": \"Unknown state\",\n    \"args\": {\n        \"dest\": \"rudy.08604.classes\",\n        \"loadArgs\": {\n            \"sourceArgsList\": [\n                {\n                    \"targetName\": \"Default Shared Root\",\n                    \"path\": \"/netstore/datasets/indexJoin/classes/classes.json\",\n                    \"fileNamePattern\": \"\",\n                    \"recursive\": false\n                }\n            ],\n            \"parseArgs\": {\n                \"parserFnName\": \"default:parseJson\",\n                \"parserArgJson\": \"{}\",\n                \"fileNameFieldName\": \"\",\n                \"recordNumFieldName\": \"\",\n                \"allowFileErrors\": false,\n                \"allowRecordErrors\": false,\n                \"schema\": []\n            },\n            \"size\": 10737418240\n        }\n    },\n    \"annotations\": {}\n}","schema":[{"name":"classes::class_name","type":"string"},{"name":"classes::class_id","type":"integer"}]});
+            datasetNode.schema = [{"name":"class_name","type":"string"}
+                ,{"name":"class_id","type":"integer"}];
+            DS.restoreSourceFromDagNode([datasetNode], false)
+            .then(() => {
+                datasetNode.beConfiguredState();
+                MainMenu.openPanel("dagPanel", null);
+                return DagView.run([datasetNode.getId()]);
+            })
+            .then(() => {
+                sqlNode = DagView.getActiveDag().getNode($dfArea.find(".operator.sql").data("nodeid"));
+                DagView.connectNodes(datasetNode.getId(), sqlNode.getId(), 0, tabId);
+                DagView.autoAlign(tabId);
+                DagNodeMenu.execute("configureNode", {
+                    node: sqlNode
+                });
+
+                $("#sqlOpPanel").find(" .bottomSection .switch").click();
+                $("#sqlOpPanel .advancedEditor .CodeMirror")[0].CodeMirror.setValue(JSON.stringify({
+                    "sqlQueryString": "SELECT * FROM a WHERE class_id > 2",
+                    "identifiers": {
+                        "1": "a"
+                    },
+                    "identifiersOrder": [
+                        1
+                    ]
+                }));
+
+                $("#sqlOpPanel").find(".submit").click();
+
+                return UnitTest.testFinish(function() {
+                    return $("#sqlOpPanel").is(':visible') === false;
+                });
+            })
+            .then(() => {
+                done();
+            })
+            .fail(() => {
+                done("fail");
+            });
+        });
+
+        it("inspect should work", function(done) {
+            let numTabs = $dagView.find(".dagTab").length;
+            DagView.inspectSQLNode(sqlNode.getId(), tabId)
+            .then(function() {
+                $dfArea = $dfWrap.find(".dataflowArea.active");
+                expect($dagView.find(".dagTab").length).to.equal(numTabs + 1);
+                expect($dfArea.find(".operator").length).to.equal(4);
+                expect($dfArea.find(".operator.synthesize").length).to.equal(1);
+                expect($dfArea.find(".operator.SQLSubInput").length).to.equal(1);
+                expect($dfArea.find(".operator.SQLSubOutput").length).to.equal(1);
+                synthesizeNode = DagView.getActiveDag().getNode($dfArea.find(".operator.synthesize").data("nodeid"));
+
+                expect(synthesizeNode.getParents().length).to.equal(1);
+                expect(synthesizeNode.getChildren().length).to.equal(1);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it ("validate inspect tab", function() {
+            let inNode = DagView.getActiveDag().getNode($dfArea.find(".operator.SQLSubInput").data("nodeid"));
+            let outNode = DagView.getActiveDag().getNode($dfArea.find(".operator.SQLSubOutput").data("nodeid"));
+            let filter2Node = DagView.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
+
+            expect(synthesizeNode.getParents()[0].getId()).to.equal(inNode.getId());
+            expect(synthesizeNode.getChildren()[0].getId()).to.equal(filter2Node.getId());
+            expect(filter2Node.getChildren()[0].getId()).to.equal(outNode.getId());
+
+            expect(inNode.getPosition().x).to.equal(40);
+            expect(inNode.getPosition().y).to.equal(40);
+            expect(synthesizeNode.getPosition().x).to.equal(180);
+            expect(synthesizeNode.getPosition().y).to.equal(40);
+            expect(filter2Node.getPosition().x).to.equal(320);
+            expect(filter2Node.getPosition().y).to.equal(40);
+            expect(outNode.getPosition().x).to.equal(460);
+            expect(outNode.getPosition().y).to.equal(40);
+
+            $dagView.find(".dagTab").last().find(".after").click();
+            $dfArea = $dfWrap.find(".dataflowArea.active");
+        });
+
+        it("expand should work", function(done) {
+            DagView.expandSQLNode(sqlNode.getId())
+            .then(() => {
+                expect($dfArea.find(".operator").length).to.equal(5);
+                synthesizeNode = DagView.getActiveDag().getNode($dfArea.find(".operator.synthesize").data("nodeid"));
+                filter2Node = DagView.getActiveDag().getNode($dfArea.find(".operator.filter").last().data("nodeid"));
+                expect(synthesizeNode.getPosition().x).to.equal(sqlNode.getPosition().x);
+                expect(synthesizeNode.getPosition().y).to.equal(sqlNode.getPosition().y);
+                expect(filter2Node.getPosition().x).to.equal(sqlNode.getPosition().x + 140);
+                expect(filter2Node.getPosition().y).to.equal(sqlNode.getPosition().y);
+
+                expect(synthesizeNode.getParents().length).to.equal(1);
+                expect(synthesizeNode.getParents()[0].getId()).to.equal(datasetNode.getId());
+                expect(synthesizeNode.getChildren()[0].getId()).to.equal(filter2Node.getId());
+                done();
+            })
+            .fail(() => {
+                done("fail");
+            })
+        });
+
+        it ("undo expand should work", function(done) {
+            let prevx = synthesizeNode.getPosition().x;
+            let prevy = synthesizeNode.getPosition().y;
+            Log.undo()
+            .then(() => {
+                expect($dfArea.find(".operator").length).to.equal(4);
+                sqlNode = DagView.getActiveDag().getNode($dfArea.find(".operator.sql").data("nodeid"));
+                expect(prevx).to.equal(sqlNode.getPosition().x);
+                expect(prevy).to.equal(sqlNode.getPosition().y);
+
+                expect(sqlNode.getParents().length).to.equal(1);
+                expect(sqlNode.getParents()[0].getId()).to.equal(datasetNode.getId());
+                expect(sqlNode.getChildren().length).to.equal(0);
+
+                done();
+            })
+            .fail(() => {
+                done("fail");
+            })
+        });
+
+        it("execute should work", function(done) {
+            DagView.run([sqlNode.getId()])
+            .then(() => {
+                let $sqlNode = $dfArea.find(".operator.sql");
+                expect($sqlNode.hasClass("state-Complete"));
+                const $tip = $dfArea.find('.runStats[data-id="' + sqlNode.getId() + '"]');
+                expect($tip.length).to.equal(1);
+                expect($tip.find("tbody tr td").first().text()).to.equal("4"); // 4 rows
+
+                done();
+            })
+            .fail(() => {
+                done("fail");
+            });
+        });
+
+        it("inspect after execute should work", function(done) {
+            let numTabs = $dagView.find(".dagTab").length;
+            DagView.inspectSQLNode(sqlNode.getId(), tabId)
+            .then(function() {
+                $dfArea = $dfWrap.find(".dataflowArea.active");
+                expect($dagView.find(".dagTab").length).to.equal(numTabs + 1);
+                expect($dfArea.find(".operator").length).to.equal(4);
+                expect($dfArea.find(".operator.synthesize").length).to.equal(1);
+                expect($dfArea.find(".operator.SQLSubInput").length).to.equal(1);
+                expect($dfArea.find(".operator.SQLSubOutput").length).to.equal(1);
+
+                let synthesizeNode = DagView.getActiveDag().getNode($dfArea.find(".operator.synthesize").data("nodeid"));
+                let filterNode = DagView.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
+
+                let $synthesizeNode = $dfArea.find(".operator.synthesize");
+                expect($synthesizeNode.hasClass("state-Complete"));
+                let $tip = $dfArea.find('.runStats[data-id="' + synthesizeNode.getId() + '"]');
+                expect($tip.length).to.equal(1);
+                expect($tip.find("tbody tr td").first().text()).to.equal("6"); // 4 rows
+
+                let $filterNode = $dfArea.find(".operator.filter");
+                expect($filterNode.hasClass("state-Complete"));
+                $tip = $dfArea.find('.runStats[data-id="' + filterNode.getId() + '"]');
+                expect($tip.length).to.equal(1);
+                expect($tip.find("tbody tr td").first().text()).to.equal("4"); // 4 rows
+
+                $dagView.find(".dagTab").last().find(".after").click();
+                $dfArea = $dfWrap.find(".dataflowArea.active");
+
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+    });
+
+    describe("connecting/disconnecting from sql node", function() {
+        let sqlNode;
+        let mapNode;
+        let datasetNode;
+        before(function() {
+            tabId = DagView.getActiveDag().getTabId();
+            sqlNode = DagView.getActiveDag().getNode($dfArea.find(".operator.sql").data("nodeid"));
+            mapNode = DagView.getActiveDag().getNode($dfArea.find(".operator.map").data("nodeid"));
+            datasetNode = DagView.getActiveDag().getNode($dfArea.find(".operator.dataset").data("nodeid"));
+
+        });
+
+        it("connect should work", function() {
+            expect(sqlNode.getParents().length).to.equal(1);
+            let $sqlNode = $dfArea.find(".operator.sql .connector.in");
+            let rect = $sqlNode[0].getBoundingClientRect();
+            $sqlNode.trigger($.Event('mousedown', {which: 1, pageX: rect.x + 2, pageY: rect.y + 2}));
+
+            $(document).trigger($.Event('mousemove', {
+                pageX: (rect.x + 10) + (mapNode.getPosition().x - sqlNode.getPosition().x),
+                pageY: (rect.y + 10) + (mapNode.getPosition().y - sqlNode.getPosition().y)
+            }));
+
+            $(document).trigger($.Event('mousemove', {
+                pageX: (rect.x + 10) + (mapNode.getPosition().x - sqlNode.getPosition().x),
+                pageY: (rect.y + 10) + (mapNode.getPosition().y - sqlNode.getPosition().y)
+            }));
+
+            $(document).trigger($.Event('mouseup', {
+                pageX: (rect.x + 10) + (mapNode.getPosition().x - sqlNode.getPosition().x),
+                pageY: (rect.y + 10) + (mapNode.getPosition().y - sqlNode.getPosition().y)
+            }));
+
+            expect(sqlNode.getParents().length).to.equal(2);
+            expect(sqlNode.getParents()[0].getId()).to.equal(datasetNode.getId());
+            expect(sqlNode.getParents()[1].getId()).to.equal(mapNode.getId());
+            expect($dfArea.find('.edge[data-childnodeid="' + sqlNode.getId() + '"]').length).to.equal(2);
+            expect($dfArea.find('.edge[data-childnodeid="' + sqlNode.getId() + '"][data-parentnodeId="' + datasetNode.getId() + '"][data-connectorindex="0"]').length).to.equal(1);
+            expect($dfArea.find('.edge[data-childnodeid="' + sqlNode.getId() + '"][data-parentnodeId="' + mapNode.getId() + '"][data-connectorindex="1"]').length).to.equal(1);
+        });
+
+        it("disconnecting first index should work", function() {
+            DagView.disconnectNodes(datasetNode.getId(), sqlNode.getId(), 0, tabId);
+            expect(sqlNode.getParents().length).to.equal(1);
+            expect(sqlNode.getParents()[0].getId()).to.equal(mapNode.getId());
+            expect($dfArea.find('.edge[data-childnodeid="' + sqlNode.getId() + '"]').length).to.equal(1);
+            expect($dfArea.find('.edge[data-childnodeid="' + sqlNode.getId() + '"][data-parentnodeId="' + mapNode.getId() + '"][data-connectorindex="0"]').length).to.equal(1);
+        });
+
+        it("undo disconnect first index should work", function(done) {
+            Log.undo()
+            .then(function() {
+                expect(sqlNode.getParents().length).to.equal(2);
+                expect(sqlNode.getParents()[0].getId()).to.equal(datasetNode.getId());
+                expect(sqlNode.getParents()[1].getId()).to.equal(mapNode.getId());
+                expect($dfArea.find('.edge[data-childnodeid="' + sqlNode.getId() + '"]').length).to.equal(2);
+                expect($dfArea.find('.edge[data-childnodeid="' + sqlNode.getId() + '"][data-parentnodeId="' + datasetNode.getId() + '"][data-connectorindex="0"]').length).to.equal(1);
+                expect($dfArea.find('.edge[data-childnodeid="' + sqlNode.getId() + '"][data-parentnodeId="' + mapNode.getId() + '"][data-connectorindex="1"]').length).to.equal(1);
+
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        })
+    });
+
     it("should reset dag", () => {
         UnitTest.onMinMode();
         DagView.reset();
         UnitTest.hasAlertWithTitle(DagTStr.Reset);
         UnitTest.offMinMode();
     });
+
 
     after(function(done) {
         UnitTest.offMinMode();
