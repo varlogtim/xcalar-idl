@@ -42,7 +42,7 @@ class TblSourcePreview {
             this._viewDatasetTable(tableInfo);
         } else {
             $container.addClass("table");
-            this._viewSchema(tableInfo);
+            this._viewTableResult(tableInfo);
         }
     }
 
