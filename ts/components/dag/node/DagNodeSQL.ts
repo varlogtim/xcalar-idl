@@ -826,7 +826,8 @@ class DagNodeSQL extends DagNode {
             } else if (err) {
                 deferred.reject(JSON.stringify(err));
             } else {
-                deferred.reject();
+                let error = xcHelper.getPromiseWhenError(<any>arguments);
+                deferred.reject(error);
             }
         });
         return deferred.promise();
@@ -1005,6 +1006,7 @@ class DagNodeSQL extends DagNode {
                 deferred.resolve(retStruct);
             })
             .fail(function(errorMsg) {
+                let error = errorMsg;
                 if (typeof errorMsg === "string") {
                     if (errorMsg.indexOf(SQLErrTStr.Cancel) === -1) {
                         Alert.show({
@@ -1015,10 +1017,11 @@ class DagNodeSQL extends DagNode {
                             preSpace: true,
                             sizeToText: true
                         });
+                        error = null; // already alert, reject null
                     }
                     self.setSQLQuery({errorMsg: errorMsg, endTime: new Date()});
                 }
-                deferred.reject();
+                deferred.reject(error);
             });
         } catch (e) {
             Alert.show({
