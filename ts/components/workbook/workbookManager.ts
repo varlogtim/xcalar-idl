@@ -13,6 +13,7 @@ namespace WorkbookManager {
     export function setup(): XDPromise<string> {
         initializeVariable();
         setupSessionCancel();
+        KVStore.setupWKBKKey();
         return setupWorkbooks();
     };
 
@@ -26,8 +27,6 @@ namespace WorkbookManager {
                 setURL(null, true);
                 deferred.reject(WKBKTStr.NoWkbk);
             } else {
-                // retrieve key from username and wkbkId
-                KVStore.setupWKBKKey();
                 setActiveWKBK(wkbkId);
                 setURL(wkbkId, true);
                 deferred.resolve(wkbkId);

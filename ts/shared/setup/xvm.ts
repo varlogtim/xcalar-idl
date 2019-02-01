@@ -530,7 +530,7 @@ namespace XVM {
         let data = {
             mode: mode
         };
-        return kvStore.put(JSON.stringify(data), true);
+        return kvStore.put(JSON.stringify(data), true, true);
     }
 
     // XVM.alertLicenseExpire = function() {
