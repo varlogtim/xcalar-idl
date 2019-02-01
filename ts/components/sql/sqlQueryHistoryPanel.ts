@@ -440,10 +440,10 @@ namespace SqlQueryHistoryPanel {
                     queryInfo.status === SQLStatus.Failed;
                     if (isValidStatus) {
                         text = SQLTStr.queryTableBodyTextAnalyze;
-                        iconClass = 'xi-dataflow';
+                        iconClass = 'xi-search';
                     } else if (queryInfo.status === SQLStatus.Running) {
                         text = SQLTStr.queryTableBodyTextProgress;
-                        iconClass = 'xi-system2';
+                        iconClass = 'xi-viewprogress';
                     }
                     const prop: TableBodyColumnIconLinkProp = {
                         category: TableColumnCategory.ACTION,
