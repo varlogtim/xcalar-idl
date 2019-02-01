@@ -14,9 +14,12 @@ var XpeSharedContextUtils = (function(XpeSharedContextUtils) {
     var dockerWaitDefault = 60; // secs to wait before timing out waiting for Docker to come up
     XpeSharedContextUtils.DOCKER_TIMEOUT = dockerWaitDefault;
 
-    var dockerStatusStates = (typeof window.dockerStatusStates === 'undefined' && typeof require !== 'undefined') ? require('./xpeServerResponses.js').dockerStatusStates : window.dockerStatusStates;
-    var httpStatus = (typeof window.httpStatus === 'undefined' && typeof require !== 'undefined') ? require('./../httpStatus.js').httpStatus : window.httpStatus;
-    var XPEStr = (typeof window.XPEStr === 'undefined' && typeof require !== 'undefined') ? require('./xpeJsStrs.js').XPEStr : window.XPEStr;
+    // window will always be defined in nwjs, even if this is running in node context,
+    // but in node context, the attrs (window.dockerStatusStates, etc.) won't be defined
+    // and must be required
+    var dockerStatusStates = ((typeof window === 'undefined' || typeof window.dockerStatusStates === 'undefined') && typeof require !== 'undefined') ? require('./xpeServerResponses.js').dockerStatusStates : window.dockerStatusStates;
+    var httpStatus = ((typeof window === 'undefined' || typeof window.httpStatus === 'undefined') && typeof require !== 'undefined') ? require('./../httpStatus.js').httpStatus : window.httpStatus;
+    var XPEStr = ((typeof window === 'undefined' || typeof window.XPEStr === 'undefined') && typeof require !== 'undefined') ? require('./xpeJsStrs.js').XPEStr : window.XPEStr;
 
     /**
      * close all windows and quit the nwjs processes.
