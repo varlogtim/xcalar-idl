@@ -8,8 +8,7 @@ class DFLinkOutOpPanelModel {
     public constructor(dagNode: DagNode, event: Function) {
         this.dagNode = dagNode;
         this.event = event;
-        [ColumnType.string, ColumnType.integer, ColumnType.float,
-            ColumnType.boolean, ColumnType.mixed].forEach((type) => {
+        BaseOpPanel.getBasicColTypes(true).forEach((type) => {
                 this.validTypes.push(type);
         });
         this.tableColumns = this.dagNode.getParents().map((parentNode) => {
