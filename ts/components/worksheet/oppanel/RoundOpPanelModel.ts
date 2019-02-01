@@ -82,6 +82,9 @@ class RoundOpPanelModel {
                 throw new Error('Invalid num decimals');
             }
             model._numDecimals = Number(evalParam.value);
+            if (Number.isNaN(model._numDecimals)) {
+                throw new Error('Invalid num decimals');
+            }
 
             // Dest column
             model._destColumn = evalObj.newField;
