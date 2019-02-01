@@ -199,6 +199,8 @@ class DagGraph {
         }
         let errorNodes = [];
         let dagNodeValidate;
+        let autoXCoor = 20;
+        let autoYCoor = 20;
         serializableGraph.nodes.forEach((nodeInfo: DagNodeInfo) => {
             if (nodeInfo.type == DagNodeType.Aggregate ||
                 nodeInfo.type === DagNodeType.DFIn
@@ -215,7 +217,16 @@ class DagGraph {
                     ajv = new Ajv();
                     dagNodeValidate = ajv.compile(DagNode.schema);
                 }
-
+                if (nodeInfo.display) {
+                    if (nodeInfo.display.x < 20) {
+                        nodeInfo.display.x = autoXCoor;
+                        autoXCoor++;
+                    }
+                    if (nodeInfo.display.y < 20) {
+                        nodeInfo.display.y = autoYCoor;
+                        autoYCoor++;
+                    }
+                }
                 let valid = dagNodeValidate(nodeInfo);
                 if (!valid) {
                     // only saving first error message

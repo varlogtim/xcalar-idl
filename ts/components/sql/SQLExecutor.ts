@@ -253,7 +253,14 @@ class SQLExecutor {
         if (!this._sqlNode.getSubGraph()) {
             return PromiseHelper.resolve();
         }
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+
         let promise = DagView.expandSQLNodeInTab(this._sqlNode, this._tempTab);
-        return PromiseHelper.alwaysResolve(promise);
+        PromiseHelper.alwaysResolve(promise)
+        .then(() => {
+            DagView.autoAlign(this._tempTab.getId());
+            deferred.resolve();
+        });
+        return deferred.promise();
     }
 }
