@@ -111,7 +111,7 @@ module.exports = {
             const newTabName = testTabMapping.get(tabName);
             browser.switchTab(newTabName);
 
-            testTabs[tabname].nodes.forEach((node, i) => {
+            testTabs[tabName].nodes.forEach((node, i) => {
                 let input = JSON.parse(JSON.stringify(node.input));
                 if (node.type === "IMDTable") {
                     browser
