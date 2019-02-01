@@ -204,6 +204,8 @@
         "expressions.aggregate.SumInteger": "sumInteger",
         "expressions.aggregate.SumNumeric": "sumNumeric",
         "expressions.aggregate.Count": "count",
+        "expressions.aggregate.CollectList": null,
+        "expressions.aggregate.ListAgg": "listAgg", // Xcalar generated
         "expressions.aggregate.Max": "max",
         "expressions.aggregate.MaxInteger": "maxInteger",
         "expressions.aggregate.MaxNumeric": "maxNumeric",
@@ -986,6 +988,11 @@
                 mulNode.children = [mOneNode, node.children[1]];
                 node.children = [node.children[0], zeroNode, zeroNode, intNode];
                 break;
+            case ("expressions.aggregate.CollectList"):
+                // XXX this is a workaround because we don't have list type
+                node.value.class =
+                    "org.apache.spark.sql.catalyst.expressions.aggregate.ListAgg";
+                break;
             // case ("expressions.FromUTCTimestamp"):
             //     assert(node.children.length === 2,
             //             SQLErrTStr.UTCTZTwoChildren + node.children.length);
@@ -1026,11 +1033,14 @@
 
         var curOpName = node.value.class.substring(
                         node.value.class.indexOf("expressions."));
-        // XXX this is a workaround that should be removed when we have decimal(m, n)
-        if (curOpName === "expressions.XcType.numeric"
-            && node.children[0].colType === "numeric") {
-            node = node.children[0];
-        } else if (node.aggTree) {
+
+        // XXX This should also be removed after we have list type
+        if (curOpName === "expressions.aggregate.ListAgg" &&
+            node.children[0].colType != "string") {
+            assert(0, "Collect_list is only supported with string input");
+        }
+
+        if (node.aggTree) {
             // aggTree's root node is expressions.aggregate.*
             // so it won't hit any of the cases in second traverse
             // however, its grandchildren might be substring, etc.
@@ -4440,17 +4450,9 @@
         } else {
             frameInfo.upper = undefined;
         }
-        if (opName === "First" || opName === "Last" || opName === "Count" ||
-            opName === "Max" || opName === "Min" || opName === "Sum" ||
-            opName === "Average") {
-            // assert(frameInfo.typeRow && frameInfo.lower == undefined &&
-            //        frameInfo.upper == undefined,
-            //        "Window functions with aggregate or first/last using " +
-            //        "frame other than \"rows between unbounded preceding and" +
-            //        " unbounded following\" is not supported");
-        }
         curNode = secondTraverse(weNode.children[weNode.value.windowFunction], {}, true);
         newCol.colType = getColType(curNode);
+        assert(opName !== "CollectList", "CollectList is not supported in window");
         return {newColStruct: newCol, opName: opName, args: args,
                 argTypes: argTypes, frameInfo: frameInfo};
     }
@@ -6921,7 +6923,9 @@
 
     function convertSparkTypeToXcalarType(dataType) {
         if (typeof dataType !== "string") {
-            assert(0, SQLErrTStr.UnsupportedColType + JSON.stringify(dataType));
+            console.error(SQLErrTStr.UnsupportedColType + JSON.stringify(dataType));
+            return "string";
+            // assert(0, SQLErrTStr.UnsupportedColType + JSON.stringify(dataType));
         }
         if (dataType.indexOf("decimal(") != -1) {
             return "numeric";
