@@ -999,6 +999,9 @@ class DagNodeSQL extends DagNode {
                     tableSrcMap: tableSrcMap
                 }
                 self.updateSubGraph();
+                const lineage = self.getLineage();
+                lineage.reset();
+                lineage.getChanges();
                 deferred.resolve(retStruct);
             })
             .fail(function(errorMsg) {
