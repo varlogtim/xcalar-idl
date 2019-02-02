@@ -958,8 +958,9 @@ class DagNodeExecutor {
         const desTable: string = this._generateTableName();
         const params: DagNodeSortInputStruct = node.getParam(this.replaceParam);
         const progCols: ProgCol[] = node.getParents()[0].getLineage().getColumns();
+        const newKeys: string[] = node.updateNewKeys(params.newKeys);
 
-        const sortedColumns = params.columns.map((column) => {
+        const sortedColumns = params.columns.map((column, i) => {
             const name = column.columnName;
             const progCol = progCols.find((col: ProgCol) => {
                 return col.name == name || col.getBackColName() == name;
@@ -974,7 +975,8 @@ class DagNodeExecutor {
             return {
                 name: name,
                 ordering: XcalarOrderingTFromStr[column.ordering],
-                type: type
+                type: type,
+                keyFieldName: newKeys[i]
             };
         });
 

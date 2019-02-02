@@ -112,11 +112,10 @@ class DagNodeGroupBy extends DagNode {
                         from: oldProgCol,
                         to: progCol
                     });
-                    colMap.delete(colName);
                 } else {
                     groupCols.push(oldProgCol);
-                    colMap.delete(colName);
                 }
+                colMap.delete(colName);
             });
             finalCols = aggCols.concat(groupCols);
             for (let progCol of colMap.values()) {

@@ -38,9 +38,9 @@ class DagNodeSort extends DagNode {
      */
     public setParam(input: DagNodeSortInputStruct = <DagNodeSortInputStruct>{}) {
         this.input.setInput({
-            columns: input.columns
+            columns: input.columns,
+            newKeys: input.newKeys
         });
-        this._updateNewKeys();
         super.setParam();
     }
 
@@ -51,29 +51,33 @@ class DagNodeSort extends DagNode {
         const changes: {from: ProgCol, to: ProgCol}[] = [];
         const input = this.input.getInput(replaceParameters);
         const allCols: ProgCol[] = [];
+        const newKeys: string[] = this.updateNewKeys(input.newKeys);
         const orderedCols: Map<string, string> = new Map();
-
         input.columns.forEach((col, index) => {
-            orderedCols.set(col.columnName, input.newKeys[index]);
+            orderedCols.set(col.columnName, newKeys[index]);
         });
 
-        columns.forEach((progCol) => {
-            const oldName: string = progCol.getBackColName();
+        columns.forEach((oldProgCol) => {
+            const oldName: string = oldProgCol.getBackColName();
+
             if (orderedCols.has(oldName)) {
-                const newName: string = orderedCols.get(oldName);
-                if (newName !== oldName) {
-                    const newProgCol: ProgCol = ColManager.newPullCol(newName, newName, progCol.getType());
-                    allCols.push(newProgCol);
+                const newKey: string = orderedCols.get(oldName);
+                if (oldName !== newKey) {
+                    // a rename occured during the sort
+                    const colType: ColumnType = oldProgCol.getType();
+                    const progCol: ProgCol = ColManager.newPullCol(newKey, newKey, colType);
+                    allCols.push(progCol);
                     changes.push({
-                        from: progCol,
-                        to: newProgCol
+                        from: oldProgCol,
+                        to: progCol
                     });
                 } else {
-                    allCols.push(progCol);
+                    // column name stays the same
+                    allCols.push(oldProgCol);
                 }
                 orderedCols.delete(oldName);
             } else {
-                allCols.push(progCol);
+                allCols.push(oldProgCol);
             }
         });
 
@@ -135,10 +139,10 @@ class DagNodeSort extends DagNode {
 
     // loop through sort columns and make sure there's a corresponding
     // output name for each one that is not taken by another column
-    private _updateNewKeys(): void {
+    public updateNewKeys(keys: string[]): string[] {
         const takenNames: Set<string> = new Set();
         const input = <DagNodeSortInputStruct>this.input.getInput();
-        const oldNewKeys = input.newKeys || [];
+        const oldNewKeys = keys || [];
         oldNewKeys.forEach((key) => {
             takenNames.add(key);
         });
@@ -194,6 +198,6 @@ class DagNodeSort extends DagNode {
                 return finalName;
             }
         });
-        this.input.setNewKeys(newKeys);
+        return newKeys;
     }
 }
