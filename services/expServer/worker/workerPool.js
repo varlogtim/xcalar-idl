@@ -24,29 +24,33 @@ module.exports = class Pool {
     }
 
     submit(deferred, data) {
-        for (const entry of this._workers) {
-            const worker = entry[0];
-            const preDeferred = entry[1];
-            if (!preDeferred) {
-                this._workers.set(worker, deferred);
-                worker.postMessage(data);
-                return;
-            }
-        }
         if (this._queue.length === this._maxWaiting) {
             throw new Error('Pool queue is full');
             return;
         }
         this._queue.push({deferred: deferred, data: data});
+        scheduler();
         return;
+    }
+    scheduler() {
+        if (this._queue.length === 0) {
+            return;
+        } else {
+            for (const entry of this._workers) {
+                const worker = entry[0];
+                const preDeferred = entry[1];
+                if (!preDeferred) {
+                    const {deferred, data} = this._queue.shift();
+                    this._workers.set(worker, deferred);
+                    worker.postMessage(data);
+                }
+            }
+        }
     }
 
     reset(worker) {
         this._workers.set(worker, null);
-        if (this._queue.length > 0) {
-            const {deferred, data} = this._queue.shift();
-            this.submit(deferred, data);
-        }
+        scheduler();
     }
 
     spawn(path) {
