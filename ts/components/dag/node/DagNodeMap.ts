@@ -79,9 +79,14 @@ class DagNodeMap extends DagNode {
             // check if newCol is replacing an old column and if so, splice
             // out the old column
             let fromCol = null;
-            if (colMap.has(colName)) {
-                const index = colMap.get(colName);
+            if (colMap.has(colName) || this.subType === DagNodeSubType.Cast) {
+                let fromColName = colName;
+                if (this.subType === DagNodeSubType.Cast) {
+                    fromColName = (<ParsedEvalArg>func.args[0]).value;
+                }
+                const index = colMap.get(fromColName);
                 fromCol = columns[index];
+                columns[index] = progCol;
             } else {
                 columns.push(progCol);
             }
