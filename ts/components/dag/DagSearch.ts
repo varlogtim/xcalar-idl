@@ -120,10 +120,16 @@ class DagSearch {
                     if (letterCode[event.which] !== "f") {
                         return;
                     }
-            
+
                     if ($("#dagView").is(":visible") &&
                         DagView.getActiveArea().length
                     ) {
+                        if ($("input:focus").length || $("textarea:focus").length ||
+                            $('[contentEditable="true"]').length) {
+                            // do not open if we're focused on another input, such
+                            // as codemirror
+                            return;
+                        }
                         this._showSearchBar();
                         event.preventDefault();
                     }
@@ -139,5 +145,5 @@ class DagSearch {
             const $input: JQuery = $(event.currentTarget);
             this._search($input.val());
         });
-    } 
+    }
 }

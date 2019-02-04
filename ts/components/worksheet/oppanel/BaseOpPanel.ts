@@ -346,7 +346,7 @@ class BaseOpPanel {
             "indentUnit": 4,
             "matchBrackets": true,
             "autoCloseBrackets": true,
-            "search": false,
+            "search": true,
             "gutters": ["CodeMirror-lint-markers"],
         });
 
