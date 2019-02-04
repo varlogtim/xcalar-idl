@@ -112,10 +112,23 @@ window.DSTargetManager = (function($, DSTargetManager) {
 
     DSTargetManager.getTargetTypeList = function() {
         var deferred = PromiseHelper.deferred();
-        var updateTargetType = function(typeList) {
-            var html = typeList.map(function(typeId) {
+        var updateTargetType = function() {
+            var typeNames = [];
+            var typeNameToIdMap = {};
+            for (var typeId in typeSet) {
+                var typeName = typeSet[typeId].type_name;
+                typeNameToIdMap[typeName] = typeId;
+                typeNames.push(typeName);
+            }
+            typeNames.sort(function(a, b) {
+                var aName = a.toLowerCase();
+                var bName = b.toLowerCase();
+                return (aName < bName ? -1 : (aName > bName ? 1 : 0));
+            });
+            var html = typeNames.map(function(typeName) {
+                var typeId = typeNameToIdMap[typeName];
                 return '<li data-id="' + typeId + '">' +
-                            typeSet[typeId].type_name +
+                            typeName +
                         '</li>';
             }).join("");
             $targetTypeList.find("ul").html(html);
@@ -127,7 +140,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
             typeList.forEach(function(targetType) {
                 typeSet[targetType.type_id] = targetType;
             });
-            updateTargetType(Object.keys(typeSet).sort());
+            updateTargetType();
             deferred.resolve();
         })
         .fail(deferred.reject)
