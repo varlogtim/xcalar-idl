@@ -1218,7 +1218,8 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _showCastRow(
         allColTypes: string[],
         groupNum: number,
-        inputsToCast: number[]
+        inputsToCast: number[],
+        noAnim: boolean = false
     ): XDPromise<any> {
         const self = this;
         const deferred = PromiseHelper.deferred();
@@ -1231,10 +1232,16 @@ class GeneralOpPanel extends BaseOpPanel {
             const $castable: JQuery = this._$panel
                             .find('.cast .dropDownList:not(.hidden)').parent();
             $castable.addClass('showing');
-            this._$panel.find('.group').eq(groupNum)
+            this._$panel.find('.group').eq(groupNum).find(".argsSection").last()
                             .find('.cast .dropDownList:not(.colNameSection)')
                             .removeClass('hidden');
-
+            if (noAnim) {
+                this._$panel.find(".cast").addClass("noAnim");
+                if (self._$panel.find('.cast.showing').length) {
+                    $castable.addClass('overflowVisible');
+                }
+                return;
+            }
             setTimeout(function() {
                 if (self._$panel.find('.cast.showing').length) {
                     $castable.addClass('overflowVisible');
@@ -1309,6 +1316,16 @@ class GeneralOpPanel extends BaseOpPanel {
                     lis += "<li>" + allColTypes[i].filteredTypes[j] + "</li>";
                 }
                 $castDropdowns.eq(inputNum).find('ul').html(lis);
+
+                // if already casted, set up input
+                if (allColTypes[i].cast) {
+                    let $input = $castDropdowns.eq(inputNum).find(".text");
+                    $input.val(allColTypes[i].cast);
+                    $input.attr("data-casted", <any>true);
+                    $input.closest('.row').find('.arg')
+                                        .data('casted', true)
+                                        .data('casttype', allColTypes[i].cast);
+                }
             }
         }
         return (castAvailable);

@@ -300,7 +300,11 @@ class DagNodeExecutor {
             newKeys: newKeys,
             dhtName: params.dhtName
         };
-        XIApi.groupBy(this.txId, aggArgs, params.groupBy, srcTable, options)
+
+        cast()
+        .then((castTableName) => {
+            return XIApi.groupBy(self.txId, aggArgs, params.groupBy, castTableName, options);
+        })
         .then((nTableName, nTableCols, _renamedGBCols) => {
             if (params.joinBack) {
                 return _groupByJoinHelper(nTableName);
@@ -333,6 +337,58 @@ class DagNodeExecutor {
                               lTableInfo, rTableInfo, joinOpts)
         }
 
+        function cast(): XDPromise<string> {
+            if (aggArgs.length === 1 && params.aggregate[0].cast && !aggArgs[0].isDistinct) {
+                aggArgs[0].aggColName = xcHelper.castStrHelper(aggArgs[0].aggColName,
+                    params.aggregate[0].cast, false);
+                return PromiseHelper.resolve(srcTable);
+            }
+            const takenNames = {};
+            aggArgs.forEach((aggArg) => {
+                takenNames[aggArg.newColName] = true;
+            });
+            newKeys.forEach((newKey) => {
+                takenNames[newKey] = true;
+            });
+            self.node.getParents()[0].getLineage().getColumns().forEach((col) => {
+                takenNames[col.getBackColName()] = true;
+            });
+            const mapStrs: string[] = [];
+            const newCastNames: string[] = [];
+            aggArgs.forEach((_aggArg, i) => {
+                const type: string = params.aggregate[i].cast;
+                if (type != null) {
+                    const colName: string = params.aggregate[i].sourceColumn;
+                    const newCastName: string = castHelper(type, colName);
+                    aggArgs[i].aggColName = newCastName;
+                }
+            });
+
+            if (mapStrs.length > 0) {
+                return XIApi.map(self.txId, mapStrs, srcTable, newCastNames, self._generateTableName());
+            } else {
+                return PromiseHelper.resolve(srcTable);
+            }
+
+            function castHelper(type: string, colName: string): string {
+                let parsedName: string = xcHelper.stripColName(xcHelper.parsePrefixColName(colName).name);
+                let newCastName: string;
+                if (takenNames[parsedName]) {
+                    const validFunc = (newColName) => {
+                        return !takenNames[newColName];
+                    };
+                    newCastName = xcHelper.uniqueName(parsedName, validFunc, null, 50);
+                } else {
+                    newCastName = parsedName;
+                }
+
+                takenNames[newCastName] = true;
+                const mapStr: string = xcHelper.castStrHelper(colName, type, false);
+                mapStrs.push(mapStr);
+                newCastNames.push(newCastName);
+                return newCastName;
+            };
+        }
         return deferred.promise();
     }
 

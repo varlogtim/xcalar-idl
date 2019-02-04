@@ -1245,7 +1245,6 @@ namespace DagView {
         y?: number,
     ): DagNode {
         const dagTab: DagTab = activeDagTab;
-                dagTab.turnOffSave();
         const graph = activeDag;
         const tabId = activeDag.getTabId();
         let logActions = [];

@@ -143,15 +143,31 @@ class GroupByOpPanel extends GeneralOpPanel {
                 return $(this).closest(".colNameSection").length === 0;
             });
 
+            let allColTypes = []; // for casting
+            let inputNums = []; // for casting
+            let inputNumAdjustment = 0;
+            if (i === 0) {
+                inputNumAdjustment = model.groupOnCols.length;
+            }
             for (let j = 0; j < model.groups[i].args.length; j++) {
-                let arg: string = model.groups[i].args[j].getValue();
+                let arg:  OpPanelArg = model.groups[i].args[j];
+                let argVal: string = arg.getValue();
                 if ($args.eq(j).length) {
-                    if (updateAll && model.groups[i].args[j].getCast()) {
-                        arg = xcHelper.castStrHelper(arg, model.groups[i].args[j].getCast());
+                    if (updateAll && arg.isCast()) {
+                        // arg = xcHelper.castStrHelper(arg, model.groups[i].args[j].getCast());
+                        let colType = self.model.getColumnTypeFromArg(arg.getFormattedValue());
+                        let requiredTypes = self._parseType(arg.getTypeid());
+                        allColTypes.push({
+                            inputTypes: [colType],
+                            requiredTypes: requiredTypes,
+                            inputNum: j + inputNumAdjustment,
+                            cast: arg.getCast()
+                        });
+                        inputNums.push(j + inputNumAdjustment);
                     }
-                    $args.eq(j).val(arg);
+                    $args.eq(j).val(argVal);
                     if ($args.eq(j).closest(".row").hasClass("boolOption")) {
-                        if (arg === "true") {
+                        if (argVal === "true") {
                             $args.eq(j).closest(".row")
                                     .find(".boolArgWrap .checkbox")
                                     .addClass("checked");
@@ -159,6 +175,10 @@ class GroupByOpPanel extends GeneralOpPanel {
                     }
                 }
             }
+            if (inputNums.length) {
+                this._showCastRow(allColTypes, i, inputNums, true);
+            }
+
             $group.find(".resultantColNameRow .arg")
                   .val(model.groups[i].newFieldName);
             if (model.groups[i].distinct) {
