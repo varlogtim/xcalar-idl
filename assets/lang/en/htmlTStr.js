@@ -1317,7 +1317,7 @@ module.exports = {
         "numServers": "# of Servers",
         "numUsers": "# of Users",
         "key": "Key",
-        "copyright": "Copyright © 2018 Xcalar, Inc. All rights reserved."
+        "copyright": "Copyright © 2019 Xcalar, Inc. All rights reserved."
     },
 
     "tutor": {
