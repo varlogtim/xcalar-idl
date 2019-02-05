@@ -176,6 +176,8 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     // Invoke the xcrpc router
     app.use(require('./route/xcrpc.js').router);
 
+    require('./utils/dagUtils.js')
+
     function getOperatingSystem() {
         var deferred = jQuery.Deferred();
         var out = exec("cat /etc/*release");
