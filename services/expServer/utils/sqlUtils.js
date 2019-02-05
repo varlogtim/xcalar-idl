@@ -294,7 +294,7 @@ function hackFunction() {
     };
 }
 
-SqlUtil.addPrefix = function(plan, selectTables, finalTable, prefix, usePaging) {
+SqlUtil.addPrefix = function(plan, selectTables, finalTable, prefix, usePaging, newSqlTable) {
     var retStruct = {};
     for (var i = 0; i < plan.length; i++) {
         var operation = plan[i];
@@ -330,6 +330,8 @@ SqlUtil.addPrefix = function(plan, selectTables, finalTable, prefix, usePaging) 
         if (dest === finalTable) {
             if (usePaging) {
                 newTableName = "res_" + newTableName;
+            }else if (newSqlTable) {
+                newTableName = newSqlTable;
             }
             retStruct.tableName = newTableName;
         }
