@@ -4173,6 +4173,13 @@ module.exports = function(grunt) {
                 }
             }
 
+            // Some npm packages are being shipped with modification times
+            // set to the start of the Unix epoch (31-Dec-1969) due to a packaging
+            // bug. Unpacking these files causes a lot of warning messages from
+            // tar.  This runs a find command that updates all such shipped files
+            // with a modification time set to now.
+            touch_epoch_npm_modules();
+
             grunt.task.run('chmod:finalBuild');
         }
 
@@ -4190,6 +4197,13 @@ module.exports = function(grunt) {
         }
 
     });
+
+    function touch_epoch_npm_modules() {
+        var expSvrDir = path.join(BLDROOT, 'services', 'expServer')
+        var findCmd = 'find node_modules -type f -newermt 1969-12-31 ! -newermt 1970-01-01 -exec touch {} \\;';
+        shelljs.exec(findCmd, {cwd:expSvrDir});
+    }
+
 
     /**
         create an empty config file,
