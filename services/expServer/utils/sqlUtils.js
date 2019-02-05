@@ -231,6 +231,9 @@ SqlUtil.getSchema = function(tableName, orderedColumns) {
                     while (colNameSet.has(orderedColumns[i].colName + "_" + k)) {
                         k++;
                     }
+                    if (!orderedColumns[i].rename) {
+                        orderedColumns[i].rename = orderedColumns[i].colName
+                    }
                     orderedColumns[i].colName = orderedColumns[i].colName + "_" + k;
                 }
                 colNameSet.add(orderedColumns[i].colName);

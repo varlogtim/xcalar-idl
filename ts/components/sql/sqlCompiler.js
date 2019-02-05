@@ -2214,6 +2214,8 @@
             genMapArray(node.value.aggregateExpressions, columns,
                                     evalStrArray, aggEvalStrArray, options);
             node.dupCols = options.dupCols;
+            __resolveCollision(node.usrCols, columns, [], [],
+                                    "", node.children[0].newTableName, true);
             node.renamedCols = {};
             // Extract colNames from column structs
             var aggColNames = [];
@@ -2221,6 +2223,12 @@
                 if (columns[i].rename) {
                     aggColNames.push(columns[i].rename);
                     node.renamedCols[columns[i].colId] = columns[i].rename;
+                    for (var j = 0; j < evalStrArray.length; j++) {
+                        if (evalStrArray[j].colId === columns[i].colId) {
+                            evalStrArray[j].newColName = columns[i].rename;
+                            break;
+                        }
+                    }
                 } else {
                     aggColNames.push(columns[i].colName);
                 }
@@ -4153,7 +4161,7 @@
     }
 
     function __resolveCollision(leftCols, rightCols, leftRename, rightRename,
-                                leftTableName, rightTableName) {
+                                leftTableName, rightTableName, checkSameCol) {
         // There could be three colliding cases:
 
         // 1. their xx their => keep the left and rename the right using the
@@ -4172,6 +4180,7 @@
         // will not be visible to the user.
         var newRenames = {};
         var colSet = new Set();
+        var idSet = new Set();
         var rightTableId = xcHelper.getTableId(rightTableName);
         if (typeof rightTableId === "string") {
             rightTableId = rightTableId.toUpperCase();
@@ -4179,9 +4188,15 @@
         for (var i = 0; i < leftCols.length; i++) {
             var colName = leftCols[i].rename || leftCols[i].colName;
             colSet.add(colName);
+            if (checkSameCol && leftCols[i].colId) {
+                idSet.add(leftCols[i].colId);
+            }
         }
         for (var i = 0; i < rightCols.length; i++) {
             var colName = rightCols[i].rename || rightCols[i].colName;
+            if (checkSameCol && rightCols[i].colId && idSet.has(rightCols[i].colId)) {
+                continue;
+            }
             if (colSet.has(colName)) {
                 var newName = colName + "_E" + rightTableId;
                 while (colSet.has(newName)) {
@@ -4616,16 +4631,15 @@
         // Save original table for later use
         windowStruct.origTableName = ret.newTableName;
         windowStruct.cli += ret.cli;
-        windowStruct.gbTableName  = "XC_GB_Table"
-                    + xcHelper.getTableId(windowStruct.origTableName) + "_"
-                    + Authentication.getHashId();
+        var tableId = xcHelper.getTableId(windowStruct.origTableName);
+        if (typeof tableId === "string") {
+            tableId = tableId.toUpperCase();
+        }
+        windowStruct.gbTableName  = "XC_GB_Table" + tableId
+                                    + "_" + Authentication.getHashId();
         if (!windowStruct.tempGBCols) {
             windowStruct.tempGBCols = [];
             for (var i = 0; i < operators.length; i++) {
-                var tableId = xcHelper.getTableId(windowStruct.origTableName);
-                if (typeof tableId === "string") {
-                    tableId = tableId.toUpperCase();
-                }
                 windowStruct.tempGBCols.push("XC_" + operators[i].toUpperCase()
                     + "_" + tableId
                     + "_" + Authentication.getHashId().substring(3));
