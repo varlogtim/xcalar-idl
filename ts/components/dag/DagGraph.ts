@@ -1399,6 +1399,70 @@ class DagGraph {
         }
     }
 
+    // a check that is done right before execution to allow users to confirm
+    // and continue if an error is found - one case is if a parameter with no
+    // value is found -- we can prompt the user to continue or abandon the execution
+    public executionPreCheck(nodeIds: DagNodeId[], optimized: boolean): {
+        status: string,
+        hasError: boolean,
+        type?: string,
+        node?: DagNode,
+        msg?: string,
+        error?: string
+    } {
+        let nodesMap: Map<DagNodeId, DagNode> = null;
+        let startingNodes: DagNodeId[] = null;
+        if (nodeIds != null) {
+            // get subGraph from nodes and execute
+            // we want to stop at the next node with a table unless we're
+            // executing optimized in which case we want the entire query
+            const backTrack: BackTraceInfo = this.backTraverseNodes(nodeIds, !optimized);
+            if (backTrack.error != null) {
+                return {
+                    status: "error",
+                    hasError: true,
+                    error: backTrack.error
+                };
+            }
+            nodesMap = backTrack.map;
+            startingNodes = backTrack.startingNodes;
+        }
+
+        try {
+            const allParameters = DagParamManager.Instance.getParamMap();
+            let orderedNodes = this._topologicalSort(nodesMap, startingNodes);
+            const noValues = [];
+            const seen = new Set();
+            orderedNodes.forEach((node) => {
+                const parameters = node.getParameters();
+                for (const parameter of parameters) {
+                    if (seen.has(parameter)) {
+                        continue;
+                    }
+                    if (!allParameters[parameter]) {
+                        noValues.push(parameter);
+                    }
+                    seen.add(parameter);
+                }
+            });
+            if (noValues.length) {
+                return {
+                    "status": "confirm",
+                    "hasError": false,
+                    "type": "parameters",
+                    "msg": `The following parameters do not have a value: ${noValues.join(", ")}.`
+                }
+            }
+        } catch (error) {
+            return {
+                "status": "Error",
+                "hasError": true,
+                "node": error.node,
+                "type": error.error
+            };
+        }
+    }
+
     private _constructCurrentAggMap(): Map<string, DagNode> {
         let aggNodesInThisGraph: DagNodeAggregate[] = <DagNodeAggregate[]>this.getNodesByType(DagNodeType.Aggregate);
         let aggMap: Map<string, DagNode> = new Map<string, DagNode>();

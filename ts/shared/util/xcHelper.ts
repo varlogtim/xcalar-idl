@@ -1984,7 +1984,11 @@ namespace xcHelper {
             if (braceOpen) {
                 if (val[i] === ">") {
                     if (param.length) {
-                        params.push(param);
+                        // only add param if has valid characters
+                        if (xcHelper.checkNamePattern(PatternCategory.Param,
+                                            PatternAction.Check, param)) {
+                                params.push(param);
+                        }
                     }
                     param = "";
                     braceOpen = false;

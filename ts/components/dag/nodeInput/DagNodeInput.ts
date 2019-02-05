@@ -36,11 +36,11 @@ class DagNodeInput {
         return JSON.stringify(this.lastInput) !== JSON.stringify(this.input);
     }
 
-    public getParameters() {
+    public getParameters(): any[] {
         return this.parameters;
     }
 
-    public hasParameters() {
+    public hasParameters(): boolean {
         return this.parameters.length > 0;
     }
 

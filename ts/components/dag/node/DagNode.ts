@@ -605,6 +605,10 @@ abstract class DagNode {
         return this.input.hasParameters();
     }
 
+    public getParameters(): any[] {
+        return this.input.getParameters();
+    }
+
     /**
      * @returns {string[]} used aggregates
      */

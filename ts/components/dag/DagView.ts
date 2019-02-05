@@ -1468,6 +1468,9 @@ namespace DagView {
 
         _canRun(activeDagTab)
             .then(() => {
+                return _runValidation(graph, nodeIds, optimized);
+            })
+            .then(() => {
                 return graph.execute(nodeIds, optimized);
             })
             .then(function () {
@@ -1484,6 +1487,10 @@ namespace DagView {
                 deferred.resolve();
             })
             .fail(function (error) {
+                if (error && error.error === "cancel") {
+                    deferred.reject(error);
+                    return;
+                }
                 if (error && error.hasError && error.node) {
                     const nodeId: DagNodeId = error.node.getId();
                     const $node: JQuery = DagView.getNode(nodeId, null, $dataflowArea);
@@ -1516,6 +1523,34 @@ namespace DagView {
         } else {
             return PromiseHelper.resolve();
         }
+    }
+
+     // a check that is done right before execution to allow users to confirm
+    // and continue if an error is found - one case is if a parameter with no
+    // value is found -- we can prompt the user to continue or abandon the execution
+    function _runValidation(graph: DagGraph, nodeIds: DagNodeId[], optimized: boolean): XDPromise<any> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const ret = graph.executionPreCheck(nodeIds, optimized)
+        if (!ret) {
+            return PromiseHelper.resolve();
+        } else if (ret.status === "confirm" && ret.msg) {
+            Alert.show({
+                "title": "Confirmation",
+                "msgTemplate": ret.msg + "\n Do you wish to continue?",
+                "onConfirm": function() {
+                    deferred.resolve();
+                },
+                "onCancel": function() {
+                    deferred.reject({
+                        error: "cancel"
+                    });
+                }
+            });
+        } else {
+            deferred.reject(ret);
+        }
+
+        return deferred.promise();
     }
 
     /**
