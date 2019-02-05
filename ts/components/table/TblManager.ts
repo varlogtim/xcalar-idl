@@ -423,9 +423,9 @@ class TblManager {
      * will resolve if at least 1 table passes, even if others fail
      * if no failures, will not return info, but if partial or full fail
      * then it will return array of failures
-     * @param tables 
-     * @param tableType 
-     * @param noAlert 
+     * @param tables
+     * @param tableType
+     * @param noAlert
      * @param noLog if we are deleting undone tables, we do not log this transaction
      * @param options
      * -lockedToTemp: boolean, if true will send locked tables to temp list
@@ -2300,20 +2300,16 @@ class TblManager {
             const $td: JQuery = $(event.currentTarget);
             const $el: JQuery = $td.children('.clickable');
             $tbody.closest(".xcTable").find(".selectedCell").removeClass("selectedCell");
-            if ($("#container").hasClass('columnPicker') ||
-                ModalHelper.isModalOn()
-            ) {
-                // not focus when in modal
+            let extraClasses = "";
+            if (ModalHelper.isModalOn()) {
                 return;
             }
-
             if (event.which !== 1 || $el.length === 0) {
                 return;
             }
             if ($td.hasClass('jsonElement')) {
                 TblManager.unHighlightCells();
-                if (ModalHelper.isModalOn() &&
-                    !$td.closest('.xcTableWrap').hasClass('jsonModalOpen')
+                if (!$td.closest('.xcTableWrap').hasClass('jsonModalOpen')
                 ) {
                     return;
                 }
@@ -2451,8 +2447,10 @@ class TblManager {
                 singleSelection();
             }
 
-            let extraClasses = $el.closest("#dagViewTableArea").length ?
-            " style-white mode-modeling" : "";
+            if ($el.closest("#dagViewTableArea").length) {
+                extraClasses += " style-white mode-modeling"
+            }
+
             xcHelper.dropdownOpen($el, $("#cellMenu"), {
                 "colNum": colNum,
                 "rowNum": rowNum,

@@ -5753,7 +5753,8 @@ namespace xcHelper {
         const filterTypes: string[] = ["string", "float", "integer", "boolean", "timestamp", "mixed"];
         const shouldNotFilter: boolean = options.isMultiCol ||
                                     filterTypes.indexOf(columnType) === -1 ||
-                                    isInvalidMixed(columnType, cells);
+                                    isInvalidMixed(columnType, cells) ||
+                                    ($("#container").hasClass('columnPicker'));
 
         const $tdFilter: JQuery = $menu.find(".tdFilter");
         const $tdExclude: JQuery = $menu.find(".tdExclude");
