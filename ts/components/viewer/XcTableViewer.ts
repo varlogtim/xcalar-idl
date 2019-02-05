@@ -232,6 +232,9 @@ class XcTableViewer extends XcViewer {
         $xcTableWrap.removeClass("building");
         this._autoSizeDataCol(tableId);
         $table.addClass("noOperation");
+        if (table.allImmediates) {
+            $table.addClass("allImmediates");
+        }
     }
 
     private _autoSizeDataCol(tableId: TableId): void {

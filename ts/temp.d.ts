@@ -881,6 +881,7 @@ declare class TableMeta {
     public resultSetId: number;
     public rowHeights: any;
     public modelingMode: boolean;
+    public allImmediates: boolean;
     public scrollMeta: {isTableScrolling: boolean, isBarScrolling: boolean, base: number, scale: number};
     public getAllCols(onlyValid?: boolean): ProgCol[]
     public getCol(colNum: number): ProgCol;

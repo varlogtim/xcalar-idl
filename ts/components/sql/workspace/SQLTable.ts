@@ -15,6 +15,7 @@ class SQLTable {
     }
 
     public show(table: TableMeta): XDPromise<void> {
+        table.allImmediates = true;
         const viewer: XcTableViewer = new XcTableViewer(table);
         return this._show(viewer);
     }

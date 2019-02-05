@@ -1187,7 +1187,7 @@ class TblManager {
         let prefixClass: string = "prefix";
 
         if (prefix === "") {
-            prefix = CommonTxtTstr.Immediates;
+            prefix = table.allImmediates ? "" : CommonTxtTstr.Immediates;
             prefixClass += " immediate";
         } else {
             prefixColor = TableComponent.getPrefixManager().getColor(prefix);
@@ -2064,7 +2064,6 @@ class TblManager {
 
         $thead.on("mousedown", ".sortIcon", (event) => {
             const $th: JQuery = $(event.currentTarget).closest('th');
-            const colNum: number = xcHelper.parseColNum($th);
             TblManager.highlightColumn($th, false, false);
             lastSelectedCell = $th;
         });
@@ -2120,6 +2119,9 @@ class TblManager {
         $thead.on("click", ".dropdownBox", (event: any) => {
             if (ModalHelper.isModalOn()) {
                 // not focus when in modal
+                return;
+            }
+            if ($table.hasClass("noOperation")) {
                 return;
             }
             const $el: JQuery = $(event.currentTarget);

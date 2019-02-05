@@ -298,6 +298,7 @@ class TblSourcePreview {
             tableName: name,
             tableCols: progCols
         });
+        table.allImmediates = true;
         gTables[tableId] = table;
         return table;
     }
