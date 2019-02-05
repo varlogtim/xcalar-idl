@@ -80,9 +80,10 @@ const assert = require('assert');
 var XLRGUIDIR = 'XLRGUIDIR';
 var XLRDIR = 'XLRDIR';
 
-var XD = "XD";
-var XI = "XI";
-var XDEE = "XDEE";
+// different possible product types.
+var XD = "XD"; // regular Xcalar Design builds
+var XI = "XI"; // Xcalar Insight
+var XPE = "XPE"; // for special builds of Xcalar Design intended to be run by nwjs in MacOS app
 var productTypes = {
     XD: {
         'name': 'Xcalar Design', // default name to brand throughout GUIs for this product
@@ -93,7 +94,7 @@ var productTypes = {
         'target': 'xcalar-insight'
 
     },
-    XDEE: {
+    XPE: {
         'name': 'Xcalar Desktop Edition',
         'target': 'xcalar-desktop-edition'
     }
@@ -102,7 +103,7 @@ var productTypes = {
 // js files req. only when running XD in XPE app.
 // scriptlinker xpe targets will inject as script tags,
 // so should be rel those targets' cwd attr
-var XDEE_REQ_JS_FILES = [
+var XPE_REQ_JS_FILES = [
     'assets/lang/en/globalAutogen.js', // might already be included in regular tags, but xpeJsStrs depends on
     'assets/js/xpe/xpeJsStrs.js',  // common strings; product name
     'assets/js/xpe/xpeServerResponses.js',
@@ -110,9 +111,9 @@ var XDEE_REQ_JS_FILES = [
     'assets/js/xpe/xpeSharedContextUtils.js',
     'assets/js/xpe/xpeCommon.js',
 ];
-// list of partial html files used by xdee,
+// list of partial html files used by xpe,
 // will copy in to bld but remove once bld completes
-var XDEE_PARTIAL_HTML_FILES = [
+var XPE_PARTIAL_HTML_FILES = [
     'site/xpe/eulaPart.html',
     'site/xpe/xpeCommonHeadTags.html',
     'site/xpe/xpeCommonScriptImports.html',
@@ -225,7 +226,7 @@ var htmlMapping = {
     dest: '',
     exclude: [],
     remove: ['dashboard.html', 'userManagement.html'],
-    required: ['site/partials/', 'site/util/'].concat(XDEE_PARTIAL_HTML_FILES)};
+    required: ['site/partials/', 'site/util/'].concat(XPE_PARTIAL_HTML_FILES)};
 var jsMapping = {
     src: 'assets/js/',
     files: '**/*.js',
@@ -250,7 +251,7 @@ var typescriptMapping = {
 // help content src in the actual src tree, for each product type
 var helpContentRootByProduct = {
     XD: helpContentRoot + XD,
-    XDEE: helpContentRoot + XD,
+    XPE: helpContentRoot + XD,
     XI: helpContentRoot + XI
 }
 
@@ -375,7 +376,7 @@ var VALID_OPTIONS = {
     [BLD_OP_BLDROOT]:
         {[REQUIRES_VALUE_KEY]: true, [DESC_KEY]: "Directory path for dir in build where index.html should start (if does not exist will create for you)"},
     [BLD_OP_PRODUCT]:
-        {[REQUIRES_VALUE_KEY]: true, [VALUES_KEY]: [XD,XI,XDEE], [DESC_KEY]: "Product type to build (Defaults to XD)"},
+        {[REQUIRES_VALUE_KEY]: true, [VALUES_KEY]: [XD,XI,XPE], [DESC_KEY]: "Product type to build (Defaults to XD)"},
     [BLD_OP_BRAND]:
         {[REQUIRES_VALUE_KEY]: true, [DESC_KEY]: "Product name to brand GUIs with.  Default brand: " + brandDefault},
     [BLD_OP_BACKEND_SRC_REPO]:
@@ -2717,11 +2718,11 @@ module.exports = function(grunt) {
             extraTags.push('assets/js/mixpanel/mixpanelAzure.js');
         }
         // script tags just used by Xcalar Design EE app for nwjs set ups
-        if (PRODUCT === XDEE) {
-            // httpStatus a dep. for XDEE; it's included in login.html
+        if (PRODUCT === XPE) {
+            // httpStatus a dep. for XPE; it's included in login.html
             // in all blds but not index.html
             extraTags.push('assets/js/httpStatus.js');
-            extraTags = extraTags.concat(XDEE_REQ_JS_FILES);
+            extraTags = extraTags.concat(XPE_REQ_JS_FILES);
         }
         return extraTags;
     }
@@ -2731,8 +2732,8 @@ module.exports = function(grunt) {
         if (IS_WATCH_TASK || BLDTYPE == DEV) {
             extraTags.push('assets/dev/shortcuts.js');
         }
-        if (PRODUCT === XDEE) {
-            extraTags = extraTags.concat(XDEE_REQ_JS_FILES);
+        if (PRODUCT === XPE) {
+            extraTags = extraTags.concat(XPE_REQ_JS_FILES);
         }
         return extraTags;
     }
