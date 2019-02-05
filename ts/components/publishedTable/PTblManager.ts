@@ -734,11 +734,14 @@ class PTblManager {
         });
         const parsedDsName = parseDS(dsName);
         let synthesizeTable: string = tableName + Authentication.getHashId();
-        let tempTables: string[] = [];
+        let tableToDelete: string = null;
         XIApi.synthesize(txId, colInfos, parsedDsName, synthesizeTable)
         .then((resTable) => {
-            tempTables.push(resTable);
+            if (!noDatasetDeletion) {
+                XIApi.deleteDataset(txId, dsName);
+            }
             if (primaryKeys == null || primaryKeys.length === 0) {
+                tableToDelete = resTable;
                 let newColName = PTblManager.PKPrefix + Authentication.getHashId();
                 primaryKeys = [newColName];
                 pbColInfos.push({
@@ -752,9 +755,10 @@ class PTblManager {
             }
         })
         .then((resTable: string) => {
-            if (resTable != tempTables[0]) {
-                tempTables.push(resTable);
+            if (tableToDelete != null) {
+                XIApi.deleteTable(txId, tableToDelete);
             }
+            tableToDelete = resTable;
             // final check, if tableName is used
             if (this._tableMap.has(tableName)) {
                 console.info("dup table name");
@@ -765,10 +769,7 @@ class PTblManager {
             return XIApi.publishTable(txId, primaryKeys, resTable, tableName, pbColInfos);
         })
         .then(() => {
-            if (!noDatasetDeletion) {
-                XIApi.deleteDataset(txId, dsName);
-            }
-            XIApi.deleteTableInBulk(txId, tempTables, true);
+            XIApi.deleteTable(txId, tableToDelete);
             deferred.resolve();
         })
         .fail(deferred.reject);

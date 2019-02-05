@@ -2654,28 +2654,27 @@ namespace XIApi {
         srcTableName: string,
         indexTableName: string,
         colInfo: ColRenameInfo[],
-        imdCol?: string): XDPromise<string>
-    {
+        imdCol?: string
+    ): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
 
-        let rowPromise: XDPromise<string>;
         const roColName: string = "XcalarRankOver";
         const opCode: string = "XcalarOpCode";
-        const opCodeTableName: string = getNewTableName("pubTemp");
-        const rowNumTableName: string = getNewTableName("pubTemp");
 
         if (imdCol != null && imdCol[0] == "$") {
             imdCol = imdCol.substr(1);
         }
 
         // Assemble rankOverColumn
-        rowPromise =  XIApi.genRowNum(txId, srcTableName,
-            roColName, rowNumTableName);
         if (primaryKeyList.length == 0) {
             primaryKeyList = [{name: roColName, ordering: XcalarOrderingT.XcalarOrderingUnordered}]
         }
-        rowPromise
-        .then(function(table: string) {
+
+        const rowNumTableName: string = getNewTableName("pubTemp");
+        let tableToDelete: string = null;
+        XIApi.genRowNum(txId, srcTableName, roColName, rowNumTableName)
+        .then((table: string) => {
+            tableToDelete = table;
             // Assemble opcode column
             let mapStr: string[] = [];
             if (imdCol != null && imdCol != "") {
@@ -2683,10 +2682,12 @@ namespace XIApi {
             } else {
                 mapStr = ["int(1)"];
             }
-            return XIApi.map(txId, mapStr, table,
-                [opCode], opCodeTableName);
+            const opCodeTableName: string = getNewTableName("pubTemp");
+            return XIApi.map(txId, mapStr, table, [opCode], opCodeTableName);
         })
-        .then(function(table: string) {
+        .then((table: string) => {
+            XIApi.deleteTable(txId, tableToDelete);
+            tableToDelete = table;
             // synthesize
             colInfo.push({
                 orig: roColName,
@@ -2696,22 +2697,26 @@ namespace XIApi {
                 orig: opCode,
                 new: opCode,
                 type: DfFieldTypeT.DfInt64
-            }
-        );
+            });
             return XIApi.synthesize(txId, colInfo, table);
         })
-        .then(function(tableName) {
+        .then((table) => {
+            XIApi.deleteTable(txId, tableToDelete);
+            tableToDelete = table;
             // Reorder just in case
             const dhtName: string = "";
-            return indexHelper(txId, primaryKeyList, tableName, indexTableName, dhtName);
+            return indexHelper(txId, primaryKeyList, table, indexTableName, dhtName);
         })
-        .then(deferred.resolve)
+        .then((newTableName) => {
+            XIApi.deleteTable(txId, tableToDelete);
+            deferred.resolve(newTableName);
+        })
         .fail((err) => {
-            if (err.status == 599) {
+            if (err.status == StatusT.StatusJsonQueryParseError) {
                 err.error = "Failed parsing query, table may not be configured correctly."
             }
-            return deferred.reject(err);
-        })
+            deferred.reject(err);
+        });
         return deferred.promise();
     }
 
@@ -2731,7 +2736,7 @@ namespace XIApi {
         pubTableName: string,
         colInfo: ColRenameInfo[],
         imdCol?: string
-    ): XDPromise<string> {
+    ): XDPromise<void> {
         if (txId == null || primaryKeys == null ||
             srcTableName == null || pubTableName == null ||
             colInfo == null) {
@@ -2750,8 +2755,7 @@ namespace XIApi {
             }
         }
 
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        const indexTableName: string = xcHelper.randName("publish") + Authentication.getHashId();
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const primaryKeyList: {name: string, ordering: XcalarOrderingT}[] =
             keyNames.map((primaryKey) => {
                 primaryKey = xcHelper.parsePrefixColName(primaryKey).name;
@@ -2760,24 +2764,32 @@ namespace XIApi {
                     ordering: XcalarOrderingT.XcalarOrderingUnordered
                 };
         });
+
+        let tableToDelete = null;
         XcalarListPublishedTables("*", false, true)
         .then((result) => {
             let pubTable: PublishTable = result.tables.find((table: PublishTable) => {
                 return (table.name.toUpperCase() == pubTableName.toUpperCase());
             })
             if (pubTable != null) {
-                return deferred.reject("Published Table already exists");
+                return PromiseHelper.reject("Published Table already exists");
             }
-
-            return assemblePubTable(txId, primaryKeyList, srcTableName,
-                indexTableName, colInfo, imdCol);
+            const indexTableName: string = xcHelper.randName("publish") + Authentication.getHashId();
+            return assemblePubTable(txId, primaryKeyList, srcTableName, indexTableName, colInfo, imdCol);
         })
-        .then(function() {
+        .then((indexTable) => {
+            tableToDelete = indexTable;
             // Finally publish the table
-            return XcalarPublishTable(indexTableName, pubTableName);
+            return XcalarPublishTable(indexTable, pubTableName);
         })
-        .then(deferred.resolve)
+        .then(() => {
+            if (tableToDelete != srcTableName) {
+                XIApi.deleteTable(txId, tableToDelete);
+            }
+            deferred.resolve();
+        })
         .fail(deferred.reject);
+
         return deferred.promise();
     }
 
@@ -2818,14 +2830,17 @@ namespace XIApi {
                 });
 
             const indexTableName: string = xcHelper.randName("publish") + Authentication.getHashId();
-
-
+            let tableToDelete: string = null;
             assemblePubTable(txId, primaryKeyList, srcTableName, indexTableName, colInfo, imdCol)
-            .then(function() {
+            .then((indexTable) => {
+                tableToDelete = indexTable;
                 // Finally publish the table
-                return XcalarUpdateTable(indexTableName, pubTableName);
+                return XcalarUpdateTable(indexTable, pubTableName);
             })
-            .then((res) => {
+            .then(() => {
+                if (tableToDelete !== srcTableName) {
+                    XIApi.deleteTable(txId, tableToDelete);
+                }
                 return deferred.resolve();
             })
             .fail(deferred.reject);
