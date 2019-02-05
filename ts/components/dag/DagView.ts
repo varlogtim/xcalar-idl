@@ -3256,7 +3256,7 @@ namespace DagView {
 
             new DragHelper({
                 event: event,
-                $element: $parentConnector,
+                $element: $parentConnector.parent(),
                 $container: $dagView,
                 $dropTarget: $dfArea.find(".dataflowAreaWrapper"),
                 offset: {
@@ -3284,8 +3284,8 @@ namespace DagView {
                     const offset = _getDFAreaOffset();
                     const rect = $parentConnector[0].getBoundingClientRect();
                     parentCoors = {
-                        x: (rect.right + offset.left) - 1,
-                        y: (rect.top + offset.top) + 6
+                        x: (rect.right + offset.left) - 6,
+                        y: (rect.top + offset.top) + 12
                     };
                     // setup svg for temporary line
                     $dfArea.find(".dataflowAreaWrapper").append('<svg class="secondarySvg"></svg>');
@@ -3300,8 +3300,8 @@ namespace DagView {
                 onDrag: function (coors) {
                     const offset = _getDFAreaOffset();
                     const childCoors = {
-                        x: (coors.x + offset.left),
-                        y: (coors.y + offset.top) + 5
+                        x: (coors.x + offset.left) + 2,
+                        y: (coors.y + offset.top) + 11
                     };
                     path.attr("d", lineFunction([parentCoors, childCoors]));
                 },
@@ -3399,7 +3399,8 @@ namespace DagView {
             const tabId = activeDag.getTabId();
 
             const childNode = activeDag.getNode(childNodeId);
-            const connectorIndex = childNode.canHaveMultiParents()
+            const canHaveMultiParents: boolean = childNode.canHaveMultiParents();
+            const connectorIndex = canHaveMultiParents
                 ? childNode.getNextOpenConnectionIndex()
                 : parseInt($childConnector.data("index"));
             // if child connector is in use, when drag finishes we will remove
@@ -3409,12 +3410,12 @@ namespace DagView {
             let scale = activeDag.getScale();
             new DragHelper({
                 event: event,
-                $element: $childConnector,
+                $element: $childConnector.parent(),
                 $container: $dagView,
                 $dropTarget: $dfArea.find(".dataflowAreaWrapper"),
                 offset: {
-                    x: 0,
-                    y: -2
+                    x: 5,
+                    y: 3
                 },
                 scale: scale,
                 noCursor: true,
@@ -3445,11 +3446,14 @@ namespace DagView {
                     $operators.addClass("noDrop");
                     $candidates.removeClass("noDrop").addClass("dropAvailable");
                     const offset = _getDFAreaOffset();
-                    const rect = $childConnector[0].getBoundingClientRect();
+                    const rect = $childConnector.parent()[0].getBoundingClientRect();
                     childCoors = {
-                        x: (rect.left + offset.left) - 1,
-                        y: (rect.top + offset.top) + 4
+                        x: (rect.left + offset.left) + 4,
+                        y: (rect.top + offset.top) + 6
                     };
+                    if (canHaveMultiParents) {
+                       childCoors.y += 5;
+                    }
                     // setup svg for temporary line
                     $dfArea.find(".dataflowAreaWrapper").append('<svg class="secondarySvg"></svg>');
                     const svg: d3 = d3.select('#dagView .dataflowArea[data-id="' + tabId + '"] .secondarySvg');
@@ -3463,9 +3467,12 @@ namespace DagView {
                 onDrag: function (coors) {
                     const offset = _getDFAreaOffset();
                     const parentCoors = {
-                        x: (coors.x + offset.left) + 2,
+                        x: (coors.x + offset.left) + 3,
                         y: (coors.y + offset.top) + 4
                     };
+                    if (canHaveMultiParents) {
+                        parentCoors.y += 5;
+                    }
                     path.attr("d", lineFunction([childCoors, parentCoors]));
                 },
                 onDragEnd: function (_$el, event) {

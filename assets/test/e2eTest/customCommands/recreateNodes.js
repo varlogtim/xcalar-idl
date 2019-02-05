@@ -45,7 +45,7 @@ class RecreateNodes extends EventEmitter {
                         }
                         if (nodeInfo.type !== "dataset") {
                             this.api
-                                .moveToElement(".dataflowArea.active .operator:nth-child(" + (i + 1) + ") .connector.in:nth-child(" + connectorIndex + ")", 2, 2)
+                                .moveToElement(".dataflowArea.active .operator:nth-child(" + (i + 1) + ") .connIn:nth-child(" + connectorIndex + ") .connector.in", 2, 2)
                                 .mouseButtonDown("left")
                                 .moveTo(commandResult.nodeElemIDs[parentIndex], 20, 10)
                                 .mouseButtonUp("left")

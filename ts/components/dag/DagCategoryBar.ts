@@ -109,14 +109,26 @@ class DagCategoryBar {
      */
     public updateNodeConnectorIn(numParents: number, elemNode: d3): void {
         const params = this._getConnectorInParams(numParents);
-        const elemConnIn = elemNode.select('.connIn');
+        const elemConnIn = elemNode.select('.connInGroup');
+        elemConnIn.select("g").remove(); // .empty doesnt work for some reason
 
-        elemConnIn.selectAll('rect').remove();
         for (const param of params) {
-            const elemRect = elemConnIn.append('rect');
-            elemRect.attr('class', param.class.join(' '));
-            for (const attrName of Object.keys(param.attrs)) {
-                const attrValue = param.attrs[attrName];
+            let g = elemConnIn.append('g');
+            g.attr("class", "connIn");
+
+            let square = param.largeSquare;
+            let elemRect = g.append('rect');
+            elemRect.attr('class', square.class.join(' '));
+            for (const attrName of Object.keys(square.attrs)) {
+                const attrValue = square.attrs[attrName];
+                elemRect.attr(attrName, attrValue);
+            }
+
+            square = param.smallSquare;
+            elemRect = g.append('rect');
+            elemRect.attr('class', square.class.join(' '));
+            for (const attrName of Object.keys(square.attrs)) {
+                const attrValue = square.attrs[attrName];
                 elemRect.attr(attrName, attrValue);
             }
         }
@@ -133,10 +145,19 @@ class DagCategoryBar {
 
         elemConnOut.empty();
         for (const param of params) {
-            const elemPolygon = elemConnOut.append('polygon');
-            elemPolygon.attr('class', param.class.join(' '));
-            for (const attrName of Object.keys(param.attrs)) {
-                const attrValue = param.attrs[attrName];
+            let triangle = param.largeTriangle;
+            let elemPolygon = elemConnOut.append('polygon');
+            elemPolygon.attr('class', triangle.class.join(' '));
+            for (const attrName of Object.keys(triangle.attrs)) {
+                const attrValue = triangle.attrs[attrName];
+                elemPolygon.attr(attrName, attrValue);
+            }
+
+            triangle = param.smallTriangle;
+            elemPolygon = elemConnOut.append('polygon');
+            elemPolygon.attr('class', triangle.class.join(' '));
+            for (const attrName of Object.keys(triangle.attrs)) {
+                const attrValue = triangle.attrs[attrName];
                 elemPolygon.attr(attrName, attrValue);
             }
         }
@@ -236,19 +257,30 @@ class DagCategoryBar {
 
     private _getConnectorOutParams(numOutput: number) {
         const params: {
-            class: string[], attrs: {[attrName: string]: string}
+            largeTriangle: {class: string[], attrs: {[attrName: string]: string}},
+            smallTriangle: {class: string[], attrs: {[attrName: string]: string}},
         }[] = [];
         // ('<polygon class="connector out" ' +
         // 'points="95,8 103,14 95,20" fill="#BBC7D1" ' +
         // 'stroke="#849CB0" stroke-width="1" ry="1" rx="1" />')
         for (let i = 0; i < numOutput; i ++) {
             params.push({
-                class: ['connector', 'out'],
-                attrs: {
-                    'points': '95,8 103,14 95,20',
-                    'fill': '#BBC7D1',
-                    'stroke': '#849CB0', 'stroke-width': '1',
-                    'rx': '1', 'ry': '1'
+                largeTriangle: {
+                    class: ['connector', 'out'],
+                    attrs: {
+                        'points': '93,2 109,10, 109,18, 93,26',
+                        'fill': 'transparent',
+                        'stroke': 'transparent'
+                    }
+                },
+                smallTriangle: {
+                    class: ['connectorOutVisible'],
+                    attrs: {
+                        'points': '95,8 103,14 95,20',
+                        'fill': '#BBC7D1',
+                        'stroke': '#849CB0', 'stroke-width': '1',
+                        'rx': '1', 'ry': '1'
+                    }
                 }
             });
         }
@@ -257,32 +289,53 @@ class DagCategoryBar {
 
     private _getConnectorInParams(numParents: number) {
         const params: {
-            class: string[], attrs: {[attrName: string]: string}
+            smallSquare: {class: string[], attrs: {[attrName: string]: string}},
+            largeSquare?: {class: string[], attrs: {[attrName: string]: string}}
         }[] = [];
 
         if (numParents === 0) {
             // if no connector, still needs something that gives width
             // for positioning when dragging
-            params.push({
-                class: ['connectorSpace'],
-                attrs: {
-                    'x': '0', 'y': '11', 'fill': 'none', 'stroke': 'none',
-                    'width': '7', 'height': '7'
+            params.push({largeSquare: {
+                    class: ['connectorSpace'],
+                    attrs: {
+                        'x': '0', 'y': '11', 'fill': 'none', 'stroke': 'none',
+                        'width': '7', 'height': '7'
+                    }
+                },
+                smallSquare: {
+                    class: ['connectorInVisible'],
+                    attrs: {
+                        'x': '0', 'y': '11', 'fill': 'none', 'stroke': 'none',
+                        'width': '7', 'height': '7'
+                    }
                 }
             });
             // '<rect class="connectorSpace" ' +
             //     'x="0" y="11" fill="none" ' +
             //     'stroke="none" width="7" height="7" />';
         } else if (numParents === -1) {
-            params.push({
-                class: ['connector', 'in', 'noConnection', 'multi'],
-                attrs: {
-                    'x': '0', 'y': '5', 'fill': '#BBC7D1', 'stroke': '#849CB0',
-                    'stroke-width': '1', 'rx': '1', 'ry': '1',
-                    'width': '7', 'height': '18',
-                    'data-index': '0',
+            params.push({largeSquare: {
+                    class: ['connector', 'in', 'noConnection', 'multi'],
+                    attrs: {
+                        'x': '-4', 'y': '2', 'fill': 'transparent', 'stroke': 'transparent',
+                        'stroke-width': '1', 'rx': '1', 'ry': '1',
+                        'width': '11', 'height': '24',
+                        'data-index': '0',
+                    }
+                },
+                smallSquare: {
+                    class: ['connectorInVisible'],
+                    attrs: {
+                        'x': '0', 'y': '5', 'fill': '#BBC7D1', 'stroke': '#849CB0',
+                        'stroke-width': '1', 'rx': '1', 'ry': '1',
+                        'width': '7', 'height': '18',
+                        'data-index': '0',
+                    }
                 }
             });
+
+
             // '<rect class="connector in noConnection multi"' +
             //     'data-index="0" x="0" y="5" fill="#BBC7D1" ' +
             //     'stroke="#849CB0" stroke-width="1" ' +
@@ -290,15 +343,25 @@ class DagCategoryBar {
         } else {
             for (let j = 0; j < numParents; j++) {
                 const y  = 28 / (numParents + 1) * (1 + j) - 3;
-                params.push({
+                params.push({largeSquare: {
                     class: ['connector', 'in', 'noConnection'],
+                    attrs: {
+                        'x': '-4', 'y': `${y - 3}`, 'fill': 'transparent',
+                        'stroke': 'transparent', 'stroke-width': '1',
+                        'rx': '1', 'ry': '1', 'width': '11', 'height': '13',
+                        'data-index': `${j}`,
+                    }
+                },
+                smallSquare: {
+                    class: ['connectorInVisible'],
                     attrs: {
                         'x': '0', 'y': `${y}`, 'fill': '#BBC7D1',
                         'stroke': '#849CB0', 'stroke-width': '1',
                         'rx': '1', 'ry': '1', 'width': '7', 'height': '7',
                         'data-index': `${j}`,
                     }
-                });
+                }
+            });
                 // '<rect class="connector in noConnection"' +
                 //     'data-index="' + j + ' " x="0" y="' + y +
                 //     '" fill="#BBC7D1" ' +
@@ -314,13 +377,21 @@ class DagCategoryBar {
 
         let html = '';
         for (const param of params) {
-            const classes = param.class.join(' ');
-            const attrs = Object.keys(param.attrs).reduce(
-                (res, attrName) => (`${res} ${attrName}="${param.attrs[attrName]}"`),
+            html = `${html}<g class="connIn">`;
+            let square = param.largeSquare;
+            let classes = square.class.join(' ');
+            let attrs = Object.keys(square.attrs).reduce(
+                (res, attrName) => (`${res} ${attrName}="${square.attrs[attrName]}"`),
                 '');
             html = `${html}<rect class="${classes}" ${attrs}></rect>`;
-        }
 
+            square = param.smallSquare;
+            classes = square.class.join(' ');
+            attrs = Object.keys(square.attrs).reduce(
+                (res, attrName) => (`${res} ${attrName}="${square.attrs[attrName]}"`),
+                '');
+            html = `${html}<rect class="${classes}" ${attrs}></rect></g>`;
+        }
         return html;
     }
 
@@ -329,9 +400,17 @@ class DagCategoryBar {
 
         let html = '';
         for (const param of params) {
-            const classes = param.class.join(' ');
-            const attrs = Object.keys(param.attrs).reduce(
-                (res, attrName) => (`${res} ${attrName}="${param.attrs[attrName]}"`),
+            let triangle = param.largeTriangle;
+            let classes = triangle.class.join(' ');
+            let attrs = Object.keys(triangle.attrs).reduce(
+                (res, attrName) => (`${res} ${attrName}="${triangle.attrs[attrName]}"`),
+                '');
+            html = `${html}<polygon class="${classes}" ${attrs}></polygon>`;
+
+            triangle = param.smallTriangle;
+            classes = triangle.class.join(' ');
+            attrs = Object.keys(triangle.attrs).reduce(
+                (res, attrName) => (`${res} ${attrName}="${triangle.attrs[attrName]}"`),
                 '');
             html = `${html}<polygon class="${classes}" ${attrs}></polygon>`;
         }
@@ -372,8 +451,8 @@ class DagCategoryBar {
                 'data-subtype="' + subType + '" ' +
                 'data-opid="' +  operator.getId() + '" ' +
                 'transform="translate(' + pos.x + ',' + pos.y + ')" >' +
-                '<svg class="connIn">' + inConnector + '</svg>' +
-                '<svg class="connOut">' + outConnector + '</svg>' +
+                '<g class="connInGroup">' + inConnector + '</g>' +
+                '<g class="connOut">' + outConnector + '</g>' +
             '<rect class="main" x="6" y="0" width="90" height="28" ' +
                 'fill="white" stroke="#849CB0" stroke-width="1" ' +
                 'ry="28" rx="12" ' +

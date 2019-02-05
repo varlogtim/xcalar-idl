@@ -295,7 +295,17 @@ class DragHelper {
 
         const $clones: JQuery = this.$els.clone();
         $clones.each(function() {
-            if ($(this).is("g") || $(this).is("rect") || $(this).is("polygon")){
+            let $clone = $(this);
+            if ($clone.is("g") || $clone.is("rect") || $clone.is("polygon") ||
+                $clone.is("svg")) {
+                if ($clone.hasClass("connIn")) {
+                    $clone.children().each(function() {
+                        const $child = $(this);
+                        $child.attr("x", 0);
+                        $child.attr("y", 0);
+                    });
+                }
+
                 self.$draggingEl.find(".dragSvg").append($(this));
             } else {
                 self.$draggingEl.find(".innerDragContainer").append($clones);
@@ -303,16 +313,19 @@ class DragHelper {
         });
 
         $clones.each(function(i: number) {
+            let $clone = $(this);
             let cloneLeft = (origPositions[i].x - left) / self.scale;
             let cloneTop = (origPositions[i].y - top) / self.scale;
-            if ($(this).is("g")) {
-                $(this).attr("transform", "translate(" + cloneLeft + ", " +
+
+            if ($clone.is("g")) {
+                $clone.attr("transform", "translate(" + cloneLeft + ", " +
                                                         cloneTop + ")");
-            } else if ($(this).is("rect") || $(this).is("polygon")){
+            } else if ($clone.is("rect") || $clone.is("polygon") ||
+                $clone.is("svg")) {
                 $(this).attr("x", cloneLeft)
                         .attr("y", cloneTop);
             } else {
-                $(this).css({
+                $clone.css({
                     left: cloneLeft,
                     top: cloneTop
                 });

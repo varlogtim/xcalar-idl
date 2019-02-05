@@ -564,29 +564,44 @@
         }
     }
 
-    @inConnectorSize: 8px;
-    @outConnectorSize: 6px;
-    .connIn {
+    .connInGroup {
         overflow: visible;
-    }
-    .connector {
-        &.in {
-            background-color: @color-connector;
-            border-radius: 1px;
-            border: 1px solid @color-border-operator;
-            cursor: pointer;
 
-            &:hover {
+    }
+    .connIn {
+        cursor: pointer;
+        overflow: visible;
+        &:hover {
+            .connectorInVisible {
                 fill: @color-border-operator;
             }
+        }
+
+        .connectorInVisible {
+            pointer-events: none;
+        }
+    }
+    .connOut {
+        cursor: pointer;
+
+        &:hover {
+            .connectorOutVisible {
+                fill: @color-border-operator;
+            }
+        }
+
+        .connectorOutVisible {
+            pointer-events: none;
+        }
+    }
+
+    .connector {
+        &.in {
+            cursor: pointer;
         }
         &.out {
             position: relative;
             cursor: pointer;
-
-            &:hover {
-                fill: @color-border-operator;
-            }
         }
     }
 
@@ -710,12 +725,8 @@
             overflow: visible;
         }
 
-        svg > .connector.out {
-            transform: translate(-95px, -8px);
-        }
-
-        .connOut > .connector.out {
-            transform: none;
+        .dragSvg > .connOut > .connector.out, .dragSvg > .connOut > .connectorOutVisible {
+            transform: translate(-93px, -2px);
         }
 
         .operator {
