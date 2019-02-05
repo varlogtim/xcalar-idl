@@ -667,7 +667,8 @@ module.exports = {
         "GeneratingBundle": "Generating bundle",
         "BundleComplete": "Ticket download completed.",
         "DownloadZendesk": "Please upload your ticket to Zendesk.",
-        "ExistingTicketId": "Or enter an existing ticket ID"
+        "ExistingTicketId": "Or enter an existing ticket ID",
+        "CloseForm": "Click to close this form. Any submitted tickets will still be processed."
     },
 
     "query": {
