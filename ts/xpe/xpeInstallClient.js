@@ -508,7 +508,7 @@ function installXPE() {
     steps = [
         [5, "Clear existing containers", initializeFunction],
         [20, "Setup", setupFunction],
-        [120, "Unpack images", unpackImagesFunction],
+        [300, "Unpack images", unpackImagesFunction],
     ];
     if (installGrafana) {
         steps.push([15, "Create Grafana container", createGrafanaFunction]);

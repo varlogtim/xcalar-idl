@@ -526,7 +526,11 @@ var XpeSharedContextUtils = (function(XpeSharedContextUtils) {
      * @jsonToSend: stringified json (for example in POST request)
      * @timeout: timeout in milliseconds after which to reject.
      *  defualt is no timeout. (from jQuery docs: 0 means no timeout)
-     *
+     * ** WARNING:: The timeout of the server being called supercedes this.
+     *    Right now, the xpeServer timeout is set at 10 minutes (600000ms).
+     *    If you are calling an xpeServer URL and setting a large timeout,
+     *    but your API is still failing prior to that, ensure the
+     *    .timeout attr of the server obj in xpeServer.js is sufficient!
      *  example:
      *  sendViaHttp("GET", "/hostSettings");
      *  sendViaHttp("POST", "/install", JSON.stringify({'installStep': 'xdpce'}));

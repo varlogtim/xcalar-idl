@@ -1396,5 +1396,9 @@ require("jsdom").env("", function(err, window) {
         var host = server.address().address
         var port = server.address().port
         console.log("Example app listening at http://%s:%s", host, port)
-    })
+    });
+    // default timeout for server appears to be 4 minutes.
+    // Docker image upload takes > 4 mins on slower running machines
+    // so increase timeout
+    server.timeout = 600000; // specify in ms
 });
