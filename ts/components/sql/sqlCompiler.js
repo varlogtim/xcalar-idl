@@ -2129,15 +2129,31 @@
                     "SPARK_GROUPING_ID", SQLErrTStr.IllegalGroupingCols +
                     groupingCols[groupingCols.length - 1].colName);
             var groupingIds = [];
+            var idChangeMap = {};
 
             for (var i = 0; i < projections.length; i++) {
+                for (var j = 0; j < projections[i].length; j++) {
+                    assert(projections[i][j].length === 1, SQLErrTStr.ExpandMap);
+                    if (projections[i][j][0].exprId) {
+                        assert(groupingCols[j], SQLErrTStr.ExpandColLengthMismatch);
+                        idChangeMap[projections[i][j][0].exprId.id]
+                                                    = groupingCols[j].colId;
+                    }
+                }
                 var idStruct = projections[i][projections[i].length - 1][0];
                 assert(idStruct.class ===
                     "org.apache.spark.sql.catalyst.expressions.Literal" &&
-                        idStruct.dataType === "integer");
+                        idStruct.dataType === "integer",
+                        SQLErrTStr.NotLiteralGroupingId + idStruct.class);
                 groupingIds.push(Number(idStruct.value));
             }
             node.sparkCols.push(groupingCols[groupingCols.length - 1]);
+            // Assign new column id to usrCols
+            for (var i = 0; i < node.usrCols.length; i++) {
+                if (idChangeMap[node.usrCols[i].colId]) {
+                    node.usrCols[i].colId = idChangeMap[node.usrCols[i].colId];
+                }
+            }
             var newRenames = __resolveCollision([], node.usrCols
                         .concat(node.xcCols).concat(node.sparkCols), [],
                         [], "", node.newTableName);

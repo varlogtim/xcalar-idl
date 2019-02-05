@@ -572,7 +572,10 @@ SQLErrTStr = {
     "NoPublishedTable": "Cannot find all published tables",
     "NeedSQLMode": "Not running under sql mode",
     "IdentifierMismatch": "Identifier map should match with identifiers order",
-    "XdfExplodeString": "XDF explodeString is not supported in SQL"
+    "XdfExplodeString": "XDF explodeString is not supported in SQL",
+    "ExpandMap": "Map in expand node found",
+    "ExpandColLengthMismatch": "Length of output and projections item in expand node not match",
+    "NotLiteralGroupingId": "Last item of projections in expand node should be grouping id which is a literal, but now it's: "
 };
 
 SQLInfoTStr = {
