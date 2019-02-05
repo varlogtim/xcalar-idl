@@ -42,7 +42,6 @@ class SQLOpPanelModel {
      */
     public submit(): void {
         const param = this._getParam();
-        this._dagNode.setColumns(this._columns);
         this._dagNode.setXcQueryString(this._xcQueryString);
         this._dagNode.setIdentifiers(this._identifiers);
         this._dagNode.setTableSrcMap(this._tableSrcMap);

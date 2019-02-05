@@ -838,16 +838,17 @@ class DagNodeSQL extends DagNode {
         const columns: {name: string, backName: string, type: ColumnType}[] = [];
         const colNameSet = new Set();
         for (let i = 0; i < allCols.length; i++) {
-            if (colNameSet.has(allCols[i].colName)) {
+            const colName = allCols[i].rename || allCols[i].colName;
+            let displayName: string = allCols[i].colName;
+            if (colNameSet.has(displayName)) {
                 let k = 1;
-                while (colNameSet.has(allCols[i].colName + "_" + k)) {
+                while (colNameSet.has(displayName + "_" + k)) {
                     k++;
                 }
-                allCols[i].colName = allCols[i].colName + "_" + k;
+                displayName = displayName + "_" + k;
             }
-            colNameSet.add(allCols[i].colName);
-            const colName = allCols[i].rename || allCols[i].colName;
-            columns.push({name: allCols[i].colName,
+            colNameSet.add(displayName);
+            columns.push({name: displayName,
                           backName: colName,
                           type: this._getColType(allCols[i].colType)});
         }
