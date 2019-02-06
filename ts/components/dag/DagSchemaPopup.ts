@@ -46,6 +46,7 @@ class DagSchemaPopup {
             self._$popup.find("li.selected").removeClass("selected");
             $li.addClass("selected");
             const colName: string = $name.text();
+            const destCol: string = $name.data('destcol').trim();
             let promise: XDPromise<any> = PromiseHelper.resolve();
             if (self._dagNode instanceof DagNodeSQL) {
                 // Special case for SQL node
@@ -66,7 +67,7 @@ class DagSchemaPopup {
             }
             promise
             .then(() => {
-                const lineage = self._dagNode.getLineage().getColumnHistory(colName);
+                const lineage = self._dagNode.getLineage().getColumnHistory(colName, null, destCol.length > 0? destCol: null);
                 for (let i = 0; i < lineage.length; i++) {
                     DagView.highlightLineage(lineage[i].id, lineage[i].childId, lineage[i].type);
                 }
@@ -111,6 +112,7 @@ class DagSchemaPopup {
             const change = changes[i];
             let changeType;
             let progCol;
+            let destCol;
             let otherProgCol;
             let htmlType;
             if (change.to) {
@@ -129,6 +131,7 @@ class DagSchemaPopup {
                 }
             } else if (change.from) {
                 progCol = change.from;
+                destCol = change.from;
                 changeType = "remove";
                 htmlType = removes;
                 changeIcon = "-";
@@ -138,12 +141,12 @@ class DagSchemaPopup {
                 htmlType.html += '<ul class="replaceSection">';
                 let liClass = 'changeType-' + changeType + ' changeType-remove';
                 htmlType.html += this._liTemplate(otherProgCol, changeIcon,
-                                                  liClass);
+                                                  liClass, progCol);
             }
 
             let liClass = 'changeType-' + changeType;
             htmlType.html += this._liTemplate(progCol, changeIcon,
-                                             liClass);
+                                             liClass, destCol);
             if (changeType === "replace") {
                 htmlType.html += '<div class="arrow">&darr;</div>';
                 htmlType.html += '</ul>';
@@ -228,13 +231,17 @@ class DagSchemaPopup {
     private _liTemplate(
         progCol: ProgCol,
         changeIcon: string,
-        liClass: string
+        liClass: string,
+        destCol?: ProgCol,
     ): HTML {
         let type = progCol.getType();
         let name = xcHelper.escapeHTMLSpecialChar(
                                             progCol.getFrontColName(true));
         let backName = xcHelper.escapeHTMLSpecialChar(
                                             progCol.getBackColName());
+        const destColName = destCol != null
+            ? xcHelper.escapeHTMLSpecialChar(destCol.getBackColName())
+            : '';
         let html: HTML =
             '<li class="' + liClass + '">' +
                 '<div>' +
@@ -246,6 +253,7 @@ class DagSchemaPopup {
                 '</div>' +
                 '<div title="' + xcHelper.escapeDblQuoteForHTML(name) +
                 '" class="name" ' +
+                `data-destcol="${destColName}" ` +
                 'data-backname="' + backName + '">' +
                     name +
                 '</div>' +

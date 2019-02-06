@@ -5,11 +5,22 @@ class DagLineage {
      * Remove columns: {from: progCol, to: null}
      * Change of columns(name/type): {from: oldProgCol, to: newProgCol}
      */
-    private changes: {from: ProgCol, to: ProgCol}[];
+    private changes: {from: ProgCol, to: ProgCol, parentIndex?: number}[];
     private node: DagNode;
     private columns: ProgCol[];
     private columnsWithParamsReplaced: ProgCol[];
     private columnHistory;
+    private columnParentMaps: {
+        sourceColMap: {
+            removed: Map<string, number[]>, // source columns removed
+            renamed: Map<string, Map<string, number>> // source columns renamed
+        },
+        destColMap: {
+            added: Set<string>, // New columns
+            renamed: Map<string, {from: string, parentIndex: number}>, // Dest columns renamed
+            kept: Map<string, number> // Dest columns kept
+        }
+    };
 
     public constructor(node: DagNode) {
         this.node = node;
@@ -34,6 +45,7 @@ class DagLineage {
     public reset(): void {
         this.columns = undefined;
         this.columnsWithParamsReplaced = undefined;
+        this.columnParentMaps = undefined;
     }
 
     /**
@@ -93,7 +105,7 @@ class DagLineage {
     /**
      * @returns {{from: ProgCol, to: ProgCol}[]}
      */
-    public getChanges(): {from: ProgCol, to: ProgCol}[] {
+    public getChanges(): {from: ProgCol, to: ProgCol, parentIndex?: number}[] {
         // if no columns, then no changes, so update
         if (this.columns == null) {
             const updateRes = this._update();
@@ -106,10 +118,11 @@ class DagLineage {
     /**
      * @returns {object[]} // returns an array. Each element in an array
      * corresponds to 1 node the column is present in.
-     * @param colName
+     * @param colName sourceColumn or destColumn
      * @param childId
+     * @param destColName must be specified if colName is sourceColumn
      */
-    public getColumnHistory(colName: string, childId?: DagNodeId): {
+    public getColumnHistory(colName: string, childId?: DagNodeId, destColName?: string): {
         id: DagNodeId,
         childId: DagNodeId,
         change: {from: ProgCol, to: ProgCol},
@@ -125,60 +138,157 @@ class DagLineage {
             colName: colName
         };
         this.columnHistory = [changeInfo];
+
+        const { sourceColMap, destColMap } = this._getColumnMaps();
+
         // populate change information
-        for (let i = 0; i < this.changes.length; i++) {
-            const change = this.changes[i];
-            if (change.to && change.to.getBackColName() === colName) {
-                changeInfo.change = change;
-                if (change.from) {
-                    colName = change.from.getBackColName();
-                    changeInfo.type = "rename";
-                    break;
-                } else {
-                    changeInfo.type = "add";
-                    return this.columnHistory;
-                }
-            } else if (change.from && change.from.getBackColName() === colName) {
-                changeInfo.change = change;
-                changeInfo.type = "remove";
-                break;
+        let parentIndexList: number[];
+        if (destColName == null) { // We are looking for a dest column
+            if (destColMap.added.has(colName)) {
+                changeInfo.type = 'add';
+            } else if (destColMap.renamed.has(colName)) {
+                const colRenameInfo = destColMap.renamed.get(colName);
+                changeInfo.type = 'rename';
+                parentIndexList = [colRenameInfo.parentIndex];
+                colName = colRenameInfo.from;
+            } else if (destColMap.kept.has(colName)) {
+                parentIndexList = [destColMap.kept.get(colName)];
+            } else {
+                // This should never happen
+                console.error(`Source column not found: ${colName}`);
             }
+        } else { // We are looking for a source column
+            if (sourceColMap.removed.has(colName)) {
+                changeInfo.type = 'remove';
+                parentIndexList = sourceColMap.removed.get(colName).map((v) => v); // XXX TODO: How to distinguish?
+            }
+            if (sourceColMap.renamed.has(colName)) {
+                changeInfo.type = 'rename';
+                const parentIndex = sourceColMap.renamed.get(colName).get(destColName);
+                if (parentIndex != null) {
+                    parentIndexList = [parentIndex];
+                } else {
+                    // This should never happen
+                    console.error(`Dest column not found: ${destColName}`);
+                }
+            }
+        }
+        if (parentIndexList == null) {
+            return this.columnHistory;
         }
         // recursively call getColumnHistory on parents
         const parents = this.node.getParents();
-        const numParents = this.node.getNumParent();
-        for (let i = 0; i < parents.length; i++) {
+        for (const i of parentIndexList) {
             const parentNode = parents[i];
             if (!parentNode) {
                 continue;
             }
-            const parentLineage = parentNode.getLineage();
-            if (numParents > 1) {
-                // If it's join or union, we only want to traverse the parent
-                // that contains the column. Searching for the column won't work
-                // if it's renamed in the parent so search the renames first
-                for (let j = 0; j < parentLineage.changes.length; j++) {
-                    const change = parentLineage.changes[j];
-                    if (change.from && change.to && change.to.getBackColName() === colName) {
-                        this.columnHistory = this.columnHistory.concat(parentLineage.getColumnHistory(colName, nodeId));
-                        break;
-                    }
-                }
-                // if not found in the rename, search the columns
-                const columns = parentLineage.getColumns();
-                const match = columns.find((progCol) => {
-                    return progCol.getBackColName() === colName;
-                });
-                if (match) {
-                    this.columnHistory = this.columnHistory.concat(parentLineage.getColumnHistory(colName, nodeId));
-                    break;
-                }
-            } else {
-                this.columnHistory = this.columnHistory.concat(parentLineage.getColumnHistory(colName, nodeId));
-            }
+            this.columnHistory = this.columnHistory.concat(parentNode.getLineage().getColumnHistory(colName, nodeId));
         }
 
         return this.columnHistory;
+    }
+
+    /**
+     * Figure out the parent of each columns in this.changes and this.columns
+     */
+    private _getColumnMaps() {
+        if (this.columnParentMaps != null) {
+            return this.columnParentMaps;
+        }
+
+        const sourceColMap = {
+            removed: new Map<string, number[]>(), // source columns removed
+            renamed: new Map<string, Map<string, number>>() // source columns renamed
+        };
+        const destColMap = {
+            added: new Set<string>(), // New columns
+            renamed: new Map<string, {from: string, parentIndex: number}>(), // Dest columns renamed
+            kept: new Map<string, number>() // Dest columns kept
+        }
+        // Columns changed by this node
+        for (const {from, to, parentIndex = 0} of this.getChanges()) {
+            if (to) {
+                const destColName = to.getBackColName();
+                if (from) { // to != null && from != null: renamed columns
+                    const sourceColName = from.getBackColName();
+                    destColMap.renamed.set(destColName, { from: sourceColName, parentIndex: parentIndex });
+
+                    if (!sourceColMap.renamed.has(sourceColName)) {
+                        sourceColMap.renamed.set(sourceColName, new Map());
+                    }
+                    sourceColMap.renamed.get(sourceColName).set(destColName, parentIndex);
+                } else { // to != null && from == null: new columns
+                    destColMap.added.add(destColName);
+                }
+            }
+            else if (from) { // to == null && from != null: removed columns
+                const sourceColName = from.getBackColName();
+                if (!sourceColMap.removed.has(sourceColName)) {
+                    sourceColMap.removed.set(sourceColName, []);
+                }
+                sourceColMap.removed.get(sourceColName).push(parentIndex);
+            }
+        }
+
+        // Columns kept from parents
+        // Where all the source columns come from. The map could be empty if it's a input node.
+        const sourceParentMap = new Map<string, Set<number>>();
+        const parents = this.node.getParents();
+        for (let i = 0; i < parents.length; i ++) {
+            const parent = parents[i];
+            if (parent == null) {
+                continue;
+            }
+            for (const progCol of parent.getLineage().getColumns()) {
+                const colName = progCol.getBackColName();
+                if (!sourceParentMap.has(colName)) {
+                    sourceParentMap.set(colName, new Set<number>());
+                }
+                sourceParentMap.get(colName).add(i);
+            }
+        }
+        // Columns = add + rename + keep
+        for (const col of this.getColumns()) {
+            const colName = col.getBackColName();
+            if (!destColMap.added.has(colName) && !destColMap.renamed.has(colName)) {
+                // This column is kept from one of the parents.
+                // There might be more than one parents having columns with the same name,
+                // but other columns must have been renamed or removed except this one.
+                // So the parent where this column comes from is: parents expose this column - (parents renamed + removed)
+                const parentsRemoved = sourceColMap.removed.get(colName) || [];
+                const parentsRenamed = [];
+                if (sourceColMap.renamed.has(colName)) {
+                    sourceColMap.renamed.get(colName).forEach((parentIndex) => {
+                        parentsRenamed.push(parentIndex);
+                    });
+                }
+
+                const potentialParents = sourceParentMap.get(colName);
+                if (potentialParents == null) {
+                    // Nodes w/o parents(ex. dataset) will go here
+                    destColMap.added.add(colName);
+                } else {
+                    // Remove the parents renamed/removed
+                    for (const changedParentIndex of parentsRemoved.concat(parentsRenamed)) {
+                        potentialParents.delete(changedParentIndex);
+                    }
+                    // The parent remaining in the set is the one where the column comes from
+                    if (potentialParents.size === 1) {
+                        destColMap.kept.set(colName, potentialParents.values().next().value);
+                    } else {
+                        // Should never happen!
+                        console.error(`Column ${colName} comes from ${potentialParents.size} parents`);
+                    }
+                }
+            }
+        }
+
+        this.columnParentMaps = {
+            sourceColMap: sourceColMap,
+            destColMap: destColMap
+        };
+        return this.columnParentMaps;
     }
 
     private _update(replaceParameters?: boolean): DagLineageChange {

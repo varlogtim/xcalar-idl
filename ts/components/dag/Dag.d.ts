@@ -75,7 +75,7 @@ interface DagNodeSQLFuncInInfo extends DagNodeInInfo {
 
 interface DagLineageChange {
     columns: ProgCol[];
-    changes: {from: ProgCol, to: ProgCol}[]
+    changes: {from: ProgCol, to: ProgCol, parentIndex?: number}[]
 }
 
 interface BackTraceInfo {

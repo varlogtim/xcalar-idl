@@ -70,7 +70,8 @@ class DagNodeJoin extends DagNode {
             const lChanges: DagLineageChange = this._getColAfterJoin(
                 lCols,
                 param.left,
-                param.keepAllColumns);
+                param.keepAllColumns,
+                0);
             if (this._isSkipRightTable(param.joinType)) {
                 return {
                     columns: lChanges.columns,
@@ -82,7 +83,8 @@ class DagNodeJoin extends DagNode {
                 const rChanges: DagLineageChange = this._getColAfterJoin(
                     rCols,
                     param.right,
-                    param.keepAllColumns);
+                    param.keepAllColumns,
+                    1);
                 return {
                     columns: lChanges.columns.concat(rChanges.columns),
                     changes: lChanges.changes.concat(rChanges.changes)
@@ -193,9 +195,10 @@ class DagNodeJoin extends DagNode {
     private _getColAfterJoin(
         allColumns: ProgCol[],
         joinInput: DagNodeJoinTableInput,
-        isKeepAllColumns: boolean
+        isKeepAllColumns: boolean,
+        parentIndex: number
     ): DagLineageChange {
-        const changes: {from: ProgCol, to: ProgCol}[] = [];
+        const changes: {from: ProgCol, to: ProgCol, parentIndex: number}[] = [];
 
         const colMap: Map<string, ProgCol> = new Map();
         allColumns.forEach((progCol) => {
@@ -203,15 +206,22 @@ class DagNodeJoin extends DagNode {
         });
 
         // 1. Get columns should be in the resultant table
-        const finalCols: ProgCol[] = isKeepAllColumns
-            ? allColumns
-            : joinInput.keepColumns.reduce((result, colName) => {
-                const progCol = colMap.get(colName);
-                if (progCol != null) {
-                    result.push(progCol);
+        const finalCols: ProgCol[] = [];
+        const removeCols: ProgCol[] = [];
+        if (isKeepAllColumns) {
+            allColumns.forEach((col) => { finalCols.push(col) });
+        } else {
+            const keepColNameSet = new Set(joinInput.keepColumns.filter(
+                (colName) => colMap.has(colName)
+            ));
+            allColumns.forEach((progCol) => {
+                if (keepColNameSet.has(progCol.getBackColName())) {
+                    finalCols.push(progCol);
+                } else {
+                    removeCols.push(progCol);
                 }
-                return result;
-            }, []);
+            });
+        }
 
         // 2. rename columns
         const prefixRenameMap: Map<string, string> = new Map(); // Prefix rename map
@@ -237,7 +247,7 @@ class DagNodeJoin extends DagNode {
                     const newName = xcHelper.getPrefixColName(prefixAfterRename, parsed.name);
                     const newProgCol: ProgCol = ColManager.newPullCol(parsed.name, newName, progCol.getType());
                     finalCols[i] = newProgCol;
-                    changes.push({ from: progCol, to: newProgCol });
+                    changes.push({ from: progCol, to: newProgCol, parentIndex: parentIndex });
                 }
             } else {
                 // Derived column
@@ -245,9 +255,14 @@ class DagNodeJoin extends DagNode {
                 if (newName != null) {
                     const newProgCol: ProgCol = ColManager.newPullCol(newName, newName, progCol.getType());
                     finalCols[i] = newProgCol;
-                    changes.push({ from: progCol, to: newProgCol });
+                    changes.push({ from: progCol, to: newProgCol, parentIndex: parentIndex });
                 }
             }
+        }
+
+        // 3. remove columns
+        for (const progCol of removeCols) {
+            changes.push({ from: progCol, to: null, parentIndex: parentIndex });
         }
 
         return {
