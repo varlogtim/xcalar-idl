@@ -342,11 +342,20 @@ class ExportSQLTableModal {
         XIApi.exportTable(txId, this._tableName, this._selectedDriver,
             driverArgs, driverColumns, exportTableName)
         .then(() => {
+            Transaction.done(txId, {
+                noNotification: true,
+                noSql: true,
+                noCommit: true
+            });
             this._closeModal();
             $bg.hide();
             return;
         })
         .fail((err) => {
+            Transaction.fail(txId, {
+                error: err,
+                noAlert: true
+            });
             Alert.error(null, err);
             $bg.hide();
             return;
