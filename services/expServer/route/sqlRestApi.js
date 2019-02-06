@@ -399,14 +399,14 @@ function getTablesFromQueryViaParser(sqlStatement,
         if (setOfXDTables.has(identifier)){
             xdTables.push(setOfXDTables.get(identifier));
         }
-        else if (identifier[0] === "`" && identifier[-1] === "`"
+        else if (identifier[0] === "`" && identifier[identifier.length - 1] === "`"
             && setOfXDTables.has(slicedIdentifier)) {
                 xdTables.push(setOfXDTables.get(slicedIdentifier));
         }
         else if(setOfPubTables.has(identifier)){
             imdTables.push(setOfPubTables.get(identifier));
         }
-        else if (identifier[0] === "`" && identifier[-1] === "`"
+        else if (identifier[0] === "`" && identifier[identifier.length - 1] === "`"
             && setOfPubTables.has(slicedIdentifier)) {
                 imdTables.push(setOfPubTables.get(slicedIdentifier));
         }
@@ -453,6 +453,9 @@ function sendToPlanner(sessionPrefix, requestStruct, username, wkbkName) {
                     deferred.resolve();
                 }
             } else {
+                if(body.exceptionName && body.exceptionMsg) {
+                    error = {errorType: body.exceptionName, errorMsg: body.exceptionMsg};
+                }
                 deferred.reject(error);
             }
         }
