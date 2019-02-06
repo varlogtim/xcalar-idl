@@ -3,6 +3,7 @@ class DagNodeInfoPanel {
     private _$panel: JQuery;
     private _isShowing: boolean;
     private _activeNode: DagNode;
+    private _isRowStatsCollapsed: boolean;
 
     public static get Instance() {
         return this._instance || (this._instance = new DagNodeInfoPanel());
@@ -11,6 +12,7 @@ class DagNodeInfoPanel {
     private constructor() {
         this._$panel = $("#dagNodeInfoPanel");
         this._isShowing = false;
+        this._isRowStatsCollapsed = true;
         this._addEventListeners();
     }
 
@@ -105,7 +107,19 @@ class DagNodeInfoPanel {
             if ($(event.target).closest(".editConfig").length) {
                 return;
             }
-            $(this).closest(".row").toggleClass("collapsed");
+            const $row = $(this).closest(".row")
+
+            if ($row.hasClass("rowStats")) {
+                const prevTop = $row.offset().top;
+                // const prevScrollTop = this._$panel.find(".nodeInfoSection").scrollTop();
+                self._$panel.find(".rowStats").toggleClass("collapsed");
+                const topDiff = $row.offset().top - prevTop;
+                const curScrollTop = self._$panel.find(".nodeInfoSection").scrollTop();
+                self._$panel.find(".nodeInfoSection").scrollTop(curScrollTop + topDiff);
+                self._isRowStatsCollapsed = !self._isRowStatsCollapsed;
+            } else {
+                $row.toggleClass("collapsed");
+            }
         });
 
         this._$panel.find(".editConfig").click(function() {
@@ -121,7 +135,7 @@ class DagNodeInfoPanel {
             this._restoreDataset();
         });
 
-        this._$panel.on("click", ".skewStatsRow", () => {
+        this._$panel.on("click", ".skewStatsRow", function() {
             SkewInfoModal.Instance.show(null, {tableInfo: $(this).data("skewinfo")});
         });
     }
@@ -202,6 +216,10 @@ class DagNodeInfoPanel {
                 if (skewColor) {
                     skewColor = "color:" + skewColor;
                 }
+                let rowStatsClass = "";
+                if (this._isRowStatsCollapsed) {
+                    rowStatsClass = "collapsed";
+                }
 
                 skewInfos.push({
                     rows: stats.rows,
@@ -228,9 +246,21 @@ class DagNodeInfoPanel {
                                 </div>`;
                 }
 
-                statsHtml += `<div class="statsRow">
-                        <div class="label">Rows: </div>
-                        <div class="value">${xcHelper.numToStr(stats.numRowsTotal)}</div>
+                statsHtml += `<div class="row statsRow rowStats collapsible ${rowStatsClass}">
+                        <div class="rowHeading">
+                            <div class="label">Rows: </div>
+                            <div class="value">${xcHelper.numToStr(stats.numRowsTotal)}</div>
+                            <i class="icon xi-arrow-down"></i>
+                        </div>
+                        <div class="rowSection rowsPerNode">`;
+                stats.rows.forEach((row, j) => {
+                    statsHtml += `<div class="statsRow">
+                                <div class="label">Node ${j + 1}</div>
+                                <div class="value">${xcHelper.numToStr(row)}</div>
+                            </div>`;
+                });
+
+                statsHtml += `</div>
                     </div>
                     <div class="statsRow skewStatsRow" ${xcTooltip.Attrs} data-original-title="${TblTStr.ClickToDetail}">
                         <div class="label">Skew: </div>
@@ -244,7 +274,7 @@ class DagNodeInfoPanel {
 
             });
             this._$panel.find(".statsSection").html(statsHtml);
-            this._$panel.find(".statsSection").find(".skewStatsRow").each((i) => {
+            this._$panel.find(".statsSection").find(".skewStatsRow").each(function(i) {
                 $(this).data("skewinfo", skewInfos[i]);
             });
         } else {

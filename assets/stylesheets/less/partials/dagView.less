@@ -921,13 +921,6 @@
             th {
                 font-weight: bold;
             }
-            &.hasRowInfo {
-                tr:first-child {
-                    td {
-                        font-weight: bold;
-                    }
-                }
-            }
         }
 
         &.error {
@@ -1661,16 +1654,53 @@
         }
     }
 
+    .statsSection {
+        padding-right: 0px;
+    }
+
     .statsRow {
         display: flex;
         justify-content: space-between;
+
+        &.row {
+            border-bottom: none;
+            padding-bottom: 0px;
+            margin-bottom: 0px
+        }
 
         &.skewStatsRow {
             cursor: pointer;
         }
 
+        .rowHeading {
+            // display: flex;
+            // justify-content: space-between;
+            position: relative;
+
+            .value {
+                margin-right: 20px;
+            }
+            .xi-arrow-down {
+                position: absolute;
+                top: 0px;
+                right: 0px;
+            }
+        }
+
+        .rowsPerNode {
+            padding-left: 10px;
+            padding-top: 0px;
+            .label {
+                font-weight: 600;
+            }
+        }
+
         .label {
             font-weight: bold;
+        }
+
+        .value {
+            margin-right: 10px;
         }
     }
 }
