@@ -1,7 +1,7 @@
 global.Thrift = Thrift = require("../../../assets/js/thrift/thrift.js").Thrift;
 hackFunction();
 
-require("../../../assets/js/shared/setup/enums.js");
+require("../dagHelper/enums.js");
 require("../../../assets/js/thrift/XcalarApiService.js");
 require("../../../assets/js/thrift/XcalarApiVersionSignature_types.js");
 require("../../../assets/js/thrift/XcalarApiServiceAsync.js");
@@ -15,7 +15,7 @@ require("../../../assets/js/XcalarThrift.js");
 
 // Added for KVS to query conversion
 global.Ajv = require("../../../3rd/AJV/ajv.js");
-global.XcUID = require("../../../assets/js/shared/util/XcUID.js").XcUID;
+global.XcUID = require("../dagHelper/XcUID.js").XcUID;
 
 // The order of these is needed as there's dependancies between the files.
 global.DagHelper = require("../DagHelperIndex.js").DagHelper
@@ -31,7 +31,7 @@ global.DagParamManager = require("../dagHelper/DagParamManager.js").DagParamMana
 global.DagNodeInput = require("../dagHelper/nodeInput/DagNodeInput.js").DagNodeInput
 global.DagLineage = require("../dagHelper/DagLineage.js").DagLineage
 global.DagNodeDatasetInput = require("../dagHelper/nodeInput/DagNodeDatasetInput.js").DagNodeDatasetInput
-global.XDFManager = require("../../../assets/js/components/worksheet/xdfManager.js").XDFManager
+global.XDFManager = require("../dagHelper/xdfManager.js").XDFManager
 global.DagNodeMap = require("../dagHelper/node/DagNodeMap.js").DagNodeMap
 global.DagNodeMapInput = require("../dagHelper/nodeInput/DagNodeMapInput.js").DagNodeMapInput
 global.DagNodeOut = require("../dagHelper/node/DagNodeOut.js").DagNodeOut
