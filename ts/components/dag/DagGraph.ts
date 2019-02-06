@@ -561,19 +561,19 @@ class DagGraph {
 
     /**
      * DagGraph.canConnect
-     * @param fromNodeId
-     * @param toNodeId
-     * @param toPos
+     * @param parentNodeId
+     * @param childNodeId
+     * @param childPos
      */
     public canConnect(
-        fromNodeId: DagNodeId,
-        toNodeId: DagNodeId,
-        toPos: number,
+        parentNodeId: DagNodeId,
+        childNodeId: DagNodeId,
+        childPos: number,
         allowCyclic?: boolean
     ): boolean {
-        let canConnect: boolean = this.connect(fromNodeId, toNodeId, toPos, allowCyclic, false);
+        let canConnect: boolean = this.connect(parentNodeId, childNodeId, childPos, allowCyclic, false);
         if (canConnect) {
-            this.disconnect(fromNodeId, toNodeId, toPos, false);
+            this.disconnect(parentNodeId, childNodeId, childPos, false);
         }
 
         return canConnect;
@@ -581,43 +581,44 @@ class DagGraph {
 
     /**
      * connect two nodes
-     * @param fromNodeId parent node
-     * @param toNodeId child node
-     * @param toPos 0 based position of the  child node's input
+     * @param parentNodeId parent node
+     * @param childNodeId child node
+     * @param childPos 0 based position of the  child node's input
      */
     public connect(
-        fromNodeId: DagNodeId,
-        toNodeId: DagNodeId,
-        toPos: number = 0,
+        parentNodeId: DagNodeId,
+        childNodeId: DagNodeId,
+        childPos: number = 0,
         allowCyclic: boolean = false,
         switchState: boolean = true,
         spliceIn: boolean = false
     ): boolean {
         let connectedToParent = false;
-        let fromNode: DagNode;
-        let toNode: DagNode;
+        let parentNode: DagNode;
+        let childNode: DagNode;
         try {
-            fromNode = this._getNodeFromId(fromNodeId);
-            toNode = this._getNodeFromId(toNodeId);
-            toNode.connectToParent(fromNode, toPos, spliceIn);
+            parentNode = this._getNodeFromId(parentNodeId);
+            childNode = this._getNodeFromId(childNodeId);
+            childNode.connectToParent(parentNode, childPos, spliceIn);
             connectedToParent = true;
-            fromNode.connectToChild(toNode);
+            parentNode.connectToChild(childNode);
 
-            if (!allowCyclic && this._isCyclic(fromNode)) {
-                fromNode.disconnectFromChild(toNode);
-                toNode.disconnectFromParent(fromNode, toPos);
-                throw new Error("has cycle in the dataflow");
+            if (!allowCyclic && this._isCyclic(parentNode)) {
+                parentNode.disconnectFromChild(childNode);
+                childNode.disconnectFromParent(parentNode, childPos);
+                connectedToParent = false;
+                throw new Error(DagTStr.CycleConnection);
             }
             if (switchState) {
-                const descendentSets = this._traverseSwitchState(toNode);
+                const descendentSets = this._traverseSwitchState(childNode);
                 const childIndices = {};
-                childIndices[toNodeId] = toPos;
+                childIndices[childNodeId] = childPos;
                 this.events.trigger(DagNodeEvents.ConnectionChange, {
                     type: "add",
                     descendents:[...descendentSets],
                     addInfo: {
                         childIndices: childIndices,
-                        node: fromNode
+                        node: parentNode
                     },
                     tabId: this.parentTabId
                 });
@@ -626,7 +627,7 @@ class DagGraph {
         } catch (e) {
             if (connectedToParent) {
                 // error handler
-                toNode.disconnectFromParent(fromNode, toPos);
+                childNode.disconnectFromParent(parentNode, childPos);
             }
             return false;
         }
