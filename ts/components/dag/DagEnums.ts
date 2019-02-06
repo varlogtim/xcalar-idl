@@ -103,7 +103,9 @@ enum DagNodeEvents {
     TableRemove = "TableRemove",
     TitleChange = "TitleChange",
     AutoExecute = "AutoExecute",
-    RetinaRemove = "RetinaRemove"
+    RetinaRemove = "RetinaRemove",
+    StartSQLCompile = "StartSQLCompile",
+    EndSQLCompile = "EndSQLCompile",
 }
 
 enum DagCategoryType {

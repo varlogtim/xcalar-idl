@@ -2700,6 +2700,12 @@ namespace xcHelper {
         if (options.id) {
             $waitingBg.attr("id", options.id);
         }
+        if (options.styles) {
+            for (let attr in options.styles) {
+                $waitingBg.css(attr, options.styles[attr]);
+            }
+        }
+
         $area.append($waitingBg);
         setTimeout(() => {
             $waitingBg.find(".waitingIcon").fadeIn();

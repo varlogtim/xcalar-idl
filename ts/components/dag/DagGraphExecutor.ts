@@ -12,6 +12,7 @@ class DagGraphExecutor {
     private _isCanceld: boolean;
     private _retinaName: string;
     private _parentTxId: number;
+    private _sqlNodes: Map<string, DagNodeSQL>;
 
     public constructor(
         nodes: DagNode[],
@@ -21,7 +22,8 @@ class DagGraphExecutor {
             noReplaceParam?: boolean
             retinaName?: string
             parentTxId?: number
-            allowNonOptimizedOut?: boolean
+            allowNonOptimizedOut?: boolean,
+            sqlNodes?: Map<string, DagNodeSQL>
         } = {}
     ) {
         this._nodes = nodes;
@@ -32,6 +34,7 @@ class DagGraphExecutor {
         this._isCanceld = false;
         this._retinaName = options.retinaName;
         this._parentTxId = options.parentTxId;
+        this._sqlNodes = options.sqlNodes;
     }
 
     public validateAll(): {
@@ -501,7 +504,13 @@ class DagGraphExecutor {
             udfSessionName: udfContext.udfSessionName
         });
         this._currentTxId = txId;
-        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, tabId);
+        let sqlNode: DagNodeSQL;
+        if (node instanceof DagNodeSQL && this._sqlNodes) {
+            // send copy and original sql node to executor because we
+            // may need to modify the original
+            sqlNode = this._sqlNodes.get(node.getId());
+        }
+        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, tabId, false, sqlNode);
         dagNodeExecutor.run()
         .then((_destTable) => {
             Transaction.done(txId, {
@@ -541,7 +550,13 @@ class DagGraphExecutor {
         txId: number,
         node: DagNode
     ): XDPromise<string> {
-        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, this._graph.getTabId(), this._isNoReplaceParam);
+        let sqlNode: DagNodeSQL;
+        if (node instanceof DagNodeSQL && this._sqlNodes) {
+            // send copy and original sql node to executor because we
+            // may need to modify the original
+            sqlNode = this._sqlNodes.get(node.getId());
+        }
+        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, this._graph.getTabId(), this._isNoReplaceParam, sqlNode);
         return dagNodeExecutor.run(this._isOptimized);
     }
 

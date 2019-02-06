@@ -11,17 +11,20 @@ class DagNodeExecutor {
     private txId: number;
     private tabId: string;
     private replaceParam: boolean;
+    private originalSQLNode: DagNodeSQL;
 
     public constructor(
         node: DagNode,
         txId: number,
         tabId: string,
-        noReplaceParam: boolean = false
+        noReplaceParam: boolean = false,
+        originalSQLNode: DagNodeSQL
     ) {
         this.node = node;
         this.txId = txId;
         this.tabId = tabId;
         this.replaceParam = !noReplaceParam;
+        this.originalSQLNode = originalSQLNode;
     }
 
     /**
@@ -1064,10 +1067,29 @@ class DagNodeExecutor {
         }
 
         const queryId = node.getSQLQueryId();
-        let xcQueryString = node.getXcQueryString();
+        let xcQueryString;
+        // search for queryString in original node if it exists
+        if (this.originalSQLNode) {
+            xcQueryString = this.originalSQLNode.getXcQueryString();
+        } else {
+            xcQueryString = node.getXcQueryString();
+        }
+
         let promise: XDPromise<any> = PromiseHelper.resolve({xcQueryString: xcQueryString});
+        let compiled = false;
         if (!xcQueryString) {
+            compiled = true;
             promise = node.compileSQL(params.sqlQueryStr, queryId);
+        } else if (!node.getXcQueryString()) {
+            // query string exists in original node but not the clone
+            node.setNewTableName(this.originalSQLNode.getNewTableName());
+            node.setXcQueryString(this.originalSQLNode.getXcQueryString());
+            node.setRawColumns(this.originalSQLNode.getColumns());
+            node.setTableSrcMap(this.originalSQLNode.getTableSrcMap());
+            node.updateSubGraph();
+            const lineage = node.getLineage();
+            lineage.reset();
+            lineage.getChanges();
         }
         const newDestTableName = self._generateTableName();
         node.setSQLQuery({
@@ -1075,7 +1097,20 @@ class DagNodeExecutor {
             dataflowId: this.tabId
         });
         promise
-        .then(function(ret) {
+        .then((ret) => {
+            if (compiled && this.originalSQLNode) {
+                // since compilation is done on a cloned sql node, apply
+                // changes to the original sql node so it's cached
+                this.originalSQLNode.setNewTableName(ret.newTableName);
+                this.originalSQLNode.setXcQueryString(ret.xcQueryString);
+                this.originalSQLNode.setColumns(ret.allCols);
+                this.originalSQLNode.setTableSrcMap(ret.tableSrcMap);
+                this.originalSQLNode.updateSubGraph();
+                const lineage = this.originalSQLNode.getLineage();
+                lineage.reset();
+                lineage.getChanges();
+            }
+
             const replaceMap = {};
             node.getParents().forEach((parent, idx) => {
                 const newTableName = parent.getTable();

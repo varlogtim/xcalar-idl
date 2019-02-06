@@ -203,6 +203,9 @@ class DagNodeSQL extends DagNode {
     public setColumns(columns: SQLColumn[]): void {
         this.columns = this._getQueryTableCols(columns);
     }
+    public setRawColumns(columns) {
+        this.columns = columns;
+    }
     public getXcQueryString(): string {
         return this.xcQueryString;
     }
@@ -258,7 +261,7 @@ class DagNodeSQL extends DagNode {
     }
 
     /**
-     * DFS to get lineage changes from sub graph 
+     * DFS to get lineage changes from sub graph
      * @param columnMapList a column map {finalColName: [finalProgColumn, changedFlag]} wrapped with a list
      * @param node current node
      */
@@ -340,6 +343,10 @@ class DagNodeSQL extends DagNode {
         };
     }
 
+    /**
+     * @override
+     * @param includeStats: boolean
+     */
     protected _getSerializeInfo(includeStats?: boolean): DagNodeSQLInfo {
         const nodeInfo = super._getSerializeInfo(includeStats) as DagNodeSQLInfo;
         nodeInfo.tableSrcMap = this.tableSrcMap;
@@ -979,6 +986,10 @@ class DagNodeSQL extends DagNode {
                 sqlFuncs = retStruct.sqlFunctions;
                 replacedSqlQuery = retStruct.sqlQuery;
             }
+            this.events.trigger(DagNodeEvents.StartSQLCompile, {
+                id: this.getId(),
+                node: this
+            });
             self.sendSchema(identifiers, sqlFuncs)
             .then(function(ret) {
                 schemaQueryString = ret.queryString;
@@ -1024,6 +1035,12 @@ class DagNodeSQL extends DagNode {
                     self.setSQLQuery({errorMsg: errorMsg, endTime: new Date()});
                 }
                 deferred.reject(error);
+            })
+            .always(() => {
+                this.events.trigger(DagNodeEvents.EndSQLCompile, {
+                    id: this.getId(),
+                    node: this
+                });
             });
         } catch (e) {
             Alert.show({
@@ -1032,6 +1049,10 @@ class DagNodeSQL extends DagNode {
                 isAlert: true
             });
             self.setSQLQuery({errorMsg: JSON.stringify(e), endTime: new Date()});
+            this.events.trigger(DagNodeEvents.EndSQLCompile, {
+                id: this.getId(),
+                node: this
+            });
             deferred.reject();
         }
         return deferred.promise();

@@ -4090,6 +4090,7 @@ namespace DagView {
         nodeIds: DagNodeId[],
         lock: boolean
     }): void {
+        console.log("lock", info.lock);
         const tabId: string = info.tabId;
         const $dfArea = _getAreaByTab(tabId);
         if (info.lock) {
@@ -4377,6 +4378,15 @@ namespace DagView {
                 _updateTitleForNodes(changedNodes, tabId);
             }
         });
+
+        _registerGraphEvent(graph, DagNodeEvents.StartSQLCompile, function (info) {
+            _toggleCompileLock(true, info.tabId);
+        });
+
+        _registerGraphEvent(graph, DagNodeEvents.EndSQLCompile, function (info) {
+            _toggleCompileLock(false, info.tabId);
+        });
+
     }
 
     function _setupDagSharedActionEvents(): void {
@@ -5203,6 +5213,18 @@ namespace DagView {
 
     export function getAreaByTab(tabId: string): JQuery {
         return _getAreaByTab(tabId);
+    }
+
+    function _toggleCompileLock(lock: boolean, tabId: string) {
+        const $dfArea: JQuery = _getAreaByTab(tabId);
+        if (lock) {
+            xcHelper.disableScreen($dfArea, {id: "compileBackground", styles: {
+                width: $dfArea.find(".dataflowAreaWrapper").width(),
+                height: $dfArea.find(".dataflowAreaWrapper").height()
+            }});
+        } else {
+            xcHelper.enableScreen($("#compileBackground"));
+        }
     }
 
     /* Unit Test Only */

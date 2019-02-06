@@ -184,8 +184,12 @@ class DagGraph {
                 comments.push({
                     id: CommentNode.generateId(),
                     text: text,
-                    dimensions: {width: 160, height: 80},
-                    position: {x: 20, y: 20}
+                    display: {
+                        x: 20,
+                        y: 20,
+                        width: 160,
+                        height: 80
+                    }
                 });
             }
             // this.hasError = true;
@@ -265,8 +269,12 @@ class DagGraph {
                     comments.push({
                         id: CommentNode.generateId(),
                         text: text,
-                        dimensions: {width: 160, height: 80},
-                        position: {x: 20, y: 20 + (100 * (errorNodes.length - 1))}
+                        display: {
+                            x: 20,
+                            y: 20 + (100 * (errorNodes.length - 1)),
+                            width: 160,
+                            height: 80
+                        }
                     });
                 }
             }
@@ -499,6 +507,14 @@ class DagGraph {
         })
         .registerEvents(DagNodeEvents.AutoExecute, (info) => {
             this.events.trigger(DagNodeEvents.AutoExecute, info);
+        })
+        .registerEvents(DagNodeEvents.StartSQLCompile, (info) => {
+            info.tabId = this.parentTabId;
+            this.events.trigger(DagNodeEvents.StartSQLCompile, info);
+        })
+        .registerEvents(DagNodeEvents.EndSQLCompile, (info) => {
+            info.tabId = this.parentTabId;
+            this.events.trigger(DagNodeEvents.EndSQLCompile, info);
         });
     }
 
@@ -743,9 +759,18 @@ class DagGraph {
         const clonedGraph = this.clone();
         clonedGraph.setTabId(DagTab.generateId());
         let orderedNodes: DagNode[] = nodeIds.map((nodeId) => clonedGraph._getNodeFromId(nodeId));
+        // save original sql nodes so we can cache query compilation
+        let sqlNodes: Map<string, DagNodeSQL> = new Map();
+        nodeIds.forEach((nodeId) => {
+            let node: DagNode = this._getNodeFromId(nodeId);
+            if (node instanceof DagNodeSQL) {
+                sqlNodes.set(node.getId(), node);
+            }
+        });
         const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, clonedGraph, {
             optimized: true,
-            noReplaceParam: noReplaceParam
+            noReplaceParam: noReplaceParam,
+            sqlNodes: sqlNodes
         });
         return executor.getBatchQuery();
     }
@@ -804,9 +829,18 @@ class DagGraph {
             ? clonedGraph.backTraverseNodes([nodeId], false).map
             : clonedGraph.getAllNodes();
         const orderedNodes: DagNode[] = clonedGraph._topologicalSort(nodesMap);
+        // save original sql nodes so we can cache query compilation
+        let sqlNodes: Map<string, DagNodeSQL> = new Map();
+        orderedNodes.forEach((clonedNode) => {
+            let node: DagNode = this._getNodeFromId(clonedNode.getId());
+            if (node instanceof DagNodeSQL) {
+                sqlNodes.set(node.getId(), node);
+            }
+        });
         const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, clonedGraph, {
             optimized: optimized,
-            allowNonOptimizedOut: allowNonOptimizedOut
+            allowNonOptimizedOut: allowNonOptimizedOut,
+            sqlNodes: sqlNodes
         });
         const checkResult = executor.checkCanExecuteAll();
         if (checkResult.hasError) {
