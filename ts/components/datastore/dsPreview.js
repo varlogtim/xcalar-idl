@@ -2752,12 +2752,14 @@ window.DSPreview = (function($, DSPreview) {
                 error.status === StatusT.StatusIsDir ||
                 error.status === StatusT.StatusAllFilesEmpty)
             {
-                error = error.error + ", " + DSFormTStr.GoBack + ".";
+                error = xcHelper.escapeHTMLSpecialChar(error.error) + ", " + DSFormTStr.GoBack + ".";
             } else if (error.status === StatusT.StatusUdfExecuteFailed) {
                 error = error.log ? error.log : error.error;
+                error = xcHelper.escapeHTMLSpecialChar(error);
             } else {
                 error = (error.error ? error.error : "") +
-                        (error.log ? error.log : "");
+                        (error.log ?  "\nLog: " + error.log : "");
+                error = xcHelper.escapeHTMLSpecialChar(error);
             }
         }
 
@@ -3087,10 +3089,6 @@ window.DSPreview = (function($, DSPreview) {
             {
                 console.error(error);
             } else {
-                if (typeof error === "object") {
-                    error = error.error;
-                }
-                error = xcHelper.escapeHTMLSpecialChar(error);
                 if (format === formatMap.UDF) {
                     errorHandler(error, true);
                 } else if (format == null || detectArgs.format == null ||

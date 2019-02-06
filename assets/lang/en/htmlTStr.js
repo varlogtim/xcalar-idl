@@ -680,6 +680,7 @@ module.exports = {
 
     "ds": {
         "Point": "Import Data Source",
+        "Location": "Select Data Source Location",
         "Datasets": "Datasets",
         "Import": "Create Dataset",
         "DSIn": "DATASETS",
