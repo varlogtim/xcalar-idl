@@ -429,6 +429,8 @@ window.Function.prototype.bind = function() {
                 if (result.xcalarStatus === StatusT.StatusAgain) {
                     console.log("Cgroup set up in progess...");
                     waitUntilCgSetup();
+                } else if (result.xcalarStatus === StatusT.StatusCgroupsDisabled) {
+                    test.pass();
                 } else {
                     test.fail(StatusTStr[result.xcalarStatus]);
                 }
@@ -3619,11 +3621,11 @@ window.Function.prototype.bind = function() {
         .then(function(result) {
             projectTable = result.tableName;
             return xcalarIndex(thriftHandle, projectTable, indexTable,
-                [new XcalarApiKeyT({name:"yelp_user::review_count", type:"DfInt64", keyFieldName:"", ordering:"Unordered"})]);
+                [new XcalarApiKeyT({name:"yelp_user::review_count", type:"DfInt64", keyFieldName:"pk", ordering:"Unordered"})]);
         })
         .then(function(result) {
             indexTable = result.tableName;
-            return xcalarApiSynthesize(thriftHandle, indexTable, synthTable, []);
+            return xcalarApiSynthesize(thriftHandle, indexTable, synthTable, [new XcalarApiColumnT({sourceColumn: 'pk', destColumn: 'pk', columnType: 'DfUnknown'})]);
         })
         .then(function(result) {
             synthTable = result.tableName
@@ -3685,11 +3687,11 @@ window.Function.prototype.bind = function() {
         .then(function(result) {
             projectTable = result.tableName;
             return xcalarIndex(thriftHandle, projectTable, indexTable,
-                [new XcalarApiKeyT({name:"yelp_user::review_count", type:"DfInt64", keyFieldName:"", ordering:"Unordered"})]);
+                [new XcalarApiKeyT({name:"yelp_user::review_count", type:"DfInt64", keyFieldName:"pk", ordering:"Unordered"})]);
         })
         .then(function(result) {
             indexTable = result.tableName;
-            return xcalarApiSynthesize(thriftHandle, indexTable, synthTable, []);
+            return xcalarApiSynthesize(thriftHandle, indexTable, synthTable, [new XcalarApiColumnT({sourceColumn: 'pk', destColumn: 'pk', columnType: 'DfUnknown'})]);
         })
         .then(function(result) {
             synthTable = result.tableName

@@ -3740,7 +3740,8 @@ xcalarApiSynthesize = runEntity.xcalarApiSynthesize = function(thriftHandle, src
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSynthesize(srcTableName = " + srcTableName +
-                    ", dstTableName = " + dstTableName + ")");
+                    ", dstTableName = " + dstTableName +
+                    ", columns = " + columns + ")");
     }
 
     var workItem = xcalarApiSynthesizeWorkItem(srcTableName, dstTableName,
