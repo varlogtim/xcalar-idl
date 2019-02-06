@@ -1336,23 +1336,23 @@
     }
     &.backgroundMenu {
         .removeAllNodes, .executeAllNodes, .executeAllNodesOptimized,
-        .resetAllNodes, .selectAllNodes,
+        .resetAllNodes, .selectAllNodes, .pasteNodes,
         .autoAlign, .newComment, .focusRunning {
             display: list-item;
         }
 
         &.nonEditableSubgraph {
-            .removeAllNodes, .newComment, .executeAllNodes {
+            .removeAllNodes, .newComment, .executeAllNodes, .pasteNodes {
                 display: none;
             }
         }
         &.viewOnly {
-            .resetNode, .resetAllNodes, .lockNodeTable {
+            .resetNode, .resetAllNodes, .lockNodeTable, .pasteNodes {
                 display: none;
             }
         }
         &.published {
-            .newComment, .autoAlign, .removeAllNodes {
+            .newComment, .autoAlign, .removeAllNodes, .pasteNodes {
                 display: none;
             }
         }

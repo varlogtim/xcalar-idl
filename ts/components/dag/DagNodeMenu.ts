@@ -140,6 +140,9 @@ namespace DagNodeMenu {
                 case ("cutNodes"):
                     document.execCommand("cut");
                     break;
+                case ("pasteNodes"):
+                    _showPasteAlert();
+                    break;
                 case ("executeNode"):
                     DagView.run(dagNodeIds);
                     break;
@@ -777,5 +780,13 @@ namespace DagNodeMenu {
 
     function _getNodeFromId(id: DagNodeId): DagNode {
         return DagView.getActiveDag().getNode(id);
+    }
+
+    function _showPasteAlert() {
+        let pasteKey: string = isSystemMac ? "⌘V" : "\"CTRL\" + \"V\"";
+        Alert.show({
+            title: "Paste",
+            msg: "Pasting is not available via the menu, but you can still use " + pasteKey
+        });
     }
 }
