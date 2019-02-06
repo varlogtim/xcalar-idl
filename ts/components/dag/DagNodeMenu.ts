@@ -167,9 +167,6 @@ namespace DagNodeMenu {
                 case ("viewResult"):
                     DagViewManager.Instance.viewResult(_getNodeFromId(dagNodeIds[0]));
                     break;
-                case ("viewUDF"):
-                    DagUDFPopup.Instance.show(dagNodeIds[0]);
-                    break;
                 case ("generateResult"):
                     const nodeToPreview: DagNode = _getNodeFromId(dagNodeIds[0]);
                     DagViewManager.Instance.run(dagNodeIds).then(() => {
@@ -232,9 +229,6 @@ namespace DagNodeMenu {
                     break;
                 case ("unlockTable"):
                     DagViewManager.Instance.getActiveDag().getNode(dagNodeIds[0]).setTableLock();
-                    break;
-                case ("download"):
-                    DFDownloadModal.Instance.show(DagViewManager.Instance.getActiveTab(), nodeIds);
                     break;
                 case ("restoreDataset"):
                     const node: DagNodeDataset = <DagNodeDataset>DagViewManager.Instance.getActiveDag().getNode(dagNodeIds[0]);
@@ -474,6 +468,7 @@ namespace DagNodeMenu {
     function _showNodeMenu(event: JQueryEventObject, $clickedEl?: JQuery) {
         const $dfArea = DagViewManager.Instance.getActiveArea();
         const $operators = DagViewManager.Instance.getSelectedNodes();
+        let backgroundClicked = false; // whether the node was clicked or the background
         let nodeIds = [];
         $operators.each(function() {
             nodeIds.push($(this).data("nodeid"));
@@ -481,9 +476,10 @@ namespace DagNodeMenu {
 
         let nodeId: DagNodeId;
         if ($clickedEl && $clickedEl.length) {
-            nodeId =  $clickedEl.closest(".operator").data("nodeid");
+            nodeId = $clickedEl.closest(".operator").data("nodeid");
         } else {
             nodeId = nodeIds[0];
+            backgroundClicked = true;
         }
 
         $menu.data("nodeid", nodeId);
@@ -530,6 +526,11 @@ namespace DagNodeMenu {
             classes += " backgroundMenu ";
             adjustMenuForBackground();
         }
+        if (backgroundClicked) {
+            $menu.find(".autoAlign, .selectAllNodes").removeClass("xc-hidden");
+        } else {
+            $menu.find(".autoAlign, .selectAllNodes").addClass("xc-hidden");
+        }
 
         for (let i = 0; i < nodeIds.length; i++) {
             if (DagViewManager.Instance.isNodeLocked(nodeIds[i])) {
@@ -575,6 +576,9 @@ namespace DagNodeMenu {
             floating: true,
             classes: classes
         });
+        if ($menu.find("li:visible").length === 0) {
+            xcMenu.close($menu);
+        }
     }
 
     function adjustMenuForSingleNode(nodeId): string {
@@ -602,7 +606,7 @@ namespace DagNodeMenu {
             }
         } else {
             $menu.find(".viewResult").addClass("unavailable");
-            $menu.find(".generateResult").addClass("unavailable");
+            $menu.find(".generateResult").addClass("xc-hidden");
         }
         if (dagNode instanceof DagNodeOutOptimizable &&
             dagNode.isOptimized() &&
@@ -647,16 +651,6 @@ namespace DagNodeMenu {
             } else {
                 $menu.find(".restoreDataset").addClass("xc-hidden");
             }
-        }
-        // Node with UDF
-        if (dagNode != null && dagNode instanceof DagNodeMap) {
-            if (dagNode.getUsedUDFModules().size > 0) {
-                $menu.find(".viewUDF").removeClass("unavailable");
-            } else {
-                $menu.find(".viewUDF").addClass("unavailable");
-            }
-        } else {
-            $menu.find(".viewUDF").addClass("unavailable");
         }
 
         if (dagNode != null && (dagNodeType === DagNodeType.PublishIMD ||

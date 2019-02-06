@@ -152,7 +152,7 @@
     height: 100%;
 
     // TODO: move to constants.less when colors are finalized
-    @color-border-bar: #D4DCE3;
+    @color-border-bar: @color-border-bar-white;
     @color-border-operator: @color-bg-cardHeader;
     @color-connector: @color-border-softGray2;
     @operator-height: 28px;
@@ -596,20 +596,19 @@
     }
 
     .operator {
-        &.state-unused {
+        &.state-Unused {
             .statusIcon {
                 fill: @color-white;
             }
         }
         &.state-Configured {
             .statusIcon {
-                fill: #fff78d;
+                fill: @color-dag-yellow;
             }
-
         }
         &.state-Complete {
             .statusIcon {
-                fill: #6ef2a6;
+                fill: @color-dag-green;
             }
         }
         &.state-Error {
@@ -1215,6 +1214,11 @@
                 font-size: 12px;
                 position: relative;
                 top: 6px;
+
+                &.xi-activated-share-icon {
+                    font-size: 14px;
+                    top: 5px;
+                }
             }
 
             .name {
@@ -1279,9 +1283,7 @@
     }
 }
 
-
-
-#dagNodeMenu {
+#dagNodeMenu, #dagNodeSubMenu {
     background-color: @color-white;
     width: 160px;
     border-radius: 5px;
@@ -1325,6 +1327,8 @@
             }
             &.xi-close-no-circle {
                 font-size: 8px;
+            }
+            &.xi-close-no-circle, &.xi-trash {
                 color: @color-background-error;
             }
             &.xi-rearrange {
@@ -1337,20 +1341,32 @@
             max-width: ~"calc(100% - (@{iconWidth} + @{iconMargin}))";
             .textOverflowOneLine;
         }
+
+        &.parentMenu {
+            &::after {
+                border-right: 6px solid @color-font-edge;
+            }
+        }
     }
+}
+
+#dagNodeMenu {
+    @liHeight: 24px;
+    @iconWidth: 10px;
+    @iconMargin: 8px;
 
     &.operatorMenu {
         .removeNode, .copyNodes, .cutNodes, .executeNode, .resetNode, .executeNodeOptimized,
         .viewOptimizedDataflow,
-        .description, .configureNode, .viewResult, .generateResult, .viewSchema, .autoAlign,
-        .unlockNodeTable, .lockNodeTable, .download, .createCustom, .viewUDF, .selectAllNodes {
+        .description, .configureNode, .viewResult, .generateResult, .viewSchema, .viewOptions, .customNodeOptions, .autoAlign,
+        .unlockNodeTable, .lockNodeTable, .createCustom, .selectAllNodes {
             display: list-item;
         }
         .findLinkOut, .restoreDataset {
             display: none;
         }
         &.multiple {
-            .description, .configureNode, .viewResult, .generateResult, .viewSchema, .shareCustom, .viewUDF {
+            .description, .configureNode, .viewResult, .generateResult, .viewSchema, .shareCustom {
                 display: none;
             }
             .createCustom {
@@ -1371,7 +1387,7 @@
             }
         }
         &.nonEditableSubgraph {
-            .removeNode, .copyNodes, .cutNodes, .executeNode, .download {
+            .removeNode, .copyNodes, .cutNodes, .executeNode {
                 display: none;
             }
 
@@ -1449,12 +1465,19 @@
     }
     &.linkInMenu {
         .findLinkOut {
+            .icon {
+                color: darken(@color-operator-in, 10%);
+            }
+
             display: list-item;
         }
     }
     &.datasetMenu {
         .restoreDataset {
             display: list-item;
+            .icon {
+                color: darken(@color-operator-in, 10%);
+            }
         }
     }
     &.publishMenu {
@@ -1464,10 +1487,68 @@
     }
     &.SQLOpMenu {
         .inspectSQL, .expandSQL {
+            .icon {
+                color: darken(@color-operator-SQL, 20%);
+            }
+            display: list-item;
+        }
+    }
+
+    .nodeCustom {
+        .icon {
+            color: darken(@color-operator-custom, 5%);
+        }
+    }
+
+    .executeNodeOptimized {
+        .icon {
+            color: darken(@color-operator-out, 15%);
+        }
+    }
+    .viewOptimizedDataflow {
+        .icon {
+            color: darken(@color-operator-out, 25%);
+        }
+    }
+
+    .icon {
+        &.xi-edit {
+            font-size: 9px;
+        }
+        &.xi-expandnode {
+            font-size: 15px;
+            position: relative;
+            left: -3px;
+        }
+        &.xi-activated-share-icon {
+            font-size: 12px;
+            position: relative;
+            left: -2px;
+        }
+        &.xi-restore {
+            font-size: 11px;
+            position: relative;
+            left: -1px;
+        }
+    }
+}
+
+#dagNodeSubMenu {
+    max-height: none;
+
+    > ul {
+        display: none;
+        visibility: visible;
+        left: 0px;
+        margin-top: 0px;
+        position: static;
+
+        li {
             display: list-item;
         }
     }
 }
+
 
 #dataflow-rectSelection {
     z-index: 2;
@@ -1627,8 +1708,8 @@
     }
     .row {
         border-bottom: 1px solid @color-bg-topBarGray2;
-        padding-bottom: 2px;
-        margin-bottom: 2px;
+        padding-bottom: 3px;
+        margin-bottom: 3px;
         display: flex;
         flex-direction: column;
         &:last-child {
@@ -1703,6 +1784,32 @@
         word-break: break-word;
     }
 
+
+    .statusIcon {
+        width: 9px;
+        height: 9px;
+        border-radius: 100%;
+        background-color: @color-white;
+        float: left;
+        margin-top: 3px;
+        margin-right: 5px;
+
+        &.state-Unused {
+            background-color: @color-white;
+        }
+        &.state-Configured {
+            background-color: @color-dag-yellow;
+            border: 1px solid shade(@color-dag-yellow, 10%);
+        }
+        &.state-Complete {
+            background-color: @color-dag-green;
+        }
+        &.state-Error {
+            background-color: @color-background-error;
+        }
+    }
+
+
     .operationStats {
         border-bottom: 1px solid @color-bg-topBarGray2;
         margin-bottom: 2px;
@@ -1719,15 +1826,32 @@
         padding-right: 0px;
     }
 
-    .statsRow {
+    .subRow {
         display: flex;
-        justify-content: space-between;
 
         &.row {
             border-bottom: none;
             padding-bottom: 0px;
             margin-bottom: 0px
         }
+
+        .label {
+            font-weight: bold;
+            flex: 0 0 68px;
+        }
+
+        .value {
+            margin-left: 4px;
+        }
+    }
+
+    .message {
+        font-size: 12px;
+        min-height: 38px;
+    }
+
+    .statsRow {
+        justify-content: space-between;
 
         &.skewStatsRow {
             cursor: pointer;
@@ -1740,6 +1864,10 @@
 
             .value {
                 margin-right: 20px;
+            }
+            .label {
+                font-weight: bold;
+                flex: 1 0 auto;
             }
             .xi-arrow-down {
                 position: absolute;
@@ -1756,12 +1884,11 @@
             }
         }
 
-        .label {
-            font-weight: bold;
-        }
-
         .value {
             margin-right: 10px;
+        }
+        .label {
+            flex: 1 0 auto;
         }
     }
 }
@@ -1797,7 +1924,7 @@
     }
 }
 
-#dagSchemaPopup, #dagUDFPopup {
+#dagSchemaPopup {
     .replaceSection {
         border-top: 1px solid @color-border-monitor-label;
         border-bottom: 1px solid @color-border-monitor-label;

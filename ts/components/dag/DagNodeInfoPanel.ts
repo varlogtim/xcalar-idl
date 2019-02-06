@@ -16,13 +16,16 @@ class DagNodeInfoPanel {
         this._addEventListeners();
     }
 
-    public show(node: DagNode): boolean {
+    public show(node: DagNode, needsRefresh = true): boolean {
         if (node == null) {
             return false;
         }
         if (!MainMenu.isFormOpen()) {
             $("#dataflowMenu").find(".menuSection").addClass("xc-hidden");
             this._$panel.removeClass("xc-hidden");
+        }
+        if (this._activeNode === node && !needsRefresh) {
+            return true;
         }
 
         this._activeNode = node;
@@ -34,6 +37,7 @@ class DagNodeInfoPanel {
         this._updateStatusSection();
         this._updateStatsSection();
         this._updateAggregatesSection();
+        this._updateUDFSection();
         this._updateDescriptionSection();
         this._updateSubGraphSection();
         this._updateLock();
@@ -80,6 +84,7 @@ class DagNodeInfoPanel {
                 break;
             case ("params"):
                 this._updateConfigSection();
+                this._updateUDFSection();
                 break;
             case ("status"):
                 this._updateStatusSection();
@@ -123,6 +128,9 @@ class DagNodeInfoPanel {
                 self._isRowStatsCollapsed = !self._isRowStatsCollapsed;
             } else {
                 $row.toggleClass("collapsed");
+                if ($row.hasClass("udfsRow") && !$row.hasClass("collapsed")) {
+                    self._viewUDFs();
+                }
             }
         });
 
@@ -187,7 +195,8 @@ class DagNodeInfoPanel {
 
     private _updateStatusSection(): void {
         this._$panel.find(".row.restore").remove();
-        this._$panel.find(".statusSection").text(this._activeNode.getState());
+        let html = `<div class="statusIcon state-${this._activeNode.getState()}"></div>${this._activeNode.getState()}`
+        this._$panel.find(".statusSection").html(html);
         const error: string = this._activeNode.getError();
         if (this._activeNode.getState() === DagNodeState.Error && error) {
             if (this._activeNode instanceof DagNodeDataset) {
@@ -240,24 +249,24 @@ class DagNodeInfoPanel {
                     skewColor: skewColorRaw
                 });
                 statsHtml += `<div class="operationStats">
-                    <div class="statsRow">
+                    <div class="statsRow subRow">
                         <div class="label">Operation: </div>
                         <div class="value"><b>${operationName}</b></div>
                     </div>
-                    <div class="statsRow">
+                    <div class="statsRow subRow">
                         <div class="label">Progress: </div>
                         <div class="value">${stats.pct}%</div>
                     </div>`;
                 if (stats.state !== DgDagStateTStr[DgDagStateT.DgDagStateReady]) {
                     // only show states other than ready as 100% would already
                     // indicate that it's ready
-                    statsHtml += `<div class="statsRow">
+                    statsHtml += `<div class="statsRow subRow">
                                     <div class="label">State: </div>
                                     <div class="value">${stats.state}</div>
                                 </div>`;
                 }
 
-                statsHtml += `<div class="row statsRow rowStats collapsible ${rowStatsClass}">
+                statsHtml += `<div class="row statsRow subRow rowStats collapsible ${rowStatsClass}">
                         <div class="rowHeading">
                             <div class="label">Rows: </div>
                             <div class="value">${xcHelper.numToStr(stats.numRowsTotal)}</div>
@@ -265,7 +274,7 @@ class DagNodeInfoPanel {
                         </div>
                         <div class="rowSection rowsPerNode">`;
                 stats.rows.forEach((row, j) => {
-                    statsHtml += `<div class="statsRow">
+                    statsHtml += `<div class="statsRow subRow">
                                 <div class="label">Node ${j + 1}</div>
                                 <div class="value">${xcHelper.numToStr(row)}</div>
                             </div>`;
@@ -273,11 +282,11 @@ class DagNodeInfoPanel {
 
                 statsHtml += `</div>
                     </div>
-                    <div class="statsRow skewStatsRow" ${xcTooltip.Attrs} data-original-title="${TblTStr.ClickToDetail}">
+                    <div class="statsRow subRow skewStatsRow" ${xcTooltip.Attrs} data-original-title="${TblTStr.ClickToDetail}">
                         <div class="label">Skew: </div>
                         <div class="value" style="${skewColor}">${skewText}</div>
                     </div>
-                    <div class="statsRow">
+                    <div class="statsRow subRow">
                         <div class="label">Elapsed Time: </div>
                         <div class="value">${xcHelper.getElapsedTimeStr(stats.elapsedTime)}</div>
                     </div>
@@ -301,6 +310,15 @@ class DagNodeInfoPanel {
             this._$panel.find(".aggsRow").removeClass("xc-hidden");
         } else {
             this._$panel.find(".aggsRow").addClass("xc-hidden");
+        }
+    }
+
+    private _updateUDFSection(): void {
+        if (this._activeNode instanceof DagNodeMap && this._activeNode.getUsedUDFModules().size > 0) {
+            this._$panel.find(".udfsRow").removeClass("xc-hidden").addClass("collapsed");
+            this._$panel.find(".udfsSection").empty().addClass("xc-hidden");
+        } else {
+            this._$panel.find(".udfsRow").addClass("xc-hidden");
         }
     }
 
@@ -368,5 +386,63 @@ class DagNodeInfoPanel {
         const node: DagNodeDataset = <DagNodeDataset>this._activeNode;
         const shareDS: boolean = DagViewManager.Instance.getActiveTab() instanceof DagTabPublished;
         DS.restoreSourceFromDagNode([node], shareDS);
+    }
+
+    private _viewUDFs() {
+        // Show the loading message
+        this._$panel.find(".udfsSection").removeClass("xc-hidden");
+        this._$panel.find(".udfsSection").html(this._genLoadingHTML())
+
+        // Call API to get resolutions
+        this._getUDFResolution(<DagNodeMap>this._activeNode, DagViewManager.Instance.getActiveTab())
+        .then((udfRes) => {
+            const convertedMap: Map<string, string> = new Map();
+            udfRes.forEach((path, moduleName) => {
+                convertedMap.set(moduleName, UDFFileManager.Instance.nsPathToDisplayPath(path));
+            });
+            return convertedMap;
+        })
+        .then((udfRes) => {
+            // Show the resolution info.
+            this._$panel.find(".udfsSection").html(this._genUDFHTML(udfRes));
+        })
+        .fail(() => {
+            // Show the error message
+            this._$panel.find(".udfsSection").html(this._genErrorHTML());
+        });
+    }
+
+    private _getUDFResolution(dagNode: DagNodeMap, activeTab: DagTab): XDPromise<Map<string, string>> {
+        if (activeTab instanceof DagTabPublished) {
+            return activeTab.getNodeUDFResolution(dagNode);
+        } else {
+            return dagNode.getModuleResolutions();
+        }
+    }
+
+    private _genLoadingHTML(): HTML {
+        return `<p class="message">${StatusMessageTStr.Loading}</p>`;
+    }
+
+    private _genErrorHTML(): HTML {
+        return `<p class="message">${StatusMessageTStr.Error}</p>`;
+    }
+
+    private _genUDFHTML(udfInfo: Map<string, string>): HTML {
+        let html = '';
+        udfInfo.forEach((resolution, moduleName) => {
+            html +=
+                `<div class="row">
+                    <div class="subRow">
+                        <div class="label">Module:</div>
+                        <div title="${moduleName}" class="type value">${moduleName}</div>
+                    </div>
+                    <div class="subRow">
+                        <div class="label">Resolution:</div>
+                        <div title="${resolution}" class="field value">${resolution}</div>
+                    </div>
+                </div>`;
+        });
+        return html;
     }
 }

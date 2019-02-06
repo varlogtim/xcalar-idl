@@ -195,8 +195,8 @@ namespace xcMenu {
                 if (!visible) {
                     StatusBox.forceHide();
                 }
-                let top: number = $li.offset().top + 28;
-                let left: number = $li.offset().left + 155;
+                let top: number = $li.offset().top + $li.outerHeight();
+                let left: number = $li.offset().left + $li.outerWidth() - 10;
                 let shiftedLeft: boolean = false;
 
                 // move submenu to left if overflowing to the right

@@ -4420,7 +4420,7 @@ class DagView {
         const nodeId: DagNodeId = $operator.data("nodeid");
         if (isDagNode) {
             const node: DagNode = this.graph.getNode(nodeId);
-            DagNodeInfoPanel.Instance.show(node);
+            DagNodeInfoPanel.Instance.show(node, false);
         }
 
         if (event.which !== 1) {

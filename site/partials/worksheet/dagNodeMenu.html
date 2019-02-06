@@ -1,24 +1,12 @@
-<div id="dagNodeMenu" class="menu">
+<div id="dagNodeMenu" class="menu" data-submenu="dagNodeSubMenu">
     <ul>
         <li class="configureNode" data-action="configureNode">
             <i class="icon xi-setup"></i>
             <span class="label"><%= dicts.dag.configure %></span>
         </li>
-        <li class="editCustom" data-action="editCustom">
+        <li class="editCustom nodeCustom" data-action="editCustom">
             <i class="icon xi-setup"></i>
             <span class="label"><%= dicts.dag.editCustomNode %></span>
-        </li>
-        <li class="expandCustom" data-action="expandCustom">
-            <i class="icon xi-setup"></i>
-            <span class="label"><%= dicts.dag.expandCustomNode %></span>
-        </li>
-        <li class="inspectSQL" data-action="inspectSQL">
-            <i class="icon xi-setup"></i>
-            <span class="label"><%= dicts.dag.inspectSQL %></span>
-        </li>
-        <li class="expandSQL" data-action="expandSQL">
-            <i class="icon xi-setup"></i>
-            <span class="label"><%= dicts.dag.expandSQL %></span>
         </li>
         <li class="restoreDataset xc-hidden" data-action="restoreDataset">
             <i class="icon xi-restore"></i>
@@ -49,16 +37,8 @@
             <span class="label"><%= dicts.dag.generateResult %></span>
         </li>
         <li class="viewOptimizedDataflow" data-action="viewOptimizedDataflow">
-            <i class="icon xi-preview"></i>
+            <i class="icon xi-search"></i>
             <span class="label"><%= dicts.dag.viewOptimizedDataflow %></span>
-        </li>
-        <li class="unlockNodeTable unavailable xc-hidden" data-action="unlockTable">
-            <i class="icon xi-unlock"></i>
-            <span class="label"><%= dicts.dag.unlockTable %></span>
-        </li>
-        <li class="lockNodeTable unavailable" data-action="lockTable">
-            <i class="icon xi-lock"></i>
-            <span class="label"><%= dicts.dag.lockTable %></span>
         </li>
         <li class="resetNode" data-action="resetNode">
             <i class="icon xi-restore"></i>
@@ -67,10 +47,6 @@
         <li class="resetAllNodes" data-action="resetAllNodes">
             <i class="icon xi-restore"></i>
             <span class="label"><%= dicts.dag.resetAll %></span>
-        </li>
-        <li class="selectAllNodes" data-action="selectAllNodes">
-            <i class="icon xi-select-mode"></i>
-            <span class="label"><%= dicts.dag.selectAll %></span>
         </li>
         <li class="focusRunning" data-action="focusRunning">
             <i class="icon xi-view-as"></i>
@@ -88,58 +64,79 @@
             <i class="icon xi-copy-clipboard"></i>
             <span class="label"><%= dicts.dag.paste %></span>
         </li>
-        <li class="description" data-action="description">
-            <i class="icon xi-edit"></i>
-            <span class="label"><%= dicts.dag.description %></span>
+        <li class="inspectSQL nodeSQL" data-action="inspectSQL">
+            <i class="icon xi-search"></i>
+            <span class="label"><%= dicts.dag.inspectSQL %></span>
+        </li>
+        <li class="selectAllNodes" data-action="selectAllNodes">
+            <i class="icon xi-select-mode"></i>
+            <span class="label"><%= dicts.dag.selectAll %></span>
         </li>
         <li class="newComment" data-action="newComment">
             <i class="icon xi-edit"></i>
             <span class="label"><%= dicts.dag.comment %></span>
         </li>
-        <li class="autoAlign" data-action="autoAlign">
-            <i class="icon xi-rearrange"></i>
-            <span class="label"><%= dicts.dag.autoAlign %></span>
+        <li class="findLinkOut" data-action="findLinkOut">
+            <i class="icon xi-search"></i>
+            <span class="label"><%= dicts.dag.findLinkOut %></span>
         </li>
         <li class="viewSchema" data-action="viewSchema">
-            <i class="icon xi-show"></i>
+            <i class="icon xi-viewschema"></i>
             <span class="label"><%= dicts.dag.viewSchema %></span>
-        </li>
-        <li class="viewUDF unavailable" data-action="viewUDF">
-            <i class="icon xi-preview"></i>
-            <span class="label"><%= dicts.dag.viewUDF %></span>
         </li>
         <li class="createCustom" data-action="createCustom">
             <i class="icon xi-custom"></i>
             <span class="label"><%= dicts.dag.createCustomNode %></span>
         </li>
-        <li class="shareCustom" data-action="shareCustom">
+
+        <li class="unlockNodeTable unavailable xc-hidden" data-action="unlockTable">
+            <i class="icon xi-unlock"></i>
+            <span class="label"><%= dicts.dag.unlockTable %></span>
+        </li>
+        <li class="lockNodeTable unavailable" data-action="lockTable">
+            <i class="icon xi-lock"></i>
+            <span class="label"><%= dicts.dag.lockTable %></span>
+        </li>
+        <li class="autoAlign" data-action="autoAlign">
+            <i class="icon xi-rearrange"></i>
+            <span class="label"><%= dicts.dag.autoAlign %></span>
+        </li>
+        <li class="description" data-action="description">
+            <i class="icon xi-edit"></i>
+            <span class="label"><%= dicts.dag.description %></span>
+        </li>
+        <li class="expandSQL nodeSQL" data-action="expandSQL">
+            <i class="icon xi-expandnode"></i>
+            <span class="label"><%= dicts.dag.expandSQL %></span>
+        </li>
+        <li class="shareCustom nodeCustom" data-action="shareCustom">
             <i class="icon xi-activated-share-icon"></i>
             <span class="label"><%= dicts.dag.shareCustomNode %></span>
         </li>
-        <li class="download" data-action="download">
-            <i class="icon xi-download"></i>
-            <span class="label"><%= dicts.dag.download %></span>
+        <li class="expandCustom nodeCustom" data-action="expandCustom">
+            <i class="icon xi-expandnode"></i>
+            <span class="label"><%= dicts.dag.expandCustomNode %></span>
         </li>
         <li class="removeNode" data-action="removeNode">
-            <i class="icon xi-close-no-circle"></i>
+            <i class="icon xi-trash"></i>
             <span class="label"><%= dicts.dag.removeNode %></span>
         </li>
         <li class="removeAllNodes" data-action="removeAllNodes">
-            <i class="icon xi-close-no-circle"></i>
+            <i class="icon xi-trash"></i>
             <span class="label"><%= dicts.dag.removeAllNodes %></span>
         </li>
         <li class="removeInConnection" data-action="removeInConnection">
-            <i class="icon xi-close-no-circle"></i>
+            <i class="icon xi-trash"></i>
             <span class="label"><%= dicts.dag.removeConnection %></span>
-        </li>
-        <li class="findLinkOut" data-action="findLinkOut">
-            <i class="icon xi-search"></i>
-            <span class="label"><%= dicts.dag.findLinkOut %></span>
         </li>
         <li class="exitOp" data-action="exitOpPanel">
             <i class="icon xi-close-no-circle"></i>
             <span class="label"></span>
         </li>
     </ul>
+    include "../../util/menuScrollArea.html"
+</div>
+
+<div id="dagNodeSubMenu" class="menu subMenu">
     include "../../util/menuScrollArea.html"
 </div>

@@ -757,7 +757,7 @@ class DagTabManager {
         } else if (dagTab instanceof DagTabCustom) {
             extraClass += " custom";
         } else if (dagTab instanceof DagTabPublished) {
-            extraIcon = '<i class="icon xi-human tabIcon"></i>';
+            extraIcon = '<i class="icon xi-activated-share-icon tabIcon"></i>';
         } else if (DagTabUser.isForSQLFolder(dagTab)) {
             extraClass += " sql";
         }
