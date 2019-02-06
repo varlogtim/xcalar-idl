@@ -383,13 +383,18 @@ window.DSTargetManager = (function($, DSTargetManager) {
 
         $form.find(".name .text").text(target.name);
         $form.find(".type .text").text(target.type_name);
-
+        var tarInfo = typeSet[target.type_id];
+        var paramList = tarInfo.parameters.map(function(param, index) {return param.name; });
         var $paramSection = $form.find(".params");
-        var paramKeys = Object.keys(target.params).sort();
+        var paramKeys = Object.keys(target.params);
         if (paramKeys.length === 0) {
             $paramSection.addClass("xc-hidden");
         } else {
-            var paramHtml = paramKeys.map(function(paramName) {
+            var paramHtml = paramList.map(function(paramName) {
+                if (!paramKeys.includes(paramName)) {
+                    // This parameter wasnt specified.
+                    return "";
+                }
                 var paramVal = target.params[paramName];
                 var classes = "text";
                 if (typeof paramVal !== "string") {
