@@ -185,7 +185,7 @@ namespace DagNodeMenu {
                     const x = (position.x - rect.left - DagView.gridSpacing) / scale;
                     const y = (position.y - rect.top - DagView.gridSpacing) / scale;
                     DagView.newComment({
-                        position: {x: x, y: y}
+                        display: {x: x, y: y}
                     }, true);
                     break;
                 case ("autoAlign"):

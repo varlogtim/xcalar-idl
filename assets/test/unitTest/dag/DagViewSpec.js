@@ -836,7 +836,7 @@ describe("DagView Test", () => {
         it("new comment should work", function() {
             expect($dfArea.find(".comment").length).to.equal(0);
             DagView.newComment({
-                position: {x: 60, y:50}, text: "hello"
+                display: {x: 60, y:50}, text: "hello"
             });
             expect($dfArea.find(".comment").length).to.equal(1);
             expect($dfArea.find(".comment").text()).to.equal("hello");

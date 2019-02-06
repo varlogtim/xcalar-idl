@@ -321,8 +321,7 @@ interface DagTblManagerPromiseInfo {
 interface CommentInfo {
     id?: string;
     text?: string;
-    position : Coordinate;
-    dimensions?: Dimensions;
+    display?: {x: number, y: number, height?: number, width?: number}
 }
 
 interface DagCategoryNodeInfo {

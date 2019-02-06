@@ -4,8 +4,7 @@ class CommentNode {
 
     private id: CommentNodeId;
     private text: string;
-    private position: Coordinate;
-    private dimensions: Dimensions;
+    private display: {x: number, y: number, height: number, width: number};
 
     public static setup(): void {
         this.uid = new XcUID("comment");
@@ -24,7 +23,6 @@ class CommentNode {
         "additionalProperties": true,
         "required": [
           "id",
-          "dimensions",
           "text"
         ],
         "properties": {
@@ -38,8 +36,8 @@ class CommentNode {
             "type": "string",
             "pattern": "^(.*)$"
           },
-          "position": {
-            "$id": "#/properties/position",
+          "display": {
+            "$id": "#/properties/display",
             "type": "object",
             "additionalProperties": true,
             "required": [
@@ -48,37 +46,26 @@ class CommentNode {
             ],
             "properties": {
               "x": {
-                "$id": "#/properties/position/properties/x",
+                "$id": "#/properties/display/properties/x",
                 "type": "integer",
                 "minimum": 0
               },
               "y": {
-                "$id": "#/properties/position/properties/y",
+                "$id": "#/properties/display/properties/y",
                 "type": "integer",
                 "minimum": 0
-              }
-            }
-          },
-          "dimensions": {
-            "$id": "#/properties/dimensions",
-            "type": "object",
-            "additionalProperties": true,
-            "required": [
-              "width",
-              "height"
-            ],
-            "properties": {
+              },
               "width": {
-                "$id": "#/properties/dimensions/properties/width",
+                "$id": "#/properties/display/properties/width",
                 "type": "integer",
-                "minimum": 20.0,
-                "maximum": 2000.0
+                "minimum": 20,
+                "maximum": 20000
               },
               "height": {
-                "$id": "#/properties/dimensions/properties/height",
+                "$id": "#/properties/display/properties/height",
                 "type": "integer",
-                "minimum": 20.0,
-                "maximum": 2000.0
+                "minimum": 20,
+                "maximum": 20000
               }
             }
           },
@@ -103,8 +90,13 @@ class CommentNode {
     public constructor(options: CommentInfo) {
         this.id = options.id || CommentNode.generateId();
         this.text = options.text || "";
-        this.position = options.position || {x: -1, y: -1};
-        this.dimensions = options.dimensions || {width: 180, height: 80};
+        const display = options.display || {x: -1, y: -1};
+        this.display = {
+            x: display.x || -1,
+            y: display.y || -1,
+            width: display.width || 180,
+            height: display.height || 80,
+        };
     }
 
     public getId(): string {
@@ -123,21 +115,32 @@ class CommentNode {
         this.text = "";
     }
 
-    public setPosition(position: Coordinate): void {
-        this.position.x = position.x;
-        this.position.y = position.y;
+    public setPosition(display: Coordinate): void {
+        this.display.x = display.x;
+        this.display.y = display.y;
     }
 
     public getPosition(): Coordinate {
-        return this.position;
+        return {
+            x: this.display.x,
+            y: this.display.y
+        };
     }
 
     public setDimensions(dimensions: Dimensions) {
-        this.dimensions = dimensions;
+        this.display.width = dimensions.width;
+        this.display.height = dimensions.height;
     }
 
     public getDimensions(): Dimensions {
-        return this.dimensions;
+        return {
+            width: this.display.width,
+            height: this.display.height
+        };
+    }
+
+    public getDisplay() {
+        return this.display;
     }
 
     /**
@@ -147,8 +150,7 @@ class CommentNode {
         return {
             id: this.id,
             text: this.text,
-            position: this.position,
-            dimensions: this.dimensions
+            display: this.display
         };
     }
 }

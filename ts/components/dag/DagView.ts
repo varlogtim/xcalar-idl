@@ -648,10 +648,10 @@ namespace DagView {
     ): XDPromise<void> {
         const dagTab: DagTab = activeDagTab;
         dagTab.turnOffSave();
-        commentInfo.position.x = Math.max(0,
-            Math.round(commentInfo.position.x / gridSpacing) * gridSpacing);
-        commentInfo.position.y = Math.max(0,
-            Math.round(commentInfo.position.y / gridSpacing) * gridSpacing);
+        commentInfo.display.x = Math.max(0,
+            Math.round(commentInfo.display.x / gridSpacing) * gridSpacing);
+        commentInfo.display.y = Math.max(0,
+            Math.round(commentInfo.display.y / gridSpacing) * gridSpacing);
         const commentNode = activeDag.newComment(commentInfo);
         const $dfArea = _getActiveArea();
         let isSelect = false;
@@ -783,10 +783,9 @@ namespace DagView {
             if (nodeInfo.display.y === minYCoor) {
                 minXCoor = Math.min(nodeInfo.display.x, minXCoor);
             }
-            if (nodeInfo.dimensions) {
-                const dimensions = nodeInfo.dimensions;
-                maxXCoor = Math.max(nodeInfo.display.x + dimensions.width, maxXCoor);
-                maxYCoor = Math.max(nodeInfo.display.y + dimensions.height, maxYCoor);
+            if (nodeInfo.display.height && nodeInfo.display.width) {
+                maxXCoor = Math.max(nodeInfo.display.x + nodeInfo.display.width, maxXCoor);
+                maxYCoor = Math.max(nodeInfo.display.y + nodeInfo.display.height, maxYCoor);
             } else {
                 maxXCoor = Math.max(nodeInfo.display.x, maxXCoor);
                 maxYCoor = Math.max(nodeInfo.display.y, maxYCoor);
@@ -819,8 +818,7 @@ namespace DagView {
             if (nodeInfo.hasOwnProperty("text")) {
                 const commentInfo = {
                     text: nodeInfo.text,
-                    position: nodeInfo.display,
-                    dimensions: nodeInfo.dimensions
+                    display: nodeInfo.display
                 };
                 const commentNode = activeDag.newComment(commentInfo);
                 allNewNodeIds.push(commentNode.getId());
@@ -4599,8 +4597,7 @@ namespace DagView {
                 const comment: CommentNode = dagGraph.getComment(nodeId);
                 nodeInfos.push({
                     nodeId: nodeId,
-                    position: xcHelper.deepCopy(comment.getPosition()),
-                    dimensions: comment.getDimensions(),
+                    display: xcHelper.deepCopy(comment.getDisplay()),
                     text: comment.getText()
                 });
             }
