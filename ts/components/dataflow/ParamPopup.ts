@@ -49,6 +49,12 @@ class ParamPopup {
         $("#dagViewBar").find(".aggregates").click(() => {
             this.closePopup();
         });
+
+        this.$paramPopup.resizable({
+            "handles": "w, s, sw",
+            "minWidth": 558,
+            "minHeight": 240
+        });
     }
 
     private static setupGeneralListeners() {
@@ -100,6 +106,7 @@ class ParamPopup {
     }
 
     private paramBtnClick() {
+        const self = this;
         if (XVM.getLicenseMode() === XcalarMode.Mod) {
             xcTooltip.add($(this), {"title": TooltipTStr.OnlyInOpMode});
             xcTooltip.refresh($(this));
@@ -125,6 +132,15 @@ class ParamPopup {
                     this.closePopup();
                     return false;
                 }
+            });
+            let resizeTimer;
+            $(window).on("resize.dagParamPopup", function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    let width = self.$paramPopup.outerWidth();
+                    let winWidth = $(window).width();
+                    self.$paramPopup.css("left", winWidth - width);
+                }, 300);
             });
         } else {
             this.closePopup();
@@ -225,6 +241,7 @@ class ParamPopup {
             this.$paramPopup.removeClass("active");
             StatusBox.forceHide();
             $("#container").off("mousedown.retTab");
+            $(window).off(".dagParamPopup");
         }
 
         if (!invalidFound && this.hasChange && !force) {

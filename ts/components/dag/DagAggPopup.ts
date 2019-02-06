@@ -58,9 +58,16 @@ class DagAggPopup {
         $("#dagViewBar").find(".parameters").click(() => {
             this.closePopup();
         });
+
+        this.$aggManagerPopup.resizable({
+            "handles": "w, s, sw",
+            "minWidth": 558,
+            "minHeight": 210
+        });
     }
 
     private aggBtnClick(): void {
+        const self = this;
         if (XVM.getLicenseMode() === XcalarMode.Mod) {
             xcTooltip.add($(this), {"title": TooltipTStr.OnlyInOpMode});
             xcTooltip.refresh($(this));
@@ -81,6 +88,16 @@ class DagAggPopup {
                     this.closePopup();
                     return false;
                 }
+            });
+
+            let resizeTimer;
+            $(window).on("resize.dagParamPopup", function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    let width = self.$aggManagerPopup.outerWidth();
+                    let winWidth = $(window).width();
+                    self.$aggManagerPopup.css("left", winWidth - width);
+                }, 300);
             });
         } else {
             this.closePopup();
@@ -153,6 +170,7 @@ class DagAggPopup {
         this.$aggManagerPopup.removeClass("active");
         StatusBox.forceHide();
         $("#container").off("mousedown.aggPopup");
+        $(window).off(".aggPopup");
     }
 
     private deleteAgg($row: JQuery): void {

@@ -1,21 +1,3 @@
-#modelingDagPanel {
-    #paramPopUp, #aggManagerPopup {
-        top: 50px;
-
-        .tableContainer {
-            .paramNameWrap, .aggNameWrap {
-                cursor: pointer;
-                &:hover {
-                    padding-right: 26px;
-                    .icon {
-                        display: block;
-                    }
-                }
-            }
-        }
-    }
-}
-
 #dagViewBar {
     .flex-direction(row);
     // TODO: move to constants.less when colors are finalized
@@ -1011,7 +993,7 @@
         position: absolute;
         width: 100%;
         height: 100%;
-        .ui-resizable-handle {
+        > .ui-resizable-handle {
             z-index: 3 !important;
         }
     }
@@ -2179,20 +2161,26 @@
 
 /* ========== End of Dataflow List ========== */
 #paramPopUp, #aggManagerPopup {
-    .position(absolute, @top: 33px, @right: 0px);
+    .position(absolute, @top: 50px, @right: 0px);
     display: none;
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
     padding: 10px 8px;
     text-transform: none;
+    flex-direction: column;
+    height: 240px;
+    width: 558px;
+    padding: 10px 0px;
 
     &.active {
-        display: block;
+        display: flex;
         z-index: @z-index-ret;
     }
 
     .inputSection {
         .flex-display;
+        .flex(0 0 30px);
         margin-bottom: 5px;
+        padding: 0 8px;
 
         .newParam {
             .flex(1 1 0);
@@ -2205,8 +2193,50 @@
     }
 
     .tableContainer {
+        padding: 0 8px;
+        display: flex;
+        flex-direction: column;
+
+        .tableWrapper {
+            min-height: 150px;
+            overflow-x: hidden;
+            overflow-y: scroll;
+
+            .unfilled {
+                .paramVal {
+                    pointer-events: none;
+                }
+            }
+
+            .unfilled .paramDelete, .unfilled .checkbox{
+                display: none !important;
+            }
+
+            .paramActionWrap, .aggActionWrap {
+                .paramDelete, .aggDelete {
+                    .position(absolute, @top: 50%, @left: 50%);
+                    color: @color-black;
+                    transform: translate(-50%, -50%);
+                }
+                &.unavailable {
+                    .paramDelete, .aggDelete {
+                        pointer-events: none;
+                    }
+                }
+            }
+        }
+
         .paramNameWrap, .aggNameWrap {
-             .icon {
+            cursor: pointer;
+
+            &:hover {
+                padding-right: 26px;
+                .icon {
+                    display: block;
+                }
+            }
+
+            .icon {
                 display: none;
                 .position(absolute, @right: 4px, @top: 0px);
                 line-height: 30px;
@@ -2216,11 +2246,11 @@
 
     .cell {
         &.paramNameWrap, &.aggNameWrap {
-            .size(@width: 179px);
+            .size(@width: ~"calc(50% - 91px)");
         }
 
         &.paramValWrap, &.aggValWrap {
-            .size(@width: 179px);
+            .size(@width: ~"calc(50% - 91px)");
             padding: 0px 0px 0px 0px;
             input {
                 .size(@width: 100%, @height: 100%);
@@ -2249,40 +2279,25 @@
         }
     }
 
-    .tableContainer {
-        .tableWrapper {
-            .size(@width: 542px);
-
-            .unfilled {
-                .paramVal {
-                    pointer-events: none;
-                }
-            }
-
-            .unfilled .paramDelete, .unfilled .checkbox{
-                display: none !important;
-            }
-
-            .paramActionWrap, .aggActionWrap {
-                .paramDelete, .aggDelete {
-                    .position(absolute, @top: 50%, @left: 50%);
-                    color: @color-black;
-                    transform: translate(-50%, -50%);
-                }
-                &.unavailable {
-                    .paramDelete, .aggDelete {
-                        pointer-events: none;
-                    }
-                }
-            }
-        }
-    }
 
     .tableHeader {
+        overflow-y: scroll;
+        padding: 0 8px;
+        padding-right: 0px;
+        width: ~"calc(100% - 8px)";
+
+        &::-webkit-scrollbar-track {
+            background: @color-white;
+        }
+
         .cell {
             text-align: center;
         }
     }
+}
+
+#aggManagerPopup {
+    height: 210px;
 }
 
 

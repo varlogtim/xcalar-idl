@@ -941,7 +941,7 @@
             cursor: pointer;
         }
 
-        .input-box (166px, 24px);
+        .input-box(166px, 24px);
 
         input {
             .size(166px, 24px);
@@ -961,7 +961,6 @@
     background-color: @color-bg-white-five;
 
     .cell {
-        display: inline-block;
         float: left;
         .size(@height: 30px);
         .font(@size: 14px, @line-height: 30px, @color: @color-font-greyish-brown);
@@ -976,6 +975,7 @@
 
     .tableHeader {
         .size(@width: 100%, @height: 30px);
+        .flex(0 0 30px);
         overflow: hidden;
 
         .cell {
@@ -986,10 +986,9 @@
 
     .tableContainer {
         .position(relative);
-        .size(@width: 100%, @height: 150px);
+        .size(@width: 100%, @min-height: 150px);
         margin-top: 5px;
-        overflow: hidden;
-        overflow-y: auto;
+        // overflow-y: scroll;
 
         .tableWrapper {
             .size(@height: 100%);
@@ -1503,7 +1502,6 @@
             }
 
             > i, > span, > input, > div {
-                display: inline-block;
                 float: left;
             }
 
