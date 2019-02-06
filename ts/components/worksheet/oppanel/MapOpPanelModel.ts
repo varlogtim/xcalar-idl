@@ -39,8 +39,12 @@ class MapOpPanelModel extends GeneralOpPanelModel {
                     const isOptional = this._isOptional(opInfo, i);
                     return new OpPanelArg("", arg.typesAccepted, isOptional);
                 });
-            if (this.baseColumns && index === 0) {
-                this.updateArg(gColPrefix + this.baseColumns[0].getBackColName(), 0, 0);
+            if (this.autofillColumns && index === 0) {
+                for (let i = 0; i < this.groups[index].args.length; i++) {
+                    if (this.autofillColumns[i]) {
+                        this.updateArg(gColPrefix + this.autofillColumns[i].getBackColName(), 0, i);
+                    }
+                }
             }
             if (value === "regex" && numArgs === 2) {
                 this.groups[index].args[1].setRegex(true);
@@ -49,8 +53,8 @@ class MapOpPanelModel extends GeneralOpPanelModel {
             this.groups[index].args = [];
         }
 
-        if (this.baseColumns && index === 0) {
-            let autoGenColName: string = xcHelper.parsePrefixColName(this.baseColumns[0].getBackColName()).name;
+        if (index === 0 && this.autofillColumns && this.autofillColumns[0]) {
+            let autoGenColName: string = xcHelper.parsePrefixColName(this.autofillColumns[0].getBackColName()).name;
             if (opInfo.displayName.indexOf(":") > -1) {
                 autoGenColName += "_udf";
             } else {

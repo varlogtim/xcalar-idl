@@ -72,7 +72,7 @@ describe("MapOpPanel Test", function() {
 
         before(function () {
             var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
-            var options = $.extend({}, openOptions, {baseColumnNames: [prefixCol]});
+            var options = $.extend({}, openOptions, {autofillColumnNames: [prefixCol]});
             mapOpPanel.show(node, options);
             $functionsInput = $mapOpPanel.find('.mapFilter');
             $functionsList = $functionsInput.siblings('.list');
@@ -493,7 +493,7 @@ describe("MapOpPanel Test", function() {
 
             before(function() {
                 var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
-                var options = $.extend({}, openOptions, {baseColumnNames: [prefixCol]});
+                var options = $.extend({}, openOptions, {autofillColumnNames: [prefixCol]});
                 mapOpPanel.show(node, options);
                 $functionsInput = $mapOpPanel.find('.mapFilter');
                 $functionsList = $functionsInput.siblings('.list');
@@ -628,7 +628,7 @@ describe("MapOpPanel Test", function() {
         describe("minimize and maximize groups", function() {
             before(function () {
                 var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
-                var options = $.extend({}, openOptions, {baseColumnNames: [prefixCol]});
+                var options = $.extend({}, openOptions, {autofillColumnNames: [prefixCol]});
                 mapOpPanel.show(node, options);
                 $functionsInput = $mapOpPanel.find('.mapFilter');
                 $functionsList = $functionsInput.siblings('.list');

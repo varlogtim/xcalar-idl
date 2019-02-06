@@ -65,7 +65,7 @@ describe("FilterOpPanel Test", function() {
 
         before(function () {
             var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
-            filterOpPanel.show(node, {baseColumnNames: [prefixCol]});
+            filterOpPanel.show(node, {autofillColumnNames: [prefixCol]});
             $functionsInput = $filterOpPanel.find('.functionsInput');
             $functionsList = $functionsInput.siblings('.list');
             $argSection = $filterOpPanel.find('.argsSection').eq(0);

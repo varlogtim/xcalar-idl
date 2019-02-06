@@ -29,8 +29,12 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
                                             return new OpPanelArg("",
                                             opInfo.argDescs[i].typesAccepted, isOptional);
                                         });
-            if (this.baseColumns && index === 0) {
-                this.updateArg(gColPrefix + this.baseColumns[0].getBackColName(), 0, 0);
+            if (this.autofillColumns && index === 0) {
+                for (let i = 0; i < this.groups[index].args.length; i++) {
+                    if (this.autofillColumns[i]) {
+                        this.updateArg(gColPrefix + this.autofillColumns[i].getBackColName(), 0, i);
+                    }
+                }
             }
             if (value === "regex" && numArgs === 2) {
                 this.groups[index].args[1].setRegex(true);

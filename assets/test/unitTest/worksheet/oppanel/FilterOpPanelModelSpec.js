@@ -27,7 +27,7 @@ describe("FilterOpPanelModel Test", function() {
         let model;
         before(function () {
             var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
-            filterOpPanel.show(node, {baseColumnNames: [prefixCol]});
+            filterOpPanel.show(node, {autofillColumnNames: [prefixCol]});
             model = filterOpPanel.model;
         });
 

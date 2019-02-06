@@ -615,7 +615,7 @@ class MapOpPanel extends GeneralOpPanel {
 
             // add "addArg" button if *arg is found in the description
             // udf default:multiJoin has *
-            // "in" operator has varialbe args
+            // "in" operator has variable args
             if (operObj.argDescs[i].argType === XcalarEvalArgTypeT.VariableArg ||
                 (description.indexOf("*") === 0 &&
                 description.indexOf("**") === -1)) {

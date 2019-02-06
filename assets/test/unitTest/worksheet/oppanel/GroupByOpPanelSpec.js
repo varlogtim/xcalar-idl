@@ -69,7 +69,7 @@ describe("GroupByOpPanel Test", function() {
 
         before(function () {
             var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
-            var options = $.extend({}, openOptions, {baseColumnNames: [prefixCol]});
+            var options = $.extend({}, openOptions, {autofillColumnNames: [prefixCol]});
             groupByOpPanel.show(node, options);
             $functionsInput = $groupByOpPanel.find('.functionsInput');
             $functionsList = $functionsInput.siblings('.list');
@@ -504,7 +504,7 @@ describe("GroupByOpPanel Test", function() {
         describe("minimize and maximize groups", function() {
             before(function () {
                 var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
-                var options = $.extend({}, openOptions, {baseColumnNames: [prefixCol]});
+                var options = $.extend({}, openOptions, {autofillColumnNames: [prefixCol]});
                 groupByOpPanel.show(node, options);
                 $functionsInput = $groupByOpPanel.find('.functionsInput');
                 $functionsList = $functionsInput.siblings('.list');

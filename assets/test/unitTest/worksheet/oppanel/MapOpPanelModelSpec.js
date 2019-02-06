@@ -31,7 +31,7 @@ describe("MapOpPanelModel Test", function() {
         let model;
         before(function () {
             var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
-            var options = $.extend({}, openOptions, {baseColumnNames: [prefixCol]});
+            var options = $.extend({}, openOptions, {autofillColumnNames: [prefixCol]});
             mapOpPanel.show(node, options);
             model = mapOpPanel.model;
         });

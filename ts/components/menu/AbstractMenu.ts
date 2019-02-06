@@ -44,7 +44,7 @@ abstract class AbstractMenu {
     protected _isInvalidTrigger(event: JQueryEventObject): boolean {
         return event.which !== 1 || $(event.currentTarget).hasClass('unavailable');
     }
-    
+
 
     protected _getCurrentNode(): DagNode {
         const nodeId: DagNodeId = DagTable.Instance.getBindNodeId();
@@ -65,7 +65,7 @@ abstract class AbstractMenu {
         const tabId: string = DagView.getActiveDag().getTabId();
         DagNodeMenu.execute("configureNode", {
             node: node,
-            baseColumnNames: colNames,
+            autofillColumnNames: colNames,
             exitCallback: function() {
                 DagView.removeNodes([node.getId()], tabId);
             }

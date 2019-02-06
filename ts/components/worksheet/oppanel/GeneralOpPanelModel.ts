@@ -6,13 +6,13 @@ class GeneralOpPanelModel {
     protected andOrOperator: string;
     protected _opCategories: number[];
     protected cachedBasicModeParam: string;
-    protected baseColumns: ProgCol[];
+    protected autofillColumns: ProgCol[];
     public modelError: string;
 
     public constructor(
         dagNode: DagNode,
         event: Function,
-        options = {baseColumnNames: null}
+        options = {autofillColumnNames: null}
     ) {
         this.dagNode = dagNode;
         this.event = event;
@@ -22,19 +22,19 @@ class GeneralOpPanelModel {
             return parentNode.getLineage().getColumns();
         })[0] || [];
         this._opCategories = [];
-        const baseColumnNames = options.baseColumnNames;
-        if (baseColumnNames) {
-            this.baseColumns = [];
-            baseColumnNames.forEach(colName => {
+        const autofillColumnNames = options.autofillColumnNames;
+        if (autofillColumnNames) {
+            this.autofillColumns = [];
+            autofillColumnNames.forEach(colName => {
                 const progCol = this.tableColumns.find((progCol) => {
                     return progCol.getBackColName() === colName;
                 });
                 if (progCol) {
-                    this.baseColumns.push(progCol);
+                    this.autofillColumns.push(progCol);
                 }
             });
-            if (!this.baseColumns.length) {
-                this.baseColumns = null;
+            if (!this.autofillColumns.length) {
+                this.autofillColumns = null;
             }
         }
         let params: any = this.dagNode.getParam();
@@ -154,6 +154,12 @@ class GeneralOpPanelModel {
             }
             this._formatArg(arg);
             this._validateArg(arg);
+            // if value is changed, remove autofill column
+            if (groupIndex == 0 && this.autofillColumns &&
+                this.autofillColumns[argIndex] &&
+                arg.getFormattedValue() !== this.autofillColumns[argIndex].getBackColName()) {
+                this.autofillColumns[argIndex] = null;
+            }
         }
     }
 
