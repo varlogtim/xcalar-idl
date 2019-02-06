@@ -83,7 +83,6 @@ namespace xcManager {
             return XDFManager.Instance.setup();
         })
         .then(setupAsyncOpPanels)
-        .then(setupTutorial)
         .then(function() {
             setupOpPanels();
             // XXX TODO, hide these view in Dio
@@ -106,6 +105,7 @@ namespace xcManager {
         .then(function() {
             return DagAggManager.Instance.setup();
         })
+        .then(setupTutorial)
         .then(function() {
             let promise = PTblManager.Instance.getTablesAsync();
             return PromiseHelper.alwaysResolve(promise);
@@ -1290,6 +1290,7 @@ namespace xcManager {
     function processTutorialHelper(): XDPromise<any> {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         const tutTarget: string = "Tutorial Dataset Target";
+        let datasetSources: Set<string> = new Set<string>();
         let dataKey: string = KVStore.getKey("gStoredDatasetsKey");
         let _dataKVStore: KVStore = new KVStore(dataKey, gKVScope.WKBK);
         let pubTables: StoredPubInfo[] = [];
@@ -1322,23 +1323,21 @@ namespace xcManager {
                 let eDs = existingDatasets[i];
                 names.add(eDs.id);
             }
-            let pubNames: Set<string> = new Set<string>();
-            let existingTables: PbTblInfo[] = PTblManager.Instance.getTables();
-            for (let i = 0; i < existingTables.length; i++) {
-                pubNames.add(existingTables[i].name);
-            }
             // only load the needed datasets
             let loadArgs: OperationNode[] = [];
             try {
                 for(let i = 0; i < datasets["size"]; i++) {
                     let node: OperationNode = JSON.parse(datasets[i].loadArgs)
-
+                    let parsedName = xcHelper.parseDSName(node.args["dest"]);
+                    parsedName.randId = parsedName.randId || "";
+                    node.args["dest"] = xcHelper.wrapDSName(parsedName.dsName, parsedName.randId)
                     if (!names.has(node.args["dest"])) {
                         loadArgs.push(node);
+                        datasetSources.add(parsedName.randId + "." + parsedName.dsName);
                     }
                     // Prepare needed published tables
                     let pubInfo = datasets[i].publish;
-                    if (pubInfo != null && !pubNames.has(pubInfo.pubName)) {
+                    if (pubInfo != null) {
                         pubInfo.dsName = node.args["dest"];
                         pubTables.push(pubInfo);
                     }
@@ -1355,10 +1354,43 @@ namespace xcManager {
             return PromiseHelper.when(...promises);
         })
         .then(() => {
+            // We need to cast old dataset node sources
+            if (datasetSources.size == 0) {
+                return PromiseHelper.resolve();
+            }
+            let dagTabs: DagTab[] = DagTabManager.Instance.getTabs();
+            let graphs: DagGraph[] = dagTabs.map((tab: DagTab) => {
+                return tab.getGraph();
+            });
+            for (let i = 0; i < graphs.length; i++) {
+                let graph = graphs[i];
+                if (graph == null) {
+                    continue;
+                }
+                graph.reConfigureDatasetNodes(datasetSources);
+            }
+        })
+        .then(() => {
+            if (pubTables.length == 0) {
+                return PromiseHelper.resolve();
+            } else {
+                return PTblManager.Instance.getTablesAsync();
+            }
+        })
+        .then((tables: PbTblInfo[]) => {
+            let pubNames: Set<string> = new Set<string>();
+            for (let i = 0; i < tables.length; i++) {
+                let table: PbTblInfo = tables[i];
+                if (table == null) { continue };
+                pubNames.add(table.name);
+            }
             // Time to publish tutorial workbook tables
             let promises = [];
             for (let i = 0; i < pubTables.length; i++) {
                 let info = pubTables[i];
+                if (pubNames.has(info.pubName)) {
+                    continue;
+                }
                 let schema = DS.getSchema(info.dsName);
                 if (schema.error != null) {
                     continue;

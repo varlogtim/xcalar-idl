@@ -126,10 +126,10 @@ window.DS = (function ($, DS) {
         }
 
         DS.restoreSourceFromLoadArgs(loadArgs)
-        .then(() => {
+        .then((dsObj) => {
             // Place it into the tutorial workbook
             dropHelper(loadArgs.args.dest, DSObjTerm.TutorialFolderId);
-            return deferred.resolve();
+            return deferred.resolve(dsObj.getId());
         })
         .fail(deferred.reject);
         return deferred.promise();

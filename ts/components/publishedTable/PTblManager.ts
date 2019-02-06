@@ -284,7 +284,9 @@ class PTblManager {
         })
         .fail((error) => {
             delete this._loadingTables[tableName];
-            this._datasetTables[tableName] = tableInfo;
+            if (tableInfo != null) {
+                this._datasetTables[tableName] = tableInfo;
+            }
             Transaction.fail(txId, {
                 error: error,
                 noNotification: true,

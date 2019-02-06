@@ -1375,6 +1375,30 @@ class DagGraph {
         }
     }
 
+    /**
+     * Reconfigured dataset nodes so that they have the correct user in their source
+     * Only to be used by tutorial workbooks.
+     * @param names: names to look for
+     */
+    public reConfigureDatasetNodes(names: Set<string>) {
+        let datasetNodes: DagNodeDataset[] = <DagNodeDataset[]>this.getNodesByType(DagNodeType.Dataset);
+
+        for (let i = 0; i < datasetNodes.length; i++) {
+            let dataNode: DagNodeDataset = datasetNodes[i];
+            let datasetParam = dataNode.getParam();
+            if (datasetParam.source == "") {
+                continue;
+            }
+            let parsedName = xcHelper.parseDSName(datasetParam.source);
+            if (parsedName.user != xcHelper.getUserPrefix() &&
+                    names.has(parsedName.randId + '.' + parsedName.dsName)) {
+                parsedName.randId = parsedName.randId || "";
+                datasetParam.source = xcHelper.wrapDSName(parsedName.dsName, parsedName.randId);
+                dataNode.setParam(datasetParam, true);
+            }
+        }
+    }
+
     private _constructCurrentAggMap(): Map<string, DagNode> {
         let aggNodesInThisGraph: DagNodeAggregate[] = <DagNodeAggregate[]>this.getNodesByType(DagNodeType.Aggregate);
         let aggMap: Map<string, DagNode> = new Map<string, DagNode>();
