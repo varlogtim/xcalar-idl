@@ -1372,7 +1372,7 @@ namespace xcManager {
         })
         .then(() => {
             if (pubTables.length == 0) {
-                return PromiseHelper.resolve();
+                return PromiseHelper.resolve([]);
             } else {
                 return PTblManager.Instance.getTablesAsync();
             }
