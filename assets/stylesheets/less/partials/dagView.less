@@ -1,13 +1,9 @@
 #dagViewBar {
     .flex-direction(row);
-    // TODO: move to constants.less when colors are finalized
-    @color-border-bar: #9EB3C5;
-    @color-connector: #BBC7D1;
-    @color-play: #49DAA0;
-    @color-stop: #FF6E57;
     z-index: 0;
     min-height: @height-topBar;
     max-height: 50px;
+    padding-left: 10px;
 
     &.locked {
         .run, .optimizedRun, .stop, .undo, .redo {
@@ -23,6 +19,7 @@
 
         .retTab {
             margin-left: 3px;
+            margin-right: 1px;
         }
 
         &.left {
@@ -32,29 +29,40 @@
 
     .topButton {
         cursor: pointer;
-        padding: 0px 5px;
+        padding: 0px 1px;
 
-        .icon, &.parameters {
-            .vertical-align;
-            opacity: @opacity-unhover;
-            color: @color-border-bar;
-            font-size: 18px;
+        .icon {
+            height: 27px;
+            width: 27px;
+            line-height: 27px;
+            text-align: center;
         }
 
-        .icon, &.aggregates {
+        .icon, &.parameters, &.aggregates {
             .vertical-align;
-            opacity: @opacity-unhover;
             color: @color-border-bar;
             font-size: 18px;
+            .rounded(4px);
         }
 
         &:hover {
-            .icon, &.parameters {
-                opacity: @opacity-hover;
+            .icon, &.parameters, &.aggregates {
+                background-color: rgba(0, 0, 0, 0.05);
             }
-
-            .icon, &.aggregates {
-                opacity: @opacity-hover;
+            &.disabled {
+                .icon, &.parameters, &.aggregates {
+                    background-color: transparent;
+                }
+            }
+        }
+        &:active {
+            .icon, &.parameters, &.aggregates {
+                background-color: rgba(0, 0, 0, 0.1);
+            }
+            &.disabled {
+                .icon, &.parameters, &.aggregates {
+                    background-color: transparent;
+                }
             }
         }
 
@@ -95,15 +103,8 @@
             }
         }
 
-        &.parameters {
-            font-size: 12px;
-            height: 30px;
-            line-height: 30px;
-            border: 1px solid  @color-border-bar;
-            .rounded(3px);
-        }
-
-        &.aggregates {
+        &.parameters, &.aggregates {
+            padding: 0px 5px;
             font-size: 12px;
             height: 30px;
             line-height: 30px;
@@ -120,7 +121,7 @@
                 border: 1px solid  @color-border-bar;
                 padding: 0 6px;
                 padding-right: 23px;
-                color: #44515c;
+                color: @color-font-form-gray;
                 width: 53px;
                 text-align: right;
                 .rounded(3px);
@@ -207,7 +208,7 @@
                 float: left;
                 .size(@height: 25px, @width: @search-width - 25px);
                 font-size: 13px;
-                color: #44515c;
+                color: @color-font-form-gray;
                 border-color: @color-border-softGray;
                 background-color: @color-white;
                 padding: 0 6px;
@@ -785,9 +786,9 @@
         }
 
         &.selecting {
-            background-color:  #F8f8f8;
+            background-color: @color-bg-white-seven;
             textarea {
-                background-color:  #F8f8f8;
+                background-color: @color-bg-white-seven;
             }
         }
 
@@ -802,7 +803,7 @@
             overflow: auto;
             font-size: 12px;
             word-wrap: normal;
-            color: #44515c;
+            color: @color-font-form-gray;
             .input-placeholder(@color-lightSilverChalice);
 
             &:focus {
@@ -1042,7 +1043,7 @@
     #tabButton {
         .font(@size: 11px, @align: center, @line-height: @tabHeight);
         .size(@height: @tabHeight, @width: @tabHeight + 2);
-        color: #627483;
+        color: @color-font-edge;
         cursor: pointer;
         min-width: @tabHeight + 2;
         flex: 0 0 auto;
@@ -1089,7 +1090,7 @@
             min-width: 65px;
             .size(@height: 100%);
             .font(@size: 12px,
-                @color: #627483,
+                @color: @color-font-edge,
                 @line-height: @tabHeight,
                 @align: center);
             border-right: 1px solid @color-bg-topBarGray2;
@@ -1121,7 +1122,7 @@
 
             &.active {
                 background-color: @color-white;
-                color: #44515c;
+                color: @color-font-form-gray;
                 text-overflow: clip;
             }
 
@@ -1774,7 +1775,7 @@
         position: absolute;
         left: 2px;
         top: 7px;
-        color: #64B053;
+        color: @color-bg-apple-green;
         font-weight: bold;
         font-size: 16px;
     }
