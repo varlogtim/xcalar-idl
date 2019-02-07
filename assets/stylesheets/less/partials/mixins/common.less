@@ -317,11 +317,7 @@
         opacity: 0.65;
     }
 
-    &:focus {
-        outline: 1px solid rgba(0, 0, 0, 0.1);
-    }
-
-    &:active {
+    &:active, &:focus {
         box-shadow: inset 0px 1px 1px 1px rgba(0, 0, 0, 0.2);
     }
 }
@@ -415,10 +411,9 @@
 }
 
 .btn-cancel, .btn-secondary {
-    background-color: @color-bg-step-gray;
-    &:hover, &:focus {
-        background-color: darken(@color-bg-step-gray, 5%);
-    }
+    background-color: @color-white;
+    color: @color-bg-green-submit;
+    border: 1px solid;
 
     &:active {
         box-shadow: inset 0px 1px 1px 1px rgba(0, 0, 0, 0.1);
