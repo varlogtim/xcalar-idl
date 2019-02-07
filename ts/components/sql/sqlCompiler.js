@@ -1472,50 +1472,53 @@
                     if (self.sqlObj.getStatus() === SQLStatus.Cancelled) {
                         return PromiseHelper.reject(SQLErrTStr.Cancel);
                     }
-                    var allTableNames = getAllTableNames(jsonArray);
+                    try {
+                        var allTableNames = getAllTableNames(jsonArray);
+                        var tree = SQLCompiler.genTree(undefined, jsonArray);
+                        if (tree.value.class ===
+                                        "org.apache.spark.sql.execution.LogicalRDD") {
+                            // If the logicalRDD is root, we should add an extra Project
+                            var newNode = ProjectNode(tree.value.output);
+                            newNode.children = [tree];
+                            tree.parent = newNode;
+                            pushUpCols(tree);
+                            tree = newNode;
+                        }
 
-                    var tree = SQLCompiler.genTree(undefined, jsonArray);
-                    if (tree.value.class ===
-                                      "org.apache.spark.sql.execution.LogicalRDD") {
-                        // If the logicalRDD is root, we should add an extra Project
-                        var newNode = ProjectNode(tree.value.output);
-                        newNode.children = [tree];
-                        tree.parent = newNode;
-                        pushUpCols(tree);
-                        tree = newNode;
+                        var numNodes = countNumNodes(tree);
+
+                        prepareUsedColIds(tree);
+                        var promiseArray = traverseAndPushDown(self, tree);
+                        promiseArray.push(self._handleDupCols.bind(self, tree));
+                        PromiseHelper.chain(promiseArray)
+                        .then(function() {
+                            // Tree has been augmented with xccli
+                            var cliArray = [];
+                            getCli(tree, cliArray);
+                            cliArray = cliArray.map(function(cli) {
+                                if (cli.endsWith(",")) {
+                                    cli = cli.substring(0, cli.length - 1);
+                                }
+                                return cli;
+                            });
+                            var queryString = "[" + cliArray.join(",") + "]";
+                            // queryString = queryString.replace(/\\/g, "\\");
+                            // console.log(queryString);
+
+                            // Cache the query so that we can reuse it later
+                            // Caching only happens on successful run
+                            toCache = {plan: queryString,
+                                    startTables: allTableNames,
+                                    steps: numNodes,
+                                    finalTable: tree.newTableName,
+                                    finalTableCols: tree.usrCols};
+                            deferred.resolve(queryString,
+                                            tree.newTableName, tree.usrCols);
+                        })
+                        .fail(deferred.reject);
+                    } catch(err) {
+                        deferred.reject(err);
                     }
-
-                    var numNodes = countNumNodes(tree);
-
-                    prepareUsedColIds(tree);
-                    var promiseArray = traverseAndPushDown(self, tree);
-                    promiseArray.push(self._handleDupCols.bind(self, tree));
-                    PromiseHelper.chain(promiseArray)
-                    .then(function() {
-                        // Tree has been augmented with xccli
-                        var cliArray = [];
-                        getCli(tree, cliArray);
-                        cliArray = cliArray.map(function(cli) {
-                            if (cli.endsWith(",")) {
-                                cli = cli.substring(0, cli.length - 1);
-                            }
-                            return cli;
-                        });
-                        var queryString = "[" + cliArray.join(",") + "]";
-                        // queryString = queryString.replace(/\\/g, "\\");
-                        // console.log(queryString);
-
-                        // Cache the query so that we can reuse it later
-                        // Caching only happens on successful run
-                        toCache = {plan: queryString,
-                                   startTables: allTableNames,
-                                   steps: numNodes,
-                                   finalTable: tree.newTableName,
-                                   finalTableCols: tree.usrCols};
-                        deferred.resolve(queryString,
-                                         tree.newTableName, tree.usrCols);
-                    })
-                    .fail(deferred.reject);
                 }
                 return deferred.promise();
             })
