@@ -252,7 +252,7 @@ class DataSourceSchema {
         });
 
         this._getSchemaWizardEl().click(() => {
-            let initialSchema: ColSchema[] = this._triggerEvent(DataSourceSchemaEvent.GetInitialSchema);
+            let initialSchema: ColSchema[] = this._triggerEvent(DataSourceSchemaEvent.GetHintSchema);
             let res = this._validateSchema(true);
             let currentSchema: ColSchema[] = res.schema || res.schemaToSuggest || [];
             let callback = (schema: ColSchema[]): void => {

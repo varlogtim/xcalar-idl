@@ -419,7 +419,7 @@ enum PbTblStatus {
 }
 
 enum DataSourceSchemaEvent {
-    GetInitialSchema = "GetInitialSchema",
+    GetHintSchema = "GetHintSchema",
     ChangeSchema = "ToggleSchema",
     ValidateSchema = "ValidateSchema",
 }

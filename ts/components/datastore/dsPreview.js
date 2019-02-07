@@ -594,8 +594,8 @@ window.DSPreview = (function($, DSPreview) {
     function setupDataSourceSchema() {
         dataSourceSchema = new DataSourceSchema(getSchemaRow());
         dataSourceSchema
-        .registerEvent(DataSourceSchemaEvent.GetInitialSchema, function() {
-            return getSchemaFromPreviewTable();
+        .registerEvent(DataSourceSchemaEvent.GetHintSchema, function() {
+            return getHintSchmea();
         })
         .registerEvent(DataSourceSchemaEvent.ChangeSchema, function(arg){
             applySchemaChangetoPreview(arg.schema, arg.autoDetect);
@@ -603,6 +603,27 @@ window.DSPreview = (function($, DSPreview) {
         .registerEvent(DataSourceSchemaEvent.ValidateSchema, function(schema) {
             return validateMatchOfSchemaAndHeaders(schema);
         });
+    }
+
+    function getHintSchmea() {
+        var schema = getSchemaFromPreviewTable();
+        if (loadArgs.getFormat() === formatMap.CSV) {
+            return schema;
+        } else {
+            var basicTypes = BaseOpPanel.getBasicColTypes();
+            var recTypes = suggestColumnHeadersType(true);
+            var newSchema = [];
+            schema.forEach((colInfo, i) => {
+                var type = recTypes[i];
+                if (basicTypes.includes(type)) {
+                    newSchema.push({
+                        name: colInfo.name,
+                        type: type
+                    });
+                }
+            });
+            return newSchema;
+        }
     }
 
     function getHeadersFromSchema(schema) {
@@ -5107,8 +5128,7 @@ window.DSPreview = (function($, DSPreview) {
         } else if (cachedHeaders && cachedHeaders.length > 0) {
             restoreColumnHeaders(sourceIndex, cachedHeaders);
         } else {
-            var $tbody = $previewTable.find("tbody").clone(true);
-            var recTypes = suggestColumnHeadersType($tbody);
+            var recTypes = suggestColumnHeadersType();
             var recNames = suggestColumnHeadersNames();
             changeColumnHeaders(recTypes, recNames);
             loadArgs.setSuggestHeaders(sourceIndex, recNames, recTypes);
@@ -5161,14 +5181,36 @@ window.DSPreview = (function($, DSPreview) {
         });
     }
 
-    function suggestColumnHeadersType($tbody) {
+    function suggestColumnHeadersType(detectJSON) {
+        var $tbody = $previewTable.find("tbody").clone(true);
         var recTypes = [];
         var suggestType = function($tr, colNum) {
             var datas = [];
+            var hasObject = false;
+            var hasArray = false;
+            var hasNormalVal = false;
             $tr.find("td:nth-child(" + colNum + ")").each(function() {
                 var val = $(this).text();
                 datas.push(val);
+                if (val.startsWith("{") && val.endsWith("}")) {
+                    hasObject = true;
+                } else if (val.startsWith("[") && val.endsWith("]")) {
+                    hasArray = true;
+                } else {
+                    hasNormalVal = true;
+                }
             });
+            if (detectJSON) {
+                if (hasObject || hasArray) {
+                    if (hasNormalVal || hasObject && hasArray) {
+                        return ColumnType.mixed;
+                    } else if (hasObject) {
+                        return ColumnType.object;
+                    } else if (hasArray) {
+                        return ColumnType.array;
+                    }
+                }
+            }
             return xcSuggest.suggestType(datas);
         };
 

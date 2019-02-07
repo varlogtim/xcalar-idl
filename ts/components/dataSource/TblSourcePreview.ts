@@ -23,10 +23,11 @@ class TblSourcePreview {
      * @param msg
      */
     public show(tableInfo: PbTblInfo, msg: string): void {
+        let $container = this._getContainer();
         let oldTableInfo = this._tableInfo;
+        let isViewTable = $container.hasClass("table");
         this._tableInfo = tableInfo;
         DSForm.hide();
-        let $container = this._getContainer();
         $container.removeClass("xc-hidden")
                 .removeClass("dataset")
                 .removeClass("table")
@@ -43,7 +44,8 @@ class TblSourcePreview {
             this._viewDatasetTable(tableInfo);
         } else {
             $container.addClass("table");
-            let isSameTable: boolean = oldTableInfo != null && oldTableInfo.name === tableInfo.name;
+            let isSameTable: boolean = isViewTable &&
+            (oldTableInfo != null && oldTableInfo.name === tableInfo.name);
             this._viewTableResult(tableInfo, isSameTable);
         }
     }
@@ -106,7 +108,7 @@ class TblSourcePreview {
         let $section = this._getContainer().find(".tblSchema");
         this._dataSourceSchema = new DataSourceSchema($section);
         this._dataSourceSchema
-        .registerEvent(DataSourceSchemaEvent.GetInitialSchema, () => {
+        .registerEvent(DataSourceSchemaEvent.GetHintSchema, () => {
             return this._getSchemaForWizard(this._viewer);
         })
         .registerEvent(DataSourceSchemaEvent.ChangeSchema, (args) => {
