@@ -721,13 +721,9 @@ class JoinOpPanelModel {
         const { joinType, leftJoinOn, rightJoinOn } = param;
         const result = { left: [], right: [] };
 
-        // 1. When it's a rightOuterJoin, any columns can be deselected EXCEPT the RIGHT table ones in join on clause
-        // 2. Otherwise, any columns can be deselected EXCEPT the LEFT table ones in join on clause
-        if (joinType === JoinOperatorTStr[JoinOperatorT.RightOuterJoin]) {
-            result.right = rightJoinOn.map((v) => v);
-        } else {
-            result.left = leftJoinOn.map((v) => v);
-        }
+        // XXX TODO: All columns should be selectable (wait for backend change)
+        result.right = rightJoinOn.map((v) => v);
+        result.left = leftJoinOn.map((v) => v);
         return result;
     }
 
