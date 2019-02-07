@@ -5222,7 +5222,7 @@ namespace DagView {
                 height: $dfArea.find(".dataflowAreaWrapper").height()
             }});
         } else {
-            xcHelper.enableScreen($("#compileBackground"));
+            $("#compileBackground").remove();
         }
     }
 
