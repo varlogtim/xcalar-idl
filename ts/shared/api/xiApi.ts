@@ -2742,6 +2742,9 @@ namespace XIApi {
             colInfo == null) {
             return PromiseHelper.reject("Invalid args in publish");
         }
+        if (pubTableName.indexOf("-") > -1) {
+            return PromiseHelper.reject("Table name cannot have hyphen");
+        }
         let keyNames: string[] = primaryKeys.map((primaryKey) => {
             return (primaryKey[0] == "$") ?
                 primaryKey.substr(1) : primaryKey;

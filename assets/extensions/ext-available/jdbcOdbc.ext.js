@@ -181,6 +181,9 @@ window.UExtJdbcOdbc = (function(UExtJdbcOdbc) {
             var deferred = XcSDK.Promise.deferred();
             console.log("Publish table");
             var pubTableName = ext.getArgs().pubTableName;
+            if (pubTableName.indexOf("-") > -1) {
+                return deferred.reject("Table name cannot have hyphen");
+            }
             var primaryKey;
             if (ext.getArgs().primaryKey) {
                 primaryKey = ext.getArgs().primaryKey.getName();

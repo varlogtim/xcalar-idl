@@ -260,7 +260,7 @@ ErrTStr = {
     'InvalidFilePath': 'Invalid file path.',
     'InvalidFile': 'Please select a file or a folder',
     'InvalidAggName': 'Aggregate name should start with a letter and contain only letters, digits, hyphens(-) or underscores(_)',
-    'InvalidTableName': 'Table name should start with a letter and contain only letters, digits, hyphens(-) or underscores(_)',
+    'InvalidTableName': 'Table name should start with a letter and contain only letters, digits, hyphens(-)(not for publish tables) or underscores(_)',
     'InvalidWBName': 'Workbook name should start with a letter and contain only letters, digits, space, hyphens(-) or underscores(_)',
     'InvalidTargetName': 'Target name should start with a letter and contain only letters, digits, space, hyphens(-) or underscores(_)',
     'NoHashTag': 'Please input a valid name with no # symbols.',
