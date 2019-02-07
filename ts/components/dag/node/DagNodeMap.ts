@@ -85,8 +85,12 @@ class DagNodeMap extends DagNode {
                     fromColName = (<ParsedEvalArg>func.args[0]).value;
                 }
                 const index = colMap.get(fromColName);
-                fromCol = columns[index];
-                columns[index] = progCol;
+                if (index == null) {
+                    columns.push(progCol);
+                } else {
+                    fromCol = columns[index];
+                    columns[index] = progCol;
+                }
             } else {
                 columns.push(progCol);
             }

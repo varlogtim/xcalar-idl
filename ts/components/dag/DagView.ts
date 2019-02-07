@@ -4090,7 +4090,6 @@ namespace DagView {
         nodeIds: DagNodeId[],
         lock: boolean
     }): void {
-        console.log("lock", info.lock);
         const tabId: string = info.tabId;
         const $dfArea = _getAreaByTab(tabId);
         if (info.lock) {
