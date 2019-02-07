@@ -100,6 +100,11 @@ class SQLExecutor {
             }
         };
 
+        if (this._status === SQLStatus.Cancelled) {
+            finish();
+            return PromiseHelper.reject(SQLStatus.Cancelled);
+        }
+
         this._configureSQLNode()
         .then(() => {
             if (this._status === SQLStatus.Cancelled) {

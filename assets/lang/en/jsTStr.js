@@ -1642,7 +1642,7 @@ SQLTStr = {
     "DeleteSnippet": "Delete Snippet",
     "DeleteSnippetMsg": "Are you sure you want to delete snippet \"<name>\"?",
     "Execute": "Execute SQL",
-    "InExecute": "There are already some SQLs in exeuction, do you still want to continue?",
+    "InExecute": "There are already some SQLs in exeuction, please cancel the SQLs in execution or wait unitl execution finishes.",
     "DFDeleted": "The corresponding dataflow for sql has been deleted",
     "RestoreDF": "Restore dataflow",
 };

@@ -45,20 +45,25 @@ class SQLEditorSpace {
     }
 
     public cancelExecution(): void {
-        this._executers.forEach((executor) => {
+        this._executers.forEach((executor, i) => {
             if (executor.getStatus() != SQLStatus.Done &&
                 executor.getStatus() != SQLStatus.Cancelled &&
-                executor.getStatus() != SQLStatus.Failed) {
+                executor.getStatus() != SQLStatus.Failed
+            ) {
+                this._executers[i] = null;
                 executor.setStatus(SQLStatus.Cancelled);
             }
-        })
+        });
+
+        this._executers = this._executers.filter((executor) => {
+            return executor != null;
+        });
     }
 
     private _setupSQLEditor(): void {
         const self = this;
         const callbacks = {
             onExecute: () => {
-                console.log("execute")
                 this._getEditorSpaceEl().find(".execute").click();
             },
             onCancelExecute: () => {
@@ -149,9 +154,7 @@ class SQLEditorSpace {
             Alert.show({
                 "title": SQLTStr.Execute,
                 "msg": SQLTStr.InExecute,
-                onConfirm: () => {
-                    this._executeSQL();
-                }
+                "isAlert": true
             });
         }
     }
