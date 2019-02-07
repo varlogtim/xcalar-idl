@@ -13,7 +13,6 @@ class XcTableViewer extends XcViewer {
         this.rowManager = new RowManager(table, this.getView());
         this.rowInput = new RowInput(this.rowManager);
         this.skew = new TableSkew(this.table);
-        this._addEventListeners();
         this._setTableMode(true);
     }
 
@@ -39,6 +38,7 @@ class XcTableViewer extends XcViewer {
      * Render the view of the data
      */
     public render($section: JQuery, autoAddCols: boolean = false): XDPromise<void> {
+        this._addEventListeners();
         let table = this.table;
         gTables[table.getId()] = table;
         super.render($section);
@@ -74,6 +74,7 @@ class XcTableViewer extends XcViewer {
 
     private _addEventListeners(): void {
         // XXX this is still buggy, need update!
+        this.$view.off("scroll");
         this.$view.scroll((event) => {
             $(event.target).scrollTop(0);
             TblFunc.moveFirstColumn(null);
