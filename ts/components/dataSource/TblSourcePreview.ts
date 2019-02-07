@@ -23,6 +23,7 @@ class TblSourcePreview {
      * @param msg
      */
     public show(tableInfo: PbTblInfo, msg: string): void {
+        let oldTableInfo = this._tableInfo;
         this._tableInfo = tableInfo;
         DSForm.hide();
         let $container = this._getContainer();
@@ -42,7 +43,8 @@ class TblSourcePreview {
             this._viewDatasetTable(tableInfo);
         } else {
             $container.addClass("table");
-            this._viewTableResult(tableInfo);
+            let isSameTable: boolean = oldTableInfo != null && oldTableInfo.name === tableInfo.name;
+            this._viewTableResult(tableInfo, isSameTable);
         }
     }
 
@@ -225,17 +227,24 @@ class TblSourcePreview {
         this._schemaSection.render(columns);
     }
 
-    private _viewTableResult(tableInfo: PbTblInfo): XDPromise<void> {
+    private _viewTableResult(
+        tableInfo: PbTblInfo,
+        isSameTable: boolean
+    ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._updateTableAction(false);
         this._showTableSection();
         let $tableArea = this._getTableArea();
-        $tableArea.addClass("loading").removeClass("error");
         if (!tableInfo.active) {
+            // inactive table should show error
             this._showTableViewError(ErrTStr.InactivateTable);
             return PromiseHelper.resolve();
         }
+        if (isSameTable) {
+            return PromiseHelper.resolve();
+        }
 
+        $tableArea.addClass("loading").removeClass("error");
         let loadingHTML = this._loadHTMLTemplate(StatusMessageTStr.Loading);
         $tableArea.find(".loadingSection").html(loadingHTML);
 
