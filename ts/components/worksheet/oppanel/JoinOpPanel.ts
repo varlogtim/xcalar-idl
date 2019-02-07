@@ -311,11 +311,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
      * @param dataModel
      */
     private _validateJoinClauses(dataModel: JoinOpPanelModel): void {
-        if (dataModel.isCrossJoin()) {
-            if (!dataModel.isValidEvalString()) {
-                throw new Error(JoinOpError.InvalidEvalString);
-            }
-        } else {
+        if (!dataModel.isCrossJoin()) {
             if (dataModel.getColumnPairsLength() === 0) {
                 throw new Error(JoinOpError.InvalidJoinClause);
             }
@@ -330,6 +326,9 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
                     throw new Error(JoinOpError.NeedTypeCast);
                 }
             }
+        }
+        if (!dataModel.isValidEvalString()) {
+            throw new Error(JoinOpError.InvalidEvalString);
         }
     }
 

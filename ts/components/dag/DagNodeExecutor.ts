@@ -428,9 +428,6 @@ class DagNodeExecutor {
             {
                 keepAllColumns: params.keepAllColumns,
             });
-        if (joinType !== JoinOperatorT.CrossJoin) {
-            params.evalString = "";
-        }
         const options: JoinOptions = {
             newTableName: this._generateTableName(),
             evalString: params.evalString,

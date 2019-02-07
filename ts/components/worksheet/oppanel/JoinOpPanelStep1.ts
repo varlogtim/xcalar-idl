@@ -98,25 +98,26 @@ class JoinOpPanelStep1 {
         this._$elemInstr.text(text);
         // Setup main section
         const $elemClauseArea = BaseOpPanel.findXCElement(this._$elem, 'clauseArea');
-        const $elemCrossJoinFilter = BaseOpPanel.findXCElement(this._$elem, 'crossJoinFilter');
-        if (this._modelRef.isCrossJoin()) {
-            $elemClauseArea.hide();
-            $elemCrossJoinFilter.show();
-            // Setup crossJoinFilter section
-            const $elemEvalString = BaseOpPanel.findXCElement($elemCrossJoinFilter, 'evalStr');
-            $elemEvalString.val(this._modelRef.getEvalString());
-            $elemEvalString.off();
-            $elemEvalString.on('input', (e) => {
-                this._modelRef.setEvalString($(e.target).val().trim());
-                this._onDataChange();
-            });
-            if (!this._modelRef.isValidEvalString()) {
-                // TODO: Show error message
-            }
+        const $elemFilterEval = BaseOpPanel.findXCElement(this._$elem, 'crossJoinFilter');
+        $elemClauseArea.hide();
+        $elemFilterEval.hide();
+        // Filter eval string
+        $elemFilterEval.show();
+        const $elemEvalString = BaseOpPanel.findXCElement($elemFilterEval, 'evalStr');
+        $elemEvalString.val(this._modelRef.getEvalString());
+        $elemEvalString.off();
+        $elemEvalString.on('input', (e) => {
+            this._modelRef.setEvalString($(e.target).val().trim());
+            this._onDataChange();
+        });
+        if (!this._modelRef.isValidEvalString()) {
+            // TODO: Show error message
         }
-        else {
+        // JoinOn columns
+        if (!this._modelRef.isCrossJoin())
+        {
             $elemClauseArea.show();
-            $elemCrossJoinFilter.hide();
+            // $elemCrossJoinFilter.hide();
             // Setup clause section
             this._updateJoinClauseUI();
         }
@@ -139,15 +140,11 @@ class JoinOpPanelStep1 {
     }
 
     private _updatePreview() {
-        let html;
         const htmlJoinType = `<span class="joinType keyword">${this._getJoinTypeText(this._modelRef.getJoinType())}</span>`;
         const htmlTables = ' <span class="highlighted">table1</span>,<span class="highlighted">table2</span>';
 
-        if (this._modelRef.isCrossJoin()) {
-            const htmlWhere = '<br/><span class="keyword">WHERE </span>';
-            const htmlClause = xcHelper.escapeHTMLSpecialChar(this._modelRef.getEvalString());
-            html = `${htmlJoinType}${htmlTables}${htmlWhere}${htmlClause}`;
-        } else {
+        let html = `${htmlJoinType}${htmlTables}`;
+        if (!this._modelRef.isCrossJoin()) {
             const emptyColumn = '""';
             const htmlOn = '<br/><span class="keyword">ON </span>';
             const htmlClause = this._modelRef.getColumnPairs().reduce( (res, pair, i) => {
@@ -166,7 +163,13 @@ class JoinOpPanelStep1 {
                     <span class="highlighted">${col2}</span>`;
                 return `${res}${pre}${cols}`;
             }, '');
-            html = `${htmlJoinType}${htmlTables}${htmlOn}${htmlClause}`;
+            html = `${html}${htmlOn}${htmlClause}`;
+        }
+        const filterEval = this._modelRef.getEvalString();
+        if (filterEval.length !== 0) {
+            const htmlWhere = '<br/><span class="keyword">WHERE </span>';
+            const htmlFilter = `<span class="highlighted">${xcHelper.escapeHTMLSpecialChar(filterEval)}</span>`;
+            html = `${html}${htmlWhere}${htmlFilter}`;
         }
 
         this._$elemPreview.html(html);
