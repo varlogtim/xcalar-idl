@@ -178,11 +178,12 @@ class DagSubGraph extends DagGraph {
             }
             const nodeIdInfo = nodeIdInfos[nodeId];
             nodeIdInfo[tableName] = nodeInfo;
+            // _dagIdToTableNamesMap has operations in the correct order
             nodeInfo.index = this._dagIdToTableNamesMap[nodeId].indexOf(tableName);
         });
 
         for (let nodeId in nodeIdInfos) {
-            this.getNode(nodeId).updateProgress(nodeIdInfos[nodeId], true);
+            this.getNode(nodeId).updateProgress(nodeIdInfos[nodeId], true, true);
         }
     }
 
