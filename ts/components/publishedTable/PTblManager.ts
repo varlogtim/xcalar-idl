@@ -317,8 +317,12 @@ class PTblManager {
             track: true,
         });
 
-        this.createTableInfo(tableName);
-        this._loadingTables[tableName] = name;
+        let info = this.createTableInfo(tableName);
+        // Load message tells anyone looking at the table info that
+        // this table isnt created yet
+        // Primarily used when checking for duplicates
+        info.loadMsg = "Creating Table"
+        this._loadingTables[tableName] = info;
         XIApi.publishTable(txId, pks, viewName, tableName,
             xcHelper.createColInfo(columns))
         .then(() => {
@@ -730,7 +734,7 @@ class PTblManager {
         colInfos.forEach((colInfo) => {
             // make sure column is uppercase
             let upperCaseCol: string = colInfo.new.toUpperCase();
-            colInfo.new = upperCaseCol
+            colInfo.new = upperCaseCol;
             pbColInfos.push({
                 orig: upperCaseCol,
                 new: upperCaseCol,
@@ -740,36 +744,15 @@ class PTblManager {
         const parsedDsName = parseDS(dsName);
         let synthesizeTable: string = tableName + Authentication.getHashId();
         let tableToDelete: string = null;
+        if (primaryKeys == null || primaryKeys.length === 0) {
+            primaryKeys = [];
+        }
+
+        // Synthesize is necessary in the event we are publishing straight from a dataset
         XIApi.synthesize(txId, colInfos, parsedDsName, synthesizeTable)
         .then((resTable) => {
             if (!noDatasetDeletion) {
                 XIApi.deleteDataset(txId, dsName);
-            }
-            if (primaryKeys == null || primaryKeys.length === 0) {
-                tableToDelete = resTable;
-                let newColName = PTblManager.PKPrefix + Authentication.getHashId();
-                primaryKeys = [newColName];
-                pbColInfos.push({
-                    orig: newColName,
-                    new: newColName,
-                    type: DfFieldTypeT.DfInt64
-                });
-                return XIApi.genRowNum(txId, resTable, newColName);
-            } else {
-                return PromiseHelper.resolve(resTable);
-            }
-        })
-        .then((resTable: string) => {
-            if (tableToDelete != null) {
-                XIApi.deleteTable(txId, tableToDelete);
-            }
-            tableToDelete = resTable;
-            // final check, if tableName is used
-            if (this._tableMap.has(tableName)) {
-                console.info("dup table name");
-                tableName = xcHelper.uniqueName(tableName, (name) => {
-                    return !this._tableMap.has(name);
-                }, null);
             }
             return XIApi.publishTable(txId, primaryKeys, resTable, tableName, pbColInfos);
         })

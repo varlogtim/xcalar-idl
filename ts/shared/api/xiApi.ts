@@ -2765,17 +2765,41 @@ namespace XIApi {
             keyNames.map((primaryKey) => {
                 primaryKey = xcHelper.parsePrefixColName(primaryKey).name;
                 return {
-                    name: primaryKey,
+                    name: primaryKey.toUpperCase(),
                     ordering: XcalarOrderingT.XcalarOrderingUnordered
                 };
         });
 
+        colInfo.forEach((colInfo) => {
+            // make sure column is uppercase
+            let upperCaseCol: string = colInfo.new.toUpperCase();
+            colInfo.new = upperCaseCol;
+        });
+
+        pubTableName = pubTableName.toUpperCase();
+
         let tableToDelete = null;
-        XcalarListPublishedTables("*", false, true)
+        let pubTableListPromise;
+        if (typeof PTblManager !== "undefined") {
+            pubTableListPromise = PromiseHelper.resolve({tables: PTblManager.Instance.getTables()});
+        } else {
+            pubTableListPromise = XcalarListPublishedTables("*", false, true);
+        }
+
+        pubTableListPromise
         .then((result) => {
-            let pubTable: PublishTable = result.tables.find((table: PublishTable) => {
-                return (table.name.toUpperCase() == pubTableName.toUpperCase());
-            })
+            if (result == null || result.tables == null) {
+                result = {tables: []};
+            }
+            let pubTable: PublishTable | PbTblInfo = null
+            try {
+                pubTable = result.tables.find((table: PublishTable | PbTblInfo) => {
+                    return (table.name.toUpperCase() == pubTableName.toUpperCase()
+                        && table["loadMsg"] == null);
+                })
+            } catch (e) {
+                console.error(e);
+            }
             if (pubTable != null) {
                 return PromiseHelper.reject("Published Table already exists");
             }
