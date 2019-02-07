@@ -452,6 +452,9 @@ window.MainMenu = (function($, MainMenu) {
                     } else {
                         $("#inButton").click();
                     }
+                } else if ($("#sourceTblButton").hasClass("active")) {
+                    // when used to focus on table source
+                    TblSource.Instance.refresh();
                 }
                 if (noWorkbook) {
                     openIMDPanel();

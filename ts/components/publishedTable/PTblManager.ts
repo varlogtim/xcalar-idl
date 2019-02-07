@@ -107,10 +107,10 @@ class PTblManager {
             tableDisplayInfo.name = tableInfo.name;
 
             let active: boolean = tableInfo.active;
-            tableDisplayInfo.status = active ? "Active" : "Inactive";
+            tableDisplayInfo.status = active ? PbTblStatus.Active : PbTblStatus.Inactive;
             tableDisplayInfo.rows = active && tableInfo.rows ? xcHelper.numToStr(tableInfo.rows) : "N/A";
             tableDisplayInfo.size = active && tableInfo.size ? <string>xcHelper.sizeTranslator(tableInfo.size) : "N/A";
-            tableDisplayInfo.createTime = active && tableInfo.createTime ? moment(tableInfo.createTime * 1000).format("h:mm:ss A ll") : "N/A";
+            tableDisplayInfo.createTime = active && tableInfo.createTime ? moment(tableInfo.createTime * 1000).format("HH:mm:ss MM/DD/YYYY") : "N/A";
         } catch (e) {
             console.error(e);
         }
@@ -513,13 +513,16 @@ class PTblManager {
             return PromiseHelper.resolve();
         }
 
+        tableInfo.state = PbTblState.Activating;
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         XcalarRestoreTable(tableName)
         .then(() => {
+            tableInfo.state = null;
             tableInfo.active = true;
             deferred.resolve();
         })
         .fail((error) => {
+            tableInfo.state = PbTblState.Error;
             failures.push(error.error);
             deferred.resolve(); // still resolve it
         });
@@ -781,15 +784,47 @@ class PTblManager {
 
     private _listTables(): XDPromise<PublishTable[]> {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        let oldTables = this._tables || [];
+        
         XcalarListPublishedTables("*", false, true)
         .then((result) => {
             this._tables = result.tables.map(this._tableInfoAdapter);
             this._updateTableMap();
+            this._updateTablesInAction(oldTables);
             deferred.resolve(this._tables);
         })
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    private _updateTablesInAction(oldTables: PbTblInfo[]): void {
+        try {
+            oldTables.forEach((oldTableInfo) => {
+                let oldState = oldTableInfo.state;
+                if (oldState === PbTblState.Activating ||
+                    oldState === PbTblState.Deactivating
+                ) {
+                    let name = oldTableInfo.name;
+                    if (this._tableMap.has(name)) {
+                        let tableInfo = this._tableMap.get(name);
+                        if (oldState === PbTblState.Activating &&
+                            !tableInfo.state
+                        ) {
+                            // still activating
+                            tableInfo.state = oldState;
+                        } else if (oldState === PbTblState.Deactivating &&
+                            tableInfo.active
+                        ) {
+                            // still deactivating
+                            tableInfo.state = oldState;
+                        }
+                    }
+                }
+            });
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     private _updateTableMap(): void {

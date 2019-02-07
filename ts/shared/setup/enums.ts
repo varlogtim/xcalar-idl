@@ -408,7 +408,14 @@ enum FileManagerAction {
 enum PbTblState {
     Loading = "Loading",
     BeDataset = "BeDataset",
-    Error = "Error"
+    Error = "Error",
+    Activating = "Activating",
+    Deactivating = "Deactivating"
+}
+
+enum PbTblStatus {
+    Active = "Active",
+    Inactive = "Inactive"
 }
 
 enum DataSourceSchemaEvent {

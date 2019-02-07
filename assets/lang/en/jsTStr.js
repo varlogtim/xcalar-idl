@@ -316,6 +316,7 @@ ErrTStr = {
     'MakrForDel': 'Cannot preview dataset that is marked for deletion',
     'InactivateDS': 'Cannot preview dataset that is deactivated',
     'InactivatedDS2': 'Selected dataset is deactivated',
+    'InactivateTable': 'Cannot view table that is deactivated',
     'TimeExpire': 'That time is in the past. Please choose a valid time.',
     'LongFileName': 'File name is too long. Please use less than 255 chars.',
     'LargeFile': 'Module is >10MB. Please reduce or install as a library on all cluster nodes.',
@@ -1412,6 +1413,8 @@ TblTStr = {
     "PreviewInstr": "To start using table, please use the SQL Editor in SQL Mode or go to the Dataflow Panel, and start from a IMD node in advacned mode",
     "MultipleSchema": "Multiple Schemas are detected when creating table \"<name>\", please select the schema for the table.",
     "NoTable": "No tables created",
+    "ToActivate": "Click to activate",
+    "ToDeactivate": "Click to deactivate"
 };
 
 ColTStr = {
@@ -1692,7 +1695,7 @@ IMDTStr = {
     "DataUnavailable":  "Only showing last 128 updates.",
     "DelTableMsg": "Are you sure you want to permanently drop the following tables : \"<tableName>\"? This action cannot be undone.",
     "Activating": "Activating Tables",
-    "ActivatingFail": "Activating Table Failsed",
+    "ActivatingFail": "Activating Table Failed",
     "DeactivateTablesMsg": "Note: activating and deactivating tables may be slow.\nAre you sure you want to deactivate the following tables : \"<tableName>\"?",
     "DeactivateTable": "Deactivate Tables",
     "DeactivateTableFail": "Deactivate Table Failed",

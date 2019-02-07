@@ -231,6 +231,10 @@ class TblSourcePreview {
         this._showTableSection();
         let $tableArea = this._getTableArea();
         $tableArea.addClass("loading").removeClass("error");
+        if (!tableInfo.active) {
+            this._showTableViewError(ErrTStr.InactivateTable);
+            return PromiseHelper.resolve();
+        }
 
         let loadingHTML = this._loadHTMLTemplate(StatusMessageTStr.Loading);
         $tableArea.find(".loadingSection").html(loadingHTML);

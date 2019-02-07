@@ -24,15 +24,15 @@ class SQLTableLister {
      */
     public show(reset: boolean): void {
         const $container = this._getContainer();
-        let refresh: boolean = true;
-        if (!$container.hasClass("xc-hidden")) {
-            // already show
-            refresh = false;
-        }
-        this._getContainer().removeClass("xc-hidden");
+        // let refresh: boolean = true;
+        // if (!$container.hasClass("xc-hidden")) {
+        //     // already show
+        //     refresh = false;
+        // }
+        $container.removeClass("xc-hidden");
         if (reset) {
             this._reset();
-            this._listTables(refresh);
+            this._listTables(false);
         }
     }
 
@@ -41,6 +41,13 @@ class SQLTableLister {
      */
     public close(): void {
         this._getContainer().addClass("xc-hidden");
+    }
+
+    public refresh(): void {
+        const $container = this._getContainer();
+        if (!$container.hasClass("xc-hidden")) {
+            this.show(true);
+        }
     }
 
     /**
@@ -97,6 +104,11 @@ class SQLTableLister {
         return this._getTopSection().find(".searchbarArea input");
     }
 
+    private _getTableInfoFromRowEl($row: JQuery): PbTblInfo {
+        let index = Number($row.data("index"));
+        return this._getTableInfoFromIndex(index);
+    } 
+
     private _getAvailableTables(): PbTblInfo[] {
         let tables: PbTblInfo[] = PTblManager.Instance.getTables();
         tables = tables.filter((table) => {
@@ -123,8 +135,13 @@ class SQLTableLister {
 
     private _listTables(refresh: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        this._onLoadingMode();
         const $content = this._getMainSection().find(".content");
+        const promise = deferred.promise();
+        this._onLoadingMode();
+
+        let timer = setTimeout(() => {
+            xcHelper.showRefreshIcon($content, true, promise);
+        }, 800);
 
         PTblManager.Instance.getTablesAsync(refresh)
         .then(() => {
@@ -134,11 +151,10 @@ class SQLTableLister {
         })
         .fail(deferred.reject)
         .always(() => {
+            clearTimeout(timer);
             this._offLoadingMode();
         });
 
-        const promise = deferred.promise();
-        xcHelper.showRefreshIcon($content, true, promise);
         return promise;
     }
 
@@ -148,6 +164,38 @@ class SQLTableLister {
 
     private _offLoadingMode(): void {
         this._getContainer().removeClass("loading");
+    }
+
+    private _activateTable($row: JQuery): void {
+        if ($row.length === 0) {
+            return;
+        }
+
+        let tableInfo = this._getTableInfoFromRowEl($row);
+        let copyTableInfo = xcHelper.deepCopy(tableInfo);
+        copyTableInfo.state = PbTblState.Activating;
+        this._replaceRowContent($row, copyTableInfo);
+
+        PTblManager.Instance.activateTables([tableInfo.name])
+        .always(() => {
+            this._listTables(false);
+        });
+    }
+
+    private _deactivateTable($row: JQuery): void {
+        if ($row.length === 0) {
+            return;
+        }
+
+        let tableInfo = this._getTableInfoFromRowEl($row);
+        let copyTableInfo = xcHelper.deepCopy(tableInfo);
+        copyTableInfo.state = PbTblState.Deactivating;
+        this._replaceRowContent($row, copyTableInfo);
+
+        PTblManager.Instance.deactivateTables([tableInfo.name])
+        .always(() => {
+            this._listTables(false);
+        });
     }
 
     private _initializeMainSection(): void {
@@ -162,11 +210,10 @@ class SQLTableLister {
     private _render(): void {
         this._renderHeader();
         let tableInfos = this._sortTables(this._tableInfos);
-        let tableDisplayInfos = tableInfos.map(PTblManager.Instance.getTableDisplayInfo);
-        let html: HTML = tableDisplayInfos.map((tableDisplayInfo) => {
+        let html: HTML = tableInfos.map((tableInfo) => {
             let row: HTML = 
-            `<div class="row" data-index="${tableDisplayInfo.index}">` +
-                this._renderRowContent(tableDisplayInfo) +
+            `<div class="row" data-index="${tableInfo.index}">` +
+                this._renderRowContent(tableInfo) +
             '</div>';
             return row;
         }).join("");
@@ -211,16 +258,67 @@ class SQLTableLister {
         this._getMainSection().find(".header .row").html(header);
     }
 
-    private _renderRowContent(displayInfo): HTML {
+    private _renderRowContent(tableInfo: PbTblInfo): HTML {
+        let displayInfo: PbTblDisplayInfo = PTblManager.Instance.getTableDisplayInfo(tableInfo);
         let html: HTML = this._attributes.map((attr) => {
             let key: string = xcHelper.escapeHTMLSpecialChar(attr.key);
-            let text: string = xcHelper.escapeHTMLSpecialChar(displayInfo[key]);
+            let val: string = displayInfo[attr.key];
+            let text: string = xcHelper.escapeHTMLSpecialChar(val);
+            let title = text;
+            if (key === "status") {
+                text = this._getStatusCellContent(tableInfo, text);
+            }
             let tooltip: string =
             'data-toggle="tooltip" ' +
             'data-container="body" ' +
-            'data-title="' + text + '"';
+            'data-title="' + title + '"';
             return `<div class="${key} tooltipOverflow" ${tooltip}>${text}</div>`;
         }).join("");
+        return html;
+    }
+
+    private _replaceRowContent($row: JQuery, tableInfo: PbTblInfo): void {
+        let html = this._renderRowContent(tableInfo);
+        $row.html(html);
+    }
+
+    private _getStatusCellContent(
+        tableInfo: PbTblInfo,
+        text: string
+    ): HTML {
+        let html: HTML = "";
+        if (tableInfo.state === PbTblState.Activating) {
+            html = this._getInActionHTML(DSTStr.DSActivating);
+        } else if (tableInfo.state === PbTblState.Deactivating) {
+            html = this._getInActionHTML(DSTStr.DSDeactivating);
+        } else {
+            let isActive: boolean = tableInfo.active;
+            let title = (isActive ? TblTStr.ToDeactivate : TblTStr.ToActivate);
+            let action = (isActive ? "deactivate" : "activate");
+            html =
+            '<span class="' + action + '"' +
+            ' data-toggle="tooltip"' +
+            ' data-container="body"' +
+            ' data-title="' + title + '"' +
+            '">' +
+                text +
+            '</span>';
+        }
+        return html;
+    }
+
+    private _getInActionHTML(text: string): HTML {
+        let html: string =
+        '<div class="animatedEllipsisWrapper">' +
+            '<div class="text">' +
+                text +
+            '</div>' +
+            '<div class="animatedEllipsis staticEllipsis">' +
+                '<div>.</div>' +
+                '<div>.</div>' +
+                '<div>.</div>' +
+            '</div>' +
+        '</div>';
         return html;
     }
 
@@ -235,8 +333,8 @@ class SQLTableLister {
         this._unSelectTableList();
         $row.addClass("selected");
 
-        let index = Number($row.data("index"));
-        this._updateActions(this._getTableInfoFromIndex(index));
+        let tableInfo = this._getTableInfoFromRowEl($row);
+        this._updateActions(tableInfo);
     }
 
     private _updateActions(tableOnFocus: {active: boolean}): void {
@@ -358,6 +456,18 @@ class SQLTableLister {
         const $mainContent = this._getMainContent();
         $mainContent.on("click", ".row", (event) => {
             this._selectTableList($(event.currentTarget));
+        });
+
+        $mainContent.on("click", ".activate", (event) => {
+            xcTooltip.hideAll();
+            let $row = $(event.currentTarget).closest(".row");
+            this._activateTable($row);
+        });
+
+        $mainContent.on("click", ".deactivate", (event) => {
+            xcTooltip.hideAll();
+            let $row = $(event.currentTarget).closest(".row");
+            this._deactivateTable($row);
         });
 
         $mainContent.on("mouseenter", ".tooltipOverflow", function() {

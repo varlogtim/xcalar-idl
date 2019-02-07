@@ -104,8 +104,7 @@ namespace SqlQueryHistoryPanel {
                     const prop: TableBodyColumnTextProp = {
                         category: TableColumnCategory.STARTTIME,
                         isEllipsis: false,
-                        text: formatDateTime(queryInfo.startTime),
-                        tooltip: formatDateTime(queryInfo.startTime, true)
+                        text: formatDateTime(queryInfo.startTime)
                     };
                     return prop;
                 }
@@ -1349,12 +1348,9 @@ namespace SqlQueryHistoryPanel {
         }
     };
 
-    export function formatDateTime(dateTime: Date|number, includeDate = false): string {
+    export function formatDateTime(dateTime: Date|number): string {
         const dt = new Date(dateTime);
-        const dateString = includeDate ? xcHelper.getDate('-', dt, null) : '';
-        const timeString = xcHelper.getTime(dt, null, false);
-        const sep = includeDate ? ' ': '';
-        return `${dateString}${sep}${timeString}`;
+        return moment(dt.getTime()).format("HH:mm:ss MM/DD/YYYY");
     }
 
     export function formatNumber(number: Number): string {

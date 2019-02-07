@@ -184,7 +184,7 @@ interface PbTblDisplayInfo {
     rows: string;
     size: string;
     createTime: string;
-    status: string;
+    status: PbTblStatus;
 }
 
 interface PbTblColSchema {

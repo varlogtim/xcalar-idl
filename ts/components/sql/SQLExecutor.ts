@@ -181,7 +181,7 @@ class SQLExecutor {
     private _createDataflow(): void {
         this._tempGraph = new DagGraph();
         const id: string = DagTab.generateId() + ".sql";
-        const name: string = "SQL " + moment(new Date()).format("h:mm:ss A ll")
+        const name: string = "SQL " + moment(new Date()).format("HH:mm:ss ll")
         this._tempTab = new DagTabUser(name, id, this._tempGraph, false, xcTimeHelper.now());
         this._tempGraph.addNode(this._sqlNode);
     }

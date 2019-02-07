@@ -187,7 +187,7 @@ class DataSourceManager {
         $("#imdTab").addClass("xc-hidden");
         $title.text(CommonTxtTstr.Table);
         $menu.find(".table").removeClass("xc-hidden");
-        TblSource.Instance.initialize(); // update every time switch to the tab
+        TblSource.Instance.refresh(); // update every time switch to the tab
         if (this._isMenOpen) {
             MainMenu.open(true);
             this._isMenOpen = null;

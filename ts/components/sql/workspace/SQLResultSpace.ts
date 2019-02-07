@@ -60,6 +60,13 @@ class SQLResultSpace {
         this._setupListeners();
     }
 
+    /**
+     * SQLResultSpace.Instance.refresh
+     */
+    public refresh(): void {
+        SQLTableLister.Instance.refresh();
+    }
+
     public viewTable(table: TableMeta): void {
         SQLTable.Instance.show(table);
         SQLTableLister.Instance.close();

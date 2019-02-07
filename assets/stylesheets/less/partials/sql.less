@@ -122,7 +122,7 @@
     }
 
     .col-time {
-        .col-fixed(@width: 110px);
+        .col-fixed(@width: 150px);
     }
 
     .col-duration {
@@ -580,6 +580,25 @@
     }
 
     .mainSection {
+        .row {
+            @w-creteTime: 180px;
+            @w-status: 120px;
+            @w-other: (@w-creteTime + @w-status) / 3;
+            
+            > div {
+                width: ~"calc(33% - @{w-other})";
+            }
+
+            .createTime {
+                width: @w-creteTime;
+            }
+
+            .status {
+                width: @w-status;
+            }
+        }
+
+
         .header {
             .title {
                 position: relative;
@@ -602,6 +621,15 @@
             .hint {
                 .size(@width: 120px, @height: 20px);
                 .center-align;
+            }
+
+            .status {
+                span {
+                    &:hover {
+                        cursor: pointer;
+                        text-decoration: underline;
+                    }
+                }
             }
         }
     }

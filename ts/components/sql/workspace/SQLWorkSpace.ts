@@ -4,6 +4,7 @@ class SQLWorkSpace {
     private _sqlEditorSpace: SQLEditorSpace;
     private _sqlResultSpace: SQLResultSpace;
     private _sqlHistorySpace: SQLHistorySpace;
+    private _firstTouch: boolean;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -13,6 +14,7 @@ class SQLWorkSpace {
         this._sqlEditorSpace = SQLEditorSpace.Instance;
         this._sqlResultSpace = SQLResultSpace.Instance;
         this._sqlHistorySpace = SQLHistorySpace.Instance;
+        this._firstTouch = true;
     }
 
     public setup(): void {
@@ -38,9 +40,19 @@ class SQLWorkSpace {
         this._sqlHistorySpace.refresh();
     }
 
+    /**
+     * SQLWorkSpace.Instance.focus
+     */
     public focus(): void {
         SQLWorkSpace.Instance.refresh();
         DagView.toggleSqlPreview(true);
+
+        if (this._firstTouch) {
+            SQLResultSpace.Instance.showTables(true);
+            this._firstTouch = false;
+        } else {
+            SQLResultSpace.Instance.refresh();
+        }
 
         $(window).off(".sqlPanelResize");
         let resizeTimer;

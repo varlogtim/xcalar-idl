@@ -15,9 +15,9 @@ class TblSource {
     }
 
     /**
-     * TblSource.Instance.initialize
+     * TblSource.Instance.refresh
      */
-    public initialize(): XDPromise<void> {
+    public refresh(): XDPromise<void> {
         return this._refresh(false);
     }
 
@@ -180,6 +180,7 @@ class TblSource {
         .then((tables) => {
             this._setTables(tables);
             this._renderGridView();
+            this._updateTablsInAction();
             this._reFocusOnTable(focusTable);
 
             deferred.resolve();
@@ -412,6 +413,21 @@ class TblSource {
         $grid.addClass('inactive').append('<div class="waitingIcon"></div>');
         $grid.find('.waitingIcon').fadeIn(200);
         $grid.addClass('loading');
+    }
+
+    private _updateTablsInAction(): void {
+        this._tables.forEach((tableInfo, tableName) => {
+            if (tableInfo.state === PbTblState.Activating ||
+                tableInfo.state === PbTblState.Deactivating
+            ) {
+                let $grid = this._getGridByName(tableName);
+                this._addLoadingIcon($grid);
+
+                if (tableInfo.state === PbTblState.Deactivating) {
+                    this._addDeactivateIcon($grid);
+                }
+            }
+        });
     }
 
     private _createRectSelection(startX: number, startY: number): RectSelection {
