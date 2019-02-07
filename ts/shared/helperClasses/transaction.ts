@@ -237,7 +237,6 @@ namespace Transaction {
             const noNotification: boolean = options.noNotification || false;
             const tableId: TableId = options.msgTable;
             const msgOptions: object = options.msgOptions;
-
             StatusMessage.success(msgId, noNotification, tableId, msgOptions);
         }
 

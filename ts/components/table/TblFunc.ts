@@ -210,9 +210,8 @@ class TblFunc {
         if ($lockTableIcon.length === 0) {
             return;
         }
-        const containerRect: ClientRect = $container[0].getBoundingClientRect();
         const rect: ClientRect = $tableWrap[0].getBoundingClientRect();
-        const center: number = containerRect.left - rect.left + containerRect.width / 2;
+        const center: number = rect.width / 2;
         $lockTableIcon.css('left', center);
     }
 

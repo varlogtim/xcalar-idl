@@ -200,14 +200,16 @@ namespace StatusMessage {
             const $statusSpan: JQuery = $('#stsMsg-' + msgId);
             $statusSpan.html(failHTML);
             if (this.messages.indexOf(msgId) === 0) {
-                this.$statusText.find('span:last').html(failHTML);
+                if (this.$statusText.find('span:last').attr("id") === "stsMsg-" + msgId) {
+                    this.$statusText.find('span:last').html(failHTML);
+                }
             }
             if (this.messages.length <= this.$statusText.find('.fail').length) {
                 this.$waitingIcon.hide();
             }
-            window.setTimeout(function(){
-                self.removeFailedMsg($statusSpan);
-            }, 30000);
+            setTimeout(function(){
+                self.removeFailedMsg($('#stsMsg-' + msgId));
+            }, 12000);
         }
 
         public cancel(msgId: number): void {
@@ -378,6 +380,7 @@ namespace StatusMessage {
             const msgIndex: number = this.messages.indexOf(msgId);
             this.messages.splice(msgIndex, 1);
             $statusSpan.remove();
+            $('#stsMsg-' + msgId).remove(); // remove duplicate if exists
             $('#stsMsg-' + msgId).remove(); // remove duplicate if exists
             if (msgIndex === 0) {
                 const $firstSpan: JQuery = this.$statusText.find('span').eq(0).clone();
