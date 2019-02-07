@@ -81,9 +81,15 @@ class SortOpPanelModel {
 
         // check duplicate column names
         seen = {};
-        this._newKeys.forEach((key) => {
-            if (seen[key]) {
+        this._newKeys.forEach((key, i) => {
+            let error = xcHelper.validateColName(key, true);
+            if (error) {
+                throw new Error(error);
+            } else if (seen[key]) {
                 throw new Error('Duplicate new key names are not allowed: ' + key);
+            } else if (this._sortedColumns[i] && this._sortedColumns[i].columnName === key) {
+                // old column matching new column name is ok
+                seen[key] = true;
             } else if (this._allColMap.has(key)) {
                 throw new Error('Field with same name already exists: ' + key);
             } else {
