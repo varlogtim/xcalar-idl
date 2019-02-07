@@ -29,7 +29,7 @@ class DagDescriptionModal {
             return false;
         }
 
-        this._node = DagView.getActiveDag().getNode(nodeId);
+        this._node = DagViewManager.Instance.getActiveDag().getNode(nodeId);
         const curDescription: string = this._node.getDescription();
 
         if (curDescription) {
@@ -81,6 +81,6 @@ class DagDescriptionModal {
         }
         const nodeId: DagNodeId = this._node.getId();
         this._closeModal();
-        return DagView.editDescription(nodeId, newDescription);
+        return DagViewManager.Instance.editDescription(nodeId, newDescription);
     }
 }

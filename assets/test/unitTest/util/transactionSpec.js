@@ -530,21 +530,21 @@ describe("Transaction Test", function() {
         let pct;
 
         before(() => {
-            oldAddProgress = DagView.addProgress;
-            oldUpdateProgress = DagView.calculateAndUpdateProgress;
-            oldRemoveProgress = DagView.removeProgress
+            oldAddProgress = DagViewManager.Instance.addProgress;
+            oldUpdateProgress = DagViewManager.Instance.calculateAndUpdateProgress;
+            oldRemoveProgress = DagViewManager.Instance.removeProgress
 
-            DagView.addProgress = (dagNodeId) => {
+            DagViewManager.Instance.addProgress = (dagNodeId) => {
                 expect(dagNodeId).to.equal(nodeId);
             };
 
-            DagView.calculateAndUpdateProgress = (queryStateOutPut, dagNodeId) => {
+            DagViewManager.Instance.calculateAndUpdateProgress = (queryStateOutPut, dagNodeId) => {
                 expect(dagNodeId).to.equal(nodeId);
                 let progress = xcHelper.getQueryProgress(queryStateOutPut);
                 pct = Math.round(100 * progress);
             };
 
-            DagView.removeProgress = (dagNodeId) => {
+            DagViewManager.Instance.removeProgress = (dagNodeId) => {
                 expect(dagNodeId).to.equal(nodeId);
             };
         });
@@ -588,9 +588,9 @@ describe("Transaction Test", function() {
         });
 
         after(() => {
-            DagView.addProgress = oldAddProgress;
-            DagView.calculateAndUpdateProgress = oldUpdateProgress;
-            DagView.removeProgress = oldRemoveProgress;
+            DagViewManager.Instance.addProgress = oldAddProgress;
+            DagViewManager.Instance.calculateAndUpdateProgress = oldUpdateProgress;
+            DagViewManager.Instance.removeProgress = oldRemoveProgress;
         });
     });
 

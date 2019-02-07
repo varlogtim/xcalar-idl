@@ -7,12 +7,12 @@ describe("DagDescriptionModal Test", function() {
         UnitTest.onMinMode();
         $modal = $("#dagDescriptionModal");
 
-        dagViewCache = DagView.getActiveDag;
+        dagViewCache = DagViewManager.Instance.getActiveDag;
         fakeNode = {
             getDescription: function(){return ""},
             getId: function(){return "someId"}
         };
-        DagView.getActiveDag = function() {
+        DagViewManager.Instance.getActiveDag = function() {
             return {
                 getNode: function() {
                     return fakeNode;
@@ -58,9 +58,9 @@ describe("DagDescriptionModal Test", function() {
 
     describe("submitting", function() {
         it("should validate length", function() {
-            var cachedFn = DagView.editDescription;
+            var cachedFn = DagViewManager.Instance.editDescription;
             var called = false;
-            DagView.editDescription = function() {
+            DagViewManager.Instance.editDescription = function() {
                 called = true;
                 return PromiseHelper.reject();
             };
@@ -72,13 +72,13 @@ describe("DagDescriptionModal Test", function() {
             XcalarApisConstantsT.XcalarApiMaxDagNodeCommentLen +
             ' but you provided ' + (XcalarApisConstantsT.XcalarApiMaxDagNodeCommentLen + 1) + ' characters.');
             expect(called).to.be.false;
-            DagView.editDescription = cachedFn;
+            DagViewManager.Instance.editDescription = cachedFn;
         });
 
         it("valid description should work", function() {
-            var cachedFn = DagView.editDescription;
+            var cachedFn = DagViewManager.Instance.editDescription;
             var called = false;
-            DagView.editDescription = function(nodeId, text) {
+            DagViewManager.Instance.editDescription = function(nodeId, text) {
                 expect(nodeId).to.equal("someId");
                 expect(text).to.equal("a".repeat(XcalarApisConstantsT.XcalarApiMaxDagNodeCommentLen));
                 called = true;
@@ -91,14 +91,14 @@ describe("DagDescriptionModal Test", function() {
 
             expect(called).to.be.true;
 
-            DagView.editDescription = cachedFn;
+            DagViewManager.Instance.editDescription = cachedFn;
         });
 
         it("no description should work", function() {
             DagDescriptionModal.Instance.show("someId");
-            var cachedFn = DagView.editDescription;
+            var cachedFn = DagViewManager.Instance.editDescription;
             var called = false;
-            DagView.editDescription = function(nodeId, text) {
+            DagViewManager.Instance.editDescription = function(nodeId, text) {
                 expect(nodeId).to.equal("someId");
                 expect(text).to.equal("");
                 called = true;
@@ -110,12 +110,12 @@ describe("DagDescriptionModal Test", function() {
 
             expect(called).to.be.true;
 
-            DagView.editDescription = cachedFn;
+            DagViewManager.Instance.editDescription = cachedFn;
         });
     });
 
     after(function() {
         UnitTest.offMinMode();
-        DagView.getActiveDag = dagViewCache;
+        DagViewManager.Instance.getActiveDag = dagViewCache;
     });
 });

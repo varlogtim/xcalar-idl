@@ -316,7 +316,7 @@ class DagTblManager {
     // Tells us if table "table" is safe to delete.
     private _safeToDeleteTable(table: string): boolean {
         const self = DagTblManager.Instance;
-        const graph: DagGraph = DagView.getActiveDag();
+        const graph: DagGraph = DagViewManager.Instance.getActiveDag();
         const dagID: string = graph.getTabId();
         const dataflowMatch: RegExp = new RegExp(dagID);
         if (self.cache[table].locked) {

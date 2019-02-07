@@ -45,7 +45,7 @@ class SQLWorkSpace {
      */
     public focus(): void {
         SQLWorkSpace.Instance.refresh();
-        DagView.toggleSqlPreview(true);
+        DagViewManager.Instance.toggleSqlPreview(true);
 
         if (this._firstTouch) {
             SQLResultSpace.Instance.showTables(true);

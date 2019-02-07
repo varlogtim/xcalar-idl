@@ -359,7 +359,7 @@ describe("JupyterPanel Test", function() {
             var oldOpenPanel = MainMenu.openPanel;
             var oldGetTabs = DagTabManager.Instance.getTabs;
             var oldSwitch = DagTabManager.Instance.switchTab;
-            var oldAddNode = DagView.autoAddNode;
+            var oldAddNode = DagViewManager.Instance.autoAddNode;
             var oldExecute = DagNodeMenu.execute;
             var tableName = "fakeTable#zz999";
             DagTabManager.Instance.getTabs = function() {
@@ -372,14 +372,14 @@ describe("JupyterPanel Test", function() {
                 let tab = new DagTabUser("test", null, graph);
                 return [tab];
             }
-            
+
             MainMenu.openPanel = function(type) {
                 expect(type).to.equal("dagPanel");
                 called1 = true;
             };
 
             var called2 = false;
-            DagView.autoAddNode = function(type, subType, nodeId, input) {
+            DagViewManager.Instance.autoAddNode = function(type, subType, nodeId, input) {
                 expect(type).to.equal(DagNodeType.Map);
                 expect(input.eval[0].evalString).to.includes("prefix::testCol1");
                 called2 = true;
@@ -391,8 +391,8 @@ describe("JupyterPanel Test", function() {
             expect(called2).to.be.true;
             MainMenu.openPanel = oldOpenPanel;
             DagTabManager.Instance.getTabs = oldGetTabs;
-            DagTabManager.Instance.switchTab = oldSwitch; 
-            DagView.autoAddNode = oldAddNode;
+            DagTabManager.Instance.switchTab = oldSwitch;
+            DagViewManager.Instance.autoAddNode = oldAddNode;
             DagNodeMenu.execute = oldExecute;
         });
 

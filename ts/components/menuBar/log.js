@@ -1231,8 +1231,6 @@ window.Log = (function($, Log) {
             case (SQLOps.EditComment):
             case (SQLOps.EditNodeTitle):
             case (SQLOps.DagBulkOperation):
-            case (SQLOps.DrawNodesAndConnections):
-            case (SQLOps.EraseNodesAndConnections):
                 return false;
             // thrift operation
             case (SQLOps.DestroyDS):

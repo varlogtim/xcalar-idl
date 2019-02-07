@@ -43,7 +43,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         this._advMode = false;
         this._currentStep = 1;
         this._gotoStep();
-        this._dagGraph = DagView.getActiveDag();
+        this._dagGraph = DagViewManager.Instance.getActiveDag();
         const model = $.extend(dagNode.getParam(), {
             schema: dagNode.getSchema(true) || []
         });
@@ -119,7 +119,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     }
 
     private _setupDatasetList(): void {
-        const sharedOnly: boolean = DagView.getActiveTab() instanceof DagTabPublished;
+        const sharedOnly: boolean = DagViewManager.Instance.getActiveTab() instanceof DagTabPublished;
         const rootPath: string = sharedOnly ? DSObjTerm.SharedFolder : DSTStr.Home;
         this._dsList = DS.listDatasets(sharedOnly);
         this._fileLister.setRootPath(rootPath);

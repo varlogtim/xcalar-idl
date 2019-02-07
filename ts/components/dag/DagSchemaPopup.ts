@@ -18,10 +18,10 @@ class DagSchemaPopup {
     public show(nodeId: DagNodeId): void {
         const self = this;
         this._nodeId = nodeId;
-        this._tabId = DagView.getActiveDag().getTabId();
-        this._dagNode = DagView.getActiveDag().getNode(this._nodeId);
+        this._tabId = DagViewManager.Instance.getActiveDag().getTabId();
+        this._dagNode = DagViewManager.Instance.getActiveDag().getNode(this._nodeId);
         this._$popup.addClass("active");
-        DagView.getNode(this._nodeId, this._tabId).addClass("lineageStart");
+        DagViewManager.Instance.getNode(this._nodeId, this._tabId).addClass("lineageStart");
         xcTooltip.hideAll();
         $(document).on('mousedown.hideDagSchema', function(event) {
             if ($(event.target).closest('#dagSchemaPopup').length === 0 &&
@@ -69,7 +69,7 @@ class DagSchemaPopup {
             .then(() => {
                 const lineage = self._dagNode.getLineage().getColumnHistory(colName, null, destCol.length > 0? destCol: null);
                 for (let i = 0; i < lineage.length; i++) {
-                    DagView.highlightLineage(lineage[i].id, lineage[i].childId, lineage[i].type);
+                    DagViewManager.Instance.highlightLineage(lineage[i].id, lineage[i].childId, lineage[i].type);
                 }
             });
         });
@@ -184,7 +184,7 @@ class DagSchemaPopup {
     }
 
     private _positionPopup(): void {
-        const $node: JQuery = DagView.getNode(this._nodeId, this._tabId);
+        const $node: JQuery = DagViewManager.Instance.getNode(this._nodeId, this._tabId);
         const rect: ClientRect = $node[0].getBoundingClientRect();
         let top: number = Math.max(5, rect.top);
         let left: number = Math.max(5, rect.left);
@@ -221,7 +221,7 @@ class DagSchemaPopup {
         this._$popup.removeClass("active");
         $(document).off('.hideDagSchema');
         this._$popup.find(".content").empty();
-        DagView.getNode(this._nodeId, this._tabId).removeClass("lineageStart");
+        DagViewManager.Instance.getNode(this._nodeId, this._tabId).removeClass("lineageStart");
         this._dagNode = null;
         this._nodeId = null;
         this._tabId = null;

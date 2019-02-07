@@ -26,7 +26,7 @@ class ColMenu extends AbstractMenu {
         $lis.removeClass("unavailable");
         $lis.removeClass("xc-hidden");
         xcTooltip.remove($lis);
-        if (DagView.getActiveTab() instanceof DagTabPublished ||
+        if (DagViewManager.Instance.getActiveTab() instanceof DagTabPublished ||
             node.getMaxChildren() === 0
         ) {
             // when it's out node or published tab

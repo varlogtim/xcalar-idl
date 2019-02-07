@@ -100,7 +100,7 @@ class DagNodeInfoPanel {
 
         this._$panel.on("click", ".closeBtn", () => {
             this.hide();
-            DagView.deselectNodes();
+            DagViewManager.Instance.deselectNodes();
         });
 
         this._$panel.on("click", ".collapsible .rowHeading", function(event) {
@@ -145,10 +145,10 @@ class DagNodeInfoPanel {
         const uneditable = (dagNodeType === DagNodeType.CustomInput ||
             dagNodeType === DagNodeType.CustomOutput ||
             dagNodeType === DagNodeType.Custom ||
-            DagView.getActiveArea().hasClass("viewOnly") ||
-            !(DagView.getActiveTab() instanceof DagTabUser ||
-            DagView.getActiveTab() instanceof DagTabCustom));
-        if (uneditable || DagView.isNodeLocked(this._activeNode.getId())) {
+            DagViewManager.Instance.getActiveArea().hasClass("viewOnly") ||
+            !(DagViewManager.Instance.getActiveTab() instanceof DagTabUser ||
+            DagViewManager.Instance.getActiveTab() instanceof DagTabCustom));
+        if (uneditable || DagViewManager.Instance.isNodeLocked(this._activeNode.getId())) {
             xcHelper.disableElement(this._$panel.find(".editConfig"), "");
         } else {
             xcHelper.enableElement(this._$panel.find(".editConfig"));
@@ -355,7 +355,7 @@ class DagNodeInfoPanel {
 
     private _restoreDataset(): void {
         const node: DagNodeDataset = <DagNodeDataset>this._activeNode;
-        const shareDS: boolean = DagView.getActiveTab() instanceof DagTabPublished;
+        const shareDS: boolean = DagViewManager.Instance.getActiveTab() instanceof DagTabPublished;
         DS.restoreSourceFromDagNode([node], shareDS);
     }
 }

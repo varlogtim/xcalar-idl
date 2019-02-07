@@ -1631,8 +1631,6 @@ SQLTStr = {
     "CreateCustomOperation": "Create Custom Operation",
     "ExpandCustomOperation": "Expand Custom Operation",
     "ExpandSQLOperation": "Expand SQL Operation",
-    "DrawNodesAndConnections": "Draw Nodes and Connections",
-    "EraseNodesAndConnections": "Erase Nodes and Connections",
     "NewTab": "Add a new dataflow tab",
     "DupTab": "Duplicate a dataflow tab",
     "Func": "SQL Functions",

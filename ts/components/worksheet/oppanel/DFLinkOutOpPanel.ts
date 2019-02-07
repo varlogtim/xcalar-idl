@@ -37,7 +37,7 @@ class DFLinkOutOpPanel extends BaseOpPanel {
 
     private _initialize(dagNode: DagNodeDFOut): void {
         this.dagNode = dagNode;
-        this.dagGraph = DagView.getActiveDag();
+        this.dagGraph = DagViewManager.Instance.getActiveDag();
         if (!this.dagGraph.hasNode(this.dagNode.getId())) {
             throw new Error("Invalid dag node");
         }

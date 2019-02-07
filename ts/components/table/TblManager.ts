@@ -2324,7 +2324,7 @@ class TblManager {
             if (!$table.hasClass("noOperation")) {
                 // when it's not table view in sql mdoe
                 const node: DagNode = DagTable.Instance.getBindNode();
-                if (DagView.getActiveTab() instanceof DagTabPublished ||
+                if (DagViewManager.Instance.getActiveTab() instanceof DagTabPublished ||
                     node != null && node.getMaxChildren() === 0
                 ) {
                     // when published tab or out node
@@ -2540,7 +2540,7 @@ class TblManager {
                 if (!$table.hasClass("noOperation")) {
                     // when it's not table view in sql mdoe
                     const node: DagNode = DagTable.Instance.getBindNode();
-                    if (DagView.getActiveTab() instanceof DagTabPublished ||
+                    if (DagViewManager.Instance.getActiveTab() instanceof DagTabPublished ||
                         node != null && node.getMaxChildren() === 0
                     ) {
                         // when published tab or out node

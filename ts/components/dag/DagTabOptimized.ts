@@ -222,7 +222,7 @@ class DagTabOptimized extends DagTab {
             this._isDoneExecuting = queryStateOutput.queryState !== QueryStateT.qrProcessing;
             if (this._isDoneExecuting) {
                 this._inProgress = false;
-                DagView.endOptimizedDFProgress(this._id, queryStateOutput);
+                DagViewManager.Instance.endOptimizedDFProgress(this._id, queryStateOutput);
                 this._dagGraph.setExecutor(null);
                 if (this._isFocused) {
                     DagTopBar.Instance.setState(this);
@@ -237,7 +237,7 @@ class DagTabOptimized extends DagTab {
                         DagTopBar.Instance.setState(this);
                     }
                 }
-                DagView.updateOptimizedDFProgress(this._id, queryStateOutput);
+                DagViewManager.Instance.updateOptimizedDFProgress(this._id, queryStateOutput);
             }
             deferred.resolve(queryStateOutput);
         })
@@ -261,7 +261,7 @@ class DagTabOptimized extends DagTab {
     // change the graph from the xcalarGetRetina graph to the
     // xcalarQueryState graph
     private _rerenderQueryStateGraph(queryStateOutput) {
-        DagView.cleanupClosedTab(this._dagGraph);
+        DagViewManager.Instance.cleanupClosedTab(this._dagGraph);
         this._dagGraph = this._constructGraphFromQuery(queryStateOutput.queryGraph.node);
         this._dagGraph.startExecution(queryStateOutput.queryGraph.node, null);
         this.setGraph(this._dagGraph);

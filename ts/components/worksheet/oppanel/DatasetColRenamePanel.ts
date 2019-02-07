@@ -167,7 +167,7 @@ class DatasetColRenamePanel {
         }
 
         if (Object.keys(renameMap.prefixes).length) {
-            const dagGraph = DagView.getActiveDag();
+            const dagGraph = DagViewManager.Instance.getActiveDag();
             dagGraph.applyColumnMapping(this.sourceNode.getId(), renameMap);
         }
         this.close();

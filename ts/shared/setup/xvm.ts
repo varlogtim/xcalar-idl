@@ -479,7 +479,7 @@ namespace XVM {
         SQLWorkSpace.Instance.switchMode();
         DSPreview.switchMode();
         let allPanelsClosed = MainMenu.switchMode();
-        DagView.switchMode()
+        DagViewManager.Instance.switchMode()
         .always(() => {
             $("#initialLoadScreen").hide();
             if (allPanelsClosed) {

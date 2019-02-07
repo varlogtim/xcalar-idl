@@ -74,7 +74,7 @@ class XcDagTableViewer extends XcTableViewer {
     }
 
     private _getNodeEl(): JQuery {
-        return DagView.getNode(this.dagNode.getId(), this.dataflowTabId);
+        return DagViewManager.Instance.getNode(this.dagNode.getId(), this.dataflowTabId);
     }
 
     private _showTableIconOnDagNode(): void {

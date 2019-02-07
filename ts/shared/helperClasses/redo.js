@@ -101,38 +101,38 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.DisconnectOperations] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.disconnectNodes(options.parentNodeId, options.childNodeId, options.connectorIndex, options.dataflowId);
+        DagViewManager.Instance.disconnectNodes(options.parentNodeId, options.childNodeId, options.connectorIndex, options.dataflowId);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.ConnectOperations] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
         var isReconnect = options.prevParentNodeId != null;
-        DagView.connectNodes(options.parentNodeId, options.childNodeId,
+        DagViewManager.Instance.connectNodes(options.parentNodeId, options.childNodeId,
                             options.connectorIndex, options.dataflowId, isReconnect);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.RemoveOperations] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        return DagView.removeNodes(options.nodeIds, options.dataflowId);
+        return DagViewManager.Instance.removeNodes(options.nodeIds, options.dataflowId);
     };
 
     redoFuncs[SQLOps.AddOperation] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.addBackNodes([options.nodeId], options.dataflowId);
+        DagViewManager.Instance.addBackNodes([options.nodeId], options.dataflowId);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.CopyOperations] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.addBackNodes(options.nodeIds, options.dataflowId);
+        DagViewManager.Instance.addBackNodes(options.nodeIds, options.dataflowId);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.MoveOperations] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.moveNodes(options.dataflowId, options.nodeInfos);
+        DagViewManager.Instance.moveNodes(options.dataflowId, options.nodeInfos);
         return PromiseHelper.resolve(null);
     };
 
@@ -151,19 +151,19 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.EditDescription] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.editDescription(options.nodeId, options.newDescription);
+        DagViewManager.Instance.editDescription(options.nodeId, options.newDescription);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.EditNodeTitle] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.editNodeTitle(options.nodeId, options.dataflowId, options.newTitle);
+        DagViewManager.Instance.editNodeTitle(options.nodeId, options.dataflowId, options.newTitle);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.NewComment] = function(options) {
         DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.addBackNodes([options.commentId], options.dataflowId);
+        DagViewManager.Instance.addBackNodes([options.commentId], options.dataflowId);
         return PromiseHelper.resolve(null);
     };
 
@@ -197,18 +197,6 @@ window.Redo = (function($, Redo) {
             return PromiseHelper.reject(err);
         });
         return tasks;
-    }
-
-    redoFuncs[SQLOps.DrawNodesAndConnections] = function(options) {
-        DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.drawNodesAndConnections(options.nodeIds, options.dataflowId);
-        return PromiseHelper.resolve(null);
-    };
-
-    redoFuncs[SQLOps.EraseNodesAndConnections] = function(options) {
-        DagTabManager.Instance.switchTab(options.dataflowId);
-        DagView.eraseNodesAndConnections(options.nodeIds, options.dataflowId);
-        return PromiseHelper.resolve(null);
     }
 
     /* USER STYLING/FORMATING OPERATIONS */

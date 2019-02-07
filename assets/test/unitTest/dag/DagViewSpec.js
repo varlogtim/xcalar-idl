@@ -18,7 +18,7 @@ describe("DagView Test", () => {
         })
         .then(function() {
             DagTabManager.Instance.newTab();
-            tabId = DagView.getActiveDag().getTabId();
+            tabId = DagViewManager.Instance.getActiveDag().getTabId();
             $dfArea = $dfWrap.find(".dataflowArea.active");
             MainMenu.openPanel("dagPanel", null);
             done();
@@ -49,16 +49,16 @@ describe("DagView Test", () => {
                     y: 40
                 }
             };
-            DagView.newNode(newNodeInfo);
+            DagViewManager.Instance.newNode(newNodeInfo);
             expect($dagView.find(".dataflowArea.active .operatorSvg").children().length).to.equal(1);
             expect($dagView.find(".dataflowArea.active .operator").length).to.equal(1);
             const $operator = $dagView.find(".dataflowArea.active .operator");
             expect($operator.attr("transform")).to.equal("translate(20,40)");
             expect($operator.hasClass("dataset")).to.be.true;
-            const dag = DagView.getActiveDag();
+            const dag = DagViewManager.Instance.getActiveDag();
 
             const nodeId = $operator.data("nodeid");
-            expect(DagView.getNode(nodeId).length).to.equal(1);
+            expect(DagViewManager.Instance.getNode(nodeId).length).to.equal(1);
             const position = dag.getNode(nodeId).getPosition();
             expect(position.x).to.equal(20);
             expect(position.y).to.equal(40);
@@ -70,9 +70,10 @@ describe("DagView Test", () => {
             let $operator;
             let left;
             let top;
-            const cacheFn = DagView.moveNodes;
+            let dagView = DagViewManager.Instance.getActiveDagView();
+            const cacheFn = dagView.moveNodes;
             let called = false;
-            DagView.moveNodes = function(tabId, nodeInfos) {
+            dagView.moveNodes = function(nodeInfos) {
                 expect(nodeInfos.length).to.equal(1);
                 expect(nodeInfos[0].id).to.equal($operator.data("nodeid"));
                 expect(nodeInfos[0].position.x).to.equal(left + 40);
@@ -102,16 +103,16 @@ describe("DagView Test", () => {
             expect($(".dragContainer").length).to.equal(0);
 
             expect(called).to.be.true;
-            DagView.moveNodes = cacheFn;
+            dagView.moveNodes = cacheFn;
         });
 
-        it("DagView.moveNode should work", function(done) {
+        it("DagViewManager.Instance.moveNode should work", function(done) {
             const $operator = $dfWrap.find(".dataflowArea.active .operator").eq(0);
             const nodeId = $operator.data("nodeid");
 
-            DagView.moveNodes(tabId, [{type: "dagNode", id: nodeId, position: {x: 220, y: 240}}])
+            DagViewManager.Instance.moveNodes(tabId, [{type: "dagNode", id: nodeId, position: {x: 220, y: 240}}])
             .always(function() {
-                const dag = DagView.getActiveDag();
+                const dag = DagViewManager.Instance.getActiveDag();
                 expect(dag.getNode(nodeId).getPosition().x).to.equal(220);
                 expect(dag.getNode(nodeId).getPosition().y).to.equal(240);
                 expect($operator.attr("transform")).to.equal("translate(220,240)");
@@ -130,13 +131,14 @@ describe("DagView Test", () => {
                     y: 20
                 }
             };
-            DagView.newNode(newNodeInfo);
+            DagViewManager.Instance.newNode(newNodeInfo);
         });
 
         it("drag and drop for connectors should work", function() {
-            const cacheFn = DagView.connectNodes;
+            let dagView = DagViewManager.Instance.getActiveDagView();
+            const cacheFn = dagView.connectNodes;
             let called = false;
-            DagView.connectNodes = function(pId, cId, index) {
+            dagView.connectNodes = function(pId, cId, index) {
                 expect(pId).to.equal($operator.data("nodeid"));
                 expect(cId).to.equal($operator.siblings(".operator").data("nodeid"));
                 expect(index).to.equal(0);
@@ -166,18 +168,18 @@ describe("DagView Test", () => {
             expect($dfWrap.find(".secondarySvg").length).to.equal(0);
 
             expect(called).to.be.true;
-            DagView.connectNodes = cacheFn;
+            dagView.connectNodes = cacheFn;
         });
 
-        it("DagView.connectNodes should work", function(done) {
+        it("DagViewManager.Instance.connectNodes should work", function(done) {
             const $operator = $dfWrap.find(".dataflowArea.active .operator").eq(0);
             const $child = $operator.siblings(".operator");
             const parentId = $operator.data("nodeid");
             const childId = $child.data("nodeid");
-            const tabId = DagView.getActiveDag().getTabId();
-            DagView.connectNodes(parentId, childId, 0, tabId)
+            const tabId = DagViewManager.Instance.getActiveDag().getTabId();
+            DagViewManager.Instance.connectNodes(parentId, childId, 0, tabId)
             .always(function() {
-                const dag = DagView.getActiveDag();
+                const dag = DagViewManager.Instance.getActiveDag();
                 expect(dag.getNode(parentId).children.length).to.equal(1);
                 expect(dag.getNode(parentId).parents.length).to.equal(0);
                 expect(dag.getNode(childId).parents.length).to.equal(1);
@@ -186,15 +188,15 @@ describe("DagView Test", () => {
                 done();
             });
         });
-        it("DagView.disconnectNodes should work", function(done) {
+        it("DagViewManager.Instance.disconnectNodes should work", function(done) {
             const $operator = $dfWrap.find(".dataflowArea.active .operator").eq(0);
             const $child = $operator.siblings(".operator");
             const parentId = $operator.data("nodeid");
             const childId = $child.data("nodeid");
-            const tabId = DagView.getActiveDag().getTabId();
-            DagView.disconnectNodes(parentId, childId, 0, tabId)
+            const tabId = DagViewManager.Instance.getActiveDag().getTabId();
+            DagViewManager.Instance.disconnectNodes(parentId, childId, 0, tabId)
             .always(function() {
-                const dag = DagView.getActiveDag();
+                const dag = DagViewManager.Instance.getActiveDag();
                 expect(dag.getNode(parentId).children.length).to.equal(0);
                 expect(dag.getNode(childId).parents.length).to.equal(0);
                 expect($dfArea.find(".edgeSvg .edge").length).to.equal(0);
@@ -206,7 +208,7 @@ describe("DagView Test", () => {
     describe("delete nodes", function() {
         let idCache = [];
         before(function() {
-            const dag = DagView.getActiveDag();
+            const dag = DagViewManager.Instance.getActiveDag();
             const nodes = dag.getAllNodes();
             nodes.forEach((node) => {
                 idCache.push(node.getId());
@@ -214,13 +216,13 @@ describe("DagView Test", () => {
         })
         it("delete should work", function(done) {
             expect($dfWrap.find(".dataflowArea.active .operator").length).to.equal(2);
-            const dag = DagView.getActiveDag();
+            const dag = DagViewManager.Instance.getActiveDag();
             let nodes = dag.getAllNodes();
             let nodeIds = [];
             nodes.forEach((node) => {
                 nodeIds.push(node.getId());
             });
-            DagView.removeNodes(nodeIds, dag.getTabId())
+            DagViewManager.Instance.removeNodes(nodeIds, dag.getTabId())
             .always(function() {
                 nodes = dag.getAllNodes();
                 let nodeIds = [];
@@ -234,10 +236,10 @@ describe("DagView Test", () => {
             });
         });
         it("add back should work", function(done) {
-            DagView.addBackNodes(idCache, tabId)
+            DagViewManager.Instance.addBackNodes(idCache, tabId)
             .always(function() {
                 expect($dfWrap.find(".dataflowArea.active .operator").length).to.equal(2);
-                const dag = DagView.getActiveDag();
+                const dag = DagViewManager.Instance.getActiveDag();
                 let nodes = dag.getAllNodes();
                 let nodeIds = [];
                 nodes.forEach((node) => {
@@ -273,8 +275,8 @@ describe("DagView Test", () => {
             expect($operator.find(".descriptionIcon").length).to.equal(0);
 
             const nodeId = $operator.data('nodeid');
-            DagView.editDescription(nodeId, "test");
-            const node = DagView.getActiveDag().getNode(nodeId);
+            DagViewManager.Instance.editDescription(nodeId, "test");
+            const node = DagViewManager.Instance.getActiveDag().getNode(nodeId);
             expect(node.getDescription()).to.equal("test");
             expect($operator.hasClass("hasDescription")).to.be.true;
             expect($operator.find(".descriptionIcon").length).to.equal(1);
@@ -286,8 +288,8 @@ describe("DagView Test", () => {
             expect($operator.find(".descriptionIcon").length).to.equal(1);
 
             const nodeId = $operator.data('nodeid');
-            DagView.editDescription(nodeId, "");
-            const node = DagView.getActiveDag().getNode(nodeId);
+            DagViewManager.Instance.editDescription(nodeId, "");
+            const node = DagViewManager.Instance.getActiveDag().getNode(nodeId);
             expect(node.getDescription()).to.equal("");
             expect($operator.hasClass("hasDescription")).to.be.false;
             expect($operator.find(".descriptionIcon").length).to.equal(0);
@@ -302,7 +304,7 @@ describe("DagView Test", () => {
         before(function() {
             $operator = $dfArea.find(".operator").eq(0);
             const nodeId = $operator.data("nodeid");
-            node = DagView.getActiveDag().getNode(nodeId);
+            node = DagViewManager.Instance.getActiveDag().getNode(nodeId);
         });
 
         it("node title should have no change", function() {
@@ -349,7 +351,7 @@ describe("DagView Test", () => {
         let oldShow;
 
         before(() => {
-            graph = DagView.getActiveDag();
+            graph = DagViewManager.Instance.getActiveDag();
             node = DagNodeFactory.create({type: DagNodeType.Dataset});
             graph.addNode(node);
             table = xcHelper.randName("test#abc")
@@ -363,7 +365,7 @@ describe("DagView Test", () => {
                 test = true;
                 return PromiseHelper.resolve();
             }
-            DagView.viewResult(node)
+            DagViewManager.Instance.viewResult(node)
             .then(() => {
                 expect(test).to.be.true;
                 done();
@@ -377,7 +379,7 @@ describe("DagView Test", () => {
             DagTable.Instance._show = () => {
                 return PromiseHelper.reject("test");
             }
-            DagView.viewResult(node)
+            DagViewManager.Instance.viewResult(node)
             .then(() => {
                 done("fail");
             })
@@ -389,7 +391,7 @@ describe("DagView Test", () => {
 
         it("should show alert in error code", (done) => {
             node.setTable("");
-            DagView.viewResult(node)
+            DagViewManager.Instance.viewResult(node)
             .then(() => {
                 done("fail");
             })
@@ -411,7 +413,7 @@ describe("DagView Test", () => {
         let tabId;
 
         before(() => {
-            tabId = DagView.getActiveDag().getTabId();
+            tabId = DagViewManager.Instance.getActiveDag().getTabId();
             const newNodeInfo = {
                 type: "filter",
                 display: {
@@ -419,28 +421,28 @@ describe("DagView Test", () => {
                     y: 20
                 }
             };
-            const node = DagView.newNode(newNodeInfo);
+            const node = DagViewManager.Instance.newNode(newNodeInfo);
             nodeId = node.getId();
-            $node = DagView.getNode(nodeId);
+            $node = DagViewManager.Instance.getNode(nodeId);
         });
 
         it("should add progress", () => {
-            DagView.addProgress(nodeId, tabId);
+            DagViewManager.Instance.addProgress(nodeId, tabId);
             expect($node.find(".opProgress").text()).to.equal("0%");
         });
 
         it.skip("should update progress", () => {
-            DagView.updateProgress(nodeId, tabId, 10);
+            DagViewManager.Instance.updateProgress(nodeId, tabId, 10);
             expect($node.find(".opProgress").text()).to.equal("10%");
         });
 
         it("should remove progress", () => {
-            DagView.removeProgress(nodeId, tabId);
+            DagViewManager.Instance.removeProgress(nodeId, tabId);
             expect($node.find(".opProgress").length).to.equal(0);
         });
 
         after(() => {
-            DagView.removeNodes([nodeId], tabId);
+            DagViewManager.Instance.removeNodes([nodeId], tabId);
         });
     });
 
@@ -458,14 +460,14 @@ describe("DagView Test", () => {
                     y: 40
                 }
             };
-            tabId = DagView.getActiveDag().getTabId();
-            DagView.newNode(newNodeInfo);
-            node1 = DagView.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
-            node2 = DagView.getActiveDag().getNode($dfArea.find(".operator.dataset").data("nodeid"));
-            node3 = DagView.getActiveDag().getNode($dfArea.find(".operator.map").data("nodeid"));
+            tabId = DagViewManager.Instance.getActiveDag().getTabId();
+            DagViewManager.Instance.newNode(newNodeInfo);
+            node1 = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
+            node2 = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.dataset").data("nodeid"));
+            node3 = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.map").data("nodeid"));
         });
         it("should align in a straight vertical line", function() {
-            DagView.autoAlign(DagView.getActiveDag().getTabId());
+            DagViewManager.Instance.autoAlign(DagViewManager.Instance.getActiveDag().getTabId());
             expect(node1.getPosition().x).to.equal(40);
             expect(node2.getPosition().x).to.equal(40);
             expect(node3.getPosition().x).to.equal(40);
@@ -474,9 +476,9 @@ describe("DagView Test", () => {
             expect(node3.getPosition().y).to.equal(160);
         });
         it("should align in a straight horizontal line when connected", function() {
-            DagView.connectNodes(node2.getId(), node1.getId(), 0, tabId);
-            DagView.connectNodes(node1.getId(), node3.getId(), 0, tabId);
-            DagView.autoAlign(DagView.getActiveDag().getTabId());
+            DagViewManager.Instance.connectNodes(node2.getId(), node1.getId(), 0, tabId);
+            DagViewManager.Instance.connectNodes(node1.getId(), node3.getId(), 0, tabId);
+            DagViewManager.Instance.autoAlign(DagViewManager.Instance.getActiveDag().getTabId());
             expect(node1.getPosition().y).to.equal(40);
             expect(node2.getPosition().y).to.equal(40);
             expect(node3.getPosition().y).to.equal(40);
@@ -504,14 +506,14 @@ describe("DagView Test", () => {
         let tabId;
         let copy;
         before(function() {
-            tabId = DagView.getActiveDag().getTabId();
-            node1 = DagView.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
-            node2 = DagView.getActiveDag().getNode($dfArea.find(".operator.dataset").data("nodeid"));
+            tabId = DagViewManager.Instance.getActiveDag().getTabId();
+            node1 = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
+            node2 = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.dataset").data("nodeid"));
         });
 
         it("should copy", function() {
-            DagView.selectNodes(tabId, [node1.getId(), node2.getId()]);
-            copy = DagView.copyNodes([node1.getId(), node2.getId()]);
+            DagViewManager.Instance.selectNodes(tabId, [node1.getId(), node2.getId()]);
+            copy = DagViewManager.Instance.copyNodes([node1.getId(), node2.getId()]);
             copy = JSON.parse(copy);
             expect(copy.length).to.equal(2);
             expect(copy[0].type).to.equal("filter");
@@ -528,8 +530,8 @@ describe("DagView Test", () => {
         });
 
         it("should copy connected nodes", function() {
-            DagView.connectNodes(node2.getId(), node1.getId(), 0, tabId);
-            copy = DagView.copyNodes([node1.getId(), node2.getId()]);
+            DagViewManager.Instance.connectNodes(node2.getId(), node1.getId(), 0, tabId);
+            copy = DagViewManager.Instance.copyNodes([node1.getId(), node2.getId()]);
             copy = JSON.parse(copy);
             expect(copy.length).to.equal(2);
             expect(copy[0].type).to.equal("filter");
@@ -547,7 +549,7 @@ describe("DagView Test", () => {
         });
 
         it("should not copy parent id if selecting 1 node", function() {
-            copy = DagView.copyNodes([node1.getId()]);
+            copy = DagViewManager.Instance.copyNodes([node1.getId()]);
             copy = JSON.parse(copy);
             expect(copy.length).to.equal(1);
             expect(copy[0].type).to.equal("filter");
@@ -559,7 +561,7 @@ describe("DagView Test", () => {
 
         it("cut should work", function() {
             expect($dfArea.find(".operator").length).to.equal(2);
-            copy = DagView.cutNodes([node1.getId(), node2.getId()]);
+            copy = DagViewManager.Instance.cutNodes([node1.getId(), node2.getId()]);
             copy = JSON.parse(copy);
             expect($dfArea.find(".operator").length).to.equal(0);
 
@@ -580,10 +582,11 @@ describe("DagView Test", () => {
 
         it("paste should work", function() {
             expect($dfArea.find(".operator").length).to.equal(0);
-            DagView.pasteNodes(copy);
+            let dagView = DagViewManager.Instance.getActiveDagView();
+            dagView.pasteNodes(copy);
             expect($dfArea.find(".operator").length).to.equal(2);
-            let node1b = DagView.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
-            let node2b = DagView.getActiveDag().getNode($dfArea.find(".operator.dataset").data("nodeid"));
+            let node1b = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
+            let node2b = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.dataset").data("nodeid"));
             expect(node1b.getId()).to.not.equal(node1.getId());
             expect(node2b.getId()).to.not.equal(node2.getId());
 
@@ -594,7 +597,8 @@ describe("DagView Test", () => {
         });
 
         it("paste validation should work", function() {
-            let validate = DagView["__testOnly__"]["_validateAndPaste"];
+            let dagView = DagViewManager.Instance.getActiveDagView();
+            let validate = dagView.validateAndPaste;
             validate("x");
             UnitTest.hasStatusBoxWithError("Cannot paste invalid format. Nodes must be in a valid JSON format.");
 
@@ -616,7 +620,7 @@ describe("DagView Test", () => {
             expect($("#statusBox")).to.be.visible;
             StatusBox.forceHide();
 
-            validate('[{"type": "filter", "display": {"x":20, "y":20}, "nodeId": "a", "input":{}, "parents":["b"], "configured":true}]');
+            validate.call(dagView, '[{"type": "filter", "display": {"x":20, "y":20}, "nodeId": "a", "input":{}, "parents":["b"], "configured":true}]');
             expect($("#statusBox")).to.not.be.visible;
         });
 
@@ -645,21 +649,21 @@ describe("DagView Test", () => {
                     y: 40
                 }
             };
-            tabId = DagView.getActiveDag().getTabId();
-            DagView.newNode(newNodeInfo);
-            node1 = DagView.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
-            node2 = DagView.getActiveDag().getNode($dfArea.find(".operator.dataset").data("nodeid"));
-            node3 = DagView.getActiveDag().getNode($dfArea.find(".operator.map").data("nodeid"));
-            DagView.autoAlign(DagView.getActiveDag().getTabId());
+            tabId = DagViewManager.Instance.getActiveDag().getTabId();
+            DagViewManager.Instance.newNode(newNodeInfo);
+            node1 = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
+            node2 = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.dataset").data("nodeid"));
+            node3 = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.map").data("nodeid"));
+            DagViewManager.Instance.autoAlign(DagViewManager.Instance.getActiveDag().getTabId());
         });
 
         it ("should create custom node from 1 node", function() {
             expect($dfArea.find(".operator.filter").length).to.equal(1);
             expect($dfArea.find(".operator.custom").length).to.equal(0);
-            DagView.wrapCustomOperator([node1.getId()]);
+            DagViewManager.Instance.wrapCustomOperator([node1.getId()]);
             expect($dfArea.find(".operator.filter").length).to.equal(0);
             expect($dfArea.find(".operator.custom").length).to.equal(1);
-            customNode = DagView.getActiveDag().getNode($dfArea.find(".operator.custom").data("nodeid"));
+            customNode = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.custom").data("nodeid"));
         });
 
         it("custom node should have correct properties", function() {
@@ -677,12 +681,12 @@ describe("DagView Test", () => {
         });
 
         it ("expand should work", function(done) {
-            DagView.expandCustomNode(customNode.getId())
+            DagViewManager.Instance.expandCustomNode(customNode.getId())
             .then(function() {
                 expect($dfArea.find(".operator.filter").length).to.equal(1);
                 expect($dfArea.find(".operator.custom").length).to.equal(0);
                 node1b = node1;
-                node1 = DagView.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
+                node1 = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
                 expect(node1.getId()).to.not.equal(node1b.getId());
                 expect(node1.getPosition().x).to.equal(node1b.getPosition().x);
                 expect(node1.getPosition().y).to.equal(node1b.getPosition().y);
@@ -697,17 +701,17 @@ describe("DagView Test", () => {
 
         describe("wrap/expand node with 1 parent, 1 child", function() {
             before(function() {
-                DagView.connectNodes(node2.getId(), node1.getId(), 0, tabId);
-                DagView.connectNodes(node1.getId(), node3.getId(), 0, tabId);
+                DagViewManager.Instance.connectNodes(node2.getId(), node1.getId(), 0, tabId);
+                DagViewManager.Instance.connectNodes(node1.getId(), node3.getId(), 0, tabId);
             });
 
             it ("should create custom node", function() {
                 expect($dfArea.find(".operator.filter").length).to.equal(1);
                 expect($dfArea.find(".operator.custom").length).to.equal(0);
-                DagView.wrapCustomOperator([node1.getId()]);
+                DagViewManager.Instance.wrapCustomOperator([node1.getId()]);
                 expect($dfArea.find(".operator.filter").length).to.equal(0);
                 expect($dfArea.find(".operator.custom").length).to.equal(1);
-                customNode = DagView.getActiveDag().getNode($dfArea.find(".operator.custom").data("nodeid"));
+                customNode = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.custom").data("nodeid"));
             });
 
             it("custom node should have correct properties", function() {
@@ -728,12 +732,12 @@ describe("DagView Test", () => {
             });
 
             it ("expand should work", function(done) {
-                DagView.expandCustomNode(customNode.getId())
+                DagViewManager.Instance.expandCustomNode(customNode.getId())
                 .then(function() {
                     expect($dfArea.find(".operator.filter").length).to.equal(1);
                     expect($dfArea.find(".operator.custom").length).to.equal(0);
                     node1b = node1;
-                    node1 = DagView.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
+                    node1 = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
                     expect(node1.getId()).to.not.equal(node1b.getId());
 
                     expect(node1.getPosition().x).to.equal(node1b.getPosition().x);
@@ -757,16 +761,16 @@ describe("DagView Test", () => {
         let node3;
         let node4;
         before(function() {
-            tabId = DagView.getActiveDag().getTabId();
-            node3 = DagView.getActiveDag().getNode($dfArea.find(".operator.map").data("nodeid"));
+            tabId = DagViewManager.Instance.getActiveDag().getTabId();
+            node3 = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.map").data("nodeid"));
         });
         it("should add groupby node", function(done) {
             expect($dfArea.find(".operator").length).to.equal(3);
             expect($dfArea.find(".operator.groupBy").length).to.equal(0);
-            DagView.autoAddNode("groupBy");
+            DagViewManager.Instance.autoAddNode("groupBy");
             expect($dfArea.find(".operator").length).to.equal(4);
             expect($dfArea.find(".operator.groupBy").length).to.equal(1);
-            node4 = DagView.getActiveDag().getNode($dfArea.find(".operator.groupBy").data("nodeid"));
+            node4 = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.groupBy").data("nodeid"));
             expect(node4.getPosition().x).to.be.gt(100);
             expect(node4.getPosition().y).to.be.gt(40);
             expect(node4.getPosition().x).to.be.lt(10000);
@@ -785,11 +789,11 @@ describe("DagView Test", () => {
         it ("should add groupby node as child of map node", function(done) {
             expect($dfArea.find(".operator").length).to.equal(3);
             expect($dfArea.find(".operator.groupBy").length).to.equal(0);
-            DagView.autoAddNode("groupBy", null, node3.getId(),
+            DagViewManager.Instance.autoAddNode("groupBy", null, node3.getId(),
             {"groupBy":[""],"aggregate":[{"operator":"","sourceColumn":"","destColumn":"","distinct":false,"cast":null}],"includeSample":false,"joinBack":false,"icv":false,"groupAll":false,"newKeys":[],"dhtName":""});
             expect($dfArea.find(".operator").length).to.equal(4);
             expect($dfArea.find(".operator.groupBy").length).to.equal(1);
-            node4 = DagView.getActiveDag().getNode($dfArea.find(".operator.groupBy").data("nodeid"));
+            node4 = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.groupBy").data("nodeid"));
             expect(node4.getParents().length).to.equal(1);
             expect(node4.getParents()[0].getId()).to.equal(node3.getId());
             expect(node4.getChildren().length).to.equal(0);
@@ -806,36 +810,36 @@ describe("DagView Test", () => {
 
     describe("zoom", function() {
         it("should zoom in", function(){
-            expect(DagView.getActiveDag().getScale()).to.equal(1);
-            DagView.zoom(null, 1.6);
-            expect(DagView.getActiveDag().getScale()).to.equal(1.6);
+            expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(1);
+            DagViewManager.Instance.zoom(null, 1.6);
+            expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(1.6);
         });
         it("should zoom out", function() {
-            expect(DagView.getActiveDag().getScale()).to.equal(1.6);
-            DagView.zoom(false);
-            expect(DagView.getActiveDag().getScale()).to.equal(1.5);
+            expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(1.6);
+            DagViewManager.Instance.zoom(false);
+            expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(1.5);
         });
         it("should zoom out", function() {
-            expect(DagView.getActiveDag().getScale()).to.equal(1.5);
-            DagView.zoom(false);
-            expect(DagView.getActiveDag().getScale()).to.equal(1);
+            expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(1.5);
+            DagViewManager.Instance.zoom(false);
+            expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(1);
         });
         it("should zoom out", function() {
-            expect(DagView.getActiveDag().getScale()).to.equal(1);
-            DagView.zoom(false);
-            expect(DagView.getActiveDag().getScale()).to.equal(0.75);
+            expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(1);
+            DagViewManager.Instance.zoom(false);
+            expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(0.75);
         });
         it("should zoom in", function() {
-            expect(DagView.getActiveDag().getScale()).to.equal(0.75);
-            DagView.zoom(true);
-            expect(DagView.getActiveDag().getScale()).to.equal(1);
+            expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(0.75);
+            DagViewManager.Instance.zoom(true);
+            expect(DagViewManager.Instance.getActiveDag().getScale()).to.equal(1);
         });
     });
 
     describe("comment", function() {
         it("new comment should work", function() {
             expect($dfArea.find(".comment").length).to.equal(0);
-            DagView.newComment({
+            DagViewManager.Instance.newComment({
                 display: {x: 60, y:50}, text: "hello"
             });
             expect($dfArea.find(".comment").length).to.equal(1);
@@ -846,7 +850,7 @@ describe("DagView Test", () => {
         it("should remove comment", function(){
             expect($dfArea.find(".comment").length).to.equal(1);
             let commentId = $dfArea.find(".comment").data("nodeid");
-            DagView.removeNodes([commentId], tabId);
+            DagViewManager.Instance.removeNodes([commentId], tabId);
             expect($dfArea.find(".comment").length).to.equal(0);
         });
     });
@@ -857,8 +861,8 @@ describe("DagView Test", () => {
         let synthesizeNode;
         let filter2Node;
         before(function(done) {
-            tabId = DagView.getActiveDag().getTabId();
-            datasetNode = DagView.getActiveDag().getNode($dfArea.find(".operator.dataset").data("nodeid"));
+            tabId = DagViewManager.Instance.getActiveDag().getTabId();
+            datasetNode = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.dataset").data("nodeid"));
 
             const newNodeInfo = {
                 type: "sql",
@@ -867,7 +871,7 @@ describe("DagView Test", () => {
                     y: 20
                 }
             };
-            DagView.newNode(newNodeInfo);
+            DagViewManager.Instance.newNode(newNodeInfo);
 
             datasetNode.setParam({"source":"rudy.08604.classes","prefix":"classes","synthesize":false,"loadArgs":"{\n    \"operation\": \"XcalarApiBulkLoad\",\n    \"comment\": \"\",\n    \"tag\": \"\",\n    \"state\": \"Unknown state\",\n    \"args\": {\n        \"dest\": \"rudy.08604.classes\",\n        \"loadArgs\": {\n            \"sourceArgsList\": [\n                {\n                    \"targetName\": \"Default Shared Root\",\n                    \"path\": \"/netstore/datasets/indexJoin/classes/classes.json\",\n                    \"fileNamePattern\": \"\",\n                    \"recursive\": false\n                }\n            ],\n            \"parseArgs\": {\n                \"parserFnName\": \"default:parseJson\",\n                \"parserArgJson\": \"{}\",\n                \"fileNameFieldName\": \"\",\n                \"recordNumFieldName\": \"\",\n                \"allowFileErrors\": false,\n                \"allowRecordErrors\": false,\n                \"schema\": []\n            },\n            \"size\": 10737418240\n        }\n    },\n    \"annotations\": {}\n}","schema":[{"name":"classes::class_name","type":"string"},{"name":"classes::class_id","type":"integer"}]});
             datasetNode.schema = [{"name":"class_name","type":"string"}
@@ -876,12 +880,12 @@ describe("DagView Test", () => {
             .then(() => {
                 datasetNode.beConfiguredState();
                 MainMenu.openPanel("dagPanel", null);
-                return DagView.run([datasetNode.getId()]);
+                return DagViewManager.Instance.run([datasetNode.getId()]);
             })
             .then(() => {
-                sqlNode = DagView.getActiveDag().getNode($dfArea.find(".operator.sql").data("nodeid"));
-                DagView.connectNodes(datasetNode.getId(), sqlNode.getId(), 0, tabId);
-                DagView.autoAlign(tabId);
+                sqlNode = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.sql").data("nodeid"));
+                DagViewManager.Instance.connectNodes(datasetNode.getId(), sqlNode.getId(), 0, tabId);
+                DagViewManager.Instance.autoAlign(tabId);
                 DagNodeMenu.execute("configureNode", {
                     node: sqlNode
                 });
@@ -913,7 +917,7 @@ describe("DagView Test", () => {
 
         it("inspect should work", function(done) {
             let numTabs = $dagView.find(".dagTab").length;
-            DagView.inspectSQLNode(sqlNode.getId(), tabId)
+            DagViewManager.Instance.inspectSQLNode(sqlNode.getId(), tabId)
             .then(function() {
                 $dfArea = $dfWrap.find(".dataflowArea.active");
                 expect($dagView.find(".dagTab").length).to.equal(numTabs + 1);
@@ -921,7 +925,7 @@ describe("DagView Test", () => {
                 expect($dfArea.find(".operator.synthesize").length).to.equal(1);
                 expect($dfArea.find(".operator.SQLSubInput").length).to.equal(1);
                 expect($dfArea.find(".operator.SQLSubOutput").length).to.equal(1);
-                synthesizeNode = DagView.getActiveDag().getNode($dfArea.find(".operator.synthesize").data("nodeid"));
+                synthesizeNode = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.synthesize").data("nodeid"));
 
                 expect(synthesizeNode.getParents().length).to.equal(1);
                 expect(synthesizeNode.getChildren().length).to.equal(1);
@@ -933,9 +937,9 @@ describe("DagView Test", () => {
         });
 
         it ("validate inspect tab", function() {
-            let inNode = DagView.getActiveDag().getNode($dfArea.find(".operator.SQLSubInput").data("nodeid"));
-            let outNode = DagView.getActiveDag().getNode($dfArea.find(".operator.SQLSubOutput").data("nodeid"));
-            let filter2Node = DagView.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
+            let inNode = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.SQLSubInput").data("nodeid"));
+            let outNode = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.SQLSubOutput").data("nodeid"));
+            let filter2Node = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
 
             expect(synthesizeNode.getParents()[0].getId()).to.equal(inNode.getId());
             expect(synthesizeNode.getChildren()[0].getId()).to.equal(filter2Node.getId());
@@ -955,11 +959,11 @@ describe("DagView Test", () => {
         });
 
         it("expand should work", function(done) {
-            DagView.expandSQLNode(sqlNode.getId())
+            DagViewManager.Instance.expandSQLNode(sqlNode.getId())
             .then(() => {
                 expect($dfArea.find(".operator").length).to.equal(5);
-                synthesizeNode = DagView.getActiveDag().getNode($dfArea.find(".operator.synthesize").data("nodeid"));
-                filter2Node = DagView.getActiveDag().getNode($dfArea.find(".operator.filter").last().data("nodeid"));
+                synthesizeNode = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.synthesize").data("nodeid"));
+                filter2Node = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.filter").last().data("nodeid"));
                 expect(synthesizeNode.getPosition().x).to.equal(sqlNode.getPosition().x);
                 expect(synthesizeNode.getPosition().y).to.equal(sqlNode.getPosition().y);
                 expect(filter2Node.getPosition().x).to.equal(sqlNode.getPosition().x + 140);
@@ -981,7 +985,7 @@ describe("DagView Test", () => {
             Log.undo()
             .then(() => {
                 expect($dfArea.find(".operator").length).to.equal(4);
-                sqlNode = DagView.getActiveDag().getNode($dfArea.find(".operator.sql").data("nodeid"));
+                sqlNode = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.sql").data("nodeid"));
                 expect(prevx).to.equal(sqlNode.getPosition().x);
                 expect(prevy).to.equal(sqlNode.getPosition().y);
 
@@ -997,7 +1001,7 @@ describe("DagView Test", () => {
         });
 
         it("execute should work", function(done) {
-            DagView.run([sqlNode.getId()])
+            DagViewManager.Instance.run([sqlNode.getId()])
             .then(() => {
                 let $sqlNode = $dfArea.find(".operator.sql");
                 expect($sqlNode.hasClass("state-Complete"));
@@ -1014,7 +1018,7 @@ describe("DagView Test", () => {
 
         it("inspect after execute should work", function(done) {
             let numTabs = $dagView.find(".dagTab").length;
-            DagView.inspectSQLNode(sqlNode.getId(), tabId)
+            DagViewManager.Instance.inspectSQLNode(sqlNode.getId(), tabId)
             .then(function() {
                 $dfArea = $dfWrap.find(".dataflowArea.active");
                 expect($dagView.find(".dagTab").length).to.equal(numTabs + 1);
@@ -1023,8 +1027,8 @@ describe("DagView Test", () => {
                 expect($dfArea.find(".operator.SQLSubInput").length).to.equal(1);
                 expect($dfArea.find(".operator.SQLSubOutput").length).to.equal(1);
 
-                let synthesizeNode = DagView.getActiveDag().getNode($dfArea.find(".operator.synthesize").data("nodeid"));
-                let filterNode = DagView.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
+                let synthesizeNode = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.synthesize").data("nodeid"));
+                let filterNode = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.filter").data("nodeid"));
 
                 let $synthesizeNode = $dfArea.find(".operator.synthesize");
                 expect($synthesizeNode.hasClass("state-Complete"));
@@ -1055,10 +1059,10 @@ describe("DagView Test", () => {
         let mapNode;
         let datasetNode;
         before(function() {
-            tabId = DagView.getActiveDag().getTabId();
-            sqlNode = DagView.getActiveDag().getNode($dfArea.find(".operator.sql").data("nodeid"));
-            mapNode = DagView.getActiveDag().getNode($dfArea.find(".operator.map").data("nodeid"));
-            datasetNode = DagView.getActiveDag().getNode($dfArea.find(".operator.dataset").data("nodeid"));
+            tabId = DagViewManager.Instance.getActiveDag().getTabId();
+            sqlNode = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.sql").data("nodeid"));
+            mapNode = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.map").data("nodeid"));
+            datasetNode = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.dataset").data("nodeid"));
 
         });
 
@@ -1092,7 +1096,7 @@ describe("DagView Test", () => {
         });
 
         it("disconnecting first index should work", function() {
-            DagView.disconnectNodes(datasetNode.getId(), sqlNode.getId(), 0, tabId);
+            DagViewManager.Instance.disconnectNodes(datasetNode.getId(), sqlNode.getId(), 0, tabId);
             expect(sqlNode.getParents().length).to.equal(1);
             expect(sqlNode.getParents()[0].getId()).to.equal(mapNode.getId());
             expect($dfArea.find('.edge[data-childnodeid="' + sqlNode.getId() + '"]').length).to.equal(1);
@@ -1119,7 +1123,7 @@ describe("DagView Test", () => {
 
     it("should reset dag", () => {
         UnitTest.onMinMode();
-        DagView.reset();
+        DagViewManager.Instance.reset();
         UnitTest.hasAlertWithTitle(DagTStr.Reset);
         UnitTest.offMinMode();
     });
@@ -1127,7 +1131,7 @@ describe("DagView Test", () => {
 
     after(function(done) {
         UnitTest.offMinMode();
-        const dag = DagView.getActiveDag();
+        const dag = DagViewManager.Instance.getActiveDag();
         const nodes = dag.getAllNodes();
         let nodeIds = [];
         nodes.forEach((node) => {
@@ -1135,7 +1139,7 @@ describe("DagView Test", () => {
         });
 
         let dagTab =  DagTabManager.Instance.getTabById(tabId);
-        DagView.removeNodes(nodeIds, dag.getTabId())
+        DagViewManager.Instance.removeNodes(nodeIds, dag.getTabId())
         .then(function() {
             DagTabManager.Instance.removeTab(tabId);
             return dagTab.delete();

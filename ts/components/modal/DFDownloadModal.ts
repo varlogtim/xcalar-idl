@@ -247,18 +247,18 @@ class DFDownloadModal {
         let nodeToInclude: Map<DagNodeId, DagNode>;
         if (partialSelection) {
             nodeToInclude = graph.backTraverseNodes(selectedNodes).map;
+            graph.getAllNodes().forEach((_node, nodeId) => {
+                if (!nodeToInclude.has(nodeId)) {
+                    graph.removeNode(nodeId);
+                }
+            });
         }
 
-        graph.getAllNodes().forEach((_node, nodeId) => {
-            if (partialSelection && !nodeToInclude.has(nodeId)) {
-                graph.removeNode(nodeId);
-            }
-        });
         graph.clear();
     }
 
     private _downloadImage(name: string): XDPromise<void> {
-        const $dataflowArea: JQuery = DagView.getAreaByTab(this._dagTab.getId());
+        const $dataflowArea: JQuery = DagViewManager.Instance.getAreaByTab(this._dagTab.getId());
         if ($dataflowArea.length === 0) {
             return PromiseHelper.reject(ErrTStr.InvalidDFDownload);
         }

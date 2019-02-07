@@ -509,11 +509,9 @@ class DagGraph {
             this.events.trigger(DagNodeEvents.AutoExecute, info);
         })
         .registerEvents(DagNodeEvents.StartSQLCompile, (info) => {
-            info.tabId = this.parentTabId;
             this.events.trigger(DagNodeEvents.StartSQLCompile, info);
         })
         .registerEvents(DagNodeEvents.EndSQLCompile, (info) => {
-            info.tabId = this.parentTabId;
             this.events.trigger(DagNodeEvents.EndSQLCompile, info);
         });
     }

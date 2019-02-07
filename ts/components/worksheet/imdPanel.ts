@@ -1806,7 +1806,7 @@ namespace IMDPanel {
                     y: i * 30 + 30
                 }
             }
-            let node: DagNode = DagView.newNode(newNodeInfo);
+            let node: DagNode = DagViewManager.Instance.newNode(newNodeInfo);
             node.setParam(tableInfo);
         };
     }

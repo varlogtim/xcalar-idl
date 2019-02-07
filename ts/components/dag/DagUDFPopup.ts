@@ -25,9 +25,9 @@ class DagUDFPopup {
     }
 
     public show(nodeId: DagNodeId): void {
-        const dagNode = DagView.getActiveDag().getNode(nodeId);
+        const dagNode = DagViewManager.Instance.getActiveDag().getNode(nodeId);
         if (dagNode instanceof DagNodeMap) {
-            const $elemNode = DagView.getNode(nodeId);
+            const $elemNode = DagViewManager.Instance.getNode(nodeId);
             this._$popup.addClass("active");
             this._positionPopup($elemNode[0].getBoundingClientRect());
             xcTooltip.hideAll();
@@ -37,7 +37,7 @@ class DagUDFPopup {
                     this._close();
                 }
             });
-        
+
             const $content = this._$popup.find('.content');
             const $header = this._$popup.find('.selHeader');
             const $background = this._$popup.find('.background');
@@ -46,7 +46,7 @@ class DagUDFPopup {
             $header.hide();
             $background.hide();
             // Call API to get resolutions
-            this._getUDFResolution(dagNode, DagView.getActiveTab())
+            this._getUDFResolution(dagNode, DagViewManager.Instance.getActiveTab())
             .then((udfRes) => {
                 const convertedMap: Map<string, string> = new Map();
                 udfRes.forEach((path, moduleName) => {

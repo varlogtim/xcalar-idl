@@ -41,10 +41,10 @@ class DFSettingsModal {
             UserSettings.setPref(name, val, false);
             switch(name) {
                 case ("dfProgressTips"):
-                    DagView.toggleProgressTips(val);
+                    DagViewManager.Instance.toggleProgressTips(val);
                     break;
                 case ("dfConfigInfo"):
-                    DagView.toogleConfigInfo(val);
+                    DagViewManager.Instance.toogleConfigInfo(val);
                     break;
                 default:
                     break;

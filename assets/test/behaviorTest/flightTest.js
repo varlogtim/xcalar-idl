@@ -383,7 +383,7 @@ window.FlightTest = (function(FlightTest, $) {
         // execute the dataflow
         function flightTestPart10(finalNodeId) {
             console.log("start flightTestPart10", "execute the dataflow");
-            const $node = DagView.getNode(finalNodeId);
+            const $node = DagViewManager.Instance.getNode(finalNodeId);
             test.nodeMenuAction($node, "executeNode");
 
             test.executeNode(finalNodeId)
@@ -707,9 +707,9 @@ window.FlightTest = (function(FlightTest, $) {
         test.assert($joinNode.length === 1);
 
         const joinNodeId = $joinNode.data("nodeid");
-        const mapNode = DagView.getActiveDag().getNode(joinNodeId).getParents()[0];
+        const mapNode = DagViewManager.Instance.getActiveDag().getNode(joinNodeId).getParents()[0];
         const mapNodeId = mapNode.getId();
-        const $mapNode = DagView.getNode(mapNodeId);
+        const $mapNode = DagViewManager.Instance.getNode(mapNodeId);
         test.assert($mapNode.hasClass("map"));
 
         const dfName = $("#dagTabView .dagTab.active .name").text();
@@ -854,7 +854,7 @@ window.FlightTest = (function(FlightTest, $) {
         })
         .then(() => {
             console.log("preview multi join result");
-            const $node = DagView.getNode(joinNodeId);
+            const $node = DagViewManager.Instance.getNode(joinNodeId);
             test.nodeMenuAction($node, "viewResult");
             return test.checkExists("#dagViewTableArea:visible .xcTableWrap");
         })
@@ -883,22 +883,22 @@ window.FlightTest = (function(FlightTest, $) {
             .then(() => {
                 const $dropdown = $panel.find('.mainTable .joinClause .col-left .hintDropdown').eq(i)
                 $dropdown.find('.colNameMenuIcon').trigger(fakeEvent.mouseup);
-                return dealyPromise(0);    
+                return dealyPromise(0);
             })
             .then(() => {
                 const $dropdown = $panel.find('.mainTable .joinClause .col-left .hintDropdown').eq(i)
                 $dropdown.find(`li:contains(${lCols[i]})`).trigger(fakeEvent.mouseup);
-                return dealyPromise(0);    
+                return dealyPromise(0);
             })
             .then(() => {
                 const $dropdown = $panel.find('.mainTable .joinClause .col-right .hintDropdown').eq(i)
                 $dropdown.find('.colNameMenuIcon').trigger(fakeEvent.mouseup);
-                return dealyPromise(0);    
+                return dealyPromise(0);
             })
             .then(() => {
                 const $dropdown = $panel.find('.mainTable .joinClause .col-right .hintDropdown').eq(i)
                 $dropdown.find(`li:contains(${rCols[i]})`).trigger(fakeEvent.mouseup);
-                return dealyPromise(0);    
+                return dealyPromise(0);
             })
         };
 

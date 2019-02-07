@@ -15,7 +15,7 @@ class DagSearch {
     }
 
     public update(): void {
-        const $dfArea: JQuery = DagView.getActiveArea();
+        const $dfArea: JQuery = DagViewManager.Instance.getActiveArea();
         this.switchTab($dfArea);
     }
 
@@ -40,14 +40,14 @@ class DagSearch {
             if (UserSettings.getPref("dfConfigInfo")) {
                 selector += ", .paramTitle";
             }
-            const $searchableFields: JQuery = DagView.getActiveArea().find(selector);
+            const $searchableFields: JQuery = DagViewManager.Instance.getActiveArea().find(selector);
             const matches = $searchableFields.filter((_index, el) => {
                 return $(el).text().toLowerCase().includes(keyword);
             }).toArray();
 
             // find the one in view as first
             let startIndex: number = 0;
-            const $container: JQuery = DagView.getActiveArea();
+            const $container: JQuery = DagViewManager.Instance.getActiveArea();
             matches.forEach((el, index) => {
                 const $match: JQuery = $(el);
                 if (DagUtil.isInView($match, $container)) {
@@ -59,7 +59,7 @@ class DagSearch {
             const $matches: JQuery = $(reorderMatches);
 
             this._searchHelper.updateResults($matches);
-            this._clearSearhHighlightInDagView(DagView.getActiveArea());
+            this._clearSearhHighlightInDagView(DagViewManager.Instance.getActiveArea());
             if ($matches.length !== 0) {
                 let $searchToFocus: JQuery = $matches.eq(0);
                 this._searchHelper.scrollMatchIntoView($searchToFocus);
@@ -69,7 +69,7 @@ class DagSearch {
     }
 
     private _clearSearch(): void {
-        this._clearSearhHighlightInDagView(DagView.getActiveArea());
+        this._clearSearhHighlightInDagView(DagViewManager.Instance.getActiveArea());
         this._searchHelper.clearSearch();
     }
 
@@ -99,7 +99,7 @@ class DagSearch {
         const $searchArea: JQuery = this._getSearchArea();
         this._searchHelper = new SearchBar($searchArea, {
             removeSelected: () => {
-                this._clearSearhHighlightInDagView(DagView.getActiveArea());
+                this._clearSearhHighlightInDagView(DagViewManager.Instance.getActiveArea());
             },
             highlightSelected: ($match) => {
                 $match.addClass("highlight");
@@ -122,7 +122,7 @@ class DagSearch {
                     }
 
                     if ($("#dagView").is(":visible") &&
-                        DagView.getActiveArea().length
+                        DagViewManager.Instance.getActiveArea().length
                     ) {
                         if ($("input:focus").length || $("textarea:focus").length ||
                             $('[contentEditable="true"]').length) {

@@ -70,23 +70,23 @@ describe("SQLWorkSpace Test", () => {
 
     it("should focus", () => {
         let oldRefresh = SQLWorkSpace.Instance.refresh;
-        let oldToggle = DagView.toggleSqlPreview;
+        let oldToggle = DagViewManager.Instance.toggleSqlPreview;
         let called = 0;
         SQLWorkSpace.Instance.refresh = () => { called++; };
-        DagView.toggleSqlPreview = () => { called++; };
+        DagViewManager.Instance.toggleSqlPreview = () => { called++; };
 
         SQLWorkSpace.Instance.focus();
         expect(called).to.equal(2);
 
         SQLWorkSpace.Instance.refresh = oldRefresh;
-        DagView.toggleSqlPreview = oldToggle;
+        DagViewManager.Instance.toggleSqlPreview = oldToggle;
     });
 
     it("should unfocus", () => {
         let oldSave = SQLWorkSpace.Instance.save;
         let test = false;
         SQLWorkSpace.Instance.save = () => { test = true; };
-        
+
         SQLWorkSpace.Instance.unfocus();
         expect(test).to.be.true;
         SQLWorkSpace.Instance.save = oldSave;

@@ -41,7 +41,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         .then(() => {
             return test.run(hasAnimation, toClean, noPopup, withUndo, timeDilation);
         });
-        
+
     };
     function initializeTests(testName) {
         // Add all test cases here
@@ -100,7 +100,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             UserSettings.setPref("dfAutoExecute", false);
             $("#dagButton").click();
             $("#dagView .newTab").click();
-            testDagGraph = DagView.getActiveDag();
+            testDagGraph = DagViewManager.Instance.getActiveDag();
             for (var i = 0; i < tableNames.length; i++) {
                 var dataPath = dataSource + tableNames[i];
                 var tableName = tableNames[i].substring(0, tableNames[i].indexOf("."));
@@ -141,7 +141,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             if ($("#alertModal").is(":visible") && $("#alertHeader .text").text() === "Low Memory Warning") {
                 $("#alertActions .cancel").click();
                 for (name in tableNodesMap) {
-                    var datasetNode = DagView.getActiveDag().getNode(tableNodesMap[name]);
+                    var datasetNode = DagViewManager.Instance.getActiveDag().getNode(tableNodesMap[name]);
                     if (!DagTblManager.Instance.hasLock(datasetNode.table)) {
                         DagTblManager.Instance.toggleTableLock(datasetNode.table);
                     }
@@ -231,7 +231,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                     })
                     .then(function() {
                         if ($("#dagViewTableArea").hasClass("xc-hidden")) {
-                            return DagView.viewResult(sqlNode);
+                            return DagViewManager.Instance.viewResult(sqlNode);
                         } else {
                             return PromiseHelper.resolve();
                         }
@@ -342,7 +342,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
     }
     function prepareSQLNode() {
         sqlNodeElement = test.createNode(DagNodeType.SQL);
-        sqlNode = DagView.getActiveDag().getNode(sqlNodeElement.data("nodeid"));
+        sqlNode = DagViewManager.Instance.getActiveDag().getNode(sqlNodeElement.data("nodeid"));
         var i = 0;
         var identifiers = new Map();
         for (table in tableNodesMap) {

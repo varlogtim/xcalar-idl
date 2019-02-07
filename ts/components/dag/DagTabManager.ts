@@ -115,7 +115,7 @@ class DagTabManager {
      * 2. The tab doesn't persist in KVStore, as the sub-graph information is persisted by the tab which owns the custom operator
      */
     public newCustomTab(customNode: DagNodeCustom): void {
-        const parentTabId = DagView.getActiveTab().getId();
+        const parentTabId = DagViewManager.Instance.getActiveTab().getId();
         // the string to show on the tab
         const validatedName = customNode.getCustomName();
         // the td to find the tab
@@ -159,10 +159,10 @@ class DagTabManager {
             $container.empty();
             this._addDataflowHTML($container, tabId, true, false);
 
-            DagView.renderSQLPreviewDag(newTab);
+            DagViewManager.Instance.renderSQLPreviewDag(newTab);
             return;
         }
-        const activeTab: DagTab = DagView.getActiveTab();
+        const activeTab: DagTab = DagViewManager.Instance.getActiveTab();
         const parentTabId = activeTab.getId();
         // the string to show on the tab
         const validatedName = SQLNode.getSQLName();
@@ -196,7 +196,7 @@ class DagTabManager {
         queryNodes: any[],
         executor?: DagGraphExecutor
     ): DagTabOptimized {
-        const parentTabId = DagView.getActiveTab().getId();
+        const parentTabId = DagViewManager.Instance.getActiveTab().getId();
 
         // Create a new tab object
         const newTab: DagTabOptimized = new DagTabOptimized({
@@ -365,7 +365,7 @@ class DagTabManager {
     public reset(): void {
         this._getDataflowArea().remove();
         this._getTabsEle().remove();
-        DagView.resetActiveDagTab();
+        DagViewManager.Instance.resetActiveDagTab();
     }
 
     public lockTab(tabId: string): void {
@@ -519,7 +519,7 @@ class DagTabManager {
             DagList.Instance.switchActiveDag(tabId);
         }
 
-        DagView.switchActiveDagTab(this.getTabByIndex(index));
+        DagViewManager.Instance.switchActiveDagTab(this.getTabByIndex(index));
         DagTopBar.Instance.reset();
         if (dagTab instanceof DagTabOptimized) {
             dagTab.focus();
@@ -540,7 +540,7 @@ class DagTabManager {
         this._addDagTab(newDagTab);
         this._save();
         this._switchTabs();
-        DagView.newGraph();
+        DagViewManager.Instance.newGraph();
         return newDagTab;
     }
 
@@ -601,7 +601,7 @@ class DagTabManager {
             this.reset();
         }
 
-        DagView.cleanupClosedTab(dagTab.getGraph());
+        DagViewManager.Instance.cleanupClosedTab(dagTab.getGraph());
         dagTab.setClosed();
         DagList.Instance.updateList();
         return true;
@@ -708,7 +708,7 @@ class DagTabManager {
             const index = this.getTabIndex(dagTab.getId());
             const $dataflowAreas = this._getDataflowArea();
             $dataflowAreas.eq(index).removeClass("rendered");
-            DagView.render($dataflowAreas.eq(index), dagTab.getGraph());
+            DagViewManager.Instance.render($dataflowAreas.eq(index), dagTab.getGraph());
         })
     }
 
@@ -846,7 +846,7 @@ class DagTabManager {
         // Adding a new tab creates a new tab and adds
         // The html for a dataflowArea.
         $("#tabButton").on("click", () => {
-            DagView.newTab();
+            DagViewManager.Instance.newTab();
         });
 
         $dagTabArea.on("dblclick", ".name", (event) => {

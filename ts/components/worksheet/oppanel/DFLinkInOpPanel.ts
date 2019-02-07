@@ -255,7 +255,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
             return "";
         }
         if (dataflowId === DagNodeDFIn.SELF_ID) {
-            dataflowId = DagView.getActiveTab().getId();
+            dataflowId = DagViewManager.Instance.getActiveTab().getId();
         }
         const dataflow = this._dataflows.filter((dataflow) => {
             return dataflow.tab.getId() === dataflowId;

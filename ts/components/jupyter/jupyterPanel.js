@@ -542,12 +542,12 @@ window.JupyterPanel = (function($, JupyterPanel) {
                 }],
                 icv: false
             };
-            let mapNode = DagView.autoAddNode(DagNodeType.Map, null, dagNode.getId(), input);
+            let mapNode = DagViewManager.Instance.autoAddNode(DagNodeType.Map, null, dagNode.getId(), input);
             DagNodeMenu.execute("configureNode", {
                 node: mapNode
             });
         }
-        
+
         // var tableId = xcHelper.getTableId(tableName);
         // var table = gTables[tableId];
         // if (table && table.isActive()) {

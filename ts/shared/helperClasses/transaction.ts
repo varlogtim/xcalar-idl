@@ -170,7 +170,7 @@ namespace Transaction {
 
             QueryManager.addQuery(curId, operation, queryOptions);
             if (txLog.nodeId != null) {
-                DagView.addProgress(txLog.nodeId, txLog.tabId);
+                DagViewManager.Instance.addProgress(txLog.nodeId, txLog.tabId);
             }
         }
 
@@ -192,7 +192,7 @@ namespace Transaction {
             if (txLog) {
                 if (txLog.nodeId) {
                     try {
-                        DagView.calculateAndUpdateProgress(queryStateOutput, txLog.nodeId, txLog.tabId);
+                        DagViewManager.Instance.calculateAndUpdateProgress(queryStateOutput, txLog.nodeId, txLog.tabId);
                         const parentTxId: number = txLog.parentTxId;
                         if (parentTxId != null) {
                             Transaction.update(parentTxId, queryStateOutput);
@@ -347,7 +347,7 @@ namespace Transaction {
                 Alert.error(alertTitle, error);
             }
             if (txLog.nodeId != null) {
-                DagView.removeProgress(txLog.nodeId, txLog.tabId);
+                DagViewManager.Instance.removeProgress(txLog.nodeId, txLog.tabId);
             }
         }
 
@@ -569,7 +569,7 @@ namespace Transaction {
         if (!has_require) {
             const txLog: TXLog = txCache[txId];
             if (txLog && txLog.nodeId != null) {
-                DagView.removeProgress(txLog.nodeId, txLog.tabId);
+                DagViewManager.Instance.removeProgress(txLog.nodeId, txLog.tabId);
             }
         }
         delete disabledCancels[txId];

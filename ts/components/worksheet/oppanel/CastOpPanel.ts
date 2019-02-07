@@ -137,7 +137,7 @@ class CastOpPanel extends BaseOpPanel {
             }
         }
         // XXX activeDag may not be the graph this node corresponds to
-        const dagGraph = DagView.getActiveDag();
+        const dagGraph = DagViewManager.Instance.getActiveDag();
         dagGraph.applyColumnMapping(this._dagNode.getId(), renameMap);
 
         this.close(true);

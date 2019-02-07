@@ -14,6 +14,10 @@ class SQLDataflowPreview {
     }
 
     public close() {
+        const $dfArea = $("#sqlDataflowArea").find(".dataflowArea");
+        if ($dfArea.length) {
+            DagViewManager.Instance.cleanupClosedTab(null, $dfArea.data("id"));
+        }
         $("#sqlDataflowArea").addClass("xc-hidden");
     }
 }

@@ -95,9 +95,9 @@ class DagComment {
         id: CommentNodeId,
         size: Dimensions
     ): XDPromise<void> {
-        const comment = DagView.getActiveDag().getComment(id);
+        const comment = DagViewManager.Instance.getActiveDag().getComment(id);
         comment.setDimensions(size);
-        return DagView.getActiveTab().save();
+        return DagViewManager.Instance.getActiveTab().save();
     }
 
     /**
@@ -108,17 +108,17 @@ class DagComment {
     public updateText(id: CommentNodeId, text: string): XDPromise<void> {
         $("#dagView").find('.comment[data-nodeid="' + id + '"]')
                      .find("textarea").val(text);
-        const comment: CommentNode = DagView.getActiveDag().getComment(id);
+        const comment: CommentNode = DagViewManager.Instance.getActiveDag().getComment(id);
         const oldText = comment.getText();
         comment.setText(text);
         Log.add(SQLTStr.EditComment, {
             "operation": SQLOps.EditComment,
-            "dataflowId": DagView.getActiveTab().getId(),
+            "dataflowId": DagViewManager.Instance.getActiveTab().getId(),
             "commentId": id,
             "newComment": text,
             "oldComment": oldText
         });
-        return DagView.getActiveTab().save();
+        return DagViewManager.Instance.getActiveTab().save();
     }
 
     private _focus($comment: JQuery): void {
@@ -128,7 +128,7 @@ class DagComment {
         $tempCommentWrapper.append($comment);
         $comment.addClass("focused");
         $comment.find("textarea").prop("readonly", false).focus();
-        const scale = DagView.getActiveDag().getScale();
+        const scale = DagViewManager.Instance.getActiveDag().getScale();
         $comment.css("transform", "scale(" + (1 / scale) + ")");
     }
 }

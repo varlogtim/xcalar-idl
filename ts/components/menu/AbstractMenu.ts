@@ -48,7 +48,7 @@ abstract class AbstractMenu {
 
     protected _getCurrentNode(): DagNode {
         const nodeId: DagNodeId = DagTable.Instance.getBindNodeId();
-        return DagView.getActiveDag().getNode(nodeId);
+        return DagViewManager.Instance.getActiveDag().getNode(nodeId);
     }
 
     protected _addNode(
@@ -58,16 +58,16 @@ abstract class AbstractMenu {
         parentNodeId?: DagNodeId
     ): DagNode {
         parentNodeId = parentNodeId || DagTable.Instance.getBindNodeId();
-        return DagView.autoAddNode(type, subType, parentNodeId, input);
+        return DagViewManager.Instance.autoAddNode(type, subType, parentNodeId, input);
     }
 
     protected _openOpPanel(node: DagNode, colNames: string[]): void {
-        const tabId: string = DagView.getActiveDag().getTabId();
+        const tabId: string = DagViewManager.Instance.getActiveDag().getTabId();
         DagNodeMenu.execute("configureNode", {
             node: node,
             autofillColumnNames: colNames,
             exitCallback: function() {
-                DagView.removeNodes([node.getId()], tabId);
+                DagViewManager.Instance.removeNodes([node.getId()], tabId);
             }
         });
     }

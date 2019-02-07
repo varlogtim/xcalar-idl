@@ -38,7 +38,7 @@ module.exports = {
     },
 
     getDagViewScroll: function() {
-        const $dfArea = DagView.getActiveArea();
+        const $dfArea = DagViewManager.Instance.getActiveArea();
         return {
             left: $dfArea.scrollLeft() + $dfArea.parent().scrollLeft(),
             top: $dfArea.scrollTop() + $dfArea.parent().scrollTop()

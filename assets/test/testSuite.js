@@ -417,7 +417,7 @@ window.TestSuite = (function($, TestSuite) {
         },
 
         createNode: function(type, subType) {
-            var node = DagView.newNode({
+            var node = DagViewManager.Instance.newNode({
                 type: type,
                 subType: subType || null,
                 display: {
@@ -581,17 +581,17 @@ window.TestSuite = (function($, TestSuite) {
             var self = this;
             var $node = self.createNode(nodeType, subType);
             var nodeId = $node.data("nodeid");
-            const tabId = DagView.getActiveDag().getTabId();
+            const tabId = DagViewManager.Instance.getActiveDag().getTabId();
             if (parentNodeIds != null) {
                 parentNodeIds = (parentNodeIds instanceof Array) ?
                 parentNodeIds : [parentNodeIds];
 
 
                 parentNodeIds.forEach((parentNodeId, index) => {
-                    DagView.connectNodes(parentNodeId, nodeId, index, tabId);
+                    DagViewManager.Instance.connectNodes(parentNodeId, nodeId, index, tabId);
                 });
             }
-            DagView.autoAlign(tabId);
+            DagViewManager.Instance.autoAlign(tabId);
             self.nodeMenuAction($node, "configureNode");
             return nodeId;
         },
@@ -599,7 +599,7 @@ window.TestSuite = (function($, TestSuite) {
         executeNode(nodeId) {
             var self = this;
             const deferred = PromiseHelper.deferred();
-            const $node = DagView.getNode(nodeId);
+            const $node = DagViewManager.Instance.getNode(nodeId);
             const dfId = $node.closest(".dataflowArea").data("id");
             this.nodeMenuAction($node, "executeNode");
 

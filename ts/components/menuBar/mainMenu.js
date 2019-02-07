@@ -52,7 +52,7 @@ window.MainMenu = (function($, MainMenu) {
             $advModeTabs.addClass("xc-hidden");
             if ($advModeTabs.hasClass("active")) {
                 $advModeTabs.removeClass("active");
-                DagView.hide(); // turn off listeners
+                DagViewManager.Instance.hide(); // turn off listeners
                 MainMenu.close(true);
                 MainMenu.closeForms();
                 closeMainPanels();
@@ -427,7 +427,7 @@ window.MainMenu = (function($, MainMenu) {
         } else if (lastTabId === "modelingDataflowTab" ||
             lastTabId === "sqlFuncTab"
         ) {
-            DagView.hide();
+            DagViewManager.Instance.hide();
         } else if (lastTabId === "sqlTab") {
             SQLWorkSpace.Instance.unfocus();
         }
@@ -483,7 +483,7 @@ window.MainMenu = (function($, MainMenu) {
             case ("modelingDataflowTab"):
             case ("sqlFuncTab"):
                 $("#modelingDagPanel").addClass("active");
-                DagView.show();
+                DagViewManager.Instance.show();
                 break;
             case ("sqlTab"):
                 BottomMenu.unsetMenuCache();

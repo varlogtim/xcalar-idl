@@ -499,13 +499,13 @@ class DagCategoryBar {
         const self = this;
         // dragging operator bar node into dataflow area
         this.$operatorBar.on("mousedown", ".operator .main", function(event) {
-            if (DagView.isDisableActions()) {
+            if (DagViewManager.Instance.isDisableActions()) {
                 return;
             }
             if (event.which !== 1) {
                 return;
             }
-            const activeDag: DagGraph = DagView.getActiveDag();
+            const activeDag: DagGraph = DagViewManager.Instance.getActiveDag();
             if (activeDag == null) {
                 return;
             }
@@ -525,7 +525,7 @@ class DagCategoryBar {
                         x: data.coors[0].x,
                         y: data.coors[0].y
                     };
-                    DagView.newNode(newNodeInfo);
+                    DagViewManager.Instance.newNode(newNodeInfo);
                 },
                 onDragFail: function(_wasDragged) {
 
@@ -535,11 +535,11 @@ class DagCategoryBar {
         });
 
         this.$operatorBar.on("dblclick", ".operator .main", function() {
-            if (DagView.isDisableActions()) {
+            if (DagViewManager.Instance.isDisableActions()) {
                 return;
             }
             const $operator: JQuery = $(this).closest(".operator");
-            const $selectedNodes: JQuery = DagView.getSelectedNodes();
+            const $selectedNodes: JQuery = DagViewManager.Instance.getSelectedNodes();
             const newNodeInfo: DagNodeCopyInfo = self._getOperatorInfo(
                 $operator.data('opid')
             );
@@ -550,7 +550,7 @@ class DagCategoryBar {
                 parentNodeId = $selectedNodes.data("nodeid");
             }
 
-            DagView.autoAddNode(type, subType, parentNodeId);
+            DagViewManager.Instance.autoAddNode(type, subType, parentNodeId);
         });
     }
 

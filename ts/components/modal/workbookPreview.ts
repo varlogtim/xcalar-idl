@@ -205,19 +205,19 @@ namespace WorkbookPreview {
     // XXX Will not support in Dio
     function showDag(dagInfo: {name: string, id: string}, workbookName: string): XDPromise<void> {
         return PromiseHelper.resolve();
-        
+
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const curId: string = id;
         const html: HTML = '<div class="dataflowArea clearfix"></div>';
         const $dfArea: JQuery = $(html);
         $workbookPreview.addClass("dagMode")
                         .find(".dagSection").append($dfArea);
-        
+
         const dagTab: DagTabUser = new DagTabUser(dagInfo.name, dagInfo.id);
         loadDag(dagTab, workbookName)
         .then(() => {
             if (curId === id) {
-                // DagView.draw($dfArea, dagTab.getGraph());
+                // DagViewManager.Instance.draw($dfArea, dagTab.getGraph());
                 // // remove "click to see options" tooltips
                 // const $tooltipTables: JQuery = $dagWrap.find('.dagTableIcon, ' +
                 //                                     '.dataStoreIcon');

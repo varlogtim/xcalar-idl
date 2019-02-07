@@ -13,7 +13,7 @@ class TableMenu extends AbstractMenu {
                 return;
             }
             let $lis: JQuery = $menu.find(".exportTable, .multiCast, .corrAgg, .jupyterTable, .advancedOptions");
-            if (DagView.getActiveTab() instanceof DagTabPublished ||
+            if (DagViewManager.Instance.getActiveTab() instanceof DagTabPublished ||
                 node.getMaxChildren() === 0
             ) {
                 // when it's publish tab or it's dest node
@@ -364,7 +364,7 @@ class TableMenu extends AbstractMenu {
         type: DagNodeType,
         tableId: TableId,
         options: {
-            subType?: DagNodeSubType 
+            subType?: DagNodeSubType
         }
     ): object {
         switch (type) {

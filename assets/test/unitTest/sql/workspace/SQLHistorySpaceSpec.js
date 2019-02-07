@@ -83,7 +83,7 @@ describe("SQLHistorySpace Test", () => {
         let tab = new DagTabUser("test", null, graph);
 
         let oldGetTab = DagTabManager.Instance.getTabById;
-        let oldInspect = DagView.inspectSQLNode;
+        let oldInspect = DagViewManager.Instance.inspectSQLNode;
         let oldShowProgress = SQLResultSpace.Instance.showProgressDataflow;
         let called = 0;
 
@@ -92,7 +92,7 @@ describe("SQLHistorySpace Test", () => {
             return tab;
         };
 
-        DagView.inspectSQLNode = () => {
+        DagViewManager.Instance.inspectSQLNode = () => {
             called++;
             return PromiseHelper.resolve();
         };
@@ -110,7 +110,7 @@ describe("SQLHistorySpace Test", () => {
         })
         .always(() => {
             DagTabManager.Instance.getTabById = oldGetTab;
-            DagView.inspectSQLNode = oldInspect;
+            DagViewManager.Instance.inspectSQLNode = oldInspect;
             SQLResultSpace.Instance.showProgressDataflow = oldShowProgress;
         });
     });
@@ -140,11 +140,11 @@ describe("SQLHistorySpace Test", () => {
         let oldGetTab = DagList.Instance.getDagTabById;
         let oldOpenPanel = MainMenu.openPanel;
         let oldLoadTab = DagTabManager.Instance.loadTab;
-        let oldAlign = DagView.autoAlign;
+        let oldAlign = DagViewManager.Instance.autoAlign;
         let called = 0;
         let tab = new DagTabUser();
 
-        XVM.setMode = 
+        XVM.setMode =
         DagTabManager.Instance.loadTab =
         () => {
             called++;
@@ -156,8 +156,8 @@ describe("SQLHistorySpace Test", () => {
             return tab;
         };
 
-        MainMenu.openPanel = 
-        DagView.autoAlign =
+        MainMenu.openPanel =
+        DagViewManager.Instance.autoAlign =
         () => {
             called++;
         };
@@ -175,7 +175,7 @@ describe("SQLHistorySpace Test", () => {
             DagTabManager.Instance.loadTab = oldLoadTab;
             DagList.Instance.getDagTabById = oldGetTab;
             MainMenu.openPanel = oldOpenPanel;
-            DagView.autoAlign = oldAlign;
+            DagViewManager.Instance.autoAlign = oldAlign;
         });
     });
 

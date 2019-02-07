@@ -59,7 +59,7 @@ class SQLHistorySpace {
             const sqlNode = graph.getNodesByType(DagNodeType.SQL)[0];
             if (sqlNode) {
                 const deferred: XDDeferred<void> = PromiseHelper.deferred();
-                DagView.inspectSQLNode(sqlNode.getId(), dataflowId, true)
+                DagViewManager.Instance.inspectSQLNode(sqlNode.getId(), dataflowId, true)
                 .then(() => {
                     SQLResultSpace.Instance.showProgressDataflow();
                     deferred.resolve();
@@ -87,7 +87,7 @@ class SQLHistorySpace {
             return DagTabManager.Instance.loadTab(dagTab);
         })
         .then(() => {
-            DagView.autoAlign(dataflowId);
+            DagViewManager.Instance.autoAlign(dataflowId);
             deferred.resolve();
         })
         .fail(deferred.reject)
@@ -139,7 +139,7 @@ class SQLHistorySpace {
     }
 
     private _restoreDataflow(queryInfo: SqlQueryHistory.QueryInfo): XDPromise<string> {
-        const deferred: XDDeferred<string> = PromiseHelper.deferred(); 
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
         let sql: string = queryInfo.queryString;
         let executor = new SQLExecutor(sql);
         executor.restoreDataflow()

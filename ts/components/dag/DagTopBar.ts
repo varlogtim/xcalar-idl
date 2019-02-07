@@ -78,41 +78,41 @@ class DagTopBar {
     private _addEventListeners(): void {
         const self = this;
         this.$topBar.find(".run").click(function() {
-            DagView.run();
+            DagViewManager.Instance.run();
         });
 
         this.$topBar.find(".optimizedRun").click(function() {
-            DagView.run(null, true);
+            DagViewManager.Instance.run(null, true);
         });
 
         this.$topBar.find(".stop").click(function() {
-            DagView.cancel();
+            DagViewManager.Instance.cancel();
         });
 
         this.$topBar.find(".undo").click(function() {
-            if ($(this).hasClass("disabled") || DagView.getActiveDag().isLocked()) {
+            if ($(this).hasClass("disabled") || DagViewManager.Instance.getActiveDag().isLocked()) {
                 return;
             }
             Log.undo();
         });
 
         this.$topBar.find(".redo").click(function() {
-            if ($(this).hasClass("disabled") || DagView.getActiveDag().isLocked()) {
+            if ($(this).hasClass("disabled") || DagViewManager.Instance.getActiveDag().isLocked()) {
                 return;
             }
             Log.redo();
         });
 
         this.$topBar.find(".zoomIn").click(function() {
-            DagView.zoom(true);
-            let percent = DagView.getActiveDag().getScale() * 100;
+            DagViewManager.Instance.zoom(true);
+            let percent = DagViewManager.Instance.getActiveDag().getScale() * 100;
             $("#dagViewBar .zoomPercent input").val(percent);
             self._checkZoom();
         });
 
         this.$topBar.find(".zoomOut").click(function() {
-            DagView.zoom(false);
-            let percent = DagView.getActiveDag().getScale() * 100;
+            DagViewManager.Instance.zoom(false);
+            let percent = DagViewManager.Instance.getActiveDag().getScale() * 100;
             $("#dagViewBar .zoomPercent input").val(percent);
             self._checkZoom();
         });
@@ -126,7 +126,7 @@ class DagTopBar {
                         $(this));
                     return;
                 }
-                DagView.zoom(true, percent / 100)
+                DagViewManager.Instance.zoom(true, percent / 100)
                 self._checkZoom();
             }
         });
@@ -136,12 +136,12 @@ class DagTopBar {
         });
 
         this.$topBar.find(".publish").click(() => {
-            const tab: DagTab = DagView.getActiveTab();
+            const tab: DagTab = DagViewManager.Instance.getActiveTab();
             DFPublishModal.Instance.show(<DagTabUser>tab);
         });
 
         this.$topBar.find(".download").click(() => {
-            const tab: DagTab = DagView.getActiveTab();
+            const tab: DagTab = DagViewManager.Instance.getActiveTab();
             DFDownloadModal.Instance.show(tab);
         });
 
@@ -160,7 +160,7 @@ class DagTopBar {
         const $zoomOut = this.$topBar.find(".zoomOut");
         $zoomIn.removeClass("disabled");
         $zoomOut.removeClass("disabled");
-        const scale = DagView.getActiveDag().getScale();
+        const scale = DagViewManager.Instance.getActiveDag().getScale();
         let scaleIndex = DagView.zoomLevels.indexOf(scale);
         if (scaleIndex == -1) {
             if (scale < DagView.zoomLevels[0]) {
@@ -177,7 +177,7 @@ class DagTopBar {
     }
 
     private _duplicateTab(): void {
-        const tab: DagTab = DagView.getActiveTab();
+        const tab: DagTab = DagViewManager.Instance.getActiveTab();
         DagTabManager.Instance.duplicateTab(tab);
     }
 }

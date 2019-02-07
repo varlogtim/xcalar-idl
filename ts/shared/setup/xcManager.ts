@@ -564,7 +564,7 @@ namespace xcManager {
             CommentNode.setup();
             DagTab.setup();
             DagTabSQLFunc.setup();
-            DagView.setup();
+            DagViewManager.Instance.setup();
             DagSearch.Instance.setup();
             return setupDagList();
         })

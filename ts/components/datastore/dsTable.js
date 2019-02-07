@@ -477,7 +477,7 @@ window.DSTable = (function($, DSTable) {
             // go to dag tab
             $("#modelingDataflowTab").click();
             DagTabManager.Instance.newTab();
-            var node = DagView.autoAddNode(DagNodeType.Dataset, null, null, {
+            var node = DagViewManager.Instance.autoAddNode(DagNodeType.Dataset, null, null, {
                 source: source,
                 prefix: xcHelper.normalizePrefix(dsObj.getName())
             }, DagView.gridSpacing * 2, DagView.gridSpacing * 2);

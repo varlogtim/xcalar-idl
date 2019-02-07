@@ -311,9 +311,7 @@ enum SQLOps {
     NewComment = "newComment",
     EditComment = "editComment",
     EditNodeTitle = "editNodeTitle",
-    DagBulkOperation = "dagBulkOperation",
-    DrawNodesAndConnections = "drawNodesAndConnections",
-    EraseNodesAndConnections = "eraseNodesAndConnections"
+    DagBulkOperation = "dagBulkOperation"
 }
 
 enum XcalarMode {
