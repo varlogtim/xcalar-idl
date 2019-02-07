@@ -853,18 +853,25 @@ function executeSql(params, type, workerThreading) {
             prefixedQuery = xcQueryString;
             finalTable = newTableName;
         } else {
-        var optimizerObject = new SQLOptimizer();
-        var queryWithDrop = optimizerObject.logicalOptimize(xcQueryString,
-                                    optimizations, JSON.stringify(selectQuery));
-        var prefixStruct = SqlUtil.addPrefix(
-            JSON.parse(queryWithDrop),
-            allSelects,
-            newTableName,
-            tablePrefix,
-            params.usePaging,
-            params.resultTableName);
-        var prefixedQuery = prefixStruct.query;
-        finalTable = prefixStruct.tableName || newTableName;
+            var queryWithDrop;
+            if (optimizations.noOptimize) {
+                var selectString = JSON.stringify(selectQuery);
+                queryWithDrop = selectString.substring(0, selectString.length - 1)
+                                + "," + xcQueryString.substring(1);
+            } else {
+                var optimizerObject = new SQLOptimizer();
+                queryWithDrop = optimizerObject.logicalOptimize(xcQueryString,
+                                        optimizations, JSON.stringify(selectQuery));
+            }
+            var prefixStruct = SqlUtil.addPrefix(
+                JSON.parse(queryWithDrop),
+                allSelects,
+                newTableName,
+                tablePrefix,
+                params.usePaging,
+                params.resultTableName);
+            var prefixedQuery = prefixStruct.query;
+            finalTable = prefixStruct.tableName || newTableName;
         }
         return compilerObject.execute(prefixedQuery, finalTable, orderedColumns,
                                       params.queryString, undefined, option);
@@ -1088,7 +1095,9 @@ router.post("/xcsql/queryWithPublishedTables", [support.checkAuth],
     var optimizations = {
         dropAsYouGo: req.body.dropAsYouGo,
         randomCrossJoin: req.body.randomCrossJoin,
-        pushToSelect: req.body.pushToSelect
+        pushToSelect: req.body.pushToSelect,
+        dedup: req.body.dedup,
+        noOptimize: req.body.noOptimize
     };
     optimizations.dropAsYouGo = optimizations.dropAsYouGo == undefined ? true : optimizations.dropAsYouGo;
     optimizations.randomCrossJoin = optimizations.randomCrossJoin == undefined ? false : optimizations.randomCrossJoin;

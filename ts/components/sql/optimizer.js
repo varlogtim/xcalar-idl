@@ -69,7 +69,9 @@
                 opGraph = pushToSelect(opGraph);
             }
             const visitedMap = {};
-            this.dedupPlan(opGraph, visitedMap);
+            if (options.dedup !== false) {
+                this.dedupPlan(opGraph, visitedMap);
+            }
             if (options.randomCrossJoin) {
                 const visitedMap = {};
                 this.addIndexForCrossJoin(opGraph, visitedMap);
