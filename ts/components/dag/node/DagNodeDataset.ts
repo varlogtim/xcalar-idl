@@ -99,7 +99,7 @@ class DagNodeDataset extends DagNodeIn {
             source: source,
             prefix: prefix,
             synthesize: synthesize || false,
-            loadArgs: loadArgs
+            loadArgs: loadArgs || ""
         });
         super.setParam(null, noAutoExecute);
     }
