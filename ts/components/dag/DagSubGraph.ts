@@ -159,14 +159,17 @@ class DagSubGraph extends DagGraph {
 
         nodeInfos.forEach((nodeInfo) => {
             let tableName: string = nodeInfo.name.name;
+            let nodeId = this._nameIdMap[tableName];
+
             // optimized datasets name gets prefixed with xcalarlrq and an id
             // so we strip this to find the corresponding UI dataset name
-            if (nodeInfo.api === XcalarApisT.XcalarApiBulkLoad &&
+            if (!nodeId && nodeInfo.api === XcalarApisT.XcalarApiBulkLoad &&
                 tableName.startsWith(".XcalarLRQ.") &&
                 tableName.indexOf(gDSPrefix) > -1) {
                 tableName = tableName.slice(tableName.indexOf(gDSPrefix));
+                nodeId = this._nameIdMap[tableName];
             }
-            const nodeId = this._nameIdMap[tableName];
+
             if (!nodeId) {// could be a drop table node
                 return;
             }
