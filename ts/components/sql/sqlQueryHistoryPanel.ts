@@ -113,14 +113,7 @@ namespace SqlQueryHistoryPanel {
                 type: TableHeaderColumnType.SORTABLE,
                 sortFunction: sortFunctions.sortDuration,
                 convertFunc: (queryInfo) => {
-                    let duration;
-                    if (queryInfo.endTime != null) {
-                        duration = queryInfo.endTime - queryInfo.startTime;
-                    } else if (queryInfo.status === SQLStatus.Interrupted) {
-                        duration = "N/A";
-                    } else {
-                        duration = Date.now() - queryInfo.startTime
-                    }
+                    const duration = getDuration(queryInfo) || "N/A";
                     const prop: TableBodyColumnTextProp = {
                         category: TableColumnCategory.DURATION,
                         isEllipsis: true,
@@ -1329,24 +1322,48 @@ namespace SqlQueryHistoryPanel {
         ),
         sortDuration: (a: QueryInfo, b: QueryInfo) => {
             const now = Date.now();
-            const aEndTime = a.endTime || now;
-            const bEndTime = b.endTime || now;
-            return (aEndTime - a.startTime) - (bEndTime - b.startTime);
+            let aValue = getDuration(a, now);
+            aValue = normalizeNumber(aValue);
+            let bValue = getDuration(b, now);
+            bValue = normalizeNumber(bValue);
+            return aValue - bValue;
         },
         sortStatus: (a: QueryInfo, b: QueryInfo) => (
             a.status > b.status? 1: (a.status < b.status? -1: 0)
         ),
         sortRows: (a: QueryExtInfo, b: QueryExtInfo) => {
-            const aValue = a.rows || Number.MAX_VALUE;
-            const bValue = b.rows || Number.MAX_VALUE;
+            let aValue = a.rows;
+            aValue = normalizeNumber(aValue);
+            let bValue = b.rows;
+            bValue = normalizeNumber(bValue);
             return aValue - bValue;
         },
         sortSkew: (a: QueryExtInfo, b: QueryExtInfo) => {
-            const aValue = a.skew || Number.MAX_VALUE;
-            const bValue = b.skew || Number.MAX_VALUE;
+            let aValue = a.skew;
+            aValue = normalizeNumber(aValue);
+            let bValue = b.skew;
+            bValue = normalizeNumber(bValue);
             return aValue - bValue;
         }
     };
+
+    export function getDuration(queryInfo: QueryInfo, currentTime?: number): number | null {
+        if (queryInfo.endTime != null) {
+            return queryInfo.endTime - queryInfo.startTime;
+        } else if (queryInfo.status === SQLStatus.Running) {
+            currentTime = currentTime || Date.now();
+            return currentTime - queryInfo.startTime
+        } else {
+            return null;
+        }
+    }
+
+    export function normalizeNumber(num: number | null): number {
+        if (num == null) {
+            num = Number.MAX_VALUE;
+        }
+        return num;
+    }
 
     export function formatDateTime(dateTime: Date|number): string {
         const dt = new Date(dateTime);

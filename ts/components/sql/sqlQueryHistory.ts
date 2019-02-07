@@ -137,6 +137,14 @@ class SqlQueryHistory {
         if (isNewQuery) {
             queryInfo = new SqlQueryHistory.QueryInfo();
         }
+
+        let status: SQLStatus = updateInfo.status;
+        if (status !== SQLStatus.Done &&
+            status !== SQLStatus.Running
+        ) {
+            updateInfo.skew = null;
+            updateInfo.rows = null;
+        }
         SqlQueryHistory.mergeQuery(queryInfo, updateInfo);
         this.setQuery(queryInfo);
 
