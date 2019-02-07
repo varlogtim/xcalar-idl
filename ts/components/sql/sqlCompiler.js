@@ -4658,7 +4658,7 @@
     }
 
     function __joinTempTable(sqlObj, ret, joinType, leftJoinCols,
-                                                rightJoinCols, windowStruct) {
+                                        rightJoinCols, windowStruct, nullSafe) {
         var deferred = PromiseHelper.deferred();
         windowStruct.cli += ret.cli;
         if (leftJoinCols.length === 0) {
@@ -4768,7 +4768,8 @@
             lTableInfo.columns = [];
             rTableInfo.columns = [];
         }
-        sqlObj.join(joinType, lTableInfo, rTableInfo, {evalString: evalString})
+        sqlObj.join(joinType, lTableInfo, rTableInfo, {evalString: evalString,
+                                            nullSafe: nullSafe ? true : false})
         .then(function(ret) {
             deferred.resolve(ret);
         })
@@ -4810,10 +4811,10 @@
                 }
                 return __joinTempTable(sqlObj, ret, joinType,
                             [windowStruct.indexColStruct],
-                            [rightIndexColStruct], windowStruct);
+                            [rightIndexColStruct], windowStruct, true);
             }
             return __joinTempTable(sqlObj, ret, joinType, groupByCols,
-                                   windowStruct.resultGBCols, windowStruct);
+                                windowStruct.resultGBCols, windowStruct, true);
         })
         .then(function(ret) {
             if (ret.tempCols) {
@@ -4899,7 +4900,7 @@
                                         addToUsrCols: newColStructs};
                         return __groupByAndJoinBack(self.sqlObj, ret,
                                     opStruct.ops, groupByCols,
-                                    aggColNames, JoinOperatorT.CrossJoin,
+                                    aggColNames, JoinOperatorT.InnerJoin,
                                     windowStruct);
                     })
                     .then(function(ret) {
@@ -4930,6 +4931,8 @@
                             "columns": [],
                             "rename": []
                         };
+                        var joinType = groupByCols.length === 0 ?
+                            JoinOperatorT.CrossJoin : JoinOperatorT.InnerJoin;
                         node.usrCols.concat(node.xcCols).concat(node.sparkCols)
                             .forEach(function(item) {
                             var lColStruct = {colName: __getCurrentName(item),
@@ -4946,6 +4949,8 @@
                                 if (groupByCols[i].colId === item.colId) {
                                     leftGBColStructs.push(lColStruct);
                                     rightGBColStructs.push(rColStruct);
+                                    lTableInfo.columns.push(__getCurrentName(lColStruct));
+                                    rTableInfo.columns.push(__getCurrentName(rColStruct));
                                     break;
                                 }
                             }
@@ -4972,11 +4977,10 @@
                                            lTableInfo.rename, rTableInfo.rename,
                                            ret.newTableName, ret.newTableName);
                         var evalString = __generateFrameEvalString(opStruct,
-                            leftGBColStructs, rightGBColStructs, leftIndexStruct,
-                            rightIndexStruct, leftOrderColStructs,
-                            rightOrderColStructs);
-                        return self.sqlObj.join(JoinOperatorT.CrossJoin, lTableInfo,
-                                         rTableInfo, {evalString: evalString});
+                                    [], [], leftIndexStruct, rightIndexStruct,
+                                    leftOrderColStructs, rightOrderColStructs);
+                        return self.sqlObj.join(joinType, lTableInfo, rTableInfo,
+                                    {evalString: evalString, nullSafe: true});
                     })
                     .then(function(ret) {
                         windowStruct = {leftColInfo: node.usrCols
@@ -5099,7 +5103,7 @@
                         return __groupByAndJoinBack(self.sqlObj, ret,
                                     [gbOpName], groupByCols,
                                     [__getCurrentName(indexColStruct)],
-                                    JoinOperatorT.InnerJoin,
+                                    JoinOperatorT.LeftSemiJoin,
                                     windowStruct);
                     })
                     // Inner join original table and temp table
@@ -5126,8 +5130,8 @@
                             }
                         }
                         return __joinTempTable(self.sqlObj, ret,
-                                               JoinOperatorT.CrossJoin, groupByCols,
-                                               rightGBColStructs, windowStruct);
+                                               JoinOperatorT.InnerJoin, groupByCols,
+                                               rightGBColStructs, windowStruct, true);
                     });
                 } else {
                     var origTableName;
@@ -5153,6 +5157,8 @@
                             "columns": [],
                             "rename": []
                         };
+                        var joinType = groupByCols.length === 0 ?
+                            JoinOperatorT.CrossJoin : JoinOperatorT.InnerJoin;
                         node.usrCols.concat(node.xcCols).concat(node.sparkCols)
                             .forEach(function(item) {
                             var lColStruct = {colName: __getCurrentName(item),
@@ -5169,6 +5175,8 @@
                                 if (groupByCols[i].colId === item.colId) {
                                     leftGBColStructs.push(lColStruct);
                                     rightGBColStructs.push(rColStruct);
+                                    lTableInfo.columns.push(__getCurrentName(lColStruct));
+                                    rTableInfo.columns.push(__getCurrentName(rColStruct));
                                     break;
                                 }
                             }
@@ -5195,11 +5203,10 @@
                                            lTableInfo.rename, rTableInfo.rename,
                                            ret.newTableName, ret.newTableName);
                         var evalString = __generateFrameEvalString(opStruct,
-                            leftGBColStructs, rightGBColStructs, leftIndexStruct,
-                            rightIndexStruct, leftOrderColStructs,
-                            rightOrderColStructs);
-                        return self.sqlObj.join(JoinOperatorT.CrossJoin, lTableInfo,
-                                         rTableInfo, {evalString: evalString});
+                                    [], [], leftIndexStruct, rightIndexStruct,
+                                    leftOrderColStructs, rightOrderColStructs);
+                        return self.sqlObj.join(joinType, lTableInfo, rTableInfo,
+                                        {evalString: evalString, nullSafe: true});
                     })
                     .then(function(ret) {
                         windowStruct = {leftColInfo: node.usrCols
@@ -5424,7 +5431,7 @@
                             node: node, cli: ""};
                     return __groupByAndJoinBack(self.sqlObj, ret, ["min"],
                                 groupByCols, [__getCurrentName(indexColStruct)],
-                                JoinOperatorT.CrossJoin, windowStruct);
+                                JoinOperatorT.InnerJoin, windowStruct);
                 });
                 if (opName === "rowNumber") {
                     // Row number = index - minIndexOfPartition + 1
@@ -5457,7 +5464,7 @@
                             node: node, cli: ""};
                         return __groupByAndJoinBack(self.sqlObj, ret, ["count"],
                                 groupByCols, [__getCurrentName(indexColStruct)],
-                                JoinOperatorT.CrossJoin, windowStruct);
+                                JoinOperatorT.InnerJoin, windowStruct);
                     })
                     .then(function(ret) {
                         cli += windowStruct.cli;
@@ -5504,7 +5511,7 @@
                             node: node, cli: ""};
                     return __groupByAndJoinBack(self.sqlObj, ret, ["min"],
                                 groupByCols, [__getCurrentName(indexColStruct)],
-                                JoinOperatorT.CrossJoin, windowStruct);
+                                JoinOperatorT.InnerJoin, windowStruct);
                 })
                 .then(function(ret) {
                     // Those three give duplicate row same number
@@ -5526,7 +5533,7 @@
                                 col.colType = col.type;
                                 return col;
                             }), [__getCurrentName(indexColStruct)],
-                            JoinOperatorT.CrossJoin, windowStruct);
+                            JoinOperatorT.InnerJoin, windowStruct);
                 });
                 if (opName === "rank") {
                     // rank = minForEigen - minForPartition + 1
@@ -5560,7 +5567,7 @@
                             node: node, cli: ""};
                         return __groupByAndJoinBack(self.sqlObj, ret, ["count"],
                                 groupByCols, [__getCurrentName(indexColStruct)],
-                                JoinOperatorT.CrossJoin, windowStruct);
+                                JoinOperatorT.InnerJoin, windowStruct);
                     })
                     .then(function(ret) {
                         cli += windowStruct.cli;
@@ -5648,7 +5655,7 @@
                 .then(function(ret){
                     return __groupByAndJoinBack(self.sqlObj, ret, ["min"],
                                 groupByCols, [drIndexColName],
-                                JoinOperatorT.CrossJoin, windowStruct);
+                                JoinOperatorT.InnerJoin, windowStruct);
                 })
                 .then(function(ret) {
                     cli += windowStruct.cli;
@@ -5691,7 +5698,7 @@
                                     col.colName = col.name;
                                     col.colType = col.type;
                                     return col;
-                                }), rightGBColStructs, windowStruct);
+                                }), rightGBColStructs, windowStruct, true);
                 })
                 .then(function(ret) {
                     // add cli in window and move the new column
@@ -5960,7 +5967,7 @@
             });
         }
         curPromise = PromiseHelper.resolve({newTableName: gbTableNames[0]});
-        var joinType = JoinOperatorT.CrossJoin;
+        var joinType = JoinOperatorT.InnerJoin;
         index = 1;
         for (var i = 1; i < gbTableNames.length; i++) {
             var rightCols = [];
@@ -5975,12 +5982,6 @@
                     rightCols.push(newColName);
                     gbTableColInfos[index].rename.push({orig: gbColNames[j],
                                                         new: newColName});
-                    if (evalString === "") {
-                        evalString = "eq(" + gbColNames[j] + "," + newColName + ")";
-                    } else {
-                        evalString = "and(" + evalString + ",eq(" + gbColNames[j]
-                                     + "," + newColName + "))";
-                    }
                 }
                 for (var j = 0; j < gbTableColInfos[index].columns.length; j++) {
                     if (gbColNames.indexOf(gbTableColInfos[index].columns[j]) === -1) {
@@ -5988,13 +5989,13 @@
                     }
                 }
                 var leftColInfo = {tableName: gbTableColInfos[0].tableName,
-                                   columns: [],
+                                   columns: gbColNames,
                                    rename: gbTableColInfos[0].rename};
                 var rightColInfo = {tableName: gbTableColInfos[index].tableName,
-                                    columns: [],
+                                    columns: gbColNames,
                                     rename: gbTableColInfos[index].rename};
                 return self.sqlObj.join(joinType, leftColInfo, rightColInfo,
-                                        {evalString: evalString});
+                                        {evalString: evalString, nullSafe: true});
             })
             .then(function(ret) {
                 cli += ret.cli;

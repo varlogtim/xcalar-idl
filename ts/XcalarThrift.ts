@@ -2584,14 +2584,13 @@ XcalarJoin = function(
     joinType: JoinOperatorT,
     leftColInfos: ColRenameInfo[],
     rightColInfos: ColRenameInfo[],
-    options: {evalString: string, keepAllColumns: boolean},
-    txId: number,
-    nullSafe?: boolean
+    options: {evalString: string, keepAllColumns: boolean, nullSafe: boolean},
+    txId: number
 ): XDPromise<any> {
     // If this flag is set to false, then any column that is not in left columns
     // or right columns will be dropped. This should eventually be set to false.
     // Alternatively it should be exposed to the user.
-    let { keepAllColumns = true, evalString = '' } = (options || {});
+    let { keepAllColumns = true, evalString = '', nullSafe = false } = (options || {});
 
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
     let query: string;

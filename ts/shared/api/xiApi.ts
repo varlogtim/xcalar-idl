@@ -408,7 +408,8 @@ namespace XIApi {
         joinType: number,
         lRename: ColRenameInfo[],
         rRename: ColRenameInfo[],
-        options: {evalString: string, keepAllColumns: boolean} = {evalString: "", keepAllColumns: true}
+        options: {evalString: string, keepAllColumns: boolean, nullSafe: boolean}
+                 = {evalString: "", keepAllColumns: true, nullSafe: false}
     ): XDPromise<string[]> {
         const deferred: XDDeferred<string[]> = PromiseHelper.deferred();
         const simuldateTxId: number = startSimulate();
@@ -835,23 +836,21 @@ namespace XIApi {
             if (typeof rTableId === "string") {
                 rTableId = rTableId.toUpperCase();
             }
-            let joinType: JoinType = JoinOperatorT.CrossJoin;
+            let joinType: JoinType = JoinOperatorT.InnerJoin;
             let evalString: string = "";
-            joinCols.forEach((colName) => {
-                const newColName = colName + "_" + rTableId;
-                rRename.push({
-                    orig: colName,
-                    new: newColName,
-                    type: DfFieldTypeT.DfUnknown
+            if (joinCols.length === 0) {
+                joinType = JoinOperatorT.CrossJoin;
+            } else {
+                joinCols.forEach((colName) => {
+                    const newColName = colName + "_" + rTableId;
+                    rRename.push({
+                        orig: colName,
+                        new: newColName,
+                        type: DfFieldTypeT.DfUnknown
+                    });
+                    tempCols.push(newColName);
                 });
-                tempCols.push(newColName);
-                if (evalString === "") {
-                    evalString = "eq(" + colName + "," + newColName + ")";
-                } else {
-                    evalString = "and(" + evalString + ",eq(" + colName + ","
-                                 + newColName + "))";
-                }
-            });
+            }
 
             let newTableName: string;
             if (i === distinctGbTables.length - 1) {
@@ -864,9 +863,10 @@ namespace XIApi {
                 tempTables.push(newTableName);
             }
 
+            let joinOptions = {evalString: evalString,
+                               keepAllColumns: true, nullSafe: true};
             promises.push(joinHelper.bind(this, txId, curTableName, rTableName,
-                                newTableName, joinType, [], rRename,
-                                {evalString: evalString, keepAllColumns: true}));
+                        newTableName, joinType, [], rRename, joinOptions));
             curTableName = newTableName;
         }
 
@@ -1899,13 +1899,16 @@ namespace XIApi {
             newTableName = getNewJoinTableName(lTableName, rTableName, newTableName);
             // Step 3: Join
             // cross join or normal join
-            const joinOptions = { evalString: '', keepAllColumns: true };
+            const joinOptions = { evalString: '', keepAllColumns: true, nullSafe: false };
             if (options && options.evalString) {
                 // Join with non equal condition case
                 joinOptions.evalString = options.evalString;
             }
             if (options && options.keepAllColumns != null) {
                 joinOptions.keepAllColumns = options.keepAllColumns;
+            }
+            if (options && options.nullSafe != null) {
+                joinOptions.nullSafe = options.nullSafe;
             }
             return joinHelper(txId, lIndexedTable, rIndexedTable, newTableName,
                     <number>joinType, lRename, rRename, joinOptions);
