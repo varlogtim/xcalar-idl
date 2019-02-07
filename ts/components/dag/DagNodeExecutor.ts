@@ -82,70 +82,75 @@ class DagNodeExecutor {
     }
 
     private _apiAdapter(optimized?: boolean): XDPromise<string | null> {
-        const type: DagNodeType = this.node.getType();
-        switch (type) {
-            case DagNodeType.Dataset:
-                return this._loadDataset(optimized);
-            case DagNodeType.Aggregate:
-                return this._aggregate(optimized);
-            case DagNodeType.Filter:
-                return this._filter();
-            case DagNodeType.GroupBy:
-                return this._groupby();
-            case DagNodeType.Join:
-                return this._join(optimized);
-            case DagNodeType.Map:
-                return this._map();
-            case DagNodeType.Split:
-                return this._map();
-            case DagNodeType.Round:
-                return this._map();
-            case DagNodeType.Project:
-                return this._project();
-            case DagNodeType.Explode:
-                return this._map();
-            case DagNodeType.Set:
-                return this._set();
-            case DagNodeType.Export:
-                return this._export(optimized);
-            case DagNodeType.Custom:
-                return this._custom(optimized);
-            case DagNodeType.CustomInput:
-                return this._customInput();
-            case DagNodeType.CustomOutput:
-                return this._customOutput();
-            case DagNodeType.DFIn:
-                return this._dfIn(optimized);
-            case DagNodeType.DFOut:
-                return this._dfOut();
-            case DagNodeType.PublishIMD:
-                return this._publishIMD();
-            case DagNodeType.UpdateIMD:
-                return this._updateIMD();
-            case DagNodeType.Jupyter:
-                return this._jupyter();
-            case DagNodeType.Extension:
-                return this._extension();
-            case DagNodeType.IMDTable:
-                return this._IMDTable();
-            case DagNodeType.SQL:
-                return this._sql();
-            case DagNodeType.RowNum:
-                return this._rowNum();
-            case DagNodeType.Index:
-                return this._index();
-            case DagNodeType.Sort:
-                return this._sort();
-            case DagNodeType.Placeholder:
-                return this._placeholder();
-            case DagNodeType.Synthesize:
-                return this._synthesize();
-            case DagNodeType.SQLFuncIn:
-                return this._sqlFuncIn();
-            case DagNodeType.SQLFuncOut:
-                return this._sqlFuncOut();
-            default:
-                throw new Error(type + " not supported!");
+        try {
+            const type: DagNodeType = this.node.getType();
+            switch (type) {
+                case DagNodeType.Dataset:
+                    return this._loadDataset(optimized);
+                case DagNodeType.Aggregate:
+                    return this._aggregate(optimized);
+                case DagNodeType.Filter:
+                    return this._filter();
+                case DagNodeType.GroupBy:
+                    return this._groupby();
+                case DagNodeType.Join:
+                    return this._join(optimized);
+                case DagNodeType.Map:
+                    return this._map();
+                case DagNodeType.Split:
+                    return this._map();
+                case DagNodeType.Round:
+                    return this._map();
+                case DagNodeType.Project:
+                    return this._project();
+                case DagNodeType.Explode:
+                    return this._map();
+                case DagNodeType.Set:
+                    return this._set();
+                case DagNodeType.Export:
+                    return this._export(optimized);
+                case DagNodeType.Custom:
+                    return this._custom(optimized);
+                case DagNodeType.CustomInput:
+                    return this._customInput();
+                case DagNodeType.CustomOutput:
+                    return this._customOutput();
+                case DagNodeType.DFIn:
+                    return this._dfIn(optimized);
+                case DagNodeType.DFOut:
+                    return this._dfOut();
+                case DagNodeType.PublishIMD:
+                    return this._publishIMD();
+                case DagNodeType.UpdateIMD:
+                    return this._updateIMD();
+                case DagNodeType.Jupyter:
+                    return this._jupyter();
+                case DagNodeType.Extension:
+                    return this._extension();
+                case DagNodeType.IMDTable:
+                    return this._IMDTable();
+                case DagNodeType.SQL:
+                    return this._sql();
+                case DagNodeType.RowNum:
+                    return this._rowNum();
+                case DagNodeType.Index:
+                    return this._index();
+                case DagNodeType.Sort:
+                    return this._sort();
+                case DagNodeType.Placeholder:
+                    return this._placeholder();
+                case DagNodeType.Synthesize:
+                    return this._synthesize();
+                case DagNodeType.SQLFuncIn:
+                    return this._sqlFuncIn();
+                case DagNodeType.SQLFuncOut:
+                    return this._sqlFuncOut();
+                default:
+                    throw new Error(type + " not supported!");
+            }
+        } catch (e) {
+            console.error(e);
+            return PromiseHelper.reject(e.message);
         }
     }
 
@@ -577,6 +582,10 @@ class DagNodeExecutor {
     private _set(): XDPromise<string> {
         const node: DagNodeSet = <DagNodeSet>this.node;
         const params: DagNodeSetInputStruct = node.getParam(this.replaceParam);
+        if (params.columns.length > node.getNumParent()) {
+            return PromiseHelper.reject("Invalid number of columns specified");
+        }
+
         const unionType: UnionOperatorT = this._getUnionType(node.getSubType());
         const desTable: string = this._generateTableName();
         const tableInfos: UnionTableInfo[] = params.columns.map((colInfo, index) => {

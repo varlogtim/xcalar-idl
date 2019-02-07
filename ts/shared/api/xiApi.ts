@@ -962,6 +962,7 @@ namespace XIApi {
                 if (tableInfos[j].columns[i].name == null) {
                     // this is for no match case
                     tableInfos[j].columns[i].name = xcHelper.randName("XCALAR_FNF");
+                    tableInfos[j].columns[i].cast = true;
                 }
 
                 if (j > 0) {
@@ -2089,6 +2090,7 @@ namespace XIApi {
         if (unionType === undefined) {
             unionType = UnionOperatorT.UnionStandard;
         }
+        tableInfos = xcHelper.deepCopy(tableInfos);
         tableInfos = checkUnionTableInfos(tableInfos);
         if (txId == null || tableInfos == null) {
             return PromiseHelper.reject("Invalid args in union");
