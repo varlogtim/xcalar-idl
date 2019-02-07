@@ -57,13 +57,7 @@ class DagNodeJoinInput extends DagNodeInput {
           "joinType": {
             "$id": "#/properties/joinType",
             "type": "string",
-            // XXX For SDK only
-            "enum": typeof JoinOpPanelStep1 === "undefined" ? [] :
-                JoinOpPanelStep1.joinTypeMenuItems.filter((item)=> {
-                return !item.isNotMenuItem;
-            }).map((item) => {
-                return item.value;
-            }),
+            "enum": Object.values(JoinOperatorTStr),
             "title": "The Jointype Schema",
             "default": "",
             "examples": [
