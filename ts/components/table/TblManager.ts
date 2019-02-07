@@ -2321,17 +2321,15 @@ class TblManager {
             }
 
             let $table = $tbody.closest(".xcTable");
-            if ($table.hasClass("noOperation")) {
-                // when it's a table view in sql mdoe
-                return false;
-            }
-
-            const node: DagNode = DagTable.Instance.getBindNode();
-            if (DagView.getActiveTab() instanceof DagTabPublished ||
-                node != null && node.getMaxChildren() === 0
-            ) {
-                // when published tab or out node
-                return;
+            if (!$table.hasClass("noOperation")) {
+                // when it's not table view in sql mdoe
+                const node: DagNode = DagTable.Instance.getBindNode();
+                if (DagView.getActiveTab() instanceof DagTabPublished ||
+                    node != null && node.getMaxChildren() === 0
+                ) {
+                    // when published tab or out node
+                    return;
+                }
             }
 
             const colNum: number = xcHelper.parseColNum($td);
@@ -2452,6 +2450,9 @@ class TblManager {
             if ($el.closest("#dagViewTableArea").length) {
                 extraClasses += " style-white mode-modeling"
             }
+            if ($table.hasClass("noOperation")) {
+                extraClasses += " noOperation";
+            }
 
             xcHelper.dropdownOpen($el, $("#cellMenu"), {
                 "colNum": colNum,
@@ -2536,17 +2537,15 @@ class TblManager {
                 }
 
                 let $table = $tbody.closest(".xcTable");
-                if ($table.hasClass("noOperation")) {
-                    // when it's a table view in sql mdoe
-                    return false;
-                }
-
-                const node: DagNode = DagTable.Instance.getBindNode();
-                if (DagView.getActiveTab() instanceof DagTabPublished ||
-                    node != null && node.getMaxChildren() === 0
-                ) {
-                    // when published tab or out node
-                    return false;
+                if (!$table.hasClass("noOperation")) {
+                    // when it's not table view in sql mdoe
+                    const node: DagNode = DagTable.Instance.getBindNode();
+                    if (DagView.getActiveTab() instanceof DagTabPublished ||
+                        node != null && node.getMaxChildren() === 0
+                    ) {
+                        // when published tab or out node
+                        return false;
+                    }
                 }
 
                 const colNum: number = xcHelper.parseColNum($td);
@@ -2562,6 +2561,10 @@ class TblManager {
                 }
                 let extraClasses = $div.closest("#dagViewTableArea").length ?
                 " style-white mode-modeling" : "";
+                if ($table.hasClass("noOperation")) {
+                    extraClasses += " noOperation"
+                }
+
                 xcHelper.dropdownOpen($div, $("#cellMenu"), {
                     "colNum": colNum,
                     "rowNum": rowNum,

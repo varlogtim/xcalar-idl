@@ -703,6 +703,14 @@
     }
 }
 
+#cellMenu {
+    &.noOperation {
+        li:not(.tdCopy) {
+            display: none;
+        }
+    }
+}
+
 .menu {
     &.style-white {
         background-color: @color-white;
