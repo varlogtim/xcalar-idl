@@ -1221,7 +1221,8 @@ class DagNodeExecutor {
                             newTableMap[source[i]] = replaceMap[idx];
                             newTableSrcMap[replaceMap[idx]] = idx;
                         } else {
-                            newTableMap[source[i]] = this._generateTableName();
+                            console.log("publish table as source: ", source[i]);
+                            continue;
                         }
                     }
                     source[i] = newTableMap[source[i]];

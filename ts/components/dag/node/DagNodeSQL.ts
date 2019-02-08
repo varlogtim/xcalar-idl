@@ -24,7 +24,7 @@ class DagNodeSQL extends DagNode {
         this.tableSrcMap = options.tableSrcMap;
         this.columns = options.columns;
         this.maxParents = -1;
-        this.minParents = 1;
+        this.minParents = 0; // when working on pub tables in SQL mode, it can be 0
         this.display.icon = "&#xe957;";
         this.input = new DagNodeSQLInput(options.input);
         const identifiers = new Map<number, string>();
@@ -631,23 +631,66 @@ class DagNodeSQL extends DagNode {
     private _finalizeTable(
         sourceId: number,
         srcTableName?: string,
-        columns?: ColSchema[]
+        columns?: ColSchema[],
+        pubTablesInfo?: {}
     ): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
+        let destTableName;
         let pubTableName;
         let cols;
+        const selectCliArray = [];
         if (sourceId != null) {
-            if (this.getParents().length < sourceId) {
-                return PromiseHelper.reject("Node connection doesn't exist");
+            if (pubTablesInfo) {
+                // This is for SQL mode where SQL node works with pub tables
+                srcTableName = this.identifiers.get(sourceId);
+                if (this.getParents().length > 0 || !srcTableName ||
+                    !pubTablesInfo[srcTableName]) {
+                        return PromiseHelper.reject("Invalid publish tables");
+                }
+                const renameMap = [];
+                cols = pubTablesInfo[srcTableName].schema.map((colSchema) => {
+                    if (colSchema.name !== colSchema.name.toUpperCase()) {
+                        // needs finalize
+                        renameMap.push({
+                            sourceColumn: colSchema.name,
+                            destColumn: colSchema.name.toUpperCase(),
+                            columnType: DfFieldTypeTStr[xcHelper
+                                    .convertColTypeToFieldType(colSchema.type)]
+                        });
+                        colSchema.name = colSchema.name.toUpperCase();
+                    }
+                    colSchema.backName = colSchema.name;
+                    return colSchema;
+                });
+                const batchId = pubTablesInfo[srcTableName].batchId;
+                destTableName = xcHelper.randName("sqlTable") + Authentication.getHashId();
+                const selectCli = {
+                    "operation": "XcalarApiSelect",
+                    "args": {
+                        "source": srcTableName,
+                        "dest": destTableName,
+                        "minBatchId": -1,
+                        "maxBatchId": batchId != null ? batchId : -1,
+                        "columns": renameMap
+                    }
+                }
+                selectCliArray.push(JSON.stringify(selectCli));
+            } else {
+                // This is for advanced mode where SQL node has >=1 parents
+                if (this.getParents().length < sourceId) {
+                    return PromiseHelper.reject("Node connection doesn't exist");
+                }
+                const srcTable = this.getParents()[sourceId - 1];
+                srcTableName = srcTable.getTable() ||
+                             xcHelper.randName("sqlTable") + Authentication.getHashId();
+                if (srcTable instanceof DagNodeIMDTable) {
+                    pubTableName = srcTable.getSource().toUpperCase();
+                }
+                destTableName = srcTableName;
+                cols = srcTable.getLineage().getColumns();
             }
-            const srcTable = this.getParents()[sourceId - 1];
-            srcTableName = srcTable.getTable() ||
-                         xcHelper.randName("sqlTable") + Authentication.getHashId();
-            if (srcTable instanceof DagNodeIMDTable) {
-                pubTableName = srcTable.getSource().toUpperCase();
-            }
-            cols = srcTable.getLineage().getColumns();
         } else {
+            destTableName = srcTableName;
             cols = columns;
         }
 
@@ -693,8 +736,8 @@ class DagNodeSQL extends DagNode {
         }
         if (colInfos.length === 0) {
             const ret = {
-                finalizedTableName: srcTableName,
-                cliArray: [],
+                finalizedTableName: destTableName,
+                cliArray: selectCliArray,
                 schema: schema,
                 srcTableName: srcTableName,
                 pubTableName: pubTableName
@@ -703,11 +746,11 @@ class DagNodeSQL extends DagNode {
         } else {
             colInfos = colInfos.concat(remainCols);
         }
-        this._getSynthesize(colInfos, srcTableName)
+        this._getSynthesize(colInfos, destTableName)
         .then((ret) => {
             const finalizeStruct = {
                 finalizedTableName: ret.finalizedTableName,
-                cliArray: ret.cliArray,
+                cliArray: selectCliArray.concat(ret.cliArray),
                 schema: schema,
                 srcTableName: srcTableName,
                 pubTableName: pubTableName
@@ -722,11 +765,12 @@ class DagNodeSQL extends DagNode {
     private _finalizeAndGetSchema(
         sourceId: number,
         sqlTableName: string,
+        pubTablesInfo?: {},
         srcTableName?: string,
         columns?: ColSchema[]
     ): XDPromise<any> {
         var deferred = PromiseHelper.deferred();
-        this._finalizeTable(sourceId, srcTableName, columns)
+        this._finalizeTable(sourceId, srcTableName, columns, pubTablesInfo)
         .then(function(ret) {
             const schema = ret.schema;
             var tableMetaCol = {};
@@ -754,6 +798,7 @@ class DagNodeSQL extends DagNode {
 
     public sendSchema(
         identifiers: Map<number, string>,
+        pubTablesInfo?: {},
         sqlFuncs?: {}
     ): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
@@ -771,14 +816,17 @@ class DagNodeSQL extends DagNode {
             const innerDeferred = PromiseHelper.deferred();
             const sourceId = key;
             const tableName = value;
-            self._finalizeAndGetSchema(sourceId, tableName)
+            self._finalizeAndGetSchema(sourceId, tableName, pubTablesInfo)
             .then(function(retStruct) {
                 if (retStruct.pubTableName) {
                     selectTableMap[retStruct.pubTableName] = retStruct.srcTableName;
                 }
                 schemaQueryArray = schemaQueryArray.concat(retStruct.cliArray);
                 allSchemas.push(retStruct.structToSend);
-                tableSrcMap[retStruct.srcTableName] = key;
+                if (!pubTablesInfo) {
+                    // If it's SQL mode, we don't do this bc pub table name is fixed
+                    tableSrcMap[retStruct.srcTableName] = key;
+                }
                 innerDeferred.resolve();
             })
             .fail((err) => {
@@ -945,7 +993,7 @@ class DagNodeSQL extends DagNode {
             return tempTab.getSchema();
         })
         .then((columns) => {
-            return this._finalizeAndGetSchema(undefined, newIdentifier,
+            return this._finalizeAndGetSchema(undefined, undefined, newIdentifier,
                                               newTableName, columns);
         })
         .then((ret) => {
@@ -964,7 +1012,8 @@ class DagNodeSQL extends DagNode {
         sqlQueryStr: string,
         queryId: string,
         identifiers?: Map<number, string>,
-        sqlMode?: boolean
+        sqlMode?: boolean,
+        pubTablesInfo?: {}
     ): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
         const sqlCom = new SQLCompiler();
@@ -990,7 +1039,7 @@ class DagNodeSQL extends DagNode {
                 id: this.getId(),
                 node: this
             });
-            self.sendSchema(identifiers, sqlFuncs)
+            self.sendSchema(identifiers, pubTablesInfo, sqlFuncs)
             .then(function(ret) {
                 schemaQueryString = ret.queryString;
                 tableSrcMap = ret.tableSrcMap
@@ -1002,9 +1051,14 @@ class DagNodeSQL extends DagNode {
                 self.setNewTableName(newTableName);
                 self.setColumns(newCols);
                 const optimizer = new SQLOptimizer();
+                const optimizations = {combineProjectWithSynthesize: true,
+                                       dropAsYouGo: true};
+                if (sqlMode) {
+                    optimizations.pushToSelect = true;
+                }
                 const optimizedQueryString = optimizer.logicalOptimize(queryString,
-                                        {combineProjectWithSynthesize: true,
-                                         dropAsYouGo: true}, schemaQueryString);
+                                                                optimizations,
+                                                                schemaQueryString);
                 self.setXcQueryString(optimizedQueryString);
                 const retStruct = {
                     newTableName: newTableName,

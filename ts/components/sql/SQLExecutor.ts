@@ -15,20 +15,20 @@ class SQLExecutor {
 
     private _sql: string;
     private _sqlNode: DagNodeSQL;
-    private _IMDNodes: DagNodeIMDTable[];
     private _tempTab: DagTabUser;
     private _tempGraph: DagGraph;
     private _identifiers: {};
     private _identifiersOrder: number[];
     private _schema: {};
+    private _batchId: {};
     private _status: SQLStatus;
 
     public constructor(sql: string) {
         this._sql = sql.replace(/;+$/, "");
-        this._IMDNodes = [];
         this._identifiersOrder = [];
         this._identifiers = {};
         this._schema = {};
+        this._batchId = {};
         this._status = SQLStatus.None;
         const tables: string[] = Array.from(XDParser.SqlParser.getTableIdentifiers(sql));
         const tableMap = PTblManager.Instance.getTableMap();
@@ -46,13 +46,10 @@ class SQLExecutor {
                     }
                 });
                 this._schema[pubTableName] = columns;
+                this._batchId[pubTableName] = tableMap.get(pubTableName).batchId;
             } else {
                 throw "Cannot find published table: " + pubTableName;
             }
-            const IMDNode = <DagNodeIMDTable>DagNodeFactory.create({
-                type: DagNodeType.IMDTable
-            });
-            this._IMDNodes.push(IMDNode);
             this._identifiersOrder.push(idx + 1);
             this._identifiers[idx + 1] = identifier;
         });
@@ -83,8 +80,6 @@ class SQLExecutor {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let tabId: string = this._tempTab.getId();
         SQLExecutor.setTab(tabId, this._tempTab);
-        const publishedTableNodes: DagNodeIMDTable[] = this._IMDNodes;
-        this._addPublishedTableNodes(publishedTableNodes);
 
         let finalTableName;
         let succeed: boolean = false;
@@ -105,10 +100,7 @@ class SQLExecutor {
             }
         };
 
-        this._configurePublishedTableNode()
-        .then(() => {
-            return this._configureSQLNode();
-        })
+        this._configureSQLNode()
         .then(() => {
             if (this._status === SQLStatus.Cancelled) {
                 return PromiseHelper.reject(SQLStatus.Cancelled);
@@ -155,13 +147,8 @@ class SQLExecutor {
     public restoreDataflow(): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         let tabId: string = this._tempTab.getId();
-        const publishedTableNodes: DagNodeIMDTable[] = this._IMDNodes;
-        this._addPublishedTableNodes(publishedTableNodes);
 
-        this._configurePublishedTableNode()
-        .then(() => {
-            return this._configureSQLNode(true);
-        })
+        this._configureSQLNode(true)
         .then(() => {
             DagTabManager.Instance.addSQLTabCache(this._tempTab);
             return this._expandSQLNode();
@@ -186,29 +173,6 @@ class SQLExecutor {
         this._tempGraph.addNode(this._sqlNode);
     }
 
-    private _addPublishedTableNodes(nodes: DagNodeIMDTable[]): void {
-        const sqlNodeId: DagNodeId = this._sqlNode.getId();
-        nodes.forEach((node, index) => {
-            this._tempGraph.addNode(node);
-            this._tempGraph.connect(node.getId(), sqlNodeId, index);
-        });
-    }
-
-    private _configurePublishedTableNode(): XDPromise<void> {
-        const promiseArray = [];
-        this._IMDNodes.forEach((IMDNode, idx) => {
-            const pubTableName = this._identifiers[idx + 1].toUpperCase();
-            const schema: ColSchema[] = this._schema[pubTableName];
-            const dagNodeIMDInput: DagNodeIMDTableInputStruct = {
-                source: pubTableName,
-                version: -1,
-                schema: schema
-            }
-            promiseArray.push(IMDNode.setParam(dagNodeIMDInput));
-        });
-        return PromiseHelper.when.apply(window, promiseArray);
-    }
-
     private _configureSQLNode(noStatusUpdate: boolean = false): XDPromise<any> {
         this._sqlNode.setParam({
             sqlQueryStr: this._sql,
@@ -217,8 +181,14 @@ class SQLExecutor {
         }, true);
         const queryId = xcHelper.randName("sqlQuery", 8);
         const identifiers = new Map<number, string>();
+        const pubTablesInfo = {};
         this._identifiersOrder.forEach((idx) => {
-            identifiers.set(idx, this._identifiers[idx]);
+            const pubTableName = this._identifiers[idx]
+            identifiers.set(idx, pubTableName);
+            pubTablesInfo[pubTableName] = {
+                schema: this._schema[pubTableName.toUpperCase()],
+                batchId: this._batchId[pubTableName]
+            };
         });
         const sqlMode = true;
         if (!noStatusUpdate) {
@@ -226,7 +196,8 @@ class SQLExecutor {
             this._updateStatus(SQLStatus.Compiling, new Date());
         }
         this._sqlNode.setIdentifiers(identifiers);
-        return this._sqlNode.compileSQL(this._sql, queryId, identifiers, sqlMode);
+        return this._sqlNode.compileSQL(this._sql, queryId, identifiers,
+                                        sqlMode, pubTablesInfo);
     }
 
     private _updateStatus(
