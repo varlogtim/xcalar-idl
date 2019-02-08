@@ -192,7 +192,17 @@ class DagLineage {
     /**
      * Figure out the parent of each columns in this.changes and this.columns
      */
-    private _getColumnMaps() {
+    private _getColumnMaps(): {
+        sourceColMap: {
+            removed: Map<string, number[]>, // source columns removed
+            renamed: Map<string, Map<string, number>> // source columns renamed
+        },
+        destColMap: {
+            added: Set<string>, // New columns
+            renamed: Map<string, {from: string, parentIndex: number}>, // Dest columns renamed
+            kept: Map<string, number> // Dest columns kept
+        }
+    } {
         if (this.columnParentMaps != null) {
             return this.columnParentMaps;
         }

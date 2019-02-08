@@ -5,7 +5,6 @@
             <div><%= dicts.joinView.colKeepTitle %></div>
         </div>
         <p class="instrText"><%= dicts.joinView.colKeepInstr %></p>
-        <APP-KEEPALL></APP-KEEPALL>
         <APP-TABLEKEEP></APP-TABLEKEEP>
         <APP-TABLEDROP></APP-TABLEDROP>
     </div>
@@ -34,7 +33,12 @@
 
 <div data-xcid="templateColumnList" style="display:none">
     <div class="columnList {{cssExtra}}">
-        <div class="column column-title">{{title}}</div>
+        <div class="column column-title">
+            <div class="title-text">{{title}}</div>
+            <div class="title-icon">
+                <div class="action-icon flexContainer {{cssActionDisabled}}" data-toggle="tooltip" data-placement="top" data-title="{{actionTitle}}" (click)="onClickAction"><i class="icon {{cssActionIcon}} fa-14"></i></div>
+            </div>
+        </div>
         <APP-COLUMNS></APP-COLUMNS>
     </div>
 </div>

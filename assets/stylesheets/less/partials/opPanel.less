@@ -2749,6 +2749,21 @@
         .column-title {
             border: none;
             font-weight: 700;
+            .title-text {
+                .col();
+            }
+            .title-icon {
+                padding-left: 10px;
+                .col();
+                .col-6();
+                .action-icon {
+                    cursor: pointer;
+                    opacity: @opacity-unhover;
+                    &:hover {
+                        opacity: @opacity-hover;
+                    }
+                }
+            }
         }
 
         .actionWrap {

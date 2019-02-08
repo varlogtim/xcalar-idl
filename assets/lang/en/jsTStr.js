@@ -1760,6 +1760,8 @@ OpPanelTStr = {
     "JoinPanelColumnListTitleLeft": "Left Columns",
     "JoinPanelColumnListTitleRight": "Right Columns",
     "JoinPanelColumnKeepAllCBText": "Keep All Columns",
+    "JoinPanelColumnListActionKeepAll": "Keep All Columns",
+    "JoinPanelColumnListActionDropAll": "Drop All Columns",
     "Union": "Union (Combine)",
     "Except": "Except (Minus)",
     "Intersect": "Intersect",

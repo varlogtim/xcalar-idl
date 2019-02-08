@@ -138,6 +138,12 @@ declare interface ColumnWithActionProps extends BaseComponentProps {
 declare interface ColumnListWithActionProps extends BaseComponentProps {
     title: string;
     cssExtra?: string;
+    allColumnAction: {
+        cssActionIcon: string;
+        actionTitle: string;
+        isDisabled: boolean;
+        onClickAction: () => void;
+    };
     columnList: ColumnWithActionProps[]
 }
 

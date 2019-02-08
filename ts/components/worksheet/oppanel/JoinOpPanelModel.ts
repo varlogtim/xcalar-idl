@@ -28,7 +28,6 @@ class JoinOpPanelModel {
     private _previewTableNames: {
         left: string, right: string
     } = { left: null, right: null };
-    private _keepAllColumns: boolean = true;
     private _selectedColumns: { // Columns selected by user
         left: string[], right: string[]
     } = { left: [], right: [] };
@@ -114,6 +113,7 @@ class JoinOpPanelModel {
         const {
             left: configLeft, right: configRight,
             joinType: configJoinType, evalString: configEvalString,
+            // This flag is only effective when converting dagInput to model
             keepAllColumns: configKeepAllColumns
         } = <DagNodeJoinInputStruct>xcHelper.deepCopy(config);
 
@@ -152,8 +152,6 @@ class JoinOpPanelModel {
         model.setJoinType(configJoinType);
         // Eval String
         model.setEvalString(configEvalString);
-        // KeepAllColumns
-        model.setKeepAllColumns(configKeepAllColumns);
 
         // Normalize JoinOn input
         // We don't support type casting in Join for now, but keep the code in case we wanna re-enable it
@@ -227,8 +225,12 @@ class JoinOpPanelModel {
             rightColumnMetaMap: model._columnMeta.rightMap,
             joinType: model._joinType,
             joinOnPairs: model._joinColumnPairs,
-            leftSelected: configLeft.keepColumns,
-            rightSelected: configRight.keepColumns
+            leftSelected: configKeepAllColumns
+                ? model._columnMeta.left.map((colInfo) => colInfo.name)
+                : configLeft.keepColumns,
+            rightSelected: configKeepAllColumns
+                ? model._columnMeta.right.map((colInfo) => colInfo.name)
+                : configRight.keepColumns
         });
         model._selectedColumns.left = selection.leftSelectable.map((v) => v);
         model._selectedColumns.right = selection.rightSelectable.map((v) => v);
@@ -288,7 +290,9 @@ class JoinOpPanelModel {
             left: { columns: [], keepColumns: [], rename: [] },
             right: { columns: [], keepColumns: [], rename: [] },
             evalString: this._evalString,
-            keepAllColumns: this._keepAllColumns
+            // All selected columns are already in keepColumns
+            // Keep it here to let user be able to access in adv. form/json
+            keepAllColumns: false
         };
 
         // JoinOn columns
@@ -306,22 +310,19 @@ class JoinOpPanelModel {
         }
 
         // Selected Columns
-        if (!this.isKeepAllColumns()) {
-            const selection = this._buildSelectedColumns({
-                leftColumnMetaMap: this._columnMeta.leftMap,
-                rightColumnMetaMap: this._columnMeta.rightMap,
-                joinType: this._joinType,
-                joinOnPairs: this._joinColumnPairs,
-                leftSelected: this._selectedColumns.left,
-                rightSelected: this._selectedColumns.right
-            });
-
-            // keepColumns = joinOn(vary as joinType) + selected
-            dagData.left.keepColumns = selection.leftFixed
-                .concat(selection.leftSelectable);
-            dagData.right.keepColumns = selection.rightFixed
-                .concat(selection.rightSelectable);
-        }
+        const selection = this._buildSelectedColumns({
+            leftColumnMetaMap: this._columnMeta.leftMap,
+            rightColumnMetaMap: this._columnMeta.rightMap,
+            joinType: this._joinType,
+            joinOnPairs: this._joinColumnPairs,
+            leftSelected: this._selectedColumns.left,
+            rightSelected: this._selectedColumns.right
+        });
+        // keepColumns = joinOn(vary as joinType) + selected
+        dagData.left.keepColumns = selection.leftFixed
+            .concat(selection.leftSelectable);
+        dagData.right.keepColumns = selection.rightFixed
+            .concat(selection.rightSelectable);
 
         // Renamed left prefixes & columns
         const {
@@ -791,7 +792,7 @@ class JoinOpPanelModel {
         }
     }
 
-    public removeSelectedColumn(colName: { left: string, right: string }): void {
+    public removeSelectedColumn(colName: { left?: string, right?: string }): void {
         const { left, right } = colName;
 
         if (left != null) {
@@ -907,13 +908,13 @@ class JoinOpPanelModel {
         this._evalString = str;
     }
 
-    public isKeepAllColumns(): boolean {
-        return this._keepAllColumns;
-    }
+    // public isKeepAllColumns(): boolean {
+    //     return this._keepAllColumns;
+    // }
 
-    public setKeepAllColumns(keepAllColumns: boolean): void {
-        this._keepAllColumns = keepAllColumns;
-    }
+    // public setKeepAllColumns(keepAllColumns: boolean): void {
+    //     this._keepAllColumns = keepAllColumns;
+    // }
 
     public isLeftColumnsOnly(): boolean {
         const leftOnlyType: Set<string> = new Set([
@@ -1331,55 +1332,42 @@ class JoinOpPanelModel {
         const rightColMetaMap: Map<string, JoinOpColumnInfo> = new Map();
         const leftPrefixMetaMap: Map<string, string> = new Map();
         const rightPrefixMetaMap: Map<string, string> = new Map();
-        if (this.isKeepAllColumns()) {
-            this._columnMeta.leftMap.forEach((col, colName)=> {
-                leftColMetaMap.set(colName, Object.assign({}, col));
-            });
-            this._columnMeta.rightMap.forEach((col, colName)=> {
-                rightColMetaMap.set(colName, Object.assign({}, col));
-            });
-            this._prefixMeta.leftMap.forEach((v, k) => {
-                leftPrefixMetaMap.set(k, v);
-            });
-            this._prefixMeta.rightMap.forEach((v, k) => {
-                rightPrefixMetaMap.set(k, v);
-            });
-        } else {
-            const {
-                leftSelected, leftJoinOn, rightSelected, rightJoinOn
-            } = this._getCleanSelectedColumns({
-                leftColumnMetaMap: this._columnMeta.leftMap,
-                rightColumnMetaMap: this._columnMeta.rightMap,
-                joinOnPairs: this._joinColumnPairs,
-                leftSelected: this._selectedColumns.left,
-                rightSelected: this._selectedColumns.right
-            });
-            const {
-                left: leftFixed, right: rightFixed
-            } = this._getUnselectableColumns({
-                joinType: this._joinType,
-                leftJoinOn: leftJoinOn,
-                rightJoinOn: rightJoinOn
-            });
 
-            // Left columns
-            for (const colName of leftSelected.concat(leftFixed)) {
-                const colInfo = this._columnMeta.leftMap.get(colName);
-                if (colInfo != null) {
-                    leftColMetaMap.set(colName, Object.assign({}, colInfo));
-                    if (colInfo.isPrefix) {
-                        leftPrefixMetaMap.set(colInfo.prefix, colInfo.prefix);
-                    }
+        // Get selected columns and unselectable(always selected) columns
+        const {
+            leftSelected, leftJoinOn, rightSelected, rightJoinOn
+        } = this._getCleanSelectedColumns({
+            leftColumnMetaMap: this._columnMeta.leftMap,
+            rightColumnMetaMap: this._columnMeta.rightMap,
+            joinOnPairs: this._joinColumnPairs,
+            leftSelected: this._selectedColumns.left,
+            rightSelected: this._selectedColumns.right
+        });
+        const {
+            left: leftFixed, right: rightFixed
+        } = this._getUnselectableColumns({
+            joinType: this._joinType,
+            leftJoinOn: leftJoinOn,
+            rightJoinOn: rightJoinOn
+        });
+
+        // Left columns
+        for (const colName of leftSelected.concat(leftFixed)) {
+            const colInfo = this._columnMeta.leftMap.get(colName);
+            if (colInfo != null) {
+                leftColMetaMap.set(colName, Object.assign({}, colInfo));
+                if (colInfo.isPrefix) {
+                    leftPrefixMetaMap.set(colInfo.prefix, colInfo.prefix);
                 }
             }
-            // Right columns
-            for (const colName of rightSelected.concat(rightFixed)) {
-                const colInfo = this._columnMeta.rightMap.get(colName);
-                if (colInfo != null) {
-                    rightColMetaMap.set(colName, Object.assign({}, colInfo));
-                    if (colInfo.isPrefix) {
-                        rightPrefixMetaMap.set(colInfo.prefix, colInfo.prefix);
-                    }
+        }
+        // Right columns
+        for (const colName of rightSelected.concat(rightFixed)) {
+            const colInfo = this._columnMeta.rightMap.get(colName);
+            if (colInfo != null) {
+                rightColMetaMap.set(colName, Object.assign({}, colInfo));
+                if (colInfo.isPrefix) {
+                    rightPrefixMetaMap.set(colInfo.prefix, colInfo.prefix);
                 }
             }
         }

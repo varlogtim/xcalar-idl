@@ -311,7 +311,12 @@ class JoinOpPanelStep2 {
         }
 
         const templateId = JoinOpPanelStep2._templateIds.columnList;
-        const { title, columnList = [], onElementMountDone, cssExtra = '' } = props;
+        const {
+            title, columnList = [], onElementMountDone, cssExtra = '', allColumnAction
+        } = props;
+        const {
+            cssActionIcon, actionTitle, isDisabled, onClickAction = () => {}
+        } = allColumnAction;
 
         const columnRows = [];
         columnList.forEach((colProp) => {
@@ -321,6 +326,10 @@ class JoinOpPanelStep2 {
         const elements = this._templateMgr.createElements(templateId, {
             title: title,
             cssExtra: cssExtra,
+            actionTitle: actionTitle,
+            cssActionDisabled: isDisabled ? 'xc-disabled' : '',
+            cssActionIcon: cssActionIcon,
+            onClickAction: onClickAction,
             'APP-COLUMNS': columnRows
         });
         if (onElementMountDone != null) {
@@ -350,17 +359,22 @@ class JoinOpPanelStep2 {
         const actionType = isSelected ? 'remove' : 'add';
         const leftListTitle = OpPanelTStr.JoinPanelColumnListTitleLeft;
         const rightListTitle = OpPanelTStr.JoinPanelColumnListTitleRight;
-        const actionFunc = isSelected
-            ? (colName) => {
+        const actionFunc: (colNames: {left?: string[], right?: string[]}) => void
+            = isSelected ? (colNames) => {
                 xcTooltip.hideAll();
-                this._removeSelectedColumn(colName);
-                this._onDataChange();
-            }
-            : (colName) => {
+                if (this._removeSelectedColumns(colNames)) {
+                    this._onDataChange();
+                }
+            } : (colNames) => {
                 xcTooltip.hideAll();
-                this._addSelectedColumn(colName);
-                this._onDataChange();
-            }
+                if (this._addSelectedColumns(colNames)) {
+                    this._onDataChange();
+                }
+            };
+        const titleActionIcon = isSelected ? 'xi-select-none' : 'xi-select-all';
+        const titleActionText = isSelected
+            ? OpPanelTStr.JoinPanelColumnListActionDropAll
+            : OpPanelTStr.JoinPanelColumnListActionKeepAll;
 
         // Child component: left column list
         const leftFixedColProps = columns.leftFixed == null
@@ -374,9 +388,17 @@ class JoinOpPanelStep2 {
         const elemLeftList = this._createColumnList({
             title: leftListTitle,
             cssExtra: isLeftTableOnly ? 'columnList-full' : '',
+            allColumnAction: {
+                cssActionIcon: titleActionIcon,
+                actionTitle: titleActionText,
+                isDisabled: columns.leftSelectable.length === 0,
+                onClickAction: () => actionFunc({
+                    left: columns.leftSelectable.map((colInfo) => colInfo.name)
+                })
+            },
             columnList: leftFixedColProps.concat(
                 columns.leftSelectable.map((colInfo) => ({
-                    onClickAction: () => actionFunc({left: colInfo.name}),
+                    onClickAction: () => actionFunc({left: [colInfo.name]}),
                     actionType: actionType,
                     columnProps: {
                         colName: colInfo.name, colType: colInfo.type
@@ -396,9 +418,17 @@ class JoinOpPanelStep2 {
             }));
         const elemRightList = isLeftTableOnly ? [] : this._createColumnList({
             title: rightListTitle,
+            allColumnAction: {
+                cssActionIcon: titleActionIcon,
+                actionTitle: titleActionText,
+                isDisabled: columns.rightSelectable.length === 0,
+                onClickAction: () => actionFunc({
+                    right: columns.rightSelectable.map((colInfo) => colInfo.name)
+                })
+            },
             columnList: rightFixedColProps.concat(
                 columns.rightSelectable.map((colInfo) => ({
-                    onClickAction: () => actionFunc({right: colInfo.name}),
+                    onClickAction: () => actionFunc({right: [colInfo.name]}),
                     actionType: actionType,
                     columnProps: {
                         colName: colInfo.name, colType: colInfo.type
@@ -419,32 +449,30 @@ class JoinOpPanelStep2 {
     }
 
     private _createColumnSelectSection(): HTMLElement[] {
-        const isKeepAll = this._modelRef.isKeepAllColumns();
-        const elemTableKeep = isKeepAll ? null : this._createColumnTable({ isSelected: true });
-        const elemTableDrop = isKeepAll ? null : this._createColumnTable({ isSelected: false });
+        const elemTableKeep = this._createColumnTable({ isSelected: true });
+        const elemTableDrop = this._createColumnTable({ isSelected: false });
 
         const templateId = JoinOpPanelStep2._templateIds.columnSelectSection;
         const elements = this._templateMgr.createElements(templateId, {
-            'APP-KEEPALL': this._createColumnKeepAll(),
             'APP-TABLEKEEP': elemTableKeep,
             'APP-TABLEDROP': elemTableDrop
         });
         return elements;
     }
 
-    private _createColumnKeepAll(): HTMLElement[] {
-        const isKeepAll = this._modelRef.isKeepAllColumns();
-        const templateId = JoinOpPanelStep2._templateIds.columnKeepAll;
-        const elements = this._templateMgr.createElements(templateId, {
-            onClickKeepAll: () => {
-                this._setKeepAllColumns(!isKeepAll);
-                this._onDataChange();
-            },
-            cssChecked: isKeepAll ? 'checked' : '',
-            title: OpPanelTStr.JoinPanelColumnKeepAllCBText
-        });
-        return elements;
-    }
+    // private _createColumnKeepAll(): HTMLElement[] {
+    //     const isKeepAll = this._modelRef.isKeepAllColumns();
+    //     const templateId = JoinOpPanelStep2._templateIds.columnKeepAll;
+    //     const elements = this._templateMgr.createElements(templateId, {
+    //         onClickKeepAll: () => {
+    //             this._setKeepAllColumns(!isKeepAll);
+    //             this._onDataChange();
+    //         },
+    //         cssChecked: isKeepAll ? 'checked' : '',
+    //         title: OpPanelTStr.JoinPanelColumnKeepAllCBText
+    //     });
+    //     return elements;
+    // }
 
     // Data model manipulation === start
     private _renameColumn(renameInfo: JoinOpRenameInfo, newName: string) {
@@ -493,19 +521,40 @@ class JoinOpPanelStep2 {
         });
     }
 
-    private _addSelectedColumn(colName: { left: string, right: string }) {
-        this._modelRef.addSelectedColumn(colName);
+    private _addSelectedColumns(
+        colNames: { left?: string[], right?: string[] }
+    ): boolean {
+        const { left: leftNames = [], right: rightNames = [] } = colNames;
+        if (leftNames.length === 0 && rightNames.length === 0) {
+            return false;
+        }
+
+        for (const colName of leftNames) {
+            this._modelRef.addSelectedColumn({ left: colName });
+        }
+        for (const colName of rightNames) {
+            this._modelRef.addSelectedColumn({ right: colName });
+        }
         this._modelRef.updateRenameInfo();
+        return true;
     }
 
-    private _removeSelectedColumn(colName: { left: string, right: string }) {
-        this._modelRef.removeSelectedColumn(colName);
-        this._modelRef.updateRenameInfo();
-    }
+    private _removeSelectedColumns(
+        colNames: { left?: string[], right?: string[] }
+    ): boolean {
+        const { left: leftNames = [], right: rightNames = [] } = colNames;
+        if (leftNames.length === 0 && rightNames.length === 0) {
+            return false;
+        }
 
-    private _setKeepAllColumns(isKeepAll: boolean): void {
-        this._modelRef.setKeepAllColumns(isKeepAll);
+        for (const colName of leftNames) {
+            this._modelRef.removeSelectedColumn({ left: colName });
+        }
+        for (const colName of rightNames) {
+            this._modelRef.removeSelectedColumn({ right: colName });
+        }
         this._modelRef.updateRenameInfo();
+        return true;
     }
     // Data model manipulation === end
 }
