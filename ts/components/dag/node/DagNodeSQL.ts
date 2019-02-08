@@ -1054,7 +1054,7 @@ class DagNodeSQL extends DagNode {
                 const optimizations = {combineProjectWithSynthesize: true,
                                        dropAsYouGo: true};
                 if (sqlMode) {
-                    optimizations.pushToSelect = true;
+                    optimizations["pushToSelect"] = true;
                 }
                 const optimizedQueryString = optimizer.logicalOptimize(queryString,
                                                                 optimizations,

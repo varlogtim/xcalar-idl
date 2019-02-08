@@ -283,9 +283,13 @@ window.MainMenu = (function($, MainMenu) {
                 currWidth = newWidth;
                 // let codemirror know it's area was resized
                 formPanels.forEach(function(panel) {
-                    if (panel.isOpen() && panel.getEditor &&
-                        panel.getEditor()) {
-                        panel.getEditor().refresh();
+                    if (panel.isOpen()) {
+                        if (panel.getEditor && panel.getEditor()) {
+                            panel.getEditor().refresh();
+                        }
+                        if (panel.getSQLEditor && panel.getSQLEditor()) {
+                            panel.getSQLEditor().refresh();
+                        }
                     }
                 });
             },
