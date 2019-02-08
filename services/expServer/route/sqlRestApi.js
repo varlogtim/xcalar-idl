@@ -31,7 +31,9 @@ var gTurnSelectCacheOn = false;
 function generateTablePrefix(userName, wkbkName) {
     var curNum = idNum;
     idNum++;
-    return userName + "-wkbk-" + wkbkName + "-" + Date.now() + "#" + curNum;
+    // Avoid # symbol in table name, cause it might be potential table publish issue
+    // return userName + "-wkbk-" + wkbkName + "-" + Date.now() + "#" + curNum;
+    return userName + "_wkbk_" + wkbkName + "_" + Date.now() + "_" + curNum;
 }
 
 // Deprecated
@@ -869,18 +871,14 @@ function executeSql(params, type, workerThreading) {
     })
     .then(function() {
         xcConsole.log("Execution finished!");
-        // Drop schema on planner
-        var tableNames = [];
-        for (var pubTable in allSelects) {
-            tableNames.push(pubTable);
-        }
+        // Drop schemas and nuke session on planner
         var requestStruct = {
             type: "schemasdrop",
-            method: "delete",
-            data: tableNames
+            method: "delete"
         }
-        sendToPlanner(tablePrefix, requestStruct,
-                      params.userName, params.sessionName);
+        return sendToPlanner(tablePrefix, requestStruct, params.userName, params.sessionName)
+    })
+    .then(function() {
         if (compilerObject.getStatus() === SQLStatus.Cancelled) {
             return PromiseHelper.reject(SQLErrTStr.Cancel);
         }

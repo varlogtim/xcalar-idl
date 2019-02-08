@@ -96,9 +96,10 @@ SqlUtil.addPrefix = function(plan, selectTables, finalTable, prefix, usePaging, 
             newTableName = prefix + newTableName;
         }
         if (dest === finalTable) {
+            newTableName = dest;
             if (usePaging) {
                 newTableName = "res_" + newTableName;
-            }else if (newSqlTable) {
+            } else if (newSqlTable) {
                 newTableName = newSqlTable;
             }
             retStruct.tableName = newTableName;

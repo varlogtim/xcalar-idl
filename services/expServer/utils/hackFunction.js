@@ -55,9 +55,14 @@ function hackFunction() {
         }
     };
 
+    global.authCount = 0;
+
     global.Authentication = {
         getHashId: function() {
-            return xcHelper.randName("#", 8);
+            // return xcHelper.randName("#", 8);
+            idCount = "#" + new Date().getTime() + authCount;
+            authCount++;
+            return idCount;
         }
     };
 
