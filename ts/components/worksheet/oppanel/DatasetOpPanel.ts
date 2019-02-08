@@ -11,7 +11,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     private _schemaSection: ColSchemaSection;
     private _dagGraph: DagGraph;
     private _synthesize: boolean;
-    private _loadArgs: string;
+    private _loadArgs: object;
     private _currentStep: number;
 
     /**
@@ -131,12 +131,14 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         source: string,
         synthesize: boolean,
         schema: ColSchema[],
-        loadArgs: string
+        loadArgs: object
     } {
         const input = JSON.parse(this._editor.getValue());
         if (JSON.stringify(input, null, 4) !== this._cachedBasicModeParam) {
             // don't validate if no changes made, just allow to go to basic
-            const error = this._dagNode.validateParam(input);
+            const arg = xcHelper.deepCopy(input);
+            arg.loadArgs = this._stringifiedLoadArgs(arg.loadgArgs);
+            const error = this._dagNode.validateParam(arg);
             if (error) {
                 throw new Error(error.error);
             }
@@ -159,6 +161,27 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         return this._synthesize ? null : prefix;
     }
 
+    private _parseLoadArgs(loadgArgs: string | object): object {
+        try {
+            if (typeof loadgArgs === "string") {
+                return loadgArgs ? JSON.parse(loadgArgs) : {};
+            } else {
+                return loadgArgs;
+            }
+        } catch (e) {
+            console.error(e);
+            return {};
+        }
+    }
+
+    private _stringifiedLoadArgs(parsedLoadArgs: string | object): string {
+        if (typeof parsedLoadArgs === "string") {
+            return parsedLoadArgs;
+        } else {
+            return $.isEmptyObject(parsedLoadArgs) ? "" : JSON.stringify(parsedLoadArgs);
+        }
+    }
+
     /**
      * @override BaseOpPanel._switchMode
      * @param toAdvancedMode
@@ -168,13 +191,13 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             const id: string = this._getSource();
             this._fetchLoadArgs(id)
             .then((loadArgs) =>  {
-                this._loadArgs = loadArgs;
+                this._loadArgs = this._parseLoadArgs(loadArgs);
                 const json = {
                     prefix: this._getPrefix(),
                     source: this._getSource() || "",
                     schema: this._schemaSection.getSchema(true),
                     synthesize: this._synthesize || false,
-                    loadArgs: loadArgs
+                    loadArgs: this._loadArgs
                 };
                 const paramStr = JSON.stringify(json, null, 4);
                 this._cachedBasicModeParam = paramStr;
@@ -277,7 +300,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         this._renderPrefixHint(prefix);
         this._fetchLoadArgs(id)
         .then((loadArgs) => {
-            this._loadArgs = loadArgs;
+            this._loadArgs = this._parseLoadArgs(loadArgs);
             xcHelper.disableSubmit($nextBtn);
             const res = this._autoDetectSchema(true);
             if (res != null) {
@@ -376,12 +399,12 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             prefix: string,
             source: string,
             synthesize: boolean,
-            loadArgs: string,
+            loadArgs: string | object,
             schema: ColSchema[]
         },
         atStart?: boolean
     ): void {
-        this._loadArgs = input.loadArgs;
+        this._loadArgs = this._parseLoadArgs(input.loadArgs);
         if (input == null || input.source == "") {
             this._fileLister.goToRootPath();
             $("#datasetOpPanel .datasetPrefix input").val("");
@@ -529,11 +552,11 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         if (schema == null || !this._checkOpArgs(prefix, id)) {
             return;
         }
-
+        const loadArgs: string = this._stringifiedLoadArgs(this._loadArgs);
         const oldParam: DagNodeDatasetInputStruct = dagNode.getParam();
         if (oldParam.source === id &&
             oldParam.prefix === prefix &&
-            oldParam.loadArgs === this._loadArgs &&
+            oldParam.loadArgs === loadArgs &&
             oldParam.synthesize === this._synthesize &&
             oldParam.synthesize === false
         ) {
@@ -551,7 +574,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         dagNode.setSchema(schema);
 
         const getLoadgArgs: XDPromise<string> = this._advMode ?
-        PromiseHelper.resolve(this._loadArgs) : this._fetchLoadArgs(id);
+        PromiseHelper.resolve(loadArgs) : this._fetchLoadArgs(id);
 
         getLoadgArgs
         .then((dsLoadArgs) => {
