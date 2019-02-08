@@ -48,7 +48,7 @@ class DagNodeSQLFuncOut extends DagNodeOut {
 
     public lineageChange(
         _columns: ProgCol[],
-        replaceParameters?: boolean
+        _replaceParameters?: boolean
     ): DagLineageChange {
         // there should be only one parent
         const schema: ColSchema[] = this.getSchema(); // DagNodeDataset overide the function
@@ -56,7 +56,7 @@ class DagNodeSQLFuncOut extends DagNodeOut {
         const columns: ProgCol[] = schema.map((colInfo) => {
             const colName: string = colInfo.name;
             const frontName: string = xcHelper.parsePrefixColName(colName).name;
-            const proglCol = ColManager.newPullCol(frontName, colName, colInfo.type);
+            const proglCol = ColManager.newPullCol(frontName.toUpperCase(), colName.toUpperCase(), colInfo.type);
             colNameCache[colName] = proglCol;
             return proglCol;
         });
@@ -65,7 +65,16 @@ class DagNodeSQLFuncOut extends DagNodeOut {
         _columns.forEach((progCol) => {
             let name: string = progCol.getBackColName();
             if (colNameCache.hasOwnProperty(name)) {
+                let newProgCol = colNameCache[name];
                 delete colNameCache[name];
+                // check if has case insensitive change
+                let newName: string = newProgCol.getBackColName();
+                if (name !== newName) {
+                    changes.push({
+                        from: progCol,
+                        to: newProgCol
+                    });
+                }
             } else {
                 changes.push({
                     from: progCol,

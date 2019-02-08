@@ -1645,6 +1645,8 @@ SQLTStr = {
     "InExecute": "There are already some SQLs in exeuction, please cancel the SQLs in execution or wait unitl execution finishes.",
     "DFDeleted": "The corresponding dataflow for sql has been deleted",
     "RestoreDF": "Restore dataflow",
+    "DupColName": "Column name \"<col>\" is duplicated",
+    "DupColNameCaseInsensitive": "SQL Function's output column name is case insensitive. Column \"<col1>\" duplicate with column \"<col2>\"",
 };
 
 LoginConfigTStr = {

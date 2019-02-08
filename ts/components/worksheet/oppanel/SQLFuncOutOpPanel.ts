@@ -24,6 +24,11 @@ class SQLFuncOutOpPanel extends BaseOpPanel {
         this._dagNode = dagNode;
         const model = dagNode.getParam();
         this._restorePanel(model);
+
+        if (dagNode.getState() == DagNodeState.Unused) {
+            // if not configured, auto config it
+            this._autoDetectSchema();
+        }
     }
 
     /**
@@ -124,7 +129,12 @@ class SQLFuncOutOpPanel extends BaseOpPanel {
             // invalid case
             return;
         }
-        
+
+        if (!this._validateSchema(args.schema)) {
+            // invalid case
+            return;
+        }
+
         this._dagNode.setParam(args);
         this.close(true);
     }
@@ -136,7 +146,7 @@ class SQLFuncOutOpPanel extends BaseOpPanel {
                 schema: schema
             }
         } else {
-            return null
+            return null;
         }
     }
 
@@ -157,6 +167,53 @@ class SQLFuncOutOpPanel extends BaseOpPanel {
         } else {
             StatusBox.show(error, this.$panel.find(".advancedEditor"));
             return null;
+        }
+    }
+
+    private _validateSchema(schema: ColSchema[]): boolean {
+        let nameMap: Map<string, string> = new Map();
+        let error: string = null;
+        let errorName: string = null;
+        schema.forEach((colInfo) => {
+            let name = colInfo.name;
+            let upperCaseName = name.toUpperCase();
+            let existingName = nameMap.get(upperCaseName);
+            if (existingName != null) {
+                if (existingName === name) {
+                    error = xcHelper.replaceMsg(SQLTStr.DupColName, {
+                        col: existingName
+                    });
+                } else {
+                    error = xcHelper.replaceMsg(SQLTStr.DupColNameCaseInsensitive, {
+                        col1: existingName,
+                        col2: name
+                    });
+                }
+
+                errorName = name;
+                return false; // stop loop
+            } else {
+                nameMap.set(upperCaseName, name);
+            }
+        });
+
+
+        if (error) {
+            if (this._isAdvancedMode()) {
+                StatusBox.show(error, this.$panel.find(".advancedEditor"));
+            } else {
+                let $schemaSection: JQuery = this._getSchemaSection();
+                let $input = $schemaSection.find(`.name input[value=${errorName}]`);
+                if ($input.length) {
+                    $input.scrollintoview({"duration": 0});
+                    StatusBox.show(error, $input);
+                } else {
+                    StatusBox.show(error, $schemaSection);
+                }
+            }
+            return false;
+        } else {
+            return true;
         }
     }
 
