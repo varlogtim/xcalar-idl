@@ -263,6 +263,7 @@ window.TutorialsSetup = (function($, TutorialsSetup) {
     };
 
     function introHelper(demoType, textArray, options) {
+        return; // XXX Disable it in 2.0
         var userOptions = {popoverText: textArray};
         if (options && typeof options === "object") {
             $.extend(userOptions, options);

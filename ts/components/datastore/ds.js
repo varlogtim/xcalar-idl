@@ -2099,7 +2099,11 @@ window.DS = (function ($, DS) {
                 if (datasetsSet.hasOwnProperty(obj.fullName)) {
                     // restore a ds
                     var ds = datasetsSet[obj.fullName];
-                    obj = $.extend(obj, getDSOptions(ds));
+                    var backOptions = getDSOptions(ds);
+                    var sources = obj.sources || backOptions.sources;
+                    obj = $.extend(obj, backOptions, {
+                        "sources": sources
+                    });
                     createDS(obj);
                     // mark the ds to be used
                     delete datasetsSet[obj.fullName];

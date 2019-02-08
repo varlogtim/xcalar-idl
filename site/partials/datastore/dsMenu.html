@@ -32,17 +32,10 @@
 </div>
 <div class="titleSection no-selection">
   <header>
-    <% if (dicts.tutor.name === "datastoreTut1") { %>
-    <span><%= dicts.ds.Datasets %> (<span class="numDataStores tutor">0</span>)</span>
-    <% } else if (dicts.tutor.name === "datastoreTut2") { %>
-    <span><%= dicts.ds.Datasets %> (<span class="numDataStores tutor">1</span>)</span>
-    <% } else if (dicts.tutor.name === "datasetPanelTutA1" || dicts.tutor.name === "importDatasourceTutA2" || dicts.tutor.name == "browseDatasourceTutA3" || dicts.tutor.name == "browseDatasource2TutA4") { %>
-    <span><%= dicts.ds.Datasets %> (<span class="numDataStores tutor">20</span>)</span>
-    <% } else { %>
-    <span><%= dicts.ds.Datasets %> (<span class="numDataStores">0</span>)<% } %>
-      <div class="hint intro-icon" id="datasetPanelWA1" data-toggle="tooltip" data-container="body" data-title="<%= dicts.introTStr.wa1Tip %>" data-placement="top">
+    <span><%= dicts.ds.Datasets %> (<span class="numDataStores">0</span>)
+      <!-- <div class="hint intro-icon" id="datasetPanelWA1" data-toggle="tooltip" data-container="body" data-title="<%= dicts.introTStr.wa1Tip %>" data-placement="top">
         <i class="white icon xi_smart fa-16"></i>
-      </div>
+      </div> -->
     </span>
   </header>
 </div>
