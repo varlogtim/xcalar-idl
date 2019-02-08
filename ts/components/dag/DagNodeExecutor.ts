@@ -921,6 +921,10 @@ class DagNodeExecutor {
         node.getQuery()
         .then((resTable, query) => {
             finalTable = resTable;
+            if (!query) {
+                // when the extension doesn't generate query
+                return PromiseHelper.resolve();
+            }
             return XIApi.query(this.txId, finalTable, query);
         })
         .then(() => {
