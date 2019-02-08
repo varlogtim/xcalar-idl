@@ -421,14 +421,12 @@ class DagNodeExecutor {
             parents[0],
             {
                 keepAllColumns: params.keepAllColumns,
-                isOptimizedMode: optimized,
             });
         const rTableInfo: JoinTableInfo = this._joinInfoConverter(
             params.right,
             parents[1],
             {
                 keepAllColumns: params.keepAllColumns,
-                isOptimizedMode: optimized,
             });
         if (joinType !== JoinOperatorT.CrossJoin) {
             params.evalString = "";
@@ -436,7 +434,8 @@ class DagNodeExecutor {
         const options: JoinOptions = {
             newTableName: this._generateTableName(),
             evalString: params.evalString,
-            keepAllColumns: params.keepAllColumns
+            keepAllColumns: false // Backend is removing this flag, so XD should not use it anymore
+            // keepAllColumns: params.keepAllColumns
         };
         return XIApi.join(this.txId, joinType, lTableInfo, rTableInfo, options);
     }
@@ -446,37 +445,17 @@ class DagNodeExecutor {
         parentNode: DagNode,
         options?: {
             keepAllColumns?: boolean,
-            isOptimizedMode?: boolean,
         }
     ): JoinTableInfo {
         const allImmediates: string[] = parentNode.getLineage().getDerivedColumns();
         const {
-            keepAllColumns = true, isOptimizedMode = false
+            keepAllColumns = true
         } = options || {};
-        let rename: ColRenameInfo[];
-        if (keepAllColumns) {
-            if (isOptimizedMode) {
-                // In optimized DF execution, backend acts as if the keepAllColumns == false
-                // So we have to fill the rename list with all the columns
-                const colNamesToKeep = parentNode.getLineage()
-                    .getColumns().map((col) => col.getBackColName());
-                rename = this._joinRenameConverter(colNamesToKeep, joinTableInfo.rename);
-
-            } else {
-                // In non-optimized DF execution, backend will honor the keepAllColumns flag
-                // So we just need to specify the columns must to be renamed(due to name conflicting)
-                rename = joinTableInfo.rename.map((rename) => {
-                    return {
-                        orig: rename.sourceColumn,
-                        new: rename.destColumn,
-                        type: rename.prefix ? DfFieldTypeT.DfFatptr : DfFieldTypeT.DfUnknown
-                    }
-                });
-            }
-        } else {
-            const colNamesToKeep = joinTableInfo.keepColumns;
-            rename = this._joinRenameConverter(colNamesToKeep, joinTableInfo.rename);
-        }
+        const colNamesToKeep = keepAllColumns
+            ? parentNode.getLineage()
+                .getColumns().map((col) => col.getBackColName())
+            : joinTableInfo.keepColumns;
+        const rename = this._joinRenameConverter(colNamesToKeep, joinTableInfo.rename);
         return {
             tableName: parentNode.getTable(),
             columns: joinTableInfo.columns,
