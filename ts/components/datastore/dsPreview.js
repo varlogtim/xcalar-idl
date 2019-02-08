@@ -3652,7 +3652,9 @@ window.DSPreview = (function($, DSPreview) {
         var tempDSName = getPreviewTableName(dsName);
         tableName = tempDSName;
 
-        XIApi.loadDataset(txId, tempDSName, options)
+        // don't call XIApi.loadDataset because XcalarDatasetCreate
+        // will move the UDF into shared space, which should not happen for temp preview
+        XcalarDatasetLoad(tempDSName, options, txId)
         .then(function() {
             return getDataFromLoadUDF(tempDSName, 1, rowsToFetch);
         })

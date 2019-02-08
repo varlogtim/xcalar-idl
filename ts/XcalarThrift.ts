@@ -735,118 +735,125 @@ XcalarParseDSLoadArgs = function(options: XcalarLoadInputOptions): {
     parseArgs: ParseArgsT,
     size: number
 } {
-    options = options || {};
+    try {
+        options = options || {};
 
-    const sources: any[] = options.sources;
-    const format: string = options.format;
-    let fieldDelim: string = options.fieldDelim;
-    let recordDelim: string = options.recordDelim;
-    const hasHeader: boolean = options.hasHeader === true ? true: false;
-    const moduleName: string = options.moduleName;
-    const funcName: string = options.funcName;
-    const quoteChar: string = options.quoteChar;
-    let skipRows: number = options.skipRows;
-    let typedColumns: any[] = options.typedColumns || [];
-    let schemaMode: CsvSchemaModeT | string;
+        const sources: any[] = options.sources;
+        const format: string = options.format;
+        let fieldDelim: string = options.fieldDelim;
+        let recordDelim: string = options.recordDelim;
+        const hasHeader: boolean = options.hasHeader === true ? true: false;
+        const moduleName: string = options.moduleName;
+        const funcName: string = options.funcName;
+        const quoteChar: string = options.quoteChar;
+        let skipRows: number = options.skipRows;
+        let typedColumns: any[] = options.typedColumns || [];
+        let schemaMode: CsvSchemaModeT | string;
 
-    if (format === "CSV" && typedColumns.length) {
-        schemaMode = CsvSchemaModeT.CsvSchemaModeUseLoadInput;
-        typedColumns = typedColumns.map(function(col) {
-            const type: DfFieldTypeT = xcHelper.convertColTypeToFieldType(col.colType);
-            return new XcalarApiColumnT({
-                columnType: DfFieldTypeTStr[type],
-                sourceColumn: col.colName,
-                destColumn: col.colName
+        if (format === "CSV" && typedColumns.length) {
+            schemaMode = CsvSchemaModeT.CsvSchemaModeUseLoadInput;
+            typedColumns = typedColumns.map(function(col) {
+                const type: DfFieldTypeT = xcHelper.convertColTypeToFieldType(col.colType);
+                return new XcalarApiColumnT({
+                    columnType: DfFieldTypeTStr[type],
+                    sourceColumn: col.colName,
+                    destColumn: col.colName
+                });
             });
+
+            if (hasHeader) {
+                skipRows++;
+            }
+        } else if (options.hasOwnProperty("hasHeader")) {
+            schemaMode = (options.hasHeader) ?
+                        CsvSchemaModeT.CsvSchemaModeUseHeader :
+                        CsvSchemaModeT.CsvSchemaModeNoneProvided;
+        } else {
+            schemaMode = options.schemaMode;
+        }
+
+        schemaMode = CsvSchemaModeTStr[schemaMode];
+
+        let parserFnName: string;
+        let parserArgJson: object = {};
+        if (moduleName !== "" && funcName !== "") {
+            // udf case
+            parserFnName = moduleName + ":" + funcName;
+            if (options.udfQuery && TypeCheck.isObject(options.udfQuery)) {
+                parserArgJson = options.udfQuery;
+            }
+        } else {
+            // csv args
+            // {
+            //     "recordDelim": recordDelim,
+            //     "quoteDelim": quoteDelim,
+            //     "linesToSkip": linesToSkip,
+            //     "fieldDelim": fieldDelim,
+            //     "isCRLF": isCrlf,
+            //     "hasHeader": hasHeader,
+            // }
+            switch (format) {
+                case ("JSON"):
+                    parserFnName = "default:parseJson";
+                    break;
+                case ("TEXT"):
+                    // recordDelim = "\n";
+                    // No field delim
+                    fieldDelim = ""; // jshint ignore:line
+                    // fallthrough
+                case ("CSV"):
+                    parserFnName = "default:parseCsv";
+                    parserArgJson['recordDelim'] = recordDelim;
+                    parserArgJson['fieldDelim'] = fieldDelim;
+                    parserArgJson['isCRLF'] = false;
+                    parserArgJson['linesToSkip'] = skipRows;
+                    parserArgJson['quoteDelim'] = quoteChar;
+                    parserArgJson['hasHeader'] = hasHeader;
+                    parserArgJson['schemaFile'] = ""; // Not used yet. Wait for backend to implement;
+                    parserArgJson['schemaMode'] = schemaMode;
+                    break;
+                default:
+                    console.error("Error Format");
+                    return null;
+            }
+        }
+
+        const sourceArgsList: DataSourceArgsT[] = sources.map(function(source) {
+            const sourceArgs: DataSourceArgsT = new DataSourceArgsT();
+            sourceArgs.targetName = source.targetName;
+            sourceArgs.path = source.path;
+            sourceArgs.fileNamePattern = source.fileNamePattern || "";
+            sourceArgs.recursive = source.recursive || false;
+            return sourceArgs;
         });
 
-        if (hasHeader) {
-            skipRows++;
+        const parseArgs: ParseArgsT = new ParseArgsT();
+        parseArgs.parserFnName = parserFnName;
+        parseArgs.parserArgJson = JSON.stringify(parserArgJson);
+        const advancedArgs = options.advancedArgs || {};
+        parseArgs.allowRecordErrors = advancedArgs['allowRecordErrors'] || false;
+        parseArgs.allowFileErrors = advancedArgs['allowFileErrors'] || false;
+        parseArgs.fileNameFieldName = advancedArgs['fileName'] || "";
+        parseArgs.recordNumFieldName = advancedArgs['rowNumName'] || "";
+        parseArgs.schema = typedColumns;
+
+        const maxSampleSize: number = gMaxSampleSize;
+        if (maxSampleSize > 0) {
+            console.log("Max sample size set to: ", maxSampleSize);
         }
-    } else if (options.hasOwnProperty("hasHeader")) {
-        schemaMode = (options.hasHeader) ?
-                     CsvSchemaModeT.CsvSchemaModeUseHeader :
-                     CsvSchemaModeT.CsvSchemaModeNoneProvided;
-    } else {
-        schemaMode = options.schemaMode;
+
+        return {
+            sourceArgsList: sourceArgsList,
+            parseArgs: parseArgs,
+            size: maxSampleSize
+        };
+    } catch (e) {
+        console.error(e);
+        return null;
     }
-
-    schemaMode = CsvSchemaModeTStr[schemaMode];
-
-    let parserFnName: string;
-    let parserArgJson: object = {};
-    if (moduleName !== "" && funcName !== "") {
-        // udf case
-        parserFnName = moduleName + ":" + funcName;
-        if (options.udfQuery && TypeCheck.isObject(options.udfQuery)) {
-            parserArgJson = options.udfQuery;
-        }
-    } else {
-        // csv args
-        // {
-        //     "recordDelim": recordDelim,
-        //     "quoteDelim": quoteDelim,
-        //     "linesToSkip": linesToSkip,
-        //     "fieldDelim": fieldDelim,
-        //     "isCRLF": isCrlf,
-        //     "hasHeader": hasHeader,
-        // }
-        switch (format) {
-            case ("JSON"):
-                parserFnName = "default:parseJson";
-                break;
-            case ("TEXT"):
-                // recordDelim = "\n";
-                // No field delim
-                fieldDelim = ""; // jshint ignore:line
-                // fallthrough
-            case ("CSV"):
-                parserFnName = "default:parseCsv";
-                parserArgJson['recordDelim'] = recordDelim;
-                parserArgJson['fieldDelim'] = fieldDelim;
-                parserArgJson['isCRLF'] = false;
-                parserArgJson['linesToSkip'] = skipRows;
-                parserArgJson['quoteDelim'] = quoteChar;
-                parserArgJson['hasHeader'] = hasHeader;
-                parserArgJson['schemaFile'] = ""; // Not used yet. Wait for backend to implement;
-                parserArgJson['schemaMode'] = schemaMode;
-                break;
-            default:
-                console.error("Error Format");
-                return null;
-        }
-    }
-
-    const sourceArgsList: DataSourceArgsT[] = sources.map(function(source) {
-        const sourceArgs: DataSourceArgsT = new DataSourceArgsT();
-        sourceArgs.targetName = source.targetName;
-        sourceArgs.path = source.path;
-        sourceArgs.fileNamePattern = source.fileNamePattern || "";
-        sourceArgs.recursive = source.recursive || false;
-        return sourceArgs;
-    });
-
-    const parseArgs: ParseArgsT = new ParseArgsT();
-    parseArgs.parserFnName = parserFnName;
-    parseArgs.parserArgJson = JSON.stringify(parserArgJson);
-    const advancedArgs = options.advancedArgs || {};
-    parseArgs.allowRecordErrors = advancedArgs['allowRecordErrors'] || false;
-    parseArgs.allowFileErrors = advancedArgs['allowFileErrors'] || false;
-    parseArgs.fileNameFieldName = advancedArgs['fileName'] || "";
-    parseArgs.recordNumFieldName = advancedArgs['rowNumName'] || "";
-    parseArgs.schema = typedColumns;
-
-    const maxSampleSize: number = gMaxSampleSize;
-    if (maxSampleSize > 0) {
-        console.log("Max sample size set to: ", maxSampleSize);
-    }
-
-    return {
-        sourceArgsList: sourceArgsList,
-        parseArgs: parseArgs,
-        size: maxSampleSize
-    };
 };
+
+
 
 XcalarDatasetCreate = function(
     datasetName: string,
@@ -922,12 +929,16 @@ XcalarDatasetRestore = function(
     return deferred.promise();
 };
 
-/**
- * Options:
- *  deleteLoadNodeInFail: boolean, if set true, will try delte the load node and retry
- */
 XcalarDatasetActivate = function(
     datasetName: string,
+    txId: number
+): XDPromise<any> {
+    return XcalarDatasetLoad(datasetName, null, txId);
+};
+
+XcalarDatasetLoad = function(
+    datasetName: string,
+    options: XcalarLoadInputOptions,
     txId: number
 ): XDPromise<any> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
@@ -939,12 +950,20 @@ XcalarDatasetActivate = function(
     }
 
     let def: XDPromise<any>;
+    let args = {sourceArgsList: null, parseArgs: null, size: null};
+    if (options != null) {
+        args = XcalarParseDSLoadArgs(options);
+    }
+    if (args == null) {
+        return PromiseHelper.reject({error: "Error Parse Args"});
+    }
+
     const dsName: string = parseDS(datasetName);
-    const workItem: WorkItem = xcalarLoadWorkItem(dsName);
+    const workItem: WorkItem = xcalarLoadWorkItem(dsName, args.sourceArgsList, args.parseArgs, args.size);
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
-        def = xcalarLoad(tHandle, dsName);
+        def = xcalarLoad(tHandle, dsName, args.sourceArgsList, args.parseArgs, args.size);
     }
     const query: string = XcalarGetQuery(workItem);
     Transaction.startSubQuery(txId, "Import Dataset", dsName, query);
