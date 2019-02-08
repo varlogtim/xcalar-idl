@@ -248,12 +248,6 @@ describe("SQLHistorySpace Test", () => {
             return PromiseHelper.resolve(false);
         };
 
-        Alert.show = (options) => {
-            called++;
-            expect(options.msg).to.equal(SQLTStr.DFDeleted);
-            options.buttons[0].func();
-        };
-
         SQLHistorySpace.Instance._restoreDataflow = () => {
             called++;
             return PromiseHelper.resolve("test2");
@@ -262,7 +256,7 @@ describe("SQLHistorySpace Test", () => {
         SQLHistorySpace.Instance._checkDataflowValidation({dataflowId: "test"})
         .then((dataflowId) => {
             expect(dataflowId).to.equal("test2");
-            expect(called).to.equal(3);
+            expect(called).to.equal(2);
             done();
         })
         .fail(() => {
@@ -285,18 +279,12 @@ describe("SQLHistorySpace Test", () => {
             return PromiseHelper.resolve(false);
         };
 
-        Alert.show = (options) => {
-            called++;
-            expect(options.msg).to.equal(SQLTStr.DFDeleted);
-            options.onCancel();
-        };
-
         SQLHistorySpace.Instance._checkDataflowValidation({dataflowId: "test"})
         .then(() => {
             done("fail");
         })
         .fail(() => {
-            expect(called).to.equal(2);
+            expect(called).to.equal(1);
             done();
         })
         .always(() => {

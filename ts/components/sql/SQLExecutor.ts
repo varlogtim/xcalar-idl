@@ -48,7 +48,7 @@ class SQLExecutor {
                 this._schema[pubTableName] = columns;
                 this._batchId[pubTableName] = tableMap.get(pubTableName).batchId;
             } else {
-                throw "Cannot find published table: " + pubTableName;
+                throw new Error("Cannot find published table: " + pubTableName);
             }
             this._identifiersOrder.push(idx + 1);
             this._identifiers[idx + 1] = identifier;

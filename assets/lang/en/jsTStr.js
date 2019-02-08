@@ -556,7 +556,8 @@ SQLErrTStr = {
     "SnippetNameExists": "Snippet name already exists.",
     "IdentifierExists": "Table identifier already exists.",
     "NoSnippet": "Could not find the snippet",
-    "TableDropped": "Table has been dropped. Rerun query to regenerate the table.",
+    "NoResult": "Cannot find the result",
+    "ResultDropped": "Query result has been dropped. Do you want to rerun the query to regenerate the result?",
     "InvalidEditorName": "Snippet name must contain only alphanumeric, -, _ or space characters, and must not be empty.",
     "InvalidOuterType": "Invalid outer join type: ",
     "FailedToRepublish": "Failed to republish schemas.",
@@ -1641,8 +1642,6 @@ SQLTStr = {
     "DeleteSnippetMsg": "Are you sure you want to delete snippet \"<name>\"?",
     "Execute": "Execute SQL",
     "InExecute": "There are already some SQLs in exeuction, please cancel the SQLs in execution or wait unitl execution finishes.",
-    "DFDeleted": "The corresponding dataflow for sql has been deleted",
-    "RestoreDF": "Restore dataflow",
     "DupColName": "Column name \"<col>\" is duplicated",
     "DupColNameCaseInsensitive": "SQL Function's output column name is case insensitive. Column \"<col1>\" duplicate with column \"<col2>\"",
 };

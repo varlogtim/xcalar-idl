@@ -42,7 +42,13 @@ class SQLHistorySpace {
                 return this._switchToAdvForAnalyze(dataflowId);
             })
             .then(deferred.resolve)
-            .fail(deferred.reject);
+            .fail((error) => {
+                // DagNodeSQL has the alert
+                if (error != null) {
+                    Alert.error(AlertTStr.Error, error);
+                }
+                deferred.reject(error);
+            });
         } catch (e) {
             console.error(e);
             Alert.error(AlertTStr.Error, ErrTStr.Unknown);
@@ -105,26 +111,6 @@ class SQLHistorySpace {
         DagTabUser.hasDataflowAsync(dataflowId)
         .then((exist) => {
             if (!exist) {
-                let innerDeferred: XDDeferred<boolean> = PromiseHelper.deferred();
-                Alert.show({
-                    title: AlertTStr.Error,
-                    msg: SQLTStr.DFDeleted,
-                    onCancel: () => {
-                        innerDeferred.reject();
-                    },
-                    buttons: [{
-                        name: SQLTStr.RestoreDF,
-                        className: "larger",
-                        func: () => {
-                            innerDeferred.resolve(true);
-                        }
-                    }],
-                });
-                return innerDeferred.promise();
-            }
-        })
-        .then((shouldRestore) => {
-            if (shouldRestore) {
                 return this._restoreDataflow(queryInfo);
             } else {
                 return PromiseHelper.resolve(dataflowId);
@@ -139,19 +125,24 @@ class SQLHistorySpace {
     }
 
     private _restoreDataflow(queryInfo: SqlQueryHistory.QueryInfo): XDPromise<string> {
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        let sql: string = queryInfo.queryString;
-        let executor = new SQLExecutor(sql);
-        executor.restoreDataflow()
-        .then((dataflowId) => {
-            let newQueryInfo = $.extend({}, queryInfo, {
-                dataflowId: dataflowId
-            });
-            this.update(newQueryInfo);
-            deferred.resolve(dataflowId);
-        })
-        .fail(deferred.reject);
+        try {
+            const deferred: XDDeferred<string> = PromiseHelper.deferred();
+            let sql: string = queryInfo.queryString;
+            let executor = new SQLExecutor(sql);
+            executor.restoreDataflow()
+            .then((dataflowId) => {
+                let newQueryInfo = $.extend({}, queryInfo, {
+                    dataflowId: dataflowId
+                });
+                this.update(newQueryInfo);
+                deferred.resolve(dataflowId);
+            })
+            .fail(deferred.reject);
 
-        return deferred.promise();
+            return deferred.promise();
+        } catch (e) {
+            console.error(e);
+            return PromiseHelper.reject(e.message);
+        }
     }
 }

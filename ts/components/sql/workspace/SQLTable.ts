@@ -14,10 +14,24 @@ class SQLTable {
         this._searchBar = new TableSearchBar(this._container);
     }
 
-    public show(table: TableMeta): XDPromise<void> {
+    public show(table: TableMeta, callback?: Function): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         table.allImmediates = true;
         const viewer: XcTableViewer = new XcTableViewer(table);
-        return this._show(viewer);
+        
+        this._show(viewer)
+        .then(deferred.resolve)
+        .fail((error) => {
+            if (typeof error === "object" &&
+                error.status === StatusT.StatusDsNotFound && 
+                typeof callback === "function"
+            ) {
+                callback();
+            }
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
     }
 
     // public replaceTable(table: TableMeta): XDPromise<void> {
@@ -71,6 +85,7 @@ class SQLTable {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const $container: JQuery = this._getContainer();
         $container.removeClass("xc-hidden").addClass("loading");
+        this._addLoadingText();
         const viewer = this._currentViewer;
         const $tableSection: JQuery = $container.find(".tableSection");
         viewer.setContainer($container);
@@ -88,6 +103,20 @@ class SQLTable {
         const promise = deferred.promise();
         xcHelper.showRefreshIcon($tableSection, true, promise);
         return promise;
+    }
+
+    private _addLoadingText(): void {
+        let html: HTML =
+            '<div class="animatedEllipsisWrapper">' +
+                '<div class="text">Loading</div>' +
+                '<div class="animatedEllipsis">' +
+                    '<div>.</div>' +
+                    '<div>.</div>' +
+                    '<div>.</div>' +
+                '</div>' +
+            '</div>';
+        const $container: JQuery = this._getContainer();
+        $container.find(".loadingSection").html(html);
     }
 
     private _addEventListeners(): void {

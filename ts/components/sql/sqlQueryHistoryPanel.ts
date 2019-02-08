@@ -146,8 +146,7 @@ namespace SqlQueryHistoryPanel {
                                     errorMsg: queryInfo.errorMsg
                                 });
                             } else if (queryInfo.status === SQLStatus.Done) {
-                                this._onClickTable(queryInfo.tableName,
-                                                   {columns: queryInfo.columns});
+                                this._onClickTable(queryInfo);
                             }
                         }
                     };
@@ -279,31 +278,43 @@ namespace SqlQueryHistoryPanel {
         }
 
         // Event handler for table click
-        protected _onClickTable(tableName: string, options: any): void {
+        protected _onClickTable(queryInfo: QueryInfo): void {
             // Show the table
+            let tableName = queryInfo.tableName;
             let tableId = xcHelper.getTableId(tableName);
             if (!tableId) {
                 // invalid case
-                Alert.show({
-                    title: SQLErrTStr.Err,
-                    msg: SQLErrTStr.TableDropped,
-                    isAlert: true
-                });
+                this._noTableExistHandler(queryInfo);
                 return;
             }
             let table = new TableMeta({
                 tableId: tableId,
                 tableName: tableName
             });
-            if (options && options.columns) {
+            let columns = queryInfo.columns;
+            if (columns) {
                 table.tableCols = [];
-                options.columns.forEach((col) => {
+                columns.forEach((col) => {
                     table.tableCols.push(ColManager.newPullCol(col.name,
                                          col.backName, col.type));
                 });
                 table.tableCols.push(ColManager.newDATACol());
             }
-            SQLResultSpace.Instance.viewTable(table);
+            SQLResultSpace.Instance.viewTable(table, () => {
+                this._noTableExistHandler(queryInfo);
+            });
+        }
+
+        protected _noTableExistHandler(queryInfo: QueryInfo): void {
+            Alert.show({
+                title: SQLErrTStr.Err,
+                msg: SQLErrTStr.ResultDropped,
+                onConfirm: () => {
+                    // scroll to the latest history
+                    $('#sqlWorkSpacePanel .historySection .flexTable .body').scrollTop(0);
+                    SQLEditorSpace.Instance.execute(queryInfo.queryString);
+                }
+            });
         }
     }
 

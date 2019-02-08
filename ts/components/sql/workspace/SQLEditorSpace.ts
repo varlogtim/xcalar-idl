@@ -44,6 +44,14 @@ class SQLEditorSpace {
         return this._saveSnippet();
     }
 
+    /**
+     * SQLEditorSpace.Instance.execute
+     * @param sqls
+     */
+    public execute(sqls: string): void {
+        return this._executeSQL(sqls);
+    }
+
     public cancelExecution(): void {
         this._executers.forEach((executor, i) => {
             if (executor.getStatus() != SQLStatus.Done &&
@@ -149,7 +157,9 @@ class SQLEditorSpace {
 
     private _executeAction(): void {
         if (this._executers.length === 0) {
-            this._executeSQL();
+            SQLWorkSpace.Instance.save();
+            let sqls: string = this._sqlEditor.getSelection() || this._sqlEditor.getValue();
+            this._executeSQL(sqls);
         } else {
             Alert.show({
                 "title": SQLTStr.Execute,
@@ -159,10 +169,8 @@ class SQLEditorSpace {
         }
     }
 
-    private _executeSQL(): void {
+    private _executeSQL(sqls: string): void {
         try {
-            SQLWorkSpace.Instance.save();
-            let sqls: string = this._sqlEditor.getSelection() || this._sqlEditor.getValue();
             let sqlArray: string[] = XDParser.SqlParser.getMultipleQueriesViaParser(sqls);
             let selectArray: string[] = [];
             let lastShow: any = {type: "select"};
@@ -225,7 +233,7 @@ class SQLEditorSpace {
                 callback = (tableName, succeed, options) => {
                     this._removeExecutor(curExecutor);
                     if (succeed) {
-                        this._showTable(tableName,options);
+                        this._showTable(tableName, options);
                     }
                 };
             } else {
@@ -270,7 +278,7 @@ class SQLEditorSpace {
             // invalid case
             Alert.show({
                 title: SQLErrTStr.Err,
-                msg: SQLErrTStr.TableDropped,
+                msg: SQLErrTStr.NoResult,
                 isAlert: true
             });
             return;
