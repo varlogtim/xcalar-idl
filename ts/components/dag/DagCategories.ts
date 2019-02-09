@@ -81,11 +81,23 @@ class DagCategories {
                 type: DagNodeType.Export
             })));
             hiddenCategory.add(new DagCategoryNodeOut(DagNodeFactory.create({
+                type: DagNodeType.Export,
+                subType: DagNodeSubType.ExportOptimized
+            })));
+            hiddenCategory.add(new DagCategoryNodeOut(DagNodeFactory.create({
+                type: DagNodeType.DFOut
+            })));
+            hiddenCategory.add(new DagCategoryNodeOut(DagNodeFactory.create({
+                type: DagNodeType.DFOut,
+                subType: DagNodeSubType.DFOutOptimized
+            })));
+            hiddenCategory.add(new DagCategoryNodeOut(DagNodeFactory.create({
                 type: DagNodeType.Jupyter
             })));
             hiddenCategory.add(new DagCategoryNodeOut(DagNodeFactory.create({
                 type: DagNodeType.PublishIMD
             })));
+
         } else {
             outCategory = new DagCategory(DagCategoryType.Out, [
                 new DagCategoryNodeOut(DagNodeFactory.create({

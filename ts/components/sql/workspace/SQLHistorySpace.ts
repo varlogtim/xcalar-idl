@@ -30,16 +30,15 @@ class SQLHistorySpace {
     }
 
     /**
-     * SQLHistorySpace.Instance.analyze
-     * @param dataflowId
+     * renders a view-only dataflow graph
+     * @param queryInfo
      */
-    public analyze(queryInfo: SqlQueryHistory.QueryInfo): XDPromise<void> {
+    public previewDataflow(queryInfo: SqlQueryHistory.QueryInfo): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-
         try {
             this._checkDataflowValidation(queryInfo)
             .then((dataflowId) => {
-                return this._switchToAdvForAnalyze(dataflowId);
+                return this._previewDataflow(dataflowId);
             })
             .then(deferred.resolve)
             .fail((error) => {
@@ -78,27 +77,29 @@ class SQLHistorySpace {
         return PromiseHelper.reject();
     }
 
-
-    private _switchToAdvForAnalyze(dataflowId: string): XDPromise<void> {
+     /**
+     * renders a view-only dataflow graph
+     * @param queryInfo
+     */
+    private _previewDataflow(dataflowId: string): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        XVM.setMode(XVM.Mode.Advanced)
+
+        const name: string = "SQL " + moment(new Date()).format("HH:mm:ss ll");
+        const dagTab: DagTabUser = new DagTabUser(name, dataflowId, null, false, xcTimeHelper.now());
+
+        dagTab.load()
         .then(() => {
-            $("#initialLoadScreen").show();
-            MainMenu.openPanel("dagPanel");
-            let dagTab: DagTab = DagList.Instance.getDagTabById(dataflowId);
-            if (dagTab == null) {
-                Alert.error(AlertTStr.Error, "The corresponding dataflow for sql has been deleted");
-                return PromiseHelper.reject();
-            }
-            return DagTabManager.Instance.loadTab(dagTab);
-        })
-        .then(() => {
+            const $container = $("#sqlDataflowArea .dataflowWrap");
+            $container.empty();
+            DagViewManager.Instance.addDataflowHTML($container, dataflowId, true, false)
+            DagViewManager.Instance.renderSQLPreviewDag(dagTab);
             DagViewManager.Instance.autoAlign(dataflowId);
+            SQLResultSpace.Instance.showProgressDataflow();
             deferred.resolve();
         })
-        .fail(deferred.reject)
-        .always(() => {
-            $("#initialLoadScreen").hide();
+        .fail((err) => {
+            Alert.error(AlertTStr.Error, "The corresponding dataflow for sql has been deleted");
+            deferred.reject(err);
         });
 
         return deferred.promise();

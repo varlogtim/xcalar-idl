@@ -21,20 +21,20 @@ describe("SQLHistorySpace Test", () => {
         SQLHistorySpace.Instance._historyComponent.show = oldFunc;
     });
 
-    it("should analyze", (done) => {
+    it("should preview", (done) => {
         let oldCheck = SQLHistorySpace.Instance._checkDataflowValidation;
-        let oldSwitch = SQLHistorySpace.Instance._switchToAdvForAnalyze;
+        let oldPreview = SQLHistorySpace.Instance._previewDataflow;
         let called = 0;
         SQLHistorySpace.Instance._checkDataflowValidation = () => {
             called++;
             return PromiseHelper.resolve();
         };
-        SQLHistorySpace.Instance._switchToAdvForAnalyze = () => {
+        SQLHistorySpace.Instance._previewDataflow = () => {
             called++;
             return PromiseHelper.resolve();
         };
 
-        SQLHistorySpace.Instance.analyze()
+        SQLHistorySpace.Instance.previewDataflow()
         .then(() => {
             expect(called).to.equal(2);
             done();
@@ -44,11 +44,11 @@ describe("SQLHistorySpace Test", () => {
         })
         .always(() => {
             SQLHistorySpace.Instance._checkDataflowValidation = oldCheck;
-            SQLHistorySpace.Instance._switchToAdvForAnalyze = oldSwitch;
+            SQLHistorySpace.Instance._previewDataflow = oldPreview;
         });
     });
 
-    it("should alert error in analyze error", (done) => {
+    it("should alert error in preview error", (done) => {
         let oldCheck = SQLHistorySpace.Instance._checkDataflowValidation;
         let oldAlert = Alert.error;
         let called = 0;
@@ -60,7 +60,7 @@ describe("SQLHistorySpace Test", () => {
             called++;
         };
 
-        SQLHistorySpace.Instance.analyze()
+        SQLHistorySpace.Instance.previewDataflow()
         .then(() => {
             done("fail");
         })
@@ -131,85 +131,6 @@ describe("SQLHistorySpace Test", () => {
             done();
         })
         .always(() => {
-            Alert.error = oldAlert;
-        });
-    });
-
-    it("_switchToAdvForAnalyze should work", (done) => {
-        let oldSetMode = XVM.setMode;
-        let oldGetTab = DagList.Instance.getDagTabById;
-        let oldOpenPanel = MainMenu.openPanel;
-        let oldLoadTab = DagTabManager.Instance.loadTab;
-        let oldAlign = DagViewManager.Instance.autoAlign;
-        let called = 0;
-        let tab = new DagTabUser();
-
-        XVM.setMode =
-        DagTabManager.Instance.loadTab =
-        () => {
-            called++;
-            return PromiseHelper.resolve();
-        };
-
-        DagList.Instance.getDagTabById = () => {
-            called++;
-            return tab;
-        };
-
-        MainMenu.openPanel =
-        DagViewManager.Instance.autoAlign =
-        () => {
-            called++;
-        };
-
-        SQLHistorySpace.Instance._switchToAdvForAnalyze(tab.getId())
-        .then(() => {
-            expect(called).to.equal(5);
-            done();
-        })
-        .fail(() => {
-            done("fail");
-        })
-        .always(() => {
-            XVM.setMode = oldSetMode;
-            DagTabManager.Instance.loadTab = oldLoadTab;
-            DagList.Instance.getDagTabById = oldGetTab;
-            MainMenu.openPanel = oldOpenPanel;
-            DagViewManager.Instance.autoAlign = oldAlign;
-        });
-    });
-
-    it("_switchToAdvForAnalyze sould handle error case", (done) => {
-        let oldSetMode = XVM.setMode;
-        let oldOpenPanel = MainMenu.openPanel;
-        let oldAlert = Alert.error;
-        let called = 0;
-
-        XVM.setMode = () => {
-            called++;
-            return PromiseHelper.resolve();
-        };
-
-        MainMenu.openPanel = () => {
-            called++;
-        };
-        Alert.error = (title, msg) => {
-            expect(title).to.equal(AlertTStr.Error);
-            expect(msg).to.equal("The corresponding dataflow for sql has been deleted");
-            called++;
-        };
-
-        SQLHistorySpace.Instance._switchToAdvForAnalyze(xcHelper.randName("test"))
-        .then(() => {
-            done("fail");
-        })
-        .fail(() => {
-            expect(called).to.equal(3);
-            done();
-        })
-        .always(() => {
-            XVM.setMode = oldSetMode;
-            MainMenu.openPanel = oldOpenPanel;
             Alert.error = oldAlert;
         });
     });

@@ -157,7 +157,7 @@ class DagTabManager {
 
             const $container = $("#sqlDataflowArea .dataflowWrap");
             $container.empty();
-            this._addDataflowHTML($container, tabId, true, false);
+            DagViewManager.Instance.addDataflowHTML($container, tabId, true, false);
 
             DagViewManager.Instance.renderSQLPreviewDag(newTab);
             return;
@@ -741,7 +741,7 @@ class DagTabManager {
                 '</div>' +
             '</li>';
         this._getTabArea().append(html);
-        this._addDataflowHTML($("#dagView .dataflowWrap"), tabId, isViewOnly, isOptimized);
+        DagViewManager.Instance.addDataflowHTML($("#dagView .dataflowWrap"), tabId, isViewOnly, isOptimized);
 
         if (tabIndex != null) {
             // Put the tab and area where they should be
@@ -751,18 +751,6 @@ class DagTabManager {
             $newTab.insertBefore(this.getDagTabElement(tabIndex));
             $newTabArea.insertBefore(this._getDataflowArea(tabIndex));
         }
-    }
-
-    private _addDataflowHTML($container: JQuery, tabId: string, isViewOnly?: boolean, isOptimized?: boolean) {
-        $container.append(
-            '<div class="dataflowArea ' +  (isViewOnly? 'viewOnly': '') + ' ' + (isOptimized? 'optimized': '') + '" data-id="' +tabId + '">\
-                <div class="dataflowAreaWrapper">\
-                    <div class="commentArea"></div>\
-                    <svg class="edgeSvg"></svg>\
-                    <svg class="operatorSvg"></svg>\
-                </div>\
-            </div>'
-        );
     }
 
     private _getDataflowArea(index?: number): JQuery {

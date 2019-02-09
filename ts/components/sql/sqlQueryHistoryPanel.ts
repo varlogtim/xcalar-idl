@@ -54,7 +54,7 @@ namespace SqlQueryHistoryPanel {
         protected getTableContainer(): JQuery {
             return this._$cardContainer.find('.cardMain');
         }
-    
+
         protected getCardContainer(): JQuery {
             return this._$cardContainer;
         }
@@ -340,7 +340,7 @@ namespace SqlQueryHistoryPanel {
 
         /**
          * @override
-         * @param refresh 
+         * @param refresh
          */
         public show(
             refresh: boolean
@@ -442,7 +442,7 @@ namespace SqlQueryHistoryPanel {
                     let isValidStatus = queryInfo.status === SQLStatus.Done ||
                     queryInfo.status === SQLStatus.Failed;
                     if (isValidStatus) {
-                        text = SQLTStr.queryTableBodyTextAnalyze;
+                        text = SQLTStr.queryTableBodyTextPreview;
                         iconClass = 'xi-search';
                     } else if (queryInfo.status === SQLStatus.Running) {
                         text = SQLTStr.queryTableBodyTextProgress;
@@ -454,7 +454,7 @@ namespace SqlQueryHistoryPanel {
                         iconClass: iconClass,
                         onLinkClick: () => {
                             if (isValidStatus) {
-                                SQLHistorySpace.Instance.analyze(queryInfo);
+                                SQLHistorySpace.Instance.previewDataflow(queryInfo);
                             } else if (queryInfo.status === SQLStatus.Running) {
                                 SQLHistorySpace.Instance.viewProgress(queryInfo.dataflowId);
                             }

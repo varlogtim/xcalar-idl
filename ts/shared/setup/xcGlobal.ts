@@ -29,7 +29,7 @@ namespace xcGlobal {
         }
 
         gRescol = {
-            "minCellHeight": 25,
+            "minCellHeight": 21,
             "cellMinWidth": 15,
             "clicks": 0,
             "delay": 500,

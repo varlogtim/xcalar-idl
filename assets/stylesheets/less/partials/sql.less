@@ -547,16 +547,7 @@
     }
 }
 
-#sqlTableListerArea {
-    &.loading {
-        .topSection {
-            .searchbarArea, .xc-action {
-                opacity: @opacity-disabled;
-                pointer-events: none;
-            }
-        }
-    }
-
+#sqlTableListerArea, #sqlDataflowArea {
     .topSection {
         .searchbarArea {
             max-width: 150px;
@@ -588,13 +579,24 @@
             }
         }
     }
+}
+
+#sqlTableListerArea {
+    &.loading {
+        .topSection {
+            .searchbarArea, .xc-action {
+                opacity: @opacity-disabled;
+                pointer-events: none;
+            }
+        }
+    }
 
     .mainSection {
         .row {
             @w-creteTime: 180px;
             @w-status: 120px;
             @w-other: (@w-creteTime + @w-status) / 3;
-            
+
             > div {
                 width: ~"calc(33% - @{w-other})";
             }
@@ -646,11 +648,20 @@
 }
 
 #sqlDataflowArea {
+    .topSection {
+        .actionArea {
+            margin-left: 0px;
+            width: 100%;
+            .xc-action {
+                float: right;
+                margin-right: 10px;
+            }
+        }
+    }
     .dataflowArea {
         display: block;
-        .operator .main, .edge {
+        .operator .main, .edge, .paramTitle {
             cursor: initial;
         }
-
     }
 }

@@ -474,6 +474,7 @@ module.exports = {
         "queryHistSQLModalTitle": "SQL Query",
         "AddFunc": "New SQL Function",
         "NumOfInput": "Number of parameter",
+        "EditAdvanced": "Edit in advanced mode"
     },
 
     "bottomMenu": {

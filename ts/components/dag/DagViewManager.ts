@@ -229,6 +229,18 @@ class DagViewManager {
     }
 
 
+    public addDataflowHTML($container: JQuery, tabId: string, isViewOnly?: boolean, isOptimized?: boolean) {
+        $container.append(
+            '<div class="dataflowArea ' +  (isViewOnly? 'viewOnly': '') + ' ' + (isOptimized? 'optimized': '') + '" data-id="' +tabId + '">\
+                <div class="dataflowAreaWrapper">\
+                    <div class="commentArea"></div>\
+                    <svg class="edgeSvg"></svg>\
+                    <svg class="operatorSvg"></svg>\
+                </div>\
+            </div>'
+        );
+    }
+
     /**
      * DagView.getNode
      * @param nodeId
@@ -361,7 +373,7 @@ class DagViewManager {
         this.activeDagTab = dagTab;
         this.activeDag = dagTab.getGraph();
         this.$dfWrap.removeClass("xc-hidden");
-        this.render($(this.containerSelector + " .dataflowArea"));
+        this.render($(this.containerSelector + " .dataflowArea"), this.activeDag, dagTab, true);
     }
 
     public toggleSqlPreview(sqlPreview: boolean) {
