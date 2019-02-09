@@ -68,6 +68,9 @@ class SQLSnippetListModal {
 
     private _renderList(lists: {name: string, snippet: string}[]): void {
         let html: HTML = lists.map((list) => {
+            if (list.name == CommonTxtTstr.Untitled) {
+                return "";
+            }
             let row: HTML =
                 '<div class="row">' +
                     `<div>${list.name}</div>` +

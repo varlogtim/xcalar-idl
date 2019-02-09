@@ -1,5 +1,5 @@
-class SQLSnippetSaveModal {
-    private static _instance: SQLSnippetSaveModal;
+class SQLSnippetRenameModal {
+    private static _instance: SQLSnippetRenameModal;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -7,6 +7,7 @@ class SQLSnippetSaveModal {
 
     private _modalHelper: ModalHelper;
     private _callback: Function;
+    private _deferredPromise: XDDeferred<void>;
 
     private constructor() {
         const $modal: JQuery = this._getModal();
@@ -18,29 +19,25 @@ class SQLSnippetSaveModal {
     }
 
     private _getModal(): JQuery {
-        return $("#sqlSnippetSaveModal");
+        return $("#sqlSnippetRenameModal");
     }
 
     private _getNameInput(): JQuery {
         return this._getModal().find("input.name");
     }
 
-    private _getListSection(): JQuery {
-        return this._getModal().find(".listSection");
-    }
-
-    public show(name: string, callback: Function): void {
+    public show(callback: Function, deferredPromise: XDDeferred<void>): void {
         this._modalHelper.setup();
-        this._getNameInput().val(name);
-        this._render();
+        this._getNameInput().val("");
         this._callback = callback;
+        this._deferredPromise = deferredPromise;
     }
 
     private _close(): void {
         this._modalHelper.clear();
-        this._getListSection().empty();
         this._getNameInput().val("");
         this._callback = null;
+        this._deferredPromise = null;
     }
 
     private _submitForm(): void {
@@ -72,50 +69,18 @@ class SQLSnippetSaveModal {
         }
     }
 
-    private _render(): XDPromise<void> {
-        let deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let timer = setTimeout(() => {
-            xcHelper.showRefreshIcon(this._getListSection(), true, deferred.promise());
-        }, 500);
-
-        SQLSnippet.Instance.listSnippetsAsync()
-        .then((res) => {
-            this._renderList(res);
-            this._selectRow(null);
-            deferred.resolve();
-        })
-        .fail(deferred.reject)
-        .always(() => {
-            clearTimeout(timer);
-        });
-
-        return deferred.promise();
-    }
-
-    private _renderList(lists: {name: string, snippet: string}[]): void {
-        let html: HTML = lists.map((list) => {
-            let row: HTML =
-                '<div class="row">' +
-                    `<div>${list.name}</div>` +
-                '</div>';
-            return row;
-        }).join("");
-        this._getListSection().html(html);
-    }
-
-    private _selectRow($row: JQuery): void {
-        this._getListSection().find(".row.selected").removeClass("selected");
-        if ($row != null) {
-            $row.addClass("selected");
-            this._getNameInput().val($row.text());
-        }
-    }
-
     private _addEventListeners() {
         const $modal = this._getModal();
-        // click cancel or close button
-        $modal.on("click", ".close, .cancel", (event) => {
+        // click discard or close button
+        $modal.on("click", ".close", (event) => {
             event.stopPropagation();
+            this._deferredPromise.reject();
+            this._close();
+        });
+
+        $modal.on("click", ".discard", (event) => {
+            event.stopPropagation();
+            this._deferredPromise.resolve();
             this._close();
         });
 
@@ -124,9 +89,5 @@ class SQLSnippetSaveModal {
             this._submitForm();
         });
 
-        const $listSection = this._getListSection();
-        $listSection.on("click", ".row", (event) => {
-            this._selectRow($(event.currentTarget));
-        });
     }
 }

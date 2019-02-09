@@ -1108,6 +1108,9 @@ module.exports = {
         "Download": "Download Snippet",
         "Snippets": "Snippets",
         "Save": "Save Snippet",
+        "RenameWarning": "Leaving Draft Snippet",
+        "Discard": "Discard Draft",
+        "RenameModalInstr": "You are leaving the draft snippet. Either save your draft as a new snippet or discard your changes.", 
     },
 
     "IMDTableOp": {

@@ -355,6 +355,11 @@ class SQLEditorSpace {
         xcTooltip.add($el, {
             title: name
         });
+        if (name == CommonTxtTstr.Untitled) {
+            $el.addClass("untitled");
+        } else {
+            $el.removeClass("untitled");
+        }
         this._currentFile = name;
     }
 
@@ -370,10 +375,6 @@ class SQLEditorSpace {
                 break;
             case "open":
                 this._openSnippet();
-                break;
-            case "save":
-                this._saveSnippet();
-                xcHelper.showSuccess(SuccessTStr.Saved);
                 break;
             case "saveAs":
                 this._saveAsSnippet();
@@ -397,17 +398,33 @@ class SQLEditorSpace {
     }
 
     private _newSnippet(): void {
-        let validFunc = (name) => {
-            return !SQLSnippet.Instance.hasSnippet(name);
-        };
-        let name = xcHelper.uniqueName(CommonTxtTstr.Untitled, validFunc, null, 100);
-        this._setSnippet(name);
+        this._renameWarning()
+        .then(() => {
+            this._setSnippet(CommonTxtTstr.Untitled);
+        })
+        .fail(() => {
+            // We decided not to discard the change
+            return;
+        });
     }
 
     private _openSnippet(): void {
         SQLSnippetListModal.Instance.show((name) => {
-            this._saveSnippet();
-            this._setSnippet(name)
+            this._renameWarning()
+            .then(() => {
+                if (this._currentFile == CommonTxtTstr.Untitled) {
+                    // We don't want to save the untitled file if we just deleted it
+                    return PromiseHelper.resolve();
+                }
+                return this._saveSnippet()
+            })
+            .then(() => {
+                this._setSnippet(name)
+            })
+            .fail(() => {
+                // We decided not to discard the change
+                return;
+            })
         });
     }
 
@@ -419,9 +436,13 @@ class SQLEditorSpace {
     private _saveAsSnippet(): void {
         SQLSnippetSaveModal.Instance.show(this._currentFile, (newName) => {
             let snippet = this._sqlEditor.getValue();
+            let oldName = this._currentFile;
             SQLSnippet.Instance.writeSnippet(newName, snippet, true);
             this._setFileName(newName);
             xcHelper.showSuccess(SuccessTStr.Saved);
+            if (oldName == CommonTxtTstr.Untitled) {
+                SQLSnippet.Instance.deleteSnippet(oldName);
+            }
         });
     }
 
@@ -435,7 +456,7 @@ class SQLEditorSpace {
             msg: msg,
             onConfirm: () => {
                 SQLSnippet.Instance.deleteSnippet(name);
-                this._newSnippet();
+                this._setSnippet(CommonTxtTstr.Untitled);
                 xcHelper.showSuccess(SuccessTStr.Saved);
             }
         });
@@ -477,6 +498,65 @@ class SQLEditorSpace {
         $topBar.on("click", ".showTables", (event) => {
             $(event.currentTarget).blur();
             SQLResultSpace.Instance.showTables(true);
+        });
+
+        $topBar.on("dblclick", ".fileName", (event) => {
+            let $snippet_name: JQuery = $(event.currentTarget);
+            $snippet_name.removeClass("untitled");
+            let editingName = $snippet_name.attr("data-original-title");
+            $snippet_name.text("");
+            let inputArea: string =
+                "<span contentEditable='true' class='xc-input nameInput'></span>";
+            $(inputArea).appendTo($snippet_name);
+            let $input: JQuery = $snippet_name.find('.xc-input');
+            $input.text(editingName);
+            $input.focus();
+            document.execCommand('selectAll', false, null);
+        });
+
+        $topBar.on("keypress", ".fileName .xc-input", (event) => {
+            if (event.which === keyCode.Enter || event.which === 10) {
+                event.preventDefault();
+                $(event.currentTarget).blur();
+            }
+        });
+
+       $topBar.on("focusout", ".fileName .xc-input", (event) => {
+            let $nameInput: JQuery = $(event.currentTarget);
+            let $snippetName: JQuery = $nameInput.parent();
+            let isValid = xcHelper.validate([{
+                $ele: $nameInput
+            }]);
+            if (!isValid) {
+                StatusBox.show("Invalid Name",
+                    $nameInput, false);
+                return;
+            }
+            let newName: string = $nameInput.text().trim();
+            let oldName: string = $snippetName.attr("data-original-title");
+            if (newName == CommonTxtTstr.Untitled){
+                StatusBox.show('Name cannot be "' + CommonTxtTstr.Untitled + '"',
+                    $nameInput, false);
+                // Clear away if the newline character was registered
+                $nameInput.val(newName);
+                return;
+            } else if (newName == oldName) {
+                $nameInput.remove();
+                this._setFileName(newName);
+                return;
+            }
+            $snippetName.data("original-title", newName);
+            let snippet = this._sqlEditor.getValue();
+            SQLSnippet.Instance.writeSnippet(newName, snippet, true)
+            .then(() => {
+                SQLSnippet.Instance.deleteSnippet(oldName);
+            })
+            .fail((err) => {
+                // Since we still have the old version, we can just report an error
+                console.error(err);
+            });
+            $nameInput.remove();
+            this._setFileName(newName);
         });
 
         let selector: string = `#${this._getEditorSpaceEl().attr("id")}`;
@@ -598,6 +678,29 @@ class SQLEditorSpace {
             width = Math.max(this._minWidth, mainContentWidth - rightSectionMin);
             $leftSection.outerWidth(width);
             $rightSection.width("calc(100% - " + width + "px)");
+        }
+    }
+
+    private _renameWarning(): XDPromise<void> {
+        if (this._currentFile != CommonTxtTstr.Untitled) {
+            return PromiseHelper.resolve();
+        }
+        const snippet = this._sqlEditor.getValue();
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        if (snippet == "") {
+            return PromiseHelper.resolve();
+        } else {
+            let saveCallback = (newName) => {
+                SQLSnippet.Instance.writeSnippet(newName, snippet, true)
+                .then(() => {
+                    xcHelper.showSuccess(SuccessTStr.Saved);
+                    deferred.resolve();
+                })
+                .fail(deferred.reject);
+            }
+            SQLSnippetRenameModal.Instance.show(saveCallback, deferred);
+            SQLSnippet.Instance.deleteSnippet(this._currentFile);
+            return deferred.promise();
         }
     }
 }
