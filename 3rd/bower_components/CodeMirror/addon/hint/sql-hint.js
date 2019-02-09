@@ -31,9 +31,18 @@
   }
 
   function getItem(list, item) {
-    if (!list.slice) return list[item];
-    for (var i = list.length - 1; i >= 0; i--) if (getText(list[i]) == item)
-      return list[i];
+    if (!list.slice) {
+      for (var key of Object.keys(list)) {
+        if (key.toUpperCase() === item.toUpperCase()) {
+          return list[key];;
+        }
+      }
+      return list[item];
+    }
+    for (var i = list.length - 1; i >= 0; i--) {
+      if (getText(list[i]).toUpperCase() == item.toUpperCase())
+        return list[i];
+    }
   }
 
   function shallowClone(object) {
