@@ -230,9 +230,15 @@ describe('RoundOpPanelModel Test', () => {
             });
             model._destColumn = '';
 
-            // Case: Normal case
+            // Case: Normal case(derived column)
             model.autofillEmptyDestColumn();
-            expect(model._destColumn).to.equal('abc-round-1');
+            expect(model._destColumn).to.equal('abc');
+            model._destColumn = '';
+
+            // Case: Normal case(prefixed column)
+            model._sourceColumn = 'prefix::abc';
+            model.autofillEmptyDestColumn();
+            expect(model._destColumn).to.equal('abc');
             model._destColumn = '';
 
             // Case: Empty source column

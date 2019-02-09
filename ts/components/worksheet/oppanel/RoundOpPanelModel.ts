@@ -126,8 +126,8 @@ class RoundOpPanelModel {
         }
 
         const colPrefix = xcHelper.parsePrefixColName(this.getSourceColumn()).name;
-        const autoName = this._genColName(colPrefix);
-        this.setDestColumn(autoName);
+        // const autoName = this._genColName(colPrefix);
+        this.setDestColumn(colPrefix);
     }
 
     /**

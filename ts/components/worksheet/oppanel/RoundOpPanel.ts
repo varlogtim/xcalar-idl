@@ -144,7 +144,7 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
             inputVal: this._dataModel.getDestColumn(), placeholder: '',
             valueCheck: {
                 checkType: 'stringColumnNameNoEmptyPrefixValue',
-                args: () => [this._dataModel.getColNameSet()]
+                args: () => [new Set()]
             },
             onChange: (colNameStr: string) => {
                 this._dataModel.setDestColumn(colNameStr);
@@ -152,7 +152,7 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
             onElementMountDone: (elem) => {
                 this._addValidation(elem, () => {
                     return this._componentFactory.checkFunctions.stringColumnNameNoEmptyPrefixValue(
-                        this._dataModel.getColNameSet(),
+                        new Set(),
                         this._dataModel.getDestColumn()
                     ).errMsg;
                 });

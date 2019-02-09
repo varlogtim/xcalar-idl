@@ -79,6 +79,16 @@ class ColMenu extends AbstractMenu {
                 title: ColTStr.NoOperateGeneral
             });
         }
+
+        if (colType === ColumnType.float) {
+            $menu.find('.round').removeClass('unavailable');
+        } else {
+            const $roundLi = $menu.find('.round');
+            $roundLi.addClass('unavailable');
+            xcTooltip.add($roundLi, {
+                title: ColTStr.NoOperateGeneral
+            });
+        }
     }
 
     protected _getHotKeyEntries(): ReadonlyArray<[string, string]> {
@@ -188,6 +198,15 @@ class ColMenu extends AbstractMenu {
             const tableId: TableId = $colMenu.data('tableId');
             const colNums: number[] = $colMenu.data("colNums");
             this._createNodeAndShowForm(DagNodeType.Split, tableId, colNums);
+        });
+
+        $colMenu.on('mouseup', '.round', (event) => {
+            if (this._isInvalidTrigger(event)) {
+                return;
+            }
+            const tableId: TableId = $colMenu.data('tableId');
+            const colNums: number[] = $colMenu.data("colNums");
+            this._createNodeAndShowForm(DagNodeType.Round, tableId, colNums);
         });
 
         $colMenu.on('mouseup', '.profile', (event) => {
@@ -420,6 +439,14 @@ class ColMenu extends AbstractMenu {
             case DagNodeType.Project:
                 return {
                     columns: columns
+                };
+            case DagNodeType.Round:
+                return {
+                    eval: [{
+                        evalString: `round(${columns[0]},0)`,
+                        newField: xcHelper.parsePrefixColName(columns[0]).name
+                    }],
+                    icv: false
                 };
             case DagNodeType.Sort:
                 return this._getSortParam(columns);

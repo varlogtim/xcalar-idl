@@ -51,7 +51,7 @@ describe('RoundOpPanel Test', () => {
         expect(destColProps.type).to.equal('string');
         expect(destColProps.inputVal).to.equal('newCol');
         expect(destColProps.valueCheck.checkType).to.equal('stringColumnNameNoEmptyPrefixValue');
-        expect(destColProps.valueCheck.args()[0].size).to.equal(opPanel._dataModel.getColNameSet().size);
+        expect(destColProps.valueCheck.args()[0].size).to.equal(0);
 
         // section#4: icv
         const icvProps = args[3];
