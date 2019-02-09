@@ -26,6 +26,7 @@ global.DagNodeType = require("../dagHelper/DagEnums.js").DagNodeType
 global.DagNodeSubType = require("../dagHelper/DagEnums.js").DagNodeSubType
 global.DagNodeState = require("../dagHelper/DagEnums.js").DagNodeState
 global.DagNodeEvents = require("../dagHelper/DagEnums.js").DagNodeEvents
+global.DagNodeErrorType = require("../dagHelper/DagEnums.js").DagNodeErrorType
 global.DagNodeFactory = require("../dagHelper/DagNodeFactory.js").DagNodeFactory
 global.DagNode = require("../dagHelper/node/DagNode.js").DagNode
 global.DagNodeIn = require("../dagHelper/node/DagNodeIn.js").DagNodeIn

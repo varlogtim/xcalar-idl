@@ -12,16 +12,27 @@ var workbook_pb = proto.xcalar.compute.localtypes.Workbook;
 function convertKvsToQuery(convertRequest) {
     var deferred = PromiseHelper.deferred();
     var kvsQuery = convertRequest.getKvsstring();
+    var optimized = convertRequest.getOptimized();
     // var txId = Transaction.start({"simulate": true});
+    var cvtKvsToQueryResponse = new workbook_pb.ConvertKvsToQueryResponse();
 
-    DagHelper.convertKvs(kvsQuery)
+    cvtKvsToQueryResponse.setConverted(false);
+    DagHelper.convertKvs(kvsQuery, optimized)
     .then(function(convertedQuery) {
-        var cvtKvsToQueryResponse = new workbook_pb.ConvertKvsToQueryResponse();
-        cvtKvsToQueryResponse.setQuerystring(convertedQuery);
+        if (optimized) {
+            var optimizedStr = JSON.stringify(convertedQuery)
+            cvtKvsToQueryResponse.setResultstring(optimizedStr);
+        } else {
+            cvtKvsToQueryResponse.setResultstring(convertedQuery);
+        }
+        cvtKvsToQueryResponse.setConverted(true);
         deferred.resolve(cvtKvsToQueryResponse);
     })
     .fail(function(err) {
-        deferred.reject(err);
+        // Unable to convert to a query.  Pass back the reason.
+        var errStr = err.node.title + " (" + err.node.type + ") - " + err.type;
+        cvtKvsToQueryResponse.setResultstring(errStr);
+        deferred.resolve(cvtKvsToQueryResponse);
     });
     return deferred.promise();
 }

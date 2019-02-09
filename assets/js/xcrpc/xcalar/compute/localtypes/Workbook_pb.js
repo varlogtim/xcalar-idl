@@ -1061,7 +1061,8 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.toOb
  */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    kvsstring: msg.getKvsstring()
+    kvsstring: msg.getKvsstring(),
+    optimized: msg.getOptimized()
   };
 
   if (includeInstance) {
@@ -1101,6 +1102,10 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.deserializeBin
     case 1:
       var value = /** @type {string} */ (reader.readString());
       msg.setKvsstring(value);
+      break;
+    case 2:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setOptimized(value);
       break;
     default:
       reader.skipField();
@@ -1147,6 +1152,13 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.seri
       f
     );
   }
+  f = this.getOptimized();
+  if (f) {
+    writer.writeBool(
+      2,
+      f
+    );
+  }
 };
 
 
@@ -1171,6 +1183,23 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getK
 /** @param {string} value  */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setKvsstring = function(value) {
   jspb.Message.setField(this, 1, value);
+};
+
+
+/**
+ * optional bool optimized = 2;
+ * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
+ * You should avoid comparisons like {@code val === true/false} in those cases.
+ * @return {boolean}
+ */
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getOptimized = function() {
+  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 2, false));
+};
+
+
+/** @param {boolean} value  */
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setOptimized = function(value) {
+  jspb.Message.setField(this, 2, value);
 };
 
 
@@ -1220,7 +1249,8 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.toO
  */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    querystring: msg.getQuerystring()
+    converted: msg.getConverted(),
+    resultstring: msg.getResultstring()
   };
 
   if (includeInstance) {
@@ -1258,8 +1288,12 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.deserializeBi
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setConverted(value);
+      break;
+    case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.setQuerystring(value);
+      msg.setResultstring(value);
       break;
     default:
       reader.skipField();
@@ -1299,10 +1333,17 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.ser
  */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.serializeBinaryToWriter = function (writer) {
   var f = undefined;
-  f = this.getQuerystring();
+  f = this.getConverted();
+  if (f) {
+    writer.writeBool(
+      1,
+      f
+    );
+  }
+  f = this.getResultstring();
   if (f.length > 0) {
     writer.writeString(
-      1,
+      2,
       f
     );
   }
@@ -1319,17 +1360,34 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.clo
 
 
 /**
- * optional string queryString = 1;
+ * optional bool converted = 1;
+ * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
+ * You should avoid comparisons like {@code val === true/false} in those cases.
+ * @return {boolean}
+ */
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.getConverted = function() {
+  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 1, false));
+};
+
+
+/** @param {boolean} value  */
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.setConverted = function(value) {
+  jspb.Message.setField(this, 1, value);
+};
+
+
+/**
+ * optional string resultString = 2;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.getQuerystring = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.getResultstring = function() {
+  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
 };
 
 
 /** @param {string} value  */
-proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.setQuerystring = function(value) {
-  jspb.Message.setField(this, 1, value);
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryResponse.prototype.setResultstring = function(value) {
+  jspb.Message.setField(this, 2, value);
 };
 
 
