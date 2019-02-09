@@ -230,7 +230,7 @@ class PTblManager {
             let noAlert: boolean = false;
             delete this._loadingTables[tableName];
             if (hasDataset) {
-                if (isSchemaError) {
+                if (isSchemaError === true) {
                     noAlert = true;
                     this.addDatasetTable(dsName);
                 } else {
@@ -633,7 +633,14 @@ class PTblManager {
     }
 
     private _createDataset(txId: number, dsName: string, sourceArgs: any): XDPromise<void> {
-        return XIApi.loadDataset(txId, dsName, sourceArgs);
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        XIApi.loadDataset(txId, dsName, sourceArgs)
+        .then(deferred.resolve)
+        .fail((error, loadError) => {
+            deferred.reject(loadError || error);
+        });
+
+        return deferred.promise();
     }
 
     private _checkSchemaInDatasetCreation(

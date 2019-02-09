@@ -1,10 +1,12 @@
 class DataSourceSchema {
     private _$container: JQuery;
     private _events: object;
+    private _caseInSensitive: boolean;
 
     public constructor($section: JQuery) {
         this._$container = $section;
         this._events = {};
+        this._caseInSensitive = false;
         this._addEventListeners();
     }
 
@@ -38,6 +40,10 @@ class DataSourceSchema {
     public registerEvent(event: string, callback: Function): DataSourceSchema {
         this._events[event] = callback;
         return this;
+    }
+
+    public toggleCaseInsensitive(caseInsensitive: boolean): void {
+        this._caseInSensitive = caseInsensitive;
     }
 
     private _getContainer(): JQuery {
@@ -182,6 +188,11 @@ class DataSourceSchema {
                         type = column[key];
                     }
                 }
+
+                if (name != null && this._caseInSensitive) {
+                    name = name.toUpperCase();
+                }
+
                 if (!name) {
                     error = error || "Invalid schema, name attribute should exist for each entry and cannot be null or empty";
                 } else if (!type) {

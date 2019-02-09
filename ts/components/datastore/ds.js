@@ -2048,7 +2048,11 @@ window.DS = (function ($, DS) {
 
                 continue;
             } else if (dsName.endsWith(PTblManager.DSSuffix)) {
-                PTblManager.Instance.addDatasetTable(dsName);
+                if (dataset.loadIsComplete) {
+                    PTblManager.Instance.addDatasetTable(dsName);
+                } else {
+                    XcalarDatasetDelete(dsName);
+                }
                 continue;
             }
 

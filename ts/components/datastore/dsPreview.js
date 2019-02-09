@@ -215,6 +215,9 @@ window.DSPreview = (function($, DSPreview) {
                     var val = $renameInput.val();
                     $renameInput.tooltip("destroy");
                     clearTimeout(scrollTimeout);
+                    if (isCreateTableMode()) {
+                        val = val.toUpperCase();
+                    }
                     var nameErr = xcHelper.validateColName(val);
                     if (!nameErr && checkIndividualDuplicateName(val,
                                     $input.closest("th").index())) {
@@ -239,6 +242,10 @@ window.DSPreview = (function($, DSPreview) {
                     $renameInput.remove();
                     $previewCard.find(".previewSection").off("scroll");
                     hideHeadersWarning();
+
+                    // sync up schema
+                    var schema = getSchemaFromPreviewTable();
+                    dataSourceSchema.setSchema(schema);
                 });
             });
         });
@@ -2662,8 +2669,12 @@ window.DSPreview = (function($, DSPreview) {
         var text = $('#fileFormatMenu li[name="' + format + '"]').text();
         $formatText.data("format", format).val(text);
 
-        if (isCreateTableMode() || format === "CSV") {
+        if (isCreateTableMode()) {
             dataSourceSchema.show();
+            dataSourceSchema.toggleCaseInsensitive(true);
+        } else if (format === formatMap.CSV) {
+            dataSourceSchema.show();
+            dataSourceSchema.toggleCaseInsensitive(false);
         } else {
             dataSourceSchema.hide();
         }
@@ -5033,11 +5044,16 @@ window.DSPreview = (function($, DSPreview) {
 
     function checkBulkDuplicateNames(headers) {
         var nameMap = {};
+        var isCreateTable = isCreateTableMode();
         for (var i = 0; i < headers.length; i++) {
-            if (!nameMap.hasOwnProperty(headers[i].colName)) {
-                nameMap[headers[i].colName] = [i + 1];
+            var header = headers[i].colName;
+            if (isCreateTable) {
+                header = header.toUpperCase();
+            }
+            if (!nameMap.hasOwnProperty(header)) {
+                nameMap[header] = [i + 1];
             } else {
-                nameMap[headers[i].colName].push(i + 1);
+                nameMap[header].push(i + 1);
             }
         }
         var errorNames = [];
@@ -5233,8 +5249,13 @@ window.DSPreview = (function($, DSPreview) {
 
     function suggestColumnHeadersNames() {
         var allNames = [];
+        var isCreateTable = isCreateTableMode();
         $previewTable.find(".editableHead").each(function() {
-            allNames.push($(this).val().trim());
+            var name = $(this).val().trim();
+            if (isCreateTable) {
+                name = name.toUpperCase();
+            }
+            allNames.push(name);
         });
 
         var newNames = getValidNameSet(allNames);
@@ -5293,7 +5314,7 @@ window.DSPreview = (function($, DSPreview) {
                     error: "duplicate",
                     index: index
                 });
-            } else {
+        } else {
                 usedNames[name] = true;
                 newNames[index] = name;
             }

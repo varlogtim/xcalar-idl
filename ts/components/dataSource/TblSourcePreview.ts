@@ -24,8 +24,10 @@ class TblSourcePreview {
      */
     public show(tableInfo: PbTblInfo, msg: string): void {
         let $container = this._getContainer();
+        let $tableArea = this._getTableArea();
         let oldTableInfo = this._tableInfo;
-        let isViewTable = $container.hasClass("table");
+        let isViewTable = ($container.hasClass("table") &&
+        !$tableArea.hasClass("error") && !$tableArea.hasClass("loading"));
         this._tableInfo = tableInfo;
         DSForm.hide();
         $container.removeClass("xc-hidden")
@@ -107,6 +109,7 @@ class TblSourcePreview {
     private _setupDataSourceSchema() {
         let $section = this._getContainer().find(".tblSchema");
         this._dataSourceSchema = new DataSourceSchema($section);
+        this._dataSourceSchema.toggleCaseInsensitive(true);
         this._dataSourceSchema
         .registerEvent(DataSourceSchemaEvent.GetHintSchema, () => {
             return this._getSchemaForWizard(this._viewer);
@@ -431,7 +434,7 @@ class TblSourcePreview {
         let $container = this._getContainer();
         let $infoSection = $container.find(".infoSection");
         $infoSection.on("click", ".viewTable", () => {
-            this._viewTableResult(this._tableInfo);
+            this._viewTableResult(this._tableInfo, false);
         });
 
         $infoSection.on("click", ".viewSchema", () => {

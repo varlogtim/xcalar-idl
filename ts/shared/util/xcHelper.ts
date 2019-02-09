@@ -1314,11 +1314,15 @@ namespace xcHelper {
     export function autoName(
         origName: string,
         checkMap: object,
-        maxTry: number = 20,
-        delim: string = ''
+        maxTry?: number,
+        delim?: string
     ): string {
         let validName: string = origName;
         let tryCnt = 0;
+        if (maxTry == null) {
+            maxTry = 20;
+        }
+        delim = delim || "";
 
         while (checkMap.hasOwnProperty(validName) && tryCnt <= maxTry) {
             tryCnt++;
