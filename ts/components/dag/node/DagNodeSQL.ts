@@ -637,7 +637,7 @@ class DagNodeSQL extends DagNode {
         const deferred = PromiseHelper.deferred();
         let destTableName;
         let pubTableName;
-        let cols;
+        let cols = [];
         const selectCliArray = [];
         if (sourceId != null) {
             if (pubTablesInfo) {
@@ -648,20 +648,22 @@ class DagNodeSQL extends DagNode {
                         return PromiseHelper.reject("Invalid publish tables");
                 }
                 const renameMap = [];
-                cols = pubTablesInfo[srcTableName].schema.map((colSchema) => {
-                    if (colSchema.name !== colSchema.name.toUpperCase()) {
-                        // needs finalize
-                        renameMap.push({
-                            sourceColumn: colSchema.name,
-                            destColumn: colSchema.name.toUpperCase(),
-                            columnType: DfFieldTypeTStr[xcHelper
-                                    .convertColTypeToFieldType(colSchema.type)]
-                        });
-                        colSchema.name = colSchema.name.toUpperCase();
+                const colNameSet = new Set();
+                for (const colSchema of pubTablesInfo[srcTableName].schema) {
+                    const upperName = colSchema.name.toUpperCase();
+                    if (colNameSet.has(upperName)) {
+                        return PromiseHelper.reject("Duplicate column: " + colSchema.name);
                     }
-                    colSchema.backName = colSchema.name;
-                    return colSchema;
-                });
+                    colNameSet.add(upperName);
+                    renameMap.push({
+                        sourceColumn: colSchema.name,
+                        destColumn: upperName,
+                        columnType: DfFieldTypeTStr[xcHelper
+                                .convertColTypeToFieldType(colSchema.type)]
+                    });
+                    colSchema.backName = upperName;
+                    cols.push(colSchema);
+                }
                 const batchId = pubTablesInfo[srcTableName].batchId;
                 destTableName = xcHelper.randName("sqlTable") + Authentication.getHashId();
                 const selectCli = {
@@ -724,7 +726,7 @@ class DagNodeSQL extends DagNode {
                 remainCols.push(colInfo)
             }
             if (colNameMap[colInfo.new]) {
-                deferred.reject("Ambiguous column: " + colInfo.orig + ", " +
+                deferred.reject("Duplicate column: " + colInfo.orig + ", " +
                                 colNameMap[colInfo.new]);
                 return deferred.promise();
             }
