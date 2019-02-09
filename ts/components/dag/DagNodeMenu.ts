@@ -298,6 +298,13 @@ namespace DagNodeMenu {
         if (DagView.isNodeLocked(nodeId)) {
             return;
         }
+        const $node = DagView.getNode(nodeId);
+        if ($node.hasClass("configDisabled")) {
+            StatusBox.show("No panels available. To edit, copy node and paste into a text editor. Then copy the edited JSON and paste it here.",
+                                $node);
+            return;
+        }
+
         const type: DagNodeType = node.getType();
         const subType: DagNodeSubType = node.getSubType();
         const tabId: string = DagView.lockNode(nodeId);
@@ -404,7 +411,7 @@ namespace DagNodeMenu {
             default:
                 unlock(tabId);
                 StatusBox.show("No panels available. To edit, copy node and paste into a text editor. Then copy the edited JSON and paste it here.",
-                                DagView.getNode(nodeId));
+                                $node);
                 return;
         }
 

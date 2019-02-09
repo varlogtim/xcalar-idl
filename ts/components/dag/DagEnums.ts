@@ -120,6 +120,7 @@ enum DagCategoryType {
     Extensions = "extensions",
     SQL = "SQL",
     Custom = "custom",
+    Hidden = "hidden"
 }
 
 if (typeof exports !== 'undefined') {

@@ -667,13 +667,31 @@ class DagCategoryBar {
         const self = this;
         this.$dagView.find(".categoryScroll .arrow").mouseup(function() {
             const $catWrap = self.$dagView.find(".categoryWrap .categories");
-            const $categories = self.$dagView.find(".categoryWrap .categories .category");
+            let $categories = self.$dagView.find(".categoryWrap .categories .category");
             if ($(this).hasClass("left")) {
-                $catWrap.prepend($categories.last().detach());
+                let $category = $categories.last();
+                if ($category.data("category") === DagCategoryType.Hidden) {
+                    // skip the hidden category
+                    $catWrap.prepend($category.detach());
+                    self._listScrollers.unshift(self._listScrollers.pop());
+                }
+                $categories = self.$dagView.find(".categoryWrap .categories .category");
+                $category = $categories.last();
+                $catWrap.prepend($category.detach());
                 self._listScrollers.unshift(self._listScrollers.pop());
             } else {
-                $catWrap.find(".spacer").before($categories.eq(0).detach());
+                let $category = $categories.eq(0);
+                $catWrap.find(".spacer").before($category.detach());
                 self._listScrollers.push(self._listScrollers.shift());
+
+                // skip the hidden category
+                $categories = self.$dagView.find(".categoryWrap .categories .category");
+                $category = $categories.eq(0);
+                if ($category.data("category") === DagCategoryType.Hidden) {
+                    // skip the hidden category
+                    $catWrap.find(".spacer").before($category.detach());
+                    self._listScrollers.push(self._listScrollers.shift());
+                }
             }
         });
     }

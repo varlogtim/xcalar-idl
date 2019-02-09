@@ -24,6 +24,19 @@ class DagCategories {
         //     })),
         // ]);
 
+
+        const hiddenCategory = new DagCategory(DagCategoryType.Hidden, [
+            new DagCategoryNode(DagNodeFactory.create({
+                type: DagNodeType.Index
+            }), DagCategoryType.Hidden),
+            new DagCategoryNode(DagNodeFactory.create({
+                type: DagNodeType.Synthesize
+            }), DagCategoryType.Hidden),
+            new DagCategoryNode(DagNodeFactory.create({
+                type: DagNodeType.Placeholder
+            }), DagCategoryType.Hidden)
+        ]);
+
         let isSQLMode = XVM.isSQLMode();
         let inCategory = null;
         if (isSQLMode) {
@@ -32,6 +45,16 @@ class DagCategories {
                     type: DagNodeType.SQLFuncIn
                 })),
             ]);
+
+            hiddenCategory.add(new DagCategoryNodeIn(DagNodeFactory.create({
+                type: DagNodeType.Dataset
+            })));
+            hiddenCategory.add(new DagCategoryNodeIn(DagNodeFactory.create({
+                type: DagNodeType.IMDTable
+            })));
+            hiddenCategory.add(new DagCategoryNodeIn(DagNodeFactory.create({
+                type: DagNodeType.DFIn
+            })));
         } else {
             inCategory = new DagCategory(DagCategoryType.In, [
                 new DagCategoryNodeIn(DagNodeFactory.create({
@@ -45,7 +68,7 @@ class DagCategories {
                 })),
             ]);
         }
-        
+
         let outCategory;
         if (isSQLMode) {
             outCategory = new DagCategory(DagCategoryType.Out, [
@@ -53,6 +76,16 @@ class DagCategories {
                     type: DagNodeType.SQLFuncOut
                 })),
             ]);
+
+            hiddenCategory.add(new DagCategoryNodeOut(DagNodeFactory.create({
+                type: DagNodeType.Export
+            })));
+            hiddenCategory.add(new DagCategoryNodeOut(DagNodeFactory.create({
+                type: DagNodeType.Jupyter
+            })));
+            hiddenCategory.add(new DagCategoryNodeOut(DagNodeFactory.create({
+                type: DagNodeType.PublishIMD
+            })));
         } else {
             outCategory = new DagCategory(DagCategoryType.Out, [
                 new DagCategoryNodeOut(DagNodeFactory.create({
@@ -184,17 +217,9 @@ class DagCategories {
             }), DagCategoryType.Custom, true),
             new DagCategoryNode(DagNodeFactory.create({
                 type: DagNodeType.CustomOutput
-            }), DagCategoryType.Custom, true),
-            new DagCategoryNode(DagNodeFactory.create({
-                type: DagNodeType.Index
-            }), DagCategoryType.Custom, true),
-            new DagCategoryNode(DagNodeFactory.create({
-                type: DagNodeType.Synthesize
-            }), DagCategoryType.Custom, true),
-            new DagCategoryNode(DagNodeFactory.create({
-                type: DagNodeType.Placeholder
             }), DagCategoryType.Custom, true)
         ], 'gUserCustomOpKey');
+
 
         // TODO implement favorites category
         this.categories = [
@@ -208,7 +233,8 @@ class DagCategories {
             setCategory,
             extensionCategory,
             valueCategory,
-            customCategory
+            customCategory,
+            hiddenCategory
         ];
 
         if (isSQLMode) {
@@ -337,8 +363,8 @@ class DagCategory {
 
     /**
      * Rename an operator
-     * @param operatorId 
-     * @param name 
+     * @param operatorId
+     * @param name
      */
     public renameOperatorById(operatorId: DagNodeId, name: string): boolean {
         const categoryNode = this.getOperatorById(operatorId);
@@ -355,7 +381,7 @@ class DagCategory {
     }
 
     /**
-     * Load category content from data storage. Child class can override this method with specific implementation.
+     * Load category content from data storage. Child dagn override this method with specific implementation.
      */
     public loadCategory(): XDPromise<void> {
         return PromiseHelper.resolve();
@@ -561,10 +587,10 @@ class DagCategoryCustom extends DagCategory {
 
         return prefix;
     }
-    
+
     /**
      * @override
-     * @param node 
+     * @param node
      */
     public add(node: DagCategoryNode, isSetDirty: boolean = true): void {
         super.add(node);
@@ -589,8 +615,8 @@ class DagCategoryCustom extends DagCategory {
 
     /**
      * @override
-     * @param operatorId 
-     * @param name 
+     * @param operatorId
+     * @param name
      */
     public renameOperatorById(
         operatorId: DagNodeId, name: string, isSetDirty: boolean = true
@@ -600,7 +626,7 @@ class DagCategoryCustom extends DagCategory {
             this._dirtyData.update.add(categoryNode.getKey());
         }
         return super.renameOperatorById(operatorId, name);
-    }    
+    }
 
     /**
      * @override

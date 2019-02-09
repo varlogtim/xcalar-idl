@@ -3057,7 +3057,6 @@ namespace DagView {
         }
     }
 
-
     function _addEventListeners(): void {
         let mainAreaHeight;
         let $tableArea;
@@ -3826,10 +3825,12 @@ namespace DagView {
         let type = node.getType();
         let subType = node.getSubType() || "";
         const nodeId = node.getId();
-        const $node = $operatorBar.find('.operator[data-type="' + type + '"]' +
-            '[data-subtype="' + subType + '"]')
-            .first().clone();
-
+        const $categoryBarNode = $operatorBar.find('.operator[data-type="' + type + '"]' +
+            '[data-subtype="' + subType + '"]').first();
+        const $node = $categoryBarNode.clone();
+        if ($categoryBarNode.closest(".category-hidden").length) {
+            $node.addClass("configDisabled");
+        };
         $node.attr("transform", "translate(" + pos.x + "," + pos.y + ")");
         _setTooltip($node, node);
         const description = node.getDescription();
