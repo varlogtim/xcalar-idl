@@ -742,7 +742,8 @@ class DagCategoryBar {
 
         let html: HTML = "";
         this.dagCategories.getCategories().forEach((category) => {
-            if (category.getName() === DagCategoryType.Favorites) {
+            if (category.getName() === DagCategoryType.Favorites ||
+                category.getName() === DagCategoryType.Hidden) {
                 return;
             }
             category.getOperators().forEach((categoryNode) => {
