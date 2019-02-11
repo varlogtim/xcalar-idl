@@ -761,8 +761,6 @@ class DagView {
             return PromiseHelper.reject();
         }
 
-        this.dagTab.turnOffSave();
-
         this.deselectNodes();
 
         let minXCoor: number = this.$dfArea.width();
@@ -803,84 +801,92 @@ class DagView {
         const oldNodeIdMap = {};
         const allNewNodes = [];
 
-        nodeInfos.forEach((nodeInfo) => {
-            nodeInfo = xcHelper.deepCopy(nodeInfo);
-            nodeInfo.display.x += xDelta;
-            nodeInfo.display.y += yDelta;
-            if (nodeInfo.hasOwnProperty("text")) {
-                const commentInfo = {
-                    text: nodeInfo.text,
-                    display: nodeInfo.display
-                };
-                const commentNode = this.graph.newComment(commentInfo);
-                allNewNodeIds.push(commentNode.getId());
-                DagComment.Instance.drawComment(commentNode, this.$dfArea, true);
-                allNewNodes.push(commentNode);
-            } else if (nodeInfo.hasOwnProperty("input")) {
-                // remove parents so that when creating
-                // the new node, we don't provide a parent that doesn't exist or
-                // the parentId of the original node
-                // since this is a deep copy, nodeInfos still has the parents
-                delete nodeInfo.parents;
-                const newNode: DagNode = this.graph.newNode(nodeInfo);
-                if (newNode.getType() == DagNodeType.Aggregate &&
-                    newNode.getState() == DagNodeState.Configured) {
-                    newNode.beErrorState(xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
-                        name: newNode.getParam().dest,
-                        aggPrefix: ""
-                    }));
+        this.dagTab.turnOffSave();
+
+        try {
+            nodeInfos.forEach((nodeInfo) => {
+                nodeInfo = xcHelper.deepCopy(nodeInfo);
+                nodeInfo.display.x += xDelta;
+                nodeInfo.display.y += yDelta;
+                if (nodeInfo.hasOwnProperty("text")) {
+                    const commentInfo = {
+                        text: nodeInfo.text,
+                        display: nodeInfo.display
+                    };
+                    const commentNode = this.graph.newComment(commentInfo);
+                    allNewNodeIds.push(commentNode.getId());
+                    DagComment.Instance.drawComment(commentNode, this.$dfArea, true);
+                    allNewNodes.push(commentNode);
+                } else if (nodeInfo.hasOwnProperty("input")) {
+                    // remove parents so that when creating
+                    // the new node, we don't provide a parent that doesn't exist or
+                    // the parentId of the original node
+                    // since this is a deep copy, nodeInfos still has the parents
+                    delete nodeInfo.parents;
+                    const newNode: DagNode = this.graph.newNode(nodeInfo);
+                    if (newNode.getType() == DagNodeType.Aggregate &&
+                        newNode.getState() == DagNodeState.Configured) {
+                        newNode.beErrorState(xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
+                            name: newNode.getParam().dest,
+                            aggPrefix: ""
+                        }));
+                    }
+                    const newNodeId: DagNodeId = newNode.getId();
+                    oldNodeIdMap[nodeInfo.nodeId] = newNodeId;
+                    newNodeIds.push(newNodeId);
+                    allNewNodeIds.push(newNodeId);
+                    allNewNodes.push(newNode);
+                    this._drawNode(newNode, true);
                 }
-                const newNodeId: DagNodeId = newNode.getId();
-                oldNodeIdMap[nodeInfo.nodeId] = newNodeId;
-                newNodeIds.push(newNodeId);
-                allNewNodeIds.push(newNodeId);
-                allNewNodes.push(newNode);
-                this._drawNode(newNode, true);
+            });
+            if (!allNewNodeIds.length) {
+                this.dagTab.turnOnSave();
+                return PromiseHelper.reject();
             }
-        });
-        if (!allNewNodeIds.length) {
-            return;
-        }
 
-        // restore connection to parents
-        const nodesMap: Map<DagNodeId, DagNode> = new Map();
-        allNewNodeIds.forEach((newNodeId: DagNodeId, i) => {
-            if (newNodeId.startsWith("comment")) {
-                return;
-            }
-            if (nodeInfos[i].parents) {
-                const newNode = allNewNodes[i];
-                nodeInfos[i].parents.forEach((parentId, j) => {
-                    if (parentId == null) {
-                        return; // skip empty parent slots
-                    }
-                    const newParentId = oldNodeIdMap[parentId];
-                    if (this.graph.hasNode(newParentId) &&
-                        newParentId !== newNodeId) {
-                        try {
-                            this.graph.connect(newParentId, newNodeId, j, false, false);
-                            nodesMap.set(newNode.getId(), newNode);
-                            this._drawConnection(newParentId, newNodeId, j, newNode.canHaveMultiParents());
-                        } catch (e) {
-                            console.error(e);
+            // restore connection to parents
+            const nodesMap: Map<DagNodeId, DagNode> = new Map();
+            allNewNodeIds.forEach((newNodeId: DagNodeId, i) => {
+                if (newNodeId.startsWith("comment")) {
+                    return;
+                }
+                if (nodeInfos[i].parents) {
+                    const newNode = allNewNodes[i];
+                    nodeInfos[i].parents.forEach((parentId, j) => {
+                        if (parentId == null) {
+                            return; // skip empty parent slots
                         }
-                    }
-                });
+                        const newParentId = oldNodeIdMap[parentId];
+                        if (this.graph.hasNode(newParentId) &&
+                            newParentId !== newNodeId) {
+                            try {
+                                this.graph.connect(newParentId, newNodeId, j, false, false);
+                                nodesMap.set(newNode.getId(), newNode);
+                                this._drawConnection(newParentId, newNodeId, j, newNode.canHaveMultiParents());
+                            } catch (e) {
+                                console.error(e);
+                            }
+                        }
+                    });
 
-                nodesMap.set(newNode.getId(), newNode);
-            }
-        });
-        this.graph.checkNodesState(nodesMap);
-        // XXX scroll to selection if off screen
-        this._setGraphDimensions({ x: maxXCoor, y: maxYCoor });
+                    nodesMap.set(newNode.getId(), newNode);
+                }
+            });
+            this.graph.checkNodesState(nodesMap);
+            // XXX scroll to selection if off screen
+            this._setGraphDimensions({ x: maxXCoor, y: maxYCoor });
 
-        Log.add(SQLTStr.CopyOperations, {
-            "operation": SQLOps.CopyOperations,
-            "dataflowId": this.tabId,
-            "nodeIds": allNewNodeIds
-        });
-        this.dagTab.turnOnSave();
-        return this.dagTab.save();
+            Log.add(SQLTStr.CopyOperations, {
+                "operation": SQLOps.CopyOperations,
+                "dataflowId": this.tabId,
+                "nodeIds": allNewNodeIds
+            });
+            this.dagTab.turnOnSave();
+            return this.dagTab.save();
+        } catch (error) {
+            this.dagTab.turnOnSave();
+            throw(error);
+        }
     }
 
     public deselectNodes(): void {
@@ -961,22 +967,22 @@ class DagView {
                 i--;
             }
         }
+        //always resolves
         this._removeNodesNoPersist(nodeIds)
         .then((ret) => {
             let promise;
             if (ret == null) {
-                this.dagTab.turnOnSave();
                 promise = PromiseHelper.reject();
             } else {
-                if (ret.retinaErrorNodeIds.length) {
+                if (ret.retinaErrorNodeIds && ret.retinaErrorNodeIds.length) {
                     StatusBox.show("Could not remove some nodes due to optimized dataflow in progress.", DagView.$dfWrap);
                 }
                 if (ret.hasLinkOut) {
                     this.checkLinkInNodeValidation();
                 }
-                this.dagTab.turnOnSave();
                 promise = this.dagTab.save();
             }
+            this.dagTab.turnOnSave();
             return promise;
         })
         .then(deferred.resolve)
@@ -1489,6 +1495,7 @@ class DagView {
             // Delete selected nodes
             const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
+            // always resolves
             this._removeNodesNoPersist(nodeIds,
                 { isNoLog: true, isSwitchState: false }
             )
@@ -1678,6 +1685,7 @@ class DagView {
 
             DagAggManager.Instance.bulkAdd(newAggregates);
             // remove the container node from graph
+            // always resolves
             this._removeNodesNoPersist(
                 [dagNode.getId()],
                 { isNoLog: true, isSwitchState: false })
@@ -2474,6 +2482,7 @@ class DagView {
         return html;
     }
 
+    // always resolves
     private _removeNodesNoPersist(
         nodeIds: DagNodeId[],
         options?: {

@@ -10,6 +10,7 @@ abstract class DagTab {
     protected _kvStore: KVStore;
     protected _disableSaveLock: number;
     protected _isOpen: boolean;
+    protected _saveCheckTimer: NodeJS.Timer; // ensures save not locked for more than 60 seconds
 
     public static setup(): void {
         this.uid = new XcUID(DagTab.KEY);
@@ -71,6 +72,15 @@ abstract class DagTab {
      */
     public turnOffSave(): void {
         this._disableSaveLock++;
+        if (this._disableSaveLock === 1) {
+            // if lock has not decreased back to 0 after 60 seconds,
+            // remove the lock
+            this._saveCheckTimer = setTimeout(() => {
+                console.error("save lock stuck, turn off");
+                this.forceTurnOnSave();
+            }, 60000);
+        }
+
     }
 
     /**
@@ -81,11 +91,15 @@ abstract class DagTab {
             console.error("error case to turn on");
         } else {
             this._disableSaveLock--;
+            if (this._disableSaveLock === 0) {
+                clearTimeout(this._saveCheckTimer);
+            }
         }
     }
 
     public forceTurnOnSave(): void {
         this._disableSaveLock = 0;
+        clearTimeout(this._saveCheckTimer);
     }
 
     /**
