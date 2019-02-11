@@ -4575,6 +4575,14 @@
                 aggObj.frameInfo = opStruct.frameInfo;
                 multiOperations.push(aggObj);
             } else {
+                if ((opStruct.opName === "Sum" || opStruct.opName === "Max" ||
+                opStruct.opName === "Min") && opStruct.args[0].colType === "int") {
+                    opStruct.opName = opStruct.opName + "Integer";
+                } else if ((opStruct.opName === "Sum" || opStruct.opName === "Max"
+                || opStruct.opName === "Min" || opStruct.opName === "Average")
+                && opStruct.args[0].colType === "numeric") {
+                    opStruct.opName = opStruct.opName + "Numeric";
+                }
                 retStruct.agg.forEach(function(aggObj) {
                     if (JSON.stringify(aggObj.frameInfo)
                                 === JSON.stringify(opStruct.frameInfo)) {
