@@ -750,7 +750,7 @@ function getXCquery(params, type) {
             params.usePaging,
             params.resultTableName);
         var prefixedQuery = prefixStruct.query;
-        deferred.resolve({"prefixedQuery":prefixedQuery});
+        deferred.resolve({"prefixedQuery":prefixedQuery, "orderedColumns": orderedColumns});
     })
     .fail(function(err) {
         xcConsole.log("sql query error: ", err);
@@ -862,6 +862,10 @@ function executeSql(params, type, workerThreading) {
                 var optimizerObject = new SQLOptimizer();
                 queryWithDrop = optimizerObject.logicalOptimize(xcQueryString,
                                         optimizations, JSON.stringify(selectQuery));
+            }
+            // Auto-generate a name for the final table if not specified
+            if(!params.usePaging && !params.resultTableName) {
+                params.resultTableName = xcHelper.randName("res_") + Authentication.getHashId();
             }
             var prefixStruct = SqlUtil.addPrefix(
                 JSON.parse(queryWithDrop),
