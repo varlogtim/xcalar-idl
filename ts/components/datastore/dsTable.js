@@ -300,9 +300,9 @@ window.DSTable = (function($, DSTable) {
         $("#dsInfo-records").text(numEntries);
 
         totalRows = parseInt(numEntries.replace(/\,/g, ""));
-        if (preFetch) {
+        if (preFetch || postFetch) {
             toggleErrorIcon(dsObj);
-        } else if (!postFetch) {
+        } else {
             $("#dsInfo-error").addClass("xc-hidden");
         }
     }
@@ -740,7 +740,6 @@ window.DSTable = (function($, DSTable) {
     function toggleErrorIcon(dsObj) {
         var $dsInfoError = $("#dsInfo-error");
         $dsInfoError.addClass("xc-hidden");
-
         if (!dsObj.numErrors) {
             return;
         }

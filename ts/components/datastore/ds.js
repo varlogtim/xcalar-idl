@@ -1321,7 +1321,6 @@ window.DS = (function ($, DS) {
             var dsInfo = dsInfos[datasetName];
             updateDSMeta(dsInfo, dsObj, $grid);
             finishImport($grid);
-
             if ($grid.hasClass("active")) {
                 // re-focus to trigger DSTable.show()
                 if (gMinModeOn) {
