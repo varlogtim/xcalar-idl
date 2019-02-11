@@ -453,12 +453,18 @@ window.DSPreview = (function($, DSPreview) {
         $("#dsPreview-debugUDF").click(function() {
             $(this).blur();
             var moduleName = $("#udfArgs-moduleList input").val();
+            var modulePath = $("#udfArgs-moduleList input").data("module");
+            var udfPanelModuleName = moduleName;
+            var currWorkbookPath = UDFFileManager.Instance.getCurrWorkbookPath();
+            if (!modulePath.startsWith(currWorkbookPath)) {
+                udfPanelModuleName = modulePath;
+            }
             var funcName = $("#udfArgs-funcList input").val();
             var pathIndex = loadArgs.getPreivewIndex();
             var path = loadArgs.files[pathIndex].path;
             JupyterPanel.autofillImportUdfModal(loadArgs.targetName,
                                                 path, false,
-                                                moduleName, funcName);
+                                                moduleName, funcName, udfPanelModuleName);
         });
     }
 
@@ -4102,7 +4108,7 @@ window.DSPreview = (function($, DSPreview) {
             // Possibly multi-line json, which we are not able to parse
             // Show the raw data
             return getXMLTable(datas);
-        }        
+        }
         json = json.splice(skipRows);
 
         showJSONTable(json);

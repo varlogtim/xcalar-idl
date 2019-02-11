@@ -77,8 +77,8 @@ window.JupyterPanel = (function($, JupyterPanel) {
                             showImportUdfModal(s.target, s.filePath);
                         } else {
                             JupyterPanel.appendStub("importUDF", s);
-                            BottomMenu.openSection(3);
-                            UDFPanel.Instance.selectUDFPath(s.moduleName);
+                            BottomMenu.openSection(0);
+                            UDFPanel.Instance.selectUDFPath(s.udfPanelModuleName);
                         }
                         break;
                     case ("enterExistingNotebook"):
@@ -221,7 +221,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
     JupyterPanel.autofillImportUdfModal = function(target, filePath,
                                                    includeStub, moduleName,
-                                                   functionName) {
+                                                   functionName, udfPanelModuleName) {
 
         MainMenu.openPanel("jupyterPanel");
 
@@ -232,7 +232,8 @@ window.JupyterPanel = (function($, JupyterPanel) {
                 filePath: filePath,
                 includeStub: includeStub,
                 moduleName: moduleName,
-                fnName: functionName
+                fnName: functionName,
+                udfPanelModuleName: udfPanelModuleName
             };
             sendMessageToJupyter(msgStruct);
             // custom.js will create a new notebook and xcalar.js will
@@ -249,8 +250,8 @@ window.JupyterPanel = (function($, JupyterPanel) {
                     includeStub: false,
                 });
 
-                BottomMenu.openSection(3);
-                UDFPanel.Instance.selectUDFPath(moduleName);
+                BottomMenu.openSection(0);
+                UDFPanel.Instance.selectUDFPath(udfPanelModuleName);
             }
         }
     };

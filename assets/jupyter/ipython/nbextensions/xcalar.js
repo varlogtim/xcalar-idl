@@ -59,7 +59,8 @@ define(['base/js/utils'], function(utils) {
                         filePath: decodeURIComponent(params.filePath),
                         includeStub: decodeURIComponent(params.includeStub),
                         moduleName: decodeURIComponent(params.moduleName),
-                        fnName: decodeURIComponent(params.fnName)
+                        fnName: decodeURIComponent(params.fnName),
+                        udfPanelModuleName: decodeURIComponent(params.udfPanelModuleName)
                     };
                     parent.postMessage(JSON.stringify(request), "*");
                 }

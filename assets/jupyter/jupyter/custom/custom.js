@@ -47,7 +47,7 @@ define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
                 break;
             case ("autofillImportUdf"):
                 autofillImportUdf(struct.target, struct.filePath, struct.includeStub,
-                                  struct.moduleName, struct.fnName);
+                                  struct.moduleName, struct.fnName, struct.udfPanelModuleName);
                 break;
             case ("newWorkbook"):
                 createNewFolder(struct);
@@ -178,7 +178,7 @@ define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
     }
 
     function autofillImportUdf(target, filePath, includeStub, moduleName,
-                               fnName) {
+                               fnName, udfPanelModuleName) {
         Jupyter.new_notebook_widget.contents.new_untitled(wkbkFolderName, {type: "notebook"})
         .then(function(data) {
             var encodedTarget = encodeURIComponent(target);
@@ -188,7 +188,8 @@ define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
                         "target=" + encodedTarget + "&filePath=" + encodedFilePath +
                         "&includeStub=" + includeStub +
                         "&moduleName=" + moduleName +
-                        "&fnName=" + fnName;
+                        "&fnName=" + fnName +
+                        "&udfPanelModuleName=" + udfPanelModuleName;
             window.location.href = url;
         });
     }
