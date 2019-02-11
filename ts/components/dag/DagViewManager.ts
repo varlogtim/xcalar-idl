@@ -905,13 +905,13 @@ class DagViewManager {
             handles: "n",
             containment: 'parent',
             minHeight: 40,
-            start: function () {
+            start: () => {
                 $parent = this.$dfWrap.parent();
                 $parent.addClass("resizing");
                 mainAreaHeight = $parent.height();
                 $tableArea = $("#dagViewTableArea");
             },
-            resize: function (_event, ui) {
+            resize: (_event, ui) => {
                 let pct = ui.size.height / mainAreaHeight;
                 if (ui.position.top <= 100) {
                     // ui.position.top = 100;
@@ -922,7 +922,7 @@ class DagViewManager {
 
                 $tableArea.height(100 * (1 - pct) + "%");
             },
-            stop: function (_event, ui) {
+            stop: (_event, ui) => {
                 let pct = ui.size.height / mainAreaHeight;
                 if (ui.position.top <= 100) {
                     ui.position.top = 100;
