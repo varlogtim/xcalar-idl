@@ -596,9 +596,23 @@
             @w-creteTime: 180px;
             @w-status: 120px;
             @w-other: (@w-creteTime + @w-status) / 3;
+            position: relative;
 
             > div {
                 width: ~"calc(33% - @{w-other})";
+                position: relative;
+
+                .label {
+                    float: left;
+                    width: ~"calc(100% - 8px)";
+                    .textOverflowOneLine;
+                }
+
+                .sort {
+                    width: 8px;
+                    height: 100%;
+                    float: right;
+                }
             }
 
             .createTime {

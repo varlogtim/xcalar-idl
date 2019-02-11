@@ -228,6 +228,7 @@ class SQLTableLister {
         this._getMainContent().html(html);
         this._filterTables();
         this._updateActions(null);
+        this._resizeEvents();
     }
 
     private _renderHeader(): void {
@@ -246,9 +247,9 @@ class SQLTableLister {
             }
             let html: HTML =
             `<div class="${key} title" data-key="${key}">` +
-                '<span class="label">' +
+                '<div class="label">' +
                     attr.text +
-                '</span>' +
+                '</div>' +
                 '<div class="sort">' +
                     sortIcon +
                 '</div>' +
@@ -398,7 +399,10 @@ class SQLTableLister {
             this._reverseSort = null; // no sort
             this._sortKey = null;
         }
+        let $row: JQuery = this._getMainSection().find(".header .row");
+        let rowWidth: number[] = this._getColumnsWidth($row);
         this._render();
+        this._resizeColums(rowWidth);
     }
 
     private _sortTables(tableInfos: PbTblInfo[]): PbTblInfo[] {
@@ -448,8 +452,8 @@ class SQLTableLister {
 
     private _addEventListeners(): void {
         const $mainSection = this._getMainSection();
-        $mainSection.find(".header").on("click", ".title", (event) => {
-            let sortKey = $(event.currentTarget).data("key");
+        $mainSection.find(".header").on("click", ".title .label, .title .sort", (event) => {
+            let sortKey = $(event.currentTarget).closest(".title").data("key");
             this._sortAction(sortKey);
         });
 
@@ -485,6 +489,83 @@ class SQLTableLister {
 
         $topSection.find(".viewSchema").click(() => {
             this._showSchema();
+        });
+    }
+
+    private _resizeEvents(): void {
+        const $mainSection = this._getMainSection();
+        $mainSection.find(".row").each((_i, el) => {
+            let $row = $(el);
+            $row.find("> div").each((index, el) => {
+                if (index !== 0) {
+                    this._addResizeEvent($(el));
+                }
+            });
+        });
+    }
+
+    private _addResizeEvent($section: JQuery): void {
+        // resizable left part of a column
+        let $prev: JQuery = null;
+        const minWidth: number = 80;
+        let totalWidth: number = null;
+
+        $section.resizable({
+            handles: "w",
+            minWidth: minWidth,
+            alsoResize: $prev,
+            start: (_event, _ui) => {
+                $prev = $section.prev();
+                totalWidth = $section.outerWidth() + $prev.outerWidth();
+                this._getMainSection().addClass("resizing");
+            },
+            resize: (_event, ui) => {
+                let left: number = ui.position.left;
+                let sectionW: number = $section.outerWidth() - left;
+                let prevWidth: number = totalWidth - sectionW;
+                if (sectionW <= minWidth) {
+                    sectionW = minWidth;
+                    prevWidth = totalWidth - sectionW;
+                } else if (prevWidth <= minWidth) {
+                    prevWidth = minWidth;
+                    sectionW = totalWidth - prevWidth;
+                }
+
+                $prev.outerWidth(prevWidth);
+                $section.outerWidth(sectionW);
+                $section.css("left", 0);
+
+                let rowWidth: number[] = this._getColumnsWidth($section.closest(".row"));
+                this._resizeColums(rowWidth);
+            },
+            stop: () => {
+                this._getMainSection().removeClass("resizing");
+            }
+        });
+    }
+
+    private _getColumnsWidth($row: JQuery): number[] | null {
+        let $columns: JQuery = $row.find("> div");
+        if ($columns.length === 0) {
+            return null;
+        }
+        let rowWidth: number[] = [];
+        $columns.each((_index, el) => {
+            rowWidth.push($(el).outerWidth());
+        });
+        return rowWidth;
+    }
+
+    private _resizeColums(rowWidth: number[] | null): void {
+        if (rowWidth == null) {
+            return;
+        }
+        let $section = this._getMainSection();
+        $section.find(".row").each((_inex, el) => {
+            let $row = $(el);
+            $row.find("> div").each((index, el) => {
+                $(el).outerWidth(rowWidth[index]);
+            });
         });
     }
 }
