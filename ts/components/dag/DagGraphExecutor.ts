@@ -705,7 +705,11 @@ class DagGraphExecutor {
             const retinaName = gRetinaPrefix + parentTabId + "_" + outNodeId;
             this._retinaName = retinaName;
             const retinaParameters = this._getImportRetinaParameters(retinaName, queryStr, destTables);
-            deferred.resolve(retinaParameters);
+            if (retinaParameters == null) {
+                deferred.reject('Invalid retina args');
+            } else {
+                deferred.resolve(retinaParameters);
+            }
         })
         .fail(deferred.reject);
         return deferred.promise();
@@ -873,7 +877,13 @@ class DagGraphExecutor {
         sessionName: string
         destTables: {nodeId: DagNodeId, tableName: string}[]
     } {
-        let operations = JSON.parse(queryStr);
+        let operations;
+        try {
+            operations = JSON.parse(queryStr);
+        } catch(e) {
+            console.error(e);
+            return null;
+        }
         operations = this._dedupLoads(operations);
         const realDestTables = [];
         let outNodes;

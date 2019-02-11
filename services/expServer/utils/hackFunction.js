@@ -11,6 +11,9 @@ function hackFunction() {
         }
     };
 
+    global.userIdName = undefined;
+    global.sessionName = undefined;
+
     global.XcUser = {
         CurrentUser: CurrentUser
     };

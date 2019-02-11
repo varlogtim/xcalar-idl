@@ -941,9 +941,6 @@ XcalarDatasetLoad = function(
     options: XcalarLoadInputOptions,
     txId: number
 ): XDPromise<any> {
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return PromiseHelper.resolve(null);
-    }
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
@@ -963,6 +960,9 @@ XcalarDatasetLoad = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
+        if (tHandle == null) {
+            return PromiseHelper.resolve(null);
+        }
         def = xcalarLoad(tHandle, dsName, args.sourceArgsList, args.parseArgs, args.size);
     }
     const query: string = XcalarGetQuery(workItem);
@@ -1275,10 +1275,6 @@ XcalarExport = function(
     exportName: string,
     txId?: number
 ): XDPromise<any> {
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return PromiseHelper.resolve(null);
-    }
-
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
@@ -1289,6 +1285,9 @@ XcalarExport = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
+        if (tHandle == null) {
+            return PromiseHelper.resolve(null);
+        }
         def = xcalarExport(tHandle, tableName, driverName, driverParams, columns, exportName);
     }
     let query = XcalarGetQuery(workItem);
@@ -1513,9 +1512,6 @@ XcalarDeleteTable = function(
     txId?: number,
     isRetry?: boolean
 ): XDPromise<XcalarApiDeleteDagNodeOutputT> {
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return PromiseHelper.resolve(null);
-    }
     const deferred: XDDeferred<XcalarApiDeleteDagNodeOutputT> = PromiseHelper.deferred();
 
     if (Transaction.checkCanceled(txId)) {
@@ -1527,6 +1523,9 @@ XcalarDeleteTable = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
+        if (tHandle == null) {
+            return PromiseHelper.resolve(null);
+        }
         def = xcalarDeleteDagNodes(tHandle, tableName, SourceTypeT.SrcTable);
     }
 
@@ -1573,9 +1572,6 @@ XcalarDeleteConstants = function(
     constantPattern: string,
     txId: number
 ): XDPromise<XcalarApiDeleteDagNodeOutputT> {
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return PromiseHelper.resolve(null);
-    }
     const deferred: XDDeferred<XcalarApiDeleteDagNodeOutputT> = PromiseHelper.deferred();
 
     if (Transaction.checkCanceled(txId)) {
@@ -1587,6 +1583,9 @@ XcalarDeleteConstants = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
+        if (tHandle == null) {
+            return PromiseHelper.resolve(null);
+        }
         def = xcalarDeleteDagNodes(tHandle, constantPattern,
                                     SourceTypeT.SrcConstant);
     }
@@ -1636,7 +1635,7 @@ XcalarRenameTable = function(
     newTableName: string,
     txId: number
 ): XDPromise<StatusT> {
-    if (tHandle == null || oldTableName == null || oldTableName === "" ||
+    if (oldTableName == null || oldTableName === "" ||
         newTableName == null || newTableName === "") {
         return PromiseHelper.resolve(null);
     }
@@ -1651,6 +1650,9 @@ XcalarRenameTable = function(
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
+        if (tHandle == null) {
+            return PromiseHelper.resolve(null);
+        }
         def = xcalarRenameNode(tHandle, oldTableName, newTableName);
     }
 
