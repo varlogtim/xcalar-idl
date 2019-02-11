@@ -1190,11 +1190,15 @@ describe("xcHelper Test", function() {
         }, {
             "val": "ab:c",
             "valid": false,
-            "error": ErrTStr.InvalidTableName
+            "error": ErrTStr.InvalidPublishedTableName
         }, {
             "val": "ab#c",
             "valid": false,
-            "error": ErrTStr.InvalidTableName
+            "error": ErrTStr.InvalidPublishedTableName
+        }, {
+            "val": "ab-c", // no hyphen
+            "valid": false,
+            "error": ErrTStr.InvalidPublishedTableName
         }, {
             "val": new Array(300).join("a"),
             "valid": false,
@@ -1512,6 +1516,48 @@ describe("xcHelper Test", function() {
         expect(regexEqual(res, /^[a-zA-Z0-9_-]+$/)).to.be.true;
     });
 
+    it("xcHelper.isValidPublishedTableName should work", function() {
+        var func = xcHelper.isValidPublishedTableName;
+        var res = func("");
+        expect(res).to.be.false;
+
+        res = func(null);
+        expect(res).to.be.false;
+
+        res = func("a");
+        expect(res).to.be.true;
+
+        res = func("ab");
+        expect(res).to.be.true;
+
+        res = func("abc1");
+        expect(res).to.be.true;
+
+        res = func("ab1c");
+        expect(res).to.be.true;
+
+        res = func("ab#c1");
+        expect(res).to.be.false;
+
+        res = func("a_b");
+        expect(res).to.be.true;
+
+        res = func("a-b");
+        expect(res).to.be.false;
+
+        res = func("1a");
+        expect(res).to.be.false;
+
+        res = func("_a");
+        expect(res).to.be.false;
+
+        res = func("-abc");
+        expect(res).to.be.false;
+
+        res = func(".abc");
+        expect(res).to.be.false;
+    });
+
     it("xcHelper.isValidTableName should work", function() {
         var res = xcHelper.isValidTableName("");
         expect(res).to.be.false;
@@ -1552,6 +1598,7 @@ describe("xcHelper Test", function() {
         res = xcHelper.isValidTableName(".abc");
         expect(res).to.be.false;
     });
+
 
     it("xcHelper.hasInvalidCharInCol should work", function() {
         var testCases = [

@@ -350,8 +350,8 @@ class CreatePublishTableModal {
 
     private _submitForm(): void {
         let name: string = this._$nameInput.val().trim().toUpperCase();
-        if (!xcHelper.isValidTableName(name)) {
-            StatusBox.show(ErrTStr.InvalidTableName, this._$nameInput);
+        if (!xcHelper.isValidPublishedTableName(name)) {
+            StatusBox.show(ErrTStr.InvalidPublishedTableName, this._$nameInput);
             return;
         }
         let keys: string[] = [];

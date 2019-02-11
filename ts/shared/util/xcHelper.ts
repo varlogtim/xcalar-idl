@@ -2397,8 +2397,8 @@ namespace xcHelper {
 
         if (newTableName === "") {
             error = ErrTStr.NoEmpty;
-        } else if (!xcHelper.isValidTableName(newTableName)) {
-            error = ErrTStr.InvalidTableName;
+        } else if (!xcHelper.isValidPublishedTableName(newTableName)) {
+            error = ErrTStr.InvalidPublishedTableName;
         } else if (newTableName.length >=
             XcalarApisConstantsT.XcalarApiMaxTableNameLen) {
             error = ErrTStr.TooLong;
@@ -3237,6 +3237,25 @@ namespace xcHelper {
         // cannot have any characters other than alphanumeric
         // or _ -
         return !/[^a-zA-Z\d\_\-]/.test(str);
+    }
+
+    /**
+     * xcHelper.isValidPublishedTableName
+     * @param str
+     */
+    export function isValidPublishedTableName(str: string): boolean {
+        if (str == null || str === "") {
+            return false;
+        }
+
+        // has to start with alpha character
+        if (!xcHelper.isStartWithLetter(str)) {
+            return false;
+        }
+
+        // cannot have any characters other than alphanumeric
+        // or _ -
+        return !/[^a-zA-Z\d\_]/.test(str);
     }
 
     /**

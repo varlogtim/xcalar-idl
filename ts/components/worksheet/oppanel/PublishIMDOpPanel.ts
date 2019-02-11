@@ -222,7 +222,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
 
         
         if (!xcHelper.tableNameInputChecker(this._$nameInput)) {
-            error = ErrTStr.InvalidTableName;
+            error = ErrTStr.InvalidPublishedTableName;
             $location = this._$nameInput;
         }
         const $keys = $(".IMDKey .primaryKeyList")

@@ -261,12 +261,12 @@ ErrTStr = {
     'InvalidFile': 'Please select a file or a folder',
     'InvalidAggName': 'Aggregate name should start with a letter and contain only letters, digits, hyphens(-) or underscores(_)',
     'InvalidTableName': 'Table name should start with a letter and contain only letters, digits, hyphens(-)(not for publish tables) or underscores(_)',
+    'InvalidPublishedTableName': 'Table name should start with a letter and contain only letters, digits, or underscores(_)',
     'InvalidWBName': 'Workbook name should start with a letter and contain only letters, digits, space, hyphens(-) or underscores(_)',
     'InvalidTargetName': 'Target name should start with a letter and contain only letters, digits, space, hyphens(-) or underscores(_)',
     'NoHashTag': 'Please input a valid name with no # symbols.',
     'NoSpecialChar': 'Please input a valid name with no special characters.',
-    'NoSpecialCharOrSpace': 'Please input a valid name with no special' +
-                            ' characters or spaces.',
+    'NoSpecialCharOrSpace': 'Please input a valid name with no special characters or spaces.',
     'NoSpecialCharInParam': 'No special characters or spaces allowed within' +
                             ' parameter braces.',
     'UnclosedParamBracket': 'Missing close bracket on parameter detected.',

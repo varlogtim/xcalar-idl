@@ -390,7 +390,7 @@ module.exports = {
     },
 
     "SchemaSelect": {
-        "Title": "Select Schema",
+        "Title": "Schema Wizard",
     },
 
     "workspaceBar": {

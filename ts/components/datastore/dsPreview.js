@@ -1933,10 +1933,12 @@ window.DSPreview = (function($, DSPreview) {
                 {
                     "$ele": $dsName,
                     "formMode": true,
-                    "error": ErrTStr.NoSpecialCharOrSpace,
+                    "error": isCreateTableMode() ? ErrTStr.InvalidPublishedTableName : ErrTStr.NoSpecialCharOrSpace,
                     "check": function() {
-                        return !xcHelper.checkNamePattern("dataset", "check",
-                                                          dsName);
+                        let invalid = isCreateTableMode() ?
+                        !xcHelper.isValidPublishedTableName(dsName): 
+                        !xcHelper.checkNamePattern(PatternCategory.Dataset, PatternAction.Check, dsName);
+                        return invalid;
                     }
                 }
             ]);
