@@ -884,7 +884,13 @@ class DagNodeSQL extends DagNode {
             } else if (err) {
                 deferred.reject(JSON.stringify(err));
             } else {
-                let error = xcHelper.getPromiseWhenError(<any>arguments);
+                let error = "Sending schema failed";
+                for (let i = 0; i < arguments.length; i++) {
+                    if (arguments[i]) {
+                        error += " at: " + arguments[i];
+                        break;
+                    }
+                }
                 deferred.reject(error);
             }
         });
