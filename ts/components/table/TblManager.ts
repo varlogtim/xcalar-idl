@@ -2311,10 +2311,6 @@ class TblManager {
             }
             if ($td.hasClass('jsonElement')) {
                 TblManager.unHighlightCells();
-                if (!$td.closest('.xcTableWrap').hasClass('jsonModalOpen')
-                ) {
-                    return;
-                }
                 if ($(event.target).closest(".pop").length) {
                     return;
                 }

@@ -753,6 +753,15 @@
         transform-origin: top left;
         overflow: visible;
         .position(absolute, @left: 0px, @top: 0px);
+
+        .ui-icon-gripsmall-diagonal-se {
+            opacity: 0;
+        }
+        &:hover, &.focused {
+            .ui-icon-gripsmall-diagonal-se {
+                opacity: 1;
+            }
+        }
     }
 
     .tempCommentArea {
