@@ -328,7 +328,7 @@ class DagGraph {
      * @param nodeId node's id
      * @returns {DagNode} dag node
      */
-    public getNode(nodeId: DagNodeId): DagNode {
+    public getNode(nodeId: DagNodeId): DagNode | null {
         return this._getNodeFromId(nodeId);
     }
 
@@ -859,7 +859,10 @@ class DagGraph {
             });
         } else {
             nodeIds.forEach((nodeId) => {
-                nodes.push(this.getNode(nodeId));
+                let node = this.getNode(nodeId);
+                if (node != null) {
+                    nodes.push(node);
+                }
             });
         }
         let travsesedSet: Set<DagNode> = new Set();
@@ -927,7 +930,10 @@ class DagGraph {
     ): DagSubGraphConnectionInfo {
         const subGraphMap = new Map<DagNodeId, DagNode>();
         for (const nodeId of nodeIds) {
-            subGraphMap.set(nodeId, this.getNode(nodeId));
+            let node = this.getNode(nodeId);
+            if (node != null) {
+                subGraphMap.set(nodeId, node);
+            }
         }
 
         const innerEdges: NodeConnection[] = [];
@@ -1832,12 +1838,14 @@ class DagGraph {
 
     }
 
-    private _getNodeFromId(nodeId: DagNodeId): DagNode {
+    private _getNodeFromId(nodeId: DagNodeId): DagNode | null {
         const node: DagNode = this.nodesMap.get(nodeId);
         if (node == null) {
-            throw new Error("Dag Node " + nodeId + " not exists");
+            console.error("Dag Node " + nodeId + " not exists");
+            return null;
+        } else {
+            return node;
         }
-        return node;
     }
 
     private _getRemovedNodeInfoFromId(nodeId: DagNodeId) {
@@ -1897,6 +1905,9 @@ class DagGraph {
     }
 
     private _traverseSwitchState(node: DagNode): Set<DagNode> {
+        if (node == null) {
+            return;
+        }
         const traversedSet: Set<DagNode> = new Set();
         if (this._hasTraversedInBulk(node)) {
             return traversedSet;
@@ -1946,13 +1957,16 @@ class DagGraph {
      */
     private _checkApplicableChild(nodes: DagNodeId[], callback: Function) {
         let seen: Set<string> = new Set();
-        let nodeStack: DagNode[] = nodes.map((nodeID: string) => {
-            return this.getNode(nodeID);
+        let nodeStack: DagNode[] = nodes.map((nodeId: string) => {
+            return this.getNode(nodeId);
         })
         let node: DagNode;
         let currId: DagNodeId;
         while (nodeStack.length != 0) {
             node = nodeStack.pop();
+            if (node == null) {
+                continue;
+            }
             currId = node.getId();
             if (!seen.has(currId)) {
                 if (callback(node)) {
@@ -2030,6 +2044,9 @@ class DagGraph {
         });
 
         function recursiveTraverse(node: DagNode, renameMap): void {
+            if (node == null) {
+                return;
+            }
             const children: DagNode[] = node.getChildren();
             const parentNodeId = node.getId();
             const nodeChildMap = {};

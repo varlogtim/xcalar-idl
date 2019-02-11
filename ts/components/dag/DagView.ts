@@ -673,11 +673,13 @@ class DagView {
             .then(() => {
                 if (UserSettings.getPref("dfAutoPreview") === true &&
                     nodeIds != null &&
-                    nodeIds.length === 1 &&
-                    !this.graph.getNode(nodeIds[0]).isOutNode()
+                    nodeIds.length === 1
                 ) {
                     const node: DagNode = this.graph.getNode(nodeIds[0]);
-                    if (node.getState() === DagNodeState.Complete) {
+                    if (node != null &&
+                        !node.isOutNode() &&
+                        node.getState() === DagNodeState.Complete
+                    ) {
                         DagViewManager.Instance.viewResult(node, this.tabId);
                     }
                 }
@@ -695,6 +697,9 @@ class DagView {
                     StatusBox.show(error.type, $node);
                 } else if (error) {
                     DagTabManager.Instance.switchTab(this.tabId);
+                    if (error.hasError && error.type) {
+                        error = error.type;
+                    }
                     Alert.error(null, error);
                 }
                 deferred.reject(error);
@@ -1062,6 +1067,9 @@ class DagView {
 
         // Currently only used by SQL node but can be extended for other nodes
         const childNode = this.graph.getNode(childNodeId);
+        if (childNode == null) {
+            return PromiseHelper.reject();
+        }
         const identifiers = childNode.getIdentifiers();
         let setNodeConfig;
         if (childNode.getType() === DagNodeType.Set) {
@@ -1137,6 +1145,9 @@ class DagView {
 
         if (parentNodeId) {
             parentNode = this.graph.getNode(parentNodeId);
+            if (parentNode == null) {
+                return null;
+            }
             if (parentNode.getMaxChildren() !== 0 && !node.isSourceNode()) {
                 connectToParent = true;
             }
@@ -1298,6 +1309,9 @@ class DagView {
         text: string
     ): XDPromise<void> {
         const node: DagNode = this.graph.getNode(nodeId);
+        if (node == null) {
+            return PromiseHelper.reject();
+        }
         const oldText: string = node.getDescription();
         this.dagTab.turnOffSave();
 
@@ -1325,6 +1339,11 @@ class DagView {
 
     public highlightLineage(nodeId: DagNodeId, childNodeId?: DagNodeId, type?: string): void {
         const $node = this._getNode(nodeId);
+        const node = this.graph.getNode(nodeId);
+        if (node == null) {
+            return;
+        }
+
         $node.addClass("lineageSelected");
         if (childNodeId) {
             const $edge: JQuery = this.$dfArea.find('.edge[data-parentnodeid="' +
@@ -1334,7 +1353,6 @@ class DagView {
                 '"]');
             $edge.addClass("lineageSelected");
         }
-        const node = this.graph.getNode(nodeId);
         let tipText = "";
         if (type === "rename") {
             tipText = CommonTxtTstr.Renamed;
@@ -1386,8 +1404,11 @@ class DagView {
         const excludeNodeTypes = new Set([DagNodeType.DFIn, DagNodeType.DFOut]);
         for (const nodeId of nodeIds) {
             // Cannot wrap these types of nodes inside a custom operator
-            if (excludeNodeTypes.has(this.graph.getNode(nodeId).getType()) ||
-                this.graph.getNode(nodeId) instanceof DagNodeOutOptimizable) {
+            let node: DagNode = this.graph.getNode(nodeId);
+            if (node != null && 
+                (excludeNodeTypes.has(node.getType()) ||
+                node instanceof DagNodeOutOptimizable
+            )) {
                 StatusBox.show(DagTStr.CustomOpTypeNotSupport, this._getNode(nodeId));
                 return PromiseHelper.reject('Type not support');
             }
@@ -2095,7 +2116,9 @@ class DagView {
         // let tab: DagTab = this.dagTab || SQLExecutor.getTab(this.tabId);
 
         const node: DagNode = this.graph.getNode(nodeId);
-
+        if (node == null) {
+            return;
+        }
         if (node.getType() === DagNodeType.SQL) {
             let subGraph = (<DagNodeSQL>node).getSubGraph();
             const subTabId: string = subGraph.getTabId();
@@ -2173,9 +2196,11 @@ class DagView {
             }
             const graph: DagGraph = dagTab.getGraph()
             const node: DagNode = graph.getNode(nodeId);
+            if (node == null) {
+                return;
+            }
 
             this._addProgressTooltip(graph, node, $dfArea, skewInfos, times);
-
             if (progress === 100) {
                 const totalTime: number = times.reduce((a, b) => a + b, 0);
                 const graph: DagGraph = dagTab.getGraph()
@@ -2251,6 +2276,9 @@ class DagView {
     // update the node's stats in a graph
     private _updateGraphProgress(nodeId: DagNodeId, tableInfos): void {
         const node = this.graph.getNode(nodeId);
+        if (node == null) {
+            return;
+        }
         let orderMap;
         if (node instanceof DagNodeSQL) {
             orderMap = {};
@@ -2492,6 +2520,9 @@ class DagView {
                 if (nodeId.startsWith("dag")) {
                     // Remove tabs for custom OP
                     const dagNode = this.graph.getNode(nodeId);
+                    if (dagNode == null) {
+                        return;
+                    }
                     if (dagNode instanceof DagNodeCustom ||
                         dagNode instanceof DagNodeSQL
                     ) {
@@ -3306,6 +3337,9 @@ class DagView {
     ): void {
         const parentNode: DagNode = this.graph.getNode(parentNodeId);
         const childNode: DagNode = this.graph.getNode(childNodeId);
+        if (parentNode == null || childNode == null) {
+            return;
+        }
         let numParents = childNode.getMaxParents();
         let numConnections = connectorIndex;
         let isMulti = false;
@@ -3403,6 +3437,9 @@ class DagView {
         nodeIds.forEach((nodeId) => {
             if (nodeId.startsWith("dag")) {
                 const node: DagNode = graph.getNode(nodeId);
+                if (node == null) {
+                    return;
+                }
                 let parentIds: DagNodeId[] = [];
                 let minParents: number = node.getMinParents();
                 let parents = node.getParents();
@@ -3550,9 +3587,12 @@ class DagView {
                     self._drawLineBetweenNodes(parentNodeId, childNodeId, index, svg);
                 }
             });
-        } else if (self.graph.getNode(childNodeId).getNumParent() === 0) {
-            $childConnector.removeClass("hasConnection")
+        } else  {
+            let node: DagNode = self.graph.getNode(childNodeId);
+            if (node != null && node.getNumParent() === 0) {
+                $childConnector.removeClass("hasConnection")
                 .addClass("noConnection");
+            }
         }
     }
 
@@ -3612,9 +3652,11 @@ class DagView {
             if (nodeInfo.type === "dagNode") {
                 const nodeId = nodeInfo.id;
                 const $el = this._getNode(nodeId);
-
-                nodeInfos[i].oldPosition = xcHelper.deepCopy(this.graph.getNode(nodeId)
-                    .getPosition())
+                const node: DagNode = this.graph.getNode(nodeId);
+                if (node == null) {
+                    return;
+                }
+                nodeInfos[i].oldPosition = xcHelper.deepCopy(node.getPosition())
                 this.graph.moveNode(nodeId, {
                     x: nodeInfo.position.x,
                     y: nodeInfo.position.y,
@@ -3727,7 +3769,11 @@ class DagView {
                     if (childNodeId === parentNodeId) {
                         return false;
                     }
-                    let index = self.graph.getNode(childNodeId).getNextOpenConnectionIndex();
+                    let node: DagNode = self.graph.getNode(childNodeId);
+                    if (node == null) {
+                        return false;
+                    }
+                    let index = node.getNextOpenConnectionIndex();
                     if (index === -1) {
                         return false;
                     } else {
@@ -3798,6 +3844,9 @@ class DagView {
 
                 const childNodeId: DagNodeId = $childNode.data("nodeid");
                 const childNode: DagNode = self.graph.getNode(childNodeId);
+                if (childNode == null) {
+                    return;
+                }
                 const connectorIndex: number = $childConnectorIn == null
                     ? childNode.getNextOpenConnectionIndex() // drop in the area other than connectors, connect to the next available input
                     : (childNode.canHaveMultiParents() // drop in one of the connectors
@@ -3853,6 +3902,9 @@ class DagView {
         let otherParentId;
 
         const childNode = self.graph.getNode(childNodeId);
+        if (childNode == null) {
+            return;
+        }
         const canHaveMultiParents: boolean = childNode.canHaveMultiParents();
         const connectorIndex = canHaveMultiParents
             ? childNode.getNextOpenConnectionIndex()
@@ -4007,6 +4059,9 @@ class DagView {
         }
         const nodeId: DagNodeId = $origTitle.closest(".operator").data("nodeid");
         const node = this.graph.getNode(nodeId);
+        if (node == null) {
+            return;
+        }
         if (node instanceof DagNodeSQLFuncIn && XVM.isSQLMode()) {
             // not allow modify input node in sql mode
             return;
@@ -4061,6 +4116,9 @@ class DagView {
         title: string
     ): XDPromise<void> {
         const node = this.graph.getNode(nodeId);
+        if (node == null) {
+            return PromiseHelper.reject();
+        }
         const oldTitle = node.getTitle();
         const $node = this._getNode(nodeId);
         this.dagTab.turnOffSave();
@@ -4088,6 +4146,9 @@ class DagView {
     } {
         const childNode = this.graph.getNode(childNodeId);
         const parentNode = this.graph.getNode(parentNodeId);
+        if (childNode == null || parentNode == null) {
+            return null;
+        }
         const childType = childNode.getType();
 
         if (parentNode.getType() === DagNodeType.Sort &&
@@ -4183,7 +4244,7 @@ class DagView {
         const childNode = this.graph.getNode(childNodeId);
         this._drawConnection(parentNodeId, childNodeId, connectorIndex, childNode.canHaveMultiParents(), true);
         childNode.setIdentifiers(options.identifiers);
-        if (options.setNodeConfig) {
+        if (options.setNodeConfig && childNode != null) {
             (<DagNodeSet> childNode).reinsertColumn(options.setNodeConfig, connectorIndex);
         }
 
@@ -4227,11 +4288,9 @@ class DagView {
 
         const nodeId: DagNodeId = $operator.data("nodeid");
         if (isDagNode && !MainMenu.isFormOpen()) {
-            try {
-                const node: DagNode = this.graph.getNode(nodeId);
+            const node: DagNode = this.graph.getNode(nodeId);
+            if (node != null) {
                 DagNodeInfoPanel.Instance.show(node);
-            } catch (e) {
-                console.error(e);
             }
         }
 

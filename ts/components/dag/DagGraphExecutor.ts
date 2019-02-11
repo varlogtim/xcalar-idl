@@ -74,6 +74,11 @@ class DagGraphExecutor {
 
         for (let i = 0; i < this._nodes.length; i++) {
             let node: DagNode = this._nodes[i];
+            if (node == null) {
+                errorResult.hasError = true;
+                errorResult.type = DagNodeErrorType.NoNode;
+                break;
+            }
             let aggs = node.getAggregates();
             if (node.getState() === DagNodeState.Unused) {
                 errorResult.hasError = true;

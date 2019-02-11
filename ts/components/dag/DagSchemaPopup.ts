@@ -20,6 +20,11 @@ class DagSchemaPopup {
         this._nodeId = nodeId;
         this._tabId = DagViewManager.Instance.getActiveDag().getTabId();
         this._dagNode = DagViewManager.Instance.getActiveDag().getNode(this._nodeId);
+        if (this._dagNode == null) {
+            console.error("error case");
+            return;
+        }
+        
         this._$popup.addClass("active");
         DagViewManager.Instance.getNode(this._nodeId, this._tabId).addClass("lineageStart");
         xcTooltip.hideAll();

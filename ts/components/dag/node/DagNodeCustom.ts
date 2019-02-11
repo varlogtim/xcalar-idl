@@ -33,7 +33,9 @@ class DagNodeCustom extends DagNode {
                     : connection.parentId;
                 const inputNode: DagNodeCustomInput
                     = <DagNodeCustomInput>subGraph.getNode(inputNodeId);
-                this._setInputPort(inputNode, connection.pos);
+                if (inputNode != null) {
+                    this._setInputPort(inputNode, connection.pos);
+                }
             }
 
             // Setup outputs
@@ -43,7 +45,9 @@ class DagNodeCustom extends DagNode {
                     : connection.childId;
                 const outputNode: DagNodeCustomOutput
                     = <DagNodeCustomOutput>this._subGraph.getNode(outputNodeId);
-                this._setOutputPort(outputNode, connection.pos);
+                if (outputNode != null) {
+                    this._setOutputPort(outputNode, connection.pos);
+                }
             }
 
             // Setup name

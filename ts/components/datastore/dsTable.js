@@ -481,9 +481,11 @@ window.DSTable = (function($, DSTable) {
                 source: source,
                 prefix: xcHelper.normalizePrefix(dsObj.getName())
             }, DagView.gridSpacing * 2, DagView.gridSpacing * 2);
-            DagNodeMenu.execute("configureNode", {
-                node: node
-            });
+            if (node != null) {
+                DagNodeMenu.execute("configureNode", {
+                    node: node
+                });
+            }
         }
     }
 

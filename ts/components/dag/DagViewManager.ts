@@ -986,7 +986,9 @@ class DagViewManager {
                     const nodeId: DagNodeId = $operator.data("nodeid");
                     if (!MainMenu.isFormOpen()) {
                         const node: DagNode = self.activeDag.getNode(nodeId);
-                        DagNodeInfoPanel.Instance.show(node);
+                        if (node != null) {
+                            DagNodeInfoPanel.Instance.show(node);
+                        }
                     }
                 }
             }

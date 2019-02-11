@@ -107,17 +107,21 @@ class DagSharedActionService {
     }
 
     private _messageAdapter(tab: DagTab, arg: any): any {
-        arg.tab = tab;
-        switch (arg.event) {
-            case DagNodeEvents.StateChange:
-                const nodeId: DagNodeId = arg.nodeId;
-                const dagNode: DagNode = tab.getGraph().getNode(nodeId);
-                arg.oldState = dagNode.getState();
-                arg.id = nodeId;
-                arg.node = dagNode;
-                return arg;
-            default:
-                return arg;
+        try {
+            arg.tab = tab;
+            switch (arg.event) {
+                case DagNodeEvents.StateChange:
+                    const nodeId: DagNodeId = arg.nodeId;
+                    const dagNode: DagNode = tab.getGraph().getNode(nodeId);
+                    arg.oldState = dagNode.getState();
+                    arg.id = nodeId;
+                    arg.node = dagNode;
+                    return arg;
+                default:
+                    return arg;
+            }
+        } catch (e) {
+            console.error(e);
         }
     }
 }

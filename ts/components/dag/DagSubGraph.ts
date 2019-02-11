@@ -117,8 +117,9 @@ class DagSubGraph extends DagGraph {
                 args = xcHelper.getXcalarInputFromNode(queryNode);
             }
             let nodeId: DagNodeId = this._nameIdMap[args.dest];
-            if (nodeId) { // could be a drop table node
-                this.getNode(nodeId).beRunningState();
+            let node: DagNode = this.getNode(nodeId);
+            if (node != null) { // could be a drop table node
+                node.beRunningState();
             }
         });
     }
@@ -145,7 +146,10 @@ class DagSubGraph extends DagGraph {
             nodeTableNames.push(tableName);
         }
         nodeIdToTableNamesMap.forEach((tableNames, nodeId) => {
-            this.getNode(nodeId).initializeProgress(tableNames);
+            let node: DagNode = this.getNode(nodeId);
+            if (node != null) {
+                node.initializeProgress(tableNames);
+            }
         });
     }
 
@@ -183,7 +187,10 @@ class DagSubGraph extends DagGraph {
         });
 
         for (let nodeId in nodeIdInfos) {
-            this.getNode(nodeId).updateProgress(nodeIdInfos[nodeId], true, true);
+            let node: DagNode = this.getNode(nodeId);
+            if (node != null) {
+                node.updateProgress(nodeIdInfos[nodeId], true, true);
+            }
         }
     }
 

@@ -30,6 +30,10 @@ class DagDescriptionModal {
         }
 
         this._node = DagViewManager.Instance.getActiveDag().getNode(nodeId);
+        if (this._node == null) {
+            // error case
+            return false;
+        }
         const curDescription: string = this._node.getDescription();
 
         if (curDescription) {
