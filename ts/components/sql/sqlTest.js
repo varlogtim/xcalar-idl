@@ -152,6 +152,10 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             }
             console.log("Query name: " + testName);
             var sqlString = queries[testName][0]["query"];
+            var enforce = true;
+            if (queries[testName][0].xcalarOpts && queries[testName][0].xcalarOpts.enforce === false) {
+                enforce = false;
+            }
             console.log(sqlString);
             outerPromise.then(function() {
                 if (testType === "tableau") {
@@ -182,7 +186,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                         });
                     }
                     curPromise = curPromise.then(function() {
-                        if (checkResult(answerSet, testName)) {
+                        if (checkResult(answerSet, testName) || !enforce) {
                             test.pass(deferred, testName, currentTestNumber);
                         } else {
                             test.fail(deferred, testName, currentTestNumber, "WrongAnswer");
@@ -237,7 +241,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                         }
                     })
                     .then(function() {
-                        if (checkResult(answerSet, testName)) {
+                        if (checkResult(answerSet, testName) || !enforce) {
                             test.pass(deferred, testName, currentTestNumber);
                         } else {
                             test.fail(deferred, testName, currentTestNumber, "WrongAnswer");
@@ -256,8 +260,11 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         }
 
         for (var queryName in queries) {
-            var sqlString = queries[queryName][0]["query"];
-            test.add(runQuery, queryName, defaultTimeout, TestCaseEnabled);
+            if (!(queries[queryName][0].xcalarOpts
+                && queries[queryName][0].xcalarOpts.enable === false)) {
+                var sqlString = queries[queryName][0]["query"];
+                test.add(runQuery, queryName, defaultTimeout, TestCaseEnabled);
+            }
         }
     }
     function checkResult(answerSet, queryName) {
