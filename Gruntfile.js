@@ -732,6 +732,7 @@ var HTML_BUILD_FILES = []; // a final list of all the bld files, rel. to bld des
 //         being included at a different level).  If not supplied assumes bld root
 var PARSE_FILES_FOR_MINIFICATION = [
     {'path': 'site/partials/loginPart.html','rel': "assets/htmlFiles/"},
+    {'path': 'site/partials/loginHeadTags.html', 'rel': "assets/htmlFiles"},
     {'path': 'site/partials/script.html'},
 ];
 var MINIFY_FILE_EXT = ".js"; // extenion minified files will have
