@@ -389,10 +389,7 @@ namespace WorkbookManager {
             return XcalarActivateWorkbook(wkbkName);
         })
         .then(() => {
-            return writeResetDagFlag(wkbkName, false);
-        })
-        .then(() => {
-            return writeResetDagFlag(wkbkName, true);
+            return writeResetDagFlag(wkbkName);
         })
         .then(deferred.resolve)
         .fail(function(error) {
@@ -429,10 +426,10 @@ namespace WorkbookManager {
         return deferred.promise();
     }
 
-    function writeResetDagFlag(workbookName: string, sqlMode: boolean): XDPromise<void> {
+    function writeResetDagFlag(workbookName: string): XDPromise<void> {
         const currentSession: string = sessionName;
         setSessionName(workbookName);
-        const promise = DagList.Instance.markToResetDags(sqlMode);
+        const promise = DagList.Instance.markToResetDags();
         setSessionName(currentSession);
         return PromiseHelper.alwaysResolve(promise);
     }
@@ -931,13 +928,11 @@ namespace WorkbookManager {
         const gAuthKey: string = generateKey("authentication", version);
         const gSQLTablesKey: string = generateKey("gSQLTables", version);
         const gDagManagerKey: string = generateKey("gDagManagerKey", version);
-        const gSQLFuncManagerKey: string = generateKey("gSQLFuncManagerKey", version);
         const gDagTableManagerKey: string = generateKey("gDagTableManagerKey", version);
         const gDagAggKey: string = generateKey("gDagAggKey", version);
         const gDagListKey: string = generateKey("gDagListKey", version);
         const gSQLFuncListKey: string = generateKey("gSQLFuncListKey", version);
         const gDagResetKey: string = generateKey("gDagResetKey", version);
-        const gSQLFuncResetKey: string = generateKey("gSQLFuncResetKey", version);
         const gDagParamKey: string = generateKey("gDagParamKey", version);
         const gSQLQueryKey: string = generateKey("gSQLQuery", version);
         const gSQLSnippetKey: string = generateKey("gSQLSnippet", version);
@@ -956,13 +951,11 @@ namespace WorkbookManager {
             "gSQLTables": gSQLTablesKey,
             "gSQLQuery": gSQLQueryKey,
             "gDagManagerKey": gDagManagerKey,
-            "gSQLFuncManagerKey": gSQLFuncManagerKey,
             "gDagTableManagerKey": gDagTableManagerKey,
             "gDagAggKey": gDagAggKey,
             "gDagListKey": gDagListKey,
             "gSQLFuncListKey": gSQLFuncListKey,
             "gDagResetKey": gDagResetKey,
-            "gSQLFuncResetKey": gSQLFuncResetKey,
             "gDagParamKey": gDagParamKey,
             "gSQLSnippet": gSQLSnippetKey,
             "gSQLSnippetQuery": gSQLSnippetQueryKey,

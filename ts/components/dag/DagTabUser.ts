@@ -137,7 +137,7 @@ class DagTabUser extends DagTab {
             if (reset) {
                 graph = this._resetHelper(dagInfo.dag);
                 this._reset = false;
-                DagList.Instance.save();
+                DagList.Instance.saveUserDagList();
             }
             this.setGraph(graph);
 
@@ -308,7 +308,7 @@ class DagTabUser extends DagTab {
         try {
             let name: string = dagInfo.name;
             if (name.startsWith(".temp/" + DagTabSQLFunc.KEY)) {
-                return DFTStr.NoSQLFuncUploadInAdv;
+                return DFTStr.InvalidSQLFuncUpload;
             }
         } catch (e) {
             console.error(e);

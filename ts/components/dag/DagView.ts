@@ -134,7 +134,7 @@ class DagView {
     }
 
     public static newSQLFunc(numInput) {
-        DagTabManager.Instance.newTab();
+        DagTabManager.Instance.newSQLFunc();
         // add input
         const base: number = 40;
         const inc: number = 80;
@@ -804,6 +804,7 @@ class DagView {
         this.dagTab.turnOffSave();
 
         try {
+            let isSQLFunc = (this.dagTab instanceof DagTabSQLFunc);
             nodeInfos.forEach((nodeInfo) => {
                 nodeInfo = xcHelper.deepCopy(nodeInfo);
                 nodeInfo.display.x += xDelta;
@@ -824,12 +825,31 @@ class DagView {
                     // since this is a deep copy, nodeInfos still has the parents
                     delete nodeInfo.parents;
                     const newNode: DagNode = this.graph.newNode(nodeInfo);
-                    if (newNode.getType() == DagNodeType.Aggregate &&
+                    let nodeType: DagNodeType = newNode.getType();
+                    if (nodeType == DagNodeType.Aggregate &&
                         newNode.getState() == DagNodeState.Configured) {
                         newNode.beErrorState(xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
                             name: newNode.getParam().dest,
                             aggPrefix: ""
                         }));
+                    }
+                    // filter out invalid case
+                    if (isSQLFunc) {
+                        if (newNode.getMaxParents() === 0 && nodeType !== DagNodeType.SQLFuncIn ||
+                            newNode.isOutNode() && nodeType !== DagNodeType.SQLFuncOut ||
+                            nodeType === DagNodeType.Extension ||
+                            nodeType === DagNodeType.Custom
+                        ) {
+                            this.graph.removeNode(newNode.getId(), false);
+                            return;
+                        }
+                    } else {
+                        if (nodeType === DagNodeType.SQLFuncIn ||
+                            nodeType === DagNodeType.SQLFuncOut
+                        ) {
+                            this.graph.removeNode(newNode.getId(), false);
+                            return;
+                        }
                     }
                     const newNodeId: DagNodeId = newNode.getId();
                     oldNodeIdMap[nodeInfo.nodeId] = newNodeId;
@@ -970,7 +990,8 @@ class DagView {
         //always resolves
         this._removeNodesNoPersist(nodeIds)
         .then((ret) => {
-            let promise;
+            let promise = PromiseHelper.resolve();
+            let shouldSave: boolean = false;
             if (ret == null) {
                 promise = PromiseHelper.reject();
             } else {
@@ -980,10 +1001,14 @@ class DagView {
                 if (ret.hasLinkOut) {
                     this.checkLinkInNodeValidation();
                 }
-                promise = this.dagTab.save();
+                shouldSave = true;
             }
             this.dagTab.turnOnSave();
-            return promise;
+            if (shouldSave) {
+                return this.dagTab.save();
+            } else {
+                return promise;
+            }
         })
         .then(deferred.resolve)
         .then(deferred.reject);
@@ -1904,8 +1929,6 @@ class DagView {
             DagTabManager.Instance.newCustomTab(dagNode);
         }
     }
-
-
 
     /**
      * Open a tab to show SQL sub graph for viewing purpose
@@ -4083,7 +4106,7 @@ class DagView {
         if (node == null) {
             return;
         }
-        if (node instanceof DagNodeSQLFuncIn && XVM.isSQLMode()) {
+        if (node instanceof DagNodeSQLFuncIn) {
             // not allow modify input node in sql mode
             return;
         }

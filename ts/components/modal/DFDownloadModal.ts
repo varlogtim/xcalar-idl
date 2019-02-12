@@ -325,7 +325,7 @@ class DFDownloadModal {
                 this._downloadType = $li.data("type");
                 let $checkboxSection = this._getOptimizedCheckboxSection();
                 if (this._downloadType === this._DownloadTypeEnum.DF &&
-                    XVM.isAdvancedMode()
+                    !(this._dagTab instanceof DagTabSQLFunc)
                 ) {
                     $checkboxSection.removeClass("inVisible");
                 } else {

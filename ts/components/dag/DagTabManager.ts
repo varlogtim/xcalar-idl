@@ -29,15 +29,6 @@ class DagTabManager {
         this._getManagerDataAsync();
     }
 
-    /**
-     * DagTabManager.Instance.switchMode
-     */
-    public switchMode(): XDPromise<void> {
-        this._clear();
-        this._initialize();
-        return this._getManagerDataAsync();
-    }
-
     public getTabs(): DagTab[] {
         return this._activeUserDags;
     }
@@ -94,12 +85,28 @@ class DagTabManager {
     }
 
     /**
-     *  Creates a new Tab and dataflow.
+     * DagTabManager.Instance.newTab
+     * Creates a new Tab and dataflow.
      */
     public newTab(): void {
         const name: string = DagList.Instance.getValidName();
         const graph: DagGraph = new DagGraph();
-        const tab: DagTab = this._newTab(name, graph);
+        const tab: DagTab = this._newTab(name, graph, false);
+        this._tabListScroller.showOrHideScrollers();
+        Log.add(SQLTStr.NewTab, {
+            "operation": SQLOps.NewDagTab,
+            "dataflowId": tab.getId()
+        });
+    }
+
+    /**
+     * DagTabManager.Instance.newSQLFunc
+     * @param graph
+     */
+    public newSQLFunc(): void {
+        const name: string = DagList.Instance.getValidName(null, false, true);
+        const graph: DagGraph = new DagGraph();
+        const tab: DagTab = this._newTab(name, graph, true);
         this._tabListScroller.showOrHideScrollers();
         Log.add(SQLTStr.NewTab, {
             "operation": SQLOps.NewDagTab,
@@ -229,8 +236,9 @@ class DagTabManager {
         }
 
         let name: string = tab.getName().replace(/\//g, "_");
-        name = DagList.Instance.getValidName(name, true);
-        this._newTab(name, graph.clone());
+        let isSQLFunc: boolean = (tab instanceof DagTabSQLFunc);
+        name = DagList.Instance.getValidName(name, true, isSQLFunc);
+        this._newTab(name, graph.clone(), isSQLFunc);
         Log.add(SQLTStr.DupTab, {
             "operation": SQLOps.DupDagTab,
             "dataflowId": tab.getId()
@@ -377,12 +385,7 @@ class DagTabManager {
     }
 
     private _initialize(): void {
-        let key: string = null;
-        if (XVM.isSQLMode()) {
-            key = KVStore.getKey("gSQLFuncManagerKey");
-        } else {
-            key = KVStore.getKey("gDagManagerKey");
-        }
+        let key: string = KVStore.getKey("gDagManagerKey");
         this._dagKVStore = new KVStore(key, gKVScope.WKBK);
         this._activeUserDags = [];
         this._cachedSQLDags = {};
@@ -526,9 +529,9 @@ class DagTabManager {
         }
     }
 
-    private _newTab(name: string, graph: DagGraph): DagTab {
-        let newDagTab: DagTabUser;
-        if (XVM.isSQLMode()) {
+    private _newTab(name: string, graph: DagGraph, isSQLFunc: boolean): DagTab {
+        let newDagTab: DagTab;
+        if (isSQLFunc) {
             newDagTab = new DagTabSQLFunc(name, null, graph, null, xcTimeHelper.now());
         } else {
             newDagTab = new DagTabUser(name, null, graph, null, xcTimeHelper.now());
@@ -729,8 +732,17 @@ class DagTabManager {
         const isEditable: boolean = (dagTab instanceof DagTabUser);
         const isViewOnly: boolean = (dagTab instanceof DagTabOptimized);
         const isOptimized: boolean = (dagTab instanceof DagTabOptimized);
+        const isSQLFunc: boolean = (dagTab instanceof DagTabSQLFunc);
+
+        let extraClass = "";
+        if (isOptimized) {
+            extraClass += " optimized";
+        }
+        if (isSQLFunc) {
+            extraClass += " sqlFunc";
+        }
         let html: HTML =
-            '<li class="dagTab ' + (isOptimized? 'optimized': '') + '">' +
+            '<li class="dagTab' + extraClass + '">' +
                 '<i class="icon xi-ellipsis-v dragIcon" ' + xcTooltip.Attrs+ ' data-original-title="' + CommonTxtTstr.HoldToDrag+ '"></i>' +
                 '<div class="name ' + (isEditable? '': 'nonedit') + '">' +
                     tabName +
@@ -776,17 +788,18 @@ class DagTabManager {
     }
 
     private _tabRenameCheck(name: string, $tab: JQuery): boolean {
+        let isSQLFunc: boolean = $tab.hasClass("sqlFunc");
         const isValid: boolean = xcHelper.validate([{
             $ele: $tab,
-            error: XVM.isSQLMode() ? SQLTStr.DupFuncName : DFTStr.DupDataflowName,
+            error: isSQLFunc ? SQLTStr.DupFuncName : DFTStr.DupDataflowName,
             check: () => {
                 return !DagList.Instance.isUniqueName(name);
             }
         }, {
             $ele: $tab,
-            error: XVM.isSQLMode() ? ErrTStr.SQLFuncNameIllegal : ErrTStr.DFNameIllegal,
+            error: isSQLFunc ? ErrTStr.SQLFuncNameIllegal : ErrTStr.DFNameIllegal,
             check: () => {
-                let category = XVM.isSQLMode() ? PatternCategory.SQLFunc : PatternCategory.Dataflow;
+                let category = isSQLFunc ? PatternCategory.SQLFunc : PatternCategory.Dataflow;
                 return !xcHelper.checkNamePattern(category, PatternAction.Check, name);
             }
         }])
@@ -863,14 +876,15 @@ class DagTabManager {
             let $tabInput: JQuery = $(event.currentTarget);
             let $tabName: JQuery = $tabInput.parent();
             let newName: string = $tabInput.text().trim();
-            if (XVM.isSQLMode()) {
-                // sql mode force name to be case insensitive
-                newName = newName.toLowerCase();
-            }
 
             let $tab: JQuery = $tabName.parent();
             let index: number = $tab.index();
             const dagTab: DagTab = this.getTabByIndex(index);
+            if (dagTab instanceof DagTabSQLFunc) {
+                // sql func force name to be case insensitive
+                newName = newName.toLowerCase();
+            }
+
             if (dagTab != null &&
                 newName != dagTab.getName() &&
                 this._tabRenameCheck(newName, $tabName)

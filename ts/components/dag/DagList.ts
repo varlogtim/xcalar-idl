@@ -9,7 +9,6 @@ class DagList {
 
     private _dags: Map<string, DagTab>;
     private _fileLister: FileLister;
-    private _kvStore: KVStore;
     private _initialized: boolean;
 
     private constructor() {
@@ -24,17 +23,21 @@ class DagList {
      */
     public setup(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const isAdvancedMode: boolean = XVM.isAdvancedMode();
-        this._restoreLocalDags(isAdvancedMode)
-        .then(() => {
-            if (isAdvancedMode) {
-                return this._restorePublishedDags();
-            }
+        let needReset: boolean = true;
+
+        this._checkIfNeedReset()
+        .then((res) => {
+            needReset = res;
+            return this._restoreLocalDags(needReset);
         })
         .then(() => {
-            if (isAdvancedMode) {
-                return this._fetchAllRetinas();
-            }
+            return this._restoreSQLFuncDag(needReset);
+        })
+        .then(() => {
+            return this._restorePublishedDags();
+        })
+        .then(() => {
+            return this._fetchAllRetinas();
         })
         .then(() => {
             this._renderDagList(false);
@@ -45,16 +48,6 @@ class DagList {
         .fail(deferred.reject);
 
         return deferred.promise();
-    }
-
-    public swithMode(): XDPromise<void> {
-        if (XVM.isSQLMode()) {
-            $("#dagList").addClass("sqlMode");
-        } else {
-            $("#dagList").removeClass("sqlMode");
-        }
-        this._initialize();
-        return this.setup();
     }
 
     /**
@@ -93,6 +86,13 @@ class DagList {
                     id: tabId,
                     options: {isOpen: dagTab.isOpen()}
                 });
+            } else if (dagTab instanceof DagTabSQLFunc) {
+                path = dagTab.getPath();
+                userList.push({
+                    path: path,
+                    id: tabId,
+                    options: {isOpen: dagTab.isOpen()}
+                });
             } else {
                 let dagName: string = dagTab.getName();
                 if (this._isForSQLFolder(tabId)) {
@@ -121,11 +121,27 @@ class DagList {
     }
 
     public listUserDagAsync(): XDPromise<{dags: {name: string, id: string}[]}> {
-        return this._kvStore.getAndParse();
+        let kvStore = this._getUserDagKVStore();
+        return kvStore.getAndParse();
     }
 
-    public save(): XDPromise<void> {
+    public listSQLFuncAsync(): XDPromise<{dags: {name: string, id: string}[]}> {
+        let kvStore = this._getSQLFuncKVStore();
+        return kvStore.getAndParse();
+    }
+
+    /**
+     * DagList.Instance.saveUserDagList
+     */
+    public saveUserDagList(): XDPromise<void> {
         return this._saveUserDagList();
+    }
+
+    /**
+     * DagList.Instance.saveSQLFuncList
+     */
+    public saveSQLFuncList(): XDPromise<void> {
+        return this._saveSQLFuncList();
     }
 
     public refresh(): XDPromise<void> {
@@ -173,9 +189,12 @@ class DagList {
         if (!this._initialized) {
             return false;
         }
-        if (dagTab instanceof DagTabUser) {
+
+        if (dagTab instanceof DagTabSQLFunc ||
+            dagTab instanceof DagTabUser
+        ) {
             this._dags.set(dagTab.getId(), dagTab);
-            this._saveUserDagList();
+            this._saveDagList(dagTab);
         } else if (dagTab instanceof DagTabPublished) {
             this._dags.set(dagTab.getId(), dagTab);
         }
@@ -195,10 +214,13 @@ class DagList {
         if (dagTab == null) {
             return;
         }
-        if (dagTab instanceof DagTabUser) {
-            // this is a rename of user dag
+
+        if (dagTab instanceof DagTabSQLFunc ||
+            dagTab instanceof DagTabUser
+        ) {
+            // this is a rename of SQL Function
             dagTab.setName(newName);
-            this._saveUserDagList();
+            this._saveDagList(dagTab);
             $li.find(".name").text(newName);
         }
         // not support rename published df now
@@ -245,19 +267,22 @@ class DagList {
     /**
      * Return a valid name for new dafaflow tab
      */
-    public getValidName(prefixName?: string, hasBracket?: boolean): string {
-        const isSQLMode: boolean = XVM.isSQLMode();
-        const prefix: string = prefixName || (isSQLMode ? "fn" : "Dataflow");
+    public getValidName(
+        prefixName?: string,
+        hasBracket?: boolean,
+        isSQLFunc?: boolean
+    ): string {
+        const prefix: string = prefixName || (isSQLFunc ? "fn" : "Dataflow");
         const nameSet: Set<string> = new Set();
         let cnt: number = 1;
         this._dags.forEach((dagTab) => {
             nameSet.add(dagTab.getName());
-            if (!isSQLMode && dagTab instanceof DagTabUser) {
+            if (!isSQLFunc && dagTab instanceof DagTabUser) {
                 let tabId: string = dagTab.getId();
                 if (!this._isForSQLFolder(tabId)) {
                     cnt++;
                 }
-            } else if (isSQLMode && dagTab instanceof DagTabSQLFunc) {
+            } else if (isSQLFunc && dagTab instanceof DagTabSQLFunc) {
                 cnt++;
             }
         });
@@ -265,14 +290,14 @@ class DagList {
             cnt = 0;
         }
         let name: string;
-        if (isSQLMode) {
+        if (isSQLFunc) {
             name = prefixName ? prefix : `${prefix}${cnt}`;
         } else {
             name = prefixName ? prefix : `${prefix} ${cnt}`;
         }
         while(nameSet.has(name)) {
             cnt++;
-            if (isSQLMode) {
+            if (isSQLFunc) {
                 name = `${prefix}${cnt}`;
             } else {
                 name = hasBracket ? `${prefix}(${cnt})` : `${prefix} ${cnt}`;
@@ -303,9 +328,7 @@ class DagList {
         .then(() => {
             $dagListItem.remove();
             this._dags.delete(id);
-            if (dagTab instanceof DagTabUser) {
-                this._saveUserDagList();
-            }
+            this._saveDagList(dagTab);
             this._renderDagList();
             this._updateSection();
             deferred.resolve();
@@ -325,8 +348,11 @@ class DagList {
         this._getListElById(id).addClass("active");
     }
 
-    public markToResetDags(sqlMode: boolean): XDPromise<void> {
-        const kvStore = this._getResetMarkKVStore(sqlMode);
+    /**
+     * DagList.Instance.markToResetDags
+     */
+    public markToResetDags(): XDPromise<void> {
+        const kvStore = this._getResetMarkKVStore();
         return kvStore.put("reset", false, true);
     }
 
@@ -339,25 +365,31 @@ class DagList {
         this._getDagListSection().find(".dagListDetails ul").empty();
         DagTabManager.Instance.reset();
         this._saveUserDagList();
+        this._saveSQLFuncList();
         this._updateSection();
     }
 
+    /**
+     * DagList.Instance.gotToSQLFuncFolder
+     * @param path
+     */
+    public gotToSQLFuncFolder(): void {
+        this._fileLister.goToPath("/" + DagTabSQLFunc.HOMEDIR + "/");
+    }
+
     private _initialize(): void {
-        this._setLocalKVStore();
         this._dags = new Map();
         this._initialized = false;
     }
 
-    private _setLocalKVStore(): void {
-        let key: string = null;
-        if (XVM.isAdvancedMode()) {
-            key = KVStore.getKey("gDagListKey");
-        } else {
-            // sql mode
-            key = KVStore.getKey("gSQLFuncListKey");
+    private _getUserDagKVStore(): KVStore {
+        let key: string = KVStore.getKey("gDagListKey");
+        return new KVStore(key, gKVScope.WKBK);
+    }
 
-        }
-        this._kvStore = new KVStore(key, gKVScope.WKBK);
+    private _getSQLFuncKVStore(): KVStore {
+        let key: string = KVStore.getKey("gSQLFuncListKey");
+        return new KVStore(key, gKVScope.WKBK);
     }
 
     private _setupFileLister(): void {
@@ -425,16 +457,11 @@ class DagList {
         StatusBox.show(DFTStr.LoadErr, $dagListItem);
     }
 
-    private _restoreLocalDags(isAdvancedMode: boolean): XDPromise<void> {
+    private _restoreLocalDags(needReset: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let userDagTabs: DagTabUser[] = [];
-        let needReset: boolean = false;
-
-        this._checkIfNeedReset(isAdvancedMode)
-        .then((res) => {
-            needReset = res;
-            return this.listUserDagAsync();
-        })
+        
+        this.listUserDagAsync()
         .then((res: {dags: {name: string, id: string, reset: boolean, createdTime: number}[]}) => {
             let dags: {name: string, id: string, reset: boolean, createdTime: number}[] = [];
             if (res && res.dags) {
@@ -445,11 +472,7 @@ class DagList {
                     });
                 }
             }
-            if (isAdvancedMode) {
-                return DagTabUser.restore(dags);
-            } else {
-                return DagTabSQLFunc.restore(dags);
-            }
+            return DagTabUser.restore(dags);
         })
         .then((dagTabs, metaNotMatch) => {
             userDagTabs = dagTabs;
@@ -459,6 +482,42 @@ class DagList {
             if (metaNotMatch || needReset) {
                 // if not match, commit sycn up dag list
                 return this._saveUserDagList();
+            }
+        })
+        .then(deferred.resolve)
+        .fail((error) => {
+            console.error(error);
+            deferred.resolve(); // still resolve it
+        });
+
+        return deferred.promise();
+    }
+
+    private _restoreSQLFuncDag(needReset: boolean): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let sqFuncDagTabs: DagTab[] = [];
+        
+        this.listSQLFuncAsync()
+        .then((res: {dags: {name: string, id: string, reset: boolean, createdTime: number}[]}) => {
+            let dags: {name: string, id: string, reset: boolean, createdTime: number}[] = [];
+            if (res && res.dags) {
+                dags = res.dags;
+                if (needReset) {
+                    dags.forEach((dagInfo) => {
+                        dagInfo.reset = true;
+                    });
+                }
+            }
+            return DagTabSQLFunc.restore(dags);
+        })
+        .then((dagTabs, metaNotMatch) => {
+            sqFuncDagTabs = dagTabs;
+            sqFuncDagTabs.forEach((dagTab) => {
+                this._dags.set(dagTab.getId(), dagTab);
+            });
+            if (metaNotMatch || needReset) {
+                // if not match, commit sycn up dag list
+                return this._saveSQLFuncList();
             }
         })
         .then(deferred.resolve)
@@ -541,20 +600,14 @@ class DagList {
         return deferred.promise();
     }
 
-    private _getResetMarkKVStore(sqlMode: boolean): KVStore {
-        let key: string;
-        if (sqlMode) {
-            key = KVStore.getKey("gSQLFuncResetKey");
-        } else {
-            key = KVStore.getKey("gDagResetKey");
-        }
+    private _getResetMarkKVStore(): KVStore {
+        let key: string = KVStore.getKey("gDagResetKey");
         return new KVStore(key, gKVScope.WKBK);
     }
 
-    private _checkIfNeedReset(isAdvancedMode: boolean): XDPromise<boolean> {
+    private _checkIfNeedReset(): XDPromise<boolean> {
         const deferred: XDDeferred<boolean> = PromiseHelper.deferred();
-        const isSQLMode: boolean = !isAdvancedMode;
-        const kvStore = this._getResetMarkKVStore(isSQLMode);
+        const kvStore = this._getResetMarkKVStore();
         let reset: boolean = false;
 
         kvStore.get()
@@ -575,20 +628,28 @@ class DagList {
         return deferred.promise();
     }
 
+    private _saveDagList(dagTabToChange: DagTab): XDPromise<void> {
+        if (dagTabToChange instanceof DagTabSQLFunc) {
+            return this._saveSQLFuncList();
+        } else if (dagTabToChange instanceof DagTabUser) {
+            return this._saveUserDagList();
+        } else {
+            return PromiseHelper.resolve();
+        }
+    }
+
     private _saveUserDagList(): XDPromise<void> {
         const dags: {name: string, id: string, reset: boolean, createdTime: number}[] = [];
         this._dags.forEach((dagTab) => {
-            if (dagTab instanceof DagTabUser) {
-                dags.push({
-                    name: dagTab.getName(),
-                    id: dagTab.getId(),
-                    reset: dagTab.needReset(),
-                    createdTime: dagTab.getCreatedTime()
-                });
+            if (dagTab instanceof DagTabUser &&
+                !(dagTab instanceof DagTabSQLFunc)
+            ) {
+                dags.push(this._getSerializableDagList(dagTab));
             }
         });
         const jsonStr: string = JSON.stringify({dags: dags});
-        const promise = this._kvStore.put(jsonStr, true, true);
+        const kvStore = this._getUserDagKVStore();
+        const promise = kvStore.put(jsonStr, true, true);
         const activeWKBKId = WorkbookManager.getActiveWKBK();
         if (activeWKBKId != null) {
             const workbook = WorkbookManager.getWorkbooks()[activeWKBKId];
@@ -596,6 +657,32 @@ class DagList {
         }
         KVStore.logSave(true);
         return promise;
+    }
+
+    private _saveSQLFuncList(): XDPromise<void> {
+        const dags: {name: string, id: string, reset: boolean, createdTime: number}[] = [];
+        this._dags.forEach((dagTab) => {
+            if (dagTab instanceof DagTabSQLFunc) {
+                dags.push(this._getSerializableDagList(dagTab));
+            }
+        });
+        const jsonStr: string = JSON.stringify({dags: dags});
+        const kvStore = this._getSQLFuncKVStore();
+        return kvStore.put(jsonStr, true, true);
+    }
+
+    private _getSerializableDagList(dagTab: DagTabUser | DagTabSQLFunc): {
+        name: string,
+        id: string,
+        reset: boolean,
+        createdTime: number
+    } {
+        return {
+            name: dagTab.getName(),
+            id: dagTab.getId(),
+            reset: dagTab.needReset(),
+            createdTime: dagTab.getCreatedTime()
+        }
     }
 
     private _updateSection(): void {

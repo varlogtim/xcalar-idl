@@ -19,12 +19,6 @@ class DFUploadModal {
 
     public show(): void {
         this._modalHelper.setup();
-        let $rowsForAdvOnly = this._getModal().find(".row.restoreDS");
-        if (XVM.isSQLMode()) {
-            $rowsForAdvOnly.addClass("xc-hidden");
-        } else {
-            $rowsForAdvOnly.removeClass("xc-hidden");
-        }
     }
 
     private _getModal(): JQuery {
@@ -47,6 +41,7 @@ class DFUploadModal {
         $modal.find(".confirm").addClass("btn-disabled");
         $modal.find(".checkbox").removeClass("checked");
         xcTooltip.enable($modal.find(".buttonTooltipWrap"));
+        this._toggleSQLFunc(false);
     }
 
     private _validate(): {
@@ -54,19 +49,20 @@ class DFUploadModal {
         shared: boolean
     } {
         const sharePrefix: string = DagTabPublished.PATH.substring(1); // Shared/
-        let uploadTab: DagTab;
-
         const $pathInput: JQuery = this._getDestPathInput();
-        let path: string = $pathInput.val().trim();
+        let path: string = this._getDestPath();
+        let isSQLFunc: boolean = this._isSQLFunc();
+
+        let uploadTab: DagTab;
         let shortName: string;
-        let shared: boolean ;
+        let shared: boolean;
 
         if (path.startsWith(sharePrefix)) {
             shared = true;
             path = path.substring(sharePrefix.length);
             uploadTab = new DagTabPublished(path);
             shortName = (<DagTabPublished>uploadTab).getShortName();
-        } else if (XVM.isSQLMode()) {
+        } else if (isSQLFunc) {
             shared = false;
             uploadTab = new DagTabSQLFunc(path, null, null, null, xcTimeHelper.now());
             shortName = uploadTab.getName();
@@ -92,9 +88,9 @@ class DFUploadModal {
             }
         },{
             $ele: $pathInput,
-            error: XVM.isSQLMode() ? ErrTStr.SQLFuncNameIllegal : ErrTStr.DFNameIllegal,
+            error: isSQLFunc ? ErrTStr.SQLFuncNameIllegal : ErrTStr.DFNameIllegal,
             check: () => {
-                let category = XVM.isSQLMode() ? PatternCategory.SQLFunc : PatternCategory.Dataflow;
+                let category = isSQLFunc ? PatternCategory.SQLFunc : PatternCategory.Dataflow;
                 return !xcHelper.checkNamePattern(category, PatternAction.Check, shortName);
             }
         }, {
@@ -125,10 +121,11 @@ class DFUploadModal {
 
         const tab: DagTab = res.tab;
         const shared: boolean = res.shared;
+        const isSQLFunc: boolean = this._isSQLFunc();
         const file: File = this._file;
         const overwriteUDF: boolean = this._getModal().find(".overwrite .checkboxSection")
         .find(".checkbox").hasClass("checked");
-        const restoreDS: boolean = XVM.isSQLMode() ? false: 
+        const restoreDS: boolean = isSQLFunc ? false: 
         this._getModal().find(".restoreDS .checkboxSection").find(".checkbox").hasClass("checked");
 
         let timer: number = null;
@@ -259,6 +256,27 @@ class DFUploadModal {
         return deferred.promise();
     }
 
+    private _toggleSQLFunc(isSQLFunc): void {
+        let $modal = this._getModal();
+        let $prefix = $modal.find(".row.dest .prefix");
+
+        if (isSQLFunc) {
+            $modal.addClass("sqlFunc");
+            $prefix.text(DagTabSQLFunc.HOMEDIR + "/");
+            // set path to a valid name
+            let path = this._getDestPath();
+            this._setDestPath(path);
+        } else {
+            $modal.removeClass("sqlFunc");
+            $prefix.text(DSTStr.Home + "/");
+        }
+    }
+
+    private _isSQLFunc(): boolean {
+        return this._getModal().find(".sqlFunc .checkboxSection")
+        .find(".checkbox").hasClass("checked");
+    }
+
     private _addEventListeners() {
         const $modal: JQuery = this._getModal();
         // click cancel or close button
@@ -291,8 +309,12 @@ class DFUploadModal {
         });
 
         $modal.on("click", ".checkbox, .text", (event) => {
-            $(event.currentTarget).closest(".checkboxSection")
-            .find(".checkbox").toggleClass("checked");
+            let $checkboxSection = $(event.currentTarget).closest(".checkboxSection");
+            let $checkbox = $checkboxSection.find(".checkbox");
+            $checkbox.toggleClass("checked");
+            if ($checkboxSection.closest(".row").hasClass("sqlFunc")) {
+                this._toggleSQLFunc($checkbox.hasClass("checked"));
+            }
         });
 
         // display the chosen file's path
@@ -332,8 +354,14 @@ class DFUploadModal {
         }
     }
 
+    private _getDestPath(): string {
+        let $pathInput: JQuery = this._getDestPathInput();
+        let path: string = $pathInput.val().trim();
+        return path;
+    }
+
     private _setDestPath(name: string): void {
-        let category = XVM.isSQLMode() ? PatternCategory.SQLFunc : PatternCategory.Dataflow;
+        let category = this._isSQLFunc() ? PatternCategory.SQLFunc : PatternCategory.Dataflow;
         name = <string>xcHelper.checkNamePattern(category, PatternAction.Fix, name);
         const path: string = this._getUniquePath(name);
         this._getDestPathInput().val(path);
@@ -343,7 +371,7 @@ class DFUploadModal {
         let path: string = name;
         let cnt = 0;
         while (!DagList.Instance.isUniqueName(path)) {
-            if (XVM.isSQLMode()) {
+            if (this._isSQLFunc()) {
                 path = `${name}${++cnt}`;
             } else {
                 path = `${name}(${++cnt})`;

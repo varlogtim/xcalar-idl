@@ -1,5 +1,6 @@
 class DagTabSQLFunc extends DagTabUser {
     public static KEY: string = "SQLFunc";
+    public static HOMEDIR: string = "SQL Functions";
 
     public static setup(): void {
         this.uid = new XcUID(this.KEY);
@@ -64,6 +65,10 @@ class DagTabSQLFunc extends DagTabUser {
     ) {
         id = id || DagTabSQLFunc.generateId();
         super(name, id, dagGraph, reset, createTime);
+    }
+
+    public getPath(): string {
+        return "/" + DagTabSQLFunc.HOMEDIR + "/" + this.getName(); 
     }
 
     public getQuery(inputs: string[]): XDPromise<string> {        
@@ -180,7 +185,7 @@ class DagTabSQLFunc extends DagTabUser {
         try {
             let name: string = dagInfo.name;
             if (!name.startsWith(".temp/" + DagTabSQLFunc.KEY)) {
-                return DFTStr.NoDFUploadInSQL;
+                return DFTStr.InvalidDFUploadAsSQLFunc;
             }
         } catch (e) {
             console.error(e);

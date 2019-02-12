@@ -4310,7 +4310,10 @@ html.microsoft {
 
 /* ========== Dataflow uploader ============= */
 #dfUploadModal {
-    .size(@width: 550px, @height: 380px);
+    @btn-w: 85px;
+    @total-w: @btn-w + 10px;
+
+    .size(@width: 550px, @height: 410px);
 
     &.locked {
         pointer-events: none;
@@ -4320,14 +4323,38 @@ html.microsoft {
         }
     }
 
+    &.sqlFunc {
+        @prefix-w-sqlFunc: 115px;
+
+        .modalMain {
+            .row {
+                &.dest {
+                    .prefix {
+                        width: @prefix-w-sqlFunc;
+                    }
+    
+                    input {
+                        width: ~"calc(100% - @{total-w} - @{prefix-w-sqlFunc})";
+                    }
+    
+                    .btn {
+                        .xc-disabled;
+                    }
+                }
+    
+                &.restoreDS {
+                    .xc-disabled;
+                }
+            }
+        }
+    }
+
     .modalMain {
         padding: 10px 25px;
         .size(@height: ~"calc(100% - 148px)");
 
         .row {
             height: 30px;
-            @btn-w: 85px;
-            @total-w: @btn-w + 10px;
             margin-bottom: 10px;
 
             &.label {

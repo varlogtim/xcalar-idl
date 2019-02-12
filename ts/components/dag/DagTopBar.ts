@@ -9,12 +9,7 @@ class DagTopBar {
 
     public setup(): void {
         this.$topBar = $("#dagViewBar");
-        this._setupMode();
         this._addEventListeners();
-    }
-
-    public switchMode(): void {
-        this._setupMode();
     }
 
     public reset(): void {
@@ -29,6 +24,10 @@ class DagTopBar {
         this.$topBar.removeClass("locked");
     }
 
+    /**
+     * DagTopBar.Instance.setState
+     * @param dagTab
+     */
     public setState(dagTab: DagTab): void {
         const $btns: JQuery = this.$topBar.find(".topButtons");
         if (dagTab == null) {
@@ -63,12 +62,14 @@ class DagTopBar {
             let scale = graph.getScale() * 100;
             this.$topBar.find(".zoomPercentInput").val(scale);
         }
+
+        this._toggleButtonsInSQLFunc(dagTab);
     }
 
-    private _setupMode(): void {
+    private _toggleButtonsInSQLFunc(dagTab: DagTab): void {
         const $btns: JQuery = this.$topBar.find(".topButtons");
         const $btnsToHideInSQLMode: JQuery = $btns.find(".optimizedRun, .publish");
-        if (XVM.isSQLMode()) {
+        if (dagTab instanceof DagTabSQLFunc) {
             $btnsToHideInSQLMode.addClass("xc-hidden");
         } else {
             $btnsToHideInSQLMode.removeClass("xc-hidden");

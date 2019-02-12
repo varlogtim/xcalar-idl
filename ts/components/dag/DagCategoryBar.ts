@@ -1,5 +1,6 @@
 class DagCategoryBar {
     private static _instance: DagCategoryBar;
+    private _isSQLFunc: boolean;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -15,6 +16,7 @@ class DagCategoryBar {
     constructor() {
         this.$dagView = $("#dagView");
         this.$operatorBar = this.$dagView.find(".operatorWrap");
+        this._isSQLFunc = false;
     }
 
     public setup(): void {
@@ -28,10 +30,16 @@ class DagCategoryBar {
         this._focusOnCategory(DagCategoryType.In);
     }
 
-    public switchMode(): XDPromise<void> {
-        this.dagCategories = new DagCategories();
-        this._renderCategoryBar();
-        return this.loadCategories();
+    public updateCategories(dagTab: DagTab): void {
+        let sqlFunc: boolean = (dagTab instanceof DagTabSQLFunc);
+        if (this._isSQLFunc === sqlFunc) {
+            // no need to update
+            return;
+        }
+        this._isSQLFunc = sqlFunc;
+        this.dagCategories.update(sqlFunc);
+        this._renderOperatorBar();
+        this._focusOnCategory(this.currentCategory);
     }
 
     public loadCategories(): XDPromise<void> {

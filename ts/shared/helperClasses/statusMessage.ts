@@ -269,9 +269,6 @@ namespace StatusMessage {
                     case ("sqlTab"):
                         panelName = SQLTStr.WorkSpace;
                         break;
-                    case ("sqlFuncTab"):
-                        panelName = SQLTStr.Func;
-                        break;
                     default:
                         panelName = "";
                         break;

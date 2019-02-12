@@ -125,7 +125,6 @@ interface WkbkKVKeySet {
     gAuthKey: string;
     gNotebookKey: string;
     gDagManagerKey: string;
-    gSQLFuncManagerKey: string;
     gDagTableManagerKey: string;
     gDagListKey: string;
     gSQLFuncListKey: string;

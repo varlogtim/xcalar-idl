@@ -1,12 +1,11 @@
 class DagCategories {
     private categories: DagCategory[];
+    
     public constructor() {
-
-        this.initBasicLists();
+        this._initBasicLists(false);
     }
 
-    private initBasicLists() {
-
+    private _initBasicLists(sqlFunc: boolean) {
         this.categories = [];
 
         // const favoritesCategory = new DagCategory(DagCategoryType.Favorites, [
@@ -24,7 +23,6 @@ class DagCategories {
         //     })),
         // ]);
 
-
         const hiddenCategory = new DagCategory(DagCategoryType.Hidden, [
             new DagCategoryNode(DagNodeFactory.create({
                 type: DagNodeType.Index
@@ -37,9 +35,8 @@ class DagCategories {
             }), DagCategoryType.Hidden)
         ]);
 
-        let isSQLMode = XVM.isSQLMode();
         let inCategory = null;
-        if (isSQLMode) {
+        if (sqlFunc) {
             inCategory = new DagCategory(DagCategoryType.In, [
                 new DagCategoryNodeIn(DagNodeFactory.create({
                     type: DagNodeType.SQLFuncIn
@@ -70,7 +67,7 @@ class DagCategories {
         }
 
         let outCategory;
-        if (isSQLMode) {
+        if (sqlFunc) {
             outCategory = new DagCategory(DagCategoryType.Out, [
                 new DagCategoryNodeOut(DagNodeFactory.create({
                     type: DagNodeType.SQLFuncOut
@@ -249,7 +246,7 @@ class DagCategories {
             hiddenCategory
         ];
 
-        if (isSQLMode) {
+        if (sqlFunc) {
             // XXX TODO: verify it's valid or not XD-261
             this.categories = this.categories.filter((category) => {
                 let categoryName = category.getName();
@@ -308,6 +305,10 @@ class DagCategories {
             }
         }
         return null;
+    }
+
+    public update(sqlFunc: boolean): void {
+        this._initBasicLists(sqlFunc);
     }
 }
 

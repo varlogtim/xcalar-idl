@@ -471,7 +471,6 @@ namespace XVM {
             return PromiseHelper.resolve();
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        $("#initialLoadScreen").show();
         _mode = mode;
 
         _commitMode(mode);
@@ -479,15 +478,10 @@ namespace XVM {
         SQLWorkSpace.Instance.switchMode();
         DSPreview.switchMode();
         let allPanelsClosed = MainMenu.switchMode();
-        DagViewManager.Instance.switchMode()
-        .always(() => {
-            $("#initialLoadScreen").hide();
-            if (allPanelsClosed) {
-                MainMenu.openDefaultPanel();
-            }
-            deferred.resolve();
-        });
-
+        if (allPanelsClosed) {
+            MainMenu.openDefaultPanel();
+        }
+        deferred.resolve();
         return deferred.promise();
     }
 

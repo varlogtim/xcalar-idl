@@ -31,7 +31,7 @@ class DagViewManager {
         this._addEventListeners();
         this._addDagViewListeners();
         this._setupDagSharedActionEvents();
-        this._setupMode();
+        // this._setupMode();
 
         DagTopBar.Instance.setup();
         DagCategoryBar.Instance.setup();
@@ -292,8 +292,8 @@ class DagViewManager {
         return deferred.promise();
     }
 
-      /**
-     * DagView.removeProgress
+    /**
+     * DagViewManager.Instance.removeProgress
      * @param nodeId
      * @param tabId
      */
@@ -304,29 +304,7 @@ class DagViewManager {
     }
 
     /**
-     * DagView.switchMode
-     */
-    public switchMode(): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        this._setupMode();
-        DagTable.Instance.close();
-        this.$dagView.find(".dataflowArea").remove();
-        DagTopBar.Instance.switchMode();
-        DagCategoryBar.Instance.switchMode()
-        .then(() => {
-            return DagList.Instance.swithMode();
-        })
-        .then(() => {
-            return DagTabManager.Instance.switchMode();
-        })
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    /**
-     * DagView.switchActiveDagTab
+     * DagViewManager.Instance.switchActiveDagTab
      * Switches the current active tab, updating activeDag and activeDagTab
      * @param dagTab The tab we want to make active.
      */
@@ -340,6 +318,7 @@ class DagViewManager {
         if (this.dagViewMap.has(dagTab.getId())) {
             this.activeDagView = this.dagViewMap.get(dagTab.getId());
         }
+        DagCategoryBar.Instance.updateCategories(this.activeDagTab);
         this.render();
         this.activeDagView.focus();
         this._updateDagView();
@@ -388,12 +367,13 @@ class DagViewManager {
 
 
     /**
-     * DagView.resetActiveDagTab
+     * DagViewManager.Instance.resetActiveDagTab
      */
     public resetActiveDagTab(): void {
         this.activeDagTab = null;
         this.activeDag = null;
         this.activeDagView = null;
+        DagCategoryBar.Instance.updateCategories(this.activeDagTab);
         this._updateDagView();
     }
 
@@ -458,7 +438,7 @@ class DagViewManager {
 
 
     /**
-     * DagView.newNode
+     * DagViewManager.Instance.newNode
      * @param dagId
      * @param nodeInfo
      */
@@ -468,7 +448,7 @@ class DagViewManager {
 
 
     /**
-     * DagView.newComment
+     * DagViewManager.Instance.newComment
      */
     public newComment(
         commentInfo: CommentInfo,
@@ -478,7 +458,7 @@ class DagViewManager {
     }
 
     /**
-     * DagView.addBackNodes
+     * DagViewManager.Instance.addBackNodes
      * @param nodeIds
      * @param tabId
      * @param sliceInfo?
@@ -493,8 +473,8 @@ class DagViewManager {
         return this.dagViewMap.get(tabId).addBackNodes(nodeIds, spliceInfo, identifiers);
     }
 
-      /**
-     * DagView.run
+    /**
+     * DagViewManager.Instance.run
      * // run the entire dag,
      * // if no nodeIds passed in then it will execute all the nodes
      */
@@ -502,8 +482,8 @@ class DagViewManager {
         return this.activeDagView.run(nodeIds, optimized);
     }
 
-          /**
-     * DagView.unlockNode
+    /**
+     * DagViewManager.Instance.unlockNode
      * @param nodeId
      */
     public unlockNode(nodeId: DagNodeId, tabId: string): void {
@@ -513,7 +493,7 @@ class DagViewManager {
     }
 
     /**
-     * DagView.lockNode
+     * DagViewManager.Instance.lockNode
      * @param nodeId
      */
     public lockNode(nodeId: DagNodeId, tabId?: string): string {
@@ -526,7 +506,7 @@ class DagViewManager {
     }
 
      /**
-     * DagView.isNodeLocked
+     * DagViewManager.Instance.isNodeLocked
      * @param nodeId
      * @param tabId
      */
@@ -546,7 +526,7 @@ class DagViewManager {
 
 
     /**
-     * DagView.removeNode
+     * DagViewManager.Instance.removeNode
      * @param nodeId
      *  removes node from DagGraph, remove $element, connection lines, update
      * connector classes
@@ -555,8 +535,8 @@ class DagViewManager {
         return this.dagViewMap.get(tabId).removeNodes(nodeIds);
     }
 
-         /**
-     * DagView.moveNodes
+    /**
+     * DagViewManager.Instance.moveNodes
      * @param dagId
      * @param nodeInfos
      * @param graphDimensions
@@ -574,7 +554,7 @@ class DagViewManager {
 
 
     /**
-     * DagView.copyNodes
+     * DagViewManager.Instance.copyNodes
      * @param nodeIds
      */
     public copyNodes(nodeIds: DagNodeId[]): string {
@@ -585,7 +565,7 @@ class DagViewManager {
     }
 
      /**
-     * DagView.cutNodes
+     * DagViewManager.Instance.cutNodes
      * @param nodeIds
      */
     public cutNodes(nodeIds: DagNodeId[]): string {
@@ -598,11 +578,11 @@ class DagViewManager {
 
 
     /**
-   * DagView.disconnect
-   * @param parentNodeId
-   * @param childNodeId
-   * removes connection from DagGraph, connection line, updates connector classes
-   */
+     * DagViewManager.Instance.disconnect
+     * @param parentNodeId
+     * @param childNodeId
+     * removes connection from DagGraph, connection line, updates connector classes
+     */
     public disconnectNodes(
         parentNodeId: DagNodeId,
         childNodeId: DagNodeId,
@@ -614,7 +594,7 @@ class DagViewManager {
 
 
     /**
-     * DagView.connectNodes
+     * DagViewManager.Instance.connectNodes
      * @param parentNodeId
      * @param childNodeId
      * @param connectorIndex
@@ -639,8 +619,8 @@ class DagViewManager {
     }
 
 
-     /**
-     *
+    /**
+     * DagViewManager.Instance.autoAlign
      * @param tabId
      */
     public autoAlign(tabId: string): void {
@@ -723,9 +703,9 @@ class DagViewManager {
     }
 
 
-       /**
-     * DagView.cancel
-     * // cancel entire run or execution
+    /**
+     * DagViewManager.Instance.cancel
+     * cancel entire run or execution
      */
     public cancel() {
         this.activeDagView.cancel();
@@ -751,7 +731,7 @@ class DagViewManager {
         return this.activeDagView.wrapCustomOperator(nodeIds);
     }
 
-      /**
+    /**
      * Expand the Custom node into a sub graph in place for editing purpose
      * @param nodeId
      */
@@ -783,6 +763,17 @@ class DagViewManager {
     }
 
     /**
+     * DagViewManager.Instance.createSQLFunc
+     * @param nodeIds
+     */
+    public createSQLFunc(): void {
+        SQLFuncSettingModal.Instance.show((numInput) => {
+            DagView.newSQLFunc(numInput);
+            DagList.Instance.gotToSQLFuncFolder();
+        });
+    }
+
+    /**
      * Open a tab to show SQL sub graph for viewing purpose
      * @param nodeId
      */
@@ -803,8 +794,8 @@ class DagViewManager {
         return this.activeDagView.expandSQLNode(nodeId);
     }
 
-      /**
-     * DagView.expandSQLNodeInTab
+    /**
+     * DagViewManager.Instance.expandSQLNodeInTab
      */
     public expandSQLNodeInTab(
         dagNode: DagNodeSQL,
@@ -883,16 +874,10 @@ class DagViewManager {
     }
 
     /**
-     * DagView.newTab
+     * DagViewManager.Instance.newTab
      */
     public newTab(): void {
-        if (XVM.isSQLMode()) {
-            SQLFuncSettingModal.Instance.show((numInput) => {
-                DagView.newSQLFunc(numInput);
-            });
-        } else {
-            DagTabManager.Instance.newTab();
-        }
+        DagTabManager.Instance.newTab();
     }
 
     // public editNodeTitle()
@@ -1077,20 +1062,6 @@ class DagViewManager {
         $selected.removeClass("selected");
         $selected.find(".selection").remove();
     }
-
-    private _setupMode(): void {
-        let $text: JQuery = this.$dagView.find(".dataflowWrapBackground .newTab span");
-        if (XVM.isSQLMode()) {
-            this.$dagView.addClass("sqlMode");
-            $text.text(SQLTStr.CreateFunc);
-        } else {
-            this.toggleSqlPreview(false);
-            this.$dagView.removeClass("sqlMode");
-            $text.text(DFTStr.CreateDF);
-        }
-        this.$dfWrap = $(this.containerSelector + " .dataflowWrap");
-    }
-
 
     private _updateDagView(): void {
         const $dfWrapBg: JQuery = this.$dagView.find(".dataflowWrapBackground");

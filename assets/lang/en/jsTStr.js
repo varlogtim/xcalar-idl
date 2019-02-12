@@ -1177,8 +1177,8 @@ DFTStr = {
     "ShowConfigInfo": "Show configuration info",
     "NoEmptyDestName": "Please enter a destination dataflow name.",
     "NoSlashUpload": "Cannot upload to this path.",
-    "NoSQLFuncUploadInAdv": "Cannot upload SQL Function in advanced mode, please switch to SQL mode first.",
-    "NoDFUploadInSQL": "Cannot upload dataflow that is not a SQL Function in SQL mode, please switch to advanced mode first.",
+    "InvalidSQLFuncUpload": "Cannot upload SQL Function as normal dataflow, please select \"Upload as SQL Function\" option.",
+    "InvalidDFUploadAsSQLFunc": "Cannot upload dataflow as SQL Function, please unselect \"Upload as SQL Function\" option.",
     // with replace
     "EditOpDirectly": "Please edit the overall <op> operation directly",
     "ParamAdvancedInstructions": "The <type> operation can be modified using the editor below but cannot be parameterized.",

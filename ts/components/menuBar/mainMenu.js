@@ -484,9 +484,15 @@ window.MainMenu = (function($, MainMenu) {
                 // time viewing a notebook
                 break;
             case ("modelingDataflowTab"):
-            case ("sqlFuncTab"):
                 $("#modelingDagPanel").addClass("active");
                 DagViewManager.Instance.show();
+                break;
+            case ("sqlFuncTab"):
+                XVM.setMode(XVM.Mode.Advanced)
+                .then(function() {
+                    $("#modelingDataflowTab").click();
+                    DagViewManager.Instance.createSQLFunc();
+                });
                 break;
             case ("sqlTab"):
                 BottomMenu.unsetMenuCache();

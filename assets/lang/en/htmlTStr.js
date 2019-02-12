@@ -910,6 +910,7 @@ module.exports = {
         "upload": "Upload",
         "uploadHeader": "Upload Dataflow",
         "uploadInstr": "Upload a previously downloaded dataflow into Xcalar. Your file should be of the format .xlrdf.tar.gz",
+        "uploadAsSQLFunc": "Upload as SQL Function",
         "overwriteUdf": "Overwrite UDFs",
         "overwriteUdfHint": "Overwrite UDFs of the same module name with those inside this dataflow",
         "restoreDS": "Restore datasets",
