@@ -244,8 +244,7 @@ window.DSPreview = (function($, DSPreview) {
                     hideHeadersWarning();
 
                     // sync up schema
-                    var schema = getSchemaFromPreviewTable();
-                    dataSourceSchema.setSchema(schema);
+                    updateSchema();
                 });
             });
         });
@@ -277,6 +276,7 @@ window.DSPreview = (function($, DSPreview) {
                                     xcHelper.capitalize(type) +
                                     '<br>' + DSTStr.ClickChange);
             hideHeadersWarning();
+            updateSchema();
         });
 
         $highlightBtns.on("click", ".highlight", function() {
@@ -616,6 +616,11 @@ window.DSPreview = (function($, DSPreview) {
         .registerEvent(DataSourceSchemaEvent.ValidateSchema, function(schema) {
             return validateMatchOfSchemaAndHeaders(schema);
         });
+    }
+
+    function updateSchema() {
+        var schema = getSchemaFromPreviewTable();
+        dataSourceSchema.setSchema(schema);
     }
 
     function getHintSchmea() {
@@ -4305,64 +4310,24 @@ window.DSPreview = (function($, DSPreview) {
         var $tbody = $(getTbodyHTML(data, fieldDelim));
         var $trs = $tbody.find("tr");
         var maxTdLen = 0;
-        var fnf = xcHelper.parseJsonValue(null, true);
-        // find the length of td and fill up empty space
+        // find the length of td
         $trs.each(function() {
             maxTdLen = Math.max(maxTdLen, $(this).find("td").length);
         });
 
-        $trs.each(function() {
-            var $tr  = $(this);
-            var $tds = $tr.find("td");
-            var trs = "";
-
-            for (var j = 0, l = maxTdLen - $tds.length; j < l; j++) {
-                trs += "<td>" + fnf + "</td>";
-            }
-
-            $tr.append(trs);
-        });
+        // fill up empty space
+        var fnf = xcHelper.parseJsonValue(null, true);
+        appendExtraTds($trs, maxTdLen, fnf);
 
         var $tHead = $(getTheadHTML(data, fieldDelim, maxTdLen));
         var $tHrow = $tHead.find("tr");
-        var thLen  = $tHead.find("th").length;
-        var ths = "";
-
-        var thHtml;
-        if (loadArgs.getFormat() === formatMap.CSV) {
-            thHtml = '<th class="editable" data-type="string">' +
-                        '<div class="header type-string">' +
-                            colGrabTemplate +
-                            '<div class="flexContainer flexRow">' +
-                                '<div class="flexWrap flex-left" ' +
-                                'data-toggle="tooltip" data-container="body" ' +
-                                'data-placement="top" data-original-title="' +
-                                xcHelper.capitalize(ColumnType.string) +
-                                '<br>' + DSTStr.ClickChange + '">' +
-                                    '<span class="iconHidden"></span>' +
-                                    '<span class="type icon"></span>' +
-                                    '<div class="dropdownBox"></div>' +
-                                '</div>' +
-                                '<div class="flexWrap flex-mid">' +
-                                    '<input spellcheck="false" ' +
-                                    'class="text tooltipOverflow ' +
-                                    'editableHead" value="">' +
-                                '</div>' +
-                            '</div>' +
-                        '</div>' +
-                    '</th>';
-        } else {
-            thHtml = '<th>' +
-                '<div class="header">' +
-                    colGrabTemplate +
-                    '<div class="text"></div>' +
-                '</div>' +
-            '</th>';
+        var thLen = $tHead.find("th").length;
+        if (maxTdLen > thLen) {
+            appendExtraThs($tHrow, maxTdLen - thLen);
+        } else if (thLen > maxTdLen) {
+            // fill in extra tds
+            appendExtraTds($trs, thLen, "");
         }
-        for (var i = 0, len = maxTdLen - thLen; i < len; i++) {
-            ths += thHtml;
-        }
-        $tHrow.append(ths);
 
         // add class
         $tHrow.find("th").each(function(index) {
@@ -4462,6 +4427,60 @@ window.DSPreview = (function($, DSPreview) {
         tbody += "</tbody>";
 
         return (tbody);
+    }
+
+    function appendExtraTds($trs, maxTdLen, val) {
+        $trs.each(function() {
+            var $tr  = $(this);
+            var $tds = $tr.find("td");
+            var trs = "";
+
+            for (var j = 0, l = maxTdLen - $tds.length; j < l; j++) {
+                trs += "<td>" + val + "</td>";
+            }
+
+            $tr.append(trs);
+        });
+    }
+
+    function appendExtraThs($tHrow, numThs) {
+        var thHtml;
+        if (loadArgs.getFormat() === formatMap.CSV) {
+            thHtml = '<th class="editable" data-type="string">' +
+                        '<div class="header type-string">' +
+                            colGrabTemplate +
+                            '<div class="flexContainer flexRow">' +
+                                '<div class="flexWrap flex-left" ' +
+                                'data-toggle="tooltip" data-container="body" ' +
+                                'data-placement="top" data-original-title="' +
+                                xcHelper.capitalize(ColumnType.string) +
+                                '<br>' + DSTStr.ClickChange + '">' +
+                                    '<span class="iconHidden"></span>' +
+                                    '<span class="type icon"></span>' +
+                                    '<div class="dropdownBox"></div>' +
+                                '</div>' +
+                                '<div class="flexWrap flex-mid">' +
+                                    '<input spellcheck="false" ' +
+                                    'class="text tooltipOverflow ' +
+                                    'editableHead" value="">' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</th>';
+        } else {
+            thHtml = '<th>' +
+                '<div class="header">' +
+                    colGrabTemplate +
+                    '<div class="text"></div>' +
+                '</div>' +
+            '</th>';
+        }
+
+        var ths = "";
+        for (var i = 0; i < numThs; i++) {
+            ths += thHtml;
+        }
+        $tHrow.append(ths);
     }
 
     function autoHeaderName(index) {
