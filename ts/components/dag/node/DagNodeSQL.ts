@@ -855,12 +855,12 @@ class DagNodeSQL extends DagNode {
         })
         .then(function() {
             // always drop schema on plan server first
-            return SQLOpPanel.updatePlanServer("dropAll");
+            return SQLUtil.Instance.sendToPlanner(self.getId(), "dropAll");
         })
         .then(function() {
             allSchemas = allSchemas.concat(sqlFuncSchemas);
             // send schema to plan server
-            return SQLOpPanel.updatePlanServer("update", allSchemas);
+            return SQLUtil.Instance.sendToPlanner(self.getId(), "update", allSchemas);
         })
         .then(function() {
             schemaQueryArray = schemaQueryArray.concat(sqlFuncQueries).map(function(cli) {
@@ -1052,8 +1052,17 @@ class DagNodeSQL extends DagNode {
                 schemaQueryString = ret.queryString;
                 tableSrcMap = ret.tableSrcMap
                 self.setTableSrcMap(tableSrcMap);
-                const sqlQueryToCompile = replacedSqlQuery || sqlQueryStr
-                return sqlCom.compile(queryId, sqlQueryToCompile);
+                const struct = {"sqlQuery": replacedSqlQuery || sqlQueryStr};
+                return SQLUtil.Instance.sendToPlanner(self.getId(), "query", struct);
+            })
+            .then(function(data) {
+                let logicalPlan = "";
+                try {
+                    logicalPlan = JSON.parse(JSON.parse(data).sqlQuery);
+                } catch(e) {
+                    return PromiseHelper.reject("Failed to parse logical plan: " + data);
+                }
+                return sqlCom.compile(queryId, logicalPlan, true);
             })
             .then(function(queryString, newTableName, newCols) {
                 self.setNewTableName(newTableName);

@@ -145,15 +145,7 @@ class SQLOpPanel extends BaseOpPanel {
         this._$sqlButton.html("Compiling... " + numCurSteps + backPart);
     };
 
-    public static resetProgress(): void {
-        const $sqlButton = $("#sqlOpPanel").find(".btn-submit");
-        $sqlButton.removeClass("btn-disabled");
-        $sqlButton.html("Save"); // XXX Change to variable
-        $("#sqlSnippetsList").removeClass("xc-disabled");
-    };
-
     public lockProgress(): void {
-        this._$sqlButton.addClass("btn-disabled");
         this._$sqlSnippetDropdown.addClass("xc-disabled");
     }
 
@@ -165,7 +157,7 @@ class SQLOpPanel extends BaseOpPanel {
             },
             onCancelExecute: () => {
                 console.log("SQL cancel triggered!");
-                SQLOpPanel.resetProgress();
+                SQLUtil.Instance.resetProgress();
             },
             onAutoComplete: (editor: CodeMirror.Editor) => {
                 editor.execCommand("autocompleteSQLInDF");
@@ -570,45 +562,6 @@ class SQLOpPanel extends BaseOpPanel {
         self._sqlEditor.refresh();
     }
 
-    public static updatePlanServer(
-        type: string,
-        struct?: {}[]
-    ): XDPromise<any> {
-        let url;
-        let action;
-        const session = WorkbookManager.getActiveWKBK();
-        switch (type) {
-            case ("update"):
-                url = planServer + "/schemasupdate/" +
-                      encodeURIComponent(encodeURIComponent(session));
-                action = "PUT";
-                break;
-            case ("dropAll"):
-                url = planServer + "/schemadrop/" +
-                      encodeURIComponent(encodeURIComponent(session));
-                action = "DELETE";
-                break;
-            default:
-                return PromiseHelper.reject("Invalid type for updatePlanServer");
-        }
-        const deferred = PromiseHelper.deferred();
-        jQuery.ajax({
-            type: action,
-            data: JSON.stringify(struct),
-            contentType: 'application/json; charset=utf-8',
-            url: url,
-            dataType: "text", // XXX remove this when the planner bug is fixed
-            success: function(data) {
-                deferred.resolve(data);
-            },
-            error: function(error) {
-                deferred.reject(error);
-                console.error(error);
-            }
-        });
-        return deferred.promise();
-    }
-
     private _refreshEllipsis(): void {
         const labels = document.getElementById("sqlSection")
                              .getElementsByClassName("label");
@@ -669,10 +622,10 @@ class SQLOpPanel extends BaseOpPanel {
                 deferred.reject(err);
             })
             .always(function() {
-                SQLOpPanel.resetProgress();
+                SQLUtil.Instance.resetProgress();
             });
         } catch (e) {
-            SQLOpPanel.resetProgress();
+            SQLUtil.Instance.resetProgress();
             Alert.show({
                 title: "Compilation Error",
                 msg: "Error details: " + JSON.stringify(e),
@@ -682,17 +635,6 @@ class SQLOpPanel extends BaseOpPanel {
         }
         return deferred.promise();
     };
-    public static throwError(errStr) {
-        SQLOpPanel.resetProgress();
-        Alert.show({
-            title: "Compilation Error",
-            msg: "Error details: " + errStr,
-            isAlert: true
-        });
-    };
-    public static isOnHistPanel(): boolean {
-        return $("#monitor-query-history").hasClass("active");
-    }
 
     /**
      * Show the panel with information from dagNode
