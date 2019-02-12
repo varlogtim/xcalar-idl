@@ -246,12 +246,30 @@ class ExportOpPanelModel {
      * Validates the current arguments/parameters.
      */
     public validateArgs($container: JQuery): boolean {
-        if (this.driverArgs == null || this.exportDrivers == []) {
+        if (this.driverArgs == null || this.exportDrivers.length === 0) {
             let $errorLocation: JQuery = $container.find(".btn.confirm");
             StatusBox.show("No existing driver.", $errorLocation,
                 false, {'side': 'right'});
             return false;
         }
+
+        let hasColumn: boolean = false;
+        for (const colInfo of this.columnList) {
+            if (colInfo.isSelected) {
+                hasColumn = true;
+                break;
+            }
+        }
+        if (!hasColumn) {
+            let $errorLocation: JQuery = $container.find(".columnsToExport");
+            if (this._advMode) {
+                $errorLocation = $container.find(".advancedEditor");
+            }
+            StatusBox.show("Cannot export empty result.", $errorLocation,
+            false, {'side': 'right'});
+            return false;
+        }
+
         const argLen: number = this.driverArgs.length;
         let arg: ExportDriverArg = null;
         let $parameters: JQuery = $container.find(".exportArg");

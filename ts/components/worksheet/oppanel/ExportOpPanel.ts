@@ -101,6 +101,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
             this._updateUI();
         } else {
             try {
+                this._dataModel.setAdvMode(false); // in case we don't produce a new model due to error
                 const newModel: ExportOpPanelModel = this._convertAdvConfigToModel();
                 newModel.setAdvMode(false);
                 this._dataModel = newModel;
@@ -241,6 +242,8 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
             return driver.name == driverName;
         });
         if (driver == null) {
+            // restore input value to last saved driver
+            this._$exportDest.val(this._currentDriver);
             return;
         }
         this._currentDriver = driverName;
@@ -320,6 +323,9 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
                         return;
                     }
                 }
+                if (!this._dataModel.isAdvMode()) {
+
+                }
                 if (this._dataModel.saveArgs(this._dagNode)) {
                     this.close();
                 }
@@ -335,14 +341,18 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
             }
         }, '#exportDriverList .list li');
 
-        this._$exportDestList.keypress(function(event) {
-            if ((event.keyCode || event.which) == 13) {
-                self.renderDriverArgs();
-                const driver: ExportDriver = self._dataModel.exportDrivers.find((driver) => {
-                    return driver.name == self._currentDriver;
-                });
-                self._dataModel.setUpParams(driver);
+        this._$exportDest.keypress(function(event) {
+            if ((event.keyCode || event.which) == keyCode.Enter) {
+                $(this).change();
             }
+        });
+
+        this._$exportDest.change(function() {
+            self.renderDriverArgs();
+            const driver: ExportDriver = self._dataModel.exportDrivers.find((driver) => {
+                return driver.name == self._currentDriver;
+            });
+            self._dataModel.setUpParams(driver);
         });
 
         $('#exportOpColumns .selectAllWrap .checkbox').click(function(event) {
