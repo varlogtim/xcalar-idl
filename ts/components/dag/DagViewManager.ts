@@ -1200,15 +1200,15 @@ class DagViewManager {
     private _updateSharedProgress(progressInfo: {
         nodeId: DagNodeId,
         tabId: string,
-        progress: number,
+        stats: any,
         skewInfos: any[],
         times: number[]
     }): void {
         const nodeId: DagNodeId = progressInfo.nodeId;
         const tabId: string = progressInfo.tabId;
-        this.activeDagView.updateNodeProgress(nodeId, tabId, progressInfo.progress,
-            null, progressInfo.skewInfos, progressInfo.times, false);
-        if (progressInfo.progress >= 100) {
+        this.activeDagView.updateNodeProgress(nodeId, tabId, progressInfo.stats,
+            progressInfo.skewInfos, progressInfo.times, false);
+        if (progressInfo.stats.completed) {
             this.activeDagView.removeProgress(nodeId);
         }
     }

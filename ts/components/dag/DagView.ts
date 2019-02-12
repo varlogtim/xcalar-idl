@@ -1411,7 +1411,7 @@ class DagView {
         for (const nodeId of nodeIds) {
             // Cannot wrap these types of nodes inside a custom operator
             let node: DagNode = this.graph.getNode(nodeId);
-            if (node != null && 
+            if (node != null &&
                 (excludeNodeTypes.has(node.getType()) ||
                 node instanceof DagNodeOutOptimizable
             )) {
@@ -2127,6 +2127,7 @@ class DagView {
         if (node == null) {
             return;
         }
+
         if (node.getType() === DagNodeType.SQL) {
             let subGraph = (<DagNodeSQL>node).getSubGraph();
             const subTabId: string = subGraph.getTabId();
@@ -2146,12 +2147,13 @@ class DagView {
                         times.push(nodeStat.elapsedTime);
                     });
 
-                    this.updateNodeProgress(nodeId, subTabId, overallStats.pct, true, skewInfos, times);
+                    this.updateNodeProgress(nodeId, subTabId, overallStats, skewInfos, times);
                 });
             }
         }
 
         this._updateGraphProgress(nodeId, queryStateOutput.queryGraph.node);
+        const overallNodeStats = node.getOverallStats();
         const nodeStats = node.getIndividualStats();
         const times: number[] = [];
         const skewInfos = [];
@@ -2164,7 +2166,7 @@ class DagView {
         });
 
         DagNodeInfoPanel.Instance.update(nodeId, "stats");
-        this.updateNodeProgress(nodeId, this.tabId, pct, true, skewInfos, times);
+        this.updateNodeProgress(nodeId, this.tabId, overallNodeStats, skewInfos, times);
     }
 
       /**
@@ -2172,7 +2174,6 @@ class DagView {
      * @param nodeId
      * @param tabId
      * @param progress
-     * @param _isOptimized
      * @param skewInfos
      * @param timeStrs
      * @param broadcast
@@ -2180,8 +2181,7 @@ class DagView {
     public updateNodeProgress(
         nodeId: DagNodeId,
         tabId: string,
-        progress: number,
-        _isOptimized?: boolean,
+        stats: any,
         skewInfos?: any[],
         times?: number[],
         broadcast: boolean = true
@@ -2193,7 +2193,19 @@ class DagView {
             DagViewManager.Instance.addProgress(nodeId, tabId);
             opProgress = g.select(".opProgress");
         }
-        opProgress.text(progress + "%");
+        let pct: string;
+        // TODO: show step
+        // if (stats.completed) {
+        //     pct = "100%";
+        // } else {
+        //     pct = "Step " + stats.curStep + ": " + stats.curStepPct + "%";
+        // }
+        if (stats.completed) {
+            pct = "100%";
+        } else {
+            pct = stats.curStepPct + "%";
+        }
+        opProgress.text(pct);
 
         const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId);
         if (skewInfos) {
@@ -2209,7 +2221,7 @@ class DagView {
             }
 
             this._addProgressTooltip(graph, node, $dfArea, skewInfos, times);
-            if (progress === 100) {
+            if (stats.completed) {
                 const totalTime: number = times.reduce((a, b) => a + b, 0);
                 const graph: DagGraph = dagTab.getGraph()
                 let shouldUpdate: boolean = false;
@@ -2240,7 +2252,7 @@ class DagView {
             DagSharedActionService.Instance.broadcast(DagNodeEvents.ProgressChange, {
                 nodeId: nodeId,
                 tabId: tabId,
-                progress: progress,
+                progress: stats.curStepPct,
                 skewInfos: skewInfos,
                 times: times
             });
@@ -2277,7 +2289,7 @@ class DagView {
                 times.push(nodeStat.elapsedTime);
             });
 
-            this.updateNodeProgress(nodeId, this.tabId, overallStats.pct, true, skewInfos, times);
+            this.updateNodeProgress(nodeId, this.tabId, overallStats, skewInfos, times);
         });
     }
 

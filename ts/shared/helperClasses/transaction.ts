@@ -189,17 +189,15 @@ namespace Transaction {
         }
         if (!has_require) {
             const txLog: TXLog = txCache[txId];
-            if (txLog) {
-                if (txLog.nodeId) {
-                    try {
-                        DagViewManager.Instance.calculateAndUpdateProgress(queryStateOutput, txLog.nodeId, txLog.tabId);
-                        const parentTxId: number = txLog.parentTxId;
-                        if (parentTxId != null) {
-                            Transaction.update(parentTxId, queryStateOutput);
-                        }
-                    } catch (e) {
-                        console.error(e);
+            if (txLog && txLog.nodeId) {
+                try {
+                    DagViewManager.Instance.calculateAndUpdateProgress(queryStateOutput, txLog.nodeId, txLog.tabId);
+                    const parentTxId: number = txLog.parentTxId;
+                    if (parentTxId != null) {
+                        Transaction.update(parentTxId, queryStateOutput);
                     }
+                } catch (e) {
+                    console.error(e);
                 }
             }
         }

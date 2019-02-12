@@ -201,7 +201,14 @@ class DagNodeInfoPanel {
         const overallStats = node.getOverallStats();
         if (overallStats.started) {
             this._$panel.find(".progressRow").removeClass("xc-hidden");
-            this._$panel.find(".progressSection").text(overallStats.pct + "%");
+            let pct: string;
+            if (overallStats.completed) {
+                pct = "100%";
+            } else {
+                pct = "Step " + overallStats.curStep + ": " + overallStats.curStepPct + "%";
+            }
+
+            this._$panel.find(".progressSection").text(pct);
             this._$panel.find(".timeRow").removeClass("xc-hidden");
             this._$panel.find(".timeSection").text(xcHelper.getElapsedTimeStr(overallStats.time));
             this._$panel.find(".statsRow").removeClass("xc-hidden");

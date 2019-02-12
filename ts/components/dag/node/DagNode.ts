@@ -811,8 +811,11 @@ abstract class DagNode {
         rows: number,
         skewValue: number,
         size: number,
+        curStep: number,
+        curStepPct: number,
+        completed: boolean,
         started?: boolean,
-        state?: string
+        state?: string,
     } {
         let numWorkCompleted: number = 0;
         let numWorkTotal: number = 0;
@@ -822,6 +825,11 @@ abstract class DagNode {
         let complete = true;
         let hasOperation = false;
         let nodesArray = [];
+        let processingStep: number;
+        let curStepProgress: number;
+        let hasProcessingNode: boolean;
+        let totalProgress: number;
+        let step: number = 0;
         for (let name in this.runStats.nodes) {
             const node = this.runStats.nodes[name];
             nodesArray.push(node);
@@ -835,6 +843,10 @@ abstract class DagNode {
         });
         nodesArray.forEach((node) => {
             hasOperation = true;
+            if (!node.name.startsWith("deleteObj-")) {
+                // this is a delete job which will cause row num to be 0
+                step++;
+            }
             if (node.state === DgDagStateT.DgDagStateProcessing ||
                 node.state === DgDagStateT.DgDagStateReady) {
                 numWorkCompleted += node.numWorkCompleted;
@@ -846,6 +858,23 @@ abstract class DagNode {
             }
             if (node.state !== DgDagStateT.DgDagStateReady) {
                 complete = false;
+                if (node.state === DgDagStateT.DgDagStateProcessing ||
+                    node.state === DgDagStateT.DgDagStateError) {
+                    if (!hasProcessingNode) {
+                        hasProcessingNode = true; // prevents queued node from
+                        // getting assigned as the processing state
+                        processingStep = step;
+                        if (node.state === DgDagStateT.DgDagStateError) {
+                            curStepProgress = 0;
+                        } else {
+                            curStepProgress = node.numWorkCompleted / node.numWorkTotal;
+                        }
+                    }
+                } else if (!hasProcessingNode && processingStep == null) {
+                    // queued
+                    processingStep = step;
+                    curStepProgress = 0;
+                }
             }
             if (node.skewValue != null && !isNaN(node.skewValue)) {
                 skew = Math.max(skew, node.skewValue);
@@ -853,22 +882,38 @@ abstract class DagNode {
 
             size = node.size;
         });
+        if (processingStep == null) {
+            processingStep = 1;
+            curStepProgress = 0;
+        }
+        if (isNaN(curStepProgress)) {
+            curStepProgress = 1;
+        }
+        if (hasOperation && complete) {
+            processingStep = step;
+            curStepProgress = 1;
+        }
+        curStepProgress = Math.max(0, Math.min(1, curStepProgress));
+        const curStepPct: number = Math.round(100 * curStepProgress);
 
-        let progress: number = numWorkCompleted / numWorkTotal;
-        if (isNaN(progress)) {
-            progress = 0;
+        totalProgress = numWorkCompleted / numWorkTotal;
+        if (isNaN(totalProgress)) {
+            totalProgress = 0;
         }
         // if table has 0 rows, but is completed, progress should still be 1
         if (hasOperation && complete) {
-            progress = 1;
+            totalProgress = 1;
         }
-        const pct: number = Math.round(100 * progress);
+        const pct: number = Math.round(100 * totalProgress);
         const stats = {
             pct: pct,
             time: this._getElapsedTime(),
             rows: rows,
             skewValue: skew,
-            size: size
+            size: size,
+            curStep: processingStep,
+            curStepPct: curStepPct,
+            completed: (hasOperation && complete)
         };
         if (!formatted) {
             stats["started"] = Object.keys(this.runStats.nodes).length > 0;
@@ -876,7 +921,6 @@ abstract class DagNode {
 
         return stats;
     }
-
 
     public getIndividualStats(formatted?: boolean): any[] {
         let nodesArray = [];
