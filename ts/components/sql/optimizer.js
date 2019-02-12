@@ -862,6 +862,10 @@
             } else {
                 var maps = jQuery.extend(true, [], curNode.value.args.eval);
                 for (var i = 0; i < maps.length; i++) {
+                    // XXX should re-enable it when Select supports UDF
+                    if (maps[i].evalString.indexOf("sql:") > -1) {
+                        return;
+                    }
                     maps[i].evalString = XDParser.XEvalParser.replaceColName(
                                 maps[i].evalString, selectStruct.colNameMap);
                 }
