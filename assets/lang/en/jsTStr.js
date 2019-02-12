@@ -394,6 +394,7 @@ ErrTStr = {
     "DetectSchema": "Error occured when detecting schema",
     "DFInExecution": "Dataflow is in execution",
     "RestoreDS": "Restore Dataset Error",
+    "RestoreDSNoLoadArgs": "No load args in the configuration, cannot restore dataset.",
     "ParseSchema": "Invalid text to parse as schema",
 
     // With replace

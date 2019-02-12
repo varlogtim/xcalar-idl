@@ -58,6 +58,7 @@ window.DS = (function ($, DS) {
         const deferred = PromiseHelper.deferred();
         const failures = [];
         const nameToDagMap = new Map();
+        const promises = [];
 
         dagNodes.forEach((dagNode) => {
             if (!(dagNode instanceof DagNodeDataset)) {
@@ -68,7 +69,8 @@ window.DS = (function ($, DS) {
                 return;
             }
             const loadArgs = dagNode.getLoadArgs();
-            if (loadArgs == null) {
+            if (!loadArgs) {
+                failures.push({"error": "Invalid load args"});
                 return;
             }
             const key = dsName + ".Xcalar." + loadArgs; // a unique key
@@ -79,7 +81,6 @@ window.DS = (function ($, DS) {
             nodeArray.push(dagNode);
         });
 
-        const promises = [];
         nameToDagMap.forEach((dagNodes) => {
             var promise = restoreSourceFromDagNodeHelper(dagNodes, share, failures);
             promises.push(promise);
@@ -103,7 +104,7 @@ window.DS = (function ($, DS) {
                         return JSON.stringify(error);
                     }
                 });
-                Alert.error(ErrTStr.RestoreDS, errMsg);
+                Alert.error(ErrTStr.RestoreDS, errMsg.join("\n"));
                 deferred.reject(errMsg);
             }
             deferred.resolve();

@@ -238,11 +238,7 @@ namespace DagNodeMenu {
                     break;
                 case ("restoreDataset"):
                     const node: DagNodeDataset = <DagNodeDataset>DagViewManager.Instance.getActiveDag().getNode(dagNodeIds[0]);
-                    const shareDS: boolean = DagViewManager.Instance.getActiveTab() instanceof DagTabPublished;
-                    DS.restoreSourceFromDagNode([node], shareDS)
-                    .then(() => {
-                        node.beConfiguredState();
-                    });
+                    _restoreDatasetFromNode(node);
                     break;
             }
         } catch (e) {
@@ -795,5 +791,25 @@ namespace DagNodeMenu {
             title: "Paste",
             msg: "Pasting is not available via the menu, but you can still use " + pasteKey
         });
+    }
+
+    function _restoreDatasetFromNode(node: DagNodeDataset): void {
+        try {
+            const lodArgs = node.getLoadArgs();
+            if (!lodArgs) {
+                let $node = DagViewManager.Instance.getNode(node.getId());
+                StatusBox.show(ErrTStr.RestoreDSNoLoadArgs, $node);
+            } else {
+                const shareDS: boolean = DagViewManager.Instance.getActiveTab() instanceof DagTabPublished;
+                DS.restoreSourceFromDagNode([node], shareDS)
+                .then(() => {
+                    node.beConfiguredState();
+                });
+            }
+        } catch (e) {
+            console.error(e);
+            let $node = DagViewManager.Instance.getNode(node.getId());
+            StatusBox.show(e.message, $node);
+        }
     }
 }
