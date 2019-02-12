@@ -1437,5 +1437,6 @@ declare class SQLCompiler {
 declare class SQLOptimizer {
     public addDrops(query: string): XDPromise<any>;
     public logicalOptimize(query: string, options: {}, prependQuery: string): string;
+    public getAggregates(): string[];
 }
 

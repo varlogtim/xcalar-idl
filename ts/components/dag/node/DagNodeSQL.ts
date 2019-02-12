@@ -13,6 +13,7 @@ class DagNodeSQL extends DagNode {
     protected newTableName: string; // Currently only one ouput as multi-query is disabled
     protected tableNewDagIdMap: {};
     protected dagIdToTableNamesMap: {}; // id to tableName map stores all the tables related to the dag node
+    protected aggregatesCreated: string[];
     // in topological order
 
     // non-persistent
@@ -43,6 +44,7 @@ class DagNodeSQL extends DagNode {
         this._queryObj = {
             queryId: xcHelper.randName(DagNodeSQL.PREFIX, 8)
         };
+        this.aggregatesCreated = [];
     }
 
     public static readonly specificSchema = {
@@ -1029,6 +1031,14 @@ class DagNodeSQL extends DagNode {
         return deferred.promise();
     }
 
+    private setAggregatesCreated(aggs: string[]): void {
+        this.aggregatesCreated = aggs;
+    }
+
+    public getAggregatesCreated(): string[] {
+        return this.aggregatesCreated;
+    }
+
     public compileSQL(
         sqlQueryStr: string,
         queryId: string,
@@ -1100,6 +1110,7 @@ class DagNodeSQL extends DagNode {
                 const optimizedQueryString = optimizer.logicalOptimize(queryString,
                                                                 optimizations,
                                                                 schemaQueryString);
+                self.setAggregatesCreated(optimizer.getAggregates());
                 self.setXcQueryString(optimizedQueryString);
                 const retStruct = {
                     newTableName: newTableName,

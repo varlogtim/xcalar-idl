@@ -4,6 +4,7 @@
     function SQLOptimizer() {
         this.aggregateNameMap = {}; // Depends on how the graph looks like (link from agg node to others or not)
         this.nodeHashMap = {};
+        this.aggregates = [];
         return this;
     }
 
@@ -79,6 +80,9 @@
             if (options.combineProjectWithSynthesize) {
                 const visitedMap = {};
                 opGraph = this.combineProjectWithSynthesize(opGraph, visitedMap);
+            }
+            if (!options.dropAsYouGo) {
+                findAggs(this, opGraph);
             }
             // XXX Add more but make sure addDrops is at the correct place
             if (options.dropAsYouGo) {
@@ -360,6 +364,9 @@
                 visitedMap[opNode.name] = retNode;
             }
             return retNode;
+        },
+        getAggregates: function() {
+            return this.aggregates;
         }
     };
 
@@ -1103,6 +1110,15 @@
             default:
                 console.error("Unexpected operation: " + opName);
                 break;
+        }
+    }
+
+    function findAggs(self, node) {
+        if (node.value.operation === "XcalarApiAggregate") {
+            self.aggregates.push(node.value.args.dest);
+        }
+        for (var i = 0; i < node.children.length; i++) {
+            findAggs(self, node.children[i]);
         }
     }
 
