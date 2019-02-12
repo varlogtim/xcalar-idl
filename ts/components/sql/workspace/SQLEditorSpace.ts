@@ -175,7 +175,8 @@ class SQLEditorSpace {
             let selectArray: string[] = [];
             let lastShow: any = {type: "select"};
             let executorArray: SQLExecutor[] = [];
-            let promiseArray: XDPromise<any>[] = [];
+            let compilePromiseArray: XDPromise<any>[] = [];
+            let executePromiseArray: XDPromise<any>[] = [];
             sqlArray.forEach((sql) => {
                 let retStruct: any = XDParser.SqlParser.getPreStatements(sql);
                 if (retStruct.type != "select") {
@@ -205,10 +206,39 @@ class SQLEditorSpace {
                 let executor = new SQLExecutor(sql);
                 this._addExecutor(executor);
                 executorArray.push(executor);
-                promiseArray.push(this._executeStatement.bind(this,
+                compilePromiseArray.push(this._compileStatement(executorArray[i]));
+                executePromiseArray.push(this._executeStatement.bind(this,
                                   executorArray[i], i, selectArray.length));
             });
-            PromiseHelper.chain(promiseArray);
+            PromiseHelper.when.apply(this, compilePromiseArray)
+            .then(() => {
+                PromiseHelper.chain(executePromiseArray);
+            })
+        } catch (e) {
+            console.error(e);
+            let error: string;
+            if (e instanceof Error) {
+                error = e.message;
+            } else if (typeof e === "string") {
+                error = e;
+            } else {
+                error = JSON.stringify(e);
+            }
+            let $btn = this._getEditorSpaceEl().find(".bottomSection .execute");
+            StatusBox.show(error, $btn);
+        }
+    }
+
+    private _compileStatement(curExecutor: SQLExecutor) {
+        try {
+            let callback = null;
+            let deferred: XDDeferred<void> = PromiseHelper.deferred();
+            callback = () => {
+                this._removeExecutor(curExecutor);
+            };
+            curExecutor.compile(callback)
+            .always(deferred.resolve);
+            return deferred.promise();
         } catch (e) {
             console.error(e);
             let error: string;

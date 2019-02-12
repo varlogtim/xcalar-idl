@@ -22,6 +22,7 @@ class SQLExecutor {
     private _schema: {};
     private _batchId: {};
     private _status: SQLStatus;
+    private _sqlTabCached: boolean;
 
     public constructor(sql: string) {
         this._sql = sql.replace(/;+$/, "");
@@ -30,6 +31,7 @@ class SQLExecutor {
         this._schema = {};
         this._batchId = {};
         this._status = SQLStatus.None;
+        this._sqlTabCached = false;
         const tables: string[] = Array.from(XDParser.SqlParser.getTableIdentifiers(sql));
         const tableMap = PTblManager.Instance.getTableMap();
         tables.forEach((identifier, idx) => {
@@ -80,6 +82,49 @@ class SQLExecutor {
         this._status = status;
     }
 
+    public compile(callback): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let tabId: string = this._tempTab.getId();
+        SQLExecutor.setTab(tabId, this._tempTab);
+
+        let finish = () => {
+            SQLExecutor.deleteTab(tabId);
+            if (this._status === SQLStatus.Done) {
+                this._updateStatus(SQLStatus.Done);
+            } else if (this._status === SQLStatus.Cancelled) {
+                this._updateStatus(SQLStatus.Cancelled);
+            } else {
+                this._status = SQLStatus.Failed;
+                this._updateStatus(SQLStatus.Failed);
+            }
+            if (typeof callback === "function") {
+                callback();
+            }
+        };
+
+        if (this._status === SQLStatus.Cancelled) {
+            finish();
+            return PromiseHelper.reject(SQLStatus.Cancelled);
+        }
+
+        this._configureSQLNode()
+        .then(() => {
+            if (this._status === SQLStatus.Cancelled) {
+                return PromiseHelper.reject(SQLStatus.Cancelled);
+            }
+            DagTabManager.Instance.addSQLTabCache(this._tempTab);
+            this._sqlTabCached = true;
+            return DagViewManager.Instance.inspectSQLNode(this._sqlNode.getId(), tabId, true);
+        })
+        .then(deferred.resolve)
+        .fail((e) => {
+            this._status = SQLStatus.Failed;
+            finish();
+            deferred.reject(e);
+        })
+        return deferred.promise();
+    }
+
     public execute(callback): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let tabId: string = this._tempTab.getId();
@@ -88,7 +133,6 @@ class SQLExecutor {
         let finalTableName;
         let succeed: boolean = false;
         let columns: {name: string, backName: string, type: ColumnType}[];
-        let sqlTabCached = false;
         let finish = () => {
             SQLExecutor.deleteTab(tabId);
             if (this._status === SQLStatus.Done) {
@@ -104,25 +148,15 @@ class SQLExecutor {
             }
         };
 
-        if (this._status === SQLStatus.Cancelled) {
+        if (this._status === SQLStatus.Cancelled
+            || this._status === SQLStatus.Failed) {
             finish();
-            return PromiseHelper.reject(SQLStatus.Cancelled);
+            return PromiseHelper.reject(this._status);
         }
 
-        this._configureSQLNode()
-        .then(() => {
-            if (this._status === SQLStatus.Cancelled) {
-                return PromiseHelper.reject(SQLStatus.Cancelled);
-            }
-            this._status = SQLStatus.Running;
-            DagTabManager.Instance.addSQLTabCache(this._tempTab);
-            sqlTabCached = true;
-            return DagViewManager.Instance.inspectSQLNode(this._sqlNode.getId(), tabId, true);
-        })
-        .then(() => {
-            SQLResultSpace.Instance.showProgressDataflow();
-            return this._tempGraph.execute([this._sqlNode.getId()]);
-        })
+        this._status = SQLStatus.Running;
+        SQLResultSpace.Instance.showProgressDataflow();
+        this._tempGraph.execute([this._sqlNode.getId()])
         .then(() => {
             finalTableName = this._sqlNode.getTable();
             columns = this._sqlNode.getColumns();
@@ -141,7 +175,7 @@ class SQLExecutor {
             deferred.resolve();
         })
         .fail((err) => {
-            if (!sqlTabCached) {
+            if (!this._sqlTabCached) {
                 DagTabManager.Instance.addSQLTabCache(this._tempTab);
             }
             this._expandSQLNode()
