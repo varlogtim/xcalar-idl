@@ -87,8 +87,7 @@
         "expressions.ShiftRightUnsigned": null,
         "expressions.Hypot": null,
         "expressions.Logarithm": null,
-        "expressions.Round": null,
-        "expressions.XcRound": "round", // Xcalar generated
+        "expressions.Round": "round",
         "expressions.BRound": null,
         // predicates.scala
         "expressions.Not": "not",
@@ -379,12 +378,6 @@
                 "num-children": 2,
                 "left": 0,
                 "right": 1
-            });
-        }
-        function roundNode() {
-            return new TreeNode({
-                "class": "org.apache.spark.sql.catalyst.expressions.XcRound",
-                "num-children": 1
             });
         }
         function stringReplaceNode() {
@@ -908,16 +901,7 @@
                 node = newNode;
                 break;
             case ("expressions.Round"):
-                var mulNode = multiplyNode();
-                var divNode = divideNode();
-                var powNode = powerNode();  // Reused
-                var ronNode = roundNode();
-                var tenNode = literalNumberNode(10);  // Reused
-                mulNode.children = [node.children[0], powNode];
-                divNode.children = [ronNode, powNode];
-                powNode.children = [tenNode, node.children[1]];
-                ronNode.children = [mulNode];
-                node = divNode;
+                // Add numeric check in the future
                 break;
             case ("expressions.IsNull"):
                 var nNode = notNode();
