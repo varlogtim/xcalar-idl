@@ -1359,6 +1359,10 @@ namespace SqlQueryHistoryPanel {
     };
 
     export function getDuration(queryInfo: QueryInfo, currentTime?: number): number | null {
+        // Failed queries show N/A
+        if (queryInfo.status === SQLStatus.Failed) {
+            return null;
+        }
         if (queryInfo.endTime != null) {
             return queryInfo.endTime - queryInfo.startTime;
         } else if (queryInfo.status === SQLStatus.Running) {
