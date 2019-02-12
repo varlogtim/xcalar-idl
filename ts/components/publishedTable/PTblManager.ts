@@ -761,6 +761,7 @@ class PTblManager {
             if (!noDatasetDeletion) {
                 XIApi.deleteDataset(txId, dsName);
             }
+            tableToDelete = resTable;
             return XIApi.publishTable(txId, primaryKeys, resTable, tableName, pbColInfos);
         })
         .then(() => {
