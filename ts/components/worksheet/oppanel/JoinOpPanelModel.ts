@@ -31,6 +31,7 @@ class JoinOpPanelModel {
     private _selectedColumns: { // Columns selected by user
         left: string[], right: string[]
     } = { left: [], right: [] };
+    private _nullSafe: boolean = false;
 
     public static fromDag(
         dagNode: DagNodeJoin,
@@ -113,6 +114,7 @@ class JoinOpPanelModel {
         const {
             left: configLeft, right: configRight,
             joinType: configJoinType, evalString: configEvalString,
+            nullSafe: configNullSafe = false,
             // This flag is only effective when converting dagInput to model
             keepAllColumns: configKeepAllColumns
         } = <DagNodeJoinInputStruct>xcHelper.deepCopy(config);
@@ -152,6 +154,8 @@ class JoinOpPanelModel {
         model.setJoinType(configJoinType);
         // Eval String
         model.setEvalString(configEvalString);
+        // nullSafe
+        model.setNullSafe(configNullSafe);
 
         // Normalize JoinOn input
         // We don't support type casting in Join for now, but keep the code in case we wanna re-enable it
@@ -290,6 +294,7 @@ class JoinOpPanelModel {
             left: { columns: [], keepColumns: [], rename: [] },
             right: { columns: [], keepColumns: [], rename: [] },
             evalString: this._evalString,
+            nullSafe: this.isNullSafe(),
             // All selected columns are already in keepColumns
             // Keep it here to let user be able to access in adv. form/json
             keepAllColumns: false
@@ -908,6 +913,13 @@ class JoinOpPanelModel {
         this._evalString = str;
     }
 
+    public isNullSafe(): boolean {
+        return this._nullSafe;
+    }
+
+    public setNullSafe(nullSafe: boolean): void {
+        this._nullSafe = nullSafe;
+    }
     // public isKeepAllColumns(): boolean {
     //     return this._keepAllColumns;
     // }

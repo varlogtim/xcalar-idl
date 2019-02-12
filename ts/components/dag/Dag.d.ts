@@ -178,6 +178,7 @@ interface DagNodeJoinInputStruct {
     right: DagNodeJoinTableInput
     evalString?: string;
     keepAllColumns: boolean;
+    nullSafe: boolean;
 }
 
 interface DagNodeMapInputStruct {

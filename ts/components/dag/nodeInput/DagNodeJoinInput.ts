@@ -7,7 +7,7 @@ class DagNodeJoinInput extends DagNodeInput {
         inputStruct = {
           joinType: DagNodeJoinInput._convertSubTypeToJoinType(dagNode.getSubType())
             || JoinOperatorTStr[JoinOperatorT.InnerJoin],
-          left: null, right: null, evalString: null, keepAllColumns: true
+          left: null, right: null, evalString: null, nullSafe: false, keepAllColumns: true
         };
       }
       if (inputStruct.left == null) {
@@ -30,6 +30,9 @@ class DagNodeJoinInput extends DagNodeInput {
       }
       if (inputStruct.evalString == null) {
         inputStruct.evalString = '';
+      }
+      if (inputStruct.nullSafe == null) {
+        inputStruct.nullSafe = false;
       }
       if (inputStruct.keepAllColumns == null) {
         inputStruct.keepAllColumns = true;
@@ -338,6 +341,15 @@ class DagNodeJoinInput extends DagNodeInput {
             "examples": [
               true
             ]
+          },
+          "nullSafe": {
+            "$id": "#/properties/nullSafe",
+            "type": "boolean",
+            "title": "The nullSafe Schema",
+            "default": false,
+            "examples": [
+              true
+            ]
           }
         }
     };
@@ -349,6 +361,7 @@ class DagNodeJoinInput extends DagNodeInput {
             left: input.left,
             right: input.right,
             evalString: input.evalString,
+            nullSafe: input.nullSafe,
             keepAllColumns: input.keepAllColumns == null ? true: input.keepAllColumns
         };
     }

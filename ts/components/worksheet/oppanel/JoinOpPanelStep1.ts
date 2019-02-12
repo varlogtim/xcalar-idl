@@ -96,6 +96,8 @@ class JoinOpPanelStep1 {
             text = JoinTStr.DagColSelectInstrCross;
         }
         this._$elemInstr.text(text);
+        // Setup join options section
+        this._updateJoinOptionsSection();
         // Setup main section
         const $elemClauseArea = BaseOpPanel.findXCElement(this._$elem, 'clauseArea');
         const $elemFilterEval = BaseOpPanel.findXCElement(this._$elem, 'crossJoinFilter');
@@ -137,6 +139,43 @@ class JoinOpPanelStep1 {
         }
         // Command Preview section
         this._updatePreview();
+    }
+
+    private _updateJoinOptionsSection() {
+        const $advancedSection = BaseOpPanel.findXCElement(this._$elem, 'advancedSection');
+
+        // Update nullSafe option UI
+        const $nullSafeOption = BaseOpPanel.findXCElement($advancedSection, 'nullSafeOption');
+        const $nullSafeCheckbox = BaseOpPanel.findXCElement($nullSafeOption, 'nullSafeCheckbox');
+        toggleCheckbox($nullSafeCheckbox, this._modelRef.isNullSafe());
+
+        // Register events
+        // Toggle options
+        BaseOpPanel.findXCElement($advancedSection, 'toggleIcons').off().on('click', () => {
+            if ($advancedSection.hasClass('collapsed')) {
+                $advancedSection.removeClass('collapsed');
+                $advancedSection.addClass('expanded');
+            } else {
+                $advancedSection.removeClass('expanded');
+                $advancedSection.addClass('collapsed');
+            }
+        });
+        // nullSafe checkbox
+        BaseOpPanel.findXCElement($advancedSection, 'nullSafeOption').off().on('click', () => {
+            const isNullSafe =  this._modelRef.isNullSafe();
+            this._modelRef.setNullSafe(!isNullSafe);
+            toggleCheckbox($nullSafeCheckbox, !isNullSafe);
+        });
+
+        function toggleCheckbox($checkbox, isChecked) {
+            if (isChecked) {
+                if (!$checkbox.hasClass('checked')) {
+                    $checkbox.addClass('checked');
+                }
+            } else {
+                $checkbox.removeClass('checked');
+            }                
+        }
     }
 
     private _updatePreview() {

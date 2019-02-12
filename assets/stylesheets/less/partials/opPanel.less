@@ -2520,6 +2520,20 @@
         .size(@width: ~"calc(50% - @{middleIconWidth})");
     }
 
+    .col-fixed {
+        flex-grow: 0;
+        flex-shrink: 0;
+    }
+
+    .col-checkbox {
+        padding-right: 8px;
+        .col-fixed();
+    }
+
+    .col-qmark {
+        padding-left: 3px;
+    }
+
     .row-subheading {
         .col {
             font-weight: 700;
@@ -2780,6 +2794,28 @@
 
     .columnList-full {
         .size(@width: 100%);
+    }
+
+    .advancedSection {
+        .advancedIcon {
+            margin: 0;
+            left: 0;
+        }
+        .optionsSection {
+            padding-left: 26px;
+
+            .checkboxSection {
+                cursor: auto;
+                > div {
+                    float: none;
+                    margin: 0;
+                }
+            }
+            .text {
+                font-size: 11px;
+                color: @color-font-dropdown-gray;
+            }
+        }
     }
 }
 

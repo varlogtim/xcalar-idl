@@ -436,6 +436,7 @@ class DagNodeExecutor {
         const options: JoinOptions = {
             newTableName: this._generateTableName(),
             evalString: params.evalString,
+            nullSafe: params.nullSafe,
             keepAllColumns: false // Backend is removing this flag, so XD should not use it anymore
             // keepAllColumns: params.keepAllColumns
         };

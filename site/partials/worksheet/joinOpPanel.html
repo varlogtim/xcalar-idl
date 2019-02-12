@@ -22,8 +22,8 @@
                   <i class="icon xi-arrow-down"></i>
                 </div>
                 <ul data-xcid="menuItems" class="list"></ul>
-            </div>
-          </section>
+              </div>
+            </section>
           <!-- Join Main Section -->
           <section>
             <div>
@@ -51,6 +51,39 @@
               </div>
               <p class="crossJoinFilterInstr instrText"><%= dicts.joinView.FilterInstr %></p>
               <input data-xcid="evalStr" type="text" spellcheck="false" />
+            </section>
+            <section class="advancedSection collapsed" data-xcid="advancedSection">
+              <div class="advancedTitle subHeading clearfix flexContainer clickable" data-xcid="toggleIcons">
+                  <div class="col col-fixed">
+                      <i class="advancedIcon icon xi-plus-circle-outline"></i>
+                      <i class="advancedIcon icon xi-minus-circle-outline"></i>
+                  </div>
+                  <span class="text"><%= dicts.joinView.JoinOptions %></span>
+              </div>
+              <div class="optionsSection">
+                  <!-- nullSafe checkbox -->
+                  <div class="checkboxSection flexContainer">
+                      <div class="clickable col col-fixed" data-xcid="nullSafeOption">
+                          <div class="col col-checkbox">
+                              <div class="checkbox" data-xcid="nullSafeCheckbox">
+                                  <i class="icon xi-ckbox-empty fa-11"></i>
+                                  <i class="icon xi-ckbox-selected fa-11"></i>
+                              </div>
+                          </div>
+                          <div class="col">
+                              <span class="text"><%= dicts.joinView.JoinPanelNullSafeTitle %></span>
+                          </div>
+                      </div>
+                      <div class="col col-qmark">
+                          <i class="qMark icon xi-unknown"
+                              data-toggle="tooltip"
+                              data-container="body"
+                              data-placement="top"
+                              data-title="<%= dicts.joinView.JoinPanelNullSafeTooltip %>">
+                          </i>
+                      </div>          
+                  </div>
+              </div>
             </section>
             <div class="strPreview">
               <b class="prevTitle"><%= dicts.joinView.Preview %></b>

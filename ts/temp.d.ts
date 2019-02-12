@@ -58,6 +58,7 @@ interface JoinOptions {
     evalString?: string; // cross join filter's eval string, now it applies to any join type
     existenceCol?: string;
     keepAllColumns?: boolean;
+    nullSafe?: boolean;
 }
 
 interface AggColInfo {
