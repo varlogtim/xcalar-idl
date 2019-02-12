@@ -33,7 +33,11 @@ class SQLExecutor {
         const tables: string[] = Array.from(XDParser.SqlParser.getTableIdentifiers(sql));
         const tableMap = PTblManager.Instance.getTableMap();
         tables.forEach((identifier, idx) => {
-            const pubTableName = identifier.toUpperCase();
+            let pubTableName = identifier.toUpperCase();
+            // pub table name can't have backticks. If see backticks, it must be for escaping in SQL
+            if (pubTableName[0] === "`" && pubTableName[identifier.length - 1] === "`") {
+                pubTableName = pubTableName.slice(1, -1);
+            }
             if (tableMap.has(pubTableName)) {
                 const columns = [];
                 tableMap.get(pubTableName).columns.forEach((column) => {
@@ -51,7 +55,7 @@ class SQLExecutor {
                 throw new Error("Cannot find published table: " + pubTableName);
             }
             this._identifiersOrder.push(idx + 1);
-            this._identifiers[idx + 1] = identifier;
+            this._identifiers[idx + 1] = pubTableName;
         });
 
         this._sqlNode = <DagNodeSQL>DagNodeFactory.create({
