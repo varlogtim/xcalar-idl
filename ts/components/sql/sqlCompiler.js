@@ -88,6 +88,7 @@
         "expressions.Hypot": null,
         "expressions.Logarithm": null,
         "expressions.Round": "round",
+        "expressions.RoundNumeric": "roundNumeric",
         "expressions.BRound": null,
         // predicates.scala
         "expressions.Not": "not",
@@ -900,9 +901,6 @@
                                       node.children[0], node.children[1]);
                 node = newNode;
                 break;
-            case ("expressions.Round"):
-                // Add numeric check in the future
-                break;
             case ("expressions.IsNull"):
                 var nNode = notNode();
                 var notNNode = existNode();
@@ -1077,7 +1075,10 @@
         }
         opName = node.value.class.substring(
                             node.value.class.indexOf("expressions."));
-        if (opName === "expressions.Add" || opName === "expressions.Subtract"
+        if (opName === "expressions.Round" && getColType(node.children[0]) === "numeric") {
+            node.value.class = node.value.class + "Numeric";
+            node.colType = "numeric";
+        } else if (opName === "expressions.Add" || opName === "expressions.Subtract"
             || opName === "expressions.Multiply" || opName === "expressions.Abs"
             || opName === "expressions.Divide"
             || opName === "expressions.aggregate.Sum"
