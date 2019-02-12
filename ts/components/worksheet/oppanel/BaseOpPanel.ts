@@ -121,6 +121,10 @@ class BaseOpPanel {
         return this._formHelper.isOpen();
     }
 
+    public panelResize(): void {
+        // implemented by inheritor
+    }
+
 
     private static _instance = null;
     protected $panel: JQuery;
@@ -264,6 +268,7 @@ class BaseOpPanel {
     protected _getPanel(): JQuery {
         return this.$panel;
     }
+
 
     public refreshColumns(_options?): void {
         // implemented by inheritor

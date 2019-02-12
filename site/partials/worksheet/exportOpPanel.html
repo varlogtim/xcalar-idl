@@ -16,13 +16,20 @@
                         <div class="label"><%= dicts.exportView.colsToExport %>:</div>
                     </div>
                     <p class="instrText"><%= dicts.exportView.colInstr %></p>
-                    <div class="checkboxWrap selectAllWrap">
-                        <div class="text"><%= dicts.common.SelectAll %></div>
-                        <div class="checkbox">
-                            <i class="icon xi-ckbox-empty fa-13"></i>
-                            <i class="icon xi-ckbox-selected fa-13"></i>
+                    <div class="columnOptions">
+                        <div class="toggleColumnCollapse">
+                            <i class="icon xi-minus" data-toggle="tooltip" data-container="body" data-original-title="Minimize column list"></i>
+                            <i class="icon xi-plus" data-toggle="tooltip" data-container="body" data-original-title="Maximize column list"></i>
+                        </div>
+                        <div class="checkboxWrap selectAllWrap">
+                            <div class="text"><%= dicts.common.SelectAll %></div>
+                            <div class="checkbox">
+                                <i class="icon xi-ckbox-empty fa-13"></i>
+                                <i class="icon xi-ckbox-selected fa-13"></i>
+                            </div>
                         </div>
                     </div>
+
                     <div class="columnsToExport columnsWrap flexWrap clearfix">
                         <ul class="cols"></ul>
                         <div class="hint noColsHint empty"><%= dicts.dataflow.noColsHint %></div>

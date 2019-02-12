@@ -263,6 +263,16 @@ window.MainMenu = (function($, MainMenu) {
                 $menuPanel.css("max-width", panelRight - 10);
                 $mainMenu.addClass("resizing");
             },
+            "resize": function(event, ui) {
+                if (!isSmall && ui.size.width < minWidth) {
+                    $mainMenu.removeClass("expanded");
+                    isSmall = true;
+                } else if (isSmall && ui.size.width >= minWidth) {
+                    $mainMenu.addClass("expanded");
+                    isSmall = false;
+                }
+                DS.resize();
+            },
             "stop": function() {
                 $menuPanel.css("max-width", "").css("max-height", "");
                 var width = $menuPanel.width();
@@ -290,19 +300,12 @@ window.MainMenu = (function($, MainMenu) {
                         if (panel.getSQLEditor && panel.getSQLEditor()) {
                             panel.getSQLEditor().refresh();
                         }
+                        if (panel.panelResize) {
+                            panel.panelResize();
+                        }
                     }
                 });
             },
-            "resize": function(event, ui) {
-                if (!isSmall && ui.size.width < minWidth) {
-                    $mainMenu.removeClass("expanded");
-                    isSmall = true;
-                } else if (isSmall && ui.size.width >= minWidth) {
-                    $mainMenu.addClass("expanded");
-                    isSmall = false;
-                }
-                DS.resize();
-            }
         });
     }
 

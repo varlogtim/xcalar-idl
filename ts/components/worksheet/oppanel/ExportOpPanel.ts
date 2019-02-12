@@ -108,10 +108,12 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
                 this._$exportDest.val(this._dataModel.currentDriver.name);
                 this._currentDriver = "Switching to: " + this._dataModel.currentDriver.name;
                 this._updateUI();
+                this.panelResize();
                 return;
             } catch (e) {
                 StatusBox.show(e, $("#exportOpPanel .modalTopMain"),
                     false, {'side': 'right'});
+                this.panelResize();
                 return;
             }
         }
@@ -147,11 +149,13 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
                 this._dagNode.getParam().driverArgs);
             this._updateUI();
             MainMenu.setFormOpen();
+            this.panelResize();
         })
         .fail((error) => {
             MainMenu.setFormOpen();
             console.error(error);
             this._dataModel.exportDrivers = [];
+            this.panelResize();
             StatusBox.show("Unable to load drivers", $("#exportOpPanel .modalTopMain .exportDriver"),
                     false, {'side': 'right'});
         });
@@ -291,7 +295,26 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         MainMenu.setFormClose();
     }
 
+    /**
+     * called when the user resizes the panel
+     */
+    public panelResize(): void {
+        let $collapseOption = this.$panel.find(".toggleColumnCollapse");
+        let wasMinimized = this._$exportColList.hasClass("minimized");
+        this._$exportColList.addClass("minimized");
+        $collapseOption.addClass("minimized");
 
+        // + 1 due to 1px padding-top in .cols
+        if (this._$exportColList[0].scrollHeight > this._$exportColList.height() + 1) {
+            $collapseOption.removeClass("xc-hidden");
+        } else {
+            $collapseOption.addClass("xc-hidden");
+        }
+        if (!wasMinimized) {
+            this._$exportColList.removeClass("minimized");
+            $collapseOption.removeClass("minimized");
+        }
+    }
 
     /**
      * Attach event listeners for static elements
@@ -411,6 +434,16 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
             let $arg = $(this).closest('.exportArg');
             let paramIndex = $("#exportOpPanel .exportArg").index($arg);
             self._dataModel.setParamValue($input.val(), paramIndex);
+        });
+
+        this.$panel.find(".toggleColumnCollapse").on("click", function() {
+            if ($(this).hasClass("minimized")) {
+                $(this).removeClass("minimized");
+                self._$exportColList.removeClass("minimized");
+            } else {
+                $(this).addClass("minimized");
+                self._$exportColList.addClass("minimized");
+            }
         });
     }
 

@@ -3040,6 +3040,12 @@
             }
             .cols {
                 padding-top: 1px;
+                overflow-y: auto;
+
+                &.minimized {
+                    max-height: 101px;
+                }
+
                 .col {
                     border: 1px solid @color-bg-white-five;
                     line-height: unset;
@@ -3047,9 +3053,35 @@
                         padding-top: 4px;
                     }
                 }
-                max-height: 101px;
-                overflow-y: auto;
+
             }
+        }
+    }
+
+    .toggleColumnCollapse {
+        float: left;
+        cursor: pointer;
+        margin-left: 10px;
+        padding: 0 5px;
+        height: 26px;
+
+        &.minimized {
+            .xi-minus {
+                display: none;
+            }
+            .xi-plus {
+                display: block;
+            }
+        }
+
+        .xi-plus {
+            display: none;
+        }
+
+        .icon {
+            font-size: 10px;
+            color: @color-font-edge;
+            line-height: 26px;
         }
     }
 
