@@ -2051,7 +2051,7 @@ window.DS = (function ($, DS) {
                 if (dataset.loadIsComplete) {
                     PTblManager.Instance.addDatasetTable(dsName);
                 } else {
-                    XcalarDatasetDelete(dsName);
+                    deleteTempDS(dsName);
                 }
                 continue;
             }
@@ -3294,6 +3294,20 @@ window.DS = (function ($, DS) {
             $grid.removeClass("active");
             DS.focusOn($grid); // re-focus on the ds
         }
+    }
+
+    function deleteTempDS(dsName) {
+        XcalarDatasetDelete(dsName)
+        .fail(function() {
+            try {
+                clearLoadNodeInAllWorkbooks(dsName)
+                .always(function() {
+                    XcalarDatasetDelete(dsName);
+                });
+            } catch (e) {
+                console.error(e);
+            }
+        });
     }
 
     // XXX TODO: this is a try to remove all the load nodes
