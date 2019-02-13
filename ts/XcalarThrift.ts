@@ -2583,7 +2583,8 @@ XcalarJoin = function(
     leftColInfos: ColRenameInfo[],
     rightColInfos: ColRenameInfo[],
     options: {evalString: string, keepAllColumns: boolean},
-    txId: number
+    txId: number,
+    nullSafe?: boolean
 ): XDPromise<any> {
     // If this flag is set to false, then any column that is not in left columns
     // or right columns will be dropped. This should eventually be set to false.
@@ -2610,7 +2611,7 @@ XcalarJoin = function(
     const workItem = xcalarJoinWorkItem(left, right, dst,
                                         joinType, leftColumns,
                                         rightColumns, evalString,
-                                        keepAllColumns);
+                                        keepAllColumns, nullSafe);
 
     let def: XDPromise<any>;
     if (Transaction.isSimulate(txId)) {
@@ -5471,7 +5472,8 @@ XcalarRefreshTable = function(
     maxBatch: number,
     txId: number,
     filterString: string,
-    columnInfo: RefreshColInfo[]
+    columnInfo: RefreshColInfo[],
+    limitRows?: number
 ): XDPromise<XcalarApiNewTableOutputT> {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
@@ -5488,13 +5490,13 @@ XcalarRefreshTable = function(
     const deferred: XDDeferred<XcalarApiNewTableOutputT> = jQuery.Deferred();
 
     const workItem = xcalarApiSelectWorkItem(pubTableName, dstTableName,
-                                        minBatch, maxBatch, filterString, columns);
+                                        minBatch, maxBatch, filterString, columns, limitRows);
     const query = XcalarGetQuery(workItem);
     Transaction.startSubQuery(txId, SQLOps.RefreshTables, dstTableName, query);
 
     // Note max and min places are switched because the API is a little strange
     xcalarApiSelect(tHandle, pubTableName, dstTableName, maxBatch, minBatch,
-        filterString, columns)
+        filterString, columns, limitRows)
     .then(function(ret) {
         Transaction.log(txId, query, dstTableName, (ret as any).timeElapsed);
         deferred.resolve.apply(this, arguments);
@@ -5507,7 +5509,7 @@ XcalarRefreshTable = function(
     return deferred.promise();
 };
 
-XcalarRestoreTable = function(pubTableName: string): XDPromise<StatusT> {
+XcalarRestoreTable = function(pubTableName: string): XDPromise<XcalarApiRestoreTableOutputT> {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }

@@ -1718,11 +1718,13 @@ declare class XcalarApiSelectInputT {
 	dest: string;
 	minBatchId: number;
 	maxBatchId: number;
+	limitRows: number;
 	constructor(args?: {
 		source?: string,
 		dest?: string,
 		minBatchId?: number,
 		maxBatchId?: number,
+		limitRows?: number,
 	});
 }
 declare class XcalarApiUnpublishInputT {
@@ -1737,6 +1739,12 @@ declare class XcalarApiRestoreTableInputT {
 	publishedTableName: string;
 	constructor(args?: {
 		publishedTableName?: string,
+	});
+}
+declare class XcalarApiRestoreTableOutputT {
+	dependencies: string[];
+	constructor(args?: {
+		dependencies?: string[],
 	});
 }
 declare class XcalarApiCoalesceInputT {
@@ -2429,6 +2437,7 @@ declare class XcalarApiOutputResultT {
 	updateOutput: XcalarApiUpdateOutputT;
 	cgroupOutput: XcalarApiCgroupOutputT;
 	queryListOutput: XcalarApiQueryListOutputT;
+	restoreTableOutput: XcalarApiRestoreTableOutputT;
 	constructor(args?: {
 		getVersionOutput?: XcalarApiGetVersionOutputT,
 		statusOutput?: number,
@@ -2500,6 +2509,7 @@ declare class XcalarApiOutputResultT {
 		updateOutput?: XcalarApiUpdateOutputT,
 		cgroupOutput?: XcalarApiCgroupOutputT,
 		queryListOutput?: XcalarApiQueryListOutputT,
+		restoreTableOutput?: XcalarApiRestoreTableOutputT,
 	});
 }
 declare class XcalarApiOutputHeaderT {

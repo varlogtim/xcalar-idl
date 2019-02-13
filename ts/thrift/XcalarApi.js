@@ -2750,7 +2750,7 @@ xcalarResultSetNext = runEntity.xcalarResultSetNext = function(thriftHandle, res
 
 xcalarJoinWorkItem = runEntity.xcalarJoinWorkItem = function(leftTableName, rightTableName, joinTableName,
                             joinType, leftColumns, rightColumns,
-                            evalString, keepAllColumns) {
+                            evalString, keepAllColumns, nullSafe) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.joinInput = new XcalarApiJoinInputT();
@@ -2770,6 +2770,7 @@ xcalarJoinWorkItem = runEntity.xcalarJoinWorkItem = function(leftTableName, righ
 
     workItem.input.joinInput.dest = joinTableName;
     workItem.input.joinInput.evalString = evalString;
+    workItem.input.joinInput.nullSafe = nullSafe;
     workItem.input.joinInput.joinType = JoinOperatorTStr[joinType];
     workItem.input.joinInput.columns = [];
     workItem.input.joinInput.columns[0] = [];
@@ -2792,7 +2793,7 @@ xcalarJoinWorkItem = runEntity.xcalarJoinWorkItem = function(leftTableName, righ
 };
 
 xcalarJoin = runEntity.xcalarJoin = function(thriftHandle, leftTableName, rightTableName, joinTableName,
-                    joinType, leftColumns, rightColumns, evalString, keepAllColumns) {
+                    joinType, leftColumns, rightColumns, evalString, keepAllColumns, nullSafe) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
@@ -2809,7 +2810,7 @@ xcalarJoin = runEntity.xcalarJoin = function(thriftHandle, leftTableName, rightT
     var workItem = xcalarJoinWorkItem(leftTableName, rightTableName,
                                       joinTableName, joinType,
                                       leftColumns, rightColumns,
-                                      evalString, keepAllColumns);
+                                      evalString, keepAllColumns, nullSafe);
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var joinOutput = result.output.outputResult.joinOutput;
@@ -3296,15 +3297,16 @@ xcalarRestoreTable = runEntity.xcalarRestoreTable = function(thriftHandle, table
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
+        var output = result.output.outputResult.restoreTableOutput;
         var status = result.output.hdr.status;
         var log = result.output.hdr.log;
         if (result.jobStatus != StatusT.StatusOk) {
             status = result.jobStatus;
         }
         if (status != StatusT.StatusOk) {
-            deferred.reject({xcalarStatus: status, log: log});
+            deferred.reject({xcalarStatus: status, log: log, output: output});
         } else {
-            deferred.resolve(status);
+            deferred.resolve(output);
         }
     })
     .fail(function(error) {
@@ -3771,7 +3773,7 @@ xcalarApiSynthesize = runEntity.xcalarApiSynthesize = function(thriftHandle, src
     return (deferred.promise());
 };
 
-xcalarApiSelectWorkItem = runEntity.xcalarApiSelectWorkItem = function(srcTableName, dstTableName, batchIdMax, batchIdMin, filterString, columns) {
+xcalarApiSelectWorkItem = runEntity.xcalarApiSelectWorkItem = function(srcTableName, dstTableName, batchIdMax, batchIdMin, filterString, columns, limitRows) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.selectInput = new XcalarApiSelectInputT();
@@ -3792,11 +3794,17 @@ xcalarApiSelectWorkItem = runEntity.xcalarApiSelectWorkItem = function(srcTableN
         workItem.input.selectInput.minBatchId = -1;
     }
 
+    if (limitRows != null) {
+        workItem.input.selectInput.limitRows = limitRows;
+    } else {
+        workItem.input.selectInput.limitRows = 0;
+    }
+
     workItem.api = XcalarApisT.XcalarApiSelect;
     return (workItem);
 };
 
-xcalarApiSelect = runEntity.xcalarApiSelect = function(thriftHandle, srcTableName, dstTableName, batchIdMax, batchIdMin, filterString, columns) {
+xcalarApiSelect = runEntity.xcalarApiSelect = function(thriftHandle, srcTableName, dstTableName, batchIdMax, batchIdMin, filterString, columns, limitRows) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSelect(srcTableName = " + srcTableName +
@@ -3809,7 +3817,7 @@ xcalarApiSelect = runEntity.xcalarApiSelect = function(thriftHandle, srcTableNam
 
     var workItem = xcalarApiSelectWorkItem(srcTableName, dstTableName,
                                            batchIdMax, batchIdMin,
-                                           filterString, columns);
+                                           filterString, columns, limitRows);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {

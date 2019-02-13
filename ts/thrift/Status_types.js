@@ -678,7 +678,8 @@ StatusT = {
   'StatusCgroupAppInProgress' : 669,
   'StatusJsonSessSerializeError' : 670,
   'StatusSessMdataInconsistent' : 671,
-  'StatusRuntimeChangeInProgress' : 672
+  'StatusRuntimeChangeInProgress' : 672,
+  'StatusSelectLimitReached' : 673
 };
 StatusTStr = {
   0 : 'Success',
@@ -1353,7 +1354,8 @@ StatusTStr = {
   669 : 'Cgroups App already in progress',
   670 : 'Error in JSON during session serialization',
   671 : 'Possible inconsistency in session metadata',
-  672 : 'Setting Runtime configuration already in progress'
+  672 : 'Setting Runtime configuration already in progress',
+  673 : 'Limit for select number of rows reached'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -2028,5 +2030,6 @@ StatusTFromStr = {
   'Cgroups App already in progress' : 669,
   'Error in JSON during session serialization' : 670,
   'Possible inconsistency in session metadata' : 671,
-  'Setting Runtime configuration already in progress' : 672
+  'Setting Runtime configuration already in progress' : 672,
+  'Limit for select number of rows reached' : 673
 };
