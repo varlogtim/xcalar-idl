@@ -200,9 +200,8 @@ class XcUser {
             throw "Invalid User";
         }
 
-        const username: string = this._username;
         if (workbookId == null) {
-            xcSessionStorage.removeItem(username);
+            xcSessionStorage.removeItem(WorkbookManager.getLastActiveWKBK());
             return PromiseHelper.resolve();
         }
 
@@ -219,7 +218,7 @@ class XcUser {
         promise
             .then(this.sessionHoldAlert)
             .then(() => {
-                xcSessionStorage.removeItem(username);
+                xcSessionStorage.removeItem(workbookId);
                 if (!alreadyStarted) {
                     xcSocket.registerUserSession(workbookId);
                 }
@@ -448,14 +447,13 @@ class XcUser {
             return PromiseHelper.resolve();
         }
 
-        const lastLogInTime: number = Number(xcSessionStorage.getItem(XcUser.getCurrentUserName()));
+        const lastLogInTime: number = Number(xcSessionStorage.getItem(WorkbookManager.getActiveWKBK()));
         // 25000 is the pingInterval for socket io if it's long polling
         // see: https://socket.io/docs/server-api/
         if (lastLogInTime && new Date().getTime() - lastLogInTime <= 25000) {
             // in this case consider as a refresh case
             return PromiseHelper.resolve();
         }
-
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const $initScreen: JQuery = $("#initialLoadScreen");
         const isVisible: boolean = $initScreen.is(":visible");

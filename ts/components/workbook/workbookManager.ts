@@ -1,6 +1,7 @@
 namespace WorkbookManager {
     let wkbkStore: KVStore;
     let activeWKBKId: string;
+    let lastActiveWKBKId: string; // last workbook before switching
     let wkbkSet: WKBKSet;
     let checkInterval: number = 2000; // progress bar check time
     let progressTimeout: any;
@@ -127,6 +128,11 @@ namespace WorkbookManager {
         return activeWKBKId;
     };
 
+    // returns the last active workbook before a switch wkbk was made
+    export function getLastActiveWKBK(): string {
+        return lastActiveWKBKId || activeWKBKId;
+    }
+
     function setActiveWKBK(workbookId: string): boolean {
         if (workbookId == null) {
             activeWKBKId = null;
@@ -140,6 +146,7 @@ namespace WorkbookManager {
             return false;
         }
 
+        lastActiveWKBKId = activeWKBKId;
         activeWKBKId = workbookId;
         setSessionName(wkbk.getName());
         return true;
@@ -509,7 +516,7 @@ namespace WorkbookManager {
     * uploads a workbook from a file
     * @param workbookName - name of the workbook to upload
     * @param workbookContent - the file being uploaded
-    * @param parsed? - byte string of the workbook's contents. 
+    * @param parsed? - byte string of the workbook's contents.
     *     Ignores workbookContent if specified, optional
     */
     export function uploadWKBK(workbookName: string, workbookContent: File, parsed?: string): XDPromise<string> {
@@ -1499,7 +1506,7 @@ namespace WorkbookManager {
      * Allows for storing dataset load arguments within the kvstore,
      * for later use. Should not be used outside of console (for now).
      * Also allows for specifying which datasets should automatically create published tables
-     * @param dsInfos: Object list specifying the datasets we want to load and if they have an 
+     * @param dsInfos: Object list specifying the datasets we want to load and if they have an
      *    associated publish table
      */
     export function storeDatasets(dsInfos: {name: string, publish?: boolean,

@@ -385,8 +385,8 @@ namespace xcManager {
 
     function markUserUnload(): void {
         const xcSocket: XcSocket = XcSocket.Instance;
-        if (xcSocket.isResigered()) {
-            xcSessionStorage.setItem(XcUser.getCurrentUserName(), String(new Date().getTime()));
+        if (xcSocket.isResigered() && WorkbookManager.getLastActiveWKBK()) {
+            xcSessionStorage.setItem(WorkbookManager.getLastActiveWKBK(), String(new Date().getTime()));
         }
     }
 
