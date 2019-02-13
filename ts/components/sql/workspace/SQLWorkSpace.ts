@@ -69,6 +69,19 @@ class SQLWorkSpace {
         this.save();
     }
 
+    /**
+     * SQLWorkSpace.Instance.newSQL
+     * @param sql
+     */
+    public newSQL(sql: string): void {
+        try {
+            MainMenu.openPanel("sqlPanel");
+            SQLEditorSpace.Instance.newSQL(sql);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
     private _resizeEvents() {
         let $panel: JQuery = $('#sqlWorkSpacePanel');
         let $rightSection: JQuery = $panel.find(".rightSection");

@@ -334,6 +334,7 @@ namespace WorkbookPanel {
     function addWorkbookEvents(): void {
         // New Workbook card
         $("#createWKBKbtn").click(function() {
+            StatusBox.forceHide();
             let wbName: string;
             const workbooks: object = WorkbookManager.getWorkbooks();
             wbName = wbDuplicateName('New Workbook', workbooks, 0);
@@ -346,6 +347,7 @@ namespace WorkbookPanel {
         });
 
         $("#browseWKBKbtn").click(function() {
+            StatusBox.forceHide();
             $("#WKBK_uploads").click();
         });
 
@@ -1046,6 +1048,12 @@ namespace WorkbookPanel {
         }
 
         path = file.name.replace(/C:\\fakepath\\/i, '').trim();
+        if (path.endsWith(gDFSuffix)) {
+            let error = "Cannot upload files that ends with " + gDFSuffix + " as worbook.";
+            handleError(error, $("#browseWKBKbtn"));
+            return;
+        }
+        
         let wbName: string = path.substring(0, path.indexOf(".")).trim()
                     .replace(/ /g, "");
         wbName = <string>xcHelper.checkNamePattern(<PatternCategory>"Workbook", <PatternAction>"fix", wbName);

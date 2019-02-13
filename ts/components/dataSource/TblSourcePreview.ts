@@ -196,6 +196,19 @@ class TblSourcePreview {
             tableInfo.active === true
         ) {
             // when it's a normal table
+            if (XVM.isSQLMode()) {
+                html +=
+                '<button class="writeSQL btn btn-clear iconBtn">' +
+                    '<i class="icon xi-menu-sql"></i>' +
+                    TblTStr.WriteSQL +
+                '</button>';
+            } else {
+                html +=
+                '<button class="createDF btn btn-clear iconBtn">' +
+                    '<i class="icon xi-dfg2"></i>' +
+                    TblTStr.CreateDF +
+                '</button>';
+            }
             html += '<span class="action xc-action"></span>';
         }
 
@@ -430,6 +443,29 @@ class TblSourcePreview {
         TblSource.Instance.createTableFromDataset(tableInfo, res.schema); 
     }
 
+    private _createDF(tableInfo: PbTblInfo): void {
+        if (XVM.isSQLMode() || tableInfo == null) {
+            return;
+        }
+        
+        let tableName: string = tableInfo.name;
+        DagView.newTabFromSource(DagNodeType.IMDTable, {
+            source: tableName
+        });
+    }
+
+    private _writeSQL(tableInfo: PbTblInfo): void {
+        if (XVM.isAdvancedMode() || tableInfo == null) {
+            return;
+        }
+        let tableName: string = tableInfo.name;
+        let sql: string =
+        `-- This is a sample code to start\n` +
+        `select * from ${tableName};`;
+        SQLWorkSpace.Instance.newSQL(sql);
+        SQLWorkSpace.Instance.save();
+    }
+
     private _addEventListeners(): void {
         let $container = this._getContainer();
         let $infoSection = $container.find(".infoSection");
@@ -439,6 +475,14 @@ class TblSourcePreview {
 
         $infoSection.on("click", ".viewSchema", () => {
             this._viewSchema(this._tableInfo);
+        });
+
+        $infoSection.on("click", ".createDF", () => {
+            this._createDF(this._tableInfo);
+        });
+
+        $infoSection.on("click", ".writeSQL", () => {
+            this._writeSQL(this._tableInfo);
         });
 
         let $bottomSection = $container.find(".bottomSection");

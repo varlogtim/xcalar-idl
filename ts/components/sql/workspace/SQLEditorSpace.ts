@@ -44,6 +44,19 @@ class SQLEditorSpace {
         return this._saveSnippet();
     }
 
+    public newSQL(sql: string): void {
+        let val: string = this._sqlEditor.getValue();
+        if (val) {
+            if (!val.endsWith(";")) {
+                val += ";";
+            }
+            val += "\n" + sql;
+        } else {
+            val = sql;
+        }
+        this._sqlEditor.setValue(val);
+    }
+
     /**
      * SQLEditorSpace.Instance.execute
      * @param sqls

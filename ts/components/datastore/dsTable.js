@@ -474,18 +474,10 @@ window.DSTable = (function($, DSTable) {
         var isFileError = false;
         if (dsObj) {
             var source = dsObj.getId();
-            // go to dag tab
-            $("#modelingDataflowTab").click();
-            DagTabManager.Instance.newTab();
-            var node = DagViewManager.Instance.autoAddNode(DagNodeType.Dataset, null, null, {
+            DagView.newTabFromSource(DagNodeType.Dataset, {
                 source: source,
                 prefix: xcHelper.normalizePrefix(dsObj.getName())
-            }, DagView.gridSpacing * 2, DagView.gridSpacing * 2);
-            if (node != null) {
-                DagNodeMenu.execute("configureNode", {
-                    node: node
-                });
-            }
+            });
         }
     }
 

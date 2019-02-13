@@ -73,6 +73,10 @@ class PTblManager {
         this._cachedTempTableSet.add(tableName);
     }
 
+    /**
+     * PTblManager.Instance.getTablesAsync
+     * @param refresh
+     */
     public getTablesAsync(refresh?: boolean): XDPromise<PbTblInfo[]> {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         let promise: XDPromise<PublishTable[]>;

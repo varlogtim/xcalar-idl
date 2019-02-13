@@ -151,6 +151,28 @@ class DagView {
         DagViewManager.Instance.autoAddNode(DagNodeType.SQLFuncOut, null, null, null, x, y);
     }
 
+    /**
+     * DagView.newTabFromSource
+     * @param type
+     * @param config
+     */
+    public static newTabFromSource(type: DagNodeType, config: any) {
+        try {
+            MainMenu.openPanel("dagPanel");
+            DagTabManager.Instance.newTab();
+            let position: number = DagView.gridSpacing * 2;
+            let node: DagNode = DagViewManager.Instance.autoAddNode(type, null, null, config,
+                position, position);
+            if (node != null) {
+                DagNodeMenu.execute("configureNode", {
+                    node: node
+                });
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
     public static getSkewText(skew) {
         return ((skew == null || isNaN(skew))) ? "N/A" : String(skew);
     }

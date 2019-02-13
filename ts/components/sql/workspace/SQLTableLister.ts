@@ -221,7 +221,9 @@ class SQLTableLister {
         if (!html) {
             html =
             '<div class="hint">' +
-                TblTStr.NoTable +
+                '<button class="btn btn-submit createTable">' +
+                    TblTStr.New +
+                '</button>'
             '</div>';
         }
 
@@ -476,6 +478,12 @@ class SQLTableLister {
 
         $mainContent.on("mouseenter", ".tooltipOverflow", function() {
             xcTooltip.auto(this);
+        });
+
+        $mainContent.on("click", ".createTable", (event) => {
+            $(event.currentTarget).blur();
+            MainMenu.openPanel("datastorePanel", "sourceTblButton");
+            DSForm.show(true);
         });
 
         const $topSection = this._getTopSection();

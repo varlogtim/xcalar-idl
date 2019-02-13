@@ -43,10 +43,18 @@ html.safari {
         #dsTableView {
             display: none;
         }
+
+        #dsForm-preview:not(.createTable) {
+            display: none;
+        }
     }
 
     &.in {
         #pTblView {
+            display: none;
+        }
+
+        #dsForm-preview.createTable {
             display: none;
         }
     }
@@ -408,6 +416,22 @@ html.safari {
                     text-decoration: underline;
                     color: @color-bg-cardHeader;
                 }
+            }
+
+            .createDF, .writeSQL {
+                margin-left: 10px;
+                padding: 0 8px;
+                position: relative;
+                top: -3px;
+
+                .icon {
+                    color: @color-bg-cardHeader;
+                    font-size: 15px;
+                }
+            }
+
+            .writeSQL {
+                width: 130px;
             }
         }
     }
