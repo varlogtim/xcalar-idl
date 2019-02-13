@@ -956,11 +956,16 @@ class DagNodeExecutor {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const newTableName = this._generateTableName();
         let cols: RefreshColInfo[] = this._getRefreshColInfoFromSchema(params.schema);
+        let limitedRows: number = params.limitedRows;
+        if (isNaN(limitedRows) || limitedRows < 0 || !Number.isInteger(limitedRows)) {
+            limitedRows = null;
+        }
+
         PromiseHelper.alwaysResolve(XcalarRestoreTable(params.source))
         .then(() => {
             return XcalarRefreshTable(params.source, newTableName,
                 -1, params.version, self.txId, params.filterString,
-                cols);
+                cols, limitedRows);
         })
         .then(() => {
             deferred.resolve(newTableName);

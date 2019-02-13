@@ -5472,6 +5472,9 @@ XcalarUpdateTable = function(
     return deferred.promise();
 };
 
+/**
+ * limitRows: set the return of row for each node
+ */
 XcalarRefreshTable = function(
     pubTableName: string,
     dstTableName: string,

@@ -323,22 +323,13 @@ class SQLTableLister extends AbstractSQLResultView {
 
     private _updateActions(tableOnFocus: {active: boolean}): void {
         const $section = this._getTopSection();
-        const $btnForActive = $section.find(".viewSchema")
-        .add($section.find(".deactivate"));
-        const $btnForInactive = $section.find(".activate");
+        const $btns = $section.find(".viewSchema");
 
         if (!tableOnFocus) {
             // no table
-            $btnForActive.addClass("xc-disabled");
-            $btnForInactive.addClass("xc-disabled");
-        } else if (tableOnFocus.active) {
-            // table is active
-            $btnForActive.removeClass("xc-disabled");
-            $btnForInactive.addClass("xc-disabled");
+            $btns.addClass("xc-disabled");
         } else {
-            // table is inactive
-            $btnForActive.addClass("xc-disabled");
-            $btnForInactive.removeClass("xc-disabled");
+            $btns.removeClass("xc-disabled");
         }
     }
 

@@ -12,6 +12,7 @@ class IMDTableOpPanel extends BaseOpPanel {
     private _schemaSection: ColSchemaSection;
     private _primaryKeys: string[];
     private _currentStep: number;
+    private _limitedRows: number;
 
     // *******************
     // Constants
@@ -64,6 +65,8 @@ class IMDTableOpPanel extends BaseOpPanel {
      */
     public close(isSubmit?: boolean): void {
         super.hidePanel(isSubmit);
+        this._advMode = false;
+        this._limitedRows = null;
     }
 
     private _convertAdvConfigToModel() {
@@ -113,7 +116,8 @@ class IMDTableOpPanel extends BaseOpPanel {
             source: this._$pubTableInput.val(),
             version: parseInt(this._$tableVersionInput.val()),
             schema: this._schemaSection.getSchema(false),
-            filterString: this._$filterStringInput.val()
+            filterString: this._$filterStringInput.val(),
+            limitedRows: this._limitedRows
         }
     }
 
@@ -160,6 +164,7 @@ class IMDTableOpPanel extends BaseOpPanel {
     }
 
     private _restorePanel(input: DagNodeIMDTableInputStruct): void {
+        this._limitedRows = input.limitedRows;
         this._$pubTableInput.val(input.source);
         this._$tableVersionInput.val(input.version);
         if (input.version != -1) {
@@ -349,6 +354,7 @@ class IMDTableOpPanel extends BaseOpPanel {
         if (!this._checkOpArgs(params)) {
             return;
         }
+        this._limitedRows = params.limitedRows;
         //XX: TODO: Uncomment this out when backend truly supports aggregates in filter string
         //const aggs: string[] = DagNode.getAggsFromEvalStrs([{evalString: params.filterString}]);
         //this._dagNode.setAggregates(aggs);

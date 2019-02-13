@@ -111,6 +111,7 @@ interface DagNodeIMDTableInputStruct {
     version: number;
     schema: ColSchema[];
     filterString?: string;
+    limitedRows?: number;
 }
 
 interface DagNodePublishIMDInputStruct {

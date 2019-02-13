@@ -174,7 +174,10 @@ class TblSourcePreview {
         }, {
             key: "size",
             text: CommonTxtTstr.Size
-        }]
+        }, {
+            key: "status",
+            text: CommonTxtTstr.Status
+        }];
         let tableDisplayInfo = PTblManager.Instance.getTableDisplayInfo(tableInfo);
         let html: HTML = infos.map((info) => {
             let key: string = info.key;
@@ -192,8 +195,7 @@ class TblSourcePreview {
 
         let $container = this._getContainer();
         if (!isLoading &&
-            tableInfo.state == null &&
-            tableInfo.active === true
+            tableInfo.state == null
         ) {
             // when it's a normal table
             if (XVM.isSQLMode()) {
@@ -267,7 +269,7 @@ class TblSourcePreview {
         $tableArea.find(".loadingSection").html(loadingHTML);
 
         let hasSelectTable: boolean = false;
-        PTblManager.Instance.selectTable(tableInfo)
+        PTblManager.Instance.selectTable(tableInfo, 100)
         .then((resultName) => {
             hasSelectTable = true;
             if (tableInfo == this._tableInfo) {

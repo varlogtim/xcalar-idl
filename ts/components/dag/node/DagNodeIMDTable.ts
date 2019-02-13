@@ -94,12 +94,14 @@ class DagNodeIMDTable extends DagNodeIn {
         const version: number = input.version;
         const filterString: string = input.filterString;
         const schema: ColSchema[] = input.schema;
+        const limitedRows: number = input.limitedRows;
         this.setSchema(schema);
         this.input.setInput({
             source: source,
             version: version,
             filterString: filterString,
-            schema: schema
+            schema: schema,
+            limitedRows: limitedRows
         });
         super.setParam(null, noAutoExecute);
 

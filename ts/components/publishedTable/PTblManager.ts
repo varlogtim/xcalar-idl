@@ -131,7 +131,7 @@ class PTblManager {
     }
 
     public getTableSchema(tableInfo: PbTblInfo): PbTblColSchema[] {
-        if (!tableInfo || !tableInfo.active) {
+        if (!tableInfo) {
             return [];
         }
 
@@ -482,8 +482,8 @@ class PTblManager {
     /**
      * PTblManager.Instance.selectTable
      */
-    public selectTable(tableInfo: PbTblInfo): XDPromise<string> {
-        return this._selectTable(tableInfo);
+    public selectTable(tableInfo: PbTblInfo, limitedRows: number): XDPromise<string> {
+        return this._selectTable(tableInfo, limitedRows);
     }
 
     private _deactivateTables(tableNames: string[], failures: string[]): XDPromise<void> {
@@ -607,7 +607,7 @@ class PTblManager {
         return deferred.promise();
     }
 
-    private _selectTable(tableInfo: PbTblInfo): XDPromise<string> {
+    private _selectTable(tableInfo: PbTblInfo, limitedRows: number): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const graph: DagGraph = new DagGraph();
         const node: DagNodeIMDTable = <DagNodeIMDTable>DagNodeFactory.create({
@@ -617,7 +617,8 @@ class PTblManager {
         node.setParam({
             source: tableInfo.name,
             version: -1,
-            schema: tableInfo.columns
+            schema: tableInfo.columns,
+            limitedRows: limitedRows
         });
         graph.execute([node.getId()])
         .then(() => {

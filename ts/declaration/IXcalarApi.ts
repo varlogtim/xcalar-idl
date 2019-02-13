@@ -344,7 +344,8 @@ declare function xcalarJoinWorkItem(
     leftColumns: XcalarApiColumnT[],
     rightColumns: XcalarApiColumnT[],
     evalString: string,
-    keepAllColumns: boolean
+    keepAllColumns: boolean,
+    nullSafe: boolean
 ): WorkItem;
 
 declare function xcalarGetConfigParams(
@@ -906,7 +907,8 @@ declare function xcalarApiSelectWorkItem(
     batchIdMax: number,
     batchIdMin: number,
     filterString: string,
-    columns: XcalarApiColumnT[]
+    columns: XcalarApiColumnT[],
+    limitRows: number
 ): WorkItem;
 
 declare function xcalarApiSelect(
@@ -916,7 +918,8 @@ declare function xcalarApiSelect(
     batchIdMax: number,
     batchIdMin: number,
     filterString: string,
-    columns: XcalarApiColumnT[]
+    columns: XcalarApiColumnT[],
+    limitRows: number
 ): XDPromise<XcalarApiNewTableOutputT>;
 
 declare function xcalarRestoreTable(

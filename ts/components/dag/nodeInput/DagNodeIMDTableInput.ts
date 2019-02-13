@@ -14,7 +14,8 @@ class DagNodeIMDTableInput extends DagNodeInput {
           "schema"
         ],
         "optional" : [
-          "filterString"
+          "filterString",
+          "limitedRows"
         ],
         "properties": {
           "source": {
@@ -98,17 +99,31 @@ class DagNodeIMDTableInput extends DagNodeInput {
               ""
             ],
             "pattern": "^(.*)$"
+          },
+          "limitedRows": {
+            "$id": "#/properties/limitedRows",
+            "type": "number",
+            "title": "The Numer of Rows to Select",
+            "examples": [
+              100
+            ],
+            "minimum": 0,
           }
         }
     };
 
     public getInput(replaceParameters?: boolean): DagNodeIMDTableInputStruct {
         const input = super.getInput(replaceParameters);
+        let limitedRows: number = input.limitedRows;
+        if (limitedRows == null) {
+          limitedRows = null; // make undefined to be null
+        }
         return {
             source: input.source || "",
             version: input.version || -1,
             filterString: input.filterString || "",
             schema: input.schema || [],
+            limitedRows: limitedRows,
         };
     }
 }
