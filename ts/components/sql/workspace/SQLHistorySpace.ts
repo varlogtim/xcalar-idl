@@ -26,7 +26,8 @@ class SQLHistorySpace {
     }
 
     public refresh(): void {
-        this._historyComponent.show(true);
+        // Refresh = false to trigger query status recovery
+        this._historyComponent.show(false);
     }
 
     /**

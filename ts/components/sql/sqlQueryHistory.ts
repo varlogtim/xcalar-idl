@@ -74,6 +74,11 @@ class SqlQueryHistory {
                         let queryInfo;
                         let promise = kvStore.get()
                             .then( (ret) => {
+                                if (ret == null) {
+                                    // Deleted query
+                                    // This is expected, as we don't update the query list KV pair when deleting a query
+                                    return;
+                                }
                                 try {
                                     queryInfo = JSON.parse(ret);
                                     if (!this._queryMap.hasOwnProperty(queryId) &&
