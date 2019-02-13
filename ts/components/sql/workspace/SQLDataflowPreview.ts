@@ -19,8 +19,14 @@ class SQLDataflowPreview {
         return this._getContainer().find(".topSection");
     }
 
-    public show() {
-        this._getContainer().removeClass("xc-hidden");
+    public show(inProgress?: boolean) {
+        let $container = this._getContainer();
+        $container.removeClass("xc-hidden");
+        if (inProgress) {
+            $container.addClass("inProgress");
+        } else {
+            $container.removeClass("inProgress");
+        }
     }
 
     public close() {

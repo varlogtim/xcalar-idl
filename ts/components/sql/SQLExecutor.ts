@@ -155,7 +155,7 @@ class SQLExecutor {
         }
 
         this._status = SQLStatus.Running;
-        SQLResultSpace.Instance.showProgressDataflow();
+        SQLResultSpace.Instance.showProgressDataflow(true);
         this._tempGraph.execute([this._sqlNode.getId()])
         .then(() => {
             finalTableName = this._sqlNode.getTable();

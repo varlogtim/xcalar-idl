@@ -57,6 +57,7 @@ class SQLHistorySpace {
         return deferred.promise();
     }
 
+    // renders a view-only dataflow while it's running
     public viewProgress(dataflowId: string): XDPromise<void> {
         const tab = DagTabManager.Instance.getTabById(dataflowId);
         if (tab) {
@@ -66,7 +67,7 @@ class SQLHistorySpace {
                 const deferred: XDDeferred<void> = PromiseHelper.deferred();
                 DagViewManager.Instance.inspectSQLNode(sqlNode.getId(), dataflowId, true)
                 .then(() => {
-                    SQLResultSpace.Instance.showProgressDataflow();
+                    SQLResultSpace.Instance.showProgressDataflow(true);
                     deferred.resolve();
                 })
                 .fail(deferred.reject);
@@ -78,7 +79,7 @@ class SQLHistorySpace {
     }
 
      /**
-     * renders a view-only dataflow graph
+     * renders a view-only dataflow graph after it's done running
      * @param queryInfo
      */
     private _previewDataflow(dataflowId: string): XDPromise<void> {
