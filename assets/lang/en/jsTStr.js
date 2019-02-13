@@ -1650,6 +1650,7 @@ SQLTStr = {
     "InExecute": "There are already some SQLs in exeuction, please cancel the SQLs in execution or wait unitl execution finishes.",
     "DupColName": "Column name \"<col>\" is duplicated",
     "DupColNameCaseInsensitive": "SQL Function's output column name is case insensitive. Column \"<col1>\" duplicate with column \"<col2>\"",
+    "UnsavedSQL": "You have unsaved SQL work. Are you sure you want to leave?"
 };
 
 LoginConfigTStr = {

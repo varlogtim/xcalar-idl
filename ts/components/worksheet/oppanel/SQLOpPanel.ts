@@ -87,7 +87,7 @@ class SQLOpPanel extends BaseOpPanel {
 
     public fakeCompile(numSteps: number): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
-        this.lockProgress();
+        SQLUtil.Instance.lockProgress();
         this._$sqlButton.html("Compiling... 0/" + numSteps);
 
         const numMilSeconds = 1500;
@@ -117,7 +117,7 @@ class SQLOpPanel extends BaseOpPanel {
     };
 
     public startCompile(numSteps: number): void {
-        this.lockProgress();
+        SQLUtil.Instance.lockProgress();
         if (numSteps === 0) {
             this._$sqlButton.html("Compiling...");
         } else {
@@ -144,10 +144,6 @@ class SQLOpPanel extends BaseOpPanel {
         numCurSteps++;
         this._$sqlButton.html("Compiling... " + numCurSteps + backPart);
     };
-
-    public lockProgress(): void {
-        this._$sqlSnippetDropdown.addClass("xc-disabled");
-    }
 
     private _setupSQLEditor(): void {
         const self = this;
@@ -593,31 +589,29 @@ class SQLOpPanel extends BaseOpPanel {
                     // XXX Currently disable multi/partial query
                     // self._sqlEditor.getSelection().replace(/;+$/, "") ||
                     self._sqlEditor.getValue().replace(/;+$/, "");
-        const paramterizedSQL = xcHelper.replaceMsg(sql,
-                                DagParamManager.Instance.getParamMap(), true);
         const identifiers = this._extractIdentifiers();
-        if (!paramterizedSQL) {
+        if (!sql) {
             self._dataModel.setDataModel("", "", [], "", identifiers, {});
             self._dataModel.submit();
             return PromiseHelper.resolve();
         }
         const queryId = xcHelper.randName("sql", 8);
         try {
-            self.lockProgress();
-            self._dagNode.compileSQL(paramterizedSQL, queryId, identifiers)
+            SQLUtil.Instance.lockProgress();
+            self._dagNode.compileSQL(sql, queryId, identifiers)
             .then(function(ret) {
                 const newTableName = ret.newTableName;
                 const allCols = ret.allCols;
                 const xcQueryString = ret.xcQueryString;
                 const tableSrcMap = ret.tableSrcMap;
-                self._dataModel.setDataModel(paramterizedSQL, newTableName,
+                self._dataModel.setDataModel(sql, newTableName,
                                              allCols, xcQueryString,
                                              identifiers, tableSrcMap);
                 self._dataModel.submit();
                 deferred.resolve();
             })
             .fail(function(err) {
-                self._dataModel.setDataModel(paramterizedSQL, "", [], "", identifiers, {});
+                self._dataModel.setDataModel(sql, "", [], "", identifiers, {});
                 self._dataModel.submit();
                 deferred.reject(err);
             })
@@ -722,7 +716,38 @@ class SQLOpPanel extends BaseOpPanel {
 
         // Close icon & Cancel button
         self._$elemPanel.on('click', '.close, .cancel:not(.confirm)', function() {
-            self.close();
+            const curSQL = self._sqlEditor.getValue().replace(/;+$/, "");
+            const curIdentifiers = self._extractIdentifiers();
+            const preSQL = self._dagNode.getParam().sqlQueryStr;
+            const preIdentifiers = self._dagNode.getIdentifiers();
+            let hasChange = false;
+            if (curSQL !== preSQL) {
+                hasChange = true;
+            } else if (curIdentifiers.size !== preIdentifiers.size) {
+                hasChange = true;
+            } else {
+                const curIterator = curIdentifiers.entries();
+                const preIterator = preIdentifiers.entries();
+                for (let i = 0; i < curIdentifiers.size; i++) {
+                    let curEntry = curIterator.next().value;
+                    let preEntry = preIterator.next().value;
+                    if (curEntry[0] !== preEntry[0] || curEntry[1] !== preEntry[1]) {
+                        hasChange = true;
+                        break;
+                    }
+                }
+            }
+            if (hasChange) {
+                Alert.show({
+                    title: "SQL",
+                    msg: SQLTStr.UnsavedSQL,
+                    onConfirm: () => {
+                        self.close();
+                    }
+                });
+            } else {
+                self.close();
+            }
         });
 
         // Submit button
@@ -743,6 +768,7 @@ class SQLOpPanel extends BaseOpPanel {
                 if (err === SQLErrTStr.EmptySQL) {
                     StatusBox.show(err, self._$elemPanel.find(".btn-submit"));
                 }
+                self._dagNode.beErrorState();
             });
         });
         this._addEventListeners();

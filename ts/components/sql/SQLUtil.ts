@@ -44,8 +44,16 @@ class SQLUtil {
                 deferred.resolve(data);
             },
             error: function(error) {
-                deferred.reject(error);
-                console.error(error);
+                let errorMsg = "SQL planner unkonwn failure";
+                if (error.responseText) {
+                    try {
+                        errorMsg = JSON.parse(error.responseText).exceptionMsg;
+                    } catch(e) {
+                        errorMsg = error.responseText;
+                    }
+                }
+                deferred.reject(errorMsg);
+                console.error(errorMsg);
             }
         });
         return deferred.promise();
@@ -60,7 +68,13 @@ class SQLUtil {
         });
     };
 
+    public lockProgress(): void {
+        $("#sqlOpPanel").find(".btn-submit").addClass("btn-disabled");
+        $("#sqlSnippetsList").addClass("xc-disabled");
+    }
+
     public resetProgress(): void {
+        $("#sqlOpPanel").find(".btn-submit").removeClass("btn-disabled");
         $("#sqlSnippetsList").removeClass("xc-disabled");
     };
 }
