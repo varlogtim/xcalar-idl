@@ -49,9 +49,28 @@ class DagAggPopup {
             self.deleteAgg($row);
         });
 
-        $aggManagerPopup.on("mouseup", ".aggNameWrap", function() {
+        $aggManagerPopup.on("mouseup", ".aggNameWrap .copy", function() {
             if ($(this).closest($aggManagerPopup).length) {
-                xcHelper.copyToClipboard("<" + $(this).text() + ">");
+                xcHelper.copyToClipboard($(this).closest(".aggName").text());
+            }
+        });
+
+        $aggManagerPopup.on("mouseup", ".aggNameWrap .find", function() {
+            const $findIcon = $(this);
+            if (!$findIcon.closest(".noDataflow").length) {
+                const $row = $findIcon.closest(".row");
+                const nodeId = $row.data("nodeid");
+                const tabId = $row.data("dataflowid");
+
+                const aggName: string = $row.find(".aggName").text();
+
+                DagViewManager.Instance.focusOnNode(nodeId, tabId)
+                .then(($node) => {
+                    StatusBox.show(aggName, $node, false, {type: "info", title: "Aggregate"});
+                })
+                .fail(() => {
+                    StatusBox.show(aggName + " could not be found.", $aggManagerPopup);
+                });
             }
         });
 
@@ -117,14 +136,18 @@ class DagAggPopup {
             aggArray.push({
                 name: i,
                 value: aggs[i].value,
-                notRun: !aggs[i].value
+                notRun: !aggs[i].value,
+                graph: aggs[i].graph,
+                node: aggs[i].node
             });
         }
         aggArray = aggArray.sort(sortAggs);
         for (let i = 0; i < aggArray.length; i++) {
             this.addAggToList(aggArray[i].name,
                                 aggArray[i].value,
-                                aggArray[i].notRun);
+                                aggArray[i].notRun,
+                                aggArray[i].node,
+                                aggArray[i].graph);
         }
 
         function sortAggs(a, b) {
@@ -135,7 +158,9 @@ class DagAggPopup {
     private addAggToList(
         name: string,
         val: number | string,
-        isEmpty: boolean
+        isEmpty: boolean,
+        node?: DagNodeId,
+        graph?: string
     ): void {
         let $row: JQuery = this.$retLists.find(".unfilled:first");
 
@@ -146,7 +171,19 @@ class DagAggPopup {
         }
 
         $row.find(".aggName").text(name);
-        $row.find(".aggName").append('<i class="icon xi-copy-clipboard"></i>');
+
+        let findText = "";
+        if (node && graph) {
+            findText = "Find aggregate node";
+            $row.data("nodeid", node);
+            $row.data("dataflowid", graph);
+        } else {
+            findText = "Aggregate node cannot be found";
+            $row.find(".aggNameWrap").addClass("noDataflow");
+        }
+        let iconHtml = '<i class="icon find xi-search" ' + xcTooltip.Attrs + ' data-original-title="' + findText + '"></i>' +
+            '<i class="icon copy xi-copy-clipboard" ' + xcTooltip.Attrs + ' data-original-title="Copy aggregate name"></i>';
+        $row.find(".aggName").append(iconHtml);
         if (val != null) {
             $row.find(".aggVal").val(val);
             $row.find(".aggVal").text(val);

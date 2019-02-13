@@ -20,6 +20,7 @@ namespace StatusBox {
      *               on close button,
      *      detail: string, extra information text to display
      *      delayHide: number of milliseconds to delay ability to hide box
+     *      title: Text that is bold at the top, will default to Error or Information
      */
     export interface StatusDisplayerOpions {
         type?: string;
@@ -32,6 +33,7 @@ namespace StatusBox {
         persist?: boolean;
         detail?: string;
         delayHide?: number;
+        title?: string
     }
 
     class StatusDisplayer {
@@ -63,7 +65,7 @@ namespace StatusBox {
             this.side = options.side || "right";
             this.setupBasicClasses(options);
             this.setupTargetEvents(formMode, options.persist);
-            this.addTitle();
+            this.addTitle(options.title);
             this.addText(text, options.html);
             this.addDetail(options.detail);
             $target.scrollintoview({duration: 0});
@@ -142,9 +144,11 @@ namespace StatusBox {
             }
         }
 
-        private addTitle(): void {
+        private addTitle(title?: string): void {
             // add more title if type is extended
-            const title: string = (this.type === "info") ? "Information" : "Error";
+            if (!title) {
+                title = (this.type === "info") ? "Information" : "Error";
+            }
             this.$statusBox.find(".titleText").text(title);
         }
 

@@ -228,6 +228,22 @@ class DagViewManager {
         return this._getActiveArea();
     }
 
+    public focusOnNode(nodeId: DagNodeId, tabId: string): XDPromise<JQuery> {
+        const deferred: XDDeferred<JQuery> = PromiseHelper.deferred();
+
+        let dagTab: DagTab = DagList.Instance.getDagTabById(tabId);
+        if (dagTab === null){
+            return PromiseHelper.reject();
+        }
+        DagTabManager.Instance.loadTab(dagTab)
+        .then(() => {
+            const $node: JQuery = DagViewManager.Instance.getNode(nodeId);
+            $node.length ? deferred.resolve($node) : deferred.reject();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
 
     public addDataflowHTML($container: JQuery, tabId: string, isViewOnly?: boolean, isOptimized?: boolean) {
         $container.append(

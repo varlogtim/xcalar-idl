@@ -545,21 +545,6 @@ class TblManager {
                 }
                 deferred.resolve(tableNames);
             }
-            // Delete schemas in SQL
-            if (typeof SQLEditor !== "undefined") {
-                let tableIds: TableId[] = [];
-                if (tableType === TableType.Orphan) {
-                    tableNames.forEach((tableName) => {
-                        const tableId: TableId = xcHelper.getTableId(tableName);
-                        if (tableId != null) {
-                            tableIds.push(String(tableId));
-                        }
-                    });
-                } else {
-                    tableIds = tables.map((tableId) => String(tableId));
-                }
-                SQLEditor.deleteSchemas(null, tableIds);
-            }
         })
         .fail((...arg) => {
             // fails if at least 1 table failed

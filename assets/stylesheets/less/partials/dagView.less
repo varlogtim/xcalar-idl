@@ -170,6 +170,12 @@
         }
     }
 
+    &.sqlMode {
+        .dagTab .name {
+            text-transform: lowercase;
+        }
+    }
+
     .categoryBar {
         @category-height: 40px;
         @icon-height: 22px;
@@ -747,15 +753,6 @@
         transform-origin: top left;
         overflow: visible;
         .position(absolute, @left: 0px, @top: 0px);
-
-        .ui-icon-gripsmall-diagonal-se {
-            opacity: 0;
-        }
-        &:hover, &.focused {
-            .ui-icon-gripsmall-diagonal-se {
-                opacity: 1;
-            }
-        }
     }
 
     .tempCommentArea {
@@ -763,6 +760,9 @@
         pointer-events: none;
         .comment {
             pointer-events: initial;
+        }
+        .ui-icon-gripsmall-diagonal-se {
+            opacity: 1;
         }
     }
 
@@ -795,6 +795,17 @@
             background-color: @color-bg-white-seven;
             textarea {
                 background-color: @color-bg-white-seven;
+            }
+        }
+
+
+        .ui-icon-gripsmall-diagonal-se {
+            opacity: 0;
+        }
+
+        &:hover, &.focused {
+            .ui-icon-gripsmall-diagonal-se {
+                opacity: 1;
             }
         }
 
@@ -1136,10 +1147,6 @@
                 font-style: italic;
             }
 
-            &.sqlTab {
-                text-transform: lowercase;
-            }
-
             .dragIcon {
                 display: block;
                 padding: 0px;
@@ -1414,6 +1421,16 @@
 
 /* ========== Dataflow List Section ========== */
 #dagList {
+    &.sqlMode {
+        #dagListSection {
+            padding-top: 0;
+
+            .pathSection {
+                display: none;
+            }
+        }
+    }
+
     .topSection {
         height: 60px !important;
 
@@ -2229,20 +2246,32 @@
             }
         }
 
-        .paramNameWrap, .aggNameWrap {
-            cursor: pointer;
-
+        .row {
             &:hover {
-                padding-right: 26px;
-                .icon {
-                    display: block;
+                .paramNameWrap, .aggNameWrap {
+                    padding-right: 46px;
+                    .icon {
+                        display: block;
+                    }
                 }
             }
-
+        }
+        .paramNameWrap, .aggNameWrap {
+            &.noDataflow {
+                .find {
+                    opacity: @opacity-disabled;
+                    cursor: initial;
+                }
+            }
             .icon {
+                cursor: pointer;
                 display: none;
                 .position(absolute, @right: 4px, @top: 0px);
                 line-height: 30px;
+                font-size: 18px;
+                &.find {
+                    right: 26px;
+                }
             }
         }
     }
@@ -2265,6 +2294,10 @@
                     border: solid 1px @color-font-softBlue;
                 }
             }
+        }
+
+        &.aggValWrap {
+            padding-left: 10px;
         }
 
         &.paramActionWrap, &.paramNoValueWrap,
