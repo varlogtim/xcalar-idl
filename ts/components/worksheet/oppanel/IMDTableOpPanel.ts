@@ -7,8 +7,8 @@ class IMDTableOpPanel extends BaseOpPanel {
     private _$filterStringInput: JQuery; // $('#IMDTableOpPanel .filterStringInput')
     private _$columns: JQuery; // $('#IMDTableOpColumns')
     private _$versionList: JQuery; // $('#IMDTableOpPanel #tableVersionList .tableVersions');
-    private _tables: PublishTable[];
-    private _selectedTable: PublishTable;
+    private _tables: PbTblInfo[];
+    private _selectedTable: PbTblInfo;
     private _schemaSection: ColSchemaSection;
     private _primaryKeys: string[];
     private _currentStep: number;
@@ -47,24 +47,16 @@ class IMDTableOpPanel extends BaseOpPanel {
             return;
         }
         this._dagNode = dagNode;
-        const self = this;
         this._selectedTable = null;
         this._primaryKeys = [];
         this._$columns.empty();
         this._$versionList.empty();
         this._currentStep = 1;
         this._gotoStep();
-        XcalarListPublishedTables("*", false, true)
-        .then((result) => {
-            self._tables = result.tables;
-            self._updateTableList();
-            self._restorePanel(self._dagNode.getParam());
-        })
-        .fail(function() {
-            $('#pubTableList .pubTables').empty();
-            //Status Box
-            self._restorePanel(self._dagNode.getParam());
-        });
+
+        this._tables = PTblManager.Instance.getAvailableTables();
+        this._updateTableList();
+        this._restorePanel(this._dagNode.getParam());
     }
 
     /**
@@ -129,15 +121,9 @@ class IMDTableOpPanel extends BaseOpPanel {
         if (source == "") {
             return;
         }
-        this._selectedTable =
-            this._tables.find((pubTab: PublishTable) => {
-                return (pubTab.name == source);
-            });
+        this._selectedTable = this._tables.find((table) => table.name === source);
         if (this._selectedTable != null) {
-            const keyList: XcalarApiColumnInfoT[] = this._selectedTable.keys;
-            this._primaryKeys = keyList.map((col: XcalarApiColumnInfoT) => {
-                return col.name;
-            })
+            this._primaryKeys = this._selectedTable.keys;
         }
     }
 
@@ -191,7 +177,7 @@ class IMDTableOpPanel extends BaseOpPanel {
         let $list: JQuery = $('#pubTableList .pubTables');
         $list.empty();
         let html = '';
-        this._tables.forEach((table: PublishTable) => {
+        this._tables.forEach((table) => {
             html += '<li>' + table.name + '</li>';
         });
         $list.append(html);
@@ -297,7 +283,7 @@ class IMDTableOpPanel extends BaseOpPanel {
         });
         expList.setupListeners();
 
-        this._$pubTableInput.on('blur',function(e) {
+        this._$pubTableInput.on('blur', function() {
             self._changeSelectedTable(self._$pubTableInput.val());
             self._renderVersions();
         })
@@ -414,12 +400,7 @@ class IMDTableOpPanel extends BaseOpPanel {
             // when only has prefix change
             oldSchema = this._schemaSection.getSchema(true);
         }
-        let schema: ColSchema[] = this._selectedTable.values.map((col: PublishTableCol) => {
-            return {
-                name: col.name,
-                type: xcHelper.convertFieldTypeToColType(DfFieldTypeT[col.type])
-            }
-        });
+        let schema: ColSchema[] = this._selectedTable.columns;
         this._schemaSection.setInitialSchema(schema);
         this._schemaSection.render(oldSchema || schema);
         return null;

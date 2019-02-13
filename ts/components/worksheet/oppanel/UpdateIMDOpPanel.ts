@@ -5,7 +5,7 @@ class UpdateIMDOpPanel extends BaseOpPanel {
     protected _dagNode: DagNodeUpdateIMD;
     private _$pubTableInput: JQuery; // $('#UpdateIMDOpPanel .pubTableInput')
     private _$operatorInput: JQuery; // $('#UpdateIMDOpPanel .IMDOperatorInput')
-    private _tables: PublishTable[];
+    private _tables: PbTblInfo[];
 
 
     // *******************
@@ -41,19 +41,11 @@ class UpdateIMDOpPanel extends BaseOpPanel {
         this._columns = dagNode.getParents().map((parentNode) => {
             return parentNode.getLineage().getColumns();
         })[0] || [];
-        const self = this;
-        XcalarListPublishedTables("*", false, true)
-        .then((result) => {
-            self._tables = result.tables;
-            self._updateTableList();
-            self._setupColumnHints();
-            self._restorePanel(self._dagNode.getParam());
-        })
-        .fail(function() {
-            $('#updatePubTableList .pubTables').empty();
-            //Status Box
-            self._restorePanel(self._dagNode.getParam());
-        });
+
+        this._tables = PTblManager.Instance.getAvailableTables();
+        this._updateTableList();
+        this._setupColumnHints();
+        this._restorePanel(this._dagNode.getParam());
     }
 
     /**
@@ -122,7 +114,7 @@ class UpdateIMDOpPanel extends BaseOpPanel {
         let $list: JQuery = $('#updatePubTableList .pubTables');
         $list.empty();
         let html = '';
-        this._tables.forEach((table: PublishTable) => {
+        this._tables.forEach((table) => {
             html += '<li>' + table.name + '</li>';
         });
         $list.append(html);

@@ -172,6 +172,7 @@ interface PbTblInfo {
     size: number;
     createTime: number;
     active: boolean;
+    updates: PublishTableUpdateInfo[];
     state?: string;
     dsName?: string;
     loadMsg?: string;

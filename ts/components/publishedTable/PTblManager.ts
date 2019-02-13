@@ -33,6 +33,7 @@ class PTblManager {
             name: name,
             index: null,
             keys: null,
+            updates: [],
             size: 0,
             createTime: null,
             active: true,
@@ -47,13 +48,21 @@ class PTblManager {
     }
 
     public getTables(): PbTblInfo[] {
-        let tables: PbTblInfo[] = this._tables.map((table) => table);
+        let tables: PbTblInfo[] = this.getAvailableTables();
         for (let table in this._loadingTables) {
             tables.push(this._loadingTables[table]);
         }
         for (let table in this._datasetTables) {
             tables.push(this._datasetTables[table]);
         }
+        return tables;
+    }
+
+    /**
+     * PTblManager.Instance.getAvailableTables
+     */
+    public getAvailableTables(): PbTblInfo[] {
+        let tables: PbTblInfo[] = this._tables.map((table) => table);
         return tables;
     }
 
@@ -531,7 +540,7 @@ class PTblManager {
         })
         .fail((error) => {
             tableInfo.state = PbTblState.Error;
-            failures.push(error.error);
+            failures.push(error.log || error.error);
             deferred.resolve(); // still resolve it
         });
         return deferred.promise();
@@ -841,6 +850,7 @@ class PTblManager {
             createTime: null,
             columns: [],
             keys: [],
+            updates: []
         };
         try {
             tableInfo.name = table.name;
@@ -856,6 +866,7 @@ class PTblManager {
                 }
             });
             tableInfo.keys = table.keys.map((key) => key.name);
+            tableInfo.updates = table.updates;
             let lastUpdate = table.updates[table.updates.length - 1];
             tableInfo.batchId = lastUpdate ? lastUpdate.batchId : null;
         } catch (e) {
