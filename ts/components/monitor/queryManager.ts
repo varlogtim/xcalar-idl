@@ -545,11 +545,18 @@ namespace QueryManager {
         mainQuery.outputTableState = "unavailable";
         mainQuery.sqlNum = Log.getErrorLogs().length - 1;
         if (error) {
+            let errorLog: string;
+            if (error["log"]) {
+                errorLog = error["log"];
+            }
             if (typeof error === "object" && error.error) {
                 error = error.error;
             }
             if (typeof error === "string") {
                 mainQuery.error = error;
+                if (errorLog) {
+                    mainQuery.error += "\n" + errorLog;
+                }
             }
         }
         updateQueryTextDisplay(mainQuery.getQuery(), false, mainQuery.error);

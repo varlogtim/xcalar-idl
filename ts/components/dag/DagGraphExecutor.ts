@@ -501,6 +501,7 @@ class DagGraphExecutor {
         const udfContext = this._getUDFContext();
         const txId: number = Transaction.start({
             operation: node.getType(),
+            sql: {operation: node.getType()},
             track: true,
             nodeId: node.getId(),
             tabId: tabId,

@@ -251,6 +251,7 @@ function parseLog(log: string): string {
     if (splits.length === 2) {
         res = splits[1].trim();
     }
+    res = res.replace(/\\n/g, "\n"); // turn "\n" string into new line char
     return res;
 }
 
@@ -264,8 +265,10 @@ function parseUDFLog(log: string): string {
             if (res.endsWith("\\")) {
                 res = res.substring(0, res.length - 1);
             }
+            res = res.replace(/\\n/g, "\n"); // turn "\n" string into new line char
             return res;
         }
+        res = res.replace(/\\n/g, "\n"); // turn "\n" string into new line char
     } catch (e) {
         console.error("parse error", e);
     }
@@ -3206,11 +3209,16 @@ function createQueryStateOutputLog(queryOutput: XcalarApiQueryStateOutputT): str
             } else {
                 node_log = parseLog(node.log);
             }
-            log += ("Log number " + i + ": Log: " + node_log + "\n ");
+            if (node_log) {
+                log += ("Log number " + i + ": Log: " + node_log + "\n ");
+            }
         }
     } catch (e) {
         console.error(e);
         log = "Unable to parse query log";
+    }
+    if (log === "Error Log: ") {
+        log = "";
     }
     return log;
 }
