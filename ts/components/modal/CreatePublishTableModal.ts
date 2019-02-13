@@ -295,8 +295,8 @@ class CreatePublishTableModal {
             }
         });
 
-        $('#publishTableModalColumns .selectAllWrap .checkbox').click(function(event) {
-            let $box: JQuery = $(this);
+        $('#publishTableModalColumns .selectAllWrap').click(function(event) {
+            let $box: JQuery = $(this).find(".checkbox");
             event.stopPropagation();
             if ($box.hasClass("active")) {
                 return;
@@ -311,9 +311,9 @@ class CreatePublishTableModal {
             }
         });
 
-        $('#publishTableModalColumns .columnsWrap').on("click", ".checkbox", function(event) {
-            let $box: JQuery = $(this);
-            let $col: JQuery = $(this).parent();
+        $('#publishTableModalColumns .columnsWrap').on("click", ".col", function(event) {
+            let $box: JQuery = $(this).find(".checkbox");
+            let $col: JQuery = $(this);
             event.stopPropagation();
             if ($box.hasClass("active")) {
                 return;
@@ -368,6 +368,10 @@ class CreatePublishTableModal {
         let columns: ProgCol[] = [];
         for (let i = 0; i < $cols.length; i++) {
             columns.push(this._columns[$cols.eq(i).data("colnum") - 1]);
+        }
+        if (!columns.length) {
+            StatusBox.show(ErrTStr.NoColumns, this._$publishColList);
+            return;
         }
         const $bg: JQuery = $("#initialLoadScreen");
         $bg.show();
