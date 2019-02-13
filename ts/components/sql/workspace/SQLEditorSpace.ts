@@ -146,8 +146,15 @@ class SQLEditorSpace {
             tables.forEach((table) => {
                 arcTables[table.name] = [];
                 table.columns.forEach((col) => {
-                    arcTables[table.name].push(col.name);
-                    arcTables[col.name] = [];
+                    const upperName = col.name.toUpperCase();
+                    if (col.name != "DATA" &&
+                        !upperName.startsWith("XCALARRANKOVER") &&
+                        !upperName.startsWith("XCALAROPCODE") &&
+                        !upperName.startsWith("XCALARBATCHID") &&
+                        !upperName.startsWith("XCALARROWNUMPK")) {
+                        arcTables[table.name].push(col.name);
+                        arcTables[col.name] = [];
+                    }
                 });
             });
             const sqlFuncs = DagTabSQLFunc.listFuncs();
