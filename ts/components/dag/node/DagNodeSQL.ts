@@ -641,7 +641,7 @@ class DagNodeSQL extends DagNode {
     ): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
         let destTableName;
-        let pubTableName;
+        let pubTableName; // published tables will have it, also as srcTableName
         let cols = [];
         const selectCliArray = [];
         if (sourceId != null) {
@@ -681,6 +681,7 @@ class DagNodeSQL extends DagNode {
                         "columns": renameMap
                     }
                 }
+                pubTableName = srcTableName;
                 selectCliArray.push(JSON.stringify(selectCli));
             } else {
                 // This is for advanced mode where SQL node has >=1 parents
@@ -826,7 +827,7 @@ class DagNodeSQL extends DagNode {
             self._finalizeAndGetSchema(sourceId, tableName, pubTablesInfo)
             .then(function(retStruct) {
                 if (retStruct.pubTableName) {
-                    selectTableMap[retStruct.pubTableName] = retStruct.srcTableName;
+                    selectTableMap[retStruct.pubTableName] = retStruct.finalizedTableName;
                 }
                 schemaQueryArray = schemaQueryArray.concat(retStruct.cliArray);
                 allSchemas.push(retStruct.structToSend);
@@ -1006,7 +1007,7 @@ class DagNodeSQL extends DagNode {
             return tempTab.getSchema();
         })
         .then((columns) => {
-            return this._finalizeAndGetSchema(undefined, undefined, newIdentifier,
+            return this._finalizeAndGetSchema(undefined, newIdentifier, undefined,
                                               newTableName, columns);
         })
         .then((ret) => {
