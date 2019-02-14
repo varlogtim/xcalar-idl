@@ -4773,7 +4773,7 @@
             rTableInfo.columns = [];
         }
         sqlObj.join(joinType, lTableInfo, rTableInfo, {evalString: evalString,
-                                            nullSafe: nullSafe ? true : false})
+                                nullSafe: nullSafe == null ? false : nullSafe})
         .then(function(ret) {
             deferred.resolve(ret);
         })

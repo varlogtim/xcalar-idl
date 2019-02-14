@@ -747,8 +747,13 @@ function getXCquery(params, type) {
         orderedColumns = colNames;
         var prefixedQuery;
         var optimizerObject = new SQLOptimizer();
-        var queryWithDrop = optimizerObject.logicalOptimize(xcQueryString,
+        var queryWithDrop;
+        try {
+            queryWithDrop = optimizerObject.logicalOptimize(xcQueryString,
                                     optimizations, JSON.stringify(selectQuery));
+        } catch(e) {
+            deferred.reject(e);
+        }
         var prefixStruct = SqlUtil.addPrefix(
             JSON.parse(queryWithDrop),
             allSelects,
@@ -875,8 +880,12 @@ function executeSql(params, type, workerThreading) {
                                 + "," + xcQueryString.substring(1);
             } else {
                 var optimizerObject = new SQLOptimizer();
-                queryWithDrop = optimizerObject.logicalOptimize(xcQueryString,
+                try {
+                    queryWithDrop = optimizerObject.logicalOptimize(xcQueryString,
                                         optimizations, JSON.stringify(selectQuery));
+                } catch(e) {
+                    deferred.reject(e);
+                }
             }
             // Auto-generate a name for the final table if not specified
             if(!params.usePaging && !params.resultTableName) {

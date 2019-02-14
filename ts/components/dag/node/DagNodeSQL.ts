@@ -1117,16 +1117,21 @@ class DagNodeSQL extends DagNode {
                 const optimizer = new SQLOptimizer();
                 const optimizations = {combineProjectWithSynthesize: true,
                                        dropAsYouGo: dropAsYouGo};
-                if (sqlMode) {
-                    self.setRawXcQueryString(optimizer.logicalOptimize(
+                let optimizedQueryString;
+                try {
+                    if (sqlMode) {
+                        self.setRawXcQueryString(optimizer.logicalOptimize(
                                                             queryString,
                                                             optimizations,
                                                             schemaQueryString));
-                    optimizations["pushToSelect"] = true;
-                }
-                const optimizedQueryString = optimizer.logicalOptimize(queryString,
+                        optimizations["pushToSelect"] = true;
+                    }
+                    optimizedQueryString = optimizer.logicalOptimize(queryString,
                                                                 optimizations,
                                                                 schemaQueryString);
+                } catch (e) {
+                    return PromiseHelper.reject(e);
+                }
                 self.setAggregatesCreated(optimizer.getAggregates());
                 self.setXcQueryString(optimizedQueryString);
                 const retStruct = {

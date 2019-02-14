@@ -27,8 +27,13 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         .then(function(xcQueryString, newTableName, colNames, toCache) {
             orderedColumns = colNames;
             var optimizerObject = new SQLOptimizer();
-            var queryWithDrop = optimizerObject.logicalOptimize(xcQueryString,
+            var queryWithDrop;
+            try {
+                queryWithDrop = optimizerObject.logicalOptimize(xcQueryString,
                                         optimizations, JSON.stringify(selectQuery));
+            } catch(e) {
+                deferred.reject(e);
+            }
             var prefixStruct = sqlUtil.addPrefix(
                 JSON.parse(queryWithDrop),
                 allSelects,

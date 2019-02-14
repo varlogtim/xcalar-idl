@@ -411,6 +411,16 @@
         }
     };
 
+    function assert(st, message) {
+        if (!st) {
+            console.error("ASSERTION FAILURE!");
+            if (!message) {
+                message = "Optimizer Error";
+            }
+            throw "Assertion Failure: " + message;
+        }
+    }
+
     function replaceColName(self, node) {
         // For operators that have only one child, simply replace name
         // If join node, need to detect extra collision
@@ -941,9 +951,8 @@
         for (var i = 0; i < selectNodes.length; i++) {
             pushUpSelect(selectNodes[i], {});
         }
-        if (opGraph.replaceWithSelect) {
-            opGraph.replaceWithSelect.value.args.dest = opGraph.value.args.dest;
-            opGraph = opGraph.replaceWithSelect;
+        if (opGraph.replaceWith) {
+            opGraph = opGraph.replaceWith;
         }
         return opGraph;
     }
@@ -959,6 +968,215 @@
             }
         }
         visitedMap[node.name] = true;
+    }
+
+    // For every group by parent, make a copy of current index node for pushing select
+    function duplicateIndex(curNode) {
+        var GBParents = [];
+        var otherParents = [];
+        for (var i = 0; i < curNode.parents.length; i++) {
+            if (curNode.parents[i].value.operation === "XcalarApiGroupBy") {
+                // If there is only one parent, keep the node as it is
+                if (i === curNode.parents.length - 1 && otherParents.length === 0) {
+                    otherParents.push(curNode.parents[i]);
+                } else {
+                    GBParents.push(curNode.parents[i]);
+                }
+            } else {
+                otherParents.push(curNode.parents[i]);
+            }
+        }
+        if (GBParents.length === 0) {
+            return;
+        }
+        for (var i = 0; i < GBParents.length; i++) {
+            var indexStructCopy = jQuery.extend(true, {}, curNode.value);
+            var indexTableCopyName = xcHelper.getTableName(curNode.name)
+                                     + "_COPY_" + Authentication.getHashId();
+            var indexNodeCopy = {name: indexTableCopyName,
+                                 value: indexStructCopy,
+                                 parents: [GBParents[i]],
+                                 children: [curNode.children[0]],
+                                 sources: [curNode.sources[0]]};
+            indexNodeCopy.value.args.dest = indexTableCopyName;
+            GBParents[i].children[GBParents[i].children.indexOf(curNode)] = indexNodeCopy;
+            GBParents[i].sources[GBParents[i].sources.indexOf(curNode.name)] = indexNodeCopy.name;
+            GBParents[i].value.args.source = indexNodeCopy.name;
+            curNode.children[0].parents.push(indexNodeCopy);
+        }
+        curNode.parents = otherParents;
+    }
+
+    function pushGBHelper(curNode, selectStruct) {
+        var indexCols = [];
+        var gbNode;
+        if (!selectStruct.args.eval) {
+            selectStruct.args.eval = {};
+        }
+        var UniqueParents = [];
+        for (var i = 0; i < curNode.parents.length; i++) {
+            if (curNode.value.operation === "XcalarApiIndex" &&
+                UniqueParents.indexOf(curNode.parents[i]) === -1) {
+                UniqueParents.push(curNode.parents[i]);
+            }
+        }
+        assert(UniqueParents.length < 2, SQLErrTStr.GBPushUpMultipleParents);
+        if (curNode.value.operation === "XcalarApiGroupBy") {
+            gbNode = curNode;
+        } else if (curNode.parents.length === 0 ||
+            curNode.parents[0].value.operation != "XcalarApiGroupBy") {
+            return true;
+        } else {
+            gbNode = curNode.parents[0];
+            indexCols = curNode.value.args.key.map(function(keyStruct) {
+                return keyStruct.name;
+            })
+        }
+        var valid = true;
+        var hasAvg = false;
+        // Change gb, add select gb, check & handle avg, create annotation
+        var newEvals = jQuery.extend(true, [], gbNode.value.args.eval);
+        var selectGBs = [];
+        var extraMapEvals = [];
+        var annotations = {columns: indexCols.map(function(colName) {
+            return {sourceColumn: colName};
+        })};
+        var selectColumns = annotations.columns.map(function(col) {
+            if (selectStruct[col.sourceColumn]) {
+                return {sourceColumn: selectStruct[col.sourceColumn],
+                        destColumn: col.sourceColumn};
+            } else {
+                return col;
+            }
+        })
+        for (var j = 0; j < gbNode.value.args.eval.length; j++) {
+            var curEval = gbNode.value.args.eval[j];
+            if (curEval.evalString.indexOf("(") !== curEval.evalString.lastIndexOf("(")) {
+                valid = false;
+                break;
+            }
+            var opName = curEval.evalString.substring(0,curEval.evalString.indexOf("("));
+            var aggColName = curEval.evalString.substring(
+                curEval.evalString.indexOf("(") + 1, curEval.evalString.length - 1);
+            if (opName === "listAgg") {
+                console.warn("listAgg is not supported in push down group by to select");
+                return true;
+            } else if (opName === "avg" || opName === "avgNumeric") {
+                hasAvg = true;
+                var numericPart = "";
+                var tempSelectCNTColName = "TMPSCNT_" + curEval.newField;
+                var tempGBCNTColName = "TMPGCNT_" + curEval.newField;
+                var tempSelectSUMColName = "TMPSSUM_" + curEval.newField;
+                var tempGBSUMColName = "TMPGSUM_" + curEval.newField;
+                newEvals[j].evalString = "sumInteger(" + tempSelectCNTColName + ")";
+                newEvals[j].newField = tempGBCNTColName;
+                if (opName === "avgNumeric") {
+                    numericPart = "Numeric";
+                }
+                newEvals.push({evalString: "sum" + numericPart + "(" + tempSelectSUMColName + ")",
+                               newField: tempGBSUMColName});
+                selectGBs.push({func: "count", arg: selectStruct.colNameMap
+                    [aggColName] || aggColName, newField: tempSelectCNTColName});
+                selectGBs.push({func: "sum" + numericPart, arg: selectStruct.colNameMap
+                    [aggColName] || aggColName, newField: tempSelectSUMColName});
+                annotations.columns.push({sourceColumn: curEval.newField});
+                selectColumns.push({sourceColumn: tempSelectCNTColName});
+                selectColumns.push({sourceColumn: tempSelectSUMColName});
+                extraMapEvals.push({evalString: "div" + numericPart + "("
+                                    + tempGBSUMColName + "," + tempGBCNTColName + ")",
+                                    newField: curEval.newField});
+            } else if (opName === "count") {
+                var tempColName = "TMPCNT_" + curEval.newField;
+                newEvals[j].evalString = "sumInteger(" + tempColName + ")";
+                selectGBs.push({func: "count", arg: selectStruct.colNameMap
+                        [aggColName] || aggColName, newField: tempColName});
+                annotations.columns.push({sourceColumn: curEval.newField});
+                selectColumns.push({sourceColumn: tempColName});
+            } else {
+                var opNameTrunc = opName.substring(0,3);
+                if (opNameTrunc === "max" || opNameTrunc === "min") {
+                    opName = opNameTrunc;
+                }
+                var tempColName = "TMPGB_" + curEval.newField;
+                newEvals[j].evalString = opName + "(" + tempColName + ")";
+                selectGBs.push({func: opName, arg: selectStruct.colNameMap
+                        [aggColName] || aggColName, newField: tempColName});
+                annotations.columns.push({sourceColumn: curEval.newField});
+                selectColumns.push({sourceColumn: tempColName});
+            }
+        }
+        if (!valid) {
+            return true;
+        }
+        if (hasAvg) {
+            var newGBTableName = xcHelper.getTableName(gbNode.name)
+                                    + "_GBCOPY_" + Authentication.getHashId();
+            var newMapStruct = {source: newGBTableName,
+                                dest: gbNode.name,
+                                eval: extraMapEvals,
+                                icv: false};
+            var newMapNode = {name: gbNode.name,
+                                value: {operation: "XcalarApiMap",
+                                        args: newMapStruct,
+                                        annotations: annotations},
+                                parents: [],
+                                children: [gbNode],
+                                sources: [newGBTableName]};
+            if (gbNode.parents.length === 0) {
+                // GB node is root
+                gbNode.replaceWith = newMapNode;
+            } else {
+                newMapNode.parents = gbNode.parents;
+                newMapNode.parents.forEach(function(node) {
+                    while (node.children.indexOf(gbNode) != -1) {
+                        var index = node.children.indexOf(gbNode);
+                        node.children[index] = newMapNode;
+                    }
+                });
+            }
+            gbNode.value.args.dest = newGBTableName;
+            gbNode.parents = [newMapNode];
+        }
+        var newTableName = xcHelper.getTableName(curNode.name) + "_SELECTCOPY_"
+                                + Authentication.getHashId();
+        var newSelectStruct = jQuery.extend(true, {}, selectStruct);
+        newSelectStruct.args.dest = newTableName;
+        newSelectStruct.args.eval.GroupByKeys = indexCols.map(function(colName) {
+            return selectStruct.colNameMap[colName] || colName;
+        })
+        newSelectStruct.args.eval.GroupBys = selectGBs;
+        newSelectStruct.args.columns = selectColumns;
+        delete newSelectStruct.colNameMap;
+        var newSelectNode = {name: newTableName,
+                                value: newSelectStruct,
+                                parents: [],
+                                children: [],
+                                sources: [newSelectStruct.args.source]};
+        gbNode.value.args.eval = newEvals;
+        if (!hasAvg) {
+            gbNode.value.annotations = annotations;
+        }
+        if (curNode.value.operation === "XcalarApiIndex") {
+            var newIndexTableName = xcHelper.getTableName(curNode.name) + "_INDEXCOPY_"
+                                    + Authentication.getHashId();
+            var newIndexStruct = jQuery.extend(true, {}, curNode.value);
+            newIndexStruct.args.dest = newIndexTableName;
+            newIndexStruct.args.source = newTableName;
+            var newIndexNode = {name: newIndexTableName,
+                                value: newIndexStruct,
+                                parents: [gbNode],
+                                children: [newSelectNode],
+                                sources: [newTableName]};
+            newSelectNode.parents.push(newIndexNode);
+            gbNode.children = [newIndexNode];
+            gbNode.sources = [newIndexTableName];
+            gbNode.value.args.source = newIndexTableName;
+        } else {
+            newSelectNode.parents.push(gbNode);
+            gbNode.children = [newSelectNode];
+            gbNode.sources = [newTableName];
+            gbNode.value.args.source = newTableName;
+        }
     }
 
     function pushUpSelect(curNode, selectStruct) {
@@ -1062,7 +1280,7 @@
             console.error("Invalid push up node: " + curNode.value.operation);
         }
 
-        newTableName = curNode.name.split("#")[0] + Authentication.getHashId();
+        newTableName = xcHelper.getTableName(curNode.name) + Authentication.getHashId();
         newSelectStruct = jQuery.extend(true, {}, selectStruct);
         newSelectStruct.args.dest = newTableName;
 
@@ -1074,27 +1292,46 @@
                          sources: newSelectStruct.args.source};
 
         if (curNode.parents.length === 0) {
-            curNode.replaceWithSelect = newSelectNode;
+            newSelectNode.value.args.dest = curNode.value.args.dest;
+            curNode.replaceWith = newSelectNode;
             return;
         }
 
         var parentsAfterPush = [];
+        for (var i = 0; i < curNode.parents.length; i++) {
+            if (curNode.parents[i].value.operation === "XcalarApiIndex") {
+                duplicateIndex(curNode.parents[i]);
+            }
+        }
         for (var i = 0; i < curNode.parents.length; i++) {
             if (curNode.parents.indexOf(curNode.parents[i]) < i) {
                 if (parentsAfterPush.indexOf(curNode.parents[i]) !== -1) {
                     parentsAfterPush.push(curNode.parents[i]);
                 }
                 continue;
+            } else if (curNode.parents[i].value.operation === "XcalarApiIndex") {
+                var innerStruct = jQuery.extend(true, {}, selectStruct);
+                if (!pushGBHelper(curNode.parents[i], innerStruct)) {
+                    continue;
+                }
+            } else if (curNode.parents[i].value.operation === "XcalarApiGroupBy"
+                && curNode.parents[i].value.args.groupAll) {
+                var innerStruct = jQuery.extend(true, {}, selectStruct);
+                if (!pushGBHelper(curNode.parents[i], innerStruct)) {
+                    continue;
+                }
             } else if (curNode.parents[i].value.operation != "XcalarApiFilter"
                 && curNode.parents[i].value.operation != "XcalarApiMap" &&
-                curNode.parents[i].value.operation != "XcalarApiSynthesize") {
+                curNode.parents[i].value.operation != "XcalarApiSynthesize"
+                && curNode.parents[i].value.operation != "XcalarApiProject") {
                 if (curNode.value.operation === "XcalarApiSelect") {
                     parentsAfterPush.push(curNode.parents[i]);
                     continue;
                 }
             } else {
                 var innerStruct = jQuery.extend(true, {}, selectStruct);
-                if (!pushUpSelect(curNode.parents[i], innerStruct)) {
+                if ((selectStruct.args.eval && selectStruct.args.eval.GroupBy)
+                    || !pushUpSelect(curNode.parents[i], innerStruct)) {
                     continue;
                 }
             }

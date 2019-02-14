@@ -581,7 +581,8 @@ SQLErrTStr = {
     "NotLiteralGroupingId": "Last item of projections in expand node should be grouping id which is a literal, but now it's: ",
     "PlannerFailure": "Failed to send to planner",
     "XDFNotSupport": "xdf_ without type prefix is not supported",
-    "NoSupport": "Not supported: "
+    "NoSupport": "Not supported: ",
+    "GBPushUpMultipleParents": "PushGBHelper find node with multiple parents"
 };
 
 SQLInfoTStr = {
