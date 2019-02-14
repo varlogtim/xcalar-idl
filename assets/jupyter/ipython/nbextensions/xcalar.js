@@ -882,6 +882,27 @@ define(['base/js/utils'], function(utils) {
             // bind functions to jupyter events so that they get executed
             // whenever Jupyter calls "events.trigger('action')"
             function setupJupyterEventListeners() {
+                // SQL magic
+                require(['notebook/js/codecell'], function(codecell) {
+                    // https://github.com/jupyter/notebook/issues/2453
+                    codecell.CodeCell.options_default.highlight_modes['magic_text/x-sql'] = {'reg':[/^%read_sql/, /.*=\s*%read_sql/,
+                                                                                                    /^%%read_sql/]};
+                    Jupyter.notebook.events.one('kernel_ready.Kernel', function(){
+                        console.log('Finish loading the syntax highlighting when kernel ready');
+                        Jupyter.notebook.get_cells().map(function(cell){
+                            if (cell.cell_type == 'code'){ cell.auto_highlight(); } }) ;
+                        console.log('Reload xcalar sql magic')
+                        Jupyter.notebook.kernel.execute("%reload_ext xcalar.external.xcalar_sql_magic")
+                    });
+                    // Auto-highlight as we type
+                    Jupyter.notebook.events.on('edit_mode.Cell', function(){
+                        c = Jupyter.notebook.get_selected_cell();
+                        $(c.element).keyup(function(){
+                            c.auto_highlight();
+                        });
+                    });
+                });
+
                 // when a cell finishes execution
                 Jupyter.notebook.events.on("finished_execute.CodeCell", function(evt, data){
                     var cell = data.cell;
