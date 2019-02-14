@@ -918,6 +918,7 @@ namespace WorkbookPanel {
 
         extraClasses = extraClasses || [];
 
+        let title: string = workbookName;
         if (workbook.isNoMeta()) {
             extraClasses.push("noMeta");
             workbookName += " (" + WKBKTStr.NoMeta + ")";
@@ -973,7 +974,7 @@ namespace WorkbookPanel {
                             '<div class="infoSection topIsnfo">' +
                                 '<div class="subHeading tooltipOverflow" ' +
                                 ' data-toggle="tooltip" data-container="body"' +
-                                ' data-original-title="' + workbookName + '">' +
+                                ' data-original-title="' + title + '">' +
                                     '<input type="text" class="workbookName ' +
                                     'tooltipOverflow"' +
                                     ' value="' + workbookName + '"' +

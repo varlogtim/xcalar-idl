@@ -500,9 +500,12 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     }
 
     private _fetchLoadArgs(source): XDPromise<string> {
-        if (source === this._dagNode.getParam().source) {
+        let oldLoadArgs = this._dagNode.getLoadArgs();
+        if (source === this._dagNode.getParam().source &&
+            oldLoadArgs
+        ) {
             // when source not change, use the cached one
-            return PromiseHelper.resolve(this._dagNode.getLoadArgs());
+            return PromiseHelper.resolve(oldLoadArgs);
         }
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const $panel: JQuery = this._getPanel();
