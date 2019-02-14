@@ -326,7 +326,7 @@
                             .icon {
                                 .font(@size: 10px);
                                 .position(absolute, @top: 6px, @left: 5px);
-                                color: #9eb3c5;
+                                color: @color-border-bar;
                             }
                         }
                     }
@@ -596,10 +596,61 @@
             @w-creteTime: 180px;
             @w-status: 120px;
             @w-other: (@w-creteTime + @w-status) / 3;
-            position: relative;
 
             > div {
                 width: ~"calc(33% - @{w-other})";
+            }
+
+            .createTime {
+                width: @w-creteTime;
+            }
+
+            .status {
+                width: @w-status;
+            }
+        }
+    }
+
+    .content {
+        .hint {
+            .size(@width: 120px, @height: 20px);
+            .center-align;
+        }
+
+        .status {
+            span {
+                &:hover {
+                    cursor: pointer;
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+}
+
+#sqlTableSchemaArea {
+    .mainSection {
+        .row {
+            @w-primaryKey: 180px;
+            @w-other: @w-primaryKey / 2;
+
+            > div {
+                width: ~"calc(50% - @{w-other})";
+            }
+
+            .primaryKey {
+                width: @w-primaryKey;
+            }
+        }
+    }
+}
+
+#sqlTableListerArea, #sqlTableSchemaArea {
+    .mainSection {
+        .row {
+            position: relative;
+
+            > div {
                 position: relative;
 
                 .label {
@@ -613,14 +664,6 @@
                     height: 100%;
                     float: right;
                 }
-            }
-
-            .createTime {
-                width: @w-creteTime;
-            }
-
-            .status {
-                width: @w-status;
             }
         }
 
@@ -638,22 +681,6 @@
                         .icon {
                             display: block;
                         }
-                    }
-                }
-            }
-        }
-
-        .content {
-            .hint {
-                .size(@width: 120px, @height: 20px);
-                .center-align;
-            }
-
-            .status {
-                span {
-                    &:hover {
-                        cursor: pointer;
-                        text-decoration: underline;
                     }
                 }
             }

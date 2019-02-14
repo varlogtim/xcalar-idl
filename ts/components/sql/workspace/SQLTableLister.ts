@@ -1,17 +1,18 @@
-class SQLTableLister {
+class SQLTableLister extends AbstractSQLResultView {
     private static _instance: SQLTableLister;
     
     public static get Instance() {
         return this._instance || (this._instance = new this());
     }
 
-    private readonly _container: string = "sqlTableListerArea";
     private _attributes: {key: string, text: string}[];
     private _tableInfos: PbTblInfo[];
     private _sortKey: string;
     private _reverseSort: boolean;
 
     private constructor() {
+        super();
+        this._container = "sqlTableListerArea";
         this._tableInfos = [];
         this._setupArrtibutes();
         this._initializeMainSection();
@@ -82,26 +83,6 @@ class SQLTableLister {
             key: "status",
             text: CommonTxtTstr.Status
         }];
-    }
-
-    private _getContainer(): JQuery {
-        return $("#" + this._container);
-    }
-
-    private _getTopSection(): JQuery {
-        return this._getContainer().find(".topSection");
-    }
-
-    private _getMainSection(): JQuery {
-        return this._getContainer().find(".mainSection");
-    }
-
-    private _getMainContent(): JQuery {
-        return this._getMainSection().find(".content");
-    }
-
-    private _getSearchInput(): JQuery {
-        return this._getTopSection().find(".searchbarArea input");
     }
 
     private _getTableInfoFromRowEl($row: JQuery): PbTblInfo {
@@ -361,26 +342,6 @@ class SQLTableLister {
         }
     }
 
-    private _filterTables(): void {
-        const $input = this._getSearchInput();
-        const $rows = this._getMainContent().find(".row");
-        let keyword: string = $input.val().trim();
-        if (!keyword) {
-            $rows.removeClass("xc-hidden");
-            return;
-        }
-
-        keyword = keyword.toLowerCase();
-        $rows.each((_index, el) => {
-            const $row = $(el);
-            if ($row.find(".name").text().toLowerCase().includes(keyword)) {
-                $row.removeClass("xc-hidden");
-            } else {
-                $row.addClass("xc-hidden");
-            }
-        });
-    }
-
     private _showSchema(): void {
         const $row = this._getMainContent().find(".row.selected");
         if ($row.length === 0) {
@@ -452,7 +413,20 @@ class SQLTableLister {
         return tables;
     }
 
-    private _addEventListeners(): void {
+    private _resizeEvents(): void {
+        const $mainSection = this._getMainSection();
+        $mainSection.find(".row").each((_i, el) => {
+            let $row = $(el);
+            $row.find("> div").each((index, el) => {
+                if (index !== 0) {
+                    this._addResizeEvent($(el));
+                }
+            });
+        });
+    }
+
+    protected _addEventListeners(): void {
+        super._addEventListeners();
         const $mainSection = this._getMainSection();
         $mainSection.find(".header").on("click", ".title .label, .title .sort", (event) => {
             let sortKey = $(event.currentTarget).closest(".title").data("key");
@@ -491,89 +465,8 @@ class SQLTableLister {
             this._listTables(true);
         });
 
-        $topSection.find(".searchbarArea input").on("input", () => {
-            this._filterTables();
-        });
-
         $topSection.find(".viewSchema").click(() => {
             this._showSchema();
-        });
-    }
-
-    private _resizeEvents(): void {
-        const $mainSection = this._getMainSection();
-        $mainSection.find(".row").each((_i, el) => {
-            let $row = $(el);
-            $row.find("> div").each((index, el) => {
-                if (index !== 0) {
-                    this._addResizeEvent($(el));
-                }
-            });
-        });
-    }
-
-    private _addResizeEvent($section: JQuery): void {
-        // resizable left part of a column
-        let $prev: JQuery = null;
-        const minWidth: number = 80;
-        let totalWidth: number = null;
-
-        $section.resizable({
-            handles: "w",
-            minWidth: minWidth,
-            alsoResize: $prev,
-            start: (_event, _ui) => {
-                $prev = $section.prev();
-                totalWidth = $section.outerWidth() + $prev.outerWidth();
-                this._getMainSection().addClass("resizing");
-            },
-            resize: (_event, ui) => {
-                let left: number = ui.position.left;
-                let sectionW: number = $section.outerWidth() - left;
-                let prevWidth: number = totalWidth - sectionW;
-                if (sectionW <= minWidth) {
-                    sectionW = minWidth;
-                    prevWidth = totalWidth - sectionW;
-                } else if (prevWidth <= minWidth) {
-                    prevWidth = minWidth;
-                    sectionW = totalWidth - prevWidth;
-                }
-
-                $prev.outerWidth(prevWidth);
-                $section.outerWidth(sectionW);
-                $section.css("left", 0);
-
-                let rowWidth: number[] = this._getColumnsWidth($section.closest(".row"));
-                this._resizeColums(rowWidth);
-            },
-            stop: () => {
-                this._getMainSection().removeClass("resizing");
-            }
-        });
-    }
-
-    private _getColumnsWidth($row: JQuery): number[] | null {
-        let $columns: JQuery = $row.find("> div");
-        if ($columns.length === 0) {
-            return null;
-        }
-        let rowWidth: number[] = [];
-        $columns.each((_index, el) => {
-            rowWidth.push($(el).outerWidth());
-        });
-        return rowWidth;
-    }
-
-    private _resizeColums(rowWidth: number[] | null): void {
-        if (rowWidth == null) {
-            return;
-        }
-        let $section = this._getMainSection();
-        $section.find(".row").each((_inex, el) => {
-            let $row = $(el);
-            $row.find("> div").each((index, el) => {
-                $(el).outerWidth(rowWidth[index]);
-            });
         });
     }
 }
