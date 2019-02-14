@@ -257,8 +257,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
 
         var deferred = PromiseHelper.deferred();
-
-        XcalarUploadPython(pyModName, data)
+        // upload to shared space
+        var udfPath = UDFFileManager.Instance.getSharedUDFPath() + pyModName;
+        XcalarUploadPython(udfPath, data)
         .then(function() {
             UDFFileManager.Instance.storePython(pyModName, data);
             deferred.resolve();
