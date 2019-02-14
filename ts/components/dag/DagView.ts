@@ -115,17 +115,16 @@ class DagView {
         }
     }
 
-    public static updateOperationTime(graph: DagGraph, isCurrent: boolean = false): void {
-        const dagView = DagViewManager.Instance.getDagViewById(graph.getTabId());
-        if (!dagView || !dagView.isFocused()) {
+    public updateOperationTime(isCurrent: boolean = false): void {
+        if (!this.isFocused()) {
             return;
         }
 
-        const timeStr: string = dagView._getOperationTime();
+        const timeStr: string = this._getOperationTime();
         let text: string = "";
         if (timeStr != null) {
             let title: string = CommonTxtTstr.LastOperationTime;
-            if (isCurrent || graph.getExecutor() != null) {
+            if (isCurrent || this.graph.getExecutor() != null) {
                 title = CommonTxtTstr.OperationTime;
             }
             text = title + ": " + timeStr;
@@ -948,9 +947,7 @@ class DagView {
 
         const node: DagNode = this.graph.newNode(nodeInfo);
         this._addNodeNoPersist(node);
-        if (!MainMenu.isFormOpen()) {
-            DagNodeInfoPanel.Instance.show(node);
-        }
+        DagNodeInfoPanel.Instance.show(node);
 
         this.dagTab.turnOnSave();
         this.dagTab.save();
@@ -2142,7 +2139,7 @@ class DagView {
     }
 
     public addProgress(nodeId: DagNodeId): void {
-        DagView.updateOperationTime(this.graph, true);
+        this.updateOperationTime(true);
         const g = d3.select(this.$dfArea.find('.operator[data-nodeid = "' + nodeId + '"]')[0]);
         g.selectAll(".opProgress")
             .remove(); // remove old progress
@@ -2151,8 +2148,8 @@ class DagView {
             .attr("font-family", "Open Sans")
             .attr("font-size", "11")
             .attr("fill", "#44515c")
-            .attr("x", "105")
-            .attr("y", "31")
+            .attr("x", DagView.nodeWidth + 2)
+            .attr("y", DagView.nodeHeight + 3)
             .text("0%");
     }
 
@@ -2240,12 +2237,12 @@ class DagView {
         }
         let pct: string;
         // TODO: show step
-        // if (stats.completed) {
+        // if (stats.state === DgDagStateT.DgDagStateReady) {
         //     pct = "100%";
         // } else {
         //     pct = "Step " + stats.curStep + ": " + stats.curStepPct + "%";
         // }
-        if (stats.completed) {
+        if (stats.state === DgDagStateT.DgDagStateReady) {
             pct = "100%";
         } else {
             pct = stats.curStepPct + "%";
@@ -2265,8 +2262,8 @@ class DagView {
                 return;
             }
 
-            this._addProgressTooltip(graph, node, $dfArea, skewInfos, times);
-            if (stats.completed) {
+            this._addProgressTooltip(graph, node, $dfArea, skewInfos, times, stats.state);
+            if (stats.state === DgDagStateT.DgDagStateReady) {
                 const totalTime: number = times.reduce((a, b) => a + b, 0);
                 const graph: DagGraph = dagTab.getGraph()
                 let shouldUpdate: boolean = false;
@@ -2288,7 +2285,10 @@ class DagView {
                 }
                 if (shouldUpdate) {
                     graph.updateOperationTime(totalTime);
-                    DagView.updateOperationTime(graph, true);
+                    const dagView: DagView = DagViewManager.Instance.getDagViewById(tabId);
+                    if (dagView) {
+                        dagView.updateOperationTime(true);
+                    }
                 }
             }
         }
@@ -2422,7 +2422,8 @@ class DagView {
         node: DagNode,
         $dfArea: JQuery,
         skewInfos,
-        times: number[]
+        times: number[],
+        state: DgDagStateT
     ): void {
         if (node instanceof DagNodeSQLSubInput ||
             node instanceof DagNodeSQLSubOutput ||
@@ -2432,7 +2433,7 @@ class DagView {
             return;
         }
         const pos = node.getPosition();
-        let tip: HTML = this._nodeProgressTemplate(graph, node.getId(), pos.x, pos.y, skewInfos, times);
+        let tip: HTML = this._nodeProgressTemplate(graph, node.getId(), pos.x, pos.y, skewInfos, times, state);
         const $tip = $(tip)
         $dfArea.append($tip);
         const width = Math.max($tip[0].getBoundingClientRect().width, 95);
@@ -2445,6 +2446,7 @@ class DagView {
     ): void {
         try {
             const nodeStats = node.getIndividualStats();
+            const overallStats = node.getOverallStats();
             if (nodeStats.length) {
                 const skewInfos = [];
                 const times: number[] = [];
@@ -2455,7 +2457,7 @@ class DagView {
                     }
                     times.push(nodeStat.elapsedTime);
                 });
-                this._addProgressTooltip(this.graph, node, this.$dfArea, skewInfos, times);
+                this._addProgressTooltip(this.graph, node, this.$dfArea, skewInfos, times, overallStats.state);
                 const nodeInfo = { position: node.getPosition() };
                 this._repositionRunStats(nodeInfo, node.getId());
             }
@@ -2464,19 +2466,14 @@ class DagView {
         }
     }
 
-
-
-
-
-
-
     private _nodeProgressTemplate(
         graph: DagGraph,
         nodeId: DagNodeId,
         nodeX: number,
         nodeY: number,
         skewInfos: any[],
-        times: number[]
+        times: number[],
+        state: DgDagStateT
     ): HTML {
         const tooltipMargin = 5;
         const tooltipPadding = 5;
@@ -2518,8 +2515,9 @@ class DagView {
         if (skewInfos.length) {
             skewRows = xcHelper.numToStr(skewInfos[skewInfos.length - 1].totalRows);
         }
+        let stateClass: string = DgDagStateTStr[state];
 
-        let html = `<div data-id="${nodeId}" class="runStats dagTableTip" style="left:${x}px;top:${y}px;">`;
+        let html = `<div data-id="${nodeId}" class="runStats dagTableTip ${stateClass}" style="left:${x}px;top:${y}px;">`;
         html += `<table>
                  <thead>
                     <th>Rows</th>
@@ -4353,11 +4351,9 @@ class DagView {
         DagView.selectNode($operator);
 
         const nodeId: DagNodeId = $operator.data("nodeid");
-        if (isDagNode && !MainMenu.isFormOpen()) {
+        if (isDagNode) {
             const node: DagNode = this.graph.getNode(nodeId);
-            if (node != null) {
-                DagNodeInfoPanel.Instance.show(node);
-            }
+            DagNodeInfoPanel.Instance.show(node);
         }
 
         if (event.which !== 1) {

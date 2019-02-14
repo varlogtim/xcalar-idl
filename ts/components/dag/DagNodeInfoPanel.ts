@@ -17,11 +17,16 @@ class DagNodeInfoPanel {
     }
 
     public show(node: DagNode): boolean {
+        if (node == null) {
+            return false;
+        }
+        if (!MainMenu.isFormOpen()) {
+            $("#dataflowMenu").find(".menuSection").addClass("xc-hidden");
+            this._$panel.removeClass("xc-hidden");
+        }
+
         this._activeNode = node;
         this._isShowing = true;
-        $("#dataflowMenu").find(".menuSection").addClass("xc-hidden");
-        this._$panel.removeClass("xc-hidden");
-
         this._$panel.find(".nodeType").text(node.getDisplayNodeType());
 
         this._updateTitleSection();
@@ -32,7 +37,6 @@ class DagNodeInfoPanel {
         this._updateDescriptionSection();
         this._updateSubGraphSection();
         this._updateLock();
-
         return true;
     }
 
@@ -202,7 +206,7 @@ class DagNodeInfoPanel {
         if (overallStats.started) {
             this._$panel.find(".progressRow").removeClass("xc-hidden");
             let pct: string;
-            if (overallStats.completed) {
+            if (overallStats.state === DgDagStateT.DgDagStateReady) {
                 pct = "100%";
             } else {
                 pct = "Step " + overallStats.curStep + ": " + overallStats.curStepPct + "%";

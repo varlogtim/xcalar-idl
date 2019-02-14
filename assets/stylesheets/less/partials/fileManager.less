@@ -3,8 +3,8 @@
 .fileManagerMainPanel {
     .topBar {
         // TODO: move to constants.less when colors are finalized
-        @color-title: #849cb0;
-        @color-border-bar: #849cb0;
+        @color-title: @color-bg-cardHeader;
+        @color-border-bar: @color-bg-cardHeader;
         background-color: @color-bg-topBarGray2;
         box-shadow: 0px 0.25px 0px @color-border-bar;
         min-height: @height-topBar;
@@ -27,14 +27,14 @@
 }
 
 .fileManager {
-    color: #44515c;
+    color: @color-font-form-gray;
     font-size: 12px;
     height: 100%;
 
     // TODO: move to constants.less when colors are finalized
-    @color-border-operator: #849cb0;
-    @color-border-bar: #849cb0;
-    @color-icon-background: #f5f8fa;
+    @color-border-operator: @color-bg-cardHeader;
+    @color-border-bar: @color-bg-cardHeader;
+    @color-icon-background: @color-bg-list-hover-blue;
     @color-connector: #bbc7d1;
 
     .fileManagerBar {
@@ -107,7 +107,7 @@
                     box-shadow: 0px 0px 0.25px @color-border-softGray;
 
                     .label {
-                        color: #44515c;
+                        color: @color-font-form-gray;
                         .position(relative);
                         line-height: 23px;
                         padding: 0px 7px;
@@ -155,8 +155,8 @@
                 .size(@height: 25px, @width: 100%);
                 font-size: 12px;
                 font-style: normal;
-                color: #44515c;
-                .input-placeholder(#44515c);
+                color: @color-font-form-gray;
+                .input-placeholder(@color-font-form-gray);
                 line-height: 23px;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -222,7 +222,7 @@
                     box-shadow: 0px 0px 0.25px @color-border-softGray;
 
                     .label {
-                        color: #44515c;
+                        color: @color-font-form-gray;
                         .position(relative);
                         line-height: 23px;
                         padding: 0px 7px;

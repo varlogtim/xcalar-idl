@@ -4332,16 +4332,16 @@ html.microsoft {
                     .prefix {
                         width: @prefix-w-sqlFunc;
                     }
-    
+
                     input {
                         width: ~"calc(100% - @{total-w} - @{prefix-w-sqlFunc})";
                     }
-    
+
                     .btn {
                         .xc-disabled;
                     }
                 }
-    
+
                 &.restoreDS {
                     .xc-disabled;
                 }
@@ -4520,10 +4520,10 @@ html.microsoft {
     .modalMain {
         padding: 15px 25px;
         height: ~"calc(100% - 92px)";
-        
+
         .label {
             height: 30px;
-            
+
             .text, input {
                 display: block;
                 float: left;
@@ -4545,7 +4545,7 @@ html.microsoft {
             height: ~"calc(100% - 40px)";
             overflow-y: auto;
             border: 1px solid @color-border-softGray;
-            
+
             .content {
                 overflow-y: auto;
             }
@@ -5791,7 +5791,7 @@ html.microsoft {
                     width: 24px;
                     height: 24px;
                     border-radius: 14px;
-                    background-color: #849cb0;
+                    background-color: @color-bg-cardHeader;
                     float: right;
                     .xi-plus {
                         line-height: 25px;
@@ -5905,7 +5905,7 @@ html.microsoft {
                     top: 13px;
                     right: 25px;
                 }
-                
+
                 .list {
                     top: 39px;
                 }
@@ -5917,7 +5917,7 @@ html.microsoft {
             width: 100%;
             // 100% - column div max height - export Driver height
             padding: 25px 25px 0px 25px;
-            float: left; 
+            float: left;
             .argsSection {
                 border: 1px solid @color-border-softGray;
                 max-height: 100%;

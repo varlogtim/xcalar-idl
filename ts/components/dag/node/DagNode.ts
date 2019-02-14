@@ -813,23 +813,22 @@ abstract class DagNode {
         size: number,
         curStep: number,
         curStepPct: number,
-        completed: boolean,
+        state: DgDagStateT,
         started?: boolean,
-        state?: string,
     } {
         let numWorkCompleted: number = 0;
         let numWorkTotal: number = 0;
         let rows = 0;
         let size = 0;
         let skew = 0;
-        let complete = true;
-        let hasOperation = false;
         let nodesArray = [];
-        let processingStep: number;
+        let curStep: number;
         let curStepProgress: number;
         let hasProcessingNode: boolean;
         let totalProgress: number;
         let step: number = 0;
+        let stateCounts = {};
+        let state: DgDagStateT;
         for (let name in this.runStats.nodes) {
             const node = this.runStats.nodes[name];
             nodesArray.push(node);
@@ -841,12 +840,16 @@ abstract class DagNode {
                 return -1;
             }
         });
+
         nodesArray.forEach((node) => {
-            hasOperation = true;
             if (!node.name.startsWith("deleteObj-")) {
                 // this is a delete job which will cause row num to be 0
                 step++;
             }
+            if (!stateCounts[node.state]) {
+                stateCounts[node.state] = 0;
+            }
+            stateCounts[node.state]++;
             if (node.state === DgDagStateT.DgDagStateProcessing ||
                 node.state === DgDagStateT.DgDagStateReady) {
                 numWorkCompleted += node.numWorkCompleted;
@@ -857,40 +860,51 @@ abstract class DagNode {
                 }
             }
             if (node.state !== DgDagStateT.DgDagStateReady) {
-                complete = false;
                 if (node.state === DgDagStateT.DgDagStateProcessing ||
                     node.state === DgDagStateT.DgDagStateError) {
                     if (!hasProcessingNode) {
                         hasProcessingNode = true; // prevents queued node from
                         // getting assigned as the processing state
-                        processingStep = step;
+                        curStep = step;
                         if (node.state === DgDagStateT.DgDagStateError) {
                             curStepProgress = 0;
                         } else {
                             curStepProgress = node.numWorkCompleted / node.numWorkTotal;
                         }
                     }
-                } else if (!hasProcessingNode && processingStep == null) {
+                } else if (!hasProcessingNode && curStep == null) {
                     // queued
-                    processingStep = step;
+                    curStep = step;
                     curStepProgress = 0;
                 }
             }
             if (node.skewValue != null && !isNaN(node.skewValue)) {
                 skew = Math.max(skew, node.skewValue);
             }
-
             size = node.size;
         });
-        if (processingStep == null) {
-            processingStep = 1;
+        if (stateCounts[DgDagStateT.DgDagStateError] > 0) {
+            state = DgDagStateT.DgDagStateError;
+        } else if (stateCounts[DgDagStateT.DgDagStateProcessing] > 0 ||
+            (stateCounts[DgDagStateT.DgDagStateQueued] > 0 &&
+             stateCounts[DgDagStateT.DgDagStateReady] > 0)) {
+            state = DgDagStateT.DgDagStateProcessing;
+        } else if (nodesArray.length > 0 && nodesArray.length ===
+            stateCounts[DgDagStateT.DgDagStateReady]) {
+            state = DgDagStateT.DgDagStateReady;
+        } else {
+            state === DgDagStateT.DgDagStateQueued;
+        }
+
+        if (curStep == null) {
+            curStep = 1;
             curStepProgress = 0;
         }
         if (isNaN(curStepProgress)) {
             curStepProgress = 1;
         }
-        if (hasOperation && complete) {
-            processingStep = step;
+        if (state === DgDagStateT.DgDagStateReady) {
+            curStep = step;
             curStepProgress = 1;
         }
         curStepProgress = Math.max(0, Math.min(1, curStepProgress));
@@ -901,9 +915,10 @@ abstract class DagNode {
             totalProgress = 0;
         }
         // if table has 0 rows, but is completed, progress should still be 1
-        if (hasOperation && complete) {
+        if (state === DgDagStateT.DgDagStateReady) {
             totalProgress = 1;
         }
+
         const pct: number = Math.round(100 * totalProgress);
         const stats = {
             pct: pct,
@@ -911,12 +926,12 @@ abstract class DagNode {
             rows: rows,
             skewValue: skew,
             size: size,
-            curStep: processingStep,
+            curStep: curStep,
             curStepPct: curStepPct,
-            completed: (hasOperation && complete)
+            state: state
         };
         if (!formatted) {
-            stats["started"] = Object.keys(this.runStats.nodes).length > 0;
+            stats["started"] = nodesArray.length > 0;
         }
 
         return stats;

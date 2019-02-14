@@ -340,7 +340,7 @@ class DagViewManager {
         this._updateDagView();
         DagTable.Instance.switchTab(dagTab.getId());
         DagSearch.Instance.switchTab($oldDfArea);
-        DagView.updateOperationTime(this.activeDag);
+        this.activeDagView.updateOperationTime();
     }
 
     public endOptimizedDFProgress(queryName: string, queryStateOutput): void {
@@ -997,15 +997,11 @@ class DagViewManager {
                     self._deselectAllNodes();
                     DagView.selectNode($operator);
                     const nodeId: DagNodeId = $operator.data("nodeid");
-                    if (!MainMenu.isFormOpen()) {
-                        const node: DagNode = self.activeDag.getNode(nodeId);
-                        if (node != null) {
-                            DagNodeInfoPanel.Instance.show(node);
-                        }
-                    }
+                    const node: DagNode = self.activeDag.getNode(nodeId);
+                    DagNodeInfoPanel.Instance.show(node);
                 }
             }
-         });
+        });
 
 
         this.$dfWrap.on("click", ".descriptionIcon", function () {
@@ -1043,7 +1039,12 @@ class DagViewManager {
         ): void {
             $els.each(function () {
                 const $el = $(this);
-                const opRect: ClientRect = this.getBoundingClientRect();
+                let opRect: ClientRect;
+                if ($el.is(".operator")) {
+                    opRect = $(this).find(".main")[0].getBoundingClientRect();
+                } else {
+                    opRect = this.getBoundingClientRect();
+                }
                 const opTop = opRect.top - bound.top;
                 const opLeft = opRect.left - bound.left;
                 const opRight = opRect.right - bound.left;
@@ -1102,6 +1103,8 @@ class DagViewManager {
         }
         this.activeDagView.checkLinkInNodeValidation();
     }
+
+
 
 
     private _viewAgg(dagNode: DagNodeAggregate): void {
@@ -1195,7 +1198,7 @@ class DagViewManager {
         const tabId: string = progressInfo.tabId;
         this.activeDagView.updateNodeProgress(nodeId, tabId, progressInfo.stats,
             progressInfo.skewInfos, progressInfo.times, false);
-        if (progressInfo.stats.completed) {
+        if (progressInfo.stats.state === DgDagStateT.DgDagStateReady) {
             this.activeDagView.removeProgress(nodeId);
         }
     }
