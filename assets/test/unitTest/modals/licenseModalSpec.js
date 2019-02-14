@@ -11,7 +11,7 @@ describe("License Modal Test", function() {
         assert.isTrue($modal.is(":visible"));
     });
 
-    it("should submit form", function(done) {
+    it.skip("should submit form", function(done) {
         var testUpdate, testSuccess;
         var oldUpdate = XcalarUpdateLicense;
         var oldSuccess = xcHelper.showSuccess;

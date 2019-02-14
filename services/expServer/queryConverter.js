@@ -800,7 +800,8 @@ function _getDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix) {
                     includeSample: node.args.includeSample,
                     icv: node.args.icv,
                     groupAll: node.args.groupAll,
-                    dhtName: ""
+                    dhtName: "",
+                    joinBack: false
                 }
             };
             break;

@@ -87,7 +87,11 @@ describe("SqlQueryHistory Test", function() {
                     startTime: 123,
                     endTime: 456,
                     newTableName: 'newTable',
-                    errorMsg: 'errorMessage'
+                    errorMsg: 'errorMessage',
+                    dataflowId: 'dfId',
+                    rows: 'rows',
+                    skew: 5,
+                    columns: 'columns'
                 }),
                 expect: () => ({
                     queryId: 'newQueryId',
@@ -96,7 +100,11 @@ describe("SqlQueryHistory Test", function() {
                     startTime: 123,
                     endTime: 456,
                     tableName: 'newTable',
-                    errorMsg: 'errorMessage'
+                    errorMsg: 'errorMessage',
+                    dataflowId: 'dfId',
+                    rows: 'rows',
+                    skew: 5,
+                    columns: 'columns'
                 })
             }
         ];

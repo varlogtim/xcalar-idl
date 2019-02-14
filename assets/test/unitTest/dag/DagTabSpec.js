@@ -10,17 +10,12 @@ describe('DagTab Test', function() {
     before(function(done) {
         UnitTest.onMinMode();
         var dagTabManager = DagTabManager.Instance;
-        UnitTest.testFinish(function() {
-            return $("#dagTabSectionTabs .dagTab").length > 0;
-        })
-        .then(() => {
-            dagTabManager.newTab();
-            dagTabManager.newTab();
-            $dagTabArea = $("#dagTabSectionTabs");
-            $newTabButton = $("#tabButton");
-            $dagTabs = $("#dagTabSectionTabs .dagTab")
-            done();
-        });
+        dagTabManager.newTab();
+        dagTabManager.newTab();
+        $dagTabArea = $("#dagTabSectionTabs");
+        $newTabButton = $("#tabButton");
+        $dagTabs = $("#dagTabSectionTabs .dagTab")
+        done();
 });
 
     describe('Dag Tabs Test', function() {
@@ -52,7 +47,7 @@ describe('DagTab Test', function() {
             });
 
         });
-        
+
         describe("dagTabManager should handle new tabs", function() {
             it("Should create a new tab when prompted", function(){
                 var prior_len = $dagTabs.size();

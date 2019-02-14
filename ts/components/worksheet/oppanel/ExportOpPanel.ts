@@ -346,9 +346,6 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
                         return;
                     }
                 }
-                if (!this._dataModel.isAdvMode()) {
-
-                }
                 if (this._dataModel.saveArgs(this._dagNode)) {
                     this.close();
                 }

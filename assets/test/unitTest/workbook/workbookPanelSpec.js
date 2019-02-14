@@ -412,6 +412,7 @@ describe("Workbook-Workbook Panel Test", function() {
 
             $box.find(".dropDown").click();
             $("#wkbkMenu").find(".download").click();
+            $("#alertModal").find(".confirm").click();
             $("#wkbkMenu").hide();
 
             expect(called).to.equal(true);

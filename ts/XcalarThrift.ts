@@ -548,7 +548,6 @@ XcalarGetLicense = function(): XDPromise<any> {
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-
     var client = new xce.XceClient(xcHelper.getAppUrl() + "/service/xce/");
     var licenseService = new xce.LicenseService(client);
     var getRequest = new proto.xcalar.compute.localtypes.License.GetRequest();

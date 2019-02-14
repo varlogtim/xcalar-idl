@@ -99,7 +99,13 @@ describe("DagLineage Test", () => {
             icv: false
         })
         let lineage = new DagLineage(node);
-        let history = lineage.getColumnHistory();
-        expect(history.length).to.equal(2);
+        let history = lineage.getColumnHistory("test");
+        expect(history.length).to.equal(1);
+        expect(history[0].type).to.equal("add");
+        expect(history[0].colName).to.equal("test");
+        expect(history[0].childId).to.equal(null);
+        expect(history[0].change).to.equal(null);
+        expect(history[0].id).to.equal(node.getId());
+
     });
-}); 
+});

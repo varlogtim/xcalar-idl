@@ -166,15 +166,18 @@ describe("DagNodeExecutor Test", () => {
             joinType: "innerJoin",
             left: {
                 columns: ["lCol"],
+                keepColumns: ["lCol", "lCol2"],
                 casts: ["string"],
                 rename: [{sourceColumn: "lCol2", destColumn: "joinCol", prefix: false}]
             },
             right: {
-                columns: ["rCol"],
+                columns: ["x::rCol"],
+                keepColumns: ["x::rCol", "x::rCol2"],
                 casts: [null],
-                rename: [{sourceColumn: "rCol2", destColumn: "joinCol2", prefix: true}]
+                rename: [{sourceColumn: "x", destColumn: "x2", prefix: true}]
             },
-            evalString: ""
+            evalString: "",
+            keepAllColumns: false
         });
         node.connectToParent(lparentNode, 0);
         node.connectToParent(rParentNode, 1);
@@ -190,19 +193,24 @@ describe("DagNodeExecutor Test", () => {
                 columns: ["lCol"],
                 casts: null,
                 rename: [{
+                    "orig": "lCol",
+                    "new": "lCol",
+                    "type": DfFieldTypeT.DfUnknown
+                },{
                     "orig": "lCol2",
                     "new": "joinCol",
                     "type": DfFieldTypeT.DfUnknown
                 }],
                 allImmediates: []
             });
+
             expect(rTableInfo).to.deep.equal({
                 tableName: "right",
-                columns: ["rCol"],
+                columns: ["x::rCol"],
                 casts: null,
                 rename: [{
-                    "orig": "rCol2",
-                    "new": "joinCol2",
+                    "orig": "x",
+                    "new": "x2",
                     "type": DfFieldTypeT.DfFatptr
                 }],
                 allImmediates: []
@@ -742,6 +750,7 @@ describe("DagNodeExecutor Test", () => {
             expect(txId).to.equal(1);
             expect(keyInfos.length).to.equal(1);
             expect(keyInfos[0]).to.deep.equal({
+                keyFieldName: "newKey",
                 name: "testCol",
                 ordering: 3,
                 type: 4
@@ -871,7 +880,7 @@ describe("DagNodeExecutor Test", () => {
             schema: [{name: "testCol", type: ColumnType.integer}]
         });
         node.connectToParent(parentNode);
-    
+
         const executor = new DagNodeExecutor(node, txId);
         const oldSynthesize = XIApi.synthesize;
 
@@ -880,7 +889,7 @@ describe("DagNodeExecutor Test", () => {
             expect(colInfos.length).to.equal(1);
             expect(colInfos[0]).to.deep.equal({
                 orig: "testCol",
-                new: "testCol",
+                new: "TESTCOL",
                 type: 4
             });
             expect(tableName).to.equal("testTable");

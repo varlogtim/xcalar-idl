@@ -959,7 +959,7 @@ describe("Dataset-DSPreview Test", function() {
                 done("fail");
             })
             .fail(function(error) {
-                expect(error).to.equal("test");
+                expect(error.error).to.equal("Error Parse Args");
                 done();
             });
         });
@@ -989,7 +989,7 @@ describe("Dataset-DSPreview Test", function() {
                 done("fail");
             })
             .fail(function(error) {
-                expect(error.error).to.equal(DSTStr.NoParse);
+                expect(error.error).to.equal("Error Parse Args");
                 done();
             });
         });
@@ -997,7 +997,7 @@ describe("Dataset-DSPreview Test", function() {
         it("should loadDataWithUDF", function(done) {
             loadArgs.set({"path": "test"});
 
-            XIApi.loadDataset = function() {
+            XcalarDatasetLoad = function() {
                 return PromiseHelper.resolve();
             };
 
@@ -1083,7 +1083,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         after(function() {
-            XIApi.loadDataset = oldLoad;
+            XcalarDatasetLoad = oldLoad;
             XcalarSetFree = oldSetFree;
             XcalarMakeResultSetFromDataset = oldMakeResultSet;
             XcalarFetchData = oldFetch;
@@ -1139,8 +1139,9 @@ describe("Dataset-DSPreview Test", function() {
                 }
             };
 
+            // names can be reused
             res = getNameFromPath(testName);
-            expect(res).to.equal(testName + "1");
+            expect(res).to.equal(testName);
             DS.has = oldhas;
         });
 

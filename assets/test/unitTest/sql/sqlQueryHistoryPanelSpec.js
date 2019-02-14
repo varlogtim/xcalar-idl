@@ -130,7 +130,7 @@ describe("SqlQueryHistoryPanel Test", function() {
 
         it('formatDateTime should work', () => {
             const date = new Date('2019-01-07 15:46:20');
-            const expectedString = '1-7-2019 3:46:20 PM';
+            const expectedString = '15:46:20 01/07/2019';
 
             // Input is Date object
             expect(SqlQueryHistoryPanel.formatDateTime(date)).to.equal(expectedString);

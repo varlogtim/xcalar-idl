@@ -17,7 +17,7 @@ describe("Dataset-DSObj Test", function() {
         $statusBox = $("#statusBox");
         user = XcUser.getCurrentUserName();
         oldKVPut = XcalarKeyPut;
-        XcalarKeyPut = () => PromiseHelper.resolve(); 
+        XcalarKeyPut = () => PromiseHelper.resolve();
 
         $mainTabCache = $(".topMenuBarTab.active");
         UnitTest.testFinish(function() {
@@ -41,6 +41,9 @@ describe("Dataset-DSObj Test", function() {
             }
         })
         .then(function() {
+            if (!$("#inButton").hasClass("active")) {
+                $("#inButton").click();
+            }
             done();
         })
         .fail(function() {
@@ -289,18 +292,16 @@ describe("Dataset-DSObj Test", function() {
         });
 
         it("Should update num of datasets", function() {
-            expect("hello world").to.equal("hello world");
-    
             DS.updateNumDS(3);
             verifyCurrentNum(3);
         });
-    
+
         it("Should update num of datasets to right num", function() {
             var originNum = $("#dsListSection .gridItems .ds").length;
             DS.updateNumDS();
             verifyCurrentNum(originNum);
         });
-    
+
     });
 
     describe('share ds Test', () => {
@@ -322,7 +323,7 @@ describe("Dataset-DSObj Test", function() {
         it('should not share ds when disabled', () => {
             const oldAlert = Alert.show;
             let test = false;
-            Alert.show = () => { test = true; }; 
+            Alert.show = () => { test = true; };
             DS.toggleSharing(true);
 
             DS.__testOnly__.shareDS(dsId);
@@ -334,7 +335,7 @@ describe("Dataset-DSObj Test", function() {
         it('should share ds', () => {
             const oldAlert = Alert.show;
             let test = false;
-            Alert.show = () => { test = true; }; 
+            Alert.show = () => { test = true; };
 
             const $grid = $('<div class="grid-unit shared" ' +
                             'data-dsname="' + dsName + '"></div>');
@@ -370,10 +371,10 @@ describe("Dataset-DSObj Test", function() {
             const oldSendMessage = xcSocket.sendMessage;
             const oldRestore = DS.restore;
 
-            xcSocket.sendMessage = (name, arg, callback) => { 
+            xcSocket.sendMessage = (name, arg, callback) => {
                 if (typeof callback === 'function') {
                     callback(false);
-                } 
+                }
             };
 
             DS.restore = () => PromiseHelper.reject('test');
@@ -402,10 +403,10 @@ describe("Dataset-DSObj Test", function() {
             const oldCommit = UserSettings.commit;
             const oldFocusOn = DS.focusOn;
 
-            xcSocket.sendMessage = (name, arg, callback) => { 
+            xcSocket.sendMessage = (name, arg, callback) => {
                 if (typeof callback === 'function') {
                     callback(true);
-                } 
+                }
             };
 
             UserSettings.logChang = () => {};
@@ -445,7 +446,7 @@ describe("Dataset-DSObj Test", function() {
             DS.updateDSInfo(arg);
             expect(DS.getDSObj(dsId)).not.to.be.null;
             expect(test).to.be.true;
-            
+
             Alert.show = oldAlert;
         });
 
@@ -461,7 +462,7 @@ describe("Dataset-DSObj Test", function() {
             };
             DS.updateDSInfo(arg);
             expect(test).to.be.true;
-            
+
             DS.rename = oldRename;
         });
 
@@ -477,7 +478,7 @@ describe("Dataset-DSObj Test", function() {
             };
             DS.updateDSInfo(arg);
             expect(test).to.be.true;
-            
+
             DS.getDSObj = oldGet;
         });
 

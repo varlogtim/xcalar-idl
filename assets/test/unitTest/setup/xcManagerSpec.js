@@ -215,6 +215,7 @@ describe("xcManager Test", function() {
                 XcUser.CurrentUser.releaseSession = oldRelease;
                 xcManager.removeUnloadPrompt = oldRemove;
                 xcManager.__testOnly__.resetLogoutRedirect();
+                Alert.forceClose();
             });
         });
 

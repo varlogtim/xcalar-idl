@@ -1114,7 +1114,7 @@ describe('XIApi Test', () => {
                 });
         });
 
-        it('XIApi.load should work', (done) => {
+        it.skip('XIApi.load should work', (done) => {
             const oldFunc = XIApi.query;
             let test = false
             XIApi.query = () => {
@@ -1135,7 +1135,7 @@ describe('XIApi Test', () => {
                 });
         });
 
-        it('XIApi.load should reject invalid case', (done) => {
+        it.skip('XIApi.load should reject invalid case', (done) => {
             XIApi.load()
                 .then(() => {
                     done('fail');
@@ -1421,6 +1421,7 @@ describe('XIApi Test', () => {
             });
 
             it('should handle normal join', (done) => {
+
                 const joinType = JoinOperatorT.InnerJoin;
                 const lTableInfo = {
                     tableName: 'l#a',
@@ -1812,14 +1813,14 @@ describe('XIApi Test', () => {
         });
 
         it('XIApi.exportTable should work', (done) => {
-            const oldFunc = XcalarExport;
+            const oldFunc = XIApi.query;
             let test = false;
-            XcalarExport = () => {
-                test = true;
-                return PromiseHelper.resolve();
-            };
 
-            XIApi.exportTable(1, 'table', 'exportTable')
+            XIApi.query = () => {
+                test = true;
+                return PromiseHelper.resolve()
+            };
+            XIApi.exportTable(1, 'table', 'exportTable', null, ["column"], "exportName")
                 .then(() => {
                     expect(test).to.equal(true);
                     done();
@@ -1828,7 +1829,7 @@ describe('XIApi Test', () => {
                     done('fail');
                 })
                 .always(() => {
-                    XcalarExport = oldFunc;
+                    XIApi.query = oldFunc;
                 });
         });
 

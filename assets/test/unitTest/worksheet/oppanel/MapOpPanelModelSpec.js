@@ -70,7 +70,7 @@ describe("MapOpPanelModel Test", function() {
         describe("validate function", function() {
             it("missing icv should be caught", function() {
                 let ret = model.validateAdvancedMode('{"eval":[{"evalString": "blah(1,2)", "newField": "colOutput"}]}');
-                expect(ret.error).to.equal("Configuration  should have required property \'icv\'");
+                expect(ret.error).to.equal("Configuration should have required property \'icv\'");
             });
             it("invalid config should be caught", function() {
                 let ret = model.validateAdvancedMode('{"eval":[{"evalString": "blah(1,2)", "newField": "colOutput"}], "icv": false}');

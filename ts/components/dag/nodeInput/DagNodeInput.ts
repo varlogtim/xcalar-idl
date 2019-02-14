@@ -85,7 +85,7 @@ class DagNodeInput {
             path = path.slice(1);
         }
         if (!path) {
-            path = "Configuration ";
+            path = "Configuration";
         }
         let msg = errorObj.message;
         switch (errorObj.keyword) {

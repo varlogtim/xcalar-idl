@@ -240,7 +240,7 @@ describe("GroupByOpPanel Test", function() {
                 $('body').trigger({type: "keydown", which: keyCode.Down});
                 expect($functionsList.find('li.highlighted').length).to.equal(1);
                 expect($functionsList.find('li').eq(1).hasClass('highlighted')).to.be.true;
-                expect($functionsInput.val()).to.equal("count");
+                expect($functionsInput.val()).to.equal("avgNumeric");  // 2nd item
 
                 $functionsInput.val("");
                 $groupByOpPanel.mousedown();
@@ -311,9 +311,40 @@ describe("GroupByOpPanel Test", function() {
                 expect($groupByOpPanel.find('.advancedSection:visible')).to.have.lengthOf(1);
             });
 
-            it('should have 2 checkboxes for inc sample', function() {
+            it('should have 3 checkboxes in advanced section', function() {
                 $groupByOpPanel.find('.advancedTitle').click();
-                expect($groupByOpPanel.find('.advancedSection .checkbox:visible')).to.have.lengthOf(2);
+                expect($groupByOpPanel.find('.advancedSection .checkbox:visible')).to.have.lengthOf(3);
+            });
+
+            it("include ER checkbox should work", function() {
+                expect(GroupByOpPanel.Instance.model._getParam().icv).to.be.false;
+                $groupByOpPanel.find(".icvMode").click();
+                expect($groupByOpPanel.find(".icvMode .checkbox.checked").length).to.equal(1);
+                expect(GroupByOpPanel.Instance.model._getParam().icv).to.be.true;
+                $groupByOpPanel.find(".icvMode").click();
+                expect($groupByOpPanel.find(".icvMode .checkbox.checked").length).to.equal(0);
+                expect(GroupByOpPanel.Instance.model._getParam().icv).to.be.false;
+            });
+
+            it("joinback checkbox should work", function() {
+                expect(GroupByOpPanel.Instance.model._getParam().joinBack).to.be.false;
+                $groupByOpPanel.find(".joinBack").click();
+                expect($groupByOpPanel.find(".joinBack .checkbox.checked").length).to.equal(1);
+                expect(GroupByOpPanel.Instance.model._getParam().joinBack).to.be.true;
+                $groupByOpPanel.find(".joinBack").click();
+                expect($groupByOpPanel.find(".joinBack .checkbox.checked").length).to.equal(0);
+                expect(GroupByOpPanel.Instance.model._getParam().joinBack).to.be.false;
+            });
+
+
+            it("incSample checkbox should work", function() {
+                expect(GroupByOpPanel.Instance.model._getParam().includeSample).to.be.false;
+                $groupByOpPanel.find(".incSample").click();
+                expect($groupByOpPanel.find(".incSample .checkbox.checked").length).to.equal(1);
+                expect(GroupByOpPanel.Instance.model._getParam().includeSample).to.be.true;
+                $groupByOpPanel.find(".incSample").click();
+                expect($groupByOpPanel.find(".incSample .checkbox.checked").length).to.equal(0);
+                expect(GroupByOpPanel.Instance.model._getParam().includeSample).to.be.false;
             });
 
             it("keydown down direction on arg field should highlight list", function() {
@@ -641,6 +672,43 @@ describe("GroupByOpPanel Test", function() {
         });
     });
 
+    describe('multiGroupBy from multiple selected columns', function() {
+        before(function(done) {
+            $("#groupByOpPanel .close").click();
+            setTimeout(function() {
+                done();
+            }, 500);
+        });
+
+        it('2 selected columns should produce 2 group on inputs', function() {
+            var prefixCol1 = xcHelper.getPrefixColName(prefix, 'average_stars');
+            var prefixCol2 = xcHelper.getPrefixColName(prefix, 'stringCol');
+            var options = $.extend({}, openOptions, {autofillColumnNames: [prefixCol1, prefixCol2]});
+            node = new DagNodeGroupBy({});
+            node.input.input.groupBy = [prefixCol1, prefixCol2];
+            groupByOpPanel.show(node, options);
+            expect($groupByOpPanel.find('.gbOnArg').length).to.equal(2);
+            expect($groupByOpPanel.find('.gbOnArg').eq(0).val()).to.equal(gColPrefix + prefix + gPrefixSign + "average_stars");
+            expect($groupByOpPanel.find('.gbOnArg').eq(1).val()).to.equal(gColPrefix + prefix + gPrefixSign + "stringCol");
+
+        });
+    });
+
+    describe("addGroupbyGroup", function() {
+        it("addGroupbyGroup should work", function() {
+            expect($groupByOpPanel.find(".groupbyGroup").length).to.equal(1);
+            $groupByOpPanel.find(".addExtraGroup").click();
+            expect($groupByOpPanel.find(".groupbyGroup").length).to.equal(2);
+            expect($groupByOpPanel.find(".groupbyGroup").eq(0).find(".argsSection").length).to.equal(1);
+            expect($groupByOpPanel.find(".groupbyGroup").eq(0).find(".groupOnSection").length).to.equal(1);
+            expect($groupByOpPanel.find(".groupbyGroup").eq(1).find(".argsSection").length).to.equal(1);
+            expect($groupByOpPanel.find(".groupbyGroup").eq(1).find(".groupOnSection").length).to.equal(0);
+            $groupByOpPanel.find(".removeExtraGroup").click();
+            expect($groupByOpPanel.find(".groupbyGroup").length).to.equal(1);
+        });
+    });
+
+
     describe("Advanced Mode related GroupBy Panel Tests", function() {
         it("Should show statusbox error if columns isnt a field", function() {
             groupByOpPanel.show(node, openOptions);
@@ -656,14 +724,14 @@ describe("GroupByOpPanel Test", function() {
         it ("final node should have correct input", function() {
             node = new DagNodeGroupBy({});
             groupByOpPanel.show(node, openOptions);
-            expect(JSON.stringify(node.getParam())).to.equal('{"groupBy":[""],"aggregate":[{"operator":"","sourceColumn":"","destColumn":"","distinct":false,"cast":null}],"includeSample":false,"icv":false,"groupAll":false,"newKeys":[],"dhtName":""}');
+            expect(JSON.stringify(node.getParam())).to.equal('{"groupBy":[""],"aggregate":[{"operator":"","sourceColumn":"","destColumn":"","distinct":false,"cast":null}],"includeSample":false,"joinBack":false,"icv":false,"groupAll":false,"newKeys":[],"dhtName":""}');
             $functionsInput.val('count').trigger("input").trigger(fakeEvent.enterKeydown);
             $groupByOpPanel.find(".gbOnArg").val("test1").trigger("change");
             $argSection.find('.arg').eq(0).val("test2").trigger("change");
             $argSection.find('.arg').eq(1).val("test3").trigger("change");
             $argSection.find('.arg').eq(2).val("outputName").trigger("change");
             $groupByOpPanel.find(".submit").click();
-            expect(JSON.stringify(node.getParam())).to.equal('{"groupBy":["test1"],"aggregate":[{"operator":"count","sourceColumn":"\\\"test2\\\"","destColumn":"test3","distinct":false,"cast":null}],"includeSample":false,"icv":false,"groupAll":false,"newKeys":[],"dhtName":""}');
+            expect(JSON.stringify(node.getParam())).to.equal('{"groupBy":["test1"],"aggregate":[{"operator":"count","sourceColumn":"\\\"test2\\\"","destColumn":"test3","distinct":false,"cast":null}],"includeSample":false,"joinBack":false,"icv":false,"groupAll":false,"newKeys":[],"dhtName":""}');
         });
     });
 

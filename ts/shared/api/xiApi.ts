@@ -2338,7 +2338,14 @@ namespace XIApi {
         }
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        XcalarGenRowNum(tableName, newTableName, newColName, txId)
+        const simulateTxId: number = startSimulate();
+
+        XcalarGenRowNum(tableName, newTableName, newColName, simulateTxId)
+        .then(() => {
+            const query: string = endSimulate(simulateTxId);
+            const queryName: string = newTableName;
+            return XIApi.query(txId, queryName, query);
+        })
         .then(() => {
             deferred.resolve(newTableName);
         })

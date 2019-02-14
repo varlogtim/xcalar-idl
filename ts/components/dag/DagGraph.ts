@@ -2329,7 +2329,9 @@ class DagGraph {
                             aggregate: aggs,
                             includeSample: node.args.includeSample,
                             icv: node.args.icv,
-                            groupAll: node.args.groupAll
+                            groupAll: node.args.groupAll,
+                            dhtName: "",
+                            joinBack: false
                         }
                     };
                     break;

@@ -1,6 +1,6 @@
 describe("Join Dag Node Test", () => {
     let preset = {};
-    
+
     before(() => {
         preset.leftColumns = genProgCols('leftCol', 2).concat(genProgCols('left::col', 2));
         preset.rightColumns = genProgCols('rightCol', 3).concat(genProgCols('right::col', 3));
@@ -35,7 +35,7 @@ describe("Join Dag Node Test", () => {
                 rename: rightRenames
             },
             evalString: 'evalString',
-            keepAllColumns: false,     
+            keepAllColumns: false,
         };
 
         // const nodeInput = new DagNodeJoinInput(inputStruct);
@@ -60,7 +60,7 @@ describe("Join Dag Node Test", () => {
                 rename: [{sourceColumn: "", destColumn: "", prefix: false}]
             },
             evalString: '',
-            keepAllColumns: true,     
+            keepAllColumns: true,
         });
     });
 
@@ -202,7 +202,7 @@ describe("Join Dag Node Test", () => {
         node.setParam(param);
         changes = node.lineageChange([]);
         expect(changes.columns.length).to.equal(2);
-        expect(changes.changes.length).to.equal(0);
+        expect(changes.changes.length).to.equal(8);
 
         // Keep some columns
         param.left.keepColumns = preset.leftColumns
@@ -214,7 +214,7 @@ describe("Join Dag Node Test", () => {
         node.setParam(param);
         changes = node.lineageChange([]);
         expect(changes.columns.length).to.equal(4);
-        expect(changes.changes.length).to.equal(0);
+        expect(changes.changes.length).to.equal(6);
     });
 
     it("_getColumnsFromJoinTableInput should work", () => {

@@ -18,7 +18,8 @@ describe("GroupBy Dag Node Test", () => {
             icv: false,
             groupAll: false,
             newKeys: [],
-            dhtName: ""
+            dhtName: "",
+            joinBack: false
         });
     });
 
@@ -30,7 +31,8 @@ describe("GroupBy Dag Node Test", () => {
             icv: false,
             groupAll: false,
             newKeys: ["count_agg"],
-            dhtName: ""
+            dhtName: "",
+            joinBack: false
         };
         node.setParam(testParam);
         const param = node.getParam();

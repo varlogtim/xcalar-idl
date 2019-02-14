@@ -24,13 +24,15 @@ class DagSchemaPopup {
             console.error("error case");
             return;
         }
-        
+
         this._$popup.addClass("active");
         DagViewManager.Instance.getNode(this._nodeId, this._tabId).addClass("lineageStart");
         xcTooltip.hideAll();
         $(document).on('mousedown.hideDagSchema', function(event) {
-            if ($(event.target).closest('#dagSchemaPopup').length === 0 &&
-                !$(event.target).is("#dagView .dataflowWrap")) {
+            const $target = $(event.target);
+            if ($target.closest('#dagSchemaPopup').length === 0 &&
+                !$target.is("#dagView .dataflowWrap") &&
+                !$target.is("#dagView .dataflowArea")) {
                 self._close();
             }
         });

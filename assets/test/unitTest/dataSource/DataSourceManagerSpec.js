@@ -9,7 +9,7 @@ describe("Data Source Manager Test", function() {
         // turn off min mode, as it affectes DOM test
         UnitTest.onMinMode();
     });
-    
+
     it("should go to create target view", function() {
         $("#targetButton").click();
         assert.isFalse($("#datastore-in-view").is(":visible"));
@@ -22,7 +22,7 @@ describe("Data Source Manager Test", function() {
         assert.isFalse($("#datastore-target-view").is(":visible"));
     });
 
-    function verifyCurrentNum(testNum) {
+    window.verifyCurrentNum = (testNum) => {
         var currentNum = Number($(".numDataStores").eq(0).text());
         expect(currentNum).to.equal(testNum);
     }

@@ -368,14 +368,28 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
 
     private _validateNewKeys() {
         const newKeys: string[] = this.newKeys;
+        const groups = this.groups;
         let error: string;
-        newKeys.forEach((newKey) => {
+        const nameMap = {};
+        for ( let i = 0; i < groups.length; i++) {
+            nameMap[groups[i].newFieldName] = true;
+        }
+        for (let newKey of newKeys) {
             const parseRes = xcHelper.parsePrefixColName(newKey);
             if (parseRes.prefix) {
                 error = ErrTStr.NoPrefixColumn;
-                return false; // stop loop
+                break;
             }
-        });
+            error = xcHelper.validateColName(newKey, true);
+            if (error) {
+                break;
+            }
+            if (nameMap[newKey]) {
+                error = newKey + " is already in use";
+                break;
+            }
+            nameMap[newKey] = true;
+        }
 
         return error ? {error: "Error in newKeys: " + error} : null;
     }

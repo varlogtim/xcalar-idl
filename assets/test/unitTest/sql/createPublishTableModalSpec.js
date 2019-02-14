@@ -81,10 +81,10 @@ describe("Create Publish Table Modal Test", function() {
     it("Should display the correct errors",  function() {
         CreatePublishTableModal.Instance.show("testTable", columns);
         $("#createPublishTableModal .confirm").click();
-        expect($("#statusBox .message").text()).to.equal("Table name should start with a letter and contain only letters, digits, hyphens(-) or underscores(_)");
+        expect($("#statusBox .message").text()).to.equal("Table name should start with a letter and contain only letters, digits, or underscores(_)");
         $("#createPublishTableModal .IMDNameInput").val("testTable");
         $("#createPublishTableModal .confirm").click();
-        expect($("#statusBox .message").text()).to.equal("Published tables must have a primary key.");
+        expect($("#statusBox .message").text()).to.equal("No Columns Selected");
         $("#createPublishTableModal .close").click();
     })
 
