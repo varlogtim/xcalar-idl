@@ -161,7 +161,7 @@ class SQLExecutor {
             finalTableName = this._sqlNode.getTable();
             columns = this._sqlNode.getColumns();
             this._status = SQLStatus.Done;
-            return this._expandSQLNode();
+            return this._expandSQLNodeAndAddToList();
         })
         .then(() => {
             DagTabManager.Instance.removeSQLTabCache(this._tempTab);
@@ -178,7 +178,7 @@ class SQLExecutor {
             if (!this._sqlTabCached) {
                 DagTabManager.Instance.addSQLTabCache(this._tempTab);
             }
-            this._expandSQLNode()
+            this._expandSQLNodeAndAddToList()
             .always(() => {
                 finish();
                 deferred.reject(err);
@@ -195,7 +195,7 @@ class SQLExecutor {
         this._configureSQLNode(true)
         .then(() => {
             DagTabManager.Instance.addSQLTabCache(this._tempTab);
-            return this._expandSQLNode();
+            return this._expandSQLNodeAndAddToList();
         })
         .then(() => {
             let promise = this._tempTab.save();
@@ -265,7 +265,7 @@ class SQLExecutor {
         this._sqlNode.updateSQLQueryHisory();
     }
 
-    private _expandSQLNode(): XDPromise<void> {
+    private _expandSQLNodeAndAddToList(): XDPromise<void> {
         if (!this._sqlNode.getSubGraph()) {
             return PromiseHelper.resolve();
         }
@@ -275,6 +275,7 @@ class SQLExecutor {
         PromiseHelper.alwaysResolve(promise)
         .then(() => {
             DagViewManager.Instance.autoAlign(this._tempTab.getId());
+            DagList.Instance.addDag(this._tempTab);
             deferred.resolve();
         });
         return deferred.promise();
