@@ -508,7 +508,8 @@ class DagTabPublished extends DagTab {
             })
             .fail((error) => {
                 console.error("Upload UDF to local fails", error);
-                failures.push(moduleName + ": " + error.error);
+                let errorMsg: string = error.log || error.error;
+                failures.push(moduleName + ": " + errorMsg);
                 innerDeferred.resolve(); // still resolve it
             });
 

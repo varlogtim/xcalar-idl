@@ -340,7 +340,7 @@ class PTblManager {
             xcHelper.createColInfo(columns))
         .then(() => {
             // need to update the status and activated tables
-            return PromiseHelper.alwaysResolve(this._listTables());
+            return PromiseHelper.alwaysResolve(this._listOneTable(tableName));
         })
         .then(() => {
             delete this._loadingTables[tableName];
@@ -387,14 +387,8 @@ class PTblManager {
 
         PromiseHelper.chain(promises)
         .then(() => {
-            // need to update the status and activated tables
-            return PromiseHelper.alwaysResolve(this._listTables());
-        })
-        .then(() => {
             if (failures.length > 0) {
-                let error: string = failures.map((msg, index) => {
-                    return tableNames[index] + ": " + msg;
-                }).join("/n");
+                let error: string = failures.join("\n");
                 Alert.error(IMDTStr.ActivatingFail, error);
             }
             XcSocket.Instance.sendMessage("refreshIMD", {
@@ -427,9 +421,7 @@ class PTblManager {
                 this._deactivateTables(tableNames, failures)
                 .then(() => {
                     if (failures.length > 0) {
-                        let error: string = failures.map((msg, index) => {
-                            return tableNames[index] + ": " + msg;
-                        }).join("/n");
+                        let error: string = failures.join("\n");
                         Alert.error(IMDTStr.DeactivateTableFail, error);
                     }
                     XcSocket.Instance.sendMessage("refreshIMD", {
@@ -466,9 +458,7 @@ class PTblManager {
                 this._deleteTables(tableNames, failures)
                 .then(() => {
                     if (failures.length > 0) {
-                        let error: string = failures.map((msg, index) => {
-                            return tableNames[index] + ": " + msg;
-                        }).join("/n");
+                        let error: string = failures.join("\n");
                         Alert.error(IMDTStr.DelTableFail, error);
                     }
                     XcSocket.Instance.sendMessage("refreshIMD", {
@@ -518,7 +508,8 @@ class PTblManager {
             deferred.resolve();
         })
         .fail((error) => {
-            failures.push(error.error);
+            let errorMsg = this._getErrorMsg(tableName, error);
+            failures.push(errorMsg);
             deferred.resolve(); // still resolve it
         });
         return deferred.promise();
@@ -536,11 +527,15 @@ class PTblManager {
         .then(() => {
             tableInfo.state = null;
             tableInfo.active = true;
+            return PromiseHelper.alwaysResolve(this._listOneTable(tableName));
+        })
+        .then(() => {
             deferred.resolve();
         })
         .fail((error) => {
             tableInfo.state = PbTblState.Error;
-            failures.push(error.log || error.error);
+            let errorMsg = this._getErrorMsg(tableName, error);
+            failures.push(errorMsg);
             deferred.resolve(); // still resolve it
         });
         return deferred.promise();
@@ -573,7 +568,8 @@ class PTblManager {
             deferred.resolve();
         })
         .fail((error) => {
-            failures.push(error.error);
+            let errorMsg: string = this._getErrorMsg(tableName, error);
+            failures.push(errorMsg);
             deferred.resolve(); // still resolve it
         });
         return deferred.promise();
@@ -600,7 +596,8 @@ class PTblManager {
             deferred.resolve();
         })
         .fail((error) => {
-            failures.push(error.error);
+            let errorMsg = this._getErrorMsg(tableName, error);
+            failures.push(errorMsg);
             Transaction.fail(txId, {
                 "error": error,
                 "noAlert": true
@@ -786,10 +783,30 @@ class PTblManager {
         return deferred.promise();
     }
 
+    private _listOneTable(tableName: string): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        XcalarListPublishedTables(tableName, false, true)
+        .then((result) => {
+            try {
+                let oldTableInfo = this._tableMap.get(tableName);
+                let index: number = oldTableInfo ? oldTableInfo.index : this._tables.length;
+                let tableInfo: PbTblInfo = this._tableInfoAdapter(result.tables[0], index);
+                this._tableMap.set(tableName, tableInfo);
+                this._tables[index] = tableInfo;
+            } catch (e) {
+                console.error(e);
+            }
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
     private _listTables(): XDPromise<PublishTable[]> {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         let oldTables = this._tables || [];
-        
+
         XcalarListPublishedTables("*", false, true)
         .then((result) => {
             this._tables = result.tables.map(this._tableInfoAdapter);
@@ -885,5 +902,10 @@ class PTblManager {
         let msg: string = `Step ${step}/${totalStep}: ${text}`;
         tableInfo.loadMsg = msg;
         TblSourcePreview.Instance.refresh(tableInfo);
+    }
+
+    private _getErrorMsg(tableName: string, error: ThriftError): string {
+        let errorMsg: string = error.log || error.error;
+        return tableName + ": " + errorMsg;
     }
 }

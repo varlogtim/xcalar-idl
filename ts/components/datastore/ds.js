@@ -3145,7 +3145,7 @@ window.DS = (function ($, DS) {
         .fail(function(error) {
             var errorMsg = xcHelper.replaceMsg(DSTStr.FailActivateDS, {
                 "ds": dsObj.getName(),
-                "error": error.error
+                "error": error.log || error.error
             });
             failures.push(errorMsg);
             if (txId != null) {
