@@ -1746,10 +1746,6 @@ window.DSPreview = (function($, DSPreview) {
             columTypes.forEach(function(colType, index) {
                 var originalColName = originalHeaders[index] || autoHeaderName(index);
                 var colName = headers[index] || originalColName;
-                // XXX TODO: Remove it to resolve 13287
-                if (colType === ColumnType.timestamp) {
-                    colType = ColumnType.string;
-                }
                 typedColumns.push({
                     colName: colName,
                     colType: colType
@@ -5267,10 +5263,6 @@ window.DSPreview = (function($, DSPreview) {
         var $tr = $tbody.find("tr");
         $tr.eq(0).find("td").each(function(colIndex) {
             var colType = suggestType($tr, colIndex + 1);
-            // XXX TODO: Remove it to resolve 13287
-            if (colType === ColumnType.timestamp) {
-                colType = ColumnType.string;
-            }
             recTypes[colIndex] = colType;
         });
         return recTypes;
