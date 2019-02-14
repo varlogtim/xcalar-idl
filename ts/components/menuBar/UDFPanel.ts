@@ -6,6 +6,7 @@ class UDFPanel {
     }
 
     private editor: CodeMirror.EditorFromTextArea;
+    private editorInitValue: string;
     private udfWidgets: CodeMirror.LineWidget[] = [];
     private dropdownHint: InputDropdownHint;
     private readonly udfDefault: string =
@@ -49,7 +50,7 @@ class UDFPanel {
         if (this.editor != null) {
             // Wrap in if because KVStore.restore may call UDFPanel.Instance.clear()
             // and at that time editor has not setup yet.
-            this.editor.setValue(this.udfDefault);
+            this._setEditorValue(this.udfDefault);
             this.editor.clearHistory();
         }
     }
@@ -67,7 +68,7 @@ class UDFPanel {
      * @returns void
      */
     public selectUDFPath(moduleName: string): void {
-        this._selectUDF(moduleName + ".py");
+        this._selectUDF(moduleName + ".py", true);
     }
 
     /**
@@ -75,7 +76,7 @@ class UDFPanel {
      * @returns void
      */
     public edit(displayName: string): void {
-        this._selectUDF(displayName);
+        this._selectUDF(displayName, true);
     }
 
     /**
@@ -188,7 +189,7 @@ class UDFPanel {
 
         this._setupAutocomplete(this.editor);
 
-        this.editor.setValue(this.udfDefault);
+        this._setEditorValue(this.udfDefault);
 
         let waiting: NodeJS.Timer;
         this.editor.on("change", () => {
@@ -285,7 +286,9 @@ class UDFPanel {
         if (entireString) {
             UDFFileManager.Instance.add(displayPath, entireString).then(() => {
                 if (newModule) {
-                    this._selectUDF(displayPath);
+                    this._selectUDF(displayPath, false);
+                } else {
+                    this.editorInitValue = this.editor.getValue();
                 }
             });
         }
@@ -294,7 +297,7 @@ class UDFPanel {
     private _setupDropdownList(): void {
         const $dropdownList: JQuery = $("#udf-fnList");
         const menuHelper: MenuHelper = new MenuHelper($dropdownList, {
-            onSelect: ($li: JQuery) => this._selectUDF($li.text()),
+            onSelect: ($li: JQuery) => this._selectUDF($li.text(), true),
             container: "#udfSection",
             bounds: "#udfSection",
             bottomPadding: 2
@@ -302,7 +305,8 @@ class UDFPanel {
 
         this.dropdownHint = new InputDropdownHint($dropdownList, {
             menuHelper,
-            onEnter: (displayName: string) => this._selectUDF(displayName)
+            onEnter: (displayName: string) =>
+                this._selectUDF(displayName, true)
         });
 
         this._selectBlankUDF();
@@ -362,58 +366,73 @@ class UDFPanel {
     }
 
     /**
-     * @param  {string} displayNameOrPath displayPath or displayName
+     * @param  {string} displayNameOrPath
+     * @param  {boolean} needConfirm
      * @returns void
      */
-    private _selectUDF(displayNameOrPath: string): void {
-        if (displayNameOrPath === "New Module") {
-            this._selectBlankUDF();
-            return;
-        }
-
-        const displayNameAndPath: [
-        string,
-        string
-        ] = this._getDisplayNameAndPath(displayNameOrPath);
-        const displayName = displayNameAndPath[0];
-        const displayPath = displayNameAndPath[1];
-
-        const nsPath = UDFFileManager.Instance.displayPathToNsPath(
-            displayPath
-        );
-        if (!UDFFileManager.Instance.getUDFs().has(nsPath)) {
-            StatusBox.show(UDFTStr.NoTemplate, $("#udf-fnList"));
-            return;
-        }
-
-        const $fnListInput: JQuery = $("#udf-fnList input");
-        StatusBox.forceHide();
-        this.dropdownHint.setInput(displayName);
-        xcTooltip.changeText($fnListInput, displayName);
-
-        const fillUDFFunc = (funcStr: string) => {
-            if ($fnListInput.val() !== displayName) {
-                // Check if diff list item was selected during
-                // the async call
+    private _selectUDF(displayNameOrPath: string, needConfirm: boolean): void {
+        const confirmSelect = () => {
+            if (displayNameOrPath === "New Module") {
+                this._selectBlankUDF();
                 return;
             }
 
-            this.editor.setValue(funcStr);
-        };
-        UDFFileManager.Instance.getEntireUDF(nsPath)
-        .then(fillUDFFunc)
-        .fail((error) => {
-            const options: {side: string; offsetY: number} = {
-                side: "bottom",
-                offsetY: -2
-            };
-            StatusBox.show(
-                xcHelper.parseError(error),
-                $fnListInput,
-                true,
-                options
+            const displayNameAndPath: [
+            string,
+            string
+            ] = this._getDisplayNameAndPath(displayNameOrPath);
+            const displayName = displayNameAndPath[0];
+            const displayPath = displayNameAndPath[1];
+
+            const nsPath = UDFFileManager.Instance.displayPathToNsPath(
+                displayPath
             );
-        });
+            if (!UDFFileManager.Instance.getUDFs().has(nsPath)) {
+                StatusBox.show(UDFTStr.NoTemplate, $("#udf-fnList"));
+                return;
+            }
+
+            const $fnListInput: JQuery = $("#udf-fnList input");
+            StatusBox.forceHide();
+            this.dropdownHint.setInput(displayName);
+            xcTooltip.changeText($fnListInput, displayName);
+
+            const fillUDFFunc = (funcStr: string) => {
+                if ($fnListInput.val() !== displayName) {
+                    // Check if diff list item was selected during
+                    // the async call
+                    return;
+                }
+
+                this._setEditorValue(funcStr);
+            };
+            UDFFileManager.Instance.getEntireUDF(nsPath)
+            .then(fillUDFFunc)
+            .fail((error) => {
+                const options: {side: string; offsetY: number} = {
+                    side: "bottom",
+                    offsetY: -2
+                };
+                StatusBox.show(
+                    xcHelper.parseError(error),
+                    $fnListInput,
+                    true,
+                    options
+                );
+            });
+        };
+
+        if (needConfirm && this.editorInitValue !== this.editor.getValue()) {
+            Alert.show({
+                title: UDFTStr.SwitchTitle,
+                msg: UDFTStr.SwitchMsg,
+                onConfirm: () => {
+                    confirmSelect();
+                }
+            });
+        } else {
+            confirmSelect();
+        }
     }
 
     private _selectBlankUDF(): void {
@@ -425,7 +444,7 @@ class UDFPanel {
         this.dropdownHint.setInput(displayName);
         xcTooltip.changeText($fnListInput, displayName);
 
-        this.editor.setValue(this.udfDefault);
+        this._setEditorValue(this.udfDefault);
     }
 
     private _getDisplayNameAndPath(
@@ -484,13 +503,18 @@ class UDFPanel {
         $blankFunc.after(html);
     }
 
+    private _setEditorValue(valueStr: string): void {
+        this.editorInitValue = valueStr;
+        this.editor.setValue(valueStr);
+    }
+
     /* Unit Test Only */
     public __testOnly__: any = {};
 
     public setupTest(): void {
         if (typeof unitTestMode !== "undefined" && unitTestMode) {
             this.__testOnly__.inputUDFFuncList = (displayName: string) =>
-                this._selectUDF(displayName);
+                this._selectUDF(displayName, false);
         }
     }
     /* End Of Unit Test Only */

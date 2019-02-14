@@ -1387,7 +1387,9 @@ UDFTStr = {
     "MyUDFS": "CURRENT WORKBOOK",
     "MYOTHERUDFS": "MY WORKBOOKS",
     "OtherUDFS": "OTHER WORKBOOKS",
-    "Show": "Show"
+    "Show": "Show",
+    "SwitchTitle": "Switch UDF",
+    "SwitchMsg": "Switch UDF? Changes you made may not be saved."
 };
 
 TblTStr = {
