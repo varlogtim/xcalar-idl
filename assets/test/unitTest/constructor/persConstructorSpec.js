@@ -2242,7 +2242,6 @@ describe("Persistent Constructor Test", function() {
                 "curUser": "testUser",
                 "created": 1234,
                 "modified": 2234,
-                "numDFs": 12,
                 "resource": true,
                 "description": "testDescription",
                 "sessionId": 'testSessionId',
@@ -2265,8 +2264,6 @@ describe("Persistent Constructor Test", function() {
             .and.to.equal(1234);
             expect(wkbk).to.have.property("modified")
             .and.to.equal(2234);
-            expect(wkbk).to.have.property("numDFs")
-            .and.to.equal(12);
             expect(wkbk).to.have.property("resource")
             .and.to.be.true;
             expect(wkbk).to.have.property("description")
@@ -2284,7 +2281,6 @@ describe("Persistent Constructor Test", function() {
                 "curUser": "testUser",
                 "created": 1234,
                 "modified": 2234,
-                "numDFs": 12,
                 "description": "testDescription"
             });
 

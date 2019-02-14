@@ -185,15 +185,6 @@ namespace WorkbookManager {
     }
 
     /**
-    * WorkbookManager.updateDFs
-    * @param numDFs - the new number of dataflows
-    */
-    export function updateDFs(numDFs: number): void {
-        const workbook: WKBK = wkbkSet.get(activeWKBKId);
-        workbook.numDFs = numDFs;
-    };
-
-    /**
     * WorkbookManager.newWKBK
     * creates a new workbook
     * @param wkbkName - name of the new workbook
@@ -734,7 +725,6 @@ namespace WorkbookManager {
                 "created": srcWKBK.created,
                 "srcUser": srcWKBK.srcUser,
                 "curUser": srcWKBK.curUser,
-                "numDFs": srcWKBK.numDFs,
                 "resource": srcWKBK.resource,
                 "jupyterFolder": folderName,
                 "sessionId": srcWKBK.sessionId
@@ -1210,7 +1200,7 @@ namespace WorkbookManager {
                 folderName = "";
             }
 
-            // XXX for uploads, we should include description and numDFs
+            // XXX for uploads, we should include description
             const options: any = {
                 "id": getWKBKId(wkbkName),
                 "name": wkbkName,
@@ -1221,7 +1211,6 @@ namespace WorkbookManager {
             };
 
             if (isCopy) {
-                options.numDFs = copySrc.numDFs;
                 options.modified = copySrc.modified;
             }
 

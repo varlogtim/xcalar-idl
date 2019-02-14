@@ -937,7 +937,6 @@ declare class WKBK {
     public id: string;
     public modified: string;
     public sessionId: string;
-    public numDFs: number;
     public jupyterFolder: string;
     public description: string;
     public created: string;

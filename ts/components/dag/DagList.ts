@@ -694,7 +694,6 @@ class DagList {
     private _updateSection(): void {
         let text: string = `${DFTStr.DFs} (${this._dags.size})`;
         $("#dagList").find(".numDF").text(text);
-        WorkbookManager.updateDFs(this._dags.size);
     }
 
     private _getDagListSection(): JQuery {

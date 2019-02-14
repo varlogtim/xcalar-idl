@@ -913,7 +913,6 @@ namespace WorkbookPanel {
         let createdTimeTip: string = "";
         let modifiedTimeTip: string = "";
         const description: string = workbook.getDescription() || "";
-        const numDFs: number = workbook.getNumDataflows() || 0;
         let time: moment.Moment;
 
         extraClasses = extraClasses || [];
@@ -1004,14 +1003,6 @@ namespace WorkbookPanel {
                                 '</div>' +
                             '</div>' +
                             '<div class="infoSection bottomInfo">' +
-                                '<div class="row clearfix">' +
-                                    '<div class="label">' +
-                                        WKBKTStr.DF + ':' +
-                                    '</div>' +
-                                    '<div class="info numDFs">' +
-                                        numDFs +
-                                    '</div>' +
-                                '</div>' +
                                 '<div class="row clearfix">' +
                                     '<div class="label">' +
                                         WKBKTStr.State + ':' +

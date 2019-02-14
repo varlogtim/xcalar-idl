@@ -315,16 +315,6 @@ describe("WorkbookManager Test", function() {
             expect(wkbkId).to.be.a("string");
         });
 
-        it("WorkbookManager.updateDFs should work", function() {
-            var wkbkId = WorkbookManager.getActiveWKBK();
-            var workbook = WorkbookManager.getWorkbook(wkbkId);
-            var oldNum = workbook.numDFs;
-
-            WorkbookManager.updateDFs(100);
-            expect(workbook.numDFs).to.equal(100);
-            workbook.numDFs = oldNum;
-        });
-
         it("WorkbookManager.updateDescription should work", function(done) {
             var wkbkId = WorkbookManager.getActiveWKBK();
             var workbook = WorkbookManager.getWorkbook(wkbkId);
