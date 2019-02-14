@@ -485,7 +485,7 @@ class UDFFileManager extends BaseFileManager {
 
             xcHelper.disableSubmit($fnUpload);
 
-            XcalarUploadPython(uploadPath, entireString, absolutePath)
+            XcalarUploadPython(uploadPath, entireString, absolutePath, true)
             .then(() => {
                 xcHelper.showSuccess(SuccessTStr.UploadUDF);
 

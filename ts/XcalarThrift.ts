@@ -4712,7 +4712,8 @@ XcalarUploadPythonRejectDuplicate = function(
 XcalarUploadPython = function(
     moduleName: string,
     pythonStr: string,
-    absolutePath: string
+    absolutePath: boolean,
+    checkBlank?: boolean
 ): XDPromise<StatusT> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -4748,7 +4749,7 @@ XcalarUploadPython = function(
             });
             return;
             // here do the update call
-        } else if (thriftError.status === StatusT.StatusUdfModuleEmpty) {
+        } else if (!checkBlank && thriftError.status === StatusT.StatusUdfModuleEmpty) {
             // This is not an error because extensions may upload
             // empty udfs. So just go ahead and resolve
             deferred.resolve();
