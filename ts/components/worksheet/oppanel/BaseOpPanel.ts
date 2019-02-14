@@ -306,7 +306,12 @@ class BaseOpPanel {
     }
 
     protected _restoreBasicModeParams() {
-        this._editor.setValue(this._cachedBasicModeParam);
+        let val: string = this._cachedBasicModeParam;
+        if (val == null) {
+            console.error("cachedBasicModeParam is unset");
+            val = "";
+        }
+        this._editor.setValue(val);
     }
 
     protected _switchMode(_toAdvancedMode: boolean): { error: string } {

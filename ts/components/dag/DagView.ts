@@ -2948,7 +2948,9 @@ class DagView {
         const $categoryBarNode = DagView._$operatorBar.find('.operator[data-type="' + type + '"]' +
         '[data-subtype="' + subType + '"]').first();
         const $node = $categoryBarNode.clone();
-        if ($categoryBarNode.closest(".category-hidden").length) {
+        if ($categoryBarNode.closest(".category-hidden").length &&
+            type !== DagNodeType.Synthesize
+        ) {
             $node.addClass("configDisabled");
         };
 

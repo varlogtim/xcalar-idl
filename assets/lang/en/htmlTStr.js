@@ -1133,6 +1133,11 @@ module.exports = {
         "operatorInstr": "Optional Column that contains opcode values.",
     },
 
+    "SynthesizeOp": {
+        "title": "Synthesize",
+        "instr": "Please provide column information about columns to synthesize. Each column should inlcude source column name, dest column name, and dest column type."
+    },
+
     "jsonModal": {
         "header": "Data Browser"
     },

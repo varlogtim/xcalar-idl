@@ -29,6 +29,13 @@ class DagNodeSynthesize extends DagNode {
         }
     };
 
+    public setParam(input: DagNodeSynthesizeInputStruct = <DagNodeSynthesizeInputStruct>{}) {
+        this.input.setInput({
+            colsInfo: input.colsInfo
+        });
+        super.setParam();
+    }
+
     public lineageChange(
         _columns: ProgCol[],
         replaceParameters?: boolean

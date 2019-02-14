@@ -228,7 +228,7 @@ interface DagNodeJupyterInputStruct {
 }
 
 interface DagNodeSynthesizeInputStruct {
-    colsInfo: {sourceColumn: string, destColumn: string, columnType: string}[]
+    colsInfo: {sourceColumn: string, destColumn: string, columnType: ColumnType | string}[]
 }
 /* ==== End of Dag Node Input Intereface ==== */
 

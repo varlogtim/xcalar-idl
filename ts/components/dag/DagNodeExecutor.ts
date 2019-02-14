@@ -228,10 +228,27 @@ class DagNodeExecutor {
     private _synthesize(): XDPromise<string> {
         const node: DagNodeSynthesize = <DagNodeSynthesize>this.node;
         const params: DagNodeSynthesizeInputStruct = node.getParam(this.replaceParam);
+        let typeConverter = (type: ColumnType | string | null): DfFieldTypeT => {
+            if (type == null) {
+                // when specially be null (just change name, not cast type)
+                return null;
+            }
+            for (let key in ColumnType) {
+                if (ColumnType[key] === type) {
+                    // when prodvide ColumnType
+                    return xcHelper.convertColTypeToFieldType(<ColumnType>type);
+                }
+            }
+
+            // when from upgrade code, be DfFieldTypeT
+            return DfFieldTypeTFromStr[type];
+        };
+
         const colsInfo: ColRenameInfo[] = params.colsInfo.map((colInfo) => {
+            let fieldType: DfFieldTypeT = typeConverter(colInfo.columnType);
             return xcHelper.getJoinRenameMap(colInfo.sourceColumn,
                                              colInfo.destColumn,
-                                             DfFieldTypeTFromStr[colInfo.columnType]);
+                                             fieldType);
         });
         const srcTable: string = this._getParentNodeTable(0);
         const desTable: string = this._generateTableName();
