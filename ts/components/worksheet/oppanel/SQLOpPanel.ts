@@ -634,8 +634,11 @@ class SQLOpPanel extends BaseOpPanel {
         const queryId = xcHelper.randName("sql", 8);
         try {
             SQLUtil.Instance.lockProgress();
-            self._dagNode.compileSQL(sql, queryId, identifiers, false,
-                                     undefined, dropAsYouGo)
+            const options = {
+                identifiers: identifiers,
+                dropAsYouGo: dropAsYouGo
+            };
+            self._dagNode.compileSQL(sql, queryId, options)
             .then(function(ret) {
                 const newTableName = ret.newTableName;
                 const allCols = ret.allCols;

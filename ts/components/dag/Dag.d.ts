@@ -364,6 +364,14 @@ interface SQLSchema {
     tableColumns: {}[] // {column: type}[]
 }
 
+interface SQLParserStruct {
+    sql: string,
+    command?: {type: string, args: string[]},
+    identifiers?: string[],
+    functions?: {},
+    newSql?: string
+}
+
 interface TableRunStats {
     state: DgDagStateT,
     startTime: number,

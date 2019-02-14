@@ -1041,45 +1041,51 @@ class DagNodeSQL extends DagNode {
     public compileSQL(
         sqlQueryStr: string,
         queryId: string,
-        identifiers?: Map<number, string>,
-        sqlMode?: boolean,
-        pubTablesInfo?: {},
-        dropAsYouGo?: boolean
+        options: {
+            identifiers?: Map<number, string>,
+            sqlMode?: boolean,
+            pubTablesInfo?: {},
+            dropAsYouGo?: boolean
+            sqlFunctions?: {}
+        } = {}
     ): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
         const sqlCom = new SQLCompiler();
         const self = this;
         let schemaQueryString;
         let tableSrcMap;
-        let sqlFuncs;
-        let replacedSqlQuery;
+        // All options
+        let identifiers;
+        let sqlMode;
+        let pubTablesInfo;
+        let dropAsYouGo;
+        let sqlFunctions;
         try {
             // paramterize SQL
             sqlQueryStr = xcHelper.replaceMsg(sqlQueryStr,
                                 DagParamManager.Instance.getParamMap(), true);
-            if (identifiers) {
-                self.setIdentifiers(identifiers);
-            }
+            // set all options
+            self.setIdentifiers(options.identifiers);
             identifiers = self.getIdentifiers();
-            if (dropAsYouGo == null) {
+            sqlMode = options.sqlMode;
+            pubTablesInfo = options.pubTablesInfo;
+            if (options.dropAsYouGo == null) {
                 dropAsYouGo = self.getParam().dropAsYouGo == null ? true :
                                                 self.getParam().dropAsYouGo;
+            } else {
+                dropAsYouGo = options.dropAsYouGo;
             }
-            if (sqlMode) {
-                const retStruct = XDParser.SqlParser.getSQLTableFunctions(sqlQueryStr);
-                sqlFuncs = retStruct.sqlFunctions;
-                replacedSqlQuery = retStruct.sqlQuery;
-            }
+            sqlFunctions = options.sqlFunctions;
             this.events.trigger(DagNodeEvents.StartSQLCompile, {
                 id: this.getId(),
                 node: this
             });
-            self.sendSchema(identifiers, pubTablesInfo, sqlFuncs)
+            self.sendSchema(identifiers, pubTablesInfo, sqlFunctions)
             .then(function(ret) {
                 schemaQueryString = ret.queryString;
                 tableSrcMap = ret.tableSrcMap
                 self.setTableSrcMap(tableSrcMap);
-                const struct = {"sqlQuery": replacedSqlQuery || sqlQueryStr};
+                const struct = {"sqlQuery": sqlQueryStr};
                 return SQLUtil.Instance.sendToPlanner(self.getId(), "query", struct);
             })
             .then(function(data) {

@@ -14,6 +14,7 @@ class SQLExecutor {
     }
 
     private _sql: string;
+    private _newSql: string;
     private _sqlNode: DagNodeSQL;
     private _tempTab: DagTabUser;
     private _tempGraph: DagGraph;
@@ -23,16 +24,20 @@ class SQLExecutor {
     private _batchId: {};
     private _status: SQLStatus;
     private _sqlTabCached: boolean;
+    private _sqlFunctions: {};
 
-    public constructor(sql: string) {
-        this._sql = sql.replace(/;+$/, "");
+    public constructor(sqlStruct: SQLParserStruct) {
+        this._sql = sqlStruct.sql.replace(/;+$/, "");
+        this._newSql = sqlStruct.newSql ? sqlStruct.newSql.replace(/;+$/, "") :
+                                                                     this._sql;
+        this._sqlFunctions = sqlStruct.functions;
         this._identifiersOrder = [];
         this._identifiers = {};
         this._schema = {};
         this._batchId = {};
         this._status = SQLStatus.None;
         this._sqlTabCached = false;
-        const tables: string[] = Array.from(XDParser.SqlParser.getTableIdentifiers(sql));
+        const tables: string[] = sqlStruct.identifiers;
         const tableMap = PTblManager.Instance.getTableMap();
         tables.forEach((identifier, idx) => {
             let pubTableName = identifier.toUpperCase();
@@ -236,13 +241,17 @@ class SQLExecutor {
                 batchId: this._batchId[pubTableName]
             };
         });
-        const sqlMode = true;
         if (!noStatusUpdate) {
             this._status = SQLStatus.Compiling;
             this._updateStatus(SQLStatus.Compiling, new Date());
         }
-        return this._sqlNode.compileSQL(this._sql, queryId, identifiers,
-                                        sqlMode, pubTablesInfo);
+        const options = {
+            identifiers: identifiers,
+            sqlMode: true,
+            pubTablesInfo: pubTablesInfo,
+            sqlFunctions: this._sqlFunctions
+        }
+        return this._sqlNode.compileSQL(this._newSql, queryId, options);
     }
 
     private _updateStatus(

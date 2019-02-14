@@ -178,7 +178,8 @@ class SQLEditorSpace {
     private _executeAction(): void {
         if (this._executers.length === 0) {
             SQLWorkSpace.Instance.save();
-            let sqls: string = this._sqlEditor.getSelection() || this._sqlEditor.getValue();
+            let sqls: string = this._sqlEditor.getSelection() ||
+                               this._sqlEditor.getValue();
             this._executeSQL(sqls);
         } else {
             Alert.show({
@@ -191,49 +192,77 @@ class SQLEditorSpace {
 
     private _executeSQL(sqls: string): void {
         try {
-            let sqlArray: string[] = XDParser.SqlParser.getMultipleQueriesViaParser(sqls);
-            let selectArray: string[] = [];
+            let selectArray: SQLParserStruct[] = [];
             let lastShow: any = {type: "select"};
             let executorArray: SQLExecutor[] = [];
             let compilePromiseArray: XDPromise<any>[] = [];
             let executePromiseArray: XDPromise<any>[] = [];
-            sqlArray.forEach((sql) => {
-                let retStruct: any = XDParser.SqlParser.getPreStatements(sql);
-                if (retStruct.type != "select") {
-                    lastShow = retStruct;
-                } else {
-                    selectArray.push(sql);
-                }
-            });
-            // Basic show tables and describe table
-            // If there are multiple queries they are ignored
-            if (sqlArray.length === 1 && lastShow.type === "showTables") {
-                SQLResultSpace.Instance.showTables(true);
-            } else if (sqlArray.length === 1 && lastShow.type === "describeTable") {
-                let tableInfos: PbTblInfo[] = PTblManager.Instance.getTables();
-                const targetTableName: string = lastShow.args[0];
-                for (let i = 0; i < tableInfos.length; i++) {
-                    if (tableInfos[i].name === targetTableName) {
-                        SQLResultSpace.Instance.showSchema(tableInfos[i]);
-                        return;
+            const struct = {
+                sqlQuery: sqls,
+                ops: ["identifier", "sqlfunc", "command"],
+                isMulti: (sqls.indexOf(";") > -1)
+            };
+            SQLUtil.Instance.sendToPlanner("", "parse", struct)
+            .then((ret) => {
+                const sqlStructArray = JSON.parse(ret).ret;
+                sqlStructArray.forEach((sqlStruct: SQLParserStruct) => {
+                    if (sqlStruct.command.type != "select") {
+                        lastShow = sqlStruct;
+                    } else {
+                        selectArray.push(sqlStruct);
                     }
+                });
+                // Basic show tables and describe table
+                // If there are multiple queries they are ignored
+                if (sqlStructArray.length === 1 && lastShow.type === "showTables") {
+                    SQLResultSpace.Instance.showTables(true);
+                } else if (sqlStructArray.length === 1 &&
+                           lastShow.type === "describeTable") {
+                    let tableInfos: PbTblInfo[] = PTblManager.Instance.getTables();
+                    const targetTableName: string = lastShow.args[0];
+                    for (let i = 0; i < tableInfos.length; i++) {
+                        if (tableInfos[i].name === targetTableName) {
+                            SQLResultSpace.Instance.showSchema(tableInfos[i]);
+                            return;
+                        }
+                    }
+                    // Table not found
+                    console.error("Table not found: " + targetTableName);
+                    SQLResultSpace.Instance.showSchemaError("Table not found: "
+                                                            + targetTableName);
                 }
-                // Table not found
-                console.error("Table not found: " + targetTableName);
-                SQLResultSpace.Instance.showSchemaError("Table not found: " + targetTableName);
-            }
-            selectArray.forEach((sql, i) => {
-                let executor = new SQLExecutor(sql);
-                this._addExecutor(executor);
-                executorArray.push(executor);
-                compilePromiseArray.push(this._compileStatement(executorArray[i]));
-                executePromiseArray.push(this._executeStatement.bind(this,
-                                  executorArray[i], i, selectArray.length));
-            });
-            PromiseHelper.when.apply(this, compilePromiseArray)
+                for (let i = 0; i < selectArray.length; i++) {
+                    const sqlStruct: SQLParserStruct = selectArray[i];
+                    let executor: SQLExecutor;
+                    try {
+                        executor = new SQLExecutor(sqlStruct);
+                    } catch (e) {
+                        return PromiseHelper.reject(e);
+                    }
+                    this._addExecutor(executor);
+                    executorArray.push(executor);
+                    compilePromiseArray.push(this._compileStatement(executorArray[i]));
+                    executePromiseArray.push(this._executeStatement.bind(this,
+                                      executorArray[i], i, selectArray.length));
+                }
+                return PromiseHelper.when.apply(this, compilePromiseArray);
+            })
             .then(() => {
                 PromiseHelper.chain(executePromiseArray);
             })
+            .fail((e) => {
+                console.error(e);
+                let error: string;
+                if (e instanceof Error) {
+                    error = e.message;
+                } else if (typeof e === "string") {
+                    error = e;
+                } else {
+                    error = JSON.stringify(e);
+                }
+                let $btn = this._getEditorSpaceEl().find(".bottomSection .execute");
+                StatusBox.show(error, $btn);
+            });
         } catch (e) {
             console.error(e);
             let error: string;

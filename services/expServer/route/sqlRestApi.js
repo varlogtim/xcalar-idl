@@ -173,20 +173,18 @@ function listPublishedTables(pattern) {
                 publishedTables.push(table.name);
             }
         }
-        deferred.resolve(publishedTables, res);
+        deferred.resolve(res, publishedTables);
     })
     .fail(deferred.reject);
     return deferred.promise();
 };
 
-function listAllTables(pattern) {
+function listAllTables(pattern, pubTables, xdTables) {
     var deferred = PromiseHelper.deferred();
     var patternMatch = pattern || "*";
     var tableListPromiseArray = [];
     tableListPromiseArray.push(XcalarListPublishedTables(patternMatch));
     tableListPromiseArray.push(XcalarGetTables(patternMatch));
-    var pubTables = new Map();
-    var xdTables = new Map();
     PromiseHelper.when.apply(this, tableListPromiseArray)
     .then(function() {
         var pubTablesRes = arguments[0];
@@ -199,7 +197,7 @@ function listAllTables(pattern) {
         xdTablesRes.nodeInfo.forEach(function(node){
             xdTables.set(node.name.toUpperCase(), node.name);
         });
-        deferred.resolve(pubTables, pubTablesRes, xdTables);
+        deferred.resolve(pubTablesRes);
     })
     .fail(deferred.reject);
     return deferred.promise();
@@ -377,26 +375,13 @@ function getDerivedCol(txId, tableName, schema, dstTable) {
     return deferred.promise();
 }
 
-function getTablesFromQueryViaParser(sqlStatement,
-    setOfPubTables, setOfXDTables) {
-    var chars = new antlr4.InputStream(sqlStatement.toUpperCase());
-    var lexer = new SqlBaseLexer(chars);
-    var tokens  = new antlr4.CommonTokenStream(lexer);
-    var parser = new SqlBaseParser(tokens);
-    parser.buildParseTrees = true;
-    var tree = parser.statement();
-
-    var visitor = new TableVisitor();
-    visitor.visitTables(tree);
-
+function getTablesFromParserResult(identifiers, setOfPubTables, setOfXDTables) {
     var imdTables = [];
     var xdTables = [];
     var errorTables = [];
     setOfXDTables = setOfXDTables || new Map();
-    visitor.tableIdentifiers.forEach(function(identifier) {
-        if (visitor.namedQueries.indexOf(identifier) != -1) {
-            return;
-        }
+    identifiers.forEach(function(identifier) {
+        identifier = identifier.toUpperCase();
         var slicedIdentifier = identifier.slice(1, -1);
         if (setOfXDTables.has(identifier)){
             xdTables.push(setOfXDTables.get(identifier));
@@ -432,13 +417,13 @@ function sendToPlanner(sessionPrefix, requestStruct, username, wkbkName) {
         wkbkName = "sql-workbook";
     }
     var deferred = PromiseHelper.deferred();
-    var url = "http://localhost:27000/xcesql/" + type + "/";
-    if (type !== "sqlquery") {
-        url += encodeURIComponent(encodeURIComponent(sessionPrefix + username +
-            "-wkbk-" + wkbkName));
-    } else {
-        url += encodeURIComponent(encodeURIComponent(sessionPrefix + username +
-            "-wkbk-" + wkbkName)) + "/true/true";
+    var url = "http://localhost:27000/xcesql/" + type;
+    if (type !== "sqlparse") {
+        url += "/" + encodeURIComponent(encodeURIComponent(sessionPrefix +
+               username + "-wkbk-" + wkbkName));
+        if (type === "sqlquery") {
+            url += "/true/true"
+        }
     }
 
     request({
@@ -449,10 +434,10 @@ function sendToPlanner(sessionPrefix, requestStruct, username, wkbkName) {
         },
         function (error, response, body) {
             if (!error && response.statusCode == 200) {
-                if (requestStruct.data && requestStruct.data.sqlQuery) {
+                if (type === "sqlquery") {
                     deferred.resolve(JSON.parse(body.sqlQuery));
                 } else {
-                    deferred.resolve();
+                    deferred.resolve(body);
                 }
             } else {
                 if(body.exceptionName && body.exceptionMsg) {
@@ -533,7 +518,7 @@ function getInfoForXDTable(tableName) {
     return deferred.promise();
 };
 
-function collectTablesMetaInfo(queryStr, tablePrefix, type) {
+function collectTablesMetaInfo(queryStr, tablePrefix, type, username, wkbkName) {
     function findValidLastSelect(selects, nextBatchId) {
         for (var select of selects) {
             if (select.maxBatchId + 1 === nextBatchId &&
@@ -578,6 +563,9 @@ function collectTablesMetaInfo(queryStr, tablePrefix, type) {
     var deferred = jQuery.Deferred();
     var error = false;
     var batchIdMap = {};
+    var pubTables = new Map();
+    var xdTables = new Map();
+    var pubTableRes;
 
     var prom;
     //XXX Doing this not to mess up with odbc calls
@@ -587,21 +575,39 @@ function collectTablesMetaInfo(queryStr, tablePrefix, type) {
         prom = listPublishedTables('*');
     }
     else {
-        prom = listAllTables('*');
+        prom = listAllTables('*', pubTables, xdTables);
     }
     prom
-    .then(function(pubTables, pubTableRes, xdTables) {
+    .then(function(retPubTableRes, retPubTables) {
         //XXX converting pubTables array to Map
         // making xdTables to empty Map
+        pubTableRes = retPubTableRes;
         if (type === 'odbc') {
-            xdTables = new Map();
-            var pubTablesSet = pubTables;
-            pubTables = new Map();
-            for (var pubTable of pubTablesSet) {
+            for (var pubTable of retPubTables) {
                 pubTables.set(pubTable.toUpperCase(), pubTable);
             }
         }
-        allTables = getTablesFromQueryViaParser(queryStr, pubTables, xdTables);
+        var requestStruct = {
+            type: "sqlparse",
+            method: "POST",
+            data: {
+                sqlQuery: queryStr,
+                ops: ["identifier"],
+                isMulti: false
+            }
+        }
+        return sendToPlanner(tablePrefix, requestStruct, username, wkbkName);
+    })
+    .then(function(data) {
+        var retStruct = data.ret;
+        if (retStruct.length > 1) {
+            return PromiseHelper.reject("Multiple queries not supported yet");
+        }
+        var identifiers = retStruct[0].identifiers;
+        if (identifiers.length === 0) {
+            return PromiseHelper.reject("Failed to get identifiers from invalid SQL");
+        }
+        var allTables = getTablesFromParserResult(identifiers, pubTables, xdTables);
         if (typeof(allTables) !== "object") {
             console.log(allTables);
             return PromiseHelper.reject(SQLErrTStr.NoPublishedTable);
@@ -698,8 +704,8 @@ function getXCquery(params, type) {
 
     setupConnection(params.userName, params.userId, params.sessionName)
     .then(function () {
-        return collectTablesMetaInfo(params.queryString,
-                                tablePrefix, type)
+        return collectTablesMetaInfo(params.queryString, tablePrefix, type,
+                                     params.userName, params.sessionName);
     })
     .then(function(selQuery, schemas, selects) {
         allSelects = selects;
@@ -793,8 +799,8 @@ function executeSql(params, type, workerThreading) {
 
     setupConnection(params.userName, params.userId, params.sessionName)
     .then(function () {
-        return collectTablesMetaInfo(params.queryString,
-                                tablePrefix, type)
+        return collectTablesMetaInfo(params.queryString, tablePrefix, type,
+                                     params.userName, params.sessionName);
     })
     .then(function(selQuery, schemas, selects) {
         allSelects = selects;
@@ -1271,7 +1277,7 @@ router.post("/xcsql/list", [support.checkAuth], function(req, res) {
         xcConsole.log("connected");
         return listPublishedTables(pattern);
     })
-    .then(function(tables, results) {
+    .then(function(results, tables) {
         var retStruct = [];
 
         for (var pubTable of tables) {

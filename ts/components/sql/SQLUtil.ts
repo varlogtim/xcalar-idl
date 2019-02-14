@@ -26,8 +26,12 @@ class SQLUtil {
                 break;
             case ("query"):
                 url = planServer + "/sqlquery/" +
-                    encodeURIComponent(encodeURIComponent(sessionPrefix + session))
-                    + "/true/true";
+                      encodeURIComponent(encodeURIComponent(sessionPrefix + session)) +
+                      "/true/true";
+                action = "POST";
+                break;
+            case ("parse"):
+                url = planServer + "/sqlparse";
                 action = "POST";
                 break;
             default:
