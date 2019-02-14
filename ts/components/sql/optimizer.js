@@ -246,6 +246,7 @@
         },
         combineProjectWithSynthesize: function(opNode, visitedMap) {
             const self = this;
+            var removeCurNode = false;
             if (visitedMap[opNode.name]) {
                 return visitedMap[opNode.name];
             }
@@ -267,6 +268,7 @@
                     opNode.children[0].name = opNode.value.args.dest;
                     opNode.children[0].parents = opNode.parents;
                     retNode = opNode.children[0];
+                    removeCurNode = true;
                     if (retNode.children.length > 0) {
                         retNode.children[0] = self.combineProjectWithSynthesize(
                                                 retNode.children[0], visitedMap);
@@ -300,11 +302,16 @@
                        opNode.children[0].value.operation === "XcalarApiSynthesize") {
                 if (opNode.children[0].parents.length === 1) {
                     var synReverseMap = {};
+                    var synTypeMap = {};
                     opNode.children[0].value.args.columns.forEach(function(col) {
                         synReverseMap[col.destColumn] = col.sourceColumn;
+                        synTypeMap[col.destColumn] = col.columnType;
                     });
                     var synList = opNode.value.args.columns;
                     for (var i = 0; i < synList.length; i++) {
+                        if (!synList[i].columnType && synTypeMap[synList[i].sourceColumn]) {
+                            synList[i].columnType = synTypeMap[synList[i].sourceColumn];
+                        }
                         synList[i].sourceColumn = synReverseMap[synList[i].sourceColumn]
                                                   || synList[i].sourceColumn;
                     }
@@ -313,26 +320,33 @@
                     opNode.children[0].value.args.dest = opNode.value.args.dest;
                     opNode.children[0].name = opNode.value.args.dest;
                     opNode.children[0].parents = opNode.parents;
-                    retNode = combineProjectWithSynthesize(opNode.children[0], visitedMap);
+                    removeCurNode = true;
+                    retNode = self.combineProjectWithSynthesize(opNode.children[0], visitedMap);
                 } else {
-                    var synNodeCopy = {children: jQuery.extend(false, [], opNode.children[0].children),
+                    var synNodeCopy = {children: jQuery.extend([], opNode.children[0].children),
                                        name: opNode.value.args.dest,
                                        parents: opNode.parents,
-                                       sources: jQuery.extend(false, [], opNode.children[0].sources),
+                                       sources: jQuery.extend([], opNode.children[0].sources),
                                        value: jQuery.extend(true, {}, opNode.value)};
                     var synReverseMap = {};
+                    var synTypeMap = {};
                     opNode.children[0].value.args.columns.forEach(function(col) {
                         synReverseMap[col.destColumn] = col.sourceColumn;
+                        synTypeMap[col.destColumn] = col.columnType;
                     });
                     var synList = synNodeCopy.value.args.columns;
                     for (var i = 0; i < synList.length; i++) {
+                        if (!synList[i].columnType && synTypeMap[synList[i].sourceColumn]) {
+                            synList[i].columnType = synTypeMap[synList[i].sourceColumn];
+                        }
                         synList[i].sourceColumn = synReverseMap[synList[i].sourceColumn]
                                                   || synList[i].sourceColumn;
                     }
                     synNodeCopy.value.args.columns = synList;
                     synNodeCopy.value.args.numColumns = synList.length;
                     synNodeCopy.value.args.dest = opNode.value.args.dest;
-                    retNode = combineProjectWithSynthesize(synNodeCopy, visitedMap);
+                    synNodeCopy.value.args.source = opNode.children[0].value.args.source;
+                    retNode = self.combineProjectWithSynthesize(synNodeCopy, visitedMap);
                     opNode.children[0].parents.splice(opNode.children[0]
                                                     .parents.indexOf(opNode),1);
                 }
@@ -342,7 +356,9 @@
                                                 opNode.children[i], visitedMap);
                 }
             }
-            visitedMap[opNode.name] = retNode;;
+            if (!removeCurNode) {
+                visitedMap[opNode.name] = retNode;
+            }
             return retNode;
         }
     };

@@ -921,19 +921,9 @@ class DagNodeSQL extends DagNode {
 
     private _getQueryTableCols(allCols: SQLColumn[]) {
         const columns: {name: string, backName: string, type: ColumnType}[] = [];
-        const colNameSet = new Set();
         for (let i = 0; i < allCols.length; i++) {
             const colName = allCols[i].rename || allCols[i].colName;
-            let displayName: string = allCols[i].colName;
-            if (colNameSet.has(displayName)) {
-                let k = 1;
-                while (colNameSet.has(displayName + "_" + k)) {
-                    k++;
-                }
-                displayName = displayName + "_" + k;
-            }
-            colNameSet.add(displayName);
-            columns.push({name: displayName,
+            columns.push({name: colName,
                           backName: colName,
                           type: this._getColType(allCols[i].colType)});
         }

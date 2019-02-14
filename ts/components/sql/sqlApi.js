@@ -382,7 +382,16 @@
             var self = this;
             var txId = self._start();
 
-            XIApi.project(txId, columns, tableName, newTableName)
+            var colInfos = [];
+            for (var column of columns) {
+                var colInfo = {
+                    orig: column.rename || column.colName,
+                    new: column.rename || column.colName,
+                    type: null
+                }
+                colInfos.push(colInfo);
+            }
+            XIApi.synthesize(txId, colInfos, tableName, newTableName)
             .then(function(finalTable) {
                 var cli = self._end(txId);
                 deferred.resolve({
@@ -392,6 +401,49 @@
             })
             .fail(deferred.reject);
 
+            return deferred.promise();
+        },
+
+        addSynthesize: function(xcQueryString, tableName, allCols) {
+            var deferred = PromiseHelper.deferred();
+            var colNameSet = new Set();
+            var colInfos = [];
+            var needSynthesize = false;
+            var self = this;
+            var txId = self._start();
+            for (var column of allCols) {
+                var colName = column.rename || column.colName;
+                var displayName = column.colName;
+                if (colNameSet.has(displayName)) {
+                    var k = 1;
+                    while (colNameSet.has(displayName + "_" + k)) {
+                        k++;
+                    }
+                    displayName = displayName + "_" + k;
+                }
+                colNameSet.add(displayName);
+                colInfos.push({
+                    orig: colName,
+                    new: displayName,
+                    type: null
+                });
+                if (colName !== displayName) {
+                    needSynthesize = true;
+                    column.rename = displayName;
+                }
+            }
+            if (needSynthesize) {
+                XIApi.synthesize(txId, colInfos, tableName)
+                .then(function(finalTable) {
+                    var cli = self._end(txId);
+                    var synthesizeQuery = cli.endsWith(",") ? cli.slice(0, -1) : cli;
+                    xcQueryString = xcQueryString.slice(0, -1) + "," + synthesizeQuery + "]";
+                    deferred.resolve(xcQueryString, finalTable, allCols);
+                })
+                .fail(deferred.reject);
+            } else {
+                deferred.resolve(xcQueryString, tableName, allCols);
+            }
             return deferred.promise();
         },
 

@@ -1509,6 +1509,10 @@
                 return deferred.promise();
             })
             .then(function(queryString, newTableName, newCols) {
+                // rename columns as specified by user
+                return self.sqlObj.addSynthesize(queryString, newTableName, newCols);
+            })
+            .then(function(queryString, newTableName, newCols) {
                 outDeferred.resolve(queryString, newTableName, newCols, toCache);
             })
             .fail(function(err) {
@@ -1860,7 +1864,7 @@
                 })
                 .then(function(ret) {
                     cliStatements += ret.cli;
-                    return self.sqlObj.project(colNames, ret.newTableName);
+                    return self.sqlObj.project(columns, ret.newTableName);
                 })
                 .then(function(ret) {
                     node.usrCols = columns;
@@ -1875,7 +1879,7 @@
                 produceSubqueryCli(self, subqueryArray)
                 .then(function(cli) {
                     cliStatements += cli;
-                    return self.sqlObj.project(colNames, tableName);
+                    return self.sqlObj.project(columns, tableName);
                 })
                 .then(function(ret) {
                     node.usrCols = columns;
@@ -3997,12 +4001,8 @@
     function __projectAfterCrossJoin(globalStruct, joinNode) {
         var self = this;
         var deferred = PromiseHelper.deferred();
-        var columns = [];
-        for (var i = 0; i < joinNode.children[0].usrCols.length; i++) {
-            columns.push(__getCurrentName(joinNode.children[0].usrCols[i]));
-        }
 
-        self.project(columns, globalStruct.newTableName)
+        self.project(joinNode.children[0].usrCols, globalStruct.newTableName)
         .then(function(ret) {
             globalStruct.cli += ret.cli;
             globalStruct.newTableName = ret.newTableName;
@@ -5732,12 +5732,8 @@
             if (node.usrCols.length + node.xcCols.length
                                             + node.sparkCols.length > 500) {
                 loopStruct.cli += ret.cli;
-                colNameList = node.usrCols.map(function(col) {
-                        return __getCurrentName(col);
-                    });
                 node.xcCols = [indexColStruct];
-                colNameList.push(__getCurrentName(indexColStruct));
-                self.sqlObj.project(colNameList,ret.newTableName)
+                self.sqlObj.project(node.usrCols.concat([indexColStruct]), ret.newTableName)
                 .then(function(ret) {
                     deferred.resolve(ret);
                 })
