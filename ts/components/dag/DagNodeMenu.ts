@@ -682,6 +682,11 @@ namespace DagNodeMenu {
             $menu.find(".unlockNodeTable").addClass("xc-hidden");
             $menu.find(".lockNodeTable").removeClass("unavailable");
             $menu.find(".lockNodeTable").removeClass("xc-hidden");
+        } else {
+            $menu.find(".lockNodeTable").addClass("unavailable");
+            $menu.find(".lockNodeTable").addClass("xc-hidden");
+            $menu.find(".unlockNodeTable").addClass("unavailable");
+            $menu.find(".unlockNodeTable").addClass("xc-hidden");
         }
 
         if (state === DagNodeState.Configured || state === DagNodeState.Error) {

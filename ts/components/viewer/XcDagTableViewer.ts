@@ -80,22 +80,7 @@ class XcDagTableViewer extends XcTableViewer {
     private _showTableIconOnDagNode(): void {
         const $node: JQuery = this._getNodeEl();
         if ($node.length && !$node.find(".tableIcon").length) {
-            const g = d3.select($node.get(0)).append("g")
-                    .attr("class", "tableIcon")
-                    .attr("transform", "translate(65, 2)");
-            g.append("rect")
-                .attr("x", 0)
-                .attr("y", -8)
-                .attr("width", 15)
-                .attr("height", "13")
-                .style("fill", "#378CB3");
-            g.append("text")
-                .attr("font-family", "icomoon")
-                .attr("font-size", 8)
-                .attr("fill", "white")
-                .attr("x", 3)
-                .attr("y", 2)
-                .text(function(_d) {return "\uea07"});
+            DagView.addNodeIcon($node, "tableIcon", "Viewing result");
         }
     }
 

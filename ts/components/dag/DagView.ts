@@ -10,6 +10,13 @@ class DagView {
     public static nodeWidth = 103;
     public static gridSpacing = 20;
     public static zoomLevels = [.25, .5, .75, 1, 1.5, 2];
+    public static iconOrder = ["descriptionIcon", "lockIcon", "aggregateIcon", "paramIcon"];
+    public static iconMap = {
+        "descriptionIcon": "\ue966",
+        "lockIcon": "\ue940",
+        "aggregateIcon": "\ue939",
+        "paramIcon": "\ue9ea"
+    };
 
     private containerSelector: string = "#dagView";
     private static $dagView: JQuery;
@@ -206,6 +213,106 @@ class DagView {
     public static deselectNode($node) {
         $node.removeClass("selected");
         $node.find(".selection").remove();
+    }
+
+
+    /**
+     * DagView.addNodeIcon adds a small icon and reorders other icons to fit the new one in
+     * @param $node
+     * @param iconType
+     * @param tooltip
+     */
+    public static addNodeIcon($node: JQuery, iconType: string, tooltip: string) {
+        let left: number;
+        let top: number;
+        if (iconType === "tableIcon") {
+            top = 1;
+            left = DagView.nodeWidth - 19;
+            drawIcon(iconType, left, top, "\uea07", tooltip, -1);
+        } else {
+            const icons = $node.data("icons") || [];
+            if (icons.indexOf(iconType) > -1) {
+                return;
+            } else {
+                icons.push(iconType);
+            }
+            // sort icons in order of DagView.iconOrder
+            icons.sort(function(a, b) {
+                return DagView.iconOrder.indexOf(a) - DagView.iconOrder.indexOf(b);
+            });
+            $node.find(".nodeIcon").remove();
+            // store the icon order
+            $node.data("icons", icons);
+            top = DagView.nodeHeight;
+            for (let i = 0; i < icons.length; i++) {
+                if (icons[i] === iconType) {
+                    drawIcon(icons[i], (i * 15 )+ 22, top, DagView.iconMap[iconType], xcHelper.escapeDblQuoteForHTML(tooltip), i);
+                    $node.data(iconType.toLowerCase(), tooltip);
+                } else {
+                    let tip: string = $node.data(icons[i].toLowerCase())
+                    drawIcon(icons[i], (i * 15 )+ 22, top, DagView.iconMap[icons[i]], tip, i);
+                }
+            }
+        }
+
+        function drawIcon(iconType, left, top, icon, tooltip, index) {
+            let text: string = icon;
+            let fontSize: number = 7;
+            let iconTop: number = 3;
+            if (iconType === "paramIcon") {
+                text = "<>";
+                iconTop = 2;
+            }
+            if (iconType === "aggregateIcon") {
+                fontSize = 6;
+            }
+
+            const g = d3.select($node.get(0)).append("g")
+            .attr("class", iconType + " nodeIcon index" + index)
+            .attr("transform", `translate(${left}, ${top})`);
+            g.append("circle")
+                .attr("cx", 3.5)
+                .attr("cy", 0)
+                .attr("r", 6)
+                .style("fill", "#849CB0");
+            g.append("text")
+                .attr("font-family", "icomoon")
+                .attr("font-size", fontSize)
+                .attr("fill", "white")
+                .attr("x", 0)
+                .attr("y", iconTop)
+                .text(function (_d) {return text});
+
+            xcTooltip.add($node.find("." + iconType), {
+                title: tooltip
+            });
+        }
+    }
+
+    /**
+     * removes icon and repositions other icons
+     * @param $node
+     * @param iconType
+     */
+    public static removeNodeIcon($node: JQuery, iconType: string) {
+        const $icon: JQuery = $node.find("." + iconType);
+        if (!$icon.length) {
+            return;
+        }
+        let icons = $node.data("icons");
+        let index = icons.indexOf(iconType);
+        $icon.remove();
+        $node.data("icons", icons);
+        $node.removeData(iconType.toLowerCase());
+
+        // shift all following icons to the left;
+        for (let i = index + 1; i < icons.length; i++) {
+            let left = ((i - 1) * 15) + 22;
+            d3.select($node.find(`.nodeIcon.index${i}`).get(0))
+                .attr("transform", `translate(${left}, ${DagView.nodeHeight})`)
+                .attr("class", icons[i] + " nodeIcon index" + (i - 1));
+        }
+        icons.splice(index, 1);
     }
 
     private static _dagLineageTipTemplate(x, y, text): HTML {
@@ -2702,18 +2809,9 @@ class DagView {
             const $node: JQuery = this._getNode(info.id);
 
             this._drawTitleText($node, info.node);
-            $node.find(".paramIcon").remove();
+            DagView.removeNodeIcon($node, "paramIcon");
             if (info.hasParameters) {
-                d3.select($node.get(0)).append("text")
-                    .attr("class", "paramIcon")
-                    .attr("fill", "#44515C")
-                    .attr("font-size", 10)
-                    .attr("transform", "translate(" + (DagView.nodeWidth - 28) + "," +
-                        (DagView.nodeHeight) + ")")
-                    .attr("text-anchor", "middle")
-                    .attr("font-family", "Open Sans")
-                    .text("<>");
-
+                DagView.addNodeIcon($node, "paramIcon", "Parameter in use");
             }
             if (info.node instanceof DagNodeDFOut) {
                 this.checkLinkInNodeValidation();
@@ -2848,10 +2946,10 @@ class DagView {
 
         this._registerGraphEvent(this.graph, DagNodeEvents.DescriptionChange, (info) => {
             const $node: JQuery = this._getNode(info.id);
-            $node.find(".descriptionIcon").remove();
-
+            DagView.removeNodeIcon($node, "descriptionIcon");
             if (info.text.length) {
-                this._addDescriptionIcon($node, info.text);
+                $node.addClass("hasDescription");
+                DagView.addNodeIcon($node, "descriptionIcon", info.text);
             } else {
                 $node.removeClass("hasDescription");
             }
@@ -2966,11 +3064,12 @@ class DagView {
         this._setTooltip($node, node);
         const description = node.getDescription();
         if (description) {
-            this._addDescriptionIcon($node, description);
+            $node.addClass("hasDescription");
+            DagView.addNodeIcon($node, "descriptionIcon", description);
         }
         let aggs: string[] = node.getAggregates();
         if (aggs.length) {
-            this._addAggregates($node, aggs);
+            DagView.addNodeIcon($node, "aggregateIcon", aggs.toString());
         }
 
         if (DagTblManager.Instance.hasLock(node.getTable())) {
@@ -3092,29 +3191,6 @@ class DagView {
         }
     }
 
-    private _addDescriptionIcon($node: JQuery, text: string): void {
-        $node.addClass("hasDescription");
-        const g = d3.select($node.get(0)).append("g")
-            .attr("class", "descriptionIcon")
-            .attr("transform", "translate(84, 1)");
-        g.append("circle")
-            .attr("cx", 5)
-            .attr("cy", 0)
-            .attr("r", 5)
-            .style("fill", "#378CB3");
-        g.append("text")
-            .attr("font-family", "icomoon")
-            .attr("font-size", 6)
-            .attr("fill", "white")
-            .attr("x", 2)
-            .attr("y", 2.5)
-            .text(function (_d) { return "\ue966" });
-
-        xcTooltip.add($node.find(".descriptionIcon"), {
-            title: xcHelper.escapeDblQuoteForHTML(text)
-        });
-    }
-
     /**
      *
      * @param nodeId
@@ -3186,20 +3262,10 @@ class DagView {
         $node: JQuery, lock: boolean
     ): void {
         if (lock) {
-            const g = d3.select($node.get(0)).append("g")
-                .attr("class", "lockIcon")
-                .attr("transform", "translate(05, 05)");
-            g.append("text")
-                .attr("font-family", "icomoon")
-                .attr("font-size", 13)
-                .attr("fill", "black")
-                .attr("x", 0)
-                .attr("y", 3)
-                .text(function (_d) { return "\ue940" });
+            DagView.addNodeIcon($node, "lockIcon", "Result locked");
         } else {
-            $node.find(".lockIcon").remove();
+            DagView.removeNodeIcon($node, "lockIcon");
         }
-        return;
     }
 
 
@@ -3213,36 +3279,13 @@ class DagView {
         aggregates: string[]
     ): void {
         const $node = this._getNode(nodeId);
-        $node.find(".aggregateIcon").remove();
-
+        DagView.removeNodeIcon($node, "aggregateIcon");
         if (aggregates.length) {
-            this._addAggregates($node, aggregates);
+            $node.addClass("hasAggregates");
+            DagView.addNodeIcon($node, "aggregateIcon", aggregates.toString());
         } else {
             $node.removeClass("hasAggregate");
         }
-    }
-
-    private _addAggregates($node: JQuery, aggregates: string[]): void {
-        $node.addClass("hasAggregates");
-        const g = d3.select($node.get(0)).append("g")
-            .attr("class", "aggregateIcon")
-            .attr("transform", "translate(20, 30)");
-        g.append("circle")
-            .attr("cx", 5)
-            .attr("cy", 0)
-            .attr("r", 10)
-            .style("fill", "#627483");
-        g.append("text")
-            .attr("font-family", "icomoon")
-            .attr("font-size", 9)
-            .attr("fill", "white")
-            .attr("x", 0)
-            .attr("y", 3)
-            .text(function (_d) { return "\ue939" });
-
-        xcTooltip.add($node.find(".aggregateIcon"), {
-            title: xcHelper.escapeDblQuoteForHTML(aggregates.toString())
-        });
     }
 
     private _setTooltip($node: JQuery, node: DagNode): void {
@@ -3258,17 +3301,9 @@ class DagView {
             });
         }
 
-        $node.find(".paramIcon").remove();
+        DagView.removeNodeIcon($node, "paramIcon");
         if (node.hasParameters()) {
-            d3.select($node.get(0)).append("text")
-                .attr("class", "paramIcon")
-                .attr("fill", "#44515C")
-                .attr("font-size", 10)
-                .attr("transform", "translate(" + (DagView.nodeWidth - 28) + "," +
-                    (DagView.nodeHeight) + ")")
-                .attr("text-anchor", "middle")
-                .attr("font-family", "Open Sans")
-                .text("<>");
+            DagView.addNodeIcon($node, "paramIcon", "Parameter in use");
         }
     }
 
@@ -3294,7 +3329,6 @@ class DagView {
             }
         }
     }
-
 
     public checkLinkInNodeValidation(): void {
         if (this.graph == null) {
