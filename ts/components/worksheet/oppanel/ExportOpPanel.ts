@@ -164,7 +164,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
     private _updateUI(): void {
         this._renderColumns();
         this._renderDriverList();
-        this.renderDriverArgs();
+        this.renderDriverArgs(true);
         const driver: ExportDriver = this._dataModel.exportDrivers.find((driver) => {
             return driver.name == this._currentDriver;
         });
@@ -234,12 +234,12 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
     /**
      * Renders the current driver arguments on XD
      */
-    public renderDriverArgs(): void {
+    public renderDriverArgs(force?: boolean): void {
         let driverName: string = this._$exportDest.val();
         if (driverName == "") {
             driverName = $("#exportDriverList .exportDriver").eq(0).text();
             this._$exportDest.val(driverName);
-        } else if (driverName == this._currentDriver) {
+        } else if (driverName == this._currentDriver && !force) {
             return;
         }
         const driver: ExportDriver = this._dataModel.exportDrivers.find((driver) => {
