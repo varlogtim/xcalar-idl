@@ -58,14 +58,6 @@ class DFDownloadModal {
         return this._getModal().find(".name input");
     }
 
-    private _getOptimizedCheckboxSection(): JQuery {
-        return this._getModal().find(".optimized");
-    }
-
-    private _getOptimizedCheckbox(): JQuery {
-        return this._getOptimizedCheckboxSection().find(".checkbox");
-    }
-
     private _setupModel(): void {
         this._model = [{
             type: this._DownloadTypeEnum.DF,
@@ -115,7 +107,6 @@ class DFDownloadModal {
         // select the first valid option by default
         $dropdown.find("li:not(.xc-disabled)").eq(0).trigger(fakeEvent.mouseup);
         this._getNameInput().val(this._dagTab.getName().replace(/\//g, "_"));
-        this._getOptimizedCheckbox().removeClass("checked");
     }
 
     private _validate(): {name: string} {
@@ -188,30 +179,23 @@ class DFDownloadModal {
 
     private _downloadDataflow(name: string): XDPromise<void> {
         const tab: DagTab = this._dagTab;
-        const optimized: boolean = this._getOptimizedCheckbox().hasClass("checked");
         if (tab instanceof DagTabUser) {
-            return this._downloadUserDataflow(name, optimized);
+            return this._downloadUserDataflow(name);
         } else if (tab instanceof DagTabPublished) {
-            return this._downloadSharedDataflow(name, optimized);
+            return this._downloadSharedDataflow(name);
         } else {
             return PromiseHelper.reject({error: ErrTStr.InvalidDFDownload});
         }
     }
 
-    private _downloadUserDataflow(
-        name: string,
-        optimized: boolean
-    ): XDPromise<void> {
+    private _downloadUserDataflow(name: string): XDPromise<void> {
         const tab: DagTabUser = <DagTabUser>this._dagTab;
         const clonedTab: DagTabUser = tab.clone();
         this._cleanupNodes(clonedTab.getGraph(), this._selectedNodes);
-        return clonedTab.download(name, optimized);
+        return clonedTab.download(name);
     }
 
-    private _downloadSharedDataflow(
-        name: string,
-        optimized: boolean
-    ): XDPromise<void> {
+    private _downloadSharedDataflow(name: string): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const tab: DagTabPublished = <DagTabPublished>this._dagTab;
         const tempName = xcHelper.randName(".temp" + tab.getShortName());
@@ -228,7 +212,7 @@ class DFDownloadModal {
             return clonedTab.save();
         })
         .then(() => {
-            return clonedTab.download(name, optimized);
+            return clonedTab.download(name);
         })
         .then(deferred.resolve)
         .fail(deferred.reject)
@@ -313,24 +297,11 @@ class DFDownloadModal {
             this._submitForm();
         });
 
-        // checkbox
-        this._getOptimizedCheckboxSection().on("click", ".checkbox, .text", () => {
-            this._getOptimizedCheckbox().toggleClass("checked");
-        });
-
         const $downloadTypeDropdown: JQuery = this._getDownloadTypeList();
         new MenuHelper($downloadTypeDropdown, {
             onSelect: ($li) => {
                 $downloadTypeDropdown.find(".text").text($li.text());
                 this._downloadType = $li.data("type");
-                let $checkboxSection = this._getOptimizedCheckboxSection();
-                if (this._downloadType === this._DownloadTypeEnum.DF &&
-                    !(this._dagTab instanceof DagTabSQLFunc)
-                ) {
-                    $checkboxSection.removeClass("inVisible");
-                } else {
-                    $checkboxSection.addClass("inVisible");
-                }
             }
         }).setupListeners();
     }

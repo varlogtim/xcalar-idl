@@ -916,9 +916,6 @@ module.exports = {
         "overwriteUdfHint": "Overwrite UDFs of the same module name with those inside this dataflow",
         "restoreDS": "Restore datasets",
         "restoreDSHint": "Restore datasets that are used in the dataflow but are not in the cluster",
-        // For download
-        "Optimized": "Optimized",
-        "OptimizedDownloadHint": "Allow optimized dataflow execution, It requires the dataflow to end with export optimized node or link out optimized node.",
     },
 
     "sched": {
