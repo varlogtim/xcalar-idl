@@ -3216,6 +3216,8 @@
     @table-h: 180px;
     @snippet-h: 45px;
     @title-h: 40px;
+    @dropAsYouGo-h: 40px;
+
     .list {
         text-transform: none;
     }
@@ -3441,7 +3443,7 @@
         }
     }
     .editorWrapper {
-        height: ~"calc(100% - @{table-h} - @{title-h} * 2)";
+        height: ~"calc(100% - @{table-h} - @{dropAsYouGo-h} - @{title-h} * 2)";
     }
     .tableTitle, .editorTitle {
         height: @title-h;
@@ -3451,6 +3453,19 @@
         padding: 0px 15px;
         border-top: solid 1px @color-xpe-docker-starter-bg;
         border-bottom: solid 1px @color-xpe-docker-starter-bg;
+    }
+    .dropAsYouGo {
+        height: @dropAsYouGo-h;
+        padding: 0 15px 10px 15px;
+
+        .checkbox {
+            float: left;
+            top: 7px;
+        }
+
+        .text {
+            margin-right: 5px;
+        }
     }
     .maximize {
         margin-right: -10px;

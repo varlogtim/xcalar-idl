@@ -6,6 +6,7 @@ class SQLOpPanelModel {
     private _xcQueryString: string;
     private _identifiers: Map<number, string>;
     private _tableSrcMap: {};
+    private _dropAsYouGo: boolean;
 
     public constructor(dagNode: DagNodeSQL) {
         this._dagNode = dagNode;
@@ -15,6 +16,7 @@ class SQLOpPanelModel {
         this._identifiers = dagNode.getIdentifiers() || new Map<number, string>();
         this._tableSrcMap = dagNode.getTableSrcMap();
         this._newTableName = dagNode.getNewTableName() || "";
+        this._dropAsYouGo = dagNode.getParam().dropAsYouGo;
     }
 
     private _initialize(params: DagNodeSQLInputStruct): void {
@@ -28,6 +30,7 @@ class SQLOpPanelModel {
         xcQueryString: string,
         identifiers: Map<number, string>,
         tableSrcMap: {},
+        dropAsYouGo: boolean
     ): void {
         this._sqlQueryStr = sqlQueryStr;
         this._newTableName = newTableName;
@@ -35,6 +38,7 @@ class SQLOpPanelModel {
         this._xcQueryString = xcQueryString;
         this._identifiers = identifiers;
         this._tableSrcMap = tableSrcMap;
+        this._dropAsYouGo = dropAsYouGo;
     }
 
     /**
@@ -60,7 +64,8 @@ class SQLOpPanelModel {
         return {
             sqlQueryStr: this._sqlQueryStr,
             identifiers: identifiers,
-            identifiersOrder: identifiersOrder
+            identifiersOrder: identifiersOrder,
+            dropAsYouGo: this._dropAsYouGo
         }
     }
 
@@ -73,5 +78,9 @@ class SQLOpPanelModel {
     }
     public setIdentifiers(identifiers: Map<number, string>): void {
         this._identifiers = identifiers;
+    }
+
+    public isDropAsYouGo(): boolean {
+        return this._dropAsYouGo;
     }
 }

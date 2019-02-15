@@ -199,7 +199,8 @@ interface DagNodeSetInputStruct {
 interface DagNodeSQLInputStruct {
     sqlQueryStr: string,
     identifiers: {},
-    identifiersOrder: number[]
+    identifiersOrder: number[],
+    dropAsYouGo: boolean
 }
 
 interface DagNodeRowNumInputStruct {

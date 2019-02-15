@@ -252,10 +252,15 @@ class DagNodeSQL extends DagNode {
      * @param input.evalString {string}
      */
     public setParam(input: DagNodeSQLInputStruct = <DagNodeSQLInputStruct>{}, noAutoExecute?: boolean) {
+        let dropAsYouGo: boolean = input.dropAsYouGo;
+        if (dropAsYouGo == null) {
+            dropAsYouGo = true; // default to be true
+        }
         this.input.setInput({
             sqlQueryStr: input.sqlQueryStr,
             identifiers: input.identifiers,
-            identifiersOrder: input.identifiersOrder
+            identifiersOrder: input.identifiersOrder,
+            dropAsYouGo: dropAsYouGo
         });
         super.setParam(null, noAutoExecute);
     }

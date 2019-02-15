@@ -39,6 +39,7 @@ class SQLOpPanel extends BaseOpPanel {
 
         this._setupSQLEditor();
         this._setupSnippetsList();
+        this._setupDropAsYouGo();
     }
 
     public getSQLEditor(): CodeMirror.Editor {
@@ -336,6 +337,35 @@ class SQLOpPanel extends BaseOpPanel {
         $ul.append(html);
     }
 
+    private _getDropAsYouGoSection(): JQuery {
+        return this.$panel.find(".dropAsYouGo");
+    }
+
+    private _isDropAsYouGo(): boolean {
+        let $checkboxSection = this._getDropAsYouGoSection();
+        return $checkboxSection.find(".checkbox").hasClass("checked");
+    }
+
+    private _toggleDropAsYouGo(checked: boolean): void {
+        let $checkbox = this._getDropAsYouGoSection().find(".checkbox");
+        if (checked == null) {
+            checked = !$checkbox.hasClass("checked");
+        }
+
+        if (checked === true) {
+            $checkbox.addClass("checked");
+        } else if (checked === false) {
+            $checkbox.removeClass("checked");
+        }
+    }
+
+    private _setupDropAsYouGo(): void {
+        let $dropAsYouGo = this._getDropAsYouGoSection();
+        $dropAsYouGo.on("click", ".checkbox, .text", () =>{
+            this._toggleDropAsYouGo(null);
+        });
+    }
+
     private _addEventListeners(): void {
         const self = this;
         // Snippet section listeners
@@ -590,8 +620,9 @@ class SQLOpPanel extends BaseOpPanel {
                     // self._sqlEditor.getSelection().replace(/;+$/, "") ||
                     self._sqlEditor.getValue().replace(/;+$/, "");
         const identifiers = this._extractIdentifiers();
+        const dropAsYouGo: boolean = this._isDropAsYouGo();
         if (!sql) {
-            self._dataModel.setDataModel("", "", [], "", identifiers, {});
+            self._dataModel.setDataModel("", "", [], "", identifiers, {}, dropAsYouGo);
             self._dataModel.submit();
             return PromiseHelper.resolve();
         }
@@ -606,12 +637,12 @@ class SQLOpPanel extends BaseOpPanel {
                 const tableSrcMap = ret.tableSrcMap;
                 self._dataModel.setDataModel(sql, newTableName,
                                              allCols, xcQueryString,
-                                             identifiers, tableSrcMap);
+                                             identifiers, tableSrcMap, dropAsYouGo);
                 self._dataModel.submit();
                 deferred.resolve();
             })
             .fail(function(err) {
-                self._dataModel.setDataModel(sql, "", [], "", identifiers, {});
+                self._dataModel.setDataModel(sql, "", [], "", identifiers, {}, dropAsYouGo);
                 self._dataModel.submit();
                 deferred.reject(err);
             })
@@ -663,7 +694,7 @@ class SQLOpPanel extends BaseOpPanel {
     private _updateUI() {
         this._renderSqlQueryString();
         this._renderIdentifiers();
-
+        this._renderDropAsYouGo();
         // Setup event listeners
         this._setupEventListener();
     }
@@ -691,6 +722,12 @@ class SQLOpPanel extends BaseOpPanel {
             self._addTableIdentifier();
         }
     }
+
+    private _renderDropAsYouGo(): void {
+        let dropAsYouGo: boolean = this._dataModel.isDropAsYouGo();
+        this._toggleDropAsYouGo(dropAsYouGo); 
+    }
+
     private _extractIdentifiers(): Map<number, string>{
         const identifiers = new Map<number, string>();
         this._$sqlIdentifiers.find(">li").each(function() {
@@ -795,9 +832,12 @@ class SQLOpPanel extends BaseOpPanel {
                 identifiersOrder.push(key);
             });
             const sqlQueryString = this._sqlEditor.getValue();
-            const advancedParams = {sqlQueryString: sqlQueryString,
-                                    identifiers: identifiers,
-                                    identifiersOrder: identifiersOrder};
+            const advancedParams = {
+                sqlQueryString: sqlQueryString,
+                identifiers: identifiers,
+                identifiersOrder: identifiersOrder,
+                dropAsYouGo: this._isDropAsYouGo()
+            };
             this._editor.setValue(JSON.stringify(advancedParams, null, 4));
         } else {
             try {
@@ -814,6 +854,9 @@ class SQLOpPanel extends BaseOpPanel {
                 });
                 if (!this._validateIdentifiers(identifiers, identifiersOrder)) {
                     return {error: SQLErrTStr.IdentifierMismatch};
+                }
+                if (advancedParams.dropAsYouGo != null) {
+                    this._toggleDropAsYouGo(advancedParams.dropAsYouGo);
                 }
                 const sqlQueryString = advancedParams.sqlQueryString;
                 this._sqlEditor.setValue(sqlQueryString);
