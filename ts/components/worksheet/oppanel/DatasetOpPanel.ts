@@ -557,18 +557,6 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         }
         const loadArgs: string = this._stringifiedLoadArgs(this._loadArgs);
         const oldParam: DagNodeDatasetInputStruct = dagNode.getParam();
-        if (oldParam.source === id &&
-            oldParam.prefix === prefix &&
-            oldParam.loadArgs === loadArgs &&
-            oldParam.synthesize === this._synthesize &&
-            oldParam.synthesize === false
-        ) {
-            // only has schema change
-            dagNode.setSchema(schema, true);
-            this.close(true);
-            return;
-        }
-
         const $bg: JQuery = $("#initialLoadScreen");
         $bg.show();
         const oldSchema: ColSchema[] = dagNode.getSchema();

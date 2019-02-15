@@ -1,6 +1,7 @@
 // General Class for Source Node
 abstract class DagNodeIn extends DagNode {
     protected schema: ColSchema[];
+    private lastSchema: ColSchema[];
 
     public constructor(options: DagNodeInInfo) {
         super(options);
@@ -11,6 +12,19 @@ abstract class DagNodeIn extends DagNode {
         } else {
             this.setSchema([]);
         }
+        this.lastSchema = this.schema;
+    }
+
+    public setParam(_param?: any, noAutoExecute?: boolean): boolean {
+        let hasSetParam = super.setParam();
+        if (hasSetParam) {
+            return true;
+        } else if (this._hasSchemaChanges()) {
+            this._setParam(noAutoExecute);
+        } else {
+            // nothing to set
+            return false;
+        }
     }
 
     public getSchema(): ColSchema[] {
@@ -18,6 +32,7 @@ abstract class DagNodeIn extends DagNode {
     }
 
     public setSchema(schema: ColSchema[], refresh: boolean = false) {
+        this.lastSchema = this.schema;
         this.schema = schema;
         if (refresh) {
             // lineage reset is done in DagView
@@ -45,6 +60,10 @@ abstract class DagNodeIn extends DagNode {
         const serializedInfo: DagNodeInInfo = <DagNodeInInfo>super._getSerializeInfo(includeStats);
         serializedInfo.schema = this.schema; // should save the schema directly, should not call getSchema
         return serializedInfo;
+    }
+
+    private _hasSchemaChanges(): boolean {
+        return JSON.stringify(this.lastSchema) !== JSON.stringify(this.schema);
     }
 }
 

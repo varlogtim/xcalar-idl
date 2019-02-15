@@ -585,11 +585,16 @@ abstract class DagNode {
         return this.lineage;
     }
 
-    public setParam(_param?: any, noAutoExecute?: boolean): void {
+    public setParam(_param?: any, noAutoExecute?: boolean): boolean {
         if (!this.input.hasParametersChanges() && this.configured) {
             // when there is no change
-            return;
+            return false;
         }
+        this._setParam(noAutoExecute);
+        return true;
+    }
+
+    protected _setParam(noAutoExecute: boolean): void {
         this.configured = true;
         this.events.trigger(DagNodeEvents.ParamChange, {
             id: this.getId(),

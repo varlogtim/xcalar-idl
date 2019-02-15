@@ -141,16 +141,8 @@ class DFLinkInOpPanel extends BaseOpPanel {
             return;
         }
 
-        const oldParam = this._dagNode.getParam();
-        if (oldParam.linkOutName === args.linkOutName &&
-            oldParam.dataflowId === args.dataflowId
-        ) {
-            // when only schema changes
-            this._dagNode.setSchema(args.schema, true);
-        } else {
-            this._dagNode.setSchema(args.schema);
-            this._dagNode.setParam(args);
-        }
+        this._dagNode.setSchema(args.schema);
+        this._dagNode.setParam(args);
         this.close(true);
     }
 
