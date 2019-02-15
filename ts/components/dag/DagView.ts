@@ -158,13 +158,16 @@ class DagView {
     public static newTabFromSource(type: DagNodeType, config: any) {
         try {
             MainMenu.openPanel("dagPanel");
-            DagTabManager.Instance.newTab();
+            let tabId: string = DagTabManager.Instance.newTab();
             let position: number = DagView.gridSpacing * 2;
             let node: DagNode = DagViewManager.Instance.autoAddNode(type, null, null, config,
                 position, position);
             if (node != null) {
                 DagNodeMenu.execute("configureNode", {
-                    node: node
+                    node: node,
+                    exitCallback: () => {
+                        DagViewManager.Instance.removeNodes([node.getId()], tabId);
+                    }
                 });
             }
         } catch (e) {
@@ -1198,6 +1201,8 @@ class DagView {
         if (parentNodeId) {
             parentNode = this.graph.getNode(parentNodeId);
             if (parentNode == null) {
+                this.dagTab.turnOnSave();
+                this.dagTab.save();
                 return null;
             }
             if (parentNode.getMaxChildren() !== 0 && !node.isSourceNode()) {

@@ -15,7 +15,7 @@ abstract class DagNodeIn extends DagNode {
         this.lastSchema = this.schema;
     }
 
-    public setParam(_param?: any, noAutoExecute?: boolean): boolean {
+    public setParam(_param?: any, noAutoExecute?: boolean): boolean | void {
         let hasSetParam = super.setParam();
         if (hasSetParam) {
             return true;

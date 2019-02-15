@@ -88,7 +88,7 @@ class DagTabManager {
      * DagTabManager.Instance.newTab
      * Creates a new Tab and dataflow.
      */
-    public newTab(): void {
+    public newTab(): string {
         const name: string = DagList.Instance.getValidName();
         const graph: DagGraph = new DagGraph();
         const tab: DagTab = this._newTab(name, graph, false);
@@ -97,6 +97,7 @@ class DagTabManager {
             "operation": SQLOps.NewDagTab,
             "dataflowId": tab.getId()
         });
+        return tab.getId();
     }
 
     /**

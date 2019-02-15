@@ -585,7 +585,7 @@ abstract class DagNode {
         return this.lineage;
     }
 
-    public setParam(_param?: any, noAutoExecute?: boolean): boolean {
+    public setParam(_param?: any, noAutoExecute?: boolean): boolean | void {
         if (!this.input.hasParametersChanges() && this.configured) {
             // when there is no change
             return false;

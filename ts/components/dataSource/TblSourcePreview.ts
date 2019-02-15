@@ -65,7 +65,7 @@ class TblSourcePreview {
     public close(): void {
         const $container = this._getContainer();
         $container.addClass("xc-hidden");
-        $container.find(".infoSection").empty();
+        this._getInfoSection().empty();
         this._schemaSection.clear();
         this._closeTable();
         TblSource.Instance.clear();
@@ -89,12 +89,24 @@ class TblSourcePreview {
         }
     }
 
+    /**
+     * TblSourcePreview.Instance.switchMode
+     */
+    public switchMode(): void {
+        let $infoSection = this._getInfoSection();
+        $infoSection.find(".nextStep").replaceWith(this._getNextStepButton());
+    }
+
     private _getContainer(): JQuery {
         return $("#" + this._container);
     }
 
     private _getSchemaSection(): JQuery {
         return this._getContainer().find(".schemaSection");;
+    }
+
+    private _getInfoSection(): JQuery {
+        return this._getContainer().find(".infoSection");
     }
 
     private _getTableArea(): JQuery {
@@ -198,27 +210,33 @@ class TblSourcePreview {
             tableInfo.state == null
         ) {
             // when it's a normal table
-            if (XVM.isSQLMode()) {
-                html +=
-                '<button class="writeSQL btn btn-clear iconBtn">' +
-                    '<i class="icon xi-menu-sql"></i>' +
-                    TblTStr.WriteSQL +
-                '</button>';
-            } else {
-                html +=
-                '<button class="createDF btn btn-clear iconBtn">' +
-                    '<i class="icon xi-dfg2"></i>' +
-                    TblTStr.CreateDF +
-                '</button>';
-            }
+            html += this._getNextStepButton();
             html += '<span class="action xc-action"></span>';
         }
 
-        $container.find(".infoSection").html(html);
+        this._getInfoSection().html(html);
+    }
+
+    private _getNextStepButton(): HTML {
+        let html: HTML;
+        if (XVM.isSQLMode()) {
+            html =
+            '<button class="nextStep writeSQL btn btn-clear iconBtn">' +
+                '<i class="icon xi-menu-sql"></i>' +
+                TblTStr.WriteSQL +
+            '</button>';
+        } else {
+            html =
+            '<button class="nextStep createDF btn btn-clear iconBtn">' +
+                '<i class="icon xi-dfg2"></i>' +
+                TblTStr.CreateDF +
+            '</button>';
+        }
+        return html;
     }
 
     private _updateTableAction(toViewTable: boolean): void {
-        let $action = this._getContainer().find(".infoSection .action");
+        let $action = this._getInfoSection().find(".action");
         if (toViewTable) {
             $action.removeClass("viewSchema")
                     .addClass("viewTable")
@@ -452,7 +470,8 @@ class TblSourcePreview {
         
         let tableName: string = tableInfo.name;
         DagView.newTabFromSource(DagNodeType.IMDTable, {
-            source: tableName
+            source: tableName,
+            schema: tableInfo.columns
         });
     }
 
@@ -470,7 +489,7 @@ class TblSourcePreview {
 
     private _addEventListeners(): void {
         let $container = this._getContainer();
-        let $infoSection = $container.find(".infoSection");
+        let $infoSection = this._getInfoSection();
         $infoSection.on("click", ".viewTable", () => {
             this._viewTableResult(this._tableInfo, false);
         });

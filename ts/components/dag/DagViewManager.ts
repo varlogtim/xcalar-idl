@@ -661,7 +661,7 @@ class DagViewManager {
         parentNodeId?: DagNodeId,
         input?: object,
         x?: number,
-        y?: number,
+        y?: number
     ): DagNode {
         return this.activeDagView.autoAddNode(newType, subType, parentNodeId, input, x, y);
     }

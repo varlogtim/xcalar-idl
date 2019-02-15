@@ -15,7 +15,7 @@ interface GroupByOpPanelFunctionGroup extends OpPanelFunctionGroup {
 // *******************
 interface IOpPanel {
     setup(): void;
-    show(dagNode: DagNode, options?: any): void;
+    show(dagNode, options?: any): void;
     close(): void;
 }
 

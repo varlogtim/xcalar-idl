@@ -237,6 +237,9 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         ) {
             // when only has prefix change
             oldSchema = this._schemaSection.getSchema(true);
+            if (oldSchema.length === 0) {
+                oldSchema = null;
+            }
         }
 
         const res = DS.getSchema(source);
