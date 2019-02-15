@@ -488,7 +488,6 @@ module.exports = {
         "SearchRes": "Results",
         "SearchDiscourse": "SEARCH DISCOURSE",
         "wkbkTutor": "Workbook Tutorial",
-        "sampleWorkbook": "Sample Workbook",
         "tutorialWorkbooks": "Tutorial Workbooks",
         "dsTutor1": "Datasets Tutorial - Part 1",
         "dsTutor2": "Datasets Tutorial - Part 2",
