@@ -821,6 +821,7 @@ class DagView {
         const allNewNodeIds: DagNodeId[] = [];
         const oldNodeIdMap = {};
         const allNewNodes = [];
+        const nodeToRemove: bolean[] = [];
 
         this.dagTab.turnOffSave();
 
@@ -854,30 +855,31 @@ class DagView {
                             aggPrefix: ""
                         }));
                     }
-                    // filter out invalid case
-                    if (isSQLFunc) {
-                        if (newNode.getMaxParents() === 0 && nodeType !== DagNodeType.SQLFuncIn ||
-                            newNode.isOutNode() && nodeType !== DagNodeType.SQLFuncOut ||
-                            nodeType === DagNodeType.Extension ||
-                            nodeType === DagNodeType.Custom
-                        ) {
-                            this.graph.removeNode(newNode.getId(), false);
-                            return;
-                        }
-                    } else {
-                        if (nodeType === DagNodeType.SQLFuncIn ||
-                            nodeType === DagNodeType.SQLFuncOut
-                        ) {
-                            this.graph.removeNode(newNode.getId(), false);
-                            return;
-                        }
-                    }
                     const newNodeId: DagNodeId = newNode.getId();
                     oldNodeIdMap[nodeInfo.nodeId] = newNodeId;
                     newNodeIds.push(newNodeId);
                     allNewNodeIds.push(newNodeId);
                     allNewNodes.push(newNode);
-                    this._drawNode(newNode, true);
+                    // filter out invalid case
+                    let toRemove: boolean = false;
+                    if (isSQLFunc) {
+                        if (!DagTabSQLFunc.isValidNode(newNode)) {
+                            toRemove = true;
+                        }
+                    } else {
+                        if (nodeType === DagNodeType.SQLFuncIn ||
+                            nodeType === DagNodeType.SQLFuncOut
+                        ) {
+                            toRemove = true;
+                        }
+                    }
+
+                    if (toRemove) {
+                        this.graph.removeNode(newNode.getId(), false);
+                    } else {
+                        this._drawNode(newNode, true);
+                    }
+                    nodeToRemove.push(toRemove);
                 }
             });
             if (!allNewNodeIds.length) {
@@ -891,7 +893,7 @@ class DagView {
                 if (newNodeId.startsWith("comment")) {
                     return;
                 }
-                if (nodeInfos[i].parents) {
+                if (nodeInfos[i].parents && !nodeToRemove[i]) {
                     const newNode = allNewNodes[i];
                     nodeInfos[i].parents.forEach((parentId, j) => {
                         if (parentId == null) {

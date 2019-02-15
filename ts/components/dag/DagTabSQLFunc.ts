@@ -48,6 +48,35 @@ class DagTabSQLFunc extends DagTabUser {
     }
 
     /**
+     * DagTabSQLFunc.isValidNode
+     * @param node
+     */
+    public static isValidNode(node: DagNode): boolean {
+        if (node == null) {
+            return false;
+        }
+        let nodeType = node.getType();
+        if (node.getMaxParents() === 0 && nodeType !== DagNodeType.SQLFuncIn) {
+            return false;
+        }
+
+        if (node.isOutNode()) {
+            if (nodeType !== DagNodeType.SQLFuncOut &&
+                nodeType !== DagNodeType.Aggregate
+            ) {
+                return false;
+            }
+        }
+
+        if (nodeType === DagNodeType.Extension ||
+            nodeType === DagNodeType.Custom
+        ) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * @override
      * @param name
      * @param id
