@@ -222,7 +222,8 @@ class SQLExecutor {
         this._sqlNode.setParam({
             sqlQueryStr: this._sql,
             identifiers: this._identifiers,
-            identifiersOrder: this._identifiersOrder
+            identifiersOrder: this._identifiersOrder,
+            dropAsYouGo: null
         }, true);
         const queryId = xcHelper.randName("sqlQuery", 8);
         const identifiers = new Map<number, string>();
@@ -240,7 +241,6 @@ class SQLExecutor {
             this._status = SQLStatus.Compiling;
             this._updateStatus(SQLStatus.Compiling, new Date());
         }
-        this._sqlNode.setIdentifiers(identifiers);
         return this._sqlNode.compileSQL(this._sql, queryId, identifiers,
                                         sqlMode, pubTablesInfo);
     }

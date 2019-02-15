@@ -230,14 +230,27 @@ class DagNodeSQL extends DagNode {
         this.identifiers = identifiers;
         const identifiersOrder = [];
         const rawIdentifiers = {};
+        const sqlParams: DagNodeSQLInputStruct = this.getParam();
+        let hasChange = false;
+        let idx = 0;
         this.identifiers.forEach(function(value, key) {
             identifiersOrder.push(key);
             rawIdentifiers[key] = value;
+            if (sqlParams.identifiersOrder[idx] !== identifiersOrder[idx] ||
+                sqlParams.identifiers[key] !== rawIdentifiers[key]) {
+                    hasChange = true;
+                }
         });
-        const sqlParams: DagNodeSQLInputStruct = this.getParam();
-        sqlParams.identifiers = rawIdentifiers;
-        sqlParams.identifiersOrder = identifiersOrder;
-        this.setParam(sqlParams, true);
+        if (Object.keys(sqlParams.identifiers).length !==
+            Object.keys(rawIdentifiers).length ||
+            sqlParams.identifiersOrder.length !== identifiersOrder.length) {
+                hasChange = true;
+            }
+        if (hasChange) {
+            sqlParams.identifiers = rawIdentifiers;
+            sqlParams.identifiersOrder = identifiersOrder;
+            this.setParam(sqlParams, true);
+        }
     }
     public getTableSrcMap(): {} {
         return this.tableSrcMap;
@@ -530,8 +543,12 @@ class DagNodeSQL extends DagNode {
      * @param isUpdateSubgraph set to false, when triggered by subGraph event
      */
     public beConfiguredState(isUpdateSubgraph: boolean = true): void {
+        if (this.getState() === DagNodeState.Complete ||
+            this.getState() === DagNodeState.Error) {
+            // When it is a "reset"
+            this.setXcQueryString(null);
+        }
         super.beConfiguredState();
-        this.setXcQueryString(null);
         if (isUpdateSubgraph) {
             // Update the state of nodes in subGraph
             const subGraph = this.getSubGraph();
@@ -1026,7 +1043,8 @@ class DagNodeSQL extends DagNode {
         queryId: string,
         identifiers?: Map<number, string>,
         sqlMode?: boolean,
-        pubTablesInfo?: {}
+        pubTablesInfo?: {},
+        dropAsYouGo?: boolean
     ): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
         const sqlCom = new SQLCompiler();
@@ -1043,6 +1061,10 @@ class DagNodeSQL extends DagNode {
                 self.setIdentifiers(identifiers);
             }
             identifiers = self.getIdentifiers();
+            if (dropAsYouGo == null) {
+                dropAsYouGo = self.getParam().dropAsYouGo == null ? true :
+                                                self.getParam().dropAsYouGo;
+            }
             if (sqlMode) {
                 const retStruct = XDParser.SqlParser.getSQLTableFunctions(sqlQueryStr);
                 sqlFuncs = retStruct.sqlFunctions;
@@ -1074,7 +1096,7 @@ class DagNodeSQL extends DagNode {
                 self.setColumns(newCols);
                 const optimizer = new SQLOptimizer();
                 const optimizations = {combineProjectWithSynthesize: true,
-                                       dropAsYouGo: true};
+                                       dropAsYouGo: dropAsYouGo};
                 if (sqlMode) {
                     optimizations["pushToSelect"] = true;
                 }
