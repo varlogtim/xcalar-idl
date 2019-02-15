@@ -531,6 +531,7 @@ class DagNodeSQL extends DagNode {
      */
     public beConfiguredState(isUpdateSubgraph: boolean = true): void {
         super.beConfiguredState();
+        this.setXcQueryString(null);
         if (isUpdateSubgraph) {
             // Update the state of nodes in subGraph
             const subGraph = this.getSubGraph();
@@ -883,10 +884,8 @@ class DagNodeSQL extends DagNode {
             deferred.resolve(ret);
         })
         .fail(function(err) {
-            if (err && err.responseJSON) {
-                deferred.reject(err.responseJSON.exceptionMsg);
-            } else if (err && err.status === 0) {
-                deferred.reject(SQLErrTStr.FailToConnectPlanner);
+            if (typeof err === "string") {
+                deferred.reject(err);
             } else if (err) {
                 deferred.reject(JSON.stringify(err));
             } else {

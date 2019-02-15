@@ -40,20 +40,27 @@ class SQLUtil {
             contentType: 'application/json; charset=utf-8',
             url: url,
             dataType: "text", // XXX remove this when the planner bug is fixed
+                              // it wrongly returns error when no schema to drop
             success: function(data) {
                 deferred.resolve(data);
             },
             error: function(error) {
-                let errorMsg = "SQL planner unkonwn failure";
-                if (error.responseText) {
+                let errorMsg;
+                if (error && error.responseText) {
                     try {
                         errorMsg = JSON.parse(error.responseText).exceptionMsg;
-                    } catch(e) {
-                        errorMsg = error.responseText;
+                    } catch (e) {
+                        errorMsg = SQLErrTStr.PlannerFailure + ". Failed to parse error message";
                     }
+                } else if (error && error.status === 0) {
+                    errorMsg = SQLErrTStr.FailToConnectPlanner;
+                } else if (error) {
+                    errorMsg = JSON.stringify(error);
+                } else {
+                    errorMsg = SQLErrTStr.PlannerFailure;
                 }
                 deferred.reject(errorMsg);
-                console.error(errorMsg);
+                console.error(error);
             }
         });
         return deferred.promise();
