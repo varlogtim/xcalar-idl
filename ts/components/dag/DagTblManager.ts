@@ -317,6 +317,11 @@ class DagTblManager {
     private _safeToDeleteTable(table: string): boolean {
         const self = DagTblManager.Instance;
         const graph: DagGraph = DagViewManager.Instance.getActiveDag();
+        if (graph == null) {
+            // We havent opened advanced mode yet, or it doesnt have an active graph.
+            // Any table starting with table_DF2_ can be deleted
+            return table.startsWith("table_DF2_");
+        }
         const dagID: string = graph.getTabId();
         const dataflowMatch: RegExp = new RegExp(dagID);
         if (self.cache[table].locked) {
