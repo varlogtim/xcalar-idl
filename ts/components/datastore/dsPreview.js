@@ -2684,10 +2684,12 @@ window.DSPreview = (function($, DSPreview) {
 
         if (isCreateTableMode()) {
             dataSourceSchema.show();
-            dataSourceSchema.toggleCaseInsensitive(true);
-        } else if (format === formatMap.CSV) {
-            dataSourceSchema.show();
-            dataSourceSchema.toggleCaseInsensitive(false);
+
+            if (format === formatMap.CSV) {
+                dataSourceSchema.toggleCaseInsensitive(true);
+            } else {
+                dataSourceSchema.toggleCaseInsensitive(false);
+            }
         } else {
             dataSourceSchema.hide();
         }

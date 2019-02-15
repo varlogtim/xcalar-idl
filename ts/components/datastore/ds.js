@@ -2048,7 +2048,10 @@ window.DS = (function ($, DS) {
 
                 continue;
             } else if (dsName.endsWith(PTblManager.DSSuffix)) {
-                if (dataset.loadIsComplete) {
+                // other users don't deal with it
+                if (xcHelper.parseDSName(dsName).user !== userPrefix) {
+                    continue;
+                } else if (dataset.loadIsComplete) {
                     PTblManager.Instance.addDatasetTable(dsName);
                 } else {
                     deleteTempDS(dsName);
