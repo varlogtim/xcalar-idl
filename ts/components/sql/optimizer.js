@@ -295,6 +295,47 @@
                                                 retNode.children[0], visitedMap);
                     }
                 }
+            } else if (opNode.value.operation === "XcalarApiSynthesize" &&
+                       opNode.children.length > 0 &&
+                       opNode.children[0].value.operation === "XcalarApiSynthesize") {
+                if (opNode.children[0].parents.length === 1) {
+                    var synReverseMap = {};
+                    opNode.children[0].value.args.columns.forEach(function(col) {
+                        synReverseMap[col.destColumn] = col.sourceColumn;
+                    });
+                    var synList = opNode.value.args.columns;
+                    for (var i = 0; i < synList.length; i++) {
+                        synList[i].sourceColumn = synReverseMap[synList[i].sourceColumn]
+                                                  || synList[i].sourceColumn;
+                    }
+                    opNode.children[0].value.args.columns = synList;
+                    opNode.children[0].value.args.numColumns = synList.length;
+                    opNode.children[0].value.args.dest = opNode.value.args.dest;
+                    opNode.children[0].name = opNode.value.args.dest;
+                    opNode.children[0].parents = opNode.parents;
+                    retNode = combineProjectWithSynthesize(opNode.children[0], visitedMap);
+                } else {
+                    var synNodeCopy = {children: jQuery.extend(false, [], opNode.children[0].children),
+                                       name: opNode.value.args.dest,
+                                       parents: opNode.parents,
+                                       sources: jQuery.extend(false, [], opNode.children[0].sources),
+                                       value: jQuery.extend(true, {}, opNode.value)};
+                    var synReverseMap = {};
+                    opNode.children[0].value.args.columns.forEach(function(col) {
+                        synReverseMap[col.destColumn] = col.sourceColumn;
+                    });
+                    var synList = synNodeCopy.value.args.columns;
+                    for (var i = 0; i < synList.length; i++) {
+                        synList[i].sourceColumn = synReverseMap[synList[i].sourceColumn]
+                                                  || synList[i].sourceColumn;
+                    }
+                    synNodeCopy.value.args.columns = synList;
+                    synNodeCopy.value.args.numColumns = synList.length;
+                    synNodeCopy.value.args.dest = opNode.value.args.dest;
+                    retNode = combineProjectWithSynthesize(synNodeCopy, visitedMap);
+                    opNode.children[0].parents.splice(opNode.children[0]
+                                                    .parents.indexOf(opNode),1);
+                }
             } else {
                 for (var i = 0; i < opNode.children.length; i++) {
                     opNode.children[i] = self.combineProjectWithSynthesize(
@@ -329,6 +370,13 @@
                 for (var i = 0; i < node.value.args.columns.length; i++) {
                     node.value.args.columns[i] = node.colNameMap[node.value
                                 .args.columns[i]] || node.value.args.columns[i];
+                }
+                break;
+            case ("XcalarApiSynthesize"):
+                for (var i = 0; i < node.value.args.columns.length; i++) {
+                    node.value.args.columns[i].sourceColumn = node.colNameMap
+                                    [node.value.args.columns[i].sourceColumn] ||
+                                        node.value.args.columns[i].sourceColumn;
                 }
                 break;
             case ("XcalarApiIndex"):
@@ -405,7 +453,6 @@
                 break;
             case ("XcalarApiExecuteRetina"):
             case ("XcalarApiRenameNode"):
-            case ("XcalarApiSynthesize"):
             case ("XcalarApiSelect"):
             case ("XcalarApiBulkLoad"):
             case ("XcalarApiExport"):
@@ -442,6 +489,11 @@
                     delete value.args.eval[i].newField;
                 }
                 break;
+            case ("XcalarApiSynthesize"):
+                for (var i = 0; i < value.args.columns.length; i++) {
+                    delete value.args.columns[i].destColumn;
+                }
+                break;
             case ("XcalarApiGetRowNum"):
                 delete value.args.newField;
                 break;
@@ -465,7 +517,6 @@
             case ("XcalarApiExport"):
             case ("XcalarApiDeleteObjects"):
             case ("XcalarApiRenameNode"):
-            case ("XcalarApiSynthesize"):
             case ("XcalarApiSelect"):
                 break;
             default:
@@ -520,6 +571,13 @@
                     }
                 }
                 break;
+            case ("XcalarApiSynthesize"):
+                node.colNameMap = {};
+                for (var i = 0; i < node.value.args.columns.length; i++) {
+                    node.colNameMap[node.value.args.columns[i].destColumn]
+                                    = baseNode.value.args.columns[i].destColumn;
+                }
+                break;
             case ("XcalarApiAggregate"):
                 node.colNameMap = {};
                 self.aggregateNameMap["^" + node.value.args.dest] = "^" + baseNode.value.args.dest;
@@ -550,7 +608,6 @@
             case ("XcalarApiExport"):
             case ("XcalarApiDeleteObjects"):
             case ("XcalarApiRenameNode"):
-            case ("XcalarApiSynthesize"):
             case ("XcalarApiSelect"):
                 break;
             default:
@@ -592,11 +649,30 @@
                 break;
             case ("XcalarApiProject"):
                 var colNameList = node.value.args.columns;
+                var newIndexOn = [];
                 for (item in node.colNameMap) {
                     if (colNameList.indexOf(item) === -1) {
                         delete node.colNameMap[item];
                     }
                 }
+                for (col in node.indexOn) {
+                    if (colNameList.indexOf(col) != -1) {
+                        newIndexOn.push(col);
+                    }
+                }
+                node.indexOn = newIndexOn;
+                break;
+            case ("XcalarApiSynthesize"):
+                var newColNameMap = {};
+                var newIndexOn = [];
+                node.value.args.columns.forEach(function(col) {
+                    newColNameMap[col.destColumn] = col.destColumn;
+                    if (node.indexOn.indexOf(col.sourceColumn) != -1) {
+                        newIndexOn.push(col.destColumn);
+                    }
+                });
+                node.colNameMap = newColNameMap;
+                node.indexOn = newIndexOn;
                 break;
             case ("XcalarApiAggregate"):
                 node.colNameMap = {};
@@ -625,7 +701,6 @@
             case ("XcalarApiExport"):
             case ("XcalarApiDeleteObjects"):
             case ("XcalarApiRenameNode"):
-            case ("XcalarApiSynthesize"):
             case ("XcalarApiSelect"):
                 break;
             default:
@@ -648,6 +723,7 @@
                 case ("XcalarApiProject"):
                 case ("XcalarApiIndex"):
                 case ("XcalarApiFilter"):
+                case ("XcalarApiSynthesize"):
                     for (var j = 0; j < node.parents[i].children.length; j++) {
                         if (node.parents[i].children[j] === node) {
                             if (node.value.operation != "XcalarApiAggregate") {
@@ -681,7 +757,6 @@
                     break;
                 case ("XcalarApiExecuteRetina"):
                 case ("XcalarApiRenameNode"):
-                case ("XcalarApiSynthesize"):
                 case ("XcalarApiSelect"):
                 case ("XcalarApiBulkLoad"):
                 case ("XcalarApiExport"):
@@ -900,6 +975,23 @@
             }
             selectStruct.colNameMap = newColNameMap;
             selectStruct.args.columns = columns;
+        } else if (curNode.value.operation === "XcalarApiSynthesize") {
+            var columns = [];
+            var newColNameMap = {};
+            for (var i = 0; i < curNode.value.args.columns.length; i++) {
+                var curColumn = curNode.value.args.columns[i];
+                if (selectStruct.colNameMap[curColumn.sourceColumn]) {
+                    newColNameMap[curColumn.destColumn] =
+                        selectStruct.colNameMap[curColumn.sourceColumn];
+                    columns.push({sourceColumn: selectStruct.colNameMap[curColumn.sourceColumn],
+                                  destColumn: curColumn.destColumn});
+                } else {
+                    columns.push({sourceColumn: curColumn.sourceColumn,
+                                  destColumn: curColumn.destColumn});
+                }
+            }
+            selectStruct.colNameMap = newColNameMap;
+            selectStruct.args.columns = columns;
         } else {
             console.error("Invalid push up node: " + curNode.value.operation);
         }
@@ -929,7 +1021,7 @@
                 continue;
             } else if (curNode.parents[i].value.operation != "XcalarApiFilter"
                 && curNode.parents[i].value.operation != "XcalarApiMap" &&
-                curNode.parents[i].value.operation != "XcalarApiProject") {
+                curNode.parents[i].value.operation != "XcalarApiSynthesize") {
                 if (curNode.value.operation === "XcalarApiSelect") {
                     parentsAfterPush.push(curNode.parents[i]);
                     continue;
