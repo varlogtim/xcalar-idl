@@ -289,6 +289,10 @@
                 }
             }
 
+            .text {
+                white-space: nowrap;
+            }
+
             .categoryIcon {
                 .size(@icon-height,@icon-height);
                 border-radius: 100%;
@@ -314,19 +318,19 @@
                     background-color: @color-operator-out;
                 }
             }
-            &.category-value {
+            &.category-SQL {
                 .icon {
-                    background-color: @color-operator-value;
+                    background-color: @color-operator-SQL;
                 }
             }
-            &.category-operations {
-                .icon {
-                    background-color: @color-operator-operations;
-                }
-            }
-            &.category-column {
+            &.category-columnOps {
                 .icon {
                     background-color: @color-operator-column;
+                }
+            }
+            &.category-rowOps {
+                .icon {
+                    background-color: @color-operator-operations;
                 }
             }
             &.category-join {
@@ -339,9 +343,9 @@
                     background-color: @color-operator-set;
                 }
             }
-            &.category-SQL {
+            &.category-aggregates {
                 .icon {
-                    background-color: @color-operator-SQL;
+                    background-color: @color-operator-value;
                 }
             }
             &.category-extensions {
@@ -987,7 +991,7 @@
         height: 17px;
         transform: translateX(-50%);
         font-size: 10px;
-        line-height: 12px;
+        line-height: 11px;
         outline-offset: 0px;
         outline: 1px solid @color-border-focus-blue;
         overflow: hidden;

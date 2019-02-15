@@ -19,7 +19,7 @@ class DagView {
     private static horzNodeSpacing = 140;// spacing between nodes when auto-aligning
     private static vertNodeSpacing = 60;
     private static gridLineSize = 12;
-    private static titleLineHeight = 12;
+    private static titleLineHeight = 11;
     public static inConnectorWidth = 6;
     private lockedNodeIds = {};
     private static dagEventNamespace = 'DagView';
@@ -3149,7 +3149,7 @@ class DagView {
         const paramHint = paramHintObj.hint;
         const fullParamHint = paramHintObj.fullHint;
         const parmLines: string[] = paramHint.split("\n");
-        const paramHeight: number = titleHeight + titleLines.length * DagView.titleLineHeight;
+        const paramHeight: number = titleHeight + 1 + titleLines.length * DagView.titleLineHeight;
         const paramTextSvg: d3 = g.append("text")
             .attr("class", "paramTitle")
             .attr("fill", "#44515C")

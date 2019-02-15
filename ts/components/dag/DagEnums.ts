@@ -1,5 +1,5 @@
 enum DagNodeType {
-    Aggregate = "aggregate",
+    Aggregate = "singleValue",
     Custom = "custom",
     CustomInput = "customInput",
     CustomOutput = "customOutput",
@@ -113,13 +113,13 @@ enum DagCategoryType {
     Favorites = "favorites",
     In = "in",
     Out = "out",
-    Value = "value",
-    Operations = "operations",
-    Column = "column",
+    SQL = "SQL",
+    ColumnOps = "columnOps",
+    RowOps = "rowOps",
     Join = "join",
     Set = "set",
+    Aggregates = "aggregates",
     Extensions = "extensions",
-    SQL = "SQL",
     Custom = "custom",
     Hidden = "hidden"
 }

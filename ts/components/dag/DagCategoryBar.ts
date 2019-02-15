@@ -74,22 +74,22 @@ class DagCategoryBar {
      * @returns Display name of the operator
      */
     public addOperator(props: {
-        categoryName: DagCategoryType,
+        categoryType: DagCategoryType,
         dagNode: DagNode,
         isHidden?: boolean,
         isFocusCategory?: boolean
     }): XDPromise<string> {
-        const { categoryName, dagNode, isHidden = false, isFocusCategory = true } = props;
+        const { categoryType, dagNode, isHidden = false, isFocusCategory = true } = props;
 
         // Find the category data structure
-        const targetCategory = this._getCategoryByName(categoryName);
+        const targetCategory = this._getCategoryByType(categoryType);
         if (targetCategory == null) {
-            return PromiseHelper.reject(`Category ${categoryName} not found`);
+            return PromiseHelper.reject(`Category ${categoryType} not found`);
         }
 
         // Add operater to category
         targetCategory.add(DagCategoryNodeFactory.create({
-            dagNode: dagNode, categoryType: categoryName, isHidden: isHidden
+            dagNode: dagNode, categoryType: categoryType, isHidden: isHidden
         }));
 
         // Defaut name
@@ -103,7 +103,7 @@ class DagCategoryBar {
 
         // Re-render the operator bar(UI)
         this._renderOperatorBar();
-        this._focusOnCategory(isFocusCategory? categoryName: this.currentCategory);
+        this._focusOnCategory(isFocusCategory? categoryType: this.currentCategory);
 
         // Persist the change
         return this._saveCategories()
@@ -192,22 +192,23 @@ class DagCategoryBar {
         iconMap[DagCategoryType.Favorites] = "xi-recommend";
         iconMap[DagCategoryType.In] = "xi-horizontal-align-center";
         iconMap[DagCategoryType.Out] = "xi-horizontal-align-center";
-        iconMap[DagCategoryType.Value] = "xi-aggregate";
-        iconMap[DagCategoryType.Operations] = "xi-table-2";
-        iconMap[DagCategoryType.Column] = "xi-tables-columnsicon";
+        iconMap[DagCategoryType.SQL] = "xi-menu-sql";
+        iconMap[DagCategoryType.ColumnOps] = "xi-tables-columnsicon";
+        iconMap[DagCategoryType.RowOps] = "xi-server";
         iconMap[DagCategoryType.Join] = "xi-join-inner";
         iconMap[DagCategoryType.Set] = "xi-union";
+        iconMap[DagCategoryType.Aggregates] = "xi-aggregate";
         iconMap[DagCategoryType.Extensions] = "xi-menu-extension";
-        iconMap[DagCategoryType.SQL] = "xi-menu-sql";
         iconMap[DagCategoryType.Custom] = "xi-custom";
 
         this.dagCategories.getCategories().forEach((category: DagCategory) => {
-            const categoryName: DagCategoryType = category.getName();
-            const icon: string = iconMap[categoryName];
-            html += `<div class="category category-${categoryName}"
-            data-category="${categoryName}">
+            const categoryType: DagCategoryType = category.getType();
+            const categoryName: string = category.getName();
+            const icon: string = iconMap[categoryType];
+            html += `<div class="category category-${categoryType}"
+                data-category="${categoryType}">
                 <i class="icon categoryIcon ${icon}"></i>
-                <span class="text">${xcHelper.capitalize(categoryName)}</span>
+                <span class="text">${categoryName}</span>
             </div>`;
         });
         html += '<div class="spacer"></div>'; // adds right padding
@@ -218,7 +219,7 @@ class DagCategoryBar {
         const self = this;
         let html: HTML = "";
         this.dagCategories.getCategories().forEach((category: DagCategory) => {
-            const categoryName: string = category.getName();
+            const categoryType: string = category.getType();
             const operators: DagCategoryNode[] = category.getSortedOperators();
 
             let index = 0;
@@ -233,7 +234,7 @@ class DagCategoryBar {
                 }
             });
             const width = 10 + index * (DagView.nodeWidth + 20);
-            html += `<div class="category category-${categoryName}">
+            html += `<div class="category category-${categoryType}">
                         <div class="svgWrap">
                             <svg version="1.1" height="100%" width="${width}">
                             ${operatorHtml}
@@ -470,7 +471,7 @@ class DagCategoryBar {
                 'stroke-width="1" fill="' + color + '" />'+
             '<text class="icon" x="11" y="19" font-family="icomoon" ' +
                 'font-size="12" fill="white">' + icon + '</text>' +
-            '<svg width="60" height="' + DagView.nodeHeight + '" x="27" y="1">' +
+            '<svg width="60" height="' + DagView.nodeHeight + '" x="28" y="1">' +
                 opTitleHtml + '</svg>' +
             '<circle class="statusIcon" cx="88" cy="27" r="5" ' +
                 'stroke="#849CB0" stroke-width="1" fill="white" />' +
@@ -482,7 +483,7 @@ class DagCategoryBar {
     private _formatOpTitle(name): HTML {
         let html: HTML;
         // XXX arbritrary way to decide if name is too long for 1 line
-        if (name.length > 10 && name.indexOf(" ") > -1) {
+        if (name.length > 12 && name.indexOf(" ") > -1) {
             const namePart1 = name.substring(0, name.lastIndexOf(" "));
             const namePart2 = name.slice(name.lastIndexOf(" ") + 1);
             html = '<text class="opTitle" x="50%" y="30%" ' +
@@ -681,16 +682,13 @@ class DagCategoryBar {
                 if ($category.data("category") === DagCategoryType.Hidden) {
                     // skip the hidden category
                     $catWrap.prepend($category.detach());
-                    self._listScrollers.unshift(self._listScrollers.pop());
                 }
                 $categories = self.$dagView.find(".categoryWrap .categories .category");
                 $category = $categories.last();
                 $catWrap.prepend($category.detach());
-                self._listScrollers.unshift(self._listScrollers.pop());
             } else {
                 let $category = $categories.eq(0);
                 $catWrap.find(".spacer").before($category.detach());
-                self._listScrollers.push(self._listScrollers.shift());
 
                 // skip the hidden category
                 $categories = self.$dagView.find(".categoryWrap .categories .category");
@@ -698,7 +696,6 @@ class DagCategoryBar {
                 if ($category.data("category") === DagCategoryType.Hidden) {
                     // skip the hidden category
                     $catWrap.find(".spacer").before($category.detach());
-                    self._listScrollers.push(self._listScrollers.shift());
                 }
             }
         });
@@ -750,8 +747,8 @@ class DagCategoryBar {
 
         let html: HTML = "";
         this.dagCategories.getCategories().forEach((category) => {
-            if (category.getName() === DagCategoryType.Favorites ||
-                category.getName() === DagCategoryType.Hidden) {
+            if (category.getType() === DagCategoryType.Favorites ||
+                category.getType() === DagCategoryType.Hidden) {
                 return;
             }
             category.getOperators().forEach((categoryNode) => {
@@ -855,10 +852,10 @@ class DagCategoryBar {
         return deferred.promise();
     }
 
-    private _getCategoryByName(categoryName: DagCategoryType): DagCategory {
+    private _getCategoryByType(categoryType: DagCategoryType): DagCategory {
         let targetCategory = null;
         for (const category of this.dagCategories.getCategories()) {
-            if (category.getName() === categoryName) {
+            if (category.getType() === categoryType) {
                 targetCategory = category;
                 break;
             }

@@ -1,6 +1,6 @@
 class DagCategories {
     private categories: DagCategory[];
-    
+
     public constructor() {
         this._initBasicLists(false);
     }
@@ -11,16 +11,7 @@ class DagCategories {
         // const favoritesCategory = new DagCategory(DagCategoryType.Favorites, [
         //     new DagCategoryNodeIn(DagNodeFactory.create({
         //         type: DagNodeType.Dataset
-        //     })),
-        //     new DagCategoryNodeOperations(DagNodeFactory.create({
-        //         type: DagNodeType.Filter
-        //     })),
-        //     new DagCategoryNodeColumn(DagNodeFactory.create({
-        //         type: DagNodeType.Map
-        //     })),
-        //     new DagCategoryNodeOut(DagNodeFactory.create({
-        //         type: DagNodeType.Export
-        //     })),
+        //     }))
         // ]);
 
         const hiddenCategory = new DagCategory(DagCategoryType.Hidden, [
@@ -126,46 +117,50 @@ class DagCategories {
             })));
         }
 
-        const valueCategory = new DagCategory(DagCategoryType.Value, [
-            new DagCategoryNodeValue(DagNodeFactory.create({
-                type: DagNodeType.Aggregate
-            }))
+
+        const sqlCategory = new DagCategory(DagCategoryType.SQL, [
+            new DagCategoryNodeSQL(DagNodeFactory.create({
+                type: DagNodeType.SQL
+            })),
+            new DagCategoryNodeSQL(DagNodeFactory.create({
+                type: DagNodeType.SQLSubInput
+            }), true),
+            new DagCategoryNodeSQL(DagNodeFactory.create({
+                type: DagNodeType.SQLSubOutput
+            }), true),
         ]);
 
-        const operationsCategory = new DagCategory(DagCategoryType.Operations, [
-            new DagCategoryNodeOperations(DagNodeFactory.create({
-                type: DagNodeType.Filter
-            })),
-            new DagCategoryNodeOperations(DagNodeFactory.create({
-                type: DagNodeType.Project
-            })),
-            new DagCategoryNodeOperations(DagNodeFactory.create({
-                type: DagNodeType.GroupBy
-            })),
-            new DagCategoryNodeOperations(DagNodeFactory.create({
-                type: DagNodeType.RowNum
-            })),
-            new DagCategoryNodeOperations(DagNodeFactory.create({
-                type: DagNodeType.Explode
-            })),
-            new DagCategoryNodeOperations(DagNodeFactory.create({
-                type: DagNodeType.Sort
-            }))
-        ]);
-
-        const columnCategory = new DagCategory(DagCategoryType.Column, [
-            new DagCategoryNodeColumn(DagNodeFactory.create({
-                type: DagNodeType.Map
-            })),
-            new DagCategoryNodeColumn(DagNodeFactory.create({
+        const columnOpsCategory = new DagCategory(DagCategoryType.ColumnOps, [
+            new DagCategoryNodeColumnOps(DagNodeFactory.create({
                 type: DagNodeType.Map,
                 subType: DagNodeSubType.Cast
             })),
-            new DagCategoryNodeColumn(DagNodeFactory.create({
+            new DagCategoryNodeColumnOps(DagNodeFactory.create({
                 type: DagNodeType.Split
             })),
-            new DagCategoryNodeColumn(DagNodeFactory.create({
+            new DagCategoryNodeColumnOps(DagNodeFactory.create({
+                type: DagNodeType.Map
+            })),
+            new DagCategoryNodeColumnOps(DagNodeFactory.create({
                 type: DagNodeType.Round
+            })),
+            new DagCategoryNodeColumnOps(DagNodeFactory.create({
+                type: DagNodeType.RowNum
+            })),
+            new DagCategoryNodeColumnOps(DagNodeFactory.create({
+                type: DagNodeType.Project
+            })),
+        ]);
+
+        const rowOpsCategory = new DagCategory(DagCategoryType.RowOps, [
+            new DagCategoryNodeRowOps(DagNodeFactory.create({
+                type: DagNodeType.Sort
+            })),
+            new DagCategoryNodeRowOps(DagNodeFactory.create({
+                type: DagNodeType.Filter
+            })),
+            new DagCategoryNodeRowOps(DagNodeFactory.create({
+                type: DagNodeType.Explode
             })),
         ]);
 
@@ -198,16 +193,13 @@ class DagCategories {
             })),
         ]);
 
-        const sqlCategory = new DagCategory(DagCategoryType.SQL, [
-            new DagCategoryNodeSQL(DagNodeFactory.create({
-                type: DagNodeType.SQL
+        const aggregatesCategory = new DagCategory(DagCategoryType.Aggregates, [
+            new DagCategoryNodeAggregates(DagNodeFactory.create({
+                type: DagNodeType.Aggregate
             })),
-            new DagCategoryNodeSQL(DagNodeFactory.create({
-                type: DagNodeType.SQLSubInput
-            }), true),
-            new DagCategoryNodeSQL(DagNodeFactory.create({
-                type: DagNodeType.SQLSubOutput
-            }), true)
+            new DagCategoryNodeAggregates(DagNodeFactory.create({
+                type: DagNodeType.GroupBy
+            })),
         ]);
 
         const extensionCategory = new DagCategory(DagCategoryType.Extensions, [
@@ -236,12 +228,12 @@ class DagCategories {
             inCategory,
             outCategory,
             sqlCategory,
-            operationsCategory,
-            columnCategory,
+            columnOpsCategory,
+            rowOpsCategory,
             joinCategory,
             setCategory,
+            aggregatesCategory,
             extensionCategory,
-            valueCategory,
             customCategory,
             hiddenCategory
         ];
@@ -313,16 +305,24 @@ class DagCategories {
 }
 
 class DagCategory {
-    private name: DagCategoryType;
+    private type: DagCategoryType;
     private operators: DagCategoryNode[];
 
-    public constructor(name: DagCategoryType, operators: DagCategoryNode[]) {
-        this.name = name;
+    public constructor(type: DagCategoryType, operators: DagCategoryNode[]) {
+        this.type = type;
         this.operators = operators;
     }
 
-    public getName(): DagCategoryType {
-        return this.name;
+    public getType(): DagCategoryType {
+        return this.type;
+    }
+
+    public getName(): string {
+        if (this.type === DagCategoryType.SQL) {
+            return this.type;
+        } else {
+            return xcHelper.capitalize(xcHelper.camelCaseToRegular(this.type));
+        }
     }
 
     public add(node: DagCategoryNode): void {

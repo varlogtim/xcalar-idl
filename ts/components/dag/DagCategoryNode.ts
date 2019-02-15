@@ -46,6 +46,10 @@ class DagCategoryNode {
             displayNodeType = "Output";
         } else if (node instanceof DagNodeIMDTable) {
             displayNodeType = "Table";
+        } else if (node instanceof DagNodeGroupBy) {
+            displayNodeType = "Group By";
+        } else if (node instanceof DagNodeAggregate) {
+            displayNodeType = "Single Value";
         }
         return displayNodeType;
     }
@@ -122,24 +126,24 @@ class DagCategoryNodeOut extends DagCategoryNode {
     }
 }
 
-class DagCategoryNodeValue extends DagCategoryNode {
-    protected color: string = "#F896A9";
-    public constructor(node: DagNode) {
-        super(node, DagCategoryType.Value);
+class DagCategoryNodeSQL extends DagCategoryNode {
+    protected color: string = "#AACE8F";
+    public constructor(node: DagNode, isHidden: boolean = false) {
+        super(node, DagCategoryType.SQL, isHidden);
     }
 }
 
-class DagCategoryNodeOperations extends DagCategoryNode {
-    protected color: string = "#7FD4B5";
-    public constructor(node: DagNode) {
-        super(node, DagCategoryType.Operations);
-    }
-}
-
-class DagCategoryNodeColumn extends DagCategoryNode {
+class DagCategoryNodeColumnOps extends DagCategoryNode {
     protected color: string = "#89D0E0";
     public constructor(node: DagNode) {
-        super(node, DagCategoryType.Column);
+        super(node, DagCategoryType.ColumnOps);
+    }
+}
+
+class DagCategoryNodeRowOps extends DagCategoryNode {
+    protected color: string = "#7FD4B5";
+    public constructor(node: DagNode) {
+        super(node, DagCategoryType.RowOps);
     }
 }
 
@@ -157,17 +161,17 @@ class DagCategoryNodeSet extends DagCategoryNode {
     }
 }
 
+class DagCategoryNodeAggregates extends DagCategoryNode {
+    protected color: string = "#F896A9";
+    public constructor(node: DagNode) {
+        super(node, DagCategoryType.Aggregates);
+    }
+}
+
 class DagCategoryNodeExtensions extends DagCategoryNode {
     protected color: string = "#EAABD3";
     public constructor(node: DagNode) {
         super(node, DagCategoryType.Extensions);
-    }
-}
-
-class DagCategoryNodeSQL extends DagCategoryNode {
-    protected color: string = "#AACE8F";
-    public constructor(node: DagNode, isHidden: boolean = false) {
-        super(node, DagCategoryType.SQL, isHidden);
     }
 }
 
