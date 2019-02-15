@@ -578,7 +578,8 @@ SQLErrTStr = {
     "ExpandMap": "Map in expand node found",
     "ExpandColLengthMismatch": "Length of output and projections item in expand node not match",
     "NotLiteralGroupingId": "Last item of projections in expand node should be grouping id which is a literal, but now it's: ",
-    "PlannerFailure": "Failed to send to planner"
+    "PlannerFailure": "Failed to send to planner",
+    "XDFNotSupport": "xdf_ without type prefix is not supported"
 };
 
 SQLInfoTStr = {

@@ -1035,9 +1035,8 @@
             node.colType = convertSparkTypeToXcalarType(node.value.dataType);
         } else if (curOpName === "expressions.XCEPassThrough") {
             // XXX Remove second block when type map added to sqldf
-            if (node.value.name.indexOf("xdf_") === 0) {
-                node.colType = opOutTypeLookup[node.value.name.substring(4)];
-            } else if (node.value.name.indexOf("xdf_") === 1) {
+            assert(node.value.name.indexOf("xdf_") !== 0, SQLErrTStr.XDFNotSupport);
+            if (node.value.name.indexOf("xdf_") === 1) {
                 if (node.value.name[0] === "i") {
                     node.colType = "int";
                 } else if (node.value.name[0] === "f") {
@@ -1048,6 +1047,8 @@
                     node.colType = "bool";
                 } else if (node.value.name[0] === "n") {
                     node.colType = "numeric";
+                } else if (node.value.name[0] === "t") {
+                    node.colType = "timestamp";
                 } else {
                     assert(0);
                 }
