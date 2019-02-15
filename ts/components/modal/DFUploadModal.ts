@@ -111,12 +111,16 @@ class DFUploadModal {
     }
 
     private _submitForm(): XDPromise<void> {
+        const $confirmBtn: JQuery = this._getModal().find(".confirm");
+        if ($confirmBtn.hasClass("btn-disabled")) {
+            return PromiseHelper.reject();
+        }
+
         const res = this._validate();
         if (res == null) {
             return PromiseHelper.reject();
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const $confirmBtn: JQuery = this._getModal().find(".confirm");
         xcHelper.disableSubmit($confirmBtn);
 
         const tab: DagTab = res.tab;
@@ -217,20 +221,25 @@ class DFUploadModal {
     // in workbookManager.ts
     private _readFile(file: File): XDPromise<any> {
         const deferred: XDDeferred<any> = PromiseHelper.deferred(); //string or array buffer
-        const reader: FileReader = new FileReader();
+        try {
+            const reader: FileReader = new FileReader();
 
-        reader.onload = function(event: any) {
-            deferred.resolve(event.target.result);
-        };
+            reader.onload = function(event: any) {
+                deferred.resolve(event.target.result);
+            };
 
-        reader.onloadend = function(event: any) {
-            const error: DOMException = event.target.error;
-            if (error != null) {
-                deferred.reject(error);
-            }
-        };
+            reader.onloadend = function(event: any) {
+                const error: DOMException = event.target.error;
+                if (error != null) {
+                    deferred.reject(error);
+                }
+            };
 
-        reader.readAsBinaryString(file);
+            reader.readAsBinaryString(file);
+        } catch (e) {
+            console.error(e);
+            deferred.reject({"error": e.message});
+        }
 
         return deferred.promise();
     }
@@ -265,6 +274,10 @@ class DFUploadModal {
             $prefix.text(DagTabSQLFunc.HOMEDIR + "/");
             // set path to a valid name
             let path = this._getDestPath();
+            let index: number = path.lastIndexOf("/");
+            if (index >= 0) {
+                path = path.substring(index + 1);
+            }
             this._setDestPath(path);
         } else {
             $modal.removeClass("sqlFunc");

@@ -1472,6 +1472,9 @@ namespace WorkbookManager {
     }
 
     function readFile(file: File): XDPromise<any> {
+        if (file == null) {
+            return PromiseHelper.reject();
+        }
         const deferred: XDDeferred<any> = PromiseHelper.deferred(); //string or array buffer
         const reader: FileReader = new FileReader();
 
