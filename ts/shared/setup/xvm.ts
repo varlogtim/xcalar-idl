@@ -282,8 +282,7 @@ namespace XVM {
                     versionMatch = false;
                     console.error(error);
                 }
-                // deferred.resolve(versionMatch);
-                deferred.resolve(true);
+                deferred.resolve(versionMatch);
             })
             .fail(deferred.reject);
 
