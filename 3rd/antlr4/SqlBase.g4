@@ -29,8 +29,8 @@ grammar SqlBase;
    * by a space. 34.E2 is a valid decimal token because it is followed by symbol '+'
    * which is not a digit or letter or underscore.
    */
-  function isValidDecimal() {
-    var nextChar = this._input.LA(1);
+  public boolean isValidDecimal() {
+    int nextChar = _input.LA(1);
     if (nextChar >= 'A' && nextChar <= 'Z' || nextChar >= '0' && nextChar <= '9' ||
       nextChar == '_') {
       return false;
@@ -1038,17 +1038,17 @@ INTEGER_VALUE
 
 DECIMAL_VALUE
     : DIGIT+ EXPONENT
-    | DECIMAL_DIGITS EXPONENT? {isValidDecimal.apply(this)}?
+    | DECIMAL_DIGITS EXPONENT? {isValidDecimal()}?
     ;
 
 DOUBLE_LITERAL
     : DIGIT+ EXPONENT? [dD]
-    | DECIMAL_DIGITS EXPONENT? [dD] {isValidDecimal.apply(this)}?
+    | DECIMAL_DIGITS EXPONENT? [dD] {isValidDecimal()}?
     ;
 
 BIGDECIMAL_LITERAL
     : DIGIT+ EXPONENT? [bB] [dD]
-    | DECIMAL_DIGITS EXPONENT? [bB] [dD] {isValidDecimal.apply(this)}?
+    | DECIMAL_DIGITS EXPONENT? [bB] [dD] {isValidDecimal()}?
     ;
 
 IDENTIFIER
