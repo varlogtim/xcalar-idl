@@ -2419,7 +2419,7 @@ class DagGraph {
                     dagNodeInfo = {
                         type: DagNodeType.Set,
                         subType: <DagNodeSubType>xcHelper.capitalize(setType),
-                        input: {
+                        input: <DagNodeSetInputStruct>{
                             columns: columns,
                             dedup: node.args.dedup
                         }
@@ -2428,7 +2428,7 @@ class DagGraph {
                 case (XcalarApisT.XcalarApiExport):
                     dagNodeInfo = {
                         type: DagNodeType.Export,
-                        input: {
+                        input: <DagNodeExportInputStruct>{
                             columns: [],
                             driver: "",
                             driverArgs: {}
@@ -2444,14 +2444,16 @@ class DagGraph {
                     };
                     break;
                 case (XcalarApisT.XcalarApiSelect):
-                    dagNodeInfo = {
+                    let selectColumns = _getSelectColumns(node.args.columns);
+                    dagNodeInfo = <DagNodeInInfo>{
                         type: DagNodeType.IMDTable,
-                        input: {
+                        input: <DagNodeIMDTableInputStruct>{
                             source: node.args.source,
                             version: node.args.minBatchId,
                             filterString: node.args.filterString || node.args.evalString,
-                            columns: node.args.columns
-                        }
+                            schema: selectColumns
+                        },
+                        schema: selectColumns
                     };
                     break;
                 case (XcalarApisT.XcalarApiExecuteRetina):
@@ -2754,6 +2756,21 @@ class DagGraph {
             })
 
             return newCols;
+        }
+
+        function _getSelectColumns(columns: RefreshColInfo[]): ColSchema[] {
+            try {
+                return columns.map((column) => {
+                    let fileType: DfFieldTypeT = DfFieldTypeTFromStr[column.columnType];
+                    return {
+                        name: column.destColumn,
+                        type: xcHelper.convertFieldTypeToColType(fileType)
+                    }
+                });
+            } catch (e) {
+                console.error(e);
+                return [];
+            }
         }
     }
 
