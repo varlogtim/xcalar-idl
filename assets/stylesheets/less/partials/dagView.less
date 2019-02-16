@@ -2343,15 +2343,21 @@
                 float: left;
                 border: solid 1px transparent;
                 background: transparent;
+                text-overflow: ellipsis;
+
                 &:focus {
                     background-color: white;
                     border: solid 1px @color-font-softBlue;
                 }
             }
+
+            .aggVal {
+                .textOverflowOneLine;
+            }
         }
 
         &.aggValWrap {
-            padding-left: 10px;
+            padding: 0px 10px;
         }
 
         &.paramActionWrap, &.paramNoValueWrap,

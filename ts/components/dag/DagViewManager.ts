@@ -1109,14 +1109,19 @@ class DagViewManager {
 
     private _viewAgg(dagNode: DagNodeAggregate): void {
         try {
-            const aggVal: string | number = dagNode.getAggVal();
+            let aggVal: string | number = dagNode.getAggVal();
             const evalStr: string = dagNode.getParam().evalString;
             const op: string = evalStr.substring(0, evalStr.indexOf("("));
             const title: string = xcHelper.replaceMsg(AggTStr.AggTitle, {
                 op: op
             });
+            if (typeof aggVal === "string") {
+                aggVal = `"${aggVal}"`;
+            } else {
+                aggVal = xcHelper.numToStr(<number>aggVal);
+            }
             const msg: string = xcHelper.replaceMsg(AggTStr.AggMsg, {
-                val: xcHelper.numToStr(<number>aggVal)
+                val: aggVal
             });
             Alert.show({
                 title: title,
