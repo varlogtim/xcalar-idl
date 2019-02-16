@@ -126,13 +126,13 @@ interface DagNodeUpdateIMDInputStruct {
 }
 
 interface DagNodeExportInputStruct {
-    columns: string[];
+    columns: {sourceColumn: string, destColumn: string}[];
     driver: string;
     driverArgs: {[key: string]: string};
 }
 
 interface DagNodeOptimizeInputStruct {
-    columns: string[];
+    columns: {sourceColumn: string, destColumn: string}[];
     driver: string;
     driverArgs: ExportDriverArg[];
 }

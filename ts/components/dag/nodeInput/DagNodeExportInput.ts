@@ -6,7 +6,6 @@ class DagNodeExportInput extends DagNodeInput {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "$id": "http://example.com/root.json",
         "type": "object",
-        "title": "The Root Schema",
         "required": [
           "columns",
           "driver",
@@ -17,20 +16,40 @@ class DagNodeExportInput extends DagNodeInput {
             "columns": {
                 "$id": "#/properties/columns",
                 "type": "array",
-                "title": "The Columns Schema",
                 "minItems": 1,
-                "additionalItems": false
+                "additionalItems": false,
+                "items": {
+                  "$id": "#/properties/columns/items",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "sourceColumn",
+                    "destColumn"
+                  ],
+                  "properties": {
+                    "sourceColumn": {
+                      "$id": "#/properties/columns/items/properties/sourceColumn",
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^(.*)$"
+                    },
+                    "destColumn": {
+                      "$id": "#/properties/columns/items/properties/destColumn",
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^(.*)$"
+                    },
+                  }
+                }
             },
             "driver": {
                 "$id": "#/properties/driver",
                 "type": "string",
-                "title": "The Export Driver Schema",
                 "minLength": 1
             },
             "driverArgs": {
                 "$id": "#/properties/driverArgs",
-                "type": "object",
-                "title": "The Driver Args Schema",
+                "type": "object"
             },
         }
     };

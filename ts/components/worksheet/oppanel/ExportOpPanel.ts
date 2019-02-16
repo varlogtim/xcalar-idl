@@ -142,22 +142,26 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         if (this._dataModel.loadedName == "") {
             this._currentDriver = "";
         }
+
+        const $waitIcon = xcHelper.disableScreen(this._$elemPanel.find(".opSection"));
+
         this._dataModel.loadDrivers()
         .then(() => {
             this._dataModel.driverArgs =
                 this._dataModel.constructParams(this._dataModel.currentDriver,
                 this._dagNode.getParam().driverArgs);
             this._updateUI();
-            MainMenu.setFormOpen();
-            this.panelResize();
         })
         .fail((error) => {
-            MainMenu.setFormOpen();
             console.error(error);
             this._dataModel.exportDrivers = [];
-            this.panelResize();
             StatusBox.show("Unable to load drivers", $("#exportOpPanel .modalTopMain .exportDriver"),
                     false, {'side': 'right'});
+        })
+        .always(() => {
+            MainMenu.setFormOpen();
+            this.panelResize();
+            xcHelper.enableScreen($waitIcon);
         });
     }
 
@@ -191,7 +195,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         let html: string = "";
         columnList.forEach((column, index) => {
             const colName: string = xcHelper.escapeHTMLSpecialChar(
-                column.name);
+                column.sourceColumn);
             const colNum: number = (index + 1);
             let checked = column.isSelected ? " checked" : "";
             html += '<li class="col' + checked +
@@ -375,8 +379,8 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
             self._dataModel.setUpParams(driver);
         });
 
-        $('#exportOpColumns .selectAllWrap .checkbox').click(function(event) {
-            let $box: JQuery = $(this);
+        $('#exportOpColumns .selectAllWrap').click(function(event) {
+            let $box: JQuery = $(this).find(".checkbox");
             event.stopPropagation();
             if ($box.hasClass("checked")) {
                 $box.removeClass("checked");
@@ -390,9 +394,9 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
             }
         });
 
-        $('#exportOpColumns .columnsWrap').on("click", ".checkbox", function(event) {
-            let $box: JQuery = $(this);
-            let $col: JQuery = $(this).parent();
+        $('#exportOpColumns .columnsWrap').on("click", ".col", function(event) {
+            let $box: JQuery = $(this).find(".checkbox");
+            let $col: JQuery = $(this);
             event.stopPropagation();
             if ($col.hasClass("checked")) {
                 $col.removeClass("checked");

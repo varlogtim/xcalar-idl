@@ -1,6 +1,6 @@
 describe("Export Dag Node Test", () => {
     let node;
-    
+
     before(() => {
         node = new DagNodeExport({});
     });
@@ -20,7 +20,15 @@ describe("Export Dag Node Test", () => {
 
     it("should set parameter", () => {
         const testParam = {
-            columns: ["category", "column2"],
+            columns: [
+            {
+                sourceColumn: "category",
+                destColumn: "category"
+            }, {
+                sourceColumn: "column2",
+                destColumn: "column2"
+            }
+            ],
             driver: "",
             driverArgs: {"arg": "cool"}
         };

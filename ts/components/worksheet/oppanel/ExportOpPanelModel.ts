@@ -35,15 +35,22 @@ class ExportOpPanelModel {
         model.setAdvMode(true);
         model.driverArgs = model.constructParams(model.currentDriver, dagInput.driverArgs);
         model.loadedName = dagInput.driver;
+        let takenHeaderNames = {};
         const selectedColumns = dagInput.columns.reduce( (res, col) => {
-            res[col] = true;
+            takenHeaderNames[col.destColumn] = true;
+            res[col.sourceColumn] = {
+                selected: true,
+                destColumn: col.destColumn
+            };
             return res;
         }, {});
-        for (const [colName, colInfo] of allColMap.entries()) {
-            const isSelected: boolean = selectedColumns[colName] ? true : false;
+
+        for (const [sourceColumn, colInfo] of allColMap.entries()) {
+            const isSelected: boolean = selectedColumns[sourceColumn] ? true : false;
             // Derived column
             model.columnList.push({
-                name: colName,
+                sourceColumn: sourceColumn,
+                destColumn: isSelected ? selectedColumns[sourceColumn].destColumn : this._createHeaderName(sourceColumn, takenHeaderNames),
                 isSelected: isSelected,
                 type: colInfo.type
             });
@@ -59,21 +66,27 @@ class ExportOpPanelModel {
     public static fromDag(dagNode: DagNodeExport) {
         const model: ExportOpPanelModel = new ExportOpPanelModel();
         const dagInputInfo: DagNodeExportInputStruct = dagNode.getParam();
+        let takenHeaderNames = {};
         const selectedColumns: {} = dagInputInfo.columns.reduce( (res, col) => {
-            res[col] = true;
+            takenHeaderNames[col.destColumn] = true;
+            res[col.sourceColumn] = {
+                selected: true,
+                destColumn: col.destColumn
+            };
             return res;
         }, {});
 
         const allColMap: Map<string, ProgCol> = this.getColumnsFromDag(dagNode);
 
-        for (const [colName, colInfo] of allColMap.entries()) {
-            const isSelected: boolean = selectedColumns[colName] ? true : false;
+        for (const [sourceColumn, colInfo] of allColMap.entries()) {
+            const isSelected: boolean = selectedColumns[sourceColumn] ? true : false;
             // Derived column
             model.columnList.push({
-                name: colName,
+                sourceColumn: sourceColumn,
+                destColumn: isSelected ? selectedColumns[sourceColumn].destColumn : this._createHeaderName(sourceColumn, takenHeaderNames),
                 isSelected: isSelected,
-                type: colInfo.type
-            });
+                type: colInfo.type,
+              });
         }
 
         $("#exportDriver").val(dagInputInfo.driver);
@@ -114,7 +127,10 @@ class ExportOpPanelModel {
         };
         for (const colInfo of this.columnList) {
             if (colInfo.isSelected) {
-                dagData.columns.push(colInfo.name);
+                dagData.columns.push({
+                    sourceColumn: colInfo.sourceColumn,
+                    destColumn: colInfo.destColumn
+                });
             }
         }
         if (this.currentDriver != null) {
@@ -245,7 +261,13 @@ class ExportOpPanelModel {
     /**
      * Validates the current arguments/parameters.
      */
-    public validateArgs($container: JQuery): boolean {
+    public validateArgs($container: JQuery, dagNode: DagNodeExport, param: DagNodeExportInputStruct): boolean {
+        let error = dagNode.validateParam(param);
+        if (error != null) {
+            StatusBox.show(error.error, $("#exportOpPanel"),
+                            false, {'side': 'right'});
+            return false;
+        }
         if (this.driverArgs == null || this.exportDrivers.length === 0) {
             let $errorLocation: JQuery = $container.find(".btn.confirm");
             StatusBox.show("No existing driver.", $errorLocation,
@@ -269,11 +291,21 @@ class ExportOpPanelModel {
             false, {'side': 'right'});
             return false;
         }
+        let columnValidation = this._validateColumnNames();
+        if (columnValidation) {
+            let $errorLocation: JQuery = $container.find(".columnsToExport");
+            if (this._advMode) {
+                $errorLocation = $container.find(".advancedEditor");
+            }
+            StatusBox.show(columnValidation, $errorLocation,
+            false, {'side': 'right'});
+            return false;
+        }
 
         const argLen: number = this.driverArgs.length;
         let arg: ExportDriverArg = null;
         let $parameters: JQuery = $container.find(".exportArg");
-        for(let i = 0; i < argLen; i++) {
+        for (let i = 0; i < argLen; i++) {
             arg = this.driverArgs[i];
             if (!arg.optional && arg.value == null || arg.value == "") {
                 let $errorLocation: JQuery = $parameters.eq(i).find(".label");
@@ -304,10 +336,12 @@ class ExportOpPanelModel {
      * @param dagNode
      */
     public saveArgs(dagNode: DagNodeExport): boolean {
-        if (!this.validateArgs($("#exportOpPanel"))) {
+        const param = this.toDag();
+        if (!this.validateArgs($("#exportOpPanel"), dagNode, param)) {
             return false;
         }
-        dagNode.setParam(this.toDag());
+
+        dagNode.setParam(param);
         return true;
     }
 
@@ -410,5 +444,26 @@ class ExportOpPanelModel {
             '<div class="scrollArea bottom"><i class="arrow icon xi-arrow-down"></i>' +
             '</div></div></div>'
         return html;
+    }
+
+    private static _createHeaderName(colName: string, takenHeaderNames): string {
+        let name: string = xcHelper.parsePrefixColName(colName).name;
+        return xcHelper.autoName(name, takenHeaderNames);
+    }
+
+    private _validateColumnNames(): string {
+        let error: string = "";
+        const takenNames = {};
+        for (const colInfo of this.columnList) {
+            if (colInfo.isSelected) {
+                if (takenNames[colInfo.destColumn]) {
+                    return xcHelper.replaceMsg(ErrTStr.DuplicateDestColName, {
+                        col: colInfo.destColumn
+                    });
+                }
+                takenNames[colInfo.destColumn] = true;
+            }
+        }
+        return error;
     }
 }

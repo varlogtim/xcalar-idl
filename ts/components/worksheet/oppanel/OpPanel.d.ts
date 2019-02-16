@@ -184,6 +184,13 @@ declare type JoinOpRenameInfo = {
 // exportOpPanel
 // *******************
 declare type ExportOpPanelModelColumnInfo = {
+    sourceColumn: string;
+    destColumn: string;
+    isSelected: boolean;
+    type: string;
+}
+
+declare type DFLinkOutOpPanelModelColumnInfo = {
     name: string;
     isSelected: boolean;
     type: string;

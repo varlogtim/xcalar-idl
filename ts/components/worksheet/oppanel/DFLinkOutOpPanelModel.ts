@@ -1,7 +1,7 @@
 class DFLinkOutOpPanelModel {
     protected dagNode: DagNode;
     protected tableColumns: ProgCol[];
-    protected columnList: ExportOpPanelModelColumnInfo[];
+    protected columnList: DFLinkOutOpPanelModelColumnInfo[];
     protected event: Function;
     private readonly validTypes: ColumnType[] = [];
 
@@ -36,7 +36,7 @@ class DFLinkOutOpPanelModel {
         return this.tableColumns;
     }
 
-    public getColumnList(): ExportOpPanelModelColumnInfo[] {
+    public getColumnList(): DFLinkOutOpPanelModelColumnInfo[] {
         return this.columnList;
     }
 
@@ -45,7 +45,7 @@ class DFLinkOutOpPanelModel {
      * @param selected
      */
     public setAllCol(selected: boolean): void {
-        this.columnList.forEach((column: ExportOpPanelModelColumnInfo) => {
+        this.columnList.forEach((column: DFLinkOutOpPanelModelColumnInfo) => {
             column.isSelected = selected;
         });
     }
@@ -55,7 +55,7 @@ class DFLinkOutOpPanelModel {
      * @param colIndex
      */
     public toggleCol(colIndex: number): void {
-        let col: ExportOpPanelModelColumnInfo = this.columnList[colIndex];
+        let col: DFLinkOutOpPanelModelColumnInfo = this.columnList[colIndex];
         col.isSelected = !col.isSelected;
         return;
     }

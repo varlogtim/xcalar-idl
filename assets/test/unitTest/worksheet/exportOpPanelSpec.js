@@ -195,18 +195,42 @@ describe("Export Operator Panel Test", function() {
             expect($("#statusBox").hasClass("active")).to.be.true;
         });
 
-        it ("Should save correctly", function () {
+        it ("Should save correctly", function (done) {
+            $("#exportOpPanel .close").click();
+            const parentNode = new DagNodeMap({});
+            parentNode.getLineage = function() {
+                return {getColumns: function() {
+                    return [new ProgCol({
+                        backName: xcHelper.getPrefixColName("prefix", 'a'),
+                        type: "number"
+                    })]
+                }}
+            };
+            node.getParents = function() {
+                return [parentNode];
+            };
+
             exportOpPanel.show(node);
-            $("#exportDriver").val("test1");
-            exportOpPanel.renderDriverArgs();
-            $("#exportOpPanel .exportArg").eq(0).find('input').val("demo");
-            $("#exportOpPanel .exportArg").eq(0).find('input').change();
-            $("#exportOpPanel .bottomSection .btn-submit").click();
-            var params = node.getParam().driverArgs;
-            var keys = Object.keys(params);
-            expect(keys.length).to.equal(1);
-            expect(keys[0]).to.equal("param1");
-            expect(params["param1"]).to.equal("demo");
+            UnitTest.testFinish(function() {
+                return $("#exportOpPanel .xc-waitingBG").length === 0;
+            })
+            .then(function() {
+                $("#exportOpPanel .col").eq(0).click();
+                $("#exportDriver").val("test1");
+                exportOpPanel.renderDriverArgs();
+                $("#exportOpPanel .exportArg").eq(0).find('input').val("demo");
+                $("#exportOpPanel .exportArg").eq(0).find('input').change();
+                $("#exportOpPanel .bottomSection .btn-submit").click();
+                var params = node.getParam().driverArgs;
+                var keys = Object.keys(params);
+                expect(keys.length).to.equal(1);
+                expect(keys[0]).to.equal("param1");
+                expect(params["param1"]).to.equal("demo");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
         });
     });
 

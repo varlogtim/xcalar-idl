@@ -928,7 +928,12 @@ function _getDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix) {
                     subType: DagNodeSubType.ExportOptimized,
                     description: JSON.stringify(node.args),
                     input: {
-                        columns: node.args.columns.map(col => col.columnName),
+                        columns: node.args.columns.map((col) => {
+                            return {
+                                sourceColumn: col.columnName,
+                                destColumn: col.headerName
+                            }
+                        }),
                         driver: node.args.driverName,
                         driverArgs: driverArgs
                     }

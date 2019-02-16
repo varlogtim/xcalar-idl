@@ -724,14 +724,14 @@ class DagNodeExecutor {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNodeExport = <DagNodeExport>this.node;
         const exportInput: DagNodeExportInputStruct = node.getParam(this.replaceParam);
-        const columns: string[] = exportInput.columns;
+        const columns: {sourceColumn: string, destColumn: string}[] = exportInput.columns;
         const progCols: ProgCol[] = node.getParents()[0].getLineage().getColumns();
-        const backCols: string[] = columns.map((name) => {
+        const backCols: string[] = columns.map((column) => {
             let col: ProgCol = progCols.find((col: ProgCol) => {
-                return col.name == name || col.getBackColName() == name;
+                return col.name == column.sourceColumn || col.getBackColName() == column.sourceColumn;
             })
             if (col == null) {
-                return name;
+                return column.sourceColumn;
             } else {
                 return col.getBackColName();
             }
@@ -741,8 +741,8 @@ class DagNodeExecutor {
         }
         const driverColumns: XcalarApiExportColumnT[] = columns.map((_e,i) => {
             let col = new XcalarApiExportColumnT();
-            col.headerName = columns[i];
             col.columnName = backCols[i];
+            col.headerName = columns[i].destColumn;
             return col;
         });
         const driverName: string = exportInput.driver;
