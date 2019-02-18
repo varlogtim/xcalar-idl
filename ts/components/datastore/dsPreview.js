@@ -3296,7 +3296,18 @@ window.DSPreview = (function($, DSPreview) {
         var headers = getColumnHeaders();
         loadArgs.setPreviewHeaders(previewingSource.index, headers);
         loadArgs.setPreviewingSource(index, file);
-        refreshPreview(true, true);
+        let noDetect = true;
+
+        // BUG fix for 14378 (XD-322) where first file is empty
+        // and if select second file should trigger auto detection
+        var $errorSection = $previewWrap.find(".errorSection");
+        if (!$errorSection.hasClass("hidden") &&
+            $errorSection.find(".content").text().includes(DSTStr.NoRecords) &&
+            loadArgs.getFormat() == null
+        ) {
+            noDetect = false;
+        }
+        refreshPreview(noDetect, true);
     }
 
     function resetPreviewFile() {
@@ -3755,10 +3766,13 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function refreshPreview(noDetect, isPreview, isChangeFormat = false) {
-        var formOptions = isPreview ?
+        var formOptions = {};
+        if (noDetect) {
+            formOptions = isPreview ?
             validatePreview( {isChangeFormat: isChangeFormat} ) : validateForm();
-        if (formOptions == null) {
-            return null;
+            if (formOptions == null) {
+                return null;
+            }
         }
         formOptions.noDetect = noDetect;
         return previewData(formOptions, true);
