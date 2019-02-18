@@ -322,6 +322,12 @@ class OpPanelNodeRenderFactory {
                         // console.log(`Add event: ${eName}`);
                     }
                 }
+                // LifeCycle handlers
+                if (newXcdata != null) {
+                    if (newXcdata.elementMountDone != null) {
+                        this._writeXcData(oldNode, {elementMountDone: newXcdata.elementMountDone});
+                    }
+                }
             }
         } catch(e) {
             console.error('NodeRender._updateNode', e);
