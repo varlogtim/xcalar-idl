@@ -3,13 +3,13 @@ class FileLister {
     private _currentPath: string[];
     private _futurePath: string[];
     private _$section: JQuery;
-    private _renderTemplate: (files: {name: string, id: string, options?: object}[], folders: string[]) => string;
+    private _renderTemplate: (files: {name: string, id: string, options?: object}[], folders: string[], path?: string) => string;
     private _rootPath: string;
 
     public constructor(
         $section: JQuery,
         options: {
-            renderTemplate: (files: {name: string, id: string, options?: object}[], folders: string[]) => string,
+            renderTemplate: (files: {name: string, id: string, options?: object}[], folders: string[], path?: string) => string,
             folderSingleClick?: boolean
         }
     ) {
@@ -152,7 +152,8 @@ class FileLister {
             this.goToPath(this._rootPath)
         } else {
             const folders: string[] = Object.keys(curObj.folders);
-            const html: HTML = this._renderTemplate(curObj.files, folders);
+            const currentPath = this.getCurrentPath();
+            const html: HTML = this._renderTemplate(curObj.files, folders, currentPath);
             this._$section.find(".pathSection .path").html(path);
             this._$section.find(".listView ul").html(html);
         }

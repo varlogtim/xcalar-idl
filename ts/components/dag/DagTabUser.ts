@@ -73,6 +73,16 @@ class DagTabUser extends DagTab {
         return deferred.promise();
     }
 
+    /**
+     * DagTabUser.isForSQLFolder
+     * return true if the tab is generated from sql mode
+     * @param dagTab
+     */
+    public static isForSQLFolder(dagTab: DagTab): boolean {
+        let id = dagTab.getId();
+        return id && id.endsWith("sql");
+    }
+
     protected static _createTab(name: string, id: string): DagTabUser {
         return new DagTabUser(name, id, null, null, xcTimeHelper.now());
     }

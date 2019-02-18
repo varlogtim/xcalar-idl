@@ -1075,15 +1075,32 @@
 /* ========== Dag Tabs ========== */
 #dagTabView {
     @tabHeight: 24px;
+    @tabWidth: 40px;
     display: flex;
     background-color: @color-bg-topBarGray2;
-    #tabButton {
-        .font(@size: 11px, @align: center, @line-height: @tabHeight);
-        .size(@height: @tabHeight, @width: @tabHeight + 2);
-        color: @color-font-edge;
+    #tabButton, #tabSQLFuncButton {
+        .font(@size: 11px);
+        .size(@height: @tabHeight, @width: @tabWidth);
+        border-right: 1px solid @color-border-softGray;
+        color: @color-bg-cardHeader;
         cursor: pointer;
-        min-width: @tabHeight + 2;
+        min-width: @tabWidth;
         flex: 0 0 auto;
+        background-color: @color-bg-topBarGray2;
+        padding: 0 5px;
+
+        .icon {
+            .font(@size: 11px, @align: center, @line-height: @tabHeight);
+        
+            &:first-child {
+                margin-right: 3px;
+            }
+        }
+
+        &:hover {
+            background-color: @color-border-bar;
+            color: @color-white;
+        }
     }
 
     #dagTabSectionTabs {
@@ -1164,7 +1181,16 @@
             }
 
             &.optimized {
+                background-color: @color-dagTab-optimized;
                 font-style: italic;
+            }
+
+            &.sql {
+                background-color: @color-dagTab-sql;
+            }
+
+            &.custom {
+                background-color: @color-dagTab-custom;
             }
 
             .dragIcon {
@@ -1177,6 +1203,14 @@
                 line-height: @tabHeight;
                 .cursor-move;
                 visibility: hidden;
+            }
+
+            .tabIcon {
+                margin-right: 8px;
+                float: left;
+                font-size: 12px;
+                position: relative;
+                top: 6px;
             }
 
             .name {

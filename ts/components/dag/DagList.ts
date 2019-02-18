@@ -95,7 +95,7 @@ class DagList {
                 });
             } else {
                 let dagName: string = dagTab.getName();
-                if (this._isForSQLFolder(tabId)) {
+                if (this._isForSQLFolder(dagTab)) {
                     path = "/" + DagTabSQL.PATH + dagName;
                 } else {
                     path = "/" + dagName;
@@ -278,8 +278,7 @@ class DagList {
         this._dags.forEach((dagTab) => {
             nameSet.add(dagTab.getName());
             if (!isSQLFunc && dagTab instanceof DagTabUser) {
-                let tabId: string = dagTab.getId();
-                if (!this._isForSQLFolder(tabId)) {
+                if (!this._isForSQLFolder(dagTab)) {
                     cnt++;
                 }
             } else if (isSQLFunc && dagTab instanceof DagTabSQLFunc) {
@@ -395,13 +394,20 @@ class DagList {
     private _setupFileLister(): void {
         const renderTemplate = (
             files: {name: string, id: string, options: {isOpen: boolean}}[],
-            folders: string[]
+            folders: string[],
+            path: string
         ): string => {
             let html: HTML = "";
+            let publishedPath = DagTabPublished.PATH.substring(1, DagTabPublished.PATH.length - 1);
+            let isInPublishedFolder = path.startsWith(publishedPath);
             // Add folders
             folders.forEach((folder) => {
+                let icon = "xi-folder";
+                if (folder === "Published" && path === "" || isInPublishedFolder) {
+                    icon = "xi-share-icon";
+                }
                 html += '<li class="folderName">' +
-                            '<i class="gridIcon icon xi-folder"></i>' +
+                            '<i class="gridIcon icon ' + icon + '"></i>' +
                             '<div class="name">' + folder + '</div>' +
                         '</li>';
             });
@@ -699,8 +705,8 @@ class DagList {
         return this._getDagListSection().find('.dagListDetail[data-id="' + id + '"]');
     }
 
-    private _isForSQLFolder(id: string): boolean {
-        return id && id.endsWith("sql");
+    private _isForSQLFolder(dagTab: DagTab): boolean {
+        return DagTabUser.isForSQLFolder(dagTab);
     }
 
     private _addEventListeners(): void {

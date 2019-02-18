@@ -732,18 +732,25 @@ class DagTabManager {
         const isEditable: boolean = (dagTab instanceof DagTabUser);
         const isViewOnly: boolean = (dagTab instanceof DagTabOptimized);
         const isOptimized: boolean = (dagTab instanceof DagTabOptimized);
-        const isSQLFunc: boolean = (dagTab instanceof DagTabSQLFunc);
 
         let extraClass = "";
+        let extraIcon = "";
         if (isOptimized) {
             extraClass += " optimized";
-        }
-        if (isSQLFunc) {
+        } else if (dagTab instanceof DagTabSQLFunc) {
             extraClass += " sqlFunc";
+            extraIcon = '<i class="icon xi-menu-cli tabIcon"></i>';
+        } else if (dagTab instanceof DagTabCustom) {
+            extraClass += " custom";
+        } else if (dagTab instanceof DagTabPublished) {
+            extraIcon = '<i class="icon xi-human tabIcon"></i>';
+        } else if (DagTabUser.isForSQLFolder(dagTab)) {
+            extraClass += " sql";
         }
         let html: HTML =
             '<li class="dagTab' + extraClass + '">' +
                 '<i class="icon xi-ellipsis-v dragIcon" ' + xcTooltip.Attrs+ ' data-original-title="' + CommonTxtTstr.HoldToDrag+ '"></i>' +
+                extraIcon +
                 '<div class="name ' + (isEditable? '': 'nonedit') + '">' +
                     tabName +
                 '</div>' +
@@ -848,6 +855,10 @@ class DagTabManager {
         // The html for a dataflowArea.
         $("#tabButton").on("click", () => {
             DagViewManager.Instance.newTab();
+        });
+
+        $("#tabSQLFuncButton").click(() => {
+            DagViewManager.Instance.createSQLFunc();
         });
 
         $dagTabArea.on("dblclick", ".name", (event) => {
