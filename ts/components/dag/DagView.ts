@@ -2693,7 +2693,13 @@ class DagView {
         .always((ret) => {
             let hasLinkOut: boolean = false;
             // XXX TODO: check the slowness and fix the performance
-            this.graph.turnOnBulkStateSwitch();
+            if (isSwitchState) {
+                // isSwitchState is a flag indicating the caller is handling the state switch explicitly
+                // In some cases(such as creating custom node), extra nodes need to be involved in bulkStateSwitch,
+                // and special requirements need to be implemented(such as maintaining running state for custom node)
+                // so make this optional
+                this.graph.turnOnBulkStateSwitch();
+            }
             nodeIds.forEach((nodeId) => {
                 if (ret.errorNodeIds.indexOf(nodeId) > -1) {
                     return;
@@ -2742,7 +2748,9 @@ class DagView {
                 }
                 removedNodeIds.push(nodeId);
             });
-            this.graph.turnOffBulkStateSwitch();
+            if (isSwitchState) {
+                this.graph.turnOffBulkStateSwitch();
+            }
             DagAggManager.Instance.bulkNodeRemoval(aggregates);
 
             const logParam: LogParam = {
