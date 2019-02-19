@@ -4,6 +4,9 @@ let XEvalParser = require("./xEvalParser/index.js").XEvalParser;
 require("../../assets/js/thrift/DataFormatEnums_types.js");
 require("../../assets/js/thrift/UnionOpEnums_types.js");
 require("../../assets/js/thrift/LibApisEnums_types.js");
+let DagEnums = require("./dagHelper/DagEnums.js");
+let DagNodeType = DagEnums.DagNodeType;
+let DagNodeSubType = DagEnums.DagNodeSubType;
 
 require("jsdom/lib/old-api").env("", function(err, window) {
     global.jQuery = jQuery = require("jquery")(window);
@@ -752,7 +755,8 @@ function _getDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix) {
                 type: DagNodeType.Aggregate,
                 input: {
                     evalString: node.args.eval[0].evalString,
-                    dest: node.name
+                    dest: node.name,
+                    mustExecute: false
                 }
             };
             break;
@@ -899,7 +903,7 @@ function _getDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix) {
             if (nestedPrefix) {
                 dagNodeInfo = {
                     type: DagNodeType.DFOut,
-                    subType: "link out Optimized",
+                    subType: DagNodeSubType.DFOutOptimized,
                     input: {
                         name: node.args.dest,
                         linkAfterExecution: true,
@@ -921,7 +925,7 @@ function _getDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix) {
                 }
                 dagNodeInfo = {
                     type: DagNodeType.Export,
-                    subType: "Export Optimized",
+                    subType: DagNodeSubType.ExportOptimized,
                     description: JSON.stringify(node.args),
                     input: {
                         columns: node.args.columns.map(col => col.columnName),
@@ -974,7 +978,7 @@ function _getDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix) {
                 // create dfOut node (this node doesn't really exist in the original query)
                 linkOutNode = {
                     type: DagNodeType.DFOut,
-                    subType: "link out Optimized",
+                    subType: DagNodeSubType.DFOutOptimized,
                     input: {
                         name: node.args.source,
                         linkAfterExecution: true,
@@ -1024,7 +1028,12 @@ function _getDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix) {
                     source: node.args.source,
                     version: node.args.minBatchId,
                     filterString: node.args.filterString || node.args.evalString,
-                    columns: node.args.columns
+                    schema: node.args.columns.map((colInfo) => {
+                        return {
+                            name: colInfo.sourceColumn,
+                            type: xcHelper.getDFFieldTypeToString(DfFieldTypeTFromStr[colInfo.columnType.type])
+                        }
+                    })
                 }
             };
             break;
@@ -1680,40 +1689,5 @@ function _getUnionColumns(columns) {
 
     return newCols;
 }
-
-
-var DagNodeType;
-(function (DagNodeType) {
-    DagNodeType["Aggregate"] = "aggregate";
-    DagNodeType["Custom"] = "custom";
-    DagNodeType["CustomInput"] = "customInput";
-    DagNodeType["CustomOutput"] = "customOutput";
-    DagNodeType["Dataset"] = "dataset";
-    DagNodeType["DFIn"] = "link in";
-    DagNodeType["DFOut"] = "link out";
-    DagNodeType["Explode"] = "explode";
-    DagNodeType["Export"] = "export";
-    DagNodeType["Extension"] = "extension";
-    DagNodeType["Filter"] = "filter";
-    DagNodeType["GroupBy"] = "groupBy";
-    DagNodeType["IMDTable"] = "IMDTable";
-    DagNodeType["Index"] = "index";
-    DagNodeType["Join"] = "join";
-    DagNodeType["Jupyter"] = "Jupyter";
-    DagNodeType["Map"] = "map";
-    DagNodeType["Project"] = "project";
-    DagNodeType["PublishIMD"] = "publishIMD";
-    DagNodeType["Round"] = "round";
-    DagNodeType["RowNum"] = "rowNum";
-    DagNodeType["Set"] = "set";
-    DagNodeType["Sort"] = "sort";
-    DagNodeType["Source"] = "source";
-    DagNodeType["Split"] = "split";
-    DagNodeType["SQL"] = "sql";
-    DagNodeType["SQLSubInput"] = "SQLSubInput";
-    DagNodeType["SQLSubOutput"] = "SQLSubOutput";
-    DagNodeType["SubGraph"] = "subGraph";
-    DagNodeType["Placeholder"] = "placeholder";
-})(DagNodeType || (DagNodeType = {}));
 
 exports.convert = convert;

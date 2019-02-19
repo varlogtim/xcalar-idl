@@ -40,7 +40,7 @@ class DagNodeProjectInput extends DagNodeInput {
         };
     }
 
-    public setColumns(columns) {
+    public setColumns(columns: string[]) {
         this.input.columns = columns;
     }
 }

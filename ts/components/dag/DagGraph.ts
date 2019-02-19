@@ -2291,7 +2291,8 @@ class DagGraph {
                         type: DagNodeType.Aggregate,
                         input: {
                             evalString: node.args.eval[0].evalString,
-                            dest: node.args.dest
+                            dest: node.args.dest,
+                            mustExecute: false
                         }
                     };
                     break;
