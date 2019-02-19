@@ -438,7 +438,9 @@ class DagCategoryBar {
         const subTypeDisplayName: string = categoryNode.getDisplayNodeSubType();
         const color: string = categoryNode.getColor();
         const icon: string = categoryNode.getIcon();
-        const description: string = categoryNode.getDescription();
+        // const description: string = categoryNode.getDescription();
+        // XXX disabling description until all nodes have a good description
+        const description: string = "";
         if (subType) {
             opDisplayName = subTypeDisplayName;
         }
