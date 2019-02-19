@@ -847,7 +847,7 @@ abstract class DagNode {
         });
 
         nodesArray.forEach((node) => {
-            if (!node.name.startsWith("deleteObj-")) {
+            if (!node.name || !node.name.startsWith("deleteObj-")) {
                 // this is a delete job which will cause row num to be 0
                 step++;
             }
@@ -859,7 +859,7 @@ abstract class DagNode {
                 node.state === DgDagStateT.DgDagStateReady) {
                 numWorkCompleted += node.numWorkCompleted;
                 numWorkTotal += node.numWorkTotal;
-                if (!node.name.startsWith("deleteObj-")) {
+                if (!node.name || !node.name.startsWith("deleteObj-")) {
                     // this is a delete job which will cause row num to be 0
                     rows = node.numRowsTotal;
                 }
