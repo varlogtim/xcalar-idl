@@ -10,7 +10,7 @@ class DagAggManager {
     }
 
     public setup(): XDPromise<any> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
         let key: string = KVStore.getKey("gDagAggKey");
         this.kvStore = new KVStore(key, gKVScope.WKBK);
         this.kvStore.getAndParse()
@@ -20,7 +20,6 @@ class DagAggManager {
             } else {
                 this.aggregates = {};
             }
-
             return XcalarGetConstants("*");
         })
         .then((res: XcalarApiDagNodeInfoT[]) => {
@@ -29,11 +28,11 @@ class DagAggManager {
             let constMap: {[key: string]: boolean} = {};
             for (let i = 0; i < res.length; i++) {
                 agg = res[i];
-                if (this.aggregates["\^" + agg.name] == null) {
+                if (this.aggregates[agg.name] == null) {
                     // Aggregate doesn't exist anymore, we delete it.
                     toDelete.push(agg.name);
                 } else {
-                    constMap["\^" + agg.name] = true;
+                    constMap[agg.name] = true;
                 }
             }
             let keys = Object.keys(this.aggregates);
@@ -61,10 +60,11 @@ class DagAggManager {
 
     /**
      * Returns the AggregateInfo for a particular agg
+     * @param dagNodeId
      * @param aggName
      */
-    public getAgg(aggName: string): AggregateInfo {
-        return this.aggregates[aggName];
+    public getAgg(dagNodeId: string, aggName: string): AggregateInfo {
+        return this.aggregates[this.wrapAggName(dagNodeId, aggName)];
     }
 
     /** Returns the map of aggregates */
@@ -72,18 +72,12 @@ class DagAggManager {
         return this.aggregates;
     }
 
-    /**
-     * Returns the named aggregates
-     */
-    public getNamedAggs(): string[] {
-        return Object.keys(this.aggregates);
-    }
 
-    public findAggSource(aggName: string): DagNodeAggregate {
-        if (this.aggregates[aggName] == null) {
+    public findAggSource(fullAggName: string): DagNodeAggregate {
+        if (this.aggregates[fullAggName] == null) {
             return null;
         }
-        let agg: AggregateInfo = this.aggregates[aggName];
+        let agg: AggregateInfo = this.aggregates[fullAggName];
         if (agg.node == '' || agg.graph == '') {
             throw new Error(DagNodeErrorType.NoGraph);
         }
@@ -96,10 +90,11 @@ class DagAggManager {
         if (graph == null) {
             throw new Error(DagNodeErrorType.NoGraph);
         }
-        const node: DagNode = graph.getNode(agg.node);
+        const node: DagNodeAggregate = <DagNodeAggregate>graph.getNode(agg.node);
         if (node == null) {
             throw new Error(DagNodeErrorType.NoAggNode);
         }
+        return node;
     }
 
     /**
@@ -118,7 +113,9 @@ class DagAggManager {
     public bulkAdd(aggs: AggregateInfo[]) {
         for(let i = 0; i < aggs.length; i++) {
             let agg: AggregateInfo = aggs[i];
-            this.aggregates[agg.dagName] = agg;
+            if (!DagTabUser.idIsForSQLFolder(agg.graph)) {
+                this.aggregates[agg.dagName] = agg;
+            }
         }
         return this._saveAggMap();
     }
@@ -146,7 +143,7 @@ class DagAggManager {
 
             delete this.aggregates[aggName];
             if (agg.value != null || force) {
-                toDelete.push(aggName.substr(1))
+                toDelete.push(aggName)
             }
         }
         this._deleteAgg(toDelete)
@@ -156,27 +153,6 @@ class DagAggManager {
         .then(deferred.resolve)
         .fail(deferred.reject)
         return deferred.promise();
-    }
-
-    /**
-     * Removes the node from the aggregate represented by aggName
-     * @param aggName
-     */
-    public removeNode(aggNames: string | string[]): XDPromise<void>{
-        if (aggNames == "" || aggNames == []) {
-            return PromiseHelper.resolve();
-        }
-        if (!(aggNames instanceof Array)) {
-            aggNames = [aggNames];
-        }
-        for (var i = 0; i < aggNames.length; i++) {
-            let aggName = aggNames[i];
-            if (!this.aggregates[aggName]) {
-                continue;
-            }
-            this.aggregates[aggName].node = "";
-        }
-        return this._saveAggMap();
     }
 
     public removeValue(aggNames: string | string[]): XDPromise<void> {
@@ -197,7 +173,7 @@ class DagAggManager {
 
             if (agg.value != null) {
                 this.aggregates[aggName].value = null;
-                toDelete.push(aggName.substr(1))
+                toDelete.push(aggName)
             }
         }
         this._deleteAgg(toDelete)
@@ -214,15 +190,16 @@ class DagAggManager {
      * Returns if aggName exists yet
      * @param aggName
      */
-    public hasAggregate(aggName: string): boolean {
-        return (this.aggregates[aggName] != null)
+    public hasAggregate(dagNodeId: string, aggName: string): boolean {
+        let name = this.wrapAggName(dagNodeId, aggName);
+        return (this.aggregates[name] != null)
     }
 
     public bulkNodeRemoval(aggregates: string[]): XDPromise<void> {
         let agg: string;
         for(let i = 0; i < aggregates.length; i++) {
             agg = aggregates[i];
-            if (this.hasAggregate(agg)) {
+            if (this.aggregates[agg] != null) {
                 if (this.aggregates[agg].value != null) {
                     this.aggregates[agg].node = "";
                 } else {
@@ -233,6 +210,18 @@ class DagAggManager {
         return this._saveAggMap();
     }
 
+    /** Updates the node IDs according to the passed in Map */
+    public updateNodeIds(aggIdMap: Map<string, string>) {
+        aggIdMap.forEach((id: string, agg: string) => {
+            if (!this.aggregates[agg]) {
+                return;
+            }
+            let aggregate: AggregateInfo = this.aggregates[agg];
+            aggregate.node = id;
+        });
+        this._saveAggMap();
+    }
+
     public graphRemoval(tabID: string): XDPromise<void> {
         let toDelete: string[] = [];
         for(let agg in this.aggregates) {
@@ -241,7 +230,20 @@ class DagAggManager {
                 toDelete.push(agg);
             }
         }
-        return this.bulkNodeRemoval(toDelete);
+        return this.removeAgg(toDelete);
+    }
+
+    /**
+     * Creates the backend name for the aggregate based off the dag_id and aggname
+     * @param dag_id
+     * @param aggName
+     */
+    public wrapAggName(dag_id: string, aggName: string): string {
+        let frontName = (aggName[0] == "^" ? aggName.substr(1) : aggName);
+        if (dag_id == null || dag_id == "") {
+            return frontName;
+        }
+        return dag_id + "-agg_" + frontName;
     }
 
     private _saveAggMap(): XDPromise<void> {
@@ -250,6 +252,10 @@ class DagAggManager {
 
     private _deleteAgg(aggNames: string[]): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        if (aggNames.length == 0) {
+            deferred.resolve();
+            return deferred.promise();
+        }
         let promises: XDPromise<void>[] = [];
         let sql = {
             "operation": SQLOps.DeleteAgg,

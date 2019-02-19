@@ -1780,8 +1780,33 @@ class DagView {
             const oldNodeIdMap = {};
             const newAggregates: AggregateInfo[] = [];
             dagInfoList.forEach((dagNodeInfo: DagNodeInfo) => {
+                if (dagNodeInfo.type == DagNodeType.Aggregate) {
+                    let aggParam = dagNodeInfo.input;
+                    if (aggParam.dest != "" && !DagAggManager.Instance.hasAggregate(this.dagTab.getId(), aggParam.dest)) {
+                        let agg: string = aggParam.dest;
+                        if (agg[0] == gAggVarPrefix) {
+                            agg = agg.substr(1);
+                        }
+                        agg = DagAggManager.Instance.wrapAggName(this.dagTab.getId(), agg);
+                        newAggregates.push({
+                            value: null,
+                            dagName: agg,
+                            aggName: aggParam.dest,
+                            tableId: null,
+                            backColName: null,
+                            op: null,
+                            node: null,
+                            graph: this.tabId
+                        });
+                    }
+                }
+            })
+            DagAggManager.Instance.bulkAdd(newAggregates);
+            const aggNodeUpdates: Map<string, string> = new Map<string, string>();
+            dagInfoList.forEach((dagNodeInfo: DagNodeInfo) => {
                 const parents: DagNodeId[] = dagNodeInfo.parents;
                 const oldNodeId = dagNodeInfo["nodeId"];
+                dagNodeInfo.graph = this.graph;
                 const node: DagNode = DagNodeFactory.create(dagNodeInfo);
                 const nodeId: string = node.getId();
                 oldNodeIdMap[oldNodeId] = nodeId;
@@ -1819,21 +1844,9 @@ class DagView {
                 expandNodeIds.push(nodeId);
                 this.graph.addNode(node);
                 if (node.getType() == DagNodeType.Aggregate) {
-                    // Add any aggregates we created
-                    let aggParam = node.getParam();
-                    if (aggParam.dest != "" && !DagAggManager.Instance.hasAggregate(aggParam.dest)) {
-                        let agg: string = aggParam.dest;
-                        newAggregates.push({
-                            value: null,
-                            dagName: agg,
-                            aggName: agg,
-                            tableId: null,
-                            backColName: null,
-                            op: null,
-                            node: node.getId(),
-                            graph: this.tabId
-                        });
-                    }
+                    // Update agg dagId
+                    let aggName: string = DagAggManager.Instance.wrapAggName(this.dagTab.getId(), node.getParam().dest);
+                    aggNodeUpdates.set(aggName, node.getId());
                 }
                 const addLogParam = this._addNodeNoPersist(node, {
                     isNoLog: true
@@ -1842,9 +1855,9 @@ class DagView {
                 this._addProgressTooltipForNode(node);
             });
 
+            DagAggManager.Instance.updateNodeIds(aggNodeUpdates);
             const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
-            DagAggManager.Instance.bulkAdd(newAggregates);
             // remove the container node from graph
             // always resolves
             this._removeNodesNoPersist(
@@ -2717,7 +2730,7 @@ class DagView {
                     } else if (dagNode instanceof DagNodeAggregate) {
                         let input: DagNodeAggregateInputStruct = dagNode.getParam();
                         if (input.dest != null) {
-                            aggregates.push(input.dest);
+                            aggregates.push(dagNode.getAggBackName());
                         }
                     }
                     dagNodeIds.push(nodeId);

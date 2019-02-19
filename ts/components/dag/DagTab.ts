@@ -170,6 +170,7 @@ abstract class DagTab {
                     let graph: DagGraph;
                     try {
                         graph = new DagGraph();
+                        graph.setTabId(this._id);
                         graph.create(dagInfo.dag);
                     } catch (e) {
                         // return an empty graph

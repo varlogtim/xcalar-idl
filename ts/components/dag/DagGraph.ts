@@ -144,11 +144,7 @@ class DagGraph {
     public create(serializableGraph: DagGraphInfo): void {
         const nodes: {node: DagNode, parents: DagNodeId[]}[] = [];
         serializableGraph.nodes.forEach((nodeInfo: DagNodeInfo) => {
-            if (nodeInfo.type == DagNodeType.Aggregate ||
-                nodeInfo.type === DagNodeType.DFIn
-            ) {
-                nodeInfo["graph"] = this;
-            }
+            nodeInfo["graph"] = this;
             const node: DagNode = DagNodeFactory.create(nodeInfo);
             const parents: DagNodeId[] = nodeInfo.parents;
             nodes.push({
@@ -206,11 +202,7 @@ class DagGraph {
         let autoXCoor = 20;
         let autoYCoor = 20;
         serializableGraph.nodes.forEach((nodeInfo: DagNodeInfo) => {
-            if (nodeInfo.type == DagNodeType.Aggregate ||
-                nodeInfo.type === DagNodeType.DFIn
-            ) {
-                nodeInfo["graph"] = this;
-            }
+            nodeInfo["graph"] = this;
             try {
                 if (nodeInfo.type === DagNodeType.Dataset) {
                     this._restoreEmptySchema(<DagNodeInInfo>nodeInfo);
@@ -348,9 +340,7 @@ class DagGraph {
      * @returns {DagNode} dag node created
      */
     public newNode(nodeInfo: DagNodeInfo): DagNode {
-        if (nodeInfo.type == DagNodeType.Aggregate) {
-            nodeInfo["graph"] = this;
-        }
+        nodeInfo["graph"] = this;
         const dagNode: DagNode = DagNodeFactory.create(nodeInfo);
         if (!dagNode.getTitle()) {
             dagNode.setTitle("Node " + (this.nodesMap.size + 1));
@@ -1162,7 +1152,18 @@ class DagGraph {
         if (aggregates.length > 0) {
             for (let i = 0; i < aggregates.length; i++) {
                 let agg: string = aggregates[i];
-                let aggInfo: AggregateInfo = DagAggManager.Instance.getAgg(agg);
+                if (aggMap != null && aggMap.has(agg)) {
+                    // Within aggMap
+                    let aggNode = aggMap.get(agg);
+                    if (aggNode.getParam().mustExecute) {
+                        error = xcHelper.replaceMsg(AggTStr.AggNodeMustExecuteError, {
+                            "aggName": agg
+                        });
+                        continue;
+                    }
+                    sources.push(aggNode);
+                }
+                let aggInfo: AggregateInfo = DagAggManager.Instance.getAgg(this.getTabId(), agg);
                 if (aggInfo == null) {
                     error = xcHelper.replaceMsg(AggTStr.AggNotExistError, {
                         "aggName": agg
@@ -1170,18 +1171,7 @@ class DagGraph {
                     break;
                 }
                 if (aggInfo.value == null || optimized) {
-                    if (aggMap != null && aggMap.has(agg)) {
-                        // Within aggMap
-                        let aggNode = aggMap.get(agg);
-                        if (aggNode.getParam().mustExecute) {
-                            error = xcHelper.replaceMsg(AggTStr.AggNodeMustExecuteError, {
-                                "aggName": agg
-                            });
-                            continue;
-                        }
-                        sources.push(aggNode);
-                    }
-                    else if (aggInfo.graph != this.getTabId() &&
+                    if (aggInfo.graph != this.getTabId() &&
                             (aggInfo.graph != null || !this.hasNode(aggInfo.node))) {
                         // Outside of this graph or aggMap not specified
                         let tab: DagTab = DagTabManager.Instance.getTabById(aggInfo.graph);

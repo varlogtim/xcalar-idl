@@ -1781,7 +1781,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     StatusBox.show(ErrTStr.InvalidAggName, $input);
                     return { "vaild": false };
                 }
-                if (DagAggManager.Instance.getAgg(arg) != null) {
+                if (DagAggManager.Instance.getAgg("", arg) != null) {
                     errMsg = xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
                         "name": arg,
                         "aggPrefix": gAggVarPrefix

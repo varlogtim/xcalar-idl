@@ -201,6 +201,7 @@ class AggOpPanelModel extends GeneralOpPanelModel {
         const aggName = this.dest;
         let errorText;
         let invalid = false;
+        let tabId = DagTabManager.Instance.getPanelTabId();
         if (aggName.charAt(0) !== gAggVarPrefix) {
             errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidAggName, {
                 "aggPrefix": gAggVarPrefix
@@ -215,8 +216,8 @@ class AggOpPanelModel extends GeneralOpPanelModel {
                 "aggPrefix": gAggVarPrefix
             });
             invalid = true;
-        } else if (DagAggManager.Instance.hasAggregate(aggName)) {
-            let oldAgg: AggregateInfo = DagAggManager.Instance.getAgg(aggName);
+        } else if (DagAggManager.Instance.hasAggregate(tabId, aggName)) {
+            let oldAgg: AggregateInfo = DagAggManager.Instance.getAgg(tabId, aggName);
             if (oldAgg.node != this.dagNode.getId()) {
                 errorText = xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
                     name: aggName,

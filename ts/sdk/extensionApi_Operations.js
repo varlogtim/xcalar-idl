@@ -500,7 +500,7 @@ window.XcSDK.Extension.prototype = (function() {
                 "backColName": colName,
                 "op": aggOp
             };
-            DagAggManager.Instance.addAgg(aggRes, false);
+            DagAggManager.Instance.addAgg(dstAggName, aggRes);
         }
     };
 

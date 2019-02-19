@@ -385,6 +385,15 @@ class DagTabManager {
         this._getTabEleById(tabId).find(".after").removeClass("xc-disabled");
     }
 
+    /**
+     * Returns the tab ID of the tab that has an open dagnode panel associated with it
+     * If there is no such tab, it returns undefined
+     */
+    public getPanelTabId(): string {
+        let $tab = $("#dagTabSectionTabs .dagTab .after.xc-disabled").parent(".dagTab");
+        return $tab.data('id');
+    }
+
     private _initialize(): void {
         let key: string = KVStore.getKey("gDagManagerKey");
         this._dagKVStore = new KVStore(key, gKVScope.WKBK);
@@ -749,7 +758,7 @@ class DagTabManager {
             extraClass += " sql";
         }
         let html: HTML =
-            '<li class="dagTab' + extraClass + '">' +
+            '<li class="dagTab' + extraClass + '" data-id="' + tabId +'">' +
                 '<i class="icon xi-ellipsis-v dragIcon" ' + xcTooltip.Attrs+ ' data-original-title="' + CommonTxtTstr.HoldToDrag+ '"></i>' +
                 extraIcon +
                 '<div class="name ' + (isEditable? '': 'nonedit') + '">' +

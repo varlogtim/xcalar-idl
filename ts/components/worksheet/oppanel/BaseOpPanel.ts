@@ -615,8 +615,12 @@ class BaseOpPanel {
 
     private _setupAggMap() {
         this.aggMap = {};
-        const aggs = DagAggManager.Instance.getAggMap();
+        const aggs: {[key: string]: AggregateInfo} = DagAggManager.Instance.getAggMap();
+        let tabId = DagTabManager.Instance.getPanelTabId();
         for (var a in aggs) {
+            if (aggs[a].graph != tabId) {
+                continue;
+            }
             this.aggMap[aggs[a].aggName] = aggs[a].aggName;
         }
     }

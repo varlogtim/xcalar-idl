@@ -10,6 +10,9 @@ class DagAggPopup {
         '<div class="cell aggNameWrap textOverflowOneLine">' +
             '<div class="aggName textOverflowOneLine"></div>' +
         '</div>' +
+        '<div class="cell aggGraphNameWrap textOverflowOneLine">' +
+            '<div class="aggGraphName textOverflowOneLine"></div>' +
+        '</div>' +
         '<div class="cell aggValWrap textOverflowOneLine">' +
             '<div class="aggVal" spellcheck="false"/>' +
         '</div>' +
@@ -134,7 +137,7 @@ class DagAggPopup {
 
         for (let i in aggs) {
             aggArray.push({
-                name: i,
+                name: aggs[i].aggName,
                 value: aggs[i].value,
                 notRun: !aggs[i].value,
                 graph: aggs[i].graph,
@@ -170,6 +173,14 @@ class DagAggPopup {
             xcHelper.scrollToBottom(this.$retLists.closest(".tableContainer"));
         }
 
+        let graphName = "";
+        if (graph) {
+            let tab = DagList.Instance.getDagTabById(graph);
+            if (tab != null) {
+                graphName = tab.getName();
+            }
+        }
+
         $row.find(".aggName").text(name);
 
         let findText = "";
@@ -184,6 +195,13 @@ class DagAggPopup {
         let iconHtml = '<i class="icon find xi-search" ' + xcTooltip.Attrs + ' data-original-title="' + findText + '"></i>' +
             '<i class="icon copy xi-copy-clipboard" ' + xcTooltip.Attrs + ' data-original-title="Copy aggregate name"></i>';
         $row.find(".aggName").append(iconHtml);
+
+        if (graphName != "") {
+            $row.find(".aggGraphName").val(graphName);
+            $row.find(".aggGraphName").text(graphName);
+
+        }
+
         if (val != null) {
             $row.find(".aggVal").val(val);
             $row.find(".aggVal").text(val);
@@ -214,9 +232,11 @@ class DagAggPopup {
         var self = this;
         const $aggName: JQuery = $row.find(".aggName");
         const aggName: string = $aggName.text();
+        const graphId: string = $aggName.closest(".row").data('dataflowid');
         this.$aggManagerPopup.find(".aggDelete").addClass("xc-disabled");
+        const backName = DagAggManager.Instance.wrapAggName(graphId, aggName);
 
-        DagAggManager.Instance.removeAgg([aggName])
+        DagAggManager.Instance.removeAgg([backName])
         .then(() => {
             this.$aggManagerPopup.find(".aggDelete").removeClass("xc-disabled");
 

@@ -388,9 +388,13 @@ class GeneralOpPanel extends BaseOpPanel {
 
     protected _panelShowHelper(dataModel): void {
         this.model = dataModel;
-        const aggs = DagAggManager.Instance.getAggMap();
+        const aggs: {[key: string]: AggregateInfo} = DagAggManager.Instance.getAggMap();
+        let tabId = DagTabManager.Instance.getPanelTabId();
         this._aggNames = [];
         for (const i in aggs) {
+            if (aggs[i].graph != tabId) {
+                continue;
+            }
             this._aggNames.push(aggs[i].aggName);
         }
         this.refreshColumns();

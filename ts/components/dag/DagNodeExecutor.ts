@@ -259,27 +259,35 @@ class DagNodeExecutor {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNodeAggregate = <DagNodeAggregate>this.node;
         const params: DagNodeAggregateInputStruct = node.getParam(this.replaceParam);
-        const evalStr: string = params.evalString;
+        const usedAggs: string[] = this.node.getAggregates();
+        const evalStr: string = this._mapEvalStrAggs(params.evalString, usedAggs);
         const tableName: string = this._getParentNodeTable(0);
         let dstAggName: string = params.dest;
+        let unwrappedName = dstAggName;
+        // Create the correct aggregate name
         if (dstAggName.startsWith(gAggVarPrefix)) {
             dstAggName = dstAggName.substring(1);
         }
+        dstAggName = DagAggManager.Instance.wrapAggName(this.tabId, dstAggName);
+
+        //Update eval string with correct aggregates
+
         XIApi.aggregateWithEvalStr(this.txId, evalStr, tableName, dstAggName)
         .then((value, aggName) => {
             node.setAggVal(value);
-            if (!optimized) {
+            if (!optimized && value) {
+                // We don't want to add if optimized or ran as a query
                 const aggRes: object = {
                     value: value,
                     dagName: aggName,
-                    aggName: "\^" + aggName,
+                    aggName: unwrappedName,
                     tableId: tableName,
                     backColName: null,
                     op: null,
                     node: node.getId(),
                     graph: this.tabId
                 };
-                return DagAggManager.Instance.addAgg("\^" + aggName, aggRes);
+                return DagAggManager.Instance.addAgg(aggName, aggRes);
             }
             return PromiseHelper.resolve();
         })
@@ -293,7 +301,7 @@ class DagNodeExecutor {
     private _filter(): XDPromise<string> {
         const node: DagNodeFilter = <DagNodeFilter>this.node;
         const params: DagNodeFilterInputStruct = node.getParam(this.replaceParam);
-        const fltStr: string = params.evalString;
+        const fltStr: string = this._mapEvalStrAggs(params.evalString, node.getAggregates());
         const srcTable: string = this._getParentNodeTable(0);
         const desTable: string = this._generateTableName();
         return XIApi.filter(this.txId, fltStr, srcTable, desTable);
@@ -305,10 +313,11 @@ class DagNodeExecutor {
         const node: DagNodeGroupBy = <DagNodeGroupBy>this.node;
         const params: DagNodeGroupByInputStruct = node.getParam(this.replaceParam);
         const srcTable: string = this._getParentNodeTable(0);
+        const usedAggs: string[] = this.node.getAggregates();
         const aggArgs: AggColInfo[] = params.aggregate.map((aggInfo) => {
             return {
                 operator: aggInfo.operator,
-                aggColName: aggInfo.sourceColumn,
+                aggColName: this._mapEvalStrAggs(aggInfo.sourceColumn, usedAggs),
                 newColName: aggInfo.destColumn,
                 isDistinct: aggInfo.distinct
             }
@@ -450,9 +459,10 @@ class DagNodeExecutor {
             {
                 keepAllColumns: params.keepAllColumns,
             });
+        const usedAggs = this.node.getAggregates();
         const options: JoinOptions = {
             newTableName: this._generateTableName(),
-            evalString: params.evalString,
+            evalString: this._mapEvalStrAggs(params.evalString, usedAggs),
             nullSafe: params.nullSafe,
             keepAllColumns: false // Backend is removing this flag, so XD should not use it anymore
             // keepAllColumns: params.keepAllColumns
@@ -535,22 +545,13 @@ class DagNodeExecutor {
         const params: DagNodeMapInputStruct = node.getParam(this.replaceParam);
         const mapStrs: string[] = [];
         const newFields: string[] = [];
+        const aggregates: string[] = node.getAggregates();
 
         params.eval.forEach((item) => {
-            mapStrs.push(item.evalString);
+            let evalString = this._mapEvalStrAggs(item.evalString, aggregates);
+            mapStrs.push(evalString);
             newFields.push(item.newField);
         });
-
-        const aggregates: string[] = node.getAggregates();
-        for (let i = 0; i < aggregates.length; i++) {
-            let agg = aggregates[i];
-            if (!DagAggManager.Instance.hasAggregate(agg)) {
-                return PromiseHelper.reject("Aggregate " + agg + " does not exist.");
-            }
-            if (DagAggManager.Instance.getAgg(agg).value == null && !optimized) {
-                return PromiseHelper.reject("Aggregate " + agg + " has not been run.");
-            }
-        }
 
         const srcTable: string = this._getParentNodeTable(0);
         const desTable: string = this._generateTableName();
@@ -1300,6 +1301,22 @@ class DagNodeExecutor {
         const srcTable: string = this._getParentNodeTable(0);
         const desTable: string = this._generateTableName();
         return XIApi.synthesize(this.txId, colInfos, srcTable, desTable);
+    }
+
+    private _mapEvalStrAggs(evalString: string, aggs: string[]): string {
+        if (aggs.length == 0) {
+            return evalString;
+        }
+        for (let i = 0; i < aggs.length; i++) {
+            let frontName = aggs[i];
+            let modifiedFront = frontName;
+            if (frontName.startsWith(gAggVarPrefix)) {
+                modifiedFront = frontName.substring(1);
+            }
+            let backName = gAggVarPrefix + DagAggManager.Instance.wrapAggName(this.tabId, modifiedFront);
+            evalString = evalString.replace(frontName, backName);
+        }
+        return evalString;
     }
 }
 

@@ -19,6 +19,7 @@ interface DagNodeInfo {
     configured?: boolean;
     name?: string;
     hasTitleChange?: boolean;
+    graph?: DagGraph;
 }
 
 interface DagNodeDisplayInfo {
@@ -62,7 +63,6 @@ interface DagNodeExtensionInfo extends DagNodeInfo {
 
 interface DagNodeAggregateInfo extends DagNodeInfo {
     aggVal: number | string;
-    graph?: DagGraph;
 }
 
 interface DagNodeDFInInfo extends DagNodeInfo {

@@ -2,6 +2,7 @@ class DagNodeAggregate extends DagNode {
     protected input: DagNodeAggregateInput;
     private aggVal: string | number; // non-persistent
     private graph: DagGraph; // non-persistent
+    private aggBackName: string; // non-persistent
 
     public constructor(options: DagNodeAggregateInfo) {
         super(options);
@@ -13,22 +14,25 @@ class DagNodeAggregate extends DagNode {
         this.minParents = 1;
         this.display.icon = "&#xe939;";
         this.input = new DagNodeAggregateInput(options.input);
-        let dest = this.input.getInput().dest;
+        let dest: string = this.input.getInput().dest;
+        let tabId: string = this.graph ? this.graph.getTabId() : "";
+        if (tabId == null) {tabId = ""};
+        let backName = DagAggManager.Instance.wrapAggName(tabId, dest)
+        this.aggBackName = backName;
         if (dest != "" &&
-                !DagAggManager.Instance.hasAggregate(dest) &&
-                !dest.startsWith("^XC_SUBQ_")) {
+                !DagAggManager.Instance.hasAggregate(tabId, dest) &&
+                tabId != "" && !DagTabUser.idIsForSQLFolder(tabId) ) {
             // If we upload a dataflow we need to add the relevant aggregates to the agg manager
-            // We make sure to not add sql aggregates
-            let dest: string = this.input.getInput().dest;
-            DagAggManager.Instance.addAgg(dest, {
+            // But we dont add sql aggregates
+            DagAggManager.Instance.addAgg(backName, {
                 value: null,
-                dagName: dest,
+                dagName: backName,
                 aggName: dest,
                 tableId: null,
                 backColName: null,
                 op: null,
                 node: this.getId(),
-                graph: this.graph.getTabId()
+                graph: tabId
             });
         }
     }
@@ -67,31 +71,29 @@ class DagNodeAggregate extends DagNode {
             dest: input.dest,
             mustExecute: input.mustExecute
         });
+        let tabId = this.graph ? this.graph.getTabId() : "";
         let promise = PromiseHelper.resolve();
         let oldAggName = this.getParam().dest;
         if (oldAggName != null && oldAggName != input.dest &&
-                DagAggManager.Instance.hasAggregate(oldAggName)) {
-            let oldAgg = DagAggManager.Instance.getAgg(oldAggName);
-            if (oldAgg.value != null) {
-                promise = DagAggManager.Instance.removeNode(oldAggName);
-            } else {
-                // We never ran it
-                promise = DagAggManager.Instance.removeAgg(oldAggName);
-            }
+                DagAggManager.Instance.hasAggregate(tabId, oldAggName)) {
+            let oldAgg = DagAggManager.Instance.getAgg(tabId, oldAggName);
+            promise = DagAggManager.Instance.removeAgg(oldAgg.dagName);
         } else if (oldAggName != null && oldAggName == input.dest &&
-                DagAggManager.Instance.hasAggregate(oldAggName)) {
-            let oldAgg = DagAggManager.Instance.getAgg(oldAggName);
+                DagAggManager.Instance.hasAggregate(tabId, oldAggName)) {
+            let oldAgg = DagAggManager.Instance.getAgg(tabId, oldAggName);
             if (oldAgg.value != null) {
                 // We're replacing the value so we need to delete it
-                promise = DagAggManager.Instance.removeAgg(oldAggName, true);
+                promise = DagAggManager.Instance.removeAgg(oldAgg.dagName, true);
             }
         }
         PromiseHelper.alwaysResolve(promise)
         .then(() => {
             let tabId = this.graph ? this.graph.getTabId() : null;
-            return DagAggManager.Instance.addAgg(input.dest, {
+            let backName = DagAggManager.Instance.wrapAggName(tabId, input.dest)
+            this.aggBackName = backName;
+            return DagAggManager.Instance.addAgg(backName, {
                 value: null,
-                dagName: input.dest,
+                dagName: backName,
                 aggName: input.dest,
                 tableId: null,
                 backColName: null,
@@ -117,6 +119,10 @@ class DagNodeAggregate extends DagNode {
      */
     public getAggVal(): string | number {
         return this.aggVal;
+    }
+
+    public getAggBackName(): string {
+        return this.aggBackName;
     }
 
     public lineageChange(_columns: ProgCol[]): DagLineageChange {

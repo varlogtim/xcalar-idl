@@ -80,6 +80,15 @@ class DagTabUser extends DagTab {
      */
     public static isForSQLFolder(dagTab: DagTab): boolean {
         let id = dagTab.getId();
+        return this.idIsForSQLFolder(id);
+    }
+
+    /**
+     * DagTabUser.idIsForSQLFolder
+     * return true if the tab ID is generated from sql mode
+     * @param id
+     */
+    public static idIsForSQLFolder(id: string): boolean {
         return id && id.endsWith("sql");
     }
 

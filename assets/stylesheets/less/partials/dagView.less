@@ -2242,7 +2242,7 @@
     text-transform: none;
     flex-direction: column;
     height: 240px;
-    width: 558px;
+    width: 758px;
     padding: 10px 0px;
 
     &.active {
@@ -2331,9 +2331,11 @@
     }
 
     .cell {
-        &.paramNameWrap, &.aggNameWrap {
+        &.paramNameWrap{
             .size(@width: ~"calc(50% - 91px)");
         }
+
+
 
         &.paramValWrap, &.aggValWrap {
             .size(@width: ~"calc(50% - 91px)");
@@ -2358,6 +2360,10 @@
 
         &.aggValWrap {
             padding: 0px 10px;
+        }
+
+        &.aggNameWrap, &.aggGraphNameWrap, &.aggValWrap {
+            .size(@width: ~"calc(33.3% - 65px)");
         }
 
         &.paramActionWrap, &.paramNoValueWrap,

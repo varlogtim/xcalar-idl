@@ -90,12 +90,15 @@ abstract class DagNode {
                 this.state !== DagNodeState.Error) {
             this.configured = true;
         }
-        if (this.aggregates.length > 0) {
+        if (this.aggregates.length > 0 && options.graph != null &&
+                options.graph.getTabId() != null &&
+                !DagTabUser.idIsForSQLFolder(options.graph.getTabId())) {
             const namedAggs = DagAggManager.Instance.getAggMap();
             const self = this;
             let errorAggs = [];
             this.aggregates.forEach((aggregateName: string) => {
-                if (!namedAggs[aggregateName]) {
+                let wrappedName: string = DagAggManager.Instance.wrapAggName(options.graph.getTabId(), aggregateName);
+                if (!namedAggs[wrappedName]) {
                     errorAggs.push(aggregateName);
                 }
             });
@@ -1306,7 +1309,9 @@ abstract class DagNode {
             });
             delete this.table;
         } else if (this.getType() == DagNodeType.Aggregate) {
-            DagAggManager.Instance.removeValue(this.getParam().dest);
+            let aggNode: DagNodeAggregate = <DagNodeAggregate><unknown>this;
+            let aggName = aggNode.getAggBackName();
+            DagAggManager.Instance.removeValue(aggName);
         }
     }
 
