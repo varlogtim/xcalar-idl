@@ -147,7 +147,7 @@
 
     .box-small {
         .size(@height: 190px);
-        .flex(1 0 300px);
+        .flex(1 0 320px);
         overflow: hidden;
 
         .innerBox {
@@ -185,7 +185,7 @@
         }
 
         .innerContent {
-            width: 200px;
+            width: 100%;
         }
 
         .input-box(@w:100%, @h:30px);
@@ -374,13 +374,14 @@
 
         .innerBox {
             .flex-direction(column);
+            overflow: hidden; // text can expand the box if we don't have this
         }
         &.active {
             .innerBox {
                 background-color: @color-bg-select-blue;
                 color: @color-white;
 
-                .info, .icon, input, .subHeading{
+                .info, .icon, input, .subHeading, .description {
                     color: @color-white;
                 }
 
@@ -431,29 +432,6 @@
             }
         }
 
-        .content {
-            position: relative;
-            .flex(1 0 250px);
-            .innerContent {
-                width: 250px;
-            }
-
-            .icon {
-                color: @color-bg-select-blue;
-                .size(20px, 35px);
-                line-height: 40px;
-                padding: 0 10px 0 0;
-
-                &.preview {
-                    .position(absolute, @right: 30px, @top: 0px);
-                }
-                &.dropDown {
-                    .position(absolute, @right: 0px, @top: 0px);
-
-                }
-            }
-        }
-
         .loadSection {
             position: relative;
             opacity: 0.5;
@@ -478,20 +456,49 @@
             }
         }
 
+        .content {
+            position: relative;
+            padding: 8px;
+
+            .icon {
+                color: @color-bg-select-blue;
+                .size(20px, 35px);
+                line-height: 40px;
+                padding: 0 10px 0 0;
+
+                &.preview {
+                    .position(absolute, @right: 30px, @top: 3px);
+                }
+                &.dropDown {
+                    .position(absolute, @right: 0px, @top: 3px);
+
+                }
+            }
+        }
+
+        .innerContent {
+            margin-left: 5%;
+            padding-right: 20px; // to make space for dropdown icons
+            overflow: hidden;
+        }
+
         .subHeading {
             position: relative;
             border: none;
-            left: -5px;
 
             .workbookName {
                 .size(@height: 30px);
-                .font(@size: 22px, @weight: 500, @color: @color-font-select-blue);
+                .font(@size: 20px, @weight: 500, @color: @color-font-select-blue);
                 background-color: transparent;
-                padding: 0 5px 0 5px;
+                padding: 0 5px 0 0px;
                 left: -5px;
                 border: 1px solid transparent;
                 cursor: pointer;
 
+                &.focused, &.error {
+                    width: ~"calc(100% - 39px)";
+                    padding-left: 5px;
+                }
                 &.focused {
                     border: 1px solid @color-border-softBlue;
                     cursor: auto;
@@ -501,16 +508,18 @@
                     border: 1px solid @color-error-border;
                 }
             }
+        }
 
-            .description {
-                .size(@height: 18px);
-                .font(@size: 13px, @line-height: 18px, @color: @color-font-select-blue);
-                padding: 0 5px;
-            }
+        .descriptionWrap {
+            overflow: hidden;
+        }
+        .description {
+            .font(@size: 13px, @line-height: 18px, @color: @color-font-select-blue);
+            padding: 0 5px 5px 0px;
+        }
 
-            .workbookName, .description {
-                .size(@width: ~"calc(100% - 40px)");
-            }
+        .workbookName, .descriptionWrap {
+            .size(@width: ~"calc(100% - 31px)"); // to make space for dropdown icons
         }
 
         .topInfo {

@@ -980,8 +980,10 @@ namespace WorkbookPanel {
                                     (isNewWKBK ? '' : ' disabled') +
                                     ' spellcheck="false"/>' +
                                 '</div>' +
-                                '<div class="description textOverflowOneLine">' +
-                                    xcHelper.escapeHTMLSpecialChar(description) +
+                                '<div class="descriptionWrap">' +
+                                    '<div class="description textOverflowOneLine">' +
+                                        xcHelper.escapeHTMLSpecialChar(description) +
+                                    '</div>' +
                                 '</div>' +
                                 '<div class="row clearfix">' +
                                     '<div class="label">' +
@@ -1045,7 +1047,7 @@ namespace WorkbookPanel {
             handleError(error, $("#browseWKBKbtn"));
             return;
         }
-        
+
         let wbName: string = path.substring(0, path.indexOf(".")).trim()
                     .replace(/ /g, "");
         wbName = <string>xcHelper.checkNamePattern(<PatternCategory>"Workbook", <PatternAction>"fix", wbName);
