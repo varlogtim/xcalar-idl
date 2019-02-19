@@ -18,7 +18,7 @@ class DataSourceSchema {
         this._toggleDisplay(false);
     }
 
-    public setAutoSchmea(): void {
+    public setAutoSchema(): void {
         this._toggleSchemaCheckbox(true);
     }
 
