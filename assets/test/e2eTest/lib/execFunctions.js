@@ -22,10 +22,8 @@ module.exports = {
 
     getNodeFromCategoryBar: function(nodeInfo) {
         let type = nodeInfo.type.split(" ").join(".");
-        let selector = "#dagView .operatorBar ." + type;
-        if (nodeInfo.subType) {
-            selector += '[data-subtype="' + nodeInfo.subType + '"]';
-        }
+        let subType = nodeInfo.subType || "";
+        let selector = "#dagView .operatorBar ." + type + '[data-subtype="' + subType + '"]';
         let el = document.querySelector(selector);
         let categoryClassName;
         el.classList.forEach(function(className) {
