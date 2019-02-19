@@ -736,7 +736,8 @@ declare enum StatusT {
     StatusRetinaAlreadyExists,
     StatusRetinaInUse,
     StatusDsNotFound,
-    StatusJsonQueryParseError
+    StatusJsonQueryParseError,
+    StatusRetinaNotFound
 }
 
 declare enum FunctionCategoryT {

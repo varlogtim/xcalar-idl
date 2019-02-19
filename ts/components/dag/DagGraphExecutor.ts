@@ -790,7 +790,7 @@ class DagGraphExecutor {
             if (txId != null) {
                 if (error &&
                     error.status === StatusT.StatusRetinaAlreadyExists) {
-                    error.error = "The optimized result already exists\nReset the optimized node and select " +
+                    error.error = "The optimized dataflow already exists\nReset the optimized node and select " +
                         "Execute Optimized to re-execute";
                 }
                 Transaction.fail(txId, {

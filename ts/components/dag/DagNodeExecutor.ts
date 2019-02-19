@@ -96,15 +96,15 @@ class DagNodeExecutor {
                 case DagNodeType.Join:
                     return this._join(optimized);
                 case DagNodeType.Map:
-                    return this._map();
+                    return this._map(optimized);
                 case DagNodeType.Split:
-                    return this._map();
+                    return this._map(optimized);
                 case DagNodeType.Round:
-                    return this._map();
+                    return this._map(optimized);
                 case DagNodeType.Project:
                     return this._project();
                 case DagNodeType.Explode:
-                    return this._map();
+                    return this._map(optimized);
                 case DagNodeType.Set:
                     return this._set();
                 case DagNodeType.Export:
@@ -530,7 +530,7 @@ class DagNodeExecutor {
         return rename;
     }
 
-    private _map(): XDPromise<string> {
+    private _map(optimized: boolean): XDPromise<string> {
         const node: DagNodeMap = <DagNodeMap>this.node;
         const params: DagNodeMapInputStruct = node.getParam(this.replaceParam);
         const mapStrs: string[] = [];
@@ -547,8 +547,8 @@ class DagNodeExecutor {
             if (!DagAggManager.Instance.hasAggregate(agg)) {
                 return PromiseHelper.reject("Aggregate " + agg + " does not exist.");
             }
-            if (DagAggManager.Instance.getAgg(agg).value == null) {
-                return PromiseHelper.reject("Aggregate " + agg + "has not been run.");
+            if (DagAggManager.Instance.getAgg(agg).value == null && !optimized) {
+                return PromiseHelper.reject("Aggregate " + agg + " has not been run.");
             }
         }
 

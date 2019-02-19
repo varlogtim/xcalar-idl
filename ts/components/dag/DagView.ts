@@ -1327,7 +1327,10 @@ class DagView {
                 deferred.resolve();
             })
             .fail((e) => {
-                Alert.error("Optimized Dataflow Unavailable", e);
+                if (typeof e === "object" && e.status === StatusT.StatusRetinaNotFound) {
+                    e = DFTStr.OptimizedDFNotExist;
+                }
+                Alert.error(DFTStr.OptimizedDFUnavailable, e);
                 deferred.reject(e);
             });
         }

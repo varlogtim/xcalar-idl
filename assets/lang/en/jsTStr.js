@@ -1081,6 +1081,8 @@ DFTStr = {
     "DF": "Dataflow",
     "CreateDF": "Create new dataflow",
     "OptimizedDF": "Optimized Dataflow",
+    "OptimizedDFUnavailable": "Optimized Dataflow Unavailable",
+    "OptimizedDFNotExist": "Optimized Dataflow does not exit",
     "CannotCreate": "Cannot Create Dataflow",
     "CannotParam": "Cannot parameterize if exporting as a Xcalar table",
     "Default": "Export to export target",
