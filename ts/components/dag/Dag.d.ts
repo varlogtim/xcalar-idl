@@ -170,7 +170,7 @@ declare type DagNodeJoinTableInput = {
     columns: string[],
     // We don't support type casting in Join for now, but keep the code in case we wanna re-enable it
     // also, cast is supported when upgrading a dataflow from 1.4.1
-    // casts?: ColumnType[],
+    casts?: ColumnType[],
     keepColumns: string[], // Any columns not in this list will be dropped(including those in the joinOn clause)!
     rename: {sourceColumn: string, destColumn: string, prefix: boolean}[]
 }

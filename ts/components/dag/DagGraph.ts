@@ -2259,13 +2259,13 @@ class DagGraph {
                     if (node.createTableInput) {
                         dagNodeInfo = {
                             type: DagNodeType.Dataset,
-                            input: node.createTableInput
+                            input: <DagNodeDatasetInputStruct>node.createTableInput
                         }; // need to get columns
                     } else {
                         // probably a sort node
                         dagNodeInfo = {
                             type: DagNodeType.Sort,
-                            input: {
+                            input: <DagNodeSortInputStruct>{
                                 columns: node.args.key.map((key) => {
                                     return {columnName: key.name, ordering: key.ordering}
                                 }),
@@ -2279,7 +2279,7 @@ class DagGraph {
                 case (XcalarApisT.XcalarApiAggregate):
                     dagNodeInfo = {
                         type: DagNodeType.Aggregate,
-                        input: {
+                        input: <DagNodeAggregateInputStruct>{
                             evalString: node.args.eval[0].evalString,
                             dest: node.args.dest,
                             mustExecute: false
@@ -2289,7 +2289,7 @@ class DagGraph {
                 case (XcalarApisT.XcalarApiProject):
                     dagNodeInfo = {
                         type: DagNodeType.Project,
-                        input: {
+                        input: <DagNodeProjectInputStruct>{
                             columns: node.args.columns
                         }
                     };
@@ -2314,7 +2314,7 @@ class DagGraph {
                     });
                     dagNodeInfo = {
                         type: DagNodeType.GroupBy,
-                        input: {
+                        input: <DagNodeGroupByInputStruct>{
                             groupBy: groupBy,
                             newKeys: newKeys,
                             aggregate: aggs,
@@ -2329,7 +2329,7 @@ class DagGraph {
                 case (XcalarApisT.XcalarApiGetRowNum):
                     dagNodeInfo = {
                         type: DagNodeType.RowNum,
-                        input: {
+                        input: <DagNodeRowNumInputStruct>{
                             newField: node.args.newField
                         }
                     };
@@ -2337,7 +2337,7 @@ class DagGraph {
                 case (XcalarApisT.XcalarApiFilter):
                     dagNodeInfo = {
                         type: DagNodeType.Filter,
-                        input: {
+                        input: <DagNodeFilterInputStruct>{
                             evalString: node.args.eval[0].evalString
                         },
                     };
@@ -2345,7 +2345,7 @@ class DagGraph {
                 case (XcalarApisT.XcalarApiMap):
                     dagNodeInfo = {
                         type: DagNodeType.Map,
-                        input: {
+                        input: <DagNodeMapInputStruct>{
                             eval: node.args.eval,
                             icv: node.args.icv
                         }
@@ -2366,22 +2366,32 @@ class DagGraph {
                             prefix: colInfo.columnType === DfFieldTypeTStr[DfFieldTypeTFromStr.DfFatptr]
                         }
                     });
+                    const leftCasts: ColumnType = node.indexedFields[0].filter(key => {
+                        if (DfFieldTypeTFromStr[key.type] ===
+                            DfFieldTypeT.DfUnknown) {
+                            return false;
+                        }
+                        return true;
+                    }).map(key => {
+                        return xcHelper.getDFFieldTypeToString(DfFieldTypeTFromStr[key.type]);
+                    });
+                    const rightCasts: ColumnType = node.indexedFields[1].filter(key => {
+                        if (DfFieldTypeTFromStr[key.type] ===
+                            DfFieldTypeT.DfUnknown) {
+                            return false;
+                        }
+                        return true;
+                    }).map(key => {
+                        return xcHelper.getDFFieldTypeToString(DfFieldTypeTFromStr[key.type]);
+                    });
+
                     dagNodeInfo = {
                         type: DagNodeType.Join,
-                        input: {
+                        input: <DagNodeJoinInputStruct>{
                             joinType: node.args.joinType,
                             "left": {
                                 "columns": node.indexedFields[0].map(key => {
                                     return key.name;
-                                }),
-                                "casts": node.indexedFields[0].filter(key => {
-                                    if (DfFieldTypeTFromStr[key.type] ===
-                                        DfFieldTypeT.DfUnknown) {
-                                        return false;
-                                    }
-                                    return true;
-                                }).map(key => {
-                                    return xcHelper.getDFFieldTypeToString(DfFieldTypeTFromStr[key.type]);
                                 }),
                                 "rename": leftRenames
                             },
@@ -2389,20 +2399,20 @@ class DagGraph {
                                 "columns": node.indexedFields[1].map(key => {
                                     return key.name;
                                 }),
-                                "casts": node.indexedFields[1].filter(key => {
-                                    if (DfFieldTypeTFromStr[key.type] ===
-                                        DfFieldTypeT.DfUnknown) {
-                                        return false;
-                                    }
-                                    return true;
-                                }).map(key => {
-                                    return xcHelper.getDFFieldTypeToString(DfFieldTypeTFromStr[key.type]);
-                                }),
                                 "rename": rightRenames
                             },
-                            evalString: node.args.evalString
+                            evalString: node.args.evalString,
+                            keepAllColumns: true,
+                            nullSafe: false
                         },
                     };
+
+                    if (leftCasts.length) {
+                        dagNodeInfo.input["left"].casts = leftCasts;
+                    }
+                    if (rightCasts.length) {
+                        dagNodeInfo.input["right"].casts = rightCasts;
+                    }
                     break;
                 case (XcalarApisT.XcalarApiUnion):
                     const setType = <DagNodeSubType>xcHelper.unionTypeToXD(node.args.unionType);
@@ -2429,7 +2439,7 @@ class DagGraph {
                 case (XcalarApisT.XcalarApiSynthesize):
                     dagNodeInfo = {
                         type: DagNodeType.Synthesize,
-                        input: {
+                        input: <DagNodeSynthesizeInputStruct>{
                             colsInfo: node.args.columns
                         }
                     };
@@ -2450,11 +2460,11 @@ class DagGraph {
                 case (XcalarApisT.XcalarApiExecuteRetina):
                 case (XcalarApisT.XcalarApiBulkLoad):
                 default:
-                    dagNodeInfo = {
+                    dagNodeInfo = <DagNodePlaceholderInfo>{
                         type: DagNodeType.Placeholder,
                         name: XcalarApisTStr[node.api],
                         title: XcalarApisTStr[node.api],
-                        input: {
+                        input: <DagNodePlaceholderInputStruct>{
                             args: node.args
                         }
                     };
@@ -2540,7 +2550,7 @@ class DagGraph {
                 const parent = node.parents[0];
                 if (parent && parent.api === XcalarApisT.XcalarApiBulkLoad &&
                     !node.createTableInput) {
-                    node.createTableInput = {
+                    node.createTableInput = <DagNodeDatasetInputStruct>{
                         source: node.args.source,
                         prefix: node.args.prefix
                     }
@@ -2564,7 +2574,7 @@ class DagGraph {
                     if (parent.args.source.startsWith(gDSPrefix)) {
                         // if index resulted from dataset
                         // then that index needs to take the role of the dataset node
-                        parent.createTableInput = {
+                        parent.createTableInput = <DagNodeDatasetInputStruct>{
                             source: parent.args.source,
                             prefix: parent.args.prefix
                         }
