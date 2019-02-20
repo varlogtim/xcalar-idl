@@ -392,7 +392,7 @@ describe('ColManager Test', function() {
         });
     });
 
-    describe('Column Modification Test', function() {
+    describe.skip('Column Modification Test', function() {
         var dsName, tableName, tableId, prefix;
 
         before(function(done) {

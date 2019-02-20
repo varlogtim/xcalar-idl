@@ -6,19 +6,21 @@ describe("Dataset Operator Panel Test", function() {
     var oldGetDS;
 
     before(function() {
-        node = new DagNodeDataset();
+        node = new DagNodeDataset({});
         oldListDS = DS.listDatasets;
         DS.listDatasets = function() {
             return [
                 {
                     path: "ds1",
                     id: "support@ds1",
-                    suffix: ""
+                    suffix: "",
+                    options: {inActivated: false}
                 },
                 {
                     path: "/folder/ds2",
                     id: "support@ds2",
-                    suffix: ""
+                    suffix: "",
+                    options: {inActivated: false}
                 }
             ]
         }
@@ -65,7 +67,7 @@ describe("Dataset Operator Panel Test", function() {
 
         it("Should display dataset list correctly", function() {
             datasetOpPanel.show(node);
-            var $nameList = $("#datasetOpPanel #dsOpListSection .datasetName");
+            var $nameList = $("#datasetOpPanel #dsOpListSection .fileName");
             expect($nameList.length).to.equal(1);
             expect($nameList.eq(0).find(".name").text()).to.equal("ds1");
             datasetOpPanel.close();
@@ -76,8 +78,8 @@ describe("Dataset Operator Panel Test", function() {
             var $foldList = $("#datasetOpPanel #dsOpListSection .folderName");
             expect($foldList.length).to.equal(1);
             expect($foldList.eq(0).find(".name").text()).to.equal("folder");
-            $foldList.eq(0).dblclick();
-            var $nameList = $("#datasetOpPanel #dsOpListSection .datasetName");
+            $foldList.eq(0).click();
+            var $nameList = $("#datasetOpPanel #dsOpListSection .fileName");
             expect($nameList.length).to.equal(1);
             expect($nameList.eq(0).find(".name").text()).to.equal("ds2");
             datasetOpPanel.close();
@@ -85,17 +87,17 @@ describe("Dataset Operator Panel Test", function() {
 
         it("Should handle back and forward buttons correctly", function() {
             datasetOpPanel.show(node);
-            $("#datasetOpPanel #dsOpListSection .folderName").eq(0).dblclick();
+            $("#datasetOpPanel #dsOpListSection .folderName").eq(0).click();
             expect($("#datasetOpBrowser .backFolderBtn").hasClass("xc-disabled")).to.be.false;
             expect($("#datasetOpBrowser .forwardFolderBtn").hasClass("xc-disabled")).to.be.true;
             $("#datasetOpBrowser .backFolderBtn").click();
-            var $nameList = $("#datasetOpPanel #dsOpListSection .datasetName");
+            var $nameList = $("#datasetOpPanel #dsOpListSection .fileName");
             expect($nameList.length).to.equal(1);
             expect($nameList.eq(0).find(".name").text()).to.equal("ds1");
             expect($("#datasetOpBrowser .backFolderBtn").hasClass("xc-disabled")).to.be.true;
             expect($("#datasetOpBrowser .forwardFolderBtn").hasClass("xc-disabled")).to.be.false;
             $("#datasetOpBrowser .forwardFolderBtn").click();
-            $nameList = $("#datasetOpPanel #dsOpListSection .datasetName");
+            $nameList = $("#datasetOpPanel #dsOpListSection .fileName");
             expect($nameList.length).to.equal(1);
             expect($nameList.eq(0).find(".name").text()).to.equal("ds2");
             expect($("#datasetOpBrowser .backFolderBtn").hasClass("xc-disabled")).to.be.false;
@@ -105,41 +107,64 @@ describe("Dataset Operator Panel Test", function() {
 
         it("Should show the path correctly", function() {
             datasetOpPanel.show(node);
-            expect($("#datasetOpBrowser .pathSection").text()).to.equal("HOME/");
-            $("#datasetOpPanel #dsOpListSection .folderName").eq(0).dblclick();
-            expect($("#datasetOpBrowser .pathSection").text()).to.equal("HOME/folder/");
+            expect($("#datasetOpBrowser .pathSection .pathWrap > .path").text()).to.equal("Home /");
+            $("#datasetOpPanel #dsOpListSection .folderName").eq(0).click();
+            expect($("#datasetOpBrowser .pathSection .pathWrap > .path").text()).to.equal("Home / folder /");
         });
 
         it ("Should not submit empty arguments", function () {
             datasetOpPanel.show(node);
-            $('#datasetOpPanel .btn-submit.confirm').click();
+            $('#datasetOpPanel .submit').click();
             expect($('#datasetOpPanel').hasClass("xc-hidden")).to.be.false;
         });
 
         it("Should not submit empty dataset", function() {
             datasetOpPanel.show(node);
             $("#datasetOpPanel #dsOpListSection .folderName").eq(0).click();
-            $('#datasetOpPanel .btn-submit.confirm').click();
-            expect($("#statusBox").hasClass("active")).to.be.true;
+            $('#datasetOpPanel .bottomSection .next').click();
+            UnitTest.hasStatusBoxWithError(OpPanelTStr.SelectDSSource);
         });
 
         it("Should not submit invalid prefix", function() {
             datasetOpPanel.show(node);
-            $("#datasetOpPanel #dsOpListSection .datasetName").eq(0).click();
+            $("#datasetOpPanel #dsOpListSection .fileName").eq(0).click();
             $("#datasetOpPanel .datasetPrefix .arg").val("@test");
-            $('#datasetOpPanel .btn-submit.confirm').click();
-            expect($("#statusBox").hasClass("active")).to.be.true;
+            $('#datasetOpPanel .bottomSection .next').click();
+            UnitTest.hasStatusBoxWithError(ErrTStr.PrefixStartsWithLetter);
             datasetOpPanel.close();
         });
 
-        it("Should submit valid arguments", function() {
+        it("Should not submit with inactivated dataset", function() {
+            var oldFunc = DS.getDSObj;
+            DS.getDSObj = function() {
+                return {
+                    activatted: false
+                };
+            };
             datasetOpPanel.show(node);
-            $("#datasetOpPanel #dsOpListSection .datasetName").eq(0).click();
+            $("#datasetOpPanel #dsOpListSection .fileName").eq(0).click();
             $("#datasetOpPanel .datasetPrefix .arg").val("test");
-            $('#datasetOpPanel .btn-submit.confirm').click();
-            expect($("#statusBox").hasClass("active")).to.be.false;
-            expect($('#datasetOpPanel').hasClass("xc-hidden")).to.be.true;
+            $('#datasetOpPanel .bottomSection .next').click();
+            UnitTest.hasStatusBoxWithError(ErrTStr.InactivatedDS2);
+            datasetOpPanel.close();
+            DS.getDSObj = oldFunc;
         });
+
+        // it("Should submit valid arguments", function() {
+        //     var oldFunc = DS.getDSObj;
+        //     DS.getDSObj = function() {
+        //         return {
+        //             activated: true
+        //         };
+        //     };
+        //     datasetOpPanel.show(node);
+        //     $("#datasetOpPanel #dsOpListSection .fileName").eq(0).click();
+        //     $("#datasetOpPanel .datasetPrefix .arg").val("test");
+        //     $('#datasetOpPanel .bottomSection .next').click();
+        //     expect($("#statusBox").hasClass("active")).to.be.false;
+        //     expect($('#datasetOpPanel').hasClass("xc-hidden")).to.be.true;
+        //     DS.getDSObj = oldFunc;
+        // });
     });
 
     describe("Advanced Dataset Panel Tests", function() {
@@ -154,49 +179,49 @@ describe("Dataset Operator Panel Test", function() {
             $("#datasetOpPanel .bottomSection .xc-switch").click();
             $("#datasetOpPanel .bottomSection .xc-switch").click();
             expect($("#datasetOpPanel .datasetPrefix .arg").val()).to.equal("pref");
-            expect($("#datasetOpPanel #dsOpListSection .datasetName.active").text()).to.equal("ds1");
+            expect($("#datasetOpPanel #dsOpListSection .fileName.active").text()).to.equal("ds1");
             datasetOpPanel.close();
         });
 
-        it("Should not submit invalid dataset", function() {
-            datasetOpPanel.show(node);
-            JSON.parse = function(obj) {
-                return {
-                    source: null,
-                    prefix: "pref"
-                };
-            };
-            $('#datasetOpPanel .btn-submit.confirm').click();
-            expect($("#statusBox").hasClass("active")).to.be.true;
-            datasetOpPanel.close();
-        });
+        // it("Should not submit invalid dataset", function() {
+        //     datasetOpPanel.show(node);
+        //     JSON.parse = function(obj) {
+        //         return {
+        //             source: null,
+        //             prefix: "pref"
+        //         };
+        //     };
+        //     $('#datasetOpPanel .submit').click();
+        //     expect($("#statusBox").hasClass("active")).to.be.true;
+        //     datasetOpPanel.close();
+        // });
 
-        it("Should not submit invalid prefix", function() {
-            datasetOpPanel.show(node);
-            JSON.parse = function(obj) {
-                return {
-                    source: "support@ds1",
-                    prefix: "@pref"
-                };
-            };
-            $('#datasetOpPanel .btn-submit.confirm').click();
-            expect($("#statusBox").hasClass("active")).to.be.true;
-            datasetOpPanel.close();
-        });
+        // it("Should not submit invalid prefix", function() {
+        //     datasetOpPanel.show(node);
+        //     JSON.parse = function(obj) {
+        //         return {
+        //             source: "support@ds1",
+        //             prefix: "@pref"
+        //         };
+        //     };
+        //     $('#datasetOpPanel .submit').click();
+        //     expect($("#statusBox").hasClass("active")).to.be.true;
+        //     datasetOpPanel.close();
+        // });
 
-        it("Should submit valid arguments", function() {
-            datasetOpPanel.show(node);
-            JSON.parse = function(obj) {
-                return {
-                    source: "support@ds1",
-                    prefix: "pref"
-                };
-            };
-            $("#datasetOpPanel .bottomSection .xc-switch").click();
-            $('#datasetOpPanel .btn-submit.confirm').click();
-            expect($("#statusBox").hasClass("active")).to.be.false;
-            expect($('#datasetOpPanel').hasClass("xc-hidden")).to.be.true;
-        });
+        // it("Should submit valid arguments", function() {
+        //     datasetOpPanel.show(node);
+        //     JSON.parse = function(obj) {
+        //         return {
+        //             source: "support@ds1",
+        //             prefix: "pref"
+        //         };
+        //     };
+        //     $("#datasetOpPanel .bottomSection .xc-switch").click();
+        //     $('#datasetOpPanel .btn-submit.confirm').click();
+        //     expect($("#statusBox").hasClass("active")).to.be.false;
+        //     expect($('#datasetOpPanel').hasClass("xc-hidden")).to.be.true;
+        // });
     });
 
     /**

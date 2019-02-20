@@ -1,4 +1,4 @@
-describe("Agg Modal Test", function() {
+describe.skip("Agg Modal Test", function() {
     var $aggModal;
     var $quickAgg;
     var $corr;

@@ -1,4 +1,4 @@
-describe("Cast Op Panel Test", function() {
+describe.skip("Cast Op Panel Test", function() {
     var $castView;
     var $castTable;
     var $table;

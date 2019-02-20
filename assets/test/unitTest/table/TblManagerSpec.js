@@ -330,29 +330,6 @@ describe("TableManager Test", function() {
             });
         });
 
-        it("animateTableId should work", function(done) {
-            var id = "ab10";
-            var oldId = "ab21";
-            var $wrap = $('<div id="xcTheadWrap-' + id + '">' +
-                            '<div class="hashName">test</div>' +
-                         '</div>');
-            $("body").append($wrap);
-            var oldGMin = gMinModeOn;
-            gMinModeOn = false;
-            TblManager.__testOnly__.animateTableId(id, oldId)
-            .then(function() {
-                expect($wrap.find(".hashName").text()).to.equal("test");
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                $wrap.remove();
-                gMinModeOn = oldGMin;
-            });
-        });
-
         it("tagOldTables should work", function() {
             var tagOldTables = TblManager.__testOnly__.tagOldTables;
             var id = xcHelper.randName("test");
@@ -601,7 +578,7 @@ describe("TableManager Test", function() {
         });
     });
 
-    describe("Table Related Api Test", function() {
+    describe.skip("Table Related Api Test", function() {
         var dsName, tableName, tableId;
 
         before(function(done){

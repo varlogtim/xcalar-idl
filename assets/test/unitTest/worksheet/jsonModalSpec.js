@@ -1,4 +1,4 @@
-describe('JsonModal Test', function() {
+describe.skip('JsonModal Test', function() {
     var testDs;
     var tableName;
     var prefix;

@@ -1,4 +1,4 @@
-describe("RowInput Test", function() {
+describe.skip("RowInput Test", function() {
     var testDs;
     var tableName;
     var tableId;

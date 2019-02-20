@@ -1,4 +1,4 @@
-describe("Profile-Profile Test", function() {
+describe.skip("Profile-Profile Test", function() {
     var dsName, tableName, tableId, prefix, colNum;
     var $modal;
 

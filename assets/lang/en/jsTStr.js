@@ -1784,5 +1784,7 @@ OpPanelTStr = {
     "SortPanelInstr": "Sort your table by selecting one or more columns. The order in which you select the columns will determine that table's sort order.",
     "SortPanelTitle": "Sort",
     "SortPanelFieldName": "Column name",
-    "SortColumnHeading": "Columns to sort"
+    "SortColumnHeading": "Columns to sort",
+    "SelectDSSource": "Please select a dataset source and provide a prefix.",
+    "InvalidDSSource": "Invalid dataset source selected.",
 };

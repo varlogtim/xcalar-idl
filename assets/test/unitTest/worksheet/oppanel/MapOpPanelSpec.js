@@ -106,8 +106,8 @@ describe("MapOpPanel Test", function() {
                     expect($catLis).to.have.length(3);
                     expect($catLis.text()).to.equal("arithmeticconversiontimestamp");
 
-                    expect($funcLis).to.have.length(9);
-                    expect($funcLis.text()).to.equal("addaddDateIntervaladdIntegeraddIntervalStringaddTimeIntervaldateAddDaydateAddIntervaldateAddMonthdateAddYear");
+                    expect($funcLis).to.have.length(10);
+                    expect($funcLis.text()).to.equal("addaddDateIntervaladdIntegeraddIntervalStringaddNumericaddTimeIntervaldateAddDaydateAddIntervaldateAddMonthdateAddYear");
                     $filterInput.val('').trigger(fakeEvent.input);
                     expect($categoryMenu.find('li:visible').length).to.be.within(7, 11);
                     expect($functionsMenu.find('li:visible').length).to.be.above(70);
@@ -116,13 +116,13 @@ describe("MapOpPanel Test", function() {
                     $funcLis = $functionsMenu.find('li:visible').filter(function() {
                         return ($(this).text().indexOf(':') === -1);
                     });
-                    expect($funcLis.text()).to.equal("addaddDateIntervaladdIntegeraddIntervalStringaddTimeIntervaldateAddDaydateAddIntervaldateAddMonthdateAddYear");
+                    expect($funcLis.text()).to.equal("addaddDateIntervaladdIntegeraddIntervalStringaddNumericaddTimeIntervaldateAddDaydateAddIntervaldateAddMonthdateAddYear");
 
                     $filterInput.val('sub').trigger(fakeEvent.input);
                     $funcLis = $functionsMenu.find('li:visible').filter(function() {
                         return ($(this).text().indexOf(':') === -1);
                     });
-                    expect($funcLis.text()).to.equal("subsubIntegersubstringsubstringIndex");
+                    expect($funcLis.text()).to.equal("subsubIntegersubNumericsubstringsubstringIndex");
                     $filterInput.val('').trigger(fakeEvent.input);
                 });
 
@@ -181,14 +181,14 @@ describe("MapOpPanel Test", function() {
                     $filterInput.val('sub').trigger(fakeEvent.input);
                     $categoryMenu.find('li:visible').eq(0).trigger(fakeEvent.click);
                     expect($categoryMenu.find("li.active").text()).to.equal('arithmetic');
-                    expect($functionsMenu.find('li:visible')).to.have.length(2);
-                    expect($functionsMenu.find('li:visible').text()).to.equal("subsubInteger");
+                    expect($functionsMenu.find('li:visible')).to.have.length(3);
+                    expect($functionsMenu.find('li:visible').text()).to.equal("subsubIntegersubNumeric");
                 });
 
                 it('clicking away from category list should reset func list', function() {
-                    expect($functionsMenu.find('li:visible').text()).to.equal("subsubInteger");
+                    expect($functionsMenu.find('li:visible').text()).to.equal("subsubIntegersubNumeric");
                     $mapOpPanel.find('.catFuncHeadings').trigger(fakeEvent.mousedown);
-                    expect($functionsMenu.find('li:visible').text().indexOf("subsubIntegersubstringsubstringIndex")).to.be.gt(-1);
+                    expect($functionsMenu.find('li:visible').text().indexOf("subsubIntegersubNumericsubstringsubstringIndex")).to.be.gt(-1);
                     expect($categoryMenu.find("li.active")).to.have.length(0);
                     $filterInput.val('').trigger(fakeEvent.input);
                 });

@@ -1,4 +1,4 @@
-describe('Sort Op Panel Test', function() {
+describe.skip('Sort Op Panel Test', function() {
     var $sortOpPanel;
     var $sortTable;
     var $table;

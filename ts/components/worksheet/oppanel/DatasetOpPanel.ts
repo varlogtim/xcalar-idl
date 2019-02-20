@@ -78,7 +78,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             let html: HTML = "";
             // Add files
             files.forEach((file) => {
-                if (file.options.inActivated) {
+                if (file.options && file.options.inActivated) {
                     html +=
                     '<li class="fileName inActivated"' +
                     ' data-toggle="tooltip"' +
@@ -449,10 +449,10 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         let error: string = null;
         let $location: JQuery = null;
         if (prefix == null || id == null) {
-            error = "Please select a dataset source and provide a prefix."
+            error = OpPanelTStr.SelectDSSource;
             $location = $panel.find(".btn-submit");
         } else if (DS.getDSObj(id) == null && !xcHelper.checkValidParamBrackets(id)) {
-            error = "Invalid dataset source selected."
+            error = OpPanelTStr.InvalidDSSource;
             $location = $("#dsOpListSection");
         } else {
             error = xcHelper.validatePrefixName(xcHelper.replaceParamForValidation(prefix));
