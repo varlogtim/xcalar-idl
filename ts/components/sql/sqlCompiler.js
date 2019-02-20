@@ -2147,7 +2147,7 @@
             var newRenames = __resolveCollision([], node.usrCols
                         .concat(node.xcCols).concat(node.sparkCols), [],
                         [], "", node.newTableName);
-            node.renamedCols = __combineRenameMaps(node.renamedCols, newRenames);
+            node.renamedCols = __combineRenameMaps([node.renamedCols, newRenames]);
             node.parent.expand = {groupingCols: groupingCols,
                     groupingIds: groupingIds,
                     groupingColStruct: groupingCols[groupingCols.length - 1]};
