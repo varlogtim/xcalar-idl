@@ -6626,6 +6626,9 @@ namespace xcHelper {
             case ('GetStatByGroupId'):
                 inputName = 'statByGroupId';
                 break;
+            case ('DeleteObjects'):
+                inputName = 'deleteDagNode';
+                break;
             default:
                 inputName = val[0].toLowerCase() + val.substr(1);
                 break;

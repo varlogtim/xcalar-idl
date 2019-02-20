@@ -116,7 +116,8 @@ class DagSubGraph extends DagGraph {
             } else {
                 args = xcHelper.getXcalarInputFromNode(queryNode);
             }
-            if (queryNode.operation !== XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects]) {
+            if (queryNode.operation !== XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects] &&
+                queryNode.api !== XcalarApisT.XcalarApiDeleteObjects) {
                 let nodeId: DagNodeId = this._nameIdMap[args.dest];
                 let node: DagNode = this.getNode(nodeId);
                 if (node != null) { // could be a drop table node

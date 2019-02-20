@@ -2256,7 +2256,7 @@ class DagView {
     public isDisableActions(): boolean {
         return (this.dagTab instanceof DagTabCustom ||
             this.dagTab instanceof DagTabSQL ||
-            this.dagTab instanceof DagTabOptimized ||
+            this.dagTab instanceof DagTabProgress ||
             this.dagTab instanceof DagTabPublished);
     }
 

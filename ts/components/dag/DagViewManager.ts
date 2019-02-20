@@ -245,9 +245,10 @@ class DagViewManager {
         return deferred.promise();
     }
 
-    public addDataflowHTML($container: JQuery, tabId: string, isViewOnly?: boolean, isOptimized?: boolean) {
+    public addDataflowHTML($container: JQuery, tabId: string, isViewOnly?: boolean, isProgressGraph?: boolean) {
         $container.append(
-            '<div class="dataflowArea ' +  (isViewOnly? 'viewOnly': '') + ' ' + (isOptimized? 'optimized': '') + '" data-id="' +tabId + '">\
+            '<div class="dataflowArea ' +  (isViewOnly? 'viewOnly': '') + ' ' +
+                (isProgressGraph? 'progressGraph': '') + '" data-id="' +tabId + '">\
                 <div class="dataflowAreaWrapper">\
                     <div class="commentArea"></div>\
                     <svg class="edgeSvg"></svg>\
@@ -344,7 +345,7 @@ class DagViewManager {
     }
 
     public endOptimizedDFProgress(queryName: string, queryStateOutput): void {
-        let tab: DagTabOptimized = <DagTabOptimized>DagTabManager.Instance.getTabById(queryName);
+        let tab: DagTabProgress = <DagTabProgress>DagTabManager.Instance.getTabById(queryName);
         if (!tab) {
             return;
         }
@@ -1018,7 +1019,7 @@ class DagViewManager {
             if (self.activeDagTab == null || self.activeDag == null) {
                 return; // error case
             }
-            if (self.activeDagTab instanceof DagTabOptimized) {
+            if (self.activeDagTab instanceof DagTabProgress) {
                 return; // invalid case
             }
             const $node: JQuery = $(this).closest(".operator");

@@ -40,6 +40,9 @@ class DagList {
             return this._fetchAllRetinas();
         })
         .then(() => {
+            return this._fetchXcalarQueries();
+        })
+        .then(() => {
             this._renderDagList(false);
             this._updateSection();
             this._initialized = true;
@@ -67,8 +70,27 @@ class DagList {
             var bName = b.path.toLowerCase();
             return (aName < bName ? -1 : (aName > bName ? 1 : 0));
         };
+        let querySortFunc = (a: {path: string, options: any}, b: {path: string, options: any}): number => {
+            if (a.options.isSDK) {
+                if (b.options.isSDK) {
+                    var aName = a.path.toLowerCase();
+                    var bName = b.path.toLowerCase();
+                    return (aName < bName ? -1 : (aName > bName ? 1 : 0));
+                } else {
+                    return 1; // place sdk queries after abandoned queries
+                }
+            } else {
+                if (b.options.isSDK) {
+                    return -1;
+                } else { // both abandoned queries
+                    return (a.options.createdTime < b.options.createdTime ? -1 : (a.options.createdTime > b.options.createdTime ? 1 : 0));
+                }
+            }
+
+        };
         const publishedList: {path: string, id: string, options: {isOpen: boolean}}[] = [];
-        const userList: {path: string, id: string, options: {isOpen: boolean}}[] = [];
+        let userList: {path: string, id: string, options: {isOpen: boolean}}[] = [];
+        const queryList: {path: string, id: string, options: {isOpen: boolean, createdTime: number, isSDK: boolean}}[] = [];
         this._dags.forEach((dagTab) => {
             let path = "";
             let tabId = dagTab.getId();
@@ -85,6 +107,13 @@ class DagList {
                     path: path,
                     id: tabId,
                     options: {isOpen: dagTab.isOpen()}
+                });
+            } else if (dagTab instanceof DagTabQuery) {
+                path = "/" + dagTab.getPath();
+                queryList.push({
+                    path: path,
+                    id: tabId,
+                    options: {isOpen: dagTab.isOpen(), isSDK: dagTab.isSDK(), createdTime: dagTab.getCreatedTime()}
                 });
             } else if (dagTab instanceof DagTabSQLFunc) {
                 path = dagTab.getPath();
@@ -109,6 +138,7 @@ class DagList {
         });
         publishedList.sort(sortFunc);
         userList.sort(sortFunc);
+        queryList.sort(querySortFunc);
         if (publishedList.length === 0 && XVM.isAdvancedMode()) {
             // add the published folder by default
             publishedList.push({
@@ -117,6 +147,7 @@ class DagList {
                 options: {isOpen: false}
             });
         }
+        userList = userList.concat(queryList);
         return publishedList.concat(userList);
     }
 
@@ -151,12 +182,16 @@ class DagList {
         // delete shared dag and optimized list first
         const oldPublishedDags: Map<string, DagTabPublished> = new Map();
         const oldOptimizedDags: Map<string, DagTabOptimized> = new Map();
+        const oldQueryDags: Map<string, DagTabQuery> = new Map();
         for (let [id, dagTab] of this._dags) {
             if (dagTab instanceof DagTabPublished) {
                 oldPublishedDags.set(dagTab.getId(), dagTab);
                 this._dags.delete(id);
             } else if (dagTab instanceof DagTabOptimized) {
                 oldOptimizedDags.set(dagTab.getName(), dagTab);
+                this._dags.delete(id);
+            } else if (dagTab instanceof DagTabQuery) {
+                oldQueryDags.set(dagTab.getQueryName(), dagTab);
                 this._dags.delete(id);
             }
         }
@@ -170,6 +205,11 @@ class DagList {
         .then(() => {
             if (XVM.isAdvancedMode()) {
                 return this._fetchAllRetinas(oldOptimizedDags);
+            }
+        })
+        .then(() => {
+            if (XVM.isAdvancedMode()) {
+                return this._fetchXcalarQueries(oldQueryDags, true);
             }
         })
         .then(deferred.resolve)
@@ -393,7 +433,7 @@ class DagList {
 
     private _setupFileLister(): void {
         const renderTemplate = (
-            files: {name: string, id: string, options: {isOpen: boolean}}[],
+            files: {name: string, id: string, options: {isOpen: boolean, createdTime?: number}}[],
             folders: string[],
             path: string
         ): string => {
@@ -415,13 +455,20 @@ class DagList {
             const icon: HTML = this._iconHTML("deleteDataflow", "xi-trash", DFTStr.DelDF);
             files.forEach((file) => {
                 let openClass: string = "";
-                if (file.options && file.options.isOpen) {
-                    openClass = "open";
+                let timeTooltip: string = "";
+                if (file.options) {
+                    if (file.options.isOpen) {
+                        openClass = "open";
+                    }
+                    if (file.options.createdTime) {
+                        timeTooltip = xcTimeHelper.getDateTip(file.options.createdTime, {prefix: "Created: "});
+                    }
                 }
+
                 html +=
                 '<li class="fileName dagListDetail ' + openClass + '" data-id="' + file.id + '">' +
                     '<i class="gridIcon icon xi-dfg2"></i>' +
-                    '<div class="name">' + file.name + '</div>' +
+                    '<div class="name" ' + timeTooltip + '>' + file.name + '</div>' +
                     icon +
                 '</li>';
             });
@@ -466,7 +513,7 @@ class DagList {
     private _restoreLocalDags(needReset: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let userDagTabs: DagTabUser[] = [];
-        
+
         this.listUserDagAsync()
         .then((res: {dags: {name: string, id: string, reset: boolean, createdTime: number}[]}) => {
             let dags: {name: string, id: string, reset: boolean, createdTime: number}[] = [];
@@ -502,7 +549,7 @@ class DagList {
     private _restoreSQLFuncDag(needReset: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let sqFuncDagTabs: DagTab[] = [];
-        
+
         this.listSQLFuncAsync()
         .then((res: {dags: {name: string, id: string, reset: boolean, createdTime: number}[]}) => {
             let dags: {name: string, id: string, reset: boolean, createdTime: number}[] = [];
@@ -595,6 +642,81 @@ class DagList {
                         this._dags.set(retinaId, retinaTab);
                     }
                 }
+            });
+            deferred.resolve();
+        })
+        .fail((error) => {
+            console.error(error);
+            deferred.resolve(); // still resolve it
+        });
+
+        return deferred.promise();
+    }
+
+    private _fetchXcalarQueries(
+        oldQueryDags?: Map<string, DagTabQuery>,
+        refresh?: boolean
+    ): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        XcalarQueryList("*")
+        .then((queries) => {
+            queries = queries.queries;
+            const activeWKBNK: string = WorkbookManager.getActiveWKBK();
+            const workbook: WKBK = WorkbookManager.getWorkbook(activeWKBNK);
+            const abandonedQueryPrefix: string = "table_DF2_" + workbook.sessionId + "_";
+            const sdkPrefix = XcUID.SDKPrefix + "-" + XcUser.getCurrentUserName() + "-" + workbook.sessionId + "-";
+
+            const oldQueries: Map<string, DagTabQuery> = oldQueryDags || new Map();
+            queries.forEach((query) => {
+                let displayName: string;
+                if (query.name.startsWith(sdkPrefix)) {
+                    displayName = query.name.slice(sdkPrefix.length);
+                } else if (query.name.startsWith(abandonedQueryPrefix)) {
+                    // strip the query name to find the tabId of the original dataflow
+                    // so we can get use that dataflow's name
+                    displayName = query.name.slice("table_".length);
+                    let firstNamePart = displayName.slice(0, ("DF2_" + workbook.sessionId + "_").length)
+                    let secondNamePart = displayName.slice(("DF2_" + workbook.sessionId + "_").length);
+                    let splitName = secondNamePart.split("_");
+                    let tabId = firstNamePart + splitName[0] + "_" + splitName[1];
+                    let origTab = this._dags.get(tabId);
+                    if (origTab) {
+                        displayName = origTab.getName()
+                    } else {
+                        displayName = secondNamePart;
+                    }
+                } else {
+                    return;
+                }
+
+                let newTab = true;
+                if (oldQueries.has(query.name)) {
+                    const oldDagTab: DagTabQuery = oldQueries.get(query.name);
+                    if (DagTabManager.Instance.getTabById(oldDagTab.getId())) {
+                        newTab = false;
+                        this._dags.set(oldDagTab.getId(), oldDagTab);
+                        if (oldDagTab.isFocused()) {
+                            // restarts status check
+                            oldDagTab.unfocus();
+                            oldDagTab.focus();
+                        }
+                    }
+                } else if (refresh && query.name.startsWith(abandonedQueryPrefix)) {
+                    // if we're refreshing the list and a new abandoned query appears
+                    // then do not show it because we don't want to show XD
+                    // queries that were created after a page refresh
+                    return;
+                }
+                if (newTab) {
+                    const queryTabId = DagTab.generateId();
+                    const queryTab = new DagTabQuery({
+                                            id: queryTabId,
+                                            name: displayName,
+                                            queryName: query.name
+                                        });
+                    this._dags.set(queryTabId, queryTab);
+                }
+
             });
             deferred.resolve();
         })
@@ -745,6 +867,7 @@ class DagList {
             if ($dagListItem.hasClass("unavailable")) {
                 return;
             }
+            const tabId: string = $dagListItem.data("id");
             Alert.show({
                 title: DFTStr.DelDF,
                 msg: xcHelper.replaceMsg(DFTStr.DelDFMsg, {
@@ -758,11 +881,15 @@ class DagList {
                         if (!log && error && error.error) {
                             log = error.error;
                         }
+                        // need to refetch dagListItem after list is updated
+                        $dagListItem = this._getListElById(tabId);
                         StatusBox.show(DFTStr.DelDFErr, $dagListItem, false, {
                             detail: log
                         });
                     })
                     .always(() => {
+                        // need to refetch dagListItem after list is updated
+                        $dagListItem = this._getListElById(tabId);
                         xcHelper.enableElement($dagListItem);
                     });
                 }

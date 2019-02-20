@@ -36,7 +36,8 @@ namespace xcTimeHelper {
     };
 
     interface TipOption {
-        container: string;
+        container?: string;
+        prefix?: string;
     }
 
     /*
@@ -48,8 +49,9 @@ namespace xcTimeHelper {
         if (typeof date !== "object" || !date._isAMomentObject) {
             date = moment(date);
         }
-        const container: string = "body" || options.container;
-        const title: string = date.format("h:mm:ss A M-D-Y");
+        const container: string = options.container || "body";
+        const prefix = options.prefix || "";
+        const title: string = prefix + date.format("h:mm:ss A M-D-Y");
         return ' data-toggle="tooltip" data-placement="top" ' +
                 'data-container="' + container +
                 '" data-original-title="' + title + '" ';

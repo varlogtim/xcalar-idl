@@ -10,9 +10,10 @@ class DagGraphExecutor {
     private _isNoReplaceParam: boolean;
     private _currentTxId: number;
     private _isCanceld: boolean;
-    private _retinaName: string;
+    private _queryName: string; // for retinas
     private _parentTxId: number;
     private _sqlNodes: Map<string, DagNodeSQL>;
+    private _hasProgressGraph: boolean;
 
     public constructor(
         nodes: DagNode[],
@@ -20,10 +21,11 @@ class DagGraphExecutor {
         options: {
             optimized?: boolean
             noReplaceParam?: boolean
-            retinaName?: string
+            queryName?: string
             parentTxId?: number
             allowNonOptimizedOut?: boolean,
-            sqlNodes?: Map<string, DagNodeSQL>
+            sqlNodes?: Map<string, DagNodeSQL>,
+            hasProgressGraph?: boolean
         } = {}
     ) {
         this._nodes = nodes;
@@ -32,9 +34,10 @@ class DagGraphExecutor {
         this._allowNonOptimizedOut = options.allowNonOptimizedOut || false;
         this._isNoReplaceParam = options.noReplaceParam || false;
         this._isCanceld = false;
-        this._retinaName = options.retinaName;
+        this._queryName = options.queryName;
         this._parentTxId = options.parentTxId;
         this._sqlNodes = options.sqlNodes;
+        this._hasProgressGraph = this._isOptimized || options.hasProgressGraph;
     }
 
     public validateAll(): {
@@ -398,10 +401,10 @@ class DagGraphExecutor {
     // cancel execution
     public cancel(): void {
         this._isCanceld = true;
-        if (this._isOptimized) {
-            XcalarQueryCancel(this._retinaName)
+        if (this._hasProgressGraph) {
+            XcalarQueryCancel(this._queryName)
             .then(() => {
-                if (this._retinaName.startsWith(gRetinaPrefix)) {
+                if (this._queryName.startsWith(gRetinaPrefix)) {
                     // delete non-private retinas
                     this._retinaDeleteLoop();
                 }
@@ -694,7 +697,7 @@ class DagGraphExecutor {
                 outNodeId = this._optimizedExportNodes[this._optimizedExportNodes.length - 1].getId();
             }
             const retinaName = gRetinaPrefix + parentTabId + "_" + outNodeId;
-            this._retinaName = retinaName;
+            this._queryName = retinaName;
             const retinaParameters = this._getImportRetinaParameters(retinaName, queryStr, destTables);
             if (retinaParameters == null) {
                 deferred.reject('Invalid retina args');
@@ -958,7 +961,7 @@ class DagGraphExecutor {
     private _retinaDeleteLoop(count = 0): void {
         const self = this;
         setTimeout(() => {
-            XcalarDeleteRetina(self._retinaName)
+            XcalarDeleteRetina(self._queryName)
             .fail((error) => {
                 if (error && error.status === StatusT.StatusRetinaInUse && count < 5) {
                     count++;

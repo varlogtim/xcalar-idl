@@ -665,7 +665,7 @@
                 pointer-events: none;
             }
 
-            &.optimized {
+            &.progressGraph {
                 .dagTableTip.runStats {
                     display: block;
                 }
@@ -1091,7 +1091,7 @@
 
         .icon {
             .font(@size: 11px, @align: center, @line-height: @tabHeight);
-        
+
             &:first-child {
                 margin-right: 3px;
             }
@@ -1182,6 +1182,10 @@
 
             &.optimized {
                 background-color: @color-dagTab-optimized;
+                font-style: italic;
+            }
+
+            &.query {
                 font-style: italic;
             }
 
@@ -1673,6 +1677,7 @@
 
     .rowSection {
         padding: 4px 10px;
+        word-break: break-word;
     }
 
     .configRow {

@@ -2122,6 +2122,9 @@ class DagGraph {
                 args = xcHelper.getXcalarInputFromNode(rawNode);
                 api = rawNode.api;
             }
+            if (!args) {
+                continue;
+            }
 
             const node: {
                 parents: string[],

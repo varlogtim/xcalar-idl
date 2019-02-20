@@ -415,7 +415,7 @@ class DagTabManager {
     private _getJSON(): {dagKeys: string[]} {
         // filter out retina tabs as we don't want to persist these viewonly tabs
         const keys: string[] = this.getTabs().reduce((res, dagTab) => {
-            if (!(dagTab !instanceof DagTabOptimized)) {
+            if (!(dagTab instanceof DagTabProgress)) {
                 res.push(dagTab.getId());
             }
             return res;
@@ -515,7 +515,7 @@ class DagTabManager {
 
         // Switch to the corresponding dataflow in the left panel(DagList)
         const dagTab: DagTab = this.getTabByIndex(index);
-        if (this._activeTab && this._activeTab instanceof DagTabOptimized) {
+        if (this._activeTab && this._activeTab instanceof DagTabProgress) {
             this._activeTab.unfocus();
         }
 
@@ -534,7 +534,7 @@ class DagTabManager {
 
         DagViewManager.Instance.switchActiveDagTab(this.getTabByIndex(index));
         DagTopBar.Instance.reset();
-        if (dagTab instanceof DagTabOptimized) {
+        if (dagTab instanceof DagTabProgress) {
             dagTab.focus();
         }
     }
@@ -740,12 +740,16 @@ class DagTabManager {
         tabName = xcHelper.escapeHTMLSpecialChar(tabName);
         const tabId = dagTab.getId();
         const isEditable: boolean = (dagTab instanceof DagTabUser);
-        const isViewOnly: boolean = (dagTab instanceof DagTabOptimized);
+        const isViewOnly: boolean = (dagTab instanceof DagTabProgress);
+        const isProgressGraph: boolean = (dagTab instanceof DagTabProgress);
         const isOptimized: boolean = (dagTab instanceof DagTabOptimized);
+        const isQuery: boolean = (dagTab instanceof DagTabQuery);
 
         let extraClass = "";
         let extraIcon = "";
-        if (isOptimized) {
+        if (isQuery) {
+            extraClass += " query";
+        } else if (isOptimized) {
             extraClass += " optimized";
         } else if (dagTab instanceof DagTabSQLFunc) {
             extraClass += " sqlFunc";
@@ -770,7 +774,7 @@ class DagTabManager {
                 '</div>' +
             '</li>';
         this._getTabArea().append(html);
-        DagViewManager.Instance.addDataflowHTML($("#dagView .dataflowWrap"), tabId, isViewOnly, isOptimized);
+        DagViewManager.Instance.addDataflowHTML($("#dagView .dataflowWrap"), tabId, isViewOnly, isProgressGraph);
 
         if (tabIndex != null) {
             // Put the tab and area where they should be

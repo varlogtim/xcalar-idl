@@ -129,7 +129,7 @@ class DFUploadModal {
         const file: File = this._file;
         const overwriteUDF: boolean = this._getModal().find(".overwrite .checkboxSection")
         .find(".checkbox").hasClass("checked");
-        const restoreDS: boolean = isSQLFunc ? false: 
+        const restoreDS: boolean = isSQLFunc ? false:
         this._getModal().find(".restoreDS .checkboxSection").find(".checkbox").hasClass("checked");
 
         let timer: number = null;
@@ -395,7 +395,7 @@ class DFUploadModal {
 
     private _browseDestPath(): void {
         let fileLists: {path: string, id: string}[] = DagList.Instance.list();
-        let invalidPaths = [`/${DagTabOptimized.PATH}`, `/${DagTabSQL.PATH}`];
+        let invalidPaths = [`/${DagTabOptimized.PATH}`, `/${DagTabQuery.PATH}`, `/${DagTabSQL.PATH}`];
         fileLists = fileLists.filter((file) => {
             for (let i = 0; i < invalidPaths.length; i++) {
                 if (file.path.startsWith(invalidPaths[i])) {

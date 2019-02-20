@@ -1,4 +1,5 @@
 class XcUID {
+    public static SDKPrefix: string = "XcalarSDK-";
     private _prefix: string;
     private _count: number;
     private _generator: (prefix: string, count: number) => string;
@@ -6,7 +7,7 @@ class XcUID {
     public constructor(prefix: string) {
         this._prefix = prefix;
         this._count = 0;
-        this._generator = this._defaultGenrator;
+        this._generator = this._defaultGenerator;
     }
 
     get count(): number {
@@ -30,10 +31,10 @@ class XcUID {
         this._generator = func;
     }
 
-    private _defaultGenrator(prefix: string, count: number): string {
+    private _defaultGenerator(prefix: string, count: number): string {
         var id: string;
         if (xcHelper.isNodeJs()) {
-            id = "XcalarSDK-";
+            id = XcUID.SDKPrefix;
         } else {
             const activeWKBNK: string = WorkbookManager.getActiveWKBK();
             const workbook: WKBK = WorkbookManager.getWorkbook(activeWKBNK);
