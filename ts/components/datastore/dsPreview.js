@@ -6227,6 +6227,18 @@ window.DSPreview = (function($, DSPreview) {
         DSPreview.__testOnly__.setBackToFormCard = function(flag) {
             backToFormCard = flag;
         };
+
+        var oldIsCreateTableMode;
+        DSPreview.__testOnly__.setIsCreateTableMode = function(flag) {
+            oldIsCreateTableMode = isCreateTableMode;
+            isCreateTableMode = function() {
+                return flag;
+            };
+        }
+
+        DSPreview.__testOnly__.resetIsCreateTableMode = function() {
+            isCreateTableMode = oldIsCreateTableMode;
+        };
     }
     /* End Of Unit Test Only */
 

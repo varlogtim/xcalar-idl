@@ -678,15 +678,19 @@ describe('XIApi Test', () => {
             const tableName = 'test#a';
             let oldJoin;
             let testJoinType;
+            let oldQuery;
 
             before(() => {
                 cascadingJoins = XIApi.__testOnly__.cascadingJoins;
                 oldJoin = XcalarJoin;
+                oldQuery = XIApi.query;
 
                 XcalarJoin = (_lTable, _rTable, _newTable, joinType, ..._rest) => {
                     testJoinType = joinType
                     return PromiseHelper.resolve();
                 };
+
+                XIApi.query = () => PromiseHelper.resolve();
             });
 
             beforeEach(() => {
@@ -757,6 +761,7 @@ describe('XIApi Test', () => {
 
             after(() => {
                 XcalarJoin = oldJoin;
+                XIApi.query = oldQuery;
             });
         });
 
@@ -1240,7 +1245,13 @@ describe('XIApi Test', () => {
             gTables[tableId] = table;
 
             const oldIndex = XIApi.index;
+            const oldQuery = XIApi.query;
+            let test = false;
             XcalarIndexFromTable = () => PromiseHelper.resolve({newKeys: ['newKey']});
+            XIApi.query = () => {
+                test = true;
+                return PromiseHelper.resolve();
+            }
 
             const colInfo = {
                 colName: "col",
@@ -1250,6 +1261,7 @@ describe('XIApi Test', () => {
                 .then((newTableName, newKeys) => {
                     expect(newTableName).to.be.a('string');
                     expect(newKeys[0]).to.equal('newKey');
+                    expect(test).to.be.true;
                     done();
                 })
                 .fail(() => {
@@ -1258,6 +1270,7 @@ describe('XIApi Test', () => {
                 .always(() => {
                     delete gTables[tableId];
                     XcalarIndexFromTable = oldIndex;
+                    XIApi.query = oldQuery;
                 });
         });
 
@@ -1480,32 +1493,6 @@ describe('XIApi Test', () => {
                     });
             });
 
-            it('should handle semi join case', (done) => {
-                const joinType = 10;
-                const lTableInfo = {
-                    tableName: 'l#a',
-                    columns: ['a'],
-                    casts: ColumnType.integer
-                };
-                const rTableInfo = {
-                    tableName: 'r#b',
-                    columns: ['b'],
-                    casts: ColumnType.integer
-                };
-
-                XIApi.join(1, joinType, lTableInfo, rTableInfo)
-                    .then((newTableName, tempCols, lRename, rRename) => {
-                        expect(newTableName).to.equal('l-r#12');
-                        expect(tempCols.length).to.equal(1);
-                        expect(lRename.length).to.equal(1);
-                        expect(rRename.length).to.equal(1);
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    });
-            });
-
             after(() => {
                 XIApi.map = oldMap;
                 XIApi.query = oldQuery;
@@ -1616,11 +1603,10 @@ describe('XIApi Test', () => {
 
                 XIApi.groupBy(1, aggArgs, groupByCols, tableName)
                     .then((finalTable, tempCols, newKeyFieldName, newKeys) => {
-                        expect(finalTable).to.equal('test-GB#12');
-                        expect(tempCols.length).to.equal(3);
-                        expect(newKeyFieldName).to.equal("key");
-                        expect(newKeys.length).to.equal(1);
-                        expect(newKeys[0]).to.equal("key");
+                        expect(finalTable).to.equal('testgb#12');
+                        expect(tempCols.length).to.equal(1);
+                        expect(newKeyFieldName).to.be.undefined;
+                        expect(newKeys.length).to.equal(0);
                         done();
                     })
                     .fail(() => {
@@ -1670,8 +1656,9 @@ describe('XIApi Test', () => {
                 XIApi.union(1, tableInfos)
                     .then((newTableName, newTableCols) => {
                         expect(newTableName).to.equal('t1#12');
-                        expect(newTableCols.length).to.equal(2);
-                        expect(newTableCols[0].backName).to.equal('col');
+                        expect(newTableCols.length).to.equal(1);
+                        expect(newTableCols[0].rename).to.equal('col');
+                        expect(newTableCols[0].type).to.equal(ColumnType.integer);
                         done();
                     })
                     .fail(() => {
@@ -1695,8 +1682,8 @@ describe('XIApi Test', () => {
                 XIApi.union(1, tableInfos, true)
                     .then((newTableName, newTableCols) => {
                         expect(newTableName).to.equal('t1#12');
-                        expect(newTableCols.length).to.equal(2);
-                        expect(newTableCols[0].backName).to.equal('col');
+                        expect(newTableCols[0].rename).to.equal('col');
+                        expect(newTableCols[0].type).to.equal(ColumnType.integer);
                         done();
                     })
                     .fail(() => {
@@ -1846,12 +1833,18 @@ describe('XIApi Test', () => {
 
         it('XIApi.genRowNum should work', (done) => {
             const oldFunc = XcalarGenRowNum;
+            const oldQuery = XIApi.query;
             let test = false;
             XcalarGenRowNum = () => PromiseHelper.resolve();
+            XIApi.query= () => {
+                test = true;
+                return PromiseHelper.resolve();
+            };
 
             XIApi.genRowNum(1, 'table', 'newCol')
                 .then((newTableName) => {
                     expect(newTableName).to.equal('table#12');
+                    expect(test).to.equal(true);
                     done();
                 })
                 .fail(() => {
@@ -1859,6 +1852,7 @@ describe('XIApi Test', () => {
                 })
                 .always(() => {
                     XcalarGenRowNum = oldFunc;
+                    XIApi.query = oldQuery;
                 });
         });
 

@@ -185,6 +185,8 @@ class ColMenu extends AbstractMenu {
             let type: DagNodeType = <DagNodeType>func;
             if (func === "group by") {
                 type = DagNodeType.GroupBy;
+            } else if (func === "aggregate") {
+                type = DagNodeType.Aggregate;
             }
             this._createNodeAndShowForm(type, tableId, colNums);
         });

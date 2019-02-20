@@ -36,6 +36,7 @@ describe("Join Dag Node Test", () => {
             },
             evalString: 'evalString',
             keepAllColumns: false,
+            nullSafe: false
         };
 
         // const nodeInput = new DagNodeJoinInput(inputStruct);
@@ -61,6 +62,7 @@ describe("Join Dag Node Test", () => {
             },
             evalString: '',
             keepAllColumns: true,
+            nullSafe: false
         });
     });
 
@@ -80,7 +82,8 @@ describe("Join Dag Node Test", () => {
                 rename: [{sourceColumn: "", destColumn: "", prefix: false}]
             },
             evalString: '',
-            keepAllColumns: true
+            keepAllColumns: true,
+            nullSafe: false
         };
 
         const node = new DagNodeJoin();
@@ -161,7 +164,8 @@ describe("Join Dag Node Test", () => {
                 rename: genRenames(preset.rightColumns)
             },
             evalString: '',
-            keepAllColumns: true
+            keepAllColumns: true,
+            nullSafe: false
         };
 
         const node = new DagNodeJoin();
@@ -189,7 +193,8 @@ describe("Join Dag Node Test", () => {
                 rename: [{sourceColumn: "", destColumn: "", prefix: false}]
             },
             evalString: '',
-            keepAllColumns: false
+            keepAllColumns: false,
+            nullSafe: false
         };
 
         const node = new DagNodeJoin();
@@ -262,7 +267,8 @@ describe("Join Dag Node Test", () => {
                 rename: genRenames(preset.rightColumns)
             },
             evalString: '',
-            keepAllColumns: true
+            keepAllColumns: true,
+            nullSafe: false
         };
 
         const node = new DagNodeJoin();

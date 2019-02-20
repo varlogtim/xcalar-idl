@@ -2289,7 +2289,6 @@ describe("Persistent Constructor Test", function() {
             expect(wkbk.getCreateTime()).to.equal(1234);
             expect(wkbk.getModifyTime()).to.equal(2234);
             expect(wkbk.getSrcUser()).to.equal("testUser");
-            expect(wkbk.getNumDataflows()).to.equal(12);
             expect(wkbk.isNoMeta()).to.be.false;
             expect(wkbk.getDescription()).to.equal("testDescription");
 

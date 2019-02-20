@@ -1,4 +1,4 @@
-describe('RowManager Test', function() {
+describe.skip('RowManager Test', function() {
     var testDs;
     var tableName;
     var tableId;

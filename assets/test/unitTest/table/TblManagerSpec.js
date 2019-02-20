@@ -11,7 +11,7 @@ describe("TableManager Test", function() {
                 return true;
             };
 
-            TblManager.refreshTable("test", null, null, null, "testTxId")
+            TblManager.refreshTable("test", null, null, "testTxId")
             .then(function() {
                 done("fail");
             })
@@ -190,21 +190,18 @@ describe("TableManager Test", function() {
             var oldTableNames = ["test#wrongId1"];
             var tablesToReplace = [];
             var tablesToRemove = [];
-            setTablesToReplace(oldTableNames, null, tablesToReplace, tablesToRemove);
+            setTablesToReplace(oldTableNames, tablesToReplace, tablesToRemove);
             expect(tablesToReplace.length).to.equal(1);
             expect(tablesToReplace[0]).to.equal("test#wrongId1");
             expect(tablesToRemove.length).to.equal(1);
             expect(tablesToRemove[0]).to.equal("wrongId1");
 
             oldTableNames = ["test#wrongId1", "test#wrongId2"];
-            tablesToReplace = [];
-            setTablesToReplace(oldTableNames, null, tablesToReplace, []);
-            expect(tablesToReplace.length).to.equal(0);
-
-
-            setTablesToReplace(oldTableNames, null, tablesToReplace, []);
-            expect(tablesToReplace.length).to.equal(1);
-            expect(tablesToReplace[0]).to.equal("test#wrongId2");
+            try {
+                setTablesToReplace(oldTableNames, [], []);
+            } catch (e) {
+                expect(e.message).to.equal("Cannot repalce multiple tables when refresh");
+            }
         });
 
         it("TblManager.highlightColumn should highlight modal", function() {

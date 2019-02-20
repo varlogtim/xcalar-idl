@@ -100,6 +100,25 @@ describe("DFUploadModal Test", function() {
 
             DFUploadModal.Instance.show();
             DFUploadModal.Instance._changeFilePath("file.json");
+            StatusBox.forceHide();
+        });
+
+        beforeEach(() => {
+            let $btn = DFUploadModal.Instance._getModal().find(".confirm");
+            $btn.removeClass("btn-disabled");
+        });
+
+        it("should reject if confirm btn is disabled", function(done) {
+            let $btn = DFUploadModal.Instance._getModal().find(".confirm");
+            $btn.addClass("btn-disabled");
+            DFUploadModal.Instance._submitForm()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(error) {
+                expect(error).to.be.undefined;
+                done();
+            });
         });
 
         it("should handle empty name error", function(done) {

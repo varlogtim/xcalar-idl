@@ -567,10 +567,12 @@ namespace XIApi {
             rIndexedTable = res2[0];
             lNewKeys = res1[2];
             rNewKeys = res2[2];
+
+            let currentTempCols = res1[3] || [];
             if (lTableName === rTableName && isSameKey(lColNames, rColNames)) {
-                tempCols = res1[3];
+                tempCols = currentTempCols;
             } else {
-                tempCols = res1[3].concat(res2[3]);
+                tempCols = currentTempCols.concat(res2[3] || []);
             }
 
             if (removeNulls) {

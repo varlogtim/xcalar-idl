@@ -15,7 +15,7 @@ describe("SQLHistorySpace Test", () => {
     it("should refresh", () => {
         let oldFunc = SQLHistorySpace.Instance._historyComponent.show;
         SQLHistorySpace.Instance._historyComponent.show = (refresh) => {
-            expect(refresh).to.true;
+            expect(refresh).to.false;
         };
         SQLHistorySpace.Instance.refresh();
         SQLHistorySpace.Instance._historyComponent.show = oldFunc;

@@ -45,6 +45,7 @@ describe("Dataset-DSPreview Test", function() {
         $mainTabCache = $(".topMenuBarTab.active");
         $("#dataStoresTab").click();
         UnitTest.onMinMode();
+        DSPreview.__testOnly__.setIsCreateTableMode(false);
     });
 
     describe("Basic Preview Function Test", function() {
@@ -940,14 +941,16 @@ describe("Dataset-DSPreview Test", function() {
         var oldSetFree;
 
         before(function() {
-            oldLoad = XIApi.loadDataset;
+            oldLoad = XcalarDatasetLoad;
             oldMakeResultSet = XcalarMakeResultSetFromDataset;
             oldSetFree = XcalarSetFree;
             oldFetch = XcalarFetchData;
         });
 
         it("should loadDataWithUDF handle error case", function(done) {
-            XIApi.loadDataset = function() {
+            let called = false;
+            XcalarDatasetLoad = function() {
+                called = true;
                 return PromiseHelper.reject("test");
             };
 
@@ -959,18 +962,22 @@ describe("Dataset-DSPreview Test", function() {
                 done("fail");
             })
             .fail(function(error) {
-                expect(error.error).to.equal("Error Parse Args");
+                expect(called).to.be.true;
+                expect(error).to.equal("test");
                 done();
             });
         });
 
         it("should loadDataWithUDF handle parse error", function(done) {
+            let called = 0;
             loadArgs.set({"path": "test"});
-            XIApi.loadDataset = function() {
+            XcalarDatasetLoad = function() {
+                called++;
                 return PromiseHelper.resolve();
             };
 
             XcalarMakeResultSetFromDataset = function() {
+                called++;
                 return PromiseHelper.resolve({
                     "resultSetId": 1,
                     "numEntries": 1
@@ -989,19 +996,22 @@ describe("Dataset-DSPreview Test", function() {
                 done("fail");
             })
             .fail(function(error) {
-                expect(error.error).to.equal("Error Parse Args");
+                expect(called).to.equal(2);
+                expect(error.error).to.equal(DSTStr.NoParse);
                 done();
             });
         });
 
         it("should loadDataWithUDF", function(done) {
             loadArgs.set({"path": "test"});
-
+            let called = 0;
             XcalarDatasetLoad = function() {
+                called++;
                 return PromiseHelper.resolve();
             };
 
             XcalarMakeResultSetFromDataset = function() {
+                called++;
                 return PromiseHelper.resolve({
                     "resultSetId": 1,
                     "numEntries": 1
@@ -1009,11 +1019,13 @@ describe("Dataset-DSPreview Test", function() {
             };
 
             XcalarFetchData = function() {
+                called++;
                 var val = JSON.stringify({"a": "test"});
                 return PromiseHelper.resolve([val]);
             };
 
             XcalarSetFree = function() {
+                called++;
                 return PromiseHelper.resolve();
             };
 
@@ -1022,6 +1034,7 @@ describe("Dataset-DSPreview Test", function() {
                 "funcName": "func"
             })
             .then(function(buffer) {
+                expect(called).to.equal(4);
                 expect(buffer).not.to.be.null;
                 expect(buffer).contains("test");
                 done();
@@ -1065,12 +1078,15 @@ describe("Dataset-DSPreview Test", function() {
 
         it("should clear the table", function(done) {
             var oldDestory = XIApi.deleteDataset;
+            var called = 0;
             XIApi.deleteDataset = function() {
+                called++;
                 return PromiseHelper.resolve();
             };
             var tName = DSPreview.__testOnly__.get().tableName;
             DSPreview.__testOnly__.clearPreviewTable(tName)
             .then(function(hasDestroyTable) {
+                expect(called).to.equal(1);
                 expect(hasDestroyTable).to.be.true;
                 done();
             })
@@ -1141,7 +1157,7 @@ describe("Dataset-DSPreview Test", function() {
 
             // names can be reused
             res = getNameFromPath(testName);
-            expect(res).to.equal(testName);
+            expect(res).to.equal(testName + "1");
             DS.has = oldhas;
         });
 
@@ -3307,6 +3323,7 @@ describe("Dataset-DSPreview Test", function() {
     });
 
     after(function() {
+        DSPreview.__testOnly__.resetIsCreateTableMode();
         StatusBox.forceHide();
 
         $mainTabCache.click();
