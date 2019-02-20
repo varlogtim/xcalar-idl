@@ -807,6 +807,9 @@ class DagTabManager {
     private _tabRenameCheck(name: string, $tab: JQuery): boolean {
         let isSQLFunc: boolean = $tab.hasClass("sqlFunc");
         const isValid: boolean = xcHelper.validate([{
+            $ele: $tab
+        },
+        {
             $ele: $tab,
             error: isSQLFunc ? SQLTStr.DupFuncName : DFTStr.DupDataflowName,
             check: () => {
