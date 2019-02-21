@@ -2015,6 +2015,23 @@
         }
     }
 
+    .resultSection, .candidateSection {
+        .listSection {
+            .size(@width: ~"calc(100% - 10px)");
+        }
+    }
+
+    .resultSection {
+        .listSection {
+            .searchArea.placeholder::after {
+                padding-left: 0;
+            }
+            .lists.newTable {
+                padding-left: 10px;
+            }
+        }
+    }
+
     .newTable {
         margin-right: 3px !important;
     }
