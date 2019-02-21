@@ -368,7 +368,7 @@ class DagList {
             $dagListItem.remove();
             this._dags.delete(id);
             this._saveDagList(dagTab);
-            this._renderDagList();
+            this._renderDagList(true, true);
             this._updateSection();
             deferred.resolve();
         })
@@ -480,7 +480,7 @@ class DagList {
         });
     }
 
-    private _renderDagList(keepLocation: boolean = true): void {
+    private _renderDagList(keepLocation: boolean = true, ignoreError = false): void {
         const dagLists = this.list();
         this._fileLister.setFileObj(dagLists);
         if (keepLocation) {
@@ -489,7 +489,7 @@ class DagList {
             if (curPath) {
                 path += curPath + "/";
             }
-            this._fileLister.goToPath(path);
+            this._fileLister.goToPath(path, ignoreError);
         } else {
             this._fileLister.render();
         }

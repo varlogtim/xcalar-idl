@@ -84,7 +84,7 @@ class FileLister {
      * Go to a path and re-render
      * @param path
      */
-    public goToPath(path: string): void {
+    public goToPath(path: string, ignoreError: boolean = false): void {
         this._currentPath = [];
         this._futurePath = [];
         let splitPath: string[] = path.split('/');
@@ -96,10 +96,10 @@ class FileLister {
         } else {
             this._getBackBtn().addClass('xc-disabled');
         }
-        this._render();
+        this._render(ignoreError);
     }
 
-    private _verifyPath(): void {
+    private _verifyPath(ignoreError: boolean): void {
         const pathLen: number = this._currentPath.length;
         let curObj: FileListerFolder = this._fileObject;
         for (let i = 0; i < pathLen; i++) {
@@ -107,19 +107,21 @@ class FileLister {
             if (currentPath != "" && curObj.folders[currentPath] == null) {
                 // path no longer exists
                 this._currentPath = this._currentPath.slice(0, i);
-                StatusBox.show("Folder does not exist: " + currentPath,
+                if (!ignoreError) {
+                    StatusBox.show("Folder does not exist: " + currentPath,
                     this._$section.find(".pathSection .path"));
+                }
                 break;
             }
             curObj = curObj.folders[currentPath];
         }
     }
 
-    private _render(): void {
+    private _render(ignoreError: boolean = false): void {
         if (this._fileObject == null) {
             return;
         }
-        this._verifyPath();
+        this._verifyPath(ignoreError);
         const pathLen: number = this._currentPath.length;
         let curObj: FileListerFolder = this._fileObject;
         let path: string = "";
@@ -149,7 +151,7 @@ class FileLister {
         }
         if (curObj == null && pathLen > 0) {
             // when currentPath has nothing
-            this.goToPath(this._rootPath)
+            this.goToPath(this._rootPath);
         } else {
             const folders: string[] = Object.keys(curObj.folders);
             const currentPath = this.getCurrentPath();
