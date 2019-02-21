@@ -272,8 +272,12 @@ class DagList {
         }
         if (dagTab.isOpen()) {
             $li.addClass("open");
+            $li.find(".canBeDisabledIconWrap").removeClass("xc-disabled");
+            $li.find(".xi-duplicate").removeClass("xc-disabled");
         } else {
             $li.removeClass("open");
+            $li.find(".canBeDisabledIconWrap").addClass("xc-disabled");
+            $li.find(".xi-duplicate").addClass("xc-disabled");
         }
     }
 
@@ -445,13 +449,25 @@ class DagList {
                         '</li>';
             });
             // Add files
-            const icon: HTML = this._iconHTML("deleteDataflow", "xi-trash", DFTStr.DelDF);
+            let deleteIcon: HTML = this._iconHTML("deleteDataflow", "xi-trash", DFTStr.DelDF);
+            let duplicateIcon: HTML = this._iconHTML("duplicateDataflow", "xi-duplicate", DFTStr.DupDF);
+            let publishIcon: HTML = "";
+            if (!isInPublishedFolder) {
+                publishIcon = this._iconHTML("publishDataflow", "xi-add-dataflow", DFTStr.PubDF);
+            }
+            let downloadIcon: HTML = this._iconHTML("downloadDataflow", "xi-download", DFTStr.DownloadDF);
             files.forEach((file) => {
                 let openClass: string = "";
                 let timeTooltip: string = "";
+                let canBeDisabledIconWrap: HTML = ""
                 if (file.options) {
                     if (file.options.isOpen) {
                         openClass = "open";
+                        canBeDisabledIconWrap = "<div class='canBeDisabledIconWrap'>" +
+                        duplicateIcon + publishIcon + "</div>";
+                    } else {
+                        canBeDisabledIconWrap = "<div class='canBeDisabledIconWrap xc-disabled'>" +
+                        duplicateIcon + publishIcon + "</div>";
                     }
                     if (file.options.createdTime) {
                         timeTooltip = xcTimeHelper.getDateTip(file.options.createdTime, {prefix: "Created: "});
@@ -462,7 +478,7 @@ class DagList {
                 '<li class="fileName dagListDetail ' + openClass + '" data-id="' + file.id + '">' +
                     '<i class="gridIcon icon xi-dfg2"></i>' +
                     '<div class="name" ' + timeTooltip + '>' + file.name + '</div>' +
-                    icon +
+                    deleteIcon + canBeDisabledIconWrap + downloadIcon +
                 '</li>';
             });
             return html;
@@ -856,7 +872,7 @@ class DagList {
         });
 
         $dagListSection.on("click", ".deleteDataflow", (event) => {
-            let $dagListItem: JQuery = $(event.currentTarget).parent();
+            let $dagListItem: JQuery = $(event.currentTarget).closest(".dagListDetail");
             if ($dagListItem.hasClass("unavailable")) {
                 return;
             }
@@ -887,6 +903,34 @@ class DagList {
                     });
                 }
             });
+        });
+
+        $dagListSection.on("click", ".duplicateDataflow", (event) => {
+            let $dagListItem: JQuery = $(event.currentTarget).closest(".dagListDetail");
+            if ($dagListItem.hasClass("unavailable")) {
+                return;
+            }
+            const dagTab: DagTab = this.getDagTabById($dagListItem.data("id"));
+            DagTabManager.Instance.duplicateTab(dagTab);
+        });
+
+        $dagListSection.on("click", ".publishDataflow", (event) => {
+            let $dagListItem: JQuery = $(event.currentTarget).closest(".dagListDetail");
+            if ($dagListItem.hasClass("unavailable")) {
+                return;
+            }
+            const dagTab: DagTab = this.getDagTabById($dagListItem.data("id"));
+            DFPublishModal.Instance.show(<DagTabUser>dagTab);
+
+        });
+
+        $dagListSection.on("click", ".downloadDataflow", (event) => {
+            let $dagListItem: JQuery = $(event.currentTarget).closest(".dagListDetail");
+            if ($dagListItem.hasClass("unavailable")) {
+                return;
+            }
+            const dagTab: DagTab = this.getDagTabById($dagListItem.data("id"));
+            DFDownloadModal.Instance.show(dagTab);
         });
     }
 }

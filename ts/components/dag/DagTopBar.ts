@@ -37,14 +37,7 @@ class DagTopBar {
 
         $btns.find(".topButton").removeClass("xc-disabled");
 
-        const $userOnlyBtns: JQuery = $btns.find(".publish");
-        if (dagTab instanceof DagTabUser) {
-            $userOnlyBtns.removeClass("xc-disabled");
-        } else {
-            $userOnlyBtns.addClass("xc-disabled");
-        }
-
-        const $userAndPublishOnlyBtns: JQuery = $btns.find(".run, .optimizedRun, .duplicate");
+        const $userAndPublishOnlyBtns: JQuery = $btns.find(".run, .optimizedRun");
         if (dagTab instanceof DagTabUser || dagTab instanceof DagTabPublished) {
             $userAndPublishOnlyBtns.removeClass("xc-disabled");
         } else {
@@ -68,7 +61,7 @@ class DagTopBar {
 
     private _toggleButtonsInSQLFunc(dagTab: DagTab): void {
         const $btns: JQuery = this.$topBar.find(".topButtons");
-        const $btnsToHideInSQLMode: JQuery = $btns.find(".optimizedRun, .publish");
+        const $btnsToHideInSQLMode: JQuery = $btns.find(".optimizedRun");
         if (dagTab instanceof DagTabSQLFunc) {
             $btnsToHideInSQLMode.addClass("xc-hidden");
         } else {
@@ -132,24 +125,6 @@ class DagTopBar {
             }
         });
 
-        this.$topBar.find(".duplicate").click(() => {
-            this._duplicateTab();
-        });
-
-        this.$topBar.find(".publish").click(() => {
-            const tab: DagTab = DagViewManager.Instance.getActiveTab();
-            DFPublishModal.Instance.show(<DagTabUser>tab);
-        });
-
-        this.$topBar.find(".download").click(() => {
-            const tab: DagTab = DagViewManager.Instance.getActiveTab();
-            DFDownloadModal.Instance.show(tab);
-        });
-
-        this.$topBar.find(".upload").click(() => {
-            DFUploadModal.Instance.show();
-        });
-
         // settings button
         this.$topBar.find(".setting").click(() => {
             DFSettingsModal.Instance.show();
@@ -175,10 +150,5 @@ class DagTopBar {
         } else if (scaleIndex === DagView.zoomLevels.length - 1) {
             $zoomIn.addClass("disabled");
         }
-    }
-
-    private _duplicateTab(): void {
-        const tab: DagTab = DagViewManager.Instance.getActiveTab();
-        DagTabManager.Instance.duplicateTab(tab);
     }
 }

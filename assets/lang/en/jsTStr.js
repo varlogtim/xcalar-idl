@@ -1095,6 +1095,8 @@ DFTStr = {
     "DelDFMsg": "Are you sure you want to permanently delete the dataflow : \"<dfName>\"? This action cannot be undone.",
     "DFTitle": "DATAFLOW",
     "DownloadErr": "Download Failed",
+    "DupDF": "Duplicate Dataflow",
+    "PubDF": "Publish Dataflow",
     'DupDataflowName': 'Dataflow name already in use.',
     "ExportTo": "Export As",
     "ExportToTable": "Export Table Name",

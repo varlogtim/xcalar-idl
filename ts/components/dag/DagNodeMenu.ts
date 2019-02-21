@@ -131,6 +131,10 @@ namespace DagNodeMenu {
                 case ("focusRunning"):
                     _focusRunningNode();
                     break;
+                case ("download"):
+                    const dagTab: DagTab = DagList.Instance.getDagTabById(tabId);
+                    DFDownloadModal.Instance.show(dagTab);
+                    break;
                 case ("removeInConnection"):
                     DagViewManager.Instance.disconnectNodes(parentNodeId, nodeId, connectorIndex, tabId);
                     break;

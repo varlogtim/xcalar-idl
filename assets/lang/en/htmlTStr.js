@@ -1519,6 +1519,7 @@ module.exports = {
         "inspectSQL": "Inspect",
         "expandSQL": "Expand",
         "download": "Download selected nodes",
+        "downloadDataflow": "Download",
         "viewOptimizedDataflow": "View Optimized Dataflow"
     }
 };
