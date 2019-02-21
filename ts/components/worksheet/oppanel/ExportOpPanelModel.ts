@@ -261,13 +261,16 @@ class ExportOpPanelModel {
     /**
      * Validates the current arguments/parameters.
      */
-    public validateArgs($container: JQuery, dagNode: DagNodeExport, param: DagNodeExportInputStruct): boolean {
-        let error = dagNode.validateParam(param);
-        if (error != null) {
-            StatusBox.show(error.error, $("#exportOpPanel"),
-                            false, {'side': 'right'});
-            return false;
+    public validateArgs($container: JQuery, param?: DagNodeExportInputStruct, dagNode?: DagNodeExport): boolean {
+        if (dagNode && param) {
+            let error = dagNode.validateParam(param);
+            if (error != null) {
+                StatusBox.show(error.error, $container,
+                                false, {'side': 'right'});
+                return false;
+            }
         }
+
         if (this.driverArgs == null || this.exportDrivers.length === 0) {
             let $errorLocation: JQuery = $container.find(".btn.confirm");
             StatusBox.show("No existing driver.", $errorLocation,
@@ -337,7 +340,7 @@ class ExportOpPanelModel {
      */
     public saveArgs(dagNode: DagNodeExport): boolean {
         const param = this.toDag();
-        if (!this.validateArgs($("#exportOpPanel"), dagNode, param)) {
+        if (!this.validateArgs($("#exportOpPanel"), param, dagNode)) {
             return false;
         }
 
