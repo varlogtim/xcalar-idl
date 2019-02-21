@@ -715,6 +715,7 @@ abstract class DagNode {
                              DgDagStateT.DgDagStateArchiveError];
         let isComplete: boolean = true;
         let errorState: string = null;
+        let error: string = null;
         this.runStats.hasRun = true;
         if (this.runStats.needsClear) {
             this.runStats.nodes = {};
@@ -798,6 +799,11 @@ abstract class DagNode {
 
             if (errorStates.indexOf(nodeInfo.state) > -1 ) {
                 errorState = nodeInfo.state;
+                if (nodeInfo.log) {
+                    error = nodeInfo.log;
+                } else if (nodeInfo.status != null) {
+                    error = StatusTStr[nodeInfo.status];
+                }
                 isComplete = false;
             } else if (progress !== 1) {
                 isComplete = false;
@@ -806,7 +812,8 @@ abstract class DagNode {
 
         if (errorState != null) {
             if (this.state !== DagNodeState.Error || this.error !== DgDagStateTStr[errorState]) {
-                this.beErrorState(DgDagStateTStr[errorState]);
+                error = error || DgDagStateTStr[errorState]
+                this.beErrorState(error);
             }
         } else if (isComplete && includesAllTables && this.state !== DagNodeState.Complete) {
             this.beCompleteState();

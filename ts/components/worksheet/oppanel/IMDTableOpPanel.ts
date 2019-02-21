@@ -359,7 +359,7 @@ class IMDTableOpPanel extends BaseOpPanel {
         //const aggs: string[] = DagNode.getAggsFromEvalStrs([{evalString: params.filterString}]);
         //this._dagNode.setAggregates(aggs);
         dagNode.setParam(params);
-        this.close();
+        this.close(true);
     }
 
     private _gotoStep(): void {
