@@ -613,7 +613,7 @@ function collectTablesMetaInfo(queryStr, tablePrefix, type, username, wkbkName) 
             return PromiseHelper.reject(SQLErrTStr.NoPublishedTable);
         }
         var imdTables = allTables[0];
-        var xdTables = allTables[1];
+        xdTables = allTables[1];
         console.log("IMD tables are", imdTables);
         console.log("XD tables are", xdTables);
         var tableValidPromiseArray = [];
