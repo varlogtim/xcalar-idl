@@ -10,6 +10,7 @@ require("../../../assets/js/thrift/XcalarApiServiceAsync.js");
 require("../../../assets/js/thrift/XcalarEvalEnums_types.js");
 require("../../../assets/js/thrift/OrderingEnums_types.js");
 require("../../../assets/js/thrift/JoinOpEnums_types.js");
+require("../../../assets/js/thrift/DagStateEnums_types.js");
 
 global.xcalarApi = xcalarApi = require("../../../assets/js/thrift/XcalarApi.js");
 

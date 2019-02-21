@@ -81,7 +81,8 @@ class DagNodeSQL extends DagNode {
         return this._queryObj;
     }
 
-    public updateSQLQueryHisory(updateStats: boolean = false): void {
+    // XXX TODO: decouple with UI code
+    public updateSQLQueryHistory(updateStats: boolean = false): void {
         if (updateStats) {
             this._updateStatsInSQLQuery();
         }

@@ -2536,7 +2536,7 @@ class DagView {
 
         node.updateProgress(nodeIdInfos, false, node instanceof DagNodeSQL);
         if (node instanceof DagNodeSQL) {
-            node.updateSQLQueryHisory(true);
+            node.updateSQLQueryHistory(true);
         }
     }
 

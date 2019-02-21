@@ -1150,7 +1150,7 @@ class DagNodeExecutor {
                 status: SQLStatus.Running,
                 startTime: new Date()
             });
-            node.updateSQLQueryHisory();
+            node.updateSQLQueryHistory();
             return XIApi.query(self.txId, queryId, replaceRetStruct.newQueryStr,
                                                                        options);
         })
@@ -1162,7 +1162,7 @@ class DagNodeExecutor {
                 newTableName: newDestTableName
             });
             node.getSQLQuery().columns = node.getColumns();
-            node.updateSQLQueryHisory();
+            node.updateSQLQueryHistory();
             deferred.resolve(newDestTableName, res);
         })
         .fail(function(error) {
@@ -1181,7 +1181,7 @@ class DagNodeExecutor {
                 });
             }
             // Set status to Cancelled or Failed
-            node.updateSQLQueryHisory();
+            node.updateSQLQueryHistory();
             deferred.reject(error);
         });
         return deferred.promise();

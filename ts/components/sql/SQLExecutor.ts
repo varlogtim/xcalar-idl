@@ -271,7 +271,7 @@ class SQLExecutor {
             queryObj["endTime"] = endTime;
         }
         this._sqlNode.setSQLQuery(queryObj);
-        this._sqlNode.updateSQLQueryHisory();
+        this._sqlNode.updateSQLQueryHistory();
     }
 
     private _expandSQLNodeAndAddToList(): XDPromise<void> {

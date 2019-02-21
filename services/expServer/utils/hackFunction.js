@@ -29,6 +29,12 @@ function hackFunction() {
         forceClose: function() {},
     };
 
+    global.SQLHistorySpace = {
+        Instance: {
+            update: function() {}
+        }
+    };
+
     global.ColManager = {
         newPullCol: function(colName, backColName, type) {
             if (backColName == null) {
