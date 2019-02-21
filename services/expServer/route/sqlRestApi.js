@@ -563,8 +563,8 @@ function collectTablesMetaInfo(queryStr, tablePrefix, type, username, wkbkName) 
     var deferred = jQuery.Deferred();
     var error = false;
     var batchIdMap = {};
-    var pubTables = new Map();
-    var xdTables = new Map();
+    var pubTablesMap = new Map();
+    var xdTablesMap = new Map();
     var pubTableRes;
 
     var prom;
@@ -575,7 +575,7 @@ function collectTablesMetaInfo(queryStr, tablePrefix, type, username, wkbkName) 
         prom = listPublishedTables('*');
     }
     else {
-        prom = listAllTables('*', pubTables, xdTables);
+        prom = listAllTables('*', pubTablesMap, xdTablesMap);
     }
     prom
     .then(function(retPubTableRes, retPubTables) {
@@ -584,7 +584,7 @@ function collectTablesMetaInfo(queryStr, tablePrefix, type, username, wkbkName) 
         pubTableRes = retPubTableRes;
         if (type === 'odbc') {
             for (var pubTable of retPubTables) {
-                pubTables.set(pubTable.toUpperCase(), pubTable);
+                pubTablesMap.set(pubTable.toUpperCase(), pubTable);
             }
         }
         var requestStruct = {
@@ -607,13 +607,13 @@ function collectTablesMetaInfo(queryStr, tablePrefix, type, username, wkbkName) 
         if (identifiers.length === 0) {
             return PromiseHelper.reject("Failed to get identifiers from invalid SQL");
         }
-        var allTables = getTablesFromParserResult(identifiers, pubTables, xdTables);
+        var allTables = getTablesFromParserResult(identifiers, pubTablesMap, xdTablesMap);
         if (typeof(allTables) !== "object") {
             console.log(allTables);
             return PromiseHelper.reject(SQLErrTStr.NoPublishedTable);
         }
         var imdTables = allTables[0];
-        xdTables = allTables[1];
+        var xdTables = allTables[1];
         console.log("IMD tables are", imdTables);
         console.log("XD tables are", xdTables);
         var tableValidPromiseArray = [];
