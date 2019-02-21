@@ -22,6 +22,13 @@ function hackFunction() {
         setOrphanTableMeta: function() {}
     };
 
+    global.Alert = {
+        setup: function() {},
+        show: function() {},
+        error: function() {},
+        forceClose: function() {},
+    };
+
     global.ColManager = {
         newPullCol: function(colName, backColName, type) {
             if (backColName == null) {
