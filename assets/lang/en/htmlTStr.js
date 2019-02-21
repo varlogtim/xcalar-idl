@@ -639,8 +639,8 @@ module.exports = {
         "UsedSysMem": "OS Used",
         "FreeSysMem": "OS Free",
         "FreeXcalarMem": "Xcalar Free",
-        "OtherUsers": "Other Users' Tables",
-        "YourTables": "Your Tables",
+        "OtherUsers": "Other Users' Result Sets",
+        "YourTables": "Your Result Sets",
         "PubTables": "Published Tables",
         "Datasets": "Datasets",
         "AmountUsed": "Amount Used"
@@ -1289,10 +1289,10 @@ module.exports = {
     },
 
     "deleteTable": {
-        "header": "Drop Tables",
-        "instr": "To free space in this application please drop old or unnecessary tables.",
-        "Confirm": "Drop Tables",
-        "Tables": "Tables"
+        "header": "Drop Result Sets",
+        "instr": "To free space in this application please drop old or unnecessary result sets.",
+        "Confirm": "Drop",
+        "Tables": "Result Sets"
     },
 
     "extension": {
