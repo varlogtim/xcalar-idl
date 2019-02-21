@@ -1404,7 +1404,7 @@ abstract class DagNode {
         }
     }
 
-    protected _replaceColumnInEvalStr(evalStr: string, columnMap): string {
+    protected _replaceColumnInEvalStr(evalStr: string, columnMap: {columns: any}): string {
         const parsedEval: ParsedEval = XDParser.XEvalParser.parseEvalStr(evalStr);
         if (parsedEval.error) {
             return evalStr;

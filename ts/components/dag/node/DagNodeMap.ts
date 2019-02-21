@@ -106,7 +106,11 @@ class DagNodeMap extends DagNode {
         };
     }
 
-    public applyColumnMapping(renameMap): void {
+    /**
+     * replaces the column names used in eval strings
+     * @param renameMap {previousColName1: newColName1, prevColName2: newColName2}
+     */
+    public applyColumnMapping(renameMap: {columns: any}): void {
         try {
             const evals = this.input.getInput().eval;
             evals.forEach(evalObj => {
