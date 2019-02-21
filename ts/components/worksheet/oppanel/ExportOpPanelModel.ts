@@ -261,7 +261,7 @@ class ExportOpPanelModel {
     /**
      * Validates the current arguments/parameters.
      */
-    public validateArgs($container: JQuery, param?: DagNodeExportInputStruct, dagNode?: DagNodeExport): boolean {
+    public validateArgs($container: JQuery, param: DagNodeExportInputStruct, dagNode: DagNodeExport): boolean {
         if (dagNode && param) {
             let error = dagNode.validateParam(param);
             if (error != null) {
@@ -269,13 +269,6 @@ class ExportOpPanelModel {
                                 false, {'side': 'right'});
                 return false;
             }
-        }
-
-        if (this.driverArgs == null || this.exportDrivers.length === 0) {
-            let $errorLocation: JQuery = $container.find(".btn.confirm");
-            StatusBox.show("No existing driver.", $errorLocation,
-                false, {'side': 'right'});
-            return false;
         }
 
         let hasColumn: boolean = false;
@@ -302,6 +295,21 @@ class ExportOpPanelModel {
             }
             StatusBox.show(columnValidation, $errorLocation,
             false, {'side': 'right'});
+            return false;
+        }
+
+        return this.validateDriverArgs($container);
+    }
+
+    /**
+     * Validates just the arguments for the driver
+     * @param $container
+    */
+    public validateDriverArgs($container) {
+        if (this.driverArgs == null || this.exportDrivers.length === 0) {
+            let $errorLocation: JQuery = $container.find(".btn.confirm");
+            StatusBox.show("No existing driver.", $errorLocation,
+                false, {'side': 'right'});
             return false;
         }
 

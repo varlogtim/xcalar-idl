@@ -312,12 +312,15 @@ class ExportSQLTableModal {
     }
 
     private _submitForm(): void {
+        if (!this._dataModel.validateDriverArgs(this._$modal)) {
+            return;
+        }
         let $cols = this._$exportColList.find(".col.checked");
         let columns: ProgCol[] = [];
         for (let i = 0; i < $cols.length; i++) {
             columns.push(this._columns[$cols.eq(i).data("colnum") - 1]);
         }
-        if (!this._validateArgs(columns)) {
+        if (!this._validateColumns(columns)) {
             return;
         }
 
@@ -364,41 +367,12 @@ class ExportSQLTableModal {
         })
     }
 
-    private _validateArgs(columns) {
-        if (this._dataModel.driverArgs == null || this._dataModel.exportDrivers.length === 0) {
-            let $errorLocation: JQuery = this._$modal.find(".btn.confirm");
-            StatusBox.show("No existing driver.", $errorLocation,
-                false, {'side': 'right'});
-            return false;
-        }
-
+    private _validateColumns(columns) {
         if (!columns.length) {
             let $errorLocation: JQuery = this._$modal.find(".columnsToExport");
             StatusBox.show("Cannot export empty result.", $errorLocation,
             false, {'side': 'right'});
             return false;
-        }
-
-        const argLen: number = this._dataModel.driverArgs.length;
-        let arg: ExportDriverArg = null;
-        let $parameters: JQuery = this._$modal.find(".exportArg");
-        for (let i = 0; i < argLen; i++) {
-            arg = this._dataModel.driverArgs[i];
-            if (!arg.optional && arg.value == null || arg.value == "") {
-                let $errorLocation: JQuery = $parameters.eq(i).find(".label");
-
-                StatusBox.show("\"" + arg.name + "\" is not an optional parameter.", $errorLocation,
-                    false, {'side': 'right'});
-                return false;
-            }
-            if (arg.type == "integer") {
-                if (!$.isNumeric(arg.value)) {
-                    let $errorLocation: JQuery = $parameters.eq(i).find(".label");
-                    StatusBox.show("\"" + arg.name + "\" must be an integer.", $errorLocation,
-                        false, {'side': 'right'});
-                    return false;
-                }
-            }
         }
         return true;
     }
