@@ -1474,6 +1474,64 @@ window.DSPreview = (function($, DSPreview) {
             "skipRows": options.skipRows,
             "quote": options.quoteChar
         };
+
+        if (options.advancedArgs) {
+            restoreAdvancedArgs(options.advancedArgs);
+        }
+    }
+
+    function restoreAdvancedArgs(advancedArgs) {
+        try {
+            var hasAdvancedArg;
+            advancedArgs = advancedArgs || {};
+            if (advancedArgs.fileName) {
+                restoreExtraCols("fileName", advancedArgs.fileName);
+                hasAdvancedArg = true;
+            }
+            if (advancedArgs.rowNumName) {
+                restoreExtraCols("rowNumber", advancedArgs.rowNumName);
+                hasAdvancedArg = true;
+            }
+            if (restoreTerminationOptions(advancedArgs.allowRecordErrors, advancedArgs.allowFileErrors)) {
+                hasAdvancedArg = true;
+            }
+
+            if (hasAdvancedArg) {
+                openAdvanceSetcion();
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    function restoreExtraCols(fieldName, value) {
+        var $advanceSection = $form.find(".advanceSection");
+        var $field = $advanceSection.find("." + fieldName);
+        $field.find(".checkboxSection").click();
+        $field.find("input").val(value);
+    }
+
+    function restoreTerminationOptions(allowRecordErrors, allowFileErrors) {
+        var $advanceSection = $form.find(".advanceSection");
+        var $row = $advanceSection.find(".termination");
+        var option;
+        var hasAdvancedArg = false;
+        
+        if (allowRecordErrors === true && allowFileErrors === true) {
+            option = "continue";
+            hasAdvancedArg = true;
+        } else if (allowRecordErrors === false && allowFileErrors === true) {
+            option = "stoprecord";
+            hasAdvancedArg = true;
+        } else {
+            option = "stop";
+        }
+
+        if (hasAdvancedArg) {
+            $row.find(".radioButton.active").removeClass("active");
+            $row.find('.radioButton[data-option="' + option + '"]').addClass("active");
+        }
+        return hasAdvancedArg;
     }
 
     function submitForm(createTable) {
@@ -2161,9 +2219,7 @@ window.DSPreview = (function($, DSPreview) {
                         return (xcHelper.validateColName(val) != null);
                     },
                     onErr: function() {
-                        if (!$advanceSection.hasClass("active")) {
-                            $advanceSection.find(".listWrap").click();
-                        }
+                        openAdvanceSetcion();
                     },
                     error: ErrTStr.InvalidColName,
                     delay: 300 // there is a forceHide event on scroll, so need delay to show the statusbox
@@ -2177,9 +2233,7 @@ window.DSPreview = (function($, DSPreview) {
                         }
                     },
                     onErr: function() {
-                        if (!$advanceSection.hasClass("active")) {
-                            $advanceSection.find(".listWrap").click();
-                        }
+                        openAdvanceSetcion();
                     },
                     error: ErrTStr.ColumnConflict,
                     delay: 300 // there is a forceHide event on scroll, so need delay to show the statusbox
@@ -2196,9 +2250,8 @@ window.DSPreview = (function($, DSPreview) {
             return null;
         }
 
-        //var metaFile = $("#dsForm-metadataFile").val().trim() || null;
-        var rowNum = $rowNum.find("input").val().trim() || null;
-        var fileName = $fileName.find("input").val().trim() || null;
+        var rowNum = getAdvancedRowNumber() || null;
+        var fileName = getAdvancedFileName() || null;
         var unsorted = $advanceSection.find(".performance .checkbox")
                                       .hasClass("checked");
         var terminationOptions = getTerminationOptions();
@@ -2210,6 +2263,31 @@ window.DSPreview = (function($, DSPreview) {
             allowRecordErrors: terminationOptions.allowRecordErrors,
             allowFileErrors: terminationOptions.allowFileErrors
         };
+    }
+
+    function openAdvanceSetcion() {
+        var $advanceSection = $form.find(".advanceSection");
+        if (!$advanceSection.hasClass("active")) {
+            $advanceSection.find(".listWrap").click();
+        }
+    }
+
+    function getAdvancedRowNumber() {
+        return getAdvancedField("rowNumber");
+    }
+
+    function getAdvancedFileName() {
+        return getAdvancedField("fileName");
+    }
+
+    function getAdvancedField(fieldName) {
+        var $advanceSection = $form.find(".advanceSection");
+        var $field = $advanceSection.find("." + fieldName);
+        if ($field.find(".checkbox").hasClass("checked")) {
+            return $field.find("input").val().trim();
+        } else {
+            return null;
+        }
     }
 
     function getTerminationOptions() {
@@ -3885,10 +3963,10 @@ window.DSPreview = (function($, DSPreview) {
 
         $previewTable.find(".extra").remove();
         var $advanceSection = $form.find(".advanceSection");
-        var $fileName = $advanceSection.find(".fileName");
-        var $rowNumber = $advanceSection.find(".rowNumber");
-        var hasFileName = $fileName.find(".checkbox").hasClass("checked");
-        var hasRowNumber = $rowNumber.find(".checkbox").hasClass("checked");
+        var fileName = getAdvancedFileName()
+        var rowNumber = getAdvancedRowNumber()
+        var hasFileName = (fileName != null);
+        var hasRowNumber = (rowNumber != null);
         if (!hasFileName && !hasRowNumber) {
             return;
         }
@@ -3896,12 +3974,10 @@ window.DSPreview = (function($, DSPreview) {
         var previewFile = loadArgs.getPreviewFile() || "";
         var extraTh = "";
         if (hasFileName) {
-            let header = $fileName.find("input").val().trim();
-            extraTh += getTh(header, "extra fileName");
+            extraTh += getTh(fileName, "extra fileName");
         }
         if (hasRowNumber) {
-            let header = $rowNumber.find("input").val().trim()
-            extraTh += getTh(header, "extra rowNumber");
+            extraTh += getTh(rowNumber, "extra rowNumber");
         }
 
         $previewTable.find("thead tr").append(extraTh);

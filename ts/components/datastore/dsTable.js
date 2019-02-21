@@ -579,6 +579,7 @@ window.DSTable = (function($, DSTable) {
             "quoteChar": dsObj.quoteChar,
             "typedColumns": dsObj.typedColumns,
             "udfQuery": dsObj.udfQuery,
+            "advancedArgs": dsObj.advancedArgs
         }, null, true);
     }
 
