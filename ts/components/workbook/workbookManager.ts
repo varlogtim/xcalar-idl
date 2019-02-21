@@ -932,6 +932,7 @@ namespace WorkbookManager {
         const gDagResetKey: string = generateKey("gDagResetKey", version);
         const gDagParamKey: string = generateKey("gDagParamKey", version);
         const gSQLQueryKey: string = generateKey("gSQLQuery", version);
+        const gSQLQueriesKey: string = generateKey("gSQLQueries", version);
         const gSQLSnippetKey: string = generateKey("gSQLSnippet", version);
         const gSQLSnippetQueryKey: string = generateKey("gSQLSnippetQuery", version);
         const gTutorialKey: string = generateKey("gTutorialKey", version);
@@ -947,6 +948,7 @@ namespace WorkbookManager {
             "gNotebookKey": gNotebookKey,
             "gSQLTables": gSQLTablesKey,
             "gSQLQuery": gSQLQueryKey,
+            "gSQLQueries": gSQLQueriesKey,
             "gDagManagerKey": gDagManagerKey,
             "gDagTableManagerKey": gDagTableManagerKey,
             "gDagAggKey": gDagAggKey,

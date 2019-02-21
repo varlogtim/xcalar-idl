@@ -6,14 +6,14 @@ class SqlQueryHistory {
         return this._instance || (this._instance = new this());
     }
 
-    private _sqlQueryKvStore: KVStore = null;
+    private _storageKey: string;
     private _queryMap: SqlQueryMap = {};
     private _isLoaded: boolean = false;
 
     private constructor() {
-        const queryKey = KVStore.getKey("gSQLQuery") || "gSQLQuery-1";
-        // sqlQueryKvStore stores all queryIds
-        this._sqlQueryKvStore = new KVStore(queryKey, gKVScope.WKBK);
+        // The query keys in KVStore are folder like
+        // ie. gSQLQueries/<queryId>
+        this._storageKey = KVStore.getKey("gSQLQueries");
     }
 
     public isLoaded(): boolean {
@@ -64,57 +64,50 @@ class SqlQueryHistory {
      */
     public readStore(refresh: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        this._sqlQueryKvStore.get()
-        .then( (ret) => {
-            let promiseArray = [];
-            if (ret) {
-                for (const queryId of ret.split(",")) {
-                    if (queryId) {
-                        let kvStore = new KVStore(queryId, gKVScope.WKBK);
-                        let queryInfo;
-                        let promise = kvStore.get()
-                            .then( (ret) => {
-                                if (ret == null) {
-                                    // Deleted query
-                                    // This is expected, as we don't update the query list KV pair when deleting a query
-                                    return;
-                                }
-                                try {
-                                    queryInfo = JSON.parse(ret);
-                                    if (!this._queryMap.hasOwnProperty(queryId) &&
-                                        !refresh &&
-                                        (queryInfo.status === SQLStatus.Compiling ||
-                                         queryInfo.status === SQLStatus.Running)
-                                        ) {
-                                        queryInfo.status = SQLStatus.Interrupted;
-                                        this._queryMap[queryId] = queryInfo;
-                                        return kvStore.put(JSON.stringify(queryInfo), true);
-                                    }
-                                    this._queryMap[queryId] = queryInfo;
-                                } catch(e) {
-                                    deferred.reject();
-                                }
-                            })
-                            .fail(deferred.reject);
-                        promiseArray.push(promise);
-                    }
-                }
-                return PromiseHelper.when.apply(this, promiseArray);
+
+        // Read the keys of sql queries
+        KVStore.list(this._getKVStoreKeyPattern(), gKVScope.WKBK)
+        .then(({keys}) => {
+            // XXX TODO: Must be deleted in the next major release!!!
+            // Added in 2.0.0
+            if (keys.length === 0 && XVM.getVersion().indexOf('2.') === 0) {
+                return this.convertKVStore();
             } else {
-                // Key doesn't exist for first time user
-                this._isLoaded = true;
-                deferred.resolve();
+                return PromiseHelper.resolve({keys: keys});
             }
         })
-        .then( () => {
+        .then(({keys}) => {
+            // Read sql queries
+            const getQueries = keys.map((key) => {
+                const kvStore = new KVStore(key, gKVScope.WKBK);
+                return kvStore.get()
+                .then((ret) => {
+                    try {
+                        const queryInfo: SqlQueryHistory.QueryInfo = JSON.parse(ret);
+                        const queryId = queryInfo.queryId;
+                        if (!this._queryMap.hasOwnProperty(queryId) &&
+                            !refresh &&
+                            (queryInfo.status === SQLStatus.Compiling ||
+                             queryInfo.status === SQLStatus.Running)
+                            ) {
+                            queryInfo.status = SQLStatus.Interrupted;
+                            this._queryMap[queryId] = queryInfo;
+                            return kvStore.put(JSON.stringify(queryInfo), true);
+                        }
+                        this._queryMap[queryId] = queryInfo;
+                    } catch(e) {
+                        deferred.reject();
+                    }
+                })
+                .fail(deferred.reject);
+            });
+            return PromiseHelper.when(...getQueries);
+        })
+        .then(() => {
             this._isLoaded = true;
             deferred.resolve();
         })
         .fail(deferred.reject);
-        // return PromiseHelper.resolve().then( () => {
-        //     this._queryMap = SqlQueryHistory.getQueryList();
-        //     this._isLoaded = true;
-        // });
 
         return deferred.promise();
     }
@@ -155,11 +148,6 @@ class SqlQueryHistory {
 
         // update KVStore
         return this.writeQueryStore(queryInfo.queryId, queryInfo)
-        .then( () => {
-            if (isNewQuery) {
-                return this._sqlQueryKvStore.append(queryInfo.queryId + ",", true);
-            }
-        })
         .then( () => ({
             isNew: isNewQuery,
             queryInfo: queryInfo
@@ -174,23 +162,79 @@ class SqlQueryHistory {
 
     // TODO: For test only, should be deleted!!!
     public clearStore() {
-        return this._sqlQueryKvStore.get()
-        .then( (ret) => {
-            const tasks = ret.split(',').map( (queryId) => {
-                let kvStore = this._getKVStoreFromQueryId(queryId);
+        return KVStore.list(this._getKVStoreKeyPattern(), gKVScope.WKBK)
+        .then( ({keys}) => {
+            const tasks = keys.map( (key) => {
+                const kvStore = new KVStore(key, gKVScope.WKBK);
                 return kvStore.delete();
-            })
-            return Promise.all(tasks);
-        })
-        .then( () => {
-            return this._sqlQueryKvStore.delete();
+            });
+            return PromiseHelper.when(...tasks);
         })
         .then(()=>console.log('clear done'))
         .fail(()=>console.log('clear fail'));
     }
 
+    // XXX TODO: Must be deleted in the next major release!!!
+    // Added in 2.0.0
+    public convertKVStore(): XDPromise<{keys: string[]}> {
+        const oldKey = 'gSQLQuery';
+        const keysToDelete: string[] = [];
+
+        const deferred: XDDeferred<{keys: string[]}> = PromiseHelper.deferred();
+        (new KVStore(KVStore.getKey(oldKey), gKVScope.WKBK)).get()
+        .then((ret) => {
+            // Copy all the old queries to new keys
+            if (ret == null) {
+                return PromiseHelper.resolve();
+            }
+            const getQueries = ret.split(",").map((queryId) => {
+                return (new KVStore(queryId, gKVScope.WKBK)).get()
+                .then((ret) => {
+                    keysToDelete.push(queryId);
+                    if (ret == null) {
+                        return PromiseHelper.resolve(null);
+                    }
+                    const newKVStore = this._getKVStoreFromQueryId(queryId);
+                    return newKVStore.put(ret, true);
+                })
+            });
+            return PromiseHelper.when(...getQueries)
+        })
+        .then(() => {
+            // Delete old query list key
+            const kvStore = new KVStore(KVStore.getKey(oldKey), gKVScope.WKBK);
+            return kvStore.delete();
+        })
+        .then(() => {
+            // Delete old query keys
+            const deleteKeys = keysToDelete.map((key) => {
+                const kvStore = new KVStore(key, gKVScope.WKBK);
+                return kvStore.delete();
+            });
+            return PromiseHelper.when(...deleteKeys);
+        })
+        .then(() => {
+            console.log('Convert success');
+        })
+        .fail(() => {
+            console.log('Convert failed')
+        })
+        .always(() => {
+            KVStore.list(this._getKVStoreKeyPattern(), gKVScope.WKBK)
+            .then(({keys}) => {
+                deferred.resolve({keys: keys});
+            })
+        });
+
+        return deferred.promise();
+    }
+
     private _getKVStoreFromQueryId(queryId: string): KVStore {
-        return new KVStore(queryId, gKVScope.WKBK);
+        return new KVStore(`${this._storageKey}/${queryId}`, gKVScope.WKBK);
+    }
+
+    private _getKVStoreKeyPattern(): string {
+        return `^${this._storageKey}/.+`;
     }
 }
 
