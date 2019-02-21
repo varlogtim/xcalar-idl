@@ -816,9 +816,10 @@ class DagViewManager {
      */
     public expandSQLNodeInTab(
         dagNode: DagNodeSQL,
-        dagTab: DagTab
+        dagTab: DagTab,
+        rawXcQuery: boolean = false
     ): XDPromise<void> {
-        return this.dagViewMap.get(dagTab.getId()).expandSQLNodeInTab(dagNode);
+        return this.dagViewMap.get(dagTab.getId()).expandSQLNodeInTab(dagNode, rawXcQuery);
     }
 
     /**

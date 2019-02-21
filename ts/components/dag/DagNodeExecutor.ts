@@ -1097,6 +1097,7 @@ class DagNodeExecutor {
             // query string exists in original node but not the clone
             node.setNewTableName(this.originalSQLNode.getNewTableName());
             node.setXcQueryString(this.originalSQLNode.getXcQueryString());
+            node.setRawXcQueryString(this.originalSQLNode.getRawXcQueryString());
             node.setRawColumns(this.originalSQLNode.getColumns());
             node.setTableSrcMap(this.originalSQLNode.getTableSrcMap());
             node.updateSubGraph();

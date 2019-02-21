@@ -4,6 +4,7 @@ class DagNodeSQL extends DagNode {
     protected input: DagNodeSQLInput;
     protected columns: {name: string, backName: string, type: ColumnType}[];
     protected xcQueryString: string;
+    protected rawXcQueryString: string; // partially optimized query (curretnly without pushToSelect)
     protected identifiers: Map<number, string>; // 1 to 1 mapping
     protected tableSrcMap: {};
     protected subGraph: DagSubGraph;
@@ -101,7 +102,7 @@ class DagNodeSQL extends DagNode {
         }
     }
 
-    public updateSubGraph(_newTableMap?: {}): void {
+    public updateSubGraph(_newTableMap?: {}, rawXcQuery?: boolean): void {
         if (_newTableMap) {
             // If it's simply updating the mapping of oldTableName -> newTableName
             // no need to re-build the entire sub graph
@@ -135,7 +136,8 @@ class DagNodeSQL extends DagNode {
         this.subInputNodes = [];
         this.subOutputNodes = [];
         const connections: NodeConnection[] = [];
-        const xcQuery = this.getXcQueryString();
+        const xcQuery = rawXcQuery ? this.getRawXcQueryString() :
+                                     this.getXcQueryString();
         if (!xcQuery) {
             return;
         }
@@ -214,6 +216,12 @@ class DagNodeSQL extends DagNode {
     }
     public setXcQueryString(xcQueryString: string) {
         this.xcQueryString = xcQueryString;
+    }
+    public getRawXcQueryString(): string {
+        return this.rawXcQueryString;
+    }
+    public setRawXcQueryString(xcQueryString: string) {
+        this.rawXcQueryString = xcQueryString;
     }
     public getNewTableName(): string{
         return this.newTableName;
@@ -550,6 +558,7 @@ class DagNodeSQL extends DagNode {
             this.getState() === DagNodeState.Error) {
             // When it is a "reset"
             this.setXcQueryString(null);
+            this.setRawXcQueryString(null);
         }
         super.beConfiguredState();
         if (isUpdateSubgraph) {
@@ -1105,6 +1114,10 @@ class DagNodeSQL extends DagNode {
                 const optimizations = {combineProjectWithSynthesize: true,
                                        dropAsYouGo: dropAsYouGo};
                 if (sqlMode) {
+                    self.setRawXcQueryString(optimizer.logicalOptimize(
+                                                            queryString,
+                                                            optimizations,
+                                                            schemaQueryString));
                     optimizations["pushToSelect"] = true;
                 }
                 const optimizedQueryString = optimizer.logicalOptimize(queryString,

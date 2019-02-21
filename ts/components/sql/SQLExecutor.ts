@@ -280,7 +280,7 @@ class SQLExecutor {
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
-        let promise = DagViewManager.Instance.expandSQLNodeInTab(this._sqlNode, this._tempTab);
+        let promise = DagViewManager.Instance.expandSQLNodeInTab(this._sqlNode, this._tempTab, true);
         PromiseHelper.alwaysResolve(promise)
         .then(() => {
             DagViewManager.Instance.autoAlign(this._tempTab.getId());

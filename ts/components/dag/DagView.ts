@@ -2162,7 +2162,8 @@ class DagView {
      * DagView.expandSQLNodeInTab
      */
     public expandSQLNodeInTab(
-        dagNode: DagNodeSQL
+        dagNode: DagNodeSQL,
+        rawXcQuery: boolean = false
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let promise = PromiseHelper.resolve();
@@ -2179,6 +2180,10 @@ class DagView {
         }
         promise
             .then(() => {
+                if (rawXcQuery) {
+                    // give the partially optimized subgraph
+                    dagNode.updateSubGraph(null, true);
+                }
                 return this._expandSubgraphNode({
                     dagNode: dagNode,
                     logTitle: SQLTStr.ExpandSQLOperation,
@@ -2191,7 +2196,13 @@ class DagView {
                 });
             })
             .then(deferred.resolve)
-            .fail(deferred.reject);
+            .fail(deferred.reject)
+            .always(() => {
+                if (rawXcQuery) {
+                    // restore the fully optimized subgraph
+                    dagNode.updateSubGraph(null, false);
+                }
+            });
 
         return deferred.promise();
     }
