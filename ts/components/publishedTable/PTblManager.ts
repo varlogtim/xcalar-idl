@@ -11,6 +11,7 @@ class PTblManager {
     private _tableMap: Map<string, PbTblInfo>;
     private _tables: PbTblInfo[];
     private _initizlied: boolean;
+    private _cachedSelectTableResult: {[key: string]: string};
     private _loadingTables: {[key: string]: PbTblInfo};
     private _datasetTables: {[key: string]: PbTblInfo};
     private _cachedTempTableSet: Set<string>; // holds a set of publishTables
@@ -26,6 +27,7 @@ class PTblManager {
         this._loadingTables = {};
         this._datasetTables = {};
         this._cachedTempTableSet = new Set();
+        this._cachedSelectTableResult = {};
     }
 
     public createTableInfo(name: string): PbTblInfo {
@@ -483,7 +485,26 @@ class PTblManager {
      * PTblManager.Instance.selectTable
      */
     public selectTable(tableInfo: PbTblInfo, limitedRows: number): XDPromise<string> {
-        return this._selectTable(tableInfo, limitedRows);
+        let tableName: string = tableInfo.name;
+        let cachedResult: string = this._cachedSelectTableResult[tableName];
+        if (cachedResult == null) {
+            return this._selectTable(tableInfo, limitedRows);
+        } else {
+            const deferred: XDDeferred<string> = PromiseHelper.deferred();
+            XcalarGetTableMeta(cachedResult)
+            .then(() => {
+                // when result exist
+                deferred.resolve(cachedResult);
+            })
+            .fail(() => {
+                delete this._cachedSelectTableResult[tableName];
+                this._selectTable(tableInfo, limitedRows)
+                .then(deferred.resolve)
+                .fail(deferred.reject);
+            });
+
+            return deferred.promise();
+        }
     }
 
     private _deactivateTables(tableNames: string[], failures: string[]): XDPromise<void> {
@@ -565,6 +586,7 @@ class PTblManager {
                     this._tables.splice(i, 1);
                 }
             }
+            delete this._cachedSelectTableResult[tableName];
             deferred.resolve();
         })
         .fail((error) => {
@@ -613,16 +635,19 @@ class PTblManager {
         const node: DagNodeIMDTable = <DagNodeIMDTable>DagNodeFactory.create({
             type: DagNodeType.IMDTable
         });
+        const tableName: string = tableInfo.name;
         graph.addNode(node);
         node.setParam({
-            source: tableInfo.name,
+            source: tableName,
             version: -1,
             schema: tableInfo.columns,
             limitedRows: limitedRows
         });
         graph.execute([node.getId()])
         .then(() => {
-            deferred.resolve(node.getTable());
+            let result = node.getTable();
+            this._cachedSelectTableResult[tableName] = result;
+            deferred.resolve(result);
         })
         .fail(deferred.reject);
 

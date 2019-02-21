@@ -102,7 +102,7 @@ class DagNodeIMDTableInput extends DagNodeInput {
           },
           "limitedRows": {
             "$id": "#/properties/limitedRows",
-            "type": ["number", null],
+            "type": ["number", "null"],
             "title": "The Numer of Rows to Select",
             "examples": [
               100
