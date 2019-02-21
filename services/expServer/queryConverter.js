@@ -857,29 +857,11 @@ function _getDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix) {
                         "columns": node.indexedFields[0].map(key => {
                             return key.name;
                         }),
-                        "casts": node.indexedFields[0].filter(key => {
-                            if (DfFieldTypeTFromStr[key.type] ===
-                                DfFieldTypeT.DfUnknown) {
-                                return false;
-                            }
-                            return true;
-                        }).map(key => {
-                            return xcHelper.getDFFieldTypeToString(DfFieldTypeTFromStr[key.type]);
-                        }),
                         "rename": leftRenames
                     },
                     "right": {
                         "columns": node.indexedFields[1].map(key => {
                             return key.name;
-                        }),
-                        "casts": node.indexedFields[1].filter(key => {
-                            if (DfFieldTypeTFromStr[key.type] ===
-                                DfFieldTypeT.DfUnknown) {
-                                return false;
-                            }
-                            return true;
-                        }).map(key => {
-                            return xcHelper.getDFFieldTypeToString(DfFieldTypeTFromStr[key.type]);
                         }),
                         "rename": rightRenames
                     },

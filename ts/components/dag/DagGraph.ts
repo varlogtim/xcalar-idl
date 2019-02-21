@@ -2369,24 +2369,6 @@ class DagGraph {
                             prefix: colInfo.columnType === DfFieldTypeTStr[DfFieldTypeTFromStr.DfFatptr]
                         }
                     });
-                    const leftCasts: ColumnType = node.indexedFields[0].filter(key => {
-                        if (DfFieldTypeTFromStr[key.type] ===
-                            DfFieldTypeT.DfUnknown) {
-                            return false;
-                        }
-                        return true;
-                    }).map(key => {
-                        return xcHelper.getDFFieldTypeToString(DfFieldTypeTFromStr[key.type]);
-                    });
-                    const rightCasts: ColumnType = node.indexedFields[1].filter(key => {
-                        if (DfFieldTypeTFromStr[key.type] ===
-                            DfFieldTypeT.DfUnknown) {
-                            return false;
-                        }
-                        return true;
-                    }).map(key => {
-                        return xcHelper.getDFFieldTypeToString(DfFieldTypeTFromStr[key.type]);
-                    });
 
                     dagNodeInfo = {
                         type: DagNodeType.Join,
@@ -2409,13 +2391,6 @@ class DagGraph {
                             nullSafe: false
                         },
                     };
-
-                    if (leftCasts.length) {
-                        dagNodeInfo.input["left"].casts = leftCasts;
-                    }
-                    if (rightCasts.length) {
-                        dagNodeInfo.input["right"].casts = rightCasts;
-                    }
                     break;
                 case (XcalarApisT.XcalarApiUnion):
                     const setType = <DagNodeSubType>xcHelper.unionTypeToXD(node.args.unionType);
