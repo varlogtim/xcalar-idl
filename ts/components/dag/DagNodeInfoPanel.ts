@@ -49,6 +49,7 @@ class DagNodeInfoPanel {
             return false;
         }
         this._isShowing = false;
+        this._activeNode = null;
         this._$panel.addClass("xc-hidden");
         this._$panel.find(".row.restore").remove();
         xcTooltip.hideAll();
