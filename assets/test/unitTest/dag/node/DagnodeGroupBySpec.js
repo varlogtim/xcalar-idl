@@ -326,12 +326,6 @@ describe("GroupBy Dag Node Test", () => {
     describe("applyColumnMapping", function() {
         it("column name should change", function() {
             node = new DagNodeGroupBy({});
-            // const testParam = {
-            //     eval: [
-            //         {evalString: "add(prefix::average_stars,1)", newField: "col1"}
-            //     ],
-            //     icv: true
-            // };
             const testParam = {
                 "groupBy": [
                     "prefix::column1",
