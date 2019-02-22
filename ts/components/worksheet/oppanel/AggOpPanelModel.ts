@@ -207,14 +207,14 @@ class AggOpPanelModel extends GeneralOpPanelModel {
                 "aggPrefix": gAggVarPrefix
             });
             invalid = true;
-        } else if (!xcHelper.isValidTableName(this.dest.substring(1))) {
-            // test the value after gAggVarPrefix
-            errorText = ErrTStr.InvalidAggName;
-            invalid = true;
         } else if (aggName.length < 2) {
             errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidAggLength, {
                 "aggPrefix": gAggVarPrefix
             });
+            invalid = true;
+        } else if (!xcHelper.isValidTableName(this.dest.substring(1))) {
+            // test the value after gAggVarPrefix
+            errorText = ErrTStr.InvalidAggName;
             invalid = true;
         } else if (DagAggManager.Instance.hasAggregate(tabId, aggName)) {
             let oldAgg: AggregateInfo = DagAggManager.Instance.getAgg(tabId, aggName);
