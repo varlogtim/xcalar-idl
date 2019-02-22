@@ -4235,12 +4235,14 @@ module.exports = function(grunt) {
             // sed:login_css (NOT WORKING) - change login.html to reference
             //                               login.css.new
 
-            //grunt.task.run('sed:icomoon');
-            grunt.task.run('embedFonts');
-            //grunt.task.run('sed:login_css');
-            grunt.task.run('sed:opensans_css');
-            grunt.task.run('sed:raleway_css');
-            grunt.task.run('assets_inline');
+            if (BLDTYPE == INSTALLER) {
+                //grunt.task.run('sed:icomoon');
+                grunt.task.run('embedFonts');
+                //grunt.task.run('sed:login_css');
+                grunt.task.run('sed:opensans_css');
+                grunt.task.run('sed:raleway_css');
+                grunt.task.run('assets_inline');
+            }
 
             // sym link from bld to src unit test dir
             // (tests are run from the bld dest;
