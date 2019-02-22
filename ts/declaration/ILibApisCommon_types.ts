@@ -1193,9 +1193,11 @@ declare class XcalarApiQueryListOutputT {
 declare class XcalarApiQueryInfoT {
 	name: string;
 	elapsed: XcalarApiTimeT;
+	state: string;
 	constructor(args?: {
 		name?: string,
 		elapsed?: XcalarApiTimeT,
+		state?: string,
 	});
 }
 declare class XcalarApiQueryInputT {

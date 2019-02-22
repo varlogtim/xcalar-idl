@@ -22245,12 +22245,16 @@ XcalarApiUpdateOutputT.prototype.write = function(output) {
 XcalarApiQueryInfoT = function(args) {
   this.name = null;
   this.elapsed = null;
+  this.state = null;
   if (args) {
     if (args.name !== undefined && args.name !== null) {
       this.name = args.name;
     }
     if (args.elapsed !== undefined && args.elapsed !== null) {
       this.elapsed = new XcalarApiTimeT(args.elapsed);
+    }
+    if (args.state !== undefined && args.state !== null) {
+      this.state = args.state;
     }
   }
 };
@@ -22283,6 +22287,13 @@ XcalarApiQueryInfoT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 3:
+      if (ftype == Thrift.Type.STRING) {
+        this.state = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -22302,6 +22313,11 @@ XcalarApiQueryInfoT.prototype.write = function(output) {
   if (this.elapsed !== null && this.elapsed !== undefined) {
     output.writeFieldBegin('elapsed', Thrift.Type.STRUCT, 2);
     this.elapsed.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.state !== null && this.state !== undefined) {
+    output.writeFieldBegin('state', Thrift.Type.STRING, 3);
+    output.writeString(this.state);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

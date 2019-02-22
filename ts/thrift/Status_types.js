@@ -679,7 +679,8 @@ StatusT = {
   'StatusJsonSessSerializeError' : 670,
   'StatusSessMdataInconsistent' : 671,
   'StatusRuntimeChangeInProgress' : 672,
-  'StatusSelectLimitReached' : 673
+  'StatusSelectLimitReached' : 673,
+  'StatusLegacyTargetNotFound' : 674
 };
 StatusTStr = {
   0 : 'Success',
@@ -1355,7 +1356,8 @@ StatusTStr = {
   670 : 'Error in JSON during session serialization',
   671 : 'Possible inconsistency in session metadata',
   672 : 'Setting Runtime configuration already in progress',
-  673 : 'Limit for select number of rows reached'
+  673 : 'Limit for select number of rows reached',
+  674 : 'Legacy target is not found'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -2031,5 +2033,6 @@ StatusTFromStr = {
   'Error in JSON during session serialization' : 670,
   'Possible inconsistency in session metadata' : 671,
   'Setting Runtime configuration already in progress' : 672,
-  'Limit for select number of rows reached' : 673
+  'Limit for select number of rows reached' : 673,
+  'Legacy target is not found' : 674
 };
