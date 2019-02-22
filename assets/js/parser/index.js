@@ -85,7 +85,7 @@ class XEvalParser {
             if (e instanceof SyntaxError && e.message) {
                 e = {error: e.message};
             }
-            return e;
+            return {};
         }
     }
 
@@ -113,7 +113,7 @@ class XEvalParser {
             if (e instanceof SyntaxError && e.message) {
                 e = {error: e.message};
             }
-            return e;
+            return "";
         }
     }
 
@@ -142,7 +142,7 @@ class XEvalParser {
             if (e instanceof SyntaxError && e.message) {
                 e = {error: e.message};
             }
-            return e;
+            return [];
         }
     }
 }
