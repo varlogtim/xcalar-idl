@@ -358,22 +358,29 @@ namespace WorkbookPanel {
         });
 
         $workbookSection.on("blur", ".workbookName", function() {
-            const $workbookBox: JQuery = $(this).closest(".workbookBox");
             const $this: JQuery = $(this);
-            if ($this.val() === $this.parent().attr("data-original-title")) {
+            const $workbookBox: JQuery = $this.closest(".workbookBox");
+            let val = $this.val();
+            if (val === $this.parent().attr("data-original-title")) {
                 $this.removeClass("focused");
                 $this.removeClass("error");
                 $this.attr("disabled", "disabled");
                 return;
             }
-            if (!validateName($this.val(), $workbookBox.attr("data-workbook-id"), $this)) {
+
+            let workbookId = $workbookBox.attr("data-workbook-id");
+            if (!validateName(val, workbookId, $this)) {
                 $this.addClass("error");
                 $this.val($this.parent().attr("data-original-title"));
             } else {
-                WorkbookPanel.edit($workbookBox.attr("data-workbook-id"), $(this).val())
+                WorkbookPanel.edit(workbookId, val)
                 .then(function() {
                     $this.removeClass("focused");
                     $this.attr("disabled", "disabled");
+
+                    // This is to fix XD-705
+                    let $clonedInput = $this.clone();
+                    $this.replaceWith($clonedInput);
                 })
                 .fail(function() {
                     $this.addClass("error");
@@ -514,7 +521,11 @@ namespace WorkbookPanel {
 
         $workbookBox.find(".modifiedTime").text(modified);
         $workbookBox.find(".description").text(description);
-        $workbookBox.find(".workbookName").val(name);
+
+        let $input = $workbookBox.find(".workbookName");
+        $input.val(name);
+        $input.attr("value", name);
+
         if (description.trim().length > 0) {
             xcTooltip.add($workbookBox.find(".description"), {title: xcHelper.escapeHTMLSpecialChar(description)});
         } else {
