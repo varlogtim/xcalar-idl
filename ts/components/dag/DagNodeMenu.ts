@@ -791,7 +791,7 @@ namespace DagNodeMenu {
         let pasteKey: string = isSystemMac ? "⌘V" : "\"CTRL\" + \"V\"";
         Alert.show({
             title: "Paste",
-            msg: "Pasting is not available via the menu, but you can still use " + pasteKey
+            msg: "You must use " + pasteKey + " to paste."
         });
     }
 
