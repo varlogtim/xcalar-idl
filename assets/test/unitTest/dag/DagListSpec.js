@@ -4,21 +4,21 @@ describe('DagList Test', function() {
     var oldPut;
 
 
-    before(function(done) {
+    before(function() {
         oldPut = XcalarKeyPut;
         XcalarKeyPut = function() {
             return PromiseHelper.resolve();
         };
         UnitTest.onMinMode();
-        UnitTest.testFinish(function() {
-            return $("#dagTabSectionTabs .dagTab").length !== 0;
-        })
-        .then(function() {
-            done();
-        })
-        .fail( function(){
-            done("fail");
-        });
+        // UnitTest.testFinish(function() {
+        //     return $("#dagTabSectionTabs .dagTab").length !== 0;
+        // })
+        // .then(function() {
+        //     done();
+        // })
+        // .fail( function(){
+        //     done("fail");
+        // });
     });
 
     describe('Dag List Test', function() {
