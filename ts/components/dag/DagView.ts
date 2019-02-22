@@ -1660,9 +1660,19 @@ class DagView {
             this._removeNodesNoPersist(nodeIds,
                 { isNoLog: true, isSwitchState: false }
             )
-            .then((ret) => {
-                const removeLogParam = ret.logParam;
+            .then(({logParam: removeLogParam, spliceInfos}) => {
                 customLogParam.options.actions.push(removeLogParam.options);
+
+                // Create a set, which contains all nodes splicing parent index
+                const splicingNodeSet: Set<string> = new Set();
+                Object.keys(spliceInfos).forEach((removedNodeId) => {
+                    const relatedSpliceInfo = spliceInfos[removedNodeId];
+                    Object.keys(relatedSpliceInfo).forEach((relatedNodeId) => {
+                        if (relatedSpliceInfo[relatedNodeId]) {
+                            splicingNodeSet.add(relatedNodeId);
+                        }
+                    });
+                });
 
                 // Connections to customNode
                 for (const { parentId, childId, pos } of newConnectionIn) {
@@ -1675,11 +1685,12 @@ class DagView {
                     customLogParam.options.actions.push(connectLogParam.options);
                 }
                 for (const { parentId, childId, pos } of newConnectionOut) {
+                    const needSplice = splicingNodeSet.has(childId);
                     const connectLogParam = this._connectNodesNoPersist(
                         parentId,
                         childId,
                         pos,
-                        { isNoLog: true, isSwitchState: false }
+                        { isNoLog: true, isSwitchState: false, spliceIn: needSplice }
                     );
                     customLogParam.options.actions.push(connectLogParam.options);
                 }
@@ -1863,17 +1874,29 @@ class DagView {
             this._removeNodesNoPersist(
                 [dagNode.getId()],
                 { isNoLog: true, isSwitchState: false })
-            .then((ret) => {
-                const removeLogParam = ret.logParam;
+            .then(({ logParam: removeLogParam, spliceInfos }) => {
                 expandLogParam.options.actions.push(removeLogParam.options);
+
+                // Create a set, which contains all nodes splicing parent index
+                const splicingNodeSet: Set<string> = new Set();
+                Object.keys(spliceInfos).forEach((removedNodeId) => {
+                    const relatedSpliceInfo = spliceInfos[removedNodeId];
+                    Object.keys(relatedSpliceInfo).forEach((relatedNodeId) => {
+                        if (relatedSpliceInfo[relatedNodeId]) {
+                            splicingNodeSet.add(relatedNodeId);
+                        }
+                    });
+                });
+
                 // restore edges
                 for (const { parentId, childId, pos } of connections) {
                     const newParentId = oldNodeIdMap[parentId] || parentId;
+                    const needSplice = splicingNodeSet.has(childId);
                     const connectLogParam = this._connectNodesNoPersist(
                         newParentId,
                         childId,
                         pos,
-                        { isNoLog: true, spliceIn: true, isSwitchState: false }
+                        { isNoLog: true, spliceIn: needSplice, isSwitchState: false }
                     );
                     expandLogParam.options.actions.push(connectLogParam.options);
                 }
@@ -2677,7 +2700,8 @@ class DagView {
     ): XDPromise<{
         logParam: LogParam,
         retinaErrorNodeIds: string[],
-        hasLinkOut: boolean
+        hasLinkOut: boolean,
+        spliceInfos: {[nodeId: string]: {[nodeId: string]: boolean}}
     }> {
         const { isSwitchState = true, isNoLog = false } = options || {};
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
@@ -2782,7 +2806,8 @@ class DagView {
             deferred.resolve({
                 logParam: logParam,
                 retinaErrorNodeIds: ret.errorNodeIds,
-                hasLinkOut: hasLinkOut
+                hasLinkOut: hasLinkOut,
+                spliceInfos: spliceInfos
             });
         });
         return deferred.promise();
@@ -4387,7 +4412,8 @@ class DagView {
                 "parentNodeId": parentNodeId,
                 "childNodeId": childNodeId,
                 "connectorIndex": connectorIndex,
-                "prevParentNodeId": prevParentId
+                "prevParentNodeId": prevParentId,
+                "spliceIn": spliceIn
             }
         };
         if (!isNoLog) {

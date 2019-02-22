@@ -109,7 +109,7 @@ window.Redo = (function($, Redo) {
         DagTabManager.Instance.switchTab(options.dataflowId);
         var isReconnect = options.prevParentNodeId != null;
         DagViewManager.Instance.connectNodes(options.parentNodeId, options.childNodeId,
-                            options.connectorIndex, options.dataflowId, isReconnect);
+                            options.connectorIndex, options.dataflowId, isReconnect, options.spliceIn);
         return PromiseHelper.resolve(null);
     };
 
