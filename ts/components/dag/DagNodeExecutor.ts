@@ -279,7 +279,7 @@ class DagNodeExecutor {
                 // We don't want to add if optimized or ran as a query
                 const aggRes: object = {
                     value: value,
-                    dagName: aggName,
+                    dagName: dstAggName,
                     aggName: unwrappedName,
                     tableId: tableName,
                     backColName: null,

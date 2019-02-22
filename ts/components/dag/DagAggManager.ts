@@ -243,6 +243,9 @@ class DagAggManager {
         if (dag_id == null || dag_id == "") {
             return frontName;
         }
+        if (dag_id.endsWith('.sql')) {
+            dag_id = dag_id.replace(".sql", "sql");
+        }
         return dag_id + "-agg_" + frontName;
     }
 
