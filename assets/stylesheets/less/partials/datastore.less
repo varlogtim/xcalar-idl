@@ -3965,6 +3965,16 @@ table.datasetTable {
     }
 }
 
+#tableGridViewMenu {
+    &:not(.activating) {
+        .dsOpt {
+            &.cancel {
+                display: none;
+            }
+        }
+    }
+}
+
 #gridViewSubMenu, #tableGridViewSubMenu {
     z-index: @z-index-gridViewMenu + 1;
     background-color: @color-font-edge;

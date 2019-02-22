@@ -163,22 +163,6 @@ interface DFProgressData {
     numCompleted: number
 }
 
-interface PbTblInfo {
-    batchId: number;
-    index: number;
-    keys: string[];
-    columns: ColSchema[];
-    name: string;
-    rows: number;
-    size: number;
-    createTime: number;
-    active: boolean;
-    updates: PublishTableUpdateInfo[];
-    state?: string;
-    dsName?: string;
-    loadMsg?: string;
-}
-
 interface PbTblDisplayInfo {
     index: number;
     name: string;

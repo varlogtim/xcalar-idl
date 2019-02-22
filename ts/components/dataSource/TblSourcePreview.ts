@@ -121,7 +121,6 @@ class TblSourcePreview {
     private _setupDataSourceSchema() {
         let $section = this._getContainer().find(".tblSchema");
         this._dataSourceSchema = new DataSourceSchema($section);
-        this._dataSourceSchema.toggleCaseInsensitive(true);
         this._dataSourceSchema
         .registerEvent(DataSourceSchemaEvent.GetHintSchema, () => {
             return this._getSchemaForWizard(this._viewer);
@@ -205,7 +204,6 @@ class TblSourcePreview {
             return content;
         }).join(divider);
 
-        let $container = this._getContainer();
         if (!isLoading &&
             tableInfo.state == null
         ) {
@@ -322,7 +320,7 @@ class TblSourcePreview {
         let $tableArea = this._getTableArea();
         $tableArea.removeClass("error").removeClass("loading");
         let viewer = new XcDatasetViewer(dsObj);
-        
+
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._showTable(viewer)
         .then((isSameViewer: boolean) => {

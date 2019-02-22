@@ -1405,6 +1405,7 @@ UDFTStr = {
 TblTStr = {
     'Create': 'Create Table',
     'Creating': 'Creating Table',
+    'CreateFail': 'Create Table Failed',
     'Importing': 'Importing data source',
     'CheckingSchema': 'Checking data source schema',
     'Del': 'Drop Tables',

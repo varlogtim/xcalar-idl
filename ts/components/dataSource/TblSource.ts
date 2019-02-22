@@ -130,6 +130,7 @@ class TblSource {
             this._tables.set(tableName, tableInfo);
             this._renderGridView();
         }
+        let oldState = tableInfo.state;
         tableInfo.state = PbTblState.Loading;
         let $grid: JQuery = this._getGridByName(tableName);
         this._addLoadingIcon($grid);
@@ -137,9 +138,13 @@ class TblSource {
 
         let dsName = tableInfo.dsName;
         PTblManager.Instance.createTableFromDataset(dsName, tableName, schema, null)
-        .always(() => {
-            // re-render
+        .then(() => {
             this._refresh(true);
+        })
+        .fail((error) => {
+            Alert.error(TblTStr.CreateFail, error);
+            tableInfo.state = oldState;
+            this._refresh(false);
         });
     }
 
@@ -339,9 +344,13 @@ class TblSource {
     }
 
     private _reFocusOnTable(tableName: string): void {
+        if (!TblSourcePreview.Instance.isOnTable(tableName)) {
+            return;
+        }
+
         if (tableName && this._tables.has(tableName)) {
             this._focusOnTable(this._getGridByName(tableName));
-        } else if (TblSourcePreview.Instance.isOnTable(tableName)) {
+        } else {
             this._focusOnForm();
         }
     }
@@ -394,6 +403,13 @@ class TblSource {
             // update UI
             this._refresh(false);
         });
+    }
+
+    private _cancelActivating(tableName: string): void {
+        let tableInfo = this._tables.get(tableName);
+        if (tableInfo != null) {
+            tableInfo.cancelActivating();
+        }
     }
 
     private _addDeactivateIcon($grid: JQuery): void {
@@ -591,6 +607,9 @@ class TblSource {
                     if ($grid.hasClass("loading")) {
                         classes += " loading";
                     }
+                    if ($grid.hasClass("activating")) {
+                        classes += " activating";
+                    }
                 } else {
                     classes += " bgOpts";
                     $gridMenu.removeData("id");
@@ -672,6 +691,13 @@ class TblSource {
             }
             let ids = this._getIdsFromSelectedGrid();
             this._deactivateTables(ids);
+        });
+
+        $gridMenu.on("mouseup", ".cancel", (event) => {
+            if (event.which !== 1) {
+                return;
+            }
+            this._cancelActivating($gridMenu.data("id"));
         });
 
         $gridMenu.on("mouseenter", ".sort", () => {

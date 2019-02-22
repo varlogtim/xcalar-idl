@@ -31,7 +31,7 @@ class PTblManager {
     }
 
     public createTableInfo(name: string): PbTblInfo {
-        return {
+        return new PbTblInfo({
             name: name,
             index: null,
             keys: null,
@@ -42,7 +42,7 @@ class PTblManager {
             columns: null,
             rows: 0,
             batchId: null
-        }
+        });
     }
 
     public getTableMap(): Map<string, PbTblInfo> {
@@ -68,11 +68,25 @@ class PTblManager {
         return tables;
     }
 
+    public getTableByName(tableName: string): PbTblInfo | null {
+        let table = this._tableMap.get(tableName);
+        if (table != null) {
+            return table;
+        }
+        table = this._loadingTables[tableName];
+        if (table != null) {
+            return table;
+        }
+        table = this._datasetTables[tableName];
+        if (table != null) {
+            return table;
+        }
+        return null;
+    }
+
     public hasTable(tableName, checkCache?: boolean): boolean {
-        if (this._tableMap.has(tableName) ||
-            this._loadingTables[tableName] ||
-            this._datasetTables[tableName]) {
-                return true;
+        if (this.getTableByName(tableName) != null) {
+            return true;
         }
         if (checkCache && this._cachedTempTableSet.has(tableName)) {
             return true;
@@ -136,30 +150,7 @@ class PTblManager {
         if (!tableInfo) {
             return [];
         }
-
-        let columns: PbTblColSchema[] = [];
-        try {
-            const keySet: Set<string> = new Set();
-            tableInfo.keys.forEach((key) => {
-                keySet.add(key);
-            });
-            tableInfo.columns.forEach((col: ColSchema) => {
-                const name: string = col.name;
-                if (!PTblManager.InternalColumns.includes(name) &&
-                    !name.startsWith(PTblManager.PKPrefix)
-                ) {
-                    columns.push({
-                        name: xcHelper.escapeColName(name),
-                        type: col.type,
-                        primaryKey: keySet.has(name) ? "Y" : "N"
-                    });
-                }
-            });
-        } catch (e) {
-            console.error(e);
-        }
-
-        return columns;
+        return tableInfo.getSchema();
     }
 
     /**
@@ -283,11 +274,13 @@ class PTblManager {
             "msg": TblTStr.Create + ": " + tableName,
             "operation": SQLOps.TableFromDS,
             "track": true,
-            "steps": 2
+            "steps": 1
         });
         const tableInfo: PbTblInfo = this._datasetTables[tableName];
         delete this._datasetTables[tableName];
         this._loadingTables[tableName] = tableInfo;
+        this._refreshTblView(tableInfo, TblTStr.Creating, 1, 1);
+
         this._createTable(txId, dsName, tableName, schema, primaryKeys, noDatasetDeletion)
         .then(() => {
             delete this._loadingTables[tableName];
@@ -363,14 +356,17 @@ class PTblManager {
         return deferred.promise();
     }
 
+    /**
+     * PTblManager.Instance.addDatasetTable
+     * @param dsName
+     */
     public addDatasetTable(dsName: string): void {
         if (!dsName.endsWith(PTblManager.DSSuffix)) {
             return;
         }
         let tableName: string = this._getTableNameFromDSName(dsName);
         let tableInfo: PbTblInfo = PTblManager.Instance.createTableInfo(tableName);
-        tableInfo.state = PbTblState.BeDataset;
-        tableInfo.dsName = dsName;
+        tableInfo.beDatasetState(dsName);
         this._datasetTables[tableName] = tableInfo;
     }
 
@@ -485,26 +481,7 @@ class PTblManager {
      * PTblManager.Instance.selectTable
      */
     public selectTable(tableInfo: PbTblInfo, limitedRows: number): XDPromise<string> {
-        let tableName: string = tableInfo.name;
-        let cachedResult: string = this._cachedSelectTableResult[tableName];
-        if (cachedResult == null) {
-            return this._selectTable(tableInfo, limitedRows);
-        } else {
-            const deferred: XDDeferred<string> = PromiseHelper.deferred();
-            XcalarGetTableMeta(cachedResult)
-            .then(() => {
-                // when result exist
-                deferred.resolve(cachedResult);
-            })
-            .fail(() => {
-                delete this._cachedSelectTableResult[tableName];
-                this._selectTable(tableInfo, limitedRows)
-                .then(deferred.resolve)
-                .fail(deferred.reject);
-            });
-
-            return deferred.promise();
-        }
+        return tableInfo.viewResultSet(limitedRows);
     }
 
     private _deactivateTables(tableNames: string[], failures: string[]): XDPromise<void> {
@@ -523,11 +500,8 @@ class PTblManager {
         }
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        XcalarUnpublishTable(tableName, true)
-        .then(() => {
-            tableInfo.active = false;
-            deferred.resolve();
-        })
+        tableInfo.deactivate()
+        .then(deferred.resolve)
         .fail((error) => {
             let errorMsg = this._getErrorMsg(tableName, error);
             failures.push(errorMsg);
@@ -542,19 +516,15 @@ class PTblManager {
             return PromiseHelper.resolve();
         }
 
-        tableInfo.state = PbTblState.Activating;
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        XcalarRestoreTable(tableName)
+        tableInfo.activate()
         .then(() => {
-            tableInfo.state = null;
-            tableInfo.active = true;
             return PromiseHelper.alwaysResolve(this._listOneTable(tableName));
         })
         .then(() => {
             deferred.resolve();
         })
         .fail((error) => {
-            tableInfo.state = PbTblState.Error;
             let errorMsg = this._getErrorMsg(tableName, error);
             failures.push(errorMsg);
             deferred.resolve(); // still resolve it
@@ -578,7 +548,7 @@ class PTblManager {
         }
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        XcalarUnpublishTable(tableName, false)
+        tableInfo.delete()
         .then(() => {
             this._tableMap.delete(tableName);
             for (let i = 0; i < this._tables.length; i++) {
@@ -604,53 +574,16 @@ class PTblManager {
         }
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let txId = Transaction.start({
-            "operation": SQLOps.DestroyPreviewDS,
-            "track": true
-        });
-        XIApi.deleteDataset(txId, tableInfo.dsName, true)
+        tableInfo.delete()
         .then(() => {
             delete this._datasetTables[tableName];
-            Transaction.done(txId, {
-                "noCommit": true,
-                "noSql": true
-            });
             deferred.resolve();
         })
         .fail((error) => {
             let errorMsg = this._getErrorMsg(tableName, error);
             failures.push(errorMsg);
-            Transaction.fail(txId, {
-                "error": error,
-                "noAlert": true
-            });
             deferred.resolve(); // still resolve it
         });
-        return deferred.promise();
-    }
-
-    private _selectTable(tableInfo: PbTblInfo, limitedRows: number): XDPromise<string> {
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        const graph: DagGraph = new DagGraph();
-        const node: DagNodeIMDTable = <DagNodeIMDTable>DagNodeFactory.create({
-            type: DagNodeType.IMDTable
-        });
-        const tableName: string = tableInfo.name;
-        graph.addNode(node);
-        node.setParam({
-            source: tableName,
-            version: -1,
-            schema: tableInfo.columns,
-            limitedRows: limitedRows
-        });
-        graph.execute([node.getId()])
-        .then(() => {
-            let result = node.getTable();
-            this._cachedSelectTableResult[tableName] = result;
-            deferred.resolve(result);
-        })
-        .fail(deferred.reject);
-
         return deferred.promise();
     }
 
@@ -794,17 +727,23 @@ class PTblManager {
         // Synthesize is necessary in the event we are publishing straight from a dataset
         XIApi.synthesize(txId, colInfos, parsedDsName, synthesizeTable)
         .then((resTable) => {
-            if (!noDatasetDeletion) {
-                XIApi.deleteDataset(txId, dsName);
-            }
             tableToDelete = resTable;
             return XIApi.publishTable(txId, primaryKeys, resTable, tableName, pbColInfos);
         })
         .then(() => {
-            XIApi.deleteTable(txId, tableToDelete);
+            // Dataset need to be delete at the end in case fail case
+            // need to restore the dataset
+            if (!noDatasetDeletion) {
+                XIApi.deleteDataset(txId, dsName);
+            }
             deferred.resolve();
         })
-        .fail(deferred.reject);
+        .fail(deferred.reject)
+        .always(() => {
+            if (tableToDelete != null) {
+                XIApi.deleteTable(txId, tableToDelete);
+            }
+        });
 
         return deferred.promise();
     }
@@ -883,7 +822,7 @@ class PTblManager {
     }
 
     private _tableInfoAdapter(table: PublishTable, index: number): PbTblInfo {
-        let tableInfo: PbTblInfo = {
+        let tableInfo: PbTblInfo = new PbTblInfo({
             index: index,
             batchId: null,
             name: null,
@@ -894,28 +833,8 @@ class PTblManager {
             columns: [],
             keys: [],
             updates: []
-        };
-        try {
-            tableInfo.name = table.name;
-            tableInfo.active = table.active;
-            tableInfo.rows = table.numRowsTotal;
-            tableInfo.size = table.sizeTotal;
-            tableInfo.createTime = table.updates[0] ? table.updates[0].startTS : null;
-            tableInfo.columns = table.values.map((value) => {
-                const type: DfFieldTypeT = <any>DfFieldTypeT[value.type];
-                return {
-                    name: value.name,
-                    type: xcHelper.convertFieldTypeToColType(type)
-                }
-            });
-            tableInfo.keys = table.keys.map((key) => key.name);
-            tableInfo.updates = table.updates;
-            let lastUpdate = table.updates[table.updates.length - 1];
-            tableInfo.batchId = lastUpdate ? lastUpdate.batchId : null;
-        } catch (e) {
-            console.error(e);
-        }
-
+        });
+        tableInfo.restoreFromMeta(table);
         return tableInfo;
     }
 
