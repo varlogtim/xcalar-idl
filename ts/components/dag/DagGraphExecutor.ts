@@ -893,23 +893,22 @@ class DagGraphExecutor {
                 }
             });
         }
-        // XXX check for name conflict when creating headeralias
+
         const destInfo: {nodeId: DagNodeId, tableName: string}[] = [];
         const tables = outNodes.map((outNode, i) => {
             const destTable = realDestTables[i];
             const columns = outNode.getParam().columns.map((col) => {
-                if (typeof col === "string") { // export node
+                if (col.sourceColumn) { // export node
                     return {
-                        columnName: col,
-                        headerAlias: col
+                        columnName: col.sourceColumn,
+                        headerAlias: col.destColumn
                     }
-                } else { // df out node
+                } else {  // df out node
                     return {
                         columnName: col.sourceName,
                         headerAlias: col.destName
                     }
                 }
-
             });
             destInfo.push({
                 nodeId: outNode.getId(),
