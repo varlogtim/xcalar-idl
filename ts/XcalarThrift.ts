@@ -3208,7 +3208,7 @@ function createQueryStateOutputLog(queryOutput: XcalarApiQueryStateOutputT): str
                 node_log = parseLog(node.log);
             }
             if (node_log) {
-                log += ("Log number " + i + ": Log: " + node_log + "\n ");
+                log += ("Node number " + i + ": Log: " + node_log + "\n ");
             }
         }
     } catch (e) {
