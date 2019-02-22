@@ -964,7 +964,9 @@ namespace SqlQueryHistoryPanel {
                         this._updateUI();
                     };
                 } else if (columnDef.type === TableHeaderColumnType.SELECTABLE) {
-                    const isSelectAll = newSelectSet.size === sortIndex.length;
+                    const isSelectAll = newSelectSet.size === 0
+                        ? false
+                        : newSelectSet.size === sortIndex.length;
                     prop.isSelected = isSelectAll;
                     prop.onClickSelect = () => {
                         if (isSelectAll) {
