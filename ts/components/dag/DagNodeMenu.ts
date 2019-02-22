@@ -471,6 +471,9 @@ namespace DagNodeMenu {
     // called when node is clicked or background is clicked
     function _showNodeMenu(event: JQueryEventObject, $clickedEl?: JQuery) {
         const $dfArea = DagViewManager.Instance.getActiveArea();
+        if (!$dfArea.length) {
+            return;
+        }
         const $operators = DagViewManager.Instance.getSelectedNodes();
         let backgroundClicked = false; // whether the node was clicked or the background
         let nodeIds = [];

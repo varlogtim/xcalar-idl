@@ -3886,6 +3886,119 @@ class DagView {
         return logParam;
     }
 
+    // handles drag n drop
+    public operatorMousedown(event, $opMain) {
+        let $operator = $opMain.closest(".operator");
+        let isDagNode = true;
+        if (!$operator.length) {
+            $operator = $opMain;
+            isDagNode = false;
+        }
+
+        // if not shift clicking, deselect other nodes
+        // if shiftx clicking, and this is selected, then deselect it
+        // but don't allow dragging on deselected node
+        if (!$operator.hasClass("selected") && !event.shiftKey) {
+            this.deselectNodes();
+        } else if ($operator.hasClass("selected") && event.shiftKey) {
+            DagView.deselectNode($operator);
+            return;
+        }
+        DagView.selectNode($operator);
+
+        const nodeId: DagNodeId = $operator.data("nodeid");
+        if (isDagNode) {
+            const node: DagNode = this.graph.getNode(nodeId);
+            DagNodeInfoPanel.Instance.show(node, false);
+        }
+
+        if (event.which !== 1) {
+            return;
+        }
+        if ($(event.target).closest(".ui-resizable-handle").length ||
+            $(event.target).is("textarea")) {
+            if (!event.shiftKey) {
+                this.deselectNodes();
+                DagView.selectNode($operator);
+            }
+            return;
+        }
+        if (this.dagTab instanceof DagTabPublished) {
+            return;
+        }
+
+        const $elements = $operator.add(this.$dfArea.find(".selected"));
+
+        // the description icon and large node title cause the
+        // desired dimensions of the operator element to be altered so we
+        // undo its effects by using offsets
+        const elOffsets = [];
+        $elements.each(function () {
+            const $el = $(this);
+            const elOffset = { x: 0, y: 0 };
+            if ($el.is(".operator")) {
+                const outerLeft = this.getBoundingClientRect().left;
+                const innerLeft = $(this).find('.main')[0].getBoundingClientRect().left;
+                elOffset.x = (innerLeft - DagView.inConnectorWidth) - outerLeft;
+            }
+            elOffsets.push(elOffset);
+        });
+
+        new DragHelper({
+            event: event,
+            $element: $operator,
+            $elements: $elements,
+            $container: DagView.$dagView,
+            $dropTarget: this.$dfArea.find(".dataflowAreaWrapper"),
+            round: DagView.gridSpacing,
+            padding: DagView.gridSpacing,
+            scale: this.graph.getScale(),
+            elOffsets: elOffsets,
+            onDragStart: (_$els) => {
+            },
+            onDragEnd: ($els, _event, data) => {
+                let nodeInfos = [];
+                $els.each(function (i) {
+                    const id = $(this).data("nodeid");
+                    if ($(this).hasClass("operator")) {
+                        nodeInfos.push({
+                            type: "dagNode",
+                            id: id,
+                            position: data.coors[i]
+                        });
+                    } else if ($(this).hasClass("comment")) {
+                        nodeInfos.push({
+                            type: "comment",
+                            id: id,
+                            position: data.coors[i]
+                        });
+                    }
+                });
+                this.moveNodes(nodeInfos);
+            },
+            onDragFail: (wasDragged: boolean) => {
+                if (!wasDragged) {
+                    // did not drag
+                    if (!event.shiftKey) {
+                        this._deselectAllNodes();
+                        DagView.selectNode($operator);
+                    }
+                    // if no drag, treat as right click and open menu
+
+                    if (!$opMain.hasClass("comment") && !event.shiftKey) {
+                        let contextMenuEvent = $.Event("contextmenu", {
+                            pageX: event.pageX,
+                            pageY: event.pageY
+                        });
+                        $opMain.trigger(contextMenuEvent);
+                    }
+                }
+            },
+            move: true
+        });
+
+    }
+
      // connecting 2 nodes dragging the parent's connector
     public connectorOutMousedown(event, $parentConnector) {
         const self = this;
@@ -4421,122 +4534,6 @@ class DagView {
         }
 
         return logParam;
-    }
-
-    // handles drag n drop
-    public operatorMousedown(event, $opMain) {
-        let $operator = $opMain.closest(".operator");
-        let isDagNode = true;
-        if (!$operator.length) {
-            $operator = $opMain;
-            isDagNode = false;
-        }
-
-        // if not shift clicking, deselect other nodes
-        // if shiftx clicking, and this is selected, then deselect it
-        // but don't allow dragging on deselected node
-        if (!$operator.hasClass("selected") && !event.shiftKey) {
-            this.deselectNodes();
-        } else if ($operator.hasClass("selected") && event.shiftKey) {
-            DagView.deselectNode($operator);
-            return;
-        }
-        DagView.selectNode($operator);
-
-        const nodeId: DagNodeId = $operator.data("nodeid");
-        if (isDagNode) {
-            const node: DagNode = this.graph.getNode(nodeId);
-            DagNodeInfoPanel.Instance.show(node, false);
-        }
-
-        if (event.which !== 1) {
-            return;
-        }
-        if ($(event.target).closest(".ui-resizable-handle").length ||
-            $(event.target).is("textarea")) {
-            if (!event.shiftKey) {
-                this.deselectNodes();
-                DagView.selectNode($operator);
-            }
-            return;
-        }
-        if (this.dagTab instanceof DagTabPublished) {
-            return;
-        }
-
-        const $elements = $operator.add(this.$dfArea.find(".selected"));
-
-        // the description icon and large node title cause the
-        // desired dimensions of the operator element to be altered so we
-        // undo its effects by using offsets
-        const elOffsets = [];
-        $elements.each(function () {
-            const $el = $(this);
-            const elOffset = { x: 0, y: 0 };
-            if ($el.is(".operator")) {
-                if ($el.find(".descriptionIcon").length) {
-                    elOffset.y = 4;
-                }
-                const outerLeft = this.getBoundingClientRect().left;
-                const innerLeft = $(this).find('.main')[0].getBoundingClientRect().left;
-                elOffset.x = (innerLeft - DagView.inConnectorWidth) - outerLeft;
-            }
-            elOffsets.push(elOffset);
-        });
-
-        new DragHelper({
-            event: event,
-            $element: $operator,
-            $elements: $elements,
-            $container: DagView.$dagView,
-            $dropTarget: this.$dfArea.find(".dataflowAreaWrapper"),
-            round: DagView.gridSpacing,
-            padding: DagView.gridSpacing,
-            scale: this.graph.getScale(),
-            elOffsets: elOffsets,
-            onDragStart: (_$els) => {
-            },
-            onDragEnd: ($els, _event, data) => {
-                let nodeInfos = [];
-                $els.each(function (i) {
-                    const id = $(this).data("nodeid");
-                    if ($(this).hasClass("operator")) {
-                        nodeInfos.push({
-                            type: "dagNode",
-                            id: id,
-                            position: data.coors[i]
-                        });
-                    } else if ($(this).hasClass("comment")) {
-                        nodeInfos.push({
-                            type: "comment",
-                            id: id,
-                            position: data.coors[i]
-                        });
-                    }
-                });
-                this.moveNodes(nodeInfos);
-            },
-            onDragFail: (wasDragged: boolean) => {
-                if (!wasDragged) {
-                    // did not drag
-                    if (!event.shiftKey) {
-                        this._deselectAllNodes();
-                        DagView.selectNode($operator);
-                    }
-                    // if no drag, treat as right click and open menu
-
-                    if (!$opMain.hasClass("comment") && !event.shiftKey) {
-                        let contextMenuEvent = $.Event("contextmenu", {
-                            pageX: event.pageX,
-                            pageY: event.pageY
-                        });
-                        $opMain.trigger(contextMenuEvent);
-                    }
-                }
-            },
-            move: true
-        });
-
     }
 
     private _addNodeNoPersist(
