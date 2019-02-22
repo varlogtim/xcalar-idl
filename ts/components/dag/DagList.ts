@@ -139,7 +139,7 @@ class DagList {
         publishedList.sort(sortFunc);
         userList.sort(sortFunc);
         queryList.sort(querySortFunc);
-        if (publishedList.length === 0 && XVM.isAdvancedMode()) {
+        if (publishedList.length === 0) {
             // add the published folder by default
             publishedList.push({
                 path: DagTabPublished.PATH,
@@ -197,20 +197,13 @@ class DagList {
         }
 
         xcHelper.showRefreshIcon($section, false, promise);
-        let isAdvancedMode = XVM.isAdvancedMode();
-        let def: XDPromise<void> = isAdvancedMode ?
-        this._restorePublishedDags(oldPublishedDags) : PromiseHelper.resolve();
 
-        def
+        this._restorePublishedDags(oldPublishedDags)
         .then(() => {
-            if (XVM.isAdvancedMode()) {
-                return this._fetchAllRetinas(oldOptimizedDags);
-            }
+            return this._fetchAllRetinas(oldOptimizedDags);
         })
         .then(() => {
-            if (XVM.isAdvancedMode()) {
-                return this._fetchXcalarQueries(oldQueryDags, true);
-            }
+            return this._fetchXcalarQueries(oldQueryDags, true);
         })
         .then(deferred.resolve)
         .fail(deferred.reject)
