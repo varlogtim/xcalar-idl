@@ -88,6 +88,7 @@ enum DagGraphEvents {
     AddSQLFuncInput = "AddSQLFuncInput",
     RemoveSQLFucInput = "RemoveSQLFuncInput",
     AddBackSQLFuncInput = "AddBackSQLFuncInput",
+    DeleteGraph = "DeleteGraph"
 }
 
 enum DagNodeEvents {

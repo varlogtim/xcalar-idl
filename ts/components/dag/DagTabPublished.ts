@@ -186,8 +186,10 @@ class DagTabPublished extends DagTab {
             return PromiseHelper.resolve();
         }
 
-        const oldVersion: number = this._version;
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        let hasVersionChange: boolean = false;
+        let oldVersion: number = this._version;
+
         this._loadFromKVStore()
         .then((dagInfo) => {
             // when version not match, cannot save
@@ -195,8 +197,10 @@ class DagTabPublished extends DagTab {
                 return PromiseHelper.reject();
             }
 
+            oldVersion = this._version;
             this._version++;
-            this._writeToKVStore();
+            hasVersionChange = true;
+            return this._writeToKVStore();
         })
         .then(() => {
             this._trigger("save");
@@ -205,7 +209,12 @@ class DagTabPublished extends DagTab {
             deferred.resolve();
         })
         .fail((error) => {
-            this._version = oldVersion;
+            if (hasVersionChange) {
+                this._version = oldVersion;
+            }
+            if (typeof error === "object" && error.status === StatusT.StatusSessionNotFound) {
+                this.deletedAlert();
+            }
             deferred.reject(error);
         })
 
@@ -339,6 +348,20 @@ class DagTabPublished extends DagTab {
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    public deletedAlert(): void {
+        let tab = this;
+        let msg: string = xcHelper.replaceMsg(DFTStr.PublishedDFDeletedMsg, {
+            "name": tab.getPath()
+        });
+        Alert.show({
+           title: DFTStr.PublishedDFDeleted,
+           msg: msg,
+           onConfirm: () => {
+               DagTabManager.Instance.duplicateTab(tab);
+           }
+        });
     }
 
     protected _loadFromKVStore(): XDPromise<any> {

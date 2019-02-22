@@ -2461,7 +2461,7 @@ class DagView {
             DagSharedActionService.Instance.broadcast(DagNodeEvents.ProgressChange, {
                 nodeId: nodeId,
                 tabId: tabId,
-                progress: stats.curStepPct,
+                stats: stats,
                 skewInfos: skewInfos,
                 times: times
             });

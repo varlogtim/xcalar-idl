@@ -75,6 +75,8 @@ class DagSharedActionService {
                 } else {
                     this._lockedDataflow.delete(arg.tabId);
                 }
+            } else if (event === DagGraphEvents.DeleteGraph) {
+                this._deleteGraphEvent(tab);
             }
         } catch (e) {
             console.error(e);
@@ -84,13 +86,40 @@ class DagSharedActionService {
     public checkExecuteStatus(tabId: string): XDPromise<boolean> {
         const deferred: XDDeferred<boolean> = PromiseHelper.deferred();
         const prefix: string = DagNodeExecutor.getTableNamePrefix(tabId);
+        let isExecuting: boolean = false;
+        let queryName: string = null;
+        
         XcalarQueryList(prefix + "*")
         .then((res) => {
-            let isExecuting: boolean = false;
             if (res.queries.length > 0) {
-                isExecuting = true;
+                try {
+                    queryName = res.queries[0].name;
+                    return XcalarQueryState(queryName);
+                } catch (e) {
+                    console.log("error", e);
+                }
+            } else {
+                return PromiseHelper.resolve(null);
             }
-            deferred.resolve(isExecuting);
+        })
+        .then((queryStateOutput) => {
+            if (queryStateOutput == null) {
+                deferred.resolve(isExecuting);
+            } else {
+                try {
+                    let state = queryStateOutput.queryState;
+                    if (state === QueryStateT.qrNotStarted ||
+                        state === QueryStateT.qrProcessing
+                    ) {
+                        isExecuting = true;
+                    } else {
+                        XcalarQueryDelete(queryName);
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+                deferred.resolve(isExecuting);
+            }
         })
         .fail(() => {
             // when queryList fails, we rely on socket signal to tell
@@ -116,12 +145,17 @@ class DagSharedActionService {
                     arg.oldState = dagNode.getState();
                     arg.id = nodeId;
                     arg.node = dagNode;
-                    return arg;
+                    return arg;                    
                 default:
                     return arg;
             }
         } catch (e) {
             console.error(e);
         }
+    }
+
+    private _deleteGraphEvent(tab: DagTabPublished): void {
+        DagList.Instance.removePublishedDagFromList(tab);
+        tab.deletedAlert();
     }
 }

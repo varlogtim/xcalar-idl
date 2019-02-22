@@ -175,6 +175,27 @@ class DagList {
         return this._saveSQLFuncList();
     }
 
+    /**
+     * DagList.Instance.removePublishedDagFromList
+     * @param tab
+     */
+    public removePublishedDagFromList(tab: DagTabPublished): void {
+        if (!(tab instanceof DagTabPublished)) {
+            return;
+        }
+        try {
+            let tabId = tab.getId();
+            this._dags.delete(tabId);
+            this._renderDagList(true, true);
+            this._updateSection();
+        } catch (e) {
+          console.error(e);  
+        }
+    }
+
+    /**
+     * DagList.Instance.refresh
+     */
     public refresh(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const promise: XDPromise<void> = deferred.promise();
@@ -367,6 +388,11 @@ class DagList {
             this._saveDagList(dagTab);
             this._renderDagList(true, true);
             this._updateSection();
+            if (dagTab instanceof DagTabPublished) {
+                DagSharedActionService.Instance.broadcast(DagGraphEvents.DeleteGraph, {
+                    tabId: id
+                });
+            }
             deferred.resolve();
         })
         .fail(deferred.reject);

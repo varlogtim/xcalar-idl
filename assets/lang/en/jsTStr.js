@@ -1186,6 +1186,8 @@ DFTStr = {
     "NoSlashUpload": "Cannot upload to this path.",
     "InvalidSQLFuncUpload": "Cannot upload SQL Function as normal dataflow, please select \"Upload as SQL Function\" option.",
     "InvalidDFUploadAsSQLFunc": "Cannot upload dataflow as SQL Function, please unselect \"Upload as SQL Function\" option.",
+    "PublishedDFDeleted": "Published dataflow deleted",
+    "PublishedDFDeletedMsg": "Publisshed dataflow \"<name>\" is deleted by another user, do you want to keep a local copy of it?",
     // with replace
     "EditOpDirectly": "Please edit the overall <op> operation directly",
     "ParamAdvancedInstructions": "The <type> operation can be modified using the editor below but cannot be parameterized.",

@@ -43,12 +43,12 @@ class DagNodeMap extends DagNode {
      * @param input {DagNodeMapInputStruct}
      * @param input.eval {Array} array of {evalString, newFieldName}
      */
-    public setParam(input: DagNodeMapInputStruct = <DagNodeMapInputStruct>{}) {
+    public setParam(input: DagNodeMapInputStruct = <DagNodeMapInputStruct>{}): boolean | void {
         this.input.setInput({
             eval: input.eval,
             icv: input.icv,
         });
-        super.setParam();
+        return super.setParam();
     }
 
     public lineageChange(

@@ -1,6 +1,6 @@
 class CastOpPanel extends BaseOpPanel {
     // protected _$panel;
-    protected _dagNode;
+    protected _dagNode: DagNodeMap;
     private colRenameSection: ColAssignmentView;
     private prevRenameMap;
     private dataModel: ColAssignmentModel;
@@ -116,7 +116,6 @@ class CastOpPanel extends BaseOpPanel {
         }
         const param = this.colRenameSection.getParam();
         const paramInput = this._colRenameToParam(param);
-        this._dagNode.setParam(paramInput);
 
         const renameMap = {
             columns: {},
@@ -137,8 +136,20 @@ class CastOpPanel extends BaseOpPanel {
             }
         }
         // XXX activeDag may not be the graph this node corresponds to
-        const dagGraph = DagViewManager.Instance.getActiveDag();
-        dagGraph.applyColumnMapping(this._dagNode.getId(), renameMap);
+        try {
+            const dagGraph = DagViewManager.Instance.getActiveDag();
+            const dagTab = DagViewManager.Instance.getActiveTab();
+            dagTab.turnOffSave();
+            dagGraph.applyColumnMapping(this._dagNode.getId(), renameMap);
+            dagTab.turnOnSave();
+            let hasChangeParam: boolean | void = this._dagNode.setParam(paramInput);
+            if (!hasChangeParam) {
+                // if set the param, the tab should be auto saved
+                dagTab.save();
+            }
+        } catch (e) {
+            console.error(e);
+        }
 
         this.close(true);
         return true;
