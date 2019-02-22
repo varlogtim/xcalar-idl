@@ -74,7 +74,7 @@ function getMSALConfig(hostname) {
 
 function getMsalConfigFromLocalStorage() {
     var localMsalConfig = xcLocalStorage.getItem("msalConfig");
-    if (localMsalConfig === null) {
+    if (localMsalConfig == null) {
         return null;
     }
 

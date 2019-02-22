@@ -232,7 +232,7 @@ class DagViewManager {
         const deferred: XDDeferred<JQuery> = PromiseHelper.deferred();
 
         let dagTab: DagTab = DagList.Instance.getDagTabById(tabId);
-        if (dagTab === null){
+        if (dagTab == null){
             return PromiseHelper.reject();
         }
         DagTabManager.Instance.loadTab(dagTab)

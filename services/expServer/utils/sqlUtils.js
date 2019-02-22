@@ -109,7 +109,7 @@ SqlUtil.addPrefix = function(plan, selectTables, finalTable, prefix, usePaging, 
     return retStruct;
 }
 SqlUtil.getRows = function(tableName, startRowNum, rowsToFetch, usePaging) {
-    if (tableName === null || startRowNum === null || rowsToFetch <= 0) {
+    if (tableName == null || startRowNum == null || rowsToFetch <= 0) {
         return PromiseHelper.reject("Invalid args in fetch data");
     }
     var deferred = PromiseHelper.deferred();

@@ -431,7 +431,7 @@ class ModalHelper {
             }
             $tableContainer.addClass("modalOpen");
             let fadeInTime: number;
-            if (options.time === null) {
+            if (options.time == null) {
                 fadeInTime = 150;
             } else {
                 fadeInTime = options.time;

@@ -347,7 +347,7 @@ namespace xcSuggest { // = (function($, xcSuggest) {
             val = data[i];
 
             let d: number;
-
+            // this is on purpose to compare with null
             if (val === null || val === "") {
                 // skip empty value
                 continue;

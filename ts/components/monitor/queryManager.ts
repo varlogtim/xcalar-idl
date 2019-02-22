@@ -626,7 +626,7 @@ namespace QueryManager {
                     "state": queryObj.state
                 };
 
-                if (queryObj.sqlNum === null ||
+                if (queryObj.sqlNum == null ||
                     queryObj.state === QueryStatus.Cancel) {
                     abbrQueryObj.name = queryObj.name;
                     abbrQueryObj.queryStr = queryObj.getQuery();

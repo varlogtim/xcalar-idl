@@ -589,7 +589,7 @@ namespace IMDPanel {
             $imdPanel.find(".dateTipLineSelect").remove();
             $imdPanel.find(".selected").removeClass("selected");
             const pos: number = event.pageX - $clickedElement.closest(".tableListHist").offset().left - 1;
-            if (closestUpdate === null) {
+            if (closestUpdate == null) {
                 selectedCells[tableName] = 0
             } else {
                 selectedCells[tableName] = closestUpdate;
@@ -649,7 +649,7 @@ namespace IMDPanel {
             pCheckedTables.forEach((table) => {
                 const tableName: string = table.name;
                 let closestUpdate: number = getClosestUpdate(tableName, clickedTime);
-                if (closestUpdate === null) {
+                if (closestUpdate == null) {
                     closestUpdate = 0;
                 }
                 if (closestUpdate < table.oldestBatchId) {
@@ -1446,7 +1446,7 @@ namespace IMDPanel {
                     if (!update.startTS || update.startTS > targetTS) {
                         continue;
                     }
-                    if ((closestUpdate === null) || (targetTS - update.startTS) < (targetTS - closestUpdate.startTS)) {
+                    if ((closestUpdate == null) || (targetTS - update.startTS) < (targetTS - closestUpdate.startTS)) {
                         closestUpdate = update;
                     }
                 }
@@ -1958,7 +1958,7 @@ namespace IMDPanel {
 
     function testDate(str: string): boolean {
         const template: string[] = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-        if (template === null) {
+        if (template == null) {
             return false;
         }
         const inputDay: string = template[2];
