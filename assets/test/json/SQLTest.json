@@ -103,7 +103,12 @@
                         "orEqJoin": [{"query":"select n_nationkey, n_name, n_regionkey, r_regionkey, r_name from nation join region on  (n_nationkey=r_regionkey and n_regionkey = R_REGIONKEY or n_regionkey=r_regionkey+4) and r_regionkey >= 0 order by N_NATIONKEY, R_REGIONKEY"}],
                         "windowFrameAgg": [{"query": "select N_REGIONKEY, N_NATIONKEY, AVG(N_NATIONKEY) over(PARTITION BY N_REGIONKEY order by N_NATIONKEY rows BETWEEN 1 preceding and 2 following) a, sum(-1) over(PARTITION BY N_REGIONKEY order by N_NATIONKEY rows BETWEEN 1 preceding and 2 following) b, COUNT(N_NATIONKEY) over(PARTITION BY N_REGIONKEY order by N_NATIONKEY DESC rows BETWEEN -1 preceding and unbounded following) c from nation order by N_NATIONKEY"}],
                         "windowFrameFirstLast": [{"query": "select N_REGIONKEY, N_NATIONKEY, last(N_NATIONKEY) over(PARTITION BY N_REGIONKEY order by N_NATIONKEY DESC range BETWEEN 1 preceding and 3 following) a, last(-1) over(PARTITION BY N_REGIONKEY order by N_NATIONKEY DESC range BETWEEN 1 preceding and 3 following) b, first(N_NATIONKEY) over(PARTITION BY N_REGIONKEY ORDER BY N_NATIONKEY rows BETWEEN current row and unbounded following) c from nation ORDER BY N_NATIONKEY"}],
-                        "authRename": [{"query": "SELECT AVG(1) as N_NATIONKEY, N_NATIONKEY, N_NATIONKEY+1 a from nation group by N_NATIONKEY order by a"}]
+                        "authRename": [{"query": "SELECT AVG(1) as N_NATIONKEY, N_NATIONKEY, N_NATIONKEY+1 a from nation group by N_NATIONKEY order by a"}],
+                        "subqueryProject": [{"query": "SELECT (SELECT R_REGIONKEY FROM REGION ORDER BY R_REGIONKEY LIMIT 1) FROM REGION"}],
+                        "subqueryFilter": [{"query": "SELECT R_REGIONKEY FROM REGION where R_REGIONKEY = (SELECT avg(R_REGIONKEY) from REGION)"}],
+                        "subqueryCast": [{"query": "SELECT R_REGIONKEY FROM REGION where R_REGIONKEY = (SELECT avg(CAST(R_REGIONKEY as DECIMAL(12,4))) from REGION)"}],
+                        "subqueryJoin": [{"query": "SELECT R_REGIONKEY FROM REGION WHERE R_REGIONKEY = (SELECT r1.R_REGIONKEY FROM REGION r1, REGION r2 ORDER BY R_REGIONKEY LIMIT 1)"}],
+                        "subquerySetOp": [{"query": "SELECT R_REGIONKEY FROM REGION WHERE R_REGIONKEY = (SELECT R_REGIONKEY FROM REGION INTERSECT SELECT R_REGIONKEY FROM REGION ORDER BY R_REGIONKEY LIMIT 1)"}]
                 },
                 "answers": {
                         "onlyLRDD": {"numOfRows": "5",
@@ -354,7 +359,21 @@
                                                  "row21": [2, 21, 18, -1, 21],
                                                  "numOfRows": "25"},
                         "authRename": {"row0": [1, 0, 1],
-                                       "row9": [1, 9, 10]}
+                                       "row9": [1, 9, 10]},
+                        "subqueryProject": {"row0": [0],
+                                            "row4": [0],
+                                            "numOfRows": "5"},
+                        "subqueryFilter": {"row0": [2],
+                                           "numOfRows": "1"},
+                        "subqueryCast": {"row0": [2],
+                                         "numOfRows": "1"},
+                        "subqueryNested": {"row0": [0],
+                                           "row4": [0],
+                                           "numOfRows": "5"},
+                        "subqueryJoin": {"row0": [0],
+                                         "numOfRows": "1"},
+                        "subquerySetOp": {"row0": [0],
+                                          "numOfRows": "1"}
                 },
                 "tables": {
                         "dataSource": "/netstore/datasets/tpch_sf1_notrail/",

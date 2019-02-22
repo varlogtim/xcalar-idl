@@ -757,17 +757,19 @@
                     node.value.plan[0].class =
                       "org.apache.spark.sql.catalyst.plans.logical.XcAggregate";
                     var subqueryTree = SQLCompiler.genTree(undefined,
-                                                       node.value.plan);
+                                                       node.value.plan.slice(0));
                     prepareUsedColIds(subqueryTree);
                     node.subqueryTree = subqueryTree;
                 } else {
                     var xcAggNode = xcAggregateNode();
                     var subqueryTree = SQLCompiler.genTree(xcAggNode,
-                                                           node.value.plan);
+                                                           node.value.plan.slice(0));
                     prepareUsedColIds(subqueryTree);
                     xcAggNode.children = [subqueryTree];
                     node.subqueryTree = xcAggNode;
                 }
+                // Need to process immediately to get type
+                node.subqueryTree.aggType = getXcAggType(node.subqueryTree);
                 break;
             case ("expressions.Year"):
             case ("expressions.Quarter"):
@@ -1029,7 +1031,7 @@
             node.aggTree = secondTraverse(node.aggTree, options, true);
             node.colType = getColType(node.aggTree);
         } else if (node.subqueryTree) {
-            node.colType = node.subqueryTree;
+            node.colType = node.subqueryTree.aggType;
         } else if (curOpName === "expressions.AttributeReference" ||
                    curOpName === "expressions.Literal") {
             node.colType = convertSparkTypeToXcalarType(node.value.dataType);
@@ -2058,15 +2060,11 @@
         _pushDownXcAggregate: function(node) {
             // This is for Xcalar Aggregate which produces a single value
             var self = this;
-
-            assert(node.children.length === 1,
-                   SQLErrTStr.XcAggOneChild + node.children.length);
             assert(node.subqVarName, SQLErrTStr.SubqueryName);
             var tableName = node.children[0].newTableName;
             if (node.value.aggregateExpressions) {
                 assert(node.value.aggregateExpressions.length === 1,
                        SQLErrTStr.SubqueryOneColumn + node.value.aggregateExpressions.length);
-                var edgeCase = false;
                 node.orderCols = [];
                 // Edge case:
                 // SELECT col FROM tbl GROUP BY col1
@@ -6511,15 +6509,17 @@
                         "org.apache.spark.sql.catalyst.expressions.aggregate.Count") {
                             countType = getColType(condTree.aggTree.children[0]);
                         }
+                        var colType = getColType(condTree.aggTree);
                         acc.aggEvalStrArray.push({aggEvalStr: aggEvalStr,
                                                   aggVarName: aggVarName,
                                                   numOps: aggAcc.numOps,
                                                   countType: countType,
-                                    colType: getColType(condTree.aggTree)});
+                                    colType: colType});
+                        outStr += colType + "(";
                         if (options && options.xcAggregate) {
                             outStr += "^";
                         }
-                        outStr += aggVarName;
+                        outStr += aggVarName + ")";
                     } else {
                         assert(condTree.children.length > 0, SQLErrTStr.CondTreeChildren);
                     }
@@ -6605,7 +6605,7 @@
                                     Authentication.getHashId().substring(3);
                 condTree.subqueryTree.subqVarName = subqVarName;
                 acc.subqueryArray.push({subqueryTree: condTree.subqueryTree});
-                outStr += "^" + subqVarName;
+                outStr += condTree.subqueryTree.aggType + "(^" + subqVarName + ")";
             } else {
                 if (acc && acc.hasOwnProperty("numOps")) {
                     acc.numOps += 1;
@@ -6877,6 +6877,65 @@
         })
         .fail(deferred.reject);
         return deferred.promise();
+    }
+
+    function getXcAggType(node) {
+        if (node.children.length !== 1) {
+            // Edge case:
+            // Cross join, Intersect & Except.
+            // (but not Union bc it's prepended with an Aggregate)
+            // Need to make sure closest descendant projects have one column in total.
+            if (node.value.class !==
+                "org.apache.spark.sql.catalyst.plans.logical.Join" &&
+                node.value.class !==
+                "org.apache.spark.sql.catalyst.plans.logical.Intersect" &&
+                node.value.class !==
+                "org.apache.spark.sql.catalyst.plans.logical.Except"
+                ) {
+                assert(0, SQLErrTStr.XcAggOneChild + node.value.class);
+            }  else {
+                var leftColsLen = getProjectListLen(node.children[0]);
+                var rightColsLen = getProjectListLen(node.children[1]);
+                if (node.value.class ===
+                    "org.apache.spark.sql.catalyst.plans.logical.Join") {
+                    assert(leftColsLen + rightColsLen === 1,
+                           SQLErrTStr.XcAggOneColumn + (leftColsLen + rightColsLen));
+                } else {
+                    assert(leftColsLen === 1 && rightColsLen === 1,
+                           SQLErrTStr.XcAggOneColumn + (leftColsLen || rightColsLen));
+                }
+            }
+        }
+        if (node.value.aggregateExpressions) {
+            assert(node.value.aggregateExpressions.length === 1,
+                    SQLErrTStr.SubqueryOneColumn + node.value.aggregateExpressions.length);
+            var index = node.value.aggregateExpressions[0][0].class ===
+                        "org.apache.spark.sql.catalyst.expressions.Alias" ? 1 : 0;
+            var treeNode = SQLCompiler.genExpressionTree(undefined,
+                            node.value.aggregateExpressions[0].slice(index));
+            return getColType(treeNode);
+        } else if (node.value.class ===
+            "org.apache.spark.sql.catalyst.plans.logical.Project") {
+            assert(node.value.projectList.length === 1,
+                SQLErrTStr.SubqueryOneColumn + node.value.projectList.length);
+            var columns = [];
+            genMapArray(node.value.projectList, columns, [], [], {}, []);
+            return columns[0].colType;
+        } else {
+            return getXcAggType(node.children[0]);
+        }
+    }
+    function getProjectListLen(node) {
+        var len = 0;
+        if (node.value.class ===
+            "org.apache.spark.sql.catalyst.plans.logical.Project") {
+            len = node.value.projectList.length;
+        } else {
+            for (var i = 0; i < node.children.length; i++) {
+                len += genProjectListLen(node.children[i]);
+            }
+        }
+        return len;
     }
 
     // XXX replace is never used
@@ -7292,6 +7351,8 @@
                     errorMsg = SQLErrTStr.FailToConnectPlanner;
                 } else if (errorObj && errorObj.error) {
                     errorMsg = errorObj.error;
+                } else if (errorObj && errorObj.message) {
+                    errorMsg = errorObj.message;
                 }
             }
         } else {
