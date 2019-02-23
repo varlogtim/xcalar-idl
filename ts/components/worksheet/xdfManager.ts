@@ -8,21 +8,37 @@ class XDFManager {
         return  this._instance || (this._instance = new this());
     }
 
-    public setup(): XDPromise<void> {
+    /**
+     * Setup the class
+     * @param options If present, setup with specified userName and sessionId. Otherwise, use the current logged in userName and sessionId
+     * @description
+     * In XD, we can read userName and sessionId from the running env.
+     * But in expServer, these kind of information has to be provided explicitly, as expServer is running in a stateless manner.
+     */
+    public setup(options?: {userName: string, sessionId: string, listXdfsObj}): XDPromise<void> {
         const self = this;
-        const deferred: XDDeferred<any> = PromiseHelper.deferred();
 
-        XcalarListXdfs("*", "*")
-        .then((listXdfsObj) => {
-            const fns = xcHelper.filterUDFs(listXdfsObj.fnDescs);
+        if (options != null) {
+            const { userName, sessionId, listXdfsObj} = options;
+            const fns = xcHelper.filterUDFsByUserSession(
+                listXdfsObj.fnDescs, userName, sessionId
+            );
             self._setupOperatorsMap(fns);
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            Alert.error("List XDFs failed", error.error);
-            deferred.reject(error);
-        });
-        return deferred.promise();
+            return PromiseHelper.resolve();
+        } else {
+            const deferred: XDDeferred<any> = PromiseHelper.deferred();
+            XcalarListXdfs("*", "*")
+            .then((listXdfsObj) => {
+                const fns = xcHelper.filterUDFs(listXdfsObj.fnDescs);
+                self._setupOperatorsMap(fns);
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                Alert.error("List XDFs failed", error.error);
+                deferred.reject(error);
+            });
+            return deferred.promise();
+        }
     }
 
     public getOperatorsMap() {

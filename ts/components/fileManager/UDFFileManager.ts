@@ -86,7 +86,7 @@ class UDFFileManager extends BaseFileManager {
      * @returns string
      */
     public getSharedUDFPath(): string {
-        return "/sharedUDFs/";
+        return xcHelper.constructUDFSharedPrefix();
     }
 
     /**
@@ -99,12 +99,9 @@ class UDFFileManager extends BaseFileManager {
         if (workbook == null) {
             return null;
         }
-        return (
-            "/workbook/" +
-            XcUser.getCurrentUserName() +
-            "/" +
-            workbook.sessionId +
-            "/udf/"
+        return xcHelper.constructUDFWBPrefix(
+            XcUser.getCurrentUserName(),
+            workbook.sessionId
         );
     }
 

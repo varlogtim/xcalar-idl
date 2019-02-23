@@ -3354,6 +3354,22 @@ namespace xcHelper {
     }
 
     /**
+     * Construct the Workbook UDF path prefix string
+     * @param userName 
+     * @param sessionId 
+     */
+    export function constructUDFWBPrefix(userName: string, sessionId: string): string {
+        return `/workbook/${userName}/${sessionId}/udf/`;
+    }
+
+    /**
+     * Construct the Shared UDF path prefix string
+     */
+    export function constructUDFSharedPrefix(): string {
+        return '/sharedUDFs/';
+    }
+
+    /**
      * Only show default and user workbook's udfs and shared udfs. If same
      * module name exists in workbook space and shared space, it preserves the
      * one in workbook space.
@@ -3362,12 +3378,41 @@ namespace xcHelper {
      * @returns XcalarEvalFnDescT
      */
     export function filterUDFs(fns: XcalarEvalFnDescT[], wkbkPrefix?: string): XcalarEvalFnDescT[] {
+        return filterUDFsByPath(
+            fns,
+            wkbkPrefix || UDFFileManager.Instance.getCurrWorkbookPath(),
+            xcHelper.constructUDFSharedPrefix()
+        );
+    }
+
+    /**
+     * Filter out the default, shared, and workbook(specified by user and session) UDFs.
+     * If same module name exists in both workbook and shared, preserve the workbook one.
+     * @param fns 
+     * @param userName 
+     * @param sessionId 
+     */
+    export function filterUDFsByUserSession(
+        fns: XcalarEvalFnDescT[],
+        userName: string,
+        sessionId: string
+    ): XcalarEvalFnDescT[] {
+        return filterUDFsByPath(
+            fns,
+            xcHelper.constructUDFWBPrefix(userName, sessionId),
+            xcHelper.constructUDFSharedPrefix()
+        );
+    }
+
+    function filterUDFsByPath(
+        fns: XcalarEvalFnDescT[],
+        wkbkPrefix: string,
+        sharedPathPrefix: string
+    ): XcalarEvalFnDescT[] {
         let filteredArray: XcalarEvalFnDescT[] = [];
-        wkbkPrefix = wkbkPrefix || UDFFileManager.Instance.getCurrWorkbookPath();
         if (wkbkPrefix == null) {
             return filteredArray;
         }
-        const sharedPathPrefix: string = UDFFileManager.Instance.getSharedUDFPath();
         const functionNameMap: Map<string, XcalarEvalFnDescT> = new Map();
 
         for (const op of fns) {
@@ -3388,7 +3433,7 @@ namespace xcHelper {
             }
         }
 
-        filteredArray = filteredArray.concat(...functionNameMap.values())
+        filteredArray = filteredArray.concat(...functionNameMap.values());
         return filteredArray;
     }
 
