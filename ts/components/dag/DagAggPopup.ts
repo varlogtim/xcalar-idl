@@ -232,7 +232,8 @@ class DagAggPopup {
         var self = this;
         const $aggName: JQuery = $row.find(".aggName");
         const aggName: string = $aggName.text();
-        const graphId: string = $aggName.closest(".row").data('dataflowid');
+        const nodeId = $row.data("nodeid");
+        const graphId = $row.data("dataflowid");
         this.$aggManagerPopup.find(".aggDelete").addClass("xc-disabled");
         const backName = DagAggManager.Instance.wrapAggName(graphId, aggName);
 
@@ -243,6 +244,16 @@ class DagAggPopup {
             $row.remove();
             if (self.$retLists.find(".row").length < this.aggRowLen) {
                 self.$retLists.append(this.aggRowTemplate);
+            }
+
+            let tab: DagTab = DagList.Instance.getDagTabById(graphId);
+            if (!tab) {
+                return;
+            }
+            let graph: DagGraph = tab.getGraph();
+            // if the tab isn't loaded, we cant reset the node.
+            if (graph && nodeId) {
+                graph.reset([nodeId]);
             }
         })
         .fail((err) => {

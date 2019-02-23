@@ -123,7 +123,7 @@ class DagAggManager {
     /**
      * Removes the aggregate. If it has a value, the corresponding table is deleted.
      * @param aggName
-     * @param force
+     * @param force Delete the aggregate names no matter what
      */
     public removeAgg(aggNames: string | string[], force?: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
@@ -137,13 +137,13 @@ class DagAggManager {
         for (var i = 0; i < aggNames.length; i++) {
             let aggName = aggNames[i];
             let agg: AggregateInfo = this.aggregates[aggName];
-            if (agg == null) {
+            if (agg == null && !force) {
                 continue
             }
 
             delete this.aggregates[aggName];
             if (agg.value != null || force) {
-                toDelete.push(aggName)
+                toDelete.push(aggName);
             }
         }
         this._deleteAgg(toDelete)
@@ -155,7 +155,7 @@ class DagAggManager {
         return deferred.promise();
     }
 
-    public removeValue(aggNames: string | string[]): XDPromise<void> {
+    public removeValue(aggNames: string | string[], force?: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         if (aggNames == "" || aggNames == []) {
             return PromiseHelper.resolve();
@@ -167,11 +167,15 @@ class DagAggManager {
         for (var i = 0; i < aggNames.length; i++) {
             let aggName = aggNames[i];
             let agg: AggregateInfo = this.aggregates[aggName];
-            if (agg == null) {
+            if (agg == null && !force) {
                 continue
+            } else if (agg == null && force) {
+                // This is an emergency delete
+                toDelete.push(aggName);
+                continue;
             }
 
-            if (agg.value != null) {
+            if (agg.value != null || force) {
                 this.aggregates[aggName].value = null;
                 toDelete.push(aggName)
             }

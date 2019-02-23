@@ -294,7 +294,16 @@ class DagNodeExecutor {
         .then(() => {
             deferred.resolve(null); // no table generated
         })
-        .fail(deferred.reject);
+        .fail((err) => {
+            // Remove the aggregate in the background
+            PromiseHelper.alwaysResolve(XcalarGetConstants(dstAggName))
+            .then((list: XcalarApiDagNodeInfoT[]) => {
+                if (list && list.length != 0) {
+                    PromiseHelper.alwaysResolve(DagAggManager.Instance.removeValue(dstAggName, true));
+                }
+            })
+            deferred.reject(err);
+        });
         return deferred.promise();
     }
 
