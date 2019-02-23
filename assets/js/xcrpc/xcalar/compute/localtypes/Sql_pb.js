@@ -880,7 +880,8 @@ proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.toObject = function
   var f, obj = {
     colname: msg.getColname(),
     colid: msg.getColid(),
-    coltype: msg.getColtype()
+    coltype: msg.getColtype(),
+    rename: msg.getRename()
   };
 
   if (includeInstance) {
@@ -928,6 +929,10 @@ proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.deserializeBinaryFr
     case 3:
       var value = /** @type {string} */ (reader.readString());
       msg.setColtype(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setRename(value);
       break;
     default:
       reader.skipField();
@@ -988,6 +993,13 @@ proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.prototype.serialize
       f
     );
   }
+  f = this.getRename();
+  if (f.length > 0) {
+    writer.writeString(
+      4,
+      f
+    );
+  }
 };
 
 
@@ -1042,6 +1054,21 @@ proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.prototype.getColtyp
 /** @param {string} value  */
 proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.prototype.setColtype = function(value) {
   jspb.Message.setField(this, 3, value);
+};
+
+
+/**
+ * optional string rename = 4;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.prototype.getRename = function() {
+  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 4, ""));
+};
+
+
+/** @param {string} value  */
+proto.xcalar.compute.localtypes.Sql.SQLQueryResponse.ColInfo.prototype.setRename = function(value) {
+  jspb.Message.setField(this, 4, value);
 };
 
 

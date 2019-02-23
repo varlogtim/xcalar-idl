@@ -30,6 +30,7 @@ function executeSql(sqlQueryReq) {
             colMsg.setColname(col.colName);
             colMsg.setColid(col.colId);
             colMsg.setColtype(col.colType);
+            colMsg.setRename(col.rename);
             return colMsg;
         });
         queryResp.setOrderedcolumnsList(orderedColumns);
