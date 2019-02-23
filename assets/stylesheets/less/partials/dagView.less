@@ -1429,23 +1429,30 @@
     &.backgroundMenu {
         .removeAllNodes, .executeAllNodes, .executeAllNodesOptimized,
         .resetAllNodes, .selectAllNodes, .pasteNodes,
-        .autoAlign, .newComment, .focusRunning, .download {
+        .autoAlign, .newComment, .focusRunning, .download, .restoreAllDataset {
             display: list-item;
         }
 
         &.nonEditableSubgraph {
-            .removeAllNodes, .newComment, .executeAllNodes, .pasteNodes {
+            .removeAllNodes, .newComment, .executeAllNodes, .pasteNodes, .restoreAllDataset {
                 display: none;
             }
         }
         &.viewOnly {
-            .resetNode, .resetAllNodes, .lockNodeTable, .pasteNodes {
+            .resetNode, .resetAllNodes, .lockNodeTable, .pasteNodes, .restoreAllDataset {
                 display: none;
             }
         }
         &.published {
             .newComment, .autoAlign, .removeAllNodes, .pasteNodes {
                 display: none;
+            }
+        }
+        &.nonEditableSubgraph {
+            &.customTab, &.published {
+                .restoreAllDataset {
+                    display: list-item;
+                }
             }
         }
     }

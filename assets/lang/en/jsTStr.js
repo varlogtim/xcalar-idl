@@ -1270,6 +1270,7 @@ DSTStr = {
     'TableName': 'Table Name',
     'DSName': 'Dataset Name',
     'Sources': 'Sources',
+    'NoSourcesToRestore': "No datasets need to restore.",
 
     // With replace
     'DelDSConfirm': 'Are you sure you want to delete dataset <ds>?',

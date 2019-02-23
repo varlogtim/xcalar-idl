@@ -132,8 +132,14 @@ namespace DagNodeMenu {
                     _focusRunningNode();
                     break;
                 case ("download"):
-                    const dagTab: DagTab = DagList.Instance.getDagTabById(tabId);
-                    DFDownloadModal.Instance.show(dagTab);
+                    let dagTab: DagTab = DagList.Instance.getDagTabById(tabId);
+                    if (dagTab == null) {
+                        // when it's sub tab
+                        dagTab = DagTabManager.Instance.getTabById(tabId);
+                    }
+                    if (dagTab != null) {
+                        DFDownloadModal.Instance.show(dagTab);
+                    }
                     break;
                 case ("removeInConnection"):
                     DagViewManager.Instance.disconnectNodes(parentNodeId, nodeId, connectorIndex, tabId);
@@ -237,6 +243,9 @@ namespace DagNodeMenu {
                 case ("restoreDataset"):
                     const node: DagNodeDataset = <DagNodeDataset>DagViewManager.Instance.getActiveDag().getNode(dagNodeIds[0]);
                     _restoreDatasetFromNode(node);
+                    break;
+                case ("restoreAllDataset"):
+                    _restoreAllDatasets();
                     break;
             }
         } catch (e) {
@@ -501,11 +510,15 @@ namespace DagNodeMenu {
         if (DagViewManager.Instance.isViewOnly()) {
             classes += ' viewOnly ';
         }
-        if (DagViewManager.Instance.getActiveTab() instanceof DagTabPublished) {
+        let activeTab: DagTab = DagViewManager.Instance.getActiveTab();
+        if (activeTab instanceof DagTabPublished) {
             classes += ' published ';
         }
-        if (DagViewManager.Instance.getActiveTab() instanceof DagTabSQL) {
-            classes += ' viewOnly SQLTab';
+        if (activeTab instanceof DagTabSQL) {
+            classes += ' viewOnly SQLTab ';
+        }
+        if (activeTab instanceof DagTabCustom) {
+            classes += ' customTab ';
         }
         if ($dfArea.find(".comment.selected").length) {
             classes += " commentMenu ";
@@ -819,6 +832,34 @@ namespace DagNodeMenu {
             console.error(e);
             let $node = DagViewManager.Instance.getNode(node.getId());
             StatusBox.show(e.message, $node);
+        }
+    }
+
+    function _restoreAllDatasets(): void {
+        try {
+            let tab: DagTab = DagViewManager.Instance.getActiveTab();
+            let graph: DagGraph = tab.getGraph();
+            let dagNodes: DagNodeDataset[] = [];
+            graph.getAllNodes().forEach((dagNode: DagNode) => {
+                if (dagNode instanceof DagNodeDataset) {
+                    let dsName = dagNode.getDSName();
+                    if (DS.getDSObj(dsName) == null) {
+                        dagNodes.push(dagNode);
+                    }
+                }
+            });
+            if (dagNodes.length) {
+                let shareDS: boolean = (tab instanceof DagTabPublished);
+                DS.restoreSourceFromDagNode(dagNodes, shareDS);
+            } else {
+                Alert.show({
+                    title: AlertTStr.Title,
+                    msg: DSTStr.NoSourcesToRestore,
+                    isAlert: true
+                });
+            }
+        } catch (e) {
+            console.error(e);
         }
     }
 }
