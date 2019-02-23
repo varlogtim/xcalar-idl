@@ -1521,6 +1521,7 @@ module.exports = {
         "expandSQL": "Expand",
         "download": "Download selected nodes",
         "downloadDataflow": "Download",
+        "duplicateDataflow": "Duplicate",
         "viewOptimizedDataflow": "View Optimized Dataflow"
     }
 };

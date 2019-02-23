@@ -141,6 +141,11 @@ namespace DagNodeMenu {
                         DFDownloadModal.Instance.show(dagTab);
                     }
                     break;
+                case ("duplicateDf"): {
+                    const dagTab: DagTab = DagList.Instance.getDagTabById(tabId);
+                    DagTabManager.Instance.duplicateTab(dagTab);
+                    break;
+                }
                 case ("removeInConnection"):
                     DagViewManager.Instance.disconnectNodes(parentNodeId, nodeId, connectorIndex, tabId);
                     break;
