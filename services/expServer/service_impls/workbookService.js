@@ -13,11 +13,14 @@ function convertKvsToQuery(convertRequest) {
     var deferred = PromiseHelper.deferred();
     var kvsQuery = convertRequest.getKvsstring();
     var optimized = convertRequest.getOptimized();
+    var listXdfsOutput = convertRequest.getListxdfsoutput();
+    var userName = convertRequest.getUsername();
+    var sessionId = convertRequest.getSessionid();
     // var txId = Transaction.start({"simulate": true});
     var cvtKvsToQueryResponse = new workbook_pb.ConvertKvsToQueryResponse();
 
     cvtKvsToQueryResponse.setConverted(false);
-    DagHelper.convertKvs(kvsQuery, optimized)
+    DagHelper.convertKvs(kvsQuery, optimized, listXdfsOutput, userName, sessionId)
     .then(function(convertedQuery) {
         if (optimized) {
             var optimizedStr = JSON.stringify(convertedQuery)

@@ -16,7 +16,6 @@ goog.exportSymbol('proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier', nu
 goog.exportSymbol('proto.xcalar.compute.localtypes.Workbook.ScopeType', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.Workbook.WorkbookScope', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier', null, global);
-goog.exportSymbol('proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier', null, global);
 goog.exportSymbol('proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier', null, global);
 
 /**
@@ -163,38 +162,12 @@ proto.xcalar.compute.localtypes.Workbook.GlobalSpecifier.prototype.cloneMessage 
  * @constructor
  */
 proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.oneofGroups_);
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
 goog.inherits(proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
   proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.displayName = 'proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier';
 }
-/**
- * Oneof group definitions for this message. Each group defines the field
- * numbers belonging to that group. When of these fields' value is set, all
- * other fields in the group are cleared. During deserialization, if multiple
- * fields are encountered for a group, only the last value seen will be kept.
- * @private {!Array<!Array<number>>}
- * @const
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.oneofGroups_ = [[1,2]];
-
-/**
- * @enum {number}
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.SpecifierCase = {
-  SPECIFIER_NOT_SET: 0,
-  NAME: 1,
-  ID: 2
-};
-
-/**
- * @return {proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.SpecifierCase}
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.getSpecifierCase = function() {
-  return /** @type {proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.SpecifierCase} */(jspb.Message.computeOneofCase(this, proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.oneofGroups_[0]));
-};
-
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -223,8 +196,7 @@ proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.toObject = 
  */
 proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.toObject = function(includeInstance, msg) {
   var f, obj = {
-    name: (f = msg.getName()) && proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier.toObject(includeInstance, f),
-    id: (f = msg.getId()) && proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier.toObject(includeInstance, f)
+    name: (f = msg.getName()) && proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -265,11 +237,6 @@ proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.deserializeBinaryFrom
       var value = new proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier;
       reader.readMessage(value,proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier.deserializeBinaryFromReader);
       msg.setName(value);
-      break;
-    case 2:
-      var value = new proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier;
-      reader.readMessage(value,proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier.deserializeBinaryFromReader);
-      msg.setId(value);
       break;
     default:
       reader.skipField();
@@ -317,14 +284,6 @@ proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.serializeBi
       proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier.serializeBinaryToWriter
     );
   }
-  f = this.getId();
-  if (f != null) {
-    writer.writeMessage(
-      2,
-      f,
-      proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier.serializeBinaryToWriter
-    );
-  }
 };
 
 
@@ -349,7 +308,7 @@ proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.getName = f
 
 /** @param {proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier|undefined} value  */
 proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.setName = function(value) {
-  jspb.Message.setOneofWrapperField(this, 1, proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.oneofGroups_[0], value);
+  jspb.Message.setWrapperField(this, 1, value);
 };
 
 
@@ -364,36 +323,6 @@ proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.clearName =
  */
 proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.hasName = function() {
   return jspb.Message.getField(this, 1) != null;
-};
-
-
-/**
- * optional IdSpecifier id = 2;
- * @return {proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier}
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.getId = function() {
-  return /** @type{proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier} */ (
-    jspb.Message.getWrapperField(this, proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier, 2));
-};
-
-
-/** @param {proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier|undefined} value  */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.setId = function(value) {
-  jspb.Message.setOneofWrapperField(this, 2, proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.oneofGroups_[0], value);
-};
-
-
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.clearId = function() {
-  this.setId(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return{!boolean}
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.prototype.hasId = function() {
-  return jspb.Message.getField(this, 2) != null;
 };
 
 
@@ -579,192 +508,6 @@ proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier.prototy
 
 /** @param {string} value  */
 proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.NameSpecifier.prototype.setWorkbookname = function(value) {
-  jspb.Message.setField(this, 2, value);
-};
-
-
-
-/**
- * Generated by JsPbCodeGenerator.
- * @param {Array=} opt_data Optional initial data array, typically from a
- * server response, or constructed directly in Javascript. The array is used
- * in place and becomes part of the constructed object. It is not cloned.
- * If no data is provided, the constructed object will be empty, but still
- * valid.
- * @extends {jspb.Message}
- * @constructor
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
-};
-goog.inherits(proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier, jspb.Message);
-if (goog.DEBUG && !COMPILED) {
-  proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier.displayName = 'proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier';
-}
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto suitable for use in Soy templates.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
- * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
- *     for transitional soy proto support: http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier.prototype.toObject = function(opt_includeInstance) {
-  return proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Whether to include the JSPB
- *     instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier} msg The msg instance to transform.
- * @return {!Object}
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    username: msg.getUsername(),
-    workbookid: msg.getWorkbookid()
-  };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
-
-
-/**
- * Deserializes binary data (in protobuf wire format).
- * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier}
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier;
-  return proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier.deserializeBinaryFromReader(msg, reader);
-};
-
-
-/**
- * Deserializes binary data (in protobuf wire format) from the
- * given reader into the given message object.
- * @param {!proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier} msg The message object to deserialize into.
- * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier}
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
-    }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setUsername(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setWorkbookid(value);
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
-
-/**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
- * Serializes the message to binary data (in protobuf wire format).
- * @return {!Uint8Array}
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
-  return writer.getResultBuffer();
-};
-
-
-/**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
- * @param {!jspb.BinaryWriter} writer
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier.prototype.serializeBinaryToWriter = function (writer) {
-  var f = undefined;
-  f = this.getUsername();
-  if (f.length > 0) {
-    writer.writeString(
-      1,
-      f
-    );
-  }
-  f = this.getWorkbookid();
-  if (f !== 0) {
-    writer.writeUint64(
-      2,
-      f
-    );
-  }
-};
-
-
-/**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier} The clone.
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier.prototype.cloneMessage = function() {
-  return /** @type {!proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
- * optional string username = 1;
- * @return {string}
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier.prototype.getUsername = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
-};
-
-
-/** @param {string} value  */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier.prototype.setUsername = function(value) {
-  jspb.Message.setField(this, 1, value);
-};
-
-
-/**
- * optional uint64 workbookId = 2;
- * @return {number}
- */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier.prototype.getWorkbookid = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 2, 0));
-};
-
-
-/** @param {number} value  */
-proto.xcalar.compute.localtypes.Workbook.WorkbookSpecifier.IdSpecifier.prototype.setWorkbookid = function(value) {
   jspb.Message.setField(this, 2, value);
 };
 
@@ -1062,7 +805,10 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.toOb
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     kvsstring: msg.getKvsstring(),
-    optimized: msg.getOptimized()
+    optimized: msg.getOptimized(),
+    listxdfsoutput: msg.getListxdfsoutput(),
+    username: msg.getUsername(),
+    sessionid: msg.getSessionid()
   };
 
   if (includeInstance) {
@@ -1106,6 +852,18 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.deserializeBin
     case 2:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setOptimized(value);
+      break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setListxdfsoutput(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setUsername(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setSessionid(value);
       break;
     default:
       reader.skipField();
@@ -1159,6 +917,27 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.seri
       f
     );
   }
+  f = this.getListxdfsoutput();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
+  f = this.getUsername();
+  if (f.length > 0) {
+    writer.writeString(
+      4,
+      f
+    );
+  }
+  f = this.getSessionid();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
+      f
+    );
+  }
 };
 
 
@@ -1200,6 +979,51 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getO
 /** @param {boolean} value  */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setOptimized = function(value) {
   jspb.Message.setField(this, 2, value);
+};
+
+
+/**
+ * optional string listXdfsOutput = 3;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getListxdfsoutput = function() {
+  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
+};
+
+
+/** @param {string} value  */
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setListxdfsoutput = function(value) {
+  jspb.Message.setField(this, 3, value);
+};
+
+
+/**
+ * optional string userName = 4;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getUsername = function() {
+  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 4, ""));
+};
+
+
+/** @param {string} value  */
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setUsername = function(value) {
+  jspb.Message.setField(this, 4, value);
+};
+
+
+/**
+ * optional string sessionId = 5;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getSessionid = function() {
+  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 5, ""));
+};
+
+
+/** @param {string} value  */
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setSessionid = function(value) {
+  jspb.Message.setField(this, 5, value);
 };
 
 
