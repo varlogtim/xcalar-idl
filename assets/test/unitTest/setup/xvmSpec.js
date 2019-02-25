@@ -1,4 +1,8 @@
 describe('XVM Test', () => {
+    before(() => {
+        console.log("XVM Test");
+    });
+
     describe('Basic Function Test', () => {
         it('showInvalidLicenseAlert should work', () => {
             const oldFunc = Alert.show;

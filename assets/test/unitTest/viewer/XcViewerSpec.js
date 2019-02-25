@@ -3,6 +3,7 @@ describe("XcViewer Test", () => {
     let $container;
 
     before(() => {
+        console.log("XcViewer Test");
         class ActualViewer extends XcViewer {
             constructor(id) {
                 super(id);

@@ -1,5 +1,6 @@
 describe("xcManager Test", function() {
     before(function() {
+        console.log("xcManager Test");
         console.clear();
     });
 

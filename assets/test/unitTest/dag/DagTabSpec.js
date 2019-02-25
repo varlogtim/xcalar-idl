@@ -1,13 +1,16 @@
 // Tests for dagTabs.
 
 describe('DagTab Test', function() {
-
-    var $dagTabArea;
     var $dagTabs;
-    var $dataFlowAreas;
     var $newTabButton;
+    var oldPut;
 
-    before(function(done) {
+    before(function() {
+        console.log("Dag Tab Test");
+        oldPut = XcalarKeyPut;
+        XcalarKeyPut = function() {
+            return PromiseHelper.resolve();
+        };
         UnitTest.onMinMode();
         var dagTabManager = DagTabManager.Instance;
         dagTabManager.newTab();
@@ -15,8 +18,7 @@ describe('DagTab Test', function() {
         $dagTabArea = $("#dagTabSectionTabs");
         $newTabButton = $("#tabButton");
         $dagTabs = $("#dagTabSectionTabs .dagTab")
-        done();
-});
+    });
 
     describe('Dag Tabs Test', function() {
 
@@ -74,8 +76,7 @@ describe('DagTab Test', function() {
         });
     });
 
-    after(function(done) {
-        DagList.Instance.reset();
-        done();
+    after(function() {
+        XcalarKeyPut = oldPut;
     });
 });

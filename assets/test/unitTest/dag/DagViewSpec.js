@@ -6,6 +6,7 @@ describe("DagView Test", () => {
     let oldPut;
 
     before(function(done) {
+        console.log("DagView Test");
         UnitTest.onMinMode();
         $dagView = $("#dagView");
         $dfWrap = $dagView.find(".dataflowWrap");
@@ -13,22 +14,19 @@ describe("DagView Test", () => {
         XcalarKeyPut = function() {
             return PromiseHelper.resolve();
         };
-        UnitTest.testFinish(function() {
-            return $dagView.find(".dataflowArea").length > 0;
-        })
+        XVM.setMode(XVM.Mode.Advanced)
         .then(function() {
             DagTabManager.Instance.newTab();
             tabId = DagViewManager.Instance.getActiveDag().getTabId();
             $dfArea = $dfWrap.find(".dataflowArea.active");
             MainMenu.openPanel("dagPanel", null);
             done();
+        })
+        .fail(function() {
+            done("DagView Test Fail");
         });
     });
     describe("initial state", function() {
-        it("initial screen should have at least 1 dataflowArea", () => {
-            expect($dagView.find(".dataflowArea").length).at.least(1);
-            expect($dagView.find(".dataflowArea.active").length).to.equal(1);
-        });
         it("initial screen should have no operators", function() {
             expect($dagView.find(".operator").length).to.be.gt(0);
             expect($dagView.find(".dataflowArea.active .operator").length).to.equal(0);
