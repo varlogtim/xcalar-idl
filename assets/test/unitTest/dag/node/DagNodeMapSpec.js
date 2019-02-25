@@ -126,14 +126,14 @@ describe("Map Dag Node Test", () => {
             const res = node.lineageChange([progCol1]);
             expect(res.columns.length).to.equal(1);
             expect(res.columns[0].getBackColName()).to.equal("col1");
-            expect(res.columns[0].getType()).to.equal("2dp");
+            expect(res.columns[0].getType()).to.equal("money");
 
             expect(res.changes.length).to.equal(1);
 
             expect(res.changes[0].from.getBackColName()).to.equal("col1");
             expect(res.changes[0].from.getType()).to.equal("string");
             expect(res.changes[0].to.getBackColName()).to.equal("col1");
-            expect(res.changes[0].to.getType()).to.equal("2dp");
+            expect(res.changes[0].to.getType()).to.equal("money");
         });
 
         it("cast with new output name should show correct change", function() {

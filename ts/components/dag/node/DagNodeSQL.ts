@@ -619,7 +619,7 @@ class DagNodeSQL extends DagNode {
         // convert prefix field of primitive type to derived
         if (col.type !== 'integer' && col.type !== 'float' &&
             col.type !== 'boolean' && col.type !== 'timestamp' &&
-            col.type !== "string" && col.type !== '2dp') {
+            col.type !== "string" && col.type !== 'money') {
             // can't handle other types in SQL
             return;
         }

@@ -883,7 +883,7 @@ describe("xcHelper Test", function() {
         expect(func(DfFieldTypeT.DfString)).to.equal('xi-string');
         expect(func(DfFieldTypeT.DfBoolean)).to.equal('xi-boolean');
         expect(func(DfFieldTypeT.DfTimespec)).to.equal('xi-timestamp');
-        expect(func(DfFieldTypeT.DfMoney)).to.equal('xi-2dp');
+        expect(func(DfFieldTypeT.DfMoney)).to.equal('xi-money');
         expect(func(DfFieldTypeT.DfScalarObj)).to.equal('xi-mixed');
         expect(func(DfFieldTypeT.DfUnknown)).to.equal('xi-unknown');
     });
@@ -895,7 +895,7 @@ describe("xcHelper Test", function() {
         expect(func(ColumnType.string)).to.equal('xi-string');
         expect(func(ColumnType.boolean)).to.equal('xi-boolean');
         expect(func(ColumnType.timestamp)).to.equal('xi-timestamp');
-        expect(func(ColumnType.money)).to.equal('xi-2dp');
+        expect(func(ColumnType.money)).to.equal('xi-money');
         expect(func(ColumnType.mixed)).to.equal('xi-mixed');
         expect(func("abc")).to.equal('xi-unknown');
     });

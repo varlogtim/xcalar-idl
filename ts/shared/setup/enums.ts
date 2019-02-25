@@ -55,7 +55,7 @@ enum ColumnType {
     object = "object",
     string = "string",
     timestamp = "timestamp",
-    money = "2dp",
+    money = "money",
     undefined = "undefined",
     unknown = "unknown"
 }

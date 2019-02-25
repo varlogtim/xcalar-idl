@@ -809,7 +809,7 @@ class DagTabManager {
     }
 
     private _tabRenameCheck(name: string, $tab: JQuery): boolean {
-        let isSQLFunc: boolean = $tab.hasClass("sqlFunc");
+        let isSQLFunc: boolean = $tab.closest(".dagTab").hasClass("sqlFunc");
         const isValid: boolean = xcHelper.validate([{
             $ele: $tab
         },

@@ -1699,7 +1699,7 @@ namespace xcHelper {
             case ColumnType.timestamp:
                 return 'xi-timestamp';
             case ColumnType.money:
-                return 'xi-2dp';
+                return 'xi-money';
             case ColumnType.mixed:
                 return 'xi-mixed';
             default:
