@@ -294,7 +294,8 @@ function selectPublishedTables(args, allSchemas, batchIdMap) {
                 "source": args[i].publishName,
                 "dest": args[i].importTable,
                 "minBatchId": -1,
-                "maxBatchId": batchIdMap ? batchIdMap[args[i].publishName] : -1,
+                // "maxBatchId": batchIdMap ? batchIdMap[args[i].publishName] : -1,
+                "maxBatchId": -1,
                 "columns": renameMap
             }
         }

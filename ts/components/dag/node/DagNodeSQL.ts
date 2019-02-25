@@ -707,7 +707,8 @@ class DagNodeSQL extends DagNode {
                         "source": srcTableName,
                         "dest": destTableName,
                         "minBatchId": -1,
-                        "maxBatchId": batchId != null ? batchId : -1,
+                        // "maxBatchId": batchId != null ? batchId : -1,
+                        "maxBatchId": -1, // we disabled default transactions
                         "columns": renameMap
                     }
                 }
