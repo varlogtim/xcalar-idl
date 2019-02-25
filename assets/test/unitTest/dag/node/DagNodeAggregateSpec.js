@@ -2,6 +2,7 @@ describe("Aggregate Dag Node Test", () => {
     let node;
     
     before(() => {
+        console.log("Aggregte Dag Node Test");
         node = new DagNodeAggregate({});
     });
 

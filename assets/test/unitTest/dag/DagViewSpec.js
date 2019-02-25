@@ -1,4 +1,4 @@
-describe("DagView Test", () => {
+describe.skip("DagView Test", () => {
     let $dagView;
     let $dfWrap;
     let $dfArea;
