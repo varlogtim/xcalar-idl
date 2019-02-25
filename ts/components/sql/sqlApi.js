@@ -426,7 +426,7 @@
             }
             for (var column of allCols) {
                 var colName = column.rename || column.colName;
-                var displayName = column.colName;
+                var displayName = column.udfColName || column.colName;
                 if (colNameSet.has(displayName)) {
                     var k = 1;
                     while (colNameSet.has(displayName + "_" + k)) {

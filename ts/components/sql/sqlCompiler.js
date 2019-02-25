@@ -6751,9 +6751,11 @@
                     colStruct.colId = evalList[i][0].exprId.id;
                 }
                 // XCEPASSTHROUGH -> UDF_NAME
-                newColName = cleanseColName(replaceUDFName(newColName, acc.udfs));
                 colStruct.colName = newColName;
+                newColName = cleanseColName(replaceUDFName(newColName, acc.udfs));
                 colStruct.colType = getColType(treeNode);
+                colStruct.rename = newColName;
+                colStruct.udfColName = newColName;
                 var retStruct = {newColName: newColName,
                                  evalStr: evalStr,
                                  numOps: acc.numOps,
