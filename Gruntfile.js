@@ -146,6 +146,7 @@ var CLEAN_HTML_SRC = 'cleanHTMLSrc';
 var BUILD_JS = "buildJs";
 var TYPESCRIPT = "typescriptJsGeneration";
 var BUILD_EXTRA_TS = "buildExtraTs";
+var BUILD_FUNCT_TEST_TS = "buildFuncTestTs";
 var GENERATE_TSDEF = "generateTsDefs"
 var EXTRA_TS_FOLDER_NAME = "extraTsStaging";
 var BUILD_PARSER = "buildParser";
@@ -2039,6 +2040,7 @@ module.exports = function(grunt) {
             grunt.task.run(BUILD_HTML);
             grunt.task.run(CONSTRUCTOR_FILES);
             grunt.task.run(BUILD_EXTRA_TS);
+            grunt.task.run(BUILD_FUNCT_TEST_TS); // XXX all the test files should not make into installer build, which should be fixed.
             // Update js files that will get used outside xcalar-gui to display correct branding
             grunt.task.run(UPDATE_PROD_NAME_OUTSIDE_JS);
             // Generate TS definition for jsTStr.js in dev build
@@ -2758,6 +2760,32 @@ module.exports = function(grunt) {
         // Concat the export code to thrift.js
         grunt.task.run('concat:thrift');
     });
+
+    grunt.task.registerTask(BUILD_FUNCT_TEST_TS, 'Build func test TS from src', function () {
+        var allFiles = ["assets/test/funcTests/states/State.ts",
+            "assets/test/funcTests/states/WorkbookState.ts"];
+        var funcTestDestDir = "assets/test/funcTests/states";
+        var extra_ts_staging = BLDROOT + EXTRA_TS_FOLDER_NAME;
+        if (grunt.file.exists(extra_ts_staging)) {
+            runShellCmd('rm -r ' + extra_ts_staging);
+        }
+        runShellCmd('mkdir -p ' + extra_ts_staging);
+        for (var i = 0; i < allFiles.length; i++) {
+            var fileName = allFiles[i].split("/");
+            fileName = fileName[fileName.length-1];
+            grunt.file.copy(allFiles[i],
+                extra_ts_staging + "/" + fileName);
+            grunt.file.copy(SRCROOT + typescriptMapping.src + 'tsconfig.json',
+                extra_ts_staging + "/tsconfig.json");
+        }
+        grunt.task.run(TYPESCRIPT + ':' + extra_ts_staging +
+            ":" + funcTestDestDir);
+        // Clean up!
+        // XXX this is not cleaning the ts files in the build
+        // folder which should be fixed
+        grunt.task.run('clean:' + EXTRA_TS_FOLDER_NAME);
+    });
+
 
     grunt.task.registerTask(CLEAN_BUILD_SECTIONS, function() {
 
