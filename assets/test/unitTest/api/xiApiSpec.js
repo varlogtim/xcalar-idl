@@ -747,7 +747,7 @@ describe('XIApi Test', () => {
                     tempTables, tempCols)
                     .then((resTable) => {
                         expect(resTable).not.to.equal(tableName);
-                        expect(testJoinType).to.equal(JoinOperatorT.CrossJoin);
+                        expect(testJoinType).to.equal(JoinOperatorT.InnerJoin);
                         expect(tempTables.length).to.equal(2);
                         expect(tempCols.length).to.equal(2);
                         expect(tempCols[0]).to.equal('col_2');

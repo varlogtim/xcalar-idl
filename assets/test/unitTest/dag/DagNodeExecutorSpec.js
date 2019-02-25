@@ -374,7 +374,10 @@ describe("DagNodeExecutor Test", () => {
         let progCol = ColManager.newPullCol("test", "test", ColumnType.integer);
         parentNode.getLineage().setColumns([progCol])
         node.setParam({
-            columns: ["test"],
+            columns: [{
+                sourceColumn: "test",
+                destColumn: "test"
+            }],
             driver: "testDriver",
             driverArgs: {"arg1": "val1"}
         });
