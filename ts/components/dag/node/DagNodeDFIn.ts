@@ -127,18 +127,16 @@ class DagNodeDFIn extends DagNodeIn {
         }
     }
 
-    // XXX TODO: This function used DagTabManager now, which is against
-    // our design to make DagNode in low level. Should use
-    // other ways to do it (for example, the Angluar JS service way)
     private _findLinkedGraph(dataflowId: string): DagGraph[] {
+        const dagTabService = DagServiceFactory.getDagTabService();
         let candidateTabs: DagTab[] = [];
         const candidateGraphs: DagGraph[] = [];
         if (dataflowId === DagNodeDFIn.SELF_ID) {
             return [this._graph];
         } else if (dataflowId != null && dataflowId != "") {
-            candidateTabs = [DagTabManager.Instance.getTabById(dataflowId)];
+            candidateTabs = [dagTabService.getTabById(dataflowId)];
         } else {
-            candidateTabs = DagTabManager.Instance.getTabs();
+            candidateTabs = dagTabService.getActiveUserTabs();
         }
         candidateTabs.forEach((dagTab) => {
             if (dagTab != null) {

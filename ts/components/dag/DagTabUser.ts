@@ -175,6 +175,17 @@ class DagTabUser extends DagTab {
         return deferred.promise();
     }
 
+    /**
+     * Initialize the instance with JSON data
+     * @param dagInfo 
+     * @throws Error
+     * @description It is called by DagTabService in nodejs env.
+     */
+    public loadFromJSON(dagInfo): void {
+        const { graph } = this._loadFromJSON(dagInfo);
+        this.setGraph(graph);
+    }
+
     public save(): XDPromise<void> {
         if (this._disableSaveLock > 0) {
             return PromiseHelper.resolve();

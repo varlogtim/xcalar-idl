@@ -112,6 +112,9 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     global.DagNodeSynthesize = require("../dagHelper/node/DagNodeSynthesize.js").DagNodeSynthesize
     global.DagNodeSynthesizeInput = require("../dagHelper/nodeInput/DagNodeSynthesizeInput.js").DagNodeSynthesizeInput
     global.DagNodeUpdateIMD = require("../dagHelper/node/DagNodeUpdateIMD.js").DagNodeUpdateIMD
+    global.DagTabService = require("../dagHelper/DagTabService.js").DagTabService;
+    global.DagListService = require("../dagHelper/DagListService.js").DagListService;
+    global.DagServiceFactory = require("../dagHelper/DagServiceFactory.js").DagServiceFactory;
     
     // Call init routines
     global.DagNode.setup();

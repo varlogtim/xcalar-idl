@@ -155,35 +155,46 @@ abstract class DagTab {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         this._kvStore.getAndParse()
         .then((dagInfo) => {
-            if (dagInfo == null) {
-                deferred.reject({
-                    error: DFTStr.InvalidDF
-                });
-            } else {
-                const valid = this._validateKVStoreDagInfo(dagInfo);
-                if (valid.error) {
-                    console.error(valid.error);
-                    deferred.reject({
-                        error: valid.error
-                    });
-                } else {
-                    let graph: DagGraph;
-                    try {
-                        graph = new DagGraph();
-                        graph.setTabId(this._id);
-                        graph.create(dagInfo.dag);
-                    } catch (e) {
-                        // return an empty graph
-                        graph = new DagGraph();
-                        console.error(e);
-                    }
-                    deferred.resolve(dagInfo, graph);
-                }
+            try {
+                const { dagInfo: retInfo, graph } = this._loadFromJSON(dagInfo);
+                deferred.resolve(retInfo, graph);
+            } catch(e) {
+                deferred.reject({ error: e.message });
             }
         })
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    // XXX TODO: require("../../../assets/lang/en/jsTStr.js"); in dagUtils.js
+    /**
+     * Construct a graph from JSON
+     * @param dagInfo 
+     * @throws Error
+     */
+    protected _loadFromJSON(dagInfo): { dagInfo: any, graph: DagGraph } {
+        if (dagInfo == null) {
+            throw new Error(DFTStr.InvalidDF);
+        }
+
+        const valid = this._validateKVStoreDagInfo(dagInfo);
+        if (valid.error) {
+            console.error(valid.error);
+            throw new Error(valid.error);
+        }
+
+        let graph: DagGraph;
+        try {
+            graph = new DagGraph();
+            graph.setTabId(this._id);
+            graph.create(dagInfo.dag);
+        } catch (e) {
+            // return an empty graph
+            graph = new DagGraph();
+            console.error(e);
+        }
+        return { dagInfo: dagInfo, graph: graph };
     }
 
     // save meta
