@@ -670,6 +670,14 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                     ]
                 };
             }
+            if (userName !== userName.toLowerCase()) {
+                return {
+                    "error": [
+                        "Default admin username contains capital letters",
+                        "Default admin username must be all lowercase letters"
+                    ]
+                };
+            }
             if (password !== passwordConfirm) {
                 return {
                     "error": [
