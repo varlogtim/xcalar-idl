@@ -10,11 +10,18 @@ class DagList {
     private _dags: Map<string, DagTab>;
     private _fileLister: FileLister;
     private _initialized: boolean;
+    private _stateOrder = {};
 
     private constructor() {
         this._initialize();
         this._setupFileLister();
         this._addEventListeners();
+
+        this._stateOrder[QueryStateTStr[QueryStateT.qrCancelled]] = 2;
+        this._stateOrder[QueryStateTStr[QueryStateT.qrNotStarted]] = 3;
+        this._stateOrder[QueryStateTStr[QueryStateT.qrProcessing]] = 4;
+        this._stateOrder[QueryStateTStr[QueryStateT.qrFinished]] = 0;
+        this._stateOrder[QueryStateTStr[QueryStateT.qrError]] = 1;
     }
 
     /**
@@ -53,6 +60,8 @@ class DagList {
         return deferred.promise();
     }
 
+
+
     /**
      * Get a list of all dags
      */
@@ -65,6 +74,7 @@ class DagList {
     }
 
     public list(): {path: string, id: string, options: {isOpen: boolean}}[] {
+        const self = this;
         let sortFunc = (a: {path: string}, b: {path: string}): number => {
             var aName = a.path.toLowerCase();
             var bName = b.path.toLowerCase();
@@ -83,14 +93,21 @@ class DagList {
                 if (b.options.isSDK) {
                     return -1;
                 } else { // both abandoned queries
-                    return (a.options.createdTime < b.options.createdTime ? -1 : (a.options.createdTime > b.options.createdTime ? 1 : 0));
+                    if (a.options.state === b.options.state) {
+                        return (a.options.createdTime < b.options.createdTime ? -1 : (a.options.createdTime > b.options.createdTime ? 1 : 0));
+                    } else {
+                        return (self._stateOrder[a.options.state] > self._stateOrder[b.options.state] ? -1 : 1);
+                    }
                 }
             }
 
         };
         const publishedList: {path: string, id: string, options: {isOpen: boolean}}[] = [];
         let userList: {path: string, id: string, options: {isOpen: boolean}}[] = [];
-        const queryList: {path: string, id: string, options: {isOpen: boolean, createdTime: number, isSDK: boolean}}[] = [];
+        const queryList: {
+            path: string,
+            id: string,
+            options: {isOpen: boolean, createdTime: number, isSDK: boolean, state: string}}[] = [];
         this._dags.forEach((dagTab) => {
             let path = "";
             let tabId = dagTab.getId();
@@ -113,7 +130,12 @@ class DagList {
                 queryList.push({
                     path: path,
                     id: tabId,
-                    options: {isOpen: dagTab.isOpen(), isSDK: dagTab.isSDK(), createdTime: dagTab.getCreatedTime()}
+                    options: {
+                        isOpen: dagTab.isOpen(),
+                        isSDK: dagTab.isSDK(),
+                        createdTime: dagTab.getCreatedTime(),
+                        state: dagTab.getState()
+                    }
                 });
             } else if (dagTab instanceof DagTabSQLFunc) {
                 path = dagTab.getPath();
@@ -189,7 +211,7 @@ class DagList {
             this._renderDagList(true, true);
             this._updateSection();
         } catch (e) {
-          console.error(e);  
+          console.error(e);
         }
     }
 
@@ -299,6 +321,12 @@ class DagList {
             $li.removeClass("open");
             $li.find(".canBeDisabledIconWrap").addClass("xc-disabled");
             $li.find(".xi-duplicate").addClass("xc-disabled");
+        }
+        if (dagTab instanceof DagTabQuery) {
+            const state: string = dagTab.getState();
+            $li.find(".statusIcon").replaceWith('<div class="statusIcon state-' + state +
+                '" ' + xcTooltip.Attrs + ' data-original-title="' +
+                xcHelper.camelCaseToRegular(state.slice(2)) + '"></div>');
         }
     }
 
@@ -456,13 +484,14 @@ class DagList {
 
     private _setupFileLister(): void {
         const renderTemplate = (
-            files: {name: string, id: string, options: {isOpen: boolean, createdTime?: number}}[],
+            files: {name: string, id: string, options: {isOpen: boolean, createdTime?: number, state?: string}}[],
             folders: string[],
             path: string
         ): string => {
             let html: HTML = "";
             let publishedPath = DagTabPublished.PATH.substring(1, DagTabPublished.PATH.length - 1);
             let isInPublishedFolder = path.startsWith(publishedPath);
+            let isAbandonedQuery = path.startsWith(DagTabQuery.PATH.substring(0, DagTabQuery.PATH.length - 1));
             // Add folders
             folders.forEach((folder) => {
                 let icon = "xi-folder";
@@ -485,7 +514,9 @@ class DagList {
             files.forEach((file) => {
                 let openClass: string = "";
                 let timeTooltip: string = "";
-                let canBeDisabledIconWrap: HTML = ""
+                let canBeDisabledIconWrap: HTML = "";
+                let stateIcon: HTML = "";
+                let queryClass: string = "";
                 if (file.options) {
                     if (file.options.isOpen) {
                         openClass = "open";
@@ -506,14 +537,22 @@ class DagList {
                     if (file.options.createdTime) {
                         timeTooltip = xcTimeHelper.getDateTip(file.options.createdTime, {prefix: "Created: "});
                     }
+                    if (isAbandonedQuery && file.options.state) {
+                        queryClass = " abandonedQuery ";
+                        stateIcon = '<div class="statusIcon state-' + file.options.state +
+                                    '" ' + xcTooltip.Attrs + ' data-original-title="' +
+                                    xcHelper.camelCaseToRegular(file.options.state.slice(2)) + '"></div>';
+                    }
                 }
 
                 html +=
-                '<li class="fileName dagListDetail ' + openClass + '" data-id="' + file.id + '">' +
+                '<li class="fileName dagListDetail ' + openClass + queryClass + '" data-id="' + file.id + '">' +
                     '<i class="gridIcon icon xi-dfg2"></i>' +
+                    stateIcon +
                     '<div class="name" ' + timeTooltip + '>' + file.name + '</div>' +
-                    deleteIcon +
-                    canBeDisabledIconWrap +
+                    '<div class="listIcons">' +
+                        deleteIcon + canBeDisabledIconWrap +
+                    '</div>' +
                 '</li>';
             });
             return html;
@@ -736,6 +775,7 @@ class DagList {
                 let newTab = true;
                 if (oldQueries.has(query.name)) {
                     const oldDagTab: DagTabQuery = oldQueries.get(query.name);
+                    oldDagTab.setState(query.state);
                     if (DagTabManager.Instance.getTabById(oldDagTab.getId())) {
                         newTab = false;
                         this._dags.set(oldDagTab.getId(), oldDagTab);
@@ -756,7 +796,8 @@ class DagList {
                     const queryTab = new DagTabQuery({
                                             id: queryTabId,
                                             name: displayName,
-                                            queryName: query.name
+                                            queryName: query.name,
+                                            state: query.state
                                         });
                     this._dags.set(queryTabId, queryTab);
                 }

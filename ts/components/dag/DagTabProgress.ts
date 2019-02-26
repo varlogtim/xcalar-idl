@@ -10,6 +10,7 @@ abstract class DagTabProgress extends DagTab {
     protected _inProgress: boolean; // will be true if tab is created when executeRetina
     // is called. If this flag is true, we don't stop checking progress until
     // executeRetina turns it off
+    protected _state: string;
 
     constructor(options: {
         id: string,
@@ -166,6 +167,8 @@ abstract class DagTabProgress extends DagTab {
         const checkId = this._queryCheckId;
         XcalarQueryState(this._queryName)
         .then((queryStateOutput) => {
+            this._state = QueryStateTStr[queryStateOutput.queryState];
+            DagList.Instance.updateDagState(this._id);
             if (this._isDeleted) {
                 return deferred.reject();
             }

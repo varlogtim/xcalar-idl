@@ -3,14 +3,17 @@ class DagTabQuery extends DagTabProgress {
     private static _abandonedQueryPrefix;
     private _createdTime: number = null;
     private _isSDK: boolean;
+    private _state: string;
 
     constructor(options: {
         id: string,
         name: string,
-        queryName: string
+        queryName: string,
+        state: string
     }) {
         super(options);
         this._queryName = options.queryName;
+        this._state = options.state;
         if (this._queryName.startsWith(DagTabQuery.abandonedQueryPrefix)) {
             let timeStr: string = this._queryName.slice(this._queryName.lastIndexOf("#t_") + 3);
             timeStr = timeStr.slice(0, timeStr.indexOf("_"));
@@ -20,9 +23,9 @@ class DagTabQuery extends DagTabProgress {
                     this._createdTime = time;
                 }
             }
-            this._isSDK = true;
-        } else {
             this._isSDK = false;
+        } else {
+            this._isSDK = true;
         }
     }
 
@@ -42,6 +45,14 @@ class DagTabQuery extends DagTabProgress {
 
     public getCreatedTime(): number {
         return this._createdTime;
+    }
+
+    public getState(): string {
+        return this._state;
+    }
+
+    public setState(state: string) {
+        this._state = state;
     }
 
     public isSDK(): boolean {
