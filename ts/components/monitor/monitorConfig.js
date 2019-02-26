@@ -438,7 +438,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                 '<div class="defaultParam iconWrap xc-action" ' +
                     'data-toggle="tooltip" data-container="body" ' +
                     'data-original-title="' + defValTooltip + '">' +
-                    '<i class="icon xi-restore center fa-15"></i>' +
+                    '<i class="icon xi-reset center fa-15"></i>' +
                 '</div>';
         }
         html += '</label>' +
