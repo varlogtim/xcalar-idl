@@ -239,17 +239,18 @@ class DagTabUser extends DagTab {
         return deferred.promise();
     }
 
-    public upload(content: string, overwriteUDF: boolean): XDPromise<void> {
+    public upload(content: string, overwriteUDF: boolean): XDPromise<DagTab> {
         // Step for upload dataflow to local workbook:
         // 1. upload as a temp shared dataflow
         // 2. get the graph and copy to local tab, save the tab
         // 3. get the UDF and copy to local workbook
         // 3. delete the temp shared dataflow
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const deferred: XDDeferred<DagTab> = PromiseHelper.deferred();
         const tempName: string = this._getTempName();
         const fakeTab: DagTabPublished = new DagTabPublished(tempName);
         let hasFakeDag: boolean = false;
         let hasGetMeta: boolean = false;
+        let tabUploaded: DagTab = this;
 
         fakeTab.upload(content)
         .then(() => {
@@ -257,36 +258,34 @@ class DagTabUser extends DagTab {
             return fakeTab.load();
         })
         .then((dagInfo) => {
-            let error = this._validateUploadType(dagInfo);
-            if (error) {
-                return PromiseHelper.reject({
-                    error: error
-                });
+            this._dagGraph = fakeTab.getGraph();
+            if (this._isSQLFunc(dagInfo)) {
+                tabUploaded = this._convertToSQLFunc();
             }
         })
         .then(() => {
-            this._dagGraph = fakeTab.getGraph();
-            return this.save();
+            return tabUploaded.save();
         })
         .then(() => {
             hasGetMeta = true;
-            DagList.Instance.addDag(this);
+            DagList.Instance.addDag(tabUploaded);
             return fakeTab.copyUDFToLocal(overwriteUDF);
         })
         .then(() => {
-            deferred.resolve();
+            deferred.resolve(tabUploaded);
         })
         .fail((error) => {
-            let alertOption: Alert.AlertOptions = null;
             if (hasGetMeta) {
-                alertOption = {
+                let alertOption: Alert.AlertOptions = {
                     title: DFTStr.UploadErr,
                     instr: DFTStr.UpoladErrInstr,
                     msg: error.error,
                     isAlert: true
-                }
+                };
+                deferred.resolve(tabUploaded, alertOption);
+            } else {
+                deferred.reject(error);
             }
-            deferred.reject(error, alertOption);
         })
         .always(() => {
             if (hasFakeDag) {
@@ -323,15 +322,21 @@ class DagTabUser extends DagTab {
          return tempName;
     }
 
-    protected _validateUploadType(dagInfo: {name: string}): string {
+    private _isSQLFunc(dagInfo: {name: string}): boolean {
         try {
             let name: string = dagInfo.name;
             if (name.startsWith(".temp/" + DagTabSQLFunc.KEY)) {
-                return DFTStr.InvalidSQLFuncUpload;
+                return true;
             }
         } catch (e) {
             console.error(e);
         }
-        return null;
+        return false;
+    }
+
+    private _convertToSQLFunc(): DagTabSQLFunc {
+        let name: string = <string>xcHelper.checkNamePattern(PatternCategory.SQLFunc, PatternAction.Fix, this.getName());
+        let tab: DagTabSQLFunc = new DagTabSQLFunc(name, null, this._dagGraph, false, this._createdTime);
+        return tab;
     }
 }

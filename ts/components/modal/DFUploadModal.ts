@@ -41,36 +41,19 @@ class DFUploadModal {
         $modal.find(".confirm").addClass("btn-disabled");
         $modal.find(".checkbox").removeClass("checked");
         xcTooltip.enable($modal.find(".buttonTooltipWrap"));
-        this._toggleSQLFunc(false);
     }
 
     private _validate(): {
         tab: DagTab,
         shared: boolean
     } {
-        const sharePrefix: string = DagTabPublished.PATH.substring(1); // Shared/
         const $pathInput: JQuery = this._getDestPathInput();
         let path: string = this._getDestPath();
-        let isSQLFunc: boolean = this._isSQLFunc();
 
-        let uploadTab: DagTab;
-        let shortName: string;
-        let shared: boolean;
+        let shared: boolean = false;
+        let uploadTab: DagTab = new DagTabUser(path, null, null, null, xcTimeHelper.now());
+        let shortName: string = uploadTab.getName();
 
-        if (path.startsWith(sharePrefix)) {
-            shared = true;
-            path = path.substring(sharePrefix.length);
-            uploadTab = new DagTabPublished(path);
-            shortName = (<DagTabPublished>uploadTab).getShortName();
-        } else if (isSQLFunc) {
-            shared = false;
-            uploadTab = new DagTabSQLFunc(path, null, null, null, xcTimeHelper.now());
-            shortName = uploadTab.getName();
-        } else {
-            shared = false;
-            uploadTab = new DagTabUser(path, null, null, null, xcTimeHelper.now());
-            shortName = uploadTab.getName();
-        }
         const isValid: boolean = xcHelper.validate([{
             $ele: $pathInput
         }, {
@@ -88,9 +71,9 @@ class DFUploadModal {
             }
         },{
             $ele: $pathInput,
-            error: isSQLFunc ? ErrTStr.SQLFuncNameIllegal : ErrTStr.DFNameIllegal,
+            error: ErrTStr.DFNameIllegal,
             check: () => {
-                let category = isSQLFunc ? PatternCategory.SQLFunc : PatternCategory.Dataflow;
+                let category = PatternCategory.Dataflow;
                 return !xcHelper.checkNamePattern(category, PatternAction.Check, shortName);
             }
         }, {
@@ -125,14 +108,13 @@ class DFUploadModal {
 
         const tab: DagTab = res.tab;
         const shared: boolean = res.shared;
-        const isSQLFunc: boolean = this._isSQLFunc();
         const file: File = this._file;
         const overwriteUDF: boolean = this._getModal().find(".overwrite .checkboxSection")
         .find(".checkbox").hasClass("checked");
-        const restoreDS: boolean = isSQLFunc ? false:
-        this._getModal().find(".restoreDS .checkboxSection").find(".checkbox").hasClass("checked");
-
+        let restoreDS: boolean = this._getModal().find(".restoreDS .checkboxSection").find(".checkbox").hasClass("checked");
+        let resultTab: DagTab = null;
         let timer: number = null;
+
         this._checkFileSize(file)
         .then(() => {
             timer = window.setTimeout(() => {
@@ -143,20 +125,29 @@ class DFUploadModal {
         .then((fileContent) => {
             return tab.upload(fileContent, overwriteUDF);
         })
-        .then(() => {
-            if (restoreDS) {
-                this._restoreDS(tab, shared);
+        .then((tab: DagTab, alertOption: Alert.AlertOptions) => {
+            resultTab = tab;
+
+            if (alertOption != null) {
+                // error case;
+                this._submitDone(resultTab);
+                Alert.show(alertOption);
+                deferred.reject();
+            } else {
+                if (resultTab instanceof DagTabSQLFunc) {
+                    restoreDS = false;
+                }
+                if (restoreDS) {
+                    this._restoreDS(resultTab, shared);
+                }
+                xcHelper.showSuccess(SuccessTStr.Upload);
+                this._submitDone(resultTab);
+                deferred.resolve();
             }
-            xcHelper.showSuccess(SuccessTStr.Upload);
-            this._submitDone(tab);
-            deferred.resolve();
         })
-        .fail((error, alertOption, cancel) => {
+        .fail((error, cancel) => {
             try {
-                if (alertOption != null) {
-                    this._submitDone(tab);
-                    Alert.show(alertOption);
-                } else if (!cancel) {
+                if (!cancel) {
                     StatusBox.show(error.error, $confirmBtn, false, {
                         detail: error.log
                     });
@@ -210,7 +201,7 @@ class DFUploadModal {
                 msg: msg,
                 onConfirm: deferred.resolve,
                 onCancel: function() {
-                    deferred.reject(null, null, true);
+                    deferred.reject(null, true);
                 }
             });
         }
@@ -265,31 +256,6 @@ class DFUploadModal {
         return deferred.promise();
     }
 
-    private _toggleSQLFunc(isSQLFunc): void {
-        let $modal = this._getModal();
-        let $prefix = $modal.find(".row.dest .prefix");
-
-        if (isSQLFunc) {
-            $modal.addClass("sqlFunc");
-            $prefix.text(DagTabSQLFunc.HOMEDIR + "/");
-            // set path to a valid name
-            let path = this._getDestPath();
-            let index: number = path.lastIndexOf("/");
-            if (index >= 0) {
-                path = path.substring(index + 1);
-            }
-            this._setDestPath(path);
-        } else {
-            $modal.removeClass("sqlFunc");
-            $prefix.text(DSTStr.Home + "/");
-        }
-    }
-
-    private _isSQLFunc(): boolean {
-        return this._getModal().find(".sqlFunc .checkboxSection")
-        .find(".checkbox").hasClass("checked");
-    }
-
     private _addEventListeners() {
         const $modal: JQuery = this._getModal();
         // click cancel or close button
@@ -301,11 +267,6 @@ class DFUploadModal {
         // click upload button
         $modal.on("click", ".confirm", () => {
             this._submitForm();
-        });
-
-        // click dest browse button
-        $modal.find(".dest .browse").click(() => {
-            this._browseDestPath();
         });
 
         // click source's browse button
@@ -325,9 +286,6 @@ class DFUploadModal {
             let $checkboxSection = $(event.currentTarget).closest(".checkboxSection");
             let $checkbox = $checkboxSection.find(".checkbox");
             $checkbox.toggleClass("checked");
-            if ($checkboxSection.closest(".row").hasClass("sqlFunc")) {
-                this._toggleSQLFunc($checkbox.hasClass("checked"));
-            }
         });
 
         // display the chosen file's path
@@ -374,7 +332,7 @@ class DFUploadModal {
     }
 
     private _setDestPath(name: string): void {
-        let category = this._isSQLFunc() ? PatternCategory.SQLFunc : PatternCategory.Dataflow;
+        let category = PatternCategory.Dataflow;
         name = <string>xcHelper.checkNamePattern(category, PatternAction.Fix, name);
         const path: string = this._getUniquePath(name);
         this._getDestPathInput().val(path);
@@ -384,46 +342,9 @@ class DFUploadModal {
         let path: string = name;
         let cnt = 0;
         while (!DagList.Instance.isUniqueName(path)) {
-            if (this._isSQLFunc()) {
-                path = `${name}${++cnt}`;
-            } else {
-                path = `${name}(${++cnt})`;
-            }
+            path = `${name}${++cnt}`;
         }
         return path;
-    }
-
-    private _browseDestPath(): void {
-        let fileLists: {path: string, id: string}[] = DagList.Instance.list();
-        let invalidPaths = [`/${DagTabOptimized.PATH}`, `/${DagTabQuery.PATH}`, `/${DagTabSQL.PATH}`];
-        fileLists = fileLists.filter((file) => {
-            for (let i = 0; i < invalidPaths.length; i++) {
-                if (file.path.startsWith(invalidPaths[i])) {
-                    return false;
-                }
-            }
-            return true;
-        });
-        // lock modal
-        this._lock();
-        const defaultPath: string = this._getDestPathInput().val().trim();
-        const options = {
-            defaultPath: defaultPath,
-            onConfirm: (path, name) => {
-                if (path) {
-                    path = path + "/" + name;
-                } else {
-                    // when in the root
-                    path = name;
-                }
-                this._getDestPathInput().val(path);
-            },
-            onClose: () => {
-                // unlock modal
-                this._unlock();
-            }
-        };
-        DFBrowserModal.Instance.show(fileLists, options);
     }
 
     private _setupDragDrop(): void {

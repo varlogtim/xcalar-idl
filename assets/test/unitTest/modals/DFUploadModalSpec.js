@@ -1,4 +1,3 @@
-// XXX TODO: change to use DFUploadModal
 describe("DFUploadModal Test", function() {
     var $mainTabCache;
     var $modal;
@@ -70,7 +69,6 @@ describe("DFUploadModal Test", function() {
         var oldAddDF;
         var isAddDF = false;
         var oldShowSuccess = xcHelper.showSuccess;
-        var successMsg = null;
 
         before(function() {
             var FakeFileReader = function() {
@@ -182,6 +180,12 @@ describe("DFUploadModal Test", function() {
         });
 
         it("should upload the df", function(done) {
+            let oldAdd = DagList.Instance.addDag;
+            let oldLoad = DagTabManager.Instance.loadTab;
+            let called = 0;
+            DagList.Instance.addDag = () => { called++; };
+            DagTabManager.Instance.loadTab = () => { called++; }
+
             FileReader.prototype.readAsBinaryString = function(file){
                 var e = {"target": {"result": '{"nodes":[],"display":{"width":-1,"height":-1}}'}};
                 this.onload(e);
@@ -191,10 +195,15 @@ describe("DFUploadModal Test", function() {
             DFUploadModal.Instance._submitForm()
             .then(() => {
                 expect(isAddDF).to.be.true;
+                expect(called).to.equal(2);
                 done();
             })
             .fail(function() {
                 done("fail");
+            })
+            .always(function() {
+                DagList.Instance.addDag = oldAdd;
+                DagTabManager.Instance.loadTab = oldLoad;
             });
         });
 

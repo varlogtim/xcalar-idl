@@ -210,18 +210,6 @@ class DagTabSQLFunc extends DagTabUser {
         return tempName;
     }
 
-    protected _validateUploadType(dagInfo: {name: string}): string {
-        try {
-            let name: string = dagInfo.name;
-            if (!name.startsWith(".temp/" + DagTabSQLFunc.KEY)) {
-                return DFTStr.InvalidDFUploadAsSQLFunc;
-            }
-        } catch (e) {
-            console.error(e);
-        }
-        return null;
-    }
-
     private _loadGraph(): XDPromise<void> {
         if (this._dagGraph == null) {
             return this.load();

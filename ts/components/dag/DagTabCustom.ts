@@ -42,7 +42,7 @@ class DagTabCustom extends DagTab {
     }
 
     // do nothing
-    public upload(): XDPromise<void> {
+    public upload(): XDPromise<DagTab> {
         return PromiseHelper.reject({error: "Not support"});
     }
 }

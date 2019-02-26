@@ -4313,39 +4313,13 @@ html.microsoft {
     @btn-w: 85px;
     @total-w: @btn-w + 10px;
 
-    .size(@width: 550px, @height: 410px);
+    .size(@width: 550px, @height: 380px);
 
     &.locked {
         pointer-events: none;
 
         .close, button {
             opacity: @opacity-disabled;
-        }
-    }
-
-    &.sqlFunc {
-        @prefix-w-sqlFunc: 115px;
-
-        .modalMain {
-            .row {
-                &.dest {
-                    .prefix {
-                        width: @prefix-w-sqlFunc;
-                    }
-
-                    input {
-                        width: ~"calc(100% - @{total-w} - @{prefix-w-sqlFunc})";
-                    }
-
-                    .btn {
-                        .xc-disabled;
-                    }
-                }
-
-                &.restoreDS {
-                    .xc-disabled;
-                }
-            }
         }
     }
 
@@ -4372,32 +4346,6 @@ html.microsoft {
             input {
                 width: ~"calc(100% - @{total-w})";
                 background-color: @color-white;
-            }
-
-            &.dest {
-                @prefix-w: 57px;
-
-                .prefix {
-                    float: left;
-                    height: 30px;
-                    line-height: 28px;
-                    width: @prefix-w;
-                    padding-left: 10px;
-                    border: 1px solid @color-json-options-bar;
-                    border-right: none;
-                }
-
-                input {
-                    border-left: none;
-                    width: ~"calc(100% - @{total-w} - @{prefix-w})";
-                    padding-left: 2px;
-
-                    &:focus {
-                        ~ .prefix {
-                            border-color: @color-border-softBlue;
-                        }
-                    }
-                }
             }
         }
 

@@ -489,11 +489,19 @@ class DagList {
                 if (file.options) {
                     if (file.options.isOpen) {
                         openClass = "open";
-                        canBeDisabledIconWrap = "<div class='canBeDisabledIconWrap'>" +
-                        duplicateIcon + publishIcon + "</div>";
+                        canBeDisabledIconWrap =
+                        "<div class='canBeDisabledIconWrap'>" +
+                            duplicateIcon +
+                            publishIcon +
+                            downloadIcon +
+                        "</div>";
                     } else {
-                        canBeDisabledIconWrap = "<div class='canBeDisabledIconWrap xc-disabled'>" +
-                        duplicateIcon + publishIcon + "</div>";
+                        canBeDisabledIconWrap =
+                        "<div class='canBeDisabledIconWrap xc-disabled'>" +
+                            duplicateIcon +
+                            publishIcon +
+                            downloadIcon +
+                        "</div>";
                     }
                     if (file.options.createdTime) {
                         timeTooltip = xcTimeHelper.getDateTip(file.options.createdTime, {prefix: "Created: "});
@@ -504,7 +512,8 @@ class DagList {
                 '<li class="fileName dagListDetail ' + openClass + '" data-id="' + file.id + '">' +
                     '<i class="gridIcon icon xi-dfg2"></i>' +
                     '<div class="name" ' + timeTooltip + '>' + file.name + '</div>' +
-                    deleteIcon + canBeDisabledIconWrap + downloadIcon +
+                    deleteIcon +
+                    canBeDisabledIconWrap +
                 '</li>';
             });
             return html;
