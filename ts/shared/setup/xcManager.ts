@@ -84,6 +84,9 @@ namespace xcManager {
         })
         .then(setupAsyncOpPanels)
         .then(function() {
+            return DagAggManager.Instance.setup();
+        })
+        .then(function() {
             setupOpPanels();
             // XXX TODO, hide these view in Dio
             JSONModal.setup();
@@ -101,9 +104,6 @@ namespace xcManager {
             // });
             SQLWorkSpace.Instance.setup();
             return setupDagPanel();
-        })
-        .then(function() {
-            return DagAggManager.Instance.setup();
         })
         .then(setupTutorial)
         .then(function() {
