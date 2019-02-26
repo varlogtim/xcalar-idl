@@ -49,8 +49,8 @@ require("../../../assets/lang/en/jsTStr.js");
 global.antlr4 = antlr4 = require('antlr4/index');
 global.KVStore = KVStore = sqlHelpers ? sqlHelpers.KVStore :
                            require("../sqlHelpers/kvStore.js").KVStore;
-// global.SqlQueryHistory = SqlQueryHistory = sqlHelpers ? sqlHelpers.SqlQueryHistory :
-//                          require("../sqlHelpers/sqlQueryHistory.js").SqlQueryHistory;
+global.SqlQueryHistory = SqlQueryHistory = sqlHelpers ? sqlHelpers.SqlQueryHistory :
+                         require("../sqlHelpers/sqlQueryHistory.js").SqlQueryHistory;
 global.httpStatus = httpStatus = require("../../../assets/js/httpStatus.js").httpStatus;
 
 // Antlr4 SQL Parser

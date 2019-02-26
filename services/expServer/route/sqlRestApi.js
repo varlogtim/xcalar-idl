@@ -798,8 +798,16 @@ function executeSql(params, type, workerThreading) {
 
     var selectQuery = "";
 
+    var sqlHistoryObj = {
+        queryId: queryName,
+        status: SQLStatus.Compiling,
+        queryString: params.queryString
+    };
+
     setupConnection(params.userName, params.userId, params.sessionName)
     .then(function () {
+        sqlHistoryObj["startTime"] = new Date();
+        SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj);
         return collectTablesMetaInfo(params.queryString, tablePrefix, type,
                                      params.userName, params.sessionName);
     })
@@ -884,11 +892,19 @@ function executeSql(params, type, workerThreading) {
             var prefixedQuery = prefixStruct.query;
             finalTable = prefixStruct.tableName || newTableName;
         }
+        // To show better performance, we only display duration of execution
+        sqlHistoryObj["startTime"] = new Date();
+        sqlHistoryObj["status"] = SQLStatus.Running;
+        SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj);
         return compilerObject.execute(prefixedQuery, finalTable, orderedColumns,
                                       params.queryString, undefined, option);
     })
     .then(function() {
         xcConsole.log("Execution finished!");
+        sqlHistoryObj["status"] = SQLStatus.Done;
+        sqlHistoryObj["endTime"] = new Date();
+        sqlHistoryObj["tableName"] = finalTable;
+        SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj);
         // Drop schemas and nuke session on planner
         var requestStruct = {
             type: "schemasdrop",
@@ -898,6 +914,7 @@ function executeSql(params, type, workerThreading) {
     })
     .then(function() {
         if (compilerObject.getStatus() === SQLStatus.Cancelled) {
+            // Query is done already
             return PromiseHelper.reject(SQLErrTStr.Cancel);
         }
         if (type === "odbc") {
@@ -914,10 +931,16 @@ function executeSql(params, type, workerThreading) {
     .then(deferred.resolve)
     .fail(function(err) {
         xcConsole.log("sql query error: ", err);
+        sqlHistoryObj["endTime"] = new Date();
         var retObj = {error: err};
         if (err === SQLErrTStr.Cancel) {
+            sqlHistoryObj["status"] = SQLStatus.Cancelled;
             retObj.isCancelled = true;
+        } else {
+            sqlHistoryObj["status"] = SQLStatus.Failed;
+            sqlHistoryObj["errorMsg"] = err;
         }
+        SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj);
         deferred.reject(retObj);
     })
     .always(function() {
