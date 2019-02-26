@@ -1500,8 +1500,8 @@
                                     steps: numNodes,
                                     finalTable: tree.newTableName,
                                     finalTableCols: tree.usrCols};
-                            deferred.resolve(queryString,
-                                            tree.newTableName, tree.usrCols);
+                            deferred.resolve(queryString, tree.newTableName,
+                                             tree.usrCols, tree.orderCols);
                         })
                         .fail(deferred.reject);
                     } catch(err) {
@@ -1510,9 +1510,10 @@
                 }
                 return deferred.promise();
             })
-            .then(function(queryString, newTableName, newCols) {
+            .then(function(queryString, newTableName, newCols, orderCols) {
                 // rename columns as specified by user
-                return self.sqlObj.addSynthesize(queryString, newTableName, newCols);
+                return self.sqlObj.addSynthesize(queryString, newTableName,
+                                                 newCols, orderCols);
             })
             .then(function(queryString, newTableName, newCols) {
                 outDeferred.resolve(queryString, newTableName, newCols, toCache);
@@ -1866,7 +1867,7 @@
                 })
                 .then(function(ret) {
                     cliStatements += ret.cli;
-                    return self.sqlObj.project(columns, ret.newTableName);
+                    return self.sqlObj.project(colNames, ret.newTableName);
                 })
                 .then(function(ret) {
                     node.usrCols = columns;
@@ -1881,7 +1882,7 @@
                 produceSubqueryCli(self, subqueryArray)
                 .then(function(cli) {
                     cliStatements += cli;
-                    return self.sqlObj.project(columns, tableName);
+                    return self.sqlObj.project(colNames, tableName);
                 })
                 .then(function(ret) {
                     node.usrCols = columns;
@@ -3999,8 +4000,12 @@
     function __projectAfterCrossJoin(globalStruct, joinNode) {
         var self = this;
         var deferred = PromiseHelper.deferred();
+        var colNames = [];
+        for (var i = 0; i < joinNode.children[0].usrCols.length; i++) {
+            colNames.push(__getCurrentName(joinNode.children[0].usrCols[i]));
+        }
 
-        self.project(joinNode.children[0].usrCols, globalStruct.newTableName)
+        self.project(colNames, globalStruct.newTableName)
         .then(function(ret) {
             globalStruct.cli += ret.cli;
             globalStruct.newTableName = ret.newTableName;
@@ -5730,8 +5735,12 @@
             if (node.usrCols.length + node.xcCols.length
                                             + node.sparkCols.length > 500) {
                 loopStruct.cli += ret.cli;
+                colNameList = node.usrCols.map(function(col) {
+                    return __getCurrentName(col);
+                });
                 node.xcCols = [indexColStruct];
-                self.sqlObj.project(node.usrCols.concat([indexColStruct]), ret.newTableName)
+                colNameList.push(__getCurrentName(indexColStruct));
+                self.sqlObj.project(colNameList, ret.newTableName)
                 .then(function(ret) {
                     deferred.resolve(ret);
                 })

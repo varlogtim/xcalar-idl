@@ -377,16 +377,16 @@
             tableName: table's name
             newTableName(optional): new table's name
         */
-        project: function(columns, tableName, newTableName) {
+        project: function(colNames, tableName, newTableName) {
             var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self._start();
 
             var colInfos = [];
-            for (var column of columns) {
+            for (var colName of colNames) {
                 var colInfo = {
-                    orig: column.rename || column.colName,
-                    new: column.rename || column.colName,
+                    orig: colName,
+                    new: colName,
                     type: null
                 }
                 colInfos.push(colInfo);
@@ -404,13 +404,26 @@
             return deferred.promise();
         },
 
-        addSynthesize: function(xcQueryString, tableName, allCols) {
+        addSynthesize: function(xcQueryString, tableName, newCols, orderCols) {
             var deferred = PromiseHelper.deferred();
             var colNameSet = new Set();
+            var colIdSet = new Set();
             var colInfos = [];
             var needSynthesize = false;
             var self = this;
             var txId = self._start();
+            var allCols = [];
+            orderCols = orderCols || [];
+            for (var column of newCols) {
+                colIdSet.add(column.colId);
+                allCols.push(column);
+            }
+            for (var orderColumn of orderCols) {
+                if (!colIdSet.has(orderColumn.colId)) {
+                    colIdSet.add(column.colId);
+                    allCols.push(orderColumn);
+                }
+            }
             for (var column of allCols) {
                 var colName = column.rename || column.colName;
                 var displayName = column.colName;
@@ -429,6 +442,7 @@
                 });
                 if (colName !== displayName) {
                     needSynthesize = true;
+                    // this will change newCols as well
                     column.rename = displayName;
                 }
             }
@@ -438,11 +452,11 @@
                     var cli = self._end(txId);
                     var synthesizeQuery = cli.endsWith(",") ? cli.slice(0, -1) : cli;
                     xcQueryString = xcQueryString.slice(0, -1) + "," + synthesizeQuery + "]";
-                    deferred.resolve(xcQueryString, finalTable, allCols);
+                    deferred.resolve(xcQueryString, finalTable, newCols);
                 })
                 .fail(deferred.reject);
             } else {
-                deferred.resolve(xcQueryString, tableName, allCols);
+                deferred.resolve(xcQueryString, tableName, newCols);
             }
             return deferred.promise();
         },

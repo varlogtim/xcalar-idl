@@ -69,9 +69,11 @@
             if (options.pushToSelect) {
                 opGraph = pushToSelect(opGraph);
             }
-            const visitedMap = {};
             if (options.dedup !== false) {
+                // Default optimizations
+                const visitedMap = {};
                 this.dedupPlan(opGraph, visitedMap);
+                opGraph = this.combineLastSynthesize(opGraph);
             }
             if (options.randomCrossJoin) {
                 const visitedMap = {};
@@ -200,6 +202,45 @@
                 });
             }
             opNode.visited = true;
+        },
+        combineLastSynthesize(node) {
+            const self = this;
+            if (node.parents.length === 0 &&
+                node.value.operation === "XcalarApiSynthesize") {
+                // last node is synthesize
+                const renameMap = {};
+                for (let colStruct of node.value.args.columns) {
+                    renameMap[colStruct.sourceColumn] = colStruct.destColumn;
+                }
+                const child = node.children[0];
+                const operation = child.value.operation;
+                let allColumns = [];
+                switch (operation) {
+                    case "XcalarApiSynthesize":
+                        allColumns = child.value.args.columns;
+                        break;
+                    case "XcalarApiUnion":
+                    case "XcalarApiIntersect":
+                    case "XcalarApiExcept":
+                    case "XcalarApiJoin":
+                        for (var columnsList of child.value.args.columns) {
+                            allColumns = allColumns.concat(columnsList);
+                        }
+                        break;
+                    default:
+                        return node;
+                }
+                for (let colStruct of allColumns) {
+                    if (renameMap.hasOwnProperty(colStruct.destColumn)) {
+                        colStruct.destColumn = renameMap[colStruct.destColumn];
+                    }
+                }
+                child.parent = [];
+                child.value.args.dest = node.value.args.dest;
+                return child;
+            } else {
+                return node;
+            }
         },
         dedupPlan: function(node, visitedMap) {
             const self = this;
