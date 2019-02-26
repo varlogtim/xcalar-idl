@@ -178,7 +178,7 @@ class DagNodeExecutor {
         .then(() => {
             if (params.synthesize === true) {
                 const schema: ColSchema[] = node.getSchema();
-                return this._synthesizeDataset(dsName, schema);
+                return this._synthesizeDataset(dsName, schema, optimized);
             } else {
                 if (optimized && Transaction.isSimulate(this.txId)) {
                     try {
@@ -216,13 +216,19 @@ class DagNodeExecutor {
 
     private _synthesizeDataset(
         dsName: string,
-        schema: ColSchema[]
+        schema: ColSchema[],
+        optimized?: boolean
     ): XDPromise<string> {
         const desTable = this._generateTableName();
         const colInfos: ColRenameInfo[] = xcHelper.getColRenameInfosFromSchema(schema);
+        let sameSession: boolean = null;
+        if (optimized) {
+            // sameSession must be set to false
+            sameSession = false;
+        }
         // TODO: XXX parseDS should not be called here
         dsName = parseDS(dsName);
-        return XIApi.synthesize(this.txId, colInfos, dsName, desTable);
+        return XIApi.synthesize(this.txId, colInfos, dsName, desTable, sameSession);
     }
 
     private _synthesize(): XDPromise<string> {
