@@ -1,9 +1,15 @@
 const EventEmitter = require('events');
 
 class UploadWorkbook extends EventEmitter {
-    command(fileName, cb) {
+    command(fileName, isUpgrade,  cb) {
+        let extension;
+        if (isUpgrade) {
+            extension = ".tar.gz";
+        } else {
+            extension = '.xlrwb.tar.gz';
+        }
         let path = require('path').resolve(__dirname + '/../../../dev/e2eTest/workbooks/'
-        + fileName + '.xlrwb.tar.gz');
+        + fileName + extension);
         // upload workbook
         this.api
             .setValue('input#WKBK_uploads', path)

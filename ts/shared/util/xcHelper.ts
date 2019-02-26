@@ -3326,6 +3326,7 @@ namespace xcHelper {
             return !/[^a-zA-Z\d\_\-]/.test(str);
         }
     }
+
     /**
      * xcHelper.isValidPublishedTableName
      * @param str

@@ -2,7 +2,7 @@ const EventEmitter = require('events');
 const execFunctions = require('../lib/execFunctions');
 
 class SubmitAdvancedPanel extends EventEmitter {
-    command(panelSelector, config, cb) {
+    command(panelSelector, config, wait, cb) {
         this.api.isVisible(panelSelector + " .advancedEditor", results => {
             if (results.value) {
                 /* is visible */
@@ -18,7 +18,7 @@ class SubmitAdvancedPanel extends EventEmitter {
 
                     self.api
                     .click(panelId + ' .submit')
-                    .waitForElementNotVisible(panelId, 2000);
+                    .waitForElementNotVisible(panelId, wait || 2000);
 
                     self.emit('complete');
                 }

@@ -4,10 +4,11 @@ class ExecuteNode extends EventEmitter {
     command(selector, time, cb) {
         // execute all nodes
         this.api
-            .moveToElement(".dataflowArea.active " + selector, 10, 20)
+            .moveToElement(".dataflowArea.active " + selector, 30, 15)
             .mouseButtonClick('right')
             .waitForElementVisible("#dagNodeMenu", 1000)
             .moveToElement("#dagNodeMenu li.executeNode", 10, 1)
+            .waitForElementNotPresent(".dataflowArea.active.locked")
             .mouseButtonClick('left')
             .waitForElementPresent(".dataflowArea.active.locked")
             .waitForElementNotPresent(".dataflowArea.active.locked", time || 100000);
