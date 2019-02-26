@@ -22,6 +22,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         require("./sqlHelpers/xcHelper.js").xcHelper;
 });
 
+
 const globalKVDatasetPrefix = "/globalKvsDataset/";
 const workbookKVPrefix = "/workbookKvs/";
 const gridSpacing = 20;
@@ -368,11 +369,9 @@ function _finalConvertIntoDagNodeInfoArray(nodes, datasets, isRetina, nestedPref
             if (node.isActive) {
                 comment = {
                     "id": "comment_" + new Date().getTime() + "_" + idCount++,
-                    "position": {
+                    "display": {
                         "x": node.display.x - 40,
-                        "y": node.display.y - 40
-                    },
-                    "dimensions": {
+                        "y": node.display.y - 40,
                         "width": 180,
                         "height": 60
                     },
