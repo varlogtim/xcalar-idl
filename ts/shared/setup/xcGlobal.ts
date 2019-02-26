@@ -108,7 +108,7 @@ namespace xcGlobal {
         gXcalarRecordNum = "xcalarRecordNum";
         gXcalarApiLrqExportPrefix = ".XcalarLRQExport.";
         gDFSuffix = ".xlrdf.tar.gz";
-
+        gShowSQLDF = false;
         // Shut up the console logs
         verbose = false;
         superVerbose = false;

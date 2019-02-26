@@ -506,6 +506,7 @@ declare var gCollab: boolean;
 declare var gXcalarRecordNum: string;
 declare var gXcalarApiLrqExportPrefix: string;
 declare var gDFSuffix: string;
+declare var gShowSQLDF: boolean;
 
 declare var gBuildNumber: number;
 declare var gGitVersion: number;

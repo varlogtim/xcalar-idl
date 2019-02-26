@@ -108,10 +108,10 @@ class SQLResultSpace {
      *
      * @param inProgress - set to true if previewing dataflow while it's running
      */
-    public showProgressDataflow(inProgress?: boolean): void {
+    public showProgressDataflow(inProgress: boolean, sql?: string): void {
         SQLTable.Instance.close();
         SQLTableSchema.Instance.close();
         SQLTableLister.Instance.close();
-        SQLDataflowPreview.Instance.show(inProgress);
+        SQLDataflowPreview.Instance.show(inProgress, sql);
     }
 }

@@ -266,6 +266,10 @@ class DagList {
             return false;
         }
 
+        if (this._isForSQLFolder(dagTab) && this._isHideSQLFolder()) {
+            return false;
+        }
+
         if (dagTab instanceof DagTabSQLFunc ||
             dagTab instanceof DagTabUser
         ) {
@@ -612,6 +616,10 @@ class DagList {
         })
         .then((dagTabs, metaNotMatch) => {
             userDagTabs = dagTabs;
+            if (this._isHideSQLFolder()) {
+                userDagTabs = userDagTabs.filter((dagTab) => !this._isForSQLFolder(dagTab)); 
+            }
+
             userDagTabs.forEach((dagTab) => {
                 this._dags.set(dagTab.getId(), dagTab);
             });
@@ -855,7 +863,8 @@ class DagList {
         const dags: {name: string, id: string, reset: boolean, createdTime: number}[] = [];
         this._dags.forEach((dagTab) => {
             if (dagTab instanceof DagTabUser &&
-                !(dagTab instanceof DagTabSQLFunc)
+                !(dagTab instanceof DagTabSQLFunc) &&
+                !this._isForSQLFolder(dagTab)
             ) {
                 dags.push(this._getSerializableDagList(dagTab));
             }
@@ -1008,6 +1017,10 @@ class DagList {
             const dagTab: DagTab = this.getDagTabById($dagListItem.data("id"));
             DFDownloadModal.Instance.show(dagTab);
         });
+    }
+
+    private _isHideSQLFolder(): boolean {
+        return (typeof gShowSQLDF === "undefined" || !gShowSQLDF);
     }
 }
 

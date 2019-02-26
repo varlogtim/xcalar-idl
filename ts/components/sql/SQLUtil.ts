@@ -69,6 +69,43 @@ class SQLUtil {
         });
         return deferred.promise();
     }
+
+    /**
+     * SQLUtil.Instance.getSQLStruct
+     * @param sql
+     */
+    public getSQLStruct(sql: string): XDPromise<SQLParserStruct> {
+        const deferred: XDDeferred<SQLParserStruct> = PromiseHelper.deferred();
+        const struct = {
+            sqlQuery: sql,
+            ops: ["identifier", "sqlfunc"],
+            isMulti: false
+        };
+        SQLUtil.Instance.sendToPlanner("", "parse", struct)
+        .then((ret) => {
+            try {
+                let sqlStructArray = JSON.parse(ret).ret;
+                let sqlStruct: SQLParserStruct = sqlStructArray[0];
+                deferred.resolve(sqlStruct);
+            } catch (e) {
+                return PromiseHelper.reject(e);
+            }
+        })
+        .fail((e) => {
+            console.error(e);
+            let error: string;
+            if (e instanceof Error) {
+                error = e.message;
+            } else if (typeof e === "string") {
+                error = e;
+            } else {
+                error = JSON.stringify(e);
+            }
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    }
     
     public throwError(errStr) {
         this.resetProgress();

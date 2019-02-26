@@ -215,9 +215,15 @@ describe("SQLHistorySpace Test", () => {
     });
 
     it("should restore datraflow", (done) => {
+        let oldGetSQLStruct = SQLUtil.Instance.getSQLStruct;
         let oldSQLExecutor = SQLExecutor;
         let oldUpdate = SQLHistorySpace.Instance.update;
         let called = 0;
+
+        SQLUtil.Instance.getSQLStruct = function() {
+            called++;
+            return PromiseHelper.resolve({});
+        };
 
         SQLExecutor = function() {
             called++;
@@ -232,7 +238,7 @@ describe("SQLHistorySpace Test", () => {
         SQLHistorySpace.Instance._restoreDataflow({})
         .then((dataflowId) => {
             expect(dataflowId).to.equal("test");
-            expect(called).to.equal(2);
+            expect(called).to.equal(3);
             done();
         })
         .fail(() => {
@@ -241,6 +247,7 @@ describe("SQLHistorySpace Test", () => {
         .always(() => {
             SQLExecutor = oldSQLExecutor;
             SQLHistorySpace.Instance.update = oldUpdate;
+            SQLUtil.Instance.getSQLStruct = oldGetSQLStruct;
         });
     });
 });

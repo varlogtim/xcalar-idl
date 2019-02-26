@@ -25,8 +25,9 @@ class SQLExecutor {
     private _status: SQLStatus;
     private _sqlTabCached: boolean;
     private _sqlFunctions: {};
+    private _advancedDebug: boolean;
 
-    public constructor(sqlStruct: SQLParserStruct) {
+    public constructor(sqlStruct: SQLParserStruct, advancedDebug?: boolean) {
         this._sql = sqlStruct.sql.replace(/;+$/, "");
         this._newSql = sqlStruct.newSql ? sqlStruct.newSql.replace(/;+$/, "") :
                                                                      this._sql;
@@ -37,7 +38,9 @@ class SQLExecutor {
         this._batchId = {};
         this._status = SQLStatus.None;
         this._sqlTabCached = false;
-        const tables: string[] = sqlStruct.identifiers;
+        this._advancedDebug = advancedDebug || false;
+
+        const tables: string[] = sqlStruct.identifiers || [];
         const tableMap = PTblManager.Instance.getTableMap();
         tables.forEach((identifier, idx) => {
             let pubTableName = identifier.toUpperCase();
@@ -166,15 +169,12 @@ class SQLExecutor {
             finalTableName = this._sqlNode.getTable();
             columns = this._sqlNode.getColumns();
             this._status = SQLStatus.Done;
-            return this._expandSQLNodeAndAddToList();
+            return this._inspectSQLNodeAndAddToList();
         })
         .then(() => {
             DagTabManager.Instance.removeSQLTabCache(this._tempTab);
             DagViewManager.Instance.cleanupClosedTab(this._tempTab.getGraph());
-            let promise = this._tempTab.save();
-            return PromiseHelper.alwaysResolve(promise);
-        })
-        .then(() => {
+
             succeed = true;
             finish();
             deferred.resolve();
@@ -183,7 +183,7 @@ class SQLExecutor {
             if (!this._sqlTabCached) {
                 DagTabManager.Instance.addSQLTabCache(this._tempTab);
             }
-            this._expandSQLNodeAndAddToList()
+            this._inspectSQLNodeAndAddToList()
             .always(() => {
                 finish();
                 deferred.reject(err);
@@ -199,15 +199,14 @@ class SQLExecutor {
 
         this._configureSQLNode(true)
         .then(() => {
-            DagTabManager.Instance.addSQLTabCache(this._tempTab);
-            return this._expandSQLNodeAndAddToList();
+            if (this._advancedDebug) {
+                return this._expandSQLNodeAndAddToList();
+            } else {
+                return this._inspectSQLNodeAndAddToList();   
+            }
         })
         .then(() => {
-            let promise = this._tempTab.save();
-            return PromiseHelper.alwaysResolve(promise);
-        })
-        .then(() => {
-            deferred.resolve(tabId);
+            deferred.resolve(tabId, this._tempTab);
         })
         .fail(deferred.reject);
 
@@ -216,7 +215,7 @@ class SQLExecutor {
 
     private _createDataflow(): void {
         this._tempGraph = new DagGraph();
-        const id: string = DagTab.generateId() + ".sql";
+        const id: string = this._advancedDebug ? null : DagTab.generateId() + ".sql";
         const name: string = "SQL " + moment(new Date()).format("HH:mm:ss ll")
         this._tempTab = new DagTabUser(name, id, this._tempGraph, false, xcTimeHelper.now());
         DagViewManager.Instance.render($(), this._tempGraph, this._tempTab, true);
@@ -274,19 +273,41 @@ class SQLExecutor {
         this._sqlNode.updateSQLQueryHistory();
     }
 
+    private _inspectSQLNodeAndAddToList(): XDPromise<void> {
+        if (!this._sqlNode.getSubGraph()) {
+            return PromiseHelper.resolve();
+        }
+        this._tempTab.setGraph(this._sqlNode.getSubGraph());
+        DagList.Instance.addDag(this._tempTab);
+        return this._saveDataflow();
+    }
+
     private _expandSQLNodeAndAddToList(): XDPromise<void> {
         if (!this._sqlNode.getSubGraph()) {
             return PromiseHelper.resolve();
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-
+        
+        DagTabManager.Instance.addSQLTabCache(this._tempTab);
         let promise = DagViewManager.Instance.expandSQLNodeInTab(this._sqlNode, this._tempTab, true);
         PromiseHelper.alwaysResolve(promise)
         .then(() => {
             DagViewManager.Instance.autoAlign(this._tempTab.getId());
             DagList.Instance.addDag(this._tempTab);
+            return this._saveDataflow();
+        })
+        .then(() => {
             deferred.resolve();
+        })
+        .fail(deferred.reject)
+        .always(() => {
+            DagTabManager.Instance.removeSQLTabCache(this._tempTab);
         });
+
         return deferred.promise();
+    }
+
+    private _saveDataflow(): XDPromise<void> {
+        return PromiseHelper.alwaysResolve(this._tempTab.save());
     }
 }

@@ -6,6 +6,7 @@ class SQLDataflowPreview {
     }
 
     private readonly _container: string = "sqlDataflowArea";
+    private _sql: string;
 
     private constructor() {
         this._addEventListeners();
@@ -19,7 +20,8 @@ class SQLDataflowPreview {
         return this._getContainer().find(".topSection");
     }
 
-    public show(inProgress?: boolean) {
+    public show(inProgress: boolean, sql?: string) {
+        this._sql = sql || null;
         let $container = this._getContainer();
         $container.removeClass("xc-hidden");
         if (inProgress) {
@@ -35,39 +37,91 @@ class SQLDataflowPreview {
             DagViewManager.Instance.cleanupClosedTab(null, $dfArea.data("id"));
         }
         this._getContainer().addClass("xc-hidden");
+        this._sql = null;
     }
 
     private _addEventListeners(): void {
         const $topSection = this._getTopSection();
 
         $topSection.find(".analyze").click(() => {
-            const dataflowId: string = this._getContainer().find(".dataflowArea").data("id");
-            this.analyze(dataflowId);
+            this.analyze(this._sql);
         });
     }
 
-    public analyze(dataflowId: string): XDPromise<void> {
+    public analyze(sql: string): XDPromise<void> {
+        if (sql == null) {
+            Alert.error(AlertTStr.Error, "The corresponding dataflow for sql has been deleted");
+            return PromiseHelper.reject();
+        }
+
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        XVM.setMode(XVM.Mode.Advanced)
+        let dagTab: DagTabUser;
+
+        this._alertAnalyze()
         .then(() => {
             $("#initialLoadScreen").show();
+            return this._restoreDataflow(sql);
+        })
+        .then((resultTab) => {
+            dagTab = resultTab;
+            return XVM.setMode(XVM.Mode.Advanced);
+        })
+        .then(() => {
             MainMenu.openPanel("dagPanel");
-            let dagTab: DagTab = DagList.Instance.getDagTabById(dataflowId);
-            if (dagTab == null) {
-                Alert.error(AlertTStr.Error, "The corresponding dataflow for sql has been deleted");
-                return PromiseHelper.reject();
-            }
             return DagTabManager.Instance.loadTab(dagTab);
         })
         .then(() => {
-            DagViewManager.Instance.autoAlign(dataflowId);
             deferred.resolve();
         })
-        .fail(deferred.reject)
+        .fail((error) => {
+            if (error != null &&
+                error !== "canceled" &&
+                !Alert.isOpen()
+            ) {
+                Alert.error(ErrTStr.Error, error);
+            }
+            deferred.reject(error);
+        })
         .always(() => {
             $("#initialLoadScreen").hide();
         });
 
         return deferred.promise();
+    }
+
+    private _alertAnalyze(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        Alert.show({
+            title: SQLTStr.EditAdvanced,
+            msg: SQLTStr.EditAdvancedInstr,
+            onConfirm: () => {
+                deferred.resolve();
+            },
+            onCancel: () => {
+                deferred.reject("canceled");
+            },
+        })
+
+        return deferred.promise();
+    }
+
+    private _restoreDataflow(sql: string): XDPromise<DagTabUser> {
+        try {
+            const deferred: XDDeferred<DagTabUser> = PromiseHelper.deferred();
+            SQLUtil.Instance.getSQLStruct(sql)
+            .then((sqlStruct) => {
+                let executor = new SQLExecutor(sqlStruct, true);
+                return executor.restoreDataflow();
+            })
+            .then((_dataflowId, dagTab: DagTabUser) => {
+                deferred.resolve(dagTab);
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
+        } catch (e) {
+            console.error(e);
+            return PromiseHelper.reject(e.message);
+        }
     }
 }

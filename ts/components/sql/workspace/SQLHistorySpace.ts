@@ -39,7 +39,7 @@ class SQLHistorySpace {
         try {
             this._checkDataflowValidation(queryInfo)
             .then((dataflowId) => {
-                return this._previewDataflow(dataflowId);
+                return this._previewDataflow(dataflowId, queryInfo.queryString);
             })
             .then(deferred.resolve)
             .fail((error) => {
@@ -83,7 +83,7 @@ class SQLHistorySpace {
      * renders a view-only dataflow graph after it's done running
      * @param queryInfo
      */
-    private _previewDataflow(dataflowId: string): XDPromise<void> {
+    private _previewDataflow(dataflowId: string, sql: string): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         const name: string = "SQL " + moment(new Date()).format("HH:mm:ss ll");
@@ -96,7 +96,7 @@ class SQLHistorySpace {
             DagViewManager.Instance.addDataflowHTML($container, dataflowId, true, false)
             DagViewManager.Instance.renderSQLPreviewDag(dagTab);
             DagViewManager.Instance.autoAlign(dataflowId);
-            SQLResultSpace.Instance.showProgressDataflow();
+            SQLResultSpace.Instance.showProgressDataflow(false, sql);
             deferred.resolve();
         })
         .fail((err) => {
@@ -131,8 +131,11 @@ class SQLHistorySpace {
         try {
             const deferred: XDDeferred<string> = PromiseHelper.deferred();
             let sql: string = queryInfo.queryString;
-            let executor = new SQLExecutor(sql);
-            executor.restoreDataflow()
+            SQLUtil.Instance.getSQLStruct(sql)
+            .then((sqlStruct) => {
+                let executor = new SQLExecutor(sqlStruct);
+                return executor.restoreDataflow()
+            })
             .then((dataflowId) => {
                 let newQueryInfo = $.extend({}, queryInfo, {
                     dataflowId: dataflowId
