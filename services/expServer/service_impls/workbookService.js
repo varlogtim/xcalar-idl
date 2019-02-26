@@ -11,7 +11,8 @@ var workbook_pb = proto.xcalar.compute.localtypes.Workbook;
 
 function convertKvsToQuery(convertRequest) {
     var deferred = PromiseHelper.deferred();
-    var kvsQuery = convertRequest.getKvsstring();
+    var kvsQueryList = convertRequest.getKvsstringList();
+    var dataflowName = convertRequest.getDataflowname();
     var optimized = convertRequest.getOptimized();
     var listXdfsOutput = convertRequest.getListxdfsoutput();
     var userName = convertRequest.getUsername();
@@ -20,7 +21,8 @@ function convertKvsToQuery(convertRequest) {
     var cvtKvsToQueryResponse = new workbook_pb.ConvertKvsToQueryResponse();
 
     cvtKvsToQueryResponse.setConverted(false);
-    DagHelper.convertKvs(kvsQuery, optimized, listXdfsOutput, userName, sessionId)
+    DagHelper.convertKvs(kvsQueryList, dataflowName, optimized, listXdfsOutput,
+            userName, sessionId)
     .then(function(convertedQuery) {
         if (optimized) {
             var optimizedStr = JSON.stringify(convertedQuery)

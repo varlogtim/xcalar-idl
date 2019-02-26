@@ -770,12 +770,19 @@ proto.xcalar.compute.localtypes.Workbook.WorkbookScope.prototype.hasWorkbook = f
  * @constructor
  */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.repeatedFields_, null);
 };
 goog.inherits(proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
   proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.displayName = 'proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest';
 }
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.repeatedFields_ = [1];
+
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -804,7 +811,8 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.toOb
  */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    kvsstring: msg.getKvsstring(),
+    kvsstringList: jspb.Message.getField(msg, 1),
+    dataflowname: msg.getDataflowname(),
     optimized: msg.getOptimized(),
     listxdfsoutput: msg.getListxdfsoutput(),
     username: msg.getUsername(),
@@ -847,21 +855,26 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.deserializeBin
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setKvsstring(value);
+      msg.getKvsstringList().push(value);
+      msg.setKvsstringList(msg.getKvsstringList());
       break;
     case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setDataflowname(value);
+      break;
+    case 3:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setOptimized(value);
       break;
-    case 3:
+    case 4:
       var value = /** @type {string} */ (reader.readString());
       msg.setListxdfsoutput(value);
       break;
-    case 4:
+    case 5:
       var value = /** @type {string} */ (reader.readString());
       msg.setUsername(value);
       break;
-    case 5:
+    case 6:
       var value = /** @type {string} */ (reader.readString());
       msg.setSessionid(value);
       break;
@@ -903,38 +916,45 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.seri
  */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.serializeBinaryToWriter = function (writer) {
   var f = undefined;
-  f = this.getKvsstring();
+  f = this.getKvsstringList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      1,
+      f
+    );
+  }
+  f = this.getDataflowname();
   if (f.length > 0) {
     writer.writeString(
-      1,
+      2,
       f
     );
   }
   f = this.getOptimized();
   if (f) {
     writer.writeBool(
-      2,
+      3,
       f
     );
   }
   f = this.getListxdfsoutput();
   if (f.length > 0) {
     writer.writeString(
-      3,
+      4,
       f
     );
   }
   f = this.getUsername();
   if (f.length > 0) {
     writer.writeString(
-      4,
+      5,
       f
     );
   }
   f = this.getSessionid();
   if (f.length > 0) {
     writer.writeString(
-      5,
+      6,
       f
     );
   }
@@ -951,79 +971,101 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.clon
 
 
 /**
- * optional string kvsString = 1;
- * @return {string}
+ * repeated string kvsString = 1;
+ * If you change this array by adding, removing or replacing elements, or if you
+ * replace the array itself, then you must call the setter to update it.
+ * @return {!Array.<string>}
  */
-proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getKvsstring = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getKvsstringList = function() {
+  return /** @type {!Array.<string>} */ (jspb.Message.getField(this, 1));
 };
 
 
-/** @param {string} value  */
-proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setKvsstring = function(value) {
-  jspb.Message.setField(this, 1, value);
+/** @param {Array.<string>} value  */
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setKvsstringList = function(value) {
+  jspb.Message.setField(this, 1, value || []);
+};
+
+
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.clearKvsstringList = function() {
+  jspb.Message.setField(this, 1, []);
 };
 
 
 /**
- * optional bool optimized = 2;
- * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
- * You should avoid comparisons like {@code val === true/false} in those cases.
- * @return {boolean}
+ * optional string dataflowName = 2;
+ * @return {string}
  */
-proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getOptimized = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 2, false));
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getDataflowname = function() {
+  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
 };
 
 
-/** @param {boolean} value  */
-proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setOptimized = function(value) {
+/** @param {string} value  */
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setDataflowname = function(value) {
   jspb.Message.setField(this, 2, value);
 };
 
 
 /**
- * optional string listXdfsOutput = 3;
- * @return {string}
+ * optional bool optimized = 3;
+ * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
+ * You should avoid comparisons like {@code val === true/false} in those cases.
+ * @return {boolean}
  */
-proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getListxdfsoutput = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 3, ""));
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getOptimized = function() {
+  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 3, false));
 };
 
 
-/** @param {string} value  */
-proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setListxdfsoutput = function(value) {
+/** @param {boolean} value  */
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setOptimized = function(value) {
   jspb.Message.setField(this, 3, value);
 };
 
 
 /**
- * optional string userName = 4;
+ * optional string listXdfsOutput = 4;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getUsername = function() {
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getListxdfsoutput = function() {
   return /** @type {string} */ (jspb.Message.getFieldProto3(this, 4, ""));
 };
 
 
 /** @param {string} value  */
-proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setUsername = function(value) {
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setListxdfsoutput = function(value) {
   jspb.Message.setField(this, 4, value);
 };
 
 
 /**
- * optional string sessionId = 5;
+ * optional string userName = 5;
  * @return {string}
  */
-proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getSessionid = function() {
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getUsername = function() {
   return /** @type {string} */ (jspb.Message.getFieldProto3(this, 5, ""));
 };
 
 
 /** @param {string} value  */
-proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setSessionid = function(value) {
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setUsername = function(value) {
   jspb.Message.setField(this, 5, value);
+};
+
+
+/**
+ * optional string sessionId = 6;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getSessionid = function() {
+  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 6, ""));
+};
+
+
+/** @param {string} value  */
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setSessionid = function(value) {
+  jspb.Message.setField(this, 6, value);
 };
 
 

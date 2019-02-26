@@ -1,9 +1,11 @@
 var DagGraph = require("./dagHelper/DagGraph.js").DagGraph
 
 class DagHelper {
-    static convertKvs(kvsStr, optimized, listXdfsOutput, userName, sessionId) {
-        if (typeof kvsStr !== "string" || kvsStr.length === 0) {
-            return PromiseHelper.reject( {error: "KVS string not provided"});
+    static convertKvs(kvsStrList, dataflowName, optimized, listXdfsOutput, userName,
+            sessionId) {
+        var graph;
+        if (typeof kvsStrList !== "object" || kvsStrList === 0) {
+            return PromiseHelper.reject( {error: "KVS list not provided"});
         }
         if (typeof listXdfsOutput !== "string" || listXdfsOutput.length === 0) {
             return PromiseHelper.reject( {error: "listXdfsOutput string not provided"});
@@ -15,7 +17,12 @@ class DagHelper {
             return PromiseHelper.reject({ error: "sessionId string not provided" });
         }
         try {
-            var parsedVal = JSON.parse(kvsStr);
+            var parsedVal;
+            // XXX: This is where multiple KVS strings are passed in when
+            // there's linkout/linkin resolution needed.
+            for (var ii = 0; ii < kvsStrList.length; ii++){
+                parsedVal = JSON.parse(kvsStrList[ii]);
+            }
             var parsedXdfs = JSON.parse(listXdfsOutput);
             // XXX: Liang incorporates parsedXdfs, userName, sessionId into
             // expServer so they can be used by getQuery() and getRetinaArgs()
