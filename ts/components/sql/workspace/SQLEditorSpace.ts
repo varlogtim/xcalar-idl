@@ -205,6 +205,12 @@ class SQLEditorSpace {
             SQLUtil.Instance.sendToPlanner("", "parse", struct)
             .then((ret) => {
                 const sqlStructArray = JSON.parse(ret).ret;
+                if (!struct.isMulti && sqlStructArray.length === 1 &&
+                    Object.keys(sqlStructArray[0].functions).length === 0) {
+                    // when it's single statement and doesn't have SQL function
+                    // use original sql which contains newline characters
+                    sqlStructArray[0].sql = sqlStructArray[0].newSql = sqls;
+                }
                 sqlStructArray.forEach((sqlStruct: SQLParserStruct) => {
                     if (sqlStruct.command.type != "select") {
                         lastShow = sqlStruct;
