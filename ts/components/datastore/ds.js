@@ -3170,6 +3170,7 @@ window.DS = (function ($, DS) {
         var deferred = PromiseHelper.deferred();
         var datasetName = dsObj.getFullName();
 
+
         XcalarDatasetActivate(datasetName, txId)
         .then(function() {
             activateDSObj(dsObj);
