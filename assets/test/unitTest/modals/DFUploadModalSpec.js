@@ -22,11 +22,13 @@ describe("DFUploadModal Test", function() {
         });
 
         it("should change the file path and check invalid case", function() {
-            var path = "test";
-            path = xcHelper.checkNamePattern("dataflow", "fix", path);
-            path = xcHelper.uniqueName(path, function(name) {
-                return DagList.Instance.isUniqueName(name);
-            });
+            var name = "test";
+            name = xcHelper.checkNamePattern("dataflow", "fix", name);
+            var path = name;
+            var cnt = 0;
+            while (!DagList.Instance.isUniqueName(path)) {
+                path = `${name}${++cnt}`;
+            }
 
             DFUploadModal.Instance._changeFilePath("test.pdf");
             expect($sourcePath.val()).to.equal("test.pdf");

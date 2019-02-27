@@ -84,14 +84,22 @@ class DagTopBar {
         });
 
         this.$topBar.find(".undo").click(function() {
-            if ($(this).hasClass("disabled") || DagViewManager.Instance.getActiveDag().isLocked()) {
+            if ($(this).hasClass("disabled")) {
+                return;
+            }
+            let dagTab = DagViewManager.Instance.getActiveDag();
+            if (!dagTab || dagTab.isLocked()) {
                 return;
             }
             Log.undo();
         });
 
         this.$topBar.find(".redo").click(function() {
-            if ($(this).hasClass("disabled") || DagViewManager.Instance.getActiveDag().isLocked()) {
+            if ($(this).hasClass("disabled")) {
+                return;
+            }
+            let dagTab = DagViewManager.Instance.getActiveDag();
+            if (!dagTab || dagTab.isLocked()) {
                 return;
             }
             Log.redo();

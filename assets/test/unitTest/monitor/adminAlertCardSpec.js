@@ -39,15 +39,29 @@ describe("Admin Alert Card Test", function() {
             assert.isTrue($card.find(".confirm").hasClass("btn-disabled"));
         });
         it("Should submit form when click send button", function() {
+            var oldFunc = XcSocket.Instance.sendMessage;
+            var called = false;
+            XcSocket.Instance.sendMessage = function() {
+                called = true;
+            };
             $card.find(".alert-msg").val(testMsg);
             $card.find(".confirm").click();
             expect($card.find(".alert-msg").val()).to.be.empty;
+            expect(called).to.be.true;
+            XcSocket.Instance.sendMessage = oldFunc;
         });
         it("Should submit form when press enter", function() {
+            var oldFunc = XcSocket.Instance.sendMessage;
+            var called = false;
+            XcSocket.Instance.sendMessage = function() {
+                called = true;
+            };
             $card.find(".alert-msg").val(testMsg);
             var keyEvent = $.Event("keypress", {which: keyCode.Enter});
             $card.find(".alert-msg").trigger(keyEvent);
             expect($card.find(".alert-msg").val()).to.be.empty;
+            expect(called).to.be.true;
+            XcSocket.Instance.sendMessage = oldFunc;
         });
         it("Should close card", function() {
             $card.find(".close").click();

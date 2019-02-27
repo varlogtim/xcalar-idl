@@ -282,51 +282,65 @@ describe("Xcalar Log Test", function() {
 
         it("should click to trigger undo", function() {
             var curUndo = Log.undo;
+            var oldGetDag = DagViewManager.Instance.getActiveDag;
             var $undo = $("#undo");
             var isDisabled = $undo.hasClass("disabled");
-            var test = false;
+            var called = 0;
 
             Log.undo = function() {
-                test = true;
+                called++;
+            };
+
+            DagViewManager.Instance.getActiveDag = function() {
+                called++;
+                return new DagGraph();
             };
 
             $undo.addClass("disabled");
             $undo.click();
-            expect(test).to.be.false;
+            expect(called).to.equal(0);
             // case 2
             $undo.removeClass("disabled");
             $undo.click();
-            expect(test).to.be.true;
+            expect(called).to.equal(2);
 
             if (isDisabled) {
                 $undo.addClass("disabled");
             }
             Log.undo = curUndo;
+            DagViewManager.Instance.getActiveDag = oldGetDag;
         });
 
         it("should click to trigger redo", function() {
             var curRedo = Log.redo;
             var $redo = $("#redo");
             var isDisabled = $redo.hasClass("disabled");
-            var test = false;
+            var called = 0;
+            var oldGetDag = DagViewManager.Instance.getActiveDag;
 
             Log.redo = function() {
-                test = true;
+                called++;
+            };
+
+            DagViewManager.Instance.getActiveDag = function() {
+                called++;
+                return new DagGraph();
             };
 
             $redo.addClass("disabled");
             $redo.click();
-            expect(test).to.be.false;
+            expect(called).to.equal(0);
             // case 2
             $redo.removeClass("disabled");
             $redo.click();
-            expect(test).to.be.true;
+            expect(called).to.equal(2);
 
             if (isDisabled) {
                 $redo.addClass("disabled");
             }
 
             Log.redo = curRedo;
+            DagViewManager.Instance.getActiveDag = oldGetDag;
         });
 
         it("Log.isUndo should work", function() {

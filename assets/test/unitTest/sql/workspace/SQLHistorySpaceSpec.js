@@ -34,7 +34,7 @@ describe("SQLHistorySpace Test", () => {
             return PromiseHelper.resolve();
         };
 
-        SQLHistorySpace.Instance.previewDataflow()
+        SQLHistorySpace.Instance.previewDataflow({})
         .then(() => {
             expect(called).to.equal(2);
             done();
