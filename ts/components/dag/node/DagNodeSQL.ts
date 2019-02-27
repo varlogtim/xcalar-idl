@@ -1058,7 +1058,8 @@ class DagNodeSQL extends DagNode {
             pubTablesInfo?: {},
             dropAsYouGo?: boolean
             sqlFunctions?: {}
-        } = {}
+        } = {},
+        replaceParam: boolean = true
     ): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
         const sqlCom = new SQLCompiler();
@@ -1072,9 +1073,11 @@ class DagNodeSQL extends DagNode {
         let dropAsYouGo;
         let sqlFunctions;
         try {
-            // paramterize SQL
-            sqlQueryStr = xcHelper.replaceMsg(sqlQueryStr,
-                                DagParamManager.Instance.getParamMap(), true);
+            if (replaceParam) {
+                // paramterize SQL
+                sqlQueryStr = xcHelper.replaceMsg(sqlQueryStr,
+                    DagParamManager.Instance.getParamMap(), true);
+            }
             // set all options
             self.setIdentifiers(options.identifiers);
             identifiers = self.getIdentifiers();

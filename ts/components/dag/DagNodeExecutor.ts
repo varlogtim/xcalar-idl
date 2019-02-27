@@ -1094,7 +1094,7 @@ class DagNodeExecutor {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const self = this;
         const node: DagNodeSQL = <DagNodeSQL>self.node;
-        const params: DagNodeSQLInputStruct = node.getParam(self.replaceParam);
+        const params: DagNodeSQLInputStruct = node.getParam();
         if (!params.sqlQueryStr) {
             return PromiseHelper.reject(SQLErrTStr.NeedConfiguration);
         }
@@ -1112,7 +1112,7 @@ class DagNodeExecutor {
         let compiled = false;
         if (!xcQueryString) {
             compiled = true;
-            promise = node.compileSQL(params.sqlQueryStr, queryId);
+            promise = node.compileSQL(params.sqlQueryStr, queryId, {}, self.replaceParam);
         } else if (!node.getXcQueryString()) {
             // query string exists in original node but not the clone
             node.setNewTableName(this.originalSQLNode.getNewTableName());
