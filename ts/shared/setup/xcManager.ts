@@ -754,7 +754,6 @@ namespace xcManager {
         SupTicketModal.setup();
         FileInfoModal.setup();
         WorkbookInfoModal.setup();
-        WorkbookPreview.setup();
         LoginConfigModal.setup();
         LiveHelpModal.setup();
         JupyterFinalizeModal.setup();

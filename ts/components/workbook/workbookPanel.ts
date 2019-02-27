@@ -404,7 +404,7 @@ namespace WorkbookPanel {
         // Events for the actual workbooks
         // anywhere on workbook card
         $workbookSection.on("click", ".activate", function(event) {
-            if ($(event.target).hasClass("preview") || $(event.target).hasClass("dropDown") || $(event.target).hasClass("focused")) {
+            if ($(event.target).hasClass("dropDown") || $(event.target).hasClass("focused")) {
                 return;
             }
             activateWorkbook($(this).closest(".workbookBox"));
@@ -480,12 +480,6 @@ namespace WorkbookPanel {
 
         $wkbkMenu.on("click", ".newTab", function() {
             activateWorkbook($dropDownCard, true);
-        });
-
-        $workbookSection.on("click", ".preview", function() {
-            const $workbookBox: JQuery = $(this).closest(".workbookBox");
-            const workbookId: string = $workbookBox.attr("data-workbook-id");
-            WorkbookPreview.show(workbookId);
         });
 
         $workbookSection.on("contextmenu", ".workbookBox", function(event) {
@@ -1026,11 +1020,6 @@ namespace WorkbookPanel {
                                 '</div>' +
                             '</div>' +
                         '</div>' +
-                        '<i class="preview icon xi-show xc-action" ' +
-                        ' data-toggle="tooltip" data-container="body"' +
-                        ' data-placement="top"' +
-                        ' data-title="' + CommonTxtTstr.Preview + '"' +
-                        '></i>' +
                         '<i class="dropDown icon xi-ellipsis-h xc-action" ' +
                         ' data-toggle="tooltip" data-container="body"' +
                         ' data-placement="top"' +
