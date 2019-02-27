@@ -3224,7 +3224,7 @@ namespace xcHelper {
      * xcHelper.isValidTableName
      * @param str
      */
-    export function isValidTableName(str: string): boolean {
+    export function isValidTableName(str: string, allowDollar?: boolean): boolean {
         if (str == null || str === "") {
             return false;
         }
@@ -3236,9 +3236,12 @@ namespace xcHelper {
 
         // cannot have any characters other than alphanumeric
         // or _ -
-        return !/[^a-zA-Z\d\_\-]/.test(str);
+        if (allowDollar) {
+            return !/[^a-zA-Z\d\_\-\$]/.test(str);
+        } else {
+            return !/[^a-zA-Z\d\_\-]/.test(str);
+        }
     }
-
     /**
      * xcHelper.isValidPublishedTableName
      * @param str
@@ -3355,8 +3358,8 @@ namespace xcHelper {
 
     /**
      * Construct the Workbook UDF path prefix string
-     * @param userName 
-     * @param sessionId 
+     * @param userName
+     * @param sessionId
      */
     export function constructUDFWBPrefix(userName: string, sessionId: string): string {
         return `/workbook/${userName}/${sessionId}/udf/`;
@@ -3388,9 +3391,9 @@ namespace xcHelper {
     /**
      * Filter out the default, shared, and workbook(specified by user and session) UDFs.
      * If same module name exists in both workbook and shared, preserve the workbook one.
-     * @param fns 
-     * @param userName 
-     * @param sessionId 
+     * @param fns
+     * @param userName
+     * @param sessionId
      */
     export function filterUDFsByUserSession(
         fns: XcalarEvalFnDescT[],

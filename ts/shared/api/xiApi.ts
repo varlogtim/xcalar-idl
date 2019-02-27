@@ -77,7 +77,7 @@ namespace XIApi {
         return regexp.test(tableName);
     }
 
-    function isValidTableName(tableName: string): boolean {
+    function isValidTableName(tableName: string, allowDollarSign?: boolean): boolean {
         let isValid: boolean = isCorrectTableNameFormat(tableName);
         if (!isValid) {
             if (tableName != null) {
@@ -88,11 +88,11 @@ namespace XIApi {
 
         let namePart: string = xcHelper.getTableName(tableName);
         // allow table name to start with dot
-        isValid = xcHelper.isValidTableName(namePart);
+        isValid = xcHelper.isValidTableName(namePart, allowDollarSign);
         if (!isValid) {
             // we allow name that has dot internally
             namePart = namePart.replace(/\./g, "");
-            isValid = xcHelper.isValidTableName(namePart);
+            isValid = xcHelper.isValidTableName(namePart, allowDollarSign);
         }
         if (!isValid) {
             if (tableName != null) {
@@ -102,14 +102,18 @@ namespace XIApi {
         return isValid;
     }
 
-    function isValidAggName(aggName: string): boolean {
+    function isValidAggName(aggName: string, looseNameCheck?: boolean): boolean {
+        let allowDollarSign = false;
+        if (looseNameCheck) {
+            allowDollarSign = true;
+        }
         if (isCorrectTableNameFormat(aggName)) {
             // allow aggName to have the table name format
-            return isValidTableName(aggName);
+            return isValidTableName(aggName, allowDollarSign);
         } else {
             // no blanks, must start with alpha, cannot have any special chars
             // other than _ and - and #
-            return xcHelper.isValidTableName(aggName);
+            return xcHelper.isValidTableName(aggName, allowDollarSign);
         }
     }
 
@@ -1213,7 +1217,7 @@ namespace XIApi {
         let toDelete = false;
         let err: string;
 
-        if (!isValidAggName(dstAggName)) {
+        if (!isValidAggName(dstAggName, true)) {
             if (dstAggName != null) {
                 console.error("invalid agg name");
             }
