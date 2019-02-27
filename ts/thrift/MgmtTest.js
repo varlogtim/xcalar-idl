@@ -3194,16 +3194,6 @@ window.Function.prototype.bind = function() {
         });
     }
 
-    function testGetCurrentXemConfig(test) {
-        xcalarGetCurrentXemConfig(thriftHandle)
-        .done(function(output) {
-            test.pass();
-        })
-        .fail(function(reason) {
-            test.fail(reason);
-        });
-    };
-
     function testGetMemoryUsage(test) {
         test.trivial(xcalarApiGetMemoryUsage(thriftHandle, "test", 1));
     }
@@ -4465,7 +4455,6 @@ window.Function.prototype.bind = function() {
 
     addTestCase(testGetNumNodes, "getNumNodes", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetVersion, "getVersion", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testGetCurrentXemConfig, "get current xem config test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetConfigParams, "getConfigParams", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testSetConfigParam, "setConfigParam", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testRuntimeParams, "runtimeParams", defaultTimeout, TestCaseEnabled, "");

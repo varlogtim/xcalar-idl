@@ -15,9 +15,10 @@ AccumulatorTypeT = {
   'AccumulatorMin' : 1,
   'AccumulatorCount' : 2,
   'AccumulatorAvg' : 3,
-  'AccumulatorSumFloat' : 4,
-  'AccumulatorSumInteger' : 5,
-  'AccumulatorSumNumeric' : 6
+  'AccumulatorAvgNumeric' : 4,
+  'AccumulatorSumFloat' : 5,
+  'AccumulatorSumInteger' : 6,
+  'AccumulatorSumNumeric' : 7
 };
 XcalarEvalArgTypeTStr = {
   0 : 'optional',
@@ -34,16 +35,18 @@ AccumulatorTypeTStr = {
   1 : 'min',
   2 : 'count',
   3 : 'avg',
-  4 : 'sum',
-  5 : 'sumInteger',
-  6 : 'sumNumeric'
+  4 : 'avgNumeric',
+  5 : 'sum',
+  6 : 'sumInteger',
+  7 : 'sumNumeric'
 };
 AccumulatorTypeTFromStr = {
   'max' : 0,
   'min' : 1,
   'count' : 2,
   'avg' : 3,
-  'sum' : 4,
-  'sumInteger' : 5,
-  'sumNumeric' : 6
+  'avgNumeric' : 4,
+  'sum' : 5,
+  'sumInteger' : 6,
+  'sumNumeric' : 7
 };

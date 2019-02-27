@@ -6303,44 +6303,6 @@ xcalarApiLocalTop = runEntity.xcalarApiLocalTop = function(thriftHandle, measure
     return (deferred.promise());
 };
 
-xcalarGetCurrentXemConfigGetWorkItem = runEntity.xcalarGetCurrentXemConfigGetWorkItem = function() {
-    var workItem = new WorkItem();
-    workItem.api = XcalarApisT.XcalarApiGetCurrentXemConfig;
-    return (workItem);
-};
-
-xcalarGetCurrentXemConfig = runEntity.xcalarGetCurrentXemConfig = function(thriftHandle) {
-    var deferred = jQuery.Deferred();
-    if (verbose) {
-        console.log("xcalarGetCurrentXemConfig");
-    }
-
-    var workItem = xcalarGetCurrentXemConfigGetWorkItem();
-
-    thriftHandle.client.queueWorkAsync(workItem)
-    .then(function(result) {
-        var getXemConfigOutput = result.output.outputResult.getCurrentXemConfigOutput;
-        var status = result.output.hdr.status;
-        var log = result.output.hdr.log;
-
-        if (result.jobStatus != StatusT.StatusOk) {
-            status = result.jobStatus;
-        }
-
-        if (status != StatusT.StatusOk) {
-            deferred.reject({xcalarStatus: status, log: log});
-        } else {
-            deferred.resolve(getXemConfigOutput);
-        }
-    })
-    .fail(function(error) {
-        console.log("xcalarGetCurrentXemConfigGetWorkItem failure");
-        deferred.reject(handleRejection(error));
-    });
-
-    return (deferred.promise());
-};
-
 // XXX
 //
 xcalarGetIpAddrWorkItem = runEntity.xcalarGetIpAddrWorkItem = function(nodeId) {
