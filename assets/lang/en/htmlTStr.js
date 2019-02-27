@@ -1111,7 +1111,7 @@ module.exports = {
         "Save": "Save Snippet",
         "RenameWarning": "Leaving Draft Snippet",
         "Discard": "Discard Draft",
-        "RenameModalInstr": "You are leaving the draft snippet. Either save your draft as a new snippet or discard your changes.", 
+        "RenameModalInstr": "You are leaving the draft snippet. Either save your draft as a new snippet or discard your changes.",
     },
 
     "IMDTableOp": {
@@ -1521,7 +1521,7 @@ module.exports = {
         "expandSQL": "Expand",
         "download": "Download selected nodes",
         "downloadDataflow": "Download",
-        "duplicateDataflow": "Duplicate",
+        "duplicateDataflow": "Duplicate Dataflow",
         "viewOptimizedDataflow": "View Optimized Dataflow"
     }
 };

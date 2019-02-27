@@ -2280,7 +2280,7 @@ class DagView {
             const nodeInfo = {
                 position: node.getPosition()
             };
-            this._repositionRunStats(nodeInfo, node.getId());
+            this._repositionProgressTooltip(nodeInfo, node.getId());
         });
     }
 
@@ -2600,7 +2600,7 @@ class DagView {
         let tip: HTML = this._nodeProgressTemplate(graph, node.getId(), pos.x, pos.y, skewInfos, times, state);
         const $tip = $(tip)
         $dfArea.append($tip);
-        const width = Math.max($tip[0].getBoundingClientRect().width, 95);
+        const width = Math.max($tip[0].getBoundingClientRect().width, 92);
         const nodeCenter = graph.getScale() * (pos.x + (DagView.nodeWidth / 2));
         $tip.css("left", nodeCenter - (width / 2));
     }
@@ -2623,7 +2623,7 @@ class DagView {
                 });
                 this._addProgressTooltip(this.graph, node, this.$dfArea, skewInfos, times, overallStats.state);
                 const nodeInfo = { position: node.getPosition() };
-                this._repositionRunStats(nodeInfo, node.getId());
+                this._repositionProgressTooltip(nodeInfo, node.getId());
             }
         } catch (e) {
             console.error(e);
@@ -3763,13 +3763,13 @@ class DagView {
         }
     }
 
-    private _repositionRunStats(nodeInfo, nodeId: DagNodeId): void {
+    private _repositionProgressTooltip(nodeInfo, nodeId: DagNodeId): void {
         const $runStats = this.$dfArea.find('.runStats[data-id="' + nodeId + '"]');
         if ($runStats.length) {
             $runStats.addClass("visible"); // in case we can't get the dimensions
             // because user is hiding tips by default
             const infoRect = $runStats[0].getBoundingClientRect();
-            const rectWidth = Math.max(infoRect.width, 95); // width can be 0 if tab is not visible
+            const rectWidth = Math.max(infoRect.width, 92); // width can be 0 if tab is not visible
             const rectHeight = Math.max(infoRect.height, 25);
             const scale = this.graph.getScale();
             const nodeCenter = nodeInfo.position.x + 1 + (DagView.nodeWidth / 2);
@@ -3856,7 +3856,7 @@ class DagView {
                     self._drawLineBetweenNodes(parentNodeId, nodeId, connectorIndex, svg);
                 });
                 // move runStats if it has one
-                this._repositionRunStats(nodeInfo, nodeId);
+                this._repositionProgressTooltip(nodeInfo, nodeId);
             } else {
                 // comment node
                 const id = nodeInfo.id;
