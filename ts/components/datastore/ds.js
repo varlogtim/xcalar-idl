@@ -2107,7 +2107,10 @@ window.DS = (function ($, DS) {
                     // restore a ds
                     var ds = datasetsSet[obj.fullName];
                     var backOptions = getDSOptions(ds);
-                    var sources = obj.sources || backOptions.sources;
+                    var sources = obj.sources;
+                    if (!sources || sources.length === 0) {
+                        sources = backOptions.sources;
+                    }
                     obj = $.extend(obj, backOptions, {
                         "sources": sources
                     });
