@@ -21,7 +21,7 @@ window.DSTable = (function($, DSTable) {
         setupSampleTable();
     };
 
-    DSTable.showError = function(dsId, error, isFetchError, noRetry) {
+    DSTable.showError = function(dsId, error, isFetchError, noRetry, isImportError) {
         var dsObj = DS.getDSObj(dsId);
         if (dsObj == null) {
             // error case
@@ -29,7 +29,7 @@ window.DSTable = (function($, DSTable) {
         }
         showTableView(dsId);
         updateTableInfoDisplay(dsObj);
-        setupViewAfterError(error, isFetchError, noRetry);
+        setupViewAfterError(error, isFetchError, noRetry, isImportError);
     };
 
     DSTable.show = function(dsId, isLoading) {
@@ -159,14 +159,20 @@ window.DSTable = (function($, DSTable) {
         $dsTableContainer.removeClass("loading");
     }
 
-    function setupViewAfterError(error, isFetchError, noRetry) {
+    function setupViewAfterError(error, isFetchError, noRetry, isImportError) {
         error = parseError(error);
         // backend might return this: "<string>"
         error = xcHelper.escapeHTMLSpecialChar(error);
-        var startError = isFetchError
-                         ? StatusMessageTStr.DSFetchFailed
-                         : StatusMessageTStr.ImportDSFailed;
-        error = startError + ". " + error;
+        var startError = "";
+        if (isFetchError) {
+            startError = StatusMessageTStr.DSFetchFailed;
+        } else if (isImportError) {
+            startError = StatusMessageTStr.ImportDSFailed;
+        }
+        if (startError) {
+            startError += ". ";
+        }
+        error = startError + error;
 
         $tableWrap.html("");
         $dsTableContainer.removeClass("loading");
@@ -177,7 +183,9 @@ window.DSTable = (function($, DSTable) {
 
         var dsId = $dsTableContainer.data("id");
         var dsObj = DS.getDSObj(dsId);
-        if (!noRetry && dsObj != null &&
+        if (!noRetry &&
+            dsObj != null &&
+            isImportError &&
             dsObj.getUser() === XcUser.getCurrentUserName()) {
             $errorSection.find(".suggest").removeClass("xc-hidden");
         } else {

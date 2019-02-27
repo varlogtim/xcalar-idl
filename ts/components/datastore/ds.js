@@ -1264,7 +1264,6 @@ window.DS = (function ($, DS) {
         }
         var hasCreate = false;
         var deferred = PromiseHelper.deferred();
-
         def
         .then(() => {
             hasCreate = true;
@@ -1361,7 +1360,7 @@ window.DS = (function ($, DS) {
             } else {
                 // show loadError if has, otherwise show error message
                 var displayError = loadError || error;
-                handleImportError(dsObj, displayError, created);
+                handleImportError(dsObj, displayError, created, true);
             }
 
             if (created) {
@@ -1376,9 +1375,7 @@ window.DS = (function ($, DS) {
             deferred.reject(error);
         })
         .always(function() {
-            $("#dsTableContainer").find('.lockedTableIcon[data-txid="' +
-                                        txId + '"]').remove();
-            xcTooltip.hideAll();
+            loadCleanup(txId);
         });
 
         return deferred.promise();
@@ -1395,22 +1392,32 @@ window.DS = (function ($, DS) {
         });
     }
 
-    function finishImport($grid) {
+    function finishActivate($grid) {
         $grid.removeData("txid");
-        $grid.removeClass("inactive").find(".waitingIcon").remove();
         $grid.removeClass("loading");
+    }
+
+    function finishImport($grid) {
+        finishActivate($grid);
+        $grid.removeClass("inactive").find(".waitingIcon").remove();
         $grid.addClass("notSeen");
         // display new dataset
         refreshDS();
     }
 
-    function handleImportError(dsObj, error, created) {
+    function loadCleanup(txId) {
+        $("#dsTableContainer").find('.lockedTableIcon[data-txid="' +
+                                        txId + '"]').remove();
+        xcTooltip.hideAll();
+    }
+
+    function handleImportError(dsObj, error, created, isImportError) {
         var dsId = dsObj.getId();
         var $grid = DS.getGrid(dsId);
         if ($grid.hasClass("active")) {
             dsObj.setError(error);
             cacheErrorDS(dsId, dsObj);
-            DSTable.showError(dsId, error);
+            DSTable.showError(dsId, error, false, false, isImportError);
         }
         if (!created) {
             removeDS(dsId);
@@ -3125,9 +3132,10 @@ window.DS = (function ($, DS) {
             "track": true,
             "steps": 1
         });
+        var $grid = DS.getGrid(dsObj.getId());
         if (!noAlert) {
-            DS.getGrid(dsObj.getId()).data("txid", txId);
-            DS.getGrid(dsObj.getId()).addClass("loading");
+            $grid.data("txid", txId);
+            $grid.addClass("loading");
             DSTable.setupViewBeforeLoading(dsObj);
         }
 
@@ -3145,22 +3153,39 @@ window.DS = (function ($, DS) {
             }
             deferred.resolve();
         })
-        .fail(function(error) {
-            var errorMsg = xcHelper.replaceMsg(DSTStr.FailActivateDS, {
-                "ds": dsObj.getName(),
-                "error": error.log || error.error
-            });
-            failures.push(errorMsg);
-            if (txId != null) {
-                Transaction.fail(txId, {
-                    error: error,
-                    noAlert: true
+        .fail(function(error, loadError) {
+            try {
+                var displayError = loadError || error.log || error.error;
+                var errorMsg = xcHelper.replaceMsg(DSTStr.FailActivateDS, {
+                    "ds": dsObj.getName(),
+                    "error": displayError
                 });
+                failures.push(errorMsg);
+
+                if (typeof error === "object" &&
+                    error.status === StatusT.StatusCanceled)
+                {
+                    if ($grid.hasClass("active")) {
+                        focusOnForm();
+                    }
+                } else {
+                    handleImportError(dsObj, displayError, true);
+                }
+
+                if (txId != null) {
+                    Transaction.fail(txId, {
+                        error: error,
+                        noAlert: true
+                    });
+                }
+            } catch (e) {
+                console.error(e);
             }
             deferred.resolve(); // still resolve it
         })
         .always(function() {
-            DS.getGrid(dsObj.getId()).removeData("txid");
+            finishActivate($grid);
+            loadCleanup(txId);
         });
 
         return deferred.promise();
@@ -3176,13 +3201,7 @@ window.DS = (function ($, DS) {
             activateDSObj(dsObj);
             deferred.resolve();
         })
-        .fail(function(error) {
-            if (typeof error === "string") {
-                error = {error: error}
-            }
-            DS.getGrid(dsObj.getId()).removeClass("loading");
-            deferred.reject(error);
-        });
+        .fail(deferred.reject);
 
         return deferred.promise();
     }
