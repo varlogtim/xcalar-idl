@@ -616,7 +616,7 @@
                             find = true;
                         }
                         for (var j = 0; j < node.value.args.eval.length; j++) {
-                            if (node.value.args.eval[j].newField === node.colNameMap[item]) {
+                            if (node.value.args.eval[j].newField === item) {
                                 find = true;
                                 break;
                             }
@@ -647,7 +647,8 @@
                 self.aggregateNameMap["^" + node.value.args.dest] = "^" + baseNode.value.args.dest;
                 break;
             case ("XcalarApiJoin"):
-                node.colNameMap = jQuery.extend(true, {}, node.colNameMap[0], node.colNameMap[1]);
+                // Here keep all from left because those in right with collision will be renamed
+                node.colNameMap = jQuery.extend(true, {}, node.colNameMap[1], node.colNameMap[0]);
                 for (var i = 0; i < node.value.args.columns[1].length; i++) {
                     node.colNameMap[node.value.args.columns[1][i].destColumn] =
                                     baseNode.value.args.columns[1][i].destColumn;
@@ -726,6 +727,7 @@
                 }
                 node.indexOn = newIndexOn;
                 break;
+            case ("XcalarApiSelect"):
             case ("XcalarApiSynthesize"):
                 var newColNameMap = {};
                 var newIndexOn = [];
@@ -743,7 +745,8 @@
                 node.indexOn = [];
                 break;
             case ("XcalarApiJoin"):
-                node.colNameMap = jQuery.extend(true, {}, node.colNameMap[0], node.colNameMap[1]);
+                // Here keep all from left because those in right with collision will be renamed
+                node.colNameMap = jQuery.extend(true, {}, node.colNameMap[1], node.colNameMap[0]);
                 for (var i = 0; i < node.value.args.columns[1].length; i++) {
                     node.colNameMap[node.value.args.columns[1][i].destColumn]
                                     = node.value.args.columns[1][i].destColumn;
@@ -755,7 +758,7 @@
             case ("XcalarApiIndex"):
                 node.indexOn = [];
                 for (var i = 0; i < node.value.args.key.length; i++) {
-                    node.indexOn.push(node.value.args.key.keyFieldName);
+                    node.indexOn.push(node.value.args.key[i].keyFieldName);
                 }
                 break;
             case ("XcalarApiFilter"):
@@ -765,7 +768,6 @@
             case ("XcalarApiExport"):
             case ("XcalarApiDeleteObjects"):
             case ("XcalarApiRenameNode"):
-            case ("XcalarApiSelect"):
                 break;
             default:
                 console.error("Unexpected operation: " + opName);
