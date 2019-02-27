@@ -89,7 +89,7 @@ class SQLEditor {
             "F5": executeTrigger,
             "Alt-X": executeTrigger,
             "Ctrl-Space": "autocomplete", // Need to write autocomplete code
-            "Ctrl--": this._toggleComment
+            "Ctrl--": this._toggleComment.bind(this)
         };
 
         let cButton = "Ctrl";
@@ -123,32 +123,49 @@ class SQLEditor {
 
     private _toggleComment(): void {
         const editor = this.getEditor();
-        const startPos = editor.getCursor("from");
-        const endPos = editor.getCursor("to");
-        const startLineNum = startPos.line;
-        const endLineNum = endPos.line;
-        let commentCount = 0;
-        editor.eachLine(startLineNum, endLineNum + 1, function(lh) {
-            if (lh.text.trimStart().startsWith("--")) {
-                commentCount++;
+        const selections = editor.getDoc().listSelections();
+        const ranges: Array<{anchor: CodeMirror.Position, head: CodeMirror.Position}> = [];
+        for (let selection of selections) {
+            const startLineNum = Math.min(selection.head.line, selection.anchor.line);
+            const endLineNum = Math.max(selection.head.line, selection.anchor.line);
+            let commentCount = 0;
+            let offset = 0;
+            editor.eachLine(startLineNum, endLineNum + 1, function(lh) {
+                if (lh.text.trimStart().startsWith("--")) {
+                    commentCount++;
+                }
+            })
+            if (commentCount === endLineNum - startLineNum + 1) {
+                // To uncomment
+                for (let i = startLineNum; i <= endLineNum; i++) {
+                    const text = editor.getLine(i);
+                    editor.setSelection({line: i, ch: 0},
+                                            {line: i, ch: text.length});
+                    editor.replaceSelection(text.replace(/--/, ""));
+                }
+                offset -= 2;
+            } else {
+                // To comment
+                for (let i = startLineNum; i <= endLineNum; i++) {
+                    const text =editor.getLine(i);
+                    editor.setSelection({line: i, ch: 0},
+                                            {line: i, ch: text.length});
+                    editor.replaceSelection("--" + text);
+                }
+                offset += 2;
             }
-        })
-        if (commentCount === endLineNum - startLineNum + 1) {
-            for (let i = startLineNum; i <= endLineNum; i++) {
-                const text = editor.getLine(i);
-                editor.setSelection({line: i, ch: 0},
-                                          {line: i, ch: text.length});
-                                          editor.replaceSelection(text.replace(/--/, ""));
-            }
-        } else {
-            for (let i = startLineNum; i <= endLineNum; i++) {
-                const text =editor.getLine(i);
-                editor.setSelection({line: i, ch: 0},
-                                          {line: i, ch: text.length});
-                                          editor.replaceSelection("--" + text);
-            }
+            ranges.push({
+                anchor: {
+                    line: selection.anchor.line,
+                    ch: selection.anchor.ch + offset
+                },
+                head: {
+                    line: selection.head.line,
+                    ch: selection.head.ch + offset
+                }
+            });
         }
-        editor.setSelection(startPos,endPos);
+        editor.getDoc().setSelections(ranges);
     }
 
     private _convertTextCase(flag: boolean): void {
@@ -195,6 +212,11 @@ class SQLEditor {
     private _addEventListeners(): void {
         const self = this;
         self._editor.on("keyup", function(_cm, e) {
+            const pos = _cm.getCursor();
+            if (self._editor.getTokenTypeAt(pos) === "comment") {
+                // disable auto-completion for comment
+                return;
+            }
             if (e.keyCode >= 65 && e.keyCode <= 90 ||
                 e.keyCode >= 48 && e.keyCode <= 57 && !e.shiftKey ||
                 e.keyCode === 190 && !e.shiftKey
