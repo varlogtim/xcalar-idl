@@ -2111,7 +2111,7 @@
             var groupingCols = [];
             var projections = node.value.projections;
             node.value.output.forEach(function(item) {
-                groupingCols.push(__genColStruct(item[0]));
+                groupingCols.push(__genColStruct(item[0], {renamedCols: node.renamedCols}));
             });
             // Last element of expand-output should be spark_grouping_id
             assert(groupingCols[groupingCols.length - 1].colName ===
@@ -2856,13 +2856,14 @@
             }
 
             if (isExistenceJoin(node)) {
-                var existColName = cleanseColName(node.value.joinType.exists[0]
-                                                                     .name);
+                var existColName = cleanseColName(node.value.joinType.exists[0].name);
+                var existCutColName = cleanseColName(node.value.joinType.exists[0]
+                                                     .name, false, true);
                 var existColId = node.value.joinType.exists[0].exprId.id;
                 retStruct.existenceCol = {
                     colName: existColName,
                     colId: existColId,
-                    rename: existColName + "_E" + existColId,
+                    rename: existCutColName + "_E" + existColId,
                     colType: "bool"
                 }
             }
@@ -3200,7 +3201,7 @@
             // If no sortOrder specified => aggregate window, no need to sort
             var tableName = node.children[0].newTableName;
             var options = {renamedCols: node.renamedCols, tableName: tableName};
-            loopStruct.groupByCols = __genGBColArray(node.value.partitionSpec);
+            loopStruct.groupByCols = __genGBColArray(node.value.partitionSpec, options);
             loopStruct.sortColsAndOrder =
                                 __genSortStruct(node.value.orderSpec, options);
             var curPromise;
@@ -3235,7 +3236,7 @@
             // Use groupAll instead
 
             // Traverse windowExps, generate desired rows
-            var windowStruct = __categoryWindowOps(node.value.windowExpressions);
+            var windowStruct = __categoryWindowOps(node.value.windowExpressions, options);
             for (item in windowStruct) {
                 if (item === "lead") {
                     if (!jQuery.isEmptyObject(windowStruct[item])) {
@@ -3283,8 +3284,9 @@
                     SQLErrTStr.LRParent +node.parent.value.class);
             node.xccli = "";
             node.usrCols = [];
+            node.renamedCols = {};
             node.value.output.forEach(function(array) {
-                node.usrCols.push(__genColStruct(array[0]));
+                node.usrCols.push(__genColStruct(array[0], {renamedCols: node.renamedCols}));
             })
             return PromiseHelper.resolve();
         },
@@ -4270,8 +4272,7 @@
                 "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
                 colName = cleanseColName(orderArray[i][1].name);
                 id = orderArray[i][1].exprId.id;
-                if (options && options.renamedCols &&
-                    options.renamedCols[id]) {
+                if (options && options.renamedCols && options.renamedCols[id]) {
                     colName = options.renamedCols[id];
                 }
                 type = convertSparkTypeToXcalarType(orderArray[i][1].dataType);
@@ -4326,7 +4327,7 @@
     }
 
     // Need to remove duplicate
-    function __genGBColArray(cols) {
+    function __genGBColArray(cols, options) {
         var colInfoArray = [];
         var idSet = new Set();
         for (var i = 0; i < cols.length; i++) {
@@ -4337,10 +4338,13 @@
                 continue;
             }
             idSet.add(cols[i][0].exprId.id);
-            colInfoArray.push({colName: cleanseColName(cols[i][0].name),
-                               type: convertSparkTypeToXcalarType(cols[i][0].dataType),
-                               colId: cols[i][0].exprId.id
-                            });
+            var colStruct = {colName: cleanseColName(cols[i][0].name),
+                             type: convertSparkTypeToXcalarType(cols[i][0].dataType),
+                             colId: cols[i][0].exprId.id};
+            if (options && options.renamedCols && options.renamedCols[cols[i][0].exprId.id]) {
+                colStruct.rename = options.renamedCols[cols[i][0].exprId.id];
+            }
+            colInfoArray.push(colStruct);
         }
         return colInfoArray;
     }
@@ -4349,9 +4353,9 @@
         var retStruct = [];
         var colNameSet = new Set();
         for (var i = 0; i < gbCols.length; i++) {
-            if (!colNameSet.has(gbCols[i].colName)) {
-                colNameSet.add(gbCols[i].colName);
-                retStruct.push({name: gbCols[i].colName,
+            if (!colNameSet.has(__getCurrentName(gbCols[i]))) {
+                colNameSet.add(__getCurrentName(gbCols[i]));
+                retStruct.push({name: __getCurrentName(gbCols[i]),
                                 type: gbCols[i].type,
                                 ordering: XcalarOrderingT.XcalarOrderingAscending});
             }
@@ -4365,7 +4369,7 @@
         return retStruct;
     }
 
-    function __genColStruct(value) {
+    function __genColStruct(value, options) {
         var retStruct = {};
         // Assert that this is only used on alias and ar nodes
         assert(value.class && (value.class ===
@@ -4375,6 +4379,17 @@
             SQLErrTStr.BadGenColStruct + value.class);
         retStruct.colName = cleanseColName(value.name);
         retStruct.colId = value.exprId.id;
+        if (options && options.renamedCols && options.renamedCols[retStruct.colId]) {
+            retStruct.rename = options.renamedCols[retStruct.colId];
+        } else {
+            var colNameCut = cleanseColName(value.name, false, true);
+            if (retStruct.colName !== colNameCut) {
+                retStruct.rename = colNameCut;
+                if (options && options.renamedCols) {
+                    options.renamedCols[value.exprId.id] = colNameCut;
+                }
+            }
+        }
         if (value.dataType) {
             retStruct.colType = convertSparkTypeToXcalarType(value.dataType);
         }
@@ -4395,7 +4410,7 @@
     }
 
     // XXX the type argument is not used now
-    function __prepareWindowOp(node, type) {
+    function __prepareWindowOp(node, type, options) {
         var newCol;
         var opName;
         var args = [];
@@ -4406,7 +4421,7 @@
         assert(node.value.class ===
             "org.apache.spark.sql.catalyst.expressions.Alias",
             SQLErrTStr.NotAliasWindowExpr + node.value.class);
-        newCol = __genColStruct(node.value);
+        newCol = __genColStruct(node.value, options);
         var weNode = node.children[0];
         assert(weNode.value.class ===
             "org.apache.spark.sql.catalyst.expressions.WindowExpression",
@@ -4428,13 +4443,13 @@
             var argNode = curNode.children[i];
             if (argNode.value.class ===
             "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
-                args.push(__genColStruct(argNode.value));
+                args.push(__genColStruct(argNode.value, options));
                 argTypes.push(undefined);
             } else if (argNode.value.class ===
                 "org.apache.spark.sql.catalyst.expressions.Cast") {
                 // Happen when applying sum/../avg on int columns. Ignore it
                 argNode = argNode.children[0];
-                args.push(__genColStruct(argNode.value));
+                args.push(__genColStruct(argNode.value, options));
                 argTypes.push(undefined);
             } else {
                 assert(argNode.value.class ===
@@ -4481,7 +4496,7 @@
     }
 
     // XXX the type argument is not used now
-    function __categoryWindowOps(opList, type) {
+    function __categoryWindowOps(opList, type, options) {
         var retStruct = {agg: [],
                          first: [],
                          last: [],
@@ -4496,7 +4511,7 @@
         for (var i = 0; i < opList.length; i++) {
             var found = false;
             var opStruct = __prepareWindowOp(SQLCompiler
-                                    .genTree(undefined, opList[i]), type);
+                                .genTree(undefined, opList[i]), type, options);
             if (opStruct.opName === "First" || opStruct.opName === "Last") {
                 var key = opStruct.opName.toLowerCase();
                 retStruct[key].forEach(function(obj) {
@@ -6752,10 +6767,15 @@
                 }
                 // XCEPASSTHROUGH -> UDF_NAME
                 colStruct.colName = newColName;
-                newColName = cleanseColName(replaceUDFName(newColName, acc.udfs));
+                newColName = cleanseColName(replaceUDFName(newColName, acc.udfs), false, true);
                 colStruct.colType = getColType(treeNode);
-                colStruct.rename = newColName;
-                colStruct.udfColName = newColName;
+                if (newColName !== colStruct.colName) {
+                    colStruct.rename = newColName;
+                    colStruct.udfColName = newColName;
+                    if (options && options.renamedCols && colStruct.colId) {
+                        options.renamedCols[colStruct.colId] = newColName;
+                    }
+                }
                 var retStruct = {newColName: newColName,
                                  evalStr: evalStr,
                                  numOps: acc.numOps,
@@ -7063,11 +7083,16 @@
         }
     }
 
-    function cleanseColName(name, isNewCol) {
+    function cleanseColName(name, isNewCol, cutName) {
         if (isNewCol) {
             name = xcHelper.stripPrefixInColName(name);
         }
-        return xcHelper.stripColName(name, true, true).toUpperCase();
+        var ret = xcHelper.stripColName(name, true, true).toUpperCase();
+        if (cutName && ret.length > XcalarApisConstantsT.XcalarApiMaxFieldNameLen / 2) {
+            ret = ret.substring(ret.length - XcalarApisConstantsT.XcalarApiMaxFieldNameLen / 2)
+                  + "_" + Authentication.getHashId().substring(3);
+        }
+        return ret;
     }
 
     function replaceUDFName(name, udfs) {
