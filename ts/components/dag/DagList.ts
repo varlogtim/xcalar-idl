@@ -60,8 +60,6 @@ class DagList {
         return deferred.promise();
     }
 
-
-
     /**
      * Get a list of all dags
      */
@@ -471,6 +469,25 @@ class DagList {
         this._fileLister.goToPath("/" + DagTabSQLFunc.HOMEDIR + "/");
     }
 
+    /**
+     * DagList.Instance.clearSQLDataflow
+     */
+    public clearSQLDataflow(): void {
+        let sqlDags: DagTab[] = [];
+        this._dags.forEach((dagTab) => {
+            if (this._isForSQLFolder(dagTab)) {
+                sqlDags.push(dagTab);
+            }
+        });
+
+        sqlDags.forEach((sqlTab) => {
+            sqlTab.delete();
+            this._dags.delete(sqlTab.getId());
+        });
+        this._renderDagList(false, true);
+        this._updateSection();
+    }
+
     private _initialize(): void {
         this._dags = new Map();
         this._initialized = false;
@@ -559,6 +576,7 @@ class DagList {
                     '</div>' +
                 '</li>';
             });
+            this._updateIconSection(path);
             return html;
         };
         this._fileLister = new FileLister(this._getDagListSection(), {
@@ -924,6 +942,16 @@ class DagList {
         return DagTabUser.isForSQLFolder(dagTab);
     }
 
+    private _updateIconSection(path: string): void {
+        const $iconSection: JQuery = $("#dagList .iconSection");
+        const $btn = $iconSection.find(".clearSQLBtn");
+        if (path === "SQL" && !this._isHideSQLFolder()) {
+            $btn.removeClass("xc-hidden");
+        } else {
+            $btn.addClass("xc-hidden");
+        }
+    }
+
     private _addEventListeners(): void {
         const $dagListSection: JQuery = this._getDagListSection();
         const $iconSection: JQuery = $("#dagList .iconSection");
@@ -933,6 +961,10 @@ class DagList {
 
         $iconSection.find(".uploadBtn").click(() => {
             DFUploadModal.Instance.show();
+        });
+
+        $iconSection.find(".clearSQLBtn").click(() => {
+            DagList.Instance.clearSQLDataflow();
         });
 
         // expand/collapse the section

@@ -156,8 +156,17 @@ class SqlQueryHistory {
 
     public deleteQuery(queryId: string): XDPromise<void> {
         const queryKvStore = this._getKVStoreFromQueryId(queryId);
+        this._deleteDataflow(this._queryMap[queryId].dataflowId);
         delete this._queryMap[queryId];
         return queryKvStore.delete();
+    }
+
+    private _deleteDataflow(dataflowId: string): XDPromise<void> {
+        if (!dataflowId) {
+            return PromiseHelper.resolve();
+        }
+        let dag = new DagTabUser(null, dataflowId);
+        return dag.delete();
     }
 
     // TODO: For test only, should be deleted!!!

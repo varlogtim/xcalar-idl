@@ -907,6 +907,7 @@ module.exports = {
         "DestFileName": "Destination file name",
         "Settings": "Dataflow settings",
         "LinkAfterExecutionHint": "If the checkbox is checked, link in nodes that reference the link out node will reuse the node's result directly. Otherwise link in nodes will execute the flow to gerenate the result",
+        "ClearSQL": "Clear dataflow in SQL folder",
         // For uploader
         "upload": "Upload",
         "uploadHeader": "Upload Dataflow",
