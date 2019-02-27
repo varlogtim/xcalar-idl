@@ -23,6 +23,11 @@ class XDFManager {
             const fns = xcHelper.filterUDFsByUserSession(
                 listXdfsObj.fnDescs, userName, sessionId
             );
+            for (const fn of fns) {
+                if (fn.displayName == null) {
+                    fn.displayName = fn.fnName.split('/').pop();
+                }
+            }
             self._setupOperatorsMap(fns);
             return PromiseHelper.resolve();
         } else {
