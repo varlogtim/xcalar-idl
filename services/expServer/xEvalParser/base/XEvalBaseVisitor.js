@@ -1,4 +1,4 @@
-// Generated from XEvalBase.g4 by ANTLR 4.7.1
+// Generated from XEvalBase.g4 by ANTLR 4.7.2
 // jshint ignore: start
 var antlr4 = require('antlr4/index');
 
@@ -50,24 +50,6 @@ XEvalBaseVisitor.prototype.visitModuleName = function(ctx) {
 
 // Visit a parse tree produced by XEvalBaseParser#fnName.
 XEvalBaseVisitor.prototype.visitFnName = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by XEvalBaseParser#paramArg.
-XEvalBaseVisitor.prototype.visitParamArg = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by XEvalBaseParser#paramAfter.
-XEvalBaseVisitor.prototype.visitParamAfter = function(ctx) {
-  return this.visitChildren(ctx);
-};
-
-
-// Visit a parse tree produced by XEvalBaseParser#paramValue.
-XEvalBaseVisitor.prototype.visitParamValue = function(ctx) {
   return this.visitChildren(ctx);
 };
 

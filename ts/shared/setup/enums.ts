@@ -225,6 +225,15 @@ enum PatternCategory {
     SQLFunc = "sqlFunc",
 }
 
+enum ParserPatternCategory {
+    UDFModule = "UDFModule",
+    UDFFn = "UDFFn",
+    TablePrefix = "prefix",
+    ColumnName = "colName",
+    ColumnProperty = "property",
+    AggValue = "aggValue"
+}
+
 enum PatternAction {
     Fix = "fix",
     Check = "check",
@@ -441,6 +450,7 @@ if (typeof global !== 'undefined') {
     global.AggrOp = AggrOp;
     global.QueryStatus = QueryStatus;
     global.PatternCategory = PatternCategory;
+    global.ParserPatternCategory = ParserPatternCategory;
     global.PatternAction = PatternAction;
     global.SQLType = SQLType;
     global.SQLOps = SQLOps;

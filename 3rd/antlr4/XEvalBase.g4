@@ -25,12 +25,12 @@ fn
     ;
 moduleName
     : ALPHANUMERIC
-    {if (!xcHelper.checkNamePattern(PatternCategory.UDFParam, PatternAction.Check, $ALPHANUMERIC.text)) {
+    {if (xcHelper.checkParserNamePattern(ParserPatternCategory.UDFModule, $ALPHANUMERIC.text)) {
     throw SyntaxError('Invalid module name: ' + $ALPHANUMERIC.text);}}
     ;
 fnName
     : ALPHANUMERIC
-    {if (!xcHelper.checkNamePattern(PatternCategory.UDFFnParam, PatternAction.Check, $ALPHANUMERIC.text)) {
+    {if (xcHelper.checkParserNamePattern(ParserPatternCategory.UDFFn, $ALPHANUMERIC.text)) {
     throw SyntaxError('Invalid udf name: ' + $ALPHANUMERIC.text);}}
     ;
 columnArg
@@ -39,8 +39,8 @@ columnArg
     ;
 prefix
     : ALPHANUMERIC
-    {if (xcHelper.validatePrefixName($ALPHANUMERIC.text, false, true)) {
-    throw SyntaxError(xcHelper.validatePrefixName($ALPHANUMERIC.text, false, true));
+    {if (xcHelper.checkParserNamePattern(ParserPatternCategory.TablePrefix, $ALPHANUMERIC.text)) {
+    throw SyntaxError(xcHelper.checkParserNamePattern(ParserPatternCategory.TablePrefix, $ALPHANUMERIC.text));
     }}
     ;
 colElement
@@ -48,19 +48,19 @@ colElement
     ;
 colName
     : ALPHANUMERIC
-    {if ($ALPHANUMERIC.text.toUpperCase() != "NONE" && xcHelper.validateBackendColName($ALPHANUMERIC.text, true)) {
-    throw SyntaxError(xcHelper.validateBackendColName($ALPHANUMERIC.text, true));
+    {if ($ALPHANUMERIC.text.toUpperCase() != "NONE" && xcHelper.checkParserNamePattern(ParserPatternCategory.ColumnName, $ALPHANUMERIC.text)) {
+    throw SyntaxError(xcHelper.checkParserNamePattern(ParserPatternCategory.ColumnName, $ALPHANUMERIC.text));
     }}
     ;
 propertyName
     : ALPHANUMERIC
-    {if (xcHelper.validateColName($ALPHANUMERIC.text, false, true, true)) {
-    throw SyntaxError(xcHelper.validateColName($ALPHANUMERIC.text, false, true, true));
+    {if (xcHelper.checkParserNamePattern(ParserPatternCategory.ColumnProperty, $ALPHANUMERIC.text)) {
+    throw SyntaxError(xcHelper.checkParserNamePattern(ParserPatternCategory.ColumnProperty, $ALPHANUMERIC.text));
     }}
     ;
 aggValue
     : CARET ALPHANUMERIC
-    {if (!xcHelper.isValidTableName($ALPHANUMERIC.text)) {
+    {if (xcHelper.checkParserNamePattern(ParserPatternCategory.AggValue, $ALPHANUMERIC.text)) {
     throw SyntaxError(ErrTStr.InvalidAggName);
     }}
     ;

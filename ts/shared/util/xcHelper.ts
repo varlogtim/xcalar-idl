@@ -3136,6 +3136,90 @@ namespace xcHelper {
     }
 
     /**
+     * xcHelper.checkParserNamePattern
+     * @param category
+     * @param name
+     */
+    export function checkParserNamePattern(
+        category: ParserPatternCategory,
+        name: string
+    ): string | boolean {
+        if (!name || name.trim().length === 0) {
+            return "Empty name found!";
+        }
+        const preservedNames: string[] = ['none', 'false', 'true'];
+        let startCharPattern: RegExp;
+        let lengthLimit: Number;
+        let namePattern: RegExp;
+        let antiNamePattern: RegExp;
+        let startError: string;
+        let lengthError: string;
+        let patternError: string;
+        switch (category) {
+            case ParserPatternCategory.UDFModule:
+                startCharPattern = /[a-z_<]/;
+                lengthLimit = 1023;
+                namePattern = /^[a-zA-Z0-9_<>-]*$/;
+                break;
+            case ParserPatternCategory.UDFFn:
+                startCharPattern = /[a-z_<]/;
+                lengthLimit = 1023;
+                namePattern = /^[a-zA-Z0-9_<>]*$/;
+                break;
+            case ParserPatternCategory.TablePrefix:
+                startCharPattern = /[a-zA-Z]/;
+                startError = ErrTStr.PrefixStartsWithLetter;
+                lengthLimit = gPrefixLimit;
+                lengthError = ErrTStr.PrefixTooLong;
+                namePattern = /^[a-zA-Z0-9_-]*$/;
+                patternError = ColTStr.PrefixInValid;
+                if (name.includes("--")) {
+                    return ErrTStr.PrefixNoDoubleHyphen;
+                }
+                break;
+            case ParserPatternCategory.ColumnName:
+                startCharPattern = /[a-zA-Z_<]/;
+                startError = ColTStr.RenameStartInvalid;
+                lengthLimit = XcalarApisConstantsT.XcalarApiMaxFieldNameLen;
+                lengthError = ColTStr.LongName;
+                namePattern = /^((?![()\[\]{}^,"':]).)*((?![()\[\]{}^,"': ]).)$/;
+                patternError = 'Invalid name. Ensure name does not contain the following characters: ^\',":()[]{}\\';
+                if (name === 'DATA' || preservedNames.indexOf(name.toLowerCase()) > -1) {
+                    return ErrTStr.PreservedName;
+                }
+                break;
+            case ParserPatternCategory.ColumnProperty:
+                startCharPattern = /[a-zA-Z_<]/;
+                startError = ColTStr.RenameStartInvalid;
+                lengthLimit = XcalarApisConstantsT.XcalarApiMaxFieldNameLen;
+                lengthError = ColTStr.LongName;
+                antiNamePattern = /^ | $|[\^,\(\)\[\]{}'"\.]|::/;
+                patternError = ColTStr.ColNameInvalidCharSpace;
+                if (name === 'DATA' || preservedNames.indexOf(name.toLowerCase()) > -1) {
+                    return ErrTStr.PreservedName;
+                }
+                break;
+            case ParserPatternCategory.AggValue:
+                startCharPattern = /[a-zA-Z]/;
+                lengthLimit = XcalarApisConstantsT.XcalarApiMaxTableNameLen;
+                antiNamePattern = /[^a-zA-Z$\d\_\-]/;
+                break;
+            default:
+                throw "Unsupported pattern in parser name check!";
+        }
+        if (startCharPattern && !startCharPattern.test(name[0])) {
+            return startError || true;
+        } else if (lengthLimit && name.length > lengthLimit) {
+            return lengthError || true;
+        } else if (namePattern && !namePattern.test(name)) {
+            return patternError || true;
+        } else if (antiNamePattern && antiNamePattern.test(name)) {
+            return patternError || true;
+        }
+        return false;
+    }
+
+    /**
      * xcHelper.checkNamePattern
      * @param catrgory - which pattern to follow
      * @param action - Enum in PatternAction

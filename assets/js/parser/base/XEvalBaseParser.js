@@ -1,9 +1,10 @@
-// Generated from XEvalBase.g4 by ANTLR 4.7.1
+// Generated from XEvalBase.g4 by ANTLR 4.7.2
 // jshint ignore: start
 var antlr4 = require('antlr4/index');
 var XEvalBaseVisitor = require('./XEvalBaseVisitor').XEvalBaseVisitor;
 
 var grammarFileName = "XEvalBase.g4";
+
 
 var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
     "\u0003\u001b~\u0004\u0002\t\u0002\u0004\u0003\t\u0003\u0004\u0004\t",
@@ -159,6 +160,7 @@ XEvalBaseParser.RULE_decimalLiteral = 14;
 XEvalBaseParser.RULE_stringLiteral = 15;
 XEvalBaseParser.RULE_booleanLiteral = 16;
 
+
 function QueryContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -219,6 +221,7 @@ XEvalBaseParser.prototype.query = function() {
     }
     return localctx;
 };
+
 
 function ExprContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -311,6 +314,7 @@ XEvalBaseParser.prototype.expr = function() {
     return localctx;
 };
 
+
 function FnArgsContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -397,6 +401,7 @@ XEvalBaseParser.prototype.fnArgs = function() {
     }
     return localctx;
 };
+
 
 function ArgContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -521,6 +526,7 @@ XEvalBaseParser.prototype.arg = function() {
     return localctx;
 };
 
+
 function FnContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -602,6 +608,7 @@ XEvalBaseParser.prototype.fn = function() {
     return localctx;
 };
 
+
 function ModuleNameContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -644,7 +651,7 @@ XEvalBaseParser.prototype.moduleName = function() {
         this.enterOuterAlt(localctx, 1);
         this.state = 72;
         localctx._ALPHANUMERIC = this.match(XEvalBaseParser.ALPHANUMERIC);
-        if (!xcHelper.checkNamePattern(PatternCategory.UDFParam, PatternAction.Check, (localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text))) {
+        if (xcHelper.checkParserNamePattern(ParserPatternCategory.UDFModule, (localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text))) {
             throw SyntaxError('Invalid module name: ' + (localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text));}
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
@@ -659,6 +666,7 @@ XEvalBaseParser.prototype.moduleName = function() {
     }
     return localctx;
 };
+
 
 function FnNameContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -702,7 +710,7 @@ XEvalBaseParser.prototype.fnName = function() {
         this.enterOuterAlt(localctx, 1);
         this.state = 75;
         localctx._ALPHANUMERIC = this.match(XEvalBaseParser.ALPHANUMERIC);
-        if (!xcHelper.checkNamePattern(PatternCategory.UDFFnParam, PatternAction.Check, (localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text))) {
+        if (xcHelper.checkParserNamePattern(ParserPatternCategory.UDFFn, (localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text))) {
             throw SyntaxError('Invalid udf name: ' + (localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text));}
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
@@ -717,6 +725,7 @@ XEvalBaseParser.prototype.fnName = function() {
     }
     return localctx;
 };
+
 
 function ColumnArgContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -802,6 +811,7 @@ XEvalBaseParser.prototype.columnArg = function() {
     return localctx;
 };
 
+
 function PrefixContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -844,8 +854,8 @@ XEvalBaseParser.prototype.prefix = function() {
         this.enterOuterAlt(localctx, 1);
         this.state = 85;
         localctx._ALPHANUMERIC = this.match(XEvalBaseParser.ALPHANUMERIC);
-        if (xcHelper.validatePrefixName((localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text), false, true)) {
-            throw SyntaxError(xcHelper.validatePrefixName((localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text), false, true));
+        if (xcHelper.checkParserNamePattern(ParserPatternCategory.TablePrefix, (localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text))) {
+            throw SyntaxError(xcHelper.checkParserNamePattern(ParserPatternCategory.TablePrefix, (localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text)));
             }
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
@@ -860,6 +870,7 @@ XEvalBaseParser.prototype.prefix = function() {
     }
     return localctx;
 };
+
 
 function ColElementContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -1001,6 +1012,7 @@ XEvalBaseParser.prototype.colElement = function() {
     return localctx;
 };
 
+
 function ColNameContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -1043,8 +1055,8 @@ XEvalBaseParser.prototype.colName = function() {
         this.enterOuterAlt(localctx, 1);
         this.state = 105;
         localctx._ALPHANUMERIC = this.match(XEvalBaseParser.ALPHANUMERIC);
-        if ((localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text).toUpperCase() != "NONE" && xcHelper.validateBackendColName((localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text), true)) {
-            throw SyntaxError(xcHelper.validateBackendColName((localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text), true));
+        if ((localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text).toUpperCase() != "NONE" && xcHelper.checkParserNamePattern(ParserPatternCategory.ColumnName, (localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text))) {
+            throw SyntaxError(xcHelper.checkParserNamePattern(ParserPatternCategory.ColumnName, (localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text)));
             }
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
@@ -1059,6 +1071,7 @@ XEvalBaseParser.prototype.colName = function() {
     }
     return localctx;
 };
+
 
 function PropertyNameContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -1102,8 +1115,8 @@ XEvalBaseParser.prototype.propertyName = function() {
         this.enterOuterAlt(localctx, 1);
         this.state = 108;
         localctx._ALPHANUMERIC = this.match(XEvalBaseParser.ALPHANUMERIC);
-        if (xcHelper.validateColName((localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text), false, true, true)) {
-            throw SyntaxError(xcHelper.validateColName((localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text), false, true, true));
+        if (xcHelper.checkParserNamePattern(ParserPatternCategory.ColumnProperty, (localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text))) {
+            throw SyntaxError(xcHelper.checkParserNamePattern(ParserPatternCategory.ColumnProperty, (localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text)));
             }
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
@@ -1118,6 +1131,7 @@ XEvalBaseParser.prototype.propertyName = function() {
     }
     return localctx;
 };
+
 
 function AggValueContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -1167,7 +1181,7 @@ XEvalBaseParser.prototype.aggValue = function() {
         this.match(XEvalBaseParser.CARET);
         this.state = 112;
         localctx._ALPHANUMERIC = this.match(XEvalBaseParser.ALPHANUMERIC);
-        if (!xcHelper.isValidTableName((localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text))) {
+        if (xcHelper.checkParserNamePattern(ParserPatternCategory.AggValue, (localctx._ALPHANUMERIC===null ? null : localctx._ALPHANUMERIC.text))) {
             throw SyntaxError(ErrTStr.InvalidAggName);
             }
     } catch (re) {
@@ -1183,6 +1197,7 @@ XEvalBaseParser.prototype.aggValue = function() {
     }
     return localctx;
 };
+
 
 function IntegerLiteralContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -1238,6 +1253,7 @@ XEvalBaseParser.prototype.integerLiteral = function() {
     }
     return localctx;
 };
+
 
 function DecimalLiteralContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -1306,6 +1322,7 @@ XEvalBaseParser.prototype.decimalLiteral = function() {
     return localctx;
 };
 
+
 function StringLiteralContext(parser, parent, invokingState) {
 	if(parent===undefined) {
 	    parent = null;
@@ -1360,6 +1377,7 @@ XEvalBaseParser.prototype.stringLiteral = function() {
     }
     return localctx;
 };
+
 
 function BooleanLiteralContext(parser, parent, invokingState) {
 	if(parent===undefined) {
