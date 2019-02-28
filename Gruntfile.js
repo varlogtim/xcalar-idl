@@ -1760,10 +1760,24 @@ module.exports = function(grunt) {
         var xcalarPkgJSON = grunt.file.readJSON('assets/js/xcrpc/package.json');
         var xcalarPkgFile = xcalarPkgJSON.name + '-' + xcalarPkgJSON.version + '.tgz';
 
-        cmdsets.push(['services/expServer', ['npm install']]);
+        /**
+           here we add the xcalar jsClient code to the expServer
+           we build it locally (either from checked in code, or code
+           copied from an XCE repo depending on build type)
+           to do this, we do the following:
+           0) we have the dependency in the expServer package.json file
+              as a local tarfile (xcalarPkgFile)
+           1) we delete xcalarPkgFile, if it exists
+           2) we create xcalarPkgFile
+           3) we install all dependencies, including xcalarPkgFile
+           4) we force the new xcalarPkgFile to be used by explicitly
+              uninstalling/reinstalling it
+           we leave xcalarPkgFile where it is whenever npm install is rerun */
+        cmdsets.push(['services/expServer', ['rm -f ' + xcalarPkgFile]])
         cmdsets.push(['services/expServer', ['npm pack ../../assets/js/xcrpc']]);
-        cmdsets.push(['services/expServer', ['npm install ' + xcalarPkgFile]]);
-        cmdsets.push(['services/expServer', ['rm -f ' + xcalarPkgFile]]);
+        cmdsets.push(['services/expServer', ['npm install --no-save']]);
+        cmdsets.push(['services/expServer', ['npm uninstall --no-save xcalar']]);
+        cmdsets.push(['services/expServer', ['npm install --no-save']]);
 
         for (var cmdset of cmdsets) {
             var executefrom = cmdset[0];

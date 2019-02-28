@@ -38,7 +38,8 @@
     "socket.io": "^1.7.3",
     "ssl-root-cas": "^1.2.3",
     "google-protobuf": "^3.0.0",
-    "express-http-proxy": "1.2.0"
+    "express-http-proxy": "1.2.0",
+    "xcalar": "file:xcalar-0.0.1.tgz"
   },
   "license": "UNLICENSED",
   "devDependencies": {}
