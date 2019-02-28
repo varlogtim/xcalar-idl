@@ -2598,7 +2598,7 @@ class DagView {
             return;
         }
         const pos = node.getPosition();
-        let tip: HTML = this._nodeProgressTemplate(graph, node.getId(), pos.x, pos.y, skewInfos, times, state);
+        let tip: HTML = this._nodeProgressTemplate(graph, node, pos.x, pos.y, skewInfos, times, state);
         const $tip = $(tip)
         $dfArea.append($tip);
         const width = Math.max($tip[0].getBoundingClientRect().width, 92);
@@ -2633,13 +2633,14 @@ class DagView {
 
     private _nodeProgressTemplate(
         graph: DagGraph,
-        nodeId: DagNodeId,
+        node: DagNode,
         nodeX: number,
         nodeY: number,
         skewInfos: any[],
         times: number[],
         state: DgDagStateT
     ): HTML {
+        const nodeId: DagNodeId = node.getId();
         const tooltipMargin = 5;
         const tooltipPadding = 5;
         const rowHeight = 10;
@@ -2680,6 +2681,10 @@ class DagView {
         if (skewInfos.length) {
             skewRows = xcHelper.numToStr(skewInfos[skewInfos.length - 1].totalRows);
         }
+        if (skewRows === "0" && node instanceof DagNodeExport) {
+            skewRows = "N/A"; // don't show 0 for export nodes because stats
+            // show 0 even though there are actually rows
+        }
         let stateClass: string = DgDagStateTStr[state];
 
         let html = `<div data-id="${nodeId}" class="runStats dagTableTip ${stateClass}" style="left:${x}px;top:${y}px;">`;
@@ -2700,6 +2705,24 @@ class DagView {
             </div>`;
 
         return html;
+    }
+
+    private _repositionProgressTooltip(nodeInfo, nodeId: DagNodeId): void {
+        const $runStats = this.$dfArea.find('.runStats[data-id="' + nodeId + '"]');
+        if ($runStats.length) {
+            $runStats.addClass("visible"); // in case we can't get the dimensions
+            // because user is hiding tips by default
+            const infoRect = $runStats[0].getBoundingClientRect();
+            const rectWidth = Math.max(infoRect.width, 92); // width can be 0 if tab is not visible
+            const rectHeight = Math.max(infoRect.height, 25);
+            const scale = this.graph.getScale();
+            const nodeCenter = nodeInfo.position.x + 1 + (DagView.nodeWidth / 2);
+            $runStats.css({
+                left: scale * nodeCenter - (rectWidth / 2),
+                top: Math.max(1, (scale * nodeInfo.position.y) - (rectHeight + 5))
+            });
+            $runStats.removeClass("visible");
+        }
     }
 
     // always resolves
@@ -3761,24 +3784,6 @@ class DagView {
                 $childConnector.removeClass("hasConnection")
                 .addClass("noConnection");
             }
-        }
-    }
-
-    private _repositionProgressTooltip(nodeInfo, nodeId: DagNodeId): void {
-        const $runStats = this.$dfArea.find('.runStats[data-id="' + nodeId + '"]');
-        if ($runStats.length) {
-            $runStats.addClass("visible"); // in case we can't get the dimensions
-            // because user is hiding tips by default
-            const infoRect = $runStats[0].getBoundingClientRect();
-            const rectWidth = Math.max(infoRect.width, 92); // width can be 0 if tab is not visible
-            const rectHeight = Math.max(infoRect.height, 25);
-            const scale = this.graph.getScale();
-            const nodeCenter = nodeInfo.position.x + 1 + (DagView.nodeWidth / 2);
-            $runStats.css({
-                left: scale * nodeCenter - (rectWidth / 2),
-                top: Math.max(1, (scale * nodeInfo.position.y) - (rectHeight + 5))
-            });
-            $runStats.removeClass("visible");
         }
     }
 

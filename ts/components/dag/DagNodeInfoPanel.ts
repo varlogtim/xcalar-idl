@@ -241,6 +241,10 @@ class DagNodeInfoPanel {
                 if (this._isRowStatsCollapsed) {
                     rowStatsClass = "collapsed";
                 }
+                let numRowsTotal = xcHelper.numToStr(stats.numRowsTotal);
+                if (numRowsTotal === "0" && node instanceof DagNodeExport) {
+                    numRowsTotal = "N/A";
+                }
 
                 skewInfos.push({
                     rows: stats.rows,
@@ -270,7 +274,7 @@ class DagNodeInfoPanel {
                 statsHtml += `<div class="row statsRow subRow rowStats collapsible ${rowStatsClass}">
                         <div class="rowHeading">
                             <div class="label">Rows: </div>
-                            <div class="value">${xcHelper.numToStr(stats.numRowsTotal)}</div>
+                            <div class="value">${numRowsTotal}</div>
                             <i class="icon xi-arrow-down"></i>
                         </div>
                         <div class="rowSection rowsPerNode">`;
