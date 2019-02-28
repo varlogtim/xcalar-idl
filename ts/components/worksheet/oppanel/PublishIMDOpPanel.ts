@@ -37,6 +37,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
         if (!super.showPanel("Publish Table", options)) {
             return;
         }
+        this._advMode = false;
         this._dagNode = dagNode;
         this._columns = dagNode.getParents().map((parentNode) => {
             return parentNode.getLineage().getColumns();
