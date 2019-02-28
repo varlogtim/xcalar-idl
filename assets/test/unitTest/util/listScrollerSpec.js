@@ -1,4 +1,4 @@
-describe("ListScroller Test", function() {
+describe.skip("ListScroller Test", function() {
     var $list;
     var listScroller;
 
