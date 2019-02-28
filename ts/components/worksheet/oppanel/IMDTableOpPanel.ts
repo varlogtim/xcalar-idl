@@ -77,9 +77,9 @@ class IMDTableOpPanel extends BaseOpPanel {
             if (error) {
                 throw new Error(error.error);
             }
-        }
-        if (this._checkOpArgs(args)) {
-            return args;
+            if (this._checkOpArgs(args)) {
+                return args;
+            }
         }
         return null;
     }
@@ -95,14 +95,20 @@ class IMDTableOpPanel extends BaseOpPanel {
             this._cachedBasicModeParam = paramStr;
             this._editor.setValue(paramStr);
             this._advMode = true;
+            this._gotoStep();
         } else {
             try {
                 const newModel: DagNodeIMDTableInputStruct = this._convertAdvConfigToModel();
                 if (newModel == null) {
+                    this._advMode = false;
+                    this._currentStep = 1;
+                    this._gotoStep();
                     return;
                 }
                 this._restorePanel(newModel);
+                this._currentStep = 1;
                 this._advMode = false;
+                this._gotoStep();
                 return;
             } catch (e) {
                 return {error: e.message || e.error};
