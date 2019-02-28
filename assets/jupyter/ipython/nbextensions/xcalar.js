@@ -696,6 +696,9 @@ define(['base/js/utils'], function(utils) {
                 $("#kill_and_exit").click(function() {
                     window.location.href = Jupyter.menubar.base_url + "tree";
                 });
+                $("#close_and_halt").click(function() {
+                    window.location.href = Jupyter.menubar.base_url + "tree";
+                });
 
                 window.onbeforeunload = function() {
                     return; // removes "do you want to leave" warning

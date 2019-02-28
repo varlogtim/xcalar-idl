@@ -269,6 +269,7 @@ define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
                     window.location.href = url;
                 });
             });
+            $("#shutdown").remove();
         });
     }
 
