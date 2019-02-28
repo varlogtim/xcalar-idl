@@ -25,3 +25,7 @@ class DagNodeSQLInput extends DagNodeInput {
         this.input.identifiersOrder = identifiersOrder;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagNodeSQLInput = DagNodeSQLInput;
+}

@@ -24,8 +24,10 @@ class DagHelper {
                 parsedVal = JSON.parse(kvsStrList[ii]);
             }
             var parsedXdfs = JSON.parse(listXdfsOutput);
-            // XXX: Liang incorporates parsedXdfs, userName, sessionId into
-            // expServer so they can be used by getQuery() and getRetinaArgs()
+
+            // XXX TODO: SteveW pass in the workbook name
+            // WorkbookManager.init(userName, wkbkName);
+            WorkbookManager.init(userName, 'sdk_test');
             return XDFManager.Instance.setup({
                 userName: userName, sessionId: sessionId, listXdfsObj: parsedXdfs
             })

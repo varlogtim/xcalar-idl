@@ -1,6 +1,7 @@
 // This file is for stubs for sqlUtils and dagUtils functionality
 
 function hackFunction() {
+    var request = require('request');
 
     // Some browsers and node.js don't support Object.values
     if (!Object.values) Object.values = o=>Object.keys(o).map(k=>o[k]);
@@ -14,12 +15,20 @@ function hackFunction() {
     global.userIdName = undefined;
     global.sessionName = undefined;
 
+    global.planServer = 'http://localhost:27000/xcesql';
+
     global.XcUser = {
         CurrentUser: CurrentUser
     };
 
     global.TblManager = {
         setOrphanTableMeta: function() {}
+    };
+
+    global.DagTabManager = {
+        Instance: {
+            removeTabByNode: function() {}
+        }
     };
 
     global.Alert = {
@@ -144,6 +153,76 @@ function hackFunction() {
             }
             userList.sort(xcHelper.sortVals);
             return userList;
+        }
+    };
+
+    global.WorkbookManager = {
+        userName: '',
+        wkbkName: '',
+
+        getActiveWKBK: function() {
+            return `${this.userName}-wkbk-${this.wkbkName}`;
+        },
+
+        init: function(userName, wkbkName) {
+            this.userName = userName;
+            this.wkbkName = wkbkName;
+        }
+    };
+
+    global.SQLUtil = {
+        Instance: {
+            sendToPlanner: function(sessionPrefix, type, struct) {
+                // XXX TODO: Should share the same function with sqlRestApi.sendToPlanner
+                const session = WorkbookManager.getActiveWKBK();
+                let url;
+                let action;
+                switch (type) {
+                    case ("update"):
+                        url = planServer + "/schemasupdate/" +
+                              encodeURIComponent(encodeURIComponent(sessionPrefix + session));
+                        action = "PUT";
+                        break;
+                    case ("dropAll"):
+                        url = planServer + "/schemadrop/" +
+                              encodeURIComponent(encodeURIComponent(sessionPrefix + session));
+                        action = "DELETE";
+                        break;
+                    case ("query"):
+                        url = planServer + "/sqlquery/" +
+                              encodeURIComponent(encodeURIComponent(sessionPrefix + session)) +
+                              "/true/true";
+                        action = "POST";
+                        break;
+                    case ("parse"):
+                        url = planServer + "/sqlparse";
+                        action = "POST";
+                        break;
+                    default:
+                        return PromiseHelper.reject("Invalid type for updatePlanServer");
+                }
+                const deferred = PromiseHelper.deferred();
+                
+                request(
+                    {
+                        method: action,
+                        url: url,
+                        json: false,
+                        body: JSON.stringify(struct),
+                    },
+                    function (error, response, body) {
+                        if (!error && response.statusCode == 200) {
+                            deferred.resolve(body);
+                        } else {
+                            if(body.exceptionName && body.exceptionMsg) {
+                                error = {errorType: body.exceptionName, errorMsg: body.exceptionMsg};
+                            }
+                            deferred.reject(error);
+                        }
+                    }
+                );
+                return deferred.promise();
+            }
         }
     };
 

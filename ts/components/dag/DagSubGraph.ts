@@ -231,3 +231,7 @@ class DagSubGraph extends DagGraph {
         return (nodeInfo.id == null);
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagSubGraph = DagSubGraph;
+}

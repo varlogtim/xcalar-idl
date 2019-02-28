@@ -32,8 +32,10 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     global.XcUID = require("../dagHelper/XcUID.js").XcUID;
     
     // The order of these is needed as there's dependancies between the files.
+    global.DagGraph = require("../dagHelper/DagGraph.js").DagGraph;
     global.xcHelper = require("../sqlHelpers/xcHelper.js").xcHelper;
     global.DagHelper = require("../DagHelperIndex.js").DagHelper
+    global.DagSubGraph = require("../dagHelper/DagSubGraph.js").DagSubGraph;
     global.DagNodeType = require("../dagHelper/DagEnums.js").DagNodeType
     global.DagNodeSubType = require("../dagHelper/DagEnums.js").DagNodeSubType
     global.DagNodeState = require("../dagHelper/DagEnums.js").DagNodeState
@@ -101,6 +103,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     global.DagNodeRowNum = require("../dagHelper/node/DagNodeRowNum.js").DagNodeRowNum
     global.DagNodeRowNumInput = require("../dagHelper/nodeInput/DagNodeRowNumInput.js").DagNodeRowNumInput
     global.DagNodeSQL = require("../dagHelper/node/DagNodeSQL.js").DagNodeSQL
+    global.DagNodeSQLInput = require("../dagHelper/nodeInput/DagNodeSQLInput.js").DagNodeSQLInput
     global.DagNodeSQLFuncOut = require("../dagHelper/node/DagNodeSQLFuncOut.js").DagNodeSQLFuncOut
     global.DagNodeSQLSubInput = require("../dagHelper/node/DagNodeSQLSubInput.js").DagNodeSQLSubInput
     global.DagNodeSQLSubOutput = require("../dagHelper/node/DagNodeSQLSubOutput.js").DagNodeSQLSubOutput
