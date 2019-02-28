@@ -243,7 +243,7 @@ function hackFunction() {
             return this.backName
         }
         getType() {
-            return ColumnType.unknown;
+            return this.type == null ? ColumnType.unknown : this.type;
         }
     };
 }

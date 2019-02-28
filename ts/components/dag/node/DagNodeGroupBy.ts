@@ -95,7 +95,7 @@ class DagNodeGroupBy extends DagNode {
             input.groupBy.forEach((colName, index) => {
                 const oldProgCol: ProgCol = colMap.get(colName);
                 let colType: ColumnType;
-                if (!oldProgCol) {
+                if (oldProgCol == null) {
                     // if newly parameterized, won't show up in colMap
                     colType = ColumnType.unknown;
                     if (colName.indexOf("<") === -1) {

@@ -2,7 +2,7 @@ var DagGraph = require("./dagHelper/DagGraph.js").DagGraph
 
 class DagHelper {
     static convertKvs(kvsStrList, dataflowName, optimized, listXdfsOutput, userName,
-            sessionId) {
+            sessionId, workbookName) {
         var graph;
         if (typeof kvsStrList !== "object" || kvsStrList === 0) {
             return PromiseHelper.reject( {error: "KVS list not provided"});
@@ -16,6 +16,9 @@ class DagHelper {
         if (typeof sessionId !== "string" || sessionId.length === 0) {
             return PromiseHelper.reject({ error: "sessionId string not provided" });
         }
+        if (typeof workbookName !== "string" || workbookName.length === 0) {
+            return PromiseHelper.reject({ error: "workbookName string not provided" });
+        }
         try {
             var parsedVal;
             // XXX: This is where multiple KVS strings are passed in when
@@ -25,9 +28,7 @@ class DagHelper {
             }
             var parsedXdfs = JSON.parse(listXdfsOutput);
 
-            // XXX TODO: SteveW pass in the workbook name
-            // WorkbookManager.init(userName, wkbkName);
-            WorkbookManager.init(userName, 'sdk_test');
+            WorkbookManager.init(userName, workbookName);
             return XDFManager.Instance.setup({
                 userName: userName, sessionId: sessionId, listXdfsObj: parsedXdfs
             })

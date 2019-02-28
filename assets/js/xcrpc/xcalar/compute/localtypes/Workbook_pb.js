@@ -816,7 +816,8 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.toObject = fun
     optimized: msg.getOptimized(),
     listxdfsoutput: msg.getListxdfsoutput(),
     username: msg.getUsername(),
-    sessionid: msg.getSessionid()
+    sessionid: msg.getSessionid(),
+    workbookname: msg.getWorkbookname()
   };
 
   if (includeInstance) {
@@ -877,6 +878,10 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.deserializeBin
     case 6:
       var value = /** @type {string} */ (reader.readString());
       msg.setSessionid(value);
+      break;
+    case 7:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setWorkbookname(value);
       break;
     default:
       reader.skipField();
@@ -955,6 +960,13 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.seri
   if (f.length > 0) {
     writer.writeString(
       6,
+      f
+    );
+  }
+  f = this.getWorkbookname();
+  if (f.length > 0) {
+    writer.writeString(
+      7,
       f
     );
   }
@@ -1066,6 +1078,21 @@ proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getS
 /** @param {string} value  */
 proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setSessionid = function(value) {
   jspb.Message.setField(this, 6, value);
+};
+
+
+/**
+ * optional string workbookName = 7;
+ * @return {string}
+ */
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.getWorkbookname = function() {
+  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 7, ""));
+};
+
+
+/** @param {string} value  */
+proto.xcalar.compute.localtypes.Workbook.ConvertKvsToQueryRequest.prototype.setWorkbookname = function(value) {
+  jspb.Message.setField(this, 7, value);
 };
 
 

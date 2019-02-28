@@ -17,12 +17,13 @@ function convertKvsToQuery(convertRequest) {
     var listXdfsOutput = convertRequest.getListxdfsoutput();
     var userName = convertRequest.getUsername();
     var sessionId = convertRequest.getSessionid();
+    var workbookName = convertRequest.getWorkbookname();
     // var txId = Transaction.start({"simulate": true});
     var cvtKvsToQueryResponse = new workbook_pb.ConvertKvsToQueryResponse();
 
     cvtKvsToQueryResponse.setConverted(false);
     DagHelper.convertKvs(kvsQueryList, dataflowName, optimized, listXdfsOutput,
-            userName, sessionId)
+            userName, sessionId, workbookName)
     .then(function(convertedQuery) {
         if (optimized) {
             var optimizedStr = JSON.stringify(convertedQuery)
