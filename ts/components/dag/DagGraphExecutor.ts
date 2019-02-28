@@ -359,7 +359,7 @@ class DagGraphExecutor {
         } else {
             const nodes: DagNode[] = this._nodes.filter((node) => {
                 if (node instanceof DagNodePublishIMD && node.getState() === DagNodeState.Complete) {
-                    return !PTblManager.Instance.hasTable(node.getParam(true).pubTableName, true);
+                    return !PTblManager.Instance.hasTable(node.getParam(true).pubTableName);
                 }
                 return (node.getState() !== DagNodeState.Complete || !DagTblManager.Instance.hasTable(node.getTable()));
             });

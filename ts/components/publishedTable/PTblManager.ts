@@ -14,11 +14,6 @@ class PTblManager {
     private _cachedSelectTableResult: {[key: string]: string};
     private _loadingTables: {[key: string]: PbTblInfo};
     private _datasetTables: {[key: string]: PbTblInfo};
-    private _cachedTempTableSet: Set<string>; // holds a set of publishTables
-    // created through dataflow but that are not yet in the tableMap list
-    // because we haven't fetched the table info. When the tableMap is refreshed
-    // by making a backend call, we clear this cachedTempTableSet because it
-    // should now be part of the refresh table map
 
     public constructor() {
         this._tableMap = new Map();
@@ -26,7 +21,6 @@ class PTblManager {
         this._initizlied = false;
         this._loadingTables = {};
         this._datasetTables = {};
-        this._cachedTempTableSet = new Set();
         this._cachedSelectTableResult = {};
     }
 
@@ -43,6 +37,21 @@ class PTblManager {
             rows: 0,
             batchId: null
         });
+    }
+
+    /**
+     * PTblManager.Instance.addTable
+     * @param tableName
+     */
+    public addTable(tableName: string): XDPromise<void> {
+        // cached tableInfo first in case list fails
+        tableName = tableName.toUpperCase();
+        let tableInfo = this.createTableInfo(tableName);
+        tableInfo.index = this._tables.length;
+        this._tables.push(tableInfo);
+        this._tableMap.set(tableName, tableInfo);
+        let promise = this._listOneTable(tableName);
+        return PromiseHelper.alwaysResolve(promise);
     }
 
     public getTableMap(): Map<string, PbTblInfo> {
@@ -84,18 +93,16 @@ class PTblManager {
         return null;
     }
 
-    public hasTable(tableName, checkCache?: boolean): boolean {
+    /**
+     * PTblManager.Instance.hasTable
+     * @param tableName
+     * @param checkCache
+     */
+    public hasTable(tableName): boolean {
         if (this.getTableByName(tableName) != null) {
             return true;
         }
-        if (checkCache && this._cachedTempTableSet.has(tableName)) {
-            return true;
-        }
         return false;
-    }
-
-    public cacheTempTable(tableName) {
-        this._cachedTempTableSet.add(tableName);
     }
 
     /**
@@ -814,7 +821,6 @@ class PTblManager {
     }
 
     private _updateTableMap(): void {
-        this._cachedTempTableSet.clear();
         this._tableMap.clear();
         this._tables.forEach((tableInfo) => {
             this._tableMap.set(tableInfo.name, tableInfo);

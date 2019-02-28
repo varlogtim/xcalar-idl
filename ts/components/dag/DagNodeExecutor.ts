@@ -910,11 +910,16 @@ class DagNodeExecutor {
             return parentNode.getLineage().getColumns();
         })[0] || [];
         let colInfo: ColRenameInfo[] = xcHelper.createColInfo(columns);
+        let tableName: string = params.pubTableName;
         XIApi.publishTable(this.txId, params.primaryKeys,
-            this._getParentNodeTable(0), params.pubTableName,
+            this._getParentNodeTable(0), tableName,
             colInfo, params.operator)
         .then(() => {
-            PTblManager.Instance.cacheTempTable(params.pubTableName);
+            if (!(typeof PTblManager === "undefined")) {
+                return PTblManager.Instance.addTable(tableName);
+            }
+        })
+        .then(() => {
             deferred.resolve();
         })
         .fail(deferred.reject)
