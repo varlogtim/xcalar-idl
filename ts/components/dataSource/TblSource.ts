@@ -62,6 +62,9 @@ class TblSource {
      * @param tableName
      */
     public hasTable(tableName: string): boolean {
+        if (tableName == null) {
+            return false;
+        }
         tableName = tableName.toUpperCase();
         let found: boolean = false;
         this._tables.forEach((_v, name) => {

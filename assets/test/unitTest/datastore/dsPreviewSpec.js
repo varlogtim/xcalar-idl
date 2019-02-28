@@ -24,6 +24,7 @@ describe("Dataset-DSPreview Test", function() {
     var $mainTabCache;
 
     before(function() {
+        XVM.setMode(XVM.Mode.Advanced);
         $previewCard = $("#dsForm-preview");
         $previewTable = $("#previewTable");
         $previewWrap = $("#dsPreviewWrap");
@@ -45,7 +46,6 @@ describe("Dataset-DSPreview Test", function() {
         $mainTabCache = $(".topMenuBarTab.active");
         $("#dataStoresTab").click();
         UnitTest.onMinMode();
-        DSPreview.__testOnly__.setIsCreateTableMode(false);
     });
 
     describe("Basic Preview Function Test", function() {
@@ -3323,7 +3323,6 @@ describe("Dataset-DSPreview Test", function() {
     });
 
     after(function() {
-        DSPreview.__testOnly__.resetIsCreateTableMode();
         StatusBox.forceHide();
 
         $mainTabCache.click();

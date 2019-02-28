@@ -218,7 +218,7 @@ class AggOpPanelModel extends GeneralOpPanelModel {
             invalid = true;
         } else if (DagAggManager.Instance.hasAggregate(tabId, aggName)) {
             let oldAgg: AggregateInfo = DagAggManager.Instance.getAgg(tabId, aggName);
-            if (oldAgg.node != this.dagNode.getId()) {
+            if (oldAgg && oldAgg.node != this.dagNode.getId()) {
                 errorText = xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
                     name: aggName,
                     aggPrefix: ""

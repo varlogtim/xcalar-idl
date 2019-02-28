@@ -339,15 +339,17 @@ describe("SupTicketModal Test", function() {
 
         it("should handle submit bundle error", function(done) {
             var test = false;
+            var oldAjax = HTTPService.Instance.ajax;
+            HTTPService.Instance.ajax = function(options) {
+                options.error({
+                    statusText: "Not Found"
+                });
+            };
+
             XcalarSupportGenerate = function() {
                 test = true;
                 return PromiseHelper.reject("test");
             };
-            var cache = xcHelper.getAppUrl;
-            xcHelper.getAppUrl = function() {
-                return "invalid";
-            }
-
             SupTicketModal.__testOnly__.submitBundle()
             .then(function() {
                 done("fail");
@@ -359,11 +361,19 @@ describe("SupTicketModal Test", function() {
                 expect($modal.find(".errorText").text())
                 .to.contains(ErrTStr.BundleFailed);
                 done();
+            })
+            .always(function() {
+                HTTPService.Instance.ajax = oldAjax;
             });
         });
 
         it("should submit bundle", function(done) {
             var test = false;
+            var oldAjax = HTTPService.Instance.ajax;
+            HTTPService.Instance.ajax = function(options) {
+                options.success({});
+            };
+
             XcalarSupportGenerate = function() {
                 test = true;
                 return PromiseHelper.resolve({});
@@ -376,6 +386,9 @@ describe("SupTicketModal Test", function() {
             })
             .fail(function() {
                 done("fail");
+            })
+            .always(function() {
+                HTTPService.Instance.ajax = oldAjax;
             });
         });
 
@@ -683,6 +696,7 @@ describe("SupTicketModal Test", function() {
     });
 
     after(function() {
+        $modal.find(".close").click();
         UnitTest.offMinMode();
     });
 });

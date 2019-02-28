@@ -252,7 +252,7 @@ describe("Dataset-DSTable Test", function() {
 
         it("Should show error of object directly", function() {
             var error = {"error": "test"};
-            DSTable.showError(testDSId, error);
+            DSTable.showError(testDSId, error, false, false ,true);
             expect($errorSection.find(".error").text())
             .to.contain(StatusMessageTStr.ImportDSFailed + ". " + error.error);
         });
@@ -432,6 +432,9 @@ describe("Dataset-DSTable Test", function() {
     after(function(done) {
         UnitTest.deleteDS(testDS)
         .always(function() {
+            if (Alert.isOpen()) {
+                Alert.forceClose()
+            }
             $mainTabCache.click();
             UnitTest.offMinMode();
             done();

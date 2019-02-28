@@ -138,8 +138,13 @@ describe("AggOpPanelModel Test", function() {
             });
             it("name conflict", function() {
                 let cacheFn = DagAggManager.Instance.hasAggregate;
+                let oldGetAgg = DagAggManager.Instance.getAgg;
                 DagAggManager.Instance.hasAggregate = function() {
                     return true;
+                };
+
+                DagAggManager.Instance.getAgg = function() {
+                    return DagNodeFactory.create({type: DagNodeType.Aggregate});
                 };
 
                 model._initialize({
@@ -156,6 +161,7 @@ describe("AggOpPanelModel Test", function() {
                     type: "aggName"
                 });
                 DagAggManager.Instance.hasAggregate = cacheFn;
+                DagAggManager.Instance.getAgg = oldGetAgg;
             });
             it("valid name", function() {
                 model._initialize({

@@ -96,7 +96,8 @@ class SQLTableLister extends AbstractSQLResultView {
             if (table.state === PbTblState.BeDataset) {
                 return false;
             }
-            if (table.name.toUpperCase() !== table.name) {
+            if (table.name == null ||
+                table.name.toUpperCase() !== table.name) {
                 return false;
             }
             return true;

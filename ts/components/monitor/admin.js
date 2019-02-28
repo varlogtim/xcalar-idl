@@ -714,10 +714,12 @@ window.Admin = (function($, Admin) {
     }
 
     function startNode() {
+        var deferred = PromiseHelper.deferred();
         checkIfStart()
         .then(function(startFlag) {
             if (startFlag) {
                 Alert.show({msg: AlertTStr.AlreadyStart, isAlert: true});
+                deferred.resolve();
             } else {
                 supportPrep('startNode')
                 .then(adminTools.clusterStart)
@@ -730,13 +732,18 @@ window.Admin = (function($, Admin) {
                     } else {
                         xcHelper.reload();
                     }
+                    deferred.resolve();
                 })
                 .fail(function(err) {
                     exitSetupMode();
                     nodeCmdFailHandler('startNode', err);
+                    deferred.reject(err);
                 });
             }
-        });
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     function checkIfStart() {
@@ -752,6 +759,7 @@ window.Admin = (function($, Admin) {
     }
 
     function stopNode() {
+        var deferred = PromiseHelper.deferred();
         supportPrep('stopNode')
         .then(adminTools.clusterStop)
         .then(function() {
@@ -765,28 +773,38 @@ window.Admin = (function($, Admin) {
                     "lockScreen": true
                 });
             }
+            deferred.resolve();
         })
         .fail(function(err) {
             exitSetupMode();
             nodeCmdFailHandler('stopNode', err);
+            deferred.reject(err);
         });
+
+        return deferred.promise();
     }
 
     function restartNode() {
+        var deferred = PromiseHelper.deferred();
         // restart is unreliable so we stop and start instead
         supportPrep('restartNode')
         .then(adminTools.clusterStop)
         .then(adminTools.clusterStart)
         .then(function() {
             xcHelper.reload();
+            deferred.resolve();
         })
         .fail(function(err) {
             exitSetupMode();
             nodeCmdFailHandler('restartNode', err);
+            deferred.reject(err);
         });
+
+        return deferred.promise();
     }
 
     function getStatus() {
+        var deferred = PromiseHelper.deferred();
         $('#configSupportStatus').addClass('unavailable');
         adminTools.clusterStatus()
         .then(function(ret) {
@@ -800,6 +818,7 @@ window.Admin = (function($, Admin) {
                 "isAlert": true,
                 "sizeToText": true
             });
+            deferred.resolve();
         })
         .fail(function(err) {
             if (err) {
@@ -824,10 +843,13 @@ window.Admin = (function($, Admin) {
                 msg = ErrTStr.Unknown;
                 Alert.error(MonitorTStr.GetStatusFail, msg);
             }
+            deferred.reject(err);
         })
         .always(function() {
             $('#configSupportStatus').removeClass('unavailable');
         });
+
+        return deferred.promise();
     }
 
     // setup func called before startNode, stopNode, etc.
@@ -975,6 +997,10 @@ window.Admin = (function($, Admin) {
             setupAdminStatusBar(true);
         };
         Admin.__testOnly__.refreshUserList = refreshUserList;
+        Admin.__testOnly__.startNode = startNode;
+        Admin.__testOnly__.stopNode = stopNode;
+        Admin.__testOnly__.restartNode = restartNode;
+        Admin.__testOnly__.getStatus = getStatus;
     }
     /* End Of Unit Test Only */
 

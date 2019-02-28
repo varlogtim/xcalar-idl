@@ -149,8 +149,10 @@ describe("DFUploadModal Test", function() {
 
         it("should handle name duplicate error", function(done) {
             var name = "DupNameTest"
-            var id = DagList.Instance.getAllDags().entries().next().value[0];
-            DagList.Instance.changeName(name, id);
+            var oldFunc = DagList.Instance.isUniqueName;
+            DagList.Instance.isUniqueName = () => false;
+    
+            DagList.Instance.changeName(name, "test");
             $destPath.val(name);
             DFUploadModal.Instance._submitForm()
             .then(function() {
@@ -159,6 +161,9 @@ describe("DFUploadModal Test", function() {
             .fail(function() {
                 UnitTest.hasStatusBoxWithError(DFTStr.DupDataflowName);
                 done();
+            })
+            .always(() => {
+                DagList.Instance.isUniqueName = oldFunc;
             });
         });
 
