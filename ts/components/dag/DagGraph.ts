@@ -2150,6 +2150,9 @@ class DagGraph {
                 case (XcalarApisT.XcalarApiExport):
                 case (XcalarApisT.XcalarApiSynthesize):
                     node.parents = [args.source];
+                    if (rawNode.name && rawNode.name.name) {
+                        node.name = rawNode.name.name;
+                    }
                     break;
                 case (XcalarApisT.XcalarApiAggregate):
                     node.args.dest = "^" + args.dest;
@@ -2415,12 +2418,28 @@ class DagGraph {
                     };
                     break;
                 case (XcalarApisT.XcalarApiSynthesize):
-                    dagNodeInfo = {
-                        type: DagNodeType.Synthesize,
-                        input: <DagNodeSynthesizeInputStruct>{
-                            colsInfo: node.args.columns
-                        }
-                    };
+                    // when executing optimized dataflow with synthesize=true
+                    // on the dataset node, the synthesize node should appear
+                    // as a dataset node
+                    if (node.parents.length === 0 && node.args.source.startsWith(gDSPrefix)) {
+                         dagNodeInfo = <DagNodeInInfo>{
+                            type: DagNodeType.Dataset,
+                            input: <DagNodeDatasetInputStruct>{
+                                source:  node.args.source.slice(gDSPrefix.length),
+                                prefix: "",
+                                synthesize: true
+                            },
+                            schema: _getSelectColumns(node.args.columns)
+                        };
+                    } else {
+                        dagNodeInfo = {
+                            type: DagNodeType.Synthesize,
+                            input: <DagNodeSynthesizeInputStruct>{
+                                colsInfo: node.args.columns
+                            }
+                        };
+                    }
+
                     break;
                 case (XcalarApisT.XcalarApiSelect):
                     let selectColumns = _getSelectColumns(node.args.columns);
