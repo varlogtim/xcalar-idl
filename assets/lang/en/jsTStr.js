@@ -1669,6 +1669,8 @@ SQLTStr = {
     "UnsavedSQL": "You have unsaved SQL work. Are you sure you want to leave?",
     "EditAdvanced": "Debug in advanced mode",
     "EditAdvancedInstr": "Debugging dataflow will possibly be based on a different one than what is displayed. Do you want to continue?",
+    "NoUntitledSnippet": "Name cannot be \"Untitled \"",
+    "NoDupSnippetName": "Snippet with name the same name already exists, please use Save As to overwrite it."
 };
 
 LoginConfigTStr = {

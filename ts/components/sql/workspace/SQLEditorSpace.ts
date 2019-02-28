@@ -505,6 +505,54 @@ class SQLEditorSpace {
         xcHelper.downloadAsFile(fileName, content, false);
     }
 
+    private _renameSnippet($nameInput: JQuery): void {
+        let $snippetName: JQuery = $nameInput.closest(".fileName");
+        let newName: string = $nameInput.text().trim();
+        let oldName: string = $snippetName.attr("data-original-title");
+        let setName = (name) => {
+            $nameInput.remove();
+            this._setFileName(name);
+        };
+
+        if (newName == oldName) {
+            setName(oldName);
+            return;
+        }
+
+        let isValid = xcHelper.validate([{
+            $ele: $nameInput
+        }, {
+            $ele: $nameInput,
+            error: SQLTStr.NoUntitledSnippet,
+            check: () => {
+                return newName === CommonTxtTstr.Untitled;
+            }
+        }, {
+            $ele: $nameInput,
+            error: SQLTStr.NoDupSnippetName,
+            check: () => {
+                return SQLSnippet.Instance.hasSnippet(newName);
+            }
+        }]);
+
+        if (!isValid) {
+            $nameInput.text(oldName);
+            return;
+        }
+
+        $snippetName.data("original-title", newName);
+        let snippet = this._sqlEditor.getValue();
+        SQLSnippet.Instance.writeSnippet(newName, snippet, true)
+        .then(() => {
+            SQLSnippet.Instance.deleteSnippet(oldName);
+        })
+        .fail((err) => {
+            // Since we still have the old version, we can just report an error
+            console.error(err);
+        });
+        setName(newName);
+    }
+
     private _addEventListeners(): void {
         const $container = this._getEditorSpaceEl();
         const $bottomSection = $container.find(".bottomSection");
@@ -560,40 +608,7 @@ class SQLEditorSpace {
 
        $topBar.on("focusout", ".fileName .xc-input", (event) => {
             let $nameInput: JQuery = $(event.currentTarget);
-            let $snippetName: JQuery = $nameInput.parent();
-            let isValid = xcHelper.validate([{
-                $ele: $nameInput
-            }]);
-            if (!isValid) {
-                StatusBox.show("Invalid Name",
-                    $nameInput, false);
-                return;
-            }
-            let newName: string = $nameInput.text().trim();
-            let oldName: string = $snippetName.attr("data-original-title");
-            if (newName == CommonTxtTstr.Untitled){
-                StatusBox.show('Name cannot be "' + CommonTxtTstr.Untitled + '"',
-                    $nameInput, false);
-                // Clear away if the newline character was registered
-                $nameInput.val(newName);
-                return;
-            } else if (newName == oldName) {
-                $nameInput.remove();
-                this._setFileName(newName);
-                return;
-            }
-            $snippetName.data("original-title", newName);
-            let snippet = this._sqlEditor.getValue();
-            SQLSnippet.Instance.writeSnippet(newName, snippet, true)
-            .then(() => {
-                SQLSnippet.Instance.deleteSnippet(oldName);
-            })
-            .fail((err) => {
-                // Since we still have the old version, we can just report an error
-                console.error(err);
-            });
-            $nameInput.remove();
-            this._setFileName(newName);
+            this._renameSnippet($nameInput);
         });
 
         let selector: string = `#${this._getEditorSpaceEl().attr("id")}`;
