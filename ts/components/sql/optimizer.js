@@ -426,7 +426,7 @@
                 for (var i = 0; i < node.value.args.eval.length; i++) {
                     node.value.args.eval[i].evalString = XDParser.XEvalParser
                                 .replaceColName(node.value.args.eval[i].evalString,
-                                node.colNameMap, self.aggregateNameMap);
+                                node.colNameMap, self.aggregateNameMap, true);
                 }
                 break;
             case ("XcalarApiProject"):
@@ -498,10 +498,10 @@
                 })
                 node.value.args.evalString = XDParser.XEvalParser
                                     .replaceColName(node.value.args.evalString,
-                                    node.colNameMap[0], self.aggregateNameMap);
+                                    node.colNameMap[0], self.aggregateNameMap, true);
                 node.value.args.evalString = XDParser.XEvalParser
                                     .replaceColName(node.value.args.evalString,
-                                    node.colNameMap[1], {});
+                                    node.colNameMap[1], {}, true);
                 break;
             case ("XcalarApiUnion"):
                 for (var i = 0; i < node.value.args.columns.length; i++) {
@@ -539,7 +539,7 @@
         }
         node.crossCheckMap = crossCheckMap;
         return crossNode.value.args.evalString === XDParser.XEvalParser
-                .replaceColName(node.value.args.evalString, crossCheckMap, {});
+                .replaceColName(node.value.args.evalString, crossCheckMap, {}, true);
     }
 
     function generateHash(node) {
@@ -986,7 +986,7 @@
                 return true;
             }
             var filterString = XDParser.XEvalParser.replaceColName(
-                curNode.value.args.eval[0].evalString, selectStruct.colNameMap);
+                curNode.value.args.eval[0].evalString, selectStruct.colNameMap, true);
             if (selectStruct.args.eval.Filter && selectStruct.args.eval.Filter != "") {
                 console.error("Multiple consecutive filters found!");
                 selectStruct.args.eval.Filter = "and(" + selectStruct.args.eval.Filter
@@ -1008,7 +1008,7 @@
                         return;
                     }
                     maps[i].evalString = XDParser.XEvalParser.replaceColName(
-                                maps[i].evalString, selectStruct.colNameMap);
+                                maps[i].evalString, selectStruct.colNameMap, true);
                 }
                 for (var i = 0; i < maps.length; i++) {
                     if (selectStruct.colNameMap[maps[i].newField]) {
@@ -1122,7 +1122,7 @@
                 cliStruct.args.aggSource = [];
                 for (var i = 0; i < cliStruct.args.eval.length; i++) {
                     XDParser.XEvalParser.getAggNames(cliStruct.args.eval[i]
-                        .evalString).forEach(function (aggName) {
+                        .evalString, true).forEach(function (aggName) {
                         if (cliStruct.args.aggSource.indexOf(aggName) === -1) {
                             cliStruct.args.aggSource.push(aggName);
                         }
@@ -1132,11 +1132,11 @@
             case ("XcalarApiFilter"):
             case ("XcalarApiAggregate"):
                 cliStruct.args.aggSource = XDParser.XEvalParser
-                                .getAggNames(cliStruct.args.eval[0].evalString);
+                        .getAggNames(cliStruct.args.eval[0].evalString, true);
                 break;
             case ("XcalarApiJoin"):
                 cliStruct.args.aggSource = XDParser.XEvalParser
-                                        .getAggNames(cliStruct.args.evalString);
+                                .getAggNames(cliStruct.args.evalString, true);
                 break;
             case ("XcalarApiProject"):
             case ("XcalarApiIndex"):

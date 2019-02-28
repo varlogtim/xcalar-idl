@@ -63,7 +63,7 @@ class SqlParser {
 exports.SqlParser = SqlParser;
 
 class XEvalParser {
-    static parseEvalStr(evalStr) {
+    static parseEvalStr(evalStr, throwFlag) {
         if (typeof evalStr !== "string" || evalStr.length === 0) {
             return {error: "Eval string not provided"};
         }
@@ -85,11 +85,14 @@ class XEvalParser {
             if (e instanceof SyntaxError && e.message) {
                 e = {error: e.message};
             }
+            if (throwFlag) {
+                throw e;
+            }
             return {};
         }
     }
 
-    static replaceColName(evalStr, colNameMap, aggregateNameMap) {
+    static replaceColName(evalStr, colNameMap, aggregateNameMap, throwFlag) {
         if (evalStr === "") {
             return evalStr;
         } else if (typeof evalStr !== "string") {
@@ -113,11 +116,14 @@ class XEvalParser {
             if (e instanceof SyntaxError && e.message) {
                 e = {error: e.message};
             }
+            if (throwFlag) {
+                throw e;
+            }
             return "";
         }
     }
 
-    static getAggNames(evalStr) {
+    static getAggNames(evalStr, throwFlag) {
         if (evalStr === "") {
             return [];
         } else if (typeof evalStr !== "string") {
@@ -141,6 +147,9 @@ class XEvalParser {
             // if there's an error so we convert the syntax error into it.
             if (e instanceof SyntaxError && e.message) {
                 e = {error: e.message};
+            }
+            if (throwFlag) {
+                throw e;
             }
             return [];
         }
