@@ -23,6 +23,7 @@ abstract class DagTabProgress extends DagTab {
         this._queryCheckId = 0;
         this._hasQueryStateGraph = false;
         this._inProgress = false;
+        this._isDeleted = false;
 
         if (this._id.startsWith(gRetinaPrefix)) {
             this._queryName = this._id;

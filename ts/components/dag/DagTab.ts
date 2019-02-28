@@ -112,6 +112,7 @@ abstract class DagTab {
         return this;
     }
 
+    // links tab to graph and vice versa
     public setGraph(graph: DagGraph): void {
         this._dagGraph = graph;
         this._dagGraph.setTabId(this._id);

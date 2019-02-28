@@ -213,6 +213,7 @@ class DagTabManager {
             queryNodes: queryNodes,
             executor: executor
         });
+        // links tab to graph and vice versa
         newTab.setGraph(newTab.getGraph());
         // Register the new tab in DagTabManager
         if (this._addSubTab(parentTabId, tabId)) {
