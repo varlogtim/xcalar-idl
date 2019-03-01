@@ -130,8 +130,7 @@ class PbTblInfo {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         XcalarRestoreTable(this.name)
         .then(() => {
-            this.state = null;
-            this.active = true;
+            this.beActivated();
             deferred.resolve();
         })
         .fail((error) => {
@@ -142,6 +141,11 @@ class PbTblInfo {
             deferred.reject(error);
         });
         return deferred.promise();
+    }
+
+    public beActivated(): void {
+        this.state = null;
+        this.active = true;
     }
 
     public cancelActivating(): XDPromise<void> {
@@ -158,11 +162,16 @@ class PbTblInfo {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         XcalarUnpublishTable(this.name, true)
         .then(() => {
-            this.active = false;
+            this.beDeactivated();
             deferred.resolve();
         })
         .fail(deferred.reject);
         return deferred.promise();
+    }
+
+    public beDeactivated(): void {
+        this.state = null;
+        this.active = false;
     }
 
     /**

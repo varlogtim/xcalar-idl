@@ -115,7 +115,7 @@ class TblSource {
         PTblManager.Instance.createTableFromSource(tableInfo, args, null)
         .always(() => {
             // re-render
-            this._refresh(true);
+            this._refresh(false);
         });
     }
 
@@ -142,7 +142,7 @@ class TblSource {
         let dsName = tableInfo.dsName;
         PTblManager.Instance.createTableFromDataset(dsName, tableName, schema, null)
         .then(() => {
-            this._refresh(true);
+            this._refresh(false);
         })
         .fail((error) => {
             Alert.error(TblTStr.CreateFail, error);

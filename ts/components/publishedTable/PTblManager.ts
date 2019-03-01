@@ -44,14 +44,20 @@ class PTblManager {
      * @param tableName
      */
     public addTable(tableName: string): XDPromise<void> {
-        // cached tableInfo first in case list fails
-        tableName = tableName.toUpperCase();
-        let tableInfo = this.createTableInfo(tableName);
-        tableInfo.index = this._tables.length;
-        this._tables.push(tableInfo);
-        this._tableMap.set(tableName, tableInfo);
-        let promise = this._listOneTable(tableName);
-        return PromiseHelper.alwaysResolve(promise);
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        this._addOneTable(tableName)
+        .then(() => {
+            XcSocket.Instance.sendMessage("refreshIMD", {
+                "action": "add",
+                "tables": [tableName]
+            }, null);
+            deferred.resolve();
+        })
+        .fail(() => {
+            deferred.resolve(); // still resolve it
+        });
+
+        return deferred.promise();
     }
 
     public getTableMap(): Map<string, PbTblInfo> {
@@ -232,6 +238,9 @@ class PTblManager {
             return this._createTable(txId, dsName, tableName, finalSchema, primaryKeys);
         })
         .then(() => {
+            return PTblManager.Instance.addTable(tableName);
+        })
+        .then(() => {
             Transaction.done(txId, {
                 noNotification: true,
                 noCommit: true
@@ -289,6 +298,9 @@ class PTblManager {
         this._refreshTblView(tableInfo, TblTStr.Creating, 1, 1);
 
         this._createTable(txId, dsName, tableName, schema, primaryKeys, noDatasetDeletion)
+        .then(() => {
+            return PTblManager.Instance.addTable(tableName);
+        })
         .then(() => {
             delete this._loadingTables[tableName];
             Transaction.done(txId, {
@@ -383,10 +395,11 @@ class PTblManager {
      */
     public activateTables(tableNames: string[]): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let succeeds: string[] = [];
         let failures: string[] = [];
         const promises = tableNames.map((tableName) => {
             return (): XDPromise<void> => {
-                return this._activateOneTable(tableName, failures);
+                return this._activateOneTable(tableName, succeeds, failures);
             }
         });
 
@@ -397,7 +410,8 @@ class PTblManager {
                 Alert.error(IMDTStr.ActivatingFail, error);
             }
             XcSocket.Instance.sendMessage("refreshIMD", {
-                "action": "activate"
+                "action": "activate",
+                "tables": succeeds
             }, null);
             deferred.resolve();
         })
@@ -416,21 +430,21 @@ class PTblManager {
      */
     public deactivateTables(tableNames: string[]): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let failures: string[] = [];
         Alert.show({
             'title': IMDTStr.DeactivateTable,
             'msg': xcHelper.replaceMsg(IMDTStr.DeactivateTablesMsg, {
                 "tableName": tableNames.join(", ")
             }),
             'onConfirm': () => {
-                this._deactivateTables(tableNames, failures)
-                .then(() => {
+                this._deactivateTables(tableNames)
+                .then((succeeds, failures) => {
                     if (failures.length > 0) {
                         let error: string = failures.join("\n");
                         Alert.error(IMDTStr.DeactivateTableFail, error);
                     }
                     XcSocket.Instance.sendMessage("refreshIMD", {
-                        "action": "deactivate"
+                        "action": "deactivate",
+                        "tables": succeeds
                     }, null);
                     deferred.resolve();
                 })
@@ -453,21 +467,21 @@ class PTblManager {
      */
     public deleteTables(tableNames: string[]): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let failures: string[] = [];
         Alert.show({
             'title': IMDTStr.DelTable,
             'msg': xcHelper.replaceMsg(IMDTStr.DelTableMsg, {
                 "tableName": tableNames.join(", ")
             }),
             'onConfirm': () => {
-                this._deleteTables(tableNames, failures)
-                .then(() => {
+                this._deleteTables(tableNames)
+                .then((succeeds, failures) => {
                     if (failures.length > 0) {
                         let error: string = failures.join("\n");
                         Alert.error(IMDTStr.DelTableFail, error);
                     }
                     XcSocket.Instance.sendMessage("refreshIMD", {
-                        "action": "delete"
+                        "action": "delete",
+                        "tables": succeeds
                     }, null);
                     deferred.resolve();
                 })
@@ -491,16 +505,107 @@ class PTblManager {
         return tableInfo.viewResultSet(limitedRows);
     }
 
-    private _deactivateTables(tableNames: string[], failures: string[]): XDPromise<void> {
-        const promises = tableNames.map((tableName) => {
-            return (): XDPromise<void> => {
-                return this._deactivateOneTable(tableName, failures);
+    public updateInfo(arg: {"action": string, "tables": string[]}): void {
+        try {
+            let action = arg.action;
+            let tables = arg.tables;
+            switch (action) {
+                case "activate":
+                    this._updateActivated(tables);
+                    break;
+                case "deactivate":
+                    this._updateDeactivated(tables);
+                    break;
+                case "delete":
+                    this._updateDeleted(tables);
+                    break;
+                case "add":
+                    this._updateAdded(tables);
+                    break;
+                default:
+                    console.error("unsupported action", action);
+                    break;
             }
-        });
-        return PromiseHelper.chain(promises);
+        } catch (e) {
+            console.error(e);
+        }
     }
 
-    private _deactivateOneTable(tableName: string, failures: string[]): XDPromise<void> {
+    private _updateActivated(tables: string[]): void {
+        let promies = [];
+        tables.forEach((tableName) => {
+            let tableInfo: PbTblInfo = this._tableMap.get(tableName);
+            tableInfo.beActivated();
+            promies.push(this._listOneTable(tableName));
+        });
+
+        PromiseHelper.when(...promies)
+        .always(() => {
+            TblSource.Instance.refresh();
+        });
+    }
+
+    private _updateDeactivated(tables: string[]): void {
+        tables.forEach((tableName) => {
+            let tableInfo: PbTblInfo = this._tableMap.get(tableName);
+            tableInfo.beDeactivated();
+        });
+        TblSource.Instance.refresh();
+    }
+
+    private _updateDeleted(tables: string[]): void {
+        tables.forEach((tableName) => {
+            this._tableMap.delete(tableName);
+        });
+
+        this._tables = this._tables.filter((tableInfo) => {
+            let tableName = tableInfo.name;
+            return this._tableMap.has(tableName);
+        });
+        TblSource.Instance.refresh();
+    }
+
+    private _updateAdded(tables: string[]): void {
+        this._addOneTable(tables[0]);
+        TblSource.Instance.refresh();
+    }
+
+    private _deactivateTables(tableNames: string[]): XDPromise<string[]> {
+        const deferred: XDDeferred<string[]> = PromiseHelper.deferred();
+        const succeeds: string[] = [];
+        const failures: string[] = [];
+        const promises = tableNames.map((tableName) => {
+            return (): XDPromise<void> => {
+                return this._deactivateOneTable(tableName, succeeds, failures);
+            }
+        });
+        
+        PromiseHelper.chain(promises)
+        .then(() => {
+            deferred.resolve(succeeds, failures);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    private _addOneTable(tableName: string): XDPromise<void> {
+        // cached tableInfo first in case list fails
+        tableName = tableName.toUpperCase();
+        if (!this._tableMap.has(tableName)) {
+            let tableInfo = this.createTableInfo(tableName);
+            tableInfo.index = this._tables.length;
+            this._tables.push(tableInfo);
+            this._tableMap.set(tableName, tableInfo);
+        }
+        return this._listOneTable(tableName);
+    }
+
+    private _deactivateOneTable(
+        tableName: string,
+        succeeds: string[],
+        failures: string[]
+    ): XDPromise<void> {
         let tableInfo: PbTblInfo = this._tableMap.get(tableName);
         if (!tableInfo || !tableInfo.active) {
             return PromiseHelper.resolve();
@@ -508,7 +613,10 @@ class PTblManager {
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         tableInfo.deactivate()
-        .then(deferred.resolve)
+        .then(() => {
+            succeeds.push(tableName);
+            deferred.resolve();
+        })
         .fail((error) => {
             let errorMsg = this._getErrorMsg(tableName, error);
             failures.push(errorMsg);
@@ -517,7 +625,11 @@ class PTblManager {
         return deferred.promise();
     }
 
-    private _activateOneTable(tableName: string, failures: string[]): XDPromise<void> {
+    private _activateOneTable(
+        tableName: string,
+        succeeds: string[],
+        failures: string[]
+    ): XDPromise<void> {
         let tableInfo: PbTblInfo = this._tableMap.get(tableName);
         if (!tableInfo || tableInfo.active) {
             return PromiseHelper.resolve();
@@ -529,6 +641,7 @@ class PTblManager {
             return PromiseHelper.alwaysResolve(this._listOneTable(tableName));
         })
         .then(() => {
+            succeeds.push(tableName);
             deferred.resolve();
         })
         .fail((error) => {
@@ -539,16 +652,30 @@ class PTblManager {
         return deferred.promise();
     }
 
-    private _deleteTables(tableNames: string[], failures: string[]): XDPromise<void> {
+    private _deleteTables(tableNames: string[]): XDPromise<string[]> {
+        const deferred: XDDeferred<string[]> = PromiseHelper.deferred();
+        const succeeds: string[] = [];
+        const failures: string[] = [];
         const promises = tableNames.map((tableName) => {
             return (): XDPromise<void> => {
-                return this._deleteOneTable(tableName, failures);
+                return this._deleteOneTable(tableName, succeeds, failures);
             }
         });
-        return PromiseHelper.chain(promises);
+
+        PromiseHelper.chain(promises)
+        .then(() => {
+            deferred.resolve(succeeds, failures);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
-    private _deleteOneTable(tableName: string, failures: string[]): XDPromise<void> {
+    private _deleteOneTable(
+        tableName: string,
+        succeeds: string[],
+        failures: string[]
+    ): XDPromise<void> {
         let tableInfo: PbTblInfo = this._tableMap.get(tableName);
         if (tableInfo == null) {
             return this._deleteDSTable(tableName, failures);
@@ -564,6 +691,7 @@ class PTblManager {
                 }
             }
             delete this._cachedSelectTableResult[tableName];
+            succeeds.push(tableName);
             deferred.resolve();
         })
         .fail((error) => {

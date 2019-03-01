@@ -214,6 +214,7 @@ class XcSocket {
                 return;
             }
             IMDPanel.updateInfo(arg);
+            PTblManager.Instance.updateInfo(arg);
         });
 
         socket.on("refreshDagCategory", () => {
