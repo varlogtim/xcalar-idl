@@ -56,13 +56,18 @@ class DagNodeSynthesize extends DagNode {
             renamedColNames.push(origColName);
             const newColName = colInfo.destColumn;
             const colType = xcHelper.convertFieldTypeToColType(
-                                       DfFieldTypeTFromStr[colInfo.columnType]);
+                                       DfFieldTypeTFromStr[colInfo.columnType]) ||
+                            parentColMap[origColName].type;
             const column = ColManager.newPullCol(newColName, newColName, colType);
             columns.push(column);
-            changes.push({
-                from: parentColMap[origColName],
-                to: column
-            });
+            if (colType !== parentColMap[origColName].type ||
+                newColName !== origColName) {
+                // only push when the column indeed changed
+                changes.push({
+                    from: parentColMap[origColName],
+                    to: column
+                });
+            }
         });
         for (let key in parentColMap) {
             if (renamedColNames.indexOf(key) === -1) {
