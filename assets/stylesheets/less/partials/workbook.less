@@ -201,11 +201,23 @@
     }
 
     .welcomeBox {
+        &.forceMode {
+            .heading {
+                padding-top: 0;
+                padding-bottom: 5px
+            }
+
+            .subHeading {
+                padding-top: 0;
+            }
+        }
+
         .heading {
             padding-top: 10px;
             .textOverflowOneLine;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 600;
+            padding-bottom: 5px;
             padding-bottom: 10px;
         }
 
