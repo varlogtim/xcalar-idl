@@ -142,7 +142,6 @@ describe("AggOpPanelModel Test", function() {
                 DagAggManager.Instance.hasAggregate = function() {
                     return true;
                 };
-
                 DagAggManager.Instance.getAgg = function() {
                     return DagNodeFactory.create({type: DagNodeType.Aggregate});
                 };

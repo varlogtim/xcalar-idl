@@ -913,37 +913,6 @@ class GroupByOpPanel extends GeneralOpPanel {
         return this.model.getColumnNumByName(backColName);
     }
 
-    // used for args with column names provided like $col1, and not "hey" or 3
-    protected _validateColInputType(requiredTypes, inputType, $input) {
-        if (inputType === "newColumn") {
-            return ErrTStr.InvalidOpNewColumn;
-        } else if (inputType === ColumnType.mixed) {
-            if ($input.hasClass("gbOnArg")) {
-                return xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
-                    "type1": GeneralOpPanel.castMap[ColumnType.mixed].join("/"),
-                    "type2": inputType
-                });
-            } else {
-                return null;
-            }
-        } else if (requiredTypes.includes(inputType)) {
-            return null;
-        } else if (inputType === ColumnType.number &&
-                    (requiredTypes.includes(ColumnType.float) ||
-                     requiredTypes.includes(ColumnType.integer))) {
-            return null;
-        } else if (inputType === ColumnType.string &&
-                    this._hasUnescapedParens($input.val())) {
-            // function-like string found but invalid format
-            return ErrTStr.InvalidFunction;
-        } else {
-            return xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
-                "type1": requiredTypes.join("/"),
-                "type2": inputType
-            });
-        }
-    }
-
     protected _handleInvalidBlanks(invalidInputs) {
         const $input = invalidInputs[0];
         const hasEmptyOption = !$input.closest('.colNameSection').length &&

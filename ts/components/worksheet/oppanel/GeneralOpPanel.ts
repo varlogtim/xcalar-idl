@@ -293,7 +293,10 @@ class GeneralOpPanel extends BaseOpPanel {
                         return !$(this).closest(".resultantColNameRow").length;
                     });
                     self._showEmptyOptions($sibArgs);
-                    $sibArgs.val("");
+                    $sibArgs.each(function(i) {
+                        $(this).val("");
+                        self.model.updateArg("", groupIndex, index + i + 1);
+                    });
                     const $inputWraps: JQuery = $checkbox.closest(".row").find(".inputWrap");
                     $inputWraps.addClass("semiHidden");
                     $inputWraps.siblings(".cast").addClass("semiHidden");
@@ -1141,43 +1144,6 @@ class GeneralOpPanel extends BaseOpPanel {
     //     return ($matches.length > 0);
     // }
 
-    // returns an array of objects that include the new type and argument number
-    protected _getCastInfo(args: string[], groupNum: number): any {
-        const self = this;
-        const colTypeInfos = [];
-
-        // set up colTypeInfos, filter out any that shouldn't be casted
-        const $group: JQuery = this._$panel.find('.group').eq(groupNum);
-        $group.find('.arg').each(function(i) {
-            const $input: JQuery = $(this);
-            const hasEmpty: boolean = $input.closest('.row')
-                                    .find('.emptyOptions .checked').length > 0;
-            const isCasting: boolean = $input.data('casted') && !hasEmpty;
-            if (isCasting) {
-                const cols: string[] = args[i].split(",");
-                let casting: boolean = false;
-                for (let j = 0; j < cols.length; j++) {
-                    const progCol: ProgCol = self.model.getColumnByName(cols[j]);
-                    if (progCol != null) {
-                        const castType: string = $input.data('casttype');
-                        if (castType !== progCol.getType() && !casting) {
-                            casting = true;
-                            colTypeInfos.push({
-                                "type": castType,
-                                "argNum": i
-                            });
-                        }
-                    } else {
-                        console.error("Cannot find col", args[i]);
-                    }
-                }
-
-            }
-        });
-
-        return colTypeInfos;
-    }
-
     protected _handleInvalidArgs(
         isInvalidColType: boolean,
         $errorInput: JQuery,
@@ -1354,43 +1320,6 @@ class GeneralOpPanel extends BaseOpPanel {
         $target.find('.cast').removeClass('showing overflowVisible');
     }
 
-    protected _checkIfBlanksAreValid(invalidInputs: JQuery[]): boolean {
-        let hasValidBlanks: boolean = true;
-        this._$panel.find('.arg').each(function() {
-            const $input: JQuery = $(this);
-            let val: string = $input.val().trim();
-            let untrimmedVal: string = $input.val();
-            if (val === gColPrefix || val === gAggVarPrefix) {
-                // the prefix only without escaping is invalid,
-                // handle it as empty val
-                val = "";
-                untrimmedVal = "";
-            }
-
-            if (val !== "") {
-                // not blank so no need to check. move on to next input.
-                return;
-            }
-            const $row: JQuery = $input.closest('.row');
-            const noArgsChecked: boolean = $row.find('.noArg.checked').length > 0 ||
-                                ($row.hasClass("boolOption") &&
-                                !$row.find(".boolArg").hasClass("checked"));
-            const emptyStrChecked: boolean = $row.find('.emptyStr.checked').length > 0;
-            const hasEmptyStrCheckedOption: boolean = $row.find('.emptyStr').length > 0;
-
-            if (noArgsChecked || emptyStrChecked) {
-                // blanks are ok
-            } else if (untrimmedVal.length === 0 || !hasEmptyStrCheckedOption) {
-                hasValidBlanks = false;
-                invalidInputs.push($input);
-                // stop iteration
-                return false;
-            }
-        });
-
-        return (hasValidBlanks);
-    }
-
     protected _handleInvalidBlanks(invalidInputs: JQuery[]): void {
         const $input: JQuery = invalidInputs[0];
         const hasEmptyOption: boolean | number = !$input.closest('.colNameSection').length &&
@@ -1427,140 +1356,6 @@ class GeneralOpPanel extends BaseOpPanel {
         }
 
         return colType;
-    }
-
-    protected _getAllColumnTypesFromArg(argValue): string[] {
-        const self = this;
-        const values: string[] = argValue.split(",");
-        const types: string[] = [];
-
-        values.forEach(function(value: string) {
-            const trimmedVal: string = value.trim();
-            if (trimmedVal.length > 0) {
-                value = trimmedVal;
-            }
-
-            const progCol: ProgCol = self.model.getColumnByName(value);
-            if (progCol == null) {
-                console.error("cannot find col", value);
-                return;
-            }
-
-            // const backName = progCol.getBackColName();
-            let colType: string = progCol.getType();
-            if (colType === ColumnType.integer && !progCol.isKnownType()) {
-                // for fat potiner, we cannot tell float or integer
-                // so for integer, we mark it
-                colType = ColumnType.number;
-            }
-
-            types.push(colType);
-        });
-
-        return types;
-    }
-
-    // used for args with column names provided like $col1, and not "hey" or 3
-    protected _validateColInputType(
-        requiredTypes: string[],
-        inputType: string,
-        $input: JQuery
-    ): string {
-        if (inputType === "newColumn") {
-            return ErrTStr.InvalidOpNewColumn;
-        } else if (inputType === ColumnType.mixed) {
-            return null;
-        } else if (requiredTypes.includes(inputType)) {
-            return null;
-        } else if (inputType === ColumnType.number &&
-                    (requiredTypes.includes(ColumnType.float) ||
-                        requiredTypes.includes(ColumnType.integer))) {
-            return null;
-        } else if (inputType === ColumnType.string &&
-                    this._hasUnescapedParens($input.val())) {
-            // function-like string found but invalid format
-            return ErrTStr.InvalidFunction;
-        } else {
-            return xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
-                "type1": requiredTypes.join("/"),
-                "type2": inputType
-            });
-        }
-    }
-
-    // used for non column name args such as "hey" or 3, not $col1
-    // returning null means no problem found
-    // returning an object means there was a type mismatch
-    protected _checkArgTypes(arg: string, typeid: number) {
-        const types: string[] = this._parseType(typeid);
-        let argType: string = "string";
-
-        if (types.indexOf(ColumnType.string) > -1 ||
-            types.indexOf(ColumnType.mixed) > -1)
-        {
-            // if it accepts string/mixed, any input should be valid
-            return null;
-        }
-
-        let tmpArg: string | number = arg.toLowerCase();
-        const isNumber: boolean = !isNaN(Number(arg));
-        let canBeBooleanOrNumber: boolean = false;
-
-        // boolean is a subclass of number
-        if (tmpArg === "true" || tmpArg === "false" ||
-            tmpArg === "t" || tmpArg === "f" || isNumber)
-        {
-            canBeBooleanOrNumber = true;
-            argType = "string/boolean/integer/float";
-        }
-
-        if (types.indexOf(ColumnType.boolean) > -1) {
-            // if arg doesn't accept strings but accepts booleans,
-            // then the provided value needs to be a booleanOrNumber
-            if (canBeBooleanOrNumber) {
-                return null;
-            } else {
-                return {
-                    "validType": types,
-                    "currentType": argType
-                };
-            }
-        }
-
-        // the remaining case is float and integer, both is number
-        tmpArg = Number(arg);
-
-        if (!isNumber) {
-            return {
-                "validType": types,
-                "currentType": argType
-            };
-        }
-
-        if (types.indexOf(ColumnType.float) > -1) {
-            // if arg is integer, it could be a float
-            return null;
-        }
-
-        if (types.indexOf(ColumnType.integer) > -1) {
-            if (tmpArg % 1 !== 0) {
-                return {
-                    "validType": types,
-                    "currentType": ColumnType.float
-                };
-            } else {
-                return null;
-            }
-        }
-
-        if (types.length === 1 && types[0] === ColumnType.undefined) {
-            return {
-                "validType": types,
-                "currentType": argType
-            };
-        }
-
-        return null; // no known cases for this
     }
 
     protected _showEmptyOptions($input: JQuery): void {
@@ -1790,30 +1585,6 @@ class GeneralOpPanel extends BaseOpPanel {
         }
     }
 
-    // checks to see if value has at least one parentheses that's not escaped
-    // or inside quotes
-    protected _hasUnescapedParens(val: string): boolean {
-        let inQuotes: boolean = false;
-        for (let i = 0; i < val.length; i++) {
-            if (inQuotes) {
-                if (val[i] === '"') {
-                    inQuotes = false;
-                } else if (val[i] === '\\') {
-                    i++; // ignore next character
-                }
-                continue;
-            }
-            if (val[i] === '"') {
-                inQuotes = true;
-            } else if (val[i] === '\\') {
-                i++; // ignore next character
-            } else if (val[i] === "(" || val[i] === ")") {
-                return (true);
-            }
-        }
-        return (false);
-    }
-
     protected _parseColPrefixes(str: string): string {
         for (let i = 0; i < str.length; i++) {
             if (str[i] === gColPrefix) {
@@ -1993,13 +1764,6 @@ class GeneralOpPanel extends BaseOpPanel {
         this._functionsListScrollers.splice(index, 1);
         this._suggestLists.splice(index, 1);
         this._$panel.find(".aggColStrWrap").last().remove();
-    }
-
-    protected _isArgAColumn(arg: string) {
-        return (isNaN(<any>arg) &&
-                arg.indexOf("(") === -1 &&
-                arg !== "true" && arg !== "false" &&
-                arg !== "t" && arg !== "f");
     }
 
     protected _populateInitialCategoryField(): void {}
