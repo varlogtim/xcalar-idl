@@ -29,7 +29,7 @@ function findValidateNodeIndex(linkOutName, nodeInfos) {
 }
 
 module.exports = {
-    '@tags': ["join dataflow replay"],
+    '@tags': ["join dataflow replay", "allTests"],
 
     before: function(browser) {
         browser

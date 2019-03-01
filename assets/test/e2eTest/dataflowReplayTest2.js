@@ -30,7 +30,7 @@ function findValidateNodeIndex(linkOutName, nodeInfos) {
 }
 
 module.exports = {
-    '@tags': ["workbook replay2"],
+    '@tags': ["workbook replay2",  "allTests"],
 
     before: function(browser) {
         browser
