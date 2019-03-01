@@ -1,12 +1,15 @@
 class DagNodeDFOut extends DagNodeOutOptimizable {
     protected input: DagNodeDFOutInput;
 
+    private _queries: Map<string, string>; // non-persist
+
     public constructor(options: DagNodeInfo) {
         super(options);
         this.type = DagNodeType.DFOut;
         this.display.icon = "&#xe955;"; // XXX TODO: UI design
         this.input = new DagNodeDFOutInput(options.input);
         this.optimized = this.subType === DagNodeSubType.DFOutOptimized;
+        this._queries = new Map<string, string>();
     }
 
     public static readonly specificSchema = {
@@ -94,6 +97,38 @@ class DagNodeDFOut extends DagNodeOutOptimizable {
         return this.input.getInput().linkAfterExecution;
     }
 
+    /**
+     * @override
+     */
+    public beRunningState(): void {
+        this._queries.clear();
+        super.beRunningState();
+    }
+
+    /**
+     * Stores the query and destable for a specific tabid's request
+     * @param tabId the tab making the request
+     * @param destTable destination table
+     */
+    public setStoredQueryDest(tabId: string, destTable: string): void{
+        this._queries.set(tabId, destTable);
+    }
+
+    /**
+     * Returns stored query info
+     * @param tabId
+     */
+    public getStoredQueryDest(tabId: string): string {
+        return this._queries.get(tabId);
+    }
+
+    /**
+     * Removes stored query info
+     * @param tabId
+     */
+    public deleteStoredQuery(tabId: string) {
+        this._queries.delete(tabId);
+    }
 
     /**
      * @override
@@ -110,6 +145,11 @@ class DagNodeDFOut extends DagNodeOutOptimizable {
 
     protected _getColumnsUsedInInput() {
         return null;
+    }
+
+    protected _clearConnectionMeta(): void {
+        super._clearConnectionMeta();
+        this._queries.clear();
     }
 }
 

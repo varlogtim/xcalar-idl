@@ -1218,6 +1218,7 @@ class DagGraph {
                         }
                     }
                     // Otherwise this is a link in using a query, so the node itself is the source
+                    inSource.node.deleteStoredQuery(this.getTabId());
                 }
             } catch (e) {
                 error = (e instanceof Error ? e.message : e);

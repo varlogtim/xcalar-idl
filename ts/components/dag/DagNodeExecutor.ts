@@ -842,14 +842,26 @@ class DagNodeExecutor {
     // creates a new query from the linkOut's ancestors and runs it
     private _linkWithBatch(graph: DagGraph, node: DagNodeDFOut, optimized?: boolean): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        let priorDestTable = node.getStoredQueryDest(this.tabId);
+        let promise;
+        if (priorDestTable) {
+            promise = PromiseHelper.resolve("", [priorDestTable]);
+        } else {
+            promise = graph.getQuery(node.getId(), optimized, true, true);
+        }
         let destTable: string;
-        graph.getQuery(node.getId(), optimized, true, true)
-        .then((query, tables) => {
+        promise
+        .then((query: string, tables) => {
             if ("object" == typeof tables) {
                 // get the last dest table
                 destTable = tables[tables.length - 1];
             }
-            return XIApi.query(this.txId, destTable, query);
+            if (!priorDestTable) {
+                node.setStoredQueryDest(this.tabId, destTable);
+                return XIApi.query(this.txId, destTable, query);
+            } else {
+                return PromiseHelper.resolve();
+            }
         })
         .then(() => {
             if (node.getSubType() === DagNodeSubType.DFOutOptimized) {
