@@ -403,3 +403,7 @@ declare type NodeMoveInfo = {
 }
 
 declare type SubgraphContainerNode = DagNodeCustom | DagNodeSQL
+
+interface DagRuntimeAccessible {
+    getRuntime: () => DagRuntime;
+}

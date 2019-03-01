@@ -128,7 +128,7 @@ class DagNodeDFIn extends DagNodeIn {
     }
 
     private _findLinkedGraph(dataflowId: string): DagGraph[] {
-        const dagTabService = DagServiceFactory.getDagTabService();
+        const dagTabService = this.getRuntime().getDagTabService();
         let candidateTabs: DagTab[] = [];
         const candidateGraphs: DagGraph[] = [];
         if (dataflowId === DagNodeDFIn.SELF_ID) {

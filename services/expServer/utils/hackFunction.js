@@ -25,12 +25,6 @@ function hackFunction() {
         setOrphanTableMeta: function() {}
     };
 
-    global.DagTabManager = {
-        Instance: {
-            removeTabByNode: function() {}
-        }
-    };
-
     global.Alert = {
         setup: function() {},
         show: function() {},
@@ -156,25 +150,12 @@ function hackFunction() {
         }
     };
 
-    global.WorkbookManager = {
-        userName: '',
-        wkbkName: '',
-
-        getActiveWKBK: function() {
-            return `${this.userName}-wkbk-${this.wkbkName}`;
-        },
-
-        init: function(userName, wkbkName) {
-            this.userName = userName;
-            this.wkbkName = wkbkName;
-        }
-    };
-
     global.SQLUtil = {
         Instance: {
             sendToPlanner: function(sessionPrefix, type, struct) {
                 // XXX TODO: Should share the same function with sqlRestApi.sendToPlanner
-                const session = WorkbookManager.getActiveWKBK();
+                // XXX TODO: Get rid of the singleton, so that we can use DagRuntime to pass in the real userName/wkbkName
+                const session = 'sdkUser-anyWkbk';
                 let url;
                 let action;
                 switch (type) {

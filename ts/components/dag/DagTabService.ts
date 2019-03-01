@@ -5,8 +5,6 @@
 class DagTabService {
     private _activeUserDags: DagTab[] = [];
 
-    // XXX TODO: add KVStore in dagUtils.js
-    // XXX TODO: Call this function to initialize the service in expServer
     /**
      * Create a DagUserTab from JSON, and add it to the tab list
      * @param dagInfo 
@@ -19,7 +17,10 @@ class DagTabService {
         if (dagInfo.name == null) {
             throw new Error('Dataflow name not provided');
         }
-        const newTab = new DagTabUser(dagInfo.name, dagInfo.id);
+        const newTab = DagRuntime.isAccessible(this)
+            ? this.getRuntime().accessible(new DagTabUser(dagInfo.name, dagInfo.id))
+            : new DagTabUser(dagInfo.name, dagInfo.id);
+        
         newTab.loadFromJSON(dagInfo);
         this._activeUserDags.push(newTab);
     }
@@ -44,6 +45,15 @@ class DagTabService {
                 }
             }
             return null;
+        }
+    }
+
+    public removeTabByNode(dagNode: DagNodeCustom | DagNodeSQL): void {
+        if (typeof DagTabManager !== 'undefined') {
+            return DagTabManager.Instance.removeTabByNode(dagNode);
+        } else {
+            // expServer goes here
+            // Do nothing
         }
     }
 }

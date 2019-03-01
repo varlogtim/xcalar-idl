@@ -5,12 +5,12 @@ class DagNodeCustom extends DagNode {
     protected _customName: string = 'Custom';
 
     public constructor(
-        options?: DagNodeCustomInfo
+        options?: DagNodeCustomInfo, runtime?: DagRuntime
     ) {
-        super(options);
+        super(options, runtime);
 
         this.type = DagNodeType.Custom;
-        this._subGraph = new DagSubGraph();
+        this._subGraph = this.getRuntime().accessible(new DagSubGraph());
         this._input = [];
         this._output = [];
         this.maxParents = 0; // default to 0, will change when adding inputs
@@ -529,7 +529,7 @@ class DagNodeCustom extends DagNode {
             if (lineage != null) {
                 for (const col of lineage.getColumns()) {
                     const newCol = ColManager.newPullCol(
-                        col.getFrontColName(),
+                        col.getBackColName(),
                         col.getBackColName(),
                         col.getType()
                     );

@@ -131,4 +131,5 @@ if (typeof exports !== 'undefined') {
     exports.DagNodeState = DagNodeState;
     exports.DagNodeEvents = DagNodeEvents;
     exports.DagNodeErrorType = DagNodeErrorType;
+    exports.DagNodeLinkInErrorType = DagNodeLinkInErrorType;
 }

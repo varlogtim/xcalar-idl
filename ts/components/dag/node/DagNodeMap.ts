@@ -192,7 +192,7 @@ class DagNodeMap extends DagNode {
     private _getOpType(func: ParsedEval): ColumnType {
         const operator: string = func.fnName;
         let colType: ColumnType = null;
-        const opsMap = XDFManager.Instance.getOperatorsMap();
+        const opsMap = this.getRuntime().getXDFService().getOperatorsMap();
         for (let category in opsMap) {
             const ops = opsMap[category];
             const opInfo = ops[operator];

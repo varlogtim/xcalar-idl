@@ -145,7 +145,7 @@ class DagGraph {
         const nodes: {node: DagNode, parents: DagNodeId[]}[] = [];
         serializableGraph.nodes.forEach((nodeInfo: DagNodeInfo) => {
             nodeInfo["graph"] = this;
-            const node: DagNode = DagNodeFactory.create(nodeInfo);
+            const node: DagNode = DagNodeFactory.create(nodeInfo, this.getRuntime());
             const parents: DagNodeId[] = nodeInfo.parents;
             nodes.push({
                 node: node,
@@ -283,7 +283,7 @@ class DagGraph {
 
     public clone(): DagGraph {
         const serializableGraph: DagGraphInfo = this.getSerializableObj();
-        const graph: DagGraph = new DagGraph();
+        const graph: DagGraph = this.getRuntime().accessible(new DagGraph());
         graph.create(serializableGraph);
         graph.clear();
         return graph;
@@ -1491,6 +1491,15 @@ class DagGraph {
                 "type": error.error
             };
         }
+    }
+
+    protected getRuntime(): DagRuntime {
+        // In expServer execution, this function is overridden by DagRuntime.accessible() and should never be invoked.
+        // In XD execution, this will be invoked in case the DagNode instance
+        // is not decorated by DagRuntime.accessible(). Even the decoration happens,
+        // the return object will always be DagRuntime._defaultRuntime, which is the same
+        // object as we return in this function.
+        return DagRuntime.getDefaultRuntime();
     }
 
     private _constructCurrentAggMap(): Map<string, DagNode> {

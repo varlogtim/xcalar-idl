@@ -148,6 +148,15 @@ abstract class DagTab {
         return this._isOpen;
     }
 
+    protected getRuntime(): DagRuntime {
+        // In expServer execution, this function is overridden by DagRuntime.accessible() and should never be invoked.
+        // In XD execution, this will be invoked in case the DagNode instance
+        // is not decorated by DagRuntime.accessible(). Even the decoration happens,
+        // the return object will always be DagRuntime._defaultRuntime, which is the same
+        // object as we return in this function.
+        return DagRuntime.getDefaultRuntime();
+    }
+
     // the save version of meta
     protected _loadFromKVStore(): XDPromise<any> {
         if (this._kvStore == null) {
@@ -168,7 +177,6 @@ abstract class DagTab {
         return deferred.promise();
     }
 
-    // XXX TODO: require("../../../assets/lang/en/jsTStr.js"); in dagUtils.js
     /**
      * Construct a graph from JSON
      * @param dagInfo 
@@ -185,14 +193,12 @@ abstract class DagTab {
             throw new Error(valid.error);
         }
 
-        let graph: DagGraph;
+        const graph: DagGraph = this.getRuntime().accessible(new DagGraph());
         try {
-            graph = new DagGraph();
             graph.setTabId(this._id);
             graph.create(dagInfo.dag);
         } catch (e) {
             // return an empty graph
-            graph = new DagGraph();
             console.error(e);
         }
         return { dagInfo: dagInfo, graph: graph };

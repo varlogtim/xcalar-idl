@@ -131,8 +131,9 @@ class DagNodeSQL extends DagNode {
             this.subGraph.initializeProgress();
             return;
         }
-        DagTabManager.Instance.removeTabByNode(this);
-        this.subGraph = new DagSubGraph();
+        // XXX TODO: decouple with UI code
+        this.getRuntime().getDagTabService().removeTabByNode(this);
+        this.subGraph = this.getRuntime().accessible(new DagSubGraph());
         this.subInputNodes = [];
         this.subOutputNodes = [];
         const connections: NodeConnection[] = [];

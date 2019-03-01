@@ -1,75 +1,112 @@
 class DagNodeFactory {
     public static create(
-        options: DagNodeInfo = <DagNodeInfo>{}
+        options: DagNodeInfo = <DagNodeInfo>{}, runtime?: DagRuntime
     ): DagNode {
+        let node;
         switch (options.type) {
             case DagNodeType.Aggregate:
-                return new DagNodeAggregate(<DagNodeAggregateInfo>options);
+                node = new DagNodeAggregate(<DagNodeAggregateInfo>options);
+                break;
             case DagNodeType.Dataset:
-                return new DagNodeDataset(<DagNodeInInfo>options);
+                node = new DagNodeDataset(<DagNodeInInfo>options);
+                break;
             case DagNodeType.Export:
-                return new DagNodeExport(options);
+                node = new DagNodeExport(options);
+                break;
             case DagNodeType.Filter:
-                return new DagNodeFilter(options);
+                node = new DagNodeFilter(options);
+                break;
             case DagNodeType.GroupBy:
-                return new DagNodeGroupBy(options);
+                node = new DagNodeGroupBy(options);
+                break;
             case DagNodeType.Join:
-                return new DagNodeJoin(options);
+                node = new DagNodeJoin(options);
+                break;
             case DagNodeType.Map:
-                return new DagNodeMap(options);
+                node = new DagNodeMap(options);
+                break;
             case DagNodeType.Project:
-                return new DagNodeProject(options);
+                node = new DagNodeProject(options);
+                break;
             case DagNodeType.Explode:
-                return new DagNodeExplode(options);
+                node = new DagNodeExplode(options);
+                break;
             case DagNodeType.Set:
-                return new DagNodeSet(options);
+                node = new DagNodeSet(options);
+                break;
             case DagNodeType.SQL:
-                return new DagNodeSQL(<DagNodeSQLInfo>options);
+                node = new DagNodeSQL(<DagNodeSQLInfo>options);
+                break;
             case DagNodeType.SQLSubInput:
-                return new DagNodeSQLSubInput(options);
+                node = new DagNodeSQLSubInput(options);
+                break;
             case DagNodeType.SQLSubOutput:
-                return new DagNodeSQLSubOutput(options);
+                node = new DagNodeSQLSubOutput(options);
+                break;
             case DagNodeType.RowNum:
-                return new DagNodeRowNum(options);
+                node = new DagNodeRowNum(options);
+                break;
             case DagNodeType.Extension:
-                return new DagNodeExtension(<DagNodeExtensionInfo>options);
+                node = new DagNodeExtension(<DagNodeExtensionInfo>options);
+                break;
             case DagNodeType.Custom:
-                return new DagNodeCustom(<DagNodeCustomInfo>options);
+                node = new DagNodeCustom(<DagNodeCustomInfo>options, runtime);
+                break;
             case DagNodeType.CustomInput:
-                return new DagNodeCustomInput(options);
+                node = new DagNodeCustomInput(options);
+                break;
             case DagNodeType.CustomOutput:
-                return new DagNodeCustomOutput(options);
+                node = new DagNodeCustomOutput(options);
+                break;
             case DagNodeType.IMDTable:
-                return new DagNodeIMDTable(<DagNodeInInfo>options);
+                node = new DagNodeIMDTable(<DagNodeInInfo>options);
+                break;
             case DagNodeType.PublishIMD:
-                return new DagNodePublishIMD(options);
+                node = new DagNodePublishIMD(options);
+                break;
             case DagNodeType.UpdateIMD:
-                return new DagNodeUpdateIMD(options);
+                node = new DagNodeUpdateIMD(options);
+                break;
             case DagNodeType.DFIn:
-                return new DagNodeDFIn(<DagNodeInInfo>options);
+                node = new DagNodeDFIn(<DagNodeInInfo>options);
+                break;
             case DagNodeType.DFOut:
-                return new DagNodeDFOut(options);
+                node = new DagNodeDFOut(options);
+                break;
             case DagNodeType.Jupyter:
-                return new DagNodeJupyter(options);
+                node = new DagNodeJupyter(options);
+                break;
             case DagNodeType.Split:
-                return new DagNodeSplit(options);
+                node = new DagNodeSplit(options);
+                break;
             case DagNodeType.Round:
-                return new DagNodeRound(options);
+                node = new DagNodeRound(options);
+                break;
             case DagNodeType.Index:
-                return new DagNodeIndex(options);
+                node = new DagNodeIndex(options);
+                break;
             case DagNodeType.Sort:
-                return new DagNodeSort(options);
+                node = new DagNodeSort(options);
+                break;
             case DagNodeType.Placeholder:
-                return new DagNodePlaceholder(<DagNodePlaceholderInfo>options);
+                node = new DagNodePlaceholder(<DagNodePlaceholderInfo>options);
+                break;
             case DagNodeType.Synthesize:
-                return new DagNodeSynthesize(options);
+                node = new DagNodeSynthesize(options);
+                break;
             case DagNodeType.SQLFuncIn:
-                return new DagNodeSQLFuncIn(<DagNodeSQLFuncInInfo>options);
+                node = new DagNodeSQLFuncIn(<DagNodeSQLFuncInInfo>options);
+                break;
             case DagNodeType.SQLFuncOut:
-                return new DagNodeSQLFuncOut(options);
+                node = new DagNodeSQLFuncOut(options);
+                break;
             default:
                 throw new Error("node type " + options.type + " not supported");
         }
+        if (runtime != null) {
+            runtime.accessible(node);
+        }
+        return node;
     }
 
     public static getNodeClass(

@@ -42,7 +42,10 @@ abstract class DagNode {
         return this.uid.gen();
     }
 
-    public constructor(options: DagNodeInfo = <DagNodeInfo>{}) {
+    public constructor(options: DagNodeInfo = <DagNodeInfo>{}, runtime?: DagRuntime) {
+        if (runtime != null) {
+            runtime.accessible(this);
+        }
         this.id = options.id || DagNode.generateId();
         this.type = options.type;
         this.subType = options.subType || null;
@@ -109,7 +112,7 @@ abstract class DagNode {
     }
 
     public clone(): DagNode {
-        return DagNodeFactory.create(this.getNodeInfo());
+        return DagNodeFactory.create(this.getNodeInfo(), this.getRuntime());
     }
 
     /**
@@ -1429,6 +1432,15 @@ abstract class DagNode {
                 }
             });
         }
+    }
+
+    protected getRuntime(): DagRuntime {
+        // In expServer execution, this function is overridden by DagRuntime.accessible() and should never be invoked.
+        // In XD execution, this will be invoked in case the DagNode instance
+        // is not decorated by DagRuntime.accessible(). Even the decoration happens,
+        // the return object will always be DagRuntime._defaultRuntime, which is the same
+        // object as we return in this function.
+        return DagRuntime.getDefaultRuntime();
     }
 
     static _convertOp(op: string): string {

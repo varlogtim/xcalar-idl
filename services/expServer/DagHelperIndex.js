@@ -1,9 +1,9 @@
-var DagGraph = require("./dagHelper/DagGraph.js").DagGraph
+var DagGraph = require("./dagHelper/DagGraph.js").DagGraph;
+var DagRuntime = require("./dagHelper/DagRuntime.js").DagRuntime;
 
 class DagHelper {
     static convertKvs(kvsStrList, dataflowName, optimized, listXdfsOutput, userName,
             sessionId, workbookName) {
-        var graph;
         if (typeof kvsStrList !== "object" || kvsStrList === 0) {
             return PromiseHelper.reject( {error: "KVS list not provided"});
         }
@@ -20,27 +20,32 @@ class DagHelper {
             return PromiseHelper.reject({ error: "workbookName string not provided" });
         }
         try {
-            var parsedVal;
-            // XXX: This is where multiple KVS strings are passed in when
-            // there's linkout/linkin resolution needed.
+            var dagRuntime = new DagRuntime();
+            var targetDag;
+            // Register all dataflows for linkin/out lookup
             for (var ii = 0; ii < kvsStrList.length; ii++){
-                parsedVal = JSON.parse(kvsStrList[ii]);
+                var parsedVal = JSON.parse(kvsStrList[ii]);
+                dagRuntime.getDagTabService().addActiveUserTabFromJSON(parsedVal);
+                // Figure out the dataflow we are going to run
+                if (parsedVal.name === dataflowName) {
+                    targetDag = parsedVal.dag;
+                }
             }
             var parsedXdfs = JSON.parse(listXdfsOutput);
 
-            WorkbookManager.init(userName, workbookName);
-            return XDFManager.Instance.setup({
+            // Setup XDF, which is required by some nodes(such as Map, GroupBy)
+            dagRuntime.getXDFService().setup({
                 userName: userName, sessionId: sessionId, listXdfsObj: parsedXdfs
-            })
-            .then(() => {
-                var graph = new DagGraph();
-                graph.create(parsedVal.dag);
-                if (optimized) {
-                    return graph.getRetinaArgs();
-                } else {
-                    return graph.getQuery();
-                }
             });
+
+            // Convert dataflow JSON to Xcalar queries
+            var graph = dagRuntime.accessible(new DagGraph());
+            graph.create(targetDag);
+            if (optimized) {
+                return graph.getRetinaArgs();
+            } else {
+                return graph.getQuery();
+            }
         }
         catch (err) {
             console.log(err);

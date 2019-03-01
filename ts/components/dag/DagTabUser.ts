@@ -352,3 +352,7 @@ class DagTabUser extends DagTab {
         return tab;
     }
 }
+
+if (typeof exports !== 'undefined') {
+    exports.DagTabUser = DagTabUser;
+}

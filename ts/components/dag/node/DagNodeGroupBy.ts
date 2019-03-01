@@ -280,7 +280,7 @@ class DagNodeGroupBy extends DagNode {
 
     private _getAggColType(operator: string): ColumnType {
         let colType: ColumnType = null;
-        const opsMap = XDFManager.Instance.getOperatorsMap();
+        const opsMap = this.getRuntime().getXDFService().getOperatorsMap();
         const ops = opsMap[FunctionCategoryT.FunctionCategoryAggregate];
         // XXX: SDK needs this
         if (typeof ops === 'undefined') {

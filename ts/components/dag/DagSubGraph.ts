@@ -42,7 +42,7 @@ class DagSubGraph extends DagGraph {
         const nodeIdMap = new Map<string, DagNodeId>();
         graphInfo.nodes.forEach((nodeInfo) => {
             // Create dag node
-            const node = DagNodeFactory.create(nodeInfo);
+            const node = DagNodeFactory.create(nodeInfo, this.getRuntime());
             if (this._isNodeCopyInfo(nodeInfo)) {
                 nodeIdMap.set(nodeInfo.nodeId, node.getId());
             }

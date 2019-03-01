@@ -13,6 +13,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     
     hackFunction();
     
+    require("../../../assets/lang/en/jsTStr.js");
     require("../dagHelper/enums.js");
     require("../../../assets/js/thrift/XcalarApiService.js");
     require("../../../assets/js/thrift/XcalarApiVersionSignature_types.js");
@@ -30,6 +31,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     // Added for KVS to query conversion
     global.Ajv = require("../../../3rd/AJV/ajv.js");
     global.XcUID = require("../dagHelper/XcUID.js").XcUID;
+    global.KVStore = require("../dagHelper/kvStore.js").KVStore;
     
     // The order of these is needed as there's dependancies between the files.
     global.DagGraph = require("../dagHelper/DagGraph.js").DagGraph;
@@ -41,6 +43,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     global.DagNodeState = require("../dagHelper/DagEnums.js").DagNodeState
     global.DagNodeEvents = require("../dagHelper/DagEnums.js").DagNodeEvents
     global.DagNodeErrorType = require("../dagHelper/DagEnums.js").DagNodeErrorType
+    global.DagNodeLinkInErrorType = require("../dagHelper/DagEnums.js").DagNodeLinkInErrorType;
     global.DagNodeFactory = require("../dagHelper/DagNodeFactory.js").DagNodeFactory
     global.DagNode = require("../dagHelper/node/DagNode.js").DagNode
     global.DagNodeIn = require("../dagHelper/node/DagNodeIn.js").DagNodeIn
@@ -49,7 +52,6 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     global.DagNodeInput = require("../dagHelper/nodeInput/DagNodeInput.js").DagNodeInput
     global.DagLineage = require("../dagHelper/DagLineage.js").DagLineage
     global.DagNodeDatasetInput = require("../dagHelper/nodeInput/DagNodeDatasetInput.js").DagNodeDatasetInput
-    global.XDFManager = require("../dagHelper/xdfManager.js").XDFManager
     global.DagNodeMap = require("../dagHelper/node/DagNodeMap.js").DagNodeMap
     global.DagNodeMapInput = require("../dagHelper/nodeInput/DagNodeMapInput.js").DagNodeMapInput
     global.DagNodeOut = require("../dagHelper/node/DagNodeOut.js").DagNodeOut
@@ -60,6 +62,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     global.CommentNode = require("../dagHelper/node/CommentNode.js").CommentNode
     // XXX: Needed by DagGraph.getQuery()
     global.DagTab = require("../dagHelper/DagTab.js").DagTab
+    global.DagTabUser = require("../dagHelper/DagTabUser.js").DagTabUser
     // global.DagList = require("../dagHelper/DagList.js").DagList
     // XXX: Needed by DagNodeExecutor
     global.DagTblManager = require("../dagHelper/DagTblManager.js").DagTblManager
@@ -115,6 +118,8 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     global.DagNodeSynthesize = require("../dagHelper/node/DagNodeSynthesize.js").DagNodeSynthesize
     global.DagNodeSynthesizeInput = require("../dagHelper/nodeInput/DagNodeSynthesizeInput.js").DagNodeSynthesizeInput
     global.DagNodeUpdateIMD = require("../dagHelper/node/DagNodeUpdateIMD.js").DagNodeUpdateIMD
+    global.DagRuntime = require("../dagHelper/DagRuntime.js").DagRuntime;
+    global.XDFService = require("../dagHelper/XDFService.js").XDFService;
     global.DagTabService = require("../dagHelper/DagTabService.js").DagTabService;
     global.DagListService = require("../dagHelper/DagListService.js").DagListService;
     global.DagServiceFactory = require("../dagHelper/DagServiceFactory.js").DagServiceFactory;
