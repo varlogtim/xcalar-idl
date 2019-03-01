@@ -39,6 +39,7 @@ window.UExtJdbcOdbc = (function(UExtJdbcOdbc) {
                 colName.endsWith("_boolean") || colName.endsWith("_string")) {
                 colName = colName.substring(0, colName.lastIndexOf("_"));
             }
+            colName = xcHelper.cleanseSQLColName(colName);
             return colName;
         }
 

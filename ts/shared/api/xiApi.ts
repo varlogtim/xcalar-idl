@@ -2789,6 +2789,7 @@ namespace XIApi {
         colInfo.forEach((colInfo) => {
             // make sure column is uppercase
             let upperCaseCol: string = colInfo.new.toUpperCase();
+            upperCaseCol = xcHelper.cleanseSQLColName(upperCaseCol);
             colInfo.new = upperCaseCol;
         });
 

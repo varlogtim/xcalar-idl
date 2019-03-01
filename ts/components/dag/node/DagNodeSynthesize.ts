@@ -55,8 +55,10 @@ class DagNodeSynthesize extends DagNode {
             const origColName = colInfo.sourceColumn;
             renamedColNames.push(origColName);
             const newColName = colInfo.destColumn;
-            const colType = xcHelper.convertFieldTypeToColType(
-                                       DfFieldTypeTFromStr[colInfo.columnType]) ||
+            const colType = colInfo.columnType ? 
+                            xcHelper.convertFieldTypeToColType(
+                                    DfFieldTypeTFromStr[colInfo.columnType]) ||
+                            parentColMap[origColName].type :
                             parentColMap[origColName].type;
             const column = ColManager.newPullCol(newColName, newColName, colType);
             columns.push(column);

@@ -171,14 +171,15 @@ class SQLOpPanel extends BaseOpPanel {
                     const parent = self._dagNode.getParents()[idx - 1];
                     if (parent) {
                         parent.getLineage().getColumns().forEach((parentCol) => {
-                            const upperName = parentCol.name.toUpperCase();
-                            if (parentCol.name != "DATA" &&
+                            let colName = xcHelper.cleanseSQLColName(parentCol.name);
+                            let upperName = colName.toUpperCase();
+                            if (colName != "DATA" &&
                                 !upperName.startsWith("XCALARRANKOVER") &&
                                 !upperName.startsWith("XCALAROPCODE") &&
                                 !upperName.startsWith("XCALARBATCHID") &&
                                 !upperName.startsWith("XCALARROWNUMPK")) {
-                                acTables[tableName].push(parentCol.name);
-                                acTables[parentCol.name] = [];
+                                acTables[tableName].push(colName);
+                                acTables[colName] = [];
                             }
                         });
                     }

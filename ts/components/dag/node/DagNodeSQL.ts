@@ -610,7 +610,7 @@ class DagNodeSQL extends DagNode {
             colName.endsWith("_boolean") || colName.endsWith("_string")) {
             colName = colName.substring(0, colName.lastIndexOf("_"));
         }
-        colName = colName.replace(/[\^,\(\)\[\]{}'"\.\\ ]/g, "_");
+        colName = xcHelper.cleanseSQLColName(colName);
         return colName;
     }
 
@@ -621,7 +621,7 @@ class DagNodeSQL extends DagNode {
             col.type !== 'boolean' && col.type !== 'timestamp' &&
             col.type !== "string" && col.type !== 'money') {
             // can't handle other types in SQL
-            return;
+            throw SQLErrTStr.InvalidColTypeForFinalize + col.name + "(" + col.type + ")";
         }
         const colInfo: ColRenameInfo = {
             orig: col.name,
@@ -750,10 +750,11 @@ class DagNodeSQL extends DagNode {
                     type: progCol.type as ColumnType
                 }
             }
-            const colInfo = this._getDerivedCol(col);
-            if (!colInfo) {
-                deferred.reject(SQLErrTStr.InvalidColTypeForFinalize
-                                + col.name + "(" + col.type + ")");
+            let colInfo;
+            try {
+                colInfo = this._getDerivedCol(col);
+            } catch(e) {
+                deferred.reject(e);
                 return deferred.promise();
             }
             if (colInfo.new !== colInfo.orig) {

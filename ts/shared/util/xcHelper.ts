@@ -3384,6 +3384,9 @@ namespace xcHelper {
         return rules[ruleKey].test(str);
     }
 
+    export function cleanseSQLColName(colName) {
+        return colName.replace(/[()\[\]{}^,"'\\: ]/g, "_");
+    }
     /**
      * xcHelper.validateBackendColName
      * @param str
@@ -3403,7 +3406,7 @@ namespace xcHelper {
                     XcalarApisConstantsT.XcalarApiMaxFieldNameLen
         ) {
             error = ColTStr.LongName;
-        } else if (colName.length > 1 && !/^((?![()\[\]{}^,"':]).)*((?![()\[\]{}^,"': ]).)$/.test(colName.substring(1))) {
+        } else if (colName.length > 1 && !/^((?![()\[\]{}^,"'\\:]).)*((?![()\[\]{}^,"'\\: ]).)$/.test(colName.substring(1))) {
             error = 'Invalid name. Ensure name does not contain the following characters: ^\',":()[]{}\\';
         } else {
             const preservedNames: string[] = ['none', 'false', 'true'];
