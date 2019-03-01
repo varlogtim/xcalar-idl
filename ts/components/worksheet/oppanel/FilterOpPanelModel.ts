@@ -51,27 +51,6 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
         this._update();
     }
 
-    public getColumnTypeFromArg(value): string {
-        const self = this;
-        let colType: string;
-
-        const progCol: ProgCol = self.tableColumns.find((progCol) => {
-            return progCol.getBackColName() === value;
-        });
-        if (progCol == null) {
-            console.error("cannot find col", value);
-            return;
-        }
-
-        colType = progCol.getType();
-        if (colType === ColumnType.integer && !progCol.isKnownType()) {
-            // for fat potiner, we cannot tell float or integer
-            // so for integer, we mark it
-            colType = ColumnType.number;
-        }
-        return colType;
-    }
-
     // strict check is true when saving/ validating form
     // and false when first opening the form
     protected _initialize(paramsRaw, strictCheck?: boolean, isSubmit?: boolean) {
@@ -196,12 +175,6 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
                 func.args.length === 2 &&
                 func.args[0].type === "fn" &&
                 func.args[1].type === "fn");
-    }
-
-    protected _update(all?: boolean): void {
-        if (this.event != null) {
-            this.event(all);
-        }
     }
 
     protected _getParam(): DagNodeFilterInputStruct {

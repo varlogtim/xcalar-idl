@@ -11,6 +11,9 @@ describe("GeneralOpPanel Test", function() {
     var openOptions = {};
 
     before(function() {
+        if (XVM.isSQLMode()) {
+            $("#modeArea").click();
+        }
         MainMenu.openPanel("dagPanel");
         node = new DagNodeMap({});
         const parentNode = new DagNodeMap({});
@@ -140,13 +143,6 @@ describe("GeneralOpPanel Test", function() {
             expect(fn("\"False\"")).to.be.true;
             expect(fn("\"False")).to.be.false;
             expect(fn("'Falsez'")).to.be.false;
-        });
-
-        it("function _isActualPrefix", function() {
-            var fn = mapOpPanel._isActualPrefix;
-            expect(fn("te,st", 3)).to.be.true;
-            expect(fn("te(st", 3)).to.be.true;
-            expect(fn("test", 3)).to.be.false;
         });
 
 

@@ -1590,7 +1590,7 @@ class GeneralOpPanel extends BaseOpPanel {
             if (str[i] === gColPrefix) {
                 if (str[i - 1] === "\\") {
                     str = str.slice(0, i - 1) + str.slice(i);
-                } else if (this._isActualPrefix(str, i)) {
+                } else if (this.model.isActualPrefix(str, i)) {
                     str = str.slice(0, i) + str.slice(i + 1);
                 }
             }
@@ -1607,21 +1607,6 @@ class GeneralOpPanel extends BaseOpPanel {
             }
         }
         return (str);
-    }
-
-    // returns true if previous character, not including spaces, is either
-    // a comma, a (, or the very beginning
-    protected _isActualPrefix(str: string, index: number): boolean {
-        for (let i = index - 1; i >= 0; i--) {
-            if (str[i] === ",") {
-                return (true);
-            } else if (str[i] === "(") {
-                return (true);
-            } else if (str[i] !== " ") {
-                return (false);
-            }
-        }
-        return (true);
     }
 
     protected _resetForm(): void {

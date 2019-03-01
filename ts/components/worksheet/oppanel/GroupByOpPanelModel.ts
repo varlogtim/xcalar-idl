@@ -82,27 +82,6 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
         this._update();
     }
 
-    public getColumnTypeFromArg(value): string {
-        const self = this;
-        let colType: string;
-
-        const progCol: ProgCol = self.tableColumns.find((progCol) => {
-            return progCol.getBackColName() === value;
-        });
-        if (progCol == null) {
-            console.error("cannot find col", value);
-            return;
-        }
-
-        colType = progCol.getType();
-        if (colType === ColumnType.integer && !progCol.isKnownType()) {
-            // for fat potiner, we cannot tell float or integer
-            // so for integer, we mark it
-            colType = ColumnType.number;
-        }
-        return colType;
-    }
-
     public updateNewFieldName(newFieldName: string, groupIndex: number): void {
         this.groups[groupIndex].newFieldName = newFieldName;
     }
@@ -210,12 +189,6 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
 
         this.groups = groups;
 
-    }
-
-    protected _update(all?: boolean): void {
-        if (this.event != null) {
-            this.event(all);
-        }
     }
 
     protected _getParam(): DagNodeGroupByInputStruct {

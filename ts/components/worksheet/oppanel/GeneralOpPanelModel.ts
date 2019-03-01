@@ -1,4 +1,4 @@
-class GeneralOpPanelModel {
+abstract class GeneralOpPanelModel {
     protected dagNode: DagNode;
     protected tableColumns: ProgCol[];
     protected event: Function;
@@ -49,12 +49,7 @@ class GeneralOpPanelModel {
     /**
      * Return the whole model info
      */
-    public getModel(): any {
-        return {
-            groups: this.groups,
-            andOrOperator: this.andOrOperator
-        }
-    }
+    public abstract getModel(): any;
 
     public getColumns(): ProgCol[] {
         return this.tableColumns;
@@ -104,23 +99,7 @@ class GeneralOpPanelModel {
         this._update();
     }
 
-    public enterFunction(value: string, opInfo, index: number): void {
-        this.groups[index].operator = value;
-        if (!opInfo) {
-            this.groups[index].args = [];
-            this._update();
-            return;
-        }
-        const numArgs = Math.max(Math.abs(opInfo.numArgs),
-                                opInfo.argDescs.length);
-        this.groups[index].args = Array(numArgs).fill("").map((_o, i) => {
-                                        return new OpPanelArg("", opInfo.argDescs[i].typesAccepted);
-                                    });
-        if (value === "regex" && numArgs === 2) {
-            this.groups[index].args[1].setRegex(true);
-        }
-        this._update();
-    }
+    public abstract enterFunction(_value: string, _opInfo, _index: number): void;
 
     public updateArg(
         value: string,
@@ -185,7 +164,7 @@ class GeneralOpPanelModel {
         this.dagNode.setParam(param);
     }
 
-    protected _initialize(_paramsRaw) {}
+    protected abstract _initialize(_paramsRaw): void;
 
     protected _update(all?: boolean): void {
         if (this.event != null) {
@@ -193,10 +172,7 @@ class GeneralOpPanelModel {
         }
     }
 
-    protected _getParam(): any {
-        return this.dagNode.getParam();
-    }
-
+    protected abstract _getParam(): any;
 
     // TODO: instead of storing formattedValue, calculate when needed based on
     // type
@@ -311,7 +287,7 @@ class GeneralOpPanelModel {
                 arg.setError(error);
             }
         } else if (arg.getType() === "function") {
-            const error = this.validateEval(trimmedVal, arg.getTypeid(),
+            const error = this._validateEval(trimmedVal, arg.getTypeid(),
                                             this.tableColumns);
             if (error) {
                 arg.setError(error);
@@ -319,28 +295,35 @@ class GeneralOpPanelModel {
         }
     }
 
-    protected validateEval(val, typeid, columns) {
+    // used when an operator argument is a function and not a value or column
+    // example - if the operator is "add", and the first argument is "sub(3,4)"
+    // we evaluate that sub(3,4) is formatted correctly and that it's output type
+    // matches the expect input type of the first argument for "add"
+    private _validateEval(val, expectedTypeid: number, columns: ProgCol[]) {
         const self = this;
         const func = XDParser.XEvalParser.parseEvalStr(val);
         const errorObj = {error: null};
         if (func.error) {
             errorObj.error = func.error;
         } else {
-            validateEvalHelper(func, typeid, errorObj);
+            validateEvalHelper(func, expectedTypeid, errorObj);
         }
 
         return errorObj.error;
 
-        function validateEvalHelper(func, typeid: number, errorObj) {
+        function validateEvalHelper(func: ParsedEval, expectedTypeid: number, errorObj) {
 
-            const opInfo = validateFnName(func.fnName, typeid, errorObj);
+            const opInfo = validateFnName(func.fnName, expectedTypeid, errorObj);
 
             for (let i = 0; i < func.args.length; i++) {
                 if (errorObj.error) {
                     return errorObj;
                 }
+                // if arg is a function, validate the operator outputs the correct type
+                // otherwise arg is a value so check that the value has the correct type
+                // for it's respective operator
                 if (func.args[i].type === "fn") {
-                    validateEvalHelper(func.args[i], opInfo.argDescs[i].typesAccepted,
+                    validateEvalHelper(<ParsedEval>func.args[i], opInfo.argDescs[i].typesAccepted,
                                         errorObj);
                 } else {
                     if (!opInfo.argDescs[i]) {
@@ -349,7 +332,7 @@ class GeneralOpPanelModel {
                     }
                     const typeCheck = checkInvalidTypes(func.args[i].type,
                                             opInfo.argDescs[i].typesAccepted,
-                                        func.args[i].value);
+                                        (<ParsedEvalArg>func.args[i]).value);
                     if (typeCheck) {
                         errorObj.error = typeCheck;
                     }
@@ -357,7 +340,7 @@ class GeneralOpPanelModel {
             }
         }
 
-        function validateFnName(operator, typeid, errorObj) {
+        function validateFnName(operator, expectedTypeid: number, errorObj) {
             const opsMap = XDFManager.Instance.getOperatorsMap();
             let outputType: ColumnType = null;
             let operatorInfo = null;
@@ -372,7 +355,7 @@ class GeneralOpPanelModel {
             if (outputType == null) {
                 errorObj.error = "Function not found";
             } else {
-                const typeCheck = checkInvalidTypes(outputType, typeid);
+                const typeCheck = checkInvalidTypes(outputType, expectedTypeid);
                 if (typeCheck) {
                     errorObj.error = typeCheck;
                 }
@@ -380,8 +363,8 @@ class GeneralOpPanelModel {
             return operatorInfo;
         }
 
-        function checkInvalidTypes(outputType: string, typeid: number, value?: string) {
-            const types: string[] = self._parseType(typeid);
+        function checkInvalidTypes(outputType: string, expectedTypeid: number, value?: string) {
+            const types: string[] = self._parseType(expectedTypeid);
             if (outputType.endsWith("Literal")) {
                 outputType = outputType.slice(0, outputType.lastIndexOf("Literal"));
             }
@@ -427,7 +410,7 @@ class GeneralOpPanelModel {
 
      // checks to see if value has at least one parentheses that's not escaped
     // or inside quotes
-    protected _hasUnescapedParens(val: string): boolean {
+    private _hasUnescapedParens(val: string): boolean {
         let inQuotes: boolean = false;
         for (let i = 0; i < val.length; i++) {
             if (inQuotes) {
@@ -464,10 +447,6 @@ class GeneralOpPanelModel {
                     (requiredTypes.includes(ColumnType.float) ||
                         requiredTypes.includes(ColumnType.integer))) {
             return null;
-        // } else if (inputType === ColumnType.string &&
-        //             this._hasUnescapedParens($input.val())) {
-        //     // function-like string found but invalid format
-        //     return ErrTStr.InvalidFunction;
         } else {
             return xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
                 "type1": requiredTypes.join("/"),
@@ -479,11 +458,6 @@ class GeneralOpPanelModel {
     public getColumnTypeFromArg(value): string {
         const self = this;
         let colType: string;
-        value = value.split(",")[0];
-        const valSpacesRemoved: string = jQuery.trim(value);
-        if (valSpacesRemoved.length > 0) {
-            value = valSpacesRemoved;
-        }
 
         const progCol: ProgCol = self.tableColumns.find((progCol) => {
             return progCol.getBackColName() === value;
@@ -493,7 +467,6 @@ class GeneralOpPanelModel {
             return;
         }
 
-        // const backName = progCol.getBackColName();
         colType = progCol.getType();
         if (colType === ColumnType.integer && !progCol.isKnownType()) {
             // for fat potiner, we cannot tell float or integer
@@ -575,7 +548,7 @@ class GeneralOpPanelModel {
             if (str[i] === gColPrefix) {
                 if (str[i - 1] === "\\") {
                     str = str.slice(0, i - 1) + str.slice(i);
-                } else if (this._isActualPrefix(str, i)) {
+                } else if (this.isActualPrefix(str, i)) {
                     str = str.slice(0, i) + str.slice(i + 1);
                 }
             }
@@ -596,7 +569,7 @@ class GeneralOpPanelModel {
 
     // returns true if previous character, not including spaces, is either
     // a comma, a (, or the very beginning
-    protected _isActualPrefix(str: string, index: number): boolean {
+    public isActualPrefix(str: string, index: number): boolean {
         for (let i = index - 1; i >= 0; i--) {
             if (str[i] === ",") {
                 return (true);
@@ -954,7 +927,7 @@ class GeneralOpPanelModel {
                         type: "function"};
             }
         }
-        // correct number of operators
+        // correct number of arguments for each operator
         for (let i = 0; i < groups.length; i++) {
             if (paramFns[i]) {
                 continue;
