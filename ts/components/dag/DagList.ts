@@ -326,9 +326,16 @@ class DagList {
         }
         if (dagTab instanceof DagTabQuery) {
             const state: string = dagTab.getState();
-            $li.find(".statusIcon").replaceWith('<div class="statusIcon state-' + state +
+            const $statusIcon: JQuery = $li.find(".statusIcon");
+            const html = '<div class="statusIcon state-' + state +
                 '" ' + xcTooltip.Attrs + ' data-original-title="' +
-                xcHelper.camelCaseToRegular(state.slice(2)) + '"></div>');
+                xcHelper.camelCaseToRegular(state.slice(2)) + '"></div>'
+            if ($statusIcon.length) {
+                $statusIcon.replaceWith(html);
+            } else {
+                $li.find(".gridIcon").after(html);
+                $li.addClass("abandonedQuery");
+            }
         }
     }
 
@@ -635,7 +642,7 @@ class DagList {
         .then((dagTabs, metaNotMatch) => {
             userDagTabs = dagTabs;
             if (this._isHideSQLFolder()) {
-                userDagTabs = userDagTabs.filter((dagTab) => !this._isForSQLFolder(dagTab)); 
+                userDagTabs = userDagTabs.filter((dagTab) => !this._isForSQLFolder(dagTab));
             }
 
             userDagTabs.forEach((dagTab) => {

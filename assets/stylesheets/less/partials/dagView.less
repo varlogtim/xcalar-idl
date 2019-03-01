@@ -525,6 +525,13 @@
             cursor: pointer;
         }
 
+        .opProgress {
+            pointer-events: none;
+            tspan {
+                text-shadow: 0px 0px 5px @color-white, 0px 0px 5px @color-white; // to show better over lines
+            }
+        }
+
         // &.selected, &.dragSelected {
         &.selected , &.selecting {
             .main, .iconArea, .statusIcon{

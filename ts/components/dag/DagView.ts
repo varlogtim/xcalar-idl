@@ -2303,19 +2303,35 @@ class DagView {
         return this.$dfArea.hasClass("locked");
     }
 
-    public addProgress(nodeId: DagNodeId): void {
+    public addProgress(nodeId: DagNodeId, pct?: number, step?: number): void {
         this.updateOperationTime(true);
-        const g = d3.select(this.$dfArea.find('.operator[data-nodeid = "' + nodeId + '"]')[0]);
+        let g = d3.select(this.$dfArea.find('.operator[data-nodeid = "' + nodeId + '"]')[0]);
         g.selectAll(".opProgress")
             .remove(); // remove old progress
-        g.append("text")
+        g = g.append("text")
             .attr("class", "opProgress")
             .attr("font-family", "Open Sans")
-            .attr("font-size", "11")
+            .attr("font-size", "10")
             .attr("fill", "#44515c")
-            .attr("x", DagView.nodeWidth + 2)
-            .attr("y", DagView.nodeHeight + 3)
-            .text("0%");
+            .attr("text-anchor", "middle")
+            .attr("transform", "translate(" + (DagView.nodeWidth + 15) + ", " + (DagView.nodeHeight + 3) + ")")
+        let gPct = g.append("tspan")
+                    .attr("class", "opProgressPct");
+        if (pct != null) {
+            gPct.text(pct + "%");
+            if (step != null) {
+                gPct.attr("y", 1);
+                g.append("tspan")
+                 .attr("class", "opProgressStep")
+                 .attr("font-size", "9")
+                 .attr("fill", "#849CB0")
+                 .attr('x', 0)
+                 .attr("y", -9)
+                 .text("Step " + step);
+            }
+        } else {
+            gPct.text("0%");
+        }
     }
 
      // assumes every node in queryStateOuput corresponds to 1 UI node
@@ -2395,24 +2411,18 @@ class DagView {
     ): void {
         const $dfArea: JQuery = DagViewManager.Instance.getAreaByTab(tabId);
         const g = d3.select($dfArea.find('.operator[data-nodeid = "' + nodeId + '"]')[0]);
-        let opProgress = g.select(".opProgress");
-        if (opProgress.empty()) {
-            DagViewManager.Instance.addProgress(nodeId, tabId);
-            opProgress = g.select(".opProgress");
-        }
-        let pct: string;
-        // TODO: show step
-        // if (stats.state === DgDagStateT.DgDagStateReady) {
-        //     pct = "100%";
-        // } else {
-        //     pct = "Step " + stats.curStep + ": " + stats.curStepPct + "%";
-        // }
+        let pct: number;
         if (stats.state === DgDagStateT.DgDagStateReady) {
-            pct = "100%";
+            pct = 100;
         } else {
-            pct = stats.curStepPct + "%";
+            pct = stats.curStepPct;
         }
-        opProgress.text(pct);
+        let step = null;
+        if (stats.curStep > 1) {
+            step = stats.curStep; // do not show step if on step 1
+        }
+
+        DagViewManager.Instance.addProgress(nodeId, tabId, pct, step);
 
         const dagTab: DagTab = DagTabManager.Instance.getTabById(tabId);
         if (skewInfos) {
