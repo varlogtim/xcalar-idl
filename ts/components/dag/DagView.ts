@@ -1529,9 +1529,10 @@ class DagView {
             tipText = CommonTxtTstr.Removed;
         }
         if (tipText) {
+            const scale = this.graph.getScale();
             const pos = node.getPosition();
-            const x = pos.x + 31;
-            const y = Math.max(1, pos.y - 25);
+            const x = scale * (pos.x + 50) - 21;
+            const y = Math.max(1, scale * pos.y - 25);
             let tip: HTML = DagView._dagLineageTipTemplate(x, y, tipText);
             this.$dfArea.append(tip);
         }
