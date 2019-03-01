@@ -2232,7 +2232,11 @@ class TblManager {
                     return;
                 }
             }
-            const $headCol: JQuery = $(event.currentTarget).parent().parent();
+            const $target = $(event.currentTarget);
+            if ($target.closest(".emptyTable").length) {
+                return;
+            }
+            const $headCol: JQuery = $target.parent().parent();
             TblAnim.startColDrag($headCol, event);
         });
 
@@ -2249,6 +2253,10 @@ class TblManager {
                 return;
             }
             if (isSystemMac && event.ctrlKey) {
+                return;
+            }
+
+            if ($el.closest(".emptyTable").length) {
                 return;
             }
             const headCol: JQuery = $el.closest('th');
