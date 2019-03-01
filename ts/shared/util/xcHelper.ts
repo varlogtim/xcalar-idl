@@ -2441,7 +2441,7 @@ namespace xcHelper {
         const hashIndex: number = wholeName.lastIndexOf('#');
         if (hashIndex > -1) {
             let id = wholeName.substring(hashIndex + 1);
-            if (isNaN(Number(id))) {
+            if (isNaN(Number(id)) || parseInt(id).toString() !== id) {
                 return id;
             } else {
                 return parseInt(id);
