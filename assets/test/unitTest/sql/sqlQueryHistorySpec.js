@@ -1,6 +1,6 @@
-describe.skip("SqlQueryHistory Test", function() {
+describe("SqlQueryHistory Test", function() {
     const QueryInfo = SqlQueryHistory.QueryInfo;
-    const sqlListKey = 'gSQLQuery-1';
+    const sqlKeyRoot = 'gSQLQueries';
 
     let kvMap = {};
     const fakePut = function(value) {
@@ -10,8 +10,8 @@ describe.skip("SqlQueryHistory Test", function() {
     const fakeGet = function() {
         return PromiseHelper.resolve(kvMap[this.key]);
     };
-    const fakeGetKey = function() {
-        return sqlListKey;
+    const fakeGetKey = function(key) {
+        return `${key}-abc`;
     }
 
     const fakeAppend = function(input) {
@@ -20,25 +20,43 @@ describe.skip("SqlQueryHistory Test", function() {
         return PromiseHelper.resolve();
     }
 
+    const fakeList = function(keyRegx) {
+        const matchedKeys = Object.keys(kvMap).filter((key) => {
+            return key.match(keyRegx) != null;
+        });
+        return PromiseHelper.resolve({ keys: matchedKeys });
+    }
+
+    const fakeDelete = function() {
+        delete kvMap[this.key];
+        return PromiseHelper.resolve();
+    }
+
     const replaceApi = function() {
         const old = {
-            getKey: KVStore.prototype.getKey,
+            getKey: KVStore.getKey,
             get: KVStore.prototype.get,
             put: KVStore.prototype.put,
-            append: KVStore.prototype.append
+            append: KVStore.prototype.append,
+            delete: KVStore.prototype.delete,
+            list: KVStore.list
         }
-        KVStore.prototype.getKey = fakeGetKey;
+        KVStore.getKey = fakeGetKey;
         KVStore.prototype.get = fakeGet;
         KVStore.prototype.put = fakePut;
         KVStore.prototype.append = fakeAppend;
+        KVStore.prototype.delete = fakeDelete;
+        KVStore.list = fakeList;
         return old;
     }
 
     const restoreApi = function(oldApi) {
-        KVStore.prototype.getKey = oldApi.getKey;
+        KVStore.getKey = oldApi.getKey;
         KVStore.prototype.get = oldApi.get;
         KVStore.prototype.put = oldApi.put;
         KVStore.prototype.append = oldApi.append;
+        KVStore.prototype.delete = oldApi.delete;
+        KVStore.list = oldApi.list;
     }
 
     before( function() {
@@ -128,18 +146,17 @@ describe.skip("SqlQueryHistory Test", function() {
 
         SqlQueryHistory.getInstance().writeQueryStore(queryId, queryInfo)
         .then( () => {
-            let key = KVStore.getKey("gSQLQueries") + "/" + queryId;
+            let key = KVStore.getKey(sqlKeyRoot) + "/" + queryId;
             expect(JSON.stringify(queryInfo)).to.equal(kvMap[key]);
-            done();
         })
         .fail( (e) => {
             expect('No error').to.equal(undefined);
-            done();
         })
         .always( () => {
             restoreApi(oldApi);
             SqlQueryHistory.getInstance()._queryMap = {};
             kvMap = {};
+            done();
         });
     });
 
@@ -149,29 +166,28 @@ describe.skip("SqlQueryHistory Test", function() {
         SqlQueryHistory.getInstance()._queryMap = {};
 
         const idList = 'sql1,sql2,sql3,sql4,sql5,sql6,sql7,sql8,sql9,sql10';
-        kvMap[sqlListKey] = idList;
         for (const sqlId of idList.split(',')) {
-            kvMap[sqlId] = JSON.stringify({query: `${sqlId}_query`});
+            const key = `${KVStore.getKey(sqlKeyRoot)}/${sqlId}`;
+            kvMap[key] = JSON.stringify({query: `${sqlId}_query`, queryId: sqlId});
         }
 
         SqlQueryHistory.getInstance().readStore()
         .then( () => {
             expect(SqlQueryHistory.getInstance().isLoaded()).to.be.true;
             for (const sqlId of idList.split(',')) {
-                const query = JSON.stringify({query: `${sqlId}_query`});
+                const query = JSON.stringify({query: `${sqlId}_query`, queryId: sqlId});
                 expect(JSON.stringify(SqlQueryHistory.getInstance()._queryMap[sqlId])).to.equal(query);
             }
-            done();
         })
         .fail( (e) => {
-            expect('No error').to.be.undefined;
-            done();
+            assert.fail('Should be no error');
         })
         .always( () => {
             restoreApi(oldApi);
             SqlQueryHistory.getInstance()._queryMap = {};
             kvMap = {};
-        })
+            done();
+        });
     });
 
     it('SqlQueryHistory.readStore(first time user) should work', function(done) {
@@ -182,16 +198,15 @@ describe.skip("SqlQueryHistory Test", function() {
         SqlQueryHistory.getInstance().readStore()
         .then( () => {
             expect(SqlQueryHistory.getInstance().isLoaded()).to.be.true;
-            done();
         })
         .fail( (e) => {
-            expect('No error').to.be.undefined;
-            done();
+            assert.fail('Should be no error');
         })
         .always( () => {
             restoreApi(oldApi);
             SqlQueryHistory.getInstance()._queryMap = {};
             kvMap = {};
+            done();
         })
     });
 
@@ -222,19 +237,16 @@ describe.skip("SqlQueryHistory Test", function() {
             expect(mapValue).to.not.be.null;
             expect(JSON.stringify(mapValue)).to.equal(JSON.stringify(queryExpected));
             // Check KVStore
-            expect(kvMap[sqlListKey]).to.equal(`${updateInfo.queryId},`);
-            expect(kvMap[updateInfo.queryId]).to.equal(JSON.stringify(queryExpected));
-
-            done();
+            expect(kvMap[`${KVStore.getKey(sqlKeyRoot)}/${updateInfo.queryId}`]).to.equal(JSON.stringify(queryExpected));
         })
         .fail( () => {
-            expect('No error').to.be.undefined;
-            done();
+            assert.fail('Should be no error');
         }).
         always( () => {
             SqlQueryHistory.getInstance()._queryMap = {};
             kvMap = {};
             restoreApi(oldApi);
+            done();
         });
     });
 
@@ -258,8 +270,8 @@ describe.skip("SqlQueryHistory Test", function() {
         const queryInfo = new QueryInfo();
         queryInfo.queryId = updateInfo.queryId;
         SqlQueryHistory.getInstance().setQuery(queryInfo);
-        kvMap[sqlListKey] = `${updateInfo.queryId},`;
-        kvMap[queryInfo.queryId] = JSON.stringify(queryInfo);
+        const key = `${KVStore.getKey(sqlKeyRoot)}/${queryInfo.queryId}`;
+        kvMap[key] = JSON.stringify(queryInfo);
 
         SqlQueryHistory.getInstance().upsertQuery(updateInfo)
         .then( (res) => {
@@ -272,19 +284,179 @@ describe.skip("SqlQueryHistory Test", function() {
             expect(mapValue).to.not.be.null;
             expect(JSON.stringify(mapValue)).to.equal(JSON.stringify(queryExpected));
             // Check KVStore
-            expect(kvMap[sqlListKey]).to.equal(`${updateInfo.queryId},`);
-            expect(kvMap[updateInfo.queryId]).to.equal(JSON.stringify(queryExpected));
-
-            done();
+            expect(kvMap[key]).to.equal(JSON.stringify(queryExpected));
         })
         .fail( () => {
-            expect('No error').to.be.undefined;
-            done();
+            assert.fail('Should be no error');
         }).
         always( () => {
             SqlQueryHistory.getInstance()._queryMap = {};
             kvMap = {};
             restoreApi(oldApi);
+            done();
         });
     });
+
+    describe('KVStore upgrade should work', () => {
+        let oldApi;
+        const sqlIdList = ['sql1', 'sql2', 'sql3', 'sql4', 'sql5'];
+        const numSqls = 2;
+        before(() => {
+            oldApi = replaceApi();
+        });
+
+        after(() => {
+            restoreApi(oldApi);
+        });
+
+        it('SqlQueryHist.convertKVStore should work', (done) => {
+            SqlQueryHistory.getInstance()._queryMap = {};
+            kvMap = {};
+
+            // Setup old KVStore structure
+            constructOldKVStore().then(() => {
+                // Convert to new KVStore structure
+                return SqlQueryHistory.getInstance().convertKVStore();
+            })
+            .then(({keys: newKeys}) => {
+                // New keys should be created
+                expect(newKeys.length).to.equal(numSqls);
+            })
+            .then(() => {
+                // Old keys should be deleted
+                return getOldList()
+                .then((data) => {
+                    expect(data == null).to.equal(true);
+                });
+            })
+            .fail(() => {
+                assert.fail('Should be no error');
+            })
+            .always(() => {
+                SqlQueryHistory.getInstance()._queryMap = {};
+                kvMap = {};
+                done();    
+            });
+        });
+        
+        it('SqlQueryHistory.converKVStore should be properly called', (done) => {
+            let isCalled = false;
+            let xcalarVersion = '';
+            const oldConverKVStore = SqlQueryHistory.prototype.convertKVStore;
+            SqlQueryHistory.prototype.convertKVStore = () => {
+                isCalled = true;
+                return PromiseHelper.resolve({ keys: [] });
+            };
+            const oldGetVersion = XVM.getVersion;
+            XVM.getVersion = () => xcalarVersion;
+
+            PromiseHelper.resolve()
+            .then(() => {
+                // Case #1: Need upgrade, new key not exists and version is 2.0.0
+                isCalled = false;
+                // Setup trigger conditions
+                kvMap = {}; // New key not exists
+                xcalarVersion = '2.0.0'; // Major version is 2
+                // Test
+                return SqlQueryHistory.getInstance().readStore()
+                .then(() => {
+                    expect(isCalled).to.equal(true);
+                })
+                .fail(() => {
+                    assert.fail('Should be no error');
+                })
+                .always(() => {
+                    SqlQueryHistory.getInstance()._queryMap = {};
+                    kvMap = {};
+                });
+            })
+            .then(() => {
+                // Case #1: Need upgrade, new key not exists and version is 2.0.1
+                isCalled = false;
+                // Setup trigger conditions
+                kvMap = {}; // New key not exists
+                xcalarVersion = '2.0.1'; // Major version is 2.0.1
+                // Test
+                return SqlQueryHistory.getInstance().readStore()
+                .then(() => {
+                    expect(isCalled).to.equal(true);
+                })
+                .fail(() => {
+                    assert.fail('Should be no error');
+                })
+                .always(() => {
+                    SqlQueryHistory.getInstance()._queryMap = {};
+                    kvMap = {};
+                });
+            })
+            .then(() => {
+                // Case #2: Don't upgrade, new key exists and version is 2.0.0
+                isCalled = false;
+                // Setup trigger conditions
+                kvMap[`${KVStore.getKey(sqlKeyRoot)}/anyId`] = JSON.stringify({
+                    queryId: 'anyId', query: 'any query'
+                }); // New key existes
+                xcalarVersion = '2.0.0'; // Major version is 2
+                // Test
+                return SqlQueryHistory.getInstance().readStore()
+                .then(() => {
+                    expect(isCalled).to.equal(false);
+                })
+                .fail(() => {
+                    assert.fail('Should be no error');
+                })
+                .always(() => {
+                    SqlQueryHistory.getInstance()._queryMap = {};
+                    kvMap = {};
+                });
+            })
+            .then(() => {
+                // Case #3: Don't upgrade, new key not exists and version = 3.2.0
+                isCalled = false;
+                // Setup trigger conditions
+                kvMap = {} // New key not exists
+                xcalarVersion = '3.2.0'; // Major version is not 3.2.0
+                // Test
+                return SqlQueryHistory.getInstance().readStore()
+                .then(() => {
+                    expect(isCalled).to.equal(false);
+                })
+                .fail(() => {
+                    assert.fail('Should be no error');
+                })
+                .always(() => {
+                    SqlQueryHistory.getInstance()._queryMap = {};
+                    kvMap = {};
+                });
+            })
+            .always(() => {
+                SqlQueryHistory.prototype.convertKVStore = oldConverKVStore;
+                XVM.getVersion = oldGetVersion;
+                SqlQueryHistory.getInstance()._queryMap = {};
+                kvMap = {};
+                done();
+            });
+        });
+
+        function constructOldKVStore() {
+            const oldListKey = KVStore.getKey('gSQLQuery');
+            return new KVStore(oldListKey).put(sqlIdList.join(','))
+            .then(() => {
+                const writeSqls = sqlIdList.filter((_, i) => i < numSqls).map((sqlId) => {
+                    return new KVStore(sqlId)
+                    .put(JSON.stringify({
+                        queryId: sqlId,
+                        query: `query-${sqlId}`
+                    }));
+                });
+                return PromiseHelper.when(...writeSqls);
+            });
+        }
+
+        function getOldList() {
+            const oldListKey = KVStore.getKey('gSQLQuery');
+            return new KVStore(oldListKey).get();
+        }
+    });
+
 });
