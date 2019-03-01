@@ -749,7 +749,8 @@ namespace XIApi {
             }
 
 
-            const newAggColName = "XC_COUNT_" + xcHelper.getTableId(gbTableName);
+            const newAggColName = "XC_COUNT_" + Authentication.getHashId().substring(3)
+                                  + "_" + xcHelper.getTableId(gbTableName);
             tempCols.push(newAggColName);
             tempTables.push(gbDistinctTableName);
             // XXX [0] argument needs to be fixed once bohan's fix goes in
@@ -848,7 +849,8 @@ namespace XIApi {
                 joinType = JoinOperatorT.CrossJoin;
             } else {
                 joinCols.forEach((colName) => {
-                    const newColName = colName + "_" + rTableId;
+                    const newColName = colName + "_" + Authentication.getHashId()
+                                       .substring(3) + "_" + rTableId;
                     rRename.push({
                         orig: colName,
                         new: newColName,

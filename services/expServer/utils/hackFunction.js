@@ -85,7 +85,7 @@ function hackFunction() {
     global.Authentication = {
         getHashId: function() {
             // return xcHelper.randName("#", 8);
-            idCount = "#" + new Date().getTime() + authCount;
+            idCount = "#" + new Date().getTime() + "_" + authCount;
             authCount++;
             return idCount;
         }

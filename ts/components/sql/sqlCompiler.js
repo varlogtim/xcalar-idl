@@ -1930,7 +1930,7 @@
             if (typeof tableId === "string") {
                 tableId = tableId.toUpperCase();
             }
-            var colName = "XC_ROW_COL_" + tableId;
+            var colName = "XC_ROW_COL_" + Authentication.getHashId().substring(3) + "_" + tableId;
             var cli = "";
 
             self.sqlObj.genRowNum(tableName, colName)
@@ -2494,7 +2494,8 @@
                     if (typeof tableId === "string") {
                         tableId = tableId.toUpperCase();
                     }
-                    loopStruct.indexColStruct = {colName: "XC_ROW_COL_" + tableId};
+                    loopStruct.indexColStruct = {colName: "XC_ROW_COL_" +
+                        Authentication.getHashId().substring(3) + "_" + tableId};
                     node.xcCols.push(loopStruct.indexColStruct);
                     curPromise = curPromise.then(function(ret) {
                         windowCli += ret.cli;
@@ -3223,7 +3224,8 @@
             if (typeof tableId === "string") {
                 tableId = tableId.toUpperCase();
             }
-            loopStruct.indexColStruct = {colName: "XC_ROW_COL_" + tableId,
+            loopStruct.indexColStruct = {colName: "XC_ROW_COL_" + Authentication
+                                         .getHashId().substring(3) + "_" + tableId,
                                          colType: "int"};
             node.xcCols.push(loopStruct.indexColStruct);
             curPromise = curPromise.then(function(ret) {
@@ -3367,10 +3369,12 @@
             rightTableId = rightTableId.toUpperCase();
         }
         if (outerType === "right") {
-            rnColName = "XC_RROWNUM_COL_" + rightTableId;
+            rnColName = "XC_RROWNUM_COL_" + Authentication.getHashId().substring(3)
+                        + "_" + rightTableId;
             rnTableName = globalStruct.rightTableName;
         } else {
-            rnColName = "XC_LROWNUM_COL_" + leftTableId;
+            rnColName = "XC_LROWNUM_COL_" + Authentication.getHashId().substring(3)
+                        + "_" + leftTableId;
             rnTableName = globalStruct.leftTableName;
         }
         joinNode.xcCols.push({colName: rnColName, colType: "int"});
@@ -3398,7 +3402,8 @@
                 globalStruct.leftRowNumTableName = ret.newTableName;
             }
             if (outerType === "full") {
-                rnColName = "XC_RROWNUM_COL_" + rightTableId;
+                rnColName = "XC_RROWNUM_COL_" + Authentication.getHashId().substring(3)
+                            + "_" + rightTableId;
                 rnTableName = globalStruct.rightTableName;
                 return self.genRowNum(globalStruct.rightTableName, rnColName)
             }
@@ -3477,7 +3482,8 @@
             }
             var j = 0;
             for (var i = 0; i < mapStrArray.length; i++) {
-                var tempCol = "XC_JOIN_COL_" + tableId + "_" + i;
+                var tempCol = "XC_JOIN_COL_" + Authentication.getHashId().substring(3)
+                            + "_" + tableId + "_" + i;
                 for (; j < colNameArray.length; j++) {
                     if (colNameArray[j] === mapStrArray[i]) {
                         colNameArray[j] = tempCol;
@@ -3726,7 +3732,8 @@
         if (typeof tableId === "string") {
             tableId = tableId.toUpperCase();
         }
-        var tempCountCol = "XC_COUNT_" + tableId;
+        var tempCountCol = "XC_COUNT_" + Authentication.getHashId().substring(3)
+                           + "_" + tableId;
         // Record groupBy column
         joinNode.xcCols.push({colName: tempCountCol, colType: "int"});
 
@@ -3776,7 +3783,8 @@
         if (typeof tableId === "string") {
             tableId = tableId.toUpperCase();
         }
-        var newRowNumColName = "XC_ROWNUM_" + tableId;
+        var newRowNumColName = "XC_ROWNUM_" + Authentication.getHashId().substring(3)
+                               + "_" + tableId;
         // Record the renamed column
         joinNode.xcCols.push({colName: newRowNumColName, colType: "int"});
         var rTableInfo = {
@@ -3870,7 +3878,8 @@
         if (typeof tableId === "string") {
             tableId = tableId.toUpperCase();
         }
-        var newRowNumColName = "XC_ROWNUM_" + tableId;
+        var newRowNumColName = "XC_ROWNUM_" + Authentication.getHashId().substring(3)
+                               + "_" + tableId;
         // Record the renamed column
         joinNode.xcCols.push({colName: newRowNumColName, colType: "int"});
         var rnColRename = {
@@ -3915,7 +3924,8 @@
                 if (typeof tableId === "string") {
                     tableId = tableId.toUpperCase();
                 }
-                newRowNumColName = "XC_ROWNUM_" + tableId;
+                newRowNumColName = "XC_ROWNUM_" + Authentication.getHashId().substring(3)
+                                   + "_" + tableId;
                 // Record the renamed column
                 joinNode.xcCols.push({colName: newRowNumColName, colType: "int"});
                 rnColName = globalStruct.rightRowNumCol;
@@ -3968,7 +3978,8 @@
         if (typeof tableId === "string") {
             tableId = tableId.toUpperCase();
         }
-        var newRowNumColName = "XC_ROWNUM_" + tableId;
+        var newRowNumColName = "XC_ROWNUM_" + Authentication.getHashId().substring(3)
+                               + "_" + tableId;
         // Record the renamed column
         joinNode.xcCols.push({colName: newRowNumColName, colType: "int"});
         var rTableInfo = {
@@ -5665,7 +5676,8 @@
                     if (typeof tableId === "string") {
                         tableId = tableId.toUpperCase();
                     }
-                    drIndexColName = "XC_ROW_COL_" + tableId;
+                    drIndexColName = "XC_ROW_COL_" + Authentication.getHashId()
+                                     .substring(3) + "_" + tableId;
                     windowStruct.leftColInfo
                                 .push({colName: drIndexColName, colType: "int"});
                     return self.sqlObj.genRowNum(ret.newTableName,
@@ -6087,10 +6099,12 @@
                 if (typeof tableId === "string") {
                     tableId = tableId.toUpperCase();
                 }
-                loopStruct.indexColStruct = {colName: "XC_ROW_COL_" + tableId,
+                loopStruct.indexColStruct = {colName: "XC_ROW_COL_" +
+                                        Authentication.getHashId().substring(3)
+                                        + "_" + tableId,
                                              colType: "int"};
-                loopStruct.sortColsAndOrder = [{name: "XC_ROW_COL_" + tableId,
-                                                type: "float",
+                loopStruct.sortColsAndOrder = [{name: __getCurrentName(loopStruct.indexColStruct),
+                                                type: "int",
                             ordering: XcalarOrderingT.XcalarOrderingAscending}];
                 node.xcCols.push(loopStruct.indexColStruct);
                 curPromise = self.sqlObj.genRowNum(tableName,
