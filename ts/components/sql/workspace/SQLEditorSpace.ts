@@ -204,20 +204,22 @@ class SQLEditorSpace {
             };
             SQLUtil.Instance.sendToPlanner("", "parse", struct)
             .then((ret) => {
-                const sqlStructArray = JSON.parse(ret).ret;
+                const sqlStructArray: [SQLParserStruct] = JSON.parse(ret).ret;
                 if (!struct.isMulti && sqlStructArray.length === 1 &&
                     Object.keys(sqlStructArray[0].functions).length === 0) {
                     // when it's single statement and doesn't have SQL function
                     // use original sql which contains newline characters
                     sqlStructArray[0].sql = sqlStructArray[0].newSql = sqls;
                 }
-                sqlStructArray.forEach((sqlStruct: SQLParserStruct) => {
+                for (let sqlStruct of sqlStructArray) {
                     if (sqlStruct.command.type != "select") {
                         lastShow = sqlStruct;
+                    } else if (sqlStruct.nonQuery) {
+                        return PromiseHelper.reject(SQLErrTStr.NoSupport + sqlStruct.sql);
                     } else {
                         selectArray.push(sqlStruct);
                     }
-                });
+                }
                 // Basic show tables and describe table
                 // If there are multiple queries they are ignored
                 if (sqlStructArray.length === 1 && lastShow.type === "showTables") {

@@ -369,7 +369,8 @@ interface SQLParserStruct {
     command?: {type: string, args: string[]},
     identifiers?: string[],
     functions?: {},
-    newSql?: string
+    newSql?: string,
+    nonQuery?: boolean
 }
 
 interface TableRunStats {
