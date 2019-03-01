@@ -1773,11 +1773,11 @@ module.exports = function(grunt) {
            4) we force the new xcalarPkgFile to be used by explicitly
               uninstalling/reinstalling it
            we leave xcalarPkgFile where it is whenever npm install is rerun */
-        cmdsets.push(['services/expServer', ['rm -f ' + xcalarPkgFile]])
+        cmdsets.push(['services/expServer', ['rm -f package-lock.json ' + xcalarPkgFile]])
         cmdsets.push(['services/expServer', ['npm pack ../../assets/js/xcrpc']]);
         cmdsets.push(['services/expServer', ['npm install --no-save']]);
         cmdsets.push(['services/expServer', ['npm uninstall --no-save xcalar crypto']]);
-        cmdsets.push(['services/expServer', ['npm install --no-save']]);
+        cmdsets.push(['services/expServer', ['npm upgrade --no-save']]);
 
         for (var cmdset of cmdsets) {
             var executefrom = cmdset[0];
