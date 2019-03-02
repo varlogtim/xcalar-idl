@@ -2,10 +2,25 @@ describe("JupyterUDFModal Test", function() {
     var $modal;
     var tableId;
     var tableName;
+    var tableName2;
+    var tableId2;
+    var activeWKBNK;
+    var workbook;
+    var dfTablePrefix;
+    var cachedDetDagTabById;
 
     before(function() {
         $modal = $("#jupyterUDFTemplateModal");
         UnitTest.onMinMode();
+        activeWKBNK = WorkbookManager.getActiveWKBK();
+        workbook = WorkbookManager.getWorkbook(activeWKBNK);
+        dfTablePrefix = "table_DF2_" + workbook.sessionId + "_";
+        cachedDetDagTabById = DagList.Instance.getDagTabById;
+        DagList.Instance.getDagTabById = function() {
+            return {
+                getName: () => "test dataflow",
+            }
+        }
 
         // create some fake tables and fake columns
         var progCol1 = new ProgCol({
@@ -55,6 +70,16 @@ describe("JupyterUDFModal Test", function() {
         });
         gTables[tableId] = table;
 
+
+        tableName2 = dfTablePrefix + "1_0_dag_5C2E5E0B0EF91A85_1_36#t_1_3";
+        tableId2 = "t_1_3";
+        table = new TableMeta({
+            "tableId": tableId2,
+            "tableName": tableName2,
+            "status": TableType.Active,
+            "tableCols": [progCol1, progCol2, progCol3, progCol4]
+        });
+        gTables[tableId2] = table;
         $("#jupyterTab .mainTab").click();
     });
 
@@ -201,10 +226,10 @@ describe("JupyterUDFModal Test", function() {
             expect($modal.find(".tableList .list").is(":visible")).to.be.true;
             expect($modal.find(".tableName").val()).to.equal("");
             expect($modal.find(".columnsList li").length).to.equal(0);
-            $modal.find(".tableList li:contains('fakeTable#zz999')")
+            $modal.find(".tableList li:contains('test dataflow')")
                   .trigger(fakeEvent.mouseup);
 
-            expect($modal.find(".tableName").val()).to.equal("fakeTable#zz999");
+            expect($modal.find(".tableName").val()).to.equal("test dataflow (inactive dataflow) " + tableName2);
             expect($modal.find(".columnsList li").length).to.equal(3);
             expect($modal.find(".columnsList li").eq(0).text()).to.equal("testCol");
             expect($modal.find(".columnsList li").eq(1).text()).to.equal("prefix::testCol2");
@@ -244,7 +269,7 @@ describe("JupyterUDFModal Test", function() {
                 expect(options.fnName).to.equal("testFunction");
                 expect(options.moduleName).to.equal("testModule");
                 expect(options.includeStub).to.equal(true);
-                expect(options.tableName).to.equal("fakeTable#zz999");
+                expect(options.tableName).to.equal(tableName2);
                 expect(options.columns.length).to.equal(1);
                 expect(options.columns[0]).to.equal("prefix::testCol2");
                 appendStubCalled = true;
@@ -266,5 +291,7 @@ describe("JupyterUDFModal Test", function() {
         $modal.find(".close").click();
         UnitTest.offMinMode();
         delete gTables[tableId];
+        delete gTables[tableId2];
+        DagList.Instance.getDagTabById = cachedDetDagTabById;
     });
 });

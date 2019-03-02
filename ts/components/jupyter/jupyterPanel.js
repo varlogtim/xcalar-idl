@@ -530,7 +530,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
         if (tabId == null) {
             Alert.show({
                 title: "Error",
-                msg: "Table " + tableName + " is not present in any active worksheets.",
+                msg: "Table " + tableName + " is not present in any active dataflows.",
                 isAlert: true
             });
         } else {

@@ -1857,6 +1857,13 @@ html.microsoft {
             line-height: 26px;
             display: inline-block;
             float: left;
+
+            .qMark {
+                position: relative;
+                top: -1px;
+                margin-left: 10px;
+                cursor: help;
+            }
         }
     }
     .row > input, .dropDownList {
@@ -1888,6 +1895,13 @@ html.microsoft {
         &.columnsList {
             // so that the dropdown doesn't block the confirm button
             width: ~"calc(100% - 200px)";
+        }
+
+        span.inactiveDF {
+            font-style: italic;
+            color: @color-defaultGray;
+            margin-left: 7px;
+            margin-right: 7px;
         }
     }
 }

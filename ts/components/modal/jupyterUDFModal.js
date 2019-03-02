@@ -31,21 +31,23 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
             "onOpen": function() {
                 var tableLis = getTableList();
                 $modal.find(".tableList").find("ul").html(tableLis);
-                var tableName = $modal.find(".tableList .arg").val();
+                var tableName = $modal.find(".tableList .arg").data("tablename");
                 $modal.find(".tableList").find('li').filter(function() {
-                    return ($(this).text() === tableName);
+                    return ($(this).data("tablename") === tableName);
                 }).addClass('selected');
             },
             "onSelect": function($li) {
                 var val = $li.text();
-                if (val === $modal.find(".tableList .arg").val()) {
+                var tableName = $li.data("tablename");
+                if (tableName ===  $modal.find(".tableList .arg").data("tablename")) {
                     return;
                 }
                 $modal.find(".tableList .arg").val(val);
+                $modal.find(".tableList .arg").data('tablename', tableName);
                 $modal.find(".columnsList .arg").val("");
                 $modal.find(".columnsList li.selecting").removeClass("selecting");
                 cols = [];
-                var table = gTables[xcHelper.getTableId(val)];
+                var table = gTables[xcHelper.getTableId(tableName)];
                 var progCols = table.getAllCols(true);
                 var html = "";
                 for (var i = 0; i < progCols.length; i++) {
@@ -95,21 +97,89 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
         }).setupListeners();
     };
 
-    // XXX TODO: update it to DF 2.0
     function getTableList() {
         var tableList = "";
+        const activeWKBNK = WorkbookManager.getActiveWKBK();
+        const workbook = WorkbookManager.getWorkbook(activeWKBNK);
+        const dfTablePrefix = "table_DF2_" + workbook.sessionId + "_";
+        const sqlTablePrefix = "table_SQLFunc_" + workbook.sessionId + "_";
+        const tableInfos = [];
         for (var tableId in gTables) {
             var table = gTables[tableId];
             var tableName = table.getName();
-            tableList +=
-                '<li class="tooltipOverflow"' +
-                ' data-original-title="' + tableName + '"' +
-                ' data-toggle="tooltip"' +
-                ' data-container="body" ' +
-                ' data-id="' + tableId + '">' +
-                    tableName +
-                '</li>';
+            var isSql = false;
+            if (!tableName.startsWith(dfTablePrefix)) {
+                if (tableName.startsWith(sqlTablePrefix)) {
+                    isSql = true;
+                } else {
+                    continue;
+                }
+            }
+            var displayName = tableName;
+            var displayNameHtml = displayName;
+            var tableNamePart;
+            if (isSql) {
+                tableNamePart = tableName.slice(tableName.indexOf("SQLFunc_"));
+            } else {
+                tableNamePart = tableName.slice(tableName.indexOf("DF2_"));
+            }
+            var dagPartIndex = tableNamePart.indexOf("_dag_");
+            if (dagPartIndex === -1) {
+                continue;
+            }
+            var tabId = tableNamePart.slice(0, dagPartIndex);
+
+            var dagListTab = DagList.Instance.getDagTabById(tabId);
+            if (dagListTab) {
+                displayNameHtml = dagListTab.getName();
+                displayName = displayNameHtml;
+                var dagTab = DagTabManager.Instance.getTabById(tabId);
+                if (dagTab) {
+                    var nodePart = tableNamePart.slice(dagPartIndex + 1);
+                    var hashIndex = nodePart.indexOf("#");
+                    var graph = dagTab.getGraph();
+                    if (graph && hashIndex > -1) {
+                        var nodeId = nodePart.slice(0, hashIndex);
+                        var node = graph.getNode(nodeId);
+                        if (node) {
+                            displayNameHtml += " (" + node.getDisplayNodeType() + ")";
+                            var nodeTitle = node.getTitle();
+                            if (nodeTitle) {
+                                displayNameHtml += " - " + nodeTitle;
+                            }
+                        }
+                    }
+                    displayName = displayNameHtml;
+                } else {
+                    displayNameHtml += '<span class="inactiveDF"> (inactive dataflow) </span>' + tableName;
+                    displayName += " (inactive dataflow) " + tableName;
+                }
+
+            } else {
+                continue;
+            }
+            tableInfos.push({
+                displayName: displayName,
+                displayNameHtml: displayNameHtml,
+                displayNameLower: displayName.toLowerCase(),
+                tableId: tableId,
+                tableName: tableName
+            });
         }
+        tableInfos.sort((a, b) => {
+            return (a.displayNameLower < b.displayNameLower) ? -1 : (a.displayNameLower !== b.displayNameLower ? 1 : 0);
+        });
+        tableInfos.forEach((tableInfo) => {
+            tableList +=
+            '<li class="tooltipOverflow"' +
+            ' data-original-title="' + tableInfo.displayName + '"' +
+            ' data-toggle="tooltip"' +
+            ' data-container="body" ' +
+            ' data-id="' + tableInfo.tableId + '" data-tablename="' + tableInfo.tableName + '">' +
+                tableInfo.displayNameHtml +
+            '</li>';
+        })
+
         return tableList;
     }
 
@@ -148,7 +218,7 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
     }
 
     function reset() {
-        $modal.find(".arg").val("");
+        $modal.find(".arg").val("").removeData("tablename");
         $modal.find(".columnsList .arg").val("");
         $modal.find(".columnsList li.selecting").removeClass("selecting");
         $modal.find(".columnsList ul").empty();
@@ -190,7 +260,7 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
             columns = columns.map(function(colName) {
                 return $.trim(colName);
             });
-            var tableName = $modal.find(".tableName:visible").val();
+            var tableName = $modal.find(".tableName:visible").data("tablename");
             JupyterPanel.appendStub("basicUDF", {
                 moduleName: $modal.find(".moduleName:visible").val(),
                 fnName: fnName,
