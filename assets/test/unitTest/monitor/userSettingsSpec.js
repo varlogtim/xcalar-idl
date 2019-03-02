@@ -217,19 +217,6 @@ describe("User Setting Test", function() {
             expect(UserSettings.getPref("hideDataCol")).to.equal(hideDataCol);
         });
 
-        it("should toggle enable table", function() {
-            var enableTable = UserSettings.getPref("enableCreateTable") || false;
-            var $btn = $("#enableCreateTable");
-            // case 1
-            $btn.click();
-            expect(UserSettings.getPref("enableCreateTable"))
-            .to.equal(!enableTable);
-            // case 2
-            $btn.click();
-            expect(UserSettings.getPref("enableCreateTable"))
-            .to.equal(enableTable);
-        });
-
         it("should toggle hideSysOps", function() {
             var hideSysOps = UserSettings.getPref("hideSysOps") || false;
             var $btn = $("#hideSysOps");
@@ -279,7 +266,7 @@ describe("User Setting Test", function() {
         });
 
         it("revert Default settings should work", function() {
-            var $button = $("#enableCreateTable");
+            var $button = $("#showDataColBox");
             var checked = $button.hasClass("checked");
             $button.click();
             expect($button.hasClass("checked")).to.equal(!checked);

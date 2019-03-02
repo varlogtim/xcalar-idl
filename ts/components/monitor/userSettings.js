@@ -263,13 +263,6 @@ window.UserSettings = (function($, UserSettings) {
             }
         });
 
-        $("#enableCreateTable").click(function() {
-            var $checkbox = $(this);
-            var toEnable = !($checkbox.hasClass("checked"));
-            setEnableCreateTable(toEnable);
-            UserSettings.setPref("enableCreateTable", toEnable, true);
-        });
-
         $("#hideSysOps").click(function() {
             var $checkbox = $(this);
             $checkbox.toggleClass("checked");
@@ -334,23 +327,10 @@ window.UserSettings = (function($, UserSettings) {
         });
     }
 
-    function setEnableCreateTable(enable) {
-        var $checkbox = $("#enableCreateTable");
-        var $btn = $("#importDataForm .confirm.createTable");
-        if (enable) {
-            $checkbox.addClass("checked");
-            $btn.removeClass("xc-hidden");
-        } else {
-            $checkbox.removeClass("checked");
-            $btn.addClass("xc-hidden");
-        }
-    }
-
     function restoreSettingsPanel() {
         var hideDataCol = UserSettings.getPref("hideDataCol");
         var graphInterval = UserSettings.getPref("monitorGraphInterval");
         var commitInterval = UserSettings.getPref("commitInterval");
-        var enableCreateTable = UserSettings.getPref("enableCreateTable");
         var hideSysOps = UserSettings.getPref("hideSysOps");
         var disableDSShare = UserSettings.getPref("disableDSShare");
         var logOutInterval = UserSettings.getPref("logOutInterval");
@@ -378,7 +358,6 @@ window.UserSettings = (function($, UserSettings) {
         commitIntervalSlider.setSliderValue(commitInterval);
         logOutIntervalSlider.setSliderValue(XcUser
             .CurrentUser.getLogOutTimeoutVal() / (1000 * 60));
-        setEnableCreateTable(enableCreateTable);
     }
 
     function restoreMainTabs() {

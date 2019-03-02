@@ -1688,7 +1688,6 @@ describe("Persistent Constructor Test", function() {
             .and.to.equal(3);
             expect(baseSettings).to.have.property("commitInterval")
             .and.to.equal(120);
-            expect(baseSettings).to.have.property("enableCreateTable").and.to.be.false;
             expect(baseSettings).to.have.property("hideSysOps").and.to.be.false;
         });
 
@@ -1716,7 +1715,6 @@ describe("Persistent Constructor Test", function() {
             expect(baseSettings["hideDataCol"]).to.be.false;
             expect(baseSettings["monitorGraphInterval"]).to.equal(9);
             expect(baseSettings["commitInterval"]).to.equal(600);
-            expect(baseSettings["enableCreateTable"]).to.be.false;
             expect(baseSettings["hideSysOps"]).to.be.false;
         });
 

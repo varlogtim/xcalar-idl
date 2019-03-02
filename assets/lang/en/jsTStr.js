@@ -1431,7 +1431,7 @@ TblTStr = {
     "EmptyTable": "0 Rows",
     "Viewdata": "View data",
     "Viewschema": "View schema",
-    "PreviewInstr": "To start using table, please use the SQL Editor in SQL Mode or go to the Dataflow Panel, and start from a IMD node in advacned mode",
+    "PreviewInstr": "To start using table, please use the SQL Editor in SQL Mode or go to the Dataflow Panel, and start from a IMD node in advanced mode",
     "MultipleSchema": "Multiple Schemas are detected when creating table \"<name>\", please select the schema for the table.",
     "ToActivate": "Click to activate",
     "ToDeactivate": "Click to deactivate",
