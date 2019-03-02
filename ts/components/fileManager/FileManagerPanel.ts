@@ -134,7 +134,7 @@ class FileManagerPanel {
         }
 
         const pathSplit: string[] = path.split("/");
-        let curPath: string = pathSplit.shift();
+        let curPath: string = "/" + pathSplit.shift();
         while (pathSplit.length !== 0) {
             const nextPath = pathSplit.shift();
             if (nextPath === "") {
