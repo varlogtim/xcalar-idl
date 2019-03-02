@@ -61,8 +61,13 @@ describe("SqlQueryHistory Test", function() {
 
     before( function() {
         const oldApi = replaceApi();
+        SqlQueryHistory._instance = null;
         SqlQueryHistory.getInstance();
         restoreApi(oldApi);
+    });
+
+    after( function() {
+        SqlQueryHistory._instance = null;
     });
 
     it('SqlQueryHistory.getQueryMap should work', function() {
