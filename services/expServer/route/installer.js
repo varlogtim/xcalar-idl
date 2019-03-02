@@ -167,9 +167,9 @@ function encryptPassword(password) {
     shasum.update(password);
     shasum.update(salt);
 
-    var bufSalt = new Buffer(salt);
-    var hexSSHA = new Buffer(shasum.digest('hex') + bufSalt.toString('hex'),
-                             'hex');
+    var bufSalt = new Buffer.from(salt);
+    var hexSSHA = new Buffer.from(shasum.digest('hex') + bufSalt.toString('hex'),
+                                  'hex');
 
     encryptedPassword = '{SSHA}' + hexSSHA.toString('base64');
 

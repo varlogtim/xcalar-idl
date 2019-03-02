@@ -1776,7 +1776,7 @@ module.exports = function(grunt) {
         cmdsets.push(['services/expServer', ['rm -f ' + xcalarPkgFile]])
         cmdsets.push(['services/expServer', ['npm pack ../../assets/js/xcrpc']]);
         cmdsets.push(['services/expServer', ['npm install --no-save']]);
-        cmdsets.push(['services/expServer', ['npm uninstall --no-save xcalar']]);
+        cmdsets.push(['services/expServer', ['npm uninstall --no-save xcalar crypto']]);
         cmdsets.push(['services/expServer', ['npm install --no-save']]);
 
         for (var cmdset of cmdsets) {
