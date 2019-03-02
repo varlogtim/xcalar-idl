@@ -32,7 +32,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
                 queryWithDrop = optimizerObject.logicalOptimize(xcQueryString,
                                         optimizations, JSON.stringify(selectQuery));
             } catch(e) {
-                deferred.reject(e);
+                return promiseHelper.reject(e);
             }
             var prefixStruct = sqlUtil.addPrefix(
                 JSON.parse(queryWithDrop),
