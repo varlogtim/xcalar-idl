@@ -697,6 +697,33 @@ describe.skip("DagView Test", () => {
             });
         });
 
+        // XXX TODO: Need to verify the correctness once the previous tests are fixed
+        it ("share should work", function(done) {
+            let optionsPassedIn;
+            const oldAddOperator = DagCategoryBar.prototype.addOperator;
+            DagCategoryBar.prototype.addOperator = (options) => {
+                optionsPassedIn = options;
+                return PromiseHelper.resolve('TestCustomNode');
+            };
+
+            DagViewManager.Instance.shareCustomOperator(customNode.getId())
+            .then(() => {
+                const expectedOptions = {
+                    categoryType: DagCategoryType.Custom,
+                    dagNode: customNode,
+                    isFocusCategory: true
+                };
+                expect(optionsPassedIn).to.deep.equal(expectedOptions);
+            })
+            .fail(() => {
+                assert.fail('Should not fail');
+            })
+            .always(() => {
+                DagCategoryBar.prototype.addOperator = oldAddOperator;
+                done();
+            });
+        });
+
         describe("wrap/expand node with 1 parent, 1 child", function() {
             before(function() {
                 DagViewManager.Instance.connectNodes(node2.getId(), node1.getId(), 0, tabId);

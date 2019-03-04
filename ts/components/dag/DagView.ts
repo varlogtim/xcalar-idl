@@ -2071,7 +2071,7 @@ class DagView {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         DagCategoryBar.Instance.addOperator({
-            categoryName: DagCategoryType.Custom,
+            categoryType: DagCategoryType.Custom,
             dagNode: newNode,
             isFocusCategory: true
         })
