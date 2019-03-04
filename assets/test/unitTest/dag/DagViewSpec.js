@@ -5,7 +5,7 @@ describe.skip("DagView Test", () => {
     let tabId;
     let oldPut;
 
-    before(function(done) {
+    before(function() {
         console.log("DagView Test");
         UnitTest.onMinMode();
         $dagView = $("#dagView");
@@ -14,17 +14,13 @@ describe.skip("DagView Test", () => {
         XcalarKeyPut = function() {
             return PromiseHelper.resolve();
         };
-        XVM.setMode(XVM.Mode.Advanced)
-        .then(function() {
-            DagTabManager.Instance.newTab();
-            tabId = DagViewManager.Instance.getActiveDag().getTabId();
-            $dfArea = $dfWrap.find(".dataflowArea.active");
-            MainMenu.openPanel("dagPanel", null);
-            done();
-        })
-        .fail(function() {
-            done("DagView Test Fail");
-        });
+        if (XVM.isSQLMode()) {
+            $("#modeArea").click();
+        }
+        DagTabManager.Instance.newTab();
+        tabId = DagViewManager.Instance.getActiveDag().getTabId();
+        $dfArea = $dfWrap.find(".dataflowArea.active");
+        MainMenu.openPanel("dagPanel", null);
     });
     describe("initial state", function() {
         it("initial screen should have no operators", function() {

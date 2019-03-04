@@ -10,20 +10,33 @@ describe('DagTab Optimized Test', function() {
     var cachedQueryStateFn;
     let queryStateCalled = false;
 
-    before(function() {
+    before(function(done) {
+        if (XVM.isSQLMode()) {
+            $("#modeArea").click();
+        }
+        console.log("dag tab optimized test");
         oldPut = XcalarKeyPut;
         XcalarKeyPut = function() {
             return PromiseHelper.resolve();
         };
         UnitTest.onMinMode();
         var dagTabManager = DagTabManager.Instance;
-        dagTabManager.newTab();
-        $dagTabArea = $("#dagTabSectionTabs");
-        $newTabButton = $("#tabButton");
-        $dagTabs = $("#dagTabSectionTabs .dagTab")
-        tabId = "xcRet_" + Date.now();
-        cachedQueryStateFn = XcalarQueryState;
-        DagTabProgress.progressCheckInterval = 1000;
+        let newTabId = dagTabManager.newTab();
+        UnitTest.testFinish(() => {
+            return $('.dataflowArea[data-id="' + newTabId + '"]').hasClass("active");
+        })
+        .then(() => {
+            $dagTabArea = $("#dagTabSectionTabs");
+            $newTabButton = $("#tabButton");
+            $dagTabs = $("#dagTabSectionTabs .dagTab")
+            tabId = "xcRet_" + Date.now();
+            cachedQueryStateFn = XcalarQueryState;
+            DagTabProgress.progressCheckInterval = 1000;
+            done();
+        })
+        .fail(() => {
+            done("fail");
+        });
     });
 
     describe("DagTabOptimized constructor", function(){
@@ -144,10 +157,15 @@ describe('DagTab Optimized Test', function() {
         it("getQueryName should work", function() {
             expect(tab.getQueryName()).to.equal(tabId);
         });
+
+        after(function() {
+            DagTabManager.Instance.removeTab(tabId);
+        });
     });
 
     describe("new tab focus and progress checking", function() {
         it("new tab should start checking", function(done) {
+            tabId = tabId + "_1";
             let cachedFn = XcalarQueryState;
             queryStateCalled = false;
             XcalarQueryState = function(queryName) {
@@ -156,7 +174,7 @@ describe('DagTab Optimized Test', function() {
                 return PromiseHelper.resolve({
                     queryState: QueryStateT.qrProcessing,
                     queryGraph: {node: []}
-                })
+                });
             };
             const executor = new DagGraphExecutor([], new DagGraph(), {});
 
@@ -186,7 +204,6 @@ describe('DagTab Optimized Test', function() {
             expect(tab._inProgress).to.be.true;
             expect(tab._hasQueryStateGraph).to.be.false;
             expect(tab._queryCheckId).to.equal(0);
-
             expect(DagViewManager.Instance.getActiveArea().find(".operator").length).to.equal(2);
 
             UnitTest.testFinish(function(){

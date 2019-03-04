@@ -510,7 +510,7 @@ class DagTabManager {
         const $dataflowAreas: JQuery = this._getDataflowArea();
         $tabs.removeClass("active");
         $dataflowAreas.removeClass("active");
-        $tab.addClass("active");1
+        $tab.addClass("active");
         $tab.scrollintoview({duration: 0});
         $dataflowAreas.eq(index).addClass("active");
 

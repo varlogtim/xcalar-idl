@@ -140,7 +140,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
                                 delete msgPromises[i];
                             }
                         }
-                        console.error("Unsupported action:" + s.action);
+                        console.error("Unsupported action from Jupyter:" + s.action);
                         break;
                 }
             } catch (e) {

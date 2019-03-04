@@ -523,7 +523,7 @@ class PTblManager {
                     this._updateAdded(tables);
                     break;
                 default:
-                    console.error("unsupported action", action);
+                    console.error("unsupported update action", action);
                     break;
             }
         } catch (e) {
@@ -579,7 +579,7 @@ class PTblManager {
                 return this._deactivateOneTable(tableName, succeeds, failures);
             }
         });
-        
+
         PromiseHelper.chain(promises)
         .then(() => {
             deferred.resolve(succeeds, failures);

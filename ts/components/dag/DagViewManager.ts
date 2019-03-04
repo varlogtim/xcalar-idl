@@ -407,6 +407,7 @@ class DagViewManager {
     }
 
     public render($dfArea?: JQuery, graph?: DagGraph, dagTab?: DagTab, noEvents?: boolean) {
+
         // set activedag here
         $dfArea = $dfArea || this._getActiveArea();
         if ($dfArea.hasClass("rendered")) {
