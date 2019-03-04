@@ -458,7 +458,7 @@ describe('DagTab Optimized Test', function() {
                 const $dfArea = DagViewManager.Instance.getActiveArea();
                 expect($dfArea.find(".operator").length).to.equal(2);
                 expect($dfArea.find(".operator.dataset").attr('transform')).to.equal("translate(140,140)");
-                expect($dfArea.find(".operator.dataset").find(".opProgress").text()).to.equal("100%");
+                expect($dfArea.find(".operator.dataset").find(".opProgress").text()).to.equal("100%Step 2");
 
                 expect($dfArea.find(".operator.synthesize").attr('transform')).to.equal("translate(280,140)");
                 expect($dfArea.find(".operator.synthesize").find(".opProgress").text()).to.equal("50%");
