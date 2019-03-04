@@ -383,37 +383,45 @@ window.DSTargetManager = (function($, DSTargetManager) {
 
         $form.find(".name .text").text(target.name);
         $form.find(".type .text").text(target.type_name);
-        var tarInfo = typeSet[target.type_id];
-        var paramList = tarInfo.parameters.map(function(param, index) {return param.name; });
         var $paramSection = $form.find(".params");
-        var paramKeys = Object.keys(target.params);
-        if (paramKeys.length === 0) {
+
+        try {
+            var tarInfo = typeSet[target.type_id];
+            var paramList = tarInfo.parameters.map(function(param, index) {
+                return param.name;
+            });
+            var paramKeys = Object.keys(target.params);
+            if (paramKeys.length === 0) {
+                $paramSection.addClass("xc-hidden");
+            } else {
+                var paramHtml = paramList.map(function(paramName) {
+                    if (!paramKeys.includes(paramName)) {
+                        // This parameter wasnt specified.
+                        return "";
+                    }
+                    var paramVal = target.params[paramName];
+                    var classes = "text";
+                    if (typeof paramVal !== "string") {
+                        paramVal = JSON.stringify(paramVal);
+                    }
+                    if (isSecrectParam(target.type_id, paramName)) {
+                        classes += " secret";
+                    }
+                    return '<div class="formRow">' +
+                                '<label>' + paramName + ':</label>' +
+                                '<span class="' + classes + '">' +
+                                    paramVal +
+                                '</span>' +
+                            '</div>';
+                }).join("");
+                var $rows = $(paramHtml);
+                encryptionSecretField($rows);
+                $paramSection.removeClass("xc-hidden")
+                            .find(".formContent").html($rows);
+            }
+        } catch (e) {
+            console.error(e);
             $paramSection.addClass("xc-hidden");
-        } else {
-            var paramHtml = paramList.map(function(paramName) {
-                if (!paramKeys.includes(paramName)) {
-                    // This parameter wasnt specified.
-                    return "";
-                }
-                var paramVal = target.params[paramName];
-                var classes = "text";
-                if (typeof paramVal !== "string") {
-                    paramVal = JSON.stringify(paramVal);
-                }
-                if (isSecrectParam(target.type_id, paramName)) {
-                    classes += " secret";
-                }
-                return '<div class="formRow">' +
-                            '<label>' + paramName + ':</label>' +
-                            '<span class="' + classes + '">' +
-                                paramVal +
-                            '</span>' +
-                        '</div>';
-            }).join("");
-            var $rows = $(paramHtml);
-            encryptionSecretField($rows);
-            $paramSection.removeClass("xc-hidden")
-                         .find(".formContent").html($rows);
         }
 
         var $deletBtn = $("#dsTarget-delete");
