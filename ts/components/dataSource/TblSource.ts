@@ -151,6 +151,14 @@ class TblSource {
         });
     }
 
+    /**
+     * TblSource.Instance.tableName
+     * @param tableName
+     */
+    public markActivating(tableName: string): void {
+        return this._markActivating(tableName);
+    }
+
     private _getMenuSection(): JQuery {
         return $("#datastoreMenu .menuSection.table");
     }
@@ -365,14 +373,20 @@ class TblSource {
         });
 
         tableNames.forEach((name) => {
-            let $grid: JQuery = this._getGridByName(name);
-            this._addLoadingIcon($grid);
-            $grid.addClass("activating");
+            this._markActivating(name);
         });
         PTblManager.Instance.activateTables(tableNames)
         .always(() => {
             this._refresh(false);
         });
+    }
+
+    private _markActivating(tableName: string): void {
+        let $grid: JQuery = this._getGridByName(tableName);
+        if (!$grid.hasClass("activating")) {
+            this._addLoadingIcon($grid);
+            $grid.addClass("activating");
+        }
     }
 
     private _deactivateTables(tableNames: string[]): void {

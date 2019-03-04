@@ -3,6 +3,7 @@ class PTblManager {
     public static readonly DSSuffix: string = "-xcalar-ptable";
     public static readonly InternalColumns: string[] = ["XcalarRankOver", "XcalarOpCode", "XcalarBatchId"];
     public static readonly PKPrefix: string = "XcalarRowNumPk";
+    public static readonly IMDDependencyKey = "/sys/imd_dependencies";
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -397,13 +398,24 @@ class PTblManager {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let succeeds: string[] = [];
         let failures: string[] = [];
-        const promises = tableNames.map((tableName) => {
-            return (): XDPromise<void> => {
-                return this._activateOneTable(tableName, succeeds, failures);
-            }
-        });
-
-        PromiseHelper.chain(promises)
+        this._getIMDDependency()
+        .then((imdDenendencies) => {
+            let set: Set<string> = new Set();
+            const promises = [];
+            tableNames.forEach((tableName) => {
+                if (!set.has(tableName)) {
+                    let tablesToActivate = this._checkActivateDependency(tableName, imdDenendencies);
+                    tablesToActivate.forEach((table) => {
+                        set.add(table);
+                        let func = (): XDPromise<void> => {
+                            return this._activateOneTable(table, succeeds, failures);
+                        };
+                        promises.push(func);
+                    });
+                }
+            });
+            return PromiseHelper.chain(promises);
+        })
         .then(() => {
             if (failures.length > 0) {
                 let error: string = failures.join("\n");
@@ -636,6 +648,10 @@ class PTblManager {
         }
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        // mark activating in case any table
+        // that has dependency need to be activated
+        TblSource.Instance.markActivating(tableName);
+
         tableInfo.activate()
         .then(() => {
             return PromiseHelper.alwaysResolve(this._listOneTable(tableName));
@@ -682,7 +698,11 @@ class PTblManager {
         }
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        tableInfo.delete()
+        
+        this._checkDeleteDependency(tableName)
+        .then(() => {
+            return tableInfo.delete();
+        })
         .then(() => {
             this._tableMap.delete(tableName);
             for (let i = 0; i < this._tables.length; i++) {
@@ -984,7 +1004,97 @@ class PTblManager {
     }
 
     private _getErrorMsg(tableName: string, error: ThriftError): string {
-        let errorMsg: string = error.log || error.error;
+        let errorMsg: string = "";
+        if (typeof error === "object") {
+            errorMsg = error.log || error.error;
+        } else {
+            errorMsg = error || ErrTStr.Unknown;
+        }
         return tableName + ": " + errorMsg;
+    }
+
+    private _getIMDDependencyKVStore(): KVStore {
+        let kvStore = new KVStore(PTblManager.IMDDependencyKey, gKVScope.GLOB);
+        return kvStore;
+    }
+
+    private _getIMDDependency(): XDPromise<object> {
+        let deferred: XDDeferred<object> = PromiseHelper.deferred();
+        let kvStore = this._getIMDDependencyKVStore();
+        kvStore.getAndParse()
+        .then((res) => {
+            deferred.resolve(res || {});
+        })
+        .fail(() => {
+            deferred.resolve({}); // still resolve it
+        });
+        return deferred.promise();
+    }
+
+    private _checkDeleteDependency(tableName): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        this._getIMDDependency()
+        .then((imdDenendencies) => {
+            try {
+                let dependendcy = imdDenendencies[tableName];
+                if (dependendcy != null) {
+                    let children: string[] = Object.keys(dependendcy.children);
+                    if (children.length > 0) {
+                        let error: string = IMDTStr.DeleteHasDependency + " " + children.join(", ");
+                        return PromiseHelper.reject({
+                            error: error
+                        });
+                    }
+                }
+                deferred.resolve();
+            } catch (e) {
+                console.error(e);
+                deferred.resolve(); // still reolsve
+            }
+
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    private _checkActivateDependency(
+        tableName: string,
+        imdDenendencies: object
+    ): string[] {
+        try {
+            let dependendcyTables: string[] = [];
+            // level traversal, if the dependent table is in
+            // deeper level, it should come in later
+            let stack: string[] = [];
+            stack.push(tableName);
+            while(stack.length) {
+                let table: string = stack.pop();
+                dependendcyTables.push(table);
+                let dependendcy = imdDenendencies[table];
+                let parents: string[] = [];
+                if (dependendcy != null) {
+                    parents = Object.keys(dependendcy.parents);
+                }
+                if (parents.length > 0) {
+                    stack = stack.concat(parents);
+                }
+            }
+
+            // make dependent table comes first
+            let resTables: string[] = [];
+            let set: Set<string> = new Set();
+            for (let i = dependendcyTables.length - 1; i >= 0; i--) {
+                let table = dependendcyTables[i];
+                if (!set.has(table)) {
+                    set.add(table);
+                    resTables.push(table);
+                }
+            }
+            return resTables;
+        } catch (e) {
+            console.error(e);
+            return [tableName];
+        }
     }
 }

@@ -1728,6 +1728,7 @@ IMDTStr = {
     "Coalesce": "Coalesce",
     "CoalesceTip": "Conserve memory by combining updated tables into one. This operation cannot be undone.",
     "GenerateTable": "Generate Table",
+    "DeleteHasDependency": "The following table(s) are dependent on it:",
 };
 
 DagTStr = {

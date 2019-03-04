@@ -126,6 +126,7 @@ class PbTblInfo {
      * Activate published table
      */
     public activate(): XDPromise<void> {
+        let oldState = this.state;
         this.state = PbTblState.Activating;
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         XcalarRestoreTable(this.name)
@@ -134,10 +135,7 @@ class PbTblInfo {
             deferred.resolve();
         })
         .fail((error) => {
-            // let canceled = typeof error === "object" && error.status === StatusT.StatusCanceled;
-            // if (!canceled) {
-            //     this.state = PbTblState.Error;
-            // }
+            this.state = oldState;
             deferred.reject(error);
         });
         return deferred.promise();
