@@ -29,8 +29,12 @@ namespace DagNodeMenu {
         $li.addClass('exit' + nameUpper.replace(/ /g,''));
     }
 
-    // options must include node
-    export function execute(action: string, options) {
+    // options must include nod
+    export function execute(action: string, options: {
+        node: DagNode,
+        autofillColumnNames?: string[],
+        exitCallback?: Function
+    }) {
         switch (action) {
             case("configureNode"):
                 const nodeIds = [options.node.getId()];
@@ -93,13 +97,26 @@ namespace DagNodeMenu {
         });
     }
 
-    function _processMenuAction(action: string, options?: boolean) {
+    function _processMenuAction(action: string, options?: {
+        node: DagNode,
+        autofillColumnNames?: string[],
+        exitCallback?: Function
+    }) {
         try {
             const $menu: JQuery = $("#dagNodeMenu");
-            const nodeId: DagNodeId = $menu.data("nodeid"); // clicked node
-            const nodeIds: DagNodeId[] = DagViewManager.Instance.getSelectedNodeIds(true, true);
-            const dagNodeIds: DagNodeId[] = DagViewManager.Instance.getSelectedNodeIds(true);
-            // all selected nodes && comments
+            let nodeId: DagNodeId;
+            let nodeIds: DagNodeId[];
+            let dagNodeIds: DagNodeId[];
+            if (options && options.node) {
+                nodeId = options.node.getId();
+                nodeIds = [options.node.getId()];
+                dagNodeIds = [options.node.getId()];
+            } else {
+                nodeId = $menu.data("nodeid"); // clicked node
+                nodeIds = DagViewManager.Instance.getSelectedNodeIds(true, true); // includes comments
+                dagNodeIds = DagViewManager.Instance.getSelectedNodeIds(true); // dag nodes only
+            }
+             // all selected nodes && comments
             const tabId = DagViewManager.Instance.getActiveDag().getTabId();
             const parentNodeId: DagNodeId = $menu.data("parentnodeid");
             const connectorIndex: number = parseInt($menu.data("connectorindex"));
@@ -207,13 +224,13 @@ namespace DagNodeMenu {
                     DagViewManager.Instance.autoAlign(tabId);
                     break;
                 case ("viewSchema"):
-                    DagSchemaPopup.Instance.show(nodeIds[0]);
+                    DagSchemaPopup.Instance.show(dagNodeIds[0]);
                     break;
                 case ("exitOpPanel"):
                     MainMenu.closeForms();
                     break;
                 case ("createCustom"):
-                    DagViewManager.Instance.wrapCustomOperator(nodeIds);
+                    DagViewManager.Instance.wrapCustomOperator(dagNodeIds);
                     break;
                 case ("editCustom"):
                     DagViewManager.Instance.editCustomOperator(dagNodeIds[0]);

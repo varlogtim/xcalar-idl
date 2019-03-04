@@ -1148,6 +1148,7 @@ class DagNodeSQL extends DagNode {
                 deferred.resolve(retStruct);
             })
             .fail(function(errorMsg) {
+                console.error("sql compile error: " + errorMsg);
                 let error = errorMsg;
                 if (typeof errorMsg === "string") {
                     if (errorMsg.indexOf(SQLErrTStr.Cancel) === -1) {

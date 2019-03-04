@@ -387,7 +387,6 @@ class DragHelper {
         let deltaX: number = self.currentDragCoor.left - self.targetRect.left + this.scrollLeft;
         let deltaY: number = self.currentDragCoor.top - self.targetRect.top + this.scrollTop;
         let coors: Coordinate[] = [];
-
         // check if item was dropped within left and top boundaries of drop target
         if (deltaX >= this.padding && deltaY >= this.padding) {
             this.dragContainerItemsPositions.forEach(pos => {

@@ -1,9 +1,10 @@
-describe.skip("DagView Test", () => {
+describe("DagView Test", () => {
     let $dagView;
     let $dfWrap;
     let $dfArea;
     let tabId;
     let oldPut;
+    let cachedUserPref;
 
     before(function() {
         console.log("DagView Test");
@@ -21,6 +22,14 @@ describe.skip("DagView Test", () => {
         tabId = DagViewManager.Instance.getActiveDag().getTabId();
         $dfArea = $dfWrap.find(".dataflowArea.active");
         MainMenu.openPanel("dagPanel", null);
+        cachedUserPref = UserSettings.getPref;
+        UserSettings.getPref = function(val) {
+            if (val === "dfAutoExecute" || val === "dfAutoPreview") {
+                return false;
+            } else {
+                return cachedUserPref(val);
+            }
+        };
     });
     describe("initial state", function() {
         it("initial screen should have no operators", function() {
@@ -70,29 +79,34 @@ describe.skip("DagView Test", () => {
             dagView.moveNodes = function(nodeInfos) {
                 expect(nodeInfos.length).to.equal(1);
                 expect(nodeInfos[0].id).to.equal($operator.data("nodeid"));
-                expect(nodeInfos[0].position.x).to.equal(left + 40);
-                expect(nodeInfos[0].position.y).to.equal(top + 20);
+                expect(nodeInfos[0].position.x).to.equal(left + 60);
+                expect(nodeInfos[0].position.y).to.equal(top + 80);
                 called = true;
             };
             $operator = $dfWrap.find(".dataflowArea.active .operator").eq(0);
             var parts  = /translate\(\s*([^\s,)]+)[ ,]([^\s,)]+)/.exec($operator.attr("transform"));
 
-            left = parseInt(parts[1]);
-            top = parseInt(parts[2]);
-            var e = $.Event('mousedown', {pageX: 100, pageY: 100, which: 1});
+            const nodeId = $operator.data("nodeid");
+            left = parseInt(parts[1]); // 20
+            top = parseInt(parts[2]); // 40
+            const rect = $operator[0].getBoundingClientRect();
+            const startLeft = rect.left;
+            const startTop = rect.top;
+            var e = $.Event('mousedown', {pageX: startLeft, pageY: startTop, which: 1});
 
             $operator.find(".main").trigger(e);
 
             expect($(".dragContainer").length).to.equal(0);
-            var e = $.Event('mousemove', {pageX: 140, pageY: 120});
+
+            var e = $.Event('mousemove', {pageX: startLeft + 20, pageY: startTop + 20});
             $(document).trigger(e);
 
             expect($(".dragContainer").length).to.equal(1);
 
-            var e = $.Event('mousemove', {pageX: 140, pageY: 120});
+            var e = $.Event('mousemove', {pageX: startLeft + 60, pageY: startTop + 80});
             $(document).trigger(e);
 
-            var e = $.Event('mouseup', {pageX: 140, pageY: 120});
+            var e = $.Event('mouseup', {pageX: startLeft + 60, pageY: startTop + 80});
             $(document).trigger(e);
             expect($(".dragContainer").length).to.equal(0);
 
@@ -138,24 +152,28 @@ describe.skip("DagView Test", () => {
                 expect(index).to.equal(0);
                 called = true;
             };
+            const $operator = $dfWrap.find(".dataflowArea.active .operator").eq(0);
 
             expect($dagView.find(".dataflowArea.active .operator").length).to.equal(2);
+            let rect = $operator.find(".connector.out")[0].getBoundingClientRect();
+            const startLeft = rect.left;
+            const startTop = rect.top;
 
-            var e = $.Event('mousedown', {pageX: 100, pageY: 100, which: 1});
-            const $operator = $dfWrap.find(".dataflowArea.active .operator").eq(0);
+            var e = $.Event('mousedown', {pageX: startLeft, pageY: startTop, which: 1});
+
             $operator.find(".connector.out").trigger(e);
 
             expect($(".dragContainer").length).to.equal(0);
-            var e = $.Event('mousemove', {pageX: 102, pageY: 101});
+            var e = $.Event('mousemove', {pageX: startLeft + 2, pageY: startLeft + 1});
             $(document).trigger(e);
 
             expect($(".dragContainer").length).to.equal(1);
             expect($dfWrap.find(".secondarySvg").length).to.equal(1);
 
-            var e = $.Event('mousemove', {pageX: 102, pageY: 101});
+            var e = $.Event('mousemove', {pageX: startLeft + 2, pageY: startTop + 1});
             $(document).trigger(e);
 
-            const rect = $operator.siblings(".operator")[0].getBoundingClientRect();
+            rect = $operator.siblings(".operator")[0].getBoundingClientRect();
             var e = $.Event('mouseup', {pageX: rect.left, pageY: rect.top});
             $(document).trigger(e);
 
@@ -694,7 +712,7 @@ describe.skip("DagView Test", () => {
         });
 
         // XXX TODO: Need to verify the correctness once the previous tests are fixed
-        it ("share should work", function(done) {
+        it.skip("share should work", function(done) {
             let optionsPassedIn;
             const oldAddOperator = DagCategoryBar.prototype.addOperator;
             DagCategoryBar.prototype.addOperator = (options) => {
@@ -881,7 +899,8 @@ describe.skip("DagView Test", () => {
         let sqlNode;
         let synthesizeNode;
         let filter2Node;
-        before(function(done) {
+
+        it("configuring sql node should work", function(done) {
             tabId = DagViewManager.Instance.getActiveDag().getTabId();
             datasetNode = DagViewManager.Instance.getActiveDag().getNode($dfArea.find(".operator.dataset").data("nodeid"));
 
@@ -919,13 +938,15 @@ describe.skip("DagView Test", () => {
                     },
                     "identifiersOrder": [
                         1
-                    ]
+                    ],
+                    "dropAsYouGo": true
                 }));
 
                 $("#sqlOpPanel").find(".submit").click();
 
                 return UnitTest.testFinish(function() {
-                    return $("#sqlOpPanel").is(':visible') === false;
+                    return $("#sqlOpPanel").is(':visible') === false &&
+                    $("#compileBackground").length === 0;
                 });
             })
             .then(() => {
@@ -934,7 +955,7 @@ describe.skip("DagView Test", () => {
             .fail(() => {
                 done("fail");
             });
-        });
+        })
 
         it("inspect should work", function(done) {
             let numTabs = $dagView.find(".dagTab").length;
@@ -1014,6 +1035,11 @@ describe.skip("DagView Test", () => {
                 expect(sqlNode.getParents()[0].getId()).to.equal(datasetNode.getId());
                 expect(sqlNode.getChildren().length).to.equal(0);
 
+                return UnitTest.testFinish(function() {
+                    return $(".dataflowArea.active.locked").length === 0;
+                });
+            })
+            .then(() => {
                 done();
             })
             .fail(() => {
@@ -1151,6 +1177,7 @@ describe.skip("DagView Test", () => {
 
 
     after(function(done) {
+        UserSettings.getPref = cachedUserPref;
         UnitTest.offMinMode();
         const dag = DagViewManager.Instance.getActiveDag();
         const nodes = dag.getAllNodes();

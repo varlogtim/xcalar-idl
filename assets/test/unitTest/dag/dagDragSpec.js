@@ -1,12 +1,15 @@
-describe.skip("DagDrag Test", function() {
-    // XXX need to have active tab first
+describe("DagDrag Test", function() {
     var $dagView;
     var $dfWrap;
     var dragObj;
     var $operator;
     var onDragEnd;
+    var tabId;
 
     before (function() {
+        if (XVM.isSQLMode()) {
+            $("#modeArea").click();
+        }
         MainMenu.openPanel("workspacePanel", "dagButton");
         $dagView = $("#dagView");
         $dfWrap = $dagView.find(".dataflowWrap");
@@ -14,6 +17,8 @@ describe.skip("DagDrag Test", function() {
         $operator = $('<div class="testOperator" ' +
         'style="position:fixed;top: 50px; left:50px">Test</div>');
         $("body").append($operator);
+        DagTabManager.Instance.newTab();
+        tabId = DagViewManager.Instance.getActiveDag().getTabId();
         onDragEnd = function($newNode, event, data) {
 
         };
@@ -21,7 +26,8 @@ describe.skip("DagDrag Test", function() {
 
     describe("start drag", function() {
         it("checkDrag without mousemove should do nothing", function() {
-            var e = $.Event('mousedown', {pageX: 100, pageY: 100});
+            $(window).scrollTop(0);
+            var e = $.Event('mousedown', {pageX: 0, pageY: 0});
 
             dragObj = new DragHelper({
                 event: e,
@@ -38,20 +44,22 @@ describe.skip("DagDrag Test", function() {
             });
 
             expect(dragObj.isDragging).to.be.false;
-            expect(dragObj.mouseDownCoors.x).to.equal(100);
-            expect(dragObj.mouseDownCoors.y).to.equal(100);
+            expect(dragObj.mouseDownCoors.x).to.equal(0);
+            expect(dragObj.mouseDownCoors.y).to.equal(0);
         });
 
         it("mousemove of 1 should not trigger drag start", function() {
-            var e = $.Event('mousemove', {pageX: 101, pageY: 101});
+            $(window).scrollTop(0);
+            var e = $.Event('mousemove', {pageX: 1, pageY: 1});
             $(document).trigger(e);
             expect(dragObj.isDragging).to.be.false;
         });
 
         it("mousemove of 2 should trigger drag start", function() {
+            $(window).scrollTop(0);
             expect($(".testOperator").length).to.equal(1);
             expect($(".dragContainer").length).to.equal(0);
-            var e = $.Event('mousemove', {pageX: 102, pageY: 101});
+            var e = $.Event('mousemove', {pageX: 2, pageY: 1});
             $(document).trigger(e);
             expect(dragObj.isDragging).to.be.true;
             expect($(".testOperator").length).to.equal(2);
@@ -62,7 +70,8 @@ describe.skip("DagDrag Test", function() {
 
     describe("dragging", function() {
         it("on drag should position clone", function() {
-            var e = $.Event('mousemove', {pageX: 103, pageY: 101});
+            $(window).scrollTop(0);
+            var e = $.Event('mousemove', {pageX: 3, pageY: 1});
             $(document).trigger(e);
             expect(dragObj.isDragging).to.be.true;
             expect($(".testOperator").length).to.equal(2);
@@ -75,20 +84,30 @@ describe.skip("DagDrag Test", function() {
 
     describe("endDrag", function() {
         it("end Drag should call onDragEnd callback", function() {
+            $(window).scrollTop(0);
             var called = false;
             onDragEnd = function($newNode, event, data) {
                 var rect = $dfWrap[0].getBoundingClientRect();
                 expect(data.coors.length).to.equal(1);
-                expect(data.coors[0].x).to.equal(150 - rect.left);
+                expect(data.coors[0].x).to.equal(450 - rect.left);
                 expect(data.coors[0].y).to.equal(250 - rect.top - $(window).scrollTop());
                 called = true;
             };
-            var e = $.Event('mousemove', {pageX: 200, pageY: 300});
+            var e = $.Event('mousemove', {pageX: 400, pageY: 200});
             $(document).trigger(e);
-            var e = $.Event('mouseup', {pageX: 200, pageY: 300});
+            var e = $.Event('mouseup', {pageX: 400, pageY: 200});
             $(document).trigger(e);
             expect(called).to.be.true;
             expect($(".testOperator").length).to.equal(1);
+        });
+    });
+
+    after(function(done) {
+        let dagTab =  DagTabManager.Instance.getTabById(tabId);
+        DagTabManager.Instance.removeTab(tabId);
+        dagTab.delete()
+        .always(function() {
+            done();
         });
     });
 });
