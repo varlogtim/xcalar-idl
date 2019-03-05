@@ -29,7 +29,7 @@ module.exports = class Pool {
             return;
         }
         this._queue.push({deferred: deferred, data: data});
-        scheduler();
+        this.scheduler();
         return;
     }
     scheduler() {
@@ -39,7 +39,7 @@ module.exports = class Pool {
             for (const entry of this._workers) {
                 const worker = entry[0];
                 const preDeferred = entry[1];
-                if (!preDeferred) {
+                if (!preDeferred && this._queue.length > 0) {
                     const {deferred, data} = this._queue.shift();
                     this._workers.set(worker, deferred);
                     worker.postMessage(data);
@@ -50,7 +50,7 @@ module.exports = class Pool {
 
     reset(worker) {
         this._workers.set(worker, null);
-        scheduler();
+        this.scheduler();
     }
 
     spawn(path) {

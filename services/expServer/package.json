@@ -5,7 +5,8 @@
   "author": "First Last <first.last@example.com>",
   "main": "expServer.js",
   "scripts": {
-    "start": "node expServer.js"
+    "start": "node --experimental-worker expServer.js",
+    "debug": "node --experimental-worker --inspect expServer.js"
   },
   "repository": {
     "type": "git",

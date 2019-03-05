@@ -11,10 +11,13 @@ var SqlUtil;
 var defaultSQLTimeout = process.env.EXP_SQL_TIMEOUT &&
                         !isNaN(parseInt(process.env.EXP_SQL_TIMEOUT)) ?
                         parseInt(process.env.EXP_SQL_TIMEOUT) : 1200000;
+var workerFlag = process.env.EXP_WORKER != null &&
+                 process.env.EXP_WORKER.toUpperCase() !== "FALSE" ?
+                 true : false;
 
 // XXX Change the way supervisord spawns expServer with --experimental-worker
-// const Pool = require("../worker/workerPool.js");
-// const sqlWorkerPool = new Pool({fileName: './sqlWorker.js', max: 9});
+const Pool = require("../worker/workerPool.js");
+const sqlWorkerPool = new Pool({fileName: './sqlWorker.js', max: 9});
 
 var sqlCompilerObjects = {};
 
@@ -1112,7 +1115,7 @@ router.post("/xcsql/query", function(req, res) {
         queryName: req.body.queryTablePrefix,
         optimizations: optimizations
     }
-    executeSql(params)
+    executeSql(params, undefined, workerFlag)
     .then(function(executionOutput) {
         xcConsole.log("Sent schema for resultant table");
         res.send(executionOutput);
@@ -1160,7 +1163,7 @@ router.post("/xcsql/queryWithPublishedTables", [support.checkAuth],
         usePaging: usePaging,
         optimizations: optimizations
     }
-    executeSql(params, type)
+    executeSql(params, type, workerFlag)
     .then(function(output) {
         xcConsole.log("sql query finishes");
         res.send(output);
@@ -1209,48 +1212,6 @@ router.post("/xcsql/getXCqueryWithPublishedTables", [support.checkAuth],
     })
     .fail(function(error) {
         xcConsole.log("get xcalar query error: ", error);
-        res.status(500).send(error);
-    });
-});
-
-router.post("/xcsql/workerTest", [support.checkAuth],
-    function(req, res) {
-    var execid = req.body.execid;
-    var queryName = req.body.queryName;
-    var queryString = req.body.queryString;
-    var limit = req.body.limit;
-    var tablePrefix = req.body.sessionId;
-    var usePaging = req.body.usePaging === "true";
-    // jdbc only passes string to us
-    var checkTime = parseInt(req.body.checkTime);
-    checkTime = isNaN(checkTime) ? undefined : checkTime;
-    tablePrefix = "sql" + tablePrefix.replace(/-/g, "") + "_";
-    var type = "odbc";
-    var optimizations = {
-        dropAsYouGo: req.body.dropAsYouGo,
-        randomCrossJoin: req.body.randomCrossJoin,
-        pushToSelect: req.body.pushToSelect
-    };
-    optimizations.dropAsYouGo = optimizations.dropAsYouGo == undefined ? true : optimizations.dropAsYouGo;
-    optimizations.randomCrossJoin = optimizations.randomCrossJoin == undefined ? false : optimizations.randomCrossJoin;
-    optimizations.pushToSelect = optimizations.pushToSelect == undefined ? true : optimizations.pushToSelect;
-    var params = {
-        execid: execid,
-        queryString: queryString,
-        limit: limit,
-        tablePrefix: tablePrefix,
-        checkTime: checkTime,
-        queryName: queryName,
-        usePaging: usePaging,
-        optimizations: optimizations
-    }
-    executeSql(params, type, true)
-    .then(function(output) {
-        xcConsole.log("sql query finishes");
-        res.send(output);
-    })
-    .fail(function(error) {
-        xcConsole.log("sql query error: ", error);
         res.status(500).send(error);
     });
 });
