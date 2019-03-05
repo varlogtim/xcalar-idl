@@ -13,6 +13,14 @@ module.exports = {
         return execResult; // dfName/tabName => { id: string, nodes: NodeCopyInfo[] }
     },
 
+    getNodes: function() {
+        const dagTabs = DagTabManager.Instance.getTabs();
+        const dagTab = dagTabs[0];
+        const sortedNodes = dagTab.getGraph().getSortedNodes()
+            .map((node) => node.getNodeCopyInfo(true));
+        return sortedNodes; // NodeCopyInfo[]
+    },
+
     setAdvancedConfig: function(panelSelector, config) {
         const codeMirror = document.querySelectorAll(panelSelector + ' .advancedEditor .CodeMirror')[0].CodeMirror;
         codeMirror.setValue(config);
@@ -35,11 +43,22 @@ module.exports = {
         return {categoryClass: categoryClassName, nodeSelector: selector};
     },
 
+    pasteNode: function(nodeInfos) {
+        const dagView = DagViewManager.Instance.getActiveDagView();
+        dagView.pasteNodes(nodeInfos);
+        const nodeIds = dagView.getSelectedNodeIds();
+        return nodeIds;
+    },
+
     getDagViewScroll: function() {
         const $dfArea = DagViewManager.Instance.getActiveArea();
         return {
             left: $dfArea.scrollLeft() + $dfArea.parent().scrollLeft(),
             top: $dfArea.scrollTop() + $dfArea.parent().scrollTop()
         };
+    },
+
+    getFinalWorkbookName: function() {
+        return $("#workbookPanel .workbookBox.noResource .subHeading input").val();
     }
 };

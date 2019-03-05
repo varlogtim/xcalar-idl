@@ -223,9 +223,12 @@ class DagViewManager {
         return this._getAreaByTab(tabId);
     }
 
-
     public getActiveArea(): JQuery {
         return this._getActiveArea();
+    }
+
+    public getActiveDagView(): DagView {
+        return this.activeDagView;
     }
 
     public focusOnNode(nodeId: DagNodeId, tabId: string): XDPromise<JQuery> {
@@ -641,10 +644,6 @@ class DagViewManager {
      */
     public autoAlign(tabId: string): void {
         this.dagViewMap.get(tabId).autoAlign();
-    }
-
-    public getActiveDagView() {
-        return this.activeDagView;
     }
 
     public getAutoAlignPositions(graph: DagGraph): {

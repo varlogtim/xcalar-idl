@@ -1,7 +1,9 @@
 const EventEmitter = require('events');
+const execFunctions = require('../lib/execFunctions');
 
 class UploadWorkbook extends EventEmitter {
     command(fileName, isUpgrade,  cb) {
+        const self = this;
         let extension;
         if (isUpgrade) {
             extension = ".tar.gz";
@@ -13,8 +15,10 @@ class UploadWorkbook extends EventEmitter {
         // upload workbook
         this.api
             .setValue('input#WKBK_uploads', path)
-            .waitForElementVisible('.workbookBox.noResource .subHeading input', 10000)
-            .assert.value(".workbookBox.noResource .subHeading input", fileName)
+            .waitForElementVisible('.workbookBox.noResource .subHeading input', 10000);
+        this.api.execute(execFunctions.getFinalWorkbookName, [], (result) => {
+            self.api.globals.finalWorkbookName = result.value;
+        });
         this.emit('complete');
 
         return this;

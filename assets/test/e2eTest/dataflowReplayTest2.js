@@ -39,21 +39,11 @@ module.exports = {
     },
 
     after: function(browser) {
-        // browser.pause(2000000);
-        browser.deleteWorkbook(testConfig.workbook, testConfig.user);
+        browser.deleteWorkbook(browser.globals.finalWorkbookName, testConfig.user);
     },
 
-    'upload workbook': function(browser) {
-        browser.uploadWorkbook(testConfig.workbook);
-    },
-
-    'activate workbook': function(browser) {
-        // activate workbook
-        browser
-            .click(".workbookBox .content.activate")
-            .pause(1000)
-            .waitForElementNotVisible("#initialLoadScreen", 100000)
-            .waitForElementVisible('.dataflowArea.active.rendered', 100000);
+    'upload and enter workbook': function(browser) {
+        browser.uploadAndEnterWorkbook(testConfig.workbook);
     },
 
     'get tabs and nodes': function(browser) {

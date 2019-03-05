@@ -1,6 +1,5 @@
 
 const testConfig = {
-    user: 'dftest',
     workbook: 'Test-Dataflow-Upgrade',
     isUpgrade: true,
     validation: [
@@ -13,64 +12,52 @@ let datasetNodeId;
 let secondSqlNodeId;
 
 let testTabs = {}; // { id: string, nodes: [] }
-const testTabMapping = new Map(); // WB tabName => newTabName
-const testDfIdMapping = new Map(); // WB df_id => new df_id
-const testTabDfMapping = new Map(); // tabName => dfId
-
-function buildTestUrl(testConfig) {
-    return `http://localhost:8888/testSuite.html?test=n&noPopup=y&animation=y&cleanup=y&close=y&user=${testConfig.user}&id=0`
-}
-
-function findValidateNodeIndex(linkOutName, nodeInfos) {
-    for (let i = 0; i < nodeInfos.length; i ++) {
-        const nodeInfo = nodeInfos[i];
-        if (nodeInfo.type === 'link out' && nodeInfo.input.name === linkOutName) {
-            return i;
-        }
-    }
-    return -1;
-}
-
 module.exports = {
     '@tags': ["upgrade test", "allTests"],
 
     before: function(browser) {
         browser
-            .url(buildTestUrl(testConfig))
+            .url(browser.globals.buildTestUrl(browser.globals.user))
             .waitForElementVisible('#container.noWorkbook', 10000);
     },
 
     after: function(browser) {
         if (testConfig.IMDNames && testConfig.IMDNames.length) {
             browser
-            .click("#dataStoresTab")
-            .click("#datastoreMenu .table .iconSection .refresh")
-            .waitForElementNotPresent("#datastoreMenu .refreshIcon", 50000)
-            .waitForElementPresent('#datastoreMenu .grid-unit[data-id="' + testConfig.IMDNames[0] + '"]', 10000)
+            .click("#dataStoresTab");
 
-            testConfig.IMDNames.forEach((IMDName) => {
-                browser
-                    .moveToElement('#datastoreMenu .grid-unit[data-id="' + IMDName + '"]', 20, 20)
-                    .mouseButtonClick("right")
-                    .moveToElement("#tableGridViewMenu li.delete", 10, 10)
-                    .mouseButtonClick("left")
-                    .click("#alertModal .confirm")
-                    .waitForElementNotPresent('#datastoreMenu .grid-unit[data-id="' + IMDName + '"]');
+            browser.isVisible("#datastoreMenu .menuSection.table", (results) => {
+                if (results.value) {
+                    /* is visible, good */
+                } else {
+                    browser.click("#sourceTblButton")
+                }
+
+                browser.click("#datastoreMenu .table .iconSection .refresh")
+                .waitForElementNotPresent("#datastoreMenu .refreshIcon", 50000)
+                .waitForElementPresent('#datastoreMenu .grid-unit[data-id="' + testConfig.IMDNames[0] + '"]', 10000)
+
+                testConfig.IMDNames.forEach((IMDName) => {
+                    browser
+                        .moveToElement('#datastoreMenu .grid-unit[data-id="' + IMDName + '"]', 20, 20)
+                        .mouseButtonClick("right")
+                        .moveToElement("#tableGridViewMenu li.delete", 10, 10)
+                        .mouseButtonClick("left")
+                        .click("#alertModal .confirm")
+                        .waitForElementNotPresent('#datastoreMenu .grid-unit[data-id="' + IMDName + '"]');
+                });
             });
+
         }
-        browser.deleteWorkbook(testConfig.workbook, testConfig.user);
+        browser.deleteWorkbook(browser.globals.finalWorkbookName, testConfig.user);
     },
 
-    'upload workbook': function(browser) {
-        browser.uploadWorkbook(testConfig.workbook, testConfig.isUpgrade);
-    },
-
-    'activate workbook': function(browser) {
+    'upload and enter workbook': function(browser) {
         browser
+            .uploadWorkbook(testConfig.workbook, testConfig.isUpgrade)
             .click(".workbookBox .content.activate")
             .pause(1000)
-            .waitForElementNotVisible("#initialLoadScreen", 100000)
-
+            .waitForElementNotVisible("#initialLoadScreen", 100000);
     },
 
     'activate tab': function(browser) {
@@ -86,16 +73,7 @@ module.exports = {
     },
 
     'clearAggs': function(browser) {
-        browser.execute(function() {
-            let aggs = DagAggManager.Instance.getAggMap();
-            for (agg in aggs) {
-                DagAggManager.Instance.removeAgg(agg);
-            }
-            setInterval(function() {
-
-            })
-            return true;
-        }, [], null);
+        browser.clearAggregates();
     },
 
     'addPublishIMDNode': function(browser) {
