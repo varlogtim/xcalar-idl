@@ -1190,7 +1190,12 @@ module.exports = function(grunt) {
                   {
                     expand: true,
                     flatten: true,
-                    src: [BLDROOT + "assets/js/shared/util/XcUID.js", BLDROOT+ "assets/js/shared/setup/enums.js", BLDROOT + "assets/js/components/worksheet/xdfManager.js"],
+                    src: [
+                        BLDROOT + "assets/js/shared/util/XcUID.js",
+                        BLDROOT + "assets/js/shared/setup/enums.js",
+                        BLDROOT + "assets/js/components/worksheet/xdfManager.js",
+                        BLDROOT + "assets/js/shared/util/xcHelper.js",
+                    ],
                     dest: BLDROOT + "/services/expServer/dagHelper/"
                  }],
             },

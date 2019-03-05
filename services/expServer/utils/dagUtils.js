@@ -33,7 +33,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     
     // The order of these is needed as there's dependancies between the files.
     global.DagGraph = require("../dagHelper/DagGraph.js").DagGraph;
-    global.xcHelper = require("../sqlHelpers/xcHelper.js").xcHelper;
+    global.xcHelper = require("../dagHelper/xcHelper.js").xcHelper;
     global.DagHelper = require("../DagHelperIndex.js").DagHelper
     global.DagSubGraph = require("../dagHelper/DagSubGraph.js").DagSubGraph;
     global.DagNodeType = require("../dagHelper/DagEnums.js").DagNodeType
