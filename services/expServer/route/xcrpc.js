@@ -91,8 +91,8 @@ router.post("/service/xce", function(req, res) {
        }
        res.status(200).json({"data": resp});
    })
-   .fail(function(){
-       res.status(500).json("Error occured!!");
+   .fail(function(err){
+        res.status(500).json({"error": err.error});
    });
 });
 // Export router
