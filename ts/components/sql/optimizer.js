@@ -226,6 +226,11 @@
                         for (var columnsList of child.value.args.columns) {
                             allColumns = allColumns.concat(columnsList);
                         }
+                        if (operation === "XcalarApiJoin") {
+                            child.value.args.evalString = XDParser.XEvalParser
+                                    .replaceColName(child.value.args.evalString,
+                                                    renameMap, {}, true);
+                        }
                         break;
                     default:
                         return node;
