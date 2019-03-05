@@ -377,17 +377,19 @@
             tableName: table's name
             newTableName(optional): new table's name
         */
-        project: function(colNames, tableName, newTableName) {
+        project: function(columns, tableName, newTableName) {
             var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self._start();
 
             var colInfos = [];
-            for (var colName of colNames) {
+            for (var column of columns) {
+                // For test use
+                assert(column.colType, "Unknown type in synthesize!");
                 var colInfo = {
-                    orig: colName,
-                    new: colName,
-                    type: null
+                    orig: column.rename || column.colName,
+                    new: column.rename || column.colName,
+                    type: xcHelper.convertColTypeToFieldType(xcHelper.convertSQLTypeToColType(column.colType))
                 }
                 colInfos.push(colInfo);
             }
@@ -438,7 +440,7 @@
                 colInfos.push({
                     orig: colName,
                     new: displayName,
-                    type: null
+                    type: xcHelper.convertColTypeToFieldType(xcHelper.convertSQLTypeToColType(column.colType))
                 });
                 if (colName !== displayName) {
                     needSynthesize = true;

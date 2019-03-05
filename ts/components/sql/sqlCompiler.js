@@ -1759,7 +1759,6 @@
                    SQLErrTStr.ProjectAggAgg + JSON.stringify(aggEvalStrArray));
 
             var newXcCols = [];
-            var colNames = [];
             for (var i = 0; i < node.orderCols.length; i++) {
                 var find = false;
                 if (node.orderCols[i].colId) {
@@ -1812,9 +1811,6 @@
                                                 [], "", tableName);
             newRenamedCols = __combineRenameMaps([newRenamedCols,
                                          newRenames]);
-            columns.concat(newXcCols).forEach(function(col) {
-                colNames.push(__getCurrentName(col));
-            });
             for (var id in newRenames) {
                 var find = false;
                 for (var i = 0; i < evalStrArray.length; i++) {
@@ -1869,7 +1865,7 @@
                 })
                 .then(function(ret) {
                     cliStatements += ret.cli;
-                    return self.sqlObj.project(colNames, ret.newTableName);
+                    return self.sqlObj.project(columns.concat(newXcCols), ret.newTableName);
                 })
                 .then(function(ret) {
                     node.usrCols = columns;
@@ -1884,7 +1880,7 @@
                 produceSubqueryCli(self, subqueryArray)
                 .then(function(cli) {
                     cliStatements += cli;
-                    return self.sqlObj.project(colNames, tableName);
+                    return self.sqlObj.project(columns.concat(newXcCols), tableName);
                 })
                 .then(function(ret) {
                     node.usrCols = columns;
@@ -2319,6 +2315,7 @@
                 assert(rs, SQLErrTStr.GroupByNoReplacement);
                 gbMapCol.operator = rs.firstOp;
                 gbMapCol.arguments = rs.arguments;
+                gbMapCol.colType = opOutTypeLookup[gbMapCol.operator];
                 if (aggEvalStrArray[i].numOps > 1) {
                     var newColName = "XC_GB_COL_" +
                                      Authentication.getHashId().substring(3);
@@ -2367,6 +2364,7 @@
                                  Authentication.getHashId().substring(3);
                 gArray = [{operator: "count",
                            aggColName: "1",
+                           colType: "int",
                            newColName: newColName}];
                 tempCol = newColName;
             }
@@ -2955,7 +2953,7 @@
                         columns.push({
                             name: __getCurrentName(unionCols[j]),
                             rename: __getCurrentName(unionCols[j]),
-                            type: "DfUnknown", // backend will figure this out. :)
+                            type: xcHelper.convertSQLTypeToColType(unionCols[j].colType),
                             cast: false // Should already be casted by spark
                         });
                     }
@@ -4014,12 +4012,8 @@
     function __projectAfterCrossJoin(globalStruct, joinNode) {
         var self = this;
         var deferred = PromiseHelper.deferred();
-        var colNames = [];
-        for (var i = 0; i < joinNode.children[0].usrCols.length; i++) {
-            colNames.push(__getCurrentName(joinNode.children[0].usrCols[i]));
-        }
 
-        self.project(colNames, globalStruct.newTableName)
+        self.project(joinNode.children[0].usrCols, globalStruct.newTableName)
         .then(function(ret) {
             globalStruct.cli += ret.cli;
             globalStruct.newTableName = ret.newTableName;
@@ -5763,12 +5757,8 @@
             if (node.usrCols.length + node.xcCols.length
                                             + node.sparkCols.length > 500) {
                 loopStruct.cli += ret.cli;
-                colNameList = node.usrCols.map(function(col) {
-                    return __getCurrentName(col);
-                });
                 node.xcCols = [indexColStruct];
-                colNameList.push(__getCurrentName(indexColStruct));
-                self.sqlObj.project(colNameList, ret.newTableName)
+                self.sqlObj.project(node.usrCols.concat(node.xcCols), ret.newTableName)
                 .then(function(ret) {
                     deferred.resolve(ret);
                 })
@@ -5903,12 +5893,12 @@
 
                 // Column info for union
                 var columns = [{name: gIdColName, rename: gIdColName,
-                                type: "DfUnknown", cast: false}];
+                                type: ColumnType.integer, cast: false}];
                 for (var j = 0; j < gbColNames.length - 1; j++) {
                     columns.push({
                         name: gbColNames[j],
                         rename: gbColNames[j],
-                        type: DfFieldTypeT.DfUnknown,
+                        type: xcHelper.convertSQLTypeToColType(gbColTypes[j]),
                         cast: false
                     });
                 }
@@ -5916,7 +5906,7 @@
                     columns.push({
                         name: gArray[j].newColName,
                         rename: gArray[j].newColName,
-                        type: "DfUnknown",
+                        type: xcHelper.convertSQLTypeToColType(gArray[j].colType),
                         cast: false
                     })
                 }

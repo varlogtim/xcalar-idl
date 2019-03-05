@@ -1802,6 +1802,13 @@ namespace xcHelper {
                 return ColumnType.mixed;
         }
     }
+
+     /**
+     * xcHelper.convertSQLTypeToColType
+     * It's very close to xcHelper.getCastTypeToColType
+     * Maybe we need to combine them
+     * @param type
+     */
     export function convertSQLTypeToColType(type: string): ColumnType {
         switch(type) {
             case "int":
@@ -1814,6 +1821,9 @@ namespace xcHelper {
                 return ColumnType.timestamp;
             case "string":
                 return ColumnType.string;
+            case "numeric":
+            case "money":
+                return ColumnType.money;
             default:
                 return ColumnType.unknown;
         }

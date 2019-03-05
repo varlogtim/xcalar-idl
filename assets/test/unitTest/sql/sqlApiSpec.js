@@ -393,7 +393,7 @@ describe("SQLApi Test", function() {
                 return PromiseHelper.resolve("testTable");
             };
 
-            sqlApi.project(["testCol"])
+            sqlApi.project([{colName: "testCol", colType: "int"}])
             .then(function(res) {
                 expect(res).to.an("object");
                 expect(testColName).to.equal("testCol");
