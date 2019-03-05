@@ -39,7 +39,7 @@ class SynthesizeOpPanel extends BaseOpPanel {
     }
 
     private _submitForm() {
-        let args: DagNodeSynthesizeInput = this._validateAdvancedMode();
+        let args: DagNodeSynthesizeInputStruct = this._validateAdvancedMode();
         if (args == null) {
             // invalid case
             return;
@@ -50,8 +50,8 @@ class SynthesizeOpPanel extends BaseOpPanel {
         return true;
     }
 
-    private _validateAdvancedMode(): DagNodeSynthesizeInput {
-        let args: DagNodeSynthesizeInput;
+    private _validateAdvancedMode(): DagNodeSynthesizeInputStruct {
+        let args: DagNodeSynthesizeInputStruct;
         let error: string;
         try {
             args = this._convertAdvConfigToModel();
@@ -67,7 +67,7 @@ class SynthesizeOpPanel extends BaseOpPanel {
         }
     }
 
-    private _convertAdvConfigToModel(): DagNodeSynthesizeInput {
+    private _convertAdvConfigToModel(): DagNodeSynthesizeInputStruct {
         const input = JSON.parse(this._editor.getValue());
         const error = this._dagNode.validateParam(input);
         if (error) {

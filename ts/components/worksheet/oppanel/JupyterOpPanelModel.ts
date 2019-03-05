@@ -281,7 +281,7 @@ class JupyterOpPanelModel {
 
     }
 
-    private _canRename(colInfo: ProgCol): boolean {
+    private _canRename(_colInfo: ProgCol): boolean {
         // Keep this function, in case we want to recover the old hehavior
         return true;
         // const colType = colInfo.getType();

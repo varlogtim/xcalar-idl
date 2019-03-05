@@ -218,7 +218,7 @@ class UDFPanel {
             "mouseenter",
             ".tooltipOverflow",
             (event: JQueryEventObject): void => {
-                xcTooltip.auto(event.currentTarget as HTMLElement);
+                xcTooltip.auto(<any>event.currentTarget);
             }
         );
     }

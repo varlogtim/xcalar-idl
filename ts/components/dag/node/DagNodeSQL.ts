@@ -699,7 +699,7 @@ class DagNodeSQL extends DagNode {
                     colSchema.backName = upperName;
                     cols.push(colSchema);
                 }
-                const batchId = pubTablesInfo[srcTableName].batchId;
+                // const batchId = pubTablesInfo[srcTableName].batchId;
                 destTableName = xcHelper.randName("sqlTable") + Authentication.getHashId();
                 const selectCli = {
                     "operation": "XcalarApiSelect",

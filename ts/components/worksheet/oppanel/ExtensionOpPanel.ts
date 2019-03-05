@@ -91,20 +91,8 @@ class ExtensionOpPanel extends BaseOpPanel {
             return;
         }
         this.model.args = args;
-        const $bg: JQuery = $("#initialLoadScreen");
-        $bg.show();
-        this.model.submit()
-        .then(() => {
-            this.close();
-        })
-        .fail((error) => {
-            console.error(error);
-            StatusBox.show(JSON.stringify(error),
-            this._getPanel().find(".btn-submit"), false, {side: "top"});
-        })
-        .always(() => {
-            $bg.hide();
-        });
+        this.model.submit();
+        this.close();
     }
 
     private _validate(): boolean {

@@ -64,7 +64,7 @@ class DagNodeFactory {
             case DagNodeType.Synthesize:
                 return new DagNodeSynthesize(options);
             case DagNodeType.SQLFuncIn:
-                return new DagNodeSQLFuncIn(<DagNodeInInfo>options);
+                return new DagNodeSQLFuncIn(<DagNodeSQLFuncInInfo>options);
             case DagNodeType.SQLFuncOut:
                 return new DagNodeSQLFuncOut(options);
             default:

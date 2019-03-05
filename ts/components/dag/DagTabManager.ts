@@ -404,9 +404,9 @@ class DagTabManager {
     }
 
 
-    private _clear(): void {
-        this._getTabArea().empty();
-    }
+    // private _clear(): void {
+    //     this._getTabArea().empty();
+    // }
 
     private _save(): XDPromise<void> {
         let jsonStr: string = JSON.stringify(this._getJSON());

@@ -2571,7 +2571,7 @@ class TblManager {
         }
 
         $thead.on("mouseenter", ".tooltipOverflow", (event) => {
-            xcTooltip.auto(<HTMLElement>event.currentTarget);
+            xcTooltip.auto(<any>event.currentTarget);
         });
     }
 

@@ -1316,7 +1316,7 @@ abstract class DagNode {
             });
             delete this.table;
         } else if (this.getType() == DagNodeType.Aggregate) {
-            let aggNode: DagNodeAggregate = <DagNodeAggregate><unknown>this;
+            let aggNode: DagNodeAggregate = <DagNodeAggregate>this;
             let aggName = aggNode.getAggBackName();
             DagAggManager.Instance.removeValue(aggName);
         }

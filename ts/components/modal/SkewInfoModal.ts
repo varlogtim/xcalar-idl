@@ -180,7 +180,7 @@ class SkewInfoModal {
             const row: string = self._percentageLabel
                       ? Math.round(d.row * 100 * 100) / 100 + "%" // 2 digits
                       : xcHelper.numToStr(d.row);
-            $(this).tooltip({
+            $(this).tooltip(<any>{
                 trigger: "maunal",
                 animation: false,
                 placement: "top",

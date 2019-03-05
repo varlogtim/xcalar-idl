@@ -335,7 +335,7 @@ class ExportSQLTableModal {
             track: true,
         });
         const exportTableName = this._tableName + '_export_' + Authentication.getHashId();
-        const driverColumns: XcalarApiExportColumnT[] = columns.map((selectedCol,i) => {
+        const driverColumns: XcalarApiExportColumnT[] = columns.map((selectedCol) => {
             let col = new XcalarApiExportColumnT();
             col.headerName = selectedCol.getFrontColName();
             col.columnName = selectedCol.getBackColName();

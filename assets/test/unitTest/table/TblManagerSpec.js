@@ -594,27 +594,6 @@ describe("TableManager Test", function() {
             });
         });
 
-        it("TblManager.focusOnTable for active table should work.", function() {
-            TblManager.findAndFocusTable(tableName, true);
-            expect($xcTableWrap = $("#xcTableWrap-" + tableId).find(".tableTitle").hasClass("tblTitleSelected")).to.be.true;
-        });
-
-        it("TblManager.focusOnTable for table should work.", function() {
-            var oldGTables = gTables;
-
-            oldXcalarGetTables = XcalarGetTables;
-
-            XcalarGetTables = function() {
-                return PromiseHelper.resolve("temp");
-            }
-
-            TblManager.findAndFocusTable(tableName, true);
-            expect($xcTableWrap = $("#xcTableWrap-" + tableId).find(".tableTitle").hasClass("tblTitleSelected")).to.be.true;
-
-            gTables = oldGTables;
-            XcalarGetTables = oldXcalarGetTables;
-        });
-
         it("TblManager.sendTableToUndone should work", function(done) {
             var table = gTables[tableId];
             TblManager.sendTableToUndone(tableId, {"remove": true})

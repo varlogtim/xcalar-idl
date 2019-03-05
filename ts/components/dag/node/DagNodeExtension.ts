@@ -133,17 +133,13 @@ class DagNodeExtension extends DagNode {
      */
     public setParam(
         input: DagNodeExtensionInputStruct = <DagNodeExtensionInputStruct>{}
-    ): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+    ): boolean | void {
         this.input.setInput({
             moduleName: input.moduleName,
             functName: input.functName,
             args: input.args
         });
-        super.setParam();
-        deferred.resolve();
-
-        return deferred.promise();
+        return super.setParam();
     }
 
     // XXX TODO: This is a hack now, should check if all the extension

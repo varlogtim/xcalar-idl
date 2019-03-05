@@ -65,7 +65,7 @@ class DagNodeAggregate extends DagNode {
      * @param input {DagNodeAggregateInputStruct}
      * @param input.evalString {string} The aggregate eval string
      */
-    public setParam(input: DagNodeAggregateInputStruct = <DagNodeAggregateInputStruct>{}) {
+    public setParam(input: DagNodeAggregateInputStruct = <DagNodeAggregateInputStruct>{}): boolean | void {
         this.input.setInput({
             evalString: input.evalString,
             dest: input.dest,
@@ -101,9 +101,9 @@ class DagNodeAggregate extends DagNode {
                 node: this.getId(),
                 graph: tabId
             });
-        })
+        });
 
-        super.setParam();
+        return super.setParam();
     }
 
     /**
@@ -147,7 +147,7 @@ class DagNodeAggregate extends DagNode {
         this.setAggVal(null);
     }
 
-    protected _getSerializeInfo(includeStats?: boolean):DagNodeAggregateInfo {
+    protected _getSerializeInfo(includeStats?: boolean): DagNodeAggregateInfo {
         const serializedInfo: DagNodeAggregateInfo = <DagNodeAggregateInfo>super._getSerializeInfo(includeStats);
         if (this.aggVal != null) {
             serializedInfo.aggVal = this.aggVal;

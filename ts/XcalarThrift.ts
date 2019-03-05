@@ -5519,12 +5519,12 @@ XcalarRefreshTable = function(
     return deferred.promise();
 };
 
-XcalarRestoreTable = function(pubTableName: string): XDPromise<XcalarApiRestoreTableOutputT> {
+XcalarRestoreTable = function(pubTableName: string): XDPromise<any> {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
 
-    const deferred: XDDeferred<StatusT> = jQuery.Deferred();
+    const deferred: XDDeferred<any> = jQuery.Deferred();
     xcalarRestoreTable(tHandle, pubTableName)
         .then(deferred.resolve)
         .fail(function (error) {

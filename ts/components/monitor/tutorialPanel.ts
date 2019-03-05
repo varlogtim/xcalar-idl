@@ -131,7 +131,6 @@ class TutorialPanel {
         let deferred: XDDeferred<any> = PromiseHelper.deferred();
         let url: string = xcHelper.getAppUrl();
         xcHelper.toggleBtnInProgress($submitBtn, true);
-        const self = this;
         let name: string = WorkbookPanel.wbDuplicateName(tut.getName(),
             WorkbookManager.getWorkbooks(), 0);
         this.request({

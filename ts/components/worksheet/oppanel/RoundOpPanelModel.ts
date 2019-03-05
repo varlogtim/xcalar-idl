@@ -210,17 +210,17 @@ class RoundOpPanelModel {
         return this._allColMap;
     }
 
-    private _genColName(prefix: string) {
-        const allCols = this.getColNameSet();
+    // private _genColName(prefix: string) {
+    //     const allCols = this.getColNameSet();
 
-        let result: string = '';
-        for (let retry = 1; retry <= 50; retry ++) {
-            result = `${prefix}-round-${retry}`;
-            if (!allCols.has(result)) {
-                break;
-            }
-        }
+    //     let result: string = '';
+    //     for (let retry = 1; retry <= 50; retry ++) {
+    //         result = `${prefix}-round-${retry}`;
+    //         if (!allCols.has(result)) {
+    //             break;
+    //         }
+    //     }
 
-        return result;
-    }
+    //     return result;
+    // }
 }

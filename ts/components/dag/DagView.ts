@@ -931,7 +931,7 @@ class DagView {
         const allNewNodeIds: DagNodeId[] = [];
         const oldNodeIdMap = {};
         const allNewNodes = [];
-        const nodeToRemove: bolean[] = [];
+        const nodeToRemove: boolean[] = [];
 
         this.dagTab.turnOffSave();
 
@@ -1793,7 +1793,7 @@ class DagView {
             const newAggregates: AggregateInfo[] = [];
             dagInfoList.forEach((dagNodeInfo: DagNodeInfo) => {
                 if (dagNodeInfo.type == DagNodeType.Aggregate) {
-                    let aggParam = dagNodeInfo.input;
+                    let aggParam = <DagNodeAggregateInputStruct>dagNodeInfo.input;
                     if (aggParam.dest != "" && !DagAggManager.Instance.hasAggregate(this.dagTab.getId(), aggParam.dest)) {
                         let agg: string = aggParam.dest;
                         if (agg[0] == gAggVarPrefix) {
@@ -2410,7 +2410,7 @@ class DagView {
         broadcast: boolean = true
     ): void {
         const $dfArea: JQuery = DagViewManager.Instance.getAreaByTab(tabId);
-        const g = d3.select($dfArea.find('.operator[data-nodeid = "' + nodeId + '"]')[0]);
+        // const g = d3.select($dfArea.find('.operator[data-nodeid = "' + nodeId + '"]')[0]);
         let pct: number;
         if (stats.state === DgDagStateT.DgDagStateReady) {
             pct = 100;

@@ -441,7 +441,7 @@ class DagNodeExecutor {
         return deferred.promise();
     }
 
-    private _join(optimized?: boolean): XDPromise<string> {
+    private _join(_optimized?: boolean): XDPromise<string> {
         const node: DagNodeJoin = <DagNodeJoin>this.node;
         const params: DagNodeJoinInputStruct = node.getParam(this.replaceParam);
         const parents: DagNode[] = node.getParents();
@@ -555,7 +555,7 @@ class DagNodeExecutor {
         return rename;
     }
 
-    private _map(optimized: boolean): XDPromise<string> {
+    private _map(_optimized: boolean): XDPromise<string> {
         const node: DagNodeMap = <DagNodeMap>this.node;
         const params: DagNodeMapInputStruct = node.getParam(this.replaceParam);
         const mapStrs: string[] = [];

@@ -3,7 +3,7 @@ class DagTabQuery extends DagTabProgress {
     private static _abandonedQueryPrefix;
     private _createdTime: number = null;
     private _isSDK: boolean;
-    private _state: string;
+    protected _state: string;
 
     constructor(options: {
         id: string,

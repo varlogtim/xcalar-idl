@@ -76,7 +76,7 @@ class DagSharedActionService {
                     this._lockedDataflow.delete(arg.tabId);
                 }
             } else if (event === DagGraphEvents.DeleteGraph) {
-                this._deleteGraphEvent(tab);
+                this._deleteGraphEvent(<DagTabPublished>tab);
             }
         } catch (e) {
             console.error(e);

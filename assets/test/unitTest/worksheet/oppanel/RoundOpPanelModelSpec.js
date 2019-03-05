@@ -214,14 +214,14 @@ describe('RoundOpPanelModel Test', () => {
     });
 
     describe('Gen column name functions should work', () => {
-        it('_genColName', () => {
-            const model = RoundOpPanelModel.fromDagInput(preset.columnMap, {
-                eval: [{ evalString: 'round(abc,1)', newField: 'newCol' }],
-                icv: false
-            });
-            const newColumn = model._genColName('col');
-            expect(newColumn).to.equal('col-round-11');
-        });
+        // it('_genColName', () => {
+        //     const model = RoundOpPanelModel.fromDagInput(preset.columnMap, {
+        //         eval: [{ evalString: 'round(abc,1)', newField: 'newCol' }],
+        //         icv: false
+        //     });
+        //     const newColumn = model._genColName('col');
+        //     expect(newColumn).to.equal('col-round-11');
+        // });
 
         it('autofillEmptyDestColumn', () => {
             const model = RoundOpPanelModel.fromDagInput(preset.columnMap, {
