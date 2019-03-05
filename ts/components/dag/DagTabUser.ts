@@ -195,7 +195,6 @@ class DagTabUser extends DagTab {
         .then(() => {
             this._trigger("save");
             Log.commit();
-            KVStore.logSave(true);
             deferred.resolve();
         })
         .fail(deferred.reject);

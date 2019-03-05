@@ -137,11 +137,6 @@ window.Log = (function($, Log) {
 
         Log.scrollToBottom();
         updateUndoRedoState();
-
-        if (!isBackendOperation(xcLog)) {
-            // we use this to mark unsave state
-            KVStore.logChange();
-        }
     };
 
     Log.errorLog = function(title, options, cli, error) {
@@ -319,11 +314,6 @@ window.Log = (function($, Log) {
             logCursor = c;
             updateLogPanel(logCursor);
             passed = true;
-            if (logCursor === lastSavedCursor) {
-                KVStore.logSave();
-            } else {
-                KVStore.logChange();
-            }
         })
         .fail(function(error) {
             console.error("undo failed", error);
@@ -403,11 +393,6 @@ window.Log = (function($, Log) {
             logCursor = c - 1;
             updateLogPanel(logCursor);
             passed = true;
-            if (logCursor === lastSavedCursor) {
-                KVStore.logSave();
-            } else {
-                KVStore.logChange();
-            }
         })
         .fail(function(error) {
             console.error("redo failed", error);

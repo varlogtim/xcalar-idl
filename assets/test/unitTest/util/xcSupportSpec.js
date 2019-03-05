@@ -70,14 +70,12 @@ describe('XcSupport Test', () => {
             const oldCommitCheck = XcUser.CurrentUser.commitCheck;
             const oldMemCheck = MemoryAlert.Instance.check;
             const oldLogCommit = Log.hasUncommitChange;
-            const oldKVCommit = KVStore.hasUnCommitChange;
             const oldCommit = KVStore.commit;
             let test = false;
 
             XcUser.CurrentUser.commitCheck = () => PromiseHelper.resolve();
             MemoryAlert.Instance.check = () => PromiseHelper.resolve();
             Log.hasUncommitChange = () => false;
-            KVStore.hasUnCommitChange = () => false;
             KVStore.commit = () => {
                 test = true;
                 return PromiseHelper.resolve();
@@ -95,7 +93,6 @@ describe('XcSupport Test', () => {
                 XcUser.CurrentUser.commitCheck = oldCommitCheck;
                 MemoryAlert.Instance.check = oldMemCheck;
                 Log.hasUncommitChange = oldLogCommit;
-                KVStore.hasUnCommitChange = oldKVCommit;
                 KVStore.commit = oldCommit;
             });
         });

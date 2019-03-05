@@ -4,11 +4,7 @@ class KVStore {
     // and when change the store key, change it here, it will
     // apply to all places
     private static keys: Map<string, string> = new Map();
-    private static isUnCommit: boolean = false;
-    private static saveTimeTimer: number;
-    private static commitCnt: number = 0;
     private static metaInfos: METAConstructor;
-
 
     /**
      * KVStore.setupUserAndGlobalKey
@@ -50,45 +46,6 @@ class KVStore {
     }
 
     /**
-     * KVStore.hasUnCommitChange
-     */
-    public static hasUnCommitChange(): boolean {
-        return KVStore.isUnCommit;
-    }
-
-    /**
-     * KVStore.logChange
-     */
-    public static logChange(): void {
-        KVStore.isUnCommit = true;
-        $("#favicon").attr("href", paths.faviconUnsave);
-    }
-
-    /**
-     * KVStore.logSave
-     * @param updateUI
-     */
-    public static logSave(updateUI: boolean): void {
-        KVStore.isUnCommit = false;
-
-        $("#favicon").attr("href", paths.favicon);
-
-        if (!updateUI) {
-            return;
-        }
-
-        let name = "N/A";
-        const activeWKBKId = WorkbookManager.getActiveWKBK();
-        if (activeWKBKId != null) {
-            const workbook = WorkbookManager.getWorkbooks()[activeWKBKId];
-            if (workbook != null) {
-                name = workbook.name;
-            }
-        }
-        $("#worksheetInfo .wkbkName").text(name);
-    }
-
-    /**
      * KVStore.list
      * @param keyRegex
      * @param scope
@@ -102,13 +59,11 @@ class KVStore {
      */
     public static commit(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        this._updateCommitCnt();
 
         XcSupport.stopHeartbeatCheck();
 
         this._commitWKBKInfo()
         .then(() => {
-            KVStore.logSave(true);
             deferred.resolve();
         })
         .fail((error) => {
@@ -219,10 +174,6 @@ class KVStore {
         const key: string = KVStore.getKey("gSettingsKey");
         const kvStore = new KVStore(key, gKVScope.GLOB);
         return kvStore.getInfo();
-    }
-
-    private static _updateCommitCnt() {
-        KVStore.commitCnt++;
     }
 
     private static _getMetaInfo(): XDPromise<any> {

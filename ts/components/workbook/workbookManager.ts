@@ -38,9 +38,6 @@ namespace WorkbookManager {
                 console.error("Setup Workbook fails!", error);
             }
             deferred.reject(error);
-        })
-        .always(function() {
-            KVStore.logSave(true);
         });
 
         return deferred.promise();

@@ -902,7 +902,6 @@ class DagList {
             const workbook = WorkbookManager.getWorkbooks()[activeWKBKId];
             workbook.update();
         }
-        KVStore.logSave(true);
         return promise;
     }
 

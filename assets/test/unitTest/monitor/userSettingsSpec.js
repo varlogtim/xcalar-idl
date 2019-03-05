@@ -28,21 +28,15 @@ describe("User Setting Test", function() {
     });
 
     describe("UserSettings Commit Test", function() {
-        var oldLogChange;
         var oldPut;
         var oldShowSuccess;
         var testKey;
         var successMsg;
 
         before(function() {
-            oldLogChange = KVStore.logChange;
             oldPut =  KVStore.prototype.put;
             oldPutMutex =  KVStore.prototype.putWithMutex;
             oldShowSuccess = xcHelper.showSuccess;
-
-            KVStore.logChange = function() {
-                return;
-            };
 
             KVStore.prototype.put = function() {
                 testKey = this.key;
@@ -198,7 +192,6 @@ describe("User Setting Test", function() {
         });
 
         after(function() {
-            KVStore.logChange = oldLogChange;
             KVStore.prototype.put = oldPut;
             KVStore.prototype.putWithMutex = oldPutMutex;
             xcHelper.showSuccess = oldShowSuccess;

@@ -195,7 +195,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
                     $severitySection.removeClass("xc-hidden");
                     $modal.find(".subjectArea").removeClass("xc-hidden");
                     $commentSection.removeClass("inactive");
-                    $modal.find(".confirm").text(CommonTxtTstr.GenTicket);
+                    $modal.find(".confirm").text(CommonTxtTstr.FileTicket);
                 }
             },
             "container": "#supTicketModal"
@@ -747,7 +747,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         $modal.removeClass("expanded");
         $ticketIdSection.removeClass("fetching");
         $modal.find(".row.expanded").removeClass("expanded");
-        $modal.find(".confirm").text(CommonTxtTstr.GenTicket);
+        $modal.find(".confirm").text(CommonTxtTstr.FileTicket);
 
         Alert.unhide();
         StatusBox.forceHide();

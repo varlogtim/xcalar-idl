@@ -927,7 +927,7 @@ namespace xcManager {
         window.onbeforeunload = function(): string {
             xcManager.unload(true);
             markUserUnload();
-            if (Log.hasUncommitChange() || KVStore.hasUnCommitChange()) {
+            if (Log.hasUncommitChange()) {
                 return CommonTxtTstr.LogoutWarn;
             } else {
                 return CommonTxtTstr.LeaveWarn;

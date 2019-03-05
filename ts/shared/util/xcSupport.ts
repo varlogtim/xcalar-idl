@@ -5,7 +5,7 @@ namespace XcSupport {
     var _heartbeatLock: number = 0;
 
     function autoSave(): XDPromise<void> {
-        if (Log.hasUncommitChange() || KVStore.hasUnCommitChange()) {
+        if (Log.hasUncommitChange()) {
             return KVStore.commit();
         } else {
             return PromiseHelper.resolve();

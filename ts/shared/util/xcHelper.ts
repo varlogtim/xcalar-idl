@@ -2240,8 +2240,8 @@ namespace xcHelper {
                 // generate bundle button
                 html = '<button type="button" class="btn genSub" ' +
                         'data-toggle="tooltip" title="' +
-                        TooltipTStr.GenTicket + '">' +
-                            CommonTxtTstr.GenTicket +
+                        TooltipTStr.FileTicket + '">' +
+                            CommonTxtTstr.FileTicket +
                         '</button>';
                 $btn = $(html);
                 $btn.click(function() {
