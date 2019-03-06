@@ -223,7 +223,7 @@ class PTblManager {
         let currentStep: number = 1;
         let currentMsg: string = TblTStr.Importing;
         this._refreshTblView(tableInfo, currentMsg, currentStep, totalStep);
-
+        tableInfo.txId = txId;
         this._createDataset(txId, dsName, sourceArgs)
         .then(() => {
             hasDataset = true;
@@ -266,6 +266,9 @@ class PTblManager {
                 error: error
             });
             deferred.reject(error, hasDataset);
+        })
+        .always(() => {
+            delete tableInfo.txId;
         });
 
         return deferred.promise();

@@ -12,6 +12,7 @@ class PbTblInfo {
     public state: PbTblState;
     public loadMsg: string;
     public dsName: string;
+    public txId: number;
 
     private _cachedSelectResultSet: string;
 
@@ -146,11 +147,18 @@ class PbTblInfo {
         this.active = true;
     }
 
-    public cancelActivating(): XDPromise<void> {
-        if (this.state !== PbTblState.Activating) {
-            return PromiseHelper.resolve();
+    public cancel(): XDPromise<void> {
+        if (this.state === PbTblState.Activating) {
+            return XcalarUnpublishTable(this.name, true);
+        } else if (this.loadMsg &&
+            this.loadMsg.includes(TblTStr.Importing) &&
+            this.txId != null
+        ) {
+            // when it's creating dataset
+            return QueryManager.cancelQuery(this.txId);
+        } else {
+            return PromiseHelper.reject();
         }
-        return XcalarUnpublishTable(this.name, true);
     }
 
     /**

@@ -357,7 +357,7 @@ ErrTStr = {
     "RestoreDS": "Restore Dataset Error",
     "RestoreDSNoLoadArgs": "No load args in the configuration, cannot restore dataset.",
     "ParseSchema": "Invalid text to parse as schema",
-
+    'CannotCancel': "Cannot cancel the operation",
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +
                       ' choose another name.',

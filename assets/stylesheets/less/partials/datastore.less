@@ -3967,9 +3967,17 @@ table.datasetTable {
 }
 
 #tableGridViewMenu {
-    &:not(.activating) {
+    &:not(.cancelable) {
         .dsOpt {
             &.cancel {
+                display: none;
+            }
+        }
+    }
+
+    &.loading {
+        .dsOpt {
+            &.delete {
                 display: none;
             }
         }

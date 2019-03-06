@@ -422,10 +422,14 @@ class TblSource {
         });
     }
 
-    private _cancelActivating(tableName: string): void {
+    private _cancelTable(tableName: string): void {
         let tableInfo = this._tables.get(tableName);
         if (tableInfo != null) {
-            tableInfo.cancelActivating();
+            tableInfo.cancel()
+            .fail((error) => {
+                error = error || ErrTStr.CannotCancel;
+                Alert.error(StatusMessageTStr.CancelFail, error);
+            });
         }
     }
 
@@ -622,10 +626,10 @@ class TblSource {
                     }
 
                     if ($grid.hasClass("loading")) {
-                        classes += " loading";
+                        classes += " loading cancelable";
                     }
                     if ($grid.hasClass("activating")) {
-                        classes += " activating";
+                        classes += " activating cancelable";
                     }
                 } else {
                     classes += " bgOpts";
@@ -714,7 +718,7 @@ class TblSource {
             if (event.which !== 1) {
                 return;
             }
-            this._cancelActivating($gridMenu.data("id"));
+            this._cancelTable($gridMenu.data("id"));
         });
 
         $gridMenu.on("mouseenter", ".sort", () => {
