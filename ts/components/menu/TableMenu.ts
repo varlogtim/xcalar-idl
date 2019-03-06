@@ -253,23 +253,6 @@ class TableMenu extends AbstractMenu {
             }, 0);
         });
 
-        $subMenu.find(".addNoDelete").mouseup((event) => {
-            if (event.which !== 1) {
-                return;
-            }
-            const tableId: TableId = $tableMenu.data("tableId");
-            const tableName: string = gTables[tableId].getName();
-            TblManager.makeTableNoDelete(tableName);
-        });
-
-        $subMenu.find(".removeNoDelete").mouseup((event) => {
-            if (event.which !== 1) {
-                return;
-            }
-            const tableId: TableId = $tableMenu.data("tableId");
-            TblManager.removeTableNoDelete(tableId);
-        });
-
         $subMenu.find(".generateIcv").mouseup((event) => {
             if (this._isInvalidTrigger(<JQueryEventObject>event)) {
                 return;

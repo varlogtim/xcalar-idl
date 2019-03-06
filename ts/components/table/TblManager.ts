@@ -886,33 +886,6 @@ class TblManager {
     }
 
     /**
-     * TblManager.makeTableNoDelete
-     * @param tableName
-     */
-    public static makeTableNoDelete(tableName: string): TableMeta {
-        const tableId: TableId = xcHelper.getTableId(tableName);
-        const table: TableMeta = gTables[tableId] || TblManager.addUntrackedTable(tableName);
-
-        if (!table) {
-            return null;
-        }
-        table.addNoDelete();
-        return table;
-    }
-
-    /**
-     * TblManager.removeTableNoDelete
-     * @param tableId
-     */
-    public static removeTableNoDelete(tableId: TableId): TableMeta {
-        const table: TableMeta = gTables[tableId];
-        table.removeNoDelete();
-        const $tableHeader: JQuery = $("#xcTheadWrap-" + tableId);
-        $tableHeader.find(".lockIcon").remove();
-        return table;
-    }
-
-    /**
      * TblManager.restoreTableMeta
      * @param tables
      */

@@ -152,21 +152,6 @@ describe("TableManager Test", function() {
             delete gTables[tableId];
         });
 
-        it("should make and remove noDelete", function() {
-            // case 1
-            var table = TblManager.makeTableNoDelete("test");
-            expect(table).to.be.null;
-
-            var tableId = xcHelper.randName("id");
-            var tableName = "test#" + tableId;
-            table = TblManager.makeTableNoDelete(tableName);
-            expect(table.noDelete).to.be.true;
-            table = TblManager.removeTableNoDelete(tableId);
-            expect(table.noDelete).to.be.false;
-            // clear up
-            delete gTables[tableId];
-        });
-
         it("TblManager.adjustRowHeights should work", function() {
             var $trs = $('<tr class="row0"><td class="col0"></td></tr>');
             var tableId = xcHelper.randName("testTable");

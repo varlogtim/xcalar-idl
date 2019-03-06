@@ -901,8 +901,6 @@ declare class TableMeta {
     public getImmediateNames(): string[];
     public beUndone(): void;
     public updateTimeStamp(): void;
-    public addNoDelete(): void;
-    public removeNoDelete(): void;
     public showIndexStyle(): boolean;
     public getKeyName(): string[];
     public getSkewness(): number;
