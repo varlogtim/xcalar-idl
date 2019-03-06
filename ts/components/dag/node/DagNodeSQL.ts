@@ -947,27 +947,9 @@ class DagNodeSQL extends DagNode {
             const colName = allCols[i].rename || allCols[i].colName;
             columns.push({name: colName,
                           backName: colName,
-                          type: this._getColType(allCols[i].colType)});
+                          type: xcHelper.getCastTypeToColType(allCols[i].colType)});
         }
         return columns;
-    }
-    private _getColType(sqlType: string) {
-        switch (sqlType) {
-            case "float":
-                return ColumnType.float;
-            case "int":
-                return ColumnType.integer;
-            case "string":
-                return ColumnType.string;
-            case "bool":
-                return ColumnType.boolean;
-            case "timestamp":
-                return ColumnType.timestamp;
-            case "numeric":
-                return ColumnType.money;
-            default:
-                return null;
-        }
     }
 
     private _getSchemasAndQueriesFromSqlFuncs(

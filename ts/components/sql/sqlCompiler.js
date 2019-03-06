@@ -38,7 +38,7 @@
         "expressions.XcType.float": "float", // Xcalar generated
         "expressions.XcType.int": "int", // Xcalar generated
         "expressions.XcType.bool": "bool", // Xcalar generated
-        "expressions.XcType.numeric": "numeric", // Xcalar generated
+        "expressions.XcType.money": "money", // Xcalar generated
         "expressions.XcType.string": "string", // Xcalar generated
         "expressions.XcType.timestamp": "timestamp", // Xcalar generated
         // conditionalExpressions.scala
@@ -1048,7 +1048,9 @@
                 } else if (node.value.name[0] === "b") {
                     node.colType = "bool";
                 } else if (node.value.name[0] === "n") {
-                    node.colType = "numeric";
+                    node.colType = "money";
+                } else if (node.value.name[0] === "m") {
+                    node.colType = "money";
                 } else if (node.value.name[0] === "t") {
                     node.colType = "timestamp";
                 } else {
@@ -1078,9 +1080,9 @@
         }
         opName = node.value.class.substring(
                             node.value.class.indexOf("expressions."));
-        if (opName === "expressions.Round" && getColType(node.children[0]) === "numeric") {
+        if (opName === "expressions.Round" && getColType(node.children[0]) === "money") {
             node.value.class = node.value.class + "Numeric";
-            node.colType = "numeric";
+            node.colType = "money";
         } else if (opName === "expressions.Add" || opName === "expressions.Subtract"
             || opName === "expressions.Multiply" || opName === "expressions.Abs"
             || opName === "expressions.Divide"
@@ -1089,28 +1091,28 @@
             || opName === "expressions.aggregate.Min"
             || opName === "expressions.aggregate.Average") {
             var allInteger = true;
-            var allNumeric = true;
+            var allMoney = true;
             for (var i = 0; i < node.children.length; i++) {
                 if (getColType(node.children[i]) != "int") {
                     allInteger = false;
                 }
-                if (getColType(node.children[i]) != "numeric") {
-                    allNumeric = false;
+                if (getColType(node.children[i]) != "money") {
+                    allMoney = false;
                 }
             }
             if (allInteger && opName != "expressions.aggregate.Average"
                 && opName != "expressions.Divide") {
                 node.value.class = node.value.class + "Integer";
                 node.colType = "int";
-            } else if (allNumeric) {
-                // Numeric and integer ops are slightly different
+            } else if (allMoney) {
+                // Money and integer ops are slightly different
                 node.value.class = node.value.class + "Numeric";
-                node.colType = "numeric";
+                node.colType = "money";
             }
         } else if (opName === "expressions.If" && getColType(node.children[1])
-                   === "numeric" && getColType(node.children[2]) === "numeric") {
+                   === "money" && getColType(node.children[2]) === "money") {
             node.value.class = node.value.class + "Numeric";
-            node.colType = "numeric";
+            node.colType = "money";
         }
         node.visited = true;
         if (opName === "expressions.UnaryMinus" && node.children[1].colType === "int") {
@@ -4609,7 +4611,7 @@
                     opStruct.opName = opStruct.opName + "Integer";
                 } else if ((opStruct.opName === "Sum" || opStruct.opName === "Max"
                 || opStruct.opName === "Min" || opStruct.opName === "Average")
-                && opStruct.args[0].colType === "numeric") {
+                && opStruct.args[0].colType === "money") {
                     opStruct.opName = opStruct.opName + "Numeric";
                 }
                 retStruct.agg.forEach(function(aggObj) {
@@ -6724,7 +6726,7 @@
                            condTree.value.dataType === "date") {
                     outStr += 'timestamp("' + condTree.value.value + '")';
                 } else if (condTree.value.dataType.indexOf("decimal(") === 0) {
-                    outStr += 'numeric(\'' + condTree.value.value + '\')';
+                    outStr += 'money(\'' + condTree.value.value + '\')';
                 } else {
                     // XXX Check how they rep booleans
                     outStr += condTree.value.value;
@@ -7071,7 +7073,7 @@
             // assert(0, SQLErrTStr.UnsupportedColType + JSON.stringify(dataType));
         }
         if (dataType.indexOf("decimal(") != -1) {
-            return "numeric";
+            return "money";
         }
         switch (dataType) {
             case ("double"):
@@ -7138,14 +7140,14 @@
 
     var opOutTypeLookup = {
         "abs": "float",
-        "absNumeric": "numeric",
+        "absNumeric": "money",
         "absInt": "int",
         "add": "float",
         "addInteger": "int",
-        "addNumeric": "numeric",
+        "addNumeric": "money",
         "ceil": "float",
         "div": "float",
-        "divNumeric": "numeric",
+        "divNumeric": "money",
         "exp": "float",
         "floatCompare": "int",
         "floor": "float",
@@ -7155,13 +7157,13 @@
         "mod": "int",
         "mult": "float",
         "multInteger": "int",
-        "multNumeric": "numeric",
+        "multNumeric": "money",
         "pow": "float",
         "round": "float",
         "sqrt": "float",
         "sub": "float",
         "subInteger": "int",
-        "subNumeric": "numeric",
+        "subNumeric": "money",
         "bitCount": "int",
         "bitLength": "int",
         "bitand": "int",
@@ -7186,7 +7188,7 @@
         "isInf": "bool",
         "isInteger": "bool",
         "isNull": "bool",
-        "isNumeric": "numeric",
+        "isNumeric": "money",
         "isString": "bool",
         "le": "bool",
         "like": "bool",
@@ -7212,7 +7214,7 @@
         "ifInt": "int",
         "ifStr": "string",
         "ifTimestamp": "timestamp",
-        "ifNumeric": "numeric",
+        "ifNumeric": "money",
         "xdbHash": "int",
         "ascii": "int",
         "chr": "string",
@@ -7276,7 +7278,8 @@
         "bool": "bool",
         "float": "float",
         "int": "int",
-        "numeric": "numeric",
+        "money": "money",
+        "numeric": "money",
         "string": "string",
         "timestamp": "timestamp",
         // "default:dayOfWeek": "string",
@@ -7290,22 +7293,22 @@
         // "default:convertFormats": "string",
         // "default:convertFromUnixTS": "string",
         "avg": "float",
-        "avgNumeric": "numeric",
+        "avgNumeric": "money",
         "count": "int",
         "listAgg": "string",
         "maxFloat": "float",
         "maxInteger": "int",
-        "maxNumeric": "numeric",
+        "maxNumeric": "money",
         "maxString": "string",
         "maxTimestamp": "timestamp",
         "minFloat": "float",
         "minInteger": "int",
-        "minNumeric": "numeric",
+        "minNumeric": "money",
         "minString": "string",
         "minTimestamp": "timestamp",
         "sum": "float",
         "sumInteger": "int",
-        "sumNumeric": "numeric",
+        "sumNumeric": "money",
         "stdevp": "float",
         "stdev": "float",
         "varp": "float",

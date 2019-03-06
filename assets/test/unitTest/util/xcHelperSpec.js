@@ -1928,7 +1928,7 @@ describe("xcHelper Test", function() {
         expect(res).to.equal("timestamp(test)");
         // case 6
         res = xcHelper.castStrHelper("test", ColumnType.money);
-        expect(res).to.equal("numeric(test)");
+        expect(res).to.equal("money(test)");
         // case 7
         res = xcHelper.castStrHelper("test", "test");
         expect(res).to.equal("test(test)");

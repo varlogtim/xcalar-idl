@@ -3788,7 +3788,7 @@ namespace xcHelper {
                 mapStr += "timestamp(";
                 break;
             case (ColumnType.money):
-                mapStr += "numeric(";
+                mapStr += "money(";
                 break;
             case (null):
             case (undefined):
@@ -3824,6 +3824,8 @@ namespace xcHelper {
                 return ColumnType.string;
             case ("timestamp"):
                 return ColumnType.timestamp;
+            case ("money"):
+                return ColumnType.money;
             case ("numeric"):
                 return ColumnType.money;
             default:
