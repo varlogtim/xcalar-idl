@@ -11,7 +11,7 @@ let testDatasetId; // id of the result dataset that contains the correct exporte
 let sqlNodeId;
 
 module.exports = {
-    '@tags': ["workbook tutorial",  "allTests"],
+    '@tags': ["workbook tutorial"],
 
     before: function(browser) {
         browser
