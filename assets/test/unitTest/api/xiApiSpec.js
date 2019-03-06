@@ -183,10 +183,8 @@ describe('XIApi Test', () => {
             const txId = 0;
             const tableName = 'testTable#abc';
 
-
             before(() => {
                 castColumns = XIApi.__testOnly__.castColumns;
-                Authentication.getHashId = () => '#12';
             });
 
             it('should return when there is no column to cast', (done) => {
@@ -237,7 +235,6 @@ describe('XIApi Test', () => {
 
             before(() => {
                 synthesizeColumns = XIApi.__testOnly__.synthesizeColumns;
-                Authentication.getHashId = () => '#12';
             });
 
             it('should return when there is no column to synthesize', (done) => {
@@ -750,8 +747,8 @@ describe('XIApi Test', () => {
                         expect(testJoinType).to.equal(JoinOperatorT.InnerJoin);
                         expect(tempTables.length).to.equal(2);
                         expect(tempCols.length).to.equal(2);
-                        expect(tempCols[0]).to.equal('col_2');
-                        expect(tempCols[1]).to.equal('col_3');
+                        expect(tempCols[0]).to.equal('col__2');
+                        expect(tempCols[1]).to.equal('col__3');
                         done();
                     })
                     .fail(() => {
@@ -931,10 +928,6 @@ describe('XIApi Test', () => {
     });
 
     describe('Public Function Test', () => {
-        before(() => {
-            Authentication.getHashId = () => '#12';
-        });
-
         it('XIApi.filter should work', (done) => {
             const oldFunc = XIApi.query;
             XIApi.query = () => PromiseHelper.resolve();
