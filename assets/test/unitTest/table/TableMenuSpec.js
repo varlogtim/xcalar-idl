@@ -13,7 +13,7 @@ describe('TableMenu Test', function() {
 
     before(function() {
         UnitTest.onMinMode();
-        
+
         tableName = xcHelper.randName("test") + Authentication.getHashId();
         tableId = xcHelper.getTableId(tableName);
         let tableCols = [];
@@ -500,26 +500,6 @@ describe('TableMenu Test', function() {
                 expect(called).to.be.true;
 
                 ColManager.maximizeCols = cachedFunc;
-            });
-
-            it('sort', function() {
-                var cachedFunc = ColMenu.prototype._createNodeAndShowForm;
-                var called = false;
-                ColMenu.prototype._createNodeAndShowForm = function(type, tId, colNums) {
-                    expect(type).to.equal(DagNodeType.Sort);
-                    expect(colNums[0]).to.equal(12);
-                    expect(colNums.length).to.equal(1);
-                    expect(tId).to.equal(tableId);
-                    called = true;
-                };
-
-                $colSubMenu.find('.sortView').eq(0).trigger(rightMouseup);
-                expect(called).to.be.false;
-
-                $colSubMenu.find('.sortView').eq(0).trigger(fakeEvent.mouseup);
-                expect(called).to.be.true;
-
-                ColMenu.prototype._createNodeAndShowForm = cachedFunc;
             });
 
             it('Set Op panel', function() {

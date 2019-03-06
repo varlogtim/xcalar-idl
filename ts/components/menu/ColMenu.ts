@@ -360,16 +360,6 @@ class ColMenu extends AbstractMenu {
             ColManager.sortColumn(colNums, tableId, XcalarOrderingT.XcalarOrderingDescending);
         });
 
-        // XXX TODO: change to DF 2.0
-        $subMenu.on('mouseup', '.sortView', (event) => {
-            if (event.which !== 1) {
-                return;
-            }
-            const tableId: TableId = $colMenu.data('tableId');
-            const colNums: number[] = $colMenu.data("colNums");
-            this._createNodeAndShowForm(DagNodeType.Sort, tableId, colNums);
-        });
-
         $subMenu.on('mouseup', '.union, .intersect, .except', (event) => {
             if (this._isInvalidTrigger(event)) {
                 return;

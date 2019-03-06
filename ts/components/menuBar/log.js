@@ -809,11 +809,16 @@ window.Log = (function($, Log) {
                 var options = xcLog.getOptions();
                 if (options && options.tableName) {
                     if (DagTable.Instance.getTable() !== options.tableName) {
-                        return UndoType.Skip;
+                        if (options.newTableName && // sort case
+                            DagTable.Instance.getTable() === options.newTableName) {
+                            return UndoType.Valid;
+                        } else {
+                            return UndoType.Skip;
+                        }
                     }
                 }
-                return UndoType.Valid;
 
+                return UndoType.Valid;
         }
     }
 
