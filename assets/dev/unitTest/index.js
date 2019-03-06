@@ -68,9 +68,9 @@ async function runTest(testType, hostname) {
         } else {
             url = hostname + "/unitTest.html?noPopup=y&createWorkbook=y&user=" + userName;
         }
-        if (testType === "unitTestOnDev") {
-            await page.coverage.startJSCoverage({ resetOnNavigation: true });
-        }
+        // if (testType === "unitTestOnDev") {
+        await page.coverage.startJSCoverage({ resetOnNavigation: true });
+        // }
         console.log("Opening page:", url)
         await page.goto(url);
         // time out after 1 day
@@ -84,11 +84,11 @@ async function runTest(testType, hostname) {
             console.log("Failed: " + JSON.stringify(results));
         }
 
-        if (testType === "unitTestOnDev") {
-            console.log("test finished, getting code coverage");
-            const jsCoverage = await page.coverage.stopJSCoverage();
-            getCoverage(jsCoverage);
-        }
+        // if (testType === "unitTestOnDev") {
+        console.log("test finished, getting code coverage");
+        const jsCoverage = await page.coverage.stopJSCoverage();
+        getCoverage(jsCoverage, testType);
+        // }
 
         if (testType !== "unitTestOnDev") {
             browser.close();
@@ -99,7 +99,7 @@ async function runTest(testType, hostname) {
     }
 }
 
-function getCoverage(coverage) {
+function getCoverage(coverage, testType) {
     let totalBytes = 0;
     let usedBytes = 0;
     const coverageToReport = [];
@@ -162,7 +162,9 @@ function getCoverage(coverage) {
         totalBytes += entry.text.length;
         usedBytes += entrySizeMap[url];
     }
-
-    fs.writeFileSync("coverage/coverage.js", 'var coverage =' + JSON.stringify(coverageToReport));
+    
+    if (testType === "unitTestOnDev") {
+        fs.writeFileSync("coverage/coverage.js", 'var coverage =' + JSON.stringify(coverageToReport));
+    }
     console.log(`Bytes used: ${usedBytes / totalBytes * 100}%`);
 }
