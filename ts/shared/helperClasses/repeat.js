@@ -124,9 +124,9 @@ window.Repeat = (function($, Repeat) {
         var table = gTables[tableId];
         var tableName = table.tableName;
 
-        var msg = xcHelper.replaceMsg(TblTStr.DelMsg, {"table": tableName});
+        var msg = xcHelper.replaceMsg(ResultSetTStr.DelMsgReplace, {"name": tableName});
         Alert.show({
-            "title": TblTStr.Del,
+            "title": ResultSetTStr.Del,
             "msg": msg,
             "onConfirm": function() {
                 TblManager.deleteTables(tableId, TableType.Active)

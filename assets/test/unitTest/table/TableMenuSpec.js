@@ -81,29 +81,6 @@ describe('TableMenu Test', function() {
                 TblManager.unHideTable = cachedFunc;
             });
 
-            it('deleteTable', function() {
-                var cachedFunc = TblManager.deleteTables;
-                var called = false;
-                TblManager.deleteTables = function(tIds, state) {
-                    expect(tIds.length).to.equal(1);
-                    expect(tIds[0]).to.equal(tableId);
-                    expect(state).to.equal(TableType.Active);
-                    called = true;
-                    return PromiseHelper.resolve();
-                };
-
-                $tableMenu.find('.deleteTable').trigger(rightMouseup);
-                expect(called).to.be.false;
-                expect($("#alertModal").is(":visible")).to.be.false;
-
-                $tableMenu.find('.deleteTable').trigger(fakeEvent.mouseup);
-                var msg = xcHelper.replaceMsg(TblTStr.DelMsg, {"table": tableName});
-                UnitTest.hasAlertWithText(msg, {confirm: true});
-                expect(called).to.be.true;
-
-                TblManager.deleteTables = cachedFunc;
-            });
-
             it('exportTable', function() {
                 var cachedFunc = TableMenu.prototype._createNodeAndShowForm;
                 var called = false;

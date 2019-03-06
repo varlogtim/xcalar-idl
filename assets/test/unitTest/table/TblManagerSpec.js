@@ -463,7 +463,7 @@ describe("TableManager Test", function() {
             })
             .fail(function(error) {
                 expect(error).to.exist;
-                UnitTest.hasAlertWithTitle(StatusMessageTStr.DeleteTableFailed);
+                UnitTest.hasAlertWithTitle(StatusMessageTStr.DeleteResultSets);
                 delete gTables[tableId];
                 done();
             });
@@ -476,7 +476,7 @@ describe("TableManager Test", function() {
 
             TblManager.deleteTables(tableId, TableType.Active)
             .then(function() {
-                UnitTest.hasAlertWithTitle(StatusMessageTStr.PartialDeleteTableFail);
+                UnitTest.hasAlertWithTitle(StatusMessageTStr.PartialDeleteResultSetFail);
                 delete gTables[tableId];
                 done();
             })
@@ -532,7 +532,7 @@ describe("TableManager Test", function() {
                 expect(deleteCalled).to.be.true;
                 UnitTest.hasAlertWithText("Table " + tableName2 + " was locked.\n" +
                     "Error: failll." +
-                    " Table " + tableName + " was not dropped.");
+                    " Result set " + tableName + " was not dropped.");
                 delete gTables[tableId];
                 delete gTables[tableId2];
                 done();

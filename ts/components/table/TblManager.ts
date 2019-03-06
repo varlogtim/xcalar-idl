@@ -503,11 +503,11 @@ class TblManager {
                     sql.tables = res.successTables;
                     Transaction.done(txId, {
                         sql: sql,
-                        title: TblTStr.Del
+                        title: ResultSetTStr.Del
                     });
 
                     if (res.fails && !noAlert) {
-                        Alert.error(StatusMessageTStr.PartialDeleteTableFail,
+                        Alert.error(StatusMessageTStr.PartialDeleteResultSetFail,
                                     res.errorMsg);
                     }
                 }
@@ -520,7 +520,7 @@ class TblManager {
                 if (!noLog) {
                     Transaction.fail(txId, {
                         error: res.errorMsg,
-                        failMsg: StatusMessageTStr.DeleteTableFailed,
+                        failMsg: StatusMessageTStr.DeleteResultSets,
                         noAlert: noAlert
                     });
                 }
@@ -536,7 +536,7 @@ class TblManager {
             } else {
                 if (!noLog) {
                     Transaction.done(txId, {
-                        title: TblTStr.Del
+                        title: ResultSetTStr.Del
                     });
                 }
 
@@ -614,11 +614,11 @@ class TblManager {
             failedTablesStr = failedTablesStr.substr(0,
                               failedTablesStr.length - 2);
             if (numActualFails === 1) {
-                tablesMsg += xcHelper.replaceMsg(ErrWRepTStr.TableNotDeleted, {
+                tablesMsg += xcHelper.replaceMsg(ErrWRepTStr.ResultSetNotDeleted, {
                     "name": failedTablesStr
                 });
             } else if (numActualFails > 1) {
-                tablesMsg += ErrTStr.TablesNotDeleted + " " + failedTablesStr;
+                tablesMsg += ErrTStr.ResultsetsNotDeleted + " " + failedTablesStr;
             }
 
             if (hasSuccess || noDeleteTables.length) {
@@ -628,7 +628,7 @@ class TblManager {
                     errorMsg = noDeleteMsg + fails[0].error + ". " + tablesMsg;
                 }
             } else {
-                errorMsg = fails[0].error + ". " + ErrTStr.NoTablesDeleted;
+                errorMsg = fails[0].error + ". " + ErrTStr.NoResultSetDeleted;
             }
         }
 

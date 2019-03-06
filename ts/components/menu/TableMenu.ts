@@ -108,9 +108,9 @@ class TableMenu extends AbstractMenu {
             const tableName: string = gTables[tableId].getName();
             // TblManager.sendTablesToTrash(tableId, TableType.Active);
 
-            const msg: string = xcHelper.replaceMsg(TblTStr.DelMsg, {"table": tableName});
+            const msg: string = xcHelper.replaceMsg(ResultSetTStr.DelMsgReplace, {"name": tableName});
             Alert.show({
-                "title": TblTStr.Del,
+                "title": ResultSetTStr.Del,
                 "msg": msg,
                 "onConfirm": () => {
                     TblManager.deleteTables([tableId], TableType.Active, false, false)

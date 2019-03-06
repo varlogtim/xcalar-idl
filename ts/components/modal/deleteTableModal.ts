@@ -292,7 +292,7 @@ class DeleteTableModal {
             // if delete takes too long, show the loading section
             let $modal = this._getModal();
             $modal.addClass("load");
-            $modal.find(".loadingSection .text").text(StatusMessageTStr.DeleteTable);
+            $modal.find(".loadingSection .text").text(StatusMessageTStr.DeleteResultSets);
         }, 500);
 
         this._modalHelper.disableSubmit();
@@ -376,15 +376,15 @@ class DeleteTableModal {
         if (hasSuccess) {
             if (failedTables.length === 1) {
                 errorMsg = failedMsg + ". " +
-                xcHelper.replaceMsg(ErrWRepTStr.TableNotDeleted, {
+                xcHelper.replaceMsg(ErrWRepTStr.ResultSetNotDeleted, {
                     "name": failedTables[0]
                 });
             } else {
                 errorMsg = failedMsg + ". " +
-                           StatusMessageTStr.PartialDeleteTableFail + ".";
+                           StatusMessageTStr.PartialDeleteResultSetFail + ".";
             }
         } else {
-            errorMsg = failedMsg + ". " + ErrTStr.NoTablesDeleted;
+            errorMsg = failedMsg + ". " + ErrTStr.NoResultSetDeleted;
         }
         let $firstGrid = $container.find('.grid-unit.failed').eq(0);
         StatusBox.show(errorMsg, $firstGrid, false, {
@@ -443,8 +443,8 @@ class DeleteTableModal {
             const $modalBg = this._getModalBg();
             $modal.addClass('lowZindex');
             Alert.show({
-                "title": TblTStr.Del,
-                "msg": SideBarTStr.DelTablesMsg,
+                "title": ResultSetTStr.Del,
+                "msg": ResultSetTStr.DelMsg,
                 "highZindex": true,
                 "onCancel": () => {
                     $modal.removeClass('lowZindex');

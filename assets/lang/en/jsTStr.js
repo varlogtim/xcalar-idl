@@ -12,25 +12,12 @@ StatusMessageTStr = {
     'CancelFail': 'Cancellation Failed',
     'Loading': 'Loading',
     'ImportDataset': 'Importing Data Source',
-    'ImportTables': 'Importing Tables',
     'ImportDSFailed': 'Data source import failed',
     'DSFetchFailed': 'Dataset preview failed',
-    'CreatingTable': 'Creating table',
-    'TableCreationFailed': 'Table creation failed',
-    'Join': 'Joining tables',
-    'JoinFailed': 'Table join failed',
-    'JoinFailedAlt': 'Join failed',
     'JoinEstFailed': "Join Size Estimation Failed",
-    'Union': 'Creating table Union',
-    'UnionFailed': 'Union failed',
-    'DeleteTable': 'Dropping table',
-    'DeleteTableFailed': 'Drop table(s) failed',
+    'DeleteResultSets': 'Dropping result sets',
     'DeleteConstFailed': 'Drop aggregate(s) failed',
-    'PartialDeleteTableFail': 'Some tables could not be dropped',
-    'PartialDeleteConstFail': 'Some aggregates could not be dropped',
-    'NotDeletedList': 'The following tables could not be dropped: ',
-    'ExportTable': 'Exporting table',
-    'ExportFailed': 'Export failed',
+    'PartialDeleteResultSetFail': 'Some resulet sets could not be dropped',
     'Aggregate': 'Calculating Aggregate',
     'AggregateFailed': 'Aggregate failed',
     'AggregateNotExist': 'Aggregate does not exist: ',
@@ -63,7 +50,7 @@ StatusMessageTStr = {
     'CurrReplay': 'Currently Replaying',
     'CompReplay': 'Completed Replay',
     "PleaseWait": "Please wait",
-    'Finalize': "Finalizing table",
+    'Finalize': "Finalizing Result Set",
     'FinalizeFailed': "Finalize failed",
     "EditingDF": "Editing Dataflow",
     // Must keep in sync with htmlTStr
@@ -83,9 +70,9 @@ TooltipTStr = {
     'NoUndoNoOp': 'No operation to undo',
     'NoRedo': 'No operation to redo',
     'UnhideWS': 'Show worksheet',
-    'LockedTable': 'Table is locked',
-    'LockedTableUndo': 'Cannot undo while table is locked',
-    'LockedTableRedo': 'Cannot redo while table is locked',
+    'LockedTable': 'Result set is locked',
+    'LockedTableUndo': 'Cannot undo while result set is locked',
+    'LockedTableRedo': 'Cannot redo while result set is locked',
     'CloseQG': 'Click to hide dataflow graphs',
     'OpenQG': 'Click to show dataflow graphs',
     'SaveQG': 'Save image',
@@ -95,13 +82,12 @@ TooltipTStr = {
     'ToGridView': 'Switch to Grid View',
     'ToListView': 'Switch to List View',
     'ClickCollapse': 'Click to collapse',
-    'CollapsedTable': 'A table is collapsed',
     'SelectAllColumns': 'Select all columns',
     'ViewColumnOptions': 'View column options',
-    'ViewTableOptions': 'View table options',
+    'ViewTableOptions': 'View menu options',
     'RemoveQuery': 'Remove operation',
     'CancelQuery': 'Cancel operation',
-    'AlreadyIcv': 'This table is already an erroneous rows(ER) table',
+    'AlreadyIcv': 'This result is already an erroneous rows(ER) result',
     'ParamValNoChange': 'This parameter value cannot be changed',
     'DeleteFile': 'Delete file',
     'CancelUpload': 'Cancel upload',
@@ -110,23 +96,15 @@ TooltipTStr = {
     "LoggedIn": "Logged In",
     "Saved": "Last saved",
     "SavedOn": "Last saved on",
-    "GeneratingComplement": "Generating complement table",
-    "ComplementSourceDropped": "Cannot create complement table; parent table has been dropped",
-    "ComplementRestriction": "Complement table only available for Filter",
+    "ComplementRestriction": "Complement result only available for Filter",
     "AddToWorksheet": "Add To Worksheet",
-    "NoActiveUndone": "Tables in an undo state cannot be added to the worksheet",
     "SysOperation": "System generated operation",
     "UDFNoMain": "UDF requires a 'main' function",
     "UnexpectedNode": "Dataflow has an unexpected operation",
-    "TempTableNotFound": "Table cannot be found in any active dataflows",
     "NoUndoActiveForm": "Close active form to undo or redo",
     "NoUndoEditMode": "Exit dataflow editing to undo or redo",
-    "UnionFocusSelect": "Select a table from dropdown first",
-    "UnionFocus": "Click to focus on table",
     "FocusOnCol": "Click to focus on column",
-    "UnionDeleteTable": "Remove table from union",
-    "UnionSearch": "Search within this table",
-    "UnlockTable": "Click to unlock table",
+    "UnionSearch": "Search within this node",
     "MapNoDelete": "Cannot remove. Map must have at least one operation.",
     "ClickToSortAsc": "Click to sort in ascending order",
     "ClickToSortDesc": "Click to sort in descending order",
@@ -140,31 +118,17 @@ TooltipTStr = {
     'RestoreDS': "Dataset used for this node is not found, click the button to restore the dataset",
     'twodp': '2 decimal places',
     // Sync with htmlTStr
-    "IcvGenerating": "Generating Erroneous Rows(ER) Table",
-    "IcvRestriction": "Erroneous rows(ER) table only available for Map and Group By",
-    "IcvSourceDropped": "Cannot create Erroneous Rows(ER) table if descendant table has been dropped",
+    "IcvRestriction": "Erroneous rows(ER) result only available for Map and Group By",
     "OnlyInOpMode": "Feature only available in Operational Cluster",
     "ColumnAlreadyInt": "Column is already an integer",
     "ColumnAlreadyFloat": "Column is already a float",
-    "CannotDropLocked": "Cannot drop locked table",
     "SystemGood": "All Systems Good",
 
     // with replace
-    'UndoTableTip': "Table <name> is in an undo state and cannot be directly " +
-                                "added to a worksheet.",
-    'CollapsedTables': '<number> tables are collapsed',
-    'ShowGroupTablesSingle': 'Click to expand one operation icon collapsed into the <op> operation',
-    'ShowGroupTables': 'Click to expand <number> operation icons collapsed into the <op> operation',
-    'HideGroupTablesSingle': 'Click to collapse one operation icon into the <op> operation',
-    'HideGroupTables': 'Click to collapse <number> operation icons into the <op> operation',
-    'DroppedTable': 'Table \'<tablename>\' has been dropped',
-    'DroppedDS': 'Dataset \'<datasetname>\' has been dropped',
-    'DroppedTableNoInfo': 'Table \'<tablename>\' has been dropped and contains no information',
-    'NoExport': 'Cannot export column of type <type>',
     'Undo': 'Undo: <op>',
     'NoUndo': 'Last operation is "<op>", cannot undo',
     'Redo': 'Redo: <op>',
-    'LowMemInTable': 'Warning! Cluster is low on memory for tables. Click this button to drop tables.',
+    'LowMemInTable': 'Warning! Cluster is low on memory for result set. Click this button to drop result sets.',
     'LowMemInDS': 'Warning! Cluster is low on memory for datasets/published tables. Please delete unused datasets/published tables.',
     'LowMemByOthers': 'Current memory utilization by other cluster users is high. Work with an admin to free memory for your modeling.'
 };
@@ -330,9 +294,9 @@ ErrTStr = {
     'TooLong': 'Please use fewer than 255 characters.',
     'PrefixTooLong': 'Please use fewer than 32 characters.',
     'NoTable': 'Table does not exist',
-    'TablesNotDeleted': 'The following tables were not dropped:',
+    'ResultsetsNotDeleted': 'The following result sets were not dropped:',
     'ConstsNotDeleted': 'The following aggregates were not dropped:',
-    'NoTablesDeleted': 'No tables were dropped.',
+    'NoResultSetDeleted': 'No result sets were dropped',
     'NoConstsDeleted': 'No aggregates were dropped.',
     'LargeImgSave': 'Unable To Save Image',
     'LargeImgTab': 'Unable To Open Image',
@@ -350,9 +314,6 @@ ErrTStr = {
     'NoSort': 'No columns selected to sort on.',
     'NoSortChange': 'Please select at least one column to sort on.',
     'NoTypeChange': 'Please change at least one column\'s type to apply the cast.',
-    'IcvFailed': 'Failed to generate Erroneous Rows (ER) Table',
-    'IcvAlt': 'Failed to generate Erroneous Rows (ER) Table. Please use map ' +
-              'with show erroneous values selected instead.',
     'RetinaFormat': 'File must be of the format .tar.gz',
     'RetinaFailed': 'Failed to upload dataflow',
     'ConfigParamNotFound': 'Parameter not found.',
@@ -360,8 +321,7 @@ ErrTStr = {
     'SchedHourWrong': 'Hour must be between 1 and 12',
     'SchedMinWrong': 'Minute must be between 0 and 59',
     'OutputNotFoundMsg': 'Output is not available.',
-    'SourceTableNotExists': 'Source table does not exist.',
-    'TableNotExists': 'Table does not exist.',
+    'TableNotExists': 'Result set does not exist.',
     'SelectOption': 'Please select an option.',
     'NotDisplayRows': 'Could not display rows',
     'AppInstallFailed': 'App Installation Failed',
@@ -372,7 +332,7 @@ ErrTStr = {
     'ExtDownloadFailure': 'Extension Download Failed',
     'TutDownloadFailure': 'Tutorial Download Failed',
     'ErrorModalDownloadFailure' : 'Error logs failed to be downloaded',
-    'CannotDropLocked': 'Cannot drop locked tables',
+    'CannotDropLocked': 'Cannot drop locked result sets',
     'RefreshBrowser': 'Refresh Browser',
     'RefreshBrowserDesc': 'We have detected an issue that requires a refresh.\nPlease refresh your browser now. Your work will be recovered to the last consistent state.',
     'BundleFailed': 'Submit Bundle Failed',
@@ -423,25 +383,22 @@ ErrWRepTStr = {
                     'Please choose another name.',
     'SystemParamConflict': 'Parameter "<name>" is a system parameter. ' +
                     'Please choose another name.',
-    'TableConflict': 'Table "<name>" already exists. ' +
-                        'Please choose another name.',
     'NoPath': '<path> was not found. Redirected to the root directory.',
     'NoPathInLoad': 'Path <path> was not found. (Not set up?)',
     'NoUDF': 'UDF \" <udf> \" does not exist.',
     'InvalidOpsType': 'Invalid type for the field,' +
                       ' wanted: <type1>, but provided: <type2>.',
     'InvalidCol': 'Column "<name>" does not exist.',
-    'InvalidColOnTable': 'Column "<col>" does not exist in table <table>.',
+    'InvalidColOnTable': 'Column "<col>" does not exist in result set <table>.',
     'InvalidColOnNode': 'Column "<col>" does not exist in node <node>.',
     'InvalidRange': 'Please enter a value between <num1> and <num2>.',
     'InvalidColType': 'Column "<name>" has an invalid type: <type>',
-    'ColNotInTable': 'Column "<name>" not found in table "<table>."',
-    'ColConflict': 'Column "<name>" already exists in table "<table>."',
+    'ColConflict': 'Column "<name>" already exists in result set "<table>."',
     'ColConflictInNode': 'Column "<name>" already exists in node "<node>."',
     'NoLessNum': 'Please enter a value greater than or equal to <num>',
     'NoBiggerNum': 'Please enter a value less than or equal to <num>',
     'IntInRange': 'Please input an integer between <lowerBound> and <upperBound>',
-    'TableNotDeleted': 'Table <name> was not dropped.',
+    'ResultSetNotDeleted': 'Result set <name> was not dropped.',
     'ConstNotDeleted': 'Aggregate <name> was not dropped.',
     'AggConflict': 'Aggregate <aggPrefix>"' + '<name>" already exists. ' +
                     'Please choose another name.',
@@ -731,7 +688,7 @@ AlertTStr = {
     "BrowserVersions": "You are running an unsupported browser. Please use one of the following browsers:<br>Chrome (version 65+)<br>Firefox (version 59+)<br>Safari (version 11.1+)",
     "queryHistorySQLErrorTitle": "SQL Error",
     "queryHistoryReadErrorTitle": "Read query history failed",
-    "AutoTblManagerError": "Automatic Table Manager failed to setup.",
+    "AutoTblManagerError": "Automatic Result Set Manager failed to setup.",
     "DFLinkGraphError": "Dataflow Output '<inName>' must be created in the graph '<graphName>'.",
     "DFLinkShouldLinkError": "The Dataflow Output for '<inName>' must be manually " +
         "executed before the output can be used."
@@ -788,7 +745,7 @@ AggTStr = {
 };
 
 IndexTStr = {
-    'Sorted': 'Table already sorted',
+    'Sorted': 'Result set already sorted',
     'SuggTitle': 'Sort Suggestion',
     'SuggMsg': 'This column can be sorted either numerically or ' +
                'alphabetically. How would you like to sort?',
@@ -796,7 +753,7 @@ IndexTStr = {
     'NoCast': 'Alphabetically',
 
     // with replace
-    'SortedErr': 'Current table is already sorted on this column in <order> ' +
+    'SortedErr': 'Current result set is already sorted on this column in <order> ' +
                  'order',
     'SuggInstr': 'Select "Numerically" to cast the column to <type> ' +
                  'before sorting in numerical order. Non-numeric rows are ' +
@@ -804,12 +761,6 @@ IndexTStr = {
 };
 
 JoinTStr = {
-    'NoLeftTable': 'Select left table first',
-    'NoRightTable': 'Select right table first',
-    'NoKeyLeft': 'Left table has no selected key',
-    'NoKeyRight': 'Right table has no selected key',
-    'NoMatchLeft': 'Sorry, cannot find a valid key to match the left table',
-    'NoMatchRight': 'Sorry, cannot find a valid key to match the right table',
     "NoMatchSelf": 'Sorry, cannot find a valid key to match besides the current column',
     'UnlikelyJoinKey': 'This pairing is unlikely by our estimation, ' +
         'but still the best key found.',
@@ -824,18 +775,12 @@ JoinTStr = {
     'Estimating': 'Estimating...',
     'JOIN': 'JOIN',
     'ModifyDesc': 'Would you like to modify the join?',
-    "ColSelectInstr": "Please select pairs of columns: one column from the " +
-                      "left table and one column from the right table, " +
-                      "to be joined together.",
     "DagColSelectInstr": "Please select pairs of columns: one column from the " +
-                      "left table and one column from the right table, " +
+                      "left node and one column from the right node, " +
                       "to be joined together.",
-    "ColSelectInstrCross": "Cross join does not require join keys since it is " +
-                           "joining every record on the left table with " +
-                           "every record on the right table",
     "DagColSelectInstrCross": "Cross join does not require join keys since it is " +
-                           "joining every record on the left table with " +
-                           "every record on the right table",
+                           "joining every record on the left node with " +
+                           "every record on the right node",
 
     //with replace
     'NoJoin': 'Cannot join <type>',
@@ -853,15 +798,11 @@ JoinTStr = {
 
 UnionTStr = {
     "ChooseType": "Select column type",
-    "OneTableToUnion": "Need at least two tables for the operation.",
     "OneTableToUnion2": "Need at least two parent nodes for the operation.",
     "Cast": "Columns for the set operation have different types. Please select a type for the resultant column.",
     "AddCol": "Click to add",
-    "Table": "Table",
     "Detect": "Auto detect column matches",
     "AutoDetect": "Auto Detect",
-    "UnionTable": "Results Table",
-    "NewTableName": "New Table Name",
     "NewColName": "New Name",
     "CandidateHint": "Columns in this section will not be in the results table. Click column name to add the column to the results table.",
     "EmptyList": "Empty List",
@@ -886,11 +827,6 @@ ExportTStr = {
     'NoColumns': 'No columns available for export',
     "CurrentColName": "Current Name",
     "NewColName": "New Name",
-
-    // With replace
-    'SuccessInstr': 'Table \"<table>\" was successfully exported to <location>' +
-                    ' under the name: <file>',
-    'ExportOfCol': 'Export columns of <table>',
     'ListTargFail': 'List Targets Failed',
     'LocalFS': 'File System',
     'DriverNotFound': 'Prior Driver does not exist: ',
@@ -1021,8 +957,8 @@ MonitorTStr = {
     "UsedSysMem": "OS Used",
     "FreeSysMem": "OS Free",
     "FreeXcalarMem": "Xcalar Free",
-    "OtherUsers": "Other Users' Tables",
-    "YourTables": "Your Tables",
+    "OtherUsers": "Other Users' Result Sets",
+    "YourTables": "Your Result Sets",
     "PubTables": "Published Tables",
     "Datasets": "Datasets",
     "TicketSuccess": "Your ticket was submitted successfully.",
@@ -1040,7 +976,7 @@ MonitorTStr = {
     "TicketErr2": "This ticket could not be found within your organization.",
     "LowMem": "Low Memory Warning",
     "LowMemMsg": "Warning! Cluster is low on memory. Please check the system status icon for details. " +
-        "Clicking 'Free Memory' will free all tables not locked and not expected to be used by the current dataflow tab.",
+        "Clicking 'Free Memory' will free all result sets not locked and not expected to be used by the current dataflow tab.",
     "LowMemInstr": "To find out more about memory management, please reference <a href=\"<link>\" target=\"_blank\">the link</a>",
 
     // with replace
@@ -1089,7 +1025,6 @@ DFTStr = {
     "OptimizedDFUnavailable": "Optimized Dataflow Unavailable",
     "OptimizedDFNotExist": "Optimized Dataflow does not exit",
     "CannotCreate": "Cannot Create Dataflow",
-    "CannotParam": "Cannot parameterize if exporting as a Xcalar table",
     "Default": "Export to export target",
     "DelDF": "Permanently Delete Dataflow",
     "DelDF2": "Delete dataflow",
@@ -1102,11 +1037,8 @@ DFTStr = {
     "PubDF": "Publish Dataflow",
     'DupDataflowName': 'Dataflow name already in use.',
     "ExportTo": "Export As",
-    "ExportToTable": "Export Table Name",
-    "FindTable": "The final table <table> is in the active worksheet",
     "LoadErr": "Load Dataflow Failed",
     "HeavySkew": "Heavy skew",
-    "Import": "Export as a Xcalar table",
     "NoFileExt": "Export file name must have an extension.",
     "ParamNoValue": "Please assign values to all the parameters being used in the current dataflow.",
     "PointTo": "File Path",
@@ -1115,7 +1047,6 @@ DFTStr = {
     "InExecution": "The dataflow is executing by other users",
     "SlightSkew": "Slight skew",
     "ToggleTime": "Click to show / hide individual operation run times",
-    "ViewTable": "VIEW TABLE",
     'AddParamHint': 'Please create parameters in the Dataflow Panel first.',
     'AddSched': 'Add schedule to dataflow',
     'Cancel': 'Cancel dataflow',
@@ -1143,11 +1074,8 @@ DFTStr = {
     'NewParam': 'New Parameter',
     'EnterNewParam': 'Enter New Parameter Here',
     'NoImportMultiExport': 'Unavailable for dataflows containing multiple exports',
-    "TableAlreadySelected": "This table is already selected.",
     "NewComment": "Add a comment",
     "EditComment": "View / edit comment",
-    "NoCommentDropped": "Cannot add comment to operation if table has been dropped",
-    "NoEditDropped": "Cannot edit operation if descendant table has been dropped",
     "NoEditIndex": "Cannot edit index operations",
     "NoEditSupported": "Editing this operation is not supported",
     "ExpandToEdit": "Expand to edit operation",
@@ -1156,7 +1084,6 @@ DFTStr = {
     "AllExecuted": "All nodes have been executed",
     "NoColumnTypeCheck": "Column types will not be checked when editing a dataflow.",
     "EDITINGDATAFLOW": "EDITING DATAFLOW",
-    "TableListNoEdit": "The tables list cannot be modified when editing a dataflow.",
     "NoReleaseMemoryEdit": "You must exit dataflow editing in the dataflow panel to release memory",
     "ParamModalBasicInstr": "To convert this operation into a parameterized" +
                             " operation, please click the New Parameter button," +
@@ -1196,8 +1123,8 @@ DFTStr = {
     "ParamAdvancedInstructions": "The <type> operation can be modified using the editor below but cannot be parameterized.",
     "CustomizeTitle": "Customize <op> Operation",
     "ParamNoValueList": "Please assign values to all the parameters being used in the current dataflow. Parameters without values: <params>",
-    "LockedTableWarning": "Locked Table Warning",
-    "LockedTableMsg": "\'<action>\' will delete one or more locked tables. If you do not want the tables to be deleted, cancel and duplicate the relevant parts of the flow.",
+    "LockedTableWarning": "Locked Result Warning",
+    "LockedTableMsg": "\'<action>\' will delete one or more locked results. If you do not want the results to be deleted, cancel and duplicate the relevant parts of the flow.",
 };
 
 DSTStr = {
@@ -1254,7 +1181,7 @@ DSTStr = {
     'DetectInvalidCol': 'Invalid Column Name In Dataset',
     'DetectInvalidColInstr': 'Invalid column names may cause unexpected issues when operating on the data. We recommend cleaning the column name first.',
     'DetectInvalidColInstrForce': 'Invalid column names may cause unexpected issues when operating on the data. Please clean the column names first.',
-    'InUseInstr': 'Please delete all active/hidden/temporary tables and constants associated with the dataset before unlocking it.',
+    'InUseInstr': 'Please delete all active/hidden/temporary result sets and constants associated with the dataset before unlocking it.',
     'SkipRowsError': 'The Skip Rows setting is higher than the number of rows in your preview. Please lower it or increase the number of rows in your preview.',
     'ClickChange': 'Click to change',
     'DetectInvalidColMsg': 'The following column names contain invalid characters. Do you want to continue?',
@@ -1315,10 +1242,6 @@ DSFormTStr = {
     'NoData': 'No data',
     'NoFile': 'File not found. Please go back to select a valid file/folder.',
     'CreateWarn': 'Too Many Columns To Create',
-    'CreateWarnMsg': 'Creating a table with too many columns from a dataset ' +
-                'may be slow. Are you sure you want to continue?',
-    'WSColsMsg': 'Adding too many columns to the current worksheet may be slow. ' +
-                'Would you like to create a new worksheet for this table?',
     'NoQuoteWarn': 'No Quote Character',
     'NoQuoteWarnMsg': 'You have not selected a quoting character for your dataset. Are you sure you want to continue?',
     'UDFHint': 'Please select a UDF module and UDF function then click \"Apply UDF\" button to apply the UDF.',
@@ -1352,21 +1275,6 @@ DSTargetTStr = {
     "DelConfirmMsg": "Are you sure you want to delete <target>?",
     "TargetExists": "Data target <target> already exists",
     "MountpointNoExists": "Mount point <mountpoint> does not exist. Please choose a valid mount point",
-};
-
-WSTStr = {
-    'SearchTableAndColumn': 'Search for a table or column',
-    'Ws': 'Worksheet',
-    'WSName': 'Worksheet Name',
-    'WSHidden': 'worksheet is hidden',
-    'InvalidWSName': 'Invalid worksheet name',
-    'InvalidWSNameErr': 'Please input a valid name.',
-    'AddOrphanFail': 'Add Temporary Table Failed',
-    'NewWS': 'New Worksheet',
-    'DelWS': 'Delete Worksheet',
-    'DelWSMsg': 'There are active tables in this worksheet. ' +
-                'How would you like to handle them?',
-    'CurrWS': 'Current Worksheet'
 };
 
 FileManagerTStr = {
@@ -1413,21 +1321,13 @@ TblTStr = {
     'CheckingSchema': 'Checking data source schema',
     'Del': 'Drop Tables',
     'DEL': 'DROP TABLES',
-    'DropTbl': 'Drop Table',
-    'DelMsg': 'Are you sure you want to drop table <table>?',
-    'DelFail': 'Drop Tables Failed',
-    'Active': 'Send Tables to Worksheet',
-    'ActiveFail': 'Active Tables Failed',
     'Truncate': 'Additional characters were truncated',
     'ToTemp': 'SEND TO TEMPORARY',
-    'ToTempTip': 'Tables will be sent to the temporary tables list',
     'TempStatus': 'Temporary',
     'ActiveStatus': "Active",
-    "NotActive": "Table is not active.",
     "SkipToRow": "Skip to rows",
     "Skew": "Skew",
     "ClickToDetail": "Click to see details",
-    "TotalNumOfTbl": "Total number of tables",
     "EmptyTable": "0 Rows",
     "Viewdata": "View data",
     "Viewschema": "View schema",
@@ -1438,6 +1338,12 @@ TblTStr = {
     'New': 'Create New Table',
     'CreateDF': "Create Dataflow",
     'WriteSQL': "Write SQL",
+};
+
+ResultSetTStr = {
+    "Del": "Drop Result Sets",
+    "DelMsg": "Are you sure you want to drop the selected result set(s)?",
+    "DelMsgReplace": "Are you sure you want to drop result set <name>?"
 };
 
 ColTStr = {
@@ -1465,14 +1371,9 @@ SideBarTStr = {
     'SendToWS': 'Send To Worksheet',
     'WSTOSend': 'Worksheet to send',
     'NoSheet': 'No Sheet',
-    'NoSheetTableInstr': 'You have tables that are not in any worksheet. ' +
-                         'Please choose a worksheet for these tables!',
     'PopBack': 'Dock',
     'PopOut': 'Undock',
     'WalkThroughUA': 'Walkthrough Unavailable',
-    'DelTablesMsg': 'Are you sure you want to drop the selected table(s)?',
-    'DelLockedTablesMsg': 'Are you sure you want to drop the selected table(s)?<br/>Locked tables will be sent to the temporary tables list.',
-    'SelectTable': 'Select table',
     'UpoladUDF': 'Upload Success',
     'UploadUDFMsg': 'Your python script has been successfully uploaded!',
     'SyntaxError': 'Syntax Error',
@@ -1482,9 +1383,6 @@ SideBarTStr = {
     'OverwriteErr': 'Cannot overwrite default UDF',
     'DropConsts': 'Drop Aggregates',
     'DropConstsMsg': 'Are you sure you want to drop the selected aggregate(s)?',
-    'WSColsMsg': 'Adding too many columns to the current worksheet may be slow. ' +
-                'Would you like to create a new worksheet for these tables?',
-
     // With Replace
     'UDFError': '<reason> found in line <line>'
 
@@ -1538,8 +1436,6 @@ OpModalTStr = {
     'AggNameReq': 'New Resultant Aggregate Name (required)',
     'IncSample': 'Include a sample of the rest of the fields',
     'IncSampleDesc': 'If checked, a sample of all fields will be included',
-    'KeepInTable': 'Join table back to original',
-    'KeepInTableDesc': 'If checked, group by will augment original table',
     'ModifyMapDesc': 'Would you like to modify the map?',
     'NoArg': 'No Argument',
     'NoneArg': 'None',
@@ -1567,7 +1463,7 @@ JsonModalTStr = {
     'SeeAll': 'See All',
     'SelectAll': 'Select all fields',
     'SelectionMode': 'Single Select Mode',
-    'SelectOther': 'Select another data cell from a table to compare',
+    'SelectOther': 'Select another data cell from a result set to compare',
     'SortAsc': 'Sort ascending',
     'SortDesc': 'Sort descending',
     'SubmitProjection': 'Submit Projection',
@@ -1777,8 +1673,8 @@ OpPanelTStr = {
     "RowNumPanelFieldNameDestColumn": "New resultant column name",
     "JoinPanelRenameTitlePrefix": "Prefixes",
     "JoinPanelRenameTitleDerived": "Derived Fields",
-    "JoinPanelRenameColOldLeft": "Left Table",
-    "JoinPanelRenameColOldRight": "Right Table",
+    "JoinPanelRenameColOldLeft": "Left Result",
+    "JoinPanelRenameColOldRight": "Right Result",
     "JoinPanelRenameColNew": "New Name",
     "JoinPanelColumnTableTitleKeep": "Columns To Keep",
     "JoinPanelColumnTableTitleDrop": "Columns To Drop",
@@ -1795,7 +1691,7 @@ OpPanelTStr = {
     "ExplodePanelFieldNameSourceColumn": "Column to explode",
     "ExplodePanelFieldNameDestColumn": "New resultant column name",
     "ExplodePanelFieldNameDelimiter": "Delimiter",
-    "SortPanelInstr": "Sort your table by selecting one or more columns. The order in which you select the columns will determine that table's sort order.",
+    "SortPanelInstr": "Sort your result set by selecting one or more columns. The order in which you select the columns will determine that result set's sort order.",
     "SortPanelTitle": "Sort",
     "SortPanelFieldName": "Column name",
     "SortColumnHeading": "Columns to sort",
