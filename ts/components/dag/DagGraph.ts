@@ -1381,7 +1381,7 @@ class DagGraph {
 
     // takes in a map of nodes, topologically sorts them and then does an error check
     // on each node via switchState
-    public checkNodesState(nodesMap): void {
+    public checkNodesState(nodesMap: Map<DagNodeId, DagNode>): void {
         let orderedNodes: DagNode[];
         try {
             orderedNodes = this._topologicalSort(nodesMap);

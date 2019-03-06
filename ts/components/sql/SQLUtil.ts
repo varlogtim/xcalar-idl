@@ -54,7 +54,7 @@ class SQLUtil {
                     try {
                         errorMsg = JSON.parse(error.responseText).exceptionMsg;
                     } catch (e) {
-                        errorMsg = SQLErrTStr.PlannerFailure + ". Failed to parse error message";
+                        errorMsg = SQLErrTStr.PlannerFailure + ". Failed to parse error message: " + JSON.stringify(error);
                     }
                 } else if (error && error.status === 0) {
                     errorMsg = SQLErrTStr.FailToConnectPlanner;
@@ -106,7 +106,7 @@ class SQLUtil {
 
         return deferred.promise();
     }
-    
+
     public throwError(errStr) {
         this.resetProgress();
         Alert.show({

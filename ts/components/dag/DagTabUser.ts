@@ -101,7 +101,9 @@ class DagTabUser extends DagTab {
         const allDagsKey: string = this.KEY;
         KVStore.list(`^${allDagsKey}*`, gKVScope.WKBK)
         .then((res) => {
-            const ids: string[] = res.keys.filter((key) => key.startsWith(allDagsKey));
+            const ids: string[] = res.keys.filter((key) => {
+                return key.startsWith(allDagsKey) && !key.startsWith("DF2Optimized");
+            });
             deferred.resolve(ids);
         })
         .fail(deferred.reject);
@@ -177,7 +179,7 @@ class DagTabUser extends DagTab {
 
     /**
      * Initialize the instance with JSON data
-     * @param dagInfo 
+     * @param dagInfo
      * @throws Error
      * @description It is called by DagTabService in nodejs env.
      */

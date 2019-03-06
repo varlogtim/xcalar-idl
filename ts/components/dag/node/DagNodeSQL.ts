@@ -1095,6 +1095,7 @@ class DagNodeSQL extends DagNode {
                 id: this.getId(),
                 node: this
             });
+
             self.sendSchema(identifiers, pubTablesInfo, sqlFunctions)
             .then(function(ret) {
                 schemaQueryString = ret.queryString;

@@ -82,7 +82,6 @@ class CommentNode {
     public static getCopySchema() {
         let schema = xcHelper.deepCopy(CommentNode.schema);
         schema.required.splice(schema.required.indexOf("id"), 1);
-        schema.required.push("nodeId");
         return schema;
     }
 

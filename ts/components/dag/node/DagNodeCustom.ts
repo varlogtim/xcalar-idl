@@ -343,7 +343,6 @@ class DagNodeCustom extends DagNode {
         let schema = xcHelper.deepCopy(DagNodeCustom.specificSchema);
         const required = schema.properties.subGraph.properties.nodes.items.required;
         required.splice(required.indexOf("id"), 1);
-        required.push("nodeId");
         return schema;
     }
 

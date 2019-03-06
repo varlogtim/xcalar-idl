@@ -966,7 +966,9 @@ class DagView {
                         }));
                     }
                     const newNodeId: DagNodeId = newNode.getId();
-                    oldNodeIdMap[nodeInfo.nodeId] = newNodeId;
+                    if (nodeInfo.nodeId) {
+                        oldNodeIdMap[nodeInfo.nodeId] = newNodeId;
+                    }
                     newNodeIds.push(newNodeId);
                     allNewNodeIds.push(newNodeId);
                     allNewNodes.push(newNode);
@@ -1010,7 +1012,7 @@ class DagView {
                             return; // skip empty parent slots
                         }
                         const newParentId = oldNodeIdMap[parentId];
-                        if (this.graph.hasNode(newParentId) &&
+                        if (newParentId && this.graph.hasNode(newParentId) &&
                             newParentId !== newNodeId) {
                             try {
                                 this.graph.connect(newParentId, newNodeId, j, false, false);

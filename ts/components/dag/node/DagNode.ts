@@ -1144,7 +1144,6 @@ abstract class DagNode {
     public static getCopySchema() {
         let schema = xcHelper.deepCopy(DagNode.schema);
         schema.required.splice(schema.required.indexOf("id"), 1);
-        schema.required.push("nodeId");
         return schema;
     }
 
