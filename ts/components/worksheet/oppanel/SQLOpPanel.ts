@@ -237,21 +237,9 @@ class SQLOpPanel extends BaseOpPanel {
     private _selectSource($li: JQuery): void {
         const sourceId = $li.text();
         const $source = $li.closest(".source");
-        let usedIdentifier;
-        this._$sqlIdentifiers.find(">li").each(function() {
-            if (!$(this).find(".source").is($source) &&
-                sourceId === $(this).find(".source .text").text()) {
-                usedIdentifier = $(this).find(".dest.text").val().trim();
-            }
-        });
-        if (usedIdentifier) {
-            StatusBox.show(SQLErrTStr.SourceUsed + usedIdentifier,
-                           $source.find(".text"));
-        } else {
-            $source.find(".text").text(sourceId);
-            const tableIdentifier = $source.siblings(".dest.text").val().trim();
-            this._sqlTables[tableIdentifier] = sourceId;
-        }
+        $source.find(".text").text(sourceId);
+        const tableIdentifier = $source.siblings(".dest.text").val().trim();
+        this._sqlTables[tableIdentifier] = sourceId;
     }
 
     private _toggleSnippetSave(): void {
@@ -421,20 +409,12 @@ class SQLOpPanel extends BaseOpPanel {
         self._$sqlIdentifiers.on("blur", ".text.dest", function() {
             const $input = $(this)
             const key = $input.val().trim();
-            let valid = true;
             if (key && !xcHelper.checkNamePattern(PatternCategory.Dataset,
                                                   PatternAction.Check, key)) {
                 StatusBox.show(SQLErrTStr.InvalidIdentifier, $input);
-                valid = false;
                 return;
             }
-            self._$sqlIdentifiers.find(".text.dest").each(function() {
-                if (!$(this).is($input) && key && $(this).val().trim() === key) {
-                    StatusBox.show(SQLErrTStr.IdentifierExists, $input);
-                    valid = false;
-                }
-            });
-            if (key && valid) {
+            if (key) {
                 // remove the old key
                 const lastKey = $input.attr("last-value");
                 delete self._sqlTables[lastKey];
@@ -618,15 +598,18 @@ class SQLOpPanel extends BaseOpPanel {
         }
     }
 
-    public configureSQL(query: string): XDPromise<any> {
+    public configureSQL(
+        query: string,
+        identifiers: Map<number, string>
+    ): XDPromise<any> {
         const self = this;
         const deferred = PromiseHelper.deferred();
         const sql = query ||
                     // XXX Currently disable multi/partial query
                     // self._sqlEditor.getSelection().replace(/;+$/, "") ||
                     self._sqlEditor.getValue().replace(/;+$/, "");
-        const identifiers = this._extractIdentifiers();
         const dropAsYouGo: boolean = this._isDropAsYouGo();
+        identifiers = identifiers || this._extractIdentifiers();
         if (!sql) {
             self._dataModel.setDataModel("", "", [], "", identifiers, {}, dropAsYouGo);
             self._dataModel.submit();
@@ -738,8 +721,9 @@ class SQLOpPanel extends BaseOpPanel {
         this._toggleDropAsYouGo(dropAsYouGo); 
     }
 
-    private _extractIdentifiers(): Map<number, string>{
+    private _extractIdentifiers(validate: boolean = false): Map<number, string> {
         const identifiers = new Map<number, string>();
+        const valueSet = new Set();
         this._$sqlIdentifiers.find(">li").each(function() {
             const $li = $(this);
             const key = parseInt($li.find(".source .text").text());
@@ -747,7 +731,20 @@ class SQLOpPanel extends BaseOpPanel {
             if (key && value &&
                 xcHelper.checkNamePattern(PatternCategory.Dataset,
                                           PatternAction.Check, value)) {
+                if (validate) {
+                    if (identifiers.has(key) || valueSet.has(value)) {
+                        const duplicates = identifiers.has(key) ?
+                            "Check source \"" + key + "\"" :
+                            "Check identifier \"" + value + "\"";
+                        throw SQLErrTStr.InvalidIdentifierMapping + ". " + duplicates;
+                    }
+                    if (!xcHelper.checkNamePattern(PatternCategory.Dataset,
+                        PatternAction.Check, value)) {
+                        throw SQLErrTStr.InvalidIdentifier;
+                    }
+                }
                 identifiers.set(key, value);
+                valueSet.add(value);
             }
         });
         return identifiers;
@@ -806,8 +803,15 @@ class SQLOpPanel extends BaseOpPanel {
                     return;
                 }
             }
+            let identifiers;
+            try {
+                identifiers = self._extractIdentifiers(true);
+            } catch (e) {
+                StatusBox.show(e, self._$elemPanel.find(".btn-submit"));
+                return;
+            }
             const sql = self._sqlEditor.getValue().replace(/;+$/, "");
-            self.configureSQL(sql)
+            self.configureSQL(sql, identifiers)
             .then(function() {
                 self.close();
             })
@@ -837,7 +841,13 @@ class SQLOpPanel extends BaseOpPanel {
         if (toAdvancedMode) {
             const identifiers = {};
             const identifiersOrder = [];
-            this._extractIdentifiers().forEach(function(value, key) {
+            let identifiersMap;
+            try {
+                identifiersMap = this._extractIdentifiers(true);
+            } catch (e) {
+                return {error: e};
+            }
+            identifiersMap.forEach(function(value, key) {
                 identifiers[key] = value;
                 identifiersOrder.push(key);
             });
@@ -852,11 +862,9 @@ class SQLOpPanel extends BaseOpPanel {
         } else {
             try {
                 const advancedParams = JSON.parse(this._editor.getValue());
-                if (!advancedParams.hasOwnProperty("identifiers")) {
-                    return {error: SQLErrTStr.MissingField + "identifiers"};
-                }
-                if (!advancedParams.hasOwnProperty("sqlQueryString")) {
-                    return {error: SQLErrTStr.MissingField + "sqlQueryString"};
+                let errorMsg = this._validateAdvancedParams(advancedParams);
+                if (errorMsg) {
+                    return {error: errorMsg};
                 }
                 const identifiers = advancedParams.identifiers;
                 let identifiersOrder = advancedParams.identifiersOrder.map((identifier) => {
@@ -927,6 +935,101 @@ class SQLOpPanel extends BaseOpPanel {
         const sqlQueryString = this._dataModel.getSqlQueryString();
         const advancedParams = {identifiers: identifiers, sqlQueryString: sqlQueryString};
         this._editor.setValue(JSON.stringify(advancedParams, null, 4));
+    }
+
+    private _validateAdvancedParams(advancedParams): any {
+        const schema = {
+            "definitions": {},
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "$id": "http://example.com/root.json",
+            "type": "object",
+            "title": "The Root Schema",
+            "required": [
+              "sqlQueryString",
+              "identifiers",
+              "identifiersOrder",
+              "dropAsYouGo"
+            ],
+            "properties": {
+              "sqlQueryString": {
+                "$id": "#/properties/sqlQueryString",
+                "type": "string",
+                "title": "The Sqlquerystring Schema",
+                "default": "",
+                "examples": [
+                  "SELECT * from t"
+                ],
+                "pattern": "^(.*)$"
+              },
+              "identifiers": {
+                "$id": "#/properties/identifiers",
+                "type": "object",
+                "title": "The Identifiers Schema",
+                "properties": {
+                  "1": {
+                    "$id": "#/properties/identifiers/properties/1",
+                    "type": "string",
+                    "title": "TheSchema",
+                    "default": "",
+                    "examples": [
+                      "t1"
+                    ],
+                    "pattern": "^(.*)$"
+                  },
+                  "2": {
+                    "$id": "#/properties/identifiers/properties/2",
+                    "type": "string",
+                    "title": "TheSchema",
+                    "default": "",
+                    "examples": [
+                      "t2"
+                    ],
+                    "pattern": "^(.*)$"
+                  }
+                }
+              },
+              "identifiersOrder": {
+                "$id": "#/properties/identifiersOrder",
+                "type": "array",
+                "title": "The Identifiersorder Schema",
+                "items": {
+                  "$id": "#/properties/identifiersOrder/items",
+                  "type": "integer",
+                  "title": "The Items Schema",
+                  "default": 0,
+                  "examples": [
+                    2,
+                    1
+                  ]
+                }
+              },
+              "dropAsYouGo": {
+                "$id": "#/properties/dropAsYouGo",
+                "type": "boolean",
+                "title": "The Dropasyougo Schema",
+                "default": true,
+                "examples": [
+                  true
+                ]
+              }
+            }
+          };
+        let ajv = new Ajv();
+        let validate = ajv.compile(schema);
+        let valid = validate(advancedParams);
+        if (!valid) {
+            // only saving first error message
+            let error = validate.errors[0];
+            if (error.dataPath != null && error.message != null) {
+                return error.dataPath + " " + error.message;
+            } else {
+                return SQLErrTStr.InvalidParams;
+            }
+        }
+    }
+
+    private _validateMapping() {
+
     }
 }
 
