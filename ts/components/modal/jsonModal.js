@@ -647,7 +647,8 @@ window.JSONModal = (function($, JSONModal) {
             var options = {
                 "direction": isDataCol ? ColDir.Left : ColDir.Right,
                 "fullName": nameInfo.name,
-                "escapedName": backColName
+                "escapedName": backColName,
+                "defaultWidth": true
             };
 
             ColManager.pullCol(colNum, tableId, options)

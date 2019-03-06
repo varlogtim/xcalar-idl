@@ -374,16 +374,12 @@ class SQLEditorSpace {
             tableId: tableId,
             tableName: tableName
         });
+        let columns = null;
         if (options && options.columns) {
-            table.tableCols = [];
-            options.columns.forEach((col) => {
-                table.tableCols.push(ColManager.newPullCol(col.name,
-                                        col.backName, col.type));
-            });
-            table.tableCols.push(ColManager.newDATACol());
+            columns = options.columns;
         }
         gTables[tableId] = table;
-        SQLResultSpace.Instance.viewTable(table);
+        SQLResultSpace.Instance.viewTable(table, columns);
     }
 
     private _setFileName(name: string): void {

@@ -15,9 +15,10 @@ class XcDagTableViewer extends XcTableViewer {
             });
             gTables[tableId] = table;
         }
-        const columns: ProgCol[] = dagNode.getLineage().getColumns(true);
+        let columns: ProgCol[] = dagNode.getLineage().getColumns(true);
         if (columns != null && columns.length > 0) {
-            table.tableCols = columns.concat(ColManager.newDATACol());
+            columns = columns.concat(ColManager.newDATACol());
+            table.addAllCols(columns);
         }
         return table;
     }

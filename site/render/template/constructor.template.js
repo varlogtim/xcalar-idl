@@ -77,6 +77,7 @@
                                 delete metas[i].numRowsPerSlot;
                             }
                         }
+                        delete table.colTypeCache;
                     }
 
                     $.extend(persistTables, gDroppedTables);
@@ -338,6 +339,7 @@
          * new attrs:
             indexTables: (obj) cache column's indexed table
             complement: (string), complement table
+            colTypeCache: (obj) cache known column type, not persist
          * removed attrs:
             bookmarks
         */
@@ -355,6 +357,7 @@
                 self.complement = options.complement || "";
 
                 self.backTableMeta = options.backTableMeta || null;
+                self.colTypeCache = {};
                 delete self.bookmarks;
             }
 
@@ -471,6 +474,21 @@
                 }
             },
 
+            addAllCols: function(columns) {
+                if (columns == null || columns.length === 0) {
+                    return;
+                }
+                var progCols = [];
+                var self = this;
+                columns.forEach(function(progCol) {
+                    if (!progCol.isDATACol() && !progCol.isEmptyCol()) {
+                        self.colTypeCache[progCol.getBackColName()] = progCol.getType();
+                    }
+                    progCols.push(progCol);
+                });
+                self.tableCols = progCols;
+            },
+
             addCol: function(colNum, progCol) {
                 var self = this;
                 var index = colNum - 1;
@@ -480,6 +498,10 @@
 
                 self.tableCols.splice(index, 0, progCol);
                 var backColName = progCol.getBackColName();
+                if (progCol.getType() == null) {
+                    progCol.setType(self.colTypeCache[backColName] || null);
+                }
+
                 if (self.backTableMeta != null) {
                     var valueAttrs = self.backTableMeta.valueAttrs || [];
                     valueAttrs.some(function(valueAttr) {
@@ -1124,6 +1146,10 @@
 
             getType: function() {
                 return this.type;
+            },
+
+            setType: function(type) {
+                this.type = type;
             },
 
             updateType: function(val) {

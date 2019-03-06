@@ -14,11 +14,26 @@ class SQLTable {
         this._searchBar = new TableSearchBar(this._container);
     }
 
-    public show(table: TableMeta, callback?: Function): XDPromise<void> {
+    public show(
+        table: TableMeta, 
+        columns: {name: string, backName: string, type: ColumnType}[], 
+        callback?: Function
+    ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         table.allImmediates = true;
+
+        if (columns) {
+            let tableCols: ProgCol[] = [];
+            columns.forEach((col) => {
+                tableCols.push(ColManager.newPullCol(col.name,
+                                     col.backName, col.type));
+            });
+            tableCols.push(ColManager.newDATACol());
+            table.addAllCols(tableCols);
+        }
+
         const viewer: XcTableViewer = new XcTableViewer(table);
-        
+
         this._show(viewer)
         .then(deferred.resolve)
         .fail((error) => {

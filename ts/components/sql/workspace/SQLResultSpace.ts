@@ -72,8 +72,12 @@ class SQLResultSpace {
      * @param table
      * @param callback
      */
-    public viewTable(table: TableMeta, callback?: Function): void {
-        SQLTable.Instance.show(table, callback);
+    public viewTable(
+        table: TableMeta,
+        columns: {name: string, backName: string, type: ColumnType}[], 
+        callback?: Function
+    ): void {
+        SQLTable.Instance.show(table, columns, callback);
         SQLTableLister.Instance.close();
         SQLTableSchema.Instance.close();
         SQLDataflowPreview.Instance.close();

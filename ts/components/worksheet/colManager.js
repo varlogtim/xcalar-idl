@@ -154,7 +154,7 @@ window.ColManager = (function($, ColManager) {
         var table = gTables[tableId];
         var newColName = xcHelper.getUniqColName(tableId, options.fullName, true);
 
-        var progCol = ColManager.newPullCol(newColName, backName);
+        var progCol = ColManager.newPullCol(newColName, backName, undefined, options.defaultWidth);
         var usrStr = progCol.userStr;
 
         var newColNum = addColHelper(colNum, tableId, progCol, {
@@ -465,7 +465,8 @@ window.ColManager = (function($, ColManager) {
                     "width": origCol.width,
                     "userStr": usrStr,
                     "isNewCol": false,
-                    "sizedTo": origCol.sizedTo
+                    "sizedTo": origCol.sizedTo,
+                    "type": origCol.type
                 });
                 progCol.parseFunc();
                 if ((!args || !args.undo) && !parsePullColArgs(progCol) ) {

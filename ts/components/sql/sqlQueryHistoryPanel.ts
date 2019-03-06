@@ -464,15 +464,7 @@ namespace SqlQueryHistoryPanel {
                 tableName: tableName
             });
             let columns = queryInfo.columns;
-            if (columns) {
-                table.tableCols = [];
-                columns.forEach((col) => {
-                    table.tableCols.push(ColManager.newPullCol(col.name,
-                                         col.backName, col.type));
-                });
-                table.tableCols.push(ColManager.newDATACol());
-            }
-            SQLResultSpace.Instance.viewTable(table, () => {
+            SQLResultSpace.Instance.viewTable(table, columns, () => {
                 this._noTableExistHandler(queryInfo);
             });
         }

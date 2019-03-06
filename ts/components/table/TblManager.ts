@@ -71,12 +71,14 @@ class TblManager {
             }
 
             // tableCols get deep copied in TableMeta constructor
-            gTables[tableId] = new TableMeta({
+            let table = new TableMeta({
                 "tableId": tableId,
                 "tableName": tableName,
                 "tableCols": tableCols,
                 "status": TableType.Orphan
             });
+            table.addAllCols(table.tableCols); // restore the colTypeCache
+            gTables[tableId] = table;
         }
     }
 

@@ -880,6 +880,7 @@ declare class TableMeta {
     public getNumCols(): number;
     public sortCols(sortKey: string, order: ColumnSortOrder): void;
     public addCol(colNum: number, progCol: ProgCol);
+    public addAllCols(progCols: ProgCol[]);
     public getKeys(): {name: string, ordering: string}[];
     public getOrdering(): number;
     public getIndexTable(colNames: string[]): TableIndexCache;

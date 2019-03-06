@@ -297,6 +297,18 @@ describe("Persistent Constructor Test", function() {
             .and.to.be.instanceof(ColFunc);
         });
 
+        it("should set type", function() {
+            var progCol = new ProgCol({
+                "name": "DATA",
+                "type": ColumnType.integer,
+                "func": {
+                    "name": "raw"
+                }
+            });
+            progCol.setType(ColumnType.string);
+            expect(progCol.getType()).to.equal(ColumnType.string);
+        });
+
         it("Should know if is data col", function() {
             var progCol = new ProgCol({
                 "name": "DATA",
@@ -692,7 +704,7 @@ describe("Persistent Constructor Test", function() {
     });
 
     describe("Table Constructor Test", function() {
-        it("Should have 211 attributes", function() {
+        it("Should have 22 attributes", function() {
             var table = new TableMeta({
                 "tableName": "test#a1",
                 "tableId": "a1",
@@ -700,7 +712,7 @@ describe("Persistent Constructor Test", function() {
             });
 
             expect(table).to.be.an.instanceof(TableMeta);
-            expect(Object.keys(table).length).to.equal(21);
+            expect(Object.keys(table).length).to.equal(22);
             expect(table).have.property("version").and
             .to.equal(currentVersion);
             expect(table).have.property("tableName").and
@@ -742,6 +754,8 @@ describe("Persistent Constructor Test", function() {
             expect(table).have.property("numPages").and
             .to.be.equal(-1);
             expect(table).have.property("indexTables").and
+            .to.be.an("object");
+            expect(table).have.property("colTypeCache").and
             .to.be.an("object");
         });
 
@@ -991,6 +1005,25 @@ describe("Persistent Constructor Test", function() {
             expect(table.hasCol("backTestCol2", "", true)).to.be.true;
             expect(table.hasCol("backTestCol3", "")).to.be.true;
             expect(table.hasCol("backTestCol3", "", true)).to.be.false;
+        });
+
+        it("should add all cols", function() {
+            var progCol = new ProgCol({
+                "name": "testCol",
+                "backName": "backTestCol",
+                "isNewCol": false,
+                "func": {
+                    "name": "pull"
+                }
+            });
+            var table = new TableMeta({
+                "tableName": "test#a1",
+                "tableId": "a1",
+                "isLocked": false
+            }); 
+            table.addAllCols([progCol]);
+            expect(table.tableCols.length).to.equal(1);
+            expect(Object.keys(table.colTypeCache).length).to.equal(1);
         });
 
         it("Should add and remove col", function() {
