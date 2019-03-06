@@ -499,17 +499,17 @@ class DagNodeCustom extends DagNode {
      * @returns {Table} return id of the table of output node
      * @description We support only one output for now, so always set portIdx to 0
      */
-    public getTable(portIdx: number = 0): string {
-        // XXX TODO: Uncomment the following line, when we support multiple outputs
-        portIdx = 0; // Hardcoded to 0 for now
+    // public getTable(portIdx: number = 0): string {
+    //     // XXX TODO: Uncomment the following line, when we support multiple outputs
+    //     portIdx = 0; // Hardcoded to 0 for now
 
-        if (portIdx >= this._output.length) {
-            console.error('DagNodeCustom.getTable: output out of range');
-            return null;
-        }
+    //     if (portIdx >= this._output.length) {
+    //         console.error('DagNodeCustom.getTable: output out of range');
+    //         return null;
+    //     }
 
-        return this._getOutputPort(portIdx).getTable();
-    }
+    //     return this._getOutputPort(portIdx).getTable();
+    // }
 
     /**
      * @override

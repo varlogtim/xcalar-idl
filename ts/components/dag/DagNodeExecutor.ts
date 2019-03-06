@@ -691,7 +691,13 @@ class DagNodeExecutor {
         } else {
             node.getSubGraph().execute(null, optimized, this.txId)
             .then(() => {
-                deferred.resolve((node.getTable()));
+                try {
+                    // Always get the first output node, as we only support on output for now
+                    deferred.resolve(node.getOutputNodes()[0].getTable());
+                } catch(e) {
+                    // This could happend, as custom node can end with some out nodes
+                    deferred.resolve();
+                }
             })
             .fail((error) => {
                 deferred.reject(error);
