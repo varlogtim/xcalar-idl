@@ -15,7 +15,7 @@ class DagTabManager {
     private _activeTab: DagTab;
     private _sqlPreviewTab: DagTab;
 
-    public setup(): void {
+    public setup(): XDPromise<void> {
         this._initialize();
 
         const $tabArea: JQuery = this._getTabArea();
@@ -26,7 +26,7 @@ class DagTabManager {
         });
 
         this._addEventListeners();
-        this._getManagerDataAsync();
+        return this._getManagerDataAsync();
     }
 
     public getTabs(): DagTab[] {
@@ -533,7 +533,7 @@ class DagTabManager {
             DagList.Instance.switchActiveDag(tabId);
         }
 
-        DagViewManager.Instance.switchActiveDagTab(this.getTabByIndex(index));
+        DagViewManager.Instance.switchActiveDagTab(this.getTabByIndex(index), $dataflowAreas.eq(index));
         DagTopBar.Instance.reset();
         if (dagTab instanceof DagTabProgress) {
             dagTab.focus();

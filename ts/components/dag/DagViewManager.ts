@@ -325,7 +325,7 @@ class DagViewManager {
      * Switches the current active tab, updating activeDag and activeDagTab
      * @param dagTab The tab we want to make active.
      */
-    public switchActiveDagTab(dagTab: DagTab) {
+    public switchActiveDagTab(dagTab: DagTab, $dfArea?: JQuery) {
         const $oldDfArea: JQuery = this._getActiveArea();
         this.activeDagTab = dagTab;
         this.activeDag = dagTab.getGraph();
@@ -336,7 +336,7 @@ class DagViewManager {
             this.activeDagView = this.dagViewMap.get(dagTab.getId());
         }
         DagCategoryBar.Instance.updateCategories(this.activeDagTab);
-        this.render();
+        this.render($dfArea);
         this.activeDagView.focus();
         this._updateDagView();
         DagTable.Instance.switchTab(dagTab.getId());
@@ -407,7 +407,6 @@ class DagViewManager {
     }
 
     public render($dfArea?: JQuery, graph?: DagGraph, dagTab?: DagTab, noEvents?: boolean) {
-
         // set activedag here
         $dfArea = $dfArea || this._getActiveArea();
         if ($dfArea.hasClass("rendered")) {
@@ -417,7 +416,6 @@ class DagViewManager {
         const tabId = graph.getTabId();
         const newDagView = new DagView($dfArea, graph, this.containerSelector, dagTab);
         this.dagViewMap.set(graph.getTabId(), newDagView);
-
 
         if (this.activeDag && tabId === this.activeDag.getTabId()) {
             // when rerendering graph, need to reset activeDag to new graph

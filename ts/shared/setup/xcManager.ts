@@ -580,7 +580,9 @@ namespace xcManager {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         DagList.Instance.setup()
         .then(() => {
-            DagTabManager.Instance.setup();
+            return PromiseHelper.alwaysResolve(DagTabManager.Instance.setup());
+        })
+        .then(() => {
             deferred.resolve();
         })
         .fail((err) => {
