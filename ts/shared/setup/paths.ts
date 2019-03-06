@@ -25,6 +25,7 @@ var paths = {
     waitIcon: 'assets/images/waiting-1.gif',
     loadBarIcon: "assets/images/loading-bar.gif",
     XCExt: 'assets/images/extension/logo-xc.png',
+    XDExt: 'assets/images/extension/logo-xd.png',
     CustomExt: 'assets/images/extension/logo-custom.png',
     tableauExt: 'assets/images/extension/logo-tableau.png',
     dsUploadWorker: 'assets/js/worker/dsUploadWorker.js',

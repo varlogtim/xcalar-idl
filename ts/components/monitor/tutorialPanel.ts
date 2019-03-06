@@ -74,7 +74,7 @@ class TutorialPanel {
 
 
     public imageError(ele): void {
-        let imgSrc: string = paths.XCExt;
+        let imgSrc: string = paths.XDExt;
         ele.src = imgSrc;
         let tut: ExtItem = this._getTutorialFromEle($(ele).closest(".item"));
         tut.setImage(imgSrc);
@@ -193,7 +193,7 @@ class TutorialPanel {
                         '</div>' +
                     '</header>' +
                     '<div class="cardMain items">';
-        let imgEvent = 'onerror="TutorialPanel.imageError(this)"';
+        let imgEvent = 'onerror="TutorialPanel.Instance.imageError(this)"';
 
         for (let i = 0; i < tutLen; i++) {
             let tut = tutorials[i];
