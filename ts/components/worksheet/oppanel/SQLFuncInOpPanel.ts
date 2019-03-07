@@ -76,7 +76,7 @@ class SQLFuncInOpPanel extends BaseOpPanel {
     }
 
     private _initializeTables(): void {
-        let tables: PbTblInfo[] = SQLTableLister.Instance.getAvailableTables();
+        let tables: PbTblInfo[] = SQLResultSpace.Instance.getAvailableTables();
         this._tables = new Map();
         tables.forEach((table) => {
             if (table.active) {

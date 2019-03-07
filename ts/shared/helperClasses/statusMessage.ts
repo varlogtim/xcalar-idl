@@ -488,7 +488,7 @@ namespace StatusMessage {
                 classes += ' workspaceNotify';
                 popupNeeded = true;
             } else {
-                if ($("#dagViewTableArea").is(":visible")) {
+                if (!$("#dagViewTableArea").is(":visible")) {
                     // when dag table is not visible
                     popupNeeded = true;
                     $popups = $('.tableDonePopup.worksheetNotify');

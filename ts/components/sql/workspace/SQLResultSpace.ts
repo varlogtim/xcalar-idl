@@ -5,8 +5,10 @@ class SQLResultSpace {
         return this._instance || (this._instance = new this());
     }
 
-    private constructor() {
+    private _tableLister: SQLTableLister;
 
+    private constructor() {
+        this._tableLister = new SQLTableLister("sqlTableListerArea");
     }
 
     private _setupListeners() {
@@ -53,7 +55,7 @@ class SQLResultSpace {
 
     public setup(): void {
         SQLTable.Instance.close();
-        SQLTableLister.Instance.close();
+        this._tableLister.close();
         SQLTableSchema.Instance.close();
         SQLDataflowPreview.Instance.close();
 
@@ -64,7 +66,7 @@ class SQLResultSpace {
      * SQLResultSpace.Instance.refresh
      */
     public refresh(): void {
-        SQLTableLister.Instance.refresh();
+        this._tableLister.refresh();
     }
 
     /**
@@ -78,7 +80,7 @@ class SQLResultSpace {
         callback?: Function
     ): void {
         SQLTable.Instance.show(table, columns, callback);
-        SQLTableLister.Instance.close();
+        this._tableLister.close();
         SQLTableSchema.Instance.close();
         SQLDataflowPreview.Instance.close();
     }
@@ -91,19 +93,19 @@ class SQLResultSpace {
         SQLTable.Instance.close();
         SQLTableSchema.Instance.close();
         SQLDataflowPreview.Instance.close();
-        SQLTableLister.Instance.show(reset);
+        this._tableLister.show(reset);
     }
 
     public showSchema(tableInfo: PbTblInfo): void {
         SQLTable.Instance.close();
-        SQLTableLister.Instance.close();
+        this._tableLister.close();
         SQLDataflowPreview.Instance.close();
         SQLTableSchema.Instance.show(tableInfo);
     }
 
     public showSchemaError(errorString: string): void {
         SQLTable.Instance.close();
-        SQLTableLister.Instance.close();
+        this._tableLister.close();
         SQLDataflowPreview.Instance.close();
         SQLTableSchema.Instance.showError(errorString);
     }
@@ -115,7 +117,14 @@ class SQLResultSpace {
     public showProgressDataflow(inProgress: boolean, sql?: string): void {
         SQLTable.Instance.close();
         SQLTableSchema.Instance.close();
-        SQLTableLister.Instance.close();
+        this._tableLister.close();
         SQLDataflowPreview.Instance.show(inProgress, sql);
+    }
+
+    /**
+     * SQLResultSpace.Instance.getAvailableTables
+     */
+    public getAvailableTables(): PbTblInfo[] {
+        return this._tableLister.getAvailableTables();
     }
 }

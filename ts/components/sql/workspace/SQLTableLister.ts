@@ -1,18 +1,12 @@
 class SQLTableLister extends AbstractSQLResultView {
-    private static _instance: SQLTableLister;
-    
-    public static get Instance() {
-        return this._instance || (this._instance = new this());
-    }
-
     private _attributes: {key: string, text: string}[];
     private _tableInfos: PbTblInfo[];
     private _sortKey: string;
     private _reverseSort: boolean;
 
-    private constructor() {
+    public constructor(container: string) {
         super();
-        this._container = "sqlTableListerArea";
+        this._container = container;
         this._tableInfos = [];
         this._setupArrtibutes();
         this._initializeMainSection();
@@ -20,10 +14,10 @@ class SQLTableLister extends AbstractSQLResultView {
     }
 
     /**
-     * SQLTableLister.Instance.show
+     *
      * @param reset
      */
-    public show(reset: boolean): void {
+    public show(reset: boolean): XDPromise<void> {
         const $container = this._getContainer();
         // let refresh: boolean = true;
         // if (!$container.hasClass("xc-hidden")) {
@@ -33,12 +27,14 @@ class SQLTableLister extends AbstractSQLResultView {
         $container.removeClass("xc-hidden");
         if (reset) {
             this._reset();
-            this._listTables(false);
+            return this._listTables(false);
+        } else {
+            return PromiseHelper.resolve();
         }
     }
 
     /**
-     * SQLTableLister.Instance.close
+     *
      */
     public close(): void {
         this._getContainer().addClass("xc-hidden");
@@ -51,9 +47,6 @@ class SQLTableLister extends AbstractSQLResultView {
         }
     }
 
-    /**
-     * SQLTableLister.Instance.getAvailableTables
-     */
     public getAvailableTables(): PbTblInfo[] {
         return this._getAvailableTables();
     }
@@ -148,33 +141,39 @@ class SQLTableLister extends AbstractSQLResultView {
         this._getContainer().removeClass("loading");
     }
 
-    private _activateTable($row: JQuery): void {
+    private _activateTable($row: JQuery): XDPromise<void> {
         if ($row.length === 0) {
-            return;
+            return PromiseHelper.resolve();
         }
 
         let tableInfo = this._getTableInfoFromRowEl($row);
+        if (tableInfo == null) {
+            return PromiseHelper.reject();
+        }
         let copyTableInfo = xcHelper.deepCopy(tableInfo);
         copyTableInfo.state = PbTblState.Activating;
         this._replaceRowContent($row, copyTableInfo);
 
-        PTblManager.Instance.activateTables([tableInfo.name])
+        return PTblManager.Instance.activateTables([tableInfo.name])
         .always(() => {
             this._listTables(false);
         });
     }
 
-    private _deactivateTable($row: JQuery): void {
+    private _deactivateTable($row: JQuery): XDPromise<void> {
         if ($row.length === 0) {
-            return;
+            return PromiseHelper.resolve();
         }
 
         let tableInfo = this._getTableInfoFromRowEl($row);
+        if (tableInfo == null) {
+            return PromiseHelper.reject();
+        }
         let copyTableInfo = xcHelper.deepCopy(tableInfo);
         copyTableInfo.state = PbTblState.Deactivating;
         this._replaceRowContent($row, copyTableInfo);
 
-        PTblManager.Instance.deactivateTables([tableInfo.name])
+        return PTblManager.Instance.deactivateTables([tableInfo.name])
         .always(() => {
             this._listTables(false);
         });

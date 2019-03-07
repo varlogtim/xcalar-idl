@@ -142,7 +142,7 @@ class SQLEditorSpace {
     private _getAutoCompleteHint(): any {
         let arcTables = {};
         try {
-            let tables: PbTblInfo[] = SQLTableLister.Instance.getAvailableTables();
+            let tables: PbTblInfo[] = SQLResultSpace.Instance.getAvailableTables();
             tables.forEach((table) => {
                 arcTables[table.name] = [];
                 table.columns.forEach((col) => {
