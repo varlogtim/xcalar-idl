@@ -1269,7 +1269,7 @@ class DagNodeExecutor {
                             newTableMap[source[i]] = replaceMap[idx];
                             newTableSrcMap[replaceMap[idx]] = idx;
                         } else {
-                            console.log("publish table as source: ", source[i]);
+                            // console.log("publish table as source: ", source[i]);
                             continue;
                         }
                     }

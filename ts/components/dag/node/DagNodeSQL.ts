@@ -19,6 +19,7 @@ class DagNodeSQL extends DagNode {
 
     // non-persistent
     private _queryObj: any;
+    private _allowUpdateSQLHistory: boolean = false;
 
     public constructor(options: DagNodeSQLInfo) {
         super(options);
@@ -84,12 +85,18 @@ class DagNodeSQL extends DagNode {
         return this._queryObj;
     }
 
+    public subscribeHistoryUpdate(): void {
+        this._allowUpdateSQLHistory = true;
+    }
+
     // XXX TODO: decouple with UI code
     public updateSQLQueryHistory(updateStats: boolean = false): void {
         if (updateStats) {
             this._updateStatsInSQLQuery();
         }
-        SQLHistorySpace.Instance.update(this._queryObj);
+        if (this._allowUpdateSQLHistory) {
+            SQLHistorySpace.Instance.update(this._queryObj);
+        }
     }
 
     private _updateStatsInSQLQuery(): void {
@@ -823,7 +830,7 @@ class DagNodeSQL extends DagNode {
                 tableColumns: schema
             }
 
-            console.log(structToSend);
+            // console.log(structToSend);
             const retStruct = {
                 cliArray: ret.cliArray,
                 structToSend: structToSend,

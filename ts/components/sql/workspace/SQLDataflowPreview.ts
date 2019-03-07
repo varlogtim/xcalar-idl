@@ -105,8 +105,12 @@ class SQLDataflowPreview {
             const deferred: XDDeferred<DagTabUser> = PromiseHelper.deferred();
             SQLUtil.getSQLStruct(sql)
             .then((sqlStruct) => {
-                let executor = new SQLExecutor(sqlStruct, true);
-                return executor.restoreDataflow();
+                try {
+                    let executor = new SQLExecutor(sqlStruct, true);
+                    return executor.restoreDataflow();
+                } catch (e) {
+                    return PromiseHelper.reject(e.message);
+                }
             })
             .then((_dataflowId, dagTab: DagTabUser) => {
                 deferred.resolve(dagTab);

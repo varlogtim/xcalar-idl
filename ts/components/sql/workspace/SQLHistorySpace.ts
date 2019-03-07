@@ -21,6 +21,10 @@ class SQLHistorySpace {
         });
     }
 
+    /**
+     * SQLHistorySpace.Instance.update
+     * @param updateInfo
+     */
     public update(updateInfo): XDPromise<void> {
         return this._historyComponent.update(updateInfo);
     }

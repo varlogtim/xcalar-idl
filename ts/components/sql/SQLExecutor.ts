@@ -71,6 +71,7 @@ class SQLExecutor {
         this._sqlNode = <DagNodeSQL>DagNodeFactory.create({
             type: DagNodeType.SQL
         });
+        this._sqlNode.subscribeHistoryUpdate();
         this._createDataflow();
     }
 
