@@ -88,7 +88,7 @@ class SQLOpPanel extends BaseOpPanel {
 
     public fakeCompile(numSteps: number): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
-        SQLUtil.Instance.lockProgress();
+        SQLUtil.lockProgress();
         this._$sqlButton.html("Compiling... 0/" + numSteps);
 
         const numMilSeconds = 1500;
@@ -118,7 +118,7 @@ class SQLOpPanel extends BaseOpPanel {
     };
 
     public startCompile(numSteps: number): void {
-        SQLUtil.Instance.lockProgress();
+        SQLUtil.lockProgress();
         if (numSteps === 0) {
             this._$sqlButton.html("Compiling...");
         } else {
@@ -154,7 +154,7 @@ class SQLOpPanel extends BaseOpPanel {
             },
             onCancelExecute: () => {
                 console.log("SQL cancel triggered!");
-                SQLUtil.Instance.resetProgress();
+                SQLUtil.resetProgress();
             },
             onAutoComplete: (editor: CodeMirror.Editor) => {
                 editor.execCommand("autocompleteSQLInDF");
@@ -617,7 +617,7 @@ class SQLOpPanel extends BaseOpPanel {
         }
         const queryId = xcHelper.randName("sql", 8);
         try {
-            SQLUtil.Instance.lockProgress();
+            SQLUtil.lockProgress();
             const options = {
                 identifiers: identifiers,
                 dropAsYouGo: dropAsYouGo
@@ -640,10 +640,10 @@ class SQLOpPanel extends BaseOpPanel {
                 deferred.reject(err);
             })
             .always(function() {
-                SQLUtil.Instance.resetProgress();
+                SQLUtil.resetProgress();
             });
         } catch (e) {
-            SQLUtil.Instance.resetProgress();
+            SQLUtil.resetProgress();
             Alert.show({
                 title: "Compilation Error",
                 msg: "Error details: " + JSON.stringify(e),

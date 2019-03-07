@@ -250,7 +250,7 @@
                 message = "Compilation Error";
             }
             if (typeof SQLOpPanel !== "undefined") {
-                SQLUtil.Instance.throwError(message);
+                SQLUtil.throwError(message);
             }
             throw "Assertion Failure: " + message;
         }
@@ -1142,7 +1142,7 @@
                     deferred.resolve(plan);
                 } catch (e) {
                     if (typeof SQLOpPanel !== "undefined") {
-                        SQLUtil.Instance.throwError(e);
+                        SQLUtil.throwError(e);
                     }
                 }
             },
@@ -1608,7 +1608,7 @@
                 jsonObj = JSON.parse(queryString);
             } catch (e) {
                 if (typeof SQLOpPanel !== "undefined") {
-                    SQLUtil.Instance.throwError(e);
+                    SQLUtil.throwError(e);
                 }
                 throw e;
             }
@@ -1672,7 +1672,7 @@
                 jsonObj = JSON.parse(queryString);
             } catch (e) {
                 if (typeof SQLOpPanel !== "undefined") {
-                    SQLUtil.Instance.throwError(e);
+                    SQLUtil.throwError(e);
                 }
                 throw e;
             }

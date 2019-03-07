@@ -215,12 +215,12 @@ describe("SQLHistorySpace Test", () => {
     });
 
     it("should restore datraflow", (done) => {
-        let oldGetSQLStruct = SQLUtil.Instance.getSQLStruct;
+        let oldGetSQLStruct = SQLUtil.getSQLStruct;
         let oldSQLExecutor = SQLExecutor;
         let oldUpdate = SQLHistorySpace.Instance.update;
         let called = 0;
 
-        SQLUtil.Instance.getSQLStruct = function() {
+        SQLUtil.getSQLStruct = function() {
             called++;
             return PromiseHelper.resolve({});
         };
@@ -247,7 +247,7 @@ describe("SQLHistorySpace Test", () => {
         .always(() => {
             SQLExecutor = oldSQLExecutor;
             SQLHistorySpace.Instance.update = oldUpdate;
-            SQLUtil.Instance.getSQLStruct = oldGetSQLStruct;
+            SQLUtil.getSQLStruct = oldGetSQLStruct;
         });
     });
 });

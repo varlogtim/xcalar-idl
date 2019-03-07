@@ -34,7 +34,7 @@
                                                                   opIdxMap, {});
             } catch (e) {
                 if (typeof SQLOpPanel !== "undefined") {
-                    SQLUtil.Instance.throwError(e);
+                    SQLUtil.throwError(e);
                 }
                 throw e;
             }

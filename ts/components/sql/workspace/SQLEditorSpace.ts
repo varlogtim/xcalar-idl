@@ -202,7 +202,7 @@ class SQLEditorSpace {
                 ops: ["identifier", "sqlfunc", "command"],
                 isMulti: (sqls.indexOf(";") > -1)
             };
-            SQLUtil.Instance.sendToPlanner("", "parse", struct)
+            SQLUtil.sendToPlanner("", "parse", struct)
             .then((ret) => {
                 const sqlStructArray: [SQLParserStruct] = JSON.parse(ret).ret;
                 if (!struct.isMulti && sqlStructArray.length === 1 &&

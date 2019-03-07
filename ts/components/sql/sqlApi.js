@@ -75,7 +75,7 @@
                 message = "SQLApi Error";
             }
             if (typeof SQLOpPanel !== "undefined") {
-                SQLUtil.Instance.throwError(message);
+                SQLUtil.throwError(message);
             }
             throw "Assertion Failure: " + message;
         }

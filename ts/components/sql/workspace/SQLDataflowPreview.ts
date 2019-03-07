@@ -103,7 +103,7 @@ class SQLDataflowPreview {
     private _restoreDataflow(sql: string): XDPromise<DagTabUser> {
         try {
             const deferred: XDDeferred<DagTabUser> = PromiseHelper.deferred();
-            SQLUtil.Instance.getSQLStruct(sql)
+            SQLUtil.getSQLStruct(sql)
             .then((sqlStruct) => {
                 let executor = new SQLExecutor(sqlStruct, true);
                 return executor.restoreDataflow();

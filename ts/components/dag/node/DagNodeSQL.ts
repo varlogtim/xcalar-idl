@@ -894,12 +894,12 @@ class DagNodeSQL extends DagNode {
         })
         .then(function() {
             // always drop schema on plan server first
-            return SQLUtil.Instance.sendToPlanner(self.getId(), "dropAll");
+            return SQLUtil.sendToPlanner(self.getId(), "dropAll");
         })
         .then(function() {
             allSchemas = allSchemas.concat(sqlFuncSchemas);
             // send schema to plan server
-            return SQLUtil.Instance.sendToPlanner(self.getId(), "update", allSchemas);
+            return SQLUtil.sendToPlanner(self.getId(), "update", allSchemas);
         })
         .then(function() {
             schemaQueryArray = schemaQueryArray.concat(sqlFuncQueries).map(function(cli) {
@@ -1103,7 +1103,7 @@ class DagNodeSQL extends DagNode {
                 tableSrcMap = ret.tableSrcMap
                 self.setTableSrcMap(tableSrcMap);
                 const struct = {"sqlQuery": sqlQueryStr};
-                return SQLUtil.Instance.sendToPlanner(self.getId(), "query", struct);
+                return SQLUtil.sendToPlanner(self.getId(), "query", struct);
             })
             .then(function(data) {
                 let logicalPlan = "";

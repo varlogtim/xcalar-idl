@@ -1,11 +1,12 @@
 class SQLUtil {
-    private static _instance: SQLUtil;
 
-    public static get Instance() {
-        return this._instance || (this._instance = new this());
-    }
-
-    public sendToPlanner(
+    /**
+     * SQLUtil.sendToPlanner
+     * @param sessionPrefix
+     * @param type
+     * @param struct
+     */
+    public static sendToPlanner(
         sessionPrefix: string,
         type: string,
         struct?: any
@@ -49,39 +50,26 @@ class SQLUtil {
                 deferred.resolve(data);
             },
             error: function(error) {
-                let errorMsg;
-                if (error && error.responseText) {
-                    try {
-                        errorMsg = JSON.parse(error.responseText).exceptionMsg;
-                    } catch (e) {
-                        errorMsg = SQLErrTStr.PlannerFailure + ". Failed to parse error message: " + JSON.stringify(error);
-                    }
-                } else if (error && error.status === 0) {
-                    errorMsg = SQLErrTStr.FailToConnectPlanner;
-                } else if (error) {
-                    errorMsg = JSON.stringify(error);
-                } else {
-                    errorMsg = SQLErrTStr.PlannerFailure;
-                }
-                deferred.reject(errorMsg);
                 console.error(error);
+                let errorMsg = SQLUtil._parseError(error);
+                deferred.reject(errorMsg);
             }
         });
         return deferred.promise();
     }
 
     /**
-     * SQLUtil.Instance.getSQLStruct
+     * SQLUtil.getSQLStruct
      * @param sql
      */
-    public getSQLStruct(sql: string): XDPromise<SQLParserStruct> {
+    public static getSQLStruct(sql: string): XDPromise<SQLParserStruct> {
         const deferred: XDDeferred<SQLParserStruct> = PromiseHelper.deferred();
         const struct = {
             sqlQuery: sql,
             ops: ["identifier", "sqlfunc"],
             isMulti: false
         };
-        SQLUtil.Instance.sendToPlanner("", "parse", struct)
+        SQLUtil.sendToPlanner("", "parse", struct)
         .then((ret) => {
             try {
                 let sqlStructArray = JSON.parse(ret).ret;
@@ -107,7 +95,7 @@ class SQLUtil {
         return deferred.promise();
     }
 
-    public throwError(errStr) {
+    public static throwError(errStr) {
         this.resetProgress();
         Alert.show({
             title: "Compilation Error",
@@ -116,13 +104,37 @@ class SQLUtil {
         });
     };
 
-    public lockProgress(): void {
+    /**
+     * SQLUtil.lockProgress
+     */
+    public static lockProgress(): void {
         $("#sqlOpPanel").find(".btn-submit").addClass("btn-disabled");
         $("#sqlSnippetsList").addClass("xc-disabled");
     }
 
-    public resetProgress(): void {
+    /**
+     * SQLUtil.resetProgress
+     */
+    public static resetProgress(): void {
         $("#sqlOpPanel").find(".btn-submit").removeClass("btn-disabled");
         $("#sqlSnippetsList").removeClass("xc-disabled");
-    };
+    }
+
+    private static _parseError(error: any): string {
+        let errorMsg: string;
+        if (error && error.responseText) {
+            try {
+                errorMsg = JSON.parse(error.responseText).exceptionMsg;
+            } catch (e) {
+                errorMsg = SQLErrTStr.PlannerFailure + ". Failed to parse error message: " + JSON.stringify(error);
+            }
+        } else if (error && error.status === 0) {
+            errorMsg = SQLErrTStr.FailToConnectPlanner;
+        } else if (error) {
+            errorMsg = JSON.stringify(error);
+        } else {
+            errorMsg = SQLErrTStr.PlannerFailure;
+        }
+        return errorMsg;
+    }
 }

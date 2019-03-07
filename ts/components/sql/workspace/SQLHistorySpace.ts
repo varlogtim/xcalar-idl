@@ -131,7 +131,7 @@ class SQLHistorySpace {
         try {
             const deferred: XDDeferred<string> = PromiseHelper.deferred();
             let sql: string = queryInfo.queryString;
-            SQLUtil.Instance.getSQLStruct(sql)
+            SQLUtil.getSQLStruct(sql)
             .then((sqlStruct) => {
                 let executor = new SQLExecutor(sqlStruct);
                 return executor.restoreDataflow()
