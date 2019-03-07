@@ -279,6 +279,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         mem.datasetUsage = 0;
         mem.xdbUsed = 0;
         mem.xdbTotal = 0;
+        mem.memUsedInBytes = 0;
         mem.sysMemUsed = 0;
         mem.pubTableUsage = 0;
 
@@ -296,14 +297,12 @@ window.MonitorGraph = (function($, MonitorGraph) {
                 total: 100
             });
 
-            // Formula #0: totalAvailableMemInBytes = xdbTotalBytes +
-            // sysMemUsedInBytes + sysMemFree
-            // Formula #1: (totalAvailableMemInBytes
-            //    * memUsageInPercent / 100) = sysMemUsedInBytes + xdbTotalBytes
-            // Formula #2: memUsedInBytes = xdbTotalBytes + sysMemUsedInBytes
+            // Formula #0: totalAvailableMemInBytes = xdbUsed + sysMemUsedInBytes + sysMemFree
+            // Formula #1: xdbTotal (highest xcalar can use) = xdbUsedBytes + xdb free
+            // Formula #2: memUsedInBytes = xdbUsed + sysMemUsedInBytes
             // Formula #3: xdbUsedBytes = 4 other categories on the chart
-
-            mem.sysMemUsed += (node.memUsedInBytes - node.xdbTotalBytes);
+            mem.memUsedInBytes += node.memUsedInBytes;
+            mem.sysMemUsed += node.sysMemUsedInBytes;
             mem.datasetUsage += node.datasetUsedBytes;
             mem.pubTableUsage += node.publishedTableUsedBytes;
             mem.xdbUsed += node.xdbUsedBytes;
@@ -346,7 +345,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         mem.otherTableUsage = Math.max(0, mem.xdbUsed - mem.userTableUsage
              - mem.datasetUsage - mem.pubTableUsage);
         mem.xdbFree = mem.xdbTotal - mem.xdbUsed;
-        mem.sysMemFree = Math.max(0, mem.total - mem.xdbTotal - mem.sysMemUsed);
+        mem.sysMemFree = Math.max(0, mem.total - mem.memUsedInBytes);
 
         var allStats = [mem, swap, usrCpu, network];
 
