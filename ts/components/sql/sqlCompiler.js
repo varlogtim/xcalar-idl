@@ -373,14 +373,14 @@
                 "right": 1
             });
         }
-        function powerNode() {
-            return new TreeNode({
-                "class": "org.apache.spark.sql.catalyst.expressions.Pow",
-                "num-children": 2,
-                "left": 0,
-                "right": 1
-            });
-        }
+        // function powerNode() {
+        //     return new TreeNode({
+        //         "class": "org.apache.spark.sql.catalyst.expressions.Pow",
+        //         "num-children": 2,
+        //         "left": 0,
+        //         "right": 1
+        //     });
+        // }
         function stringReplaceNode() {
             return new TreeNode({
                 "class": "org.apache.spark.sql.catalyst.expressions.StringReplace",
@@ -417,14 +417,14 @@
                 "num-children": 1,
             });
         }
-        function eqNode() {
-            return new TreeNode({
-                "class": "org.apache.spark.sql.catalyst.expressions.EqualTo",
-                "num-children": 2,
-                "left": 0,
-                "right": 1
-            });
-        }
+        // function eqNode() {
+        //     return new TreeNode({
+        //         "class": "org.apache.spark.sql.catalyst.expressions.EqualTo",
+        //         "num-children": 2,
+        //         "left": 0,
+        //         "right": 1
+        //     });
+        // }
         function castNode(xcType) {
             return new TreeNode({
                 "class": "org.apache.spark.sql.catalyst.expressions.XcType."
@@ -451,12 +451,12 @@
                 "num-children": 4
             });
         }
-        function isStrNode() {
-            return new TreeNode({
-                "class": "org.apache.spark.sql.catalyst.expressions.IsString",
-                "num-children": 1
-            });
-        }
+        // function isStrNode() {
+        //     return new TreeNode({
+        //         "class": "org.apache.spark.sql.catalyst.expressions.IsString",
+        //         "num-children": 1
+        //     });
+        // }
         function greaterThanNode() {
             return new TreeNode({
                 "class": "org.apache.spark.sql.catalyst.expressions.GreaterThan",
@@ -2821,7 +2821,6 @@
                 eqSubtrees.push(condTree);
             } else {
                 // No optimization
-                console.info("catchall join");
                 optimize = false;
             }
 
