@@ -41,8 +41,13 @@ function convert(dataflowInfo, nestedPrefix, nodes) {
     try {
         return convertHelper(dataflowInfo, nestedPrefix, nodes);
     } catch (e) {
+        let isRetina = false;
+        if (dataflowInfo && typeof dataflowInfo === "object" &&
+            dataflowInfo.workbookVersion == null && (!dataflowInfo.header || dataflowInfo.header.workbookVersion == null)) {
+            isRetina = true;
+        }
         console.log(e);
-        return {error: e};
+        return _getFailDataflowKVStoreKeys("Error: " + xcHelper.parseJSONError(e).error, isRetina);
     }
 }
 
@@ -57,10 +62,10 @@ function convertHelper(dataflowInfo, nestedPrefix, otherNodes) {
             dataflowInfo = JSON.parse(dataflowInfo);
         }
     } catch (e) {
-        return "invalid dataflowInfo: " + dataflowInfo;
+        return _getFailDataflowKVStoreKeys("Cannot parse dataflow: " + JSON.stringify(dataflowInfo));
     }
     if (typeof dataflowInfo !== "object" || dataflowInfo == null || (dataflowInfo instanceof Array)) {
-        return "invalid dataflowInfo: " + dataflowInfo;
+        return _getFailDataflowKVStoreKeys("Invalid dataflow structure: " + JSON.stringify(dataflowInfo));
     }
     modifyOriginalInput(dataflowInfo);
     if (!nestedPrefix) {
@@ -478,6 +483,38 @@ function _createKVStoreKeys(dataflows, dataflowsList, datasets, isRetina) {
         datasets.forEach(dataset => {
             kvPairs[globalKVDatasetPrefix + "sys/datasetMeta/" + dataset.args.dest] = JSON.stringify(dataset, null, 4);
         });
+    }
+
+
+    return JSON.stringify(kvPairs, null, 4);
+}
+
+function _getFailDataflowKVStoreKeys(errorStr, isRetina) {
+    const kvPairs = {};
+    const comment = {
+        "id": "comment_" + new Date().getTime() + "_" + idCount++,
+        "display": {
+            "x": 40,
+            "y": 40,
+            "width": 300,
+            "height": 200
+        },
+        "text": errorStr
+    };
+    comment.nodeId = comment.id;
+    const dataflow = {
+        "name":"Error",
+        "id":  currentDataflowId,
+        "dag":{
+            "nodes":[],
+            "comments":[comment],
+            "display":{"width":400,"height":300,"scale":1}
+        }
+    }
+    if (isRetina) {
+        kvPairs[workbookKVPrefix + "DF2"] = JSON.stringify(dataflow);
+    } else {
+        kvPairs[workbookKVPrefix +  currentDataflowId] = JSON.stringify(dataflow);
     }
 
     return JSON.stringify(kvPairs, null, 4);
@@ -1008,18 +1045,25 @@ function _getDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix) {
 
             break;
         case (XcalarApisT.XcalarApiSelect):
+            // older versinos of apiSelect do not have columns
+            let selectColumns;
+            if (node.args.columns) {
+                selectColumns = node.args.columns.map((colInfo) => {
+                    return {
+                        name: colInfo.sourceColumn,
+                        type: xcHelper.getDFFieldTypeToString(DfFieldTypeTFromStr[colInfo.columnType.type])
+                    }
+                })
+            } else {
+                selectColumns = [];
+            }
             dagNodeInfo = {
                 type: DagNodeType.IMDTable,
                 input: {
                     source: node.args.source,
                     version: node.args.minBatchId,
                     filterString: node.args.filterString || node.args.evalString,
-                    schema: node.args.columns.map((colInfo) => {
-                        return {
-                            name: colInfo.sourceColumn,
-                            type: xcHelper.getDFFieldTypeToString(DfFieldTypeTFromStr[colInfo.columnType.type])
-                        }
-                    })
+                    schema: selectColumns
                 }
             };
             break;
