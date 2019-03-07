@@ -341,9 +341,8 @@ class DagTblManager {
             return true;
         }
         let node: DagNode;
-        try {
-            node = graph.getNode(dagNodeID);
-        } catch (e) {
+        node = graph.getNode(dagNodeID);
+        if (!node) {
             // node doesn't exist, we can delete the table
             return true;
         }
