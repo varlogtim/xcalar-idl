@@ -1,15 +1,8 @@
 class SQLTableSchema extends AbstractSQLResultView {
-    private static _instance: SQLTableSchema;
-    
-    public static get Instance() {
-        return this._instance || (this._instance = new this());
-    }
-    
     private _schemaSection: PTblSchema;
 
-    private constructor() {
-        super();
-        this._container = "sqlTableSchemaArea";
+    public constructor(container: string) {
+        super(container);
         this._initializeMainSection();
         this._addEventListeners();
     }

@@ -5,15 +5,21 @@ class SQLResultSpace {
         return this._instance || (this._instance = new this());
     }
 
+    private _sqlTable: SQLTable;
     private _tableLister: SQLTableLister;
+    private _sqlTableSchema: SQLTableSchema;
+    private _sqlDataflowPreview: SQLDataflowPreview;
 
     private constructor() {
+        this._sqlTable = new SQLTable("sqlTableArea");
         this._tableLister = new SQLTableLister("sqlTableListerArea");
+        this._sqlTableSchema = new SQLTableSchema("sqlTableSchemaArea");
+        this._sqlDataflowPreview = new SQLDataflowPreview("sqlDataflowArea");
     }
 
     private _setupListeners() {
         $("#sqlTableArea").on("click", ".btn-create", () => {
-            let tableName: string = SQLTable.Instance.getTable();
+            let tableName: string = this._sqlTable.getTable();
             try {
                 if (tableName == null) {
                     return;
@@ -33,7 +39,7 @@ class SQLResultSpace {
         });
 
         $("#sqlTableArea").on("click", ".btn-export", function() {
-            let tableName: string = SQLTable.Instance.getTable();
+            let tableName: string = this._sqlTable.getTable();
             try {
                 if (tableName == null) {
                     return;
@@ -54,10 +60,10 @@ class SQLResultSpace {
     }
 
     public setup(): void {
-        SQLTable.Instance.close();
+        this._sqlTable.close();
         this._tableLister.close();
-        SQLTableSchema.Instance.close();
-        SQLDataflowPreview.Instance.close();
+        this._sqlTableSchema.close();
+        this._sqlDataflowPreview.close();
 
         this._setupListeners();
     }
@@ -79,10 +85,10 @@ class SQLResultSpace {
         columns: {name: string, backName: string, type: ColumnType}[], 
         callback?: Function
     ): void {
-        SQLTable.Instance.show(table, columns, callback);
+        this._sqlTable.show(table, columns, callback);
         this._tableLister.close();
-        SQLTableSchema.Instance.close();
-        SQLDataflowPreview.Instance.close();
+        this._sqlTableSchema.close();
+        this._sqlDataflowPreview.close();
     }
 
     /**
@@ -90,24 +96,24 @@ class SQLResultSpace {
      * @param reset
      */
     public showTables(reset: boolean): void {
-        SQLTable.Instance.close();
-        SQLTableSchema.Instance.close();
-        SQLDataflowPreview.Instance.close();
+        this._sqlTable.close();
+        this._sqlTableSchema.close();
+        this._sqlDataflowPreview.close();
         this._tableLister.show(reset);
     }
 
     public showSchema(tableInfo: PbTblInfo): void {
-        SQLTable.Instance.close();
+        this._sqlTable.close();
         this._tableLister.close();
-        SQLDataflowPreview.Instance.close();
-        SQLTableSchema.Instance.show(tableInfo);
+        this._sqlDataflowPreview.close();
+        this._sqlTableSchema.show(tableInfo);
     }
 
     public showSchemaError(errorString: string): void {
-        SQLTable.Instance.close();
+        this._sqlTable.close();
         this._tableLister.close();
-        SQLDataflowPreview.Instance.close();
-        SQLTableSchema.Instance.showError(errorString);
+        this._sqlDataflowPreview.close();
+        this._sqlTableSchema.showError(errorString);
     }
 
     /**
@@ -115,10 +121,10 @@ class SQLResultSpace {
      * @param inProgress - set to true if previewing dataflow while it's running
      */
     public showProgressDataflow(inProgress: boolean, sql?: string): void {
-        SQLTable.Instance.close();
-        SQLTableSchema.Instance.close();
+        this._sqlTable.close();
+        this._sqlTableSchema.close();
         this._tableLister.close();
-        SQLDataflowPreview.Instance.show(inProgress, sql);
+        this._sqlDataflowPreview.show(inProgress, sql);
     }
 
     /**

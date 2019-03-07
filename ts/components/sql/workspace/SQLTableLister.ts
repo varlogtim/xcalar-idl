@@ -5,8 +5,7 @@ class SQLTableLister extends AbstractSQLResultView {
     private _reverseSort: boolean;
 
     public constructor(container: string) {
-        super();
-        this._container = container;
+        super(container);
         this._tableInfos = [];
         this._setupArrtibutes();
         this._initializeMainSection();

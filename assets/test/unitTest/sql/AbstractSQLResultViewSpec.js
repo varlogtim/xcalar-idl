@@ -22,8 +22,7 @@ describe("AbstractSQLResultView Test", function() {
         '<div>';
         $div = $(div);
         $("#container").append($div);
-        resultView = new AbstractSQLResultView();
-        resultView._container = id;
+        resultView = new AbstractSQLResultView(id);
     });
 
     it("should be a instanceof AbstractSQLResultView", function() {

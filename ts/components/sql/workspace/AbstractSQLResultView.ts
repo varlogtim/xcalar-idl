@@ -1,6 +1,10 @@
 abstract class AbstractSQLResultView {
     protected _container: string;
 
+    public constructor(container: string) {
+        this._container = container;
+    }
+
     protected _getContainer(): JQuery {
         return $("#" + this._container);
     }

@@ -1,15 +1,11 @@
 class SQLTable {
-    private static _instance: SQLTable;
-    private readonly _container: string = "sqlTableArea";
+    private _container: string;
     private _searchBar: TableSearchBar;
-
-    public static get Instance() {
-        return this._instance || (this._instance = new this());
-    }
 
     private _currentViewer: XcTableViewer;
 
-    private constructor() {
+    public constructor(container: string) {
+        this._container = container;
         this._addEventListeners();
         this._searchBar = new TableSearchBar(this._container);
     }

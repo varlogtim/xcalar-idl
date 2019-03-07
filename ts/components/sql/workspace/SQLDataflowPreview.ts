@@ -1,14 +1,9 @@
 class SQLDataflowPreview {
-    private static _instance: SQLDataflowPreview;
-
-    public static get Instance() {
-        return this._instance || (this._instance = new this());
-    }
-
-    private readonly _container: string = "sqlDataflowArea";
+    private _container: string;
     private _sql: string;
 
-    private constructor() {
+    public constructor(container: string) {
+        this._container = container;
         this._addEventListeners();
     }
 
