@@ -971,16 +971,20 @@
                 if (total === 1) {
                     // 1 row has no skewness
                     skewness = 0;
+                } else if (len === 1) {
+                    // one row has no skew
+                    skewness = 0;
                 } else {
                     // change to percantage
                     rows = rows.map(function(row) {
                         return row / total;
                     });
 
+                    // the total skew
                     skewness = rows.reduce(function(sum, value) {
                         return sum + Math.abs(value - even);
                     }, 0);
-
+                    skewness = skewness * len / (2 * (len - 1));
                     skewness = Math.floor(skewness * 100);
                 }
                 this.skewness = skewness;

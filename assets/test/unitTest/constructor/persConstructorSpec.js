@@ -1636,20 +1636,34 @@ describe("Persistent Constructor Test", function() {
                 "isLocked": false
             });
 
-            table.backTableMeta = {
-                "metas": [{ "numRows": 0 }, { "numRows": 100 }]
-            };
+            var tests = [{
+                "metas": [{ "numRows": 0 }, { "numRows": 100 }],
+                "expect": 100
+            }, {
+                "metas": [{ "numRows": 0 }, { "numRows": 1 }],
+                "expect": 0
+            }, {
+                "metas": [{ "numRows": 100 }],
+                "expect": 0
+            }, {
+                "metas": [{ "numRows": 0 }, { "numRows": 0 }, { "numRows": 100 }],
+                "expect": 100
+            }, {
+                "metas": [{ "numRows": 10 }, { "numRows": 10 }, { "numRows": 10 }],
+                "expect": 0
+            }];
 
-            table._setSkewness();
-            expect(table.getSkewness()).to.equal(100);
-
-            // case 2
-            table.backTableMeta = {
-                "metas": [{ "numRows": 0 }, { "numRows": 1 }]
-            };
-
-            table._setSkewness();
-            expect(table.getSkewness()).to.equal(0);
+            tests.forEach(function(test) {
+                table.backTableMeta = {
+                    "metas": test.metas
+                };
+                table._setSkewness();
+                let skew = table.getSkewness();
+                if (skew !== test.expect) {
+                    console.error("test fail", JSON.stringify(test));
+                }
+                expect(skew).to.equal(test.expect);
+            });
         });
 
         it("should get size", function() {
