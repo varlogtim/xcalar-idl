@@ -125,7 +125,7 @@
             XIApi.query(txId, queryName, query, options)
             .then(function() {
                 // jdbc will resolve with cancel status here
-                if (arguments &&
+                if (arguments && arguments[0] &&
                     arguments[0].queryState === QueryStateT.qrCancelled) {
                     return PromiseHelper.reject(SQLErrTStr.Cancel);
                 }
