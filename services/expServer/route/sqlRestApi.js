@@ -7,6 +7,10 @@ var router = express.Router();
 var idNum = 0;
 var support = require("../expServerSupport.js");
 var SqlUtil;
+// set default timeout to 20 min
+var defaultSQLTimeout = process.env.EXP_SQL_TIMEOUT &&
+                        !isNaN(parseInt(process.env.EXP_SQL_TIMEOUT)) ?
+                        parseInt(process.env.EXP_SQL_TIMEOUT) : 1200000;
 
 // XXX Change the way supervisord spawns expServer with --experimental-worker
 // const Pool = require("../worker/workerPool.js");
@@ -1091,7 +1095,7 @@ function cleanAllTables(allIds, checkTime) {
 }
 
 router.post("/xcsql/query", function(req, res) {
-    req.setTimeout(14400000);
+    req.setTimeout(defaultSQLTimeout);
     var optimizations = {
         dropAsYouGo: req.body.dropAsYouGo,
         dropSrcTables: !req.body.keepOri,
@@ -1124,6 +1128,7 @@ router.post("/xcsql/query", function(req, res) {
 // Only difference is they take different parameters
 router.post("/xcsql/queryWithPublishedTables", [support.checkAuth],
     function(req, res) {
+    req.setTimeout(defaultSQLTimeout);
     var execid = req.body.execid;
     var queryName = req.body.queryName;
     var queryString = req.body.queryString;
