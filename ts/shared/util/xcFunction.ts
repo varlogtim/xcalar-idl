@@ -33,14 +33,22 @@ namespace xcFunction {
         const orders: number[] = [];
 
         colInfos.forEach((colInfo) => {
-            const progCol: ProgCol = table.getCol(colInfo.colNum);
+            let progCol: ProgCol = null;
+            let colNum: number = colInfo.colNum
+            if (colInfo.colNum == null && colInfo.name != null) {
+                colNum = table.getColNumByBackName(colInfo.name);
+            }
+
+            if (colNum != null) {
+                progCol = table.getCol(colInfo.colNum);
+            }
             if (progCol == null) {
                 keys.push(colInfo.name);
             } else {
                 keys.push(progCol.getFrontColName(true));
             }
 
-            colNums.push(colInfo.colNum);
+            colNums.push(colNum);
             orders.push(colInfo.ordering);
         });
 
@@ -58,12 +66,12 @@ namespace xcFunction {
 
                 const parsedName: PrefixColInfo = xcHelper.parsePrefixColName(backColName);
                 let typeToCast: ColumnType = colInfo.typeToCast;
+                const type: ColumnType = (progCol == null) ?
+                    null : progCol.getType();
                 if (parsedName.prefix !== "") {
                     // if it's a prefix, need to cast to immediate first
                     // as sort will create an immeidate and go back to sort table's
                     // parent table need to have the same column
-                    const type: ColumnType = (progCol == null) ?
-                    null : progCol.getType();
                     typeToCast = typeToCast || type;
                 }
                 if (typeToCast != null) {
@@ -91,7 +99,7 @@ namespace xcFunction {
                     newColInfos.push({
                         name: backColName,
                         ordering: colInfo.ordering,
-                        type: null
+                        type: type
                     });
                 }
             });
@@ -151,10 +159,7 @@ namespace xcFunction {
         let finalTableName: string;
         let finalTableCols: ProgCol[];
 
-        getUnsortedTableName(txId, tableName)
-        .then((unsortedTable) => {
-            return typeCastHelper(unsortedTable);
-        })
+        typeCastHelper(tableName)
         .then((tableToSort, newColInfos, newTableCols) => {
             finalTableCols = newTableCols;
 
