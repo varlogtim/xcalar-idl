@@ -408,6 +408,7 @@ class PTblManager {
             tableNames.forEach((tableName) => {
                 if (!set.has(tableName)) {
                     let tablesToActivate = this._checkActivateDependency(tableName, imdDenendencies);
+                    console.log("table dependency", tablesToActivate)
                     tablesToActivate.forEach((table) => {
                         set.add(table);
                         let func = (): XDPromise<void> => {
@@ -1066,38 +1067,87 @@ class PTblManager {
         imdDenendencies: object
     ): string[] {
         try {
-            let dependendcyTables: string[] = [];
-            // level traversal, if the dependent table is in
-            // deeper level, it should come in later
-            let stack: string[] = [];
-            stack.push(tableName);
-            while(stack.length) {
-                let table: string = stack.pop();
-                dependendcyTables.push(table);
-                let dependendcy = imdDenendencies[table];
-                let parents: string[] = [];
-                if (dependendcy != null) {
-                    parents = Object.keys(dependendcy.parents);
-                }
-                if (parents.length > 0) {
-                    stack = stack.concat(parents);
-                }
-            }
-
-            // make dependent table comes first
-            let resTables: string[] = [];
-            let set: Set<string> = new Set();
-            for (let i = dependendcyTables.length - 1; i >= 0; i--) {
-                let table = dependendcyTables[i];
-                if (!set.has(table)) {
-                    set.add(table);
-                    resTables.push(table);
-                }
-            }
-            return resTables;
+            let graph = this._getGraphConnectionFromDependency(tableName, imdDenendencies);
+            return this._topologicalSortDependencyGraph(graph, tableName);
         } catch (e) {
             console.error(e);
             return [tableName];
         }
+    }
+
+    private _getParentsFromDependency(
+        name: string,
+        imdDenendencies: object
+    ): string[] {
+        let dependendcy = imdDenendencies[name];
+        let parents: string[] = [];
+        if (dependendcy != null) {
+            parents = Object.keys(dependendcy.parents);
+        }
+        return parents;
+    }
+
+    private _getGraphConnectionFromDependency(
+        startNodeName: string,
+        imdDenendencies: object
+    ): {[key: string]: {numChildren: number, parents: string[]}} {
+        let graph = {};
+        let visited = {};
+        let queue: string[] = [startNodeName];
+        graph[startNodeName] = {numChildren: 0};
+
+        while (queue.length) {
+            let nodeName: string = queue.shift();
+            if (visited[nodeName]) {
+                // have visited
+                continue;
+            }
+
+            visited[nodeName] = true;
+            let parents: string[] = this._getParentsFromDependency(nodeName, imdDenendencies);
+            graph[nodeName] = graph[nodeName] || {};
+            graph[nodeName].parents = parents;
+
+            parents.forEach((parentName) => {
+                graph[parentName] = graph[parentName] || {numChildren: 0};
+                graph[parentName].numChildren++;
+                if (!visited[parentName]) {
+                    queue.push(parentName);
+                }
+            });
+        }
+        return graph;
+    }
+
+    private _topologicalSortDependencyGraph(
+        graph: {[key: string]: {numChildren: number, parents: string[]}},
+        startNodeName: string
+    ): string[] {
+        let sortedNodes: string[] = [];
+        let queue: string[] = [startNodeName];
+        while (queue.length) {
+            let nodeName: string = queue.shift();
+            sortedNodes.push(nodeName);
+            let node = graph[nodeName];
+            if (node == null) {
+                // error case
+                throw new Error("Table has cyclic dependency");
+            }
+            let parents: string[] = node.parents || [];
+            parents.forEach((parentName) => {
+                let node = graph[parentName];
+                node.numChildren--;
+                if (node.numChildren === 0) {
+                    queue.push(parentName);
+                }
+            });
+            delete graph[nodeName];
+        }
+
+        if (Object.keys(graph).length > 0) {
+            // when there is node remaining, cyclic case
+            throw new Error("Table has cyclic dependency");
+        }
+        return sortedNodes.reverse();
     }
 }
