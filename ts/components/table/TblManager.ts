@@ -1062,8 +1062,10 @@ class TblManager {
         xcAssert(progCol != null);
 
         const keys: {name: string, ordering: string}[] = table.getKeys();
-        const backName: string = progCol.getBackColName();
-        const indexed: {name: string, ordering: string} = keys.find((k) => k.name === backName);
+        const sortedColAlias: string = progCol.getSortedColAlias();
+        const indexed: {name: string, ordering: string} = keys.find((k) => {
+            return k.name === sortedColAlias;
+        });
 
         let width: number = progCol.getWidth();
         let columnClass: string = options.columnClass || "";
@@ -1103,21 +1105,21 @@ class TblManager {
                         'data-container="body" ' +
                         'data-placement="top" data-original-title="' +
                         TooltipTStr.ClickToSortDesc + '"' +
-                            '><i class="icon xi-arrow-up fa-12"></i>';
+                            '><i class="icon xi-arrow-up fa-10"></i>';
                 sorted = true;
             } else if (order === XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
                 sortIcon = '<div class="sortIcon" data-toggle="tooltip" ' +
                             'data-container="body" ' +
                             'data-placement="top" data-original-title="' +
                             TooltipTStr.ClickToSortAsc + '"><i class="icon ' +
-                            'xi-arrow-down fa-12"></i>';
+                            'xi-arrow-down fa-10"></i>';
                 sorted = true;
             }
 
             if (sorted) {
                 const keyNames: string[] = table.getKeyName();
                 if (keyNames.length > 1) {
-                    const sortNum: number = keyNames.indexOf(backName);
+                    let sortNum: number = keyNames.indexOf(sortedColAlias);
                     sortIcon += '<span class="sortNum">' + (sortNum + 1) + '</span>';
                 }
                 sortIcon += '</div>';
@@ -2039,9 +2041,9 @@ class TblManager {
                 return;
             }
             const progCol: ProgCol = table.getCol(colNum);
-            const colName: string = progCol.getBackColName();
+            const sortedColAlias: string = progCol.getSortedColAlias();
             const keyNames: string[] = table.getKeyName();
-            const keyIndex: number = keyNames.indexOf(colName);
+            let keyIndex: number = keyNames.indexOf(sortedColAlias);
             let order: XcalarOrderingT = XcalarOrderingT.XcalarOrderingAscending;
             if (keyIndex > -1) {
                 var keys = table.backTableMeta.keyAttr;
@@ -2111,8 +2113,10 @@ class TblManager {
             if ($th.hasClass('indexedColumn')) {
                 options.classes += " type-indexed";
                 const keys: {name: string, ordering: string}[] = table.getKeys();
-                const backName: string = progCol.getBackColName();
-                const index: {name: string, ordering: string} = keys.find((k) => k.name === backName);
+                const sortedColAlias: string = progCol.getSortedColAlias();
+                const index: {name: string, ordering: string} = keys.find((k) => {
+                    return k.name === sortedColAlias;
+                });
                 const order: string = index.ordering;
                 if (order === XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending]) {
                     options.classes += " sortedAsc";

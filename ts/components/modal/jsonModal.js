@@ -989,6 +989,7 @@ window.JSONModal = (function($, JSONModal) {
         };
         if (isDataCol) {
             var tableId = xcHelper.parseTableId($jsonTd.closest('table'));
+            removeHiddenSortedColumns(jsonObj, tableId);
             var groups = splitJsonIntoGroups(jsonObj, tableId);
             for (var i = 0; i < groups.length; i++) {
                 if (groups[i].prefix === gPrefixSign) {
@@ -1212,13 +1213,25 @@ window.JSONModal = (function($, JSONModal) {
         return html;
     }
 
+    function removeHiddenSortedColumns(jsonObj, tableId) {
+        var table = gTables[tableId];
+        const hiddenSortCols = table.getHiddenSortCols();
+        for (colName in hiddenSortCols){
+            delete jsonObj[colName];
+        }
+    }
+
     // splits json into array, grouped by prefix
     function splitJsonIntoGroups(jsonObj, tableId) {
         var groups = {};
         var table = gTables[tableId];
         var knownImmediatesArray = table.getImmediates();
+        var hiddenSortCols = table.getHiddenSortCols();
         var knownImmediates = {};
         knownImmediatesArray.forEach(function(imm) {
+            if (hiddenSortCols[imm.name]) {
+                return; // do not add hidden sorted columns
+            }
             knownImmediates[imm.name] = xcHelper.convertFieldTypeToColType(imm.type);
         });
 

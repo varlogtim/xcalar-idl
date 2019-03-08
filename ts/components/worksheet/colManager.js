@@ -11,7 +11,7 @@ window.ColManager = (function($, ColManager) {
         }
 
         var prefix = xcHelper.parsePrefixColName(backColName).prefix;
-        var width = null; // not set width by default as it's a slow operation 
+        var width = null; // not set width by default as it's a slow operation
         if (defaultWidth) {
             width = xcHelper.getDefaultColWidth(colName, prefix);
         }
@@ -155,6 +155,8 @@ window.ColManager = (function($, ColManager) {
         var newColName = xcHelper.getUniqColName(tableId, options.fullName, true);
 
         var progCol = ColManager.newPullCol(newColName, backName, undefined, options.defaultWidth);
+
+        table.updateSortColAlias(progCol);
         var usrStr = progCol.userStr;
 
         var newColNum = addColHelper(colNum, tableId, progCol, {
@@ -209,14 +211,15 @@ window.ColManager = (function($, ColManager) {
         var colName = progCol.getBackColName();
         var keys = table.backTableMeta.keyAttr;
         var keyNames = table.getKeyName();
-        var keyIndex = keyNames.indexOf(colName);
+        var sortedColAlias = progCol.getSortedColAlias();
+        var keyIndex = keyNames.indexOf(sortedColAlias);
         if (keyIndex === -1 ||
             order !== XcalarOrderingTFromStr[keys[keyIndex].ordering]) {
             for (var i = 0; i < keys.length; i++) {
                 // do not readd current column and
                 // do not include columns that are not sroted ascending or
                 // descending
-                if (keys[i].name === colName ||
+                if ((keys[i].name === sortedColAlias) ||
                     keys[i].name === "xcalarRecordNum" ||
                     (keys[i].ordering !==
                         XcalarOrderingTStr[XcalarOrderingTFromStr.Ascending] &&
@@ -480,6 +483,8 @@ window.ColManager = (function($, ColManager) {
                 } else {
                     progCol.setBackColName(progCol.func.args[0]);
                 }
+
+                table.updateSortColAlias(progCol);
 
                 table.tableCols[colNum - 1] = progCol;
                 pullColHelper(colNum, tableId);
@@ -835,8 +840,9 @@ window.ColManager = (function($, ColManager) {
                 }
 
                 nestedVals.push(nested);
+                var sortedColAlias = progCol.getSortedColAlias();
                 // get the column number of the column the table was indexed on
-                if (keys.includes(backColName)) {
+                if ((keys.includes(sortedColAlias))) {
                     indexedColNums.push(i);
                 }
             }
@@ -865,18 +871,18 @@ window.ColManager = (function($, ColManager) {
 
                 // loop through table tr's tds
                 var nestedTypes;
-                for (var col = 0; col < numCols; col++) {
-                    nested = nestedVals[col].nested;
-                    nestedTypes = nestedVals[col].types;
+                for (var colNum = 0; colNum < numCols; colNum++) {
+                    nested = nestedVals[colNum].nested;
+                    nestedTypes = nestedVals[colNum].types;
 
-                    var indexed = (indexedColNums.indexOf(col) > -1);
+                    var indexed = (indexedColNums.indexOf(colNum) > -1);
                     var parseOptions = {
                         "hasIndexStyle": hasIndexStyle,
                         "indexed": indexed
                     };
                     var res = parseTdHelper(tdValue, nested, nestedTypes,
-                                            tableCols[col], parseOptions);
-                    var tdClass = "col" + (col + 1);
+                                            tableCols[colNum], parseOptions);
+                    var tdClass = "col" + (colNum + 1);
 
                     if (res.tdClass !== "") {
                         tdClass += " " + res.tdClass;
@@ -952,18 +958,25 @@ window.ColManager = (function($, ColManager) {
         return $row;
     }
 
+    // used when pulling multiple columns from data column or from an object or array cell
     // colNames is optional, if not provided then will try to pull all cols
     ColManager.unnest = function(tableId, colNum, rowNum, colNames) {
         var $table = $('#xcTable-' + tableId);
         var $jsonTd = $table.find('.row' + rowNum).find('td.col' + colNum);
         var jsonTdObj = parseRowJSON($jsonTd.find('.originalData').text());
         var table = gTables[tableId];
+        var hiddenSortCols = table.getHiddenSortCols();
+        // do not pull out columns that should be hidden due to sort aliases
+        for (var colName in hiddenSortCols) {
+            delete jsonTdObj[colName];
+        }
 
         // if datacol, make sure the json obj includes all the immediates
         if ($jsonTd.hasClass("jsonElement")) {
             var immediates = table.getImmediates();
             immediates.forEach(function(immediate) {
-                if (!jsonTdObj.hasOwnProperty(immediate.name)) {
+                if (!jsonTdObj.hasOwnProperty(immediate.name) &&
+                    !hiddenSortCols[immediate.name]) {
                     jsonTdObj[immediate.name] = true;
                 }
             });
@@ -988,6 +1001,7 @@ window.ColManager = (function($, ColManager) {
             var colName = xcHelper.parsePrefixColName(parsedCol.colName).name;
             var backColName = parsedCol.escapedColName;
             var newProgCol = ColManager.newPullCol(colName, backColName, null, true);
+            table.updateSortColAlias(newProgCol);
             var newColNum = isDATACol ? colNum + index : colNum + index + 1;
 
             table.addCol(newColNum, newProgCol);
@@ -1322,8 +1336,9 @@ window.ColManager = (function($, ColManager) {
         }
         var keys = table.getKeys();
         var backName = progCol.getBackColName();
+        var sortedColAlias = progCol.getSortedColAlias();
         var indexed = keys.find(function(k) {
-            return k.name === backName;
+            return k.name === sortedColAlias;
         });
         if (indexed) {
             $th.addClass("indexedColumn");
@@ -1372,8 +1387,9 @@ window.ColManager = (function($, ColManager) {
 
         var keys = table.getKeys();
         var backName = progCol.getBackColName();
+        var sortedColAlias = progCol.getSortedColAlias();
         var indexed = keys.find(function(k) {
-            return k.name === backName;
+            return k.name === sortedColAlias;
         });
 
         var hasIndexStyle = table.showIndexStyle();
@@ -1406,7 +1422,7 @@ window.ColManager = (function($, ColManager) {
                         'data-container="body" ' +
                         'data-placement="top" data-original-title="' +
                         TooltipTStr.ClickToSortDesc + '"' +
-                            '><i class="icon xi-arrow-up fa-12"></i>';
+                            '><i class="icon xi-arrow-up fa-10"></i>';
                 sorted = true;
             } else if (order ===
                 XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
@@ -1414,13 +1430,13 @@ window.ColManager = (function($, ColManager) {
                             'data-container="body" ' +
                             'data-placement="top" data-original-title="' +
                             TooltipTStr.ClickToSortAsc + '"><i class="icon ' +
-                            'xi-arrow-down fa-12"></i>';
+                            'xi-arrow-down fa-10"></i>';
                 sorted = true;
             }
             if (sorted) {
                 var keyNames = table.getKeyName();
                 if (keyNames.length > 1) {
-                    var sortNum = keyNames.indexOf(backName);
+                    var sortNum = keyNames.indexOf(sortedColAlias);
                     sortIcon += '<span class="sortNum">' + (sortNum + 1) +
                                 '</span>';
                 }

@@ -31,6 +31,7 @@ namespace xcFunction {
         const keys: string[] = [];
         const colNums: number[] = [];
         const orders: number[] = [];
+        const hiddenSortCols = {};
 
         colInfos.forEach((colInfo) => {
             let progCol: ProgCol = null;
@@ -56,8 +57,13 @@ namespace xcFunction {
             const typesToCast: ColumnType[] = [];
             const mapStrs: string[] = [];
             const mapColNames: string[] = [];
-            const newColInfos: {name: string, ordering: XcalarOrderingT, type?: ColumnType}[] = [];
+            const newColInfos: {name: string, ordering: XcalarOrderingT, type?: ColumnType, colNum?: number}[] = [];
             let newTableCols: ProgCol[] = tableCols;
+            const prevTableHiddenSortCols = table.getHiddenSortCols();
+            const prevHiddenSortColsSet: Set<string> = new Set();
+            for (let name in prevTableHiddenSortCols) {
+                prevHiddenSortColsSet.add(prevTableHiddenSortCols[name]);
+            }
 
             colInfos.forEach((colInfo, i) => {
                 const progCol: ProgCol = table.getCol(colNums[i]);
@@ -66,9 +72,10 @@ namespace xcFunction {
 
                 const parsedName: PrefixColInfo = xcHelper.parsePrefixColName(backColName);
                 let typeToCast: ColumnType = colInfo.typeToCast;
+
                 const type: ColumnType = (progCol == null) ?
                     null : progCol.getType();
-                if (parsedName.prefix !== "") {
+                if (!prevHiddenSortColsSet.has(backColName) && parsedName.prefix !== "") {
                     // if it's a prefix, need to cast to immediate first
                     // as sort will create an immeidate and go back to sort table's
                     // parent table need to have the same column
@@ -88,16 +95,24 @@ namespace xcFunction {
                         type: typeToCast
                     });
 
-                    const mapOptions: xcHelper.MapColOption = {
-                        replaceColumn: true,
-                        resize: true,
-                        type: typeToCast
-                    };
-                    newTableCols = xcHelper.mapColGenerate(colNums[i], mapColName,
-                        mapString, newTableCols, mapOptions);
+                    newTableCols = xcHelper.deepCopy(tableCols);
+                    if (newTableCols[colNums[i] - 1]) {
+                        newTableCols[colNums[i] - 1].sortedColAlias = mapColName;
+                        hiddenSortCols[mapColName] = backColName;
+                    }
                 } else {
+                    let colName = backColName;
+                    if (prevHiddenSortColsSet.has(backColName)) {
+                        colName = progCol.getSortedColAlias();
+                        if (colName !== backColName) {
+                            hiddenSortCols[colName] = backColName;
+                        }
+                    } else if (prevTableHiddenSortCols[colName]) {
+                        hiddenSortCols[colName] = prevTableHiddenSortCols[colName];
+                    }
                     newColInfos.push({
-                        name: backColName,
+                        name: colName,
+                        colNum: colNums[i],
                         ordering: colInfo.ordering,
                         type: type
                     });
@@ -191,6 +206,7 @@ namespace xcFunction {
                 xcHelper.unlockTable(tableId);
             }
 
+            gTables[xcHelper.getTableId(finalTableName)].setHiddenSortCols(hiddenSortCols);
             sql['newTableName'] = finalTableName;
             Transaction.done(txId, {
                 msgTable: xcHelper.getTableId(finalTableName),

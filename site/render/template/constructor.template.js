@@ -78,6 +78,7 @@
                             }
                         }
                         delete table.colTypeCache;
+                        delete table.hiddenSortCols;
                     }
 
                     $.extend(persistTables, gDroppedTables);
@@ -340,6 +341,8 @@
             indexTables: (obj) cache column's indexed table
             complement: (string), complement table
             colTypeCache: (obj) cache known column type, not persist
+            hiddenSortCols: (obj) a {derivedColName: prefixColName} map of
+                            columns to be hidden from the data browser modal
          * removed attrs:
             bookmarks
         */
@@ -358,6 +361,7 @@
 
                 self.backTableMeta = options.backTableMeta || null;
                 self.colTypeCache = {};
+                self.hiddenSortCols = {};
                 delete self.bookmarks;
             }
 
@@ -1004,6 +1008,26 @@
                 return totalSize;
             },
 
+            setHiddenSortCols: function(cols) {
+                this.hiddenSortCols = cols;
+            },
+
+            getHiddenSortCols: function(cols) {
+                return this.hiddenSortCols;
+            },
+
+            // for new prog cols, sets an alias if the prog col's column name
+            // is found in this.hiddenSortCols
+            updateSortColAlias: function(progCol) {
+                const backName = progCol.getBackColName();
+                for (var colName in this.hiddenSortCols) {
+                    if (this.hiddenSortCols[colName] === backName) {
+                        progCol.setSortedColAlias(colName);
+                        return;
+                    }
+                }
+            }
+
             <%}%>
         });
 
@@ -1049,6 +1073,10 @@
             textAlign: (string) enums in ColTextAlign
             userStr: (string) user string
             func: (ColFunc) func info
+
+            * new attrs:
+                sortedColAlias: (string) for prefixed column,
+                             the actual column name that is sorted and hidden
         */
         function ProgCol<%= v %>(options) {
             options = options || {};
@@ -1059,6 +1087,7 @@
             if (<%= checkFunc %>(options)) {
                 self.func = new ColFunc<%= v %>(options.func);
                 self.sizedTo = options.sizedTo || "auto";
+                self.sortedColAlias = options.sortedColAlias || options.backName || "";
                 delete self.sizedToHeader;
             }
             return self;
@@ -1119,6 +1148,14 @@
 
                 this.backName = backColName;
                 this.prefix = xcHelper.parsePrefixColName(backColName).prefix;
+            },
+
+            getSortedColAlias: function() {
+                return this.sortedColAlias;
+            },
+
+            setSortedColAlias: function(colName) {
+                this.sortedColAlias = colName;
             },
 
             setImmediateType: function(typeId) {

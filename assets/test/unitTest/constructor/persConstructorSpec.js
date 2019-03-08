@@ -248,7 +248,7 @@ describe("Persistent Constructor Test", function() {
     });
 
     describe("ProgCol constructor test", function() {
-        it("Should have 17 attributes", function() {
+        it("Should have 18 attributes", function() {
             var progCol = new ProgCol({
                 "name": "test",
                 "backName": "prefix::backTest",
@@ -262,7 +262,7 @@ describe("Persistent Constructor Test", function() {
             });
 
             expect(progCol).to.be.an.instanceof(ProgCol);
-            expect(Object.keys(progCol).length).to.equal(17);
+            expect(Object.keys(progCol).length).to.equal(18);
             expect(progCol).to.have.property("version")
             .and.to.equal(currentVersion);
             expect(progCol).to.have.property("name")
@@ -295,6 +295,8 @@ describe("Persistent Constructor Test", function() {
             .and.to.equal("");
             expect(progCol).to.have.property("func")
             .and.to.be.instanceof(ColFunc);
+            expect(progCol).to.have.property("sortedColAlias")
+            .and.to.be.equal("prefix::backTest");
         });
 
         it("should set type", function() {
@@ -704,7 +706,7 @@ describe("Persistent Constructor Test", function() {
     });
 
     describe("Table Constructor Test", function() {
-        it("Should have 22 attributes", function() {
+        it("Should have 23 attributes", function() {
             var table = new TableMeta({
                 "tableName": "test#a1",
                 "tableId": "a1",
@@ -712,7 +714,7 @@ describe("Persistent Constructor Test", function() {
             });
 
             expect(table).to.be.an.instanceof(TableMeta);
-            expect(Object.keys(table).length).to.equal(22);
+            expect(Object.keys(table).length).to.equal(23);
             expect(table).have.property("version").and
             .to.equal(currentVersion);
             expect(table).have.property("tableName").and
@@ -756,6 +758,8 @@ describe("Persistent Constructor Test", function() {
             expect(table).have.property("indexTables").and
             .to.be.an("object");
             expect(table).have.property("colTypeCache").and
+            .to.be.an("object");
+            expect(table).have.property("hiddenSortCols").and
             .to.be.an("object");
         });
 
@@ -1020,7 +1024,7 @@ describe("Persistent Constructor Test", function() {
                 "tableName": "test#a1",
                 "tableId": "a1",
                 "isLocked": false
-            }); 
+            });
             table.addAllCols([progCol]);
             expect(table.tableCols.length).to.equal(1);
             expect(Object.keys(table.colTypeCache).length).to.equal(1);

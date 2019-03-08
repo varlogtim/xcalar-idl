@@ -27,7 +27,15 @@ describe("xcFunction Test", function () {
         oldTranCancel = Transaction.cancel;
         oldGetHashId = Authentication.getHashId;
 
-        TblManager.refreshTable = () => PromiseHelper.resolve();
+        TblManager.refreshTable = (finalName) => {
+            const table = new TableMeta({
+                tableId: "test",
+                tableName: finalName,
+                tableCols: [progCol1, progCol2, ColManager.newDATACol()]
+            });
+            gTables["test"] = table;
+            return PromiseHelper.resolve();
+        };
         TblManager.setOrphanTableMeta = () => { };
         Transaction.start = () => 1.5; // simulate id will skip the getUnsortedTableName
         Transaction.done = () => { };
@@ -52,13 +60,13 @@ describe("xcFunction Test", function () {
                 return PromiseHelper.resolve('testMap');
             };
 
-            XIApi.sort = () => PromiseHelper.resolve('testSort');
+            XIApi.sort = () => PromiseHelper.resolve('testSort#test');
 
             const colInfos = [{ colNum: 1, ordering: ordering }];
             xcFunction.sort(tableId, colInfos)
                 .then((finalTableName) => {
                     expect(test).to.be.false;
-                    expect(finalTableName).to.equal('testSort');
+                    expect(finalTableName).to.equal('testSort#test');
                     done();
                 })
                 .fail(() => {
@@ -78,20 +86,20 @@ describe("xcFunction Test", function () {
                 return PromiseHelper.resolve('testMap');
             };
 
-            XIApi.sort = () => PromiseHelper.resolve('testSort');
+            XIApi.sort = () => PromiseHelper.resolve('testSort#test');
 
             const colInfos = [{
                 colNum: 1,
                 ordering: ordering
             }, {
-                name: 'prefix::col',
+                name: 'prefix::col2',
                 ordering: ordering,
                 typeToCast: ColumnType.string
             }];
             xcFunction.sort(tableId, colInfos)
                 .then((finalTableName) => {
                     expect(test).to.be.true;
-                    expect(finalTableName).to.equal('testSort');
+                    expect(finalTableName).to.equal('testSort#test');
                     done();
                 })
                 .fail(() => {
@@ -164,5 +172,6 @@ describe("xcFunction Test", function () {
         Transaction.cancel = oldTranCancel;
         Authentication.getHashId = oldGetHashId;
         delete gTables[tableId];
+        delete gTables["test"];
     });
 });

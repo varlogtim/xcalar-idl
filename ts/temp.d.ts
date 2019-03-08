@@ -839,6 +839,7 @@ declare class ProgCol {
     public func: ColFunc;
     public format: string;
     public textAlign: string;
+    public sortedColAlias: string;
     public isDATACol(): boolean;
     public isEmptyCol(): boolean;
     public getFrontColName(includePrefix: boolean): string;
@@ -855,6 +856,8 @@ declare class ProgCol {
     public maximize(): void;
     public minimize(): void;
     public setImmediateType(type): void
+    public getSortedColAlias(): string;
+    public setSortedColAlias(name: string): void;
 }
 
 declare class TableMeta {
@@ -908,6 +911,8 @@ declare class TableMeta {
     public updateResultset(): XDPromise<void>;
     public getSize(): number;
     public getRowDistribution(): number[];
+    public getHiddenSortCols(): {key: string};
+    public setHiddenSortCols({}: {key: string}): void;
     public constructor(options: object);
 }
 
