@@ -88,7 +88,7 @@ class XEvalParser {
             if (throwFlag) {
                 throw e;
             }
-            return {};
+            return e;
         }
     }
 
@@ -119,7 +119,7 @@ class XEvalParser {
             if (throwFlag) {
                 throw e;
             }
-            return "";
+            return e;
         }
     }
 
@@ -151,7 +151,7 @@ class XEvalParser {
             if (throwFlag) {
                 throw e;
             }
-            return [];
+            return e;
         }
     }
 }
