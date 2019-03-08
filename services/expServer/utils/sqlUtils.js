@@ -136,12 +136,18 @@ SqlUtil.getRows = function(tableName, startRowNum, rowsToFetch, usePaging) {
         return SqlUtil.fetchData(resultMeta.resultSetId, rowPosition, rowsToFetch,
                          resultMeta.totalRows, [], 0, 0);
     })
-    .then(deferred.resolve)
-    .fail(deferred.reject)
-    .always(function() {
+    .then(function(ret) {
         if (!usePaging && resultMeta.resultSetId != null) {
-            XcalarSetFree(resultSetId);
+            XcalarSetFree(resultMeta.resultSetId)
+            .then(deferred.resolve(ret))
+            .fail(deferred.reject);
+        } else {
+            deferred.resolve(ret);
         }
+    })
+    .fail(function(ret) {
+        XcalarSetFree(resultMeta.resultSetId)
+        .always(deferred.reject(ret));
     });
 
     return deferred.promise();

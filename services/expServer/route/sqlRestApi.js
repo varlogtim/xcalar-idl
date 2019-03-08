@@ -1238,13 +1238,23 @@ router.post("/xcsql/result", [support.checkAuth], function(req, res) {
 
 router.post("/xcsql/clean", [support.checkAuth], function(req, res) {
     var tableName = req.body.tableName;
-    XIApi.deleteTable(1, tableName)
+    var resultSetId = req.body.resultSetId;
+    var promise;
+    if (resultSetId) {
+        promise = XcalarSetFree(resultSetId);
+    } else {
+        promise = PromiseHelper.resolve();
+    }
+    promise
+    .then(function() {
+        return XIApi.deleteTable(1, tableName);
+    })
     .then(function() {
         xcConsole.log("cleaned table and free result set for: ", tableName);
         res.send({sucess: true});
     })
     .fail(function(error) {
-        xcConsole.log("fetching data error: ", error);
+        xcConsole.log("failed to drop table: ", tableName, error);
         res.status(500).send(error);
     });
 });
