@@ -1261,20 +1261,17 @@ class DagNodeExecutor {
                 source = [source];
             }
             for (let i = 0; i < source.length; i++) {
-                if (!source[i].startsWith("XC_AGG_") &&
-                    !source[i].startsWith("XC_SUBQ_")) {
-                    if (!newTableMap[source[i]]) {
-                        const idx = tableSrcMap[source[i]];
-                        if (idx) {
-                            newTableMap[source[i]] = replaceMap[idx];
-                            newTableSrcMap[replaceMap[idx]] = idx;
-                        } else {
-                            // console.log("publish table as source: ", source[i]);
-                            continue;
-                        }
+                if (!newTableMap[source[i]]) {
+                    const idx = tableSrcMap[source[i]];
+                    if (idx) {
+                        newTableMap[source[i]] = replaceMap[idx];
+                        newTableSrcMap[replaceMap[idx]] = idx;
+                    } else {
+                        // console.log("publish table as source: ", source[i]);
+                        continue;
                     }
-                    source[i] = newTableMap[source[i]];
                 }
+                source[i] = newTableMap[source[i]];
             }
             if (source.length === 1) {
                 operation.args.source = source[0];
@@ -1285,8 +1282,7 @@ class DagNodeExecutor {
             if (operation.args.dest === oldDestTableName) {
                 newTableMap[operation.args.dest] = newDestTableName;
                 operation.args.dest = newDestTableName;
-            } else if (!operation.args.dest.startsWith("XC_AGG_") &&
-                       !operation.args.dest.startsWith("XC_SUBQ_")) {
+            } else if (operation.operation !== "XcalarApiAggregate") {
                 if (!newTableMap[operation.args.dest]) {
                     newTableMap[operation.args.dest] = this._generateTableName();
                 }
