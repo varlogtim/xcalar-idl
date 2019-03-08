@@ -44,7 +44,10 @@ class SQLTableSchema extends AbstractSQLResultView {
     }
 
     private _render(tableInfo: PbTblInfo): void {
-        let columns: PbTblColSchema[] = PTblManager.Instance.getTableSchema(tableInfo);
+        let columns: PbTblColSchema[] = [];
+        if (tableInfo) {
+            columns = tableInfo.getSchema();
+        }
         this._schemaSection.render(columns);
         this._resizeEvents(this._getMainContent());
     }
