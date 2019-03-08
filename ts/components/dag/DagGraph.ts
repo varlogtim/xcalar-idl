@@ -993,26 +993,26 @@ class DagGraph {
         }
 
         // Check open graph
+        // Considering the subgraph as an unity, an open graph is such a 
+        // subgraph that there exists a path starting from one of its children 
+        // and ending with one of its parents,
+        // which means the subgraph links to itself through this path.
         const inputNodeIdSet = new Set<DagNodeId>();
         for (const { parentId } of inputEdges) {
             inputNodeIdSet.add(parentId);
         }
-        const openNodeIdSet = new Set<DagNodeId>();
+        const outputNodeIdSet = new Set<DagNodeId>();
         for (const { childId } of outputEdges) {
-            if (inputNodeIdSet.has(childId)) {
-                openNodeIdSet.add(childId);
-            }
+            outputNodeIdSet.add(childId);
         }
-        const openNodeIds: DagNodeId[] = [];
-        for (const nodeId of openNodeIdSet) {
-            openNodeIds.push[nodeId];
-        }
+        // For performance consideration, we only find one open node
+        const openNodeId = this._findReachable(outputNodeIdSet, inputNodeIdSet);
 
         return {
             inner: innerEdges,
             in: inputEdges,
             out: outputEdges,
-            openNodes: openNodeIds,
+            openNodes: openNodeId == null ? [] : [openNodeId],
             endSets: { in: inEnds, out: outEnds },
             dfIOSets: { in: sourceNodes, out: destNodes }
         };
@@ -1854,6 +1854,58 @@ class DagGraph {
             throw new Error("Dag Node " + nodeId + " not exists");
         }
         return nodeInfo;
+    }
+
+    /**
+     * DFS to find a node in endNodeSet, which is reachable by traveling from anyone of start nodes
+     * @param startNodeIds 
+     * @param endNodeIds 
+     * @returns The reachable node id. Null if not found
+     */
+    private _findReachable(startNodeIds: Set<string>, endNodeIds: Set<string>): string {
+        const visited = new Set<string>();
+
+        // Sanity check
+        if (startNodeIds == null || endNodeIds == null) {
+            return null;
+        }
+        if (startNodeIds.size === 0 || endNodeIds.size === 0) {
+            return null;
+        }
+
+        const nodesToExam: DagNode[] = [];
+        // Initialize the stack with start nodes
+        for (const startNodeId of startNodeIds) {
+            nodesToExam.push(this.getNode(startNodeId));
+        }
+        // Keep iterating through the stack to visit nodes
+        while (nodesToExam.length > 0) {
+            // Popup a node from the stack to exam
+            const currentNode = nodesToExam.pop();
+            if (currentNode == null) {
+                continue;
+            }
+            const currentNodeId = currentNode.getId();
+            // Skip visited nodes for better performance
+            // and also avoiding infinite loop in case of cyclic graph
+            if (visited.has(currentNodeId)) {
+                continue;
+            }
+            // Check if the current node is in the end node set
+            if (endNodeIds.has(currentNodeId)) {
+                // Yes, there is a path from startNode to this node
+                // even we didn't track the path
+                return currentNodeId;
+            }
+            // Explore child nodes
+            for (const childNode of currentNode.getChildren()) {
+                nodesToExam.push(childNode);
+            }
+            // Finish examining this node
+            visited.add(currentNodeId);
+        }
+
+        return null;
     }
 
     private _isCyclic(startNode: DagNode): boolean {
