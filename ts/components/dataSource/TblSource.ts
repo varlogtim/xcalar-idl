@@ -68,7 +68,7 @@ class TblSource {
         tableName = tableName.toUpperCase();
         let found: boolean = false;
         this._tables.forEach((_v, name) => {
-            if (name.toUpperCase() === tableName) {
+            if (name && name.toUpperCase() === tableName) {
                 found = true;
                 return false; // stop loop
             }
@@ -213,7 +213,9 @@ class TblSource {
     private _setTables(tables: PbTblInfo[]): void {
         this._tables = new Map();
         tables.forEach((table) => {
-            this._tables.set(table.name, table);
+            if (table.name) {
+                this._tables.set(table.name, table);
+            }
         });
     }
 
@@ -247,8 +249,10 @@ class TblSource {
 
         // sort by name first
         tables.sort(function(tbl1, tbl2) {
-            let name1 = tbl1.name.toLowerCase();
-            let name2 = tbl2.name.toLowerCase();
+            let name1 = tbl1.name || "";
+            name1 = name1.toLowerCase();
+            let name2 = tbl2.name || "";
+            name2 = name2.toLowerCase();
             return (name1 < name2 ? -1 : (name1 > name2 ? 1 : 0));
         });
 

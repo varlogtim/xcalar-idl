@@ -1135,9 +1135,9 @@ class PTblManager {
             }
             let parents: string[] = node.parents || [];
             parents.forEach((parentName) => {
-                let node = graph[parentName];
-                node.numChildren--;
-                if (node.numChildren === 0) {
+                let parentNode = graph[parentName];
+                parentNode.numChildren--;
+                if (parentNode.numChildren === 0) {
                     queue.push(parentName);
                 }
             });
