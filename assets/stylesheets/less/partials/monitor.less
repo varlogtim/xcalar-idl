@@ -125,7 +125,7 @@
             .size(@height: 100%);
             .rounded(10px);
             margin-right: 12px;
-            background-color: @color-arc-xdbfree;
+            background-color: @color-bg-cardHeader;
             opacity: 0.7;
             color: @color-white;
 
@@ -149,7 +149,7 @@
             height: 100%;
             background-color: @color-white;
             .rounded(10px);
-            border: 1px solid @color-arc-xdbfree;
+            border: 1px solid @color-bg-cardHeader;
         }
 
         .deleteIcon, .xi-close {
@@ -229,16 +229,16 @@
 
         &.sysType {
             .name {
-                color: @color-arc-xdbfree;
+                color: @color-bg-cardHeader;
             }
             .progressBar {
                 background-color: @color-bg-dropdown-gray;
             }
             .queryIcon {
-                color: @color-arc-xdbfree;
+                color: @color-bg-cardHeader;
             }
             .querySteps {
-                color: @color-arc-xdbfree;
+                color: @color-bg-cardHeader;
             }
         }
 
@@ -277,7 +277,7 @@
             float: right;
 
             .icon {
-                .font(@size: 14px, @color: @color-arc-xdbfree);
+                .font(@size: 14px, @color: @color-bg-cardHeader);
                 float: right;
                 &:first-child {
                     margin-left: 10px;
@@ -291,7 +291,7 @@
         }
 
         .name {
-            .font(@size: 14px, @color: @color-arc-xdbfree);
+            .font(@size: 14px, @color: @color-bg-cardHeader);
             .position(relative, @top: -2px);
             text-transform: capitalize;
         }
@@ -331,8 +331,10 @@
 
 #monitor-graphCard {
     min-height: ~"calc(100% - 5px)"; // take up full height
+    height: 100%;
     position: relative; // for children divs that are absolute
-
+    display: flex;
+    flex-direction: column;
     @topSection-zindex: 5;
 
     .cardTopMain {
@@ -357,6 +359,7 @@
     .cardMain {
         padding-top: 20px;
         padding-bottom: 30px;
+        overflow: auto;
     }
 
     .topSection {
@@ -632,15 +635,15 @@
         .size(@height: 100%, @min-height: 200px);
         position: relative;
 
-        &> .icon {
-            .size (@width: 75px, @height: 75px);
+        > .icon {
+            .size(@width: 75px, @height: 75px);
             .position(absolute, @top: 0, @right: 0);
             display: inline-block;
             z-index: 1;
         }
 
         .donut {
-            .size (@height: 110px, @width: 110px);
+            .size(@height: 110px, @width: 110px);
             margin: 15px auto 5px;
             position: relative;
 
@@ -725,6 +728,14 @@
                 }
             }
 
+            svg {
+                overflow: visible;
+                pointer-events: none; // so that one svg doesn't obscure the other svg's paths
+                path {
+                    pointer-events: initial;
+                }
+            }
+
             svg:first-of-type {
                 z-index: 1;
                 path:last-child {
@@ -742,20 +753,26 @@
                .size(90px, 90px);
                .position(absolute, @top: 10px, @left: 10px);
                background: @color-white;
-               z-index: 2;
+               z-index: 3;
                border-radius: 100%;
-            }
-
-            svg {
-                overflow: visible;
             }
 
             path {
                 .transition(transform 0.2s);
                 &:hover, &.hover {
-                    .transform(scale(1.05));
-                    &:nth-child(5) {
-                        .transform(scale(1.05));
+                    .transform(scale(1.08));
+                    &:last-child {
+                        .transform(scale(1.03));
+                    }
+                }
+            }
+            .thin {
+                path {
+                    &:hover, &.hover {
+                        &:last-child {
+                            .transform(scale(1.03));
+                            stroke: darken(@color-bg-graph-gray, 5%);
+                        }
                     }
                 }
             }
@@ -802,7 +819,6 @@
             }
 
 
-
             .donut {
                 .font(@color: @color-bg-graph-two);
                 cursor: pointer;
@@ -832,16 +848,28 @@
                             fill: @color-arc-otherusers;
                         }
                         &:nth-child(5) {
-                            fill: @color-arc-xdbfree;
-                        }
-                        &:nth-child(6) {
                             fill: @color-arc-sysused;
                         }
-                        &:nth-child(7) {
+                        &:nth-child(6) {
                             fill: transparent;
                         }
                     }
                 }
+
+                .xdbDonut {
+                    path {
+                        &:nth-child(1) {
+                            fill: transparent;
+                        }
+                        &:nth-child(2) {
+                            fill: @color-arc-xdbfree;
+                        }
+                        &:last-child {
+                            fill: transparent;
+                        }
+                    }
+                }
+
             }
 
             .pctSize {
@@ -867,7 +895,7 @@
             .legend {
                 font-size: 10px;
                 line-height: 16px;
-                .position(absolute, @top: 26px, @left: ~"calc(50% + 70px)");
+                .position(absolute, @top: 16px, @left: ~"calc(50% + 70px)");
                 margin-left: -3px; // This margin is used to make sure
                 // the legend never covers the neighboring donuts
                 .key {

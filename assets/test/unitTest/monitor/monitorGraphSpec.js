@@ -164,12 +164,12 @@ describe("Monitor Graph Test", function() {
             expect($donut.find(".donutLegendInfo").is(":visible")).to.be.false;
             $donut.find(".legend li").first().trigger("mouseenter");
             expect($donut.find(".donutLegendInfo").is(":visible")).to.be.true;
-            expect($donut.find("svg").eq(1).find("path").eq(1)
+            expect($donut.find("svg").eq(2).find("path").eq(1)
                                         .attr("class")).to.be.equal("hover");
 
             $donut.find(".legend li").last().trigger("mouseleave");
             expect($donut.find(".donutLegendInfo").is(":visible")).to.be.false;
-            expect($donut.find("svg").eq(1).find("path").eq(1)
+            expect($donut.find("svg").eq(2).find("path").eq(1)
                                         .attr("class")).to.be.equal("");
         });
 

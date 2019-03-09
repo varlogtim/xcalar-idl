@@ -9,8 +9,10 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
     var networkIndex = 3;
     var numDonuts = 3;
     var ramData = [];
+    var xdbData = [];
     var ramTotal = 0;
     var numMemItems = 7;
+    var xdbIndex = 2;
     // var sortOrder = "name"; // by "name" or "size"
 
     MonitorDonuts.setup = function() {
@@ -42,51 +44,76 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
 
         $monitorPanel.find(".ramDonut").on("mouseenter", ".legend li", function() {
             var $li = $(this);
-            var index = $li.index();
-            index = numMemItems - 1 - index;
-            donutMouseEnter(index);
+            var listIndex = $li.index();
+            var pathIndex = numMemItems - 1 - listIndex;
+            var isXdb = false;
+            if (listIndex <= xdbIndex) {
+                // because list index doesn't match path index due to
+                // xdb being in another donut
+                if (listIndex === xdbIndex) {
+                    isXdb = true;
+                } else {
+                    pathIndex--;
+                }
+            }
+            ramDonutMouseEnter(pathIndex, listIndex, isXdb);
         });
 
         $monitorPanel.find(".ramDonut").on("mouseleave", ".legend li", function() {
-            donutMouseLeave();
+            ramDonutMouseLeave();
         });
 
         $monitorPanel.find(".ramDonut").on("mouseenter", ".thick path", function() {
-            donutMouseEnter($(this).index());
-
+            var pathIndex = $(this).index();
+            var listIndex = numMemItems - 1 - pathIndex;
+            ramDonutMouseEnter(pathIndex, listIndex);
         });
         $monitorPanel.find(".ramDonut").on("mouseleave", ".thick path", function() {
-            donutMouseLeave();
+            ramDonutMouseLeave();
+        });
+        $monitorPanel.find(".ramDonut").on("mouseenter", ".xdbDonut path", function() {
+            ramDonutMouseEnter($(this).index(), xdbIndex, true);
+        });
+        $monitorPanel.find(".ramDonut").on("mouseleave", ".xdbDonut path", function() {
+            ramDonutMouseLeave();
         });
 
-        function donutMouseEnter(index) {
-            var val = ramData[index];
+        // pathIndex and listItem index are inverted
+        function ramDonutMouseEnter(pathIndex, listIndex, isXdb) {
+            var val;
+            if (isXdb) {
+                val = xdbData[1];
+            } else {
+                val = ramData[pathIndex];
+            }
             var rawVal = val;
             var sizeOption = {base2: true};
             val = xcHelper.sizeTranslator(val, true, null, sizeOption);
             $monitorPanel.find(".donutLegendInfo").removeClass("xc-hidden");
             $monitorPanel.find(".donutLegendInfo .unitSize .num").text(val[0]);
             $monitorPanel.find(".donutLegendInfo .unitSize .unit").text(val[1]);
-            var pct = Math.round(rawVal * 100 / ramTotal);
-            pct = pct || 0;
+            var pct = Math.round(rawVal * 100 / ramTotal) || 0;
             $monitorPanel.find(".donutLegendInfo .pctSize .num").text(pct);
 
-            if (index === numMemItems - 1) {
+            if (isXdb) { // xdb has it's own svg
                 $monitorPanel.find(".ramDonut").find("svg").eq(1).find("path")
+                                                .eq(1).attr("class", "hover");
+            } else if (listIndex === 0) { // OS free has it's own svg
+                $monitorPanel.find(".ramDonut").find("svg").eq(2).find("path")
                                                 .eq(1).attr("class", "hover");
             } else {
                 $monitorPanel.find(".ramDonut").find("svg").eq(0).find("path")
-                                             .eq(index).attr("class", "hover");
+                                             .eq(pathIndex).attr("class", "hover");
             }
             // visibility:hidden
             $monitorPanel.find(".ramDonut").find(".donutInfo")
                                            .addClass("hidden");
             $monitorPanel.find(".ramDonut").find(".legend li")
-                                            .eq(numMemItems - 1 - index)
+                                            .eq(listIndex)
                                             .addClass("hover");
         }
 
-        function donutMouseLeave() {
+        function ramDonutMouseLeave() {
             $monitorPanel.find(".ramDonut").find(".legend li")
                                             .removeClass("hover");
             $monitorPanel.find(".donutLegendInfo").addClass("xc-hidden");
@@ -116,6 +143,7 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
 
     function initializeDonuts() {
         var radius = diameter / 2;
+        var smallRadius = radius - 2;
         var arc = d3.svg.arc()
                     .innerRadius(radius)
                     .outerRadius(radius - donutThickness);
@@ -125,13 +153,22 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
 
         var svg;
 
+        // thick ring
         for (var i = 0; i < numDonuts; i++) {
             svg = makeSvg("#donut" + i, diameter, radius, "thick");
             drawPath(svg, pie, arc, i);
         }
-        // gray background donut
-        var smallRadius = radius - 2;
 
+        // for thicker xdb ring
+        arc = d3.svg.arc()
+                .innerRadius(radius + 4)
+                .outerRadius(radius - donutThickness + 14);
+
+        svg = makeSvg("#donut0", diameter, radius, "thicker xdbDonut");
+        drawPath(svg, pie, arc, -1);
+
+
+        // thin gray background donut
         arc = d3.svg.arc()
                     .innerRadius(smallRadius)
                     .outerRadius(smallRadius - 6);
@@ -155,8 +192,11 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
         function drawPath(svg, pie, arc2, index) {
             var data;
             if (index === memIndex) {
-                data = [5, 5, 5, 5, 50, 30, 10];
+                data = [5, 5, 5, 5, 30, 10];
                 ramData = data;
+            } else if (index === -1) { // xdb is given -1 index
+                data = [20, 20, 60];
+                xdbData = data;
             } else {
                 data = [0, 100];
             }
@@ -179,13 +219,12 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
     }
 
     function updateOneDonut(el, index, stats) {
-        var duration = defDurationForD3Anim;
         var pie = d3.layout.pie().sort(null);
         var data;
         if (index === memIndex) {
             data = [stats.datasetUsage, stats.pubTableUsage,
-                stats.userTableUsage, stats.otherTableUsage,
-                stats.xdbFree, stats.sysMemUsed, stats.sysMemFree];
+                    stats.userTableUsage, stats.otherTableUsage,
+                    stats.sysMemUsed, stats.sysMemFree];
             ramData = data;
             ramTotal = stats.total;
         } else {
@@ -202,14 +241,15 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
                     .outerRadius(radius - donutThickness);
 
         paths.transition()
-             .duration(duration)
+             .duration(defDurationForD3Anim)
              .attrTween("d", arcTween);
 
-
         if (index === memIndex) {
+            updateXDBDonut(stats, donut);
+
             var tooltips = [MonitorTStr.Datasets, MonitorTStr.PubTables,
                             MonitorTStr.YourTables, MonitorTStr.OtherUsers,
-                            MonitorTStr.FreeXcalarMem, MonitorTStr.UsedSysMem,
+                            MonitorTStr.UsedSysMem,
                             MonitorTStr.FreeSysMem];
             $("#donut" + memIndex).find("svg").first().find("path").each(function(i) {
                 xcTooltip.add($(this), {
@@ -219,17 +259,15 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
             });
         }
 
-        var used = stats.used;
-
-        updateDonutMidText("#donut" + index + " .userSize .num", used,
-                            duration, index);
+        updateDonutMidText("#donut" + index + " .userSize .num", stats.used,
+                defDurationForD3Anim, index);
 
         if (index !== cpuIndex) {
             updateDonutMidText('#donut' + index + ' .totalSize .num', stats.total,
-                                duration, index);
+                    defDurationForD3Anim, index);
             updateDonutMidText("#donut" + index + " .pctSize .num",
-                                Math.round(used * 100 / stats.total),
-                                            duration, index, true);
+                                Math.round(stats.used * 100 / stats.total),
+                                    defDurationForD3Anim, index, true);
         }
 
         function arcTween(a) {
@@ -388,6 +426,35 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
                         '<div class="bar" style="width:' + pct + '%;"></div>' +
                     '</div>';
         return bars;
+    }
+
+    function updateXDBDonut(stats, donut) {
+        var pie = d3.layout.pie().sort(null);
+        var radius = diameter / 2;
+        xdbData = [stats.xdbUsed, stats.xdbFree, stats.nonXdb];
+        var paths = donut.select(".xdbDonut").selectAll("path").data(pie(xdbData));
+
+        var arc = d3.svg.arc()
+                    .innerRadius(radius + 4)
+                    .outerRadius(radius - donutThickness + 14);
+        paths.transition()
+                    .duration(defDurationForD3Anim)
+                    .attrTween("d", arcTween);
+
+
+        const xdbPath = $("#donut" + memIndex).find("svg").eq(1).find("path").eq(1);
+        xcTooltip.add(xdbPath, {
+            title: MonitorTStr.FreeXcalarMem + "<br/>" +
+            xcHelper.sizeTranslator(stats.xdbFree, null, null, {space: true})
+        });
+
+        function arcTween(a) {
+            var i = d3.interpolate(this._current, a);
+            this._current = i(0);
+            return (function(t) {
+                return (arc(i(t)));
+            });
+        }
     }
 
      /* Unit Test Only */

@@ -1525,14 +1525,14 @@
     .position(relative, @top: 5px);
     .rounded(5px);
     background-color: @color-bg-topBarGray2;
-    border: 1px solid @color-arc-xdbfree;;
+    border: 1px solid @color-bg-cardHeader;
     cursor: pointer;
 
     .slider {
         .size(@width: 12px, @height: 12px);
         .rounded(100%);
         .position(relative, @left: 0, @top: -1px);
-        border: 1px solid @color-arc-xdbfree;
+        border: 1px solid @color-bg-cardHeader;
         background-color: @color-white;
         .transition(left 0.2s);
     }
@@ -1549,7 +1549,7 @@
     }
 
     &.alwaysBail {
-        background-color: @color-arc-xdbfree;
+        background-color: @color-bg-cardHeader;
     }
 }
 
@@ -1886,7 +1886,7 @@ html.firefox {
 
         .close {
             .size(@div-h, @div-h);
-            background-color: @color-arc-xdbfree;
+            background-color: @color-bg-cardHeader;
             color: @color-white;
             .rounded(3px);
 

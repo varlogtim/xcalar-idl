@@ -345,6 +345,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         mem.otherTableUsage = Math.max(0, mem.xdbUsed - mem.userTableUsage
              - mem.datasetUsage - mem.pubTableUsage);
         mem.xdbFree = mem.xdbTotal - mem.xdbUsed;
+        mem.nonXdb = mem.total - mem.xdbTotal;
         mem.sysMemFree = Math.max(0, mem.total - mem.memUsedInBytes);
 
         var allStats = [mem, swap, usrCpu, network];
