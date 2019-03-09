@@ -11,7 +11,7 @@ describe.skip('JsonModal Test', function() {
         UnitTest.onMinMode();
         var testDSObj = testDatasets.fakeYelp;
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-        .always(function(ds, tName, tPrefix) {
+        .always(function(ds, tName, tPrefix, nodeId, tabId) {
             testDs = ds;
             tableName = tName;
             prefix = tPrefix;

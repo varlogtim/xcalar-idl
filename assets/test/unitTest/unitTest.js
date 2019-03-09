@@ -320,8 +320,8 @@ window.UnitTest = (function(UnitTest, $) {
             testDS = res;
             return UnitTest.addTable(res);
         })
-        .then(function(tableName, prefix) {
-            deferred.resolve(testDS, tableName, prefix);
+        .then(function(tableName, prefix, nodeId, tabId) {
+            deferred.resolve(testDS, tableName, prefix, nodeId, tabId);
         })
         .fail(function(error) {
             console.error("Add fail", error);

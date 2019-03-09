@@ -312,7 +312,6 @@ window.TestSuite = (function($, TestSuite) {
                 // auto detect should fill in the form
                 var empties = $("#previewTable .editableHead[value='']");
                 var rand = Math.floor(Math.random() * 10000);
-                console.log("here");
                 for (var i = 0; i < empties.length; i++) {
                     empties.eq(i).val("Unused_" + rand + "_" + (i+1));
                 }
@@ -345,7 +344,10 @@ window.TestSuite = (function($, TestSuite) {
             var dsId = $grid.data("dsid");
             var deferred = PromiseHelper.deferred();
             var tableName;
-            var header;
+            var nodeId;
+            var tableId;
+            var tabId;
+
             self.checkExists(getFinishDSIcon(dsName))
             .then(function() {
                 if (!$grid.hasClass("active")) {
@@ -355,7 +357,6 @@ window.TestSuite = (function($, TestSuite) {
             })
             .then(function() {
                 var dsName = $("#dsInfo-title").text();
-                $("#selectDSCols").click();
                 if (dsName.indexOf("flight") > -1) {
                     return self.checkExists(".selectedTable li:eq(33)");
                 } else if (dsName.indexOf("airport") > -1) {
@@ -372,41 +373,59 @@ window.TestSuite = (function($, TestSuite) {
                 }
             })
             .then(function() {
-                var validCart = '.selectedTable[data-dsid="' + dsId + '"]:not(.updateName)';
-                return self.checkExists(validCart);
+                $("#createDF").click();
+                // should automatically switch from dataset panel to dataflow panel
+                // and have a dataset node visible
+                let visibleDatasetNode = ".dataflowArea.active.rendered .operator.dataset.locked.state-Unused:visible";
+                return self.checkExists(visibleDatasetNode);
+            })
+            .then(() => {
+                return this.checkExists("#datasetOpPanel:visible");
+            })
+            .then(() => {
+                $("#datasetOpPanel .next").click();
+                return this.checkExists("#datasetOpPanel .submit:visible");
+            })
+            .then(() => {
+                $("#datasetOpPanel .submit").click();
+                return this.checkExists("#datasetOpPanel:not(:visible)");
+            })
+            .then(() => {
+                // XXX if autoexecute is on, state will be complete instead of configured
+                return this.checkExists(".dataflowArea.active .operator.dataset.state-Configured:visible");
+            })
+            .then(() => {
+                nodeId = $(".dataflowArea.active .operator.dataset").data("nodeid");
+                return DagViewManager.Instance.run([nodeId]);
+            })
+            .then(() => {
+                return this.checkExists(".dataflowArea.active .operator.dataset.state-Complete:visible");
+            })
+            .then(() => {
+                const node = DagViewManager.Instance.getActiveDag().getNode(nodeId);
+                return DagViewManager.Instance.viewResult(node);
             })
             .then(function() {
-                tableName = $("#dataCart .tableNameEdit").val();
-                header = ".tableTitle .tableName[value='" + tableName + "']";
-                $("#dataCart-submit").click();
-                return self.checkExists(header);
+                return self.checkExists("#dagViewTableArea .tableNameArea .name:contains(Node 1):visible");
             })
             .then(function() {
-                var tableId = $(".tableTitle .tableName[value='" + tableName + "']")
-                                .closest(".xcTableWrap").data("id");
-
-                return self.checkExists("#dagWrap-" + tableId);
-            })
-            .then(function() {
+                const $table = $("#dagViewTableArea .xcTableWrap");
+                tableId = $("#dagViewTableArea .xcTableWrap").data("id");
                 if (sorted) {
-                    var $table = $(".tableTitle .tableName[value='" + tableName +
-                                    "']").closest('.xcTableWrap');
-                    var tableId =$table.data('id');
                     TblManager.sortColumns(tableId, ColumnSortType.name, "forward");
                 }
-                var $header = $(header);
-                var $prefix = $header.closest(".xcTableWrap")
-                                    .find(".xcTable .topHeader .prefix");
+
+                var $prefixes = $table.find(".xcTable .topHeader .prefix");
                 var prefix = "";
-                $prefix.each(function() {
+                $prefixes.each(function() {
                     var text = $(this).text();
                     if (text !== "") {
                         prefix = text;
                         return false; // stop loop
                     }
                 });
-
-                deferred.resolve(tableName + "#" + tableId, prefix);
+                tabId = DagViewManager.Instance.getActiveTab().getId();
+                deferred.resolve(gTables[tableId].getName(), prefix, nodeId, tabId);
             })
             .fail(function() {
                 console.error("could not create table");
@@ -522,6 +541,7 @@ window.TestSuite = (function($, TestSuite) {
             if (typeof elemSelectors === "string") {
                 elemSelectors = [elemSelectors];
             }
+            var consoleUpdateTime = 0;
 
             var caller = self.checkExists.caller.name;
             var interval = setInterval(function() {
@@ -571,6 +591,13 @@ window.TestSuite = (function($, TestSuite) {
                     }
                 }
                 timeElapsed += intervalTime;
+
+                // every 10 seconds, console log what is being searched for
+                consoleUpdateTime += intervalTime;
+                if (consoleUpdateTime > 10000) {
+                    console.log("waiting for " + elemSelectors + " to " + (notExist ? "not" : "") + " be found");
+                    consoleUpdateTime = 0;
+                }
             }, intervalTime);
 
             return (deferred.promise());
@@ -743,7 +770,7 @@ window.TestSuite = (function($, TestSuite) {
 
     function getFinishDSIcon(dsName) {
         return '#dsListSection .grid-unit[data-dsname="' +
-                            dsName + '"]:not(.inactive.fetching)';
+                            dsName + '"]:not(.inactive):not(.fetching)';
     }
 
     function getInActivateDSIcon(dsName) {
