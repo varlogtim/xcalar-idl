@@ -13,7 +13,7 @@ class SqlQueryHistory {
     private constructor() {
         // The query keys in KVStore are folder like
         // ie. gSQLQueries/<queryId>
-        this._storageKey = KVStore.getKey("gSQLQueries");
+        this._storageKey = KVStore.getKey("gSQLQueries") || "gSQLQueries-1";
     }
 
     public isLoaded(): boolean {

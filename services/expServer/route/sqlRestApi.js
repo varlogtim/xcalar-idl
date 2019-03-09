@@ -14,10 +14,11 @@ var defaultSQLTimeout = process.env.EXP_SQL_TIMEOUT &&
 var workerFlag = process.env.EXP_WORKER != null &&
                  process.env.EXP_WORKER.toUpperCase() !== "FALSE" ?
                  true : false;
-
-// XXX Change the way supervisord spawns expServer with --experimental-worker
-const Pool = require("../worker/workerPool.js");
-const sqlWorkerPool = new Pool({fileName: './sqlWorker.js', max: 9});
+let sqlWorkerPool;
+if (workerFlag) {
+    const Pool = require("../worker/workerPool.js");
+    sqlWorkerPool = new Pool({fileName: './sqlWorker.js', max: 9});
+}
 
 var sqlCompilerObjects = {};
 
@@ -1359,9 +1360,11 @@ router.post("/deprecated/clean", [support.checkAuth], function(req, res) {
 
 // Start a worker for CPU intensive jobs
 function startWorker(data) {
-    var deferred = PromiseHelper.deferred();
-    sqlWorkerPool.submit(deferred, data);
-	return deferred.promise();
+    if (sqlWorkerPool) {
+        var deferred = PromiseHelper.deferred();
+        sqlWorkerPool.submit(deferred, data);
+        return deferred.promise();
+    }
 }
 
 // For unit tests

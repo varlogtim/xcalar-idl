@@ -213,7 +213,7 @@ class SQLEditorSpace {
                 }
                 for (let sqlStruct of sqlStructArray) {
                     if (sqlStruct.command.type != "select") {
-                        lastShow = sqlStruct;
+                        lastShow = sqlStruct.command;
                     } else if (sqlStruct.nonQuery) {
                         return PromiseHelper.reject(SQLErrTStr.NoSupport + sqlStruct.sql);
                     } else {
@@ -259,7 +259,6 @@ class SQLEditorSpace {
                 PromiseHelper.chain(executePromiseArray);
             })
             .fail((e) => {
-                console.error(e);
                 let error: string;
                 if (e instanceof Error) {
                     error = e.message;
