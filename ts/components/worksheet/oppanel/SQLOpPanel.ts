@@ -680,8 +680,8 @@ class SQLOpPanel extends BaseOpPanel {
     /**
      * Hide the panel
      */
-    public close(): void {
-        super.hidePanel();
+    public close(isSubmit?: boolean): void {
+        super.hidePanel(isSubmit);
     }
 
     private _updateUI() {
@@ -786,11 +786,11 @@ class SQLOpPanel extends BaseOpPanel {
                     title: "SQL",
                     msg: SQLTStr.UnsavedSQL,
                     onConfirm: () => {
-                        self.close();
+                        self.close(false);
                     }
                 });
             } else {
-                self.close();
+                self.close(false);
             }
         });
 
@@ -813,7 +813,7 @@ class SQLOpPanel extends BaseOpPanel {
             const sql = self._sqlEditor.getValue().replace(/;+$/, "");
             self.configureSQL(sql, identifiers)
             .then(function() {
-                self.close();
+                self.close(true);
             })
             .fail(function(err) {
                 if (err === SQLErrTStr.EmptySQL) {

@@ -28,11 +28,11 @@ class ExtensionOpPanel extends BaseOpPanel {
     /**
      * Close panel
      */
-    public close(): void {
+    public close(isSubmit?: boolean): void {
         if (!this._formHelper.isOpen()) {
             return;
         }
-        super.hidePanel();
+        super.hidePanel(isSubmit);
         this._reset();
     }
 
@@ -92,7 +92,7 @@ class ExtensionOpPanel extends BaseOpPanel {
         }
         this.model.args = args;
         this.model.submit();
-        this.close();
+        this.close(true);
     }
 
     private _validate(): boolean {
@@ -160,7 +160,7 @@ class ExtensionOpPanel extends BaseOpPanel {
         const $panel: JQuery = this._getPanel();
 
         $panel.on("click", ".close", () => {
-            this.close();
+            this.close(false);
         });
 
         $panel.on("click", ".confirm", (event) => {

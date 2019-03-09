@@ -294,8 +294,8 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
     /**
      * Hide the panel
      */
-    public close(): void {
-        super.hidePanel();
+    public close(isSubmit?: boolean): void {
+        super.hidePanel(isSubmit);
         MainMenu.setFormClose();
     }
 
@@ -332,7 +332,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         this._$elemPanel.on(
             `click.close.${ExportOpPanel._eventNamespace}`,
             '.close, .cancel',
-            () => { this.close() }
+            () => { this.close(false) }
         );
 
         // Submit button
@@ -351,7 +351,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
                     }
                 }
                 if (this._dataModel.saveArgs(this._dagNode)) {
-                    this.close();
+                    this.close(true);
                 }
             }
         );
