@@ -2,7 +2,8 @@ describe.skip('Sort Op Panel Test', function() {
     var $sortOpPanel;
     var $sortTable;
     var $table;
-
+    var tabId;
+    var nodeId;
     var dsName, tableName, tableId, oldTableName;
 
     before(function(done){
@@ -12,14 +13,17 @@ describe.skip('Sort Op Panel Test', function() {
         $sortTable = $("#sortView-table");
 
         UnitTest.addAll(testDatasets.fakeYelp, "yelp_sort_test")
-        .then(function(resDS, resTable) {
+        .then(function(resDS, resTable, tPrefix, _nodeId, _tabId) {
             dsName = resDS;
             tableName = resTable;
             oldTableName = tableName;
             tableId = xcHelper.getTableId(tableName);
+            nodeId = _nodeId;
+            tabId = _tabId;
             return xcFunction.sort(tableId, [{colNum: 1, ordering: XcalarOrderingT.XcalarOrderingAscending}]);
         })
         .then(function(resTable2) {
+            MainMenu.openPanel("dagPanel");
             tableName = resTable2;
             tableId = xcHelper.getTableId(tableName);
             $table = $("#xcTable-" + tableId);

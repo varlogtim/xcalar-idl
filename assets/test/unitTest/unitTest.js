@@ -384,15 +384,28 @@ window.UnitTest = (function(UnitTest, $) {
         .then(function() {
             $('#deleteTableModal').find('.listSection .checkbox')
                                   .addClass('checked');
-            return PromiseHelper.alwaysResolve(DeleteTableModal.__testOnly__.submitForm());
+            return PromiseHelper.alwaysResolve(DeleteTableModal.Instance._submitForm());
         })
         .then(function() {
-            return DeleteTableModal.__testOnly__.closeModal();
+            return DeleteTableModal.Instance._close();
         })
         .then(deferred.resolve);
 
         return deferred.promise();
     };
+
+    UnitTest.deleteTab = function(tabId) {
+        var deferred = PromiseHelper.deferred();
+        $("#dagListSection").find('li[data-id="' + tabId + '"] .deleteDataflow').click();
+        $("#alertModal").find(".confirm").click();
+        UnitTest.testFinish(function() {
+            return  $("#dagListSection").find('li[data-id="' + tabId + '"]').length === 0;
+        })
+        .always(function() {
+            deferred.resolve();
+        });
+        return deferred.promise();
+    }
 
     UnitTest.onMinMode = function() {
         minModeCache = gMinModeOn;

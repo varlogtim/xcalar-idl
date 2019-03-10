@@ -170,6 +170,16 @@ class DagTblManager {
             });
         } else {
             if (!this.cache[name]) {
+                // table deleted through deleteTableModal may not be in this
+                // cache so we add it so we can delete it
+                this.cache[name] = {
+                    name: name,
+                    locked: false,
+                    markedForReset: false,
+                    markedForDelete: true,
+                    clockCount: 0,
+                    timestamp: -1
+                };
                 return;
             }
             if (!this.cache[name].locked || forceDelete) {

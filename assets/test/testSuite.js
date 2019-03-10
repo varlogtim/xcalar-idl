@@ -391,22 +391,36 @@ window.TestSuite = (function($, TestSuite) {
                 return this.checkExists("#datasetOpPanel:not(:visible)");
             })
             .then(() => {
-                // XXX if autoexecute is on, state will be complete instead of configured
-                return this.checkExists(".dataflowArea.active .operator.dataset.state-Configured:visible");
+                if (UserSettings.getPref("dfAutoExecute")) {
+                    return PromiseHelper.resolve();
+                } else {
+                    return this.checkExists(".dataflowArea.active .operator.dataset.state-Configured:visible");
+                }
             })
             .then(() => {
                 nodeId = $(".dataflowArea.active .operator.dataset").data("nodeid");
-                return DagViewManager.Instance.run([nodeId]);
+                if (UserSettings.getPref("dfAutoExecute")) {
+                    return PromiseHelper.resolve();
+                } else {
+                    return DagViewManager.Instance.run([nodeId]);
+                }
             })
             .then(() => {
                 return this.checkExists(".dataflowArea.active .operator.dataset.state-Complete:visible");
             })
             .then(() => {
                 const node = DagViewManager.Instance.getActiveDag().getNode(nodeId);
-                return DagViewManager.Instance.viewResult(node);
+                tableName = node.getTable();
+                if (UserSettings.getPref("dfAutoPreview")) {
+                    return PromiseHelper.resolve();
+                } else {
+                    return DagViewManager.Instance.viewResult(node);
+                }
             })
             .then(function() {
-                return self.checkExists("#dagViewTableArea .tableNameArea .name:contains(Node 1):visible");
+                let tableTitle = "#dagViewTableArea .tableNameArea .name:contains(Node 1):visible";
+                let dataCol = "#xcTable-" + xcHelper.getTableId(tableName) + " td.jsonElement";
+                return self.checkExists([tableTitle, dataCol]);
             })
             .then(function() {
                 const $table = $("#dagViewTableArea .xcTableWrap");

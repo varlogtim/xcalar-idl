@@ -1,4 +1,4 @@
-describe.skip('JsonModal Test', function() {
+describe('JsonModal Test', function() {
     var testDs;
     var tableName;
     var prefix;
@@ -6,15 +6,23 @@ describe.skip('JsonModal Test', function() {
     var $modal;
     var tableId;
     var $table;
+    var tabId;
+    var nodeId;
 
     before(function(done) {
+        if (XVM.isSQLMode()) {
+            $("#modeArea").click();
+        }
+        console.log("json modal test")
         UnitTest.onMinMode();
         var testDSObj = testDatasets.fakeYelp;
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-        .always(function(ds, tName, tPrefix, nodeId, tabId) {
+        .always(function(ds, tName, tPrefix, _nodeId, _tabId) {
             testDs = ds;
             tableName = tName;
             prefix = tPrefix;
+            nodeId = _nodeId;
+            tabId = _tabId;
             $jsonModal = $('#jsonModal');
             $modal = $jsonModal;
             tableId = xcHelper.getTableId(tableName);
@@ -23,7 +31,8 @@ describe.skip('JsonModal Test', function() {
             .then(function(tName) {
                 tableName = tName;
                 tableId = xcHelper.getTableId(tableName);
-
+                // unhide derived sorted column
+                gTables[tableId].hiddenSortCols = {};
                 $table = $('#xcTable-' + tableId);
                 JSONModal.show($table.find('.jsonElement').eq(0));
                 // allow modal to fade in
@@ -42,9 +51,7 @@ describe.skip('JsonModal Test', function() {
             expect($jsonModal.find('.compareIcon .xi-ckbox-selected:visible').length).to.equal(0);
 
             expect($jsonModal.find('.btn:visible').length).to.equal(3);
-
-            expect($jsonModal.find('.tableName').text()).to.equal('Table:' + tableName);
-            expect($jsonModal.find('.rowNum').text()).to.equal('Row:' + 1);
+            expect($jsonModal.find('.rowNum').text()).to.equal('Row:1');
         });
 
         it ('second row should be correct', function() {
@@ -763,7 +770,10 @@ describe.skip('JsonModal Test', function() {
     });
 
     after(function(done) {
-        UnitTest.deleteAllTables()
+        UnitTest.deleteTab(tabId)
+        .then(() => {
+            return UnitTest.deleteAllTables();
+        })
         .then(function() {
             UnitTest.deleteDS(testDs)
             .always(function() {

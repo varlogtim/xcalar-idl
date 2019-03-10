@@ -9,6 +9,7 @@ class DeleteTableModal {
     private _sortKeyList: string;
     private _reverseSort: boolean;
     // constant
+    private readonly _unknownTime: number = -1;
     private readonly _unknown: string = "--";
 
     private constructor() {
@@ -19,7 +20,7 @@ class DeleteTableModal {
     }
 
     public show(): XDPromise<void> {
-        let $modal = this._getModal(); 
+        let $modal = this._getModal();
         if ($modal.is(":visible")) {
             // in case modal show is triggered when
             // it's already open
@@ -174,11 +175,11 @@ class DeleteTableModal {
             tableList.sort((a, b) => {
                 let sizeA = a.size;
                 let sizeB = b.size;
-                if (<any>sizeA === this._unknown) {
+                if (<any>sizeA === this._unknownTime) {
                     sizeA = null;
                 }
 
-                if (<any>sizeB === this._unknown) {
+                if (<any>sizeB === this._unknownTime) {
                     sizeB = null;
                 }
 
@@ -200,11 +201,11 @@ class DeleteTableModal {
             tableList.sort((a, b) => {
                 let tA = DagTblManager.Instance.getTimeStamp(a.name);
                 let tB = DagTblManager.Instance.getTimeStamp(b.name);
-                if (<any>tA === this._unknown) {
+                if (<any>tA === this._unknownTime) {
                     tA = null;
                 }
 
-                if (<any>tB === this._unknown) {
+                if (<any>tB === this._unknownTime) {
                     tB = null;
                 }
 
@@ -241,15 +242,17 @@ class DeleteTableModal {
         let html: HTML = "";
         for (let i = 0, len = tables.length; i < len; i++) {
             let table = tables[i];
-            let date = DagTblManager.Instance.getTimeStamp(table.name);
+            let date: string | number = DagTblManager.Instance.getTimeStamp(table.name);
             let tableName: string = table.name;
             let dateTip: string = "";
             let time;
-            if (<any>date !== this._unknown) {
+            if (<any>date !== this._unknownTime) {
                 time = moment(date);
                 dateTip = xcTimeHelper.getDateTip(time, {container:
                                                         "#deleteTableModal"});
                 date = time.calendar();
+            } else {
+                date = this._unknown;
             }
             let size: string = <string>xcHelper.sizeTranslator(table.size);
             let checkbox: HTML;

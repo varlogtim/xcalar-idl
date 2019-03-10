@@ -1237,7 +1237,7 @@ describe('XIApi Test', () => {
             });
             gTables[tableId] = table;
 
-            const oldIndex = XIApi.index;
+            const oldIndex = XcalarIndexFromTable;
             const oldQuery = XIApi.query;
             let test = false;
             XcalarIndexFromTable = () => PromiseHelper.resolve({newKeys: ['newKey']});
