@@ -193,7 +193,8 @@ describe("WorkbookManager Test", function() {
                 });
             };
 
-            WorkbookManager.__testOnly__.switchWorkBookHelper("to")
+            let wkbk = new WKBK({name: "to", id: "to", resource: "true"});
+            WorkbookManager.__testOnly__.switchWorkBookHelper(wkbk)
             .then(function() {
                 done();
             })

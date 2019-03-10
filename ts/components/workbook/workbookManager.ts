@@ -269,8 +269,7 @@ namespace WorkbookManager {
 
         promise
         .then(function() {
-            const toWkbkName: string = toWkbk.getName();
-            return switchWorkBookHelper(toWkbkName);
+            return switchWorkBookHelper(toWkbk);
         })
         .then(function() {
             if (!newTab) {
@@ -369,8 +368,9 @@ namespace WorkbookManager {
         return deferred.promise();
     }
 
-    function switchWorkBookHelper(wkbkName: string): XDPromise<void> {
+    function switchWorkBookHelper(wkbk: WKBK): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const wkbkName: string = wkbk.getName();
         const queryName: string = XcUser.getCurrentUserName() + ":" + wkbkName;
 
         $("#initialLoadScreen").data("curquery", queryName);
@@ -384,7 +384,9 @@ namespace WorkbookManager {
             return XcalarActivateWorkbook(wkbkName);
         })
         .then(() => {
-            return writeResetDagFlag(wkbkName);
+            if (!wkbk.hasResource()) {
+                return writeResetDagFlag(wkbkName);
+            }
         })
         .then(deferred.resolve)
         .fail(function(error) {

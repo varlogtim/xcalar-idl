@@ -172,23 +172,23 @@ describe("xcManager Test", function() {
         });
 
         it("xcManager.unload should work in async case", function() {
-            var oldFree = TblManager.freeAllResultSets;
+            var oldFunc = SQLWorkSpace.Instance.save;
             var test;
-            TblManager.freeAllResultSets = function() { test = true; };
+            SQLWorkSpace.Instance.save = function() { test = true; };
 
             xcManager.unload(true);
             expect(test).to.be.true;
-            TblManager.freeAllResultSets = oldFree;
+            SQLWorkSpace.Instance.save = oldFunc;
         });
 
         it("xcManager.unload should work in sync case", function(done) {
             xcManager.__testOnly__.fakeLogoutRedirect();
 
-            var oldFree = TblManager.freeAllResultSetsSync;
+            var oldSave = SQLWorkSpace.Instance.save;
             var oldRelease =  XcUser.CurrentUser.releaseSession;
             var oldRemove = xcManager.removeUnloadPrompt;
             var test2, test3, test4;
-            TblManager.freeAllResultSetsSync = function() {
+            SQLWorkSpace.Instance.save = function() {
                 test2 = true;
                 return PromiseHelper.resolve();
             };
@@ -212,7 +212,7 @@ describe("xcManager Test", function() {
                 done("fail");
             })
             .always(function() {
-                TblManager.freeAllResultSetsSync = oldFree;
+                SQLWorkSpace.Instance.save = oldSave;
                 XcUser.CurrentUser.releaseSession = oldRelease;
                 xcManager.removeUnloadPrompt = oldRemove;
                 xcManager.__testOnly__.resetLogoutRedirect();

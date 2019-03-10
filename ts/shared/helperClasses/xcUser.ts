@@ -185,11 +185,8 @@ class XcUser {
             user: this.getName()
         });
 
-        var myRemoveCookies = this._removeCookies;
-        xcManager.unload()
-        .always(function() {
-            myRemoveCookies();
-        });
+        this._removeCookies();
+        xcManager.unload();
     }
 
     public holdSession(
@@ -505,9 +502,9 @@ class XcUser {
         return new KVStore(key, gKVScope.WKBK);
     }
 
-    private _removeCookies(): void {
+    private _removeCookies(): XDPromise<void> {
         // to remove the cookies
-        HTTPService.Instance.ajax({
+        return HTTPService.Instance.ajax({
             "type": "POST",
             "contentType": "application/json",
             "url": xcHelper.getAppUrl() + "/logout"
