@@ -101,9 +101,6 @@
 <!-- END TABLE MENU -->
 
 <!-- START COLUMN MENU -->
-
-<% var types = ['Boolean', 'Integer', 'Float', 'String', 'Timestamp']; %>
-
 <div id="colMenu" class="menu mainMenu" data-submenu="colSubMenu">
   <ul>
     <li class="addColumn">
@@ -265,19 +262,7 @@
       </div>
     </li>
   </ul>
-  <ul class="changeDataType">
-    <% _(types).each(function(type) { %><li class="flexContainer flexRow typeList type-<%=
-      type.toLowerCase() %> ">
-      <div class="flexWrap flex-left">
-        <span class="type icon"></span>
-      </div>
-      <div class="flexWrap flex-right">
-        <span class="label"><%= type %></span>
-      </div>
-      <i class="icon xi-tick fa-11 blue"></i>
-    </li>
-    <% }) %>
-  </ul>
+  <ul class="changeDataType"></ul>
   <ul class="sort">
     <li class="sort">
       <i class="icon blue xi-arrowtail-up fa-15 sortUp"></i><%= dicts.MenuTStr.SortAsc %>

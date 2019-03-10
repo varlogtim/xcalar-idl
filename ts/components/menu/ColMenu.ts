@@ -3,6 +3,7 @@ class ColMenu extends AbstractMenu {
         const menuId: string = "colMenu";
         const subMenuId: string = "colSubMenu";
         super(menuId, subMenuId);
+        this._renderMenuContent();
     }
 
     /**
@@ -520,5 +521,27 @@ class ColMenu extends AbstractMenu {
             columns: [sourColumns],
             dedup: false
         };
+    }
+
+    private _renderMenuContent(): void {
+        let types: ColumnType[] = BaseOpPanel.getBasicColTypes();
+        types.sort();
+        let html: HTML = types.map((type) => {
+            let li: HTML =
+            '<li class="flexContainer flexRow typeList type-' + type + '">' +
+                '<div class="flexWrap flex-left">' +
+                    '<span class="type icon"></span>' +
+                '</div>' +
+                '<div class="flexWrap flex-right">' +
+                    '<span class="label">' +
+                        xcHelper.capitalize(type) +
+                    '</span>' +
+                '</div>' +
+                '<i class="icon xi-tick fa-11 blue"></i>' +
+            '</li>';
+            return li;
+        }).join("");
+
+        this._getSubMenu().find(".changeDataType").html(html);
     }
 }

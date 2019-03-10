@@ -101,6 +101,12 @@
     &.type-boolean .isKnownType .type-boolean .xi-tick {
         display: block;
     }
+    &.type-timestamp .isKnownType .type-timestamp .xi-tick {
+        display: block;
+    }
+    &.type-money .isKnownType .type-money .xi-tick {
+        display: block;
+    }
     // XXX boolean cannot cast to timestamp as there is a crash
     &.type-boolean .isKnownType .type-timestamp {
         display: none;
@@ -512,7 +518,7 @@
             }
             .flexWrap.flex-right {
                 .flex(1 1 auto);
-                padding: 5px 8px;
+                padding: 2px 8px;
             }
         }
     }

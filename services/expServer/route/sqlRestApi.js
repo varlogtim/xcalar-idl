@@ -495,7 +495,7 @@ function getInfoForXDTable(tableName) {
             var colType = xcHelper.convertFieldTypeToColType(column.type);
             if (colType !== 'integer' && colType !== 'float' &&
                 colType !== 'boolean' && colType !== 'timestamp' &&
-                colType !== "string") {
+                colType !== "string" && colType !== 'money') {
                 // can't handle other types in SQL
                 return deferred.reject("Invalid column type, cannot handle " + colType);
             }
