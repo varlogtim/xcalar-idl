@@ -157,8 +157,9 @@ class SQLExecutor {
             }
         };
 
-        if (this._status === SQLStatus.Cancelled
-            || this._status === SQLStatus.Failed) {
+        if (this._status === SQLStatus.Cancelled ||
+            this._status === SQLStatus.Failed
+        ) {
             finish();
             return PromiseHelper.reject(this._status);
         }

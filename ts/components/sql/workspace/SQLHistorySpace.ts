@@ -137,8 +137,12 @@ class SQLHistorySpace {
             let sql: string = queryInfo.queryString;
             SQLUtil.getSQLStruct(sql)
             .then((sqlStruct) => {
-                let executor = new SQLExecutor(sqlStruct);
-                return executor.restoreDataflow()
+                try {
+                    let executor = new SQLExecutor(sqlStruct);
+                    return executor.restoreDataflow();
+                } catch (e) {
+                    return PromiseHelper.reject(e.message);
+                }
             })
             .then((dataflowId) => {
                 let newQueryInfo = $.extend({}, queryInfo, {
