@@ -38,12 +38,22 @@ class DagTabUser extends DagTab {
 
             if (dagIdSet.size > 0) {
                 // when some dag are missing in meta
-                console.error("missing some dags, restoring...");
                 metaNotMatch = true;
                 const promises: XDPromise<void>[] = [];
+                let hasMissingDFs: boolean = false;
                 dagIdSet.forEach((id) => {
-                    promises.push(this._restoreMissingDag(id, dagTabs));
+                    let shouldRestore: boolean = true;
+                    if (DagTabUser.idIsForSQLFolder(id)) {
+                        shouldRestore = typeof gShowSQLDF !== "undefined" && gShowSQLDF;
+                    }
+                    if (shouldRestore) {
+                        hasMissingDFs = true;
+                        promises.push(this._restoreMissingDag(id, dagTabs));
+                    }
                 });
+                if (hasMissingDFs) {
+                    console.error("missing some dags, restoring...");
+                }
                 return PromiseHelper.when(...promises);
             }
         })
