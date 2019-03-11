@@ -204,9 +204,10 @@ class DagCategoryBar {
         this.dagCategories.getCategories().forEach((category: DagCategory) => {
             const categoryType: DagCategoryType = category.getType();
             const categoryName: string = category.getName();
+            const description: string = category.getDescription();
             const icon: string = iconMap[categoryType];
             html += `<div class="category category-${categoryType}"
-                data-category="${categoryType}">
+                data-category="${categoryType}" ${xcTooltip.Attrs} data-original-title="${description}">
                 <i class="icon categoryIcon ${icon}"></i>
                 <span class="text">${categoryName}</span>
             </div>`;
@@ -438,9 +439,7 @@ class DagCategoryBar {
         const subTypeDisplayName: string = categoryNode.getDisplayNodeSubType();
         const color: string = categoryNode.getColor();
         const icon: string = categoryNode.getIcon();
-        // const description: string = categoryNode.getDescription();
-        // XXX disabling description until all nodes have a good description
-        const description: string = "";
+        const description: string = categoryNode.getDescription();
         if (subType) {
             opDisplayName = subTypeDisplayName;
         }

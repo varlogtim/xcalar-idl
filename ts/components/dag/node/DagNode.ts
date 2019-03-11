@@ -76,7 +76,8 @@ abstract class DagNode {
         this._setupEvents();
 
         const displayType = this.subType || this.type; // XXX temporary
-        this.display.description = "Description for the " + displayType + " operation";
+        let nodeTooltip: string = this.subType ? DagNodeTooltip[this.subType] : DagNodeTooltip[this.type];
+        this.display.description = nodeTooltip || "";
         this.runStats = {
             hasRun: false,
             nodes: {},

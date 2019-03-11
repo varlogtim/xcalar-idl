@@ -307,10 +307,12 @@ class DagCategories {
 class DagCategory {
     private type: DagCategoryType;
     private operators: DagCategoryNode[];
+    private description: string;
 
     public constructor(type: DagCategoryType, operators: DagCategoryNode[]) {
         this.type = type;
         this.operators = operators;
+        this.description = DagCategoryTooltip[this.type] || "";
     }
 
     public getType(): DagCategoryType {
@@ -405,6 +407,10 @@ class DagCategory {
      */
     public saveCategory(): XDPromise<void> {
         return PromiseHelper.resolve();
+    }
+
+    public getDescription(): string {
+        return this.description;
     }
 
     protected _getOperatorDisplayNames(): Set<string> {

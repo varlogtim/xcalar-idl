@@ -980,7 +980,7 @@ module.exports = {
 
     "datasetOp": {
         "dataset": "DATASET",
-        "datasetInstr": "Use the dataset as the souce for data, with columns prefixed by prefix",
+        "datasetInstr": "Use the dataset as the source for data, with columns prefixed by prefix",
         "source": "Source",
         "sourceInstr": "Select Dataset to use in this dataflow. If a dataset does not appear, or is inactive, close the panel and load/activate the dataset.",
         "prefix": "Prefix",
@@ -1100,7 +1100,7 @@ module.exports = {
     },
 
     "opsView": {
-        "mapInstr": "Select a category (e.g Arithmetic Functions). Then select a function, e.g. add. Finally, enter any arguments if applicable. Column names must be prefixed by a $ sign, e.g. $column1.",
+        "mapInstr": "Select a category e.g. Arithmetic Functions. Then select a function, e.g. add. Finally, enter any arguments if applicable. Column names must be prefixed by a $ sign, e.g. $column1.",
         "filterInstr": "Select a function, e.g. isBoolean. Then, enter in any arguments if applicable. To add additional conditions, select \"Additional Conditions.\" Column names should be prefixed by a $ sign, e.g. $column1.",
         "groupbyInstr": "Summarizes result based on a formula. Add one or more columns to summarize. Then, select a function and enter arguments to create the summary formula. Column names should be prefixed by a $ sign, e.g. $column1.",
         "aggInstr": "Select a function, e.g. sum. Then, enter in any arguments if applicable. Column names should be prefixed by a $ sign, e.g. $column1. Optional resultant aggregate names should be prefixed by a ^ sign.",
