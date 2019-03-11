@@ -4,9 +4,11 @@ class StateMachine {
         this.verbosity = verbosity;
 
         //Instantiate All states here
-        this.workbookState = new WorkbookState(verbosity);
+        this.statesMap = new Map();
+        this.statesMap.set("Workbook", new WorkbookState(this, verbosity));
+        this.statesMap.set("AdvancedMode", new AdvancedModeState(this, verbosity));
 
-        this.currentState = this.workbookState;
+        this.currentState = this.statesMap.get("AdvancedMode"); // change to workbook state
     }
 
     async run() {
@@ -25,23 +27,32 @@ window.FuncTestSuite = (function($, FuncTestSuite) {
     var verbosity = "Verbose"; // Verbose or Silent
     var stateMachine = undefined;
 
-    FuncTestSuite.run = function(testName, hasAnimation, toClean, noPopup, mode, withUndo, timeDilation, iterations) {
+    FuncTestSuite.run = async function(testName, hasAnimation, toClean, noPopup, mode, withUndo, timeDilation, iterations) {
         console.log("FuncTest: " + userIdName + "::" + sessionName);
         console.log("arguments: " + testName + ", " + hasAnimation + ", " + toClean + ", " + noPopup + ", " + mode + ", " + withUndo + ", " + timeDilation);
 
-        // If a state machine already exists, don't bother creating one
-        if (!stateMachine) {
-            stateMachine = new StateMachine(verbosity, iterations);
-        }
-
         test = TestSuite.createTest();
         test.setMode(mode);
-        initializeTests();
+        await initializeTests();
+        // If a state machine already exists, don't bother creating one
+         if (!stateMachine) {
+            stateMachine = new StateMachine(verbosity, iterations);
+        }
         test.run(hasAnimation, toClean, noPopup, withUndo, timeDilation);
 
     };
 
-    function initializeTests() {
+    async function initializeTests() {
+        // load some datasets for functests
+        // #1 airlines
+        const airpotDS = "airport" + Math.floor(Math.random() * 10000);
+        const check = "#previewTable td:eq(1):contains(00M)";
+        const url = "/netstore/datasets/" + "flight/" + test.mode + "airports.csv";
+        await test.loadDS(airpotDS, url, check);
+
+        // #2 some other
+
+        // add tests
         test.add(funcTest, "XD Func Tests", defaultTimeout, TestCaseEnabled);
     }
 

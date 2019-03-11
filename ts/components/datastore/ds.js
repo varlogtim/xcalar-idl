@@ -797,6 +797,38 @@ window.DS = (function ($, DS) {
         return list;
     };
 
+    DS.getDSBasicInfo = function(datasetName) {
+        var deferred = PromiseHelper.deferred();
+        XcalarGetDatasetsInfo(datasetName)
+        .then(function(res) {
+            try {
+                var dsInfos = {};
+                res.datasets.forEach(function(dataset) {
+                    var fullName = dataset.datasetName;
+                    if (fullName.startsWith(gDSPrefix)) {
+                        var name = fullName.substring(gDSPrefix.length);
+                        dsInfos[name] = {
+                            size: dataset.datasetSize,
+                            columns: getSchemaMeta(dataset.columns),
+                            totalNumErrors: dataset.totalNumErrors,
+                            downSampled: dataset.downSampled
+                        };
+                    }
+                });
+                deferred.resolve(dsInfos);
+            } catch (e) {
+                console.error(e);
+                deferred.resolve({}); // still resolve
+            }
+        })
+        .fail(function(error) {
+            console.error(error);
+            deferred.resolve({}); // still resolve
+        });
+
+        return deferred.promise();
+    }
+
     // Clear dataset/folder in gridView area
     DS.clear = function() {
         $gridView.find(".grid-unit").remove();
@@ -1315,7 +1347,7 @@ window.DS = (function ($, DS) {
             return createDSHelper(txId, dsObj, restoreArgs);
         })
         .then(function() {
-            return getDSBasicInfo(datasetName);
+            return DS.getDSBasicInfo(datasetName);
         })
         .then(function(dsInfos) {
             var dsInfo = dsInfos[datasetName];
@@ -1923,7 +1955,7 @@ window.DS = (function ($, DS) {
         XcalarGetDatasets()
         .then(function(res) {
             datasets = res;
-            return getDSBasicInfo();
+            return DS.getDSBasicInfo();
         })
         .then(function(res) {
             dsBasicInfo = res;
@@ -1951,37 +1983,6 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function getDSBasicInfo(datasetName) {
-        var deferred = PromiseHelper.deferred();
-        XcalarGetDatasetsInfo(datasetName)
-        .then(function(res) {
-            try {
-                var dsInfos = {};
-                res.datasets.forEach(function(dataset) {
-                    var fullName = dataset.datasetName;
-                    if (fullName.startsWith(gDSPrefix)) {
-                        var name = fullName.substring(gDSPrefix.length);
-                        dsInfos[name] = {
-                            size: dataset.datasetSize,
-                            columns: getSchemaMeta(dataset.columns),
-                            totalNumErrors: dataset.totalNumErrors,
-                            downSampled: dataset.downSampled
-                        };
-                    }
-                });
-                deferred.resolve(dsInfos);
-            } catch (e) {
-                console.error(e);
-                deferred.resolve({}); // still resolve
-            }
-        })
-        .fail(function(error) {
-            console.error(error);
-            deferred.resolve({}); // still resolve
-        });
-
-        return deferred.promise();
-    }
 
     function getSchemaMeta(schemaArray) {
         const columns = [];
@@ -3142,7 +3143,7 @@ window.DS = (function ($, DS) {
         var datasetName = dsObj.getFullName();
         activateHelper(txId, dsObj)
         .then(function() {
-            return getDSBasicInfo(datasetName);
+            return DS.getDSBasicInfo(datasetName);
         })
         .then(function(dsMeta) {
             var dsInfo = dsMeta[datasetName] || {};

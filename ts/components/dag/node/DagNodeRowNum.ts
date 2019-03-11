@@ -35,8 +35,8 @@ class DagNodeRowNum extends DagNode {
 
     /**
      * Set sql node's parameters
-     * @param input {DagNodeProjectSQLStruct}
-     * @param input.evalString {string}
+     * @param input {DagNodeRowNumInputStruct}
+     * @param input.newField {string}
      */
     public setParam(input: DagNodeRowNumInputStruct = <DagNodeRowNumInputStruct>{}) {
         this.input.setInput({

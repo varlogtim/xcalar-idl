@@ -1,7 +1,7 @@
 
 class WorkbookState extends State {
-    public constructor(verbosity: string) {
-        super(verbosity);
+    public constructor(stateMachine: StateMachine, verbosity: string) {
+        super("Workbook", stateMachine, verbosity);
         this.availableActions = [this.createNewWorkbook];
     }
 
