@@ -2037,6 +2037,12 @@ XcalarGetTables = function(tableName?: string): XDPromise<any> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
+    if (!sessionName) {
+        const thriftError = thriftLog("XcalarGetTables", "Invalid Session");
+        Log.errorLog("Get Tables", null, null, thriftError);
+        return PromiseHelper.reject(thriftError);
+    }
+
     const deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
