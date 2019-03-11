@@ -32,7 +32,6 @@ describe("MapOpPanel Test", function() {
         };
 
         oldDatTargetList = DSTargetManager.getAllTargets;
-        oldJSONParse = JSON.parse;
         mapOpPanel = MapOpPanel.Instance;
         editor = mapOpPanel.getEditor();
         $mapOpPanel = $('#mapOpPanel');

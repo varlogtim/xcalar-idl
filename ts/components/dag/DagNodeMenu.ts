@@ -318,7 +318,13 @@ namespace DagNodeMenu {
         });
     }
 
-    function configureNode(node: DagNode, options?) {
+    function configureNode(node: DagNode, options?: {
+        node?: DagNode,
+        autofillColumnNames?: string[],
+        exitCallback?: Function,
+        nonConfigurable?: boolean,
+        udfDisplayPathPrefix?: string
+    }) {
         const nodeId: string = node.getId();
         if (DagViewManager.Instance.isNodeLocked(nodeId)) {
             return;

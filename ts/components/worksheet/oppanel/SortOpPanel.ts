@@ -18,7 +18,7 @@ class SortOpPanel extends BaseOpPanel implements IOpPanel {
      * Show the panel with information from dagNode
      * @param dagNode DagNode object
      */
-    public show(dagNode: DagNodeSort, options?): void {
+    public show(dagNode: DagNodeSort, options?: ShowPanelInfo): void {
         this._dagNode = dagNode;
         this._dataModel = SortOpPanelModel.fromDag(dagNode);
         let error: string;
@@ -251,6 +251,4 @@ class SortOpPanel extends BaseOpPanel implements IOpPanel {
         model.validateInputData();
         return model;
     }
-
-
 }

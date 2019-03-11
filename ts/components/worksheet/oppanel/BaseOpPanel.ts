@@ -204,7 +204,7 @@ class BaseOpPanel {
         this._columnPicker.setData = null;
     }
 
-    protected showPanel(formName?: string, options?): boolean {
+    protected showPanel(formName?: string, options?: ShowPanelInfo): boolean {
         if (this._formHelper.isOpen()) {
             return false;
         }

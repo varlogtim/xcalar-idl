@@ -4,6 +4,7 @@ class DagNodeSort extends DagNode {
 
     public constructor(options: DagNodeInfo) {
         super(options);
+        this.type = DagNodeType.Sort;
         this.minParents = 1;
         this.input = new DagNodeSortInput(options.input);
         this.display.icon = "&#xe921;";
