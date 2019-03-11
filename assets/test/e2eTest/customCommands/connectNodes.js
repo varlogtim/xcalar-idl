@@ -10,6 +10,7 @@ class ConnectNodes extends EventEmitter {
             .mouseButtonDown("left")
             .moveToElement('.dataflowArea.active .operator[data-nodeid="' + parentNodeId + '"]', 20, 10)
             .mouseButtonUp("left")
+            .pause(60000)
             .waitForElementPresent('.dataflowArea.active .edgeSvg .edge'
                 + `[data-childnodeid="${childNodeId}"]`
                 + `[data-parentnodeid="${parentNodeId}"]`

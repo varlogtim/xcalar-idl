@@ -23,7 +23,9 @@ module.exports = {
 
     setAdvancedConfig: function(panelSelector, config) {
         const codeMirror = document.querySelectorAll(panelSelector + ' .advancedEditor .CodeMirror')[0].CodeMirror;
-        codeMirror.setValue(config);
+        if (config) {
+            codeMirror.setValue(config);
+        }
         const id = "#" + document.querySelector(panelSelector).id;
         return id;
     },
@@ -60,5 +62,17 @@ module.exports = {
 
     getFinalWorkbookName: function() {
         return $("#workbookPanel .workbookBox.noResource .subHeading input").val();
-    }
+    },
+
+    openOpPanel: function(nodeId) {
+        const node = DagViewManager.Instance.getActiveDag().getNode(nodeId);
+        SQLFuncOutOpPanel.Instance.show(node);
+    },
+
+    connectNodes: function(childId, parentId, idx) {
+        if (idx == null) {
+            idx = 0;
+        }
+        DagViewManager.Instance.getActiveDagView().connectNodes(parentId, childId, 0);
+    },
 };
