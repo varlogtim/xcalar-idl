@@ -44,6 +44,10 @@ class SQLEditorSpace {
         return this._saveSnippet();
     }
 
+    public clearSQL(): void {
+        this._sqlEditor.setValue("");
+    }
+
     public newSQL(sql: string): void {
         let val: string = this._sqlEditor.getValue();
         if (val) {
@@ -191,6 +195,7 @@ class SQLEditorSpace {
     }
 
     private _executeSQL(sqls: string): void {
+        if (!sqls || !sqls.trim()) return;
         try {
             let selectArray: SQLParserStruct[] = [];
             let lastShow: any = {type: "select"};

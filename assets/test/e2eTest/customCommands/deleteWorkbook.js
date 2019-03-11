@@ -2,7 +2,7 @@ const EventEmitter = require('events');
 
 class DeleteWorkbook extends EventEmitter {
     command(workbookName, userName, cb) {
-
+        userName = userName || this.api.globals.user;
         this.api.isVisible('#workbookPanel', results => {
             if (results.value) {
                 /* is visible */
@@ -13,16 +13,16 @@ class DeleteWorkbook extends EventEmitter {
 
             this.api
                 .waitForElementVisible('.workbookBox input[value="' + workbookName + '"]', 10000)
-                .waitForElementVisible('.workbookBox[data-workbook-id="' + this.api.globals.user + '-wkbk-' + workbookName + '"] .dropDown')
-                .click('.workbookBox[data-workbook-id="' + this.api.globals.user + '-wkbk-' + workbookName + '"] .dropDown')
+                .waitForElementVisible('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"] .dropDown')
+                .click('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"] .dropDown')
                 .waitForElementVisible("#wkbkMenu .deactivate")
                 .click("#wkbkMenu .deactivate")
                 .click("#alertModal .confirm")
-                .waitForElementNotPresent('.workbookBox[data-workbook-id="' + this.api.globals.user + '-wkbk-' + workbookName + '"].active', 20000)
-                .click('.workbookBox[data-workbook-id="' + this.api.globals.user + '-wkbk-' + workbookName + '"] .dropDown')
+                .waitForElementNotPresent('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"].active', 20000)
+                .click('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"] .dropDown')
                 .click("#wkbkMenu .delete")
                 .click("#alertModal .confirm")
-                .waitForElementNotPresent('.workbookBox[data-workbook-id="' + this.api.globals.user + '-wkbk-' + workbookName + '"]', 20000)
+                .waitForElementNotPresent('.workbookBox[data-workbook-id="' + userName + '-wkbk-' + workbookName + '"]', 20000)
 
             this.emit('complete');
         });

@@ -4,7 +4,8 @@
   "description": "This unit test engine uses puppteer to run the unit test. Reference: https://github.com/GoogleChrome/puppeteer/blob/master/docs/api.md#browseruseragent",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/.bin/nightwatch"
+    "test": "node_modules/.bin/nightwatch --config ./nightwatch.json",
+    "debug": "node_modules/.bin/nightwatch --config ./nightwatch_dev.json"
   },
   "keywords": [],
   "author": "",
