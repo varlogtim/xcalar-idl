@@ -848,12 +848,10 @@ WKBKTStr = {
     'NoMeta': 'No Meta',
     'Location': 'Workbook Browser',
     'NewWKBK': 'New Workbook',
-    'NewWKBKInstr': 'To get started with ' + autogenVars.prodName + ', you must first create ' +
-                 'a workbook to hold your worksheets. Either create a new ' +
-                 'workbook or upload an existing workbook from the ' +
-                 'Workbook card. After your workbook is created, ' +
-                 'start working with your data by clicking on its workbook ' +
-                 'card. To learn more about using ' + autogenVars.prodName + ', check out ' +
+    'NewWKBKInstr': 'To get started with ' + autogenVars.prodName + ', create a new ' +
+                 'workbook or upload an existing workbook. Click the ' +
+                 'workbook card to activate the workbook and start working with your data. ' +
+                 'To learn more about using ' + autogenVars.prodName + ', check out ' +
                  'the ' + autogenVars.prodName + ' tutorials. ',
     'CurWKBKInstr': 'To continue working with your existing workbooks, ' +
                   'click on the workbook\'s card. ' +

@@ -544,11 +544,9 @@ namespace WorkbookPanel {
 
         if (isForceMode) {
             // forceMode does not have any workbook info
-            $welcomeCard.addClass("forceMode");
             $welcomeMsg.text(WKBKTStr.NewWKBKInstr);
             return;
         }
-        $welcomeCard.removeClass("forceMode");
         $welcomeMsg.text(WKBKTStr.CurWKBKInstr);
     }
 
