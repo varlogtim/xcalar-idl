@@ -94,16 +94,20 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
             },
             setColumnPickerTarget: this._setColumnPickerTarget.bind(this)
         });
+        let errorElement: HTMLElement;
         this._componentSecondStep.updateUI({
             modelRef: this._dataModel,
             onDataChange: () => {
                 this._updateUI();
+            },
+            onError: (elem: HTMLElement) => {
+                errorElement = elem;
             }
         });
-        this._updateUINavButtons();
+        this._updateUINavButtons(() => errorElement);
     }
 
-    private _updateUINavButtons(): void {
+    private _updateUINavButtons(getErrorElement: () => HTMLElement): void {
         const findXCElement = BaseOpPanel.findXCElement;
 
         const $bottomSection = findXCElement(this._$elemPanel, 'bottomSection');
@@ -117,7 +121,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
             if (currentStep === 1) {
                 elemNavButtons = this._buildJoinClauseNavButtons();
             } else if (currentStep === 2) {
-                elemNavButtons = this._buildRenameNavButtons();
+                elemNavButtons = this._buildRenameNavButtons(getErrorElement);
             } else {
                 // Should never happen, possibly a bug
                 console.error(`Invalid currentStep value(${currentStep})`);
@@ -151,16 +155,25 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         return elements;
     }
 
-    private _buildRenameNavButtons(): NodeDefDOMElement[] {
+    private _buildRenameNavButtons(getErrorElement: () => HTMLElement): NodeDefDOMElement[] {
         let elements: NodeDefDOMElement[] = [];
 
         // Save button
         elements = elements.concat(this._buildNavButton({
             type: 'submit',
-            disabled: !this._isEnableSave(),
+            // disabled: !this._isEnableSave(),
+            disabled: false,
             text: CommonTxtTstr.Save,
             onClick: () => {
-                this._submitForm(this._dataModel);
+                if (this._isEnableSave()) {
+                    this._submitForm(this._dataModel);
+                } else {
+                    // Focus to the error message
+                    const errElement = getErrorElement();
+                    if (errElement != null) {
+                        $(errElement).scrollintoview({duration: 0});
+                    }
+                }
             }
         }));
 

@@ -5,6 +5,8 @@ class JoinOpPanelStep2 {
     private _componentFactory: OpPanelComponentFactory;
     private _opSectionSelector = "#joinOpPanel .opSection";
     private _onDataChange = () => {};
+    private _errorElements: HTMLElement[] = [];
+    private _onError = (elem: HTMLElement) => {};
     private static readonly _templateIds = {
         renameRow: 'templateRenameRow',
         renameList: 'templateRenameList',
@@ -31,11 +33,13 @@ class JoinOpPanelStep2 {
 
     public updateUI(props: {
         modelRef: JoinOpPanelModel,
-        onDataChange: () => void
+        onDataChange: () => void,
+        onError: (elem: HTMLElement) => void
     }): void {
-        const { modelRef, onDataChange } = props;
+        const { modelRef, onDataChange, onError } = props;
         this._modelRef = modelRef;
         this._onDataChange = onDataChange;
+        this._onError = onError;
         this._updateUI();
     }
 
@@ -47,6 +51,9 @@ class JoinOpPanelStep2 {
         this._$elem.show();
 
         const findXCElement = BaseOpPanel.findXCElement;
+
+        // Cleare previous error elements, as we are gonna re-render them
+        this._clearErrorElements();
 
         // Column Selector
         const elemColSelContainer = findXCElement(this._$elem, 'columnSelectSection')[0];
@@ -250,7 +257,11 @@ class JoinOpPanelStep2 {
                         ? this._componentFactory.createErrorMessage({
                             msgText: isPrefix
                                 ? ErrTStr.PrefixConflict
-                                : ErrTStr.ColumnConflict
+                                : ErrTStr.ColumnConflict,
+                            onElementMountDone: (elem) => {
+                                this._registerErrorElement(elem);
+                                this._onError(this._getFirstErrorElement());
+                            }
                         })
                         : null
                 }
@@ -460,6 +471,17 @@ class JoinOpPanelStep2 {
         return elements;
     }
 
+    private _clearErrorElements(): void {
+        this._errorElements = [];
+    }
+
+    private _registerErrorElement(elem: HTMLElement): void {
+        this._errorElements.push(elem);
+    }
+
+    private _getFirstErrorElement(): HTMLElement {
+        return this._errorElements[0];
+    }
     // private _createColumnKeepAll(): HTMLElement[] {
     //     const isKeepAll = this._modelRef.isKeepAllColumns();
     //     const templateId = JoinOpPanelStep2._templateIds.columnKeepAll;

@@ -962,8 +962,11 @@ class OpPanelComponentFactory {
         return elem;
     }
 
-    public createErrorMessage(props: { msgText: string }): HTMLElement[] {
-        const { msgText = '' } = props || {};
+    public createErrorMessage(props: {
+        msgText: string,
+        onElementMountDone?: (elem: HTMLElement) => void
+    }): HTMLElement[] {
+        const { msgText = '', onElementMountDone = null } = props || {};
         if (msgText.length === 0) {
             return [];
         }
@@ -974,6 +977,9 @@ class OpPanelComponentFactory {
         const elements = this._templateMgr.createElements(templateId, {
             errorMessage: msgText
         });
+        if (onElementMountDone != null) {
+            OpPanelTemplateManager.setNodeMountDoneListener(elements, onElementMountDone);
+        }
 
         return elements;
     }
