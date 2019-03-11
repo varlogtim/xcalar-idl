@@ -273,11 +273,10 @@ namespace StatusMessage {
                         panelName = "";
                         break;
                 }
-
-                text = text || StatusMessageTStr.Viewing + " " + panelName;
-                if (!panelName) {
-                    text = "";
+                if (panelName) {
+                    text = text || StatusMessageTStr.Viewing + " " + panelName;
                 }
+
                 const locationHTML: string =
                     '<span id="viewLocation">' +
                         text +

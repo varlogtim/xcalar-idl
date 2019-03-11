@@ -131,9 +131,12 @@ namespace WorkbookManager {
     }
 
     function setActiveWKBK(workbookId: string): boolean {
+        let name: string = "N/A";
+
         if (workbookId == null) {
             activeWKBKId = null;
             setSessionName(null);
+            $("#worksheetInfo .wkbkName").text(name);
             return true;
         }
 
@@ -145,7 +148,9 @@ namespace WorkbookManager {
 
         lastActiveWKBKId = activeWKBKId;
         activeWKBKId = workbookId;
-        setSessionName(wkbk.getName());
+        name = wkbk.getName()
+        setSessionName(name);
+        $("#worksheetInfo .wkbkName").text(name);
         return true;
     }
 

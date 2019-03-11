@@ -489,6 +489,7 @@ class DagTabManager {
             DagList.Instance.updateList();
             if (this.getNumTabs() > 0) {
                 this._switchTabs(0);
+                StatusMessage.updateLocation(false, "Restoring Dataflows");
             } else {
                 this.reset();
             }

@@ -77,13 +77,17 @@ namespace xcManager {
             $("#topMenuBarTabs").removeClass("xc-hidden");
             MainMenu.setup();
             setupModeArea();
+            StatusMessage.updateLocation(false, "Loading Extensions");
             return ExtensionManager.setup();
         })
         .then(function() {
+            StatusMessage.updateLocation(false, "Loading UDFs");
+
             return XDFManager.Instance.setup();
         })
         .then(setupAsyncOpPanels)
         .then(function() {
+            StatusMessage.updateLocation(false, "Loading Aggregates");
             return DagAggManager.Instance.setup();
         })
         .then(function() {
@@ -103,6 +107,7 @@ namespace xcManager {
             //     }
             // });
             SQLWorkSpace.Instance.setup();
+            StatusMessage.updateLocation(false, "Restoring Dataflows");
             return setupDagPanel();
         })
         .then(setupTutorial)
