@@ -11,4 +11,4 @@ class DagNodeExplode extends DagNodeMap {
 
 if (typeof exports !== 'undefined') {
     exports.DagNodeExplode = DagNodeExplode;
-};
+}
