@@ -1,5 +1,4 @@
 const {Worker} = require('worker_threads');
-const {AsyncResource} = require('async_hooks');
 const join = require("path").join;
 const xcConsole = require('../expServerXcConsole.js').xcConsole;
 

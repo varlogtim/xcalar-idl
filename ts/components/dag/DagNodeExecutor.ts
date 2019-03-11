@@ -1248,7 +1248,7 @@ class DagNodeExecutor {
         const newTableMap = {};
         const newTableSrcMap = {};
         queryStruct.forEach((operation) => {
-            if (!operation.args.source || !operation.args.dest) {
+            if (operation.operation === "XcalarApiDeleteObjects") {
                 const namePattern = operation.args.namePattern;
                 if (namePattern && newTableMap[namePattern]) {
                     operation.args.namePattern = newTableMap[namePattern];

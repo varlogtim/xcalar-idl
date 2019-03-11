@@ -64,17 +64,18 @@ XDParser.XEvalParser = require("../xEvalParser/index.js").XEvalParser;
 
 SqlUtil.addPrefix = function(plan, selectTables, finalTable, prefix, usePaging, newSqlTable) {
     var retStruct = {};
+    var newTableMap = {};
     for (var i = 0; i < plan.length; i++) {
         var operation = plan[i];
-        var source = operation.args.source;
-        var dest = operation.args.dest;
-        if (!source || !dest) {
+        if (operation.operation === "XcalarApiDeleteObjects") {
             const namePattern = operation.args.namePattern;
-            if (!namePattern.startsWith(prefix)) {
-                operation.args.namePattern = prefix + namePattern;
+            if (namePattern && newTableMap[namePattern]) {
+                operation.args.namePattern = newTableMap[namePattern];
             }
             continue;
         }
+        var source = operation.args.source;
+        var dest = operation.args.dest;
         if (typeof(source) === "string") {
             source = [source];
         }
@@ -85,15 +86,19 @@ SqlUtil.addPrefix = function(plan, selectTables, finalTable, prefix, usePaging, 
             }
             if (!source[j].startsWith(prefix)) {
                 if (source.length === 1) {
-                    operation.args.source = prefix + source[j];
+                    operation.args.source = newTableMap[source[j]];
                 } else {
-                    operation.args.source[j] = prefix + source[j];
+                    operation.args.source[j] = newTableMap[source[j]];
                 }
             }
         }
         var newTableName = dest;
         if (!dest.startsWith(prefix)) {
             newTableName = prefix + newTableName;
+            if (newTableName.length > 255 / 2) {
+                ret = ret.substring(0, ret.length - 255 / 2) +
+                      Authentication.getHashId();
+            }
         }
         if (dest === finalTable) {
             if (usePaging) {
@@ -103,6 +108,7 @@ SqlUtil.addPrefix = function(plan, selectTables, finalTable, prefix, usePaging, 
             }
             retStruct.tableName = newTableName;
         }
+        newTableMap[dest] = newTableName;
         operation.args.dest = newTableName;
     }
     retStruct.query = JSON.stringify(plan);
