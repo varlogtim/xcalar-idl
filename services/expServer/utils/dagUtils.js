@@ -44,6 +44,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     global.DagNodeEvents = require("../dagHelper/DagEnums.js").DagNodeEvents
     global.DagNodeErrorType = require("../dagHelper/DagEnums.js").DagNodeErrorType
     global.DagNodeLinkInErrorType = require("../dagHelper/DagEnums.js").DagNodeLinkInErrorType;
+    global.DagNodeTooltip = require("../dagHelper/DagEnums.js").DagNodeTooltip;
     global.DagNodeFactory = require("../dagHelper/DagNodeFactory.js").DagNodeFactory
     global.DagNode = require("../dagHelper/node/DagNode.js").DagNode
     global.DagNodeIn = require("../dagHelper/node/DagNodeIn.js").DagNodeIn
