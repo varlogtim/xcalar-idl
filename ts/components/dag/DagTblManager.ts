@@ -25,6 +25,11 @@ class DagTblManager {
     }
 
     public setup(): XDPromise<void> {
+        if (!WorkbookManager.getActiveWKBK()) {
+            const thriftError = thriftLog("Setup", "Invalid Session");
+            Log.errorLog("Dag Table Manager", null, null, thriftError);
+            return PromiseHelper.reject(thriftError);
+        }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._kvStore.getAndParse()
         .then((res) => {
@@ -83,7 +88,7 @@ class DagTblManager {
      */
     public sweep(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        if (!this.configured) {
+        if (!this.configured || !WorkbookManager.getActiveWKBK()) {
             return PromiseHelper.resolve();
         }
         XcalarGetTables("*")
@@ -300,7 +305,7 @@ class DagTblManager {
     public forceReset(removeLocks: boolean): XDPromise<void> {
         window.clearInterval(this.timer);
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        if (!this.configured) {
+        if (!this.configured || !WorkbookManager.getActiveWKBK()) {
             return PromiseHelper.resolve();
         }
         XcalarGetTables("*")
@@ -408,7 +413,7 @@ class DagTblManager {
     public emergencyClear() {
         window.clearInterval(this.timer);
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        if (!this.configured) {
+        if (!this.configured || !WorkbookManager.getActiveWKBK()) {
             return PromiseHelper.resolve();
         }
         XcalarGetTables("*")
