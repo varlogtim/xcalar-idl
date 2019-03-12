@@ -1,4 +1,4 @@
-describe.skip('TblAnim Test', function() {
+describe('TblAnim Test', function() {
     var testDs;
     var tableName;
     var tableId;
@@ -6,6 +6,10 @@ describe.skip('TblAnim Test', function() {
     var tableName2;
 
     before(function(done) {
+        console.log("TblAnim Test");
+        if (XVM.isSQLMode()) {
+            $("#modeArea").click();
+        }
         UnitTest.onMinMode();
         var testDSObj = testDatasets.fakeYelp;
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
@@ -153,17 +157,20 @@ describe.skip('TblAnim Test', function() {
         });
     });
 
-    describe('column resize for datastore table', function() {
+    describe.skip('column resize for datastore table', function() {
         var $el;
         var $th;
         var startWidth;
         var startX = 0;
 
         before(function() {
+            MainMenu.openPanel("datastorePanel");
+
             $el = $('#dsTable').find('.colGrab').eq(0);
             $th = $el.closest('th');
             startWidth = $th.outerWidth();
             startX = 0;
+
         });
 
         it('startColResize should work', function() {
@@ -240,7 +247,7 @@ describe.skip('TblAnim Test', function() {
 
         it('startRowResize should work', function() {
             expect(gMouseStatus).to.be.null;
-            expect(startHeight).to.equal(25);
+            expect(startHeight).to.equal(21);
 
             var e = $.Event('mousedown', {pageY: startY});
 
@@ -272,9 +279,9 @@ describe.skip('TblAnim Test', function() {
 
             expect(gMouseStatus).to.equal('rowMove');
             expect($('#rowResizeCursor').length).to.equal(1);
-            expect($tr.find('td > div').eq(0).css('max-height')).to.equal("25px");
-            expect($tr.find('td > div').eq(1).css('max-height')).to.equal("21px");
-            expect($tr.outerHeight()).to.equal(25);
+            expect($tr.find('td > div').eq(0).css('max-height')).to.equal("21px");
+            expect($tr.find('td > div').eq(1).css('max-height')).to.equal("17px");
+            expect($tr.outerHeight()).to.equal(21);
         });
 
         it('onRowResize should work', function() {
@@ -287,15 +294,15 @@ describe.skip('TblAnim Test', function() {
             TblAnim.__testOnly__.onRowResize(e);
 
             expect(gMouseStatus).to.equal('rowMove');
-            expect(gRescol.minCellHeight).to.equal(25);
+            expect(gRescol.minCellHeight).to.equal(21);
             expect($tr.outerHeight()).to.equal(gRescol.minCellHeight);
             // increasing height by 10px
             newY = 10;
             e = $.Event('mousemove', {pageY: newY});
             TblAnim.__testOnly__.onRowResize(e);
             expect($tr.outerHeight()).to.equal(startHeight + newY);
-            expect($tr.find('td > div').eq(0).css('max-height')).to.equal("35px");
-            expect($tr.find('td > div').eq(1).css('max-height')).to.equal("31px");
+            expect($tr.find('td > div').eq(0).css('max-height')).to.equal("31px");
+            expect($tr.find('td > div').eq(1).css('max-height')).to.equal("27px");
         });
 
         it('endRowResize should work', function() {
@@ -309,13 +316,13 @@ describe.skip('TblAnim Test', function() {
             var rowObj = table.rowHeights;
             expect(rowObj[0]).to.be.an('object');
             expect(rowObj[1]).to.be.undefined;
-            expect(rowObj[0][1]).to.equal(35);
+            expect(rowObj[0][1]).to.equal(31);
             expect(rowObj[0][2]).to.undefined;
 
             expect($tr.hasClass('changedHeight')).to.be.true;
 
             // based on onRowResize height
-            expect($tr.outerHeight()).to.equal(35);
+            expect($tr.outerHeight()).to.equal(31);
             expect($('#rowResizeCursor').length).to.equal(0);
         });
     });
@@ -341,9 +348,9 @@ describe.skip('TblAnim Test', function() {
 
             // resize to below minimum height
             TblAnim.resizeRow(0, tableId, 90, 10);
-            expect($tr.outerHeight()).to.equal(25);
-            expect($tr.find('td > div').eq(0).css('max-height')).to.equal("25px");
-            expect($tr.find('td > div').eq(1).css('max-height')).to.equal("21px");
+            expect($tr.outerHeight()).to.equal(21);
+            expect($tr.find('td > div').eq(0).css('max-height')).to.equal("21px");
+            expect($tr.find('td > div').eq(1).css('max-height')).to.equal("17px");
 
             table = gTables[tableId];
             rowObj = table.rowHeights;
@@ -403,7 +410,7 @@ describe.skip('TblAnim Test', function() {
             TblAnim.__testOnly__.onColDrag(e);
 
             expect(dragInfo.pageX).to.equal(newX);
-            expect(dragInfo.fauxCol.css('left')).to.equal("10px");
+            expect(dragInfo.fauxCol.css('left')).to.equal((-MainMenu.getOffset() + 5) + "px");
         });
 
         it('faux column should be correctly positioned', function() {
