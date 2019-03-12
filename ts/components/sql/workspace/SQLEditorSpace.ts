@@ -239,6 +239,7 @@ class SQLEditorSpace {
                     SQLResultSpace.Instance.showSchemaError("Table not found: "
                                                             + targetTableName);
                 }
+                const tmpExecutors = [];
                 for (let i = 0; i < selectArray.length; i++) {
                     const sqlStruct: SQLParserStruct = selectArray[i];
                     let executor: SQLExecutor;
@@ -247,12 +248,15 @@ class SQLEditorSpace {
                     } catch (e) {
                         return PromiseHelper.reject(e);
                     }
-                    this._addExecutor(executor);
+                    tmpExecutors.push(executor);
                     executorArray.push(executor);
-                    compilePromiseArray.push(this._compileStatement(executorArray[i]));
+                    compilePromiseArray.push(this._compileStatement.bind(this, executorArray[i]));
                     executePromiseArray.push(this._executeStatement.bind(this,
                                       executorArray[i], i, selectArray.length));
                 }
+                tmpExecutors.forEach((executor) => {
+                    this._addExecutor(executor);
+                });
                 return PromiseHelper.when.apply(this, compilePromiseArray);
             })
             .then(() => {
