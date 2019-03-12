@@ -207,6 +207,10 @@ class DagViewManager {
         }
     }
 
+    public getActiveDagView(): DagView {
+        return this.activeDagView;
+    }
+
      /**
      * Returns the current activeDag
      * @returns {DagGraph}
@@ -225,10 +229,6 @@ class DagViewManager {
 
     public getActiveArea(): JQuery {
         return this._getActiveArea();
-    }
-
-    public getActiveDagView(): DagView {
-        return this.activeDagView;
     }
 
     public focusOnNode(nodeId: DagNodeId, tabId: string): XDPromise<JQuery> {

@@ -81,10 +81,6 @@ class DagSchemaPopup {
             });
         });
 
-        this._$popup.on("click", ".expand", function() {
-            self._$popup.toggleClass("expanded");
-        });
-
         this._$popup.find(".close").click(function() {
             self._close();
         });
@@ -166,7 +162,7 @@ class DagSchemaPopup {
 
         numCols += this._tableColumns.length;
 
-        let noChange = !html.length;
+        let noChange = (html === "<ul>");
 
         for (let i = 0; i < this._tableColumns.length; i++) {
             const progCol = this._tableColumns[i];
