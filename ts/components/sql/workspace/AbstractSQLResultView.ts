@@ -56,27 +56,32 @@ abstract class AbstractSQLResultView {
         // resizable left part of a column
         let $prev: JQuery = null;
         const minWidth: number = 80;
-        let totalWidth: number = null;
+        let lastLeft: number = 0;
+        let colW: number = 0;
+        let preColW: number = 0;
 
         $section.resizable({
             handles: "w",
             minWidth: minWidth,
             alsoResize: $prev,
-            start: (_event, _ui) => {
+            start: (_event, ui) => {
                 $prev = $section.prev();
-                totalWidth = $section.outerWidth() + $prev.outerWidth();
+                lastLeft = ui.position.left;
+                colW = $section.outerWidth();
+                preColW = $prev.outerWidth();
                 this._getMainSection().addClass("resizing");
             },
             resize: (_event, ui) => {
                 let left: number = ui.position.left;
-                let sectionW: number = $section.outerWidth() - left;
-                let prevWidth: number = totalWidth - sectionW;
+                let delta: number = left - lastLeft;
+                let sectionW: number = colW - delta;
+                let prevWidth: number = preColW + delta;
                 if (sectionW <= minWidth) {
                     sectionW = minWidth;
-                    prevWidth = totalWidth - sectionW;
+                    prevWidth = colW + preColW - sectionW;
                 } else if (prevWidth <= minWidth) {
                     prevWidth = minWidth;
-                    sectionW = totalWidth - prevWidth;
+                    sectionW = colW + preColW - prevWidth;
                 }
 
                 $prev.outerWidth(prevWidth);
