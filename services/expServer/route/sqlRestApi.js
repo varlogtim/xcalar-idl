@@ -484,8 +484,10 @@ function getInfoForPublishedTable(pubTableReturn, pubTableName) {
     return tableStruct;
 }
 
-function getInfoForXDTable(tableName) {
+function getInfoForXDTable(tableName, sessionInfo) {
     var deferred = PromiseHelper.deferred();
+    var {userName, userId, sessionName} = sessionInfo;
+    SqlUtil.setSessionInfo(userName, userId, sessionName);
     XcalarGetTableMeta(tableName)
     .then(function(ret) {
         var columns = ret.valueAttrs;
@@ -527,7 +529,8 @@ function getInfoForXDTable(tableName) {
     return deferred.promise();
 };
 
-function collectTablesMetaInfo(queryStr, tablePrefix, type, username, wkbkName) {
+function collectTablesMetaInfo(queryStr, tablePrefix, type, sessionInfo) {
+    var {userName, userId, sessionName} = sessionInfo;
     function findValidLastSelect(selects, nextBatchId) {
         for (var select of selects) {
             if (select.maxBatchId + 1 === nextBatchId &&
@@ -547,6 +550,7 @@ function collectTablesMetaInfo(queryStr, tablePrefix, type, username, wkbkName) 
                 "isIMD": true
             });
         }
+        SqlUtil.setSessionInfo(userName, userId, sessionName);
         XcalarGetTableMeta(tableName)
         .then(function(ret) {
             deferred.resolve({
@@ -605,7 +609,7 @@ function collectTablesMetaInfo(queryStr, tablePrefix, type, username, wkbkName) 
                 isMulti: false
             }
         }
-        return sendToPlanner(tablePrefix, requestStruct, username, wkbkName);
+        return sendToPlanner(tablePrefix, requestStruct, userName, sessionName);
     })
     .then(function(data) {
         var retStruct = data.ret;
@@ -639,7 +643,7 @@ function collectTablesMetaInfo(queryStr, tablePrefix, type, username, wkbkName) 
         }
 
         for (var xdTable of xdTables) {
-            tableValidPromiseArray.push(getInfoForXDTable(xdTable));
+            tableValidPromiseArray.push(getInfoForXDTable(xdTable, sessionInfo));
         }
         return PromiseHelper.when(...tableValidPromiseArray);
     })
@@ -713,8 +717,8 @@ function getXCquery(params, type) {
 
     setupConnection(params.userName, params.userId, params.sessionName)
     .then(function () {
-        return collectTablesMetaInfo(params.queryString, tablePrefix, type,
-                                     params.userName, params.sessionName);
+        sessionInfo = {"userName": params.userName, "userId": params.userId, "sessionName": params.sessionName};
+        return collectTablesMetaInfo(params.queryString, tablePrefix, type, sessionInfo);
     })
     .then(function(selQuery, schemas, selects) {
         allSelects = selects;
@@ -821,8 +825,8 @@ function executeSql(params, type) {
     .then(function () {
         sqlHistoryObj["startTime"] = new Date();
         SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj);
-        return collectTablesMetaInfo(params.queryString, tablePrefix, type,
-                                     params.userName, params.sessionName);
+        sessionInfo = {"userName": params.userName, "userId": params.userId, "sessionName": params.sessionName};
+        return collectTablesMetaInfo(params.queryString, tablePrefix, type, sessionInfo);
     })
     .then(function(selQuery, schemas, selects) {
         allSelects = selects;
@@ -856,6 +860,7 @@ function executeSql(params, type) {
                              params.userName, params.sessionName);
     })
     .then(function (plan) {
+        SqlUtil.setSessionInfo(params.userName, params.userId, params.sessionName);
         if (workerFlag) {
             var workerData = {
                 queryName: queryName,
@@ -912,6 +917,7 @@ function executeSql(params, type) {
         // To show better performance, we only display duration of execution
         sqlHistoryObj["startTime"] = new Date();
         sqlHistoryObj["status"] = SQLStatus.Running;
+        SqlUtil.setSessionInfo(params.userName, params.userId, params.sessionName);
         SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj);
         return compilerObject.execute(prefixedQuery, finalTable, orderedColumns,
                                       params.queryString, undefined, option);
@@ -921,6 +927,7 @@ function executeSql(params, type) {
         sqlHistoryObj["status"] = SQLStatus.Done;
         sqlHistoryObj["endTime"] = new Date();
         sqlHistoryObj["tableName"] = finalTable;
+        SqlUtil.setSessionInfo(params.userName, params.userId, params.sessionName);
         SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj);
         // Drop schemas and nuke session on planner
         var requestStruct = {
@@ -935,8 +942,12 @@ function executeSql(params, type) {
             return PromiseHelper.reject(SQLErrTStr.Cancel);
         }
         if (type === "odbc") {
+            sessionInfo  = {};
+            sessionInfo.userName = params.userName;
+            sessionInfo.userId = params.userId;
+            sessionInfo.sessionName = params.sessionName;
             return SqlUtil.getResults(finalTable, orderedColumns, params.rowsToFetch,
-                            params.execid, params.usePaging);
+                            params.execid, params.usePaging, sessionInfo);
         } else {
             var result = {
                 tableName: finalTable,
@@ -957,10 +968,12 @@ function executeSql(params, type) {
             sqlHistoryObj["status"] = SQLStatus.Failed;
             sqlHistoryObj["errorMsg"] = err;
         }
+        SqlUtil.setSessionInfo(params.userName, params.userId, params.sessionName);
         SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj);
         deferred.reject(retObj);
     })
     .always(function() {
+        SqlUtil.setSessionInfo(params.userName, params.userId, params.sessionName);
         XIApi.deleteTable(1, tablePrefix + "*");
         xcConsole.log("sql query finishes.");
     });
@@ -1116,7 +1129,7 @@ router.post("/xcsql/query", function(req, res) {
         queryName: req.body.queryTablePrefix,
         optimizations: optimizations
     }
-    executeSql(params, undefined)
+    executeSql(params)
     .then(function(executionOutput) {
         xcConsole.log("Sent schema for resultant table");
         res.send(executionOutput);
@@ -1224,7 +1237,10 @@ router.post("/xcsql/result", [support.checkAuth], function(req, res) {
     var totalRows = parseInt(req.body.totalRows);
     var schema = JSON.parse(req.body.schema);
     var renameMap = JSON.parse(req.body.renameMap);
-    SqlUtil.fetchData(resultSetId, rowPosition, rowsToFetch, totalRows, [], 0, 0)
+    var userName = req.body.userName;
+    var userId = req.body.userId;
+    var sessionName = req.body.sessionName;
+    SqlUtil.fetchData(resultSetId, rowPosition, rowsToFetch, totalRows, [], 0, 0, userName, userId, sessionName)
     .then(function(data) {
         var result = SqlUtil.parseRows(data, schema, renameMap);
         var endRow = rowPosition + rowsToFetch;
@@ -1240,14 +1256,19 @@ router.post("/xcsql/result", [support.checkAuth], function(req, res) {
 router.post("/xcsql/clean", [support.checkAuth], function(req, res) {
     var tableName = req.body.tableName;
     var resultSetId = req.body.resultSetId;
+    var userName = req.body.userName;
+    var userId = req.body.userId;
+    var sessionName = req.body.sessionName;
     var promise;
     if (resultSetId) {
+        SqlUtil.setSessionInfo(userName, userId, sessionName);
         promise = XcalarSetFree(resultSetId);
     } else {
         promise = PromiseHelper.resolve();
     }
     promise
     .then(function() {
+        SqlUtil.setSessionInfo(userName, userId, sessionName);
         return XIApi.deleteTable(1, tableName);
     })
     .then(function() {
@@ -1318,6 +1339,10 @@ function cancelQuery(queryName) {
 
 router.post("/xcsql/cancel", [support.checkAuth], function(req, res) {
     var queryName = req.body.queryName;
+    var userName = req.body.userName;
+    var userId = req.body.userId;
+    var sessionName = req.body.sessionName;
+    SqlUtil.setSessionInfo(userName, userId, sessionName);
     cancelQuery(queryName)
     .then(function() {
         xcConsole.log("query cancelled");

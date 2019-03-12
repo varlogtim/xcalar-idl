@@ -62,6 +62,25 @@ global.TableVisitor = TableVisitor = require("../sqlParser/TableVisitor.js").Tab
 global.XDParser = XDParser = {};
 XDParser.XEvalParser = require("../xEvalParser/index.js").XEvalParser;
 
+// Default session info for jdbc
+var defaultUserName = 'xcalar-internal-sql';
+var defaultUserId = 4193719;
+var jdbcWkbkName = 'sql-workbook';
+
+// Set session info every time we make a thrift call
+// TODO might refactor this later
+SqlUtil.setSessionInfo = function(userName, userId, sessionName) {
+    if (!userName) {
+        xcalarApi.setUserIdAndName(defaultUserName, defaultUserId, jQuery.md5);
+    } else {
+        xcalarApi.setUserIdAndName(userName, userId, jQuery.md5);
+    }
+    if (!sessionName) {
+        setSessionName(jdbcWkbkName);
+    } else {
+        setSessionName(sessionName);
+    }
+}
 SqlUtil.addPrefix = function(plan, selectTables, finalTable, prefix, usePaging, newSqlTable) {
     var retStruct = {};
     var newTableMap = {};
@@ -114,13 +133,15 @@ SqlUtil.addPrefix = function(plan, selectTables, finalTable, prefix, usePaging, 
     retStruct.query = JSON.stringify(plan);
     return retStruct;
 }
-SqlUtil.getRows = function(tableName, startRowNum, rowsToFetch, usePaging) {
+SqlUtil.getRows = function(tableName, startRowNum, rowsToFetch, usePaging, sessionInfo) {
     if (tableName == null || startRowNum == null || rowsToFetch <= 0) {
         return PromiseHelper.reject("Invalid args in fetch data");
     }
     var deferred = PromiseHelper.deferred();
     var resultMeta = {};
+    var {userName, userId, sessionName} = sessionInfo;
 
+    SqlUtil.setSessionInfo(userName, userId, sessionName);
     XcalarMakeResultSetFromTable(tableName)
     .then(function(res) {
         resultMeta.resultSetId = res.resultSetId;
@@ -140,10 +161,11 @@ SqlUtil.getRows = function(tableName, startRowNum, rowsToFetch, usePaging) {
         }
         rowsToFetch = Math.min(rowsToFetch, resultMeta.totalRows);
         return SqlUtil.fetchData(resultMeta.resultSetId, rowPosition, rowsToFetch,
-                         resultMeta.totalRows, [], 0, 0);
+                         resultMeta.totalRows, [], 0, 0, sessionInfo);
     })
     .then(function(ret) {
         if (!usePaging && resultMeta.resultSetId != null) {
+            SqlUtil.setSessionInfo(userName, userId, sessionName);
             XcalarSetFree(resultMeta.resultSetId)
             .then(deferred.resolve(ret))
             .fail(deferred.reject);
@@ -152,6 +174,7 @@ SqlUtil.getRows = function(tableName, startRowNum, rowsToFetch, usePaging) {
         }
     })
     .fail(function(ret) {
+        SqlUtil.setSessionInfo(userName, userId, sessionName);
         XcalarSetFree(resultMeta.resultSetId)
         .always(deferred.reject(ret));
     });
@@ -159,9 +182,11 @@ SqlUtil.getRows = function(tableName, startRowNum, rowsToFetch, usePaging) {
     return deferred.promise();
 };
 
-SqlUtil.fetchData = function(resultSetId, rowPosition, rowsToFetch, totalRows) {
+SqlUtil.fetchData = function(resultSetId, rowPosition, rowsToFetch, totalRows, sessionInfo) {
     var deferred = PromiseHelper.deferred();
     var finalData = [];
+    var {userName, userId, sessionName} = sessionInfo;
+    SqlUtil.setSessionInfo(userName, userId, sessionName);
     XcalarFetchData(resultSetId, rowPosition, rowsToFetch, totalRows, [], 0, 0)
     .then(function(result) {
         for (var i = 0, len = result.length; i < len; i++) {
@@ -172,15 +197,15 @@ SqlUtil.fetchData = function(resultSetId, rowPosition, rowsToFetch, totalRows) {
     .fail(deferred.reject);
     return deferred.promise();
 }
-SqlUtil.getResults = function(finalTable, orderedColumns, rowsToFetch, execid, usePaging) {
+SqlUtil.getResults = function(finalTable, orderedColumns, rowsToFetch, execid, usePaging, sessionInfo) {
     var deferred = jQuery.Deferred();
     var schema;
     var renameMap;
-    SqlUtil.getSchema(finalTable, orderedColumns)
+    SqlUtil.getSchema(finalTable, orderedColumns, sessionInfo)
     .then(function(res) {
         schema = res.schema;
         renameMap = res.renameMap;
-        return SqlUtil.getRows(finalTable, 1, rowsToFetch, usePaging);
+        return SqlUtil.getRows(finalTable, 1, rowsToFetch, usePaging, sessionInfo);
     })
     .then(function(data) {
         var res = {
@@ -202,10 +227,12 @@ SqlUtil.getResults = function(finalTable, orderedColumns, rowsToFetch, execid, u
     .fail(deferred.reject);
     return deferred.promise();
 }
-SqlUtil.getSchema = function(tableName, orderedColumns) {
+SqlUtil.getSchema = function(tableName, orderedColumns, sessionInfo) {
     // If orderedColumns gets passed in, it's for running a SQL query
     var deferred = PromiseHelper.deferred();
     var promise;
+    var {userName, userId, sessionName} = sessionInfo;
+    SqlUtil.setSessionInfo(userName, userId, sessionName);
     XcalarGetTableMeta(tableName)
     .then(function(res) {
         try {
