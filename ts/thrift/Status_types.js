@@ -680,7 +680,9 @@ StatusT = {
   'StatusSessMdataInconsistent' : 671,
   'StatusRuntimeChangeInProgress' : 672,
   'StatusSelectLimitReached' : 673,
-  'StatusLegacyTargetNotFound' : 674
+  'StatusLegacyTargetNotFound' : 674,
+  'StatusDfpError' : 675,
+  'StatusCgroupInProgress' : 676
 };
 StatusTStr = {
   0 : 'Success',
@@ -1301,7 +1303,7 @@ StatusTStr = {
   615 : 'XcalarRankOver column contains an invalid value',
   616 : 'Runtime parameters are invalid',
   617 : 'Invalid publish table name',
-  618 : 'Invalid publish table name',
+  618 : 'Publish table name already exists',
   619 : 'An unlicensed feature is in use',
   620 : 'The private key needed to sign the Xcalar license has not been properly provided',
   621 : 'The private key needed to sign the Xcalar license has an error',
@@ -1357,7 +1359,9 @@ StatusTStr = {
   671 : 'Possible inconsistency in session metadata',
   672 : 'Setting Runtime configuration already in progress',
   673 : 'Limit for select number of rows reached',
-  674 : 'Legacy target is not found'
+  674 : 'Legacy target is not found',
+  675 : 'Decimal floating point (DFP/Numeric) error',
+  676 : 'Cgroup App already in progress'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -1978,7 +1982,7 @@ StatusTFromStr = {
   'XcalarRankOver column contains an invalid value' : 615,
   'Runtime parameters are invalid' : 616,
   'Invalid publish table name' : 617,
-  'Invalid publish table name' : 618,
+  'Publish table name already exists' : 618,
   'An unlicensed feature is in use' : 619,
   'The private key needed to sign the Xcalar license has not been properly provided' : 620,
   'The private key needed to sign the Xcalar license has an error' : 621,
@@ -2034,5 +2038,7 @@ StatusTFromStr = {
   'Possible inconsistency in session metadata' : 671,
   'Setting Runtime configuration already in progress' : 672,
   'Limit for select number of rows reached' : 673,
-  'Legacy target is not found' : 674
+  'Legacy target is not found' : 674,
+  'Decimal floating point (DFP/Numeric) error' : 675,
+  'Cgroup App already in progress' : 676
 };
