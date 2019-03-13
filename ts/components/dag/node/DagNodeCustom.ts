@@ -19,7 +19,7 @@ class DagNodeCustom extends DagNode {
         this.display.icon = "&#xea5e;";
 
         if (options != null && options.subGraph != null
-            && options.outPorts != null && options.outPorts != null
+            && options.inPorts != null && options.outPorts != null
             && options.customName != null
         ) {
             // Deserialize sub graph
