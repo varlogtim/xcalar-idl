@@ -784,7 +784,7 @@ function getXCquery(params, type) {
     return deferred.promise();
 };
 
-function executeSql(params, type, workerThreading) {
+function executeSql(params, type) {
     var deferred = PromiseHelper.deferred();
     var finalTable;
     var orderedColumns;
@@ -856,7 +856,7 @@ function executeSql(params, type, workerThreading) {
                              params.userName, params.sessionName);
     })
     .then(function (plan) {
-        if (workerThreading) {
+        if (workerFlag) {
             var workerData = {
                 queryName: queryName,
                 planStr: plan,
@@ -877,7 +877,7 @@ function executeSql(params, type, workerThreading) {
         xcConsole.log("Compilation finished");
         orderedColumns = colNames;
         var prefixedQuery;
-        if (workerThreading) {
+        if (workerFlag) {
             prefixedQuery = xcQueryString;
             finalTable = newTableName;
         } else {
@@ -1116,7 +1116,7 @@ router.post("/xcsql/query", function(req, res) {
         queryName: req.body.queryTablePrefix,
         optimizations: optimizations
     }
-    executeSql(params, undefined, workerFlag)
+    executeSql(params, undefined)
     .then(function(executionOutput) {
         xcConsole.log("Sent schema for resultant table");
         res.send(executionOutput);
@@ -1164,7 +1164,7 @@ router.post("/xcsql/queryWithPublishedTables", [support.checkAuth],
         usePaging: usePaging,
         optimizations: optimizations
     }
-    executeSql(params, type, workerFlag)
+    executeSql(params, type)
     .then(function(output) {
         xcConsole.log("sql query finishes");
         res.send(output);

@@ -2,6 +2,10 @@ var express = require('express');
 var router = express.Router();
 var net = require('net');
 var serviceMgr = require('../serviceMgr')
+// set default timeout to 20 min
+var defaultSQLTimeout = process.env.EXP_SQL_TIMEOUT &&
+                        !isNaN(parseInt(process.env.EXP_SQL_TIMEOUT)) ?
+                        parseInt(process.env.EXP_SQL_TIMEOUT) : 1200000;
 
 function routeToXce(reqBuf, res) {
     var reqSizeBuf = Buffer.alloc(8);
@@ -82,6 +86,7 @@ function routeToXce(reqBuf, res) {
 }
 
 router.post("/service/xce", function(req, res) {
+    req.setTimeout(defaultSQLTimeout);
     var reqBuf = Buffer.from(req.body.data, 'base64');
 
    serviceMgr.handleService(reqBuf)
