@@ -6813,9 +6813,7 @@
                     "org.apache.spark.sql.catalyst.expressions.Literal")) {
                     // This is a special alias case
                     assert(evalList[i][1].dataType, SQLErrTStr.NoDataType);
-                    if (evalList[i][1].dataType !== "timestamp" &&
-                        evalList[i][1].dataType !== "date" &&
-                        evalList[i][1].value !== null) {
+                    if (evalList[i][1].value !== null) {
                         var dataType = convertSparkTypeToXcalarType(
                                                     evalList[i][1].dataType);
                         retStruct.evalStr = dataType + "(" +retStruct.evalStr + ")";
