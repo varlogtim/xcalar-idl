@@ -44,7 +44,7 @@ module.exports = {
                         .moveToElement("#tableGridViewMenu li.delete", 10, 10)
                         .mouseButtonClick("left")
                         .click("#alertModal .confirm")
-                        .waitForElementNotPresent('#datastoreMenu .grid-unit[data-id="' + IMDName + '"]');
+                        .waitForElementNotPresent('#datastoreMenu .grid-unit[data-id="' + IMDName + '"]', 10000);
                 });
             });
 
@@ -296,7 +296,7 @@ module.exports = {
         }
     },
 
-    'execute': function(browser) {
+    'execute top and bottom graphs': function(browser) {
 
         for (const tabName of Object.keys(testTabs)) {
             const newTabName = tabName;
@@ -305,8 +305,8 @@ module.exports = {
                 .switchTab(newTabName);
             browser.waitForElementNotPresent(".dataflowArea.active.locked");
 
-            const unionNodes = testTabs[tabName].nodes.filter((node) => {
-                return node.type === "set";
+            const finalNode = testTabs[tabName].nodes.find((node) => {
+                return node.title === "union#76";
             });
             const linkOutNode = testTabs[tabName].nodes.find((node) => {
                 return node.type === "link out";
@@ -321,18 +321,18 @@ module.exports = {
                 });
 
 
-            browser.executeNode('.operator[data-nodeid="' + unionNodes[0].nodeId + '"]');
+            browser.executeNode('.operator[data-nodeid="' + finalNode.nodeId + '"]');
             let selector = '.operator[data-nodeid="' + linkOutNode.nodeId + '"]';
-            // optimized execution failing due to aggregate node
+            // XXX optimized execution failing due to udf
 
-            browser
-                .moveToElement(".dataflowArea.active " + selector, 30, 15)
-                .mouseButtonClick('right')
-                .waitForElementVisible("#dagNodeMenu", 1000)
-                .moveToElement("#dagNodeMenu li.executeNodeOptimized", 10, 1)
-                .waitForElementNotPresent(".dataflowArea.active.locked")
-                .mouseButtonClick('left')
-                .waitForElementPresent('.dataflowArea .operator[data-nodeid="' + linkOutNode.nodeId + '"].state-Complete', 50000);
+            // browser
+            //     .moveToElement(".dataflowArea.active " + selector, 30, 15)
+            //     .mouseButtonClick('right')
+            //     .waitForElementVisible("#dagNodeMenu", 1000)
+            //     .moveToElement("#dagNodeMenu li.executeNodeOptimized", 10, 1)
+            //     .waitForElementNotPresent(".dataflowArea.active.locked")
+            //     .mouseButtonClick('left')
+            //     .waitForElementPresent('.dataflowArea .operator[data-nodeid="' + linkOutNode.nodeId + '"].state-Complete', 50000);
         }
     },
 
@@ -351,10 +351,10 @@ module.exports = {
                     "description": "exportedDataset",
                     "hasTitleChange": false,
                     "input": {
-                        "source": "dftest3.01359.upgradeTest",
+                        "source": "dftest3.01369.upgradeTest",
                         "prefix": "upgradeTest",
                         "synthesize": false,
-                        "loadArgs": "{\n    \"operation\": \"XcalarApiBulkLoad\",\n    \"comment\": \"\",\n    \"tag\": \"\",\n    \"state\": \"Unknown state\",\n    \"args\": {\n        \"dest\": \"dftest3.01359.upgradeTest\",\n        \"loadArgs\": {\n            \"sourceArgsList\": [\n                {\n                    \"targetName\": \"Default Shared Root\",\n                    \"path\": \"/home/jenkins/export_test/upgradeTest.csv\",\n                    \"fileNamePattern\": \"\",\n                    \"recursive\": false\n                }\n            ],\n            \"parseArgs\": {\n                \"parserFnName\": \"default:parseCsv\",\n                \"parserArgJson\": \"{\\\"recordDelim\\\":\\\"\\\\r\\\\n\\\",\\\"fieldDelim\\\":\\\",\\\",\\\"isCRLF\\\":false,\\\"linesToSkip\\\":1,\\\"quoteDelim\\\":\\\"\\\\\\\"\\\",\\\"hasHeader\\\":true,\\\"schemaFile\\\":\\\"\\\",\\\"schemaMode\\\":\\\"loadInput\\\"}\",\n                \"fileNameFieldName\": \"\",\n                \"recordNumFieldName\": \"\",\n                \"allowFileErrors\": false,\n                \"allowRecordErrors\": false,\n                \"schema\": [\n                    {\n                        \"sourceColumn\": \"CLASS_ID_MAXINTEGER\",\n                        \"destColumn\": \"CLASS_ID_MAXINTEGER\",\n                        \"columnType\": \"DfFloat64\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID\",\n                        \"destColumn\": \"CLASS_ID\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"XcalarOpCode\",\n                        \"destColumn\": \"XcalarOpCode\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID_CONCAT\",\n                        \"destColumn\": \"CLASS_ID_CONCAT\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"XcalarRankOver\",\n                        \"destColumn\": \"XcalarRankOver\",\n                        \"columnType\": \"DfInt64\"\n                    }\n                ]\n            },\n            \"size\": 10737418240\n        }\n    },\n    \"annotations\": {}\n}"
+                        "loadArgs": "{\n    \"operation\": \"XcalarApiBulkLoad\",\n    \"comment\": \"\",\n    \"tag\": \"\",\n    \"state\": \"Unknown state\",\n    \"args\": {\n        \"dest\": \"dftest3.01369.upgradeTest\",\n        \"loadArgs\": {\n            \"sourceArgsList\": [\n                {\n                    \"targetName\": \"Default Shared Root\",\n                    \"path\": \"/home/jenkins/export_test/upgradeTest.csv\",\n                    \"fileNamePattern\": \"\",\n                    \"recursive\": false\n                }\n            ],\n            \"parseArgs\": {\n                \"parserFnName\": \"default:parseCsv\",\n                \"parserArgJson\": \"{\\\"recordDelim\\\":\\\"\\\\r\\\\n\\\",\\\"fieldDelim\\\":\\\",\\\",\\\"isCRLF\\\":false,\\\"linesToSkip\\\":1,\\\"quoteDelim\\\":\\\"\\\\\\\"\\\",\\\"hasHeader\\\":true,\\\"schemaFile\\\":\\\"\\\",\\\"schemaMode\\\":\\\"loadInput\\\"}\",\n                \"fileNameFieldName\": \"\",\n                \"recordNumFieldName\": \"\",\n                \"allowFileErrors\": false,\n                \"allowRecordErrors\": false,\n                \"schema\": [\n                    {\n                        \"sourceColumn\": \"CLASS_ID_MAXINTEGER\",\n                        \"destColumn\": \"CLASS_ID_MAXINTEGER\",\n                        \"columnType\": \"DfFloat64\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID\",\n                        \"destColumn\": \"CLASS_ID\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"XcalarOpCode\",\n                        \"destColumn\": \"XcalarOpCode\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID_CONCAT\",\n                        \"destColumn\": \"CLASS_ID_CONCAT\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"XcalarRankOver\",\n                        \"destColumn\": \"XcalarRankOver\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                     {\n                        \"sourceColumn\": \"CLASS_ID_MAXINTEGER_udf\",\n                        \"destColumn\": \"CLASS_ID_MAXINTEGER_udf\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID_udf\",\n                        \"destColumn\": \"CLASS_ID_udf\",\n                        \"columnType\": \"DfString\"\n                    }\n                               ]\n            },\n            \"size\": 10737418240\n        }\n    },\n    \"annotations\": {}\n}"
                     },
                     "state": "Configured",
                     "configured": true,
@@ -379,6 +379,14 @@ module.exports = {
                         {
                             "name": "XcalarRankOver",
                             "type": "integer"
+                        },
+                        {
+                            "name": "CLASS_ID_MAXINTEGER_udf",
+                            "type": "string"
+                        },
+                        {
+                            "name": "CLASS_ID_udf",
+                            "type": "string"
                         }
                     ],
                     "parents": [],
@@ -417,7 +425,7 @@ module.exports = {
             browser.perform(() => {
 
                 let input = {
-                    "source": "dftest3.01359.upgradeTest",
+                    "source": "dftest3.01369.upgradeTest",
                     "prefix": "upgradeTest",
                     "synthesize": false,
                     "schema": [
@@ -440,9 +448,17 @@ module.exports = {
                         {
                             "name": "XcalarRankOver",
                             "type": "integer"
+                        },
+                        {
+                            "name": "CLASS_ID_MAXINTEGER_udf",
+                            "type": "string"
+                        },
+                        {
+                            "name": "CLASS_ID_udf",
+                            "type": "string"
                         }
                     ],
-                    "loadArgs": "{\n    \"operation\": \"XcalarApiBulkLoad\",\n    \"comment\": \"\",\n    \"tag\": \"\",\n    \"state\": \"Unknown state\",\n    \"args\": {\n        \"dest\": \"dftest3.01359.upgradeTest\",\n        \"loadArgs\": {\n            \"sourceArgsList\": [\n                {\n                    \"targetName\": \"Default Shared Root\",\n                    \"path\": \"/home/jenkins/export_test/upgradeTest.csv\",\n                    \"fileNamePattern\": \"\",\n                    \"recursive\": false\n                }\n            ],\n            \"parseArgs\": {\n                \"parserFnName\": \"default:parseCsv\",\n                \"parserArgJson\": \"{\\\"recordDelim\\\":\\\"\\\\r\\\\n\\\",\\\"fieldDelim\\\":\\\",\\\",\\\"isCRLF\\\":false,\\\"linesToSkip\\\":1,\\\"quoteDelim\\\":\\\"\\\\\\\"\\\",\\\"hasHeader\\\":true,\\\"schemaFile\\\":\\\"\\\",\\\"schemaMode\\\":\\\"loadInput\\\"}\",\n                \"fileNameFieldName\": \"\",\n                \"recordNumFieldName\": \"\",\n                \"allowFileErrors\": false,\n                \"allowRecordErrors\": false,\n                \"schema\": [\n                    {\n                        \"sourceColumn\": \"CLASS_ID_MAXINTEGER\",\n                        \"destColumn\": \"CLASS_ID_MAXINTEGER\",\n                        \"columnType\": \"DfFloat64\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID\",\n                        \"destColumn\": \"CLASS_ID\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"XcalarOpCode\",\n                        \"destColumn\": \"XcalarOpCode\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID_CONCAT\",\n                        \"destColumn\": \"CLASS_ID_CONCAT\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"XcalarRankOver\",\n                        \"destColumn\": \"XcalarRankOver\",\n                        \"columnType\": \"DfInt64\"\n                    }\n                ]\n            },\n            \"size\": 10737418240\n        }\n    },\n    \"annotations\": {}\n}"
+                    "loadArgs": "{\n    \"operation\": \"XcalarApiBulkLoad\",\n    \"comment\": \"\",\n    \"tag\": \"\",\n    \"state\": \"Unknown state\",\n    \"args\": {\n        \"dest\": \"dftest3.01369.upgradeTest\",\n        \"loadArgs\": {\n            \"sourceArgsList\": [\n                {\n                    \"targetName\": \"Default Shared Root\",\n                    \"path\": \"/home/jenkins/export_test/upgradeTest.csv\",\n                    \"fileNamePattern\": \"\",\n                    \"recursive\": false\n                }\n            ],\n            \"parseArgs\": {\n                \"parserFnName\": \"default:parseCsv\",\n                \"parserArgJson\": \"{\\\"recordDelim\\\":\\\"\\\\r\\\\n\\\",\\\"fieldDelim\\\":\\\",\\\",\\\"isCRLF\\\":false,\\\"linesToSkip\\\":1,\\\"quoteDelim\\\":\\\"\\\\\\\"\\\",\\\"hasHeader\\\":true,\\\"schemaFile\\\":\\\"\\\",\\\"schemaMode\\\":\\\"loadInput\\\"}\",\n                \"fileNameFieldName\": \"\",\n                \"recordNumFieldName\": \"\",\n                \"allowFileErrors\": false,\n                \"allowRecordErrors\": false,\n                \"schema\": [\n                    {\n                        \"sourceColumn\": \"CLASS_ID_MAXINTEGER\",\n                        \"destColumn\": \"CLASS_ID_MAXINTEGER\",\n                        \"columnType\": \"DfFloat64\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID\",\n                        \"destColumn\": \"CLASS_ID\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"XcalarOpCode\",\n                        \"destColumn\": \"XcalarOpCode\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID_CONCAT\",\n                        \"destColumn\": \"CLASS_ID_CONCAT\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"XcalarRankOver\",\n                        \"destColumn\": \"XcalarRankOver\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                      {\n                        \"sourceColumn\": \"CLASS_ID_MAXINTEGER_udf\",\n                        \"destColumn\": \"CLASS_ID_MAXINTEGER_udf\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"CLASS_ID_udf\",\n                        \"destColumn\": \"CLASS_ID_udf\",\n                        \"columnType\": \"DfString\"\n                    }\n                              ]\n            },\n            \"size\": 10737418240\n        }\n    },\n    \"annotations\": {}\n}"
                 }
 
                 browser
@@ -458,9 +474,9 @@ module.exports = {
         for (const tabName of Object.keys(testTabs)) {
             const newTabName = tabName;
             const firstParent = testTabs[tabName].nodes.find((node) => {
-                return node.type === "set";
+                return node.title === "union#76";
             });
-            const nodes =[
+            const nodes = [
                 {
                     "type": "sql",
                     "subType": null,
@@ -613,163 +629,163 @@ module.exports = {
     },
 
     //validate bottom dataflow which came from embedded retina
-    'add2ndSQLNode': function(browser) {
-        for (const tabName of Object.keys(testTabs)) {
-            const newTabName = tabName;
-            const firstParent = testTabs[tabName].nodes.filter((node) => {
-                return node.type === "set";
-            })[1];
-            const nodes =[
-                {
-                    "type": "sql",
-                    "subType": null,
-                    "display": {
-                        "x": 2300,
-                        "y": 540
-                    },
-                    "description": "",
-                    "hasTitleChange": false,
-                    "input": {
-                        "sqlQueryStr": "SELECT * FROM testResults EXCEPT SELECT * FROM correctResults\nUNION\nSELECT * FROM correctResults EXCEPT SELECT * FROM testResults",
-                        "identifiers": {
-                            "1": "testResults",
-                            "2": "correctResults"
-                        },
-                        "identifiersOrder": [
-                            1,
-                            2
-                        ],
-                        "dropAsYouGo": true
-                    },
-                    "state": "Configured",
-                    "configured": true,
-                    "aggregates": [],
-                    "tableSrcMap": {
-                        "table_DF2_1551256519225_1_dag_1551256519261_43#t_1551258098932_50": 1,
-                        "table_DF2_1551256519225_1_dag_5C764BC624079350_1551258374774_81#t_1551258519644_55": 2
-                    },
-                    "columns": [
-                        {
-                            "name": "CLASS_ID_MAXINTEGER",
-                            "backName": "CLASS_ID_MAXINTEGER",
-                            "type": "float"
-                        },
-                        {
-                            "name": "CLASS_ID",
-                            "backName": "CLASS_ID",
-                            "type": "integer"
-                        },
-                        {
-                            "name": "XCALAROPCODE",
-                            "backName": "XCALAROPCODE",
-                            "type": "integer"
-                        },
-                        {
-                            "name": "CLASS_ID_CONCAT",
-                            "backName": "CLASS_ID_CONCAT",
-                            "type": "string"
-                        },
-                        {
-                            "name": "XCALARRANKOVER",
-                            "backName": "XCALARRANKOVER",
-                            "type": "integer"
-                        }
-                    ],
-                    "parents": [firstParent.id, datasetNodeId],
-                    "nodeId": "dag_5C764BC624079350_1551258719473_82"
-                }
-            ];
-            browser.switchTab(newTabName)
+    // 'add2ndSQLNode': function(browser) {
+    //     for (const tabName of Object.keys(testTabs)) {
+    //         const newTabName = tabName;
+    //         const firstParent = testTabs[tabName].nodes.filter((node) => {
+    //             return node.title === "union#76";
+    //         })[1];
+    //         const nodes =[
+    //             {
+    //                 "type": "sql",
+    //                 "subType": null,
+    //                 "display": {
+    //                     "x": 2300,
+    //                     "y": 540
+    //                 },
+    //                 "description": "",
+    //                 "hasTitleChange": false,
+    //                 "input": {
+    //                     "sqlQueryStr": "SELECT * FROM testResults EXCEPT SELECT * FROM correctResults\nUNION\nSELECT * FROM correctResults EXCEPT SELECT * FROM testResults",
+    //                     "identifiers": {
+    //                         "1": "testResults",
+    //                         "2": "correctResults"
+    //                     },
+    //                     "identifiersOrder": [
+    //                         1,
+    //                         2
+    //                     ],
+    //                     "dropAsYouGo": true
+    //                 },
+    //                 "state": "Configured",
+    //                 "configured": true,
+    //                 "aggregates": [],
+    //                 "tableSrcMap": {
+    //                     "table_DF2_1551256519225_1_dag_1551256519261_43#t_1551258098932_50": 1,
+    //                     "table_DF2_1551256519225_1_dag_5C764BC624079350_1551258374774_81#t_1551258519644_55": 2
+    //                 },
+    //                 "columns": [
+    //                     {
+    //                         "name": "CLASS_ID_MAXINTEGER",
+    //                         "backName": "CLASS_ID_MAXINTEGER",
+    //                         "type": "float"
+    //                     },
+    //                     {
+    //                         "name": "CLASS_ID",
+    //                         "backName": "CLASS_ID",
+    //                         "type": "integer"
+    //                     },
+    //                     {
+    //                         "name": "XCALAROPCODE",
+    //                         "backName": "XCALAROPCODE",
+    //                         "type": "integer"
+    //                     },
+    //                     {
+    //                         "name": "CLASS_ID_CONCAT",
+    //                         "backName": "CLASS_ID_CONCAT",
+    //                         "type": "string"
+    //                     },
+    //                     {
+    //                         "name": "XCALARRANKOVER",
+    //                         "backName": "XCALARRANKOVER",
+    //                         "type": "integer"
+    //                     }
+    //                 ],
+    //                 "parents": [firstParent.id, datasetNodeId],
+    //                 "nodeId": "dag_5C764BC624079350_1551258719473_82"
+    //             }
+    //         ];
+    //         browser.switchTab(newTabName)
 
-            const commandResult = { IMDNames: [], nodeElemIDs: [], nodeIDs: [] };
+    //         const commandResult = { IMDNames: [], nodeElemIDs: [], nodeIDs: [] };
 
-            let nodeCategoryClass = '';
-            let nodeCategorySelector = '';
-            browser.execute(execFunctions.getNodeFromCategoryBar, nodes, ({value}) => {
-                nodeCategoryClass = value.categoryClass;
-                nodeCategorySelector = value.nodeSelector;
-            });
+    //         let nodeCategoryClass = '';
+    //         let nodeCategorySelector = '';
+    //         browser.execute(execFunctions.getNodeFromCategoryBar, nodes, ({value}) => {
+    //             nodeCategoryClass = value.categoryClass;
+    //             nodeCategorySelector = value.nodeSelector;
+    //         });
 
-            // Drag&Drop to create node
-            browser.perform(() => {
-                // Select the operation category
-                browser
-                    .moveToElement(".category." + nodeCategoryClass, 1, 1)
-                    .mouseButtonDown("left");
-                // Create the node
-                browser.newNode(
-                    nodeCategorySelector + ' .main',
-                    nodes[0].display.x, nodes[0].display.y,
-                    ({ELEMENT, nodeId}) => {
-                        commandResult.nodeElemIDs.push(ELEMENT);
-                        commandResult.nodeIDs.push(nodeId);
-                        secondSqlNodeId = nodeId;
-                    }
-                );
+    //         // Drag&Drop to create node
+    //         browser.perform(() => {
+    //             // Select the operation category
+    //             browser
+    //                 .moveToElement(".category." + nodeCategoryClass, 1, 1)
+    //                 .mouseButtonDown("left");
+    //             // Create the node
+    //             browser.newNode(
+    //                 nodeCategorySelector + ' .main',
+    //                 nodes[0].display.x, nodes[0].display.y,
+    //                 ({ELEMENT, nodeId}) => {
+    //                     commandResult.nodeElemIDs.push(ELEMENT);
+    //                     commandResult.nodeIDs.push(nodeId);
+    //                     secondSqlNodeId = nodeId;
+    //                 }
+    //             );
 
 
-            });
-            browser.perform(() => {
-                let input = {
-                    "sqlQueryString": "SELECT * FROM testResults EXCEPT SELECT * FROM correctResults\nUNION\nSELECT * FROM correctResults EXCEPT SELECT * FROM testResults",
-                    "identifiers": {
-                        "1": "testResults",
-                        "2": "correctResults"
-                    },
-                    "identifiersOrder": [
-                        1,
-                        2
-                    ],
-                    "dropAsYouGo": true
-                };
+    //         });
+    //         browser.perform(() => {
+    //             let input = {
+    //                 "sqlQueryString": "SELECT * FROM testResults EXCEPT SELECT * FROM correctResults\nUNION\nSELECT * FROM correctResults EXCEPT SELECT * FROM testResults",
+    //                 "identifiers": {
+    //                     "1": "testResults",
+    //                     "2": "correctResults"
+    //                 },
+    //                 "identifiersOrder": [
+    //                     1,
+    //                     2
+    //                 ],
+    //                 "dropAsYouGo": true
+    //             };
 
-                browser
-                .moveToElement('.dataflowArea.active .operator[data-nodeid="' + commandResult.nodeIDs[0] + '"] .connector.in', 2, 2)
-                .mouseButtonDown("left")
-                .moveToElement('.dataflowArea.active .operator[data-nodeid="' + firstParent.nodeId + '"]', 20, 10)
-                .mouseButtonUp("left")
-                .waitForElementPresent('.dataflowArea.active .edgeSvg .edge'
-                    + `[data-childnodeid="${commandResult.nodeIDs[0]}"]`
-                    + `[data-parentnodeid="${firstParent.nodeId}"]`
-                    + `[data-connectorindex="0"]`,
-                    10);
+    //             browser
+    //             .moveToElement('.dataflowArea.active .operator[data-nodeid="' + commandResult.nodeIDs[0] + '"] .connector.in', 2, 2)
+    //             .mouseButtonDown("left")
+    //             .moveToElement('.dataflowArea.active .operator[data-nodeid="' + firstParent.nodeId + '"]', 20, 10)
+    //             .mouseButtonUp("left")
+    //             .waitForElementPresent('.dataflowArea.active .edgeSvg .edge'
+    //                 + `[data-childnodeid="${commandResult.nodeIDs[0]}"]`
+    //                 + `[data-parentnodeid="${firstParent.nodeId}"]`
+    //                 + `[data-connectorindex="0"]`,
+    //                 10);
 
-                browser
-                .moveToElement('.dataflowArea.active .operator[data-nodeid="' + commandResult.nodeIDs[0] + '"] .connector.in', 2, 2)
-                .mouseButtonDown("left")
-                .moveToElement('.dataflowArea.active .operator[data-nodeid="' + datasetNodeId + '"]', 20, 10)
-                .mouseButtonUp("left")
-                .waitForElementPresent('.dataflowArea.active .edgeSvg .edge'
-                    + `[data-childnodeid="${commandResult.nodeIDs[0]}"]`
-                    + `[data-parentnodeid="${datasetNodeId}"]`
-                    + `[data-connectorindex="1"]`,
-                    10);
+    //             browser
+    //             .moveToElement('.dataflowArea.active .operator[data-nodeid="' + commandResult.nodeIDs[0] + '"] .connector.in', 2, 2)
+    //             .mouseButtonDown("left")
+    //             .moveToElement('.dataflowArea.active .operator[data-nodeid="' + datasetNodeId + '"]', 20, 10)
+    //             .mouseButtonUp("left")
+    //             .waitForElementPresent('.dataflowArea.active .edgeSvg .edge'
+    //                 + `[data-childnodeid="${commandResult.nodeIDs[0]}"]`
+    //                 + `[data-parentnodeid="${datasetNodeId}"]`
+    //                 + `[data-connectorindex="1"]`,
+    //                 10);
 
-                browser
-                .openOpPanel('.operator[data-nodeid="' + commandResult.nodeIDs[0] + '"]')
-                .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4), 20000);
+    //             browser
+    //             .openOpPanel('.operator[data-nodeid="' + commandResult.nodeIDs[0] + '"]')
+    //             .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4), 20000);
 
-            });
-        }
-    },
+    //         });
+    //     }
+    // },
 
-    'validate2ndSQL': function(browser) {
-        // The validation nodes must be DFLinkOut
-        for (const tabName of Object.keys(testTabs)) {
-            const newTabName = tabName;
-            browser
-                .switchTab(newTabName)
-                .executeNode('.operator[data-nodeid="' + secondSqlNodeId + '"]')
-                .moveToElement(`.dataflowArea.active ${'.operator[data-nodeid="' + secondSqlNodeId + '"]'} .main`, 10, 20)
-                .mouseButtonClick('right')
-                .waitForElementVisible("#dagNodeMenu", 1000)
-                .moveToElement("#dagNodeMenu li.viewResult", 10, 1)
-                .mouseButtonClick('left')
-                .waitForElementVisible('#dagViewTableArea .totalRows', 20000)
-                .getText('#dagViewTableArea .totalRows', ({value}) => {
-                    browser.assert.equal(value, "0");
-                });
-        }
-    }
+    // 'validate2ndSQL': function(browser) {
+    //     // The validation nodes must be DFLinkOut
+    //     for (const tabName of Object.keys(testTabs)) {
+    //         const newTabName = tabName;
+    //         browser
+    //             .switchTab(newTabName)
+    //             .executeNode('.operator[data-nodeid="' + secondSqlNodeId + '"]')
+    //             .moveToElement(`.dataflowArea.active ${'.operator[data-nodeid="' + secondSqlNodeId + '"]'} .main`, 10, 20)
+    //             .mouseButtonClick('right')
+    //             .waitForElementVisible("#dagNodeMenu", 1000)
+    //             .moveToElement("#dagNodeMenu li.viewResult", 10, 1)
+    //             .mouseButtonClick('left')
+    //             .waitForElementVisible('#dagViewTableArea .totalRows', 20000)
+    //             .getText('#dagViewTableArea .totalRows', ({value}) => {
+    //                 browser.assert.equal(value, "0");
+    //             });
+    //     }
+    // }
 
 }

@@ -901,6 +901,7 @@ function _getDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix) {
                         }),
                         "rename": rightRenames
                     },
+                    keepAllColumns: true,
                     evalString: node.args.evalString
                 }
             };
@@ -1108,6 +1109,7 @@ function _getDagNodeInfo(node, nodes, dagNodeInfos, isRetina, nestedPrefix) {
     dagNodeInfo.aggregates = node.aggregates;
     dagNodeInfo.table = node.name;
     dagNodeInfo.title = node.name.slice(node.name.lastIndexOf(":") + 1); // slice out retina prefix
+    dagNodeInfo.hasTitleChange = true;
     dagNodeInfo.id = "dag_" + new Date().getTime() + "_" + idCount++;
     dagNodeInfo.nodeId = dagNodeInfo.id;
     dagNodeInfo.children = [];

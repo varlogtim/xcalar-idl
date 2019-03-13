@@ -531,6 +531,7 @@ abstract class DagNode {
         }
         if (!this.hasTitleChange && !includeTitle) {
             delete nodeInfo.title;
+            delete nodeInfo.hasTitleChange;
         }
         return nodeInfo;
     }

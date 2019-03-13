@@ -718,7 +718,7 @@ class SQLOpPanel extends BaseOpPanel {
 
     private _renderDropAsYouGo(): void {
         let dropAsYouGo: boolean = this._dataModel.isDropAsYouGo();
-        this._toggleDropAsYouGo(dropAsYouGo); 
+        this._toggleDropAsYouGo(dropAsYouGo);
     }
 
     private _extractIdentifiers(validate: boolean = false): Map<number, string> {
@@ -958,8 +958,7 @@ class SQLOpPanel extends BaseOpPanel {
                 "default": "",
                 "examples": [
                   "SELECT * from t"
-                ],
-                "pattern": "^(.*)$"
+                ]
               },
               "identifiers": {
                 "$id": "#/properties/identifiers",
