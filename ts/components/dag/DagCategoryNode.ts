@@ -21,7 +21,7 @@ class DagCategoryNode {
         return this.node;
     }
 
-    public getNodeType(): string {
+    public getNodeType(): DagNodeType {
         return this.node.getType();
     }
 
