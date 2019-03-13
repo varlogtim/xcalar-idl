@@ -208,7 +208,7 @@ class TblSourcePreview {
             tableInfo.state == null
         ) {
             // when it's a normal table
-            html += this._getNextStepButton();
+            html = this._getNextStepButton() + html;
             html += '<span class="action xc-action"></span>';
         }
 
@@ -219,13 +219,13 @@ class TblSourcePreview {
         let html: HTML;
         if (XVM.isSQLMode()) {
             html =
-            '<button class="nextStep writeSQL btn btn-clear iconBtn">' +
-                '<i class="icon xi-menu-sql"></i>' +
+            '<button class="nextStep writeSQL btn btn-submit iconBtn">' +
+                '<i class="icon xi-newSQL"></i>' +
                 TblTStr.WriteSQL +
             '</button>';
         } else {
             html =
-            '<button class="nextStep createDF btn btn-clear iconBtn">' +
+            '<button class="nextStep createDF btn btn-submit iconBtn">' +
                 '<i class="icon xi-dfg2"></i>' +
                 TblTStr.CreateDF +
             '</button>';

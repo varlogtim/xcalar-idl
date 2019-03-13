@@ -13,6 +13,10 @@
     <div class="infoSection flexContainer">
       <!-- left part -->
       <div class="contentSection flexContainer">
+        <button id="createDF" class="btn btn-submit iconBtn">
+          <i class="icon xi-dfg2"></i>
+          <%= dicts.dsTable.createDF %>
+        </button>
         <span id="dsInfo-title"><%= dicts.ds.Datasets %></span>
         <span class="divider">|</span>
         <span><%= dicts.dsTable.Path %>:</span>
@@ -26,10 +30,6 @@
           <i class="icon xi-show"></i>
           <%= dicts.dsTable.clickToView %>
         </button>
-        <button id="createDF" class="btn btn-clear iconBtn">
-            <i class="icon xi-dfg2"></i>
-            <%= dicts.dsTable.createDF %>
-          </button>
       </div>
       <div class="flexWrap flex-left">
         <div class="contentSection">
