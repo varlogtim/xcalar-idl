@@ -1516,7 +1516,7 @@ window.DSPreview = (function($, DSPreview) {
         var $row = $advanceSection.find(".termination");
         var option;
         var hasAdvancedArg = false;
-        
+
         if (allowRecordErrors === true && allowFileErrors === true) {
             option = "continue";
             hasAdvancedArg = true;
@@ -1995,7 +1995,7 @@ window.DSPreview = (function($, DSPreview) {
                     "error": isCreateTableMode() ? ErrTStr.InvalidPublishedTableName : ErrTStr.NoSpecialCharOrSpace,
                     "check": function() {
                         let invalid = isCreateTableMode() ?
-                        !xcHelper.isValidPublishedTableName(dsName): 
+                        !xcHelper.isValidPublishedTableName(dsName):
                         !xcHelper.checkNamePattern(PatternCategory.Dataset, PatternAction.Check, dsName);
                         return invalid;
                     }
@@ -4811,10 +4811,13 @@ window.DSPreview = (function($, DSPreview) {
 
             tdData = stripQuote(tdData, quote);
             val = tdData.join("");
-            if (strToDelimit !== "\n") {
+            val = xcHelper.escapeDblQuoteForHTML(xcHelper.escapeHTMLSpecialChar(val));
+            // escape before we call styleNewLineChar because this function
+            // may add html tags which we don't want escaped
+            if (strToDelimit !== "\n" && !isTh) {
                 val = xcHelper.styleNewLineChar(val);
             }
-            val = xcHelper.escapeDblQuoteForHTML(xcHelper.escapeHTMLSpecialChar(val));
+
             html += val;
             tdData = [];
         } else {

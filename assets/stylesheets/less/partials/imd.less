@@ -90,6 +90,7 @@
 
     @listWidth: 280px;
     @listHeaderHeight: 36px;
+    white-space: initial; // to counter dsPanel's whitespace
 
     .tableSection {
         position: absolute; // positioned absolute for resizing ability
@@ -161,7 +162,7 @@
                 .position(relative, @top: -5px);
                 padding: 0;
                 margin-right: 5px;
-    
+
                 &:before {
                     .position(relative, @top: 5px, @left: 5px);
                 }
@@ -799,6 +800,8 @@
             width: 100%;
             margin-top: 10px;
             padding-right: 0px;
+            line-height: 36px;
+            height: 36px;
         }
         .advancedOptions {
             display:none;
