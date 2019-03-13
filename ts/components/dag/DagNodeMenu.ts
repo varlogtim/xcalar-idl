@@ -547,6 +547,9 @@ namespace DagNodeMenu {
         if (activeTab instanceof DagTabSQL) {
             classes += ' viewOnly SQLTab ';
         }
+        if (activeTab instanceof DagTabSQLFunc) {
+            classes += ' SQLFuncTab '
+        }
         if (activeTab instanceof DagTabCustom) {
             classes += ' customTab ';
         }

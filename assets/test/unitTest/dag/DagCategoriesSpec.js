@@ -2,6 +2,9 @@ describe("DagCategories Test", function() {
     let dagCategories;
     before(function() {
         console.log("DagCategories Test");
+        if (XVM.isSQLMode()) {
+            $("#modeArea").click();
+        }
         dagCategories = new DagCategories();
     });
 
@@ -249,18 +252,6 @@ describe("DagCategories Test", function() {
                     type: DagNodeType.SQLSubOutput
                 }), true),
             ]);
-
-            customCategory = new DagCategoryCustom([
-                new DagCategoryNode(DagNodeFactory.create({
-                    type: DagNodeType.Custom
-                }), DagCategoryType.Custom, true),
-                new DagCategoryNode(DagNodeFactory.create({
-                    type: DagNodeType.CustomInput
-                }), DagCategoryType.Custom, true),
-                new DagCategoryNode(DagNodeFactory.create({
-                    type: DagNodeType.CustomOutput
-                }), DagCategoryType.Custom, true)
-            ], 'gUserCustomOpKey');
 
         });
 

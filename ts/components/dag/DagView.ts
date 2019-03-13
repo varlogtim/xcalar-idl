@@ -3204,8 +3204,6 @@ class DagView {
         return $node;
     }
 
-
-
     private _updateConnectorIn(nodeId: DagNodeId, numInputs: number) {
         const g = d3.select(this._getNode(nodeId)[0]);
         DagCategoryBar.Instance.updateNodeConnectorIn(numInputs, g);
@@ -3215,8 +3213,6 @@ class DagView {
         const g = d3.select(this._getNode(nodeId)[0]);
         DagCategoryBar.Instance.updateNodeConnectorOut(numberOutputs, g);
     }
-
-
 
     public updateNodeState(nodeInfo: {
         id: DagNodeId,
