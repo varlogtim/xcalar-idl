@@ -55,6 +55,7 @@ window.UnitTest = (function(UnitTest, $) {
                                         getTestResult() +
                                     '</div>');
                     if (window.location.search.indexOf("noPopup=y") < 0) {
+                        console.log("Test Exited");
                         alert("Test Exited");
                     }
                 }

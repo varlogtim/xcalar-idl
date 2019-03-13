@@ -26,7 +26,7 @@ class DagCategories {
             }), DagCategoryType.Hidden)
         ]);
 
-        let inCategory = null;
+        let inCategory: DagCategory;
         if (sqlFunc) {
             inCategory = new DagCategory(DagCategoryType.In, [
                 new DagCategoryNodeIn(DagNodeFactory.create({
@@ -241,9 +241,9 @@ class DagCategories {
         if (sqlFunc) {
             // XXX TODO: verify it's valid or not XD-261
             this.categories = this.categories.filter((category) => {
-                let categoryName = category.getName();
-                return categoryName !== DagCategoryType.Extensions &&
-                categoryName !== DagCategoryType.Custom;
+                let categoryType = category.getType();
+                return categoryType !== DagCategoryType.Extensions &&
+                categoryType !== DagCategoryType.Custom;
             });
         }
     }
@@ -583,7 +583,6 @@ class DagCategoryCustom extends DagCategory {
      */
     public genOperatorName(prefix: string): string {
         const nameSet = this._getOperatorDisplayNames();
-
         let limitCount = 1000;
         const step = 100;
         let start = 1;
