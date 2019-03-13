@@ -412,8 +412,8 @@ namespace XIApi {
         joinType: number,
         lRename: ColRenameInfo[],
         rRename: ColRenameInfo[],
-        options: {evalString: string, keepAllColumns: boolean, nullSafe: boolean}
-                 = {evalString: "", keepAllColumns: true, nullSafe: false}
+        options: {evalString: string, keepAllColumns: boolean, nullSafe: boolean, key: string[][]}
+                 = {evalString: "", keepAllColumns: true, nullSafe: false, key: undefined}
     ): XDPromise<string[]> {
         const deferred: XDDeferred<string[]> = PromiseHelper.deferred();
         const simuldateTxId: number = startSimulate();
@@ -845,6 +845,7 @@ namespace XIApi {
             }
             let joinType: JoinType = JoinOperatorT.InnerJoin;
             let evalString: string = "";
+            let key: string[][] = undefined;
             if (joinCols.length === 0) {
                 joinType = JoinOperatorT.CrossJoin;
             } else {
@@ -858,6 +859,7 @@ namespace XIApi {
                     });
                     tempCols.push(newColName);
                 });
+                key = [joinCols, joinCols];
             }
 
             let newTableName: string;
@@ -871,8 +873,12 @@ namespace XIApi {
                 tempTables.push(newTableName);
             }
 
-            let joinOptions = {evalString: evalString,
-                               keepAllColumns: true, nullSafe: true};
+            let joinOptions = {
+                evalString: evalString,
+                keepAllColumns: true,
+                nullSafe: true,
+                key: key
+            };
             promises.push(joinHelper.bind(this, txId, curTableName, rTableName,
                         newTableName, joinType, [], rRename, joinOptions));
             curTableName = newTableName;
@@ -939,11 +945,12 @@ namespace XIApi {
         newTableName: string,
         colInfos: ColRenameInfo[][],
         dedup: boolean,
-        unionType: UnionOperatorT
+        unionType: UnionOperatorT,
+        indexKeys: string[]
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const simuldateTxId: number = startSimulate();
-        XcalarUnion(tableNames, newTableName, colInfos, dedup, unionType, simuldateTxId)
+        XcalarUnion(tableNames, newTableName, colInfos, dedup, unionType, indexKeys, simuldateTxId)
         .then(() => {
             const query: string = endSimulate(simuldateTxId);
             const queryName: string = newTableName;
@@ -1077,7 +1084,9 @@ namespace XIApi {
         txId: number,
         unionRenameInfo: UnionRenameInfo,
         indexColName: string,
-        tempTables: string[]
+        tempTables: string[],
+        index: number,
+        indexKeys: string[][]
     ): XDPromise<void> {
         // step 1: concat all columns
         // step 2: index on the concat column
@@ -1093,7 +1102,7 @@ namespace XIApi {
         const concatColName: string =  xcHelper.randName("XC_CONCAT");
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let curTableName: string = unionRenameInfo.tableName;
-
+        indexKeys[index] = [concatColName];
         // step 1, concat all cols into one col
         XIApi.map(txId, [mapStr], curTableName, [concatColName])
         .then((tableAfterMap) => {
@@ -1122,15 +1131,16 @@ namespace XIApi {
         unionRenameInfos: UnionRenameInfo[]
     ): XDPromise<UnionRenameInfo[]> {
         const tempTables: string[] = [];
+        const indexKeys: string[][] = [];
         const indexColName: string = xcHelper.randName("XC_UNION_INDEX");
-        const promises: XDPromise<void>[] = unionRenameInfos.map((renameInfo) => {
-            return unionAllIndexHelper(txId, renameInfo, indexColName, tempTables);
+        const promises: XDPromise<void>[] = unionRenameInfos.map((renameInfo, i) => {
+            return unionAllIndexHelper(txId, renameInfo, indexColName, tempTables, i, indexKeys);
         });
 
         const deferred: XDDeferred<UnionRenameInfo[]> = PromiseHelper.deferred();
         PromiseHelper.when.apply(this, promises)
         .then(() => {
-            deferred.resolve(unionRenameInfos, tempTables);
+            deferred.resolve(unionRenameInfos, tempTables, indexKeys);
         })
         .fail(deferred.reject);
 
@@ -1908,7 +1918,12 @@ namespace XIApi {
             newTableName = getNewJoinTableName(lTableName, rTableName, newTableName);
             // Step 3: Join
             // cross join or normal join
-            const joinOptions = { evalString: '', keepAllColumns: true, nullSafe: false };
+            const joinOptions = {
+                evalString: '',
+                keepAllColumns: true,
+                nullSafe: false,
+                key: [lRes.newKeys, rRes.newKeys]
+            };
             if (options && options.evalString) {
                 // Join with non equal condition case
                 joinOptions.evalString = options.evalString;
@@ -2121,10 +2136,10 @@ namespace XIApi {
             if (dedup || unionType !== UnionOperatorT.UnionStandard) {
                 return unionAllIndex(txId, unionRenameInfos);
             } else {
-                return PromiseHelper.resolve(unionRenameInfos, []);
+                return PromiseHelper.resolve(unionRenameInfos, [], []);
             }
         })
-        .then((unionRenameInfos: UnionRenameInfo[], resTempTables: string[]) => {
+        .then((unionRenameInfos: UnionRenameInfo[], resTempTables: string[], indexKeys: string[]) => {
             tempTables = tempTables.concat(resTempTables);
 
             const tableNames: string[] = [];
@@ -2133,7 +2148,7 @@ namespace XIApi {
                 tableNames.push(tableInfo.tableName);
                 colInfos.push(tableInfo.renames);
             });
-            return unionHelper(txId, tableNames, newTableName, colInfos, dedup, unionType);
+            return unionHelper(txId, tableNames, newTableName, colInfos, dedup, unionType, indexKeys);
         })
         .then(() => {
             const newTableCols: {rename: string, type: ColumnType}[] = tableInfos[0].columns.map((col) => {

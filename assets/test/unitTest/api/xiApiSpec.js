@@ -910,11 +910,12 @@ describe('XIApi Test', () => {
                 }]
             };
             unionAllIndex(txId, [renameInfo])
-                .then((unionRenameInfos, tempTables) => {
+                .then((unionRenameInfos, tempTables, indexKeys) => {
                     expect(unionRenameInfos.length).to.equal(1);
                     expect(unionRenameInfos[0].tableName).to.equal('testIndexTable');
                     expect(unionRenameInfos[0].renames.length).to.equal(2);
                     expect(tempTables.length).to.equal(2);
+                    expect(indexKeys.length).to.equal(1);
                     done();
                 })
                 .fail(() => {

@@ -310,6 +310,20 @@ function colInfoMap(colInfo: ColRenameInfo) {
     return map;
 }
 
+// XXX hack way to add the key, should use a better way
+function addKeyAttrToQuery(query: string, key: string[][]): string {
+    if (key == null) {
+        return query;
+    }
+    try {
+        let parsedQuery = JSON.parse(query);
+        parsedQuery.args.key = key;
+        query = JSON.stringify(parsedQuery);
+    } catch(e) {
+        console.error(e);
+    }
+    return query;
+}
 // Should check if the function returns a promise
 // but that would require an extra function call
 if (!has_require) {
@@ -2037,12 +2051,6 @@ XcalarGetTables = function(tableName?: string): XDPromise<any> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
-    // if (!sessionName) {
-    //     const thriftError = thriftLog("XcalarGetTables", "Invalid Session");
-    //     Log.errorLog("Get Tables", null, null, thriftError);
-    //     return PromiseHelper.reject(thriftError);
-    // }
-
     const deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
@@ -2594,13 +2602,13 @@ XcalarJoin = function(
     joinType: JoinOperatorT,
     leftColInfos: ColRenameInfo[],
     rightColInfos: ColRenameInfo[],
-    options: {evalString: string, keepAllColumns: boolean, nullSafe: boolean},
+    options: {evalString: string, keepAllColumns: boolean, nullSafe: boolean, key: string[][]},
     txId: number
 ): XDPromise<any> {
     // If this flag is set to false, then any column that is not in left columns
     // or right columns will be dropped. This should eventually be set to false.
     // Alternatively it should be exposed to the user.
-    let { keepAllColumns = true, evalString = '', nullSafe = false } = (options || {});
+    let { keepAllColumns = true, evalString = '', nullSafe = false, key = null } = (options || {});
 
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
     let query: string;
@@ -2636,6 +2644,8 @@ XcalarJoin = function(
             evalString, keepAllColumns);
     }
     query = XcalarGetQuery(workItem);
+    // XXX hack way to add the key, should use a better way
+    query = addKeyAttrToQuery(query, key);
     Transaction.startSubQuery(txId, 'join', dst, query);
 
     def
@@ -2855,6 +2865,7 @@ XcalarUnion = function(
     colInfos: ColRenameInfo[][],
     dedup: boolean = false,
     unionType: UnionOperatorT = UnionOperatorT.UnionStandard,
+    indexKeys: string[][],
     txId: number
 ): XDPromise<any> {
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
@@ -2877,7 +2888,9 @@ XcalarUnion = function(
         }
         def = xcalarUnion(tHandle, tableNames, newTableName, columns, dedup, unionType);
     }
-    query = XcalarGetQuery(workItem); // XXX test
+    query = XcalarGetQuery(workItem);
+    // XXX hack way to add the key, should use a better way
+    query = addKeyAttrToQuery(query, indexKeys);
     Transaction.startSubQuery(txId, 'union', newTableName, query);
 
     def
