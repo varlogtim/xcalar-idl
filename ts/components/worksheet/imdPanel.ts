@@ -1793,7 +1793,7 @@ namespace IMDPanel {
     // creates a new dataflow and puts IMD In nodes there
     function refreshTablesToDataflow(tableInfos: DagNodeIMDTableInputStruct[]): void {
         const numTables: number = tableInfos.length;
-
+        XVM.setMode(XVM.Mode.Advanced);
         MainMenu.openPanel("dagPanel", null);
         DagTabManager.Instance.newTab();
         for(let i = 0; i < numTables; i++) {
