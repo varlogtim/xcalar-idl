@@ -303,18 +303,26 @@
                     .topSection {
                         background-color: @color-white;
                         height: @top-h;
-                        font-size: 11px;
+                        font-size: 12px;
                         padding: 9px 15px;
                         display: flex;
                         border-bottom: 1px solid @color-border-softGray;
                         @div-h: 20px;
 
+                        > div {
+                            .flex(0 0 auto);
+
+                            &.tableNameArea {
+                                .flex(1 1 0px);
+                            }
+                        }
+
                         > .label {
                             margin-right: 10px;
                             line-height: 20px;
-                            font-size: 12px;
-                            font-weight: 600;
-                            color: @color-font-edge;
+                            font-size: 14px;
+                            font-weight: bold;
+                            color: @color-font-form-gray;
                         }
 
                         .searchbarArea {
@@ -372,9 +380,9 @@
 
                     .title {
                         padding-left: 15px;
-                        font-size: 12px;
-                        font-weight: 600;
-                        color: @color-font-edge;
+                        font-size: 14px;
+                        font-weight: bold;
+                        color: @color-font-form-gray;
                     }
 
                     .selRefreshQueryHist, .selCancelQueryHist, .selDeleteQueryHist {
