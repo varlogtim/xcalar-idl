@@ -38,7 +38,7 @@ class SQLResultSpace {
             }
         });
 
-        $("#sqlTableArea").on("click", ".btn-export", function() {
+        $("#sqlTableArea").on("click", ".btn-export", () => {
             let tableName: string = this._sqlTable.getTable();
             try {
                 if (tableName == null) {

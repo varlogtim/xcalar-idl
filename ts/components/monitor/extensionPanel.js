@@ -185,6 +185,10 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
     }
 
     function installExtension(ext, $submitBtn) {
+        if (ext == null) {
+            Alert.error(ErrTStr.ExtDownloadFailure, ErrTStr.Unknown);
+            return;
+        }
         var url = xcHelper.getAppUrl();
         xcHelper.toggleBtnInProgress($submitBtn);
 
@@ -326,7 +330,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
 
     function getExtensionFromEle($ext) {
         var extName = $ext.find(".extensionName").data("name");
-        var category = $ext.closest(".category").find(".categoryName").text();
+        var category = $ext.closest(".category").data("category");
         var ext = extSet.getExtension(category, extName);
         return ext;
     }
@@ -474,11 +478,11 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             // no qualified category
             return "";
         }
-
-        var html = '<div class="category cardContainer">' +
+        var categoryName = category.getName();
+        var html = '<div class="category cardContainer" data-category="' + categoryName + '">' +
                     '<header class="cardHeader">' +
                         '<div class="title textOverflowOneLine categoryName">' +
-                            "Category: " + category.getName() +
+                            "Category: " + categoryName +
                         '</div>' +
                     '</header>' +
                     '<div class="cardMain items">';
