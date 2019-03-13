@@ -967,7 +967,8 @@ class DagViewManager {
         let $dfArea;
         let $els;
         this.$dfWrap.on("mousedown", function (event) {
-            if (event.which !== 1 || self.activeDagTab == null) {
+            if (event.which !== 1 || self.activeDagTab == null ||
+                (isSystemMac && event.ctrlKey)) {
                 return;
             }
             let $target = $(event.target);

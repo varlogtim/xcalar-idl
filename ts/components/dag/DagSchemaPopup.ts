@@ -44,7 +44,7 @@ class DagSchemaPopup {
     private _addEventListeners(): void {
         const self = this;
         this._$popup.on("mouseup", ".content li", function(event) {
-            if (event.which !== 1) {
+            if (event.which !== 1 || (isSystemMac && event.ctrlKey)) {
                 return;
             }
             self._clearLineage();

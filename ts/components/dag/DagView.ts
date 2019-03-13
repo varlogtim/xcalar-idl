@@ -3941,7 +3941,7 @@ class DagView {
             DagNodeInfoPanel.Instance.show(node, false);
         }
 
-        if (event.which !== 1) {
+        if (event.which !== 1 || (isSystemMac && event.ctrlKey)) {
             return;
         }
         if ($(event.target).closest(".ui-resizable-handle").length ||
@@ -4031,7 +4031,7 @@ class DagView {
      // connecting 2 nodes dragging the parent's connector
     public connectorOutMousedown(event, $parentConnector) {
         const self = this;
-        if (event.which !== 1) {
+        if (event.which !== 1 || (isSystemMac && event.ctrlKey)) {
             return;
         }
         if (self.dagTab instanceof DagTabPublished) {
@@ -4182,7 +4182,7 @@ class DagView {
     // connecting 2 nodes dragging the child's connector
     public connectorInMousedown(event, $childConnector) {
         const self = this;
-        if (event.which !== 1) {
+        if (event.which !== 1 || (isSystemMac && event.ctrlKey)) {
             return;
         }
         if (self.dagTab instanceof DagTabPublished) {

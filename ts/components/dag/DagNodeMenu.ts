@@ -278,7 +278,7 @@ namespace DagNodeMenu {
     function _setupNodeMenuActions(): void {
         const $menu: JQuery = $("#dagNodeMenu");
         $menu.on("mouseup", "li", function(event) {
-            if (event.which !== 1) {
+            if (event.which !== 1 || (isSystemMac && event.ctrlKey)) {
                 return;
             }
             const $li: JQuery = $(this);

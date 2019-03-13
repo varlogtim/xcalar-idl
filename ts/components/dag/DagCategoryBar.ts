@@ -512,7 +512,7 @@ class DagCategoryBar {
             if (DagViewManager.Instance.isDisableActions()) {
                 return;
             }
-            if (event.which !== 1) {
+            if (event.which !== 1 || (isSystemMac && event.ctrlKey)) {
                 return;
             }
             const activeDag: DagGraph = DagViewManager.Instance.getActiveDag();

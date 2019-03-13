@@ -1,6 +1,6 @@
 class TblSource {
     private static _instance: TblSource;
-    
+
     public static get Instance() {
         return this._instance || (this._instance = new this());
     }
@@ -561,7 +561,7 @@ class TblSource {
 
         const $gridViewWrapper: JQuery = this._getTableListSection().find(".gridViewWrapper");
         $gridViewWrapper.on("mousedown", (event) => {
-            if (event.which !== 1) {
+            if (event.which !== 1|| (isSystemMac && event.ctrlKey)) {
                 return;
             }
             let $target = $(event.target);
