@@ -38,12 +38,12 @@ window.MainMenu = (function($, MainMenu) {
         var $dataflowMenu = $("#dataflowMenu");
         var isSQLMode = XVM.isSQLMode();
         if (isSQLMode) {
-            $dataflowMenu.data("tab", "sqlFuncTab");
+            $dataflowMenu.data("tab", "sqlTab");
         } else {
             $dataflowMenu.data("tab", "modelingDataflowTab");
         }
 
-        var $sqlModeTabs = $("#sqlTab, #sqlFuncTab");
+        var $sqlModeTabs = $("#sqlTab");
         var $advModeTabs = $("#modelingDataflowTab, #jupyterTab, #inButton");
         var allPanelsClosed = false;
         if (isSQLMode) {
@@ -427,9 +427,7 @@ window.MainMenu = (function($, MainMenu) {
     function panelSwitchingHandler($curTab, lastTabId) {
         if (lastTabId === "monitorTab") {
             MonitorPanel.inActive();
-        } else if (lastTabId === "modelingDataflowTab" ||
-            lastTabId === "sqlFuncTab"
-        ) {
+        } else if (lastTabId === "modelingDataflowTab") {
             DagViewManager.Instance.hide();
         } else if (lastTabId === "sqlTab") {
             SQLWorkSpace.Instance.unfocus();
@@ -486,13 +484,6 @@ window.MainMenu = (function($, MainMenu) {
             case ("modelingDataflowTab"):
                 $("#modelingDagPanel").addClass("active");
                 DagViewManager.Instance.show();
-                break;
-            case ("sqlFuncTab"):
-                XVM.setMode(XVM.Mode.Advanced)
-                .then(function() {
-                    $("#modelingDataflowTab").click();
-                    DagViewManager.Instance.createSQLFunc();
-                });
                 break;
             case ("sqlTab"):
                 BottomMenu.unsetMenuCache();

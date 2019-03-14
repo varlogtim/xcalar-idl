@@ -877,7 +877,7 @@ class DagTabManager {
         });
 
         $("#tabSQLFuncButton").click(() => {
-            DagViewManager.Instance.createSQLFunc();
+            DagViewManager.Instance.createSQLFunc(false);
         });
 
         $dagTabArea.on("dblclick", ".name", (event) => {

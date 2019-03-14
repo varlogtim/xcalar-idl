@@ -415,6 +415,12 @@
     color: @color-bg-green-submit;
     border: 1px solid;
 
+    &.iconBtn {
+        .icon {
+            color: @color-bg-green-submit; 
+        }
+    }
+
     &:active {
         box-shadow: inset 0px 1px 1px 1px rgba(0, 0, 0, 0.1);
     }
@@ -429,6 +435,12 @@
     color: @color-bg-cardHeader;
 
     border: 1px solid;
+
+    &.iconBtn {
+        .icon {
+            color: @color-bg-cardHeader; 
+        }
+    }
 
     &:hover, &:focus {
         background-color: @color-white;

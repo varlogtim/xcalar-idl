@@ -251,6 +251,9 @@ class SQLTableLister extends AbstractSQLResultView {
             if (key === "status") {
                 text = this._getStatusCellContent(tableInfo, text);
             }
+            if (key === "name") {
+                text = '<span>' + text + '</span>';
+            }
             let tooltip: string =
             'data-toggle="tooltip" ' +
             'data-container="body" ' +
@@ -334,6 +337,10 @@ class SQLTableLister extends AbstractSQLResultView {
 
     private _showSchema(): void {
         const $row = this._getMainContent().find(".row.selected");
+        this._showSchemaFromRow($row);
+    }
+
+    private _showSchemaFromRow($row: JQuery): void {
         if ($row.length === 0) {
             return;
         }
@@ -448,6 +455,11 @@ class SQLTableLister extends AbstractSQLResultView {
             $(event.currentTarget).blur();
             MainMenu.openPanel("datastorePanel", "sourceTblButton");
             DSForm.show(true);
+        });
+
+        $mainContent.on("click", ".name span", (event) => {
+            let $row = $(event.currentTarget).closest(".row");
+            this._showSchemaFromRow($row);
         });
 
         const $topSection = this._getTopSection();

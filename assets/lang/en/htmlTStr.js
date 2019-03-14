@@ -1028,6 +1028,8 @@ module.exports = {
     },
 
     "SQLFunc": {
+        "Title": "SQL Function",
+        "SwitchToUse": "Switch to advanced mode to create sql function",
         "Input": "SQL Function Input",
         "Output": "SQL Function Output",
         "InputInstr": "Select an available table as test source, and choose the input schema for the function.",

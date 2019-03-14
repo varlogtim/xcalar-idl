@@ -555,6 +555,14 @@ class SQLEditorSpace {
         setName(newName);
     }
 
+    private _goToSQLFunc(): void {
+        XVM.setMode(XVM.Mode.Advanced)
+        .then(function() {
+            $("#modelingDataflowTab").click();
+            DagViewManager.Instance.createSQLFunc(true);
+        });
+    }
+
     private _addEventListeners(): void {
         const $container = this._getEditorSpaceEl();
         const $bottomSection = $container.find(".bottomSection");
@@ -585,6 +593,11 @@ class SQLEditorSpace {
         $topBar.on("click", ".showTables", (event) => {
             $(event.currentTarget).blur();
             SQLResultSpace.Instance.showTables(true);
+        });
+
+        $topBar.on("click", ".sqlFunc", (event) => {
+            $(event.currentTarget).blur();
+            this._goToSQLFunc();
         });
 
         $topBar.on("dblclick", ".fileName", (event) => {

@@ -6,7 +6,8 @@ class SQLFuncSettingModal {
     }
 
     private _modalHelper: ModalHelper;
-    private _callback: Function;
+    private _onSubmit: Function;
+    private _onCancel: Function;
 
     private constructor() {
         const $modal: JQuery = this._getModal();
@@ -17,6 +18,17 @@ class SQLFuncSettingModal {
         this._addEventListeners();
     }
 
+     /**
+     * SQLFuncSettingModal.Instance.show
+     * @param callback
+     */
+    public show(onSubmit: Function, onCancel: Function): void {
+        this._modalHelper.setup();
+        this._getInput().val(1);
+        this._onSubmit = onSubmit;
+        this._onCancel = onCancel;
+    }
+
     private _getModal(): JQuery {
         return $("#sqlFuncSettingModal");
     }
@@ -25,16 +37,14 @@ class SQLFuncSettingModal {
         return this._getModal().find("input");
     }
 
-    public show(callback: Function): void {
-        this._modalHelper.setup();
-        this._getInput().val(1);
-        this._callback = callback;
-    }
-
-    private _close(): void {
+    private _close(isCancel: boolean): void {
+        if (isCancel && typeof this._onCancel === "function") {
+            this._onCancel();
+        }
         this._modalHelper.clear();
         this._getInput().val("");
-        this._callback = null;
+        this._onSubmit = null;
+        this._onCancel = null;
     }
 
     private _submitForm(): void {
@@ -43,10 +53,10 @@ class SQLFuncSettingModal {
             // invalid case
             return;
         }
-        if (typeof this._callback === "function") {
-            this._callback(res.num);
+        if (typeof this._onSubmit === "function") {
+            this._onSubmit(res.num);
         }
-        this._close();
+        this._close(false);
     }
 
     private _validate(): {num: number} {
@@ -74,7 +84,7 @@ class SQLFuncSettingModal {
         // click cancel or close button
         $modal.on("click", ".close, .cancel", (event) => {
             event.stopPropagation();
-            this._close();
+            this._close(true);
         });
 
         // click upload button
