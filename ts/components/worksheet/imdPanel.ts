@@ -121,8 +121,8 @@ namespace IMDPanel {
             promise = PromiseHelper.resolve();
         }
         promise
-        .then(function() {
-            startCycle();
+        .then(function(tables) {
+            startDrawUpdatesCycle(tables);
         });
         isPendingRefresh = false;
     }
@@ -138,6 +138,7 @@ namespace IMDPanel {
         $(window).off("resize.canvasResize");
         hideUpdatePrompt();
         clearTimeout(imdCycle);
+        curIteration++;
     }
 
     export function redraw(): void {
@@ -279,9 +280,9 @@ namespace IMDPanel {
             $tableDetail.data("tablename", "");
             return;
         }
-        const table: PublishTable = xcHelper.deepCopy(pTables.filter((table) => {
+        const table: PublishTable = xcHelper.deepCopy(pTables.find((table) => {
             return (table.name == tableName);
-        })[0]);
+        }));
         if (!table) {
             $tableDetail.removeClass("active");
             $tableDetail.data("tablename", "");
@@ -730,9 +731,9 @@ namespace IMDPanel {
             const checked = $(this).hasClass("checked");
             const $inactiveSection = $imdPanel.find(".inactiveTablesList");
             const tableName = $(this).parents(".tableListItem").attr("data-name");
-            const table = iTables.filter((table) => {
+            const table = iTables.find((table) => {
                 return (table.name === tableName);
-            })[0];
+            });
 
             if (checked) {
                 iCheckedTables.push(table);
@@ -754,9 +755,9 @@ namespace IMDPanel {
             $(this).toggleClass("checked");
             const checked = $(this).hasClass("checked");
             const tableName = $(this).parents(".tableListItem").attr("data-name");
-            const table = pTables.filter((table) => {
+            const table = pTables.find((table) => {
                 return (table.name === tableName);
-            })[0];
+            });
 
             if (checked) {
                 pCheckedTables.push(table);
@@ -775,12 +776,12 @@ namespace IMDPanel {
         });
 
         $imdPanel.on("click", ".activate", function() {
-            if(iCheckedTables.length === 0) {
+            if (iCheckedTables.length === 0) {
                 return;
             }
 
             let requery: boolean = false; //sets to true if table updates aren't loaded
-
+            let updateHistoryNeeded: boolean = false;
             showWaitScreen();
             showProgressCircle(iCheckedTables.length, 0);
             restoreTables(iCheckedTables)
@@ -794,7 +795,9 @@ namespace IMDPanel {
                         }
                     });
                     if (!failed && !table.updates.length) {
-                        requery = true;
+                        requery = true; // sometimes when restoring a table,
+                        // the result does not come with update information
+                        // so we have to call listTables to get that info
                     }
                     if (!failed) {
                         showTable(table.name);
@@ -805,17 +808,21 @@ namespace IMDPanel {
 
                 if (restoreErrors.length) {
                     showRestoreError();
+                    updateHistoryNeeded = true;
                 }
 
                 if (requery) {
+                    updateHistoryNeeded = true;
                     return listAndCheckActive();
                      // tables that start inactive won't have update info
-                } else {
+                } else if (updateHistoryNeeded) {
                     updateHistory();
                 }
             })
             .then(function() {
-                updateHistory();
+                if (updateHistoryNeeded) {
+                    updateHistory();
+                }
             })
             .fail(function(error) {
                 if (error && error.error === "canceled") {
@@ -829,17 +836,17 @@ namespace IMDPanel {
                     }
                     PromiseHelper.when.apply(this, promises)
                     .always(function() {
-                        listTables();
+                        listAndCheckActive();
                     });
                 } else { // restoration failed without being canceled
                     // list tables and find out which ones succeeded
-                    listTables();
+                    listAndCheckActive();
                 }
             })
             .always(function() {
                 restoreErrors = [];
                 removeWaitScreen();
-            });;
+            });
             xcTooltip.hideAll();
         });
 
@@ -1045,7 +1052,11 @@ namespace IMDPanel {
             }
 
             progressState.canceled = true;
-            XcalarUnpublishTable(progressState.currentTable, true);
+            let curTable = progressState.currentTable;
+            XcalarUnpublishTable(curTable, true)
+            .then(() => {
+                hideTable(curTable);
+            });
         });
 
         $imdPanel.find(".tableList").on("mouseenter", ".tableName", function() {
@@ -1260,9 +1271,9 @@ namespace IMDPanel {
         let schema: ColSchema[];
 
         for (let tableName in selectedCells) {
-            pTable = pTables.filter((table) => {
+            pTable = pTables.find((table) => {
                 return (table.name === tableName);
-            })[0];
+            });
 
             let maxBatch: number;
             if (latest) {
@@ -1515,13 +1526,15 @@ namespace IMDPanel {
      * Create html elems for tables
      * call renderTimePanels function that renders the time panel
      */
-    function listTablesFirstTime(): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+    function listTablesFirstTime(): XDPromise<PublishTable[]> {
+        const deferred: XDDeferred<PublishTable[]> = PromiseHelper.deferred();
         const startTime: number = Date.now();
         showWaitScreen();
+        let listResult;
 
         listAndCheckActive()
-        .then(function() {
+        .then(function(result) {
+            listResult = result;
             return restoreTableOrder();
         })
         .then(() => {
@@ -1536,7 +1549,7 @@ namespace IMDPanel {
                 html = getListHtml(iTables);
                 $imdPanel.find(".inactiveTablesListItems").html(html);
             }
-            deferred.resolve();
+            deferred.resolve(listResult);
         })
         .fail((error) => {
             Alert.error("Error!", error);
@@ -1634,29 +1647,21 @@ namespace IMDPanel {
     // list tables and separate which list they go in
     function listAndCheckActive(): XDPromise<PublishTable[]> {
         const deferred: XDDeferred<PublishTable[]> = PromiseHelper.deferred();
-        XcalarListPublishedTables("*", false, true)
-        .then((result) => {
+        listTables()
+        .then((tables) => {
             iTables = [];
             pTables = [];
             progressState.canceled = false;
-            result.tables.forEach(function(table) {
+            tables.forEach(function(table) {
                 if (!table.active) {
                     iTables.push(table);
                 } else {
                     pTables.push(table);
                 }
             });
-            listTables()
-            .then( deferred.resolve)
-            .fail(deferred.reject);
+            deferred.resolve(tables);
         })
-        .fail(function() {
-            listTables()
-            .then(deferred.resolve)
-            .fail(function() {
-                deferred.resolve(pTables);
-            });
-        });
+        .fail(deferred.reject);
 
         return deferred.promise();
     }
@@ -1685,6 +1690,7 @@ namespace IMDPanel {
         return PromiseHelper.chain(promises);
     }
 
+    // tables going from inactive to active
     function restoreTables(tables: PublishTable[]) {
         const promises = [];
         let inactiveCount: number = 0;
@@ -1993,9 +1999,11 @@ namespace IMDPanel {
         $("#imdFilterInput").val("");
 
         const startTime: number = Date.now();
+        let listResult;
 
         listTables()
         .then(function(tables) {
+            listResult = tables;
             pTables = [];
             iTables = [];
             tables.forEach(function(table: PublishTable) {
@@ -2018,9 +2026,9 @@ namespace IMDPanel {
             if (pTables.length) {
                 if ($tableDetail.data("tablename")) {
                     const tName: string = $tableDetail.data("tablename");
-                    const table: PublishTable = xcHelper.deepCopy(pTables.filter((table) => {
+                    const table: PublishTable = xcHelper.deepCopy(pTables.find((table) => {
                         return (table.name == tName);
-                    })[0]);
+                    }));
                     if (table) {
                         updateTableDetailSection(tName);
                     } else {
@@ -2046,7 +2054,7 @@ namespace IMDPanel {
                 removeWaitScreen();
             }
             updateTableCount();
-            deferred.resolve();
+            deferred.resolve(listResult);
         });
 
         return deferred.promise();
@@ -2111,32 +2119,28 @@ namespace IMDPanel {
         }
     }
 
-    function startCycle() {
+    function startDrawUpdatesCycle(tables: PublishTable[]) {
         curIteration++;
         clearTimeout(imdCycle);
-        let prevIteration: number = curIteration;
 
-        getUpdatesAndDraw()
-        .always(function() {
-            if (prevIteration === curIteration) {
-                cycle();
-            }
-        });
-    }
+        if (tables) {
+            drawUpdates(tables);
+        }
 
-    // ajustTime is the time to subtract from the interval time due to the
-    // length of time it takes for the backend call to return
-    function cycle() {
-        var prevIteration = curIteration;
+        cycle();
 
-        imdCycle = <any>setTimeout(function() {
-            getUpdatesAndDraw()
-            .always(function() {
-                if (prevIteration === curIteration) {
-                    cycle();
-                }
-            });
-        }, intervalTime);
+        function cycle() {
+            var prevIteration = curIteration;
+
+            imdCycle = <any>setTimeout(function() {
+                getUpdatesAndDraw()
+                .always(function() {
+                    if (prevIteration === curIteration) {
+                        cycle();
+                    }
+                });
+            }, intervalTime);
+        }
     }
 
     function getUpdatesAndDraw(): XDPromise<void> {
@@ -2144,28 +2148,7 @@ namespace IMDPanel {
 
         listTables()
         .then(function(tables) {
-            let latestUpdate: number = 0;
-            tables.forEach(function(table) {
-                for(let i = 0; i < pTables.length; i++) {
-                    if (table.name == pTables[i].name && table != pTables[i]) {
-                        pTables[i] = table;
-                        if (table.updates.length &&
-                            latestUpdate < table.updates[0].startTS) {
-                            latestUpdate = table.updates[0].startTS;
-                        }
-                        break;
-                    }
-                }
-                if (table.name === detailTableName) {
-                    updateTableDetailSection(detailTableName);
-                }
-            });
-            if (latestUpdate) {
-                ruler.maxTS = latestUpdate;
-            }
-
-            updateHistory(false);
-
+            drawUpdates(tables);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -2173,10 +2156,34 @@ namespace IMDPanel {
         return deferred.promise();
     }
 
+    function drawUpdates(tables) {
+        let latestUpdate: number = 0;
+        tables.forEach(function(table) {
+            for(let i = 0; i < pTables.length; i++) {
+                if (table.name == pTables[i].name && table != pTables[i]) {
+                    pTables[i] = table;
+                    if (table.updates.length &&
+                        latestUpdate < table.updates[0].startTS) {
+                        latestUpdate = table.updates[0].startTS;
+                    }
+                    break;
+                }
+            }
+            if (table.name === detailTableName) {
+                updateTableDetailSection(detailTableName);
+            }
+        });
+        if (latestUpdate) {
+            ruler.maxTS = latestUpdate;
+        }
+
+        updateHistory(false);
+    }
+
     function loadMoreUpdates(tableName: string) {
-        let loadTable: PublishTable = pTables.filter(function(table: PublishTable) {
+        let loadTable: PublishTable = pTables.find(function(table: PublishTable) {
             return (table.name === tableName);
-        })[0];
+        });
         let updateNumber = loadTable["lowestBatch"] - 127;
         if(updateNumber < 0) {
             updateNumber = 0;

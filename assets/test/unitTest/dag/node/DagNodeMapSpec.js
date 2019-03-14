@@ -2,6 +2,7 @@ describe("Map Dag Node Test", () => {
     let node;
 
     before(() => {
+        console.log("Map node test");
         node = new DagNodeMap({});
     });
 
@@ -114,7 +115,7 @@ describe("Map Dag Node Test", () => {
             node = new DagNodeMap({subType: DagNodeSubType.Cast});
             const testParam = {
                 eval: [
-                    {evalString: "numeric(col1)", newField: "col1"}
+                    {evalString: "money(col1)", newField: "col1"}
                 ],
                 icv: true
             };

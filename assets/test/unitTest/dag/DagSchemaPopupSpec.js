@@ -68,7 +68,7 @@ describe("DagSchemaPopup Test", function() {
                 "input": {
                     "eval": [
                         {
-                            "evalString": "numeric(classes::class_id)",
+                            "evalString": "money(classes::class_id)",
                             "newField": "class_id"
                         }
                     ],
