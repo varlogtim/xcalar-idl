@@ -901,10 +901,11 @@ namespace XIApi {
         const distinctGbTables: string[] = [];
         const tempTables: string[] = [];
         const tempCols: string[] = [];
-        groupOnCols = xcHelper.deepCopy(groupOnCols);
+        const origGroupOnCols: string[] = groupOnCols;
         // we're going to manipulate groupOnCols
         // and don't want to modify the original copy
         for (let distinctCol in aggCols) {
+            groupOnCols = xcHelper.deepCopy(origGroupOnCols);
             promises.push(computeDistinctGroupby(txId, tableName,
                             groupOnCols, distinctCol, aggCols[distinctCol],
                             distinctGbTables, tempTables, tempCols));
