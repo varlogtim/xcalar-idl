@@ -193,11 +193,13 @@ define(['base/js/utils'], function(utils) {
                                 'from xcalar.external.LegacyApi.XcalarApi import XcalarApi\n' +
                                 'from xcalar.external.LegacyApi.Session import Session\n' +
                                 'from xcalar.external.LegacyApi.WorkItem import WorkItem\n' +
-                                'from xcalar.external.LegacyApi.ResultSet import ResultSet\n\n' +
+                                'from xcalar.external.LegacyApi.ResultSet import ResultSet\n' +
+                                'from xcalar.external.client import Client\n\n' +
                                 '# Create a XcalarApi object\nxcalarApi = XcalarApi(' + (token ? ('client_token="' + token + '"') : '') + ')\n';
                         text += '# Connect to current workbook that you are in\n' +
                                 'workbook = Session(xcalarApi, "' + username + '", "' + username + '", ' + userid + ', True, "' + sessionName + '")\n' +
-                                'xcalarApi.setSession(workbook)';
+                                'xcalarApi.setSession(workbook)\n' +
+                                '# Create a Xcalar Client object\nxcalarClient = Client(client_token="' + token + '", user_name="' + username + '")';
                         texts.push(text);
                         break;
                     case ("basicUDF"):
@@ -452,11 +454,13 @@ define(['base/js/utils'], function(utils) {
                         'from xcalar.external.LegacyApi.XcalarApi import XcalarApi\n' +
                         'from xcalar.external.LegacyApi.Session import Session\n' +
                         'from xcalar.external.LegacyApi.WorkItem import WorkItem\n' +
-                        'from xcalar.external.LegacyApi.ResultSet import ResultSet\n\n' +
+                        'from xcalar.external.LegacyApi.ResultSet import ResultSet\n' +
+                        'from xcalar.external.client import Client\n\n' +
                         '# Create a XcalarApi object\nxcalarApi = XcalarApi(' + (token ? ('client_token="' + token + '"') : '') + ')\n';
                 text += '# Connect to current workbook that you are in\n' +
                         'workbook = Session(xcalarApi, "' + username + '", "' + username + '", ' + userid + ', True, "' + sessionName + '")\n' +
-                        'xcalarApi.setSession(workbook)';
+                        'xcalarApi.setSession(workbook)\n' +
+                        '# Create a Xcalar Client object\nxcalarClient = Client(client_token="' + token + '", user_name="' + username + '")';
                 cell.set_text(text);
                 cell.execute();
                 Jupyter.notebook.save_notebook();
