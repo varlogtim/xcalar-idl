@@ -1002,6 +1002,10 @@ class PTblManager {
         step: number,
         totalStep: number
     ): void {
+        if (tableInfo == null) {
+            // tableInfo is null when tutorial workbooks are being set up
+            return;
+        }
         let msg: string = `Step ${step}/${totalStep}: ${text}`;
         tableInfo.loadMsg = msg;
         TblSourcePreview.Instance.refresh(tableInfo);
