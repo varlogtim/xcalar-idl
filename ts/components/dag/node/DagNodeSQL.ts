@@ -888,9 +888,11 @@ class DagNodeSQL extends DagNode {
             const innerPromiseArray = [];
             if (sqlFuncs) {
                 for (const key in sqlFuncs) {
+                    const sqlFunc = {};
+                    sqlFunc[key] = sqlFuncs[key];
                     innerPromiseArray.push(self._getSchemasAndQueriesFromSqlFuncs
                                                .bind(self,
-                                                     {key: sqlFuncs[key]},
+                                                     sqlFunc,
                                                      sqlFuncQueries,
                                                      sqlFuncSchemas,
                                                      selectTableMap,
