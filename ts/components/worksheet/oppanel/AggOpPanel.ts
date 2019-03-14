@@ -20,7 +20,7 @@ class AggOpPanel extends GeneralOpPanel {
     // prefill: object, used to prefill the form
     // public show = function(currTableId, currColNums, operator,
     //                                options) {
-    public show(node: DagNodeAggregate, options?): boolean {
+    public show(node: DagNodeAggregate, options: ShowPanelInfo): boolean {
         if (super.show(<DagNode>node, options)) {
             this.model = new AggOpPanelModel(this._dagNode, () => {
                 this._render();
@@ -343,14 +343,13 @@ class AggOpPanel extends GeneralOpPanel {
                                                 preventImmediateHide: true});
     }
 
-
     // $li = map's function menu li
     // groupIndex, the index of a group of arguments (multi filter)
     protected _updateArgumentSection(groupIndex) {
         const $argsGroup = this._$panel.find('.group').eq(groupIndex);
         const categoryNum = FunctionCategoryT.FunctionCategoryAggregate;
         const func = $argsGroup.find('.functionsInput').val().trim();
-        const ops = this._operatorsMap[categoryNum];
+        const ops = GeneralOpPanel.getOperatorsMap()[categoryNum];
         const operObj = ops[func];
 
         const $argsSection = $argsGroup.find('.argsSection').last();

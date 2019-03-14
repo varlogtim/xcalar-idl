@@ -85,7 +85,6 @@ namespace xcManager {
 
             return XDFManager.Instance.setup();
         })
-        .then(setupAsyncOpPanels)
         .then(function() {
             StatusMessage.updateLocation(false, "Loading Aggregates");
             return DagAggManager.Instance.setup();
@@ -595,6 +594,8 @@ namespace xcManager {
     }
 
     function setupOpPanels(): void {
+        GeneralOpPanel.setup();
+        MapOpPanel.Instance.setup();
         ProjectOpPanel.Instance.setup();
         ExplodeOpPanel.Instance.setup();
         DatasetOpPanel.Instance.setup();
@@ -612,11 +613,6 @@ namespace xcManager {
         RowNumOpPanel.Instance.setup();
         SplitOpPanel.Instance.setup();
         SortOpPanel.Instance.setup();
-    }
-
-    function setupAsyncOpPanels(): XDPromise<void> {
-        const asyncOpPanels: XDPromise<void>[] = [MapOpPanel.Instance.setup()];
-        return PromiseHelper.when(...asyncOpPanels);
     }
 
     function setupSession(): XDPromise<void> {

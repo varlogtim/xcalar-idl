@@ -69,7 +69,7 @@ class GroupByOpPanel extends GeneralOpPanel {
      *
      * @param node
      */
-    public show(node: DagNode, options?): boolean {
+    public show(node: DagNode, options: ShowPanelInfo): boolean {
         if (super.show(node, options)) {
             this.model = new GroupByOpPanelModel(this._dagNode, (all) => {
                 this._render(all);
@@ -474,7 +474,7 @@ class GroupByOpPanel extends GeneralOpPanel {
         const $argsGroup = this._$panel.find('.group').eq(groupIndex);
         const categoryNum = FunctionCategoryT.FunctionCategoryAggregate;
         const func = $argsGroup.find('.functionsInput').val().trim();
-        const ops = this._operatorsMap[categoryNum];
+        const ops = GeneralOpPanel.getOperatorsMap()[categoryNum];
 
         const operObj = ops[func];
         const $argsSection = $argsGroup.find('.argsSection');

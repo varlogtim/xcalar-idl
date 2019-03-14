@@ -356,6 +356,13 @@ namespace DagNodeMenu {
         if (dagTab instanceof DagTabSQL) {
             options.nonConfigurable = true;
         }
+        if ([DagNodeType.Map, DagNodeType.GroupBy, DagNodeType.Filter,
+            DagNodeType.Aggregate].indexOf(type) > -1) {
+            options.udfDisplayPathPrefix =
+                dagTab instanceof DagTabPublished ?
+                    dagTab.getUDFDisplayPathPrefix() :
+                    UDFFileManager.Instance.getCurrWorkbookDisplayPath();
+        }
 
         switch (type) {
             case (DagNodeType.Dataset):
@@ -377,11 +384,6 @@ namespace DagNodeMenu {
                 if (subType === DagNodeSubType.Cast) {
                     CastOpPanel.Instance.show(node, options);
                 } else {
-                    options.udfDisplayPathPrefix =
-                        dagTab instanceof DagTabPublished ?
-                            dagTab.getUDFDisplayPathPrefix() :
-                            UDFFileManager.Instance.getCurrWorkbookDisplayPath();
-
                     MapOpPanel.Instance.show(node, options);
                 }
                 break;

@@ -25,7 +25,7 @@ class FilterOpPanel extends GeneralOpPanel {
     // restore: boolean, if true, will not clear the form from it's last state
     // restoreTime: time when previous operation took place
     // triggerColNum: colNum that triggered the opmodal
-    public show(node: DagNodeFilter, options?): boolean {
+    public show(node: DagNodeFilter, options: ShowPanelInfo): boolean {
         if (super.show(node, options)) {
             this.model = new FilterOpPanelModel(node, () => {
                 this._render();
@@ -356,7 +356,7 @@ class FilterOpPanel extends GeneralOpPanel {
         const category = FunctionCategoryTStr[categoryNum].toLowerCase();
         // const category = this._categoryNames[categoryNum];
         const func = $argsGroup.find('.functionsInput').val().trim();
-        const ops = this._operatorsMap[categoryNum];
+        const ops = GeneralOpPanel.getOperatorsMap()[categoryNum];
         const operObj = ops[func];
 
         const $argsSection = $argsGroup.find('.argsSection').last();

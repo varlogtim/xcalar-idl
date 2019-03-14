@@ -2,6 +2,7 @@ describe("FilterOpPanelModel Test", function() {
     var filterOpPanel;
     var node;
     var prefix = "prefix";
+    var openOptions;
 
     before(function() {
         node = new DagNodeFilter({});
@@ -18,6 +19,8 @@ describe("FilterOpPanelModel Test", function() {
             return [parentNode];
         }
 
+        openOptions = {udfDisplayPathPrefix: UDFFileManager.Instance.getCurrWorkbookDisplayPath()};
+
         oldDatTargetList = DSTargetManager.getAllTargets;
         oldJSONParse = JSON.parse;
         filterOpPanel = FilterOpPanel.Instance;
@@ -27,7 +30,7 @@ describe("FilterOpPanelModel Test", function() {
         let model;
         before(function () {
             var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
-            filterOpPanel.show(node, {autofillColumnNames: [prefixCol]});
+            filterOpPanel.show(node, $.extend({}, openOptions, {autofillColumnNames: [prefixCol]}));
             model = filterOpPanel.model;
         });
 

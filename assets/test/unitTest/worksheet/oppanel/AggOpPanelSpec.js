@@ -7,6 +7,7 @@ describe("AggOpPanel Test", function() {
     var $functionsList;
     var $argSection;
     var prefix = "prefix";
+    var openOptions;
 
     before(function() {
         MainMenu.openPanel("dagPanel");
@@ -23,6 +24,7 @@ describe("AggOpPanel Test", function() {
         node.getParents = function() {
             return [parentNode];
         }
+        openOptions = {udfDisplayPathPrefix: UDFFileManager.Instance.getCurrWorkbookDisplayPath()};
 
         oldDatTargetList = DSTargetManager.getAllTargets;
         oldJSONParse = JSON.parse;
@@ -44,18 +46,18 @@ describe("AggOpPanel Test", function() {
 
         it ("Should be visible when show is called", function () {
 
-            aggOpPanel.show(node);
+            aggOpPanel.show(node, openOptions);
             expect($('#aggOpPanel').hasClass("xc-hidden")).to.be.false;
         });
 
         it ("Should be hidden when close is called after showing", function () {
-            aggOpPanel.show(node);
+            aggOpPanel.show(node, openOptions);
             aggOpPanel.close();
             expect($('#aggOpPanel').hasClass("xc-hidden")).to.be.true;
         });
 
         it ("Should be hidden when close is clicked", function () {
-            aggOpPanel.show(node);
+            aggOpPanel.show(node, openOptions);
             $('#aggOpPanel .close').click();
             expect($('#aggOpPanel').hasClass("xc-hidden")).to.be.true;
         });
@@ -65,7 +67,7 @@ describe("AggOpPanel Test", function() {
 
         before(function () {
             var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
-            aggOpPanel.show(node, {autofillColumnNames: [prefixCol]});
+            aggOpPanel.show(node, $.extend({}, openOptions, {autofillColumnNames: [prefixCol]}));
             $functionsInput = $aggOpPanel.find('.functionsInput');
             $functionsList = $functionsInput.siblings('.list');
             $argSection = $aggOpPanel.find('.argsSection').eq(0);
@@ -325,7 +327,7 @@ describe("AggOpPanel Test", function() {
 
     describe("Advanced Mode related Aggregate Panel Tests", function() {
         it("Should show statusbox error if columns isnt a field", function() {
-            aggOpPanel.show(node);
+            aggOpPanel.show(node, openOptions);
             $("#aggOpPanel .bottomSection .xc-switch").click();
             editor.setValue(JSON.stringify({}, null, 4));
             $("#aggOpPanel .bottomSection .btn-submit").click();
@@ -336,7 +338,7 @@ describe("AggOpPanel Test", function() {
 
     describe("Final output", function() {
         it ("final node should have correct input", function() {
-            aggOpPanel.show(node);
+            aggOpPanel.show(node, openOptions);
             expect(JSON.stringify(node.getParam())).to.equal('{"evalString":"","dest":"","mustExecute":false}');
             let aggName = "^a" + Date.now();
             $functionsInput.val('count').trigger(fakeEvent.enterKeydown);

@@ -80,7 +80,7 @@ class MapOpPanelModel extends GeneralOpPanelModel {
     protected _initialize(paramsRaw, strictCheck?: boolean, isSubmit?: boolean): void {
         const self = this;
         if (!this._opCategories.length) {
-            const operatorsMap = XDFManager.Instance.getOperatorsMap();
+            const operatorsMap = GeneralOpPanel.getOperatorsMap();
             for (let i in operatorsMap) {
                 if (parseInt(i) !== FunctionCategoryT.FunctionCategoryAggregate) {
                     this._opCategories.push(parseInt(i));

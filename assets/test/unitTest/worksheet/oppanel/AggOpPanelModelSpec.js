@@ -2,6 +2,7 @@ describe("AggOpPanelModel Test", function() {
     var aggOpPanel;
     var node;
     var prefix = "prefix";
+    var openOptions;
 
     before(function() {
         node = new DagNodeAggregate({});
@@ -18,6 +19,7 @@ describe("AggOpPanelModel Test", function() {
             return [parentNode];
         }
 
+        openOptions = {udfDisplayPathPrefix: UDFFileManager.Instance.getCurrWorkbookDisplayPath()};
         oldDatTargetList = DSTargetManager.getAllTargets;
         oldJSONParse = JSON.parse;
         aggOpPanel = AggOpPanel.Instance;
@@ -27,7 +29,7 @@ describe("AggOpPanelModel Test", function() {
         let model;
         before(function () {
             var prefixCol = xcHelper.getPrefixColName(prefix, 'average_stars');
-            aggOpPanel.show(node, {autofillColumnNames: [prefixCol]});
+            aggOpPanel.show(node, $.extend({}, openOptions, {autofillColumnNames: [prefixCol]}));
             model = aggOpPanel.model;
         });
 

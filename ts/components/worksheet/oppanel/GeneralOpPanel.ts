@@ -6,7 +6,8 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _$functionsUl: JQuery;
     protected _isNewCol: boolean;
     protected _operatorName: string = ""; // group by, map, filter, aggregate, etc..
-    protected _operatorsMap = {};
+    private static _operatorsMap = {};
+    private static _udfDisplayPathPrefix: string;
     protected _categoryNames: string[] = [];
 
     protected _$lastInputFocused: JQuery;
@@ -23,9 +24,11 @@ class GeneralOpPanel extends BaseOpPanel {
     protected model;
     protected _opCategories: number[];
     protected _specialWords: string[] = ["None", "null"];
+    protected _udfDisplayPathPrefix: string = UDFFileManager.Instance.getCurrWorkbookDisplayPath();
+    private static _needsUDFUpdate: boolean = false;
 
      // shows valid cast types
-    protected static castMap = {
+    protected static readonly castMap = {
         "string": [ColumnType.boolean, ColumnType.integer, ColumnType.float,
                     ColumnType.timestamp, ColumnType.money],
         "integer": [ColumnType.boolean, ColumnType.integer, ColumnType.float,
@@ -40,10 +43,48 @@ class GeneralOpPanel extends BaseOpPanel {
                     ColumnType.string, ColumnType.timestamp, ColumnType.money],
         // no valid cast options for: undefined, array, objects
     };
-    protected static firstArgExceptions = {
+    protected static readonly firstArgExceptions = {
         'conditional functions': ['not'],
         'conditional': ['not']
     };
+
+    public static setUDFDisplayPathPrefix(udfDisplayPathPrefix: string): void {
+        this._udfDisplayPathPrefix = udfDisplayPathPrefix;
+    }
+
+    public static getUDFDisplayPathPrefix(): string {
+        return this._udfDisplayPathPrefix;
+    }
+
+    public static updateOperatorsMap() {
+        this._operatorsMap = XDFManager.Instance.getOperatorsMapFromWorkbook(
+            UDFFileManager.Instance.displayPathToNsPath(
+                this._udfDisplayPathPrefix
+        ), true);
+        this._needsUDFUpdate = false;
+    }
+
+    public static setup() {
+        // UDFs should not rely on this.
+        this._operatorsMap = XDFManager.Instance.getOperatorsMap();
+    }
+
+    public static getOperatorsMap() {
+        return this._operatorsMap;
+    }
+
+    public static needsUDFUpdate() {
+        return this._needsUDFUpdate;
+    }
+
+    public static updateOperationsMap() {
+        this._needsUDFUpdate = true;
+        if (MainMenu.isFormOpen()) {
+            // only update once form is closed
+            return;
+        }
+        this.updateOperatorsMap();
+    }
 
     public constructor() {
         super();
@@ -315,18 +356,19 @@ class GeneralOpPanel extends BaseOpPanel {
             });
             self._checkIfStringReplaceNeeded();
         });
-
-        // UDFs should not rely on this.
-        this._operatorsMap = XDFManager.Instance.getOperatorsMap();
     }
 
-    public show(node: DagNode, options?): boolean {
+    public show(node: DagNode, options?: ShowPanelInfo): boolean {
         const self = this;
         this._dagNode = node;
         if (this._formHelper.isOpen()) {
             return false;
         }
 
+        if (GeneralOpPanel.getUDFDisplayPathPrefix() !== options.udfDisplayPathPrefix) {
+            GeneralOpPanel.setUDFDisplayPathPrefix(options.udfDisplayPathPrefix);
+            GeneralOpPanel.updateOperatorsMap();
+        }
         this._operatorName = this._dagNode.getType().toLowerCase().trim();
 
         super.showPanel(this._operatorName, options);
@@ -359,6 +401,9 @@ class GeneralOpPanel extends BaseOpPanel {
         super.hidePanel(isSubmit);
         $(document).off('click.OpSection');
         $(document).off("keydown.OpSection");
+        if (GeneralOpPanel.needsUDFUpdate()) {
+            GeneralOpPanel.updateOperatorsMap();
+        }
     }
 
     public refreshColumns(): void {
@@ -1124,7 +1169,7 @@ class GeneralOpPanel extends BaseOpPanel {
 
     protected _getOperatorObj(operatorName: string): any {
         for (let i = 0; i < this._opCategories.length; i++) {
-            let ops = XDFManager.Instance.getOperatorsMap()[this._opCategories[i]];
+            let ops = GeneralOpPanel.getOperatorsMap()[this._opCategories[i]];
             const op = ops[operatorName];
             if (op) {
                 return op;
@@ -1762,10 +1807,10 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _removeExtraArgEventHandler(_$btn: JQuery): void {}
 
     protected _getOperatorsLists(): any[][] {
-        const self = this;
         const opLists: any[][] = [];
+        let operatorsMap = GeneralOpPanel.getOperatorsMap();
         this._opCategories.forEach(categoryNum => {
-            const ops = self._operatorsMap[categoryNum];
+            const ops = operatorsMap[categoryNum];
             const opsArray = [];
             for (let i in ops) {
                 opsArray.push(ops[i]);

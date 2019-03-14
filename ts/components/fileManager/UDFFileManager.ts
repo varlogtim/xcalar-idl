@@ -10,6 +10,7 @@ class UDFFileManager extends BaseFileManager {
     private userIDWorkbookMap: Map<string, Map<string, string>>;
     private userWorkbookIDMap: Map<string, Map<string, string>>;
     private panels: FileManagerPanel[];
+    private _listXdfsObj: XcalarApiListXdfsOutputT
 
     /*
      * Pay special attention when dealing with UDF paths / names.
@@ -895,13 +896,15 @@ class UDFFileManager extends BaseFileManager {
             const updateViews = (
                 listXdfsObjUpdate: XcalarApiListXdfsOutputT
             ) => {
-                const deferredUpdate: XDDeferred<
-                void
-                > = PromiseHelper.deferred();
-                MapOpPanel.Instance.updateOperationsMap(listXdfsObjUpdate);
+                const deferredUpdate: XDDeferred<void> =
+                    PromiseHelper.deferred();
 
+                XDFManager.Instance.updateAllUDFs(listXdfsObjUpdate);
+                GeneralOpPanel.updateOperationsMap();
                 this._updateStoredUDF(listXdfsObjUpdate);
 
+                // transform object - filter out other notebooks and shorten
+                // names
                 this.filterWorkbookUDF(listXdfsObjUpdate);
                 DSPreview.update(listXdfsObjUpdate);
                 DSTargetManager.updateUDF(listXdfsObjUpdate);

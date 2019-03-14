@@ -227,7 +227,7 @@ class BaseOpPanel {
                 this._editor.setOption("readOnly", false);
             }
         }
-        this._setupOperationsMap();
+        this._setupOperationsMap(options.udfDisplayPathPrefix);
         this._setupAggMap();
         return true;
     }
@@ -531,9 +531,8 @@ class BaseOpPanel {
         }
     }
 
-    private _setupOperationsMap() {
-        const opMap = xcHelper.deepCopy(XDFManager.Instance.getOperatorsMap());
-
+    private _setupOperationsMap(udfDisplayPathPrefix?: string) {
+        let opMap = XDFManager.Instance.getOperatorsMapFromWorkbook(udfDisplayPathPrefix)
         this.xdfMap = {};
         this.udfMap = {};
 

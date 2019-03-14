@@ -5,30 +5,15 @@ class MapOpPanel extends GeneralOpPanel {
     protected _functionsMap = [];
     protected _dagNode: DagNodeMap;
     protected _opCategories: number[] = [];
-    private _operatorsArray: XcalarEvalFnDescT[] = null; // UDFs only
-    private _operatorsUpdatePending: boolean = false;
-    private _udfDisplayPathPrefix: string = UDFFileManager.Instance.getCurrWorkbookDisplayPath();
 
     public constructor() {
         super();
         this._operatorName = "map";
     }
 
-    public setup(): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-
+    public setup() {
         const self = this;
         super.setupPanel("#mapOpPanel");
-
-        UDFFileManager.Instance.list()
-        .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
-            this._operatorsArray = listXdfsObj.fnDescs;
-            this._updateOpCategories();
-        })
-        .fail((error) => {
-            Alert.error("List UDFs failed", error.error);
-        })
-        .always(deferred.resolve);
 
         // the double menu that has operation categories and function names
         this._functionsInputEvents();
@@ -41,19 +26,14 @@ class MapOpPanel extends GeneralOpPanel {
             }
             self._checkIfStringReplaceNeeded();
         });
-
-        return deferred.promise();
     }
 
     // options
     // restore: boolean, if true, will not clear the form from it's last state
-    public show(node: DagNodeMap, options): boolean {
+    public show(node: DagNodeMap, options: ShowPanelInfo): boolean {
         const self = this;
         if (super.show(node, options)) {
-            if (this._udfDisplayPathPrefix !== options.udfDisplayPathPrefix) {
-                this._udfDisplayPathPrefix = options.udfDisplayPathPrefix;
-                this._udfUpdateOperatorsMap();
-            }
+            this._updateOpCategories();
 
             this.model = new MapOpPanelModel(this._dagNode, () => {
                 this._render();
@@ -93,9 +73,6 @@ class MapOpPanel extends GeneralOpPanel {
     public close(isSubmit?) {
         super.close(isSubmit);
         $(document).off('mousedown.mapCategoryListener');
-        if (this._operatorsUpdatePending) {
-            this._udfUpdateOperatorsMap();
-        }
     }
 
     // functions that get called after list udfs is called during op view show
@@ -300,16 +277,6 @@ class MapOpPanel extends GeneralOpPanel {
         }
     }
 
-    public updateOperationsMap(listXdfsObj) {
-        this._operatorsArray = xcHelper.deepCopy(listXdfsObj.fnDescs);
-        this._operatorsUpdatePending = true;
-        if (this._formHelper && this._formHelper.isOpen()) {
-            // only update once form is closed
-            return;
-        }
-        this._udfUpdateOperatorsMap();
-    }
-
     // empty array means the first argument will always be the column name
     // any function names in the array will not have column name as 1st argument
     protected _populateInitialCategoryField(groupIndex?: number) {
@@ -318,8 +285,8 @@ class MapOpPanel extends GeneralOpPanel {
         this._categoryNames = [];
         let html = "";
         let categoryName;
-
-        for (let i = 0; i < Object.keys(this._operatorsMap).length; i++) {
+        let operatorsMap = GeneralOpPanel.getOperatorsMap();
+        for (let i = 0; i < Object.keys(operatorsMap).length; i++) {
             if (FunctionCategoryTStr[i] === 'Aggregate functions') {
                 continue;
             }
@@ -335,8 +302,9 @@ class MapOpPanel extends GeneralOpPanel {
             }
             this._categoryNames.push(categoryName);
             const opsArray = [];
-            for (let j in this._operatorsMap[i]) {
-                opsArray.push(this._operatorsMap[i][j]);
+
+            for (let j in operatorsMap[i]) {
+                opsArray.push(operatorsMap[i][j]);
             }
             opsArray.sort(sortFn);
             this._functionsMap[groupIndex][i] = opsArray;
@@ -354,41 +322,6 @@ class MapOpPanel extends GeneralOpPanel {
         }
     }
 
-    private _udfUpdateOperatorsMap() {
-        const opArray = xcHelper.filterUDFs(
-            this._operatorsArray,
-            UDFFileManager.Instance.displayPathToNsPath(
-                this._udfDisplayPathPrefix
-            )
-        );
-        const udfCategoryNum = FunctionCategoryT.FunctionCategoryUdf;
-        if (opArray.length === 0) {
-            delete this._operatorsMap[udfCategoryNum];
-            return;
-        }
-
-        opArray.sort(sortFn);
-
-        function sortFn(a, b) {
-            return (a.displayName) > (b.displayName) ? 1 : -1;
-        }
-
-        this._operatorsMap[udfCategoryNum] = {};
-        for (var i = 0; i < opArray.length; i++) {
-            this._operatorsMap[udfCategoryNum][opArray[i].displayName] = opArray[i];
-        }
-        this._updateOpCategories();
-        this._operatorsUpdatePending = false;
-    }
-
-    private _updateOpCategories(): void {
-        this._opCategories = [];
-        for (let i in this._operatorsMap) {
-            if (parseInt(i) !== FunctionCategoryT.FunctionCategoryAggregate) {
-                this._opCategories.push(parseInt(i));
-            }
-        }
-    }
 
     protected _isOperationValid(groupIndex) {
         return this._$panel.find(".group").eq(groupIndex)
@@ -905,12 +838,12 @@ class MapOpPanel extends GeneralOpPanel {
         let fn;
         let firstCategoryNumFound;
         val = val.toLowerCase();
-
-        for (let i in this._operatorsMap) {
+        let operatorsMap = GeneralOpPanel.getOperatorsMap();
+        for (let i in operatorsMap) {
             if (parseInt(i) === FunctionCategoryT.FunctionCategoryAggregate) {
                 continue;
             }
-            categorySet = this._operatorsMap[i];
+            categorySet = operatorsMap[i];
             for (let j in categorySet) {
                 fn = categorySet[j];
                 if (fn.displayName.toLowerCase().indexOf(val) > -1) {
@@ -1106,5 +1039,15 @@ class MapOpPanel extends GeneralOpPanel {
                 '<div class="argsSection inactive"></div>' +
             '</div>';
         return html;
+    }
+
+    protected _updateOpCategories(): void {
+        this._opCategories = [];
+        let operatorsMap = GeneralOpPanel.getOperatorsMap();
+        for (let i in operatorsMap) {
+            if (parseInt(i) !== FunctionCategoryT.FunctionCategoryAggregate) {
+                this._opCategories.push(parseInt(i));
+            }
+        }
     }
 }

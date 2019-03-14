@@ -22,7 +22,8 @@ describe("GroupByOpPanelModel Test", function() {
         oldDatTargetList = DSTargetManager.getAllTargets;
         oldJSONParse = JSON.parse;
         groupByOpPanel = GroupByOpPanel.Instance;
-        openOptions = {};
+
+        openOptions = {udfDisplayPathPrefix: UDFFileManager.Instance.getCurrWorkbookDisplayPath()};
     });
 
     describe("Group By Panel Model Tests", function() {

@@ -12,7 +12,7 @@ abstract class GeneralOpPanelModel {
     public constructor(
         dagNode: DagNode,
         event: Function,
-        options = {autofillColumnNames: null}
+        options: {autofillColumnNames?: string[]} = {autofillColumnNames: null}
     ) {
         this.dagNode = dagNode;
         this.event = event;
@@ -868,7 +868,7 @@ abstract class GeneralOpPanelModel {
 
     protected _getOperatorObj(operatorName: string): any {
         for (let i = 0; i < this._opCategories.length; i++) {
-            let ops = XDFManager.Instance.getOperatorsMap()[this._opCategories[i]];
+            let ops = GeneralOpPanel.getOperatorsMap()[this._opCategories[i]];
             const op = ops[operatorName];
             if (op) {
                 return op;
