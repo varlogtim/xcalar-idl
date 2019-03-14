@@ -993,8 +993,8 @@ class DagGraph {
         }
 
         // Check open graph
-        // Considering the subgraph as an unity, an open graph is such a 
-        // subgraph that there exists a path starting from one of its children 
+        // Considering the subgraph as an unity, an open graph is such a
+        // subgraph that there exists a path starting from one of its children
         // and ending with one of its parents,
         // which means the subgraph links to itself through this path.
         const inputNodeIdSet = new Set<DagNodeId>();
@@ -1858,8 +1858,8 @@ class DagGraph {
 
     /**
      * DFS to find a node in endNodeSet, which is reachable by traveling from anyone of start nodes
-     * @param startNodeIds 
-     * @param endNodeIds 
+     * @param startNodeIds
+     * @param endNodeIds
      * @returns The reachable node id. Null if not found
      */
     private _findReachable(startNodeIds: Set<string>, endNodeIds: Set<string>): string {
@@ -2611,7 +2611,9 @@ class DagGraph {
                     !node.createTableInput) {
                     node.createTableInput = <DagNodeDatasetInputStruct>{
                         source: node.args.source,
-                        prefix: node.args.prefix
+                        prefix: node.args.prefix,
+                        synthesize: false,
+                        loadArgs: parent.args.loadArgs
                     }
                     node.parents = [];
                     node.subGraphNodes = [parent];
@@ -2635,7 +2637,9 @@ class DagGraph {
                         // then that index needs to take the role of the dataset node
                         parent.createTableInput = <DagNodeDatasetInputStruct>{
                             source: parent.args.source,
-                            prefix: parent.args.prefix
+                            prefix: parent.args.prefix,
+                            synthesize: false,
+                            loadArgs: parent.parents[0].args.loadArgs
                         }
 
                         parent.subGraphNodes = [parent.parents[0]];
