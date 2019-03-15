@@ -153,6 +153,7 @@ namespace SqlQueryHistoryPanel {
                     const prop: TableBodyColumnTextLinkProp = {
                         category: TableColumnCategory.TABLE,
                         text: text,
+                        isError: queryInfo.status === SQLStatus.Failed,
                         onLinkClick: () => {
                             if (queryInfo.status === SQLStatus.Failed) {
                                 this._onClickError({
@@ -757,6 +758,7 @@ namespace SqlQueryHistoryPanel {
     interface TableBodyColumnTextLinkProp extends TableBodyColumnProp {
         // cssClass: string,
         text: string,
+        isError?: boolean,
         onLinkClick: () => void
     }
 
@@ -1411,14 +1413,14 @@ namespace SqlQueryHistoryPanel {
             }
 
             // Deconstruct parameters
-            const { category, text, onLinkClick = () => {}, width } = props;
+            const { category, text, isError = false, onLinkClick = () => {}, width } = props;
             const cssStyle = width == null ? null : `flex-basis:${width}`;
 
             const templateId = 'bodyColumnElpsTextLink';
             this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
 
             return this._templateMgr.createElements(templateId, {
-                cssClass: this._getBodyColumnCss(category),
+                cssClass: `${this._getBodyColumnCss(category)}${isError ? ' error' : ''}`,
                 cssStyle: cssStyle,
                 text: text,
                 onLinkClick: onLinkClick
