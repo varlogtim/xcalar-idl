@@ -960,5 +960,23 @@
                         "tableNames": ["nullCoverage.json"],
                         "extension": ".json"
                 }
+        },
+        "paramTest": {
+                "testCases": {
+                    "q1": [{"query": "select * from  ORDERS, LINEITEM where L_ORDERKEY= O_ORDERKEY and O_ORDERDATE>= date '1992-01-01'and L_ORDERKEY > {} and L_ORDERKEY < {} order by L_ORDERKEY DESC, L_PARTKEY", "params":[[1, 200], [10201, 10400]]}],
+                    "q2": [{"query": "select  *, (l_extendedprice* (1 - l_discount)) as volume from PART, LINEITEM where L_PARTKEY= P_PARTKEY and L_ORDERKEY > {} AND L_ORDERKEY < {} order by L_PARTKEY desc, L_ORDERKEY", "params":[[1, 200], [10201, 10400]]}],
+                    "q3": [{"query": "select LINEITEM.*, PART.*, year(o_orderdate) as o_year from lineitem, orders, PART where p_partkey = l_partkey and l_orderkey = o_orderkey and L_ORDERKEY > {} AND L_ORDERKEY < {} order by L_ORDERKEY DESC, L_PARTKEY", "params":[[1, 200], [10201, 10400]]}],
+                    "q4": [{"query": "select sum(l_extendedprice * l_discount) as revenue from lineitem where l_shipdate >= date '1994-01-01' and l_shipdate < date '1994-01-01' + interval '1' year and l_discount between {} and {} and l_quantity < 24", "params":[[0.02, 0.05],[0.07, 0.09]]}],
+                    "q5": [{"query": "select c_name, c_custkey, o_orderkey, o_orderdate, o_totalprice, sum(l_quantity) from customer, orders, lineitem where o_orderkey in ( select l_orderkey from lineitem group by l_orderkey having sum(l_quantity) > {} ) and c_custkey = o_custkey and o_orderkey = l_orderkey group by c_name, c_custkey, o_orderkey, o_orderdate, o_totalprice order by o_totalprice desc, o_orderdate", "params":[[200, 300]]}],
+                    "q6": [{"query": "select sum(l_extendedprice* (1 - l_discount)) as revenue from lineitem, part where ( p_partkey = l_partkey and p_brand = 'Brand#12' and p_container in ('SM CASE', 'SM BOX', 'SM PACK', 'SM PKG') and l_quantity >= 1 and l_quantity <= 1 + 10 and p_size between 1 and 5 and l_shipmode in ('AIR', 'AIR REG') and l_shipinstruct = 'DELIVER IN PERSON' ) or ( p_partkey = l_partkey and p_brand = 'Brand#23' and p_container in ('MED BAG', 'MED BOX', 'MED PKG', 'MED PACK') and l_quantity >= 10 and l_quantity <= 10 + 10 and p_size between 1 and 10 and l_shipmode in ('AIR', 'AIR REG') and l_shipinstruct = 'DELIVER IN PERSON' ) or ( p_partkey = l_partkey and p_brand = 'Brand#34' and p_container in ('LG CASE', 'LG BOX', 'LG PACK', 'LG PKG') and l_quantity >= {} and l_quantity <= {} and p_size between {} and {} and l_shipmode in ('AIR', 'AIR REG') and l_shipinstruct = 'DELIVER IN PERSON')", "params": [[15, 25],[30, 40],[1, 10],[15, 25]]}],
+                    "q7": [{"query": "select cntrycode, count(*) as numcust, sum(c_acctbal) as totacctbal from ( select substring(c_phone, 1, 2) as cntrycode, c_acctbal from customer where substring(c_phone, 1, 2) in ('13', '31', '23', '29', '30', '18', '17') and c_acctbal > ( select avg(c_acctbal) from customer where c_acctbal > {} and substring(c_phone, 1, 2) in ('13', '31', '23', '29', '30', '18', '17') ) and not exists ( select * from orders where o_custkey = c_custkey ) ) as custsale group by cntrycode order by cntrycode", "params":[[0.00, 1000.99]]}]
+                },
+                "answers": {
+                },
+                "tables": {
+                        "dataSource": "/netstore/datasets/tpch_sf1_notrail/",
+                        "tableNames": ["orders.tbl", "lineitem.tbl", "part.tbl", "customer.tbl"],
+                        "extension": ".tbl"
+                }
         }
 }
