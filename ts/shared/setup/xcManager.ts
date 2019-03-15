@@ -1014,9 +1014,10 @@ namespace xcManager {
                             $target.hasClass("highlightBox");
             if (!clickable && $target.closest('.dropdownBox').length === 0) {
                 xcMenu.close();
-                // if ($target.attr('id') !== 'mainFrame') {
-                //     TblManager.unHighlightCells();
-                // }
+                if (!$target.is(".xc-tableArea .viewWrap") &&
+                    !$target.closest(".tableScrollBar").length) {
+                    TblManager.unHighlightCells();
+                }
             }
 
             if (!$('#modelingDagPanel').hasClass('active') ||

@@ -1,4 +1,5 @@
 describe("TableManager Test", function() {
+    let tabId;
     before(function() {
         console.clear();
         UnitTest.onMinMode();
@@ -563,15 +564,19 @@ describe("TableManager Test", function() {
         });
     });
 
-    describe.skip("Table Related Api Test", function() {
-        var dsName, tableName, tableId;
+    describe("Table Related Api Test", function() {
+        var dsName, tableName, tableId, nodeId;
 
         before(function(done){
+            if (XVM.isSQLMode()) {
+                $("#modeArea").click();
+            }
             UnitTest.addAll(testDatasets.sp500, "sp500_tableManager_test")
-            .then(function(resDS, resTable) {
+            .then(function(resDS, resTable, tPrefix, _nodeId, _tabId) {
                 dsName = resDS;
                 tableName = resTable;
                 tableId = xcHelper.getTableId(tableName);
+                tabId = _tabId;
                 done();
             })
             .fail(function() {
@@ -579,21 +584,22 @@ describe("TableManager Test", function() {
             });
         });
 
-        it("TblManager.sendTableToUndone should work", function(done) {
-            var table = gTables[tableId];
-            TblManager.sendTableToUndone(tableId, {"remove": true})
-            .then(function() {
-                expect(table.getType()).to.equal(TableType.Undone);
-                return TblManager.refreshTable([tableName]);
-            })
-            .then(function() {
-                expect(table.getType()).to.equal(TableType.Active);
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
+        // XXX remove if we're not using statuses
+        // it("TblManager.sendTableToUndone should work", function(done) {
+        //     var table = gTables[tableId];
+        //     TblManager.sendTableToUndone(tableId, {"remove": true})
+        //     .then(function() {
+        //         expect(table.getType()).to.equal(TableType.Undone);
+        //         return TblManager.refreshTable([tableName]);
+        //     })
+        //     .then(function() {
+        //         expect(table.getType()).to.equal(TableType.Active);
+        //         done();
+        //     })
+        //     .fail(function() {
+        //         done("fail");
+        //     });
+        // });
 
         it("TblManager.hideTable should work", function() {
             TblManager.hideTable(tableId);
@@ -684,43 +690,11 @@ describe("TableManager Test", function() {
                 $xcTheadWrap = $("#xcTheadWrap-" + tableId);
             });
 
-            it("Should prevent space in rename", function() {
-                var $div = $xcTheadWrap.find(".tableTitle .text");
-                var e = jQuery.Event("keydown", {"which": keyCode.Space});
-                $div.trigger(e);
-                expect(e.isDefaultPrevented()).to.be.true;
-                expect(e.isPropagationStopped()).to.be.true;
-            });
-
             it("Should open tableMenu", function() {
                 var $menu = $("#tableMenu");
-                $xcTheadWrap.find(".dropdownBox").click();
+                $("#dagViewTableArea .tableMenu").click();
                 assert.isTrue($menu.is(":visible"));
-                $("#dagViewTableArea .tableMenu").mousedown();
-                assert.isFalse($menu.is(":visible"));
-            });
-
-            it("Should right click to open the menu", function() {
-                var $menu = $("#tableMenu");
-                $xcTheadWrap.find(".dropdownBox").contextmenu();
-                assert.isTrue($menu.is(":visible"));
-                $("#dagViewTableArea .tableMenu").mousedown();
-                assert.isFalse($menu.is(":visible"));
-            });
-
-            it("Shuld click .tableGrab to open menu", function() {
-                var $menu = $("#tableMenu");
-                $xcTheadWrap.find(".tableGrab").click();
-                assert.isTrue($menu.is(":visible"));
-                $("#dagViewTableArea .tableMenu").mousedown();
-                assert.isFalse($menu.is(":visible"));
-            });
-
-            it("Should right click .tableGrab to open the menu", function() {
-                var $menu = $("#tableMenu");
-                $xcTheadWrap.find(".tableGrab").contextmenu();
-                assert.isTrue($menu.is(":visible"));
-                $("#dagViewTableArea .tableMenu").mousedown();
+                $("#dagViewTableArea .tableMenu").click();
                 assert.isFalse($menu.is(":visible"));
             });
         });
@@ -751,21 +725,6 @@ describe("TableManager Test", function() {
                 .to.equal(0);
             });
 
-            it("Should mousedown to focus on table", function() {
-                var $title = $xcTableWrap.find(".tableTitle");
-                gActiveTableId = null;
-                $title.removeClass("tblTitleSelected");
-                // case 1
-                $xcTableWrap.addClass("tableLocked");
-                $xcTableWrap.mousedown();
-                expect(gActiveTableId).to.be.null;
-                // case 2
-                $xcTableWrap.removeClass("tableLocked");
-                $xcTableWrap.mousedown();
-                expect(gActiveTableId).to.equal(tableId);
-                expect($title.hasClass("tblTitleSelected")).to.be.true;
-            });
-
             it("Should mousedown rowGrab to start resize", function() {
                 var test = null;
                 var oldFunc = TblAnim.startRowResize;
@@ -785,20 +744,25 @@ describe("TableManager Test", function() {
                 TblAnim.startRowResize = oldFunc;
             });
 
-            it("Should Sort", function() {
+            it("Should Sort", function(done) {
                 var hashVersion = $xcTableWrap.attr("data-id");
-                var $sortIcon = $xcTableWrap.find(".sortIcon");
+                var $sortIcon = $xcTableWrap.find(".sortAsc");
 
                 $sortIcon.mousedown();
                 $sortIcon.click();
 
                 var checkFunc = function() {
-                    return !$("#xcTableWrap-" + tableId).length;
+                    return !$("#xcTableWrap-" + tableId).length && $(".xcTable").is(":visible");
                 };
                 UnitTest.testFinish(checkFunc)
                 .then(function() {
                     $xcTableWrap = $(".xcTableWrap");
                     expect(hashVersion).not.to.equal($xcTableWrap.attr("data-id"));
+                    tableId = $xcTableWrap.attr("data-id");
+                    done();
+                })
+                .fail(function() {
+                    done("fail");
                 });
             });
 
@@ -1039,14 +1003,13 @@ describe("TableManager Test", function() {
                 var $td = $tbody.find(".row0 td.col1");
                 var $td2 = $tbody.find(".row3 td.col1");
 
-                $td.click();
+                $td.trigger(fakeEvent.mousedown);
 
                 var e = jQuery.Event("mousedown", {
                     "which": 1,
                     "shiftKey": true
                 });
                 $td2.trigger(e);
-
                 assert.isTrue($td.hasClass("highlightedCell") && $td2.hasClass("highlightedCell"));
 
                 TblManager.rehighlightCells(tableId);
@@ -1080,8 +1043,12 @@ describe("TableManager Test", function() {
         });
 
         after(function(done) {
-            UnitTest.deleteAll(tableName, dsName)
+            UnitTest.deleteTab(tabId)
+            .then(function() {
+                return  UnitTest.deleteAll(tableName, dsName);
+            })
             .always(function() {
+                Alert.forceClose();
                 done();
             });
         });

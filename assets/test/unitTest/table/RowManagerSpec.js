@@ -1,28 +1,51 @@
-describe.skip('RowManager Test', function() {
+describe('RowManager Test', function() {
     var testDs;
     var tableName;
     var tableId;
     var oldTableName;
     var $table;
     var rowManager
+    var tabId;
+    var nodeId;
+    let cachedUserPref;
 
     before(function(done) {
         console.clear();
+        console.log("RowManager Test");
         UnitTest.onMinMode();
         var testDSObj = testDatasets.fakeYelp;
+        let node;
+        if (XVM.isSQLMode()) {
+            $("#modeArea").click();
+        }
+        cachedUserPref = UserSettings.getPref;
+        UserSettings.getPref = function(val) {
+            if (val === "dfAutoExecute" || val === "dfAutoPreview") {
+                return false;
+            } else {
+                return cachedUserPref(val);
+            }
+        };
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-        .then(function(ds, tName) {
+        .then(function(ds, tName, tPrefx, _nodeId, _tabId) {
             testDs = ds;
             tableName = tName;
             tableId = xcHelper.getTableId(tableName);
             $table = $('#xcTable-' + tableId);
+            tabId = _tabId;
+            nodeId = _nodeId;
 
-            return ExtensionManager.trigger(tableId, "UExtGenRowNum",
-                                        "genRowNum", {newColName: "rowNum"});
+            node = DagViewManager.Instance.autoAddNode("rowNum", null, _nodeId, {newField: "rowNum"});
+            node.setParam({newField: "rowNum"});
+            return DagViewManager.Instance.run();
         })
-        .then(function(tName) {
+        .then(function() {
+            return DagViewManager.Instance.viewResult(DagViewManager.Instance.getActiveDag().getNode(node.getId()));
+        })
+        .then(function() {
             oldTableName = tableName;
-            tableName = tName;
+            tableId = $(".xcTable").data("id");
+            tableName = gTables[tableId].tableName;
             tableId = xcHelper.getTableId(tableName);
             $table = $("#xcTable-" + tableId);
 
@@ -377,22 +400,30 @@ describe.skip('RowManager Test', function() {
             // rowheight change at row 2,4, and 43
             var fakeTable = {rowHeights: {0: {2: 100, 4: 200}, 2: {43: 400}}};
             var fakeRowManager = new RowManager(fakeTable, $());
-            expect(fakeRowManager.getRowsAboveHeight(200)).to.equal((200 * 25) + (75 + 175 + 375));
-            expect(fakeRowManager.getRowsAboveHeight(40)).to.equal((40 * 25) + (75 + 175));
-            expect(fakeRowManager.getRowsAboveHeight(42)).to.equal((42 * 25) + (75 + 175));
-            expect(fakeRowManager.getRowsAboveHeight(43)).to.equal((43 * 25) + (75 + 175 + 375));
-            expect(fakeRowManager.getRowsAboveHeight(44)).to.equal((44 * 25) + (75 + 175 + 375));
+            expect(fakeRowManager.getRowsAboveHeight(200)).to.equal((200 * 21) + (79 + 179 + 379));
+            expect(fakeRowManager.getRowsAboveHeight(40)).to.equal((40 * 21) + (79 + 179));
+            expect(fakeRowManager.getRowsAboveHeight(42)).to.equal((42 * 21) + (79 + 179));
+            expect(fakeRowManager.getRowsAboveHeight(43)).to.equal((43 * 21) + (79 + 179 + 379));
+            expect(fakeRowManager.getRowsAboveHeight(44)).to.equal((44 * 21) + (79 + 179 + 379));
         });
     });
 
     after(function(done) {
+        UserSettings.getPref = cachedUserPref;
         setTimeout(function() {
-            UnitTest.deleteTable(oldTableName, TableType.Orphan)
-            .always(function() {
-                UnitTest.deleteAll(tableName, testDs)
+            UnitTest.deleteTab(tabId)
+            .then(() => {
+                return UnitTest.deleteAllTables();
+            })
+            .then(function() {
+                UnitTest.deleteDS(testDs)
                 .always(function() {
+                    UnitTest.offMinMode();
                     done();
                 });
+            })
+            .fail(function() {
+                done("fail");
             });
         }, 500);
     });
