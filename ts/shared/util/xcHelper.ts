@@ -2697,17 +2697,34 @@ namespace xcHelper {
     export function disableScreen($area: JQuery, options?): JQuery {
         options = options || {};
         let classes = options.classes || "";
-        const $waitingBg: JQuery = $('<div class="xc-waitingBG ' +  classes +
-            '">' +
+        classes = "xc-waitingBG " + classes;
+        const $waitingBg: JQuery = $('<div class="' +  classes + '">' +
             '<div class="waitingIcon"></div>' +
         '</div>');
+        let selector;
         if (options.id) {
             $waitingBg.attr("id", options.id);
+            selector = "#" + options.id;
+        } else {
+            selector = ".classes";
         }
         if (options.styles) {
             for (let attr in options.styles) {
                 $waitingBg.css(attr, options.styles[attr]);
             }
+        }
+        // check if the element exists
+        let $prevElement = $(selector);
+        if ($prevElement.length) {
+            // if already exists, increase the lock count by 1. Later, if we try to
+            // remove and lock count is > 0, then we decrease the lock count
+            // and don't remove until count is set to 0
+            if (!$prevElement.data("bglock")) {
+                $prevElement.data("bglock", 1);
+            } else {
+                $prevElement.data("bglock", $prevElement.data("bglock" + 1));
+            }
+            return;
         }
 
         $area.append($waitingBg);
@@ -2722,6 +2739,12 @@ namespace xcHelper {
      * @param $waitingBg
      */
     export function enableScreen($waitingBg: JQuery): XDPromise<any> {
+        if ($waitingBg.data("bglock")) {
+            // bg has a lock count, which means it needs to wait for more
+            // enableScreen calls to get unlocked
+            $waitingBg.data("bglock", $waitingBg.data("bglock") - 1);
+            return;
+        }
         const deferred = PromiseHelper.deferred();
         $waitingBg.fadeOut(200, function() {
             $(this).remove();
