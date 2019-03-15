@@ -458,7 +458,7 @@ class TblSourcePreview {
             // error case
             return;
         }
-        TblSource.Instance.createTableFromDataset(tableInfo, res.schema); 
+        TblSource.Instance.createTableFromDataset(tableInfo, res.schema, res.primaryKeys); 
     }
 
     private _createDF(tableInfo: PbTblInfo): void {

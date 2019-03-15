@@ -343,7 +343,7 @@ class XcDatasetViewer extends XcViewer {
             const tr: string = this._getTableRowsHTML(jsonKeys, jsons, []);
             $table.append(tr);
             TblFunc.moveFirstColumn($table);
-
+            this._synceResultWithDisplaySchema();
             deferred.resolve();
         })
         .fail(deferred.reject);

@@ -195,9 +195,9 @@ class PTblManager {
             moduleName: string,
             funcName: string,
             udfQuery: object,
-            schema: ColSchema[]
-        },
-        primaryKeys: string[],
+            schema: ColSchema[],
+            primaryKeys: string[]
+        }
     ): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         let dsOptions = $.extend({}, args);
@@ -218,6 +218,7 @@ class PTblManager {
 
         let hasDataset: boolean = false;
         let schema: ColSchema[] = args.schema;
+        let primaryKeys: string[] = args.primaryKeys;
         this._loadingTables[tableName] = tableInfo;
 
         let currentStep: number = 1;

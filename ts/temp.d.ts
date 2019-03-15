@@ -343,7 +343,7 @@ declare class d3 {
 declare namespace d3 {
     export function interpolate(current: any, a: any);
     export function interpolateNumber(num: number, step: number): Function;
-    export function select(selector: string | HTMLElement): d3;
+    export function select(selector: string | HTMLElement | Element): d3;
     export function transition(): d3;
     export function duration(): d3;
     export function append(selector: string): d3;

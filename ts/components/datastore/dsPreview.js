@@ -1586,7 +1586,8 @@ window.DSPreview = (function($, DSPreview) {
             "skipRows": skipRows,
             "udfQuery": udfQuery,
             "advancedArgs": advancedArgs,
-            "schema": res.schema
+            "schema": res.schema,
+            "primaryKeys": res.primaryKeys
         };
         var curPreviewId = previewId;
 
@@ -2510,7 +2511,8 @@ window.DSPreview = (function($, DSPreview) {
             udfQuery = udfDef.udfQuery;
         }
 
-        var schemaArgs = isCreateTableMode() ? dataSourceSchema.validate() : {schema: null};
+        var schemaArgs = isCreateTableMode() ?
+        dataSourceSchema.validate() : {schema: null, primaryKeys: null};
         if (schemaArgs == null) {
             // error case
             return null;
@@ -2533,7 +2535,8 @@ window.DSPreview = (function($, DSPreview) {
             "lineDelim": lineDelim,
             "quote": quote,
             "skipRows": skipRows,
-            "schema": schema
+            "schema": schema,
+            "primaryKeys": schemaArgs.primaryKeys
         };
 
         return $.extend(args, advanceArgs);

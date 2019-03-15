@@ -1572,6 +1572,9 @@ class TblManager {
         // it may not be visible
         try {
             const $topBar: JQuery = $('.mainPanel.active').find('.topBar');
+            if (!$topBar[0]) {
+                return;
+            }
             const frameTop: number = $topBar[0].getBoundingClientRect().bottom;
             const frameBottom: number = $('#statusBar')[0].getBoundingClientRect().top;
             const frameHeight: number = frameBottom - frameTop;
@@ -1584,7 +1587,7 @@ class TblManager {
         } catch (e) {
             console.error("adjustRowFetchQuantity error", e);
         }
-        return gMaxEntriesPerPage;;
+        return gMaxEntriesPerPage;
     }
 
     /**

@@ -95,7 +95,8 @@ class TblSource {
             moduleName: string,
             funcName: string,
             udfQuery: object,
-            schema: ColSchema[]
+            schema: ColSchema[],
+            primaryKeys: string[],
         }
     ): XDPromise<string> {
         if (this._tables.has(tableName)) {
@@ -112,7 +113,7 @@ class TblSource {
         this._addLoadingIcon($grid);
         this._focusOnTable($grid);
 
-        PTblManager.Instance.createTableFromSource(tableInfo, args, null)
+        PTblManager.Instance.createTableFromSource(tableInfo, args)
         .always(() => {
             // re-render
             this._refresh(false);
@@ -126,7 +127,8 @@ class TblSource {
      */
     public createTableFromDataset(
         tableInfo: PbTblInfo,
-        schema: ColSchema[]
+        schema: ColSchema[],
+        primaryKeys: string[]
     ): void {
         let tableName = tableInfo.name;
         if (!this._tables.has(tableName)) {
@@ -140,7 +142,7 @@ class TblSource {
         this._focusOnTable($grid);
 
         let dsName = tableInfo.dsName;
-        PTblManager.Instance.createTableFromDataset(dsName, tableName, schema, null)
+        PTblManager.Instance.createTableFromDataset(dsName, tableName, schema, primaryKeys)
         .then(() => {
             this._refresh(false);
         })
@@ -594,7 +596,6 @@ class TblSource {
                 classes += " multiOpts";
 
                 $gridMenu.find(".multiActivate, .multiDeactivate").show();
-                $gridMenu.find(".multiDelete").removeClass("disabled");
                 let numTable: number = $gridView.find(".grid-unit.selected.ds").length;
                 let numInActivatedTable: number = $gridView.find(".grid-unit.selected.inActivated").length;
                 if (numTable === 0) {
@@ -603,10 +604,6 @@ class TblSource {
                 } else if (numInActivatedTable === 0) {
                     // when all tables are activated
                     $gridMenu.find(".multiActivate").hide();
-                    if (numTable === totalSelected) {
-                        // when only have tables
-                        $gridMenu.find(".multiDelete").addClass("disabled");
-                    }
                 } else if (numTable === numInActivatedTable) {
                     // when all ds are inactivated
                     $gridMenu.find(".multiDeactivate").hide();

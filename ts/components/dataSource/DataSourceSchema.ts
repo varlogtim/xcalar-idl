@@ -32,7 +32,7 @@ class DataSourceSchema {
         this._showSchemaError(null);
     }
 
-    public validate(): {schema: ColSchema[]} | null {
+    public validate(): {schema: ColSchema[], primaryKeys: string[]} | null {
         let res = this._validateSchema(false);
         return res.error ? null : res;
     }
@@ -118,12 +118,16 @@ class DataSourceSchema {
     private _validateSchema(ignoreError: boolean): {
         schema: ColSchema[],
         schemaToSuggest: ColSchema[],
+        primaryKeys: string[],
+        pkOrders: {name: string, order: number}[],
         error: string
     } {
         if (this._isAutoDetect()) {
             return {
                 schema: null,
                 schemaToSuggest: null,
+                primaryKeys: null,
+                pkOrders: null,
                 error: null
             };
         }
@@ -143,12 +147,16 @@ class DataSourceSchema {
     private _parseSchema(val: string): {
         schema: ColSchema[],
         schemaToSuggest: ColSchema[],
+        primaryKeys: string[],
+        pkOrders: {name: string, order: number}[],
         error: string
     } {
         if (val === "") {
             return {
                 schema: null,
                 schemaToSuggest: [],
+                primaryKeys: null,
+                pkOrders: null,
                 error: ErrTStr.NoEmpty
             };
         }
@@ -156,6 +164,8 @@ class DataSourceSchema {
         let validTypes: ColumnType[] = BaseOpPanel.getBasicColTypes();
         let schema: ColSchema[] = [];
         let schemaToSuggest: ColSchema[] = [];
+        let pkOrders: {name: string, order: number}[] = [];
+        let usedPkOrders: Set<number> = new Set();
         let error: string = null;
 
         try {
@@ -179,6 +189,7 @@ class DataSourceSchema {
                 }
                 let name: string = null;
                 let type: ColumnType = null;
+                let pk: string = null;
 
                 for (let key in column) {
                     let trimmedKey = key.trim();
@@ -186,6 +197,8 @@ class DataSourceSchema {
                         name = column[key];
                     } else if (trimmedKey === "type") {
                         type = column[key];
+                    } else if (trimmedKey === "pk") {
+                        pk = column[key];
                     }
                 }
 
@@ -216,13 +229,26 @@ class DataSourceSchema {
                     }
                 }
 
+                if (pk != null) {
+                    let pkOrder: number = Number(pk);
+                    if (isNaN(pkOrder)) {
+                        error = error || "Invalid primary key order for column \"" + name + "\", please specify a number";
+                    } else if (pkOrder < 0) {
+                        error = error || "Primay key order should be a position number";
+                    } else if (usedPkOrders.has(pkOrder)) {
+                        error = error || "Primary key with the same order of " + pk + " already exist.";
+                    } else {
+                        pkOrders.push({name: name, order: pkOrder});
+                        usedPkOrders.add(pkOrder);
+                    }
+                }
+
                 schemaToSuggest.push({
                     name: name,
                     type: type
                 });
             });
         } catch (e) {
-            console.error(e);
             error = ErrTStr.ParseSchema;
         }
 
@@ -231,9 +257,12 @@ class DataSourceSchema {
             schema = null;
         }
 
+        let primaryKeys: string[] = error ? null : this._getPrimaryKeysFromOrder(pkOrders);
         return {
             schema: schema,
             schemaToSuggest: schemaToSuggest,
+            primaryKeys: primaryKeys,
+            pkOrders: pkOrders,
             error: error
         };
     }
@@ -245,6 +274,47 @@ class DataSourceSchema {
             autoDetect: isAutoDetect,
             schema: schema
         });
+    }
+
+    private _getPrimaryKeysFromOrder(
+        pkOrders: {name: string, order: number}[]
+    ): string[] {
+        pkOrders.sort((pk1, pk2) => {
+            return pk1.order - pk2.order
+        });
+        // as column name is upper case, primary key must by uppercase
+        // when pass into xiApi
+        return pkOrders.map((pk) => pk.name.toUpperCase());
+    }
+
+    private _addPKOrderToSchema(
+        schema: ColSchema[],
+        pkOrder: {name: string, order: number}[],
+    ): {name: string, type: ColumnType, pk?: number}[] {
+        try {
+            if (pkOrder.length === 0) {
+                return schema;
+            }
+            let map: Map<string, number> = new Map();
+            pkOrder.forEach((pk) => {
+                map.set(pk.name, pk.order);
+            });
+            let schemaWithPks: {name: string, type: ColumnType, pk?: number}[] = schema.map((colInfo) => {
+                let name: string = colInfo.name;
+                let newColInfo = {
+                    name: name,
+                    type: colInfo.type
+                };
+                if (map.has(name)) {
+                    newColInfo["pk"] = map.get(name);
+                }
+                return newColInfo;
+            });
+            return schemaWithPks;
+        } catch (e) {
+            console.error(e);
+        }
+        return schema;
     }
 
     private _triggerEvent(event, ...args): any {
@@ -266,7 +336,9 @@ class DataSourceSchema {
             let initialSchema: ColSchema[] = this._triggerEvent(DataSourceSchemaEvent.GetHintSchema);
             let res = this._validateSchema(true);
             let currentSchema: ColSchema[] = res.schema || res.schemaToSuggest || [];
+            let currentPkOrders = res.pkOrders;
             let callback = (schema: ColSchema[]): void => {
+                schema = this._addPKOrderToSchema(schema, currentPkOrders);
                 this._showSchemaError(null);
                 this._addSchema(schema);
                 this._triggerEvent(DataSourceSchemaEvent.ChangeSchema, {
@@ -284,6 +356,5 @@ class DataSourceSchema {
                 this._changeSchema();
             }, 500);
         });
-
     }
 }
