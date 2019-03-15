@@ -6,8 +6,6 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _$functionsUl: JQuery;
     protected _isNewCol: boolean;
     protected _operatorName: string = ""; // group by, map, filter, aggregate, etc..
-    private static _operatorsMap = {};
-    private static _udfDisplayPathPrefix: string;
     protected _categoryNames: string[] = [];
 
     protected _$lastInputFocused: JQuery;
@@ -24,8 +22,9 @@ class GeneralOpPanel extends BaseOpPanel {
     protected model;
     protected _opCategories: number[];
     protected _specialWords: string[] = ["None", "null"];
-    protected _udfDisplayPathPrefix: string = UDFFileManager.Instance.getCurrWorkbookDisplayPath();
     private static _needsUDFUpdate: boolean = false;
+    private static _operatorsMap = {};
+    private static _udfDisplayPathPrefix: string;
 
      // shows valid cast types
     protected static readonly castMap = {
@@ -67,6 +66,7 @@ class GeneralOpPanel extends BaseOpPanel {
     public static setup() {
         // UDFs should not rely on this.
         this._operatorsMap = XDFManager.Instance.getOperatorsMap();
+        this._udfDisplayPathPrefix = UDFFileManager.Instance.getCurrWorkbookDisplayPath();
     }
 
     public static getOperatorsMap() {

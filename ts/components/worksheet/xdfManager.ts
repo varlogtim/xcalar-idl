@@ -75,10 +75,10 @@ class XDFManager {
 
     // given a workbook path, returns a map of categories including all xdfs and
     // udfs from that workbook, including shared
-    public getOperatorsMapFromWorkbook(udfDisplayPathPrefix: string, sort?: boolean) {
+    public getOperatorsMapFromWorkbook(udfNSPathPrefix: string, sort?: boolean) {
         let opMap = xcHelper.deepCopy(this._operatorsMap);
         let udfs: XcalarEvalFnDescT[] = xcHelper.deepCopy(this._allUDFs);
-        udfs = xcHelper.filterUDFs(udfs, udfDisplayPathPrefix);
+        udfs = xcHelper.filterUDFs(udfs, udfNSPathPrefix);
         delete opMap[FunctionCategoryT.FunctionCategoryUdf];
         if (udfs.length) {
             if (sort) {

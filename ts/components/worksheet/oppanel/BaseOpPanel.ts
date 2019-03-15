@@ -532,7 +532,8 @@ class BaseOpPanel {
     }
 
     private _setupOperationsMap(udfDisplayPathPrefix?: string) {
-        let opMap = XDFManager.Instance.getOperatorsMapFromWorkbook(udfDisplayPathPrefix)
+        let udfPrefix = udfDisplayPathPrefix || UDFFileManager.Instance.getCurrWorkbookDisplayPath();
+        let opMap = XDFManager.Instance.getOperatorsMapFromWorkbook(UDFFileManager.Instance.displayPathToNsPath(udfPrefix));
         this.xdfMap = {};
         this.udfMap = {};
 
