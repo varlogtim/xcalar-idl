@@ -20,7 +20,7 @@ class DagNodeOutOptimizable extends DagNodeOut {
     }
 
     protected _clearConnectionMeta(keepRetina?: boolean): void {
-        if (!keepRetina) {
+        if (!keepRetina && this.isOptimized()) {
             this._removeRetina();
         }
         super._clearConnectionMeta();
