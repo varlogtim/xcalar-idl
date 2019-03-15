@@ -19,6 +19,7 @@ namespace SqlQueryHistoryPanel {
     export class BaseCard {
         protected _$cardContainer: JQuery = null;
         protected _tableComponent: DynaTable<QueryInfo> = null;
+        protected _searchTerm = '';
 
         public setup({
             isShowAll = false,
@@ -48,6 +49,19 @@ namespace SqlQueryHistoryPanel {
                 SQLEditorSpace.Instance.cancelExecution();
             });
 
+            // Search box
+            const $searchBox = this._$cardContainer.find(".selSearch");
+            let searchTimeout = null
+            $searchBox.off().on('input', () => {
+                if (searchTimeout != null) {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = null;
+                }
+                searchTimeout = setTimeout(() => {
+                    this._searchTerm = $searchBox.val();
+                    this._updateTableUI(this.queryMap, false);
+                }, 500);
+            });
             SqlQueryHistModal.getInstance().setup();
         }
 
@@ -198,7 +212,19 @@ namespace SqlQueryHistoryPanel {
         }
 
         protected get queryMap(): SqlQueryMap {
-            return SqlQueryHistory.getInstance().getQueryMap();
+            const searchTerm = this._searchTerm.toLowerCase();
+            const queryMap = SqlQueryHistory.getInstance().getQueryMap();
+            if (searchTerm.length > 0) {
+                for (const sqlId of Object.keys(queryMap)) {
+                    const queryInfo = queryMap[sqlId];
+                    if (queryInfo != null && queryInfo.queryString != null) {
+                        if (queryInfo.queryString.toLowerCase().indexOf(searchTerm) < 0) {
+                            delete queryMap[sqlId];
+                        }
+                    }
+                }
+            }
+            return queryMap;
         }
 
         protected _createTableComponent(props: {

@@ -83,6 +83,7 @@ module.exports = {
         "SearchTools": "Search operators",
         "SeachColumn": "Search column name",
         "SearchKeyWord": "Search keyword",
+        "SearchQuery": "Search query",
         "seconds": "seconds",
         "SelectAll": "Select All",
         "SelectedFiles": "Selected Files / Folders:",

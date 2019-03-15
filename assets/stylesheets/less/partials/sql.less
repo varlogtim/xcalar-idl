@@ -396,7 +396,7 @@
                     .selRefreshQueryHist, .selCancelQueryHist, .selDeleteQueryHist {
                         float: right;
                         margin-left: 0;
-                        .position(relative, @top: 9px);
+                        .position(relative, @top: 8px);
                         .size(22px, 22px);
                         .rounded(3px);
                         background-color: @color-bg-topBarGray2;
@@ -421,6 +421,24 @@
                     .selCancelQueryHist {
                         .icon {
                             color: @color-red-forbid;
+                        }
+                    }
+
+                    .searchbarArea {
+                        float: right;
+                        margin-right: 10px;
+                        input {
+                            .size(@width: 131px, @height: 24px);
+                            font-size: 12px;
+                            line-height: 24px;
+                            padding-left: 22px;
+                            background-color: @color-white;
+                            border-radius: 3px;
+                        }
+                        .icon {
+                            .position(absolute, @top: 12px, @left: 5px);
+                            font-size: 14px;
+                            color: @color-border-bar;
                         }
                     }
                 }
