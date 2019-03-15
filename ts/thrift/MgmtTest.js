@@ -792,6 +792,7 @@ window.Function.prototype.bind = function() {
                 return xcalarDriverList(thriftHandle);
             })
             .then(function(driverList) {
+                console.log("finished listing; checking");
                 var driverFound = false;
                 for (var ii = 0; ii < driverList.length; ii++) {
                     if (driverList[ii].name === driverName) {
@@ -802,6 +803,7 @@ window.Function.prototype.bind = function() {
                     }
                 }
                 test.assert(driverFound);
+                console.log("finished checking; deleting");
                 return xcalarApiUdfDelete(thriftHandle, moduleName);
             })
             .done(function(status) {
