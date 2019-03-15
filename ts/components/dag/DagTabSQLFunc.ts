@@ -192,6 +192,22 @@ class DagTabSQLFunc extends DagTabUser {
         return changeNodes;
     }
 
+    public resetInputOrder(): DagNodeSQLFuncIn[] {
+        try {
+            let nodes: DagNodeSQLFuncIn[] = <DagNodeSQLFuncIn[]>this.getGraph().getNodesByType(DagNodeType.SQLFuncIn);
+            nodes.sort((node1, node2) => {
+                return node1.getOrder() - node2.getOrder();
+            });
+            nodes.forEach((node, i) => {
+                node.setOrder(i);
+            });
+            return nodes;
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    }
+
     /**
      * @override
      */

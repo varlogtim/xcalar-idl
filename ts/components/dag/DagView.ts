@@ -1030,7 +1030,10 @@ class DagView {
             this.graph.checkNodesState(nodesMap);
             // XXX scroll to selection if off screen
             this._setGraphDimensions({ x: maxXCoor, y: maxYCoor });
-
+            if (this.dagTab instanceof DagTabSQLFunc) {
+                let sqlFuncInNodes = this.dagTab.resetInputOrder();
+                this._updateTitleForNodes(sqlFuncInNodes);
+            }
             Log.add(SQLTStr.CopyOperations, {
                 "operation": SQLOps.CopyOperations,
                 "dataflowId": this.tabId,
