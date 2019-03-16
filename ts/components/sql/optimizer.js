@@ -1208,6 +1208,10 @@
             if (selectStruct.args.eval.Maps) {
                 return true;
             }
+            // XXX should re-enable it when Select supports UDF
+            if (curNode.value.args.eval[0].evalString.indexOf("sql:") > -1) {
+                return true;
+            }
             var filterString = XDParser.XEvalParser.replaceColName(
                 curNode.value.args.eval[0].evalString, selectStruct.colNameMap, true);
             if (selectStruct.args.eval.Filter && selectStruct.args.eval.Filter != "") {
@@ -1228,7 +1232,7 @@
                 for (var i = 0; i < maps.length; i++) {
                     // XXX should re-enable it when Select supports UDF
                     if (maps[i].evalString.indexOf("sql:") > -1) {
-                        return;
+                        return true;
                     }
                     maps[i].evalString = XDParser.XEvalParser.replaceColName(
                                 maps[i].evalString, selectStruct.colNameMap, true);
