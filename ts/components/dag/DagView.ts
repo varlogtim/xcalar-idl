@@ -15,7 +15,7 @@ class DagView {
         "descriptionIcon": "\ue966",
         "lockIcon": "\ue940",
         "aggregateIcon": "\ue939",
-        "paramIcon": "\ue9ea"
+        "paramIcon": "\uea69"
     };
 
     private containerSelector: string = "#dagView";
@@ -74,8 +74,14 @@ class DagView {
         for (let i in treeGroups) {
             const group = treeGroups[i];
             const nodes = {};
-            DagView._alignNodes(group[0], nodes, startingWidth);
-            for (let j = 0; j < group.length; j++) {
+            for (let j in group) {
+                let node: DagNode = group[j];
+                if (node.getChildren().length === 0) {
+                    DagView._alignNodes(node, nodes, startingWidth);
+                }
+            }
+
+            for (let j in group) {
                 if (group[j].getParents().length === 0) {
                     // adjust positions of nodes so that children will never be
                     // to the left of their parents
@@ -240,7 +246,7 @@ class DagView {
             icons.sort(function(a, b) {
                 return DagView.iconOrder.indexOf(a) - DagView.iconOrder.indexOf(b);
             });
-            $node.find(".nodeIcon").remove();
+            $node.find(".nodeIcon:not(.tableIcon)").remove();
             // store the icon order
             $node.data("icons", icons);
             top = DagView.nodeHeight;
@@ -258,13 +264,16 @@ class DagView {
         function drawIcon(iconType, left, top, icon, tooltip, index) {
             let text: string = icon;
             let fontSize: number = 7;
+            let iconLeft: number = 0;
             let iconTop: number = 3;
             if (iconType === "paramIcon") {
-                text = "<>";
-                iconTop = 2;
-            }
-            if (iconType === "aggregateIcon") {
+                iconTop = 4;
+                iconLeft = -1;
+                fontSize = 9;
+            } else if (iconType === "aggregateIcon") {
                 fontSize = 6;
+            } else if (iconType === "tableIcon") {
+                iconLeft = -0.5;
             }
 
             const g = d3.select($node.get(0)).append("g")
@@ -279,7 +288,7 @@ class DagView {
                 .attr("font-family", "icomoon")
                 .attr("font-size", fontSize)
                 .attr("fill", "white")
-                .attr("x", 0)
+                .attr("x", iconLeft)
                 .attr("y", iconTop)
                 .text(function (_d) {return text});
 
@@ -612,7 +621,7 @@ class DagView {
 
      // groups individual nodes into trees and joins branches with main tree
     private static _splitIntoTrees(node, seen, treeGroups, groupId) {
-        const treeGroup = {};
+        let treeGroup = {};
         formTreesHelper(node);
         function formTreesHelper(node) {
             const id = node.getId();
@@ -627,22 +636,24 @@ class DagView {
                     // already part of the same tree
                     return;
                 }
+                let mainGroup = treeGroups[mainGroupId];
                 for (let i in treeGroup) {
                     seen[i] = mainGroupId; // reassigning nodes from current
                     // group to the main group that has the id of "mainGroupId"
-                    let mainGroup = treeGroups[mainGroupId];
-                    mainGroup.push(treeGroup[i]);
+
+                    mainGroup[i] = treeGroup[i];
                 }
                 delete treeGroups[groupId];
                 groupId = mainGroupId;
+                treeGroup = mainGroup;
                 return;
             }
             treeGroup[id] = node;
             seen[id] = groupId;
             if (!treeGroups[groupId]) {
-                treeGroups[groupId] = [];
+                treeGroups[groupId] = {};
             }
-            treeGroups[groupId].push(node);
+            treeGroups[groupId][id] = node;
 
             const parents = node.getParents();
             for (let i = 0; i < parents.length; i++) {
