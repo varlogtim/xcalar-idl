@@ -120,6 +120,9 @@ class ExportSQLTableModal {
         }
         this._selectedDriver = driverName;
         let html: string = "";
+        if (driver.description) {
+            html = "<div class='exportDescription'>" + driver.description + "</div>";
+        }
         this._$exportArgSection.empty();
         let targetParams: string[] = [];
         driver.params.forEach((param: ExportParam) => {

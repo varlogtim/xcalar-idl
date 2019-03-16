@@ -246,6 +246,7 @@ interface ExportParam {
 
 interface ExportDriver {
     name: string,
+    description: string
     params: ExportParam[]
 }
 
