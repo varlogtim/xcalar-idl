@@ -10,9 +10,9 @@ require("jsdom/lib/old-api").env("", function(err, window) {
 
     global.Thrift = Thrift = require("../../../assets/js/thrift/thrift.js").Thrift;
     global.hackFunction = require("./hackFunction.js").hackFunction;
-    
+
     hackFunction();
-    
+
     require("../../../assets/lang/en/jsTStr.js");
     require("../dagHelper/enums.js");
     require("../../../assets/js/thrift/XcalarApiService.js");
@@ -22,17 +22,20 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     require("../../../assets/js/thrift/OrderingEnums_types.js");
     require("../../../assets/js/thrift/JoinOpEnums_types.js");
     require("../../../assets/js/thrift/DagStateEnums_types.js");
-    
+    require("../../../assets/js/thrift/DataFormatEnums_types.js");
+    require("../../../assets/js/thrift/UnionOpEnums_types.js");
+    require("../../../assets/js/thrift/LibApisEnums_types.js");
+
     global.xcalarApi = xcalarApi = require("../../../assets/js/thrift/XcalarApi.js");
-    
+
     global.PromiseHelper = PromiseHelper = require("../../../assets/js/promiseHelper.js");
     require("../../../assets/js/XcalarThrift.js");
-    
+
     // Added for KVS to query conversion
     global.Ajv = require("../../../3rd/AJV/ajv.js");
     global.XcUID = require("../dagHelper/XcUID.js").XcUID;
     global.KVStore = require("../dagHelper/kvStore.js").KVStore;
-    
+
     // The order of these is needed as there's dependancies between the files.
     global.DagGraph = require("../dagHelper/DagGraph.js").DagGraph;
     global.xcHelper = require("../dagHelper/xcHelper.js").xcHelper;
@@ -71,9 +74,9 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     global.DagGraphExecutor = require("../dagHelper/DagGraphExecutor.js").DagGraphExecutor
     global.DagNodeFilter = require("../dagHelper/node/DagNodeFilter.js").DagNodeFilter
     global.DagNodeFilterInput = require("../dagHelper/nodeInput/DagNodeFilterInput.js").DagNodeFilterInput
-    
+
     // Ordering may not yet be determined.
-    
+
     global.DagNodeAggregateInput = require("../dagHelper/nodeInput/DagNodeAggregateInput.js").DagNodeAggregateInput
     global.DagNodeAggregate = require("../dagHelper/node/DagNodeAggregate.js").DagNodeAggregate
     global.DagNodeCustom = require("../dagHelper/node/DagNodeCustom.js").DagNodeCustom
@@ -90,7 +93,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     global.DagNodeGroupByInput = require("../dagHelper/nodeInput/DagNodeGroupByInput.js").DagNodeGroupByInput
     global.DagNodeIMDTable = require("../dagHelper/node/DagNodeIMDTable.js").DagNodeIMDTable
     global.DagNodeIMDTableInput = require("../dagHelper/nodeInput/DagNodeIMDTableInput.js").DagNodeIMDTableInput
-    
+
     global.DagNodeIndex = require("../dagHelper/node/DagNodeIndex.js").DagNodeIndex
     global.DagNodeIndexInput = require("../dagHelper/nodeInput/DagNodeIndexInput.js").DagNodeIndexInput
     global.DagNodeJoinInput = require("../dagHelper/nodeInput/DagNodeJoinInput.js").DagNodeJoinInput
@@ -124,7 +127,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     global.DagTabService = require("../dagHelper/DagTabService.js").DagTabService;
     global.DagListService = require("../dagHelper/DagListService.js").DagListService;
     global.DagServiceFactory = require("../dagHelper/DagServiceFactory.js").DagServiceFactory;
-    
+
     // Call init routines
     global.DagNode.setup();
     global.DagTab.setup();

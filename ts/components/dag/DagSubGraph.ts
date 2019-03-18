@@ -100,6 +100,10 @@ class DagSubGraph extends DagGraph {
         this._nameIdMap = nameIdMap;
     }
 
+    public getTableDagIdMap() {
+        return this._nameIdMap;
+    }
+
     public setDagIdToTableNamesMap(dagIdToTableNamesMap) {
         this._dagIdToTableNamesMap = dagIdToTableNamesMap;
     }
@@ -209,6 +213,45 @@ class DagSubGraph extends DagGraph {
         this.elapsedTime = time;
         this.isComplete = true;
         this.state = state;
+    }
+
+    // used for sql sub graph to ensure that left and right rename properties
+    // of the join nodes have columns declared so that when executed in
+    // optimized mode, they're not automatically dropped
+    public keepAllJoinColumns() {
+        const joinNodes = this.getNodesByType(DagNodeType.Join);
+        joinNodes.forEach((joinNode: DagNodeJoin) => {
+            let leftParentNode = joinNode.getParents()[0];
+            let rightParentNode = joinNode.getParents()[1];
+
+            let params = joinNode.getParam();
+            let keepAllColumns = params.keepAllColumns;
+            if (keepAllColumns == null) {
+                keepAllColumns = true;
+            }
+            const leftColNamesToKeep = keepAllColumns
+                ? leftParentNode.getLineage()
+                    .getColumns().map((col) => col.getBackColName())
+                : params.left.keepColumns;
+            const leftRename  = DagNodeJoin.joinRenameConverter(leftColNamesToKeep, params.left.rename, true);
+
+            const rightColNamesToKeep = keepAllColumns
+            ? rightParentNode.getLineage()
+                .getColumns().map((col) => col.getBackColName())
+            : params.right.keepColumns;
+            const rightRename  = DagNodeJoin.joinRenameConverter(rightColNamesToKeep, params.right.rename, true);
+
+            params.left.rename = leftRename;
+            params.right.rename = rightRename;
+            joinNode.setParam({
+                joinType: params.joinType,
+                left: params.left,
+                right: params.right,
+                evalString: params.evalString,
+                nullSafe: params.nullSafe,
+                keepAllColumns: params.keepAllColumns
+            });
+        });
     }
 
     private _getGraphJSON(

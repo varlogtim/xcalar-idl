@@ -514,7 +514,7 @@ class DagNodeExecutor {
             ? parentNode.getLineage()
                 .getColumns().map((col) => col.getBackColName())
             : joinTableInfo.keepColumns;
-        const rename = this._joinRenameConverter(colNamesToKeep, joinTableInfo.rename);
+        const rename = DagNodeJoin.joinRenameConverter(colNamesToKeep, joinTableInfo.rename);
         return {
             tableName: parentNode.getTable(),
             columns: joinTableInfo.columns,
@@ -524,49 +524,6 @@ class DagNodeExecutor {
             rename: rename,
             allImmediates: allImmediates
         }
-    }
-
-    private _joinRenameConverter(
-        colNamesToKeep: string[],
-        renameInput: { sourceColumn: string, destColumn: string, prefix: boolean }[]
-    ): ColRenameInfo[] {
-        // Convert rename list => map, for fast lookup
-        const colRenameMap: Map<string, string> = new Map();
-        const prefixRenameMap: Map<string, string> = new Map();
-        renameInput.forEach(({ prefix, sourceColumn, destColumn }) => {
-            if (prefix) {
-                prefixRenameMap.set(sourceColumn, destColumn);
-            } else {
-                colRenameMap.set(sourceColumn, destColumn);
-            }
-        });
-
-        // Apply rename to the columns need to keep
-        const prefixSet: Set<string> = new Set();
-        const rename = [];
-        for (const colName of colNamesToKeep) {
-            const parsed = xcHelper.parsePrefixColName(colName);
-            if (parsed.prefix.length > 0) {
-                // Prefixed column: put the prefix in the rename list
-                const oldPrefix = parsed.prefix;
-                if (prefixSet.has(oldPrefix)) {
-                    continue; // This prefix has already been renamed
-                }
-                prefixSet.add(oldPrefix);
-                const newPrefix = prefixRenameMap.get(oldPrefix) || oldPrefix;
-                rename.push({
-                    orig: oldPrefix, new: newPrefix, type: DfFieldTypeT.DfFatptr
-                });
-            } else {
-                // Derived column: put column name in the rename list
-                const newName = colRenameMap.get(colName) || colName;
-                rename.push({
-                    orig: colName, new: newName, type: DfFieldTypeT.DfUnknown
-                });
-            }
-        }
-
-        return rename;
     }
 
     private _map(_optimized: boolean): XDPromise<string> {
@@ -1192,7 +1149,16 @@ class DagNodeExecutor {
             node.setXcQueryString(replaceRetStruct.newQueryStr);
             node.setNewTableName(newDestTableName);
             node.updateSubGraph(replaceRetStruct.newTableMap);
-            const queryNodes = JSON.parse(replaceRetStruct.newQueryStr);
+            let finalQueryStr = replaceRetStruct.newQueryStr;
+            const queryNodes = JSON.parse(finalQueryStr);
+
+            // XXX hack to replace join nodes in xcalarQuery with correct
+            // columns to keep which are located in the join nodes of the sql subGraph
+            this._sqlKeepAllJoinColumnsHack(node, queryNodes);
+            finalQueryStr = JSON.stringify(queryNodes);
+            node.setXcQueryString(finalQueryStr);
+            // XXX end of keepAllColumns join hack
+
             node.getSubGraph().startExecution(queryNodes, null);
             // Might need to make it configurable
             const options = {
@@ -1204,8 +1170,8 @@ class DagNodeExecutor {
                 startTime: new Date()
             });
             node.updateSQLQueryHistory();
-            return XIApi.query(self.txId, queryId, replaceRetStruct.newQueryStr,
-                                                                       options);
+
+            return XIApi.query(self.txId, queryId, finalQueryStr, options);
         })
         .then(function(res) {
             // Set status to Done
@@ -1238,6 +1204,41 @@ class DagNodeExecutor {
             deferred.reject(error);
         });
         return deferred.promise();
+    }
+
+    // XXX hack to replace join nodes in xcalarQuery with correct
+    // columns to keep which are located in the join nodes of the sql subGraph
+    private _sqlKeepAllJoinColumnsHack(node, queryNodes) {
+        queryNodes.forEach((queryNode) => {
+            if (queryNode.operation === XcalarApisTStr[XcalarApisT.XcalarApiJoin]) {
+                let nameIdMap = node.getSubGraph().getTableDagIdMap();
+                let joinNodeId = nameIdMap[queryNode.args.dest];
+                if (joinNodeId) {
+                    let joinNode = node.getSubGraph().getNode(joinNodeId)
+                    let params = joinNode.getParam();
+                    let keepAllColumns = params.keepAllColumns;
+                    if (keepAllColumns == null) {
+                        keepAllColumns = true;
+                    }
+                    const leftColNamesToKeep = keepAllColumns
+                    ? joinNode.getParents()[0].getLineage()
+                        .getColumns().map((col) => col.getBackColName())
+                    : params.left.keepColumns;
+                    const leftRename  = DagNodeJoin.joinRenameConverter(leftColNamesToKeep, params.left.rename);
+
+                    const rightColNamesToKeep = keepAllColumns
+                    ? joinNode.getParents()[1].getLineage()
+                        .getColumns().map((col) => col.getBackColName())
+                    : params.right.keepColumns;
+                    const rightRename  = DagNodeJoin.joinRenameConverter(rightColNamesToKeep, params.right.rename);
+
+                    let leftColumns = leftRename.map(colInfoMap);
+                    let rightColumns = rightRename.map(colInfoMap);
+                    queryNode.args.columns[0] = leftColumns;
+                    queryNode.args.columns[1] = rightColumns;
+                }
+            }
+        });
     }
 
     /**

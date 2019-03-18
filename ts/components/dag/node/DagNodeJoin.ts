@@ -163,6 +163,63 @@ class DagNodeJoin extends DagNode {
         return this.input.isJoinTypeConverted();
     }
 
+    public static joinRenameConverter(
+        colNamesToKeep: string[],
+        renameInput: { sourceColumn: string, destColumn: string, prefix: boolean }[],
+        useJoinRenameStruct?: boolean
+    ): ColRenameInfo[] {
+        // Convert rename list => map, for fast lookup
+        const colRenameMap: Map<string, string> = new Map();
+        const prefixRenameMap: Map<string, string> = new Map();
+        renameInput.forEach(({ prefix, sourceColumn, destColumn }) => {
+            if (prefix) {
+                prefixRenameMap.set(sourceColumn, destColumn);
+            } else {
+                colRenameMap.set(sourceColumn, destColumn);
+            }
+        });
+
+        // Apply rename to the columns need to keep
+        const prefixSet: Set<string> = new Set();
+        const rename = [];
+        for (const colName of colNamesToKeep) {
+            const parsed = xcHelper.parsePrefixColName(colName);
+            if (parsed.prefix.length > 0) {
+                // Prefixed column: put the prefix in the rename list
+                const oldPrefix = parsed.prefix;
+                if (prefixSet.has(oldPrefix)) {
+                    continue; // This prefix has already been renamed
+                }
+                prefixSet.add(oldPrefix);
+                const newPrefix = prefixRenameMap.get(oldPrefix) || oldPrefix;
+                if (useJoinRenameStruct) {
+                    rename.push({
+                        sourceColumn: oldPrefix, destColumn: newPrefix, prefix: true
+                    });
+                } else {
+                    rename.push({
+                        orig: oldPrefix, new: newPrefix, type: DfFieldTypeT.DfFatptr
+                    });
+                }
+
+            } else {
+                // Derived column: put column name in the rename list
+                const newName = colRenameMap.get(colName) || colName;
+                if (useJoinRenameStruct) {
+                    rename.push({
+                        sourceColumn: colName, destColumn: newName, prefix: false
+                    });
+                } else {
+                    rename.push({
+                        orig: colName, new: newName, type: DfFieldTypeT.DfUnknown
+                    });
+                }
+            }
+        }
+
+        return rename;
+    }
+
     /**
      * @override
      */
@@ -293,7 +350,6 @@ class DagNodeJoin extends DagNode {
             });
         }
     }
-
 }
 
 if (typeof exports !== 'undefined') {
