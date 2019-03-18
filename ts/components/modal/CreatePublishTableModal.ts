@@ -8,7 +8,7 @@ class CreatePublishTableModal {
     private _$primaryKeys: JQuery; // $('#createPublishTableModal .IMDKey .primaryKeys')
     private _$publishColList: JQuery; // $('#createPublishTableModal .publishColumnsSection .cols')
     private _currentKeys: string[];
-
+    private _id: string;
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -41,6 +41,7 @@ class CreatePublishTableModal {
         this._setupColumnHints();
         this._renderColumns();
         this._modalHelper.setup();
+        this._id = xcHelper.randName("modal");
         return true;
     };
 
@@ -218,7 +219,8 @@ class CreatePublishTableModal {
             self._closeModal();
         });
 
-        this._$modal.on("click", ".confirm", function() {
+        this._$modal.on("click", ".confirm", function(event) {
+            $(event.currentTarget).blur();
             self._submitForm();
         });
 
@@ -336,6 +338,8 @@ class CreatePublishTableModal {
     private _closeModal(): void {
         this._modalHelper.clear();
         this._reset();
+        this._$modal.removeClass("creating");
+        this._id = null;
     }
 
     private _reset(): void {
@@ -373,17 +377,20 @@ class CreatePublishTableModal {
             StatusBox.show(ErrTStr.NoColumns, this._$publishColList);
             return;
         }
-        const $bg: JQuery = $("#initialLoadScreen");
-        $bg.show();
+
+        let id = this._id;
+        this._$modal.addClass("creating");
         PTblManager.Instance.createTableFromView(keys, columns, this._tableName, name)
         .then(() => {
-            this._closeModal();
-            $bg.hide();
+            if (id === this._id) {
+                this._closeModal();
+            }
         })
         .fail((err) => {
-            StatusBox.show(err, this._$modal.find(".confirm"));
-            $bg.hide();
-            return;
-        })
+            if (id === this._id) {
+                this._$modal.removeClass("creating");
+                StatusBox.show(err, this._$modal.find(".confirm"));
+            }
+        });
     }
 }

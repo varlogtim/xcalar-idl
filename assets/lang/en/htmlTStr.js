@@ -1004,6 +1004,8 @@ module.exports = {
         "config": "Configure",
         "colsToPublish": "Columns to Publish",
         "colsInTable": "Columns in Table",
+        "creatingTable": "Creating table",
+        "creatingHint": "You can close the modal and check the table under the Sources tab.",
     },
 
     "SetOpPanel": {

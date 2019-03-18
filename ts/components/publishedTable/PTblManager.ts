@@ -220,6 +220,7 @@ class PTblManager {
         let schema: ColSchema[] = args.schema;
         let primaryKeys: string[] = args.primaryKeys;
         this._loadingTables[tableName] = tableInfo;
+        tableInfo.state = PbTblState.Loading;
 
         let currentStep: number = 1;
         let currentMsg: string = TblTStr.Importing;
@@ -253,6 +254,7 @@ class PTblManager {
         .fail((error, isSchemaError) => {
             let noAlert: boolean = false;
             delete this._loadingTables[tableName];
+            tableInfo.state = PbTblState.Error;
             if (hasDataset) {
                 if (isSchemaError === true) {
                     noAlert = true;
@@ -298,6 +300,9 @@ class PTblManager {
             "steps": 1
         });
         const tableInfo: PbTblInfo = this._datasetTables[tableName];
+        let oldState = tableInfo.state;
+        tableInfo.state = PbTblState.Loading;
+        
         delete this._datasetTables[tableName];
         this._loadingTables[tableName] = tableInfo;
         this._refreshTblView(tableInfo, TblTStr.Creating, 1, 1);
@@ -318,6 +323,7 @@ class PTblManager {
             delete this._loadingTables[tableName];
             if (tableInfo != null) {
                 this._datasetTables[tableName] = tableInfo;
+                tableInfo.state = oldState;
             }
             Transaction.fail(txId, {
                 error: error,
@@ -345,18 +351,19 @@ class PTblManager {
     ): XDPromise<void> {
         const deferred:XDDeferred<void> = PromiseHelper.deferred();
         const txId: number = Transaction.start({
-            operation: "publishIMD",
+            operation: SQLOps.TableFromView,
+            msg: TblTStr.Creating,
             track: true,
         });
 
         let info = this.createTableInfo(tableName);
+        info.state = PbTblState.Loading;
         // Load message tells anyone looking at the table info that
         // this table isnt created yet
         // Primarily used when checking for duplicates
-        info.loadMsg = "Creating Table"
+        info.loadMsg = "Creating Table";
         this._loadingTables[tableName] = info;
-        XIApi.publishTable(txId, pks, viewName, tableName,
-            xcHelper.createColInfo(columns))
+        XIApi.publishTable(txId, pks, viewName, tableName, xcHelper.createColInfo(columns))
         .then(() => {
             // need to update the status and activated tables
             return PromiseHelper.alwaysResolve(this._listOneTable(tableName));
@@ -370,6 +377,7 @@ class PTblManager {
         })
         .fail((error) => {
             delete this._loadingTables[tableName];
+            info.state = null;
             Transaction.fail(txId, {
                 noAlert: true,
                 noNotification: true

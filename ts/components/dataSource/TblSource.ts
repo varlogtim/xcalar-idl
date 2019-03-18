@@ -135,8 +135,6 @@ class TblSource {
             this._tables.set(tableName, tableInfo);
             this._renderGridView();
         }
-        let oldState = tableInfo.state;
-        tableInfo.state = PbTblState.Loading;
         let $grid: JQuery = this._getGridByName(tableName);
         this._addLoadingIcon($grid);
         this._focusOnTable($grid);
@@ -148,7 +146,6 @@ class TblSource {
         })
         .fail((error) => {
             Alert.error(TblTStr.CreateFail, error);
-            tableInfo.state = oldState;
             this._refresh(false);
         });
     }
@@ -461,7 +458,8 @@ class TblSource {
     private _updateTablsInAction(): void {
         this._tables.forEach((tableInfo, tableName) => {
             if (tableInfo.state === PbTblState.Activating ||
-                tableInfo.state === PbTblState.Deactivating
+                tableInfo.state === PbTblState.Deactivating ||
+                tableInfo.state === PbTblState.Loading
             ) {
                 let $grid = this._getGridByName(tableName);
                 this._addLoadingIcon($grid);
