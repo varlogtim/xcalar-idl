@@ -489,7 +489,7 @@ class GroupByOpPanel extends GeneralOpPanel {
 
         let numArgs = Math.max(Math.abs(operObj.numArgs),
                                 operObj.argDescs.length);
-
+        numArgs = Math.min(numArgs, 1); // XXX only showing a maximum of 1 input
         const numInputsNeeded = numArgs + 1;
 
         this._addArgRows(numInputsNeeded, $argsGroup, groupIndex);
