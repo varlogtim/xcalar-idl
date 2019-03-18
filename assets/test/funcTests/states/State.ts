@@ -14,23 +14,31 @@ abstract class State {
 
     public log(message: string) {
         if (this.verbosity === "Verbose") {
-            console.log(message);
+            console.log(`XDFuncTest log: ${message}`);
         }
     }
 
     /* -------------------------------Helper Function------------------------------- */
-    // Pick a random element from the collection
-    public pickRandom(collection: any) {
+    // Pick a random elements from the collection
+    public pickRandom(collection: any, n = 1) {
+        let arr = [], result = new Set();
         if (collection instanceof Array) {
-            return collection[Math.floor(collection.length * Math.random())];
+            arr = collection;
+        } else if (collection instanceof Map || collection instanceof Set){
+            arr = Array.from(collection.keys());
+        } else {
+            return;
         }
-        else if (collection instanceof Map || collection instanceof Set){
-            let keys = Array.from(collection.keys());
-            let returnKey = keys[Math.floor(Math.random() * keys.length)];
-            keys = null;
-            return returnKey;
+        if (arr.length == 0 || n > arr.length) {
+            return;
         }
-        return null;
+        while (result.size < n) {
+            result.add(arr[Math.floor(Math.random() * arr.length)]);
+        }
+        if (n == 1) {
+            return result.entries().next().value[0];
+        }
+        return Array.from(result.entries()).map((res) => res[0]);
     }
 
     // Add an availble action

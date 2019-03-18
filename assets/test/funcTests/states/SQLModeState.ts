@@ -123,7 +123,7 @@ class SQLModeState extends State {
             throw `Error creating snippet ${snippetName}, not in the snippet list`;
         }
 
-        if (this.sqlEditor._listSnippetsNames().length > 1) {
+        if (this.sqlSnippet._listSnippetsNames().length > 1) {
             // If has more than one snippet ( except for the default one)
             // add more actions
             this.addAction(this.deleteSnippet);

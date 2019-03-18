@@ -16,9 +16,7 @@ class StateMachine {
         this.statesMap = new Map();
         this.statesMap.set("Workbook", new WorkbookState(this, verbosity));
 
-        // this.stateName = xcSessionStorage.getItem('xdFuncTestStateName') || "Workbook";
-        this.stateName = 'SQLMode';
-
+        this.stateName = xcSessionStorage.getItem('xdFuncTestStateName') || "Workbook";
         // Only instantiate a AdvancedMode state when we're inside a active workbook
         if (this.stateName == 'AdvancedMode' && this.statesMap.get('AdvancedMode') === undefined) {
             this.statesMap.set("AdvancedMode", new AdvancedModeState(this, verbosity));
@@ -95,24 +93,22 @@ window.FuncTestSuite = (function($, FuncTestSuite) {
     };
 
     FuncTestSuite.run = function() {
-        // var deferred = PromiseHelper.deferred();
-        // xcManager.setup()
-        // .then(function(){
-        //     return runFuncTest();
-        // })
-        // .fail(function(err){
-        //     if (err === WKBKTStr.NoWkbk) {
-        //         // No workbook should be fine
-        //         return runFuncTest();
-        //     } else {
-        //         err = wrapFailError(err);
-        //         deferred.reject(err);
-        //     }
-        // })
-        // return deferred.promise();
-        runFuncTest();
+        var deferred = PromiseHelper.deferred();
+        xcManager.setup()
+        .then(function(){
+            return runFuncTest();
+        })
+        .fail(function(err){
+            if (err === WKBKTStr.NoWkbk) {
+                // No workbook should be fine
+                return runFuncTest();
+            } else {
+                err = wrapFailError(err);
+                deferred.reject(err);
+            }
+        })
+        return deferred.promise();
     }
-
 
     function runFuncTest() {
         var params = getUrlParameters();
@@ -122,6 +118,7 @@ window.FuncTestSuite = (function($, FuncTestSuite) {
         var noPopup = parseBooleanParam(params.noPopup);
         var mode = params.mode;
         var timeDilation = params.timeDilation;
+        var verbosity = params.verbosity || "Verbose";
 
         test = TestSuite.createTest();
         test.setMode(mode);
@@ -134,7 +131,7 @@ window.FuncTestSuite = (function($, FuncTestSuite) {
             var d = new Date();
             xcSessionStorage.setItem('xdFuncTestStartTime', d.getTime());
         }
-        stateMachine = new StateMachine(this.verbosity, iterations, test);
+        stateMachine = new StateMachine(verbosity, iterations, test);
         return test.run(animation, clean, noPopup, undefined, timeDilation);
     }
 
