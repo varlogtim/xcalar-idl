@@ -60,6 +60,39 @@ class DagNodeAggregate extends DagNode {
         }
     };
 
+    public static deleteAgg(aggNames: string[]): XDPromise<void> {
+        if (aggNames.length == 0) {
+            return PromiseHelper.resolve();
+        }
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let promises: XDPromise<void>[] = [];
+        let sql = {
+            "operation": SQLOps.DeleteAgg,
+            "aggs": aggNames
+        };
+        let txId = Transaction.start({
+            "operation": SQLOps.DeleteAgg,
+            "sql": sql,
+            "track": true
+        });
+
+        for (let i = 0; i < aggNames.length; i++) {
+            promises.push(XIApi.deleteTable(txId, aggNames[i]));
+        }
+
+        PromiseHelper.when(...promises)
+        .then(() => {
+            Transaction.done(txId, {noSql: true});
+            deferred.resolve();
+        })
+        .fail((error) => {
+            Transaction.fail(txId, {noAlert: true, noNotification: true});
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    }
+
     /**
      * Set aggregate node's parameters
      * @param input {DagNodeAggregateInputStruct}
@@ -104,6 +137,22 @@ class DagNodeAggregate extends DagNode {
         });
 
         return super.setParam();
+    }
+
+    public resetAgg(): XDPromise<void> {
+        try {
+            let aggName = this.getAggBackName();
+            if (!aggName) {
+                return PromiseHelper.resolve();
+            } else if (typeof DagAggManager !== "undefined") {
+                return DagAggManager.Instance.removeValue(aggName);
+            } else {
+                return DagNodeAggregate.deleteAgg([aggName]);
+            }
+        } catch (e) {
+            console.error(e);
+            return PromiseHelper.reject();
+        }
     }
 
     /**
@@ -173,6 +222,10 @@ class DagNodeAggregate extends DagNode {
         const set: Set<string> = new Set();
         this._getColumnFromEvalArg(arg, set);
         return set;
+    }
+
+    protected _removeTable(): void {
+        this.resetAgg();
     }
 }
 

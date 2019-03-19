@@ -258,36 +258,6 @@ class DagAggManager {
     }
 
     private _deleteAgg(aggNames: string[]): XDPromise<void> {
-        let deferred: XDDeferred<void> = PromiseHelper.deferred();
-        if (aggNames.length == 0) {
-            deferred.resolve();
-            return deferred.promise();
-        }
-        let promises: XDPromise<void>[] = [];
-        let sql = {
-            "operation": SQLOps.DeleteAgg,
-            "aggs": aggNames
-        };
-        let txId = Transaction.start({
-            "operation": SQLOps.DeleteAgg,
-            "sql": sql,
-            "track": true
-        });
-
-        for (var i = 0; i < aggNames.length; i++) {
-            promises.push(XIApi.deleteTable(txId, aggNames[i]));
-        }
-
-        PromiseHelper.when.apply(window, promises)
-        .then(function() {
-            Transaction.done(txId, {noSql: true});
-            deferred.resolve();
-        })
-        .fail(function(err) {
-            deferred.reject(err);
-        });
-
-
-        return deferred.promise();
-    };
+        return DagNodeAggregate.deleteAgg(aggNames);
+    }
 }

@@ -32,26 +32,27 @@ class DagNodeExecutor {
      */
     public run(optimized?: boolean): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        const node: DagNode =  this.node;
+        const node: DagNode = this.node;
         const isSimulate: boolean = Transaction.isSimulate(this.txId);
-        if (!isSimulate && !optimized) {
-            node.beRunningState();
-        }
+        let isStepThrough: boolean = (!isSimulate && !optimized);
+
         node.getParents().forEach((parent) => {
             const parentTableName = parent.getTable();
             DagTblManager.Instance.resetTable(parentTableName);
         });
 
-        this._apiAdapter(optimized)
+        this._beforeRun(isStepThrough)
+        .then(() => {
+            return this._apiAdapter(optimized);
+        })
         .then((destTable) => {
             if (destTable != null) {
                 node.setTable(destTable);
                 DagTblManager.Instance.addTable(destTable);
             }
-            if (!isSimulate && !optimized) {
+            if (isStepThrough) {
                 node.beCompleteState();
             }
-
             deferred.resolve(destTable);
         })
         .fail((error) => {
@@ -79,6 +80,19 @@ class DagNodeExecutor {
             deferred.reject(error);
         });
         return deferred.promise();
+    }
+
+    private _beforeRun(isStepThrough: boolean): XDPromise<void> {
+        if (!isStepThrough) {
+            return PromiseHelper.resolve();
+        }
+        const node: DagNode = this.node;
+        if (node instanceof DagNodeAggregate) {
+            return PromiseHelper.alwaysResolve(node.resetAgg());
+        } else {
+            node.beRunningState();
+            return PromiseHelper.resolve();
+        }
     }
 
     private _apiAdapter(optimized?: boolean): XDPromise<string | null> {

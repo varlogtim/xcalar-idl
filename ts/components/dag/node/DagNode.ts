@@ -1308,7 +1308,7 @@ abstract class DagNode {
         };
     }
 
-    private _removeTable(): void {
+    protected _removeTable(): void {
         if (this.table) {
             if (DagTblManager.Instance.hasLock(this.table)) {
                 this.setTableLock();
@@ -1319,10 +1319,6 @@ abstract class DagNode {
                 node: this
             });
             delete this.table;
-        } else if (this.getType() == DagNodeType.Aggregate) {
-            let aggNode: DagNodeAggregate = <DagNodeAggregate>this;
-            let aggName = aggNode.getAggBackName();
-            DagAggManager.Instance.removeValue(aggName);
         }
     }
 
