@@ -206,7 +206,8 @@
         combineLastSynthesize(node) {
             const self = this;
             if (node.parents.length === 0 &&
-                node.value.operation === "XcalarApiSynthesize") {
+                node.value.operation === "XcalarApiSynthesize" &&
+                node.children.length > 0) {
                 // last node is synthesize
                 const renameMap = {};
                 for (let colStruct of node.value.args.columns) {
