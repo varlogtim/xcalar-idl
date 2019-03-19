@@ -194,7 +194,7 @@ abstract class GeneralOpPanelModel {
             } else if (arg.checkIsEmptyString()) {
                 formattedValue = "\"\"";
             } else {
-                formattedValue = val;
+                formattedValue = self._formatArgumentInput(val, arg.getTypeid(), {}).value;
             }
             arg.setType("value");
         } else if (arg.checkIsRegex()) {
@@ -229,7 +229,7 @@ abstract class GeneralOpPanelModel {
         let trimmedVal: string = val.trim();
         arg.clearError();
 
-        if (val === "" && !arg.checkIsOptional()) {
+        if (trimmedVal === "" && !arg.checkIsOptional()) {
             arg.setError("No value");
             return;
         }
