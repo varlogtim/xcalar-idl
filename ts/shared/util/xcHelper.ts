@@ -3366,7 +3366,7 @@ namespace xcHelper {
 
         // cannot have any characters other than alphanumeric
         // or _ -
-        return !/[^a-zA-Z\d\_]/.test(str);
+        return !/[^A-Z\d\_]/.test(str);
     }
 
     /**

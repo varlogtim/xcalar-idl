@@ -1183,30 +1183,34 @@ describe("xcHelper Test", function() {
 
         var onErrTrigger = false;
         var testCases = [{
-            "val": "testTable",
+            "val": "TESTTABLE",
             "valid": true
+        }, {
+            "val": "testTable",
+            "valid": false,
+            "error": ErrTStr.InvalidPublishedTableName
         }, {
             "val": "",
             "valid": false,
             "error": ErrTStr.NoEmpty
         }, {
-            "val": "ab:c",
+            "val": "AB:C",
             "valid": false,
             "error": ErrTStr.InvalidPublishedTableName
         }, {
-            "val": "ab#c",
+            "val": "AB#C",
             "valid": false,
             "error": ErrTStr.InvalidPublishedTableName
         }, {
-            "val": "ab-c", // no hyphen
+            "val": "AB-C", // no hyphen
             "valid": false,
             "error": ErrTStr.InvalidPublishedTableName
         }, {
-            "val": new Array(300).join("a"),
+            "val": new Array(300).join("A"),
             "valid": false,
             "error": ErrTStr.TooLong
         }, {
-            "val": "testDupName",
+            "val": "TESTDUPNAME",
             "valid": true
         }];
 
@@ -1526,37 +1530,40 @@ describe("xcHelper Test", function() {
         res = func(null);
         expect(res).to.be.false;
 
-        res = func("a");
+        res = func("A");
         expect(res).to.be.true;
 
-        res = func("ab");
+        res = func("AB");
         expect(res).to.be.true;
 
-        res = func("abc1");
+        res = func("Ab");
+        expect(res).to.be.false;
+
+        res = func("ABC1");
         expect(res).to.be.true;
 
-        res = func("ab1c");
+        res = func("AB1C");
         expect(res).to.be.true;
 
-        res = func("ab#c1");
+        res = func("AB#C1");
         expect(res).to.be.false;
 
-        res = func("a_b");
+        res = func("A_B");
         expect(res).to.be.true;
 
-        res = func("a-b");
+        res = func("A-B");
         expect(res).to.be.false;
 
-        res = func("1a");
+        res = func("1A");
         expect(res).to.be.false;
 
-        res = func("_a");
+        res = func("_A");
         expect(res).to.be.false;
 
-        res = func("-abc");
+        res = func("-ABC");
         expect(res).to.be.false;
 
-        res = func(".abc");
+        res = func(".ABC");
         expect(res).to.be.false;
     });
 

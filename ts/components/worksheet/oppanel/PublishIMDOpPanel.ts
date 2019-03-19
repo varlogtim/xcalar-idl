@@ -107,7 +107,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
     private _getParams(): DagNodePublishIMDInputStruct {
         let keys: string[] = this._getKeyValues();
         return {
-            pubTableName: this._$nameInput.val(),
+            pubTableName: typeof(this._$nameInput.val()) === "string" ? this._$nameInput.val().toUpperCase() : this._$nameInput.val(),
             primaryKeys: keys,
             operator: this._$operatorInput.val()
         }
@@ -141,7 +141,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
     }
 
     private _restorePanel(input: DagNodePublishIMDInputStruct): void {
-        this._$nameInput.val(input.pubTableName);
+        this._$nameInput.val(typeof(input.pubTableName) === "string" ? input.pubTableName.toUpperCase() : input.pubTableName);
         let keyList: string[] = input.primaryKeys || [];
         //process
         this._restoreKeys(keyList);
@@ -221,7 +221,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
         let $location: JQuery = null;
         let error: string = "";
 
-        
+
         if (!xcHelper.tableNameInputChecker(this._$nameInput)) {
             error = ErrTStr.InvalidPublishedTableName;
             $location = this._$nameInput;
@@ -380,7 +380,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
                 const newModel: DagNodePublishIMDInputStruct = this._convertAdvConfigToModel();
                 keys = newModel.primaryKeys;
                 operator = newModel.operator;
-                name = newModel.pubTableName;
+                name = typeof(newModel.pubTableName) === "string" ? newModel.pubTableName.toUpperCase() : newModel.pubTableName;
                 this._$nameInput.val(name);
             } catch (e) {
                 StatusBox.show(e, $("#publishIMDOpPanel .advancedEditor"),
@@ -390,7 +390,8 @@ class PublishIMDOpPanel extends BaseOpPanel {
         } else {
             keys = this._getKeyValues();
             operator = this._$operatorInput.val();
-            name = this._$nameInput.val();
+            name = typeof(this._$nameInput.val()) === "string" ? this._$nameInput.val().toUpperCase() : this._$nameInput.val();
+            this._$nameInput.val(name);
         }
         if (!this._checkOpArgs(keys, operator)) {
             return;
