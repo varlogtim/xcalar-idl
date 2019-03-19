@@ -226,6 +226,18 @@ class OpPanelComponentFactory {
         stringDefault: function(v: string): ValueCheckResult<string> {
             return { value: v };
         },
+        stringNoTrimNoEmpty: function(v: string): ValueCheckResult<string> {
+            if (v.length === 0) {
+                return { errMsg: ErrTStr.NoEmpty };
+            }
+            return { value: v };
+        },
+        stringNoTrimNoEmptyValue: function(v: string): ValueCheckResult<string> {
+            const str = v;
+            const result = this.stringNoTrimNoEmpty(v);
+            result.value = str;
+            return result;
+        },
         stringNoEmpty: function(v: string): ValueCheckResult<string> {
             v = v.trim();
             if (v.length === 0) {
@@ -1017,7 +1029,7 @@ class OpPanelComponentFactory {
 
     private _inputDataProcess<T>(elemInput, valueCheck, callback) {
         if (callback != null) {
-            const inputVal = $(elemInput).val().trim();
+            const inputVal = $(elemInput).val();
 
             const checkResult:ValueCheckResult<T> = this._checkValue(
                 valueCheck, inputVal

@@ -46,7 +46,7 @@ describe('SplitOpPanel Test', () => {
             const delimiterProps = args[1];
             expect(delimiterProps.type).to.equal('string');
             expect(delimiterProps.inputVal).to.equal(',');
-            expect(delimiterProps.valueCheck).to.deep.equal({checkType: 'stringNoEmptyValue', args: []});
+            expect(delimiterProps.valueCheck).to.deep.equal({checkType: 'stringNoTrimNoEmptyValue', args: []});
     
             // section#3: dest column count
             const destCountProps = args[2];

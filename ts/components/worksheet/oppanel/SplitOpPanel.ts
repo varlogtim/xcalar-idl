@@ -125,13 +125,13 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
             name: OpPanelTStr.SplitPanelFieldNameDelimiter,
             inputVal: this._dataModel.getDelimiter(),
             placeholder: OpPanelTStr.SplitPanelFieldNameDelimiter,
-            valueCheck: { checkType: 'stringNoEmptyValue', args: [] },
+            valueCheck: { checkType: 'stringNoTrimNoEmptyValue', args: [] },
             onChange: (newVal: string) => {
                 this._dataModel.setDelimiter(newVal);
             },
             onElementMountDone: (elem) => {
                 this._addValidation(elem, () => {
-                    return this._componentFactory.checkFunctions.stringNoEmpty(
+                    return this._componentFactory.checkFunctions.stringNoTrimNoEmpty(
                         this._dataModel.getDelimiter()
                     ).errMsg;
                 });
