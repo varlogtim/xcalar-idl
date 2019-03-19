@@ -1,6 +1,5 @@
 
 class AdvancedModeState extends State {
-    private datasetsLoaded: object[];
     private dagTabManager: DagTabManager;
     private currentTab: DagTabUser;
     private dfLinks: Map<string, Array<string>>;
@@ -19,7 +18,6 @@ class AdvancedModeState extends State {
         this.availableActions = [this.createTab];
 
         // get all the datasources loaded as part of functests setup
-        this.datasetsLoaded = DS.listDatasets();
         this.dfLinks = new Map();
         this.dagTabManager = DagTabManager.Instance;
     }
@@ -64,7 +62,8 @@ class AdvancedModeState extends State {
 
     // In nodes
     public async addDatasetNode() {
-        let ds = this.pickRandom(this.datasetsLoaded);
+        let datasetsLoaded = DS.listDatasets();
+        let ds = this.pickRandom(datasetsLoaded);
         let dsNode = DagViewManager.Instance.newNode({type:DagNodeType.Dataset});
         let dsArgs = await DS.getLoadArgsFromDS(ds.id);
         let dsSchema = await DS.getDSBasicInfo(ds.id);

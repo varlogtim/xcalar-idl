@@ -31,5 +31,21 @@ abstract class State {
         return null;
     }
 
+    // Add an availble action
+    // If this action already exists, don't do anything. Otherwise add it
+    public addAction(action: Function) {
+        if (!this.availableActions.includes(action)) {
+            this.availableActions.push(action);
+        }
+    }
+
+    // Delete an availble action
+    // If this action doesnt exist, don't do anything. Otherwise delete it
+    public deleteAction(action: Function) {
+        if (this.availableActions.includes(action)) {
+            this.availableActions.splice(this.availableActions.indexOf(action), 1);
+        }
+    }
+
     abstract takeOneAction(): State;
 }
