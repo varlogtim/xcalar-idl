@@ -1,21 +1,26 @@
-describe.skip("RowInput Test", function() {
+describe("RowInput Test", function() {
     var testDs;
     var tableName;
     var tableId;
     var $table;
     var $input;
+    var tabId;
 
     before(function(done) {
         console.clear();
+        if (XVM.isSQLMode()) {
+            $("#modeArea").click();
+        }
         UnitTest.onMinMode();
         var testDSObj = testDatasets.fakeYelp;
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-        .then(function(ds, tName) {
+        .then(function(ds, tName, tPrefix, _nodeId, _tabId) {
             testDs = ds;
             tableName = tName;
             tableId = xcHelper.getTableId(tableName);
             $table = $('#xcTable-' + tableId);
-            $input = $("#rowInputArea input");
+            $input = $(".rowInputArea input");
+            tabId = _tabId;
             done();
         })
         .fail(function() {
@@ -150,6 +155,7 @@ describe.skip("RowInput Test", function() {
         });
     });
 
+    // cannot work because cannot always trigger scrolling
     describe.skip("scrollbar scroll", function() {
         var $scrollBar;
         var $tbodyWrap;
@@ -172,6 +178,7 @@ describe.skip("RowInput Test", function() {
             expect(table.scrollMeta.isBarScrolling).to.be.false;
             expect($scrollBar.scrollTop()).to.not.equal(50);
             scrollTriggered = false;
+            $(window).focus();
             $scrollBar.scrollTop(50);
 
             if (!ifvisible.now()) {
@@ -179,7 +186,7 @@ describe.skip("RowInput Test", function() {
             }
 
             UnitTest.testFinish(function () {
-                console.log("top", $tbodyWrap.scrollTop());
+                console.log("top", $tbodyWrap.scrollTop(), $scrollBar.scrollTop());
                 return $tbodyWrap.scrollTop() === 50;
             })
             .then(function() {
@@ -247,7 +254,7 @@ describe.skip("RowInput Test", function() {
         });
     });
 
-    describe("table scrolling", function() {
+    describe.skip("table scrolling", function() {
         var $scrollBar;
         var $tbodyWrap;
         var cachedAddRows;
@@ -278,7 +285,7 @@ describe.skip("RowInput Test", function() {
             }
 
             UnitTest.testFinish(function() {
-                return $scrollBar.scrollTop() > scrollBarTop;
+                return $scrollBar.scrollTop() > scrollBarTop || $tbodyWrap.scrollTop() > 0;
             })
             .then(function() {
                 expect(addRowsCalled).to.be.true;
@@ -293,7 +300,7 @@ describe.skip("RowInput Test", function() {
             });
         });
 
-        it("scrolling up should work", function(done) {
+        it.skip("scrolling up should work", function(done) {
             $table.find(".row0").removeClass("row0").addClass("tempRow0");
 
             var addRowsCalled = false;
@@ -333,9 +340,19 @@ describe.skip("RowInput Test", function() {
 
     after(function(done) {
         delete gTables["fakeTable"];
-        UnitTest.deleteAll(tableName, testDs)
-        .always(function() {
-            done();
+        UnitTest.deleteTab(tabId)
+        .then(() => {
+            return UnitTest.deleteAllTables();
+        })
+        .then(function() {
+            UnitTest.deleteDS(testDs)
+            .always(function() {
+                UnitTest.offMinMode();
+                done();
+            });
+        })
+        .fail(function() {
+            done("fail");
         });
     });
 
