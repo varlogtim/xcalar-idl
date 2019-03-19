@@ -4,6 +4,7 @@ describe('TblAnim Test', function() {
     var tableId;
     var $table;
     var tableName2;
+    var tabId;
 
     before(function(done) {
         console.log("TblAnim Test");
@@ -13,9 +14,10 @@ describe('TblAnim Test', function() {
         UnitTest.onMinMode();
         var testDSObj = testDatasets.fakeYelp;
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
-        .then(function(ds, tName) {
+        .then(function(ds, tName, tPrefix, _nodeId, _tabId) {
             testDs = ds;
             tableName = tName;
+            tabId = _tabId;
             tableId = xcHelper.getTableId(tableName);
             $table = $('#xcTable-' + tableId);
 
@@ -449,7 +451,10 @@ describe('TblAnim Test', function() {
     });
 
     after(function(done) {
-        UnitTest.deleteTable(tableName2)
+        UnitTest.deleteTab(tabId)
+        .then(() => {
+            return UnitTest.deleteAllTables();
+        })
         .always(function() {
             UnitTest.deleteAll(tableName, testDs)
             .always(function() {

@@ -1,11 +1,16 @@
-describe.skip("Agg Modal Test", function() {
+describe("Agg Modal Test", function() {
     var $aggModal;
     var $quickAgg;
     var $corr;
+    var tabId;
 
     var dsName, tableName, tableId;
 
     before(function(done){
+        console.log("Agg Modal Test");
+        if (XVM.isSQLMode()) {
+            $("#modeArea").click();
+        }
         $aggModal = $("#aggModal");
         $quickAgg = $("#aggModal-quickAgg");
         $corr = $("#aggModal-corr");
@@ -13,9 +18,10 @@ describe.skip("Agg Modal Test", function() {
         UnitTest.onMinMode();
 
         UnitTest.addAll(testDatasets.schedule, "aggModalTest")
-        .then(function(resDS, resTable) {
+        .then(function(resDS, resTable, tPrefix, _nodeId, _tabId) {
             dsName = resDS;
             tableName = resTable;
+            tabId = _tabId;
             tableId = xcHelper.getTableId(tableName);
             done();
         })
@@ -332,11 +338,21 @@ describe.skip("Agg Modal Test", function() {
         });
     });
 
+
     after(function(done) {
-        UnitTest.deleteAll(tableName, dsName)
-        .always(function() {
-            UnitTest.offMinMode();
-            done();
+        UnitTest.deleteTab(tabId)
+        .then(() => {
+            return UnitTest.deleteAllTables();
+        })
+        .then(function() {
+            UnitTest.deleteDS(dsName)
+            .always(function() {
+                UnitTest.offMinMode();
+                done();
+            });
+        })
+        .fail(function() {
+            done("fail");
         });
     });
 });
