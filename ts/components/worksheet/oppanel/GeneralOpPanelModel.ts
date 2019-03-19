@@ -26,9 +26,15 @@ abstract class GeneralOpPanelModel {
         if (autofillColumnNames) {
             this.autofillColumns = [];
             autofillColumnNames.forEach(colName => {
-                const progCol = this.tableColumns.find((progCol) => {
+                let progCol = this.tableColumns.find((progCol) => {
                     return progCol.getBackColName() === colName;
                 });
+                if (progCol == null) {
+                    // nested columns pulled from result set view
+                    // may not in the lineage
+                    let frontName = xcHelper.parsePrefixColName(colName).name;
+                    progCol = ColManager.newPullCol(frontName, colName); 
+                }
                 if (progCol) {
                     this.autofillColumns.push(progCol);
                 }

@@ -459,7 +459,8 @@ class ColMenu extends AbstractMenu {
         const evals: {evalString: string, newField: string}[] = [];
         progCols.forEach((progCol) => {
             const colType: ColumnType = progCol.getType();
-            if (basicColTypes.includes(colType)) {
+            // when pulled out unnested column, the type is null
+            if (colType == null || basicColTypes.includes(colType)) {
                 const colName: string = progCol.getBackColName();
                 const mapStr = xcHelper.castStrHelper(colName, newType);
                 const newColName = xcHelper.parsePrefixColName(colName).name;
