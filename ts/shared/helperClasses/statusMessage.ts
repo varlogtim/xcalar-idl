@@ -261,7 +261,7 @@ namespace StatusMessage {
                         panelName = DSTStr.Sources;
                         break;
                     case ("monitorTab"):
-                        panelName = MonitorTStr.Monitor;
+                        panelName = MonitorTStr.System;
                         break;
                     case ("jupyterTab"):
                         panelName = JupyterTStr.JupNotebook;
