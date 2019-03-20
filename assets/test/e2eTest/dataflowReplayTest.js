@@ -135,6 +135,11 @@ module.exports = {
         for (const tabName of Object.keys(testTabs)) {
             const newTabName = testTabMapping.get(tabName);
             const numOfNodes = testTabs[tabName].nodes.length;
+
+            const linkOutNode = testTabs[tabName].nodes.find((node) => {
+                return node.subType === "link out Optimized";
+            });
+
             browser
                 .switchTab(newTabName)
                 .elements('css selector','.dataflowArea.active .operator.state-Configured', function (result) {
@@ -143,13 +148,38 @@ module.exports = {
                 .elements('css selector','.dataflowArea.active .operator.state-Complete', function (result) {
                     browser.assert.ok(result.value.length < numOfNodes);
                 })
-                .executeAll(numOfNodes * 20000)
-                .elements('css selector','.dataflowArea.active .operator.state-Configured', function (result) {
-                    browser.assert.equal(result.value.length, 0);
-                })
-                .elements('css selector','.dataflowArea.active .operator.state-Complete', function (result) {
-                    browser.assert.equal(result.value.length, numOfNodes);
-                });
+                .executeAll(numOfNodes * 20000);
+
+                if (linkOutNode) {
+                    browser.elements('css selector','.dataflowArea.active .operator.state-Configured', function (result) {
+                        browser.assert.equal(result.value.length, 1); // link out optimized not executed
+                    })
+                    .elements('css selector','.dataflowArea.active .operator.state-Complete', function (result) {
+                        browser.assert.equal(result.value.length, numOfNodes - 1);
+                    });
+                } else {
+                    browser.elements('css selector','.dataflowArea.active .operator.state-Configured', function (result) {
+                        browser.assert.equal(result.value.length, 0); // link out optimized not executed
+                    })
+                    .elements('css selector','.dataflowArea.active .operator.state-Complete', function (result) {
+                        browser.assert.equal(result.value.length, numOfNodes);
+                    });
+                }
+
+                browser.waitForElementNotPresent(".dataflowArea.active.locked");
+
+                if (linkOutNode) {
+                    // let linkOutNodeId = linkOutNode.nodeId;
+                    let selector = '.operator[data-subtype="link out Optimized"]';
+                    browser
+                        .moveToElement(".dataflowArea.active " + selector, 30, 15)
+                        .mouseButtonClick('right')
+                        .waitForElementVisible("#dagNodeMenu", 1000)
+                        .moveToElement("#dagNodeMenu li.executeNodeOptimized", 10, 1)
+                        .waitForElementNotPresent(".dataflowArea.active.locked")
+                        .mouseButtonClick('left')
+                        .waitForElementPresent('.dataflowArea ' + selector + '.state-Complete', 50000);
+                }
         }
     },
 
@@ -194,61 +224,61 @@ module.exports = {
         }
     },
 
-    'undo recreate nodes': function(browser) {
-        browser.undoAll(testTabs, testTabMapping);
-    },
+    // 'undo recreate nodes': function(browser) {
+    //     browser.undoAll(testTabs, testTabMapping);
+    // },
 
-    'redo recreate nodes': function(browser) {
-        browser.redoAll(testTabs, testTabMapping);
-    },
+    // 'redo recreate nodes': function(browser) {
+    //     browser.redoAll(testTabs, testTabMapping);
+    // },
 
-    'reconfigure nodes': function(browser) {
-        for (const tabName of Object.keys(testTabs)) {
-            const newTabName = testTabMapping.get(tabName);
-            browser.switchTab(newTabName)
-            .reconfigureNodes(testTabs[tabName].nodes, testTabDfMapping.get(tabName), testDfIdMapping, function(result) {
-            });
-        }
-    },
+    // 'reconfigure nodes': function(browser) {
+    //     for (const tabName of Object.keys(testTabs)) {
+    //         const newTabName = testTabMapping.get(tabName);
+    //         browser.switchTab(newTabName)
+    //         .reconfigureNodes(testTabs[tabName].nodes, testTabDfMapping.get(tabName), testDfIdMapping, function(result) {
+    //         });
+    //     }
+    // },
 
-    'reexecute': function(browser) {
-        for (const tabName of Object.keys(testTabs)) {
-            const newTabName = testTabMapping.get(tabName);
-            const numOfNodes = testTabs[tabName].nodes.length;
-            browser
-                .switchTab(newTabName)
-                .elements('css selector','.dataflowArea.active .operator.state-Configured', function (result) {
-                    browser.assert.ok(result.value.length > 0);
-                })
-                .elements('css selector','.dataflowArea.active .operator.state-Complete', function (result) {
-                    browser.assert.ok(result.value.length < numOfNodes);
-                })
-                .executeAll(numOfNodes * 20000)
-                .elements('css selector','.dataflowArea.active .operator.state-Configured', function (result) {
-                    browser.assert.equal(result.value.length, 0);
-                })
-                .elements('css selector','.dataflowArea.active .operator.state-Complete', function (result) {
-                    browser.assert.equal(result.value.length, numOfNodes);
-                });
-        }
-    },
+    // 'reexecute': function(browser) {
+    //     for (const tabName of Object.keys(testTabs)) {
+    //         const newTabName = testTabMapping.get(tabName);
+    //         const numOfNodes = testTabs[tabName].nodes.length;
+    //         browser
+    //             .switchTab(newTabName)
+    //             .elements('css selector','.dataflowArea.active .operator.state-Configured', function (result) {
+    //                 browser.assert.ok(result.value.length > 0);
+    //             })
+    //             .elements('css selector','.dataflowArea.active .operator.state-Complete', function (result) {
+    //                 browser.assert.ok(result.value.length < numOfNodes);
+    //             })
+    //             .executeAll(numOfNodes * 20000)
+    //             .elements('css selector','.dataflowArea.active .operator.state-Configured', function (result) {
+    //                 browser.assert.equal(result.value.length, 0);
+    //             })
+    //             .elements('css selector','.dataflowArea.active .operator.state-Complete', function (result) {
+    //                 browser.assert.equal(result.value.length, numOfNodes);
+    //             });
+    //     }
+    // },
 
-    'revalidate': function(browser) {
-        // The validation nodes must be DFLinkOut
-        for (const {dfName, nodeName} of testConfig.validation) {
-            const newTabName = testTabMapping.get(dfName);
-            const nodeIndex = findValidateNodeIndex(nodeName, testTabs[dfName].nodes);
-            browser
-                .switchTab(newTabName)
-                .moveToElement(`.dataflowArea.active .operator:nth-child(${nodeIndex + 1}) .main`, 10, 20)
-                .mouseButtonClick('right')
-                .waitForElementVisible("#dagNodeMenu", 1000)
-                .moveToElement("#dagNodeMenu li.viewResult", 10, 1)
-                .mouseButtonClick('left')
-                .waitForElementVisible('#dagViewTableArea .totalRows', 20000)
-                .getText('#dagViewTableArea .totalRows', ({value}) => {
-                    browser.assert.equal(value, "0");
-                });
-        }
-    }
+    // 'revalidate': function(browser) {
+    //     // The validation nodes must be DFLinkOut
+    //     for (const {dfName, nodeName} of testConfig.validation) {
+    //         const newTabName = testTabMapping.get(dfName);
+    //         const nodeIndex = findValidateNodeIndex(nodeName, testTabs[dfName].nodes);
+    //         browser
+    //             .switchTab(newTabName)
+    //             .moveToElement(`.dataflowArea.active .operator:nth-child(${nodeIndex + 1}) .main`, 10, 20)
+    //             .mouseButtonClick('right')
+    //             .waitForElementVisible("#dagNodeMenu", 1000)
+    //             .moveToElement("#dagNodeMenu li.viewResult", 10, 1)
+    //             .mouseButtonClick('left')
+    //             .waitForElementVisible('#dagViewTableArea .totalRows', 20000)
+    //             .getText('#dagViewTableArea .totalRows', ({value}) => {
+    //                 browser.assert.equal(value, "0");
+    //             });
+    //     }
+    // }
 }

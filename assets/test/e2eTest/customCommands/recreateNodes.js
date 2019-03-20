@@ -85,6 +85,9 @@ class RecreateNodes extends EventEmitter {
                         if (!input.linkAfterExecution) {
                             this.api.click('#dfLinkOutPanel .argsSection .inputWrap .checkbox.checked');
                         }
+                        if (nodeInfo.subType === "link out Optimized") {
+                            this.api.click("#dfLinkOutPanel .selectAllWrap .checkbox");
+                        }
                     this.api.click('#dfLinkOutPanel .submit')
                         .waitForElementNotVisible('#dfLinkOutPanel');
                 } else if (nodeInfo.type === "publishIMD") {
@@ -96,10 +99,14 @@ class RecreateNodes extends EventEmitter {
                         .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4))
                         .executeNode(".operator:nth-child(" + (i + 1) + ")")
                 } else if (nodeInfo.type !== "IMDTable" && nodeInfo.type !== "export") {
+                    let waitTime;
+                    if (nodeInfo.type === "sql") {
+                        waitTime = 100000;
+                    }
                     this.api
                         .openOpPanel(".operator:nth-child(" + (i + 1) + ")")
                         .pause(pause)
-                        .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4));
+                        .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4), waitTime);
                 }
             });
 

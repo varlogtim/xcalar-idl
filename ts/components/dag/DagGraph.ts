@@ -1583,7 +1583,8 @@ class DagGraph {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let orderedNodes: DagNode[] = [];
         try {
-            orderedNodes = this._topologicalSort(nodesMap, startingNodes);
+            let ignoreOptimizedNodes = !nodesMap && !optimized && parentTxId == null;
+            orderedNodes = this._topologicalSort(nodesMap, startingNodes, ignoreOptimizedNodes);
         } catch (error) {
             return PromiseHelper.reject({
                 "status": "Error",
@@ -1623,7 +1624,11 @@ class DagGraph {
         return dagNode.getMaxChildren() === 0;
     }
 
-    private _topologicalSort(nodesMap?: Map<DagNodeId, DagNode>, startingNodes?: DagNodeId[]): DagNode[] {
+    private _topologicalSort(
+        nodesMap?: Map<DagNodeId, DagNode>,
+        startingNodes?: DagNodeId[],
+        ignoreOptimizedNodes?: boolean
+    ): DagNode[] {
         const orderedNodes: DagNode[] = [];
         let zeroInputNodes: DagNode[] = [];
         const nodeInputMap: Map<DagNodeId, number> = new Map();
@@ -1637,16 +1642,47 @@ class DagGraph {
         let flowOutIds: Set<string> = new Set();
 
         nodesMap = nodesMap || this.nodesMap;
+
+        let linkOutOptimizedIdsToRemove: Set<DagNodeId> = new Set();
+        if (ignoreOptimizedNodes) {
+            // do not execute optimized nodes if no linked in nodes point to
+            // them and not executing graph in optimized mode.
+            let linkOutPointers: Set<DagNodeId> = new Set();
+            let linkOutOptimizedIds: Set<DagNodeId> = new Set();
+            nodesMap.forEach((node: DagNode) => {
+                if (node.getType() === DagNodeType.DFIn) {
+                    let link: {graph: DagGraph, node: DagNodeDFOut};
+                    try {
+                        link = (<DagNodeDFIn>node).getLinkedNodeAndGraph();
+                    } catch (e) {
+                        return;
+                    }
+                    linkOutPointers.add(link.node.getId());
+                } else if (node.getType() === DagNodeType.DFOut &&
+                    node.getSubType() === DagNodeSubType.DFOutOptimized) {
+                        linkOutOptimizedIds.add(node.getId());
+                }
+            });
+            linkOutOptimizedIds.forEach((nodeId: DagNodeId) => {
+                if (!linkOutPointers.has(nodeId)) {
+                    linkOutOptimizedIdsToRemove.add(nodeId);
+                }
+            });
+        }
         // Construct the aggregates and linkOut names this map creates
         nodesMap.forEach((node: DagNode) => {
             if (node.getType() === DagNodeType.Aggregate) {
                 flowAggNames.add(node.getParam().dest)
-            } else if (node.getType() === DagNodeType.DFOut) {
+            } else if (node.getType() === DagNodeType.DFOut &&
+                        !linkOutOptimizedIdsToRemove.has(node.getId())) {
                 flowOutIds.add(node.getId());
             }
         });
         // Construct starting nodes.
         for (let [nodeId, node] of nodesMap) {
+            if (linkOutOptimizedIdsToRemove.has(nodeId)) {
+                continue;
+            }
             const numParent = node.getNumParent();
             nodeInputMap.set(nodeId, numParent);
             if (numParent === 0) {

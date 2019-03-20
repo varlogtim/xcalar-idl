@@ -147,8 +147,8 @@ class DagNodeDFOut extends DagNodeOutOptimizable {
         return null;
     }
 
-    protected _clearConnectionMeta(): void {
-        super._clearConnectionMeta();
+    protected _clearConnectionMeta(keepRetina?: boolean): void {
+        super._clearConnectionMeta(keepRetina);
         this._queries.clear();
     }
 }
