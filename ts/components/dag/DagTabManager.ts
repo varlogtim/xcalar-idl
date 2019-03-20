@@ -104,7 +104,7 @@ class DagTabManager {
      * DagTabManager.Instance.newSQLFunc
      * @param graph
      */
-    public newSQLFunc(): void {
+    public newSQLFunc(): string {
         const name: string = DagList.Instance.getValidName(null, false, true);
         const graph: DagGraph = new DagGraph();
         const tab: DagTab = this._newTab(name, graph, true);
@@ -113,6 +113,7 @@ class DagTabManager {
             "operation": SQLOps.NewDagTab,
             "dataflowId": tab.getId()
         });
+        return tab.getId();
     }
 
     /**

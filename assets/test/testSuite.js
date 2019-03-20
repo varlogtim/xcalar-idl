@@ -296,7 +296,7 @@ window.TestSuite = (function($, TestSuite) {
             return true;
         },
 
-        loadDS: function(dsName, url, check) {
+        loadDS: function(dsName, url, check, addRowNum) {
             var self = this;
             var deferred = PromiseHelper.deferred();
             $("#importDataButton").click(); // button to initiate import dataset
@@ -314,6 +314,10 @@ window.TestSuite = (function($, TestSuite) {
                 var rand = Math.floor(Math.random() * 10000);
                 for (var i = 0; i < empties.length; i++) {
                     empties.eq(i).val("Unused_" + rand + "_" + (i+1));
+                }
+                if (addRowNum) {
+                    $("#importDataForm .extraCols .rowNumber .xi-ckbox-selected").click();
+                    $("#importDataForm .extraCols .rowNumber :input").val("ROWNUM");
                 }
 
                 $("#importDataForm .buttonSection .confirm:not(.createTable)").click();

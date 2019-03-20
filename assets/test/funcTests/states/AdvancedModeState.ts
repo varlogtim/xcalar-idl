@@ -1,16 +1,17 @@
-
 class AdvancedModeState extends State {
     private dagTabManager: DagTabManager;
     private currentTab: DagTabUser;
     private dfLinks: Map<string, Array<string>>;
 
     private tabsArray:string[];
+    private mode: string;
 
     public constructor(stateMachine: StateMachine, verbosity: string) {
         let name = "AdvancedMode";
         super(name, stateMachine, verbosity);
         // Sets in the advanced mode
-        XVM.setMode(name);
+        this.mode = XVM.Mode.Advanced;
+        XVM.setMode(this.mode);
         //turn off auto execute and auto preview
         UserSettings.setPref("dfAutoExecute", false, false);
         UserSettings.setPref("dfAutoPreview", false, false);
@@ -49,6 +50,9 @@ class AdvancedModeState extends State {
             this.availableActions.push(this.addSQLNode);
             //tab
             this.availableActions.push(this.getTab);
+
+            // SQL func
+            this.availableActions.push(this.createSQLFunc);
         }
         return this;
     }
@@ -387,6 +391,61 @@ class AdvancedModeState extends State {
         let cNode = DagViewManager.Instance.newNode({type:nodeType});
         graph.connect(pNode.id, cNode.id);
         return [cNode, pNode.getLineage().getColumns()];
+    }
+
+    private async createSQLFunc() {
+        let currentTabId = this.currentTab.getId();
+        let newTabId = this.dagTabManager.newSQLFunc();
+        this.currentTab = this.dagTabManager.getTabById(newTabId);
+        this.mode = "linear"
+
+        let tableLoaded = await PTblManager.Instance._listTables();
+        let table = this.pickRandom(tableLoaded);
+        // create input node
+        let ignoreColumns = new Set(["XcalarRankOver", "XcalarOpCode", "XcalarBatchId"])
+        let inNode = DagViewManager.Instance.newNode({type: DagNodeType.SQLFuncIn});
+        inNode.setParam({"source": table.name});
+        let schema = []
+        for (let col of table.columns) {
+            if (ignoreColumns.has(col.name)) {
+                continue;
+            }
+            schema.push({"name": col.name, "type": col.type});
+        }
+        inNode.setSchema(schema);
+
+        // build dataflow
+        let nodesCount = Math.floor(5*Math.random());
+        let count = 1;
+        let ignoreActions = new Set(["createTab", "addLinkInNode",
+                        "addLinkOutNode", "getTab", "createCustomNodes",
+                    "addDatasetNode", "createSQLFunc", "addSQLNode"]);
+        while (count < nodesCount) {
+            let randomAction = this.pickRandom(this.availableActions);
+            if (ignoreActions.has(randomAction.name)) {
+                continue;
+            }
+            await randomAction.call(this);
+            count++;
+        }
+
+        // create output node
+        let graph = this.currentTab.getGraph();
+        let pNode = graph.getSortedNodes().slice(-1)[0];
+        let outNode = DagViewManager.Instance.newNode({type: DagNodeType.SQLFuncOut});
+        graph.connect(pNode.id, outNode.id);
+
+        schema = []
+        for (let col of pNode.getLineage().getColumns()) {
+            schema.push({"name": col.backName, "type": col.type});
+        }
+        outNode.setParam({"schema": schema});
+
+        // restore
+        this.mode = "random";
+        this.dagTabManager.switchTab(currentTabId);
+        this.currentTab = this.dagTabManager.getTabById(currentTabId);
+        return this;
     }
 
     public async takeOneAction() {
