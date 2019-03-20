@@ -75,4 +75,8 @@ module.exports = {
         }
         DagViewManager.Instance.getActiveDagView().connectNodes(parentId, childId, 0);
     },
+
+    disableAutoExec: function() {
+        UserSettings.setPref('dfAutoExecute', false, false);
+    },
 };
