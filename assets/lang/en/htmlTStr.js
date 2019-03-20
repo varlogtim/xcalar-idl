@@ -665,7 +665,7 @@ module.exports = {
         "Targets": "Data Targets",
         "Retry": "Retry",
         "RetryPoint": "Please try to import data with different parameters.",
-        "TableInstr": "To start using the dataset, please go to the Dataflow Panel, and start from a dataset node.",
+        "TableInstr": "Dataset has been created. Click on the \"Create Dalaflow\" button below or the \"Dataflow\" button in the sidebar to start using it.",
         "DSInfo": "Dataset Information",
         "UsedBy": "Used By",
         "RowErrorTip": "Your dataset has errors. Click to view."
