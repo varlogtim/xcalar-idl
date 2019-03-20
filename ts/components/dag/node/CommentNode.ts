@@ -47,23 +47,23 @@ class CommentNode {
             "properties": {
               "x": {
                 "$id": "#/properties/display/properties/x",
-                "type": "integer",
+                "type": "number",
                 "minimum": 0
               },
               "y": {
                 "$id": "#/properties/display/properties/y",
-                "type": "integer",
+                "type": "number",
                 "minimum": 0
               },
               "width": {
                 "$id": "#/properties/display/properties/width",
-                "type": "integer",
+                "type": "number",
                 "minimum": 20,
                 "maximum": 20000
               },
               "height": {
                 "$id": "#/properties/display/properties/height",
-                "type": "integer",
+                "type": "number",
                 "minimum": 20,
                 "maximum": 20000
               }

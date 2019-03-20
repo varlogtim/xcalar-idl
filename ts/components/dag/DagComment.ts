@@ -82,7 +82,7 @@ class DagComment {
             "minHeight": DagView.gridSpacing,
             "grid": DagView.gridSpacing,
             "stop": function(_event, ui) {
-               self._updateDimensions(id, ui.size);
+                self._updateDimensions(id, ui.size);
             }
         });
     }
@@ -96,6 +96,9 @@ class DagComment {
         size: Dimensions
     ): XDPromise<void> {
         const comment = DagViewManager.Instance.getActiveDag().getComment(id);
+        // avoid decimals
+        size.width = Math.round(size.width);
+        size.height = Math.round(size.height);
         comment.setDimensions(size);
         return DagViewManager.Instance.getActiveTab().save();
     }

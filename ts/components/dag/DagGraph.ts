@@ -128,6 +128,7 @@ class DagGraph {
             graphJSON.comments.forEach((comment) => {
                 let valid = validate(comment);
                 if (!valid) {
+                    console.error(validate.errors);
                     // don't show invalid comments
                     return;
                 }
