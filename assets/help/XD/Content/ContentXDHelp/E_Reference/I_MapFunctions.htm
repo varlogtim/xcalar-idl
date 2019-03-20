@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Reference">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>Map functions</title>
+        <link href="../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/foundation.6.2.3.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
+        <link href="../../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.previous-topic-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/navigate-previous.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.next-topic-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/navigate-next.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <link href="../../Resources/TableStyles/SimpleTable.css" rel="stylesheet" />
+        <script src="../../../Resources/Scripts/custom.modernizr.js">
+        </script>
+        <script src="../../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/require.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/require.config.js">
+        </script>
+        <script src="../../../Resources/Scripts/foundation.6.2.3_custom.js">
+        </script>
+        <script src="../../../Resources/Scripts/plugins.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapGlobal.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapDom.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapUtilities.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapXhr.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapTextEffects.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapSlideshow.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapFeedback.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapDefault.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapHelpSystem.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.Breadcrumbs.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.MiniToc.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.SideMenu.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapIndex.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapGlossary.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapParser.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapSearch.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapTopic.js">
+        </script>
+        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
+        </script>
+        <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap off-canvas-wrapper">
+            <div class="off-canvas-wrapper-inner" data-off-canvas-wrapper="">
+                <aside class="off-canvas position-right" id="offCanvas" data-off-canvas="" data-position="right" data-mc-ignore="true">
+                    <ul class="off-canvas-accordion vertical menu off-canvas-list" data-accordion-menu="" data-mc-back-link="Back" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True">
+                    </ul>
+                </aside>
+                <div class="off-canvas-content inner-wrap" data-off-canvas-content="">
+                    <div data-sticky-container="" class="title-bar-container">
+                        <nav class="title-bar tab-bar sticky" data-sticky="" data-options="marginTop:0" style="width:100%" data-sticky-on="only screen and (max-width: 800px)" data-mc-ignore="true">
+                            <div class="middle title-bar-section outer-row clearfix">
+                                <div class="menu-icon-container relative clearfix">
+                                    <button class="menu-icon" data-toggle="offCanvas"><span></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="title-bar-layout outer-row">
+                                <div class="logo-wrapper"><a class="logo" href="../../HomeXDHelp.htm" alt="Logo"></a>
+                                </div>
+                                <div class="navigation-wrapper nocontent">
+                                    <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
+                                        <li class="placeholder" style="visibility:hidden"><a>placeholder</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="nav-search-wrapper">
+                                    <div class="nav-search row">
+                                        <form class="search" action="#">
+                                            <div class="search-bar search-bar-container needs-pie">
+                                                <input class="search-field needs-pie" type="search" placeholder="Search" />
+                                                <div class="search-filter-wrapper">
+                                                    <div class="search-filter">
+                                                        <div class="search-filter-content">
+                                                            <ul>
+                                                                <li>All Files</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="search-submit-wrapper" dir="ltr">
+                                                    <div class="search-submit" title="Search">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                    <section class="main-section">
+                        <div class="row outer-row sidenav-layout">
+                            <div class="sidenav-wrapper">
+                                <div class="sidenav-container">
+                                    <ul class="off-canvas-accordion vertical menu sidenav" data-accordion-menu="" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu accordion-menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="False" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True" data-mc-side-nav-menu="True">
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="body-container" data-mc-content-body="True">
+                                <div class="content">
+                                    <div id="contentBody">
+                                        <div class="row collapse">
+                                            <div class="sideContent">
+                                                <div class="clearfix">
+                                                    <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                        <div class="button-group-container-left">
+                                                            <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                            </button>
+                                                            <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                            </button>
+                                                            <div class="button-separator">
+                                                            </div>
+                                                            <button class="button needs-pie print-button" title="Print">
+                                                                <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="nocontent">
+                                                <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                </div>
+                                            </div>
+                                            <h1><a name="mapFunctions" class="ForCSH"></a>Map functions</h1>
+                                            <p>This section describes the function categories supported by the Map operation. If the input type is shown as Any, the data type can be boolean, float, integer, or string.</p>
+                                            <div class="Note"><span class="label">NOTE</span>:&#160;Functions that accept  an integer as input also accept a boolean value, unless specified otherwise in the following tables. When an arithmetic function evaluates boolean input, true is equivalent to 1, and false is equivalent to 0.</div>
+                                            <div class="Note"><span class="label">IMPORTANT</span>: The data type of a prefixed column might be number. If a function accepts only float or integer, always cast a number column to the appropriate type before running the function to avoid unexpected results. To confirm that the data type of a column is appropriate for a function, move the cursor over the data type icon in the column header. A tooltip is displayed to indicate the data type. </div>
+                                            <p>For information about how to start a Map operation, see <a href="../../B_CommonTasks/K_Map.htm" class="MCXref xref">Using the Map function to create new values</a>.</p>
+                                            <h2><a name="About"></a>Understanding date and time formats</h2>
+                                            <p>Some functions  require you to enter date or time formats in the input and output fields. You specify year, month, day, hour, minute, and second as %Y, %m, %d, %H, %M, and %S, respectively. </p>
+                                            <p>Some specifiers use uppercase and lowercase letters to distinguish between  the long and short form of the same name. For example, %b is an abbreviated month name such as Aug, and %B is a full month name such as August. </p>
+                                            <p>For a date to be displayed as <span class="UIelement">Sat, April 07, 2007</span> in a table column, specify the following format as the output format:</p>
+                                            <p class="userInput">%a, %B %d, %Y </p>
+                                            <p>For a complete list of specifiers that you can use in a <span class="GeneralProductName3">Xcalar</span> function, see  the following document:</p>
+                                            <p><a href="http://www.cplusplus.com/reference/ctime/strftime/">http://www.cplusplus.com/reference/ctime/strftime/</a>
+                                            </p>
+                                            <h2>Understanding precision in arithmetic functions for floating point values</h2>
+                                            <p><span class="GeneralProductName3">Xcalar</span> uses the  IEEE 754 double-precision floating point format. Be aware that inaccuracies might occur in floating point computation when it involves a numeric value that cannot be accurately represented in binary form. The following  examples show how using an arithmetic function for floating point values causes inaccuracies:</p>
+                                            <ul>
+                                                <li value="1">Dividing 0.6 by 0.2 results in 2.9999999999999996 instead of 3, </li>
+                                                <li value="2">Subtracting 11 from 11.1 results in 0.09999999999999964 instead of 0.1.</li>
+                                            </ul>
+                                            <h2>Understanding the mixed data type</h2>
+                                            <p>A column might contain data of various types.&#160;For example, some cells contain strings, some cells contain floating point values, and so on. The data type for such a column is mixed. You can run a function on a mixed column, but only values of the acceptable input data type produce meaningful results. The function returns FNF&#160;if one or more operands are not acceptable to the function. For example, you can run the add function on two mixed columns. The function returns the sum only if both operands are numbers. If one or both operands are a string, the result is FNF.</p>
+                                            <h2>About the function syntax</h2>
+                                            <p>The argument to a function can be a constant, an aggregate, or a column. In the following tables, if the argument list ends with an ellipsis (…), you can include arguments up to the maximum specified in the description.</p>
+                                            <h2>Arithmetic functions</h2>
+                                            <table style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                <thead>
+                                                    <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Function</th>
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Description</th>
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Input type</th>
+                                                        <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Output type</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">abs(number)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the absolute value of <var>number</var>.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Float</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>absInt(number)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                            <p>Returns the absolute value of <var>number</var>.</p>
+                                                            <div class="Note"><span class="label">NOTE</span>:&#160;If the input is  boolean , the function returns FNF.</div>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Integer</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">add(number1, number2, …)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the sum of all arguments. The function adds up to  1,024 arguments.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">ceil(number)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                            <p>Returns the smallest integer that is greater than or equal to <var>number</var>.</p>
+                                                            <div class="Note"><span class="label">NOTE</span>:&#160;The data type of the output is float even though the output is displayed as an integer.</div>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">div(number1, number2)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Divides <var>number1</var> by <var>number2</var>. If <var>number2</var> is 0, the result is FNF.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">exp(number)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Raises e (the base of natural logarithms)&#160;to the power that is equal to <var>number</var>.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                            <p>floatCompare(number1, number2, precision)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
+                                                            <p>Compares <var>number1</var> and <var>number2</var> to determine if the difference is within the precision value. The function returns  0, 1, or -1. The following list describes the results:</p>
+                                                            <ul>
+                                                                <li value="1">
+                                                                    <p>0 if the difference of <var>number1</var> and <var>number2</var> is less than <var>precision</var>. </p>
+                                                                    <div class="Note"><span class="label">EXAMPLE</span>: If <var>number1</var> is 1.1, <var>number2</var> is 1.2, and <var>precision</var> is 0.5, the result is 0. This is because the difference (0.1) is less than <var>precision</var> (0.5).</div>
+                                                                </li>
+                                                                <li value="2">
+                                                                    <p>1 if the  difference of <var>number1</var> and <var>number2</var> is greater than or equal to <var>precision</var>, and <var>number1</var> is greater than <var>number2</var>.</p>
+                                                                    <div class="Note"><span class="label">EXAMPLE</span>: If <var>number1</var> is 1.2, <var>number2</var> is 1.1, and <var>precision</var> is 0.1, the result is 1. This is because the difference (0.1) is equal to <var>precision</var> (0.1) and <var>number1</var> is greater than <var>number2</var>.</div>
+                                                                </li>
+                                                                <li value="3">
+                                                                    <p>-1 if  the difference of <var>number1 </var>and <var>number2</var> is greater than or equal to <var>precision</var>, and <var>number1</var> is less than <var>number2</var>. </p>
+                                                                    <div class="Note"><span class="label">EXAMPLE</span>: If <var>number1</var> is 1.1, <var>number2</var> is 1.2, and <var>precision</var> is 0.1, the result is -1. This is because the difference (0.1) is equal to <var>precision</var> (0.1) and <var>number1</var> is less than <var>number2</var>.</div>
+                                                                </li>
+                                                            </ul>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                            <p>Float</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                            <p>Integer</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">floor(number)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                            <p>Returns the largest integer less than or equal to <var>number</var>.</p>
+                                                            <div class="Note"><span class="label">NOTE</span>:&#160;The data type of the output is float even though the output is displayed as an integer.</div>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">log(number)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
+                                                            <p>Returns the logarithm of <var>number</var> to the base of e.</p>
+                                                            <div class="Note"><span class="label">IMPORTANT</span>: This function is the natural logarithm. It is not the same as the log function in other applications such as Excel, which uses 10 as the default base of the logarithm.</div>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">log10(number)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the logarithm of <var>number</var> to the base of 10.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">log2(number)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the logarithm of <var>number</var> to the base of 2.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>mod(number1, number2)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                            <p>Returns the remainder after <var>number1</var> is divided by <var>number2</var>.</p>
+                                                            <p>The following list provides guidelines for using this function:</p>
+                                                            <ul>
+                                                                <li value="1"> If <var>number2</var> is 0, the result is FNF. </li>
+                                                                <li value="2">The sign of the result is the same as the sign of <var>number1</var>.</li>
+                                                                <li value="3">
+                                                                    <p>If the absolute value of <var>number2</var> is greater than the absolute value of <var>number1</var>, the result is <var>number1</var>. The following are examples:</p>
+                                                                    <ul>
+                                                                        <li value="1">mod(2,5) evaluates to 2.</li>
+                                                                        <li value="2">mod(-2,-5) evaluates to -2.</li>
+                                                                    </ul>
+                                                                </li>
+                                                            </ul>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Integer</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">mult(number1, number2, …)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the product of multiplying all arguments. The function can multiply up to 1,024 arguments.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">pow(base, exponent)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Raises base to the power specified by <var>exponent</var>.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">round(number, decimal_places)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
+                                                            <p>Rounds <var>number</var> to the specified decimal places. </p>
+                                                            <div class="Note"><span class="label">NOTE</span>:&#160;If <var>decimal_places</var> is None, the resultant number has no decimal places.</div>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Float or integer for <var>number</var>; integer for <var>decimal_places</var></td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">sqrt(number)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the square root of <var>number</var>.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">sub(number1, number2, …)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">Subtracts one or more arguments from <var>number1</var>. The function accepts up to 1,024 arguments.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">Float</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <h2>Bitwise functions</h2>
+                                            <table style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                <col class="TableStyle-SimpleTable-Column-Column1" style="width: 107px;" />
+                                                <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                <col class="TableStyle-SimpleTable-Column-Column2" style="width: 22px;" />
+                                                <thead>
+                                                    <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Function</th>
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Description</th>
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Input type</th>
+                                                        <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Output type</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">bitand(number1, number2)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the result of the AND&#160;operation on the bit patterns of <var>number1</var> and <var>number2</var>.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Integer</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>bitLength(expression)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                            <p>Returns the amount of memory, expressed in bits, used for <var>expression</var>. The following list describes how it determines the result:</p>
+                                                            <ul>
+                                                                <li value="1">If <var>expression</var> is boolean, float, or integer, the function returns 64. </li>
+                                                                <li value="2">If <var>expression</var> is String, the function multiplies the number of characters by 8 and then adds 72.</li>
+                                                            </ul>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>Any</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                            <p>Integer</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">bitlshift(number1, number2)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
+                                                            <p>Returns the result of a logical left shift on <var>number1</var> by the number of bits specified by <var>number2</var>.</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Integer</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">bitor(number1, number2)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                            <p>Returns the result of the inclusive OR operation on the bit patterns of <var>number1</var> and <var>number2</var>.</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Integer</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">bitrshift(number1, number2)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
+                                                            <p>Returns the result of a logical right shift on <var>number1</var> by the number of bits specified by <var>number2</var>.</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Integer</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">bitxor(number1, number2)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the result of the XOR&#160;(exclusive OR) operation on <var>number1</var> and <var>number2</var>.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Integer</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">
+                                                            <p>octetLength</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">
+                                                            <p>Returns the amount of memory, expressed in bytes, used for <var>expression</var>. The following list describes how it determines the result:</p>
+                                                            <ul>
+                                                                <li value="1">If <var>expression</var> is boolean, float, or integer, the function returns 8. </li>
+                                                                <li value="2">
+                                                                    <p>If <var>expression</var> is string, the function performs these steps and returns the result:</p>
+                                                                    <ol style="list-style-type: lower-alpha;">
+                                                                        <li value="1">Multiplies the number of characters by 8.</li>
+                                                                        <li value="2">Adds 72.</li>
+                                                                        <li value="3">Divides by 8.</li>
+                                                                    </ol>
+                                                                </li>
+                                                            </ul>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">
+                                                            <p>Any</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">
+                                                            <p>Integer</p>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <h2><a name="Conditio"></a>Conditional functions</h2>
+                                            <div class="Note"><span class="label">NOTE</span>:&#160;Due to the limited precision in floating point computations, functions such as eq, ge, le, which test equality, might produce unexpected results. For example, eq(div(0.6,0.2), 3.0) returns false. For a more precise result when comparing two floating point values, use the floatCompare function. </div>
+                                            <table style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                <col class="TableStyle-SimpleTable-Column-Column1" style="width: 151px;" />
+                                                <col class="TableStyle-SimpleTable-Column-Column2" style="width: 151px;" />
+                                                <thead>
+                                                    <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Function</th>
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Description</th>
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Input type</th>
+                                                        <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Output type</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">and(value1, value2)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the result of the AND&#160;operation on <var>value1</var> and <var>value2</var>.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Boolean</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">between(number1, number2, number3)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if <var>number1</var> is equal to or greater than <var>number2</var>, and less than or equal to <var>number3</var>.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">contains(string, pattern, ignoreCase)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if <var>string</var> contains <var>pattern</var>. <var>IgnoreCase</var> is set to false by default, which means the pattern matching is case-sensitive. If you select the <var>IgnoreCase</var> option (that is, set the option to true), the pattern matching is case-insensitive.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">String for <var>string</var> and <var>pattern</var>; boolean for <var>ignoreCase</var></td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>endsWith(string, pattern, ignoreCase)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                            <p>Tests if <var>string</var> ends with the pattern.  <var>IgnoreCase</var> is set to false by default, which means the pattern matching is case-sensitive. If you select <var>IgnoreCase</var> (that is, set the option to true), the pattern matching is case-insensitive.</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>String for <var>string</var> and <var>pattern;</var> boolean for <var>ignoreCase</var></p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                            <p>Boolean</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">eq(value1, value2)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
+                                                            <p>Tests if <var>value1</var> and <var>value2</var> are equal.</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Any (but values must be of the same type)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">exists(field_name)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if a value exists in the field  specified by <var>field_name</var>. If a value exists, the result is true; otherwise (that is, the value is shown as FNF), the result is false.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Any</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">ge(value1, value2)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if <var>value1</var> is greater than or equal to <var>value2</var>.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Any (but values must be of the same type)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">gt(value1, value2)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if <var>value1</var> is greater than <var>value2</var>.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Any (but values must be of the same type)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">isBoolean(value)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if the data type of <var>value</var> is boolean.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Any</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">isFloat(value)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if the data type of <var>value</var> is float.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Any</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">isInf(value)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if <var>value</var> is infinity. Infinity is displayed as <span class="UIelement">inf</span> or <span class="UIelement">-inf</span>.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Float</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">isInteger(value)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if the data type of <var>value</var> is integer.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Any</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                            <p>isNull(field_name)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
+                                                            <p>Tests if a field specified by <var>field_name</var> has the JSON&#160;value, null.</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                            <p>Any</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                            <p>Boolean</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">isString(value)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if the data type of <var>value</var> is string.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Any</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">le(value1, value2)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if <var>value1</var> is less than or equal to <var>value2</var>.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Any (but values must be of the same type)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">like(string1, string2)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                            <p>Tests if <var>string1</var> is similar to <var>string2</var>. The comparison is case sensitive. The result is true only if the strings are a complete match. </p>
+                                                            <p>You can include an asterisk (*) as a wild card character. For example, if <var>string1</var> is ABC and <var>string2</var> is A*C, the result is true. If <var>string1</var> is ABC and <var>string2</var> is AB, the result is false.</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">String</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">lt(value1, value2)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Tests if <var>value1</var> is less than <var>value2</var>.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Any (but values must be of the same type)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">neq(value1, value2)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Tests if <var>value1</var> is not equal to <var>value2</var>.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Any (but operands must be of the same type)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">not(value)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Reverses <var>value</var>. For example, if <var>value </var>is true, the function returns false.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Boolean</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">or(value1, value2)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the result of the OR operation on <var>value1</var> and <var>value2</var>.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Boolean</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Boolean</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">regex(string, regular_expression)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
+                                                            <p>Tests if a substring matching <var> regular_expression</var> exists in <var>string</var>.</p>
+                                                            <div class="Example"><span class="label">EXAMPLE</span>: If <var>string</var> is UA01 and<var> regular_expression</var> is 01$, the result is true. If <var>string</var> is UA012 and <var>regular_expression</var> is 01$, the result is false.&#160;The regular expression specifies that  01 must be matched at the end of <var>string</var> for the function to return true.</div>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">String</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">
+                                                            <p>startsWith(string, pattern, ignoreCase)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column2-Body2">
+                                                            <p>Tests if <var>string</var> starts with <var>pattern</var>.  The <var>IgnoreCase</var> option is set to false by default, which means the pattern matching is case-sensitive. If you select the <var>IgnoreCase</var> option (that is, set the option to true), the pattern matching is case-insensitive.</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">
+                                                            <p>String for <var>string</var> and <var>pattern</var>; boolean for <var>ignoreCase</var></p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">
+                                                            <p>Boolean</p>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <h2>Conversion functions</h2>
+                                            <div class="Note"><span class="label">NOTE</span>:&#160;Functions for converting date and time strings require an input or output format. For more information about how to specify the format, see <a href="#About" class="MCXref xref">Understanding date and time formats</a>.</div>
+                                            <table style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                <col style="width: 134px;" class="TableStyle-SimpleTable-Column-Column1" />
+                                                <col style="width: 134px;" class="TableStyle-SimpleTable-Column-Column2" />
+                                                <col style="width: 134px;" class="TableStyle-SimpleTable-Column-Column1" />
+                                                <col style="width: 134px;" class="TableStyle-SimpleTable-Column-Column2" />
+                                                <thead>
+                                                    <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Function</th>
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Description</th>
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Input type</th>
+                                                        <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Output type</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">convertDate(date_string, format1, format2)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Converts <var>date_string</var> from  <var>format1</var> to <var>format2</var>.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">String</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">String</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">convertFromUnixTS(UNIX_timestamp, format)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Converts from a UNIX timestamp  to another time format.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">String</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">convertToUnixTS(timestamp, UNIX_timestamp)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Converts a timestamp to a UNIX timestamp.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">String</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Integer</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">dateAddDay(date, format, number_of_days)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Adds a specified number of days to a date in the specified format. The number of days can be negative.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">String for <var>date</var> and <var>format</var>, integer for <var>number_of_days</var></td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">String</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">dateAddInterval(date, format, years, months, days)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Adds a time interval (specified in the number of years, the number of months, and the number of days) to a date. The numbers can be negative.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">String for <var>date</var> and <var>format</var>, integer for <var>years</var>, <var>months</var>, and <var>days</var></td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">String</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">dateAddMonth(date, format, months)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Adds a specified number of months to a date. The number can be negative.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">String for <var>date</var> and <var>format</var>, integer for <var>months</var></td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">String</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">dateAddYear(date, format, years)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Adds a specified number of years to a date. The number can be negative.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">String for <var>date</var> and <var>format</var>, integer for <var>years</var></td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">String</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">dateDiffDay(start_date, end_date, format)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Calculates the number of days between two dates. </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">String</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Integer</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">ipAddrToInt(IP_address, number_of_octets)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Converts a specified number of octets of  an IPv4&#160;address  to an integer. For example, if you convert 3 octets of the address 128.1.2.3, the result is 128001002.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">String for <var>IP_address</var>, integer or float for <var>number_of_octets</var></td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Integer</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">macAddrToInt(MAC_address, number_of_octets)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column2-Body2">Converts a specified number of octets of a MAC&#160;address to an integer. For example, if you convert 4 octets of the address 00:B0:D0:86:BB:F7, the result is 11587718.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">String for <var>MAC_address</var>, integer or float for <var>number_of_octets</var></td>
+                                                        <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">Integer</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <h2>Miscellaneous functions</h2>
+                                            <table style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                <col style="width: 134px;" class="TableStyle-SimpleTable-Column-Column1" />
+                                                <col style="width: 134px;" class="TableStyle-SimpleTable-Column-Column2" />
+                                                <col style="width: 134px;" class="TableStyle-SimpleTable-Column-Column1" />
+                                                <col style="width: 134px;" class="TableStyle-SimpleTable-Column-Column2" />
+                                                <thead>
+                                                    <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Function</th>
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Description</th>
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Input type</th>
+                                                        <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Output type</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">dhtHash(field, mod_by)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Generates a hash key used by the distributed hash table. You can omit <var>mod_by</var>.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Any for <var>field</var>, integer for <var>mod_by</var></td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Integer</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">genRandom(number1, number2)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Generates a random number between <var>number1</var> and <var>number2</var>. A valid result is generated if <var>number1</var> is less than <var>number2</var>. Otherwise, the result is FNF.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Integer</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">genUnique</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Generates a unique integer for each row in a new column.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">N/A</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">integer</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>if(condition, value_if_true, value_if_false)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                            <p>Tests if <var>condition</var> is true or false. If true, returns <var>value_if_true</var>; if false, returns <var>value_if_false</var>.</p>
+                                                            <p>If condition is non-zero, it is considered  true. If it is 0, it is considered  false.</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                            <p>ifInt(condition, value_if_true, value_if_false)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
+                                                            <p>Tests if <var>condition</var> is true or false. If true, returns <var>value_if_true</var>; if false, returns <var>value_if_false</var>.</p>
+                                                            <p>If <var>condition</var> is non-zero, it is considered  true. If it is 0, it is considered  false.</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Float or integer for <var>condition</var>, integer for <var>value_if_true</var> and <var>value_if_false</var></td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">integer</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">ifStr(condition, value_if_true, value_if_false)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                            <p>Tests if <var>condition</var> is true or false. If true, returns <var>value_if_true</var>; if false, returns <var>value_if_false</var>.</p>
+                                                            <p>If <var>condition</var> is non-zero, it is considered  true. If it is 0, it is considered  false.</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Float or integer for <var>condition</var>, string for <var>value_if_true</var> and <var>value_if_false</var></td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">String</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">
+                                                            <p>xdbHash(argument)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">
+                                                            <p>Determines which XDB hash slot a key hashes to.</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">
+                                                            <p>Any</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">
+                                                            <p>Integer</p>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <h2>String functions</h2>
+                                            <table style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                <thead>
+                                                    <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Function</th>
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Description</th>
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Input type</th>
+                                                        <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Output type</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                            <p>ascii(string)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
+                                                            <p>Returns the numeric value of the first character of <var>string</var>. For example, if <var>string</var> is Apple, the function returns 65, because 65 is the ASCII&#160;code for the first character, A.</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                            <p>String</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                            <p>Integer</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>chr(integer)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                            <p>Returns the character whose ASCII&#160;code is equal to <var>  integer</var>. For example, if <var>integer</var> is 65, the function returns the character, A, because this character's ASCII code is 65.</p>
+                                                            <p>If <var>integer</var> is greater than 255, the function returns the value equal to <var> integer</var> mod 256. For example, if integer is 321, the function returns the character, A, because 321 mod 256 is 65, which is the ASCII code for A.</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>Integer</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                            <p>String</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">concat(string1, string2, …)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Concatenates up to 1,024 strings.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">String</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">String</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">countChar(string1, string2)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Counts occurrences of <var>string2</var> in <var>string1</var>. For example, if <var>string1</var> is abcabd, and <var>string2</var> is ab, the result is 2 because ab occurs twice in abcabd. </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">String</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Integer</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">cut(string, field_number, delimiter)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
+                                                            <p>Returns the string located at the numbered field in <var>string</var>.&#160;</p>
+                                                            <p>Field numbers start at 1. Fields are separated by a delimiter, which can be a character or a string of characters.</p>
+                                                            <div class="Example"><span class="label">EXAMPLE</span>:&#160;If <var>string</var> is 12/6/2016, <var>field_number</var> is 3, and <var>delimiter</var> is  /,  the function returns 2016, which is the third field in the string.</div>
+                                                            <p>The function returns an empty string if any of the following conditions is true:</p>
+                                                            <ul>
+                                                                <li value="1">The delimiter exists in <var>string</var> but the numbered field does not exist.</li>
+                                                                <li value="2">The delimiter does not exist in <var>string</var>, and the field number is not equal to 1.</li>
+                                                            </ul>
+                                                            <p>If the delimiter does not exist in <var>string</var>, and the field number is 1, the result is the input string.</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                            <p>String for string, integer for <var>field_number</var>, and string for <var>delimiter</var></p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">String</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>explodeString(string, delimiter)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                            <p>Splits a string into multiple strings based on the delimiter, and creates rows containing the resultant strings.</p>
+                                                            <p>Delimiter can contain one or multiple characters. If delimiter does not exist, string is not split. A duplicate column with the same contents is created.</p>
+                                                            <p>In the newly created rows, the columns retain the same contents before the split.</p>
+                                                            <div class="Example"><span class="label">EXAMPLE</span>:&#160;If <var>string</var> is 18/07/03, and <var>delimiter</var> is a slash (/), then <var>string</var> is split into three strings, which are 18, 07, and 03. Each of these strings is stored in a separate row. </div>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>String</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                            <p>String</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">find(string_to_search, string_to_find, starting_index, ending_index)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
+                                                            <p>Returns the  position of the first character of <var>string_to_find</var> contained in <var>string_to_search</var>. Starting index and ending index limit where <var>string_to_find</var> can be found. </p>
+                                                            <p> Indexes start at 0 and are inclusive. To return an index as long as it is equal to or greater than the starting index, specify 0 for the ending index. </p>
+                                                            <p>If <var>string_to_find</var> is not found within the specified indexes, the function returns -1.</p>
+                                                            <div class="Example"><span class="label">EXAMPLE</span>:&#160;If <var>string_to_search</var> is 1/1/2007, <var>string_to_find</var> is 2007, <var>starting_index</var> is 3, and <var>ending_index</var> is 5, the function returns 4 because 2007 is found at index 4. Suppose <var>string_to_search</var> is 12/12/2007, the function returns -1 because  2007 is not found at an index between 3 and 5. However, if the ending index is  0, the function returns 6.</div>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                            <p>String for <var>string_to_search</var> and <var>string_to_find</var></p>
+                                                            <p>Integer for <var>starting_index</var> and <var>ending_index</var></p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Integer</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>findInSet(string, element)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                            <p>Returns the index of <var>element</var> in <var>string</var>, which is a comma-delimited list of elements. </p>
+                                                            <p>Indexes start at 1. If <var>element</var> does not exist, the function returns 0.</p>
+                                                            <div class="Example"><span class="label">EXAMPLE</span>:&#160;If <var>string</var> is 18,07,03, and <var>element</var> is 07, the index is 2. If <var>element</var> is 19, the index is 0.</div>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>String</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                            <p>Integer</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                            <p>formatNumber(number, decimal_places)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
+                                                            <p>Formats <var>number</var> into a string format with commas and a decimal point.&#160;<var>Decimal_places</var> specifies the number of decimal places.</p>
+                                                            <div class="Example"><span class="label">EXAMPLE</span>:&#160;If <var>string</var> is 1234567.89, and <var>decimal_places</var> is 1, the resultant string is 1,234,567.9.</div>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                            <p>Float or integer for <var>number</var>, integer for <var>decimal_places</var></p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                            <p>String</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>initCap(string)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                            <p>Changes the first letter of each word in <var> string</var> to uppercase. If the initial character is already an uppercase letter or is not a letter, no changes are made to the character. Other letters in the  word are changed to lowercase if they are not already in lowercase.</p>
+                                                            <p>Words are separated by a space.</p>
+                                                            <div class="Example"><span class="label">EXAMPLE</span>:&#160;If <var>string</var> is <span class="UIelement">flight is domestic</span> or <span class="UIelement">FLIGHT IS DOMESTIC</span>, the function returns <span class="UIelement">Flight Is Domestic</span>. </div>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>String</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                            <p>String</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">len(string)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the length of <var>string</var>.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">String</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Integer</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>levenshtein(string1, string2)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                            <p>Returns the Levenshtein distance between string1 and string2.</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>String</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                            <p>Integer</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">lower(string)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Changes a string to lowercase.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">String</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">String</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>repeat(string, number_of_times)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                            <p>Duplicates <var>string</var> by the number of times specified by <var>number_of_times</var>.</p>
+                                                            <div class="Example"><span class="label">EXAMPLE</span>:&#160;If <var>string</var> is abc, and <var>number_of_times</var> is 2, the resultant string is abcabc.</div>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>String for <var>string</var>, integer for <var>number_of_times</var></p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                            <p>String</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">replace(string_to_search, string_to_find, replacement_string, ignoreCase)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
+                                                            <p>In <var>string_to_search</var>, replaces <var>string_to_find</var> and  with <var>replacement_string</var>.</p>
+                                                            <p>The pattern matching is case-sensitive by default. If you select the <span class="UIelement">IgnoreCase</span> option (that is, set the option to true), the pattern matching is case-insensitive.</p>
+                                                            <div class="Example"><span class="label">EXAMPLE</span>:&#160;If <var>string_to_search</var> is abc, <var>string_to_find</var> is ab, and <var>replacement_string</var> is XYZ, the resultant string is XYZc.</div>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">String for <var>string_to_search</var>, <var>string_to_find</var>, and <var>replacement_string</var>, boolean for <var>ignoreCase</var></td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">String</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">rfind(string_to_search, string_to_find, starting_index, ending_index)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Same as the find function except that it returns the index of the last character of <var>string_to_find</var>.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>String for <var>string_to_search</var> and <var>string_to_find</var></p>
+                                                            <p>Integer for <var>starting_index</var> and <var>ending_index</var></p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Integer</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                            <p>soundEx(string)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
+                                                            <p>Returns the American Soundex code for <var>string</var>.</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                            <p>String</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                            <p>String</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>stringLPad(string, pad_string, length)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                            <p>Left-pads <var>string</var> with the string specified by <var>pad_string</var> to the length specified by <var>length</var>.</p>
+                                                            <p>If <var>string</var> is shorter than <var>length</var>, <var>string</var> is shortened to <var>length</var>.</p>
+                                                            <div class="Example"><span class="label">EXAMPLE</span>: If <var>string</var> is abc, <var>pad_string</var> is XYZ, and <var>length</var> is 6, the resultant string is XYZabc.</div>
+                                                            <div class="Example"><span class="label">EXAMPLE</span>:&#160;If <var>string</var> is abc, <var>pad_string</var> is XYZ, and <var>length</var> is 2, the resultant string is ab. </div>
+                                                            <div class="Example"><span class="label">EXAMPLE</span>: If <var>string</var> is abc, <var>pad_string</var> is XYZ, and <var>length</var> is 4, the resultant string is Xabc.</div>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>String for <var>string</var> and <var>pad_string</var>, integer for <var>length</var></p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                            <p>String</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                            <p>stringRPad(string, pad_string, length)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
+                                                            <p>Right-pads <var>string</var> with the string specified by <var>pad_string</var> to the length specified by <var>length</var>.</p>
+                                                            <p>If <var>string</var> is shorter than <var>length</var>, <var>string</var> is shortened to <var>length</var>.</p>
+                                                            <div class="Example"><span class="label">EXAMPLE</span>: If <var>string</var> is abc, <var>pad_string</var> is XYZ, and length is 6, the resultant string is abcXYZ.</div>
+                                                            <div class="Example"><span class="label">EXAMPLE</span>:&#160;If <var>string</var> is abc, <var>pad_string</var> is XYZ, and <var>length</var> is 2, the resultant string is ab. </div>
+                                                            <div class="Example"><span class="label">EXAMPLE</span>: If <var>string</var> is abc,<var> pad_string</var> is XYZ, and <var>length</var> is 4, the resultant string is abcX.</div>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                            <p>String for <var>string</var> and <var>pad_string</var>, integer for <var>length</var></p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                            <p>String</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>stringReverse(string)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                            <p>Reverses a string. </p>
+                                                            <div class="Example"><span class="label">EXAMPLE</span>:&#160;If <var>string</var> is abc, the resultant string is cba.</div>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>String</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                            <p>String</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">strip(string)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Eliminates the leading and trailing spaces from <var>string</var>.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">String</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">String</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>stripLeft(string)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Eliminates the leading  spaces from <var>string</var>.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>String</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                            <p>String</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                            <p>stripRight(string)</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Eliminates the trailing spaces from <var>string</var>.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                            <p>String</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                            <p>String</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">substring(string, starting_index, ending_index)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                            <p> Creates a string from <var>string</var> that starts at <var>starting_index</var> (inclusive) and ends at <var>ending_index</var> (exclusive). This  is equivalent to the Python command <code>str[startIdx:endIdx]</code>. </p>
+                                                            <p>To have the same effect as  <code>str[startIdx:]</code>, specify 0 for <var>ending_index</var>. To have the same effect as <code>str[:endIdx]</code>, specify 0 for the <var>starting_index</var>. To index back from the end of the string, use a negative index value.</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>String for <var>string</var>, integer for <var>starting_index</var> and <var>ending_index</var></p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">String</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">upper(string)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Changes a string to uppercase.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">String</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">String</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">wordCount(string)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column2-Body2">
+                                                            <p>Returns the number of words in string. A word is a string delimited by one or multiple spaces. For example, the following string has 5 words:</p>
+                                                            <p>CA + NV / #</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">String</td>
+                                                        <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">Integer</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <h2>Trigonometric functions</h2>
+                                            <table style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                <thead>
+                                                    <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Function</th>
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Description</th>
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Input type</th>
+                                                        <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Output type</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">acos(number)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the arccosine of <var>number</var>, in radians.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">acosh(number)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the hyperbolic arccosine of <var>number</var>, in radians.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">asin(number)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the arcsine of <var>number</var>, in radians.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">asinh(number)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the hyperbolic arcsine of <var>number</var>, in radians.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">atan(number)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the arctangent of <var>number</var>, in radians.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">atan2(y,x)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                            <p>Returns the principal value of arctangent(y/x).</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">atanh(number)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the hyperbolic arctangent of <var>number</var>, in radians.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">cos(angle)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the cosine of <var>angle</var> expressed in radians.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">cosh(angle)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the hyperbolic cosine of <var>angle</var> expressed in radians.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">degrees(number)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Converts <var>number</var>, expressed in radians, to degrees.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">pi</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Creates a column with the value of pi in each row.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">N/A</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">radians(number)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Converts <var>number</var>, expressed in degrees, to radians.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Integer, float, or boolean</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">sin(angle)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the sine of <var>angle</var> expressed in radians.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">sinh(angle)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">Returns the hyperbolic sine of <var>angle</var> expressed in radians.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">tan(angle)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">Returns the tangent of <var>angle</var> expressed in radians.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">tanh(angle)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column2-Body2">Returns the hyperbolic tangent of <var>angle</var> expressed in radians.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">Float or integer</td>
+                                                        <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">Float</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <h2>Type-casting functions</h2>
+                                            <table style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 100%;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                <col class="TableStyle-SimpleTable-Column-Column1" style="width: 18px;" />
+                                                <col class="TableStyle-SimpleTable-Column-Column2" style="width: 18px;" />
+                                                <thead>
+                                                    <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Function</th>
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Description</th>
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Input type</th>
+                                                        <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Output type</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">bool(value)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
+                                                            <p>Casts <var>value</var> to a boolean value as follows:</p>
+                                                            <ul>
+                                                                <li value="1">A string is converted to the boolean value, false. The only exception is that if the string is <span class="UIelement">true</span> (case-insensitive), the string is converted to the boolean value, true.</li>
+                                                                <li value="2">The number  0 is converted to the boolean value, false.</li>
+                                                                <li value="3">A non-zero float or integer value is converted to the boolean value, true. </li>
+                                                            </ul>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Any</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Boolean</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">float(value)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                            <p>Casts <var>value</var> to float. </p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Any</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">Float</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">int(value, base)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
+                                                            <p>Casts <var>value</var> to integer. Base is optional. If you do not specify the base, the function returns a base-10 integer.</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Any</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Integer</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">string(value)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column2-Body2">
+                                                            <p>Casts <var>value</var> to string. </p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">Any</td>
+                                                        <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">String</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <div class="Note"><span class="label">NOTE</span>:&#160;If <var>value</var> is an empty string, the output of the float and int functions is 0, the output of the bool function is false, and the output of the string function is an empty string.</div>
+                                            <div class="Note"><span class="label">NOTE</span>:&#160;All type-casting functions return FNF&#160;if value is Null.</div>
+                                            <h2>User-defined functions</h2>
+                                            <p>User-defined functions (UDFs)&#160;are functions that you or other users of <span class="GeneralGUIName1">Xcalar Design</span> create and upload. <span class="GeneralProductName3">Xcalar</span> is shipped with several <span class="GeneralCompanyNameShort">Xcalar</span>-defined UDFs in the default module. This section describes the <span class="GeneralCompanyNameShort">Xcalar</span>-defined UDFs.</p>
+                                            <div class="Note"><span class="label">NOTE</span>:&#160;The data type of all UDF output is string.</div>
+                                            <h3>convertFormats</h3>
+                                            <table style="width: 100%;mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                <thead>
+                                                    <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Syntax</th>
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Description</th>
+                                                        <th class="TableStyle-SimpleTable-HeadD-Column1-Header1">Input</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">convertFormats(colName, inputFormat, outputFormat)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">Converts the time format of the specified column to another time format.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyA-Column1-Body1">
+                                                            <p>colName: name of the column to convert.</p>
+                                                            <p>inputFormat: format of the column named colName. For example, if the format is 2005-12-05 in the column, then the input format is %Y-%m-%d.</p>
+                                                            <p>outputFormat: output format. For example if you want the date to be 12/05/2005, then the output format is %m/%d/%Y.</p>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <h3>convertFromUnixTS</h3>
+                                            <table style="width: 100%;mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                <thead>
+                                                    <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Syntax</th>
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Description</th>
+                                                        <th class="TableStyle-SimpleTable-HeadD-Column1-Header1">Input</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">convertFromUnixTS(colName, outputFormat)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">Converts from a UNIX timestamp to another time format.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyA-Column1-Body1">
+                                                            <p>colName: name of the column to convert.</p>
+                                                            <p>outputFormat: resultant format of the column.</p>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <h3>convertToUnixTS</h3>
+                                            <table style="width: 100%;mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                <thead>
+                                                    <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Syntax</th>
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Description</th>
+                                                        <th class="TableStyle-SimpleTable-HeadD-Column1-Header1">Input</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">convertToUnixTS(colName, inputFormat)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">Converts from a timestamp format to the UNIX timestamp format.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyA-Column1-Body1">
+                                                            <p>colName: name of the column to convert.</p>
+                                                            <p>inputFormat: format from which the column is converted.</p>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <h3>openExcel</h3>
+                                            <p>This function is not to be invoked by <span class="GeneralProductName3">Xcalar</span> users. It is called by <span class="GeneralGUIName1">Xcalar Design</span> when you select the file format to be Excel during the dataset creation step. </p>
+                                            <h3>convertExcelTime</h3>
+                                            <table style="width: 100%;mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                <thead>
+                                                    <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Syntax</th>
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Description</th>
+                                                        <th class="TableStyle-SimpleTable-HeadD-Column1-Header1">Input</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">convertExcelTime(colName, outputFormat)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">In Excel, a date can be displayed and stored as a value that represents the number of days that have elapsed since the base date. For example, a date shown as 48739 means that 48739 days have elapsed since the base date. This function converts this value to a regular date. </td>
+                                                        <td class="TableStyle-SimpleTable-BodyA-Column1-Body1">
+                                                            <p>colName: name of the column to convert.</p>
+                                                            <p>outputFormat: output format from which the Excel date is converted. For example, if you want the date to be 2005-12-04, then enter %Y-%m-%d.</p>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <h3>splitWithDelim</h3>
+                                            <table style="width: 100%;mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                <thead>
+                                                    <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Syntax</th>
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">Description</th>
+                                                        <th class="TableStyle-SimpleTable-HeadD-Column1-Header1">Input</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">splitWithDelim(txt, index, delim)</td>
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">Extracts the substring from a string starting from the character following the delimiter with the specified index. For example, it there are two delimiters, the indexes for the delimiters are 0 and 1. To obtain the substring starting from the character following the second delimiter, specify 1 as the index.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyA-Column1-Body1">
+                                                            <p>txt: string from which a substring is extracted.</p>
+                                                            <p>index: index of the delimiter. Indexing starts from 0, and the substring starts from the character following the delimiter pointed to by the index.</p>
+                                                            <p>delim:&#160;character that serves as delimiter.</p>
+                                                            <p>The following examples show how this function is used:</p>
+                                                            <p>splitWithDelim(a-b-c, 1, -) produces the substring <span class="UIelement">b-c</span>. </p>
+                                                            <p>splitWithDelim(a-b-c, 3, -) produces an empty substring. </p>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <h3>now</h3>
+                                            <p>This function gets the current time of the <span class="GeneralProductName3">Xcalar</span> cluster. The output represents the number of seconds since the epoch, in UTC. </p>
+                                            <p>This function does not take any input.</p>
+                                            <p><a href="#Top">Go to top</a>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section><a data-close="true"></a>
+                </div>
+            </div>
+            <script>/* <![CDATA[ */$(document).foundation();/* ]]> */</script>
+        </div>
+    </body>
+</html>

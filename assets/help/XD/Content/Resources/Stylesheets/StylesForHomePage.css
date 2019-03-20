@@ -1,5 +1,7 @@
 /*<meta />*/
 
+@import url('MainStyles.css');
+
 @namespace MadCap url(http://www.madcapsoftware.com/Schemas/MadCap.xsd);
 
 /* Home Page General Styles*/
@@ -58,20 +60,20 @@ h1
 {
 	font-size: 36px;
 	line-height: 30pt;
-	color: #378cb3;
 	font-family: 'Open Sans';
 	font-weight: 300;
 	mc-hyphenate: never;
+	color: #44515c;
 }
 
 h2
 {
 	font-size: 24px;
 	font-weight: 300;
-	color: #378cb3;
 	padding-top: 16px;
 	padding-bottom: 16px;
 	mc-hyphenate: never;
+	color: #44515c;
 }
 
 h2.SubCenter
@@ -100,10 +102,11 @@ p
 p.Copyright
 {
 	text-align: left;
-	background-color: #d7d7d7;
-	padding-left: 0;
+	/*	background-color: #d7d7d7; */
 	margin: 0px 10px;
-	padding-bottom: 1px;
+	padding-left: 0px;
+	padding-top: 8px;
+	padding-bottom: 8px;
 }
 
 .centered-text
@@ -249,12 +252,12 @@ p.Copyright
 
 div.topichero
 {
-	background-image: url('../Images/BackgroundImage.png');
+	/* background-image: url('../Images/BackgroundImage.png'); */
 	background-size: cover;
 	background-repeat: no-repeat;
 	height: auto;
-	padding-bottom: 150px;
-	padding-top: 80px;
+	padding-bottom: 40px;
+	padding-top: 40px;
 }
 
 div.topichero h1
@@ -278,7 +281,7 @@ div.footer
 {
 	padding-bottom: 0px;
 	padding-top: 0px;
-	padding-left: 5px;
+	padding-left: 0px;
 	font-size: 12px;
 	background-color: #f2f2f2;
 	height: 40px;
@@ -566,7 +569,6 @@ div.HomeMasterPageFooter > div:nth-child(3)
 
 div.HomePageSearchTip
 {
-	background-color: #f8f8f8;
 	padding-left: 14px;
 	padding-right: 15px;
 	padding-top: 10px;
@@ -611,9 +613,19 @@ div
 	mc-hyphenate: never;
 }
 
+MadCap|xref
+{
+	color: #378CB3;
+}
+
+MadCap|xref:hover
+{
+	color: #206687;
+}
+
 /* Medium Layout */
 
-@media only screen and (max-width: 900px)
+@media only screen and (max-width: 800px)
 {
 	#content-section .right-section,
 	#content-section .left-section
@@ -704,7 +716,7 @@ div
 
 /* Small Layout */
 
-@media only screen and (max-width: 900px)
+@media only screen and (max-width: 600px)
 {
 	MadCap|searchBarProxy.homeSearchBar
 	{
@@ -854,7 +866,7 @@ div.footer
 
 div.body
 {
-	margin-bottom: 150px;
+	/*	margin-bottom: 150px; */
 }
 
 div.FloatingBox	/*Colorful boxes on the home page containing lists of topics*/
@@ -885,17 +897,17 @@ body:not(.web) div.FloatingBox	/*When screen is narrow, the colorful boxes will 
 
 .leftBox	/*The leftBox, rightBox, middleBox classes specify only the color of each box and nothing else.*/
 {
-	background-color: #ddeaf2;
+	background-color: #EFF3F7;
 }
 
 .middleBox
 {
-	background-color: #eaf5ea;
+	background-color: #EFF3F7;
 }
 
 .rightBox
 {
-	background-color: #ffedb5;
+	background-color: #EFF3F7;
 }
 
 div.FloatingBoxesContainer	/*Container for all the floating boxes.*/
@@ -907,19 +919,19 @@ div.FloatingBoxesContainer	/*Container for all the floating boxes.*/
 	/*Set the fixed height so that the boxes have uniform height instead of varying with contents.*/
 }
 
-.headingColor1
+.headingColor1	/*Color of the heading in the floating boxes on the home page. */
 {
-	color: #5cb2e8;
+	color: #44515c;
 }
 
 .headingColor2
 {
-	color: #4f963e;
+	color: #44515c;
 }
 
 .headingColor3
 {
-	color: #b58900;
+	color: #44515c;
 }
 
 p.MasterPageListHead	/*Heading in the colorful boxes on master page.*/
@@ -939,7 +951,7 @@ hr.MasterPageRule	/*For the HR on the master page*/
 	width: auto;
 	margin-left: 10%;
 	margin-right: 10%;
-	border: 1px solid #378cb3;
+	border: 1px solid #EFF3F7;
 }
 
 p.CopyrightAndPubDate
@@ -948,10 +960,5 @@ p.CopyrightAndPubDate
 	padding-bottom: 15px;
 	padding-left: 20px;
 	text-align: left;
-}
-
-MadCap|variable.pubTitle
-{
-	font-style: italic;
 }
 

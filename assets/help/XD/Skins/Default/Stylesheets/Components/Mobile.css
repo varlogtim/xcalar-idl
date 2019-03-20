@@ -1,6 +1,6 @@
 /*<meta />*/
 
-@media only screen and (max-width: 900px)
+@media only screen and (max-width: 600px)
 {
 	.search-bar
 	{
@@ -166,172 +166,6 @@
 		
 	}
 
-	ul.menu._Skins_SideMenu.mc-component
-	{
-		display: none;
-		background: #ffffff;
-		background: -moz-linear-gradient(top, #ffffff 0%, #ffffff 100%);
-		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#ffffff));
-		background: -webkit-linear-gradient(top, #ffffff 0%, #ffffff 100%);
-		background: -o-linear-gradient(top, #ffffff 0%,#ffffff 100%);
-		background: -ms-linear-gradient(top, #ffffff 0%,#ffffff 100%);
-		background: linear-gradient(top, #ffffff 0%,#ffffff 100%);
-		-pie-background: linear-gradient(#ffffff, #ffffff);
-	}
-
-	ul.menu._Skins_SideMenu.mc-component a
-	{
-		
-	}
-
-	ul.menu._Skins_SideMenu.mc-component li > a
-	{
-		background: #ffffff;
-		background: -moz-linear-gradient(top, #ffffff 0%, #ffffff 100%);
-		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#ffffff));
-		background: -webkit-linear-gradient(top, #ffffff 0%, #ffffff 100%);
-		background: -o-linear-gradient(top, #ffffff 0%,#ffffff 100%);
-		background: -ms-linear-gradient(top, #ffffff 0%,#ffffff 100%);
-		background: linear-gradient(top, #ffffff 0%,#ffffff 100%);
-		-pie-background: linear-gradient(#ffffff, #ffffff);
-	}
-
-	ul.menu._Skins_SideMenu.mc-component ul > li > a
-	{
-		background: #ffffff;
-		background: -moz-linear-gradient(top, #ffffff 0%, #ffffff 100%);
-		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#ffffff));
-		background: -webkit-linear-gradient(top, #ffffff 0%, #ffffff 100%);
-		background: -o-linear-gradient(top, #ffffff 0%,#ffffff 100%);
-		background: -ms-linear-gradient(top, #ffffff 0%,#ffffff 100%);
-		background: linear-gradient(top, #ffffff 0%,#ffffff 100%);
-		-pie-background: linear-gradient(#ffffff, #ffffff);
-	}
-
-	ul.menu._Skins_SideMenu.mc-component ul ul > li > a
-	{
-		background: #ffffff;
-		background: -moz-linear-gradient(top, #ffffff 0%, #ffffff 100%);
-		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#ffffff));
-		background: -webkit-linear-gradient(top, #ffffff 0%, #ffffff 100%);
-		background: -o-linear-gradient(top, #ffffff 0%,#ffffff 100%);
-		background: -ms-linear-gradient(top, #ffffff 0%,#ffffff 100%);
-		background: linear-gradient(top, #ffffff 0%,#ffffff 100%);
-		-pie-background: linear-gradient(#ffffff, #ffffff);
-	}
-
-	ul.menu._Skins_SideMenu.mc-component ul ul ul > li > a
-	{
-		background: #ffffff;
-		background: -moz-linear-gradient(top, #ffffff 0%, #ffffff 100%);
-		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#ffffff));
-		background: -webkit-linear-gradient(top, #ffffff 0%, #ffffff 100%);
-		background: -o-linear-gradient(top, #ffffff 0%,#ffffff 100%);
-		background: -ms-linear-gradient(top, #ffffff 0%,#ffffff 100%);
-		background: linear-gradient(top, #ffffff 0%,#ffffff 100%);
-		-pie-background: linear-gradient(#ffffff, #ffffff);
-	}
-
-	ul.menu._Skins_SideMenu.mc-component ul ul ul ul > li > a
-	{
-		background: #ffffff;
-		background: -moz-linear-gradient(top, #ffffff 0%, #ffffff 100%);
-		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#ffffff));
-		background: -webkit-linear-gradient(top, #ffffff 0%, #ffffff 100%);
-		background: -o-linear-gradient(top, #ffffff 0%,#ffffff 100%);
-		background: -ms-linear-gradient(top, #ffffff 0%,#ffffff 100%);
-		background: linear-gradient(top, #ffffff 0%,#ffffff 100%);
-		-pie-background: linear-gradient(#ffffff, #ffffff);
-	}
-
-	ul.menu._Skins_SideMenu.mc-component li > a.selected
-	{
-		background: #ffffff;
-		background: -moz-linear-gradient(top, transparent 0%, transparent 100%);
-		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,transparent), color-stop(100%,transparent));
-		background: -webkit-linear-gradient(top, transparent 0%, transparent 100%);
-		background: -o-linear-gradient(top, transparent 0%,transparent 100%);
-		background: -ms-linear-gradient(top, transparent 0%,transparent 100%);
-		background: linear-gradient(top, transparent 0%,transparent 100%);
-		-pie-background: linear-gradient(transparent, transparent);
-	}
-
-	ul.menu._Skins_SideMenu.mc-component li > a:hover
-	{
-		background: transparent;
-		background: -moz-linear-gradient(top, transparent 0%, transparent 100%);
-		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,transparent), color-stop(100%,transparent));
-		background: -webkit-linear-gradient(top, transparent 0%, transparent 100%);
-		background: -o-linear-gradient(top, transparent 0%,transparent 100%);
-		background: -ms-linear-gradient(top, transparent 0%,transparent 100%);
-		background: linear-gradient(top, transparent 0%,transparent 100%);
-		-pie-background: linear-gradient(transparent, transparent);
-	}
-
-	ul.menu._Skins_SideMenu.mc-component ul > li > a:hover
-	{
-		background-repeat: repeat;
-		background: transparent;
-		background: -moz-linear-gradient(top, transparent 0%, transparent 100%);
-		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,transparent), color-stop(100%,transparent));
-		background: -webkit-linear-gradient(top, transparent 0%, transparent 100%);
-		background: -o-linear-gradient(top, transparent 0%,transparent 100%);
-		background: -ms-linear-gradient(top, transparent 0%,transparent 100%);
-		background: linear-gradient(top, transparent 0%,transparent 100%);
-		-pie-background: linear-gradient(transparent, transparent);
-	}
-
-	ul.menu._Skins_SideMenu.mc-component ul ul > li > a:hover
-	{
-		background-repeat: repeat;
-		background: transparent;
-		background: -moz-linear-gradient(top, transparent 0%, transparent 100%);
-		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,transparent), color-stop(100%,transparent));
-		background: -webkit-linear-gradient(top, transparent 0%, transparent 100%);
-		background: -o-linear-gradient(top, transparent 0%,transparent 100%);
-		background: -ms-linear-gradient(top, transparent 0%,transparent 100%);
-		background: linear-gradient(top, transparent 0%,transparent 100%);
-		-pie-background: linear-gradient(transparent, transparent);
-	}
-
-	ul.menu._Skins_SideMenu.mc-component ul ul ul > li > a:hover
-	{
-		background-repeat: repeat;
-		background: transparent;
-		background: -moz-linear-gradient(top, transparent 0%, transparent 100%);
-		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,transparent), color-stop(100%,transparent));
-		background: -webkit-linear-gradient(top, transparent 0%, transparent 100%);
-		background: -o-linear-gradient(top, transparent 0%,transparent 100%);
-		background: -ms-linear-gradient(top, transparent 0%,transparent 100%);
-		background: linear-gradient(top, transparent 0%,transparent 100%);
-		-pie-background: linear-gradient(transparent, transparent);
-	}
-
-	ul.menu._Skins_SideMenu.mc-component ul ul ul ul > li > a:hover
-	{
-		background-repeat: repeat;
-		background: transparent;
-		background: -moz-linear-gradient(top, transparent 0%, transparent 100%);
-		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,transparent), color-stop(100%,transparent));
-		background: -webkit-linear-gradient(top, transparent 0%, transparent 100%);
-		background: -o-linear-gradient(top, transparent 0%,transparent 100%);
-		background: -ms-linear-gradient(top, transparent 0%,transparent 100%);
-		background: linear-gradient(top, transparent 0%,transparent 100%);
-		-pie-background: linear-gradient(transparent, transparent);
-	}
-
-	ul.menu._Skins_SideMenu.mc-component li > a.selected:hover
-	{
-		background: transparent;
-		background: -moz-linear-gradient(top, transparent 0%, transparent 100%);
-		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,transparent), color-stop(100%,transparent));
-		background: -webkit-linear-gradient(top, transparent 0%, transparent 100%);
-		background: -o-linear-gradient(top, transparent 0%,transparent 100%);
-		background: -ms-linear-gradient(top, transparent 0%,transparent 100%);
-		background: linear-gradient(top, transparent 0%,transparent 100%);
-		-pie-background: linear-gradient(transparent, transparent);
-	}
-
 	._Skins_HomeSearchBar.mc-component .search-auto-complete ul
 	{
 		background-color: #ffffff;
@@ -462,7 +296,14 @@
 
 	.search-bar._Skins_HomeSearchBar.mc-component .search-field
 	{
-		background-color: #ffffff;
+		background: #f5f8FA;
+		background: -moz-linear-gradient(top, #f5f8FA 0%, #f5f8FA 100%);
+		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f5f8FA), color-stop(100%,#f5f8FA));
+		background: -webkit-linear-gradient(top, #f5f8FA 0%, #f5f8FA 100%);
+		background: -o-linear-gradient(top, #f5f8FA 0%,#f5f8FA 100%);
+		background: -ms-linear-gradient(top, #f5f8FA 0%,#f5f8FA 100%);
+		background: linear-gradient(top, #f5f8FA 0%,#f5f8FA 100%);
+		-pie-background: linear-gradient(#f5f8FA, #f5f8FA);
 	}
 
 	.search-bar._Skins_HomeSearchBar.mc-component .search-filter

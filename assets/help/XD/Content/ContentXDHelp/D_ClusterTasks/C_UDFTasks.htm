@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Cluster tasks">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>Using UDFs</title>
+        <link href="../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/foundation.6.2.3.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
+        <link href="../../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.previous-topic-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/navigate-previous.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.next-topic-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/navigate-next.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <script src="../../../Resources/Scripts/custom.modernizr.js">
+        </script>
+        <script src="../../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/require.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/require.config.js">
+        </script>
+        <script src="../../../Resources/Scripts/foundation.6.2.3_custom.js">
+        </script>
+        <script src="../../../Resources/Scripts/plugins.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapGlobal.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapDom.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapUtilities.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapXhr.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapTextEffects.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapSlideshow.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapFeedback.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapDefault.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapHelpSystem.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.Breadcrumbs.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.MiniToc.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.SideMenu.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapIndex.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapGlossary.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapParser.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapSearch.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapTopic.js">
+        </script>
+        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
+        </script>
+        <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap off-canvas-wrapper">
+            <div class="off-canvas-wrapper-inner" data-off-canvas-wrapper="">
+                <aside class="off-canvas position-right" id="offCanvas" data-off-canvas="" data-position="right" data-mc-ignore="true">
+                    <ul class="off-canvas-accordion vertical menu off-canvas-list" data-accordion-menu="" data-mc-back-link="Back" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True">
+                    </ul>
+                </aside>
+                <div class="off-canvas-content inner-wrap" data-off-canvas-content="">
+                    <div data-sticky-container="" class="title-bar-container">
+                        <nav class="title-bar tab-bar sticky" data-sticky="" data-options="marginTop:0" style="width:100%" data-sticky-on="only screen and (max-width: 800px)" data-mc-ignore="true">
+                            <div class="middle title-bar-section outer-row clearfix">
+                                <div class="menu-icon-container relative clearfix">
+                                    <button class="menu-icon" data-toggle="offCanvas"><span></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="title-bar-layout outer-row">
+                                <div class="logo-wrapper"><a class="logo" href="../../HomeXDHelp.htm" alt="Logo"></a>
+                                </div>
+                                <div class="navigation-wrapper nocontent">
+                                    <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
+                                        <li class="placeholder" style="visibility:hidden"><a>placeholder</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="nav-search-wrapper">
+                                    <div class="nav-search row">
+                                        <form class="search" action="#">
+                                            <div class="search-bar search-bar-container needs-pie">
+                                                <input class="search-field needs-pie" type="search" placeholder="Search" />
+                                                <div class="search-filter-wrapper">
+                                                    <div class="search-filter">
+                                                        <div class="search-filter-content">
+                                                            <ul>
+                                                                <li>All Files</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="search-submit-wrapper" dir="ltr">
+                                                    <div class="search-submit" title="Search">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                    <section class="main-section">
+                        <div class="row outer-row sidenav-layout">
+                            <div class="sidenav-wrapper">
+                                <div class="sidenav-container">
+                                    <ul class="off-canvas-accordion vertical menu sidenav" data-accordion-menu="" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu accordion-menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="False" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True" data-mc-side-nav-menu="True">
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="body-container" data-mc-content-body="True">
+                                <div class="content">
+                                    <div id="contentBody">
+                                        <div class="row collapse">
+                                            <div class="sideContent">
+                                                <div class="clearfix">
+                                                    <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                        <div class="button-group-container-left">
+                                                            <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                            </button>
+                                                            <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                            </button>
+                                                            <div class="button-separator">
+                                                            </div>
+                                                            <button class="button needs-pie print-button" title="Print">
+                                                                <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="nocontent">
+                                                <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                </div>
+                                            </div>
+                                            <h1><a name="Using" class="ForCSH"></a>Using UDFs</h1>
+                                            <p>This section describes the tasks related to UDFs (user-defined functions). To see examples of UDFs, see <a href="../E_Reference/H1_UdfExamples.htm" class="MCXref xref">User-defined function (UDF) examples</a>. </p>
+                                            <h2>Creating a UDF in <span class="GeneralGUIName1">Xcalar Design</span></h2>
+                                            <p>UDFs are local to a workbook or to a batch dataflow. UDFs created by one  <span class="GeneralGUIName1">Xcalar Design</span> user can be read and copied by all other <span class="GeneralGUIName1">Xcalar Design</span> users, so they can accomplish similar tasks. </p>
+                                            <p>You define one or multiple UDFs in a Python module. You can create a module in these ways:</p>
+                                            <ul>
+                                                <li value="1">Type the code directly in the <span style="font-weight: bold;"> Editor</span> tab of the <span class="UIelement">User Defined Function</span> panel.</li>
+                                                <li value="2">Upload from your computer to the <span style="font-weight: bold;">Editor</span>. </li>
+                                                <li value="3">Use the <span class="UIelement">JUPYTER&#160;NOTEBOOK</span>&#160;window to display a UDF&#160;template and then use the&#160;Jupyter notebook editor to modify the code in the template. For more information about using the Jupyter Notebook, see <a href="../C_XcalarAdvancedMode/D_Jupyter/C1_UsingJupyter.htm" class="MCXref xref">Using Xcalar Design with Jupyter Notebook</a>.</li>
+                                            </ul>
+                                            <p>&#160;</p>
+                                            <h3>Displaying the UDF&#160;panel</h3>
+                                            <p>Click  <img src="../../Resources/Images/XD_assets/xd-udf-icon.png" /> to display the <span class="UIelement">User Defined Function</span> panel.&#160;The following screenshot shows the location of the UDF icon.</p>
+                                            <p>
+                                                <img src="../../Resources/Images/XD_screenshots/udf-icon-location.png" class="BigImage" />
+                                            </p>
+                                            <p>The following screenshot shows  the <span class="UIelement">User Defined Function</span> panel. </p>
+                                            <p>
+                                                <img src="../../Resources/Images/XD_screenshots/udf-panel.png" />
+                                            </p>
+                                            <h3>Typing the code directly</h3>
+                                            <p>Follow these steps to write the UDF in the panel and then save it:</p>
+                                            <ol>
+                                                <li value="1">Select the <span class="UIelement">Editor</span> tab if it is not selected already.</li>
+                                                <li value="2">Click the drop-down arrow to display a list of existing modules. Select one to use it as a template. Alternatively, select <span class="UIelement">New Module</span> if you want to type in an empty file.</li>
+                                                <li value="3">Type the code in the panel.</li>
+                                                <li value="4">
+                                                    <p>In the <span class="UIelement">module name</span> field, type the module name. </p>
+                                                    <div class="Note"><span class="label">NOTE:</span>&#160;Module names are case insensitive. If you type letters in uppercase, <span class="GeneralGUIName1">Xcalar Design</span> displays them in lowercase when listing the modules. See <a href="B_UDFUnderstand.htm#UDF" class="MCXref xref">UDF naming conventions</a> for information about name requirements.</div>
+                                                </li>
+                                                <li value="5">
+                                                    <p> Click <span class="UIelement">ADD UDF</span>. If a module with the same name already exists, a dialog box asks whether you want to overwrite the existing module. If so, click <span class="UIelement">CONFIRM</span>. Otherwise, click <span class="UIelement">CANCEL</span> and then rename the module.</p>
+                                                </li>
+                                            </ol>
+                                            <div class="Note"><span style="font-weight: bold;">Note</span>: Overwriting a functioning UDF&#160;with a non-functional one can cause workbook activation to fail. Best practice is to apply disciplined versioning to your UDFs. For more information, see <a href="#Effect" class="MCXref xref">Effect of changing a UDF on workbook re-activation</a>. If you are unable to open a workbook, file a support ticket with <span class="GeneralCompanyNameShort">Xcalar</span> support to assist with replacing the UDF. </div>
+                                            <div class="Note"><span class="label">TIP</span>: When editing a UDF, you can use the keyboard shortcut appropriate for your  operating system to search for or replace a string. For example, if you run <span class="GeneralGUIName1">Xcalar Design</span> in a browser on Microsoft Windows, press the Ctrl and F keys to search for a string, and the Ctrl, Shift, and F keys to replace a string.</div>
+                                            <h3>Uploading  files</h3>
+                                            <p>Follow these steps to upload a  file as a UDF&#160;module from your computer to your cluster:</p>
+                                            <ol>
+                                                <li value="1">Select the <span class="UIelement">Editor</span> tab if it is not selected already.</li>
+                                                <li value="2">Click <span class="UIelement">Browse File</span>, which enables you to navigate to the folder on your computer that contains the file. Then select the file. The contents of the selected file are displayed in the <span class="UIelement">User Defined Function</span> panel.</li>
+                                                <li value="3">In the <span class="UIelement">module name</span> field, the name of the file is automatically displayed. Change the name if necessary.</li>
+                                                <div class="Note"><span class="label">NOTE:</span> If the original filename does not follow the naming conventions, an error message notifies you that the name is invalid. See <a href="B_UDFUnderstand.htm#UDF" class="MCXref xref">UDF naming conventions</a> for name requirements.</div>
+                                                <li value="4">
+                                                    <p> Click <span class="UIelement">ADD UDF</span>. If a module with the same name already exists, a dialog box asks whether you want to overwrite the existing module. If so, click <span class="UIelement">CONFIRM</span>. Otherwise, click <span class="UIelement">CANCEL</span> and then rename the module.</p>
+                                                </li>
+                                            </ol>
+                                            <h2>About Python code parsing</h2>
+                                            <p>When you try to add a UDF, it is parsed by the Python interpreter. If there are parse errors, they are reported to you and the UDF is not added.</p>
+                                            <h2>Downloading a module</h2>
+                                            <p>Follow these steps to download a   UDF&#160;module from your cluster to your computer:</p>
+                                            <ol>
+                                                <li value="1">Select the <span class="UIelement">Manager</span> tab in the <span class="UIelement">User Defined Function</span> panel. A list of modules is displayed.</li>
+                                                <li value="2">Click <img src="../../Resources/Images/XD_assets/xd-download-udf-icon.png" /> to download the desired module to your computer.</li>
+                                            </ol>
+                                            <h2>Editing a UDF</h2>
+                                            <div class="Note"><span class="label">IMPORTANT:</span>&#160;Because UDFs are local to a <span class="GeneralGUIName1">Xcalar Design</span> workbook, remember to notify other users of the changes so that they are aware of the revision. Also, changing the code in a UDF might have significant impact on both workbook re-activation and batch dataflows. Make sure you understand the effects of changing a particular UDF before proceeding, and consider aggressive use of versioning on your UDFs.</div>
+                                            <p>Follow these steps to edit an existing UDF:</p>
+                                            <ol>
+                                                <li value="1">Select the <span class="UIelement">Manager</span> tab in the <span class="UIelement">User Defined Function</span> panel. A list of modules is displayed.</li>
+                                                <li value="2">Edit the module in one of three ways:<ul><li value="1">Click <img src="../../Resources/Images/XD_assets/xd-edit-UDF-icon.png" /> to edit the desired module. Then edit the code in the <span class="UIelement">User Defined Function</span> panel. Add the edited module to <span class="GeneralProductName3">Xcalar</span> without changing its name.</li><li value="2">Click <img src="../../Resources/Images/XD_assets/xd-download-udf-icon.png" /> to download the desired module to your computer. Then modify the module by using an editor on your computer. Upload the file after you finish editing.</li><li value="3">Click <img src="../../Resources/Images/XD_assets/view-udf.png" /> to view the desired module. Copy the desired module code text to Jupyter Notebook or external UDF&#160;editor. Paste new module code back into the UDF&#160;editor.</li></ul></li>
+                                                <li value="3">Optionally, add a version number string to the module name.</li>
+                                                <li value="4">Click <span style="font-weight: bold;">ADD UDF</span>.</li>
+                                            </ol>
+                                            <h3><a name="Effect"></a>Effect of changing a UDF on workbook re-activation</h3>
+                                            <p>When you re-activate a workbook, <span class="GeneralProductName3">Xcalar</span> must re-create each table in the workbook  according to the information contained in the table's dataflow. If a dataflow contains a UDF that has been changed since the table was created, the table displayed in the re-activated workbook might contain values different from the original ones.</p>
+                                            <h3>Effects of changing a UDF on a batch dataflow</h3>
+                                            <p>When you create a  batch dataflow, it receives a current local copy of all relevant UDFs. Even if the UDF&#160;is changed after  batch dataflow creation, during execution <span class="GeneralProductName3">Xcalar</span> will use the current version as-of  when the batch dataflow was created. </p>
+                                            <p>&#160;</p>
+                                            <h2>Deleting a module</h2>
+                                            <div class="Note"><span class="label">IMPORTANT</span>:&#160;Be sure you understand the effects of removing a UDF&#160;from your UDF&#160;module or deleting a UDF&#160;module before you proceed.&#160;You cannot undo UDF module deletion. For more information, see <a href="#Effects" class="MCXref xref">Effects of UDF deletion on workbooks and batch dataflows</a>. </div>
+                                            <p>Follow these steps to delete a UDF&#160;module:</p>
+                                            <ol>
+                                                <li value="1">Select the <span class="UIelement">Manager</span> tab in the <span class="UIelement">User Defined Function</span> panel. A list of modules is displayed.</li>
+                                                <li value="2">Click <img src="../../Resources/Images/XD_assets/xd-trashcan.png" /> to delete the module.</li>
+                                            </ol>
+                                            <h2><a name="Effects"></a>Effects of UDF deletion on workbooks and batch dataflows</h2>
+                                            <p>Because UDFs are local to your workbook and one or more modeling operations rely on your UDFs, removing  a function from a UDF module or deleting a UDF&#160;module could have the following impacts: </p>
+                                            <ul>
+                                                <li value="1">
+                                                    <p>When <span class="GeneralGUIName1">Xcalar Design</span> tries to re-activate a workbook (for example, after <span class="GeneralCompanyNameShort">Xcalar</span> cluster is restarted):</p>
+                                                    <p>If the workbook contains a temporary or active table that is dependent on the  UDF, <span class="GeneralGUIName1">Xcalar Design</span> displays an error message reporting that the UDF cannot be found. Download a copy of your workbook and submit it with a support ticket for <span class="GeneralCompanyNameShort">Xcalar</span> support. </p>
+                                                    <p>A table is considered to be dependent on the UDF&#160;if one of these conditions applies:</p>
+                                                    <ul>
+                                                        <li value="1">The table has a column created by the UDF.</li>
+                                                        <li value="2">The table is a descendent of a dropped table or a temporary table that contains a column created by the UDF.</li>
+                                                    </ul>
+                                                </li>
+                                                <li value="2">
+                                                    <p>When you try to create a batch dataflow:</p>
+                                                    <p>If the dataflow contains the deleted UDF, <span class="GeneralGUIName1">Xcalar Design</span> displays an error message. You cannot create a batch dataflow from a dataflow with a missing UDF.</p>
+                                                </li>
+                                            </ul>
+                                            <h3><a name="Replacin"></a>Replacing a UDF in an inactive workbook</h3>
+                                            <p>There are two circumstances when a UDF&#160;state could prevent workbook reactivation:</p>
+                                            <ul>
+                                                <li value="1">A UDF&#160;in-use is missing.</li>
+                                                <li value="2">A UDF in-use fails to execute.</li>
+                                            </ul>
+                                            <p>When this happens, add a working UDF into the workbook manually, as follows:<br /></p>
+                                            <ol>
+                                                <li value="1">Take note of the workbook and module names. The details of the activation error message contain both names in UDF path:<br /><br /><span style="font-style: italic;">/workbook/</span><span style="font-style: italic; font-weight: bold;">userName</span><span style="font-style: italic;">/</span><span style="font-weight: bold; font-style: italic;">workbookName</span><span style="font-style: italic;">/udf/</span><span style="font-weight: bold; font-style: italic;">moduleName</span><br /><br />Where:<br /><span style="font-weight: bold; font-style: italic;">workbookName</span> is the name of the workbook.<br /><span style="font-weight: bold; font-style: italic;">moduleName</span> is the name of the UDF&#160;module.</li>
+                                                <li value="2">Find a version of the module, and if necessary, repair it.<ul><li value="1">Common locations to find your UDF&#160;module:<ul><li value="1">Another workbook modeling with the same or similar data</li><li value="2">A Jupyter notebook on your Xcalar Cluster</li><li value="3">A local work directory</li><li value="4">Collaboration emails with coworkers</li></ul></li><li value="2">Assorted techniques to repair your UDF:<ul><li value="1">Create a new workbook. </li><li value="2">Add identical or similar data source files.</li><li value="3">Apply found UDF&#160;code to the data.</li><li value="4">Debug using visual tools, like Jupyter Notebook.</li><li value="5">If an import UDF, accommodate recent data source file format or field changes.</li></ul><p>At the completion of this step, save your UDF&#160;module in a text file named <span style="font-weight: bold; font-style: italic;">moduleName</span>.py.</p></li></ul></li>
+                                                <li value="3">Download the workbook:<ol style="list-style-type: lower-alpha;"><li value="1">Click <img src="../../Resources/Images/XD_assets/workbooks.png" /> to view the <span style="font-weight: bold;">Workbook Browser</span>.</li><li value="2">On the card for the workbook, click <img src="../../Resources/Images/XD_assets/ellipsis.png" style="width: 21px;height: 16px;" />and select <span style="font-weight: bold;">Download Workbook</span>.</li></ol><p><span class="GeneralProductName3">Xcalar</span> downloads the file <span style="font-style: italic; font-weight: bold;">workbookName</span><span style="font-style: italic;">.tar.gz</span> to your browser downloads directory, where <span style="font-style: italic;">workbookName</span> is the name of the workbook.</p></li>
+                                                <li value="4">Decompress and extract the <span style="font-style: italic; font-weight: bold;">workbookName</span><span style="font-style: italic; text-decoration: none;">.tar.gz</span>workbook archive:<ul><li value="1">If using MacOS, double-click on the  file. </li><li value="2">If using Linux, open a shell to your downloads directory and execute the command:<br /><span style="font-style: italic;">tar -xvzf </span><span style="font-style: italic; font-weight: bold;">workbookName</span><span style="font-style: italic; text-decoration: none;">.tar.gz</span><br /></li><li value="3">If using Windows, choose and use an appropriate archiving and compression tool to extract the workbook.</li></ul><p>A folder named <span style="font-style: italic;">workbook</span> is extracted.</p></li>
+                                                <li value="5">Move the original <span style="font-style: italic; font-weight: bold;">workbookName</span><span style="font-style: italic; text-decoration: none;">.tar.gz</span> to another directory for safe keeping.</li>
+                                                <li value="6">Copy your new version of the UDF&#160;module to the <span style="font-style: italic;">/workbook/udfs</span> directory. </li>
+                                                <li value="7">Create a new workbook archive file.<ol style="list-style-type: lower-alpha;"><li value="1">If using MacOS or Linux, open a shell to the directory containing the <span style="font-style: italic;">workbook</span> directory and enter the following command:<br /><span style="font-style: italic;">tar cvf </span><span style="font-style: italic; font-weight: bold;">workbookName</span><span style="font-style: italic; text-decoration: none;">.tar.gz ./workbook/</span></li><li value="2">If using Windows, apply third party software or use Windows 10's Windows Linux Subsystem to use the above <span style="font-style: italic;">tar</span> command to create a new <span style="font-style: italic; font-weight: bold;">workbookName</span><span style="font-style: italic;">tar.gz</span>archive file. </li></ol></li>
+                                                <li value="8">Upload the new workbook to the cluster by clicking the <span style="font-weight: bold;">BROWSE</span> button under <span style="font-weight: bold;">Upload Workbook</span> in the Workbook Browser.</li>
+                                            </ol>
+                                            <p><a href="#Top">Go to top</a>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section><a data-close="true"></a>
+                </div>
+            </div>
+            <script>/* <![CDATA[ */$(document).foundation();/* ]]> */</script>
+        </div>
+    </body>
+</html>

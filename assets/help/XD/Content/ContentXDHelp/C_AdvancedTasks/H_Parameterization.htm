@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>Customization of dataflow operations</title>
+        <link href="../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" />
+        <link href="../../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/foundation.6.2.3.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
+        <link href="../../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
+        <link href="../../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.previous-topic-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/navigate-previous.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.next-topic-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/navigate-next.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <link href="../../Resources/TableStyles/SimpleTable.css" rel="stylesheet" />
+        <script src="../../../Resources/Scripts/custom.modernizr.js">
+        </script>
+        <script src="../../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/require.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/require.config.js">
+        </script>
+        <script src="../../../Resources/Scripts/foundation.6.2.3_custom.js">
+        </script>
+        <script src="../../../Resources/Scripts/plugins.min.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapGlobal.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapDom.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapUtilities.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapXhr.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapTextEffects.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapSlideshow.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapFeedback.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapDefault.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapHelpSystem.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.Breadcrumbs.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.MiniToc.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapToc.SideMenu.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapIndex.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapGlossary.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapParser.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapSearch.js">
+        </script>
+        <script src="../../../Resources/Scripts/MadCapTopic.js">
+        </script>
+        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
+        </script>
+        <script src="../../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap off-canvas-wrapper">
+            <div class="off-canvas-wrapper-inner" data-off-canvas-wrapper="">
+                <aside class="off-canvas position-right" id="offCanvas" data-off-canvas="" data-position="right" data-mc-ignore="true">
+                    <ul class="off-canvas-accordion vertical menu off-canvas-list" data-accordion-menu="" data-mc-back-link="Back" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True">
+                    </ul>
+                </aside>
+                <div class="off-canvas-content inner-wrap" data-off-canvas-content="">
+                    <div data-sticky-container="" class="title-bar-container">
+                        <nav class="title-bar tab-bar sticky" data-sticky="" data-options="marginTop:0" style="width:100%" data-sticky-on="only screen and (max-width: 800px)" data-mc-ignore="true">
+                            <div class="middle title-bar-section outer-row clearfix">
+                                <div class="menu-icon-container relative clearfix">
+                                    <button class="menu-icon" data-toggle="offCanvas"><span></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="title-bar-layout outer-row">
+                                <div class="logo-wrapper"><a class="logo" href="../../HomeXDHelp.htm" alt="Logo"></a>
+                                </div>
+                                <div class="navigation-wrapper nocontent">
+                                    <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
+                                        <li class="placeholder" style="visibility:hidden"><a>placeholder</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="nav-search-wrapper">
+                                    <div class="nav-search row">
+                                        <form class="search" action="#">
+                                            <div class="search-bar search-bar-container needs-pie">
+                                                <input class="search-field needs-pie" type="search" placeholder="Search" />
+                                                <div class="search-filter-wrapper">
+                                                    <div class="search-filter">
+                                                        <div class="search-filter-content">
+                                                            <ul>
+                                                                <li>All Files</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="search-submit-wrapper" dir="ltr">
+                                                    <div class="search-submit" title="Search">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                    <section class="main-section">
+                        <div class="row outer-row sidenav-layout">
+                            <div class="sidenav-wrapper">
+                                <div class="sidenav-container">
+                                    <ul class="off-canvas-accordion vertical menu sidenav" data-accordion-menu="" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu accordion-menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="False" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True" data-mc-side-nav-menu="True">
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="body-container" data-mc-content-body="True">
+                                <div class="content">
+                                    <div id="contentBody">
+                                        <div class="row collapse">
+                                            <div class="sideContent">
+                                                <div class="clearfix">
+                                                    <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                        <div class="button-group-container-left">
+                                                            <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                            </button>
+                                                            <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                            </button>
+                                                            <div class="button-separator">
+                                                            </div>
+                                                            <button class="button needs-pie print-button" title="Print">
+                                                                <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <h1>Customization of dataflow operations</h1>
+                                            <p><span class="GeneralGUIName1">Xcalar Design</span> supports the <span class="label">customization</span> of operations within a batch dataflow. This feature enables you to re-use an existing data model with custom values, eliminating the need for building a dataflow from scratch. Strings can be edited to insert or delete custom text. In addition, some operations can be <span class="label">parameterized</span>, by inserting globally-defined parameters. Specifically, you can modify an existing batch dataflow to accomplish the following goals:</p>
+                                            <ul>
+                                                <li value="1">Change any modeling operation  in the batch dataflow.</li>
+                                                <li value="2">Apply the entire series of operations defined by a batch dataflow to another dataset.</li>
+                                                <li value="3">Rename the export file created by a batch dataflow.</li>
+                                                <li value="4">Export the result of a batch dataflow to an export target with custom settings.</li>
+                                                <li value="5">Insert reusable parameters into import, filter, and/or export operations.</li>
+                                            </ul>
+                                            <p>This section assumes that you have already created a batch dataflow and you are familiar with the concept of exporting a table. The following topics provide information about dataflows and exporting tables:</p>
+                                            <ul>
+                                                <li value="1"><a href="../C_XcalarAdvancedMode/A_Dataflows/A_AboutDf.htm" class="MCXref xref">Understanding dataflows</a>
+                                                </li>
+                                                <li value="2"><a href="F_UseBatchDataflow.htm" class="MCXref xref">Using batch dataflows</a>
+                                                </li>
+                                                <li value="3"><a href="../C_XcalarAdvancedMode/C_Export/G_ExportTable.htm" class="MCXref xref">Exporting a table</a>
+                                                </li>
+                                            </ul>
+                                            <p>Parameters are global to the cluster and are, therefore, shared among batch dataflows. </p>
+                                            <h2>General steps for parameterizing an operation</h2>
+                                            <p>If you want to use a system parameter, simply pass the parameter to the operation. For details, see <a href="#Passing" class="MCXref xref">Passing a parameter using basic mode</a>. If you want to use a user-defined parameter, follow these general steps:</p>
+                                            <ol>
+                                                <li value="1">Create a parameter.</li>
+                                                <li value="2">Assign a value to the parameter.</li>
+                                                <li value="3">Pass the parameter to the operation.</li>
+                                            </ol>
+                                            <p>The exact order might vary depending on the type of operation being parameterized, and the scheduling of batch dataflows.</p>
+                                            <h2>Changing a batch dataflow without a parameter</h2>
+                                            <p>&#160;<span class="GeneralGUIName1">Xcalar Design</span> allows you to customize a batch dataflow without creating a parameter. For information about customizing a batch dataflow through parameterization, see <a href="#Passing" class="MCXref xref">Passing a parameter using basic mode</a>. If you do not want to create a parameter, you can type the desired value where a parameter should be placed.</p>
+                                            <div class="Note"><span class="label">Recommendation</span>: Best practice is to define a parameter instead of entering the value directly, where possible. Having a parameter means you have a convenient way to update a particular value. You can also re-use the same parameter for other items in the dataflow and for other dataflows. For example, you can use the same parameter in the data source path name and in the export file name to maintain consistency.  </div>
+                                            <h2>Parameter naming guidelines</h2>
+                                            <p>When creating a parameter, remember to choose a name that describes the meaning of the parameter. </p>
+                                            <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
+                                                <div class="MCDropDownBody dropDownBody">
+                                                    <ul>
+                                                        <li value="1">The name is case sensitive. </li>
+                                                        <li value="2">Length must not exceed 255 characters.</li>
+                                                        <li value="3"> Characters must be A-Z, a-z, or 0-9.</li>
+                                                        <li value="4">No special characters are permitted (for example, underscore, parenthesis, hyphen, or space).</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <h2><a name="Creating"></a>Creating a parameter</h2>
+                                            <p>Follow these steps to create a parameter:</p>
+                                            <ol>
+                                                <li value="1">Click <img src="../../Resources/Images/XD_assets/xd-batch-dataflow-list-icon.png" /> to display the <span class="UIelement">Batch Dataflows</span> panel. </li>
+                                                <li value="2">Click <span class="UIelement">Parameters</span> in the dataflow graph's title bar to display the parameters table.</li>
+                                                <li value="3">Enter the parameter name in the <span style="font-weight: bold;">Input New Parameter</span> field and click the <span style="font-weight: bold;">CREATE&#160;NEW&#160;PARAMETER</span> button.</li>
+                                                <li value="4">Optionally,&#160;to enter a value, click in the <span style="font-weight: bold;">Value</span> column next to the new parameter name, and enter the parameter's value.</li>
+                                            </ol>
+                                            <p>Initially, the value for this newly created parameter is undefined. When you pass it to an operation, you must assign a value to it or specify that it has no value. For information about how to use a parameter, see <a href="#Passing" class="MCXref xref">Passing a parameter using basic mode</a>.</p>
+                                            <h2><a name="Displayi"></a>Displaying parameters for a batch dataflow</h2>
+                                            <p>When customizing an operation which supports parameters, you can see the list of parameters configured on the cluster. To display a list of both the parameters and their values, follow these steps:</p>
+                                            <ol>
+                                                <li value="1">Click <img src="../../Resources/Images/XD_assets/xd-batch-dataflow-list-icon.png" /> to display the <span class="UIelement">Batch Dataflows</span> panel. Then select the batch dataflow to display the dataflow graph.</li>
+                                                <li value="2">Click <span class="UIelement">Parameters</span> in the dataflow graph's title bar to display the parameters table.</li>
+                                            </ol>
+                                            <h2>Deleting a parameter</h2>
+                                            <div class="Note"><span class="label">NOTE</span>: You cannot delete a parameter from your cluster using the <span class="UIelement">Customize Operation</span> modal window.</div>
+                                            <p>Delete a parameter from the parameters table, as follows:</p>
+                                            <ol>
+                                                <li value="1">Follow the steps in <a href="#Displayi" class="MCXref xref">Displaying parameters for a batch dataflow</a> to display the parameters table.</li>
+                                                <li value="2">Locate the parameter to be deleted and then click the Delete icon in the <span class="UIelement">Action</span> column.</li>
+                                            </ol>
+                                            <h2><a name="Passing"></a>Passing a parameter using basic mode</h2>
+                                            <p>When you pass a parameter, you substitute the parameter value for some text, which was originally used in the batch dataflow. You can pass a parameter using basic mode customization at different stages of a batch dataflow:</p>
+                                            <ul>
+                                                <li value="1">when importing a data source</li>
+                                                <li value="2">when performing a filter operation</li>
+                                                <li value="3">when exporting the result of the dataflow</li>
+                                            </ul>
+                                            <p>The exact steps for passing a parameter depend on what you want to parameterize.</p>
+                                            <p>Follow these steps to pass a parameter:</p>
+                                            <ol>
+                                                <li value="1">Verify that the current parameter table contains the parameter you want to use.&#160;If not, create the parameter as described in <a href="#Creating" class="MCXref xref">Creating a parameter</a>.</li>
+                                                <li value="2">
+                                                    <p>In the batch dataflow graph, click one of the following icons and then the <span class="UIelement">Customize Operation</span> pop-up:</p>
+                                                    <ul>
+                                                        <li value="1">dataset icon.</li>
+                                                        <li value="2">filter operation icon.</li>
+                                                        <li value="3">export result icon.</li>
+                                                    </ul>
+                                                    <p>The <span class="UIelement">Customize Operation</span> modal window is displayed. The exact contents of the modal window depend on the icon from which you launch the modal window.</p>
+                                                </li>
+                                                <li value="3">
+                                                    <p>In the <span class="UIelement">Parameterized Operation</span> section, drag and drop the parameter from the <span class="UIelement">Current Parameter List</span> or <span class="UIelement">System Parameter List</span>. Where you drop the parameter depends on where you want the parameter value substitution to occur.</p>
+                                                    <div class="Note"><span class="label">Note</span>:&#160;Parameter tokens look like HTML&#160;tags. Entering a parameter token string &lt;parameterName&gt; is equivalent to a drag and drop of a token named parameterName in Basic Mode.</div>
+                                                </li>
+                                                <li value="4">Add or remove necessary non-parameter text.</li>
+                                                <li value="5">Click <span class="UIelement">SAVE</span>.</li>
+                                                <li value="6">
+                                                    <p>Assign a value to each parameter that you drag and drop, as described in <a href="#Assignin" class="MCXref xref">Assigning a value to a parameter</a>.</p>
+                                                    <div class="Note"><span class="label">NOTE</span>:&#160;Specifying an assigned value is mandatory for applying a parameter to an operation. </div>
+                                                </li>
+                                            </ol>
+                                            <div class="Example"><span class="label">TIP:</span> You can drag and drop more than one parameter. Suppose you have a parameter named Month and a parameter named Year. To parameterize the export operation, you can drag and drop both parameters to the <span class="UIelement">Export As</span> field so that the month and year are concatenated to form a part of the export file name (such as to form a file name prefix).</div>
+                                            <h2>Batch customization using advanced mode</h2>
+                                            <p>You can use advanced mode to customize any operation within a batch dataflow, or to parameterize any import, filter, or export operation of a batch dataflow.</p>
+                                            <div class="Note"><span style="font-weight: bold;">Tip</span>: Advanced mode is extremely flexible, but complex and easy to make mistakes. As such, best practice is to use it only with recipes from <span class="GeneralCompanyNameShort">Xcalar</span>'s Discourse community or under the guidance of  <span class="GeneralCompanyNameShort">Xcalar</span>'s professional services team. </div>
+                                            <p>Follow these steps to customize a batch dataflow using advanced mode:</p>
+                                            <ol>
+                                                <li value="1">Verify that the current parameter list contains the parameter you want to use.&#160;If not, create the parameter as described in <a href="#Creating" class="MCXref xref">Creating a parameter</a>.</li>
+                                                <li value="2">
+                                                    <p>In the batch dataflow graph, click any operation with a blue or green outline and the <span class="UIelement">Customize Operation</span> pop-up.</p>
+                                                    <p>The <span class="UIelement">Customize Operation</span> modal window is displayed. The exact contents of the modal window depend on the icon from which you launch the modal window.</p>
+                                                    <p>The following operations support parameterization in both basic and advanced modes:</p>
+                                                    <ul>
+                                                        <li value="1">dataset icon.</li>
+                                                        <li value="2">filter operation icon.</li>
+                                                        <li value="3">export result icon.</li>
+                                                    </ul>
+                                                </li>
+                                                <li value="3"> Use the <span style="font-weight: bold;">Advanced Mode</span> slider at the bottom of the modal window to enable advanced mode for these operations. Other operations can be customized with text, but not with parameters.</li>
+                                                <li value="4">Edit&#160;one or more values from JSON&#160;syntax key/value pairs: <ol style="list-style-type: lower-alpha;"><li value="1">In the <span class="UIelement">Customize Operation</span> modal window, click a parameter from the <span class="UIelement">Parameters</span> list to copy the parameter token string. </li><li value="2">Paste the token into a value.</li><li value="3">Add or remove necessary non-parameter text.</li><li value="4">If you make a mistake, click <span style="font-weight: bold;">Restore last saved</span> or <span style="font-weight: bold;">Restore to original</span>.</li></ol></li>
+                                                <li value="5">Repeat the previous step, as appropriate, then click <span class="UIelement">SAVE</span>.</li>
+                                                <li value="6">
+                                                    <p>Assign a value to each parameter that you drag and drop, as described in <a href="#Assignin" class="MCXref xref">Assigning a value to a parameter</a>.</p>
+                                                </li>
+                                            </ol>
+                                            <h2>Removing a parameter from an operation</h2>
+                                            <p>Follow these steps to remove a parameter from an operation:</p>
+                                            <ol>
+                                                <li value="1">Click <img src="../../Resources/Images/XD_assets/xd-batch-dataflow-list-icon.png" /> to display the <span class="UIelement">Dataflows</span> panel. Then select the batch dataflow that you want to parameterize. &#160;The dataflow graph for the selected batch dataflow is displayed.</li>
+                                                <li value="2">
+                                                    <p>In the dataflow graph, locate the operation that uses the parameter, right click the icon, and select <span class="UIelement">Customize operation</span>.</p>
+                                                </li>
+                                                <li value="3">In the <span class="UIelement">Customize Operation</span> modal window, locate the parameter in the <span class="UIelement">Customize Operation</span> section.</li>
+                                                <li value="4">
+                                                    <p>Delete the parameter name in the operation. For example, to remove the Month parameter, delete the following string from the operation:</p>
+                                                    <p class="CLIoutput">&lt;Month&gt; </p>
+                                                    <p>After you delete the parameter from the operation, the parameter and its value remain in the parameters list, until explicitly deleted.</p>
+                                                </li>
+                                                <li value="5">
+                                                    <p>Click <span class="UIelement">SAVE</span>.</p>
+                                                </li>
+                                            </ol>
+                                            <h2><a name="Assignin"></a>Assigning a value to a parameter</h2>
+                                            <p>The value assigned to a parameter is the value that will be used when the batch dataflow is run, instead of the original value used when the batch dataflow was defined.</p>
+                                            <div class="Example"><span class="label">EXAMPLE:</span>&#160; Suppose you created a parameter named Month, you can assign a value to it depending on the month in which the data in the dataset is collected. If the data is from the month of October, you can assign the string OCTOBER to the Month parameter, and then apply the Month parameter as the export file name. In this way the export file can contain the string OCTOBER (for example, export-airlines-OCTOBER.csv), which makes it obvious that the export file is created by a dataflow based on data collected in October.</div>
+                                            <p>Follow these steps to assign a value to a parameter:</p>
+                                            <ol>
+                                                <li value="1">In the <span class="UIelement">Batch Dataflow</span> window, click <span style="font-weight: bold;">Parameters</span> to open the Parameter table. </li>
+                                                <li value="2">
+                                                    <p>For each parameter that is applied to an operation,  enter the parameter value in the <span class="UIelement">Value</span> column. </p>
+                                                    <p>For example, for the Month parameter, you can enter OCTOBER.</p>
+                                                    <div class="Note"><span class="label">IMPORTANT:</span>&#160;When defining a parameter for a filter function, you can specify a string as the parameter value. For a string to be interpreted correctly, it must be enclosed in double quote marks. For example, if a column's data type is string, and you want to filter the string 10, you must enter "10" as the parameter value. Without the quote marks, the value is interpreted as an integer and the filter operation does not produce the expected results.</div>
+                                                    <p>If you want the parameter to have no value, leave the <span class="UIelement">Value</span> column blank and click the check box in the <span class="UIelement">No Value</span> column.</p>
+                                                </li>
+                                                <li value="3">Values are automatically saved. Click outside the parameter table to close it.</li>
+                                            </ol>
+                                            <div class="Example">
+                                                <p><span class="label">EXAMPLE:</span>&#160;To parameterize the export folder name, you can define two parameters for the  name suffix. If you create firstDigit and secondDigit as the parameters, you can specify the export folder name in the following format:&#160;</p>
+                                                <p>airlines&lt;firstDigit&gt;&lt;secondDigit&gt;</p>
+                                                <p>When the suffix requires only one digit, you assign no value to firstDigit and a numeral to secondDigit. Doing so creates folders named airlines1, airlines2, and so on. When the suffix requires two digits, you assign a numeral to both firstDigit and secondDigit. Doing so creates folders named airlines11, airlines12, and so on.</p>
+                                            </div>
+                                            <h2>Examples of dataflow customization</h2>
+                                            <p>The following example illustrates how a batch dataflow is customized to create different export files based on the same batch dataflow.</p>
+                                            <p>The batch dataflow named FlightInfo  consists of these operations:</p>
+                                            <ul>
+                                                <li value="1"><span class="GeneralGUIName1">Xcalar Design</span> imports a data source containing flight information from various air carriers and creates a table with four columns, such as day of the week, air time, and so on.</li>
+                                                <li value="2">Smart type casting is used to cast the correct data type for each column.</li>
+                                                <li value="3">A filter is used to include only rows from Sunday (1 in the DayOfWeek_integer column).</li>
+                                                <li value="4">An export file is created with all the columns.</li>
+                                            </ul>
+                                            <h3>Customizing the dataset operation</h3>
+                                            <p>You can customize the dataset import operation in a batch dataflow. For example, you modeled using a sample of your data, and then created a batch dataflow. To apply the same batch dataflow to your complete volume of data, you can add parameters to the import operation in the batch dataflow.</p>
+                                            <p>The following requirements must be met to ensure that the batch dataflow can run successfully after you parameterize the data source:</p>
+                                            <ul>
+                                                <li value="1">
+                                                    <p>The specified data target and data source path exist and are accessible when you run the modified batch dataflow. </p>
+                                                    <div class="Note"><span class="label">NOTE</span>:&#160;The data target and the data source path need not exist and be accessible at the time you customize the batch dataflow. For example, if the current cluster does not have a data target named dataTarget1, you can still specify this data target when parameterizing. The import operation looks for  dataTarget1 only when you run the parameterized batch dataflow.</div>
+                                                </li>
+                                                <li value="2">The new data source  has the same schema as the original data source.</li>
+                                            </ul>
+                                            <p>Follow these steps to parameterize the data source:</p>
+                                            <ol>
+                                                <li value="1">In the <span class="UIelement">Batch Dataflow</span> window, click <span style="font-weight: bold;">Parameters</span> and create a parameter.</li>
+                                                <li value="2">
+                                                    <p>In the FlightInfo dataflow graph, click the first icon (dataset icon)&#160;and then click <span class="UIelement">Customize operation</span>. The <span class="UIelement">Customize Operation</span> modal window is displayed.</p>
+                                                    <p>The <span class="UIelement">Original Operation</span> section shows the data target name and the data source path, which is a path relative to the location of the data target. If a matching pattern is used for selecting the data source files, the pattern is displayed as well.</p>
+                                                </li>
+                                                <li value="3">In the <span class="UIelement">Parameterized Operation</span> section, select the appropriate data target or type a data target name. </li>
+                                                <li value="4">To parameterize the data target, drag and drop the parameter to the data target name. </li>
+                                                <li value="5">
+                                                    <p>To parameterize the path, drag and drop the parameter to the <span class="UIelement">File Path</span> field in the <span class="UIelement">Parameterized Operation</span> section. <span class="UIelement">File Path</span> is the data source path relative to the data target specified in the preceding step.</p>
+                                                    <p>For example, you can create a parameter to be used as the file name suffix. The file at this path will be the data source that <span class="GeneralProductName3">Xcalar</span> imports when running the batch dataflow.</p>
+                                                </li>
+                                                <li value="6">
+                                                    <p>(Optional) If the original dataflow includes a matching pattern for selecting files in a data source folder during the import, the pattern is displayed in the <span class="UIelement">Pattern</span> field. You can keep, remove, or modify the pattern. To use a regular expression as the pattern, precede the pattern with the <span class="UIelement">re:</span> string.</p>
+                                                    <div class="Example"><span class="label">EXAMPLE</span>: Suppose the batch dataflow imports from the folder at /datasets/flights, and you want to import only from files with names matching a regular expression, enter re:airlines(A|B) as the pattern. When the batch dataflow is run, only files named airlinesA.csv and airlinesB.csv are imported to <span class="GeneralProductName3">Xcalar</span>; files named airlinesU.csv and airlinesX.csv are not. The following screenshot illustrates how to enter a regular expression when parameterizing a data source.</div>
+                                                    <p>
+                                                        <img src="../../Resources/Images/XD_screenshots/parameterized-data-source.png" class="BigImage" />
+                                                    </p>
+                                                </li>
+                                                <li value="7">Click <span class="UIelement">SAVE</span>. The first icon in the batch dataflow graph is displayed with a green border to indicate that it is parameterized.</li>
+                                                <li value="8">Click <span style="font-weight: bold;">Parameters</span> and assign an appropriate value to the AnnualAirlinesData parameter. For example, if you want to import data from a source file with 2016 as the file name suffix, enter 2016 as the parameter value.</li>
+                                            </ol>
+                                            <h3>Customizing the filter operation</h3>
+                                            <p>To run the same batch dataflow but with other filtering criteria, follow these steps:</p>
+                                            <ol>
+                                                <li value="1">
+                                                    <p>In the FlightInfo dataflow graph, click the filter operation icon and then click <span class="UIelement">Customize operation</span>. The <span class="UIelement">Customize Filter Operation</span> modal window is displayed:</p>
+                                                    <p>
+                                                        <img src="../../Resources/Images/XD_screenshots/parameterized-filter.png" class="BigImage" />
+                                                    </p>
+                                                </li>
+                                                <li value="2">
+                                                    <p>In the <span class="UIelement">Parameterized Operation</span> section, define the filter operation you want to use for this batch dataflow, by editing the Filter string as follows:</p>
+                                                    <ol style="list-style-type: lower-alpha;">
+                                                        <li value="1">Enter the logical operation to govern the filter. In this example, use the default value, <span class="UIelement">eq</span>, the equals operator.</li>
+                                                        <li value="2">Select the table column for the filtering. In this example, use the default value, which is the same table column used by the original batch dataflow.</li>
+                                                        <li value="3">Change the hardcoded parameter <span style="font-weight: bold;">2</span> to the <span style="font-weight: bold;">Day</span> parameter. Drag the Day parameter from the parameter list and drop it in the text string before or after the <span style="font-weight: bold;">2</span>. Then, delete the <span style="font-weight: bold;">2</span>. </li>
+                                                    </ol>
+                                                    <p>This operation filters  the DayOfWeek_integer column to keep only those rows with a value  equal to the value of the Day parameter.</p>
+                                                </li>
+                                                <li value="3">Click <span class="UIelement">SAVE</span>. The filter operation icon in the batch dataflow graph is displayed with a green boarder to indicate that it is parameterized.</li>
+                                                <li value="4">Set the <span style="font-weight: bold;">Day</span> parameter by clicking <span style="font-weight: bold;">Parameters</span> and typing a number in the <span class="UIelement">Value</span>column for the Day parameter.  In this example, type <span style="font-weight: bold;">2</span> for Monday.</li>
+                                            </ol>
+                                            <h3>Customizing the export operation to set the export file name</h3>
+                                            <p>If you export to an export target instead of a table, you might want to parameterize the export operation for the following reasons:</p>
+                                            <ul>
+                                                <li value="1">To name the export file  in a way meaningful to you. &#160;For example, you can name the export file based on the type of filter operation done in the batch dataflow. Suppose the exported table contains only rows for flight data from Monday, you can parameterize the export operation to include the string Monday in the export file name. </li>
+                                                <li value="2">Customize through advanced options how <span class="GeneralProductName3">Xcalar</span> exports the result of the batch dataflow, in a similar way you customize the export operation in the <span class="UIelement">EXPORT&#160;TABLE</span> panel, as described in <a href="../C_XcalarAdvancedMode/C_Export/G_ExportTable.htm#Advanced" class="MCXref xref">Advanced options for exporting a table</a>.</li>
+                                            </ul>
+                                            <div class="Note"><span class="label">NOTE</span>:&#160;You can apply a parameter only if you export to an export target. If you export the batch dataflow result as a table in the worksheet, you can type the table name, but not parameterize it.</div>
+                                            <p>Follow these steps to parameterize the export file name:</p>
+                                            <ol>
+                                                <li value="1">
+                                                    <p>To create and set a value for a parameter, from the Batch Dataflow window: </p>
+                                                    <ol style="list-style-type: lower-alpha;">
+                                                        <li value="1">Click <span class="UIelement">Parameters</span></li>
+                                                        <li value="2">Enter the parameter name <span style="font-weight: bold;">DayOfWeek</span> </li>
+                                                        <li value="3">Click <span style="font-weight: bold;">CREATE&#160;NEW&#160;PARAMETER</span>.</li>
+                                                        <li value="4">In the <span class="UIelement">Value</span> column for the parameter <span style="font-weight: bold;">DayOfWeek</span>, enter the desired value for the parameter. For example, type the string,  <span style="font-weight: bold;">Monday</span>, which will be used as a substitution in the export file name.</li>
+                                                    </ol>
+                                                </li>
+                                                <li value="2">
+                                                    <p>In the batch dataflow graph, click the last icon and then select <span class="UIelement">Customize operation</span> in the menu. The following modal window is displayed:</p>
+                                                    <p>
+                                                        <img src="../../Resources/Images/XD_screenshots/parameterized-export.png" class="BigImage" />
+                                                    </p>
+                                                </li>
+                                                <li value="3">
+                                                    <p>Drag and drop the DayOfWeek parameter to the <span class="UIelement">Export As</span> field, which is the export file name. You can further edit this field. For example, you can specify the following string:</p>
+                                                    <p>export-airlines1-&lt;DayOfWeek&gt;.csv</p>
+                                                </li>
+                                                <li value="4">Click <span class="UIelement">SAVE</span>. The last icon in the batch dataflow graph is displayed with a green border to indicate that it is parameterized. When you run this parameterized batch dataflow, the resultant table contains only flight information for Monday, and the table is exported to the file with a parameterized name.</li>
+                                            </ol>
+                                            <div class="Note"><span class="label">Recommendation</span>:&#160;Before you run the batch dataflow, verify that the parameters are defined properly. To see which parameters used, click the <span class="UIelement">Customize operation</span> pop-up for each parameterized (green-bordered) icon, and then close the pop-up and click <span class="UIelement">Parameters</span> to view parameter values.</div>
+                                            <h3> Customizing the export operation by using advanced export settings</h3>
+                                            <p>The <span class="UIelement">Customize Operation</span> modal window offers  advanced export settings for you to customize the format of files exported to your export target. Exporting to a <span class="GeneralProductName3">Xcalar</span> table is not a file operation, and therefore does not use these settings. The following note and table explains the options:</p>
+                                            <div class="Note"><span class="label">NOTE</span>:&#160;The <span class="UIelement">Record Delimiter</span>, <span class="UIelement">Field Delimiter</span>, and <span class="UIelement">Quote&#160;Character</span> options work in the same way as they do in the <span class="UIelement">Import Data Source</span> window, as described in <a href="../A_GetStarted/B4_ImportData.htm#Specifyi2" class="MCXref xref">Specifying how data is imported</a>.</div>
+                                            <table class="TableStyle-SimpleTable" style="mc-table-style: url('../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" cellspacing="0">
+                                                <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                <thead>
+                                                    <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">Advanced Export Settings</th>
+                                                        <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">Description</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Over- write</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                            <p>This option determines whether export files are created or appended. The following list describes the possible values:</p>
+                                                            <ul>
+                                                                <li value="1"><span class="UIelement">Do Not Overwrite</span>: If no files exist at the export target, the export operation creates the file or files. If files already exist, the export operation fails.</li>
+                                                                <li value="2"><span class="UIelement">Append to Existing</span>: If no files exist at the export target, the export operation creates the file or files. If files already exist, the export operation appends to the existing files.</li>
+                                                                <li value="3"><span class="UIelement">Overwrite Existing</span>:&#160;If no files exist at the export target, the export operation creates the file or files at the export target. If files already exist, the export operation overwrites the files.</li>
+                                                            </ul>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Header</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                            <p>This option determines where column headers will be stored. The following list describes the possible values:</p>
+                                                            <ul>
+                                                                <li value="1"><span class="UIelement">Every file</span>:&#160;Column headers are included in every file exported.</li>
+                                                                <li value="2"><span class="UIelement">Separate file</span>: The export operation exports a file specifically for column headers. The other rows are exported to separate file or files.</li>
+                                                            </ul>
+                                                            <p>This option is not available if the export operation appends the export file to an existing file.</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Preserve Order</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                            <p>This option determines whether the exported file retains the row order from the active table when the batch dataflow was created. The following list describes the possible values:</p>
+                                                            <ul>
+                                                                <li value="1"><span class="UIelement">True</span>:&#160;Row order from the active table is preserved.</li>
+                                                                <li value="2"><span class="UIelement">False</span>: Row order may be preserved or different. (Faster.)</li>
+                                                            </ul>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">File</td>
+                                                        <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">
+                                                            <p>This option determines the number of files created by the export operation. The following list describes the possible values:</p>
+                                                            <ul>
+                                                                <li value="1"><span class="UIelement">Multiple files</span>: The result of the batch dataflow is exported to multiple files at the export target. <span class="GeneralProductName3">Xcalar</span> determines the size of the exported files.</li>
+                                                                <li value="2"><span class="UIelement">One File</span>:&#160;The result of the batch dataflow is exported to one file at the export target.</li>
+                                                            </ul>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <p><a href="#Top">Go to top</a>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section><a data-close="true"></a>
+                </div>
+            </div>
+            <script>/* <![CDATA[ */$(document).foundation();/* ]]> */</script>
+        </div>
+    </body>
+</html>

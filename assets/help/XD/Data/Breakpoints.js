@@ -1,1 +1,1 @@
-define({prop:'max-width',mediums:{'Mobile':900,'Tablet':900}});
+define({prop:'max-width',mediums:{'Mobile':600,'Tablet':800}});

@@ -1,1 +1,1 @@
-define({r:0.5,st:'Stem',n:1,t:[0],u:['../Content/A_GettingStarted/A_Requirements.htm'],s:['$'],p:[['$',6]]});
+define({r:0.5,st:'Stem',n:1,t:[0],u:['../Content/ContentXDHelp/A_GetStarted/A_Requirements.htm'],s:['$'],p:[['$',6]]});

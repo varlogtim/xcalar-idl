@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta charset="utf-8" />
+        <meta name="description" content="" />
+        <meta name="author" content="" /><title>Performing tasks on a node</title>
+        <link href="../../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Components/Styles.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Components/Tablet.css" rel="stylesheet" />
+        <link href="../../../../Skins/Default/Stylesheets/Components/Mobile.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/foundation.6.2.3.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/Styles.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
+        <link href="../../../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
+        <link href="../../../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
+        <style>/*&lt;meta /&gt;*/
+
+.button.previous-topic-button
+{
+	-pie-background: url('../../../../Skins/Default/Stylesheets/Images/navigate-previous.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.next-topic-button
+{
+	-pie-background: url('../../../../Skins/Default/Stylesheets/Images/navigate-next.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.button.separator-button
+{
+	-pie-background: linear-gradient(#ffffff, #ececec);
+}
+
+.button.print-button
+{
+	-pie-background: url('../../../../Skins/Default/Stylesheets/Images/printer.png') no-repeat center center, linear-gradient(#ffffff, #ececec);
+}
+
+.needs-pie
+{
+	behavior: url('../../../../Resources/Scripts/PIE-no-motw.htc');
+}
+
+</style>
+        <script src="../../../../Resources/Scripts/custom.modernizr.js">
+        </script>
+        <script src="../../../../Resources/Scripts/jquery.min.js">
+        </script>
+        <script src="../../../../Resources/Scripts/require.min.js">
+        </script>
+        <script src="../../../../Resources/Scripts/require.config.js">
+        </script>
+        <script src="../../../../Resources/Scripts/foundation.6.2.3_custom.js">
+        </script>
+        <script src="../../../../Resources/Scripts/plugins.min.js">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapGlobal.js">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapDom.js">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapUtilities.js">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapXhr.js">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapTextEffects.js">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapSlideshow.js">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapFeedback.js">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapDefault.js">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapHelpSystem.js">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.js">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.Breadcrumbs.js">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.MiniToc.js">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapToc.SideMenu.js">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapIndex.js">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapGlossary.js">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapParser.js">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapSearch.js">
+        </script>
+        <script src="../../../../Resources/Scripts/MadCapTopic.js">
+        </script>
+        <script src="file://vmware-host/Shared Folders/florencechan On My Mac/xcalar-docs/FlareTemplates/Template-Sept2018/Content/Scripts/expandSideNavTopics.js">
+        </script>
+        <script src="../../../../Skins/Default/Scripts/TopicToolBar.js">
+        </script>
+    </head>
+    <body>
+        <div class="foundation-wrap off-canvas-wrapper">
+            <div class="off-canvas-wrapper-inner" data-off-canvas-wrapper="">
+                <aside class="off-canvas position-right" id="offCanvas" data-off-canvas="" data-position="right" data-mc-ignore="true">
+                    <ul class="off-canvas-accordion vertical menu off-canvas-list" data-accordion-menu="" data-mc-back-link="Back" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="True" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True">
+                    </ul>
+                </aside>
+                <div class="off-canvas-content inner-wrap" data-off-canvas-content="">
+                    <div data-sticky-container="" class="title-bar-container">
+                        <nav class="title-bar tab-bar sticky" data-sticky="" data-options="marginTop:0" style="width:100%" data-sticky-on="only screen and (max-width: 800px)" data-mc-ignore="true">
+                            <div class="middle title-bar-section outer-row clearfix">
+                                <div class="menu-icon-container relative clearfix">
+                                    <button class="menu-icon" data-toggle="offCanvas"><span></span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="title-bar-layout outer-row">
+                                <div class="logo-wrapper"><a class="logo" href="../../../HomeXDHelp.htm" alt="Logo"></a>
+                                </div>
+                                <div class="navigation-wrapper nocontent">
+                                    <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
+                                        <li class="placeholder" style="visibility:hidden"><a>placeholder</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="nav-search-wrapper">
+                                    <div class="nav-search row">
+                                        <form class="search" action="#">
+                                            <div class="search-bar search-bar-container needs-pie">
+                                                <input class="search-field needs-pie" type="search" placeholder="Search" />
+                                                <div class="search-filter-wrapper">
+                                                    <div class="search-filter">
+                                                        <div class="search-filter-content">
+                                                            <ul>
+                                                                <li>All Files</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="search-submit-wrapper" dir="ltr">
+                                                    <div class="search-submit" title="Search">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                    <section class="main-section">
+                        <div class="row outer-row sidenav-layout">
+                            <div class="sidenav-wrapper">
+                                <div class="sidenav-container">
+                                    <ul class="off-canvas-accordion vertical menu sidenav" data-accordion-menu="" data-mc-css-tree-node-expanded="is-accordion-submenu-parent" data-mc-css-tree-node-collapsed="is-accordion-submenu-parent" data-mc-css-sub-menu="vertical menu accordion-menu is-accordion-submenu nested" data-mc-include-indicator="False" data-mc-include-icon="False" data-mc-include-parent-link="False" data-mc-include-back="False" data-mc-defer-expand-event="True" data-mc-expand-event="click.zf.accordionMenu" data-mc-toc="True" data-mc-side-nav-menu="True">
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="body-container" data-mc-content-body="True">
+                                <div class="content">
+                                    <div id="contentBody">
+                                        <div class="row collapse">
+                                            <div class="sideContent">
+                                                <div class="clearfix">
+                                                    <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                        <div class="button-group-container-left">
+                                                            <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                            </button>
+                                                            <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                            </button>
+                                                            <div class="button-separator">
+                                                            </div>
+                                                            <button class="button needs-pie print-button" title="Print">
+                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="nocontent">
+                                                <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                </div>
+                                            </div>
+                                            <h1>Performing tasks on a node</h1>
+                                            <p>After you create a dataflow, it is display by links. The first step after creating this dataflow is to configure each node so that it can be executed. This topic provides the general information required for configuring a node. For specific information pertaining to various operations, see the topics about the operations. This topic assumes that you understand the steps for editing a dataflow, as described in <a href="C_CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating, editing, and deleting a dataflow</a>.</p>
+                                            <p>In addition to configuring a node, this topic describes the following tasks that you perform on a node:</p>
+                                            <ul>
+                                                <li value="1">Execute</li>
+                                                <li value="2">Reset</li>
+                                                <li value="3">Copy</li>
+                                                <li value="4">Cut</li>
+                                                <li value="5">Add or edit a description</li>
+                                                <li value="6">View schema</li>
+                                                <li value="7">Remove</li>
+                                            </ul>
+                                            <p>For information about viewing and performing various tasks on result sets, see <a href="J_ResultSetTasks.htm" class="MCXref xref" xrefformat="{para}">Performing result set tasks </a>.</p>
+                                            <p>For information about creating a custom node from an existing node, see XXX.</p>
+                                            <h2 class="noPageBreak">Configuring a node</h2>
+                                            <p>You can configure a node whether or not it is already configured. To configure a node, follow these steps:</p>
+                                            <ol>
+                                                <li value="1">
+                                                    <p>Skip this step if the node to be configured is the source node, which is the first node of a dataflow.</p>
+                                                    <p>Create a link from the node to the appropriate parent node. The result set of the parent node will become the input to the node.</p>
+                                                </li>
+                                                <li value="2">Right click the node to display a menu.</li>
+                                                <li value="3">Click <span class="UIelement">Configure</span> in the menu to display a panel. </li>
+                                                <li value="4">Follow the instructions in the panel to enter the appropriate information. The information required depends on the operation.</li>
+                                                <li value="5">Click <span class="UIelement">Save</span> in the panel to save the node configuration. Depending on your dataflow settings, the node might be executed automatically. If the node is not executed automatically, its status indicator becomes yellow, which means that the node has been configured but not executed.</li>
+                                            </ol>
+                                            <h2 class="noPageBreak">Executing a node</h2>
+                                            <p>After a node is configured, you can execute it. Similar to executing an entire dataflow, executing a node is successful only if the following requirements are met:</p>
+                                            <ul>
+                                                <li value="1">The node and its parent nodes are properly configured.</li>
+                                                <li value="2">Aggregate values that are used in the node or its parent nodes can be calculated.</li>
+                                            </ul>
+                                            <p>To execute a node, follow these steps:</p>
+                                            <ol>
+                                                <li value="1">Right click the node to display a menu.</li>
+                                                <li value="2">
+                                                    <p>Click <span class="UIelement">Execute</span> in the menu to execute the node. The following list describes what happens after you successfully execute a node:</p>
+                                                    <ul>
+                                                        <li value="1"> The status indicator on the node and on each parent node become green.</li>
+                                                        <li value="2">The result sets produced by the node and its parent nodes are available for viewing. For information about result set tasks, see <a href="J_ResultSetTasks.htm" class="MCXref xref" xrefformat="{para}">Performing result set tasks </a>.</li>
+                                                        <li value="3">If an aggregate value is used in the execution, the Single Value node's status indicator becomes green.</li>
+                                                        <li value="4">Operation information is displayed above the node, its parent nodes, and any Single Value nodes (if applicable.</li>
+                                                        <li value="5">If the node is a Link out Optimized node or Export Optimized node, an optimized dataflow is created and displayed in a new tab.</li>
+                                                    </ul>
+                                                </li>
+                                            </ol>
+                                            <div class="Note"><span class="label">NOTE</span>: The dataflow settings controls what you see after a node or a dataflow is executed. For information about configuring dataflow settings, see <a href="H_SettingsForDf.htm" class="MCXref xref" xrefformat="{para}">Configuring settings for dataflows</a>.</div>
+                                            <div class="Note"><span class="label">NOTE</span>:&#160;If a node's status indicator is green, you cannot re-execute the node. You must reset the node if you want to execute the node again. For information about resetting a node, see XXX.</div>
+                                            <h2 class="noPageBreak">Resetting a node</h2>
+                                            <p>Resetting a node undoes the previous execution, removing the result set. The configuration for the node remains unchanged.</p>
+                                            <p>Because the result set for the reset node is removed, the subsequent nodes receive no input from the reset node. Therefore, when you reset a node, all subsequent nodes are also automatically reset.</p>
+                                            <p>To reset a node, follow these steps:</p>
+                                            <ol>
+                                                <li value="1">Right click the node to display a menu.</li>
+                                                <li value="2">
+                                                    <p>Click <span class="UIelement">Reset</span> in the menu to reset the node. The following list describes what happens after you reset the node:</p>
+                                                    <ul>
+                                                        <li value="1">The status indicators for the node and subsequent nodes become yellow.</li>
+                                                        <li value="2">The result sets of the node and subsequent nodes are removed.</li>
+                                                        <li value="3">The operation information above the node and each subsequent node is removed.</li>
+                                                        <li value="4">If the reset node is a Link out Optimized node or Export Optimized node, the optimized dataflow created by the previous execution is removed.</li>
+                                                    </ul>
+                                                </li>
+                                            </ol>
+                                            <h2 class="noPageBreak">Copying or cutting a node</h2>
+                                            <p>You can copy or cut a node  so that you can later paste it, for example, in a different part of the dataflow.</p>
+                                            <p>To copy or cut a node, follow these steps:</p>
+                                            <ol>
+                                                <li value="1">Right click the node to display a menu.</li>
+                                                <li value="2">
+                                                    <p>Click <span class="UIelement">Copy</span> or "<span class="UIelement">Cut</span> in the menu Alternatively, you can use the key combination appropriate to your computer for the copy or cut function. For example, you can use Ctrl-C for copy.</p>
+                                                    <p>If you cut a node, the node and all its links are removed. </p>
+                                                </li>
+                                            </ol>
+                                            <p>The node you copied or cut is on the clipboard, available for you to paste to the desired location. </p>
+                                            <div class="Note"><span class="label">NOTE</span>:&#160;On the canvas, you can right click anywhere to display a menu where <span class="UIelement">Paste</span> is  an option. This option indicates that the clipboard has contents that can be pasted. It does not perform the paste function. To paste the node, use the keyboard combination appropriate to your computer, such as Ctrl-V.</div>
+                                            <div class="Note"><span class="label">NOTE</span>:&#160;If you copy and paste a Link out node to the same dataflow, remember to configure either the pasted node or the original node so that they have different reference names. </div>
+                                            <h2 class="noPageBreak">Adding or editing a description</h2>
+                                            <p>To add or edit a node description, follow these steps:</p>
+                                            <ol>
+                                                <li value="1">Right click the node to display a menu.</li>
+                                                <li value="2">Click <span class="UIelement">Add Description</span>. The <span class="UIelement">Description</span> modal window is displayed.</li>
+                                                <li value="3">
+                                                    <p>In the <span class="UIelement">Description</span> modal window , type a new description or modify an existing description, and then click <span class="UIelement">Save</span>.</p>
+                                                    <p>An information icon is displayed on the node, as shown in the following screenshot. If you hover over the icon, the description is displayed in a tooltip.</p>
+                                                    <p>XXX Screenshot here.</p>
+                                                </li>
+                                            </ol>
+                                            <h2 class="noPageBreak">Viewing schema</h2>
+                                            <p>You can view the schema if a result set exists for a node. To view the schema, follow these steps:</p>
+                                            <ol>
+                                                <li value="1">Right click the node to display a menu.</li>
+                                                <li value="2">
+                                                    <p>Click <span class="UIelement">View Schema</span>. A pop-up is displayed, showing the schema of the result set. Fields that exist are displayed in green; fields that have been removed during the execution are displayed in red.</p>
+                                                    <p>You can click a field to see its lineage. All nodes in the dataflow that contain the field are highlighted. In addition, a tooltip is displayed above the highlighted node to explain what happened to the field. For example, you can see in which node the field was created, removed, and so on.</p>
+                                                </li>
+                                            </ol>
+                                            <h2 class="noPageBreak">Removing a node</h2>
+                                            <p>Removing a node is similar to cutting a node. However, the removed node is not saved to the clipboard. To remove a node, follow these steps:</p>
+                                            <ol>
+                                                <li value="1">Right click the node to display a menu.</li>
+                                                <li value="2">Click <span class="UIelement">Remove</span>. The node and its links are removed. The status indicator of each subsequent node becomes red, because each subsequent node no longer has a valid configuration.</li>
+                                            </ol>
+                                            <p><a href="#Top">Go to top</a>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section><a data-close="true"></a>
+                </div>
+            </div>
+            <script>/* <![CDATA[ */$(document).foundation();/* ]]> */</script>
+        </div>
+    </body>
+</html>

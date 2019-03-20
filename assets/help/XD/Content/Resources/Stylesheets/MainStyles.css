@@ -33,11 +33,12 @@
 
 body
 {
-	color: #4a4a4a;
 	font-family: "Open Sans", Arial, sans-serif, Avenir, Myriad;
+	font-weight: 400;
 	line-height: 1.5em;
-	mc-hyphenate: never;
 	font-size: 16px;
+	mc-hyphenate: never;
+	color: #44515c;
 }
 
 a.MCBreadcrumbsLink
@@ -61,7 +62,7 @@ h1
 {
 	margin-bottom: 8px;
 	padding-bottom: 20px;
-	margin-top: 20px;
+	margin-top: 30px;
 	font-size: 36px;
 	color: #378cb3;
 	font-weight: 400;
@@ -90,9 +91,32 @@ h3
 
 h4
 {
+	font-size: 18px;
+	margin-bottom: 4px;
+	margin-top: 16px;
 	color: #378cb3;
-	mc-hyphenate: never;
 	font-weight: 400;
+	mc-hyphenate: never;
+}
+
+h5	/* Provided just in case. Should not use so many heading levels in a topic. */
+{
+	font-size: 16px;
+	margin-bottom: 3px;
+	margin-top: 16px;
+	color: #378cb3;
+	font-weight: 400;
+	mc-hyphenate: never;
+}
+
+h6	/* Provided just in case. Should not use so many heading levels in a topic. */
+{
+	font-size: 14px;
+	margin-bottom: 3px;
+	margin-top: 16px;
+	color: #378cb3;
+	font-weight: 400;
+	mc-hyphenate: never;
 }
 
 li
@@ -121,13 +145,6 @@ MadCap|xref:hover
 	text-decoration: underline;
 }
 
-/* p
-{
-	margin-bottom: 8px;
-	margin-top: 8px;
-	font-weight: normal;
-} */
-
 div.sideContent
 {
 	float: right;
@@ -141,21 +158,34 @@ html.templateTopic div.sideContent
 	display: none;
 }
 
-p.userInput
+p.userInput	/* For lines that the user types. Each is a standalone paragraph, not as part of a screen text block with a gray background. */
 {
 	margin-bottom: 8px;
 	margin-top: 8px;
 	font-family: 'Courier New';
 	font-weight: bold;
+	font-size: 13px;
 }
 
 p.Copyright
 {
 	text-align: left;
-	margin: 10px 10px 10px 10px;
-	padding-left: 20px;
+	margin: 0px 0px 0px 10px;
+	padding-left: 0px;
+	padding-top: 10px;
 	padding-bottom: 15px;
-	background-color: #d7d7d7;
+}
+
+p.paramDescription	/* For paragraphs that are descriptions of a parameter, e.g., in utilities documentation. */
+{
+	margin: 8px 14px 14px;
+}
+
+p.paramDescriptionHeading	/* Heading for the parameter description. Always stays with description without a page break in between. */
+{
+	page-break-after: avoid;
+	font-weight: 500;
+	margin: 14px 14px 8px;
 }
 
 img.BigImage
@@ -198,11 +228,12 @@ th
 	font-weight: 600;
 }
 
-p.CLIoutput
+p.CLIoutput	/* For output in response to a CLI command. For standalone paragraph, not as part of screen text block. */
 {
 	font-family: 'Courier New';
 	margin-bottom: 5px;
 	margin-top: 5px;
+	font-size: 13px;
 }
 
 ul.navigation ul
@@ -226,13 +257,14 @@ div
 	mc-hyphenate: never;
 }
 
-div.Code	/*This is for a block of sample code. */
+div.Code	/*For a block of sample code, not for a single line of input or output.*/
 {
 	font-family: 'Courier New';
 	padding-left: 20px;
 	border-bottom-color: #f2f2f2;
 	border: solid 2px #f2f2f2;
 	background-color: #f8f8f8;
+	font-size: 13px;
 }
 
 div.Example
@@ -248,10 +280,20 @@ div.Example
 	margin-right: 34px;
 }
 
-span.label
+span.label	/* Apply to the NOTE, WARNING, EXAMPLE, or RECOMMENDATION label, which begins a div such as div.Note. */
 {
 	font-weight: bold;
 	margin-top: 5px;
+}
+
+span.commandInBlock	/* Make command stand out as a part of screen text block. */
+{
+	font-weight: bold;
+}
+
+span.variableInBlock	/* Make variable (placeholder) stand out as a part of screen text block. */
+{
+	font-style: italic;
 }
 
 div.Note
@@ -293,7 +335,7 @@ caption
 	color: #1e6789;
 	mc-auto-number-format: 'CT:Table {n+} ';
 	font-weight: 600;
-	font-size: 9pt;
+	font-size: 14px;
 	text-align: left;
 }
 
@@ -305,7 +347,7 @@ p.FigureCaption
 	mc-auto-number-format: 'CF:Figure {n+} ';
 	font-weight: 600;
 	text-align: center;
-	font-size: 9pt;
+	font-size: 14px;
 	page-break-after: avoid;
 	margin-bottom: 6px;
 }
@@ -317,8 +359,8 @@ img
 
 MadCap|dropDown
 {
-	mc-closed-image: url('../Images/XD_assets/xd-plus-circle-outline.png');
-	mc-open-image: url('../Images/XD_assets/xd-minus-circle-outline.png');
+	mc-closed-image: url('file://vmware-host/Shared Folders/Desktop/DebugTemplateForIG/TemplateIssues_Install_Guides/Content/Resources/Images/XD_assets/xd-plus-circle-outline.png');
+	mc-open-image: url('file://vmware-host/Shared Folders/Desktop/DebugTemplateForIG/TemplateIssues_Install_Guides/Content/Resources/Images/XD_assets/xd-minus-circle-outline.png');
 }
 
 MadCap|xref:focus
@@ -365,12 +407,105 @@ pre
 	mc-hyphenate: never;
 }
 
+a
+{
+	color: #378cb3;
+}
+
 @media print
 {
-	p.subTitle
+	p.Subtitle
 	{
-		font-size: 24pt;
+		font-size: 14pt;
+		margin-bottom: .75in;
+		margin-top: 14pt;
+		font-family: 'Lato Light';
+		text-align: left;
+		color: #1e6789;
+	}
+
+	p.Title
+	{
 		color: #378cb3;
+	}
+
+	/*	p.TOC1
+	{
+		mc-leader-format: ' ';
+		color: #000000;
+		mc-pagenum-display: all;
+		font-size: 10pt;
+		line-height: 15 pt;
+		margin-left: 0pt;
+		font-family: Lato;
+		font-weight: normal;
+		margin-bottom: 5px;
+		margin-top: 10px;
+	}
+
+	p.TOC2
+	{
+		font-weight: normal;
+		margin-left: 0.25in;
+		mc-leader-format: ' ';
+		mc-pagenum-display: all;
+		color: #000000;
+		line-height: 15pt;
+		font-size: 10pt;
+		font-family: 'Lato Light';
+		margin-top: 4px;
+		margin-bottom: 4px;
+	}
+
+	p.TOC3
+	{
+		margin-left: 0.45in;
+		mc-leader-format: ' ';
+		mc-pagenum-display: all;
+		color: #000000;
+		line-height: 15pt;
+		font-size: 10pt;
+		font-family: 'Lato Light';
+		margin-top: 4px;
+		margin-bottom: 4px;
+		font-weight: bold;
+	}
+
+	p.TOC4
+	{
+		mc-heading-level: 0;
+	}
+
+	p.TOC5
+	{
+		mc-heading-level: 0;
+	}
+
+	p.TOC6
+	{
+		mc-heading-level: 0;
+	}
+	
+	*/
+
+	p.CopyrightHeading
+	{
+		page-break-before: always;
+		font-weight: 800;
+		margin-top: 150px;
+	}
+
+	p.EmptyPageText
+	{
+		font-size: 10pt;
+		font-weight: bold;
+	}
+
+	p.FrameFooterText
+	{
+		font-size: 8 pt;
+		font-family: 'Lato Light';
+		margin-top: 0;
 	}
 
 	p
@@ -400,19 +535,88 @@ pre
 
 	h1
 	{
-		margin-top: 12px;
+		font-family: 'Open Sans';
+		line-height: 24pt;
+		margin-bottom: 20px;
+		margin-left: 0;
+		margin-right: 0;
+		padding: 0;
+		font-weight: 400;
+		color: #1e6789;
+		page-break-before: always;
+		margin-top: 6px;
 		font-size: 30px;
 	}
 
 	h2
 	{
-		margin-top: 15px;
+		color: #1e6789;
+		font-family: 'Open Sans';
+		line-height: 18pt;
+		margin-bottom: 10px;
+		margin-left: 0;
+		margin-right: 0;
+		margin-top: 30px;
+		padding: 0;
+		font-weight: 400;
 		page-break-before: always;
 	}
 
 	h3
 	{
-		margin-top: 12px;
+		font-family: 'Open Sans';
+		color: #1e6789;
+		line-height: 18pt;
+		margin-bottom: 10px;
+		margin-left: 0;
+		margin-right: 0;
+		margin-top: 30px;
+		padding: 0;
+		font-weight: 400;
+	}
+
+	/*h4 or lower should not appear in table of contents. Hence mc-heading-level=0 */
+
+	h4
+	{
+		font-family: 'Open Sans';
+		color: #1e6789;
+		line-height: 18pt;
+		margin-bottom: 10px;
+		margin-left: 0;
+		margin-right: 0;
+		margin-top: 30px;
+		padding: 0;
+		font-weight: 400;
+		mc-heading-level: 0;
+	}
+
+	h5	/* Provided just in case. Should not use so many heading levels in a topic. */
+	{
+		font-family: 'Open Sans';
+		color: #1e6789;
+		line-height: 18pt;
+		margin-bottom: 10px;
+		margin-left: 0;
+		margin-right: 0;
+		margin-top: 30px;
+		padding: 0;
+		font-weight: 400;
+		mc-heading-level: 0;
+	}
+
+	h6	/* Provided just in case. Should not use so many heading levels in a topic. */
+	{
+		font-family: 'Open Sans';
+		color: #1e6789;
+		line-height: 18pt;
+		margin-bottom: 10px;
+		margin-left: 0;
+		margin-right: 0;
+		margin-top: 30px;
+		padding: 0;
+		font-weight: 400;
+		mc-heading-level: 0;
 	}
 
 	MadCap|tocProxy
@@ -520,5 +724,17 @@ a.ForCSH
 h2.noPageBreak	/*For print medium only. */
 {
 	
+}
+
+p.FigureCaption
+{
+	color: #1e6789;
+	font-weight: 600;
+	text-align: center;
+	font-size: 9pt;
+	page-break-after: avoid;
+	margin-bottom: 6px;
+	font-family: inherit;
+	mc-auto-number-format: 'Figure {n+}. ';
 }
 
