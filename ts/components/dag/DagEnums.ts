@@ -194,6 +194,7 @@ if (typeof exports !== 'undefined') {
     exports.DagNodeSubType = DagNodeSubType;
     exports.DagNodeState = DagNodeState;
     exports.DagNodeEvents = DagNodeEvents;
+    exports.DagGraphEvents = DagGraphEvents;
     exports.DagNodeErrorType = DagNodeErrorType;
     exports.DagNodeLinkInErrorType = DagNodeLinkInErrorType;
     exports.DagNodeTooltip = DagNodeTooltip;

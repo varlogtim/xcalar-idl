@@ -25,11 +25,14 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     require("../../../assets/js/thrift/DataFormatEnums_types.js");
     require("../../../assets/js/thrift/UnionOpEnums_types.js");
     require("../../../assets/js/thrift/LibApisEnums_types.js");
+    require("../../../assets/js/thrift/LibApisCommon_types.js");
+
 
     global.xcalarApi = xcalarApi = require("../../../assets/js/thrift/XcalarApi.js");
 
     global.PromiseHelper = PromiseHelper = require("../../../assets/js/promiseHelper.js");
     require("../../../assets/js/XcalarThrift.js");
+    global.colInfoMap = require("../../../assets/js/XcalarThrift.js").colInfoMap;
 
     // Added for KVS to query conversion
     global.Ajv = require("../../../3rd/AJV/ajv.js");
@@ -45,6 +48,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     global.DagNodeSubType = require("../dagHelper/DagEnums.js").DagNodeSubType
     global.DagNodeState = require("../dagHelper/DagEnums.js").DagNodeState
     global.DagNodeEvents = require("../dagHelper/DagEnums.js").DagNodeEvents
+    global.DagGraphEvents = require("../dagHelper/DagEnums.js").DagGraphEvents;
     global.DagNodeErrorType = require("../dagHelper/DagEnums.js").DagNodeErrorType
     global.DagNodeLinkInErrorType = require("../dagHelper/DagEnums.js").DagNodeLinkInErrorType;
     global.DagNodeTooltip = require("../dagHelper/DagEnums.js").DagNodeTooltip;
