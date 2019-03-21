@@ -362,7 +362,8 @@ interface SQLColumn {
 
 interface SQLSchema {
     tableName: string,
-    tableColumns: {}[] // {column: type}[]
+    tableColumns: {}[], // {column: type}[]
+    xcTableName: string
 }
 
 interface SQLParserStruct {

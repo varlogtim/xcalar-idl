@@ -240,7 +240,6 @@
         "expressions.XCEPassThrough": null
     };
 
-    var tablePrefix = "XC_TABLENAME_";
     var passthroughPrefix = "XCEPASSTHROUGH";
 
     function assert(st, message) {
@@ -261,18 +260,7 @@
         for (var i = 0; i < rawOpArray.length; i++) {
             var value = rawOpArray[i];
             if (value.class === "org.apache.spark.sql.execution.LogicalRDD") {
-                var rdds = value.output;
-                var acc = {numOps: 0};
-                for (var j = 0; j < rdds.length; j++) {
-                    var evalStr = genEvalStringRecur(SQLCompiler.genTree(
-                                  undefined, rdds[j].slice(0)), acc);
-                    if (evalStr.indexOf(tablePrefix) === 0) {
-                        var newTableName = evalStr.substring(tablePrefix.length);
-                        if (!(newTableName in tableNames)) {
-                            tableNames[newTableName] = true;
-                        }
-                    }
-                }
+                tableNames[value.xcTableName] = true;
             }
         }
         return tableNames;
@@ -281,13 +269,13 @@
     function TreeNode(value) {
         if (value.class === "org.apache.spark.sql.execution.LogicalRDD") {
             // These are leaf nodes
-            // Find the RDD that has a name XC_TABLENAME_ prefix
             this.usrCols = [];
             this.xcCols = [];
             this.sparkCols = [];
             this.renamedCols = {};
             this.orderCols = [];
             this.dupCols = {};
+            this.newTableName = value.xcTableName;
             var rdds = value.output;
             for (var i = 0; i < rdds.length; i++) {
                 var acc = {numOps: 0};
@@ -297,15 +285,10 @@
                     debugger;
                     console.info(rdds[i]);
                 }
-                if (evalStr.indexOf(tablePrefix) === 0) {
-                    this.newTableName = evalStr.substring(tablePrefix.length);
-                    continue;
-                } else {
-                    var col = {colName: evalStr,
-                               colId: rdds[i][0].exprId.id,
-                               colType: convertSparkTypeToXcalarType(rdds[i][0].dataType)};
-                    this.usrCols.push(col);
-                }
+                var col = {colName: evalStr,
+                            colId: rdds[i][0].exprId.id,
+                            colType: convertSparkTypeToXcalarType(rdds[i][0].dataType)};
+                this.usrCols.push(col);
             }
         }
         this.value = value;
@@ -1167,10 +1150,6 @@
     function ProjectNode(columns) {
         var newColumns = [];
         columns.forEach(function(column) {
-            if (column.length === 1 && column[0].name &&
-                column[0].name.indexOf(tablePrefix) === 0) {
-                return;
-            }
             newColumns.push(column);
         });
         return new TreeNode({
@@ -2664,12 +2643,6 @@
                     "org.apache.spark.sql.catalyst.plans.ExistenceJoin");
             }
 
-            function isNaturalJoin(n) {
-                return (n.children[0].value.class ===
-                "org.apache.spark.sql.catalyst.expressions.AttributeReference" &&
-                n.children[0].value.name.indexOf(tablePrefix) > -1);
-            }
-
             function isOuterJoin(n) {
                 var joinType = n.value.joinType.object;
                 if (joinType && joinType.endsWith("Outer$")) {
@@ -2816,8 +2789,7 @@
                 "org.apache.spark.sql.catalyst.expressions.And") {
                 andSubtrees.push(condTree);
             } else if (condTree && condTree.value.class ===
-                "org.apache.spark.sql.catalyst.expressions.EqualTo" &&
-                !isNaturalJoin(condTree)) {
+                "org.apache.spark.sql.catalyst.expressions.EqualTo") {
                 eqSubtrees.push(condTree);
             } else {
                 // No optimization
@@ -2845,9 +2817,6 @@
                         andSubtrees.push(andTree.children[i]);
                     } else if (andTree.children[i].value.class ===
                         "org.apache.spark.sql.catalyst.expressions.EqualTo") {
-                        if (isNaturalJoin(andTree.children[i])) {
-                            continue;
-                        }
                         eqSubtrees.push(andTree.children[i]);
                     } else {
                         filterSubtrees.push(andTree.children[i]);
@@ -6690,12 +6659,7 @@
             if (condTree.value.class ===
                "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
                 // Column Name
-                var colName;
-                if (condTree.value.name.indexOf(tablePrefix) !== 0) {
-                    colName = cleanseColName(condTree.value.name);
-                } else {
-                    colName = condTree.value.name;
-                }
+                var colName = cleanseColName(condTree.value.name);
                 var id = condTree.value.exprId.id;
                 if (options && options.renamedCols &&
                     options.renamedCols[id]) {
@@ -6816,10 +6780,6 @@
                 assert(curColStruct.class ===
                 "org.apache.spark.sql.catalyst.expressions.AttributeReference",
                 SQLErrTStr.EvalOnlyChildAttr);
-                if (curColStruct.name.indexOf(tablePrefix) >= 0) {
-                    // Skip XC_TABLENAME_XXX
-                    continue;
-                }
                 colStruct.colName = cleanseColName(curColStruct.name);
                 colStruct.colId = curColStruct.exprId.id;
                 colStruct.colType = convertSparkTypeToXcalarType(curColStruct.dataType);

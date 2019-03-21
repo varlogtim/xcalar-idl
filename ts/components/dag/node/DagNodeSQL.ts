@@ -823,14 +823,10 @@ class DagNodeSQL extends DagNode {
         var deferred = PromiseHelper.deferred();
         this._finalizeTable(sourceId, srcTableName, columns, pubTablesInfo)
         .then(function(ret) {
-            const schema = ret.schema;
-            var tableMetaCol = {};
-            tableMetaCol["XC_TABLENAME_" + ret.finalizedTableName] = "string";
-            schema.push(tableMetaCol);
-
             const structToSend: SQLSchema = {
                 tableName: sqlTableName.toUpperCase(),
-                tableColumns: schema
+                tableColumns: ret.schema,
+                xcTableName: ret.finalizedTableName
             }
 
             // console.log(structToSend);

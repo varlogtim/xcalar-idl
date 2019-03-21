@@ -56,13 +56,10 @@ function finalizeTable(publishArgsList, cleanup, checkTime) {
                                                       publishArgs.importTable,
                                                       publishArgs.sqlTable)
             .then(function(schema) {
-                // add tablename to schema
-                var tableNameCell = {};
-                tableNameCell["XC_TABLENAME_" + publishArgs.sqlTable] = "string";
-                schema.push(tableNameCell);
                 res.push({
                     table: publishArgs.publishName,
-                    schema: schema
+                    schema: schema,
+                    xcTableName: publishArgs.sqlTable
                 });
                 xcConsole.log("get schema", schema);
                 sqlTables.push(publishArgs.sqlTable);
@@ -151,13 +148,10 @@ function sqlLoad(path) {
         return convertToDerivedColAndGetSchema(args.txId, args.importTable, sqlTable);
     })
     .then(function(schema) {
-        // add tablename to schema
-        var tableNameCell = {};
-        tableNameCell["XC_TABLENAME_" + sqlTable] = "string";
-        schema.push(tableNameCell);
         var res = {
             tableName: sqlTableAlias,
-            schema: schema
+            schema: schema,
+            xcTableName: sqlTable
         };
         xcConsole.log("get schema", schema);
         deferred.resolve(res);
@@ -725,12 +719,10 @@ function getXCquery(params, type) {
         selectQuery = selQuery;
         var schemasToSendToSqlDf = [];
         for (var pubTable in schemas) {
-            var tableNameCol = {};
-            tableNameCol["XC_TABLENAME_" + selects[pubTable]] = "string";
-            schemas[pubTable].push(tableNameCol);
             schemasToSendToSqlDf.push({
                 tableName: pubTable,
-                tableColumns: schemas[pubTable]
+                tableColumns: schemas[pubTable],
+                xcTableName: selects[pubTable]
             });
         }
         var requestStruct = {
@@ -834,12 +826,10 @@ function executeSql(params, type) {
         selectQuery = selQuery;
         var schemasToSendToSqlDf = [];
         for (var pubTable in schemas) {
-            var tableNameCol = {};
-            tableNameCol["XC_TABLENAME_" + selects[pubTable]] = "string";
-            schemas[pubTable].push(tableNameCol);
             schemasToSendToSqlDf.push({
                 tableName: pubTable,
-                tableColumns: schemas[pubTable]
+                tableColumns: schemas[pubTable],
+                xcTableName: selects[pubTable]
             });
         }
         var requestStruct = {
