@@ -31,6 +31,7 @@ tags
 /services/expServer/*.tar.gz
 /services/appMarketplace/extensionUploader.html
 /services/test/report
+!/services/test/expServerSpec/dagComponent/*.tar.gz
 
 # assets/
 /assets/stylesheets/**/*.css
