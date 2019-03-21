@@ -680,6 +680,7 @@ class BaseOpPanel {
         this._dagNode.beErrorState(errorStr);
         this._updateMode(true);
         const paramStr = JSON.stringify(this._dagNode.getParam(), null, 4);
+        this._cachedBasicModeParam = paramStr;
         this._editor.setValue(paramStr);
     }
 }

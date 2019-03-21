@@ -100,7 +100,7 @@ class DagNodeInfoPanel {
                 break;
             default:
                 console.warn(attribute, "attribute not found");
-                break;
+                return false;
         }
         return true;
     }

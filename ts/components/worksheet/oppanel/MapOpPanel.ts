@@ -82,12 +82,10 @@ class MapOpPanel extends GeneralOpPanel {
 
         const scrollTop = this._$panel.find(".opSection").scrollTop();
         this._resetForm();
-
+        this._populateInitialCategoryField(0);
         for (let i = 0; i < model.groups.length; i++) {
             if (i > 0) {
                 this._addExtraGroup();
-            } else {
-                this._populateInitialCategoryField(i);
             }
             const $group: JQuery = this._$panel.find('.group').eq(i);
             const operator: string = model.groups[i].operator;

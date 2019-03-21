@@ -1884,5 +1884,6 @@ class GeneralOpPanel extends BaseOpPanel {
         this._updateMode(true);
         const paramStr = JSON.stringify(this._dagNode.getParam(), null, 4);
         this._editor.setValue(paramStr);
+        this.model.cachedBasicModeParam = paramStr;
     }
 }
