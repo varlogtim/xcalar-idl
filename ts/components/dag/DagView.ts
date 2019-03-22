@@ -209,6 +209,7 @@ class DagView {
         }
     }
 
+    // ok to pass in multiple nodes
     public static selectNode($node: JQuery): void {
         $node.addClass("selected");
         if ($node.hasClass("operator")) {

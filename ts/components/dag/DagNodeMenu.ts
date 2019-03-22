@@ -247,12 +247,6 @@ namespace DagNodeMenu {
                 case ("expandCustom"):
                     DagViewManager.Instance.expandCustomNode(dagNodeIds[0]);
                     break;
-                case ("zoomIn"):
-                    DagViewManager.Instance.zoom(true);
-                    break;
-                case ("zoomOut"):
-                    DagViewManager.Instance.zoom(false);
-                    break;
                 case ("findLinkOut"):
                     _findLinkOutNode(nodeId);
                     break;
@@ -589,7 +583,7 @@ namespace DagNodeMenu {
             if (DagViewManager.Instance.isNodeLocked(nodeIds[i])) {
                 $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
                       ".executeNodeOptimized, .executeAllNodesOptimized, " +
-                      ".resetNode, .cutNodes, .removeNode, .removeAllNodes, .editCustom")
+                      ".resetNode, .cutNodes, .removeNode, .removeAllNodes, .editCustom, .createCustom")
                 .addClass("unavailable");
                 break;
             }

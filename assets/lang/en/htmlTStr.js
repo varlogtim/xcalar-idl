@@ -1423,7 +1423,7 @@ module.exports = {
         "reset": "Reset",
         "resetAll": "Reset All",
         "restoreDataset": "Restore Dataset",
-        "restoreAllDataset": "Restore All Dataset",
+        "restoreAllDataset": "Restore All Datasets",
         "generateResult": "Generate Result",
         "viewResult": "View Result",
         "viewUDF": "View UDF",
