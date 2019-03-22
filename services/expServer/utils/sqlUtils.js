@@ -81,6 +81,15 @@ SqlUtil.setSessionInfo = function(userName, userId, sessionName) {
         setSessionName(sessionName);
     }
 }
+// Table prefix validation
+// Replace every illegal character with _ and make sure it starts with a letter
+SqlUtil.cleansePrefix = function(prefix) {
+    prefix = prefix.replace(/[\W]/g, "_");
+    if (prefix[0].match(/[\d_]/g)) {
+        prefix = "fixPrefix_" + prefix;
+    }
+    return prefix;
+}
 SqlUtil.addPrefix = function(plan, selectTables, finalTable, prefix, usePaging, newSqlTable) {
     var retStruct = {};
     var newTableMap = {};
@@ -112,7 +121,7 @@ SqlUtil.addPrefix = function(plan, selectTables, finalTable, prefix, usePaging, 
             }
         }
         var newTableName = dest;
-        if (!dest.startsWith(prefix)) {
+        if (!dest.startsWith(prefix) && operation.operation !== "XcalarApiAggregate") {
             newTableName = prefix + newTableName;
             if (newTableName.length > 255 / 2) {
                 ret = ret.substring(0, ret.length - 255 / 2) +

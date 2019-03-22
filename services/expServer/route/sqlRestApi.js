@@ -798,6 +798,7 @@ function executeSql(params, type) {
     var optimizations = params.optimizations;
     var tablePrefix = params.tablePrefix ||
                         generateTablePrefix(params.userName, params.sessionName);
+    tablePrefix = SqlUtil.cleansePrefix(tablePrefix);
     params.usePaging = params.usePaging || false;
     option = {
         prefix: tablePrefix,
