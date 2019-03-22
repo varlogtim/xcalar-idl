@@ -563,7 +563,9 @@ class PTblManager {
         let promies = [];
         tables.forEach((tableName) => {
             let tableInfo: PbTblInfo = this._tableMap.get(tableName);
-            tableInfo.beActivated();
+            if (tableInfo != null) {
+                tableInfo.beActivated();
+            }
             promies.push(this._listOneTable(tableName));
         });
 
