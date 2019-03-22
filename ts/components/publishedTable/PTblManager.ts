@@ -300,9 +300,12 @@ class PTblManager {
             "steps": 1
         });
         const tableInfo: PbTblInfo = this._datasetTables[tableName];
-        let oldState = tableInfo.state;
-        tableInfo.state = PbTblState.Loading;
-        
+        let oldState = null;
+        if (tableInfo != null) {
+            oldState = tableInfo.state;
+            tableInfo.state = PbTblState.Loading;
+        }
+
         delete this._datasetTables[tableName];
         this._loadingTables[tableName] = tableInfo;
         this._refreshTblView(tableInfo, TblTStr.Creating, 1, 1);
@@ -356,17 +359,17 @@ class PTblManager {
             track: true,
         });
 
-        let info = this.createTableInfo(tableName);
-        info.state = PbTblState.Loading;
+        let tableInfo = this.createTableInfo(tableName);
+        tableInfo.state = PbTblState.Loading;
         // Load message tells anyone looking at the table info that
         // this table isnt created yet
         // Primarily used when checking for duplicates
-        info.loadMsg = "Creating Table";
-        this._loadingTables[tableName] = info;
+        tableInfo.loadMsg = "Creating Table";
+        this._loadingTables[tableName] = tableInfo;
         XIApi.publishTable(txId, pks, viewName, tableName, xcHelper.createColInfo(columns))
         .then(() => {
             // need to update the status and activated tables
-            return PromiseHelper.alwaysResolve(this._listOneTable(tableName));
+            return PTblManager.Instance.addTable(tableName);
         })
         .then(() => {
             delete this._loadingTables[tableName];
@@ -377,7 +380,6 @@ class PTblManager {
         })
         .fail((error) => {
             delete this._loadingTables[tableName];
-            info.state = null;
             Transaction.fail(txId, {
                 noAlert: true,
                 noNotification: true
@@ -417,7 +419,7 @@ class PTblManager {
             tableNames.forEach((tableName) => {
                 if (!set.has(tableName)) {
                     let tablesToActivate = this._checkActivateDependency(tableName, imdDenendencies);
-                    console.log("table dependency", tablesToActivate)
+                    // console.log("table dependency", tablesToActivate)
                     tablesToActivate.forEach((table) => {
                         set.add(table);
                         let func = (): XDPromise<void> => {
@@ -556,7 +558,8 @@ class PTblManager {
         }
     }
 
-    private _updateActivated(tables: string[]): void {
+    private _updateActivated(tables: string[]): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         let promies = [];
         tables.forEach((tableName) => {
             let tableInfo: PbTblInfo = this._tableMap.get(tableName);
@@ -566,14 +569,19 @@ class PTblManager {
 
         PromiseHelper.when(...promies)
         .always(() => {
+            deferred.resolve();
             TblSource.Instance.refresh();
         });
+
+        return deferred.promise();
     }
 
     private _updateDeactivated(tables: string[]): void {
         tables.forEach((tableName) => {
             let tableInfo: PbTblInfo = this._tableMap.get(tableName);
-            tableInfo.beDeactivated();
+            if (tableInfo != null) {
+                tableInfo.beDeactivated();
+            }
         });
         TblSource.Instance.refresh();
     }
@@ -595,6 +603,21 @@ class PTblManager {
         TblSource.Instance.refresh();
     }
 
+    private _addOneTable(tableName: string): XDPromise<void> {
+        // cached tableInfo first in case list fails
+        if (tableName) {
+            tableName = tableName.toUpperCase();
+        }
+
+        if (!this._tableMap.has(tableName)) {
+            let tableInfo = this.createTableInfo(tableName);
+            tableInfo.index = this._tables.length;
+            this._tables.push(tableInfo);
+            this._tableMap.set(tableName, tableInfo);
+        }
+        return this._listOneTable(tableName);
+    }
+
     private _deactivateTables(tableNames: string[]): XDPromise<string[]> {
         const deferred: XDDeferred<string[]> = PromiseHelper.deferred();
         const succeeds: string[] = [];
@@ -612,18 +635,6 @@ class PTblManager {
         .fail(deferred.reject);
 
         return deferred.promise();
-    }
-
-    private _addOneTable(tableName: string): XDPromise<void> {
-        // cached tableInfo first in case list fails
-        tableName = tableName.toUpperCase();
-        if (!this._tableMap.has(tableName)) {
-            let tableInfo = this.createTableInfo(tableName);
-            tableInfo.index = this._tables.length;
-            this._tables.push(tableInfo);
-            this._tableMap.set(tableName, tableInfo);
-        }
-        return this._listOneTable(tableName);
     }
 
     private _deactivateOneTable(
@@ -802,7 +813,9 @@ class PTblManager {
                 deferred.resolve(schema);
             }
         })
-        .fail(deferred.reject);
+        .fail((error) => {
+            deferred.reject(error, false);
+        });
 
         return deferred.promise();
     }
@@ -942,9 +955,13 @@ class PTblManager {
 
         XcalarListPublishedTables("*", false, true)
         .then((result) => {
-            this._tables = result.tables.map(this._tableInfoAdapter);
-            this._updateTableMap();
-            this._updateTablesInAction(oldTables);
+            try {
+                this._tables = result.tables.map(this._tableInfoAdapter);
+                this._updateTableMap();
+                this._updateTablesInAction(oldTables);
+            } catch (e) {
+                console.error(e);
+            }
             deferred.resolve(this._tables);
         })
         .fail(deferred.reject);
