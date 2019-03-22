@@ -6,7 +6,7 @@ describe("Sort Dag Node Test", () => {
         node = new DagNodeSort({});
     });
 
-    it("should be a map node", () => {
+    it("should be a sort node", () => {
         expect(node.getType()).to.equal(DagNodeType.Sort);
     });
 
