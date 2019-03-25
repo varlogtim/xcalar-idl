@@ -45,11 +45,13 @@ class AdvancedModeState extends State {
     private currentTab: DagTabUser;
     private xdfsArr: Object[];
     private mode: string;
-    private maxAvgNumOfNodesPerTab = 150;
+    private maxAvgNumOfNodesPerTab: number;
+    private run: number; // How many iterations ran in this state currently
 
     private constructor(stateMachine: StateMachine, verbosity: string) {
         let name = "AdvancedMode";
         super(name, stateMachine, verbosity);
+
         // Sets in the advanced mode
         this.mode = XVM.Mode.Advanced;
         XVM.setMode(this.mode);
@@ -58,6 +60,8 @@ class AdvancedModeState extends State {
         UserSettings.setPref("dfAutoPreview", false, false);
 
         this.availableActions = [this.createTab];
+        this.maxAvgNumOfNodesPerTab = 150;
+        this.run = 0;
 
         this.dagTabManager = DagTabManager.Instance;
         this.dagViewManager = DagViewManager.Instance;
@@ -66,35 +70,35 @@ class AdvancedModeState extends State {
     private async createTab() {
         if (this.availableActions.length == 1) {
             // In nodes
-            this.availableActions.push(this.addDatasetNode);
-            this.availableActions.push(this.addLinkInNode);
-            this.availableActions.push(this.addInputCustomNode);
+            this.addAction(this.addDatasetNode);
+            this.addAction(this.addLinkInNode);
+            this.addAction(this.addInputCustomNode);
 
             // column nodes
-            this.availableActions.push(this.addMapNode);
-            this.availableActions.push(this.addSplitNode);
-            this.availableActions.push(this.addRoundNode);
-            this.availableActions.push(this.addRownNumNode);
+            this.addAction(this.addMapNode);
+            this.addAction(this.addSplitNode);
+            this.addAction(this.addRoundNode);
+            this.addAction(this.addRowNumNode);
             // this.availableActions.push(this.addProjectNode);
 
             // out nodes
-            this.availableActions.push(this.addLinkOutNode);
+            this.addAction(this.addLinkOutNode);
 
             // SQL nodes
-            this.availableActions.push(this.addSQLNode);
+            this.addAction(this.addSQLNode);
             //tab
-            this.availableActions.push(this.getTab);
+            this.addAction(this.getTab);
 
             // SQL func
-            this.availableActions.push(this.createSQLFunc);
+            this.addAction(this.createSQLFunc);
 
             //custom nodes
-            this.availableActions.push(this.createCustomNode);
-            this.availableActions.push(this.createCustomNodesFromDF);
-            this.availableActions.push(this.addCustomNode);
+            this.addAction(this.createCustomNode);
+            this.addAction(this.createCustomNodesFromDF);
+            this.addAction(this.addCustomNode);
 
             // Other actions
-            this.availableActions.push(this.pruneNodes);
+            this.addAction(this.pruneNodes);
         }
 
         if (!this._checkToCreateTab()) {
@@ -107,7 +111,7 @@ class AdvancedModeState extends State {
     }
 
     private async getTab() {
-        this.currentTab = this.pickRandom(this.dagTabManager.getTabs());
+        this.currentTab = Util.pickRandom(this.dagTabManager.getTabs());
         this.dagTabManager.switchTab(this.currentTab.getId());
         return this;
     }
@@ -116,7 +120,7 @@ class AdvancedModeState extends State {
     private async addDatasetNode() {
         this.log(`Adding dataset node..`);
         let datasetsLoaded = DS.listDatasets();
-        let ds = this.pickRandom(datasetsLoaded);
+        let ds = Util.pickRandom(datasetsLoaded);
         let dsNode = this.dagViewManager.newNode({type:DagNodeType.Dataset});
         let dsArgs = await DS.getLoadArgsFromDS(ds.id);
         let dsSchema = await DS.getDSBasicInfo(ds.id);
@@ -139,7 +143,7 @@ class AdvancedModeState extends State {
             return this;
         }
         let dfTab, linkOutNode;
-        [linkOutNode, dfTab] = this.pickRandom(dfLinks);
+        [linkOutNode, dfTab] = Util.pickRandom(dfLinks);
         let linkInNode = this.dagViewManager.newNode({type:DagNodeType.DFIn});
         linkInNode.setParam({
             'linkOutName': linkOutNode.getParam().name,
@@ -165,7 +169,7 @@ class AdvancedModeState extends State {
             this.log("No input custom nodes available to add!");
             return this.addDatasetNode();
         }
-        this.dagViewManager.newNode(this.pickRandom(customNodes));
+        this.dagViewManager.newNode(Util.pickRandom(customNodes));
         this.log("Input custom node added!");
         return this;
     }
@@ -178,7 +182,7 @@ class AdvancedModeState extends State {
             this.log("No custom nodes available to add!");
             return this.addDatasetNode();
         }
-        this.dagViewManager.newNode(this.pickRandom(customNodes));
+        this.dagViewManager.newNode(Util.pickRandom(customNodes));
         this.log("Custom node added!");
         return this;
     }
@@ -215,7 +219,7 @@ class AdvancedModeState extends State {
         let delim = this._getRandomString(1);
         let currCut = 1;
         let evalObjs = [];
-        let randomCol = this.pickRandom(columns);
+        let randomCol = Util.pickRandom(columns);
         while (currCut <= numOfCuts) {
             evalObjs.push({
                 "evalString":`cut(string(${randomCol.backName}),${currCut},\"${delim}\")`,
@@ -248,7 +252,7 @@ class AdvancedModeState extends State {
         let numOfRounds = Math.floor(2 * Math.random()) + 1;
         let evalObjs = [];
         while (numOfRounds > 0) {
-            const randomCol = this.pickRandom(numTypeColumns);
+            const randomCol = Util.pickRandom(numTypeColumns);
             const numOfDecimals = Math.floor(10000 * Math.random()); //some random upto 10000
             evalObjs.push({
                 "evalString":`round(${randomCol},${numOfDecimals})`,
@@ -266,7 +270,7 @@ class AdvancedModeState extends State {
         return this;
     }
 
-    private async addRownNumNode() {
+    private async addRowNumNode() {
         this.log("Adding Row Num node..");
         let cNode;
         [cNode, ] = this.addNode({type:DagNodeType.RowNum});
@@ -347,7 +351,7 @@ class AdvancedModeState extends State {
         let identifiersOrder = [];
         let currIter = 1;
         while (currIter <=  numParents) {
-            pNode = graph.nodesMap.get(this.pickRandom(graph.nodesMap));
+            pNode = graph.nodesMap.get(Util.pickRandom(graph.nodesMap));
             if (pNode.type === DagNodeType.DFOut || pNode.getId() === cNode.getId()) {
                 continue;
             }
@@ -358,7 +362,7 @@ class AdvancedModeState extends State {
             currIter++;
         }
         // Querying only on one tab(parent)
-        let randomTab = this.pickRandom(Object.values(identifiersObj));
+        let randomTab = Util.pickRandom(Object.values(identifiersObj));
         let sqlQuery = `SELECT * FROM ${randomTab}`;
         cNode.setParam({
             "sqlQueryStr": sqlQuery,
@@ -417,11 +421,11 @@ class AdvancedModeState extends State {
     private _getRandomLiteral(type: string) {
         let toss;
         if (type == undefined) {
-            toss = this.pickRandom([0, 1, 2, 3]);
+            toss = Util.pickRandom([0, 1, 2, 3]);
         }
         // Boolean type
         if (type === ColumnType.boolean || toss === 0) {
-            return this.pickRandom([true, false]);
+            return Util.pickRandom([true, false]);
         } else if (type === ColumnType.string || toss === 1) {//string type
             return `"${this._getRandomString()}"`;
         } else if (type === ColumnType.integer || toss === 2) { //random  int
@@ -445,7 +449,13 @@ class AdvancedModeState extends State {
                 if (funcName === 'explodeString') {
                     return;
                 }
-                this.xdfsArr.push(allXDFs[cat][funcName]);
+                if (FunctionCategoryTStr[cat] === 'User-defined functions') {
+                    let udfFunc = allXDFs[cat][funcName];
+                    udfFunc = udfFunc.split('/').pop();
+                    this.xdfsArr.push(udfFunc);
+                } else {
+                    this.xdfsArr.push(allXDFs[cat][funcName]);
+                }
             });
         });
     }
@@ -456,20 +466,20 @@ class AdvancedModeState extends State {
             this._getAllXDFsAsArray();
         }
         let columnNames = columnsObj.map((colInfo) => { return colInfo.backName});
-        let evalString = this.pickRandom(columnNames);
+        let evalString = Util.pickRandom(columnNames);
         let nestedDepth = Math.floor(5 * Math.random()) + 1;
         while (nestedDepth > 0) {
             //select a xdf
-            let xdf = this.pickRandom(this.xdfsArr);
+            let xdf = Util.pickRandom(this.xdfsArr);
             // use precomputed evalString
             let xdfArgs = [evalString];
             let numArgs = xdf.argDescs.length;
             let idx = 1;
             while (idx < numArgs) {
-                let toss = this.pickRandom([true, true, false]);
+                let toss = Util.pickRandom([true, true, false]);
                 // picks either literal or column; more weightage for columns.
                 if(toss) {
-                    xdfArgs.push(this.pickRandom(columnNames));
+                    xdfArgs.push(Util.pickRandom(columnNames));
                 } else {
                     xdfArgs.push(this._getRandomLiteral());
                 }
@@ -492,7 +502,7 @@ class AdvancedModeState extends State {
         if (this.mode == undefined ||
                 this.mode === "random") {
             do {
-                pNode = graph.nodesMap.get(this.pickRandom(graph.nodesMap));
+                pNode = graph.nodesMap.get(Util.pickRandom(graph.nodesMap));
             } while (pNode.type === DagNodeType.DFOut);
         } else {
             pNode = graph.getSortedNodes().slice(-1)[0];
@@ -545,7 +555,9 @@ class AdvancedModeState extends State {
         customNodeKeys = Object.values(customNodeKeys.keys);
         let customNodeInfo =  await Promise.all(customNodeKeys.map(async (key) => {
             const nodeInfo = await (new KVStore(key, 1)).get();
-            return JSON.parse(nodeInfo).node;
+            const json = JSON.parse(nodeInfo).node;
+            delete json['id'];
+            return json;
         }));
         return customNodeInfo;
     }
@@ -554,7 +566,7 @@ class AdvancedModeState extends State {
         this.log("Creating custom node from dataflow..");
         let nodeIds = Array.from(this.currentTab.getGraph().getAllNodes().keys());
         let randN = Math.floor(nodeIds.length * Math.random()) + 1;
-        let randomNodeIds = this.pickRandom(nodeIds, randN);
+        let randomNodeIds = Util.pickRandom(nodeIds, randN);
         if (randN == 1) {
             randomNodeIds = [randomNodeIds];
         }
@@ -576,13 +588,13 @@ class AdvancedModeState extends State {
         //build dataflow
         let nodesCount = Math.floor(5 * Math.random());
         let idx = 1;
-        let ignoreActions = new Set(["createTab", "addLinkInNode",
+        let ignoreActions = new Set(["createTab", "addLinkInNode", "createSQLFunc",
                         "addLinkOutNode", "getTab", "createCustomNode",
-                    "addDatasetNode", "addCustomNode"]);
+                        "addDatasetNode", "addCustomNode", "addSQLNode"]);
         let randomAction = this.addDatasetNode;
         await randomAction.call(this);
         while (idx < nodesCount) {
-            randomAction = this.pickRandom(this.availableActions);
+            randomAction = Util.pickRandom(this.availableActions);
             if (ignoreActions.has(randomAction.name)) {
                 continue;
             }
@@ -613,7 +625,7 @@ class AdvancedModeState extends State {
        this.mode = "linear"
 
        let tableLoaded = await PTblManager.Instance._listTables();
-       let table = this.pickRandom(tableLoaded);
+       let table = Util.pickRandom(tableLoaded);
        // create input node
        let ignoreColumns = new Set(["XcalarRankOver", "XcalarOpCode", "XcalarBatchId"])
        let inNode = DagViewManager.Instance.newNode({type: DagNodeType.SQLFuncIn});
@@ -630,11 +642,11 @@ class AdvancedModeState extends State {
        // build dataflow
        let nodesCount = Math.floor(5*Math.random());
        let count = 1;
-       let ignoreActions = new Set(["createTab", "addLinkInNode",
+       let ignoreActions = new Set(["createTab", "addLinkInNode", "addCustomNode"
                                "addLinkOutNode", "getTab", "createCustomNodes",
                                "addDatasetNode", "createSQLFunc", "addSQLNode"]);
        while (count < nodesCount) {
-           let randomAction = this.pickRandom(this.availableActions);
+           let randomAction = Util.pickRandom(this.availableActions);
            if (ignoreActions.has(randomAction.name)) {
                continue;
            }
@@ -654,6 +666,9 @@ class AdvancedModeState extends State {
        }
        outNode.setParam({"schema": schema});
 
+       await this.currentTab.save();
+       this.dagViewManager.autoAlign(newTabId);
+       this.dagTabManager.removeTab(newTabId);
        // restore
        this.mode = "random";
        this.dagTabManager.switchTab(currentTabId);
@@ -665,6 +680,9 @@ class AdvancedModeState extends State {
     // If true, will create another dataflow.
     private _checkToCreateTab() {
         let tabs = this.dagTabManager.getTabs();
+        if (tabs.length == 0) {
+            return true;
+        }
         let numOfNodes = 0;
         for (let tab of tabs) {
             numOfNodes += tab.getGraph().getAllNodes().size;
@@ -677,22 +695,24 @@ class AdvancedModeState extends State {
     }
 
     public async takeOneAction() {
-    let randomAction = this.availableActions[Math.floor(this.availableActions.length * Math.random())];
-    let newState = this;
-    try {
-            newState = await randomAction.call(this);
-    } catch (error) {
-        // XXX: Ignoring all errors. Might want to rethrow some errors;
-        console.log(`Error: ${error}`);
-    }
-    await this.currentTab.save();
-    this.dagViewManager.autoAlign(this.currentTab.getId());
-    try {
-        await this.runDF();
-    } catch (error) {
-        // XXX: Ignoring all errors. Might want to rethrow some errors;
-        console.log(`Error: ${error}`);
-    }
-    return newState;
+        XVM.setMode(this.mode);
+        let randomAction = Util.pickRandom(this.availableActions);
+        let newState = this;
+        try {
+                newState = await randomAction.call(this);
+        } catch (error) {
+            // XXX: Ignoring all errors. Might want to rethrow some errors;
+            console.log(`Error: ${error}`);
+        }
+        await this.currentTab.save();
+        this.dagViewManager.autoAlign(this.currentTab.getId());
+        try {
+            await this.runDF();
+        } catch (error) {
+            // XXX: Ignoring all errors. Might want to rethrow some errors;
+            console.log(`Error: ${error}`);
+        }
+        this.run++;
+        return newState;
     }
 }

@@ -2762,7 +2762,8 @@ module.exports = function(grunt) {
     });
 
     grunt.task.registerTask(BUILD_FUNCT_TEST_TS, 'Build func test TS from src', function () {
-        var allFiles = ["assets/test/funcTests/states/State.ts",
+        var allFiles = ["assets/test/funcTests/states/Util.ts",
+            "assets/test/funcTests/states/State.ts",
             "assets/test/funcTests/states/WorkbookState.ts",
             "assets/test/funcTests/states/SQLModeState.ts",
             "assets/test/funcTests/states/AdvancedModeState.ts"];

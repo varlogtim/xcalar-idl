@@ -18,6 +18,7 @@ class SQLModeState extends State {
     private sqlHistory: SqlQueryHistory;
     private tableManager: PTblManager;
     private mode: String;
+    private run: number; // How many iterations ran in this state currently
 
     public constructor(stateMachine: StateMachine, verbosity: string) {
         let name = "SQLMode";
@@ -38,6 +39,7 @@ class SQLModeState extends State {
         this.tableManager = PTblManager.Instance;
 
         this.availableActions = [this.createSnippet];
+        this.run = 0;
     }
 
     /* -------------------------------Helper Function------------------------------- */
@@ -53,7 +55,7 @@ class SQLModeState extends State {
         let snippetNames = this.sqlSnippet._listSnippetsNames();
         // Get rid of the default snippet: Untitled
         snippetNames.splice( snippetNames.indexOf(CommonTxtTstr.Untitled), 1 );
-        return this.pickRandom(snippetNames);
+        return Util.pickRandom(snippetNames);
     }
 
     private async getPublishTables(): XDPromise<string[]>{
@@ -70,21 +72,21 @@ class SQLModeState extends State {
         let publishTables = await this.getPublishTables();
         let tables = [];
         let filters = [];
-        for (let idx of Array.from(Array(this.getRandomInt(3)+1).keys())) {
-            let tableName = this.pickRandom(publishTables);
+        for (let idx of Array.from(Array(Util.getRandomInt(3)+1).keys())) {
+            let tableName = Util.pickRandom(publishTables);
             tables.push(`${tableName} as t${idx}`)
-            filters.push(`t${idx}.ROWNUM <= ${this.getRandomInt(30)+1}`)
+            filters.push(`t${idx}.ROWNUM <= ${Util.getRandomInt(30)+1}`)
         }
         // Do a filter on ROWNUM column of the table
         // e.g: select * from table as t0 join table as t1 where t0.ROWNUM < 30 and t1.ROWNUM < 15
         let sql = `select * from ${tables.join(' join ')} where ${filters.join(' and ')}`;
         // 40% chance we will use SQL func
-        if (this.getRandomInt(10) > 5) {
+        if (Util.getRandomInt(10) > 5) {
             let dags = await DagList.Instance.listSQLFuncAsync();
             dags = dags.dags;
             if (dags.length > 0) {
-                let sqlFunc = this.pickRandom(dags).name;
-                sql = `SELECT * FROM ${sqlFunc}(${this.pickRandom(publishTables)})`;
+                let sqlFunc = Util.pickRandom(dags).name;
+                sql = `SELECT * FROM ${sqlFunc}(${Util.pickRandom(publishTables)})`;
             }
         }
         return sql;
@@ -134,6 +136,7 @@ class SQLModeState extends State {
 
     private async deleteSnippet(): XDPromise<SQLModeState> {
         let randomSnippet = this.getRandomSnippet();
+        this.log(`Deleting snippet ${randomSnippet}`);
         try{
             await this.sqlSnippet.deleteSnippet(randomSnippet);
         } catch (err) {
@@ -154,10 +157,16 @@ class SQLModeState extends State {
 
     private async executeSnippet(): XDPromise<SQLModeState> {
         let randomSnippet = this.getRandomSnippet();
+        this.log(`Executing snippet ${randomSnippet}`);
         this.sqlEditor._setSnippet(randomSnippet);
         let snippet = this.sqlSnippet.getSnippet(randomSnippet);
 
+        if (!snippet) { // empty snippet
+            return this;
+        }
+
         try{
+            this.log(`Executing sql query ${snippet}`);
             await this.sqlEditor.execute(snippet);
         } catch (err) {
             this.log(`Error executing snippet ${err}`);
@@ -178,6 +187,7 @@ class SQLModeState extends State {
             if (qInfo == null) {
                 return false;
             }
+            console.info(`checking sql execution ${snippet}`);
             return qInfo.queryString == snippet && (qInfo.status == 'Failed' || qInfo.status == 'Done');
         }
         await this.testFinish(checkFunc);
@@ -198,8 +208,10 @@ class SQLModeState extends State {
     }
 
     public async takeOneAction(): XDPromise<SQLModeState> {
-        let randomAction = this.availableActions[this.getRandomInt(this.availableActions.length)];
+        XVM.setMode(this.mode);
+        let randomAction = Util.pickRandom(this.availableActions);
         const newState = await randomAction.call(this);
+        this.run++;
         return newState;
     }
 }

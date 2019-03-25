@@ -81,10 +81,6 @@ class WorkbookState extends State {
             this.log(`Error deactiving workbook ${randomWorkbook}`);
             throw error;
         }
-        let workbook = WorkbookManager.getWorkbook(randomWorkbook);
-        if (!WorkbookManager.isActiveWorkbook(workbook.name)) {
-            throw `Error deactiving workbook ${randomWorkbook}, still active`;
-        }
         return this;
     }
 
@@ -129,6 +125,7 @@ class WorkbookState extends State {
         let randomWorkbook = this.getRandomWorkbook();
         this.log(`Deleting workbook ${randomWorkbook}`);
         try {
+            await WorkbookManager.deactivate(randomWorkbook);
             await WorkbookManager.deleteWKBK(randomWorkbook);
         } catch (error) {
             this.log(`Error deleting workbook ${randomWorkbook}`);

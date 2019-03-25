@@ -19,28 +19,6 @@ abstract class State {
     }
 
     /* -------------------------------Helper Function------------------------------- */
-    // Pick a random elements from the collection
-    public pickRandom(collection: any, n = 1) {
-        let arr = [], result = new Set();
-        if (collection instanceof Array) {
-            arr = collection;
-        } else if (collection instanceof Map || collection instanceof Set){
-            arr = Array.from(collection.keys());
-        } else {
-            return;
-        }
-        if (arr.length == 0 || n > arr.length) {
-            return;
-        }
-        while (result.size < n) {
-            result.add(arr[Math.floor(Math.random() * arr.length)]);
-        }
-        if (n == 1) {
-            return result.entries().next().value[0];
-        }
-        return Array.from(result.entries()).map((res) => res[0]);
-    }
-
     // Add an availble action
     // If this action already exists, don't do anything. Otherwise add it
     public addAction(action: Function) {
@@ -57,14 +35,9 @@ abstract class State {
         }
     }
 
-    // Generate a random integer with range [0, max)
-    public getRandomInt(max: int) {
-        return Math.floor(Math.random() * Math.floor(max));
-    }
-
     // Use checkFunc to check at a interval
     // The overall timeout should be outCnt * interval
-    public testFinish(checkFunc: Function, interval?: int): XDPromise<void> {
+    public testFinish(checkFunc: Function, interval?: number): XDPromise<void> {
         var deferred = PromiseHelper.deferred();
         var checkTime = interval || 200;
         var outCnt = 80;
