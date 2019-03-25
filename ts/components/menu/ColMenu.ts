@@ -343,7 +343,7 @@ class ColMenu extends AbstractMenu {
 
         // XXX TODO: change to DF 2.0
         $subMenu.on('mouseup', 'li.sort', (event) => {
-            if (event.which !== 1) {
+            if (this._isInvalidTrigger(event)) {
                 return;
             }
             const colNums: number[] = $colMenu.data("colNums");
@@ -353,12 +353,23 @@ class ColMenu extends AbstractMenu {
 
         // XXX TODO: change to DF 2.0
         $subMenu.on('mouseup', 'li.revSort', (event) => {
-            if (event.which !== 1) {
+            if (this._isInvalidTrigger(event)) {
                 return;
             }
             const colNums: number[] = $colMenu.data("colNums");
             const tableId: TableId = $colMenu.data('tableId');
             ColManager.sortColumn(colNums, tableId, XcalarOrderingT.XcalarOrderingDescending);
+        });
+
+          // XXX TODO: change to DF 2.0
+        $subMenu.on('mouseup', '.sortView', (event) => {
+            if (this._isInvalidTrigger(event)) {
+                return;
+            }
+
+            const tableId: TableId = $colMenu.data('tableId');
+            const colNums: number[] = $colMenu.data("colNums");
+            this._createNodeAndShowForm(DagNodeType.Sort, tableId, colNums);
         });
 
         $subMenu.on('mouseup', '.union, .intersect, .except', (event) => {
