@@ -221,7 +221,7 @@ class OpPanelNodeRenderFactory {
         if (xcdata.initFunc != null) {
             nodeData.initFunc = xcdata.initFunc;
         }
-        if (xcdata.elementMountDone != null) {
+        if (xcdata.elementMountDone !== undefined) {
             nodeData.elementMountDone = xcdata.elementMountDone;
         }
         node.xcdata = nodeData;
@@ -326,6 +326,8 @@ class OpPanelNodeRenderFactory {
                 if (newXcdata != null) {
                     if (newXcdata.elementMountDone != null) {
                         this._writeXcData(oldNode, {elementMountDone: newXcdata.elementMountDone});
+                    } else {
+                        this._writeXcData(oldNode, {elementMountDone: null});
                     }
                 }
             }
