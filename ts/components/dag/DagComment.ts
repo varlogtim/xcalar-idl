@@ -5,9 +5,7 @@ class DagComment {
         return this._instance || (this._instance = new this());
     }
 
-    private constructor() {
-
-    }
+    private constructor() {}
 
     public setup() {
         const self = this;
@@ -82,7 +80,11 @@ class DagComment {
             "minHeight": DagView.gridSpacing,
             "grid": DagView.gridSpacing,
             "stop": function(_event, ui) {
-                self._updateDimensions(id, ui.size);
+                const width = Math.round(ui.size.width / DagView.gridSpacing) * DagView.gridSpacing;
+                const height = Math.round(ui.size.height / DagView.gridSpacing) * DagView.gridSpacing;
+                $comment.outerWidth(width);
+                $comment.outerHeight(height);
+                self._updateDimensions(id, {width: width, height: height});
             }
         });
     }
