@@ -206,7 +206,7 @@ abstract class DagTabProgress extends DagTab {
             deferred.resolve(queryStateOutput);
         })
         .fail((error) => {
-            if (this._inProgress && error.status === StatusT.StatusQrQueryNotExist) {
+            if (this._inProgress && error && error.status === StatusT.StatusQrQueryNotExist) {
                 // ok to fail if query doesn't exist yet
                 deferred.resolve();
             } else {
