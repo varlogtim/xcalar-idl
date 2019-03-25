@@ -124,6 +124,9 @@
             return PromiseHelper.resolve(null);
         }
         var head = promiseArray[0]();
+        if (head == null) {
+            head = PromiseHelper.resolve();
+        }
         for (var i = 1; i < promiseArray.length; i++) {
             head = head.then(promiseArray[i]);
         }

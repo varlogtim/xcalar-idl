@@ -481,9 +481,11 @@ class DagGraphExecutor {
         nodesToRun: {node: DagNode, executable: boolean}[],
         index: number,
         execErrors: any[]
-    ): XDPromise<void> {
+    ): XDPromise<void> | void {
         if (nodesToRun[index] == null || !nodesToRun[index].executable) {
-            return PromiseHelper.resolve();
+            // use return PromiseHelper.resolve may cause max calls size overflow
+            // due to jQUery Promise, so here just use return
+            return;
         }
         if (this._isCanceld) {
             return PromiseHelper.reject(DFTStr.Cancel);
