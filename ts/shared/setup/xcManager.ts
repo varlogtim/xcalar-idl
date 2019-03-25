@@ -873,6 +873,9 @@ namespace xcManager {
         xcManager.setModeStatus();
 
         $modeArea.click(() => {
+            if ($("#initialLoadScreen").is(":visible")) {
+                return; // no switching when screen is locked
+            }
             let modeToSwitch: XVM.Mode;
             if (XVM.isSQLMode()) {
                 modeToSwitch = XVM.Mode.Advanced;
