@@ -2686,6 +2686,13 @@ window.DS = (function ($, DS) {
                 $gridMenu.find(".multiActivate, .multiDeactivate, .activate").removeClass("disabled");
             }
 
+            if (isInTutorialFolder(curDirId)) {
+                classes += " tutorialDir";
+                if (curDirId === DSObjTerm.TutorialFolderId) {
+                    classes += " tutorialHomeDir";
+                }
+            }
+
             if ($grid.length && totalSelected > 1) {
                 // multi selection
                 $gridMenu.removeData("dsid");
@@ -2760,12 +2767,6 @@ window.DS = (function ($, DS) {
                         }
                     }
 
-                    if (isInTutorialFolder(curDirId)) {
-                        classes += " tutorialDir";
-                        if (curDirId === DSObjTerm.TutorialFolderId) {
-                            classes += " tutorialHomeDir";
-                        }
-                    }
                 } else {
                     classes += " bgOpts";
                     $gridMenu.removeData("dsid");
