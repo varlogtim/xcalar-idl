@@ -142,19 +142,21 @@
             if (visitedMap[opNode.name]) {
                 return;
             }
-            const indexMap = {};
             if (opNode.value.operation === "XcalarApiJoin" &&
                 opNode.value.args.joinType === "crossJoin") {
                 for (let i = 0; i < opNode.children.length; i++) {
                     const childNode = opNode.children[i];
                     if (childNode.value.args.operation !== XcalarApisT.XcalarApiIndex) {
                         // TODO: generate an object for index
+                        const newTableName = xcHelper.getTableName(
+                                             childNode.value.args.dest) +
+                                             "_index" +
+                                             Authentication.getHashId();
                         const indexObj = {
                             "operation": "XcalarApiIndex",
                             "args": {
                                 "source": childNode.name,
-                                "dest": xcHelper.getTableName(tableName) +
-                                        "_index" + Authentication.getHashId(),
+                                "dest": newTableName,
                                 "key": [
                                     {
                                         "name": "xcalarRecordNum",
@@ -169,16 +171,22 @@
                                 "broadcast": false
                             }
                         };
-                        const childCopy = jQuery.extend(true, {}, childNode);
-                        childCopy.parent = [childNode]
-                        childNode.children = [childCopy];
-                        childNode.value = indexObj;
+                        const indexNode = {
+                            name: newTableName,
+                            value: indexObj,
+                            parents: [opNode],
+                            children: [childNode],
+                            sources: [childNode.value.args.dest]
+                        };
+                        childNode.parent = [indexNode];
+                        opNode.children[i] = indexNode;
+                        opNode.value.args.source[i] = newTableName;
                     }
                 }
             }
             visitedMap[opNode.name] = true;
             for (let i = 0; i < opNode.children.length; i++) {
-                this.addIndexForCrossJoin(opNode.children[0], visitedMap);
+                this.addIndexForCrossJoin(opNode.children[i], visitedMap);
             }
         },
         getCliFromOpGraph: function(opNode, cliArray) {
