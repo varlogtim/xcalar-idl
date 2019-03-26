@@ -1220,22 +1220,28 @@ class DagNodeExecutor {
                     if (keepAllColumns == null) {
                         keepAllColumns = true;
                     }
-                    const leftColNamesToKeep = keepAllColumns
-                    ? joinNode.getParents()[0].getLineage()
-                        .getColumns().map((col) => col.getBackColName())
-                    : params.left.keepColumns;
-                    const leftRename  = DagNodeJoin.joinRenameConverter(leftColNamesToKeep, params.left.rename);
+                    let leftParent = joinNode.getParents()[0];
+                    let rightParent = joinNode.getParents()[1];
 
-                    const rightColNamesToKeep = keepAllColumns
-                    ? joinNode.getParents()[1].getLineage()
-                        .getColumns().map((col) => col.getBackColName())
-                    : params.right.keepColumns;
-                    const rightRename  = DagNodeJoin.joinRenameConverter(rightColNamesToKeep, params.right.rename);
+                    if (leftParent) {
+                        const leftColNamesToKeep = keepAllColumns
+                        ? leftParent.getLineage()
+                            .getColumns().map((col) => col.getBackColName())
+                        : params.left.keepColumns;
+                        const leftRename  = DagNodeJoin.joinRenameConverter(leftColNamesToKeep, params.left.rename);
+                        let leftColumns = leftRename.map(colInfoMap);
+                        queryNode.args.columns[0] = leftColumns;
+                    }
 
-                    let leftColumns = leftRename.map(colInfoMap);
-                    let rightColumns = rightRename.map(colInfoMap);
-                    queryNode.args.columns[0] = leftColumns;
-                    queryNode.args.columns[1] = rightColumns;
+                    if (rightParent) {
+                        const rightColNamesToKeep = keepAllColumns
+                        ? rightParent.getLineage()
+                            .getColumns().map((col) => col.getBackColName())
+                        : params.right.keepColumns;
+                        const rightRename  = DagNodeJoin.joinRenameConverter(rightColNamesToKeep, params.right.rename);
+                        let rightColumns = rightRename.map(colInfoMap);
+                        queryNode.args.columns[1] = rightColumns;
+                    }
                 }
             }
         });

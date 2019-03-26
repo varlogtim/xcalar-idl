@@ -229,20 +229,24 @@ class DagSubGraph extends DagGraph {
             if (keepAllColumns == null) {
                 keepAllColumns = true;
             }
-            const leftColNamesToKeep = keepAllColumns
-                ? leftParentNode.getLineage()
+            if (leftParentNode) {
+                const leftColNamesToKeep = keepAllColumns
+                    ? leftParentNode.getLineage()
+                        .getColumns().map((col) => col.getBackColName())
+                    : params.left.keepColumns;
+                const leftRename  = DagNodeJoin.joinRenameConverter(leftColNamesToKeep, params.left.rename, true);
+                params.left.rename = leftRename;
+            }
+
+            if (rightParentNode) {
+               const rightColNamesToKeep = keepAllColumns
+                ? rightParentNode.getLineage()
                     .getColumns().map((col) => col.getBackColName())
-                : params.left.keepColumns;
-            const leftRename  = DagNodeJoin.joinRenameConverter(leftColNamesToKeep, params.left.rename, true);
+                : params.right.keepColumns;
+                const rightRename  = DagNodeJoin.joinRenameConverter(rightColNamesToKeep, params.right.rename, true);
+                params.right.rename = rightRename;
+            }
 
-            const rightColNamesToKeep = keepAllColumns
-            ? rightParentNode.getLineage()
-                .getColumns().map((col) => col.getBackColName())
-            : params.right.keepColumns;
-            const rightRename  = DagNodeJoin.joinRenameConverter(rightColNamesToKeep, params.right.rename, true);
-
-            params.left.rename = leftRename;
-            params.right.rename = rightRename;
             joinNode.setParam({
                 joinType: params.joinType,
                 left: params.left,

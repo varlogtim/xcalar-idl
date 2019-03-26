@@ -2634,6 +2634,10 @@ class DagGraph {
                         }
                         destSrcMap[node.name].push(obj);
                     }
+                    if (node.api === XcalarApisT.XcalarApiJoin ||
+                        node.api === XcalarApisT.XcalarApiUnion) {
+                        newParents.push(null);
+                    }
                 }
             }
             node.parents = newParents;
@@ -2659,6 +2663,9 @@ class DagGraph {
             }
             for (let i = 0; i < node.parents.length; i++) {
                 const parent = node.parents[i];
+                if (!parent) {
+                    continue; // join nodes may have null parents
+                }
                 if (parent.api !== XcalarApisT.XcalarApiIndex) {
                     continue;
                 }
@@ -2769,6 +2776,9 @@ class DagGraph {
                 return [lSrcCols, rSrcCols];
 
                 function getSrcIndex(node) {
+                    if (!node) { // join case when 1 parent is null
+                        return [];
+                    }
                     if (node.api === XcalarApisT.XcalarApiIndex) {
                         return node.args.key;
                     } else {
@@ -2790,6 +2800,9 @@ class DagGraph {
                 var numParents = Math.min(node.parents.length, 1);
                 for (var i = 0; i < numParents; i++) {
                     var parentNode = node.parents[i];
+                    if (!parentNode) {
+                        continue;
+                    }
                     if (parentNode.api === XcalarApisT.XcalarApiIndex) {
                         cols = parentNode.args.key;
                     } else {
