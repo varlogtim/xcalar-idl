@@ -375,6 +375,39 @@ describe("PbTblInfo Test", function() {
         expect(tableInfo.state).to.equal(PbTblState.BeDataset);
     });
 
+    it("should getRowCountStr", function() {
+        let tableInfo = new PbTblInfo;
+
+        // case 1
+        tableInfo.active = false;
+        tableInfo.rows = null;
+        expect(tableInfo.getRowCountStr()).to.equal("N/A");
+
+        // case 2
+        tableInfo.active = true;
+        expect(tableInfo.getRowCountStr()).to.equal("N/A");
+
+        // case 3
+        tableInfo.rows = 0;
+        expect(tableInfo.getRowCountStr()).to.equal("0");
+
+        // case 4
+        tableInfo.rows = 1000;
+        expect(tableInfo.getRowCountStr()).to.equal("1,000");
+
+        // case 5
+        tableInfo.updates = null;
+        expect(tableInfo.getRowCountStr()).to.equal("1,000");
+
+        // case 6
+        tableInfo.updates = ["a"];
+        expect(tableInfo.getRowCountStr()).to.equal("1,000");
+
+        // case 7
+        tableInfo.updates = ["a", "b"];
+        expect(tableInfo.getRowCountStr()).to.equal("~1,000");
+    });
+
     it("_selectTable should work", function(done) {
         let oldFunc = DagGraph.prototype.execute;
         let called = false;

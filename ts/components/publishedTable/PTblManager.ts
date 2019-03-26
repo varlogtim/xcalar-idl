@@ -151,7 +151,7 @@ class PTblManager {
 
             let active: boolean = tableInfo.active;
             tableDisplayInfo.status = active ? PbTblStatus.Active : PbTblStatus.Inactive;
-            tableDisplayInfo.rows = active && tableInfo.rows ? xcHelper.numToStr(tableInfo.rows) : "N/A";
+            tableDisplayInfo.rows = tableInfo.getRowCountStr();
             tableDisplayInfo.size = active && tableInfo.size ? <string>xcHelper.sizeTranslator(tableInfo.size) : "N/A";
             tableDisplayInfo.createTime = active && tableInfo.createTime ? moment(tableInfo.createTime * 1000).format("HH:mm:ss MM/DD/YYYY") : "N/A";
         } catch (e) {

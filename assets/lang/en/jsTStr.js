@@ -1337,6 +1337,7 @@ TblTStr = {
     'New': 'Create New Table',
     'CreateDF': "Create Dataflow",
     'WriteSQL': "Write SQL",
+    "EstimatedRowCountHint": "The row count is approximate because the table had an update.",
 };
 
 ResultSetTStr = {

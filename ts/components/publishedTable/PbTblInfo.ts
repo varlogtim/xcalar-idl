@@ -92,7 +92,9 @@ class PbTblInfo {
      */
     public viewResultSet(numRows: number): XDPromise<string> {
         let cachedResult: string = this._cachedSelectResultSet;
-        if (cachedResult == null) {
+        if (cachedResult == null ||
+            typeof gNoSelectTableCache !== "undefined" && gNoSelectTableCache === true
+        ) {
             return this._selectTable(numRows);
         } else {
             const deferred: XDDeferred<string> = PromiseHelper.deferred();
@@ -188,6 +190,19 @@ class PbTblInfo {
     public beDatasetState(dsName: string): void {
         this.state = PbTblState.BeDataset;
         this.dsName = dsName;
+    }
+
+    public getRowCountStr(): string {
+        let rows: string;
+        if (this.active && this.rows != null) {
+            rows = xcHelper.numToStr(this.rows);
+            if (this.updates && this.updates.length > 1) {
+                rows = "~" + rows;
+            }
+        } else {
+            rows = "N/A";
+        }
+        return rows;
     }
 
     private _selectTable(limitedRows: number): XDPromise<string> {

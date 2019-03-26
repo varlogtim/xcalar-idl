@@ -201,6 +201,19 @@ class TblSourcePreview {
                 value +
             '</span>';
 
+            if (key === "rows" && value.startsWith("~")) {
+                // the table has updates which cause row count not accurate
+                content +=
+                '<span class="hint">' +
+                    '<i class="qMark icon xi-unknown" ' +
+                    'data-toggle="tooltip" ' +
+                    'data-container="body" ' +
+                    'data-placement="auto top" ' +
+                    'data-original-title="' + TblTStr.EstimatedRowCountHint + '">' +
+                    '</i>' +
+                '</span>';
+            }
+
             return content;
         }).join(divider);
 

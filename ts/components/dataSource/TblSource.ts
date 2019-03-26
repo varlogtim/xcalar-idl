@@ -186,10 +186,7 @@ class TblSource {
             focusTable = $focusedGrid.data("id");
         }
 
-        let timer = null;
-        timer = setTimeout(() => {
-            xcHelper.showRefreshIcon(this._getGridView(), false, deferred.promise());
-        }, 500);
+        xcHelper.showRefreshIcon(this._getGridView(), false, deferred.promise());
 
         PTblManager.Instance.getTablesAsync(forceRefresh)
         .then((tables) => {
@@ -201,10 +198,7 @@ class TblSource {
             deferred.resolve();
         })
         .then(deferred.resolve)
-        .fail(deferred.reject)
-        .always(() => {
-            clearTimeout(timer);
-        });
+        .fail(deferred.reject);
 
         return deferred.promise();
     }
