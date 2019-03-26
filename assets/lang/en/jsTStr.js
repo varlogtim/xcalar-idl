@@ -808,7 +808,7 @@ UnionTStr = {
     "CandidateHint": "Columns in this section will not be in the results table. Click column name to add the column to the results table.",
     "EmptyList": "Empty List",
     "SearchCol": "Find column name",
-    "SelectCol": "Please select columns for the set operation",
+    "SelectCol": "Please select columns for this operation.",
     "NoMatch": "No Match",
     "TypeMismatch": "Columns for the set operation have different types. Select columns of the same type.",
     "header": "SET OPERATION", // sync with htmlTStr
