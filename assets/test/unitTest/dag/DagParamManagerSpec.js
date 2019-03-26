@@ -85,7 +85,9 @@ describe("DagParamManager Test", function() {
             called = true;
             return PromiseHelper.resolve({value: '{"c":"d"}'});
         };
-
+        // remove all the repeat listeners that have been added by .setup() calls
+        $("#dagViewBar").find(".parameters").off("click");
+        $("#dagViewBar").find(".aggregates").off("click");
         DagParamManager.Instance.setup();
         expect(called).to.be.true;
         expect(DagParamManager.Instance.paramTab instanceof DagParamPopup).to.be.true;

@@ -8,7 +8,7 @@ describe('Sort Op Panel Test', function() {
     var prefix = "prefix";
     var node;
 
-    before(function(done){
+    before(function(){
         console.clear();
         if (XVM.isSQLMode()) {
             $("#modeArea").click();
@@ -35,29 +35,6 @@ describe('Sort Op Panel Test', function() {
         xcTooltip.hideAll();
         $sortOpPanel = $("#sortOpPanel");
         $sortTable = $("#sortOpPanel .opSection");
-
-        done();
-
-        // UnitTest.addAll(testDatasets.fakeYelp, "yelp_sort_test")
-        // .then(function(resDS, resTable, tPrefix, _nodeId, _tabId) {
-        //     dsName = resDS;
-        //     tableName = resTable;
-        //     oldTableName = tableName;
-        //     tableId = xcHelper.getTableId(tableName);
-        //     nodeId = _nodeId;
-        //     tabId = _tabId;
-        //     return xcFunction.sort(tableId, [{colNum: 1, ordering: XcalarOrderingT.XcalarOrderingAscending}]);
-        // })
-        // .then(function(resTable2) {
-        //     MainMenu.openPanel("dagPanel");
-        //     tableName = resTable2;
-        //     tableId = xcHelper.getTableId(tableName);
-        //     $table = $("#xcTable-" + tableId);
-        //     done();
-        // })
-        // .fail(function() {
-        //     done("fail");
-        // });
     });
 
     describe("Basic Function Test", function() {

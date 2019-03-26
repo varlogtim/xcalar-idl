@@ -1,222 +1,298 @@
-describe.skip("Cast Op Panel Test", function() {
-    var $castView;
-    var $castTable;
+describe('CastOpPanel Test', function() {
+    var $castOpPanel;
+    var $castSection;
     var $table;
-    var prefix;
+    var tabId;
+    var nodeId;
+    var dsName, tableName, tableId, oldTableName;
+    var prefix = "prefix";
+    var node;
 
-    var dsName, tableName, tableId;
+    before(function(){
+        console.clear();
+        if (XVM.isSQLMode()) {
+            $("#modeArea").click();
+        }
+        console.log("Cast panel test");
+        MainMenu.openPanel("dagPanel");
+        node = new DagNodeMap({subType: "cast"});
+        const parentNode = new DagNodeFilter({});
+        parentNode.getLineage = function() {
+            return {getColumns: function() {
+                return [new ProgCol({
+                    backName: xcHelper.getPrefixColName(prefix, 'average_stars'),
+                    type: "integer"
+                }), new ProgCol({
+                    backName: xcHelper.getPrefixColName(prefix, 'stringCol'),
+                    type: "string"
+                })]
+            }}
+        };
+        node.getParents = function() {
+            return [parentNode];
+        };
 
-    before(function(done){
         xcTooltip.hideAll();
-        $castView = $("#castOpPanel");
-        $resultSection = $("#multiCast-result");
-        $castTable = $("#smartCast-table");
-
-        UnitTest.addAll(testDatasets.fakeYelp, "yelp_smartCast_test")
-        .then(function(resDS, resTable, pFix) {
-            dsName = resDS;
-            tableName = resTable;
-            tableId = xcHelper.getTableId(tableName);
-            $table = $("#xcTable-" + tableId);
-            prefix = pFix;
-            done();
-        })
-        .fail(function(error) {
-            throw error;
-        });
+        $castOpPanel = $("#castOpPanel");
+        $castSection = $("#castOpPanel .opSection");
     });
 
     describe("Basic Function Test", function() {
         it("Should show the Cast View", function() {
-            CastOpPanel.Instance.show(tableId);
+            expect($castOpPanel.is(":visible")).to.be.false;
+            CastOpPanel.Instance.show(node, {});
+            expect($castOpPanel.is(":visible")).to.be.true;
+            expect($castOpPanel.find(".resultSection .lists.newTable").length).to.equal(1);
+            expect($castOpPanel.find(".resultSection .inputCol").length).to.equal(0);
+            expect($castOpPanel.find(".resultSection .resultCol").length).to.equal(0);
 
-            assert.isTrue($castView.is(":visible"));
-            expect($castTable.find(".row").length).to.equal(0);
+            expect($castSection.find(".candidateSection .inputCol").length).to.equal(2);
+            expect($castSection.find(".candidateSection .inputCol").eq(0).text()).to.equal("prefix::average_stars");
+            expect($castSection.find(".candidateSection .inputCol").eq(1).text()).to.equal("prefix::stringCol");
         });
 
         it("Should select column", function() {
-            CastOpPanel.Instance.__testOnly__.selectCol(1);
-            expect($castTable.find(".row").length).to.equal(1);
-            expect($castTable.find(".initialType").length).to.equal(1);
-            expect($(".modalHighlighted").length > 0).to.be.true;
+            $castSection.find(".candidateSection .inputCol").eq(0).click();
+            expect($castSection.find(".candidateSection .inputCol").length).to.equal(1);
+            expect($castSection.find(".candidateSection .inputCol").text()).to.equal("prefix::stringCol");
+
+            expect($castOpPanel.find(".resultSection .inputCol").length).to.equal(1);
+            expect($castOpPanel.find(".resultSection .inputCol .colName").text()).to.equal("prefix::average_stars")
+            expect($castOpPanel.find(".resultSection .resultCol").length).to.equal(1);
+            expect($castOpPanel.find(".resultSection .resultCol .resultInput").val()).to.equal("average_stars");
+
+            expect($castOpPanel.find(".resultSection .typeList input").val()).to.equal("integer");
+            expect($castOpPanel.find(".resultSection .typeList .list li").length).to.equal(6);
+            expect($castOpPanel.find(".resultSection .typeList .list li").text()).to.equal("stringintegerfloatbooleantimestampmoney");
         });
 
         it("Should change column type", function() {
-            try {
-                // test error case
-                CastOpPanel.Instance.__testOnly__.changeColType();
-            } catch (error) {
-                expect(error).not.to.be.null;
-            }
+            $castSection.find(".resultSection .typeList .dropdown").click();
+            $castSection.find(".resultSection .list li").eq(0).trigger(fakeEvent.mouseup);
+            expect($castOpPanel.find(".resultSection .typeList input").val()).to.equal("string");
 
-            CastOpPanel.Instance.__testOnly__.changeColType(1, "integer");
-            var $row = $castTable.find(".row");
-            expect($row.find(".colType .text").text()).to.equal("integer");
-            expect($castTable.find(".initialType").length).to.equal(0);
+            $castSection.find(".resultSection .typeList .dropdown").click();
+            $castSection.find(".resultSection .list li").eq(5).trigger(fakeEvent.mouseup);
+            expect($castOpPanel.find(".resultSection .typeList input").val()).to.equal("money");
         });
 
-        it("Should deSelect column", function() {
-            CastOpPanel.Instance.__testOnly__.deSelectCol(1);
-            expect($castTable.find(".row").length).to.equal(0);
-            expect($(".modalHighlighted").length > 0).to.be.false;
+        it("should add another column", function() {
+            $castSection.find(".candidateSection .inputCol").eq(0).click();
+            expect($castSection.find(".candidateSection .inputCol").length).to.equal(0);
+
+            expect($castOpPanel.find(".resultSection .inputCol").length).to.equal(2);
+            expect($castOpPanel.find(".resultSection .inputCol .colName").eq(0).text()).to.equal("prefix::average_stars");
+            expect($castOpPanel.find(".resultSection .inputCol .colName").eq(1).text()).to.equal("prefix::stringCol");
+            expect($castOpPanel.find(".resultSection .resultCol").length).to.equal(2);
+            expect($castOpPanel.find(".resultSection .resultCol .resultInput").eq(0).val()).to.equal("average_stars");
+            expect($castOpPanel.find(".resultSection .resultCol .resultInput").eq(1).val()).to.equal("stringCol");
+
+            expect($castOpPanel.find(".resultSection .typeList input").eq(0).val()).to.equal("money");
+            expect($castOpPanel.find(".resultSection .typeList input").eq(1).val()).to.equal("string");
+            expect($castOpPanel.find(".resultSection .typeList .list").eq(1).find("li").length).to.equal(6);
+            expect($castOpPanel.find(".resultSection .typeList .list").eq(1).find("li").text()).to.equal("stringintegerfloatbooleantimestampmoney");
         });
 
-        it("Should submit the form and close the view", function() {
-            var oldFunc = ColManager.changeType;
-            var test = false;
-            ColManager.changeType = function() {
-                test = true;
-            };
+        it("should remove column", function() {
+            expect($castSection.find(".removeColInRow").length).to.equal(2);
+            $castSection.find(".removeColInRow").eq(1).click();
+            expect($castSection.find(".removeColInRow").length).to.equal(1);
 
-            // nothing to cacst
-            CastOpPanel.Instance.__testOnly__.submitForm();
-            expect(test).to.be.false;
-            var $statusBox = $("#statusBox");
-            assert.isTrue($statusBox.is(":visible"));
-            expect($statusBox.find(".message").text())
-            .to.equal(ErrTStr.NoTypeChange);
-            StatusBox.forceHide();
+            expect($castSection.find(".candidateSection .inputCol").length).to.equal(1);
+            expect($castSection.find(".candidateSection .inputCol").text()).to.equal("prefix::stringCol");
 
-            // something to cast
-            CastOpPanel.Instance.__testOnly__.selectCol(1);
-            CastOpPanel.Instance.__testOnly__.changeColType(1, "integer");
+            expect($castOpPanel.find(".resultSection .inputCol").length).to.equal(1);
+            expect($castOpPanel.find(".resultSection .inputCol .colName").text()).to.equal("prefix::average_stars")
+            expect($castOpPanel.find(".resultSection .resultCol").length).to.equal(1);
+            expect($castOpPanel.find(".resultSection .resultCol .resultInput").val()).to.equal("average_stars");
 
-            CastOpPanel.Instance.__testOnly__.submitForm();
-            expect(test).to.be.true;
-            assert.isFalse($castView.is(":visible"));
-
-            ColManager.changeType = oldFunc;
-        });
-    });
-
-    describe("UI Behavior Test", function() {
-        var $header;
-
-        before(function() {
-            CastOpPanel.Instance.show(tableId);
-            $header = $table.find("th.col1 .header");
+            expect($castOpPanel.find(".resultSection .typeList input").val()).to.equal("money");
+            expect($castOpPanel.find(".resultSection .typeList .list li").length).to.equal(6);
+            expect($castOpPanel.find(".resultSection .typeList .list li").text()).to.equal("stringintegerfloatbooleantimestampmoney");
         });
 
-        it("Should select and deSelect column", function() {
-            // select
-            $header.click();
-            expect($table.find("th.modalHighlighted").length).to.equal(1);
-            // deselect
-            $header.click();
-            expect($table.find("th.modalHighlighted").length).to.equal(0);
+        it("Should submit the form and close the view", function(done) {
+            expect($castOpPanel.is(":visible")).to.be.true;
+            $castOpPanel.find(".submit").click();
+            expect($castOpPanel.is(":visible")).to.be.false;
+            const input = node.getParam();
+
+            expect(input).to.deep.equal({
+                "eval": [
+                    {
+                        "evalString": "money(prefix::average_stars)",
+                        "newField": "average_stars"
+                    }
+                ],
+                "icv": false
+            });
+            setTimeout(function() {
+                done();
+            }, 1);
         });
 
-        it("Should clear all selected column", function() {
-            // select
-            $header.click();
-            expect($table.find("th.modalHighlighted").length).to.equal(1);
-            // clear
-            $castView.find(".clear").click();
-            expect($table.find("th.modalHighlighted").length).to.equal(0);
+        it("should show form with first column filled in", function() {
+            expect($castOpPanel.is(":visible")).to.be.false;
+            CastOpPanel.Instance.show(node, {});
+            expect($castOpPanel.is(":visible")).to.be.true;
+
+            expect($castSection.find(".candidateSection .inputCol").length).to.equal(1);
+            expect($castSection.find(".candidateSection .inputCol").text()).to.equal("prefix::stringCol");
+
+            expect($castOpPanel.find(".resultSection .inputCol").length).to.equal(1);
+            expect($castOpPanel.find(".resultSection .inputCol .colName").text()).to.equal("prefix::average_stars")
+            expect($castOpPanel.find(".resultSection .resultCol").length).to.equal(1);
+            expect($castOpPanel.find(".resultSection .resultCol .resultInput").val()).to.equal("average_stars");
+
+            expect($castOpPanel.find(".resultSection .typeList input").val()).to.equal("money");
+            expect($castOpPanel.find(".resultSection .typeList .list li").length).to.equal(6);
+            expect($castOpPanel.find(".resultSection .typeList .list li").text()).to.equal("stringintegerfloatbooleantimestampmoney");
         });
 
-        it("Should click detect to do the detection", function() {
-            // select
-            $header.click();
-            expect($table.find("th.modalHighlighted").length).to.equal(1);
-            // detect
-            $castView.find(".detect").click();
-            expect($table.find("th.modalHighlighted").length).to.equal(0);
-
-            expect($("#smartCast-table .tableContent").text()).to.equal("");
+        it("should show error if invalid output name", function() {
+            $castOpPanel.find(".resultSection .resultCol .resultInput").val("123abc").trigger("input").trigger("change");
+            $castOpPanel.find(".submit").click();
+            expect($castOpPanel.is(":visible")).to.be.true;
+            UnitTest.hasStatusBoxWithError("Invalid name: a name can only begin with a letter or underscore(_).");
         });
 
-        it("Should click column name to focus", function() {
-            // should clear inner data first
-            $castView.find(".clear").click();
-            // select
-            $header.click();
-            expect($castTable.find(".colName").length).to.equal(1);
-            // focus on column name
-            $castTable.find(".colName").click();
-            expect($header.closest("th").attr("aria-describedby")).to.exist;
-            xcTooltip.hideAll();
+        it("should show error when submitting form if duplicate column exists", function() {
+            $castSection.find(".candidateSection .inputCol").eq(0).click();
+            $castOpPanel.find(".resultSection .resultCol .resultInput").eq(0).val("abc").trigger("input").trigger("change");
+            $castOpPanel.find(".resultSection .resultCol .resultInput").eq(1).val("abc").trigger("input").trigger("change");
+            $castOpPanel.find(".submit").click();
+            UnitTest.hasStatusBoxWithError("Duplicate column names were detected");
         });
 
-        it("Should use change type menu to change type", function() {
-            var $colType = $castTable.find(".colType");
-            var $castMenu = $("#castMenu");
-            expect($colType.hasClass("initialType")).to.be.true;
-            expect($colType.find(".text").text()).to.equal("float");
-            // open cast menu
-            $colType.click();
-            assert.isTrue($castMenu.is(":visible"));
-            // change type
-            $castMenu.find('li[data-type="string"]').mouseup();
-            expect($colType.hasClass("initialType")).to.be.false;
-            expect($colType.find(".text").text()).to.equal("string");
-            // close cast menu
-            $colType.click();
-            assert.isFalse($castMenu.is(":visible"));
-        });
+        it("Should show error when submitting the form if no columns selected", function() {
+            expect($castSection.find(".removeColInRow").length).to.equal(2);
+            $castSection.find(".removeColInRow").eq(0).click();
+            $castSection.find(".removeColInRow").eq(0).click();
+            expect($castSection.find(".removeColInRow").length).to.equal(0);
 
-        it("Should not submit when no columns to change type", function() {
-            // clear
-            $castView.find(".clear").click();
-            // confirm
-            $castView.find(".confirm").click();
-            var $statusBox = $("#statusBox");
-            assert.isTrue($statusBox.is(":visible"));
-            expect($statusBox.find(".message").text()).to.equal(ErrTStr.NoCast);
-            StatusBox.forceHide();
-        });
-
-        it("Should close the view", function() {
-            $castView.find(".cancel").click();
-            assert.isFalse($castView.is(":visible"));
-            // call another close should have nothing happen
+            expect($castOpPanel.is(":visible")).to.be.true;
+            $castOpPanel.find(".submit").click();
+            expect($castOpPanel.is(":visible")).to.be.true;
+            UnitTest.hasStatusBoxWithError("Please select columns for this operation.");
             CastOpPanel.Instance.close();
-            assert.isFalse($castView.is(":visible"));
         });
     });
 
-    describe("pulling column", function() {
-        var colName;
+    describe("advanced mode", function() {
         before(function(done) {
-            colName = prefix + gPrefixSign + "four";
-            ColManager.hideCol([4], tableId, {noAnimate: true})
-            .then(function() {
-                CastOpPanel.Instance.show(tableId);
-                var colInfo = CastOpPanel.Instance.__testOnly__.getInfo();
-                expect(colInfo.colNames.indexOf(colName)).to.equal(-1);
+            CastOpPanel.Instance.show(node, {});
+            setTimeout(function() {
                 done();
-            })
-            .fail(function() {
-                done("fail");
+            }, 100);
+        });
+
+        it("should switch modes", function() {
+            expect($castOpPanel.find(".advancedEditor").is(":visible")).to.be.false;
+            $castOpPanel.find(".switch").click();
+            expect($castOpPanel.find(".advancedEditor").is(":visible")).to.be.true;
+            expect(JSON.parse(CastOpPanel.Instance._editor.getValue())).to.deep.equal({
+                "eval": [
+                    {
+                        "evalString": "money(prefix::average_stars)",
+                        "newField": "average_stars"
+                    }
+                ],
+                "icv": false
+            });
+
+            CastOpPanel.Instance._editor.setValue(JSON.stringify({
+                "eval": [
+                    {
+                        "evalString": "string(prefix::average_stars)",
+                        "newField": "abc"
+                    }
+                ],
+                "icv": false
+            }));
+            $castOpPanel.find(".switch").click();
+            expect($castSection.find(".candidateSection .inputCol").length).to.equal(1);
+            expect($castSection.find(".candidateSection .inputCol").text()).to.equal("prefix::stringCol");
+
+            expect($castOpPanel.find(".resultSection .inputCol").length).to.equal(1);
+            expect($castOpPanel.find(".resultSection .inputCol .colName").text()).to.equal("prefix::average_stars")
+            expect($castOpPanel.find(".resultSection .resultCol").length).to.equal(1);
+            expect($castOpPanel.find(".resultSection .resultCol .resultInput").val()).to.equal("abc");
+
+            expect($castOpPanel.find(".resultSection .typeList input").val()).to.equal("string");
+            expect($castOpPanel.find(".resultSection .typeList .list li").length).to.equal(6);
+            expect($castOpPanel.find(".resultSection .typeList .list li").text()).to.equal("stringintegerfloatbooleantimestampmoney");
+        });
+
+        it("should submit from advanced mode", function() {
+            $castOpPanel.find(".switch").click();
+            expect(JSON.parse(CastOpPanel.Instance._editor.getValue())).to.deep.equal({
+                "eval": [
+                    {
+                        "evalString": "string(prefix::average_stars)",
+                        "newField": "abc"
+                    }
+                ],
+                "icv": false
+            });
+            CastOpPanel.Instance._submit();
+            expect($castOpPanel.is(":visible")).to.be.false;
+            const input = node.getParam();
+            expect(input).to.deep.equal({
+                "eval": [
+                    {
+                        "evalString": "string(prefix::average_stars)",
+                        "newField": "abc"
+                    }
+                ],
+                "icv": false
             });
         });
 
-        it("should update columns", function(done) {
-            ColManager.unnest(tableId, gTables[tableId].tableCols.length, 0, [colName]);
-            UnitTest.testFinish(function() {
-                var colInfo = CastOpPanel.Instance.__testOnly__.getInfo();
-                return colInfo.colNames.indexOf(colName) > -1;
-            })
-            .then(function() {
-                var colInfo = CastOpPanel.Instance.__testOnly__.getInfo();
-                expect(colInfo.colNames.indexOf(colName)).to.equal(12);
-                expect(colInfo.recTypes[12]).to.equal("boolean");
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
+        it("should detect invalid type", function() {
+            CastOpPanel.Instance.show(node, {});
+            $castOpPanel.find(".switch").click();
+            CastOpPanel.Instance._editor.setValue(JSON.stringify({
+                "eval": [
+                    {
+                        "evalString": "stringyyy(prefix::average_stars)",
+                        "newField": "abc"
+                    }
+                ],
+                "icv": false
+            }));
+            CastOpPanel.Instance._submit();
+            expect($castOpPanel.is(":visible")).to.be.true;
+            UnitTest.hasStatusBoxWithError("Invalid type: stringyyy");
         });
-        
-        after(function() {
-            CastOpPanel.Instance.close();
-        });
-    });
 
-    after(function(done) {
-        UnitTest.deleteAll(tableName, dsName)
-        .always(function() {
-            done();
+        it("should detect missing column", function() {
+            CastOpPanel.Instance._editor.setValue(JSON.stringify({
+                "eval": [
+                    {
+                        "evalString": "string()",
+                        "newField": "abc"
+                    }
+                ],
+                "icv": false
+            }));
+            CastOpPanel.Instance._submit();
+            expect($castOpPanel.is(":visible")).to.be.true;
+            UnitTest.hasStatusBoxWithError("Field name not provided: string()");
+        });
+
+        it("should detect missing new field", function() {
+            CastOpPanel.Instance._editor.setValue(JSON.stringify({
+                "eval": [
+                    {
+                        "evalString": "string(prefix::average_stars)",
+                        "newField": ""
+                    }
+                ],
+                "icv": false
+            }));
+            CastOpPanel.Instance._submit();
+            expect($castOpPanel.is(":visible")).to.be.true;
+            UnitTest.hasStatusBoxWithError("eval[0].newField should NOT be shorter than 1 characters");
         });
     });
 });
