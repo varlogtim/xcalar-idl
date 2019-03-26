@@ -6475,6 +6475,7 @@
     function genEvalStringRecur(condTree, acc, options) {
         // Traverse and construct tree
         var outStr = "";
+        acc = acc || {};
         var opName = condTree.value.class.substring(
             condTree.value.class.indexOf("expressions."));
         if (opName in opLookup) {
