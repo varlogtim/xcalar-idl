@@ -2877,7 +2877,7 @@ class DagGraph {
                 return columns.map((column) => {
                     let fileType: DfFieldTypeT = DfFieldTypeTFromStr[column.columnType];
                     return {
-                        name: column.destColumn,
+                        name: column.destColumn || column.sourceColumn,
                         type: xcHelper.convertFieldTypeToColType(fileType)
                     }
                 });
