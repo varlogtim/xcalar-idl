@@ -1034,7 +1034,9 @@
                 UniqueParents.push(curNode.parents[i]);
             }
         }
-        assert(UniqueParents.length < 2, SQLErrTStr.GBPushUpMultipleParents);
+        if (UniqueParents.length > 1) {
+            return true;
+        }
         if (curNode.value.operation === "XcalarApiGroupBy") {
             gbNode = curNode;
         } else if (curNode.parents.length === 0 ||
