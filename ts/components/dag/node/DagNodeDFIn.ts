@@ -132,7 +132,7 @@ class DagNodeDFIn extends DagNodeIn {
         let candidateTabs: DagTab[] = [];
         const candidateGraphs: DagGraph[] = [];
         if (dataflowId === DagNodeDFIn.SELF_ID) {
-            return [this._graph];
+            return this._graph ? [this._graph] : [];
         } else if (dataflowId != null && dataflowId != "") {
             candidateTabs = [dagTabService.getTabById(dataflowId)];
         } else {
