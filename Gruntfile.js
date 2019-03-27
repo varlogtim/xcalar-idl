@@ -2762,12 +2762,12 @@ module.exports = function(grunt) {
     });
 
     grunt.task.registerTask(BUILD_FUNCT_TEST_TS, 'Build func test TS from src', function () {
-        var allFiles = ["assets/test/funcTests/states/Util.ts",
-            "assets/test/funcTests/states/State.ts",
-            "assets/test/funcTests/states/WorkbookState.ts",
-            "assets/test/funcTests/states/SQLModeState.ts",
-            "assets/test/funcTests/states/AdvancedModeState.ts"];
-        var funcTestDestDir = "assets/test/funcTests/states";
+        var allFiles = ["assets/dev/funcTests/states/Util.ts",
+            "assets/dev/funcTests/states/State.ts",
+            "assets/dev/funcTests/states/WorkbookState.ts",
+            "assets/dev/funcTests/states/SQLModeState.ts",
+            "assets/dev/funcTests/states/AdvancedModeState.ts"];
+        var funcTestDestDir = "assets/dev/funcTests/states";
         var extra_ts_staging = BLDROOT + EXTRA_TS_FOLDER_NAME;
         if (grunt.file.exists(extra_ts_staging)) {
             runShellCmd('rm -r ' + extra_ts_staging);

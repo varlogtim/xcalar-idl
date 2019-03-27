@@ -59,11 +59,12 @@ class WorkbookState extends State {
         this.log(`Activating workbook ${randomWorkbook}`);
         this.currentWorkbook = randomWorkbook;
         try {
-            xcSessionStorage.setItem('xdFuncTestStateName', 'AdvancedMode');
+            xcSessionStorage.setItem('xdFuncTestStateName', Util.pickRandom(['AdvancedMode', 'SQLMode']));
             await WorkbookManager.switchWKBK(randomWorkbook);
         } catch (error) {
             if (error["error"] != undefined && error["error"] === "Cannot switch to same workbook") {
                 this.log(`Workbook ${randomWorkbook} already active!`);
+                $("#homeBtn").click(); // Go inside the workbook
             } else {
                 this.log(`Error activating workbook ${error}`);
                 throw error;

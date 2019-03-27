@@ -47,6 +47,7 @@ class AdvancedModeState extends State {
     private mode: string;
     private maxAvgNumOfNodesPerTab: number;
     private run: number; // How many iterations ran in this state currently
+    private currentWKBKId: string;
 
     private constructor(stateMachine: StateMachine, verbosity: string) {
         let name = "AdvancedMode";
@@ -60,8 +61,9 @@ class AdvancedModeState extends State {
         UserSettings.setPref("dfAutoPreview", false, false);
 
         this.availableActions = [this.createTab];
-        this.maxAvgNumOfNodesPerTab = 150;
+        this.maxAvgNumOfNodesPerTab = 75;
         this.run = 0;
+        this.currentWKBKId = WorkbookManager.getActiveWKBK();
 
         this.dagTabManager = DagTabManager.Instance;
         this.dagViewManager = DagViewManager.Instance;
@@ -118,7 +120,7 @@ class AdvancedModeState extends State {
 
     // In nodes
     private async addDatasetNode() {
-        this.log(`Adding dataset node..`);
+        this.log(`Adding dataset node.. in WKBK ${this.currentWKBKId}`);
         let datasetsLoaded = DS.listDatasets();
         let ds = Util.pickRandom(datasetsLoaded);
         let dsNode = this.dagViewManager.newNode({type:DagNodeType.Dataset});
@@ -131,15 +133,15 @@ class AdvancedModeState extends State {
             'loadArgs': dsArgs
         });
         dsNode.setSchema(dsSchema[ds.id].columns, true);
-        this.log(`dataset node with id ${ds.id} added`);
+        this.log(`dataset node with id ${ds.id} added in WKBK ${this.currentWKBKId}`);
         return this;
     }
 
     private async addLinkInNode() {
-        this.log("Adding Link In node..");
+        this.log(`Adding Link In node.. in WKBK ${this.currentWKBKId}`);
         let dfLinks = this.getAllDfLinks();
         if (dfLinks.length == 0) {
-            this.log("No links available to create link in nodes!");
+            this.log(`No links available to create link in nodes in WKBK ${this.currentWKBKId}`);
             return this;
         }
         let dfTab, linkOutNode;
@@ -157,39 +159,39 @@ class AdvancedModeState extends State {
             }
         });
         linkInNode.setSchema(schema);
-        this.log("Link In node added!");
+        this.log(`Link In node added in WKBK ${this.currentWKBKId}`);
         return this;
     }
 
     private async addInputCustomNode() {
-        this.log("Adding input custom node..");
+        this.log(`Adding input custom node.. in WKBK ${this.currentWKBKId}`);
         let customNodesInfo = await this.getCustomNodesInfo();
         let customNodes = customNodesInfo.filter((nodeInfo) => nodeInfo.inPorts.length == 0);
         if (customNodes.length == 0) {
-            this.log("No input custom nodes available to add!");
+            this.log(`No input custom nodes available to add in WKBK ${this.currentWKBKId}`);
             return this.addDatasetNode();
         }
         this.dagViewManager.newNode(Util.pickRandom(customNodes));
-        this.log("Input custom node added!");
+        this.log(`Input custom node added in WKBK ${this.currentWKBKId}`);
         return this;
     }
 
     private async addCustomNode() {
-        this.log("Adding custom node..");
+        this.log(`Adding custom node.. in WKBK ${this.currentWKBKId}`);
         let customNodesInfo = await this.getCustomNodesInfo();
         let customNodes = customNodesInfo.filter((nodeInfo) => nodeInfo.inPorts.length > 0);
         if (customNodes.length == 0) {
-            this.log("No custom nodes available to add!");
+            this.log(`No custom nodes available to add in WKBK ${this.currentWKBKId}`);
             return this.addDatasetNode();
         }
         this.dagViewManager.newNode(Util.pickRandom(customNodes));
-        this.log("Custom node added!");
+        this.log(`Custom node added in WKBK ${this.currentWKBKId}`);
         return this;
     }
 
     // Column nodes
     private async addMapNode() {
-        this.log("Adding Map node..");
+        this.log(`Adding Map node.. in WKBK ${this.currentWKBKId}`);
         let cNode, columns;
         [cNode, columns] = this.addNode({type:DagNodeType.Map});
         let numOfEvals = Math.floor(5 * Math.random()) + 1;
@@ -207,12 +209,12 @@ class AdvancedModeState extends State {
         });
         //run
         // await graph.execute();
-        this.log("Added Map node!");
+        this.log(`Added Map node in WKBK ${this.currentWKBKId}`);
         return this;
     }
 
     private async addSplitNode() {
-        this.log("Adding split node..");
+        this.log(`Adding split node.. in WKBK ${this.currentWKBKId}`);
         let cNode, columns;
         [cNode, columns] = this.addNode({type:DagNodeType.Split});
         let numOfCuts = Math.floor(5 * Math.random()) + 1;
@@ -233,12 +235,12 @@ class AdvancedModeState extends State {
         });
         //run
         // await graph.execute();
-        this.log("Added split node!");
+        this.log(`Added split node in WKBK ${this.currentWKBKId}`);
         return this;
     }
 
     private async addRoundNode() {
-        this.log("Adding Round node..");
+        this.log(`Adding Round node.. in WKBK ${this.currentWKBKId}`);
         let cNode, allCols;
         [cNode, allCols] = this.addNode({type:DagNodeType.Round});
         //Get all columns of type float
@@ -266,12 +268,12 @@ class AdvancedModeState extends State {
         });
         //run
         // await graph.execute();
-        this.log("Round node added!");
+        this.log(`Round node added in WKBK ${this.currentWKBKId}`);
         return this;
     }
 
     private async addRowNumNode() {
-        this.log("Adding Row Num node..");
+        this.log(`Adding Row Num node.. in WKBK ${this.currentWKBKId}`);
         let cNode;
         [cNode, ] = this.addNode({type:DagNodeType.RowNum});
         cNode.setParam({
@@ -279,12 +281,12 @@ class AdvancedModeState extends State {
         });
         //run
         // await graph.execute();
-        this.log("Row Num node added!");
+        this.log(`Row Num node added in WKBK ${this.currentWKBKId}`);
         return this;
     }
 
     private async addProjectNode() {
-        this.log("Adding Project node..");
+        this.log(`Adding Project node.. in WKBK ${this.currentWKBKId}`);
         let cNode, allCols;
         [cNode, allCols] = this.addNode({type:DagNodeType.Project});
         let numColsToProject = Math.floor(allCols.length * 2/3);
@@ -308,7 +310,7 @@ class AdvancedModeState extends State {
         });
         //run
         // await graph.execute();
-        this.log("Project node added!");
+        this.log(`Project node added in WKBK ${this.currentWKBKId}`);
         return this;
     }
 
@@ -342,7 +344,7 @@ class AdvancedModeState extends State {
 
     // SQL node
     private async addSQLNode() {
-        this.log("Adding SQL node..");
+        this.log(`Adding SQL node.. in WKBK ${this.currentWKBKId}`);
         let graph = this.currentTab.getGraph();
         let numParents = Math.floor(5 * Math.random()) + 1;
         let pNode;
@@ -374,13 +376,13 @@ class AdvancedModeState extends State {
 
         // Executing this node to get schema for its children
         await graph.execute();
-        this.log("SQL node added!");
+        this.log(`SQL node added in WKBK ${this.currentWKBKId}`);
         return this;
     }
 
     // Out nodes
     private async addLinkOutNode() {
-        this.log("Adding Link Out node..");
+        this.log(`Adding Link Out node.. in WKBK ${this.currentWKBKId}`);
         let cNode, allCols;
         [cNode, allCols] = this.addNode({type:DagNodeType.DFOut});
         let linkOutName = xcHelper.randName("Linkout_" + Date.now());
@@ -390,7 +392,7 @@ class AdvancedModeState extends State {
         });
         //run
         // await graph.execute();
-        this.log("Link Out node added!");
+        this.log(`Link Out node added in WKBK ${this.currentWKBKId}`);
         return this;
     }
 
@@ -514,14 +516,14 @@ class AdvancedModeState extends State {
     }
 
     private async runDF() {
-        this.log(`Running dataflow ${this.currentTab.getName()} from workbook ${WorkbookManager.getActiveWKBK()}`);
+        this.log(`Running dataflow ${this.currentTab.getName()} in WKBK ${this.currentWKBKId}`);
         await this.currentTab.getGraph().execute();
-        this.log(`Done running dataflow ${this.currentTab.getName()} from workbook ${WorkbookManager.getActiveWKBK()}`);
+        this.log(`Done running dataflow ${this.currentTab.getName()} in WKBK ${this.currentWKBKId}`);
     }
 
     // Prunes the nodes in error/not configured state in all the tabs
     private async pruneNodes() {
-        this.log("Prunning errored nodes..");
+        this.log(`Prunning errored nodes.. in WKBK ${this.currentWKBKId}`);
         let tabs = this.dagTabManager.getTabs();
         for(let tab of tabs) {
             this.currentTab = tab;
@@ -545,7 +547,7 @@ class AdvancedModeState extends State {
             let errorNodesIds = [...nodeToPrune].map((node) => node.getId());
             await this.dagViewManager.dagViewMap.get(tab.getId()).removeNodes(errorNodesIds);
         }
-        this.log("Done prunning nodes!");
+        this.log(`Done prunning nodes in WKBK ${this.currentWKBKId}`);
         return this;
     }
 
@@ -563,7 +565,7 @@ class AdvancedModeState extends State {
     }
 
     private async createCustomNodesFromDF() {
-        this.log("Creating custom node from dataflow..");
+        this.log(`Creating custom node from dataflow.. in WKBK ${this.currentWKBKId}`);
         let nodeIds = Array.from(this.currentTab.getGraph().getAllNodes().keys());
         let randN = Math.floor(nodeIds.length * Math.random()) + 1;
         let randomNodeIds = Util.pickRandom(nodeIds, randN);
@@ -571,7 +573,7 @@ class AdvancedModeState extends State {
             randomNodeIds = [randomNodeIds];
         }
         await this.dagViewManager.wrapCustomOperator(randomNodeIds);
-        this.log("Custom node from dataflow created!");
+        this.log(`Custom node from dataflow created  in WKBK ${this.currentWKBKId}`);
         return this;
     }
 
@@ -579,7 +581,7 @@ class AdvancedModeState extends State {
     // then converts to a custom node and shares it.
     // This will create customNode in controlled fashion.
     private async createCustomNode() {
-        this.log("Creating custom node..");
+        this.log(`Creating custom node.. in WKBK ${this.currentWKBKId}`);
         let currentTabId = this.currentTab.getId();
         let newTabId = this.dagTabManager.newTab();
         this.currentTab = this.dagTabManager.getTabById(newTabId);
@@ -614,7 +616,7 @@ class AdvancedModeState extends State {
         this.dagTabManager.switchTab(currentTabId);
         DagList.Instance.deleteDataflow(DagList.Instance._getListElById(newTabId));
         this.currentTab = this.dagTabManager.getTabById(currentTabId);
-        this.log("Custom node created and shared!");
+        this.log(`Custom node created and shared in WKBK ${this.currentWKBKId}`);
         return this;
     }
 
@@ -626,54 +628,60 @@ class AdvancedModeState extends State {
 
        let tableLoaded = await PTblManager.Instance._listTables();
        let table = Util.pickRandom(tableLoaded);
-       // create input node
-       let ignoreColumns = new Set(["XcalarRankOver", "XcalarOpCode", "XcalarBatchId"])
-       let inNode = DagViewManager.Instance.newNode({type: DagNodeType.SQLFuncIn});
-       inNode.setParam({"source": table.name});
-       let schema = []
-       for (let col of table.columns) {
-           if (ignoreColumns.has(col.name)) {
-               continue;
-           }
-           schema.push({"name": col.name, "type": col.type});
-       }
-       inNode.setSchema(schema);
 
-       // build dataflow
-       let nodesCount = Math.floor(5*Math.random());
-       let count = 1;
-       let ignoreActions = new Set(["createTab", "addLinkInNode", "addCustomNode",
-                               "addLinkOutNode", "getTab", "createCustomNodes",
-                               "addDatasetNode", "createSQLFunc", "addSQLNode"]);
-       while (count < nodesCount) {
-           let randomAction = Util.pickRandom(this.availableActions);
-           if (ignoreActions.has(randomAction.name)) {
-               continue;
-           }
-           await randomAction.call(this);
-           count++;
-       }
+       try {
+            // create input node
+            let ignoreColumns = new Set(["XcalarRankOver", "XcalarOpCode", "XcalarBatchId"])
+            let inNode = DagViewManager.Instance.newNode({type: DagNodeType.SQLFuncIn});
+            inNode.setParam({"source": table.name});
+            let schema = []
+            for (let col of table.columns) {
+                if (ignoreColumns.has(col.name)) {
+                    continue;
+                }
+                schema.push({"name": col.name, "type": col.type});
+            }
+            inNode.setSchema(schema);
 
-       // create output node
-       let graph = this.currentTab.getGraph();
-       let pNode = graph.getSortedNodes().slice(-1)[0];
-       let outNode = DagViewManager.Instance.newNode({type: DagNodeType.SQLFuncOut});
-       graph.connect(pNode.id, outNode.id);
+            // build dataflow
+            let nodesCount = Math.floor(5*Math.random());
+            let count = 1;
+            let ignoreActions = new Set(["createTab", "addLinkInNode", "addCustomNode",
+                                    "addLinkOutNode", "getTab", "createCustomNodes",
+                                    "addDatasetNode", "createSQLFunc", "addSQLNode"]);
+            while (count < nodesCount) {
+                let randomAction = Util.pickRandom(this.availableActions);
+                if (ignoreActions.has(randomAction.name)) {
+                    continue;
+                }
+                await randomAction.call(this);
+                count++;
+            }
 
-       schema = []
-       for (let col of pNode.getLineage().getColumns()) {
-           schema.push({"name": col.backName, "type": col.type});
-       }
-       outNode.setParam({"schema": schema});
+            // create output node
+            let graph = this.currentTab.getGraph();
+            let pNode = graph.getSortedNodes().slice(-1)[0];
+            let outNode = DagViewManager.Instance.newNode({type: DagNodeType.SQLFuncOut});
+            graph.connect(pNode.id, outNode.id);
 
-       await this.currentTab.save();
-       this.dagViewManager.autoAlign(newTabId);
-       this.dagTabManager.removeTab(newTabId);
-       // restore
-       this.mode = "random";
-       this.dagTabManager.switchTab(currentTabId);
-       this.currentTab = this.dagTabManager.getTabById(currentTabId);
-       return this;
+            schema = []
+            for (let col of pNode.getLineage().getColumns()) {
+                schema.push({"name": col.backName, "type": col.type});
+            }
+            outNode.setParam({"schema": schema});
+
+            await this.currentTab.save();
+            this.dagViewManager.autoAlign(newTabId);
+        } catch (error) {
+            throw error;
+        } finally {
+            this.dagTabManager.removeTab(newTabId);
+            // restore
+            this.mode = "random";
+            this.dagTabManager.switchTab(currentTabId);
+            this.currentTab = this.dagTabManager.getTabById(currentTabId);
+            return this;
+        }
     }
 
     // Checks to see if average nodes per dataflow exceeded constant maxAvgNumOfNodesPerTab

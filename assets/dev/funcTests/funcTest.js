@@ -15,8 +15,10 @@ params:
     timeDilations: slow internet factor
     verbosity: "Verbose" to output the log
     iterations: iterations for the test
+    seed: set a seed for all random function, default would be Date.now()
 example:
     http://localhost:8888/funcTest.html?user=test&clean=y&close=y
+    http://localhost:8888/funcTest.html?user=admin&iterations=120&seed=1553718544442
 
 */
 class StateMachine {
@@ -44,9 +46,13 @@ class StateMachine {
 
     async run() {
         await this.prepareData();
-        let advancedModeMAXRun = Util.getRandomInt(60) + 30;
-        let SQLModeMAXRun = Util.getRandomInt(40) + 20;
+        let maxRun = new Map();
+        maxRun.set("SQLMode", Util.getRandomInt(40) + 20);
+        maxRun.set("AdvancedMode", Util.getRandomInt(60) + 30);
         while (this.iterations > 0) {
+            let currentRun = parseInt(xcSessionStorage.getItem('xdFuncTestIterations'));
+            let totalRun = parseInt(xcSessionStorage.getItem('xdFuncTestTotalRun'));
+            console.log(`Running the ${totalRun - currentRun}/${totalRun} iterations`);
             this.currentState = await this.currentState.takeOneAction()
             if (this.currentState == null) { //WorkbookState hit the activate
                 xcSessionStorage.setItem('xdFuncTestIterations', this.iterations-1);
@@ -54,15 +60,10 @@ class StateMachine {
             }
 
             // Mode Switch
-            if (this.currentState.name == "AdvancedMode" && this.currentState.run >= advancedModeMAXRun) {
-                this.currentState.run = 0;
-                this.currentState = this.statesMap.get('SQLMode');
-            }
-            else if (this.currentState.name == "SQLMode" && this.currentState.run >= SQLModeMAXRun) {
+            if (this.currentState.name != "Workbook" && this.currentState.run >= maxRun.get(this.currentState.name)) {
                 this.currentState.run = 0;
                 this.currentState = this.statesMap.get(Util.pickRandom([...this.statesMap.keys()]));
-
-                if (this.currentState.name == "Workbook") {
+                if (this.currentState.name == 'Workbook') {
                     $("#homeBtn").click(); // Go back to the workbook panel;
                 }
             }
@@ -108,11 +109,20 @@ window.FuncTestSuite = (function($, FuncTestSuite) {
     var stateMachine;
 
     FuncTestSuite.setup = function() {
-        // console.log("FuncTest: " + userIdName + "::" + sessionName);
-        // console.log("arguments: " + testName + ", " + hasAnimation + ", " + toClean + ", " + noPopup + ", " + mode + ", " + withUndo + ", " + timeDilation);
         var params = getUrlParameters();
         var user = params.user || 'admin';
         autoLogin(user);
+        var seed = params.seed || xcSessionStorage.getItem('xdFuncTestSeed') || Date.now().toString();
+        if (!xcSessionStorage.getItem('xdFuncTestSeed')) {
+            xcSessionStorage.setItem("xdFuncTestSeed", seed);
+        } else {
+            seed++; // Avoid repeating the operations once hard-reloading the page
+            xcSessionStorage.setItem("xdFuncTestSeed", seed);
+        }
+        Math.seedrandom(seed);
+        if (!xcSessionStorage.getItem('xdFuncTestStatus')) {
+            xcSessionStorage.setItem('xdFuncTestStatus', "running");
+        }
         var iterations = getIterations(params);
         if (!xcSessionStorage.getItem('xdFuncTestTotalRun')) {
             xcSessionStorage.setItem('xdFuncTestTotalRun', iterations);
@@ -182,8 +192,9 @@ window.FuncTestSuite = (function($, FuncTestSuite) {
             var totalRun = parseInt(xcSessionStorage.getItem('xdFuncTestTotalRun'));
             test.startTime = parseInt(xcSessionStorage.getItem('xdFuncTestStartTime'));
             if (currentRun == 0) {
-                console.log("XD Functests passed with " + totalRun + " runs !!");
+                console.log(`XD Functests passed with " ${totalRun} " runs ! The seed is ${xcSessionStorage.getItem('xdFuncTestSeed')}`);
                 totalRun = null;
+                xcSessionStorage.setItem("xdFuncTestStatus", 'pass');
                 cleanupSessionStorage();
                 test.pass(deferred, testName, totalRun);
             }
@@ -191,8 +202,9 @@ window.FuncTestSuite = (function($, FuncTestSuite) {
             var currentRun = parseInt(xcSessionStorage.getItem('xdFuncTestIterations'));
             var totalRun = parseInt(xcSessionStorage.getItem('xdFuncTestTotalRun'));
             test.startTime = parseInt(xcSessionStorage.getItem('xdFuncTestStartTime'));
-            console.log("XD Functests Failed!");
+            console.log(`XD Functests failed in " ${totalRun-currentRun} " runs ! The seed is ${xcSessionStorage.getItem('xdFuncTestSeed')}`);
             console.log(error)
+            xcSessionStorage.setItem("xdFuncTestStatus", 'fail');
             cleanupSessionStorage();
             test.fail(deferred, testName, totalRun-currentRun, error);
         }
@@ -253,6 +265,8 @@ window.FuncTestSuite = (function($, FuncTestSuite) {
         xcSessionStorage.removeItem('xdFuncTestIterations');
         xcSessionStorage.removeItem('xdFuncTestStartTime');
         xcSessionStorage.removeItem('xdFuncTestFirstTimeInit');
+        xcSessionStorage.removeItem('xdFuncTestStatus');
+        xcSessionStorage.removeItem('xdFuncTestSeed');
     }
     /* -------------------------------Helper Function------------------------------- */
 

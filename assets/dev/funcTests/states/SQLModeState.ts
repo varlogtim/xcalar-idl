@@ -19,6 +19,7 @@ class SQLModeState extends State {
     private tableManager: PTblManager;
     private mode: String;
     private run: number; // How many iterations ran in this state currently
+    private currentWKBKId: string;
 
     public constructor(stateMachine: StateMachine, verbosity: string) {
         let name = "SQLMode";
@@ -37,6 +38,7 @@ class SQLModeState extends State {
         this.sqlSnippet = SQLSnippet.Instance;
         this.sqlHistory = SqlQueryHistory.getInstance();
         this.tableManager = PTblManager.Instance;
+        this.currentWKBKId = WorkbookManager.getActiveWKBK();
 
         this.availableActions = [this.createSnippet];
         this.run = 0;
@@ -108,7 +110,7 @@ class SQLModeState extends State {
 
     private async createSnippet(): XDPromise<SQLModeState> {
         let snippetName = this.getUniqueName();
-        this.log(`Creating snippet ${snippetName}`);
+        this.log(`Creating snippet ${snippetName} in WKBK ${this.currentWKBKId}`);
         try {
             await this.sqlEditor._newSnippet();
             await this.sqlEditor._setSnippet(snippetName);
@@ -117,12 +119,12 @@ class SQLModeState extends State {
             this.sqlEditor.newSQL(sql);
             await this.sqlEditor.save();
         } catch (err) {
-            this.log(`Error creating snippet ${err}`);
+            this.log(`Error creating snippet ${err} in WKBK ${this.currentWKBKId}`);
             throw err;
         }
 
         if (!this.sqlSnippet.hasSnippet(snippetName)) {
-            throw `Error creating snippet ${snippetName}, not in the snippet list`;
+            throw `Error creating snippet ${snippetName}, not in the snippet list in WKBK ${this.currentWKBKId}`;
         }
 
         if (this.sqlSnippet._listSnippetsNames().length > 1) {
@@ -136,11 +138,11 @@ class SQLModeState extends State {
 
     private async deleteSnippet(): XDPromise<SQLModeState> {
         let randomSnippet = this.getRandomSnippet();
-        this.log(`Deleting snippet ${randomSnippet}`);
+        this.log(`Deleting snippet ${randomSnippet} in WKBK ${this.currentWKBKId}`);
         try{
             await this.sqlSnippet.deleteSnippet(randomSnippet);
         } catch (err) {
-            this.log(`Error deleting snippet ${err}`);
+            this.log(`Error deleting snippet ${err} in WKBK ${this.currentWKBKId}`);
             throw err;
         }
 
@@ -157,7 +159,7 @@ class SQLModeState extends State {
 
     private async executeSnippet(): XDPromise<SQLModeState> {
         let randomSnippet = this.getRandomSnippet();
-        this.log(`Executing snippet ${randomSnippet}`);
+        this.log(`Executing snippet ${randomSnippet} in WKBK ${this.currentWKBKId}`);
         this.sqlEditor._setSnippet(randomSnippet);
         let snippet = this.sqlSnippet.getSnippet(randomSnippet);
 
@@ -166,10 +168,10 @@ class SQLModeState extends State {
         }
 
         try{
-            this.log(`Executing sql query ${snippet}`);
+            this.log(`Executing sql query ${snippet} in WKBK ${this.currentWKBKId}`);
             await this.sqlEditor.execute(snippet);
         } catch (err) {
-            this.log(`Error executing snippet ${err}`);
+            this.log(`Error executing snippet ${err} in WKBK ${this.currentWKBKId}`);
             throw err;
         }
 
@@ -188,7 +190,7 @@ class SQLModeState extends State {
                 return false;
             }
             console.info(`checking sql execution ${snippet}`);
-            return qInfo.queryString == snippet && (qInfo.status == 'Failed' || qInfo.status == 'Done');
+            return qInfo.queryString.replace(/\s+/g, '') == snippet.replace(/\s+/g, '') && (qInfo.status == 'Failed' || qInfo.status == 'Done');
         }
         await this.testFinish(checkFunc);
 
