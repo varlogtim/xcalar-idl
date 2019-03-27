@@ -6,7 +6,8 @@ require('../../../expServer/route/sqlRestApi.js');
 require('../../../expServer/utils/dagUtils.js');
 const XDFList = require('./xdfList.js');
 
-describe('DagComponent Test', () => {
+describe('DagComponent Test', function() {
+    this.timeout(50000);
     let listXdfsStr;
     before(() => {
         // To run test locally, setup the planServer before invoke mocha

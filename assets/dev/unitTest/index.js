@@ -38,22 +38,22 @@ async function runTest(testType, hostname) {
                 exitCode = error.status;
             }
             process.exit(exitCode);
-        } else if (testType === "dagCompUnit") {
-            let exitCode = 0;
+        } else if (testType === "unitTest") {
+            // Piggy back the dag component unit test
+            // XXX TODO: remove once the expServer test works
             try {
                 const planServer = process.env.NODE_PLANSERVER;
                 const planServerEnv = planServer == null ? '' : `NODE_PLANSERVER="${planServer}"`;
-                const mochaTest = `NODE_ENV=test ${planServerEnv} node_modules/mocha/bin/_mocha ../../../services/test/expServerSpec/dagComponent/dagComponentSpec.js`;
+                const mochaTest = `NODE_ENV=test ${planServerEnv} node_modules/mocha/bin/mocha ../../../xcalar-gui/services/test/expServerSpec/dagComponent/dagComponentSpec.js`;
                 const output = exec(mochaTest, { encoding: 'utf8' });
                 console.log(output);
                 console.log("Dag Component test passed.");
             } catch (error) {
                 console.log(error.stderr, error.stdout);
                 console.log("Dag Component test failed.");
-                exitCode = error.status;
+                process.exit(error.status); // In case of error, skip the rest of the test
             }
-            process.exit(exitCode);
-        } else if (testType === "unitTest") {
+
             browser = await puppeteer.launch({
                 headless: true,
                 ignoreHTTPSErrors: true,
