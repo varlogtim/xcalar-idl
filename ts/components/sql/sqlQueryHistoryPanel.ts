@@ -778,7 +778,7 @@ namespace SqlQueryHistoryPanel {
         }}
     }
 
-    class DynaTable<TData> {
+    export class DynaTable<TData> {
         protected _container: HTMLElement;
         protected _columnsToShow: TableColumnCategory[];
         protected _tableDef: TableDefinition<TData>;
@@ -1914,7 +1914,7 @@ namespace SqlQueryHistoryPanel {
         return Number.isNaN(n) ? strNA : n.toLocaleString();
     }
 
-    function genSkewStyle(skew: number): string {
+    export function genSkewStyle(skew: number): string {
         const color = TableSkew.getSkewColorStyle(skew);
         return color.length > 0 ? `color:${color};` : '';
     }
