@@ -64,6 +64,8 @@ async function runTest(testType, hostname) {
                 headless: false,
                 ignoreHTTPSErrors: true
             });
+        } else if (testType === "XDFuncTest") {
+            return runFuncTests();
         } else {
             throw "Unspport!";
         }
@@ -177,9 +179,74 @@ function getCoverage(coverage, testType) {
         totalBytes += entry.text.length;
         usedBytes += entrySizeMap[url];
     }
-    
+
     if (testType === "unitTestOnDev") {
         fs.writeFileSync("coverage/coverage.js", 'var coverage =' + JSON.stringify(coverageToReport));
     }
     console.log(`Bytes used: ${usedBytes / totalBytes * 100}%`);
+}
+
+// Runs the XD func tests as seperate pages based on number of users provided
+async function runFuncTests() {
+    let browser;
+    let numOfUsers = 1, iterations = 200;
+    console.log(commandLineArgs);
+    numOfUsers = commandLineArgs[4] || numOfUsers;
+    iterations = commandLineArgs[5] || iterations;
+    browser = await puppeteer.launch({
+        headless: true,
+        ignoreHTTPSErrors: true
+    });
+    let pages = [];
+    let iter = 1;
+    while (iter <= numOfUsers) {
+        let userName = `admin${iter}`;
+        let page = await browser.newPage();
+        await page.setViewport({width: 1920, height: 1076});
+
+        page.on('console', msg => {
+            for (let i = 0; i < msg.args().length; ++i)
+            console.log(`${userName} ${msg.args()[i]}`);
+        });
+
+        url = `${hostname}/funcTest.html?noPopup=y&animation=y&cleanup=y&user=${userName}&iterations=${iterations}`;
+        console.log("Opening page:", url)
+        try {
+            await page.goto(url);
+            pages.push(page);
+        } catch (error) {
+           console.log(`Error opening url: ${url}`, error);
+        }
+        iter++;
+    }
+    let exitCode = 0;
+    try {
+        await Promise.all(pages.map(async (page) => {
+            return new Promise((resolve, reject) => {
+                // time out after 1 day
+                page.waitForSelector('#testFinish', { timeout: 864000000 }).then(function () {
+                    return page.evaluate(() => document.querySelector('#testFinish').textContent);
+                }).then(function (result) {
+                    if (result === "PASSED") {
+                        console.log("Test passed for URL => ", page.url());
+                        resolve();
+                    } else {
+                        console.log("Test failed for URL => ", page.url());
+                        reject();
+                    }
+                }).catch(function () {
+                    //reject the promise
+                    console.log("Test failed for URL => ", page.url());
+                    reject();
+                });
+            });
+        }));
+    } catch (error) {
+       exitCode = 1;
+       console.log("Tests failed!");
+       console.log(error);
+    }
+    console.log("Tests finished!!!");
+    browser.close();
+    process.exit(exitCode);
 }

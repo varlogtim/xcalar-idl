@@ -514,9 +514,9 @@ class AdvancedModeState extends State {
     }
 
     private async runDF() {
-        this.log(`Running dataflow ${this.currentTab.getName()}`);
+        this.log(`Running dataflow ${this.currentTab.getName()} from workbook ${WorkbookManager.getActiveWKBK()}`);
         await this.currentTab.getGraph().execute();
-        this.log(`Done running dataflow ${this.currentTab.getName()}`);
+        this.log(`Done running dataflow ${this.currentTab.getName()} from workbook ${WorkbookManager.getActiveWKBK()}`);
     }
 
     // Prunes the nodes in error/not configured state in all the tabs
@@ -642,7 +642,7 @@ class AdvancedModeState extends State {
        // build dataflow
        let nodesCount = Math.floor(5*Math.random());
        let count = 1;
-       let ignoreActions = new Set(["createTab", "addLinkInNode", "addCustomNode"
+       let ignoreActions = new Set(["createTab", "addLinkInNode", "addCustomNode",
                                "addLinkOutNode", "getTab", "createCustomNodes",
                                "addDatasetNode", "createSQLFunc", "addSQLNode"]);
        while (count < nodesCount) {
