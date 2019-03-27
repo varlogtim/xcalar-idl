@@ -101,12 +101,13 @@ function replay(testConfig, tags) {
             for (const tabName of Object.keys(testTabs)) {
                 const newTabName = testTabMapping.get(tabName);
                 browser.switchTab(newTabName);
+                let modifier = 1;
     
                 testTabs[tabName].nodes.forEach((node, i) => {
                     let input = JSON.parse(JSON.stringify(node.input));
                     if (node.type === "IMDTable") {
                         browser
-                            .openOpPanel(".operator:nth-child(" + (i + 1) + ")")
+                            .openOpPanel(".operator:nth-child(" + (i + modifier) + ")")
                             .pause(8000) // need to check for listTables call to resolve
                             .setValue("#IMDTableOpPanel .pubTableInput", input.source)
                             .pause(1000)
@@ -118,9 +119,12 @@ function replay(testConfig, tags) {
                         pause = 6000;
                         input.driverArgs.file_path = "/home/jenkins/export_test/datasetTest.csv";
                         browser
-                            .openOpPanel(".operator:nth-child(" + (i + 1) + ")")
+                            .openOpPanel(".operator:nth-child(" + (i + modifier) + ")")
                             .pause(pause)
                             .submitAdvancedPanel(".opPanel:not(.xc-hidden)", JSON.stringify(input, null, 4));
+                    } else if (node.type === "custom") {
+                        // we have to change the modifier to represent that the custom nodes are created last during the recreate nodes step.
+                        modifier--;
                     }
     
                 });

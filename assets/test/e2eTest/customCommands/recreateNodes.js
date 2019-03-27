@@ -4,7 +4,47 @@ const execFunctions = require('../lib/execFunctions');
 class RecreateNodes extends EventEmitter {
     command(nodeInfos, dfId, dfIdMapping, cb) {
         const self = this;
-        const commandResult = { IMDNames: [], nodeElemIDs: [], nodeIDs: [] };
+        const commandResult = { IMDNames: [], nodeElemIDs: [], nodeIDs: [], nodeTypes: [] };
+        let customOutputMap = new Map();
+        let customNodesMap = new Map();
+
+        // first we have to "unwrap" any custom nodes.
+        let trueNodeInfos = [];
+        let operationCount = 0;
+        nodeInfos.forEach((nodeInfo, i) => {
+            if (nodeInfo.type === 'custom') {
+                let subNodes = nodeInfo.subGraph.nodes;
+                let inPortIds = nodeInfo.inPorts.map((inport) => {
+                    return inport.parentId;
+                });
+                let startingOpCount = operationCount;
+                for(let si = 0; si < subNodes.length; si++) {
+                    let subNode = subNodes[si];
+                    for(let sp = 0; sp < subNode.parents.length; sp++) {
+                        let inputIndex = inPortIds.findIndex((id) => { return (id == subNode.parents[sp])});
+                        if (inputIndex != -1) {
+                            subNode.parents[sp] = nodeInfo.parents[inputIndex];
+                        }
+                    }
+                    if (subNode.type == "customOutput") {
+                        customOutputMap.set(nodeInfo.nodeId, subNode.parents[0]);
+                    }
+                    subNode.display.x = nodeInfo.display.x + 120*si;
+                    subNode.display.y = nodeInfo.display.y;
+                    if (subNode.type != "customOutput" && subNode.type != "customInput") {
+                        trueNodeInfos.push(subNode);
+                        operationCount++;
+                    }
+                }
+                // This tells us later where to split to select nodes
+                customNodesMap.set(nodeInfo.nodeId, [startingOpCount, operationCount]);
+            } else {
+                trueNodeInfos.push(nodeInfo);
+                operationCount++;
+            }
+        });
+
+        nodeInfos = trueNodeInfos;
 
         nodeInfos.forEach((nodeInfo, i) => {
             // Get node information in category bar
@@ -14,6 +54,14 @@ class RecreateNodes extends EventEmitter {
                 nodeCategoryClass = value.categoryClass;
                 nodeCategorySelector = value.nodeSelector;
             });
+
+            for(let np = 0; np < nodeInfo.parents.length; np++) {
+                // Connect to correct parent if parent was previously a custom node
+                let customParent = customOutputMap.get(nodeInfo.parents[np]);
+                if (customParent) {
+                    nodeInfo.parents[np] = customParent;
+                }
+            }
 
             // Drag&Drop to create node
             this.api.perform(() => {
@@ -28,6 +76,7 @@ class RecreateNodes extends EventEmitter {
                     ({ELEMENT, nodeId}) => {
                         commandResult.nodeElemIDs.push(ELEMENT);
                         commandResult.nodeIDs.push(nodeId);
+                        commandResult.nodeTypes.push(nodeInfo.type);
                     }
                 );
             });
@@ -38,22 +87,41 @@ class RecreateNodes extends EventEmitter {
                 nodeInfo.parents.forEach((parentId, j) => {
                     if (parentId) {
                         const parentIndex = nodeInfos.findIndex((nodeInfo) => (nodeInfo.nodeId === parentId));
-
                         let connectorIndex = j + 1;
                         if (nodeInfo.type === "sql" || nodeInfo.type === "set") {
                             connectorIndex = 1;
                         }
                         if (nodeInfo.type !== "dataset") {
-                            this.api
-                                .moveToElement(".dataflowArea.active .operator:nth-child(" + (i + 1) + ") .connIn:nth-child(" + connectorIndex + ") .connector.in", 2, 2)
-                                .mouseButtonDown("left")
-                                .moveTo(commandResult.nodeElemIDs[parentIndex], 20, 10)
-                                .mouseButtonUp("left")
-                                .waitForElementPresent('.dataflowArea.active .edgeSvg .edge'
-                                    + `[data-childnodeid="${childId}"]`
-                                    + `[data-parentnodeid="${commandResult.nodeIDs[parentIndex]}"]`
-                                    + `[data-connectorindex="${j}"]`,
-                                    10);
+                            // If it's connecting to a sort, an alert popup ios going to show up
+                            // It needs to be closed.
+                            if (commandResult.nodeTypes[parentIndex] == "sort") {
+                                this.api
+                                    .moveToElement(".dataflowArea.active .operator:nth-child(" + (i + 1) + ") .connIn:nth-child(" + connectorIndex + ") .connector.in", 2, 2)
+                                    .mouseButtonDown("left")
+                                    .moveTo(commandResult.nodeElemIDs[parentIndex], 20, 10)
+                                    .mouseButtonUp("left")
+                                    .waitForElementVisible("#alertModal", 2000)
+                                    .click("#alertActions .confirm")
+                                    .waitForElementNotVisible("#alertModal", 5000)
+                                    .pause(1000) // wait for the alert to close fully
+                                    .waitForElementPresent('.dataflowArea.active .edgeSvg .edge'
+                                        + `[data-childnodeid="${childId}"]`
+                                        + `[data-parentnodeid="${commandResult.nodeIDs[parentIndex]}"]`
+                                        + `[data-connectorindex="${j}"]`,
+                                        10);
+                            } else {
+                                this.api
+                                    .moveToElement(".dataflowArea.active .operator:nth-child(" + (i + 1) + ") .connIn:nth-child(" + connectorIndex + ") .connector.in", 2, 2)
+                                    .mouseButtonDown("left")
+                                    .moveTo(commandResult.nodeElemIDs[parentIndex], 20, 10)
+                                    .mouseButtonUp("left")
+                                    .waitForElementPresent('.dataflowArea.active .edgeSvg .edge'
+                                        + `[data-childnodeid="${childId}"]`
+                                        + `[data-parentnodeid="${commandResult.nodeIDs[parentIndex]}"]`
+                                        + `[data-connectorindex="${j}"]`,
+                                        10);
+                            }
+
                         }
                     }
                });
@@ -83,10 +151,12 @@ class RecreateNodes extends EventEmitter {
                         .pause(pause)
                         .setValue("#dfLinkOutPanel .linkOutName .inputWrap input", input.name);
                         if (!input.linkAfterExecution) {
-                            this.api.click('#dfLinkOutPanel .argsSection .inputWrap .checkbox.checked');
+                            this.api.waitForElementNotPresent("#formWaitingBG", 3000)
+                                .click('#dfLinkOutPanel .argsSection .inputWrap .checkbox.checked');
                         }
                         if (nodeInfo.subType === "link out Optimized") {
-                            this.api.click("#dfLinkOutPanel .selectAllWrap .checkbox");
+                            this.api.waitForElementNotPresent("#formWaitingBG", 3000)
+                                .click("#dfLinkOutPanel .selectAllWrap .checkbox");
                         }
                     this.api.click('#dfLinkOutPanel .submit')
                         .waitForElementNotVisible('#dfLinkOutPanel');
@@ -116,6 +186,16 @@ class RecreateNodes extends EventEmitter {
                     this.api.restoreDataset(".dataflowArea.active .dataset:nth-child(" + (i + 1) + ") .main");
                 }
             });
+        });
+
+        // Create any applicable custom nodes
+        this.api.perform(() => {
+            if (customNodesMap.size > 0) {
+                customNodesMap.forEach((nodeIndexes) => {
+                    let ids = commandResult.nodeIDs.slice(nodeIndexes[0], nodeIndexes[1]);
+                    this.api.createCustomNode(ids);
+                });
+            };
         });
 
         this.api.perform(() => {
