@@ -21,6 +21,7 @@ abstract class DagNodeIn extends DagNode {
             return true;
         } else if (this._hasSchemaChanges()) {
             this._setParam(noAutoExecute);
+            return true;
         } else {
             // nothing to set
             return false;
