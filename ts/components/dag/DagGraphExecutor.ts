@@ -162,9 +162,13 @@ class DagGraphExecutor {
             let aggNode: DagNodeAggregate =
                 <DagNodeAggregate>this._nodes.find((node) => {return node.getParam().dest == agg})
             if (aggNode == null) {
+                let aggInfo = DagAggManager.Instance.getAgg(this._graph.getTabId(), agg);
+                if (aggInfo && aggInfo.value != null) {
+                    // It has a value, we're alright.
+                    continue
+                }
                 return DagNodeErrorType.NoAggNode;
-            }
-            if  (aggNode.getParam().mustExecute) {
+            } else if  (aggNode.getParam().mustExecute) {
                 // Case where we must execute the aggregate manually
                 return DagNodeErrorType.AggNotExecute;
             }

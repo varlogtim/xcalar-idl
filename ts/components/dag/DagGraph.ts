@@ -1266,7 +1266,8 @@ class DagGraph {
                         }
                         // parent can be null in join - left parent
                         if (parent.getState() != DagNodeState.Complete ||
-                            !DagTblManager.Instance.hasTable(parent.getTable())
+                            (!DagTblManager.Instance.hasTable(parent.getTable()) && 
+                            parent.getType() != DagNodeType.Aggregate)
                         ) {
                             isStarting = false;
                             break;
