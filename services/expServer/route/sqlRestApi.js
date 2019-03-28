@@ -947,7 +947,10 @@ function executeSql(params, type) {
             return PromiseHelper.resolve(result);
         }
     })
-    .then(deferred.resolve)
+    .then(function(res) {
+        xcConsole.log("sql query finishes.");
+        deferred.resolve(res);
+    })
     .fail(function(err) {
         xcConsole.log("sql query error: ", err);
         sqlHistoryObj["endTime"] = new Date();
@@ -964,9 +967,10 @@ function executeSql(params, type) {
         deferred.reject(retObj);
     })
     .always(function() {
-        SqlUtil.setSessionInfo(params.userName, params.userId, params.sessionName);
-        XIApi.deleteTable(1, tablePrefix + "*");
-        xcConsole.log("sql query finishes.");
+        if (type != "odbc" && optimizations.dropAsYouGo) {
+            SqlUtil.setSessionInfo(params.userName, params.userId, params.sessionName);
+            XIApi.deleteTable(1, tablePrefix + "*");
+        }
     });
 
     return deferred.promise();
@@ -1170,7 +1174,6 @@ router.post("/xcsql/queryWithPublishedTables", [support.checkAuth],
     }
     executeSql(params, type)
     .then(function(output) {
-        xcConsole.log("sql query finishes");
         res.send(output);
     })
     .fail(function(error) {
