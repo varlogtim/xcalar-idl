@@ -48,10 +48,6 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         if (toTest) {
             heartBeat();
         }
-        // XXX TODO: remove it
-        if (testType === "sql") {
-            gChronos = true
-        }
         xcManager.setup()
         .then(function() {
             if (!runTest) {

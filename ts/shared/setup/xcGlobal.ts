@@ -71,7 +71,6 @@ namespace xcGlobal {
         gRetinaPrefix = "xcRet_";
         gParamStart = "<";
         gHiddenColumnWidth = 15;
-        gTurnOnPrefix = true;
         gUploadChunkSize = 45 * MB;
         gDefaultSharedRoot = 'Default Shared Root';
         gJoinLookup = {
@@ -88,9 +87,7 @@ namespace xcGlobal {
 
 
         // ======================== Support Parameters ====================== //
-        gExportNoCheck = false;
         gAlwaysDelete = false;
-        gShowDroppedTablesImage = false;
         gDefaultQDelim = '"';
         gLongTestSuite = 1;
         gMaxDSColsSpec = 1023; // Max num of columns that can be ordered, renamed, or
@@ -100,11 +97,8 @@ namespace xcGlobal {
         // datasets will abide by this limit. If you don't want
         // to use it anymore, just set it back to 0
         gUdfDefaultNoCheck = false; // when set true, allow update default udf
-        gSessionNoCleanup = false;
-        gIcvMode = false;
         gEnableIndexStyle = false;
         gXcSupport = false; // if xcalar support user
-        gCollab = false; // if strip / in username or not
         gXcalarRecordNum = "xcalarRecordNum";
         gXcalarApiLrqExportPrefix = ".XcalarLRQExport.";
         gDFSuffix = ".xlrdf.tar.gz";
@@ -113,9 +107,6 @@ namespace xcGlobal {
         // Shut up the console logs
         verbose = false;
         superVerbose = false;
-
-        // XXX TODO remove this flag
-        gChronos = (typeof gChronos === "undefined") ? false : gChronos;
     };
 }
 

@@ -119,14 +119,6 @@ setupHostName = function(): void {
     }
 };
 
-// for convenience, add the function list here and make them
-// comment in default
-function THandleDoesntExistError() {
-    this.name = "THandleDoesntExistError";
-    this.message = "tHandle does not exist yet.";
-}
-THandleDoesntExistError.prototype = Error.prototype;
-
 // ========================== HELPER FUNCTIONS ============================= //
 // called if a XcalarThrift.js function returns an error
 function thriftLog(
@@ -327,24 +319,6 @@ function addKeyAttrToQuery(query: string, key: string[][]): string {
 // Should check if the function returns a promise
 // but that would require an extra function call
 if (!has_require) {
-    (window as any).Function.prototype.log = function(): void {
-        const fn: any = this;
-        const args: any[] = Array.prototype.slice.call(arguments);
-        if (fn && TypeCheck.isFunction(fn)) {
-            const ret: any = fn.apply(fn, args);
-            if (ret && TypeCheck.isFunction(ret.promise)) {
-                ret.then(function(result: any) {
-                    console.log(result);
-                })
-                .fail(function(result: any) {
-                    console.error(result);
-                });
-            } else {
-                console.log(ret);
-            }
-        }
-    };
-
     (window as any).Function.prototype.bind = function(): Function {
         const fn: Function = this;
         const args: any[] = Array.prototype.slice.call(arguments);
@@ -354,12 +328,6 @@ if (!has_require) {
                     args.concat(Array.prototype.slice.call(arguments))));
         });
     };
-}
-
-function checkIfTableHasReadyState(
-    node: DagFunction.TreeNode
-): boolean {
-    return (node.value.state === DgDagStateT.DgDagStateReady);
 }
 
 function fetchDataHelper(

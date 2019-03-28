@@ -437,7 +437,6 @@ interface Window {
     xcSessionStorage: any;
 }
 
-declare var gChronos: boolean;
 declare var csLookup: string;
 declare var planServer: string;
 declare var unitTestMode: boolean;
@@ -485,24 +484,18 @@ declare var gDSPrefix: string;
 declare var gRetinaPrefix: string;
 declare var gParamStart: string;
 declare var gHiddenColumnWidth: number | string;
-declare var gTurnOnPrefix: boolean;
 declare var gUploadChunkSize: number;
 declare var gDefaultSharedRoot: string;
 declare var gJoinLookup: object;
-declare var gExportNoCheck: boolean;
 declare var gAlwaysDelete: boolean;
-declare var gShowDroppedTablesImage: boolean;
 declare var gDefaultQDelim: string;
 declare var gLongTestSuite: number;
 declare var gMaxDSColsSpec: number;
 declare var gMaxColToPull: number;
 declare var gMaxSampleSize: number;
 declare var gUdfDefaultNoCheck: boolean;
-declare var gSessionNoCleanup: boolean;
-declare var gIcvMode: boolean;
 declare var gEnableIndexStyle: boolean;
 declare var gXcSupport: boolean;
-declare var gCollab: boolean;
 declare var gXcalarRecordNum: string;
 declare var gXcalarApiLrqExportPrefix: string;
 declare var gDFSuffix: string;
@@ -1256,27 +1249,6 @@ declare namespace MonitorConfig {
     export function refreshParams(firstTouch: boolean): XDPromise<{}>;
 }
 
-declare namespace DagFunction {
-    interface TreeNode {
-        value: any, // TODO: figure out the type
-        parents: TreeNode[],
-        children: TreeNode[],
-
-        getSourceNames(excludeTags?: boolean): string[]
-    }
-
-    interface LineageStruct {
-        tree: TreeNode,
-        trees: TreeNode[],
-        sets: TreeNode[],
-        endPoints: TreeNode[],
-        orderedPrintArray: TreeNode[],
-        nodeIdMap: object
-    }
-
-    export function construct(nodes: XcalarApiDagNodeT[], tableId?: string): LineageStruct;
-    export function tagNodes(txId: number): XDPromise<void>;
-}
 
 declare namespace TutorialsSetup {
     export function setup(): void;
