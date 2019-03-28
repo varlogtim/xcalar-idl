@@ -38,19 +38,6 @@ class ColAssignmentView {
         return this.modelData;
     }
 
-    public setNewModel(allColSets?: ProgCol[][],
-        selectedColSets?: {
-            sourceColumn: string,
-            destColumn: string,
-            columnType: ColumnType,
-            cast: boolean
-        }[][]
-    ) {
-        const event: Function = () => { this._render() };
-        this.modelData = new ColAssignmentModel(allColSets, selectedColSets, event);
-        return this.modelData;
-    }
-
     public getModel() {
         return this.modelData.getModel();
     }
