@@ -195,7 +195,8 @@ async function runFuncTests() {
     iterations = commandLineArgs[5] || iterations;
     browser = await puppeteer.launch({
         headless: true,
-        ignoreHTTPSErrors: true
+        ignoreHTTPSErrors: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     let pages = [];
     let iter = 1;
