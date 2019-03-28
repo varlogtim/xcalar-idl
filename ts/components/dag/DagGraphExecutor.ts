@@ -611,6 +611,11 @@ class DagGraphExecutor {
 
     private _validateDataset(node: DagNodeDataset): DagNodeErrorType {
         try {
+            if (this._isOptimized) {
+                // optimized dataflow don't need to do this check
+                return null;
+            }
+
             const source: string = node.getDSName();
             if (typeof DS !== "undefined" && !DS.isAccessible(source)) {
                 return DagNodeErrorType.NoAccessToSource;
