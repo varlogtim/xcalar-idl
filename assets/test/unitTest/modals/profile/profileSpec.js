@@ -21,9 +21,9 @@ describe.skip("Profile-Profile Test", function() {
 
     describe("Show Profile Test", function() {
         it("should handle fail case", function(done) {
-            var oldFunc = ProfileEngine.genProfile;
+            var oldFunc = ProfileEngine.prototype.genProfile;
 
-            ProfileEngine.genProfile = function() {
+            ProfileEngine.prototype.genProfile = function() {
                 return PromiseHelper.reject({error: "test"});
             };
 
@@ -43,7 +43,7 @@ describe.skip("Profile-Profile Test", function() {
                 done("fail");
             })
             .always(function() {
-                ProfileEngine.genProfile = oldFunc;
+                ProfileEngine.prototype.genProfile = oldFunc;
             });
         });
 
@@ -783,7 +783,7 @@ describe.skip("Profile-Profile Test", function() {
             $modal.find(".close").click();
             var checkFunc = function() {
                 // wait unitl the resultset is freed
-                return ProfileEngine.__testOnly__.getProfileResultSetId() == null;
+                return Profile.__testOnly__.profileEngine.profileResultSetId == null;
             };
 
             UnitTest.testFinish(checkFunc)

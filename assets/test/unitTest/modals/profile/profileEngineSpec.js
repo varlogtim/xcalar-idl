@@ -19,6 +19,8 @@ describe("Profile-Profile Engine Test", function() {
     var oldMap;
     var oldFilter;
 
+    var profileEngine;
+
     before(function() {
         oldFilter = XIApi.filter;
         XIApi.filter = function() {
@@ -45,7 +47,7 @@ describe("Profile-Profile Engine Test", function() {
 
         oldSort = XIApi.sort;
         XIApi.sort = function() {
-            return PromiseHelper.resolve(null, []);
+            return PromiseHelper.resolve("test", []);
         };
 
         oldAgg = XIApi.aggregateWithEvalStr;
@@ -81,9 +83,36 @@ describe("Profile-Profile Engine Test", function() {
         XIApi.map = function() {
             return PromiseHelper.resolve();
         };
+
+        // constants
+        var aggKeys = ["min", "average", "max", "count", "sum", "sd"];
+
+        var statsKeyMap = {
+            "zeroQuartile": "zeroQuartile",
+            "lowerQuartile": "lowerQuartile",
+            "median": "median",
+            "upperQuartile": "upperQuartile",
+            "fullQuartile": "fullQuartile"
+        };
+        var sortMap = {
+            "asc": "asc",
+            "origin": "origin",
+            "desc": "desc",
+            "ztoa": "ztoa"
+        };
+        var statsColName = "statsGroupBy";
+        var bucketColName = "bucketGroupBy";
+
+        profileEngine = new ProfileEngine({
+            "sortMap": sortMap,
+            "aggKeys": aggKeys,
+            "statsKeyMap": statsKeyMap,
+            "statsColName": statsColName,
+            "bucketColName": bucketColName
+        });
     });
 
-    it("ProfileEngine.genProfile should work", function(done) {
+    it("genProfile should work", function(done) {
         var profileInfo = new ProfileInfo({
             colName: "test",
             type: ColumnType.integer
@@ -100,7 +129,7 @@ describe("Profile-Profile Engine Test", function() {
             return PromiseHelper.resolve("testTable2#ti2", {hasIndexed: true});
         };
 
-        ProfileEngine.genProfile(profileInfo, table)
+        profileEngine.genProfile(profileInfo, table)
         .then(function() {
             expect(profileInfo.groupByInfo.isComplete).to.be.true;
             expect(profileInfo.groupByInfo.nullCount).to.equal(50);
@@ -114,7 +143,7 @@ describe("Profile-Profile Engine Test", function() {
         });
     });
 
-    it("ProfileEngine.genProfile should handle fail case", function(done) {
+    it("genProfile should handle fail case", function(done) {
         var profileInfo = new ProfileInfo({
             colName: "test",
             type: ColumnType.integer
@@ -130,7 +159,7 @@ describe("Profile-Profile Engine Test", function() {
             return PromiseHelper.reject();
         };
 
-        ProfileEngine.genProfile(profileInfo, table)
+        profileEngine.genProfile(profileInfo, table)
         .then(function() {
             XIApi.index = cacheIndex;
             done("fail");
@@ -142,8 +171,8 @@ describe("Profile-Profile Engine Test", function() {
         });
     });
 
-    it("ProfileEngine.checkProfileTable should work", function(done) {
-        ProfileEngine.checkProfileTable()
+    it("checkProfileTable should work", function(done) {
+        profileEngine.checkProfileTable()
         .then(function(res) {
             expect(res).to.be.true;
             done();
@@ -154,7 +183,7 @@ describe("Profile-Profile Engine Test", function() {
     });
 
     it("should fetch nothing before set profile table", function(done) {
-        ProfileEngine.fetchProfileData()
+        profileEngine.fetchProfileData()
         .then(function(res) {
             expect(res.length).to.equal(0);
             done();
@@ -164,8 +193,8 @@ describe("Profile-Profile Engine Test", function() {
         });
     });
 
-    it("ProfileEngine.setProfileTable should work", function(done) {
-        ProfileEngine.setProfileTable("testTable", 10)
+    it("setProfileTable should work", function(done) {
+        profileEngine.setProfileTable("testTable", 10)
         .then(function(res) {
             expect(res.length).to.equal(1);
             done();
@@ -175,13 +204,13 @@ describe("Profile-Profile Engine Test", function() {
         });
     });
 
-    it("ProfileEngine.fetchProfileData should handle error case", function(done) {
+    it("fetchProfileData should handle error case", function(done) {
         var cacheFetch = XcalarFetchData;
         XcalarFetchData = function() {
             return PromiseHelper.resolve(["invalid thing to parse"]);
         };
 
-        ProfileEngine.fetchProfileData(0, 1)
+        profileEngine.fetchProfileData(0, 1)
         .then(function() {
             XcalarFetchData = cacheFetch;
             done("fail");
@@ -193,19 +222,19 @@ describe("Profile-Profile Engine Test", function() {
         });
     });
 
-    it("ProfileEngine.getTableRowNum should work", function() {
+    it("getTableRowNum should work", function() {
         // define by the result from XcalarMakeResultSetFromTable in before()
-        var res = ProfileEngine.getTableRowNum();
+        var res = profileEngine.getTableRowNum();
         expect(res).to.equal(100);
     });
 
-    it("ProfileEngine.sort should resolve if it's origin sort", function(done) {
+    it("sort should resolve if it's origin sort", function(done) {
         var profileInfo = new ProfileInfo({
             colName: "test",
             type: ColumnType.integer
         });
 
-        ProfileEngine.sort(sortMap.origin, 0, profileInfo)
+        profileEngine.sort(sortMap.origin, 0, profileInfo)
         .then(function() {
             expect(profileInfo.groupByInfo.isComplete).to.be.true;
             done();
@@ -215,7 +244,7 @@ describe("Profile-Profile Engine Test", function() {
         });
     });
 
-    it("ProfileEngine.sort should work", function(done) {
+    it("sort should work", function(done) {
         var profileInfo = new ProfileInfo({
             colName: "test",
             type: ColumnType.integer
@@ -226,7 +255,7 @@ describe("Profile-Profile Engine Test", function() {
             table: "testTable"
         });
 
-        ProfileEngine.sort(sortMap.asc, 0, profileInfo)
+        profileEngine.sort(sortMap.asc, 0, profileInfo)
         .then(function() {
             expect(profileInfo.groupByInfo.isComplete).to.be.true;
             done();
@@ -236,13 +265,13 @@ describe("Profile-Profile Engine Test", function() {
         });
     });
 
-    it("ProfileEngine.sort should handle invalide case", function(done) {
+    it("sort should handle invalide case", function(done) {
         var profileInfo = new ProfileInfo({
             colName: "test",
             type: ColumnType.integer
         });
 
-        ProfileEngine.sort("invalid", 0, profileInfo)
+        profileEngine.sort("invalid", 0, profileInfo)
         .then(function() {
             done("fail");
         })
@@ -252,7 +281,7 @@ describe("Profile-Profile Engine Test", function() {
         });
     });
 
-    it("ProfileEngine.bucket should work", function(done) {
+    it("bucket should work", function(done) {
         var profileInfo = new ProfileInfo({
             colName: "test",
             type: ColumnType.integer
@@ -263,7 +292,7 @@ describe("Profile-Profile Engine Test", function() {
             table: "testTable"
         });
 
-        ProfileEngine.bucket(null, "testTable", profileInfo, true)
+        profileEngine.bucket(null, "testTable", profileInfo, true)
         .then(function() {
             expect(profileInfo.groupByInfo.isComplete).to.be.true;
             done();
@@ -273,13 +302,13 @@ describe("Profile-Profile Engine Test", function() {
         });
     });
 
-    it("ProfileEngine.bucket should handle invalide case", function(done) {
+    it("bucket should handle invalide case", function(done) {
         var profileInfo = new ProfileInfo({
             colName: "test",
             type: ColumnType.integer
         });
 
-        ProfileEngine.bucket("invalid", "testTable", profileInfo)
+        profileEngine.bucket("invalid", "testTable", profileInfo)
         .then(function() {
             done("fail");
         })
@@ -289,17 +318,18 @@ describe("Profile-Profile Engine Test", function() {
         });
     });
 
-    it("ProfileEngine.genAggs should work", function(done) {
+    it("genAggs should work", function(done) {
         var oldRefresh = Profile.refreshAgg;
         Profile.refreshAgg = function() {};
         var profileInfo = new ProfileInfo({
             colName: "test",
             type: ColumnType.integer
         });
+        var aggKeys = ["min", "average", "max", "count", "sum", "sd"];
         profileInfo.aggInfo.min = -100;
         profileInfo.aggInfo.max = null;
 
-        ProfileEngine.genAggs("testTable", profileInfo)
+        profileEngine.genAggs("testTable", aggKeys, profileInfo)
         .then(function() {
             expect(profileInfo.aggInfo.min).to.equal(-100);
             expect(profileInfo.aggInfo.max).not.to.be.null;
@@ -313,7 +343,7 @@ describe("Profile-Profile Engine Test", function() {
         });
     });
 
-    it("ProfileEngine.genAggs should handle fail case", function(done) {
+    it("genAggs should handle fail case", function(done) {
         var oldRefresh = Profile.refreshAgg;
         var cacheAgg = XIApi.aggregate;
         XIApi.aggregate = function() {
@@ -325,8 +355,8 @@ describe("Profile-Profile Engine Test", function() {
         });
 
         profileInfo.aggInfo.min = null;
-
-        ProfileEngine.genAggs("testTable", profileInfo)
+        var aggKeys = ["min", "average", "max", "count", "sum", "sd"];
+        profileEngine.genAggs("testTable", aggKeys, profileInfo)
         .then(function() {
             expect(profileInfo.aggInfo.min).to.equal("--");
 
@@ -341,7 +371,7 @@ describe("Profile-Profile Engine Test", function() {
         });
     });
 
-    it("should resolve for unsorted case in ProfileEngine.genStats", function(done) {
+    it("should resolve for unsorted case in genStats", function(done) {
         var profileInfo = new ProfileInfo({
             colName: "test",
             type: ColumnType.integer
@@ -349,7 +379,7 @@ describe("Profile-Profile Engine Test", function() {
         profileInfo.statsInfo.unsorted = true;
         profileInfo.statsInfo.zeroQuartile = null;
 
-        ProfileEngine.genStats("testTable", profileInfo)
+        profileEngine.genStats("testTable", profileInfo)
         .then(function() {
             expect(profileInfo.statsInfo.zeroQuartile).to.be.null;
             done();
@@ -359,7 +389,7 @@ describe("Profile-Profile Engine Test", function() {
         });
     });
 
-    it("should resolve for unsorted case in ProfileEngine.genStats test 2", function(done) {
+    it("should resolve for unsorted case in genStats test 2", function(done) {
         var oldCheckOrder = XIApi.checkOrder;
         XIApi.checkOrder = function() {
             return PromiseHelper.resolve(XcalarOrderingT.XcalarOrderingUnordered);
@@ -372,7 +402,7 @@ describe("Profile-Profile Engine Test", function() {
         profileInfo.statsInfo.unsorted = false;
         profileInfo.statsInfo.zeroQuartile = null;
 
-        ProfileEngine.genStats("testTable", profileInfo)
+        profileEngine.genStats("testTable", profileInfo)
         .then(function() {
             expect(profileInfo.statsInfo.zeroQuartile).to.be.null;
 
@@ -385,7 +415,7 @@ describe("Profile-Profile Engine Test", function() {
         });
     });
 
-    it("ProfileEngine.genStats should work", function(done) {
+    it("genStats should work", function(done) {
         var oldCheckOrder = XIApi.checkOrder;
         XIApi.checkOrder = function() {
             return PromiseHelper.resolve(XcalarOrderingT.XcalarOrderingAscending,
@@ -404,7 +434,7 @@ describe("Profile-Profile Engine Test", function() {
         profileInfo.statsInfo.unsorted = false;
         profileInfo.statsInfo.zeroQuartile = null;
 
-        ProfileEngine.genStats("testTable", profileInfo, true)
+        profileEngine.genStats("testTable", profileInfo, true)
         .then(function() {
             expect(profileInfo.statsInfo.zeroQuartile).not.to.be.null;
 
@@ -419,7 +449,7 @@ describe("Profile-Profile Engine Test", function() {
         });
     });
 
-    it("ProfileEngine.genStats should work handle fail case", function(done) {
+    it("genStats should work handle fail case", function(done) {
         var oldSortAsc = XIApi.sortAscending;
         XIApi.sortAscending = function() {
             return PromiseHelper.reject("test error");
@@ -430,7 +460,7 @@ describe("Profile-Profile Engine Test", function() {
             type: ColumnType.integer
         });
 
-        ProfileEngine.genStats("testTable", profileInfo, true)
+        profileEngine.genStats("testTable", profileInfo, true)
         .then(function() {
             XIApi.sortAscending = oldSortAsc;
             done("fail");
@@ -442,10 +472,10 @@ describe("Profile-Profile Engine Test", function() {
         });
     });
 
-    it("ProfileEngine.clear should work", function(done) {
-        ProfileEngine.clear()
+    it("clear should work", function(done) {
+        profileEngine.clear()
         .then(function() {
-            var res = ProfileEngine.getTableRowNum();
+            var res = profileEngine.getTableRowNum();
             expect(res).to.equal(0);
             done();
         })
@@ -456,22 +486,23 @@ describe("Profile-Profile Engine Test", function() {
 
     it("calcFitAllBucketSize should return correct bucket size", function() {
         // function parameters are: numRowsToFetch, max, min
-        var bucketSize = ProfileEngine.__testOnly__.calcFitAllBucketSize(20, 600, 100);
+        var func = profileEngine._calcFitAllBucketSize;
+        var bucketSize = func(20, 600, 100);
         expect(bucketSize).to.equal(30);
 
-        bucketSize = ProfileEngine.__testOnly__.calcFitAllBucketSize(20, 2700, -2700);
+        bucketSize = func(20, 2700, -2700);
         expect(bucketSize).to.equal(300);
 
-        bucketSize = ProfileEngine.__testOnly__.calcFitAllBucketSize(10, 50000, 46000);
+        bucketSize = func(10, 50000, 46000);
         expect(bucketSize).to.equal(400);
 
-        bucketSize = ProfileEngine.__testOnly__.calcFitAllBucketSize(10, 50000, 46064);
+        bucketSize = func(10, 50000, 46064);
         expect(bucketSize).to.equal(400);
 
-        bucketSize = ProfileEngine.__testOnly__.calcFitAllBucketSize(10, 50000, 45950);
+        bucketSize = func(10, 50000, 45950);
         expect(bucketSize).to.equal(500);
 
-        bucketSize = ProfileEngine.__testOnly__.calcFitAllBucketSize(20, 2700000, 100);
+        bucketSize = func(20, 2700000, 100);
         expect(bucketSize).to.equal(200000);
     });
 

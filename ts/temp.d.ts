@@ -910,6 +910,38 @@ declare class TableMeta {
     public constructor(options: object);
 }
 
+declare class ProfileInfo {
+    public colName: string;
+    public groupByInfo: ProfileGroupbyInfo;
+    public statsInfo: ProfileStatsInfo;
+    public aggInfo: ProfileAggInfo;
+    public type: ColumnType;
+    public getId(): string;
+    public addBucket(bucketNum: number, obj: object): void;
+}
+
+declare class ProfileGroupbyInfo {
+    public isComplete: boolean | string;
+    public nullCount: number;
+    public allNull: boolean;
+    public buckets: {[key: number]: ProfileBucketInfo};
+}
+
+declare class ProfileStatsInfo {
+    public unsorted: boolean;
+    public key: string;
+}
+
+declare class ProfileAggInfo {
+    public max: number;
+    public min: number;
+}
+
+declare class ProfileBucketInfo {
+    public table: string;
+    public colName: string;
+}
+
 declare class XcStorage {
     public getItem(key: string): string;
     public setItem(key: string, value: string): boolean;

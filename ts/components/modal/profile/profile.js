@@ -49,20 +49,13 @@ window.Profile = (function($, Profile, d3) {
     var numRowsToFetch = defaultRowsToFetch;
     var chartType = "bar";
     var chartBuilder;
+    var _profileEngine = null;
 
     Profile.setup = function() {
         $modal = $("#profileModal");
         $rangeSection = $modal.find(".rangeSection");
         $rangeInput = $("#profile-range");
         $skipInput = $("#profile-rowInput");
-
-        ProfileEngine.setup({
-            "sortMap": sortMap,
-            "aggKeys": aggKeys,
-            "statsKeyMap": statsKeyMap,
-            "statsColName": statsColName,
-            "bucketColName": bucketColName
-        });
 
         ProfileSelector.setup($modal);
 
@@ -167,6 +160,7 @@ window.Profile = (function($, Profile, d3) {
             return (deferred.promise());
         }
 
+        getProfileEngine();
         // update front col name
         statsCol.frontColName = progCol.getFrontColName(true);
 
@@ -304,7 +298,7 @@ window.Profile = (function($, Profile, d3) {
             if (event.which === keyCode.Enter) {
                 var $input = $(this);
                 var num = Number($input.val());
-                var totalRows = ProfileEngine.getTableRowNum();
+                var totalRows = getTotalRowNums();
 
                 if (!isNaN(num)) {
                     clearTimeout(skipInputTimer);
@@ -545,7 +539,7 @@ window.Profile = (function($, Profile, d3) {
     function closeProfileModal() {
         modalHelper.clear();
         $modal.find(".groupbyChart").empty();
-        ProfileEngine.clear();
+        clearProfileEngine();
 
         curTableId = null;
         curColNum = null;
@@ -584,8 +578,8 @@ window.Profile = (function($, Profile, d3) {
             // return fail if resultSetId is not free
             var innerDeferred = PromiseHelper.deferred();
             var groupbyTable = curStatsCol.groupByInfo.buckets[bucketNum].table;
-
-            ProfileEngine.checkProfileTable(groupbyTable)
+            var profileEngine = getProfileEngine();
+            profileEngine.checkProfileTable(groupbyTable)
             .then(function(exist) {
                 if (exist) {
                     refreshGroupbyInfo(curStatsCol);
@@ -720,8 +714,8 @@ window.Profile = (function($, Profile, d3) {
             } else {
                 tableName = tableInfo.table;
             }
-
-            ProfileEngine.setProfileTable(tableName, numRowsToFetch)
+            var profileEngine = getProfileEngine();
+            profileEngine.setProfileTable(tableName, numRowsToFetch)
             .then(function(data) {
                 $modal.removeClass("loading");
                 $loadHiddens.removeClass("hidden").removeClass("disabled");
@@ -845,7 +839,8 @@ window.Profile = (function($, Profile, d3) {
         // show ellipsis as progressing
         refreshAggInfo(aggKeys, statsCol);
         var tableName = gTables[curTableId].getName();
-        return ProfileEngine.genAggs(tableName, statsCol);
+        var profileEngine = getProfileEngine();
+        return profileEngine.genAggs(tableName, aggKeys, statsCol);
     }
 
     function genStats(sort) {
@@ -858,8 +853,8 @@ window.Profile = (function($, Profile, d3) {
             // when trigger from button
             refreshStatsInfo(curStatsCol, true);
         }
-
-        ProfileEngine.genStats(tableName, curStatsCol, sort)
+        var profileEngine = getProfileEngine();
+        profileEngine.genStats(tableName, curStatsCol, sort)
         .then(function() {
             if (isModalVisible(curStatsCol)) {
                 refreshStatsInfo(curStatsCol);
@@ -882,7 +877,8 @@ window.Profile = (function($, Profile, d3) {
         }
 
         var deferred = PromiseHelper.deferred();
-        ProfileEngine.genProfile(curStatsCol, table)
+        var profileEngine = getProfileEngine();
+        profileEngine.genProfile(curStatsCol, table)
         .then(function() {
             // modal is open and is for that column
             if (isModalVisible(curStatsCol)) {
@@ -980,7 +976,7 @@ window.Profile = (function($, Profile, d3) {
     }
 
     function resetScrollBar(updateRowInfo) {
-        var totalRows = ProfileEngine.getTableRowNum();
+        var totalRows = getTotalRowNums();
         if (totalRows <= numRowsToFetch) {
             $modal.addClass("noScrollBar");
         } else {
@@ -998,7 +994,7 @@ window.Profile = (function($, Profile, d3) {
         var $section = $modal.find(".scrollSection");
         var $scrollBar = $section.find(".scrollBar");
         var $scroller = $scrollBar.find(".scroller");
-        var totalRows = ProfileEngine.getTableRowNum();
+        var totalRows = getTotalRowNums();
 
         // the caculation is based on: if totalRows === numRowsToFetch,
         // then scrollerWidth == scrollBarWidth
@@ -1045,7 +1041,7 @@ window.Profile = (function($, Profile, d3) {
                     rowPercent = Math.min(1, Math.max(0, rowPercent));
 
                     if (xDiff !== 0) {
-                        var totalRows = ProfileEngine.getTableRowNum();
+                        var totalRows = getTotalRowNums();
                         // when it's dragging the scroller,
                         // not clicking on scrollbar
                         var scrollerRight = $scroller.offset().left +
@@ -1098,7 +1094,7 @@ window.Profile = (function($, Profile, d3) {
         var $section = $modal.find(".scrollSection");
         var $scrollBar = $section.find(".scrollBar");
         var $scroller = $scrollBar.find(".scroller");
-        var totalRows = ProfileEngine.getTableRowNum();
+        var totalRows = getTotalRowNums();
 
         if (rowNum != null) {
             isFromInput = true;
@@ -1172,7 +1168,8 @@ window.Profile = (function($, Profile, d3) {
         setArrows(null, true);
 
         var curStatsCol = statsCol;
-        ProfileEngine.fetchProfileData(rowPosition, rowsToFetch)
+        var profileEngine = getProfileEngine();
+        profileEngine.fetchProfileData(rowPosition, rowsToFetch)
         .then(function(data) {
             ProfileSelector.clear();
 
@@ -1207,8 +1204,7 @@ window.Profile = (function($, Profile, d3) {
 
         $leftArrow.removeClass("disabled");
         $rightArrow.removeClass("disabled");
-
-        var totalRows = ProfileEngine.getTableRowNum();
+        var totalRows = getTotalRowNums();
         if (totalRows <= numRowsToFetch) {
             $leftArrow.hide();
             $rightArrow.hide();
@@ -1226,7 +1222,7 @@ window.Profile = (function($, Profile, d3) {
 
     function clickArrowEvent(isLeft) {
         var curRowNum = Number($skipInput.val());
-        var totalRows = ProfileEngine.getTableRowNum();
+        var totalRows = getTotalRowNums();
         if (isLeft) {
             curRowNum -= numRowsToFetch;
         } else {
@@ -1265,7 +1261,7 @@ window.Profile = (function($, Profile, d3) {
         var rowsToShow;
         var $moreBtn = $displayInput.find(".more").removeClass("xc-disabled");
         var $lessBtn = $displayInput.find(".less").removeClass("xc-disabled");
-        var totalRows = ProfileEngine.getTableRowNum();
+        var totalRows = getTotalRowNums();
 
         if ($activeRange.data("option") === "fitAll" ||
             totalRows <= minRowsToFetch) {
@@ -1319,7 +1315,7 @@ window.Profile = (function($, Profile, d3) {
 
     function resetRowInput() {
         // total row might be 0 in error case
-        var totalRows = ProfileEngine.getTableRowNum();
+        var totalRows = getTotalRowNums();
         var rowNum = (totalRows <= 0) ? 0 : 1;
         $skipInput.val(rowNum).data("rowNum", rowNum);
         var $maxRange = $skipInput.siblings(".max-range");
@@ -1350,8 +1346,8 @@ window.Profile = (function($, Profile, d3) {
                 refreshGroupbyInfo(curStatsCol, true);
             }
         }, 500);
-
-        ProfileEngine.sort(newOrder, bucketNum, curStatsCol)
+        var profileEngine = getProfileEngine();
+        profileEngine.sort(newOrder, bucketNum, curStatsCol)
         .then(function() {
             // remove timer as first thing
             clearTimeout(refreshTimer);
@@ -1454,7 +1450,8 @@ window.Profile = (function($, Profile, d3) {
         }, 500);
 
         var tableName = gTables[curTableId].getName();
-        ProfileEngine.bucket(newBucketNum, tableName, curStatsCol, fitAll)
+        var profileEngine = getProfileEngine();
+        profileEngine.bucket(newBucketNum, tableName, curStatsCol, fitAll)
         .then(function(bucketSize) {
             // remove timer as first thing
             clearTimeout(refreshTimer);
@@ -1608,6 +1605,29 @@ window.Profile = (function($, Profile, d3) {
         return deferred.promise();
     }
 
+    function getProfileEngine() {
+        if (_profileEngine == null) {
+            _profileEngine = new ProfileEngine({
+                "sortMap": sortMap,
+                "aggKeys": aggKeys,
+                "statsKeyMap": statsKeyMap,
+                "statsColName": statsColName,
+                "bucketColName": bucketColName
+            });
+        }
+        return _profileEngine;
+    }
+
+    function clearProfileEngine() {
+        _profileEngine.clear();
+        _profileEngine = null;
+    }
+
+    function getTotalRowNums() {
+        var profileEngine = getProfileEngine();
+        return profileEngine.getTableRowNum();
+    }
+
     /* Unit Test Only */
     if (window.unitTestMode) {
         Profile.__testOnly__ = {};
@@ -1615,6 +1635,7 @@ window.Profile = (function($, Profile, d3) {
             return statsCol;
         };
         Profile.__testOnly__.addNullValue = addNullValue;
+        Profile.__testOnly__.profileEngine = _profileEngine
     }
     /* End Of Unit Test Only */
 

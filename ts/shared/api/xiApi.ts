@@ -1220,7 +1220,7 @@ namespace XIApi {
         txId: number,
         evalStr: string,
         tableName: string,
-        dstAggName: string
+        dstAggName?: string
     ): XDPromise<string | number> {
         if (evalStr == null || tableName == null || txId == null) {
             return PromiseHelper.reject("Invalid args in aggregate");
