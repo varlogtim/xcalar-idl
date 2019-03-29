@@ -284,6 +284,7 @@ interface PublishTable {
     active: boolean,
     sizeTotal: number,
     keys: XcalarApiColumnInfoT[],
+    indices: XcalarApiIndexInfoT[],
     numRowsTotal: number
 }
 

@@ -714,14 +714,17 @@
 #sqlTableSchemaArea {
     .mainSection {
         .row {
-            @w-primaryKey: 180px;
-            @w-other: @w-primaryKey / 2;
+            @w-primaryKey: 150px;
+            @w-other: @w-primaryKey;
 
             > div {
                 width: ~"calc(50% - @{w-other})";
             }
 
             .primaryKey {
+                width: @w-primaryKey;
+            }
+            .columnIndex {
                 width: @w-primaryKey;
             }
         }

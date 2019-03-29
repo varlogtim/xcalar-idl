@@ -325,6 +325,10 @@ namespace IMDPanel {
             return key.name;
         }).toString();
 
+        const indices: string = table.indices.map((index: XcalarApiIndexInfoT) => {
+            return index.key.name;
+        }).toString();
+
         for (let i = 0; i < table.updates.length; i++) {
             const time = moment.unix(table.updates[i].startTS).format("MMMM Do YYYY, h:mm:ss A");
             const timeTip = moment.unix(table.updates[i].startTS).format("M-D-Y h:mm:ss A");
@@ -332,6 +336,7 @@ namespace IMDPanel {
                     '<div class="tableColumn batchId">' + table.updates[i].batchId + '</div>' +
                     '<div class="tableColumn sourceName" data-original-title="' + table.updates[i].source + '"><span class="dummy">a</span>' + table.updates[i].source + '</div>' +
                     '<div class="tableColumn primaryKeys" ' + xcTooltip.Attrs + ' data-original-title="' + keys + '">' + keys + '</div>' +
+                    '<div class="tableColumn indices" ' + xcTooltip.Attrs + ' data-original-title="' + indices + '">' + indices + '</div>' +
                     '<div class="tableColumn" ' + xcTooltip.Attrs + ' data-original-title="' + timeTip + '">' + time + '</div>' +
                     '<div class="tableColumn metaData">' + xcHelper.numToStr(table.updates[i].numRows) + '</div>' +
                     '<div class="tableColumn metaData">' + xcHelper.numToStr(table.updates[i].numInserts) + '</div>' +
