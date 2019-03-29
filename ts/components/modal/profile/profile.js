@@ -50,14 +50,13 @@ window.Profile = (function($, Profile, d3) {
     var chartType = "bar";
     var chartBuilder;
     var _profileEngine = null;
+    var _profileSelector = null;
 
     Profile.setup = function() {
         $modal = $("#profileModal");
         $rangeSection = $modal.find(".rangeSection");
         $rangeInput = $("#profile-range");
         $skipInput = $("#profile-rowInput");
-
-        ProfileSelector.setup($modal);
 
         var modalWidth;
         var statsWidth;
@@ -161,6 +160,7 @@ window.Profile = (function($, Profile, d3) {
         }
 
         getProfileEngine();
+        getProfileSelector();
         // update front col name
         statsCol.frontColName = progCol.getFrontColName(true);
 
@@ -238,7 +238,7 @@ window.Profile = (function($, Profile, d3) {
                     .removeAttr("preserveAspectRatio");
                 chartType = "bar";
             }
-            ProfileSelector.clear();
+            clearProfileSelector(false);
             buildGroupGraphs(statsCol, true, false);
         });
 
@@ -249,8 +249,9 @@ window.Profile = (function($, Profile, d3) {
                 return;
             }
 
-            if (ProfileSelector.isOn()) {
-                ProfileSelector.off();
+            let profileSelector = getProfileSelector();
+            if (profileSelector.isOn()) {
+                profileSelector.off();
                 return;
             }
             percentageLabel = !percentageLabel;
@@ -272,7 +273,8 @@ window.Profile = (function($, Profile, d3) {
             if (event.which !== 1) {
                 return;
             }
-            ProfileSelector.new({
+            let profileSelector = getProfileSelector();
+            profileSelector.select({
                 "chartBuilder": chartBuilder,
                 "x": event.pageX,
                 "y": event.pageY
@@ -380,7 +382,7 @@ window.Profile = (function($, Profile, d3) {
             } else if ($option.hasClass("exclude")) {
                 filterSelectedValues(FltOp.Exclude);
             } else {
-                ProfileSelector.clear();
+                clearProfileSelector(false);
             }
         });
 
@@ -558,7 +560,7 @@ window.Profile = (function($, Profile, d3) {
         $(document).off(".profileModal");
 
         numRowsToFetch = defaultRowsToFetch;
-        ProfileSelector.clear();
+        clearProfileSelector(true);
         resetRowsInfo();
         resetDecimalInput();
     }
@@ -1171,7 +1173,7 @@ window.Profile = (function($, Profile, d3) {
         var profileEngine = getProfileEngine();
         profileEngine.fetchProfileData(rowPosition, rowsToFetch)
         .then(function(data) {
-            ProfileSelector.clear();
+            clearProfileSelector(false);
 
             groupByData = addNullValue(curStatsCol, data);
             buildGroupGraphs(curStatsCol, forceUpdate);
@@ -1251,7 +1253,7 @@ window.Profile = (function($, Profile, d3) {
         resetScrollBar();
         resetRowInput();
         resetSortInfo();
-        ProfileSelector.clear();
+        clearProfileSelector(false);
         resetRowsInfo();
     }
 
@@ -1527,7 +1529,8 @@ window.Profile = (function($, Profile, d3) {
         // in case close modal clear curTableId
         var filterTableId = curTableId;
         var colName = statsCol.colName;
-        var options = ProfileSelector.filter(operator, statsCol);
+        var profileSelector = getProfileSelector();
+        var options = profileSelector.filter(operator, statsCol);
         if (options != null && options.filterString) {
             var colNum = gTables[filterTableId].getColNumByBackName(colName);
             closeProfileModal();
@@ -1621,6 +1624,22 @@ window.Profile = (function($, Profile, d3) {
     function clearProfileEngine() {
         _profileEngine.clear();
         _profileEngine = null;
+    }
+
+    function getProfileSelector() {
+        if (_profileSelector == null) {
+            _profileSelector = new ProfileSelector("profileModal", "profile-chart");
+        }
+        return _profileSelector;
+    }
+
+    function clearProfileSelector(reset) {
+        if (_profileSelector != null) {
+            _profileSelector.clear();
+        }
+        if (reset) {
+            _profileSelector = null;
+        }
     }
 
     function getTotalRowNums() {

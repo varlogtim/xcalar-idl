@@ -1,7 +1,17 @@
 describe("Profile-Profile Selector Test", function() {
+    let profileSelector;
+    
+    before(function() {
+        profileSelector = new ProfileSelector("profileModal", "profile-chart");
+    });
+
+    it("should be a correct instance", function() {
+        expect(profileSelector).to.be.an.instanceof(ProfileSelector);
+    });
+
     describe("Basic Function Test", function() {
         it("fltExist should work", function() {
-            var fltExist = ProfileSelector.__testOnly__.fltExist;
+            var fltExist = profileSelector._fltExist;
             var res = fltExist(FltOp.Filter, "test");
             expect(res).to.equal("not(exists(test))");
             // case 2
@@ -17,15 +27,14 @@ describe("Profile-Profile Selector Test", function() {
 
         it("getBucketFltOpt should work", function() {
             var chartBuilder = ProfileChart.new({type: "bar", bucketSize: 1});
-            ProfileSelector.__testOnly__.setChartBuilder(chartBuilder);
+            profileSelector._chartBuilder = chartBuilder;
 
-            var getBucketFltOpt = ProfileSelector.__testOnly__.getBucketFltOpt;
             // case 1
-            var res = getBucketFltOpt(null, "test", {});
+            var res = profileSelector._getBucketFltOpt(null, "test", {});
             expect(res).to.be.null;
 
             // case 2
-            res = getBucketFltOpt(FltOp.Filter, "test", {
+            res = profileSelector._getBucketFltOpt(FltOp.Filter, "test", {
                 1: true,
                 2: true
             }, true);
@@ -35,7 +44,7 @@ describe("Profile-Profile Selector Test", function() {
             .to.equal("or(or(and(ge(test, 1), lt(test, 2)), and(ge(test, 2), lt(test, 3))), not(exists(test)))");
 
             // caser 3
-            res = getBucketFltOpt(FltOp.Exclude, "test", {
+            res = profileSelector._getBucketFltOpt(FltOp.Exclude, "test", {
                 2: true,
                 3: true
             }, false);
@@ -46,73 +55,71 @@ describe("Profile-Profile Selector Test", function() {
         });
 
         it("getNumFltOpt should work", function() {
-            var getNumFltOpt = ProfileSelector.__testOnly__.getNumFltOpt;
-
             // case 1
             var chartBuilder = ProfileChart.new({type: "bar", bucketSize: 0});
-            ProfileSelector.__testOnly__.setChartBuilder(chartBuilder);
-            var res = getNumFltOpt(FltOp.Filter, "test", [], true);
+            profileSelector._chartBuilder = chartBuilder;
+            var res = profileSelector._getNumFltOpt(FltOp.Filter, "test", [], true);
             expect(res).to.be.an("object");
             expect(res.operator).to.equal(FltOp.Filter);
             expect(res.filterString).to.equal("not(exists(test))");
             // case 2
-            res = getNumFltOpt(FltOp.Filter, "test", [[1]], true);
+            res = profileSelector._getNumFltOpt(FltOp.Filter, "test", [[1]], true);
             expect(res.operator).to.equal(FltOp.Filter);
             expect(res.filterString)
             .to.equal("or(eq(test, 1), not(exists(test)))");
             // case 3
-            res = getNumFltOpt(FltOp.Filter, "test", [[1, 2]]);
+            res = profileSelector._getNumFltOpt(FltOp.Filter, "test", [[1, 2]]);
             expect(res.operator).to.equal(FltOp.Filter);
             expect(res.filterString)
             .to.equal("and(ge(test, 1), le(test, 2))");
             // case 4
-            res = getNumFltOpt(FltOp.Exclude, "test", [[1]]);
+            res = profileSelector._getNumFltOpt(FltOp.Exclude, "test", [[1]]);
             expect(res.operator).to.equal(FltOp.Exclude);
             expect(res.filterString)
             .to.equal("neq(test, 1)");
             // case 5
-            res = getNumFltOpt(FltOp.Exclude, "test", [[1, 2]]);
+            res = profileSelector._getNumFltOpt(FltOp.Exclude, "test", [[1, 2]]);
             expect(res.operator).to.equal(FltOp.Exclude);
             expect(res.filterString)
             .to.equal("or(lt(test, 1), gt(test, 2))");
             // case 6
-            res = getNumFltOpt("wrongOperator", "test", []);
+            res = profileSelector._getNumFltOpt("wrongOperator", "test", []);
             expect(res.operator).to.equal("wrongOperator");
             expect(res.filterString).to.equal("");
             // case 7 (change bucket size to 1)
             chartBuilder = ProfileChart.new({type: "bar", bucketSize: 1});
-            ProfileSelector.__testOnly__.setChartBuilder(chartBuilder);
+            profileSelector._chartBuilder = chartBuilder;
 
-            res = getNumFltOpt(FltOp.Filter, "test", [[1]], false);
+            res = profileSelector._getNumFltOpt(FltOp.Filter, "test", [[1]], false);
             expect(res.operator).to.equal(FltOp.Filter);
             expect(res.filterString)
             .to.equal("and(ge(test, 1), lt(test, 2))");
             // case 8
-            res = getNumFltOpt(FltOp.Exclude, "test", [[1]], false);
+            res = profileSelector._getNumFltOpt(FltOp.Exclude, "test", [[1]], false);
             expect(res.operator).to.equal(FltOp.Exclude);
             expect(res.filterString)
             .to.equal("or(lt(test, 1), ge(test, 2))");
             // case 9
-            res = getNumFltOpt("wrongOperator", "test", [[1]], false);
+            res = profileSelector._getNumFltOpt("wrongOperator", "test", [[1]], false);
             expect(res.operator).to.equal("wrongOperator");
             expect(res.filterString).to.equal("");
         });
 
         after(function() {
-            ProfileSelector.clear();
+            profileSelector.clear();
         });
     });
 
     describe("Public Api Test", function() {
-        it("ProfileSelector.off should work", function() {
-            ProfileSelector.off();
-            expect(ProfileSelector.isOn()).to.be.false;
+        it("off should work", function() {
+            profileSelector.off();
+            expect(profileSelector.isOn()).to.be.false;
         });
 
-        it("ProfileSelector.clear should work", function(done) {
+        it("clear should work", function(done) {
             var $filterOption = $("#profile-filterOption");
             $filterOption.show();
-            ProfileSelector.clear();
+            profileSelector.clear();
             // hide filterOption has a fade out
             setTimeout(function() {
                 assert.isFalse($filterOption.is(":visible"));
@@ -172,7 +179,7 @@ describe("Profile-Profile Selector Test", function() {
             it("should create selection", function() {
                 var chartBuilder = buildChart("bar");
                 var offset = getChartOffset();
-                ProfileSelector.new({
+                profileSelector.select({
                     chartBuilder: chartBuilder,
                     x: offset.left + 50,
                     y: offset.top + 50
@@ -190,8 +197,8 @@ describe("Profile-Profile Selector Test", function() {
                 expect($modal.find(".area.selected").length).to.be.at.least(1);
             });
 
-            it("ProfileSelector.filter should work", function() {
-                var res = ProfileSelector.filter(FltOp.Filter, {
+            it("filter should work", function() {
+                var res = profileSelector.filter(FltOp.Filter, {
                     colName: "a",
                     type: ColumnType.integer
                 });
@@ -201,7 +208,7 @@ describe("Profile-Profile Selector Test", function() {
             });
 
             after(function() {
-                ProfileSelector.clear();
+                profileSelector.clear();
             });
         });
     
@@ -213,7 +220,7 @@ describe("Profile-Profile Selector Test", function() {
             it("should create selection", function() {
                 var chartBuilder = buildChart("pie");
                 var offset = getPieChartOffset();
-                ProfileSelector.new({
+                profileSelector.select({
                     chartBuilder: chartBuilder,
                     x: offset.left + 50,
                     y: offset.top + 50
@@ -231,18 +238,8 @@ describe("Profile-Profile Selector Test", function() {
                 expect($modal.find(".area.selected").length).to.be.at.least(1);
             });
 
-            // it("ProfileSelector.filter should work", function() {
-            //     var res = ProfileSelector.filter(FltOp.Filter, {
-            //         colName: "a",
-            //         type: ColumnType.integer
-            //     });
-            //     expect(res).to.be.an("object");
-            //     expect(res.operator).to.equal(FltOp.Filter);
-            //     expect(res.filterString).to.equal("and(ge(a, 16), le(a, 17))");
-            // });
-
             after(function() {
-                ProfileSelector.clear();
+                profileSelector.clear();
             });
         });
 

@@ -332,9 +332,10 @@ declare class d3 {
     public transition(): d3;
     public duration(): d3;
     public insert(type: string | Function, before?: string | HTMLElement): d3;
-    public classed(names: string, value?: boolean | Function): boolean;
+    public classed(names: string, value?: boolean | Function): d3;
     public empty(): boolean;
     public call(func: any): d3;
+    public size(): number;
     public svg;
     public layout;
     public scale: any;
