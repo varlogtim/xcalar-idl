@@ -1160,35 +1160,36 @@ class DagGraph {
                         error = xcHelper.replaceMsg(AggTStr.AggNodeMustExecuteError, {
                             "aggName": agg
                         });
-                        continue;
                     }
                     sources.push(aggNode);
-                }
-                let aggInfo: AggregateInfo = DagAggManager.Instance.getAgg(this.getTabId(), agg);
-                if (aggInfo == null) {
-                    error = xcHelper.replaceMsg(AggTStr.AggNotExistError, {
-                        "aggName": agg
-                    });
-                    break;
-                }
-                if (aggInfo.value == null || optimized) {
-                    if (aggInfo.graph != this.getTabId() &&
-                            (aggInfo.graph != null || !this.hasNode(aggInfo.node))) {
-                        // Outside of this graph or aggMap not specified
-                        let tab: DagTab = DagTabManager.Instance.getTabById(aggInfo.graph);
-                        let name: string = "";
-                        if (tab != null) {
-                            name = tab.getName();
-                        }
+                } else {
+                    // If we don't have the aggMap, we have to look at the manager
+                    let aggInfo: AggregateInfo = DagAggManager.Instance.getAgg(this.getTabId(), agg);
+                    if (aggInfo == null) {
+                        error = xcHelper.replaceMsg(AggTStr.AggNotExistError, {
+                            "aggName": agg
+                        });
+                        break;
+                    } 
+                    else if (aggInfo.graph == null) {
+                        // Doesnt have a graph, this aggregate can't be found.
+                        error = xcHelper.replaceMsg(AggTStr.AggNodeNotExistError, {
+                            "aggName": agg
+                        });
+                    } else if (aggInfo.graph != this.getTabId()) {
+                        // Aggregate must be created in this graph
                         error = xcHelper.replaceMsg(AggTStr.AggGraphError, {
                             "aggName": agg,
                             "graphName": name
                         });
-                    } else {
-                        // doesnt exist
+                    } else if (aggInfo.node == null || this.hasNode(aggInfo.node)) {
+                        // Node either doesnt exist or is not in this graph
                         error = xcHelper.replaceMsg(AggTStr.AggNodeNotExistError, {
                             "aggName": agg
                         });
+                    } else {
+                        // It's within this graph and the node exists
+                        sources.push(this.getNode(aggInfo.node));
                     }
                 }
             }
