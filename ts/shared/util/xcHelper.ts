@@ -1167,6 +1167,32 @@ namespace xcHelper {
     }
 
     /**
+    * xcHelper.convertColumnTypeToSQLType
+    * It's the reverse of xcHelper.convertSQLTypeToColType
+    * @param type
+    */
+   export function convertColTypeToSQLType(type: ColumnType): SQLColumnType {
+       switch(type) {
+           case ColumnType.integer:
+               return SQLColumnType.Integer;
+           case ColumnType.boolean:
+               return SQLColumnType.Boolean;
+           case ColumnType.float:
+               return SQLColumnType.Float;
+           case ColumnType.timestamp:
+               return SQLColumnType.Timestamp;
+           case ColumnType.string:
+               return SQLColumnType.String;
+           case ColumnType.money:
+               return SQLColumnType.Money;
+           default:
+               xcAssert(false, SQLErrTStr.InvalidColTypeForFinalize + type);
+       }
+   }
+
+    var successTimers: SuccessTimer = <SuccessTimer>{};
+
+    /**
      * xcHelper.validate
      * @param eles
      */

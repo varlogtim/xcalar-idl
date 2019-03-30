@@ -58,8 +58,7 @@ module.exports = class Pool {
             const deferred = this._workers.get(worker);
             if (deferred) {
                 if (ret.success) {
-                    deferred.resolve(ret.data.xcQueryString, ret.data.newTableName,
-                                    ret.data.colNames, ret.data.toCache);
+                    deferred.resolve(ret.data);
                 } else {
                     deferred.reject(ret.error);
                 }

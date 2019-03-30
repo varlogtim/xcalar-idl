@@ -3061,7 +3061,7 @@ XcalarQueryCheck = function(
     canceling: boolean,
     txId?: number,
     options?: {
-        jdbcCheckTime?: number,
+        checkTime?: number,
         noCleanup?: boolean
     }
 ): XDPromise<XcalarApiQueryStateOutputT> {
@@ -3076,15 +3076,11 @@ XcalarQueryCheck = function(
     }
 
     options = options || {};
-    let jdbcCheckTime: number = options.jdbcCheckTime;
     let noCleanup: boolean = options.noCleanup;
 
-    let checkTime = 1000;// 1s per check
+    let checkTime = options.checkTime || 1000; // 1s per check
     if (canceling) {
-        checkTime = 2000;
-    }
-    if (jdbcCheckTime) {
-        checkTime = jdbcCheckTime;
+        checkTime = options.checkTime || 2000;
     }
     cycle();
 
@@ -3148,7 +3144,7 @@ XcalarQueryWithCheck = function(
     txId: number,
     options?: {
         bailOnError?: boolean,
-        jdbcCheckTime?: number,
+        checkTime?: number,
         noCleanup?: boolean,
         udfUserName: string,
         udfSessionName: string

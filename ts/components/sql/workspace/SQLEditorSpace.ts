@@ -5,7 +5,7 @@ class SQLEditorSpace {
     private _isDocked: boolean;
     private _minWidth: number;
     private _currentFile: string;
-    private _executers: SQLExecutor[];
+    private _executers: SQLDagExecutor[];
 
     public static get Instance() {
         return this._instance || (this._instance = new this());
@@ -199,7 +199,7 @@ class SQLEditorSpace {
         try {
             let selectArray: SQLParserStruct[] = [];
             let lastShow: any = {type: "select"};
-            let executorArray: SQLExecutor[] = [];
+            let executorArray: SQLDagExecutor[] = [];
             let compilePromiseArray: XDPromise<any>[] = [];
             let executePromiseArray: XDPromise<any>[] = [];
             const struct = {
@@ -246,9 +246,9 @@ class SQLEditorSpace {
                 }
                 for (let i = 0; i < selectArray.length; i++) {
                     const sqlStruct: SQLParserStruct = selectArray[i];
-                    let executor: SQLExecutor;
+                    let executor: SQLDagExecutor;
                     try {
-                        executor = new SQLExecutor(sqlStruct);
+                        executor = new SQLDagExecutor(sqlStruct);
                     } catch (e) {
                         return PromiseHelper.reject(e);
                     }
@@ -292,7 +292,7 @@ class SQLEditorSpace {
         }
     }
 
-    private _compileStatement(curExecutor: SQLExecutor) {
+    private _compileStatement(curExecutor: SQLDagExecutor) {
         try {
             let callback = null;
             let deferred: XDDeferred<void> = PromiseHelper.deferred();
@@ -317,7 +317,7 @@ class SQLEditorSpace {
         }
     }
 
-    private _executeStatement(curExecutor: SQLExecutor,
+    private _executeStatement(curExecutor: SQLDagExecutor,
                               i: number, statementCount: number) {
         try {
             let callback = null;
@@ -352,11 +352,11 @@ class SQLEditorSpace {
         }
     }
 
-    private _addExecutor(executor: SQLExecutor): void {
+    private _addExecutor(executor: SQLDagExecutor): void {
         this._executers.push(executor);
     }
 
-    private _removeExecutor(executor: SQLExecutor): void {
+    private _removeExecutor(executor: SQLDagExecutor): void {
         for (let i = 0; i< this._executers.length; i++) {
             if (this._executers[i] === executor) {
                 this._executers.splice(i, 1);

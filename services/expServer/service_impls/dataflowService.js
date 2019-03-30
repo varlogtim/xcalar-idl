@@ -220,13 +220,13 @@ function join(joinReq) {
     };
     var txId = Transaction.start({ "simulate": true });
     // Delete index table for SDK
-    let lIndexCache = SQLApi.getIndexTable(lTableInfo.tableName, lTableInfo.columns);
+    let lIndexCache = XIApi.getIndexTable(lTableInfo.tableName, lTableInfo.columns);
     if (lIndexCache != null) {
-        SQLApi.deleteIndexTable(lIndexCache.tableName);
+        XIApi.deleteIndexTable(lIndexCache.tableName);
     }
-    let rIndexCache = SQLApi.getIndexTable(rTableInfo.tableName, rTableInfo.columns);
+    let rIndexCache = XIApi.getIndexTable(rTableInfo.tableName, rTableInfo.columns);
     if (rIndexCache != null) {
-        SQLApi.deleteIndexTable(rIndexCache.tableName);
+        XIApi.deleteIndexTable(rIndexCache.tableName);
     }
     XIApi.join(txId, joinType, lTableInfo, rTableInfo, options)
         .then(function (newTableName, tempCols, lRename, rRename) {
@@ -274,9 +274,9 @@ function groupBy(groupByReq) {
     var tableName = groupByReq.getSrctablename();
     var txId = Transaction.start({ "simulate": true });
     //Delete index table for SDK
-    let indexCache = SQLApi.getIndexTable(tableName, groupByCols);
+    let indexCache = XIApi.getIndexTable(tableName, groupByCols);
     if (indexCache != null) {
-        SQLApi.deleteIndexTable(indexCache.tableName);
+        XIApi.deleteIndexTable(indexCache.tableName);
     }
     XIApi.groupBy(txId, aggArgs, groupByCols, tableName, options)
         .then(function (finalTable, tempCols, newKeyFieldName, newKeys) {

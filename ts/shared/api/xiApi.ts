@@ -1,5 +1,7 @@
 namespace XIApi {
     let aggOps: Set<string>;
+    let indexTableCache: {} = {};
+    let reverseIndexMap: {} = {};
 
     interface DSArgs {
         url: string;
@@ -1581,7 +1583,7 @@ namespace XIApi {
             }
             indexHelper(txId, keyInfos, tableName, newTableName, dhtName)
             .then((newTableName, newKeys) => {
-                SQLApi.cacheIndexTable(tableName, colNames,
+                XIApi.cacheIndexTable(tableName, colNames,
                                             newTableName, newKeys, tempCols);
                 deferred.resolve(newTableName, false, newKeys, tempCols);
             })
@@ -1613,7 +1615,7 @@ namespace XIApi {
             }
         };
 
-        let indexCache: TableIndexCache = SQLApi.getIndexTable(tableName, colNames);
+        let indexCache: TableIndexCache = XIApi.getIndexTable(tableName, colNames);
         if (indexCache != null) {
             // log this indexed table as part of the transaction so afterwards
             // we can add a tag to the indexed table to indicate it is
@@ -1624,7 +1626,7 @@ namespace XIApi {
                 if (!exist) {
                     // when not exist, index the source table
                     console.info("cached table not eixst", indexCache.tableName);
-                    SQLApi.deleteIndexTable(indexCache.tableName);
+                    XIApi.deleteIndexTable(indexCache.tableName);
                     return indexFunc();
                 }
                 if (typeof QueryManager !== "undefined") {
@@ -2246,7 +2248,7 @@ namespace XIApi {
         queryName: string,
         queryStr: string,
         options?: {
-            jdbcCheckTime?: number,
+            checkTime?: number,
             noCleanup?: boolean,
             udfUserName?: string,
             udfSessionName?: string
@@ -2539,7 +2541,7 @@ namespace XIApi {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         XcalarDeleteTable(tableName, txId, undefined, deleteCompletely)
         .then(function(ret) {
-            SQLApi.deleteIndexTable(tableName);
+            XIApi.deleteIndexTable(tableName);
             deferred.resolve(ret);
         })
         .fail((error) => {
@@ -2575,12 +2577,12 @@ namespace XIApi {
      * XIApi.deleteTables
      * @param txId
      * @param arrayOfQueries
-     * @param jdbcCheckTime
+     * @param checkTime
      */
     export function deleteTables(
         txId: number,
         arrayOfQueries: object[],
-        jdbcCheckTime: number
+        checkTime: number
     ): XDPromise<any> {
         if (arrayOfQueries == null) {
             // txID not needed if deleting undone tables
@@ -2592,7 +2594,7 @@ namespace XIApi {
         let deferred: XDDeferred<any> = PromiseHelper.deferred();
         const checkOptions = {
             bailOnError: false,
-            jdbcCheckTime: jdbcCheckTime
+            checkTime: checkTime
         };
         XcalarQueryWithCheck(queryName, queryStr, txId, checkOptions)
         .then((res) => {
@@ -2611,7 +2613,7 @@ namespace XIApi {
                 if (state === DgDagStateT.DgDagStateReady ||
                     state === DgDagStateT.DgDagStateDropped
                 ) {
-                    SQLApi.deleteIndexTable(tableName);
+                    XIApi.deleteIndexTable(tableName);
                     return null;
                 } else {
                     hasError = true;
@@ -2654,7 +2656,7 @@ namespace XIApi {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         XcalarRenameTable(tableName, newTableName, txId)
         .then(() => {
-            SQLApi.deleteIndexTable(tableName);
+            XIApi.deleteIndexTable(tableName);
             deferred.resolve(newTableName);
         })
         .fail(deferred.reject);
@@ -2915,6 +2917,63 @@ namespace XIApi {
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    export function cacheIndexTable(
+        tableName: string,
+        colNames: string[],
+        indexTable: string,
+        indexKeys: string[],
+        tempCols: string[]
+    ): void {
+        const colKey = getIndexColKey(colNames);
+        indexTableCache[tableName] = indexTableCache[tableName] || {};
+        indexTableCache[tableName][colKey] = {
+            tableName: indexTable,
+            keys: indexKeys,
+            tempCols: tempCols
+        };
+        reverseIndexMap[indexTable] = {
+            "tableName": tableName,
+            "colName": colKey
+        };
+    };
+
+    export function getCacheTable() {
+        return indexTableCache;
+    };
+
+    export function getIndexTable(
+        tableName: string,
+        colNames: string[]
+    ): TableIndexCache {
+        if (typeof DagTblManager !== "undefined") {
+            DagTblManager.Instance.resetTable(tableName);
+        }
+        const colKey = getIndexColKey(colNames);
+        if (indexTableCache[tableName]) {
+            return indexTableCache[tableName][colKey] || null;
+        } else {
+            return null;
+        }
+    };
+
+    export function deleteIndexTable(indexTable: string): void {
+        if (reverseIndexMap[indexTable]) {
+            const tableName = reverseIndexMap[indexTable].tableName;
+            const colKey = reverseIndexMap[indexTable].colName;
+            delete indexTableCache[tableName][colKey];
+            delete reverseIndexMap[indexTable];
+        }
+    };
+
+    export function clearIndexTable(): void {
+        indexTableCache = {};
+        reverseIndexMap = {};
+    };
+
+    function getIndexColKey(colNames) {
+        return colNames.toString();
     }
 
     function startSimulate(): number {

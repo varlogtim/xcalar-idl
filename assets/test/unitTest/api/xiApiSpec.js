@@ -385,10 +385,10 @@ describe('XIApi Test', () => {
                 joinIndex = XIApi.__testOnly__.joinIndex;
 
                 oldIsSimulate = Transaction.isSimulate;
-                oldGetIndexCache = SQLApi.getIndexTable;
+                oldGetIndexCache = XIApi.getIndexTable;
 
                 Transaction.isSimulate = () => true;
-                SQLApi.getIndexTable = () => {
+                XIApi.getIndexTable = () => {
                     return { tableName: tableName, keys: ['key'], tempCols: [] };
                 }
             });
@@ -546,7 +546,7 @@ describe('XIApi Test', () => {
 
             after(() => {
                 Transaction.isSimulate = oldIsSimulate;
-                SQLApi.getIndexTable = oldGetIndexCache;
+                XIApi.getIndexTable = oldGetIndexCache;
             });
         });
     });
@@ -593,14 +593,14 @@ describe('XIApi Test', () => {
                 computeDistinctGroupby = XIApi.__testOnly__.computeDistinctGroupby;
 
                 oldIsSimulate = Transaction.isSimulate;
-                oldGetIndexCache = SQLApi.getIndexTable;
-                oldCacheIndexCache = SQLApi.cacheIndexTable;
+                oldGetIndexCache = XIApi.getIndexTable;
+                oldCacheIndexCache = XIApi.cacheIndexTable;
 
                 Transaction.isSimulate = () => true;
-                SQLApi.getIndexTable = () => {
+                XIApi.getIndexTable = () => {
                     return { tableName: tableName, keys: ['key'] };
                 };
-                SQLApi.cacheIndexTable = () => { };
+                XIApi.cacheIndexTable = () => { };
             });
 
             it("should handle resue index case", (done) => {
@@ -656,8 +656,8 @@ describe('XIApi Test', () => {
 
             after(() => {
                 Transaction.isSimulate = oldIsSimulate;
-                SQLApi.getIndexTable = oldGetIndexCache;
-                SQLApi.cacheIndexTable = oldCacheIndexCache;
+                XIApi.getIndexTable = oldGetIndexCache;
+                XIApi.cacheIndexTable = oldCacheIndexCache;
             });
         });
 
@@ -756,15 +756,15 @@ describe('XIApi Test', () => {
 
         it('distinctGroupby should work', (done) => {
             const oldIsSimulate = Transaction.isSimulate;
-            const oldGetIndexCache = SQLApi.getIndexTable;
-            const oldCacheIndexCache = SQLApi.cacheIndexTable;
+            const oldGetIndexCache = XIApi.getIndexTable;
+            const oldCacheIndexCache = XIApi.cacheIndexTable;
             const oldQuery = XIApi.query;
 
             Transaction.isSimulate = () => true;
-            SQLApi.getIndexTable = () => {
+            XIApi.getIndexTable = () => {
                 return { tableName: tableName, keys: ['key'] };
             };
-            SQLApi.cacheIndexTable = () => { };
+            XIApi.cacheIndexTable = () => { };
             XIApi.query = () => PromiseHelper.resolve();
 
             const distinctGroupby = XIApi.__testOnly__.distinctGroupby;
@@ -795,8 +795,8 @@ describe('XIApi Test', () => {
                 })
                 .always(() => {
                     Transaction.isSimulate = oldIsSimulate;
-                    SQLApi.getIndexTable = oldGetIndexCache;
-                    SQLApi.cacheIndexTable = oldCacheIndexCache;
+                    XIApi.getIndexTable = oldGetIndexCache;
+                    XIApi.cacheIndexTable = oldCacheIndexCache;
                     XIApi.query = oldQuery;
                 });
         });
@@ -1179,10 +1179,10 @@ describe('XIApi Test', () => {
 
         it('XIApi.index should work', (done) => {
             const isSimulate = Transaction.isSimulate;
-            const getIndexTable = SQLApi.getIndexTable;
+            const getIndexTable = XIApi.getIndexTable;
 
             Transaction.isSimulate = () => true;
-            SQLApi.getIndexTable = () => {
+            XIApi.getIndexTable = () => {
                 return { tableName: 'indexTable', keys: ['key'] }
             };
 
@@ -1198,7 +1198,7 @@ describe('XIApi Test', () => {
                 })
                 .always(() => {
                     Transaction.isSimulate = isSimulate;
-                    SQLApi.getIndexTable = getIndexTable;
+                    XIApi.getIndexTable = getIndexTable;
                 });
         });
 
@@ -1368,12 +1368,12 @@ describe('XIApi Test', () => {
                 oldMap = XIApi.map;
                 oldQuery = XIApi.query;
                 isSimulate = Transaction.isSimulate;
-                getIndexTable = SQLApi.getIndexTable;
+                getIndexTable = XIApi.getIndexTable;
 
                 XIApi.map = () => PromiseHelper.resolve();
                 XIApi.query = () => PromiseHelper.resolve();
                 Transaction.isSimulate = () => true;
-                SQLApi.getIndexTable = () => {
+                XIApi.getIndexTable = () => {
                     return { tableName: 'indexTable', keys: ['key'] }
                 };
 
@@ -1474,7 +1474,7 @@ describe('XIApi Test', () => {
                 XIApi.map = oldMap;
                 XIApi.query = oldQuery;
                 Transaction.isSimulate = isSimulate;
-                SQLApi.getIndexTable = getIndexTable;
+                XIApi.getIndexTable = getIndexTable;
             });
         });
 
@@ -1487,11 +1487,11 @@ describe('XIApi Test', () => {
             before(() => {
                 oldQuery = XIApi.query;
                 isSimulate = Transaction.isSimulate;
-                getIndexTable = SQLApi.getIndexTable;
+                getIndexTable = XIApi.getIndexTable;
 
                 XIApi.query = () => PromiseHelper.resolve();
                 Transaction.isSimulate = () => true;
-                SQLApi.getIndexTable = () => {
+                XIApi.getIndexTable = () => {
                     return { tableName: 'indexTable', keys: ['key'] }
                 };
             });
@@ -1570,9 +1570,9 @@ describe('XIApi Test', () => {
                 }];
                 const groupByCols = 'groupByCol';
                 const tableName = 'test#a';
-                const cacheIndexTable = SQLApi.cacheIndexTable;
+                const cacheIndexTable = XIApi.cacheIndexTable;
 
-                SQLApi.cacheIndexTable = () => { };
+                XIApi.cacheIndexTable = () => { };
 
                 XIApi.groupBy(1, aggArgs, groupByCols, tableName)
                     .then((finalTable, tempCols, newKeyFieldName, newKeys) => {
@@ -1586,14 +1586,14 @@ describe('XIApi Test', () => {
                         done('fail');
                     })
                     .always(() => {
-                        SQLApi.cacheIndexTable = cacheIndexTable;
+                        XIApi.cacheIndexTable = cacheIndexTable;
                     })
             });
 
             after(() => {
                 XIApi.query = oldQuery;
                 Transaction.isSimulate = isSimulate;
-                SQLApi.getIndexTable = getIndexTable;
+                XIApi.getIndexTable = getIndexTable;
             });
         });
 

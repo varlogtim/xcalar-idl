@@ -137,4 +137,21 @@ class SQLUtil {
         }
         return errorMsg;
     }
+
+    public static assert(st: boolean, message: string): void {
+        if (!st) {
+            console.error("SQL ASSERTION FAILURE!");
+            if (!message) {
+                message = "Compilation Error";
+            }
+            if (typeof SQLOpPanel !== "undefined") {
+                SQLUtil.throwError(message);
+            }
+            throw "SQL Assertion Failure: " + message;
+        }
+    }
+}
+
+if (typeof exports !== "undefined") {
+    exports.SQLUtil = SQLUtil;
 }

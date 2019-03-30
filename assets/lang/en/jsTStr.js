@@ -539,7 +539,9 @@ SQLErrTStr = {
     "NotLiteralGroupingId": "Last item of projections in expand node should be grouping id which is a literal, but now it's: ",
     "PlannerFailure": "Failed to send to planner",
     "XDFNotSupport": "xdf_ without type prefix is not supported",
-    "NoSupport": "Not supported: "
+    "NoSupport": "Not supported: ",
+    "RangeWindowMultipleCol": "Window function with range frame can only have 1 order by column",
+    "UnsupportedOperator": "Unsupported opeartor found: "
 };
 
 SQLInfoTStr = {

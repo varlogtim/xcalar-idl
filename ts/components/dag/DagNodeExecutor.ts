@@ -1196,7 +1196,7 @@ class DagNodeExecutor {
             node.getSubGraph().startExecution(queryNodes, null);
             // Might need to make it configurable
             const options = {
-                jdbcCheckTime: 500
+                checkTime: 500
             };
             // Set status to Running
             node.setSQLQuery({

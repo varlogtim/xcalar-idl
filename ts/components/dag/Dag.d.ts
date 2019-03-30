@@ -134,28 +134,6 @@ declare type DagSubGraphConnectionInfo = {
     dfIOSets: { in: Set<DagNodeId>, out: Set<DagNodeId> }
 }
 
-interface SQLColumn {
-    colName: string,
-    colId?: number,
-    rename?: string,
-    colType: string
-}
-
-interface SQLSchema {
-    tableName: string,
-    tableColumns: {}[], // {column: type}[]
-    xcTableName: string
-}
-
-interface SQLParserStruct {
-    sql: string,
-    command?: {type: string, args: string[]},
-    identifiers?: string[],
-    functions?: {},
-    newSql?: string,
-    nonQuery?: boolean
-}
-
 interface TableRunStats {
     state: DgDagStateT,
     startTime: number,

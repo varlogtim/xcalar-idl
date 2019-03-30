@@ -150,60 +150,66 @@ function hackFunction() {
         }
     };
 
-    global.SQLUtil = {
-        sendToPlanner: function(sessionPrefix, type, struct) {
-            // XXX TODO: Should share the same function with sqlRestApi.sendToPlanner
-            // XXX TODO: Get rid of the singleton, so that we can use DagRuntime to pass in the real userName/wkbkName
-            const session = 'sdkUser-anyWkbk';
-            let url;
-            let action;
-            switch (type) {
-                case ("update"):
-                    url = planServer + "/schemasupdate/" +
-                            encodeURIComponent(encodeURIComponent(sessionPrefix + session));
-                    action = "PUT";
-                    break;
-                case ("dropAll"):
-                    url = planServer + "/schemadrop/" +
-                            encodeURIComponent(encodeURIComponent(sessionPrefix + session));
-                    action = "DELETE";
-                    break;
-                case ("query"):
-                    url = planServer + "/sqlquery/" +
-                            encodeURIComponent(encodeURIComponent(sessionPrefix + session)) +
-                            "/true/true";
-                    action = "POST";
-                    break;
-                case ("parse"):
-                    url = planServer + "/sqlparse";
-                    action = "POST";
-                    break;
-                default:
-                    return PromiseHelper.reject("Invalid type for updatePlanServer");
-            }
-            const deferred = PromiseHelper.deferred();
-            
-            request(
-                {
-                    method: action,
-                    url: url,
-                    json: false,
-                    body: JSON.stringify(struct),
-                },
-                function (error, response, body) {
-                    if (!error && response.statusCode == 200) {
-                        deferred.resolve(body);
-                    } else {
-                        if(body.exceptionName && body.exceptionMsg) {
-                            error = {errorType: body.exceptionName, errorMsg: body.exceptionMsg};
-                        }
-                        deferred.reject(error);
-                    }
-                }
-            );
-            return deferred.promise();
+    var sendToPlanner = function(sessionPrefix, type, struct) {
+        // XXX TODO: Should share the same function with sqlRestApi.sendToPlanner
+        // XXX TODO: Get rid of the singleton, so that we can use DagRuntime to pass in the real userName/wkbkName
+        const session = 'sdkUser-anyWkbk';
+        let url;
+        let action;
+        switch (type) {
+            case ("update"):
+                url = planServer + "/schemasupdate/" +
+                        encodeURIComponent(encodeURIComponent(sessionPrefix + session));
+                action = "PUT";
+                break;
+            case ("dropAll"):
+                url = planServer + "/schemadrop/" +
+                        encodeURIComponent(encodeURIComponent(sessionPrefix + session));
+                action = "DELETE";
+                break;
+            case ("query"):
+                url = planServer + "/sqlquery/" +
+                        encodeURIComponent(encodeURIComponent(sessionPrefix + session)) +
+                        "/true/true";
+                action = "POST";
+                break;
+            case ("parse"):
+                url = planServer + "/sqlparse";
+                action = "POST";
+                break;
+            default:
+                return PromiseHelper.reject("Invalid type for updatePlanServer");
         }
+        const deferred = PromiseHelper.deferred();
+        
+        request(
+            {
+                method: action,
+                url: url,
+                json: false,
+                body: JSON.stringify(struct),
+            },
+            function (error, response, body) {
+                if (!error && response.statusCode == 200) {
+                    deferred.resolve(body);
+                } else {
+                    if(body.exceptionName && body.exceptionMsg) {
+                        error = {errorType: body.exceptionName, errorMsg: body.exceptionMsg};
+                    }
+                    deferred.reject(error);
+                }
+            }
+        );
+        return deferred.promise();
     };
+
+    if (global.SQLUtil != null) {
+        global.SQLUtil.sendToPlanner = sendToPlanner;
+    } else {
+        global.SQLUtil = {
+            sendToPlanner: sendToPlanner
+        }
+    }
 
     class ProgCol {
         constructor(options) {

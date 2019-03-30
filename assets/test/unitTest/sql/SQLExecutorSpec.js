@@ -21,7 +21,7 @@ describe("SQL Executor Test", function() {
             return map;
         };
 
-        let executor = new SQLExecutor({
+        let executor = new SQLDagExecutor({
             sql: "select * from TEST",
             identifiers: ["TEST"]
         });
@@ -32,16 +32,16 @@ describe("SQL Executor Test", function() {
     it("should set/get/delete tab", function() {
         let dagTab = new DagTabUser();
         let id = dagTab.getId();
-        SQLExecutor.setTab(id, dagTab);
-        expect(SQLExecutor.getTab(id)).to.equal(dagTab);
+        SQLDagExecutor.setTab(id, dagTab);
+        expect(SQLDagExecutor.getTab(id)).to.equal(dagTab);
 
-        SQLExecutor.deleteTab(id);
-        expect(SQLExecutor.getTab(id)).to.equal(undefined);
+        SQLDagExecutor.deleteTab(id);
+        expect(SQLDagExecutor.getTab(id)).to.equal(undefined);
     });
 
-    it("should be an instance of SQLExecutor", function() {
+    it("should be an instance of SQLDagExecutor", function() {
         let executor = createExecutor();
-        expect(executor).to.be.an.instanceof(SQLExecutor);
+        expect(executor).to.be.an.instanceof(SQLDagExecutor);
     });
 
     it("should throw error in invalid case", function() {
@@ -50,7 +50,7 @@ describe("SQL Executor Test", function() {
             return new Map();
         };
         try {
-            new SQLExecutor({
+            new SQLDagExecutor({
                 sql: "select * from TEST",
                 identifiers: ["TEST"]
             });

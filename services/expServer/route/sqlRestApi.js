@@ -20,7 +20,7 @@ if (workerFlag) {
     sqlWorkerPool = new Pool({fileName: './sqlWorker.js', max: 9});
 }
 
-var sqlCompilerObjects = {};
+var sqlQueryObjects = {};
 
 require("jsdom/lib/old-api").env("", function(err, window) {
     console.log("initting jQuery");
@@ -703,9 +703,8 @@ function getXCquery(params, type) {
         queryString: params.queryString
     };
     var allSelects = {};
-    var queryName = params.queryName || xcHelper.randName("sql");
-    var compilerObject = new SQLCompiler();
-    sqlCompilerObjects[queryName] = compilerObject;
+    var queryId = params.queryName || xcHelper.randName("sql");
+    var sqlQueryObj;
 
     var selectQuery = "";
 
@@ -744,29 +743,37 @@ function getXCquery(params, type) {
                              params.userName, params.sessionName);
     })
     .then(function (plan) {
-            return compilerObject.compile(queryName, plan, true, option);
+        sqlQueryObj = new SQLQuery(queryId, params.queryString, plan, optimizations);
+        sqlQueryObj.tablePrefix = tablePrefix;
+        sqlQueryObj.fromExpServer = true;
+        if (type === "odbc") {
+            sqlQueryObj.checkTime = params.checkTime;
+        }
+        sqlQueryObjects[queryId] = sqlQueryObj;
+        return SQLCompiler.compile(sqlQueryObj);
     })
-    .then(function(xcQueryString, newTableName, colNames, toCache) {
+    .then(function(compiledObj) {
         xcConsole.log("Compilation finished");
-        orderedColumns = colNames;
-        var prefixedQuery;
+        sqlQueryObj = compiledObj;
+        sqlQueryObjects[queryId] = sqlQueryObj;
         var optimizerObject = new SQLOptimizer();
-        var queryWithDrop;
         try {
-            queryWithDrop = optimizerObject.logicalOptimize(xcQueryString,
-                                    optimizations, JSON.stringify(selectQuery));
+            sqlQueryObj.xcQueryString = optimizerObject.logicalOptimize(
+                                        sqlQueryObj.xcQueryString, optimizations,
+                                        JSON.stringify(selectQuery));
         } catch(e) {
             deferred.reject(e);
         }
         var prefixStruct = SqlUtil.addPrefix(
-            JSON.parse(queryWithDrop),
+            JSON.parse(sqlQueryObj.xcQueryString),
             allSelects,
-            newTableName,
+            sqlQueryObj.newTableName,
             tablePrefix,
             params.usePaging,
             params.resultTableName);
-        var prefixedQuery = prefixStruct.query;
-        deferred.resolve({"prefixedQuery":prefixedQuery, "orderedColumns": orderedColumns});
+        sqlQueryObj.xcQueryString = prefixStruct.query;
+        deferred.resolve({"prefixedQuery": sqlQueryObj.xcQueryString,
+                          "orderedColumns": sqlQueryObj.allColumns});
     })
     .fail(function(err) {
         xcConsole.log("sql query error: ", err);
@@ -782,37 +789,24 @@ function getXCquery(params, type) {
 
 function executeSql(params, type) {
     var deferred = PromiseHelper.deferred();
-    var finalTable;
-    var orderedColumns;
     var tables;
     var allPublishArgs = [];
-    var option;
     var optimizations = params.optimizations;
     var tablePrefix = params.tablePrefix ||
                         generateTablePrefix(params.userName, params.sessionName);
     tablePrefix = SqlUtil.cleansePrefix(tablePrefix);
     params.usePaging = params.usePaging || false;
-    option = {
-        prefix: tablePrefix,
-        checkTime: params.checkTime,
-        sqlMode: true,
-        queryString: params.queryString
-    };
-    if (type === "odbc") {
-        option["checkTime"] = params.checkTime;
-    }
     var allSelects = {};
-    var queryName = params.queryName || xcHelper.randName("sql");
-    var compilerObject = new SQLCompiler();
-    sqlCompilerObjects[queryName] = compilerObject;
+    var queryId = params.queryName || xcHelper.randName("sql");
 
     var selectQuery = "";
 
     var sqlHistoryObj = {
-        queryId: queryName,
+        queryId: queryId,
         status: SQLStatus.Compiling,
         queryString: params.queryString
     };
+    var sqlQueryObj;
 
     setupConnection(params.userName, params.userId, params.sessionName)
     .then(function () {
@@ -851,14 +845,17 @@ function executeSql(params, type) {
                              params.userName, params.sessionName);
     })
     .then(function (plan) {
+        sqlQueryObj = new SQLQuery(queryId, params.queryString, plan, optimizations);
+        sqlQueryObj.tablePrefix = tablePrefix;
+        sqlQueryObj.fromExpServer = true;
+        if (type === "odbc") {
+            sqlQueryObj.checkTime = params.checkTime;
+        }
+        sqlQueryObjects[queryId] = sqlQueryObj;
         SqlUtil.setSessionInfo(params.userName, params.userId, params.sessionName);
         if (workerFlag) {
             var workerData = {
-                queryName: queryName,
-                planStr: plan,
-                isJsonPlan: true,
-                option: option,
-                optimizations: optimizations,
+                sqlQueryObj: sqlQueryObj,
                 selectQuery: selectQuery,
                 allSelects: allSelects,
                 params: params,
@@ -866,27 +863,25 @@ function executeSql(params, type) {
             }
             return startWorker(workerData);
         } else {
-            return compilerObject.compile(queryName, plan, true, option);
+            return SQLCompiler.compile(sqlQueryObj);
         }
     })
-    .then(function(xcQueryString, newTableName, colNames, toCache) {
+    .then(function(compiledObj) {
         xcConsole.log("Compilation finished");
-        orderedColumns = colNames;
-        var prefixedQuery;
-        if (workerFlag) {
-            prefixedQuery = xcQueryString;
-            finalTable = newTableName;
-        } else {
-            var queryWithDrop;
+        sqlQueryObj = compiledObj;
+        sqlQueryObjects[queryId] = sqlQueryObj;
+        if (!workerFlag) {
             if (optimizations.noOptimize) {
                 var selectString = JSON.stringify(selectQuery);
-                queryWithDrop = selectString.substring(0, selectString.length - 1)
-                                + "," + xcQueryString.substring(1);
+                sqlQueryObj.xcQueryString =
+                            selectString.substring(0, selectString.length - 1) +
+                            "," + xcQueryString.substring(1);
             } else {
                 var optimizerObject = new SQLOptimizer();
                 try {
-                    queryWithDrop = optimizerObject.logicalOptimize(xcQueryString,
-                                        optimizations, JSON.stringify(selectQuery));
+                    sqlQueryObj.xcQueryString = optimizerObject.logicalOptimize(
+                                sqlQueryObj.xcQueryString, optimizations,
+                                JSON.stringify(selectQuery));
                 } catch(e) {
                     deferred.reject(e);
                 }
@@ -896,28 +891,27 @@ function executeSql(params, type) {
                 params.resultTableName = xcHelper.randName("res_") + Authentication.getHashId();
             }
             var prefixStruct = SqlUtil.addPrefix(
-                JSON.parse(queryWithDrop),
+                JSON.parse(sqlQueryObj.xcQueryString),
                 allSelects,
-                newTableName,
+                sqlQueryObj.newTableName,
                 tablePrefix,
                 params.usePaging,
                 params.resultTableName);
-            var prefixedQuery = prefixStruct.query;
-            finalTable = prefixStruct.tableName || newTableName;
+            sqlQueryObj.xcQueryString = prefixStruct.query;
+            sqlQueryObj.newTableName = prefixStruct.tableName || newTableName;
         }
         // To show better performance, we only display duration of execution
         sqlHistoryObj["startTime"] = new Date();
         sqlHistoryObj["status"] = SQLStatus.Running;
         SqlUtil.setSessionInfo(params.userName, params.userId, params.sessionName);
         SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj);
-        return compilerObject.execute(prefixedQuery, finalTable, orderedColumns,
-                                      params.queryString, undefined, option);
+        return SQLExecutor.execute(sqlQueryObj);
     })
     .then(function() {
         xcConsole.log("Execution finished!");
         sqlHistoryObj["status"] = SQLStatus.Done;
         sqlHistoryObj["endTime"] = new Date();
-        sqlHistoryObj["tableName"] = finalTable;
+        sqlHistoryObj["tableName"] = sqlQueryObj.newTableName;
         SqlUtil.setSessionInfo(params.userName, params.userId, params.sessionName);
         SqlQueryHistory.getInstance().upsertQuery(sqlHistoryObj);
         // Drop schemas and nuke session on planner
@@ -937,12 +931,13 @@ function executeSql(params, type) {
             sessionInfo.userName = params.userName;
             sessionInfo.userId = params.userId;
             sessionInfo.sessionName = params.sessionName;
-            return SqlUtil.getResults(finalTable, orderedColumns, params.rowsToFetch,
-                            params.execid, params.usePaging, sessionInfo);
+            return SqlUtil.getResults(sqlQueryObj.newTableName,
+                                      sqlQueryObj.allColumns, params.rowsToFetch,
+                                      params.execid, params.usePaging, sessionInfo);
         } else {
             var result = {
-                tableName: finalTable,
-                columns: orderedColumns
+                tableName: sqlQueryObj.newTableName,
+                columns: sqlQueryObj.allColumns
             }
             return PromiseHelper.resolve(result);
         }
@@ -993,7 +988,7 @@ function executeSqlWithExtPlan(execid, planStr, rowsToFetch, sessionPrefix,
     };
     queryName = queryName || xcHelper.randName("sql");
     var compilerObject = new SQLCompiler();
-    sqlCompilerObjects[name] = compilerObject;
+    sqlQueryObjects[name] = compilerObject;
 
     setupConnection()
     .then(function() {
@@ -1328,9 +1323,9 @@ router.post("/xcsql/list", [support.checkAuth], function(req, res) {
 });
 
 function cancelQuery(queryName) {
-    var compilerObject = sqlCompilerObjects[queryName];
-    if (compilerObject) {
-        return compilerObject.setStatus(SQLStatus.Cancelled);
+    var sqlQueryObj = sqlQueryObjects[queryName];
+    if (sqlQueryObj) {
+        return sqlQueryObj.setStatus(SQLStatus.Cancelled);
     } else {
         return PromiseHelper.reject({error: "Query doesn't exist"});
     }

@@ -15,8 +15,9 @@ try {
     sqlHelpers = require("../sqlHelpers/sqlHelpers.js");
 } catch(error) {
     require("../sqlHelpers/enums.js");
+    require("../sqlHelpers/SQLEnum.js");
 }
-
+// XXX We should switch to webpack to take care of all these
 global.xcHelper = xcHelper = sqlHelpers ? sqlHelpers.xcHelper :
                              require("../sqlHelpers/xcHelper.js").xcHelper;
 global.xcStringHelper = xcStringHelper = sqlHelpers ? sqlHelpers.xcStringHelper :
@@ -37,18 +38,56 @@ global.PromiseHelper = PromiseHelper = require("../../../assets/js/promiseHelper
 global.Transaction = Transaction = sqlHelpers ? sqlHelpers.Transaction :
                                    require("../sqlHelpers/transaction.js").Transaction;
 
-hackFunction();
-
 require("../../../assets/js/XcalarThrift.js");
 global.XIApi = XIApi = sqlHelpers ? sqlHelpers.XIApi :
                        require("../sqlHelpers/xiApi.js").XIApi;
-global.SQLApi = SQLApi = sqlHelpers ? sqlHelpers.SQLApi :
-                       require("../sqlHelpers/sqlApi.js").SQLApi;
+// All SQL Files
+global.TreeNode = TreeNode = sqlHelpers ? sqlHelpers.TreeNode :
+                                  require("../sqlHelpers/treeNode.js").TreeNode;
+global.TreeNodeFactory = TreeNodeFactory = sqlHelpers ? sqlHelpers.TreeNodeFactory :
+                    require("../sqlHelpers/treeNodeFactory.js").TreeNodeFactory;
+global.SQLAggregate = SQLAggregate = sqlHelpers ? sqlHelpers.SQLAggregate :
+                          require("../sqlHelpers/SQLAggregate.js").SQLAggregate;
+global.SQLExpand = SQLExpand = sqlHelpers ? sqlHelpers.SQLExpand :
+                                require("../sqlHelpers/SQLExpand.js").SQLExpand;
+global.SQLFilter = SQLFilter = sqlHelpers ? sqlHelpers.SQLFilter :
+                                require("../sqlHelpers/SQLFilter.js").SQLFilter;
+global.SQLGlobalLimit = SQLGlobalLimit = sqlHelpers ? sqlHelpers.SQLGlobalLimit :
+                      require("../sqlHelpers/SQLGlobalLimit.js").SQLGlobalLimit;
+global.SQLGroupBy = SQLGroupBy = sqlHelpers ? sqlHelpers.SQLGroupBy :
+                              require("../sqlHelpers/SQLGroupBy.js").SQLGroupBy;
+global.SQLIgnore = SQLIgnore = sqlHelpers ? sqlHelpers.SQLIgnore :
+                                require("../sqlHelpers/SQLIgnore.js").SQLIgnore;
+global.SQLJoin = SQLJoin = sqlHelpers ? sqlHelpers.SQLJoin :
+                                    require("../sqlHelpers/SQLJoin.js").SQLJoin;
+global.SQLLocalRelation = SQLLocalRelation = sqlHelpers ? sqlHelpers.SQLLocalRelation :
+                  require("../sqlHelpers/SQLLocalRelation.js").SQLLocalRelation;
+global.SQLProject = SQLProject = sqlHelpers ? sqlHelpers.SQLProject :
+                              require("../sqlHelpers/SQLProject.js").SQLProject;
+global.SQLSort = SQLSort = sqlHelpers ? sqlHelpers.SQLSort :
+                            require("../sqlHelpers/SQLSort.js").SQLSort;
+global.SQLUnion = SQLUnion = sqlHelpers ? sqlHelpers.SQLUnion :
+                                  require("../sqlHelpers/SQLUnion.js").SQLUnion;
+global.SQLWindow = SQLWindow = sqlHelpers ? sqlHelpers.SQLWindow :
+                                require("../sqlHelpers/SQLWindow.js").SQLWindow;
+
 global.SQLCompiler = SQLCompiler = sqlHelpers ? sqlHelpers.SQLCompiler :
-              require("../sqlHelpers/sqlCompiler.js").SQLCompiler;
+                            require("../sqlHelpers/SQLCompiler.js").SQLCompiler;
+global.SQLExecutor = SQLExecutor = sqlHelpers ? sqlHelpers.SQLExecutor :
+                            require("../sqlHelpers/SQLExecutor.js").SQLExecutor;
 global.SQLOptimizer = SQLOptimizer = sqlHelpers ? sqlHelpers.SQLOptimizer :
-               require("../sqlHelpers/optimizer.js").SQLOptimizer;
+                            require("../sqlHelpers/optimizer.js").SQLOptimizer;
+global.SQLUtil = SQLUtil = sqlHelpers ? sqlHelpers.SQLUtil :
+                            require("../sqlHelpers/SQLUtil.js").SQLUtil;
+global.SQLDagExecutor = SQLDagExecutor = sqlHelpers ? sqlHelpers.SQLDagExecutor :
+                            require("../sqlHelpers/SQLDagExecutor.js").SQLDagExecutor;
+global.SQLQuery = SQLQuery = sqlHelpers ? sqlHelpers.SQLQuery :
+                            require("../sqlHelpers/SQLQuery.js").SQLQuery;
+global.SQLSimulator = SQLSimulator = sqlHelpers ? sqlHelpers.SQLSimulator :
+                            require("../sqlHelpers/SQLSimulator.js").SQLSimulator;
 require("../../../assets/lang/en/jsTStr.js");
+
+hackFunction();
 
 global.antlr4 = antlr4 = require('antlr4/index');
 global.KVStore = KVStore = sqlHelpers ? sqlHelpers.KVStore :

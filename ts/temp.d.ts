@@ -1008,12 +1008,6 @@ declare namespace JupyterPanel {
     export function publishTable(tableName: string, numRows?: number, hasVerifiedNames?: boolean): void;
 }
 
-declare namespace SQLApi {
-    export function getIndexTable(tableName: string, colNames: string[]): TableIndexCache;
-    export function cacheIndexTable(tableName: string, colNames: string[], newTableName: string, newKeys: string[], tempCols?: string[]): void;
-    export function deleteIndexTable(tableName: string);
-}
-
 declare namespace MonitorPanel {
     export function setup(): void;
     export function inActive(): void;
@@ -1147,13 +1141,6 @@ declare namespace XcSDK {
         public getName(): string;
         public getType(): ColumnType;
     }
-}
-
-declare class SQLCompiler {
-    public setStatus(status: string): void;
-    public compile(id: string, sql: string, isJsonPlan?): XDPromise<any>;
-    public setError(error: string): void;
-    public updateQueryHistory(): void;
 }
 
 declare class SQLOptimizer {

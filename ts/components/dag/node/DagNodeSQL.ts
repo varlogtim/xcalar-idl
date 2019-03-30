@@ -1062,7 +1062,6 @@ class DagNodeSQL extends DagNode {
         replaceParam: boolean = true
     ): XDPromise<any> {
         const deferred = PromiseHelper.deferred();
-        const sqlCom = new SQLCompiler();
         const self = this;
         let schemaQueryString;
         let tableSrcMap;
@@ -1072,6 +1071,10 @@ class DagNodeSQL extends DagNode {
         let pubTablesInfo;
         let dropAsYouGo;
         let sqlFunctions;
+        const optimizations: SQLOptimization = {
+            combineProjectWithSynthesize: true,
+            dropAsYouGo: dropAsYouGo
+        };
         try {
             if (replaceParam) {
                 // paramterize SQL
@@ -1108,37 +1111,38 @@ class DagNodeSQL extends DagNode {
                 try {
                     logicalPlan = JSON.parse(JSON.parse(data).sqlQuery);
                 } catch(e) {
-                    return PromiseHelper.reject("Failed to parse logical plan: " + data);
+                    return PromiseHelper.reject("Failed to parse logical plan: "
+                                                                        + data);
                 }
-                return sqlCom.compile(queryId, logicalPlan, true);
+                const sqlQueryObj = new SQLQuery(queryId, sqlQueryStr,
+                                                 logicalPlan, optimizations);
+                return SQLCompiler.compile(sqlQueryObj);
             })
-            .then(function(queryString, newTableName, newCols) {
-                self.setNewTableName(newTableName);
-                self.setColumns(newCols);
+            .then(function(sqlQueryObj: SQLQuery) {
+                self.setNewTableName(sqlQueryObj.newTableName);
+                self.setColumns(sqlQueryObj.allColumns);
                 const optimizer = new SQLOptimizer();
-                const optimizations = {combineProjectWithSynthesize: true,
-                                       dropAsYouGo: dropAsYouGo};
-                let optimizedQueryString;
                 try {
                     if (sqlMode) {
                         self.setRawXcQueryString(optimizer.logicalOptimize(
-                                                            queryString,
-                                                            optimizations,
-                                                            schemaQueryString));
-                        optimizations["pushToSelect"] = true;
+                                                 sqlQueryObj.xcQueryString,
+                                                 sqlQueryObj.optimizations,
+                                                 schemaQueryString));
+                        sqlQueryObj.optimizations.pushToSelect = true;
                     }
-                    optimizedQueryString = optimizer.logicalOptimize(queryString,
-                                                                optimizations,
-                                                                schemaQueryString);
+                    sqlQueryObj.xcQueryString = optimizer.logicalOptimize(
+                                                      sqlQueryObj.xcQueryString,
+                                                      sqlQueryObj.optimizations,
+                                                      schemaQueryString);
                 } catch (e) {
                     return PromiseHelper.reject(e);
                 }
                 self.setAggregatesCreated(optimizer.getAggregates());
-                self.setXcQueryString(optimizedQueryString);
+                self.setXcQueryString(sqlQueryObj.xcQueryString);
                 const retStruct = {
-                    newTableName: newTableName,
-                    xcQueryString: optimizedQueryString,
-                    allCols: newCols,
+                    newTableName: sqlQueryObj.newTableName,
+                    xcQueryString: sqlQueryObj.xcQueryString,
+                    allCols: sqlQueryObj.allColumns,
                     tableSrcMap: tableSrcMap
                 }
                 self.updateSubGraph();
@@ -1148,7 +1152,7 @@ class DagNodeSQL extends DagNode {
                 deferred.resolve(retStruct);
             })
             .fail(function(errorMsg) {
-                console.error("sql compile error: " + errorMsg);
+                console.error("sql compile error: ", errorMsg);
                 let error = errorMsg;
                 if (typeof errorMsg === "object") {
                     if (errorMsg instanceof Error) {

@@ -219,7 +219,7 @@ describe("SQLHistorySpace Test", () => {
 
     it("should restore datraflow", (done) => {
         let oldGetSQLStruct = SQLUtil.getSQLStruct;
-        let oldSQLExecutor = SQLExecutor;
+        let oldSQLDagExecutor = SQLDagExecutor;
         let oldUpdate = SQLHistorySpace.Instance.update;
         let called = 0;
 
@@ -228,7 +228,7 @@ describe("SQLHistorySpace Test", () => {
             return PromiseHelper.resolve({});
         };
 
-        SQLExecutor = function() {
+        SQLDagExecutor = function() {
             called++;
             this.restoreDataflow = () => PromiseHelper.resolve("test");
             return this;
@@ -248,7 +248,7 @@ describe("SQLHistorySpace Test", () => {
             done("fail");
         })
         .always(() => {
-            SQLExecutor = oldSQLExecutor;
+            SQLDagExecutor = oldSQLDagExecutor;
             SQLHistorySpace.Instance.update = oldUpdate;
             SQLUtil.getSQLStruct = oldGetSQLStruct;
         });

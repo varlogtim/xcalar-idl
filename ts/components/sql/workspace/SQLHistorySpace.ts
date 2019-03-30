@@ -144,7 +144,7 @@ class SQLHistorySpace {
             SQLUtil.getSQLStruct(sql)
             .then((sqlStruct) => {
                 try {
-                    let executor = new SQLExecutor(sqlStruct);
+                    let executor = new SQLDagExecutor(sqlStruct);
                     return executor.restoreDataflow();
                 } catch (e) {
                     return PromiseHelper.reject(e.message);

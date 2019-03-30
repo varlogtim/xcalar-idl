@@ -11,10 +11,8 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     // Worker's job starts from here
     const compilerObject = new SQLCompiler();
     parentPort.on("message", (data) => {
-        const { queryName,
-            planStr,
-            isJsonPlan,
-            option,
+        const {
+            sqlQueryObj,
             optimizations,
             selectQuery,
             allSelects,
@@ -22,33 +20,26 @@ require("jsdom/lib/old-api").env("", function(err, window) {
             type
         } = data;
         let finalTable;
-        let orderedColumns;
-        compilerObject.compile(queryName, planStr, isJsonPlan, option)
-        .then(function(xcQueryString, newTableName, colNames, toCache) {
-            orderedColumns = colNames;
-            var optimizerObject = new SQLOptimizer();
-            var queryWithDrop;
+        compilerObject.compile(sqlQueryObj)
+        .then(function() {
+            const optimizerObject = new SQLOptimizer();
+            let queryWithDrop;
             try {
-                queryWithDrop = optimizerObject.logicalOptimize(xcQueryString,
-                                        optimizations, JSON.stringify(selectQuery));
+                queryWithDrop = optimizerObject.logicalOptimize(
+                                    sqlQueryObj.xcQueryString, optimizations,
+                                    JSON.stringify(selectQuery));
             } catch(e) {
                 return promiseHelper.reject(e);
             }
-            var prefixStruct = sqlUtil.addPrefix(
+            const prefixStruct = sqlUtil.addPrefix(
                 JSON.parse(queryWithDrop),
                 allSelects,
                 newTableName,
                 params.sessionPrefix,
                 params.usePaging);
-            var prefixedQuery = prefixStruct.query;
-            finalTable = prefixStruct.tableName || newTableName;
-            var ret = {
-                xcQueryString: prefixedQuery,
-                newTableName: finalTable,
-                colNames: colNames,
-                toCache: toCache
-            }
-            parentPort.postMessage({success: true, data: ret});
+            sqlQueryObj.xcQueryString = prefixStruct.query;
+            sqlQueryObj.newTableName = prefixStruct.tableName || newTableName;
+            parentPort.postMessage({success: true, data: sqlQueryObj});
         })
         .fail(function(err) {
             parentPort.postMessage({success: false, error: err});

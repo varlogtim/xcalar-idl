@@ -106,7 +106,7 @@ class SQLDataflowPreview {
             SQLUtil.getSQLStruct(sql)
             .then((sqlStruct) => {
                 try {
-                    let executor = new SQLExecutor(sqlStruct, true);
+                    let executor = new SQLDagExecutor(sqlStruct, true);
                     return executor.restoreDataflow();
                 } catch (e) {
                     return PromiseHelper.reject(e.message);
