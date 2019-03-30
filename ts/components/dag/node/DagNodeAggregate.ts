@@ -4,8 +4,8 @@ class DagNodeAggregate extends DagNode {
     private graph: DagGraph; // non-persistent
     private aggBackName: string; // non-persistent
 
-    public constructor(options: DagNodeAggregateInfo) {
-        super(options);
+    public constructor(options: DagNodeAggregateInfo, runtime?: DagRuntime) {
+        super(options, runtime);
         this.type = DagNodeType.Aggregate;
         this.allowAggNode = true;
         this.aggVal = options.aggVal || null;
@@ -17,14 +17,14 @@ class DagNodeAggregate extends DagNode {
         let dest: string = this.input.getInput().dest;
         let tabId: string = this.graph ? this.graph.getTabId() : "";
         if (tabId == null) {tabId = ""};
-        let backName = DagAggManager.Instance.wrapAggName(tabId, dest)
+        let backName = this.getRuntime().getDagAggService().wrapAggName(tabId, dest)
         this.aggBackName = backName;
         if (dest != "" &&
-                !DagAggManager.Instance.hasAggregate(tabId, dest) &&
+                !this.getRuntime().getDagAggService().hasAggregate(tabId, dest) &&
                 tabId != "" && !DagTabUser.idIsForSQLFolder(tabId) ) {
             // If we upload a dataflow we need to add the relevant aggregates to the agg manager
             // But we dont add sql aggregates
-            DagAggManager.Instance.addAgg(backName, {
+            this.getRuntime().getDagAggService().addAgg(backName, {
                 value: null,
                 dagName: backName,
                 aggName: dest,

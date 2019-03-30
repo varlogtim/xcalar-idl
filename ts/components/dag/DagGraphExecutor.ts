@@ -561,7 +561,9 @@ class DagGraphExecutor {
             // may need to modify the original
             sqlNode = this._sqlNodes.get(node.getId());
         }
-        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, this._graph.getTabId(), this._isNoReplaceParam, sqlNode);
+        const dagNodeExecutor: DagNodeExecutor = this.getRuntime().accessible(
+            new DagNodeExecutor(node, txId, this._graph.getTabId(), this._isNoReplaceParam, sqlNode)
+        );
         return dagNodeExecutor.run(this._isOptimized);
     }
 
@@ -972,6 +974,10 @@ class DagGraphExecutor {
                 }
             });
         }, 2000);
+    }
+
+    protected getRuntime(): DagRuntime {
+        return DagRuntime.getDefaultRuntime();
     }
 }
 

@@ -97,11 +97,11 @@ abstract class DagNode {
         if (this.aggregates.length > 0 && options.graph != null &&
                 options.graph.getTabId() != null &&
                 !DagTabUser.idIsForSQLFolder(options.graph.getTabId())) {
-            const namedAggs = DagAggManager.Instance.getAggMap();
+            const namedAggs = this.getRuntime().getDagAggService().getAggMap();
             const self = this;
             let errorAggs = [];
             this.aggregates.forEach((aggregateName: string) => {
-                let wrappedName: string = DagAggManager.Instance.wrapAggName(options.graph.getTabId(), aggregateName);
+                let wrappedName: string = this.getRuntime().getDagAggService().wrapAggName(options.graph.getTabId(), aggregateName);
                 if (!namedAggs[wrappedName]) {
                     errorAggs.push(aggregateName);
                 }

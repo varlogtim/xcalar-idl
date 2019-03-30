@@ -1,6 +1,7 @@
 // Dependencies
 // const DagTabService = require('./DagTabService').DagTabService;
 // const XDFService = require('./XDFService').XDFService;
+// const DagAggService = require('./DagAggService').DagAggService;
 
 /**
  * DagRuntime consists of all runtime variables/services(such as userName, sessionId ...)
@@ -13,6 +14,7 @@
 class DagRuntime {
     private _dagTabService: DagTabService;
     private _xdfService: XDFService;
+    private _dagAggService: DagAggService;
 
     public constructor() {
         // Caution: all services should be initialized seperately with the runtime data at some point
@@ -20,7 +22,8 @@ class DagRuntime {
         // In XD, we don't do service init for now, instead it's services' responsibility
         // to get the runtime data from other classes/instances. See DagTabService as an example.
         this._dagTabService = this.accessible(new DagTabService());
-        this._xdfService = this.accessible(new XDFService);
+        this._xdfService = this.accessible(new XDFService());
+        this._dagAggService = this.accessible(new DagAggService());
     }
 
     public getDagTabService(): DagTabService {
@@ -29,6 +32,10 @@ class DagRuntime {
 
     public getXDFService(): XDFService {
         return this._xdfService;
+    }
+
+    public getDagAggService(): DagAggService {
+        return this._dagAggService;
     }
 
     // === Decorator functions: begin ===

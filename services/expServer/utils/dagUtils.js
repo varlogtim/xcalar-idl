@@ -129,6 +129,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     global.DagRuntime = require("../dagHelper/DagRuntime.js").DagRuntime;
     global.XDFService = require("../dagHelper/XDFService.js").XDFService;
     global.DagTabService = require("../dagHelper/DagTabService.js").DagTabService;
+    global.DagAggService = require("../dagHelper/DagAggService.js").DagAggService;
     global.DagListService = require("../dagHelper/DagListService.js").DagListService;
     global.DagServiceFactory = require("../dagHelper/DagServiceFactory.js").DagServiceFactory;
 

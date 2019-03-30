@@ -826,11 +826,13 @@ class DagGraph {
                 sqlNodes.set(node.getId(), node);
             }
         });
-        const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, clonedGraph, {
-            optimized: optimized,
-            allowNonOptimizedOut: allowNonOptimizedOut,
-            sqlNodes: sqlNodes
-        });
+        const executor: DagGraphExecutor = this.getRuntime().accessible(
+            new DagGraphExecutor(orderedNodes, clonedGraph, {
+                optimized: optimized,
+                allowNonOptimizedOut: allowNonOptimizedOut,
+                sqlNodes: sqlNodes
+            })
+        );
         const checkResult = executor.checkCanExecuteAll();
         if (checkResult.hasError) {
             return PromiseHelper.reject(checkResult);
@@ -1164,7 +1166,7 @@ class DagGraph {
                     sources.push(aggNode);
                 } else {
                     // If we don't have the aggMap, we have to look at the manager
-                    let aggInfo: AggregateInfo = DagAggManager.Instance.getAgg(this.getTabId(), agg);
+                    let aggInfo: AggregateInfo = this.getRuntime().getDagAggService().getAgg(this.getTabId(), agg);
                     if (aggInfo == null) {
                         error = xcHelper.replaceMsg(AggTStr.AggNotExistError, {
                             "aggName": agg
@@ -1205,7 +1207,7 @@ class DagGraph {
                     ) {
                         error = xcHelper.replaceMsg(AlertTStr.DFLinkGraphError, {
                             "inName": inNode.getParam().linkOutName,
-                            "graphName": DagTabManager.Instance.getTabById(inSource.graph.getTabId())
+                            "graphName": this.getRuntime().getDagTabService().getTabById(inSource.graph.getTabId())
                                 .getName()
                         });
                     } else if (inSource.node.shouldLinkAfterExecuition()) {

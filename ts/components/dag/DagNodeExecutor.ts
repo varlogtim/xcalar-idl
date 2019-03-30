@@ -288,7 +288,7 @@ class DagNodeExecutor {
         if (dstAggName.startsWith(gAggVarPrefix)) {
             dstAggName = dstAggName.substring(1);
         }
-        dstAggName = DagAggManager.Instance.wrapAggName(this.tabId, dstAggName);
+        dstAggName = this.getRuntime().getDagAggService().wrapAggName(this.tabId, dstAggName);
 
         //Update eval string with correct aggregates
 
@@ -297,7 +297,7 @@ class DagNodeExecutor {
             node.setAggVal(value);
             if (!optimized && value) {
                 // We don't want to add if optimized or ran as a query
-                const aggRes: object = {
+                const aggRes: AggregateInfo = {
                     value: value,
                     dagName: dstAggName,
                     aggName: unwrappedName,
@@ -307,7 +307,7 @@ class DagNodeExecutor {
                     node: node.getId(),
                     graph: this.tabId
                 };
-                return DagAggManager.Instance.addAgg(aggName, aggRes);
+                return this.getRuntime().getDagAggService().addAgg(aggName, aggRes);
             }
             return PromiseHelper.resolve();
         })
@@ -1369,10 +1369,14 @@ class DagNodeExecutor {
             if (frontName.startsWith(gAggVarPrefix)) {
                 modifiedFront = frontName.substring(1);
             }
-            let backName = gAggVarPrefix + DagAggManager.Instance.wrapAggName(this.tabId, modifiedFront);
+            let backName = gAggVarPrefix + this.getRuntime().getDagAggService().wrapAggName(this.tabId, modifiedFront);
             evalString = evalString.replace(frontName, backName);
         }
         return evalString;
+    }
+
+    protected getRuntime(): DagRuntime {
+        return DagRuntime.getDefaultRuntime();
     }
 }
 
