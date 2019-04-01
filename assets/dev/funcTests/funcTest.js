@@ -54,11 +54,10 @@ class StateMachine {
             let totalRun = parseInt(xcSessionStorage.getItem('xdFuncTestTotalRun'));
             console.log(`Running the ${totalRun - currentRun}/${totalRun} iterations`);
             this.currentState = await this.currentState.takeOneAction()
-            if (this.currentState == null) { //WorkbookState hit the activate
+            if (this.currentState == null) { // Hit the workbook activation
                 xcSessionStorage.setItem('xdFuncTestIterations', this.iterations-1);
                 break;
             }
-
             // Mode Switch
             if (this.currentState.name != "Workbook" && this.currentState.run >= maxRun.get(this.currentState.name)) {
                 this.currentState.run = 0;

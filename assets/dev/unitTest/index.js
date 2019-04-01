@@ -189,10 +189,11 @@ function getCoverage(coverage, testType) {
 // Runs the XD func tests as seperate pages based on number of users provided
 async function runFuncTests() {
     let browser;
-    let numOfUsers = 1, iterations = 200;
+    let numOfUsers = 1, iterations = 200, seed="";
     console.log(commandLineArgs);
     numOfUsers = commandLineArgs[4] || numOfUsers;
     iterations = commandLineArgs[5] || iterations;
+    seed = commandLineArgs[6] || seed;
     browser = await puppeteer.launch({
         headless: true,
         ignoreHTTPSErrors: true,
@@ -210,7 +211,7 @@ async function runFuncTests() {
             console.log(`${userName} ${msg.args()[i]}`);
         });
 
-        url = `${hostname}/funcTest.html?noPopup=y&animation=y&cleanup=y&user=${userName}&iterations=${iterations}`;
+        url = `${hostname}/funcTest.html?noPopup=y&animation=y&cleanup=y&user=${userName}&iterations=${iterations}&seed=${seed}`;
         console.log("Opening page:", url)
         try {
             await page.goto(url);
