@@ -25,7 +25,7 @@ describe('DagComponent Test', function() {
             workbook: 'testWB',
             userName: 'dftest',
             sessionId: 'test1',
-            dfNames: ['testRow', 'testCol', 'testJoin', 'testSet', 'testSql']
+            dfNames: ['testRow', 'testCol', 'testJoin', 'testSet', 'testSql', 'testAggr']
         };
         let dfStrList;
         before(() => {
