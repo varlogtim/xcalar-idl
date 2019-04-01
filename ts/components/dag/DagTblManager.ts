@@ -390,7 +390,7 @@ class DagTblManager {
             // This table will probably be re-used, as it's the "final" table of the node.
             return false;
         }
-        let nodeTableInfo = this.cache[nodeTable];
+        let nodeTableInfo = self.cache[nodeTable];
         if (!nodeTableInfo) {
             // Since the info doesnt exist, we're probably going to be
             // re-running this node, we just aren't in the process of re-running yet
