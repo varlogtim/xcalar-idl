@@ -34,9 +34,13 @@ class SQLEditor {
         this._keywordsToRemove = ["alter", "begin", "create", "delete", "drop",
         "insert", "into", "set", "table", "update", "values"];
         this._keywordsToAdd = ["over", "partition", "intersect", "except",
-        "with", "left", "right", "outer", "natural",
-        "semi", "anti", "rollup", "cube", "grouping",
-        "sets", "limit", "sum", "avg", "max", "min"];
+        "with", "left", "right", "outer", "natural", "semi", "anti", "rollup",
+        "cube", "grouping", "sets", "limit", "sum", "avg", "max", "min", "all",
+        "any", "exists", "null", "true", "false", "nulls", "interval", "case",
+        "when", "then", "else", "end", "cross", "inner", "full", "range", "rows",
+        "unbounded", "preceding", "following", "current", "first", "last",
+        "row", "replace", "describe", "format", "cast", "show", "tables", "if",
+        "position", "using"];
     }
 
     private _setup(id: string): void {
