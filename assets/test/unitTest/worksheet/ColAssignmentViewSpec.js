@@ -1,10 +1,8 @@
-describe('CastOpPanel Test', function() {
+describe('ColAssignmentView Test', function() {
+    // XXX ColAssignmentView is inherited by Dataset, Cast, and Set panels and
+    // is mostly tested in those tests
     var $castOpPanel;
     var $castSection;
-    var $table;
-    var tabId;
-    var nodeId;
-    var dsName, tableName, tableId, oldTableName;
     var prefix = "prefix";
     var node;
 
@@ -13,7 +11,7 @@ describe('CastOpPanel Test', function() {
         if (XVM.isSQLMode()) {
             $("#modeArea").click();
         }
-        console.log("Cast panel test");
+        console.log("Col assignmentView test");
         MainMenu.openPanel("dagPanel");
         node = new DagNodeMap({subType: "cast"});
         const parentNode = new DagNodeFilter({});
@@ -51,6 +49,22 @@ describe('CastOpPanel Test', function() {
             expect($castSection.find(".candidateSection .inputCol").eq(1).text()).to.equal("prefix::stringCol");
         });
 
+
+        it("should highlight columns when using search input", function() {
+            expect($castOpPanel.find(".searchArea input").length).to.equal(1);
+            expect($castOpPanel.find(".colName.highlight").length).to.equal(0);
+            $castOpPanel.find(".searchArea input").val("prefix").trigger("input");
+            expect($castOpPanel.find(".colName.highlight").length).to.equal(2);
+
+            $castOpPanel.find(".searchArea input").val("average").trigger("input");
+            expect($castOpPanel.find(".colName.highlight").length).to.equal(1);
+            expect($castOpPanel.find(".colName.highlight").text()).to.equal("prefix::average_stars");
+
+            $castOpPanel.find(".searchArea input").val("string").trigger("input");
+            expect($castOpPanel.find(".colName.highlight").length).to.equal(1);
+            expect($castOpPanel.find(".colName.highlight").text()).to.equal("prefix::stringCol");
+        })
+
         it("Should select column", function() {
             $castSection.find(".candidateSection .inputCol").eq(0).click();
             expect($castSection.find(".candidateSection .inputCol").length).to.equal(1);
@@ -66,13 +80,24 @@ describe('CastOpPanel Test', function() {
             expect($castOpPanel.find(".resultSection .typeList .list li").text()).to.equal("stringintegerfloatbooleantimestampmoney");
         });
 
+        it("should filter columns using dropdown search", function() {
+            let $listSection = $castOpPanel.find(".resultSection .lists").eq(0);
+            expect($listSection.find(".inputCol li:visible").length).to.equal(0);
+            $listSection.find(".inputCol").click();
+            expect($listSection.find(".inputCol li:visible").length).to.equal(4);
+            $listSection.find(".inputCol .search input").val("Col").trigger("input");
+            expect($listSection.find(".inputCol li:visible").length).to.equal(3);
+            $listSection.find(".inputCol").click();
+            expect($listSection.find(".inputCol li:visible").length).to.equal(0);
+        });
+
         it("Should change column type", function() {
             $castSection.find(".resultSection .typeList .dropdown").click();
-            $castSection.find(".resultSection .list li").eq(0).trigger(fakeEvent.mouseup);
+            $castSection.find(".resultSection .resultCol").find("li").eq(0).trigger(fakeEvent.mouseup);
             expect($castOpPanel.find(".resultSection .typeList input").val()).to.equal("string");
 
             $castSection.find(".resultSection .typeList .dropdown").click();
-            $castSection.find(".resultSection .list li").eq(5).trigger(fakeEvent.mouseup);
+            $castSection.find(".resultSection .resultCol").find("li").eq(5).trigger(fakeEvent.mouseup);
             expect($castOpPanel.find(".resultSection .typeList input").val()).to.equal("money");
         });
 
@@ -174,126 +199,6 @@ describe('CastOpPanel Test', function() {
             $castOpPanel.find(".submit").click();
             expect($castOpPanel.is(":visible")).to.be.true;
             UnitTest.hasStatusBoxWithError("Please select columns for this operation.");
-            CastOpPanel.Instance.close();
-        });
-    });
-
-    describe("advanced mode", function() {
-        before(function(done) {
-            CastOpPanel.Instance.show(node, {});
-            setTimeout(function() {
-                done();
-            }, 100);
-        });
-
-        it("should switch modes", function() {
-            expect($castOpPanel.find(".advancedEditor").is(":visible")).to.be.false;
-            $castOpPanel.find(".switch").click();
-            expect($castOpPanel.find(".advancedEditor").is(":visible")).to.be.true;
-            expect(JSON.parse(CastOpPanel.Instance._editor.getValue())).to.deep.equal({
-                "eval": [
-                    {
-                        "evalString": "money(prefix::average_stars)",
-                        "newField": "average_stars"
-                    }
-                ],
-                "icv": false
-            });
-
-            CastOpPanel.Instance._editor.setValue(JSON.stringify({
-                "eval": [
-                    {
-                        "evalString": "string(prefix::average_stars)",
-                        "newField": "abc"
-                    }
-                ],
-                "icv": false
-            }));
-            $castOpPanel.find(".switch").click();
-            expect($castSection.find(".candidateSection .inputCol").length).to.equal(1);
-            expect($castSection.find(".candidateSection .inputCol").text()).to.equal("prefix::stringCol");
-
-            expect($castOpPanel.find(".resultSection .inputCol").length).to.equal(1);
-            expect($castOpPanel.find(".resultSection .inputCol .colName").text()).to.equal("prefix::average_stars")
-            expect($castOpPanel.find(".resultSection .resultCol").length).to.equal(1);
-            expect($castOpPanel.find(".resultSection .resultCol .resultInput").val()).to.equal("abc");
-
-            expect($castOpPanel.find(".resultSection .typeList input").val()).to.equal("string");
-            expect($castOpPanel.find(".resultSection .typeList .list li").length).to.equal(6);
-            expect($castOpPanel.find(".resultSection .typeList .list li").text()).to.equal("stringintegerfloatbooleantimestampmoney");
-        });
-
-        it("should submit from advanced mode", function() {
-            $castOpPanel.find(".switch").click();
-            expect(JSON.parse(CastOpPanel.Instance._editor.getValue())).to.deep.equal({
-                "eval": [
-                    {
-                        "evalString": "string(prefix::average_stars)",
-                        "newField": "abc"
-                    }
-                ],
-                "icv": false
-            });
-            CastOpPanel.Instance._submit();
-            expect($castOpPanel.is(":visible")).to.be.false;
-            const input = node.getParam();
-            expect(input).to.deep.equal({
-                "eval": [
-                    {
-                        "evalString": "string(prefix::average_stars)",
-                        "newField": "abc"
-                    }
-                ],
-                "icv": false
-            });
-        });
-
-        it("should detect invalid type", function() {
-            CastOpPanel.Instance.show(node, {});
-            $castOpPanel.find(".switch").click();
-            CastOpPanel.Instance._editor.setValue(JSON.stringify({
-                "eval": [
-                    {
-                        "evalString": "stringyyy(prefix::average_stars)",
-                        "newField": "abc"
-                    }
-                ],
-                "icv": false
-            }));
-            CastOpPanel.Instance._submit();
-            expect($castOpPanel.is(":visible")).to.be.true;
-            UnitTest.hasStatusBoxWithError("Invalid type: stringyyy");
-        });
-
-        it("should detect missing column", function() {
-            CastOpPanel.Instance._editor.setValue(JSON.stringify({
-                "eval": [
-                    {
-                        "evalString": "string()",
-                        "newField": "abc"
-                    }
-                ],
-                "icv": false
-            }));
-            CastOpPanel.Instance._submit();
-            expect($castOpPanel.is(":visible")).to.be.true;
-            UnitTest.hasStatusBoxWithError("Field name not provided: string()");
-        });
-
-        it("should detect missing new field", function() {
-            CastOpPanel.Instance._editor.setValue(JSON.stringify({
-                "eval": [
-                    {
-                        "evalString": "string(prefix::average_stars)",
-                        "newField": ""
-                    }
-                ],
-                "icv": false
-            }));
-            CastOpPanel.Instance._submit();
-            expect($castOpPanel.is(":visible")).to.be.true;
-            UnitTest.hasStatusBoxWithError("eval[0].newField should NOT be shorter than 1 characters");
-            CastOpPanel.Instance.close();
         });
     });
 
