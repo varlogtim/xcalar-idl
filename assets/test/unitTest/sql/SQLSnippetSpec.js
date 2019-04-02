@@ -147,13 +147,13 @@ describe("SQLSnippet Test", function() {
         expect(kvStore).to.be.an.instanceof(KVStore);
     });
 
-    it("_featchSnippets should work", function(done) {
+    it("_fetchSnippets should work", function(done) {
         let oldFunc = KVStore.prototype.getAndParse;
         KVStore.prototype.getAndParse = () => PromiseHelper.resolve({"test": "new2"});
 
         sqlSnippet._fetched = false;
 
-        sqlSnippet._featchSnippets()
+        sqlSnippet._fetchSnippets()
         .then(function() {
             expect(sqlSnippet._fetched).to.be.true;
             expect(sqlSnippet.getSnippet("test")).to.equal("new2");

@@ -35,9 +35,15 @@ class WorkbookState extends State {
     /* -------------------------------Helper Function------------------------------- */
     // Generate a random unique name
     private getUniqueRandName(prefix): string {
-        let validFunc = function (wkbkName) { return WorkbookManager.getWorkbooks()[wkbkName] == undefined; };
+        let validFunc = function (wkbkName) {
+            let workbookNames = [];
+            for (let id in WorkbookManager.getWorkbooks()) {
+                workbookNames.push(WorkbookManager.getWorkbook(id).name);
+            }
+            return !workbookNames.includes(wkbkName);
+        };
         var prefix = prefix || "FuncTest"
-        return xcHelper.uniqueRandName(prefix, validFunc, 10);
+        return Util.uniqueRandName(prefix, validFunc, 10);
     }
 
     // Check if this workbook exists
@@ -50,7 +56,7 @@ class WorkbookState extends State {
     private getRandomWorkbook(): string {
         let workbooks = WorkbookManager.getWorkbooks();
         let workbookIds = Object.keys(workbooks);
-        return workbookIds[Math.floor(workbookIds.length * Math.random())];
+        return Util.pickRandom(workbookIds);
     }
     /* -------------------------------Helper Function------------------------------- */
 
@@ -160,7 +166,7 @@ class WorkbookState extends State {
     }
 
     public async takeOneAction(): XDPromise<WorkbookState> {
-        let randomAction = this.availableActions[Math.floor(this.availableActions.length * Math.random())];
+        let randomAction = Util.pickRandom(this.availableActions);
         const newState = await randomAction.call(this);
         return newState;
     }

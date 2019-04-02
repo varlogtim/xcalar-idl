@@ -29,7 +29,7 @@ class SQLSnippet {
 
     public listSnippetsAsync(): XDPromise<{name: string, snippet: string}[]> {
         const deferred: XDDeferred<{name: string, snippet: string}[]> = PromiseHelper.deferred();
-        this._featchSnippets()
+        this._fetchSnippets()
         .then(() => {
             let res = this.listSnippets();
             deferred.resolve(res);
@@ -95,7 +95,7 @@ class SQLSnippet {
         return names;
     }
 
-    private _featchSnippets(): XDPromise<void> {
+    private _fetchSnippets(): XDPromise<void> {
         if (this._fetched) {
             return PromiseHelper.resolve();
         }

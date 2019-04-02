@@ -75,7 +75,7 @@ class StateMachine {
         // load some datasets for functests
         if (this.stateName != 'Workbook' && xcSessionStorage.getItem("xdFuncTestFirstTimeInit") == undefined) {
             XVM.setMode(XVM.Mode.Advanced); // Set it to advanced mode to load DS
-            const nameBase = "AIRPORT" + Math.floor(Math.random() * 10000);
+            const nameBase = "AIRPORT" + Math.floor(Util.random() * 10000);
             const check = "#previewTable td:eq(1):contains(00M)";
             const url = "/netstore/datasets/" + "flight/" + this.test.mode + "airports.csv";
             const dsName = nameBase;
@@ -111,14 +111,13 @@ window.FuncTestSuite = (function($, FuncTestSuite) {
         var params = getUrlParameters();
         var user = params.user || 'admin';
         autoLogin(user);
-        var seed = params.seed || xcSessionStorage.getItem('xdFuncTestSeed') || Date.now().toString();
-        if (!xcSessionStorage.getItem('xdFuncTestSeed')) {
-            xcSessionStorage.setItem("xdFuncTestSeed", seed);
-        } else {
-            seed++; // Avoid repeating the operations once hard-reloading the page
+        // Append a suffix to the seed to avoid using the same seed
+        // when launching a multi-user xd func test
+        var seed = params.seed || Date.now().toString() + Math.floor(Math.random()*100);
+        if (!xcSessionStorage.getItem('xdFuncTestInitSeed')) {
+            xcSessionStorage.setItem("xdFuncTestInitSeed", seed);
             xcSessionStorage.setItem("xdFuncTestSeed", seed);
         }
-        Math.seedrandom(seed);
         if (!xcSessionStorage.getItem('xdFuncTestStatus')) {
             xcSessionStorage.setItem('xdFuncTestStatus', "running");
         }
@@ -191,7 +190,7 @@ window.FuncTestSuite = (function($, FuncTestSuite) {
             var totalRun = parseInt(xcSessionStorage.getItem('xdFuncTestTotalRun'));
             test.startTime = parseInt(xcSessionStorage.getItem('xdFuncTestStartTime'));
             if (currentRun == 0) {
-                console.log(`XD Functests passed with " ${totalRun} " runs ! The seed is ${xcSessionStorage.getItem('xdFuncTestSeed')}`);
+                console.log(`XD Functests passed with " ${totalRun} " runs ! The seed is ${xcSessionStorage.getItem('xdFuncTestInitSeed')}`);
                 totalRun = null;
                 xcSessionStorage.setItem("xdFuncTestStatus", 'pass');
                 cleanupSessionStorage();
@@ -201,11 +200,19 @@ window.FuncTestSuite = (function($, FuncTestSuite) {
             var currentRun = parseInt(xcSessionStorage.getItem('xdFuncTestIterations'));
             var totalRun = parseInt(xcSessionStorage.getItem('xdFuncTestTotalRun'));
             test.startTime = parseInt(xcSessionStorage.getItem('xdFuncTestStartTime'));
-            console.log(`XD Functests failed in " ${totalRun-currentRun} " runs ! The seed is ${xcSessionStorage.getItem('xdFuncTestSeed')}`);
-            console.log(error)
+            console.log(`XD Functests failed in " ${totalRun-currentRun} " runs ! The seed is ${xcSessionStorage.getItem('xdFuncTestInitSeed')}`);
+            let errorMsg = error;
+            if (typeof errorMsg === "object") {
+                if (errorMsg instanceof Error) {
+                    errorMsg = errorMsg.stack;
+                } else {
+                    errorMsg = JSON.stringify(errorMsg);
+                }
+            }
+            console.log(errorMsg)
             xcSessionStorage.setItem("xdFuncTestStatus", 'fail');
             cleanupSessionStorage();
-            test.fail(deferred, testName, totalRun-currentRun, error);
+            test.fail(deferred, testName, totalRun-currentRun, errorMsg);
         }
     }
 
@@ -266,6 +273,7 @@ window.FuncTestSuite = (function($, FuncTestSuite) {
         xcSessionStorage.removeItem('xdFuncTestFirstTimeInit');
         xcSessionStorage.removeItem('xdFuncTestStatus');
         xcSessionStorage.removeItem('xdFuncTestSeed');
+        xcSessionStorage.removeItem('xdFuncTestInitSeed');
     }
     /* -------------------------------Helper Function------------------------------- */
 

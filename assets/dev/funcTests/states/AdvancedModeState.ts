@@ -128,7 +128,7 @@ class AdvancedModeState extends State {
         let dsSchema = await DS.getDSBasicInfo(ds.id);
         dsNode.setParam({
             'source': ds.id,
-            'prefix': xcHelper.randName(xcHelper.parseDSName(ds.id)["dsName"]),
+            'prefix': Util.randName(xcHelper.parseDSName(ds.id)["dsName"]),
             'synthesize': this._getRandomLiteral(ColumnType.boolean),
             'loadArgs': dsArgs
         });
@@ -194,12 +194,12 @@ class AdvancedModeState extends State {
         this.log(`Adding Map node.. in WKBK ${this.currentWKBKId}`);
         let cNode, columns;
         [cNode, columns] = this.addNode({type:DagNodeType.Map});
-        let numOfEvals = Math.floor(5 * Math.random()) + 1;
+        let numOfEvals = Math.floor(5 * Util.random()) + 1;
         let evalObjs = [];
         while (numOfEvals > 0) {
             evalObjs.push({
                 "evalString":this._buildEvalStr(columns),
-                "newField": xcHelper.randName("col_") + Date.now()
+                "newField": Util.randName("col_") + Date.now()
             });
            --numOfEvals;
         }
@@ -217,7 +217,7 @@ class AdvancedModeState extends State {
         this.log(`Adding split node.. in WKBK ${this.currentWKBKId}`);
         let cNode, columns;
         [cNode, columns] = this.addNode({type:DagNodeType.Split});
-        let numOfCuts = Math.floor(5 * Math.random()) + 1;
+        let numOfCuts = Math.floor(5 * Util.random()) + 1;
         let delim = this._getRandomString(1);
         let currCut = 1;
         let evalObjs = [];
@@ -225,7 +225,7 @@ class AdvancedModeState extends State {
         while (currCut <= numOfCuts) {
             evalObjs.push({
                 "evalString":`cut(string(${randomCol.backName}),${currCut},\"${delim}\")`,
-                "newField": xcHelper.randName("col_") + Date.now()
+                "newField": Util.randName("col_") + Date.now()
             });
            currCut++;
         }
@@ -251,14 +251,14 @@ class AdvancedModeState extends State {
                 numTypeColumns.push(colInfo.getBackColName());
             }
         }
-        let numOfRounds = Math.floor(2 * Math.random()) + 1;
+        let numOfRounds = Math.floor(2 * Util.random()) + 1;
         let evalObjs = [];
         while (numOfRounds > 0) {
             const randomCol = Util.pickRandom(numTypeColumns);
-            const numOfDecimals = Math.floor(10000 * Math.random()); //some random upto 10000
+            const numOfDecimals = Math.floor(10000 * Util.random()); //some random upto 10000
             evalObjs.push({
                 "evalString":`round(${randomCol},${numOfDecimals})`,
-                "newField": xcHelper.randName("round_") + Date.now()
+                "newField": Util.randName("round_") + Date.now()
             });
             numOfRounds--;
         }
@@ -277,7 +277,7 @@ class AdvancedModeState extends State {
         let cNode;
         [cNode, ] = this.addNode({type:DagNodeType.RowNum});
         cNode.setParam({
-            "newField": xcHelper.randName("rownum_") + Date.now()
+            "newField": Util.randName("rownum_") + Date.now()
         });
         //run
         // await graph.execute();
@@ -346,7 +346,7 @@ class AdvancedModeState extends State {
     private async addSQLNode() {
         this.log(`Adding SQL node.. in WKBK ${this.currentWKBKId}`);
         let graph = this.currentTab.getGraph();
-        let numParents = Math.floor(5 * Math.random()) + 1;
+        let numParents = Math.floor(5 * Util.random()) + 1;
         let pNode;
         let cNode = this.dagViewManager.newNode({type:DagNodeType.SQL});
         let identifiersObj = {};
@@ -385,7 +385,7 @@ class AdvancedModeState extends State {
         this.log(`Adding Link Out node.. in WKBK ${this.currentWKBKId}`);
         let cNode, allCols;
         [cNode, allCols] = this.addNode({type:DagNodeType.DFOut});
-        let linkOutName = xcHelper.randName("Linkout_" + Date.now());
+        let linkOutName = Util.randName("Linkout_" + Date.now());
         cNode.setParam({
             "name": linkOutName,
             "linkAfterExecution": this._getRandomLiteral(ColumnType.boolean)
@@ -414,10 +414,10 @@ class AdvancedModeState extends State {
 
     private _getRandomString(len: number) {
         if(len == undefined) {
-            len = Math.floor(30 * Math.random()) + 1;
+            len = Math.floor(30 * Util.random()) + 1;
         }
         let allPossibleChars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        return [...Array(len).keys()].map(() => allPossibleChars.charAt(Math.floor(allPossibleChars.length*Math.random()))).join('');
+        return [...Array(len).keys()].map(() => allPossibleChars.charAt(Math.floor(allPossibleChars.length*Util.random()))).join('');
     }
 
     private _getRandomLiteral(type: string) {
@@ -431,9 +431,9 @@ class AdvancedModeState extends State {
         } else if (type === ColumnType.string || toss === 1) {//string type
             return `"${this._getRandomString()}"`;
         } else if (type === ColumnType.integer || toss === 2) { //random  int
-            return Math.floor(1000 * Math.random());
+            return Math.floor(1000 * Util.random());
         } else { // Defaulting to float
-            return 1000 * Math.random();
+            return 1000 * Util.random();
         }
     }
 
@@ -469,7 +469,7 @@ class AdvancedModeState extends State {
         }
         let columnNames = columnsObj.map((colInfo) => { return colInfo.backName});
         let evalString = Util.pickRandom(columnNames);
-        let nestedDepth = Math.floor(5 * Math.random()) + 1;
+        let nestedDepth = Math.floor(5 * Util.random()) + 1;
         while (nestedDepth > 0) {
             //select a xdf
             let xdf = Util.pickRandom(this.xdfsArr);
@@ -567,7 +567,7 @@ class AdvancedModeState extends State {
     private async createCustomNodesFromDF() {
         this.log(`Creating custom node from dataflow.. in WKBK ${this.currentWKBKId}`);
         let nodeIds = Array.from(this.currentTab.getGraph().getAllNodes().keys());
-        let randN = Math.floor(nodeIds.length * Math.random()) + 1;
+        let randN = Math.floor(nodeIds.length * Util.random()) + 1;
         let randomNodeIds = Util.pickRandom(nodeIds, randN);
         if (randN == 1) {
             randomNodeIds = [randomNodeIds];
@@ -588,7 +588,7 @@ class AdvancedModeState extends State {
         this.mode = "linear";
 
         //build dataflow
-        let nodesCount = Math.floor(5 * Math.random());
+        let nodesCount = Math.floor(5 * Util.random());
         let idx = 1;
         let ignoreActions = new Set(["createTab", "addLinkInNode", "createSQLFunc",
                         "addLinkOutNode", "getTab", "createCustomNode",
@@ -644,7 +644,7 @@ class AdvancedModeState extends State {
             inNode.setSchema(schema);
 
             // build dataflow
-            let nodesCount = Math.floor(5*Math.random());
+            let nodesCount = Math.floor(5*Util.random());
             let count = 1;
             let ignoreActions = new Set(["createTab", "addLinkInNode", "addCustomNode",
                                     "addLinkOutNode", "getTab", "createCustomNodes",

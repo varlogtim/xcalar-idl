@@ -49,7 +49,7 @@ class SQLModeState extends State {
     private getUniqueName(prefix?: string, validFunc?: function): string {
         prefix = prefix || "FuncTestSnippet";
         validFunc = validFunc || function (snippetName) { return (!SQLSnippet.Instance.hasSnippet(snippetName));};
-        return xcHelper.uniqueRandName(prefix, validFunc, 10);
+        return Util.uniqueRandName(prefix, validFunc, 10);
     }
 
     // Return a random snippet
@@ -95,8 +95,9 @@ class SQLModeState extends State {
     }
 
     // Get latest sql history
-    private getLatestSQLHistory(): SqlQueryHistory.QueryInfo {
-        let historyMap = this.sqlHistory.getQueryMap();
+    private async getLatestSQLHistory(): SqlQueryHistory.QueryInfo {
+        await SqlQueryHistory.getInstance().readStore(true);
+        let historyMap = SqlQueryHistory.getInstance().getQueryMap();
         let qInfo = null;
         for (let idx in historyMap) {
             let q = historyMap[idx];
@@ -112,8 +113,7 @@ class SQLModeState extends State {
         let snippetName = this.getUniqueName();
         this.log(`Creating snippet ${snippetName} in WKBK ${this.currentWKBKId}`);
         try {
-            await this.sqlEditor._newSnippet();
-            await this.sqlEditor._setSnippet(snippetName);
+            this.sqlEditor._setSnippet(snippetName);
             this.sqlEditor.clearSQL();
             let sql = await this.generateSQL();
             this.sqlEditor.newSQL(sql);
@@ -123,9 +123,11 @@ class SQLModeState extends State {
             throw err;
         }
 
-        if (!this.sqlSnippet.hasSnippet(snippetName)) {
-            throw `Error creating snippet ${snippetName}, not in the snippet list in WKBK ${this.currentWKBKId}`;
-        }
+        // XXX Disable this check due to some unknown issue about the SQLSnippet singleton design
+        // Might need to revisit it sometime
+        // if (!this.sqlSnippet.hasSnippet(snippetName)) {
+        //     throw `Error creating snippet ${snippetName}, not in the snippet list in WKBK ${this.currentWKBKId}`;
+        // }
 
         if (this.sqlSnippet._listSnippetsNames().length > 1) {
             // If has more than one snippet ( except for the default one)
@@ -141,16 +143,19 @@ class SQLModeState extends State {
         this.log(`Deleting snippet ${randomSnippet} in WKBK ${this.currentWKBKId}`);
         try{
             await this.sqlSnippet.deleteSnippet(randomSnippet);
+            await this.sqlEditor._newSnippet();
         } catch (err) {
             this.log(`Error deleting snippet ${err} in WKBK ${this.currentWKBKId}`);
             throw err;
         }
 
-        if (this.sqlSnippet.hasSnippet(randomSnippet)) {
-            throw `Error deleting snippet ${randomSnippet}`;
-        }
+        // XXX Disable this check due to some unknown issue about the SQLSnippet singleton design
+        // Might need to revisit it sometime
+        // if (this.sqlSnippet.hasSnippet(randomSnippet)) {
+        //     throw `Error deleting snippet ${randomSnippet}, it's still in the snippet list in WKBK ${this.currentWKBKId}`;
+        // }
         if (this.sqlSnippet._listSnippetsNames().length == 1) {
-            // Only 1 default snippet: Untitled
+            // Only 1 default snippet: undefined
             this.deleteAction(this.executeSnippet);
             this.deleteAction(this.deleteSnippet);
         }
@@ -177,7 +182,9 @@ class SQLModeState extends State {
 
         // Check the latest query history info matches the sql query
         // we just issued
-        let checkFunc = function() {
+        let checkFunc = async function() {
+            console.info(`checking sql execution ${snippet}`);
+            await SqlQueryHistory.getInstance().readStore(true);
             let historyMap = SqlQueryHistory.getInstance().getQueryMap();
             let qInfo = null;
             for (let idx in historyMap) {
@@ -187,24 +194,36 @@ class SQLModeState extends State {
                 }
             }
             if (qInfo == null) {
+                console.log("no sql query hisotry, return false!");
                 return false;
             }
-            console.info(`checking sql execution ${snippet}`);
             return qInfo.queryString.replace(/\s+/g, '') == snippet.replace(/\s+/g, '') && (qInfo.status == 'Failed' || qInfo.status == 'Done');
         }
-        await this.testFinish(checkFunc);
+        let msg = await this.testFinish(checkFunc);
+        this.log(`Finish checking ${snippet} execution in WKBK ${this.currentWKBKId}, result: ${msg}`);
 
-        let qInfo = this.getLatestSQLHistory();
+        let qInfo = await this.getLatestSQLHistory();
         // Only publish those relatively small table (row nums in (0, 500])
-        if (qInfo.status == 'Done' && qInfo.queryString == snippet && qInfo.rows > 0 && qInfo.rows < 500) {
-            let publishTables = await this.getPublishTables();
-            let validFunc = function(name) {return !publishTables.includes(name);}
-            let tableName = this.getUniqueName("FUNCTESTPUB", validFunc);
+        let publishTables = await this.getPublishTables();
+        let validFunc = function(name) {return !publishTables.includes(name);}
+        let tableName = this.getUniqueName("FUNCTESTPUB", validFunc);
+        if (qInfo && qInfo.status == 'Done' && qInfo.queryString == snippet && qInfo.rows > 0 && qInfo.rows < 500) {
             let columns = [];
             for (let col of qInfo.columns) {
                 columns.push(ColManager.newPullCol(col.name, col.backName, col.type));
             }
-            await this.tableManager.createTableFromView([], columns, qInfo.tableName, tableName);
+            try {
+                // Deal with OOM issue
+                await this.tableManager.createTableFromView([], columns, qInfo.tableName, tableName);
+            } catch (error) {
+                if (error.includes("Out of resources")) {
+                    // If OOM, randomly delete some tables
+                    let deletePublishTables = Util.pickRandom(publishTables, Math.min(publishTables.length, 10));
+                    await this.tableManager._deleteTables(deletePublishTables);
+                } else {
+                    throw error;
+                }
+            }
         }
         return this;
     }

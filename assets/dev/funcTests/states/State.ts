@@ -35,41 +35,34 @@ abstract class State {
         }
     }
 
+    public async delay(ms: number) {
+        // return await for better async stack trace support in case of errors.
+        return await new Promise(resolve => setTimeout(resolve, ms));
+    }
+
     // Use checkFunc to check at a interval
     // The overall timeout should be outCnt * interval
-    public testFinish(checkFunc: Function, interval?: number): XDPromise<void> {
-        var deferred = PromiseHelper.deferred();
+    public async testFinish(checkFunc: Function, interval?: number) {
         var checkTime = interval || 200;
         var outCnt = 80;
         var timeCnt = 0;
 
-        var timer = setInterval(function() {
-            var res = checkFunc();
-            if (res === true) {
-                // make sure graphisc shows up
-                clearInterval(timer);
-                deferred.resolve();
-            } else if (res === null) {
-                clearInterval(timer);
-                deferred.reject("Check Error!");
+        while (timeCnt < outCnt) {
+            await this.delay(checkTime);
+            let pass = await checkFunc();
+            if (pass) {
+                return "PASS";
+            } else if (pass == null) {
+                return "Check Error!";
             } else {
-                console.info("check not pass yet!");
-                timeCnt += 1;
-                if (timeCnt > outCnt) {
-                    clearInterval(timer);
-                    console.error("Time out!", JSON.stringify(checkFunc));
-                    // Timeout is fine
-                    // deferred.reject("Time out");
-                    deferred.resolve();
-                }
+                console.log("check not pass yet!");
+                timeCnt++;
             }
-        }, checkTime);
+        }
 
-        window.onbeforeunload = function() {
-            return;
-       };
+        console.log("Time Out!", JSON.stringify(checkFunc));
 
-        return deferred.promise();
+        return "TIMEOUT"
     }
     /* -------------------------------Helper Function------------------------------- */
 
