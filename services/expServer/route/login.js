@@ -1545,6 +1545,7 @@ router.post('/login/verifyToken', function(req, res) {
 
         delete userInfo.timestamp;
 
+        support.create_login_jwt(req, res);
         res.status(200).send(userInfo);
     } catch (err) {
         res.status(400).send({"errorMsg": "Malformed token: " + err});

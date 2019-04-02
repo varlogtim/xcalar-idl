@@ -256,6 +256,8 @@ router.get('/auth/sessionStatus', function(req, res) {
         if (req.session.hasOwnProperty('timeout')) {
             message.timeout = req.session.timeout;
         }
+
+        support.create_login_jwt(req, res);
     }
 
     res.status(httpStatus.OK).send(message);

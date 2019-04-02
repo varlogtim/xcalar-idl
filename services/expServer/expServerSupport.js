@@ -939,9 +939,12 @@ function makeFileCopy(filePath) {
 }
 
 function create_login_jwt(req, res) {
-    var payload = {expiresIn: "30m", audience: "xcalar", issuer: "XCE", subject: "auth id"};
+    var timeout = (req.session.hasOwnProperty('timeout')) ?
+        req.session.timeout : sessionAges[defaultSessionAge]/1000;
+
+    var payload = {expiresIn: timeout, audience: "xcalar", issuer: "XCE", subject: "auth id"};
     var token = jwt.sign(payload, defaultJwtHmac);
-    res.cookie("jwt_token", token, { maxAge: 1000*60*30, httpOnly: true, signed: false });
+    res.cookie("jwt_token", token, { maxAge: 1000*timeout, httpOnly: true, signed: false });
 }
 
 function loginAuth(req, res) {
