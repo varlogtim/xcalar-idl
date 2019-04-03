@@ -68,7 +68,8 @@ require("jsdom/lib/old-api").env("", function(err, window) {
      global.DagNodeExportInput = require("../dagHelper/nodeInput/DagNodeExportInput.js").DagNodeExportInput
     global.DagNodeSQLFuncIn = require("../dagHelper/node/DagNodeSQLFuncIn.js").DagNodeSQLFuncIn
     global.CommentNode = require("../dagHelper/node/CommentNode.js").CommentNode
-    // XXX: Needed by DagGraph.getQuery()
+    global.DagQueryConverter = require("../dagHelper/DagQueryConverter.js").DagQueryConverter;
+     // XXX: Needed by DagGraph.getQuery()
     global.DagTab = require("../dagHelper/DagTab.js").DagTab
     global.DagTabUser = require("../dagHelper/DagTabUser.js").DagTabUser
     // global.DagList = require("../dagHelper/DagList.js").DagList

@@ -2,9 +2,9 @@ var express = require('express');
 var router = express.Router();
 var support = require('../expServerSupport.js');
 var xcConsole = require('../expServerXcConsole.js').xcConsole;
-var queryConverter = require('../queryConverter.js');
 var httpStatus = require("../../../assets/js/httpStatus.js").httpStatus;
 var fs = require('fs');
+require('../utils/dagUtils.js');
 
 function convertToBase64(logs) {
     return new Buffer(logs).toString('base64');
@@ -211,8 +211,9 @@ router.post("/service/upgradeQuery", function(req, res) {
     }
 
     fs.readFile(reqBody.filename, 'utf8', (_err, contents) => {
-        let contentsOut = queryConverter.convert(contents);
-        // The converter returns an object if an error is caught.
+        let converter = new DagQueryConverter(contents, true);
+        let contentsOut = converter.getResult();
+        // The converter returns an empty dataflow if error is caught
         if (typeof contentsOut === "object") {
             contentsOut = JSON.stringify(contentsOut);
         }
