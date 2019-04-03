@@ -53,6 +53,8 @@ describe("DatasetColRenamePanel Test", function() {
         });
         graph = new DagGraph();
         graph.addNode(node);
+        // Add a dummy child for rename panel to show up
+        node.connectToChild(new DagNodeAggregate({}));
         oldListDS = DS.listDatasets;
         DS.listDatasets = function() {
             return [
@@ -83,7 +85,6 @@ describe("DatasetColRenamePanel Test", function() {
     });
 
     describe("Standard Rename Panel Tests", function() {
-
         it("Should display rename panel", function() {
             datasetOpPanel.show(node);
             expect($("#datasetOpColumnAssignment").is(":visible")).to.be.false;

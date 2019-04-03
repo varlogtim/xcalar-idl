@@ -597,7 +597,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
                 dagGraph.applyColumnMapping(dagNode.getId(), renameMap);
                 dagNode.confirmSetParam();
                 this.close();
-            } else if (oldColumns.length || !dagNode.getLineage().getColumns().length) {
+            } else if (!dagNode.hasNoChildren() && (oldColumns.length || !dagNode.getLineage().getColumns().length)) {
                 this._$elemPanel.find(".opSection, .mainContent > .bottomSection").hide();
                 // advancedEditor has a styling of display: block !important
                 this._$elemPanel.find(".advancedEditor").addClass("xc-hidden");
