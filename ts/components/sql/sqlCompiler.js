@@ -1396,6 +1396,7 @@
 
             var id = queryId || xcHelper.randName("sql", 8);
             self.sqlObj.setQueryId(id);
+            self.sqlObj.setQueryName(id);
             self.setJdbcOption(jdbcOption);
             if (jdbcOption && jdbcOption.queryString) {
                 self.sqlObj.setQueryString(jdbcOption.queryString);
