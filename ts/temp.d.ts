@@ -323,7 +323,7 @@ declare class d3 {
     public ease(type: string): d3;
     public tween(type: string, callback: Function): d3;
     public append(selector: string): d3;
-    public attr(options: object | string, options2?: string | number): d3;
+    public attr(options: object | string, options2?: string | number | function): d3;
     public style(options: string, options2: string): d3;
     public text(text: string | Function): d3;
     public remove(): d3;
@@ -336,6 +336,8 @@ declare class d3 {
     public empty(): boolean;
     public call(func: any): d3;
     public size(): number;
+    public delay(func: Function): d3;
+    public filter(func: Function): d3;
     public svg;
     public layout;
     public scale: any;

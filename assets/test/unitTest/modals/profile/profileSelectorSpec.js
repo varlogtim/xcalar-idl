@@ -1,4 +1,4 @@
-describe("Profile-Profile Selector Test", function() {
+describe("ProfileSelector Test", function() {
     let profileSelector;
     
     before(function() {
@@ -26,7 +26,7 @@ describe("Profile-Profile Selector Test", function() {
         });
 
         it("getBucketFltOpt should work", function() {
-            var chartBuilder = ProfileChart.new({type: "bar", bucketSize: 1});
+            var chartBuilder = ProfileChart.get("bar", {bucketSize: 1});
             profileSelector._chartBuilder = chartBuilder;
 
             // case 1
@@ -56,7 +56,7 @@ describe("Profile-Profile Selector Test", function() {
 
         it("getNumFltOpt should work", function() {
             // case 1
-            var chartBuilder = ProfileChart.new({type: "bar", bucketSize: 0});
+            var chartBuilder = ProfileChart.get("bar", {bucketSize: 0});
             profileSelector._chartBuilder = chartBuilder;
             var res = profileSelector._getNumFltOpt(FltOp.Filter, "test", [], true);
             expect(res).to.be.an("object");
@@ -87,7 +87,7 @@ describe("Profile-Profile Selector Test", function() {
             expect(res.operator).to.equal("wrongOperator");
             expect(res.filterString).to.equal("");
             // case 7 (change bucket size to 1)
-            chartBuilder = ProfileChart.new({type: "bar", bucketSize: 1});
+            chartBuilder = ProfileChart.get("bar", {bucketSize: 1});
             profileSelector._chartBuilder = chartBuilder;
 
             res = profileSelector._getNumFltOpt(FltOp.Filter, "test", [[1]], false);
@@ -149,9 +149,8 @@ describe("Profile-Profile Selector Test", function() {
             var data = Array(len).fill(1).map(function(d, i) {
                 return {x: i, y: val, rowNum: (i + 1)};
             });
-            var chartBuilder = ProfileChart.new({
+            var chartBuilder = ProfileChart.get(type, {
                 data: data,
-                type: type,
                 bucketSize: 0,
                 xName: "x",
                 yName: "y",

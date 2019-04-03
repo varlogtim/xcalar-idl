@@ -931,9 +931,8 @@ window.Profile = (function($, Profile, d3) {
             resizeDelay = 60 / defaultRowsToFetch * numRowsToFetch;
         }
 
-        chartBuilder = ProfileChart.new({
+        chartBuilder = ProfileChart.get(chartType, {
             "data": groupByData,
-            "type": chartType,
             "bucketSize": bucketNum,
             "xName": tableInfo.colName,
             "yName": getYName(),

@@ -1,4 +1,4 @@
-describe("Profile-Profile Engine Test", function() {
+describe("ProfileEngine Test", function() {
     var sortMap = {
         "asc": "asc",
         "origin": "origin",

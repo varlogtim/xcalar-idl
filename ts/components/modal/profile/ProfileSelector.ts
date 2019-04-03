@@ -2,7 +2,7 @@ class ProfileSelector {
     private _container: string;
     private _chartId: string;
     private _filterDragging;
-    private _chartBuilder;
+    private _chartBuilder: AbstractChartBuilder;
 
     public constructor(container, chartId) {
         this._container = container;
@@ -288,7 +288,8 @@ class ProfileSelector {
         bottom: number,
         left: number
     ): boolean[] {
-        let pieData = this._chartBuilder.getPieData();
+        let chartBuilder: PieChartBuilder = <PieChartBuilder>this._chartBuilder;
+        let pieData = chartBuilder.getPieData();
         let topLeftCorner = [left, top];
         let topRightCorner = [right, top];
         let bottomLeftCorner = [left, bottom];
@@ -381,7 +382,8 @@ class ProfileSelector {
     }
 
     private _getRadius(): number {
-        return this._chartBuilder.getRadius();
+        let chartBuilder: PieChartBuilder = <PieChartBuilder>this._chartBuilder;
+        return chartBuilder.getRadius();
     }
 
     // returns the quadrant of the pie that a point lies in
