@@ -717,7 +717,8 @@ namespace DagNodeMenu {
         }
         else if ( dagNode != null &&
             state === DagNodeState.Complete &&
-            dagNode.getTable() != null
+            dagNode.getTable() != null &&
+            DagTblManager.Instance.hasTable(dagNode.getTable())
         ) {
             $menu.find(".unlockNodeTable").addClass("unavailable");
             $menu.find(".unlockNodeTable").addClass("xc-hidden");
