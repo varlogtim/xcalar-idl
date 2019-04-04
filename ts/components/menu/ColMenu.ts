@@ -434,7 +434,8 @@ class ColMenu extends AbstractMenu {
                 return null;
             case DagNodeType.Split:
                 return {
-                    source: columns[0]
+                    eval: [{ evalString: `cut(${columns[0]},1,"")`, newField: "" }],
+                    icv: false
                 };
             case DagNodeType.GroupBy:
                 return {
