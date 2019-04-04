@@ -892,7 +892,7 @@ function executeSql(params, type) {
                 }
             }
             // Auto-generate a name for the final table if not specified
-            if(!params.usePaging && !params.resultTableName) {
+            if(type !== "odbc" && !params.usePaging && !params.resultTableName) {
                 params.resultTableName = xcHelper.randName("res_") + Authentication.getHashId();
             }
             var prefixStruct = SqlUtil.addPrefix(

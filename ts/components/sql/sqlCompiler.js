@@ -4386,7 +4386,7 @@
     }
 
     // XXX the type argument is not used now
-    function __prepareWindowOp(node, type, options) {
+    function __prepareWindowOp(node, options) {
         var newCol;
         var opName;
         var args = [];
@@ -4472,7 +4472,7 @@
     }
 
     // XXX the type argument is not used now
-    function __categoryWindowOps(opList, type, options) {
+    function __categoryWindowOps(opList, options) {
         var retStruct = {agg: [],
                          first: [],
                          last: [],
@@ -4487,7 +4487,7 @@
         for (var i = 0; i < opList.length; i++) {
             var found = false;
             var opStruct = __prepareWindowOp(SQLCompiler
-                                .genTree(undefined, opList[i]), type, options);
+                                .genTree(undefined, opList[i]), options);
             if (opStruct.opName === "First" || opStruct.opName === "Last") {
                 var key = opStruct.opName.toLowerCase();
                 retStruct[key].forEach(function(obj) {
@@ -6928,7 +6928,7 @@
             len = node.value.projectList.length;
         } else {
             for (var i = 0; i < node.children.length; i++) {
-                len += genProjectListLen(node.children[i]);
+                len += getProjectListLen(node.children[i]);
             }
         }
         return len;
