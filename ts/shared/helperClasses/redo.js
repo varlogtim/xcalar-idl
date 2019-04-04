@@ -35,23 +35,6 @@ window.Redo = (function($, Redo) {
     };
 
     /* START BACKEND OPERATIONS */
-    redoFuncs[SQLOps.ExecSQL] = function(options) {
-        return TblManager.refreshTable([options.tableName], null, []);
-    };
-
-    redoFuncs[SQLOps.RefreshTables] = function(options) {
-        var deferred = PromiseHelper.deferred();
-        var promises = [];
-        for (var i = 0; i < options.tableNames.length; i++) {
-            promises.push(TblManager.refreshTable.bind(this, [options.tableNames[i]], null, []));
-        }
-        PromiseHelper.chain(promises)
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
     redoFuncs[SQLOps.Sort] = function(options) {
         return TblManager.refreshTable([options.newTableName], null, [options.tableName]);
     };
@@ -62,37 +45,6 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.Finalize] = function(options) {
         return TblManager.refreshTable([options.newTableName], null, [options.tableName]);
-    };
-
-    redoFuncs[SQLOps.Ext] = function(options) {
-        // XXX As extension can do anything, it may need fix
-        // as we add more extensions and some break the current code
-
-        // Tested: Window, hPartition, genRowNum, union
-        var replace = options.replace || {};
-        var newTables = options.newTables || [];
-
-        var promises = [];
-
-        // first replace tables
-        for (var table in replace) {
-            var tablesToReplace = replace[table];
-            promises.push(TblManager.refreshTable.bind(window,
-                                                    [table], null,
-                                                    tablesToReplace));
-        }
-
-        // next append new tables
-
-        var tableId = options.tableId;
-        for (var i = 0, len = newTables.length; i < len; i++) {
-            var newTable = newTables[i];
-            promises.push(TblManager.refreshTable.bind(window,
-                                                    [newTable], null,
-                                                    []));
-        }
-
-        return PromiseHelper.chain(promises);
     };
 
     /* END BACKEND OPERATIONS */

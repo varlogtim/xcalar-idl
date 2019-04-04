@@ -311,7 +311,7 @@ window.ColManager = (function($, ColManager) {
             $editableHead.prop("disabled", false);
             var newWidth;
             if (options.prevWidth == null) {
-                newWidth = gNewCellWidth;
+                newWidth = ProgCol.NewCellWidth;
             } else {
                 newWidth = options.prevWidth;
             }
@@ -1031,96 +1031,6 @@ window.ColManager = (function($, ColManager) {
             "htmlExclude": ["colNames"]
         });
     };
-
-    // assumes we are sending in a valid func ex. map(add(3,2))
-    ColManager.parseFuncString = function (funcString) {
-        var func = {args: []};
-
-        parseFuncString(funcString, func);
-
-        func = func.args[0];
-        return func;
-    };
-
-    function parseFuncString(funcString, func) {
-        var tempString = "";
-        var newFunc;
-        var inQuotes = false;
-        var singleQuote = false;
-        var hasComma = false;
-        var isEscaped = false;
-
-        for (var i = 0; i < funcString.length; i++) {
-            if (isEscaped) {
-                tempString += funcString[i];
-                isEscaped = false;
-                continue;
-            }
-
-            if (inQuotes) {
-                if ((funcString[i] === "\"" && !singleQuote) ||
-                    (funcString[i] === "'" && singleQuote)) {
-                    inQuotes = false;
-                }
-            } else {
-                if (funcString[i] === "\"") {
-                    inQuotes = true;
-                    singleQuote = false;
-                } else if (funcString[i] === "'") {
-                    inQuotes = true;
-                    singleQuote = true;
-                }
-            }
-
-            if (funcString[i] === "\\") {
-                isEscaped = true;
-                tempString += funcString[i];
-            } else if (inQuotes) {
-                tempString += funcString[i];
-            } else {
-                if (funcString[i] === "(") {
-                    newFunc = new ColFunc({name: tempString.trim()});
-                    func.args.push(newFunc);
-                    tempString = "";
-                    i += parseFuncString(funcString.substring(i + 1), newFunc);
-                } else if (funcString[i] === "," || funcString[i] === ")") {
-                    // tempString could be blank if funcString[i] is a comma
-                    // after a )
-                    if (tempString !== "") {
-                        tempString = tempString.trim();
-
-                        if (funcString[i] !== ")" || hasComma ||
-                            tempString !== "") {
-
-                        // true if it's an int or decimal, false if its anything
-                        // else such as 0xff 1e2 or 023 -- we will keep these as
-                        // strings to retain the formatting
-                        // if "0" treat as 0, but if "010", treat as "010" to
-                        // preserve it as "010" is 8 in base 8
-                            if (/^[0-9.]+$/.test(tempString) &&
-                            (tempString[0] !== "0" || tempString === "0")) {
-                                if (func && func.name && func.name.indexOf("pull") > -1) {
-                                    // treat as string if in pull function
-                                } else {
-                                    tempString = parseFloat(tempString);
-                                }
-                            }
-                            func.args.push(tempString);
-                        }
-                        tempString = "";
-                    }
-                    if (funcString[i] === ")") {
-                        break;
-                    } else {
-                        hasComma = true;
-                    }
-                } else {
-                    tempString += funcString[i];
-                }
-            }
-        }
-        return (i + 1);
-    }
 
     // used for mixed columns when we want to get the type inside a td
     ColManager.getCellType = function($td, tableId) {

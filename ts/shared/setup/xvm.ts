@@ -64,32 +64,27 @@ namespace XVM {
         return null; // valid case
     }
 
-    function parseKVStoreVersionInfo(info: string): KVVersion {
+    function parseKVStoreVersionInfo(info: string): KVVersionDurable {
         if (info == null) {
             return null;
         }
 
-        let versionInfo: KVVersion;
         try {
-            versionInfo = JSON.parse(info);
-            if (typeof versionInfo !== 'object') {
-                // an old version of versionInfo
-                versionInfo = {
-                    version: Number(versionInfo),
-                    stripEmail: true,
-                    needCommit: true
-                };
-            }
+            return JSON.parse(info);
         } catch (error) {
             console.error("parse error", error);
             return null;
         }
-        return versionInfo;
     }
 
     function checkVersionInfo(versionInfo) {
+        if (versionInfo == null) {
+            kvVersion = new KVVersion();
+        } else {
+            kvVersion = new KVVersion(versionInfo);
+        }
         kvVersion = new KVVersion(versionInfo);
-        if (kvVersion.stripEmail) {
+        if (kvVersion.shouldStrimEmail()) {
             // need to redo the username setup
             XcUser.CurrentUser.setName(true);
             XcUser.setUserSession(XcUser.CurrentUser);
@@ -392,7 +387,7 @@ namespace XVM {
 
         kvVersionStore.get()
             .then(function (res) {
-                const versionInfo: KVVersion = parseKVStoreVersionInfo(res);
+                let versionInfo: KVVersionDurable = parseKVStoreVersionInfo(res);
                 checkVersionInfo(versionInfo);
                 if (versionInfo == null) {
                     // when it's a first time set up
@@ -402,17 +397,15 @@ namespace XVM {
 
                 const version: number = versionInfo.version;
                 let needUpgrade: boolean = false;
-                if (isNaN(version) || version > currentVersion) {
+                if (isNaN(version) || version > Durable.Version) {
                     xcConsole.error('Error of KVVersion', res);
-                } else if (version < currentVersion) {
+                } else if (version < Durable.Version) {
                     needUpgrade = true;
                 }
 
                 if (needUpgrade) {
                     const upgrader = new Upgrader(version);
                     return upgrader.exec();
-                } else if (versionInfo.needCommit) {
-                    return XVM.commitKVVersion();
                 }
             })
             .then(function () {
@@ -436,8 +429,8 @@ namespace XVM {
      * XVM.commitKVVersion
      */
     export function commitKVVersion(): XDPromise<void> {
-        const version: string = JSON.stringify(kvVersion);
-        return kvVersionStore.put(version, true);
+        let versionInfo: string = kvVersion.serialize();
+        return kvVersionStore.put(versionInfo, true);
     }
 
     /**

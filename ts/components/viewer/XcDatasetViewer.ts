@@ -167,7 +167,7 @@ class XcDatasetViewer extends XcViewer {
             });
         }
 
-        let columnsType: string[] = [];  // track column type
+        let columnsType: ColumnType[] = [];  // track column type
         let numKeys: number = Math.min(1000, jsonKeys.length); // limit to 1000 ths
         this._setColStrLimie(numKeys);
         this.currentRow = 0;
@@ -210,7 +210,7 @@ class XcDatasetViewer extends XcViewer {
     private _getTableRowsHTML(
         jsonKeys: string[],
         jsons: object[],
-        columnsType: string[]
+        columnsType: ColumnType[]
     ): string {
         let tr: string = "";
         let i: number = 0;

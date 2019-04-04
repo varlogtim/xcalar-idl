@@ -21,7 +21,6 @@ window.UserSettings = (function($, UserSettings) {
         userPrefs = userInfos.getPrefInfo();
 
         saveLastPrefs();
-        restoreMainTabs();
 
         var dsInfo = userInfos.getDSInfo();
         genSettings = new GenSettings({}, prevSettings);
@@ -45,7 +44,7 @@ window.UserSettings = (function($, UserSettings) {
 
         KVStore.getUserInfo()
         .then(function(userMeta) {
-            oldUserInfos = new UserInfoConstructor(userMeta);
+            oldUserInfos = new UserInfo(userMeta);
             return KVStore.getSettingInfo();
         })
         .then(function(prevSettings) {
@@ -359,13 +358,6 @@ window.UserSettings = (function($, UserSettings) {
         logOutIntervalSlider.setSliderValue(XcUser
             .CurrentUser.getLogOutTimeoutVal() / (1000 * 60));
     }
-
-    function restoreMainTabs() {
-        // XX xi2 hack for making worksheet initial screen
-        // $("#workspaceTab .mainTab").click();
-    }
-
-    UserSettings.restoreMainTabs = restoreMainTabs;
 
     return (UserSettings);
 }(jQuery, {}));

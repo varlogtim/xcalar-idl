@@ -1201,7 +1201,7 @@ window.DS = (function ($, DS) {
         .then(function() {
             var key = KVStore.getKey("gSharedDSKey");
             var kvStore = new KVStore(key, gKVScope.GLOB);
-            return kvStore.put(JSON.stringify(dsInfoMeta), true);
+            return kvStore.put(dsInfoMeta.serialize(), true);
         })
         .then(function() {
             hasCommit = true;
@@ -2191,7 +2191,7 @@ window.DS = (function ($, DS) {
     }
 
     function restoreSharedDS(oldSharedDSInfo, datasetsSet) {
-        dsInfoMeta = new DSInfoConstructor(oldSharedDSInfo);
+        dsInfoMeta = new SharedDSInfo(oldSharedDSInfo);
         var oldSharedFolder = dsInfoMeta.getDSInfo();
         var sharedFolder = createSharedFolder();
         datasetsSet = restoreDir(oldSharedFolder, datasetsSet);
@@ -2201,7 +2201,7 @@ window.DS = (function ($, DS) {
     }
 
     function rebuildOldDSInfo(datasetsSet) {
-        var tempDSInfoMeta = new DSInfoConstructor();
+        var tempDSInfoMeta = new SharedDSInfo();
         var sharedFolder = createSharedFolder();
 
         for (var fullDSName in datasetsSet) {
@@ -2231,7 +2231,7 @@ window.DS = (function ($, DS) {
 
         var key = KVStore.getKey("gSharedDSKey");
         var kvStore = new KVStore(key, gKVScope.GLOB);
-        kvStore.putWithMutex(JSON.stringify(tempDSInfoMeta), true);
+        kvStore.putWithMutex(tempDSInfoMeta.serialize(), true);
         return tempDSInfoMeta;
     }
 

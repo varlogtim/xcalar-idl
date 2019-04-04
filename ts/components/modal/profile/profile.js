@@ -86,7 +86,18 @@ window.Profile = (function($, Profile, d3) {
     };
 
     Profile.restore = function(oldInfos) {
-        statsInfos = oldInfos || {};
+        var oldStats = oldInfos || {};
+        var newStats = {};
+        for (var tableId in oldStats) {
+            newStats[tableId] = {};
+            var colInfos = oldStats[tableId] || {};
+            for (var colName in colInfos) {
+                var oldInfo = colInfos[colName];
+                newStats[tableId][colName] = new ProfileInfo(oldInfo);
+            }
+        }
+
+        statsInfos = newStats;
     };
 
     Profile.getCache = function() {

@@ -392,7 +392,7 @@ namespace xcManager {
 
     function oneTimeSetup(): XDPromise<any> {
         function initLocks() {
-            const keys: any = WorkbookManager.getGlobalScopeKeys(currentVersion);
+            const keys: any = WorkbookManager.getGlobalScopeKeys(Durable.Version);
             const keyAttrs: object[] = [{
                 "key": keys.gSettingsKey,
                 "scope": gKVScope.GLOB

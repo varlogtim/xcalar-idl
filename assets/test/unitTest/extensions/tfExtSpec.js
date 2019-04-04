@@ -1,4 +1,4 @@
-describe('UExtTF', function() {
+describe.skip('UExtTF', function() {
     var imgRecTrainArgs = {
         "dsName": "trainResults",
         "algorithm": "ImgRecCNN",

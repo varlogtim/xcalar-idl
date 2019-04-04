@@ -162,7 +162,7 @@ class RowManager {
      */
     public getRowsAboveHeight(numRowsAbove: number): number {
         const table: TableMeta = this.table;
-        const numPages: number = Math.ceil(numRowsAbove / gNumEntriesPerPage);
+        const numPages: number = Math.ceil(numRowsAbove / TableMeta.NumEntriesPerPage);
         let height: number = numRowsAbove * gRescol.minCellHeight;
         for (let pageNumStr in table.rowHeights) {
             const pageNum: number = parseInt(pageNumStr);
@@ -704,7 +704,8 @@ class RowManager {
             const $tableWrap: JQuery = $view.find('.xcTableWrap');
             const $tbodyWrap: JQuery = $view.find('.xcTbodyWrap');
 
-            const tdTop: number = $table.find('.row' + (row - 1))[0].offsetTop;
+            const el: HTMLElement = <HTMLElement>$table.find('.row' + (row - 1))[0];
+            const tdTop: number = el.offsetTop;
             const scrollPos: number = Math.max((tdTop - theadHeight), 1);
             if (canScroll && scrollPos >
                 ($table.height() - $tableWrap.height())

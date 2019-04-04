@@ -33,8 +33,9 @@ class XcSubQuery {
     public retName: string;
     public index: number;
     public name: string;
+    public query: string;
+
     private time: number;
-    private query: string;
     private id: number;
     public exportFileName: string;
 

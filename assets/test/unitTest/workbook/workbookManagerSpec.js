@@ -337,7 +337,7 @@ describe("WorkbookManager Test", function() {
 
         it("WorkbookManager.getStorageKey should work", function() {
             var res = WorkbookManager.getStorageKey();
-            expect(res).to.equal("gInfo-" + currentVersion);
+            expect(res).to.equal("gInfo-" + Durable.Version);
         });
     });
 
@@ -364,7 +364,7 @@ describe("WorkbookManager Test", function() {
         });
 
         it("WorkbookManager.getKeysForUpgrade should work", function() {
-            var version = currentVersion;
+            var version = Durable.Version;
             var sessionInfo = {
                 "numSessions": 1,
                 "sessions": [{

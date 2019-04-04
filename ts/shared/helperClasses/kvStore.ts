@@ -4,15 +4,14 @@ class KVStore {
     // and when change the store key, change it here, it will
     // apply to all places
     private static keys: Map<string, string> = new Map();
-    private static metaInfos: METAConstructor;
 
     /**
      * KVStore.setupUserAndGlobalKey
      * keys: gUserKey, gSettingsKey, gNotebookKey, gUserIMDKey,
      */
     public static setupUserAndGlobalKey(): void {
-        const globlKeys: any = WorkbookManager.getGlobalScopeKeys(currentVersion);
-        const userScopeKeys: any = WorkbookManager.getUserScopeKeys(currentVersion);
+        const globlKeys: any = WorkbookManager.getGlobalScopeKeys(Durable.Version);
+        const userScopeKeys: any = WorkbookManager.getUserScopeKeys(Durable.Version);
         const keys: string[] = $.extend({}, globlKeys, userScopeKeys);
         for (var key in keys) {
             KVStore.keys.set(key, keys[key]);
@@ -25,7 +24,7 @@ class KVStore {
      * @param keys
      */
     public static setupWKBKKey() {
-        const wkbkScopeKeys: any = WorkbookManager.getWkbkScopeKeys(currentVersion);
+        const wkbkScopeKeys: any = WorkbookManager.getWkbkScopeKeys(Durable.Version);
         const keys: string[] = $.extend({}, wkbkScopeKeys);
         for (var key in keys) {
             KVStore.keys.set(key, keys[key]);
@@ -82,7 +81,7 @@ class KVStore {
      */
     public static restoreUserAndGlobalInfo(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let gInfosUser: object = {};
+        let gInfosUser: UserInfoDurable = <UserInfoDurable>{};
         let gInfosSetting: object = {};
 
         KVStore.getUserInfo()
@@ -111,7 +110,7 @@ class KVStore {
 
         this._getMetaInfo()
         .then((meta) => {
-            const gInfosMeta: object = meta || {};
+            let gInfosMeta: MetaInfDurable = meta || {};
             return this._restoreWKBKInfoHelper(gInfosMeta);
         })
         .then(deferred.resolve)
@@ -147,7 +146,7 @@ class KVStore {
         xcAssert((persistedVersion != null) && (constorName != null));
 
         let newMeta: any = oldMeta;
-        for (let i = 0; i < currentVersion - persistedVersion; i++) {
+        for (let i = 0; i < Durable.Version - persistedVersion; i++) {
             const versionToBe: number = (persistedVersion + (i + 1));
             const ctor: string = constorName + "V" + versionToBe;
 
@@ -183,22 +182,24 @@ class KVStore {
     }
 
     private static _restoreUserAndGlobalInfoHelper(
-        gInfosUser: object,
+        gInfosUser: UserInfoDurable,
         gInfosSetting: object,
     ): XDPromise<void> {
-        const userInfos: UserInfoConstructor = new UserInfoConstructor(gInfosUser);
+        const userInfos: UserInfo = new UserInfo(gInfosUser);
         return UserSettings.restore(userInfos, gInfosSetting);
     }
 
-    private static _restoreWKBKInfoHelper(gInfosMeta: object): XDPromise<void> {
+    private static _restoreWKBKInfoHelper(gInfosMeta: MetaInfDurable): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const isEmpty: boolean = $.isEmptyObject(gInfosMeta);
+        let metaInfo: MetaInfo;
+
 
         try {
-            KVStore.metaInfos = new METAConstructor(gInfosMeta);
-            TableComponent.getPrefixManager().restore(KVStore.metaInfos.getTpfxMeta());
-            TblManager.restoreTableMeta(KVStore.metaInfos.getTableMeta());
-            Profile.restore(KVStore.metaInfos.getStatsMeta());
+            metaInfo = new MetaInfo(gInfosMeta);
+            TableComponent.getPrefixManager().restore(metaInfo.getTpfxMeta());
+            TblManager.restoreTableMeta(metaInfo.getTableMeta());
+            Profile.restore(metaInfo.getStatsMeta());
         } catch (error) {
             console.error(error);
             return PromiseHelper.reject(error);
@@ -209,14 +210,14 @@ class KVStore {
             console.info("KVStore is empty!");
             promise = PromiseHelper.resolve();
         } else {
-            const oldLogCursor: number = KVStore.metaInfos.getLogCMeta();
+            const oldLogCursor: number = metaInfo.getLogCMeta();
             promise = Log.restore(oldLogCursor);
         }
 
         promise
         .then(() => {
             // must come after Log.restore
-            QueryManager.restore(KVStore.metaInfos.getQueryMeta());
+            QueryManager.restore(metaInfo.getQueryMeta());
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -229,10 +230,10 @@ class KVStore {
             return PromiseHelper.resolve();
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        KVStore.metaInfos.update();
+        let metaInfo: MetaInfo = new MetaInfo();
 
         const storageStore = new KVStore(KVStore.getKey("gStorageKey"), gKVScope.WKBK);
-        storageStore.put(JSON.stringify(KVStore.metaInfos), true)
+        storageStore.put(metaInfo.serialize(), true)
         .then(() => {
             return Log.commit();
         })

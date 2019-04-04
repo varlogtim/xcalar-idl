@@ -338,13 +338,13 @@ namespace xcHelper {
      */
     export function parseColType(
         val: any,
-        oldType: string = ColumnType.undefined
-    ): string {
-        let type: string = oldType;
+        oldType: ColumnType = ColumnType.undefined
+    ): ColumnType {
+        let type: ColumnType = oldType;
         if (val != null && oldType !== ColumnType.mixed) {
             // note: "" is empty string
             const valType: string = typeof val;
-            type = valType;
+            type = <ColumnType>valType;
             // get specific type
             if (type === ColumnType.number) {
                 // the case when type is float
@@ -946,8 +946,8 @@ namespace xcHelper {
      */
     export function getTableKeyInfoFromMeta(
         tableMeta: any
-    ): {name: string, ordering: XcalarOrderingT}[] {
-        const keys: {name: string, ordering: XcalarOrderingT}[] = [];
+    ): {name: string, ordering: string}[] {
+        const keys: {name: string, ordering: string}[] = [];
         tableMeta.keyAttr.forEach((keyAttr) => {
             if (keyAttr.valueArrayIndex >= 0) {
                 keys.push({
@@ -964,6 +964,9 @@ namespace xcHelper {
      * @param obj
      */
     export function deepCopy(obj: any): any {
+        if (obj == null) {
+            return obj;
+        }
         const str: string = JSON.stringify(obj);
         let res = null;
 
@@ -5684,7 +5687,7 @@ namespace xcHelper {
             var escapedColName = xcHelper.escapeColName(colName);
             escapedColName = unnestColName + openSymbol +
                             escapedColName + closingSymbol;
-            return table.hasColWithBackName(escapedColName);
+            return table.hasColWithBackName(escapedColName, false);
         }
 
         if (isArray) {
@@ -6549,7 +6552,7 @@ namespace xcHelper {
         }
         // Note that if include sample,
         // a.b should not be escaped to a\.b
-        const finalCols: ProgCol[] = newCols.map((col) => new ProgCol(col));
+        const finalCols: ProgCol[] = newCols.map((col) => new ProgCol(<any>col));
         return finalCols;
     }
 

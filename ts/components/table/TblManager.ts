@@ -205,130 +205,6 @@ class TblManager {
         return table;
     }
 
-    /**
-     * TblManager.sendTableToOrphaned
-     * @param tableId
-     * @param options
-     * -remove: boolean, if true will remove table from html immediately - should
-     *          happen when not replacing a table
-     * -noFocusWS: boolean, if true will not focus on tableId's Worksheet
-     * -force: boolean, if true will change table meta before async returns
-     * -removeAfter: boolean, if true will remove table html after freeing result
-     */
-    public static sendTableToOrphaned(
-        tableId: TableId,
-        options: {
-            remove?: boolean,
-            noFocusWS: boolean,
-            force?: boolean,
-            removeAfter?: boolean
-        } = {
-            noFocusWS: false
-        }
-    ): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        if (options.remove) {
-            TblManager._removeTableDisplay(tableId);
-        }
-        var table = gTables[tableId];
-
-        if (options.force) {
-            TblManager._tableCleanup(tableId, false);
-        }
-
-        table.freeResultset()
-        .then(() => {
-            if (options.removeAfter) {
-                TblManager._removeTableDisplay(tableId);
-            }
-            if (!options.force) {
-                TblManager._tableCleanup(tableId, false);
-            }
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    // used for orphaned or undone tables
-    private static _tableCleanup(
-        tableId: TableId,
-        isUndone: boolean,
-    ): void {
-        const table: TableMeta = gTables[tableId];
-        if (!table) {
-            return;
-        }
-
-        if (isUndone) {
-            table.beUndone();
-        } else {
-            table.beOrphaned();
-        }
-
-        table.updateTimeStamp();
-
-        if (gActiveTableId === tableId) {
-            TableComponent.empty();
-        }
-
-        if ($('.xcTableWrap:not(.inActive)').length === 0) {
-            TableComponent.empty();
-        }
-
-        TblManager.alignTableEls();
-    }
-
-    /**
-     * TblManager.sendTableToUndone
-     * @param tableId
-     * @param options
-     * -remove: boolean, if true will remove table display from ws immediately
-     * -force: boolean, if true will change table meta before async returns
-     */
-    public static sendTableToUndone(
-        tableId: TableId,
-        options: {
-            remove: boolean,
-            force: boolean
-            noFocusWS: boolean
-        } = {
-            remove: false,
-            force: false,
-            noFocusWS: false
-        }
-    ): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        if (options.remove) {
-            TblManager._removeTableDisplay(tableId);
-        } else {
-            $("#xcTableWrap-" + tableId).addClass('tableToRemove');
-            $("#dagWrap-" + tableId).addClass('dagWrapToRemove');
-        }
-
-        const table: TableMeta = gTables[tableId];
-        if (!table) {
-            deferred.reject('table not found');
-            console.warn('gTable not found to send to undone');
-            return deferred.promise();
-        }
-        if (options.force) {
-            TblManager._tableCleanup(tableId, true);
-        }
-
-        table.freeResultset()
-        .then(() => {
-            if (!options.force) {
-                TblManager._tableCleanup(tableId, true);
-            }
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-        return deferred.promise();
-    }
-
-
     // XXX TODO: The function need to update to parse tab id and node id
     // to find the table
     /**
@@ -429,19 +305,12 @@ class TblManager {
      * @param tableType
      * @param noAlert
      * @param noLog if we are deleting undone tables, we do not log this transaction
-     * @param options
-     * -lockedToTemp: boolean, if true will send locked tables to temp list
      */
     public static deleteTables(
         tables: (TableId | string)[],
         tableType: string,
         noAlert: boolean,
         noLog: boolean,
-        options: {
-            lockedToTemp: boolean
-        } = {
-            lockedToTemp: false
-        }
     ): XDPromise<any> {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         // tables is an array, it might be modifed
@@ -486,15 +355,6 @@ class TblManager {
         } else {
             tableNames = tables.map((tableId) =>  gTables[tableId].getName());
             promise = TblManager._delActiveTableHelper(tables, txId);
-            if (options.lockedToTemp) {
-                noDeleteTables.forEach((tableId) => {
-                    TblManager.sendTableToOrphaned(tableId, {
-                        remove: true,
-                        noFocusWS: true,
-                        force: true
-                    });
-                });
-            }
         }
 
         const rejectHandler = (args): void => {
@@ -533,7 +393,7 @@ class TblManager {
         promise
         .then(() => {
             // resolves if all tables passed
-            if (noDeleteTables.length && !options.lockedToTemp) {
+            if (noDeleteTables.length) {
                 rejectHandler(tableNames);
             } else {
                 if (!noLog) {
@@ -825,7 +685,7 @@ class TblManager {
                 tId = tIdOrName;
             }
             if (gTables[tId] &&
-                (gTables[tId].isNoDelete() || gTables[tId].hasLock())
+                (gTables[tId].hasLock())
             ) {
                 nonDeletables.push(tIdOrName);
             } else {
@@ -891,7 +751,7 @@ class TblManager {
      * TblManager.restoreTableMeta
      * @param tables
      */
-    public static restoreTableMeta(tables: TableMeta[]): void {
+    public static restoreTableMeta(tables: {[key: string]: TableDurable}): void {
         // will delete older dropped tables if storing more than 1MB of
         // dropped table data
         let cleanUpDroppedTables = () => {
@@ -942,7 +802,8 @@ class TblManager {
         };
 
         for (let tableId in tables) {
-            const table: TableMeta = tables[tableId];
+            let tableDurable: TableDurable = tables[tableId];
+            const table: TableMeta = new TableMeta(tableDurable);
             if (table.hasLock()) {
                 table.unlock();
                 table.beOrphaned();
@@ -1019,8 +880,8 @@ class TblManager {
     ): void {
         const rowObj: object[] = gTables[tableId].rowHeights;
         const numRows: number = $trs.length;
-        const pageNum: number = Math.floor(rowIndex / gNumEntriesPerPage);
-        const lastPageNum: number = pageNum + Math.ceil(numRows / gNumEntriesPerPage);
+        const pageNum: number = Math.floor(rowIndex / TableMeta.NumEntriesPerPage);
+        const lastPageNum: number = pageNum + Math.ceil(numRows / TableMeta.NumEntriesPerPage);
         const padding: number = 4;
 
         for (let i = pageNum; i < lastPageNum; i++) {
@@ -1067,7 +928,7 @@ class TblManager {
             return k.name === sortedColAlias;
         });
 
-        let width: number = progCol.getWidth();
+        let width = progCol.getWidth();
         let columnClass: string = options.columnClass || "";
         if (progCol.hasMinimized()) {
             width = 15;
@@ -1281,7 +1142,7 @@ class TblManager {
      */
     public static sortColumns(
         tableId: TableId,
-        sortKey: string,
+        sortKey: ColumnSortType,
         direction: string
     ): void {
         const table: TableMeta = gTables[tableId];
@@ -1581,7 +1442,7 @@ class TblManager {
             const tableAreaHeight: number = frameHeight - gFirstRowPositionTop;
             const maxVisibleRows: number = Math.ceil(tableAreaHeight / gRescol.minCellHeight);
             const buffer: number = 5;
-            const rowsNeeded: number = maxVisibleRows + gNumEntriesPerPage + buffer;
+            const rowsNeeded: number = maxVisibleRows + TableMeta.NumEntriesPerPage + buffer;
             gMaxEntriesPerPage = Math.max(rowsNeeded, gMinRowsPerScreen);
             gMaxEntriesPerPage = Math.ceil(gMaxEntriesPerPage / 10) * 10;
         } catch (e) {
@@ -2490,7 +2351,8 @@ class TblManager {
         });
 
         if ($tbody[0] != null) {
-            $tbody[0].oncontextmenu = (event) => {
+            let el: HTMLElement = <HTMLElement>$tbody[0];
+            el.oncontextmenu = (event) => {
                 const $el: JQuery = $(event.target);
                 const $td: JQuery = $el.closest("td");
                 const $div: JQuery = $td.children('.clickable');

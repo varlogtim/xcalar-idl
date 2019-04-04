@@ -6,17 +6,17 @@ describe("User Setting Test", function() {
         });
 
         it("UserSettings.getPref should work", function() {
-            var res = UserSettings.getPref("activeMainTab");
+            var res = UserSettings.getPref("datasetListView");
             expect(res).not.to.be.null;
         });
 
         it("UserSettings.setPref should work", function() {
-            var oldCache = UserSettings.getPref("activeMainTab");
-            UserSettings.setPref("activeMainTab", "test");
-            var res = UserSettings.getPref("activeMainTab");
-            expect(res).to.equal("test");
+            var oldCache = UserSettings.getPref("datasetListView");
+            UserSettings.setPref("datasetListView", true);
+            var res = UserSettings.getPref("datasetListView");
+            expect(res).to.equal(true);
             // change back
-            UserSettings.setPref("activeMainTab", oldCache);
+            UserSettings.setPref("datasetListView", oldCache);
 
             // case 2
             oldCache = UserSettings.getPref("general");

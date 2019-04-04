@@ -432,7 +432,7 @@ window.TblAnim = (function($, TblAnim) {
         var rowNum = xcHelper.parseRowNum(rowInfo.targetTd.parent()) + 1;
         var rowObj = gTables[rowInfo.tableId].rowHeights;
         // structure of rowObj is rowObj {pageNumber:{rowNumber: height}}
-        var pageNum = Math.floor((rowNum - 1) / gNumEntriesPerPage);
+        var pageNum = Math.floor((rowNum - 1) / TableMeta.NumEntriesPerPage);
         xcHelper.reenableTextSelection();
         $('body').removeClass('tooltipOff');
         $('#rowResizeCursor').remove();
@@ -494,7 +494,7 @@ window.TblAnim = (function($, TblAnim) {
         $divs.eq(0).css('max-height', toHeight);
 
         var rowObj = gTables[tableId].rowHeights;
-        var pageNum = Math.floor((rowNum) / gNumEntriesPerPage);
+        var pageNum = Math.floor((rowNum) / TableMeta.NumEntriesPerPage);
 
         if (toHeight !== gRescol.minCellHeight) {
             if (rowObj[pageNum] == null) {

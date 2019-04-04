@@ -29,17 +29,17 @@ describe('XVM Test', () => {
             // case 2
             expect(parseKVStoreVersionInfo('error case')).to.equal(null);
             // case 3
-            const res = parseKVStoreVersionInfo('123');
+            let test = JSON.stringify({"version": 1, "stripEmail": true});
+            const res = parseKVStoreVersionInfo(test);
             expect(res).to.be.an('object');
-            expect(res.version).to.equal(123);
+            expect(res.version).to.equal(1);
             expect(res.stripEmail).to.be.true;
-            expect(res.needCommit).to.be.true;
 
             // case 4
-            const versionInfo = new KVVersion();
-            const res2 = parseKVStoreVersionInfo(JSON.stringify(versionInfo));
+            const kvVersion = new KVVersion();
+            const res2 = parseKVStoreVersionInfo(kvVersion.serialize());
             expect(res2).to.be.an('object');
-            expect(res2.version).to.equal(versionInfo.version);
+            expect(res2.version).to.equal(kvVersion.version);
         });
     });
 

@@ -548,25 +548,6 @@ window.JupyterPanel = (function($, JupyterPanel) {
                 node: mapNode
             });
         }
-
-        // var tableId = xcHelper.getTableId(tableName);
-        // var table = gTables[tableId];
-        // if (table && table.isActive()) {
-        //     var colNums = [];
-        //     for (var i = 0; i < columns.length; i++) {
-        //         var colNum = table.getColNumByBackName(columns[i]);
-        //         if (colNum > -1) {
-        //             colNums.push(colNum);
-        //         }
-        //     }
-
-            // MainMenu.openPanel("workspacePanel", "worksheetButton");
-            // OperationsView.show(tableId, colNums, "map", {
-            //     prefill: {
-            //         ops: [moduleName + ":" + fnName],
-            //         args: [columns]
-            //     }
-            // });
     }
 
     function showDSForm(moduleName, fnName) {

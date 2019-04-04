@@ -10,7 +10,6 @@
 /* ============== TYPES ======================== */
 type XDPromise<T> = JQueryPromise<T>;
 type XDDeferred<T> = JQueryDeferred<T>;
-type TableId = string | number;
 type JoinType = JoinCompoundOperatorTStr | JoinOperatorT;
 type HTML = string;
 /* ============== INTERFACE ======================== */
@@ -123,7 +122,6 @@ interface WkbkKVKeySet {
     gLogKey: string;
     gErrKey: string;
     gOverwrittenLogKey: string;
-    gAuthKey: string;
     gNotebookKey: string;
     gDagManagerKey: string;
     gDagTableManagerKey: string;
@@ -323,7 +321,7 @@ declare class d3 {
     public ease(type: string): d3;
     public tween(type: string, callback: Function): d3;
     public append(selector: string): d3;
-    public attr(options: object | string, options2?: string | number | function): d3;
+    public attr(options: object | string, options2?: string | number | Function): d3;
     public style(options: string, options2: string): d3;
     public text(text: string | Function): d3;
     public remove(): d3;
@@ -452,11 +450,9 @@ declare var TB: number;
 declare var PB: number;
 declare var gScrollbarWidth: number;
 declare var gMaxDivHeight: number;
-declare var gNumEntriesPerPage: number;
 declare var gMaxEntriesPerPage: number;
 declare var gMinRowsPerScreen: number;
 declare var gFirstRowPositionTop: number;
-declare var gNewCellWidth: number;
 declare var gPrefixLimit: number;
 declare var gMouseEvents: MouseEvents;
 declare var gMouseStatus: string;
@@ -497,7 +493,6 @@ declare var gMaxDSColsSpec: number;
 declare var gMaxColToPull: number;
 declare var gMaxSampleSize: number;
 declare var gUdfDefaultNoCheck: boolean;
-declare var gEnableIndexStyle: boolean;
 declare var gXcSupport: boolean;
 declare var gXcalarRecordNum: string;
 declare var gXcalarApiLrqExportPrefix: string;
@@ -509,7 +504,6 @@ declare var gBuildNumber: number;
 declare var gGitVersion: number;
 declare var XcalarApisTStr: object;
 declare var StatusTStr: { [key: string]: string };
-declare var currentVersion: number;
 declare var xcLocalStorage: XcStorage;
 declare var xcSessionStorage: XcStorage;
 declare var global: any;
@@ -817,239 +811,12 @@ declare namespace XcalarEvalArgTypeT {
     export var VariableArg: number;
 }
 /* ============== CLASSES ====================== */
-declare class ColFunc {
-    constructor(obj);
-    public name: string;
-    public args: any[];
-}
-
-declare class ProgCol {
-    constructor(options: object);
-    public type: string;
-    public name: string;
-    public backName: string;
-    public width: number | string;
-    public sizedTo: string;
-    public immediate: boolean;
-    public prefix: string;
-    public userStr: string;
-    public func: ColFunc;
-    public format: string;
-    public textAlign: string;
-    public sortedColAlias: string;
-    public isDATACol(): boolean;
-    public isEmptyCol(): boolean;
-    public getFrontColName(includePrefix: boolean): string;
-    public isKnownType(): boolean;
-    public getFormat(): string;
-    public getType(): ColumnType;
-    public getBackColName(): string;
-    public hasMinimized(): boolean;
-    public setBackColName(name: string): void;
-    public isNumberCol(): boolean;
-    public getPrefix(): string;
-    public getFrontColName(): string;
-    public getWidth(): number;
-    public maximize(): void;
-    public minimize(): void;
-    public setImmediateType(type): void
-    public getSortedColAlias(): string;
-    public setSortedColAlias(name: string): void;
-}
-
-declare class TableMeta {
-    public tableName: string;
-    public tableId: TableId;
-    public tableCols: ProgCol[];
-    public backTableMeta: any;
-    public status: string;
-    public highlightedCells: object;
-    public currentRowNumber: number;
-    public resultSetCount: number;
-    public resultSetMax: number;
-    public resultSetId: number;
-    public rowHeights: any;
-    public modelingMode: boolean;
-    public allImmediates: boolean;
-    public scrollMeta: {isTableScrolling: boolean, isBarScrolling: boolean, base: number, scale: number};
-    public getAllCols(onlyValid?: boolean): ProgCol[]
-    public getCol(colNum: number): ProgCol;
-    public hasCol(colName: string, prefix: string): boolean;
-    public hasColWithBackName(colName: string): boolean;
-    public removeCol(colNum: number): ProgCol;
-    public getNumCols(): number;
-    public sortCols(sortKey: string, order: ColumnSortOrder): void;
-    public addCol(colNum: number, progCol: ProgCol);
-    public addAllCols(progCols: ProgCol[]);
-    public getKeys(): {name: string, ordering: string}[];
-    public getOrdering(): number;
-    public getIndexTable(colNames: string[]): TableIndexCache;
-    public removeIndexTable(colNames: string[]): void;
-    public setIndexTable(colNames: string[], newTableName: string, newKeys: string[]): void;
-    public getColNumByBackName(name: string): number;
-    public getName(): string;
-    public hasLock(): boolean;
-    public unlock(): void;
-    public isActive(): boolean;
-    public isDropped(): boolean;
-    public beDropped(): void;
-    public getId(): string;
-    public getType(): TableType;
-    public beOrphaned(): void;
-    public getName(): string;
-    public freeResultset(): XDPromise<void>;
-    public getMetaAndResultSet(): XDPromise<void>;
-    public getImmediateNames(): string[];
-    public beUndone(): void;
-    public updateTimeStamp(): void;
-    public showIndexStyle(): boolean;
-    public getKeyName(): string[];
-    public getSkewness(): number;
-    public updateResultset(): XDPromise<void>;
-    public getSize(): number;
-    public getRowDistribution(): number[];
-    public getHiddenSortCols(): {key: string};
-    public setHiddenSortCols({}: {key: string}): void;
-    public constructor(options: object);
-}
-
-declare class ProfileInfo {
-    public colName: string;
-    public groupByInfo: ProfileGroupbyInfo;
-    public statsInfo: ProfileStatsInfo;
-    public aggInfo: ProfileAggInfo;
-    public type: ColumnType;
-    public getId(): string;
-    public addBucket(bucketNum: number, obj: object): void;
-}
-
-declare class ProfileGroupbyInfo {
-    public isComplete: boolean | string;
-    public nullCount: number;
-    public allNull: boolean;
-    public buckets: {[key: number]: ProfileBucketInfo};
-}
-
-declare class ProfileStatsInfo {
-    public unsorted: boolean;
-    public key: string;
-}
-
-declare class ProfileAggInfo {
-    public max: number;
-    public min: number;
-}
-
-declare class ProfileBucketInfo {
-    public table: string;
-    public colName: string;
-}
-
 declare class XcStorage {
     public getItem(key: string): string;
     public setItem(key: string, value: string): boolean;
     public removeItem(key: string): boolean;
 }
 
-declare class WKBK {
-    public name: string;
-    public id: string;
-    public modified: string;
-    public sessionId: string;
-    public jupyterFolder: string;
-    public description: string;
-    public created: string;
-    public srcUser: string;
-    public curUser: string;
-    public resource: boolean;
-    public getName(): string;
-    public getDescription(): string;
-    public getCreateTime(): string;
-    public getModifyTime(): string;
-    public getNumDataflows(): number;
-    public isNoMeta(): boolean;
-    public hasResource(): boolean;
-    public getId(): string;
-    public update(): void;
-    public setSessionId(sessionId: string): void;
-    public setResource(resource: boolean): void;
-    public constructor(params: object);
-}
-
-declare class METAConstructor {
-    public constructor(meta: object);
-    public update(): void;
-    public getQueryMeta(): QueryManager.XcQueryAbbr[];
-    public getTpfxMeta(): object;
-    public getTableMeta(): TableMeta[];
-    public getStatsMeta(): object;
-    public getLogCMeta(): number;
-}
-
-declare class UserInfoConstructor {
-    public gDSObj: string;
-    public constructor(meta?: object);
-    public getMetaKeys(): {DS: 'gDSObj'};
-}
-
-declare class XcAuth {
-    constructor(options: object);
-    getIdCount(): number;
-    incIdCount(): void;
-}
-
-declare class KVVersion {
-    public version: number;
-    public stripEmail: boolean;
-    public needCommit: boolean;
-    public constructor(options: object);
-}
-
-declare class XcQuery {
-    public state: QueryStatus | QueryStateT;
-    public sqlNum: number;
-    public queryStr: string;
-    public name: string;
-    public fullName: string;
-    public time: number;
-    public elapsedTime: number;
-    public opTime: number;
-    public opTimeAdded: boolean;
-    public outputTableName: string;
-    public outputTableState: string;
-    public error: string;
-    public subQueries: XcSubQuery[];
-    public currStep: number;
-    public numSteps: number;
-    public type: string;
-    public cancelable: boolean;
-    public id: number;
-    public nodes: DagNodeId[];
-    public srcTables: string[];
-
-    public constructor(options: object);
-    public getState(): QueryStatus | QueryStateT;
-    public getOpTime(): number;
-    public getOutputTableName(): string;
-    public getName(): string;
-    public addSubQuery(XcSubQuery);
-    public getQuery(): string;
-    public setElapsedTime(): void;
-    public getTime(): number;
-    public getElapsedTime(): number;
-    public setOpTime(number): void;
-    public addOpTime(number): void;
-    public getId(): number;
-    public getAllTableNames(force?: boolean): string[];
-    public addIndexTable(tableName: string): void;
-    public getIndexTables(): string[];
-    public getOutputTableState(): string;
-}
-
-declare class XcLog {
-    public options: XcLogOptions;
-    public cli: string;
-}
 declare class XEvalParser {
     public parseEvalStr(evlStr: string): ParsedEval;
 }
@@ -1058,9 +825,10 @@ declare class XEvalParser {
 declare namespace UserSettings {
     export function getPref(prop: string): any;
     export function commit(showSuccess?: boolean, hasDSChange?: boolean, isPersonalChange?: boolean): XDPromise<void>;
-    export function restore(oldMeta: UserInfoConstructor, gInfosSetting: object): XDPromise<void>;
+    export function restore(oldMeta: UserInfo, gInfosSetting: object): XDPromise<void>;
     export function sync(): void;
     export function setPref(name: string, val: string | number | boolean, something?: boolean): void;
+    export function getAllPrefs(): UserPref;
 }
 
 declare namespace ColManager {
@@ -1192,7 +960,7 @@ declare namespace DS {
     export function upgrade(oldDS: object): object;
     export function cancel($grid: JQuery): XDPromise<any>;
     export function restore(oldHomeFolder: object, atStartup?: boolean): XDPromise<any>;
-    export function getHomeDir(toPersist?: boolean): object;
+    export function getHomeDir(toPersist?: boolean): DSDurable;
     export function getDSObj(dsId: number | string): DSObj | null;
     export function goToDir(foldderId: string): void;
     export function focusOn($grid: JQuery): XDPromise<any>;
@@ -1209,21 +977,7 @@ declare namespace DS {
     export function isAccessible(dsName: string): boolean;
     export function activate(dsIds: string[], noAlert: boolean): XDPromise<void>;
     export function refresh(): XDPromise<void>;
-}
-
-
-declare class DSObj {
-    public constructor(options: any);
-    public parentId: string;
-    public activated: boolean;
-    public getFullName(): string;
-    public getName(): string;
-    public fetch(startRow: number, rowsToFetch: number): XDPromise<any>
-    public getError(): string;
-    public getId(): string;
-    public getNumEntries(): number;
-    public getUser(): string;
-    public getImportOptions(): object;
+    export function getSortKey(): string;
 }
 
 declare namespace DSForm {
@@ -1243,6 +997,7 @@ declare namespace Profile {
     export function copy(tableId: TableId, newTableId: TableId): void;
     export function show(tableId: TableId, colNum: number): void;
     export function deleteCache(tableId: TableId): void;
+    export function getCache(): any;
 }
 
 declare namespace JupyterUDFModal {
@@ -1266,11 +1021,6 @@ declare namespace SQLApi {
     export function getIndexTable(tableName: string, colNames: string[]): TableIndexCache;
     export function cacheIndexTable(tableName: string, colNames: string[], newTableName: string, newKeys: string[], tempCols?: string[]): void;
     export function deleteIndexTable(tableName: string);
-}
-
-declare namespace DeleteTableModal {
-    export function setup(): void;
-    export function show(): void;
 }
 
 declare namespace MonitorPanel {
@@ -1327,6 +1077,7 @@ declare namespace ExtensionManager {
     export function setup(): XDPromise<void>;
     export function openView(colNum: number, tableId: TableId): void;
     export function triggerFromDF(moduleName: string, funcName: string, args: object): XDPromise<string>;
+    export function getEnabledExtensions(): ExtensionInfo[]
 }
 
 declare namespace ExtensionPanel {
@@ -1340,22 +1091,12 @@ declare namespace LicenseModal {
     export function setup(): void;
 }
 
-declare namespace AboutModal {
-    export function setup(): void;
-    export function show(): void;
-}
-
 declare namespace FileInfoModal {
     export function setup(): void;
 }
 
 declare namespace DSInfoModal {
     export function setup(): void;
-}
-
-declare namespace SkewInfoModal {
-    export function setup(): void;
-    export function show(tableId: TableId): void;
 }
 
 declare namespace LoginConfigModal {
@@ -1384,13 +1125,6 @@ declare namespace MonitorLog {
     export function adjustTabNumber(): void;
 }
 
-declare namespace SQLEditor {
-    export function initialize(): void;
-    export function storeQuery(): void;
-    export function dropAllSchemas(wkbkId: string): void;
-    export function deleteSchemas(tableName: string, tableIds: TableId[]): XDPromise<void>;
-}
-
 declare namespace Msal {
     export class UserAgentApplication {
         public constructor(clientID: string, authority: any, authCallback: Function, options: object);
@@ -1405,10 +1139,6 @@ declare namespace Msal {
 declare namespace XDParser {
     export var SqlParser: any;
     export var XEvalParser: XEvalParser;
-}
-
-declare namespace ExtensionManager {
-    export function getEnabledExtensions(): ExtensionInfo[]
 }
 
 declare namespace XcSDK {

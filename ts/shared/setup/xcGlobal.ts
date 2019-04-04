@@ -15,11 +15,9 @@ namespace xcGlobal {
         TB = 1024 * GB;
         PB = 1024 * TB;
         // ================================================================== //
-        gNumEntriesPerPage = 20;
         gMaxEntriesPerPage = 60;
         gMinRowsPerScreen = 60;
         gFirstRowPositionTop = 60;
-        gNewCellWidth = 125;
         gMouseStatus = null;
         gPrefixLimit = 31;
         if (!has_require) {
@@ -48,7 +46,7 @@ namespace xcGlobal {
          *
          * "WKBK": workbook scope
          * keys including: gStorageKey, gLogKey, gErrKey,
-         * gAuthKey, gOverwrittenLogKey, gNotebookKey, commitKey(non-persistent)
+         * gOverwrittenLogKey, gNotebookKey, commitKey(non-persistent)
          */
         gKVScope = {
             "GLOB": XcalarApiWorkbookScopeT.XcalarApiWorkbookScopeGlobal,
@@ -97,7 +95,6 @@ namespace xcGlobal {
         // datasets will abide by this limit. If you don't want
         // to use it anymore, just set it back to 0
         gUdfDefaultNoCheck = false; // when set true, allow update default udf
-        gEnableIndexStyle = false;
         gXcSupport = false; // if xcalar support user
         gXcalarRecordNum = "xcalarRecordNum";
         gXcalarApiLrqExportPrefix = ".XcalarLRQExport.";

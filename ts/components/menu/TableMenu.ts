@@ -309,7 +309,7 @@ class TableMenu extends AbstractMenu {
         });
     }
 
-    private _sortHelper(sortKey: string, $li: JQuery): void {
+    private _sortHelper(sortKey: ColumnSortType, $li: JQuery): void {
         let direction: string;
         if ($li.hasClass("sortForward")) {
             direction = "forward";

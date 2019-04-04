@@ -107,7 +107,7 @@ class ProfileEngine {
             colName = newKeyFieldName;
             return this._sortGroupby(txId, colName, groupbyTable, finalTable);
         })
-        .then((maxVal, sumVal) => {
+        .then((maxVal: any, sumVal) => {
             profileInfo.addBucket(0, {
                 "max": maxVal,
                 "sum": sumVal,
@@ -846,8 +846,8 @@ class ProfileEngine {
         let minAgg = this._runAgg(txId, "min", tableName, profileInfo);
         PromiseHelper.when(maxAgg, minAgg)
         .then(() => {
-            let max: number = profileInfo.aggInfo.max;
-            let min: number = profileInfo.aggInfo.min;
+            let max: number = <number>profileInfo.aggInfo.max;
+            let min: number = <number>profileInfo.aggInfo.min;
             let bucketSize: number = this._calcFitAllBucketSize(numRowsToFetch, max, min);
             deferred.resolve(bucketSize);
         })

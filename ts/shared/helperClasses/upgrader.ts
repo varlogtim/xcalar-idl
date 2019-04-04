@@ -23,7 +23,7 @@ class Upgrader {
                     return;
                 } else {
                     const currentKeys: object = WorkbookManager.getKeysForUpgrade(sessionInfo, version);
-                    const upgradeKeys: object = WorkbookManager.getKeysForUpgrade(sessionInfo, currentVersion);
+                    const upgradeKeys: object = WorkbookManager.getKeysForUpgrade(sessionInfo, Durable.Version);
                     return this._execUpgrade(currentKeys, upgradeKeys);
                 }
             })
@@ -129,13 +129,12 @@ class Upgrader {
 
     private _upgradeUserSettings(gUserKey: string): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        this._upgradeHelper(gUserKey, gKVScope.USER, 'UserInfoConstructor')
+        this._upgradeHelper(gUserKey, gKVScope.USER, 'UserInfo')
             .then((userSettings) => {
-                if (userSettings != null) {
-                    const UserInfoKeys: { DS: 'gDSObj' } = new UserInfoConstructor().getMetaKeys();
-                    const oldDS: object = userSettings[UserInfoKeys.DS];
-                    userSettings[UserInfoKeys.DS] = DS.upgrade(oldDS);
-                }
+                // if (userSettings != null) {
+                //     const oldDS: object = userSettings["gDSObj"];
+                //     userSettings["gDSObj"] = DS.upgrade(oldDS);
+                // }
 
                 this._userCache.set('userSettings', userSettings);
                 deferred.resolve();
@@ -166,7 +165,7 @@ class Upgrader {
 
     /*
      * User keys:
-     *  gUserKey, for UserInfoConstructor
+     *  gUserKey, for UserInfo
      *  wkbkKey, for WKBK
      */
     private _upgradeUserInfos(userKeys: UserKVKeySet): XDPromise<void> {
@@ -181,7 +180,7 @@ class Upgrader {
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const wkbkContainer: Map<string, any> = this._wkbksCache.get(wkbkName);
-        this._upgradeHelper(gStorageKey, gKVScope.WKBK, 'METAConstructor', wkbkName)
+        this._upgradeHelper(gStorageKey, gKVScope.WKBK, 'MetaInfo', wkbkName)
             .then((meta) => {
                 wkbkContainer.set('meta', meta);
                 deferred.resolve();
@@ -262,20 +261,6 @@ class Upgrader {
         return deferred.promise();
     }
 
-    private _upgradeAuth(gAuthKey: string, wkbkName: string): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const wkbkContainer: Map<string, any> = this._wkbksCache.get(wkbkName);
-
-        this._upgradeHelper(gAuthKey, gKVScope.WKBK, 'XcAuth', wkbkName)
-            .then((auth) => {
-                wkbkContainer.set('auth', auth);
-                deferred.resolve();
-            })
-            .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
     private _upgradeNotbookMeta(
         gNotebookKey: string,
         wkbkName: string
@@ -299,11 +284,10 @@ class Upgrader {
 
     /*
      * Wkbk keys:
-     *  gStorageKey, for METAConstructor
+     *  gStorageKey, for MetaInfo
      *  gLogKey, for XcLog
      *  gErrKey, for XcLog (error log)
      *  gOverwrittenLogKey, for XcLog
-     *  gAuthKey, for XcAuth
      *  gNotebookKey XXX not sure how to handle upgrade yet
      */
     private _upgradeOneWkbk(
@@ -311,12 +295,11 @@ class Upgrader {
         wkbkName: string
     ): XDPromise<void> {
         const def1: XDPromise<void> = this._upgradeStorageMeta(wkbkInfoKeys.gStorageKey, wkbkName);
-        const def2: XDPromise<void> = this._upgradeAuth(wkbkInfoKeys.gAuthKey, wkbkName);
         const def3: XDPromise<void> = this._upgradeLogMeta(wkbkInfoKeys.gLogKey, wkbkName);
         const def4: XDPromise<void> = this._upgradeErrorLogMeta(wkbkInfoKeys.gErrKey, wkbkName);
         const def5: XDPromise<void> = this._upgradeOverwrittenLogMeta(wkbkInfoKeys.gOverwrittenLogKey, wkbkName);
         const def6: XDPromise<void> = this._upgradeNotbookMeta(wkbkInfoKeys.gNotebookKey, wkbkName);
-        return PromiseHelper.when(def1, def2, def3, def4, def5, def6);
+        return PromiseHelper.when(def1, def3, def4, def5, def6);
     }
 
     private _upgradeWkbkInfos(wkbks: object) {
@@ -425,9 +408,6 @@ class Upgrader {
         const metaKey: string = wkbkInfoKeys.gStorageKey;
         const meta: object = wkbkContainer.get('meta');
 
-        const authKey: string = wkbkInfoKeys.gAuthKey;
-        const auth: object = wkbkContainer.get('auth');
-
         const logKey: string = wkbkInfoKeys.gLogKey;
         const log: string = wkbkContainer.get('log');
 
@@ -442,8 +422,6 @@ class Upgrader {
 
         const def1: XDPromise<void> = this._writeHelper(metaKey, meta,
             gKVScope.WKBK, false, false, wkbkName);
-        const def2: XDPromise<void> = this._writeHelper(authKey, auth,
-            gKVScope.WKBK, false, false, wkbkName);
         const def3: XDPromise<void> = this._writeHelper(logKey, log,
             gKVScope.WKBK, true, false, wkbkName);
         const def4: XDPromise<void> = this._writeHelper(errorKey, errorLog,
@@ -452,7 +430,7 @@ class Upgrader {
             gKVScope.WKBK, true, false, wkbkName);
         const def6: XDPromise<void> = this._writeHelper(notebookKey, notebook,
             gKVScope.WKBK, true, false, wkbkName);
-        return PromiseHelper.when(def1, def2, def3, def4, def5, def6);
+        return PromiseHelper.when(def1, def3, def4, def5, def6);
     }
 
     private _writeWkbkInfo(wkbks: object): XDPromise<void> {

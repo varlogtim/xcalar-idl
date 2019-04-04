@@ -37,21 +37,6 @@ namespace QueryManager {
         queryName?: string
     }
 
-    export interface XcQueryAbbr {
-        sqlNum: number,
-        time: number,
-        elapsedTime: number,
-        opTime: number,
-        opTimeAdded: boolean,
-        outputTableName: string,
-        outputTableState: string | number,
-        state: string | number,
-        name?: string,
-        fullName?: string,
-        queryStr?: string,
-        error?: string
-    }
-
     interface TimeObj {
         tip: string,
         text: string
@@ -104,7 +89,15 @@ namespace QueryManager {
             "id": id,
             "numSteps": numSteps,
             "cancelable": options.cancelable,
-            "srcTables": options.srcTables
+            "srcTables": options.srcTables,
+            "version": null,
+            "sqlNum": null,
+            "state": null,
+            "elapsedTime": null,
+            "opTime": null,
+            "opTimeAdded": null,
+            "outputTableName": null,
+            "outputTableState": null
         });
 
         queryLists[id] = mainQuery;
@@ -244,7 +237,7 @@ namespace QueryManager {
     export function subQueryDone(
         id: number,
         dstTable: string | null,
-        time: object,
+        time: any,
         options?: SubQueryDoneOptions
     ): void {
         if (Transaction.isSimulate(id) || !queryLists[id]) {
@@ -601,43 +594,20 @@ namespace QueryManager {
     /**
      * QueryManager.getCache
      */
-    export function getCache(): XcQueryAbbr[] {
+    export function getCache(): XcQueryDurable[] {
         // used for saving query info for browser refresh
         // put minimal query properties into an array and order by start time
-        const queryObjs: XcQueryAbbr[] = [];
-        let abbrQueryObj: XcQueryAbbr;
-        let queryObj: XcQuery;
+        const queryObjs: XcQueryDurable[] = [];
+        let abbrQueryObj: XcQueryDurable;
+        let key: string | number;
         const queryMap: object = {}; // we store queries into a map first to overwrite any
         // queries with duplicate sqlNums due to Log.undo/redo operations
         // then sort in an array
         for (const id in queryLists) {
-            queryObj = queryLists[id];
-            if (queryObj.state === QueryStatus.Done ||
-                queryObj.state === QueryStatus.Cancel ||
-                queryObj.state === QueryStatus.Error) {
-                abbrQueryObj = {
-                    "sqlNum": queryObj.sqlNum,
-                    "time": queryObj.time,
-                    "elapsedTime": queryObj.elapsedTime,
-                    "opTime": queryObj.opTime,
-                    "opTimeAdded": queryObj.opTimeAdded,
-                    "outputTableName": queryObj.getOutputTableName(),
-                    "outputTableState": queryObj.getOutputTableState(),
-                    "state": queryObj.state
-                };
-
-                if (queryObj.sqlNum == null ||
-                    queryObj.state === QueryStatus.Cancel) {
-                    abbrQueryObj.name = queryObj.name;
-                    abbrQueryObj.queryStr = queryObj.getQuery();
-                    queryMap[queryObj.fullName] = abbrQueryObj;
-                } else if (queryObj.state === QueryStatus.Error) {
-                    abbrQueryObj.queryStr = queryObj.getQuery();
-                    abbrQueryObj.error = queryObj.error;
-                    queryMap[queryObj.fullName] = abbrQueryObj;
-                } else {
-                    queryMap[queryObj.sqlNum] = abbrQueryObj;
-                }
+            let queryObj: XcQuery = queryLists[id];
+            [abbrQueryObj, key] = queryObj.getDurable();
+            if (abbrQueryObj != null) {
+                queryMap[key] = abbrQueryObj;
             }
         }
         for (const i in queryMap) {
@@ -651,7 +621,7 @@ namespace QueryManager {
      * QueryManager.restore
      * @param queries
      */
-    export function restore(queries: XcQueryAbbr[]): void {
+    export function restore(queries: XcQueryDurable[]): void {
         QueryManager.toggleSysOps(UserSettings.getPref("hideSysOps"));
         if (!queries) {
             return;
@@ -675,9 +645,7 @@ namespace QueryManager {
 
             if (xcLog) {
                 name = xcLog.options.operation;
-                if (name === SQLOps.Ext && xcLog.options.func) {
-                    name += " " + xcLog.options.func;
-                } else if (name === SQLOps.Retina &&
+                if (name === SQLOps.Retina &&
                     xcLog.options.retName) {
                     name += " " + xcLog.options.retName;
                 }
@@ -700,6 +668,7 @@ namespace QueryManager {
 
             fullName = name;
             query = new XcQuery({
+                "version": queries[i].version,
                 "name": name,
                 "fullName": fullName,
                 "time": queries[i].time,
@@ -714,7 +683,9 @@ namespace QueryManager {
                 "outputTableState": queries[i].outputTableState,
                 "state": queries[i].state,
                 "type": "restored",
-                "error": queries[i].error
+                "error": queries[i].error,
+                "srcTables": null,
+                "cancelable": null
             });
             queryLists[i - numQueries] = query; // using negative keys for
             // restored queries

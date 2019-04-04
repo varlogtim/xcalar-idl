@@ -66,7 +66,7 @@ window.Log = (function($, Log) {
             return deferred.resolve().promise();
         }
 
-        isCollapsed = UserSettings.getPref("sqlCollapsed");
+        isCollapsed = UserSettings.getPref("logCollapsed");
 
         restoreLogs(oldLogCursor)
         .then(function() {
@@ -754,11 +754,7 @@ window.Log = (function($, Log) {
         for (var tableId in gTables) {
             table = gTables[tableId];
             if (table.getType() === TableType.Undone) {
-                if (table.isNoDelete()) {
-                    table.beOrphaned();
-                } else {
-                    tables.push(table.getId());
-                }
+                tables.push(table.getId());
             }
         }
 
@@ -1247,10 +1243,7 @@ window.Log = (function($, Log) {
             case (SQLOps.ProfileStats):
             case (SQLOps.Project):
             case (SQLOps.Finalize):
-            case (SQLOps.Ext):
             case (SQLOps.DFRerun):
-            case (SQLOps.ExecSQL):
-            case (SQLOps.RefreshTables):
                 return true;
             default:
                 console.warn("XXX! Operation unexpected", operation);

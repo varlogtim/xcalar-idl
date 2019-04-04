@@ -504,16 +504,15 @@ namespace WorkbookPanel {
     function updateWorkbookInfo($workbookBox: JQuery, workbookId: string): void {
         $workbookBox.attr("data-workbook-id", workbookId);
         const workbook: WKBK = WorkbookManager.getWorkbook(workbookId);
-        let modified: string = workbook.modified;
+        let modified: number = workbook.getModifyTime();
+        let modifiedStr: string = "";
         const description: string = workbook.getDescription() || "";
         const name: string = workbook.getName();
         if (modified) {
-            modified = moment(modified).fromNow();
-        } else {
-            modified = "";
+            modifiedStr = moment(modified).fromNow();
         }
 
-        $workbookBox.find(".modifiedTime").text(modified);
+        $workbookBox.find(".modifiedTime").text(modifiedStr);
         $workbookBox.find(".description").text(description);
 
         let $input = $workbookBox.find(".workbookName");
@@ -911,10 +910,10 @@ namespace WorkbookPanel {
     function createWorkbookCard(workbook: WKBK, extraClasses?: string[], isNewWKBK: boolean = false): string {
         const workbookId: string = workbook.getId() || "";
         let workbookName: string = workbook.getName() || "";
-        const createdTime: string = workbook.getCreateTime() || "";
-        let createdTimeDisplay: string = createdTime;
-        const modifiedTime: string = workbook.getModifyTime() || "";
-        let modifiedTimeDisplay: string = modifiedTime;
+        const createdTime: number = workbook.getCreateTime();
+        let createdTimeDisplay: string = "";
+        const modifiedTime: number = workbook.getModifyTime();
+        let modifiedTimeDisplay: string = "";
         let createdTimeTip: string = "";
         let modifiedTimeTip: string = "";
         const description: string = workbook.getDescription() || "";

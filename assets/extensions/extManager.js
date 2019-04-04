@@ -516,9 +516,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
      */
     // XXX TODO: clear it for DF2.0
     ExtensionManager.trigger = function(tableId, module, func, args, options) {
+        return;
         if (module == null || func == null || module.indexOf("UExt") !== 0) {
             throw "error extension!";
-            return;
         }
         options = options || {};
 
@@ -724,7 +724,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 } else {
                     var tableId = xcHelper.getTableId(tableName);
                     var table = gTables[tableId];
-                    if (table != null && table.isActive()) {
+                    if (table != null) {
                         tables.push(tableId);
                     }
                 }

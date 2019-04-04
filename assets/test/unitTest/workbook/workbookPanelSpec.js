@@ -1,4 +1,4 @@
-describe("Workbook-Workbook Panel Test", function() {
+describe("Workbook Panel Test", function() {
     var $workbookPanel;
     var oldCommitCheck;
     var menuAction = function($box, action) {

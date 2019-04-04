@@ -32,40 +32,6 @@ window.Undo = (function($, Undo) {
     };
 
     /* START BACKEND OPERATIONS */
-    undoFuncs[SQLOps.RefreshTables] = function(options) {
-        var deferred = PromiseHelper.deferred();
-        var promises = [];
-        for (var i = 0; i < options.tableNames.length; i++) {
-            var tableId = xcHelper.getTableId(options.tableNames[i]);
-            promises.push(TblManager.sendTableToUndone.bind(this, tableId, {'remove': true}))
-        }
-        PromiseHelper.chain(promises)
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    undoFuncs[SQLOps.ExecSQL] = function(options) {
-        var deferred = PromiseHelper.deferred();
-        var opStruct;
-        try {
-            qStruct = JSON.parse(options.query);
-        } catch (e) {
-            deferred.reject(e);
-        }
-        var promises = [];
-        for (var i = 0; i < qStruct.length; i++) {
-            var tableId = xcHelper.getTableId(qStruct[i].args.dest);
-            promises.push(TblManager.sendTableToUndone.bind(this, tableId, {'remove': true}));
-        }
-        PromiseHelper.chain(promises)
-        .then(deferred.resolve)
-        .fail(deferred.reject)
-
-        return deferred.promise();
-    };
-
     undoFuncs[SQLOps.Sort] = function(options, isMostRecent) {
         var deferred = PromiseHelper.deferred();
         var newTableId = xcHelper.getTableId(options.newTableName);
@@ -84,56 +50,6 @@ window.Undo = (function($, Undo) {
         var newTableId = xcHelper.getTableId(options.newTableName);
         return TblManager.refreshTable([options.tableName], null,
                                         [options.newTableName]);
-    };
-
-    undoFuncs[SQLOps.Ext] = function(options, isMostRecent) {
-        // XXX As extension can do anything, it may need fix
-        // as we add more extensions and some break the current code
-
-        // Tested: Window, hPartition, genRowNum, union
-
-        // var tableId = options.tableId;
-        var newTables = options.newTables || [];
-        var replace = options.replace || {};
-        var extOptions = options.options || {};
-        // undo new append table, just hide newTables
-        var promises = [];
-        var deferred = PromiseHelper.deferred();
-
-        newTables.forEach(function(newTableName) {
-            var newTableId = xcHelper.getTableId(newTableName);
-            promises.push(TblManager.sendTableToUndone.bind(window, newTableId,
-                                                            {'remove': true}));
-        });
-
-        for (var table in replace) {
-            var oldTables = replace[table];
-            for (var i = 0; i < oldTables.length; i++) {
-                var oldTable = oldTables[i];
-                if (i === 0) {
-                    promises.push(TblManager.refreshTable.bind(window,
-                                                            [oldTable], null,
-                                                            [table]));
-                } else {
-                    promises.push(TblManager.refreshTable.bind(window,
-                                                            [oldTable], null,
-                                                            []));
-                }
-            }
-        }
-
-        PromiseHelper.chain(promises)
-        .then(function() {
-            if (isMostRecent) {
-                ExtensionManager.openView(null, null, {
-                    "restoreTime": extOptions.formOpenTime
-                });
-            }
-        })
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return deferred.promise();
     };
     /* END BACKEND OPERATIONS */
 

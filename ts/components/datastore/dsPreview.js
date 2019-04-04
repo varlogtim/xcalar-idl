@@ -4090,7 +4090,7 @@ window.DSPreview = (function($, DSPreview) {
                 headerHtml = $tds.eq(i).html();
                 headerText = $tds.eq(i).text();
                 $th = $headers.eq(i).parent();
-                width = Math.max(gNewCellWidth,
+                width = Math.max(ProgCol.NewCellWidth,
                                  xcHelper.getTextWidth($th, headerText) + 8);
                 $th.width(width);
                 $headers.eq(i).find(".text").html(headerHtml);
@@ -4342,7 +4342,7 @@ window.DSPreview = (function($, DSPreview) {
                     '</th>';
         for (var i = 0; i < colLen; i++) {
             var cellWidth = xcHelper.getTextWidth(null, headers[i]) - 36;
-            var width = Math.max(gNewCellWidth + 5, cellWidth);
+            var width = Math.max(ProgCol.NewCellWidth + 5, cellWidth);
             html += '<th style="width:' + width + 'px;">' +
                         '<div class="header">' +
                             colGrabTemplate +

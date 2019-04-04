@@ -209,7 +209,7 @@ namespace WorkbookManager {
         }
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        const copySrcName: string = isCopy ? copySrc.name : null;
+        const copySrcName: string = isCopy ? copySrc.getName() : null;
         const username: string = XcUser.getCurrentUserName();
 
         XcalarNewWorkbook(wkbkName, isCopy, copySrcName)
@@ -656,7 +656,7 @@ namespace WorkbookManager {
     export function updateDescription(wkbkId: string, description: string): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const wkbk: WKBK = wkbkSet.get(wkbkId);
-        wkbk.description = description;
+        wkbk.setDescription(description);
         wkbk.update();
 
         saveDescription(wkbk.getName(), description)
@@ -713,7 +713,7 @@ namespace WorkbookManager {
 
         promise
         .then(function() {
-            return XcalarRenameWorkbook(newName, srcWKBK.name);
+            return XcalarRenameWorkbook(newName, srcWKBK.getName());
         })
         .then(function() {
             return JupyterPanel.renameWorkbook(srcWKBK.jupyterFolder, newName);
@@ -722,21 +722,21 @@ namespace WorkbookManager {
             if (typeof folderName !== "string") {
                 folderName = srcWKBK.jupyterFolder;
             }
-            const options: object = {
+            const options: WKBKOptions = {
                 "id": newWKBKId,
                 "name": newName,
-                "description": description || srcWKBK.description,
-                "created": srcWKBK.created,
-                "srcUser": srcWKBK.srcUser,
-                "curUser": srcWKBK.curUser,
-                "resource": srcWKBK.resource,
+                "description": description || srcWKBK.getDescription(),
+                "created": srcWKBK.getCreateTime(),
+                "resource": srcWKBK.hasResource(),
                 "jupyterFolder": folderName,
-                "sessionId": srcWKBK.sessionId
+                "sessionId": srcWKBK.sessionId,
+                "modified": undefined,
+                "noMeta": false
             };
 
             const newWkbk: WKBK = new WKBK(options);
             wkbkSet.put(newWKBKId, newWkbk);
-            wkbkSet.delete(srcWKBK.id);
+            wkbkSet.delete(srcWKBK.getId());
             return saveWorkbook();
         })
         .then(function() {
@@ -744,7 +744,7 @@ namespace WorkbookManager {
                 "action": "rename",
                 "user": XcUser.getCurrentUserName(),
                 "triggerWkbk": srcWKBKId,
-                "oldName": srcWKBK.name,
+                "oldName": srcWKBK.getName(),
                 "newName": newName
             });
             if (isCurrentWKBK) {
@@ -785,10 +785,10 @@ namespace WorkbookManager {
         // 4. Restart heart beat check
         XcSupport.stopHeartbeatCheck();
 
-        XcalarDeleteWorkbook(workbook.name)
+        XcalarDeleteWorkbook(workbook.getName())
         .then(function() {
             JupyterPanel.deleteWorkbook(workbookId);
-            wkbkSet.delete(workbook.id);
+            wkbkSet.delete(workbook.getId());
             return WorkbookManager.commit();
         })
         .then(function() {
@@ -818,7 +818,7 @@ namespace WorkbookManager {
 
     function initializeVariable(): void {
         // key that stores all workbook infos for the user
-        const wkbkKey: string = getWKbkKey(currentVersion);
+        const wkbkKey: string = getWKbkKey(Durable.Version);
         wkbkStore = new KVStore(wkbkKey, gKVScope.USER);
         wkbkSet = new WKBKSet();
     }
@@ -926,7 +926,6 @@ namespace WorkbookManager {
         const gErrKey: string = generateKey("gErr", version);
         const gOverwrittenLogKey: string = generateKey("gOverwritten", version);
         const gNotebookKey: string = generateKey("gNotebook", version);
-        const gAuthKey: string = generateKey("authentication", version);
         const gSQLTablesKey: string = generateKey("gSQLTables", version);
         const gDagManagerKey: string = generateKey("gDagManagerKey", version);
         const gDagTableManagerKey: string = generateKey("gDagTableManagerKey", version);
@@ -948,7 +947,6 @@ namespace WorkbookManager {
             "gLogKey": gLogKey,
             "gErrKey": gErrKey,
             "gOverwrittenLogKey": gOverwrittenLogKey,
-            "gAuthKey": gAuthKey,
             "gNotebookKey": gNotebookKey,
             "gSQLTables": gSQLTablesKey,
             "gSQLQuery": gSQLQueryKey,
@@ -1047,7 +1045,7 @@ namespace WorkbookManager {
                 }
                 wkbk.setSessionId(session.sessionId);
                 wkbk.setResource(hasResouce);
-                wkbk.description = description;
+                wkbk.setDescription(description);
                 wkbkSet.put(wkbkId, wkbk);
             }
 
@@ -1089,7 +1087,7 @@ namespace WorkbookManager {
     * gets storage key
     */
     export function getStorageKey(): string {
-        return WorkbookManager.getWkbkScopeKeys(currentVersion).gStorageKey;
+        return WorkbookManager.getWkbkScopeKeys(Durable.Version).gStorageKey;
     };
 
     /**
@@ -1207,21 +1205,19 @@ namespace WorkbookManager {
             }
 
             // XXX for uploads, we should include description
-            const options: any = {
+            const options: WKBKOptions = {
                 "id": getWKBKId(wkbkName),
                 "name": wkbkName,
-                "srcUser": username,
-                "curUser": username,
                 "resource": false,
                 "jupyterFolder": folderName
             };
 
             if (isCopy) {
-                options.modified = copySrc.modified;
+                options.modified = copySrc.getModifyTime();
             }
 
             wkbk = new WKBK(options);
-            wkbkSet.put(wkbk.id, wkbk);
+            wkbkSet.put(wkbk.getId(), wkbk);
             return saveWorkbook();
         })
         .then(function() {
@@ -1242,7 +1238,7 @@ namespace WorkbookManager {
                 try {
                     const session = retStruct.sessions[0];
                     wkbk.setSessionId(session.sessionId);
-                    wkbk.description = session.description;
+                    wkbk.setDescription (session.description);
                 } catch (e) {
                     console.error(e);
                 }
@@ -1254,13 +1250,13 @@ namespace WorkbookManager {
                     XcalarDeactivateWorkbook(retStruct.sessions[0].name)
                     .always(function() {
                         broadCast();
-                        deferred.resolve(wkbk.id);
+                        deferred.resolve(wkbk.getId());
                         // XXX Handle failure here separately! It should never
                         // happen...
                     });
                 } else {
                     broadCast();
-                    deferred.resolve(wkbk.id);
+                    deferred.resolve(wkbk.getId());
                 }
             }
         })

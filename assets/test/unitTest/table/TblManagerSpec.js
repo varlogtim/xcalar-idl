@@ -261,7 +261,7 @@ describe("TableManager Test", function() {
                 return test;
             })
             .then(function() {
-                expect(table.resultSetId).to.equal(-1);
+                expect(table.resultSetId).to.equal(null);
                 done();
             })
             .fail(function() {
@@ -303,7 +303,7 @@ describe("TableManager Test", function() {
 
             TblManager.freeAllResultSetsSync()
             .then(function() {
-                expect(gTables[id1].resultSetId).to.equal(-1);
+                expect(gTables[id1].resultSetId).to.equal(null);
                 done();
             })
             .fail(function() {
@@ -424,20 +424,6 @@ describe("TableManager Test", function() {
             });
         });
 
-        it("Should delete undone table", function(done) {
-            table.beUndone();
-            expect(table.getType()).to.equal(TableType.Undone);
-
-            TblManager.deleteTables(tableId, TableType.Undone, true, true)
-            .then(function() {
-                expect(gTables).not.to.ownProperty(tableId);
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
-
         it("Should handle fails", function(done) {
             XIApi.deleteTable = function() {
                 return PromiseHelper.reject({"error": "test"});
@@ -545,7 +531,7 @@ describe("TableManager Test", function() {
             });
             gDroppedTables[tableId] = table;
 
-            var tableName2 = "fakeTable#zz9992";
+            var tableName2 = "x".repeat(1 * MB) + "fakeTable#zz9992";
             var tableId2 = "zz9992";
             var table2 = new TableMeta({
                 "tableId": tableId2,
@@ -554,7 +540,6 @@ describe("TableManager Test", function() {
                 "tableCols": [1,2]
             });
             gDroppedTables[tableId2] = table2;
-            table2.excessSize = "x".repeat(1 * MB);
 
             expect(Object.keys(gDroppedTables).length).to.equal(2);
             TblManager.restoreTableMeta(gDroppedTables);
@@ -583,23 +568,6 @@ describe("TableManager Test", function() {
                 done("fail");
             });
         });
-
-        // XXX remove if we're not using statuses
-        // it("TblManager.sendTableToUndone should work", function(done) {
-        //     var table = gTables[tableId];
-        //     TblManager.sendTableToUndone(tableId, {"remove": true})
-        //     .then(function() {
-        //         expect(table.getType()).to.equal(TableType.Undone);
-        //         return TblManager.refreshTable([tableName]);
-        //     })
-        //     .then(function() {
-        //         expect(table.getType()).to.equal(TableType.Active);
-        //         done();
-        //     })
-        //     .fail(function() {
-        //         done("fail");
-        //     });
-        // });
 
         it("TblManager.hideTable should work", function() {
             TblManager.hideTable(tableId);

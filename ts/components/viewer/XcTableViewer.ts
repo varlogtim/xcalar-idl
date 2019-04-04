@@ -120,7 +120,7 @@ class XcTableViewer extends XcViewer {
     private _startBuildTable(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const table: TableMeta = this.table;
-        const tableId: string = table.getId();
+        const tableId: TableId = table.getId();
         let initialTableBuilt: boolean = false;
 
         this.rowManager.getFirstPage()
@@ -383,7 +383,7 @@ class XcTableViewer extends XcViewer {
                 let rowNum: number = Math.ceil((top / gRescol.minCellHeight));
                 const defaultRowNum: number = rowNum;
 
-                let numPages: number = Math.ceil(rowNum / gNumEntriesPerPage);
+                let numPages: number = Math.ceil(rowNum / TableMeta.NumEntriesPerPage);
                 let extraHeight: number = 0;
                 for (let pageNumStr in table.rowHeights) {
                     const pageNum: number = Number(pageNumStr);
@@ -396,8 +396,7 @@ class XcTableViewer extends XcViewer {
                                 rowNum = Math.ceil(defaultRowNum -
                                     (extraHeight / gRescol.minCellHeight));
 
-                                numPages = Math.ceil(rowNum /
-                                                     gNumEntriesPerPage);
+                                numPages = Math.ceil(rowNum / TableMeta.NumEntriesPerPage);
                                 if (pageNum >= numPages) {
                                     extraHeight -= height;
                                     rowNum = Math.ceil(defaultRowNum -
@@ -474,9 +473,7 @@ class XcTableViewer extends XcViewer {
                 deferred.resolve();
             } else if (scrollTop === 0 && !$firstRow.hasClass('row0')) {
                 // scrolling to top
-                const numRowsToAdd: number = Math.min(gNumEntriesPerPage, topRowNum,
-                                        table.resultSetMax);
-
+                const numRowsToAdd: number = Math.min(TableMeta.NumEntriesPerPage, topRowNum, table.resultSetMax);
                 const rowNumber: number = topRowNum - numRowsToAdd;
                 if (rowNumber < table.resultSetMax) {
                     fetched = true;
@@ -495,7 +492,7 @@ class XcTableViewer extends XcViewer {
             } else if (isScrollBarAtBottom()) {
                 // scrolling to bottom
                 if (table.currentRowNumber < table.resultSetMax) {
-                    const numRowsToAdd: number = Math.min(gNumEntriesPerPage,
+                    const numRowsToAdd: number = Math.min(TableMeta.NumEntriesPerPage,
                                     table.resultSetMax -
                                     table.currentRowNumber);
                     fetched = true;
