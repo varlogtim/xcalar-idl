@@ -3,8 +3,6 @@
     @cell-padding: 10px;
     @scrollbar-width: 11px;
     @tableHeaderHeight: 40px;
-    @link-table-color: #37a9dd;
-    @error-color: #f15840;
 
     .size(@height: 100%);
 
@@ -141,14 +139,14 @@
         .flex-basis(@width: 75px);
         &.link {
             text-decoration: underline;
-            color: @link-table-color;
+            color: @color-font-link-blue;
             &:hover {
-                color: @link-table-color;
+                color: @color-font-link-blue;
             }
             &.error {
-                color: @error-color;
+                color: @color-font-link-red;
                 &:hover {
-                    color: @error-color;
+                    color: @color-font-link-red;
                 }
             }
         }
