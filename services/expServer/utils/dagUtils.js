@@ -136,5 +136,6 @@ require("jsdom/lib/old-api").env("", function(err, window) {
 
     // Call init routines
     global.DagNode.setup();
+    global.CommentNode.setup();
     global.DagTab.setup();
 });
