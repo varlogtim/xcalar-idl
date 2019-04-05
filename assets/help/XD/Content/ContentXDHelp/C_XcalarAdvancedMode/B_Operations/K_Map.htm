@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -116,7 +116,7 @@
                                 </div>
                             </div>
                             <div class="title-bar-layout outer-row">
-                                <div class="logo-wrapper"><a class="logo" href="../../../HomeXDHelp.htm" alt="Logo"></a>
+                                <div class="logo-wrapper"><a class="logo" href="../../../Home.htm" alt="Logo"></a>
                                 </div>
                                 <div class="navigation-wrapper nocontent">
                                     <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
@@ -157,128 +157,99 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="body-container" data-mc-content-body="True">
-                                <div class="content">
-                                    <div id="contentBody">
-                                        <div class="row collapse">
-                                            <div class="sideContent">
-                                                <div class="clearfix">
-                                                    <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
-                                                        <div class="button-group-container-left">
-                                                            <button class="button needs-pie previous-topic-button" title="Navigate previous">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
-                                                            </button>
-                                                            <button class="button needs-pie next-topic-button" title="Navigate next">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
-                                                            </button>
-                                                            <div class="button-separator">
+                            <div class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                                </button>
                                                             </div>
-                                                            <button class="button needs-pie print-button" title="Print">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
-                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <h1>Using the Map function to create new values</h1>
-                                            <p>The Map function is divided into categories of functions that  create new values to help you derive meaning from your dataset. The new values can be based on one or multiple selected columns. For example, you can perform an arithmetic calculation from values in two selected columns to create a third column that contains the results of the calculation. The new value may also be generated without any input. For example, you can generate a column of unique, random values.</p>
-                                            <p>This section describes the steps for performing a Map function. For descriptions of all Map functions, see <a href="../../E_Reference/I_MapFunctions.htm" class="MCXref xref" xrefformat="{para}">Map functions</a>.</p>
-                                            <div class="Note"><span class="label">IMPORTANT</span>:&#160;Many  Map functions work in a similar way as Microsoft Excel functions. However, there might be differences, such as differences in the  number of operands accepted.&#160;Do not assume that the  Map functions are identical to the Excel functions even though they share the same name. </div>
-                                            <h2>How a Map function works on Mixed, Array, or Object columns</h2>
-                                            <p>If you use a Mixed column as input to a Map function, the function is run on the cells of a data type appropriate for the function. For all other cells, the function returns FNF. For example, if a Mixed column is the input for the div function, the division is performed only on numerical cells. FNF&#160;is displayed for each non-numerical cell in the resultant column.</p>
-                                            <p>If you use an Array or Object column as input to a Map function, the input value is treated as FNF. </p>
-                                            <p>For more information about FNF, see <a href="P_UnderstandFNF.htm" class="MCXref xref" xrefformat="{para}">Working with a table containing FNF</a>.</p>
-                                            <div class="Note"><span class="label">NOTE</span>:&#160;You cannot start  a Map function from the column drop-down menu of an Array or Object column, but you can run the function from the function bar using a column of any type as input. For more information about using the function bar, see Using the function or search bar.</div>
-                                            <h2>Creating a column</h2>
-                                            <p>Follow these steps to create a column with the Map operation:</p>
-                                            <ol>
-                                                <li value="1">
-                                                    <p>Right click the header of the column from which you want to create new values. In the drop-down menu, select <span class="UIelement">Map…</span>. The <span class="UIelement">MAP</span>&#160;panel is displayed. </p>
-                                                    <div class="MCDropDown MCDropDown_Closed dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following lists describe the rules and tips for entering information in a <span class="GeneralGUIName1">Xcalar Design</span> panel.</a></span>
-                                                        <div class="MCDropDownBody dropDownBody">
-                                                            <p>For selecting columns:</p>
-                                                            <ul>
-                                                                <li value="1">By default, the name of the column from which you start the function is displayed as an argument. You can select another column.</li>
-                                                                <li value="2">If necessary,  click <img src="../Images/XD_assets/xd-show.png" /> in the panel to bring the specified table into focus. You can then scroll the table to select the desired column.</li>
-                                                                <li value="3">If the column you want to select is not in the table, go to the Data Browser to pull the column. Then you can select the column as input to the function.</li>
-                                                            </ul>
-                                                            <p>For typing a column name:</p>
-                                                            <ul>
-                                                                <li value="1">Always start with the dollar sign ($).</li>
-                                                                <li value="2">Always include the prefix if one exists. (A derived column does not have a column name prefix.) </li>
-                                                                <li value="3">To specify the resultant column name, type the name without preceding it with the dollar sign ($).</li>
-                                                                <li value="4">To avoid mistakes when typing a column name, place the insertion point in the argument field, move your cursor to the active table and click anywhere in the desired column. The column's name is automatically entered for you.</li>
-                                                                <li value="5">If an operand accepts a column name, it also accepts the aggregate name that you created when you calculated the aggregate value for a column. </li>
-                                                            </ul>
-                                                            <p>For typing an operand value:</p>
-                                                            <ul>
-                                                                <li value="1">In most cases, do not surround the value with quote marks, even if it is a string with a space. In cases where the function can evaluate the value as a string or numeric value, use the quote marks.&#160;You can check the syntax displayed in the panel.&#160;The syntax displays the quote marks for an operand if the operand is to be interpreted as a string.</li>
-                                                                <li value="2">If the string contains  the backslash (\) or double quote mark ("), escape the character with a backslash (\). Not doing so causes an error message, indicating that the input string is a malformed evaluation string.</li>
-                                                                <li value="3">The $ character has special meaning in <span class="GeneralGUIName1">Xcalar Design</span>: It denotes a column name. If your input string starts with $, escape it with a backslash (\).</li>
-                                                                <li value="4">The caret (^) has  special meaning in <span class="GeneralGUIName1">Xcalar Design</span>:&#160;It denotes a named aggregate value. If your input string starts with a caret, escape it with a backslash (\).</li>
-                                                            </ul>
-                                                            <p>In the panel, you can undo any typing with the undo key or key combination that you normally use in your browser.</p>
-                                                        </div>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
                                                     </div>
-                                                    <p>Boolean values are case-insensitive. For example, in an input field that accepts a Boolean value, you can type true, True, false, or False.</p>
-                                                </li>
-                                                <li value="2">
-                                                    <p>In the <span class="UIelement">MAP</span> panel, follow these steps to select the function:</p>
-                                                    <ol style="list-style-type: lower-alpha;">
-                                                        <li value="1">Select the category. The functions in the selected category are displayed.</li>
-                                                        <li value="2">
-                                                            <p>Select the function.</p>
-                                                            <div class="Example"><span class="label">TIP:</span>&#160;You can quickly locate a function by typing its name or part of a its name in the <span class="UIelement">Search map functions...</span> field. Functions with a matching name are displayed in the <span class="UIelement">Category</span> and <span class="UIelement">Function</span> columns.</div>
-                                                        </li>
-                                                        <li value="3">
-                                                            <p>Accept the default name for the new column or enter a new name.</p>
-                                                        </li>
-                                                    </ol>
-                                                </li>
-                                                <li value="3">Based on the description of the function, fill out the operand fields. </li>
-                                                <li value="4">Accept the default name for the new column or enter a new name.</li>
-                                                <li value="5">(Optional)&#160;Select <span class="UIelement">Include only erroneous rows</span> if you want to filter the resultant table such that only erroneous rows are included. For more information about erroneous rows, see <a href="H_ErroneousRows.htm" class="MCXref xref" xrefformat="{para}">Creating a table with only erroneous rows</a>.</li>
-                                                <li value="6">Click <span class="UIelement">MAP</span>.</li>
-                                            </ol>
-                                            <h3>Example of using the type-casting function</h3>
-                                            <p>After you select the <span class="UIelement">Map…</span> option in the column drop-down menu, the <span class="UIelement">MAP</span> panel is displayed. </p>
-                                            <p>Follow these steps to create a column with the desired data type:</p>
-                                            <ol>
-                                                <li value="1">In the <span class="UIelement">Table</span> field, if the desired table name is not already displayed, click the down arrow to display a list of tables and then select the desired table.</li>
-                                                <li value="2">In the <span class="UIelement">Category</span> field, select <span class="UIelement">type-casting</span>.</li>
-                                                <li value="3">In the <span class="UIelement">Function</span> field, select the desired data type.</li>
-                                                <li value="4">
-                                                    <p>The first argument (x) is the active column name by default. You can accept the default or enter the name for another column whose data type will be changed. </p>
-                                                    <p>If the desired data type is integer, enter the base as the second argument. For example, for base 10, type <span class="UIelement">10</span>; for binary, type <span class="UIelement">2</span>. </p>
-                                                </li>
-                                                <li value="5">Type a column name in the <span class="UIelement">New Resultant Column Name</span> field.</li>
-                                                <li value="6">If you are interested only in the rows where the <span class="UIelement">Map</span> function fails, select <span class="UIelement">Include only erroneous rows</span>. For example, if you want to know if there are values in a particular column that cannot be type cast into Integer, select this option. The resultant table will contain only rows with data in this column that cannot be changed by the Map function.</li>
-                                                <li value="7">
-                                                    <p>Click <span class="UIelement">Map</span>. A new column is created with the new data type. </p>
-                                                    <div class="Note"><span class="label">NOTE:</span>&#160;If you did not enter the second argument,  an error message is displayed, requiring you to click the <span class="UIelement">No Argument</span> check box. After you click the check box, click Map.</div>
-                                                </li>
-                                            </ol>
-                                            <p>The following sample <span class="UIelement">Map</span> panel illustrates how you can change the data type  to integer.</p>
-                                            <p>
-                                                <img src="../../../Resources/Images/XD_screenshots/map-change-data-type.png" />
-                                            </p>
-                                            <h2><a name="Using"></a>Using Map on an unpopulated column</h2>
-                                            <p>After you add a blank column to your table, the column contains no values and the column's data type is Unknown. You can initiate a Map function from such a column. However, not all functions displayed in the <span class="UIelement">MAP</span> panel accepts an operand whose type is Unknown. The following partial screenshot shows an example of a newly added column containing no values. </p>
-                                            <p>
-                                                <img src="../../../Resources/Images/XD_screenshots/column-unknown-type.png" />
-                                            </p>
-                                            <h3>Result  of Map initiated from an unpopulated column</h3>
-                                            <p>Typically a Map function creates a new column containing values based on the input column. But if you run a Map function from an unpopulated column, the resultant column replaces the unpopulated column. </p>
-                                            <p>For example, from the unpopulated column, you can start the <span class="UIelement">MAP</span>&#160;panel to create a column of a particular data type, as illustrated in the following screenshot:</p>
-                                            <p>
-                                                <img src="../../../Resources/Images/XD_screenshots/blank-column-change-datatype.png" />
-                                            </p>
-                                            <p>After the function is finished, the table contains a new column, as illustrated in the following screenshot:</p>
-                                            <p>
-                                                <img src="../../../Resources/Images/XD_screenshots/blank-column-cast-to-int.png" />
-                                            </p>
-                                            <p><a href="#Top">Go to top</a>
-                                            </p>
+                                                </div>
+                                                <h1>Using the Map function to create new values</h1>
+                                                <p>The Map function is divided into categories of functions that  create new values to help you derive meaning from your dataset. The new values can be based on one or multiple selected columns. For example, you can perform an arithmetic calculation from values in two selected columns to create a third column that contains the results of the calculation. The new value may also be generated without any input. For example, you can generate a column of unique, random values.</p>
+                                                <p>This section describes the steps for performing a Map function. For descriptions of all Map functions, see <a href="../../E_Reference/I_MapFunctions.htm" class="MCXref xref" xrefformat="{para}">Map functions</a>.</p>
+                                                <div class="Note"><span class="label">IMPORTANT</span>:&#160;Many  Map functions work in a similar way as Microsoft Excel functions. However, there might be differences, such as differences in the  number of operands accepted.&#160;Do not assume that the  Map functions are identical to the Excel functions even though they share the same name. </div>
+                                                <h2 class="noPageBreak">How a Map function works on Mixed, Array, or Object columns</h2>
+                                                <p>If you use a Mixed column as input to a Map function, the function is run on the cells of a data type appropriate for the function. For all other cells, the function returns FNF (field not found). For example, if a Mixed column is the input for the div function, the division is performed only on numerical cells. FNF&#160;is displayed for each non-numerical cell in the resultant column. If you use an Array or Object column as input to a Map function, the input value is treated as FNF. </p>
+                                                <p>For more information about FNF, see <a href="P_UnderstandFNF.htm" class="MCXref xref" xrefformat="{para}">Working with a result set containing FNF</a>.</p>
+                                                <h2 class="noPageBreak">Creating a column</h2>
+                                                <p>Follow these steps to create a column with the Map operation in Advanced Mode:</p>
+                                                <ol>
+                                                    <li value="1">
+                                                        <p>There are two ways of creating a column with the Map operation - starting from a result set or starting from a <span class="UIelement">Map</span> node:</p>
+                                                        <ol style="list-style-type: lower-alpha;">
+                                                            <li value="1">
+                                                                <p><span class="UIelement">Starting from a result set</span>: Right click the header of the result set column from which you want to create new values. In the drop-down menu, select <span class="UIelement">Map…</span>. The <span class="UIelement">Map</span>&#160;panel is displayed. </p>
+                                                            </li>
+                                                            <li value="2">
+                                                                <p><span class="UIelement"> Starting from a Map node</span>: Select <span class="UIelement">Column Ops</span> from the Advanced Mode Toolbar. Drag the <span class="UIelement">Map</span> node into the dataflow canvas. Connect a result set node to the <span class="UIelement">Map</span> node. Right click on the <span class="UIelement">Map</span> node and select <span class="UIelement">Configure</span> in the drop-down menu. The <span class="UIelement">Map</span>&#160;panel is displayed.</p>
+                                                            </li>
+                                                        </ol>
+                                                    </li>
+                                                    <li value="2">
+                                                        <p>In the <span class="UIelement">Map</span> panel, follow these steps to select the function:</p>
+                                                        <ol style="list-style-type: lower-alpha;">
+                                                            <li value="1">Select a category. The functions in the selected category are displayed.</li>
+                                                            <li value="2">
+                                                                <p>Select a function.</p>
+                                                                <div class="Example"><span class="label">TIP:</span>&#160;You can quickly locate a function by typing its name or part of a its name in the <span class="UIelement">Search map functions...</span> field. Functions with a matching name are displayed in the <span class="UIelement">Category</span> and <span class="UIelement">Function</span> columns.</div>
+                                                            </li>
+                                                        </ol>
+                                                    </li>
+                                                    <li value="3">Based on the description of the function, fill out the operand fields. </li>
+                                                    <li value="4">Accept the default name for the new column or enter a new name.</li>
+                                                    <li value="5">(Optional)&#160;Select <span class="UIelement">Include only erroneous rows</span> if you want to filter the resultant table such that only erroneous rows are included. For more information about erroneous rows, see <a href="H_ErroneousRows.htm" class="MCXref xref" xrefformat="{para}">Creating a result set with only erroneous rows</a>.</li>
+                                                    <li value="6">
+                                                        <p>Click <span class="UIelement">Save</span>. The Node configuration is saved and a new result set is displayed when the Node executes. </p>
+                                                        <p><span class="label">NOTE:</span>You&#160;can replace an existing derived column using the <span class="UIelement">Map</span> function if you use it in the <span class="UIelement">New Resultant Column Name</span>.</p>
+                                                    </li>
+                                                </ol>
+                                                <h3>Example of using the type-casting function</h3>
+                                                <p>After you select the <span class="UIelement">Map…</span> option in the column drop-down menu, the <span class="UIelement">Map</span> panel is displayed. </p>
+                                                <p>Follow these steps to create a column with the desired data type:</p>
+                                                <ol>
+                                                    <li value="1">In the <span class="UIelement">Category</span> field, select <span class="UIelement">type-casting</span>.</li>
+                                                    <li value="2">In the <span class="UIelement">Function</span> field, select the desired data type.</li>
+                                                    <li value="3">
+                                                        <p>The first argument (x) is the active column name by default. You can accept the default or enter the name for another column whose data type will be changed. </p>
+                                                        <p>If the desired data type is integer, enter the base as the second argument. For example, for base 10, type <span class="UIelement">10</span>; for binary, type <span class="UIelement">2</span>. </p>
+                                                    </li>
+                                                    <li value="4">Type a column name in the <span class="UIelement">New Resultant Column Name</span> field or accept the default new name.</li>
+                                                    <li value="5">If you are interested only in the rows where the <span class="UIelement">Map</span> function fails, select <span class="UIelement">Include only erroneous rows</span>. For example, if you want to know if there are values in a particular column that cannot be type cast into Integer, select this option. The resultant result set will contain only rows with data in this column that cannot be changed by the <span class="UIelement">Map</span> function.</li>
+                                                    <li value="6">
+                                                        <p>Click <span class="UIelement">Save</span>. The configuration is saved and a new result set with new column is displayed when the Node executes.  </p>
+                                                        <div class="Note"><span class="label">NOTE:</span>&#160;If you did not enter the second argument,  an error message is displayed, requiring you to click the <span class="UIelement">No Argument</span> check box. After you click the check box, click Save.</div>
+                                                    </li>
+                                                </ol>
+                                                <p>The following sample <span class="UIelement">Map</span> panel illustrates how you can change the data type  to integer.</p>
+                                                <p>
+                                                    <img src="../../../Resources/Images/XD_screenshots/xd-map-panel-example.png" />
+                                                </p>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

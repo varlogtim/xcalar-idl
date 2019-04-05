@@ -6,7 +6,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Performing tasks on a node</title>
+        <meta name="author" content="" /><title>Performing tasks on a Node</title>
         <link href="../../../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -116,7 +116,7 @@
                                 </div>
                             </div>
                             <div class="title-bar-layout outer-row">
-                                <div class="logo-wrapper"><a class="logo" href="../../../HomeXDHelp.htm" alt="Logo"></a>
+                                <div class="logo-wrapper"><a class="logo" href="../../../Home.htm" alt="Logo"></a>
                                 </div>
                                 <div class="navigation-wrapper nocontent">
                                     <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
@@ -157,138 +157,147 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="body-container" data-mc-content-body="True">
-                                <div class="content">
-                                    <div id="contentBody">
-                                        <div class="row collapse">
-                                            <div class="sideContent">
-                                                <div class="clearfix">
-                                                    <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
-                                                        <div class="button-group-container-left">
-                                                            <button class="button needs-pie previous-topic-button" title="Navigate previous">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
-                                                            </button>
-                                                            <button class="button needs-pie next-topic-button" title="Navigate next">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
-                                                            </button>
-                                                            <div class="button-separator">
+                            <div class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                                </button>
                                                             </div>
-                                                            <button class="button needs-pie print-button" title="Print">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
-                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="nocontent">
-                                                <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
                                                 </div>
+                                                <h1>Performing tasks on a Node</h1>
+                                                <p>After you create a dataflow, it is display by links. The first step after creating this dataflow is to configure each Node so that it can be executed. This topic provides the general information required for configuring a Node. For specific information pertaining to various operations, see the topics about the operations. This topic assumes that you understand the steps for editing a dataflow, as described in <a href="C_CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating, editing, and deleting a dataflow</a>.</p>
+                                                <p>In addition to configuring a Node, this topic describes the following tasks that you perform on a Node:</p>
+                                                <ul>
+                                                    <li value="1">Execute</li>
+                                                    <li value="2">Reset</li>
+                                                    <li value="3">Copy</li>
+                                                    <li value="4">Cut</li>
+                                                    <li value="5">Add or edit a description</li>
+                                                    <li value="6">View schema</li>
+                                                    <li value="7">Remove</li>
+                                                </ul>
+                                                <p>For information about viewing and performing various tasks on result sets, see <a href="J_ResultSetTasks.htm" class="MCXref xref" xrefformat="{para}">Performing result set tasks </a>.</p>
+                                                <p>For information about creating a custom Node from an existing Node, see <a href="../B_Operations/V_CustomNode.htm" class="MCXref xref" xrefformat="{para}">Creating and using a Custom Node</a>.</p>
+                                                <h2 class="noPageBreak">Configuring a Node</h2>
+                                                <p>You can configure a Node whether or not it is already configured. </p>
+                                                <p>To configure a Node:</p>
+                                                <ol>
+                                                    <li value="1">
+                                                        <p>Skip this step if the Node to be configured is the source Node, which is the first Node of a dataflow.</p>
+                                                        <p>Create a link from the Node to the appropriate parent Node. The result set of the parent Node will become the input to the Node.</p>
+                                                    </li>
+                                                    <li value="2">Right click the Node to display a menu.</li>
+                                                    <li value="3">Click <span class="UIelement">Configure</span> in the menu to display a panel. </li>
+                                                    <li value="4">Follow the instructions in the panel to enter the appropriate information. The information required depends on the operation.</li>
+                                                    <li value="5">Click <span class="UIelement">Save</span> in the panel to save the Node configuration. Depending on your dataflow settings, the Node might be executed automatically. If the Node is not executed automatically, its status indicator becomes yellow, which means that the Node has been configured but not executed.</li>
+                                                </ol>
+                                                <h2 class="noPageBreak">Executing a Node</h2>
+                                                <p>After a Node is configured, you can execute it. Similar to executing an entire dataflow, executing a Node is successful only if the following requirements are met:</p>
+                                                <ul>
+                                                    <li value="1">The Node and its parent Nodes are properly configured.</li>
+                                                    <li value="2">Aggregate values that are used in the Node or its parent Nodes can be calculated.</li>
+                                                </ul>
+                                                <p>To execute a Node, follow these steps:</p>
+                                                <ol>
+                                                    <li value="1">Right click the Node to display a menu.</li>
+                                                    <li value="2">
+                                                        <p>Click <span class="UIelement">Execute</span> in the menu to execute the Node. The following list describes what happens after you successfully execute a Node:</p>
+                                                        <ul>
+                                                            <li value="1"> The status indicator on the Node and on each parent Node become green.</li>
+                                                            <li value="2">The result sets produced by the Node and its parent Nodes are available for viewing. For information about result set tasks, see <a href="J_ResultSetTasks.htm" class="MCXref xref" xrefformat="{para}">Performing result set tasks </a>.</li>
+                                                            <li value="3">If an aggregate value is used in the execution, the Single Value Node's status indicator becomes green.</li>
+                                                            <li value="4">Operation information is displayed above the Node, its parent Nodes, and any Single Value Nodes (if applicable.</li>
+                                                            <li value="5">If the Node is a Link out Optimized Node or Export Optimized Node, an optimized dataflow is created and displayed in a new tab.</li>
+                                                        </ul>
+                                                    </li>
+                                                </ol>
+                                                <div class="Note"><span class="label">NOTE</span>: The dataflow settings controls what you see after a Node or a dataflow is executed. For information about configuring dataflow settings, see <a href="H_SettingsForDf.htm" class="MCXref xref" xrefformat="{para}">Configuring settings for dataflows</a>.</div>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;If a Node's status indicator is green, you cannot re-execute the Node. You must reset the Node if you want to execute the Node again.</div>
+                                                <h2 class="noPageBreak"><a name="Resettin"></a>Resetting a Node</h2>
+                                                <p>Resetting a Node undoes the previous execution, removing the result set. The configuration for the Node remains unchanged.</p>
+                                                <p>Because the result set for the reset Node is removed, the subsequent Nodes receive no input from the reset Node. Therefore, when you reset a Node, all subsequent Nodes are also automatically reset.</p>
+                                                <p>To reset a Node, follow these steps:</p>
+                                                <ol>
+                                                    <li value="1">Right click the Node to display a menu.</li>
+                                                    <li value="2">
+                                                        <p>Click <span class="UIelement">Reset</span> in the menu to reset the Node. The following list describes what happens after you reset the Node:</p>
+                                                        <ul>
+                                                            <li value="1">The status indicators for the Node and subsequent Nodes become yellow.</li>
+                                                            <li value="2">The result sets of the Node and subsequent Nodes are removed.</li>
+                                                            <li value="3">The operation information above the Node and each subsequent Node is removed.</li>
+                                                            <li value="4">If the reset Node is a Link out Optimized Node or Export Optimized Node, the optimized dataflow created by the previous execution is removed.</li>
+                                                        </ul>
+                                                    </li>
+                                                </ol>
+                                                <h2 class="noPageBreak">Copying or cutting a Node</h2>
+                                                <p>You can copy or cut a Node  so that you can later paste it, for example, in a different part of the dataflow.</p>
+                                                <p>To copy or cut a Node, follow these steps:</p>
+                                                <ol>
+                                                    <li value="1">Right click the Node to display a menu.</li>
+                                                    <li value="2">
+                                                        <p>Click <span class="UIelement">Copy</span> or "<span class="UIelement">Cut</span> in the menu Alternatively, you can use the key combination appropriate to your computer for the copy or cut function. For example, you can use Ctrl-C for copy.</p>
+                                                        <p>If you cut a Node, the Node and all its links are removed. </p>
+                                                    </li>
+                                                </ol>
+                                                <p>The Node you copied or cut is on the clipboard, available for you to paste to the desired location. </p>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;On the canvas, you can right click anywhere to display a menu where <span class="UIelement">Paste</span> is  an option. This option indicates that the clipboard has contents that can be pasted. It does not perform the paste function. To paste the Node, use the keyboard combination appropriate to your computer, such as Ctrl-V.</div>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;If you copy and paste a Link out Node to the same dataflow, remember to configure either the pasted Node or the original Node so that they have different reference names. </div>
+                                                <h2 class="noPageBreak">Adding or editing a description</h2>
+                                                <p>To add or edit a Node description, follow these steps:</p>
+                                                <ol>
+                                                    <li value="1">Right click the Node to display a menu.</li>
+                                                    <li value="2">Click <span class="UIelement">Add Description</span>. The <span class="UIelement">Description</span> modal window is displayed.</li>
+                                                    <li value="3">
+                                                        <p>In the <span class="UIelement">Description</span> modal window , enter a new description or modify an existing description, and then click <span class="UIelement">Save</span>.</p>
+                                                        <p>An information icon is displayed on the Node, as shown in the following screenshot. If you hover over the icon, the description is displayed in a tooltip.</p>
+                                                        <p>
+                                                            <img src="../../../Resources/Images/XD_screenshots/node-description.png" alt="" title="" />
+                                                        </p>
+                                                    </li>
+                                                </ol>
+                                                <h2 class="noPageBreak">Viewing schema</h2>
+                                                <p>You can view the schema if a result set exists for a Node. </p>
+                                                <p>To view the schema:</p>
+                                                <ol>
+                                                    <li value="1">Right click the Node to display a menu.</li>
+                                                    <li value="2">
+                                                        <p>Click <span class="UIelement">View Schema</span>. A pop-up is displayed, showing the schema of the result set. Fields that exist are displayed in green; fields that have been removed during the execution are displayed in red.</p>
+                                                        <p>You can click a field to see its lineage. All Nodes in the dataflow that contain the field are highlighted. In addition, a tooltip is displayed above the highlighted Node to explain what happened to the field. For example, you can see in which Node the field was created, removed, and so on.</p>
+                                                    </li>
+                                                </ol>
+                                                <h2 class="noPageBreak">Removing a Node</h2>
+                                                <p>Removing a Node is similar to cutting a Node. However, the removed Node is not saved to the clipboard. </p>
+                                                <p>To remove a Node, follow these steps:</p>
+                                                <ol>
+                                                    <li value="1">Right click the Node to display a menu.</li>
+                                                    <li value="2">Click <span class="UIelement">Remove</span>. The Node and its links are removed. The status indicator of each subsequent Node becomes red, because each subsequent Node no longer has a valid configuration.</li>
+                                                </ol>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
                                             </div>
-                                            <h1>Performing tasks on a node</h1>
-                                            <p>After you create a dataflow, it is display by links. The first step after creating this dataflow is to configure each node so that it can be executed. This topic provides the general information required for configuring a node. For specific information pertaining to various operations, see the topics about the operations. This topic assumes that you understand the steps for editing a dataflow, as described in <a href="C_CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating, editing, and deleting a dataflow</a>.</p>
-                                            <p>In addition to configuring a node, this topic describes the following tasks that you perform on a node:</p>
-                                            <ul>
-                                                <li value="1">Execute</li>
-                                                <li value="2">Reset</li>
-                                                <li value="3">Copy</li>
-                                                <li value="4">Cut</li>
-                                                <li value="5">Add or edit a description</li>
-                                                <li value="6">View schema</li>
-                                                <li value="7">Remove</li>
-                                            </ul>
-                                            <p>For information about viewing and performing various tasks on result sets, see <a href="J_ResultSetTasks.htm" class="MCXref xref" xrefformat="{para}">Performing result set tasks </a>.</p>
-                                            <p>For information about creating a custom node from an existing node, see XXX.</p>
-                                            <h2 class="noPageBreak">Configuring a node</h2>
-                                            <p>You can configure a node whether or not it is already configured. To configure a node, follow these steps:</p>
-                                            <ol>
-                                                <li value="1">
-                                                    <p>Skip this step if the node to be configured is the source node, which is the first node of a dataflow.</p>
-                                                    <p>Create a link from the node to the appropriate parent node. The result set of the parent node will become the input to the node.</p>
-                                                </li>
-                                                <li value="2">Right click the node to display a menu.</li>
-                                                <li value="3">Click <span class="UIelement">Configure</span> in the menu to display a panel. </li>
-                                                <li value="4">Follow the instructions in the panel to enter the appropriate information. The information required depends on the operation.</li>
-                                                <li value="5">Click <span class="UIelement">Save</span> in the panel to save the node configuration. Depending on your dataflow settings, the node might be executed automatically. If the node is not executed automatically, its status indicator becomes yellow, which means that the node has been configured but not executed.</li>
-                                            </ol>
-                                            <h2 class="noPageBreak">Executing a node</h2>
-                                            <p>After a node is configured, you can execute it. Similar to executing an entire dataflow, executing a node is successful only if the following requirements are met:</p>
-                                            <ul>
-                                                <li value="1">The node and its parent nodes are properly configured.</li>
-                                                <li value="2">Aggregate values that are used in the node or its parent nodes can be calculated.</li>
-                                            </ul>
-                                            <p>To execute a node, follow these steps:</p>
-                                            <ol>
-                                                <li value="1">Right click the node to display a menu.</li>
-                                                <li value="2">
-                                                    <p>Click <span class="UIelement">Execute</span> in the menu to execute the node. The following list describes what happens after you successfully execute a node:</p>
-                                                    <ul>
-                                                        <li value="1"> The status indicator on the node and on each parent node become green.</li>
-                                                        <li value="2">The result sets produced by the node and its parent nodes are available for viewing. For information about result set tasks, see <a href="J_ResultSetTasks.htm" class="MCXref xref" xrefformat="{para}">Performing result set tasks </a>.</li>
-                                                        <li value="3">If an aggregate value is used in the execution, the Single Value node's status indicator becomes green.</li>
-                                                        <li value="4">Operation information is displayed above the node, its parent nodes, and any Single Value nodes (if applicable.</li>
-                                                        <li value="5">If the node is a Link out Optimized node or Export Optimized node, an optimized dataflow is created and displayed in a new tab.</li>
-                                                    </ul>
-                                                </li>
-                                            </ol>
-                                            <div class="Note"><span class="label">NOTE</span>: The dataflow settings controls what you see after a node or a dataflow is executed. For information about configuring dataflow settings, see <a href="H_SettingsForDf.htm" class="MCXref xref" xrefformat="{para}">Configuring settings for dataflows</a>.</div>
-                                            <div class="Note"><span class="label">NOTE</span>:&#160;If a node's status indicator is green, you cannot re-execute the node. You must reset the node if you want to execute the node again. For information about resetting a node, see XXX.</div>
-                                            <h2 class="noPageBreak">Resetting a node</h2>
-                                            <p>Resetting a node undoes the previous execution, removing the result set. The configuration for the node remains unchanged.</p>
-                                            <p>Because the result set for the reset node is removed, the subsequent nodes receive no input from the reset node. Therefore, when you reset a node, all subsequent nodes are also automatically reset.</p>
-                                            <p>To reset a node, follow these steps:</p>
-                                            <ol>
-                                                <li value="1">Right click the node to display a menu.</li>
-                                                <li value="2">
-                                                    <p>Click <span class="UIelement">Reset</span> in the menu to reset the node. The following list describes what happens after you reset the node:</p>
-                                                    <ul>
-                                                        <li value="1">The status indicators for the node and subsequent nodes become yellow.</li>
-                                                        <li value="2">The result sets of the node and subsequent nodes are removed.</li>
-                                                        <li value="3">The operation information above the node and each subsequent node is removed.</li>
-                                                        <li value="4">If the reset node is a Link out Optimized node or Export Optimized node, the optimized dataflow created by the previous execution is removed.</li>
-                                                    </ul>
-                                                </li>
-                                            </ol>
-                                            <h2 class="noPageBreak">Copying or cutting a node</h2>
-                                            <p>You can copy or cut a node  so that you can later paste it, for example, in a different part of the dataflow.</p>
-                                            <p>To copy or cut a node, follow these steps:</p>
-                                            <ol>
-                                                <li value="1">Right click the node to display a menu.</li>
-                                                <li value="2">
-                                                    <p>Click <span class="UIelement">Copy</span> or "<span class="UIelement">Cut</span> in the menu Alternatively, you can use the key combination appropriate to your computer for the copy or cut function. For example, you can use Ctrl-C for copy.</p>
-                                                    <p>If you cut a node, the node and all its links are removed. </p>
-                                                </li>
-                                            </ol>
-                                            <p>The node you copied or cut is on the clipboard, available for you to paste to the desired location. </p>
-                                            <div class="Note"><span class="label">NOTE</span>:&#160;On the canvas, you can right click anywhere to display a menu where <span class="UIelement">Paste</span> is  an option. This option indicates that the clipboard has contents that can be pasted. It does not perform the paste function. To paste the node, use the keyboard combination appropriate to your computer, such as Ctrl-V.</div>
-                                            <div class="Note"><span class="label">NOTE</span>:&#160;If you copy and paste a Link out node to the same dataflow, remember to configure either the pasted node or the original node so that they have different reference names. </div>
-                                            <h2 class="noPageBreak">Adding or editing a description</h2>
-                                            <p>To add or edit a node description, follow these steps:</p>
-                                            <ol>
-                                                <li value="1">Right click the node to display a menu.</li>
-                                                <li value="2">Click <span class="UIelement">Add Description</span>. The <span class="UIelement">Description</span> modal window is displayed.</li>
-                                                <li value="3">
-                                                    <p>In the <span class="UIelement">Description</span> modal window , type a new description or modify an existing description, and then click <span class="UIelement">Save</span>.</p>
-                                                    <p>An information icon is displayed on the node, as shown in the following screenshot. If you hover over the icon, the description is displayed in a tooltip.</p>
-                                                    <p>XXX Screenshot here.</p>
-                                                </li>
-                                            </ol>
-                                            <h2 class="noPageBreak">Viewing schema</h2>
-                                            <p>You can view the schema if a result set exists for a node. To view the schema, follow these steps:</p>
-                                            <ol>
-                                                <li value="1">Right click the node to display a menu.</li>
-                                                <li value="2">
-                                                    <p>Click <span class="UIelement">View Schema</span>. A pop-up is displayed, showing the schema of the result set. Fields that exist are displayed in green; fields that have been removed during the execution are displayed in red.</p>
-                                                    <p>You can click a field to see its lineage. All nodes in the dataflow that contain the field are highlighted. In addition, a tooltip is displayed above the highlighted node to explain what happened to the field. For example, you can see in which node the field was created, removed, and so on.</p>
-                                                </li>
-                                            </ol>
-                                            <h2 class="noPageBreak">Removing a node</h2>
-                                            <p>Removing a node is similar to cutting a node. However, the removed node is not saved to the clipboard. To remove a node, follow these steps:</p>
-                                            <ol>
-                                                <li value="1">Right click the node to display a menu.</li>
-                                                <li value="2">Click <span class="UIelement">Remove</span>. The node and its links are removed. The status indicator of each subsequent node becomes red, because each subsequent node no longer has a valid configuration.</li>
-                                            </ol>
-                                            <p><a href="#Top">Go to top</a>
-                                            </p>
                                         </div>
                                     </div>
                                 </div>

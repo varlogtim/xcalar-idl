@@ -59,5 +59,8 @@
     "underscore": "^1.8.3",
     "webpack": "4.8.1",
     "webpack-cli": "^2.1.2"
+  },
+  "dependencies": {
+    "seedrandom": "^3.0.1"
   }
 }

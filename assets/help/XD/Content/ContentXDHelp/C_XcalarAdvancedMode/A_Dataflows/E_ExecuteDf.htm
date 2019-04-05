@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -116,7 +116,7 @@
                                 </div>
                             </div>
                             <div class="title-bar-layout outer-row">
-                                <div class="logo-wrapper"><a class="logo" href="../../../HomeXDHelp.htm" alt="Logo"></a>
+                                <div class="logo-wrapper"><a class="logo" href="../../../Home.htm" alt="Logo"></a>
                                 </div>
                                 <div class="navigation-wrapper nocontent">
                                     <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
@@ -157,89 +157,96 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="body-container" data-mc-content-body="True">
-                                <div class="content">
-                                    <div id="contentBody">
-                                        <div class="row collapse">
-                                            <div class="sideContent">
-                                                <div class="clearfix">
-                                                    <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
-                                                        <div class="button-group-container-left">
-                                                            <button class="button needs-pie previous-topic-button" title="Navigate previous">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
-                                                            </button>
-                                                            <button class="button needs-pie next-topic-button" title="Navigate next">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
-                                                            </button>
-                                                            <div class="button-separator">
+                            <div class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                                </button>
                                                             </div>
-                                                            <button class="button needs-pie print-button" title="Print">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
-                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="nocontent">
-                                                <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
                                                 </div>
+                                                <h1>Executing a dataflow</h1>
+                                                <p>You can execute a partial dataflow or an entire dataflow. In addition, if the dataflow is built for optimized execution, you can execute the dataflow with or without optimization. For the meaning of optimized execution, see <a href="B_UnderstandDfOptimization.htm" class="MCXref xref" xrefformat="{para}">Understanding dataflow execution</a>.</p>
+                                                <h2 class="noPageBreak">Requirements for dataflow execution</h2>
+                                                <p>For a dataflow to be executed, all Nodes in the dataflow or the selected part of the dataflow must be executable. The following conditions must be met for a Node to be executable:</p>
+                                                <ul>
+                                                    <li value="1">The Node must be configured. </li>
+                                                    <li value="2">
+                                                        <p>The Node must not depend on a <span class="UIelement">Single Value</span> Node that descends from that Node. For example, you cannot execute the dataflow in the following screenshot because the <span class="UIelement">Single Value</span> Node calculates the aggregate value from the result set of the Map Node, which in turn uses the aggregate value in the Map function. If the Single Value Node is linked to Node 4 (<span class="UIelement">Cast</span> Node) instead of the Map Node, you can execute the dataflow.</p>
+                                                        <p>
+                                                            <img src="../../../Resources/Images/XD_screenshots/dataflow-aggregate-after-map.png" alt="" title="" />
+                                                        </p>
+                                                    </li>
+                                                    <li value="3">Unless the Node is the source Node (the first Node of a dataflow or sub-dataflow), the Node must have a parent Node. A Node might not have a parent Node, for example, due to a removed link. In addition, all the parent Nodes must be executable.</li>
+                                                </ul>
+                                                <h2 class="noPageBreak">Executing a partial dataflow</h2>
+                                                <p>To execute a partial dataflow, follow these steps:</p>
+                                                <ol>
+                                                    <li value="1">Display the dataflow.</li>
+                                                    <li value="2">
+                                                        <p>Select multiple Nodes by using the multi-selection method appropriate to your computer or using the selection rectangle to include the Nodes. For more information about making selections, see <a href="C_CreateEditDeleteDf.htm#Multi-se" class="MCXref xref" xrefformat="{para}">Multi-selecting Nodes</a>.</p>
+                                                        <div class="Note"><span class="label">TIP</span>:&#160;To execute multiple Nodes on the same branch of a dataflow, you can select only the last Node because all its parent Nodes will also be executed.</div>
+                                                    </li>
+                                                    <li value="3">Right click anywhere in the canvas (but not on an unselected Node) to display a list.</li>
+                                                    <li value="4">Click <span class="UIelement">Execute</span>.</li>
+                                                </ol>
+                                                <h2 class="noPageBreak">Executing an entire dataflow</h2>
+                                                <p>Executing an entire dataflow means executing all Nodes in all sub-dataflows in the current dataflow tab. To execute an entire dataflow, follow these steps:</p>
+                                                <ol>
+                                                    <li value="1">Display the dataflow in the dataflow editor.</li>
+                                                    <li value="2">
+                                                        <p>Click the <span class="UIelement">Execute All</span> or <span class="UIelement">Execute All Optimized</span> icon as shown in the following screenshot:</p>
+                                                        <p>
+                                                            <img src="../../../Resources/Images/XD_screenshots/dataflow-execute.png" alt="" title="" />
+                                                        </p>
+                                                    </li>
+                                                </ol>
+                                                <h2 class="noPageBreak">Results of executing a dataflow</h2>
+                                                <p>The following list describes what happens after you successfully execute a dataflow:</p>
+                                                <ul>
+                                                    <li value="1">When the execution is in progress, the percentage of completion is displayed for each Node.</li>
+                                                    <li value="2">After the execution of a Node is finished, a statistics box is displayed above the Node with the following information:<ul><li value="1">Number of rows in the result set (if applicable to the Node)</li><li value="2">Time taken to complete the execution</li><li value="3">Skew of the result set (if applicable to the Node).</li></ul><div class="Note"><span class="label">NOTE</span>:&#160;Executing a Link out Node does not produce a statistics box. </div></li>
+                                                    <li value="3">
+                                                        <p>If applicable, a result set for each executed Node is available for you to view. If you execute a <span class="UIelement">Single Value</span> Node, you can view the resultant value.</p>
+                                                    </li>
+                                                    <li value="4">All nodes' status indicator turns green. For more information about the status indicator, see <a href="J_ResultSetTasks.htm#Understa2" class="MCXref xref" xrefformat="{para}">Understanding the Node status indicator</a>.</li>
+                                                </ul>
+                                                <h2 class="noPageBreak">Results of executing a dataflow with optimization</h2>
+                                                <p>If you execute a Link out Optimized or Export Optimized Node, a new dataflow tab is displayed, showing the optimized dataflow. This dataflow looks similar to the one you executed but might contain different Nodes. The title for this dataflow tab is in italics, indicating that you cannot rename or edit the dataflow in this tab. </p>
+                                                <p>In the dataflow from which you start the execution, except for the terminal Node, each Node has a yellow status indicator. This is because an optimized version of the dataflow was executed, and the execution did not step through each Node. There is not a result set associated with each Node. In the optimized dataflow, however, each Node has a green status indicator.</p>
+                                                <p>The following list describes what you can do in this dataflow tab:</p>
+                                                <ul>
+                                                    <li value="1">Download an image file for this dataflow. For more information about downloading a dataflow, see <a href="D1_DownloadUploadDf.htm#Download" class="MCXref xref" xrefformat="{para}">Downloading a dataflow</a>.</li>
+                                                    <li value="2">
+                                                        <p>Copy Nodes from this dataflow and paste them to another dataflow.</p>
+                                                        <div class="Note"><span class="label">Recommendation</span>:&#160;If you copy  a Dataset Node from an optimized dataflow, you cannot execute it with its configuration or re-configure it in the dataflow where you paste it. Copy and paste only Nodes that are not the Dataset Node from an optimized dataflow. </div>
+                                                    </li>
+                                                </ul>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
                                             </div>
-                                            <h1>Executing a dataflow</h1>
-                                            <p>You can execute a partial dataflow or an entire dataflow. In addition, if the dataflow is built for optimized execution, you can execute the dataflow with or without optimization. For the meaning of optimized execution, see <a href="B_UnderstandDfOptimization.htm" class="MCXref xref" xrefformat="{para}">Understanding dataflow execution</a>.</p>
-                                            <h2 class="noPageBreak">Requirements for dataflow execution</h2>
-                                            <p>For a dataflow to be executed, all nodes in the dataflow or the selected part of the dataflow must be executable. The following conditions must be met for a node to be executable:</p>
-                                            <ul>
-                                                <li value="1">The node must be configured. </li>
-                                                <li value="2">
-                                                    <p>If the node depends on an aggregate value, the <span class="UIelement">Single Value</span> node that calculates the aggregate value  on the same branch must precede that node. </p>
-                                                    <p>XXX Screenshot here.</p>
-                                                </li>
-                                                <li value="3">Unless the node is the source node (the first node of a dataflow or sub-dataflow), the node must have a parent node. A node might not have a parent node, for example, due to a removed link. In addition, all the parent nodes must be executable.</li>
-                                            </ul>
-                                            <h2 class="noPageBreak">Executing a partial dataflow</h2>
-                                            <p>To execute a partial dataflow, follow these steps:</p>
-                                            <ol>
-                                                <li value="1">Display the dataflow in the dataflow editor.</li>
-                                                <li value="2">
-                                                    <p>Select multiple nodes by using the multi-selection method appropriate to your computer or using the selection rectangle to include the nodes. For more information about making selections, see <a href="C_CreateEditDeleteDf.htm#Multi-se" class="MCXref xref" xrefformat="{para}">Multi-selecting nodes</a>.</p>
-                                                    <div class="Note"><span class="label">TIP</span>:&#160;To execute multiple nodes on the same branch of a dataflow, you can select only the last node because all its parent nodes will also be executed.</div>
-                                                </li>
-                                                <li value="3">Right click anywhere in the canvas (but not on an unselected node) to display a menu.</li>
-                                                <li value="4">Click <span class="UIelement">Execute</span> in the menu.</li>
-                                            </ol>
-                                            <h2 class="noPageBreak">Executing an entire dataflow</h2>
-                                            <p>Executing an entire dataflow means executing all nodes in all sub-dataflows in the current dataflow tab. To execute an entire dataflow, follow these steps:</p>
-                                            <ol>
-                                                <li value="1">Display the dataflow in the dataflow editor.</li>
-                                                <li value="2">
-                                                    <p>Click the <span class="UIelement">Execute All</span> or <span class="UIelement">Execute All Optimized</span> icon as shown in the following screenshot:</p>
-                                                    <p>XXX Screenshot here.</p>
-                                                </li>
-                                            </ol>
-                                            <h2 class="noPageBreak">Results of executing a dataflow</h2>
-                                            <p>The following list describes what happens after you successfully execute a dataflow:</p>
-                                            <ul>
-                                                <li value="1">When the execution is in progress, the percentage of completion is displayed for each node.</li>
-                                                <li value="2">After the execution of a node is finished, a statistics box is displayed above the node with the following information:<ul><li value="1">Number of rows in the result set (if applicable to the n ode)</li><li value="2">Time taken to complete the execution</li><li value="3">Skew of the result set (if applicable to the node). For information about skew, see XXX.</li></ul><div class="Note"><span class="label">NOTE</span>:&#160;Executing a Link out node does not produce a statistics box. </div></li>
-                                                <li value="3">
-                                                    <p>If applicable, a result set for each executed node is available for you to view. If you execute a Single Value node, you can view the resultant value.</p>
-                                                    <p>For information about result sets, see XXX. For information about single values, see XXX.</p>
-                                                </li>
-                                                <li value="4">All nodes' status indicator turns green. For more information about the status indicator, see XXX.</li>
-                                            </ul>
-                                            <h2 class="noPageBreak">Results of executing a dataflow with optimization</h2>
-                                            <p>If you execute a Link out Optimized or Export Optimized node, a new dataflow tab is displayed, showing the optimized dataflow. This dataflow looks similar to the one you executed but might contain different nodes. The title for this dataflow tab is in italics, indicating that you cannot rename or edit the dataflow in this tab. </p>
-                                            <p>In the dataflow that you executed, except for the terminal node, each node has a yellow status indicator. This is because an optimized version of the dataflow was executed. For example, some operations might be skipped to accomplish the optimization. The yellow indicators mean that the nodes are not executed and do not have result sets associated with them. In the optimized dataflow, however, each node has a green status indicator.</p>
-                                            <p>The following list describes what you can do in this dataflow tab:</p>
-                                            <ul>
-                                                <li value="1">Download an image file for this dataflow. For more information about downloading a dataflow, see <a href="D1_DownloadUploadDf.htm#Download" class="MCXref xref" xrefformat="{para}">Downloading a dataflow</a>.</li>
-                                                <li value="2">
-                                                    <p>Copy nodes from this dataflow and paste them to another dataflow.</p>
-                                                    <div class="Note"><span class="label">Recommendation</span>:&#160;If you copy  a Dataset node from an optimized dataflow, you cannot execute it with its configuration or re-configure it in the dataflow where you paste it. Copy and paste only nodes that are not the Dataset node from an optimized dataflow. </div>
-                                                </li>
-                                            </ul>
-                                            <p><a href="#Top">Go to top</a>
-                                            </p>
                                         </div>
                                     </div>
                                 </div>

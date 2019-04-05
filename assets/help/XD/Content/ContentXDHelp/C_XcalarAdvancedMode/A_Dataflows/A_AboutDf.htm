@@ -116,7 +116,7 @@
                                 </div>
                             </div>
                             <div class="title-bar-layout outer-row">
-                                <div class="logo-wrapper"><a class="logo" href="../../../HomeXDHelp.htm" alt="Logo"></a>
+                                <div class="logo-wrapper"><a class="logo" href="../../../Home.htm" alt="Logo"></a>
                                 </div>
                                 <div class="navigation-wrapper nocontent">
                                     <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
@@ -157,90 +157,102 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="body-container" data-mc-content-body="True">
-                                <div class="content">
-                                    <div id="contentBody">
-                                        <div class="row collapse">
-                                            <div class="sideContent">
-                                                <div class="clearfix">
-                                                    <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
-                                                        <div class="button-group-container-left">
-                                                            <button class="button needs-pie previous-topic-button" title="Navigate previous">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
-                                                            </button>
-                                                            <button class="button needs-pie next-topic-button" title="Navigate next">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
-                                                            </button>
-                                                            <div class="button-separator">
+                            <div class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                                </button>
                                                             </div>
-                                                            <button class="button needs-pie print-button" title="Print">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
-                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="nocontent">
-                                                <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
                                                 </div>
+                                                <h1><a name="dataflowGraph" class="ForCSH"></a>Understanding dataflows</h1>
+                                                <p>A dataflow is a series of actions performed by <span class="GeneralProductName3">Xcalar</span> to manipulate data. You control the actions  in a dataflow by configuring the operations and specifying the order in which <span class="GeneralProductName3">Xcalar</span> executes them.</p>
+                                                <p>To create a dataflow, use the dataflow editor in <span class="GeneralGUIName1">Xcalar Design</span>. After <span class="GeneralProductName3">Xcalar</span> executes an operation in the dataflow, you can view the result set produced by the operation. You can edit the dataflow by re-configuring and re-ordering the operations, until you arrive at the desired data analytic algorithm.</p>
+                                                <p>You can configure dataflow settings that affect how dataflows behave. For more information about dataflow settings, see <a href="H_SettingsForDf.htm" class="MCXref xref" xrefformat="{para}">Configuring settings for dataflows</a>.</p>
+                                                <h2 class="noPageBreak">Understanding dataflow components</h2>
+                                                <p>A dataflow consists of operations and links that connect the operations. In <span class="GeneralGUIName1">Xcalar Design</span>, each operation is shown as a named Node.</p>
+                                                <p>Each dataflow starts with one of these nodes that get data into the dataflow:</p>
+                                                <ul>
+                                                    <li value="1">A Dataset&#160;Node representing a dataset that exists  on the <span class="GeneralProductName3">Xcalar</span> cluster.</li>
+                                                    <li value="2">A Link In Node representing the result of another dataflow in the same workbook.</li>
+                                                    <li value="3">A Table Node representing a SELECT statement on a published table that exists on the Xcalar cluster.</li>
+                                                </ul>
+                                                <p>The rest of the dataflow consists of the following types of operations:</p>
+                                                <ul>
+                                                    <li value="1">Operations for creating a data model from the imported data: For example, in the dataflow, you can have operations for data preparation, such as type casting and filtering, or aggregate operations, such as summation. </li>
+                                                    <li value="2">
+                                                        <p>Operations for getting the data out: The terminating Node of a dataflow can be one of the following:</p>
+                                                        <ul>
+                                                            <li value="1">An Export Node writes the dataflow result to files or objects residing at a destination specified by the export target.</li>
+                                                            <li value="2">A Link out Node saves the dataflow result set under a reference name. From this result set, you can start a new dataflow and continue designing the algorithm for data analysis.</li>
+                                                            <li value="3">A PublishIMD Node publishes the dataflow result to a published table on the cluster.</li>
+                                                            <li value="4">A Jupyter operation saves the dataflow result to a DataFrame usable by Jupyter.</li>
+                                                        </ul>
+                                                    </li>
+                                                </ul>
+                                                <p>You must configure an operation before you can execute it. A successful execution produces a result set, which can be used as input for other operations.</p>
+                                                <p>The following screenshot illustrates the components of a dataflow.</p>
+                                                <p>
+                                                    <img src="../../../Resources/Images/XD_screenshots/dataflow-components.png" alt="" title="" />
+                                                </p>
+                                                <h2 class="noPageBreak">Understanding sub-dataflows</h2>
+                                                <p>In a dataflow, you can create multiple sub-dataflows. A sub-dataflow looks like a dataflow, but a sub-dataflow does not have a name. The following list provides some examples of when to use sub-dataflows in a dataflow:</p>
+                                                <ul>
+                                                    <li value="1">You create sub-dataflows when you experiment with different operations for developing the data analysis algorithm.</li>
+                                                    <li value="2">You use multiple source nodes and you plan to join the result sets that originate from the source nodes.</li>
+                                                </ul>
+                                                <p>The following screenshot illustrates  a dataflow named Dataflow 5 that contains sub-dataflows:</p>
+                                                <p>
+                                                    <img src="../../../Resources/Images/XD_screenshots/dataflows-with-sub-dataflows.png" alt="" title="" />
+                                                </p>
+                                                <h2 class="noPageBreak">Understanding result sets</h2>
+                                                <p>Executing an operation creates a result set. You can view the data in the result set in a table format. You can choose to view only the schema of the result set. Viewing the result set helps you determine what further operations should take place for developing your algorithm.</p>
+                                                <p>You can remove a result set  by resetting a Node. Resetting a Node means undoing the execution of a Node. For more information about resetting a Node, see <a href="I_NodeConfigAndExecution.htm#Resettin" class="MCXref xref" xrefformat="{para}">Resetting a Node</a>.</p>
+                                                <h2 class="noPageBreak">Steps for using a dataflow</h2>
+                                                <p>The following list outlines the typical steps for using a dataflow:</p>
+                                                <ol>
+                                                    <li value="1">Add a source Node to the canvas and connect it to at least one Node, as described in <a href="C_CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating, editing, and deleting a dataflow</a>.</li>
+                                                    <li value="2">Configure each Node in the dataflow, as described in <a href="I_NodeConfigAndExecution.htm" class="MCXref xref" xrefformat="{para}">Performing tasks on a Node</a>.</li>
+                                                    <li value="3">Execute selected Nodes or the entire dataflow in the dataflow, as described in <a href="E_ExecuteDf.htm" class="MCXref xref" xrefformat="{para}">Executing a dataflow</a>.</li>
+                                                    <li value="4">View the result set, as described in <a href="I_NodeConfigAndExecution.htm" class="MCXref xref" xrefformat="{para}">Performing tasks on a Node</a>. Edit the dataflow if necessary.</li>
+                                                </ol>
+                                                <h2 class="noPageBreak">Dataflow tasks</h2>
+                                                <p>The following list describes the tasks that you can perform on a dataflow:</p>
+                                                <ul>
+                                                    <li value="1">Creating and editing</li>
+                                                    <li value="2">Duplicating </li>
+                                                    <li value="3">Renaming</li>
+                                                    <li value="4">Deleting</li>
+                                                    <li value="5">Executing</li>
+                                                    <li value="6">Publishing</li>
+                                                    <li value="7">Downloading</li>
+                                                    <li value="8">Uploading</li>
+                                                </ul>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
                                             </div>
-                                            <h1><a name="dataflowGraph" class="ForCSH"></a>Understanding dataflows</h1>
-                                            <p>A dataflow is a series of actions performed by <span class="GeneralProductName3">Xcalar</span> to manipulate data. You control the actions  in a dataflow by configuring the operations and specifying the order in which <span class="GeneralProductName3">Xcalar</span> executes them.</p>
-                                            <p>To create a dataflow, use the dataflow editor in <span class="GeneralGUIName1">Xcalar Design</span>. After <span class="GeneralProductName3">Xcalar</span> executes an operation in the dataflow, you can view the result set produced by the operation. You can edit the dataflow by re-configuring and re-ordering the operations, until you arrive at the desired data analytic algorithm.</p>
-                                            <p>You can configure dataflow settings that affect how dataflows behave. For more information about dataflow settings, see <a href="H_SettingsForDf.htm" class="MCXref xref" xrefformat="{para}">Configuring settings for dataflows</a>.</p>
-                                            <h2 class="noPageBreak">Understanding dataflow components</h2>
-                                            <p>A dataflow consists of operations and links that connect the operations. In <span class="GeneralGUIName1">Xcalar Design</span>, each operation is shown as a named node.</p>
-                                            <p>Each dataflow starts with one of these nodes that get data into the dataflow:</p>
-                                            <ul>
-                                                <li value="1">A Dataset&#160;node representing a dataset that exists  on the <span class="GeneralProductName3">Xcalar</span> cluster.</li>
-                                                <li value="2">A Link In node that representing the result of another dataflow in the same workbook.</li>
-                                                <li value="3">A Table node representing a SELECT statement for creating a table.</li>
-                                            </ul>
-                                            <p>The rest of the dataflow consists of the following types of operations:</p>
-                                            <ul>
-                                                <li value="1">Operations for creating a data model from the imported data: For example, in the dataflow, you can have operations for data preparation, such as type casting and filtering, or aggregate operations, such as summation. </li>
-                                                <li value="2">
-                                                    <p>Operations for getting the data out: The terminating operation of a dataflow can be an export operation or a link out operation, as explained in the following list:</p>
-                                                    <ul>
-                                                        <li value="1">An export operation writes the dataflow result out to one or multiple files. </li>
-                                                        <li value="2">A link out operation saves the result set from an operation. From this result set, you can start a new dataflow and continue designing the algorithm for data analysis.</li>
-                                                    </ul>
-                                                </li>
-                                            </ul>
-                                            <p>You must configure an operation before you can execute it. A successful execution produces a result set, which can be used as input for other operations.</p>
-                                            <h2 class="noPageBreak">Understanding sub-dataflows</h2>
-                                            <p>A dataflow tab can contain multiple sub-dataflows. A sub-dataflow looks like a dataflow, but a sub-dataflow does not have a name. The following list provides examples of when to use sub-dataflows in a dataflow:</p>
-                                            <ul>
-                                                <li value="1">You create sub-dataflows when you experiment with different operations for developing the data analysis algorithm.</li>
-                                                <li value="2">You use multiple source nodes and you plan to join the result sets that originate from the source nodes.</li>
-                                            </ul>
-                                            <p>The following screenshot illustrates an example of a dataflow that contains sub-dataflows:</p>
-                                            <p>XXX Screenshot here.</p>
-                                            <h2 class="noPageBreak">Understanding result sets</h2>
-                                            <p>Executing an operation creates a result set. You can view the data in the result set in a table format. You can choose to view only the schema of the result set. Viewing the result set helps you determine what further operations should take place for developing your algorithm.</p>
-                                            <p>You can remove a result set  by resetting a node. Resetting a node means undoing the execution of a node. For more information about resetting a node, see XXX.</p>
-                                            <h2 class="noPageBreak">Steps for using a dataflow</h2>
-                                            <p>The following list outlines the typical steps for using a dataflow:</p>
-                                            <ol>
-                                                <li value="1">Add a source node to the canvas and connect it to at least one node, as described in <a href="C_CreateEditDeleteDf.htm" class="MCXref xref" xrefformat="{para}">Creating, editing, and deleting a dataflow</a>.</li>
-                                                <li value="2">Configure each node in the dataflow, as described in <a href="I_NodeConfigAndExecution.htm" class="MCXref xref" xrefformat="{para}">Performing tasks on a node</a>.</li>
-                                                <li value="3">Execute selected nodes or the entire dataflow in the dataflow, as described in <a href="E_ExecuteDf.htm" class="MCXref xref" xrefformat="{para}">Executing a dataflow</a>.</li>
-                                                <li value="4">View the result set, as described in <a href="I_NodeConfigAndExecution.htm" class="MCXref xref" xrefformat="{para}">Performing tasks on a node</a>. Edit the dataflow if necessary.</li>
-                                            </ol>
-                                            <h2 class="noPageBreak">Dataflow tasks</h2>
-                                            <p>The following list describes the tasks that you can perform on a dataflow:</p>
-                                            <ul>
-                                                <li value="1">Create and edit</li>
-                                                <li value="2">Duplicate </li>
-                                                <li value="3">Rename</li>
-                                                <li value="4">Delete</li>
-                                                <li value="5">Execute</li>
-                                                <li value="6">Publish</li>
-                                                <li value="7">Download</li>
-                                                <li value="8">Upload</li>
-                                            </ul>
-                                            <p><a href="#Top">Go to top</a>
-                                            </p>
                                         </div>
                                     </div>
                                 </div>

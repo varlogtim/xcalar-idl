@@ -6,7 +6,7 @@
  * http://www.madcapsoftware.com/
  * Unlicensed use is strictly prohibited
  *
- * v14.1.6875.33553
+ * v15.0.7027.24060
  */
 
 (function () {
@@ -379,26 +379,10 @@
     TextEffects.TogglerControl = function (el) {
         this._rootEl = el;
         this._hotSpotEl = el;
-        this._bodyEls = new Array();
+        this._bodyEls = null;
         this._className = "MCToggler";
 
-        TextEffects.TextEffectControl.Controls[TextEffects.TextEffectControl.Controls.length] = this;
-
-        var _self = this;
-
-        (function () {
-            var targetsVal = MadCap.Dom.Dataset(_self._rootEl, "mcTargets");
-            var targets = targetsVal.split(";");
-
-            for (var i = 0, length = targets.length; i < length; i++) {
-                var target = targets[i];
-                var els = MadCap.Dom.GetElementsByAttribute("data-mc-target-name", target, null, document.body);
-
-                _self._bodyEls = _self._bodyEls.concat(els);
-            }
-
-            $(_self._hotSpotEl).click(function (e) { _self.Toggle.call(_self); });
-        })();
+        TextEffects.TextEffectControl.Controls[TextEffects.TextEffectControl.Controls.length] = this;        
     };
 
     MadCap.Extend(TextEffects.TextEffectControl, TextEffects.TogglerControl);
@@ -409,7 +393,7 @@
         for (var i = 0, length = togglers.length; i < length; i++) {
             var togglerEl = togglers[i];
             var toggler = new TextEffects.TogglerControl(togglerEl);
-            toggler.Init();
+            toggler.Init(context);
         }
     };
 
@@ -420,7 +404,24 @@
             TextEffects.UnbindTextEffectControl(togglers[i]);
     };
 
-    TextEffects.TogglerControl.prototype.Init = function () {
+    TextEffects.TogglerControl.prototype.Init = function (context) {
+        this._bodyEls = new Array();
+
+        var targetsVal = MadCap.Dom.Dataset(this._rootEl, "mcTargets");
+        var targets = targetsVal.split(";");
+
+        for (var i = 0, length = targets.length; i < length; i++) {
+            var target = targets[i];
+            var els = MadCap.Dom.GetElementsByAttribute("data-mc-target-name", target, null, context);
+
+            this._bodyEls = this._bodyEls.concat(els);
+        }
+
+        var self = this;
+        $(this._rootEl).click(function (e) {
+            self.Toggle.call(self);
+        });
+
         this.Close(false);
     };
 

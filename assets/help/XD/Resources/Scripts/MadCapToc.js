@@ -9,7 +9,7 @@
  * http://www.madcapsoftware.com/
  * Unlicensed use is strictly prohibited
  *
- * v14.1.6875.33553
+ * v15.0.7027.24060
  */
 
 
@@ -113,16 +113,7 @@
                     $liEl.append($ul);
 
                     if (mSelf._IsTopNavMenu && $liEl.hasClass(mSelf._TreeNodeHasChildrenClass)) {
-                        if ($ul.length) {
-                            var width = $ul.width();
-                            var isRtl = $('html').attr('dir') == 'rtl';
-                            var availWidth = isRtl ? $liEl.offset().left : $(window).width() - $liEl.offset().left - $liEl.width();
-                            var cssClass = $(".navigation-wrapper").css("justify-content") == "flex-start" ? 'openRight' : 'openLeft';
-                            if (isRtl) { cssClass = 'openRight'; }
-
-                            $ul.toggleClass(cssClass, width > availWidth);
-                            $liEl.addClass(mSelf._TreeNodeExpandedClass);
-                        }
+                        mSelf.SetTopNavClasses($liEl, $ul);
                     }
 
                     if (mSelf._DeferExpandEvent) {
@@ -168,21 +159,33 @@
         this.TopNavigationMenuItem_MouseEnter = function (e) {
             var $li = $(e.currentTarget).closest('li');
             var $subMenu = $li.children('ul').first();
-            if ($subMenu.length) {
-                var width = $subMenu.width();
-                var isRtl = $('html').attr('dir') == 'rtl';
-                var availWidth = isRtl ? $li.offset().left : $(window).width() - $li.offset().left - $li.width();
-                var cssClass = isRtl ? 'openRight' : 'openLeft';
-
-                $subMenu.toggleClass(cssClass, width > availWidth);
-                $li.addClass(mSelf._TreeNodeExpandedClass);
-            }
+            mSelf.SetTopNavClasses($li, $subMenu);
         };
 
         this.TopNavigationMenuItem_MouseLeave = function (e) {
             var $li = $(e.currentTarget).closest('li');
-            if ($li.hasClass(mSelf._TreeNodeExpandedClass))
+            var $subMenu = $li.children('ul').first();
+
+            $subMenu.removeClass('openLeft').removeClass('openRight');
+
+            if ($li.hasClass(mSelf._TreeNodeExpandedClass)) {
                 $li.removeClass(mSelf._TreeNodeExpandedClass);
+            }
+        };
+
+        this.SetTopNavClasses = function($liEl, $parentUl) {
+            if ($parentUl.length) {
+                var width = $parentUl.width();
+                var isRtl = $('html').attr('dir') === 'rtl';
+                var availWidth = isRtl ? $liEl.offset().left : $(window).width() - $liEl.offset().left - $liEl.width();
+                var cssClass = width > availWidth ? 'openLeft' : 'openRight';
+                if (isRtl) {
+                    cssClass = width > availWidth ? 'openRight' : 'openLeft';
+                }
+
+                $parentUl.addClass(cssClass);
+                $liEl.addClass(mSelf._TreeNodeExpandedClass);
+            }
         };
     };
 

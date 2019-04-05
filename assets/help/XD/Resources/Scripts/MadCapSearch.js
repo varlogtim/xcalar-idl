@@ -12,7 +12,7 @@
  * http://www.madcapsoftware.com/
  * Unlicensed use is strictly prohibited
  *
- * v14.1.6875.33553
+ * v15.0.7027.24060
  */
 
 
@@ -93,13 +93,14 @@
     };
 
     SearchPane.prototype.Search = function (searchQuery, options) {
-        if (MadCap.String.IsNullOrEmpty(MadCap.String.Trim(searchQuery))) {
-            return;
-        }
-
-        this._Container.addClass("loading");
-
         var deferred = $.Deferred();
+
+        if (MadCap.String.IsNullOrEmpty(MadCap.String.Trim(searchQuery))) {
+            return deferred.resolve({
+                contentTotal: 0
+            });
+        }
+        this._Container.addClass("loading");
 
         this.Init(function () {
             var results = {};
@@ -112,10 +113,11 @@
                     this.DoSearch(searchQuery, filterName) :
                     this.DoSearchWebHelpPlus(searchQuery, filterName);
 
-                deferredSearches.push(searchContent.then(function (searchResults, includedTerms) {
+                deferredSearches.push(searchContent.then(function (searchResults, includedTerms, microContent) {
                     results.content = searchResults;
                     results.contentTotal = searchResults != null ? searchResults.length : 0;
                     results.includedTerms = includedTerms;
+                    results.microContent = microContent;
                     results.clientPaging = true; // full result set is returned, client responsible for paging
                 }));
             }
@@ -151,7 +153,7 @@
 
         this._Parser = new Search.Parser(searchQuery);
         var root = null;
-
+        
         try {
             root = this._Parser.ParseExpression();
         }
@@ -172,7 +174,7 @@
         var mSelf = this;
 
         root.Evaluate(filterName, function (resultSet) {
-            Search.LoadResultData(resultSet).then(function (resultSet, terms) {
+            Search.LoadResultData(resultSet).then(function (resultSet, terms, microContent) {
                 mSelf._Set = resultSet;
 
                 if (mSelf._Set) {
@@ -183,7 +185,7 @@
 
                 MadCap.Utilities.ClearRequireCache();
 
-                deferred.resolve(mSelf._Set, terms);
+                deferred.resolve(mSelf._Set, terms, microContent);
             });
         });
 
@@ -262,6 +264,7 @@
 
         this.RelevanceWeight = 0;
         this.TopicChunkMap = null;
+        this.MicroContentChunkMap = null;
         this.UrlChunkMap = null;
         this.StemChunkMap = null;
         this.PhraseChunkMap = null;
@@ -363,18 +366,36 @@
 
         $.each(stems, function (index, stem) {
             deferredLookups.push(self.LoadStem(stem).then(function (stemObj) {
+                var topicFilters = [];
                 for (var phrase in stemObj) {
                     if (!isExactMatch || phrase == term.toLowerCase()) {
-                        var topics = stemObj[phrase];
-
-                        if (subset)
-                            topics = subset.Intersect(topics);
-
-                        topicIds.Add(phrase, topics);
+                        topicFilters.push(filterTopics(subset, phrase, stemObj[phrase]).then(function (phrase, topics) {
+                            topicIds.Add(phrase, topics);
+                        }));
                     }
                 }
+                return $.when.apply(this, topicFilters).promise();
             }));
         });
+
+        function filterTopics(subset, phrase, topicsIds) {
+            var filterIds = [];
+            var topicLookups = [];
+            if (!subset) {
+                filterIds = topicsIds;
+            } else {
+                filterIds = subset.Intersect(topicsIds);
+                for (var i = 0; i < topicsIds.length; i++) {
+                    topicLookups.push(self.LoadTopic(topicsIds[i]).then(function (topicId, topicData) {
+                        if (topicData.y == 1)
+                            filterIds.push(topicId); // micro content does not depend on filter
+                    }));
+                }
+            }
+            var deferred = $.Deferred();
+            $.when.apply(this, topicLookups).done(function () { deferred.resolve(phrase, filterIds); });
+            return deferred.promise();
+        }
 
         var deferred = $.Deferred();
 
@@ -404,7 +425,7 @@
         var subset;
         if (filterName) {
             subset = []; // initialize as empty set
-            var filterMap = this.HelpSystem.GetMasterHelpsystem().GetSearchFilters();
+            var filterMap = this.HelpSystem.GetMasterHelpSystem().GetSearchFilters();
 
             if (filterMap) {
                 var filterTopics = filterMap[filterName];
@@ -547,6 +568,7 @@
     // changed to database object
     SearchDB.prototype._LoadSearchDB = function (dbObj, OnCompleteFunc) {
         this.TopicChunkMap = dbObj["t"];
+        this.MicroContentChunkMap = dbObj["m"];
         this.UrlChunkMap = dbObj["u"];
         this.StemChunkMap = dbObj["s"];
         this.PhraseChunkMap = dbObj["p"];
@@ -578,10 +600,10 @@
         return mapLength - 1;
     }
 
-    SearchDB.prototype.LoadTopic = function (topicId) {
+    SearchDB.prototype.LoadDocument = function (id, chunkMap, chunkPrefix) {
         var deferred = $.Deferred();
 
-        var chunkId = MadCap.Utilities.GetChunkId(this.TopicChunkMap, topicId, function (a, b) {
+        var chunkId = MadCap.Utilities.GetChunkId(chunkMap, id, function (a, b) {
             if (a < b)
                 return -1;
             else if (a == b)
@@ -593,12 +615,20 @@
         if (chunkId == -1)
             deferred.resolve();
         else {
-            MadCap.Utilities.Require([this.HelpSystem.GetPath() + "Data/SearchTopic_Chunk" + chunkId + ".js"], function (data) {
-                deferred.resolve(topicId, data[topicId]);
+            MadCap.Utilities.Require([this.HelpSystem.GetPath() + "Data/" + chunkPrefix + "_Chunk" + chunkId + ".js"], function (data) {
+                deferred.resolve(id, data[id]);
             });
         }
 
         return deferred.promise();
+    }
+
+    SearchDB.prototype.LoadTopic = function (topicId) {
+        return this.LoadDocument(topicId, this.TopicChunkMap, "SearchTopic");
+    }
+
+    SearchDB.prototype.LoadMicroContent = function (microContentId) {
+        return this.LoadDocument(microContentId, this.MicroContentChunkMap, "MicroContent");
     }
 
     SearchDB.prototype.LoadUrl = function (url) {

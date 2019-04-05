@@ -116,7 +116,7 @@
                                 </div>
                             </div>
                             <div class="title-bar-layout outer-row">
-                                <div class="logo-wrapper"><a class="logo" href="../../../HomeXDHelp.htm" alt="Logo"></a>
+                                <div class="logo-wrapper"><a class="logo" href="../../../Home.htm" alt="Logo"></a>
                                 </div>
                                 <div class="navigation-wrapper nocontent">
                                     <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
@@ -157,73 +157,77 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="body-container" data-mc-content-body="True">
-                                <div class="content">
-                                    <div id="contentBody">
-                                        <div class="row collapse">
-                                            <div class="sideContent">
-                                                <div class="clearfix">
-                                                    <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
-                                                        <div class="button-group-container-left">
-                                                            <button class="button needs-pie previous-topic-button" title="Navigate previous">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
-                                                            </button>
-                                                            <button class="button needs-pie next-topic-button" title="Navigate next">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
-                                                            </button>
-                                                            <div class="button-separator">
+                            <div class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                                </button>
                                                             </div>
-                                                            <button class="button needs-pie print-button" title="Print">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
-                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="nocontent">
-                                                <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <h2 class="noPageBreak">Managing tables</h2>
-                                            <p>Besides working with tables from the  <span class="UIelement">Tables</span> panel, you can also view and activate your tables from the <span class="UIelement">SQL Workspace</span>. This sub-section discusses how to view the Tables list for the first time in the SQL Workspace and how to remove a table when it is no longer required.</p>
-                                            <h3>Displaying the Table list in the SQL Workspace</h3>
-                                            <p>The <span class="UIelement">Previewing</span> section in the SQL Workspace enables you  view a list of tables in detail that can be used in your SQL&#160;query.  </p>
-                                            <p>To display the Table list in the SQL Workspace: </p>
-                                            <ol>
-                                                <li value="1">From the  sidebar, click the <span class="UIelement">SQL&#160;Workspace</span> <img src="../../../Resources/Images/XD_assets/xd_sql_workspace.png" /> icon.</li>
-                                                <p>The <span class="UIelement">SQL Workspace</span> opens. </p>
-                                                <li value="2">In the <span class="UIelement">SQL Editor</span> panel, do one of the following:</li>
-                                                <ul style="list-style-type: circle;">
-                                                    <li value="1">To view a list of tables in the <span class="UIelement">Previewing</span> section, from the <span class="UIelement">SQL&#160;Editor</span> menu, click <span class="UIelement">Show Tables</span>.</li>
-                                                    <li value="2">To view a recently generated table from imported data, in the <span class="UIelement">Previewing</span> section click <span class="UIelement">Refresh</span>, which applies the recently generated table to the <span class="UIelement">Tables</span> list.</li>
-                                                    <p>If after applying <span class="UIelement">Refresh</span> your table does not appear in the <span class="UIelement">Previewing</span> section <span class="UIelement">Tables</span> list, from the <span class="UIelement">Sources Tables</span> panel, check that the table has been created and is active. </p>
-                                                </ul>
-                                            </ol>
-                                            <h3>Removing a table with dependencies</h3>
-                                            <p><span class="GeneralProductName3">Xcalar</span> does not allow the removal of tables with dependencies to other tables. Before deleting a table you must verify whether removing the table will affect other tables. </p>
-                                            <p>If other tables are affected do one of the following, where the dependent table is named <span class="UIelement"> tableB</span> and the table with the dependency is named <span class="UIelement">tableA</span>: </p>
-                                            <ul>
-                                                <li value="1">If <span class="UIelement">tableB</span> is still required remove its dependency history by:</li>
-                                                <ol style="list-style-type: lower-alpha;">
-                                                    <li value="1">Exporting <span class="UIelement">tableB</span> as a file by creating a result set from <span class="UIelement">tableB</span> and exporting the result set. For more information, see <a href="../sql_h_sql_about_view_section.htm#Exportin" class="MCXref xref" xrefformat="{para}">Exporting a result set</a>.</li>
-                                                    <li value="2">Removing <span class="UIelement">tableB</span> and then removing <span class="UIelement">tableA</span>.  </li>
-                                                    <li value="3">Importing <span class="UIelement">tableB</span> by importing the exported result set file into a new table. </li>
+                                                <h2 class="noPageBreak">Managing tables</h2>
+                                                <p>Besides working with tables from the  <span class="UIelement">Tables</span> panel, you can also view and activate your tables from the <span class="UIelement">SQL Workspace</span>. This sub-section discusses how to view the Tables list for the first time in the SQL Workspace and how to remove a table when it is no longer required.</p>
+                                                <h3>Displaying the Table list in the SQL Workspace</h3>
+                                                <p>The <span class="UIelement">Previewing</span> section in the SQL Workspace enables you to view in detail a list of tables that can be used in your SQL&#160;query.  </p>
+                                                <p>To display the Table list in the SQL Workspace: </p>
+                                                <ol>
+                                                    <li value="1">From the  sidebar, click the <span class="UIelement">SQL&#160;Workspace</span> <img src="../../../Resources/Images/XD_assets/xd_sql_workspace.png" /> icon.</li>
+                                                    <p>The <span class="UIelement">SQL Workspace</span> opens. </p>
+                                                    <li value="2">In the <span class="UIelement">SQL Editor</span> panel, do one of the following:</li>
+                                                    <ul style="list-style-type: circle;">
+                                                        <li value="1">To view a list of tables in the <span class="UIelement">Previewing</span> section, from the <span class="UIelement">SQL&#160;Editor</span> menu, click <span class="UIelement">Show Tables</span>.</li>
+                                                        <li value="2">To view a recently generated table from imported data, in the <span class="UIelement">Previewing</span> section click <span class="UIelement">Refresh</span>, which applies the recently generated table to the <span class="UIelement">Tables</span> list.</li>
+                                                        <p>If after applying <span class="UIelement">Refresh</span> your table does not appear in the <span class="UIelement">Previewing</span> section <span class="UIelement">Tables</span> list, from the <span class="UIelement">Sources Tables</span> panel, check that the table has been created and is active. </p>
+                                                    </ul>
                                                 </ol>
-                                                <li value="2">If <span class="UIelement">tableB</span> is no longer required, delete <span class="UIelement">tableB</span> and then delete <span class="UIelement">tableA</span>.</li>
-                                            </ul>
-                                            <p> You can view, remove, activate and deactivate a table from the <span class="UIelement">Sources</span> <span class="UIelement">Tables</span> panel. </p>
-                                            <p>To remove a table:</p>
-                                            <ol>
-                                                <li value="1">From the  sidebar, click the <span class="UIelement">Sources</span> icon, which expands to reveal the <span class="UIelement">Tables</span> icon.</li>
-                                                <li value="2">Click the <span class="UIelement">Tables</span> icon.</li>
-                                                <li value="3">From the <span class="UIelement">Tables</span> panel, locate and right-click on the table you no longer require.</li>
-                                                <li value="4">Click <span class="UIelement">Delete</span>.</li>
-                                                <p>A DELETE TABLES warning message appears explaining that the operation cannot be undone and asking you to confirm the action.</p>
-                                                <li value="5">Click <span class="UIelement">Confirm</span>.</li>
-                                            </ol>
-                                            <div class="Note"><span class="label">IMPORTANT:</span> Once removed you cannot undo the drop action by using the <span class="UIelement">undo</span> icon or any other undo action.  </div>
-                                            <p><a href="#Top">Go to top</a>
-                                            </p>
+                                                <h3>Removing a table with dependencies</h3>
+                                                <p><span class="GeneralProductName3">Xcalar</span> does not allow the removal of tables with dependencies to other tables. Before deleting a table you must verify whether removing the table will affect other tables. </p>
+                                                <p>If other tables are affected do one of the following, where the dependent table is named <span class="UIelement"> tableB</span> and the table with the dependency is named <span class="UIelement">tableA</span>: </p>
+                                                <ul>
+                                                    <li value="1">If <span class="UIelement">tableB</span> is still required remove its dependency history by:</li>
+                                                    <ol style="list-style-type: lower-alpha;">
+                                                        <li value="1">Exporting <span class="UIelement">tableB</span> as a file by creating a result set from <span class="UIelement">tableB</span> and exporting the result set. For more information, see <a href="../sql_h_sql_about_view_section.htm#Exportin" class="MCXref xref" xrefformat="{para}">Exporting a result set</a>.</li>
+                                                        <li value="2">Removing <span class="UIelement">tableB</span> and then removing <span class="UIelement">tableA</span>.  </li>
+                                                        <li value="3">Importing <span class="UIelement">tableB</span> by importing the exported result set file into a new table. </li>
+                                                    </ol>
+                                                    <li value="2">If <span class="UIelement">tableB</span> is no longer required, delete <span class="UIelement">tableB</span> and then delete <span class="UIelement">tableA</span>.</li>
+                                                </ul>
+                                                <p> You can view, remove, activate and deactivate a table from the <span class="UIelement">Sources</span> <span class="UIelement">Tables</span> panel. </p>
+                                                <p>To remove a table:</p>
+                                                <ol>
+                                                    <li value="1">From the  sidebar, click the <span class="UIelement">Sources</span> icon, which expands to reveal the <span class="UIelement">Tables</span> icon.</li>
+                                                    <li value="2">Click the <span class="UIelement">Tables</span> icon.</li>
+                                                    <li value="3">From the <span class="UIelement">Tables</span> panel, locate and right-click on the table you no longer require.</li>
+                                                    <li value="4">Click <span class="UIelement">Delete</span>.</li>
+                                                    <p>A DELETE TABLES warning message appears explaining that the operation cannot be undone and asking you to confirm the action.</p>
+                                                    <li value="5">Click <span class="UIelement">Confirm</span>.</li>
+                                                </ol>
+                                                <div class="Note"><span class="label">IMPORTANT:</span> Once removed you cannot undo the drop action by using the <span class="UIelement">undo</span> icon or any other undo action.  </div>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

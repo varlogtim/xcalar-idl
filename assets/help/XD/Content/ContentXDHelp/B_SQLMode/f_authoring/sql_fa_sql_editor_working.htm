@@ -116,7 +116,7 @@
                                 </div>
                             </div>
                             <div class="title-bar-layout outer-row">
-                                <div class="logo-wrapper"><a class="logo" href="../../../HomeXDHelp.htm" alt="Logo"></a>
+                                <div class="logo-wrapper"><a class="logo" href="../../../Home.htm" alt="Logo"></a>
                                 </div>
                                 <div class="navigation-wrapper nocontent">
                                     <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
@@ -157,57 +157,61 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="body-container" data-mc-content-body="True">
-                                <div class="content">
-                                    <div id="contentBody">
-                                        <div class="row collapse">
-                                            <div class="sideContent">
-                                                <div class="clearfix">
-                                                    <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
-                                                        <div class="button-group-container-left">
-                                                            <button class="button needs-pie previous-topic-button" title="Navigate previous">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
-                                                            </button>
-                                                            <button class="button needs-pie next-topic-button" title="Navigate next">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
-                                                            </button>
-                                                            <div class="button-separator">
+                            <div class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                                </button>
                                                             </div>
-                                                            <button class="button needs-pie print-button" title="Print">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
-                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="nocontent">
-                                                <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
                                                 </div>
+                                                <h1>Working with query&#160;statements</h1>
+                                                <p>This sub-section describes the SQL&#160;Editor, entering SQL&#160;code, which includes creating and using SQL functions, UDF modules and <span class="GeneralProductName3">Xcalar</span> defined functions in your query statements, and storing and managing query statements for future use.</p>
+                                                <h2 class="noPageBreak"><a name="Understa"></a>Understanding the SQL Editor</h2>
+                                                <p>The <span class="GeneralGUIName1">Xcalar Design</span> SQL Editor (code editor) panel contains the following features that help you author your SQL query statements:</p>
+                                                <ul>
+                                                    <li value="1">Syntax highlighting for most of the  SQL query statement keywords.</li>
+                                                    <p>SQL query keywords are displayed in another color. This improves readability and aids authoring, editing, and locating issues.</p>
+                                                    <li value="2">Autocomplete suggestion and insertion assistance. </li>
+                                                    <p>When entering your query statement in the code editor, autocomplete  suggestions appear, such as SQL keywords, table names, and column names. Either disregard, or select and accept a suggestion by pressing the <span class="UIelement">tab</span> or <span class="UIelement">enter</span> key. </p>
+                                                    <li value="3">Case-insensitive keywords. </li>
+                                                    <p>The <span class="GeneralProductName3">Xcalar</span> SQL query statement keywords are <span class="UIelement">not</span> case-sensitive. For example, <span class="UIelement">SELECT</span> is the same as <span class="UIelement">select</span> and <span class="UIelement">FROM</span>&#160;is the same as <span class="UIelement">from</span>.</p>
+                                                    <li value="4">SQL keyboard shortcuts.</li>
+                                                    <p><span class="GeneralProductName3">Xcalar</span> provides SQL keyboard shortcuts. For more information on the <span class="GeneralProductName3">Xcalar</span> SQL Keyboard shortcuts, see <a href="../../E_Reference/N_SQL_keyboardShortcuts.htm" class="MCXref xref" xrefformat="{para}">Xcalar SQL keyboard shortcuts</a>.</p>
+                                                    <li value="5">Optional semicolon termination for a single SQL statement.</li>
+                                                    <p>When applying a single SQL query statement, terminating the query with a semicolon is optional. </p>
+                                                    <p>However, for code snippets that contain multiple statements, as they are intended to be  separately applied to your data, you must highlight the statements that are to be applied before clicking <span class="UIelement">Execute</span> or by pressing <span class="UIelement">F5</span>. If you <span class="UIelement">do not</span> highlight the  statements, all queries are handled as one single statement. </p>
+                                                    <li value="6">Stores multiple SQL&#160;queries in a code snippet.</li>
+                                                    <p>When applying multiple SQL query statements, terminating the statement with a semicolon is mandatory. </p>
+                                                    <p>For more information, see <a href="../sql_g_execute_queries.htm#Executin" class="MCXref xref" xrefformat="{para}">Executing code from snippets containing multiple statements</a>.</p>
+                                                    <li value="7">Automatically saves query entries.</li>
+                                                    <p>You can enter one or multiple SQL query statements in the code editor, which remain visible and executable until you remove them, even after you log out of <span class="GeneralGUIName1">Xcalar Design</span>.</p>
+                                                </ul>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
                                             </div>
-                                            <h1>Working with query&#160;statements</h1>
-                                            <p>This sub-section describes the SQL&#160;Editor, entering SQL&#160;code, including creating and using SQL functions, UDF modules and <span class="GeneralProductName3">Xcalar</span> defined functions in your query statements, and storing and managing query statements for future use.</p>
-                                            <h2 class="noPageBreak"><a name="Understa"></a>Understanding the SQL Editor</h2>
-                                            <p>The <span class="GeneralGUIName1">Xcalar Design</span> SQL Editor (code editor) panel contains the following features that help you author your SQL query statements:</p>
-                                            <ul>
-                                                <li value="1">Syntax highlighting for most of the  SQL query statement keywords.</li>
-                                                <p>SQL query keywords are displayed in another color. This improves readability and aids authoring, editing, and locating issues.</p>
-                                                <li value="2">Autocomplete suggestion and insertion assistance. </li>
-                                                <p>When entering your query statement in the code editor, autocomplete  suggestions appear, such as SQL keywords, table names, and column names. Either disregard, or select and accept a suggestion by pressing the <span class="UIelement">tab</span> or <span class="UIelement">enter</span> key. </p>
-                                                <li value="3">Case-insensitive keywords. </li>
-                                                <p>The <span class="GeneralProductName3">Xcalar</span> SQL query statement keywords are <span class="UIelement">not</span> case-sensitive. For example, <span class="UIelement">SELECT</span> is the same as <span class="UIelement">select</span> and <span class="UIelement">FROM</span>&#160;is the same as <span class="UIelement">from</span>.</p>
-                                                <li value="4">SQL keyboard shortcuts.</li>
-                                                <p><span class="GeneralProductName3">Xcalar</span> provides SQL keyboard shortcuts. For more information on the <span class="GeneralProductName3">Xcalar</span> SQL Keyboard shortcuts, see <a href="../../E_Reference/N_SQL_keyboardShortcuts.htm" class="MCXref xref" xrefformat="{para}">Xcalar SQL keyboard shortcuts</a>.</p>
-                                                <li value="5">Optional semicolon termination for a single SQL statement.</li>
-                                                <p>When applying a single SQL query statement, terminating the query with a semicolon is optional. </p>
-                                                <p>However, for code snippets that contain multiple statements, as they are intended to be  separately applied to your data, you must highlight the statements that are to be applied before clicking <span class="UIelement">Execute</span> or by pressing <span class="UIelement">F5</span>. If you <span class="UIelement">do not</span> highlight the  statements, all queries are handled as one single statement. </p>
-                                                <li value="6">Stores multiple SQL&#160;queries in a code snippet.</li>
-                                                <p>When applying multiple SQL query statements, terminating the statement with a semicolon is mandatory. </p>
-                                                <p>For more information, see <a href="../sql_g_execute_queries.htm#Executin" class="MCXref xref" xrefformat="{para}">Executing code from snippets containing multiple statements</a>.</p>
-                                                <li value="7">Automatically saves query entries.</li>
-                                                <p>You can enter one or multiple SQL query statements in the code editor, which remain visible and executable until you remove them, even after you log out of <span class="GeneralGUIName1">Xcalar Design</span>.</p>
-                                            </ul>
-                                            <p><a href="#Top">Go to top</a>
-                                            </p>
                                         </div>
                                     </div>
                                 </div>

@@ -117,7 +117,7 @@
                                 </div>
                             </div>
                             <div class="title-bar-layout outer-row">
-                                <div class="logo-wrapper"><a class="logo" href="../../../HomeXDHelp.htm" alt="Logo"></a>
+                                <div class="logo-wrapper"><a class="logo" href="../../../Home.htm" alt="Logo"></a>
                                 </div>
                                 <div class="navigation-wrapper nocontent">
                                     <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
@@ -158,140 +158,144 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="body-container" data-mc-content-body="True">
-                                <div class="content">
-                                    <div id="contentBody">
-                                        <div class="row collapse">
-                                            <div class="sideContent">
-                                                <div class="clearfix">
-                                                    <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
-                                                        <div class="button-group-container-left">
-                                                            <button class="button needs-pie previous-topic-button" title="Navigate previous">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
-                                                            </button>
-                                                            <button class="button needs-pie next-topic-button" title="Navigate next">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
-                                                            </button>
-                                                            <div class="button-separator">
+                            <div class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                                </button>
                                                             </div>
-                                                            <button class="button needs-pie print-button" title="Print">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
-                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="nocontent">
-                                                <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
                                                 </div>
+                                                <h1><a name="top"></a>Analyzing your query results</h1>
+                                                <p>This sub-section describes how to analyze and troubleshoot SQL query statements in the SQL Mode from the SQL History section.</p>
+                                                <h2 class="noPageBreak">Understanding the SQL History section</h2>
+                                                <p>The SQL History  section displays in detail the SQL query statements that were applied to your data.</p>
+                                                <div class="Note"><span class="label">TIP:</span> The SQL History section lists your queries from the most recent operation, which is based on the <span class="UIelement">Start Time </span>column values. You can also sort the SQL History  from the <span class="UIelement">Duration</span>, <span class="UIelement">Rows</span>, <span class="UIelement">Skew</span>, <span class="UIelement">Start Time</span>, and <span class="UIelement">Status</span> column values, by clicking in their column heading. Where the down and up arrows indicate the sort order.</div>
+                                                <p>The following table describes the entry fields of the <span class="UIelement">SQL History</span> section: </p>
+                                                <table style="width: 100%;mc-table-style: url('../../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;mc-caption-repeat: true;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                    <caption data-mc-autonum="Table 1 "><span class="autonumber"><span>Table 1 </span></span>SQL History section</caption>
+                                                    <col class="TableStyle-SimpleTable-Column-Column1" style="width: 239px;" />
+                                                    <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                    <thead>
+                                                        <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                            <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">
+                                                                <p>Field</p>
+                                                            </th>
+                                                            <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">
+                                                                <p>Description</p>
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                                <p>Status</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                                <p>Lists the final processing execution state of the query statement: </p>
+                                                                <ul>
+                                                                    <li value="1"><span class="UIelement">Canceled</span> - the query operation did not complete because the query was deliberately stopped by the user. For example, the user pressed the <span class="UIelement">cancel</span> shortcut key.</li>
+                                                                    <li value="2"><span class="UIelement">Compiling</span> - the query operation is being compiled.</li>
+                                                                    <li value="3"><span class="UIelement">Done</span> - the query  operation successfully completed processing.</li>
+                                                                    <li value="4"><span class="UIelement">Failed</span> - the query  operation did not complete due to incorrect or incomplete SQL syntax. For more details, open the <span class="UIelement">SQL ERROR</span>&#160;window from the <span class="UIelement">View Results</span> column.</li>
+                                                                    <li value="5"><span class="UIelement">Interrupted</span> - the query  operation did not complete due to either a network failure or user interference. For example, the user refreshed the browser window.</li>
+                                                                    <li value="6"><span class="UIelement">Running</span> - the query operation is processing the query on the data. </li>
+                                                                </ul>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p>Query</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p>Displays the query that was applied to the data. </p>
+                                                                <p>To fully display the query value, in the <span class="UIelement">Query </span>field, click on the query, which opens a <span class="UIelement">SQL Query </span>window.</p>
+                                                                <div class="Note"><span class="label">TIP:</span> If an error is displayed in the <span class="UIelement">Results</span> column, copy and paste the query value in the code editor and re-execute. </div>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                                <p>Start Time</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                                <p>Displays the exact time the query was run using the <code>mm-dd-yyyy hr:mins:secs</code> date format. For example, <code>7-31-2018 3:35:44</code>.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p>Duration</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p>Displays how long the query took to complete its run.</p>
+                                                                <p>If the query was interrupted or canceled, N/A is displayed, which represents not applicable.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                                <p>Rows</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                                <p>Lists the number of rows contained in the result set.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p>Skew</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                                <p>The percentage value of the dataset distribution across the cluster nodes. Where a value of 0 denotes a balanced distribution of data across all nodes in the cluster and 100 denotes an imbalanced distribution of data, usually this indicates that the data is residing on one node of the cluster. </p>
+                                                                <p>For more information on how to view the data distribution on the <span class="GeneralProductName3">Xcalar</span> cluster nodes for your query, see <a href="sql_ie_skew_distribut.htm#Displayi" class="MCXref xref">Displaying the distribution of the result set on the Xcalar cluster</a>.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                                <p>Action</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                                <p>Displays an optimized dataflow of the SQL query in the <span class="UIelement">Previewing</span> section. For more information, see  <a href="sql_ib_performance.htm#Analyzin" class="MCXref xref">Analyzing your SQL statement's performance</a>.</p>
+                                                                <p>To fully display the dataflow, in the <span class="UIelement">Action</span> field, click  the magnifying glass icon.</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">
+                                                                <p>Results</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">
+                                                                <p>Displays the results of the query:</p>
+                                                                <ul>
+                                                                    <li value="1">If successful, the field is populated with a link to display the result set in the <span class="UIelement">Previewing</span> section. </li>
+                                                                    <li value="2">If unsuccessful, the field is populated with a link to the SQL&#160;error message. </li>
+                                                                    <li value="3">If the  table is dropped, the field is populated with an error message that states the table has been dropped and therefore the link to the table no longer exists.</li>
+                                                                </ul>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
                                             </div>
-                                            <h1>Analyzing your query results</h1>
-                                            <p>This sub-section describes how to analyze and troubleshoot SQL query statements in the SQL Mode from the SQL History section.</p>
-                                            <h2 class="noPageBreak">Understanding the SQL History section</h2>
-                                            <p>The SQL History  section displays in detail the SQL query statements that were applied to your data.</p>
-                                            <div class="Note"><span class="label">TIP:</span> The SQL History section lists your queries from the most recent operation, which is based on the <span class="UIelement">Start Time </span>column values. You can also sort the SQL History  from the <span class="UIelement">Duration</span>, <span class="UIelement">Rows</span>, <span class="UIelement">Skew</span>, <span class="UIelement">Start Time</span>, and <span class="UIelement">Status</span> column values, by clicking in their column heading. Where the down and up arrows indicate the sort order.</div>
-                                            <p>The following table describes the entry fields of the <span class="UIelement">SQL History</span> section: </p>
-                                            <table style="width: 100%;mc-table-style: url('../../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;mc-caption-repeat: true;" class="TableStyle-SimpleTable" cellspacing="0">
-                                                <caption data-mc-autonum="Table 1 "><span class="autonumber"><span>Table 1 </span></span>SQL History section</caption>
-                                                <col class="TableStyle-SimpleTable-Column-Column1" style="width: 239px;" />
-                                                <col class="TableStyle-SimpleTable-Column-Column2" />
-                                                <thead>
-                                                    <tr class="TableStyle-SimpleTable-Head-Header1">
-                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">
-                                                            <p>Field</p>
-                                                        </th>
-                                                        <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">
-                                                            <p>Description</p>
-                                                        </th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
-                                                            <p>Status</p>
-                                                        </td>
-                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
-                                                            <p>Lists the final processing execution state of the query statement: </p>
-                                                            <ul>
-                                                                <li value="1"><span class="UIelement">Canceled</span> - the query operation did not complete because the query was deliberately stopped by the user. For example, the user pressed the <span class="UIelement">cancel</span> shortcut key.</li>
-                                                                <li value="2"><span class="UIelement">Compiling</span> - the query operation is being compiled.</li>
-                                                                <li value="3"><span class="UIelement">Done</span> - the query  operation successfully completed processing.</li>
-                                                                <li value="4"><span class="UIelement">Failed</span> - the query  operation did not complete due to incorrect or incomplete SQL syntax. For more details, open the <span class="UIelement">SQL ERROR</span>&#160;window from the <span class="UIelement">View Results</span> column.</li>
-                                                                <li value="5"><span class="UIelement">Interrupted</span> - the query  operation did not complete due to either a network failure or user interference. For example, the user refreshed the browser window.</li>
-                                                                <li value="6"><span class="UIelement">Running</span> - the query operation is processing the query on the data. </li>
-                                                            </ul>
-                                                        </td>
-                                                    </tr>
-                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
-                                                            <p>Query</p>
-                                                        </td>
-                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
-                                                            <p>Displays the query that was applied to the data. </p>
-                                                            <p>To fully display the query value, in the <span class="UIelement">Query </span>field, click on the query, which opens a <span class="UIelement">SQL Query </span>window.</p>
-                                                            <div class="Note"><span class="label">TIP:</span> If an error is displayed in the <span class="UIelement">Results</span> column, copy and paste the query value in the code editor and re-execute. </div>
-                                                        </td>
-                                                    </tr>
-                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
-                                                            <p>Start Time</p>
-                                                        </td>
-                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
-                                                            <p>Displays the exact time the query was run using the <code>mm-dd-yyyy hr:mins:secs</code> date format. For example, <code>7-31-2018 3:35:44</code>.</p>
-                                                        </td>
-                                                    </tr>
-                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
-                                                            <p>Duration</p>
-                                                        </td>
-                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
-                                                            <p>Displays how long the query took to complete its run.</p>
-                                                            <p>If the query was interrupted or canceled, N/A is displayed, which represents not applicable.</p>
-                                                        </td>
-                                                    </tr>
-                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
-                                                            <p>Rows</p>
-                                                        </td>
-                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
-                                                            <p>Lists the number of rows contained in the result set.</p>
-                                                        </td>
-                                                    </tr>
-                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
-                                                            <p>Skew</p>
-                                                        </td>
-                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
-                                                            <p>The percentage value of the dataset distribution across the cluster nodes. Where a value of 0 denotes a balanced distribution of data across all nodes in the cluster and 100 denotes an imbalanced distribution of data, usually this indicates that the data is residing on one node of the cluster. </p>
-                                                            <p>For more information on how to view the data distribution on the <span class="GeneralProductName3">Xcalar</span> cluster nodes for your query, see <a href="sql_ie_skew_distribut.htm#Displayi" class="MCXref xref">Displaying the distribution of the result set on the Xcalar cluster</a>.</p>
-                                                        </td>
-                                                    </tr>
-                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
-                                                            <p>Action</p>
-                                                        </td>
-                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
-                                                            <p>Displays an optimized dataflow of the SQL query in the <span class="UIelement">Previewing</span> section. For more information, see  <a href="sql_ib_performance.htm#Analyzin" class="MCXref xref">Analyzing your SQL statement's performance</a>.</p>
-                                                            <p>To fully display the dataflow, in the <span class="UIelement">Action</span> field, click  the magnifying glass icon.</p>
-                                                        </td>
-                                                    </tr>
-                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body2">
-                                                            <p>Results</p>
-                                                        </td>
-                                                        <td class="TableStyle-SimpleTable-BodyA-Column2-Body2">
-                                                            <p>Displays the results of the query:</p>
-                                                            <ul>
-                                                                <li value="1">If successful, the field is populated with a link to display the result set in the <span class="UIelement">Previewing</span> section. </li>
-                                                                <li value="2">If unsuccessful, the field is populated with a link to the SQL&#160;error message. </li>
-                                                                <li value="3">If the  table is dropped, the field is populated with an error message that states the table has been dropped and therefore the link to the table no longer exists.</li>
-                                                            </ul>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                            <p><a href="#Top">Go to top</a>
-                                            </p>
                                         </div>
                                     </div>
                                 </div>

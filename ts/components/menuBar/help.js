@@ -156,11 +156,14 @@ window.Help = (function($, Help) {
         for (var i = 0; i < curHelpHashTags.length; i++) {
             page = curHelpHashTags[i];
             topic = page.url;
-            topicIndex = topic.indexOf('Content/');
-            url = topic.slice(topicIndex + 'Content/'.length);
+            topicIndex = topic.indexOf('Content/ContentXDHelp/');
+            url = topic.slice(topicIndex + 'Content/ContentXDHelp/'.length);
             fullName = url.split('/')[0];
             topic = fullName.slice(2);
+            topic = topic.replace("SQL", "Sql"); // To avoid SQL being treated as
+                                               // camel case
             topic = xcHelper.camelCaseToRegular(topic);
+            topic = topic.replace("Sql", "SQL")
             if (topic === "" || topic.indexOf('.htm') > -1 ||
                 topic === "Feature Topics") {
                 continue;
@@ -182,7 +185,7 @@ window.Help = (function($, Help) {
     }
 
     function getFormattedUrl(url) {
-        var index = url.indexOf('Content/');
+        var index = url.indexOf('Content/ContentXDHelp/');
         return (url.slice(index).slice(8));
     }
 

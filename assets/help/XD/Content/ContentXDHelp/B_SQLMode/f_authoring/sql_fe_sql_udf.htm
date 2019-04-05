@@ -116,7 +116,7 @@
                                 </div>
                             </div>
                             <div class="title-bar-layout outer-row">
-                                <div class="logo-wrapper"><a class="logo" href="../../../HomeXDHelp.htm" alt="Logo"></a>
+                                <div class="logo-wrapper"><a class="logo" href="../../../Home.htm" alt="Logo"></a>
                                 </div>
                                 <div class="navigation-wrapper nocontent">
                                     <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
@@ -157,63 +157,67 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="body-container" data-mc-content-body="True">
-                                <div class="content">
-                                    <div id="contentBody">
-                                        <div class="row collapse">
-                                            <div class="sideContent">
-                                                <div class="clearfix">
-                                                    <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
-                                                        <div class="button-group-container-left">
-                                                            <button class="button needs-pie previous-topic-button" title="Navigate previous">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
-                                                            </button>
-                                                            <button class="button needs-pie next-topic-button" title="Navigate next">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
-                                                            </button>
-                                                            <div class="button-separator">
+                            <div class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                                </button>
                                                             </div>
-                                                            <button class="button needs-pie print-button" title="Print">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
-                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="nocontent">
-                                                <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <h2 class="noPageBreak"><a name="top"></a>Working with UDF modules in SQL</h2>
-                                            <p><span class="GeneralProductName3">Xcalar</span> SQL&#160;supports python functions inserted as user-defined functions (UDFs) directly in the SQL query statement. This enables you to invoke python functions as part of your SQL queries. </p>
-                                            <div class="Note"><span class="label">NOTE</span>: The data type output for values returned by UDF&#160;functions is <span class="UIelement">string</span>. </div>
-                                            <p>When creating the UDF you must ensure the following:</p>
-                                            <ul>
-                                                <li value="1">Each UDF&#160;function name is unique and is not the name of an existing SQL&#160;function. </li>
-                                                <li value="2">The name of the UDF module containing your functions is <span class="UIelement">sql</span>. <br />Only UDF definitions from the <span class="UIelement">sql</span> module are invoked from a SQL&#160;query, which can contain multiple UDF definitions.</li>
-                                                <div class="Note"><span class="label">NOTE:</span><span class="GeneralProductName3">Xcalar</span> recommends using lowercase for your UDF function names.</div>
-                                            </ul>
-                                            <p>For example, in the following procedure a <span class="UIelement">test</span> UDF is created that uses a Python string concatenation operator to merge  the row string values, separated by a colon, from two columns. The <span class="UIelement">test</span> UDF is inserted into a SQL query that names the SQL table and which columns to combine. </p>
-                                            <ol>
-                                                <li value="1">From the <span class="GeneralGUIName1">Xcalar Design</span> sidebar, click the <span class="UIelement">UDF</span> icon.</li>
-                                                <p>The <span class="UIelement">User Defined Function</span> panel opens in the SQL WORKSPACE.</p>
-                                                <li value="2">In the <span class="UIelement">User Defined Function</span> code editor, enter the following: </li><pre xml:space="preserve"><code>def test(col1, col2):</code></pre><pre xml:space="preserve"><code>  return str(col1) + ":" +str(col2)</code></pre>
-                                                <li value="3">From the <span class="UIelement">User Defined Function</span> menu, click the <span class="UIelement">Save File</span> <img src="../../../Resources/Images/XD_assets/xd_udf_save_as.png" /> icon.</li>
-                                                <p> The SAVE&#160;AS modal window opens.</p>
-                                                <li value="4">In the <span class="UIelement">Save As</span> field, enter the name <span class="UIelement">sql</span> as the name for the function. </li>
-                                                <div class="Note"><span class="label">IMPORTANT:</span> The name of the UDF module must be <span class="UIelement">sql</span>.</div>
-                                                <li value="5">Click <span class="UIelement">Save</span>. </li>
-                                                <li value="6">In the <span class="UIelement">SQL Editor</span> code editor, enter the following: </li><pre xml:space="preserve"><code>SELECT test(<var>col_A</var>, <var>col_B</var>) FROM <var>test_table</var></code></pre>
-                                                <p>Where, </p>
-                                                <ul style="list-style-type: circle;">
-                                                    <li value="1"><var>col_A</var> and <var>col_B</var> are the columns to combine.</li>
-                                                    <li value="2"><var>test_table</var> is the table that contains the columns to combine.</li>
+                                                <h2 class="noPageBreak"><a name="top"></a>Working with UDF modules in SQL</h2>
+                                                <p><span class="GeneralProductName3">Xcalar</span> SQL&#160;supports python functions inserted as user-defined functions (UDFs) directly in the SQL query statement. This enables you to invoke python functions as part of your SQL queries. </p>
+                                                <div class="Note"><span class="label">NOTE</span>: The data type output for values returned by UDF&#160;functions is <span class="UIelement">string</span>. </div>
+                                                <p>When creating the UDF you must ensure the following:</p>
+                                                <ul>
+                                                    <li value="1">Each UDF&#160;function name is unique and is not the name of an existing SQL&#160;function. </li>
+                                                    <li value="2">The name of the UDF module containing your functions is <span class="UIelement">sql</span>. <br />Only UDF definitions from the <span class="UIelement">sql</span> module are invoked from a SQL&#160;query, which can contain multiple UDF definitions.</li>
+                                                    <div class="Note"><span class="label">NOTE:</span> <span class="GeneralProductName3">Xcalar</span> recommends using lowercase for your UDF function names.</div>
                                                 </ul>
-                                                <li value="7">Click <span class="UIelement">Execute</span>, which creates the result set.</li>
-                                            </ol>
-                                            <p>For more information about UDFs and how to create them, see <a href="../../D_ClusterTasks/B_UDFUnderstand.htm" class="MCXref xref">Understanding UDFs</a>.</p>
-                                            <p><a href="#top">Go to top</a>
-                                            </p>
+                                                <p>For example, in the following procedure a <span class="UIelement">test</span> UDF is created using a Python string concatenation operator to merge  the row string values from two columns, separated by a colon. The <span class="UIelement">test</span> UDF is inserted into a SQL query that names the SQL table and which columns to combine. </p>
+                                                <ol>
+                                                    <li value="1">From the <span class="GeneralGUIName1">Xcalar Design</span> sidebar, click the <span class="UIelement">UDF</span> icon.</li>
+                                                    <p>The <span class="UIelement">User Defined Function</span> panel opens in the SQL WORKSPACE.</p>
+                                                    <li value="2">In the <span class="UIelement">User Defined Function</span> code editor, enter the following: </li><pre xml:space="preserve"><code>def test(col1, col2):</code></pre><pre xml:space="preserve"><code>  return str(col1) + ":" +str(col2)</code></pre>
+                                                    <li value="3">From the <span class="UIelement">User Defined Function</span> menu, click the <span class="UIelement">Save File</span> <img src="../../../Resources/Images/XD_assets/xd_udf_save_as.png" /> icon.</li>
+                                                    <p> The SAVE&#160;AS modal window opens.</p>
+                                                    <li value="4">In the <span class="UIelement">Save As</span> field, enter <span class="UIelement">sql</span>. </li>
+                                                    <div class="Note"><span class="label">IMPORTANT:</span> The name of the UDF module must be <span class="UIelement">sql</span>.</div>
+                                                    <li value="5">Click <span class="UIelement">Save</span>. </li>
+                                                    <li value="6">In the <span class="UIelement">SQL Editor</span> code editor, enter the following: </li><pre xml:space="preserve"><code>SELECT test(<var>col_A</var>, <var>col_B</var>) FROM <var>test_table</var></code></pre>
+                                                    <p>Where, </p>
+                                                    <ul style="list-style-type: circle;">
+                                                        <li value="1"><var>col_A</var> and <var>col_B</var> are the columns to combine.</li>
+                                                        <li value="2"><var>test_table</var> is the table that contains the columns to combine.</li>
+                                                    </ul>
+                                                    <li value="7">Click <span class="UIelement">Execute</span>, which creates the result set.</li>
+                                                </ol>
+                                                <p>For more information about UDFs and how to create them, see <a href="../../D_ClusterTasks/B_UDFUnderstand.htm" class="MCXref xref" xrefformat="{para}">Understanding UDFs</a>.</p>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

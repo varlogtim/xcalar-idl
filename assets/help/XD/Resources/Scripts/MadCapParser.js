@@ -9,7 +9,7 @@
  * http://www.madcapsoftware.com/
  * Unlicensed use is strictly prohibited
  *
- * v14.1.6875.33553
+ * v15.0.7027.24060
  */
 
 
@@ -367,7 +367,7 @@
             var tokenText = mToken.GetTokenText();
             var isExactMatch = mToken.GetType() == Search.Token.Phrase;
 
-            // lookup phrase in each helpsystem
+            // lookup phrase in each help system
             var deferredLookups = [];
             var dbResults = Object.create(null);
             dbResults.results = Object.create(null);
@@ -422,7 +422,7 @@
         var relevanceWeight = MadCap.WebHelp.SearchPane.SearchDBs[0].RelevanceWeight;
 
         var deferred = $.Deferred();
-        var searchResults = [];
+        var topicResults = [], microContentResults = [];
 
         $.when.apply(this, deferredLookups).done(function () {
             for (var dbIndex in dbResultsMap) {
@@ -431,15 +431,58 @@
 
                 for (var topicId in topicDataMap.data) {
                     var topicData = topicDataMap.data[topicId];
-                    var link = searchDB.HelpSystem.GetTopicPath(topicData.u).FullPath;
-                    var importance = topicData.i * topicDataMap.count / totalTopics;
-                    var score = MadCap.Utilities.CalculateScore(topicData.r, importance, relevanceWeight);
+                    var fileType = topicData.y;
 
-                    searchResults.push(new Search.SearchResult(score, null, topicData.t, link, topicData.a));
+                    if (fileType === 0) // topic
+                    {
+                        var link = searchDB.HelpSystem.GetTopicPath(topicData.u).FullPath;
+                        var importance = topicData.i * topicDataMap.count / totalTopics;
+                        var score = MadCap.Utilities.CalculateScore(topicData.r, importance, relevanceWeight);
+
+                        topicResults.push(new Search.SearchResult(score, null, topicData.t, link, topicData.a));
+                    }
+                    else if (fileType === 1) // micro content
+                    {
+                        microContentResults.push({ db: dbIndex, id: topicData.m, title: topicData.t, score: topicData.r, contentLength: topicData.l });
+                    }
                 }
             }
 
-            deferred.resolve(searchResults, resultSet.terms);
+            microContentResults.sort(function (a, b) {
+                return b.score !== a.score ? b.score - a.score : a.contentLength - b.contentLength;
+            });
+
+            if (microContentResults.length > 0) {
+                var topMicroContentResult = microContentResults[0];
+                var microContentDB = MadCap.WebHelp.SearchPane.SearchDBs[topMicroContentResult.db];
+
+                microContentDB.LoadMicroContent(topMicroContentResult.id).then(function (microContentId, microContent) {
+                    var html = microContentDB.HelpSystem.ProcessMicroContentXhtml(microContent.c);
+                    var source = !MadCap.String.IsNullOrEmpty(microContent.l) ? microContentDB.HelpSystem.GetTopicPath(microContent.l).FullPath : microContent.l;
+                    // todo: pass these in from compiler
+                    var defaultStylesheets = [
+                        '../Skins/Default/Stylesheets/TextEffects.css',
+                        '../Skins/Default/Stylesheets/Topic.css'
+                    ];
+                    var microContentStylesheets = defaultStylesheets.concat(microContent.s);
+                    var stylesheets = [];
+                    for (var i = 0; i < microContentStylesheets.length; i++) {
+                        stylesheets.push(microContentDB.HelpSystem.GetTopicPath(microContentStylesheets[i]).FullPath);
+                    }
+
+                    deferred.resolve(topicResults, resultSet.terms, {
+                        html: html,
+                        source: source,
+                        sourceTitle: topMicroContentResult.title,
+                        titles: microContent.p,
+                        truncated: microContent.tr,
+                        stylesheets: stylesheets
+                    });
+                });
+            }
+            else {
+                deferred.resolve(topicResults, resultSet.terms);
+            }
         });
 
         return deferred.promise();

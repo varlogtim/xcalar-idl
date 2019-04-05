@@ -6,7 +6,7 @@
  * http://www.madcapsoftware.com/
  * Unlicensed use is strictly prohibited
  *
- * v14.1.6875.33553
+ * v15.0.7027.24060
  */
 
 
@@ -935,7 +935,19 @@
 
     MadCap.Utilities.Has = function (obj, key) { // _.has
         return obj != null && Object.prototype.hasOwnProperty.call(obj, key);
-    }
+	}
+
+	MadCap.Utilities.CreateEvent = function (eventName, eventObject) {
+		var event;
+		if (typeof (CustomEvent) === 'function') {
+			event = new CustomEvent(eventName, eventObject);
+		} else {
+			event = document.createEvent('Event');
+			event.initEvent(eventName, true, true);
+			for (var p in eventObject) event[p] = eventObject[p];
+		}
+		return event;
+	};
 
     MadCap.Utilities.Debounce = function (func, wait, immediate) { // _.debounce
         var timeout, args, context, timestamp, result;
@@ -1048,17 +1060,61 @@
     }
 
     MadCap.Utilities.FixLink = function (link, relUrl, prefix, contentFolder) {
-        if (!link.IsAbsolute) {
-            link = relUrl.CombinePath(link);
-            var path = link.FullPath;
+        var path = link;
+        var linkUrl = new MadCap.Utilities.Url(link);
+        
+        if (!linkUrl.IsAbsolute && linkUrl.Fragment != linkUrl.FullPath) {
+            linkUrl = relUrl.CombinePath(linkUrl);
+            path = linkUrl.FullPath;
 
             if (!MadCap.String.IsNullOrEmpty(prefix) && prefix != null && contentFolder) {
-                link = link.ToRelative(contentFolder);
-                path = prefix + link.FullPath;
+                linkUrl = linkUrl.ToRelative(contentFolder);
+                path = prefix + linkUrl.FullPath;
             }
-
-            return path;
         }
+        return path;
+    }
+
+    MadCap.Utilities.FixLinks = function (html, relUrl, hrefPrefix, contentFolder) {
+        var linkAttrs = ['href', 'src', 'cite', 'data', 'data-mc-topics', 'poster']; // attributes to update
+        var hrefAttrs = ['href', 'data-mc-topics']; // attributes to prefix with hrefPrefix
+        var selectorStr = '[' + linkAttrs.join('],[') + ']';
+
+        var $content = $(html);
+        $content.find(selectorStr).each(function () {
+            // don't use href prefix for popups
+            var isPopup = $(this).hasClass("MCPopupThumbnailPopup") || $(this).hasClass("MCPopupThumbnailHover") || $(this).hasClass("MCTopicPopup");
+            var useHrefPrefix = !isPopup;
+            var updatedLink = false;
+
+            $.each(this.attributes, function (i, attr) {
+                var prefix = useHrefPrefix && hrefAttrs.indexOf(attr.name) > -1 ? hrefPrefix : '';
+                if (attr.name === 'data-mc-topics') {
+                    var topics = attr.value;
+                    var topicPairs = topics ? topics.split("||") : null;
+                    if (topicPairs) {
+                        for (var j = 0; j < topicPairs.length; j++) {
+                            var topicAndPath = topicPairs[j].split("|");
+                            topicAndPath[1] = MadCap.Utilities.FixLink(topicAndPath[1], relUrl, prefix, contentFolder);
+                            topicPairs[j] = topicAndPath.join('|');
+                        }
+                        attr.value = topicPairs.join('||');
+                    }
+                } else if (linkAttrs.indexOf(attr.name) > -1) {
+                    var fixedLink = MadCap.Utilities.FixLink(attr.value, relUrl, prefix, contentFolder);
+                    if (fixedLink !== attr.value) {
+                        attr.value = fixedLink;
+                        updatedLink = true;
+                    }
+                }
+            });
+
+            if (updatedLink) {
+                $(this).attr("data-mc-processed-link", true);
+            }
+        });
+
+        return $content;
     }
 
     MadCap.Utilities.IsRTL = function () {
@@ -1106,6 +1162,12 @@
     }
 
     MadCap.Utilities.LoadHandlers = Object.create(null);
+
+    MadCap.Utilities.InitContent = function (el) {
+        for (var key in MadCap.Utilities.LoadHandlers) {
+            MadCap.Utilities.LoadHandlers[key](el);
+        }
+    }
 
     MadCap.Utilities.LoadScript = function (path, onLoaded, onError) {
         var scriptEl = document.createElement("script");
@@ -1162,44 +1224,47 @@
         );
     }
 
-    MadCap.Utilities.TopicUniqueStyleSheets = Object.create(null);
+    MadCap.Utilities.DynamicStylesheets = Object.create(null);
 
-    MadCap.Utilities.LoadStyleSheets = function (styleSheets, insertAfter) {
-        $.each(styleSheets, function (index, href) {
+    MadCap.Utilities.LoadStylesheets = function (stylesheets, insertAfter) {
+        $.each(stylesheets, function (index, href) {
             if (!MadCap.String.IsNullOrEmpty(href))
-                MadCap.Utilities.LoadStyleSheetUnique(href, insertAfter);
+                MadCap.Utilities.LoadStylesheet(href, insertAfter);
         });
     }
 
-    MadCap.Utilities.LoadStyleSheetUnique = function (styleSheet, insertAfter) {
+    MadCap.Utilities.LoadStylesheet = function (href, insertAfter) {
         var found = false;
 
         $('link').each(function (index, item) {
-            var href = $(item).attr('href');
-            if (!MadCap.String.IsNullOrEmpty(href) && href.toLowerCase() == styleSheet.toLowerCase())
+            var linkHref = $(item).attr('href');
+            if (!MadCap.String.IsNullOrEmpty(linkHref) && linkHref.toLowerCase() === href.toLowerCase())
                 found = true;
         });
 
         if (!found) {
-            var link = '<link rel="stylesheet" type="text/css" href="{0}" />';
+            var linkHtml = '<link rel="stylesheet" type="text/css" href="{0}" data-mc-dynamic="true" />';
+            linkHtml = linkHtml.replace("{0}", href);
 
-            cssLink = link.replace("{0}", styleSheet);
-
-            if ($('link[href*="' + styleSheet + '"]').length == 0 || !MadCap.String.Contains(styleSheet, "/Topic.css", false)) {
-                if (insertAfter)
-                    $(cssLink).insertAfter(insertAfter);
-                else
-                    $('head').append(insertIndex, cssLink);
-            }
+            var head = $('head')[0];
+            var linkNode = insertAfter ? $(linkHtml).insertAfter(insertAfter) : $(linkHtml).appendTo(head);
+            MadCap.Utilities.DynamicStylesheets[href] = linkNode;
         }
-
-        MadCap.Utilities.TopicUniqueStyleSheets[styleSheet] = $('link[href*="' + styleSheet + '"]');
     }
 
-    MadCap.Utilities.RemoveTopicStylesheets = function () {
-        $.each(MadCap.Utilities.TopicUniqueStyleSheets, function (index, item) {
+    MadCap.Utilities.UpdateDynamicStylesheets = function (hrefs) {
+        MadCap.Utilities.RemoveDynamicStylesheets();
+
+        for (var i = 0; i < hrefs.length; i++) {
+            MadCap.Utilities.LoadStylesheet(hrefs[i]);
+        }
+    }
+
+    MadCap.Utilities.RemoveDynamicStylesheets = function () {
+        $.each(MadCap.Utilities.DynamicStylesheets, function (index, item) {
             $(item).remove();
         });
+        MadCap.Utilities.DynamicStylesheets = Object.create(null);
     }
 
     MadCap.Utilities.CombineRelevancy = function (relevancy1, relevancy2) {
@@ -1367,6 +1432,73 @@
             }
         };
     })();
+
+    MadCap.Utilities.SanitizeHtml = function (dirty) {
+        return sanitizeHtml(dirty, {
+            // see: https://www.w3schools.com/tags/
+            allowedTags: ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio',
+                'b', 'bdi', 'bdo', 'blockquote', 'br', 'button', 'canvas', 'caption',
+                'cite', 'code', 'col', 'colgroup', 'data', 'datalist', 'dd', 'del', 'details',
+                'dfn', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure',
+                'footer', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hr', 'i', 'iframe', 
+                'img', 'input', 'ins', 'kbd', 'label', 'legend', 'li', 'map', 'mark', 'meter', 
+                'nav', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'picture',
+                'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'section', 'select', 
+                'small', 'source', 'span', 'strike', 'strong', 'sub', 'summary', 'sup', 'svg',
+                'table', 'tbody', 'td', 'template', 'tfoot', 'th', 'thead', 'time', 'tr', 'track',
+                'u', 'ul', 'var', 'video', 'wbr'],
+            allowedAttributes: {
+                '*': ['accesskey', 'class', 'data-*', 'dir', 'hidden', 'id', 'lang', 'style', 'tabindex', 'title', 'translate'],
+                a: ['href', 'hreflang', 'name', 'rel', 'target'],
+                area: ['alt', 'coords', 'href', 'hreflang', 'media', 'rel', 'shape', 'target', 'type'],
+                audio: ['autoplay', 'controls', 'loop', 'muted', 'preload', 'src'],
+                blockquote: ['cite'],
+                button: ['disabled', 'name', 'type', 'value'],
+                canvas: ['height', 'width'],
+                col: ['span'],
+                colgroup: ['span'],
+                data: ['value'],
+                del: ['cite', 'datetime'],
+                details: ['open'],
+                embed: ['height', 'src', 'type', 'width', 'pluginspage', 'wmode'],
+                fieldset: ['disabled', 'form', 'name'],
+                iframe: ['frameborder', 'height', 'name', 'sandbox', 'src', 'width'],
+                img: ['alt', 'height', 'ismap', 'longdesc', 'sizes', 'src', 'srcset', 'usemap', 'width'],
+                input: ['alt', 'autocomplete', 'checked', 'dirname', 'disabled', 'form', 'height', 'list', 'max',
+                    'maxlength', 'min', 'multiple', 'name', 'pattern', 'placeholder', 'readonly', 'required',
+                    'size', 'src', 'step', 'type', 'value', 'width'],
+                ins: ['cite', 'datetime'],
+                label: ['for', 'form'],
+                li: ['value'],
+                map: ['name'],
+                meter: ['form', 'high', 'low', 'max', 'min', 'optimum', 'value'],
+                object: ['classid', 'codebase', 'data', 'form', 'height', 'name', 'type', 'usemap', 'width'],
+                ol: ['reversed', 'start', 'type'],
+                optgroup: ['disabled', 'label'],
+                option: ['disabled', 'label', 'selected', 'value'],
+                output: ['for', 'form', 'name'],
+                param: ['name', 'value'],
+                progress: ['max', 'value'],
+                q: ['cite'],
+                select: ['disabled', 'form', 'multiple', 'name', 'required', 'size'],
+                source: ['src', 'srcset', 'media', 'sizes', 'type'],
+                //svg: [] // todo
+                table: ['border', 'cellpadding', 'cellspacing', 'frame', 'rules', 'summary', 'width'],
+                td: ['abbr', 'colspan', 'headers', 'rowspan'],
+                th: ['abbr', 'colspan', 'headers', 'rowspan', 'scope', 'sorted'],
+                time: ['datetime'],
+                track: ['default', 'kind', 'label', 'src', 'srclang'],
+                ul: ['type'],
+                video: ['autoplay', 'controls', 'height', 'loop', 'muted', 'poster', 'preload', 'src', 'width']
+            },
+            selfClosing: ['img', 'br', 'hr', 'area', 'input'],
+            allowedSchemes: ['http', 'https', 'ftp', 'mailto', 'file'],
+            allowedSchemesByTag: {},
+            allowedSchemesAppliedToAttributes: ['href', 'src', 'cite', 'data', 'poster'],
+            allowProtocolRelative: true,
+            allowedIframeHostnames: false
+        });
+    };
 })();
 
 Array.prototype.Remove = function (index) {

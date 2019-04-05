@@ -2273,10 +2273,12 @@ module.exports = function(grunt) {
                         + " has more than one h1'\n"
                         + "There is an agreement that there can only be one h1 per documentation file!");
                 }
-                // put in key fora this
+                // put in key for this
                 text = $( this ).text();
                 relPath = path.relative(relativeTo, htmFilepath);
-                myStructs[helpHashTags].push({'url':relPath, 'title': text});
+                if (relPath.indexOf("/Content/ContentXDHelp") > 0) {
+                    myStructs[helpHashTags].push({'url':relPath, 'title': text});
+                }
             });
 
             /**
@@ -2291,7 +2293,7 @@ module.exports = function(grunt) {
             */
 
             // parse all <a href tags of the 'for csLookup' class
-            contentLoc = fullHelpPath + "Content/";
+            contentLoc = fullHelpPath + "Content/ContentXDHelp";
             $('a.ForCSH').each(function() { // go through each script tag
                 name = $( this ).attr('name');
                 // if already an entry by this name (from this or some other file), fail out

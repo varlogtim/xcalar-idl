@@ -13,7 +13,7 @@
  * http://www.madcapsoftware.com/
  * Unlicensed use is strictly prohibited
  *
- * v14.1.6875.33553
+ * v15.0.7027.24060
  */
 
 (function () {
@@ -345,6 +345,10 @@
         }
         else {
             HookupSearchFilters();
+        }
+
+        if (isSkinPreview) {
+            MicroContentDropDownInit();
         }
     }
 
@@ -806,7 +810,7 @@
         if (!resultStartNum)
             resultStartNum = 1;
 
-        $("#resultList").remove();
+        $("#resultList, .micro-content-container").remove();
         ShowPane("search");
 
         var isFirstPage = resultStartNum === 1;
@@ -921,6 +925,49 @@
         }
     }
 
+    function MicroContentDropDownInit() {
+        var $divResponse = $('div.micro-response');
+        if ($divResponse.length) {
+            var $divExpandTransition = $('div.micro-content-expand-transition');
+            var $divExpand = $('div.micro-content-expand');
+
+            // without setTimeout scrollHeight can return wrong values in Chrome if micro content ends with an image
+            var mh = 0;
+            $divExpand.hide();
+            $divExpandTransition.hide();
+            setTimeout(function () {
+                mh = parseFloat($divResponse.css('max-height'));
+                var sh = $divResponse.prop('scrollHeight');
+                if (sh < mh) {
+                    $divResponse.css('max-height', 'none');
+                } else {
+                    $divExpand.show();
+                    $divExpandTransition.show();
+                }
+            }, 100);
+
+            $divExpand.click(function () {
+                var sh = $divResponse.prop('scrollHeight');
+                if ($divExpand.hasClass('expanded')) {
+                    $divResponse.css('max-height', sh);
+                    $divResponse.animate({ 'max-height': mh }, function () {
+                        $divResponse.css('max-height', '');
+                    });
+                    $divExpand.removeClass('expanded');
+                    $divExpandTransition.show();
+                    SetSkinPreviewStyle($divExpand[0], "Search Micro Content Response Expand");
+                } else {
+                    $divExpandTransition.hide();
+                    $divResponse.animate({ 'max-height': sh }, function () {
+                        $divResponse.css('max-height', 'none');
+                    });
+                    $divExpand.addClass('expanded');
+                    SetSkinPreviewStyle($divExpand[0], "Search Micro Content Response Collapse");
+                }
+            });
+        }
+    }
+
     // curPage is the clicked on page number
     // resultsPerPage is the number of results shown per page
     function BuildSearchResults(searchQuery, results, curPage) {
@@ -932,7 +979,8 @@
         var length = results.contentTotal;
         var communityLength = (displayCommunityResults && results.community != null) ? results.community.TotalRecords : 0;
         var glossaryLength = results.glossary ? 1 : 0;
-        var totalLength = length + communityLength + glossaryLength;
+        var microContentLength = results.microContent ? 1 : 0;
+        var totalLength = length + communityLength + Math.max(glossaryLength, microContentLength);
         var linkPrefix = isTriPane ? "#" : "";
 
         SetSkinPreviewStyle(headingEl, "Search Heading");
@@ -988,6 +1036,56 @@
 
                 li.appendChild(div);
             }
+            // micro content result
+            if (results.microContent) {
+                var $li = $('<div>').addClass("micro-content-container").insertAfter($('#results-heading'));
+                var $div = $('<div>').addClass("micro-content").appendTo($li);
+                SetSkinPreviewStyle($div[0], "Search Micro Content Result");
+
+                var $divResponse = $('<div>').addClass("micro-response").appendTo($div);
+                SetSkinPreviewStyle($divResponse[0], "Search Micro Content Response");
+
+                $(results.microContent.html).appendTo($divResponse);
+
+                var $divExpand = $('<div>').addClass("micro-content-expand").appendTo($div);
+                SetSkinPreviewStyle($divExpand[0], "Search Micro Content Response Expand");
+
+                var $divExpandTransitionWrapper = $('<div>').addClass("micro-content-expand-transition-wrapper").insertBefore($divExpand);
+                var $divExpandTransition = $('<div>').addClass("micro-content-expand-transition").appendTo($divExpandTransitionWrapper);
+                SetSkinPreviewStyle($divExpandTransition[0], "Search Micro Content Response Fade");
+
+                if (results.microContent.source) { // micro content related topic link
+                    var topicHref = linkPrefix + results.microContent.source;
+
+                    var $divTopicTitle = $('<div>').addClass('micro-response-title').appendTo($div);
+                    var $divTopicLink = $('<a>').attr("href", topicHref).text(results.microContent.sourceTitle).appendTo($divTopicTitle);
+                    SetSkinPreviewStyle($divTopicTitle[0], "Search Micro Content Response Link");
+                    var $divUrl = $('<div>').addClass('micro-response-url').appendTo($div);
+                    var $cite = $('<cite>').addClass('').text(results.microContent.source).appendTo($divUrl);
+                    SetSkinPreviewStyle($divUrl[0], "Search Micro Content Response Path");
+                }
+
+                var stylesheets = results.microContent.stylesheets;
+                if (stylesheets) {
+                    var stylesheetHrefs = [];
+                    var prefix = isTriPane ? _HelpSystem.ContentFolder : '';
+                    for (var i = 0; i < stylesheets.length; i++) {
+                        var stylesheet = !MadCap.String.IsNullOrEmpty(prefix) ?
+                            new MadCap.Utilities.Url(prefix).CombinePath(stylesheets[i]) :
+                            new MadCap.Utilities.Url(stylesheets[i]);
+                        var microContentStylesheet = stylesheet.ToFolder().AddFile(stylesheet.Name + ".micro-content." + stylesheet.Extension);
+                        stylesheetHrefs.push(microContentStylesheet.FullPath);
+                    }
+                    MadCap.Utilities.UpdateDynamicStylesheets(stylesheetHrefs);
+                }
+
+                MadCap.Utilities.InitContent($divResponse[0]);
+
+                MicroContentDropDownInit();
+            }
+            else {
+                MadCap.Utilities.RemoveDynamicStylesheets();
+            }
 
             if (results.community != null && results.community.Activities.length > 0 && displayCommunityResults) {
                 BuildCommunitySearchResults(ul, searchQuery, results.community);
@@ -1020,21 +1118,14 @@
                     var a = document.createElement("a");
                     a.setAttribute("href", linkPrefix + link + "?Highlight=" + searchQuery);
                     SetSkinPreviewStyle(a, "Search Result Link");
-                    a.appendChild(document.createTextNode(title));
-                    BoldSearchTerms(a, results.includedTerms);
+                    AssembleSearchResultTextNode(highlighted, a, title, results);
                     h3.appendChild(a);
 
                     if (abstractText != null) {
                         var divDesc = document.createElement("div");
                         $(divDesc).addClass("description");
                         SetSkinPreviewStyle(divDesc, "Search Result Abstract");
-                        if (highlighted) {
-                            divDesc.innerHTML = abstractText;
-                        }
-                        else {
-                            divDesc.appendChild(document.createTextNode(abstractText));
-                            BoldSearchTerms(divDesc, results.includedTerms);
-                        }
+                        AssembleSearchResultTextNode(highlighted, divDesc, abstractText, results);
                         li.appendChild(divDesc);
                     }
 
@@ -1077,6 +1168,16 @@
 
         // focus first result (closes keyboard on mobile devices)
         $('#resultList a').first().focus();
+
+        function AssembleSearchResultTextNode(highlighted, element, text, results) {
+            if (highlighted) {
+                element.innerHTML = text;
+            }
+            else {
+                element.appendChild(document.createTextNode(text));
+                BoldSearchTerms(element, results.includedTerms);
+            }
+        }
     }
 
     function SetSkinPreviewStyle(el, styleName) {
@@ -2282,7 +2383,7 @@
                 var plainPath = decodeURIComponent(href.PlainPath);
                 href = new MadCap.Utilities.Url(plainPath + query);
             }
-            var contentFolder = root.CombinePath(_HelpSystem.GetMasterHelpsystem().GetContentPath());
+            var contentFolder = root.CombinePath(_HelpSystem.GetMasterHelpSystem().GetContentPath());
             href = href.ToRelative(contentFolder);
 
             if (bsPath != null) {
@@ -2369,7 +2470,7 @@
         $topicContent.append(data[2]);
 
         var headArr = $(data[1]);
-        var scripts = [], cssLinks = [], styleSheets = [];
+        var scripts = [], cssLinks = [], stylesheets = [];
         var topicUrl = new MadCap.Utilities.Url(data[0]);
         var documentUrl = new MadCap.Utilities.Url(document.location.href);
         var relUrl = documentUrl.ToFolder().ToRelative(topicUrl);
@@ -2386,14 +2487,14 @@
                     scripts.push(scriptUrl.FullPath);
                 }
                 else if (localName == 'link') {
-                    styleSheets.push(item);
+                    stylesheets.push(item);
                 }
             }
         });
 
         var relUrl2 = topicUrl.ToFolder().ToRelative(documentUrl.PlainPath);
-        FixLinks(styleSheets, relUrl2, 'href'); // Find the correct url for these links, we want to go up as many levels as there are "../"'s
-        $.each(styleSheets, function (index, item) {
+        FixLinks(stylesheets, relUrl2, 'href'); // Find the correct url for these links, we want to go up as many levels as there are "../"'s
+        $.each(stylesheets, function (index, item) {
             if ($(item).attr('mc-topic-css')) {
                 var href = $(item).attr('href');
                 href = href.replace('.css', '-topic.css');
@@ -2403,7 +2504,7 @@
                 cssLinks.push($(item).attr('href'));
         });
 
-        MadCap.Utilities.LoadStyleSheets(cssLinks, $('link[href*="Styles.css"]')[0]);
+        MadCap.Utilities.LoadStylesheets(cssLinks, $('link[href*="Styles.css"]')[0]);
         MadCap.Utilities.LoadScripts(scripts, function () { }, function () { }, $topicContent);
 
         // reverse relative url for content it links to

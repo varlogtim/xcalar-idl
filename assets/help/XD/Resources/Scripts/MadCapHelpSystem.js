@@ -10,7 +10,7 @@
  * http://www.madcapsoftware.com/
  * Unlicensed use is strictly prohibited
  *
- * v14.1.6875.33553
+ * v15.0.7027.24060
  */
 
 MadCap.WebHelp = MadCap.CreateNamespace("WebHelp");
@@ -70,7 +70,8 @@ MadCap.WebHelp.HelpSystem = function (parentSubsystem, parentPath, xmlFile, tocP
     this.ScriptsFolderPath = null;
     this.LanguageCode = null;
     this.LanguageName = null;
-    this.IncludeCSHRuntime = null;
+	this.IncludeCSHRuntime = null;
+	this.ShowMadCapBacklink = false;
 
     // Constructor
 
@@ -144,9 +145,10 @@ MadCap.WebHelp.HelpSystem = function (parentSubsystem, parentPath, xmlFile, tocP
                 contentFolder = contentFolder.toLowerCase();
 
             this.ContentFolder = contentFolder;
-            this.UseCustomTopicFileExtension = MadCap.Dom.GetAttributeBool(xmlDoc.documentElement, "UseCustomTopicFileExtension", false);
+			this.UseCustomTopicFileExtension = MadCap.Dom.GetAttributeBool(xmlDoc.documentElement, "UseCustomTopicFileExtension", false);
             this.CustomTopicFileExtension = MadCap.Dom.GetAttribute(xmlDoc.documentElement, "CustomTopicFileExtension");
-            this.IsMultilingual = MadCap.Dom.GetAttributeBool(xmlDoc.documentElement, "Multilingual", false);
+			this.IsMultilingual = MadCap.Dom.GetAttributeBool(xmlDoc.documentElement, "Multilingual", false);
+			this.ShowMadCapBacklink = MadCap.Dom.GetAttributeBool(xmlDoc.documentElement, "ShowMadCapBacklink", false);
 
             this.GlossaryUrl = GetDataFileUrl(xmlDoc, "Glossary");
             this.TocUrl = GetDataFileUrl(xmlDoc, "Toc");
@@ -236,7 +238,7 @@ MadCap.WebHelp.HelpSystem = function (parentSubsystem, parentPath, xmlFile, tocP
         return mExists;
     };
 
-    this.GetMasterHelpsystem = function () {
+    this.GetMasterHelpSystem = function () {
         var master = this;
 
         for (var curr = master.GetParentSubsystem(); curr != null; curr = curr.GetParentSubsystem()) {
@@ -331,23 +333,19 @@ MadCap.WebHelp.HelpSystem = function (parentSubsystem, parentPath, xmlFile, tocP
 
     this.GetTopicPath = function (linkUrl) {
         var path = this.GetPath();
-        var isSubProject = !this.IsRoot;
-        var masterHelpSystem = this.GetMasterHelpsystem();
-
-        if (isSubProject && !masterHelpsystem.MoveContentToRoot) // add "../" to search results from child projects
-            path = "../" + path;
+        var masterHelpSystem = this.GetMasterHelpSystem();
 
         var docUrl = (new MadCap.Utilities.Url(document.location.href)).ToPath();
         var absUrl = docUrl.CombinePath(path + "Data/").CombinePath(linkUrl);
         var relUrl = absUrl.ToRelative(docUrl);
 
         // TriPane expects links relative to Content folder
-        if (MadCap.Utilities.HasRuntimeFileType("TriPane") && !isSubProject && !masterHelpSystem.MoveContentToRoot) {
+        if (MadCap.Utilities.HasRuntimeFileType("TriPane") && !masterHelpSystem.MoveContentToRoot) {
             relUrl = relUrl.ToRelative(masterHelpSystem.ContentFolder);
         }
-        
+
         return relUrl;
-    }
+    };
 
     this.GetPatchedPath = function (linkUrl) {
         if (this.ReplaceReservedCharacters)
@@ -358,7 +356,7 @@ MadCap.WebHelp.HelpSystem = function (parentSubsystem, parentPath, xmlFile, tocP
             linkUrl = new MadCap.Utilities.Url(linkUrl).ToExtension(this.CustomTopicFileExtension).FullPath;
 
         return linkUrl;
-    }
+    };
 
     this.GetAbsoluteTopicPath = function (linkUrl) {
         var href = new MadCap.Utilities.Url(linkUrl);
@@ -517,22 +515,48 @@ MadCap.WebHelp.HelpSystem = function (parentSubsystem, parentPath, xmlFile, tocP
     };
 
     this.IsTabletLayout = function (width) {
+        return this.isGivenLayout('Tablet', width);
+    };
+
+    this.getLayout = function (width) {
+        if(this.isGivenLayout('Mobile', width)) {
+            return 'Mobile';
+        } else if (this.isGivenLayout('Tablet', width)) {
+            return 'Tablet'
+        } else {
+            return 'Web';
+        }
+    };
+
+    this.isGivenLayout = function (layoutName, width) {
         if (this.IsResponsive && this.Breakpoints) {
-            var tabletBreakpoint = this.Breakpoints.mediums['Tablet'];
+            var breakpoint = this.Breakpoints.mediums[layoutName];
             var prop = this.Breakpoints.prop;
 
             if (prop == "max-width") {
                 if (!width)
                     width = window.innerWidth;
 
-                return width <= tabletBreakpoint;
+                return width <= breakpoint;
             }
             else {
-                return window.matchMedia('(' + prop + ': ' + tabletBreakpoint + 'px)').matches;
+                return window.matchMedia('(' + prop + ': ' + breakpoint + 'px)').matches;
             }
         }
 
         return false;
+    };
+
+    this.ProcessMicroContentXhtml = function (html) {
+        var sanitized = MadCap.Utilities.SanitizeHtml('<div>' + html + '</div>');
+
+        var microContentRoot = new MadCap.Utilities.Url(this.GetPath() + "MicroContent/");
+
+        var isTriPane = MadCap.Utilities.HasRuntimeFileType("TriPane");
+        var hrefPrefix = isTriPane ? '#' : '';
+
+        var $content = MadCap.Utilities.FixLinks(sanitized, microContentRoot, hrefPrefix, this.ContentFolder);
+        return $content;
     };
 
     this.LoadLanguage = function (onCompleteFunc, loadContextObj) {
@@ -1059,7 +1083,7 @@ MadCap.WebHelp.HelpSystem = function (parentSubsystem, parentPath, xmlFile, tocP
                 var linkUrl = new MadCap.Utilities.Url(link);
                 var helpSystem = toc.helpSystem;
                 var helpSystemPath = helpSystem.GetPath();
-                var root = helpSystem.GetMasterHelpsystem().GetContentPath();
+                var root = helpSystem.GetMasterHelpSystem().GetContentPath();
                 var hasFrame = typeof entry.f != 'undefined';
 
                 if (!linkUrl.IsAbsolute) {
@@ -1165,7 +1189,7 @@ MadCap.WebHelp.HelpSystem = function (parentSubsystem, parentPath, xmlFile, tocP
 
     this.FindNodeInToc = function (tocType, tocPath, href, onCompleteFunc, tocUrl, loadSubsystems) {
         mSelf.LoadToc([tocType, tocUrl]).then(function (toc) {
-            var root = new MadCap.Utilities.Url(mSelf.GetMasterHelpsystem().GetContentPath());
+            var root = new MadCap.Utilities.Url(mSelf.GetMasterHelpSystem().GetContentPath());
             var url = href;
             var chunkIndex = 0;
             var foundNode;
@@ -2657,7 +2681,7 @@ MadCap.WebHelp.TocFile = function (helpSystem, tocType)
 
                 var linkUrl = new MadCap.Utilities.Url(link);
                 var ext = linkUrl.Extension.toLowerCase();
-                var masterHS = mHelpSystem.GetMasterHelpsystem();
+                var masterHS = mHelpSystem.GetMasterHelpSystem();
 
                 if (masterHS.UseCustomTopicFileExtension)
                 {

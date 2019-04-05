@@ -117,7 +117,7 @@
                                 </div>
                             </div>
                             <div class="title-bar-layout outer-row">
-                                <div class="logo-wrapper"><a class="logo" href="../../../HomeXDHelp.htm" alt="Logo"></a>
+                                <div class="logo-wrapper"><a class="logo" href="../../../Home.htm" alt="Logo"></a>
                                 </div>
                                 <div class="navigation-wrapper nocontent">
                                     <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
@@ -158,120 +158,124 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="body-container" data-mc-content-body="True">
-                                <div class="content">
-                                    <div id="contentBody">
-                                        <div class="row collapse">
-                                            <div class="sideContent">
-                                                <div class="clearfix">
-                                                    <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
-                                                        <div class="button-group-container-left">
-                                                            <button class="button needs-pie previous-topic-button" title="Navigate previous">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
-                                                            </button>
-                                                            <button class="button needs-pie next-topic-button" title="Navigate next">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
-                                                            </button>
-                                                            <div class="button-separator">
+                            <div class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                                </button>
                                                             </div>
-                                                            <button class="button needs-pie print-button" title="Print">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
-                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="nocontent">
-                                                <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
                                                 </div>
+                                                <h2 class="noPageBreak">Working with <span class="GeneralProductName3">Xcalar</span>&#160;Defined Functions</h2>
+                                                <p><span class="GeneralProductName3">Xcalar</span> SQL&#160;supports <span class="GeneralProductName3">Xcalar</span> Defined Functions (XDF) inserted directly in the SQL query statement. </p>
+                                                <h3>Understanding the XDF data type data format syntax</h3>
+                                                <p>When including an XDF in your query you must include the function's output data type format.</p>
+                                                <p> The data type  is prefixed before the function name using the first initial of the data type, followed by <span class="UIelement">xdf</span> and then an underscore (_). </p>
+                                                <p>For example, here is the syntax for the <span class="UIelement">wordCount</span> XDF whose output data format is integer:</p>
+                                                <p><code><span class="UIelement">ixdf_wordCount(</span><var>column_name</var><span class="UIelement">)</span></code>
+                                                </p>
+                                                <table style="mc-table-style: url('../../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 969px;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                    <caption data-mc-autonum="Table 1 "><span class="autonumber"><span>Table 1 </span></span>XDF prefix function name syntax</caption>
+                                                    <col class="TableStyle-SimpleTable-Column-Column1" style="width: 311px;" />
+                                                    <col class="TableStyle-SimpleTable-Column-Column2" style="width: 192px;" />
+                                                    <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                    <thead>
+                                                        <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                            <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">
+                                                                <p>Function Name Prefix</p>
+                                                            </th>
+                                                            <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">
+                                                                <p>Data Type</p>
+                                                            </th>
+                                                            <th class="TableStyle-SimpleTable-HeadD-Column1-Header1">
+                                                                <p>Example</p>
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                                <p>bxdf_</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
+                                                                <p>boolean</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">
+                                                                <p>bxdf_exists</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p>fxdf_</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                                <p class="tableParagraph">float</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">
+                                                                <p>fxdf_sum</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                                <p>ixdf_</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
+                                                                <p>integer</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">
+                                                                <p>ixdf_add</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                                <p class="tableParagraph">mxdf_</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
+                                                                <p class="tableParagraph">money</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">
+                                                                <p class="tableParagraph">mxdf_addNumeric</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">
+                                                                <p>sxdf_</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">
+                                                                <p class="tableParagraph">string</p>
+                                                            </td>
+                                                            <td class="TableStyle-SimpleTable-BodyA-Column1-Body1">
+                                                                <p>sxdf_concat</p>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <div class="Note"><span class="label">NOTE:</span> When appropriate, <span class="GeneralProductName3">Xcalar</span> recommends using XDFs rather than UDFs in your SQL query statements as they   return more data type formats and process faster.</div>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
                                             </div>
-                                            <h2 class="noPageBreak">Working with <span class="GeneralProductName3">Xcalar</span>&#160;Defined Functions</h2>
-                                            <p><span class="GeneralProductName3">Xcalar</span> SQL&#160;supports <span class="GeneralProductName3">Xcalar</span> Defined Functions (XDF) inserted directly in the SQL query statement. </p>
-                                            <h3>Understanding the XDF data type data format syntax</h3>
-                                            <p>When including an XDF in your query you must include the function's output data type format.</p>
-                                            <p> The data type  is prefixed before the function name using the first initial of the data type, followed by <span class="UIelement">xdf</span> and then an underscore (_). </p>
-                                            <p>For example, here is the syntax for the <span class="UIelement">wordCount</span> XDF whose output data format is integer:</p>
-                                            <p><code><span class="UIelement">ixdf_wordCount(</span><var>column_name</var><span class="UIelement">)</span></code>
-                                            </p>
-                                            <table style="mc-table-style: url('../../../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;width: 969px;" class="TableStyle-SimpleTable" cellspacing="0">
-                                                <caption data-mc-autonum="Table 1 "><span class="autonumber"><span>Table 1 </span></span>XDF prefix function name syntax</caption>
-                                                <col class="TableStyle-SimpleTable-Column-Column1" style="width: 311px;" />
-                                                <col class="TableStyle-SimpleTable-Column-Column2" style="width: 192px;" />
-                                                <col class="TableStyle-SimpleTable-Column-Column1" />
-                                                <thead>
-                                                    <tr class="TableStyle-SimpleTable-Head-Header1">
-                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">
-                                                            <p>Function Name Prefix</p>
-                                                        </th>
-                                                        <th class="TableStyle-SimpleTable-HeadE-Column2-Header1">
-                                                            <p>Data Type</p>
-                                                        </th>
-                                                        <th class="TableStyle-SimpleTable-HeadD-Column1-Header1">
-                                                            <p>Example</p>
-                                                        </th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
-                                                            <p>bxdf_</p>
-                                                        </td>
-                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
-                                                            <p>boolean</p>
-                                                        </td>
-                                                        <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">
-                                                            <p>bxdf_exists</p>
-                                                        </td>
-                                                    </tr>
-                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
-                                                            <p>fxdf_</p>
-                                                        </td>
-                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
-                                                            <p class="tableParagraph">float</p>
-                                                        </td>
-                                                        <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">
-                                                            <p>fxdf_sum</p>
-                                                        </td>
-                                                    </tr>
-                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
-                                                            <p>ixdf_</p>
-                                                        </td>
-                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body1">
-                                                            <p>integer</p>
-                                                        </td>
-                                                        <td class="TableStyle-SimpleTable-BodyD-Column1-Body1">
-                                                            <p>ixdf_add</p>
-                                                        </td>
-                                                    </tr>
-                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
-                                                            <p class="tableParagraph">mxdf_</p>
-                                                        </td>
-                                                        <td class="TableStyle-SimpleTable-BodyE-Column2-Body2">
-                                                            <p class="tableParagraph">money</p>
-                                                        </td>
-                                                        <td class="TableStyle-SimpleTable-BodyD-Column1-Body2">
-                                                            <p class="tableParagraph">mxdf_addNumeric</p>
-                                                        </td>
-                                                    </tr>
-                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
-                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">
-                                                            <p>sxdf_</p>
-                                                        </td>
-                                                        <td class="TableStyle-SimpleTable-BodyB-Column2-Body1">
-                                                            <p class="tableParagraph">string</p>
-                                                        </td>
-                                                        <td class="TableStyle-SimpleTable-BodyA-Column1-Body1">
-                                                            <p>sxdf_concat</p>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                            <div class="Note"><span class="label">NOTE:</span> When appropriate, <span class="GeneralProductName3">Xcalar</span> recommends using XDFs rather than UDFs in your SQL query statements as they   return more data type formats and process faster.</div>
-                                            <p><a href="#Top">Go to top</a>
-                                            </p>
                                         </div>
                                     </div>
                                 </div>

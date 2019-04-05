@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" class="_Skins_HTML5___SideNav" data-mc-search-type="Stem" data-mc-help-system-file-name="Default.xml" data-mc-path-to-help-system="../../../../" data-mc-has-content-body="True" data-mc-target-type="WebHelp2" data-mc-runtime-file-type="Topic;Default" data-mc-preload-images="false" data-mc-in-preview-mode="false" data-mc-toc-path="Advanced Mode|[%=System.LinkedTitle%]">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -116,7 +116,7 @@
                                 </div>
                             </div>
                             <div class="title-bar-layout outer-row">
-                                <div class="logo-wrapper"><a class="logo" href="../../../HomeXDHelp.htm" alt="Logo"></a>
+                                <div class="logo-wrapper"><a class="logo" href="../../../Home.htm" alt="Logo"></a>
                                 </div>
                                 <div class="navigation-wrapper nocontent">
                                     <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
@@ -157,71 +157,94 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="body-container" data-mc-content-body="True">
-                                <div class="content">
-                                    <div id="contentBody">
-                                        <div class="row collapse">
-                                            <div class="sideContent">
-                                                <div class="clearfix">
-                                                    <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
-                                                        <div class="button-group-container-left">
-                                                            <button class="button needs-pie previous-topic-button" title="Navigate previous">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
-                                                            </button>
-                                                            <button class="button needs-pie next-topic-button" title="Navigate next">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
-                                                            </button>
-                                                            <div class="button-separator">
+                            <div class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                                </button>
                                                             </div>
-                                                            <button class="button needs-pie print-button" title="Print">
-                                                                <img src="../../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
-                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="nocontent">
-                                                <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
                                                 </div>
+                                                <h1>Understanding dataflow execution</h1>
+                                                <p>You can execute a dataflow with or without optimization. The dataflow, however, must meet the requirements described in <a href="#Requirem" class="MCXref xref" xrefformat="{para}">Requirements for  an optimized execution</a> for you to execute it with optimization.</p>
+                                                <h2 class="noPageBreak">What an optimized execution does</h2>
+                                                <p> The following list describes what happens when you execute a dataflow with optimization:</p>
+                                                <ul>
+                                                    <li value="1">If the dataflow's first Node is a Dataset Node, an optimized execution re-imports data from the data source and all subsequent operations use the latest data from that import. <span class="GeneralProductName3">Xcalar</span> only re-imports the data that is required to execute the dataflow.  Unused fields are not imported and therefore consume no memory. Without optimization, the execution uses the data imported when the Dataset Node was first created.</li>
+                                                    <li value="2"><span class="GeneralProductName3">Xcalar</span> uses an optimizer during the execution of the dataflow, enabling all operations to produce results in the most efficient manner.</li>
+                                                    <li value="3">An optimized execution  avoids the risk of out-of-memory problems. <span class="GeneralProductName3">Xcalar</span> automatically performs serialization if necessary when executing an optimized dataflow.</li>
+                                                </ul>
+                                                <p>After you execute a dataflow with optimization, you cannot re-execute it with optimization. If you try to do so, <span class="GeneralProductName3">Xcalar</span> notifies you that an optimized execution already took place.</p>
+                                                <h2 class="noPageBreak">Factors for deciding whether to execute a dataflow with optimization</h2>
+                                                <p>Execute a dataflow with optimization if the following conditions are true:</p>
+                                                <ul>
+                                                    <li value="1">You have finalized your dataflow. You are more interested in the final result of  the dataflow than the result sets of individual operations, which are intermediate steps in the algorithm. </li>
+                                                    <li value="2">You want to operationalize the dataflow. For example, you want to execute the dataflow regularly on a schedule through the <span class="GeneralProductName3">Xcalar</span> SDK.</li>
+                                                </ul>
+                                                <p>Execute a dataflow without optimization when you are developing an algorithm. Without optimization, the execution steps through the operations, creating a result set for each. Consequently, you can examine the result sets to determine whether the operations are configured correctly, the operations are properly ordered, and so on.</p>
+                                                <h2 class="noPageBreak"><a name="Requirem"></a>Requirements for  an optimized execution</h2>
+                                                <p>For a dataflow to be executed with optimization, it must meet all of the following  requirements:</p>
+                                                <ul>
+                                                    <li value="1">
+                                                        <p>The dataflow must not contain sub-dataflows. For example, in the following screenshot, Dataflow 9 contains two sub-dataflows. &#160;You cannot perform an optimized execution on Dataflow 9. You can, however, execute each sub-dataflow with optimization. </p>
+                                                        <p>
+                                                            <img src="../../../Resources/Images/XD_screenshots/dataflow-subdataflows-no-optimization.png" alt="" title="" />
+                                                        </p>
+                                                    </li>
+                                                    <li value="2">
+                                                        <p>The dataflow must not contain a terminal Node that is not Link Out Optimized or Export Optimized. For example, in the following screenshot, the dataflow cannot be executed with optimization because one of the terminal Nodes is a filter operation.</p>
+                                                        <p>
+                                                            <img src="../../../Resources/Images/XD_screenshots/dataflow-terminal-node-no-optimization.png" alt="" title="" />
+                                                        </p>
+                                                    </li>
+                                                    <li value="3">
+                                                        <p>The dataflow must not contain multiple Link Out Optimized Nodes. For example, in the following screenshot, the dataflow cannot be executed with optimization because it  has two Link Out Optimized Nodes.</p>
+                                                        <p>
+                                                            <img src="../../../Resources/Images/XD_screenshots/dataflow-multiple-link-out.png" alt="" title="" />
+                                                        </p>
+                                                    </li>
+                                                    <li value="4">
+                                                        <p>The dataflow must not contain both Link Out Optimized and Export Optimized Nodes. For example, in the following screenshot, the dataflow cannot be executed with optimization because it has a mix of Link Out Optimized and Export Optimized Nodes.</p>
+                                                        <p>
+                                                            <img src="../../../Resources/Images/XD_screenshots/dataflow-mixed-export-and-link-out.png" alt="" title="" />
+                                                        </p>
+                                                        <p>However, the dataflow can be executed with optimization if it contains  multiple Export Optimized Nodes. </p>
+                                                    </li>
+                                                </ul>
+                                                <h2 class="noPageBreak">Where to start an optimized execution</h2>
+                                                <p>You can start an optimized execution of a dataflow in the following ways:</p>
+                                                <ul>
+                                                    <li value="1">Execute all operations in a dataflow with optimization.</li>
+                                                    <li value="2">Execute a Link Out Optimized Node or an Export Optimized Node.</li>
+                                                </ul>
+                                                <p>For information about how to start an optimized execution, see <a href="E_ExecuteDf.htm" class="MCXref xref" xrefformat="{para}">Executing a dataflow</a>. </p>
+                                                <p>The optimized execution of the dataflow generates an optimized dataflow in a separate dataflow tab. You can  inspect  the configuration of each Node and statistics from the execution. </p>
+                                                <div class="Note"><span class="label">NOTE</span>:The Nodes in the optimized dataflow, as shown in the newly created dataflow tab, might not have a one-to-one relationship with the Nodes in the dataflow. Optimizing a dataflow  is analogous to using the -O3 flag in the GNU Compiler Collection (GCC): The output assembly code generated by the compiler need not have a one-to-one relationship with the source code.</div>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
                                             </div>
-                                            <h1>Understanding dataflow execution</h1>
-                                            <p>You can execute a dataflow either with or without optimization. The dataflow, however, must meet the requirements described in <a href="#Requirem" class="MCXref xref" xrefformat="{para}">Requirements for  an optimized execution of a dataflow</a> for you to execute it with optimization.</p>
-                                            <h2 class="noPageBreak">What an optimized execution does</h2>
-                                            <p> The following list describes what happens when you execute a dataflow with optimization:</p>
-                                            <ul>
-                                                <li value="1">If the dataflow's first node is a DATASET node, an optimized execution re-imports data from the data source and all subsequent operations use the latest data from that import. Without optimization, the execution uses the data imported when the DATASET&#160;node was first created.</li>
-                                                <li value="2"><span class="GeneralProductName3">Xcalar</span> uses an optimizer during the execution of the dataflow, enabling all operations to produce results in the most efficient manner.</li>
-                                                <li value="3">An optimized execution  avoids the risk of out-of-memory problems. <span class="GeneralProductName3">Xcalar</span> automatically performs serialization if necessary when executing an optimized dataflow.</li>
-                                            </ul>
-                                            <p>After you execute a dataflow with optimization, you cannot re-execute it with optimization. If you try to do so, <span class="GeneralProductName3">Xcalar</span> notifies you that an optimized execution already took place.</p>
-                                            <h2 class="noPageBreak">Factors for deciding whether to execute a dataflow with optimization</h2>
-                                            <p>Execute a dataflow with optimization if the following conditions are true:</p>
-                                            <ul>
-                                                <li value="1">You have finalized your dataflow. You are more interested in the final result of  the dataflow than the result sets of individual operations, which are intermediate steps in the algorithm. </li>
-                                                <li value="2">You want to operationalize the dataflow. For example, you want to execute the dataflow regularly on a schedule through the SDK.</li>
-                                            </ul>
-                                            <p>Execute a dataflow without optimization when you are developing an algorithm. The execution steps through the operations, creating a result set for each. Consequently, you can examine the result sets to determine whether the operations are configured correctly, the operations are properly ordered, and so on.</p>
-                                            <h2 class="noPageBreak"><a name="Requirem"></a>Requirements for  an optimized execution of a dataflow</h2>
-                                            <p>The following list describes the requirements for executing a dataflow with optimization:</p>
-                                            <ul>
-                                                <li value="1">
-                                                    <p>The dataflow does not contain disjointed flows. For example, in the following dataflow, there are two flows that are independent of each other. You cannot perform an optimized execution on this dataflow.</p>
-                                                    <p>&lt;Image here&gt;</p>
-                                                </li>
-                                                <li value="2">The dataflow must not contain a terminal node that is not Link Out Optimized or Export Optimized. For example, if the filter operation exists as one of the terminal nodes of the dataflow, you cannot execute the dataflow with optimization.</li>
-                                                <li value="3">The dataflow must not contain multiple Link Out Optimized nodes.</li>
-                                                <li value="4">The dataflow must not contain both Link Out Optimized and Export Optimized nodes. However, it can have multiple Export Optimized nodes. </li>
-                                            </ul>
-                                            <h2 class="noPageBreak">Where to start the execution of an optimized dataflow</h2>
-                                            <p>You can start an optimized execution of a dataflow in the following ways:</p>
-                                            <ul>
-                                                <li value="1">Execute all operations in a dataflow with optimization.</li>
-                                                <li value="2">Execute a Link Out Optimized node or an Export Optimized node.</li>
-                                            </ul>
-                                            <p>The optimized execution of the dataflow generates an image of the dataflow after optimization. You can  inspect  the configuration of each node and statistics from the execution. </p>
-                                            <div class="Note"><span class="label">NOTE</span>:The nodes in the optimized dataflow, as shown in the image, might not have a one-to-one relationship with the nodes in the dataflow. Optimizing a dataflow  is analogous to using the -O3 flag in the GNU Compiler Collection (GCC): The output assembly code generated by the compiler need not have a one-to-one relationship with the source code.</div>
-                                            <p><a href="#Top">Go to top</a>
-                                            </p>
                                         </div>
                                     </div>
                                 </div>

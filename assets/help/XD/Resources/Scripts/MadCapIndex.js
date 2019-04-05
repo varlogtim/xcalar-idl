@@ -11,7 +11,7 @@
  * http://www.madcapsoftware.com/
  * Unlicensed use is strictly prohibited
  *
- * v14.1.6875.33553
+ * v15.0.7027.24060
  */
 
 
@@ -57,7 +57,7 @@
 
                     $li.append($ul);
 
-                    mSelf._Terms = mSelf._Terms.add($('.IndexEntry a', $ul));
+                    mSelf._Terms = mSelf._Terms.add($('.IndexTerm', $ul));
                 }
 
                 entry.childrenLoaded = true;
@@ -288,10 +288,10 @@
             mSelf._Terms.each(function () {
                 var $term = $(this);
                 var found = mSelf._HelpSystem.IndexPartialWordSearch ?
-                    $term.text().toLowerCase().indexOf(query) != -1 :
+                    mSelf.IsPartialMatch($term, query) :
                     MadCap.String.StartsWith($term.text(), query, false);
 
-                $term.css('display', found ? 'block' : 'none');
+                $term.css('display', found ? '' : 'none');
 
                 // only highlight if partial word search
                 if (mSelf._HelpSystem.IndexPartialWordSearch) {
@@ -302,7 +302,17 @@
                     }
                 }
             });
-        };
+		};
+
+		this.IsPartialMatch = function ($term, query) {
+			var words = $term.find('a');
+			for (var i = 0; i < words.length; i++) {
+				if (words[i].text.toLowerCase().indexOf(query) != -1) {
+					return true;
+				}
+			}
+			return false;
+		};
     };
 
     var IndexPane = MadCap.WebHelp.IndexPane;
@@ -337,7 +347,7 @@
             $search.bind('keyup', self.Search);
             $('#responsive-search-index').bind('keyup', self.Search);
 
-            self._Terms = $('.IndexEntry a', this._ContainerEl);
+            self._Terms = $('.IndexTerm', this._ContainerEl);
             self._Init = true;
 
             if (OnCompleteFunc != null)

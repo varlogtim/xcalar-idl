@@ -116,7 +116,7 @@
                                 </div>
                             </div>
                             <div class="title-bar-layout outer-row">
-                                <div class="logo-wrapper"><a class="logo" href="../../HomeXDHelp.htm" alt="Logo"></a>
+                                <div class="logo-wrapper"><a class="logo" href="../../Home.htm" alt="Logo"></a>
                                 </div>
                                 <div class="navigation-wrapper nocontent">
                                     <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
@@ -157,61 +157,65 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="body-container" data-mc-content-body="True">
-                                <div class="content">
-                                    <div id="contentBody">
-                                        <div class="row collapse">
-                                            <div class="sideContent">
-                                                <div class="clearfix">
-                                                    <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
-                                                        <div class="button-group-container-left">
-                                                            <button class="button needs-pie previous-topic-button" title="Navigate previous">
-                                                                <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
-                                                            </button>
-                                                            <button class="button needs-pie next-topic-button" title="Navigate next">
-                                                                <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
-                                                            </button>
-                                                            <div class="button-separator">
+                            <div class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                                </button>
                                                             </div>
-                                                            <button class="button needs-pie print-button" title="Print">
-                                                                <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
-                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="nocontent">
-                                                <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
                                                 </div>
+                                                <h1>Understanding the SQL execution features</h1>
+                                                <p>This sub-section discusses the SQL Mode execution features for applying query statements to your data and monitoring their execution. </p>
+                                                <h2 class="noPageBreak"><a name="Executin"></a>Executing code from snippets containing multiple statements</h2>
+                                                <p><span class="GeneralGUIName1">Xcalar Design</span> enables you create code snippets that contain multiple SQL query statements, which are run sequentially and as separate query statements on your data.</p>
+                                                <p>When executing multiple statements, <span class="GeneralProductName3">Xcalar</span> applies each statement to the latest version of the table.</p>
+                                                <p>For example, you have two query statements in a code snippet that are being applied to <span class="UIelement">table A</span> and a new version of <span class="UIelement">tableA</span> is updated after the execution of your first statement. <span class="GeneralProductName3">Xcalar</span> applies your second query statement to the updated <span class="UIelement">table A</span>. </p>
+                                                <h2 class="noPageBreak">Monitoring the statement execution</h2>
+                                                <p><span class="GeneralGUIName1">Xcalar Design</span> enables you to visually monitor the query execution process from the <span class="UIelement">Previewing</span> section. </p>
+                                                <p>When you run your SQL query statement  on your data, by either clicking <span class="UIelement">Execute</span> or pressing <span class="UIelement">F5</span>, <span class="GeneralGUIName1">Xcalar Design</span> enables you to visually see  the phases of the statement's process in the <span class="UIelement">Previewing</span> section. The final result displays an optimized dataflow diagram containing individual node components that represent each phase of the query. Where each executed input, output, and query operation is represented by an operation node. </p>
+                                                <h3>Canceling the processing of a statement</h3>
+                                                <p>If you notice any issues during the running of your statement, from the SQL&#160;History menu, click the <span class="UIelement">Cancel SQL in execution</span> <img src="../../Resources/Images/XD_assets/xd_cancel_sql_run.png" /> icon. </p>
+                                                <h2 class="noPageBreak">Tracking the SQL operation details</h2>
+                                                <p>You can track the processing details of your SQL query statement from the <span class="GeneralGUIName1">Xcalar Design</span> <span class="UIelement">Operations</span> panel. </p>
+                                                <p>To track the SQL operation details:</p>
+                                                <ol>
+                                                    <li value="1">From the sidebar, click the <span class="UIelement">Monitor</span> icon, and then click the <span class="UIelement">Operations</span> icon.</li>
+                                                    <li value="2"> In the Operations panel, click the <span class="UIelement">Show all operations</span> button.</li>
+                                                    <p>The <span class="UIelement">Show all operations</span> list opens to the last operation entry at the bottom of the list. </p>
+                                                    <li value="3">From the <span class="UIelement">Show all operations</span> list, select <span class="UIelement">sql</span>.</li>
+                                                    <p>The <span class="UIelement">Operations Details</span> page opens, displaying the progress and the processing details of your SQL query. </p>
+                                                    <div class="Note"><span class="label">NOTE:</span> When applying multiple SQL queries, multiple <span class="UIelement">sql</span> operations will appear in the <span class="UIelement">Show all operations</span> list. </div>
+                                                </ol>
+                                                <h2 class="noPageBreak">Re-displaying a SQL error message</h2>
+                                                <p><span class="GeneralGUIName1">Xcalar Design</span> verifies your SQL&#160;query statements for errors. When errors are encountered, such as incorrect SQL syntax, an incorrect table name, or applying queries on an inactive table, an error message appears. You can also view the error message from the <span class="UIelement">SQL History</span> section. </p>
+                                                <p>To re-display the error message:</p>
+                                                <p>From the SQL History section, locate the row containing the <span class="UIelement">Failed</span> SQL query that was applied to your statement and then select the <span class="UIelement">Results</span> entry field. The SQL ERROR message window appears displaying the error message of your query for you to troubleshoot.</p>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
                                             </div>
-                                            <h1>Understanding the SQL execution features</h1>
-                                            <p>This sub-section discusses the SQL Mode execution features for applying query statements to your data and monitoring their execution. </p>
-                                            <h2 class="noPageBreak"><a name="Executin"></a>Executing code from snippets containing multiple statements</h2>
-                                            <p><span class="GeneralGUIName1">Xcalar Design</span> enables you create code snippets that contain multiple SQL query statements, which are run sequentially and as separate query statements on your data.</p>
-                                            <p>When executing multiple statements, <span class="GeneralProductName3">Xcalar</span> applies each statement to the latest version of the table.</p>
-                                            <p>For example, you have two query statements in a code snippet that are being applied to <span class="UIelement">table A</span> and a new version of <span class="UIelement">tableA</span> is updated after the execution of your first statement. <span class="GeneralProductName3">Xcalar</span> applies your second query statement to the updated <span class="UIelement">table A</span>. </p>
-                                            <h2 class="noPageBreak">Monitoring the statement execution</h2>
-                                            <p><span class="GeneralGUIName1">Xcalar Design</span> enables you to visually monitor the query execution process from the <span class="UIelement">Previewing</span> section. </p>
-                                            <p>When you run your SQL query statement  on your data, by either clicking <span class="UIelement">Execute</span> or pressing <span class="UIelement">F5</span>, <span class="GeneralGUIName1">Xcalar Design</span> enables you to visually see  the phases of the statement's process in the <span class="UIelement">Previewing</span> section. The final result displays an optimized dataflow diagram containing individual node components that represent each phase of the query. Where each executed input, output, and query operation is represented by an operation node. </p>
-                                            <h3>Canceling the processing of a statement</h3>
-                                            <p>If you notice any issues during the running of your statement, from the SQL&#160;History menu, click the <span class="UIelement">Cancel SQL in execution</span> <img src="../../Resources/Images/XD_assets/xd_cancel_sql_run.png" /> icon. </p>
-                                            <h2 class="noPageBreak">Tracking the SQL operation details</h2>
-                                            <p>You can track the processing details of your SQL query statement from the <span class="GeneralGUIName1">Xcalar Design</span> <span class="UIelement">Operations</span> panel. </p>
-                                            <p>To track the SQL operation details:</p>
-                                            <ol>
-                                                <li value="1">From the sidebar, click the <span class="UIelement">Monitor</span> icon, and then click the <span class="UIelement">Operations</span> icon.</li>
-                                                <li value="2"> In the Operations panel, click the <span class="UIelement">Show all operations</span> button.</li>
-                                                <p>The <span class="UIelement">Show all operations</span> list opens to the last operation entry at the bottom of the list. </p>
-                                                <li value="3">From the <span class="UIelement">Show all operations</span> list, select <span class="UIelement">sql</span>.</li>
-                                                <p>The <span class="UIelement">Operations Details</span> page opens, displaying the progress and the processing details of your SQL query. </p>
-                                                <div class="Note"><span class="label">NOTE:</span> When applying multiple SQL queries, multiple <span class="UIelement">sql</span> operations will appear in the <span class="UIelement">Show all operations</span> list. </div>
-                                            </ol>
-                                            <h2 class="noPageBreak">Re-displaying a SQL error message</h2>
-                                            <p><span class="GeneralGUIName1">Xcalar Design</span> verifies your SQL&#160;query statements for errors. When errors are encountered, such as incorrect SQL syntax, an incorrect table name, or applying queries on an inactive table, an error message appears. You can also view the error message from the <span class="UIelement">SQL History</span> section. </p>
-                                            <p>To re-display the error message:</p>
-                                            <p>From the SQL History section, locate the row containing the <span class="UIelement">Failed</span> SQL query that was applied to your statement and then select the <span class="UIelement">Results</span> entry field. The SQL ERROR message window appears displaying the error message of your query for you to troubleshoot.</p>
-                                            <p><a href="#Top">Go to top</a>
-                                            </p>
                                         </div>
                                     </div>
                                 </div>

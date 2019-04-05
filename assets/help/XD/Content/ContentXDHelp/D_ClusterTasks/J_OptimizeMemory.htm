@@ -116,7 +116,7 @@
                                 </div>
                             </div>
                             <div class="title-bar-layout outer-row">
-                                <div class="logo-wrapper"><a class="logo" href="../../HomeXDHelp.htm" alt="Logo"></a>
+                                <div class="logo-wrapper"><a class="logo" href="../../Home.htm" alt="Logo"></a>
                                 </div>
                                 <div class="navigation-wrapper nocontent">
                                     <ul class="navigation clearfix" data-mc-css-tree-node-has-children="has-children" data-mc-css-sub-menu="sub-menu" data-mc-expand-event="mouseenter" data-mc-top-nav-menu="True" data-mc-max-depth="3" data-mc-include-icon="False" data-mc-include-indicator="False" data-mc-include-children="True" data-mc-include-siblings="True" data-mc-include-parent="True" data-mc-toc="True">
@@ -157,76 +157,60 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="body-container" data-mc-content-body="True">
-                                <div class="content">
-                                    <div id="contentBody">
-                                        <div class="row collapse">
-                                            <div class="sideContent">
-                                                <div class="clearfix">
-                                                    <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
-                                                        <div class="button-group-container-left">
-                                                            <button class="button needs-pie previous-topic-button" title="Navigate previous">
-                                                                <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
-                                                            </button>
-                                                            <button class="button needs-pie next-topic-button" title="Navigate next">
-                                                                <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
-                                                            </button>
-                                                            <div class="button-separator">
+                            <div class="body-container">
+                                <div data-mc-content-body="True">
+                                    <div class="content">
+                                        <p><a name="top"></a>
+                                        </p>
+                                        <div id="contentBody">
+                                            <div class="row collapse">
+                                                <div class="sideContent">
+                                                    <div class="clearfix">
+                                                        <div class="buttons popup-container clearfix topicToolbarProxy _Skins_TopicToolBar mc-component nocontent">
+                                                            <div class="button-group-container-left">
+                                                                <button class="button needs-pie previous-topic-button" title="Navigate previous">
+                                                                    <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="previous topic" />
+                                                                </button>
+                                                                <button class="button needs-pie next-topic-button" title="Navigate next">
+                                                                    <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="next topic" />
+                                                                </button>
+                                                                <div class="button-separator">
+                                                                </div>
+                                                                <button class="button needs-pie print-button" title="Print">
+                                                                    <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
+                                                                </button>
                                                             </div>
-                                                            <button class="button needs-pie print-button" title="Print">
-                                                                <img src="../../../Skins/Default/Stylesheets/Images/transparent.gif" alt="print" />
-                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="nocontent">
-                                                <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                <div class="nocontent">
+                                                    <div class="MCBreadcrumbsBox_0 breadcrumbs" data-mc-breadcrumbs-divider=" &gt; " data-mc-breadcrumbs-count="3" data-mc-toc="True"><span class="MCBreadcrumbsPrefix">You are here: </span>
+                                                    </div>
                                                 </div>
+                                                <h1>Optimizing memory usage</h1>
+                                                <p><span class="GeneralGUIName1">Xcalar Design</span> displays a low-memory notification when <span class="GeneralProductName3">Xcalar</span> reaches a pre-defined level of memory consumption. It is important for you to optimize memory usage  to ensure that <span class="GeneralProductName3">Xcalar</span> can run at the highest performance level possible. See <a href="I_UnderstandMemoryUse.htm" class="MCXref xref" xrefformat="{para}">Understanding memory usage</a> for more information about the low-memory notification and what steps to take in response to the notification.</p>
+                                                <h2 class="noPageBreak">Best practices for conserving memory</h2>
+                                                <p><span class="GeneralGUIName1">Xcalar Design</span> users can follow these best practices to conserve memory: </p>
+                                                <ul>
+                                                    <li value="1">Reduce the number of result sets.</li>
+                                                    <li value="2">
+                                                        <p>Reduce the number of fields in the <span class="UIelement">Data Browser</span>.</p>
+                                                    </li>
+                                                </ul>
+                                                <p>More detailed information about these best practices are provided in the sections below.</p>
+                                                <h2 class="noPageBreak">Effects of result sets on memory consumption</h2>
+                                                <p>Each result set in your workbooks consume memory. Keeping only the result sets required for modeling your queries helps conserve memory. The number of columns displayed in a result set has no significant effect on memory consumption.&#160;For example, from the same dataset, you can create two result sets - one with 2 columns and the other with 15 columns. Both result sets use the same amount of memory. </p>
+                                                <h2 class="noPageBreak">How to drop a result set</h2>
+                                                <p>Click  <span class="UIelement">System</span> in the sidebar and then the <span class="UIelement">Monitor</span> icon. In the <span class="UIelement">Monitor</span> panel, click the <span class="UIelement">Release Memory</span> to display the <span class="UIelement">Drop Result Sets</span>&#160;modal window, which lists all the result sets in your workbook and the amount of memory used by each . See <a href="I_UnderstandMemoryUse.htm#dropTablesModal" class="MCXref xref" xrefformat="{para}">Determining which result set to drop</a> for more information on which result sets to drop and how to drop them.</p>
+                                                <h2 class="noPageBreak">How the number of fields affects memory consumption</h2>
+                                                <p>Each result set consists of columns created from the data source. The result set's <span class="UIelement">Data Browser</span> shows all the fields that you can pull to create result set columns.  Initially, each result set you create from a data source consumes the same amount of memory, because each result set's <span class="UIelement">Data Browser</span> contains only the fields from the data source, which are the prefixed fields. This group of prefixed fields consumes a fixed amount of memory, regardless of how many fields are in the group. </p>
+                                                <p>Operations you perform on a result set create derived columns in the resultant result set. These columns are added in the resultant result set's <span class="UIelement">Data Browser</span> as derived fields. Each derived field consumes additional memory.</p>
+                                                <div class="Example"><span class="label">Example</span>: A two-column result set is created from a dataset with two fields:&#160;<span class="UIelement">airlines::Destination</span> and <span class="UIelement">airlines::Distance</span>. If no operations have created columns in this result set, the result set uses 2.2 MB of memory. Suppose you change the <span class="UIelement">Distance</span> column's data type to integer. A new result set is created with a derived column named <span class="UIelement">Distance</span>. In the <span class="UIelement">Data Browser</span>&#160;for this result set, the field <span class="UIelement">airlines::Distance</span> remains in the prefixed fields section, and a new field named <span class="UIelement">Distance</span> is added in the derived fields section. The new result set with this additional derived field consumes 4.2 MB of memory. The more columns your operations create, the more  memory is used.</div>
+                                                <div class="Note"><span class="label">NOTE</span>:&#160;Hiding a column does not free up memory. For example, if you hide the derived column named <span class="UIelement">Distance</span> in the example above, the result set continues to use 4.2 MB of memory.</div>
+                                                <p>See <a href="../C_XcalarAdvancedMode/B_Operations/W_Project.htm" class="MCXref xref" xrefformat="{para}">Using a Project operation to reduce memory usage</a> for more information on minimizing memory usage.</p>
+                                                <p><a href="#top">Go to the top</a>
+                                                </p>
                                             </div>
-                                            <h1>Optimizing memory usage</h1>
-                                            <p><span class="GeneralGUIName1">Xcalar Design</span> displays a low-memory notification when <span class="GeneralProductName3">Xcalar</span> reaches a pre-defined level of memory consumption. It is important for you to optimize memory usage  to ensure that <span class="GeneralProductName3">Xcalar</span> can run at the highest performance level possible. See <a href="I_UnderstandMemoryUse.htm" class="MCXref xref" xrefformat="{para}">Understanding memory usage</a> for more information about the low-memory notification and what steps to take in response to the notification.</p>
-                                            <h2>Best practices for conserving memory</h2>
-                                            <p><span class="GeneralGUIName1">Xcalar Design</span> users can follow these best practices to conserve memory: </p>
-                                            <ul>
-                                                <li value="1">Reduce the number of result sets.</li>
-                                                <li value="2">
-                                                    <p>Reduce the number of fields in the <span class="UIelement">Data Browser</span>.</p>
-                                                </li>
-                                            </ul>
-                                            <p>More detailed information about these best practices are provided in the sections below.</p>
-                                            <h2>Effects of result sets on memory consumption</h2>
-                                            <p>Each result set in your workbooks consumes memory regardless of the its status, which can be active or temporary. Keeping only the result sets required for modeling your queries helps conserve memory. The number of columns displayed in a result set has no significant effect on memory consumption.&#160;For example, from the same dataset, you can create two result sets - one with 2 columns and the other with 15 columns. Both result sets use the same amount of memory. </p>
-                                            <h2>How to drop a result set</h2>
-                                            <p>Click  <span class="UIelement">System</span> in the toolbar and then the <span class="UIelement">Monitor</span> icon. In the <span class="UIelement">Monitor</span> panel, click the <span class="UIelement">Release Memory</span> to display the <span class="UIelement">Drop Result Sets</span>&#160;modal window, which lists all the result sets in your workbook and the amount of memory used by each . See <a href="I_UnderstandMemoryUse.htm#dropTablesModal" class="MCXref xref" xrefformat="{para}">Determining which result set to drop</a> for more information on which result sets to drop and how to drop them.</p>
-                                            <h2>How the number of fields affects memory consumption</h2>
-                                            <p>Each result set consists of columns created from the data source. The result set's <span class="UIelement">Data Browser</span> shows all the fields that you can pull to create result set columns.  Initially, each result set you create from a data source consumes the same amount of memory, because each result set's <span class="UIelement">Data Browser</span> contains only the fields from the data source, which are the prefixed fields. This group of prefixed fields consumes a fixed amount of memory, regardless of how many fields are in the group. </p>
-                                            <p>Operations you perform on a result set create derived columns in the resultant result set. These columns are added in the resultant result set's <span class="UIelement">Data Browser</span> as derived fields. Each derived field consumes additional memory.</p>
-                                            <div class="Note"><span class="label">NOTE</span>:&#160;A result set resulting from a batch dataflow does not have prefixed fields.&#160;The <span class="UIelement">Data Browser</span> for this result set consists of only derived fields.</div>
-                                            <div class="Example"><span class="label">Example</span>: A two-column result set is created from a dataset with two fields:&#160;<span class="UIelement">airlines::Destination</span> and <span class="UIelement">airlines::Distance</span>. If no operations have created columns in this result set, the result set uses 2.2 MB of memory. Suppose you change the <span class="UIelement">Distance</span> column's data type to integer. A new result set is created with a derived column named <span class="UIelement">Distance</span>. In the <span class="UIelement">Data Browser</span>&#160;for this result set, the field <span class="UIelement">airlines::Distance</span> remains in the prefixed fields section, and a new field named <span class="UIelement">Distance</span> is added in the derived fields section. The new result set with this additional derived field consumes 4.2 MB of memory. The more columns your operations create, the more  memory is used.</div>
-                                            <div class="Note"><span class="label">NOTE</span>:&#160;Hiding a column does not free up memory. For example, if you hide the derived column named <span class="UIelement">Distance</span> in the example above, the result set continues to use 4.2 MB of memory.</div>
-                                            <h2><a name="Removing"></a>Removing fields from memory</h2>
-                                            <p>Because the number of fields, as shown in the <span class="UIelement">Data Browser</span>, has an impact on memory used, the logical step to conserve memory is to reduce the number of fields. However,  as far as memory consumption is concerned, the collection of fields from the data source (that is, the prefixed fields) is considered one unit. You cannot selectively remove some fields in that collection. You can  either keep or  eliminate the collection in its entirety.</p>
-                                            <p>To reduce the number of fields,  use the <span class="UIelement">Project…</span> option in the column menu. This option enables you to keep only columns of interest in a result set, removing unnecessary ones from memory. </p>
-                                            <div class="Note"><span class="label">NOTE</span>:&#160;You can perform projections on any columns  in an active result set to reduce clutter. However, the main purpose of projection is to optimize memory usage.</div>
-                                            <div class="Note"><span class="label">NOTE</span>:&#160;The term "projection"&#160;originates from relational algebra. Its meaning in <span class="GeneralGUIName1">Xcalar Design</span> should be clearly distinguished from its meaning in daily usage.</div>
-                                            <h3>Projecting selected columns</h3>
-                                            <p>Follow these steps to project only columns that interest you:</p>
-                                            <ol>
-                                                <li value="1">Click a column header to display the drop-down menu.</li>
-                                                <li value="2">Select <span class="UIelement">Project…</span>. The <span class="UIelement">PROJECT</span> panel is displayed.</li>
-                                                <li value="3">In the <span class="UIelement">PROJECT</span> panel, either accept the result set name or select another result set for which you want to perform the projection.</li>
-                                                <li value="4">Select the columns you want to keep. You can select individual derived columns. For prefixed columns, select or unselect them as a group.</li>
-                                                <li value="5">Click <span class="UIelement">PROJECT</span>. The columns not projected are no longer displayed in the result set. They are also removed from the <span class="UIelement">Data Browser</span>.</li>
-                                            </ol>
-                                            <h3>Example of projection on derived fields</h3>
-                                            <p>Suppose the <span class="UIelement">Data Browser</span> shows 19 fields, and 4 fields  are derived fields such as <span class="UIelement">DayOfWeek_integer</span>, <span class="UIelement">DepTime_integer</span>, <span class="UIelement">DepTime_integer</span>, and so on. These derived fields are created due to operations, such as Map. The rest (15 fields) are from the collection of fields in the source dataset. They are <span class="UIelement">airlines::MonthDayYear</span>, <span class="UIelement">airlines::Distance</span>, <span class="UIelement">airlines::DepTime</span>, and so on.</p>
-                                            <p>If you perform a projection on <span class="UIelement">DayOfWeek_integer</span> and <span class="UIelement">DepTime_integer</span>, the resultant result set contains only these columns. All fields except for <span class="UIelement">DayOfWeek_integer</span> and <span class="UIelement">DepTime_integer</span> are eliminated. The resultant result set now consumes much less memory than the result set before the projection. For the resultant result set, the <span class="GeneralProductName3">Xcalar</span> cluster no longer needs memory to track all 4 derived fields and the collection of prefixed fields.</p>
-                                            <h3>Example of projection on prefixed fields</h3>
-                                            <p>You cannot choose individual entries from the list of prefixed fields to project. The set of prefixed fields is eliminated or retained as one unit through projection. The prefixed fields consume a fixed amount of memory, which is about the same as that consumed by a derived field.</p>
-                                            <p>Suppose you are only interested in <span class="UIelement">airlines::Distance</span> and <span class="UIelement">airlines::MonthDayYear</span>, you cannot project these fields and discard other prefixed fields such as <span class="UIelement">airlines::Carrier</span> and <span class="UIelement">airlines::FlightNum</span>. <span class="GeneralProductName3">Xcalar</span> must keep the entire collection of prefixed fields. After the projection, the unselected derived fields no longer exist in the result set or the <span class="UIelement">Data Browser</span>.  The projection frees up memory that otherwise would be needed to track 4 derived fields.</p>
-                                            <p><a href="#Top">Go to top</a>
-                                            </p>
                                         </div>
                                     </div>
                                 </div>
