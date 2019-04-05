@@ -1142,20 +1142,25 @@ class DagNodeSQL extends DagNode {
             .fail(function(errorMsg) {
                 console.error("sql compile error: " + errorMsg);
                 let error = errorMsg;
-                if (typeof errorMsg === "string") {
-                    if (errorMsg.indexOf(SQLErrTStr.Cancel) === -1) {
-                        Alert.show({
-                            title: SQLErrTStr.Err,
-                            msg: errorMsg,
-                            isAlert: true,
-                            align: "left",
-                            preSpace: true,
-                            sizeToText: true
-                        });
-                        error = null; // already alert, reject null
+                if (typeof errorMsg === "object") {
+                    if (errorMsg instanceof Error) {
+                        errorMsg = errorMsg.stack;
+                    } else {
+                        errorMsg = JSON.stringify(errorMsg);
                     }
-                    self.setSQLQuery({errorMsg: errorMsg, endTime: new Date()});
                 }
+                if (errorMsg.indexOf(SQLErrTStr.Cancel) === -1) {
+                    Alert.show({
+                        title: SQLErrTStr.Err,
+                        msg: errorMsg,
+                        isAlert: true,
+                        align: "left",
+                        preSpace: true,
+                        sizeToText: true
+                    });
+                    error = null; // already alert, reject null
+                }
+                self.setSQLQuery({errorMsg: errorMsg, endTime: new Date()});
                 deferred.reject(error);
             })
             .always(() => {
