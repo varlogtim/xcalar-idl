@@ -191,6 +191,17 @@ class DagNodeExecutor {
         PromiseHelper.alwaysResolve(this._activateDataset(dsName))
         .then(() => {
             if (params.synthesize === true) {
+                if (optimized && Transaction.isSimulate(this.txId)) {
+                    try {
+                        const loadArg = JSON.parse(node.getLoadArgs());
+                        Transaction.log(this.txId, JSON.stringify(loadArg), null, 0);
+                    } catch (e) {
+                        return PromiseHelper.reject({
+                            error: "Prase load args error",
+                            defail: e.message
+                        });
+                    }
+                }
                 const schema: ColSchema[] = node.getSchema();
                 return this._synthesizeDataset(dsName, schema, optimized);
             } else {
@@ -238,7 +249,7 @@ class DagNodeExecutor {
         let sameSession: boolean = null;
         if (optimized) {
             // sameSession must be set to false
-            sameSession = false;
+            sameSession = true;
         }
         // TODO: XXX parseDS should not be called here
         dsName = parseDS(dsName);
