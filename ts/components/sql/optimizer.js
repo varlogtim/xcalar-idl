@@ -226,31 +226,37 @@
                 let allColumns = [];
                 switch (operation) {
                     case "XcalarApiSynthesize":
-                        allColumns = child.value.args.columns;
+                        child.value.args.columns.forEach(function(col) {
+                            if (renameMap[col.destColumn]) {
+                                col.destColumn = renameMap[col.destColumn];
+                                allColumns.push(col);
+                            }
+                        });
                         break;
                     case "XcalarApiUnion":
                     case "XcalarApiIntersect":
                     case "XcalarApiExcept":
                     case "XcalarApiJoin":
-                        for (var columnsList of child.value.args.columns) {
-                            allColumns = allColumns.concat(columnsList);
-                        }
+                        allColumns = child.value.args.columns;
                         if (operation === "XcalarApiJoin") {
                             child.value.args.evalString = XDParser.XEvalParser
                                     .replaceColName(child.value.args.evalString,
                                                     renameMap, {}, true);
                         }
+                        for (let colList of allColumns) {
+                            for (let colStruct of colList) {
+                                if (renameMap.hasOwnProperty(colStruct.destColumn)) {
+                                    colStruct.destColumn = renameMap[colStruct.destColumn];
+                                }
+                            }
+                        }
                         break;
                     default:
                         return node;
                 }
-                for (let colStruct of allColumns) {
-                    if (renameMap.hasOwnProperty(colStruct.destColumn)) {
-                        colStruct.destColumn = renameMap[colStruct.destColumn];
-                    }
-                }
                 child.parent = [];
                 child.value.args.dest = node.value.args.dest;
+                child.value.args.columns = allColumns;
                 return child;
             } else {
                 return node;
