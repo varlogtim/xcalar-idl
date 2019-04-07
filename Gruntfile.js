@@ -4370,27 +4370,41 @@ module.exports = function(grunt) {
 
     });
 
-    /**
-        displays a useful summary at the end of the build process.
-    */
-    grunt.task.registerTask(DISPLAY_SUMMARY, 'Display summar of the build process for the end user', function() {
+    // displays a useful summary at the end of the build process.
+    grunt.task.registerTask(DISPLAY_SUMMARY,
+        'Display a summary of the build process', function() {
 
         /**
-            here are some valid colors you can use with grunt log API (at time of writing this):
-            'white', 'black', 'grey', 'blue', 'cyan', 'green', 'magenta', 'red', 'yellow', 'rainbow'
+         * some valid colors you can use with grunt log (at time of writing)
+         * 'white', 'black', 'grey', 'blue', 'cyan', 'green', 'magenta',
+         * 'red', 'yellow', 'rainbow'
+         *
+         * syntax (since this is not in the grunt documentation...),
+         * [note quote marks]
+         *
+         * grunt.log.write(("your stuff").cyan); // will color entire line as cyan
+         * grunt.log.write(("your stuff " + VARA)["cyan"]["bold"] + " more stuff"["red"]); // formatting indiovidual pieces
+         * grunt.log.write(("stuff").cyan.bold); // bolds and colors entire line cyan
+         */
 
-            syntax (since this is not in the grunt documentation...),
-            [note quote marks]
+        // display warnings collected during build
+        // multiple typescript warnings so display before main summary
+        // so it won't get burried
+        var longLine = "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
+        if (END_OF_BUILD_WARNINGS.length > 0) {
+            grunt.log.writeln((" ALERT: There were Issues detected during the build process!\n").bold.cyan);
+            for (var i = 0; i < END_OF_BUILD_WARNINGS.length; i++) {
+                grunt.log.writeln((longLine).green);
+                grunt.log.write("Issue #" + (i + 1) + ": ");
+                grunt.log.writeln((END_OF_BUILD_WARNINGS[i]).bold);
+                grunt.log.writeln((longLine).green);
+            }
+        }
 
-            grunt.log.write(("your stuff").cyan); // will color entire line as cyan
-            grunt.log.write(("your stuff " + VARA)["cyan"]["bold"] + " more stuff"["red"]); // formatting indiovidual pieces
-            grunt.log.write(("stuff").cyan.bold); // bolds and colors entire line cyan
-        */
-
-        var dirColor = 'yellow',
-            olColor  = 'rainbow',
-            txColor = 'green',
-            bottomKeyColor = "green";
+        var dirColor = "yellow";
+        var olColor  = "rainbow";
+        var txColor = "green";
+        var bottomKeyColor = "green";
 
         // main bld summary
         grunt.log.writeln(("\n=============================================="[olColor]).bold);
@@ -4407,9 +4421,8 @@ module.exports = function(grunt) {
         grunt.log.writeln(("|"[olColor]).bold);
         grunt.log.writeln(("==============================================="[olColor]).bold);
 
-        /** for purpose of debugging this grunt file */
-
-        // print out filepaths of some of the files auto-generated duoring bld
+        // for help in debugging Gruntfile:
+        // debug print filepaths of some of the files auto-generated duoring bld
         grunt.log.debug(fancyLine());
         grunt.log.debug(("\n Some files/dirs generated during this bld, and their locations:").bold);
         for (var generatedItem of Object.keys(generatedDuringBuild)) {
@@ -4418,30 +4431,18 @@ module.exports = function(grunt) {
         }
         grunt.log.debug(fancyLine());
 
-        // display any of the potential bugs migyht have found
-        if (END_OF_BUILD_WARNINGS.length > 0) {
-            grunt.log.writeln((" ALERT: There were Issues detected during the build process!\n").bold.cyan);
-            for (var i = 0; i < END_OF_BUILD_WARNINGS.length; i++) {
-                grunt.log.writeln(("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++").green);
-                grunt.log.write("Issue #" + (i + 1) + ": ");
-                grunt.log.writeln((END_OF_BUILD_WARNINGS[i]).bold);
-                grunt.log.writeln(("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++").green);
-            }
-        }
-
     });
 
     function fancyLine() {
-        line = ""
-        var plCl = "blue",
-            minCl = "white",
-            pattern = ("+"[plCl] + "-"[minCl]),
-            numPatternsToPrint = 50,
-            i = 0;
+        var line = "";
+        var plCl = "blue";
+        var minCl = "white";
+        var pattern = ("+"[plCl] + "-"[minCl]);
+        var numPatternsToPrint = 50;
+        var i = 0;
 
-        grunt.log.writeln("");
         for (var i = 0; i < numPatternsToPrint; i++) {
-            line = line + pattern;
+            line += pattern;
         }
         return line;
     }
