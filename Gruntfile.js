@@ -2238,23 +2238,23 @@ module.exports = function(grunt) {
     function generateHelpData() {
 
         // gather all .htm files friom help dir
-        commonRoot = BLDROOT + "assets/";
-        helpPath = helpContentMapping.src;
-        fullHelpPath = BLDROOT + helpPath;
-        htmFilepaths = grunt.file.expand(fullHelpPath + "**/*.htm");
+        var commonRoot = BLDROOT + "assets/";
+        var fullHelpPath = BLDROOT + helpContentMapping.src;
+        var htmFilepaths = grunt.file.expand(fullHelpPath + "**/*.htm");
 
-        myStructs = {};
+        var myStructs = {};
         // structs to fill up
-        helpHashTags = "helpHashTags";
-        csLookup = "csLookup";
+        var helpHashTags = "helpHashTags";
+        var csLookup = "csLookup";
         myStructs.helpHashTags = []; // structs being generated
         myStructs.csLookup = {};
 
         // for each of ithe files, create the struct data
-        relativeTo = commonRoot + "js/";
+        var relativeTo = commonRoot + "js/";
         for (var htmFilepath of htmFilepaths) {
 
             //fullFilepath = BLDROOT + htmFile;
+            grunt.log.debug("help file processing: " + htmFilepath);
             var $ = cheerio.load(fs.readFileSync(htmFilepath, "utf8")); // get a DOM for this file using cheerio
 
             /*
@@ -2274,7 +2274,7 @@ module.exports = function(grunt) {
                         + "There is an agreement that there can only be one h1 per documentation file!");
                 }
                 // put in key for this
-                text = $( this ).text();
+                text = $(this).text();
                 relPath = path.relative(relativeTo, htmFilepath);
                 if (relPath.indexOf("/Content/ContentXDHelp") > 0) {
                     myStructs[helpHashTags].push({'url':relPath, 'title': text});
@@ -2293,9 +2293,10 @@ module.exports = function(grunt) {
             */
 
             // parse all <a href tags of the 'for csLookup' class
-            contentLoc = fullHelpPath + "Content/ContentXDHelp";
+            var contentLoc = fullHelpPath + "Content/ContentXDHelp";
             $('a.ForCSH').each(function() { // go through each script tag
-                name = $( this ).attr('name');
+                var name = $(this).attr('name');
+                grunt.log.debug("Name found: " + name);
                 // if already an entry by this name (from this or some other file), fail out
                 if (myStructs[csLookup].hasOwnProperty(name)) {
 
@@ -2306,8 +2307,10 @@ module.exports = function(grunt) {
                     var currCwd = process.cwd();
                     var grepCmd = 'grep -r "' + name + '" .';
 
-                    grunt.file.setBase(contentLoc); // switches grunt to the bld output
+                    grunt.log.debug("Set base to " + fullHelpPath + " before grep");
+                    grunt.file.setBase(fullHelpPath); // switches grunt to the bld output
                     var grepCmdOutput = runShellCmd(grepCmd).stdout;
+                    grunt.log.debug("Set based back to " + currCwd);
                     grunt.file.setBase(currCwd); //  switch back before continuing
                     var failMsg = "\n\nWhile processing file: "
                         + htmFilepath
@@ -2315,14 +2318,16 @@ module.exports = function(grunt) {
                         + name + "'"
                         + "\n\nIt could be that the first occurance was in a separate htm documentation file,"
                         + " but there should only be one such entry among ALL the documentation files."
-                        + "\n\nOutput of '" + grepCmd + "' (executed from " + contentLoc + "):\n\n"
+                        + "\n\nOutput of '" + grepCmd + "' (executed from " + fullHelpPath + "):\n\n"
                         + grepCmdOutput;
                     //grunt.fail.fatal(failMsg); // leave this out for now while issue being addressed
+                    grunt.log.warn(failMsg); // at least warn user?
                 }
 
                 // what is relative to content
-                relevant = path.relative(contentLoc, htmFilepath);
-                finalPath = relevant + "#" + name;
+                var relevant = path.relative(contentLoc, htmFilepath);
+                var finalPath = relevant + "#" + name;
+                grunt.log.debug("add myStructs entry: [" + csLookup + "][" + name + "] = " + finalPath);
                 myStructs[csLookup][name] = finalPath;
             });
 
@@ -3372,6 +3377,7 @@ module.exports = function(grunt) {
             validErrorCodes = [0];
         }
         try {
+            grunt.log.debug("run exec cmd : " + cmd);
             var res = shelljs.exec(cmd, {silent:true}); // runs the cmd; shellJs runs cmds syncronously by default
             if (res.code && validErrorCodes.indexOf(res.code) === -1) {
                 grunt.fail.fatal("Non-0 exit status when running " +
