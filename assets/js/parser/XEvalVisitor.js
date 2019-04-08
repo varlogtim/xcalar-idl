@@ -103,6 +103,25 @@ class XEvalVisitor extends XEvalBaseVisitor{
         }
     };
 
+    getAllColumnNames(ctx) {
+        var columnNames = [];
+
+        function getAllColumnNamesHelper(ctx) {
+            if (ctx instanceof XEvalBaseParser.ColumnArgContext) {
+                if (columnNames.indexOf(ctx.getText()) === -1) {
+                    columnNames.push(ctx.getText());
+                }
+            } else if (ctx.children) {
+                for (var i = 0; i < ctx.children.length; i++) {
+                    getAllColumnNamesHelper(ctx.children[i]);
+                }
+            }
+        }
+
+        getAllColumnNamesHelper(ctx);
+        return columnNames;
+    }
+
     replaceColName(ctx, colNameMap, aggregateNameMap) {
         var self = this;
         if (ctx instanceof XEvalBaseParser.AggValueContext) {

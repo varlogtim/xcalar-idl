@@ -41,9 +41,14 @@ class XEvalVisitor extends XEvalBaseVisitor{
                 const child = ctx.children[0];
                 let value = child.getText();
                 let type = child.parser.ruleNames[child.ruleIndex];
-                if (type === "columnArg" && value.toUpperCase() === "NONE") {
-                    type = "None";
+                if (type === "columnArg") {
+                    if (value.toUpperCase() === "NONE") {
+                        type = "None";
+                    } else if (xcHelper.checkValidParamBrackets(value, true)) {
+                        type = "paramArg";
+                    }
                 }
+
                 func.args.push({
                     value: value,
                     type: type
@@ -97,6 +102,25 @@ class XEvalVisitor extends XEvalBaseVisitor{
             }).join(" ");
         }
     };
+
+    getAllColumnNames(ctx) {
+        var columnNames = [];
+
+        function getAllColumnNamesHelper(ctx) {
+            if (ctx instanceof XEvalBaseParser.ColumnArgContext) {
+                if (columnNames.indexOf(ctx.getText()) === -1) {
+                    columnNames.push(ctx.getText());
+                }
+            } else if (ctx.children) {
+                for (var i = 0; i < ctx.children.length; i++) {
+                    getAllColumnNamesHelper(ctx.children[i]);
+                }
+            }
+        }
+
+        getAllColumnNamesHelper(ctx);
+        return columnNames;
+    }
 
     replaceColName(ctx, colNameMap, aggregateNameMap) {
         var self = this;

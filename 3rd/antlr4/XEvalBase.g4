@@ -96,7 +96,7 @@ LTSIGN: '<';
 GTSIGN: '>';
 CARET: '^';
 DECIMAL: '-'? DIGIT+ '.' DIGIT+;
-SCIENTIFICDECIMAL: '-'? DIGIT+ ('.' DIGIT+)? E ('+'|'-') DIGIT+;
+SCIENTIFICDECIMAL: ('+'|'-')? DIGIT+ ('.' DIGIT+)? E ('+'|'-')? DIGIT+; // Not a strict scientific decimal format
 INTEGER: '-'? DIGIT+;
 STRING: ('"' ( ~('"'|'\\') | ('\\' .) )* '"') | ('\'' ( ~('\''|'\\') | ('\\' .) )* '\'');
 APOSTROPHE: '\'';

@@ -38,6 +38,10 @@
                 }
                 throw e;
             }
+
+            // add synthesize to get minimum number of columns before prepending
+            this.addMinSynthesize(opGraph);
+
             // Second (optional) traversal - add prepended operators to the correct place
             if (prepArray) {
                 const prepIdxMap = {};
@@ -137,6 +141,37 @@
                 }
             }
             visitedMap[opNode.name] = true;
+        },
+        addMinSynthesize: function(opNode) {
+            var visitedMap = [];
+            var leafNodes = [];
+            findLeafNodes(opNode, visitedMap, leafNodes);
+            for (var i = 0; i < leafNodes.length; i++) {
+                var colList = [];
+                var createdColList = [];
+                if (leafNodes[i].value.operation !== "XcalarApiSynthesize"
+                    && getMinColumns(leafNodes[i], colList, createdColList)) {
+                    // Add a synthesize node before leaf
+                    // in most cases it will be combined to prepended synthesize or select later
+                    var tempTableName = xcHelper.getTableName(leafNodes[i].value.args.source)
+                                            + "_tmp" + Authentication.getHashId();
+                    var synthesizeArgStruct = {source: leafNodes[i].value.args.source,
+                                               dest: tempTableName,
+                                               columns: colList.map(function(colName) {
+                                                   return {sourceColumn: colName,
+                                                           destColumn: colName};
+                                               })};
+                    var synthesizeNode = {name: tempTableName,
+                                          value: {operation: "XcalarApiSynthesize",
+                                                  args: synthesizeArgStruct},
+                                          parents: [leafNodes[i]],
+                                          children: [],
+                                          sources: leafNodes[i].sources};
+                    leafNodes[i].children = [synthesizeNode];
+                    leafNodes[i].sources = [tempTableName];
+                    leafNodes[i].value.args.source = tempTableName;
+                }
+            }
         },
         addIndexForCrossJoin: function(opNode, visitedMap) {
             if (visitedMap[opNode.name]) {
@@ -975,6 +1010,117 @@
             opGraph = opGraph.replaceWith;
         }
         return opGraph;
+    }
+
+    function findLeafNodes(node, visitedMap, leafNodes) {
+        if (visitedMap[node.name]) {
+            return;
+        } else if (node.children.length === 0) {
+            leafNodes.push(node);
+        } else {
+            for (var i = 0; i < node.children.length; i++) {
+                findLeafNodes(node.children[i], visitedMap, leafNodes);
+            }
+        }
+        visitedMap[node.name] = true;
+    }
+
+    function getMinColumns(node, colList, createdColList) {
+        if (node.parents.length > 1) {
+            return false;
+        }
+        var opName = node.value.operation;
+        switch (opName) {
+            case "XcalarApiGroupBy":
+            case "XcalarApiAggregate":
+                var newCreatedCols = [];
+                for (var evalStruct of node.value.args.eval) {
+                    var evalColumnList = XDParser.XEvalParser.getAllColumnNames(
+                                                    evalStruct.evalString, true);
+                    for (var colName of evalColumnList) {
+                        if (colList.indexOf(colName) === -1 &&
+                            createdColList.indexOf(colName) === -1) {
+                            colList.push(colName);
+                        }
+                    }
+                    newCreatedCols.push(evalStruct.newField);
+                }
+                createdColList = createdColList.concat(newCreatedCols);
+                if (node.value.args.includeSample && node.parents.length > 0) {
+                    return getMinColumns(node.parents[0], colList, createdColList);
+                } else if (node.value.args.includeSample) {
+                    return false;
+                } else {
+                    return true;
+                }
+            case "XcalarApiGetRowNum":
+                createdColList.push(node.value.args.newField);
+                if (node.parents.length > 0) {
+                    return getMinColumns(node.parents[0], colList, createdColList);
+                } else {
+                    return false;
+                }
+            case "XcalarApiMap":
+            case "XcalarApiFilter":
+                var newCreatedCols = [];
+                for (var evalStruct of node.value.args.eval) {
+                    var evalColumnList = XDParser.XEvalParser.getAllColumnNames(
+                                                    evalStruct.evalString, true);
+                    for (var colName of evalColumnList) {
+                        if (colList.indexOf(colName) === -1 &&
+                            createdColList.indexOf(colName) === -1) {
+                            colList.push(colName);
+                        }
+                    }
+                    newCreatedCols.push(evalStruct.newField); // Might be undefined here but it doesn't matter
+                }
+                createdColList = createdColList.concat(newCreatedCols);
+                if (node.parents.length > 0) {
+                    return getMinColumns(node.parents[0], colList, createdColList);
+                } else {
+                    return false;
+                }
+            case "XcalarApiIndex":
+                for (var keyStruct of node.value.args.key) {
+                    if (colList.indexOf(keyStruct.name) === -1 &&
+                        createdColList.indexOf(keyStruct.name) === -1) {
+                        colList.push(keyStruct.name);
+                    }
+                }
+                if (node.parents.length > 0) {
+                    return getMinColumns(node.parents[0], colList, createdColList);
+                } else {
+                    return false;
+                }
+            case "XcalarApiProject":
+                for (var colName of node.value.args.columns) {
+                    if (colList.indexOf(colName) === -1 &&
+                        createdColList.indexOf(colName) === -1) {
+                        colList.push(colName);
+                    }
+                }
+                return true;
+            case "XcalarApiSynthesize":
+                for (var colStruct of node.value.args.columns) {
+                    if (colList.indexOf(colStruct.sourceColumn) === -1 &&
+                        createdColList.indexOf(colStruct.sourceColumn) === -1) {
+                        colList.push(colStruct.sourceColumn);
+                    }
+                }
+                return true;
+            case "XcalarApiJoin":
+            case "XcalarApiUnion":
+                return false;
+            case "XcalarApiBulkLoad":
+            case "XcalarApiExecuteRetina":
+            case "XcalarApiExport":
+            case "XcalarApiDeleteObjects":
+            case "XcalarApiSelect":
+            default:
+                console.error("Unexpected parent operation: " + opName
+                              + " when adding minimum synthesize");
+                return false;
+        }
     }
 
     function findSelects(node, visitedMap, selectNodes) {
