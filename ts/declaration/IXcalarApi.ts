@@ -885,6 +885,13 @@ declare function xcalarUnpublish(
     inactivateOnly: boolean
 ): XDPromise<StatusT>;
 
+declare function xcalarApiPublishWorkItem(
+    srcTableName: string,
+    dstTableName: string,
+    unixTS: number,
+    dropSrc: boolean
+): WorkItem;
+
 declare function xcalarApiPublish(
     thriftHandle: ThriftHandler,
     srcTableName: string,

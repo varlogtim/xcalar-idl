@@ -5807,6 +5807,9 @@ xcalarApiGetQuery = runEntity.xcalarApiGetQuery = function(thriftHandle, workIte
     case XcalarApisT.XcalarApiSelect:
         json["args"] = workItem.input.selectInput;
         break;
+    case XcalarApisT.XcalarApiPublish:
+        json["args"] = workItem.input.publishInput;
+        break;
     default:
         break;
     }

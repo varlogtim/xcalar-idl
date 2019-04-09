@@ -2175,8 +2175,8 @@ XcalarMakeResultSetFromTable = function(
     xcalarMakeResultSetFromTable(tHandle, tableName)
     .then(deferred.resolve)
     .fail(function(error) {
-        const thriftError = thriftLog("XcalarMakeResultSetFromTable", error);
-        Log.errorLog("MakeResultSetFromTable", null, null, thriftError);
+        const thriftError = thriftLog("XcalarMakeResultSetFromTable: " + tableName, error);
+        Log.errorLog("MakeResultSetFromTable: " + tableName, null, null, thriftError);
         deferred.reject(thriftError);
     });
 
@@ -5425,16 +5425,35 @@ XcalarUnpublishTable = function(
 
 XcalarPublishTable = function(
     srcTableName: string,
-    pubTableName: string
+    pubTableName: string,
+    txId?: number
 ): XDPromise<StatusT> {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
 
     const deferred: XDDeferred<StatusT> = jQuery.Deferred();
+
+    if (Transaction.checkCanceled(txId)) {
+        return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
+    }
+
     const unixTS = 0; // TODO: Resolve whether XCE will stamp this instead
-    xcalarApiPublish(tHandle, srcTableName, pubTableName, unixTS, false)
-    .then(deferred.resolve)
+    const workItem = xcalarApiPublishWorkItem(srcTableName, pubTableName, unixTS, false);
+    let def: XDPromise<any> = xcalarApiPublish(tHandle, srcTableName, pubTableName, unixTS, false);
+
+    let query: string = XcalarGetQuery(workItem);
+    Transaction.startSubQuery(txId, 'publishTable', pubTableName, query);
+
+    def
+    .then(function(ret) {
+        if (Transaction.checkCanceled(txId)) {
+            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
+        } else {
+            Transaction.log(txId, query, pubTableName, ret.timeElapsed);
+            deferred.resolve(ret);
+        }
+    })
     .fail(function(error) {
         const thriftError = thriftLog("XcalarPublishTable", error);
         deferred.reject(thriftError);
@@ -5488,16 +5507,26 @@ XcalarRefreshTable = function(
         });
     }
 
-    const deferred: XDDeferred<XcalarApiNewTableOutputT> = jQuery.Deferred();
-
     const workItem = xcalarApiSelectWorkItem(pubTableName, dstTableName,
-                                        minBatch, maxBatch, filterString, columns, limitRows);
+        minBatch, maxBatch, filterString, columns, limitRows);
+
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    let def: XDPromise<any>;
+    if (Transaction.isSimulate(txId)) {
+        def = fakeApiCall();
+    } else {
+        if (tHandle == null) {
+            return PromiseHelper.resolve(null);
+        }
+        def = xcalarApiSelect(tHandle, pubTableName, dstTableName, maxBatch, minBatch,
+            filterString, columns, limitRows)
+    }
+
     const query = XcalarGetQuery(workItem);
     Transaction.startSubQuery(txId, SQLOps.RefreshTables, dstTableName, query);
 
     // Note max and min places are switched because the API is a little strange
-    xcalarApiSelect(tHandle, pubTableName, dstTableName, maxBatch, minBatch,
-        filterString, columns, limitRows)
+    def
     .then(function(ret) {
         Transaction.log(txId, query, dstTableName, (ret as any).timeElapsed);
         deferred.resolve.apply(this, arguments);

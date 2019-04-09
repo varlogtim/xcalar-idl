@@ -1006,7 +1006,7 @@ class DagNodeSQL extends DagNode {
                                                                      visitedMap));
             }
         }
-        const tempTab = DagTabSQLFunc.getFunc(funcName);
+        const tempTab: DagTabSQLFunc = DagTabSQLFunc.getFunc(funcName);
         let newTableName;
         PromiseHelper.when(...promises)
         .then((...tableNames) => {

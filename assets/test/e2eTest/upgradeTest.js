@@ -400,10 +400,12 @@ module.exports = {
 
             let nodeCategoryClass = '';
             let nodeCategorySelector = '';
+
             browser.execute(execFunctions.getNodeFromCategoryBar, nodes, ({value}) => {
                 nodeCategoryClass = value.categoryClass;
                 nodeCategorySelector = value.nodeSelector;
             });
+
 
             // Drag&Drop to create node
             browser.perform(() => {
@@ -422,6 +424,7 @@ module.exports = {
                     }
                 );
             });
+
             browser.perform(() => {
 
                 let input = {

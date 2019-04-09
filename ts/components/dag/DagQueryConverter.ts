@@ -1420,7 +1420,12 @@ class DagQueryConverter {
 
                     parent.schema = parent.createTableInput.schema;
                     parent.parents = [];
-                    parent.subGraphNodes = [parent.parents[0]];
+                    if (parent.parents[0]) {
+                        parent.subGraphNodes =  [parent.parents[0]];
+                    } else {
+                        parent.subGraphNodes = [];
+                    }
+
                 }
                 continue;
             }

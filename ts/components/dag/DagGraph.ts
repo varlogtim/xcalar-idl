@@ -11,6 +11,7 @@ class DagGraph {
     private _isBulkStateSwitch: boolean;
     private _stateSwitchSet: Set<DagNode>;
 
+
     protected operationTime: number;
     protected currentExecutor: DagGraphExecutor
     public events: { on: Function, off: Function, trigger: Function}; // example: dagGraph.events.on(DagNodeEvents.StateChange, console.log)
@@ -742,7 +743,7 @@ class DagGraph {
     public getOptimizedQuery(
         nodeIds: DagNodeId[],
         noReplaceParam?: boolean
-    ): XDPromise<string> {
+    ): XDPromise<{queryStr: string, destTables: string[]}> {
          // clone graph because we will be changing each node's table and we don't
         // want this to effect the actual graph
         const clonedGraph = this.clone();
@@ -808,16 +809,20 @@ class DagGraph {
         nodeId?: DagNodeId,
         optimized?: boolean,
         isCloneGraph: boolean = true,
-        allowNonOptimizedOut: boolean = false
-    ): XDPromise<string> {
+        allowNonOptimizedOut: boolean = false,
+        forExecution: boolean = false
+    ): XDPromise<{queryStr: string, destTables: string[]}> {
         // clone graph because we will be changing each node's table and we don't
         // want this to effect the actual graph
-        const clonedGraph = isCloneGraph ? this.clone() : this;
-        clonedGraph.setTabId(DagTab.generateId());
-        const nodesMap:  Map<DagNodeId, DagNode> = nodeId != null
-            ? clonedGraph.backTraverseNodes([nodeId], false).map
-            : clonedGraph.getAllNodes();
-        const orderedNodes: DagNode[] = clonedGraph._topologicalSort(nodesMap);
+        const graph = isCloneGraph ? this.clone() : this;
+        if (!forExecution) {
+            graph.setTabId(DagTab.generateId());
+        }
+
+        const nodesMap: Map<DagNodeId, DagNode> = nodeId != null
+            ? graph.backTraverseNodes([nodeId], false).map
+            : graph.getAllNodes();
+        const orderedNodes: DagNode[] = graph._topologicalSort(nodesMap);
         // save original sql nodes so we can cache query compilation
         let sqlNodes: Map<string, DagNodeSQL> = new Map();
         orderedNodes.forEach((clonedNode) => {
@@ -827,17 +832,20 @@ class DagGraph {
             }
         });
         const executor: DagGraphExecutor = this.getRuntime().accessible(
-            new DagGraphExecutor(orderedNodes, clonedGraph, {
+            new DagGraphExecutor(orderedNodes, graph, {
                 optimized: optimized,
                 allowNonOptimizedOut: allowNonOptimizedOut,
                 sqlNodes: sqlNodes
             })
         );
+        if (forExecution) {
+            this.setExecutor(executor);
+        }
         const checkResult = executor.checkCanExecuteAll();
         if (checkResult.hasError) {
             return PromiseHelper.reject(checkResult);
         }
-        return executor.getBatchQuery();
+        return executor.getBatchQuery(forExecution);
     }
 
     /**
@@ -1538,6 +1546,15 @@ class DagGraph {
         });
 
         return updatedNodes;
+    }
+    /**
+     *
+     * @param nodeInfos queryState info
+    */
+    public updateProgress(nodeInfos: any[]) {
+        if (this.currentExecutor != null) {
+            this.currentExecutor.updateProgress(nodeInfos);
+        }
     }
 
     protected getRuntime(): DagRuntime {

@@ -712,9 +712,10 @@ abstract class DagNode {
      * don't set the node to completed if there are other operations that will occur for that node
      * @param trustIndex use the index provided
      */
-    public updateProgress(tableNameMap,
+    public updateProgress(tableInfoMap,
         includesAllTables?: boolean,
         trustIndex?: boolean) {
+
         const errorStates: DgDagStateT[] = [DgDagStateT.DgDagStateUnknown,
                              DgDagStateT.DgDagStateError,
                              DgDagStateT.DgDagStateArchiveError];
@@ -727,8 +728,8 @@ abstract class DagNode {
             this.runStats.needsClear = false;
         }
         let tableCount: number = Object.keys(this.runStats.nodes).length;
-        for (let tableName in tableNameMap) {
-            const nodeInfo = tableNameMap[tableName];
+        for (let tableName in tableInfoMap) {
+            const nodeInfo = tableInfoMap[tableName];
             let tableRunStats: TableRunStats = this.runStats.nodes[tableName];
             if (!tableRunStats) {
                 let index: number;
@@ -754,7 +755,6 @@ abstract class DagNode {
                 this.runStats.nodes[tableName] = tableRunStats;
                 tableCount++;
             }
-
 
             if (nodeInfo.state === DgDagStateT.DgDagStateProcessing &&
                 tableRunStats.state !== DgDagStateT.DgDagStateProcessing) {
@@ -819,9 +819,30 @@ abstract class DagNode {
             if (this.state !== DagNodeState.Error || this.error !== DgDagStateTStr[errorState]) {
                 error = error || DgDagStateTStr[errorState]
                 this.beErrorState(error);
+                if (this instanceof DagNodeSQL) {
+                    this.setSQLQuery({
+                        endTime: new Date(),
+                        status: SQLStatus.Failed,
+                        errorMsg: error
+                    });
+                    this.updateSQLQueryHistory(true);
+                }
             }
         } else if (isComplete && includesAllTables && this.state !== DagNodeState.Complete) {
             this.beCompleteState();
+            if (this instanceof DagNodeSQL) {
+                this.setSQLQuery({
+                    endTime: new Date(),
+                    status: SQLStatus.Done,
+                    newTableName: this.getNewTableName()
+                });
+                this.updateSQLQueryHistory(true);
+            } else if (this instanceof DagNodePublishIMD) {
+                if (!(typeof PTblManager === "undefined")) {
+                    let tableName = this.getParam(true).pubTableName;
+                    return PTblManager.Instance.addTable(tableName);
+                }
+            }
         }
     }
 
@@ -841,7 +862,7 @@ abstract class DagNode {
         let rows = 0;
         let size = 0;
         let skew = 0;
-        let nodesArray = [];
+        let tables = [];
         let curStep: number;
         let curStepProgress: number;
         let hasProcessingNode: boolean;
@@ -851,9 +872,9 @@ abstract class DagNode {
         let state: DgDagStateT;
         for (let name in this.runStats.nodes) {
             const node = this.runStats.nodes[name];
-            nodesArray.push(node);
+            tables.push(node);
         }
-        nodesArray.sort((a,b) => {
+        tables.sort((a,b) => {
             if (a.index > b.index) {
                 return 1;
             } else {
@@ -861,35 +882,35 @@ abstract class DagNode {
             }
         });
 
-        nodesArray.forEach((node) => {
-            if (!node.name || !node.name.startsWith("deleteObj-")) {
+        tables.forEach((table) => {
+            if (!table.name || !table.name.startsWith("deleteObj-")) {
                 // this is a delete job which will cause row num to be 0
                 step++;
             }
-            if (!stateCounts[node.state]) {
-                stateCounts[node.state] = 0;
+            if (!stateCounts[table.state]) {
+                stateCounts[table.state] = 0;
             }
-            stateCounts[node.state]++;
-            if (node.state === DgDagStateT.DgDagStateProcessing ||
-                node.state === DgDagStateT.DgDagStateReady) {
-                numWorkCompleted += node.numWorkCompleted;
-                numWorkTotal += node.numWorkTotal;
-                if (!node.name || !node.name.startsWith("deleteObj-")) {
+            stateCounts[table.state]++;
+            if (table.state === DgDagStateT.DgDagStateProcessing ||
+                table.state === DgDagStateT.DgDagStateReady) {
+                numWorkCompleted += table.numWorkCompleted;
+                numWorkTotal += table.numWorkTotal;
+                if (!table.name || !table.name.startsWith("deleteObj-")) {
                     // this is a delete job which will cause row num to be 0
-                    rows = node.numRowsTotal;
+                    rows = table.numRowsTotal;
                 }
             }
-            if (node.state !== DgDagStateT.DgDagStateReady) {
-                if (node.state === DgDagStateT.DgDagStateProcessing ||
-                    node.state === DgDagStateT.DgDagStateError) {
+            if (table.state !== DgDagStateT.DgDagStateReady) {
+                if (table.state === DgDagStateT.DgDagStateProcessing ||
+                    table.state === DgDagStateT.DgDagStateError) {
                     if (!hasProcessingNode) {
                         hasProcessingNode = true; // prevents queued node from
                         // getting assigned as the processing state
                         curStep = step;
-                        if (node.state === DgDagStateT.DgDagStateError) {
+                        if (table.state === DgDagStateT.DgDagStateError) {
                             curStepProgress = 0;
                         } else {
-                            curStepProgress = node.numWorkCompleted / node.numWorkTotal;
+                            curStepProgress = table.numWorkCompleted / table.numWorkTotal;
                         }
                     }
                 } else if (!hasProcessingNode && curStep == null) {
@@ -898,10 +919,10 @@ abstract class DagNode {
                     curStepProgress = 0;
                 }
             }
-            if (node.skewValue != null && !isNaN(node.skewValue)) {
-                skew = Math.max(skew, node.skewValue);
+            if (table.skewValue != null && !isNaN(table.skewValue)) {
+                skew = Math.max(skew, table.skewValue);
             }
-            size = node.size;
+            size = table.size;
         });
         if (stateCounts[DgDagStateT.DgDagStateError] > 0) {
             state = DgDagStateT.DgDagStateError;
@@ -909,11 +930,11 @@ abstract class DagNode {
             (stateCounts[DgDagStateT.DgDagStateQueued] > 0 &&
              stateCounts[DgDagStateT.DgDagStateReady] > 0)) {
             state = DgDagStateT.DgDagStateProcessing;
-        } else if (nodesArray.length > 0 && nodesArray.length ===
+        } else if (tables.length > 0 && tables.length ===
             stateCounts[DgDagStateT.DgDagStateReady]) {
             state = DgDagStateT.DgDagStateReady;
         } else {
-            state === DgDagStateT.DgDagStateQueued;
+            state = DgDagStateT.DgDagStateQueued;
         }
 
         if (curStep == null) {
@@ -951,21 +972,21 @@ abstract class DagNode {
             state: state
         };
         if (!formatted) {
-            stats["started"] = nodesArray.length > 0;
+            stats["started"] = tables.length > 0 && state !== DgDagStateT.DgDagStateQueued;
         }
 
         return stats;
     }
 
     public getIndividualStats(formatted?: boolean): any[] {
-        let nodesArray = [];
+        let tables = [];
         for (let name in this.runStats.nodes) {
-            const node = this.runStats.nodes[name];
-            if (node.hasStats) {
-                nodesArray.push(node);
+            const table = this.runStats.nodes[name];
+            if (table.hasStats) {
+                tables.push(table);
             }
         }
-        nodesArray.sort((a,b) => {
+        tables.sort((a,b) => {
             if (a.index > b.index) {
                 return 1;
             } else {
@@ -973,17 +994,17 @@ abstract class DagNode {
             }
         });
         if (formatted) {
-            nodesArray = xcHelper.deepCopy(nodesArray);
-            nodesArray.forEach((node) => {
-                node.state = DgDagStateTStr[node.state];
-                node.type = XcalarApisTStr[node.type];
-                delete node.startTime;
-                delete node.index;
-                delete node.hasStats;
+            tables = xcHelper.deepCopy(tables);
+            tables.forEach((table) => {
+                table.state = DgDagStateTStr[table.state];
+                table.type = XcalarApisTStr[table.type];
+                delete table.startTime;
+                delete table.index;
+                delete table.hasStats;
             });
         }
 
-        return nodesArray;
+        return tables;
     }
 
     /**

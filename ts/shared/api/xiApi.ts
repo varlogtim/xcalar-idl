@@ -207,29 +207,24 @@ namespace XIApi {
         return deferred.promise();
     }
 
-    function getAggValue(txId: number, aggName: string): XDPromise<string | number> {
+    export async function getAggValue(txId: number, aggName: string): Promise<any> {
         if (txId != null && Transaction.isSimulate(txId)) {
-            return PromiseHelper.resolve(null);
+            return null;
         }
 
-        const deferred: XDDeferred<string | number> = PromiseHelper.deferred();
-        XIApi.fetchData(aggName, 1, 1)
-        .then((data) => {
+        try {
+            let data = await XIApi.fetchData(aggName, 1, 1);
             try {
                 const constant: string | number = JSON.parse(data[0]).constant;
-                deferred.resolve(constant);
+                return constant;
             } catch (e) {
                 console.error(e);
-                deferred.resolve(null, e);
+                return {error: e};
             }
-        })
-        .fail(() => {
-            deferred.resolve(null, "Invalid aggregate")
-        });
-
-        return deferred.promise();
+        } catch (e) {
+            return {error: "Invalid aggregate"};
+        }
     }
-
 
     /* =========== Index Helper ================ */
     function indexHelper(
@@ -1248,11 +1243,15 @@ namespace XIApi {
             return XIApi.query(txId, queryName, query);
         })
         .then(() => {
-            return getAggValue(txId, dstAggName);
+            return PromiseHelper.when(getAggValue(txId, dstAggName));
         })
-        .then((val, error) => {
-            aggVal = val;
-            err = error;
+        .then((val) => {
+            if (val != null && val.error) {
+                err = val.error;
+                aggVal = null;
+            } else {
+                aggVal = val;
+            }
             if (toDelete) {
                 return PromiseHelper.alwaysResolve(XIApi.deleteTable(txId, dstAggName));
             }
@@ -2847,7 +2846,7 @@ namespace XIApi {
         .then((indexTable) => {
             tableToDelete = indexTable;
             // Finally publish the table
-            return XcalarPublishTable(indexTable, pubTableName);
+            return XcalarPublishTable(indexTable, pubTableName, txId);
         })
         .then(() => {
             if (tableToDelete != srcTableName) {

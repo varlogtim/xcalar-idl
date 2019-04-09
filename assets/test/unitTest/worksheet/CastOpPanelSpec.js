@@ -13,6 +13,9 @@ describe('CastOpPanel Test', function() {
         if (XVM.isSQLMode()) {
             $("#modeArea").click();
         }
+        if ($(".dataflowWrapBackground .newTab").is(":visible")) {
+            $(".dataflowWrapBackground .newTab").click();
+        }
         console.log("Cast panel test");
         MainMenu.openPanel("dagPanel");
         node = new DagNodeMap({subType: "cast"});
@@ -116,7 +119,6 @@ describe('CastOpPanel Test', function() {
             $castOpPanel.find(".submit").click();
             expect($castOpPanel.is(":visible")).to.be.false;
             const input = node.getParam();
-
             expect(input).to.deep.equal({
                 "eval": [
                     {

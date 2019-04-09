@@ -4634,6 +4634,8 @@ namespace xcHelper {
             let srcTables: string[];
             if (operation === XcalarApisTStr[XcalarApisT.XcalarApiJoin]) {
                 srcTables = parsedQuery.args.source;
+            } else if (operation === XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects]) {
+                srcTables = [];
             } else {
                 srcTables = [parsedQuery.args.source];
             }

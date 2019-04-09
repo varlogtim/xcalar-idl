@@ -145,9 +145,9 @@ describe('DagTab Optimized Test', function() {
             expect(nodes.size).to.equal(2);
             expect(nodes.get("nodeId-1") instanceof DagNodeExport).to.be.true;
             expect(nodes.get("nodeId-3") instanceof DagNodeDataset).to.be.true;
-            expect(graph._nameIdMap[".XcalarLRQExport.table_1"]).to.equal("nodeId-1");
-            expect(graph._nameIdMap["table_1"]).to.equal("nodeId-3");
-            expect(graph._nameIdMap[".XcalarDS.name.123.classes"]).to.equal("nodeId-3");
+            expect(graph._tableNameToDagIdMap[".XcalarLRQExport.table_1"]).to.equal("nodeId-1");
+            expect(graph._tableNameToDagIdMap["table_1"]).to.equal("nodeId-3");
+            expect(graph._tableNameToDagIdMap[".XcalarDS.name.123.classes"]).to.equal("nodeId-3");
         });
 
         it("path should be correct", function() {
@@ -194,9 +194,9 @@ describe('DagTab Optimized Test', function() {
 
             expect(nodes.get("nodeId-1") instanceof DagNodeExport).to.be.true;
             expect(nodes.get("nodeId-3") instanceof DagNodeDataset).to.be.true;
-            expect(graph._nameIdMap[".XcalarLRQExport.table_1"]).to.equal("nodeId-1");
-            expect(graph._nameIdMap["table_1"]).to.equal("nodeId-3");
-            expect(graph._nameIdMap[".XcalarDS.name.123.classes"]).to.equal("nodeId-3");
+            expect(graph._tableNameToDagIdMap[".XcalarLRQExport.table_1"]).to.equal("nodeId-1");
+            expect(graph._tableNameToDagIdMap["table_1"]).to.equal("nodeId-3");
+            expect(graph._tableNameToDagIdMap[".XcalarDS.name.123.classes"]).to.equal("nodeId-3");
 
             expect(tab._isDoneExecuting).to.be.false;
             expect(tab._isFocused).to.be.true;
@@ -468,14 +468,13 @@ describe('DagTab Optimized Test', function() {
                 expect(nodes.get("nodeId-1") instanceof DagNodeSynthesize).to.be.true;
                 expect(nodes.get("nodeId-3") instanceof DagNodeDataset).to.be.true;
 
-                expect(graph._nameIdMap[".XcalarLRQExport.table_1"]).to.equal("nodeId-1");
-                expect(graph._nameIdMap["table_1"]).to.equal("nodeId-3");
-                expect(graph._nameIdMap[".XcalarLRQ.751205.XcalarDS.name.123.classes"]).to.equal("nodeId-3");
+                expect(graph._tableNameToDagIdMap[".XcalarLRQExport.table_1"]).to.equal("nodeId-1");
+                expect(graph._tableNameToDagIdMap["table_1"]).to.equal("nodeId-3");
+                expect(graph._tableNameToDagIdMap[".XcalarLRQ.751205.XcalarDS.name.123.classes"]).to.equal("nodeId-3");
 
                 const $dfArea = DagViewManager.Instance.getActiveArea();
                 expect($dfArea.find(".operator").length).to.equal(2);
                 expect($dfArea.find(".operator.dataset").attr('transform')).to.equal("translate(140,140)");
-                expect($dfArea.find(".operator.dataset").find(".opProgress").text()).to.equal("100%Step 2");
 
                 expect($dfArea.find(".operator.synthesize").attr('transform')).to.equal("translate(280,140)");
                 expect($dfArea.find(".operator.synthesize").find(".opProgress").text()).to.equal("50%");

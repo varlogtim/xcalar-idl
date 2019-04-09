@@ -37,10 +37,11 @@ describe('DagComponent Test', function() {
             it(`${dfName}`, async () => {
                 let xcalarQuery;
                 try {
-                    xcalarQuery = await convertPromise(DagHelper.convertKvs(
+                    let ret = await convertPromise(DagHelper.convertKvs(
                         dfStrList, dfName, false, listXdfsStr,
                         testConfig.userName, testConfig.sessionId, testConfig.workbook
                     ));
+                    xcalarQuery = ret.queryStr;
                 } catch(e) {
                     if (e != null && e.type != null && typeof e.type === 'string') {
                         assert.fail(e.type);
@@ -108,7 +109,7 @@ function convertPromise(promise) {
             } catch(e) {
                 reject(e);
             }
-        });    
+        });
     } else {
         // Native promise
         return promise;

@@ -139,6 +139,7 @@ class DagTabManager {
                 customNode: customNode
             });
             newTab.setGraph(newTab.getGraph());
+            newTab.getGraph().setTabId(tabId);
             // Register the new tab in DagTabManager
             if (this._addSubTab(parentTabId, tabId)) {
                 this._addDagTab(newTab);

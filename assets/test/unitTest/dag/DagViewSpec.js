@@ -439,7 +439,7 @@ describe("DagView Test", () => {
         });
 
         it("should add progress", () => {
-            DagViewManager.Instance.addProgress(nodeId, tabId);
+            DagViewManager.Instance.addProgressPct(nodeId, tabId);
             expect($node.find(".opProgress").text()).to.equal("0%");
         });
 
@@ -449,7 +449,7 @@ describe("DagView Test", () => {
         });
 
         it("should remove progress", () => {
-            DagViewManager.Instance.removeProgress(nodeId, tabId);
+            DagViewManager.Instance.removeProgressPct(nodeId, tabId);
             expect($node.find(".opProgress").length).to.equal(0);
         });
 

@@ -379,18 +379,15 @@ describe('XIApi Test', () => {
             const txId = 0;
             const tableName = 'testTable';
             let oldIsSimulate;
-            let oldIsEdit;
             let oldGetIndexCache;
 
             before(() => {
                 joinIndex = XIApi.__testOnly__.joinIndex;
 
                 oldIsSimulate = Transaction.isSimulate;
-                oldIsEdit = Transaction.isEdit;
                 oldGetIndexCache = SQLApi.getIndexTable;
 
                 Transaction.isSimulate = () => true;
-                Transaction.isEdit = () => false;
                 SQLApi.getIndexTable = () => {
                     return { tableName: tableName, keys: ['key'], tempCols: [] };
                 }
@@ -549,7 +546,6 @@ describe('XIApi Test', () => {
 
             after(() => {
                 Transaction.isSimulate = oldIsSimulate;
-                Transaction.isEdit = oldIsEdit;
                 SQLApi.getIndexTable = oldGetIndexCache;
             });
         });
@@ -590,7 +586,6 @@ describe('XIApi Test', () => {
             const tableName = 'test#a';
             let computeDistinctGroupby;
             let oldIsSimulate;
-            let oldIsEdit;
             let oldGetIndexCache;
             let oldCacheIndexCache;
 
@@ -598,12 +593,10 @@ describe('XIApi Test', () => {
                 computeDistinctGroupby = XIApi.__testOnly__.computeDistinctGroupby;
 
                 oldIsSimulate = Transaction.isSimulate;
-                oldIsEdit = Transaction.isEdit;
                 oldGetIndexCache = SQLApi.getIndexTable;
                 oldCacheIndexCache = SQLApi.cacheIndexTable;
 
                 Transaction.isSimulate = () => true;
-                Transaction.isEdit = () => false;
                 SQLApi.getIndexTable = () => {
                     return { tableName: tableName, keys: ['key'] };
                 };
@@ -663,7 +656,6 @@ describe('XIApi Test', () => {
 
             after(() => {
                 Transaction.isSimulate = oldIsSimulate;
-                Transaction.isEdit = oldIsEdit;
                 SQLApi.getIndexTable = oldGetIndexCache;
                 SQLApi.cacheIndexTable = oldCacheIndexCache;
             });
@@ -764,13 +756,11 @@ describe('XIApi Test', () => {
 
         it('distinctGroupby should work', (done) => {
             const oldIsSimulate = Transaction.isSimulate;
-            const oldIsEdit = Transaction.isEdit;
             const oldGetIndexCache = SQLApi.getIndexTable;
             const oldCacheIndexCache = SQLApi.cacheIndexTable;
             const oldQuery = XIApi.query;
 
             Transaction.isSimulate = () => true;
-            Transaction.isEdit = () => false;
             SQLApi.getIndexTable = () => {
                 return { tableName: tableName, keys: ['key'] };
             };
@@ -805,7 +795,6 @@ describe('XIApi Test', () => {
                 })
                 .always(() => {
                     Transaction.isSimulate = oldIsSimulate;
-                    Transaction.isEdit = oldIsEdit;
                     SQLApi.getIndexTable = oldGetIndexCache;
                     SQLApi.cacheIndexTable = oldCacheIndexCache;
                     XIApi.query = oldQuery;
@@ -1190,11 +1179,9 @@ describe('XIApi Test', () => {
 
         it('XIApi.index should work', (done) => {
             const isSimulate = Transaction.isSimulate;
-            const isEdit = Transaction.isEdit;
             const getIndexTable = SQLApi.getIndexTable;
 
             Transaction.isSimulate = () => true;
-            Transaction.isEdit = () => false;
             SQLApi.getIndexTable = () => {
                 return { tableName: 'indexTable', keys: ['key'] }
             };
@@ -1210,7 +1197,6 @@ describe('XIApi Test', () => {
                     done('fail');
                 })
                 .always(() => {
-                    Transaction.isEdit = isEdit;
                     Transaction.isSimulate = isSimulate;
                     SQLApi.getIndexTable = getIndexTable;
                 });
@@ -1376,20 +1362,17 @@ describe('XIApi Test', () => {
             let oldMap;
             let oldQuery;
             let isSimulate;
-            let isEdit;
             let getIndexTable;
 
             before(() => {
                 oldMap = XIApi.map;
                 oldQuery = XIApi.query;
                 isSimulate = Transaction.isSimulate;
-                isEdit = Transaction.isEdit;
                 getIndexTable = SQLApi.getIndexTable;
 
                 XIApi.map = () => PromiseHelper.resolve();
                 XIApi.query = () => PromiseHelper.resolve();
                 Transaction.isSimulate = () => true;
-                Transaction.isEdit = () => false;
                 SQLApi.getIndexTable = () => {
                     return { tableName: 'indexTable', keys: ['key'] }
                 };
@@ -1491,7 +1474,6 @@ describe('XIApi Test', () => {
                 XIApi.map = oldMap;
                 XIApi.query = oldQuery;
                 Transaction.isSimulate = isSimulate;
-                Transaction.isEdit = isEdit;
                 SQLApi.getIndexTable = getIndexTable;
             });
         });
@@ -1500,18 +1482,15 @@ describe('XIApi Test', () => {
         describe('XIApi.groupBy Test', function () {
             let oldQuery;
             let isSimulate;
-            let isEdit;
             let getIndexTable;
 
             before(() => {
                 oldQuery = XIApi.query;
                 isSimulate = Transaction.isSimulate;
-                isEdit = Transaction.isEdit;
                 getIndexTable = SQLApi.getIndexTable;
 
                 XIApi.query = () => PromiseHelper.resolve();
                 Transaction.isSimulate = () => true;
-                Transaction.isEdit = () => false;
                 SQLApi.getIndexTable = () => {
                     return { tableName: 'indexTable', keys: ['key'] }
                 };
@@ -1614,7 +1593,6 @@ describe('XIApi Test', () => {
             after(() => {
                 XIApi.query = oldQuery;
                 Transaction.isSimulate = isSimulate;
-                Transaction.isEdit = isEdit;
                 SQLApi.getIndexTable = getIndexTable;
             });
         });

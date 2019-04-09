@@ -97,10 +97,10 @@ class DagTabSQLFunc extends DagTabUser {
     }
 
     public getPath(): string {
-        return "/" + DagTabSQLFunc.HOMEDIR + "/" + this.getName(); 
+        return "/" + DagTabSQLFunc.HOMEDIR + "/" + this.getName();
     }
 
-    public getQuery(inputs: string[]): XDPromise<string> {        
+    public getQuery(inputs: string[]): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         this._loadGraph()
         .then(() => {
@@ -116,9 +116,10 @@ class DagTabSQLFunc extends DagTabUser {
                 })
             }
         })
-        .then((query: string, destTables: string[]) => {
+        .then((ret) => {
+            let {queryStr, destTables} = ret;
             let desTable: string = destTables[destTables.length - 1];
-            deferred.resolve(query, desTable);
+            deferred.resolve(queryStr, desTable);
         })
         .fail((result) => {
             if (typeof result === "object" &&

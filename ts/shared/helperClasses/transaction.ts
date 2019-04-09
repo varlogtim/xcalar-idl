@@ -12,12 +12,12 @@ namespace Transaction {
         msg?: string,
         simulate?: boolean,
         sql?: SQLInfo,
-        isEdit?: boolean,
         track?: boolean,
         steps?: number,
         cancelable?: boolean,
         exportName?: string,
-        nodeId?: DagNodeId,
+        nodeIds?: DagNodeId[],
+        trackDataflow?: boolean,
         tabId?: string,
         parentTxId?: number,
         udfUserName?: string;
@@ -54,8 +54,8 @@ namespace Transaction {
         msgId?: number;
         operation: string;
         sql?: SQLInfo;
-        isEdit?: boolean;
-        nodeId?: DagNodeId;
+        nodeIds?: DagNodeId[];
+        trackDataflow?: boolean;
         tabId?: string;
         parentTxId?: number;
         udfUserName?: string;
@@ -68,8 +68,8 @@ namespace Transaction {
         operation: string;
         cli: string;
         sql: SQLInfo;
-        isEdit: boolean;
-        nodeId: DagNodeId;
+        nodeIds: DagNodeId[];
+        trackDataflow?: boolean;
         tabId: string;
         parentTxId: number;
         udfUserName?: string;
@@ -80,8 +80,8 @@ namespace Transaction {
             this.operation = options.operation;
             this.cli = "";
             this.sql = options.sql || null;
-            this.isEdit = options.isEdit || false;
-            this.nodeId = options.nodeId || null;
+            this.nodeIds = options.nodeIds || null;
+            this.trackDataflow = options.trackDataflow || false;
             this.tabId = options.tabId || null;
             this.parentTxId = options.parentTxId || null;
             this.udfUserName = options.udfUserName;
@@ -141,8 +141,8 @@ namespace Transaction {
             "msgId": msgId,
             "operation": operation,
             "sql": options.sql,
-            "isEdit": options.isEdit,
-            "nodeId": options.nodeId,
+            "nodeIds": options.nodeIds,
+            "trackDataflow": options.trackDataflow,
             "tabId": options.tabId,
             "parentTxId": options.parentTxId,
             "udfUserName": options.udfUserName,
@@ -169,9 +169,6 @@ namespace Transaction {
             };
 
             QueryManager.addQuery(curId, operation, queryOptions);
-            if (txLog.nodeId != null) {
-                DagViewManager.Instance.addProgress(txLog.nodeId, txLog.tabId);
-            }
         }
 
         txIdCount++;
@@ -188,10 +185,10 @@ namespace Transaction {
             return;
         }
         if (!has_require) {
-            const txLog: TXLog = txCache[txId];
-            if (txLog && txLog.nodeId) {
+            const txLog: TXLog = txCache[txId] || canceledTxCache[txId];
+            if (txLog && txLog.trackDataflow) {
                 try {
-                    DagViewManager.Instance.calculateAndUpdateProgress(queryStateOutput, txLog.nodeId, txLog.tabId);
+                    DagViewManager.Instance.updateDFProgress(txLog.tabId, queryStateOutput, txLog.nodeIds);
                     const parentTxId: number = txLog.parentTxId;
                     if (parentTxId != null) {
                         Transaction.update(parentTxId, queryStateOutput);
@@ -273,7 +270,9 @@ namespace Transaction {
 
         // remove transaction
         removeTX(txId);
-
+        if (canceledTxCache[txId]) {
+            canceledTxCache[txId] = {}; // removes any meta
+        }
         // commit
         if (willCommit && !has_require) {
             KVStore.commit();
@@ -344,13 +343,13 @@ namespace Transaction {
                 const alertTitle = failMsg || CommonTxtTstr.OpFail;
                 Alert.error(alertTitle, error);
             }
-            if (txLog.nodeId != null) {
-                DagViewManager.Instance.removeProgress(txLog.nodeId, txLog.tabId);
-            }
         }
 
         transactionCleaner();
         removeTX(txId);
+        if (canceledTxCache[txId]) {
+            canceledTxCache[txId] = {}; // removes any meta
+        }
 
         if (Transaction.isSimulate(txId)) {
             console.log("simuldate in fail", cli);
@@ -388,14 +387,6 @@ namespace Transaction {
      */
     export function isSimulate(txId: number): boolean {
         return (txId && !Number.isInteger(txId));
-    };
-
-    /**
-     * Transaction.isEdit
-     * @param txId
-     */
-    export function isEdit(txId: number): boolean {
-        return (txId && txCache[txId] && txCache[txId].isEdit);
     };
 
     /**
@@ -455,12 +446,12 @@ namespace Transaction {
     /**
      * Transaction.log
      * @param txId
-     * @param cli
+     * @param query
      * @param dstTableName
      * @param timeObj
      * @param options
      */
-    export function log(txId, cli, dstTableName?, timeObj?, options?): void {
+    export function log(txId: number, query: string, dstTableName?: string, timeObj?, options?): void {
         if (!isValidTX(txId)) {
             return;
         }
@@ -469,7 +460,7 @@ namespace Transaction {
         }
 
         const tx: TXLog = txCache[txId];
-        tx.addCli(cli);
+        tx.addCli(query);
 
         if (!has_require && (dstTableName || timeObj != null)) {
             QueryManager.subQueryDone(txId, dstTableName, timeObj, options);
@@ -560,16 +551,10 @@ namespace Transaction {
     }
 
     function cancelTX(txId: number): void {
-        canceledTxCache[txId] = true;
+        canceledTxCache[txId] = txCache[txId] || {};
     }
 
     function removeTX(txId: number): void {
-        if (!has_require) {
-            const txLog: TXLog = txCache[txId];
-            if (txLog && txLog.nodeId != null) {
-                DagViewManager.Instance.removeProgress(txLog.nodeId, txLog.tabId);
-            }
-        }
         delete disabledCancels[txId];
         delete txCache[txId];
     }

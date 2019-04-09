@@ -12,19 +12,22 @@ class DagNodeExecutor {
     private tabId: string;
     private replaceParam: boolean;
     private originalSQLNode: DagNodeSQL;
+    private isBatchExecution: boolean;
 
     public constructor(
         node: DagNode,
         txId: number,
         tabId: string,
         noReplaceParam: boolean = false,
-        originalSQLNode: DagNodeSQL
+        originalSQLNode: DagNodeSQL,
+        isBatchExecution: boolean = false
     ) {
         this.node = node;
         this.txId = txId;
         this.tabId = tabId;
         this.replaceParam = !noReplaceParam;
         this.originalSQLNode = originalSQLNode;
+        this.isBatchExecution = isBatchExecution;
     }
 
     /**
@@ -108,17 +111,17 @@ class DagNodeExecutor {
                 case DagNodeType.GroupBy:
                     return this._groupby();
                 case DagNodeType.Join:
-                    return this._join(optimized);
+                    return this._join();
                 case DagNodeType.Map:
-                    return this._map(optimized);
+                    return this._map();
                 case DagNodeType.Split:
-                    return this._map(optimized);
+                    return this._map();
                 case DagNodeType.Round:
-                    return this._map(optimized);
+                    return this._map();
                 case DagNodeType.Project:
                     return this._project();
                 case DagNodeType.Explode:
-                    return this._map(optimized);
+                    return this._map();
                 case DagNodeType.Set:
                     return this._set();
                 case DagNodeType.Export:
@@ -315,7 +318,7 @@ class DagNodeExecutor {
         XIApi.aggregateWithEvalStr(this.txId, evalStr, tableName, dstAggName)
         .then((value, aggName) => {
             node.setAggVal(value);
-            if (!optimized && value) {
+            if (!Transaction.isSimulate(this.txId) && !optimized && value) {
                 // We don't want to add if optimized or ran as a query
                 const aggRes: AggregateInfo = {
                     value: value,
@@ -332,7 +335,7 @@ class DagNodeExecutor {
             return PromiseHelper.resolve();
         })
         .then(() => {
-            deferred.resolve(null); // no table generated
+            deferred.resolve(dstAggName); // no table generated
         })
         .fail((err) => {
             // Remove the aggregate in the background
@@ -475,7 +478,7 @@ class DagNodeExecutor {
         return deferred.promise();
     }
 
-    private _join(_optimized?: boolean): XDPromise<string> {
+    private _join(): XDPromise<string> {
         const node: DagNodeJoin = <DagNodeJoin>this.node;
         const params: DagNodeJoinInputStruct = node.getParam(this.replaceParam);
         const parents: DagNode[] = node.getParents();
@@ -546,7 +549,7 @@ class DagNodeExecutor {
         }
     }
 
-    private _map(_optimized: boolean): XDPromise<string> {
+    private _map(): XDPromise<string> {
         const node: DagNodeMap = <DagNodeMap>this.node;
         const params: DagNodeMapInputStruct = node.getParam(this.replaceParam);
         const mapStrs: string[] = [];
@@ -564,6 +567,7 @@ class DagNodeExecutor {
         const isIcv: boolean = params.icv;
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
+
         XIApi.map(this.txId, mapStrs, srcTable, newFields, desTable, isIcv)
         .then((tableAfterMap) => {
             if (node.getSubType() === DagNodeSubType.Cast) {
@@ -644,7 +648,8 @@ class DagNodeExecutor {
         const node: DagNodeCustom = <DagNodeCustom>this.node;
         const isSimulate: boolean = Transaction.isSimulate(this.txId);
 
-        if (isSimulate) { // In batch mode
+       if (isSimulate) { // In batch mode
+
             // Clone the custom node to avoid unexpected behavior
             // We dont use DagGraph.clone, because DagNodeCustom.clone() can create DagNodeCustomInput correctly.
             // Specificly, DagNodeCustomInput.setContainer() must be called during clone
@@ -659,13 +664,16 @@ class DagNodeExecutor {
             });
             const clonedGraph = clonedNode.getSubGraph();
 
+
             // Execute the subGraph in batch mode
             let destTable;
             clonedGraph.getQuery(null, optimized, false)
-            .then((query, tables) => {
-                tables = tables || [];
+            .then((res) => {
+                let {queryStr, destTables} = res;
+                let tables = destTables || [];
                 destTable = tables[tables.length - 1];
-                return XIApi.query(this.txId, destTable, query);
+               return XIApi.query(this.txId, destTable, queryStr);
+
             })
             .then(() => {
                 deferred.resolve(destTable);
@@ -693,10 +701,12 @@ class DagNodeExecutor {
             .fail((error) => {
                 deferred.reject(error);
             });
+
         }
 
         return deferred.promise();
     }
+
 
     private _customInput(): XDPromise<string> {
         const node: DagNodeCustomInput = <DagNodeCustomInput>this.node;
@@ -772,7 +782,7 @@ class DagNodeExecutor {
             if (optimized) {
                 deferred.resolve(srcTable);
             } else {
-                deferred.resolve(null); // no table generated
+                deferred.resolve(exportName);
             }
         })
         .fail(deferred.reject);
@@ -788,7 +798,7 @@ class DagNodeExecutor {
             const graph: DagGraph = res.graph;
             const linkOutNode: DagNodeDFOut = res.node;
             if (linkOutNode.shouldLinkAfterExecuition()) {
-                return this._linkWithExecution(graph, linkOutNode, optimized);
+                return this._linkWithExecution(graph, linkOutNode, node, optimized);
             } else {
                 return this._linkWithBatch(graph, linkOutNode, optimized);
             }
@@ -805,6 +815,7 @@ class DagNodeExecutor {
     private _linkWithExecution(
         graph: DagGraph,
         node: DagNodeDFOut,
+        dfInNode: DagNodeDFIn,
         optimized?: boolean
     ): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
@@ -824,10 +835,16 @@ class DagNodeExecutor {
                 promise = graph.execute([node.getId()])
             } else {
                 promise = PromiseHelper.resolve();
+
             }
             promise
             .then(() => {
                 const destTable: string = node.getTable();
+                if (destTable) {
+                    dfInNode.setTable(destTable);
+                    DagTblManager.Instance.addTable(destTable);
+                }
+                dfInNode.beCompleteState();
                 deferred.resolve(destTable);
             })
             .fail(deferred.reject);
@@ -842,20 +859,21 @@ class DagNodeExecutor {
         let priorDestTable = node.getStoredQueryDest(this.tabId);
         let promise;
         if (priorDestTable) {
-            promise = PromiseHelper.resolve("", [priorDestTable]);
+            promise = PromiseHelper.resolve({queryStr: "", destTables:[priorDestTable]});
         } else {
             promise = graph.getQuery(node.getId(), optimized, true, true);
         }
         let destTable: string;
         promise
-        .then((query: string, tables) => {
-            if ("object" == typeof tables) {
+        .then((ret) => {
+            let {queryStr, destTables} = ret;
+            if ("object" == typeof destTables) {
                 // get the last dest table
-                destTable = tables[tables.length - 1];
+                destTable = destTables[destTables.length - 1];
             }
             if (!priorDestTable) {
                 node.setStoredQueryDest(this.tabId, destTable);
-                return XIApi.query(this.txId, destTable, query);
+                return XIApi.query(this.txId, destTable, queryStr);
             } else {
                 return PromiseHelper.resolve();
             }
@@ -929,7 +947,7 @@ class DagNodeExecutor {
             }
         })
         .then(() => {
-            deferred.resolve();
+            deferred.resolve(tableName);
         })
         .fail(deferred.reject)
         return deferred.promise();
@@ -1194,12 +1212,6 @@ class DagNodeExecutor {
             return XIApi.query(self.txId, queryId, finalQueryStr, options);
         })
         .then(function(res) {
-            // Set status to Done
-            node.setSQLQuery({
-                status: SQLStatus.Done,
-                endTime: new Date(),
-                newTableName: newDestTableName
-            });
             node.getSQLQuery().columns = node.getColumns();
             node.updateSQLQueryHistory();
             deferred.resolve(newDestTableName, res);
@@ -1340,7 +1352,7 @@ class DagNodeExecutor {
         const params: DagNodeSQLFuncInInputStruct = node.getParam(this.replaceParam);
         const isSimulate: boolean = Transaction.isSimulate(this.txId);
         const source: string = params.source;
-        if (isSimulate) {
+        if (isSimulate && !this.isBatchExecution) {
             return PromiseHelper.resolve(source);
         } else {
             const deferred: XDDeferred<string> = PromiseHelper.deferred();

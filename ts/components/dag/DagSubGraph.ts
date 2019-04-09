@@ -1,16 +1,15 @@
 class DagSubGraph extends DagGraph {
     private startTime: number;
-    private _nameIdMap;
+    private _tableNameToDagIdMap;
     private _dagIdToTableNamesMap;// id to tableName map stores all the tables related to the dag node
     // in topological order
     private isComplete: boolean = false;
     private elapsedTime: number;
-    private state: DgDagStateT;
 
-    public constructor(nameIdMap?, dagIdToTableNamesMap?) {
+    public constructor(tableNameToDagIdMap?, dagIdToTableNamesMap?) {
         super();
         this.startTime = Date.now();
-        this._nameIdMap = nameIdMap;
+        this._tableNameToDagIdMap = tableNameToDagIdMap;
         this._dagIdToTableNamesMap = dagIdToTableNamesMap;
     }
     /**
@@ -96,12 +95,12 @@ class DagSubGraph extends DagGraph {
         return nodeIdMap;
     }
 
-    public setTableDagIdMap(nameIdMap) {
-        this._nameIdMap = nameIdMap;
+    public setTableDagIdMap(tableNameToDagIdMap) {
+        this._tableNameToDagIdMap = tableNameToDagIdMap;
     }
 
     public getTableDagIdMap() {
-        return this._nameIdMap;
+        return this._tableNameToDagIdMap;
     }
 
     public setDagIdToTableNamesMap(dagIdToTableNamesMap) {
@@ -122,7 +121,7 @@ class DagSubGraph extends DagGraph {
             }
             if (queryNode.operation !== XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects] &&
                 queryNode.api !== XcalarApisT.XcalarApiDeleteObjects) {
-                let nodeId: DagNodeId = this._nameIdMap[args.dest];
+                let nodeId: DagNodeId = this._tableNameToDagIdMap[args.dest];
                 let node: DagNode = this.getNode(nodeId);
                 if (node != null) { // could be a drop table node
                     node.beRunningState();
@@ -136,7 +135,7 @@ class DagSubGraph extends DagGraph {
     }
 
     /**
-     * Should be called after nameIdMap is set but
+     * Should be called after _tableNameToDagIdMap is set but
      * before xcalarQuery gets executed.
      * Loop through all tables, update all tables in the node ids
      * then loop through all the tables
@@ -144,8 +143,8 @@ class DagSubGraph extends DagGraph {
     public initializeProgress(): void {
         const nodeIdToTableNamesMap = new Map();
 
-        for (let tableName in this._nameIdMap) {
-            const nodeId = this._nameIdMap[tableName];
+        for (let tableName in this._tableNameToDagIdMap) {
+            const nodeId = this._tableNameToDagIdMap[tableName];
             if (!nodeIdToTableNamesMap.has(nodeId)) {
                 nodeIdToTableNamesMap.set(nodeId, [])
             }
@@ -161,16 +160,16 @@ class DagSubGraph extends DagGraph {
     }
 
 
-    /**
-     *
-     * @param nodeInfos queryState info
-    */
-    public updateProgress(nodeInfos: any[]) {
+    // /**
+    //  *
+    //  * @param nodeInfos queryState info
+    // */
+    public updateSubGraphProgress(nodeInfos: any[]) {
         const nodeIdInfos = {};
 
         nodeInfos.forEach((nodeInfo) => {
             let tableName: string = nodeInfo.name.name;
-            let nodeId = this._nameIdMap[tableName];
+            let nodeId = this._tableNameToDagIdMap[tableName];
 
             // optimized datasets name gets prefixed with xcalarlrq and an id
             // so we strip this to find the corresponding UI dataset name
@@ -178,7 +177,7 @@ class DagSubGraph extends DagGraph {
                 tableName.startsWith(".XcalarLRQ.") &&
                 tableName.indexOf(gDSPrefix) > -1) {
                 tableName = tableName.slice(tableName.indexOf(gDSPrefix));
-                nodeId = this._nameIdMap[tableName];
+                nodeId = this._tableNameToDagIdMap[tableName];
             }
 
             if (!nodeId) {// could be a drop table node

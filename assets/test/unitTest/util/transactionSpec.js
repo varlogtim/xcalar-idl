@@ -68,7 +68,6 @@ describe("Transaction Test", function() {
             expect(called2).to.be.true;
 
             var txs = Transaction.getCache();
-            expect(txs[id].isEdit).to.be.false;
             expect(txs[id].operation).to.equal("test operation");
             expect(txs[id].msgId).to.equal(99);
             expect(txs[id].sql.retName).to.equal("myret");
@@ -538,12 +537,6 @@ describe("Transaction Test", function() {
                 expect(dagNodeId).to.equal(nodeId);
             };
 
-            DagViewManager.Instance.calculateAndUpdateProgress = (queryStateOutPut, dagNodeId) => {
-                expect(dagNodeId).to.equal(nodeId);
-                let progress = xcHelper.getQueryProgress(queryStateOutPut);
-                pct = Math.round(100 * progress);
-            };
-
             DagViewManager.Instance.removeProgress = (dagNodeId) => {
                 expect(dagNodeId).to.equal(nodeId);
             };
@@ -583,57 +576,13 @@ describe("Transaction Test", function() {
                 }
             }
             Transaction.update(txId, queryStateOutput);
-            expect(pct).to.equal(40);
             Transaction.done(txId, {});
         });
 
         after(() => {
             DagViewManager.Instance.addProgress = oldAddProgress;
-            DagViewManager.Instance.calculateAndUpdateProgress = oldUpdateProgress;
             DagViewManager.Instance.removeProgress = oldRemoveProgress;
         });
     });
 
-    describe("isEdit", function() {
-        var id;
-        before(function() {
-            var cacheFn = QueryManager.addQuery;
-            QueryManager.addQuery = function(curId, operation, queryOptions) {
-            }
-
-            var cacheFn2 = StatusMessage.addMsg;
-            StatusMessage.addMsg = function(info) {
-                return 99;
-            };
-
-            id = Transaction.start({
-                operation: "test operation",
-                msg: "msg",
-                steps: 3,
-                track: true,
-                sql: {
-                    retName: "myret",
-                    tableNames: ["mytable"]
-                },
-                isEdit: true
-            });
-
-            QueryManager.addQuery = cacheFn;
-            StatusMessage.addMsg = cacheFn2;
-        });
-
-        it("isEdit should return false", function() {
-            expect(Transaction.isEdit()).to.not.be.true;
-        });
-        it("isEdit should return true", function() {
-            expect(Transaction.isEdit(id)).to.be.true;
-        });
-
-        after(function() {
-            var info = Transaction.__testOnly__.getAll();
-
-            delete info.txCache[id];
-            console.log(info);
-        });
-    })
 });

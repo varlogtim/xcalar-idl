@@ -493,7 +493,7 @@ window.TestSuite = (function($, TestSuite) {
                 $grid.click();
                 $panel.find(".datasetPrefix input").val(prefix);
                 $panel.find(".bottomSection .next").click();
-                return self.checkExists('#datasetOpPanel .colSchemaSection:not(.loading)');
+                return self.checkExists('#datasetOpPanel .colSchemaSection:visible:not(.loading)');
             })
             .then(function() {
                 $panel.find(".bottomSection .submit").click();

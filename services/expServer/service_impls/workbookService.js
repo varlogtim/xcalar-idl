@@ -24,7 +24,8 @@ function convertKvsToQuery(convertRequest) {
     cvtKvsToQueryResponse.setConverted(false);
     DagHelper.convertKvs(kvsQueryList, dataflowName, optimized, listXdfsOutput,
             userName, sessionId, workbookName)
-    .then(function(convertedQuery) {
+    .then(function(ret) {
+        let {convertedQuery} = ret;
         if (optimized) {
             var optimizedStr = JSON.stringify(convertedQuery)
             cvtKvsToQueryResponse.setResultstring(optimizedStr);

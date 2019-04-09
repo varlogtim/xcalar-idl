@@ -317,9 +317,9 @@ class DagViewManager {
      * @param nodeId
      * @param tabId
      */
-    public removeProgress(nodeId: DagNodeId, tabId: string): void {
+    public removeProgressPct(nodeId: DagNodeId, tabId: string): void {
         if (this.dagViewMap.has(tabId)) {
-            this.dagViewMap.get(tabId).removeProgress(nodeId);
+            this.dagViewMap.get(tabId).removeProgressPct(nodeId);
         }
     }
 
@@ -365,6 +365,15 @@ class DagViewManager {
         }
 
         dagView.updateOptimizedDFProgress(queryStateOutput);
+    }
+
+    public updateDFProgress(tabId: string, queryStateOutput: XcalarApiQueryStateOutputT, nodeIds: DagNodeId[]): void {
+        const dagView: DagView = this.dagViewMap.get(tabId);
+        if (!dagView) {
+            return;
+        }
+
+        dagView.updateDFProgress(queryStateOutput, nodeIds);
     }
 
     public renderSQLPreviewDag(dagTab: DagTab): void {
@@ -429,21 +438,10 @@ class DagViewManager {
         newDagView.render(null, null, noEvents);
     }
 
-    public addProgress(nodeId: DagNodeId, tabId: string, pct?: number, step?: number): void {
+    public addProgressPct(nodeId: DagNodeId, tabId: string, pct?: number, step?: number): void {
         const dagView: DagView = this.dagViewMap.get(tabId);
         if (dagView) {
-            dagView.addProgress(nodeId, pct, step);
-        }
-    }
-
-    public calculateAndUpdateProgress(
-        queryStateOutput,
-        nodeId: DagNodeId,
-        tabId: string
-    ): void {
-        const dagView: DagView = this.dagViewMap.get(tabId);
-        if (dagView) {
-            dagView.calculateAndUpdateProgress(queryStateOutput, nodeId);
+            dagView.addProgressPct(nodeId, pct, step);
         }
     }
 
@@ -1212,7 +1210,7 @@ class DagViewManager {
         this.activeDagView.updateNodeProgress(nodeId, tabId, progressInfo.stats,
             progressInfo.skewInfos, progressInfo.times, false);
         if (progressInfo.stats.state === DgDagStateT.DgDagStateReady) {
-            this.activeDagView.removeProgress(nodeId);
+            this.activeDagView.removeProgressPct(nodeId);
         }
     }
 
