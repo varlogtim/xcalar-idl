@@ -3377,11 +3377,13 @@ module.exports = function(grunt) {
             validErrorCodes = [0];
         }
         try {
-            grunt.log.debug("run exec cmd : " + cmd);
+            var cwd = shelljs.pwd();
+            grunt.log.debug("run exec cmd [" + cwd + "]: " + cmd);
             var res = shelljs.exec(cmd, {silent:true}); // runs the cmd; shellJs runs cmds syncronously by default
             if (res.code && validErrorCodes.indexOf(res.code) === -1) {
                 grunt.fail.fatal("Non-0 exit status when running " +
                     " shell cmd: " + cmd +
+                    "\nFrom dir: " + cwd +
                     "\nStatus Code: " + res.code +
                     "\nStderr: " + res.stderr);
             } else {
