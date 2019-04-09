@@ -99,6 +99,14 @@ class DagNodeSQL extends DagNode {
         }
     }
 
+    /**
+     * @override
+     * @returns {string}
+     */
+    public getDisplayNodeType(): string {
+        return "SQL";
+    }
+
     private _updateStatsInSQLQuery(): void {
         try {
             let stats = this.getOverallStats();

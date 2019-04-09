@@ -286,7 +286,7 @@ describe("DagCategories Test", function() {
         });
 
         it("isExistOperatorName", function() {
-            expect(inCategory.isExistOperatorName("Link in")).to.be.true;
+            expect(inCategory.isExistOperatorName("Link In")).to.be.true;
             expect(inCategory.isExistOperatorName("Linkin")).to.be.false;
         });
 

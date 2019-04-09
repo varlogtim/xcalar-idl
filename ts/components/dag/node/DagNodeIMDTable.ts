@@ -111,6 +111,14 @@ class DagNodeIMDTable extends DagNodeIn {
 
     /**
      * @override
+     * @returns {string}
+     */
+    public getDisplayNodeType(): string {
+        return "Table";
+    }
+
+    /**
+     * @override
      */
     protected _genParamHint(): string {
         let hint: string = "";

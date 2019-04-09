@@ -113,17 +113,25 @@ class DagNodeSQLFuncIn extends DagNodeIn {
     }
 
     public lineageChange(_columns: ProgCol[]): DagLineageChange {
-      const schema: ColSchema[] = this.getSchema(); // DagNodeDataset overide the function
-      const columns: ProgCol[] = schema.map((colInfo) => {
-          const colName: string = colInfo.name;
-          const frontName: string = xcHelper.parsePrefixColName(colName).name;
-          return ColManager.newPullCol(frontName, colName, colInfo.type);
-      });
-      return {
-          columns: columns,
-          changes: []
-      };
-  }
+        const schema: ColSchema[] = this.getSchema(); // DagNodeDataset overide the function
+        const columns: ProgCol[] = schema.map((colInfo) => {
+            const colName: string = colInfo.name;
+            const frontName: string = xcHelper.parsePrefixColName(colName).name;
+            return ColManager.newPullCol(frontName, colName, colInfo.type);
+        });
+        return {
+            columns: columns,
+            changes: []
+        };
+    }
+
+    /**
+     * @override
+     * @returns {string}
+     */
+    public getDisplayNodeType(): string {
+        return "SQL Function Input";
+    }
 
     /**
      * @override

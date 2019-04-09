@@ -132,6 +132,14 @@ class DagNodeDFOut extends DagNodeOutOptimizable {
 
     /**
      * @override
+     * @returns {string}
+     */
+    public getDisplayNodeType(): string {
+        return this.optimized ? "Link Out Optimized" : "Link Out";
+    }
+
+    /**
+     * @override
      */
     protected _genParamHint(): string {
         let hint: string = "";

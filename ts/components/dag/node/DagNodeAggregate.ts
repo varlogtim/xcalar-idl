@@ -191,6 +191,14 @@ class DagNodeAggregate extends DagNode {
         super.setParam(null, true);
     }
 
+    /**
+     * @override
+     * @returns {string}
+     */
+    public getDisplayNodeType(): string {
+        return "Single Value";
+    }
+
     protected _clearConnectionMeta(): void {
         super._clearConnectionMeta();
         this.setAggVal(null);

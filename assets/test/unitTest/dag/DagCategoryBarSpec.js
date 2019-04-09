@@ -43,7 +43,7 @@ describe("DagCategoryBar Test", function() {
         expect($operatorBar.find(".category-in").find(".operator").length).to.equal(3);
         expect($operatorBar.find(".category-in").find(".operator").eq(0).find(".opTitle").text()).to.equal("Dataset");
         expect($operatorBar.find(".category-in").find(".operator").eq(1).find(".opTitle").text()).to.equal("Table");
-        expect($operatorBar.find(".category-in").find(".operator").eq(2).find(".opTitle").text()).to.equal("Link in");
+        expect($operatorBar.find(".category-in").find(".operator").eq(2).find(".opTitle").text()).to.equal("Link In");
 
         DagCategoryBar.Instance.updateCategories(new DagTabSQLFunc());
 
@@ -56,7 +56,7 @@ describe("DagCategoryBar Test", function() {
         expect($operatorBar.find(".category-in").find(".operator").length).to.equal(3);
         expect($operatorBar.find(".category-in").find(".operator").eq(0).find(".opTitle").text()).to.equal("Dataset");
         expect($operatorBar.find(".category-in").find(".operator").eq(1).find(".opTitle").text()).to.equal("Table");
-        expect($operatorBar.find(".category-in").find(".operator").eq(2).find(".opTitle").text()).to.equal("Link in");
+        expect($operatorBar.find(".category-in").find(".operator").eq(2).find(".opTitle").text()).to.equal("Link In");
 
     });
 
@@ -136,10 +136,10 @@ describe("DagCategoryBar Test", function() {
                 return $(this).text().indexOf("Export Optimized") > -1;
             }).length).to.be.gt(0);
             expect($lis.filter(function() {
-                return $(this).text().indexOf("Link out Optimized") > -1;
+                return $(this).text().indexOf("Link Out Optimized") > -1;
             }).length).to.be.gt(0);
             expect($lis.filter(function() {
-                return $(this).text().indexOf("PublishIMD") > -1;
+                return $(this).text().indexOf("Publish IMD") > -1;
             }).length).to.be.gt(0);
             expect($lis.filter(function() {
                 return $(this).text().indexOf("Round") > -1;
@@ -152,10 +152,10 @@ describe("DagCategoryBar Test", function() {
         it("selecting item", function() {
             expect($("#dagView").find(".categoryBar .category.active.category-in").length).to.equal(0);
 
-            $("#dagView .categoryBar .searchInput").val("Link out Optimized").trigger(fakeEvent.input);
+            $("#dagView .categoryBar .searchInput").val("Link Out Optimized").trigger(fakeEvent.input);
             expect($("#dagView .searchArea ul").is(":visible")).to.be.true;
             let $lis = $("#dagView .searchArea li");
-            expect($lis.eq(0).text()).to.equal("Link out Optimized");
+            expect($lis.eq(0).text()).to.equal("Link Out Optimized");
 
             expect($operatorBar.find(".operator.link.out .selection").length).to.equal(0);
 

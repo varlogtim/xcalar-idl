@@ -99,6 +99,14 @@ class DagNodeDFIn extends DagNodeIn {
 
     /**
      * @override
+     * @returns {string}
+     */
+    public getDisplayNodeType(): string {
+        return "Link In";
+    }
+
+    /**
+     * @override
      */
     protected _genParamHint(): string {
         let hint: string = "";

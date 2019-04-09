@@ -98,6 +98,14 @@ class DagNodeSQLFuncOut extends DagNodeOut {
 
     /**
      * @override
+     * @returns {string}
+     */
+    public getDisplayNodeType(): string {
+        return "SQL Function Output";
+    }
+
+    /**
+     * @override
      */
     protected _genParamHint(): string {
       let hint: string = "";

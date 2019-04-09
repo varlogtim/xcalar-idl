@@ -205,6 +205,14 @@ class DagNodeGroupBy extends DagNode {
 
     /**
      * @override
+     * @returns {string}
+     */
+    public getDisplayNodeType(): string {
+        return "Group By";
+    }
+
+    /**
+     * @override
      */
     protected _genParamHint(): string {
         let hint: string = "";

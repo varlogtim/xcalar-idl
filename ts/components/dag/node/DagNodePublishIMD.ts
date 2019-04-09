@@ -56,6 +56,14 @@ class DagNodePublishIMD extends DagNode {
 
     /**
      * @override
+     * @returns {string}
+     */
+    public getDisplayNodeType(): string {
+        return "Publish IMD";
+    }
+
+    /**
+     * @override
      */
     protected _genParamHint(): string {
         let hint: string = "";

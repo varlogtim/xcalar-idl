@@ -999,14 +999,6 @@ abstract class DagNode {
     public getDisplayNodeType(): string {
         const nodeType: string = this.type;
         let displayNodeType = xcHelper.capitalize(nodeType);
-        if (displayNodeType === "Sql") {
-            displayNodeType = "SQL";
-        }
-        if (this instanceof DagNodeCustom) {
-            displayNodeType = this.getCustomName();
-        } else if (this instanceof DagNodeCustomInput) {
-            displayNodeType = this.getPortName();
-        }
         if (this.subType) {
             let nodeSubType: string = this.getSubType() || "";
             nodeSubType = xcHelper.capitalize(nodeSubType);

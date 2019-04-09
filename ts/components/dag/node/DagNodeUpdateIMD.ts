@@ -46,6 +46,14 @@ class DagNodeUpdateIMD extends DagNodeOut {
 
     /**
      * @override
+     * @returns {string}
+     */
+    public getDisplayNodeType(): string {
+        return "Update IMD";
+    }
+
+    /**
+     * @override
      */
     protected _genParamHint(): string {
         let hint: string = "";

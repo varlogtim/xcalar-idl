@@ -222,6 +222,20 @@ class DagNodeJoin extends DagNode {
 
     /**
      * @override
+     * @returns {string}
+     */
+    public getDisplayNodeType(): string {
+        if (this.subType === DagNodeSubType.LookupJoin) {
+            return "Lookup Join";
+        } else if (this.subType === DagNodeSubType.FilterJoin) {
+            return "Filter Join";
+        } else {
+            return super.getDisplayNodeType();
+        }
+    }
+
+    /**
+     * @override
      */
     protected _genParamHint(): string {
         let hint: string = "";

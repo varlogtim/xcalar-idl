@@ -56,6 +56,14 @@ class DagNodeCustomInput extends DagNode {
         return true;
     }
 
+    /**
+     * @override
+     * @returns {string}
+     */
+    public getDisplayNodeType(): string {
+        return this.getPortName();
+    }
+
     protected _getColumnsUsedInInput() {
         return null;
     }

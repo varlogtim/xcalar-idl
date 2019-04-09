@@ -30,26 +30,14 @@ class DagCategoryNode {
     }
 
     public getDisplayNodeType(): string {
-        const nodeType: string = this.getNodeType();
         const node = this.getNode();
-        let displayNodeType = xcHelper.capitalize(nodeType);
-        if (displayNodeType === "Sql") {
-            displayNodeType = "SQL";
-        }
-        if (node instanceof DagNodeCustom) {
-            displayNodeType = node.getCustomName();
-        } else if (node instanceof DagNodeCustomInput) {
-            displayNodeType = node.getPortName();
-        } else if (node instanceof DagNodeSQLFuncIn) {
+        let displayNodeType: string;
+        if (node instanceof DagNodeSQLFuncIn) {
             displayNodeType = "Input";
         } else if (node instanceof DagNodeSQLFuncOut) {
             displayNodeType = "Output";
-        } else if (node instanceof DagNodeIMDTable) {
-            displayNodeType = "Table";
-        } else if (node instanceof DagNodeGroupBy) {
-            displayNodeType = "Group By";
-        } else if (node instanceof DagNodeAggregate) {
-            displayNodeType = "Single Value";
+        } else {
+            displayNodeType = node.getDisplayNodeType();
         }
         return displayNodeType;
     }
@@ -59,8 +47,15 @@ class DagCategoryNode {
     }
 
     public getDisplayNodeSubType(): string {
-        const nodeSubType: string = this.getNodeSubType();
-        return xcHelper.capitalize(nodeSubType);
+        let node = this.node;
+        if (node instanceof DagNodeJoin ||
+            node instanceof DagNodeDFOut
+        ) {
+            return node.getDisplayNodeType();
+        } else {
+            const nodeSubType: string = this.getNodeSubType();
+            return xcHelper.capitalize(nodeSubType);
+        }
     }
 
     public isHidden(): boolean {
