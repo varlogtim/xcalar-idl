@@ -3170,7 +3170,7 @@ window.DS = (function ($, DS) {
                     if ($grid.hasClass("active")) {
                         focusOnForm();
                     }
-                } else {
+                } else if (!noAlert) {
                     handleImportError(dsObj, displayError, true);
                 }
 
