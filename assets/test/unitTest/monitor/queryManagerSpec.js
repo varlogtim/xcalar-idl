@@ -117,6 +117,38 @@ describe('QueryManager Test', function() {
             }, 100);
         });
 
+        it("Copy operations should work", function() {
+            let text = JSON.stringify({
+                "operation": "XcalarApiIndex",
+                "args": {
+                  "source": ".XcalarDS.test.73762.schedule4824",
+                  "dest": "schedule4824#ky109",
+                  "key": [
+                    {
+                      "name": "xcalarRecordNum",
+                      "type": "DfUnknown",
+                      "keyFieldName": "",
+                      "ordering": "Unordered"
+                    }
+                  ],
+                  "prefix": "schedule4824",
+                  "dhtName": "",
+                  "delaySort": false,
+                  "broadcast": false
+                }
+              }, null, 2);
+            var cachedFn = xcHelper.copyToClipboard;
+            var called = false;
+            xcHelper.copyToClipboard = function(t) {
+                expect(t).to.equal(text);
+                called = true;
+
+            }
+            $queryDetail.find(".copy").click();
+            expect(called).to.be.true;
+            xcHelper.copyToClipboard = cachedFn;
+        });
+
         it('QueryManager.addQuery to xcQuery should work', function(done) {
             var getStatsCalled = false;
             var getQueryStateCalled = false;

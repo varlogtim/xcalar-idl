@@ -1603,6 +1603,17 @@ namespace QueryManager {
             focusOnOutput();
         });
 
+        $queryDetail.on("click", ".copy", function() {
+            let text = $queryDetail.find(".operationSection .content").text();
+            xcHelper.copyToClipboard(text);
+            let $el = $(this);
+            xcTooltip.changeText($el, TooltipTStr.AboutCopied);
+            xcTooltip.refresh($el, 1000);
+            setTimeout(() => {
+                xcTooltip.changeText($el, TooltipTStr.AboutCopy);
+            }, 1000);
+        });
+
         bulkOptions();
 
         function focusOnOutput(): void {

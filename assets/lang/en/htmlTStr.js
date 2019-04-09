@@ -18,6 +18,7 @@ module.exports = {
         "Clear": "Clear",
         "ClearAll": "Clear All",
         "ClearRecur": "Clear All Recursive",
+        "ClickToCopy": "Click to copy",
         "ClickToOpts": "Click to see options",
         "Close": "Close",
         "ClusterName": "Cluster Name",
