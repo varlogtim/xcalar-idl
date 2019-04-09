@@ -1053,12 +1053,18 @@ class DagQueryConverter {
                         };
                     }
                 } else {
+                    let driverArgs;
+                    try {
+                        driverArgs = JSON.parse(node.args.driverParams);
+                    } catch (e) {
+                        driverArgs = {};
+                    }
                     dagNodeInfo = {
                         type: DagNodeType.Export,
                         input: <DagNodeExportInputStruct>{
                             columns: [],
-                            driver: "",
-                            driverArgs: {}
+                            driver: node.args.driverName || "",
+                            driverArgs: driverArgs
                         }
                     };
                 }
