@@ -119,6 +119,10 @@ window.FileBrowser = (function($, FileBrowser) {
         clearAll();
     };
 
+    FileBrowser.close = function() {
+        backToForm();
+    };
+
     FileBrowser.show = function(targetName, path, restore) {
         var deferred = PromiseHelper.deferred();
         if (!restore) {

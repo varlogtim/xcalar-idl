@@ -1071,6 +1071,7 @@ declare namespace AggModal {
 
 declare namespace FileBrowser {
     export function restore(): void;
+    export function close(): void;
 }
 
 declare namespace ExtensionManager {

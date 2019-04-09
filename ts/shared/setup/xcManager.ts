@@ -42,7 +42,6 @@ namespace xcManager {
             JupyterPanel.setup();
             IMDPanel.setup();
             setupModals();
-            TutorialsSetup.setup();
             Admin.initialize();
             xcSuggest.setup();
             DagParamPopup.setup();
