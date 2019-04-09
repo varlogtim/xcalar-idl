@@ -59,6 +59,29 @@ describe("Dag Graph Test", () => {
         expect(n2.getState()).to.equal(DagNodeState.Error);
     });
 
+    it("resolveNodeConflict should work", function() {
+        let graph = new DagGraph();
+        let node1 = DagNodeFactory.create({
+            type: DagNodeType.DFOut
+        });
+        node1.setParam({name: "a"});
+        graph.addNode(node1);
+
+        let node2 = DagNodeFactory.create({
+            type: DagNodeType.DFOut
+        });
+        let node3 = DagNodeFactory.create({
+            type: DagNodeType.DFOut
+        });
+        node2.setParam({name: "a"});
+        node3.setParam({name: "b"});
+
+        let res = graph.resolveNodeConflict([node2, node3]);
+        expect(res.length).to.equal(1);
+        expect(res[0]).to.equal(node2);
+        expect(node2.getParam().name).to.equal("a_1");
+    });
+
     describe ("getSortedNodes Test", () => {
         var graph;
         var n1, n2, n3, n4, n5, n6, n7;

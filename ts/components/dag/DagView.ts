@@ -944,6 +944,7 @@ class DagView {
         const oldNodeIdMap = {};
         const allNewNodes = [];
         const nodeToRemove: boolean[] = [];
+        const newLinkOutNodes: DagNodeDFOut[] = [];
 
         this.dagTab.turnOffSave();
 
@@ -984,6 +985,9 @@ class DagView {
                     newNodeIds.push(newNodeId);
                     allNewNodeIds.push(newNodeId);
                     allNewNodes.push(newNode);
+                    if (newNode instanceof DagNodeDFOut) {
+                        newLinkOutNodes.push(newNode);
+                    }
                     // filter out invalid case
                     let toRemove: boolean = false;
                     if (isSQLFunc) {
@@ -1025,7 +1029,8 @@ class DagView {
                         }
                         const newParentId = oldNodeIdMap[parentId];
                         if (newParentId && this.graph.hasNode(newParentId) &&
-                            newParentId !== newNodeId) {
+                            newParentId !== newNodeId
+                        ) {
                             try {
                                 this.graph.connect(newParentId, newNodeId, j, false, false);
                                 nodesMap.set(newNode.getId(), newNode);
@@ -1045,6 +1050,10 @@ class DagView {
             if (this.dagTab instanceof DagTabSQLFunc) {
                 let sqlFuncInNodes = this.dagTab.resetInputOrder();
                 this._updateTitleForNodes(sqlFuncInNodes);
+            }
+            let updateedLinkOutNodes: DagNodeDFOut[] = this.graph.resolveNodeConflict(newLinkOutNodes);
+            if (updateedLinkOutNodes.length) {
+                this._updateTitleForNodes(updateedLinkOutNodes);
             }
             Log.add(SQLTStr.CopyOperations, {
                 "operation": SQLOps.CopyOperations,

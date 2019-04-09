@@ -1498,6 +1498,48 @@ class DagGraph {
         }
     }
 
+    public resolveNodeConflict(linkOutNodes: DagNodeDFOut[]): DagNodeDFOut[] {
+        let nodeSet: Set<DagNodeId> = new Set();
+        let nameSet: Set<string> = new Set();
+
+        linkOutNodes.forEach((node) => {
+            nodeSet.add(node.getId());
+        });
+
+        for (let node of this.nodesMap.values()) {
+            // find the link out node that are in the graph before paste
+            if (node instanceof DagNodeDFOut && !nodeSet.has(node.getId())) {
+                let input: DagNodeDFOutInputStruct = node.getParam();
+                if (input.name) {
+                    nameSet.add(input.name);
+                }
+            }
+        }
+
+        let updatedNodes: DagNodeDFOut[] = [];
+        let validFunc = (name) => {
+            return !nameSet.has(name);
+        };
+        linkOutNodes.forEach((node) => {
+            let input: DagNodeDFOutInputStruct = node.getParam();
+            let name = input.name;
+            if (name) {
+                if (nameSet.has(name)) {
+                    name = xcHelper.uniqueName(name, validFunc, null)
+                    node.setParam({
+                        name: name,
+                        linkAfterExecution: input.linkAfterExecution,
+                        columns: input.columns
+                    });
+                    updatedNodes.push(node);
+                }
+                nameSet.add(name);
+            }
+        });
+
+        return updatedNodes;
+    }
+
     protected getRuntime(): DagRuntime {
         // In expServer execution, this function is overridden by DagRuntime.accessible() and should never be invoked.
         // In XD execution, this will be invoked in case the DagNode instance
