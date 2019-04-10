@@ -1517,5 +1517,78 @@
         return (Undo);
     }(jQuery, {}));
 
-
+    // hot patch for XD-397, XD-410
+    function suggestType(datas, currentType, confidentRate = 1) {
+        // Inputs has fields colInfo, confidentRate
+        if (currentType === ColumnType.integer ||
+            currentType === ColumnType.float) {
+            return currentType;
+        }
+        if (!(datas instanceof Array)) {
+            datas = [datas];
+        }
+        let isFloat;
+        let validData = 0;
+        let numHit = 0;
+        let booleanHit = 0;
+        let timestampHit = 0;
+        const letterRex = /[a-z]/i;
+        const timestampFormats = [moment.ISO_8601];
+        for (let i = 0, len = datas.length; i < len; i++) {
+            let data = datas[i];
+            if (data == null) {
+                // skip this one
+                continue;
+            }
+            data = data.trim().toLowerCase();
+            if (data === "") {
+                // skip this one
+                continue;
+            }
+            validData++;
+            let num = Number(data);
+            // edge case1: "0X123", "1e12" can be parse as number but it's string
+            // edge case2: 012345 should not be a number, otherwise it's cast to 12345
+            if (!isNaN(num) &&
+                !letterRex.test(data) &&
+                !(data.length > 1 && data[0] === "0" && data[1] !== ".")) {
+                numHit++;
+                if (!isFloat) {
+                    if (!Number.isInteger(num) ||
+                        data.includes(".")) {
+                        // when it's float
+                        isFloat = true;
+                    }
+                }
+            }
+            else if (data === "true" || data === "false" ||
+                data === "t" || data === "f") {
+                booleanHit++;
+            }
+            else if (moment(data.toUpperCase(), timestampFormats, true).isValid()) {
+                timestampHit++;
+            }
+        }
+        if (validData === 0) {
+            return ColumnType.string;
+        }
+        else if (numHit / validData >= confidentRate) {
+            if (isFloat) {
+                return ColumnType.float;
+            }
+            else {
+                return ColumnType.integer;
+            }
+        }
+        else if (booleanHit / validData >= confidentRate) {
+            return ColumnType.boolean;
+        }
+        else if (timestampHit / validData >= confidentRate) {
+            return ColumnType.timestamp;
+        }
+        else {
+            return ColumnType.string;
+        }
+    }
+    xcSuggest.suggestType = suggestType;
 }(jQuery));
