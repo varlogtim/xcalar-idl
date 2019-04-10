@@ -691,7 +691,9 @@ AlertTStr = {
     "AutoTblManagerError": "Automatic Result Set Manager failed to setup.",
     "DFLinkGraphError": "Dataflow Output '<inName>' must be created in the graph '<graphName>'.",
     "DFLinkShouldLinkError": "The Dataflow Output for '<inName>' must be manually " +
-        "executed before the output can be used."
+        "executed before the output can be used.",
+    "SharedCustomOpDeleteTitle": "Delete",
+    "ShardCustomOpDeleteMsg": "Are you sure you want to delete the operator?"
 };
 
 ErrorMessageTStr = {
