@@ -42,6 +42,29 @@ describe("DagNodeExecutor Test", () => {
         });
     });
 
+    it("_getOptimizedDSName should work", function() {
+        let executor = new DagNodeExecutor();
+        let res = executor._getOptimizedDSName("test");
+        expect(res).not.to.equal("test");
+        expect(res.startsWith("Optimized")).to.be.true;
+    });
+
+    it("_getOptimizedLoadArg should work", function() {
+        let node = createNode(DagNodeType.Dataset);
+        let loadArgs = {
+            args: {
+                dest: "test"
+            }
+        };
+        node.setParam({
+            loadArgs: JSON.stringify(loadArgs)
+        });
+        let executor = new DagNodeExecutor();
+        let res = executor._getOptimizedLoadArg(node, "test2");
+        let parsed = JSON.parse(res);
+        expect(parsed.args.dest).to.equal("test2");
+    });
+
     it("should aggregate", (done) => {
         const node = createNode(DagNodeType.Aggregate);
         const parentNode = createNode();

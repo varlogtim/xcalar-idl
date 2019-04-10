@@ -182,40 +182,36 @@ class DagNodeExecutor {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNodeDataset = <DagNodeDataset>this.node;
         const params: DagNodeDatasetInputStruct = node.getParam(this.replaceParam);
-        const dsName: string = params.source;
+        let dsName: string = params.source;
 
+        if (optimized) {
+            // if ds already exist, load dataset will reuse in loadArgs in
+            // dataset meta, so have to give the optimized exuection a unique ds name
+            dsName = this._getOptimizedDSName(dsName);
+        }
         // XXX Note: have to do it because of a bug in call indexDataset through query
         // it didn't add the load lock and will cause a bug.
         // the lock is per each workbook
         // so XD need to maunally call it.
-        PromiseHelper.alwaysResolve(this._activateDataset(dsName))
+        let def = optimized ? PromiseHelper.resolve() : PromiseHelper.alwaysResolve(this._activateDataset(dsName));
+        def
         .then(() => {
-            if (params.synthesize === true) {
-                if (optimized && Transaction.isSimulate(this.txId)) {
-                    try {
-                        const loadArg = JSON.parse(node.getLoadArgs());
-                        Transaction.log(this.txId, JSON.stringify(loadArg), null, 0);
-                    } catch (e) {
-                        return PromiseHelper.reject({
-                            error: "Prase load args error",
-                            defail: e.message
-                        });
-                    }
+            if (optimized && Transaction.isSimulate(this.txId)) {
+                try {
+                    let loadArg = this._getOptimizedLoadArg(node, dsName);
+                    Transaction.log(this.txId, loadArg, null, 0);
+                } catch (e) {
+                    return PromiseHelper.reject({
+                        error: "Prase load args error",
+                        defail: e.message
+                    });
                 }
+            }
+
+            if (params.synthesize === true) {
                 const schema: ColSchema[] = node.getSchema();
                 return this._synthesizeDataset(dsName, schema, optimized);
             } else {
-                if (optimized && Transaction.isSimulate(this.txId)) {
-                    try {
-                        const loadArg = JSON.parse(node.getLoadArgs());
-                        Transaction.log(this.txId, JSON.stringify(loadArg), null, 0);
-                    } catch (e) {
-                        return PromiseHelper.reject({
-                            error: "Prase load args error",
-                            defail: e.message
-                        });
-                    }
-                }
                 const prefix: string = params.prefix;
                 return this._indexDataset(dsName, prefix);
             }
@@ -224,6 +220,19 @@ class DagNodeExecutor {
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    private _getOptimizedDSName(dsName: string): string {
+        return xcHelper.randName("Optimized.") + "." + dsName;
+    }
+
+    private _getOptimizedLoadArg(
+        node: DagNodeDataset,
+        dsName: string
+    ): string {
+        let loadArg = JSON.parse(node.getLoadArgs());
+        loadArg.args.dest = dsName;
+        return JSON.stringify(loadArg);
     }
 
     private _activateDataset(dsName): XDPromise<void> {
