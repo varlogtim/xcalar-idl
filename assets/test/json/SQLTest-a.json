@@ -494,6 +494,7 @@
                                 "row4": [29, 948, 7158866.63],
                                 "numOfRows": "7"}]
                 },
+                "answerFile" : "/netstore/datasets/tpch_sf1_notrail/answer/",
                 "tables": {
                         "dataSource": "/netstore/datasets/tpch_sf1_notrail/",
                         "tableNames": ["customer.tbl", "lineitem.tbl", "nation.tbl", "orders.tbl", "part.tbl",
