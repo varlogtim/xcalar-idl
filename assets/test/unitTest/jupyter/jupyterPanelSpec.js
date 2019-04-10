@@ -369,7 +369,10 @@ describe("JupyterPanel Test", function() {
                 });
                 let graph = new DagGraph();
                 graph.addNode(node);
-                let tab = new DagTabUser("test", null, graph);
+                let tab = new DagTabUser({
+                    name: "test",
+                    dagGraph: graph
+                });
                 return [tab];
             }
 

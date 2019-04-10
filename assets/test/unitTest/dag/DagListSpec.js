@@ -1,5 +1,3 @@
-// Tests for dagList.
-
 describe('DagList Test', function() {
     var oldPut;
 
@@ -20,7 +18,7 @@ describe('DagList Test', function() {
 
         before(function() {
             dagName = xcHelper.randName("newAgg");
-            dagTab = new DagTabUser(name);
+            dagTab = new DagTabUser({name: name});
         });
 
         it("should add a new Dag correctly", function() {
@@ -57,6 +55,14 @@ describe('DagList Test', function() {
             .fail(() => {
                 done("fail");
             });
+        });
+
+        it("should serialize", function() {
+            let dags = ["test"];
+            let res = DagList.Instance.serialize(dags);
+            let parsed = JSON.parse(res);
+            expect(parsed.version).to.equal(Durable.Version);
+            expect(parsed.dags[0]).to.equal("test");
         });
     });
 

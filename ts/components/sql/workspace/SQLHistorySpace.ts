@@ -91,7 +91,13 @@ class SQLHistorySpace {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         const name: string = "SQL " + moment(new Date()).format("HH:mm:ss ll");
-        const dagTab: DagTabUser = new DagTabUser(name, dataflowId, null, false, xcTimeHelper.now());
+        const dagTab: DagTabUser = new DagTabUser({
+            name: name,
+            id: dataflowId,
+            dagGraph: null,
+            reset: false,
+            createdTime: xcTimeHelper.now()
+        });
 
         dagTab.load()
         .then(() => {

@@ -7,9 +7,8 @@ class DagTabSQL extends DagTab {
         name: string,
         SQLNode: DagNodeSQL
     }) {
-        const { id, name, SQLNode } = options;
-        super(name, id, null);
-        this._SQLNode = SQLNode;
+        super(options);
+        this._SQLNode = options.SQLNode;
     }
 
     /**

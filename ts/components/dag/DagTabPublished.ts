@@ -24,7 +24,10 @@ class DagTabPublished extends DagTab {
                 if (!name.startsWith(".temp")) {
                     // filter out .temp dataflows
                     const id: string = sessionInfo.sessionId;
-                    const dagTab: DagTabPublished = new DagTabPublished(name, id);
+                    const dagTab: DagTabPublished = new DagTabPublished({
+                        name: name,
+                        id: id
+                    });
                     dags.push(dagTab);
 
                     if (sessionInfo.state === "Inactive") {
@@ -102,13 +105,16 @@ class DagTabPublished extends DagTab {
         return deferred.promise();
     }
 
-    public constructor(name: string, id?: string, graph?: DagGraph) {
-        name = name.replace(new RegExp(DagTabPublished._delim, "g"), "/");
-        if (graph != null) {
-            // should be a deep copy
-            graph = graph.clone();
+    public constructor(options: DagTabOptions) {
+        options = options || <DagTabOptions>{};
+        if (options.name) {
+            options.name = options.name.replace(new RegExp(DagTabPublished._delim, "g"), "/");
         }
-        super(name, id, graph);
+        if (options.dagGraph != null) {
+            // should be a deep copy
+            options.dagGraph = options.dagGraph.clone();
+        }
+        super(options);
         this._kvStore = new KVStore(DagTabPublished._dagKey, gKVScope.WKBK);
         this._editVersion = 0;
     }
@@ -377,7 +383,7 @@ class DagTabPublished extends DagTab {
             // when the grah is not loaded
             return PromiseHelper.reject();
         }
-        const json = this._getJSON();
+        const json = this._getDurable();
         if (json == null) {
             return PromiseHelper.reject("Invalid dataflow structure");
         }
@@ -387,21 +393,8 @@ class DagTabPublished extends DagTab {
         return promise;
     }
 
-    protected _getJSON(): {
-        name: string,
-        id: string,
-        dag: DagGraphInfo,
-        autoSave: boolean,
-        editVersion: number,
-        unsaved?: boolean
-    } {
-        const json: {
-            name: string,
-            id: string,
-            dag: DagGraphInfo,
-            autoSave: boolean,
-            editVersion: number
-        } = <any>super._getJSON();
+    protected _getDurable(): DagTabPublishedDurable {
+        const json: DagTabPublishedDurable = <DagTabPublishedDurable>super._getDurable();
         json.editVersion = this._editVersion;
         return json;
     }

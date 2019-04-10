@@ -85,24 +85,24 @@ describe("DagTopBar Test", function() {
         it("Should disable most buttons on null dagtab", function () {
             topBar.setState(null);
             expect($topBar.find(".topButton.xc-disabled").length).to.equal(9);
-            topBar.setState(new DagTab("name"));
+            topBar.setState(new DagTab({name: "name"}));
             expect($topBar.find(".topButton.xc-disabled").length).to.equal(3);
         });
 
         it("Should disable/enable run/optimized on user/publish tabs", function () {
-            topBar.setState(new DagTabUser("name"));
+            topBar.setState(new DagTabUser({name: "name"}));
             expect($topBar.find(".run").hasClass("xc-disabled")).to.be.false;
             expect($topBar.find(".optimizedRun").hasClass("xc-disabled")).to.be.false;
-            topBar.setState(new DagTab("name"));
+            topBar.setState(new DagTab({name: "name"}));
             expect($topBar.find(".run").hasClass("xc-disabled")).to.be.true;
             expect($topBar.find(".optimizedRun").hasClass("xc-disabled")).to.be.true;
-            topBar.setState(new DagTabPublished("name"));
+            topBar.setState(new DagTabPublished({name: "name"}));
             expect($topBar.find(".run").hasClass("xc-disabled")).to.be.false;
             expect($topBar.find(".optimizedRun").hasClass("xc-disabled")).to.be.false;
         });
 
         it("Should hide run optimized on SQLFunc", function () {
-            topBar.setState(new DagTabSQLFunc("name"));
+            topBar.setState(new DagTabSQLFunc({name: "name"}));
             expect($topBar.find(".run").hasClass("xc-hidden")).to.be.false;
             expect($topBar.find(".optimizedRun").hasClass("xc-hidden")).to.be.true;
         });
@@ -110,7 +110,11 @@ describe("DagTopBar Test", function() {
         it("Should set the scale correctly", function() {
             let graph = new DagGraph();
             graph.setScale(1.5);
-            let tab = new DagTab("name", "3", graph);
+            let tab = new DagTab({
+                name: "name",
+                id: "3",
+                dagGraph: graph
+            });
             topBar.setState(tab);
             $topBar.find(".zoomPercentInput").val("150");
         });
@@ -118,7 +122,11 @@ describe("DagTopBar Test", function() {
         it("Should enable stop if the graph has an executor", function() {
             let graph = new DagGraph();
             graph.setExecutor(new DagGraphExecutor([], graph, {}));
-            let tab = new DagTab("name", "3", graph);
+            let tab = new DagTab({
+                name: "name",
+                id: "3",
+                dagGraph: graph
+            });
             expect($topBar.find(".stop").hasClass("xc-disabled")).to.be.true;
             topBar.setState(tab);
             expect($topBar.find(".stop").hasClass("xc-disabled")).to.be.false;

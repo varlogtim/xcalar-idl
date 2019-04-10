@@ -1,5 +1,5 @@
 // DagList controls the panel Dataflow List.
-class DagList {
+class DagList extends Durable {
     private static _instance: DagList;
     public static SQLPrefix = ".tempSQL";
 
@@ -13,6 +13,7 @@ class DagList {
     private _stateOrder = {};
 
     private constructor() {
+        super(null);
         this._initialize();
         this._setupFileLister();
         this._addEventListeners();
@@ -495,6 +496,18 @@ class DagList {
         this._updateSection();
     }
 
+    public serialize(dags: DagListTabDurable[]): string {
+        let json = this._getDurable(dags);
+        return JSON.stringify(json);
+    }
+
+    protected _getDurable(dags: DagListTabDurable[]): DagListDurable {
+        return {
+            version: this.version,
+            dags: dags
+        }
+    }
+
     private _initialize(): void {
         this._dags = new Map();
         this._initialized = false;
@@ -627,8 +640,8 @@ class DagList {
         let userDagTabs: DagTabUser[] = [];
 
         this.listUserDagAsync()
-        .then((res: {dags: {name: string, id: string, reset: boolean, createdTime: number}[]}) => {
-            let dags: {name: string, id: string, reset: boolean, createdTime: number}[] = [];
+        .then((res: DagListDurable) => {
+            let dags: DagListTabDurable[] = [];
             if (res && res.dags) {
                 dags = res.dags;
                 if (needReset) {
@@ -885,7 +898,7 @@ class DagList {
     }
 
     private _saveUserDagList(): XDPromise<void> {
-        const dags: {name: string, id: string, reset: boolean, createdTime: number}[] = [];
+        const dags: DagListTabDurable[] = [];
         this._dags.forEach((dagTab) => {
             if (dagTab instanceof DagTabUser &&
                 !(dagTab instanceof DagTabSQLFunc) &&
@@ -894,7 +907,7 @@ class DagList {
                 dags.push(this._getSerializableDagList(dagTab));
             }
         });
-        const jsonStr: string = JSON.stringify({dags: dags});
+        const jsonStr: string = this.serialize(dags);
         const kvStore = this._getUserDagKVStore();
         const promise = kvStore.put(jsonStr, true, true);
         const activeWKBKId = WorkbookManager.getActiveWKBK();
@@ -912,17 +925,12 @@ class DagList {
                 dags.push(this._getSerializableDagList(dagTab));
             }
         });
-        const jsonStr: string = JSON.stringify({dags: dags});
+        const jsonStr: string = this.serialize(dags);
         const kvStore = this._getSQLFuncKVStore();
         return kvStore.put(jsonStr, true, true);
     }
 
-    private _getSerializableDagList(dagTab: DagTabUser | DagTabSQLFunc): {
-        name: string,
-        id: string,
-        reset: boolean,
-        createdTime: number
-    } {
+    private _getSerializableDagList(dagTab: DagTabUser | DagTabSQLFunc): DagListTabDurable {
         return {
             name: dagTab.getName(),
             id: dagTab.getId(),
@@ -930,6 +938,7 @@ class DagList {
             createdTime: dagTab.getCreatedTime()
         }
     }
+
 
     private _updateSection(): void {
         let text: string = `${DFTStr.DFs} (${this._dags.size})`;

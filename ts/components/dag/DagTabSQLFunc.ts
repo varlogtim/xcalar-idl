@@ -82,18 +82,17 @@ class DagTabSQLFunc extends DagTabUser {
      * @param id
      */
     protected static _createTab(name: string, id: string): DagTabSQLFunc {
-        return new DagTabSQLFunc(name, id, null, null, xcTimeHelper.now());
+        return new DagTabSQLFunc({
+            name: name,
+            id: id,
+            createdTime: xcTimeHelper.now()
+        });
     }
 
-    public constructor(
-        name: string,
-        id?: string,
-        dagGraph?: DagGraph,
-        reset?: boolean,
-        createTime?: number
-    ) {
-        id = id || DagTabSQLFunc.generateId();
-        super(name, id, dagGraph, reset, createTime);
+    public constructor(options: DagTabUserOptions) {
+        options = options || <DagTabUserOptions>{};
+        options.id = options.id || DagTabSQLFunc.generateId();
+        super(options);
     }
 
     public getPath(): string {
@@ -116,7 +115,7 @@ class DagTabSQLFunc extends DagTabUser {
                 })
             }
         })
-        .then((ret) => {
+        .then((ret: any) => {
             let {queryStr, destTables} = ret;
             let desTable: string = destTables[destTables.length - 1];
             deferred.resolve(queryStr, desTable);
@@ -214,7 +213,11 @@ class DagTabSQLFunc extends DagTabUser {
      */
     public clone(): DagTabSQLFunc {
         const clonedGraph: DagGraph = this.getGraph().clone();
-        const clonedTab = new DagTabSQLFunc(this.getName(), null, clonedGraph, null, xcTimeHelper.now());
+        const clonedTab = new DagTabSQLFunc({
+            name: this.getName(),
+            dagGraph: clonedGraph, 
+            createdTime: xcTimeHelper.now()
+        });
         return clonedTab;
     }
 

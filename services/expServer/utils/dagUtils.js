@@ -40,6 +40,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     global.KVStore = require("../dagHelper/kvStore.js").KVStore;
 
     // The order of these is needed as there's dependancies between the files.
+    global.Durable = require("../dagHelper/Durable.js").Durable;
     global.DagGraph = require("../dagHelper/DagGraph.js").DagGraph;
     global.xcHelper = require("../dagHelper/xcHelper.js").xcHelper;
     global.DagHelper = require("../DagHelperIndex.js").DagHelper

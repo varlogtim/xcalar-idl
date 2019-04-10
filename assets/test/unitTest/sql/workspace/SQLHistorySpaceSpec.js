@@ -80,7 +80,10 @@ describe("SQLHistorySpace Test", () => {
         });
         let graph = new DagGraph();
         graph.addNode(sqlNode);
-        let tab = new DagTabUser("test", null, graph);
+        let tab = new DagTabUser({
+            name: "test",
+            dagGraph: graph
+        });
 
         let oldGetTab = DagTabManager.Instance.getTabById;
         let oldInspect = DagViewManager.Instance.inspectSQLNode;

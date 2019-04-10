@@ -18,8 +18,14 @@ class DagTabService {
             throw new Error('Dataflow name not provided');
         }
         const newTab = DagRuntime.isAccessible(this)
-            ? this.getRuntime().accessible(new DagTabUser(dagInfo.name, dagInfo.id))
-            : new DagTabUser(dagInfo.name, dagInfo.id);
+            ? this.getRuntime().accessible(new DagTabUser({
+                name: dagInfo.name,
+                id: dagInfo.id
+            }))
+            : new DagTabUser({
+                name: dagInfo.name,
+                id: dagInfo.id
+            });
         
         newTab.loadFromJSON(dagInfo);
         this._activeUserDags.push(newTab);

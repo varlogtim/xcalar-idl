@@ -219,7 +219,13 @@ class SQLExecutor {
         this._tempGraph = new DagGraph();
         const id: string = this._advancedDebug ? null : DagTab.generateId() + ".sql";
         const name: string = "SQL " + moment(new Date()).format("HH:mm:ss ll")
-        this._tempTab = new DagTabUser(name, id, this._tempGraph, false, xcTimeHelper.now());
+        this._tempTab = new DagTabUser({
+            name: name,
+            id: id,
+            dagGraph: this._tempGraph,
+            reset: false,
+            createdTime: xcTimeHelper.now()
+        });
         DagViewManager.Instance.render($(), this._tempGraph, this._tempTab, true);
         this._tempGraph.addNode(this._sqlNode);
     }

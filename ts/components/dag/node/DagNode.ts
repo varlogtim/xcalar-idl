@@ -1,6 +1,6 @@
 // Warning, this class should only be used in the DagGraph.
 // To interact with DagNode, use the public API in DagGraph.
-abstract class DagNode {
+abstract class DagNode extends Durable {
     private static uid: XcUID;
 
     private id: DagNodeId;
@@ -43,6 +43,7 @@ abstract class DagNode {
     }
 
     public constructor(options: DagNodeInfo = <DagNodeInfo>{}, runtime?: DagRuntime) {
+        super(options.version);
         if (runtime != null) {
             runtime.accessible(this);
         }
@@ -75,7 +76,7 @@ abstract class DagNode {
         this.lineage = new DagLineage(this);
         this._setupEvents();
 
-        const displayType = this.subType || this.type; // XXX temporary
+        // const displayType = this.subType || this.type; // XXX temporary
         let nodeTooltip: string = this.subType ? DagNodeTooltip[this.subType] : DagNodeTooltip[this.type];
         this.display.description = nodeTooltip || "";
         this.runStats = {
@@ -1237,6 +1238,7 @@ abstract class DagNode {
     // Their dagGraphs
     protected _getSerializeInfo(includeStats?: boolean): DagNodeInfo {
         const info = {
+            version: this.version,
             type: this.type,
             subType: this.subType,
             table: this.table,
@@ -1266,6 +1268,16 @@ abstract class DagNode {
 
     protected _genParamHint(): string {
         return "";
+    }
+
+    // not used
+    protected _getDurable(): string {
+        return null;
+    }
+
+    // not used
+    public serialize(): string {
+        return null;
     }
 
     // validates a given input, if no input given, will validate

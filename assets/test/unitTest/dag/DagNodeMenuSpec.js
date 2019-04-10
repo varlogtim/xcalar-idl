@@ -342,7 +342,7 @@ describe("DagNodeMenu Test", function() {
             DagViewManager.Instance.isDisableActions = () => true;
             var cachedFn = DagViewManager.Instance.getActiveTab;
             DagViewManager.Instance.getActiveTab = () => {
-                return new DagTabPublished("someName");
+                return new DagTabPublished({name: "someName"});
             };
 
             DagView.selectNode($dfArea.find(".operator.map"));
@@ -374,7 +374,7 @@ describe("DagNodeMenu Test", function() {
             DagViewManager.Instance.isDisableActions = () => true;
             var cachedFn = DagViewManager.Instance.getActiveTab;
             DagViewManager.Instance.getActiveTab = () => {
-                return new DagTabSQL("someName");
+                return new DagTabSQL({name: "someName"});
             };
 
             DagView.selectNode($dfArea.find(".operator.map"));
@@ -399,7 +399,7 @@ describe("DagNodeMenu Test", function() {
         it("tab is sqlFunc", function() {
             var cachedFn = DagViewManager.Instance.getActiveTab;
             DagViewManager.Instance.getActiveTab = () => {
-                return new DagTabSQLFunc("someName");
+                return new DagTabSQLFunc({name: "someName"});
             };
 
             DagView.selectNode($dfArea.find(".operator.map"));
@@ -434,7 +434,7 @@ describe("DagNodeMenu Test", function() {
             DagViewManager.Instance.isDisableActions = () => true;
             var cachedFn = DagViewManager.Instance.getActiveTab;
             DagViewManager.Instance.getActiveTab = () => {
-                return new DagTabCustom("someName");
+                return new DagTabCustom({name: "someName"});
             };
 
             DagView.selectNode($dfArea.find(".operator.map"));

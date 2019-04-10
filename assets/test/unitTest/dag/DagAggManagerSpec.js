@@ -1,5 +1,4 @@
 describe("Dag Agg Manager Test", () => {
-
     var oldXcalarGetConstants;
     var oldDeleteTable;
     var oldXcalarKeyPut;
@@ -199,7 +198,7 @@ describe("Dag Agg Manager Test", () => {
         });
 
         it ("Should throw an error if the aggregate's graph doesn't exist", () => {
-            let tab = new DagTab("name");
+            let tab = new DagTab({name: "name"});
             DagTabManager.Instance.getTabById = function(id) {
                 return tab;
             };
@@ -223,7 +222,7 @@ describe("Dag Agg Manager Test", () => {
         });
 
         it ("Should throw an error if the aggregate's node doesn't exist in the graph", () => {
-            let tab = new DagTab("name");
+            let tab = new DagTab({name: "name"});
             let graph = new DagGraph();
             tab.setGraph(graph);
             DagTabManager.Instance.getTabById = function(id) {
@@ -249,7 +248,7 @@ describe("Dag Agg Manager Test", () => {
         });
 
         it ("Should return a valid node on success", () => {
-            let tab = new DagTab("name");
+            let tab = new DagTab({name: "name"});
             let graph = new DagGraph();
             let node = new DagNodeAggregate({});
             graph.addNode(node);

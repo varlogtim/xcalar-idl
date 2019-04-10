@@ -13,7 +13,9 @@ describe('DagTabCustom Test', () => {
         it('test', () => {
             const customNode = new DagNodeCustom();
             const tab = new DagTabCustom({
-                id: 'testId', name: 'testName', customNode: customNode
+                id: 'testId',
+                name: 'testName',
+                customNode: customNode
             });
             expect(tab.getGraph()).to.equal(customNode.getSubGraph());
         })
@@ -24,7 +26,9 @@ describe('DagTabCustom Test', () => {
             const oldFunction = DagTabManager.Instance.saveParentTab;
             const customNode = new DagNodeCustom();
             const tab = new DagTabCustom({
-                id: 'testId', name: 'testName', customNode: customNode
+                id: 'testId',
+                name: 'testName',
+                customNode: customNode
             });
 
             let saveCalled = false;
@@ -45,7 +49,9 @@ describe('DagTabCustom Test', () => {
 
         it('load()', (done) => {
             const tab = new DagTabCustom({
-                id: 'testId', name: 'testName', customNode: new DagNodeCustom()
+                id: 'testId',
+                name: 'testName',
+                customNode: new DagNodeCustom()
             });
 
             let hasError = false;
@@ -58,7 +64,9 @@ describe('DagTabCustom Test', () => {
 
         it('delete()', (done) => {
             const tab = new DagTabCustom({
-                id: 'testId', name: 'testName', customNode: new DagNodeCustom()
+                id: 'testId',
+                name: 'testName',
+                customNode: new DagNodeCustom()
             });
 
             let hasError = false;
@@ -71,7 +79,9 @@ describe('DagTabCustom Test', () => {
 
         it('download()', (done) => {
             const tab = new DagTabCustom({
-                id: 'testId', name: 'testName', customNode: new DagNodeCustom()
+                id: 'testId',
+                name: 'testName',
+                customNode: new DagNodeCustom()
             });
 
             let hasError = false;
@@ -84,7 +94,9 @@ describe('DagTabCustom Test', () => {
 
         it('upload()', (done) => {
             const tab = new DagTabCustom({
-                id: 'testId', name: 'testName', customNode: new DagNodeCustom()
+                id: 'testId',
+                name: 'testName',
+                customNode: new DagNodeCustom()
             });
 
             let hasError = false;

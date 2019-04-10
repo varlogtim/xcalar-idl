@@ -10,6 +10,10 @@ abstract class Durable {
         return this.version;
     }
 
-    public abstract serialize(): string;
-    protected abstract _getDurable();
+    public abstract serialize(arg?: any): string;
+    protected abstract _getDurable(arg?: any);
 }
+
+if (typeof exports !== 'undefined') {
+    exports.Durable = Durable;
+};

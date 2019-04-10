@@ -199,7 +199,7 @@ class DFDownloadModal {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const tab: DagTabPublished = <DagTabPublished>this._dagTab;
         const tempName = xcHelper.randName(".temp" + tab.getShortName());
-        const clonedTab: DagTabPublished = new DagTabPublished(tempName);
+        const clonedTab: DagTabPublished = new DagTabPublished({name: tempName});
         let hasClone: boolean = false;
 
         tab.clone(tempName)

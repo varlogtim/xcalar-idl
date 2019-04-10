@@ -66,7 +66,9 @@ describe("DagNodeDFIn Test", function() {
 
             it("should return dataflow by id", function() {
                 let graph = createGraph();
-                let tab = new DagTabUser(null, null, graph);
+                let tab = new DagTabUser({
+                    dagGraph: graph
+                });
                 let oldFunc = DagTabManager.Instance.getTabById;
                 DagTabManager.Instance.getTabById = () => tab;
 
@@ -80,7 +82,7 @@ describe("DagNodeDFIn Test", function() {
 
             it("should seach all tabs and return graph", function() {
                 let graph = createGraph();
-                let tab = new DagTabUser(null, null, graph);
+                let tab = new DagTabUser({dagGraph: graph});
                 let oldFunc = DagTabManager.Instance.getTabs;
                 DagTabManager.Instance.getTabs = () => [tab];
 

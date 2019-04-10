@@ -1,3 +1,8 @@
+interface DagTabUserOptions extends DagTabOptions {
+    reset?: boolean,
+    createdTime?: number
+}
+
 class DagTabUser extends DagTab {
     private _reset: boolean;
     private _createdTime: number;
@@ -23,9 +28,20 @@ class DagTabUser extends DagTab {
                 let id: string = dagInfo.id;
                 if (dagIdSet.has(id)) {
                     if (id.startsWith(DagTabSQLFunc.KEY)) {
-                        dagTabs.push(new DagTabSQLFunc(dagInfo.name, dagInfo.id, null, dagInfo.reset, dagInfo.createdTime));
+                        dagTabs.push(new DagTabSQLFunc({
+                            name: dagInfo.name,
+                            id: dagInfo.id,
+                            reset: dagInfo.reset,
+                            createdTime: dagInfo.createdTime
+                        }));
                     } else {
-                        dagTabs.push(new DagTabUser(dagInfo.name, dagInfo.id, null, dagInfo.reset, dagInfo.createdTime));
+                        dagTabs.push(new DagTabUser({
+                            name: dagInfo.name,
+                            id: dagInfo.id,
+                            dagGraph: null,
+                            reset: dagInfo.reset,
+                            createdTime: dagInfo.createdTime
+                        }));
                     }
                     dagIdSet.delete(dagInfo.id);
                 } else {
@@ -103,7 +119,11 @@ class DagTabUser extends DagTab {
     }
 
     protected static _createTab(name: string, id: string): DagTabUser {
-        return new DagTabUser(name, id, null, null, xcTimeHelper.now());
+        return new DagTabUser({
+            name: name,
+            id: id,
+            createdTime: xcTimeHelper.now()
+        });
     }
 
     private static _getAllDagsFromKVStore(): XDPromise<string[]> {
@@ -142,17 +162,12 @@ class DagTabUser extends DagTab {
         return deferred.promise();
     }
 
-    public constructor(
-        name: string,
-        id?: string,
-        graph?: DagGraph,
-        reset?: boolean,
-        createdTime?: number
-    ) {
-        super(name, id, graph);
+    public constructor(options: DagTabUserOptions) {
+        options = options || <DagTabUserOptions>{};
+        super(options);
         this._kvStore = new KVStore(this._id, gKVScope.WKBK);
-        this._reset = reset;
-        this._createdTime = createdTime;
+        this._reset = options.reset;
+        this._createdTime = options.createdTime;
     }
 
     public setName(newName: string): void {
@@ -241,7 +256,10 @@ class DagTabUser extends DagTab {
         // 3. delete the temp shared dataflow
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const tempName: string = this._getTempName();
-        const fakeTab: DagTabPublished = new DagTabPublished(tempName, null, this._dagGraph);
+        const fakeTab: DagTabPublished = new DagTabPublished({
+            name: tempName,
+            dagGraph: this._dagGraph
+        });
         let hasShared: boolean = false;
 
         fakeTab.publish()
@@ -269,7 +287,9 @@ class DagTabUser extends DagTab {
         // 3. delete the temp shared dataflow
         const deferred: XDDeferred<DagTab> = PromiseHelper.deferred();
         const tempName: string = this._getTempName();
-        const fakeTab: DagTabPublished = new DagTabPublished(tempName);
+        const fakeTab: DagTabPublished = new DagTabPublished({
+            name: tempName
+        });
         let hasFakeDag: boolean = false;
         let hasGetMeta: boolean = false;
         let tabUploaded: DagTab = this;
@@ -321,7 +341,11 @@ class DagTabUser extends DagTab {
 
     public clone(): DagTabUser {
         const clonedGraph: DagGraph = this.getGraph().clone();
-        const clonedTab = new DagTabUser(this.getName(), null, clonedGraph, null, xcTimeHelper.now());
+        const clonedTab = new DagTabUser({
+            name: this.getName(),
+            dagGraph: clonedGraph,
+            createdTime: xcTimeHelper.now()
+        });
         return clonedTab;
     }
 
@@ -335,7 +359,7 @@ class DagTabUser extends DagTab {
 
     protected _writeToKVStore(): XDPromise<void> {
         // getJSON with includeStats = true
-        return super._writeToKVStore(this._getJSON(true));
+        return super._writeToKVStore(this._getDurable(true));
     }
 
     protected _getTempName(): string {
@@ -358,7 +382,12 @@ class DagTabUser extends DagTab {
 
     private _convertToSQLFunc(): DagTabSQLFunc {
         let name: string = <string>xcHelper.checkNamePattern(PatternCategory.SQLFunc, PatternAction.Fix, this.getName());
-        let tab: DagTabSQLFunc = new DagTabSQLFunc(name, null, this._dagGraph, false, this._createdTime);
+        let tab: DagTabSQLFunc = new DagTabSQLFunc({
+            name: name,
+            dagGraph: this._dagGraph,
+            reset: false,
+            createdTime: this._createdTime
+        });
         return tab;
     }
 }

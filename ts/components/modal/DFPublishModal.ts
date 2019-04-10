@@ -68,7 +68,10 @@ class DFPublishModal {
         const shareDS: boolean = $modal.find(".shareDS .checkbox").hasClass("checked");
 
         const graph: DagGraph = this._cachedDagTab.getGraph();
-        const tab: DagTabPublished = new DagTabPublished(path, null, graph);
+        const tab: DagTabPublished = new DagTabPublished({
+            name: path,
+            dagGraph: graph
+        });
         let hasShared: boolean = false;
 
         tab.publish()

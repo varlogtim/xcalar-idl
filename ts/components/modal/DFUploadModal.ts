@@ -51,7 +51,10 @@ class DFUploadModal {
         let path: string = this._getDestPath();
 
         let shared: boolean = false;
-        let uploadTab: DagTab = new DagTabUser(path, null, null, null, xcTimeHelper.now());
+        let uploadTab: DagTab = new DagTabUser({
+            name: path, 
+            createdTime: xcTimeHelper.now()
+        });
         let shortName: string = uploadTab.getName();
 
         const isValid: boolean = xcHelper.validate([{

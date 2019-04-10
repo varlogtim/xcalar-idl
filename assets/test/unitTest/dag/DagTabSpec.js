@@ -1,5 +1,3 @@
-// Tests for dagTabs.
-
 describe('DagTab Test', function() {
     var $dagTabs;
     var $newTabButton;

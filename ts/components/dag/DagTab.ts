@@ -1,5 +1,12 @@
+interface DagTabOptions {
+    version?: number;
+    name: string;
+    id?: string;
+    dagGraph?: DagGraph;
+}
+
 // dagTabs hold a user's dataflows and kvStore.
-abstract class DagTab {
+abstract class DagTab extends Durable {
     public static readonly KEY: string = "DF2";
     protected static uid: XcUID;
 
@@ -20,10 +27,12 @@ abstract class DagTab {
         return this.uid.gen();
     }
 
-    public constructor(name: string, id?: string, dagGraph?: DagGraph) {
-        this._name = name;
-        this._id = id || DagTab.generateId();
-        this._dagGraph = dagGraph || null;
+    public constructor(options: DagTabOptions) {
+        options = options || <DagTabOptions>{};
+        super(options.version);
+        this._name = options.name;
+        this._id = options.id || DagTab.generateId();
+        this._dagGraph = options.dagGraph || null;
         if (this._dagGraph != null) {
             this._dagGraph.setTabId(this._id);
         }
@@ -148,6 +157,11 @@ abstract class DagTab {
         return this._isOpen;
     }
 
+    // not used
+    public serialize(): string {
+        return null;
+    }
+
     protected getRuntime(): DagRuntime {
         // In expServer execution, this function is overridden by DagRuntime.accessible() and should never be invoked.
         // In XD execution, this will be invoked in case the DagNode instance
@@ -214,11 +228,7 @@ abstract class DagTab {
         return this._kvStore.put(serializedJSON, true, true);
     }
 
-    protected _getJSON(includeStats?: boolean): {
-        name: string,
-        id: string,
-        dag: DagGraphInfo
-    } {
+    protected _getDurable(includeStats?: boolean): DagTabDurable {
         let dag = this._dagGraph ? this._dagGraph.getSerializableObj(includeStats) : null;
         return {
             name: this._name,

@@ -546,9 +546,17 @@ class DagTabManager {
     private _newTab(name: string, graph: DagGraph, isSQLFunc: boolean): DagTab {
         let newDagTab: DagTab;
         if (isSQLFunc) {
-            newDagTab = new DagTabSQLFunc(name, null, graph, null, xcTimeHelper.now());
+            newDagTab = new DagTabSQLFunc({
+                name: name,
+                dagGraph: graph,
+                createdTime: xcTimeHelper.now()
+            });
         } else {
-            newDagTab = new DagTabUser(name, null, graph, null, xcTimeHelper.now());
+            newDagTab = new DagTabUser({
+                name: name,
+                dagGraph: graph,
+                createdTime: xcTimeHelper.now()
+            });
         }
         if (!DagList.Instance.addDag(newDagTab)) {
             return null;

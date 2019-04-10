@@ -165,7 +165,10 @@ class SqlQueryHistory {
         if (!dataflowId) {
             return PromiseHelper.resolve();
         }
-        let dag = new DagTabUser(null, dataflowId);
+        let dag = new DagTabUser({
+            name: null,
+            id: dataflowId
+        });
         return dag.delete();
     }
 

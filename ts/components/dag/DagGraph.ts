@@ -1,4 +1,4 @@
-class DagGraph {
+class DagGraph extends Durable {
     protected nodesMap: Map<DagNodeId, DagNode>;
     private removedNodesMap: Map<DagNodeId,{}>;
     private commentsMap: Map<CommentNodeId, CommentNode>;
@@ -17,6 +17,7 @@ class DagGraph {
     public events: { on: Function, off: Function, trigger: Function}; // example: dagGraph.events.on(DagNodeEvents.StateChange, console.log)
 
     public constructor() {
+        super(null);
         this.nodesMap = new Map();
         this.removedNodesMap = new Map();
         this.commentsMap = new Map();
@@ -79,22 +80,7 @@ class DagGraph {
      * Generates the serializable version of this graph.
      */
     public getSerializableObj(includeStats?: boolean): DagGraphInfo {
-        let nodes: DagNodeInfo[] = [];
-        // Assemble node list
-        this.nodesMap.forEach((node: DagNode) => {
-            nodes.push(node.getSerializableObj(includeStats));
-        });
-        let comments: CommentInfo[] = [];
-        this.commentsMap.forEach((comment) => {
-            comments.push(comment.getSerializableObj());
-        });
-
-        return {
-            nodes: nodes,
-            comments: comments,
-            display: this.display,
-            operationTime: this.operationTime
-        };
+        return this._getDurable(includeStats);
     }
 
     public rebuildGraph(graphJSON: {
@@ -144,6 +130,7 @@ class DagGraph {
      * @param {DagGraphInfo} serializableGraph
      */
     public create(serializableGraph: DagGraphInfo): void {
+        this.version = serializableGraph.version || Durable.Version;
         const nodes: {node: DagNode, parents: DagNodeId[]}[] = [];
         serializableGraph.nodes.forEach((nodeInfo: DagNodeInfo) => {
             nodeInfo["graph"] = this;
@@ -1555,6 +1542,31 @@ class DagGraph {
         if (this.currentExecutor != null) {
             this.currentExecutor.updateProgress(nodeInfos);
         }
+    }
+
+    // not used
+    public serialize(): string {
+        return null;
+    }
+
+    protected _getDurable(includeStats?: boolean): DagGraphInfo {
+        let nodes: DagNodeInfo[] = [];
+        // Assemble node list
+        this.nodesMap.forEach((node: DagNode) => {
+            nodes.push(node.getSerializableObj(includeStats));
+        });
+        let comments: CommentInfo[] = [];
+        this.commentsMap.forEach((comment) => {
+            comments.push(comment.getSerializableObj());
+        });
+
+        return {
+            version: this.version,
+            nodes: nodes,
+            comments: comments,
+            display: this.display,
+            operationTime: this.operationTime
+        };
     }
 
     protected getRuntime(): DagRuntime {

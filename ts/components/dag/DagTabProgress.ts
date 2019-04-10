@@ -16,8 +16,7 @@ abstract class DagTabProgress extends DagTab {
         id: string,
         name: string
     }) {
-        const {id, name} = options;
-        super(name, id, null);
+        super(options);
         this._isDoneExecuting = false;
         this._isFocused = false;
         this._queryCheckId = 0;
