@@ -115,34 +115,34 @@ interface ProfileDurable {
 }
 
 interface DSDurable {
-    version: number;
-    id: string;
-    name: string;
-    user: string
+    version?: number;
+    id?: string;
+    name?: string;
+    user?: string
     fullName: string;
-    parentId: string;
-    isFolder: boolean;
-    uneditable: boolean;
-    eles: DSDurable[];
-    totalChildren: number;
-    format: string;
-    size: number;
-    numEntries: number;
-    resultSetId: string;
-    fieldDelim: string;
-    lineDelim: string;
-    hasHeader: boolean;
-    moduleName: string;
-    funcName: string;
-    quoteChar: string;
-    skipRows: number;
-    advancedArgs: {allowFileErrors: boolean, allowRecordErrors: boolean};
-    error: string;
-    udfQuery: object;
-    targetName: string;
-    typedColumns: {colType: ColumnType, colName: string}[];
-    date: number;
-    numErrors: number;
+    parentId?: string;
+    isFolder?: boolean;
+    uneditable?: boolean;
+    eles?: DSDurable[];
+    totalChildren?: number;
+    format?: string;
+    size?: number;
+    numEntries?: number;
+    resultSetId?: string;
+    fieldDelim?: string;
+    lineDelim?: string;
+    hasHeader?: boolean;
+    moduleName?: string;
+    funcName?: string;
+    quoteChar?: string;
+    skipRows?: number;
+    advancedArgs?: {allowFileErrors: boolean, allowRecordErrors: boolean};
+    error?: string;
+    udfQuery?: object;
+    targetName?: string;
+    typedColumns?: {colType: ColumnType, colName: string}[];
+    date?: number;
+    numErrors?: number;
 }
 
 interface XcQueryDurable {

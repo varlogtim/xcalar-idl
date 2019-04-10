@@ -1,10 +1,10 @@
 class TblSourcePreview {
     private static _instance: TblSourcePreview;
-    
+
     public static get Instance() {
         return this._instance || (this._instance = new this());
     }
-    
+
     private readonly _container: string = "pTblView";
     private _tableInfo: PbTblInfo;
     private _viewer: XcViewer;
@@ -471,14 +471,14 @@ class TblSourcePreview {
             // error case
             return;
         }
-        TblSource.Instance.createTableFromDataset(tableInfo, res.schema, res.primaryKeys); 
+        TblSource.Instance.createTableFromDataset(tableInfo, res.schema, res.primaryKeys);
     }
 
     private _createDF(tableInfo: PbTblInfo): void {
         if (XVM.isSQLMode() || tableInfo == null) {
             return;
         }
-        
+
         let tableName: string = tableInfo.name;
         DagView.newTabFromSource(DagNodeType.IMDTable, {
             source: tableName,
@@ -521,7 +521,7 @@ class TblSourcePreview {
         $bottomSection.find(".createTable").click(() => {
             if (this._viewer instanceof XcDatasetViewer) {
                 this._createTable(this._tableInfo);
-            }   
+            }
         });
     }
 }

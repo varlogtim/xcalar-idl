@@ -1,17 +1,22 @@
 // this module support column related functions
-window.ColManager = (function($, ColManager) {
+namespace ColManager {
     // new ProgCol obj
-    ColManager.newCol = function(options) {
+    export function newCol (options): ProgCol {
         return new ProgCol(options);
     };
 
-    ColManager.newPullCol = function(colName, backColName, type, defaultWidth) {
+    export function newPullCol (
+        colName: string,
+        backColName: string,
+        type: ColumnType,
+        defaultWidth: boolean
+    ): ProgCol {
         if (backColName == null) {
             backColName = colName;
         }
 
-        var prefix = xcHelper.parsePrefixColName(backColName).prefix;
-        var width = null; // not set width by default as it's a slow operation
+        let prefix = xcHelper.parsePrefixColName(backColName).prefix;
+        let width = null; // not set width by default as it's a slow operation
         if (defaultWidth) {
             width = xcHelper.getDefaultColWidth(colName, prefix);
         }
@@ -32,7 +37,7 @@ window.ColManager = (function($, ColManager) {
     };
 
     // special case, specifically for DATA col
-    ColManager.newDATACol = function() {
+    export function newDATACol(): ProgCol {
         return ColManager.newCol({
             "backName": "DATA",
             "name": "DATA",
@@ -48,15 +53,20 @@ window.ColManager = (function($, ColManager) {
         });
     };
 
-    ColManager.addNewCol = function(colNum, tableId, direction, colOptions) {
-        var defaultOptions = {
+    export function addNewCol(
+        colNum: number,
+        tableId: TableId,
+        direction: number,
+        colOptions
+    ): void {
+        let defaultOptions = {
             "isNewCol": true,
             "width": xcHelper.getDefaultColWidth(""),
             "sizedTo": "header"
         };
 
-        var actulColOptions = $.extend(defaultOptions, colOptions);
-        var progCol = ColManager.newCol(actulColOptions);
+        let actulColOptions = $.extend(defaultOptions, colOptions);
+        let progCol = ColManager.newCol(actulColOptions);
         addColHelper(colNum, tableId, progCol, {
             "direction": direction
         });
@@ -73,38 +83,35 @@ window.ColManager = (function($, ColManager) {
 
     //options
     // noAnimate: boolean, if true, no animation is applied
-    ColManager.hideCol = function(colNums, tableId, options) {
+    export function hideCol(colNums: number[], tableId: TableId, options): XDPromise<void> {
         options = options || {};
         // deletes an array of columns
-        var deferred = PromiseHelper.deferred();
-        var table = gTables[tableId];
-        var $table = $('#xcTable-' + tableId);
-        var colNames = [];
-        var promises = [];
-        var colWidths = 0;
-        var tableWidth = $table.closest('.xcTableWrap').width();
-        var progCols = [];
-        var noAnimate = options.noAnimate || false;
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let table = gTables[tableId];
+        let $table = $('#xcTable-' + tableId);
+        let colNames = [];
+        let promises = [];
+        let progCols = [];
+        let noAnimate = options.noAnimate || false;
         if (colNums.length > 8) {
             noAnimate = true;
         }
 
         // check if only 1 column and is an empty column so we call this
         // a "delete" instead of a "hide"
-        var opTitle = SQLTStr.HideCol;
+        let opTitle = SQLTStr.HideCol;
         if (colNums.length === 1 && table.getCol(colNums[0]).isEmptyCol()) {
             opTitle = SQLTStr.DelCol;
         }
 
-        for (var i = 0, len = colNums.length; i < len; i++) {
-            var colNum = colNums[i];
-            var colIndex = colNum - i;
-            var progCol = table.getCol(colIndex);
+        for (let i = 0, len = colNums.length; i < len; i++) {
+            let colNum = colNums[i];
+            let colIndex = colNum - i;
+            let progCol = table.getCol(colIndex);
 
             colNames.push(progCol.getFrontColName(true));
             progCols.push(progCol);
 
-            colWidths += progCol.getDisplayWidth();
             promises.push(delColHelper(colNum, tableId, true, colIndex,
                                        noAnimate));
         }
@@ -115,10 +122,10 @@ window.ColManager = (function($, ColManager) {
 
         jQuery.when.apply($, promises)
         .done(function() {
-            var numCols = table.getNumCols();
+            let numCols = table.getNumCols();
             // adjust column numbers
-            for (var j = colNums[0]; j <= numCols; j++) {
-                var oldColNum = xcHelper.parseColNum($table.find('th').eq(j));
+            for (let j = colNums[0]; j <= numCols; j++) {
+                let oldColNum = xcHelper.parseColNum($table.find('th').eq(j));
                 $table.find(".col" + oldColNum)
                       .removeClass('col' + oldColNum)
                       .addClass('col' + j);
@@ -143,29 +150,29 @@ window.ColManager = (function($, ColManager) {
     };
 
     // specifically used for json modal
-    ColManager.pullCol = function(colNum, tableId, options) {
-        var deferred = PromiseHelper.deferred();
+    export function pullCol(colNum: number, tableId: TableId, options): XDPromise<number> {
+        const deferred: XDDeferred<number> = PromiseHelper.deferred();
 
         options = options || {};
 
-        var backName = options.escapedName;
-        var direction = options.direction;
+        let backName = options.escapedName;
+        let direction = options.direction;
 
-        var table = gTables[tableId];
-        var newColName = xcHelper.getUniqColName(tableId, options.fullName, true);
+        let table = gTables[tableId];
+        let newColName = xcHelper.getUniqColName(tableId, options.fullName, true);
 
-        var progCol = ColManager.newPullCol(newColName, backName, undefined, options.defaultWidth);
+        let progCol = ColManager.newPullCol(newColName, backName, undefined, options.defaultWidth);
 
         table.updateSortColAlias(progCol);
-        var usrStr = progCol.userStr;
+        let usrStr = progCol.userStr;
 
-        var newColNum = addColHelper(colNum, tableId, progCol, {
+        let newColNum = addColHelper(colNum, tableId, progCol, {
             "direction": direction,
             "select": true,
             "noAnimate": true
         });
 
-        var sqlOptions = {
+        let sqlOptions = {
             "operation": SQLOps.PullCol,
             "tableName": table.getName(),
             "tableId": tableId,
@@ -176,7 +183,7 @@ window.ColManager = (function($, ColManager) {
             "htmlExclude": ["pullColOptions"]
         };
 
-        ColManager.execCol("pull", usrStr, tableId, newColNum, {noLog: true})
+        execCol("pull", usrStr, tableId, newColNum, {noLog: true})
         .then(function() {
             TblManager.updateHeaderAndListInfo(tableId);
             // FormHelper.updateColumns(tableId);
@@ -192,9 +199,9 @@ window.ColManager = (function($, ColManager) {
         return deferred.promise();
     };
 
-    ColManager.sortColumn = function(colNums, tableId, order) {
-        var colInfo = [];
-        for (var i = 0; i < colNums.length; i++) {
+    export function sortColumn(colNums: number[], tableId: TableId, order: number): XDPromise<any> {
+        let colInfo = [];
+        for (let i = 0; i < colNums.length; i++) {
             colInfo.push({
                 colNum: colNums[i],
                 ordering: order,
@@ -205,17 +212,16 @@ window.ColManager = (function($, ColManager) {
         if (colNums.length > 1) {
             return xcFunction.sort(tableId, colInfo);
         }
-        var colNum = colNums[0];
-        var table = gTables[tableId];
-        var progCol = table.getCol(colNum);
-        var colName = progCol.getBackColName();
-        var keys = table.backTableMeta.keyAttr;
-        var keyNames = table.getKeyName();
-        var sortedColAlias = progCol.getSortedColAlias();
-        var keyIndex = keyNames.indexOf(sortedColAlias);
+        let colNum = colNums[0];
+        let table = gTables[tableId];
+        let progCol = table.getCol(colNum);
+        let keys = table.backTableMeta.keyAttr;
+        let keyNames = table.getKeyName();
+        let sortedColAlias = progCol.getSortedColAlias();
+        let keyIndex = keyNames.indexOf(sortedColAlias);
         if (keyIndex === -1 ||
             order !== XcalarOrderingTFromStr[keys[keyIndex].ordering]) {
-            for (var i = 0; i < keys.length; i++) {
+            for (let i = 0; i < keys.length; i++) {
                 // do not readd current column and
                 // do not include columns that are not sroted ascending or
                 // descending
@@ -235,25 +241,25 @@ window.ColManager = (function($, ColManager) {
             }
         }
 
-        var type = progCol.getType();
+        let type = progCol.getType();
 
         if (type !== "string") {
             return xcFunction.sort(tableId, colInfo);
         }
 
-        var $tds = $("#xcTable-" + tableId).find("tbody td.col" + colNum);
-        var datas = [];
-        var val;
+        let $tds = $("#xcTable-" + tableId).find("tbody td.col" + colNum);
+        let datas = [];
+        let val;
 
         $tds.each(function() {
             val = $(this).find('.originalData').text();
             datas.push(val);
         });
 
-        var suggType = xcSuggest.suggestType(datas, type, 0.9);
+        let suggType = xcSuggest.suggestType(datas, type, 0.9);
         if (suggType === "integer" || suggType === "float") {
-            var deferred = PromiseHelper.deferred();
-            var instr = xcHelper.replaceMsg(IndexTStr.SuggInstr, {
+             const deferred: XDDeferred<any> = PromiseHelper.deferred();
+            let instr = xcHelper.replaceMsg(IndexTStr.SuggInstr, {
                 "type": suggType
             });
 
@@ -290,26 +296,31 @@ window.ColManager = (function($, ColManager) {
     // options
     // keepEditable: boolean, if true then we dont remove disabled and editable
     // class
-    ColManager.renameCol = function(colNum, tableId, newName, options) {
+    export function renameCol(
+        colNum: number,
+        tableId: TableId,
+        newName: string,
+        options
+    ): void {
         options = options || {};
 
-        var table = gTables[tableId];
-        var $table = $("#xcTable-" + tableId);
-        var $th = $table.find('th.col' + colNum);
-        var curCol  = table.getCol(colNum);
-        var oldName = curCol.getFrontColName();
-        var keepEditable = options.keepEditable || false;
-        var prevWidth = curCol.width;
+        let table = gTables[tableId];
+        let $table = $("#xcTable-" + tableId);
+        let $th = $table.find('th.col' + colNum);
+        let curCol  = table.getCol(colNum);
+        let oldName = curCol.getFrontColName();
+        let keepEditable = options.keepEditable || false;
+        let prevWidth = curCol.width;
 
         curCol.name = newName;
-        var wasEditable = $th.find('.flexWrap.editable').length;
-        var $editableHead = $th.find('.editableHead');
+        let wasEditable = $th.find('.flexWrap.editable').length;
+        let $editableHead = $th.find('.editableHead');
         if (keepEditable) {
             // used when undoing a rename on a new column
             $th.find('.flexWrap.flex-mid').addClass('editable');
             $th.find('.header').addClass('editable');
             $editableHead.prop("disabled", false);
-            var newWidth;
+            let newWidth;
             if (options.prevWidth == null) {
                 newWidth = ProgCol.NewCellWidth;
             } else {
@@ -347,18 +358,18 @@ window.ColManager = (function($, ColManager) {
         KVStore.commit();
     };
 
-    ColManager.format = function(colNums, tableId, formats) {
+    export function format(colNums: number[], tableId: TableId, formats: string[]): void {
         // pass in array of format is for undo to bring back origin formats
-        var table = gTables[tableId];
-        var oldFormats = [];
-        var colNames = [];
-        var filteredColNums = [];
-        var filteredFormats = [];
+        let table = gTables[tableId];
+        let oldFormats = [];
+        let colNames = [];
+        let filteredColNums = [];
+        let filteredFormats = [];
 
         colNums.forEach(function(colNum, i) {
-            var progCol = table.getCol(colNum);
-            var format = formats[i];
-            var colFormat = progCol.getFormat();
+            let progCol = table.getCol(colNum);
+            let format = formats[i];
+            let colFormat = progCol.getFormat();
             if (format === colFormat) {
                 return;
             }
@@ -392,12 +403,17 @@ window.ColManager = (function($, ColManager) {
     // options {
     //      undoRedo: boolean, if true change html of columns
     // }
-    ColManager.reorderCol = function(tableId, oldColNum, newColNum, options) {
-        var $table = $("#xcTable-" + tableId);
-        var table = gTables[tableId];
-        var colName = table.getCol(oldColNum).getFrontColName(true);
+    export function reorderCol(
+        tableId: TableId,
+        oldColNum: number,
+        newColNum: number,
+        options
+    ): void {
+        let $table = $("#xcTable-" + tableId);
+        let table = gTables[tableId];
+        let colName = table.getCol(oldColNum).getFrontColName(true);
 
-        var progCol = table.removeCol(oldColNum);
+        let progCol = table.removeCol(oldColNum);
         table.addCol(newColNum, progCol);
 
         $table.find('.col' + oldColNum)
@@ -405,13 +421,13 @@ window.ColManager = (function($, ColManager) {
                  .addClass('colNumToChange');
 
         if (oldColNum > newColNum) {
-            for (var i = oldColNum; i >= newColNum; i--) {
+            for (let i = oldColNum; i >= newColNum; i--) {
                 $table.find('.col' + i)
                        .removeClass('col' + i)
                        .addClass('col' + (i + 1));
             }
         } else {
-            for (var i = oldColNum; i <= newColNum; i++) {
+            for (let i = oldColNum; i <= newColNum; i++) {
                 $table.find('.col' + i)
                        .removeClass('col' + i)
                        .addClass('col' + (i - 1));
@@ -425,7 +441,7 @@ window.ColManager = (function($, ColManager) {
             .removeClass('colNumToChange');
 
         if (options && options.undoRedo) {
-            var target = newColNum;
+            let target = newColNum;
             if (newColNum < oldColNum) {
                 target = newColNum - 1;
             }
@@ -450,20 +466,27 @@ window.ColManager = (function($, ColManager) {
     };
     // args:
     // noLog: boolean, if true, no sql will be logged
-    ColManager.execCol = function(operation, usrStr, tableId, colNum, args) {
-        var deferred = PromiseHelper.deferred();
-        var table = gTables[tableId];
+    export function execCol(operation: string, usrStr: string, tableId: TableId, colNum: number, args?: {
+        value?: string,
+        searchBar?: SearchBar,
+        initialTableId?: TableId,
+        undo?: boolean,
+        backName?: string,
+        noLog?: boolean
+    }): XDPromise<void> {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        let table = gTables[tableId];
 
         switch (operation) {
             case ("pull"):
-                var origCol = table.tableCols[colNum - 1];
-                var origType = origCol.type;
-                var origFunc = xcHelper.deepCopy(origCol.func);
-                var origUsrStr = origCol.userStr;
-                var backName = origCol.backName;
-                var frontName = origCol.name;
-                var wasNewCol = origCol.isNewCol;
-                var progCol = ColManager.newCol({
+                let origCol = table.tableCols[colNum - 1];
+                let origType = origCol.type;
+                let origFunc = xcHelper.deepCopy(origCol.func);
+                let origUsrStr = origCol.userStr;
+                let backName = origCol.backName;
+                let frontName = origCol.name;
+                let wasNewCol = origCol.isNewCol;
+                let progCol = ColManager.newCol({
                     "name": frontName,
                     "width": origCol.width,
                     "userStr": usrStr,
@@ -491,7 +514,7 @@ window.ColManager = (function($, ColManager) {
                 TableComponent.getPrefixManager().updateColor(tableId, colNum);
 
                 if (!args || !args.noLog) {
-                    var sqlOptions = {
+                    let sqlOptions = {
                         "operation": SQLOps.PullCol,
                         "tableName": table.tableName,
                         "tableId": tableId,
@@ -534,10 +557,15 @@ window.ColManager = (function($, ColManager) {
     // as a duplicate
     // stripColPrefix: if true, will strip $ from colname,
     // ignoreNewCol: if true, will not error if matches a new empty column
-    ColManager.checkColName = function($colInput, tableId, colNum, options) {
-        var columnName = $colInput.val().trim();
-        var error;
-        var table = gTables[tableId];
+    export function checkColName(
+        $colInput: JQuery,
+        tableId: TableId,
+        colNum: number,
+        options
+    ): boolean {
+        let columnName = $colInput.val().trim();
+        let error;
+        let table: TableMeta = gTables[tableId];
         if (!table) {
             table = gDroppedTables[tableId];
         }
@@ -550,7 +578,7 @@ window.ColManager = (function($, ColManager) {
             }
         }
 
-        var nameErr = xcHelper.validateColName(columnName);
+        let nameErr = xcHelper.validateColName(columnName);
         if (nameErr != null) {
             error = nameErr;
         } else if (table.getImmediateNames().includes(columnName)) {
@@ -561,7 +589,7 @@ window.ColManager = (function($, ColManager) {
         }
 
         if (error) {
-            var $toolTipTarget = $colInput.parent();
+            let $toolTipTarget = $colInput.parent();
             xcTooltip.transient($toolTipTarget, {
                 "title": error,
                 "template": xcTooltip.Template.Error
@@ -569,15 +597,15 @@ window.ColManager = (function($, ColManager) {
 
             $colInput.click(hideTooltip);
 
-            var timeout = setTimeout(function() {
+            let timeout = setTimeout(function() {
                 hideTooltip();
             }, 5000);
-        }
 
-        function hideTooltip() {
-            $toolTipTarget.tooltip('destroy');
-            $colInput.off('click', hideTooltip);
-            clearTimeout(timeout);
+            function hideTooltip() {
+                $toolTipTarget.tooltip('destroy');
+                $colInput.off('click', hideTooltip);
+                clearTimeout(timeout);
+            }
         }
 
         return (error != null);
@@ -587,22 +615,26 @@ window.ColManager = (function($, ColManager) {
     // strictDuplicates: if true, prefix:col1 and col1 (derived) will be flagged
     // as a duplicate,
     // ignoreNewCol: if true, will not error if matches a new empty colum,n
-    ColManager.checkDuplicateName = function(tableId, colNum, colName, options)
-    {
+    export function checkDuplicateName(
+        tableId: TableId,
+        colNum: number,
+        colName: string,
+        options?
+    ): boolean {
         options = options || {};
-        var table = gTables[tableId];
+        let table = gTables[tableId];
         if (!table) {
             table = gDroppedTables[tableId];
         }
-        var numCols = table.getNumCols();
-        for (var curColNum = 1; curColNum <= numCols; curColNum++) {
+        let numCols = table.getNumCols();
+        for (let curColNum = 1; curColNum <= numCols; curColNum++) {
             if (colNum != null && colNum === curColNum) {
                 continue;
             }
 
-            var progCol = table.getCol(curColNum);
+            let progCol = table.getCol(curColNum);
             // check both backend name and front name
-            var incPrefix = !options.strictDuplicates;
+            let incPrefix = !options.strictDuplicates;
             if (progCol.getFrontColName(incPrefix) === colName ||
                 (!progCol.isDATACol() &&
                  progCol.getBackColName() === colName))
@@ -617,44 +649,40 @@ window.ColManager = (function($, ColManager) {
         return false;
     };
 
-    ColManager.minimizeCols = function(colNums, tableId) {
+    export function minimizeCols(colNums: number[], tableId: TableId): XDPromise<any> {
         // for multiple columns
-        var deferred = PromiseHelper.deferred();
-        var $table = $("#xcTable-" + tableId);
-        var table = gTables[tableId];
-        var colNames = [];
-        var colNumsMinimized = [];
-        var widthDiff = 0;
-        var tableWidth = $table.width();
-        var promises = [];
-        var animOpt = {"width": gHiddenColumnWidth};
-        var noAnim = false;
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        let $table = $("#xcTable-" + tableId);
+        let table = gTables[tableId];
+        let colNames = [];
+        let colNumsMinimized = [];
+        let promises = [];
+        let animOpt = {"width": gHiddenColumnWidth};
+        let noAnim = false;
         if (colNums.length > 8) { // too much lag if multile columns
             noAnim = true;
         }
 
         colNums.forEach(function(colNum) {
-            var progCol = table.getCol(colNum);
+            let progCol = table.getCol(colNum);
             if (progCol.hasMinimized()) {
                 return;
             } else {
                 colNumsMinimized.push(colNum);
             }
 
-            var $th = $table.find("th.col" + colNum);
-            var originalColWidth = $th.outerWidth();
-            var columnName = progCol.getFrontColName();
+            let $th = $table.find("th.col" + colNum);
+            let columnName = progCol.getFrontColName();
 
-            widthDiff += (originalColWidth - gHiddenColumnWidth);
             progCol.minimize();
             colNames.push(columnName);
             // change tooltip to show name, and also need escape the columnName
 
             xcTooltip.changeText($th.find(".dropdownBox"), xcHelper.escapeHTMLSpecialChar(columnName));
 
-            var $cells = $table.find("th.col" + colNum + ",td.col" + colNum);
+            let $cells = $table.find("th.col" + colNum + ",td.col" + colNum);
             if (!gMinModeOn && !noAnim) {
-                var innerDeferred = PromiseHelper.deferred();
+                let innerDeferred = PromiseHelper.deferred();
 
                 $cells.addClass("animating");
                 $th.animate(animOpt, 250, "linear", function() {
@@ -690,38 +718,35 @@ window.ColManager = (function($, ColManager) {
         return deferred.promise();
     };
 
-    ColManager.maximizeCols = function(colNums, tableId, noAnim) {
-        var deferred = PromiseHelper.deferred();
-        var $table = $("#xcTable-" + tableId);
-        var tableWidth = $table.width();
-        var table = gTables[tableId];
-        var widthDiff = 0;
-        var colNames = [];
-        var promises = [];
-        var colNumsMaximized = [];
+    export function maximizeCols(colNums: number[], tableId: TableId, noAnim: boolean): XDPromise<void> {
+         const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        let $table = $("#xcTable-" + tableId);
+        let table = gTables[tableId];
+        let colNames = [];
+        let promises = [];
+        let colNumsMaximized = [];
         if (colNums.length > 8) { // too much lag if multile columns
             noAnim = true;
         }
 
         colNums.forEach(function(colNum) {
-            var progCol = table.getCol(colNum);
+            let progCol = table.getCol(colNum);
             if (progCol.hasMinimized()) {
                 colNumsMaximized.push(colNum);
             } else {
                 return;
             }
 
-            var originalColWidth = progCol.getWidth();
-            widthDiff += (originalColWidth - gHiddenColumnWidth);
+            let originalColWidth = progCol.getWidth();
             progCol.maximize();
             colNames.push(progCol.getFrontColName());
 
-            var $th = $table.find(".th.col" + colNum);
-            var $cell = $table.find("th.col" + colNum + ",td.col" + colNum);
+            let $th = $table.find(".th.col" + colNum);
+            let $cell = $table.find("th.col" + colNum + ",td.col" + colNum);
 
             if (!gMinModeOn && !noAnim) {
-                var innerDeferred = PromiseHelper.deferred();
-                var animOpt = {"width": originalColWidth};
+                let innerDeferred = PromiseHelper.deferred();
+                let animOpt = {"width": originalColWidth};
 
                 $cell.addClass("animating");
                 $th.animate(animOpt, 250, "linear", function() {
@@ -760,8 +785,8 @@ window.ColManager = (function($, ColManager) {
         return deferred.promise();
     };
 
-    ColManager.textAlign = function(colNums, tableId, alignment) {
-        var cachedAlignment = alignment;
+    export function textAlign(colNums: number[], tableId: TableId, alignment: string): void {
+        let cachedAlignment = alignment;
         if (alignment.indexOf("leftAlign") > -1) {
             alignment = ColTextAlign.Left;
         } else if (alignment.indexOf("rightAlign") > -1) {
@@ -771,19 +796,19 @@ window.ColManager = (function($, ColManager) {
         } else {
             alignment = ColTextAlign.Wrap;
         }
-        var table = gTables[tableId];
-        var $table = $("#xcTable-" + tableId);
-        var colNames = [];
-        var prevAlignments = [];
+        let table = gTables[tableId];
+        let $table = $("#xcTable-" + tableId);
+        let colNames = [];
+        let prevAlignments = [];
 
-        for (var i = 0, numCols = colNums.length; i < numCols; i++) {
-            var colNum = colNums[i];
-            var progCol = table.getCol(colNum);
+        for (let i = 0, numCols = colNums.length; i < numCols; i++) {
+            let colNum = colNums[i];
+            let progCol = table.getCol(colNum);
             prevAlignments.push(progCol.getTextAlign());
             colNames.push(progCol.getFrontColName());
-            var $tds = $table.find("td.col" + colNum);
+            let $tds = $table.find("td.col" + colNum);
 
-            for (var key in ColTextAlign) {
+            for (let key in ColTextAlign) {
                 $tds.removeClass("textAlign" + ColTextAlign[key]);
             }
 
@@ -806,33 +831,37 @@ window.ColManager = (function($, ColManager) {
 
     // jsonData is an array of stringified json with each array item
     // representing a row
-    ColManager.pullAllCols = function(startIndex, jsonData, tableId,
-                                        direction, rowToPrependTo)
-    {
-        var table = gTables[tableId];
-        var tableCols = table.tableCols;
-        var numCols = table.getNumCols();
-        var indexedColNums = [];
-        var nestedVals = [];
+    export function pullAllCols(
+        startIndex: number,
+        jsonData,
+        tableId: TableId,
+        direction: number,
+        rowToPrependTo: number
+    ): JQuery {
+        let table = gTables[tableId];
+        let tableCols = table.tableCols;
+        let numCols = table.getNumCols();
+        let indexedColNums = [];
+        let nestedVals = [];
         if (typeof jsonData !== "object" || !(jsonData instanceof Array)) {
             jsonData = [""];
         }
 
-        var $table = $('#xcTable-' + tableId);
-        var tBodyHTML = "";
-        var nested;
-        var hasIndexStyle = table.showIndexStyle();
-        var keys = table.getKeyName();
+        let $table = $('#xcTable-' + tableId);
+        let tBodyHTML = "";
+        let nested;
+        let hasIndexStyle = table.showIndexStyle();
+        let keys = table.getKeyName();
 
         startIndex = startIndex || 0;
 
-        for (var i = 0; i < numCols; i++) {
-            var progCol = tableCols[i];
+        for (let i = 0; i < numCols; i++) {
+            let progCol = tableCols[i];
             if (progCol.isDATACol() || progCol.isEmptyCol()) {
                 // this is the data Column
                 nestedVals.push({nested: [""]});
             } else {
-                var backColName = progCol.getBackColName();
+                let backColName = progCol.getBackColName();
                 if (!isValidColToPull(backColName)) {
                     nested = {nested: [""]};
                 } else {
@@ -840,14 +869,14 @@ window.ColManager = (function($, ColManager) {
                 }
 
                 nestedVals.push(nested);
-                var sortedColAlias = progCol.getSortedColAlias();
+                let sortedColAlias = progCol.getSortedColAlias();
                 // get the column number of the column the table was indexed on
                 if ((keys.includes(sortedColAlias))) {
                     indexedColNums.push(i);
                 }
             }
         }
-
+        let numRows;
         // Handle special case where resultant table has 0 rows
         if (jsonData.length === 1 && jsonData[0] === "") {
             tBodyHTML += '<tr class="row0">' +
@@ -855,9 +884,9 @@ window.ColManager = (function($, ColManager) {
                 '</tr>';
         } else {
             // loop through table tr and start building html
-            for (var row = 0, numRows = jsonData.length; row < numRows; row++) {
-                var tdValue = parseRowJSON(jsonData[row]);
-                var rowNum = row + startIndex;
+            for (let row = 0, numRows = jsonData.length; row < numRows; row++) {
+                let tdValue = parseRowJSON(jsonData[row]);
+                let rowNum = row + startIndex;
 
                 tBodyHTML += '<tr class="row' + rowNum + '">' +
                                 '<td align="center" class="col0">' +
@@ -870,19 +899,19 @@ window.ColManager = (function($, ColManager) {
                                 '</td>';
 
                 // loop through table tr's tds
-                var nestedTypes;
-                for (var colNum = 0; colNum < numCols; colNum++) {
+                let nestedTypes;
+                for (let colNum = 0; colNum < numCols; colNum++) {
                     nested = nestedVals[colNum].nested;
                     nestedTypes = nestedVals[colNum].types;
 
-                    var indexed = (indexedColNums.indexOf(colNum) > -1);
-                    var parseOptions = {
+                    let indexed = (indexedColNums.indexOf(colNum) > -1);
+                    let parseOptions = {
                         "hasIndexStyle": hasIndexStyle,
                         "indexed": indexed
                     };
-                    var res = parseTdHelper(tdValue, nested, nestedTypes,
+                    let res = parseTdHelper(tdValue, nested, nestedTypes,
                                             tableCols[colNum], parseOptions);
-                    var tdClass = "col" + (colNum + 1);
+                    let tdClass = "col" + (colNum + 1);
 
                     if (res.tdClass !== "") {
                         tdClass += " " + res.tdClass;
@@ -899,26 +928,32 @@ window.ColManager = (function($, ColManager) {
         }
 
         // assign column type class to header menus
-        var $tBody = $(tBodyHTML);
+        let $tBody = $(tBodyHTML);
         attachRows($table, $tBody, rowToPrependTo, direction, numRows);
 
-        for (var colNum = 1; colNum <= numCols; colNum++) {
+        for (let colNum = 1; colNum <= numCols; colNum++) {
             styleColHeadHelper(colNum, tableId);
         }
 
         return $tBody;
     };
 
-    function attachRows($table, $rows, rowToPrependTo, direction, numRows) {
+    function attachRows(
+        $table: JQuery,
+        $rows: JQuery,
+        rowToPrependTo: number,
+        direction: RowDirection,
+        numRows: number
+    ): void {
         if (direction === RowDirection.Top) {
             if (rowToPrependTo != null && rowToPrependTo > -1) {
-                var $rowToPrependTo = getRowToPrependTo($table, rowToPrependTo);
+                let $rowToPrependTo = getRowToPrependTo($table, rowToPrependTo);
                 if (!$rowToPrependTo) {
                     $table.find('tbody').prepend($rows);
                 } else {
                     if ($rowToPrependTo.prev().hasClass('tempRow')) {
                         $rowToPrependTo.prevAll(".tempRow:lt(" + numRows + ")")
-                                       .slice().remove();
+                                       .remove();
                     }
                     $rowToPrependTo.before($rows);
                 }
@@ -927,7 +962,7 @@ window.ColManager = (function($, ColManager) {
                 $table.find('tbody').prepend($rows);
             }
         } else {
-            var $prevRow = $table.find(".tempRow").eq(0).prev();
+            let $prevRow = $table.find(".tempRow").eq(0).prev();
             $table.find(".tempRow").slice(0, numRows).remove();
             if ($prevRow.length) {
                 $prevRow.after($rows);
@@ -937,10 +972,10 @@ window.ColManager = (function($, ColManager) {
         }
     }
 
-    function getRowToPrependTo($table, rowNum) {
+    function getRowToPrependTo($table: JQuery, rowNum: number): JQuery {
         // $('.row' + rowNum) may not exist,
         // so we find the previous row and call next
-        var $row = $table.find(".row" + (rowNum - 1)).next();
+        let $row = $table.find(".row" + (rowNum - 1)).next();
 
         if (!$row.length) {
             $row = $table.find('.row' + rowNum);
@@ -960,20 +995,20 @@ window.ColManager = (function($, ColManager) {
 
     // used when pulling multiple columns from data column or from an object or array cell
     // colNames is optional, if not provided then will try to pull all cols
-    ColManager.unnest = function(tableId, colNum, rowNum, colNames) {
-        var $table = $('#xcTable-' + tableId);
-        var $jsonTd = $table.find('.row' + rowNum).find('td.col' + colNum);
-        var jsonTdObj = parseRowJSON($jsonTd.find('.originalData').text());
-        var table = gTables[tableId];
-        var hiddenSortCols = table.getHiddenSortCols();
+    export function unnest(tableId: TableId, colNum: number, rowNum: number, colNames: string[]): void {
+        let $table = $('#xcTable-' + tableId);
+        let $jsonTd = $table.find('.row' + rowNum).find('td.col' + colNum);
+        let jsonTdObj = parseRowJSON($jsonTd.find('.originalData').text());
+        let table = gTables[tableId];
+        let hiddenSortCols = table.getHiddenSortCols();
         // do not pull out columns that should be hidden due to sort aliases
-        for (var colName in hiddenSortCols) {
+        for (let colName in hiddenSortCols) {
             delete jsonTdObj[colName];
         }
 
         // if datacol, make sure the json obj includes all the immediates
         if ($jsonTd.hasClass("jsonElement")) {
-            var immediates = table.getImmediates();
+            let immediates = table.getImmediates();
             immediates.forEach(function(immediate) {
                 if (!jsonTdObj.hasOwnProperty(immediate.name) &&
                     !hiddenSortCols[immediate.name]) {
@@ -985,24 +1020,24 @@ window.ColManager = (function($, ColManager) {
             return;
         }
 
-        var progCol = table.getCol(colNum);
-        var isDATACol = progCol.isDATACol();
-        var colNums = [];
+        let progCol = table.getCol(colNum);
+        let isDATACol = progCol.isDATACol();
+        let colNums = [];
 
-        var parsedCols = parseUnnestTd(table, progCol, jsonTdObj, colNames);
-        var numKeys = parsedCols.length;
+        let parsedCols = parseUnnestTd(table, progCol, jsonTdObj, colNames);
+        let numKeys = parsedCols.length;
 
         if (numKeys === 0) {
             return;
         }
 
-        var ths = "";
+        let ths = "";
         parsedCols.forEach(function(parsedCol, index) {
-            var colName = xcHelper.parsePrefixColName(parsedCol.colName).name;
-            var backColName = parsedCol.escapedColName;
-            var newProgCol = ColManager.newPullCol(colName, backColName, null, true);
+            let colName = xcHelper.parsePrefixColName(parsedCol.colName).name;
+            let backColName = parsedCol.escapedColName;
+            let newProgCol = ColManager.newPullCol(colName, backColName, null, true);
             table.updateSortColAlias(newProgCol);
-            var newColNum = isDATACol ? colNum + index : colNum + index + 1;
+            let newColNum = isDATACol ? colNum + index : colNum + index + 1;
 
             table.addCol(newColNum, newProgCol);
             ths += TblManager.getColHeadHTML(newColNum, tableId, {
@@ -1011,7 +1046,7 @@ window.ColManager = (function($, ColManager) {
             colNums.push(newColNum);
         });
 
-        var $colToUnnest = $table.find('.th.col' + colNum);
+        let $colToUnnest = $table.find('.th.col' + colNum);
         if (isDATACol) {
             $colToUnnest.before(ths);
         } else {
@@ -1033,16 +1068,16 @@ window.ColManager = (function($, ColManager) {
     };
 
     // used for mixed columns when we want to get the type inside a td
-    ColManager.getCellType = function($td, tableId) {
-        var table = gTables[tableId];
-        var tdColNum = xcHelper.parseColNum($td);
-        var colName = table.getCol(tdColNum).getBackColName();
-        var dataColNum = gTables[tableId].getColNumByBackName("DATA");
-        var $table = $("#xcTable-" + tableId);
-        var rowNum = xcHelper.parseRowNum($td.closest("tr"));
-        var $dataTd = $table.find(".row" + rowNum + " .col" + dataColNum);
-        var data = $dataTd.find('.originalData').text();
-        var parsed = false;
+    export function getCellType($td: JQuery, tableId: TableId): ColumnType  {
+        let table = gTables[tableId];
+        let tdColNum = xcHelper.parseColNum($td);
+        let colName = table.getCol(tdColNum).getBackColName();
+        let dataColNum = gTables[tableId].getColNumByBackName("DATA");
+        let $table = $("#xcTable-" + tableId);
+        let rowNum = xcHelper.parseRowNum($td.closest("tr"));
+        let $dataTd = $table.find(".row" + rowNum + " .col" + dataColNum);
+        let data = $dataTd.find('.originalData').text();
+        let parsed = false;
 
         if ($td.find(".undefined").length) {
             return ColumnType.undefined;
@@ -1056,15 +1091,15 @@ window.ColManager = (function($, ColManager) {
         if (!parsed) {
             return ColumnType.undefined;
         }
-        var nestedInfo = parseColFuncArgs(colName);
-        var nested = nestedInfo.nested;
-        var nestedTypes = nestedInfo.types;
-        var val = getTdInfo(data, nested, nestedTypes).tdValue;
+        let nestedInfo = parseColFuncArgs(colName);
+        let nested = nestedInfo.nested;
+        let nestedTypes = nestedInfo.types;
+        let val = getTdInfo(data, nested, nestedTypes).tdValue;
 
         return (xcHelper.parseColType(val));
     };
 
-    function isValidColToPull(colName) {
+    function isValidColToPull(colName: string): boolean {
         if (colName === "" || colName == null) {
             return false;
         } else {
@@ -1072,15 +1107,24 @@ window.ColManager = (function($, ColManager) {
         }
     }
 
-    function parseTdHelper(rowData, nested, nestedTypes, progCol, options) {
+    function parseTdHelper(
+        rowData,
+        nested: string[],
+        nestedTypes: string[],
+        progCol: ProgCol,
+        options?
+    ):  {
+        td: string,
+        tdClass: string
+    } {
         options = options || {};
 
-        var knf = false;
-        var truncLimit = 1000; // the character limit for the data td
-        var colTruncLimit = 500; // the character limit for other tds
-        var tdClass = "clickable";
-        var isDATACol = false;
-        var tdValue;
+        let knf = false;
+        let truncLimit = 1000; // the character limit for the data td
+        let colTruncLimit = 500; // the character limit for other tds
+        let tdClass = "clickable";
+        let isDATACol = false;
+        let tdValue;
 
         if (progCol.isDATACol()) {
             isDATACol = true;
@@ -1096,7 +1140,7 @@ window.ColManager = (function($, ColManager) {
                 console.error('Error this value should not be empty');
                 tdValue = "";
             } else {
-                var tdInfo = getTdInfo(rowData, nested, nestedTypes);
+                let tdInfo = getTdInfo(rowData, nested, nestedTypes);
                 tdValue = tdInfo.tdValue;
                 knf = tdInfo.knf;
             }
@@ -1129,9 +1173,9 @@ window.ColManager = (function($, ColManager) {
         }
 
         // formatting
-        var parsedVal = xcHelper.parseJsonValue(tdValue, knf, true);
-        var formatVal = parsedVal;
-        var format = progCol.getFormat();
+        let parsedVal = xcHelper.parseJsonValue(tdValue, knf, true);
+        let formatVal = parsedVal;
+        let format = progCol.getFormat();
 
         if (!knf && tdValue != null && (format !== ColFormat.Default &&
             typeof parsedVal !== "string"))
@@ -1139,12 +1183,12 @@ window.ColManager = (function($, ColManager) {
             formatVal = formatColumnCell(parsedVal, format);
         }
 
-        var limit = isDATACol ? truncLimit : colTruncLimit;
-        var tdValLen = formatVal.length;
-        var truncated = (tdValLen > limit);
+        let limit = isDATACol ? truncLimit : colTruncLimit;
+        let tdValLen = formatVal.length;
+        let truncated = (tdValLen > limit);
 
         if (truncated) {
-            var truncLen = tdValLen - limit;
+            let truncLen = tdValLen - limit;
             formatVal = formatVal.substr(0, limit) +
                         "...(" + (xcHelper.numToStr(truncLen)) +
                         " " + TblTStr.Truncate + ")";
@@ -1164,7 +1208,7 @@ window.ColManager = (function($, ColManager) {
             truncated = true;
         }
 
-        var td = getTableCellHtml(formatVal, truncated, parsedVal, isDATACol);
+        let td = getTableCellHtml(formatVal, truncated, parsedVal, isDATACol);
         return {
             "td": td,
             "tdClass": tdClass.trim(),
@@ -1173,12 +1217,15 @@ window.ColManager = (function($, ColManager) {
 
     // helper function for parseTdHelper that returns an object with
     // tdValue string, and knf boolean
-    function getTdInfo(tdValue, nested, types) {
-        var knf = false;
-        var nestedLength = nested.length;
-        var curVal;
+    function getTdInfo(tdValue: string, nested: string[], types: string[]): {
+        tdValue: string,
+        knf: boolean
+    } {
+        let knf = false;
+        let nestedLength = nested.length;
+        let curVal;
 
-        for (var i = 0; i < nestedLength; i++) {
+        for (let i = 0; i < nestedLength; i++) {
             if (types && types[i - 1] === "object" && Array.isArray(tdValue)) {
                 knf = true;
                 tdValue = null;
@@ -1204,13 +1251,13 @@ window.ColManager = (function($, ColManager) {
         });
     }
 
-    function styleColHeadHelper(colNum, tableId) {
-        var $table = $("#xcTable-" + tableId);
-        var table = gTables[tableId];
-        var progCol = table.getCol(colNum);
-        var $th = $table.find("th.col" + colNum);
-        var $header = $th.find("> .header");
-        var colType = progCol.getType();
+    function styleColHeadHelper(colNum: number, tableId: TableId): void {
+        let $table = $("#xcTable-" + tableId);
+        let table = gTables[tableId];
+        let progCol = table.getCol(colNum);
+        let $th = $table.find("th.col" + colNum);
+        let $header = $th.find("> .header");
+        let colType = progCol.getType();
 
         $header.removeClass("type-mixed")
                 .removeClass("type-string")
@@ -1224,7 +1271,7 @@ window.ColManager = (function($, ColManager) {
 
         // for integer or float, if we cannot distinct (if no info from backend)
         // then we say it's a number
-        var adjustedColType = colType;
+        let adjustedColType = colType;
         // if (!progCol.isKnownType() && progCol.isNumberCol()) {
         //     adjustedColType = "number";
         // }
@@ -1244,10 +1291,9 @@ window.ColManager = (function($, ColManager) {
         } else {
             $th.removeClass("sortable");
         }
-        var keys = table.getKeys();
-        var backName = progCol.getBackColName();
-        var sortedColAlias = progCol.getSortedColAlias();
-        var indexed = keys.find(function(k) {
+        let keys = table.getKeys();
+        let sortedColAlias = progCol.getSortedColAlias();
+        let indexed = keys.find(function(k) {
             return k.name === sortedColAlias;
         });
         if (indexed) {
@@ -1270,51 +1316,50 @@ window.ColManager = (function($, ColManager) {
         }
     }
 
-    function pullColHelper(colNum, tableId) {
-        var table = gTables[tableId];
-        var progCol = table.getCol(colNum);
-        var backColName = progCol.getBackColName();
+    function pullColHelper(colNum: number, tableId: TableId): void {
+        let table = gTables[tableId];
+        let progCol = table.getCol(colNum);
+        let backColName = progCol.getBackColName();
 
         if (!isValidColToPull(backColName)) {
             return;
         }
 
-        var $table = $("#xcTable-" + tableId);
-        var $dataCol = $table.find("tr:first th").filter(function() {
+        let $table = $("#xcTable-" + tableId);
+        let $dataCol = $table.find("tr:first th").filter(function() {
             return ($(this).find("input").val() === "DATA");
         });
 
-        var dataColNum = xcHelper.parseColNum($dataCol);
+        let dataColNum = xcHelper.parseColNum($dataCol);
 
-        var startingIndex = parseInt($table.find("tbody tr:first")
+        let startingIndex = parseInt($table.find("tbody tr:first")
                                            .attr('class').substring(3));
-        var endingIndex = parseInt($table.find("tbody tr:last")
+        let endingIndex = parseInt($table.find("tbody tr:last")
                                            .attr('class').substring(3)) + 1;
 
-        var nestedInfo = parseColFuncArgs(backColName);
-        var nested = nestedInfo.nested;
-        var nestedTypes = nestedInfo.types;
+        let nestedInfo = parseColFuncArgs(backColName);
+        let nested = nestedInfo.nested;
+        let nestedTypes = nestedInfo.types;
 
-        var keys = table.getKeys();
-        var backName = progCol.getBackColName();
-        var sortedColAlias = progCol.getSortedColAlias();
-        var indexed = keys.find(function(k) {
+        let keys = table.getKeys();
+        let sortedColAlias = progCol.getSortedColAlias();
+        let indexed = keys.find(function(k) {
             return k.name === sortedColAlias;
         });
 
-        var hasIndexStyle = table.showIndexStyle();
+        let hasIndexStyle = table.showIndexStyle();
         $table.find(".col" + colNum).removeClass("indexedColumn");
 
-        for (var i = startingIndex; i < endingIndex; i++) {
-            var $jsonTd = $table.find('.row' + i + ' .col' + dataColNum);
-            var jsonStr = $jsonTd.find('.originalData').text();
-            var tdValue = parseRowJSON(jsonStr) || "";
-            var res = parseTdHelper(tdValue, nested, nestedTypes, progCol, {
+        for (let i = startingIndex; i < endingIndex; i++) {
+            let $jsonTd = $table.find('.row' + i + ' .col' + dataColNum);
+            let jsonStr = $jsonTd.find('.originalData').text();
+            let tdValue = parseRowJSON(jsonStr) || "";
+            let res = parseTdHelper(tdValue, nested, nestedTypes, progCol, {
                 "indexed": indexed,
                 "hasIndexStyle": hasIndexStyle
             });
 
-            var $td = $table.find('.row' + i + ' .col' + colNum);
+            let $td = $table.find('.row' + i + ' .col' + colNum);
             $td.html(res.td);
             if (res.tdClass !== "") {
                 $td.addClass(res.tdClass);
@@ -1322,10 +1367,10 @@ window.ColManager = (function($, ColManager) {
         }
 
         styleColHeadHelper(colNum, tableId);
-        var sortIcon = "";
+        let sortIcon = "";
         if (indexed) {
-            var order = indexed.ordering;
-            var sorted = false;
+            let order = indexed.ordering;
+            let sorted = false;
             if (order ===
                 XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending]) {
                 sortIcon = '<div class="sortIcon"  data-toggle="tooltip" ' +
@@ -1344,9 +1389,9 @@ window.ColManager = (function($, ColManager) {
                 sorted = true;
             }
             if (sorted) {
-                var keyNames = table.getKeyName();
+                let keyNames = table.getKeyName();
                 if (keyNames.length > 1) {
-                    var sortNum = keyNames.indexOf(sortedColAlias);
+                    let sortNum = keyNames.indexOf(sortedColAlias);
                     sortIcon += '<span class="sortNum">' + (sortNum + 1) +
                                 '</span>';
                 }
@@ -1371,22 +1416,22 @@ window.ColManager = (function($, ColManager) {
         }
     }
 
-    function addColHelper(colNum, tableId, progCol, options) {
-        var $tableWrap = $("#xcTableWrap-" + tableId);
-        var $table = $tableWrap.find(".xcTable");
-        var table = gTables[tableId];
-        var numCols = table.tableCols.length;
-        var newColNum = colNum;
+    function addColHelper(colNum: number, tableId: TableId, progCol: ProgCol, options?): number {
+        let $tableWrap = $("#xcTableWrap-" + tableId);
+        let $table = $tableWrap.find(".xcTable");
+        let table = gTables[tableId];
+        let numCols = table.tableCols.length;
+        let newColNum = colNum;
 
         // options
         options = options || {};
-        var select = options.select || false;
-        var noAnimate = options.noAnimate || false;
+        let select = options.select || false;
+        let noAnimate = options.noAnimate || false;
 
-        var width = progCol.getWidth();
-        var isNewCol = progCol.isEmptyCol();
-        var isMinimized = progCol.hasMinimized();
-        var columnClass = "";
+        let width = progCol.getWidth();
+        let isNewCol = progCol.isEmptyCol();
+        let isMinimized = progCol.hasMinimized();
+        let columnClass = "";
 
         if (options.direction !== ColDir.Left) {
             newColNum += 1;
@@ -1404,13 +1449,13 @@ window.ColManager = (function($, ColManager) {
         table.addCol(newColNum, progCol);
 
         // change table class before insert a new column
-        for (var i = numCols; i >= newColNum; i--) {
+        for (let i = numCols; i >= newColNum; i--) {
             $tableWrap.find('.col' + i)
                       .removeClass('col' + i)
                       .addClass('col' + (i + 1));
         }
         // insert new th column
-        var $th = $(TblManager.getColHeadHTML(newColNum, tableId, {
+        let $th = $(TblManager.getColHeadHTML(newColNum, tableId, {
             "columnClass": columnClass
         }));
         $tableWrap.find('.th.col' + (newColNum - 1)).after($th);
@@ -1432,15 +1477,15 @@ window.ColManager = (function($, ColManager) {
         }
 
         // get the first row in UI and start to add td to each row
-        var idOfFirstRow = $table.find("tbody tr:first").attr("class");
-        var idOfLastRow = $table.find("tbody tr:last").attr("class");
-        var startingIndex = idOfFirstRow ?
+        let idOfFirstRow = $table.find("tbody tr:first").attr("class");
+        let idOfLastRow = $table.find("tbody tr:last").attr("class");
+        let startingIndex = idOfFirstRow ?
                                 parseInt(idOfFirstRow.substring(3)) : 1;
-        var endingIndex = parseInt(idOfLastRow.substring(3));
-        var newCellHTML = '<td ' + 'class="' + columnClass.trim() +
+        let endingIndex = parseInt(idOfLastRow.substring(3));
+        let newCellHTML = '<td ' + 'class="' + columnClass.trim() +
                           ' col' + newColNum + '"></td>';
 
-        var i = startingIndex;
+        let i = startingIndex;
         while (i <= endingIndex) {
             $table.find(".row" + i + " .col" + (newColNum - 1))
                   .after(newCellHTML);
@@ -1451,7 +1496,7 @@ window.ColManager = (function($, ColManager) {
             // Without doing this, the lastTarget will still be a div
             // even we focus on the input, so press space will make table scroll
             $th.find(".flexContainer").mousedown();
-            var $input = $th.find(".editableHead").focus();
+            let $input = $th.find(".editableHead").focus();
             gMouseEvents.setMouseDownTarget($input);
             gMouseEvents.setClickTarget($input);
         }
@@ -1462,19 +1507,22 @@ window.ColManager = (function($, ColManager) {
     // Help Functon for pullAllCols and pullCOlHelper
     // parse tableCol.func.args
     // assumes legal syntax ie. votes[funny] and not votes[funny]blah
-    function parseColFuncArgs(key) {
+    function parseColFuncArgs(key: string): {
+        nested: string[],
+        types?: string[]
+    } {
         if (key == null) {
-            return {nested: ""};
+            return {nested: []};
         }
         key += ""; // if number, convert to string
 
         // replace votes[funny] with votes.funny but votes\[funny\] will remain
         // XXX this is waiting for backend to fix, after that
         // we should not have votes\[fuuny\]
-        var isEscaped = false;
-        var bracketOpen = false;
-        var types = [];
-        for (var i = 0; i < key.length; i++) {
+        let isEscaped = false;
+        let bracketOpen = false;
+        let types = [];
+        for (let i = 0; i < key.length; i++) {
             if (isEscaped) {
                 isEscaped = false;
             } else {
@@ -1495,24 +1543,24 @@ window.ColManager = (function($, ColManager) {
                 }
             }
         }
-        var nested = key.match(/([^\\.]|\\.)+/g);
+        let nested: string[] = key.match(/([^\\.]|\\.)+/g);
 
         if (nested == null) {
-            return {nested: ""};
+            return {nested: []};
         }
-        for (var i = 0; i < nested.length; i++) {
+        for (let i = 0; i < nested.length; i++) {
             nested[i] = xcHelper.unescapeColName(nested[i]);
         }
         return {nested: nested, types: types};
     }
 
     // parse json string of a table row
-    function parseRowJSON(jsonStr) {
+    function parseRowJSON(jsonStr: string): any {
         if (!jsonStr) {
             return "";
         }
 
-        var value;
+        let value;
 
         try {
             value = jQuery.parseJSON(jsonStr);
@@ -1527,13 +1575,18 @@ window.ColManager = (function($, ColManager) {
     // End Of Help Functon for pullAllCols and pullCOlHelper
 
     // colNames is optional, if not provided then will try to pull all cols
-    function parseUnnestTd(table, progCol, jsonTd, colNames) {
-        var parsedCols = [];
-        var isArray = (progCol.getType() === ColumnType.array);
-        var isNotDATACol = !progCol.isDATACol();
-        var openSymbol = "";
-        var closingSymbol = "";
-        var unnestColName;
+    function parseUnnestTd(
+        table: TableMeta,
+        progCol: ProgCol,
+        jsonTd,
+        colNames: string[]
+    ): {colName: string, escapedColName: string}[]{
+        let parsedCols = [];
+        let isArray = (progCol.getType() === ColumnType.array);
+        let isNotDATACol = !progCol.isDATACol();
+        let openSymbol = "";
+        let closingSymbol = "";
+        let unnestColName;
         colNames = colNames || [];
 
         if (isNotDATACol) {
@@ -1549,18 +1602,18 @@ window.ColManager = (function($, ColManager) {
         }
 
         if (colNames.length) {
-            for (var i = 0; i < colNames.length; i++) {
+            for (let i = 0; i < colNames.length; i++) {
                 addParsedColName(colNames[i]);
             }
         } else {
-            for (var tdKey in jsonTd) {
+            for (let tdKey in jsonTd) {
                 addParsedColName(tdKey, true);
             }
         }
 
         // only escaping if column names not passed into parseUnnestTd
-        function addParsedColName(colName, escape) {
-            var escapedColName;
+        function addParsedColName(colName: string, escape?: boolean): void {
+            let escapedColName;
             if (escape) {
                 escapedColName = xcHelper.escapeColName(colName);
             } else {
@@ -1584,24 +1637,24 @@ window.ColManager = (function($, ColManager) {
         return parsedCols;
     }
 
-    function pullRowsBulkHelper(tableId) {
-        var $table = $("#xcTable-" + tableId);
+    function pullRowsBulkHelper(tableId: TableId): void {
+        let $table = $("#xcTable-" + tableId);
         // will change colNum in the follwing, so should
         // get datColNum here
-        var dataColNum = xcHelper.parseColNum($table.find("th.dataCol"));
+        let dataColNum = xcHelper.parseColNum($table.find("th.dataCol"));
         $table.find("th").each(function(newColNum) {
-            var $th = $(this);
+            let $th = $(this);
             if (!$th.hasClass("rowNumHead")) {
-                var colNum = xcHelper.parseColNum($th);
+                let colNum = xcHelper.parseColNum($th);
                 $th.removeClass("col" + colNum).addClass("col" + newColNum);
                 $th.find(".col" + colNum).removeClass("col" + colNum)
                                             .addClass("col" + newColNum);
             }
         });
 
-        var $tbody = $table.find("tbody");
-        var rowNum = xcHelper.parseRowNum($tbody.find("tr:eq(0)"));
-        var jsonData = [];
+        let $tbody = $table.find("tbody");
+        let rowNum = xcHelper.parseRowNum($tbody.find("tr:eq(0)"));
+        let jsonData = [];
         $tbody.find(".col" + dataColNum).each(function() {
             jsonData.push($(this).find(".originalData").text());
         });
@@ -1612,11 +1665,17 @@ window.ColManager = (function($, ColManager) {
         TblFunc.moveFirstColumn();
     }
 
-    function delColHelper(colNum, tableId, multipleCols, colId, noAnim) {
-        var deferred = PromiseHelper.deferred();
-        var table = gTables[tableId];
-        var numCols = table.getNumCols();
-        var $tableWrap = $("#xcTableWrap-" + tableId);
+    function delColHelper(
+        colNum: number,
+        tableId: TableId,
+        multipleCols: boolean,
+        colId: number,
+        noAnim: boolean
+    ): XDPromise<any> {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        let table = gTables[tableId];
+        let numCols = table.getNumCols();
+        let $tableWrap = $("#xcTableWrap-" + tableId);
 
         // temporarily no animation when deleting multiple duplicate cols
         if (gMinModeOn || noAnim) {
@@ -1624,13 +1683,13 @@ window.ColManager = (function($, ColManager) {
             if (!multipleCols) {
                 table.removeCol(colNum);
 
-                for (var i = colNum + 1; i <= numCols; i++) {
+                for (let i = colNum + 1; i <= numCols; i++) {
                     $tableWrap.find(".col" + i)
                               .removeClass("col" + i)
                               .addClass("col" + (i - 1));
                 }
 
-                var $table = $('#xcTable-' + tableId);
+                let $table = $('#xcTable-' + tableId);
                 TblFunc.matchHeaderSizes($table);
             } else {
                 table.removeCol(colId);
@@ -1641,10 +1700,10 @@ window.ColManager = (function($, ColManager) {
         }
         $tableWrap.find('.col' + colNum).addClass('animating');
         $tableWrap.find("th.col" + colNum).animate({width: 0}, 200, function() {
-            var currColNum = xcHelper.parseColNum($(this));
+            let currColNum = xcHelper.parseColNum($(this));
             $tableWrap.find(".col" + currColNum).remove();
             if (!multipleCols) {
-                for (var j = currColNum + 1; j <= numCols; j++) {
+                for (let j = currColNum + 1; j <= numCols; j++) {
                     $tableWrap.find(".col" + j)
                               .removeClass("col" + j)
                               .addClass("col" + (j - 1));
@@ -1666,7 +1725,7 @@ window.ColManager = (function($, ColManager) {
 
     // checks to make sure func.name is "pull" and that pull has
     // exactly one argument
-    function parsePullColArgs(progCol) {
+    function parsePullColArgs(progCol: ProgCol): boolean {
         if (progCol.func.name !== "pull") {
             console.warn("Wrong function!");
             return (false);
@@ -1677,7 +1736,7 @@ window.ColManager = (function($, ColManager) {
             return (false);
         }
 
-        var type = typeof progCol.func.args[0];
+        let type = typeof progCol.func.args[0];
         if (type !== "string" && type !== "number") {
             console.warn("argument is not a string or number!");
             return (false);
@@ -1685,9 +1744,14 @@ window.ColManager = (function($, ColManager) {
         return (true);
     }
 
-    function getTableCellHtml(value, isTruncated, rawValue, isDATACol) {
-        var tdClass;
-        var html;
+    function getTableCellHtml(
+        value: string,
+        isTruncated: boolean,
+        rawValue: string,
+        isDATACol: boolean
+    ): HTML {
+        let tdClass;
+        let html;
 
         if (isDATACol) {
             tdClass = isTruncated ? " truncated" : " originalData";
@@ -1714,12 +1778,12 @@ window.ColManager = (function($, ColManager) {
         return (html);
     }
 
-    function searchColNames(val, searchBar, initialTableId) {
+    function searchColNames(val: string, searchBar: SearchBar, initialTableId: TableId): void {
         val = val.toLowerCase();
-        var $functionArea = $('#functionArea');
-        var $headerInputs = $('.xcTableWrap:visible').find('.editableHead');
-        var $tableTitles = $('.xcTableWrap:visible').find('.tableTitle .text');
-        var $searchableFields = $headerInputs.add($tableTitles);
+        let $functionArea = $('#functionArea');
+        let $headerInputs = $('.xcTableWrap:visible').find('.editableHead');
+        let $tableTitles = $('.xcTableWrap:visible').find('.tableTitle .text');
+        let $searchableFields = $headerInputs.add($tableTitles);
         if (val === "") {
             searchBar.clearSearch(function() {
                 $('.xcTable:visible').find('.selectedCell')
@@ -1746,7 +1810,7 @@ window.ColManager = (function($, ColManager) {
         $functionArea.find('.counter').show();
         $functionArea.find('.arrows').show();
 
-        var $matchedInputs = $searchableFields.filter(function() {
+        let $matchedInputs = $searchableFields.filter(function() {
             if ($(this).is('.editableHead')) {
                 return ($(this).val().toLowerCase().indexOf(val) !== -1);
             } else if ($(this).is('.text')) {
@@ -1754,14 +1818,14 @@ window.ColManager = (function($, ColManager) {
             }
 
         });
-        var numMatches = $matchedInputs.length;
-        var position = Math.min(1, numMatches);
-        var $matches = $matchedInputs.closest('th')
+        let numMatches = $matchedInputs.length;
+        let position = Math.min(1, numMatches);
+        let $matches = $matchedInputs.closest('th')
                                      .add($matchedInputs
                                      .closest('.tableTitle'));
         searchBar.$matches = $matches;
         searchBar.numMatches = numMatches;
-        $functionArea.find('.position').html(position);
+        $functionArea.find('.position').html(position + "");
         $functionArea.find('.total').html('of ' + numMatches);
         $('.xcTable:visible').find('.selectedCell')
                              .removeClass('selectedCell')
@@ -1779,27 +1843,27 @@ window.ColManager = (function($, ColManager) {
         }
     }
 
-    function updateColumnFormat(tableId, colNum) {
-        var $table = $("#xcTable-" + tableId);
-        var progCol = gTables[tableId].getCol(colNum);
-        var format = progCol.getFormat();
-        var isMixed = progCol.getType() === ColumnType.mixed;
+    function updateColumnFormat(tableId: TableId, colNum: number): void {
+        let $table = $("#xcTable-" + tableId);
+        let progCol = gTables[tableId].getCol(colNum);
+        let format = progCol.getFormat();
+        let isMixed = progCol.getType() === ColumnType.mixed;
 
         $table.find("td.col" + colNum).each(function() {
-            var $td = $(this);
+            let $td = $(this);
             if (isMixed) {
                 // do not format cell if not a number
-                var cellType = ColManager.getCellType($td, tableId);
+                let cellType = ColManager.getCellType($td, tableId);
                 if (cellType !== ColumnType.integer && cellType !==
                     ColumnType.float) {
                     return;
                 }
             }
-            var oldVal = $td.find(".originalData").text();
+            let oldVal = $td.find(".originalData").text();
             if (oldVal != null && !$td.find(".undefined").length &&
                 !$td.find(".null").length) {
                 // not knf
-                var newVal = formatColumnCell(oldVal, format);
+                let newVal = formatColumnCell(oldVal, format);
                 $td.children(".displayedData").text(newVal);
             }
         });
@@ -1809,11 +1873,11 @@ window.ColManager = (function($, ColManager) {
     *@property {string} val: Text that would be in a table td
     *@property {string} format: "percent" or null
     */
-    function formatColumnCell(val, format) {
-        var cachedVal = val;
-        val = parseFloat(val);
+    function formatColumnCell(val: string, format: ColFormat) {
+        let cachedVal = val;
+        let valNum: number = parseFloat(val);
 
-        if (isNaN(val)) {
+        if (isNaN(valNum)) {
             return cachedVal;
         }
 
@@ -1821,10 +1885,10 @@ window.ColManager = (function($, ColManager) {
             case ColFormat.Percent:
                 // there is a case that 2009.877 * 100 =  200987.69999999998
                 // so must round it
-                var newVal = val * 100;
-                var decimalPartLen;
-                var pow;
-                var decimalPart = (val + "").split(".")[1];
+                let newVal = valNum * 100;
+                let decimalPartLen;
+                let pow;
+                let decimalPart = (val + "").split(".")[1];
                 if (decimalPart != null) {
                     decimalPartLen = decimalPart.length;
                     pow = Math.pow(10, decimalPartLen);
@@ -1840,18 +1904,13 @@ window.ColManager = (function($, ColManager) {
         }
     }
 
-    // parse pullcolargs
+    export let __testOnly__: any = {};
 
-    /* Unit Test Only */
-    if (window.unitTestMode) {
-        ColManager.__testOnly__ = {};
-        ColManager.__testOnly__.parsePullColArgs = parsePullColArgs;
-        ColManager.__testOnly__.parseColFuncArgs = parseColFuncArgs;
-        ColManager.__testOnly__.formatColumnCell = formatColumnCell;
-        ColManager.__testOnly__.getTdInfo = getTdInfo;
-        ColManager.__testOnly__.attachRows = attachRows;
+    if (typeof window !== 'undefined' && window['unitTestMode']) {
+        __testOnly__.parsePullColArgs = parsePullColArgs;
+        __testOnly__.parseColFuncArgs = parseColFuncArgs;
+        __testOnly__.formatColumnCell = formatColumnCell;
+        __testOnly__.getTdInfo = getTdInfo;
+        __testOnly__.attachRows = attachRows;
     }
-    /* End Of Unit Test Only */
-
-    return (ColManager);
-}(jQuery, {}));
+}

@@ -34,13 +34,13 @@ class TblFunc {
         $th: JQuery,
         options: {
             includeHeader: boolean,
-            fitAll: boolean,
+            fitAll?: boolean,
             minWidth: number,
-            maxWidth: number,
-            datastore: boolean
+            maxWidth?: number,
+            datastore?: boolean
             dblClick: boolean,
-            unlimitedWidth: boolean
-            multipleCols: boolean
+            unlimitedWidth?: boolean
+            multipleCols?: boolean
         }
     ): number {
         const colNum: number = $th.index();
@@ -273,7 +273,7 @@ class TblFunc {
      * @param noScrollBar
      */
     public static moveFirstColumn(
-        $targetTable: JQuery,
+        $targetTable?: JQuery,
         noScrollBar: boolean = false
     ): void {
         const moveScrollBar: boolean = !noScrollBar;

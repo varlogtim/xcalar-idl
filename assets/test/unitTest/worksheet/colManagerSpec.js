@@ -171,7 +171,7 @@ describe('ColManager Test', function() {
             expect(fn('colname\\\\.child').nested).to.deep.equal(['colname\\', 'child']);
             expect(fn('colname\\\\\\.child').nested).to.deep.equal(['colname\\.child']);
             expect(fn('colname\\.\\\\.child').nested).to.deep.equal(['colname.\\','child']);
-            expect(fn('').nested).to.equal('');
+            expect(fn('').nested).to.deep.equal([]);
 
             expect(fn('colname.child').nested).to.not.deep.equal(['child', 'colname']);
         });

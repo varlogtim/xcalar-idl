@@ -88,7 +88,7 @@ namespace xcTooltip {
      * @param options
      * @param delay
      */
-    export function transient($element: JQuery, options: TooltipOptions, delay: number): number {
+    export function transient($element: JQuery, options: TooltipOptions, delay?: number): number {
         const defaultOptions: TooltipOptions = {
             "title": "",
             "placement": "auto top",

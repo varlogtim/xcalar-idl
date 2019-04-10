@@ -1,7 +1,7 @@
 interface DSObjOptions extends DSDurable {
-    sources: any[];
-    columns: ColSchema[];
-    activated: boolean;
+    sources?: any[];
+    columns?: ColSchema[];
+    activated?: boolean;
 }
 
 interface DSSources {
@@ -431,7 +431,7 @@ class DSObj extends Durable {
 
         return false;
     }
-   
+
     // used if advancedArgs property is missing
     public addAdvancedArgs(): XDPromise<void> {
         // XXX TODO: use XcalarDatasetGetLoadArgs

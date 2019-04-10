@@ -70,7 +70,7 @@ class TableMeta extends Durable {
         this.backTableMeta = null; // placeholder
         this.resultSetMax = -1; // placeholder
         this.numPages = -1; // placeholder
-       
+
         this.tableCols = this._restoreProgCol(<ProgColDurable[]>options.tableCols);
         this.complement = options.complement || "";
 
@@ -483,7 +483,7 @@ class TableMeta extends Durable {
 
     public hasColWithBackName(
         backColName: string,
-        includeMeta: boolean
+        includeMeta?: boolean
     ): boolean {
         // this check if table has the backCol,
         // it does not check frontCol
@@ -617,7 +617,7 @@ class TableMeta extends Durable {
             }
         }
     }
-    
+
     // not used
     public serialize(): string {
         return null;

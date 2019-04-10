@@ -21,7 +21,7 @@ namespace xcFunction {
      * @param options
      */
     export function sort(
-        tableId: string,
+        tableId: TableId,
         colInfos: XcFuncSortColInfo[],
         options: XcFuncSortOptions = <XcFuncSortOptions>{}
     ): XDPromise<string> {

@@ -49,8 +49,8 @@ class SearchBar {
     private $downArrow: JQuery;
     private options: SearchBarOptions;
     private matchIndex: number = null;
-    private numMatches: number;
-    private $matches: JQuery;
+    public numMatches: number;
+    public $matches: JQuery;
     private $list: JQuery;
     private $searchInput: JQuery;
     private codeMirror: CodeMirror.Editor;
