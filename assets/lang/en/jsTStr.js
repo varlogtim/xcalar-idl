@@ -1646,6 +1646,8 @@ DagTStr = {
 };
 
 OpPanelTStr = {
+    "DSLoadArgChange": "Dataset LoadArgs Change",
+    "DSLoadArgChangeMsg": "Changes made to the loadArgs will only affect the optimized execution.",
     "DFLinkOutNameDup": "The name has already been used by another link out node, please choose another name",
     "DFLinkInNoDF": "Dataflow doesn't exist",
     "DFLinkInNoOut": "Link out node doesn't exist",

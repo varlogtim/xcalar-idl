@@ -2182,6 +2182,12 @@ class DagGraph {
         recursiveTraverse(node);
     }
 
+    public save(): void {
+        this.events.trigger(DagGraphEvents.Save, {
+            tabId: this.parentTabId
+        });
+    }
+
     public applyColumnMapping(nodeId: DagNodeId, renameMap) {
         this.events.trigger(DagGraphEvents.TurnOffSave, {
             tabId: this.parentTabId

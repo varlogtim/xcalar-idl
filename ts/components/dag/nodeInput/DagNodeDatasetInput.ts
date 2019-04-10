@@ -109,6 +109,28 @@ class DagNodeDatasetInput extends DagNodeInput {
             loadArgs: input.loadArgs || ""
         };
     }
+
+    /**
+     * @override
+     */
+    public hasParametersChanges(): boolean {
+        try {
+            let oldInput = this.lastInput;
+            let input = this.input
+            // ingore loadArgs change
+            if (oldInput.source === input.source &&
+                oldInput.prefix === input.prefix &&
+                oldInput.synthesize === input.synthesize
+            ) {
+                return false;
+            } else {
+                return true;
+            }
+        } catch (e) {
+            console.error(e);
+            return true;
+        }
+    }
 }
 
 if (typeof exports !== 'undefined') {

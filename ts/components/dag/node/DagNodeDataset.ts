@@ -90,18 +90,19 @@ class DagNodeDataset extends DagNodeIn {
     public setParam(
         input: DagNodeDatasetInputStruct = <DagNodeDatasetInputStruct>{},
         noAutoExecute?: boolean
-    ): void {
+    ): boolean {
         const source: string = input.source;
         const prefix: string = input.prefix;
         const synthesize: boolean = input.synthesize;
-        const loadArgs: string = input.loadArgs;
+        const loadArgs: string = input.loadArgs;        
+
         this.input.setInput({
             source: source,
             prefix: prefix,
             synthesize: synthesize || false,
             loadArgs: loadArgs || ""
         });
-        super.setParam(null, noAutoExecute);
+        return super.setParam(null, noAutoExecute) || false;
     }
 
     public confirmSetParam(): void {

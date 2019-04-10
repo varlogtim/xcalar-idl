@@ -559,6 +559,8 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             return;
         }
         const loadArgs: string = this._stringifiedLoadArgs(this._loadArgs);
+        const oldLoadArgs: string = this._stringifiedLoadArgs(dagNode.getLoadArgs());
+        const hasLoadArgsChange: boolean = (oldLoadArgs !== loadArgs);
         const oldParam: DagNodeDatasetInputStruct = dagNode.getParam();
         const $bg: JQuery = $("#initialLoadScreen");
         $bg.show();
@@ -572,15 +574,22 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
 
         getLoadgArgs
         .then((dsLoadArgs) => {
-            dagNode.setParam({
+            let hasChange: boolean = dagNode.setParam({
                 source: id,
                 prefix: prefix,
                 synthesize: this._synthesize,
                 loadArgs: dsLoadArgs
             }, true);
+            let hasNoSchemaChange: boolean = this._isSameSchema(oldSchema, schema);
 
             $bg.hide();
-            if (oldParam.source === id && this._isSameSchema(oldSchema, schema)) {
+
+            if (!hasChange && hasNoSchemaChange) {
+                if (hasLoadArgsChange) {
+                    dagGraph.save();
+                }
+                this.close();
+            } else if (oldParam.source === id && hasNoSchemaChange) {
                 // only the prefix changed so we automatically do the map
                 // without prompting the user
                 const renameMap = {
@@ -612,6 +621,14 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             } else {
                 dagNode.confirmSetParam();
                 this.close(true);
+            }
+
+            if (oldLoadArgs && hasLoadArgsChange) {
+                Alert.show({
+                    title: OpPanelTStr.DSLoadArgChange,
+                    msg: OpPanelTStr.DSLoadArgChangeMsg,
+                    isAlert: true
+                });
             }
         }).fail((error) => {
             $bg.hide();
