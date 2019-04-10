@@ -8,6 +8,7 @@ interface DSSources {
     path: string;
     fileNamePattern: string;
     targetName: string;
+    recursive: boolean;
 }
 
 // XXX TODO: remove the DS dependency
@@ -28,22 +29,22 @@ class DSObj extends Durable {
     private size: number; // ds's size
     private numEntries: number; // (integer) total records in ds
     private resultSetId: string; // ds' resultId
-    private fieldDelim: string; // field delim
-    private lineDelim: string; // line delim
-    private hasHeader: boolean; // promote header or not
-    private moduleName: string; // udf's module
-    private funcName: string; // udf's func
-    private quoteChar: string; // ds's quoteChar
-    private skipRows: number; // (integer) how many rows to skip
-    private advancedArgs: {allowFileErrors: boolean, allowRecordErrors: boolean}; // termination condition + extra cols
+    public fieldDelim: string; // field delim
+    public lineDelim: string; // line delim
+    public hasHeader: boolean; // promote header or not
+    public moduleName: string; // udf's module
+    public funcName: string; // udf's func
+    public quoteChar: string; // ds's quoteChar
+    public skipRows: number; // (integer) how many rows to skip
+    public advancedArgs: {allowFileErrors: boolean, allowRecordErrors: boolean}; // termination condition + extra cols
     private error: string; // ds's error
-    private udfQuery: object; // extra udf args,
+    public udfQuery: object; // extra udf args,
     private locked: boolean; // is dataset locked or not
     private targetName: string; // the src of targetName,
-    private typedColumns: {colType: ColumnType, colName: string}[];
+    public typedColumns: {colType: ColumnType, colName: string}[];
     private sources: DSSources[];
     private date: number; // created date timestamp
-    private numErrors: number; // number of record errors
+    public numErrors: number; // number of record errors
     private activated: boolean; // if the dataset is activated or not
     private columns: ColSchema[];
 

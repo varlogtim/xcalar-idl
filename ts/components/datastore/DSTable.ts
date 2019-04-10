@@ -1,74 +1,87 @@
-/*
- * Module for dataset sample table
- */
-window.DSTable = (function($, DSTable) {
-    var $dsTableContainer; // $("#dsTableContainer")
-    var $tableWrap;   // $("#dsTableWrap")
-    var $dsInfoPath; //$("#dsInfo-path");
-
-    var currentRow = 0;
-    var totalRows = 0;
-    var lastDSToSample; // used to track the last table to samle in async call
-    var defaultColWidth = 130;
+// XXX TODO: make it a instance of ds.js
+class DSTable {
+    private static currentRow: number = 0;
+    private static totalRows: number = 0;
+    private static lastDSToSample: string; // used to track the last table to samle in async call
 
     // constant
-    var initialNumRowsToFetch = 40;
+    private static readonly defaultColWidth: number = 130;
+    private static readonly initialNumRowsToFetch = 40;
 
-    DSTable.setup = function() {
-        $dsTableContainer = $("#dsTableContainer");
-        $tableWrap = $("#dsTableWrap");
-        $dsInfoPath = $("#dsInfo-path");
-        setupSampleTable();
-    };
+    /**
+     * DSTable.setup
+     */
+    public static setup(): void {
+        this._setupSampleTable();
+    }
 
-    DSTable.showError = function(dsId, error, isFetchError, noRetry, isImportError) {
-        var dsObj = DS.getDSObj(dsId);
+    /**
+     * DSTable.showError
+     * @param dsId
+     * @param error
+     * @param isFetchError
+     * @param noRetry
+     * @param isImportError
+     */
+    public static showError(
+        dsId: string,
+        error: string,
+        isFetchError: boolean,
+        noRetry: boolean,
+        isImportError: boolean
+    ) {
+        let dsObj: DSObj | null = DS.getDSObj(dsId);
         if (dsObj == null) {
             // error case
             return;
         }
-        showTableView(dsId);
-        updateTableInfoDisplay(dsObj);
-        setupViewAfterError(error, isFetchError, noRetry, isImportError);
-    };
+        this._showTableView(dsId);
+        this._updateTableInfoDisplay(dsObj, false, false);
+        this._setupViewAfterError(error, isFetchError, noRetry, isImportError);
+    }
 
-    DSTable.show = function(dsId, isLoading) {
-        var dsObj = DS.getDSObj(dsId);
+    /**
+     * DSTable.show
+     * @param dsId
+     * @param isLoading
+     */
+    public static show(dsId: string, isLoading: boolean): XDPromise<void> {
+        let dsObj = DS.getDSObj(dsId);
         if (dsObj == null) {
             return PromiseHelper.reject("No DS");
         }
 
-        var notLastDSError = "not last ds";
+        let notLastDSError: string = "not last ds";
 
-        showTableView(dsId);
+        this._showTableView(dsId);
         // update date part of the table info first to make UI smooth
-        var beforeFetch = true;
-        updateTableInfoDisplay(dsObj, beforeFetch);
+        this._updateTableInfoDisplay(dsObj, true, false);
 
         if (isLoading) {
-            DSTable.setupViewBeforeLoading(dsObj);
+            this.setupViewBeforeLoading(dsObj);
             return PromiseHelper.resolve();
         }
 
-        var deferred = PromiseHelper.deferred();
-        var timer;
-        var $dsTable = $("#dsTable");
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let $dsTable = this._getDSTableEl();
+        let timer;
 
         if ($dsTable.length === 0 ||
-            $dsTable.data("dsid") !== dsObj.getId()) {
+            $dsTable.data("dsid") !== dsObj.getId()
+        ) {
             // when not the case of already focus on this ds and refresh again
             // only when the loading is slow, show load section
 
-            timer = setTimeout(function() {
-                DSTable.setupViewBeforeLoading();
+            timer = setTimeout(() => {
+                this._resetLoading();
             }, 300);
         }
-        var datasetName = dsObj.getFullName();
-        lastDSToSample = datasetName;
+        let datasetName = dsObj.getFullName();
+        this.lastDSToSample = datasetName;
 
-        dsObj.fetch(0, initialNumRowsToFetch)
-        .then(function(jsons, jsonKeys) {
-            if (lastDSToSample !== datasetName) {
+        dsObj.fetch(0, this.initialNumRowsToFetch)
+        .then((jsons, jsonKeys) => {
+            if (this.lastDSToSample !== datasetName) {
                 // when network is slow and user trigger another
                 // get sample table code will goes here
                 return PromiseHelper.reject(notLastDSError);
@@ -76,23 +89,23 @@ window.DSTable = (function($, DSTable) {
                 return PromiseHelper.reject(DSTStr.PointErr);
             }
             clearTimeout(timer);
-            setupViewAfterLoading(dsObj);
-            getSampleTable(dsObj, jsonKeys, jsons);
+            this._setupViewAfterLoading(dsObj);
+            this._getSampleTable(dsObj, jsonKeys, jsons);
 
             deferred.resolve();
         })
-        .fail(function(error) {
+        .fail((error) => {
             clearTimeout(timer);
-            var noRetry = false;
+            let noRetry: boolean = false;
             if (error === notLastDSError ||
-                lastDSToSample !== datasetName)
+                this.lastDSToSample !== datasetName)
             {
                 deferred.reject(error);
                 return;
             }
 
             error = dsObj.getError() || error;
-            var errorMsg;
+            let errorMsg: string;
             if (typeof error === "object" && error.error != null) {
                 errorMsg = error.error;
                 if (error.status === StatusT.StatusDatasetAlreadyDeleted) {
@@ -107,60 +120,50 @@ window.DSTable = (function($, DSTable) {
                 errorMsg = ErrTStr.Unknown;
             }
 
-            setupViewAfterError(errorMsg, true, noRetry);
+            this._setupViewAfterError(errorMsg, true, noRetry, false);
             deferred.reject(error);
         });
 
         return deferred.promise();
-    };
-
-    function showTableView(dsId) {
-        $("#dsTableView").removeClass("xc-hidden");
-        $dsTableContainer.data("id", dsId);
-        DSForm.hide();
     }
 
-    // this is called sometimes when we're not focusing on the dataset table
-    // but we want to initialize the progress circle, so containerId and dsId
-    // may not match in that case
-    DSTable.setupViewBeforeLoading = function(dsObj) {
-        var containerId = $dsTableContainer.data("id");
+    /**
+     * DSTable.setupViewBeforeLoading
+     * this is called sometimes when we're not focusing on the dataset table
+     * but we want to initialize the progress circle, so containerId and dsId
+     * may not match in that case
+     * @param dsObj
+     */
+    public static setupViewBeforeLoading(dsObj: DSObj): void {
+        let $dsTableContainer = this._getContainer();
+        let containerId: string = this._getPreviewDSId();
         if (!dsObj || containerId === dsObj.getId()) {
-            $dsTableContainer.removeClass("error");
-            $dsTableContainer.addClass("loading");
-            $dsTableContainer.find(".lockedTableIcon").addClass("xc-hidden");
-            $tableWrap.html("");
+            this._resetLoading();
         }
 
         if (dsObj) {
-            var progressAreaHtml = "";
-            var txId = DS.getGrid(dsObj.getId()).data("txid");
-            var $lockIcon = $dsTableContainer
-                            .find('.lockedTableIcon[data-txid="' + txId + '"]');
+            let txId: number = DS.getGrid(dsObj.getId()).data("txid");
+            let $lockIcon: JQuery = $dsTableContainer.find('.lockedTableIcon[data-txid="' + txId + '"]');
             if ($lockIcon.length && containerId === dsObj.getId()) {
                 $lockIcon.removeClass("xc-hidden");
                 return;
             }
-            var withText = true;
-            progressAreaHtml = xcHelper.getLockIconHtml(txId, 0, withText);
+            let withText: boolean = true;
+            let progressAreaHtml = xcHelper.getLockIconHtml(txId, 0, withText);
             $dsTableContainer.find(".loadSection").append(progressAreaHtml);
-            var progressCircle = new ProgressCircle(txId, 0, withText);
+            let progressCircle = new ProgressCircle(txId, 0, withText);
             $dsTableContainer.find('.cancelLoad[data-txid="' + txId + '"]')
                             .data("progresscircle", progressCircle);
         }
     }
 
-    function setupViewAfterLoading(dsObj) {
-        // update info here
-        var postFetch = true;
-        updateTableInfoDisplay(dsObj, null, postFetch);
-
-        $dsTableContainer.removeClass("error");
-        $dsTableContainer.removeClass("loading");
-    }
-
-    function setupViewAfterError(error, isFetchError, noRetry, isImportError) {
-        error = parseError(error);
+    private static _setupViewAfterError(
+        error: any,
+        isFetchError: boolean,
+        noRetry: boolean,
+        isImportError: boolean
+    ): void {
+        error = this._parseError(error);
         // backend might return this: "<string>"
         error = xcHelper.escapeHTMLSpecialChar(error);
         var startError = "";
@@ -174,26 +177,131 @@ window.DSTable = (function($, DSTable) {
         }
         error = startError + error;
 
-        $tableWrap.html("");
+        this.clear();
+        let $dsTableContainer = this._getContainer();
         $dsTableContainer.removeClass("loading");
         $dsTableContainer.addClass("error");
 
-        var $errorSection = $dsTableContainer.find(".errorSection");
+        let $errorSection = $dsTableContainer.find(".errorSection");
         $errorSection.find(".error").html(error);
 
-        var dsId = $dsTableContainer.data("id");
-        var dsObj = DS.getDSObj(dsId);
+        let dsId: string = this._getPreviewDSId();
+        let dsObj = DS.getDSObj(dsId);
         if (!noRetry &&
             dsObj != null &&
             isImportError &&
-            dsObj.getUser() === XcUser.getCurrentUserName()) {
+            dsObj.getUser() === XcUser.getCurrentUserName()
+        ) {
             $errorSection.find(".suggest").removeClass("xc-hidden");
         } else {
             $errorSection.find(".suggest").addClass("xc-hidden");
         }
     }
 
-    function parseError(error) {
+    /**
+     * DSTable.hide
+     */
+    public static hide(): void {
+        this._getDSTableViewEl().addClass("xc-hidden");
+        this.clear();
+        DS.unFocus();
+        this._getContainer().removeData("id");
+    }
+
+    /**
+     * DSTable.getId
+     */
+    public static getId(): string | null {
+        let $table = this._getDSTableEl();
+        if ($table.is(":visible")) {
+            return $table.data("dsid");
+        } else {
+            // when not visible
+            return null;
+        }
+    }
+
+    /**
+     * DSTable.clear
+     */
+    public static clear(): void {
+        this._getTableWrapEl().html("");
+    }
+
+    /**
+     * DSTable.refresh
+     * @param resize
+     */
+    public static refresh(resize: boolean = false): void {
+        // size tableWrapper so borders fit table size
+        // As user can maunally resize to have/not have scrollbar
+        // we always need the scrollBarpadding
+        let $dsTable = this._getDSTableEl();
+        let tableHeight = $dsTable.height();
+        this._getTableWrapEl().width($dsTable.width());
+
+        if (resize) {
+            this._sizeColumns();
+        }
+        const scrollBarPadding: number = 10;
+        this._getContainer().height(tableHeight + scrollBarPadding);
+    }
+
+    private static _getContainer(): JQuery {
+        return  $("#dsTableContainer");
+    }
+
+    private static _getTableWrapEl(): JQuery {
+        return $("#dsTableWrap");
+    }
+
+    private static _getDSInfoPathEl(): JQuery {
+        return $("#dsInfo-path");
+    }
+
+    private static _getDSTableEl(): JQuery {
+        return $("#dsTable");
+    }
+
+    private static _getDSTableViewEl(): JQuery {
+        return $("#dsTableView");
+    }
+
+    private static _getDSInfoRecordEl(): JQuery {
+        return $("#dsInfo-records");   
+    }
+
+    private static _getDSInfoErrorEl(): JQuery {
+        return $("#dsInfo-error");
+    }
+
+    private static _getPreviewDSId(): string | null {
+        return this._getContainer().data("id");
+    }
+
+    private static _showTableView(dsId: string): void {
+        this._getDSTableViewEl().removeClass("xc-hidden");
+        this._getContainer().data("id", dsId);
+        DSForm.hide();
+    }
+
+    private static _resetLoading(): void {
+        let $dsTableContainer = this._getContainer();
+        $dsTableContainer.removeClass("error");
+        $dsTableContainer.addClass("loading");
+        $dsTableContainer.find(".lockedTableIcon").addClass("xc-hidden");
+        this._getTableWrapEl().html("");
+    }
+
+    private static _setupViewAfterLoading(dsObj: DSObj): void {
+        // update info here
+        this._updateTableInfoDisplay(dsObj, false, true);
+        let $dsTableContainer = this._getContainer();
+        $dsTableContainer.removeClass("error");
+        $dsTableContainer.removeClass("loading");
+    }
+
+    private static _parseError(error: any): string {
         try {
             if (error && typeof error === "object") {
                 var errorStr;
@@ -214,63 +322,34 @@ window.DSTable = (function($, DSTable) {
         }
     }
 
-    DSTable.hide = function() {
-        $("#dsTableView").addClass("xc-hidden");
-        $("#dsTableWrap").empty();
-        $("#dsListSection").find(".gridItems .grid-unit.active")
-                                .removeClass("active");
-        $dsTableContainer.removeData("id");
-    };
-
-    DSTable.getId = function() {
-        var $table = $("#dsTable");
-        if ($table.is(":visible")) {
-            return $table.data("dsid");
-        } else {
-            // when not visible
-            return null;
-        }
-    };
-
-    DSTable.clear = function() {
-        $tableWrap.html("");
-    };
-
-    DSTable.refresh = function(resizeCols) {
-        // size tableWrapper so borders fit table size
-        // As user can maunally resize to have/not have scrollbar
-        // we always need the scrollBarpadding
-        var $dsTable = $("#dsTable");
-        var tableHeight = $dsTable.height();
-        var scrollBarPadding = 10;
-        $tableWrap.width($dsTable.width());
-
-        if (resizeCols) {
-            sizeColumns();
-        }
-
-        $dsTableContainer.height(tableHeight + scrollBarPadding);
-    };
-
-    function getSampleTable(dsObj, jsonKeys, jsons) {
-        var html = getSampleTableHTML(dsObj, jsonKeys, jsons);
-        $tableWrap.html(html);
-        DSTable.refresh(true);
+    private static _getSampleTable(
+        dsObj: DSObj,
+        jsonKeys: string[],
+        jsons: any[]
+    ) {
+        let html = this._getSampleTableHTML(dsObj, jsonKeys, jsons);
+        this._getTableWrapEl().html(html);
+        this.refresh(true);
         TblFunc.moveFirstColumn($("#dsTable"));
 
         // scroll cannot use event bubble so we have to add listener
         // to .datasetTbodyWrap every time it's created
+        let self = this;
         $("#dsTableWrap .datasetTbodyWrap").scroll(function() {
-            dataStoreTableScroll($(this));
+            self._dataStoreTableScroll($(this));
         });
     }
 
-    function updateTableInfoDisplay(dsObj, preFetch, postFetch) {
-        var dsName = dsObj.getName();
-        var numEntries = dsObj.getNumEntries();
-        var path = dsObj.getPathWithPattern() || CommonTxtTstr.NA;
-        var target = dsObj.getTargetName();
-
+    private static _updateTableInfoDisplay(
+        dsObj: DSObj,
+        preFetch: boolean,
+        postFetch: boolean
+    ): void {
+        let dsName = dsObj.getName();
+        let numEntries = dsObj.getNumEntries();
+        let path = dsObj.getPathWithPattern() || CommonTxtTstr.NA;
+        let target = dsObj.getTargetName();
+        let $dsInfoPath = this._getDSInfoPathEl();
         $dsInfoPath.text(path);
 
         xcTooltip.changeText($dsInfoPath, target + "\n" + path);
@@ -298,30 +377,31 @@ window.DSTable = (function($, DSTable) {
             xcTooltip.remove($dsInfoUdf);
             $dsInfoUdf.addClass("xc-hidden");
         }
-        // TODO tooltip with query
+        // XXX TODO tooltip with query
+        let numEntriesStr: string;
         if (typeof numEntries === "number") {
-            numEntries = xcHelper.numToStr(numEntries);
+            numEntriesStr = xcHelper.numToStr(numEntries);
         } else {
-            numEntries = CommonTxtTstr.NA;
+            numEntriesStr = CommonTxtTstr.NA;
         }
 
-        $("#dsInfo-records").text(numEntries);
-
-        totalRows = parseInt(numEntries.replace(/\,/g, ""));
+        this._getDSInfoRecordEl().text(numEntriesStr);
+        this.totalRows = parseInt(numEntriesStr.replace(/\,/g, ""));
         if (preFetch || postFetch) {
-            toggleErrorIcon(dsObj);
+            this._toggleErrorIcon(dsObj);
         } else {
-            $("#dsInfo-error").addClass("xc-hidden");
+            this._getDSInfoErrorEl().addClass("xc-hidden");
         }
     }
 
-    function dataStoreTableScroll($tableWrapper) {
-        var numRowsToFetch = 20;
-        if (currentRow + initialNumRowsToFetch >= totalRows) {
+    private static _dataStoreTableScroll($tableWrapper): XDPromise<void> {
+        if (this.currentRow + this.initialNumRowsToFetch >= this.totalRows) {
             return PromiseHelper.resolve();
         }
 
-        if ($("#dsTable").hasClass("fetching")) {
+        const numRowsToFetch: number = 20;
+        let $dsTable = this._getDSTableEl();
+        if ($dsTable.hasClass("fetching")) {
             // when still fetch the data, no new trigger
             console.info("Still fetching previous data!");
             return PromiseHelper.reject("Still fetching previous data!");
@@ -329,45 +409,51 @@ window.DSTable = (function($, DSTable) {
 
         if ($tableWrapper[0].scrollHeight - $tableWrapper.scrollTop() -
                    $tableWrapper.outerHeight() <= 1) {
-            if (currentRow === 0) {
-                currentRow += initialNumRowsToFetch;
+            if (this.currentRow === 0) {
+                this.currentRow += this.initialNumRowsToFetch;
             } else {
-                currentRow += numRowsToFetch;
+                this.currentRow += numRowsToFetch;
             }
 
-            $("#dsTable").addClass("fetching");
-            var dsId = $("#dsTable").data("dsid");
-            var deferred = PromiseHelper.deferred();
+            $dsTable.addClass("fetching");
+            let dsId: string = $dsTable.data("dsid");
+            let deferred: XDDeferred<void> = PromiseHelper.deferred();
 
-            scrollSampleAndParse(dsId, currentRow, numRowsToFetch)
-            .then(deferred.resolve)
-            .fail(function(error) {
+            this._scrollSampleAndParse(dsId, this.currentRow, numRowsToFetch)
+            .then(() => {
+                deferred.resolve();
+            })
+            .fail((error) => {
                 deferred.reject(error);
                 console.error("Scroll data sample table fails", error);
             })
-            .always(function() {
+            .always(() => {
                 // when switch ds, #dsTable will be re-built
                 // so this is the only place the needs to remove class
-                $("#dsTable").removeClass("fetching");
+                $dsTable.removeClass("fetching");
             });
 
-            return deferred.resolve();
+            return deferred.promise();
         } else {
             return PromiseHelper.reject("no need to scroll");
         }
     }
 
-    function scrollSampleAndParse(dsId, rowToGo, rowsToFetch) {
-        var dsObj = DS.getDSObj(dsId);
+    private static _scrollSampleAndParse(
+        dsId: string,
+        rowToGo: number,
+        rowsToFetch: number
+    ): XDPromise<void> {
+        let dsObj = DS.getDSObj(dsId);
         if (dsObj == null) {
             return PromiseHelper.reject("No DS");
         }
 
-        var deferred = PromiseHelper.deferred();
-
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         dsObj.fetch(rowToGo, rowsToFetch)
-        .then(function(jsons) {
-            var curDSId = $("#dsTable").data("dsid");
+        .then((jsons) => {
+            let $dsTable = this._getDSTableEl();
+            var curDSId = $dsTable.data("dsid");
             if (dsId !== curDSId) {
                 // when change ds
                 console.warn("Sample table change to", curDSId, "cancel fetch");
@@ -375,17 +461,16 @@ window.DSTable = (function($, DSTable) {
                 return;
             }
 
-            var $dsTable = $("#dsTable");
-            var realJsonKeys = [];
+            let realJsonKeys: string[] = [];
 
             $dsTable.find("th.th").each(function(index) {
-                var $th = $(this);
-                var header = $th.find(".editableHead").val();
+                let $th = $(this);
+                let header = $th.find(".editableHead").val();
                 // when scroll, it should follow the order of current header
                 realJsonKeys[index] = header;
             });
 
-            var tr = getTableRowsHTML(realJsonKeys, jsons, false);
+            let tr = this._getTableRowsHTML(realJsonKeys, jsons, []);
             $dsTable.append(tr);
             TblFunc.moveFirstColumn($dsTable);
 
@@ -397,31 +482,33 @@ window.DSTable = (function($, DSTable) {
     }
 
     // event set up for the module
-    function setupSampleTable() {
-        $dsInfoPath.on("click", function() {
+    private static _setupSampleTable() {
+        let $dsInfoPath = this._getDSInfoPathEl();
+        $dsInfoPath.on("click", () => {
             // copies filepath to clipboard
-            var value = $dsInfoPath.text();
+            let value = $dsInfoPath.text();
             xcHelper.copyToClipboard(value);
 
             $dsInfoPath.parent().addClass("copiableText");
-            setTimeout(function() {
+            setTimeout(() => {
                 $dsInfoPath.parent().removeClass("copiableText");
             }, 1800);
         });
 
-        var $dsTableView = $("#dsTableView");
+        let $dsTableView = this._getDSTableViewEl();
         // reload ds with new preview size
-        $dsTableView.on("click", ".errorSection .retry", function() {
-            var dsId = $dsTableContainer.data("id");
+        $dsTableView.on("click", ".errorSection .retry", () => {
+            let dsId = this._getPreviewDSId();
             if (dsId == null) {
                 console.error("cannot find ds");
                 return;
             }
 
-            rePointDS(dsId);
+            this._rePointDS(dsId);
         });
 
         // resize column
+        let $tableWrap = this._getTableWrapEl();
         $tableWrap.on("mousedown", ".colGrab", function(event) {
             if (event.which !== 1) {
                 return;
@@ -432,6 +519,7 @@ window.DSTable = (function($, DSTable) {
             });
         });
 
+        let $dsTableContainer = this._getContainer();
         $dsTableContainer.scroll(function(){
             var $dsTable = $("#dsTable");
             $(this).scrollTop(0);
@@ -443,29 +531,28 @@ window.DSTable = (function($, DSTable) {
             QueryManager.cancelDS(txId);
         });
 
-        $("#showFileListBtn").click(function() {
-            var dsId = $("#dsTableContainer").data("id");
-            var dsObj = DS.getDSObj(dsId);
-            var isFileError = false;
-            var dsName = "";
+        $("#showFileListBtn").click(() => {
+            let dsId = this._getPreviewDSId();
+            let dsObj = DS.getDSObj(dsId);
+            let isFileError : boolean = false;
+            let dsName: string = "";
             if (dsObj && dsObj.advancedArgs) {
-                isFIleError = dsObj.advancedArgs.allowFileErrors &&
+                isFileError = dsObj.advancedArgs.allowFileErrors &&
                              !dsObj.advancedArgs.allowRecordErrors;
                 dsName = dsObj.getName();
-                numTotalErrors = dsObj.numErrors;
             }
             FileListModal.show(dsId, dsName, isFileError);
         });
 
-        $("#createDF").click(function() {
-            createDF();
+        $("#createDF").click(() => {
+            this._createDF();
         });
 
-        $("#dsInfo-error").click(function() {
-            var dsId = $("#dsTableContainer").data("id");
-            var dsObj = DS.getDSObj(dsId);
-            var isRecordError = false;
-            var numTotalErrors;
+        this._getDSInfoErrorEl().click(() => {
+            let dsId = this._getPreviewDSId();
+            let dsObj = DS.getDSObj(dsId);
+            let isRecordError: boolean = false;
+            let numTotalErrors: number;
             if (!dsObj || !dsObj.advancedArgs) {
                 isRecordError = true;
             } else {
@@ -476,14 +563,12 @@ window.DSTable = (function($, DSTable) {
         });
     }
 
-    function createDF() {
-        var dsId = $("#dsTableContainer").data("id");
-        var dsObj = DS.getDSObj(dsId);
-        var isFileError = false;
+    private static _createDF() {
+        let dsId = this._getPreviewDSId();;
+        let dsObj = DS.getDSObj(dsId);
         if (dsObj) {
-            var source = dsObj.getId();
             DagView.newTabFromSource(DagNodeType.Dataset, {
-                source: source,
+                source: dsObj.getId(),
                 prefix: xcHelper.normalizePrefix(dsObj.getName())
             });
         }
@@ -491,26 +576,26 @@ window.DSTable = (function($, DSTable) {
 
     // if table is less wide than the panel, expand column widths if content is
     // oveflowing
-    function sizeColumns() {
-        var destWidth = $dsTableContainer.parent().width() - 40;
-        var $headers = $tableWrap.find("th:gt(0)");
-        // var numCols = $headers.length;
-        // var destColWidth = Math.floor(destWidth / numCols);
-        var bestFitWidths = [];
-        var totalWidths = 0;
-        var needsExpanding = [];
-        var numStaticWidths = 0;
-        var expandWidths = 0;
+    private static _sizeColumns() {
+        let destWidth: number = this._getContainer().parent().width() - 40;
+        let $tableWrap = this._getTableWrapEl();
+        let $headers = $tableWrap.find("th:gt(0)");
+        let bestFitWidths: number[] = [];
+        let totalWidths: number = 0;
+        let needsExpanding: boolean[] = [];
+        let numStaticWidths: number = 0;
+        let expandWidths: number = 0;
+        const defaultColWidth: number = this.defaultColWidth;
 
         // track which columns will expand and which will remain at
         // default colwidth
         $headers.each(function() {
-            var width = TblFunc.getWidestTdWidth($(this), {
+            let width = TblFunc.getWidestTdWidth($(this), {
                 "includeHeader": true,
                 "fitAll": true,
                 "datastore": true
             });
-            var expanding = false;
+            let expanding: boolean = false;
             if (width > defaultColWidth) {
                 expanding = true;
             } else {
@@ -525,12 +610,11 @@ window.DSTable = (function($, DSTable) {
             }
         });
 
-        var ratio = destWidth / totalWidths;
+        let ratio: number = destWidth / totalWidths;
         if (ratio < 1) {
             // extra width is the remainining width that the larger columns
             // can take up
-            var remainingWidth = destWidth - (numStaticWidths *
-                                              defaultColWidth);
+            let remainingWidth: number = destWidth - (numStaticWidths * defaultColWidth);
             ratio = remainingWidth / expandWidths;
 
             bestFitWidths = bestFitWidths.map(function(width, i) {
@@ -546,13 +630,13 @@ window.DSTable = (function($, DSTable) {
             $(this).outerWidth(bestFitWidths[i]);
         });
 
-        var $dsTable = $("#dsTable");
+        let $dsTable = this._getDSTableEl();
         $tableWrap.width($dsTable.width());
     }
 
-    function rePointDS(dsId) {
+    private static _rePointDS(dsId: string): void {
         // maybe it's a succes point but ds table has error
-        var dsObj = DS.getErrorDSObj(dsId);
+        let dsObj = DS.getErrorDSObj(dsId);
         if (dsObj != null) {
             DS.removeErrorDSObj(dsId);
         } else {
@@ -560,12 +644,12 @@ window.DSTable = (function($, DSTable) {
         }
 
         if (!dsObj) {
-            Alert.error(DSTStr.NotFindDS);
+            Alert.error(DSTStr.NotFindDS, null);
             return;
         }
 
-        var sources = dsObj.getSources();
-        var files = sources.map(function(source) {
+        let sources = dsObj.getSources();
+        let files = sources.map(function(source) {
             return {
                 "path": source.path,
                 "recursive": source.recursive,
@@ -576,7 +660,6 @@ window.DSTable = (function($, DSTable) {
             "targetName": dsObj.getTargetName(),
             "files": files,
             "format": dsObj.getFormat(),
-            "pattern": sources.fileNamePattern,
             "dsName": dsObj.getName(),
             "skipRows": dsObj.skipRows,
             "moduleName": dsObj.moduleName,
@@ -592,39 +675,42 @@ window.DSTable = (function($, DSTable) {
     }
 
     // sample table html
-    function getSampleTableHTML(dsObj, jsonKeys, jsons) {
+    private static _getSampleTableHTML(
+        dsObj: DSObj,
+        jsonKeys: string[],
+        jsons: any[]
+    ): HTML {
         // validation check
         if (!dsObj || !jsonKeys || !jsons) {
             return "";
         }
 
-        var tr = "";
-        var th = "";
 
-        var schema = dsObj.getColumns();
-        var knownTypes = [];
+        let schema = dsObj.getColumns();
+        let knownTypes: ColumnType[] = [];
         if (schema && schema.length) {
-            jsonKeys = schema.map(function(colInfo) {
+            jsonKeys = schema.map((colInfo) => {
                 let name = xcHelper.unescapeColName(colInfo.name);
                 knownTypes.push(colInfo.type);
                 return name;
             });
         }
-        var columnsType = [];  // track column type
-        var numKeys = jsonKeys.length;
+        let columnsType: ColumnType[] = [];  // track column type
+        let numKeys: number = jsonKeys.length;
         numKeys = Math.min(1000, numKeys); // limit to 1000 ths
-        var colStrLimit = 250;
+        let colStrLimit: number = 250;
         if (numKeys < 5) {
             colStrLimit = Math.max(1000 / numKeys, colStrLimit);
         }
-        currentRow = 0;
+        this.currentRow = 0;
 
         jsonKeys.forEach(function() {
             columnsType.push(undefined);
         });
 
         // table rows
-        tr = getTableRowsHTML(jsonKeys, jsons, columnsType, colStrLimit);
+        let tr: HTML = this._getTableRowsHTML(jsonKeys, jsons, columnsType, colStrLimit);
+        let th: HTML = "";
         if (numKeys > 0) {
             th += '<th class="rowNumHead">' +
                     '<div class="header"></div>' +
@@ -632,14 +718,14 @@ window.DSTable = (function($, DSTable) {
         }
 
         // table header
-        for (var i = 0; i < numKeys; i++) {
-            var key = jsonKeys[i].replace(/\'/g, '&#39');
-            var thClass = "th col" + (i + 1);
-            var type = knownTypes[i] || columnsType[i];
-            var width = xcHelper.getTextWidth(null, key);
+        for (let i = 0; i < numKeys; i++) {
+            let key: string = jsonKeys[i].replace(/\'/g, '&#39');
+            let thClass: string = "th col" + (i + 1);
+            let type: ColumnType = knownTypes[i] || columnsType[i];
+            let width = xcHelper.getTextWidth(null, key);
 
             width += 2; // text will overflow without it
-            width = Math.max(width, defaultColWidth); // min of 130px
+            width = Math.max(width, this.defaultColWidth); // min of 130px
 
             th +=
                 '<th class="' + thClass + '" style="width:' + width + 'px;">' +
@@ -673,7 +759,7 @@ window.DSTable = (function($, DSTable) {
                 '</th>';
         }
 
-        var html =
+        let html =
             '<div class="datasetTbodyWrap">' +
                 '<table id="dsTable" class="datasetTable dataTable" ' +
                         'data-dsid="' + dsObj.getId() + '">' +
@@ -684,23 +770,32 @@ window.DSTable = (function($, DSTable) {
                 '</table>' +
             '</div>';
 
-        return (html);
+        return html;
     }
 
-    function getTableRowsHTML(jsonKeys, jsons, columnsType, colStrLimit) {
-        var tr = "";
-        var i  = 0;
-        var knf = false;
+    private static _getTableRowsHTML(
+        jsonKeys: string[],
+        jsons: any[],
+        columnsType: ColumnType[],
+        colStrLimit?: number
+    ): HTML {
+        let tr: HTML = "";
+        let i: number = 0;
+        let knf: boolean = false;
 
-        jsons.forEach(function(json) {
+        jsons.forEach((json) => {
             tr += '<tr>';
-            tr += '<td class="lineMarker"><div class="idSpan">' +
-                    (currentRow + i + 1) + '</div></td>';
+            tr +=
+                '<td class="lineMarker">' +
+                    '<div class="idSpan">' +
+                        (this.currentRow + i + 1) +
+                    '</div>' +
+                '</td>';
             // loop through each td, parse object, and add to table cell
-            var numKeys = Math.min(jsonKeys.length, 1000); // limit to 1000 ths
-            for (var j = 0; j < numKeys; j++) {
-                var key = jsonKeys[j];
-                var val = json[key];
+            let numKeys: number = Math.min(jsonKeys.length, 1000); // limit to 1000 ths
+            for (let j = 0; j < numKeys; j++) {
+                let key: string = jsonKeys[j];
+                let val: any = json[key];
                 knf = false;
                 // Check type
                 columnsType[j] = xcHelper.parseColType(val, columnsType[j]);
@@ -708,9 +803,9 @@ window.DSTable = (function($, DSTable) {
                 if (val === undefined) {
                     knf = true;
                 }
-                var parsedVal = xcHelper.parseJsonValue(val, knf);
+                let parsedVal = xcHelper.parseJsonValue(val, knf);
                 if (colStrLimit) {
-                    var hiddenStrLen = parsedVal.length - colStrLimit;
+                    let hiddenStrLen = parsedVal.length - colStrLimit;
                     if (hiddenStrLen > 0) {
                         parsedVal = parsedVal.slice(0, colStrLimit) +
                                     "...(" +
@@ -735,61 +830,54 @@ window.DSTable = (function($, DSTable) {
             i++;
         });
 
-        return (tr);
+        return tr;
     }
 
-    function toggleErrorIcon(dsObj) {
-        var $dsInfoError = $("#dsInfo-error");
+    private static _toggleErrorIcon(dsObj: DSObj) {
+        let $dsInfoError = this._getDSInfoErrorEl();
         $dsInfoError.addClass("xc-hidden");
         if (!dsObj.numErrors) {
             return;
         }
 
         if (!dsObj.advancedArgs) {
-            var datasetName = dsObj.getFullName();
+            let datasetName = dsObj.getFullName();
             dsObj.addAdvancedArgs()
-            .then(function() {
-                if (lastDSToSample !== datasetName) {
+            .then(() => {
+                if (this.lastDSToSample !== datasetName) {
                     return;
                 }
-                showIcon();
+                this._showIcon(dsObj);
             }); // if fail, keep hidden
         } else {
-            showIcon();
+            this._showIcon(dsObj);
         }
+    }
 
-        function showIcon() {
-            $dsInfoError.removeClass("xc-hidden");
-            var num = xcHelper.numToStr(dsObj.numErrors);
-            var text;
-            if (dsObj.advancedArgs.allowRecordErrors) {
-                $dsInfoError.removeClass("type-file");
-                if (dsObj.numErrors === "1") {
-                    text = DSTStr.ContainsRecordError;
-                } else {
-                    text = xcHelper.replaceMsg(DSTStr.ContainsRecordErrors,
-                        {num: num});
-                }
+    private static _showIcon(dsObj: DSObj): void {
+        let $dsInfoError = this._getDSInfoErrorEl();
+        $dsInfoError.removeClass("xc-hidden");
+        let numErrors: string = xcHelper.numToStr(dsObj.numErrors);
+        let text: string;
+        if (dsObj.advancedArgs.allowRecordErrors) {
+            $dsInfoError.removeClass("type-file");
+            if (numErrors === "1") {
+                text = DSTStr.ContainsRecordError;
             } else {
-                $dsInfoError.addClass("type-file");
-                if (dsObj.numErrors === "1") {
-                    text = DSTStr.ContainsFileError;
-                } else {
-                    text = xcHelper.replaceMsg(DSTStr.ContainsFileErrors,
-                        {num: num});
-                }
+                text = xcHelper.replaceMsg(DSTStr.ContainsRecordErrors, {
+                    num: numErrors
+                });
             }
-            xcTooltip.changeText($dsInfoError, text);
+        } else {
+            $dsInfoError.addClass("type-file");
+            if (numErrors === "1") {
+                text = DSTStr.ContainsFileError;
+            } else {
+                text = xcHelper.replaceMsg(DSTStr.ContainsFileErrors, {
+                    num: numErrors
+                });
+            }
         }
+        xcTooltip.changeText($dsInfoError, text);
     }
-
-    /* Unit Test Only */
-    if (window.unitTestMode) {
-        DSTable.__testOnly__ = {};
-        DSTable.__testOnly__.scrollSampleAndParse = scrollSampleAndParse;
-        DSTable.__testOnly__.dataStoreTableScroll = dataStoreTableScroll;
-    }
-    /* End Of Unit Test Only */
-
-    return (DSTable);
-}(jQuery, {}));
+}

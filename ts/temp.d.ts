@@ -713,7 +713,8 @@ declare enum StatusT {
     StatusRetinaInUse,
     StatusDsNotFound,
     StatusJsonQueryParseError,
-    StatusRetinaNotFound
+    StatusRetinaNotFound,
+    StatusDatasetAlreadyDeleted
 }
 
 declare enum FunctionCategoryT {
@@ -978,17 +979,15 @@ declare namespace DS {
     export function activate(dsIds: string[], noAlert: boolean): XDPromise<void>;
     export function refresh(): XDPromise<void>;
     export function getSortKey(): string;
+    export function unFocus(): void;
+    export function getErrorDSObj(dsId: string): DSObj;
+    export function removeErrorDSObj(dsId: string): void
 }
 
 declare namespace DSForm {
     export function setup(): void;
     export function hide(): void;
     export function show(createTableMode: boolean): void;
-}
-
-declare namespace DSTable {
-    export function setup(): void;
-    export function refresh(): void;
 }
 
 declare namespace Profile {
@@ -1046,6 +1045,7 @@ declare namespace xcMixpanel {
 declare namespace DSPreview {
     export function update(ListXdfsObj: any);
     export function switchMode(): void;
+    export function show(options: any, lastPath: string, restore: boolean);
 }
 
 declare namespace DSTargetManager {
@@ -1116,10 +1116,12 @@ declare namespace JupyterFinalizeModal {
 
 declare namespace FileListModal {
     export function setup(): void;
+    export function show(dsId: string, dsName: string, hasFileError: boolean): void;
 }
 
 declare namespace DSImportErrorModal {
     export function setup(): void;
+    export function show(dsId: string, numTotalErrors: number, isRecordError: boolean): void
 }
 
 declare namespace MonitorLog {

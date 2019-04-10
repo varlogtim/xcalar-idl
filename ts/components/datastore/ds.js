@@ -475,6 +475,10 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     };
 
+    DS.unFocus = function() {
+        $gridView.find(".grid-unit.active").removeClass("active");
+    };
+
     DS.focusOn = function($grid) {
         xcAssert($grid != null && $grid.length !== 0, "error case");
         if ($grid.hasClass("active") && $grid.hasClass("fetching")) {

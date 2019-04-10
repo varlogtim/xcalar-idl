@@ -107,7 +107,7 @@ describe("Dataset-DSTable Test", function() {
         });
 
         it("Should not scroll will error case", function(done) {
-            DSTable.__testOnly__.scrollSampleAndParse(null)
+            DSTable._scrollSampleAndParse(null)
             .then(function() {
                 done("fail");
             })
@@ -122,7 +122,7 @@ describe("Dataset-DSTable Test", function() {
             var $dsTable = $("#dsTable");
             var numRows = $dsTable.find("tr").length;
             var rowsToFetch = 40;
-            DSTable.__testOnly__.scrollSampleAndParse(testDSId, 40, rowsToFetch)
+            DSTable._scrollSampleAndParse(testDSId, 40, rowsToFetch)
             .then(function() {
                 var currentNumRows = $dsTable.find("tr").length;
                 expect(currentNumRows - numRows).to.equal(rowsToFetch);
@@ -135,18 +135,14 @@ describe("Dataset-DSTable Test", function() {
     });
 
     describe("Scroll DSTable Test", function() {
-        var scrollSampleAndParse;
-        var dataStoreTableScroll;
         var $tableWrapper;
 
         before(function() {
-            scrollSampleAndParse = DSTable.__testOnly__.scrollSampleAndParse;
-            dataStoreTableScroll = DSTable.__testOnly__.dataStoreTableScroll;
             $tableWrapper = $("#dsTableWrap .datasetTbodyWrap");
         });
 
         it("scrollSampleAndParse should not work in error case", function(done) {
-            scrollSampleAndParse(null)
+            DSTable._scrollSampleAndParse(null)
             .then(function() {
                 done("fail");
             })
@@ -161,7 +157,7 @@ describe("Dataset-DSTable Test", function() {
             var numRows = $dsTable.find("tr").length;
             var rowsToFetch = 40;
 
-            scrollSampleAndParse(testDSId, 40, rowsToFetch)
+            DSTable._scrollSampleAndParse(testDSId, 40, rowsToFetch)
             .then(function() {
                 var currentNumRows = $dsTable.find("tr").length;
                 expect(currentNumRows - numRows).to.equal(rowsToFetch);
@@ -176,7 +172,7 @@ describe("Dataset-DSTable Test", function() {
         it("Should reject scroll if still fetching", function(done) {
             $("#dsTable").addClass("fetching");
 
-            dataStoreTableScroll($tableWrapper)
+            DSTable._dataStoreTableScroll($tableWrapper)
             .then(function() {
                 done("fail");
             })
@@ -190,7 +186,7 @@ describe("Dataset-DSTable Test", function() {
         });
 
         it("Should not trigger scroll when has not at bottom", function(done) {
-            dataStoreTableScroll($tableWrapper)
+            DSTable._dataStoreTableScroll($tableWrapper)
             .then(function() {
                 done("fail");
             })
@@ -210,7 +206,7 @@ describe("Dataset-DSTable Test", function() {
             var oldHeight = $("#dsTableWrap").height();
             $("#dsTableWrap").height(scrollHeight);
 
-            dataStoreTableScroll($tableWrapper)
+            DSTable._dataStoreTableScroll($tableWrapper)
             .then(function() {
                 done("fail");
             })
