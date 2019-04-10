@@ -130,7 +130,7 @@ class TutorialPanel {
     private _downloadTutorial(tut: ExtItem, $submitBtn: JQuery): XDPromise<any> {
         let deferred: XDDeferred<any> = PromiseHelper.deferred();
         let url: string = xcHelper.getAppUrl();
-        xcHelper.toggleBtnInProgress($submitBtn, true);
+        xcUIHelper.toggleBtnInProgress($submitBtn, true);
         let name: string = WorkbookPanel.wbDuplicateName(tut.getName(),
             WorkbookManager.getWorkbooks(), 0);
         this.request({
@@ -147,7 +147,7 @@ class TutorialPanel {
         })
         .then(deferred.resolve)
         .fail(function(error) {
-            xcHelper.toggleBtnInProgress($submitBtn, true);
+            xcUIHelper.toggleBtnInProgress($submitBtn, true);
             Alert.error(ErrTStr.TutDownloadFailure, error);
             deferred.reject(error);
         });

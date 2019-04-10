@@ -42,6 +42,14 @@ namespace QueryManager {
         text: string
     }
 
+    export interface QueryParser {
+        query: string;
+        name: string;
+        srcTables: string[];
+        dstTable: string;
+        exportFileName?: string;
+    }
+
     /**
      * QueryManager.setup
      */
@@ -218,10 +226,10 @@ namespace QueryManager {
         updateQueryBar(id, 100);
         updateStatusDetail({
             "start": getQueryTime(mainQuery.getTime()),
-            "elapsed": xcHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
+            "elapsed": xcTimeHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
                                                     null, true),
-            "opTime": xcHelper.getElapsedTimeStr(mainQuery.getOpTime()),
-            "total": xcHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
+            "opTime": xcTimeHelper.getElapsedTimeStr(mainQuery.getOpTime()),
+            "total": xcTimeHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
                                                 null, true)
         }, id);
         updateOutputSection(id);
@@ -487,15 +495,15 @@ namespace QueryManager {
         updateQueryBar(id, null, false, true, true);
         updateStatusDetail({
             "start": getQueryTime(mainQuery.getTime()),
-            "elapsed": xcHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
+            "elapsed": xcTimeHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
                                                   true, true),
-            "opTime": xcHelper.getElapsedTimeStr(mainQuery.getOpTime()),
+            "opTime": xcTimeHelper.getElapsedTimeStr(mainQuery.getOpTime()),
             "total": CommonTxtTstr.NA
         }, id);
         updateOutputSection(id, true);
         const $query: JQuery = $('.query[data-id="' + id + '"]');
         $query.addClass(QueryStatus.Cancel).find('.querySteps')
-              .text(xcHelper.capitalize(QueryStatus.Cancel));
+              .text(xcStringHelper.capitalize(QueryStatus.Cancel));
         if ($query.hasClass('active')) {
             updateHeadingSection(mainQuery);
         }
@@ -559,15 +567,15 @@ namespace QueryManager {
         updateQueryBar(id, null, true, false, true);
         updateStatusDetail({
             "start": getQueryTime(mainQuery.getTime()),
-            "elapsed": xcHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
+            "elapsed": xcTimeHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
                                                     null, true),
-            "opTime": xcHelper.getElapsedTimeStr(mainQuery.getOpTime()),
+            "opTime": xcTimeHelper.getElapsedTimeStr(mainQuery.getOpTime()),
             "total": CommonTxtTstr.NA
         }, id, QueryStatus.Error);
         updateOutputSection(id);
         const $query: JQuery = $('.query[data-id="' + id + '"]');
         $query.addClass(QueryStatus.Error).find('.querySteps')
-              .text(xcHelper.capitalize(QueryStatus.Error));
+              .text(xcStringHelper.capitalize(QueryStatus.Error));
         if ($query.hasClass('active')) {
             updateHeadingSection(mainQuery);
         }
@@ -757,6 +765,337 @@ namespace QueryManager {
         return query.getIndexTables();
     };
 
+
+    /**
+     * used to split query into array of subqueries by semicolons
+     * returns array of objects, objects contain query, name, and dstTable
+     * @param query
+     */
+    export function parseQuery(query: string): QueryParser[] {
+        let isJson: boolean = false;
+        let parsedQuery: any[];
+        try {
+            if (query.trim().startsWith('[')) {
+                parsedQuery = $.parseJSON(query);
+            } else {
+                parsedQuery = $.parseJSON('[' + query + ']');
+            }
+            isJson = true;
+        } catch (err) {
+            // normal if using an old extension
+        }
+        if (!isJson) {
+            return parseQueryHelper(query);
+        } else {
+            const queries: QueryParser[] = [];
+            for (var i = 0; i < parsedQuery.length; i++) {
+                queries.push(getSubQueryObj(JSON.stringify(parsedQuery[i]), parsedQuery[i]));
+            }
+            return queries;
+        }
+    }
+
+        /**
+     *
+     * @param str
+     */
+    function parseSubQuery(str: string, isExport: boolean = false): QueryParser {
+        str = str.trim();
+        let operationName: string = str.split(' ')[0];
+        let subQuery: QueryParser = {
+            query: str,
+            name: operationName,
+            srcTables: getSrcTableFromQuery(str, operationName),
+            dstTable: getDstTableFromQuery(str, operationName)
+        };
+        if (isExport) {
+            subQuery.exportFileName = getExportFileNameFromQuery(str);
+        }
+        return subQuery;
+    }
+
+    /**
+     * used to split query into array of subqueries by semicolons
+     * XXX not checking for /n or /r delimiter, just semicolon
+     * returns array of objects
+     * objects contain query, name, exportFileName, srcTables and dstTable
+     * @param query
+     */
+    function parseQueryHelper(query: string): QueryParser[] {
+        let tempString: string = '';
+        let inQuotes: boolean = false;
+        let singleQuote: boolean = false;
+        let isEscaped: boolean = false;
+        let isExport: boolean = query.trim().indexOf('export') === 0;
+        let queries: QueryParser[] = [];
+
+        // export has semicolons between colnames and breaks most rules
+        for (let i = 0; i < query.length; i++) {
+            if (isEscaped) {
+                tempString += query[i];
+                isEscaped = false;
+                continue;
+            }
+
+            if (inQuotes) {
+                if ((query[i] === '"' && !singleQuote) ||
+                    (query[i] === '\'' && singleQuote)
+                ) {
+                    inQuotes = false;
+                }
+            } else {
+                if (query[i] === '"') {
+                    inQuotes = true;
+                    singleQuote = false;
+                } else if (query[i] === '\'') {
+                    inQuotes = true;
+                    singleQuote = true;
+                }
+            }
+
+            if (query[i] === '\\') {
+                isEscaped = true;
+                tempString += query[i];
+            } else if (inQuotes) {
+                tempString += query[i];
+            } else {
+                if (query[i] === ';' && !isExport) {
+                    queries.push(parseSubQuery(tempString));
+                    tempString = '';
+                } else if (tempString === '' && query[i] === ' ') {
+                    // a way of trimming the front of the string
+                    continue;
+                } else {
+                    tempString += query[i];
+                }
+            }
+        }
+
+        if (tempString.trim().length) {
+            queries.push(parseSubQuery(tempString, isExport));
+        }
+
+        return queries;
+    }
+
+    /**
+     *
+     * @param query
+     * @param parsedQuery
+     */
+    function getSubQueryObj(query: string, parsedQuery: any): QueryParser {
+        let subQuery: QueryParser = {
+            query: query,
+            name: null,
+            srcTables: null,
+            dstTable: null
+        };
+        try {
+            const operation: string = parsedQuery.operation;
+            let srcTables: string[];
+            if (operation === XcalarApisTStr[XcalarApisT.XcalarApiJoin]) {
+                srcTables = parsedQuery.args.source;
+            } else if (operation === XcalarApisTStr[XcalarApisT.XcalarApiDeleteObjects]) {
+                srcTables = [];
+            } else {
+                srcTables = [parsedQuery.args.source];
+            }
+
+            let dstTable: string;
+            if (operation === XcalarApisTStr[XcalarApisT.XcalarApiBulkLoad] &&
+                parsedQuery.args.dest.indexOf(gDSPrefix) === -1) {
+                dstTable = gDSPrefix + parsedQuery.args.dest;
+            } else {
+                dstTable = parsedQuery.args.dest;
+            }
+            subQuery = {
+                query: query,
+                name: operation,
+                srcTables: srcTables,
+                dstTable: dstTable
+            };
+            if (operation === XcalarApisTStr[XcalarApisT.XcalarApiExport]) {
+                subQuery.exportFileName = parsedQuery.args.fileName;
+            }
+        } catch (error) {
+            console.error("get sub query error", error);
+        }
+        return subQuery;
+    }
+
+        /**
+     *
+     * @param query
+     * @param keyWord
+     */
+    function getTableNameFromQuery(query: string, keyWord: string): string | null {
+        let index: number = getKeyWordIndexFromQuery(query, keyWord);
+        if (index === -1) {
+            return null;
+        }
+        index += keyWord.length;
+        const trimmedQuery: string = query.slice(index).trim();
+        return parseSearchTerm(trimmedQuery);
+    }
+
+    /**
+     *
+     * @param query
+     * @param type
+     */
+    function getSrcTableFromQuery(query: string, type: string): string[] | null {
+        let keyWord: string = '--srctable';
+        if (type === 'join') {
+            keyWord = '--leftTable';
+        }
+
+        const tableNames: string[] = [];
+        let tableName: string | null = getTableNameFromQuery(query, keyWord);
+        if (tableName == null) {
+            return null;
+        }
+
+        tableNames.push(tableName);
+        if (type === 'join') {
+            let keyWord: string = '--rightTable';
+            let tableName: string = getTableNameFromQuery(query, keyWord);
+            if (tableName) {
+                tableNames.push(tableName);
+            }
+        }
+        return tableNames;
+    }
+
+    /**
+     *
+     * @param query
+     * @param type
+     */
+    function getDstTableFromQuery(query: string, type: string): string {
+        let keyWord: string = '--dsttable';
+        if (type === 'join') {
+            keyWord = '--joinTable';
+        } else if (type === 'load') {
+            keyWord = '--name';
+        } else if (type === 'export') {
+            keyWord = '--exportName';
+        }
+
+        let tableName: string | null = getTableNameFromQuery(query, keyWord);
+        if (tableName == null) {
+            return null;
+        }
+
+        if (type === "load" && tableName.indexOf(gDSPrefix) === -1) {
+            tableName = gDSPrefix + tableName;
+        }
+        return tableName;
+    }
+
+    /**
+     *
+     * @param query
+     */
+    function getExportFileNameFromQuery(query: string): string {
+        const keyWord: string = "--fileName";
+
+        var index = getKeyWordIndexFromQuery(query, keyWord);
+        if (index === -1) {
+            return null;
+        }
+
+        index += keyWord.length;
+        query = query.slice(index).trim();
+        return parseSearchTerm(query);
+    }
+
+        /**
+     *
+     * @param query
+     * @param keyWord
+     */
+    function getKeyWordIndexFromQuery(query: string, keyWord: string): number {
+        let inQuotes: boolean = false;
+        let singleQuote: boolean = false;
+        let isEscaped: boolean = false;
+        const keyLen: number = ('' + keyWord).length;
+
+        for (let i = 0; i < query.length; i++) {
+            if (isEscaped) {
+                isEscaped = false;
+                continue;
+            }
+
+            if (inQuotes) {
+                if ((query[i] === '"' && !singleQuote) ||
+                    (query[i] === '\'' && singleQuote)
+                ) {
+                    inQuotes = false;
+                }
+            } else {
+                if (query[i] === '"') {
+                    inQuotes = true;
+                    singleQuote = false;
+                } else if (query[i] === '\'') {
+                    inQuotes = true;
+                    singleQuote = true;
+                }
+            }
+
+            if (query[i] === '\\') {
+                isEscaped = true;
+            } else if (!inQuotes) {
+                if (i >= keyLen && query.slice(i - keyLen, i) === keyWord) {
+                    return (i - keyLen);
+                }
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * if passing in "tableNa\"me", will return tableNa\me and not tableNa
+     * @param str
+     */
+    function parseSearchTerm(str: string): string {
+        const quote: string = str[0];
+        let wrappedInQuotes: boolean = true;
+        if (quote !== '\'' && quote !== '"') {
+            wrappedInQuotes = false;
+        } else {
+            str = str.slice(1);
+        }
+
+        let isEscaped: boolean = false;
+        let result: string = '';
+        for (let i = 0; i < str.length; i++) {
+            if (isEscaped) {
+                isEscaped = false;
+                result += str[i];
+                continue;
+            }
+            if (str[i] === '\\') {
+                isEscaped = true;
+                result += str[i];
+            } else if (wrappedInQuotes) {
+                if (str[i] === quote) {
+                    break;
+                } else {
+                    result += str[i];
+                }
+            } else if (!wrappedInQuotes) {
+                if (str[i] === ' ' || str[i] === ';') {
+                    break;
+                } else {
+                    result += str[i];
+                }
+            }
+        }
+        return result;
+    }
+
+
+
     function checkCycle(callback: Function, id: number, adjustTime: number): number {
         clearIntervalHelper(id);
 
@@ -899,18 +1238,18 @@ namespace QueryManager {
                         if (mainQuery.subQueries[currStep].retName) {
                             progress = res.progress;
                         } else {
-                            progress = xcHelper.getQueryProgress(res);
+                            progress = getQueryProgress(res);
                         }
                         const pct: number = parseFloat((100 * progress).toFixed(2));
                         updateQueryBar(id, pct, false, false, doNotAnimate);
                         mainQuery.setElapsedTime();
                         updateStatusDetail({
                             "start": getQueryTime(mainQuery.getTime()),
-                            "elapsed": xcHelper.getElapsedTimeStr(
+                            "elapsed": xcTimeHelper.getElapsedTimeStr(
                                         mainQuery.getElapsedTime(), true, true),
-                            "opTime": xcHelper.getElapsedTimeStr(
+                            "opTime": xcTimeHelper.getElapsedTimeStr(
                                         mainQuery.getOpTime(), true),
-                            "total": xcHelper.getElapsedTimeStr(
+                            "total": xcTimeHelper.getElapsedTimeStr(
                                         mainQuery.getElapsedTime(), null, true),
                         }, id);
                     } catch (e) {
@@ -933,6 +1272,32 @@ namespace QueryManager {
             return deferred.promise();
         }
     }
+
+    function getQueryProgress(queryStateOutput: any): number {
+        let progress: number = null;
+        let numWorkCompleted: number = 0;
+        let numWorkTotal: number = 0
+        queryStateOutput.queryGraph.node.forEach((node) => {
+            if (node.state === DgDagStateT.DgDagStateProcessing ||
+                node.state === DgDagStateT.DgDagStateReady) {
+                let numCompleted = node.numWorkCompleted;
+                if (node.state === DgDagStateT.DgDagStateReady) {
+                    // backend may not return full numWorkCompleted so if
+                    // node is ready, then numWorkCompleted should equal
+                    // numWorkTotal for 100%
+                    numCompleted = node.numWorkTotal;
+                }
+                numWorkCompleted += numCompleted;
+                numWorkTotal += node.numWorkTotal;
+            }
+        });
+        progress = numWorkCompleted / numWorkTotal;
+        if (numWorkTotal === 0) {
+            progress = 0;
+        }
+        return progress;
+    }
+
 
     function xcalarQueryCheckHelper(_id: number, queryName: string): XDPromise<any> {
         // const mainQuery: XcQuery = queryLists[id];
@@ -986,9 +1351,9 @@ namespace QueryManager {
         if (mainQuery.getState() === QueryStatus.Done ||
             mainQuery.getState() === QueryStatus.Cancel ||
             mainQuery.getState() === QueryStatus.Error) {
-            elapsedTime = xcHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
+            elapsedTime = xcTimeHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
                                                     null, true);
-            opTime = xcHelper.getElapsedTimeStr(mainQuery.getOpTime());
+            opTime = xcTimeHelper.getElapsedTimeStr(mainQuery.getOpTime());
             if (mainQuery.getState() === QueryStatus.Done) {
                 totalTime = elapsedTime;
             }
@@ -996,9 +1361,9 @@ namespace QueryManager {
             if (mainQuery !== null) {
                 mainQuery.setElapsedTime();
             }
-            elapsedTime = xcHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
+            elapsedTime = xcTimeHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
                                                      true, true);
-            opTime = xcHelper.getElapsedTimeStr(mainQuery.getOpTime(), true);
+            opTime = xcTimeHelper.getElapsedTimeStr(mainQuery.getOpTime(), true);
         }
         updateHeadingSection(mainQuery);
         updateStatusDetail({
@@ -1082,12 +1447,12 @@ namespace QueryManager {
         } else if (!query && !blank) {
             queryString = '<div class="queryRow"></div>';
         } else {
-            query = xcHelper.escapeHTMLSpecialChar(query);
+            query = xcStringHelper.escapeHTMLSpecialChar(query);
             queryString = '<div class="queryRow">' + query + '</div>';
         }
         if (errorText) {
             queryString += '<div class="queryRow errorRow">' +
-                           xcHelper.escapeHTMLSpecialChar(errorText) + '</div>';
+                           xcStringHelper.escapeHTMLSpecialChar(errorText) + '</div>';
         }
 
         $queryDetail.find(".operationSection .content").html(queryString);
@@ -1281,11 +1646,11 @@ namespace QueryManager {
             mainQuery.setElapsedTime();
             updateStatusDetail({
                 "start": getQueryTime(mainQuery.getTime()),
-                "elapsed": xcHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
+                "elapsed": xcTimeHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
                                                       true, true),
-                "opTime": xcHelper.getElapsedTimeStr(mainQuery.getOpTime(),
+                "opTime": xcTimeHelper.getElapsedTimeStr(mainQuery.getOpTime(),
                                                       true),
-                "total": xcHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
+                "total": xcTimeHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
                                                     null, true),
             }, id);
             deferred.resolve();
@@ -1468,7 +1833,7 @@ namespace QueryManager {
                 if (newClass === QueryStatus.Done) {
                     $query.find('.querySteps').text(StatusMessageTStr.Completed);
                 } else {
-                    newClass = xcHelper.capitalize(newClass);
+                    newClass = xcStringHelper.capitalize(newClass);
                     $query.find('.querySteps').text(newClass);
                 }
             }
@@ -1576,7 +1941,7 @@ namespace QueryManager {
 
         $queryDetail.on("click", ".copy", function() {
             let text = $queryDetail.find(".operationSection .content").text();
-            xcHelper.copyToClipboard(text);
+            xcUIHelper.copyToClipboard(text);
             let $el = $(this);
             xcTooltip.changeText($el, TooltipTStr.AboutCopied);
             xcTooltip.refresh($el, 1000);
@@ -1667,14 +2032,14 @@ namespace QueryManager {
             status?: string
         ): void {
             const typeUpper: string = type[0].toUpperCase() + type.slice(1);
-            const title: string = xcHelper.replaceMsg(ErrWRepTStr.OutputNotFound, {
+            const title: string = xcStringHelper.replaceMsg(ErrWRepTStr.OutputNotFound, {
                 "name": typeUpper
             });
             let desc: string;
             if (type === "output") {
                 desc =ErrTStr.OutputNotFoundMsg;
             } else {
-                desc = xcHelper.replaceMsg(ErrWRepTStr.OutputNotExists, {
+                desc = xcStringHelper.replaceMsg(ErrWRepTStr.OutputNotExists, {
                     "name": typeUpper
                 });
             }
@@ -1854,7 +2219,7 @@ namespace QueryManager {
         // scan query strings for other source tables in case they were missed
         const queryStr: string = mainQuery.getQuery();
         if (queryStr) {
-            const queries: xcHelper.QueryParser[] = xcHelper.parseQuery(queryStr);
+            const queries: QueryManager.QueryParser[] = QueryManager.parseQuery(queryStr);
             for (let i = 0; i < queries.length; i++) {
                 if (queries[i].srcTables) {
                     for (let j = 0; j < queries[i].srcTables.length; j++) {
@@ -1868,7 +2233,7 @@ namespace QueryManager {
         for (const table in srcTables) {
             tableId = xcHelper.getTableId(table);
             if (tableId) {
-                xcHelper.unlockTable(tableId);
+                TblFunc.unlockTable(tableId);
             }
         }
     }
@@ -1880,7 +2245,7 @@ namespace QueryManager {
         onlyFinishedTables: boolean
     ): void {
         const queryStr: string = mainQuery.getQuery();
-        const queries: xcHelper.QueryParser[] = xcHelper.parseQuery(queryStr);
+        const queries: QueryManager.QueryParser[] = QueryManager.parseQuery(queryStr);
         const dstTables: string[] = [];
         const dstDatasets: string[] = [];
         let numQueries: number;

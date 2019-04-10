@@ -202,7 +202,7 @@ class UpdateIMDOpPanel extends BaseOpPanel {
     private _activateDropDown($list: JQuery, container: string) {
         let dropdownHelper: MenuHelper = new MenuHelper($list, {
             "onOpen": function() {
-                var $lis = $list.find('li').sort(xcHelper.sortHTML);
+                var $lis = $list.find('li').sort(xcUIHelper.sortHTML);
                 $lis.prependTo($list.find('ul'));
             },
             "container": container

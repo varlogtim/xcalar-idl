@@ -14,14 +14,14 @@ describe("License Modal Test", function() {
     it.skip("should submit form", function(done) {
         var testUpdate, testSuccess;
         var oldUpdate = XcalarUpdateLicense;
-        var oldSuccess = xcHelper.showSuccess;
+        var oldSuccess = xcUIHelper.showSuccess;
 
         XcalarUpdateLicense = function(input) {
             testUpdate = input;
             return PromiseHelper.resolve();
         };
 
-        xcHelper.showSuccess = function(input) {
+        xcUIHelper.showSuccess = function(input) {
             testSuccess = input;
         };
 
@@ -42,7 +42,7 @@ describe("License Modal Test", function() {
         })
         .always(function() {
             XcalarUpdateLicense = oldUpdate;
-            xcHelper.showSuccess = oldSuccess;
+            xcUIHelper.showSuccess = oldSuccess;
         });
     });
 

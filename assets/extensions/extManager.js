@@ -39,7 +39,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var url = xcHelper.getAppUrl();
 
         $extOpsView.addClass("loading");
-        xcHelper.showRefreshIcon($extOpsView.find(".extLists"), true, deferred);
+        xcUIHelper.showRefreshIcon($extOpsView.find(".extLists"), true, deferred);
 
         ExtensionPanel.getEnabledList()
         .then(function(enabledExtHTMl) {
@@ -421,7 +421,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
 
         if (!extMap[moduleName] || !extMap[moduleName].hasOwnProperty(funcName)) {
-            var msg = xcHelper.replaceMsg(ErrTStr.ExtNotFound, {
+            var msg = xcStringHelper.replaceMsg(ErrTStr.ExtNotFound, {
                 module: moduleName,
                 fn: funcName
             });
@@ -537,7 +537,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         options = options || {};
 
         if (!extMap[module] || !extMap[module].hasOwnProperty(func)) {
-            var msg = xcHelper.replaceMsg(ErrTStr.ExtNotFound, {
+            var msg = xcStringHelper.replaceMsg(ErrTStr.ExtNotFound, {
                 module: module,
                 fn: func
             });
@@ -618,7 +618,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     $("#extensionTab").click();
                 }
                 $("#extension-ops-submit").removeClass("xc-disabled");
-                var msg = xcHelper.replaceMsg(StatusMessageTStr.Ext, {
+                var msg = xcStringHelper.replaceMsg(StatusMessageTStr.Ext, {
                     "extension": func
                 });
                 txId = Transaction.start({
@@ -750,13 +750,13 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
     function lockTables(ids, txId) {
         ids.forEach(function(tableId) {
-            xcHelper.lockTable(tableId, txId);
+            TblFunc.lockTable(tableId, txId);
         });
     }
 
     function unlockTables(ids) {
         ids.forEach(function(tableId) {
-            xcHelper.unlockTable(tableId);
+            TblFunc.unlockTable(tableId);
         });
     }
 
@@ -838,7 +838,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             if ($lastInputFocused.hasClass('multiColumn')) {
                 options.append = true;
             }
-            xcHelper.fillInputFromCell($target, $lastInputFocused, gColPrefix,
+            xcUIHelper.fillInputFromCell($target, $lastInputFocused, gColPrefix,
                                         options);
         };
         var headCallback = function($target) {
@@ -849,7 +849,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 !$lastInputFocused.hasClass("type-string")) {
                 return;
             }
-            xcHelper.fillInputFromCell($target, $lastInputFocused, "", {
+            xcUIHelper.fillInputFromCell($target, $lastInputFocused, "", {
                 "type": "table"
             });
         };
@@ -876,7 +876,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
             if (tableName !== "") {
                 var tableId = xcHelper.getTableId(tableName);
-                xcHelper.centerFocusedTable(tableId, true);
+                TblManager.centerfocusedTable(tableId, true);
             }
         });
 
@@ -1107,7 +1107,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         });
 
         $argSection.find("input.aggName").each(function() {
-            xcHelper.addAggInputEvents($(this));
+            BaseOpPanel.addAggInputEvents($(this));
         });
 
         formHelper.refreshTabbing();
@@ -1187,7 +1187,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             }
             var $input = $extTriggerTableDropdown.find(".text");
             if ($input.val() === "") {
-                var focusedTable = xcHelper.getFocusedTable();
+                var focusedTable = TblManager.getFocusedTable();
                 if (focusedTable != null) {
                     var $li = $extTriggerTableDropdown.find("li")
                     .filter(function() {
@@ -1223,7 +1223,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             var anim = !isSetUp;
             // this animation will mess up focus if true
             // in setup time
-            xcHelper.centerFocusedTable(tableId, anim);
+            TblManager.centerfocusedTable(tableId, anim);
         }
     }
 
@@ -1346,7 +1346,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                             '</button>' +
                         '</div>';
         }
-        inputVal = xcHelper.escapeHTMLSpecialChar(inputVal);
+        inputVal = xcStringHelper.escapeHTMLSpecialChar(inputVal);
         var html;
         if (isCheckbox) {
             html =
@@ -1439,7 +1439,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         $input.closest(".hintDropdown").find("ul").html(list);
         $input.closest(".hintDropdown").find("li").each(function() {
             var $suggestion = $(this);
-            xcHelper.boldSuggestedText($suggestion, $input.val());
+            xcUIHelper.boldSuggestedText($suggestion, $input.val());
             $suggestion.addClass("extHint");
         });
         if (list.length) {
@@ -1487,11 +1487,11 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             return "";
         }
 
-        var colNames = xcHelper.getColNameMap(tableId);
+        var colNames = gTables[tableId].getColNameMap();
         var lists = getMatchingColNames(input, colNames);
         var html = "";
         lists.forEach(function(li) {
-            html += "<li>" + xcHelper.escapeHTMLSpecialChar(li) + "</li>";
+            html += "<li>" + xcStringHelper.escapeHTMLSpecialChar(li) + "</li>";
         });
         return html;
     }
@@ -1750,7 +1750,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                         !isNaN(typeCheck.min) &&
                         arg < typeCheck.min)
             {
-                error = xcHelper.replaceMsg(ErrWRepTStr.NoLessNum, {
+                error = xcStringHelper.replaceMsg(ErrWRepTStr.NoLessNum, {
                     "num": typeCheck.min
                 });
 
@@ -1760,7 +1760,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                         !isNaN(typeCheck.max) &&
                         arg > typeCheck.max)
             {
-                error = xcHelper.replaceMsg(ErrWRepTStr.NoBiggerNum, {
+                error = xcStringHelper.replaceMsg(ErrWRepTStr.NoBiggerNum, {
                     "num": typeCheck.max
                 });
 
@@ -1773,7 +1773,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 if (tableId != null && gTables.hasOwnProperty(tableId)) {
                     var table = gTables[tableId];
                     if (table.hasCol(arg, "")) {
-                        error = xcHelper.replaceMsg(ErrWRepTStr.ColConflict, {
+                        error = xcStringHelper.replaceMsg(ErrWRepTStr.ColConflict, {
                             "name": arg,
                             "table": table.getName()
                         });
@@ -1796,7 +1796,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     return { "vaild": false };
                 }
                 if (DagAggManager.Instance.getAgg("", arg) != null) {
-                    errMsg = xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
+                    errMsg = xcStringHelper.replaceMsg(ErrWRepTStr.AggConflict, {
                         "name": arg,
                         "aggPrefix": gAggVarPrefix
                     });
@@ -1858,7 +1858,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
                     if (validType != null && validType.indexOf(type) < 0) {
                         error = ErrWRepTStr.InvalidOpsType;
-                        error = xcHelper.replaceMsg(error, {
+                        error = xcStringHelper.replaceMsg(error, {
                             "type1": validType.join(","),
                             "type2": type
                         });
@@ -1869,7 +1869,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     var backColName = progCol.getBackColName();
                     cols.push(new XcSDK.Column(backColName, colType));
                 } else {
-                    error = xcHelper.replaceMsg(ErrWRepTStr.InvalidColOnTable, {
+                    error = xcStringHelper.replaceMsg(ErrWRepTStr.InvalidColOnTable, {
                         "col": colName,
                         "table": table.getName()
                     });

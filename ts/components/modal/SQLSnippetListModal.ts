@@ -49,7 +49,7 @@ class SQLSnippetListModal {
     private _render(): XDPromise<void> {
         let deferred: XDDeferred<void> = PromiseHelper.deferred();
         let timer = setTimeout(() => {
-            xcHelper.showRefreshIcon(this._getListSection(), true, deferred.promise());
+            xcUIHelper.showRefreshIcon(this._getListSection(), true, deferred.promise());
         }, 500);
 
         SQLSnippet.Instance.listSnippetsAsync()

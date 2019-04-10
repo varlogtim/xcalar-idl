@@ -218,7 +218,7 @@ class ColAssignmentView {
 
         resultCols.forEach((resultCol, listIndex) => {
             let colName: string = resultCol.getBackColName();
-            colName = xcHelper.escapeHTMLSpecialChar(colName);
+            colName = xcStringHelper.escapeHTMLSpecialChar(colName);
             const cast: string = resultCol.type || "";
             const selectedCol = selectedCols[0][listIndex];
             let listClasses = "";
@@ -278,7 +278,7 @@ class ColAssignmentView {
         selectedCols.forEach(function(selectedCol, colIndex) {
             let innerHTML: string = "";
             if (selectedCol != null) {
-                const colName: string = xcHelper.escapeHTMLSpecialChar(selectedCol.getBackColName());
+                const colName: string = xcStringHelper.escapeHTMLSpecialChar(selectedCol.getBackColName());
                 innerHTML = '<div class="text">' +
                                 BaseOpPanel.craeteColumnListHTML(selectedCol.getType(), colName) +
                             '</div>';
@@ -316,7 +316,7 @@ class ColAssignmentView {
     ): string {
         candidateCols = candidateCols || [];
         const lists: string = candidateCols.map((col, index) => {
-            const colName: string = xcHelper.escapeHTMLSpecialChar(col.getBackColName());
+            const colName: string = xcStringHelper.escapeHTMLSpecialChar(col.getBackColName());
             return '<div class="inputCol" data-index="' + index + '">' +
                         '<i class="addCol icon xi-plus"' +
                         ' data-toggle="tooltip" data-container="body"' +
@@ -432,7 +432,7 @@ class ColAssignmentView {
             if (isUsed) {
                 let colIndex: number = map.get(colName);
                 extraClass = "used";
-                title = xcHelper.replaceMsg(UnionTStr.UsedFor, {
+                title = xcStringHelper.replaceMsg(UnionTStr.UsedFor, {
                     col: resultCols[colIndex].getBackColName()
                 });
             } else {
@@ -446,7 +446,7 @@ class ColAssignmentView {
             return '<li class="li type-' + colType + ' ' + extraClass + '"' +
                     ' data-index="' + index + '"' +
                     ' data-toggle="tooltip"' +
-                    ' data-title="' + xcHelper.escapeHTMLSpecialChar(title) + '"' +
+                    ' data-title="' + xcStringHelper.escapeHTMLSpecialChar(title) + '"' +
                     ' data-container="body"' +
                     ' data-placement="top"' +
                     '>' +

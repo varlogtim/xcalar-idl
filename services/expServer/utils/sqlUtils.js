@@ -19,6 +19,10 @@ try {
 
 global.xcHelper = xcHelper = sqlHelpers ? sqlHelpers.xcHelper :
                              require("../sqlHelpers/xcHelper.js").xcHelper;
+global.xcStringHelper = xcStringHelper = sqlHelpers ? sqlHelpers.xcStringHelper :
+                             require("../sqlHelpers/xcStringHelper.js").xcStringHelper;
+global.xcTimeHelper = xcTimeHelper = sqlHelpers ? sqlHelpers.xcTimeHelper :
+                             require("../sqlHelpers/xcTimeHelper.js").xcTimeHelper;
 global.xcGlobal = xcGlobal = sqlHelpers ? sqlHelpers.xcGlobal :
                              require("../sqlHelpers/xcGlobal.js").xcGlobal;
 global.xcConsole = xcConsole = require("../expServerXcConsole.js").xcConsole;

@@ -144,7 +144,7 @@ class MapOpPanelModel extends GeneralOpPanelModel {
             for (var j = 0; j < argGroup.args.length; j++) {
                 let arg = argGroup.args[j].value;
                 if (argGroup.args[j].type === "fn") {
-                    arg = xcHelper.stringifyEval(argGroup.args[j]);
+                    arg = DagNodeInput.stringifyEval(argGroup.args[j]);
                 }
                 let typesAccepted;
                 let isOptional;
@@ -195,7 +195,7 @@ class MapOpPanelModel extends GeneralOpPanelModel {
     protected _getParam(): DagNodeMapInputStruct {
         const evals = [];
         this.groups.forEach(group => {
-            const evalString: string = xcHelper.formulateEvalString([group]);
+            const evalString: string = GeneralOpPanel.formulateEvalString([group]);
             evals.push({
                 evalString: evalString,
                 newField: group.newFieldName

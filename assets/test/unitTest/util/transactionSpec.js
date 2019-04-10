@@ -101,9 +101,8 @@ describe("Transaction Test", function() {
                 called1 = true;
             }
 
-            var called2 = false;
-            var cacheFn2 = xcHelper.parseQuery;
-            xcHelper.parseQuery = function() {
+            var cacheFn2 = QueryManager.parseQuery;
+            QueryManager.parseQuery = function() {
                 called1 = true;
                 return [{exportFileName: "expName"}];
             };
@@ -111,7 +110,7 @@ describe("Transaction Test", function() {
             Transaction.startSubQuery(id, "map", "table2", {args: "somequery"});
             expect(called1).to.be.true;
             QueryManager.addSubQuery = cacheFn;
-            xcHelper.parseQuery = cacheFn2;
+            QueryManager.parseQuery = cacheFn2;
         });
 
         it("startSubQuery with valid txid should call addSubQuery with queryName", function() {
@@ -129,8 +128,8 @@ describe("Transaction Test", function() {
             }
 
             var called2 = false;
-            var cacheFn2 = xcHelper.parseQuery;
-            xcHelper.parseQuery = function() {
+            var cacheFn2 = QueryManager.parseQuery;
+            QueryManager.parseQuery = function() {
                 called2 = true;
                 return [{name: "a", dstTable:"b", query:"c"}, {name: "a", dstTable:"b", query:"c"}];
             };
@@ -140,7 +139,7 @@ describe("Transaction Test", function() {
             expect(called2).to.be.true;
             expect(count).to.equal(2);
             QueryManager.addSubQuery = cacheFn;
-            xcHelper.parseQuery = cacheFn2;
+            QueryManager.parseQuery = cacheFn2;
         });
 
         it("invalid transaction.log should not call subquerydone", function() {

@@ -49,7 +49,7 @@ describe("DagParamPopup Test", function() {
         it("duplicate should be caught", function() {
             $("#paramPopUp .newParam").val("test");
             $("#paramPopUp .submitNewParam").click();
-            UnitTest.hasStatusBoxWithError(xcHelper.replaceMsg(ErrWRepTStr.ParamConflict, {
+            UnitTest.hasStatusBoxWithError(xcStringHelper.replaceMsg(ErrWRepTStr.ParamConflict, {
                 "name": "test"
             }));
         });

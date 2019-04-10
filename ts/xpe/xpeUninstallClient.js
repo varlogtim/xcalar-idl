@@ -49,7 +49,7 @@ function setup() {
     $prevBtn.click(function() {
         switchStep(false);
     });
-    xcHelper.optionButtonEvent($("#uninstalltype")); // switches radio button
+    xcUIHelper.optionButtonEvent($("#uninstalltype")); // switches radio button
     $closeBtn.click(closeButtonAction); // 'Close' button on last page after uninstall
 }
 function closeButtonAction() {

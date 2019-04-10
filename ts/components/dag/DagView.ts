@@ -253,7 +253,7 @@ class DagView {
             top = DagView.nodeHeight;
             for (let i = 0; i < icons.length; i++) {
                 if (icons[i] === iconType) {
-                    drawIcon(icons[i], (i * 15 )+ 22, top, DagView.iconMap[iconType], xcHelper.escapeDblQuoteForHTML(tooltip), i);
+                    drawIcon(icons[i], (i * 15 )+ 22, top, DagView.iconMap[iconType], xcStringHelper.escapeDblQuoteForHTML(tooltip), i);
                     $node.data(iconType.toLowerCase(), tooltip);
                 } else {
                     let tip: string = $node.data(icons[i].toLowerCase())
@@ -976,7 +976,7 @@ class DagView {
                     let nodeType: DagNodeType = newNode.getType();
                     if (nodeType == DagNodeType.Aggregate &&
                         newNode.getState() == DagNodeState.Configured) {
-                        newNode.beErrorState(xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
+                        newNode.beErrorState(xcStringHelper.replaceMsg(ErrWRepTStr.AggConflict, {
                             name: newNode.getParam().dest,
                             aggPrefix: ""
                         }));
@@ -2156,7 +2156,7 @@ class DagView {
             if (!params.sqlQueryStr) {
                 return PromiseHelper.reject(SQLErrTStr.NeedConfiguration);
             }
-            const paramterizedSQL = xcHelper.replaceMsg(params.sqlQueryStr,
+            const paramterizedSQL = xcStringHelper.replaceMsg(params.sqlQueryStr,
                 DagParamManager.Instance.getParamMap(), true);
             const queryId = xcHelper.randName("sql", 8);
             promise = dagNode.compileSQL(paramterizedSQL, queryId);
@@ -2203,7 +2203,7 @@ class DagView {
             if (!params.sqlQueryStr) {
                 return PromiseHelper.reject(SQLErrTStr.NeedConfiguration);
             }
-            const paramterizedSQL = xcHelper.replaceMsg(params.sqlQueryStr,
+            const paramterizedSQL = xcStringHelper.replaceMsg(params.sqlQueryStr,
                 DagParamManager.Instance.getParamMap(), true);
             const queryId = xcHelper.randName("sql", 8);
             promise = dagNode.compileSQL(paramterizedSQL, queryId);
@@ -2543,7 +2543,7 @@ class DagView {
         if (time === 0) {
             return null;
         } else {
-            return xcHelper.getElapsedTimeStr(time);
+            return xcTimeHelper.getElapsedTimeStr(time);
         }
     }
 
@@ -2621,7 +2621,7 @@ class DagView {
             totalTime = 0;
         }
 
-        const totalTimeStr = xcHelper.getElapsedTimeStr(totalTime);
+        const totalTimeStr = xcTimeHelper.getElapsedTimeStr(totalTime);
 
         let hasSkewValue: boolean = false;
         let maxSkew: number | string = 0;
@@ -2644,7 +2644,7 @@ class DagView {
         }
         let skewRows: string = "N/A";
         if (skewInfos.length) {
-            skewRows = xcHelper.numToStr(skewInfos[skewInfos.length - 1].totalRows);
+            skewRows = xcStringHelper.numToStr(skewInfos[skewInfos.length - 1].totalRows);
         }
         if (skewRows === "0" && node instanceof DagNodeExport) {
             skewRows = "N/A"; // don't show 0 for export nodes because stats
@@ -3227,12 +3227,12 @@ class DagView {
 
     private _toggleCompileLock(lock: boolean) {
         if (lock) {
-            xcHelper.disableScreen(this.$dfArea, {id: "compileBackground", styles: {
+            xcUIHelper.disableScreen(this.$dfArea, {id: "compileBackground", styles: {
                 width: this.$dfArea.find(".dataflowAreaWrapper").width(),
                 height: this.$dfArea.find(".dataflowAreaWrapper").height()
             }});
         } else {
-            xcHelper.enableScreen($("#compileBackground"));
+            xcUIHelper.enableScreen($("#compileBackground"));
         }
     }
 
@@ -3354,7 +3354,7 @@ class DagView {
 
     // for param tooltip
     private _formatTooltip(param): string {
-        let title = xcHelper.escapeHTMLSpecialChar(JSON.stringify(param, null, 2));
+        let title = xcStringHelper.escapeHTMLSpecialChar(JSON.stringify(param, null, 2));
         if (title === "{}") {
             title = "empty";
         } else {

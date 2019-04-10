@@ -157,7 +157,7 @@ window.Admin = (function($, Admin) {
             var sortedByUsage = $userList.hasClass("sortedByUsage");
 
             var promise = refreshUserList(false, sortedByUsage);
-            xcHelper.showRefreshIcon($userList, false, promise);
+            xcUIHelper.showRefreshIcon($userList, false, promise);
         });
 
         $userList.on('click', '.userLi .useAs', function() {
@@ -167,7 +167,7 @@ window.Admin = (function($, Admin) {
             }
             var username = $li.text().trim();
             var title = MonitorTStr.UseXcalarAs;
-            var msg = xcHelper.replaceMsg(MonitorTStr.SwitchUserMsg, {
+            var msg = xcStringHelper.replaceMsg(MonitorTStr.SwitchUserMsg, {
                 username: username
             });
             Alert.show({
@@ -215,7 +215,7 @@ window.Admin = (function($, Admin) {
             });
 
             var promise = getMemUsage(username);
-            xcHelper.showRefreshIcon($popup, false, promise);
+            xcUIHelper.showRefreshIcon($popup, false, promise);
 
             promise
             .then(function(data) {
@@ -232,7 +232,7 @@ window.Admin = (function($, Admin) {
                 if ($popup.data("id") !== popupId) {
                     return;
                 }
-                var html = xcHelper.prettifyJson(data);
+                var html = xcUIHelper.prettifyJson(data);
                 html = "{\n" + html + "}";
                 $popup.find(".content").html(html);
                 var $breakdown = $popup.find(".content")
@@ -298,7 +298,7 @@ window.Admin = (function($, Admin) {
         function() {
             $(this).closest(".breakdown").toggleClass("active");
             xcTooltip.hideAll();
-            xcHelper.removeSelectionRange();
+            xcUIHelper.removeSelectionRange();
         });
 
         $userList.on("click", ".sortOption", function() {
@@ -336,7 +336,7 @@ window.Admin = (function($, Admin) {
                 setupUserListMenu(userMemList);
             } else {
                 var promise = refreshUserList(false, true);
-                xcHelper.showRefreshIcon($userList, false, promise);
+                xcUIHelper.showRefreshIcon($userList, false, promise);
             }
         });
     }
@@ -645,7 +645,7 @@ window.Admin = (function($, Admin) {
             $("#adminUserSearch").find("input").removeClass('hasArrows');
             return;
         } else {
-            var regex = new RegExp(xcHelper.escapeRegExp(keyWord), "gi");
+            var regex = new RegExp(xcStringHelper.escapeRegExp(keyWord), "gi");
             $lis.each(function() {
                 var $li = $(this);
                 var tableName = $li.text();
@@ -736,7 +736,7 @@ window.Admin = (function($, Admin) {
                         ret.logs.indexOf("already running") > -1) {
                         Alert.show({msg: ret.logs, isAlert: true});
                     } else {
-                        xcHelper.reload();
+                        xcManager.reload();
                     }
                     deferred.resolve();
                 })
@@ -771,7 +771,7 @@ window.Admin = (function($, Admin) {
         .then(function() {
             exitSetupMode();
             if ($('#container').hasClass('supportOnly')) {
-                xcHelper.showSuccess(SuccessTStr.StopCluster);
+                xcUIHelper.showSuccess(SuccessTStr.StopCluster);
             } else {
                 Alert.show({
                     "title": MonitorTStr.StopNodes,
@@ -797,7 +797,7 @@ window.Admin = (function($, Admin) {
         .then(adminTools.clusterStop)
         .then(adminTools.clusterStart)
         .then(function() {
-            xcHelper.reload();
+            xcManager.reload();
             deferred.resolve();
         })
         .fail(function(err) {
@@ -884,7 +884,7 @@ window.Admin = (function($, Admin) {
                 title = AlertTStr.Confirmation;
                 break;
         }
-        var msg = xcHelper.replaceMsg(MonitorTStr.NodeConfirmMsg, {
+        var msg = xcStringHelper.replaceMsg(MonitorTStr.NodeConfirmMsg, {
             type: title.toLowerCase().split(" ")[0] // first word (start, restart)
         });
 

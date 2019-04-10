@@ -116,7 +116,7 @@ class SQLEditorSpace {
         let timer = setTimeout(() => {
             let $section = this._getEditorSpaceEl();
             $section.addClass("loading");
-            xcHelper.showRefreshIcon($section, true, promise);
+            xcUIHelper.showRefreshIcon($section, true, promise);
         }, 500);
         return timer;
     }
@@ -478,7 +478,7 @@ class SQLEditorSpace {
             let oldName = this._currentFile;
             SQLSnippet.Instance.writeSnippet(newName, snippet, true);
             this._setFileName(newName);
-            xcHelper.showSuccess(SuccessTStr.Saved);
+            xcUIHelper.showSuccess(SuccessTStr.Saved);
             if (oldName == CommonTxtTstr.Untitled) {
                 SQLSnippet.Instance.deleteSnippet(oldName);
             }
@@ -487,7 +487,7 @@ class SQLEditorSpace {
 
     private _deleteSnippet(): void {
         let name: string = this._currentFile;
-        let msg = xcHelper.replaceMsg(SQLTStr.DeleteSnippetMsg, {
+        let msg = xcStringHelper.replaceMsg(SQLTStr.DeleteSnippetMsg, {
             name: name
         });
         Alert.show({
@@ -496,7 +496,7 @@ class SQLEditorSpace {
             onConfirm: () => {
                 SQLSnippet.Instance.deleteSnippet(name);
                 this._setSnippet(CommonTxtTstr.Untitled);
-                xcHelper.showSuccess(SuccessTStr.Saved);
+                xcUIHelper.showSuccess(SuccessTStr.Saved);
             }
         });
     }
@@ -760,7 +760,7 @@ class SQLEditorSpace {
             let saveCallback = (newName) => {
                 SQLSnippet.Instance.writeSnippet(newName, snippet, true)
                 .then(() => {
-                    xcHelper.showSuccess(SuccessTStr.Saved);
+                    xcUIHelper.showSuccess(SuccessTStr.Saved);
                     deferred.resolve();
                 })
                 .fail(deferred.reject);

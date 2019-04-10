@@ -65,7 +65,7 @@ class BaseOpPanel {
         ' data-toggle="tooltip"' +
         ' data-container="body"' +
         ' data-placement="top"' +
-        ' data-title="' + xcHelper.escapeHTMLSpecialChar(colName) + '">' +
+        ' data-title="' + xcStringHelper.escapeHTMLSpecialChar(colName) + '">' +
             colName +
         '</div>';
         const html: HTML =
@@ -106,6 +106,60 @@ class BaseOpPanel {
         }
         return types;
     }
+
+    /**
+    * xcHelper.addAggInputEvents
+    * @param $aggInput
+    */
+    public static addAggInputEvents($aggInput: JQuery) {
+       // focus, blur, keydown, input listeners ensures the aggPrefix
+       // is always the first chracter in the colname input
+       // and is only visible when focused or changed
+       $aggInput.on('focus.aggPrefix', function() {
+           // XXX FIX me, JQuery has no caret so has to use any
+           const $input: any = $(this);
+           if ($input.val().trim() === "") {
+               $input.val(gAggVarPrefix);
+               if ($input.caret() === 0 &&
+                   ($input[0]).selectionEnd === 0) {
+                   $input.caret(1);
+               }
+           }
+       });
+
+       $aggInput.on('blur.aggPrefix', function() {
+           const $input: JQuery = $(this);
+           if ($input.val().trim() === gAggVarPrefix) {
+               $input.val("");
+           }
+       });
+
+       $aggInput.on('keydown.aggPrefix', function(event) {
+           // XXX FIX me, JQuery has no caret so has to use any
+           const $input: any = $(this);
+           if ($input.caret() === 0 &&
+               ($input[0]).selectionEnd === 0) {
+               event.preventDefault();
+               $input.caret(1);
+               return false;
+           }
+       });
+
+       $aggInput.on('input.aggPrefix', function() {
+           // XXX FIX me, JQuery has no caret so has to use any
+           const $input: any = $(this);
+           const val: string = $input.val();
+           const trimmedVal: string = $input.val().trim();
+           if (trimmedVal[0] !== gAggVarPrefix) {
+               var caretPos = $input.caret();
+               $input.val(gAggVarPrefix + val);
+               if (caretPos === 0) {
+                   $input.caret(1);
+               }
+           }
+       });
+    }
+
 
     public static counter = 0; // used to give is panel a unique id
 
@@ -171,7 +225,7 @@ class BaseOpPanel {
             keepFocus: true,
             colCallback: ($table) => {
                 try {
-                    const colClicked = xcHelper.getValueFromCell($table);
+                    const colClicked = xcUIHelper.getValueFromCell($table);
                     if (this.advancedMode && this._editor) {
                         this._editor.replaceSelection(colClicked);
                     } else {

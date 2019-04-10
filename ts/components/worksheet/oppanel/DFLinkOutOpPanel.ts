@@ -203,7 +203,7 @@ class DFLinkOutOpPanel extends BaseOpPanel {
         // Render column list
         let html: string = "";
         columnList.forEach((column, index) => {
-            const colName: string = xcHelper.escapeHTMLSpecialChar(
+            const colName: string = xcStringHelper.escapeHTMLSpecialChar(
                 column.name);
             const colNum: number = (index + 1);
             let checked = column.isSelected ? " checked" : "";
@@ -211,8 +211,8 @@ class DFLinkOutOpPanel extends BaseOpPanel {
                 '" data-colnum="' + colNum + '">' +
                 '<span class="text tooltipOverflow" ' +
                 'data-original-title="' +
-                    xcHelper.escapeDblQuoteForHTML(
-                        xcHelper.escapeHTMLSpecialChar(colName)) + '" ' +
+                    xcStringHelper.escapeDblQuoteForHTML(
+                        xcStringHelper.escapeHTMLSpecialChar(colName)) + '" ' +
                 'data-toggle="tooltip" data-placement="top" ' +
                 'data-container="body">' +
                     colName +

@@ -146,7 +146,7 @@ class ExtCategory {
 
     public getExtensionList(searchKey?: string): ExtItem[] {
         searchKey = searchKey || "";
-        searchKey = xcHelper.escapeRegExp(searchKey);
+        searchKey = xcStringHelper.escapeRegExp(searchKey);
         const extensions = this.extensions;
         type Tuple = [ExtItem, string]
         let listToSort: Tuple[] = [];

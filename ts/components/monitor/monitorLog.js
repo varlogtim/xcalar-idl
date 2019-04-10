@@ -219,7 +219,7 @@ window.MonitorLog = (function(MonitorLog, $) {
 
         $logCard.on('click', '.copyLog', function() {
             var logs = getLogText();
-            xcHelper.copyToClipboard(logs);
+            xcUIHelper.copyToClipboard(logs);
             var $btn = $(this).find(".icon");
             var oldTitle = $btn.attr("data-original-title");
             xcTooltip.changeText($btn, CommonTxtTstr.LogCopied);
@@ -300,12 +300,12 @@ window.MonitorLog = (function(MonitorLog, $) {
                     fileName, hosts);
         })
         .then(function(ret) {
-            xcHelper.showSuccess(SuccessTStr.RetrieveLogs);
+            xcUIHelper.showSuccess(SuccessTStr.RetrieveLogs);
             appendLog(ret.results);
         })
         .fail(function(err) {
             if (err && err.results) {
-                xcHelper.showSuccess(SuccessTStr.RetrieveLogs);
+                xcUIHelper.showSuccess(SuccessTStr.RetrieveLogs);
                 appendLog(err.results);
             } else {
                 var msg = ErrTStr.Unknown;

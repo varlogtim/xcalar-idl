@@ -241,7 +241,7 @@ class DagNodeJoin extends DagNode {
         let hint: string = "";
         const input: DagNodeJoinInputStruct = this.getParam();
         if (input.joinType && typeof input.joinType === "string") {
-            hint = xcHelper.capitalize(input.joinType);
+            hint = xcStringHelper.capitalize(input.joinType);
             hint += " " + input.left.columns.join(", ") + "\n";
             hint += "with " + input.right.columns.join(", ") + "\n";
         }

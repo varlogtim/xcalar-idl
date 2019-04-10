@@ -133,7 +133,7 @@ class DFDownloadModal {
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const $confirmBtn: JQuery = this._getModal().find(".confirm");
-        xcHelper.toggleBtnInProgress($confirmBtn, false);
+        xcUIHelper.toggleBtnInProgress($confirmBtn, false);
         this._lock();
 
         this._downloadHelper(res.name)
@@ -150,7 +150,7 @@ class DFDownloadModal {
         })
         .always(() => {
             this._unlock();
-            xcHelper.toggleBtnInProgress($confirmBtn, false);
+            xcUIHelper.toggleBtnInProgress($confirmBtn, false);
         });
 
         return deferred.promise();

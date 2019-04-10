@@ -125,8 +125,8 @@ window.UExtDev = (function(UExtDev) {
                 // XXX Here we are double unlocking. It currently works since
                 // the second unlock becomes a noop. But this is not future
                 // proof.
-                xcHelper.unlockTable(xcHelper.getTableId(srcTableName));
-                xcHelper.unlockTable(xcHelper.getTableId(rTableName));
+                TblFunc.unlockTable(xcHelper.getTableId(srcTableName));
+                TblFunc.unlockTable(xcHelper.getTableId(rTableName));
             }
 
             var leftLimit = args.leftLimit;

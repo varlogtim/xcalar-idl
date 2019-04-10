@@ -86,7 +86,7 @@ class InputDropdownHint {
             } else if (event.which === keyCode.Up ||
                        event.which === keyCode.Down) {
                 $lists.find("li.hover").removeClass("hover");
-                xcHelper.listHighlight($input, event, false);
+                xcUIHelper.listHighlight($input, event, false);
             }
         });
     }
@@ -100,7 +100,7 @@ class InputDropdownHint {
         if (!searchKey) {
             $lis.removeClass("xc-hidden");
             if (this.options.order) {
-                $lis = $lis.sort(xcHelper.sortHTML);
+                $lis = $lis.sort(xcUIHelper.sortHTML);
                 $lis.prependTo($list);
             }
             $list.scrollTop(0);
@@ -115,7 +115,7 @@ class InputDropdownHint {
         $lis.each(function() {
             let $li: JQuery = $(this);
             if (!noBold) {
-                xcHelper.boldSuggestedText($li, searchKey);
+                xcUIHelper.boldSuggestedText($li, searchKey);
             }
             if ($li.text().toLowerCase().includes(searchKey)) {
                 $li.removeClass("xc-hidden");

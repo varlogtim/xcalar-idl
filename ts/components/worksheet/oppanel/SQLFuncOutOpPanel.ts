@@ -102,7 +102,7 @@ class SQLFuncOutOpPanel extends BaseOpPanel {
                         type: progCol.getType()
                     }
                 });
-              
+
             }
         }
         this._schemaSection.setInitialSchema(schema);
@@ -180,11 +180,11 @@ class SQLFuncOutOpPanel extends BaseOpPanel {
             let existingName = nameMap.get(upperCaseName);
             if (existingName != null) {
                 if (existingName === name) {
-                    error = xcHelper.replaceMsg(SQLTStr.DupColName, {
+                    error = xcStringHelper.replaceMsg(SQLTStr.DupColName, {
                         col: existingName
                     });
                 } else {
-                    error = xcHelper.replaceMsg(SQLTStr.DupColNameCaseInsensitive, {
+                    error = xcStringHelper.replaceMsg(SQLTStr.DupColNameCaseInsensitive, {
                         col1: existingName,
                         col2: name
                     });

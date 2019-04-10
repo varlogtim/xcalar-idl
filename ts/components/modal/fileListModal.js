@@ -265,7 +265,7 @@ window.FileListModal = (function(FileListModal, $) {
             return ($(this).text().toLowerCase().indexOf(text) !== -1);
         });
 
-        text = xcHelper.escapeRegExp(text);
+        text = xcStringHelper.escapeRegExp(text);
         var regex = new RegExp(text, "gi");
 
         $targets.each(function() {

@@ -216,7 +216,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         }).setupListeners();
 
         // ticket id radio buttons
-        xcHelper.optionButtonEvent($modal.find(".ticketIDSection"), function(option, $btn) {
+        xcUIHelper.optionButtonEvent($modal.find(".ticketIDSection"), function(option, $btn) {
             $ticketIdSection.addClass("inactive");
             $commentSection.removeClass("inactive");
 
@@ -389,8 +389,8 @@ window.SupTicketModal = (function($, SupTicketModal) {
         var severity = $severityList.find(".text").data("val");
 
         if (comment.length > descLimit) {
-            StatusBox.show(xcHelper.replaceMsg(MonitorTStr.CharLimitErr, {
-                "limit": xcHelper.numToStr(descLimit)
+            StatusBox.show(xcStringHelper.replaceMsg(MonitorTStr.CharLimitErr, {
+                "limit": xcStringHelper.numToStr(descLimit)
             }), $modal.find(".xc-textArea"));
             return PromiseHelper.reject();
         }
@@ -418,7 +418,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
             downloadTicket(ticketObj);
             $modal.addClass("downloadSuccess");
             $modal.removeClass("downloadMode");
-            xcHelper.showSuccess(SuccessTStr.DownloadTicket);
+            xcUIHelper.showSuccess(SuccessTStr.DownloadTicket);
             return PromiseHelper.resolve();
         } else {
             modalHelper.disableSubmit();
@@ -790,7 +790,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
             html += '</div>';
 
             var commentSection = "";
-            var comment = xcHelper.escapeHTMLSpecialChar(ticket[i].comment);
+            var comment = xcStringHelper.escapeHTMLSpecialChar(ticket[i].comment);
             if (i === 0) {
                 var status = ticket[i].status || "open";
                 html += '<div class="td status">' + status + '</div>';

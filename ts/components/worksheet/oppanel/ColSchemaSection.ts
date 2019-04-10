@@ -269,7 +269,7 @@ class ColSchemaSection {
 
     private _populateTypeDropdown($dropdown: JQuery): void {
         const html: HTML = this._validTypes.map((colType) => {
-            let icon = xcHelper.getTypeIconFromColumnType(colType);
+            let icon = xcUIHelper.getTypeIconFromColumnType(colType);
             let li: HTML =
                 '<li>' +
                     '<i class="icon ' + icon + '"></i>' +

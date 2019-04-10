@@ -391,6 +391,19 @@ describe("Alert Modal Test", function() {
         assert.isFalse($alertModal.is(":visible"));
     });
 
+
+    it("supportButton should work", function() {
+        // caase 1
+        var $btn = Alert.__testOnly__.supportButton("log");
+        expect($btn.hasClass("downloadLog")).to.be.true;
+        // case 2
+        $btn = Alert.__testOnly__.supportButton("support");
+        expect($btn.hasClass("genSub")).to.be.true;
+        // case 3
+        $btn = Alert.__testOnly__.supportButton();
+        expect($btn.hasClass("logout")).to.be.true;
+    });
+
     after(function() {
         gMinModeOn = minModeCache;
     });

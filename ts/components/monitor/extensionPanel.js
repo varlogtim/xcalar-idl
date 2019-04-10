@@ -190,7 +190,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             return;
         }
         var url = xcHelper.getAppUrl();
-        xcHelper.toggleBtnInProgress($submitBtn);
+        xcUIHelper.toggleBtnInProgress($submitBtn);
 
         extInInstall = ext.getName();
         ExtensionPanel.request({
@@ -206,16 +206,16 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         })
         .then(function() {
             // need to toggle back progress then can the text be changed
-            xcHelper.toggleBtnInProgress($submitBtn);
+            xcUIHelper.toggleBtnInProgress($submitBtn);
             if (extInInstall === ext.getName()) {
                 refreshAfterInstall();
-                xcHelper.showSuccess(SuccessTStr.ExtDownload);
+                xcUIHelper.showSuccess(SuccessTStr.ExtDownload);
             } else {
                 $submitBtn.addClass("installed").text(ExtTStr.Installed);
             }
         })
         .fail(function(error) {
-            xcHelper.toggleBtnInProgress($submitBtn);
+            xcUIHelper.toggleBtnInProgress($submitBtn);
             Alert.error(ErrTStr.ExtDownloadFailure, error);
         });
     }
@@ -232,7 +232,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             "data": {"name": extName}
         })
         .then(function() {
-            xcHelper.showSuccess(SuccessTStr.ExtRemove);
+            xcUIHelper.showSuccess(SuccessTStr.ExtRemove);
             $ext.remove();
             refreshAfterInstall();
         })
@@ -271,7 +271,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
                 $ext.removeClass("enabled");
             }
             var msg = enable ? SuccessTStr.ExtEnable : SuccessTStr.ExtDisable;
-            xcHelper.showSuccess(msg);
+            xcUIHelper.showSuccess(msg);
             refreshAfterInstall();
         })
         .fail(function(error) {
@@ -313,7 +313,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         promises.push(ExtensionManager.install.bind(this));
         promises.push(generateInstalledExtList.bind(this));
         var promise = PromiseHelper.chain(promises);
-        xcHelper.showRefreshIcon($extLists, true, promise);
+        xcUIHelper.showRefreshIcon($extLists, true, promise);
 
         promise
         .always(function() {

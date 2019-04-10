@@ -226,7 +226,7 @@ class XcTableViewer extends XcViewer {
         const $table: JQuery = $('#xcTable-' + tableId);
         const table: TableMeta = this.table;
         const $lastRow: JQuery = $table.find('tr:last');
-        const lastRowNum: number = xcHelper.parseRowNum($lastRow);
+        const lastRowNum: number = RowManager.parseRowNum($lastRow);
         table.currentRowNumber = lastRowNum + 1;
 
         const $xcTableWrap: JQuery = $('#xcTableWrap-' + tableId);
@@ -465,7 +465,7 @@ class XcTableViewer extends XcViewer {
             }
 
             const $firstRow: JQuery = $table.find('tbody tr:first');
-            const topRowNum: number = xcHelper.parseRowNum($firstRow);
+            const topRowNum: number = RowManager.parseRowNum($firstRow);
             let fetched: boolean = false;
 
             // gets this class from rowManager.addRows

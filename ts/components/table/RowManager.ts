@@ -2,6 +2,29 @@ class RowManager {
     private table: TableMeta;
     private $view: JQuery;
 
+    /**
+     * RowManager.parseRowNum
+     * @param $el
+     */
+    public static parseRowNum($tr: JQuery): number | null {
+        const keyword: string = 'row';
+        const classNames: string = $tr.attr('class');
+
+        if (classNames == null) {
+            console.error('Unexpected element to parse row', $tr);
+            return null;
+        }
+        const substring: string = classNames.substring(keyword.length);
+        const rowNum: number = parseInt(substring);
+
+        if (isNaN(rowNum)) {
+            console.error('Unexpected element to parse row', $tr);
+            return null;
+        }
+
+        return rowNum;
+    }
+
     public constructor(table: TableMeta, $view: JQuery) {
         this.table = table;
         this.$view = $view;
@@ -125,7 +148,7 @@ class RowManager {
 
         const $table: JQuery = this.$view.find(".xcTable");
         if (isNaN(rowOnScreen)) {
-            rowOnScreen = xcHelper.parseRowNum($table.find('tr:last'));
+            rowOnScreen = RowManager.parseRowNum($table.find('tr:last'));
         }
         // divide evenly on both top and bottom buffer
         const rowToBuffer: number = Math.floor((gMaxEntriesPerPage - rowOnScreen) / 2);
@@ -196,7 +219,7 @@ class RowManager {
             sizerHeight = gMaxDivHeight;
         }
         this.table.scrollMeta.scale = scale;
-        this.$view.find(".sizer").height(sizerHeight); 
+        this.$view.find(".sizer").height(sizerHeight);
     }
 
     /**
@@ -242,7 +265,7 @@ class RowManager {
             $trs.each((_index, el) => {
                 const $tr: JQuery = $(el);
                 if ($tr[0].getBoundingClientRect().bottom > tdYCoor) {
-                    rowNum = xcHelper.parseRowNum($tr) + 1;
+                    rowNum = RowManager.parseRowNum($tr) + 1;
                     return false; // stop loop
                 }
             });
@@ -266,7 +289,7 @@ class RowManager {
         for (let i = $trs.length - 1; i >= 0; i--) {
             const $tr: JQuery = $trs.eq(i);
             if ($tr.offset().top < tableBottom) {
-                const rowNum: number = xcHelper.parseRowNum($tr) + 1;
+                const rowNum: number = RowManager.parseRowNum($tr) + 1;
                 return rowNum;
             }
         }

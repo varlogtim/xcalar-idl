@@ -54,12 +54,78 @@ class TblManager {
             const isLocked: boolean = gTables[tableId].hasLock();
             tableLockStatuses.push(isLocked);
             if (!isLocked) {
-                xcHelper.lockTable(tableId);
+                TblFunc.lockTable(tableId);
             }
         });
 
         TblManager._setTableMeta(newTableName, tableCols);
         return DagTable.Instance.replaceTable(gTables[newTableId]);
+    }
+
+    /**
+     * TblManager.parseTableId
+     * looks for xcTable-AB12 or $('#xcTable-AB12'),
+     * or $('#xcTable-AB12').get(0) and returns AB12
+     * @param idOrEl
+     */
+    public static parseTableId(
+        idOrEl: string | JQuery | HTMLElement
+    ): number | string | null {
+        // can pass in a string or jQuery element or HTMLElement
+        let id;
+        if (idOrEl instanceof jQuery) {
+            const $ele: JQuery = <JQuery>idOrEl;
+            id = $ele.attr('id');
+        } else if (typeof (idOrEl) === 'object') {
+            id = $(idOrEl).attr('id');
+        } else {
+            id = idOrEl;
+        }
+
+        if (id == null) {
+            console.error("cannot find the id");
+            return null;
+        }
+
+        const idSplit = id.split('-');
+        if (idSplit.length !== 2) {
+            console.error('Unexpected id/ele to parse', idOrEl);
+            return null;
+        } else {
+            id = idSplit[1];
+            if (isNaN(id)) {
+                return id;
+            } else {
+                return parseInt(id);
+            }
+        }
+    }
+
+    /**
+     * TblManager.getBackTableSet
+     */
+    public static getBackTableSet(): XDPromise<any> {
+        const deferred: XDDeferred<object> = PromiseHelper.deferred();
+
+        XcalarGetTables()
+        .then((backEndTables) => {
+            const backTables: object = backEndTables.nodeInfo;
+            const numBackTables: number = backEndTables.numNodes;
+            const backTableSet: object = {};
+
+            for (let i = 0; i < numBackTables; i++) {
+                // record the table
+                backTableSet[backTables[i].name] = true;
+            }
+
+            if (numBackTables === 0) {
+                gDroppedTables = {}; // no need to keep meta when no tables
+            }
+            deferred.resolve(backTableSet, numBackTables);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     private static _setTableMeta(tableName: string, tableCols: ProgCol[]): void {
@@ -145,7 +211,7 @@ class TblManager {
      */
     public static refreshOrphanList(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        xcHelper.getBackTableSet()
+        TblManager.getBackTableSet()
         .then(function(backTableSet) {
             var tableMap = backTableSet;
 
@@ -241,7 +307,7 @@ class TblManager {
         //             $('#dagPulloutTab').click();
         //         }
         //         const $tableWrap: JQuery = $('#xcTableWrap-' + tableId);
-        //         xcHelper.centerFocusedTable($tableWrap, false)
+        //         TblManager.centerfocusedTable($tableWrap, false)
         //         .then(() => {
         //             deferred.resolve({tableFromInactive: false});
         //         })
@@ -291,6 +357,207 @@ class TblManager {
         //     .fail(deferred.reject);
         // }
         // return deferred.promise();
+    }
+
+        /**
+     * xcHelper.getFocusedTable
+     */
+    public static getFocusedTable(): TableId {
+        const $table: JQuery = $('.xcTableWrap .tblTitleSelected').closest('.xcTableWrap');
+        const $activeTable: JQuery = $table.filter(function() {
+            return !$(this).hasClass('inActive');
+        });
+        if ($activeTable.length === 0) {
+            return null;
+        }
+
+        return $activeTable.data("id");
+    }
+
+
+    /**
+     * TblManager.centerFocusedTable
+     * @param tableWrapOrId
+     * @param animate {boolean}, indicating whether to animate the scrolling
+     * @param options -
+     * onlyIfOffScreen: boolean, if true, will only animate table if visible
+     * alignLeft: boolean, if true, will align table to left of screen
+     * noClear: boolean, if true, will not deselect text
+     */
+    public static centerFocusedTable(
+        tableWrapOrId: JQuery | TableId,
+        animate: boolean,
+        options: CentFocusedTableOptions = <CentFocusedTableOptions>{}
+    ): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred<void>();
+        let $tableWrap: JQuery;
+        let tableId: TableId;
+
+        if (tableWrapOrId instanceof jQuery) {
+            $tableWrap = <JQuery>tableWrapOrId;
+            tableId = $tableWrap.data('id');
+        } else {
+            $tableWrap = $('#xcTableWrap-' + tableWrapOrId);
+            tableId = <TableId>tableWrapOrId;
+        }
+
+        if (!$tableWrap.length) {
+            deferred.reject();
+            return deferred.promise();
+        }
+
+        TblFunc.focusTable(tableId);
+
+        const tableRect: ClientRect = $tableWrap[0].getBoundingClientRect();
+        const tableWidth: number = tableRect.width;
+        const tableLeft: number = tableRect.left;
+        const tableRight: number = tableRect.right;
+        const mainMenuOffset: number = MainMenu.getOffset();
+
+        const $mainFrame: JQuery = $('#mainFrame');
+        const mainFrameRect: ClientRect = $mainFrame[0].getBoundingClientRect();
+        const mainFrameWidth: number = mainFrameRect.width;
+        const mainFrameRight: number = mainFrameRect.right;
+        // cases to center: if table is small enough to fit entirely within the
+        // window.
+        // otherwise align table to the left of the window
+        // cases to alignRight - if table is partially visible from the left
+        // side of the screen
+        // alignCenter takes precedence over alignRight and alignLeft
+
+        if (tableLeft < mainMenuOffset && tableRight > mainFrameRight) {
+            // table takes up the entire screen and more
+            // no need to center
+            deferred.resolve();
+            return deferred.promise();
+        }
+
+        // if this option is passed, it will not focus on the table if at least
+        // 150 px of it is visible. If the table is offscreen, no animation will
+        // be applied to the scrolling. If it's partially visible (0 - 150px),
+        // animation will be applied
+        if (options.onlyIfOffScreen) {
+            if (tableRight > mainMenuOffset &&
+                tableRight < (mainMenuOffset + 150)) {
+                // table is slightly visible on the left
+                animate = true;
+            } else if (tableLeft < mainFrameRight &&
+                      tableLeft > mainFrameRight - 150) {
+                // table is slightly visible on the right
+                animate = true;
+            } else if (tableRight < mainMenuOffset ||
+                        tableLeft > mainFrameRight) {
+                // table is offscreen, proceed to center the table
+                // no animation
+            } else {
+                // table is in view and at least 150 pixels are visible
+                deferred.resolve();
+                return deferred.promise();
+            }
+        }
+
+        var currentScrollPosition = $('#mainFrame').scrollLeft();
+        var leftPosition = currentScrollPosition + tableLeft - mainMenuOffset;
+        var scrollPosition;
+
+        if (tableWidth < mainFrameWidth) {
+            // table fits completely within window so we center it
+            scrollPosition = leftPosition + ((tableWidth - mainFrameWidth) / 2);
+        } else if (tableRight > mainMenuOffset && tableRight < mainFrameRight) {
+            // table is partially visible from the left side of the screen
+            // so we align the right edge of the table to the right of window
+            scrollPosition = leftPosition + (tableWidth - mainFrameWidth);
+        } else {
+            // align left by default
+            scrollPosition = leftPosition;
+        }
+
+        if (animate && !gMinModeOn) {
+            $('#mainFrame').animate({scrollLeft: scrollPosition}, 500, () => {
+                TblManager.alignTableEls();
+                if (!options.noClear) {
+                    xcUIHelper.removeSelectionRange();
+                }
+                deferred.resolve();
+            });
+        } else {
+            $('#mainFrame').scrollLeft(scrollPosition);
+            TblManager.alignTableEls();
+            deferred.resolve();
+        }
+        return deferred.promise();
+    }
+
+    /**
+     * TblMangager.centerFocusedColumn
+     * @param tableId
+     * @param colNum
+     * @param animate {boolean} - indicating whether to animate the scrolling
+     * @param noSelect
+     */
+    public static centerFocusedColumn(
+        tableId: TableId,
+        colNum: number,
+        animate: boolean,
+        noSelect: boolean
+    ): void {
+        const table: TableMeta = gTables[tableId];
+        // XXX TODO: remove this hack
+        const modelingMode: boolean = (table && table.modelingMode);
+        let $contaianer: JQuery = modelingMode ? DagTable.Instance.getView() : $('#mainFrame');
+        const $tableWrap: JQuery = $('#xcTableWrap-' + tableId);
+        if ($contaianer == null) {
+            // table view in sql mode
+            $contaianer = $tableWrap.closest(".xc-tableArea");
+        }
+        const containerWidth: number = $contaianer.width();
+        const currentScrollPosition: number = $contaianer.scrollLeft();
+        const $th: JQuery = $tableWrap.find('th.col' + colNum);
+        if ($th.length === 0) {
+            return;
+        }
+        const columnOffset: number = $th.offset().left - MainMenu.getOffset();
+        const colWidth: number = $th.width();
+        const leftPosition: number = currentScrollPosition + columnOffset;
+        const scrollPosition: number = leftPosition -
+            ((containerWidth - colWidth) / 2);
+
+        TblFunc.focusTable(tableId);
+        if (!noSelect) {
+            $th.find('.flex-mid').mousedown();
+        }
+
+        if (animate && !gMinModeOn) {
+            $contaianer.animate({
+                scrollLeft: scrollPosition
+            }, 500, () => {
+                TblFunc.focusTable(tableId);
+                TblManager.alignTableEls();
+                xcUIHelper.removeSelectionRange();
+            });
+        } else {
+            $contaianer.scrollLeft(scrollPosition);
+            TblManager.alignTableEls();
+        }
+    }
+
+    /**
+     * TblManager.isTableInScreen
+     * @param tableId
+     * @param winWidth
+     */
+    public static isTableInScreen(tableId: TableId, winWidth?: number): boolean {
+        const $tableWrap: JQuery = $("#xcTableWrap-" + tableId);
+        if ($tableWrap.length === 0) {
+            return false;
+        }
+
+        const windowWidth: number = winWidth || $(window).width();
+        const tableLeft: number = $tableWrap.offset().left;
+        const tableRight: number = tableLeft + $tableWrap.width();
+        const mainFrameOffsetLeft: number = MainMenu.getOffset();
+
+        return (tableRight >= mainFrameOffsetLeft) && (tableLeft <= windowWidth);
     }
 
     // XXX consider passing in table names instead of tableIds to simplify
@@ -476,7 +743,7 @@ class TblManager {
             failedTablesStr = failedTablesStr.substr(0,
                               failedTablesStr.length - 2);
             if (numActualFails === 1) {
-                tablesMsg += xcHelper.replaceMsg(ErrWRepTStr.ResultSetNotDeleted, {
+                tablesMsg += xcStringHelper.replaceMsg(ErrWRepTStr.ResultSetNotDeleted, {
                     "name": failedTablesStr
                 });
             } else if (numActualFails > 1) {
@@ -534,14 +801,14 @@ class TblManager {
                 TableComponent.empty();
             }
             TblManager._removeTableMeta(tableName);
-            xcHelper.unlockTable(tableId);
+            TblFunc.unlockTable(tableId);
         }
 
         tableIds.forEach((tableId) => {
             const table: TableMeta = gTables[tableId];
             const tableName: string = table.getName();
             names.push(tableName);
-            xcHelper.lockTable(tableId);
+            TblFunc.lockTable(tableId);
 
             const query: object = TblManager._getFakeQuery(tableName);
             tableJSON.push(query);
@@ -571,7 +838,7 @@ class TblManager {
                 if (arg[i] == null) {
                     resolveTable(tableId);
                 } else {
-                    xcHelper.unlockTable(tableId);
+                    TblFunc.unlockTable(tableId);
                 }
             }
             TblManager.alignTableEls();
@@ -841,7 +1108,7 @@ class TblManager {
         TblManager._addRowListeners($trs);
         TblManager.adjustRowHeights($trs, startIndex, tableId);
 
-        const idColWidth: number = xcHelper.getTextWidth($table.find('tr:last td:first'));
+        const idColWidth: number = xcUIHelper.getTextWidth($table.find('tr:last td:first'));
         const newWidth: number = Math.max(idColWidth, 22);
         const padding: number = 12;
         $table.find('th:first-child').width(newWidth + padding);
@@ -1621,8 +1888,8 @@ class TblManager {
         keepOthersSelected: boolean,
         modalHighlight: boolean = false
     ): void {
-        const index: number = xcHelper.parseColNum($el);
-        const tableId: TableId = xcHelper.parseTableId($el.closest('.dataTable'));
+        const index: number = ColManager.parseColNum($el);
+        const tableId: TableId = TblManager.parseTableId($el.closest('.dataTable'));
         const $table: JQuery = $('#xcTable-' + tableId);
         if (!keepOthersSelected) {
             $('.selectedCell').removeClass('selectedCell');
@@ -1691,7 +1958,7 @@ class TblManager {
      * @param $tableName
      */
     public static updateTableNameWidth($tableName: JQuery): void {
-        const width: number = xcHelper.getTextWidth($tableName, $tableName.val());
+        const width: number = xcUIHelper.getTextWidth($tableName, $tableName.val());
         $tableName.width(width + 1);
     }
 
@@ -1733,7 +2000,7 @@ class TblManager {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         const promises: XDPromise<void>[] = [];
         // check backend table name to see if it exists
-        xcHelper.getBackTableSet()
+        TblManager.getBackTableSet()
         .then((backTableSet) => {
             for (let tableId in gTables) {
                 const table: TableMeta = gTables[tableId];
@@ -1776,7 +2043,7 @@ class TblManager {
                 const prefix: string = $topHeader.find(".prefix").text();
                 const color: string = $topHeader.data("color");
 
-                xcHelper.dropdownOpen($dotWrap, $menu, {
+                MenuHelper.dropdownOpen($dotWrap, $menu, {
                     "mouseCoors": {"x": x + 1, "y": y},
                     "floating": true,
                     "prefix": prefix,
@@ -1806,7 +2073,7 @@ class TblManager {
                 $editableHead = $el.find('.editableHead');
             }
 
-            const colNum: number = xcHelper.parseColNum($editableHead);
+            const colNum: number = ColManager.parseColNum($editableHead);
             const $target: JQuery = $(event.target);
             const notDropDown: boolean = $target.closest('.dropdownBox').length === 0 &&
                                 $target.closest(".dotWrap").length === 0;
@@ -1829,7 +2096,7 @@ class TblManager {
                 }
             } else if (event.shiftKey) {
                 if (lastSelectedCell && lastSelectedCell.length > 0) {
-                    const preColNum: number = xcHelper.parseColNum(lastSelectedCell);
+                    const preColNum: number = ColManager.parseColNum(lastSelectedCell);
                     const lowNum: number = Math.min(preColNum, colNum);
                     const highNum: number = Math.max(preColNum, colNum);
                     const select: boolean = !$el.closest('th').hasClass('selectedCell');
@@ -1866,7 +2133,7 @@ class TblManager {
                 }
             }
 
-            xcHelper.removeSelectionRange();
+            xcUIHelper.removeSelectionRange();
             lastSelectedCell = $editableHead;
         });
 
@@ -1899,7 +2166,7 @@ class TblManager {
             if (!$th.hasClass("sortable")) {
                 return;
             }
-            const colNum: number = xcHelper.parseColNum($th);
+            const colNum: number = ColManager.parseColNum($th);
             const table: TableMeta = gTables[tableId];
             if (table == null) {
                 return;
@@ -1954,7 +2221,7 @@ class TblManager {
             const $th: JQuery = $el.closest("th");
             const isRightClick: boolean = event.rightClick;
 
-            const colNum: number = xcHelper.parseColNum($th);
+            const colNum: number = ColManager.parseColNum($th);
             const table: TableMeta = gTables[tableId];
             if (table == null) {
                 console.error("no table meta");
@@ -2027,7 +2294,7 @@ class TblManager {
                 let hiddenDetected: boolean = false;
                 $('th.selectedCell').each((_index, el) => {
                     const $el: JQuery = $(el);
-                    const tempColNum: number = xcHelper.parseColNum($el);
+                    const tempColNum: number = ColManager.parseColNum($el);
                     options.multipleColNums.push(tempColNum);
                     if (!hiddenDetected && $el.hasClass("userHidden")) {
                         hiddenDetected = true;
@@ -2055,7 +2322,7 @@ class TblManager {
             const colMenu: ColMenu = TableComponent.getMenu().getColMenu();
             colMenu.setUnavailableClassesAndTips(colType, isNewCol);
             const $menu: JQuery = $("#colMenu");
-            xcHelper.dropdownOpen($el, $menu, options);
+            MenuHelper.dropdownOpen($el, $menu, options);
         });
 
         $thead.on('mousedown', '.colGrab', (event) => {
@@ -2110,7 +2377,7 @@ class TblManager {
             const $input: JQuery = $(event.target);
             if (event.which === keyCode.Enter && !$input.prop("disabled")) {
                 const colName: string = $input.val().trim();
-                const colNum: number = xcHelper.parseColNum($input);
+                const colNum: number = ColManager.parseColNum($input);
 
                 if (colName === "" ||
                     ColManager.checkColName($input, tableId, colNum)
@@ -2164,8 +2431,8 @@ class TblManager {
                 }
             }
 
-            const colNum: number = xcHelper.parseColNum($td);
-            const rowNum: number = xcHelper.parseRowNum($td.closest("tr"));
+            const colNum: number = ColManager.parseColNum($td);
+            const rowNum: number = RowManager.parseRowNum($td.closest("tr"));
             let isUnSelect: boolean = false;
 
             xcTooltip.hideAll();
@@ -2286,7 +2553,7 @@ class TblManager {
                 extraClasses += " noOperation";
             }
 
-            xcHelper.dropdownOpen($el, $("#cellMenu"), {
+            MenuHelper.dropdownOpen($el, $("#cellMenu"), {
                 "colNum": colNum,
                 "rowNum": rowNum,
                 "classes": "tdMenu" + extraClasses, // specify classes to update colmenu's class attr
@@ -2319,7 +2586,7 @@ class TblManager {
             if (clicks === 2 && $td.is($lastTd)) {
                 clicks = 0;
                 clearTimeout(dblClickTimer);
-                const colNum: number = xcHelper.parseColNum($td);
+                const colNum: number = ColManager.parseColNum($td);
                 if (colNum === 0) {
                     return;
                 }
@@ -2381,8 +2648,8 @@ class TblManager {
                     }
                 }
 
-                const colNum: number = xcHelper.parseColNum($td);
-                const rowNum: number = xcHelper.parseRowNum($td.closest("tr"));
+                const colNum: number = ColManager.parseColNum($td);
+                const rowNum: number = RowManager.parseRowNum($td.closest("tr"));
 
                 xcTooltip.hideAll();
                 TblManager._resetColMenuInputs($el);
@@ -2398,7 +2665,7 @@ class TblManager {
                     extraClasses += " noOperation"
                 }
 
-                xcHelper.dropdownOpen($div, $("#cellMenu"), {
+                MenuHelper.dropdownOpen($div, $("#cellMenu"), {
                     "colNum": colNum,
                     "rowNum": rowNum,
                     "classes": "tdMenu" + extraClasses, // specify classes to update colmenu's class attr
@@ -2425,9 +2692,9 @@ class TblManager {
         }
         $td.removeClass("highlightedCell");
         $td.find(".highlightBox").remove();
-        const tableId: TableId = xcHelper.parseTableId($td.closest(".xcTable"));
-        const colNum: number = xcHelper.parseColNum($td);
-        const rowNum: number = xcHelper.parseRowNum($td.closest("tr"));
+        const tableId: TableId = TblManager.parseTableId($td.closest(".xcTable"));
+        const colNum: number = ColManager.parseColNum($td);
+        const rowNum: number = RowManager.parseRowNum($td.closest("tr"));
         const cells: object = gTables[tableId].highlightedCells;
 
         if (cells[rowNum]) {
@@ -2439,7 +2706,7 @@ class TblManager {
     }
 
     private static _resetColMenuInputs($el: JQuery): void {
-        const tableId: TableId = xcHelper.parseTableId($el.closest('.xcTableWrap'));
+        const tableId: TableId = TblManager.parseTableId($el.closest('.xcTableWrap'));
         const $menu: JQuery = $('#colMenu-' + tableId);
         $menu.find('.gb input').val("groupBy");
         $menu.find('.numFilter input').val(0);
@@ -2449,8 +2716,8 @@ class TblManager {
     }
 
     private static _unhighlightColumn($el: JQuery): void {
-        const colNum: number = xcHelper.parseColNum($el);
-        const tableId: TableId = xcHelper.parseTableId($el.closest('.dataTable'));
+        const colNum: number = ColManager.parseColNum($el);
+        const tableId: TableId = TblManager.parseTableId($el.closest('.dataTable'));
         const $table: JQuery = $('#xcTable-' + tableId);
         $table.find('th.col' + colNum).removeClass('selectedCell');
         $table.find('td.col' + colNum).removeClass('selectedCell');
@@ -2577,4 +2844,10 @@ class TblManager {
         }
     }());
     /* End Of Unit Test Only */
+}
+
+interface CentFocusedTableOptions {
+    onlyIfOffScreen: boolean;
+    alignLeft: boolean;
+    noClear: boolean;
 }

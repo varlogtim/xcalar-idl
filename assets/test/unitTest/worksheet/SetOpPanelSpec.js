@@ -82,16 +82,16 @@ describe.skip("Set Op Panel Test", function() {
     });
 
     it("should focus on table", function() {
-        var oldFunc = xcHelper.centerFocusedTable;
+        var oldFunc = TblManager.centerfocusedTable;
         var testId;
-        xcHelper.centerFocusedTable = function(tableId) {
+        TblManager.centerfocusedTable = function(tableId) {
             testId = tableId;
         };
 
         $setOpPanel.find(".focusTable").eq(0).click();
         expect(testId).to.equal("test1");
 
-        xcHelper.centerFocusedTable = oldFunc;
+        TblManager.centerfocusedTable = oldFunc;
     });
 
     it("should search column", function() {

@@ -1,9 +1,33 @@
 // this module support column related functions
 namespace ColManager {
     // new ProgCol obj
-    export function newCol (options): ProgCol {
+    export function newCol(options): ProgCol {
         return new ProgCol(options);
-    };
+    }
+     /**
+     * ColManager.parseColNum
+     * @param $el
+     */
+    export function parseColNum($el: JQuery): number | null {
+        const keyword: string = 'col';
+        const classNames: string = $el.attr('class');
+        if (classNames == null) {
+            // this is in case we meet some error and cannot goon run the code!
+            console.error('Unexpected element to parse column', $el);
+            return null;
+        }
+
+        const index: number = classNames.indexOf(keyword);
+        const substring: string = classNames.substring(index + keyword.length);
+        const colNum: number = parseInt(substring);
+
+        if (isNaN(colNum)) {
+            console.error('Unexpected element to parse column', $el);
+            return null;
+        }
+
+        return colNum;
+    }
 
     export function newPullCol (
         colName: string,
@@ -125,14 +149,14 @@ namespace ColManager {
             let numCols = table.getNumCols();
             // adjust column numbers
             for (let j = colNums[0]; j <= numCols; j++) {
-                let oldColNum = xcHelper.parseColNum($table.find('th').eq(j));
+                let oldColNum = ColManager.parseColNum($table.find('th').eq(j));
                 $table.find(".col" + oldColNum)
                       .removeClass('col' + oldColNum)
                       .addClass('col' + j);
             }
 
             TblManager.updateHeaderAndListInfo(tableId);
-            xcHelper.removeSelectionRange();
+            xcUIHelper.removeSelectionRange();
 
             Log.add(opTitle, {
                 "operation": SQLOps.HideCol,
@@ -259,7 +283,7 @@ namespace ColManager {
         let suggType = xcSuggest.suggestType(datas, type, 0.9);
         if (suggType === "integer" || suggType === "float") {
              const deferred: XDDeferred<any> = PromiseHelper.deferred();
-            let instr = xcHelper.replaceMsg(IndexTStr.SuggInstr, {
+            let instr = xcStringHelper.replaceMsg(IndexTStr.SuggInstr, {
                 "type": suggType
             });
 
@@ -678,7 +702,7 @@ namespace ColManager {
             colNames.push(columnName);
             // change tooltip to show name, and also need escape the columnName
 
-            xcTooltip.changeText($th.find(".dropdownBox"), xcHelper.escapeHTMLSpecialChar(columnName));
+            xcTooltip.changeText($th.find(".dropdownBox"), xcStringHelper.escapeHTMLSpecialChar(columnName));
 
             let $cells = $table.find("th.col" + colNum + ",td.col" + colNum);
             if (!gMinModeOn && !noAnim) {
@@ -698,7 +722,7 @@ namespace ColManager {
             }
         });
 
-        xcHelper.removeSelectionRange();
+        xcUIHelper.removeSelectionRange();
 
         PromiseHelper.when.apply(window, promises)
         .done(function() {
@@ -983,7 +1007,7 @@ namespace ColManager {
                 $row = null;
                 $table.find('tbody tr').each(function() {
                     $row = $(this);
-                    if (xcHelper.parseRowNum($row) > rowNum) {
+                    if (RowManager.parseRowNum($row) > rowNum) {
                         return false;
                     }
                 });
@@ -1070,11 +1094,11 @@ namespace ColManager {
     // used for mixed columns when we want to get the type inside a td
     export function getCellType($td: JQuery, tableId: TableId): ColumnType  {
         let table = gTables[tableId];
-        let tdColNum = xcHelper.parseColNum($td);
+        let tdColNum = ColManager.parseColNum($td);
         let colName = table.getCol(tdColNum).getBackColName();
         let dataColNum = gTables[tableId].getColNumByBackName("DATA");
         let $table = $("#xcTable-" + tableId);
-        let rowNum = xcHelper.parseRowNum($td.closest("tr"));
+        var rowNum = RowManager.parseRowNum($td.closest("tr"));
         let $dataTd = $table.find(".row" + rowNum + " .col" + dataColNum);
         let data = $dataTd.find('.originalData').text();
         let parsed = false;
@@ -1190,14 +1214,14 @@ namespace ColManager {
         if (truncated) {
             let truncLen = tdValLen - limit;
             formatVal = formatVal.substr(0, limit) +
-                        "...(" + (xcHelper.numToStr(truncLen)) +
+                        "...(" + (xcStringHelper.numToStr(truncLen)) +
                         " " + TblTStr.Truncate + ")";
             tdClass += " truncated";
         }
 
         if (!isDATACol) {
             if (typeof formatVal === "string") {
-                formatVal = xcHelper.styleNewLineChar(formatVal);
+                formatVal = xcUIHelper.styleNewLineChar(formatVal);
             }
         }
 
@@ -1278,7 +1302,7 @@ namespace ColManager {
         if (colType === ColumnType.money) {
             adjustedColType = TooltipTStr.twodp;
         }
-        adjustedColType = xcHelper.capitalize(adjustedColType);
+        adjustedColType = xcStringHelper.capitalize(adjustedColType);
         xcTooltip.changeText($header.find(".iconHelper"), adjustedColType);
 
         if (progCol.hasMinimized()) {
@@ -1330,7 +1354,7 @@ namespace ColManager {
             return ($(this).find("input").val() === "DATA");
         });
 
-        let dataColNum = xcHelper.parseColNum($dataCol);
+        let dataColNum = ColManager.parseColNum($dataCol);
 
         let startingIndex = parseInt($table.find("tbody tr:first")
                                            .attr('class').substring(3));
@@ -1641,11 +1665,11 @@ namespace ColManager {
         let $table = $("#xcTable-" + tableId);
         // will change colNum in the follwing, so should
         // get datColNum here
-        let dataColNum = xcHelper.parseColNum($table.find("th.dataCol"));
+        let dataColNum = ColManager.parseColNum($table.find("th.dataCol"));
         $table.find("th").each(function(newColNum) {
             let $th = $(this);
             if (!$th.hasClass("rowNumHead")) {
-                let colNum = xcHelper.parseColNum($th);
+                let colNum = ColManager.parseColNum($th);
                 $th.removeClass("col" + colNum).addClass("col" + newColNum);
                 $th.find(".col" + colNum).removeClass("col" + colNum)
                                             .addClass("col" + newColNum);
@@ -1653,7 +1677,7 @@ namespace ColManager {
         });
 
         let $tbody = $table.find("tbody");
-        let rowNum = xcHelper.parseRowNum($tbody.find("tr:eq(0)"));
+        let rowNum = RowManager.parseRowNum($tbody.find("tr:eq(0)"));
         let jsonData = [];
         $tbody.find(".col" + dataColNum).each(function() {
             jsonData.push($(this).find(".originalData").text());
@@ -1700,7 +1724,7 @@ namespace ColManager {
         }
         $tableWrap.find('.col' + colNum).addClass('animating');
         $tableWrap.find("th.col" + colNum).animate({width: 0}, 200, function() {
-            let currColNum = xcHelper.parseColNum($(this));
+            let currColNum = ColManager.parseColNum($(this));
             $tableWrap.find(".col" + currColNum).remove();
             if (!multipleCols) {
                 for (let j = currColNum + 1; j <= numCols; j++) {

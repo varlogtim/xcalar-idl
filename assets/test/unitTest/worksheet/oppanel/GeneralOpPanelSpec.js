@@ -180,6 +180,45 @@ describe("GeneralOpPanel Test", function() {
             expect(fn("no")).to.deep.equal(["$None"]);
             expect(fn("c")).to.deep.equal([]);
         });
+
+        it("GeneralOpPanel.checkMatchingBrackets should work", function() {
+            // case 1
+            var res = GeneralOpPanel.checkMatchingBrackets("(test)").index;
+            expect(res).to.equal(-1);
+            // case 2
+            res = GeneralOpPanel.checkMatchingBrackets("test)").index;
+            expect(res).to.equal(4);
+            // case 3
+            res = GeneralOpPanel.checkMatchingBrackets("(test").index;
+            expect(res).to.equal(0);
+            // case 4
+            res = GeneralOpPanel.checkMatchingBrackets("(())").index;
+            expect(res).to.equal(-1);
+            // case 5
+            res = GeneralOpPanel.checkMatchingBrackets('("(")').index;
+            expect(res).to.equal(-1);
+            // case 6
+            res = GeneralOpPanel.checkMatchingBrackets('(\\")').index;
+            expect(res).to.equal(-1);
+            // case 7
+            res = GeneralOpPanel.checkMatchingBrackets('("\\"(")').index;
+            expect(res).to.equal(-1);
+            // case 8
+            res = GeneralOpPanel.checkMatchingBrackets('("(,\'")').index;
+            expect(res).to.equal(-1);
+             // case 9
+            res = GeneralOpPanel.checkMatchingBrackets('(\'(,"\')').index;
+            expect(res).to.equal(-1);
+            // case 11
+            res = GeneralOpPanel.checkMatchingBrackets('(\'(,")').index;
+            expect(res).to.equal(0);
+            // case 12
+            res = GeneralOpPanel.checkMatchingBrackets('("(,\')').index;
+            expect(res).to.equal(0);
+            // case 13 - testing nested quotes (xa\xaa\xax)
+            res = GeneralOpPanel.checkMatchingBrackets('("\'(\\"\'(\'\\"\'")').index;
+            expect(res).to.equal(-1);
+        });
     });
 
     after(function() {

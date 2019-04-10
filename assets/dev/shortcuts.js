@@ -448,7 +448,7 @@ window.Shortcuts = (function($, Shortcuts) {
         addMenuActions();
 
         $('#shortcutMenuIcon').click(function(){
-            xcHelper.dropdownOpen($(this), $('#shortcutMenu'), {
+            MenuHelper.dropdownOpen($(this), $('#shortcutMenu'), {
                 "floating": true
             });
         });

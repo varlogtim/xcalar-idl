@@ -1179,7 +1179,7 @@ class DagGraph extends Durable {
                     // Within aggMap
                     let aggNode = aggMap.get(agg);
                     if (aggNode.getParam().mustExecute) {
-                        error = xcHelper.replaceMsg(AggTStr.AggNodeMustExecuteError, {
+                        error = xcStringHelper.replaceMsg(AggTStr.AggNodeMustExecuteError, {
                             "aggName": agg
                         });
                     }
@@ -1188,25 +1188,25 @@ class DagGraph extends Durable {
                     // If we don't have the aggMap, we have to look at the manager
                     let aggInfo: AggregateInfo = this.getRuntime().getDagAggService().getAgg(this.getTabId(), agg);
                     if (aggInfo == null) {
-                        error = xcHelper.replaceMsg(AggTStr.AggNotExistError, {
+                        error = xcStringHelper.replaceMsg(AggTStr.AggNotExistError, {
                             "aggName": agg
                         });
                         break;
                     }
                     else if (aggInfo.graph == null) {
                         // Doesnt have a graph, this aggregate can't be found.
-                        error = xcHelper.replaceMsg(AggTStr.AggNodeNotExistError, {
+                        error = xcStringHelper.replaceMsg(AggTStr.AggNodeNotExistError, {
                             "aggName": agg
                         });
                     } else if (aggInfo.graph != this.getTabId()) {
                         // Aggregate must be created in this graph
-                        error = xcHelper.replaceMsg(AggTStr.AggGraphError, {
+                        error = xcStringHelper.replaceMsg(AggTStr.AggGraphError, {
                             "aggName": agg,
                             "graphName": name
                         });
                     } else if (aggInfo.node == null || this.hasNode(aggInfo.node)) {
                         // Node either doesnt exist or is not in this graph
-                        error = xcHelper.replaceMsg(AggTStr.AggNodeNotExistError, {
+                        error = xcStringHelper.replaceMsg(AggTStr.AggNodeNotExistError, {
                             "aggName": agg
                         });
                     } else {
@@ -1225,7 +1225,7 @@ class DagGraph extends Durable {
                     if (inSource.node.shouldLinkAfterExecuition() &&
                         inSource.graph.getTabId() != this.getTabId()
                     ) {
-                        error = xcHelper.replaceMsg(AlertTStr.DFLinkGraphError, {
+                        error = xcStringHelper.replaceMsg(AlertTStr.DFLinkGraphError, {
                             "inName": inNode.getParam().linkOutName,
                             "graphName": this.getRuntime().getDagTabService().getTabById(inSource.graph.getTabId())
                                 .getName()
@@ -1236,7 +1236,7 @@ class DagGraph extends Durable {
                             // we're gonna need it if we can.
                             sources.push(inSource.node);
                         } else {
-                            error = xcHelper.replaceMsg(AlertTStr.DFLinkShouldLinkError, {
+                            error = xcStringHelper.replaceMsg(AlertTStr.DFLinkShouldLinkError, {
                                 "inName": inNode.getParam().linkOutName,
                             });
                         }

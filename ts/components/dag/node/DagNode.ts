@@ -1020,10 +1020,10 @@ abstract class DagNode extends Durable {
      */
     public getDisplayNodeType(): string {
         const nodeType: string = this.type;
-        let displayNodeType = xcHelper.capitalize(nodeType);
+        let displayNodeType = xcStringHelper.capitalize(nodeType);
         if (this.subType) {
             let nodeSubType: string = this.getSubType() || "";
-            nodeSubType = xcHelper.capitalize(nodeSubType);
+            nodeSubType = xcStringHelper.capitalize(nodeSubType);
             if (nodeSubType) {
                 displayNodeType = nodeSubType;
             }
@@ -1190,7 +1190,7 @@ abstract class DagNode extends Durable {
             // do nothing
         }
         if (node.type) {
-            msg = xcHelper.capitalize(node.type) + " node: " + msg;
+            msg = xcStringHelper.capitalize(node.type) + " node: " + msg;
         }
         return msg;
     }
@@ -1442,7 +1442,7 @@ abstract class DagNode extends Durable {
             return evalStr;
         }
         recursiveTraverse(parsedEval);
-        return xcHelper.stringifyEval(parsedEval);
+        return DagNodeInput.stringifyEval(parsedEval);
 
         function recursiveTraverse(evalStruct) {
             evalStruct.args.forEach((arg: ParsedEvalArg) => {

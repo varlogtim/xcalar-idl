@@ -295,7 +295,7 @@ namespace WorkbookPanel {
         const $descriptions: JQuery = $workbookSection.find(".workbookBox .description");
         for (let i: number = 0; i < $descriptions.length; i++) {
             xcTooltip.add($descriptions.eq(i),
-                            {title: xcHelper.escapeHTMLSpecialChar($descriptions.eq(i).text())});
+                            {title: xcStringHelper.escapeHTMLSpecialChar($descriptions.eq(i).text())});
         }
     }
 
@@ -524,7 +524,7 @@ namespace WorkbookPanel {
         $input.attr("value", name);
 
         if (description.trim().length > 0) {
-            xcTooltip.add($workbookBox.find(".description"), {title: xcHelper.escapeHTMLSpecialChar(description)});
+            xcTooltip.add($workbookBox.find(".description"), {title: xcStringHelper.escapeHTMLSpecialChar(description)});
         } else {
             xcTooltip.remove($workbookBox.find(".description"));
         }
@@ -618,7 +618,7 @@ namespace WorkbookPanel {
         if (size <= sizeLimit) {
             deferred.resolve();
         } else {
-            const msg: string = xcHelper.replaceMsg(ErrWRepTStr.LargeFileUpload, {
+            const msg: string = xcStringHelper.replaceMsg(ErrWRepTStr.LargeFileUpload, {
                 size: xcHelper.sizeTranslator(sizeLimit)
             });
             Alert.show({
@@ -748,7 +748,7 @@ namespace WorkbookPanel {
 
         const key: string = keys[0];
         const operation: Object = txCache[key].getOperation();
-        const msg: string = xcHelper.replaceMsg(WKBKTStr.SwitchWarn, {
+        const msg: string = xcStringHelper.replaceMsg(WKBKTStr.SwitchWarn, {
             op: operation
         });
 
@@ -857,7 +857,7 @@ namespace WorkbookPanel {
             {
                 "$ele": $wbCard,
                 "formMode": true,
-                "error": xcHelper.replaceMsg(WKBKTStr.Conflict, {
+                "error": xcStringHelper.replaceMsg(WKBKTStr.Conflict, {
                     "name": wbName
                 }),
                 "check": function() {
@@ -990,7 +990,7 @@ namespace WorkbookPanel {
                                 '</div>' +
                                 '<div class="descriptionWrap">' +
                                     '<div class="description textOverflowOneLine">' +
-                                        xcHelper.escapeHTMLSpecialChar(description) +
+                                        xcStringHelper.escapeHTMLSpecialChar(description) +
                                     '</div>' +
                                 '</div>' +
                                 '<div class="row clearfix">' +
@@ -1137,7 +1137,7 @@ namespace WorkbookPanel {
             $wkbkMenu.find(".delete").removeClass("xc-hidden");
             $wkbkMenu.find(".newTab").removeClass("inActive");
         }
-        xcHelper.dropdownOpen($dropDownLocation, $wkbkMenu);
+        MenuHelper.dropdownOpen($dropDownLocation, $wkbkMenu);
     }
 
     function setupDragDrop(): void {

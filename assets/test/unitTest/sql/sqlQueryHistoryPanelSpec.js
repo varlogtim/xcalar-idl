@@ -159,7 +159,7 @@ describe("SqlQueryHistoryPanel Test", function() {
             actionClicked: null,
             tableClicked: null,
         };
-    
+
         describe('constructor() should work', () => {
             it('test', () => {
                 const table = new SqlQueryHistoryPanel.DynaTable({
@@ -189,7 +189,7 @@ describe("SqlQueryHistoryPanel Test", function() {
                     defaultSorting: { sortBy: 'STATUS', sortOrder: 0 },
                     container: getContainer()
                 });
-    
+
                 table.show(createData(10));
                 expect($(table._container).html().length).to.gt(0);
             });
@@ -254,7 +254,7 @@ describe("SqlQueryHistoryPanel Test", function() {
                     delete props.onClick;
                     expect(props).to.deep.equal({
                         cssClass: 'col-query', cssStyle: 'flex-basis:20', cssChecked: 'checked'
-                    });    
+                    });
                 }
 
                 // Un-checked
@@ -388,7 +388,7 @@ describe("SqlQueryHistoryPanel Test", function() {
 
             it('_createHeaderCheckboxColumn(): unchecked', () => {
                 const comp = table._createHeaderCheckboxColumn({
-                    cssClass: 'testClass', isChecked: false, width: 20 
+                    cssClass: 'testClass', isChecked: false, width: 20
                 });
                 expect(comp != null).to.be.true;
                 expect(elemProps.has('headerColumnCheckbox')).to.be.true;
@@ -401,7 +401,7 @@ describe("SqlQueryHistoryPanel Test", function() {
 
             it('_createHeaderCheckboxColumn(): checked', () => {
                 const comp = table._createHeaderCheckboxColumn({
-                    cssClass: 'testClass', isChecked: true, width: 20 
+                    cssClass: 'testClass', isChecked: true, width: 20
                 });
                 expect(comp != null).to.be.true;
                 expect(elemProps.has('headerColumnCheckbox')).to.be.true;
@@ -623,7 +623,7 @@ describe("SqlQueryHistoryPanel Test", function() {
             columnProps = tableDef.columns['DURATION'].convertFunc(queryInfo);
             expect(columnProps).to.deep.equal({
                 category: 'DURATION', isEllipsis: true,
-                text: xcHelper.getElapsedTimeStr(1000, false)
+                text: xcTimeHelper.getElapsedTimeStr(1000, false)
             });
             // Table
             columnProps = tableDef.columns['TABLE'].convertFunc(queryInfo);

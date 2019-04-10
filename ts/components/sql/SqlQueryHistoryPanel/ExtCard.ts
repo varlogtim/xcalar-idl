@@ -34,7 +34,7 @@ namespace SqlQueryHistoryPanel {
             // Show loading animation
             // The animation element will be replaced/deleted by table content,
             // so we don't need to/should not explicitly remove it.
-            xcHelper.showRefreshIcon(this.getTableContainer(), true, null);
+            xcUIHelper.showRefreshIcon(this.getTableContainer(), true, null);
 
             // Load data
             return super.show(refresh)

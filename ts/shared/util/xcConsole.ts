@@ -59,7 +59,7 @@ namespace xcConsole {
 
     /**
      * xcConsole.toggleThrift
-     * @param show 
+     * @param show
      */
     export function toggleThrift(show: boolean = false): boolean {
         showThrift = show;
@@ -147,7 +147,7 @@ namespace xcConsole {
         let stackStr: string = "";
         let msg: string = "";
         for (let i = 0; i < stack.length; i++) {
-            msg = xcHelper.escapeHTMLSpecialChar(stack[i]);
+            msg = xcStringHelper.escapeHTMLSpecialChar(stack[i]);
             msg = msg.replace(/\(/g, '<span style="color: #999;">');
             msg = msg.replace(/\)/g, '</span>');
             stackStr += '<div>' + msg + '</div>';

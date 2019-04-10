@@ -186,7 +186,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
     function getDefaultTooltip(paramObj) {
         var defValTooltip;
         if (paramObj && paramObj.hasOwnProperty('defaultValue')) {
-            defValTooltip = xcHelper.replaceMsg(MonitorTStr.DefaultWithVal, {
+            defValTooltip = xcStringHelper.replaceMsg(MonitorTStr.DefaultWithVal, {
                 value: paramObj.defaultValue
             });
         } else {
@@ -261,7 +261,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                         "isAlert": true
                     });
                 } else {
-                    xcHelper.showSuccess(SuccessTStr.SaveParam);
+                    xcUIHelper.showSuccess(SuccessTStr.SaveParam);
                 }
             })
             .fail(function() {
@@ -279,7 +279,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
                 });
             });
         } else {
-            xcHelper.showSuccess(SuccessTStr.SaveParam);
+            xcUIHelper.showSuccess(SuccessTStr.SaveParam);
         }
     }
 
@@ -298,7 +298,7 @@ window.MonitorConfig = (function(MonitorConfig, $) {
         // xx not sure how to show all the errored rows if multiple
         var paramName = $errorRow.find('.paramName').val();
         var newVal = $errorRow.find('.newVal').val();
-        errorMsg += '<br/>' + xcHelper.replaceMsg(
+        errorMsg += '<br/>' + xcStringHelper.replaceMsg(
         MonitorTStr.ParamConfigFailMsg, {
             name: paramName,
             value: newVal

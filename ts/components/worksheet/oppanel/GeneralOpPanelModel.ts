@@ -33,7 +33,7 @@ abstract class GeneralOpPanelModel {
                     // nested columns pulled from result set view
                     // may not in the lineage
                     let frontName = xcHelper.parsePrefixColName(colName).name;
-                    progCol = ColManager.newPullCol(frontName, colName); 
+                    progCol = ColManager.newPullCol(frontName, colName);
                 }
                 if (progCol) {
                     this.autofillColumns.push(progCol);
@@ -284,7 +284,7 @@ abstract class GeneralOpPanelModel {
                     error = ErrTStr.InvalidFunction;
                 } else {
                     error = ErrWRepTStr.InvalidOpsType;
-                    error = xcHelper.replaceMsg(error, {
+                    error = xcStringHelper.replaceMsg(error, {
                         "type1": checkRes.validType.join("/"),
                         "type2": checkRes.currentType
                     });
@@ -388,7 +388,7 @@ abstract class GeneralOpPanelModel {
             } else if (types.indexOf(outputType) > -1) {
                 return false;
             } else {
-                return xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
+                return xcStringHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
                     "type1": types.join("/"),
                     "type2": outputType
                 });
@@ -454,7 +454,7 @@ abstract class GeneralOpPanelModel {
                         requiredTypes.includes(ColumnType.integer))) {
             return null;
         } else {
-            return xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
+            return xcStringHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
                 "type1": requiredTypes.join("/"),
                 "type2": inputType
             });
@@ -540,7 +540,7 @@ abstract class GeneralOpPanelModel {
             // with parens
             if (val.indexOf("(") !== 0 &&
                 val.lastIndexOf(")") === (valLen - 1)) {
-                return (xcHelper.checkMatchingBrackets(val).index === -1);
+                return (GeneralOpPanel.checkMatchingBrackets(val).index === -1);
             } else {
                 return false;
             }
@@ -920,7 +920,7 @@ abstract class GeneralOpPanelModel {
         const paramFns = [];
         // function name error
         for (let i = 0; i < groups.length; i++) {
-            if (isSubmit && xcHelper.checkValidParamBrackets(groups[i].operator, true)) {
+            if (isSubmit && DagNodeInput.checkValidParamBrackets(groups[i].operator, true)) {
                 paramFns.push(true);
                 continue;
             } else {

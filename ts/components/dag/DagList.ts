@@ -238,7 +238,7 @@ class DagList extends Durable {
             }
         }
 
-        xcHelper.showRefreshIcon($section, false, promise);
+        xcUIHelper.showRefreshIcon($section, false, promise);
 
         this._restorePublishedDags(oldPublishedDags)
         .then(() => {
@@ -330,7 +330,7 @@ class DagList extends Durable {
             const $statusIcon: JQuery = $li.find(".statusIcon");
             const html = '<div class="statusIcon state-' + state +
                 '" ' + xcTooltip.Attrs + ' data-original-title="' +
-                xcHelper.camelCaseToRegular(state.slice(2)) + '"></div>'
+                xcStringHelper.camelCaseToRegular(state.slice(2)) + '"></div>'
             if ($statusIcon.length) {
                 $statusIcon.replaceWith(html);
             } else {
@@ -582,7 +582,7 @@ class DagList extends Durable {
                         queryClass = " abandonedQuery ";
                         stateIcon = '<div class="statusIcon state-' + file.options.state +
                                     '" ' + xcTooltip.Attrs + ' data-original-title="' +
-                                    xcHelper.camelCaseToRegular(file.options.state.slice(2)) + '"></div>';
+                                    xcStringHelper.camelCaseToRegular(file.options.state.slice(2)) + '"></div>';
                     }
                 }
 
@@ -993,13 +993,13 @@ class DagList extends Durable {
                 return;
             }
             const dagTab: DagTab = this.getDagTabById($dagListItem.data("id"));
-            xcHelper.disableElement($dagListItem);
+            xcUIHelper.disableElement($dagListItem);
             DagTabManager.Instance.loadTab(dagTab)
             .fail(() => {
                 this._loadErroHandler($dagListItem);
             })
             .always(() => {
-                xcHelper.enableElement($dagListItem);
+                xcUIHelper.enableElement($dagListItem);
             });
         });
 
@@ -1011,11 +1011,11 @@ class DagList extends Durable {
             const tabId: string = $dagListItem.data("id");
             Alert.show({
                 title: DFTStr.DelDF,
-                msg: xcHelper.replaceMsg(DFTStr.DelDFMsg, {
+                msg: xcStringHelper.replaceMsg(DFTStr.DelDFMsg, {
                     dfName: $dagListItem.text()
                 }),
                 onConfirm: () => {
-                    xcHelper.disableElement($dagListItem);
+                    xcUIHelper.disableElement($dagListItem);
                     this.deleteDataflow($dagListItem)
                     .fail((error) => {
                         let log = error && typeof error === "object" ? error.log : null;
@@ -1031,7 +1031,7 @@ class DagList extends Durable {
                     .always(() => {
                         // need to refetch dagListItem after list is updated
                         $dagListItem = this._getListElById(tabId);
-                        xcHelper.enableElement($dagListItem);
+                        xcUIHelper.enableElement($dagListItem);
                     });
                 }
             });

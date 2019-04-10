@@ -23,7 +23,7 @@ class AboutModal {
         });
         $modal.on("click", ".iconWrapper", (event) => {
             const $el: JQuery = $(event.currentTarget);
-            xcHelper.copyToClipboard($el.closest(".textRow")
+            xcUIHelper.copyToClipboard($el.closest(".textRow")
                                             .find(".value").text());
             xcTooltip.changeText($el, TooltipTStr.AboutCopied);
             xcTooltip.refresh($el, 1000);

@@ -36,7 +36,7 @@ describe("User Setting Test", function() {
         before(function() {
             oldPut =  KVStore.prototype.put;
             oldPutMutex =  KVStore.prototype.putWithMutex;
-            oldShowSuccess = xcHelper.showSuccess;
+            oldShowSuccess = xcUIHelper.showSuccess;
 
             KVStore.prototype.put = function() {
                 testKey = this.key;
@@ -48,7 +48,7 @@ describe("User Setting Test", function() {
                 return PromiseHelper.resolve();
             };
 
-            xcHelper.showSuccess = function(input) {
+            xcUIHelper.showSuccess = function(input) {
                 successMsg = input;
             };
         });
@@ -90,14 +90,14 @@ describe("User Setting Test", function() {
 
         it("should handle fail case", function(done) {
             var oldFunc =  KVStore.prototype.put;
-            var oldFail = xcHelper.showFail;
+            var oldFail = xcUIHelper.showFail;
             var test = null;
 
             KVStore.prototype.put = function() {
                 return PromiseHelper.reject("test");
             };
 
-            xcHelper.showFail = function(input) {
+            xcUIHelper.showFail = function(input) {
                 test = input;
             };
 
@@ -112,7 +112,7 @@ describe("User Setting Test", function() {
             })
             .always(function() {
                 KVStore.prototype.put = oldFunc;
-                xcHelper.showFail = oldFail;
+                xcUIHelper.showFail = oldFail;
             });
         });
 
@@ -194,7 +194,7 @@ describe("User Setting Test", function() {
         after(function() {
             KVStore.prototype.put = oldPut;
             KVStore.prototype.putWithMutex = oldPutMutex;
-            xcHelper.showSuccess = oldShowSuccess;
+            xcUIHelper.showSuccess = oldShowSuccess;
         });
     });
 

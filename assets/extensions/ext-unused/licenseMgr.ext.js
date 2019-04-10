@@ -209,7 +209,7 @@ window.UExtLicenseMgr = (function(UExtLicenseMgr) {
                 "data": JSON.stringify(data),
                 "success": function () {
                     deferred.resolve("Successfully issued license");
-                    xcHelper.showSuccess("License successfully issued to " + args.customerOrg);
+                    xcUIHelper.showSuccess("License successfully issued to " + args.customerOrg);
                 },
                 "error": function() {
                     deferred.reject("Failed to issue license");

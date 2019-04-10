@@ -21,8 +21,8 @@ window.TblAnim = (function($, TblAnim) {
             rescol.$dsTable = $('#dsTable');
             rescol.$previewTable = $('#previewTable');
         } else {
-            rescol.tableId = xcHelper.parseTableId($table);
-            colNum = xcHelper.parseColNum($th);
+            rescol.tableId = TblManager.parseTableId($table);
+            colNum = ColManager.parseColNum($th);
         }
 
         event.preventDefault();
@@ -185,7 +185,7 @@ window.TblAnim = (function($, TblAnim) {
             $(document).off('mousemove.checkColResize');
             $(document).off('mousemove.onColResize');
             $(document).off('mouseup.endColResize');
-            xcHelper.reenableTextSelection();
+            xcUIHelper.reenableTextSelection();
             $('.xcTheadWrap').find('.dropdownBox')
                              .removeClass('dropdownBoxHidden');
             clearTimeout(gRescol.timer);    //prevent single-click action
@@ -199,7 +199,7 @@ window.TblAnim = (function($, TblAnim) {
             // check if unhiding
             if (target !== "datastore" && $th.outerWidth() === 15) {
                 tableId = $table.data('id');
-                var index = xcHelper.parseColNum($th);
+                var index = ColManager.parseColNum($th);
                 $th.addClass('userHidden');
                 $table.find('td.col' + index).addClass('userHidden');
                 gTables[tableId].tableCols[index - 1].isMinimized = true;
@@ -380,12 +380,12 @@ window.TblAnim = (function($, TblAnim) {
             // var el = rowInfo.$el;
             var $table = rowInfo.$table;
 
-            rowInfo.tableId = xcHelper.parseTableId($table);
+            rowInfo.tableId = TblManager.parseTableId($table);
 
             rowInfo.rowIndex = rowInfo.targetTd.closest('tr').index();
             rowInfo.$divs = $table.find('tbody tr:eq(' + rowInfo.rowIndex +
                                         ') td > div');
-            xcHelper.disableTextSelection();
+            xcUIHelper.disableTextSelection();
 
             $('body').addClass('tooltipOff')
                      .append('<div id="rowResizeCursor"></div>');
@@ -429,11 +429,11 @@ window.TblAnim = (function($, TblAnim) {
         gMouseStatus = null;
 
         var newRowHeight = rowInfo.targetTd.outerHeight();
-        var rowNum = xcHelper.parseRowNum(rowInfo.targetTd.parent()) + 1;
+        var rowNum = RowManager.parseRowNum(rowInfo.targetTd.parent()) + 1;
         var rowObj = gTables[rowInfo.tableId].rowHeights;
         // structure of rowObj is rowObj {pageNumber:{rowNumber: height}}
         var pageNum = Math.floor((rowNum - 1) / TableMeta.NumEntriesPerPage);
-        xcHelper.reenableTextSelection();
+        xcUIHelper.reenableTextSelection();
         $('body').removeClass('tooltipOff');
         $('#rowResizeCursor').remove();
         rowInfo.$table.siblings(".tableScrollBar").show();
@@ -568,14 +568,14 @@ window.TblAnim = (function($, TblAnim) {
         gMouseStatus = "dragging";
         var el = dragInfo.$el;
         var pageX = event.pageX;
-        dragInfo.colNum = xcHelper.parseColNum(el);
+        dragInfo.colNum = ColManager.parseColNum(el);
         var $tableWrap = dragInfo.$tableWrap;
 
         var $table = el.closest('.xcTable');
         var $tbodyWrap = $table.parent();
         var $editableHead = el.find('.editableHead');
         dragInfo.$table = $tableWrap;
-        dragInfo.tableId = xcHelper.parseTableId($table);
+        dragInfo.tableId = TblManager.parseTableId($table);
         dragInfo.element = el;
         dragInfo.colIndex = parseInt(el.index());
         dragInfo.offsetTop = el.offset().top;
@@ -641,7 +641,7 @@ window.TblAnim = (function($, TblAnim) {
 
         // create a replica shadow with same column width, height,
         // and starting position
-        xcHelper.disableTextSelection();
+        xcUIHelper.disableTextSelection();
         $tableWrap.append('<div id="shadowDiv" style="width:' +
                         dragInfo.colWidth +
                         'px;height:' + (shadowDivHeight) + 'px;left:' +
@@ -709,7 +709,7 @@ window.TblAnim = (function($, TblAnim) {
         $('#dropTargets').remove();
         dragInfo.$container.off('scroll', mainFrameScrollDropTargets)
                        .scrollTop(0);
-        xcHelper.reenableTextSelection();
+        xcUIHelper.reenableTextSelection();
         if (dragInfo.inFocus) {
             dragInfo.element.find('.editableHead').focus();
         }

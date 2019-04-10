@@ -136,7 +136,7 @@ class MemoryAlert {
             return;
         }
 
-        const instr: string = xcHelper.replaceMsg(MonitorTStr.LowMemInstr, {
+        const instr: string = xcStringHelper.replaceMsg(MonitorTStr.LowMemInstr, {
             link: paths.memory
         });
         Alert.show({

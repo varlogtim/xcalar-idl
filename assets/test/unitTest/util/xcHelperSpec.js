@@ -1,68 +1,9 @@
 describe("xcHelper Test", function() {
-    it("xcHelper.parseTableId should work", function() {
-        // case 1
-        var id = "test-id";
-        var res = xcHelper.parseTableId(id);
-        expect(res).to.equal("id");
-
-        // case 2 (normal to see the console.error)
-        id = "test";
-        res = xcHelper.parseTableId(id);
-        expect(res).to.be.null;
-
-        // case 3
-        var $ele = $('<div id="test-id"></div>');
-        res = xcHelper.parseTableId($ele);
-        expect(res).to.equal("id");
-        // case 4
-        var ele = $('<div id="test-id"></div>').get(0);
-        res = xcHelper.parseTableId(ele);
-        expect(res).to.equal("id");
-        // case 5
-        var $ele = $();
-        res = xcHelper.parseTableId($ele);
-        expect(res).to.be.null;
-    });
-
     it("xcHelper.parseError should work", function() {
         var obj = {"test": "a"};
         expect(xcHelper.parseError(obj)).to.equal(JSON.stringify(obj));
         // case 2
         expect(xcHelper.parseError("test")).to.equal("test");
-    });
-
-    it("xcHelper.parseRowNum should work", function() {
-        // case 1
-        var $el = $('<div class="row1"></div>');
-        var res = xcHelper.parseRowNum($el);
-        expect(res).to.equal(1);
-         // case 2
-        var $el = $('<div class="row2 tempRow"></div>');
-        var res = xcHelper.parseRowNum($el);
-        expect(res).to.equal(2);
-        // case 3 (normal to see the console.error)
-        $el = $("<div></div>");
-        res = xcHelper.parseRowNum($el);
-        expect(res).to.be.null;
-        // case 4
-        $el = $('<div class="column1"></div>');
-        res = xcHelper.parseRowNum($el);
-        expect(res).to.be.null;
-    });
-
-    it("xcHelper.parseColNum should work", function() {
-        // case 1
-        var $el = $('<div class="col1"></div>');
-        var res = xcHelper.parseColNum($el);
-        expect(res).to.equal(1);
-        // case 2 (normal to see the console.error)
-        $el = $('<div></div>');
-        res = xcHelper.parseColNum($el);
-        expect(res).to.equal(null);
-        // case 3
-        $el = $('<div class="row1"></div>');
-        res = xcHelper.parseColNum($el);
-        expect(res).to.be.null;
     });
 
     it("xcHelper.parseJsonValue should work", function() {
@@ -135,103 +76,6 @@ describe("xcHelper Test", function() {
         // case 10
         res = xcHelper.parseColType(null, "string");
         expect(res).to.equal("mixed");
-    });
-
-    it("xcHelper.parseDSFormat should work", function() {
-        var ds = {
-            loadArgs: {
-                parseArgs: {
-                    parserFnName: "default:openExcel"
-                }
-            }
-        };
-
-        expect(xcHelper.parseDSFormat(ds)).to.equal("Excel");
-        // case 2
-        ds.loadArgs.parseArgs.parserFnName = "default:parseCsv";
-        expect(xcHelper.parseDSFormat(ds)).to.equal("CSV");
-        // case 3
-        ds.loadArgs.parseArgs.parserFnName = "default:parseJson";
-        expect(xcHelper.parseDSFormat(ds)).to.equal("JSON");
-        // error case
-        expect(xcHelper.parseDSFormat("")).to.equal("Unknown");
-    });
-
-    it("xcHelper.replaceInsideQuote should work", function() {
-        expect(xcHelper.replaceInsideQuote('a"b"c', '"')).to.equal("ac");
-        expect(xcHelper.replaceInsideQuote("e'd\nf'g", "'")).to.equal("eg");
-    });
-
-    it("xcHelper.fullTextRegExKey should work", function() {
-        var res = xcHelper.fullTextRegExKey("test");
-        expect(res).to.equal("test$");
-    });
-
-    it("xcHelper.containRegExKey should work", function() {
-        var res = xcHelper.containRegExKey("test");
-        expect(res).to.equal(".*test.*");
-    });
-
-    // XXX fails in jenkins
-    it.skip("xcHelper.getTextWidth should work", function() {
-        var res = xcHelper.getTextWidth(null, "test");
-        expect(res).to.equal(72);
-
-        // case 2
-        res = xcHelper.getTextWidth(null, "testtest");
-        expect(res).to.equal(96);
-
-        // case 3
-        // this don't have the 48px padding
-        var $e = $("<input>");
-        $e.css({
-            "fontFamily": "'Open Sans', 'Trebuchet MS', Arial, sans-serif",
-            "fontSize": "13px",
-            "fontWeight": "600"
-        });
-        res = xcHelper.getTextWidth($e, "test");
-        expect(res).to.equal(24);
-
-        // case 4
-        $e.val("test");
-        res = xcHelper.getTextWidth($e);
-        expect(res).to.equal(24);
-
-        // case 5
-        $e = $("<div>test</div>");
-        $e.css({
-            "fontFamily": "'Open Sans', 'Trebuchet MS', Arial, sans-serif",
-            "fontSize": "13px",
-            "fontWeight": "600"
-        });
-        res = xcHelper.getTextWidth($e);
-        expect(res).to.equal(24);
-
-        // case 6
-        $e = $('<div class="truncated">' +
-                '<div class="displayedData">test</div>' +
-               '</div>');
-        $e.find(".displayedData").css({
-            "fontFamily": "'Open Sans', 'Trebuchet MS', Arial, sans-serif",
-            "fontSize": "13px",
-            "fontWeight": "600"
-        });
-        res = xcHelper.getTextWidth($e);
-        expect(res).to.equal(24);
-    });
-
-    it("xcHelper.getFileNamePattern should work", function() {
-        // case 1
-        var res = xcHelper.getFileNamePattern(null);
-        expect(res).to.equal("");
-
-        // case 2
-        res = xcHelper.getFileNamePattern("test", false);
-        expect(res).to.equal("test");
-
-        // case 3
-        res = xcHelper.getFileNamePattern("test", true);
-        expect(res).to.equal("re:test");
     });
 
     it("xcHelper.getJoinRenameMap should work", function() {
@@ -370,42 +214,6 @@ describe("xcHelper Test", function() {
         expect(res.dsName).to.be.equal("test2");
     });
 
-    it("xcHelper.getUnusedTableName should work", function(done) {
-        var dsName = xcHelper.randName("testName");
-        xcHelper.getUnusedTableName(dsName)
-        .then(function(realName) {
-            expect(realName).to.equal(dsName);
-            done();
-        })
-        .fail(function() {
-            throw "Fail case!";
-        });
-    });
-
-    it("xcHelper.getUnusedTableName should work in dup case", function(done) {
-        var dsName = xcHelper.randName("testName");
-        var oldFunc = XcalarGetTables;
-
-        XcalarGetTables = function() {
-            return PromiseHelper.resolve({
-                "nodeInfo": [{"name": dsName}],
-                "numNodes": 1
-            });
-        };
-
-        xcHelper.getUnusedTableName(dsName)
-        .then(function(realName) {
-            expect(realName).not.to.equal(dsName);
-            done();
-        })
-        .fail(function() {
-            throw "Fail case!";
-        })
-        .always(function() {
-            XcalarGetTables = oldFunc;
-        });
-    });
-
     it("xcHelper.getUniqColName should work", function() {
         // case 1
         var res = xcHelper.getUniqColName(null, null);
@@ -437,47 +245,6 @@ describe("xcHelper Test", function() {
         res = xcHelper.getUniqColName("xc-Test", "test");
         expect(res).to.be.equal("test_1");
         delete gTables["xc-Test"];
-    });
-
-    it("xcHelper.extractOpAndArgs should work", function() {
-        var res = xcHelper.extractOpAndArgs("eq(a, 3)", ",");
-        expect(res).to.be.an("object");
-        expect(res).have.property("op").and.to.equal("eq");
-        expect(res).have.property("args");
-        var args = res.args;
-        expect(args.length).to.equal(2);
-        expect(args[0]).to.equal("a");
-        expect(args[1]).to.equal("3");
-        // case 2
-        res = xcHelper.extractOpAndArgs('eq("a,b", 3)', ',');
-        args = res.args;
-        expect(args.length).to.equal(2);
-        expect(args[0]).to.equal("\"a,b\"");
-        expect(args[1]).to.equal("3");
-        // case 3
-        res = xcHelper.extractOpAndArgs('eq(a\\"b, 3)', ',');
-        args = res.args;
-        expect(args.length).to.equal(2);
-        expect(args[0]).to.equal('a\\"b');
-        expect(args[1]).to.equal("3");
-
-        res = xcHelper.extractOpAndArgs('eq(ab, ",")', ',');
-        args = res.args;
-        expect(args.length).to.equal(2);
-        expect(args[0]).to.equal('ab');
-        expect(args[1]).to.equal('","');
-
-        res = xcHelper.extractOpAndArgs("eq(ab, ',')", ',');
-        args = res.args;
-        expect(args.length).to.equal(2);
-        expect(args[0]).to.equal('ab');
-        expect(args[1]).to.equal("','");
-
-        res = xcHelper.extractOpAndArgs("eq(nest(ab, 5), 'hi')", ',');
-        args = res.args;
-        expect(args.length).to.equal(2);
-        expect(args[0]).to.equal('nest(ab, 5)');
-        expect(args[1]).to.equal("'hi'");
     });
 
     it("xcHelper.getTableKeyFromMeta should work", function() {
@@ -650,27 +417,6 @@ describe("xcHelper Test", function() {
         });
     });
 
-    it("xcHelper.listToEnglish should work", function() {
-        var testCases = [{
-            "list": ["a"],
-            "expect": "a"
-        }, {
-            "list": ["a", "b"],
-            "expect": "a and b",
-        }, {
-            "list": ["a", "b", "c"],
-            "expect": "a, b, and c",
-        }, {
-            "list": [],
-            "expect": ""
-        }];
-
-        testCases.forEach(function(testCase) {
-            var res = xcHelper.listToEnglish(testCase.list);
-            expect(res).to.equal(testCase.expect);
-        });
-    });
-
     it("xcHelper.randName should work", function() {
         // case 1
         var res = xcHelper.randName("test", 2);
@@ -723,15 +469,6 @@ describe("xcHelper Test", function() {
         expect(res.startsWith("test")).to.be.true;
     });
 
-    it("xcHelper.capitalize should work", function() {
-        // case 1
-        var res = xcHelper.capitalize("test");
-        expect(res).to.equal("Test");
-        // case 2
-        res = xcHelper.capitalize();
-        expect(res).to.be.undefined;
-    });
-
     it("xcHelper.arraySubset should work", function() {
         expect(xcHelper.arraySubset([1, 2], [3, 1, 4, 2])).to.be.true;
         expect(xcHelper.arraySubset([1, 2], [3, 1, 4])).to.be.false;
@@ -742,49 +479,6 @@ describe("xcHelper Test", function() {
         expect([1,2,3,4]).to.deep.equal([1, 2, 3, 4]);
     });
 
-    it("xcHelper.getDate should work", function() {
-        // case 1
-        var d = new Date("01/01/2001");
-        var res = xcHelper.getDate(undefined, d);
-        expect(res).to.equal(d.toLocaleDateString().replace(/\//g, "-"));
-        // case 2
-        res = xcHelper.getDate("/", d);
-        expect(res).to.equal(d.toLocaleDateString());
-        // case 3
-        var time = d.getTime();
-        res = xcHelper.getDate("/", null, time);
-        expect(res).to.equal(d.toLocaleDateString());
-    });
-
-    it("xcHelper.getTime should work", function() {
-        var d = new Date("01/01/2001 12:11:00");
-        var res = xcHelper.getTime(d);
-        var res2 = xcHelper.getTime(null, d.getTime());
-        expect(res).to.equal(res2);
-        // no second case
-        var res3 = xcHelper.getTime(d, null, true);
-        expect(res3.split(":").length).to.equal(2);
-    });
-
-    it("xcHelper.getCurrentTimeStamp should work", function() {
-        var res = xcHelper.getCurrentTimeStamp();
-        var d = new Date().getTime();
-        expect((res - d) < 100).to.be.true;
-    });
-
-    it("xcHelper.timeStampConvertSeconds should work", function() {
-        expect(xcHelper.timeStampConvertSeconds(100000))
-        .to.equal("1 day, 3 hours, 46 minutes, 40 seconds");
-
-        expect(xcHelper.timeStampConvertSeconds(100000, true))
-        .to.equal("1 day, 3 hours, 46 minutes, 40 seconds");
-
-        expect(xcHelper.timeStampConvertSeconds(10000))
-        .to.equal("0 days, 2 hours, 46 minutes, 40 seconds");
-
-        expect(xcHelper.timeStampConvertSeconds(10000, true))
-        .to.equal("2 hours, 46 minutes, 40 seconds");
-    });
 
     it("xcHelper.downloadAsFile should work", function(done) {
         var fileName = "fileName";
@@ -875,224 +569,6 @@ describe("xcHelper Test", function() {
 
         res = xcHelper.textToBytesTranslator("1.0KB");
         expect(res).to.equal(1024);
-    });
-
-    it("xcHelper.getColTypeIcon should work", function() {
-        var func = xcHelper.getColTypeIcon;
-        expect(func(DfFieldTypeT.DfInt64)).to.equal('xi-integer');
-        expect(func(DfFieldTypeT.DfFloat64)).to.equal('xi-float');
-        expect(func(DfFieldTypeT.DfString)).to.equal('xi-string');
-        expect(func(DfFieldTypeT.DfBoolean)).to.equal('xi-boolean');
-        expect(func(DfFieldTypeT.DfTimespec)).to.equal('xi-timestamp');
-        expect(func(DfFieldTypeT.DfMoney)).to.equal('xi-money');
-        expect(func(DfFieldTypeT.DfScalarObj)).to.equal('xi-mixed');
-        expect(func(DfFieldTypeT.DfUnknown)).to.equal('xi-unknown');
-    });
-
-    it("xcHelper.getTypeIconFromColumnType should work", function() {
-        var func = xcHelper.getTypeIconFromColumnType;
-        expect(func(ColumnType.integer)).to.equal('xi-integer');
-        expect(func(ColumnType.float)).to.equal('xi-float');
-        expect(func(ColumnType.string)).to.equal('xi-string');
-        expect(func(ColumnType.boolean)).to.equal('xi-boolean');
-        expect(func(ColumnType.timestamp)).to.equal('xi-timestamp');
-        expect(func(ColumnType.money)).to.equal('xi-money');
-        expect(func(ColumnType.mixed)).to.equal('xi-mixed');
-        expect(func("abc")).to.equal('xi-unknown');
-    });
-
-    it("xcHelper.showSuccess should work", function(done) {
-        xcHelper.showSuccess("Hello");
-        assert.isTrue($("#successMessageWrap").is(":visible"));
-        expect($("#successMessageWrap .textBox.success").text()).to
-                                                                .equal("Hello");
-        UnitTest.testFinish(function() {
-            return !$("#successMessageWrap").is(":visible");
-        })
-        .then(function() {
-            assert.isFalse($("#successMessageWrap").is(":visible"));
-            done();
-        })
-        .fail(function() {
-            done("failed");
-        });
-    });
-
-    it("xcHelper.showSuccess should reset text", function(done) {
-        xcHelper.showSuccess();
-        assert.isTrue($("#successMessageWrap").is(":visible"));
-        expect($("#successMessageWrap .textBox.success").text()).to.not
-                                                                .equal("Hello");
-        UnitTest.testFinish(function() {
-            return !$("#successMessageWrap").is(":visible");
-        })
-        .then(function() {
-            assert.isFalse($("#successMessageWrap").is(":visible"));
-            done();
-        })
-        .fail(function() {
-            done("failed");
-        });
-    });
-
-    it("xcHelper.showFail should work", function(done) {
-        xcHelper.showFail("World");
-        assert.isTrue($("#successMessageWrap").is(":visible"));
-        expect($("#successMessageWrap .textBox.success").text()).to.equal("World");
-        setTimeout(function() {
-            assert.isFalse($("#successMessageWrap").is(":visible"));
-            done();
-        }, 3000);
-    });
-
-    it("xcHelper.showFail should reset text", function(done) {
-        xcHelper.showFail();
-        assert.isTrue($("#successMessageWrap").is(":visible"));
-        expect($("#successMessageWrap .textBox.success").text()).to.not
-                                                                .equal("World");
-        setTimeout(function() {
-            assert.isFalse($("#successMessageWrap").is(":visible"));
-            done();
-        }, 3000);
-    });
-
-    it("xcHelper.replaceMsg should work", function() {
-        // case 1
-        var res = xcHelper.replaceMsg("<foo>", {
-            "foo": "bar"
-        });
-        expect(res).to.equal("bar");
-        // case 2
-        res = xcHelper.replaceMsg("<foo>");
-        expect(res).to.equal("<foo>");
-        // case 3
-        res = xcHelper.replaceMsg("<foo>", {
-            "foo": null
-        });
-        expect(res).to.equal("<foo>");
-    });
-
-    it("xcHelper.replaceTemplate should work", function() {
-        // Global replace
-        expect(
-            xcHelper.replaceTemplate('<1>abc<1>', {'<1>': '2'}, false)
-        ).to.equal('2abc<1>');
-        // First match replace
-        expect(
-            xcHelper.replaceTemplate('<1>abc<1>', {'<1>': '2'}, true)
-        ).to.equal('2abc2');
-        // Multiple replaces
-        expect(
-            xcHelper.replaceTemplate('<1>a<2>a<1>a<2>', {'<1>': '-1', '<2>': '-2'}, true)
-        ).to.equal('-1a-2a-1a-2');
-        // Regex replace
-        expect(
-            xcHelper.replaceTemplate('a12b45c0', {'[0-9]': 'D'}, true)
-        ).to.equal('aDDbDDcD');
-        // Invalid input
-        expect(
-            xcHelper.replaceTemplate('<1>abc<1>', {'<1>': null}, true)
-        ).to.equal('<1>abc<1>');
-        expect(
-            xcHelper.replaceTemplate('<1>abc<1>', {'<1>': undefined}, true)
-        ).to.equal('<1>abc<1>');
-    });
-
-    it("xcHelper.toggleListGridBtn should work", function() {
-        var $btn = $('<button class="gridView">' +
-                        '<i class="icon"></i>' +
-                     '</button>');
-        var $icon = $btn.find(".icon");
-        xcHelper.toggleListGridBtn($btn, true);
-        expect($btn.hasClass("gridView")).to.be.false;
-        expect($btn.hasClass("listView")).to.be.true;
-        expect($icon.hasClass("xi-grid-view")).to.be.true;
-        expect($icon.hasClass("xi-list-view")).to.be.false;
-
-        xcHelper.toggleListGridBtn($btn, false, false);
-        expect($btn.hasClass("gridView")).to.be.true;
-        expect($btn.hasClass("listView")).to.be.false;
-        expect($icon.hasClass("xi-grid-view")).to.be.false;
-        expect($icon.hasClass("xi-list-view")).to.be.true;
-
-        // case 2
-        $btn = $('<button class="gridView icon"></button>');
-        xcHelper.toggleListGridBtn($btn, true);
-        expect($btn.hasClass("gridView")).to.be.false;
-        expect($btn.hasClass("listView")).to.be.true;
-        expect($btn.hasClass("xi-grid-view")).to.be.true;
-        expect($btn.hasClass("xi-list-view")).to.be.false;
-
-        xcHelper.toggleListGridBtn($btn, false, false);
-        expect($btn.hasClass("gridView")).to.be.true;
-        expect($btn.hasClass("listView")).to.be.false;
-        expect($btn.hasClass("xi-grid-view")).to.be.false;
-        expect($btn.hasClass("xi-list-view")).to.be.true;
-    });
-
-    it("xcHelper.showRefreshIcon should work", function(done) {
-        var $location = $("<div></div>");
-        xcHelper.showRefreshIcon($location);
-        expect($location.find(".refreshIcon").length).to.equal(1);
-        setTimeout(function() {
-            expect($location.find(".refreshIcon").length).to.equal(0);
-            done();
-        }, 2000);
-    });
-
-    it("xcHelper.toggleBtnInProgress should work", function() {
-        var $btn = $("<button>test</button>");
-        xcHelper.toggleBtnInProgress($btn);
-        expect($btn.hasClass("btnInProgress")).to.be.true;
-        expect($btn.text()).to.equal("test...");
-        expect($btn.find("icon").length).to.equal(0);
-        xcHelper.toggleBtnInProgress($btn);
-        expect($btn.hasClass("btnInProgress")).to.be.false;
-        expect($btn.text()).to.equal("test");
-        // true
-        $btn = $('<button>' +
-                    '<i class="icon"></i>' +
-                    '<span class="text">test</span>' +
-                '</button>');
-        xcHelper.toggleBtnInProgress($btn, false);
-        expect($btn.hasClass("btnInProgress")).to.be.true;
-        expect($btn.text()).to.equal("test...");
-        expect($btn.find(".icon").length).to.equal(0);
-        xcHelper.toggleBtnInProgress($btn, false);
-        expect($btn.hasClass("btnInProgress")).to.be.false;
-        expect($btn.text()).to.equal("test");
-        expect($btn.find(".icon").length).to.equal(1);
-    });
-
-    it("xcHelper.optionButtonEvent should work", function() {
-        var test = null;
-        var $container = $('<div>' +
-                            '<button class="radioButton" data-option="test"></button>' +
-                          '</div>');
-        xcHelper.optionButtonEvent($container, function(option) {
-            test = option;
-        });
-        var $radioButton = $container.find(".radioButton");
-        $radioButton.click();
-        expect($radioButton.hasClass("active")).to.be.true;
-        expect(test).to.be.equal("test");
-        // should ignore active event
-        test = null;
-        $radioButton.click();
-        expect($radioButton.hasClass("active")).to.be.true;
-        expect(test).to.be.null;
-    });
-
-    it("xcHelper.supportButton should work", function() {
-        // caase 1
-        var $btn = xcHelper.supportButton("log");
-        expect($btn.hasClass("downloadLog")).to.be.true;
-        // case 2
-        $btn = xcHelper.supportButton("support");
-        expect($btn.hasClass("genSub")).to.be.true;
-        // case 3
-        $btn = xcHelper.supportButton();
-        expect($btn.hasClass("logout")).to.be.true;
     });
 
     it("xcHelper.validate should work", function() {
@@ -1254,113 +730,6 @@ describe("xcHelper Test", function() {
         // case
         res = xcHelper.getTableId();
         expect(res).to.be.null;
-    });
-
-    it("xcHelper.getBackTableSet should work", function(done) {
-        xcHelper.getBackTableSet()
-        .then(function(backTableSet, numBackTables) {
-            expect(backTableSet).to.be.an("object");
-            expect(Object.keys(backTableSet).length)
-            .to.equal(numBackTables);
-            done();
-        })
-        .fail(function(error) {
-            throw error;
-        });
-    });
-
-    it("xcHelper.lockTable and xcHelper.unlockTable should work", function() {
-        gTables["xcTest"] = new TableMeta({
-            "tableId": "xcTest",
-            "tableName": "test"
-        });
-
-        xcHelper.lockTable("xcTest");
-        expect(gTables["xcTest"].hasLock()).to.be.true;
-
-        xcHelper.unlockTable("xcTest");
-        expect(gTables["xcTest"].hasLock()).to.be.false;
-
-        delete gTables["xcTest"];
-    });
-
-    it("xcHelper.enableSubmit and xcHelper.disableSubmit should work", function() {
-        var $button = $("<button></button>");
-        xcHelper.disableSubmit($button);
-        expect($button.prop("disabled")).to.be.true;
-
-        xcHelper.enableSubmit($button);
-        expect($button.prop("disabled")).to.be.false;
-    });
-
-    it("xcHelper.insertText should work", function() {
-        if (isBrowserMicrosoft) {
-            return;
-        }
-        // case 1
-        var $input = $("<input>");
-        xcHelper.insertText($input, "test");
-        expect($input.val()).to.be.equal("");
-
-        // case 2
-        $input = $('<input type="number">');
-        xcHelper.insertText($input, 5);
-        expect($input.val()).to.be.equal("");
-
-        // case 3
-        $input = $('<input type="text">');
-        xcHelper.insertText($input, "test");
-        expect($input.val()).to.be.equal("test");
-
-        // case 4
-        $input = $('<input type="text" value="a">');
-        xcHelper.insertText($input, "b");
-        expect($input.val()).to.be.equal("b");
-
-        // rest of test cases will use "append" option
-
-        // case 5
-        $input = $('<input type="text" value="a">');
-        xcHelper.insertText($input, "b", true);
-        expect($input.val()).to.be.equal("b, a");
-
-        // case 6
-        $input = $('<input type="text" value=", a">');
-        xcHelper.insertText($input, "b", true);
-        expect($input.val()).to.be.equal("b, a");
-
-        // case 7
-        $input = $('<input type="text">');
-        xcHelper.insertText($input, "a", true);
-        expect($input.val()).to.be.equal("a");
-
-        // case 8
-        $input = $('<input type="text" value="a">');
-        // set cursor to end
-        $input.focus().val("a").caret(1);
-        xcHelper.insertText($input, "b", true);
-        expect($input.val()).to.be.equal("a, b");
-
-        // case 9
-        $input = $('<input type="text" value="ab">');
-        // set cursor to between a & b
-        $input.focus().caret(1);
-        xcHelper.insertText($input, "c", true);
-        expect($input.val()).to.be.equal("ac, b");
-    });
-
-    it("xcHelper.getFocusedTable should work", function() {
-        var $oldTitle = $(".xcTableWrap .tblTitleSelected");
-        $oldTitle.removeClass("tblTitleSelected");
-
-        expect(xcHelper.getFocusedTable()).to.equal(null);
-
-        var $fakeTable = $('<div class="xcTableWrap" data-id="test"><div class="tblTitleSelected"></div></div>');
-        $("#container").append($fakeTable);
-        expect(xcHelper.getFocusedTable()).to.equal("test");
-
-        $fakeTable.remove();
-        $oldTitle.addClass("tblTitleSelected");
     });
 
     it("xcHelper.createNextName should work", function() {
@@ -1800,44 +1169,6 @@ describe("xcHelper Test", function() {
         });
     });
 
-    it("xcHelper.escapeDblQuoteForHtml should work", function() {
-        var res = xcHelper.escapeDblQuoteForHTML('te"st\'ing"');
-        expect(res).to.equal('te&quot;st\'ing&quot;');
-    });
-
-    it("xcHelper.escapeDblQuote should work", function() {
-        var res = xcHelper.escapeDblQuote('te"st\'ing"');
-        expect(res).to.equal('te\\"st\'ing\\"');
-    });
-
-    it('xcHelper.escapeNonPrintableChar should work', function() {
-        var res = xcHelper.escapeNonPrintableChar(String.fromCharCode('feff'), '.');
-        expect(res).to.equal('.');
-        // case 2
-        res = xcHelper.escapeNonPrintableChar('test', '.');
-        expect(res).to.equal('test');
-        // case 3
-        res = xcHelper.escapeNonPrintableChar(null, '.');
-        expect(res).to.equal(null);
-    });
-
-    it('xcHelper.escapeHTMLSpecialChar should work', function() {
-        var res = xcHelper.escapeHTMLSpecialChar('&<>\tabc', false);
-        expect(res).to.equal("&amp;&lt;&gt;	abc");
-        // case 2
-        res = xcHelper.escapeHTMLSpecialChar(null, false);
-        expect(res).to.equal(null);
-    });
-
-    it("xcHelper.escapeRegExp should work", function() {
-        // case 1
-        var res = xcHelper.escapeRegExp("]");
-        expect(res).to.equal("\\]");
-        // case 2
-        res = xcHelper.escapeRegExp("a");
-        expect(res).to.equal("a");
-    });
-
     it("xcHelper.escapeColName should work", function() {
         // case 1
         var res = xcHelper.escapeColName("a.b");
@@ -1890,33 +1221,6 @@ describe("xcHelper Test", function() {
         expect(res).to.equal("a_b");
     });
 
-    it("xcHelper.scrollToBottom should work", function() {
-        var html = '<div id="scrollTest" style="position:fixed; top:0px; left:0px; z-index:999999; height:100px; width: 20px; overflow:hidden; overflow-y:scroll">' +
-                        '<div id="scrollTest1" style="height:200px;"></div>' +
-                        '<div id="scrollTest2" style="height:10px;"></div>' +
-                    '</div>';
-        $("body").append(html);
-        var $outerDiv = $("#scrollTest");
-        expect($outerDiv.scrollTop()).to.equal(0);
-        expect($outerDiv.height()).to.equal(100);
-        var el = document.elementFromPoint(1, 99);
-        expect($(el).attr("id")).to.equal("scrollTest1");
-
-        xcHelper.scrollToBottom($outerDiv);
-        expect($outerDiv.scrollTop()).to.equal(110);
-        el = document.elementFromPoint(1, 99);
-        expect($(el).attr("id")).to.equal("scrollTest2");
-
-        $("#scrollTest").remove();
-    });
-
-    it("xcHelper.disableTextSelection and xcHelper.reenableTextSelection should work", function() {
-        xcHelper.disableTextSelection();
-        expect($("#disableSelection").length).to.equal(1);
-        xcHelper.reenableTextSelection();
-        expect($("#disableSelection").length).to.equal(0);
-    });
-
     it("xcHelper.castStrHelper should work", function() {
         // case 1
         var res = xcHelper.castStrHelper("test", ColumnType.boolean);
@@ -1946,21 +1250,6 @@ describe("xcHelper Test", function() {
         var res = xcHelper.isCharEscaped("\\.", 1);
         expect(res).to.be.true;
         res = xcHelper.isCharEscaped("\\\\.", 2);
-        expect(res).to.be.false;
-    });
-
-    it("xcHelper.isStartWithLetter should work", function() {
-        // case 1
-        var res = xcHelper.isStartWithLetter("12a");
-        expect(res).to.be.false;
-        // case 2
-        res = xcHelper.isStartWithLetter("abc");
-        expect(res).to.be.true;
-        // case 3
-        res = xcHelper.isStartWithLetter(null);
-        expect(res).to.be.false;
-        // case 4
-        res = xcHelper.isStartWithLetter("");
         expect(res).to.be.false;
     });
 
@@ -2033,66 +1322,6 @@ describe("xcHelper Test", function() {
         expect(res).to.equal("\t");
     });
 
-    it("xcHelper.checkMatchingBrackets should work", function() {
-        // case 1
-        var res = xcHelper.checkMatchingBrackets("(test)").index;
-        expect(res).to.equal(-1);
-        // case 2
-        res = xcHelper.checkMatchingBrackets("test)").index;
-        expect(res).to.equal(4);
-        // case 3
-        res = xcHelper.checkMatchingBrackets("(test").index;
-        expect(res).to.equal(0);
-        // case 4
-        res = xcHelper.checkMatchingBrackets("(())").index;
-        expect(res).to.equal(-1);
-        // case 5
-        res = xcHelper.checkMatchingBrackets('("(")').index;
-        expect(res).to.equal(-1);
-        // case 6
-        res = xcHelper.checkMatchingBrackets('(\\")').index;
-        expect(res).to.equal(-1);
-        // case 7
-        res = xcHelper.checkMatchingBrackets('("\\"(")').index;
-        expect(res).to.equal(-1);
-        // case 8
-        res = xcHelper.checkMatchingBrackets('("(,\'")').index;
-        expect(res).to.equal(-1);
-         // case 9
-        res = xcHelper.checkMatchingBrackets('(\'(,"\')').index;
-        expect(res).to.equal(-1);
-        // case 11
-        res = xcHelper.checkMatchingBrackets('(\'(,")').index;
-        expect(res).to.equal(0);
-        // case 12
-        res = xcHelper.checkMatchingBrackets('("(,\')').index;
-        expect(res).to.equal(0);
-        // case 13 - testing nested quotes (xa\xaa\xax)
-        res = xcHelper.checkMatchingBrackets('("\'(\\"\'(\'\\"\'")').index;
-        expect(res).to.equal(-1);
-    });
-
-    it("xcHelper.camelCaseToRegular should work", function() {
-        var func = xcHelper.camelCaseToRegular;
-        expect(func("a")).to.equal("A");
-        expect(func("aB")).to.equal("A B");
-        expect(func("ab")).to.equal("Ab");
-        expect(func("AB")).to.equal("A B");
-        expect(func("Ab")).to.equal("Ab");
-        expect(func("AaBbC")).to.equal("Aa Bb C");
-    });
-
-    it("xcHelper.removeNonQuotedSpaces should work", function() {
-        var res = xcHelper.removeNonQuotedSpaces('map(concat  ("a   ", "b"))');
-        expect(res).to.equal('map(concat("a   ","b"))');
-
-        res = xcHelper.removeNonQuotedSpaces('map(concat  ("a \\"  ", "b"))');
-        expect(res).to.equal('map(concat("a \\"  ","b"))');
-
-        res = xcHelper.removeNonQuotedSpaces('map(concat  (\'a  \', "b"))');
-        expect(res).to.equal('map(concat(\'a  \',"b"))');
-    });
-
     it("xcHelper.getFormat should work", function() {
         var getFormat = xcHelper.getFormat;
         expect(getFormat("a")).to.be.null;
@@ -2103,25 +1332,6 @@ describe("xcHelper Test", function() {
         expect(getFormat("d.xlsx")).to.equal("Excel");
         expect(getFormat("e.txt")).to.equal("TEXT");
         expect(getFormat("f.test")).to.be.null;
-    });
-
-    it("xcHelper.hasSelection should work", function() {
-        xcHelper.removeSelectionRange();
-        expect(xcHelper.hasSelection()).to.be.false;
-        var $input = $("<input style='position:fixed; top: 0px; left:0px; z-index:99999;'>");
-        $("body").append($input);
-        $input.val(123);
-        $input.focus().range(0,2);
-        expect(xcHelper.hasSelection()).to.be.true;
-        xcHelper.removeSelectionRange();
-        expect(xcHelper.hasSelection()).to.be.false;
-        $input.remove();
-    });
-
-    it("xcHelper.convertToHtmlEntity should work", function() {
-        var terribleString = "<&boo>";
-        var convertHtml = xcHelper.convertToHtmlEntity;
-        expect(convertHtml(terribleString)).to.equal("&#60;&#38;boo&#62;");
     });
 
     it("xcHelper.autoName should work", function() {
@@ -2166,72 +1376,6 @@ describe("xcHelper Test", function() {
         expect(func("a7z3", "a6z5", desc)).to.equal(-1);
     });
 
-    it("xcHelper.sortHTML should work", function() {
-        var a = '<div>a</div>';
-        var b = '<div>b</div>';
-        expect(xcHelper.sortHTML(a, b)).to.equal(-1);
-        expect(xcHelper.sortHTML(b, a)).to.equal(1);
-
-        // XXX case 2, it's actually weird
-        a = '<div>c</div>';
-        b = '<div>c</div>';
-        expect(xcHelper.sortHTML(a, b)).to.equal(-1);
-    });
-
-    it("xcHelper.parseQuery should work", function() {
-        var firstPart = 'map --eval "concat(\\"1\\", \\"2\\")" --srctable "A#Vi5" ' +
-                        '--fieldName "B" --dsttable "A#Vi25";';
-        var secondPart = 'index --key "col1" --dataset ".XcalarDS.a.b" ' +
-                        '--dsttable "b#Vi26" --prefix;';
-        var thirdPart = 'join --leftTable "c.index#Vi35" --rightTable ' +
-                        '"d.index#Vi36" --joinType innerJoin ' +
-                        '--joinTable "a#Vi34";';
-        var fourthPart = 'load --name "f264.schedule" ' +
-                         '--targetName "Default Shared Root" ' +
-                         '--path "/schedule/" ' +
-                         '--apply "default:parseJson" --parseArgs "{}" ' +
-                         '--size 0B;';
-        var fifthPart = '   '; // blank
-
-        var query =  firstPart + secondPart + thirdPart + fourthPart + fifthPart;
-
-        var parsedQuery = xcHelper.parseQuery(query);
-        expect(parsedQuery).to.be.an("array");
-        expect(parsedQuery).to.have.lengthOf(4); // should exclude the blank
-
-        expect(parsedQuery[0].name).to.equal("map");
-        expect(parsedQuery[1].name).to.equal("index");
-        expect(parsedQuery[2].name).to.equal("join");
-        expect(parsedQuery[3].name).to.equal("load");
-
-        expect(parsedQuery[0].dstTable).to.equal("A#Vi25");
-        expect(parsedQuery[1].dstTable).to.equal("b#Vi26");
-        expect(parsedQuery[2].dstTable).to.equal("a#Vi34");
-        expect(parsedQuery[3].dstTable).to.equal(gDSPrefix + "f264.schedule");
-
-        expect(parsedQuery[0].query).to.equal(firstPart.slice(0,-1));
-        expect(parsedQuery[1].query).to.equal(secondPart.slice(0,-1));
-        expect(parsedQuery[2].query).to.equal(thirdPart.slice(0,-1));
-        expect(parsedQuery[3].query).to.equal(fourthPart.slice(0,-1));
-
-        // export
-        var sixthPart = 'export --targetType file --tableName A#dl4 ' +
-                        '--targetName Default --exportName B#dl5 ' +
-                        '--createRule --columnsNames class_id;time; ' +
-                        '--headerColumnsNames class_id;time; --format csv ' +
-                        '--fileName C.csv  --fieldDelim   --recordDelim b ' +
-                        '--quoteDelim';
-
-        parsedQuery = xcHelper.parseQuery(sixthPart);
-        expect(parsedQuery).to.be.an("array");
-        expect(parsedQuery).to.have.lengthOf(1);
-
-        expect(parsedQuery[0].name).to.equal("export");
-        expect(parsedQuery[0].dstTable).to.equal("B#dl5");
-        expect(parsedQuery[0].exportFileName).to.equal("C.csv");
-        expect(parsedQuery[0].query).to.equal(sixthPart);
-    });
-
     // XXX fails jenkins test
     it.skip("xcHelper.getUDFList should work", function(done) {
         UDFFileManager.Instance.list()
@@ -2263,7 +1407,7 @@ describe("xcHelper Test", function() {
     });
 
     // difficult to test this without rewriting the entire function in here...
-    it("xcHelper.repositionModalOnWinResize should work", function () {
+    it("ModalHelper.repositionModalOnWinResize should work", function () {
         var $modal = $('<div id="unitTestModal" style="' +
                         'width:50px;height:50px;position:absolute;"></div>');
         $("#container").prepend($modal);
@@ -2278,7 +1422,7 @@ describe("xcHelper Test", function() {
         var curWinHeight = $(window).height();
         var curWinWidth = $(window).width();
 
-        xcHelper.repositionModalOnWinResize(modalSpecs, windowSpecs);
+        ModalHelper.repositionModalOnWinResize(modalSpecs, windowSpecs);
 
         if (curWinWidth > windowSpecs.winWidth) {
             expect($modal.css("left")).to.be.gt(curWinWidth * .25);
@@ -2297,101 +1441,11 @@ describe("xcHelper Test", function() {
         $modal.width(10000);
         $modal.css({"top": top, "left": left});
 
-        xcHelper.repositionModalOnWinResize(modalSpecs, windowSpecs);
+        ModalHelper.repositionModalOnWinResize(modalSpecs, windowSpecs);
         expect($modal.css("top")).to.equal("0px");
         expect($modal.css("left")).to.equal(curWinWidth - 10000 + "px");
 
         $modal.remove();
-    });
-
-    it("xcHelper.numToStr should work", function() {
-        expect(xcHelper.numToStr(5)).to.equal("5");
-        expect(xcHelper.numToStr(1234)).to.equal("1,234");
-        expect(xcHelper.numToStr("1234")).to.equal("1,234");
-        expect(xcHelper.numToStr(1.12345)).to.equal("1.123");
-        expect(xcHelper.numToStr(1.12345, 5)).to.equal("1.12345");
-        expect(xcHelper.numToStr(0.001, 2)).to.equal("1e-3");
-        expect(xcHelper.numToStr(-0.001, 2)).to.equal("-1e-3");
-        expect(xcHelper.numToStr(0, 2)).to.equal("0");
-        expect(xcHelper.numToStr(null)).to.equal(null);
-        expect(xcHelper.numToStr(undefined)).to.equal(undefined);
-        expect(xcHelper.numToStr("not a num")).to.equal("not a num");
-    });
-
-    it("xcHelper.getValueFromCell should work", function() {
-        // case 1
-        const $header = $('<div class="header">' +
-                        '<div class="test">' +
-                            '<input class="editableHead" value="test">' +
-                        '</div>' +
-                    '</div>');
-
-        expect(xcHelper.getValueFromCell($header.find(".test"), gColPrefix)).to.equal(gColPrefix + "test");
-
-        // case 2
-        const $table = $('<table>' +
-                        '<td class="col1">' +
-                            '<div class="test">' +
-                                '<input class="editableHead col1" value="t2">' +
-                            '</div>' +
-                        '</td>' +
-                    '</table>');
-
-        expect(xcHelper.getValueFromCell($table.find(".test"),gColPrefix)).to.equal(gColPrefix + "t2");
-
-        // case 3
-        expect(xcHelper.getValueFromCell(null, gColPrefix)).to.equal("");
-
-        // case 4
-        expect(xcHelper.getValueFromCell($header.find(".notexist"), gColPrefix)).to.equal("");
-    });
-
-    it("xcHelper.fillInputFromCell should work", function() {
-        // case 1
-        var $header = $('<div class="header">' +
-                        '<div class="test">' +
-                            '<input class="editableHead" value="test">' +
-                        '</div>' +
-                    '</div>');
-
-        var $input = $('<input class="argument" type="text">');
-        $("body").append($input);
-        xcHelper.fillInputFromCell($header.find(".test"), $input, gColPrefix);
-        expect($input.val()).to.equal(gColPrefix + "test");
-
-        // case 2
-        var $table = $('<table>' +
-                        '<td class="col1">' +
-                            '<div class="test">' +
-                                '<input class="editableHead col1" value="t2">' +
-                            '</div>' +
-                        '</td>' +
-                    '</table>');
-
-        xcHelper.fillInputFromCell($table.find(".test"), $input, gColPrefix);
-        expect($input.val()).to.equal(gColPrefix + "t2");
-        $input.remove();
-        // case 3
-        $input = $("<input>");
-        $("body").append($input);
-        xcHelper.fillInputFromCell($header.find(".test"), $input, gColPrefix);
-        expect($input.val()).to.equal("");
-        $input.remove();
-        // case 4
-        $input = $('<input class="argument">');
-        $("body").append($input);
-        xcHelper.fillInputFromCell($header.find(".test"), $input, gColPrefix);
-        expect($input.val()).to.equal("");
-        $input.remove();
-        // case 5
-        var $container = $('<div class="colNameSection">' +
-                    '<input class="argument" type="text">' +
-                    '</div>');
-        $input = $container.find("input");
-        $("body").append($container);
-        xcHelper.fillInputFromCell($header.find(".test"), $input, gColPrefix);
-        expect($input.val()).to.equal("");
-        $container.remove();
     });
 
     it("xcHelper.hasValidColPrefix should work", function() {
@@ -2476,60 +1530,6 @@ describe("xcHelper Test", function() {
         expect(res).to.equal("a_b");
     });
 
-    it("xcHelper.stripCSVExt should work", function() {
-        expect(xcHelper.stripCSVExt("a.csv")).to.equal("a");
-        expect(xcHelper.stripCSVExt("b.json")).to.equal("b.json");
-    });
-
-    it("xcHelper.parseUserStr should work", function() {
-        var res = xcHelper.parseUserStr('"test" = someFunc ');
-        expect(res).to.equal("someFunc");
-
-        res = xcHelper.parseUserStr('"te=st" = someFunc');
-        expect(res).to.equal("someFunc");
-
-        res = xcHelper.parseUserStr('"te\\"st" = someFunc');
-        expect(res).to.equal("someFunc");
-
-        res = xcHelper.parseUserStr('"test" =someFunc');
-        expect(res).to.equal("someFunc");
-    });
-
-    it("xcHelper.getColNameMap should work", function() {
-        var progCol1 = ColManager.newCol({
-            "backName": "Test",
-            "name": "undfCol",
-            "isNewCol": false
-        });
-
-        var progCol2 = ColManager.newCol({
-            "backName": "test2",
-            "name": "stringCol",
-            "isNewCol": false
-        });
-
-        var progCol3 = ColManager.newCol({
-            "backName": "",
-            "name": "",
-            "isNewCol": false
-        });
-
-        var progCol4 = ColManager.newDATACol();
-
-        gTables["xc-Test"] = new TableMeta({
-            "tableId": "xc-Test",
-            "tableName": "test",
-            "tableCols": [progCol1, progCol2, progCol3, progCol4]
-        });
-
-        var colNameMap = xcHelper.getColNameMap("xc-Test");
-        expect(Object.keys(colNameMap).length).to.equal(2);
-        expect(colNameMap["test"]).to.equal("Test");
-        expect(colNameMap["test2"]).to.equal("test2");
-
-        delete gTables["xc-Test"];
-    });
-
     it("xcHelper.getColNameList should work", function() {
         var progCol1 = ColManager.newCol({
             "backName": "Test",
@@ -2556,25 +1556,13 @@ describe("xcHelper Test", function() {
             "tableName": "test",
             "tableCols": [progCol1, progCol2, progCol3, progCol4]
         });
-
-        var colNameList = xcHelper.getColNameList("xc-Test");
+        let table = gTables["xc-Test"];
+        var colNameList = table.getColNameList();
         expect(colNameList.length).to.equal(2);
         expect(colNameList[0]).to.equal("Test");
         expect(colNameList[1]).to.equal("test2");
 
         delete gTables["xc-Test"];
-    });
-
-    it("xcHelper.disableMenuItem should work", function() {
-        var $li = $('<li></li>');
-        xcHelper.disableMenuItem($li);
-        expect($li.hasClass('unavailable')).to.be.true;
-    });
-
-    it("xcHelper.enableMenuItem should work", function() {
-        var $li = $('<li class="unavailable"></li>');
-        xcHelper.enableMenuItem($li);
-        expect($li.hasClass('unavailable')).to.be.false;
     });
 
     it("xcHelper.getPromiseWhenError should work", function() {
@@ -2598,7 +1586,7 @@ describe("xcHelper Test", function() {
         var $input = $('<input val="">');
         $('body').append($input);
 
-        xcHelper.addAggInputEvents($input);
+        BaseOpPanel.addAggInputEvents($input);
         // XXX FIXME: when window defocus this test will fail
         // $input.focus();
         // expect($input.val()).to.equal(gAggVarPrefix);
@@ -2746,177 +1734,7 @@ describe("xcHelper Test", function() {
         expect(res).to.equal("?a=1&b=c");
     });
 
-    describe('xcHelper.getElapsedTimeStr())', function() {
-        it("xcHelper.getElapsedTimeStr should work", function() {
-            var func = xcHelper.getElapsedTimeStr;
-            expect(func(999)).to.equal('999ms');
-            expect(func(1000)).to.equal('1.00s');
-            expect(func(1999)).to.equal('1.99s');
-            expect(func(1099)).to.equal('1.09s');
-            expect(func(19999)).to.equal('19.9s');
-            expect(func(69000)).to.equal('1m 9s');
-            expect(func(699900)).to.equal('11m 39s');
-            expect(func(5000000)).to.equal('1h 23m 20s');
-            expect(func(105000000)).to.equal('29h 10m 0s');
-        });
-    });
-
-    describe("xcHelper.stringifyFunc()", function() {
-        var func;
-        before(function() {
-            func = xcHelper.stringifyFunc;
-        })
-        it("should work if no args", function() {
-            var fn = {name: "a", args:[]};
-            expect(func(fn)).to.equal('a()');
-
-            fn = {name: "a", args:[{name: "b", args: []}]};
-            expect(func(fn)).to.equal('a(b())');
-
-            fn = {name: "a", args:[1, {name: "b", args: []}]};
-            expect(func(fn)).to.equal('a(1,b())');
-        });
-        it("nested should work", function() {
-            var fn = {name:"a", args:[1, 2, 3]};
-            expect(func(fn)).to.equal('a(1,2,3)');
-
-            var fn = {name:"a", args:[1, {name:"b", args:[4, 5, 6]}, 3]};
-            expect(func(fn)).to.equal('a(1,b(4,5,6),3)');
-
-            var fn = {name:"a", args:[{name:"b", args:[2, 3, 4]}, 1]};
-            expect(func(fn)).to.equal('a(b(2,3,4),1)');
-
-            var fn = {name:"a", args:[{name:"b", args:[2, {name:"c", args:[3, 4]}]}, 1]};
-            expect(func(fn)).to.equal('a(b(2,c(3,4)),1)');
-        });
-    });
-
-    describe("xcHelper.stringifyEval()", function() {
-        var func;
-        before(function() {
-            func = xcHelper.stringifyEval;
-        })
-        it("should work if no args", function() {
-            var fn = {fnName: "a", args:[]};
-            expect(func(fn)).to.equal('a()');
-
-            fn = {fnName: "a", args:[{type: "fn", fnName: "b", args: []}]};
-            expect(func(fn)).to.equal('a(b())');
-
-            fn = {fnName: "a", args:[{value: 1}, {type: "fn", fnName: "b", args: []}]};
-            expect(func(fn)).to.equal('a(1,b())');
-        });
-        it("nested should work", function() {
-            var fn = {fnName:"a", args:[{value: 1}, {value: 2}, {value: 3}]};
-            expect(func(fn)).to.equal('a(1,2,3)');
-
-            var fn = {fnName:"a", args:[{value: "1"}, {value: '2'}, {value: '"3"'}]};
-            expect(func(fn)).to.equal('a(1,2,"3")');
-
-            var fn = {fnName:"a", args:[{value: 1}, {type: "fn", fnName:"b", args:[{value: 4}, {value: 5}, {value: 6}]}, {value: 3}]};
-            expect(func(fn)).to.equal('a(1,b(4,5,6),3)');
-
-            var fn = {fnName:"a", args:[{type: "fn", fnName:"b", args:[{value: 2}, {value: 3}, {value: 4}]}, {value: 1}]};
-            expect(func(fn)).to.equal('a(b(2,3,4),1)');
-
-            var fn = {fnName:"a", args:[{type: "fn", fnName:"b", args:[{value: 2}, {type: "fn", fnName:"c", args:[{value: 3}, {value: 4}]}]}, {value: 1}]};
-            expect(func(fn)).to.equal('a(b(2,c(3,4)),1)');
-        });
-    });
-
-    describe("xcHelper.getNamesFromFunc", function() {
-        var fn, args;
-        it ("quotes should be detected", function() {
-            fn = xcHelper.getNamesFromFunc;
-            args = {args: ["one", "two"]};
-            expect(fn(args).length).to.equal(2);
-            expect(fn(args)[0]).to.equal("one");
-            expect(fn(args)[1]).to.equal("two");
-
-            args = {args: ["'one"]};
-            expect(fn(args).length).to.equal(0);
-
-            args = {args: ["one'"]};
-            expect(fn(args).length).to.equal(0);
-
-            args = {args: ["\"one"]};
-            expect(fn(args).length).to.equal(0);
-
-            args = {args: ["one\""]};
-            expect(fn(args).length).to.equal(0);
-
-            args = {args: ["\"one\""]};
-            expect(fn(args).length).to.equal(0);
-
-            args = {args: ["'one'"]};
-            expect(fn(args).length).to.equal(0);
-
-            args = {args: ["'one\""]};
-            expect(fn(args).length).to.equal(0);
-
-            args = {args: ["'one\"", "two"]};
-            expect(fn(args).length).to.equal(1);
-            expect(fn(args)[0]).to.equal("two");
-
-            args = {args: ["o'ne"]};
-            expect(fn(args).length).to.equal(1);
-            expect(fn(args)[0]).to.equal("o'ne");
-
-            args = {args: [{args: ["'one\"", "two"]}]};
-            expect(fn(args).length).to.equal(1);
-            expect(fn(args)[0]).to.equal("two");
-
-
-        });
-
-        it("nested and duplicates should work", function() {
-            args = {args: ["three", {args: ["'one\"", "two"]}, "'four", "five"]};
-            expect(fn(args).length).to.equal(3);
-            expect(fn(args)[0]).to.equal("three");
-            expect(fn(args)[1]).to.equal("two");
-            expect(fn(args)[2]).to.equal("five");
-
-            args = {args: ["three", {args: ["two", "two", "four"]}, "'four", "five"]};
-            expect(fn(args).length).to.equal(4);
-            expect(fn(args)[0]).to.equal("three");
-            expect(fn(args)[1]).to.equal("two");
-            expect(fn(args)[2]).to.equal("four");
-            expect(fn(args)[3]).to.equal("five");
-        });
-
-        it("numbers should be detected", function() {
-            args = {args: ["9"]};
-            expect(fn(args).length).to.equal(0);
-
-            args = {args: ["a9"]};
-            expect(fn(args).length).to.equal(1);
-            expect(fn(args)[0]).to.equal("a9");
-
-            args = {args: ["'9'"]};
-            expect(fn(args).length).to.equal(0);
-        });
-
-        it("getting agg names should work", function() {
-            args = {args: ["^one", "two", "^one", "^three", "three"]};
-            expect(fn(args).length).to.equal(4);
-            expect(fn(args)[0]).to.equal("^one");
-            expect(fn(args)[1]).to.equal("two");
-            expect(fn(args)[2]).to.equal("^three");
-            expect(fn(args)[3]).to.equal("three");
-
-            args = {args: ["^one", "two", "^one", "^three", "three", "^"]};
-            expect(fn(args, true).length).to.equal(2);
-            expect(fn(args, true)[0]).to.equal("one");
-            expect(fn(args, true)[1]).to.equal("three");
-        });
-    })
-
-    it("xcHelper.styleNewLineChar should work", function() {
-        expect(xcHelper.styleNewLineChar('\n\r'))
-        .to.equal('<span class="newLine lineChar">\\n</span><span class="carriageReturn lineChar">\\r</span>');
-    });
-
-    describe("xcHelper.dropdownOpen", function() {
+    describe("MenuHelper.dropdownOpen", function() {
         describe("Basic Test", function() {
             var $icon, $menu;
 
@@ -2932,30 +1750,30 @@ describe("xcHelper Test", function() {
             });
 
             it("Should open the menu", function() {
-                xcHelper.dropdownOpen($icon, $menu);
+                MenuHelper.dropdownOpen($icon, $menu);
                 assert.isTrue($menu.is(":visible"));
             });
 
             it("Should toggle the menu", function() {
-                xcHelper.dropdownOpen($icon, $menu);
+                MenuHelper.dropdownOpen($icon, $menu);
                 assert.isTrue($menu.is(":visible"));
                 // toggle the menu
-                xcHelper.dropdownOpen($icon, $menu, {
+                MenuHelper.dropdownOpen($icon, $menu, {
                     "toggle": true
                 });
                 assert.isFalse($menu.is(":visible"));
             });
 
             it("Should close the menu with toClose option", function() {
-                xcHelper.dropdownOpen($icon, $menu);
+                MenuHelper.dropdownOpen($icon, $menu);
                 assert.isTrue($menu.is(":visible"));
                 // toggle the menu
-                xcHelper.dropdownOpen($icon, $menu, {
+                MenuHelper.dropdownOpen($icon, $menu, {
                     "toClose": function() { return false; }
                 });
                 assert.isTrue($menu.is(":visible"));
 
-                xcHelper.dropdownOpen($icon, $menu, {
+                MenuHelper.dropdownOpen($icon, $menu, {
                     "toClose": function() { return true; }
                 });
                 assert.isFalse($menu.is(":visible"));
@@ -3022,7 +1840,7 @@ describe("xcHelper Test", function() {
             });
 
             it("hasMixedCells() should work", function() {
-                var fn = xcHelper.__testOnly__.isInvalidMixed;
+                var fn = MenuHelper.isInvalidMixed;
                 var hightlightBox = '<div class="highlightBox"></div>';
                 expect($table.length).to.equal(1);
                 expect($table.find("td").length).to.equal(8);
@@ -3090,7 +1908,7 @@ describe("xcHelper Test", function() {
             });
 
             it ("toggleUnnestandJsonOptions should work", function() {
-                var fn = xcHelper.__testOnly__.toggleUnnestandJsonOptions;
+                var fn = MenuHelper.toggleUnnestandJsonOptions;
                 var $menu = $("#cellMenu");
                 var $unnestLi = $menu.find(".tdUnnest");
                 var $jsonModalLi = $menu.find(".tdJsonModal");
@@ -3188,61 +2006,6 @@ describe("xcHelper Test", function() {
         });
     });
 
-    describe("boldSuggest test", function() {
-        it("should bold simple text correctly", function() {
-            var htmlstr = "<li>Cats and Dogs</li>";
-            var $html = $(htmlstr);
-            xcHelper.boldSuggestedText($html, "and");
-            expect($html.text()).to.equal("Cats and Dogs");
-            expect($html.html()).to.equal("Cats <strong>and</strong> Dogs");
-            $html.remove();
-        });
-
-        it("should not bold unmatching text", function() {
-            var htmlstr = "<li>Cats and Dogs</li>";
-            var $html = $(htmlstr);
-            xcHelper.boldSuggestedText($html, "you");
-            expect($html.text()).to.equal("Cats and Dogs");
-            expect($html.html()).to.equal("Cats and Dogs");
-            $html.remove();
-        });
-
-        it("should bold text without removing other tags", function() {
-            var htmlstr = "<li><i></i>Cats and Dogs<i></i></li>";
-            var $html = $(htmlstr);
-            xcHelper.boldSuggestedText($html, "and");
-            expect($html.text()).to.equal("Cats and Dogs");
-            expect($html.html()).to.equal("<i></i>Cats <strong>and</strong> Dogs<i></i>");
-            $html.remove();
-        });
-
-        it("should bold text without modifying other tags", function() {
-            var htmlstr = "<li><i></i>newImd<i></i></li>";
-            var $html = $(htmlstr);
-            xcHelper.boldSuggestedText($html, "i");
-            expect($html.text()).to.equal("newImd");
-            expect($html.html()).to.equal("<i></i>new<strong>I</strong>md<i></i>");
-            $html.remove();
-        });
-
-        it("should handle input text with erroneous characters", function() {
-            var htmlstr = "<li><i></i>new/////)(I////\\md<i></i></li>";
-            var $html = $(htmlstr);
-            xcHelper.boldSuggestedText($html, "/////)(i////\\");
-            expect($html.text()).to.equal("new/////)(I////\\md");
-            expect($html.html()).to.equal("<i></i>new<strong>/////)(I////\\</strong>md<i></i>");
-            $html.remove();
-        });
-
-        it("should handle input text with special characters", function() {
-            var htmlstr = "<li><i></i>/workbook/user/[a].py<i></i></li>";
-            var $html = $(htmlstr);
-            xcHelper.boldSuggestedText($html, "/[a].");
-            expect($html.text()).to.equal("/workbook/user/[a].py");
-            expect($html.html()).to.equal("<i></i>/workbook/user<strong>/[a].</strong>py<i></i>");
-            $html.remove();
-        });
-    });
 
     it("xcHelper.roundToSignificantFigure should work", function() {
         expect(xcHelper.roundToSignificantFigure(1234, 5, 100, 1))
@@ -3263,75 +2026,65 @@ describe("xcHelper Test", function() {
         expect(res.indexOf("workbook=")).to.equal(-1);
     });
 
-    it("xcHelper.getLockIconHtml should work", function() {
-        var loadWithStepHtml = xcHelper.getLockIconHtml(1, 1, false, true);
-        var loadWithTextHtml = xcHelper.getLockIconHtml(1, 1, true, false);
-        var searchHtml = xcHelper.getLockIconHtml(undefined, undefined, false,
-                                                  false, true);
-        expect(loadWithStepHtml.indexOf("cancelLoad")).to.be.gt(-1);
-        expect(loadWithStepHtml.indexOf("stepText")).to.be.gt(-1);
-        expect(loadWithTextHtml.indexOf("pctText")).to.be.gt(-1);
-        expect(searchHtml.indexOf("cancelSearch")).to.be.gt(-1);
-    });
+    // XXX now located in extensionApi_Operations.js
+    // describe("xcHelper.createJoinedColumns", () => {
+    //     let createJoinedColumns;
+    //     const tableId = 'a';
+    //     const tableName = 'testTable#' + tableId;
 
-    describe("xcHelper.createJoinedColumns", () => {
-        let createJoinedColumns;
-        const tableId = 'a';
-        const tableName = 'testTable#' + tableId;
+    //     before(() => {
+    //         createJoinedColumns = xcHelper.createJoinedColumns;
 
-        before(() => {
-            createJoinedColumns = xcHelper.createJoinedColumns;
+    //         const progCols = []
+    //         progCols.push(ColManager.newPullCol('a'));
+    //         progCols.push(ColManager.newPullCol('prefix::b'));
+    //         progCols.push(ColManager.newDATACol());
+    //         let table = new TableMeta({
+    //             tableId: tableId,
+    //             tableName: tableName,
+    //             tableCols: progCols
+    //         });
 
-            const progCols = []
-            progCols.push(ColManager.newPullCol('a'));
-            progCols.push(ColManager.newPullCol('prefix::b'));
-            progCols.push(ColManager.newDATACol());
-            let table = new TableMeta({
-                tableId: tableId,
-                tableName: tableName,
-                tableCols: progCols
-            });
+    //         gTables[tableId] = table;
+    //     });
 
-            gTables[tableId] = table;
-        });
+    //     it('should return DATA col only when no table meta', () => {
+    //         const cols = createJoinedColumns('a', 'b', [], [], [], []);
+    //         expect(cols.length).to.equal(1);
+    //         expect(cols[0].backName).to.equal("DATA");
+    //     });
 
-        it('should return DATA col only when no table meta', () => {
-            const cols = createJoinedColumns('a', 'b', [], [], [], []);
-            expect(cols.length).to.equal(1);
-            expect(cols[0].backName).to.equal("DATA");
-        });
+    //     it('should return all cols when no pulled cols specified', () => {
+    //         const cols = createJoinedColumns(tableName, 'b', null, [], [], []);
+    //         expect(cols.length).to.equal(3);
+    //         expect(cols[0].backName).to.equal("a");
+    //         expect(cols[1].backName).to.equal("prefix::b");
+    //         expect(cols[2].backName).to.equal("DATA");
+    //     });
 
-        it('should return all cols when no pulled cols specified', () => {
-            const cols = createJoinedColumns(tableName, 'b', null, [], [], []);
-            expect(cols.length).to.equal(3);
-            expect(cols[0].backName).to.equal("a");
-            expect(cols[1].backName).to.equal("prefix::b");
-            expect(cols[2].backName).to.equal("DATA");
-        });
+    //     it('should return cols and replace name', () => {
+    //         const lPulledColNames = ['a', 'prefix::b'];
+    //         const lRenames = [{
+    //             type: ColumnType.integer,
+    //             orig: 'a',
+    //             new: 'newA'
+    //         }, {
+    //             type: DfFieldTypeT.DfFatptr,
+    //             orig: 'prefix',
+    //             new: 'newPrefix'
+    //         }];
+    //         const cols = createJoinedColumns(tableName, 'b',
+    //             lPulledColNames, [], lRenames, []);
+    //         expect(cols.length).to.equal(3);
+    //         expect(cols[0].backName).to.equal("newA");
+    //         expect(cols[1].backName).to.equal("newPrefix::b");
+    //         expect(cols[2].backName).to.equal("DATA");
+    //     });
 
-        it('should return cols and replace name', () => {
-            const lPulledColNames = ['a', 'prefix::b'];
-            const lRenames = [{
-                type: ColumnType.integer,
-                orig: 'a',
-                new: 'newA'
-            }, {
-                type: DfFieldTypeT.DfFatptr,
-                orig: 'prefix',
-                new: 'newPrefix'
-            }];
-            const cols = createJoinedColumns(tableName, 'b',
-                lPulledColNames, [], lRenames, []);
-            expect(cols.length).to.equal(3);
-            expect(cols[0].backName).to.equal("newA");
-            expect(cols[1].backName).to.equal("newPrefix::b");
-            expect(cols[2].backName).to.equal("DATA");
-        });
-
-        after(() => {
-            delete gTables[tableId];
-        });
-    });
+    //     after(() => {
+    //         delete gTables[tableId];
+    //     });
+    // });
 
     describe("xcHelper.createGroupByColumns", () => {
         const tableId = 'a'
@@ -3382,37 +2135,6 @@ describe("xcHelper Test", function() {
         // case 2
         res = xcHelper.zip();
         expect(res).to.eql([]);
-    });
-
-    it("xcHelper.formulateEvalString should work", function() {
-        var func = xcHelper.formulateEvalString;
-
-        var args = ['1', 2];
-                var colTypeInfos = [{
-                    argNum: 0,
-                    type: "integer"
-                }];
-        var arg = new OpPanelArg("a");
-        arg.setCast(ColumnType.integer)
-        var groups = [{
-            "operator": "add",
-            args: [arg]
-
-        }]
-        expect(func(groups)).to.equal("add(int(a, 10))");
-        // XXX TODO: recover this case
-        // args = [['1', 2], ['3', 4]];
-        // colTypeInfos = [
-        // [{
-        //     argNum: 0,
-        //     type: 'integer'
-        // }],
-        // [{
-        //     argNum: 0,
-        //     type: 'integer'
-        // }]];
-        // expect(func('add', args, colTypeInfos, true)).to.equal(
-        //     "and(add(int(1, 10), 2), add(int(3, 10), 4))");
     });
 
     after(function() {

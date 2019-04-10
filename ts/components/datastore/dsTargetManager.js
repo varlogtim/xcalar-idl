@@ -87,7 +87,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
             $(".numDSTargets").html(num);
         };
         if (!noWaitIcon) {
-            xcHelper.showRefreshIcon($("#dsTarget-list"));
+            xcUIHelper.showRefreshIcon($("#dsTarget-list"));
         }
 
         var $activeIcon = $gridView.find(".target.active");
@@ -149,7 +149,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
         });
 
         var promise = deferred.promise();
-        xcHelper.showRefreshIcon($targetCreateCard, null, promise);
+        xcUIHelper.showRefreshIcon($targetCreateCard, null, promise);
         return promise;
     };
 
@@ -258,7 +258,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
                 xcTooltip.remove($deleteLi);
             }
 
-            xcHelper.dropdownOpen($target, $gridMenu, {
+            MenuHelper.dropdownOpen($target, $gridMenu, {
                 "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
                 "classes": classes,
                 "floating": true
@@ -755,7 +755,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
 
     function deleteTarget($grid) {
         var targetName = $grid.data("name");
-        var msg = xcHelper.replaceMsg(DSTargetTStr.DelConfirmMsg, {
+        var msg = xcStringHelper.replaceMsg(DSTargetTStr.DelConfirmMsg, {
             target: targetName
         });
         Alert.show({
@@ -793,7 +793,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
             },
         }, {
             $ele: $targetName,
-            error: xcHelper.replaceMsg(DSTargetTStr.TargetExists, {
+            error: xcStringHelper.replaceMsg(DSTargetTStr.TargetExists, {
                 target: targetName
             }),
             check: function() {
@@ -854,7 +854,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
                 return deferred.promise();
             }
         }
-        xcHelper.toggleBtnInProgress($submitBtn, true);
+        xcUIHelper.toggleBtnInProgress($submitBtn, true);
         var errorParser = function(log) {
             try {
                 return log.split("ValueError:")[1].split("\\")[0];
@@ -863,21 +863,21 @@ window.DSTargetManager = (function($, DSTargetManager) {
                 return null;
             }
         };
-        xcHelper.disableSubmit($submitBtn);
+        xcUIHelper.disableSubmit($submitBtn);
         checkMountPoint()
         .then(function() {
             return XcalarTargetCreate.apply(this, args);
         })
         .then(function() {
-            xcHelper.toggleBtnInProgress($submitBtn, true);
-            xcHelper.showSuccess(SuccessTStr.Target);
+            xcUIHelper.toggleBtnInProgress($submitBtn, true);
+            xcUIHelper.showSuccess(SuccessTStr.Target);
             DSTargetManager.refreshTargets(true);
             resetForm();
             deferred.resolve();
         })
         .fail(function(error) {
             // fail case being handled in submitForm
-            xcHelper.toggleBtnInProgress($submitBtn, false);
+            xcUIHelper.toggleBtnInProgress($submitBtn, false);
             if (error.invalidMountPoint) {
                 var $mountpointInput =  $form.find("label[data-name=mountpoint]")
                                         .closest(".formRow")
@@ -893,7 +893,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
             deferred.reject(error);
         })
         .always(function() {
-            xcHelper.enableSubmit($submitBtn);
+            xcUIHelper.enableSubmit($submitBtn);
         });
 
         function checkMountPoint() {
@@ -910,7 +910,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
                     innerDeferred.resolve();
                 })
                 .fail(function() {
-                    var errorLog = xcHelper.replaceMsg(DSTargetTStr.MountpointNoExists, {
+                    var errorLog = xcStringHelper.replaceMsg(DSTargetTStr.MountpointNoExists, {
                         mountpoint: url
                     });
                     innerDeferred.reject({

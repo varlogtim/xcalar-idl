@@ -257,8 +257,8 @@ window.Log = (function($, Log) {
     };
 
     Log.scrollToBottom = function() {
-        xcHelper.scrollToBottom($textarea);
-        xcHelper.scrollToBottom($machineTextarea);
+        xcUIHelper.scrollToBottom($textarea);
+        xcUIHelper.scrollToBottom($machineTextarea);
         // when one panel scroll to bottom,
         // another panel didn't scroll as it's hidden
         // use this flag to mark
@@ -888,7 +888,7 @@ window.Log = (function($, Log) {
             xcTooltip.changeText($redo, TooltipTStr.NoRedo);
         } else {
             // when can redo
-            var redoTitle = xcHelper.replaceMsg(TooltipTStr.Redo, {
+            var redoTitle = xcStringHelper.replaceMsg(TooltipTStr.Redo, {
                 "op": logs[next].getTitle()
             });
 
@@ -916,7 +916,7 @@ window.Log = (function($, Log) {
             xcTooltip.changeText($undo, TooltipTStr.NoUndoNoOp);
         } else if (getUndoType(logs[cur]) !== UndoType.Valid) {
             // when cannot undo
-            undoTitle = xcHelper.replaceMsg(TooltipTStr.NoUndo, {
+            undoTitle = xcStringHelper.replaceMsg(TooltipTStr.NoUndo, {
                 "op": logs[cur].getTitle()
             });
 
@@ -926,7 +926,7 @@ window.Log = (function($, Log) {
             xcTooltip.changeText($undo, undoTitle);
         } else {
             // when can undo
-            undoTitle = xcHelper.replaceMsg(TooltipTStr.Undo, {
+            undoTitle = xcStringHelper.replaceMsg(TooltipTStr.Undo, {
                 "op": logs[cur].getTitle()
             });
             $undo.removeClass("disabled")
@@ -1065,7 +1065,7 @@ window.Log = (function($, Log) {
                 html += ',';
             }
             var val = JSON.stringify(options[key]);
-            val = xcHelper.escapeHTMLSpecialChar(val);
+            val = xcStringHelper.escapeHTMLSpecialChar(val);
             html += '<span class="' + key + '">' +
                         '<span class="logKey">' + key + '</span>' +
                         '<span class="logColon">:</span>' +
@@ -1094,7 +1094,7 @@ window.Log = (function($, Log) {
         } else {
             // thrift operation
             var string = '<span class="cliWrap" data-cli=' + id + '>' +
-                            xcHelper.escapeHTMLSpecialChar(xcLog.cli) +
+                            xcStringHelper.escapeHTMLSpecialChar(xcLog.cli) +
                          '</span>';
             return string;
         }

@@ -228,7 +228,7 @@ class SearchBar {
         if (!$list || $list.length === 0) {
             return;
         }
-        xcHelper.scrollIntoView($match, $list);
+        xcUIHelper.scrollIntoView($match, $list);
     }
     public updateResults($matches: JQuery): void {
         const searchBar: SearchBar = this;

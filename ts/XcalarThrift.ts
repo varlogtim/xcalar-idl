@@ -978,12 +978,12 @@ XcalarDatasetLoad = function(
             if (thriftError.output && thriftError.output.errorString) {
                 // This has a valid error struct that we can use
                 console.error("error in import", thriftError.output);
-                loadError = xcHelper.replaceMsg(DSTStr.LoadErr, {
+                loadError = xcStringHelper.replaceMsg(DSTStr.LoadErr, {
                     "error": parseLoadError(thriftError.output)
                 });
 
                 if (thriftError.output.errorFile) {
-                    loadError = xcHelper.replaceMsg(DSTStr.LoadErrFile, {
+                    loadError = xcStringHelper.replaceMsg(DSTStr.LoadErrFile, {
                         "file": thriftError.output.errorFile
                     }) + "\n" + loadError;
                 }

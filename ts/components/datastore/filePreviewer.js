@@ -264,7 +264,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
     function getCell(ch, offset) {
         offset = initialOffset + offset;
         var cell = '<span class="cell" data-offset="' + offset + '">' +
-                            xcHelper.escapeHTMLSpecialChar(ch) +
+                            xcStringHelper.escapeHTMLSpecialChar(ch) +
                     '</span>';
         return cell;
     }
@@ -287,7 +287,7 @@ window.FilePreviewer = (function(FilePreviewer, $) {
 
         $fakeElement.css("font-family", "monospace");
         $section.append($fakeElement);
-        var charWidth = xcHelper.getTextWidth($fakeElement);
+        var charWidth = xcUIHelper.getTextWidth($fakeElement);
         $fakeElement.remove();
         return charWidth;
     }

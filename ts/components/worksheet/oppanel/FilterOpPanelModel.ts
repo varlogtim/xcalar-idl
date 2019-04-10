@@ -125,7 +125,7 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
             for (let j = 0; j < argGroup.args.length; j++) {
                 let arg = argGroup.args[j].value;
                 if (argGroup.args[j].type === "fn") {
-                    arg = xcHelper.stringifyEval(argGroup.args[j]);
+                    arg = DagNodeInput.stringifyEval(argGroup.args[j]);
                 }
                 let typesAccepted;
                 let isOptional;
@@ -178,7 +178,7 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
     }
 
     protected _getParam(): DagNodeFilterInputStruct {
-        const evalString = xcHelper.formulateEvalString(this.groups,
+        const evalString = GeneralOpPanel.formulateEvalString(this.groups,
                                                              this.andOrOperator);
         return {
             evalString: evalString,

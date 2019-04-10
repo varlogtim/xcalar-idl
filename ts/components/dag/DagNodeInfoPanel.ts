@@ -162,9 +162,9 @@ class DagNodeInfoPanel {
             !(DagViewManager.Instance.getActiveTab() instanceof DagTabUser ||
             DagViewManager.Instance.getActiveTab() instanceof DagTabCustom));
         if (uneditable || DagViewManager.Instance.isNodeLocked(this._activeNode.getId())) {
-            xcHelper.disableElement(this._$panel.find(".editConfig"), "");
+            xcUIHelper.disableElement(this._$panel.find(".editConfig"), "");
         } else {
-            xcHelper.enableElement(this._$panel.find(".editConfig"));
+            xcUIHelper.enableElement(this._$panel.find(".editConfig"));
         }
     }
 
@@ -224,7 +224,7 @@ class DagNodeInfoPanel {
 
             this._$panel.find(".progressSection").text(pct);
             this._$panel.find(".timeRow").removeClass("xc-hidden");
-            this._$panel.find(".timeSection").text(xcHelper.getElapsedTimeStr(overallStats.time));
+            this._$panel.find(".timeSection").text(xcTimeHelper.getElapsedTimeStr(overallStats.time));
             this._$panel.find(".statsRow").removeClass("xc-hidden");
             const operationsStats = node.getIndividualStats(true);
             let statsHtml: HTML = "";
@@ -241,7 +241,7 @@ class DagNodeInfoPanel {
                 if (this._isRowStatsCollapsed) {
                     rowStatsClass = "collapsed";
                 }
-                let numRowsTotal = xcHelper.numToStr(stats.numRowsTotal);
+                let numRowsTotal = xcStringHelper.numToStr(stats.numRowsTotal);
                 if (numRowsTotal === "0" && node instanceof DagNodeExport) {
                     numRowsTotal = "N/A";
                 }
@@ -281,7 +281,7 @@ class DagNodeInfoPanel {
                 stats.rows.forEach((row, j) => {
                     statsHtml += `<div class="statsRow subRow">
                                 <div class="label">Node ${j + 1}</div>
-                                <div class="value">${xcHelper.numToStr(row)}</div>
+                                <div class="value">${xcStringHelper.numToStr(row)}</div>
                             </div>`;
                 });
 
@@ -293,7 +293,7 @@ class DagNodeInfoPanel {
                     </div>
                     <div class="statsRow subRow">
                         <div class="label">Elapsed Time: </div>
-                        <div class="value">${xcHelper.getElapsedTimeStr(stats.elapsedTime)}</div>
+                        <div class="value">${xcTimeHelper.getElapsedTimeStr(stats.elapsedTime)}</div>
                     </div>
                 </div>`;
 

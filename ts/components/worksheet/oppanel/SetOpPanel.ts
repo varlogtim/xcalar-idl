@@ -110,7 +110,7 @@ class SetOpPanel extends BaseOpPanel {
         });
 
         // change dedup option
-        xcHelper.optionButtonEvent(this._getDedupSection(), (option) => {
+        xcUIHelper.optionButtonEvent(this._getDedupSection(), (option) => {
             const dedup: boolean = (option === "no") ? true : false;
             this.setOpData.setDedup(dedup);
         });

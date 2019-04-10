@@ -547,7 +547,7 @@ class ColMenu extends AbstractMenu {
                 '</div>' +
                 '<div class="flexWrap flex-right">' +
                     '<span class="label">' +
-                        xcHelper.capitalize(type) +
+                        xcStringHelper.capitalize(type) +
                     '</span>' +
                 '</div>' +
                 '<i class="icon xi-tick fa-11 blue"></i>' +

@@ -43,6 +43,8 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     global.Durable = require("../dagHelper/Durable.js").Durable;
     global.DagGraph = require("../dagHelper/DagGraph.js").DagGraph;
     global.xcHelper = require("../dagHelper/xcHelper.js").xcHelper;
+    global.xcStringHelper = require("../dagHelper/xcStringHelper.js").xcStringHelper;
+    global.xcTimeHelper = require("../dagHelper/xcTimeHelper.js").xcTimeHelper;
     global.DagHelper = require("../DagHelperIndex.js").DagHelper
     global.DagSubGraph = require("../dagHelper/DagSubGraph.js").DagSubGraph;
     global.DagNodeType = require("../dagHelper/DagEnums.js").DagNodeType

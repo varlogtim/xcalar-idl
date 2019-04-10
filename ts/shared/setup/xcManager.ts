@@ -254,7 +254,7 @@ namespace xcManager {
             let errorMsg: string;
             try {
                 const ip: string = error["log"].match(/IP address \'(.*)\'/)[1];
-                errorMsg = xcHelper.replaceMsg(ThriftTStr.LogInDifferentWrap, {
+                errorMsg = xcStringHelper.replaceMsg(ThriftTStr.LogInDifferentWrap, {
                     ip: ip,
                     ip2: ip
                 });
@@ -354,6 +354,18 @@ namespace xcManager {
 
         return deferred.promise();
     };
+
+    /**
+     * xcManager.reload
+     * @param hardLoad
+     */
+    export function reload(hardLoad: boolean = false): void {
+        // override heartbeat check function so that it cannot run during reload
+        XcSupport.heartbeatCheck = () => false;
+        xcManager.removeUnloadPrompt(true);
+        location.reload(hardLoad);
+    }
+
 
     /**
      * xcManager.forceLogout
@@ -772,7 +784,7 @@ namespace xcManager {
 
         $("#userNameArea").click(function() {
             const $target: JQuery = $(this);
-            xcHelper.dropdownOpen($target, $menu, <xcHelper.DropdownOptions>{
+            MenuHelper.dropdownOpen($target, $menu, <xcHelper.DropdownOptions>{
                 "offsetY": -3,
                 "toggle": true,
                 "closeListener": true
@@ -941,8 +953,8 @@ namespace xcManager {
         let winResizeTimer: number;
         let resizing: boolean = false;
         let otherResize: boolean = false; // true if winresize is triggered by 3rd party code
-        let modalSpecs: xcHelper.ModalSpec;
-        const windowSpecs: xcHelper.WindowSpec = {
+        let modalSpecs: ModalSpec;
+        const windowSpecs: WindowSpec = {
             winHeight: $(window).height(),
             winWidth: $(window).width()
         };
@@ -979,7 +991,7 @@ namespace xcManager {
             } else {
                 TblFunc.repositionOnWinResize();
                 if (modalSpecs) {
-                    xcHelper.repositionModalOnWinResize(modalSpecs,
+                    ModalHelper.repositionModalOnWinResize(modalSpecs,
                                                         windowSpecs);
                 }
                 MonitorLog.adjustTabNumber();
@@ -1212,7 +1224,7 @@ namespace xcManager {
                             // wait for commit to finish before refreshing
                             promise
                             .always(function() {
-                                xcHelper.reload();
+                                xcManager.reload();
                             });
                         }
                     }]

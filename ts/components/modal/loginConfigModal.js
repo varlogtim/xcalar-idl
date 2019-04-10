@@ -121,7 +121,7 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
             $(this).toggleClass("checked");
         });
 
-        xcHelper.optionButtonEvent($("#ldapChoice"), function(option) {
+        xcUIHelper.optionButtonEvent($("#ldapChoice"), function(option) {
             ldapChoice = option;
             if (option === "ad") {
                 $modal.find(".adOnly").show();
@@ -302,12 +302,12 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
         .then(submitMSALConfig)
         .then(submitLdapConfig)
         .then(function() {
-            xcHelper.showSuccess(LoginConfigTStr.LoginConfigSavedSuccess);
+            xcUIHelper.showSuccess(LoginConfigTStr.LoginConfigSavedSuccess);
             closeModal();
         })
         .fail(function(errorMsg, isFatal) {
             if (isFatal) {
-                xcHelper.showFail(errorMsg);
+                xcUIHelper.showFail(errorMsg);
                 closeModal();
             } else {
                 Alert.show( {

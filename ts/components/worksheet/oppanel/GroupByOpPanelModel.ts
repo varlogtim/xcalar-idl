@@ -286,7 +286,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
             const name = this.groupOnCols[i];
             if (name.indexOf(",") > -1) {
                 return {
-                    error: xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
+                    error: xcStringHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
                                     "name": name
                             }),
                     group: 0,

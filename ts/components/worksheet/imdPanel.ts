@@ -338,10 +338,10 @@ namespace IMDPanel {
                     '<div class="tableColumn primaryKeys" ' + xcTooltip.Attrs + ' data-original-title="' + keys + '">' + keys + '</div>' +
                     '<div class="tableColumn indices" ' + xcTooltip.Attrs + ' data-original-title="' + indices + '">' + indices + '</div>' +
                     '<div class="tableColumn" ' + xcTooltip.Attrs + ' data-original-title="' + timeTip + '">' + time + '</div>' +
-                    '<div class="tableColumn metaData">' + xcHelper.numToStr(table.updates[i].numRows) + '</div>' +
-                    '<div class="tableColumn metaData">' + xcHelper.numToStr(table.updates[i].numInserts) + '</div>' +
-                    '<div class="tableColumn metaData">' + xcHelper.numToStr(table.updates[i].numUpdates) + '</div>' +
-                    '<div class="tableColumn metaData lastCol">' + xcHelper.numToStr(table.updates[i].numDeletes) + '</div>' +
+                    '<div class="tableColumn metaData">' + xcStringHelper.numToStr(table.updates[i].numRows) + '</div>' +
+                    '<div class="tableColumn metaData">' + xcStringHelper.numToStr(table.updates[i].numInserts) + '</div>' +
+                    '<div class="tableColumn metaData">' + xcStringHelper.numToStr(table.updates[i].numUpdates) + '</div>' +
+                    '<div class="tableColumn metaData lastCol">' + xcStringHelper.numToStr(table.updates[i].numDeletes) + '</div>' +
                     '<div class="spacer"></div>' +
                     '</div>';
         }
@@ -356,12 +356,12 @@ namespace IMDPanel {
     function updateColumnSection(table: PublishTable): void {
         let html: string = "";
         for (let i = 0; i < table.values.length; i++) {
-            let xcTypeIcon = xcHelper.getColTypeIcon(DfFieldTypeTFromStr[table.values[i].type]);
+            let xcTypeIcon = xcUIHelper.getColTypeIcon(DfFieldTypeTFromStr[table.values[i].type]);
             html += '<div class="columnRow">' +
                     '  <div class="iconWrap">' +
                     '    <i class="icon ' + xcTypeIcon + '"></i>' +
                     '  </div>' +
-                    '  <span class="colName">' + xcHelper.escapeHTMLSpecialChar(table.values[i].name) + '</span>' +
+                    '  <span class="colName">' + xcStringHelper.escapeHTMLSpecialChar(table.values[i].name) + '</span>' +
                     '</div>'
         }
         $tableDetail.find(".columnsList").html(html);
@@ -867,7 +867,7 @@ namespace IMDPanel {
             tableName = tableName.slice(0, -2);
             Alert.show({
                 'title': IMDTStr.DeactivateTable,
-                'msg': xcHelper.replaceMsg(IMDTStr.DeactivateTablesMsg, {
+                'msg': xcStringHelper.replaceMsg(IMDTStr.DeactivateTablesMsg, {
                     "tableName": tableName
                 }),
                 'onConfirm': () => {
@@ -975,7 +975,7 @@ namespace IMDPanel {
             tableName = tableName.slice(0, -2);
             Alert.show({
                 'title': IMDTStr.Coalesce,
-                'msg': xcHelper.replaceMsg(IMDTStr.CoalesceTip, {
+                'msg': xcStringHelper.replaceMsg(IMDTStr.CoalesceTip, {
                     "tableName": tableName
                 }),
                 'onConfirm': () => {
@@ -1761,9 +1761,9 @@ namespace IMDPanel {
         }
 
         let msg = restoreErrors[0].error + "<br>" +
-                "Failed Tables: " + xcHelper.listToEnglish(erroredTableNames) +
+                "Failed Tables: " + xcStringHelper.listToEnglish(erroredTableNames) +
                 "<br>" + "Dependencies: " +
-                xcHelper.listToEnglish(dependencyTableNames);
+                xcStringHelper.listToEnglish(dependencyTableNames);
         Alert.error("Some tables could not be activated", msg, {
             msgTemplate: msg
         });
@@ -1892,7 +1892,7 @@ namespace IMDPanel {
         tableName = tableName.slice(0, -2);
         Alert.show({
             'title': IMDTStr.DelTable,
-            'msg': xcHelper.replaceMsg(IMDTStr.DelTableMsg, {
+            'msg': xcStringHelper.replaceMsg(IMDTStr.DelTableMsg, {
                 "tableName": tableName
             }),
             'onConfirm': () => {
@@ -1926,7 +1926,7 @@ namespace IMDPanel {
         })
         .fail((...args) => {
             $listItem.removeClass("locked");
-            xcHelper.showFail(FailTStr.RmPublishedTable);
+            xcUIHelper.showFail(FailTStr.RmPublishedTable);
             deferred.reject.apply(this, args);
         });
 
@@ -2078,13 +2078,13 @@ namespace IMDPanel {
     let $waitingBg;
     function showWaitScreen(): void {
         $("#modalWaitingBG").remove();
-        $waitingBg = xcHelper.disableScreen($imdPanel, {
+        $waitingBg = xcUIHelper.disableScreen($imdPanel, {
             id: "modalWaitingBG"
         });
     }
 
     function removeWaitScreen(): void {
-        xcHelper.enableScreen($waitingBg)
+        xcUIHelper.enableScreen($waitingBg)
         .then(function() {
             progressState.canceled = false;
         });
@@ -2104,7 +2104,7 @@ namespace IMDPanel {
     function showProgressCircle(numSteps: number, numCompleted: number): void {
         const $waitSection: JQuery = $("#modalWaitingBG");
         $waitSection.addClass("hasProgress");
-        const progressAreaHtml: string = xcHelper.getLockIconHtml("listIMD", 0, true, true);
+        const progressAreaHtml: string = xcUIHelper.getLockIconHtml("listIMD", 0, true, true);
         $waitSection.html(progressAreaHtml);
         $waitSection.find(".stepText").addClass("extra").append(
             '<span class="extraText">' + IMDTStr.Activating + '</span>')

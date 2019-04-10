@@ -121,7 +121,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
         if (type !== "sysMsg") {
             // It seems that slack has already helped us escape it.
             // So we don't do it anymore
-            //content = xcHelper.escapeHTMLSpecialChar(content);
+            //content = xcStringHelper.escapeHTMLSpecialChar(content);
             row = "<div class='" + type + "Sender'>" +
                     "<p>" + sender + "</p></div>" + row;
             if ($modal.find(".sendEmail").hasClass("email-disabled")) {

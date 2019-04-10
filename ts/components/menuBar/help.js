@@ -162,7 +162,7 @@ window.Help = (function($, Help) {
             topic = fullName.slice(2);
             topic = topic.replace("SQL", "Sql"); // To avoid SQL being treated as
                                                // camel case
-            topic = xcHelper.camelCaseToRegular(topic);
+            topic = xcStringHelper.camelCaseToRegular(topic);
             topic = topic.replace("Sql", "SQL")
             if (topic === "" || topic.indexOf('.htm') > -1 ||
                 topic === "Feature Topics") {

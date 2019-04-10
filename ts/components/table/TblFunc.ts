@@ -54,7 +54,7 @@ class TblFunc {
 
         let table: TableMeta = null;
         if (!datastore) {
-            const tableId: TableId = xcHelper.parseTableId($table);
+            const tableId: TableId = TblManager.parseTableId($table);
             table = gTables[tableId];
         }
 
@@ -125,11 +125,11 @@ class TblFunc {
                 extraPadding -= 40;
             }
 
-            headerWidth = xcHelper.getTextWidth($th) + extraPadding;
+            headerWidth = xcUIHelper.getTextWidth($th) + extraPadding;
             // include prefix width
             if ($th.closest('.xcTable').length) {
                 const prefixText: string = $th.closest('.header').find('.prefix').text();
-                const prefixWidth: number = xcHelper.getTextWidth(null, prefixText);
+                const prefixWidth: number = xcUIHelper.getTextWidth(null, prefixText);
                 headerWidth = Math.max(headerWidth, prefixWidth);
             }
 
@@ -157,7 +157,7 @@ class TblFunc {
         });
 
         const padding: number = 10;
-        let largestWidth: number = xcHelper.getTextWidth($largestTd) + padding;
+        let largestWidth: number = xcUIHelper.getTextWidth($largestTd) + padding;
         if (fitAll) {
             largestWidth = Math.max(headerWidth, largestWidth);
         }
@@ -250,7 +250,7 @@ class TblFunc {
      */
     public static isTableScrollable(tableId: TableId): boolean {
         const $firstRow: JQuery = $('#xcTable-' + tableId).find('tbody tr:first');
-        const topRowNum: number = xcHelper.parseRowNum($firstRow);
+        const topRowNum: number = RowManager.parseRowNum($firstRow);
         const tHeadHeight: number = $('#xcTheadWrap-' + tableId).height();
         const tBodyHeight: number = $('#xcTable-' + tableId).height();
         const tableWrapHeight: number = $('#xcTableWrap-' + tableId).height();
@@ -470,14 +470,14 @@ class TblFunc {
                     let rowNum: number;
 
                     if (!isUp) {
-                        rowNum = xcHelper.parseRowNum($trs.eq($trs.length - 1)) + 1;
+                        rowNum = RowManager.parseRowNum($trs.eq($trs.length - 1)) + 1;
                         if (rowNum - lastRowNum > 5) {
                             // when have more then 5 buffer on bottom
                             $xcTbodyWrap.scrollTop(scrollTop + trHeight);
                             return true;
                         }
                     } else {
-                        rowNum = xcHelper.parseRowNum($trs.eq(0)) + 1;
+                        rowNum = RowManager.parseRowNum($trs.eq(0)) + 1;
                         if (curRow - rowNum > 5) {
                             // when have more then 5 buffer on top
                             $xcTbodyWrap.scrollTop(scrollTop - trHeight);
@@ -550,5 +550,97 @@ class TblFunc {
         TblFunc.moveFirstColumn(null);
         $table.find('.rowGrab').width(witdh);
         $table.siblings('.rowGrab').width(witdh);
+    }
+
+        /**
+     * TblFunc.lockTable
+     * will lock the table's worksheet as well
+     * so that worksheet cannot be deleted
+     * @param tableId
+     * @param txId - if no txId, will not be made cancelable
+     * @param options
+     *
+     */
+    public static lockTable(
+        tableId: TableId,
+        txId?: number,
+        options: {delayTime: number} = {delayTime: null}
+    ): void {
+        const table: TableMeta = gTables[tableId];
+        if (table == null) {
+            return;
+        }
+        const $tableWrap: JQuery = $('#xcTableWrap-' + tableId);
+        const isModelingMode = table.modelingMode;
+        if ($tableWrap.length !== 0 && !$tableWrap.hasClass('tableLocked')) {
+            // XXX TODO Remove this hack
+            const $container: JQuery = isModelingMode ?
+            DagTable.Instance.getView() : $('#mainFrame');
+            const iconNum: number = $('.lockedTableIcon[data-txid="' + txId +
+                                    '"] .progress').length;
+            // tableWrap may not exist during multijoin on self
+            const html: string = xcUIHelper.getLockIconHtml(txId, iconNum);
+            const $lockedIcon: JQuery = $(html);
+            if (txId == null) {
+                $lockedIcon.addClass("noCancel");
+            }
+            $tableWrap.addClass('tableLocked').append($lockedIcon);
+
+            const progressCircle: ProgressCircle = new ProgressCircle(txId, iconNum);
+            $lockedIcon.data('progresscircle', progressCircle);
+            const iconHeight: number = $lockedIcon.height();
+            const tableHeight: number = $tableWrap.find('.xcTbodyWrap').height();
+            const tbodyHeight: number = $tableWrap.find('tbody').height() + 1;
+            const containerHeight: number = $container.height();
+            let topPos: number = 50 * ((tableHeight - (iconHeight/2))/ containerHeight);
+            topPos = Math.min(topPos, 40);
+
+            $lockedIcon.css('top', topPos + '%');
+            $tableWrap.find('.xcTbodyWrap')
+                    .append('<div class="tableCover"></div>');
+            $tableWrap.find('.tableCover').height(tbodyHeight);
+            TblFunc.alignLockIcon();
+
+            // prevent vertical scrolling on the table
+            const $tbody: JQuery = $tableWrap.find('.xcTbodyWrap');
+            const scrollTop: number = $tbody.scrollTop();
+            $tbody.on('scroll.preventScrolling', function() {
+                $tbody.scrollTop(scrollTop);
+            });
+            if (options.delayTime) {
+                setTimeout(function() {
+                    if ($tableWrap.hasClass("tableLocked")) {
+                        $tableWrap.addClass("tableLockedDisplayed");
+                    }
+                }, options.delayTime);
+            } else {
+                $tableWrap.addClass("tableLockedDisplayed");
+            }
+        }
+        gTables[tableId].lock();
+        Log.lockUndoRedo();
+    }
+
+    /**
+     * TblFunc.unlockTable
+     * @param tableId
+     */
+    public static unlockTable(tableId: TableId): void {
+        const table = gTables[tableId];
+        if (!table) {
+            // case if table was deleted before unlock is called;
+            Log.unlockUndoRedo();
+            return;
+        }
+        table.unlock();
+        const $tableWrap: JQuery = $("#xcTableWrap-" + tableId);
+        $tableWrap.find('.lockedTableIcon').remove();
+        $tableWrap.find('.tableCover').remove();
+        $tableWrap.removeClass('tableLocked tableLockedDisplayed');
+        $('#dagWrap-' + tableId).removeClass('locked');
+
+        const $tbody: JQuery = $tableWrap.find('.xcTbodyWrap');
+        $tbody.off('scroll.preventScrolling');
+        Log.unlockUndoRedo();
     }
 }

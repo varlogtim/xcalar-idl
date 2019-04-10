@@ -310,7 +310,7 @@ window.Undo = (function($, Undo) {
         var currProgCols = gTables[tableId].tableCols;
         var colNums = options.colNums;
         var $table = $('#xcTable-' + tableId);
-        var dataIndex = xcHelper.parseColNum($table.find('th.dataCol'));
+        var dataIndex = ColManager.parseColNum($table.find('th.dataCol'));
         var newProgCol;
         shift = shift || 0;
 
@@ -325,7 +325,7 @@ window.Undo = (function($, Undo) {
         });
 
         var tableHtml = TblManager.generateTheadTbody(tableId);
-        var rowNum = xcHelper.parseRowNum($table.find('tbody').find('tr:eq(0)'));
+        var rowNum = RowManager.parseRowNum($table.find('tbody').find('tr:eq(0)'));
 
         $table.html(tableHtml);
 

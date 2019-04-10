@@ -42,7 +42,7 @@ class TableMenuManager {
             return;
         }
         const name: string = nameInput;
-        let nameUpper: string = xcHelper.capitalize(name);
+        let nameUpper: string = xcStringHelper.capitalize(name);
         let label: string = nameUpper;
         switch (nameInput) {
             case ('dfcreate'):

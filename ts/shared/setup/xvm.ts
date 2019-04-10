@@ -50,7 +50,7 @@ namespace XVM {
             compressedLicense = license.getCompressedlicense();
             if (license.getExpired()) {
                 console.log(license);
-                const error: string = xcHelper.replaceMsg(ErrTStr.LicenseExpire, {
+                const error: string = xcStringHelper.replaceMsg(ErrTStr.LicenseExpire, {
                     date: licenseExpireInfo
                 });
                 return error;
@@ -368,7 +368,7 @@ namespace XVM {
             if (currentTime - buildNumCheckTime > 60000) {
                 // if last check time is more than 1 minute
                 xcLocalStorage.setItem(key, String(currentTime));
-                xcHelper.reload(true);
+                xcManager.reload(true);
             }
             return false;
         } catch (e) {
@@ -532,7 +532,7 @@ namespace XVM {
 
     //     if (expireTime <= currentTime) {
     //         // this is an error case, should not happen
-    //         var msg = xcHelper.replaceMsg(ErrTStr.LicenseExpire, {
+    //         var msg = xcStringHelper.replaceMsg(ErrTStr.LicenseExpire, {
     //             "date": licenseKey
     //         });
 

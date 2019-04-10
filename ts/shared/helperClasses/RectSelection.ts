@@ -70,7 +70,7 @@ class RectSelection {
         self.__getRect().remove();
         self.$container.append(html);
         self.__addSelectRectEvent();
-        xcHelper.removeSelectionRange();
+        xcUIHelper.removeSelectionRange();
     }
 
     public __addSelectRectEvent() {

@@ -54,7 +54,7 @@ class DagAggPopup {
 
         $aggManagerPopup.on("mouseup", ".aggNameWrap .copy", function() {
             if ($(this).closest($aggManagerPopup).length) {
-                xcHelper.copyToClipboard($(this).closest(".aggName").text());
+                xcUIHelper.copyToClipboard($(this).closest(".aggName").text());
             }
         });
 
@@ -170,7 +170,7 @@ class DagAggPopup {
         if (!$row.length) {
             $row = $(this.aggRowTemplate);
             this.$retLists.append($row);
-            xcHelper.scrollToBottom(this.$retLists.closest(".tableContainer"));
+            xcUIHelper.scrollToBottom(this.$retLists.closest(".tableContainer"));
         }
 
         let graphName = "";

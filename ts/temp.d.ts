@@ -18,6 +18,19 @@ interface Coordinate {
     y: number;
 }
 
+interface TableCell {
+    isBlank: boolean;
+    isMixed: boolean;
+    type: string;
+    isUndefined: boolean;
+    isNull: boolean;
+}
+
+interface WindowSpec {
+    winWidth: number;
+    winHeight: number;
+}
+
 interface Dimensions {
     width: number,
     height: number,

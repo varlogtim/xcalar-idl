@@ -565,7 +565,7 @@ window.DS = (function ($, DS) {
                 error: "Dataset not found"
             };
         }
-        const sourceHasParams = xcHelper.checkValidParamBrackets(source, true);
+        const sourceHasParams = DagNodeInput.checkValidParamBrackets(source, true);
         if (sourceHasParams) {
             return {
                 schema: []
@@ -1013,13 +1013,13 @@ window.DS = (function ($, DS) {
             return PromiseHelper.resolve();
         }
         var name = dsObj.getName();
-        var msg = xcHelper.replaceMsg(DSTStr.ShareDSMsg, {name: name});
+        var msg = xcStringHelper.replaceMsg(DSTStr.ShareDSMsg, {name: name});
         var sharedName = getSharedName(dsId, name);
 
         if (name !== sharedName) {
             // in case this name is taken
             name = sharedName;
-            msg += " " + xcHelper.replaceMsg(DSTStr.RenameMsg, {name: name});
+            msg += " " + xcStringHelper.replaceMsg(DSTStr.RenameMsg, {name: name});
         }
 
         var alertDeferred = PromiseHelper.deferred();
@@ -1062,7 +1062,7 @@ window.DS = (function ($, DS) {
     function unshareDS(dsId) {
         var dsObj = DS.getDSObj(dsId);
         var name = dsObj.getName();
-        var msg = xcHelper.replaceMsg(DSTStr.UnshareDSMsg, {
+        var msg = xcStringHelper.replaceMsg(DSTStr.UnshareDSMsg, {
             name: name
         });
         var $unsharedDS = $gridView.find('.grid-unit:not(.shared)' +
@@ -1070,7 +1070,7 @@ window.DS = (function ($, DS) {
         if ($unsharedDS.length) {
             // in case this name is taken
             name = DS.getUniqueName(name);
-            msg += " " + xcHelper.replaceMsg(DSTStr.RenameMsg, {name: name});
+            msg += " " + xcStringHelper.replaceMsg(DSTStr.RenameMsg, {name: name});
         }
 
         Alert.show({
@@ -1243,7 +1243,7 @@ window.DS = (function ($, DS) {
             case "add":
                 var dsObj = DS.getDSObj(arg.ds.id);
                 if (dsObj != null) {
-                    var msg = xcHelper.replaceMsg(DSTStr.ForceShareMsg, {
+                    var msg = xcStringHelper.replaceMsg(DSTStr.ForceShareMsg, {
                         name: dsObj.getName()
                     });
                     removeDS(dsObj.getId());
@@ -1419,7 +1419,7 @@ window.DS = (function ($, DS) {
     }
 
     function alertSampleSizeLimit(dsName) {
-        var msg = xcHelper.replaceMsg(DSTStr.OverSampleSize , {
+        var msg = xcStringHelper.replaceMsg(DSTStr.OverSampleSize , {
             name: dsName,
             size: xcHelper.sizeTranslator(gMaxSampleSize)
         })
@@ -1545,7 +1545,7 @@ window.DS = (function ($, DS) {
                 }
             });
             if (otherUsers.length > 0) {
-                var error = xcHelper.replaceMsg(DSTStr.DSUsed, {
+                var error = xcStringHelper.replaceMsg(DSTStr.DSUsed, {
                     "users": otherUsers.join(",")
                 });
                 deferred.reject({error: error});
@@ -1584,20 +1584,20 @@ window.DS = (function ($, DS) {
                 return PromiseHelper.resolve();
             } else if (dsObj.isActivated()) {
                 title = AlertTStr.NoDel;
-                msg = xcHelper.replaceMsg(DSTStr.DelActivatedDS, {
+                msg = xcStringHelper.replaceMsg(DSTStr.DelActivatedDS, {
                     "ds": dsName
                 });
                 isAlert = true;
             } else if (txId != null) {
                 // cancel case
                 title = DSTStr.CancelPoint;
-                msg = xcHelper.replaceMsg(DSTStr.CancelPointMsg, {
+                msg = xcStringHelper.replaceMsg(DSTStr.CancelPointMsg, {
                     "ds": dsName
                 });
             } else {
                 // when remove ds
                 title = DSTStr.DelDS;
-                msg = xcHelper.replaceMsg(DSTStr.DelDSConfirm, {
+                msg = xcStringHelper.replaceMsg(DSTStr.DelDSConfirm, {
                     "ds": dsName
                 });
             }
@@ -1810,7 +1810,7 @@ window.DS = (function ($, DS) {
 
         if (dsObj.isActivated()) {
             // delete activated ds
-            err = xcHelper.replaceMsg(DSTStr.DelActivatedDS, {
+            err = xcStringHelper.replaceMsg(DSTStr.DelActivatedDS, {
                 "ds": dsName
             });
             failures.push(err);
@@ -1819,12 +1819,12 @@ window.DS = (function ($, DS) {
             // delete folder
             if (!dsObj.isEditable()) {
                 // delete uneditable folder/ds
-                err = xcHelper.replaceMsg(DSTStr.DelUneditable, {
+                err = xcStringHelper.replaceMsg(DSTStr.DelUneditable, {
                     "ds": dsName
                 });
                 failures.push(err);
             } else if (!removeFolderRecursive(dsId)) {
-                err = xcHelper.replaceMsg(DSTStr.FailDelFolder, {
+                err = xcStringHelper.replaceMsg(DSTStr.FailDelFolder, {
                     "folder": dsName
                 });
                 failures.push(err);
@@ -1850,7 +1850,7 @@ window.DS = (function ($, DS) {
                     error = error.error;
                 }
                 var msg = isCanel ? DSTStr.FailCancelDS : DSTStr.FailDelDS;
-                error = xcHelper.replaceMsg(msg, {
+                error = xcStringHelper.replaceMsg(msg, {
                     "ds": dsName,
                     "error": error
                 });
@@ -2212,7 +2212,7 @@ window.DS = (function ($, DS) {
         for (var fullDSName in datasetsSet) {
             var ds = datasetsSet[fullDSName];
             if (ds != null) {
-                var format = xcHelper.parseDSFormat(ds);
+                var format = parseDSFormat(ds);
                 var parsedRes = xcHelper.parseDSName(fullDSName);
                 var user = parsedRes.user;
                 var dsName = parsedRes.dsName;
@@ -2238,6 +2238,36 @@ window.DS = (function ($, DS) {
         var kvStore = new KVStore(key, gKVScope.GLOB);
         kvStore.putWithMutex(tempDSInfoMeta.serialize(), true);
         return tempDSInfoMeta;
+    }
+
+    function isExcelUDF(udfName) {
+        // default:openExcelWithHeader is DEPRECATED as of 1.3.1.
+        // Kept for backwards compatibility
+        return (udfName === 'default:openExcelWithHeader') ||
+                (udfName === 'default:openExcel');
+    }
+
+    /**
+     * parseDSFormat
+     * @param ds
+     */
+    function parseDSFormat(ds){
+        let format;
+        try {
+            var udf = ds.loadArgs.parseArgs.parserFnName;
+            if (isExcelUDF(udf)) {
+                format = 'Excel';
+            } else if (udf === 'default:parseCsv') {
+                format = 'CSV';
+            } else {
+                format = 'JSON';
+            }
+        } catch (e) {
+            console.error('parse format error', e);
+            format = 'Unknown';
+        }
+
+        return format;
     }
 
     function checkUnlistableDS(unlistableDS) {
@@ -2425,7 +2455,7 @@ window.DS = (function ($, DS) {
                 }
 
                 $label.removeClass("focused");
-                xcHelper.removeSelectionRange();
+                xcUIHelper.removeSelectionRange();
                 // still focus on the grid-unit
                 $dsListFocusTrakcer.data(dsId);
                 focsueOnTracker();
@@ -2782,7 +2812,7 @@ window.DS = (function ($, DS) {
                 classes += " disableShare";
             }
 
-            xcHelper.dropdownOpen($target, $gridMenu, {
+            MenuHelper.dropdownOpen($target, $gridMenu, {
                 "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
                 "classes": classes,
                 "floating": true
@@ -2801,7 +2831,7 @@ window.DS = (function ($, DS) {
         var dir = curDirId;
         var deferred = PromiseHelper.deferred();
         var promise = DS.restore(DS.getHomeDir(true));
-        xcHelper.showRefreshIcon($gridView, false, promise);
+        xcUIHelper.showRefreshIcon($gridView, false, promise);
 
         promise
         .then(function() {
@@ -3163,7 +3193,7 @@ window.DS = (function ($, DS) {
         .fail(function(error, loadError) {
             try {
                 var displayError = loadError || error.log || error.error;
-                var errorMsg = xcHelper.replaceMsg(DSTStr.FailActivateDS, {
+                var errorMsg = xcStringHelper.replaceMsg(DSTStr.FailActivateDS, {
                     "ds": dsObj.getName(),
                     "error": displayError
                 });
@@ -3297,7 +3327,7 @@ window.DS = (function ($, DS) {
             if (error.status === StatusT.StatusDsDatasetInUse) {
                 dsInUse.push(dsId);
             }
-            var errorMsg = xcHelper.replaceMsg(DSTStr.FailDeactivateDS, {
+            var errorMsg = xcStringHelper.replaceMsg(DSTStr.FailDeactivateDS, {
                 "ds": dsObj.getName(),
                 "error": error.error
             });
@@ -3354,7 +3384,7 @@ window.DS = (function ($, DS) {
             .then(deferred.resolve)
             .fail((error) => {
                 if (error.status === StatusT.StatusDsDatasetInUse) {
-                    var msg = xcHelper.replaceMsg(DSTStr.InUseErr, {
+                    var msg = xcStringHelper.replaceMsg(DSTStr.InUseErr, {
                         name: wkbkName
                     });
                     error.error = msg
@@ -3623,6 +3653,7 @@ window.DS = (function ($, DS) {
         DS.__testOnly__.unshareDS = unshareDS;
         DS.__testOnly__.shareAndUnshareHelper = shareAndUnshareHelper;
         DS.__testOnly__.alertSampleSizeLimit = alertSampleSizeLimit;
+        DS.__testOnly__.parseDSFormat = parseDSFormat;
     }
     /* End Of Unit Test Only */
 

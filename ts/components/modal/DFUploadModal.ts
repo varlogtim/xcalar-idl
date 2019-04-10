@@ -107,7 +107,7 @@ class DFUploadModal {
             return PromiseHelper.reject();
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        xcHelper.disableSubmit($confirmBtn);
+        xcUIHelper.disableSubmit($confirmBtn);
 
         const tab: DagTab = res.tab;
         const shared: boolean = res.shared;
@@ -143,7 +143,7 @@ class DFUploadModal {
                 if (restoreDS) {
                     this._restoreDS(resultTab, shared);
                 }
-                xcHelper.showSuccess(SuccessTStr.Upload);
+                xcUIHelper.showSuccess(SuccessTStr.Upload);
                 this._submitDone(resultTab);
                 deferred.resolve();
             }
@@ -163,7 +163,7 @@ class DFUploadModal {
         .always(() => {
             clearTimeout(timer);
             this._unlock();
-            xcHelper.enableSubmit($confirmBtn);
+            xcUIHelper.enableSubmit($confirmBtn);
         });
 
         return deferred.promise();
@@ -196,7 +196,7 @@ class DFUploadModal {
         if (size <= sizeLimit) {
             deferred.resolve();
         } else {
-            const msg: string = xcHelper.replaceMsg(ErrWRepTStr.LargeFileUpload, {
+            const msg: string = xcStringHelper.replaceMsg(ErrWRepTStr.LargeFileUpload, {
                 size: xcHelper.sizeTranslator(sizeLimit)
             });
             Alert.show({

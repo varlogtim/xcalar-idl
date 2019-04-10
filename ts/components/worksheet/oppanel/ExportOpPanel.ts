@@ -57,7 +57,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
     private _activateDropDown($list: JQuery, container: string) {
         let dropdownHelper: MenuHelper = new MenuHelper($list, {
             "onOpen": function() {
-                var $lis = $list.find('li').sort(xcHelper.sortHTML);
+                var $lis = $list.find('li').sort(xcUIHelper.sortHTML);
                 $lis.prependTo($list.find('ul'));
             },
             "container": container
@@ -143,7 +143,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
             this._currentDriver = "";
         }
 
-        const $waitIcon = xcHelper.disableScreen(this._$elemPanel.find(".opSection"));
+        const $waitIcon = xcUIHelper.disableScreen(this._$elemPanel.find(".opSection"));
 
         this._dataModel.loadDrivers()
         .then(() => {
@@ -161,7 +161,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         .always(() => {
             MainMenu.setFormOpen();
             this.panelResize();
-            xcHelper.enableScreen($waitIcon);
+            xcUIHelper.enableScreen($waitIcon);
         });
     }
 
@@ -194,7 +194,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         // Render column list
         let html: string = "";
         columnList.forEach((column, index) => {
-            const colName: string = xcHelper.escapeHTMLSpecialChar(
+            const colName: string = xcStringHelper.escapeHTMLSpecialChar(
                 column.sourceColumn);
             const colNum: number = (index + 1);
             let checked = column.isSelected ? " checked" : "";
@@ -202,8 +202,8 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
                 '" data-colnum="' + colNum + '">' +
                 '<span class="text tooltipOverflow" ' +
                 'data-original-title="' +
-                    xcHelper.escapeDblQuoteForHTML(
-                        xcHelper.escapeHTMLSpecialChar(colName)) + '" ' +
+                    xcStringHelper.escapeDblQuoteForHTML(
+                        xcStringHelper.escapeHTMLSpecialChar(colName)) + '" ' +
                 'data-toggle="tooltip" data-placement="top" ' +
                 'data-container="body">' +
                     colName +

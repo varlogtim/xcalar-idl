@@ -6,7 +6,7 @@ namespace JupyterStubMenu {
         private $dropdownBox: JQuery;
 
         constructor() {
-            this.$jupyterPanel = $("#jupyterPanel"); 
+            this.$jupyterPanel = $("#jupyterPanel");
             this.$dropdownBox = this.$jupyterPanel.find(".topBar .dropdownBox");
             this.setupListeners();
         }
@@ -21,7 +21,7 @@ namespace JupyterStubMenu {
                     return;
                 }
 
-                xcHelper.dropdownOpen(self.$dropdownBox, $jupMenu, {
+                MenuHelper.dropdownOpen(self.$dropdownBox, $jupMenu, {
                     "offsetX": -7,
                     "toClose": function() {
                         return $jupMenu.is(":visible");
@@ -67,10 +67,10 @@ namespace JupyterStubMenu {
     export function setup(): void {
         menu = new Menu();
     }
-    
+
     /**
      * JupyterStubMenu.toggleVisibility
-     * @param show 
+     * @param show
      */
     export function toggleVisibility(show: boolean): void {
         menu.toggleVisibility(show);
@@ -78,7 +78,7 @@ namespace JupyterStubMenu {
 
     /**
      * JupyterStubMenu.toggleAllow
-     * @param allow 
+     * @param allow
      */
     export function toggleAllow(allow: boolean): void {
         menu.toggleAllow(allow);

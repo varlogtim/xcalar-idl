@@ -493,7 +493,7 @@ class AggOpPanel extends GeneralOpPanel {
                         .find('.description').text(description);
 
         const $nameInput = $rows.eq(numArgs).find('.arg');
-        xcHelper.addAggInputEvents($nameInput);
+        BaseOpPanel.addAggInputEvents($nameInput);
     }
 
     protected _getExistingTypes(_groupNum) {

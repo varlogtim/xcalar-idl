@@ -443,7 +443,7 @@ class ExtensionOpPanelArgSection {
                             '</button>' +
                         '</div>';
         }
-        inputVal = xcHelper.escapeHTMLSpecialChar(inputVal);
+        inputVal = xcStringHelper.escapeHTMLSpecialChar(inputVal);
         let html: HTML;
         if (isCheckbox) {
             html =
@@ -544,7 +544,7 @@ class ExtensionOpPanelArgSection {
         });
 
         $argSection.find("input.aggName").each((_index, el) => {
-            xcHelper.addAggInputEvents($(el));
+            BaseOpPanel.addAggInputEvents($(el));
         });
 
         $argSection.on("click", ".checkboxWrap", (event) => {
@@ -571,7 +571,7 @@ class ExtensionOpPanelArgSection {
 
         const inputSuggest: InputSuggest = new InputSuggest({
             $container: $extArgs,
-            onClick: ($li) => { this._applyColSuggest($li); } 
+            onClick: ($li) => { this._applyColSuggest($li); }
         });
 
         const $argSection: JQuery = $extArgs.find(".argSection");
@@ -780,7 +780,7 @@ class ExtensionOpPanelArgSection {
                 !isNaN(typeCheck.min) &&
                 arg < typeCheck.min
             ) {
-                const error: string = xcHelper.replaceMsg(ErrWRepTStr.NoLessNum, {
+                const error: string = xcStringHelper.replaceMsg(ErrWRepTStr.NoLessNum, {
                     num: typeCheck.min
                 });
                 StatusBox.show(error, $input);
@@ -789,7 +789,7 @@ class ExtensionOpPanelArgSection {
                 !isNaN(typeCheck.max) &&
                 arg > typeCheck.max
             ) {
-                const error: string = xcHelper.replaceMsg(ErrWRepTStr.NoBiggerNum, {
+                const error: string = xcStringHelper.replaceMsg(ErrWRepTStr.NoBiggerNum, {
                     num: typeCheck.max
                 });
                 StatusBox.show(error, $input);
@@ -803,7 +803,7 @@ class ExtensionOpPanelArgSection {
                         return col.getBackColName() === arg;
                     });
                     if (progCols.length > 0) {
-                        const error: string = xcHelper.replaceMsg(ErrWRepTStr.ColConflictInNode, {
+                        const error: string = xcStringHelper.replaceMsg(ErrWRepTStr.ColConflictInNode, {
                             name: arg,
                             node: (nodeIndex + 1)
                         });
@@ -826,7 +826,7 @@ class ExtensionOpPanelArgSection {
                     return { valid: false, arg: undefined };
                 }
                 if (DagAggManager.Instance.hasOwnProperty(arg)) {
-                    const error: string = xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
+                    const error: string = xcStringHelper.replaceMsg(ErrWRepTStr.AggConflict, {
                         name: arg,
                         aggPrefix: gAggVarPrefix
                     });
@@ -886,7 +886,7 @@ class ExtensionOpPanelArgSection {
                     }
 
                     if (validType != null && validType.indexOf(type) < 0) {
-                        const error: string = xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
+                        const error: string = xcStringHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
                             type1: validType.join(","),
                             type2: type
                         });
@@ -901,7 +901,7 @@ class ExtensionOpPanelArgSection {
                         type: colType
                     });
                 } else {
-                    const error: string = xcHelper.replaceMsg(ErrWRepTStr.InvalidColOnNode, {
+                    const error: string = xcStringHelper.replaceMsg(ErrWRepTStr.InvalidColOnNode, {
                         col: colName,
                         node: (nodexIndex + 1)
                     });

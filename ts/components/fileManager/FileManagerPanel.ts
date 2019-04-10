@@ -507,7 +507,7 @@ class FileManagerPanel {
                             this.manager
                             .delete(this._getSelectedPathNodesArray())
                             .then(() =>
-                                xcHelper.showSuccess(
+                                xcUIHelper.showSuccess(
                                     this.curFileType + SuccessTStr.DelFile
                                 )
                             );
@@ -983,7 +983,7 @@ class FileManagerPanel {
         .escapeRegExp(keyword)
         .replace(/\\\*/g, ".*")
         .replace(/\\\?/g, ".");
-        keywordSearch = xcHelper.containRegExKey(keywordSearch);
+        keywordSearch = xcStringHelper.containRegExKey(keywordSearch);
         const keywordReg: RegExp = new RegExp(keywordSearch, "i");
 
         if (!this.rootPathNode.children.has("Search")) {

@@ -488,10 +488,10 @@ namespace Alert {
             $modal.find(".close, .cancel").hide();
             $confirmBtn.hide();
 
-            const $downloadLogBtn: JQuery = xcHelper.supportButton("log");
-            const $logoutBtn: JQuery = xcHelper.supportButton(null);
-            const $adminSupportBtn: JQuery = xcHelper.supportButton("adminSupport");
-            const $supportBtn: JQuery = xcHelper.supportButton("support");
+            const $downloadLogBtn: JQuery = supportButton("log");
+            const $logoutBtn: JQuery = supportButton(null);
+            const $adminSupportBtn: JQuery = supportButton("adminSupport");
+            const $supportBtn: JQuery = supportButton("support");
 
             if (options.expired) {
                 $btnSection.prepend($logoutBtn);
@@ -511,5 +511,90 @@ namespace Alert {
                 $modal.find("." + options.hideButtons[i]).hide();
             }
         }
+    }
+
+       /**
+     *
+     * @param type
+     */
+    function supportButton(type: string): JQuery {
+        let $btn: JQuery;
+        let html: string;
+
+        switch (type) {
+            case 'log':
+                // download log button
+                html = '<button type="button" class="btn downloadLog">' +
+                            CommonTxtTstr.DownloadLog +
+                        '</button>';
+                $btn = $(html);
+                $btn.click(function() {
+                    $(this).blur();
+
+                    const logCaches: object[] = Log.getAllLogs();
+                    let log: string;
+                    if (logCaches['logs'].length === 0 &&
+                        logCaches['errors'].length === 0)
+                    {
+                        log = Log.getLocalStorage() || Log.getBackup() || "";
+                    } else {
+                        log = JSON.stringify(logCaches);
+                    }
+
+                    xcHelper.downloadAsFile("xcalar.log", log, false);
+                    xcUIHelper.showSuccess(SuccessTStr.Copy);
+                });
+                break;
+            case 'support':
+                // generate bundle button
+                html = '<button type="button" class="btn genSub" ' +
+                        'data-toggle="tooltip" title="' +
+                        TooltipTStr.FileTicket + '">' +
+                            CommonTxtTstr.FileTicket +
+                        '</button>';
+                $btn = $(html);
+                $btn.click(function() {
+                    SupTicketModal.show();
+                    $(this).blur();
+                    MonitorGraph.stop();
+                });
+                break;
+            case 'adminSupport':
+                html = '<button type="button" ' +
+                        'class="btn adminOnly adminSupport" ' +
+                        'data-toggle="tooltip" ' +
+                        'title="' + "Support Tools" + '">' +
+                            MonitorTStr.SupportTools +
+                        '</button>';
+                $btn = $(html);
+
+                $btn.click(function() {
+                    Admin.showSupport();
+                });
+                break;
+            default:
+                // log out button
+                html = '<button type="button" class="btn logout">' +
+                            CommonTxtTstr.LogOut +
+                        '</button>';
+                $btn = $(html);
+                $btn.click(function() {
+                    $(this).blur();
+                    if (XcUser.CurrentUser != null) {
+                        XcUser.CurrentUser.logout();
+                    } else {
+                        xcManager.unload();
+                    }
+                });
+                break;
+        }
+
+        return $btn;
+    }
+
+    export let __testOnly__: any = {};
+
+    if (typeof window !== 'undefined' && window['unitTestMode']) {
+        __testOnly__.supportButton = supportButton;
     }
 }

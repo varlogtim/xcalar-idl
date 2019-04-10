@@ -249,6 +249,6 @@ abstract class AbstractChartBuilder {
             return num.toFixed(decimal);
         }
         // if not speify maximumFractionDigits, 168711.0001 will be 168,711
-        return xcHelper.numToStr(num, 5);
+        return xcStringHelper.numToStr(num, 5);
     }
 }

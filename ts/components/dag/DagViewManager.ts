@@ -1118,15 +1118,15 @@ class DagViewManager {
             let aggVal: string | number = dagNode.getAggVal();
             const evalStr: string = dagNode.getParam().evalString;
             const op: string = evalStr.substring(0, evalStr.indexOf("("));
-            const title: string = xcHelper.replaceMsg(AggTStr.AggTitle, {
+            const title: string = xcStringHelper.replaceMsg(AggTStr.AggTitle, {
                 op: op
             });
             if (typeof aggVal === "string") {
                 aggVal = `"${aggVal}"`;
             } else {
-                aggVal = xcHelper.numToStr(<number>aggVal);
+                aggVal = xcStringHelper.numToStr(<number>aggVal);
             }
-            const msg: string = xcHelper.replaceMsg(AggTStr.AggMsg, {
+            const msg: string = xcStringHelper.replaceMsg(AggTStr.AggMsg, {
                 val: aggVal
             });
             Alert.show({
@@ -1177,7 +1177,7 @@ class DagViewManager {
                 const $dfArea: JQuery = this._getAreaByTab(tabId);
                 $dfArea.addClass("xc-disabled");
                 const promise = DagTabManager.Instance.reloadTab(tab);
-                xcHelper.showRefreshIcon($dfArea, true, promise);
+                xcUIHelper.showRefreshIcon($dfArea, true, promise);
 
                 promise
                     .then(() => {

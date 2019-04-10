@@ -1773,6 +1773,27 @@ describe("Dataset-DS Test", function() {
         });
     });
 
+    it("parseDSFormat should work", function() {
+        var ds = {
+            loadArgs: {
+                parseArgs: {
+                    parserFnName: "default:openExcel"
+                }
+            }
+        };
+
+        expect(DS.__testOnly__.parseDSFormat(ds)).to.equal("Excel");
+        // case 2
+        ds.loadArgs.parseArgs.parserFnName = "default:parseCsv";
+        expect(DS.__testOnly__.parseDSFormat(ds)).to.equal("CSV");
+        // case 3
+        ds.loadArgs.parseArgs.parserFnName = "default:parseJson";
+        expect(DS.__testOnly__.parseDSFormat(ds)).to.equal("JSON");
+        // error case
+        expect(DS.__testOnly__.parseDSFormat("")).to.equal("Unknown");
+    });
+
+
     after(function() {
         xcTooltip.hideAll(); // toggle list view test may have tooltip
         $mainTabCache.click();

@@ -126,7 +126,7 @@ class FormHelper {
         const options: FormHelperOptions = $.extend(self.options, extraOptions) || {};
 
         $("body").addClass("no-selection");
-        xcHelper.removeSelectionRange();
+        xcUIHelper.removeSelectionRange();
         // hide tooltip when open the form
         xcTooltip.hideAll();
         $(".selectedCell").removeClass("selectedCell");
@@ -190,13 +190,13 @@ class FormHelper {
 
             $(".xcTable").each(function() {
                 const $table: JQuery = $(this);
-                const table: TableMeta = gTables[xcHelper.parseTableId($table)];
+                const table: TableMeta = gTables[TblManager.parseTableId($table)];
                 const $invalidHeaders: JQuery = $table.find(".header").filter(function() {
                     const $header: JQuery = $(this);
                     if ($header.hasClass("noColumnPicker")) {
                         return false;
                     }
-                    const colNum: number = xcHelper.parseColNum($header.parent());
+                    const colNum: number = ColManager.parseColNum($header.parent());
                     if (colNum > 0) {
                         const type: ColumnType = table.getCol(colNum).getType();
                         return (validTypes.indexOf(type) === -1);
@@ -241,7 +241,7 @@ class FormHelper {
                 const $td: JQuery = $target.closest('td');
                 let $header: JQuery;
                 if ($td.length) {
-                    const colNum: number = xcHelper.parseColNum($td);
+                    const colNum: number = ColManager.parseColNum($td);
                     $header = $td.closest('.xcTable').find('th.col' + colNum)
                                                      .find('.header');
                 } else {
@@ -367,12 +367,12 @@ class FormHelper {
     // This function prevents the user from clicking the submit button multiple
     // times
     public disableSubmit(): void {
-        xcHelper.disableSubmit(this.$form.find(".confirm"));
+        xcUIHelper.disableSubmit(this.$form.find(".confirm"));
     }
 
     // This function reenables the submit button after the checks are done
     public enableSubmit(): void {
-        xcHelper.enableSubmit(this.$form.find(".confirm"));
+        xcUIHelper.enableSubmit(this.$form.find(".confirm"));
     }
 
     public clear(extraOptions?: FormHelperOptions): XDPromise<void> {
@@ -563,7 +563,7 @@ class FormHelper {
         event: JQueryEventObject,
         isArgInput?: boolean
     ): boolean {
-        return xcHelper.listHighlight($input, event, isArgInput);
+        return xcUIHelper.listHighlight($input, event, isArgInput);
     }
 
     public getOpenTime(): number {
@@ -584,7 +584,7 @@ class FormHelper {
             return;
         }
 
-        xcHelper.centerFocusedColumn(tableId, colNum, true, noSelect);
+        TblManager.centerFocusedColumn(tableId, colNum, true, noSelect);
 
         const $th: JQuery = $("#xcTable-" + tableId).find("th.col" + colNum);
         xcTooltip.transient($th, {

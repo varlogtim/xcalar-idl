@@ -20,6 +20,28 @@ interface MenuHelperTimer {
     mouseScroll: number
 }
 
+interface DropdownOptions {
+    mouseCoors?: Coordinate;
+    offsetX?: number;
+    offsetY?: number;
+    classes?: string;
+    colNum?: number;
+    rowNum?: number;
+    isMultiCol?: boolean;
+    multipleColNums?: number[],
+    isUnSelect?: boolean;
+    shiftKey?: boolean;
+    floating?: boolean;
+    callback?: Function;
+    isDataTd?: boolean;
+    toClose?: Function;
+    toggle?: boolean;
+    allowSelection?: boolean;
+    prefix?: string;
+    color?: string;
+    tableId?: TableId;
+}
+
 /*
 * options include:
     onlyClickIcon: if set true, only toggle dropdown menu when click
@@ -106,6 +128,131 @@ class MenuHelper {
     }
 
     public static counter = 0;// used to give each menu a unique id
+
+    /**
+     * MenuHelper.dropdownOpen
+     * @param $dropdownIcon
+     * @param $menu
+     * @param options
+     *  mouseCoors: {x: float, y: float},
+     *  offsetX: float,
+     *  offsetY: float,
+     *  classes: string, ("class1 class2") to assign to $menu
+     *  colNum: integer,
+     *  isMultiCol: boolean,
+     *  multipleColumns: [integers],
+     *  isUnselect: boolean,
+     *  shiftKey: boolean,
+     *  floating: boolean (menu floats around and can pop up above user's mouse)
+     *  callback: function,
+     *  isDataTd: boolean, true if clicking on the json td,
+     *  toClose: function, return true if want to close the menu
+     *  toggle: boolean, if set true, will toggle open/close of menu,
+     *  allowSelection: boolean, if true, will not clear any selected text
+     *  prefix: string
+     *  color: string
+     */
+
+    public static dropdownOpen(
+        $dropdownIcon: JQuery,
+        $menu: JQuery,
+        options: DropdownOptions = <DropdownOptions>{}
+    ): void {
+        if (!($menu instanceof jQuery)) {
+            console.error("Need to provide $menu");
+            return;
+        }
+
+        const menuId: string = $menu.attr('id');
+        let $allMenus: JQuery;
+        let $subMenu: JQuery;
+
+        if ($menu.data('submenu')) {
+            $subMenu = $('#' + $menu.data('submenu'));
+            $allMenus = $menu.add($subMenu);
+        } else {
+            $allMenus = $menu;
+        }
+
+        let tableId: TableId;
+        if (menuId === "tableMenu" || menuId === "colMenu" ||
+            menuId === "cellMenu" || menuId === "prefixColorMenu"
+        ) {
+            if (menuId === "tableMenu" && options.tableId) {
+                tableId = options.tableId;
+            } else {
+                tableId = TblManager.parseTableId($dropdownIcon.closest(".xcTableWrap"));
+            }
+        }
+
+        $('.menu .selected').removeClass('selected');
+        $(".leftColMenu").removeClass("leftColMenu");
+        xcTooltip.hideAll();
+        xcMenu.removeKeyboardNavigation();
+        $menu.removeData("rowNum");
+
+        if (typeof options.callback === "function") {
+            options.callback();
+        }
+
+        // custom options for each $menu type
+        // adds classes, decides whether to close the menu and return;
+        const menuHelperRes: string = MenuHelper.menuHelper($dropdownIcon, $menu, $subMenu,
+                                                menuId, tableId, options);
+
+        if (menuHelperRes === "closeMenu") {
+            xcMenu.close($allMenus);
+            return;
+        }
+
+        xcMenu.close();
+
+        // case that should open the menu (note that colNum = 0 may make it false!)
+        if (options.colNum != null && options.colNum > -1) {
+            $menu.data("colNum", options.colNum);
+            $menu.data("tableId", tableId);
+        } else {
+            $menu.removeData("colNum");
+            $menu.removeData("tableId");
+        }
+        if (menuId === "tableMenu") {
+            $menu.data("tableId", tableId);
+        }
+
+        if (menuId === "prefixColorMenu") {
+            $menu.data("tableId", tableId)
+                .data("prefix", options.prefix || "");
+            $menu.find(".wrap").removeClass("selected");
+            const color: string = options.color || "white";
+            $menu.find("." + color).addClass("selected");
+        }
+
+        if (options.rowNum != null && options.rowNum > -1) {
+            $menu.data("rowNum", options.rowNum);
+        }
+
+        let classes: string = options.classes;
+        if (classes != null) {
+            if (gTables[tableId] && gTables[tableId].modelingMode) {
+                classes += " style-white mode-modeling";
+            }
+            const showingHotKeys: boolean = $menu.hasClass("showingHotKeys");
+            const className: string = classes.replace("header", "");
+            $menu.attr("class", "menu " + className);
+            if ($subMenu) {
+                $subMenu.attr("class", "menu subMenu " + className);
+            }
+            if (showingHotKeys) {
+                $menu.addClass("showingHotKeys");
+            }
+        }
+
+        // adjust menu height and position it properly
+        MenuHelper.positionAndShowMenu(menuId, $menu, $dropdownIcon, options);
+        xcMenu.addKeyboardNavigation($menu, $subMenu, {
+            allowSelection: options.allowSelection
+        });
+    }
 
     public setupListeners(): MenuHelper {
         const self: MenuHelper = this;
@@ -500,4 +647,474 @@ class MenuHelper {
         $list.find('.scrollArea.top').addClass('stopped');
         $list.find('.scrollArea.bottom').removeClass('stopped');
     }
+
+        /**
+     * custom options for each $menu type
+     * adds classes, decides whether to close the menu and return;
+     * @param $dropdownIcon
+     * @param $menu
+     * @param $subMenu
+     * @param menuId
+     * @param tableId
+     * @param options
+     */
+    private static menuHelper(
+        $dropdownIcon: JQuery,
+        $menu: JQuery,
+        $subMenu: JQuery,
+        menuId: string,
+        tableId: TableId,
+        options: DropdownOptions
+    ): string {
+        const toClose: Function = options.toClose;
+        if (typeof toClose === 'function' && options.toClose() === true) {
+            return "closeMenu";
+        }
+
+        if (options.toggle && $menu.is(":visible")) {
+            return "closeMenu";
+        }
+
+        switch (menuId) {
+            case ('tableMenu'):
+                // case that should close table menu
+                if ($menu.is(":visible") && $menu.data('tableId') === tableId) {
+                    return "closeMenu";
+                }
+                MenuHelper.updateTableDropdown($menu, options);
+                TblManager.unHighlightCells();
+                break;
+            case ('colMenu'):
+                // case that should close column menu
+                if ($menu.is(":visible") &&
+                    $menu.data("colNum") === options.colNum &&
+                    $menu.data('tableId') === tableId &&
+                    !$menu.hasClass('tdMenu')
+                ) {
+                    return "closeMenu";
+                }
+                MenuHelper.updateColDropdown($subMenu, tableId, options);
+                if (options.multipleColNums) {
+                    $menu.data('columns', options.multipleColNums);
+                    $menu.data('colNums', options.multipleColNums);
+                } else {
+                    $menu.data('colNums', [options.colNum]);
+                }
+                $subMenu.find('.sort').removeClass('unavailable');
+                TblManager.unHighlightCells();
+                break;
+            case ('cellMenu'):
+                // case that should close column menu
+                if (options.isUnSelect && !options.shiftKey) {
+                    return "closeMenu";
+                }
+                MenuHelper.updateTdDropdown($dropdownIcon, $menu, tableId, options);
+                break;
+            default:
+                TblManager.unHighlightCells();
+                break;
+        }
+        return "";
+    }
+
+   /**
+    *
+    * @param menuId
+    * @param $menu
+    * @param $dropdownIcon
+    * @param options
+    *   mouseCoors: {x: float, y: float},
+    *   offsetX: float,
+    *   offsetY: float,
+    *   floating: boolean (menu floats around and can pop up above user's mouse)
+    */
+    private static positionAndShowMenu(
+       menuId: string,
+       $menu: JQuery,
+       $dropdownIcon: JQuery,
+       options: DropdownOptions
+    ): void {
+        const winHeight: number = $(window).height();
+        const bottomMargin: number = 5;
+        let topMargin: number;
+        if (menuId === "cellMenu") {
+            topMargin = 15;
+        } else if (menuId === "colMenu") {
+            topMargin = -4;
+        } else {
+            topMargin = 0;
+        }
+
+        const leftMargin: number = 5;
+        let left: number;
+        let top: number;
+        if (options.mouseCoors) {
+            left = options.mouseCoors.x;
+            top = options.mouseCoors.y + topMargin;
+        } else {
+            left = $dropdownIcon[0].getBoundingClientRect().left + leftMargin;
+            top = $dropdownIcon[0].getBoundingClientRect().bottom + topMargin;
+        }
+
+        if (options.offsetX) {
+            left += options.offsetX;
+        }
+        if (options.offsetY) {
+            top += options.offsetY;
+        }
+
+        let menuHeight: number = winHeight - top - bottomMargin;
+        $menu.css('max-height', 'none'); // set to none so we can measure full height
+        $menu.children('ul').css('max-height', 'none');
+        $menu.css({"top": top, "left": left});
+        $menu.show();
+        const fullMenuHeight = $menu.height();
+        $menu.css('max-height', menuHeight);
+        $menu.children('ul').css('max-height', menuHeight);
+        $menu.children('ul').scrollTop(0);
+
+        showOrHideArrows();
+
+        // positioning if dropdown is on the right side of screen
+        const rightBoundary: number = $(window).width() - 5;
+        if ($menu[0].getBoundingClientRect().right > rightBoundary) {
+            left = rightBoundary - $menu.width();
+            $menu.css('left', left).addClass('leftColMenu');
+        }
+
+        //positioning if td menu is below the screen and floating option is allowed
+        // if full length menu dips below window
+        if (options.floating && (top + fullMenuHeight + 5 > winHeight)) {
+            let offset: number = 15;
+            if (menuId === "cellMenu") {
+                offset = 20;
+            }
+            const newMenuHeight = top - offset - 5;
+            if (newMenuHeight < menuHeight) {
+                // if moving the menu to be above the dropdown icon
+                // results in a shorter menu, then ignore and return
+                return;
+            }
+            menuHeight = newMenuHeight;
+            top -= (fullMenuHeight + offset);
+            if (top < 5) {
+                top = 5;
+                $menu.css('max-height', menuHeight);
+                $menu.children('ul').css('max-height', menuHeight);
+                showOrHideArrows();
+            } else {
+                $menu.css('max-height', 'none');
+                $menu.children('ul').css('max-height', 'none');
+                $menu.find('.scrollArea.bottom').addClass('stopped');
+            }
+            $menu.css('top', top);
+        }
+
+        function showOrHideArrows() {
+              // size menu and ul
+            const $ul: JQuery = $menu.find('ul');
+            if ($ul.length > 0) {
+                const ulHeight: number = $menu.find('ul')[0].scrollHeight;
+                if (ulHeight > menuHeight) {
+                    $menu.find('.scrollArea').show();
+                    $menu.find('.scrollArea.bottom').addClass('active');
+                } else {
+                    $menu.children('ul').css('max-height', 'none');
+                    $menu.find('.scrollArea').hide();
+                }
+            }
+            // set scrollArea states
+            $menu.find('.scrollArea.top').addClass('stopped');
+            $menu.find('.scrollArea.bottom').removeClass('stopped');
+        }
+    }
+
+    private static updateTdDropdown(
+        $div: JQuery,
+        $menu: JQuery,
+        tableId: TableId,
+        options: DropdownOptions
+    ): void {
+        // If the tdDropdown is on a non-filterable value, we need to make the
+        // filter options unavailable
+        const tableCol: ProgCol = gTables[tableId].tableCols[options.colNum - 1];
+        const columnType: string = tableCol.type;
+        // allow fnfs but not array elements, multi-type, or anything but
+        // valid types
+        let notAllowed: boolean = ($div.find('.blank').length > 0);
+        let cellCount: number = 0;
+        let isMultiCell: boolean = false;
+        const table: TableMeta =  gTables[tableId];
+        const cells: TableCell[] = [];
+        for (let row in table.highlightedCells) {
+            for (let col in table.highlightedCells[row]) {
+                cellCount++;
+                if (cellCount > 1) {
+                    isMultiCell = true;
+                }
+                let cell: TableCell = table.highlightedCells[row][col];
+                cells.push(cell);
+                if (cell.isBlank) {
+                    notAllowed = true;
+                }
+            }
+        }
+
+        const filterTypes: string[] = ["string", "float", "integer", "boolean", "timestamp", "mixed"];
+        const shouldNotFilter: boolean = options.isMultiCol ||
+                                    filterTypes.indexOf(columnType) === -1 ||
+                                    MenuHelper.isInvalidMixed(columnType, cells) ||
+                                    ($("#container").hasClass('columnPicker'));
+
+        const $tdFilter: JQuery = $menu.find(".tdFilter");
+        const $tdExclude: JQuery = $menu.find(".tdExclude");
+
+        if (shouldNotFilter || notAllowed) {
+            $tdFilter.addClass("unavailable");
+            $tdExclude.addClass("unavailable");
+        } else {
+            $tdFilter.removeClass("unavailable");
+            $tdExclude.removeClass("unavailable");
+        }
+
+        $tdFilter.removeClass("multiCell preFormatted");
+        $tdExclude.removeClass("multiCell preFormatted");
+
+        if (isMultiCell) {
+            $tdFilter.addClass("multiCell");
+            $tdExclude.addClass("multiCell");
+        }
+
+        if (!options.isMultiCol &&
+            (tableCol.getFormat() !== ColFormat.Default)
+        ) {
+            $tdFilter.addClass("preFormatted");
+            $tdExclude.addClass("preFormatted");
+            // when it's only on one column and column is formatted
+            options.classes += " long";
+        }
+
+        MenuHelper.toggleUnnestandJsonOptions($menu, $div, columnType, isMultiCell,
+                                    notAllowed, options, tableId);
+    }
+
+    private static updateTableDropdown($menu: JQuery, options: DropdownOptions): void {
+        if (options.classes && options.classes.indexOf('locked') !== -1) {
+            $menu.find('li:not(.hideTable, .unhideTable)')
+                  .addClass('unavailable');
+        } else {
+            $menu.find('li').removeClass('unavailable');
+        }
+    }
+
+    private static updateColDropdown(
+        $subMenu: JQuery,
+        tableId: TableId,
+        options: DropdownOptions
+    ): void {
+        const progCol: ProgCol = gTables[tableId].getCol(options.colNum);
+        const $lis: JQuery = $subMenu.find(".typeList");
+        $lis.removeClass("unavailable");
+        xcTooltip.remove($lis);
+
+        const isKnownType: boolean = progCol.isKnownType();
+        if (isKnownType && !options.multipleColNums) {
+            $subMenu.find(".changeDataType").addClass("isKnownType");
+        } else {
+            $subMenu.find(".changeDataType").removeClass("isKnownType");
+        }
+    }
+
+
+    /**
+     * used for deciding if cell can be filtered
+     * returns true if cell is mixed and not an object or array
+     * assumes cells from only 1 column are highlighted
+     * @param columnType
+     * @param cells
+     */
+    private static isInvalidMixed(columnType: string, cells: TableCell[]) {
+        const filterTypes: string[] = ["string", "float", "integer", "boolean", "timestamp",
+                                        "undefined", "mixed"];
+        const notAllowedCombTypes: string[] = ["string", "float", "integer", "boolean", "timestamp"];
+        let invalidFound: boolean = false;
+        let typeFound: string;
+        for (let i = 0; i < cells.length; i++) {
+            let cell: TableCell = cells[i];
+            let type: string;
+            if (cell.isMixed) {
+                type = cell.type;
+            } else if (cell.isUndefined) {
+                type = "undefined";
+            } else if (cell.isNull) {
+                type = "null";
+            } else if (cell.isBlank) {
+                type = "blank";
+            } else {
+                type = columnType;
+            }
+
+            if (filterTypes.indexOf(type) === -1) {
+                invalidFound = true;
+                break;
+            }
+
+            if (!typeFound) {
+                typeFound = type;
+            } else if (type !== typeFound) {
+                // cannot filter more than 1 type
+                // XXX we won't need to do this check
+                // (disallow filtering mixed cell types) once GUI-7071 is fixed
+                if (notAllowedCombTypes.indexOf(type) !== -1 &&
+                    notAllowedCombTypes.indexOf(typeFound) !== -1) {
+                        invalidFound = true;
+                        break;
+                    }
+            }
+        }
+
+        return invalidFound;
+    }
+
+    private static toggleUnnestandJsonOptions(
+        $menu: JQuery,
+        $div: JQuery,
+        columnType: string,
+        isMultiCell: boolean,
+        notAllowed: boolean,
+        options: DropdownOptions,
+        tableId: TableId
+    ): void {
+        if (!$div.hasClass('originalData')) {
+            $div = $div.siblings('.originalData');
+        }
+        const $unnestLi: JQuery = $menu.find('.tdUnnest');
+        const $jsonModalLi: JQuery = $menu.find('.tdJsonModal');
+        $unnestLi.addClass('hidden'); // pull all
+        $jsonModalLi.addClass('hidden'); // examine
+
+        let isMixedObj: boolean = false;
+        let isTruncated: boolean = false;
+        if (isMultiCell) {
+            $menu.data('istruncatedtext', false);
+            return;
+        }
+
+        if ((columnType === "object" || columnType === "array") &&
+            !notAllowed
+        ) {
+            if ($div.text().trim() !== "" && !$div.find('.undefined').length) {
+                // when  only one cell is selected
+                $jsonModalLi.removeClass("hidden");
+                $unnestLi.removeClass("hidden");
+            }
+        } else {
+            if ($div.parent().hasClass('truncated')) {
+                isTruncated = true;
+                $jsonModalLi.removeClass("hidden");
+            }
+
+            if (columnType === "mixed" && !notAllowed) {
+                const text: string = $div.text().trim();
+                if (text !== "" && !$div.find('.undefined').length) {
+                    // when only one cell is selected
+                    let mixedVal: object;
+                    try {
+                        mixedVal = JSON.parse(text);
+                    } catch (err) {
+                        mixedVal = null;
+                    }
+                    if (mixedVal && typeof mixedVal === ColumnType.object) {
+                        $jsonModalLi.removeClass("hidden");
+                        $unnestLi.removeClass("hidden");
+                        isMixedObj = true;
+                    }
+                }
+            }
+        }
+        MenuHelper.checkIfAlreadyUnnested($unnestLi, tableId, options);
+        if (isTruncated && !isMixedObj) {
+            $menu.data('istruncatedtext', true);
+        } else {
+            $menu.data('istruncatedtext', false);
+        }
+    }
+
+        /**
+     * for tds
+     * @param
+     * @param tableId
+     * @param options
+     */
+    private static checkIfAlreadyUnnested(
+        $unnestLi: JQuery,
+        tableId: TableId,
+        options: DropdownOptions
+    ): void {
+        if ($unnestLi.hasClass("hidden")) {
+            return;
+        }
+        const rowNum: number = options.rowNum;
+        const colNum: number = options.colNum;
+
+
+        const $table : JQuery= $('#xcTable-' + tableId);
+        const $jsonTd: JQuery = $table.find('.row' + rowNum).find('td.col' + colNum);
+
+        const table: TableMeta = gTables[tableId];
+        const progCol: ProgCol = table.getCol(colNum);
+        const isArray: boolean = (progCol.getType() === ColumnType.array);
+        let openSymbol: string = "";
+        let closingSymbol: string = "";
+        const unnestColName: string = progCol.getBackColName();
+
+        // only escaping if column names not passed into parseUnnestTd
+        function checkColExists(colName: string) {
+            var escapedColName = xcHelper.escapeColName(colName);
+            escapedColName = unnestColName + openSymbol +
+                            escapedColName + closingSymbol;
+            return table.hasColWithBackName(escapedColName, false);
+        }
+
+        if (isArray) {
+            openSymbol = "[";
+            closingSymbol = "]";
+        } else {
+            openSymbol = ".";
+        }
+
+        const jsonTd: object = MenuHelper.parseRowJSON($jsonTd.find('.originalData').text());
+        let notExists: boolean = false;
+        for (let tdKey in jsonTd) {
+            if (!checkColExists(tdKey)) {
+                notExists = true;
+                break;
+            }
+        }
+        if (notExists) {
+            xcTooltip.changeText($unnestLi, "", true);
+            $unnestLi.removeClass("unavailable");
+        } else {
+            xcTooltip.changeText($unnestLi, "all columns pulled", false);
+            $unnestLi.addClass("unavailable");
+        }
+    }
+
+    private static parseRowJSON(jsonStr: string): object {
+        let value: object;
+        try {
+            value = JSON.parse(jsonStr);
+        } catch (err) {
+            value = {};
+        }
+
+        return value;
+    }
+
+    // export let __testOnly__: any = {};
+
+    // if (typeof window !== 'undefined' && window['unitTestMode']) {
+    //     __testOnly__.toggleUnnestandJsonOptions = toggleUnnestandJsonOptions;
+    //     __testOnly__.isInvalidMixed = isInvalidMixed;
+    // }
 }

@@ -111,7 +111,7 @@ window.UserSettings = (function($, UserSettings) {
             }
 
             const $userSettingsSave = $("#userSettingsSave");
-            xcHelper.disableSubmit($userSettingsSave);
+            xcUIHelper.disableSubmit($userSettingsSave);
 
             dsPromise
             .then(function() {
@@ -122,23 +122,23 @@ window.UserSettings = (function($, UserSettings) {
                 saveLastPrefs();
                 XcSocket.Instance.sendMessage("refreshUserSettings", {});
                 if (showSuccess) {
-                    xcHelper.showSuccess(SuccessTStr.SaveSettings);
+                    xcUIHelper.showSuccess(SuccessTStr.SaveSettings);
                 }
                 deferred.resolve();
             })
             .fail(function(error) {
                 console.error("Commit User Info failed", error);
                 if (showSuccess) {
-                    xcHelper.showFail(FailTStr.SaveSettings);
+                    xcUIHelper.showFail(FailTStr.SaveSettings);
                 }
                 deferred.reject(error);
             })
             .always(function() {
-                xcHelper.enableSubmit($userSettingsSave);
+                xcUIHelper.enableSubmit($userSettingsSave);
             });
         } else {
             if (showSuccess) {
-                xcHelper.showSuccess(SuccessTStr.SaveSettings);
+                xcUIHelper.showSuccess(SuccessTStr.SaveSettings);
             }
             deferred.resolve();
         }

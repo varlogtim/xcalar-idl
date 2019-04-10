@@ -86,6 +86,147 @@ class GeneralOpPanel extends BaseOpPanel {
         this.updateOperatorsMap();
     }
 
+     /**
+     * GeneralOpPanel.formulateEvalString
+     * groups = [{
+     * operator: "eq",
+     * args: [value: "colname", cast: "blah"]
+     * }]
+     * @param groups
+     * @param andOr
+     * @param andOrIndices an empty map provided that will be populated with
+     * the indices where "and" or "or" will appear in the eval string
+     */
+    public static formulateEvalString(
+        groups: OpPanelFunctionGroup[],
+        andOr?: string,
+        andOrIndices?: {}
+    ): string {
+        let str = "";
+        groups.forEach((group, i: number) => {
+            const funcName: string = group.operator;
+            const args = group.args;
+            if (i > 0) {
+                str += ", ";
+            }
+
+            if (i < groups.length - 1) {
+                if (!andOr) {
+                    andOr = "and";
+                }
+                if (andOrIndices) {
+                    andOrIndices[str.length] = true;
+                }
+                str += andOr + "(";
+            }
+            str += funcName + "(";
+
+            let hasValue = false;
+            // loop through arguments within a group
+            args.forEach((arg) => {
+                let colNames: string[];
+                const formattedValue = arg.getFormattedValue();
+                if (arg.getType() !== "function" &&
+                    formattedValue[0] !== '"' &&
+                    formattedValue[0] !== "'") {
+                    // if not a string in quotes, ok to split into separate values
+                    colNames = formattedValue.split(",");
+                } else {
+                    colNames = [formattedValue];
+                }
+                let colStr: string = "";
+                colNames.forEach((colName, k) => {
+                    if (k > 0) {
+                        colStr += ", ";
+                    }
+                    if (arg.isCast()) {
+                        colStr += xcHelper.castStrHelper(colName, arg.getCast());
+                    } else {
+                        colStr += colName;
+                    }
+                });
+
+                if (arg.getFormattedValue() !== "") {
+                    str += colStr + ", ";
+                    hasValue = true;
+                }
+            });
+            if (hasValue) {
+                str = str.slice(0, -2);
+            }
+            str += ")";
+        });
+
+        for (let i = 0; i < groups.length - 1; i++) {
+            str += ")";
+        }
+
+        return (str);
+    }
+
+    // interface BracketMatchRet {
+    //     char: string;
+    //     index: number;
+    //     hasParen: boolean;
+    // }
+
+    /**
+     * GeneralOpPanel.checkMatchingBrackets
+     * @param val
+     */
+    public static checkMatchingBrackets(val: string): {
+        char: string,
+        index: number,
+        hasParen: boolean
+    } {
+        let numOpens: number = 0;
+        let inQuotes: boolean = false;
+        let singleQuote: boolean = false; // ' is true, " is false
+        let ret = {
+            char: '',
+            index: -1 ,// returns -1 if no mismatch found
+            hasParen: false
+        };
+        for (let i = 0; i < val.length; i++) {
+            if (inQuotes) {
+                if ((singleQuote && val[i] === '\'') ||
+                    (!singleQuote && val[i] === '"')) {
+                    inQuotes = false;
+                } else if (val[i] === '\\') {
+                    i++; // ignore next character
+                }
+                continue;
+            }
+            if (val[i] === '"') {
+                inQuotes = true;
+                singleQuote = false;
+            } else if (val[i] === '\'') {
+                inQuotes = true;
+                singleQuote = true;
+            } else if (val[i] === '\\') {
+                i++; // ignore next character
+            } else if (val[i] === '(') {
+                numOpens++;
+                ret.hasParen = true;
+            } else if (val[i] === ')') {
+                numOpens--;
+                if (numOpens < 0) {
+                    ret.char = ")";
+                    ret.index = i;
+                    return ret;
+                }
+            }
+        }
+        if (numOpens === 0) {
+            return ret;
+        } else {
+            ret.char = '(';
+            ret.index = val.indexOf('(');
+            return ret;
+        }
+    }
+
+
     public constructor() {
         super();
     }
@@ -717,7 +858,7 @@ class GeneralOpPanel extends BaseOpPanel {
 
         list.sort();
         return list.map((list) => {
-            return xcHelper.escapeHTMLSpecialChar(list);
+            return xcStringHelper.escapeHTMLSpecialChar(list);
         });
     }
 
@@ -813,7 +954,7 @@ class GeneralOpPanel extends BaseOpPanel {
         list = beginningMatches.concat(list);
 
         return list.map((colName) => {
-            const colNameTemplate: HTML = xcHelper.escapeHTMLSpecialChar(colName);
+            const colNameTemplate: HTML = xcStringHelper.escapeHTMLSpecialChar(colName);
             return BaseOpPanel.craeteColumnListHTML(colsCache[colName], colNameTemplate);
         });
     }
@@ -1621,7 +1762,7 @@ class GeneralOpPanel extends BaseOpPanel {
             // with parens
             if (val.indexOf("(") !== 0 &&
                 val.lastIndexOf(")") === (valLen - 1)) {
-                return (xcHelper.checkMatchingBrackets(val).index === -1);
+                return (GeneralOpPanel.checkMatchingBrackets(val).index === -1);
             } else {
                 return false;
             }
@@ -1836,7 +1977,7 @@ class GeneralOpPanel extends BaseOpPanel {
         if (this._$lastInputFocused.hasClass("variableArgs")) {
             options.append = true;
         }
-        if (xcHelper.fillInputFromCell($tableCell, this._$lastInputFocused,
+        if (xcUIHelper.fillInputFromCell($tableCell, this._$lastInputFocused,
                                     gColPrefix, options)) {
             this._onArgChange(this._$lastInputFocused);
         }
@@ -1850,7 +1991,7 @@ class GeneralOpPanel extends BaseOpPanel {
             // if user tries to select column without focusing on input
             return false;
         }
-        const value = xcHelper.getValueFromCell($target);
+        const value = xcUIHelper.getValueFromCell($target);
         if (value) {
             let editor = this.getEditor();
             editor.replaceSelection(value);

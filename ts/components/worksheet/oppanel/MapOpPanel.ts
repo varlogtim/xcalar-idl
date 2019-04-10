@@ -568,7 +568,7 @@ class MapOpPanel extends GeneralOpPanel {
         const description = OpModalTStr.ColNameDesc + ":";
         const $rows = this._$panel.find(".group").eq(groupIndex).find('.row');
         const $row = $rows.eq(numArgs).addClass('resultantColNameRow');
-        const icon = xcHelper.getColTypeIcon(operObj.outputType);
+        const icon = xcUIHelper.getColTypeIcon(operObj.outputType);
 
         $row.find('.dropDownList')
             .addClass('colNameSection')

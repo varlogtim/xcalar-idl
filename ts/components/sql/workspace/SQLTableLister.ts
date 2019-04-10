@@ -80,7 +80,7 @@ class SQLTableLister extends AbstractSQLResultView {
     private _getTableInfoFromRowEl($row: JQuery): PbTblInfo {
         let index = Number($row.data("index"));
         return this._getTableInfoFromIndex(index);
-    } 
+    }
 
     private _getAvailableTables(): PbTblInfo[] {
         let tables: PbTblInfo[] = PTblManager.Instance.getTables();
@@ -114,7 +114,7 @@ class SQLTableLister extends AbstractSQLResultView {
         this._onLoadingMode();
 
         let timer = setTimeout(() => {
-            xcHelper.showRefreshIcon($content, true, promise);
+            xcUIHelper.showRefreshIcon($content, true, promise);
         }, 800);
 
         PTblManager.Instance.getTablesAsync(refresh)
@@ -191,7 +191,7 @@ class SQLTableLister extends AbstractSQLResultView {
         this._renderHeader();
         let tableInfos = this._sortTables(this._tableInfos);
         let html: HTML = tableInfos.map((tableInfo) => {
-            let row: HTML = 
+            let row: HTML =
             `<div class="row" data-index="${tableInfo.index}">` +
                 this._renderRowContent(tableInfo) +
             '</div>';
@@ -244,9 +244,9 @@ class SQLTableLister extends AbstractSQLResultView {
     private _renderRowContent(tableInfo: PbTblInfo): HTML {
         let displayInfo: PbTblDisplayInfo = PTblManager.Instance.getTableDisplayInfo(tableInfo);
         let html: HTML = this._attributes.map((attr) => {
-            let key: string = xcHelper.escapeHTMLSpecialChar(attr.key);
+            let key: string = xcStringHelper.escapeHTMLSpecialChar(attr.key);
             let val: string = displayInfo[attr.key];
-            let text: string = xcHelper.escapeHTMLSpecialChar(val);
+            let text: string = xcStringHelper.escapeHTMLSpecialChar(val);
             let title = text;
             if (key === "status") {
                 text = this._getStatusCellContent(tableInfo, text);

@@ -57,14 +57,14 @@ class TableMenu extends AbstractMenu {
         ) {
             let icv: boolean = node.getParam().icv;
             if (icv) {
-                xcHelper.disableMenuItem($genIcvLi, {
+                xcUIHelper.disableMenuItem($genIcvLi, {
                     title: TooltipTStr.AlreadyIcv
                 });
             } else {
-                xcHelper.enableMenuItem($genIcvLi);
+                xcUIHelper.enableMenuItem($genIcvLi);
             }
         } else {
-            xcHelper.disableMenuItem($genIcvLi, {
+            xcUIHelper.disableMenuItem($genIcvLi, {
                 title: TooltipTStr.IcvRestriction
             });
         }
@@ -72,9 +72,9 @@ class TableMenu extends AbstractMenu {
         // handle complement
         const $complimentLi: JQuery = $menu.find(".complementTable");
         if (node.getType() === DagNodeType.Filter) {
-            xcHelper.enableMenuItem($complimentLi);
+            xcUIHelper.enableMenuItem($complimentLi);
         } else {
-            xcHelper.disableMenuItem($complimentLi, {
+            xcUIHelper.disableMenuItem($complimentLi, {
                 title: TooltipTStr.ComplementRestriction
             });
         }
@@ -108,7 +108,7 @@ class TableMenu extends AbstractMenu {
             const tableName: string = gTables[tableId].getName();
             // TblManager.sendTablesToTrash(tableId, TableType.Active);
 
-            const msg: string = xcHelper.replaceMsg(ResultSetTStr.DelMsgReplace, {"name": tableName});
+            const msg: string = xcStringHelper.replaceMsg(ResultSetTStr.DelMsgReplace, {"name": tableName});
             Alert.show({
                 "title": ResultSetTStr.Del,
                 "msg": msg,

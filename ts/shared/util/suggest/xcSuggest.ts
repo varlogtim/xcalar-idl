@@ -145,7 +145,7 @@ namespace xcSuggest { // = (function($, xcSuggest) {
 
     /**
      * Returns an array of features about each column in the destination table.
-     * @param inputs 
+     * @param inputs
      */
     function processJoinKeyInputsHeuristic(inputs: ColInput): Feature[] {
         // Inputs has fields srcColInfo and destColsInfo
@@ -244,9 +244,9 @@ namespace xcSuggest { // = (function($, xcSuggest) {
     }
 
     /**
-     * Suggests which column should be used as a join key. 
+     * Suggests which column should be used as a join key.
      * Also returns its degree of certainty
-     * @param featuresPerColumn 
+     * @param featuresPerColumn
      */
     function suggestJoinKeyML(featuresPerColumn: Feature[]): ColSuggest {
         let colToSugg: string = null;
@@ -286,9 +286,9 @@ namespace xcSuggest { // = (function($, xcSuggest) {
     }
 
     /**
-     * Suggests which column should be used as a join key. 
+     * Suggests which column should be used as a join key.
      * Also returns its degree of certainty
-     * @param featuresPerColumn 
+     * @param featuresPerColumn
      */
     function suggestJoinKeyHeuristic(featuresPerColumn: Feature[]): ColSuggest {
         // Inputs has fields srcColInfo and destColsInfo
@@ -322,7 +322,7 @@ namespace xcSuggest { // = (function($, xcSuggest) {
 
     /**
      * Finds data about the column's data to give context to calculations in other functions
-     * @param requiredInfo 
+     * @param requiredInfo
      */
     function contextCheck(requiredInfo: ColInfo): ContextInfo {
         // only check number and string
@@ -390,7 +390,7 @@ namespace xcSuggest { // = (function($, xcSuggest) {
 
     /**
      * Performs weighted calculations for each feature to determine it's score
-     * @param curFeatures 
+     * @param curFeatures
      */
     function getScore(curFeatures: Feature): number {
         // the two value of max, min, sig2, avg..closer, score is better,
@@ -422,8 +422,8 @@ namespace xcSuggest { // = (function($, xcSuggest) {
 
     /**
      * Calculates the similarity between two numbers
-     * @param a 
-     * @param b 
+     * @param a
+     * @param b
      */
     function calcSim(a: number, b: number): number {
         const diff: number = a - b;
@@ -445,8 +445,8 @@ namespace xcSuggest { // = (function($, xcSuggest) {
 
     /**
      * determines how similar two column names are
-     * @param name1 
-     * @param name2 
+     * @param name1
+     * @param name2
      */
     function getTitleDistance(name1: string, name2: string): number {
         if (name1.startsWith("column") || name2.startsWith("column")) {
@@ -527,7 +527,7 @@ namespace xcSuggest { // = (function($, xcSuggest) {
     ///////////////// Data Submission Handling //////////
     /**
      * Checks to make sure the functions return a valid suggestion
-     * @param inputData 
+     * @param inputData
      */
     function checkSuggestDataPortionsMatch(inputData: InputData): boolean {
         // TODO: Add more checks
@@ -562,8 +562,8 @@ namespace xcSuggest { // = (function($, xcSuggest) {
 
     /**
      * Add features into the InputData object
-     * @param inputData 
-     * @param features 
+     * @param inputData
+     * @param features
      */
     function addSuggestFeatures(inputData: InputData, features: Feature[]): Feature[] {
         inputData.features = features;
@@ -572,8 +572,8 @@ namespace xcSuggest { // = (function($, xcSuggest) {
 
     /**
      * Add suggest labels into the InputData object
-     * @param inputData 
-     * @param destColBackName 
+     * @param inputData
+     * @param destColBackName
      */
     function addSuggestLabels(inputData: InputData, destColBackName: string): number[] {
         let labels: number[] = [];
@@ -604,8 +604,8 @@ namespace xcSuggest { // = (function($, xcSuggest) {
 
     /**
      * Adds metaData to the InputData object
-     * @param inputData 
-     * @param joinKeyInputs 
+     * @param inputData
+     * @param joinKeyInputs
      */
     function addMetaData(inputData: InputData, joinKeyInputs: ColInput): MetaData {
         const srcColName: string = joinKeyInputs.srcColInfo.uniqueIdentifier;
@@ -620,7 +620,7 @@ namespace xcSuggest { // = (function($, xcSuggest) {
 
     /**
      * Checks if the inputData is valid and adds the result to the object
-     * @param inputData 
+     * @param inputData
      */
     function addIsValid(inputData: InputData): boolean {
         const isValid: boolean = checkSuggestDataPortionsMatch(inputData);
@@ -663,7 +663,7 @@ namespace xcSuggest { // = (function($, xcSuggest) {
 
     /**
      * Checks if table rows are in JSON format
-     * @param rawRows 
+     * @param rawRows
      */
     function isJSONArray(rawRows: string[]): boolean {
         let str: string = rawRows[0].trim();
@@ -678,7 +678,7 @@ namespace xcSuggest { // = (function($, xcSuggest) {
 
     /**
      * Checks if table rows are special JSONs
-     * @param rawRows 
+     * @param rawRows
      */
     function isSpecialJSON(rawRows: string[]): boolean {
         let isValid: boolean = false;
@@ -705,7 +705,7 @@ namespace xcSuggest { // = (function($, xcSuggest) {
 
     /**
      * Checks if table rows are in XML format
-     * @param rawRows 
+     * @param rawRows
      */
     function isXML(rawRows: string[]): boolean {
         // Simple detection, just take up to ten lines
@@ -727,7 +727,7 @@ namespace xcSuggest { // = (function($, xcSuggest) {
      *  @param quote
      */
     export function detectLineDelimiter(rawStr: string, quote: string): string {
-        rawStr = xcHelper.replaceInsideQuote(rawStr, quote);
+        rawStr = xcStringHelper.replaceInsideQuote(rawStr, quote);
         const crlfCount: number = coutCharOccurrence(rawStr, "\r\n");
         const lfCount: number = coutCharOccurrence(rawStr, "[^\r]\n");
         const crCount: number = coutCharOccurrence(rawStr, "\r(?!\n)");
@@ -758,7 +758,7 @@ namespace xcSuggest { // = (function($, xcSuggest) {
         const numOfSamples: number = 10;
         // remove stuff inside quote
         // reference: https://stackoverflow.com/questions/171480/regex-grabbing-values-between-quotation-marks
-        const strippedStr: string = xcHelper.replaceInsideQuote(rawStr, quote);
+        const strippedStr: string = xcStringHelper.replaceInsideQuote(rawStr, quote);
         const samples: string[] = strippedStr.split(lineDelim).slice(0, numOfSamples);
         // delimiters: [",", "\t", "|"]
         let delimiters: string[] = [];
@@ -861,8 +861,8 @@ namespace xcSuggest { // = (function($, xcSuggest) {
 
     /**
      * Decides which delimiter should be used in the case of a tie
-     * @param currDelim 
-     * @param bestDelim 
+     * @param currDelim
+     * @param bestDelim
      */
     function breakTie(currDelim: string, bestDelim: string): boolean {
         return (currDelim === "," ||
@@ -872,8 +872,8 @@ namespace xcSuggest { // = (function($, xcSuggest) {
 
     /**
      * Counts occuracnes of a character within a string
-     * @param str 
-     * @param ch 
+     * @param str
+     * @param ch
      */
     function coutCharOccurrence(str: string, ch: string): number {
         const regEx: RegExp = new RegExp(ch, "g");
@@ -882,7 +882,7 @@ namespace xcSuggest { // = (function($, xcSuggest) {
 
     /**
      * Computes the variance in an array of numbers
-     * @param nums 
+     * @param nums
      */
     function computeVariance(nums: number[]): number {
         let score: number;

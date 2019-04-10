@@ -5,6 +5,22 @@ describe('ColManager Test', function() {
     });
 
     describe('Basic API Test', function() {
+
+        it("ColManager.parseColNum should work", function() {
+            // case 1
+            var $el = $('<div class="col1"></div>');
+            var res = ColManager.parseColNum($el);
+            expect(res).to.equal(1);
+            // case 2 (normal to see the console.error)
+            $el = $('<div></div>');
+            res = ColManager.parseColNum($el);
+            expect(res).to.equal(null);
+            // case 3
+            $el = $('<div class="row1"></div>');
+            res = ColManager.parseColNum($el);
+            expect(res).to.be.null;
+        });
+
         it('ColManager.newCol() should work', function() {
             var progCol = ColManager.newCol({
                 "name": "test",

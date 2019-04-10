@@ -62,7 +62,7 @@ class DagSchemaPopup {
                     self._$popup.find(".content, .close").addClass("xc-disabled");
                     const params: DagNodeSQLInputStruct = self._dagNode.getParam();
                     if (params.sqlQueryStr) {
-                        const paramterizedSQL = xcHelper.replaceMsg(params.sqlQueryStr,
+                        const paramterizedSQL = xcStringHelper.replaceMsg(params.sqlQueryStr,
                             DagParamManager.Instance.getParamMap(), true);
                         const queryId = xcHelper.randName("sql", 8);
                         promise = self._dagNode.compileSQL(paramterizedSQL, queryId)
@@ -238,12 +238,12 @@ class DagSchemaPopup {
         destCol?: ProgCol,
     ): HTML {
         let type = progCol.getType();
-        let name = xcHelper.escapeHTMLSpecialChar(
+        let name = xcStringHelper.escapeHTMLSpecialChar(
                                             progCol.getFrontColName(true));
-        let backName = xcHelper.escapeHTMLSpecialChar(
+        let backName = xcStringHelper.escapeHTMLSpecialChar(
                                             progCol.getBackColName());
         const destColName = destCol != null
-            ? xcHelper.escapeHTMLSpecialChar(destCol.getBackColName())
+            ? xcStringHelper.escapeHTMLSpecialChar(destCol.getBackColName())
             : '';
         let html: HTML =
             '<li class="' + liClass + '">' +
@@ -254,7 +254,7 @@ class DagSchemaPopup {
                     '</span>' +
                     '<span class="text">' + type + '</span>' +
                 '</div>' +
-                '<div title="' + xcHelper.escapeDblQuoteForHTML(name) +
+                '<div title="' + xcStringHelper.escapeDblQuoteForHTML(name) +
                 '" class="name" ' +
                 `data-destcol="${destColName}" ` +
                 'data-backname="' + backName + '">' +

@@ -35,6 +35,14 @@ interface ModalHelperBGOptions {
     time?: number;
     opSection?: boolean;
 }
+
+interface ModalSpec {
+    $modal: JQuery;
+    top: number;
+    left: number;
+}
+
+
 /* Modal Helper */
 // an object used for global Modal Actions
 class ModalHelper {
@@ -79,6 +87,53 @@ class ModalHelper {
                          parseFloat($modal.css("min-height")) ||
                          this.defaultHeight;
         this.__init();
+    }
+
+    /**
+    * xcHelper.repositionModalOnWinResize
+    * @param modalSpecs {$modal: $modal, top: int, left: int}
+    * @param windowSpecs {winWidth: int, winHeight: int}
+    */
+    public static repositionModalOnWinResize(
+       modalSpecs: ModalSpec,
+       windowSpecs: WindowSpec
+    ): void {
+        const $modal: JQuery = modalSpecs.$modal;
+        const modalWidth: number = $modal.width();
+        const modalHeight: number = $modal.height();
+        const prevWinWidth: number = windowSpecs.winWidth;
+        const prevWinHeight: number = windowSpecs.winHeight;
+        // this will be used as the starting window width/height for the
+        // next window resize rather than measuring at the beginning of the
+        // next resize because the maximize/minimize button will not show
+        // the starting window size during the resize event
+        windowSpecs.winHeight = $(window).height();
+        windowSpecs.winWidth = $(window).width();
+
+        const curWinHeight: number = windowSpecs.winHeight;
+        const curWinWidth: number = windowSpecs.winWidth;
+        const prevWidthAround: number = prevWinWidth - modalWidth;
+        const prevHeightAround: number = prevWinHeight - modalHeight;
+        if (modalWidth > curWinWidth) {
+            const diff: number = curWinWidth - modalWidth;
+            $modal.css('left', diff);
+        } else if (prevWidthAround < 10) {
+            $modal.css('left', (curWinWidth - modalWidth) / 2);
+        } else {
+            const widthAroundChangeRatio = (curWinWidth - modalWidth) /
+                                            prevWidthAround;
+            $modal.css('left', modalSpecs.left * widthAroundChangeRatio);
+        }
+
+        if (modalHeight > curWinHeight) {
+            $modal.css('top', 0);
+        } else if (prevHeightAround < 10) {
+            $modal.css('top', (curWinHeight - modalHeight) / 2);
+        } else {
+            const heightAroundChangeRatio: number = (curWinHeight - modalHeight) /
+                                                    prevHeightAround;
+            $modal.css('top', modalSpecs.top * heightAroundChangeRatio);
+        }
     }
 
     private __init(): void {
@@ -171,7 +226,7 @@ class ModalHelper {
         const options: ModalHelperOptions = $.extend(this.options, extraOptions) || {};
 
         $("body").addClass("no-selection");
-        xcHelper.removeSelectionRange();
+        xcUIHelper.removeSelectionRange();
         // hide tooltip when open the modal
         xcTooltip.hideAll();
 
@@ -295,12 +350,12 @@ class ModalHelper {
     // This function prevents the user from clicking the submit button multiple
     // times
     public disableSubmit(): void {
-        xcHelper.disableSubmit(this.$modal.find(".confirm"));
+        xcUIHelper.disableSubmit(this.$modal.find(".confirm"));
     }
 
     // This function reenables the submit button after the checks are done
     public enableSubmit(): void {
-        xcHelper.enableSubmit(this.$modal.find(".confirm"));
+        xcUIHelper.enableSubmit(this.$modal.find(".confirm"));
     }
 
     public clear(extraOptions?: ModalHelperOptions): XDPromise<any> {

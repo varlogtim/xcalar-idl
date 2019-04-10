@@ -137,7 +137,7 @@ class DagTblManager {
             markedForReset: false,
             markedForDelete: false,
             clockCount: 0,
-            timestamp: xcHelper.getCurrentTimeStamp()
+            timestamp: xcTimeHelper.getCurrentTimeStamp()
         };
     }
 
@@ -150,7 +150,7 @@ class DagTblManager {
             return false;
         }
         this.cache[name].markedForReset = true;
-        this.cache[name].timestamp = xcHelper.getCurrentTimeStamp();
+        this.cache[name].timestamp = xcTimeHelper.getCurrentTimeStamp();
         return true;
     }
 
@@ -464,7 +464,7 @@ class DagTblManager {
                 locked: false,
                 markedForDelete: false,
                 markedForReset: false,
-                timestamp: xcHelper.getCurrentTimeStamp()
+                timestamp: xcTimeHelper.getCurrentTimeStamp()
             };
         });
         return;

@@ -129,6 +129,6 @@ class OpPanelTemplateManager {
             '(>[ ]+)': '>',
             '([ ]+<)': '<'
         };
-        return xcHelper.replaceTemplate(text, replaces, true);
+        return xcStringHelper.replaceTemplate(text, replaces, true);
     }
 }

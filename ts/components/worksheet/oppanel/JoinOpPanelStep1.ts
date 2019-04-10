@@ -174,7 +174,7 @@ class JoinOpPanelStep1 {
                 }
             } else {
                 $checkbox.removeClass('checked');
-            }                
+            }
         }
     }
 
@@ -187,12 +187,12 @@ class JoinOpPanelStep1 {
             const emptyColumn = '""';
             const htmlOn = '<br/><span class="keyword">ON </span>';
             const htmlClause = this._modelRef.getColumnPairs().reduce( (res, pair, i) => {
-                const col1 = xcHelper.escapeHTMLSpecialChar(
+                const col1 = xcStringHelper.escapeHTMLSpecialChar(
                     pair.leftName.length == 0
                         ? emptyColumn
                         : pair.leftName
                 );
-                const col2 = xcHelper.escapeHTMLSpecialChar(
+                const col2 = xcStringHelper.escapeHTMLSpecialChar(
                     pair.rightName.length == 0
                         ? emptyColumn
                         : pair.rightName
@@ -207,7 +207,7 @@ class JoinOpPanelStep1 {
         const filterEval = this._modelRef.getEvalString();
         if (filterEval.length !== 0) {
             const htmlWhere = '<br/><span class="keyword">WHERE </span>';
-            const htmlFilter = `<span class="highlighted">${xcHelper.escapeHTMLSpecialChar(filterEval)}</span>`;
+            const htmlFilter = `<span class="highlighted">${xcStringHelper.escapeHTMLSpecialChar(filterEval)}</span>`;
             html = `${html}${htmlWhere}${htmlFilter}`;
         }
 
@@ -385,7 +385,7 @@ class JoinOpPanelStep1 {
         type1: string, type2: string
     }) {
         const { type1, type2 } = props;
-        const content = xcHelper.replaceMsg(
+        const content = xcStringHelper.replaceMsg(
             JoinTStr.MismatchDetail,
             { type1: `<b>${type1}</b>`, type2: `<b>${type2}</b>` }
         );

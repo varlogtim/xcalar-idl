@@ -119,7 +119,7 @@ namespace SqlQueryHistoryPanel {
                         isEllipsis: true,
                         text: duration === "N/A"
                             ? duration
-                            : xcHelper.getElapsedTimeStr(
+                            : xcTimeHelper.getElapsedTimeStr(
                                 duration < 0 ? 0 : duration,
                                 (queryInfo.endTime == null)
                             )
@@ -303,7 +303,7 @@ namespace SqlQueryHistoryPanel {
 
             /**
              * Helper function to update the query KVStore.
-             * @param queryList 
+             * @param queryList
              * @returns number of queries successfully updated.
              * @description The return promise will always be resolved
              */
@@ -329,7 +329,7 @@ namespace SqlQueryHistoryPanel {
 
             /**
              * Helper function to delete queries from backend
-             * @param queryIds 
+             * @param queryIds
              * @returns number of queries successfully updated. It will never fail
              * @description The return promise will always be resolved
              */

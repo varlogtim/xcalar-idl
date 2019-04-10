@@ -186,7 +186,7 @@ class TblSource {
             focusTable = $focusedGrid.data("id");
         }
 
-        xcHelper.showRefreshIcon(this._getGridView(), false, deferred.promise());
+        xcUIHelper.showRefreshIcon(this._getGridView(), false, deferred.promise());
 
         PTblManager.Instance.getTablesAsync(forceRefresh)
         .then((tables) => {
@@ -294,7 +294,7 @@ class TblSource {
         if (table.state === PbTblState.BeDataset) {
             extraClass += " beDataset";
             dsTableIcon = '<i class="infoIcon icon xi-info-no-bg"></i>';
-            let title = xcHelper.replaceMsg(TblTStr.MultipleSchema, {
+            let title = xcStringHelper.replaceMsg(TblTStr.MultipleSchema, {
                 name: name
             });
             tooltip = 'data-toggle="tooltip" data-container="body"' +
@@ -630,7 +630,7 @@ class TblSource {
                 }
             }
 
-            xcHelper.dropdownOpen($target, $gridMenu, {
+            MenuHelper.dropdownOpen($target, $gridMenu, {
                 "mouseCoors": {"x": event.pageX, "y": event.pageY + 10},
                 "classes": classes,
                 "floating": true

@@ -216,7 +216,7 @@ describe.skip("Profile-Profile Test", function() {
 
     //     it("should download as png", function(done) {
     //         var oldFunc = domtoimage.toPng;
-    //         var oldSuccess = xcHelper.showSuccess;
+    //         var oldSuccess = xcUIHelper.showSuccess;
     //         var test = false;
     //         var called = false;
     //         domtoimage.toPng = function() {
@@ -225,7 +225,7 @@ describe.skip("Profile-Profile Test", function() {
     //                 resolve(null);
     //             });
     //         };
-    //         xcHelper.showSuccess = function() { called = true; };
+    //         xcUIHelper.showSuccess = function() { called = true; };
 
     //         $("#profile-download").click();
     //         UnitTest.testFinish(function() {
@@ -240,13 +240,13 @@ describe.skip("Profile-Profile Test", function() {
     //         })
     //         .always(function() {
     //             domtoimage.toPng = oldFunc;
-    //             xcHelper.showSuccess = oldSuccess;
+    //             xcUIHelper.showSuccess = oldSuccess;
     //         });
     //     });
 
     //     it("down handle fail case", function(done) {
     //         var oldFunc = domtoimage.toPng;
-    //         var oldSuccess = xcHelper.showFail;
+    //         var oldSuccess = xcUIHelper.showFail;
     //         var test = false;
     //         var called = false;
     //         domtoimage.toPng = function() {
@@ -255,7 +255,7 @@ describe.skip("Profile-Profile Test", function() {
     //                 reject("test error");
     //             });
     //         };
-    //         xcHelper.showFail = function() { called = true; };
+    //         xcUIHelper.showFail = function() { called = true; };
 
     //         $("#profile-download").click();
     //         UnitTest.testFinish(function() {
@@ -270,7 +270,7 @@ describe.skip("Profile-Profile Test", function() {
     //         })
     //         .always(function() {
     //             domtoimage.toPng = oldFunc;
-    //             xcHelper.showFail = oldSuccess;
+    //             xcUIHelper.showFail = oldSuccess;
     //         });
     //     });
     // });
@@ -298,7 +298,7 @@ describe.skip("Profile-Profile Test", function() {
             expect($less.hasClass("xc-disabled")).to.be.false;
 
             $input.val(6).trigger(fakeEvent.enterKeydown);
-            var err = xcHelper.replaceMsg(ErrWRepTStr.IntInRange, {
+            var err = xcStringHelper.replaceMsg(ErrWRepTStr.IntInRange, {
                 "lowerBound": 0,
                 "upperBound": 5
             });

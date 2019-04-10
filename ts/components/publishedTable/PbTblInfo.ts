@@ -195,7 +195,7 @@ class PbTblInfo {
     public getRowCountStr(): string {
         let rows: string;
         if (this.active && this.rows != null) {
-            rows = xcHelper.numToStr(this.rows);
+            rows = xcStringHelper.numToStr(this.rows);
             if (this.updates && this.updates.length > 1) {
                 rows = "~" + rows;
             }

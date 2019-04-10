@@ -38,7 +38,7 @@ abstract class AbstractMenu {
             str = valArray.join(", ");
         }
 
-        xcHelper.copyToClipboard(str);
+        xcUIHelper.copyToClipboard(str);
     }
 
     protected _isInvalidTrigger(event: JQueryEventObject): boolean {

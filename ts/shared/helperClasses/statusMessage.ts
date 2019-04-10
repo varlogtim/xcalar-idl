@@ -621,7 +621,7 @@ namespace StatusMessage {
         ): void {
             const self = this;
             $tableDonePopup.mousedown(function(event) {
-                xcHelper.removeSelectionRange();
+                xcUIHelper.removeSelectionRange();
                 if (event.which !== 1) {
                     return;
                 }
@@ -638,7 +638,7 @@ namespace StatusMessage {
                     MainMenu.openPanel("dagPanel", null);
 
                     if ($tableWrap.length) {
-                        xcHelper.centerFocusedTable($tableWrap, true);
+                        TblManager.centerfocusedTable($tableWrap, true);
                         $tableWrap.mousedown();
                     }
 
@@ -660,7 +660,7 @@ namespace StatusMessage {
             });
 
             $tableDonePopup.find('.close').mousedown(function(event) {
-                xcHelper.removeSelectionRange();
+                xcUIHelper.removeSelectionRange();
                 if (event.which !== 1) {
                     return;
                 }
@@ -711,7 +711,7 @@ namespace StatusMessage {
 
         private removeSelectionRange(): void {
             const self = this;
-            xcHelper.removeSelectionRange();
+            xcUIHelper.removeSelectionRange();
             $(document).off('mouseup', self.removeSelectionRange);
         }
     }

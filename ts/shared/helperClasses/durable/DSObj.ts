@@ -290,7 +290,7 @@ class DSObj extends Durable {
         }
 
         let parent: DSObj = DS.getDSObj(this.parentId);
-        let error = xcHelper.replaceMsg(ErrWRepTStr.FolderConflict, {
+        let error = xcStringHelper.replaceMsg(ErrWRepTStr.FolderConflict, {
             "name": newName
         });
         //check name confliction

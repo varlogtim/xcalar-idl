@@ -47,7 +47,7 @@ namespace XcSupport {
         let msg: string = AlertTStr.NoConnect + " ";
         msg += shouldCheck
             ? AlertTStr.Connecting
-            : xcHelper.replaceMsg(AlertTStr.TryConnect, {
+            : xcStringHelper.replaceMsg(AlertTStr.TryConnect, {
                 second: timeRemain
             });
 
@@ -63,7 +63,7 @@ namespace XcSupport {
                         clearTimeout(_connectionCheckTimer);
                         // reload browser if connection back
                         const hardLoad: boolean = !versionMatch;
-                        xcHelper.reload(hardLoad);
+                        xcManager.reload(hardLoad);
                     })
                     .fail(() => {
                         checkConnectionTrigger(cnt + 1, alertId);

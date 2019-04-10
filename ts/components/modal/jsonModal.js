@@ -113,7 +113,7 @@ window.JSONModal = (function($, JSONModal) {
         var type = options.type;
         isSaveModeOff = options.saveModeOff;
 
-        xcHelper.removeSelectionRange();
+        xcUIHelper.removeSelectionRange();
         var isModalOpen = $jsonModal.is(':visible');
         isDataCol = $jsonTd.hasClass('jsonElement');
         if (isDataCol) {
@@ -149,7 +149,7 @@ window.JSONModal = (function($, JSONModal) {
 
     JSONModal.rehighlightTds = function($table) {
         $table.find('.jsonElement').addClass('modalHighlighted');
-        var tableId = xcHelper.parseTableId($table);
+        var tableId = TblManager.parseTableId($table);
         $('#jsonModal').find('.jsonWrap').each(function() {
             var data = $(this).data();
             var jsonTableId = data.tableid;
@@ -640,7 +640,7 @@ window.JSONModal = (function($, JSONModal) {
             if (checkedColNum >= 0) {
                 // if the column already exists
                 closeModal(modes.single);
-                xcHelper.centerFocusedColumn(tableId, checkedColNum, animation);
+                TblManager.centerFocusedColumn(tableId, checkedColNum, animation);
                 return;
             }
 
@@ -654,7 +654,7 @@ window.JSONModal = (function($, JSONModal) {
             ColManager.pullCol(colNum, tableId, options)
             .always(function(newColNum) {
                 closeModal(modes.single);
-                xcHelper.centerFocusedColumn(tableId, newColNum, animation);
+                TblManager.centerFocusedColumn(tableId, newColNum, animation);
             });
         }
     }
@@ -833,7 +833,7 @@ window.JSONModal = (function($, JSONModal) {
                     $(this).text().toLowerCase().indexOf(text) !== -1);
         });
 
-        text = xcHelper.escapeRegExp(text);
+        text = xcStringHelper.escapeRegExp(text);
         var regex = new RegExp(text, "gi");
 
         $targets.each(function() {
@@ -956,8 +956,8 @@ window.JSONModal = (function($, JSONModal) {
             try {
                 jsonObj = JSON.parse(text);
             } catch (error) {
-                var rowNum = xcHelper.parseRowNum($jsonTd.closest('tr')) + 1;
-                var msg = xcHelper.replaceMsg(JsonModalTStr.SyntaxErrorDesc, {
+                var rowNum = RowManager.parseRowNum($jsonTd.closest('tr')) + 1;
+                var msg = xcStringHelper.replaceMsg(JsonModalTStr.SyntaxErrorDesc, {
                     row: rowNum
                 });
                 var err = {error: msg, log: "Data: " + text};
@@ -988,7 +988,7 @@ window.JSONModal = (function($, JSONModal) {
             missingImmediates: {}
         };
         if (isDataCol) {
-            var tableId = xcHelper.parseTableId($jsonTd.closest('table'));
+            var tableId = TblManager.parseTableId($jsonTd.closest('table'));
             removeHiddenSortedColumns(jsonObj, tableId);
             var groups = splitJsonIntoGroups(jsonObj, tableId);
             for (var i = 0; i < groups.length; i++) {
@@ -1055,8 +1055,8 @@ window.JSONModal = (function($, JSONModal) {
     }
 
     function fillJsonArea(jsonObj, $jsonTd, type) {
-        var rowNum = xcHelper.parseRowNum($jsonTd.closest('tr')) + 1;
-        var tableId = xcHelper.parseTableId($jsonTd.closest('table'));
+        var rowNum = RowManager.parseRowNum($jsonTd.closest('tr')) + 1;
+        var tableId = TblManager.parseTableId($jsonTd.closest('table'));
         var prettyJson = "";
         var isArray = (type === ColumnType.array);
 
@@ -1121,7 +1121,7 @@ window.JSONModal = (function($, JSONModal) {
         if (isDataCol) {
             location = gTables[tableId].getName();
         } else {
-            var colNum = xcHelper.parseColNum($jsonTd);
+            var colNum = ColManager.parseColNum($jsonTd);
             location = gTables[tableId].getCol(colNum).getBackColName();
         }
 
@@ -1151,7 +1151,7 @@ window.JSONModal = (function($, JSONModal) {
                   JsonModalTStr.PrefixedField +
                 '</h3>';
         for (var i = 0; i < groups.length - 1; i++) {
-            var tempJson = xcHelper.prettifyJson(groups[i].objs, null,
+            var tempJson = xcUIHelper.prettifyJson(groups[i].objs, null,
             checkboxes, {
                 "inArray": isArray,
                 "checkboxes": true
@@ -1191,7 +1191,7 @@ window.JSONModal = (function($, JSONModal) {
     }
 
     function getJsonHtmlForNonDataCol(jsonObj, isArray) {
-        var prettyJson = xcHelper.prettifyJson(jsonObj, null, true, {
+        var prettyJson = xcUIHelper.prettifyJson(jsonObj, null, true, {
             inArray: isArray,
             checkboxes: true
         }, isArray);
@@ -1205,7 +1205,7 @@ window.JSONModal = (function($, JSONModal) {
                         JsonModalTStr.ImmediatesNotPresent +
                     '</div>' +
                     '<div class="jObject">' +
-                    xcHelper.prettifyJson(immediates, 0, true,
+                    xcUIHelper.prettifyJson(immediates, 0, true,
                                             {noQuotes: true, checkboxes: true}) +
                     '</div>' +
                 '</div>';
@@ -1467,7 +1467,7 @@ window.JSONModal = (function($, JSONModal) {
                     html += '<div class="unmatched">';
                 }
                 for (var k = 0; k < arrLen; k++) {
-                    html += xcHelper.prettifyJson(jsons[obj][matchType][k], 0, null,
+                    html += xcUIHelper.prettifyJson(jsons[obj][matchType][k], 0, null,
                                          {comparison: true});
                 }
                 html += '</div>';
@@ -1489,9 +1489,9 @@ window.JSONModal = (function($, JSONModal) {
 
     function addDataToJsonWrap($jsonTd, isArray) {
         var $jsonWrap = $jsonArea.find('.jsonWrap:last');
-        var rowNum = xcHelper.parseRowNum($jsonTd.closest('tr'));
-        var colNum = xcHelper.parseColNum($jsonTd);
-        var tableId = xcHelper.parseTableId($jsonTd.closest('table'));
+        var rowNum = RowManager.parseRowNum($jsonTd.closest('tr'));
+        var colNum = ColManager.parseColNum($jsonTd);
+        var tableId = TblManager.parseTableId($jsonTd.closest('table'));
 
         $jsonWrap.data('rownum', rowNum);
         $jsonWrap.data('colnum', colNum);
@@ -1524,7 +1524,7 @@ window.JSONModal = (function($, JSONModal) {
 
     function markPulledCols($jsonTd, $jsonArea, isArray, isDATACol, colName) {
         var $jsonWrap = $jsonArea.find('.jsonWrap:last');
-        var tableId = xcHelper.parseTableId($jsonTd.closest('table'));
+        var tableId = TblManager.parseTableId($jsonTd.closest('table'));
         var table =  gTables[tableId];
         var cols = table.getAllCols(true);
         $jsonWrap.find(".jsonCheckbox").each(function() {
@@ -1538,7 +1538,7 @@ window.JSONModal = (function($, JSONModal) {
                 }
                 if ($key.length) {
                     var backName = createJsonSelectionExpression($key).escapedName;
-                    backName = xcHelper.escapeDblQuoteForHTML(backName);
+                    backName = xcStringHelper.escapeDblQuoteForHTML(backName);
                     if (!isDataCol) {
                         backName = parseUnnestTd(backName, colName, isArray);
                     }
@@ -1549,7 +1549,7 @@ window.JSONModal = (function($, JSONModal) {
 
         cols.forEach(function(progCol) {
             var backName = progCol.getBackColName();
-            backName = xcHelper.escapeDblQuoteForHTML(backName);
+            backName = xcStringHelper.escapeDblQuoteForHTML(backName);
             backName = xcHelper.escapeColName(backName);
             var $checkbox = $jsonWrap.find('.jsonBlock[data-backname="' +
                                         backName + '"]').addClass("pulled")
@@ -1630,7 +1630,7 @@ window.JSONModal = (function($, JSONModal) {
                         // '</div>' +
                         '<div class="rowNum">Row:' +
                             '<span class="text">' +
-                                xcHelper.numToStr(rowNum) + '</span>' +
+                                xcStringHelper.numToStr(rowNum) + '</span>' +
                         '</div>' +
                     '</div>' +
                 '</div>' +

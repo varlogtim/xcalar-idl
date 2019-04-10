@@ -73,7 +73,7 @@ window.JupyterFinalizeModal = (function(JupyterFinalizeModal, $) {
         var newColName;
         for (var i = 0; i < cols.length; i++) {
             leftHtml += '<div class="column">' +
-                    xcHelper.escapeHTMLSpecialChar(cols[i].getBackColName()) +
+                    xcStringHelper.escapeHTMLSpecialChar(cols[i].getBackColName()) +
                         '</div>';
             newColName = "";
             inputClass = "";
@@ -237,7 +237,7 @@ window.JupyterFinalizeModal = (function(JupyterFinalizeModal, $) {
             });
 
 
-            xcHelper.lockTable(tableId, txId);
+            TblFunc.lockTable(tableId, txId);
             closeModal();
 
             XIApi.map(txId, mapStrs, tableName, newFieldNames)
@@ -247,7 +247,7 @@ window.JupyterFinalizeModal = (function(JupyterFinalizeModal, $) {
                 TblManager.setOrphanTableMeta(finalTableName, xcHelper.deepCopy(newTableCols));
                 Profile.copy(tableId, finalTableId);
 
-                xcHelper.unlockTable(tableId);
+                TblFunc.unlockTable(tableId);
                 sql.newTableName = finalTableName;
                 Transaction.done(txId, {
                     "msgTable": finalTableId,
@@ -256,7 +256,7 @@ window.JupyterFinalizeModal = (function(JupyterFinalizeModal, $) {
                 deferred.resolve(finalTableName);
             })
             .fail(function(error) {
-                xcHelper.unlockTable(tableId);
+                TblFunc.unlockTable(tableId);
                 Transaction.fail(txId, {
                     "failMsg": StatusMessageTStr.FinalizeFailed,
                     "error": error

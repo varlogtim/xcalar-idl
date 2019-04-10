@@ -294,7 +294,7 @@ window.Profile = (function($, Profile, d3) {
 
         // event on sort section
         var $sortSection = $modal.find(".sortSection");
-        xcHelper.optionButtonEvent($sortSection, function(option) {
+        xcUIHelper.optionButtonEvent($sortSection, function(option) {
             if (option === "asc") {
                 sortData(sortMap.asc, statsCol);
             } else if (option === "desc") {
@@ -369,7 +369,7 @@ window.Profile = (function($, Profile, d3) {
                     val = Number(val);
                     if (val < 0 || val > decimalLimit ||
                         !Number.isInteger(val)) {
-                        var err = xcHelper.replaceMsg(ErrWRepTStr.IntInRange, {
+                        var err = xcStringHelper.replaceMsg(ErrWRepTStr.IntInRange, {
                             "lowerBound": 0,
                             "upperBound": decimalLimit
                         });
@@ -399,10 +399,10 @@ window.Profile = (function($, Profile, d3) {
 
         $("#profile-download").click(function() {
             var $btn = $(this);
-            xcHelper.disableSubmit($btn);
+            xcUIHelper.disableSubmit($btn);
             downloadProfileAsPNG()
             .always(function() {
-                xcHelper.enableSubmit($btn);
+                xcUIHelper.enableSubmit($btn);
             });
         });
 
@@ -658,8 +658,8 @@ window.Profile = (function($, Profile, d3) {
 
     // refresh profile
     function refreshProfile() {
-        var instr = xcHelper.replaceMsg(ProfileTStr.Info, {
-            "col": xcHelper.escapeHTMLSpecialChar(statsCol.frontColName),
+        var instr = xcStringHelper.replaceMsg(ProfileTStr.Info, {
+            "col": xcStringHelper.escapeHTMLSpecialChar(statsCol.frontColName),
             "type": statsCol.type
         });
 
@@ -772,7 +772,7 @@ window.Profile = (function($, Profile, d3) {
                       .addClass("animatedEllipsis");
                 xcTooltip.changeText($agg, "...");
             } else {
-                var text = (aggVal != null) ? xcHelper.numToStr(aggVal) : "N/A";
+                var text = (aggVal != null) ? xcStringHelper.numToStr(aggVal) : "N/A";
                 $agg.removeClass("animatedEllipsis")
                       .text(text);
                 xcTooltip.changeText($agg, text);
@@ -821,7 +821,7 @@ window.Profile = (function($, Profile, d3) {
                           .addClass("animatedEllipsis");
                     xcTooltip.changeText($stats, "...");
                 } else {
-                    var text = xcHelper.numToStr(statsVal);
+                    var text = xcStringHelper.numToStr(statsVal);
                     $stats.removeClass("animatedEllipsis")
                           .text(text);
                     xcTooltip.changeText($stats, text);
@@ -876,7 +876,7 @@ window.Profile = (function($, Profile, d3) {
         })
         .fail(function(error) {
             if (isModalVisible(curStatsCol)) {
-                xcHelper.showFail(FailTStr.ProfileStats);
+                xcUIHelper.showFail(FailTStr.ProfileStats);
             }
             deferred.reject(error);
         });
@@ -1333,7 +1333,7 @@ window.Profile = (function($, Profile, d3) {
         var $maxRange = $skipInput.siblings(".max-range");
 
         // set width of elements
-        $maxRange.text(xcHelper.numToStr(totalRows));
+        $maxRange.text(xcStringHelper.numToStr(totalRows));
         $skipInput.width($maxRange.width() + 5); // 5 is for input padding
     }
 
@@ -1606,12 +1606,12 @@ window.Profile = (function($, Profile, d3) {
             download.href = dataUrl;
             download.download = "profile.png";
             download.click();
-            xcHelper.showSuccess(SuccessTStr.Profile);
+            xcUIHelper.showSuccess(SuccessTStr.Profile);
             deferred.resolve();
         })
         .catch(function(error) {
             console.error(error);
-            xcHelper.showFail(FailTStr.Profile);
+            xcUIHelper.showFail(FailTStr.Profile);
             deferred.reject(error);
         });
 

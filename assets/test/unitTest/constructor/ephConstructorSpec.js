@@ -899,12 +899,12 @@ describe("Ephemeral Constructor Test", function() {
         });
 
         it("listHighlight should work", function() {
-            var oldFunc = xcHelper.listHighlight;
-            xcHelper.listHighlight = function() {
+            var oldFunc = xcUIHelper.listHighlight;
+            xcUIHelper.listHighlight = function() {
                 return "test";
             };
             expect(formHelper.listHighlight()).to.equal("test");
-            xcHelper.listHighlight = oldFunc;
+            xcUIHelper.listHighlight = oldFunc;
         });
 
         it("checkBtnFocus should work", function() {
@@ -1193,9 +1193,9 @@ describe("Ephemeral Constructor Test", function() {
 
         it("should list high light", function() {
             var $input = $container.find("input");
-            var oldList = xcHelper.listHighlight;
+            var oldList = xcUIHelper.listHighlight;
 
-            xcHelper.listHighlight = function() {
+            xcUIHelper.listHighlight = function() {
                 test = false;
             };
 
@@ -1205,7 +1205,7 @@ describe("Ephemeral Constructor Test", function() {
             });
 
             expect(test).to.be.false;
-            xcHelper.listHighlight = oldList;
+            xcUIHelper.listHighlight = oldList;
         });
     });
 

@@ -125,7 +125,7 @@ class XcDatasetViewer extends XcViewer {
             }
         });
         return schema;
-    } 
+    }
 
     private _getSampleTable(jsonKeys: string[], jsons: object[]): void {
         const html: string = this._getSampleTableHTML(jsonKeys, jsons);
@@ -238,12 +238,12 @@ class XcDatasetViewer extends XcViewer {
                     if (hiddenStrLen > 0) {
                         parsedVal = parsedVal.slice(0, this.colStrLimit) +
                                     "...(" +
-                                    xcHelper.numToStr(hiddenStrLen) + " " +
+                                    xcStringHelper.numToStr(hiddenStrLen) + " " +
                                     TblTStr.Truncate + ")";
                     }
                 }
                 if (typeof parsedVal === "string") {
-                    parsedVal = xcHelper.styleNewLineChar(parsedVal);
+                    parsedVal = xcUIHelper.styleNewLineChar(parsedVal);
                 }
 
                 tr += '<td class="col' + (j + 1) + '">' +
@@ -468,10 +468,10 @@ class XcDatasetViewer extends XcViewer {
     }
 
     private _getTh(key: string, type: string, thClass: string): HTML {
-        var width = xcHelper.getTextWidth(null, key);
+        var width = xcUIHelper.getTextWidth(null, key);
         width += 2; // text will overflow without it
         width = Math.max(width, this.defaultColWidth); // min of 130px
-    
+
         let th: HTML =
         '<th class="' + thClass + '" style="width:' + width + 'px;">' +
             '<div class="header type-' + type + '" ' +

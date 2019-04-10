@@ -22,9 +22,9 @@ class SqlQueryHistModal {
     public show(
         {query = '', errorMsg = ''}: {query: string, errorMsg?: string}
     ): void {
-        let html = xcHelper.escapeHTMLSpecialChar(query);
+        let html = xcStringHelper.escapeHTMLSpecialChar(query);
         if (errorMsg != null && errorMsg.length > 0) {
-            html += `<br/><br/>${SQLTStr.queryFailMessage}:<br/>${xcHelper.escapeHTMLSpecialChar(errorMsg)}`;
+            html += `<br/><br/>${SQLTStr.queryFailMessage}:<br/>${xcStringHelper.escapeHTMLSpecialChar(errorMsg)}`;
         }
         this._modalHelper.setup();
         this._$content.html(html);

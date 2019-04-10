@@ -136,7 +136,7 @@ class DataSourceManager {
         let $menu: JQuery = $("#datastoreMenu");
         let $btns: JQuery = $menu.find(".iconSection .switchView");
         let $allGrids = $menu.find(".gridItems");
-        xcHelper.toggleListGridBtn($btns, isListView, noRefreshTooltip);
+        xcUIHelper.toggleListGridBtn($btns, isListView, noRefreshTooltip);
 
         if (isListView) {
             // show list view
@@ -196,7 +196,7 @@ class DataSourceManager {
 
     private static _switchToViewIMD(): void {
         this._isMenOpen = MainMenu.isMenuOpen();
-        
+
         let $panel = this._getPanel();
         let $menu = this._getMenu();
         $panel.addClass("imd");

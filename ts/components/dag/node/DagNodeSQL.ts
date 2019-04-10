@@ -1075,7 +1075,7 @@ class DagNodeSQL extends DagNode {
         try {
             if (replaceParam) {
                 // paramterize SQL
-                sqlQueryStr = xcHelper.replaceMsg(sqlQueryStr,
+                sqlQueryStr = xcStringHelper.replaceMsg(sqlQueryStr,
                     DagParamManager.Instance.getParamMap(), true);
             }
             // set all options

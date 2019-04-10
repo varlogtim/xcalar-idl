@@ -28,7 +28,7 @@ class ProfileEngine {
     }
 
     /**
-     * 
+     *
      * @param profileInfo
      * @param table
      */
@@ -55,7 +55,7 @@ class ProfileEngine {
 
         let txId = Transaction.start({
             "msg": StatusMessageTStr.Profile + " " +
-                   xcHelper.escapeHTMLSpecialChar(colName),
+                   xcStringHelper.escapeHTMLSpecialChar(colName),
             "operation": SQLOps.Profile,
             "sql": sql,
             "track": true
@@ -644,7 +644,7 @@ class ProfileEngine {
         let upperKey = statsKeys.upperQuartile;
         let fullKey = statsKeys.fullQuartile;
 
-        
+
         let tableResultsetId: string;
         XcalarMakeResultSetFromTable(tableName)
         .then((res) => {
@@ -837,7 +837,7 @@ class ProfileEngine {
 
     private _getFitAllBucketSize(
         txId: number,
-        tableName: string, 
+        tableName: string,
         profileInfo: ProfileInfo
     ): XDPromise<number> {
         let deferred: XDDeferred<number> = PromiseHelper.deferred();

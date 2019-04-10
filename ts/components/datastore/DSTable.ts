@@ -149,7 +149,7 @@ class DSTable {
                 return;
             }
             let withText: boolean = true;
-            let progressAreaHtml = xcHelper.getLockIconHtml(txId, 0, withText);
+            let progressAreaHtml = xcUIHelper.getLockIconHtml(txId, 0, withText);
             $dsTableContainer.find(".loadSection").append(progressAreaHtml);
             let progressCircle = new ProgressCircle(txId, 0, withText);
             $dsTableContainer.find('.cancelLoad[data-txid="' + txId + '"]')
@@ -165,7 +165,7 @@ class DSTable {
     ): void {
         error = this._parseError(error);
         // backend might return this: "<string>"
-        error = xcHelper.escapeHTMLSpecialChar(error);
+        error = xcStringHelper.escapeHTMLSpecialChar(error);
         var startError = "";
         if (isFetchError) {
             startError = StatusMessageTStr.DSFetchFailed;
@@ -268,7 +268,7 @@ class DSTable {
     }
 
     private static _getDSInfoRecordEl(): JQuery {
-        return $("#dsInfo-records");   
+        return $("#dsInfo-records");
     }
 
     private static _getDSInfoErrorEl(): JQuery {
@@ -380,7 +380,7 @@ class DSTable {
         // XXX TODO tooltip with query
         let numEntriesStr: string;
         if (typeof numEntries === "number") {
-            numEntriesStr = xcHelper.numToStr(numEntries);
+            numEntriesStr = xcStringHelper.numToStr(numEntries);
         } else {
             numEntriesStr = CommonTxtTstr.NA;
         }
@@ -487,7 +487,7 @@ class DSTable {
         $dsInfoPath.on("click", () => {
             // copies filepath to clipboard
             let value = $dsInfoPath.text();
-            xcHelper.copyToClipboard(value);
+            xcUIHelper.copyToClipboard(value);
 
             $dsInfoPath.parent().addClass("copiableText");
             setTimeout(() => {
@@ -722,7 +722,7 @@ class DSTable {
             let key: string = jsonKeys[i].replace(/\'/g, '&#39');
             let thClass: string = "th col" + (i + 1);
             let type: ColumnType = knownTypes[i] || columnsType[i];
-            let width = xcHelper.getTextWidth(null, key);
+            let width = xcUIHelper.getTextWidth(null, key);
 
             width += 2; // text will overflow without it
             width = Math.max(width, this.defaultColWidth); // min of 130px
@@ -809,12 +809,12 @@ class DSTable {
                     if (hiddenStrLen > 0) {
                         parsedVal = parsedVal.slice(0, colStrLimit) +
                                     "...(" +
-                                    xcHelper.numToStr(hiddenStrLen) + " " +
+                                    xcStringHelper.numToStr(hiddenStrLen) + " " +
                                     TblTStr.Truncate + ")";
                     }
                 }
                 if (typeof parsedVal === "string") {
-                    parsedVal = xcHelper.styleNewLineChar(parsedVal);
+                    parsedVal = xcUIHelper.styleNewLineChar(parsedVal);
                 }
 
                 tr += '<td class="col' + (j + 1) + '">' +
@@ -857,14 +857,14 @@ class DSTable {
     private static _showIcon(dsObj: DSObj): void {
         let $dsInfoError = this._getDSInfoErrorEl();
         $dsInfoError.removeClass("xc-hidden");
-        let numErrors: string = xcHelper.numToStr(dsObj.numErrors);
+        let numErrors: string = xcStringHelper.numToStr(dsObj.numErrors);
         let text: string;
         if (dsObj.advancedArgs.allowRecordErrors) {
             $dsInfoError.removeClass("type-file");
             if (numErrors === "1") {
                 text = DSTStr.ContainsRecordError;
             } else {
-                text = xcHelper.replaceMsg(DSTStr.ContainsRecordErrors, {
+                text = xcStringHelper.replaceMsg(DSTStr.ContainsRecordErrors, {
                     num: numErrors
                 });
             }
@@ -873,7 +873,7 @@ class DSTable {
             if (numErrors === "1") {
                 text = DSTStr.ContainsFileError;
             } else {
-                text = xcHelper.replaceMsg(DSTStr.ContainsFileErrors, {
+                text = xcStringHelper.replaceMsg(DSTStr.ContainsFileErrors, {
                     num: numErrors
                 });
             }

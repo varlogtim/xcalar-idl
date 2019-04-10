@@ -88,7 +88,7 @@ window.FileBrowser = (function($, FileBrowser) {
         $visibleFiles = $();
 
         $fileBrowser.find(".searchLoadingSection")
-                    .html(xcHelper.getLockIconHtml(undefined, undefined, false,
+                    .html(xcUIHelper.getLockIconHtml(undefined, undefined, false,
                                                    false, true));
 
         FilePreviewer.setup();
@@ -299,7 +299,7 @@ window.FileBrowser = (function($, FileBrowser) {
             $(this).blur();
             // the first option in pathLists
             var $curPath = $pathLists.find("li").eq(0);
-            xcHelper.showRefreshIcon($fileBrowserMain);
+            xcUIHelper.showRefreshIcon($fileBrowserMain);
             event.stopPropagation();
             goToPath($curPath);
         });
@@ -387,7 +387,7 @@ window.FileBrowser = (function($, FileBrowser) {
             var fullPath = $li.data("fullpath");
             if (!$li.hasClass("regex") && (fullPath === concatPath)) {
                 // Unselect single file from pickedFileList
-                var escName = xcHelper.escapeDblQuote(fileName);
+                var escName = xcStringHelper.escapeDblQuote(fileName);
                 var $grid = $fileBrowser
                             .find('.fileName[data-name="' + escName + '"]')
                             .closest(".grid-unit");
@@ -577,7 +577,7 @@ window.FileBrowser = (function($, FileBrowser) {
     function showPathError() {
         var $input = $("#fileBrowserPath .text");
         var width = $input.width();
-        var textWidth = xcHelper.getTextWidth($input);
+        var textWidth = xcUIHelper.getTextWidth($input);
         var offset = width - textWidth - 50; // padding 50px
 
         StatusBox.show(ErrTStr.InvalidFilePath, $input, false, {
@@ -745,7 +745,7 @@ window.FileBrowser = (function($, FileBrowser) {
             measureDSIcon();
         }
 
-        xcHelper.toggleListGridBtn($btn, toListView, noRefreshTooltip);
+        xcUIHelper.toggleListGridBtn($btn, toListView, noRefreshTooltip);
         if ($container.hasClass("manyFiles")) {
             $innerContainer.height(getScrollHeight());
         } else {
@@ -879,7 +879,7 @@ window.FileBrowser = (function($, FileBrowser) {
         setTimeout(function() {
             // do this because fadeIn has 300 dealy,
             // if statusBox show before the fadeIn finish, it will fail
-            var error = xcHelper.replaceMsg(ErrWRepTStr.NoPath, {
+            var error = xcStringHelper.replaceMsg(ErrWRepTStr.NoPath, {
                 "path": path
             });
             StatusBox.show(error, $pathSection, false, {side: 'top'});
@@ -894,7 +894,7 @@ window.FileBrowser = (function($, FileBrowser) {
         appendPath(path);
 
         console.error(error);
-        var msg = xcHelper.replaceMsg(ErrWRepTStr.NoPathInLoad, {
+        var msg = xcStringHelper.replaceMsg(ErrWRepTStr.NoPathInLoad, {
             "path": path
         });
         if (typeof error === "object" && error.log) {
@@ -1141,7 +1141,7 @@ window.FileBrowser = (function($, FileBrowser) {
                         } catch (e) {
                             invalidRegex = true;
                         }
-                        pattern = xcHelper.getFileNamePattern(searchKey, true);
+                        pattern = xcStringHelper.getFileNamePattern(searchKey, true);
                     }
                     if (invalidRegex) {
                         StatusBox.show(ErrTStr.InvalidRegEx, $li.find("input"),
@@ -1220,7 +1220,7 @@ window.FileBrowser = (function($, FileBrowser) {
         var origKey = searchKey;
         if (type == null) {
             // Do a regular text search
-            searchKey = xcHelper.escapeRegExp(searchKey);
+            searchKey = xcStringHelper.escapeRegExp(searchKey);
         } else {
             searchInfo += "(" + type + ")";
             switch (type) {
@@ -1232,7 +1232,7 @@ window.FileBrowser = (function($, FileBrowser) {
                 case ("globMatch"):
                     fullTextMatch = true;
                 case ("globContain"):
-                    searchKey = xcHelper.escapeRegExp(searchKey);
+                    searchKey = xcStringHelper.escapeRegExp(searchKey);
                     searchKey = searchKey.replace(/\\\*/g, ".*")
                                          .replace(/\\\?/g, ".");
                     break;
@@ -1244,9 +1244,9 @@ window.FileBrowser = (function($, FileBrowser) {
         searchInfo += ": " + getCurrentPath() + origKey;
         $container.find(".filePathBottom .content").text(searchInfo);
         if (fullTextMatch) {
-            searchKey = xcHelper.fullTextRegExKey(searchKey);
+            searchKey = xcStringHelper.fullTextRegExKey(searchKey);
         } else {
-            searchKey = xcHelper.containRegExKey(searchKey);
+            searchKey = xcStringHelper.containRegExKey(searchKey);
         }
         var isValidRegex = true;
         try {
@@ -1255,7 +1255,7 @@ window.FileBrowser = (function($, FileBrowser) {
         } catch (e) {
             isValidRegex = false;
         }
-        var pattern = xcHelper.getFileNamePattern(searchKey, true);
+        var pattern = xcStringHelper.getFileNamePattern(searchKey, true);
         var path = getCurrentPath();
         $("#fileBrowserSearch input").addClass("xc-disabled");
         $innerContainer.hide();
@@ -1511,16 +1511,16 @@ window.FileBrowser = (function($, FileBrowser) {
         var name;
 
         if (typeof grid === "string") {
-            name = xcHelper.escapeRegExp(grid);
-            name = xcHelper.escapeDblQuote(name);
+            name = xcStringHelper.escapeRegExp(grid);
+            name = xcStringHelper.escapeDblQuote(name);
             if (isAll) {
                 str = '.grid-unit .label[data-name="' + name + '"]';
             } else {
                 str = '.grid-unit.folder .label[data-name="' + name + '"]';
             }
         } else {
-            name = xcHelper.escapeRegExp(grid.name);
-            name = xcHelper.escapeDblQuote(name);
+            name = xcStringHelper.escapeRegExp(grid.name);
+            name = xcStringHelper.escapeDblQuote(name);
             var type = grid.type;
 
             if (type == null) {
@@ -1644,7 +1644,7 @@ window.FileBrowser = (function($, FileBrowser) {
             var iconClass = isDirectory ? "xi-folder" : "xi-documentation-paper";
             var size = isDirectory ? "" :
                         xcHelper.sizeTranslator(fileObj.attr.size);
-            var escName = xcHelper.escapeDblQuoteForHTML(name);
+            var escName = xcStringHelper.escapeDblQuoteForHTML(name);
 
             var selectedClass = isSelected ? " selected" : "";
             var pickedClass = isPicked ? " picked" : "";
@@ -2260,13 +2260,13 @@ window.FileBrowser = (function($, FileBrowser) {
     function createListElement($grid, preChecked) {
         // e.g. path can be "/netstore" and name can be "/datasets/test.txt"
         var curDir = getCurrentPath();
-        var escDir = xcHelper.escapeDblQuoteForHTML(curDir);
+        var escDir = xcStringHelper.escapeDblQuoteForHTML(curDir);
         if ($grid != null) {
             var index = $grid.data("index");
             var file = curFiles[index];
             file.isPicked = true;
             var name = file.name;
-            var escName = xcHelper.escapeDblQuoteForHTML(name);
+            var escName = xcStringHelper.escapeDblQuoteForHTML(name);
             var isFolder = file.attr.isDirectory;
             var fileType = isFolder ? "Folder" : xcHelper.getFormat(name);
             var ckBoxClass = isFolder ? "xi-ckbox-empty" : "xi-ckbox-empty xc-disabled";
@@ -2297,7 +2297,7 @@ window.FileBrowser = (function($, FileBrowser) {
     function updatePickedFilesList($grid, options) {
         // options: clearAll, isRemove
         var path = getCurrentPath();
-        var escPath = xcHelper.escapeDblQuote(path);
+        var escPath = xcStringHelper.escapeDblQuote(path);
         if (options && options.clearAll) {
             $pickedFileList.empty();
         } else if (!$grid || $grid.length === 0) {
@@ -2305,7 +2305,7 @@ window.FileBrowser = (function($, FileBrowser) {
             $innerContainer.find(".grid-unit.selected").each(function() {
                 var $ele = $(this);
                 var name = getGridUnitName($ele);
-                var escName = xcHelper.escapeDblQuote(name);
+                var escName = xcStringHelper.escapeDblQuote(name);
                 var isFolder = $ele.hasClass("folder");
                 var fullpath = getFullPath(escPath + escName, isFolder);
                 if (options && options.isRemove) {
@@ -2322,7 +2322,7 @@ window.FileBrowser = (function($, FileBrowser) {
         } else {
             // Single file
             var name = getGridUnitName($grid);
-            var escName = xcHelper.escapeDblQuote(name);
+            var escName = xcStringHelper.escapeDblQuote(name);
             var isFolder = $grid.hasClass("folder");
             var fullpath = getFullPath(escPath + escName, isFolder);
             if (options && options.isRemove) {
@@ -2422,10 +2422,10 @@ window.FileBrowser = (function($, FileBrowser) {
 
     function checkPicked(files, path) {
         // Can be optimized later
-        var escPath = xcHelper.escapeDblQuote(path);
+        var escPath = xcStringHelper.escapeDblQuote(path);
         for (var i = 0; i < files.length; i++) {
             var name = files[i].name;
-            var escName = xcHelper.escapeDblQuote(name);
+            var escName = xcStringHelper.escapeDblQuote(name);
             var isFolder = files[i].attr.isDirectory;
             var fullPath = getFullPath(escPath + escName, isFolder);
             if (name !== "\\" &&

@@ -27,11 +27,11 @@ class InputSuggest {
         if ($list.length && (event.which === keyCode.Up ||
             event.which === keyCode.Down))
         {
-            xcHelper.listHighlight($input, event, true);
+            xcUIHelper.listHighlight($input, event, true);
             // bold the similar text
             $list.find("li").each(function() {
                 var $suggestion = $(this);
-                xcHelper.boldSuggestedText($suggestion, $input.val());
+                xcUIHelper.boldSuggestedText($suggestion, $input.val());
             });
         }
     }

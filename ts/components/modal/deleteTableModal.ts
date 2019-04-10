@@ -305,7 +305,7 @@ class DeleteTableModal {
         this._deleteTableHelper()
         .then((...res) => {
             error = res;
-            xcHelper.showRefreshIcon($modal, false, null);
+            xcUIHelper.showRefreshIcon($modal, false, null);
         })
         .fail((...err) => {
             error = err;
@@ -379,7 +379,7 @@ class DeleteTableModal {
         if (hasSuccess) {
             if (failedTables.length === 1) {
                 errorMsg = failedMsg + ". " +
-                xcHelper.replaceMsg(ErrWRepTStr.ResultSetNotDeleted, {
+                xcStringHelper.replaceMsg(ErrWRepTStr.ResultSetNotDeleted, {
                     "name": failedTables[0]
                 });
             } else {

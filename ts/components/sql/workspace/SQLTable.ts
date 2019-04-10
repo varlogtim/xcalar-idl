@@ -11,8 +11,8 @@ class SQLTable {
     }
 
     public show(
-        table: TableMeta, 
-        columns: {name: string, backName: string, type: ColumnType}[], 
+        table: TableMeta,
+        columns: {name: string, backName: string, type: ColumnType}[],
         callback?: Function
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
@@ -34,7 +34,7 @@ class SQLTable {
         .then(deferred.resolve)
         .fail((error) => {
             if (typeof error === "object" &&
-                error.status === StatusT.StatusDsNotFound && 
+                error.status === StatusT.StatusDsNotFound &&
                 typeof callback === "function"
             ) {
                 callback();
@@ -112,7 +112,7 @@ class SQLTable {
         });
 
         const promise = deferred.promise();
-        xcHelper.showRefreshIcon($tableSection, true, promise);
+        xcUIHelper.showRefreshIcon($tableSection, true, promise);
         return promise;
     }
 

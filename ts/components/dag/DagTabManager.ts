@@ -749,7 +749,7 @@ class DagTabManager {
         } else {
             tabName = dagTab.getName();
         }
-        tabName = xcHelper.escapeHTMLSpecialChar(tabName);
+        tabName = xcStringHelper.escapeHTMLSpecialChar(tabName);
         const tabId = dagTab.getId();
         const isEditable: boolean = (dagTab instanceof DagTabUser);
         const isViewOnly: boolean = (dagTab instanceof DagTabProgress);

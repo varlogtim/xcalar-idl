@@ -143,7 +143,7 @@ class DagTabPublished extends DagTab {
 
     /**
      * Get node's UDF resolutions in a published dataflow
-     * @param dagNode 
+     * @param dagNode
      * @description
      * All UDFs are stored in a secret user's namespace in shared dataflow cases.
      * So get the correct resolution of UDFs would be tricky:
@@ -160,14 +160,14 @@ class DagTabPublished extends DagTab {
         // Do not wait for the API done,
         // or there could be chances unexpected API calls happening before reset session
         DagTabPublished._resetSession();
-        
+
         return promise;
     }
 
     public load(reset?: boolean): XDPromise<any> {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         let dagInfoRes: any;
-        
+
         this._loadFromKVStore()
         .then((dagInfo, graph) => {
             dagInfoRes = dagInfo;
@@ -357,7 +357,7 @@ class DagTabPublished extends DagTab {
 
     public deletedAlert(): void {
         let tab = this;
-        let msg: string = xcHelper.replaceMsg(DFTStr.PublishedDFDeletedMsg, {
+        let msg: string = xcStringHelper.replaceMsg(DFTStr.PublishedDFDeletedMsg, {
             "name": tab.getPath()
         });
         Alert.show({

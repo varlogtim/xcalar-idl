@@ -48,6 +48,62 @@ describe('QueryManager Test', function() {
         });
     });
 
+    describe("general functions", function() {
+        it("xcHelper.parseQuery should work", function() {
+            var firstPart = 'map --eval "concat(\\"1\\", \\"2\\")" --srctable "A#Vi5" ' +
+                            '--fieldName "B" --dsttable "A#Vi25";';
+            var secondPart = 'index --key "col1" --dataset ".XcalarDS.a.b" ' +
+                            '--dsttable "b#Vi26" --prefix;';
+            var thirdPart = 'join --leftTable "c.index#Vi35" --rightTable ' +
+                            '"d.index#Vi36" --joinType innerJoin ' +
+                            '--joinTable "a#Vi34";';
+            var fourthPart = 'load --name "f264.schedule" ' +
+                             '--targetName "Default Shared Root" ' +
+                             '--path "/schedule/" ' +
+                             '--apply "default:parseJson" --parseArgs "{}" ' +
+                             '--size 0B;';
+            var fifthPart = '   '; // blank
+
+            var query =  firstPart + secondPart + thirdPart + fourthPart + fifthPart;
+
+            var parsedQuery = QueryManager.parseQuery(query);
+            expect(parsedQuery).to.be.an("array");
+            expect(parsedQuery).to.have.lengthOf(4); // should exclude the blank
+
+            expect(parsedQuery[0].name).to.equal("map");
+            expect(parsedQuery[1].name).to.equal("index");
+            expect(parsedQuery[2].name).to.equal("join");
+            expect(parsedQuery[3].name).to.equal("load");
+
+            expect(parsedQuery[0].dstTable).to.equal("A#Vi25");
+            expect(parsedQuery[1].dstTable).to.equal("b#Vi26");
+            expect(parsedQuery[2].dstTable).to.equal("a#Vi34");
+            expect(parsedQuery[3].dstTable).to.equal(gDSPrefix + "f264.schedule");
+
+            expect(parsedQuery[0].query).to.equal(firstPart.slice(0,-1));
+            expect(parsedQuery[1].query).to.equal(secondPart.slice(0,-1));
+            expect(parsedQuery[2].query).to.equal(thirdPart.slice(0,-1));
+            expect(parsedQuery[3].query).to.equal(fourthPart.slice(0,-1));
+
+            // export
+            var sixthPart = 'export --targetType file --tableName A#dl4 ' +
+                            '--targetName Default --exportName B#dl5 ' +
+                            '--createRule --columnsNames class_id;time; ' +
+                            '--headerColumnsNames class_id;time; --format csv ' +
+                            '--fileName C.csv  --fieldDelim   --recordDelim b ' +
+                            '--quoteDelim';
+
+            parsedQuery = QueryManager.parseQuery(sixthPart);
+            expect(parsedQuery).to.be.an("array");
+            expect(parsedQuery).to.have.lengthOf(1);
+
+            expect(parsedQuery[0].name).to.equal("export");
+            expect(parsedQuery[0].dstTable).to.equal("B#dl5");
+            expect(parsedQuery[0].exportFileName).to.equal("C.csv");
+            expect(parsedQuery[0].query).to.equal(sixthPart);
+        });
+    });
+
     describe('QueryManager.addQuery()', function() {
         var queryObj;
         var cachedGetOpStats;
@@ -137,16 +193,16 @@ describe('QueryManager Test', function() {
                   "broadcast": false
                 }
               }, null, 2);
-            var cachedFn = xcHelper.copyToClipboard;
+            var cachedFn = xcUIHelper.copyToClipboard;
             var called = false;
-            xcHelper.copyToClipboard = function(t) {
+            xcUIHelper.copyToClipboard = function(t) {
                 expect(t).to.equal(text);
                 called = true;
 
             }
             $queryDetail.find(".copy").click();
             expect(called).to.be.true;
-            xcHelper.copyToClipboard = cachedFn;
+            xcUIHelper.copyToClipboard = cachedFn;
         });
 
         it('QueryManager.addQuery to xcQuery should work', function(done) {
@@ -236,9 +292,9 @@ describe('QueryManager Test', function() {
         });
 
         it("unlockSrcTables should work", function() {
-            var cachedUnlock = xcHelper.unlockTable;
+            var cachedUnlock = TblFunc.unlockTable;
             var tables = [];
-            xcHelper.unlockTable = function(tId) {
+            TblFunc.unlockTable = function(tId) {
                 tables.push(tId);
             };
             var fn = QueryManager.__testOnly__.unlockSrcTables;
@@ -259,7 +315,7 @@ describe('QueryManager Test', function() {
             expect(tables[2]).to.equal("Vi5");
             expect(tables[3]).to.equal("Vi35");
             expect(tables[4]).to.equal("Vi36");
-            xcHelper.unlockTable = cachedUnlock;
+            TblFunc.unlockTable = cachedUnlock;
         });
 
         it('QueryManager.removeQuery should work', function() {

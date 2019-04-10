@@ -55,7 +55,7 @@ class ExportSQLTableModal {
     private _activateDropDown($list: JQuery, container: string) {
         let dropdownHelper: MenuHelper = new MenuHelper($list, {
             "onOpen": function() {
-                var $lis = $list.find('li').sort(xcHelper.sortHTML);
+                var $lis = $list.find('li').sort(xcUIHelper.sortHTML);
                 $lis.prependTo($list.find('ul'));
             },
             "container": container
@@ -167,7 +167,7 @@ class ExportSQLTableModal {
 
     private _getTypeIcon(type: ColumnType): string {
         return '<i class="icon type ' +
-            xcHelper.getColTypeIcon(xcHelper.convertColTypeToFieldType(type)) +
+            xcUIHelper.getColTypeIcon(xcHelper.convertColTypeToFieldType(type)) +
             '"></i>';
     }
 
@@ -183,7 +183,7 @@ class ExportSQLTableModal {
         // Render column list
         let html: string = "";
         columnList.forEach((column, index) => {
-            const colName: string = xcHelper.escapeHTMLSpecialChar(
+            const colName: string = xcStringHelper.escapeHTMLSpecialChar(
                 column.name);
             const colNum: number = (index + 1);
             html += '<li class="col' +
@@ -191,8 +191,8 @@ class ExportSQLTableModal {
                 this._getTypeIcon(column.getType()) +
                 '<span class="text tooltipOverflow" ' +
                 'data-original-title="' +
-                    xcHelper.escapeDblQuoteForHTML(
-                        xcHelper.escapeHTMLSpecialChar(colName)) + '" ' +
+                    xcStringHelper.escapeDblQuoteForHTML(
+                        xcStringHelper.escapeHTMLSpecialChar(colName)) + '" ' +
                 'data-toggle="tooltip" data-placement="top" ' +
                 'data-container="body">' +
                     colName +

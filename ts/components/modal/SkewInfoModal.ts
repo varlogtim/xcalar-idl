@@ -77,7 +77,7 @@ class SkewInfoModal {
         const sizeStr: string = <string>xcHelper.sizeTranslator(size);
         const $modal: JQuery = this._getModal();
         $modal.find(".size .text").text(sizeStr);
-        $modal.find(".totalRows .text").text(xcHelper.numToStr(totalRows));
+        $modal.find(".totalRows .text").text(xcStringHelper.numToStr(totalRows));
         $modal.find(".skew .text").text(skewValue)
                                   .css("color", skewColor);
     }
@@ -179,7 +179,7 @@ class SkewInfoModal {
         .selectAll(".bar").each(function(d) {
             const row: string = self._percentageLabel
                       ? Math.round(d.row * 100 * 100) / 100 + "%" // 2 digits
-                      : xcHelper.numToStr(d.row);
+                      : xcStringHelper.numToStr(d.row);
             $(this).tooltip(<any>{
                 trigger: "maunal",
                 animation: false,

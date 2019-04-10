@@ -695,7 +695,7 @@ describe('LoginConfig Modal Test', () => {
                 setupConfig(null);
 
                 let text = null;
-                xcHelper.showSuccess = (t) => { text = t; };
+                xcUIHelper.showSuccess = (t) => { text = t; };
                 $modal.find('.confirm').click();
 
                 UnitTest.testFinish(() => {

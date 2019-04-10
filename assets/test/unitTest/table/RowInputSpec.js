@@ -140,14 +140,14 @@ describe("RowInput Test", function() {
         });
 
         // it('clicking on rowinput area should focus on table', function() {
-        //     var cached = xcHelper.centerFocusedTable;
+        //     var cached = TblManager.centerfocusedTable;
         //     var centerCalled = false;
-        //     xcHelper.centerFocusedTable = function() {
+        //     TblManager.centerfocusedTable = function() {
         //         centerCalled = true;
         //     };
         //     $("#rowInputArea").mousedown();
         //     expect(centerCalled).to.be.true;
-        //     xcHelper.centerFocusedTable = cached;
+        //     TblManager.centerfocusedTable = cached;
         // });
 
         after(function() {

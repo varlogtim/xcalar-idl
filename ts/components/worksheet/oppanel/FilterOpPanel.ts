@@ -756,7 +756,7 @@ class FilterOpPanel extends GeneralOpPanel {
     //     if (andOrSwitch) {
     //         andOrIndices = {};
     //     }
-    //     let newText = xcHelper.formulateEvalString(model.groups,
+    //     let newText = GeneralOpPanel.formulateEvalString(model.groups,
     //                                         model.andOrOperator, andOrIndices);
 
     //     tempText = newText;

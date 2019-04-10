@@ -245,7 +245,7 @@ namespace Transaction {
             // if has new sql, use the new one, otherwise, use the cached one
             const sql: SQLInfo = options.sql || txLog.getSQL();
             let title: string = options.title || txLog.getOperation();
-            title = xcHelper.capitalize(title);
+            title = xcStringHelper.capitalize(title);
             Log.add(title, sql, cli, willCommit);
             queryNum = Log.getCursor();
         }
@@ -332,7 +332,7 @@ namespace Transaction {
         if (!title) {
             title = txLog.getOperation();
         }
-        title = xcHelper.capitalize(title);
+        title = xcStringHelper.capitalize(title);
 
         if (!has_require) {
             Log.errorLog(title, sql, cli, error);
@@ -424,7 +424,7 @@ namespace Transaction {
             // if cli is empty, no need to log
             const sql: SQLInfo = options.sql || txLog.getSQL();
             let title: string = options.title || txLog.getOperation();
-            title = xcHelper.capitalize(title);
+            title = xcStringHelper.capitalize(title);
 
             Log.errorLog(title, sql, cli, SQLType.Cancel);
         }
@@ -489,7 +489,7 @@ namespace Transaction {
             return;
         }
         options = options || {};
-        const subQueries = xcHelper.parseQuery(query);
+        const subQueries = QueryManager.parseQuery(query);
         if (dstTable && subQueries.length === 1 && !options.retName) {
             options.exportFileName = subQueries[0].exportFileName;
             QueryManager.addSubQuery(txId, name, dstTable, query, options);

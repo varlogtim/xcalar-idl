@@ -263,7 +263,7 @@ describe("WorkbookManager Test", function() {
 
             WorkbookManager.__testOnly__.countdown()
             .always(function() {
-                var msg = xcHelper.replaceMsg(WKBKTStr.Refreshing, {
+                var msg = xcStringHelper.replaceMsg(WKBKTStr.Refreshing, {
                     time: 1
                 });
                 expect($("#monitorTopBar").find(".wkbkTitle").text())
@@ -430,12 +430,12 @@ describe("WorkbookManager Test", function() {
             oldActiveWkbkId = WorkbookManager.getActiveWKBK();
 
             oldRemoveUnload = xcManager.removeUnloadPrompt;
-            oldReload = xcHelper.reload;
+            oldReload = xcManager.reload;
             // switch is slow, so use a fake one
             oldActivate = XcalarActivateWorkbook;
             oldDeactive = XcalarDeactivateWorkbook;
             xcManager.removeUnloadPrompt = function() {};
-            xcHelper.reload = function() {};
+            xcManager.reload = function() {};
             XcalarActivateWorkbook = function() {
                 return PromiseHelper.resolve();
             };
@@ -618,7 +618,7 @@ describe("WorkbookManager Test", function() {
                 done("fail");
             })
             .fail(function(error) {
-                var errStr = xcHelper.replaceMsg(ErrTStr.WorkbookExists,
+                var errStr = xcStringHelper.replaceMsg(ErrTStr.WorkbookExists,
                                              {'workbookName': newName});
                 expect(error).to.equal(errStr);
                 done();
@@ -816,7 +816,7 @@ describe("WorkbookManager Test", function() {
 
         after(function() {
             xcManager.removeUnloadPrompt = oldRemoveUnload;
-            xcHelper.reload = oldReload;
+            xcManager.reload = oldReload;
             XcalarActivateWorkbook = oldActivate;
             XcalarDeactivateWorkbook = oldDeactive;
         });
@@ -841,13 +841,13 @@ describe("WorkbookManager Test", function() {
             JupyterPanel.updateFolderName = function() {};
 
             oldRemoveUnload = xcManager.removeUnloadPrompt;
-            oldReload = xcHelper.reload;
+            oldReload = xcManager.reload;
             // switch is slow, so use a fake one
             oldActivate = XcalarActivateWorkbook;
             oldDeactive = XcalarDeactivateWorkbook;
 
             xcManager.removeUnloadPrompt = function() {};
-            xcHelper.reload = function() {};
+            xcManager.reload = function() {};
             XcalarActivateWorkbook = function() {
                 return PromiseHelper.resolve();
             };
@@ -887,7 +887,7 @@ describe("WorkbookManager Test", function() {
         after(function() {
             XcSocket.unregisterUserSession = oldXcSocket;
             xcManager.removeUnloadPrompt = oldRemoveUnload;
-            xcHelper.reload = oldReload;
+            xcManager.reload = oldReload;
             XcalarActivateWorkbook = oldActivate;
             XcalarDeactivateWorkbook = oldDeactive;
             JupyterPanel.updateFolderName = oldUpdateFolderName;

@@ -163,7 +163,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         promise
         .then(XcalarApiTop)
         .then(function(apiTopResult) {
-            $("#upTime").text(xcHelper.timeStampConvertSeconds(
+            $("#upTime").text(xcTimeHelper.timeStampConvertSeconds(
                 apiTopResult.topOutputPerNode[0].uptimeInSeconds, true));
             if (prevIteration !== curIteration) {
                 return deferred.resolve();

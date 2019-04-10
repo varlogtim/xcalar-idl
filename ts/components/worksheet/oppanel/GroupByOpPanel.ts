@@ -660,7 +660,7 @@ class GroupByOpPanel extends GeneralOpPanel {
         const description = OpFormTStr.NewColName + ":";
         // new col name field
         const $newColRow = $rows.eq(numArgs);
-        const icon = xcHelper.getColTypeIcon(operObj.outputType);
+        const icon = xcUIHelper.getColTypeIcon(operObj.outputType);
         $newColRow.addClass("resultantColNameRow")
                 .find(".dropDownList").addClass("colNameSection")
                 .prepend('<div class="iconWrapper"><i class="icon ' + icon +
@@ -1134,7 +1134,7 @@ class GroupByOpPanel extends GeneralOpPanel {
             || this._$lastInputFocused.hasClass("variableArgs")) {
             options.append = true;
         }
-        if (xcHelper.fillInputFromCell($target, this._$lastInputFocused,
+        if (xcUIHelper.fillInputFromCell($target, this._$lastInputFocused,
                                     gColPrefix, options)) {
             this._onArgChange(this._$lastInputFocused);
         }

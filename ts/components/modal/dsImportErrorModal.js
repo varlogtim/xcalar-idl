@@ -113,7 +113,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
         $modal.find(".infoTotalErrors").find(".value").text("N/A");
         $modal.find(".infoTotalFiles").find(".value").text("N/A");
         if (numErrors) {
-            $modal.find(".infoTotalErrors").find(".value").text(xcHelper.numToStr(numErrors));
+            $modal.find(".infoTotalErrors").find(".value").text(xcStringHelper.numToStr(numErrors));
         }
 
         curDSName = dsName;
@@ -133,7 +133,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
                     for (var i = 0; i < ret.length; i++) {
                         numTotalErrors += ret[i].errors.length;
                     }
-                    numTotalErrors = xcHelper.numToStr(numTotalErrors);
+                    numTotalErrors = xcStringHelper.numToStr(numTotalErrors);
                     if (result.numEntries > numRecordsToShow) {
                         numTotalErrors += "+";
                     }

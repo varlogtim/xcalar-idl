@@ -158,7 +158,7 @@ class JoinOpPanelStep2 {
             collisionColumns.add(name);
             numCollisionsToShow --;
         }
-        
+
 
         const elemTablePrefix = this._createPrefixRenameTable(
             collisionPrefix, collisionPrefix
@@ -192,7 +192,7 @@ class JoinOpPanelStep2 {
             var $menu = $target.closest(".optionWrap").find(".menu");
             $menu.find("input").val("");
 
-            xcHelper.dropdownOpen($target, $menu, {
+            MenuHelper.dropdownOpen($target, $menu, {
                 "mouseCoors": {"x": 0, "y": -71},
                 "floating": true
             });
@@ -280,7 +280,7 @@ class JoinOpPanelStep2 {
                     ? OpPanelTStr.JoinPanelRenameColOldLeft
                     : OpPanelTStr.JoinPanelRenameColOldRight,
                 'newColTitle': OpPanelTStr.JoinPanelRenameColNew,
-                'APP-RENAMES': nodeRowList, 
+                'APP-RENAMES': nodeRowList,
             }
         )
 

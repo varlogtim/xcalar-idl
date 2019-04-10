@@ -36,10 +36,10 @@ window.LicenseModal = (function($, LicenseModal) {
 
         licenseService.update(updateRequest)
         .then(function() {
-            xcHelper.showSuccess(SuccessTStr.UpdateLicense);
+            xcUIHelper.showSuccess(SuccessTStr.UpdateLicense);
         })
         .fail(function(error) {
-            xcHelper.showFail("Update License " + error.error);
+            xcUIHelper.showFail("Update License " + error.error);
         });
         closeModal();
     }

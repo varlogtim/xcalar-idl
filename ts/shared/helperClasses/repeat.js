@@ -124,7 +124,7 @@ window.Repeat = (function($, Repeat) {
         var table = gTables[tableId];
         var tableName = table.tableName;
 
-        var msg = xcHelper.replaceMsg(ResultSetTStr.DelMsgReplace, {"name": tableName});
+        var msg = xcStringHelper.replaceMsg(ResultSetTStr.DelMsgReplace, {"name": tableName});
         Alert.show({
             "title": ResultSetTStr.Del,
             "msg": msg,

@@ -46,7 +46,7 @@ class TableMeta extends Durable {
         this.tableId = options.tableId;
         this.isLocked = options.isLocked || false;
         this.status = options.status || TableType.Active;
-        this.timeStamp = options.timeStamp || xcHelper.getCurrentTimeStamp();
+        this.timeStamp = options.timeStamp || xcTimeHelper.getCurrentTimeStamp();
 
         this.rowHeights = options.rowHeights || {}; // a map
 
@@ -92,7 +92,7 @@ class TableMeta extends Durable {
     }
 
     public updateTimeStamp(): void {
-        this.timeStamp = xcHelper.getCurrentTimeStamp();
+        this.timeStamp = xcTimeHelper.getCurrentTimeStamp();
     }
 
     public lock(): void {
@@ -621,6 +621,37 @@ class TableMeta extends Durable {
     // not used
     public serialize(): string {
         return null;
+    }
+
+    /**
+     * getColNameMap
+     * @param tableId
+     */
+    public getColNameMap(tableId: string): object {
+        const colNameMap: object = {};
+        const cols: ProgCol[] = this.getAllCols(true);
+
+        for (let i = 0; i < cols.length; i++) {
+            const name: string = cols[i].backName.trim();
+            colNameMap[name.toLowerCase()] = name;
+        }
+        return colNameMap;
+    }
+
+
+    /**
+     * getColNameList
+     * @param tableId
+     */
+    public getColNameList(tableId: string): string[] {
+        const colNameList: string[] = [];
+        const cols: ProgCol[] = this.getAllCols(true);
+
+        for (let i = 0; i < cols.length; i++) {
+            const name: string = cols[i].backName.trim();
+            colNameList.push(name);
+        }
+        return colNameList;
     }
 
     // not used

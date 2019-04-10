@@ -195,7 +195,7 @@ window.AggModal = (function($, AggModal) {
                 which = AggTStr.all;
                 which2 = AggTStr.everyPair;
             }
-            instr = xcHelper.replaceMsg(AggTStr.AggTopInstr, {
+            instr = xcStringHelper.replaceMsg(AggTStr.AggTopInstr, {
                 "which": which,
                 "which2": which2
             });
@@ -214,7 +214,7 @@ window.AggModal = (function($, AggModal) {
                 which = AggTStr.everyPair;
                 which2 = AggTStr.all;
             }
-            instr = xcHelper.replaceMsg(AggTStr.CorrInstr, {
+            instr = xcStringHelper.replaceMsg(AggTStr.CorrInstr, {
                 "which": which,
                 "which2": which2
             });
@@ -415,12 +415,12 @@ window.AggModal = (function($, AggModal) {
                             '</span>';
                 name = operations[i].colName;
             }
-            name = xcHelper.escapeHTMLSpecialChar(name);
+            name = xcStringHelper.escapeHTMLSpecialChar(name);
             html += '<div class="aggTableField rowLabel">' +
                         prefixLabel +
                         '<span data-original-title="' +
-                            xcHelper.escapeDblQuoteForHTML(
-                            xcHelper.escapeHTMLSpecialChar(name)) + '" ' +
+                        xcStringHelper.escapeDblQuoteForHTML(
+                            xcStringHelper.escapeHTMLSpecialChar(name)) + '" ' +
                             'data-toggle="tooltip" data-placement="top" ' +
                             'data-container="body" ' +
                             'class="textOverflow tooltipOverflow">' +
@@ -443,7 +443,7 @@ window.AggModal = (function($, AggModal) {
             } else {
                 prefClass = "";
             }
-            var colName = xcHelper.escapeHTMLSpecialChar(labels[i].colName);
+            var colName = xcStringHelper.escapeHTMLSpecialChar(labels[i].colName);
             html += '<div class="aggTableField colLabel">' +
                         '<span data-original-title="' + labels[i].prefix +
                         '" ' +
@@ -454,8 +454,8 @@ window.AggModal = (function($, AggModal) {
                             labels[i].prefix +
                         '</span>' +
                         '<span data-original-title="' +
-                        xcHelper.escapeDblQuoteForHTML(
-                            xcHelper.escapeHTMLSpecialChar(colName)) +
+                        xcStringHelper.escapeDblQuoteForHTML(
+                            xcStringHelper.escapeHTMLSpecialChar(colName)) +
                         '" ' +
                             'data-toggle="tooltip" data-placement="top" ' +
                             'data-container="body" ' +

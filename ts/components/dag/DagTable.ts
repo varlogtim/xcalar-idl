@@ -153,7 +153,7 @@ class DagTable {
         });
 
         const promise = deferred.promise();
-        xcHelper.showRefreshIcon($container, true, promise);
+        xcUIHelper.showRefreshIcon($container, true, promise);
         return promise;
     }
 
@@ -172,7 +172,7 @@ class DagTable {
             };
             const tableMenu: TableMenu = TableComponent.getMenu().getTableMenu();
             tableMenu.setUnavailableClasses();
-            xcHelper.dropdownOpen($(event.target), $("#tableMenu"), options);
+            MenuHelper.dropdownOpen($(event.target), $("#tableMenu"), options);
         });
     }
 

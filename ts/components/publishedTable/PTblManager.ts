@@ -459,7 +459,7 @@ class PTblManager {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         Alert.show({
             'title': IMDTStr.DeactivateTable,
-            'msg': xcHelper.replaceMsg(IMDTStr.DeactivateTablesMsg, {
+            'msg': xcStringHelper.replaceMsg(IMDTStr.DeactivateTablesMsg, {
                 "tableName": tableNames.join(", ")
             }),
             'onConfirm': () => {
@@ -496,7 +496,7 @@ class PTblManager {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         Alert.show({
             'title': IMDTStr.DelTable,
-            'msg': xcHelper.replaceMsg(IMDTStr.DelTableMsg, {
+            'msg': xcStringHelper.replaceMsg(IMDTStr.DelTableMsg, {
                 "tableName": tableNames.join(", ")
             }),
             'onConfirm': () => {
@@ -724,7 +724,7 @@ class PTblManager {
         }
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        
+
         this._checkDeleteDependency(tableName)
         .then(() => {
             return tableInfo.delete();
@@ -804,7 +804,7 @@ class PTblManager {
         this._getSchemaArrayFromDataset(dsName)
         .then((schemaArray, hasMultipleSchema) => {
             if (hasMultipleSchema) {
-                let error: string = xcHelper.replaceMsg(TblTStr.MultipleSchema, {
+                let error: string = xcStringHelper.replaceMsg(TblTStr.MultipleSchema, {
                     name: this._getTableNameFromDSName(dsName)
                 })
                 deferred.reject({

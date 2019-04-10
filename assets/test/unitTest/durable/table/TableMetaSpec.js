@@ -125,6 +125,41 @@ describe("Table Constructor Test", function() {
         expect(table.getOrdering()).to.equal(testVal);
     });
 
+    it("Table getColNameMap should work", function() {
+        var progCol1 = ColManager.newCol({
+            "backName": "Test",
+            "name": "undfCol",
+            "isNewCol": false
+        });
+
+        var progCol2 = ColManager.newCol({
+            "backName": "test2",
+            "name": "stringCol",
+            "isNewCol": false
+        });
+
+        var progCol3 = ColManager.newCol({
+            "backName": "",
+            "name": "",
+            "isNewCol": false
+        });
+
+        var progCol4 = ColManager.newDATACol();
+
+        gTables["xc-Test"] = new TableMeta({
+            "tableId": "xc-Test",
+            "tableName": "test",
+            "tableCols": [progCol1, progCol2, progCol3, progCol4]
+        });
+        let table = gTables["xc-Test"];
+        var colNameMap = table.getColNameMap();
+        expect(Object.keys(colNameMap).length).to.equal(2);
+        expect(colNameMap["test"]).to.equal("Test");
+        expect(colNameMap["test2"]).to.equal("test2");
+
+        delete gTables["xc-Test"];
+    });
+
     it("Table should lock and unlock", function() {
         var table = new TableMeta({
             "tableName": "test#a1",

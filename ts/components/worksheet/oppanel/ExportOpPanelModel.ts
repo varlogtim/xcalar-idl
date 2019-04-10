@@ -472,7 +472,7 @@ class ExportOpPanelModel {
         for (const colInfo of this.columnList) {
             if (colInfo.isSelected) {
                 if (takenNames[colInfo.destColumn]) {
-                    return xcHelper.replaceMsg(ErrTStr.DuplicateDestColName, {
+                    return xcStringHelper.replaceMsg(ErrTStr.DuplicateDestColName, {
                         col: colInfo.destColumn
                     });
                 }

@@ -2802,12 +2802,12 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it('should click label to copy dataset name', () => {
-            const oldFunc = xcHelper.copyToClipboard;
+            const oldFunc = xcUIHelper.copyToClipboard;
             let test = false;
-            xcHelper.copyToClipboard = () => { test = true };
+            xcUIHelper.copyToClipboard = () => { test = true };
             $("#importDataForm-content").find('.inputPart .row label').click();
             expect(test).to.be.true;
-            xcHelper.copyToClipboard = oldFunc;
+            xcUIHelper.copyToClipboard = oldFunc;
         });
 
         after(function() {

@@ -147,7 +147,7 @@ describe("Dataset-File Browser Test", function() {
         it("should handle redirect error", function(done) {
             FileBrowser.__testOnly__.redirectHandler("testPath")
             .then(function() {
-                var error = xcHelper.replaceMsg(ErrWRepTStr.NoPath, {
+                var error = xcStringHelper.replaceMsg(ErrWRepTStr.NoPath, {
                     "path": "testPath"
                 });
                 UnitTest.hasStatusBoxWithError(error);

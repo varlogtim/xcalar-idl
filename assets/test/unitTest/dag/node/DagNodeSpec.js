@@ -245,4 +245,37 @@ describe("Dag Node Basic Test", () => {
         expect(node.getLineage()).to.be.instanceof(DagLineage);
     });
 
+    describe("DagNodeInput.stringifyEval()", function() {
+        var func;
+        before(function() {
+            func = DagNodeInput.stringifyEval;
+        })
+        it("should work if no args", function() {
+            var fn = {fnName: "a", args:[]};
+            expect(func(fn)).to.equal('a()');
+
+            fn = {fnName: "a", args:[{type: "fn", fnName: "b", args: []}]};
+            expect(func(fn)).to.equal('a(b())');
+
+            fn = {fnName: "a", args:[{value: 1}, {type: "fn", fnName: "b", args: []}]};
+            expect(func(fn)).to.equal('a(1,b())');
+        });
+        it("nested should work", function() {
+            var fn = {fnName:"a", args:[{value: 1}, {value: 2}, {value: 3}]};
+            expect(func(fn)).to.equal('a(1,2,3)');
+
+            var fn = {fnName:"a", args:[{value: "1"}, {value: '2'}, {value: '"3"'}]};
+            expect(func(fn)).to.equal('a(1,2,"3")');
+
+            var fn = {fnName:"a", args:[{value: 1}, {type: "fn", fnName:"b", args:[{value: 4}, {value: 5}, {value: 6}]}, {value: 3}]};
+            expect(func(fn)).to.equal('a(1,b(4,5,6),3)');
+
+            var fn = {fnName:"a", args:[{type: "fn", fnName:"b", args:[{value: 2}, {value: 3}, {value: 4}]}, {value: 1}]};
+            expect(func(fn)).to.equal('a(b(2,3,4),1)');
+
+            var fn = {fnName:"a", args:[{type: "fn", fnName:"b", args:[{value: 2}, {type: "fn", fnName:"c", args:[{value: 3}, {value: 4}]}]}, {value: 1}]};
+            expect(func(fn)).to.equal('a(b(2,c(3,4)),1)');
+        });
+    });
+
 });

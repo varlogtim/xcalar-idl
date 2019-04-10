@@ -21,7 +21,7 @@ class WKBK extends Durable {
             throw "Invalid workbook info!";
         }
 
-        let time = xcHelper.getCurrentTimeStamp();
+        let time = xcTimeHelper.getCurrentTimeStamp();
 
         this.name = options.name;
         this.id = options.id;
@@ -43,7 +43,7 @@ class WKBK extends Durable {
     public update(): void {
         this.noMeta = false;
         // store modified data
-        this.modified = xcHelper.getCurrentTimeStamp();
+        this.modified = xcTimeHelper.getCurrentTimeStamp();
     }
 
     public setSessionId(sessinId: string): void {

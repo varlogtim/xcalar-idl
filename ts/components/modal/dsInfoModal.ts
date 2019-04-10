@@ -63,7 +63,7 @@ class DSInfoModal {
         $section.text(val);
         xcTooltip.changeText($section, val);
 
-        let textWidth = xcHelper.getTextWidth($section, val) + 5;
+        let textWidth = xcUIHelper.getTextWidth($section, val) + 5;
         let sectionWidth = $section.width();
         return Math.max(textWidth - sectionWidth, 0); // the delta width
     }

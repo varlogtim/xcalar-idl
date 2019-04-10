@@ -389,7 +389,7 @@ window.MainMenu = (function($, MainMenu) {
                 }
 
                 panelSwitchingHandler($curTab, lastTabId);
-                xcHelper.hideSuccessBox();
+                xcUIHelper.hideSuccessBox();
             }
 
         });

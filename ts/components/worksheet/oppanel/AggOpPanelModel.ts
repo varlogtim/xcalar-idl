@@ -100,7 +100,7 @@ class AggOpPanelModel extends GeneralOpPanelModel {
             for (var j = 0; j < argGroup.args.length; j++) {
                 let arg = (<ParsedEvalArg>argGroup.args[j]).value;
                 if (argGroup.args[j].type === "fn") {
-                    arg = xcHelper.stringifyEval(<ParsedEval>argGroup.args[j]);
+                    arg = DagNodeInput.stringifyEval(<ParsedEval>argGroup.args[j]);
                 }
                 let isOptional: boolean;
                 let typesAccepted: number;
@@ -134,7 +134,7 @@ class AggOpPanelModel extends GeneralOpPanelModel {
     }
 
     protected _getParam(): DagNodeAggregateInputStruct {
-        const evalString = xcHelper.formulateEvalString(this.groups);
+        const evalString = GeneralOpPanel.formulateEvalString(this.groups);
         return {
             evalString: evalString,
             dest: this.dest,
@@ -176,12 +176,12 @@ class AggOpPanelModel extends GeneralOpPanelModel {
         let invalid = false;
         let tabId = DagTabManager.Instance.getPanelTabId();
         if (aggName.charAt(0) !== gAggVarPrefix) {
-            errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidAggName, {
+            errorText = xcStringHelper.replaceMsg(ErrWRepTStr.InvalidAggName, {
                 "aggPrefix": gAggVarPrefix
             });
             invalid = true;
         } else if (aggName.length < 2) {
-            errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidAggLength, {
+            errorText = xcStringHelper.replaceMsg(ErrWRepTStr.InvalidAggLength, {
                 "aggPrefix": gAggVarPrefix
             });
             invalid = true;
@@ -192,7 +192,7 @@ class AggOpPanelModel extends GeneralOpPanelModel {
         } else if (DagAggManager.Instance.hasAggregate(tabId, aggName)) {
             let oldAgg: AggregateInfo = DagAggManager.Instance.getAgg(tabId, aggName);
             if (oldAgg && oldAgg.node != this.dagNode.getId()) {
-                errorText = xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
+                errorText = xcStringHelper.replaceMsg(ErrWRepTStr.AggConflict, {
                     name: aggName,
                     aggPrefix: ""
                 });

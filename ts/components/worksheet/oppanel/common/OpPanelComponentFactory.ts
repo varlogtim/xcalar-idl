@@ -200,14 +200,14 @@ class OpPanelComponentFactory {
             const num = intCheck.value;
             if (range.min != null && num < range.min) {
                 return {
-                    errMsg: xcHelper.replaceMsg(ErrWRepTStr.NoLessNum, {
+                    errMsg: xcStringHelper.replaceMsg(ErrWRepTStr.NoLessNum, {
                         num: range.min
                     })
                 };
             }
             if (range.max != null && num > range.max) {
                 return {
-                    errMsg: xcHelper.replaceMsg(ErrWRepTStr.NoBiggerNum, {
+                    errMsg: xcStringHelper.replaceMsg(ErrWRepTStr.NoBiggerNum, {
                         num: range.max
                     })
                 };

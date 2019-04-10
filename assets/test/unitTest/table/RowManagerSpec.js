@@ -61,6 +61,25 @@ describe('RowManager Test', function() {
     });
 
     describe('rowManager.addRows', function() {
+        it("RowManager.parseRowNum should work", function() {
+            // case 1
+            var $el = $('<div class="row1"></div>');
+            var res = RowManager.parseRowNum($el);
+            expect(res).to.equal(1);
+             // case 2
+            var $el = $('<div class="row2 tempRow"></div>');
+            var res = RowManager.parseRowNum($el);
+            expect(res).to.equal(2);
+            // case 3 (normal to see the console.error)
+            $el = $("<div></div>");
+            res = RowManager.parseRowNum($el);
+            expect(res).to.be.null;
+            // case 4
+            $el = $('<div class="column1"></div>');
+            res = RowManager.parseRowNum($el);
+            expect(res).to.be.null;
+        });
+
         it('scrolling down 20 rows should work', function(done) {
             var info = {
                 "bulk": false
@@ -220,7 +239,7 @@ describe('RowManager Test', function() {
                 for (var i = 0; i < 60; i++) {
                     colNum = "" + (i + 6);
                     expect(contents[i]).to.equal(colNum);
-                    expect(xcHelper.parseRowNum($table.find('tbody tr').eq(i))).to.equal(i + 5);
+                    expect(RowManager.parseRowNum($table.find('tbody tr').eq(i))).to.equal(i + 5);
                 }
                 XcalarGetNextPage = cachedFn;
                 done();
@@ -273,7 +292,7 @@ describe('RowManager Test', function() {
                 for (var i = 0; i < 60; i++) {
                     colNum = "" + (i + 2);
                     expect(contents[i]).to.equal(colNum);
-                    expect(xcHelper.parseRowNum($table.find('tbody tr').eq(i))).to.equal(i + 1);
+                    expect(RowManager.parseRowNum($table.find('tbody tr').eq(i))).to.equal(i + 1);
                 }
                 XcalarGetNextPage = cachedFn;
                 done();

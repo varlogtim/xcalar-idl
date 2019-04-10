@@ -57,10 +57,10 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
                                 'data-container="body" ' +
                                 'title="Cannot directly operate on objects ' +
                                 'or arrays" class="unavailable">' +
-                                xcHelper.escapeHTMLSpecialChar(
+                                xcStringHelper.escapeHTMLSpecialChar(
                                         progCols[i].getBackColName()) + "</li>";
                     } else {
-                        html += "<li>" + xcHelper.escapeHTMLSpecialChar(
+                        html += "<li>" + xcStringHelper.escapeHTMLSpecialChar(
                                     progCols[i].getBackColName()) + "</li>";
                     }
                 }
@@ -261,12 +261,13 @@ window.JupyterUDFModal = (function(JupyterUDFModal, $) {
                 return $.trim(colName);
             });
             var tableName = $modal.find(".tableName:visible").data("tablename");
+            let table = gTables[xcHelper.getTableId(tableName)];
             JupyterPanel.appendStub("basicUDF", {
                 moduleName: $modal.find(".moduleName:visible").val(),
                 fnName: fnName,
                 tableName: tableName,
                 columns: columns,
-                allCols: xcHelper.getColNameList(xcHelper.getTableId(tableName)),
+                allCols: table.getColNameList(),
                 includeStub: true
             });
         } else if ($modal.hasClass("type-newImport")) {

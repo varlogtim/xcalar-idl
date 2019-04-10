@@ -321,7 +321,7 @@ namespace WorkbookManager {
     */
     export function gotoWorkbook(workbookId: string, replaceURL: boolean = false): void {
         setURL(workbookId, replaceURL);
-        xcHelper.reload();
+        xcManager.reload();
     }
 
     /**
@@ -338,7 +338,7 @@ namespace WorkbookManager {
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let time: number = 3;
-        const msg: string = xcHelper.replaceMsg(WKBKTStr.Refreshing, {
+        const msg: string = xcStringHelper.replaceMsg(WKBKTStr.Refreshing, {
             time: time
         });
         $("#monitorTopBar").find(".wkbkTitle").text(msg);
@@ -346,7 +346,7 @@ namespace WorkbookManager {
         const interval: NodeJS.Timer = setInterval(function() {
             time--;
             if (time > 0) {
-                const msg: string = xcHelper.replaceMsg(WKBKTStr.Refreshing, {
+                const msg: string = xcStringHelper.replaceMsg(WKBKTStr.Refreshing, {
                     time: time
                 });
                 $("#monitorTopBar").find(".wkbkTitle").text(msg);
@@ -687,7 +687,7 @@ namespace WorkbookManager {
         newName = newName.trim();
         const newWKBKId: string = getWKBKId(newName);
         if (wkbkSet.has(newWKBKId)) {
-            let errStr: string = xcHelper.replaceMsg(ErrTStr.WorkbookExists, {
+            let errStr: string = xcStringHelper.replaceMsg(ErrTStr.WorkbookExists, {
                 workbookName: newName
             });
             return PromiseHelper.reject(errStr);

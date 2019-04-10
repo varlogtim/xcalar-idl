@@ -115,8 +115,8 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
             const domList = this._templateMgr.createElements(
                 ProjectOpPanel._templateIdDerivedColumn,
                 {
-                    'origTitle': xcHelper.escapeDblQuoteForHTML(
-                        xcHelper.escapeHTMLSpecialChar(colName)
+                    'origTitle': xcStringHelper.escapeDblQuoteForHTML(
+                        xcStringHelper.escapeHTMLSpecialChar(colName)
                     ),
                     'checkClass': column.isSelected? 'checked': '',
                     'colName': colName,
@@ -185,8 +185,8 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
                 const columnDom = this._templateMgr.createElements(
                     ProjectOpPanel._templateIdFixedColumn,
                     {
-                        'origTitle': xcHelper.escapeDblQuoteForHTML(
-                            xcHelper.escapeHTMLSpecialChar(column.name)
+                        'origTitle': xcStringHelper.escapeDblQuoteForHTML(
+                            xcStringHelper.escapeHTMLSpecialChar(column.name)
                         ),
                         'colName': xcHelper.parsePrefixColName(column.name).name,
                         'colType': colType,

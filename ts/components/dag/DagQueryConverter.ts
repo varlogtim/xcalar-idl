@@ -1004,7 +1004,7 @@ class DagQueryConverter {
                 const columns = this._getUnionColumns(node.args.columns);
                 dagNodeInfo = {
                     type: DagNodeType.Set,
-                    subType: <DagNodeSubType>xcHelper.capitalize(setType),
+                    subType: <DagNodeSubType>xcStringHelper.capitalize(setType),
                     input: <DagNodeSetInputStruct>{
                         columns: columns,
                         dedup: node.args.dedup

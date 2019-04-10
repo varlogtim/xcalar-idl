@@ -304,7 +304,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         this._fetchLoadArgs(id)
         .then((loadArgs) => {
             this._loadArgs = this._parseLoadArgs(loadArgs);
-            xcHelper.disableSubmit($nextBtn);
+            xcUIHelper.disableSubmit($nextBtn);
             const res = this._autoDetectSchema(true);
             if (res != null) {
                 // error case
@@ -318,7 +318,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             StatusBox.show(error.error, $nextBtn, false);
         })
         .always(() => {
-            xcHelper.enableSubmit($nextBtn);
+            xcUIHelper.enableSubmit($nextBtn);
         });
     }
 
@@ -451,11 +451,11 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         if (prefix == null || id == null) {
             error = OpPanelTStr.SelectDSSource;
             $location = $panel.find(".btn-submit");
-        } else if (DS.getDSObj(id) == null && !xcHelper.checkValidParamBrackets(id)) {
+        } else if (DS.getDSObj(id) == null && !DagNodeInput.checkValidParamBrackets(id)) {
             error = OpPanelTStr.InvalidDSSource;
             $location = $("#dsOpListSection");
         } else {
-            error = xcHelper.validatePrefixName(xcHelper.replaceParamForValidation(prefix));
+            error = xcHelper.validatePrefixName(DagNodeInput.replaceParamForValidation(prefix));
             $location = $panel.find(".datasetPrefix .inputWrap");
         }
 

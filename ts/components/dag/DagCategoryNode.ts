@@ -54,7 +54,7 @@ class DagCategoryNode {
             return node.getDisplayNodeType();
         } else {
             const nodeSubType: string = this.getNodeSubType();
-            return xcHelper.capitalize(nodeSubType);
+            return xcStringHelper.capitalize(nodeSubType);
         }
     }
 

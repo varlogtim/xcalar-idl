@@ -172,9 +172,9 @@ describe('XVM Test', () => {
         before(() => {
             oldGetFrontBuldNumber = XVM.getFrontBuildNumber;
             oldGetBackBuildNumber = XVM.getBackBuildNumber;
-            oldReload = xcHelper.reload;
+            oldReload = xcManager.reload;
 
-            xcHelper.reload = (t) => { test = t };
+            xcManager.reload = (t) => { test = t };
         });
 
         beforeEach(() => {
@@ -211,7 +211,7 @@ describe('XVM Test', () => {
 
         it("should handle error case", () => {
             xcLocalStorage.removeItem("buildNumCheck");
-            xcHelper.reload = () => { throw "test"; };
+            xcManager.reload = () => { throw "test"; };
             const res = XVM.checkBuildNumber();
             expect(res).to.be.true;
         });
@@ -220,7 +220,7 @@ describe('XVM Test', () => {
             xcLocalStorage.removeItem("buildNumCheck");
             XVM.getFrontBuildNumber = oldGetFrontBuldNumber;
             XVM.getBackBuildNumber = oldGetBackBuildNumber;
-            xcHelper.reload = oldReload;
+            xcManager.reload = oldReload;
         });
     });
 });

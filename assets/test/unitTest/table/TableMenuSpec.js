@@ -109,9 +109,9 @@ describe('TableMenu Test', function() {
             });
 
             it("copyTableName", function() {
-                var cachedFunc = xcHelper.copyToClipboard;
+                var cachedFunc = xcUIHelper.copyToClipboard;
                 var called = false;
-                xcHelper.copyToClipboard = function() {
+                xcUIHelper.copyToClipboard = function() {
                     called = true;
                 };
 
@@ -120,14 +120,14 @@ describe('TableMenu Test', function() {
                 $tableMenu.find('.copyTableName').trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
-                xcHelper.copyToClipboard = cachedFunc;
+                xcUIHelper.copyToClipboard = cachedFunc;
             });
 
 
             it("copyColNames", function() {
-                var cachedFunc = xcHelper.copyToClipboard;
+                var cachedFunc = xcUIHelper.copyToClipboard;
                 var called = false;
-                xcHelper.copyToClipboard = function() {
+                xcUIHelper.copyToClipboard = function() {
                     called = true;
                 };
                 if (!$tableMenu.find('.copyColNames').length) {
@@ -140,7 +140,7 @@ describe('TableMenu Test', function() {
                 $tableMenu.find('.copyColNames').trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 
-                xcHelper.copyToClipboard = cachedFunc;
+                xcUIHelper.copyToClipboard = cachedFunc;
             });
 
             it('multiCast', function() {
@@ -1151,7 +1151,7 @@ describe('TableMenu Test', function() {
                 }
             };
 
-            xcHelper.copyToClipboard = function(str) {
+            xcUIHelper.copyToClipboard = function(str) {
                 var cellVals = 'testVal, otherVal';
                 expect(str).to.equal(cellVals);
                 called = true;
@@ -1163,7 +1163,7 @@ describe('TableMenu Test', function() {
             $cellMenu.find('.tdCopy').trigger(fakeEvent.mouseup);
             expect(called).to.be.true;
 
-            xcHelper.copyToClipboard = cachedFn;
+            xcUIHelper.copyToClipboard = cachedFn;
         });
     });
 

@@ -138,7 +138,7 @@ namespace WorkbookInfoModal {
             },
             {
                 "$ele": $input,
-                "error": xcHelper.replaceMsg(WKBKTStr.Conflict, {
+                "error": xcStringHelper.replaceMsg(WKBKTStr.Conflict, {
                     "name": workbookName
                 }),
                 "check": function() {

@@ -70,7 +70,7 @@ describe("DFUploadModal Test", function() {
         var oldReader;
         var oldAddDF;
         var isAddDF = false;
-        var oldShowSuccess = xcHelper.showSuccess;
+        var oldShowSuccess = xcUIHelper.showSuccess;
 
         before(function() {
             var FakeFileReader = function() {
@@ -88,13 +88,13 @@ describe("DFUploadModal Test", function() {
             FileReader = FakeFileReader;
 
             oldAddDF = DagTabUser.prototype.upload;
-            oldShowSuccess = xcHelper.showSuccess;
+            oldShowSuccess = xcUIHelper.showSuccess;
 
             DagTabUser.prototype.upload = function() {
                 isAddDF = true;
             };
 
-            xcHelper.showSuccess = function(input) {
+            xcUIHelper.showSuccess = function(input) {
                 successMsg = input;
             };
 
@@ -151,7 +151,7 @@ describe("DFUploadModal Test", function() {
             var name = "DupNameTest"
             var oldFunc = DagList.Instance.isUniqueName;
             DagList.Instance.isUniqueName = () => false;
-    
+
             DagList.Instance.changeName(name, "test");
             $destPath.val(name);
             DFUploadModal.Instance._submitForm()
@@ -217,7 +217,7 @@ describe("DFUploadModal Test", function() {
         after(function() {
             FileReader = oldReader;
             DagTabUser.prototype.upload = oldAddDF;
-            xcHelper.showSuccess = oldShowSuccess;
+            xcUIHelper.showSuccess = oldShowSuccess;
         });
     });
 

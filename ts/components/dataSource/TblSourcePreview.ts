@@ -159,7 +159,7 @@ class TblSourcePreview {
         const $instr: JQuery = this._getContainer().find(".cardInstruction .text span");
         let instr: string;
         if (tableInfo.state === PbTblState.BeDataset) {
-            instr = xcHelper.replaceMsg(TblTStr.MultipleSchema, {
+            instr = xcStringHelper.replaceMsg(TblTStr.MultipleSchema, {
                 name: tableInfo.name
             });
         } else {
@@ -400,7 +400,7 @@ class TblSourcePreview {
         });
 
         const promise = deferred.promise();
-        xcHelper.showRefreshIcon($tableSection, true, promise);
+        xcUIHelper.showRefreshIcon($tableSection, true, promise);
         return promise;
     }
 

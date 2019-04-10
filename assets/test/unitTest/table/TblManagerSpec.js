@@ -25,6 +25,59 @@ describe("TableManager Test", function() {
             });
         });
 
+        it("TblManager.parseTableId should work", function() {
+            // case 1
+            var id = "test-id";
+            var res = TblManager.parseTableId(id);
+            expect(res).to.equal("id");
+
+            // case 2 (normal to see the console.error)
+            id = "test";
+            res = TblManager.parseTableId(id);
+            expect(res).to.be.null;
+
+            // case 3
+            var $ele = $('<div id="test-id"></div>');
+            res = TblManager.parseTableId($ele);
+            expect(res).to.equal("id");
+            // case 4
+            var ele = $('<div id="test-id"></div>').get(0);
+            res = TblManager.parseTableId(ele);
+            expect(res).to.equal("id");
+            // case 5
+            var $ele = $();
+            res = TblManager.parseTableId($ele);
+            expect(res).to.be.null;
+        });
+
+        it("TblManager.getBackTableSet should work", function(done) {
+            TblManager.getBackTableSet()
+            .then(function(backTableSet, numBackTables) {
+                expect(backTableSet).to.be.an("object");
+                expect(Object.keys(backTableSet).length)
+                .to.equal(numBackTables);
+                done();
+            })
+            .fail(function(error) {
+                throw error;
+            });
+        });
+
+
+        it("TblManager.getFocusedTable should work", function() {
+            var $oldTitle = $(".xcTableWrap .tblTitleSelected");
+            $oldTitle.removeClass("tblTitleSelected");
+
+            expect(TblManager.getFocusedTable()).to.equal(null);
+
+            var $fakeTable = $('<div class="xcTableWrap" data-id="test"><div class="tblTitleSelected"></div></div>');
+            $("#container").append($fakeTable);
+            expect(TblManager.getFocusedTable()).to.equal("test");
+
+            $fakeTable.remove();
+            $oldTitle.addClass("tblTitleSelected");
+        });
+
         // it("TableManager.refreshTable should handle set meta error", function(done) {
         //     var oldFunc = XcalarMakeResultSetFromTable;
         //     XcalarMakeResultSetFromTable = function() {
@@ -288,14 +341,14 @@ describe("TableManager Test", function() {
                 gTables[id] = table;
             });
 
-            var oldGet = xcHelper.getBackTableSet;
+            var oldGet = TblManager.getBackTableSet;
             var oldFree = XcalarSetFree;
 
             XcalarSetFree = function() {
                 return PromiseHelper.resolve();
             };
 
-            xcHelper.getBackTableSet = function() {
+            TblManager.getBackTableSet = function() {
                 var set = {};
                 set[id1] = true;
                 return PromiseHelper.resolve(set);
@@ -312,7 +365,7 @@ describe("TableManager Test", function() {
             .always(function() {
                 gTables = oldTables;
                 XcalarSetFree = oldFree;
-                xcHelper.getBackTableSet = oldGet;
+                TblManager.getBackTableSet = oldGet;
             });
         });
 
@@ -680,7 +733,7 @@ describe("TableManager Test", function() {
                 QueryManager.cancelQuery = function() {
                     test = true;
                 };
-                xcHelper.lockTable(tableId);
+                TblFunc.lockTable(tableId);
 
                 var $icon = $xcTableWrap.find(".lockedTableIcon");
                 expect($icon.length).to.equal(1);
@@ -688,7 +741,7 @@ describe("TableManager Test", function() {
                 expect(test).to.be.true;
 
                 QueryManager.cancelQuery = oldFunc;
-                xcHelper.unlockTable(tableId);
+                TblFunc.unlockTable(tableId);
                 expect($xcTableWrap.find(".lockedTableIcon").length)
                 .to.equal(0);
             });

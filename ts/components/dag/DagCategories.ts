@@ -323,7 +323,7 @@ class DagCategory {
         if (this.type === DagCategoryType.SQL) {
             return this.type;
         } else {
-            return xcHelper.capitalize(xcHelper.camelCaseToRegular(this.type));
+            return xcStringHelper.capitalize(xcStringHelper.camelCaseToRegular(this.type));
         }
     }
 

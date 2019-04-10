@@ -39,7 +39,7 @@ window.UploadExtensionCard = (function($, UploadExtensionCard) {
             uploadExt(base64Str)
             .then(function() {
                 clear();
-                xcHelper.showSuccess(SuccessTStr.Upload);
+                xcUIHelper.showSuccess(SuccessTStr.Upload);
                 $("#refreshExt").click();
                 deferred.resolve();
             })
@@ -119,13 +119,13 @@ window.UploadExtensionCard = (function($, UploadExtensionCard) {
         lockTimer = setTimeout(function() {
             $card.find(".cardLocked").show();
         }, 500);
-        xcHelper.disableSubmit($card.find(".fakeBrowse, .confirm"));
+        xcUIHelper.disableSubmit($card.find(".fakeBrowse, .confirm"));
     }
 
     function unlockCard() {
         clearTimeout(lockTimer);
         $card.find(".cardLocked").hide();
-        xcHelper.enableSubmit($card.find(".fakeBrowse, .confirm"));
+        xcUIHelper.enableSubmit($card.find(".fakeBrowse, .confirm"));
     }
 
     function closeCard() {

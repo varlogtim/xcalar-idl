@@ -255,7 +255,7 @@ class UDFFileManager extends BaseFileManager {
      */
     public initialize(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const $waitingBg: JQuery = xcHelper.disableScreen(
+        const $waitingBg: JQuery = xcUIHelper.disableScreen(
             $("#udfSection " + ".mainSectionContainer"),
             {
                 classes: "dark"
@@ -294,7 +294,7 @@ class UDFFileManager extends BaseFileManager {
         })
         .fail(deferred.reject)
         .always(() => {
-            xcHelper.enableScreen($waitingBg);
+            xcUIHelper.enableScreen($waitingBg);
         });
 
         return deferred.promise();
@@ -331,7 +331,7 @@ class UDFFileManager extends BaseFileManager {
      */
     public getEntireUDF(nsPath: string): XDPromise<string> {
         if (!this.storedUDF.has(nsPath)) {
-            const error: string = xcHelper.replaceMsg(ErrWRepTStr.NoUDF, {
+            const error: string = xcStringHelper.replaceMsg(ErrWRepTStr.NoUDF, {
                 udf: nsPath
             });
             return PromiseHelper.reject(error, false);
@@ -478,14 +478,14 @@ class UDFFileManager extends BaseFileManager {
             // if upload finish with in 1 second, do not toggle
             const timer: NodeJS.Timer = setTimeout(() => {
                 hasToggleBtn = true;
-                xcHelper.toggleBtnInProgress($fnUpload, false);
+                xcUIHelper.toggleBtnInProgress($fnUpload, false);
             }, 1000);
 
-            xcHelper.disableSubmit($fnUpload);
+            xcUIHelper.disableSubmit($fnUpload);
 
             XcalarUploadPython(uploadPath, entireString, absolutePath, true)
             .then(() => {
-                xcHelper.showSuccess(SuccessTStr.UploadUDF);
+                xcUIHelper.showSuccess(SuccessTStr.UploadUDF);
 
                 const xcSocket: XcSocket = XcSocket.Instance;
                 xcSocket.sendMessage("refreshUDF", {
@@ -518,11 +518,11 @@ class UDFFileManager extends BaseFileManager {
             .always(() => {
                 if (hasToggleBtn) {
                     // toggle back
-                    xcHelper.toggleBtnInProgress($fnUpload, false);
+                    xcUIHelper.toggleBtnInProgress($fnUpload, false);
                 } else {
                     clearTimeout(timer);
                 }
-                xcHelper.enableSubmit($fnUpload);
+                xcUIHelper.enableSubmit($fnUpload);
             });
         };
 

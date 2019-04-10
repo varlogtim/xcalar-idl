@@ -1197,6 +1197,8 @@ module.exports = function(grunt) {
                         BLDROOT + "assets/js/shared/setup/enums.js",
                         BLDROOT + "assets/js/components/worksheet/XDFService.js",
                         BLDROOT + "assets/js/shared/util/xcHelper.js",
+                        BLDROOT + "assets/js/shared/util/xcStringHelper.js",
+                        BLDROOT + "assets/js/shared/util/xcTimeHelper.js",
                         BLDROOT + "assets/js/shared/helperClasses/kvStore.js",
                     ],
                     dest: BLDROOT + "/services/expServer/dagHelper/"
@@ -1207,6 +1209,8 @@ module.exports = function(grunt) {
                   src: [
                         BLDROOT + "assets/js/shared/setup/enums.js",
                         BLDROOT + "assets/js/shared/util/xcHelper.js",
+                        BLDROOT + "assets/js/shared/util/xcStringHelper.js",
+                        BLDROOT + "assets/js/shared/util/xcTimeHelper.js",
                         BLDROOT + "assets/js/shared/setup/xcGlobal.js",
                         BLDROOT + "assets/js/shared/helperClasses/transaction.js",
                         BLDROOT + "assets/js/shared/api/xiApi.js",
@@ -1468,6 +1472,8 @@ module.exports = function(grunt) {
                       BLDROOT + "services/expServer/sqlHelpers/transaction.js",
                       BLDROOT + "services/expServer/sqlHelpers/xcGlobal.js",
                       BLDROOT + "services/expServer/sqlHelpers/xcHelper.js",
+                      BLDROOT + "services/expServer/sqlHelpers/xcStringHelper.js",
+                      BLDROOT + "services/expServer/sqlHelpers/xcTimeHelper.js",
                       BLDROOT + "services/expServer/sqlHelpers/xiApi.js",
                       BLDROOT + "services/expServer/sqlHelpers/sqlQueryHistory.js",
                       BLDROOT + "services/expServer/sqlHelpers/kvStore.js"],

@@ -1,7 +1,7 @@
 describe('XcSupport Test', () => {
     it('check connection should work', (done) => {
         const oldCheckVersion = XVM.checkVersion;
-        const oldReload = xcHelper.reload;
+        const oldReload = xcManager.reload;
         const oldAlert = Alert.error;
         let test = false;
         let cnt = 0;
@@ -13,7 +13,7 @@ describe('XcSupport Test', () => {
                 return PromiseHelper.reject();
             }
         };
-        xcHelper.reload = () => { test = true };
+        xcManager.reload = () => { test = true };
         Alert.error = () => {};
         UnitTest.onMinMode();
 
@@ -27,7 +27,7 @@ describe('XcSupport Test', () => {
         })
         .always(() => {
             XVM.checkVersion = oldCheckVersion;
-            xcHelper.reload = oldReload;
+            xcManager.reload = oldReload;
             Alert.error = oldAlert;
         });
     });
@@ -106,7 +106,7 @@ describe('XcSupport Test', () => {
             const res = XcSupport.restartHeartbeatCheck();
             expect(res).to.be.false;
         });
-        
+
         it('should stop heart beat', () => {
             XcSupport.stopHeartbeatCheck();
             const res = XcSupport.hasHeartbeatCheck();
@@ -128,7 +128,7 @@ describe('XcSupport Test', () => {
         it('heartbeatCheck should not work if no active', () => {
             const oldFunc = WorkbookManager.getActiveWKBK;
             WorkbookManager.getActiveWKBK = () => null;
-            const res = XcSupport.heartbeatCheck(); 
+            const res = XcSupport.heartbeatCheck();
             expect(res).to.be.false;
             WorkbookManager.getActiveWKBK = oldFunc;
         });

@@ -157,7 +157,7 @@ namespace xcFunction {
             msg = StatusMessageTStr.Sort + " multiple columns";
         } else {
             msg = StatusMessageTStr.Sort + " " +
-                xcHelper.escapeHTMLSpecialChar(keys[0]);
+                xcStringHelper.escapeHTMLSpecialChar(keys[0]);
         }
         const txId: number = Transaction.start({
             msg: msg,
@@ -168,7 +168,7 @@ namespace xcFunction {
 
         // user timeout because it may fail soon if table is already sorted
         // lock table will cause blinking
-        xcHelper.lockTable(tableId, txId, {delayTime: 200});
+        TblFunc.lockTable(tableId, txId, {delayTime: 200});
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         let finalTableName: string;
@@ -203,7 +203,7 @@ namespace xcFunction {
         })
         .then(() => {
             if (table.hasLock()) {
-                xcHelper.unlockTable(tableId);
+                TblFunc.unlockTable(tableId);
             }
 
             gTables[xcHelper.getTableId(finalTableName)].setHiddenSortCols(hiddenSortCols);
@@ -216,12 +216,12 @@ namespace xcFunction {
         })
         .fail((error, sorted) => {
             if (table.hasLock()) {
-                xcHelper.unlockTable(tableId);
+                TblFunc.unlockTable(tableId);
             }
 
             if (sorted) {
                 Transaction.cancel(txId);
-                const msg: string = xcHelper.replaceMsg(IndexTStr.SortedErr, {
+                const msg: string = xcStringHelper.replaceMsg(IndexTStr.SortedErr, {
                     order: XcalarOrderingTStr[orders[0]].toLowerCase() // XXX fix this
                 });
                 Alert.error(IndexTStr.Sorted, msg);

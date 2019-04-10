@@ -100,7 +100,7 @@ class ParamPopup {
 
         $paramPopup.on("mouseup", ".paramNameWrap", function() {
             if ($(this).closest($paramPopup).length) {
-                xcHelper.copyToClipboard("<" + $(this).text() + ">");
+                xcUIHelper.copyToClipboard("<" + $(this).text() + ">");
             }
         });
     }
@@ -205,7 +205,7 @@ class ParamPopup {
         self.validateReservedName($ele, paramName),
         {
             "$ele": $ele,
-            "error": xcHelper.replaceMsg(ErrWRepTStr.ParamConflict, {
+            "error": xcStringHelper.replaceMsg(ErrWRepTStr.ParamConflict, {
                 "name": paramName
             }),
             "check": function() {
@@ -261,7 +261,7 @@ class ParamPopup {
         if (!$row.length) {
             $row = $(ParamPopup.paramRowTemplate);
             this.$retLists.append($row);
-            xcHelper.scrollToBottom(this.$retLists.closest(".tableContainer"));
+            xcUIHelper.scrollToBottom(this.$retLists.closest(".tableContainer"));
         }
 
         $row.find(".paramName").text(name);
@@ -342,7 +342,7 @@ class ParamPopup {
     protected validateReservedName($ele: JQuery, paramName: string) {
         return {
             "$ele": $ele,
-            "error": xcHelper.replaceMsg(ErrWRepTStr.SystemParamConflict, {
+            "error": xcStringHelper.replaceMsg(ErrWRepTStr.SystemParamConflict, {
                 "name": paramName
             }),
             "check": function() {

@@ -16,7 +16,7 @@ namespace DagNodeMenu {
         var $li = $menu.find(".exitOp");
         $li.attr("class", "exitOp");
 
-        var nameUpper = xcHelper.capitalize(name);
+        var nameUpper = xcStringHelper.capitalize(name);
         var label = nameUpper;
         switch (name) {
             case ('groupby'):
@@ -44,7 +44,7 @@ namespace DagNodeMenu {
                 if (DagViewManager.Instance.getActiveDag().checkForChildLocks(nodesToCheck)) {
                     Alert.show({
                         title: DFTStr.LockedTableWarning,
-                        msg: xcHelper.replaceMsg(DFTStr.LockedTableMsg, {action: action}),
+                        msg: xcStringHelper.replaceMsg(DFTStr.LockedTableMsg, {action: action}),
                         onConfirm: () => {
                             _processMenuAction(action, options);
                         }
@@ -296,7 +296,7 @@ namespace DagNodeMenu {
                     if (DagViewManager.Instance.getActiveDag().checkForChildLocks(nodesToCheck)) {
                         Alert.show({
                             title: DFTStr.LockedTableWarning,
-                            msg: xcHelper.replaceMsg(DFTStr.LockedTableMsg, {action: action}),
+                            msg: xcStringHelper.replaceMsg(DFTStr.LockedTableMsg, {action: action}),
                             onConfirm: () => {
                                 _processMenuAction(action);
                             }
@@ -458,7 +458,7 @@ namespace DagNodeMenu {
             return;
         }
         let classes: string = " edgeMenu ";
-        xcHelper.dropdownOpen($edge, $menu, {
+        MenuHelper.dropdownOpen($edge, $menu, {
             mouseCoors: {x: event.pageX, y: event.pageY},
             offsetY: 8,
             floating: true,
@@ -493,7 +493,7 @@ namespace DagNodeMenu {
         $menu.find("li").removeClass("unavailable");
         adjustMenuForOpenForm();
 
-        xcHelper.dropdownOpen($clickedEl, $menu, {
+        MenuHelper.dropdownOpen($clickedEl, $menu, {
             mouseCoors: {x: event.pageX, y: event.pageY},
             offsetY: 8,
             floating: true,
@@ -617,7 +617,7 @@ namespace DagNodeMenu {
 
         position = {x: event.pageX, y: event.pageY};
 
-        xcHelper.dropdownOpen($(event.target), $menu, {
+        MenuHelper.dropdownOpen($(event.target), $menu, {
             mouseCoors: {x: event.pageX, y: event.pageY},
             offsetY: 8,
             floating: true,

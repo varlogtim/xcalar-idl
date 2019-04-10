@@ -202,13 +202,105 @@ window.XcSDK.Extension.prototype = (function() {
 
             XIApi.join(txId, joinType, lTableInfo, rTableInfo, options)
             .then(function(dstTable, tempCols, lRename, rRename) {
-                var dstCols = xcHelper.createJoinedColumns(lTableInfo.tableName,
+                var dstCols = createJoinedColumns(lTableInfo.tableName,
                     rTableInfo.tableName, lTableInfo.pulledColumns,
                     rTableInfo.pulledColumns, lRename, rRename);
                 self._addMeta(null, dstTable, dstCols);
                 deferred.resolve(dstTable);
             })
             .fail(deferred.reject);
+
+
+            /* For join, deep copy of right table and left table columns */
+            function createJoinedColumns(
+                lTableName,
+                rTableName,
+                pulledLColNames,
+                pulledRColNames,
+                lRenames,
+                rRenames
+            ){
+                // Combine the columns from the 2 current tables
+                // Note that we have to create deep copies!!
+                var lCols = getPulledColsAfterJoin(lTableName, pulledLColNames, lRenames);
+                var rCols = getPulledColsAfterJoin(rTableName, pulledRColNames, rRenames);
+                const excludeDataCol = (col) => col.name !== "DATA";
+
+                const lNewCols = lCols.filter(excludeDataCol);
+                const rNewCols = rCols.filter(excludeDataCol);
+                const newTableCols = lNewCols.concat(rNewCols);
+                newTableCols.push(ColManager.newDATACol());
+                return newTableCols;
+            }
+
+            function getPulledColsAfterJoin(
+                tableName,
+                pulledColNames,
+                renameInfos
+            ){
+                const pulledCols = [];
+                const tableId = xcHelper.getTableId(tableName);
+                if (gTables == null || tableId == null || gTables[tableId] == null ||
+                    gTables[tableId].tableCols == null) {
+                    return pulledCols;
+                }
+
+                const table = gTables[tableId];
+                const cols = xcHelper.deepCopy(table.tableCols);
+                if (!pulledColNames) {
+                    return cols;
+                }
+
+                for (let i = 0; i < pulledColNames.length; i++) {
+                    const colIndex = table.getColNumByBackName(pulledColNames[i]) - 1;
+                    const col = cols[colIndex];
+                    if (renameInfos && renameInfos.length > 0) {
+                        replaceImmediate(col, renameInfos);
+                        replacePrefix(col, renameInfos);
+                    }
+                    pulledCols.push(col);
+                }
+
+                return pulledCols;
+            }
+
+            function replaceImmediate(col, renameInfos) {
+                renameInfos.forEach((renameInfo) => {
+                    // when backName === srcColName, it's a derived field
+                    if (renameInfo.type !== DfFieldTypeT.DfFatptr &&
+                        renameInfo.orig === col.backName
+                    ) {
+                        const newName = renameInfo.new;
+                        col.backName = newName;
+                        col.name = newName;
+                        if (col.sizedTo === "header") {
+                            col.width = xcHelper.getDefaultColWidth(newName);
+                        }
+                        return false; // stop loop
+                    }
+                });
+            }
+
+            // for each fat ptr rename, find whether a column has this fat ptr as
+            // a prefix. If so, fix up all fields in colStruct that pertains to the prefix
+            function replacePrefix(col, renameInfos) {
+                renameInfos.forEach((renameInfo) => {
+                    if (renameInfo.type === DfFieldTypeT.DfFatptr &&
+                        !col.immediate &&
+                        col.prefix === renameInfo.orig
+                    ) {
+                        // the replace will only repalce the first occurrence, so is fine
+                        col.backName = col.backName.replace(renameInfo.orig, renameInfo.new);
+                        col.func.args[0] = col.func.args[0].replace(renameInfo.orig, renameInfo.new);
+                        col.prefix = col.prefix.replace(renameInfo.orig, renameInfo.new);
+                        col.userStr = '"' + col.name + '" = pull(' + col.backName + ')';
+                        if (col.sizedTo === "header") {
+                            col.width = xcHelper.getDefaultColWidth(col.name, col.prefix);
+                        }
+                        return false; // stop loop
+                    }
+                });
+            }
 
             return deferred.promise();
         },

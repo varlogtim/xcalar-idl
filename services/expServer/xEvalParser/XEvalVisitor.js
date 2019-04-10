@@ -44,7 +44,7 @@ class XEvalVisitor extends XEvalBaseVisitor{
                 if (type === "columnArg") {
                     if (value.toUpperCase() === "NONE") {
                         type = "None";
-                    } else if (xcHelper.checkValidParamBrackets(value, true)) {
+                    } else if (DagNodeInput.checkValidParamBrackets(value, true)) {
                         type = "paramArg";
                     }
                 }

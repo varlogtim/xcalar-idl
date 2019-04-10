@@ -453,13 +453,6 @@ describe("GroupByOpPanel Test", function() {
                 $arg.val(colName);
                 $ul.find("li").remove();
 
-                var colMapCache = xcHelper.getColNameMap;
-                xcHelper.getColNameMap = function() {
-                    var cache = {};
-                    cache[colName] = colName;
-                    return cache;
-                };
-
                 parentNode = new DagNodeGroupBy({});
                 parentNode.getLineage = function() {
                     return {getColumns: function() {
@@ -489,8 +482,6 @@ describe("GroupByOpPanel Test", function() {
                 // close dropdown
                 $(document).trigger({type: "keydown", which: keyCode.Escape});
                 expect($ul.is(':visible')).to.be.false;
-
-                xcHelper.getColNameMap = colMapCache;
 
                 parentNode = new DagNodeGroupBy({});
                 parentNode.getLineage = function() {

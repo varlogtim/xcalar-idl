@@ -291,7 +291,7 @@ describe("SupTicketModal Test", function() {
             oldApiTop = XcalarApiTop;
             oldFileTicket = adminTools.fileTicket;
             oldDownload = xcHelper.downloadAsFile;
-            oldSuccess = xcHelper.showSuccess;
+            oldSuccess = xcUIHelper.showSuccess;
 
             adminTools.getLicense = function() {
                 return PromiseHelper.resolve("test license");
@@ -305,7 +305,7 @@ describe("SupTicketModal Test", function() {
                 return PromiseHelper.resolve(JSON.parse(input));
             };
 
-            xcHelper.showSuccess = function(input) {
+            xcUIHelper.showSuccess = function(input) {
                 successMsg = input;
             };
 
@@ -489,8 +489,8 @@ describe("SupTicketModal Test", function() {
                 done("fail");
             })
             .fail(function() {
-                UnitTest.hasStatusBoxWithError(xcHelper.replaceMsg(MonitorTStr.CharLimitErr, {
-                    "limit": xcHelper.numToStr(10000)
+                UnitTest.hasStatusBoxWithError(xcStringHelper.replaceMsg(MonitorTStr.CharLimitErr, {
+                    "limit": xcStringHelper.numToStr(10000)
                 }));
                 $modal.find(".xc-textArea").val(oldVal);
 
@@ -690,7 +690,7 @@ describe("SupTicketModal Test", function() {
             XcalarApiTop = oldApiTop;
             adminTools.fileTicket = oldFileTicket;
             xcHelper.downloadAsFile = oldDownload;
-            xcHelper.showSuccess = oldSuccess;
+            xcUIHelper.showSuccess = oldSuccess;
             // $modal.find(".cancel").click();
         });
     });
