@@ -144,9 +144,7 @@ var TEMPLATE_HTML = 'templateHTML';
 var PROCESS_HTML = 'processHTML';
 var CLEAN_HTML_SRC = 'cleanHTMLSrc';
 var BUILD_JS = "buildJs";
-var TYPESCRIPT = "typescriptJsGeneration";
 var BUILD_EXTRA_TS = "buildExtraTs";
-var BUILD_FUNCT_TEST_TS = "buildFuncTestTs";
 var GENERATE_TSDEF = "generateTsDefs"
 var EXTRA_TS_FOLDER_NAME = "extraTsStaging";
 var BUILD_PARSER = "buildParser";
@@ -197,6 +195,8 @@ var WATCH_FILETYPES = {
     [WATCH_TARGET_JS]: '',
     [WATCH_TARGET_CTOR]: '',
 };
+
+var USE_TS_WATCH_STAGING=false; // way to limit tsc build during watch task runs
 
 // Key meanings:
 // src: src dir
@@ -1199,7 +1199,24 @@ module.exports = function(grunt) {
                         BLDROOT + "assets/js/shared/helperClasses/kvStore.js",
                     ],
                     dest: BLDROOT + "/services/expServer/dagHelper/"
-                 }],
+                 },
+                 {
+                  expand: true,
+                  flatten: true,
+                  src: [
+                        BLDROOT + "assets/js/shared/setup/enums.js",
+                        BLDROOT + "assets/js/shared/util/xcHelper.js",
+                        BLDROOT + "assets/js/shared/setup/xcGlobal.js",
+                        BLDROOT + "assets/js/shared/helperClasses/transaction.js",
+                        BLDROOT + "assets/js/shared/api/xiApi.js",
+                        BLDROOT + "assets/js/components/sql/sqlApi.js",
+                        BLDROOT + "assets/js/components/sql/sqlCompiler.js",
+                        BLDROOT + "assets/js/components/sql/optimizer.js",
+                        BLDROOT + "assets/js/components/sql/sqlQueryHistory.js",
+                        BLDROOT + "assets/js/shared/helperClasses/kvStore.js"
+                     ],
+                    dest: BLDROOT + "services/expServer/sqlHelpers/"
+                }],
             },
        },
 
@@ -2039,8 +2056,6 @@ module.exports = function(grunt) {
                 // not relying on any xd js files yet but in case this happens in future
             grunt.task.run(BUILD_HTML);
             grunt.task.run(CONSTRUCTOR_FILES);
-            grunt.task.run(BUILD_EXTRA_TS);
-            grunt.task.run(BUILD_FUNCT_TEST_TS); // XXX all the test files should not make into installer build, which should be fixed.
             // Update js files that will get used outside xcalar-gui to display correct branding
             grunt.task.run(UPDATE_PROD_NAME_OUTSIDE_JS);
             // Generate TS definition for jsTStr.js in dev build
@@ -2732,71 +2747,6 @@ module.exports = function(grunt) {
         */
     });
 
-    grunt.task.registerTask(BUILD_EXTRA_TS, 'Build extra TS from dev src for ' +
-        'expServer', function () {
-        var allFiles = ["shared/setup/enums.ts",
-            "shared/util/xcHelper.ts",
-            "shared/setup/xcGlobal.ts",
-            "shared/helperClasses/transaction.ts",
-            "shared/api/xiApi.ts",
-            "components/sql/sqlApi.js",
-            "components/sql/sqlCompiler.js",
-            "components/sql/optimizer.js",
-            "components/sql/sqlQueryHistory.ts",
-            "shared/helperClasses/kvStore.ts"];
-        var expServerJSDestDir = "services/expServer/sqlHelpers";
-        var EXTRA_TS_WATCH_STAGING = BLDROOT + EXTRA_TS_FOLDER_NAME;
-        if (grunt.file.exists(EXTRA_TS_WATCH_STAGING)) {
-            runShellCmd('rm -r ' + EXTRA_TS_WATCH_STAGING);
-        }
-        runShellCmd('mkdir -p ' + EXTRA_TS_WATCH_STAGING);
-        for (var i = 0; i < allFiles.length; i++) {
-            var filepathRelTsSrc = path.relative(typescriptMapping.src,
-                allFiles[i]);
-            var fileName = allFiles[i].split("/");
-            fileName = fileName[fileName.length-1];
-            grunt.file.copy(typescriptMapping.src + allFiles[i],
-                EXTRA_TS_WATCH_STAGING + "/" + fileName);
-            grunt.file.copy(SRCROOT + typescriptMapping.src + 'tsconfig.json',
-                EXTRA_TS_WATCH_STAGING + "/tsconfig.json");
-        }
-        grunt.task.run(TYPESCRIPT + ':' + EXTRA_TS_WATCH_STAGING +
-            ":" + expServerJSDestDir);
-        // Clean up!
-        grunt.task.run('clean:' + EXTRA_TS_FOLDER_NAME);
-        // Concat the export code to thrift.js
-        grunt.task.run('concat:thrift');
-    });
-
-    grunt.task.registerTask(BUILD_FUNCT_TEST_TS, 'Build func test TS from src', function () {
-        var allFiles = ["assets/dev/funcTests/states/Util.ts",
-            "assets/dev/funcTests/states/State.ts",
-            "assets/dev/funcTests/states/WorkbookState.ts",
-            "assets/dev/funcTests/states/SQLModeState.ts",
-            "assets/dev/funcTests/states/AdvancedModeState.ts"];
-        var funcTestDestDir = "assets/dev/funcTests/states";
-        var extra_ts_staging = BLDROOT + EXTRA_TS_FOLDER_NAME;
-        if (grunt.file.exists(extra_ts_staging)) {
-            runShellCmd('rm -r ' + extra_ts_staging);
-        }
-        runShellCmd('mkdir -p ' + extra_ts_staging);
-        for (var i = 0; i < allFiles.length; i++) {
-            var fileName = allFiles[i].split("/");
-            fileName = fileName[fileName.length-1];
-            grunt.file.copy(allFiles[i],
-                extra_ts_staging + "/" + fileName);
-            grunt.file.copy(SRCROOT + typescriptMapping.src + 'tsconfig.json',
-                extra_ts_staging + "/tsconfig.json");
-        }
-        grunt.task.run(TYPESCRIPT + ':' + extra_ts_staging +
-            ":" + funcTestDestDir);
-        // Clean up!
-        // XXX this is not cleaning the ts files in the build
-        // folder which should be fixed
-        grunt.task.run('clean:' + EXTRA_TS_FOLDER_NAME);
-    });
-
-
     grunt.task.registerTask(CLEAN_BUILD_SECTIONS, function() {
 
         // clean HTML src of uneeded files/dirs
@@ -3336,23 +3286,26 @@ module.exports = function(grunt) {
 
                                                                 // ======== JS SECTION ======= //
 
-    grunt.task.registerTask(BUILD_JS, 'Build JS portion of build', function(buildFrom) {
+    grunt.task.registerTask(BUILD_JS, 'Build JS portion of build', function() {
 
-        // autocompile js from typescript ts files
-        // do before remove debug because the files might not exist until we run this
-        grunt.task.run(TYPESCRIPT + ":" + buildFrom);
+        // run typescript (autocompiles ts files --> js files)
+        // do before remove debug because the js files it looks in might not exist until we run this
+        grunt.task.run('build_ts');
+
+        // Concat the export code to thrift.js
+        // this needs to happen after previous task; it relies on the
+        // additional js generated for expServer
+        grunt.task.run('concat:thrift');
 
         // if bld flag given for rc option, remove debug comments first, before js minification
         if (grunt.option(BLD_FLAG_RC_SHORT) || grunt.option(BLD_FLAG_RC_LONG)) {
             grunt.task.run(REMOVE_DEBUG_COMMENTS + ':js');
         }
+
         // js files generated by ts that need to be in the expServer
         grunt.task.run("copy:exp_server_js");
 
-        if (!buildFrom) {
-            grunt.task.run(CLEAN_JS);
-        }
-
+        grunt.task.run(CLEAN_JS);
     });
 
     // Generate TS definition file for jsTStr.js
@@ -3418,54 +3371,117 @@ module.exports = function(grunt) {
         }
     }
 
-    // @filepathRelBld - bld only single ts file (should be rel bldroot)
-    grunt.task.registerTask(TYPESCRIPT, 'Build TS portion of build', function(executeFrom, buildTo) {
-        // check for existence of ts dir until https://gerrit.int.xcalar.com/#/c/8894/ checked in
-        if (!grunt.file.exists(typescriptMapping.src)) {
-            grunt.log.writeln("Typescript src " + typescriptMapping.src + " does not exit");
+    // Builds all the js that needs to be generated from ts
+    grunt.task.registerTask("build_ts", function() {
+
+        // watch case; user running watch task and changed a single ts file
+        // only want to rebuild that
+        if (USE_TS_WATCH_STAGING) {
+            // the changed file is contained in this staging dir
+            grunt.log.writeln("using ts watch staging");
+            typescript(TS_WATCH_STAGING, BLDROOT + typescriptMapping.dest);
             return;
         }
 
-        if (!executeFrom || executeFrom == 'undefined') {
-            executeFrom = BLDROOT + typescriptMapping.src;
+        // specify all the batches of ts files to build from.
+        // key/values are : <tsc output dir> / [<src to generate to that dir>]
+        // - will run typescript once for each of the <ts output dir> keys
+        // - specify everything rel bld
+        // - for each run, will cp each src value specified in to a staging dir,
+        // and run typescript there;
+        // specify the src values exactly as you would in regular cp cmd.
+        // observe how this can effect final output:
+        // "ts/b/e/a.ts" --> will cp ts/b/e/a.ts <staging> --> result: <staging>/a.ts
+        // "ts/b/." --> will cp ts/b/. <staging> --> result: <staging>/e/a.ts
+        // when typescript runs on <staging> in latter example, dir structure is
+        // retained, former flatterns.
+        var tsBuilds = {
+            [typescriptMapping.dest]: [typescriptMapping.src + "/."],
+        };
+        if (BLDTYPE === DEV) {
+            tsBuilds["assets/dev/funcTests/states"] = ["/assets/dev/funcTests/states/."];
         }
 
+        // run typescript program once for each unique output dir
+        var tsStagingDir = BLDROOT + "/ts_staging";
+        for (var tscOutputDir in tsBuilds) {
+            if (tsBuilds.hasOwnProperty(tscOutputDir)) {
+                var tscOutputDirFull = BLDROOT + tscOutputDir;
+
+                // create staging dir for this run of typescript
+                grunt.log.writeln("\n(re)create staging dir " + tsStagingDir);
+                runShellCmd("mkdir -p " + tsStagingDir);
+
+                // shift ts src files in to staging dir
+                grunt.log.writeln("Shift ts source files in to " + tscOutputDir);
+                var srcPaths = tsBuilds[tscOutputDir];
+                for (var srcPath of srcPaths) {
+                    var srcPathFull = BLDROOT + srcPath;
+                    var cpCmd = "cp -r " + srcPathFull + " " + tsStagingDir;
+                    grunt.log.writeln((cpCmd).blue);
+                    runShellCmd(cpCmd);
+                }
+                // cp tsconfig.json in to staging dir
+                grunt.log.writeln("Copy tsconfig.json in to staging dir");
+                // (cp from SRCROOT in case ts/ src in BLDROOT is modified during this task)
+                var tsConfigSrc = SRCROOT + typescriptMapping.src + "/tsconfig.json";
+                var cpCmd = "cp -r " + tsConfigSrc + " " + tsStagingDir;
+                grunt.log.writeln((cpCmd).blue);
+                runShellCmd(cpCmd);
+
+                // run typescript from staging dir
+                typescript(tsStagingDir, tscOutputDirFull, removeMap=true);
+
+                // delete the staging dir for next round
+                grunt.log.writeln("Remove staging dir " + tsStagingDir);
+                runShellCmd("rm -rf " + tsStagingDir);
+            }
+        }
+    });
+
+    /**
+     * run Typescript program on a src dir --> output dir
+     * make sure tsconfig.json in src dir when this is called.
+     * @executeFrom: abs path to directory to execute typescript in
+     * @buildTo: abs path to directory to output generated files to
+     * @removeMap: if true, removes any generated map files from buildTo
+     */
+    function typescript(executeFrom, buildTo, removeMap=false) {
+
+        grunt.log.writeln(("Run typescript from " + executeFrom + " --> " + buildTo).bold);
+
+        if (!grunt.file.exists(executeFrom + "/tsconfig.json")) {
+            grunt.fail.fatal("no tsconfig.json in dir to run typescript in!!");
+        }
+
+        runShellCmd('mkdir -p ' + buildTo);
+
+        var tscBinary = SRCROOT + "node_modules/typescript/bin/tsc";
+        var tscmd = tscBinary + ' --outDir ' + buildTo;
+
+        // change cwd to dir where typescript should run in
         var currCwd = process.cwd();
-        var tscpath = SRCROOT + "node_modules/typescript/bin/tsc";
-        var tscmd = tscpath + ' --outDir ' + BLDROOT;
-
-        if (buildTo) {
-            runShellCmd('mkdir -p ' + BLDROOT + buildTo);
-            tscmd += buildTo;
-        } else {
-            tscmd += typescriptMapping.dest;
-        }
-
-        // go in to the typescript dir
         grunt.file.setBase(executeFrom);
 
-        grunt.log.writeln(("[" + executeFrom + "] $ ").red + (tscmd).green.bold);
-        var cmdOutput = runShellCmd(tscmd, [0,2]).stdout; // ts warnings emits 2 exit code
+        grunt.log.writeln(("[" + executeFrom + "]$ ").red + (tscmd).green.bold);
+        // 0, 2 are valid exit codes for typescript; warnings printed to stdout - capture
+        var cmdOutput = runShellCmd(tscmd, [0,2]).stdout;
         if (cmdOutput && BLDTYPE == DEV) {
-            END_OF_BUILD_WARNINGS.push("Found warnings when running tsc command: " + tscmd + "\n\n" + cmdOutput);
+            END_OF_BUILD_WARNINGS.push("Found warnings when running " +
+                "tsc command: " + tscmd + "\n\n" + cmdOutput);
         }
-
         grunt.file.setBase(currCwd); //  switch back before continuing
 
-        // If this is a non-dev build, remove sourcemap if generated
-        if (BLDTYPE != DEV && !IS_WATCH_TASK) {
-
-            grunt.log.writeln("This is a non-dev build; delete any generated map files");
-
-            var mapfiles = grunt.file.expand(BLDROOT + typescriptMapping.dest + "**/*.map");
+        if (removeMap) {
+            grunt.log.writeln(("Delete any generated map files").bold);
+            var mapfiles = grunt.file.expand(buildTo + "**/*.map");
             for (var mapfile of mapfiles) {
                 grunt.log.write((("Delete: ").green + mapfile + " ... ").bold);
                 grunt.file.delete(mapfile);
                 grunt.log.ok();
             }
         }
-
-    });
+    }
 
     /**
         1. Setup and run 'uglify' plugin (main minification plugin)
@@ -3551,16 +3567,52 @@ module.exports = function(grunt) {
         fs.writeFileSync(filepath, contents);
     }
 
-    /** remove files/dirs unneeded needed only for generating constructor files */
-    grunt.registerTask(CLEAN_JS, "There are some files required to gerneate .js files.  You can remove them when done.", function() {
+    /** remove files/dirs unneeded needed only for generating js files */
+    grunt.registerTask(CLEAN_JS, "Remove files required for generating js",
+        function() {
 
-        grunt.log.writeln(("\nDelete .ts files/dirs necessary for generating .js files, now that they have been generated\n").bold);
+        grunt.log.writeln(("\nDelete files/dirs necessary for generating .js " +
+            "files, now that they have been generated\n").bold);
 
-        if (BLDTYPE != DEV) {
-            for (var requiredItem of typescriptMapping.required) {
-                fullPath = BLDROOT + requiredItem;
-                grunt.log.write("Delete file/dir " + fullPath + " ... ");
-                grunt.file.delete(fullPath);
+        // remove ts src dir; it contains both js and ts files
+        // remove before full sweep of .ts files in bld, to get bulk of ts files
+
+        // this will remove /ts src dir from bld
+        for (var requiredItem of typescriptMapping.required) {
+            var fullPath = BLDROOT + requiredItem;
+            grunt.log.write("Delete file/dir " + fullPath + " ... ");
+            grunt.file.delete(fullPath);
+            grunt.log.ok();
+        }
+
+        function ourFile(filepath) {
+            if (filepath.indexOf("node_modules/") !== -1 || filepath.indexOf("3rd/") !== -1) {
+                grunt.log.debug(filepath + " is not one of our files...");
+                return false;
+            }
+            return true;
+        }
+
+        // remove .ts and tsconfig.json files from bld
+        // (some are located outside main ts src dir)
+        grunt.log.writeln("Remove our .ts files remaining in the build");
+        var tsFilepaths = grunt.file.expand(BLDROOT + "**/*.ts");
+        for (var tsFile of tsFilepaths) {
+            // skip 3rd party and node_modules occurrances
+            // this is quicker than specifying dirs not to match on in the expand call
+            if (ourFile(tsFile)) {
+                grunt.log.write("  Delete .ts file : " + tsFile + " ... ");
+                grunt.file.delete(tsFile);
+                grunt.log.ok();
+            }
+        }
+        grunt.log.writeln("Remove our tsconfig.json files in the build");
+        var tsConfigFilepaths = grunt.file.expand(BLDROOT + "**/tsconfig.json");
+        for (var tsConfigFile of tsConfigFilepaths) {
+            // skip 3rd party and node_modules occurrances
+            if (ourFile(tsConfigFile)) {
+                grunt.log.write("  Delete tsconfig.json file : " + tsConfigFile + " ... ");
+                grunt.file.delete(tsConfigFile);
                 grunt.log.ok();
             }
         }
@@ -5165,6 +5217,7 @@ module.exports = function(grunt) {
                 determinedRebuildProcess = true;
                 break;
             case WATCH_TARGET_TYPESCRIPT:
+                // only build single typescript file which changed
                 if (grunt.file.doesPathContain(typescriptMapping.src,
                     filepathRelBld)) {
                     grunt.log.writeln((filepath + " triggers new js file gen.")
@@ -5173,19 +5226,31 @@ module.exports = function(grunt) {
                         runShellCmd('rm -r ' + TS_WATCH_STAGING);
                     }
                     runShellCmd('mkdir -p ' + TS_WATCH_STAGING);
-                    filepathRelTsSrc = path.relative(typescriptMapping.src,
-                        filepathRelBld);
-                    if (filepath == SRCROOT + typescriptMapping.src +
-                        'tsconfig.json') {
-                        runShellCmd('cp -r ' + SRCROOT +
-                            typescriptMapping.src + '/. ' + TS_WATCH_STAGING);
+
+                    var tsconfigPath = SRCROOT + typescriptMapping.src + 'tsconfig.json';
+                    if (filepath == tsconfigPath) {
+                        grunt.log.writeln("tsconfig.json changed; will rebuild all ts");
+                        // build entire ts like normal
+                        // re-copy ts src dir in to build first;
+                        // bld will clean/rm parts of it,
+                        // even though the dir itself could still be there
+                        var tsSrc = SRCROOT + typescriptMapping.src;
+                        var tsBld = BLDROOT + typescriptMapping.src;
+                        grunt.log.writeln("Remove entire ts/ from build and re-copy from src");
+                        runShellCmd("rm -rf " + tsBld + " || true");
+                        runShellCmd('cp -r ' + tsSrc + ' ' + tsBld);
+                        USE_TS_WATCH_STAGING=false;
                     } else {
-                        grunt.file.copy(filepath,
-                            TS_WATCH_STAGING + filepathRelTsSrc);
-                        grunt.file.copy(SRCROOT + typescriptMapping.src +
-                            'tsconfig.json', TS_WATCH_STAGING +"tsconfig.json");
+                        // cp the ts file in to staging dir, retaining its dir
+                        // structure within the ts src folder
+                        // (tsc will run in the staging dir, and retain the dir structure)
+                        var filepathRelTsSrc = path.relative(typescriptMapping.src,
+                            filepathRelBld);
+                        grunt.file.copy(filepath, TS_WATCH_STAGING + filepathRelTsSrc);
+                        grunt.file.copy(SRCROOT + typescriptMapping.src + "/tsconfig.json", TS_WATCH_STAGING + "/tsconfig.json");
+                        USE_TS_WATCH_STAGING=true;
                     }
-                    taskList.push(BUILD_JS + ':' + TS_WATCH_STAGING);
+                    taskList.push(BUILD_JS);
                     taskList.push('clean:tsWatchStaging');
                     determinedRebuildProcess = true;
                 }
@@ -5464,6 +5529,9 @@ module.exports = function(grunt) {
         ];
 
         WATCH_FILETYPES[WATCH_TARGET_LESS] = [SRCROOT + cssMapping.src + '**/*.less'];
+        // there are other ts files outside typescriptMapping.src,
+        // for example some ts which will build in to expServer;
+        // don't watch those, you'd need to restart expServer to take effect
         WATCH_FILETYPES[WATCH_TARGET_TYPESCRIPT] = [SRCROOT + typescriptMapping.src + '**/*.ts', SRCROOT + typescriptMapping.src + 'tsconfig.json'];
         WATCH_FILETYPES[WATCH_TARGET_CSS] = [BLDROOT + cssMapping.dest + '**/*.css'];
         WATCH_FILETYPES[WATCH_TARGET_JS] = [SRCROOT + jsMapping.src + '**/*.js',
