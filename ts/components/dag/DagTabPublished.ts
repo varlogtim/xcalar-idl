@@ -8,7 +8,7 @@ class DagTabPublished extends DagTab {
     private static readonly _optimizedKey: string = "DF2Optimized";
     private static _currentSession: string;
 
-    private _version: number;
+    private _editVersion: number;
     /**
      * DagTabPublished.restore
      */
@@ -110,7 +110,7 @@ class DagTabPublished extends DagTab {
         }
         super(name, id, graph);
         this._kvStore = new KVStore(DagTabPublished._dagKey, gKVScope.WKBK);
-        this._version = 0;
+        this._editVersion = 0;
     }
 
     public getName(): string {
@@ -165,7 +165,7 @@ class DagTabPublished extends DagTab {
         this._loadFromKVStore()
         .then((dagInfo, graph) => {
             dagInfoRes = dagInfo;
-            this._version = dagInfo.version;
+            this._editVersion = dagInfo.editVersion;
             if (reset) {
                 this._resetHelper(graph);
             }
@@ -188,17 +188,17 @@ class DagTabPublished extends DagTab {
 
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         let hasVersionChange: boolean = false;
-        let oldVersion: number = this._version;
+        let oldVersion: number = this._editVersion;
 
         this._loadFromKVStore()
         .then((dagInfo) => {
-            // when version not match, cannot save
-            if (dagInfo == null || dagInfo.version !== this._version) {
+            // when editVersion not match, cannot save
+            if (dagInfo == null || dagInfo.editVersion !== this._editVersion) {
                 return PromiseHelper.reject();
             }
 
-            oldVersion = this._version;
-            this._version++;
+            oldVersion = this._editVersion;
+            this._editVersion++;
             hasVersionChange = true;
             return this._writeToKVStore();
         })
@@ -209,7 +209,7 @@ class DagTabPublished extends DagTab {
         })
         .fail((error) => {
             if (hasVersionChange) {
-                this._version = oldVersion;
+                this._editVersion = oldVersion;
             }
             if (typeof error === "object" && error.status === StatusT.StatusSessionNotFound) {
                 this.deletedAlert();
@@ -392,7 +392,7 @@ class DagTabPublished extends DagTab {
         id: string,
         dag: DagGraphInfo,
         autoSave: boolean,
-        version: number,
+        editVersion: number,
         unsaved?: boolean
     } {
         const json: {
@@ -400,9 +400,9 @@ class DagTabPublished extends DagTab {
             id: string,
             dag: DagGraphInfo,
             autoSave: boolean,
-            version: number
+            editVersion: number
         } = <any>super._getJSON();
-        json.version = this._version;
+        json.editVersion = this._editVersion;
         return json;
     }
 

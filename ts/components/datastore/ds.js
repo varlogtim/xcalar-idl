@@ -480,7 +480,9 @@ window.DS = (function ($, DS) {
     };
 
     DS.focusOn = function($grid) {
-        xcAssert($grid != null && $grid.length !== 0, "error case");
+        if ($grid == null && $grid.length === 0) {
+            return;
+        }
         if ($grid.hasClass("active") && $grid.hasClass("fetching")) {
             console.info("ds is fetching");
             return PromiseHelper.resolve();
@@ -1012,7 +1014,7 @@ window.DS = (function ($, DS) {
         }
         var name = dsObj.getName();
         var msg = xcHelper.replaceMsg(DSTStr.ShareDSMsg, {name: name});
-        var sharedName = getSharedName(name);
+        var sharedName = getSharedName(dsId, name);
 
         if (name !== sharedName) {
             // in case this name is taken
@@ -1129,7 +1131,6 @@ window.DS = (function ($, DS) {
 
             var $grid = DS.getGrid(dsId);
             goToDirHelper(dirId);
-            DS.focusOn($grid);
             deferred.resolve();
         })
         .fail(deferred.reject);
