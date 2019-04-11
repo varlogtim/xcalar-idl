@@ -839,7 +839,11 @@ declare class XcStorage {
 }
 
 declare class XEvalParser {
-    public parseEvalStr(evlStr: string): ParsedEval;
+    public parseEvalStr(evlStr: string, throwFlag?: boolean): ParsedEval;
+    public replaceColName(evalStr: string, colNameMap: {}, aggregateNameMap: {},
+                          throwFlag: boolean): string;
+    public getAllColumnNames(evalStr: string, throwFlag: boolean): string[];
+    public getAggNames(evalStr: string, throwFlag: boolean): string[];
 }
 
 /* ============== NAMESPACE ====================== */
@@ -1030,11 +1034,5 @@ declare namespace XcSDK {
         public runAfterFinish(): XDPromise<any>;
         public getTable(tableName: string): any;
     }
-}
-
-declare class SQLOptimizer {
-    public addDrops(query: string): XDPromise<any>;
-    public logicalOptimize(query: string, options: {}, prependQuery: string): string;
-    public getAggregates(): string[];
 }
 

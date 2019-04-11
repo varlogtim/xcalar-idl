@@ -46,6 +46,10 @@ global.TreeNode = TreeNode = sqlHelpers ? sqlHelpers.TreeNode :
                                   require("../sqlHelpers/treeNode.js").TreeNode;
 global.TreeNodeFactory = TreeNodeFactory = sqlHelpers ? sqlHelpers.TreeNodeFactory :
                     require("../sqlHelpers/treeNodeFactory.js").TreeNodeFactory;
+global.XcOpNode = XcOpNode = sqlHelpers ? sqlHelpers.XcOpNode :
+                                  require("../sqlHelpers/xcOpNode.js").XcOpNode;
+global.XcOpGraph = XcOpGraph = sqlHelpers ? sqlHelpers.XcOpGraph :
+                    require("../sqlHelpers/xcOpGraph.js").XcOpGraph;
 global.SQLAggregate = SQLAggregate = sqlHelpers ? sqlHelpers.SQLAggregate :
                           require("../sqlHelpers/SQLAggregate.js").SQLAggregate;
 global.SQLExpand = SQLExpand = sqlHelpers ? sqlHelpers.SQLExpand :
@@ -71,12 +75,27 @@ global.SQLUnion = SQLUnion = sqlHelpers ? sqlHelpers.SQLUnion :
 global.SQLWindow = SQLWindow = sqlHelpers ? sqlHelpers.SQLWindow :
                                 require("../sqlHelpers/SQLWindow.js").SQLWindow;
 
+// optimizer rules
+global.AddIndex = AddIndex = sqlHelpers ? sqlHelpers.AddIndex :
+                                require("../sqlHelpers/addIndex.js").AddIndex;
+global.DedupPlan = DedupPlan = sqlHelpers ? sqlHelpers.DedupPlan :
+                                require("../sqlHelpers/dedupPlan.js").DedupPlan;
+global.DropAsYouGo = DropAsYouGo = sqlHelpers ? sqlHelpers.DropAsYouGo :
+                            require("../sqlHelpers/dropAsYouGo.js").DropAsYouGo;
+global.ParquetPushDown = ParquetPushDown = sqlHelpers ? sqlHelpers.ParquetPushDown :
+                    require("../sqlHelpers/parquetPushDown.js").ParquetPushDown;
+global.SelectPushDown = SelectPushDown = sqlHelpers ? sqlHelpers.SelectPushDown :
+                      require("../sqlHelpers/selectPushDown.js").SelectPushDown;
+global.SynthesizePushDown = SynthesizePushDown = sqlHelpers ?
+              sqlHelpers.SynthesizePushDown :
+              require("../sqlHelpers/synthesizePushDown.js").SynthesizePushDown;
+
 global.SQLCompiler = SQLCompiler = sqlHelpers ? sqlHelpers.SQLCompiler :
                             require("../sqlHelpers/SQLCompiler.js").SQLCompiler;
 global.SQLExecutor = SQLExecutor = sqlHelpers ? sqlHelpers.SQLExecutor :
                             require("../sqlHelpers/SQLExecutor.js").SQLExecutor;
-global.SQLOptimizer = SQLOptimizer = sqlHelpers ? sqlHelpers.SQLOptimizer :
-                            require("../sqlHelpers/optimizer.js").SQLOptimizer;
+global.LogicalOptimizer = LogicalOptimizer = sqlHelpers ? sqlHelpers.LogicalOptimizer :
+                require("../sqlHelpers/logicalOptimizer.js").LogicalOptimizer;
 global.SQLUtil = SQLUtil = sqlHelpers ? sqlHelpers.SQLUtil :
                             require("../sqlHelpers/SQLUtil.js").SQLUtil;
 global.SQLDagExecutor = SQLDagExecutor = sqlHelpers ? sqlHelpers.SQLDagExecutor :

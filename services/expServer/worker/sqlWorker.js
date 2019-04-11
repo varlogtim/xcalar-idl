@@ -22,12 +22,12 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         let finalTable;
         compilerObject.compile(sqlQueryObj)
         .then(function() {
-            const optimizerObject = new SQLOptimizer();
             let queryWithDrop;
             try {
-                queryWithDrop = optimizerObject.logicalOptimize(
+                queryWithDrop = LogicalOptimizer.optimize(
                                     sqlQueryObj.xcQueryString, optimizations,
-                                    JSON.stringify(selectQuery));
+                                    JSON.stringify(selectQuery))
+                                    .optimizedQueryString;
             } catch(e) {
                 return promiseHelper.reject(e);
             }

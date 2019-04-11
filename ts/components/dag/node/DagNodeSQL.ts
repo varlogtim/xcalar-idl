@@ -1121,23 +1121,26 @@ class DagNodeSQL extends DagNode {
             .then(function(sqlQueryObj: SQLQuery) {
                 self.setNewTableName(sqlQueryObj.newTableName);
                 self.setColumns(sqlQueryObj.allColumns);
-                const optimizer = new SQLOptimizer();
+                let optimizeStruct;
                 try {
                     if (sqlMode) {
-                        self.setRawXcQueryString(optimizer.logicalOptimize(
-                                                 sqlQueryObj.xcQueryString,
-                                                 sqlQueryObj.optimizations,
-                                                 schemaQueryString));
+                        self.setRawXcQueryString(LogicalOptimizer.optimize(
+                                                    sqlQueryObj.xcQueryString,
+                                                    sqlQueryObj.optimizations,
+                                                    schemaQueryString)
+                                                    .optimizedQueryString);
                         sqlQueryObj.optimizations.pushToSelect = true;
                     }
-                    sqlQueryObj.xcQueryString = optimizer.logicalOptimize(
-                                                      sqlQueryObj.xcQueryString,
-                                                      sqlQueryObj.optimizations,
-                                                      schemaQueryString);
+                    optimizeStruct = LogicalOptimizer.optimize(
+                                                    sqlQueryObj.xcQueryString,
+                                                    sqlQueryObj.optimizations,
+                                                    schemaQueryString);
                 } catch (e) {
                     return PromiseHelper.reject(e);
                 }
-                self.setAggregatesCreated(optimizer.getAggregates());
+                sqlQueryObj.xcQueryString = optimizeStruct.optimizedQueryString;
+                const aggregates = optimizeStruct.aggregates;
+                self.setAggregatesCreated(aggregates);
                 self.setXcQueryString(sqlQueryObj.xcQueryString);
                 const retStruct = {
                     newTableName: sqlQueryObj.newTableName,

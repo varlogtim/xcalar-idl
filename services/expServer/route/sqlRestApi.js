@@ -756,11 +756,12 @@ function getXCquery(params, type) {
         xcConsole.log("Compilation finished");
         sqlQueryObj = compiledObj;
         sqlQueryObjects[queryId] = sqlQueryObj;
-        var optimizerObject = new SQLOptimizer();
         try {
-            sqlQueryObj.xcQueryString = optimizerObject.logicalOptimize(
-                                        sqlQueryObj.xcQueryString, optimizations,
-                                        JSON.stringify(selectQuery));
+            sqlQueryObj.xcQueryString = LogicalOptimizer.optimize(
+                                                sqlQueryObj.xcQueryString,
+                                                sqlQueryObj.optimizations,
+                                                JSON.stringify(selectQuery))
+                                                .optimizedQueryString;
         } catch(e) {
             deferred.reject(e);
         }
@@ -875,13 +876,14 @@ function executeSql(params, type) {
                 var selectString = JSON.stringify(selectQuery);
                 sqlQueryObj.xcQueryString =
                             selectString.substring(0, selectString.length - 1) +
-                            "," + xcQueryString.substring(1);
+                            "," + sqlQueryObj.xcQueryString.substring(1);
             } else {
-                var optimizerObject = new SQLOptimizer();
                 try {
-                    sqlQueryObj.xcQueryString = optimizerObject.logicalOptimize(
-                                sqlQueryObj.xcQueryString, optimizations,
-                                JSON.stringify(selectQuery));
+                    sqlQueryObj.xcQueryString = LogicalOptimizer.optimize(
+                                                    sqlQueryObj.xcQueryString,
+                                                    optimizations,
+                                                    JSON.stringify(selectQuery))
+                                                    .optimizedQueryString;
                 } catch(e) {
                     deferred.reject(e);
                 }

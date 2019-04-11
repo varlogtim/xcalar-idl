@@ -176,3 +176,37 @@ interface CliStruct {
     cli?: string;
     newCols?: SQLColumn[]; // Used in SQLJoin
 }
+
+// Optimzier structs
+interface SQLSelectStruct {
+    operation?: string,
+    args?: {
+        source?: string,
+        dest?: string,
+        minBatchId?: number,
+        maxBatchId?: number,
+        columns?: {
+            sourceColumn: string,
+            destColumn?: string,
+            columnType?: string
+        }[],
+        eval?: {
+            Maps?: any,
+            Filter?: string,
+            GroupBy?: any
+        }
+    },
+    colNameMap?: {}
+}
+
+interface SQLOptimizedStruct {
+    optimizedQueryString: string;
+    aggregates: string[];
+}
+
+interface XcOperator {
+    operation: string;
+    args: any;
+    annotations?: any;
+    state?: string;
+}
