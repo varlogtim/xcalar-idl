@@ -44,7 +44,11 @@ class DagHelper {
             if (optimized) {
                 return graph.getRetinaArgs();
             } else {
-                return graph.getQuery();
+                let deferred = PromiseHelper.deferred();
+                graph.getQuery()
+                .then((ret) => deferred.resolve(ret.queryStr))
+                .fail(deferred.reject);
+                return deferred.promise();
             }
         }
         catch (err) {
