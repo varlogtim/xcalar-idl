@@ -735,6 +735,7 @@ class DagGraph extends Durable {
         // want this to effect the actual graph
         const clonedGraph = this.clone();
         clonedGraph.setTabId(DagTab.generateId());
+        this._normalizeSelfLinkingInOptimzedQuery(clonedGraph, nodeIds);
         let orderedNodes: DagNode[] = nodeIds.map((nodeId) => clonedGraph._getNodeFromId(nodeId));
         // save original sql nodes so we can cache query compilation
         let sqlNodes: Map<string, DagNodeSQL> = new Map();
@@ -750,6 +751,30 @@ class DagGraph extends Durable {
             sqlNodes: sqlNodes
         });
         return executor.getBatchQuery();
+    }
+
+    private _normalizeSelfLinkingInOptimzedQuery(clondeGraph: DagGraph, nodeIds: DagNodeId[]): void {
+        let dataflowId = this.getTabId();
+        nodeIds.forEach((nodeId) => {
+            try {
+                let node = this.getNode(nodeId);
+                if (node instanceof DagNodeDFIn) {
+                    let param: DagNodeDFInInputStruct = node.getParam();
+                    if (param.dataflowId === DagNodeDFIn.SELF_ID) {
+                        // if the link in link to link out in current datflow,
+                        // need to reuse the link out in the non-cloned graph
+                        // to reuse the result
+                        let clonedNode = clondeGraph.getNode(nodeId);
+                        clonedNode.setParam({
+                            dataflowId: dataflowId,
+                            linkOutName: param.linkOutName
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        });
     }
 
     public getRetinaArgs(nodeIds?: DagNodeId[]): XDPromise<void> {
