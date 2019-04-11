@@ -212,6 +212,10 @@ class ExportOpPanelModel {
      */
     public setParamValue(value: string, argIndex: number): void {
         let arg: ExportDriverArg = this.driverArgs[argIndex];
+        if (value == "") {
+            value = null;
+            // Export drivers only default if they see "null".
+        }
         arg.value = value;
     }
 
@@ -318,7 +322,7 @@ class ExportOpPanelModel {
         let $parameters: JQuery = $container.find(".exportArg");
         for (let i = 0; i < argLen; i++) {
             arg = this.driverArgs[i];
-            if (!arg.optional && arg.value == null || arg.value == "") {
+            if (!arg.optional && (arg.value == null || arg.value == "")) {
                 let $errorLocation: JQuery = $parameters.eq(i).find(".label");
                 if (this._advMode) {
                     $errorLocation = $container.find(".advancedEditor");
