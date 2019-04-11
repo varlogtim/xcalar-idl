@@ -41,7 +41,7 @@ describe('DagComponent Test', function() {
                         dfStrList, dfName, false, listXdfsStr,
                         testConfig.userName, testConfig.sessionId, testConfig.workbook
                     ));
-                    xcalarQuery = ret.queryStr;
+                    xcalarQuery = ret;
                 } catch(e) {
                     if (e != null && e.type != null && typeof e.type === 'string') {
                         assert.fail(e.type);
