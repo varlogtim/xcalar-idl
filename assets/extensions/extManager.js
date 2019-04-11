@@ -259,9 +259,23 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         var deferred = PromiseHelper.deferred();
         // upload to shared space
         var udfPath = UDFFileManager.Instance.getSharedUDFPath() + pyModName;
-        XcalarUploadPython(udfPath, data)
+        var upload = false;
+        XcalarListXdfs(udfPath + "*", "User*")
+        .then(function(res) {
+            try {
+                if (res.numXdfs === 0) {
+                    // udf not already exist
+                    upload = true;
+                    return XcalarUploadPython(udfPath, data, true, true);
+                }
+            } catch (e) {
+                return PromiseHelper.reject(e.message);
+            }
+        })
         .then(function() {
-            UDFFileManager.Instance.storePython(pyModName, data);
+            if (upload) {
+                UDFFileManager.Instance.storePython(pyModName, data);
+            }
             deferred.resolve();
         })
         .fail(function(error) {
