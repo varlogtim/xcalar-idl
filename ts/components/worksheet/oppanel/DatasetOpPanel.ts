@@ -560,7 +560,6 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         }
         const loadArgs: string = this._stringifiedLoadArgs(this._loadArgs);
         const oldLoadArgs: string = this._stringifiedLoadArgs(dagNode.getLoadArgs());
-        const hasLoadArgsChange: boolean = (oldLoadArgs !== loadArgs);
         const oldParam: DagNodeDatasetInputStruct = dagNode.getParam();
         const $bg: JQuery = $("#initialLoadScreen");
         $bg.show();
@@ -568,7 +567,8 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         const oldColumns: ProgCol[] = dagNode.getLineage().getColumns();
         const dagGraph: DagGraph = this._dagGraph;
         dagNode.setSchema(schema);
-
+        const isSameSource: boolean = (oldParam.source === id);
+        const hasLoadArgsChange: boolean = (oldLoadArgs !== loadArgs);
         const getLoadgArgs: XDPromise<string> = this._advMode ?
         PromiseHelper.resolve(loadArgs) : this._fetchLoadArgs(id);
 
@@ -589,7 +589,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
                     dagGraph.save();
                 }
                 this.close();
-            } else if (oldParam.source === id && hasNoSchemaChange) {
+            } else if (isSameSource && hasNoSchemaChange) {
                 // only the prefix changed so we automatically do the map
                 // without prompting the user
                 const renameMap = {
@@ -623,7 +623,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
                 this.close(true);
             }
 
-            if (oldLoadArgs && hasLoadArgsChange) {
+            if (oldLoadArgs && isSameSource && hasLoadArgsChange) {
                 Alert.show({
                     title: OpPanelTStr.DSLoadArgChange,
                     msg: OpPanelTStr.DSLoadArgChangeMsg,
