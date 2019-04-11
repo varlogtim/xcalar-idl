@@ -1494,7 +1494,8 @@ XcalarIndexFromTable = function(
 XcalarDeleteTable = function(
     tableName: string,
     txId?: number,
-    isRetry?: boolean
+    isRetry?: boolean,
+    deleteCompletely?: boolean
 ): XDPromise<XcalarApiDeleteDagNodeOutputT> {
     const deferred: XDDeferred<XcalarApiDeleteDagNodeOutputT> = PromiseHelper.deferred();
 
@@ -1502,7 +1503,7 @@ XcalarDeleteTable = function(
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
     const workItem = xcalarDeleteDagNodesWorkItem(tableName,
-                                                SourceTypeT.SrcTable);
+                                        SourceTypeT.SrcTable, deleteCompletely);
     let def: XDPromise<any>;
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
@@ -1510,7 +1511,8 @@ XcalarDeleteTable = function(
         if (tHandle == null) {
             return PromiseHelper.resolve(null);
         }
-        def = xcalarDeleteDagNodes(tHandle, tableName, SourceTypeT.SrcTable);
+        def = xcalarDeleteDagNodes(tHandle, tableName, SourceTypeT.SrcTable,
+                                   deleteCompletely);
     }
 
     const query = XcalarGetQuery(workItem);

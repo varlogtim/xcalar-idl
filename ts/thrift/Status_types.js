@@ -682,7 +682,8 @@ StatusT = {
   'StatusSelectLimitReached' : 673,
   'StatusLegacyTargetNotFound' : 674,
   'StatusDfpError' : 675,
-  'StatusCgroupInProgress' : 676
+  'StatusCgroupInProgress' : 676,
+  'StatusConfigChangeInProgress' : 677
 };
 StatusTStr = {
   0 : 'Success',
@@ -1332,7 +1333,7 @@ StatusTStr = {
   644 : 'Deserialization encountered an unknown IDL SHA',
   645 : 'Deserialization encountered wrong IDL version',
   646 : 'Incomplete session list (failed to read some sessions)',
-  647 : 'Table being activated is dependant on inactive table',
+  647 : 'Table being activated is dependent on inactive table',
   648 : 'Publish table is restoring',
   649 : 'Update requires a self select',
   650 : 'Required session name is missing',
@@ -1361,7 +1362,8 @@ StatusTStr = {
   673 : 'Limit for select number of rows reached',
   674 : 'Legacy target is not found',
   675 : 'Decimal floating point (DFP/Numeric) error',
-  676 : 'Cgroup App already in progress'
+  676 : 'Cgroup App already in progress',
+  677 : 'Configuration change already in progress'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -2011,7 +2013,7 @@ StatusTFromStr = {
   'Deserialization encountered an unknown IDL SHA' : 644,
   'Deserialization encountered wrong IDL version' : 645,
   'Incomplete session list (failed to read some sessions)' : 646,
-  'Table being activated is dependant on inactive table' : 647,
+  'Table being activated is dependent on inactive table' : 647,
   'Publish table is restoring' : 648,
   'Update requires a self select' : 649,
   'Required session name is missing' : 650,
@@ -2040,5 +2042,6 @@ StatusTFromStr = {
   'Limit for select number of rows reached' : 673,
   'Legacy target is not found' : 674,
   'Decimal floating point (DFP/Numeric) error' : 675,
-  'Cgroup App already in progress' : 676
+  'Cgroup App already in progress' : 676,
+  'Configuration change already in progress' : 677
 };

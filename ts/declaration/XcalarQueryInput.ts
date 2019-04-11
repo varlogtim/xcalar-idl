@@ -265,9 +265,11 @@ declare class ExportArgs {
 declare class DropArgs {
     namePattern: string;
     srcType: number;
+    deleteCompletely: boolean;
     constructor(args?: {
         namePattern?: string,
         srcType?: number,
+        deleteCompletely?: boolean
     });
 }
 declare class SelectArgs {

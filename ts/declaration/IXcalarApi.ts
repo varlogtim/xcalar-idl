@@ -177,7 +177,8 @@ declare function xcalarDriverList(
 declare function xcalarDeleteDagNodes(
     thriftHandle: ThriftHandler,
     namePattern: string,
-    srcType: number
+    srcType: number,
+    deleteCompletely?: boolean
 ): XDPromise<XcalarApiDeleteDagNodeOutputT>;
 
 declare function xcalarDriverCreate(
@@ -252,7 +253,8 @@ declare function xcalarApiUdfGetRes(
 
 declare function xcalarDeleteDagNodesWorkItem(
     namePattern: string,
-    srcType: SourceTypeT
+    srcType: SourceTypeT,
+    deleteCompletely?: boolean
 ): WorkItem;
 
 declare function xcalarGetDatasetMeta(

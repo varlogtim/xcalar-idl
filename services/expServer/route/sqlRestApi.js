@@ -969,7 +969,8 @@ function executeSql(params, type) {
     .always(function() {
         if (type != "odbc" && optimizations.dropAsYouGo) {
             SqlUtil.setSessionInfo(params.userName, params.userId, params.sessionName);
-            XIApi.deleteTable(1, tablePrefix + "*");
+            var deleteCompletely = true;
+            XIApi.deleteTable(1, tablePrefix + "*", undefined, deleteCompletely);
         }
     });
 
@@ -1111,6 +1112,7 @@ router.post("/xcsql/query", function(req, res) {
     var optimizations = {
         dropAsYouGo: req.body.dropAsYouGo,
         dropSrcTables: !req.body.keepOri,
+        deleteCompletely: true,
         randomCrossJoin: req.body.randomCrossJoin,
         pushToSelect: req.body.pushToSelect
     }
@@ -1154,6 +1156,7 @@ router.post("/xcsql/queryWithPublishedTables", [support.checkAuth],
     var type = "odbc";
     var optimizations = {
         dropAsYouGo: req.body.dropAsYouGo,
+        deleteCompletely: true,
         randomCrossJoin: req.body.randomCrossJoin,
         pushToSelect: req.body.pushToSelect,
         dedup: req.body.dedup,
@@ -1197,6 +1200,7 @@ router.post("/xcsql/getXCqueryWithPublishedTables", [support.checkAuth],
     var type = "odbc";
     var optimizations = {
         dropAsYouGo: req.body.dropAsYouGo,
+        deleteCompletely: true,
         randomCrossJoin: req.body.randomCrossJoin,
         pushToSelect: req.body.pushToSelect
     };
@@ -1263,7 +1267,8 @@ router.post("/xcsql/clean", [support.checkAuth], function(req, res) {
     promise
     .then(function() {
         SqlUtil.setSessionInfo(userName, userId, sessionName);
-        return XIApi.deleteTable(1, tableName);
+        var deleteCompletely = true;
+        return XIApi.deleteTable(1, tableName, undefined, deleteCompletely);
     })
     .then(function() {
         xcConsole.log("cleaned table and free result set for: ", tableName);

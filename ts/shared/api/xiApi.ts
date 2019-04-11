@@ -2529,14 +2529,15 @@ namespace XIApi {
     export function deleteTable(
         txId: number,
         tableName: string,
-        toIgnoreError: boolean = false
+        toIgnoreError: boolean = false,
+        deleteCompletely?: boolean
     ): XDPromise<void> {
         if (txId == null || tableName == null) {
             return PromiseHelper.reject("Invalid args in delete table");
         }
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        XcalarDeleteTable(tableName, txId)
+        XcalarDeleteTable(tableName, txId, undefined, deleteCompletely)
         .then(function(ret) {
             SQLApi.deleteIndexTable(tableName);
             deferred.resolve(ret);

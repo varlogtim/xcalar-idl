@@ -1313,9 +1313,11 @@ declare class XcalarApiGetQueryOutputT {
 declare class XcalarApiDagNodeNamePatternInputT {
 	namePattern: string;
 	srcType: number;
+	deleteCompletely: boolean;
 	constructor(args?: {
 		namePattern?: string,
 		srcType?: number,
+		deleteCompletely?: boolean,
 	});
 }
 declare class XcalarApiArchiveTablesInputT {

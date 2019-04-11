@@ -3191,7 +3191,7 @@ xcalarFreeResultSet = runEntity.xcalarFreeResultSet = function(thriftHandle, res
     return (deferred.promise());
 };
 
-xcalarDeleteDagNodesWorkItem = runEntity.xcalarDeleteDagNodesWorkItem = function(namePattern, srcType) {
+xcalarDeleteDagNodesWorkItem = runEntity.xcalarDeleteDagNodesWorkItem = function(namePattern, srcType, deleteCompletely) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.apiVersion = 0;
@@ -3199,15 +3199,21 @@ xcalarDeleteDagNodesWorkItem = runEntity.xcalarDeleteDagNodesWorkItem = function
     workItem.input.deleteDagNodeInput = new XcalarApiDagNodeNamePatternInputT();
     workItem.input.deleteDagNodeInput.namePattern = namePattern;
     workItem.input.deleteDagNodeInput.srcType = srcType;
+
+    if (typeof deleteCompletely === 'undefined') {
+        workItem.input.deleteDagNodeInput.deleteCompletely = false;
+    } else {
+        workItem.input.deleteDagNodeInput.deleteCompletely = deleteCompletely;
+    }
     return (workItem);
 };
 
-xcalarDeleteDagNodes = runEntity.xcalarDeleteDagNodes = function(thriftHandle, namePattern, srcType) {
+xcalarDeleteDagNodes = runEntity.xcalarDeleteDagNodes = function(thriftHandle, namePattern, srcType, deleteCompletely) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarDeleteDagNodes(namePattern = " + namePattern + ")");
     }
-    var workItem = xcalarDeleteDagNodesWorkItem(namePattern, srcType);
+    var workItem = xcalarDeleteDagNodesWorkItem(namePattern, srcType, deleteCompletely);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -5797,6 +5803,7 @@ xcalarApiGetQuery = runEntity.xcalarApiGetQuery = function(thriftHandle, workIte
         json["args"]["namePattern"] = workItem.input.deleteDagNodeInput.namePattern;
         json["args"]["srcType"] =
             SourceTypeTStr[workItem.input.deleteDagNodeInput.srcType];
+        json["args"]["deleteCompletely"] = workItem.input.deleteDagNodeInput.deleteCompletely;
         break;
     case XcalarApisT.XcalarApiRenameNode:
         json["args"] = workItem.input.renameNodeInput;
@@ -5806,9 +5813,6 @@ xcalarApiGetQuery = runEntity.xcalarApiGetQuery = function(thriftHandle, workIte
         break;
     case XcalarApisT.XcalarApiSelect:
         json["args"] = workItem.input.selectInput;
-        break;
-    case XcalarApisT.XcalarApiPublish:
-        json["args"] = workItem.input.publishInput;
         break;
     default:
         break;

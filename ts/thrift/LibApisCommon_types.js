@@ -12249,12 +12249,16 @@ XcalarApiGetQueryOutputT.prototype.write = function(output) {
 XcalarApiDagNodeNamePatternInputT = function(args) {
   this.namePattern = null;
   this.srcType = null;
+  this.deleteCompletely = null;
   if (args) {
     if (args.namePattern !== undefined && args.namePattern !== null) {
       this.namePattern = args.namePattern;
     }
     if (args.srcType !== undefined && args.srcType !== null) {
       this.srcType = args.srcType;
+    }
+    if (args.deleteCompletely !== undefined && args.deleteCompletely !== null) {
+      this.deleteCompletely = args.deleteCompletely;
     }
   }
 };
@@ -12286,6 +12290,13 @@ XcalarApiDagNodeNamePatternInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 3:
+      if (ftype == Thrift.Type.BOOL) {
+        this.deleteCompletely = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -12305,6 +12316,11 @@ XcalarApiDagNodeNamePatternInputT.prototype.write = function(output) {
   if (this.srcType !== null && this.srcType !== undefined) {
     output.writeFieldBegin('srcType', Thrift.Type.I32, 2);
     output.writeI32(this.srcType);
+    output.writeFieldEnd();
+  }
+  if (this.deleteCompletely !== null && this.deleteCompletely !== undefined) {
+    output.writeFieldBegin('deleteCompletely', Thrift.Type.BOOL, 3);
+    output.writeBool(this.deleteCompletely);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

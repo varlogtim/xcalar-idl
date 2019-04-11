@@ -103,7 +103,7 @@
             let resCli = "";
             // Final traversal - get the result
             const cliArray = [];
-            this.getCliFromOpGraph(opGraph, cliArray);
+            this.getCliFromOpGraph(opGraph, cliArray, options.deleteCompletely);
             const optimizedQueryString = "[" + cliArray.join(",") + "]";
             return optimizedQueryString;
         },
@@ -224,12 +224,13 @@
                 this.addIndexForCrossJoin(opNode.children[i], visitedMap);
             }
         },
-        getCliFromOpGraph: function(opNode, cliArray) {
+        getCliFromOpGraph: function(opNode, cliArray, deleteCompletely) {
             if (opNode.visited) {
                 return;
             }
             for (let i = 0; i < opNode.children.length; i++) {
-                this.getCliFromOpGraph(opNode.children[i], cliArray);
+                this.getCliFromOpGraph(opNode.children[i], cliArray,
+                                       deleteCompletely);
             }
             cliArray.push(JSON.stringify(opNode.value));
             if (opNode.toDrop) {
@@ -238,7 +239,8 @@
                         "operation": "XcalarApiDeleteObjects",
                         "args": {
                           "namePattern": namePattern,
-                          "srcType": "Table"
+                          "srcType": "Table",
+                          "deleteCompletely": deleteCompletely || false
                         }
                     };
                     cliArray.push(JSON.stringify(deleteObj));
