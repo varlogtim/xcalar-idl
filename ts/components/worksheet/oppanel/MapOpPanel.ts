@@ -457,7 +457,7 @@ class MapOpPanel extends GeneralOpPanel {
 
         const despText = operObj.fnDesc || "N/A";
         const descriptionHtml = '<b>' + OpFormTStr.Descript + ':</b> ' +
-                    '<span class="instrText">' + despText + '</span>';
+                    '<span class="instrText instrText-format">' + despText + '</span>';
 
         $argsGroup.find('.descriptionText').html(descriptionHtml);
 
