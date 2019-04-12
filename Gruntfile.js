@@ -134,42 +134,6 @@ var DEV = "dev";
 var DEBUG = "debug";
 
 // Other Tasks
-var INIT = 'init';
-var PREP_BUILD_DIRS = 'prepBuildDirs';
-var BUILD = 'build';
-var BUILD_CSS = 'buildCSS';
-var CLEAN_CSS_SRC = 'cleanCssSrc';
-var BUILD_HTML = 'buildHTML';
-var TEMPLATE_HTML = 'templateHTML';
-var PROCESS_HTML = 'processHTML';
-var CLEAN_HTML_SRC = 'cleanHTMLSrc';
-var BUILD_JS = "buildJs";
-var BUILD_EXTRA_TS = "buildExtraTs";
-var GENERATE_TSDEF = "generateTsDefs"
-var EXTRA_TS_FOLDER_NAME = "extraTsStaging";
-var BUILD_PARSER = "buildParser";
-var WEBPACK = "webpack";
-var MINIFY_JS = "minifyJs";
-var REMOVE_DEBUG_COMMENTS = 'removeDebugComments';
-var CLEAN_JS = "cleanJs";
-var CLEAN_JS_SRC_POST_MINIFICATION = 'cleanJsPostMini';
-var UPDATE_PROD_NAME_OUTSIDE_JS = 'updateProdNameInExternalJs';
-var UPDATE_SCRIPT_TAGS = 'updateScriptTags';
-var CHECK_FOR_XD_STRINGS = 'checkForXDStrings';
-var HELP_CONTENTS = 'helpContents';
-var GENERATE_HELP_STRUCTS_FILE = 'generateHelpStructsFile';
-var GENERATE_HELP_SEARCH_INSIGHT_FILE = 'generateHelpSIFile';
-var CLEANUP_HELP_CONTENT_DIR = 'cleanupHelpContentDir';
-var CONSTRUCTOR_FILES = 'constructorFiles';
-var GENERATE_GIT_VAR_DEC_FILE = 'generateGitVarDecFile';
-var GENERATE_CURR_PERS_CONSTRUCTOR_FILE = 'generateCurrPersConstructorFile';
-var CLEAN_CONSTRUCTOR_SRC = 'cleanConstructorSrc';
-var SYNC_WITH_THRIFT = 'syncWithThrift';
-var NEW_CONFIG_FILE = 'newConfigFile';
-var CLEAN_BUILD_SECTIONS = 'cleanBldSections';
-var FINALIZE = 'finalize';
-var DISPLAY_SUMMARY = 'summary';
-var COMPLETE_WATCH = 'completeWatch';
 var WATCH_PLUGIN = 'customWatch';
 var WATCH = 'watch';
 // cli options for watch functionality
@@ -618,7 +582,7 @@ var VALID_TASKS = {
                 + "\n\t\tA live-reload functionality is available to reload the "
                 + "\n\t\tbrowser upon completion, via option --"
                 + WATCH_OP_LIVE_RELOAD},
-        [INIT]: {
+        ["init"]: {
             [BLD_TASK_KEY]:false,
             [DESC_KEY]:
                 "\n\t\tSets up your cwd by running 'npm install', and installing"
@@ -1032,7 +996,6 @@ module.exports = function(grunt) {
             htmlStagingI: [HTML_STAGING_I_ABS], // for clean, you need to put the 'src' in [] else it will only delete what is within the dir
             htmlStagingII: [HTML_STAGING_II_ABS], // for clean, you need to put the 'src' in [] else it will only delete what is within the dir
             tsWatchStaging: [TS_WATCH_STAGING],
-            extraTsStaging: [BLDROOT + EXTRA_TS_FOLDER_NAME],
 
             // generatel target for removing dirs/files; set src dynamically, supply abs. paths
             custom: {
@@ -1731,7 +1694,7 @@ module.exports = function(grunt) {
         Init task - RUN ONLY ONCE WHEN YOU GET A NEW WORKSPACE
         Will run 'npm install' at cwd, and apply patches to grunt plugins
     */
-    grunt.task.registerTask(INIT, "Run 'npm install' in cwd; copy in modified version of watch plugin", function() {
+    grunt.task.registerTask("init", "Run 'npm install' in cwd; copy in modified version of watch plugin", function() {
 
         grunt.log.writeln(("\n=== ALERT:: ==="
             + "\nThis task is about to run 'npm install'"
@@ -1847,11 +1810,11 @@ module.exports = function(grunt) {
     */
     grunt.task.registerTask(DEV, "Default build for frontend developers", function() {
 
-        grunt.task.run(BUILD);
+        grunt.task.run("build");
 
         grunt.task.run('touch');  // creates assets/js/config.js if it does not exist
 
-        grunt.task.run(FINALIZE);
+        grunt.task.run("finalize");
 
     });
 
@@ -1867,11 +1830,11 @@ module.exports = function(grunt) {
     */
     grunt.task.registerTask(DEBUG, function() {
 
-        grunt.task.run(BUILD);
+        grunt.task.run("build");
 
-        grunt.task.run(NEW_CONFIG_FILE); // clear developer configuration details
+        grunt.task.run("new_config_file"); // clear developer configuration details
 
-        grunt.task.run(FINALIZE);
+        grunt.task.run("finalize");
 
     });
 
@@ -1882,19 +1845,19 @@ module.exports = function(grunt) {
     */
     grunt.task.registerTask(INSTALLER, function() {
 
-        grunt.task.run(BUILD);
+        grunt.task.run("build");
 
-        grunt.task.run(NEW_CONFIG_FILE); // clear developer configuration details
+        grunt.task.run("new_config_file"); // clear developer configuration details
 
         // minify AFTER above tasks
-        // At end of MINIFY_JS, script tags in HTML are updated to reflect the
+        // At end of "minify_js", script tags in HTML are updated to reflect the
         // new minified paths. includes will need to be resolved in the HTML
         // files being updated for the updated script tags to have correct
         // rel paths.  Also, if config file minified want to make sure
         // correct config file is set prior to minification
-        grunt.task.run(MINIFY_JS);
+        grunt.task.run("minify_js");
 
-        grunt.task.run(FINALIZE);
+        grunt.task.run("finalize");
 
     });
 
@@ -1908,11 +1871,11 @@ module.exports = function(grunt) {
     */
     grunt.task.registerTask(TRUNK, 'trunk', function() {
 
-        grunt.task.run(BUILD);
+        grunt.task.run("build");
 
         grunt.task.run('touch'); // creates assets/js/config.js if it does not exist
 
-        grunt.task.run(SYNC_WITH_THRIFT);
+        grunt.task.run("sync_with_thrift");
 
         // if you ever decide to do js minification for trunk blds
         // make sure it comes after syncWithThrift,
@@ -1920,7 +1883,7 @@ module.exports = function(grunt) {
         // and a custom config.js is needed for trunk blds and that
         // gets generated during synWithThrift
 
-        grunt.task.run(FINALIZE);
+        grunt.task.run("finalize");
 
     });
 
@@ -1934,7 +1897,7 @@ module.exports = function(grunt) {
     /**
         Remove BLDDIR if it exists (assuming overwrite === true)
     */
-    grunt.task.registerTask(PREP_BUILD_DIRS, function() {
+    grunt.task.registerTask("prep_build_dirs", function() {
         var olColor = 'rainbow';
         grunt.log.writeln('\n\t::::::::::::: SETUP ::::::::::::::::\n');
         grunt.log.writeln(process.cwd());
@@ -2027,10 +1990,10 @@ module.exports = function(grunt) {
         (These tasks are independent and aside from rsync which must come first,
         their order does not matter)
     */
-    grunt.task.registerTask(BUILD, function() {
+    grunt.task.registerTask("build", function() {
 
             // now construct the ultimate build directory
-            grunt.task.run(PREP_BUILD_DIRS); // generate dirs needed for build process
+            grunt.task.run("prep_build_dirs"); // generate dirs needed for build process
 
             /**
                 For DEV BLDS:
@@ -2052,22 +2015,22 @@ module.exports = function(grunt) {
 
             }
             // set prod name in globalAutogen.js, to set branding of xcalar-gui code
-            // (run before BUILD_HTML - html templating uses the var it sets)
+            // (run before "build_html" - html templating uses the var it sets)
             grunt.task.run("SET_PROD_NAME");
-            grunt.task.run(HELP_CONTENTS);
-            grunt.task.run(BUILD_CSS);
+            grunt.task.run("help_contents");
+            grunt.task.run("build_css");
             // XXX It won't work until antlr4 is correctly packaged
-            // grunt.task.run(BUILD_PARSER);
-            grunt.task.run(BUILD_JS); // build js before html (built html will search for some js files to autogen script tags for, that only get generated here)
-            grunt.task.run(WEBPACK); // keep after build js because it builds from js files;
+            // grunt.task.run("build_parser");
+            grunt.task.run("build_js"); // build js before html (built html will search for some js files to autogen script tags for, that only get generated here)
+            grunt.task.run("webpack"); // keep after build js because it builds from js files;
                 // not relying on any xd js files yet but in case this happens in future
-            grunt.task.run(BUILD_HTML);
-            grunt.task.run(CONSTRUCTOR_FILES);
+            grunt.task.run("build_html");
+            grunt.task.run("constructor_files");
             // Update js files that will get used outside xcalar-gui to display correct branding
-            grunt.task.run(UPDATE_PROD_NAME_OUTSIDE_JS);
+            grunt.task.run("update_prod_name_outside_js");
             // Generate TS definition for jsTStr.js in dev build
             if (BLDTYPE === DEV) {
-                grunt.task.run(GENERATE_TSDEF);
+                grunt.task.run("generate_tsdef");
             }
     });
 
@@ -2099,7 +2062,7 @@ module.exports = function(grunt) {
 
         var helpHashTags: <1 entry per file>
     */
-    grunt.task.registerTask(HELP_CONTENTS, function() {
+    grunt.task.registerTask("help_contents", function() {
 
         // you have XD and XI help contaente in the src code that was copied in
         // copy what you need in to /usr and delete the rest
@@ -2107,15 +2070,15 @@ module.exports = function(grunt) {
         // but don't delete...
         grunt.task.run('copy:transferDesiredHelpContent');
         // generate structs file using the relevant help content
-        grunt.task.run(GENERATE_HELP_STRUCTS_FILE);
+        grunt.task.run("generate_help_structs_file");
 
         // file for searching help content in XD
-        grunt.task.run(GENERATE_HELP_SEARCH_INSIGHT_FILE);
+        grunt.task.run("generate_help_search_insight_file");
 
         // delete out those folders not related (this could be done before or after the main generateHelpStructsFile task,
         // but putting it after in case there ever are some pending tasks for cleanup)
         if (SRCROOT != BLDROOT) {
-            grunt.task.run(CLEANUP_HELP_CONTENT_DIR);
+            grunt.task.run("cleanup_help_content_dir");
         }
     });
 
@@ -2123,7 +2086,7 @@ module.exports = function(grunt) {
         Generates the htm file for searching help in XD
         Insert custom styling so it conforms to the XD style
     */
-    grunt.task.registerTask(GENERATE_HELP_SEARCH_INSIGHT_FILE, function() {
+    grunt.task.registerTask("generate_help_search_insight_file", function() {
 
         /**
             get all the html files (except those in 3rd)
@@ -2196,7 +2159,7 @@ module.exports = function(grunt) {
 
         var <structVar> = <JSON data>
     */
-    grunt.task.registerTask(GENERATE_HELP_STRUCTS_FILE, function() {
+    grunt.task.registerTask("generate_help_structs_file", function() {
 
         var helpStructsFilepath = BLDROOT + helpContentMapping.dest,
             content = "";
@@ -2228,7 +2191,7 @@ module.exports = function(grunt) {
         and it gets renamed as help/user.
         This cleanup task is deleting those unused ones.)
     */
-    grunt.task.registerTask(CLEANUP_HELP_CONTENT_DIR, function() {
+    grunt.task.registerTask("cleanup_help_content_dir", function() {
 
         // go through the help content dir and delete everything that's not the user dir
         var helpContentRootFull = BLDROOT + helpContentRoot;
@@ -2381,25 +2344,25 @@ module.exports = function(grunt) {
 
 
     */
-    grunt.task.registerTask(CONSTRUCTOR_FILES, "Generate additional js constructor file(s) for the build", function() {
+    grunt.task.registerTask("constructor_files", "Generate additional js constructor file(s) for the build", function() {
         grunt.log.debug("Schedule tasks to Autogen constructor files,"
             + " then copy the auto-generated constructor files, from:\n"
             + grunt.config('copy.constructorFiles.cwd')
             + " to:\n"
             + grunt.config('copy.constructorFiles.dest'));
 
-        grunt.task.run(GENERATE_CURR_PERS_CONSTRUCTOR_FILE);
+        grunt.task.run("generate_curr_pers_constructor_file");
         // next constructor file is only to show info about the bld to users.
         // devs don't need in their build, and if you auto-gen it, it will
         // cause it to show up in their 'git status', so skip for dev blds
         if (BLDTYPE != DEV && !isWatchEventProcessing()) {
-            grunt.task.run(GENERATE_GIT_VAR_DEC_FILE);
+            grunt.task.run("generate_git_var_dec_file");
         }
         // copy all constructor files from the xcalar-idl/xd submodule, in to constructor dir used by bld
         grunt.task.run('copy:constructorFiles');
 
         if (!KEEPSRC && SRCROOT != BLDROOT) {
-            grunt.task.run(CLEAN_CONSTRUCTOR_SRC);
+            grunt.task.run("clean_constructor_src");
         }
     });
 
@@ -2418,7 +2381,7 @@ module.exports = function(grunt) {
         won't use it and 2. if it's generated, it will show up as a new file in their
         workspace under 'git status' requiring them to delete it
     */
-    grunt.task.registerTask(GENERATE_GIT_VAR_DEC_FILE, function() {
+    grunt.task.registerTask("generate_git_var_dec_file", function() {
 
         // path to file to auto generate
         var filepath = BLDROOT + constructorMapping.dest + "A_constructorVersion.js";
@@ -2441,7 +2404,7 @@ module.exports = function(grunt) {
          auto-gens: E_persConstructor.js
          context:
     */
-    grunt.task.registerTask(GENERATE_CURR_PERS_CONSTRUCTOR_FILE, function() {
+    grunt.task.registerTask("generate_curr_pers_constructor_file", function() {
 
         // path of file to auto generate
         var filepath = SRCROOT + constructorMapping.src + "E_persConstructor.js";
@@ -2461,7 +2424,7 @@ module.exports = function(grunt) {
     });
 
     /** remove files/dirs unneeded needed only for generating constructor files */
-    grunt.registerTask(CLEAN_CONSTRUCTOR_SRC, "There are some files required to gerneate the constructor files.  You can remove them when done.", function() {
+    grunt.registerTask("clean_constructor_src", "There are some files required to gerneate the constructor files.  You can remove them when done.", function() {
 
         grunt.log.writeln(("\nDelete files/dirs necessary for generating constructor files, now that they have been generated\n").bold);
 
@@ -2661,19 +2624,19 @@ module.exports = function(grunt) {
     /**
         Generate CSS files from less files in the src code, remove uneeded less files
     */
-    grunt.task.registerTask(BUILD_CSS, 'Generate the CSS for the build from dev src code', function() {
+    grunt.task.registerTask("build_css", 'Generate the CSS for the build from dev src code', function() {
 
         grunt.task.run('less:dist');
 
         if (!KEEPSRC && SRCROOT != BLDROOT) {
-            grunt.task.run(CLEAN_CSS_SRC);
+            grunt.task.run("clean_css_src");
         }
     });
 
     /**
         Deletes uneeded lss src code from bld
     */
-    grunt.task.registerTask(CLEAN_CSS_SRC, function() {
+    grunt.task.registerTask("clean_css_src", function() {
 
         /**
             delete all less files in the less src.
@@ -2731,13 +2694,13 @@ module.exports = function(grunt) {
 
 
     */
-    grunt.task.registerTask(BUILD_HTML, 'Generate HTML from dev src by resolving includes, templating, etc.', function() {
+    grunt.task.registerTask("build_html", 'Generate HTML from dev src by resolving includes, templating, etc.', function() {
 
         // copy ENTIRE html src dir - even files which will be uneeded in bld - to initial staging dir
         grunt.task.run('copy:stageHTML');
 
         // perofrm all processing tasks (templating, internationaliation, etc.) within the staging dirs
-        grunt.task.run(PROCESS_HTML);
+        grunt.task.run("process_html");
 
         // copy everything in final Staging area to final destination
         grunt.task.run('copy:destHTML');
@@ -2754,12 +2717,12 @@ module.exports = function(grunt) {
         */
     });
 
-    grunt.task.registerTask(CLEAN_BUILD_SECTIONS, function() {
+    grunt.task.registerTask("clean_build_sections", function() {
 
         // clean HTML src of uneeded files/dirs
         if (!KEEPSRC && SRCROOT != BLDROOT) {
             grunt.log.debug("don't want to keep stale html!");
-            grunt.task.run(CLEAN_HTML_SRC);
+            grunt.task.run("clean_html_src");
         }
 
     });
@@ -2767,7 +2730,7 @@ module.exports = function(grunt) {
     /**
          clean build of uneeded files used for generating bld HTML
     */
-    grunt.task.registerTask(CLEAN_HTML_SRC, function() {
+    grunt.task.registerTask("clean_html_src", function() {
 
         /** remove HTML files that when templated, got written to new filepaths
             (else you'd be deleting a processed file you want to keep!)
@@ -2841,13 +2804,13 @@ module.exports = function(grunt) {
             tags task must run before htmlmin task (the comment tags depends on gets removed during htmlmin)
 
     */
-    grunt.task.registerTask(PROCESS_HTML, function() {
+    grunt.task.registerTask("process_html", function() {
         /**
             phase I : tasks requiring outside files to complete.  To be performed within staigng area I
             all src html should exist in staging area I when this phase begins.
         */
         grunt.task.run('includes:staging');
-        grunt.task.run(TEMPLATE_HTML); // templated files written to staging area II during this task
+        grunt.task.run("template_html"); // templated files written to staging area II during this task
 
         /**
             phase II : tasks which do not rely on any outside files.
@@ -2877,7 +2840,7 @@ module.exports = function(grunt) {
 
         // if bld flag given for rc option, remove debug comments first
         if (grunt.option(BLD_FLAG_RC_SHORT) || grunt.option(BLD_FLAG_RC_LONG)) {
-            grunt.task.run(REMOVE_DEBUG_COMMENTS + ':html'); // passes positional arg 'html' to the task's function
+            grunt.task.run('remove_debug_comments:html'); // passes positional arg 'html' to the task's function
         }
         grunt.task.run('htmlmin:stagingII'); // staging area II now has all, and only, completed bld files
         grunt.task.run('prettify:stagingII'); // prettify AFTER htmlmin! prettiy indents the HTML readably, htmlmin will remove a lot of that indentation
@@ -2940,7 +2903,7 @@ module.exports = function(grunt) {
         with stale HTML.
 
     */
-    grunt.task.registerTask(TEMPLATE_HTML, function() {
+    grunt.task.registerTask("template_html", function() {
 
         /**
             get filespaths, rel STAGING I, of all the html files to template
@@ -3282,7 +3245,7 @@ module.exports = function(grunt) {
         return templatedFilepathList;
     }
 
-    grunt.task.registerTask(BUILD_PARSER, 'Build Parser from dev src',
+    grunt.task.registerTask("build_parser", 'Build Parser from dev src',
         function() {
         var G4_FILES = BLDROOT + "3rd/antlr/*.g4";
         var parserJSDestDir = BLDROOT + "assets/js/parser/base";
@@ -3293,7 +3256,7 @@ module.exports = function(grunt) {
 
                                                                 // ======== JS SECTION ======= //
 
-    grunt.task.registerTask(BUILD_JS, 'Build JS portion of build', function() {
+    grunt.task.registerTask("build_js", 'Build JS portion of build', function() {
 
         // run typescript (autocompiles ts files --> js files)
         // do before remove debug because the js files it looks in might not exist until we run this
@@ -3306,17 +3269,17 @@ module.exports = function(grunt) {
 
         // if bld flag given for rc option, remove debug comments first, before js minification
         if (grunt.option(BLD_FLAG_RC_SHORT) || grunt.option(BLD_FLAG_RC_LONG)) {
-            grunt.task.run(REMOVE_DEBUG_COMMENTS + ':js');
+            grunt.task.run('remove_debug_comments:js');
         }
 
         // js files generated by ts that need to be in the expServer
         grunt.task.run("copy:exp_server_js");
 
-        grunt.task.run(CLEAN_JS);
+        grunt.task.run("clean_js");
     });
 
     // Generate TS definition file for jsTStr.js
-    grunt.task.registerTask(GENERATE_TSDEF, 'Generate TS definitions', function() {
+    grunt.task.registerTask("generate_tsdef", 'Generate TS definitions', function() {
         var sourceFile = SRCROOT + 'assets/lang/en/jsTStr.js';
         var targetFile = SRCROOT + 'ts/jsTStr.d.ts';
         runShellCmd('node ' + SRCROOT + 'assets/dev/genJSTStrDef.js'
@@ -3354,7 +3317,7 @@ module.exports = function(grunt) {
         }
     }
 
-    grunt.task.registerTask(WEBPACK, function() {
+    grunt.task.registerTask("webpack", function() {
         run_webpack_binary();
         clean_webpack(); // keep clean sep from running webpack in case
     });
@@ -3496,7 +3459,7 @@ module.exports = function(grunt) {
         3. prettify HTML to remove blank lines left from 2.
         4. delete unminified js files, and files used only for minification process.
     */
-    grunt.task.registerTask(MINIFY_JS, 'Minify the Javascript', function() {
+    grunt.task.registerTask("minify_js", 'Minify the Javascript', function() {
 
         // in case static uglify targets get added, add their mappings
         // to the unminified --> minified filepaths so script tags can be updated
@@ -3505,12 +3468,12 @@ module.exports = function(grunt) {
         // targets in initConfig for every minified file wanted
         configureDynamicUglifyTargets();
         grunt.task.run('uglify'); // run all uglify targets
-        grunt.task.run(UPDATE_SCRIPT_TAGS); // update the build HTML to reflect minified filepaths
+        grunt.task.run("update_script_tags"); // update the build HTML to reflect minified filepaths
         grunt.task.run('prettify:cheerio'); // using cheerio to remove script tags causes empty whitespaces; prettify again
 
         // rid bld of the original js files no longer needed, unless running with option to keep full src
         if (!KEEPSRC && SRCROOT != BLDROOT) {
-            grunt.task.run(CLEAN_JS_SRC_POST_MINIFICATION);
+            grunt.task.run("clean_js_src_post_minification");
         }
     });
 
@@ -3519,7 +3482,7 @@ module.exports = function(grunt) {
         For JS, this happens PRIOR to minification, so make sure the file paths
         are the original paths, not the post minification paths
     */
-    grunt.registerTask(REMOVE_DEBUG_COMMENTS, function(fileType) {
+    grunt.registerTask("remove_debug_comments", function(fileType) {
         grunt.log.writeln("Remove debug comments from specified files of type " + fileType);
 
         var filePaths = [];
@@ -3575,7 +3538,7 @@ module.exports = function(grunt) {
     }
 
     /** remove files/dirs unneeded needed only for generating js files */
-    grunt.registerTask(CLEAN_JS, "Remove files required for generating js",
+    grunt.registerTask("clean_js", "Remove files required for generating js",
         function() {
 
         grunt.log.writeln(("\nDelete files/dirs necessary for generating .js " +
@@ -3628,7 +3591,7 @@ module.exports = function(grunt) {
     /**
         Cleans bld of uneeded js files post minification
     */
-    grunt.task.registerTask(CLEAN_JS_SRC_POST_MINIFICATION, 'clean the bld of uneeded js files post-minification', function() {
+    grunt.task.registerTask("clean_js_src_post_minification", 'clean the bld of uneeded js files post-minification', function() {
 
         // the uglify configuration has all the files we minified in it.
         // go through that, and for each file in there, delete it
@@ -3664,7 +3627,7 @@ module.exports = function(grunt) {
                         }
                     } else {
                         grunt.fail.fatal("warning - some 'src' values in uglify " +
-                            " target are not abs paths; CLEAN_JS_SRC_POST_MINIFICATION" +
+                            " target are not abs paths; 'clean_js_src_post_minification'" +
                             " will need to be updated to handle this!");
                     }
                 }
@@ -3680,7 +3643,7 @@ module.exports = function(grunt) {
      * (My understanding is there are many files you wouldn't want to do the update on,
      * which is why we'd rather just specify which to do rather than doing all w exclusions)
      */
-    grunt.task.registerTask(UPDATE_PROD_NAME_OUTSIDE_JS, function() {
+    grunt.task.registerTask("update_prod_name_outside_js", function() {
 
         // file you want to replace in : file to map it to (if same will just update curr file w new version)
         var jsFilesToUpdate = {
@@ -3706,7 +3669,7 @@ module.exports = function(grunt) {
         and any which reference js that has been minified, update to the
         minified filepath
     */
-    grunt.task.registerTask(UPDATE_SCRIPT_TAGS, function() {
+    grunt.task.registerTask("update_script_tags", function() {
         // get all the html files in the bld dir
         var htmlBldAbsPath = BLDROOT + htmlMapping.dest;
         //var htmlFilepaths = grunt.file.expand(htmlBldAbsPath + "**/*.html");
@@ -4222,7 +4185,7 @@ module.exports = function(grunt) {
         This task is provided then as a check to be used for XI builds, once build is complete,
         to help detect if this style has been violated and alert of potential bug.
     */
-    grunt.task.registerTask(CHECK_FOR_XD_STRINGS, function() {
+    grunt.task.registerTask("check_for_xd_strings", function() {
 
         // grep the entire dest dir for any occurances of 'xcalar design', excluding some dirs and files specified here
 
@@ -4265,7 +4228,7 @@ module.exports = function(grunt) {
                 "\n** (If these files are expected to have these strings, " +
                 "and you want to suppress this warning on future builds: " +
                 "\nedit Gruntfile, and add files and/or dirs to ignore in " +
-                "function CHECK_FOR_XD_STRINGS)\n**");
+                "task 'check_for_xd_strings')\n**");
         } else {
             grunt.log.ok();
             grunt.log.writeln("Did not detect any relevant files in the build with product strings that need to be updated!");
@@ -4281,7 +4244,7 @@ module.exports = function(grunt) {
      * - Clean final bld of empty dirs and files
      * - Print a bld summary
      */
-    grunt.task.registerTask(FINALIZE, function() {
+    grunt.task.registerTask("finalize", function() {
 
         /**
             danger:
@@ -4289,7 +4252,7 @@ module.exports = function(grunt) {
             (this  is default behavior for dev blds)
             Then changing permissions, doing the cleanempty on the final bld,
             you'll end up altering the project src itself.
-            Skip all of these tasks, including the CHECK_FOR_XD_STRINGS.
+            Skip all of these tasks, including the "check_for_xd_strings".
             (Because there will be valid files with XD in them since its proj src)
             But do display summary...
         */
@@ -4308,7 +4271,7 @@ module.exports = function(grunt) {
             // in case you do js minification, because it needs
             // html src file.  so do that clean now.
             if (!KEEPSRC) {
-                grunt.task.run(CLEAN_BUILD_SECTIONS);
+                grunt.task.run("clean_build_sections");
             }
 
             if (BLDTYPE == INSTALLER) {
@@ -4329,7 +4292,7 @@ module.exports = function(grunt) {
             }
 
             if (PRODUCT != XD) {
-                grunt.task.run(CHECK_FOR_XD_STRINGS);
+                grunt.task.run("check_for_xd_strings");
             }
 
             // the following commands perform various tasks that result in
@@ -4411,7 +4374,7 @@ module.exports = function(grunt) {
             can run watch and a build task simultaneously)
         */
         if (!IS_WATCH_TASK) {
-            grunt.task.run(DISPLAY_SUMMARY);
+            grunt.task.run("display_summary");
         }
 
     });
@@ -4427,7 +4390,7 @@ module.exports = function(grunt) {
         create an empty config file,
         overwriting existing one, if any
     */
-    grunt.task.registerTask(NEW_CONFIG_FILE, "Reset the config file to be clear of any developer details", function() {
+    grunt.task.registerTask("new_config_file", "Reset the config file to be clear of any developer details", function() {
 
         // will create an empty config file, overwriting whatever might be there
         grunt.log.writeln("======= clear developer's config file ======");
@@ -4438,7 +4401,7 @@ module.exports = function(grunt) {
     });
 
     // displays a useful summary at the end of the build process.
-    grunt.task.registerTask(DISPLAY_SUMMARY,
+    grunt.task.registerTask("display_summary",
         'Display a summary of the build process', function() {
 
         /**
@@ -4526,7 +4489,7 @@ module.exports = function(grunt) {
      * - cp back in saved files and delete tmp dir
      * - set symlink: prod --> <xcalar guil build> for backend Apache
      */
-    grunt.task.registerTask(SYNC_WITH_THRIFT, "Sync trunk with thrift so backend and front end can communicate", function() {
+    grunt.task.registerTask("sync_with_thrift", "Sync trunk with thrift so backend and front end can communicate", function() {
 
         // backend dirs (rel BACKENDBLDROOT) of js scripts to copy in to xcalar-gui bld
         var backend_js_src_dirs_rel = ['bin/jsPackage/', 'buildOut/src/bin/jsClient/'];
@@ -5257,7 +5220,7 @@ module.exports = function(grunt) {
                         grunt.file.copy(SRCROOT + typescriptMapping.src + "/tsconfig.json", TS_WATCH_STAGING + "/tsconfig.json");
                         USE_TS_WATCH_STAGING=true;
                     }
-                    taskList.push(BUILD_JS);
+                    taskList.push("build_js");
                     taskList.push('clean:tsWatchStaging');
                     determinedRebuildProcess = true;
                 }
@@ -5266,7 +5229,7 @@ module.exports = function(grunt) {
                 if (grunt.file.arePathsEquivalent(
                     SRCROOT + "assets/lang/en/jsTStr.js",
                     filepath)) {
-                    taskList.push(GENERATE_TSDEF);
+                    taskList.push("generate_tsdef");
                 }
                 if (grunt.file.doesPathContain(jsMapping.src, filepathRelBld) ||
                     grunt.file.doesPathContain(SRCROOT + "assets/lang",
@@ -5309,11 +5272,11 @@ module.exports = function(grunt) {
                     resolveDependencies([htmlMapping.src]);
                     grunt.file.copy(filepath, BLDROOT + filepathRelBld);
                 }
-                taskList.push(BUILD_HTML);
+                taskList.push("build_html");
                 determinedRebuildProcess = true;
                 break;
             case WATCH_TARGET_CTOR:
-                taskList.push(CONSTRUCTOR_FILES);
+                taskList.push("constructor_files");
                 determinedRebuildProcess = true;
                 break;
             case WATCH_TARGET_CSS:
@@ -5332,10 +5295,10 @@ module.exports = function(grunt) {
         }
 
         grunt.log.debug("Schedule build finalize");
-        taskList.push(FINALIZE);
+        taskList.push("finalize");
 
         grunt.log.debug("Schedule cleanup");
-        taskList.push(COMPLETE_WATCH);
+        taskList.push("complete_watch");
 
         grunt.log.debug("Set dynamic task list found (these tasks should not " +
             "run yet): " + taskList);
@@ -5346,7 +5309,7 @@ module.exports = function(grunt) {
     /** Cleans up global data for next watch task. This needs to be a task and
      * not a function because it can only be run after all async stuff are done
      */
-    grunt.task.registerTask(COMPLETE_WATCH, function() {
+    grunt.task.registerTask("complete_watch", function() {
         var target = watchEventStopTracking();
         resetTemplateKeys();
 
