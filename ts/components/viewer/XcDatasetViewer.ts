@@ -7,6 +7,7 @@ class XcDatasetViewer extends XcViewer {
     private readonly initialNumRowsToFetch: number = 40;
     private _schemaArray: ColSchema[][];
     private _dispalySchema: ColSchema[];
+    private events: {_events: object, trigger: Function};
 
     public constructor(dataset: DSObj) {
         super(dataset.getFullName()); // use ds full name as id
@@ -15,6 +16,7 @@ class XcDatasetViewer extends XcViewer {
         this.totalRows = 0;
         this.$view.addClass("datasetTableWrap");
         this._addEventListeners();
+        this._setupEvents();
     }
 
     public getTitle(): string {
@@ -23,6 +25,16 @@ class XcDatasetViewer extends XcViewer {
 
     public getSchemaArray(): ColSchema[][] {
         return this._schemaArray;
+    }
+
+    /**
+     * add events to the dag node
+     * @param event {string} event name
+     * @param callback {Function} call back of the event
+     */
+    public registerEvents(event, callback): XcDatasetViewer {
+        this.events._events[event] = callback;
+        return this;
     }
 
     /**
@@ -39,11 +51,7 @@ class XcDatasetViewer extends XcViewer {
     public render($container: JQuery): XDPromise<void> {
         super.render($container);
 
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-
-        // update date part of the table info first to make UI smooth
-        // updateTableInfoDisplay(dsObj, true);
-
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
         PromiseHelper.alwaysResolve(this._fetchSchema())
         .then(() => {
             return this.dataset.fetch(0, this.initialNumRowsToFetch);
@@ -52,7 +60,6 @@ class XcDatasetViewer extends XcViewer {
             if (this.dataset.getError() != null) {
                 return PromiseHelper.reject(DSTStr.PointErr);
             }
-            // updateTableInfoDisplay(dsObj, null, true);
             this.totalRows = this.dataset.getNumEntries();
             this._getSampleTable(jsonKeys, jsons);
             deferred.resolve();
@@ -70,23 +77,32 @@ class XcDatasetViewer extends XcViewer {
         this._synceResultWithDisplaySchema();
     }
 
+    public resize(): void {
+        this._sizeColumns();
+    }
+
     private _getTableEle(): JQuery {
         return this.$view.find("table");
     }
 
     private _addEventListeners(): void {
         // resize column
-        this.$view.on("mousedown", ".colGrab", function(event) {
+        let $view = this.$view;
+        let self = this;
+        $view.on("mousedown", ".colGrab", function(event) {
             if (event.which !== 1) {
                 return;
             }
             TblAnim.startColResize($(this), event, {
                 target: "datastore",
+                onResize: function() {
+                    self.events.trigger("onResize", $view);
+                },
                 minWidth: 25
             });
         });
 
-        this.$view.scroll((event) => {
+        $view.scroll((event) => {
             $(event.target).scrollTop(0);
             TblFunc.moveFirstColumn(this._getTableEle());
         });
@@ -130,7 +146,6 @@ class XcDatasetViewer extends XcViewer {
     private _getSampleTable(jsonKeys: string[], jsons: object[]): void {
         const html: string = this._getSampleTableHTML(jsonKeys, jsons);
         this.$view.html(html);
-        // DSTable.refresh(true);
         this._sizeColumns();
         TblFunc.moveFirstColumn(this._getTableEle());
 
@@ -403,9 +418,6 @@ class XcDatasetViewer extends XcViewer {
         $headers.each(function(i) {
             $(this).outerWidth(bestFitWidths[i]);
         });
-
-        // var $dsTable = $("#dsTable");
-        // $tableWrap.width($dsTable.width());
     }
 
     private _synceResultWithDisplaySchema(): void {
@@ -513,5 +525,16 @@ class XcDatasetViewer extends XcViewer {
             '</div>' +
         '</td>';
         return td;
+    }
+
+    private _setupEvents(): void {
+        this.events = {
+            _events: {},
+            trigger: (event, ...args) => {
+                if (typeof this.events._events[event] === 'function') {
+                    this.events._events[event].apply(this, args);
+                }
+            }
+        };
     }
 }

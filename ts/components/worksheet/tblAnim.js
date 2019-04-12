@@ -14,12 +14,10 @@ window.TblAnim = (function($, TblAnim) {
         var colNum = null;
         var $th = $el.closest('th');
         rescol.$th = $th;
+        rescol.onResize = options.onResize;
 
         if (target === "datastore") {
             rescol.isDatastore = true;
-            rescol.$tableWrap = $('#dsTableWrap');
-            rescol.$dsTable = $('#dsTable');
-            rescol.$previewTable = $('#previewTable');
         } else {
             rescol.tableId = TblManager.parseTableId($table);
             colNum = ColManager.parseColNum($th);
@@ -91,11 +89,8 @@ window.TblAnim = (function($, TblAnim) {
         rescol.$th.outerWidth(newWidth);
         rescol.newWidth = newWidth;
 
-        if (rescol.isDatastore) {
-            rescol.$tableWrap.width(rescol.$dsTable.width());
-               // size line divider to fit table
-            var tableWidth = rescol.$previewTable.width();
-            rescol.$previewTable.find('.divider').width(tableWidth - 10);
+        if (typeof rescol.onResize === "function") {
+            rescol.onResize();
         }
     }
 

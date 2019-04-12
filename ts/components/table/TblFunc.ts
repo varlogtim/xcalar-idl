@@ -82,7 +82,7 @@ class TblFunc {
         if (table != null) {
             table.tableCols[colNum - 1].width = newWidth;
         } else if (datastore) {
-            $("#dsTableWrap").width($("#dsTable").width());
+            DSTable.resize();
         }
         if (!options.multipleCols) {
             TblFunc.matchHeaderSizes($table);

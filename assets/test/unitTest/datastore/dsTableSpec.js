@@ -4,13 +4,11 @@ describe("Dataset-DSTable Test", function() {
     var testDSId;
 
     var $dsTableContainer;
-    var $tableWrap;
 
     var $mainTabCache;
 
     before(function(done){
         $dsTableContainer = $("#dsTableContainer");
-        $tableWrap = $("#dsTableWrap");
 
         $mainTabCache = $(".topMenuBarTab.active");
         $("#dataStoresTab").click();
@@ -85,7 +83,8 @@ describe("Dataset-DSTable Test", function() {
 
         it("Should clear the dsTable", function() {
             DSTable.clear();
-            expect($tableWrap.html()).to.equal("");
+            let $tableWrap = DSTable._getTableWrapEl();
+            expect($tableWrap.html()).to.be.empty;
         });
 
         it("Should show data sample table", function(done) {
@@ -93,7 +92,7 @@ describe("Dataset-DSTable Test", function() {
             .then(function() {
                 assert.isTrue($dsTableContainer.is(":visible"));
                 assert.isFalse($dsTableContainer.hasClass("loading"));
-                expect($("#dsTable").data("dsid")).to.equal(testDSId);
+                expect(DSTable._viewer.getId()).to.equal(testDSId);
 
                 // ds name matches
                 expect($("#dsInfo-title").text()).to.equal(testDS);
@@ -103,121 +102,6 @@ describe("Dataset-DSTable Test", function() {
             })
             .fail(function() {
                 done("fail");
-            });
-        });
-
-        it("Should not scroll will error case", function(done) {
-            DSTable._scrollSampleAndParse(null)
-            .then(function() {
-                done("fail");
-            })
-            .fail(function(error) {
-                expect(error).to.equal("No DS");
-                done();
-            });
-        });
-
-        it("Should scroll the dsTable", function(done) {
-            $("#dsTableContainer").scrollTop(100);
-            var $dsTable = $("#dsTable");
-            var numRows = $dsTable.find("tr").length;
-            var rowsToFetch = 40;
-            DSTable._scrollSampleAndParse(testDSId, 40, rowsToFetch)
-            .then(function() {
-                var currentNumRows = $dsTable.find("tr").length;
-                expect(currentNumRows - numRows).to.equal(rowsToFetch);
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
-    });
-
-    describe("Scroll DSTable Test", function() {
-        var $tableWrapper;
-
-        before(function() {
-            $tableWrapper = $("#dsTableWrap .datasetTbodyWrap");
-        });
-
-        it("scrollSampleAndParse should not work in error case", function(done) {
-            DSTable._scrollSampleAndParse(null)
-            .then(function() {
-                done("fail");
-            })
-            .fail(function(error) {
-                expect(error).to.equal("No DS");
-                done();
-            });
-        });
-
-        it("scrollSampleAndParse should work", function(done) {
-            var $dsTable = $("#dsTable");
-            var numRows = $dsTable.find("tr").length;
-            var rowsToFetch = 40;
-
-            DSTable._scrollSampleAndParse(testDSId, 40, rowsToFetch)
-            .then(function() {
-                var currentNumRows = $dsTable.find("tr").length;
-                expect(currentNumRows - numRows).to.equal(rowsToFetch);
-                done();
-            })
-            .fail(function(error) {
-                console.error(error);
-                done("fail");
-            });
-        });
-
-        it("Should reject scroll if still fetching", function(done) {
-            $("#dsTable").addClass("fetching");
-
-            DSTable._dataStoreTableScroll($tableWrapper)
-            .then(function() {
-                done("fail");
-            })
-            .fail(function(error) {
-                expect(error).not.to.be.null;
-                done();
-            })
-            .always(function() {
-                $("#dsTable").removeClass("fetching");
-            });
-        });
-
-        it("Should not trigger scroll when has not at bottom", function(done) {
-            DSTable._dataStoreTableScroll($tableWrapper)
-            .then(function() {
-                done("fail");
-            })
-            .fail(function(error) {
-                expect(error).to.equal("no need to scroll");
-                done();
-            });
-        });
-
-        it("Should trigger scroll when at bottom", function(done) {
-            var oldFunc = DSObj.prototype.fetch;
-            DSObj.prototype.fetch = function() {
-                return PromiseHelper.reject("test");
-            };
-
-            var scrollHeight = $tableWrapper[0].scrollHeight;
-            var oldHeight = $("#dsTableWrap").height();
-            $("#dsTableWrap").height(scrollHeight);
-
-            DSTable._dataStoreTableScroll($tableWrapper)
-            .then(function() {
-                done("fail");
-            })
-            .fail(function(error) {
-                expect(error).to.equal("test");
-                expect($("#dsTable").hasClass("fetching")).to.be.false;
-                done();
-            })
-            .always(function() {
-                DSObj.prototype.fetch = oldFunc;
-                $("#dsTableWrap").height(oldHeight);
             });
         });
     });

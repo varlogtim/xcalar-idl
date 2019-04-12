@@ -310,7 +310,12 @@ window.DSPreview = (function($, DSPreview) {
             var minColWidth = Math.max(25, curWidth - extraTableWidth);
             TblAnim.startColResize($(this), event, {
                 target: "datastore",
-                minWidth: minColWidth
+                minWidth: minColWidth,
+                onResize: function() {
+                    // size line divider to fit table
+                    var tableWidth = $previewTable.width();
+                    $previewTable.find('.divider').width(tableWidth - 10);
+                }
             });
         });
 

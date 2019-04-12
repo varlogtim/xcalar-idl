@@ -357,7 +357,7 @@ window.TestSuite = (function($, TestSuite) {
                 if (!$grid.hasClass("active")) {
                     $grid.find(".gridIcon").click();
                 }
-                return self.checkExists('#dsTable[data-dsid="' + dsId + '"]');
+                return self.checkExists('#dsTableContainer .datasetTable[data-dsid="' + dsId + '"]');
             })
             .then(function() {
                 var dsName = $("#dsInfo-title").text();

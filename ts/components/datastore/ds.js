@@ -1363,9 +1363,9 @@ window.DS = (function ($, DS) {
                 if (gMinModeOn) {
                     DS.focusOn($grid);
                 } else {
-                    $("#dsTableWrap").fadeOut(200, function() {
+                    DSTable.getViewWrap().fadeOut(200, function() {
                         DS.focusOn($grid);
-                        $(this).fadeIn();
+                        DSTable.getViewWrap().fadeIn();
                     });
                 }
             }
@@ -2854,7 +2854,7 @@ window.DS = (function ($, DS) {
         var dsObj = DS.getDSObj(dsId);
         if (dsObj == null) {
             // clear data table
-            $("#dsTableWrap").empty();
+            DSTable.clear();
             focusOnForm();
         }
     }

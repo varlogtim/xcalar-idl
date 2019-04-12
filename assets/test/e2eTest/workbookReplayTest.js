@@ -33,7 +33,7 @@ module.exports = {
             .waitForElementVisible("#dagNodeMenu", 1000)
             .moveToElement("#dagNodeMenu li.restoreDataset", 10, 1)
             .mouseButtonClick('left')
-            .waitForElementVisible('#dsTable', 100000)
+            .waitForElementVisible('#dsTableContainer .datasetTable', 100000)
     },
 
     'execute': function(browser) {

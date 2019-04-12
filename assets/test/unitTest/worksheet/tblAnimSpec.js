@@ -169,7 +169,7 @@ describe('TblAnim Test', function() {
         before(function() {
             MainMenu.openPanel("datastorePanel");
 
-            $el = $('#dsTable').find('.colGrab').eq(0);
+            $el = $('#dsTableContainer .datasetTable').find('.colGrab').eq(0);
             $th = $el.closest('th');
             startWidth = $th.outerWidth();
             startX = 0;
@@ -194,7 +194,7 @@ describe('TblAnim Test', function() {
         // xx need to test on hidden col
         it('checkColResize should work', function() {
             expect(gMouseStatus).to.equal("checkingResizeCol");
-            expect($('#dsTable').hasClass('resizingCol')).to.be.false;
+            expect($('#dsTableContainer .datasetTable').hasClass('resizingCol')).to.be.false;
 
             var newX = 5;
             e = $.Event('mousemove', {pageX: newX});
@@ -202,7 +202,7 @@ describe('TblAnim Test', function() {
             TblAnim.__testOnly__.checkColResize(e);
 
             expect(gMouseStatus).to.equal('resizingCol');
-            expect($('#dsTable').hasClass('resizingCol')).to.be.true;
+            expect($('#dsTableContainer .datasetTable').hasClass('resizingCol')).to.be.true;
             expect($('#resizeCursor').length).to.equal(1);
         });
 
