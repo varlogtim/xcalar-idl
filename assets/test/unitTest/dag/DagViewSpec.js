@@ -512,6 +512,364 @@ describe("DagView Test", () => {
         });
     });
 
+    describe("align nodes complex", function() {
+        let graph;
+        before(function() {
+            let graphMeta = {
+                "version": 1,
+                "nodes": [
+                    {
+                        "version": 1,
+                        "type": "join",
+                        "subType": null,
+                        "display": {
+                            "x": 0,
+                            "y": 0
+                        },
+                        "description": "",
+                        "title": "Node 2",
+                        "hasTitleChange": false,
+                        "input": {
+                            "joinType": "innerJoin",
+                            "left": {
+                                "columns": [
+                                    "flight2373::ActualElapsedTime"
+                                ],
+                                "keepColumns": [],
+                                "rename": []
+                            },
+                            "right": {
+                                "columns": [
+                                    "class_name-split-1"
+                                ],
+                                "keepColumns": [
+                                    "class_name-split-1",
+                                    "classes::class_id",
+                                    "classes::class_name"
+                                ],
+                                "rename": []
+                            },
+                            "evalString": "",
+                            "nullSafe": false,
+                            "keepAllColumns": false
+                        },
+                        "id": "dag_5CABD7531B05A85D_1555095773638_37",
+                        "state": "Configured",
+                        "configured": true,
+                        "aggregates": [],
+                        "parents": [
+                            "dag_5CABD7531B05A85D_1555095778205_38",
+                            "dag_5CABD7531B05A85D_1555095954069_40"
+                        ]
+                    },
+                    {
+                        "version": 1,
+                        "type": "dataset",
+                        "subType": null,
+                        "table": "table_DF2_5CABD7531B05A85D_1555095768253_0_dag_5CABD7531B05A85D_1555095778205_38#t_1555098028362_1",
+                        "display": {
+                            "x": 0,
+                            "y": 0
+                        },
+                        "description": "",
+                        "title": "Node 3",
+                        "hasTitleChange": false,
+                        "input": {
+                            "source": "rudy.70327.flight2373",
+                            "prefix": "flight2373",
+                            "synthesize": false,
+                            "loadArgs": "{\n    \"operation\": \"XcalarApiBulkLoad\",\n    \"comment\": \"\",\n    \"tag\": \"\",\n    \"state\": \"Unknown state\",\n    \"args\": {\n        \"dest\": \"rudy.70327.flight2373\",\n        \"loadArgs\": {\n            \"sourceArgsList\": [\n                {\n                    \"targetName\": \"Default Shared Root\",\n                    \"path\": \"/netstore/datasets/flight/airlines\",\n                    \"fileNamePattern\": \"\",\n                    \"recursive\": false\n                }\n            ],\n            \"parseArgs\": {\n                \"parserFnName\": \"default:parseCsv\",\n                \"parserArgJson\": \"{\\\"recordDelim\\\":\\\"\\\\n\\\",\\\"fieldDelim\\\":\\\",\\\",\\\"isCRLF\\\":false,\\\"linesToSkip\\\":1,\\\"quoteDelim\\\":\\\"\\\\\\\"\\\",\\\"hasHeader\\\":true,\\\"schemaFile\\\":\\\"\\\",\\\"schemaMode\\\":\\\"loadInput\\\"}\",\n                \"fileNameFieldName\": \"\",\n                \"recordNumFieldName\": \"\",\n                \"allowFileErrors\": false,\n                \"allowRecordErrors\": false,\n                \"schema\": [\n                    {\n                        \"sourceColumn\": \"CheckSum\",\n                        \"destColumn\": \"CheckSum\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"Timestamp\",\n                        \"destColumn\": \"Timestamp\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"Category\",\n                        \"destColumn\": \"Category\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"Towers\",\n                        \"destColumn\": \"Towers\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"TypeOfInformation\",\n                        \"destColumn\": \"TypeOfInformation\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"Year\",\n                        \"destColumn\": \"Year\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"Month\",\n                        \"destColumn\": \"Month\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"DayofMonth\",\n                        \"destColumn\": \"DayofMonth\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"DayOfWeek\",\n                        \"destColumn\": \"DayOfWeek\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"DepTime\",\n                        \"destColumn\": \"DepTime\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"CRSDepTime\",\n                        \"destColumn\": \"CRSDepTime\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"ArrTime\",\n                        \"destColumn\": \"ArrTime\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"CRSArrTime\",\n                        \"destColumn\": \"CRSArrTime\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"UniqueCarrier\",\n                        \"destColumn\": \"UniqueCarrier\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"FlightNum\",\n                        \"destColumn\": \"FlightNum\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"TailNum\",\n                        \"destColumn\": \"TailNum\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"ActualElapsedTime\",\n                        \"destColumn\": \"ActualElapsedTime\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"CRSElapsedTime\",\n                        \"destColumn\": \"CRSElapsedTime\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"AirTime\",\n                        \"destColumn\": \"AirTime\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"ArrDelay\",\n                        \"destColumn\": \"ArrDelay\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"DepDelay\",\n                        \"destColumn\": \"DepDelay\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"Origin\",\n                        \"destColumn\": \"Origin\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"Dest\",\n                        \"destColumn\": \"Dest\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"Distance\",\n                        \"destColumn\": \"Distance\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"TaxiIn\",\n                        \"destColumn\": \"TaxiIn\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"TaxiOut\",\n                        \"destColumn\": \"TaxiOut\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"Cancelled\",\n                        \"destColumn\": \"Cancelled\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"CancellationCode\",\n                        \"destColumn\": \"CancellationCode\",\n                        \"columnType\": \"DfString\"\n                    },\n                    {\n                        \"sourceColumn\": \"Diverted\",\n                        \"destColumn\": \"Diverted\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"CarrierDelay\",\n                        \"destColumn\": \"CarrierDelay\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"WeatherDelay\",\n                        \"destColumn\": \"WeatherDelay\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"NASDelay\",\n                        \"destColumn\": \"NASDelay\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"SecurityDelay\",\n                        \"destColumn\": \"SecurityDelay\",\n                        \"columnType\": \"DfInt64\"\n                    },\n                    {\n                        \"sourceColumn\": \"LateAircraftDelay\",\n                        \"destColumn\": \"LateAircraftDelay\",\n                        \"columnType\": \"DfInt64\"\n                    }\n                ]\n            },\n            \"size\": 10737418240\n        }\n    },\n    \"annotations\": {}\n}"
+                        },
+                        "id": "dag_5CABD7531B05A85D_1555095778205_38",
+                        "state": "Complete",
+                        "configured": true,
+                        "aggregates": [],
+                        "schema": [],
+                        "parents": []
+                    },
+                    {
+                        "version": 1,
+                        "type": "split",
+                        "subType": null,
+                        "table": "table_DF2_5CABD7531B05A85D_1555095768253_0_dag_5CABD7531B05A85D_1555095954069_40#t_1555107476331_0",
+                        "display": {
+                            "x": 0,
+                            "y": 0
+                        },
+                        "description": "",
+                        "title": "Node 5",
+                        "hasTitleChange": false,
+                        "input": {
+                            "eval": [
+                                {
+                                    "evalString": "cut(classes::class_name,1,\"a\")",
+                                    "newField": "class_name-split-1"
+                                }
+                            ],
+                            "icv": false
+                        },
+                        "id": "dag_5CABD7531B05A85D_1555095954069_40",
+                        "state": "Complete",
+                        "configured": true,
+                        "aggregates": [],
+                        "parents": [
+                            "dag_5CABD7531B05A85D_1555097830382_36"
+                        ]
+                    },
+                    {
+                        "version": 1,
+                        "type": "dataset",
+                        "subType": null,
+                        "table": "table_DF2_5CABD7531B05A85D_1555095768253_0_dag_5CABD7531B05A85D_1555097830382_36#t_1555099864315_0",
+                        "display": {
+                            "x": 0,
+                            "y": 0
+                        },
+                        "description": "",
+                        "title": "Node 4",
+                        "hasTitleChange": false,
+                        "input": {
+                            "source": "rudy.10997.classes",
+                            "prefix": "classes",
+                            "synthesize": false,
+                            "loadArgs": "{\n    \"operation\": \"XcalarApiBulkLoad\",\n    \"comment\": \"\",\n    \"tag\": \"\",\n    \"state\": \"Unknown state\",\n    \"args\": {\n        \"dest\": \"rudy.10997.classes\",\n        \"loadArgs\": {\n            \"sourceArgsList\": [\n                {\n                    \"targetName\": \"Default Shared Root\",\n                    \"path\": \"/netstore/datasets/indexJoin/classes/classes.json\",\n                    \"fileNamePattern\": \"\",\n                    \"recursive\": false\n                }\n            ],\n            \"parseArgs\": {\n                \"parserFnName\": \"default:parseJson\",\n                \"parserArgJson\": \"{}\",\n                \"fileNameFieldName\": \"\",\n                \"recordNumFieldName\": \"\",\n                \"allowFileErrors\": false,\n                \"allowRecordErrors\": false,\n                \"schema\": []\n            },\n            \"size\": 10737418240\n        }\n    },\n    \"annotations\": {}\n}"
+                        },
+                        "id": "dag_5CABD7531B05A85D_1555097830382_36",
+                        "state": "Complete",
+                        "configured": true,
+                        "aggregates": [],
+                        "schema": [
+                            {
+                                "name": "class_name",
+                                "type": "string"
+                            },
+                            {
+                                "name": "class_id",
+                                "type": "integer"
+                            }
+                        ],
+                        "parents": []
+                    },
+                    {
+                        "version": 1,
+                        "type": "filter",
+                        "subType": null,
+                        "table": "table_DF2_5CABD7531B05A85D_1555095768253_0_dag_5CABD7531B05A85D_1555102509658_37#t_1555108259735_0",
+                        "display": {
+                            "x": 0,
+                            "y": 0
+                        },
+                        "description": "",
+                        "title": "Node 5",
+                        "hasTitleChange": false,
+                        "input": {
+                            "evalString": "eq(1, 1)"
+                        },
+                        "id": "dag_5CABD7531B05A85D_1555102509658_37",
+                        "state": "Complete",
+                        "configured": true,
+                        "aggregates": [],
+                        "parents": [
+                            "dag_5CABD7531B05A85D_1555097830382_36"
+                        ]
+                    },
+                    {
+                        "version": 1,
+                        "type": "Jupyter",
+                        "subType": null,
+                        "display": {
+                            "x": 0,
+                            "y": 0
+                        },
+                        "description": "",
+                        "title": "Node 7",
+                        "hasTitleChange": false,
+                        "input": {
+                            "numExportRows": 1000,
+                            "renames": []
+                        },
+                        "id": "dag_5CABD7531B05A85D_1555102717675_38",
+                        "state": "Unused",
+                        "configured": false,
+                        "aggregates": [],
+                        "parents": [
+                            "dag_5CABD7531B05A85D_1555095773638_37"
+                        ]
+                    },
+                    {
+                        "version": 1,
+                        "type": "filter",
+                        "subType": null,
+                        "table": "table_DF2_5CABD7531B05A85D_1555095768253_0_dag_5CABD7531B05A85D_1555107981101_36#t_1555108259739_1",
+                        "display": {
+                            "x": 0,
+                            "y": 0
+                        },
+                        "description": "",
+                        "title": "Node 7",
+                        "hasTitleChange": false,
+                        "input": {
+                            "evalString": "eq(1, 1)"
+                        },
+                        "id": "dag_5CABD7531B05A85D_1555107981101_36",
+                        "state": "Complete",
+                        "error": "Requires 1 parents",
+                        "configured": true,
+                        "aggregates": [],
+                        "parents": [
+                            "dag_5CABD7531B05A85D_1555102509658_37"
+                        ]
+                    }
+                ],
+                "comments": [],
+                "display": {
+                    "width": 0,
+                    "height": 0,
+                    "scale": 1
+                },
+                "operationTime": 0
+            };
+            graph = new DagGraph();
+            graph.create(graphMeta);
+        });
+
+        it("should align correctly", function() {
+            let hasTips = $("#dagView").hasClass("showProgressTips");
+            $("#dagView").removeClass("showProgressTips");
+            let ret = DagView.getAutoAlignPositions(graph);
+            expect(ret).to.deep.equal({
+                "nodeInfos": [
+                    {
+                        "type": "dagNode",
+                        "id": "dag_5CABD7531B05A85D_1555102717675_38",
+                        "position": {
+                            "x": 460,
+                            "y": 40
+                        }
+                    },
+                    {
+                        "type": "dagNode",
+                        "id": "dag_5CABD7531B05A85D_1555095773638_37",
+                        "position": {
+                            "x": 320,
+                            "y": 40
+                        }
+                    },
+                    {
+                        "type": "dagNode",
+                        "id": "dag_5CABD7531B05A85D_1555095778205_38",
+                        "position": {
+                            "x": 180,
+                            "y": 40
+                        }
+                    },
+                    {
+                        "type": "dagNode",
+                        "id": "dag_5CABD7531B05A85D_1555095954069_40",
+                        "position": {
+                            "x": 180,
+                            "y": 100
+                        }
+                    },
+                    {
+                        "type": "dagNode",
+                        "id": "dag_5CABD7531B05A85D_1555097830382_36",
+                        "position": {
+                            "x": 40,
+                            "y": 100
+                        }
+                    },
+                    {
+                        "type": "dagNode",
+                        "id": "dag_5CABD7531B05A85D_1555102509658_37",
+                        "position": {
+                            "x": 180,
+                            "y": 160
+                        }
+                    },
+                    {
+                        "type": "dagNode",
+                        "id": "dag_5CABD7531B05A85D_1555107981101_36",
+                        "position": {
+                            "x": 320,
+                            "y": 160
+                        }
+                    }
+                ],
+                "maxX": 440,
+                "maxY": 140
+            });
+
+            $("#dagView").addClass("showProgressTips");
+            ret = DagView.getAutoAlignPositions(graph);
+            expect(ret).to.deep.equal({
+                "nodeInfos": [
+                    {
+                        "type": "dagNode",
+                        "id": "dag_5CABD7531B05A85D_1555102717675_38",
+                        "position": {
+                            "x": 460,
+                            "y": 40
+                        }
+                    },
+                    {
+                        "type": "dagNode",
+                        "id": "dag_5CABD7531B05A85D_1555095773638_37",
+                        "position": {
+                            "x": 320,
+                            "y": 40
+                        }
+                    },
+                    {
+                        "type": "dagNode",
+                        "id": "dag_5CABD7531B05A85D_1555095778205_38",
+                        "position": {
+                            "x": 180,
+                            "y": 40
+                        }
+                    },
+                    {
+                        "type": "dagNode",
+                        "id": "dag_5CABD7531B05A85D_1555095954069_40",
+                        "position": {
+                            "x": 180,
+                            "y": 140
+                        }
+                    },
+                    {
+                        "type": "dagNode",
+                        "id": "dag_5CABD7531B05A85D_1555097830382_36",
+                        "position": {
+                            "x": 40,
+                            "y": 140
+                        }
+                    },
+                    {
+                        "type": "dagNode",
+                        "id": "dag_5CABD7531B05A85D_1555102509658_37",
+                        "position": {
+                            "x": 180,
+                            "y": 240
+                        }
+                    },
+                    {
+                        "type": "dagNode",
+                        "id": "dag_5CABD7531B05A85D_1555107981101_36",
+                        "position": {
+                            "x": 320,
+                            "y": 240
+                        }
+                    }
+                ],
+                "maxX": 440,
+                "maxY": 220
+            });
+            if (!hasTips) {
+                $("#dagView").removeClass("showProgressTips");
+            }
+        });
+    });
+
     describe("copy/cut and paste", function() {
         let node1;
         let node2;
@@ -1268,7 +1626,7 @@ describe("DagView Test", () => {
         };
         res = dagView._convertInNodeForSQLFunc(nodeInfo);
         expect(res).to.equal(nodeInfo);
-      
+
         // case 4
         res = dagView._convertInNodeForSQLFunc(null);
         expect(res).to.equal(null);

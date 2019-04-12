@@ -57,13 +57,14 @@ class DagView {
         maxX: number,
         maxY: number
     } {
-        const nodes: DagNode[] = graph.getSortedNodes();
-        let treeGroups = {};
+        const allNodes: DagNode[] = graph.getSortedNodes();
+        let trees = {};
         let seen = {};
-        for (let i = nodes.length - 1; i >= 0; i--) {
-            if (nodes[i].getChildren().length === 0) {
+        for (let i = allNodes.length - 1; i >= 0; i--) {
+            let node = allNodes[i];
+            if (node.getChildren().length === 0) {
                 // group nodes into trees
-                DagView._splitIntoTrees(nodes[i], seen, treeGroups, i);
+                DagView._splitIntoTrees(node, seen, trees, i);
             }
         }
 
@@ -71,21 +72,22 @@ class DagView {
         const allNodeInfos = [];
         let overallMaxDepth = 0;
 
-        for (let i in treeGroups) {
-            const group = treeGroups[i];
+        for (let i in trees) {
+            const tree = trees[i];
             const nodes = {};
-            for (let j in group) {
-                let node: DagNode = group[j];
+            for (let j in tree) {
+                let node: DagNode = tree[j];
                 if (node.getChildren().length === 0) {
                     DagView._alignNodes(node, nodes, startingWidth);
                 }
             }
 
-            for (let j in group) {
-                if (group[j].getParents().length === 0) {
+            for (let j in tree) {
+                let node: DagNode = tree[j];
+                if (node.getParents().length === 0) {
                     // adjust positions of nodes so that children will never be
                     // to the left of their parents
-                    DagView._adjustPositions(group[j], nodes, {});
+                    DagView._adjustPositions(node, nodes, {});
                 }
             }
             let maxDepth = 0;
@@ -104,7 +106,7 @@ class DagView {
                     id: j,
                     position: {
                         x: ((maxDepth - nodes[j].depth) * DagView.horzNodeSpacing) + (DagView.gridSpacing * 2),
-                        y: (nodes[j].width * DagView.vertNodeSpacing) + (DagView.gridSpacing * 2)
+                        y: Math.round((nodes[j].width * DagView.vertNodeSpacing) / DagView.gridSpacing) * DagView.gridSpacing + (DagView.gridSpacing * 2)
                     }
                 });
             }
@@ -123,8 +125,8 @@ class DagView {
         });
         return {
             nodeInfos: allNodeInfos,
-            maxX: maxX,
-            maxY: maxY
+            maxX: Math.round(maxX),
+            maxY: Math.round(maxY)
         }
     }
 
@@ -534,14 +536,15 @@ class DagView {
         };
     }
 
-        // sets endpoint to have depth:0, width:0. If endpoint is a join,
+    // sets endpoint to have depth:0, width:0. If endpoint is a join,
     // then left parent will have depth:1, width:0 and right parent will have
     // depth: 1, width: 1 and so on.
     private static _alignNodes(node, seen, width) {
+        let showingProgressTips: boolean = DagView.$dagView.hasClass("showProgressTips");
         let greatestWidth = width;
         _alignHelper(node, 0, width);
 
-        function _alignHelper(node, depth, width) {
+        function _alignHelper(node, depth, width, tooltipWasAdjusted: boolean = false) {
             const nodeId = node.getId();
             if (seen[nodeId] != null) {
                 return;
@@ -555,49 +558,95 @@ class DagView {
             const parents = node.getParents();
 
             let numParentsDrawn = 0;
-            for (let i = 0; i < parents.length; i++) {
-                if (!parents[i]) {
-                    continue;
-                }
-                if (seen[parents[i].getId()] != null) {
+            parents.forEach(parent => {
+                if (parent != null && seen[parent.getId()] != null) {
                     numParentsDrawn++;
                 }
-            }
+            });
 
-            for (let i = 0; i < parents.length; i++) {
-                if (parents[i] != null &&
-                    seen[parents[i].getId()] == null) {
-                    let newWidth;
+            parents.forEach((parent, index) => {
+                if (parent != null && seen[parent.getId()] == null) {
+                    let parentWidth;
+                    let tooltipAdjusted = false;
+
                     if (numParentsDrawn === 0) {
-                        newWidth = width;
+                        parentWidth = width;
+                        // if lineage was not adjusted for progress tooltips
+                        // then add 0.6 to the width
+                        if (width !== 0 && !tooltipWasAdjusted && showingProgressTips && parent.getState() === DagNodeState.Complete) {
+                            parentWidth += (2/3);
+                            tooltipAdjusted = true;
+                            adjustChildWidthForTooltip(parent, width);
+                        }
+                        tooltipAdjusted = tooltipWasAdjusted || tooltipAdjusted;
                     } else {
-                        newWidth = greatestWidth + 1;
+                        let increment = 1;
+                        if (showingProgressTips && parent.getState() === DagNodeState.Complete) {
+                            increment += (2/3);
+                            tooltipAdjusted = true;
+                        }
+                        parentWidth = greatestWidth + increment;
                     }
-                    _alignHelper(parents[i], depth + 1, newWidth);
+                    _alignHelper(parent, depth + 1, parentWidth, tooltipAdjusted);
                     numParentsDrawn++;
                 }
-            }
+            });
             const children = node.getChildren();
 
             let numChildrenDrawn = 0;
-            for (let i = 0; i < children.length; i++) {
-                if (seen[children[i].getId()] != null) {
+            children.forEach(child => {
+                if (seen[child.getId()] != null) {
                     numChildrenDrawn++;
                 }
-            }
+            });
 
-            for (let i = 0; i < children.length; i++) {
-                if (seen[children[i].getId()] == null) {
-                    let newWidth;
+            children.forEach(child => {
+                if (seen[child.getId()] == null) {
+                    let childWidth;
+                    let tooltipAdjusted = false;
                     if (numChildrenDrawn === 0) {
-                        newWidth = width;
+                        childWidth = width;
+                        if (width !== 0 && !tooltipWasAdjusted && showingProgressTips && child.getState() === DagNodeState.Complete) {
+                            childWidth += (2/3);
+                            tooltipAdjusted = true;
+                            adjustParentWidthForTooltip(child, width);
+                        }
+                        tooltipAdjusted = tooltipWasAdjusted || tooltipAdjusted;
                     } else {
-                        newWidth = greatestWidth + 1;
+                        let increment = 1;
+                        if (showingProgressTips && child.getState() === DagNodeState.Complete) {
+                            increment += (2/3);
+                            tooltipAdjusted = true;
+                        }
+                        childWidth = greatestWidth + increment;
                     }
-                    _alignHelper(children[i], depth - 1, newWidth);
+                    _alignHelper(child, depth - 1, childWidth, tooltipAdjusted);
                     numChildrenDrawn++;
                 }
-            }
+            });
+        }
+
+        function adjustChildWidthForTooltip(parent, width) {
+            parent.getChildren().forEach((child) => {
+                let childInfo = seen[child.getId()];
+                if (childInfo && childInfo.width ===  width) {
+                    childInfo.width += 0.5;
+                    adjustChildWidthForTooltip(child, width);
+                }
+            });
+        }
+
+        function adjustParentWidthForTooltip(child, width) {
+            child.getParents().forEach((parent) => {
+                if (!parent) {
+                    return;
+                }
+                let parentInfo = seen[parent.getId()];
+                if (parentInfo && parentInfo.width ===  width) {
+                    parentInfo.width += 0.5;
+                    adjustParentWidthForTooltip(parent, width);
+                }
+            });
         }
     }
 
@@ -2977,7 +3026,7 @@ class DagView {
             })
             .fail((error) => {
                 if (error && error.status === StatusT.StatusRetinaInUse) {
-                    StatusBox.show("Could not delete optimized dataflow.  " + error.error, $("#dagView").find(".dataflowWrap"));
+                    StatusBox.show("Could not delete optimized dataflow.  " + error.error, DagView.$dfWrap);
                 }
             });
         });

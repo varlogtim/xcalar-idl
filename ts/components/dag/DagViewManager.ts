@@ -1111,8 +1111,6 @@ class DagViewManager {
     }
 
 
-
-
     private _viewAgg(dagNode: DagNodeAggregate): void {
         try {
             let aggVal: string | number = dagNode.getAggVal();
