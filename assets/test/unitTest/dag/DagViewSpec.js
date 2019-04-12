@@ -1233,4 +1233,44 @@ describe("DagView Test", () => {
             done();
         });
     });
+
+    it("_convertInNodeForSQLFunc should work", function() {
+        let dagView = new DagView(null, new DagGraph(), new DagTabUser());
+        // case 1
+        let nodeInfo = {
+            type: DagNodeType.IMDTable,
+            nodeId: "test",
+            display: {"x": 100, "y": 10},
+            input: {source: "source"}
+        };
+        let res = dagView._convertInNodeForSQLFunc(nodeInfo);
+        expect(res.type).to.equal(DagNodeType.SQLFuncIn);
+        expect(res.nodeId).to.equal("test");
+        expect(res.display.x).to.equal(100);
+        expect(res.display.y).to.equal(10);
+        expect(res.input.source).to.equal("source");
+
+        // case 2
+        nodeInfo = {
+            type: DagNodeType.Dataset,
+            nodeId: "test",
+            input: {source: "source"}
+        };
+        res = dagView._convertInNodeForSQLFunc(nodeInfo);
+        expect(res.type).to.equal(DagNodeType.SQLFuncIn);
+        expect(res.nodeId).to.equal("test");
+        expect(res.input.source).not.to.equal("source");
+
+        // caser 3
+        nodeInfo = {
+            type: DagNodeType.Filter,
+            nodeId: "test"
+        };
+        res = dagView._convertInNodeForSQLFunc(nodeInfo);
+        expect(res).to.equal(nodeInfo);
+      
+        // case 4
+        res = dagView._convertInNodeForSQLFunc(null);
+        expect(res).to.equal(null);
+    });
 });

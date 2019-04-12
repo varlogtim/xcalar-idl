@@ -891,7 +891,7 @@ class DagView {
         return this.lockedNodeIds[nodeId];
     }
 
-      /**
+    /**
      * DagView.pasteNodes
      *  finds new position for cloned nodes, adds to dagGraph and UI
      */
@@ -969,6 +969,9 @@ class DagView {
                     // the parentId of the original node
                     // since this is a deep copy, nodeInfos still has the parents
                     delete nodeInfo.parents;
+                    if (isSQLFunc) {
+                        nodeInfo = this._convertInNodeForSQLFunc(nodeInfo);
+                    }
                     const newNode: DagNode = this.graph.newNode(nodeInfo);
                     let nodeType: DagNodeType = newNode.getType();
                     if (nodeType == DagNodeType.Aggregate &&
@@ -4587,5 +4590,34 @@ class DagView {
                 });
             });
         });
+    }
+
+    private _convertInNodeForSQLFunc(nodeInfo: DagNodeCopyInfo): DagNodeCopyInfo {
+        try {
+            let dagNode: DagNode = DagNodeFactory.create({
+                type: nodeInfo.type,
+                id: nodeInfo.nodeId,
+                input: nodeInfo.input
+            });
+            if (dagNode.isSourceNode()) {
+                let sqlFuncIn: DagNodeSQLFuncIn = <DagNodeSQLFuncIn>DagNodeFactory.create({
+                    type: DagNodeType.SQLFuncIn,
+                    id: dagNode.getId(),
+                    display: nodeInfo.display
+                });
+                if (dagNode instanceof DagNodeIMDTable) {
+                    let source = dagNode.getSource();
+                    if (source) {
+                        sqlFuncIn.setParam({source: source});
+                    }
+                }
+                return sqlFuncIn.getNodeCopyInfo();
+            } else {
+                return nodeInfo;
+            }
+        } catch (e) {
+            console.error(e);
+            return nodeInfo;
+        }
     }
 }
