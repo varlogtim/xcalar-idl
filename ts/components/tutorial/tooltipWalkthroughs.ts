@@ -3,7 +3,11 @@ namespace TooltipWalkthroughs {
     // XXX TODO: add something that enters a workbook if not in one.
 
     export function SQLModeWalkthrough(): void {
-        TooltipManager.start("SQL Mode",
+        TooltipManager.start({
+                tooltipTitle: "SQL Mode",
+                background: true,
+                startScreen: TooltipStartScreen.SQLWorkspace
+            },
             [{
                 highlight_div: "#menuBar",
                 text: "The menu bar allows you to access various features within Xcalar Design.",
@@ -54,7 +58,21 @@ namespace TooltipWalkthroughs {
                 type: TooltipType.Value,
                 value: "/netstore/datasets/"
             },],
-            true,
+            0
+        );
+    }
+
+    export function AdvModeWalkthrough(): void {
+        TooltipManager.start({
+                tooltipTitle: "Advanced Mode",
+                background: true,
+                startScreen: TooltipStartScreen.ADVModeDataflow
+            },
+            [{
+                highlight_div: "#dagButton",
+                text: "Temporary placeholder Text",
+                type: TooltipType.Text
+            }],
             0
         );
     }

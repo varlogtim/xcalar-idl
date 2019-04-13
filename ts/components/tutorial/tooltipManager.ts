@@ -31,42 +31,102 @@ namespace TooltipManager {
 
 
 
-    export function start(tooltipTitle: string, tooltips: TooltipInfo[], background: boolean,
+    export function start(walkthroughInfo: WalkthroughInfo, tooltips: TooltipInfo[],
             step: number, userOptions?) {
         stepNumber = step - 1;
         currWalkthrough = tooltips;
-        title = tooltipTitle;
+        title = walkthroughInfo.tooltipTitle;
 
         if (userOptions) {
             setOptions(userOptions);
         }
 
-        if (background) {
-            createOverlay();
+        let promise;
+
+        if (walkthroughInfo.isSingleTooltip) {
+            // This is for future singular tooltip popups, rather than walkthroughs.
+            // We can assume the tooltip is on the screen we're on now.
+            promise = PromiseHelper.resolve();
+        } else {
+            promise = switchScreen(walkthroughInfo.startScreen);
         }
 
+        promise
+        .then(() => {
+            if (walkthroughInfo.background) {
+                createOverlay();
+            }
+
+            /*if (options.video) {
+                setupVideo();
+                setupVideoBreakpoints();
+                options.preventSelection = false;
+            }*/
+            if (options.preventSelection) {
+                createElementLayer();
+            }
+            createHighlightBox();
+            createPopover();
+            createWatermark();
+            nextStep();
+            $(window).resize(winResize);
+            // temp
+            //$('#xcalarVid').attr('muted', "true");
+        })
+        .fail((e) => {
+            console.error("Could not open walkthrough: " + e);
+        });
+    };
+
+    function switchScreen(screen: TooltipStartScreen): JQueryPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let switchPromise;
         if (!$("#fileBrowser").hasClass("xc-hidden")) {
             // Close any file browser open, just in case.
             FileBrowser.close();
         }
-
-        /*if (options.video) {
-            setupVideo();
-            setupVideoBreakpoints();
-            options.preventSelection = false;
-        }*/
-        if (options.preventSelection) {
-            createElementLayer();
+        switch(screen) {
+            case(TooltipStartScreen.SQLWorkspace):
+                if (!XVM.isSQLMode()) {
+                    switchPromise = XVM.setMode(XVM.Mode.SQL);
+                } else {
+                    switchPromise = PromiseHelper.resolve();
+                }
+                switchPromise
+                .then(() => {
+                    // Switch to SQL workspace if not open
+                    if (!$("#sqlTab").hasClass("active")) {
+                        $("#sqlTab").click();
+                    }
+                    deferred.resolve();
+                })
+                .fail(deferred.reject);
+                break;
+            case (TooltipStartScreen.ADVModeDataflow):
+                if (!XVM.isAdvancedMode()) {
+                    switchPromise = XVM.setMode(XVM.Mode.Advanced);
+                } else {
+                    switchPromise = PromiseHelper.resolve();
+                }
+                switchPromise
+                .then(() => {
+                    // Switch to dataflow screen if not open
+                    if (!$("#modelingDataflowTab").hasClass("active")) {
+                        $("#dagButton").click();
+                    }
+                    // open dataflow list if not open
+                    if (!$("#dataflowMenu").hasClass("active")) {
+                        $("#dagButton").click();
+                    }
+                    deferred.resolve();
+                })
+                .fail(deferred.reject);
+                break;
+            default:
+                break;
         }
-        createHighlightBox();
-        createPopover();
-        createWatermark();
-        nextStep();
-        $(window).resize(winResize);
-        // temp
-        //$('#xcalarVid').attr('muted', "true");
-
-    };
+        return deferred.promise();
+    }
 
     function createOverlay() {
         let svg: string = '<svg id="intro-overlay"><g><path id="intro-path"' +
@@ -484,4 +544,9 @@ enum TooltipType {
     Click = "click",
     Text = "text",
     Value = "value"
+}
+
+enum TooltipStartScreen {
+    SQLWorkspace = "SQLWorkspace",
+    ADVModeDataflow = "Adv Mode Dataflow"
 }

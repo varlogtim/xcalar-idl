@@ -5,3 +5,10 @@ interface TooltipInfo {
     interact_div?: string;
     value?: string;
 }
+
+interface WalkthroughInfo {
+    tooltipTitle: string;
+    background: boolean;
+    startScreen: TooltipStartScreen;
+    isSingleTooltip?: boolean;
+}
