@@ -336,7 +336,10 @@ namespace xcManager {
         } else {
             SQLWorkSpace.Instance.save()
             .then(function() {
-                return XcUser.CurrentUser.releaseSession();
+                let currentUser = XcUser.CurrentUser;
+                if (currentUser != null) {
+                    return currentUser.releaseSession();
+                }
             })
             .fail(function(error) {
                 console.error(error);
